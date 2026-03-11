@@ -15,7 +15,7 @@ This is a fork of [EVE-X-Preview](https://github.com/g0nzo83/EVE-X-Preview) by *
 - **Thumbnail grouping** — organize characters into named groups with custom border colors
 - **Attack alerts** — thumbnail flashes red when a character takes incoming fire
 - **Session timer** — shows how long each character has been logged in
-- **System name overlay** — displays the current solar system on each thumbnail
+- **System name overlay** — displays the current solar system on each thumbnail (Updates when you jump gates as the system needs to update in your game logs.)
 - **Click-through mode** — make thumbnails transparent to mouse clicks with a hotkey
 - **Auto-save positions** — thumbnail positions persist automatically after dragging
 - **FPS limiter** — built-in RTSS profile integration for capping background client FPS (This still requires the user to have RTSS installed)
@@ -53,7 +53,7 @@ When enabled, monitors your EVE game logs for incoming combat. If a character st
 Shows how long each character has been logged in, right on the thumbnail. Updates in real-time.
 
 ### System Name Display
-Reads your EVE game logs and shows the current solar system on each thumbnail.
+Reads your EVE game logs and shows the current solar system on each thumbnail. (Updates when you jump gates as the system needs to update in your game logs.)
 
 ### Click-Through Mode
 Toggle a hotkey (F12 by default) to make all thumbnails click-through, so they don't steal focus when you're trying to interact with something behind them.
