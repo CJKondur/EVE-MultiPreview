@@ -96,6 +96,8 @@ If you're migrating from EVE-X-Preview, just drop the exe in the same folder as 
 
 **Note:** Some settings require a restart. Close the settings window for changes to take effect.
 
+**Windows SmartScreen:** On first run, Windows may show a "Windows protected your PC" warning since the exe isn't code-signed. Click **"More info"** → **"Run anyway"**. This is normal for community-built tools.
+
 ## Running from Source
 
 1. Install [AutoHotkey v2](https://www.autohotkey.com/)
