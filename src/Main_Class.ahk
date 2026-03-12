@@ -428,12 +428,11 @@ Class Main_Class extends ThumbWindow {
                 nextIdx := FilteredList.Length
         }
         
-        ; Activate using the virtual key trick (gets foreground permission)
+        ; Activate directly — fast path, no virtual key overhead
         targetHwnd := FilteredList[nextIdx]
         if (DllCall("IsIconic", "UInt", targetHwnd))
             This.ShowWindowAsync(targetHwnd)
-        This.ActivateHwnd := targetHwnd
-        SendEvent("{Blind}{" Main_Class.virtualKey "}")
+        This._FastActivate(targetHwnd)
     }
 
     ; Toggle click-through mode on all thumbnail windows
@@ -533,6 +532,17 @@ Class Main_Class extends ThumbWindow {
                         if (pos > 0)
                             lastSystem := Trim(SubStr(A_LoopReadLine, pos + 4), "`n `r")
                     }
+                    ; Parse "Undocking from X to Y solar system." for current system
+                    else if (InStr(A_LoopReadLine, "Undocking from")) {
+                        pos := InStr(A_LoopReadLine, " to ", , InStr(A_LoopReadLine, "Undocking from"))
+                        if (pos > 0) {
+                            sysName := Trim(SubStr(A_LoopReadLine, pos + 4), "`n `r")
+                            ; Strip trailing " solar system." if present
+                            if (InStr(sysName, " solar system."))
+                                sysName := SubStr(sysName, 1, InStr(sysName, " solar system.") - 1)
+                            lastSystem := sysName
+                        }
+                    }
                 }
                 if (charName != "" && lastSystem != "")
                     This._CharSystems[charName] := lastSystem
@@ -556,63 +566,71 @@ Class Main_Class extends ThumbWindow {
                     continue
 
                 filePath := A_LoopFileFullPath
-                fileSize := FileGetSize(filePath)
+                isFirstScan := !This._LastCombatLines.Has(filePath)
 
-                ; First time seeing this file: just record baseline, don't scan
-                if (!This._LastCombatLines.Has(filePath)) {
-                    This._LastCombatLines[filePath] := fileSize
-                    continue
-                }
-
-                ; Skip if file hasn't grown
-                prevSize := This._LastCombatLines[filePath]
-                if (fileSize <= prevSize)
-                    continue
-                This._LastCombatLines[filePath] := fileSize
-
-                ; Read file to get character name and check NEW lines for combat
+                ; Read file: get character name and count total lines
                 charName := ""
                 hasCombat := false
                 lineNum := 0
-                ; Estimate new lines from byte growth (no artificial minimum)
-                newBytes := fileSize - prevSize
-                estNewLines := Ceil(newBytes / 60)
-                if (estNewLines < 1)
-                    estNewLines := 1
+                lastKnownLine := isFirstScan ? 999999999 : This._LastCombatLines[filePath]
 
                 loop read filePath {
                     lineNum++
                     ; Get character name from header
                     if (lineNum <= 5 && InStr(A_LoopReadLine, "Listener:"))
                         charName := Trim(StrReplace(A_LoopReadLine, "Listener:", ""), " `t")
-                }
 
-                ; Only check the new lines at the end
-                if (charName != "" && lineNum > 0) {
-                    startLine := lineNum > estNewLines ? lineNum - estNewLines : 1
-                    currentLine := 0
-                    loop read filePath {
-                        currentLine++
-                        if (currentLine < startLine)
-                            continue
-                        ; Any new (combat) line = under attack
-                        if (InStr(A_LoopReadLine, "(combat)"))
+                    ; Only check lines AFTER the last known line
+                    if (lineNum <= lastKnownLine)
+                        continue
+
+                    ; Only alert on INCOMING damage:
+                    ;   - color=0xffcc0000 = red damage text (incoming hits)
+                    ;   - "misses you" = incoming miss
+                    ; Ignore outgoing damage (color=0xff00ffff = cyan, "to" target)
+                    if (InStr(A_LoopReadLine, "(combat)")) {
+                        if (InStr(A_LoopReadLine, "0xffcc0000") || InStr(A_LoopReadLine, "misses you"))
                             hasCombat := true
                     }
-                    if (hasCombat) {
-                        ; Don't re-alert if dismissed within last 30 seconds
-                        if (This._AlertDismissed.Has(charName) && A_TickCount - This._AlertDismissed[charName] < 30000)
-                            continue
-                        This._AttackAlerts[charName] := A_TickCount
-                    }
+                }
+
+                ; Update baseline to current line count
+                This._LastCombatLines[filePath] := lineNum
+
+                if (charName != "" && hasCombat) {
+                    ; Don't re-alert if dismissed within last 3 seconds
+                    if (This._AlertDismissed.Has(charName) && A_TickCount - This._AlertDismissed[charName] < 3000)
+                        continue
+                    This._AttackAlerts[charName] := A_TickCount
                 }
             }
         }
 
-        ; Expire old alerts (no combat for 15 seconds)
+        ; Expire old alerts (no combat for 5 seconds) and restore borders
         for charName, lastTick in This._AttackAlerts.Clone() {
-            if (A_TickCount - lastTick > 15000)
+            if (A_TickCount - lastTick > 5000) {
                 This._AttackAlerts.Delete(charName)
+                This._RestoreBorderColor(charName)
+            }
+        }
+    }
+
+    ; Restore the normal border color for a character after an alert clears
+    _RestoreBorderColor(charName) {
+        for eveHwnd, thumbObj in This.ThumbWindows.OwnProps() {
+            try {
+                title := thumbObj["Window"].Title
+                cleanName := RegExReplace(title, "^EVE - ", "")
+                if (cleanName = charName) {
+                    ; Check for custom per-character border color
+                    if (This.CustomColorsGet.Has(title) && This.CustomColorsGet[title].Has("IABorder"))
+                        thumbObj["Border"].BackColor := This.CustomColorsGet[title]["IABorder"]
+                    else
+                        thumbObj["Border"].BackColor := This.InactiveClientBorderColor
+                    thumbObj["Border"].Show("NoActivate")
+                    return
+                }
+            }
         }
     }
 
@@ -620,6 +638,21 @@ Class Main_Class extends ThumbWindow {
     _FlashAttackBorders() {
         if (!This.EnableAttackAlerts || This._AttackAlerts.Count = 0)
             return
+
+        ; Clear alert when the attacked client is brought to focus
+        try {
+            activeHwnd := WinGetID("A")
+            activeTitle := WinGetTitle("ahk_id " activeHwnd)
+            if (InStr(activeTitle, "EVE - ")) {
+                cleanActive := RegExReplace(activeTitle, "^EVE - ", "")
+                if (This._AttackAlerts.Has(cleanActive)) {
+                    This._AttackAlerts.Delete(cleanActive)
+                    This._RestoreBorderColor(cleanActive)
+                    if (This._AttackAlerts.Count = 0)
+                        return
+                }
+            }
+        }
 
         This._AttackFlashState := !This._AttackFlashState
 
@@ -864,9 +897,8 @@ Class Main_Class extends ThumbWindow {
             }
         }
         Else {    
-            ; Use the virtual key to trigger the internal Hotkey.        
-            This.ActivateHwnd := hwnd
-            SendEvent("{Blind}{" Main_Class.virtualKey "}")            
+            ; Direct fast activation — bypass the virtual key round-trip
+            This._FastActivate(hwnd)
         }
 
         ;Sets the timer to minimize client if the user enable this.
@@ -875,18 +907,30 @@ Class Main_Class extends ThumbWindow {
             SetTimer(This.timer, -This.MinimizeDelay)
         }
     }
+
+    ; Fast direct window activation — bypasses the virtual key SendEvent round-trip
+    _FastActivate(hwnd) {
+        try {
+            ; Allow our process to set foreground window
+            DllCall("AllowSetForegroundWindow", "UInt", DllCall("GetCurrentProcessId", "UInt"))
+            ; Direct activation — no keystroke overhead
+            if !DllCall("SetForegroundWindow", "Ptr", hwnd) {
+                ; Fallback: SwitchToThisWindow forces activation even if locked
+                DllCall("SwitchToThisWindow", "Ptr", hwnd, "Int", 1)
+            }
+            ; Ensure window is on top
+            DllCall("BringWindowToTop", "Ptr", hwnd)
+
+            ; If the user has selected to always maximize, ensure proper size
+            if (This.AlwaysMaximize && WinGetMinMax("ahk_id " hwnd) = 0) || ( This.TrackClientPossitions && This.ClientPossitions[This.CleanTitle(WinGetTitle("Ahk_id " hwnd))]["IsMaximized"] && WinGetMinMax("ahk_id " hwnd) = 0 )
+                This.ShowWindowAsync(hwnd, 3)
+        }
+    }
+
     ;The function for the Internal Hotkey to bring a not minimized window in foreground 
     ActivateForgroundWindow(*) {
-        ; 2 attempts for brining the window in foreground 
-        try {
-            if !(DllCall("SetForegroundWindow", "UInt", This.ActivateHwnd)) {
-                DllCall("SetForegroundWindow", "UInt", This.ActivateHwnd)
-            }
-
-                ;If the user has selected to always maximize. this prevents wrong sized windows on heavy load.
-            if (This.AlwaysMaximize && WinGetMinMax("ahk_id " This.ActivateHwnd) = 0) || ( This.TrackClientPossitions && This.ClientPossitions[This.CleanTitle(WinGetTitle("Ahk_id " This.ActivateHwnd))]["IsMaximized"] && WinGetMinMax("ahk_id " This.ActivateHwnd) = 0 )
-                This.ShowWindowAsync(This.ActivateHwnd, 3)
-        }       
+        ; Legacy fallback — kept for the internal virtual key hotkey
+        This._FastActivate(This.ActivateHwnd)
         Return 
     }
 
@@ -1076,8 +1120,22 @@ Class Main_Class extends ThumbWindow {
     }
 
     SaveJsonToFile() {
-        FileDelete("EVE MultiPreview.json")
-        FileAppend(JSON.Dump(This._JSON, , "    "), "EVE MultiPreview.json")
+        tmpFile := "EVE MultiPreview.json.tmp"
+        try {
+            if FileExist(tmpFile)
+                FileDelete(tmpFile)
+            FileAppend(JSON.Dump(This._JSON, , "    "), tmpFile)
+            ; Atomic replace: delete original, rename temp
+            if FileExist("EVE MultiPreview.json")
+                FileDelete("EVE MultiPreview.json")
+            FileMove(tmpFile, "EVE MultiPreview.json")
+        } catch as e {
+            ; Fallback: direct write if temp approach fails
+            try {
+                FileDelete("EVE MultiPreview.json")
+                FileAppend(JSON.Dump(This._JSON, , "    "), "EVE MultiPreview.json")
+            }
+        }
     }
 }
 

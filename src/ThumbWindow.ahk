@@ -418,61 +418,76 @@ Class ThumbWindow extends Propertys {
                 This._AlertDismissed[Win_Title] := A_TickCount
             }
 
+            ; Skip expensive border recomputation if the active window hasn't changed
+            if (This.HasProp("_lastActiveBorderTitle") && This._lastActiveBorderTitle = Win_Title)
+                return
+            This._lastActiveBorderTitle := Win_Title
+
             for EW_Hwnd, Objs in This.ThumbWindows.OwnProps() {
                 for names, GuiObj in Objs {
                     if (names = "Border") {
-                        if ((!This.ShowAllColoredBorders && !This.ShowClientHighlightBorder) || (!This.ShowAllColoredBorders && This.ShowClientHighlightBorder)) {
-                            GuiObj.Show("Hide")
-                        }
-                        else {
-                            if (This.ThumbWindows.%EW_Hwnd%["Window"].Name = Win_Title)
-                                continue
-                            else if (!This.CustomColorsActive && This.ShowAllColoredBorders) {
-                                ; Check group color first, then fall back to inactive border color
-                                borderTitle := This.CleanTitle(WinGetTitle("Ahk_Id " EW_Hwnd))
-                                groupColor := This.GetGroupColor(borderTitle)
-                                if (groupColor != "") {
-                                    try
-                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := groupColor
-                                    catch
-                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
-                                } else {
-                                    try
-                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := This.InactiveClientBorderColor
-                                    catch
-                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
-                                }
-                                This.BorderSize(This.ThumbWindows.%EW_Hwnd%["Window"].Hwnd, This.ThumbWindows.%EW_Hwnd%["Border"].Hwnd, This.InactiveClientBorderthickness)
-                            }
-                            else if (This.CustomColorsActive && This.ShowAllColoredBorders) {
-                                title := This.CleanTitle(WinGetTitle("Ahk_Id " EW_Hwnd))
-                                if (This.CustomColorsGet[title]["Char"] != "" && This.CustomColorsGet[title]["IABorder"] != "") {
-                                    try
-                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := This.CustomColorsGet[title]["IABorder"]
-                                    catch
-                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
-                                }
-                                else {
-                                    try
-                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := This.InactiveClientBorderColor
-                                    catch
-                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
-                                }
-                                This.BorderSize(This.ThumbWindows.%EW_Hwnd%["Window"].Hwnd, This.ThumbWindows.%EW_Hwnd%["Border"].Hwnd, This.InactiveClientBorderthickness)
+                        if (This.ThumbWindows.%EW_Hwnd%["Window"].Name = Win_Title)
+                            continue
+
+                        ; Determine the border color for this INACTIVE thumbnail
+                        borderColor := ""
+                        borderTitle := This.CleanTitle(WinGetTitle("Ahk_Id " EW_Hwnd))
+
+                        ; Custom per-character colors take priority
+                        if (This.CustomColorsActive) {
+                            try {
+                                if (This.CustomColorsGet[borderTitle]["Char"] != "" && This.CustomColorsGet[borderTitle]["IABorder"] != "")
+                                    borderColor := This.CustomColorsGet[borderTitle]["IABorder"]
                             }
                         }
+
+                        ; Group colors only when ShowAllColoredBorders is ON
+                        if (borderColor = "" && This.ShowAllColoredBorders) {
+                            groupColor := This.GetGroupColor(borderTitle)
+                            if (groupColor != "")
+                                borderColor := groupColor
+                        }
+
+                        ; Fall back to Inactive Border Color
+                        if (borderColor = "") {
+                            try
+                                borderColor := This.InactiveClientBorderColor
+                            catch
+                                borderColor := "8A8A8A"
+                        }
+
+                        ; Apply the border color with INACTIVE border thickness
+                        try
+                            This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := borderColor
+                        catch
+                            This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
+                        This.BorderSize(This.ThumbWindows.%EW_Hwnd%["Window"].Hwnd, This.ThumbWindows.%EW_Hwnd%["Border"].Hwnd, This.InactiveClientBorderthickness)
+                        GuiObj.Show("NoActivate")
                     }
                 }
             }
+            ; FOCUSED/ACTIVE window border
             if (!This.Thumbnail_visibility.Has(Win_Title) && This.ShowClientHighlightBorder) {
-                if (This.CustomColorsActive && This.CustomColorsGet[Win_Title]["Char"] != "" && This.CustomColorsGet[Win_Title]["Border"] != "") {
-                    This.ThumbWindows.%EVEHwnd%["Border"].BackColor := This.CustomColorsGet[Win_Title]["Border"]
-                    This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
+                activeColor := ""
+                ; Custom per-character active border color
+                if (This.CustomColorsActive) {
+                    try {
+                        if (This.CustomColorsGet[Win_Title]["Char"] != "" && This.CustomColorsGet[Win_Title]["Border"] != "")
+                            activeColor := This.CustomColorsGet[Win_Title]["Border"]
+                    }
                 }
-                else {
-                    This.ThumbWindows.%EVEHwnd%["Border"].BackColor := This.ClientHighligtColor
-                    This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
+                ; Group color for focused window (when groups enabled)
+                if (activeColor = "" && This.ShowAllColoredBorders) {
+                    groupColor := This.GetGroupColor(Win_Title)
+                    if (groupColor != "")
+                        activeColor := groupColor
                 }
+                ; Fall back to Highlight Color
+                if (activeColor = "")
+                    activeColor := This.ClientHighligtColor
+
+                This.ThumbWindows.%EVEHwnd%["Border"].BackColor := activeColor
+                This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
                 This.ThumbWindows.%EVEHwnd%["Border"].Show("NoActivate")
             }
         }

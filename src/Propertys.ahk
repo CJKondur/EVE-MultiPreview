@@ -134,10 +134,27 @@ class Propertys extends TrayMenu {
         for idx, group in This.ThumbnailGroups {
             for cidx, char in group["Characters"] {
                 if (char = charName)
-                    return group["Color"]
+                    return StrReplace(StrReplace(group["Color"], "#", ""), "0x", "")
             }
         }
         return ""
+    }
+
+    SettingsWindowWidth {
+        get {
+            if (!This._JSON["global_Settings"].Has("SettingsWindowWidth"))
+                This._JSON["global_Settings"]["SettingsWindowWidth"] := 750
+            return This._JSON["global_Settings"]["SettingsWindowWidth"]
+        }
+        set => This._JSON["global_Settings"]["SettingsWindowWidth"] := value
+    }
+    SettingsWindowHeight {
+        get {
+            if (!This._JSON["global_Settings"].Has("SettingsWindowHeight"))
+                This._JSON["global_Settings"]["SettingsWindowHeight"] := 580
+            return This._JSON["global_Settings"]["SettingsWindowHeight"]
+        }
+        set => This._JSON["global_Settings"]["SettingsWindowHeight"] := value
     }
 
 

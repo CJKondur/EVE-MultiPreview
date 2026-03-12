@@ -11,7 +11,7 @@ Class Settings_Gui {
         This.NeedRestart := 0
         SetControlDelay(-1)
 
-        This.S_Gui := Gui("+OwnDialogs +MinimizeBox -MaximizeBox -Resize SysMenu +MinSize750x580")
+        This.S_Gui := Gui("+OwnDialogs +MinimizeBox +MaximizeBox +Resize SysMenu +MinSize750x580")
         This.S_Gui.Title := "EVE MultiPreview - Settings"
         This.S_Gui.BackColor := Settings_Gui.BG_DARK
 
@@ -59,11 +59,11 @@ Class Settings_Gui {
 
         ; ===== Sidebar (custom dark text controls) =====
         This.SidebarItems := Map()
-        This.SidebarKeys := ["General", "Thumbnails", "Layout", "Hotkeys", "Colors", "Groups", "Alerts", "Visibility", "Client", "FPS Limiter"]
-        sidebarLabels := ["  ⚙  General", "  🖼  Thumbnails", "  📐  Layout", "  ⌨  Hotkeys", "  🎨  Colors", "  📦  Groups", "  🚨  Alerts", "  👁  Visibility", "  🖥  Client", "  🚀  FPS Limiter"]
+        This.SidebarKeys := ["General", "Thumbnails", "Layout", "Hotkeys", "Colors", "Groups", "Alerts", "Visibility", "Client", "FPS Limiter", "About"]
+        sidebarLabels := ["  ⚙  General", "  🖼  Thumbnails", "  📐  Layout", "  ⌨  Hotkeys", "  🎨  Colors", "  📦  Groups", "  🚨  Alerts", "  👁  Visibility", "  🖥  Client", "  🚀  FPS Limiter", "  ℹ  About"]
 
         ; Sidebar background panel
-        This.S_Gui.Add("Text", "x15 y55 w155 h515 Background" Settings_Gui.BG_SIDEBAR)
+        This._sidebarBG := This.S_Gui.Add("Text", "x15 y55 w155 h515 Background" Settings_Gui.BG_SIDEBAR)
 
         yPos := 58
         for idx, label in sidebarLabels {
@@ -83,6 +83,7 @@ Class Settings_Gui {
         ; ===== Panels container area =====
         This.S_Gui.Controls := Map()
         This.S_Gui.AdvControls := Map()  ; Advanced-only controls per panel
+        This._colorPreviews := Map()  ; Color preview boxes keyed by edit control name
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
 
         This.Panel_General()
@@ -95,27 +96,57 @@ Class Settings_Gui {
         This.Panel_Visibility()
         This.Panel_Client()
         This.Panel_FPSLimiter()
+        This.Panel_About()
 
         ; Show first panel, hide rest
         This.SwitchPanel("General")
-        This.S_Gui.Show("w750 h580 Center")
+        ; Restore persisted window size
+        sw := This.SettingsWindowWidth
+        sh := This.SettingsWindowHeight
+        This.S_Gui.Show("w" sw " h" sh " Center")
         This.S_Gui.OnEvent("Close", (*) => GuiDestroy())
+        This.S_Gui.OnEvent("Size", (guiObj, minMax, w, h) => This._OnGuiSize(w, h))
         ctlHandler := This._ctlColorHandler
         darkBrushHandle := This._darkBrush
 
         GuiDestroy(*) {
+            ; Save client area size before destroying
+            try {
+                rect := Buffer(16, 0)
+                DllCall("GetClientRect", "Ptr", This.S_Gui.Hwnd, "Ptr", rect)
+                gw := NumGet(rect, 8, "Int")   ; right = client width
+                gh := NumGet(rect, 12, "Int")  ; bottom = client height
+                if (gw > 0 && gh > 0) {
+                    This.SettingsWindowWidth := gw
+                    This.SettingsWindowHeight := gh
+                    This.Save_Settings()
+                }
+            }
             ; Unregister message handlers to stop performance impact
             OnMessage(0x0133, ctlHandler, 0)  ; WM_CTLCOLOREDIT
             OnMessage(0x0134, ctlHandler, 0)  ; WM_CTLCOLORLISTBOX
             DllCall("DeleteObject", "Ptr", darkBrushHandle)
             This.S_Gui.Destroy()
-            if (This.NeedRestart)
+            if (This.NeedRestart) {
+                This.SaveJsonToFile()
                 Reload()
+            }
         }
     }
 
     SidebarClick(panelName, *) {
         This.SwitchPanel(panelName)
+    }
+
+    ; Handle window resize — scale sidebar and reposition bottom controls
+    _OnGuiSize(w, h) {
+        try {
+            ; Stretch sidebar background to fill height
+            sidebarH := h - 60  ; 55px top offset + 5px padding
+            This._sidebarBG.Move(, , , sidebarH)
+            ; Move Simple Mode checkbox to bottom of sidebar
+            This._simpleModeChk.Move(, h - 28)
+        }
     }
 
     SwitchPanel(name) {
@@ -273,6 +304,11 @@ Class Settings_Gui {
         This.AddLabelCheck(A, "Show Text Overlay:", y, "ShowThumbnailTextOverlay", This.ShowThumbnailTextOverlay).OnEvent("Click", (obj, *) => This._tHandler(obj))
         y += 30
         This.AddLabelEdit(A, "Text Color (Hex/RGB):", y, "ThumbnailTextColor", This.ThumbnailTextColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This._colorPreviews["ThumbnailTextColor"] := This.S_Gui.Add("Text", "x575 y" y " w22 h22 Background" StrReplace(This.ThumbnailTextColor, "#", ""))
+        A.Push This._colorPreviews["ThumbnailTextColor"]
+        btnPick := This.S_Gui.Add("Button", "x600 y" y " w30 h22", "🎨")
+        btnPick.OnEvent("Click", (obj, *) => This._PickColor("ThumbnailTextColor"))
+        A.Push btnPick
         y += 30
         This.AddLabelEdit(A, "Text Size:", y, "ThumbnailTextSize", This.ThumbnailTextSize, 50).OnEvent("Change", (obj, *) => This._tHandler(obj))
         y += 30
@@ -287,6 +323,11 @@ Class Settings_Gui {
 
         y += 35
         This.AddLabelEdit(A, "Highlight Color (Hex/RGB):", y, "ClientHighligtColor", This.ClientHighligtColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This._colorPreviews["ClientHighligtColor"] := This.S_Gui.Add("Text", "x575 y" y " w22 h22 Background" StrReplace(This.ClientHighligtColor, "#", ""))
+        A.Push This._colorPreviews["ClientHighligtColor"]
+        btnPick := This.S_Gui.Add("Button", "x600 y" y " w30 h22", "🎨")
+        btnPick.OnEvent("Click", (obj, *) => This._PickColor("ClientHighligtColor"))
+        A.Push btnPick
         y += 30
         This.AddLabelEdit(A, "Highlight Border (px):", y, "ClientHighligtBorderthickness", This.ClientHighligtBorderthickness, 50).OnEvent("Change", (obj, *) => This._tHandler(obj))
         y += 30
@@ -295,8 +336,18 @@ Class Settings_Gui {
         This.AddLabelEdit(A, "Inactive Border (px):", y, "InactiveClientBorderthickness", This.InactiveClientBorderthickness, 50).OnEvent("Change", (obj, *) => This._tHandler(obj))
         y += 30
         This.AddLabelEdit(A, "Inactive Border Color:", y, "InactiveClientBorderColor", This.InactiveClientBorderColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This._colorPreviews["InactiveClientBorderColor"] := This.S_Gui.Add("Text", "x575 y" y " w22 h22 Background" StrReplace(This.InactiveClientBorderColor, "#", ""))
+        A.Push This._colorPreviews["InactiveClientBorderColor"]
+        btnPick := This.S_Gui.Add("Button", "x600 y" y " w30 h22", "🎨")
+        btnPick.OnEvent("Click", (obj, *) => This._PickColor("InactiveClientBorderColor"))
+        A.Push btnPick
         y += 30
         This.AddLabelEdit(A, "Background Color:", y, "ThumbnailBackgroundColor", This.ThumbnailBackgroundColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This._colorPreviews["ThumbnailBackgroundColor"] := This.S_Gui.Add("Text", "x575 y" y " w22 h22 Background" StrReplace(This.ThumbnailBackgroundColor, "#", ""))
+        A.Push This._colorPreviews["ThumbnailBackgroundColor"]
+        btnPick := This.S_Gui.Add("Button", "x600 y" y " w30 h22", "🎨")
+        btnPick.OnEvent("Click", (obj, *) => This._PickColor("ThumbnailBackgroundColor"))
+        A.Push btnPick
     }
 
     _tHandler(obj) {
@@ -352,7 +403,58 @@ Class Settings_Gui {
             This.ShowSystemName := obj.value
             This.NeedRestart := 1
         }
+        ; Sync color preview if this field has one
+        This._UpdateColorPreview(obj.name, obj.value)
         SetTimer(This.Save_Settings_Delay_Timer, -200)
+    }
+
+    ; Update a color preview swatch when its associated edit field changes
+    _UpdateColorPreview(fieldName, value) {
+        if (This._colorPreviews.Has(fieldName)) {
+            try {
+                hex := StrReplace(StrReplace(value, "#", ""), "0x", "")
+                This._colorPreviews[fieldName].Opt("Background" hex)
+                This._colorPreviews[fieldName].Redraw()
+            }
+        }
+    }
+
+    ; Windows native color picker using ChooseColor API
+    _PickColor(fieldName) {
+        ; Parse current color from the edit
+        currentHex := Trim(This.S_Gui[fieldName].Value, "# `n`r`t")
+        if (StrLen(currentHex) = 6) {
+            r := "0x" SubStr(currentHex, 1, 2)
+            g := "0x" SubStr(currentHex, 3, 2)
+            b := "0x" SubStr(currentHex, 5, 2)
+            initColor := (Integer(b) << 16) | (Integer(g) << 8) | Integer(r)
+        } else {
+            initColor := 0x00F7C34F  ; Default light blue (BGR)
+        }
+
+        ; Allocate CHOOSECOLOR structure
+        ccSize := A_PtrSize = 8 ? 72 : 36
+        cc := Buffer(ccSize, 0)
+        customColors := Buffer(64, 0)
+
+        NumPut("UInt", ccSize, cc, 0)
+        NumPut("UPtr", This.S_Gui.Hwnd, cc, A_PtrSize)
+        NumPut("UInt", initColor, cc, A_PtrSize * 3)
+        NumPut("UPtr", customColors.Ptr, cc, A_PtrSize * 4)
+        NumPut("UInt", 0x00000003, cc, A_PtrSize * 5)  ; CC_RGBINIT | CC_FULLOPEN
+
+        result := DllCall("comdlg32\ChooseColorW", "Ptr", cc.Ptr)
+
+        if (result) {
+            colorRef := NumGet(cc, A_PtrSize * 3, "UInt")
+            r := colorRef & 0xFF
+            g := (colorRef >> 8) & 0xFF
+            b := (colorRef >> 16) & 0xFF
+            hexColor := Format("#{:02x}{:02x}{:02x}", r, g, b)
+
+            This.S_Gui[fieldName].Value := hexColor
+            This._UpdateColorPreview(fieldName, hexColor)
+        }
     }
 
     ; ============================================================
@@ -704,6 +806,7 @@ Class Settings_Gui {
         ; Hidden edit for the hex value
         This.S_Gui.SetFont("s10 w400 c222222", "Segoe UI")
         P.Push This.S_Gui.Add("Edit", "x378 y" y " w85 vGroupColor", "#4fc3f7")
+        This.S_Gui["GroupColor"].OnEvent("Change", (obj, *) => This._grpUpdatePreview(obj))
         This.S_Gui.SetFont("s9 w600", "Segoe UI")
         btnPick := This.S_Gui.Add("Button", "x470 y" y " w65 h22", "🎨 Pick")
         P.Push btnPick
@@ -763,13 +866,19 @@ Class Settings_Gui {
                 }
                 This.S_Gui["GroupChars"].Value := chars
                 ; Update color preview
-                try This._grpColorPreview.Opt("Background" StrReplace(color, "#", ""))
+                try {
+                    This._grpColorPreview.Opt("Background" StrReplace(StrReplace(color, "#", ""), "0x", ""))
+                    This._grpColorPreview.Redraw()
+                }
             } else {
                 ; "New Group" selected
                 This.S_Gui["GroupName"].Value := ""
                 This.S_Gui["GroupColor"].Value := "#4fc3f7"
                 This.S_Gui["GroupChars"].Value := ""
-                try This._grpColorPreview.Opt("Background4fc3f7")
+                try {
+                    This._grpColorPreview.Opt("Background4fc3f7")
+                    This._grpColorPreview.Redraw()
+                }
             }
         }
     }
@@ -822,6 +931,14 @@ Class Settings_Gui {
             This._grpRefreshDDL("")
             This.NeedRestart := 1
             SetTimer(This.Save_Settings_Delay_Timer, -200)
+        }
+    }
+
+    _grpUpdatePreview(obj) {
+        try {
+            hex := StrReplace(StrReplace(obj.Value, "#", ""), "0x", "")
+            This._grpColorPreview.Opt("Background" hex)
+            This._grpColorPreview.Redraw()
         }
     }
 
@@ -881,7 +998,10 @@ Class Settings_Gui {
             hexColor := Format("#{:02x}{:02x}{:02x}", r, g, b)
 
             This.S_Gui["GroupColor"].Value := hexColor
-            try This._grpColorPreview.Opt("Background" Format("{:02x}{:02x}{:02x}", r, g, b))
+            try {
+                This._grpColorPreview.Opt("Background" Format("{:02x}{:02x}{:02x}", r, g, b))
+                This._grpColorPreview.Redraw()
+            }
         }
     }
 
@@ -1445,6 +1565,125 @@ Class Settings_Gui {
         }
         else
             return []
+    }
+    ; ============================================================
+    ; PANEL: About
+    ; ============================================================
+    Panel_About() {
+        static APP_VERSION := "1.0.4"
+        static GITHUB_URL := "https://github.com/CJKondur/EVE-MultiPreview"
+
+        P := []
+        This.S_Gui.Controls["About"] := P
+
+        ; --- App Title ---
+        This.S_Gui.SetFont("s16 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x190 y60 w400 h40 BackgroundTrans", "EVE MultiPreview")
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; --- Version ---
+        y := 105
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w100 h24 +0x200 BackgroundTrans", "Version:")
+        This.S_Gui.SetFont("s11 w700 cFFFFFF", "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x290 y" y " w200 h24 +0x200 BackgroundTrans", "v" APP_VERSION)
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; --- GitHub Link ---
+        y += 40
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w100 h24 +0x200 BackgroundTrans", "GitHub:")
+        This.S_Gui.SetFont("s10 w400 c53a6ff", "Segoe UI")
+        ghLink := This.S_Gui.Add("Text", "x290 y" y " w350 h24 +0x200 BackgroundTrans", GITHUB_URL)
+        ghLink.OnEvent("Click", (*) => Run(GITHUB_URL))
+        P.Push ghLink
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; --- Separator ---
+        y += 40
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h1 +0x10")
+        y += 20
+
+        ; --- Check for Updates ---
+        This.S_Gui.SetFont("s10 w600", "Segoe UI")
+        btnUpdate := This.S_Gui.Add("Button", "x190 y" y " w200 h35", "🔄 Check for Updates")
+        btnUpdate.OnEvent("Click", (*) => This._CheckForUpdates(APP_VERSION, GITHUB_URL))
+        P.Push btnUpdate
+
+        ; Update status text
+        This.S_Gui.SetFont("s10 w400 c888888", "Segoe UI")
+        This._updateStatus := This.S_Gui.Add("Text", "x190 y" (y + 45) " w400 h24 BackgroundTrans", "")
+        P.Push This._updateStatus
+
+        ; --- Credits ---
+        y += 90
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h1 +0x10")
+        y += 15
+        This.S_Gui.SetFont("s10 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w200 h24 BackgroundTrans", "Credits")
+        This.S_Gui.SetFont("s9 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+        y += 28
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h80 BackgroundTrans",
+            "Developed by CJ Kondur`n"
+            "`nOriginal EVE-X-Preview by g0nzo83 (John Xer)`n"
+            "Licensed under MIT")
+
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+    }
+
+    ; Check for updates via GitHub Releases API
+    _CheckForUpdates(currentVersion, githubUrl) {
+        This._updateStatus.Value := "Checking for updates..."
+        try {
+            whr := ComObject("WinHttp.WinHttpRequest.5.1")
+            whr.Open("GET", "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest", false)
+            whr.SetRequestHeader("User-Agent", "EVE-MultiPreview/" currentVersion)
+            whr.Send()
+
+            if (whr.Status = 200) {
+                body := whr.ResponseText
+                if (RegExMatch(body, '"tag_name"\s*:\s*"v?([^"]+)"', &m)) {
+                    latestVersion := m[1]
+                    cmp := This._CompareVersions(currentVersion, latestVersion)
+                    if (cmp < 0) {
+                        This._updateStatus.Opt("c00ff88")
+                        This._updateStatus.Value := "🎉 New version v" latestVersion " available!"
+                        result := MsgBox("A new version (v" latestVersion ") is available!`n`nCurrent: v" currentVersion "`nLatest: v" latestVersion "`n`nOpen the download page?", "Update Available", "YesNo")
+                        if (result = "Yes")
+                            Run(githubUrl "/releases/latest")
+                    } else {
+                        This._updateStatus.Opt("c00ff88")
+                        This._updateStatus.Value := "✅ You're running the latest version (v" currentVersion ")"
+                    }
+                } else {
+                    This._updateStatus.Opt("ce94560")
+                    This._updateStatus.Value := "⚠ Could not parse version from response"
+                }
+            } else if (whr.Status = 404) {
+                This._updateStatus.Opt("c888888")
+                This._updateStatus.Value := "No releases found yet"
+            } else {
+                This._updateStatus.Opt("ce94560")
+                This._updateStatus.Value := "⚠ HTTP " whr.Status " — check manually"
+            }
+        } catch as e {
+            This._updateStatus.Opt("ce94560")
+            This._updateStatus.Value := "⚠ Network error: " e.Message
+        }
+    }
+
+    ; Compare version strings "1.0.4" vs "1.0.5" — returns -1 if a<b, 0 if equal, 1 if a>b
+    _CompareVersions(a, b) {
+        partsA := StrSplit(a, ".")
+        partsB := StrSplit(b, ".")
+        maxLen := Max(partsA.Length, partsB.Length)
+        loop maxLen {
+            numA := (A_Index <= partsA.Length) ? Integer(partsA[A_Index]) : 0
+            numB := (A_Index <= partsB.Length) ? Integer(partsB[A_Index]) : 0
+            if (numA < numB)
+                return -1
+            if (numA > numB)
+                return 1
+        }
+        return 0
     }
 }
 ;Class End
