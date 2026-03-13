@@ -897,8 +897,11 @@ Class Main_Class extends ThumbWindow {
             }
         }
         Else {    
-            ; Direct fast activation — bypass the virtual key round-trip
-            This._FastActivate(hwnd)
+            ; Use the virtual key to trigger the internal Hotkey.
+            ; This SendEvent gives Windows legitimate foreground activation rights
+            ; because it processes as a real keyboard input event.
+            This.ActivateHwnd := hwnd
+            SendEvent("{Blind}{" Main_Class.virtualKey "}")            
         }
 
         ;Sets the timer to minimize client if the user enable this.
@@ -908,20 +911,14 @@ Class Main_Class extends ThumbWindow {
         }
     }
 
-    ; Fast direct window activation — bypasses the virtual key SendEvent round-trip
+    ; Fast direct window activation — used only for char select cycling where
+    ; we have an hwnd but no title-based hotkey context
     _FastActivate(hwnd) {
         try {
-            ; Allow our process to set foreground window
-            DllCall("AllowSetForegroundWindow", "UInt", DllCall("GetCurrentProcessId", "UInt"))
-            ; Direct activation — no keystroke overhead
-            if !DllCall("SetForegroundWindow", "Ptr", hwnd) {
-                ; Fallback: SwitchToThisWindow forces activation even if locked
-                DllCall("SwitchToThisWindow", "Ptr", hwnd, "Int", 1)
+            if !(DllCall("SetForegroundWindow", "UInt", hwnd)) {
+                DllCall("SetForegroundWindow", "UInt", hwnd)
             }
-            ; Ensure window is on top
-            DllCall("BringWindowToTop", "Ptr", hwnd)
 
-            ; If the user has selected to always maximize, ensure proper size
             if (This.AlwaysMaximize && WinGetMinMax("ahk_id " hwnd) = 0) || ( This.TrackClientPossitions && This.ClientPossitions[This.CleanTitle(WinGetTitle("Ahk_id " hwnd))]["IsMaximized"] && WinGetMinMax("ahk_id " hwnd) = 0 )
                 This.ShowWindowAsync(hwnd, 3)
         }
@@ -929,8 +926,16 @@ Class Main_Class extends ThumbWindow {
 
     ;The function for the Internal Hotkey to bring a not minimized window in foreground 
     ActivateForgroundWindow(*) {
-        ; Legacy fallback — kept for the internal virtual key hotkey
-        This._FastActivate(This.ActivateHwnd)
+        ; 2 attempts for bringing the window in foreground 
+        try {
+            if !(DllCall("SetForegroundWindow", "UInt", This.ActivateHwnd)) {
+                DllCall("SetForegroundWindow", "UInt", This.ActivateHwnd)
+            }
+
+            ;If the user has selected to always maximize. this prevents wrong sized windows on heavy load.
+            if (This.AlwaysMaximize && WinGetMinMax("ahk_id " This.ActivateHwnd) = 0) || ( This.TrackClientPossitions && This.ClientPossitions[This.CleanTitle(WinGetTitle("Ahk_id " This.ActivateHwnd))]["IsMaximized"] && WinGetMinMax("ahk_id " This.ActivateHwnd) = 0 )
+                This.ShowWindowAsync(This.ActivateHwnd, 3)
+        }       
         Return 
     }
 
