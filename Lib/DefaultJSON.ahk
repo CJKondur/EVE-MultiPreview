@@ -27,11 +27,70 @@ default_JSON := "
         "SimpleMode": true,
         "SetupCompleted": false,
         "ClickThroughHotkey": "F12",
+        "HideShowThumbnailsHotkey": "",
+        "ProfileCycleForwardHotkey": "",
+        "ProfileCycleBackwardHotkey": "",
         "ShowSessionTimer": true,
-        "ShowSystemName": true,
+        "ShowSystemName": false,
         "PreferredMonitor": 1,
         "ThumbnailGroups": [],
-        "EnableAttackAlerts": false
+        "EnableAttackAlerts": false,
+        "PVEMode": false,
+        "EnableChatLogMonitoring": true,
+        "EnableGameLogMonitoring": true,
+        "ChatLogDirectory": "",
+        "GameLogDirectory": "",
+        "EnabledAlertTypes": {
+            "attack": true,
+            "warp_scramble": true,
+            "decloak": true,
+            "fleet_invite": true,
+            "convo_request": true,
+            "system_change": true
+        },
+        "SeverityColors": {
+            "critical": "#FF0000",
+            "warning": "#FFA500",
+            "info": "#4A9EFF"
+        },
+        "SeverityCooldowns": {
+            "critical": 5,
+            "warning": 15,
+            "info": 30
+        },
+        "SeverityFlashRates": {
+            "critical": 200,
+            "warning": 500,
+            "info": 1000
+        },
+        "SeverityTrayNotify": {
+            "critical": true,
+            "warning": false,
+            "info": false
+        },
+        "EnableAlertSounds": false,
+        "AlertSoundVolume": 100,
+        "AlertSounds": {
+            "attack": "",
+            "warp_scramble": "",
+            "decloak": "",
+            "fleet_invite": "",
+            "convo_request": "",
+            "system_change": ""
+        },
+        "SoundCooldowns": {
+            "attack": 5,
+            "warp_scramble": 5,
+            "decloak": 10,
+            "fleet_invite": 15,
+            "convo_request": 15,
+            "system_change": 30
+        },
+        "LockPositions": false,
+        "HideActiveThumbnail": false,
+        "IndividualThumbnailResize": false,
+        "SettingsWindowWidth": 1080,
+        "SettingsWindowHeight": 900
     },
     "_Profiles": {
         "Default": {
@@ -39,11 +98,7 @@ default_JSON := "
                 "MinimizeInactiveClients": false,
                 "AlwaysMaximize": false,
                 "TrackClientPossitions": false,
-                "Dont_Minimize_Clients": [
-                    "Example Name1",
-                    "Example Name2",
-                    "Example Name3"
-                ]
+                "Dont_Minimize_Clients": []
             },
             "Thumbnail Settings": {
                 "ShowThumbnailTextOverlay": true,
@@ -62,25 +117,23 @@ default_JSON := "
                 "ShowThumbnailsAlwaysOnTop": false,
                 "ShowAllColoredBorders":0,
                 "InactiveClientBorderthickness": 2,
-                "InactiveClientBorderColor": "#8A8A8A"
+                "InactiveClientBorderColor": "#8A8A8A",
+                "NotLoggedInIndicator": "text",
+                "NotLoggedInColor": "#555555"
             },
-            "Hotkeys":[
-                {"Example Name1":"1"},
-                {"Example Name2":"ctrl & 1"},
-                {"Example Name3":"Xbutton1 & 1"},
-                {"Example Name4":"^XButton1 & 1"}
-            ],
+            "Hotkeys":[],
             "Thumbnail Positions": {},
             "Client Possitions": {},
             "Thumbnail Visibility":{},
             "Hotkey Groups":{},
+            "Secondary Thumbnails":{},
             "Custom Colors":{                
                 "cColorActive": "0",
                 "cColors": {
-                    "CharNames": ["Example Char"],
-                    "TextColor": ["FFFFFF"],
-                    "Bordercolor":["FFFFFF"],                
-                    "IABordercolor":["FFFFFF"]                    
+                    "CharNames": [],
+                    "TextColor": [],
+                    "Bordercolor":[],                
+                    "IABordercolor":[]                    
                 }                               
             }
         }

@@ -12,13 +12,22 @@ This is a fork of [EVE-X-Preview](https://github.com/g0nzo83/EVE-X-Preview) by *
 - **Click a thumbnail** to bring that client to the front
 - **Hotkeys** to switch clients without touching the mouse (keyboard and mouse buttons both work)
 - **Multiple profiles** so you can swap between setups quickly
+- **Profile cycling hotkeys** — assign hotkeys to cycle forward/backward through profiles
 - **Thumbnail grouping** — organize characters into named groups with custom border colors
 - **Attack alerts** — thumbnail flashes red when a character takes incoming fire
+- **Alert events panel** — per-event toggles for attack, warp scramble, decloak, fleet invite, convo request, system change
+- **Severity tier system** — Critical/Warning/Info tiers with custom colors, cooldowns, and tray notifications
+- **PVE Mode** — filter NPC/rat damage to only alert on player attacks
+- **Not logged in indicator** — visual marker (text overlay, border color, dim, or none) for clients at character select
+- **Per-event alert sounds** — assign custom WAV/MP3 files with master volume control
 - **Session timer** — shows how long each character has been logged in
-- **System name overlay** — displays the current solar system on each thumbnail 
+- **System name overlay** — displays the current solar system on each thumbnail
 - **Click-through mode** — make thumbnails transparent to mouse clicks with a hotkey
+- **Hide/Show thumbnails toggle** — hotkey or tray menu toggle to instantly hide/show all thumbnails
+- **Secondary thumbnails (PiP)** — add a second independent live preview for any character with separate size, position, and opacity
+- **Click-to-capture hotkeys** — click a hotkey field and press a key combo to assign it
 - **Auto-save positions** — thumbnail positions persist automatically after dragging
-- **FPS limiter** — built-in RTSS profile integration for capping background client FPS (This still requires the user to have RTSS installed)
+- **FPS limiter** — built-in RTSS profile integration for capping background client FPS
 - **Multi-monitor support** — choose which monitor thumbnails appear on
 - **First-run setup wizard** — quick guided setup for new users
 - **Customizable everything** — colors, borders, text, fonts, sizes, opacity, positions
@@ -53,7 +62,7 @@ When enabled, monitors your EVE game logs for incoming combat. If a character st
 Shows how long each character has been logged in, right on the thumbnail. Updates in real-time.
 
 ### System Name Display
-Reads your EVE game logs and shows the current solar system on each thumbnail. 
+Reads your EVE game logs and shows the current solar system on each thumbnail.
 
 ### Click-Through Mode
 Toggle a hotkey (F12 by default) to make all thumbnails click-through, so they don't steal focus when you're trying to interact with something behind them.
@@ -82,6 +91,36 @@ Pick which monitor your thumbnails appear on from a dropdown, with auto-detectio
 
 ### Settings Migration
 If you're coming from EVE-X-Preview, the app will ask if you want to bring your old settings over on first launch.
+
+### Alert Events & Severity Tiers *(Pre-Release)*
+Individually toggle each alert type (Under Attack, Warp Scrambled, Decloaked, Fleet Invite, Convo Request, System Change) with severity-coded labels. Three severity tiers (Critical 🔴, Warning 🟠, Info 🔵) each have their own configurable border flash color (with 🎨 picker), cooldown timer, and tray notification toggle.
+
+### PVE Mode *(Pre-Release)*
+Toggle PVE Mode to filter out NPC/rat damage from attack alerts — only player damage triggers a flash.
+
+### Not Logged In Indicator *(Pre-Release)*
+Clients sitting at the character select screen can show a visual indicator: Text Overlay, Border Color, Dim, or None. Custom color with 🎨 picker.
+
+### Log Monitor Sounds *(Pre-Release)*
+Assign custom WAV/MP3 sounds to each alert event with a master volume slider, preview/test button, and per-event cooldowns.
+
+### Hide/Show Thumbnails Toggle *(Pre-Release)*
+Hotkey or tray menu toggle to instantly hide/show all thumbnails. When hidden, new EVE windows won't auto-show thumbs until you toggle back.
+
+### Profile Cycling Hotkeys *(Pre-Release)*
+Assign hotkeys to cycle forward/backward through profiles without opening the tray menu. Wrapping enabled (last → first).
+
+### Hotkey Groups Character Search *(Pre-Release)*
+Click "➕ Add Character" on a hotkey group to search all known characters across all profiles with type-to-filter.
+
+### Secondary Thumbnails / PiP *(Pre-Release)*
+Add a second, independent live thumbnail for any character via Settings → Visibility. Separate size, position, and opacity from the primary — no borders or alert effects. Drag with right-click, resize with both buttons.
+
+### Click-to-Capture Hotkeys *(Pre-Release)*
+All hotkey input fields support click-to-capture: click the field, press a key combo, and it fills the hotkey string automatically.
+
+### Lock Positions *(Pre-Release)*
+Toggle to prevent accidental thumbnail dragging. Shows tooltip feedback when locked.
 
 ---
 

@@ -108,6 +108,18 @@ class Propertys extends TrayMenu {
         get => This._JSON["global_Settings"]["ClickThroughHotkey"]
         set => This._JSON["global_Settings"]["ClickThroughHotkey"] := value
     }
+    HideShowThumbnailsHotkey {
+        get => This._JSON["global_Settings"]["HideShowThumbnailsHotkey"]
+        set => This._JSON["global_Settings"]["HideShowThumbnailsHotkey"] := value
+    }
+    ProfileCycleForwardHotkey {
+        get => This._JSON["global_Settings"]["ProfileCycleForwardHotkey"]
+        set => This._JSON["global_Settings"]["ProfileCycleForwardHotkey"] := value
+    }
+    ProfileCycleBackwardHotkey {
+        get => This._JSON["global_Settings"]["ProfileCycleBackwardHotkey"]
+        set => This._JSON["global_Settings"]["ProfileCycleBackwardHotkey"] := value
+    }
     ShowSessionTimer {
         get => This._JSON["global_Settings"]["ShowSessionTimer"]
         set => This._JSON["global_Settings"]["ShowSessionTimer"] := value
@@ -128,22 +140,163 @@ class Propertys extends TrayMenu {
         get => This._JSON["global_Settings"]["EnableAttackAlerts"]
         set => This._JSON["global_Settings"]["EnableAttackAlerts"] := value
     }
-
-    ; Look up a character's group border color (returns "" if not in any group)
-    GetGroupColor(charName) {
-        for idx, group in This.ThumbnailGroups {
-            for cidx, char in group["Characters"] {
-                if (char = charName)
-                    return StrReplace(StrReplace(group["Color"], "#", ""), "0x", "")
-            }
+    PVEMode {
+        get {
+            if (!This._JSON["global_Settings"].Has("PVEMode"))
+                This._JSON["global_Settings"]["PVEMode"] := false
+            return This._JSON["global_Settings"]["PVEMode"]
         }
-        return ""
+        set => This._JSON["global_Settings"]["PVEMode"] := value
     }
 
+    ; === Log Monitoring Properties ===
+
+    EnableChatLogMonitoring {
+        get {
+            if (!This._JSON["global_Settings"].Has("EnableChatLogMonitoring"))
+                This._JSON["global_Settings"]["EnableChatLogMonitoring"] := true
+            return This._JSON["global_Settings"]["EnableChatLogMonitoring"]
+        }
+        set => This._JSON["global_Settings"]["EnableChatLogMonitoring"] := value
+    }
+    EnableGameLogMonitoring {
+        get {
+            if (!This._JSON["global_Settings"].Has("EnableGameLogMonitoring"))
+                This._JSON["global_Settings"]["EnableGameLogMonitoring"] := true
+            return This._JSON["global_Settings"]["EnableGameLogMonitoring"]
+        }
+        set => This._JSON["global_Settings"]["EnableGameLogMonitoring"] := value
+    }
+    ChatLogDirectory {
+        get {
+            if (!This._JSON["global_Settings"].Has("ChatLogDirectory"))
+                This._JSON["global_Settings"]["ChatLogDirectory"] := ""
+            return This._JSON["global_Settings"]["ChatLogDirectory"]
+        }
+        set => This._JSON["global_Settings"]["ChatLogDirectory"] := value
+    }
+    GameLogDirectory {
+        get {
+            if (!This._JSON["global_Settings"].Has("GameLogDirectory"))
+                This._JSON["global_Settings"]["GameLogDirectory"] := ""
+            return This._JSON["global_Settings"]["GameLogDirectory"]
+        }
+        set => This._JSON["global_Settings"]["GameLogDirectory"] := value
+    }
+    EnabledAlertTypes {
+        get {
+            if (!This._JSON["global_Settings"].Has("EnabledAlertTypes"))
+                This._JSON["global_Settings"]["EnabledAlertTypes"] := Map(
+                    "attack", true, "warp_scramble", true, "decloak", true,
+                    "fleet_invite", true, "convo_request", true,
+                    "system_change", true
+                )
+            return This._JSON["global_Settings"]["EnabledAlertTypes"]
+        }
+        set => This._JSON["global_Settings"]["EnabledAlertTypes"] := value
+    }
+    SeverityColors {
+        get {
+            if (!This._JSON["global_Settings"].Has("SeverityColors"))
+                This._JSON["global_Settings"]["SeverityColors"] := Map(
+                    "critical", "#FF0000", "warning", "#FFA500", "info", "#4A9EFF"
+                )
+            return This._JSON["global_Settings"]["SeverityColors"]
+        }
+        set => This._JSON["global_Settings"]["SeverityColors"] := value
+    }
+    SeverityCooldowns {
+        get {
+            if (!This._JSON["global_Settings"].Has("SeverityCooldowns"))
+                This._JSON["global_Settings"]["SeverityCooldowns"] := Map(
+                    "critical", 5, "warning", 15, "info", 30
+                )
+            return This._JSON["global_Settings"]["SeverityCooldowns"]
+        }
+        set => This._JSON["global_Settings"]["SeverityCooldowns"] := value
+    }
+    SeverityFlashRates {
+        get {
+            if (!This._JSON["global_Settings"].Has("SeverityFlashRates"))
+                This._JSON["global_Settings"]["SeverityFlashRates"] := Map(
+                    "critical", 200, "warning", 500, "info", 1000
+                )
+            return This._JSON["global_Settings"]["SeverityFlashRates"]
+        }
+        set => This._JSON["global_Settings"]["SeverityFlashRates"] := value
+    }
+    SeverityTrayNotify {
+        get {
+            if (!This._JSON["global_Settings"].Has("SeverityTrayNotify"))
+                This._JSON["global_Settings"]["SeverityTrayNotify"] := Map(
+                    "critical", true, "warning", false, "info", false
+                )
+            return This._JSON["global_Settings"]["SeverityTrayNotify"]
+        }
+        set => This._JSON["global_Settings"]["SeverityTrayNotify"] := value
+    }
+
+    ; === Alert Sound Properties ===
+
+    EnableAlertSounds {
+        get {
+            if (!This._JSON["global_Settings"].Has("EnableAlertSounds"))
+                This._JSON["global_Settings"]["EnableAlertSounds"] := false
+            return This._JSON["global_Settings"]["EnableAlertSounds"]
+        }
+        set => This._JSON["global_Settings"]["EnableAlertSounds"] := value
+    }
+    AlertSoundVolume {
+        get {
+            if (!This._JSON["global_Settings"].Has("AlertSoundVolume"))
+                This._JSON["global_Settings"]["AlertSoundVolume"] := 100
+            return This._JSON["global_Settings"]["AlertSoundVolume"]
+        }
+        set => This._JSON["global_Settings"]["AlertSoundVolume"] := value
+    }
+    AlertSounds {
+        get {
+            if (!This._JSON["global_Settings"].Has("AlertSounds"))
+                This._JSON["global_Settings"]["AlertSounds"] := Map(
+                    "attack", "", "warp_scramble", "", "decloak", "",
+                    "fleet_invite", "", "convo_request", "", "system_change", ""
+                )
+            return This._JSON["global_Settings"]["AlertSounds"]
+        }
+        set => This._JSON["global_Settings"]["AlertSounds"] := value
+    }
+    SoundCooldowns {
+        get {
+            if (!This._JSON["global_Settings"].Has("SoundCooldowns"))
+                This._JSON["global_Settings"]["SoundCooldowns"] := Map(
+                    "attack", 5, "warp_scramble", 5, "decloak", 10,
+                    "fleet_invite", 15, "convo_request", 15, "system_change", 30
+                )
+            return This._JSON["global_Settings"]["SoundCooldowns"]
+        }
+        set => This._JSON["global_Settings"]["SoundCooldowns"] := value
+    }
+
+    LockPositions {
+        get => This._JSON["global_Settings"]["LockPositions"]
+        set => This._JSON["global_Settings"]["LockPositions"] := value
+    }
+    HideActiveThumbnail {
+        get => This._JSON["global_Settings"]["HideActiveThumbnail"]
+        set => This._JSON["global_Settings"]["HideActiveThumbnail"] := value
+    }
+    IndividualThumbnailResize {
+        get {
+            if (!This._JSON["global_Settings"].Has("IndividualThumbnailResize"))
+                This._JSON["global_Settings"]["IndividualThumbnailResize"] := false
+            return This._JSON["global_Settings"]["IndividualThumbnailResize"]
+        }
+        set => This._JSON["global_Settings"]["IndividualThumbnailResize"] := value
+    }
     SettingsWindowWidth {
         get {
             if (!This._JSON["global_Settings"].Has("SettingsWindowWidth"))
-                This._JSON["global_Settings"]["SettingsWindowWidth"] := 750
+                This._JSON["global_Settings"]["SettingsWindowWidth"] := 1080
             return This._JSON["global_Settings"]["SettingsWindowWidth"]
         }
         set => This._JSON["global_Settings"]["SettingsWindowWidth"] := value
@@ -155,6 +308,34 @@ class Propertys extends TrayMenu {
             return This._JSON["global_Settings"]["SettingsWindowHeight"]
         }
         set => This._JSON["global_Settings"]["SettingsWindowHeight"] := value
+    }
+
+    ; Look up a character's group border color (returns "" if not in any group)
+    GetGroupColor(charName) {
+        ; Only return group color if the group has at least one hotkey assigned
+        for idx, group in This.ThumbnailGroups {
+            for cidx, char in group["Characters"] {
+                if (char = charName) {
+                    ; Check if this group has hotkeys assigned in Hotkey_Groups
+                    groupName := group.Has("Name") ? group["Name"] : ""
+                    if (groupName != "") {
+                        try {
+                            hkGroups := This.Hotkey_Groups
+                            if (hkGroups.Has(groupName)) {
+                                gData := hkGroups[groupName]
+                                hasFwd := gData.Has("ForwardsHotkey") && gData["ForwardsHotkey"] != ""
+                                hasBwd := gData.Has("BackwardsHotkey") && gData["BackwardsHotkey"] != ""
+                                if (hasFwd || hasBwd)
+                                    return group["Color"]
+                            }
+                        }
+                    }
+                    ; No hotkeys assigned — don't use group color
+                    return ""
+                }
+            }
+        }
+        return ""
     }
 
 
@@ -278,6 +459,22 @@ class Propertys extends TrayMenu {
              return convertToHex(This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"]["InactiveClientBorderColor"])
         }
         set => This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"]["InactiveClientBorderColor"] := convertToHex(Trim(value, "`n "))
+    }
+    NotLoggedInIndicator {
+        get {
+            if (!This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"].Has("NotLoggedInIndicator"))
+                This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"]["NotLoggedInIndicator"] := "text"
+            return This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"]["NotLoggedInIndicator"]
+        }
+        set => This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"]["NotLoggedInIndicator"] := value
+    }
+    NotLoggedInColor {
+        get {
+            if (!This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"].Has("NotLoggedInColor"))
+                This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"]["NotLoggedInColor"] := "#555555"
+            return convertToHex(This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"]["NotLoggedInColor"])
+        }
+        set => This._JSON["_Profiles"][This.LastUsedProfile]["Thumbnail Settings"]["NotLoggedInColor"] := convertToHex(Trim(value, "`n "))
     }
 
 
@@ -459,6 +656,26 @@ class Propertys extends TrayMenu {
 
     }
 
+    SecondaryThumbnails[charName?] {
+        get {
+            if (!This._JSON["_Profiles"][This.LastUsedProfile].Has("Secondary Thumbnails"))
+                This._JSON["_Profiles"][This.LastUsedProfile]["Secondary Thumbnails"] := Map()
+            if (IsSet(charName))
+                return This._JSON["_Profiles"][This.LastUsedProfile]["Secondary Thumbnails"][charName]
+            return This._JSON["_Profiles"][This.LastUsedProfile]["Secondary Thumbnails"]
+        }
+        set {
+            if (!This._JSON["_Profiles"][This.LastUsedProfile].Has("Secondary Thumbnails"))
+                This._JSON["_Profiles"][This.LastUsedProfile]["Secondary Thumbnails"] := Map()
+            if (IsSet(charName)) {
+                This._JSON["_Profiles"][This.LastUsedProfile]["Secondary Thumbnails"][charName] := value
+            } else {
+                This._JSON["_Profiles"][This.LastUsedProfile]["Secondary Thumbnails"] := value
+            }
+            SetTimer(This.Save_Settings_Delay_Timer, -200)
+        }
+    }
+
     ClientPossitions[wTitle] {
         get {
             if (This._JSON["_Profiles"][This.LastUsedProfile]["Client Possitions"].Has(wTitle))
@@ -520,25 +737,159 @@ class Propertys extends TrayMenu {
     _Hotkey_Delete(*) {
         if (This.LV_Item) {
             try {
-                HKey_Char_Name := This.LV.GetText(This.LV_Item)
-                if (This._Hotkeys.Has(HKey_Char_Name)) {
-                    This._Hotkeys.Delete(HKey_Char_Name)
-                    This.LV.Delete(This.LV_Item)
-
-                    ;This.Save_Settings()
-                }
+                This.LV.Delete(This.LV_Item)
+                This.LV_Item := 0
+                This._hkHandler()  ; Sync ListView to settings
             }
         }
     }
 
     _Hotkey_Add(*) {
-        Obj := InputBox("Enter the Char Name", "Add New Char", "w200 h90")
-        if (Obj.Result = "OK") {
-            This._Hotkeys[Trim(Obj.Value, " ")] := ""
-            This.LV.Add(, Trim(Obj.Value, " "))
+        ; Build known characters list for search
+        knownChars := This._GetKnownCharacters()
 
-            ;This.Save_Settings()
+        ; Create a search GUI popup
+        searchGui := Gui("+Owner" This.S_Gui.Hwnd " +ToolWindow -MinimizeBox -MaximizeBox", "Add Character")
+        searchGui.BackColor := Settings_Gui.BG_DARK
+        searchGui.SetFont("s10 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        searchGui.Add("Text", "x10 y10 w270 BackgroundTrans", "Type to search or enter new name:")
+        searchEdit := searchGui.Add("Edit", "x10 y35 w270 vSearchField cFFFFFF Background" Settings_Gui.BG_PANEL)
+        charList := searchGui.Add("ListBox", "x10 y62 w270 h150 vCharList Background" Settings_Gui.BG_PANEL, knownChars)
+
+        btnOK := searchGui.Add("Button", "x10 y220 w130 h28 Default", "Add")
+        btnCancel := searchGui.Add("Button", "x150 y220 w130 h28", "Cancel")
+
+        ; Filter list as user types
+        searchEdit.OnEvent("Change", (*) => _FilterList())
+        charList.OnEvent("DoubleClick", (*) => _DoAdd())
+        btnOK.OnEvent("Click", (*) => _DoAdd())
+        btnCancel.OnEvent("Click", (*) => searchGui.Destroy())
+
+        _FilterList() {
+            query := StrLower(searchEdit.Value)
+            filtered := []
+            for idx, name in knownChars {
+                if (query = "" || InStr(StrLower(name), query))
+                    filtered.Push(name)
+            }
+            charList.Delete()
+            if (filtered.Length)
+                charList.Add(filtered)
         }
+
+        lvRef := This.LV
+        hkHandler := ObjBindMethod(This, "_hkHandler")
+
+        _DoAdd() {
+            ; Prefer selected list item, fall back to typed text
+            charName := ""
+            try charName := charList.Text
+            if (charName = "")
+                charName := Trim(searchEdit.Value, " ")
+            if (charName = "")
+                return
+
+            lvRef.Add(, charName, "")
+            searchGui.Destroy()
+            %hkHandler%()
+        }
+
+        searchGui.Show("w290 h260")
+    }
+
+    ; Build a list of all known character names from various sources
+    _GetKnownCharacters() {
+        chars := Map()
+
+        ; From active EVE windows
+        try {
+            for hwnd in This.ThumbWindows.OwnProps() {
+                title := This.ThumbWindows.%hwnd%["Window"].Title
+                if (title != "" && title != "EVE")
+                    chars[title] := 1
+            }
+        }
+
+        ; From saved hotkeys
+        try {
+            for idx, entry in This._Hotkeys {
+                for name, key in entry
+                    if (name != "")
+                        chars[name] := 1
+            }
+        }
+
+        ; From custom colors character names
+        try {
+            for idx, name in This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["CharNames"] {
+                if (name != "" && name != "Example Char")
+                    chars[name] := 1
+            }
+        }
+
+        ; From thumbnail groups
+        try {
+            for idx, group in This.ThumbnailGroups {
+                for cidx, char in group["Characters"]
+                    if (char != "")
+                        chars[char] := 1
+            }
+        }
+
+        ; From saved thumbnail positions
+        try {
+            for name in This.ThumbnailPositions {
+                if (name != "" && !InStr(name, "_CharSelect_"))
+                    chars[name] := 1
+            }
+        }
+
+        ; From ALL profiles (hotkeys, groups, colors, positions)
+        try {
+            for profileName in This._JSON["_Profiles"] {
+                profile := This._JSON["_Profiles"][profileName]
+                ; Hotkeys from each profile
+                try {
+                    for idx, entry in profile["Hotkeys"] {
+                        for name, key in entry
+                            if (name != "")
+                                chars[name] := 1
+                    }
+                }
+                ; Hotkey groups from each profile
+                try {
+                    for groupName, groupData in profile["Hotkey Groups"] {
+                        try {
+                            for cidx, char in groupData["Characters"]
+                                if (char != "")
+                                    chars[char] := 1
+                        }
+                    }
+                }
+                ; Thumbnail positions from each profile
+                try {
+                    for name in profile["Thumbnail Positions"] {
+                        if (name != "" && !InStr(name, "_CharSelect_"))
+                            chars[name] := 1
+                    }
+                }
+                ; Custom colors character names from each profile
+                try {
+                    for idx, name in profile["Custom Colors"]["cColors"]["CharNames"] {
+                        if (name != "" && name != "Example Char")
+                            chars[name] := 1
+                    }
+                }
+            }
+        }
+
+        ; Convert map to array
+        result := []
+        for name in chars
+            result.Push(name)
+
+        return result
     }
 
     _Hotkey_Edit(*) {

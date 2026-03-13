@@ -39,6 +39,10 @@ Class TrayMenu extends Settings_Gui {
         TrayMenu.Add()
         TrayMenu.Add()
         TrayMenu.Add("Save Thumbnail Positions", MenuHandler)
+        TrayMenu.Add("Lock Positions", MenuHandler)
+        if (This.LockPositions)
+            TrayMenu.Check("Lock Positions")
+        TrayMenu.Add("Hide/Show Thumbnails", MenuHandler)
         TrayMenu.Add("Reload", (*) => Reload())
         TrayMenu.Add()
         TrayMenu.Add("Exit", (*) => ExitApp())
@@ -55,6 +59,17 @@ Class TrayMenu extends Settings_Gui {
                 This.TrackClientPossitions := !This.TrackClientPossitions
                 TrayMenu.ToggleCheck("Restore Client Positions")
                 SetTimer(This.Save_Settings_Delay_Timer, -200)
+            }
+            Else if (ItemName = "Lock Positions") {
+                This.LockPositions := !This.LockPositions
+                TrayMenu.ToggleCheck("Lock Positions")
+                SetTimer(This.Save_Settings_Delay_Timer, -200)
+                ToolTip(This.LockPositions ? "Positions Locked" : "Positions Unlocked")
+                SetTimer () => ToolTip(), -1500
+            }
+            Else if (ItemName = "Hide/Show Thumbnails") {
+                This.ToggleThumbnailVisibility()
+                TrayMenu.ToggleCheck("Hide/Show Thumbnails")
             }
             Else if (This.Profiles.Has(ItemName)) {
                 ; Change the lastUsedProfile to the Profile name, save it to Json file and reload the script with the new Settings
