@@ -898,10 +898,12 @@ Class Main_Class extends ThumbWindow {
         }
         Else {    
             ; Use the virtual key to trigger the internal Hotkey.
-            ; This SendEvent gives Windows legitimate foreground activation rights
+            ; This gives Windows legitimate foreground activation rights
             ; because it processes as a real keyboard input event.
+            ; SendInput is used instead of SendEvent for faster processing —
+            ; it bypasses the keyboard event queue and ignores SetKeyDelay.
             This.ActivateHwnd := hwnd
-            SendEvent("{Blind}{" Main_Class.virtualKey "}")            
+            SendInput("{Blind}{" Main_Class.virtualKey "}")            
         }
 
         ;Sets the timer to minimize client if the user enable this.
