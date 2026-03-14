@@ -92,36 +92,6 @@ Pick which monitor your thumbnails appear on from a dropdown, with auto-detectio
 ### Settings Migration
 If you're coming from EVE-X-Preview, the app will ask if you want to bring your old settings over on first launch.
 
-### Alert Events & Severity Tiers *(Pre-Release)*
-Individually toggle each alert type (Under Attack, Warp Scrambled, Decloaked, Fleet Invite, Convo Request, System Change) with severity-coded labels. Three severity tiers (Critical 🔴, Warning 🟠, Info 🔵) each have their own configurable border flash color (with 🎨 picker), cooldown timer, and tray notification toggle.
-
-### PVE Mode *(Pre-Release)*
-Toggle PVE Mode to filter out NPC/rat damage from attack alerts — only player damage triggers a flash.
-
-### Not Logged In Indicator *(Pre-Release)*
-Clients sitting at the character select screen can show a visual indicator: Text Overlay, Border Color, Dim, or None. Custom color with 🎨 picker.
-
-### Log Monitor Sounds *(Pre-Release)*
-Assign custom WAV/MP3 sounds to each alert event with a master volume slider, preview/test button, and per-event cooldowns.
-
-### Hide/Show Thumbnails Toggle *(Pre-Release)*
-Hotkey or tray menu toggle to instantly hide/show all thumbnails. When hidden, new EVE windows won't auto-show thumbs until you toggle back.
-
-### Profile Cycling Hotkeys *(Pre-Release)*
-Assign hotkeys to cycle forward/backward through profiles without opening the tray menu. Wrapping enabled (last → first).
-
-### Hotkey Groups Character Search *(Pre-Release)*
-Click "➕ Add Character" on a hotkey group to search all known characters across all profiles with type-to-filter.
-
-### Secondary Thumbnails / PiP *(Pre-Release)*
-Add a second, independent live thumbnail for any character via Settings → Visibility. Separate size, position, and opacity from the primary — no borders or alert effects. Drag with right-click, resize with both buttons.
-
-### Click-to-Capture Hotkeys *(Pre-Release)*
-All hotkey input fields support click-to-capture: click the field, press a key combo, and it fills the hotkey string automatically.
-
-### Lock Positions *(Pre-Release)*
-Toggle to prevent accidental thumbnail dragging. Shows tooltip feedback when locked.
-
 ---
 
 ## Getting Started
