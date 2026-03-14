@@ -1,6 +1,3 @@
-# EVE MultiPreview — New Features (Pre-Release)
-
-> Everything added in the pre-release builds since the stable `v1.0.4` release.
 
 ---
 
@@ -102,5 +99,3 @@
 - Profile cycle hotkeys now included in conflict checking
 
 ---
-
-*Last updated: 2026-03-14*
