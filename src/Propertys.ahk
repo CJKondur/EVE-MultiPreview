@@ -112,6 +112,26 @@ class Propertys extends TrayMenu {
         get => This._JSON["global_Settings"]["HideShowThumbnailsHotkey"]
         set => This._JSON["global_Settings"]["HideShowThumbnailsHotkey"] := value
     }
+    HidePrimaryHotkey {
+        get {
+            try return This._JSON["global_Settings"]["HidePrimaryHotkey"]
+            catch {
+                This._JSON["global_Settings"]["HidePrimaryHotkey"] := ""
+                return ""
+            }
+        }
+        set => This._JSON["global_Settings"]["HidePrimaryHotkey"] := value
+    }
+    HideSecondaryHotkey {
+        get {
+            try return This._JSON["global_Settings"]["HideSecondaryHotkey"]
+            catch {
+                This._JSON["global_Settings"]["HideSecondaryHotkey"] := ""
+                return ""
+            }
+        }
+        set => This._JSON["global_Settings"]["HideSecondaryHotkey"] := value
+    }
     ProfileCycleForwardHotkey {
         get => This._JSON["global_Settings"]["ProfileCycleForwardHotkey"]
         set => This._JSON["global_Settings"]["ProfileCycleForwardHotkey"] := value

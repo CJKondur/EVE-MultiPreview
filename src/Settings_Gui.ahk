@@ -102,6 +102,11 @@ Class Settings_Gui {
         btnDel := This.S_Gui.Add("Button", "x425 y13 w75 h26", "Delete")
         btnDel.OnEvent("Click", ObjBindMethod(This, "Delete_Profile"))
 
+        This.S_Gui.SetFont("s9 w600", "Segoe UI")
+        btnApply := This.S_Gui.Add("Button", "x520 y13 w80 h26", "⟳ Apply")
+        btnApply.OnEvent("Click", ObjBindMethod(This, "_ApplySettings"))
+        This.S_Gui.SetFont("s9 w400", "Segoe UI")
+
         ; Separator line
         This.S_Gui.Add("Text", "x15 y48 w720 h1 +0x10")
 
@@ -153,6 +158,41 @@ Class Settings_Gui {
 
     SidebarClick(panelName, *) {
         This.SwitchPanel(panelName)
+    }
+
+    ; Apply button — save settings and reload the script, then reopen settings
+    _ApplySettings(*) {
+        This.SaveJsonToFile()
+        ; Drop a flag file so the script reopens settings after reload
+        try FileAppend("1", A_Temp "\evemultipreview_reopen_settings.flag")
+        Reload()
+    }
+
+    ; Refresh the Visibility panel ListViews with current open clients
+    _RefreshVisibility(*) {
+        ; Refresh primary client list
+        This.Tv_LV.Delete()
+        for k, v in This.compare_openclients_with_list() {
+            if (k != "EVE" || v != "") {
+                if This.Thumbnail_visibility.Has(v)
+                    This.Tv_LV.Add("Check", v,)
+                else
+                    This.Tv_LV.Add("", v,)
+            }
+        }
+
+        ; Refresh secondary thumbnails (PiP) list
+        This.SecThumb_LV.Delete()
+        try {
+            for charName, settings in This.SecondaryThumbnails {
+                opacity := settings.Has("opacity") ? settings["opacity"] : 180
+                isEnabled := settings.Has("enabled") ? settings["enabled"] : true
+                This.SecThumb_LV.Add(isEnabled ? "Check" : "", charName, opacity)
+            }
+        }
+
+        ToolTip("Visibility refreshed")
+        SetTimer () => ToolTip(), -1500
     }
 
     ; Handle window resize — scale sidebar only, header stays fixed
@@ -274,10 +314,26 @@ Class Settings_Gui {
 
         ; Advanced: Hide/Show Thumbnails hotkey
         y += 35
-        ctrl := This.AddLabelEdit(A, "Hide/Show Thumbnails Hotkey:", y, "HideShowThumbnailsHotkey", This.HideShowThumbnailsHotkey, 120)
+        ctrl := This.AddLabelEdit(A, "Hide/Show All Hotkey:", y, "HideShowThumbnailsHotkey", This.HideShowThumbnailsHotkey, 120)
         ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
         btnCapture := This.S_Gui.Add("Button", "x580 y" y " w30 h22", "⌨")
         btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("HideShowThumbnailsHotkey"))
+        A.Push btnCapture
+
+        ; Advanced: Hide/Show Primary Only hotkey
+        y += 35
+        ctrl := This.AddLabelEdit(A, "Hide/Show Primary Hotkey:", y, "HidePrimaryHotkey", This.HidePrimaryHotkey, 120)
+        ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
+        btnCapture := This.S_Gui.Add("Button", "x580 y" y " w30 h22", "⌨")
+        btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("HidePrimaryHotkey"))
+        A.Push btnCapture
+
+        ; Advanced: Hide/Show Secondary (PiP) Only hotkey
+        y += 35
+        ctrl := This.AddLabelEdit(A, "Hide/Show PiP Hotkey:", y, "HideSecondaryHotkey", This.HideSecondaryHotkey, 120)
+        ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
+        btnCapture := This.S_Gui.Add("Button", "x580 y" y " w30 h22", "⌨")
+        btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("HideSecondaryHotkey"))
         A.Push btnCapture
 
         ; Advanced: Profile Cycle Forward hotkey
@@ -350,6 +406,24 @@ Class Settings_Gui {
             This.HideShowThumbnailsHotkey := newKey
             This.NeedRestart := 1
         }
+        else if (obj.name = "HidePrimaryHotkey") {
+            newKey := Trim(obj.value, "`n ")
+            if (!This._capturingHotkey && newKey != "" && !This._CheckHotkeyConflict(newKey, "HidePrimaryHotkey")) {
+                obj.Value := This.HidePrimaryHotkey  ; Revert
+                return
+            }
+            This.HidePrimaryHotkey := newKey
+            This.NeedRestart := 1
+        }
+        else if (obj.name = "HideSecondaryHotkey") {
+            newKey := Trim(obj.value, "`n ")
+            if (!This._capturingHotkey && newKey != "" && !This._CheckHotkeyConflict(newKey, "HideSecondaryHotkey")) {
+                obj.Value := This.HideSecondaryHotkey  ; Revert
+                return
+            }
+            This.HideSecondaryHotkey := newKey
+            This.NeedRestart := 1
+        }
         else if (obj.name = "ShowSessionTimer") {
             This.ShowSessionTimer := obj.value
         }
@@ -358,6 +432,24 @@ Class Settings_Gui {
         }
         else if (obj.name = "IndividualThumbnailResize") {
             This.IndividualThumbnailResize := obj.value
+        }
+        else if (obj.name = "ProfileCycleForwardHotkey") {
+            newKey := Trim(obj.value, "`n ")
+            if (!This._capturingHotkey && newKey != "" && !This._CheckHotkeyConflict(newKey, "ProfileCycleForwardHotkey")) {
+                obj.Value := This.ProfileCycleForwardHotkey  ; Revert
+                return
+            }
+            This.ProfileCycleForwardHotkey := newKey
+            This.NeedRestart := 1
+        }
+        else if (obj.name = "ProfileCycleBackwardHotkey") {
+            newKey := Trim(obj.value, "`n ")
+            if (!This._capturingHotkey && newKey != "" && !This._CheckHotkeyConflict(newKey, "ProfileCycleBackwardHotkey")) {
+                obj.Value := This.ProfileCycleBackwardHotkey  ; Revert
+                return
+            }
+            This.ProfileCycleBackwardHotkey := newKey
+            This.NeedRestart := 1
         }
         SetTimer(This.Save_Settings_Delay_Timer, -200)
     }
@@ -1537,7 +1629,17 @@ Class Settings_Gui {
         try {
             v := This.HideShowThumbnailsHotkey
             if (v != "")
-                hk[StrLower(v)] := {source: "HideShowThumbnailsHotkey", label: "General → Hide/Show Thumbnails Hotkey"}
+                hk[StrLower(v)] := {source: "HideShowThumbnailsHotkey", label: "General → Hide/Show All Hotkey"}
+        }
+        try {
+            v := This.HidePrimaryHotkey
+            if (v != "")
+                hk[StrLower(v)] := {source: "HidePrimaryHotkey", label: "General → Hide/Show Primary Hotkey"}
+        }
+        try {
+            v := This.HideSecondaryHotkey
+            if (v != "")
+                hk[StrLower(v)] := {source: "HideSecondaryHotkey", label: "General → Hide/Show PiP Hotkey"}
         }
         try {
             v := This.ProfileCycleForwardHotkey
@@ -1627,6 +1729,12 @@ Class Settings_Gui {
         } else if (source = "HideShowThumbnailsHotkey") {
             This.HideShowThumbnailsHotkey := ""
             try This.S_Gui["HideShowThumbnailsHotkey"].Value := ""
+        } else if (source = "HidePrimaryHotkey") {
+            This.HidePrimaryHotkey := ""
+            try This.S_Gui["HidePrimaryHotkey"].Value := ""
+        } else if (source = "HideSecondaryHotkey") {
+            This.HideSecondaryHotkey := ""
+            try This.S_Gui["HideSecondaryHotkey"].Value := ""
         } else if (source = "ProfileCycleForwardHotkey") {
             This.ProfileCycleForwardHotkey := ""
             try This.S_Gui["ProfileCycleForwardHotkey"].Value := ""
@@ -1725,6 +1833,10 @@ Class Settings_Gui {
                 This.ClickThroughHotkey := hotkeyStr
             else if (editName = "HideShowThumbnailsHotkey")
                 This.HideShowThumbnailsHotkey := hotkeyStr
+            else if (editName = "HidePrimaryHotkey")
+                This.HidePrimaryHotkey := hotkeyStr
+            else if (editName = "HideSecondaryHotkey")
+                This.HideSecondaryHotkey := hotkeyStr
             else if (editName = "ProfileCycleForwardHotkey")
                 This.ProfileCycleForwardHotkey := hotkeyStr
             else if (editName = "ProfileCycleBackwardHotkey")
@@ -2259,6 +2371,11 @@ Class Settings_Gui {
         This.Tv_LV.ModifyCol(1, 250)
         This.Tv_LV.OnEvent("ItemCheck", ObjBindMethod(This, "_Tv_LVSelectedRow"))
 
+        ; Refresh button
+        btnRefresh := This.S_Gui.Add("Button", "x460 y95 w100 h22", "🔄 Refresh")
+        btnRefresh.OnEvent("Click", ObjBindMethod(This, "_RefreshVisibility"))
+        P.Push btnRefresh
+
         ; --- Secondary Thumbnails section ---
         P.Push This.S_Gui.Add("Text", "x190 y510 w370 h1 +0x10")
         This.S_Gui.SetFont("s10 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
@@ -2267,7 +2384,7 @@ Class Settings_Gui {
         P.Push This.S_Gui.Add("Text", "x190 y542 w370 h35 BackgroundTrans", "Add a second preview for any character — independent size, position, and opacity.")
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
 
-        This.SecThumb_LV := This.S_Gui.Add("ListView", "x190 y580 w370 h120 -Multi +Grid +NoSortHdr vSecThumbLV", ["Character", "Opacity"])
+        This.SecThumb_LV := This.S_Gui.Add("ListView", "x190 y580 w370 h120 Checked -Multi +Grid +NoSortHdr vSecThumbLV", ["Character", "Opacity"])
         This.SecThumb_LV.ModifyCol(1, 220)
         This.SecThumb_LV.ModifyCol(2, 130)
         This._DarkListView(This.SecThumb_LV)
@@ -2277,11 +2394,13 @@ Class Settings_Gui {
         try {
             for charName, settings in This.SecondaryThumbnails {
                 opacity := settings.Has("opacity") ? settings["opacity"] : 180
-                This.SecThumb_LV.Add(, charName, opacity)
+                isEnabled := settings.Has("enabled") ? settings["enabled"] : true
+                This.SecThumb_LV.Add(isEnabled ? "Check" : "", charName, opacity)
             }
         }
 
         This.SecThumb_LV.OnEvent("ItemSelect", ObjBindMethod(This, "_SecThumb_Select"))
+        This.SecThumb_LV.OnEvent("ItemCheck", ObjBindMethod(This, "_SecThumb_Toggle"))
         This.SecThumb_LV_Item := 0
 
         BtnSecAdd := This.S_Gui.Add("Button", "x190 y705 w90 h26", "➕ Add")
@@ -2307,6 +2426,19 @@ Class Settings_Gui {
                 opacity := This.SecondaryThumbnails[charName]["opacity"]
                 This.SecOpacitySlider.Value := opacity
             }
+        }
+    }
+
+    _SecThumb_Toggle(LV, RowNumber, Checked, *) {
+        if (!RowNumber)
+            return
+        charName := This.SecThumb_LV.GetText(RowNumber, 1)
+        if (This.SecondaryThumbnails.Has(charName)) {
+            settings := This.SecondaryThumbnails[charName]
+            settings["enabled"] := Checked ? true : false
+            This.SecondaryThumbnails[charName] := settings
+            This.NeedRestart := 1
+            SetTimer(This.Save_Settings_Delay_Timer, -200)
         }
     }
 
@@ -2360,9 +2492,9 @@ Class Settings_Gui {
             }
 
             ; Create default settings
-            settings := Map("x", 100, "y", 100, "width", 200, "height", 120, "opacity", 180)
+            settings := Map("x", 100, "y", 100, "width", 200, "height", 120, "opacity", 180, "enabled", true)
             mainRef.SecondaryThumbnails[charName] := settings
-            secThumbLV.Add(, charName, 180)
+            secThumbLV.Add("Check", charName, 180)
             searchGui.Destroy()
 
             ; Create the secondary thumb live if the character is open
@@ -2645,7 +2777,7 @@ Class Settings_Gui {
     ; PANEL: About
     ; ============================================================
     Panel_About() {
-        static APP_VERSION := "1.1.0-prerelease"
+        static APP_VERSION := "1.1.1-prerelease"
         static GITHUB_URL := "https://github.com/CJKondur/EVE-MultiPreview"
         static GITHUB_API := "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest"
 
@@ -3194,10 +3326,12 @@ Class Settings_Gui {
         EvENameList := []
         for EveHwnd in This.ThumbWindows.OwnProps() {
             try {
-                if title := This.CleanTitle(WinGetTitle("Ahk_Id " EveHwnd) = "") {
+                rawTitle := WinGetTitle("Ahk_Id " EveHwnd)
+                if (rawTitle = "")
                     continue
-                }
-                EvENameList.Push This.CleanTitle(WinGetTitle("Ahk_Id " EveHwnd))
+                cleaned := This.CleanTitle(rawTitle)
+                if (cleaned != "")
+                    EvENameList.Push(cleaned)
             }
         }
         return EvENameList

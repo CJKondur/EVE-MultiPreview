@@ -43,6 +43,22 @@ Class TrayMenu extends Settings_Gui {
         if (This.LockPositions)
             TrayMenu.Check("Lock Positions")
         TrayMenu.Add("Hide/Show Thumbnails", MenuHandler)
+        TrayMenu.Add("Hide/Show Primary", MenuHandler)
+        TrayMenu.Add("Hide/Show PiP", MenuHandler)
+
+        ; Build PiP Individual submenu from saved secondary thumbnails
+        PiP_Submenu := Menu()
+        This._PiP_Submenu := PiP_Submenu  ; store reference for handler
+        try {
+            for charName, settings in This.SecondaryThumbnails {
+                PiP_Submenu.Add(charName, ObjBindMethod(This, "_TrayPiPToggle"))
+                isEnabled := settings.Has("enabled") ? settings["enabled"] : true
+                if (isEnabled)
+                    PiP_Submenu.Check(charName)
+            }
+        }
+        TrayMenu.Add("PiP Individual", PiP_Submenu)
+
         TrayMenu.Add("Reload", (*) => Reload())
         TrayMenu.Add()
         TrayMenu.Add("Exit", (*) => ExitApp())
@@ -71,6 +87,14 @@ Class TrayMenu extends Settings_Gui {
                 This.ToggleThumbnailVisibility()
                 TrayMenu.ToggleCheck("Hide/Show Thumbnails")
             }
+            Else if (ItemName = "Hide/Show Primary") {
+                This.TogglePrimaryVisibility()
+                TrayMenu.ToggleCheck("Hide/Show Primary")
+            }
+            Else if (ItemName = "Hide/Show PiP") {
+                This.ToggleSecondaryVisibility()
+                TrayMenu.ToggleCheck("Hide/Show PiP")
+            }
             Else if (This.Profiles.Has(ItemName)) {
                 ; Change the lastUsedProfile to the Profile name, save it to Json file and reload the script with the new Settings
                 This.LastUsedProfile := ItemName
@@ -91,6 +115,47 @@ Class TrayMenu extends Settings_Gui {
             }
 
         }
+    }
+
+    ; Toggle individual PiP character from tray submenu
+    _TrayPiPToggle(charName, *) {
+        if (!This.SecondaryThumbnails.Has(charName))
+            return
+
+        settings := This.SecondaryThumbnails[charName]
+        isEnabled := settings.Has("enabled") ? settings["enabled"] : true
+        newState := !isEnabled
+        settings["enabled"] := newState
+        This.SecondaryThumbnails[charName] := settings
+
+        ; Update tray checkmark
+        if (newState)
+            This._PiP_Submenu.Check(charName)
+        else
+            This._PiP_Submenu.Uncheck(charName)
+
+        ; Hide/show the live secondary thumbnail if it exists
+        for eveHwnd in This.SecondaryThumbWindows.OwnProps() {
+            try {
+                secGui := This.SecondaryThumbWindows.%eveHwnd%["Window"]
+                if (InStr(secGui.Title, "SEC_" charName)) {
+                    if (newState) {
+                        secGui.Show("NoActivate")
+                        if (This.SecondaryThumbWindows.%eveHwnd%.Has("TextOverlay"))
+                            This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Show("NoActivate")
+                    } else {
+                        secGui.Hide()
+                        if (This.SecondaryThumbWindows.%eveHwnd%.Has("TextOverlay"))
+                            This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Hide()
+                    }
+                    break
+                }
+            }
+        }
+
+        SetTimer(This.Save_Settings_Delay_Timer, -200)
+        ToolTip("PiP " charName ": " (newState ? "Enabled" : "Disabled"))
+        SetTimer () => ToolTip(), -1500
     }
 
     CloseAllEVEWindows(*) {

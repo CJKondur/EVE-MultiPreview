@@ -110,6 +110,28 @@ Class Main_Class extends ThumbWindow {
             }
         }
 
+        ; Register Hide Primary hotkey
+        if (This.HidePrimaryHotkey != "") {
+            HotIf (*) => WinExist(This.EVEExe)
+            try {
+                Hotkey This.HidePrimaryHotkey, ObjBindMethod(This, "TogglePrimaryVisibility"), "P1"
+            }
+            catch ValueError as e {
+                MsgBox(e.Message ": --> " e.Extra " <-- in: Global Settings -> Hide Primary Hotkey" )
+            }
+        }
+
+        ; Register Hide Secondary (PiP) hotkey
+        if (This.HideSecondaryHotkey != "") {
+            HotIf (*) => WinExist(This.EVEExe)
+            try {
+                Hotkey This.HideSecondaryHotkey, ObjBindMethod(This, "ToggleSecondaryVisibility"), "P1"
+            }
+            catch ValueError as e {
+                MsgBox(e.Message ": --> " e.Extra " <-- in: Global Settings -> Hide Secondary Hotkey" )
+            }
+        }
+
         ; Register Profile Cycle hotkeys
         if (This.ProfileCycleForwardHotkey != "") {
             HotIf (*) => WinExist(This.EVEExe)
@@ -133,6 +155,8 @@ Class Main_Class extends ThumbWindow {
         ; Initialize state
         This._ClickThroughActive := false
         This._thumbnailsManuallyHidden := false
+        This._primaryManuallyHidden := false
+        This._secondaryManuallyHidden := false
         This._SessionStartTimes := Map()
         ; Alert state (legacy compat — LogMonitor is the new engine)
         This._AttackAlerts := Map()
@@ -177,6 +201,14 @@ Class Main_Class extends ThumbWindow {
         ; Start LogMonitor (replaces old _ScanCombatLogs + _ScanEVELogs)
         if (This.EnableAttackAlerts || This.ShowSystemName) {
             This._LogMonitor.Start()
+        }
+
+        ; Check if settings should reopen (after Apply button triggered Reload)
+        reopenFlag := A_Temp "\evemultipreview_reopen_settings.flag"
+        if FileExist(reopenFlag) {
+            try FileDelete(reopenFlag)
+            ; Delay opening so the main loop initializes first
+            SetTimer(ObjBindMethod(This, "MainGui"), -500)
         }
 
         return This
@@ -519,7 +551,55 @@ Class Main_Class extends ThumbWindow {
             This.ShowThumb(hwnd, action)
         }
 
+        ; Also toggle secondary thumbnails
+        for eveHwnd in This.SecondaryThumbWindows.OwnProps() {
+            secGui := This.SecondaryThumbWindows.%eveHwnd%["Window"]
+            if (This._thumbnailsManuallyHidden)
+                secGui.Hide()
+            else
+                secGui.Show("NoActivate")
+            if (This.SecondaryThumbWindows.%eveHwnd%.Has("TextOverlay")) {
+                if (This._thumbnailsManuallyHidden)
+                    This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Hide()
+                else
+                    This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Show("NoActivate")
+            }
+        }
+
         ToolTip(This._thumbnailsManuallyHidden ? "Thumbnails: Hidden" : "Thumbnails: Visible")
+        SetTimer () => ToolTip(), -1500
+    }
+
+    TogglePrimaryVisibility(*) {
+        This._primaryManuallyHidden := !This._primaryManuallyHidden
+        action := This._primaryManuallyHidden ? "Hide" : "Show"
+
+        for hwnd in This.ThumbWindows.OwnProps() {
+            This.ShowThumb(hwnd, action)
+        }
+
+        ToolTip(This._primaryManuallyHidden ? "Primary: Hidden" : "Primary: Visible")
+        SetTimer () => ToolTip(), -1500
+    }
+
+    ToggleSecondaryVisibility(*) {
+        This._secondaryManuallyHidden := !This._secondaryManuallyHidden
+
+        for eveHwnd in This.SecondaryThumbWindows.OwnProps() {
+            secGui := This.SecondaryThumbWindows.%eveHwnd%["Window"]
+            if (This._secondaryManuallyHidden)
+                secGui.Hide()
+            else
+                secGui.Show("NoActivate")
+            if (This.SecondaryThumbWindows.%eveHwnd%.Has("TextOverlay")) {
+                if (This._secondaryManuallyHidden)
+                    This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Hide()
+                else
+                    This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Show("NoActivate")
+            }
+        }
+
+        ToolTip(This._secondaryManuallyHidden ? "PiP: Hidden" : "PiP: Visible")
         SetTimer () => ToolTip(), -1500
     }
 
@@ -713,6 +793,12 @@ Class Main_Class extends ThumbWindow {
 
     ;This function updates the Thumbnails and hotkeys if the user switches Charakters in the character selection screen 
     EVENameChange(hwnd, title) {
+        ; Trigger LogMonitor rescan when a character logs in so their
+        ; chat/game logs are discovered immediately (not waiting for 5min scan)
+        if (title != "" && title != "EVE") {
+            try SetTimer(ObjBindMethod(This._LogMonitor, "Refresh"), -500)
+        }
+
         if (This.ThumbWindows.HasProp(hwnd)) {
             ; Preserve the OLD thumbnail position before we destroy/recreate
             ; This ensures the position is saved even when logging out to character select
@@ -907,6 +993,10 @@ Class Main_Class extends ThumbWindow {
         try {
             if (This.SecondaryThumbnails.Has(Win_Title)) {
                 settings := This.SecondaryThumbnails[Win_Title]
+                ; Check if this PiP is enabled (default to true for backward compat)
+                isEnabled := settings.Has("enabled") ? settings["enabled"] : true
+                if (!isEnabled)
+                    return
                 opacity := settings.Has("opacity") ? settings["opacity"] : 180
                 This.SecondaryThumbWindows.%Win_Hwnd% := This.Create_SecondaryThumbnail(Win_Hwnd, Win_Title, opacity)
                 This.SecondaryThumbHwnd_EvEHwnd[This.SecondaryThumbWindows.%Win_Hwnd%["Window"].Hwnd] := Win_Hwnd
