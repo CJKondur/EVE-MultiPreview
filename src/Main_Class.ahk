@@ -407,6 +407,10 @@ Class Main_Class extends ThumbWindow {
 
     ; The method to make it possible to cycle throw the EVE Windows. Used with the Hotkey Groups
      Cycle_Hotkey_Groups(Arr, direction,*) {
+        ; TOS guard: block cycling if any game key is held down
+        if (This._IsGameKeyHeld())
+            return
+
         static Index := 0 
         length := Arr.Length
 
@@ -460,6 +464,10 @@ Class Main_Class extends ThumbWindow {
 
     ; Cycle through EVE Character Select windows (title = "EVE")
     Cycle_CharSelect_Windows(direction, *) {
+        ; TOS guard: block cycling if any game key is held down
+        if (This._IsGameKeyHeld())
+            return
+
         try
             CharSelectList := WinGetList("EVE ahk_exe exefile.exe")
         catch
@@ -1129,7 +1137,12 @@ Class Main_Class extends ThumbWindow {
         This.DestroyThumbnailsToggle := 1
     }
     
-    ActivateEVEWindow(hwnd?,ThisHotkey?, title?) {   
+    ActivateEVEWindow(hwnd?,ThisHotkey?, title?) {
+        ; TOS guard: block hotkey-triggered switches if any game key is held.
+        ; Only applies when called via hotkey (title is set), not thumbnail click (hwnd is set).
+        if (IsSet(title) && !IsSet(hwnd) && This._IsGameKeyHeld())
+            return
+
         ; If the user clicks the Thumbnail then hwnd stores the Thumbnail Hwnd. Here the Hwnd gets changed to the contiguous EVE window hwnd
         if (IsSet(hwnd) && This.ThumbHwnd_EvEHwnd.Has(hwnd)) {
             hwnd := WinExist(This.ThumbHwnd_EvEHwnd[hwnd])
@@ -1171,9 +1184,13 @@ Class Main_Class extends ThumbWindow {
         }
     }
 
-    ; Fast direct window activation — used only for char select cycling where
-    ; we have an hwnd but no title-based hotkey context
+
+    ; Fast direct window activation — used only for char select cycling
+    ; Defense-in-depth: guard here too in case the caller's check was bypassed
     _FastActivate(hwnd) {
+        if (This._IsGameKeyHeld())
+            return
+
         try {
             if !(DllCall("SetForegroundWindow", "UInt", hwnd)) {
                 DllCall("SetForegroundWindow", "UInt", hwnd)
@@ -1186,6 +1203,10 @@ Class Main_Class extends ThumbWindow {
 
     ;The function for the Internal Hotkey to bring a not minimized window in foreground 
     ActivateForgroundWindow(*) {
+        ; Defense-in-depth: TOS guard at the final activation point
+        if (This._IsGameKeyHeld())
+            return
+
         ; 2 attempts for bringing the window in foreground 
         try {
             if !(DllCall("SetForegroundWindow", "UInt", This.ActivateHwnd)) {
@@ -1197,6 +1218,34 @@ Class Main_Class extends ThumbWindow {
                 This.ShowWindowAsync(This.ActivateHwnd, 3)
         }       
         Return 
+    }
+
+    ; ============================================================
+    ; TOS COMPLIANCE: Prevent input broadcasting across clients
+    ; ============================================================
+    ; Returns true if ANY non-modifier key is physically held down.
+    ; Uses Windows API GetAsyncKeyState for hardware-level detection.
+    ; Scans ALL virtual key codes (0x08-0xFE) — blanket coverage.
+    ; FAIL-SAFE: any error returns true (blocks the switch).
+    _IsGameKeyHeld() {
+        vk := 0x07
+        while (++vk <= 0xFE) {
+            ; Skip modifier keys — these are part of hotkey combos
+            if (vk >= 0x10 && vk <= 0x12)   ; VK_SHIFT, VK_CONTROL, VK_MENU
+                continue
+            if (vk = 0x5B || vk = 0x5C)     ; VK_LWIN, VK_RWIN
+                continue
+            if (vk >= 0xA0 && vk <= 0xA5)   ; VK_LSHIFT..VK_RMENU
+                continue
+            ; Skip mouse buttons
+            if (vk >= 0x01 && vk <= 0x06)
+                continue
+            ; GetAsyncKeyState: high bit (0x8000) = key is currently down
+            state := DllCall("GetAsyncKeyState", "Int", vk, "Short")
+            if (state & 0x8000)
+                return true
+        }
+        return false
     }
 
 
