@@ -1547,10 +1547,12 @@ Class Settings_Gui {
         EvENameList := []
         for EveHwnd in This.ThumbWindows.OwnProps() {
             try {
-                if title := This.CleanTitle(WinGetTitle("Ahk_Id " EveHwnd) = "") {
+                rawTitle := WinGetTitle("Ahk_Id " EveHwnd)
+                if (rawTitle = "")
                     continue
-                }
-                EvENameList.Push This.CleanTitle(WinGetTitle("Ahk_Id " EveHwnd))
+                cleaned := This.CleanTitle(rawTitle)
+                if (cleaned != "")
+                    EvENameList.Push(cleaned)
             }
         }
         return EvENameList
@@ -1570,7 +1572,7 @@ Class Settings_Gui {
     ; PANEL: About
     ; ============================================================
     Panel_About() {
-        static APP_VERSION := "1.0.4"
+        static APP_VERSION := "1.0.5"
         static GITHUB_URL := "https://github.com/CJKondur/EVE-MultiPreview"
 
         P := []
