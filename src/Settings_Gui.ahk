@@ -221,6 +221,15 @@ Class Settings_Gui {
         P.Push This.S_Gui.Add("DDL", "x430 y" y " w180 vHotkey_Scoope Choose" (This.Global_Hotkeys ? 1 : 2), ["Global", "If an EVE window is Active"])
         This.S_Gui["Hotkey_Scoope"].OnEvent("Change", (obj, *) => This._gHandler(obj))
 
+        ; Simple: Key-block guard toggle
+        y += 35
+        chkGuard := This.AddLabelCheck(P, "Hotkey Key-Block Guard:", y, "EnableKeyBlockGuard", This.EnableKeyBlockGuard)
+        chkGuard.OnEvent("Click", (obj, *) => This._OnKeyBlockGuardToggle(obj))
+        y += 18
+        This.S_Gui.SetFont("s8 w400 c666666", "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x215 y" y " w400 h16 BackgroundTrans", "Blocks held keys from broadcasting when cycling clients via hotkey.")
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
         ; Advanced: Suspend hotkey
         y += 35
         ctrl := This.AddLabelEdit(A, "Suspend Hotkeys Hotkey:", y, "Suspend_Hotkeys_Hotkey", This.Suspend_Hotkeys_Hotkey)
@@ -239,6 +248,28 @@ Class Settings_Gui {
         ; Advanced: Session timer
         y += 35
         This.AddLabelCheck(A, "Show Session Timer on Thumbnails:", y, "ShowSessionTimer", This.ShowSessionTimer).OnEvent("Click", (obj, *) => This._gHandler(obj))
+    }
+
+    ; Disclaimer popup when user disables the key-block guard
+    _OnKeyBlockGuardToggle(obj, *) {
+        if (!obj.Value) {
+            ; User is DISABLING the guard — show disclaimer
+            result := MsgBox(
+                "⚠️ DISCLAIMER — USE AT YOUR OWN RISK`n`n"
+                "The Hotkey Key-Block Guard prevents held keys from being sent to multiple EVE clients when cycling via hotkey.`n`n"
+                "Disabling this guard means that if you hold a game key (e.g. D to dock) while pressing a cycle hotkey, that key WILL be sent to each client as it receives focus.`n`n"
+                "This behavior is a built in Windows function called RegisterHotKey. With the added ability of EVE preview tools to allow fast cycling of clients it is potentially a grey area within the TOS depending on interpretation. CCP has not acted upon this even though EVE preview tools have been around for many years.`n`n"
+                "By disabling this guard, you acknowledge and accept full responsibility for any consequences.`n`n"
+                "Disable the guard?",
+                "Key-Block Guard", "YesNo Icon!"
+            )
+            if (result != "Yes") {
+                obj.Value := 1  ; Revert checkbox
+                return
+            }
+        }
+        This.EnableKeyBlockGuard := obj.Value
+        This.NeedRestart := 1
     }
 
     _gHandler(obj) {
@@ -1572,7 +1603,7 @@ Class Settings_Gui {
     ; PANEL: About
     ; ============================================================
     Panel_About() {
-        static APP_VERSION := "1.0.5"
+        static APP_VERSION := "1.0.6"
         static GITHUB_URL := "https://github.com/CJKondur/EVE-MultiPreview"
 
         P := []

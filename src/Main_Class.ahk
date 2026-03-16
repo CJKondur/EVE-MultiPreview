@@ -325,8 +325,9 @@ Class Main_Class extends ThumbWindow {
 
     ; The method to make it possible to cycle throw the EVE Windows. Used with the Hotkey Groups
      Cycle_Hotkey_Groups(Arr, direction,*) {
-        ; TOS guard: block cycling if any key is held down
-        if (This._IsGameKeyHeld())
+        ; TOS guard: block cycling if any game key is held down
+        ; Pass A_ThisHotkey so the triggering key itself isn't falsely detected
+        if (This._IsGameKeyHeld(A_ThisHotkey))
             return
 
         static Index := 0 
@@ -382,8 +383,8 @@ Class Main_Class extends ThumbWindow {
 
     ; Cycle through EVE Character Select windows (title = "EVE")
     Cycle_CharSelect_Windows(direction, *) {
-        ; TOS guard: block cycling if any key is held down
-        if (This._IsGameKeyHeld())
+        ; TOS guard: block cycling if any game key is held down
+        if (This._IsGameKeyHeld(A_ThisHotkey))
             return
 
         try
@@ -880,9 +881,9 @@ Class Main_Class extends ThumbWindow {
     }
     
     ActivateEVEWindow(hwnd?,ThisHotkey?, title?) {
-        ; TOS guard: block hotkey-triggered switches if any key is held.
+        ; TOS guard: block hotkey-triggered switches if any game key is held.
         ; Only applies when called via hotkey (title is set), not thumbnail click (hwnd is set).
-        if (IsSet(title) && !IsSet(hwnd) && This._IsGameKeyHeld())
+        if (IsSet(title) && !IsSet(hwnd) && This._IsGameKeyHeld(A_ThisHotkey))
             return
 
         ; If the user clicks the Thumbnail then hwnd stores the Thumbnail Hwnd. Here the Hwnd gets changed to the contiguous EVE window hwnd
@@ -930,7 +931,7 @@ Class Main_Class extends ThumbWindow {
     ; Defense-in-depth: TOS guard here too
     _FastActivate(hwnd) {
         if (This._IsGameKeyHeld())
-            return
+            return  ; Uses _lastHotkeyVK set by the entry-point guard
 
         try {
             if !(DllCall("SetForegroundWindow", "UInt", hwnd)) {
@@ -964,13 +965,40 @@ Class Main_Class extends ThumbWindow {
     ; ============================================================
     ; TOS COMPLIANCE: Prevent input broadcasting across clients
     ; ============================================================
-    ; Returns true if ANY non-modifier key is physically held down.
+    ; Returns true if ANY non-modifier key is physically held down,
+    ; EXCLUDING the triggering hotkey's own base key.
     ; Uses Windows API GetAsyncKeyState for hardware-level detection.
     ; Scans ALL virtual key codes (0x08-0xFE) — blanket coverage.
     ; FAIL-SAFE: any error returns true (blocks the switch).
-    _IsGameKeyHeld() {
+    ;
+    ; hotkeyStr: optional AHK hotkey name (e.g. "^F5", "Numpad1").
+    ;   The base key's VK is extracted and excluded from the scan
+    ;   so the hotkey itself doesn't false-positive as a held game key.
+    ;   The extracted VK is stored in _lastHotkeyVK for defense-in-depth
+    ;   guards that don't have access to the original hotkey string.
+    _IsGameKeyHeld(hotkeyStr?) {
+        ; If the user has disabled the guard in settings, always allow switching
+        if (!This.EnableKeyBlockGuard)
+            return false
+
+        excludeVK := 0
+        if (IsSet(hotkeyStr) && hotkeyStr != "") {
+            ; Strip modifier prefixes: ^ (Ctrl), ! (Alt), + (Shift), # (Win), < > (L/R)
+            baseKey := RegExReplace(hotkeyStr, "[\^!+#<>]", "")
+            if (baseKey != "") {
+                try excludeVK := GetKeyVK(baseKey)
+            }
+            This._lastHotkeyVK := excludeVK
+        } else if (This.HasOwnProp("_lastHotkeyVK")) {
+            ; Defense-in-depth calls: reuse the VK from the entry-point guard
+            excludeVK := This._lastHotkeyVK
+        }
+
         vk := 0x07
         while (++vk <= 0xFE) {
+            ; Skip the triggering hotkey's own base key
+            if (excludeVK && vk = excludeVK)
+                continue
             ; Skip modifier keys — these are part of hotkey combos
             if (vk >= 0x10 && vk <= 0x12)   ; VK_SHIFT, VK_CONTROL, VK_MENU
                 continue

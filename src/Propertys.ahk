@@ -88,6 +88,16 @@ class Propertys extends TrayMenu {
         get => This._JSON["global_Settings"]["CharSelect_CyclingEnabled"]
         set => This._JSON["global_Settings"]["CharSelect_CyclingEnabled"] := value
     }
+    EnableKeyBlockGuard {
+        get {
+            try return This._JSON["global_Settings"]["EnableKeyBlockGuard"]
+            catch {
+                This._JSON["global_Settings"]["EnableKeyBlockGuard"] := true
+                return true
+            }
+        }
+        set => This._JSON["global_Settings"]["EnableKeyBlockGuard"] := value
+    }
     RTSS_Enabled {
         get => This._JSON["global_Settings"]["RTSS_Enabled"]
         set => This._JSON["global_Settings"]["RTSS_Enabled"] := value
