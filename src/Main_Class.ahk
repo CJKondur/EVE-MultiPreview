@@ -40,6 +40,8 @@ Class Main_Class extends ThumbWindow {
     EventHooks := Map() 
     ThumbWindows := {}
     ThumbHwnd_EvEHwnd := Map()
+    SecondaryThumbWindows := {}
+    SecondaryThumbHwnd_EvEHwnd := Map()
 
     __New() { 
 
@@ -97,16 +99,72 @@ Class Main_Class extends ThumbWindow {
                 MsgBox(e.Message ": --> " e.Extra " <-- in: Global Settings -> Click-Through Hotkey" )
             }
         }
+        ; Register Hide/Show Thumbnails toggle hotkey
+        if (This.HideShowThumbnailsHotkey != "") {
+            HotIf (*) => WinExist(This.EVEExe)
+            try {
+                Hotkey This.HideShowThumbnailsHotkey, ObjBindMethod(This, "ToggleThumbnailVisibility"), "P1"
+            }
+            catch ValueError as e {
+                MsgBox(e.Message ": --> " e.Extra " <-- in: Global Settings -> Hide/Show Thumbnails Hotkey" )
+            }
+        }
+
+        ; Register Hide Primary hotkey
+        if (This.HidePrimaryHotkey != "") {
+            HotIf (*) => WinExist(This.EVEExe)
+            try {
+                Hotkey This.HidePrimaryHotkey, ObjBindMethod(This, "TogglePrimaryVisibility"), "P1"
+            }
+            catch ValueError as e {
+                MsgBox(e.Message ": --> " e.Extra " <-- in: Global Settings -> Hide Primary Hotkey" )
+            }
+        }
+
+        ; Register Hide Secondary (PiP) hotkey
+        if (This.HideSecondaryHotkey != "") {
+            HotIf (*) => WinExist(This.EVEExe)
+            try {
+                Hotkey This.HideSecondaryHotkey, ObjBindMethod(This, "ToggleSecondaryVisibility"), "P1"
+            }
+            catch ValueError as e {
+                MsgBox(e.Message ": --> " e.Extra " <-- in: Global Settings -> Hide Secondary Hotkey" )
+            }
+        }
+
+        ; Register Profile Cycle hotkeys
+        if (This.ProfileCycleForwardHotkey != "") {
+            HotIf (*) => WinExist(This.EVEExe)
+            try {
+                Hotkey This.ProfileCycleForwardHotkey, ObjBindMethod(This, "CycleProfile", "Forward"), "P1"
+            }
+            catch ValueError as e {
+                MsgBox(e.Message ": --> " e.Extra " <-- in: Global Settings -> Profile Cycle Forward Hotkey" )
+            }
+        }
+        if (This.ProfileCycleBackwardHotkey != "") {
+            HotIf (*) => WinExist(This.EVEExe)
+            try {
+                Hotkey This.ProfileCycleBackwardHotkey, ObjBindMethod(This, "CycleProfile", "Backward"), "P1"
+            }
+            catch ValueError as e {
+                MsgBox(e.Message ": --> " e.Extra " <-- in: Global Settings -> Profile Cycle Backward Hotkey" )
+            }
+        }
 
         ; Initialize state
         This._ClickThroughActive := false
+        This._thumbnailsManuallyHidden := false
+        This._primaryManuallyHidden := false
+        This._secondaryManuallyHidden := false
         This._SessionStartTimes := Map()
-        ; Attack alert state
-        This._AttackAlerts := Map()      ; charName -> A_TickCount (under attack)
-        This._AttackFlashState := 0      ; toggle for border flash
-        This._CombatScanCounter := 0     ; throttle combat log scanning
-        This._LastCombatLines := Map()   ; filePath -> last known file size
-        This._AlertDismissed := Map()    ; charName -> A_TickCount (when dismissed)
+        ; Alert state (legacy compat — LogMonitor is the new engine)
+        This._AttackAlerts := Map()
+        This._AlertDismissed := Map()
+        This._CharSystems := Map()
+
+        ; Initialize LogMonitor
+        This._LogMonitor := LogMonitor(This)
 
         ; The Timer property for Asycn Minimizing.
         this.timer := ObjBindMethod(this, "EVEMinimize")
@@ -125,6 +183,8 @@ Class Main_Class extends ThumbWindow {
         ;The Main Timer who checks for new EVE Windows or closes Windows 
         SetTimer(ObjBindMethod(This, "HandleMainTimer"), 50)
         This.Save_Settings_Delay_Timer := ObjBindMethod(This, "SaveJsonToFile")
+        ; Always save settings before the app exits (tray exit, reload, etc.)
+        OnExit(ObjBindMethod(This, "_OnAppExit"))
         ;Timer property to remove Thumbnails for closed EVE windows 
         This.DestroyThumbnails := ObjBindMethod(This, "EvEWindowDestroy")
         This.DestroyThumbnailsToggle := 1
@@ -135,14 +195,20 @@ Class Main_Class extends ThumbWindow {
 
         ; Session timer & system name periodic update (every 1s for real-time timer)
         if (This.ShowSessionTimer || This.ShowSystemName) {
-            This._logScanCounter := 0
             SetTimer(ObjBindMethod(This, "RefreshSessionTimers"), 1000)
         }
 
-        ; Attack alert timers
-        if (This.EnableAttackAlerts) {
-            SetTimer(ObjBindMethod(This, "_ScanCombatLogs"), 2000)     ; Check logs every 2s
-            SetTimer(ObjBindMethod(This, "_FlashAttackBorders"), 500)  ; Flash every 500ms
+        ; Start LogMonitor (replaces old _ScanCombatLogs + _ScanEVELogs)
+        if (This.EnableAttackAlerts || This.ShowSystemName) {
+            This._LogMonitor.Start()
+        }
+
+        ; Check if settings should reopen (after Apply button triggered Reload)
+        reopenFlag := A_Temp "\evemultipreview_reopen_settings.flag"
+        if FileExist(reopenFlag) {
+            try FileDelete(reopenFlag)
+            ; Delay opening so the main loop initializes first
+            SetTimer(ObjBindMethod(This, "MainGui"), -500)
         }
 
         return This
@@ -162,7 +228,7 @@ Class Main_Class extends ThumbWindow {
                     WinList.%hwnd% := { Title: This.CleanTitle(WinGetTitle(hwnd)) }
                     if !This.ThumbWindows.HasProp(hwnd) {
                         This.EVE_WIN_Created(hwnd, WinList.%hwnd%.title)
-                        if (!This.HideThumbnailsOnLostFocus)                            
+                        if (!This.HideThumbnailsOnLostFocus && !This._thumbnailsManuallyHidden)
                             This.ShowThumb(hwnd, "Show")
                         HideShowToggle := 1                  
                     }
@@ -187,9 +253,16 @@ Class Main_Class extends ThumbWindow {
                 }
                 else if ( ActiveProcessName = "exefile.exe" && !DllCall("IsIconic","UInt", WinActive("ahk_exe exefile.exe"))) {
                     Ahwnd := WinExist("A")
-                    if HideShowToggle {                        
+                    if HideShowToggle {
                         for EVEHWND in This.ThumbWindows.OwnProps() {
-                            This.ShowThumb(EVEHWND, "Show")
+                            ; Skip showing if thumbnails are manually hidden
+                            if (This._thumbnailsManuallyHidden)
+                                break
+                            ; Hide active thumbnail if setting is enabled
+                            if (This.HideActiveThumbnail && EVEHWND = Ahwnd)
+                                This.ShowThumb(EVEHWND, "Hide")
+                            else
+                                This.ShowThumb(EVEHWND, "Show")
                         }
                         HideShowToggle := 0
                         This.BorderActive := 0
@@ -200,6 +273,15 @@ Class Main_Class extends ThumbWindow {
                         if (This.ShowThumbnailsAlwaysOnTop)
                             WinSetAlwaysOnTop(1,This.ThumbWindows.%Ahwnd%["Window"].Hwnd )
                         
+                        ; Hide/show thumbnails when active window changes
+                        if (This.HideActiveThumbnail) {
+                            ; Show the previously active thumbnail
+                            if (This.BorderActive && This.ThumbWindows.HasProp(This.BorderActive))
+                                This.ShowThumb(This.BorderActive, "Show")
+                            ; Hide the newly active thumbnail
+                            This.ShowThumb(Ahwnd, "Hide")
+                        }
+
                         This.ShowActiveBorder(Ahwnd)
                         This.UpdateThumb_AfterActivation(, Ahwnd)
                         This.BorderActive := Ahwnd
@@ -325,8 +407,9 @@ Class Main_Class extends ThumbWindow {
 
     ; The method to make it possible to cycle throw the EVE Windows. Used with the Hotkey Groups
      Cycle_Hotkey_Groups(Arr, direction,*) {
-        ; TOS guard: block cycling if any key is held down
-        if (This._IsGameKeyHeld())
+        ; TOS guard: block cycling if any game key is held down
+        ; Pass A_ThisHotkey so the triggering key itself isn't falsely detected
+        if (This._IsGameKeyHeld(A_ThisHotkey))
             return
 
         static Index := 0 
@@ -382,8 +465,8 @@ Class Main_Class extends ThumbWindow {
 
     ; Cycle through EVE Character Select windows (title = "EVE")
     Cycle_CharSelect_Windows(direction, *) {
-        ; TOS guard: block cycling if any key is held down
-        if (This._IsGameKeyHeld())
+        ; TOS guard: block cycling if any game key is held down
+        if (This._IsGameKeyHeld(A_ThisHotkey))
             return
 
         try
@@ -468,16 +551,112 @@ Class Main_Class extends ThumbWindow {
         SetTimer () => ToolTip(), -1500
     }
 
-    ; Update thumbnail overlay text with session timer and system name
-    RefreshSessionTimers() {
-        ; Scan EVE logs for system names (throttled — every 10s)
-        if (This.ShowSystemName) {
-            This._logScanCounter++
-            if (This._logScanCounter >= 10) {
-                This._logScanCounter := 0
-                This._ScanEVELogs()
+    ; Toggle visibility of all thumbnail windows (hide/show)
+    ToggleThumbnailVisibility(*) {
+        This._thumbnailsManuallyHidden := !This._thumbnailsManuallyHidden
+        action := This._thumbnailsManuallyHidden ? "Hide" : "Show"
+
+        for hwnd in This.ThumbWindows.OwnProps() {
+            This.ShowThumb(hwnd, action)
+        }
+
+        ; Also toggle secondary thumbnails
+        for eveHwnd in This.SecondaryThumbWindows.OwnProps() {
+            secGui := This.SecondaryThumbWindows.%eveHwnd%["Window"]
+            if (This._thumbnailsManuallyHidden)
+                secGui.Hide()
+            else
+                secGui.Show("NoActivate")
+            if (This.SecondaryThumbWindows.%eveHwnd%.Has("TextOverlay")) {
+                if (This._thumbnailsManuallyHidden)
+                    This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Hide()
+                else
+                    This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Show("NoActivate")
             }
         }
+
+        ToolTip(This._thumbnailsManuallyHidden ? "Thumbnails: Hidden" : "Thumbnails: Visible")
+        SetTimer () => ToolTip(), -1500
+    }
+
+    TogglePrimaryVisibility(*) {
+        This._primaryManuallyHidden := !This._primaryManuallyHidden
+        action := This._primaryManuallyHidden ? "Hide" : "Show"
+
+        for hwnd in This.ThumbWindows.OwnProps() {
+            This.ShowThumb(hwnd, action)
+        }
+
+        ToolTip(This._primaryManuallyHidden ? "Primary: Hidden" : "Primary: Visible")
+        SetTimer () => ToolTip(), -1500
+    }
+
+    ToggleSecondaryVisibility(*) {
+        This._secondaryManuallyHidden := !This._secondaryManuallyHidden
+
+        for eveHwnd in This.SecondaryThumbWindows.OwnProps() {
+            secGui := This.SecondaryThumbWindows.%eveHwnd%["Window"]
+            if (This._secondaryManuallyHidden)
+                secGui.Hide()
+            else
+                secGui.Show("NoActivate")
+            if (This.SecondaryThumbWindows.%eveHwnd%.Has("TextOverlay")) {
+                if (This._secondaryManuallyHidden)
+                    This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Hide()
+                else
+                    This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Show("NoActivate")
+            }
+        }
+
+        ToolTip(This._secondaryManuallyHidden ? "PiP: Hidden" : "PiP: Visible")
+        SetTimer () => ToolTip(), -1500
+    }
+
+    ; Cycle between profiles (Forward or Backward)
+    CycleProfile(direction, *) {
+        ; Build an array of profile names
+        profileNames := []
+        for name in This.Profiles {
+            profileNames.Push(name)
+        }
+        if (profileNames.Length <= 1)
+            return  ; Only one profile, nothing to cycle
+
+        ; Find current profile index
+        currentIdx := 0
+        for idx, name in profileNames {
+            if (name = This.LastUsedProfile) {
+                currentIdx := idx
+                break
+            }
+        }
+        if (currentIdx = 0)
+            currentIdx := 1
+
+        ; Calculate next index with wrapping
+        if (direction = "Forward") {
+            nextIdx := currentIdx + 1
+            if (nextIdx > profileNames.Length)
+                nextIdx := 1
+        } else {
+            nextIdx := currentIdx - 1
+            if (nextIdx <= 0)
+                nextIdx := profileNames.Length
+        }
+
+        ; Switch to the new profile
+        newProfile := profileNames[nextIdx]
+        This.LastUsedProfile := newProfile
+        ToolTip("Profile: " newProfile)
+        SetTimer () => ToolTip(), -1500
+        This.SaveJsonToFile()
+        Sleep(300)
+        Reload()
+    }
+
+    ; Update thumbnail overlay text with session timer and system name
+    RefreshSessionTimers() {
+        ; System names are now updated by LogMonitor in real-time via _CharSystems
 
         for eveHwnd, thumbObj in This.ThumbWindows.OwnProps() {
             try {
@@ -487,6 +666,22 @@ Class Main_Class extends ThumbWindow {
                 overlayText := title
                 ; Convert property name (string) to numeric HWND for Map lookup
                 numHwnd := Integer(eveHwnd)
+
+                ; Not Logged In Indicator — applies to char select screens
+                isCharSelect := (title = "" || title = "EVE")
+                if (isCharSelect && This.NotLoggedInIndicator != "none") {
+                    indicatorType := This.NotLoggedInIndicator
+                    if (indicatorType = "text") {
+                        overlayText := "⚠ Not Logged In"
+                    } else if (indicatorType = "border") {
+                        try thumbObj["Border"].BackColor := This.NotLoggedInColor
+                    } else if (indicatorType = "dim") {
+                        try WinSetTransparent(100, thumbObj["Window"].Hwnd)
+                    }
+                } else if (!isCharSelect && This.NotLoggedInIndicator = "dim") {
+                    ; Restore normal transparency for logged-in characters
+                    try WinSetTransparent(This.ThumbnailOpacity, thumbObj["Window"].Hwnd)
+                }
 
                 ; Add system name
                 if (This.ShowSystemName && This._CharSystems.Has(cleanName)) {
@@ -507,178 +702,69 @@ Class Main_Class extends ThumbWindow {
         }
     }
 
-    ; Scan EVE game logs to find current system for each character
-    _ScanEVELogs() {
-        logDir := EnvGet("USERPROFILE") "\Documents\EVE\logs\Gamelogs"
-        if (!DirExist(logDir))
-            return
+    ; === LogMonitor Callback Methods ===
 
-        if (!This.HasOwnProp("_CharSystems"))
-            This._CharSystems := Map()
-
-        ; Find the newest log file per character by scanning recent files
-        try {
-            loop files logDir "\*.txt" {
-                ; Only check files modified in the last 2 hours
-                if (DateDiff(A_Now, A_LoopFileTimeModified, "Minutes") > 120)
-                    continue
-
-                ; Read header to get character name (first 5 lines)
-                charName := ""
-                lastSystem := ""
-                lineNum := 0
-                loop read A_LoopFileFullPath {
-                    lineNum++
-                    if (lineNum <= 5) {
-                        if (InStr(A_LoopReadLine, "Listener:")) {
-                            charName := Trim(StrReplace(A_LoopReadLine, "Listener:", ""), " `t")
-                        }
-                    }
-                    ; Parse "Jumping from X to Y" for last system
-                    if (InStr(A_LoopReadLine, "Jumping from")) {
-                        pos := InStr(A_LoopReadLine, " to ", , InStr(A_LoopReadLine, "Jumping from"))
-                        if (pos > 0)
-                            lastSystem := Trim(SubStr(A_LoopReadLine, pos + 4), "`n `r")
-                    }
-                    ; Parse "Undocking from X to Y solar system." for current system
-                    else if (InStr(A_LoopReadLine, "Undocking from")) {
-                        pos := InStr(A_LoopReadLine, " to ", , InStr(A_LoopReadLine, "Undocking from"))
-                        if (pos > 0) {
-                            sysName := Trim(SubStr(A_LoopReadLine, pos + 4), "`n `r")
-                            ; Strip trailing " solar system." if present
-                            if (InStr(sysName, " solar system."))
-                                sysName := SubStr(sysName, 1, InStr(sysName, " solar system.") - 1)
-                            lastSystem := sysName
-                        }
-                    }
-                }
-                if (charName != "" && lastSystem != "")
-                    This._CharSystems[charName] := lastSystem
-            }
-        }
+    ; Called by LogMonitor when an alert event is detected
+    _OnLogAlert(charName, eventType, severity, text) {
+        ; Legacy compat: keep _AttackAlerts for ShowActiveBorder dismiss logic
+        if (eventType = "attack" || severity = "critical")
+            This._AttackAlerts[charName] := A_TickCount
     }
 
-    ; Scan EVE logs for incoming combat (attack alerts)
-    _ScanCombatLogs() {
-        if (!This.EnableAttackAlerts)
-            return
-
-        logDir := EnvGet("USERPROFILE") "\Documents\EVE\logs\Gamelogs"
-        if (!DirExist(logDir))
-            return
-
-        try {
-            loop files logDir "\*.txt" {
-                ; Only check files modified in the last 5 minutes
-                if (DateDiff(A_Now, A_LoopFileTimeModified, "Minutes") > 5)
-                    continue
-
-                filePath := A_LoopFileFullPath
-                isFirstScan := !This._LastCombatLines.Has(filePath)
-
-                ; Read file: get character name and count total lines
-                charName := ""
-                hasCombat := false
-                lineNum := 0
-                lastKnownLine := isFirstScan ? 999999999 : This._LastCombatLines[filePath]
-
-                loop read filePath {
-                    lineNum++
-                    ; Get character name from header
-                    if (lineNum <= 5 && InStr(A_LoopReadLine, "Listener:"))
-                        charName := Trim(StrReplace(A_LoopReadLine, "Listener:", ""), " `t")
-
-                    ; Only check lines AFTER the last known line
-                    if (lineNum <= lastKnownLine)
-                        continue
-
-                    ; Only alert on INCOMING damage:
-                    ;   - color=0xffcc0000 = red damage text (incoming hits)
-                    ;   - "misses you" = incoming miss
-                    ; Ignore outgoing damage (color=0xff00ffff = cyan, "to" target)
-                    if (InStr(A_LoopReadLine, "(combat)")) {
-                        if (InStr(A_LoopReadLine, "0xffcc0000") || InStr(A_LoopReadLine, "misses you"))
-                            hasCombat := true
-                    }
-                }
-
-                ; Update baseline to current line count
-                This._LastCombatLines[filePath] := lineNum
-
-                if (charName != "" && hasCombat) {
-                    ; Don't re-alert if dismissed within last 3 seconds
-                    if (This._AlertDismissed.Has(charName) && A_TickCount - This._AlertDismissed[charName] < 3000)
-                        continue
-                    This._AttackAlerts[charName] := A_TickCount
-                }
-            }
+    ; Called by LogMonitor to apply flash visual per tick
+    _ApplyAlertFlash(charName, severity, text, flashOn) {
+        ; Get severity color from config
+        sevColors := This.SeverityColors
+        flashColor := "FF0000"  ; default fallback
+        dimColor := "330000"
+        if (sevColors is Map) {
+            if (severity = "critical" && sevColors.Has("critical"))
+                flashColor := StrReplace(sevColors["critical"], "#", "")
+            else if (severity = "warning" && sevColors.Has("warning"))
+                flashColor := StrReplace(sevColors["warning"], "#", "")
+            else if (severity = "info" && sevColors.Has("info"))
+                flashColor := StrReplace(sevColors["info"], "#", "")
         }
 
-        ; Expire old alerts (no combat for 5 seconds) and restore borders
-        for charName, lastTick in This._AttackAlerts.Clone() {
-            if (A_TickCount - lastTick > 5000) {
-                This._AttackAlerts.Delete(charName)
-                This._RestoreBorderColor(charName)
-            }
-        }
-    }
-
-    ; Restore the normal border color for a character after an alert clears
-    _RestoreBorderColor(charName) {
         for eveHwnd, thumbObj in This.ThumbWindows.OwnProps() {
             try {
                 title := thumbObj["Window"].Title
                 cleanName := RegExReplace(title, "^EVE - ", "")
                 if (cleanName = charName) {
-                    ; Check for custom per-character border color
-                    if (This.CustomColorsGet.Has(title) && This.CustomColorsGet[title].Has("IABorder"))
-                        thumbObj["Border"].BackColor := This.CustomColorsGet[title]["IABorder"]
-                    else
-                        thumbObj["Border"].BackColor := This.InactiveClientBorderColor
+                    if (flashOn) {
+                        try thumbObj["Border"].BackColor := flashColor
+                    } else {
+                        if (severity = "info") {
+                            try thumbObj["Border"].BackColor := flashColor
+                        } else {
+                            try thumbObj["Border"].BackColor := dimColor
+                        }
+                    }
                     thumbObj["Border"].Show("NoActivate")
-                    return
                 }
             }
         }
     }
 
-    ; Flash red border for characters under attack
-    _FlashAttackBorders() {
-        if (!This.EnableAttackAlerts || This._AttackAlerts.Count = 0)
-            return
-
-        ; Clear alert when the attacked client is brought to focus
-        try {
-            activeHwnd := WinGetID("A")
-            activeTitle := WinGetTitle("ahk_id " activeHwnd)
-            if (InStr(activeTitle, "EVE - ")) {
-                cleanActive := RegExReplace(activeTitle, "^EVE - ", "")
-                if (This._AttackAlerts.Has(cleanActive)) {
-                    This._AttackAlerts.Delete(cleanActive)
-                    This._RestoreBorderColor(cleanActive)
-                    if (This._AttackAlerts.Count = 0)
-                        return
-                }
-            }
-        }
-
-        This._AttackFlashState := !This._AttackFlashState
+    ; Called by LogMonitor when an alert expires — restore normal border
+    _RestoreAlertBorder(charName) {
+        ; Also clean legacy compat map
+        if (This._AttackAlerts.Has(charName))
+            This._AttackAlerts.Delete(charName)
 
         for eveHwnd, thumbObj in This.ThumbWindows.OwnProps() {
             try {
                 title := thumbObj["Window"].Title
                 cleanName := RegExReplace(title, "^EVE - ", "")
-
-                if (This._AttackAlerts.Has(cleanName)) {
-                    if (This._AttackFlashState) {
-                        ; Flash RED
-                        try thumbObj["Border"].BackColor := "FF0000"
-                        thumbObj["Border"].Show("NoActivate")
-                    } else {
-                        ; Flash OFF (hide border briefly)
-                        try thumbObj["Border"].BackColor := "330000"
-                        thumbObj["Border"].Show("NoActivate")
-                    }
+                if (cleanName = charName) {
+                    ; Restore to custom color or default
+                    if (This.CustomColorsActive && This.CustomColorsGet[title]["Char"] != "" && This.CustomColorsGet[title]["IABorder"] != "")
+                        thumbObj["Border"].BackColor := This.CustomColorsGet[title]["IABorder"]
+                    else if (This.ShowAllColoredBorders)
+                        thumbObj["Border"].BackColor := This.InactiveClientBorderColor
+                    else
+                        thumbObj["Border"].Show("Hide")
+                    return
                 }
             }
         }
@@ -716,19 +802,63 @@ Class Main_Class extends ThumbWindow {
 
     ;This function updates the Thumbnails and hotkeys if the user switches Charakters in the character selection screen 
     EVENameChange(hwnd, title) {
+        ; Trigger LogMonitor rescan when a character logs in so their
+        ; chat/game logs are discovered immediately (not waiting for 5min scan)
+        if (title != "" && title != "EVE") {
+            try SetTimer(ObjBindMethod(This._LogMonitor, "Refresh"), -500)
+        }
+
         if (This.ThumbWindows.HasProp(hwnd)) {
-            This.SetThumbnailText[hwnd] := title
-            ; moves the Window to the saved positions if any stored, a bit of sleep is usfull to give the window time to move before creating the thumbnail
+            ; Preserve the OLD thumbnail position before we destroy/recreate
+            ; This ensures the position is saved even when logging out to character select
+            ; (where the new title becomes "" and EvEWindowDestroy would skip the save)
+            try {
+                oldThumbGui := This.ThumbWindows.%hwnd%["Window"]
+                oldTitle := oldThumbGui.Title
+                if (oldTitle != "" && oldTitle != "EVE" && oldTitle != title) {
+                    WinGetPos(&oX, &oY, &oW, &oH, oldThumbGui.Hwnd)
+                    This.ThumbnailPositions[oldTitle] := [oX, oY, oW, oH]
+                }
+            }
+
+            ; Restore client window positions if any stored
             This.RestoreClientPossitions(hwnd, title)
 
+            ; IMPORTANT: Do NOT call SetThumbnailText before EvEWindowDestroy!
+            ; SetThumbnailText changes thumbGui.Title, and EvEWindowDestroy saves
+            ; position based on that title. If we change it first, EvEWindowDestroy
+            ; would overwrite the character's saved position with the current
+            ; (default/char-select) position.
+
             if (title = "") {
+                ; Logging out to character select — destroy and recreate thumbnail
                 This.EvEWindowDestroy(hwnd, title)
-                This.EVE_WIN_Created(hwnd,title)
+                This.EVE_WIN_Created(hwnd, title)
+                This.SetThumbnailText[hwnd] := title
+                ; Keep thumbnail at the old character's saved position
+                try {
+                    if (IsSet(oldTitle) && oldTitle != "" && This.ThumbnailPositions.Has(oldTitle)) {
+                        rect := This.ThumbnailPositions[oldTitle]
+                        This.ShowThumb(hwnd, "Hide")
+                        This.ThumbMove( rect["x"],
+                                        rect["y"],
+                                        rect["width"],
+                                        rect["height"],
+                                        This.ThumbWindows.%hwnd% )
+                        This.BorderSize(This.ThumbWindows.%hwnd%["Window"].Hwnd, This.ThumbWindows.%hwnd%["Border"].Hwnd)
+                        This.Update_Thumb(true)
+                        If ( This.HideThumbnailsOnLostFocus && WinActive(This.EVEExe) || !This.HideThumbnailsOnLostFocus && !WinActive(This.EVEExe) || !This.HideThumbnailsOnLostFocus && WinActive(This.EVEExe)) {
+                            for k, v in This.ThumbWindows.OwnProps()
+                                This.ShowThumb(k, "Show")
+                        }
+                    }
+                }
             }
 
             else If (This.ThumbnailPositions.Has(title)) {
                 This.EvEWindowDestroy(hwnd, title)
                 This.EVE_WIN_Created(hwnd,title)
+                This.SetThumbnailText[hwnd] := title
                 rect := This.ThumbnailPositions[title]  
                 This.ShowThumb(hwnd, "Hide")              
                 This.ThumbMove( rect["x"],
@@ -744,6 +874,10 @@ Class Main_Class extends ThumbWindow {
                         This.ShowThumb(k, "Show")
                 } 
             }
+            else {
+                ; No saved position — just update the display text
+                This.SetThumbnailText[hwnd] := title
+            }
             This.BorderActive := 0
             This.RegisterHotkeys(title, hwnd)
         }
@@ -756,6 +890,12 @@ Class Main_Class extends ThumbWindow {
 
             ; Move the Window with right mouse button 
             If (msg == Main_Class.WM_RBUTTONDOWN) {
+                    ; Block drag/resize when positions are locked
+                    if (This.LockPositions) {
+                        ToolTip("Positions Locked")
+                        SetTimer () => ToolTip(), -1000
+                        return 0
+                    }
                     while (GetKeyState("RButton")) {
                         
                         if !(GetKeyState("LButton")) {
@@ -851,38 +991,157 @@ Class Main_Class extends ThumbWindow {
                 }
             }
             This.RegisterHotkeys(Win_Title, Win_Hwnd)
+
+            ; Create secondary thumbnail if configured for this character
+            This._CreateSecondaryIfConfigured(Win_Hwnd, Win_Title)
+        }
+    }
+
+    ; Create secondary thumb if the character has saved secondary settings
+    _CreateSecondaryIfConfigured(Win_Hwnd, Win_Title) {
+        try {
+            if (This.SecondaryThumbnails.Has(Win_Title)) {
+                settings := This.SecondaryThumbnails[Win_Title]
+                ; Check if this PiP is enabled (default to true for backward compat)
+                isEnabled := settings.Has("enabled") ? settings["enabled"] : true
+                if (!isEnabled)
+                    return
+                opacity := settings.Has("opacity") ? settings["opacity"] : 180
+                This.SecondaryThumbWindows.%Win_Hwnd% := This.Create_SecondaryThumbnail(Win_Hwnd, Win_Title, opacity)
+                This.SecondaryThumbHwnd_EvEHwnd[This.SecondaryThumbWindows.%Win_Hwnd%["Window"].Hwnd] := Win_Hwnd
+
+                ; Register mouse hooks for drag/resize on the secondary thumb
+                for listener in This.LISTENERS {
+                    OnMessage(listener, ObjBindMethod(This, listener = Main_Class.WM_LBUTTONDOWN ? "Mouse_ResizeThumb" : "Mouse_DragMove"))
+                }
+
+                ; Position from saved settings
+                x := settings.Has("x") ? settings["x"] : 100
+                y := settings.Has("y") ? settings["y"] : 100
+                w := settings.Has("width") ? settings["width"] : 200
+                h := settings.Has("height") ? settings["height"] : 120
+
+                WinMove(x, y, w, h, This.SecondaryThumbWindows.%Win_Hwnd%["Window"].Hwnd)
+
+                ; Update DWM thumbnail destination to match size
+                WinGetClientPos(, , &EW, &EH, "Ahk_Id" Win_Hwnd)
+                This.SecondaryThumbWindows.%Win_Hwnd%["Thumbnail"].Source := [0, 0, EW, EH]
+                This.SecondaryThumbWindows.%Win_Hwnd%["Thumbnail"].Destination := [0, 0, w, h]
+                This.SecondaryThumbWindows.%Win_Hwnd%["Thumbnail"].Update()
+
+                This.SecondaryThumbWindows.%Win_Hwnd%["Window"].Show("NoActivate")
+                ; Show and position the text overlay to match
+                if (This.SecondaryThumbWindows.%Win_Hwnd%.Has("TextOverlay")) {
+                    WinMove(x, y, w, h, This.SecondaryThumbWindows.%Win_Hwnd%["TextOverlay"].Hwnd)
+                    This.SecondaryThumbWindows.%Win_Hwnd%["TextOverlay"].Show("NoActivate")
+                }
+            }
+        }
+    }
+
+    ; Create or destroy a secondary thumb live from the Settings UI
+    CreateSecondaryForCharacter(charName) {
+        ; Find the EVE hwnd for this character
+        for eveHwnd in This.ThumbWindows.OwnProps() {
+            title := This.ThumbWindows.%eveHwnd%["Window"].Title
+            if (title = charName) {
+                if (!This.SecondaryThumbWindows.HasProp(eveHwnd)) {
+                    This._CreateSecondaryIfConfigured(eveHwnd, charName)
+                }
+                return
+            }
+        }
+    }
+
+    DestroySecondaryForCharacter(charName) {
+        for eveHwnd in This.SecondaryThumbWindows.Clone().OwnProps() {
+            secTitle := This.SecondaryThumbWindows.%eveHwnd%["Window"].Title
+            if (secTitle = "SEC_" charName) {
+                This._DestroySecondaryThumb(eveHwnd)
+                return
+            }
+        }
+    }
+
+    _DestroySecondaryThumb(eveHwnd) {
+        if (This.SecondaryThumbWindows.HasProp(eveHwnd)) {
+            ; Save position/size before destroying
+            try {
+                secGui := This.SecondaryThumbWindows.%eveHwnd%["Window"]
+                secTitle := SubStr(secGui.Title, 5)  ; Remove "SEC_" prefix
+                WinGetPos(&sX, &sY, &sW, &sH, secGui.Hwnd)
+                if (This.SecondaryThumbnails.Has(secTitle)) {
+                    settings := This.SecondaryThumbnails[secTitle]
+                    settings["x"] := sX, settings["y"] := sY
+                    settings["width"] := sW, settings["height"] := sH
+                    This.SecondaryThumbnails[secTitle] := settings
+                }
+                This.SecondaryThumbHwnd_EvEHwnd.Delete(secGui.Hwnd)
+                if (This.SecondaryThumbWindows.%eveHwnd%.Has("TextOverlay"))
+                    This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Destroy()
+                secGui.Destroy()
+            }
+            This.SecondaryThumbWindows.DeleteProp(eveHwnd)
+        }
+    }
+
+    UpdateSecondaryOpacity(charName, opacity) {
+        for eveHwnd in This.SecondaryThumbWindows.OwnProps() {
+            secTitle := This.SecondaryThumbWindows.%eveHwnd%["Window"].Title
+            if (secTitle = "SEC_" charName) {
+                WinSetTransparent(opacity, This.SecondaryThumbWindows.%eveHwnd%["Window"].Hwnd)
+                return
+            }
         }
     }
 
     ;if a EVE Window got closed this destroyes the Thumbnail and frees the memory.
     EvEWindowDestroy(hwnd?, WinTitle?) {
         if (IsSet(hwnd) && This.ThumbWindows.HasProp(hwnd)) {
+            ; Preserve thumbnail position before destroying
+            try {
+                thumbGui := This.ThumbWindows.%hwnd%["Window"]
+                if (thumbGui.Title != "" && thumbGui.Title != "EVE") {
+                    WinGetPos(&tX, &tY, &tW, &tH, thumbGui.Hwnd)
+                    This.ThumbnailPositions[thumbGui.Title] := [tX, tY, tW, tH]
+                }
+            }
             for k, v in This.ThumbWindows.Clone().%hwnd% {
                 if (K = "Thumbnail")
                     continue
                 v.Destroy()
             }
             This.ThumbWindows.DeleteProp(hwnd)
+            This._DestroySecondaryThumb(hwnd)
             Return
         }
         ;If a EVE Windows get destroyed 
         for Win_Hwnd,v in This.ThumbWindows.Clone().OwnProps() {
             if (!WinExist("Ahk_Id " Win_Hwnd)) {
+                ; Preserve thumbnail position before destroying
+                try {
+                    thumbGui := This.ThumbWindows.%Win_Hwnd%["Window"]
+                    if (thumbGui.Title != "" && thumbGui.Title != "EVE") {
+                        WinGetPos(&tX, &tY, &tW, &tH, thumbGui.Hwnd)
+                        This.ThumbnailPositions[thumbGui.Title] := [tX, tY, tW, tH]
+                    }
+                }
                 for k,v in This.ThumbWindows.Clone().%Win_Hwnd% {
                     if (K = "Thumbnail")
                         continue
                     v.Destroy()
                 }
-                This.ThumbWindows.DeleteProp(Win_Hwnd)        
+                This.ThumbWindows.DeleteProp(Win_Hwnd)
+                This._DestroySecondaryThumb(Win_Hwnd)
             }
         }
         This.DestroyThumbnailsToggle := 1
     }
     
     ActivateEVEWindow(hwnd?,ThisHotkey?, title?) {
-        ; TOS guard: block hotkey-triggered switches if any key is held.
+        ; TOS guard: block hotkey-triggered switches if any game key is held.
         ; Only applies when called via hotkey (title is set), not thumbnail click (hwnd is set).
-        if (IsSet(title) && !IsSet(hwnd) && This._IsGameKeyHeld())
+        if (IsSet(title) && !IsSet(hwnd) && This._IsGameKeyHeld(A_ThisHotkey))
             return
 
         ; If the user clicks the Thumbnail then hwnd stores the Thumbnail Hwnd. Here the Hwnd gets changed to the contiguous EVE window hwnd
@@ -926,11 +1185,12 @@ Class Main_Class extends ThumbWindow {
         }
     }
 
+
     ; Fast direct window activation — used only for char select cycling
-    ; Defense-in-depth: TOS guard here too
+    ; Defense-in-depth: guard here too in case the caller's check was bypassed
     _FastActivate(hwnd) {
         if (This._IsGameKeyHeld())
-            return
+            return  ; Uses _lastHotkeyVK set by the entry-point guard
 
         try {
             if !(DllCall("SetForegroundWindow", "UInt", hwnd)) {
@@ -964,13 +1224,40 @@ Class Main_Class extends ThumbWindow {
     ; ============================================================
     ; TOS COMPLIANCE: Prevent input broadcasting across clients
     ; ============================================================
-    ; Returns true if ANY non-modifier key is physically held down.
+    ; Returns true if ANY non-modifier key is physically held down,
+    ; EXCLUDING the triggering hotkey's own base key.
     ; Uses Windows API GetAsyncKeyState for hardware-level detection.
     ; Scans ALL virtual key codes (0x08-0xFE) — blanket coverage.
     ; FAIL-SAFE: any error returns true (blocks the switch).
-    _IsGameKeyHeld() {
+    ;
+    ; hotkeyStr: optional AHK hotkey name (e.g. "^F5", "Numpad1").
+    ;   The base key's VK is extracted and excluded from the scan
+    ;   so the hotkey itself doesn't false-positive as a held game key.
+    ;   The extracted VK is stored in _lastHotkeyVK for defense-in-depth
+    ;   guards that don't have access to the original hotkey string.
+    _IsGameKeyHeld(hotkeyStr?) {
+        ; If the user has disabled the guard in settings, always allow switching
+        if (!This.EnableKeyBlockGuard)
+            return false
+
+        excludeVK := 0
+        if (IsSet(hotkeyStr) && hotkeyStr != "") {
+            ; Strip modifier prefixes: ^ (Ctrl), ! (Alt), + (Shift), # (Win), < > (L/R)
+            baseKey := RegExReplace(hotkeyStr, "[\^!+#<>]", "")
+            if (baseKey != "") {
+                try excludeVK := GetKeyVK(baseKey)
+            }
+            This._lastHotkeyVK := excludeVK
+        } else if (This.HasOwnProp("_lastHotkeyVK")) {
+            ; Defense-in-depth calls: reuse the VK from the entry-point guard
+            excludeVK := This._lastHotkeyVK
+        }
+
         vk := 0x07
         while (++vk <= 0xFE) {
+            ; Skip the triggering hotkey's own base key
+            if (excludeVK && vk = excludeVK)
+                continue
             ; Skip modifier keys — these are part of hotkey combos
             if (vk >= 0x10 && vk <= 0x12)   ; VK_SHIFT, VK_CONTROL, VK_MENU
                 continue
@@ -988,7 +1275,6 @@ Class Main_Class extends ThumbWindow {
         }
         return false
     }
-
 
 
 
@@ -1174,23 +1460,15 @@ Class Main_Class extends ThumbWindow {
 
     }
 
+
     SaveJsonToFile() {
-        tmpFile := "EVE MultiPreview.json.tmp"
-        try {
-            if FileExist(tmpFile)
-                FileDelete(tmpFile)
-            FileAppend(JSON.Dump(This._JSON, , "    "), tmpFile)
-            ; Atomic replace: delete original, rename temp
-            if FileExist("EVE MultiPreview.json")
-                FileDelete("EVE MultiPreview.json")
-            FileMove(tmpFile, "EVE MultiPreview.json")
-        } catch as e {
-            ; Fallback: direct write if temp approach fails
-            try {
-                FileDelete("EVE MultiPreview.json")
-                FileAppend(JSON.Dump(This._JSON, , "    "), "EVE MultiPreview.json")
-            }
-        }
+        FileDelete("EVE MultiPreview.json")
+        FileAppend(JSON.Dump(This._JSON, , "    "), "EVE MultiPreview.json")
+    }
+
+    _OnAppExit(exitReason, exitCode) {
+        try This.SaveJsonToFile()
+        return 0  ; Allow exit to proceed
     }
 }
 

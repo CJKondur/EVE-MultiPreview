@@ -9,6 +9,7 @@
 #Include <../src/Propertys>
 #Include <../src/Settings_Gui>
 #Include <../src/SetupWizard>
+#Include <../src/LogMonitor>
 
 #SingleInstance Force
 Persistent
