@@ -88,15 +88,13 @@ class Propertys extends TrayMenu {
         get => This._JSON["global_Settings"]["CharSelect_CyclingEnabled"]
         set => This._JSON["global_Settings"]["CharSelect_CyclingEnabled"] := value
     }
+    ; MOTHBALLED: Key-Block Guard disabled per EVE developer confirmation.
+    ; Code is preserved for future use if TOS rules change.
+    ; Getter always returns false; setter is a no-op.
     EnableKeyBlockGuard {
-        get {
-            try return This._JSON["global_Settings"]["EnableKeyBlockGuard"]
-            catch {
-                This._JSON["global_Settings"]["EnableKeyBlockGuard"] := true
-                return true
-            }
+        get => false
+        set {
         }
-        set => This._JSON["global_Settings"]["EnableKeyBlockGuard"] := value
     }
     RTSS_Enabled {
         get => This._JSON["global_Settings"]["RTSS_Enabled"]

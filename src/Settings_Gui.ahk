@@ -221,13 +221,13 @@ Class Settings_Gui {
         P.Push This.S_Gui.Add("DDL", "x430 y" y " w180 vHotkey_Scoope Choose" (This.Global_Hotkeys ? 1 : 2), ["Global", "If an EVE window is Active"])
         This.S_Gui["Hotkey_Scoope"].OnEvent("Change", (obj, *) => This._gHandler(obj))
 
-        ; Simple: Key-block guard toggle
+        ; MOTHBALLED: Key-Block Guard — code preserved for future use if TOS rules change
         y += 35
-        chkGuard := This.AddLabelCheck(P, "Hotkey Key-Block Guard:", y, "EnableKeyBlockGuard", This.EnableKeyBlockGuard)
-        chkGuard.OnEvent("Click", (obj, *) => This._OnKeyBlockGuardToggle(obj))
+        chkGuard := This.AddLabelCheck(P, "Hotkey Key-Block Guard:", y, "EnableKeyBlockGuard", false)
+        chkGuard.Enabled := false
         y += 18
         This.S_Gui.SetFont("s8 w400 c666666", "Segoe UI")
-        P.Push This.S_Gui.Add("Text", "x215 y" y " w400 h16 BackgroundTrans", "Blocks held keys from broadcasting when cycling clients via hotkey.")
+        P.Push This.S_Gui.Add("Text", "x215 y" y " w400 h16 BackgroundTrans", "Disabled — preserved for possible future use if TOS rules change.")
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
 
         ; Advanced: Suspend hotkey
