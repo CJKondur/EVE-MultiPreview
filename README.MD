@@ -12,13 +12,22 @@ This is a fork of [EVE-X-Preview](https://github.com/g0nzo83/EVE-X-Preview) by *
 - **Click a thumbnail** to bring that client to the front
 - **Hotkeys** to switch clients without touching the mouse (keyboard and mouse buttons both work)
 - **Multiple profiles** so you can swap between setups quickly
+- **Profile cycling hotkeys** — assign hotkeys to cycle forward/backward through profiles
 - **Thumbnail grouping** — organize characters into named groups with custom border colors
 - **Attack alerts** — thumbnail flashes red when a character takes incoming fire
+- **Alert events panel** — per-event toggles for attack, warp scramble, decloak, fleet invite, convo request, system change
+- **Severity tier system** — Critical/Warning/Info tiers with custom colors, cooldowns, and tray notifications
+- **PVE Mode** — filter NPC/rat damage to only alert on player attacks
+- **Not logged in indicator** — visual marker (text overlay, border color, dim, or none) for clients at character select
+- **Per-event alert sounds** — assign custom WAV/MP3 files with master volume control
 - **Session timer** — shows how long each character has been logged in
-- **System name overlay** — displays the current solar system on each thumbnail 
+- **System name overlay** — displays the current solar system on each thumbnail
 - **Click-through mode** — make thumbnails transparent to mouse clicks with a hotkey
+- **Hide/Show thumbnails toggle** — hotkey or tray menu toggle to instantly hide/show all thumbnails
+- **Secondary thumbnails (PiP)** — add a second independent live preview for any character with separate size, position, and opacity
+- **Click-to-capture hotkeys** — click a hotkey field and press a key combo to assign it
 - **Auto-save positions** — thumbnail positions persist automatically after dragging
-- **FPS limiter** — built-in RTSS profile integration for capping background client FPS (This still requires the user to have RTSS installed)
+- **FPS limiter** — built-in RTSS profile integration for capping background client FPS
 - **Multi-monitor support** — choose which monitor thumbnails appear on
 - **First-run setup wizard** — quick guided setup for new users
 - **Customizable everything** — colors, borders, text, fonts, sizes, opacity, positions
@@ -33,57 +42,8 @@ EVE MultiPreview doesn't interact with the game directly. It just manages window
 
 ---
 
-## New in EVE MultiPreview
+📖 **See [FEATURES.md](FEATURES.md) for detailed descriptions of every feature listed above.**
 
-These are features added on top of the original EVE-X-Preview:
-
-### Redesigned Settings UI
-The settings window got a full overhaul — dark theme with a sidebar for easy navigation between panels (General, Thumbnails, Layout, Hotkeys, Colors, Groups, Alerts, Visibility, Client, FPS Limiter).
-
-### First-Run Setup Wizard
-New users get a quick 5-step setup wizard on first launch to configure the basics without digging through menus.
-
-### Thumbnail Grouping
-Organize your characters into named groups with custom border colors. Handy if you run different fleets or have alts you want visually separated. Includes a built-in color picker so you don't have to look up hex codes.
-
-### Attack Alerts
-When enabled, monitors your EVE game logs for incoming combat. If a character starts taking fire, their thumbnail border flashes red. Clicking the thumbnail or bringing that client forward clears the alert. Only reacts to new combat entries — won't trigger on old logs.
-
-### Session Timer
-Shows how long each character has been logged in, right on the thumbnail. Updates in real-time.
-
-### System Name Display
-Reads your EVE game logs and shows the current solar system on each thumbnail. 
-
-### Click-Through Mode
-Toggle a hotkey (F12 by default) to make all thumbnails click-through, so they don't steal focus when you're trying to interact with something behind them.
-
-### FPS Limiter
-Built-in RTSS-based FPS limiting panel. Useful for keeping background clients from eating GPU for no reason. When you click "Apply RTSS Profile", the app writes a profile to your RTSS Profiles folder. If that folder requires admin access (which it usually does since RTSS installs to Program Files), you'll get a Windows UAC prompt. This is the elevated command that runs, from `src/Settings_Gui.ahk` in the `_applyRTSSProfile()` method:
-
-```autohotkey
-DllCall("shell32\ShellExecuteW"
-    , "Ptr", 0
-    , "Str", "runas"
-    , "Str", A_ComSpec
-    , "Str", '/c copy /Y "' tempFile '" "' profileFile '"'
-    , "Str", A_Temp
-    , "Int", 0  ; SW_HIDE
-    , "Ptr")
-```
-
-It's just a `cmd /c copy` that copies the generated RTSS profile into place. RTSS is also restarted via an elevated `taskkill` + `start` so it picks up the new profile.
-
-### Auto-Save Positions
-Thumbnail positions now save automatically after you drag or resize them. No more manually saving from the tray menu and losing your layout.
-
-### Multi-Monitor Support
-Pick which monitor your thumbnails appear on from a dropdown, with auto-detection.
-
-### Settings Migration
-If you're coming from EVE-X-Preview, the app will ask if you want to bring your old settings over on first launch.
-
----
 
 ## Getting Started
 

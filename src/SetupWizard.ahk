@@ -378,9 +378,19 @@ Class SetupWizard {
         ; Mark setup as completed
         M.SetupCompleted := true
 
-        ; Save
-        FileDelete("EVE MultiPreview.json")
-        FileAppend(JSON.Dump(M._JSON, , "    "), "EVE MultiPreview.json")
+        ; Save (atomic: write to temp file, then move)
+        tmpFile := "EVE MultiPreview.json.tmp"
+        try {
+            if FileExist(tmpFile)
+                FileDelete(tmpFile)
+            FileAppend(JSON.Dump(M._JSON, , "    "), tmpFile)
+            FileMove(tmpFile, "EVE MultiPreview.json", true)
+        } catch {
+            try {
+                FileDelete("EVE MultiPreview.json")
+                FileAppend(JSON.Dump(M._JSON, , "    "), "EVE MultiPreview.json")
+            }
+        }
 
         ; Close wizard
         This.W_Gui.Destroy()

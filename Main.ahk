@@ -9,6 +9,9 @@
 #Include <../src/Propertys>
 #Include <../src/Settings_Gui>
 #Include <../src/SetupWizard>
+#Include <../src/LogMonitor>
+#Include <../src/StatTracker>
+#Include <../src/StatWindow>
 
 #SingleInstance Force
 Persistent
@@ -167,5 +170,30 @@ MergeJson(Settingsfile := "EVE MultiPreview.json", dJson := JSON.Load(default_JS
 
 ; Hanles unmanaged Errors
 Error_Handler(Thrown, Mode) {
+    ; Silently skip known-harmless AHK v2 GUI errors (panel init, control styling)
+    errType := Type(Thrown)
+    if (errType = "ValueError" && InStr(Thrown.Message, "Not supported for this control type"))
+        return -1
+    if (errType = "IndexError" && InStr(Thrown.Message, "Invalid index"))
+        return -1
+    ; Suppress harmless DWM thumbnail race condition (WinGetClientPos on destroyed windows)
+    if (InStr(Thrown.Message, "Missing a required parameter"))
+        return -1
+
+    try {
+        timestamp := FormatTime(, "yyyy-MM-dd HH:mm:ss")
+        errMsg := Thrown.Message
+        errFile := ""
+        errLine := ""
+        try errFile := Thrown.File
+        try errLine := Thrown.Line
+        logLine := "[" timestamp "] " errType ": " errMsg
+        if (errFile != "")
+            logLine .= " | File: " errFile
+        if (errLine != "")
+            logLine .= " | Line: " errLine
+        logLine .= " | Mode: " Mode "`n"
+        FileAppend(logLine, "error_log.txt")
+    }
     return -1
 }

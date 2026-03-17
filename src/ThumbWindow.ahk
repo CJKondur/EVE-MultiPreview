@@ -18,12 +18,7 @@ Class ThumbWindow extends Propertys {
             MsgBox( "Invalid Color:  Global Settings -> Thumbnail Background Color`n`nUse the following syntax:`n HEX =>: #FFFFFF or 0xFFFFFF or FFFFFF`nRGB =>: 255, 255, 255 or rgb(255, 255, 255)`n`nColor is now set to default")
         }
         
-        ;Enable Shadow 
-        DllCall("Dwmapi\DwmExtendFrameIntoClientArea",
-                "Ptr", ThumbObj["Window"].Hwnd,	; HWND hWnd
-                "Ptr", This.margins,	; MARGINS *pMarInset
-                )   
- 
+
 
         ;Set The Opacity who is set in the JSON File, its important to set this on the MainWindow and not on the Thumbnail itself
         WinSetTransparent(This.ThumbnailOpacity)
@@ -37,18 +32,18 @@ Class ThumbWindow extends Propertys {
                 )
     
 
-        ;#### Register Thumbnail
-        ; gets the EVE Window sizes
-        WinGetClientPos(, , &W, &H, "ahk_id " Win_Hwnd)
+        try {
+            WinGetClientPos(, , &W, &H, "ahk_id " Win_Hwnd)
 
-        ; These values for the Thumbnails should not be touched
-        ThumbObj["Thumbnail"] := LiveThumb(Win_Hwnd, ThumbObj["Window"].Hwnd)
-        ThumbObj["Thumbnail"].Source := [0, 0, W, H]
-        ThumbObj["Thumbnail"].Destination := [0, 0, This.ThumbnailStartLocation["width"], This.ThumbnailStartLocation["height"]]
-        ThumbObj["Thumbnail"].SourceClientAreaOnly := True
-        ThumbObj["Thumbnail"].Visible := True
-        ThumbObj["Thumbnail"].Opacity := 255
-        ThumbObj["Thumbnail"].Update()
+            ; These values for the Thumbnails should not be touched
+            ThumbObj["Thumbnail"] := LiveThumb(Win_Hwnd, ThumbObj["Window"].Hwnd)
+            ThumbObj["Thumbnail"].Source := [0, 0, W, H]
+            ThumbObj["Thumbnail"].Destination := [0, 0, This.ThumbnailStartLocation["width"], This.ThumbnailStartLocation["height"]]
+            ThumbObj["Thumbnail"].SourceClientAreaOnly := True
+            ThumbObj["Thumbnail"].Visible := True
+            ThumbObj["Thumbnail"].Opacity := 255
+            ThumbObj["Thumbnail"].Update()
+        }
 
 
         ;#### Create the Thumbnail TextOverlay
@@ -161,6 +156,68 @@ Class ThumbWindow extends Propertys {
         }
     }
 
+    ; Create a secondary (PiP) thumbnail — stripped-down, no border, no alerts, with name overlay
+    Create_SecondaryThumbnail(Win_Hwnd, Win_Title, opacity := 180) {
+        SecObj := Map()
+
+        SecObj["Window"] := Gui("+Owner +LastFound -Caption +ToolWindow +E0x08000000 +AlwaysOnTop", "SEC_" Win_Title)
+        SecObj["Window"].OnEvent("Close", (*) => 0)
+
+        Try
+            SecObj["Window"].BackColor := This.ThumbnailBackgroundColor
+        catch {
+            SecObj["Window"].BackColor := 0x57504e
+        }
+
+
+        ; Set per-character opacity (separate from primary)
+        WinSetTransparent(opacity)
+
+        SecObj["Window"].Show("Hide")
+
+        ; Register DWM thumbnail
+        try {
+            WinGetClientPos(, , &W, &H, "ahk_id " Win_Hwnd)
+            SecObj["Thumbnail"] := LiveThumb(Win_Hwnd, SecObj["Window"].Hwnd)
+            SecObj["Thumbnail"].Source := [0, 0, W, H]
+            SecObj["Thumbnail"].Destination := [0, 0, 200, 120]  ; Default size
+            SecObj["Thumbnail"].SourceClientAreaOnly := True
+            SecObj["Thumbnail"].Visible := True
+            SecObj["Thumbnail"].Opacity := 255
+            SecObj["Thumbnail"].Update()
+        }
+
+        ; Create a simple text overlay with character name
+        SecObj["TextOverlay"] := Gui("+LastFound -Caption +E0x20 +Owner" SecObj["Window"].Hwnd " +AlwaysOnTop", "SEC_TXT_" Win_Title)
+        SecObj["TextOverlay"].MarginX := 5
+        SecObj["TextOverlay"].MarginY := 3
+        SecObj["TextOverlay"].SetFont("s" This.ThumbnailTextSize " q6 w500 c" This.ThumbnailTextColor, This.ThumbnailTextFont)
+        SecObj["TextOverlay"].Add("Text", "vOverlayText w200 h25", Win_Title)
+        SecObj["TextOverlay"].BackColor := "040101"
+        WinSetTransColor("040101")
+        SecObj["TextOverlay"].Show("Hide")
+
+        return SecObj
+    }
+
+    ; Save secondary thumbnail position/size to JSON
+    _SaveSecondaryPosition(hwnd) {
+        try {
+            eveHwnd := This.SecondaryThumbHwnd_EvEHwnd[hwnd]
+            if (This.SecondaryThumbWindows.HasProp(eveHwnd)) {
+                secGui := This.SecondaryThumbWindows.%eveHwnd%["Window"]
+                charName := SubStr(secGui.Title, 5)  ; Remove "SEC_" prefix
+                WinGetPos(&sX, &sY, &sW, &sH, secGui.Hwnd)
+                if (This.SecondaryThumbnails.Has(charName)) {
+                    settings := This.SecondaryThumbnails[charName]
+                    settings["x"] := sX, settings["y"] := sY
+                    settings["width"] := sW, settings["height"] := sH
+                    This.SecondaryThumbnails[charName] := settings
+                }
+            }
+        }
+    }
+
     BorderSize(DesinationHwnd, BorderHwnd, thickness?) {
         if (IsSet(thickness))
             border_thickness := thickness
@@ -192,111 +249,326 @@ Class ThumbWindow extends Propertys {
         return { x: newX, y: newY, w: newW, h: newH }
     }
 
-    ;## Moves the Window by holding down the Right Mousebutton
-    ;## By Holding CTRL and SHIFT it moves all Windows
-    Mouse_DragMove(wparam, lparam, msg, hwnd) {
-        This.Resize := 1
-        dragging := 0
-        ThumbMap := Map()
-
-        MouseGetPos(&x0, &y0, &window_id) ;gets the current Mouse possition
-        if !(This.ThumbHwnd_EvEHwnd.Has(window_id))
+    ;## Non-blocking drag: starts the drag state machine (called from _OnMessage)
+    ;## Actual movement happens in _DragTick via SetTimer
+    _StartDrag(wparam, lparam, msg, hwnd) {
+        ; Prevent re-entry if already dragging
+        if (This.HasOwnProp("_DragState") && This._DragState != "")
             return
-        WinGetPos &wx, &wy, &wn, &wh, window_id  ;gets the current window possition what the user clicks on
 
-        ;Store the current size and position  of all Thumbnails
-        for ThumbIDs in This.ThumbHwnd_EvEHwnd {
-            if (ThumbIDs == This.ThumbHwnd_EvEHwnd[hwnd])
-                continue
-            if This.ThumbWindows.HasProp(This.ThumbHwnd_EvEHwnd[ThumbIDs]) {
-                for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[ThumbIDs]% {
-                    WinGetPos(&Tempx, &Tempy, , , v.Hwnd)
-                    ThumbMap[v.Hwnd] := { x: Tempx, y: Tempy }
-                }
-            }
-        }
+        MouseGetPos(&x0, &y0, &window_id)
 
-        while (GetKeyState("RButton") && !GetKeyState("LButton")) {
+        state := {}
+        state.mode := "drag"
+        state.hwnd := hwnd
+        state.window_id := window_id
+        state.x0 := x0
+        state.y0 := y0
+        state.wparam := wparam
+        state.isSecondary := false
+        state.resizeInit := false
+        state.ThumbMap := Map()
 
-            ;Moves a Single Window
-            MouseGetPos &x, &y
-            Nx := x - x0, NEUx := wx + Nx       ;Nx -> stores the pixel diffrenz from Start to stop Moveing, NEUx -> Calculates the new Position
-            Ny := y - y0, NEUy := wy + Ny       ;Ny -> stores the pixel diffrenz from Start to stop Moveing, NEUy -> Calculates the new Position
-            if This.ThumbWindows.HasProp(This.ThumbHwnd_EvEHwnd[hwnd]) {
-                for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[hwnd]% {
-                    WinMove(NEUx, NEUy, , , v.Hwnd)
-                }
-            }
+        ; Detect secondary thumbnail drag
+        if (This.HasOwnProp("SecondaryThumbHwnd_EvEHwnd") && This.SecondaryThumbHwnd_EvEHwnd.Has(window_id)) {
+            state.isSecondary := true
+            WinGetPos &wx, &wy, , , window_id
+            state.wx := wx
+            state.wy := wy
+            state.eveH := This.SecondaryThumbHwnd_EvEHwnd[window_id]
+        } else if (This.HasOwnProp("_StatWindowHwnds") && This._StatWindowHwnds.Has(window_id)) {
+            ; Stat overlay window drag
+            state.isStatWindow := true
+            WinGetPos &wx, &wy, , , window_id
+            state.wx := wx
+            state.wy := wy
+        } else if (This.ThumbHwnd_EvEHwnd.Has(window_id)) {
+            ; Primary thumbnail drag — store initial position
+            WinGetPos &wx, &wy, &wn, &wh, window_id
+            state.wx := wx
+            state.wy := wy
 
-            ;Moves all windows
-            if (wparam = 10) { ; Ctrl+RButton
-                for k, v in This.ThumbWindows.OwnProps() {
-                    for type, Obj in v {
-                        if (hwnd == Obj.Hwnd)
-                            continue
-                        ;Calculates the new Position for all the other Windows
-                        Ax := ThumbMap[Obj.Hwnd].x + Nx
-                        Ay := ThumbMap[Obj.Hwnd].y + Ny
-
-                        WinMove(Ax, Ay, , , Obj.Hwnd)
+            ; Store positions of ALL other thumbnails for Ctrl+drag (move-all)
+            for ThumbIDs in This.ThumbHwnd_EvEHwnd {
+                if (ThumbIDs == This.ThumbHwnd_EvEHwnd[hwnd])
+                    continue
+                if This.ThumbWindows.HasProp(This.ThumbHwnd_EvEHwnd[ThumbIDs]) {
+                    for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[ThumbIDs]% {
+                        WinGetPos(&Tempx, &Tempy, , , v.Hwnd)
+                        state.ThumbMap[v.Hwnd] := { x: Tempx, y: Tempy }
                     }
                 }
             }
+        } else {
+            return  ; Not a known thumbnail
         }
+
+        This._DragState := state
+        This._DragTickFn := ObjBindMethod(This, "_DragTick")
+        SetTimer(This._DragTickFn, 16)  ; ~60fps, non-blocking
     }
 
+    ;## Timer tick for drag state machine — runs every 16ms while dragging/resizing
+    _DragTick() {
+        if (!This.HasOwnProp("_DragState") || This._DragState = "") {
+            This._StopDrag()
+            return
+        }
+        state := This._DragState
 
-    ;   wparam, lparam, msg, hwnd
-    Mouse_ResizeThumb(wparam, lparam, msg, hwnd) {
-        This.Resize := 0
-        while (GetKeyState("LButton") && GetKeyState("RButton")) {
-            Sleep 10
-            if !(This.Resize) {
-                WinGetPos(&Rx, &Ry, &Width, &Height, hwnd)
+        ; Guard: if the target window no longer exists, abort immediately
+        if (!WinExist("ahk_id " state.window_id)) {
+            This._StopDrag()
+            return
+        }
+
+        ; === DRAG MODE ===
+        if (state.mode = "drag") {
+            ; Check if RButton released → end drag
+            if (!GetKeyState("RButton")) {
+                ; Snap on release
+                if (state.HasOwnProp("isStatWindow") && state.isStatWindow) {
+                    try This._SnapStatWindow(state.hwnd)
+                } else if (!state.isSecondary) {
+                    try This.Window_Snap(state.hwnd, This.ThumbWindows)
+                }
+                This._FinishDrag()
+                return
+            }
+            ; Check if LButton now held → switch to resize mode
+            if (GetKeyState("LButton")) {
+                state.mode := "resize"
+                state.resizeInit := false
+                This.Resize := 0
+                return  ; Next tick will handle resize
+            }
+
+            ; --- Perform drag movement ---
+            MouseGetPos &x, &y
+            if (state.HasOwnProp("isStatWindow") && state.isStatWindow) {
+                ; Stat window: simple solo drag
+                try WinMove(state.wx + (x - state.x0), state.wy + (y - state.y0), , , state.window_id)
+            } else if (state.isSecondary) {
+                ; Secondary thumbnail: simple solo drag
+                try WinMove(state.wx + (x - state.x0), state.wy + (y - state.y0), , , state.window_id)
+                eveH := state.eveH
+                if (This.SecondaryThumbWindows.HasProp(eveH) && This.SecondaryThumbWindows.%eveH%.Has("TextOverlay"))
+                    try WinMove(state.wx + (x - state.x0), state.wy + (y - state.y0), , , This.SecondaryThumbWindows.%eveH%["TextOverlay"].Hwnd)
+            } else {
+                ; Primary thumbnail: move this thumb's GUI stack
+                Nx := x - state.x0, NEUx := state.wx + Nx
+                Ny := y - state.y0, NEUy := state.wy + Ny
+                if This.ThumbWindows.HasProp(This.ThumbHwnd_EvEHwnd[state.hwnd]) {
+                    for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[state.hwnd]% {
+                        try WinMove(NEUx, NEUy, , , v.Hwnd)
+                    }
+                }
+                ; Ctrl+RButton: move ALL thumbnails relative to their start positions
+                if (state.wparam = 10) {
+                    for k, v in This.ThumbWindows.OwnProps() {
+                        for type, Obj in v {
+                            if (state.hwnd == Obj.Hwnd)
+                                continue
+                            if (state.ThumbMap.Has(Obj.Hwnd))
+                                try WinMove(state.ThumbMap[Obj.Hwnd].x + Nx, state.ThumbMap[Obj.Hwnd].y + Ny, , , Obj.Hwnd)
+                        }
+                    }
+                }
+            }
+            return
+        }
+
+        ; === RESIZE MODE ===
+        if (state.mode = "resize") {
+            ; Check if either button released → end resize
+            if (!GetKeyState("LButton") || !GetKeyState("RButton")) {
+                This._FinishDrag()
+                return
+            }
+
+            ; Handle stat window resize
+            if (state.HasOwnProp("isStatWindow") && state.isStatWindow) {
+                if (!state.resizeInit) {
+                    try WinGetPos(&Rx, &Ry, &Width, &Height, state.hwnd)
+                    catch {
+                        This._StopDrag()
+                        return
+                    }
+                    MouseGetPos(&Bx, &By)
+                    state.resizeBaseX := Bx
+                    state.resizeBaseY := By
+                    state.resizeBaseW := Width
+                    state.resizeBaseH := Height
+                    state.resizeInit := true
+                }
+                MouseGetPos(&DragX, &DragY)
+                Wn := Max(state.resizeBaseW + (DragX - state.resizeBaseX), 120)
+                Wh := Max(state.resizeBaseH + (DragY - state.resizeBaseY), 50)
+                try WinMove(, , Wn, Wh, state.hwnd)
+                
+                ; Resize all stat windows if global resize is on
+                resizeAll := true
+                try resizeAll := !This.IndividualThumbnailResize
+                if (GetKeyState("LCtrl"))
+                    resizeAll := !resizeAll
+                if (resizeAll && This.HasOwnProp("_StatWindows")) {
+                    for charName, swData in This._StatWindows {
+                        if (swData["hwnd"] != state.hwnd)
+                            try WinMove(, , Wn, Wh, swData["hwnd"])
+                    }
+                }
+                return
+            }
+
+            ; Handle secondary thumbnail resize
+            if (state.isSecondary) {
+                if (!state.resizeInit) {
+                    try WinGetPos(&Rx, &Ry, &Width, &Height, state.hwnd)
+                    catch {
+                        This._StopDrag()
+                        return
+                    }
+                    MouseGetPos(&Bx, &By)
+                    state.resizeBaseX := Bx
+                    state.resizeBaseY := By
+                    state.resizeBaseW := Width
+                    state.resizeBaseH := Height
+                    state.resizeInit := true
+                }
+                MouseGetPos(&DragX, &DragY)
+                Wn := Max(state.resizeBaseW + (DragX - state.resizeBaseX), This.ThumbnailMinimumSize["width"])
+                Wh := Max(state.resizeBaseH + (DragY - state.resizeBaseY), This.ThumbnailMinimumSize["height"])
+                ; Cap to source window size
+                eveHwnd := This.SecondaryThumbHwnd_EvEHwnd[state.hwnd]
+                try {
+                    WinGetClientPos(, , &srcW, &srcH, "Ahk_Id" eveHwnd)
+                    Wn := Min(Wn, srcW)
+                    Wh := Min(Wh, srcH)
+                }
+                try WinMove(, , Wn, Wh, state.hwnd)
+                if (This.SecondaryThumbWindows.HasProp(eveHwnd)) {
+                    try {
+                        WinGetClientPos(, , &EW, &EH, "Ahk_Id" eveHwnd)
+                        This.SecondaryThumbWindows.%eveHwnd%["Thumbnail"].Source := [0, 0, EW, EH]
+                        This.SecondaryThumbWindows.%eveHwnd%["Thumbnail"].Destination := [0, 0, Wn, Wh]
+                        This.SecondaryThumbWindows.%eveHwnd%["Thumbnail"].Update()
+                    }
+                    if (This.SecondaryThumbWindows.%eveHwnd%.Has("TextOverlay"))
+                        try WinMove(, , Wn, Wh, This.SecondaryThumbWindows.%eveHwnd%["TextOverlay"].Hwnd)
+                }
+                return
+            }
+
+            ; Handle primary thumbnail resize
+            if (!state.resizeInit) {
+                try WinGetPos(&Rx, &Ry, &Width, &Height, state.hwnd)
+                catch {
+                    This._StopDrag()
+                    return
+                }
                 MouseGetPos(&Bx, &By)
+                state.resizeBaseX := Bx
+                state.resizeBaseY := By
+                state.resizeBaseW := Width
+                state.resizeBaseH := Height
+                state.resizeInit := true
                 This.Resize := 1
             }
             MouseGetPos(&DragX, &DragY)
-            x := DragX - Bx, Wn := Width + x
-            y := DragY - BY, Wh := Height + y
+            x := DragX - state.resizeBaseX, Wn := state.resizeBaseW + x
+            y := DragY - state.resizeBaseY, Wh := state.resizeBaseH + y
 
-
-            ;ensures that the minimum size cannot be undershot
-            if (Wn < This.ThumbnailMinimumSize["width"]) {
+            ; Enforce minimum size
+            if (Wn < This.ThumbnailMinimumSize["width"])
                 Wn := This.ThumbnailMinimumSize["width"]
-            }
-            if (Wh < This.ThumbnailMinimumSize["height"]) {
+            if (Wh < This.ThumbnailMinimumSize["height"])
                 Wh := This.ThumbnailMinimumSize["height"]
+
+            for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[state.hwnd]% {
+                try WinMove(, , Wn, Wh, v.hwnd)
+            }
+            try {
+                This.Update_Thumb(false, state.hwnd)
+                This.BorderSize(This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[state.hwnd]%["Window"].Hwnd, This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[state.hwnd]%["Border"].Hwnd)
             }
 
-            for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[hwnd]% {
-                WinMove(, , Wn, Wh, v.hwnd)
-            }
-            This.Update_Thumb(false, hwnd)
-            This.BorderSize(This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[hwnd]%["Window"].Hwnd, This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[hwnd]%["Border"].Hwnd)
+            ; Per-character resize: If IndividualThumbnailResize is on, only resize this thumbnail
+            resizeAll := true
+            try resizeAll := !This.IndividualThumbnailResize
+            if (GetKeyState("LCtrl"))
+                resizeAll := !resizeAll
 
-            if (!GetKeyState("LCtrl")) {
+            if (resizeAll) {
                 for ThumbIDs in This.ThumbHwnd_EvEHwnd {
-                    if (ThumbIDs == This.ThumbHwnd_EvEHwnd[hwnd])
+                    if (ThumbIDs == This.ThumbHwnd_EvEHwnd[state.hwnd])
                         continue
                     for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[ThumbIDs]% {
                         if k = "Window"
                             window := v.Hwnd
-                        WinMove(, , Wn, Wh, v.Hwnd)
+                        try WinMove(, , Wn, Wh, v.Hwnd)
                         if (k = "Border") {
                             border := v.Hwnd
                         }
                         if (k = "TextOverlay") {
                             TextOverlay := v.Hwnd
-                            ;WinMove(,,Wn,Wh, v.Hwnd )
                             continue
                         }
                     }
-                    This.BorderSize(window, border)
+                    try This.BorderSize(window, border)
                 }
-                This.Update_Thumb()
+                try This.Update_Thumb()
+            }
+            return
+        }
+    }
+
+    ;## Finalize drag/resize: save positions, clean up state, stop timer
+    _FinishDrag() {
+        if (!This.HasOwnProp("_DragState") || This._DragState = "") {
+            This._StopDrag()
+            return
+        }
+        state := This._DragState
+
+        ; Save stat window positions (all of them, in case of resize-all)
+        if (state.HasOwnProp("isStatWindow") && state.isStatWindow) {
+            try {
+                positions := This.StatWindowPositions
+                if !(positions is Map)
+                    positions := Map()
+                for cName, swData in This._StatWindows {
+                    try {
+                        WinGetPos(&sx, &sy, &sw, &sh, swData["hwnd"])
+                        positions[cName] := Map("x", sx, "y", sy, "width", sw, "height", sh)
+                    }
+                }
+                This.StatWindowPositions := positions
+                SetTimer(This.Save_Settings_Delay_Timer, -200)
+            }
+        } else if (state.isSecondary) {
+            This._SaveSecondaryPosition(state.window_id)
+        } else {
+            ; Always save ALL thumbnail positions/sizes on finish
+            ; Covers: normal drag, Ctrl+drag, resize, resize-all
+            try {
+                for eveH, thumbObj in This.ThumbWindows.OwnProps() {
+                    thumbGui := thumbObj["Window"]
+                    WinGetPos(&tX, &tY, &tW, &tH, thumbGui.Hwnd)
+                    title := thumbGui.Title
+                    if (title != "")
+                        This.ThumbnailPositions[title] := [tX, tY, tW, tH]
+                }
+                SetTimer(This.Save_Settings_Delay_Timer, -200)
             }
         }
+        This._StopDrag()
+    }
+
+    ;## Stop the drag timer and clear state
+    _StopDrag() {
+        if (This.HasOwnProp("_DragTickFn"))
+            SetTimer(This._DragTickFn, 0)
+        This._DragState := ""
     }
 
     ; Snaps the window to the nearest corner of another window if it is within SnapRange in pixels
@@ -310,7 +582,7 @@ Class ThumbWindow extends Propertys {
                 BL: [X, Y + Height],
                 BR: [X + Width, Y + Height] }
 
-            destX := X, destY := Y, shouldMove := false
+            destX := X, destY := Y, shouldMove := false, bestDist := SnapRange + 1
             ;loops through all created GUIs and checks the distanz between the corners
             for index, _Gui in GuiObject.OwnProps() {
                 if (hwnd = _Gui["Window"].Hwnd) {
@@ -325,7 +597,8 @@ Class ThumbWindow extends Propertys {
                 for _, corner in A_RECT.OwnProps() {
                     for _, neighborCorner in Gui_RECT.OwnProps() {
                         dist := Distance(corner, neighborCorner)
-                        if (dist <= SnapRange) {
+                        if (dist <= SnapRange && dist < bestDist) {
+                            bestDist := dist
                             shouldMove := true
                             destX := neighborCorner[1] - (corner = A_RECT.TR || corner = A_RECT.BR ? Width : 0)
                             destY := neighborCorner[2] - (corner = A_RECT.BL || corner = A_RECT.BR ? Height : 0)
@@ -344,6 +617,59 @@ Class ThumbWindow extends Propertys {
         Distance(pt1, pt2) {
             return Sqrt((pt1[1] - pt2[1]) ** 2 + (pt1[2] - pt2[2]) ** 2)
         }
+    }
+
+    ; Snap a stat overlay window to nearby primary thumbs, secondary thumbs, and other stat windows
+    _SnapStatWindow(hwnd) {
+        if (!This.ThumbnailSnap)
+            return
+        SnapRange := This.ThumbnailSnap_Distance
+
+        WinGetPos(&X, &Y, &Width, &Height, hwnd)
+        A_RECT := { TL: [X, Y], TR: [X + Width, Y], BL: [X, Y + Height], BR: [X + Width, Y + Height] }
+
+        destX := X, destY := Y, shouldMove := false, bestDist := SnapRange + 1
+
+        ; Collect all snap target rects
+        targets := []
+
+        ; Primary thumbnails
+        for index, _Gui in This.ThumbWindows.OwnProps() {
+            try targets.Push(_Gui["Window"].Hwnd)
+        }
+        ; Secondary thumbnails
+        for eveH in This.SecondaryThumbWindows.OwnProps() {
+            try targets.Push(This.SecondaryThumbWindows.%eveH%["Window"].Hwnd)
+        }
+        ; Other stat windows
+        if (This.HasOwnProp("_StatWindows")) {
+            for charName, swData in This._StatWindows {
+                if (swData["hwnd"] != hwnd)
+                    targets.Push(swData["hwnd"])
+            }
+        }
+
+        for _, targetHwnd in targets {
+            try {
+                WinGetPos(&tX, &tY, &tW, &tH, targetHwnd)
+                T_RECT := { TL: [tX, tY], TR: [tX + tW, tY], BL: [tX, tY + tH], BR: [tX + tW, tY + tH] }
+
+                for _, corner in A_RECT.OwnProps() {
+                    for _, neighborCorner in T_RECT.OwnProps() {
+                        dist := Sqrt((corner[1] - neighborCorner[1]) ** 2 + (corner[2] - neighborCorner[2]) ** 2)
+                        if (dist <= SnapRange && dist < bestDist) {
+                            bestDist := dist
+                            shouldMove := true
+                            destX := neighborCorner[1] - (corner = A_RECT.TR || corner = A_RECT.BR ? Width : 0)
+                            destY := neighborCorner[2] - (corner = A_RECT.BL || corner = A_RECT.BR ? Height : 0)
+                        }
+                    }
+                }
+            }
+        }
+
+        if (shouldMove)
+            WinMove(destX, destY, , , hwnd)
     }
 
     ShowThumb(EVEWindowHwnd, HideOrShow) {
@@ -387,23 +713,40 @@ Class ThumbWindow extends Propertys {
             for EvEHwnd, ThumbObj in This.ThumbWindows.OwnProps() {
                 for Name, Obj in ThumbObj {
                     if (Name = "Window") {
-                        WinGetPos(, , &TWidth, &THeight, Obj.Hwnd)
-                        WinGetClientPos(, , &EWidth, &EHeight, "Ahk_Id" EvEHwnd)
-                        ThumbObj["Thumbnail"].Source := [0, 0, EWidth, EHeight]
-                        ThumbObj["Thumbnail"].Destination := [0, 0, TWidth, THeight]
-                        ThumbObj["Thumbnail"].Update()
+                        try {
+                            WinGetPos(, , &TWidth, &THeight, Obj.Hwnd)
+                            WinGetClientPos(, , &EWidth, &EHeight, "Ahk_Id" EvEHwnd)
+                            ThumbObj["Thumbnail"].Source := [0, 0, EWidth, EHeight]
+                            ThumbObj["Thumbnail"].Destination := [0, 0, TWidth, THeight]
+                            ThumbObj["Thumbnail"].Update()
+                        }
                     }
                 }
             }
         }
         else {
             If (IsSet(ThumbHwnd)) {
-                WinGetPos(, , &TWidth, &THeight, ThumbHwnd)
-                WinGetClientPos(, , &EWidth, &EHeight, This.ThumbHwnd_EvEHwnd[ThumbHwnd])
-                ThumbObj := This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[ThumbHwnd]%
-                ThumbObj["Thumbnail"].Source := [0, 0, EWidth, EHeight]
-                ThumbObj["Thumbnail"].Destination := [0, 0, TWidth, THeight]
-                ThumbObj["Thumbnail"].Update()
+                try {
+                    WinGetPos(, , &TWidth, &THeight, ThumbHwnd)
+                    WinGetClientPos(, , &EWidth, &EHeight, This.ThumbHwnd_EvEHwnd[ThumbHwnd])
+                    ThumbObj := This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[ThumbHwnd]%
+                    ThumbObj["Thumbnail"].Source := [0, 0, EWidth, EHeight]
+                    ThumbObj["Thumbnail"].Destination := [0, 0, TWidth, THeight]
+                    ThumbObj["Thumbnail"].Update()
+                }
+            }
+        }
+        ; Also update secondary thumbnails
+        if (This.HasOwnProp("SecondaryThumbWindows")) {
+            for EvEHwnd in This.SecondaryThumbWindows.OwnProps() {
+                try {
+                    SecObj := This.SecondaryThumbWindows.%EvEHwnd%
+                    WinGetPos(, , &TW, &TH, SecObj["Window"].Hwnd)
+                    WinGetClientPos(, , &EW, &EH, "Ahk_Id" EvEHwnd)
+                    SecObj["Thumbnail"].Source := [0, 0, EW, EH]
+                    SecObj["Thumbnail"].Destination := [0, 0, TW, TH]
+                    SecObj["Thumbnail"].Update()
+                }
             }
         }
     }
@@ -412,82 +755,71 @@ Class ThumbWindow extends Propertys {
         If (IsSet(EVEHwnd) && This.ThumbWindows.HasProp(EVEHwnd)) {
             Win_Title := This.CleanTitle(WinGetTitle("Ahk_Id " EVEHwnd))
 
-            ; Clear attack alert when window is brought to foreground
-            if (This.EnableAttackAlerts && This._AttackAlerts.Has(Win_Title)) {
+            ; Clear alert when window is brought to foreground
+            if (This.HasOwnProp("_LogMonitor") && This._LogMonitor.HasAlert(Win_Title)) {
+                This._LogMonitor.DismissAlerts(Win_Title)
+            } else if (This.EnableAttackAlerts && This._AttackAlerts.Has(Win_Title)) {
                 This._AttackAlerts.Delete(Win_Title)
                 This._AlertDismissed[Win_Title] := A_TickCount
             }
 
-            ; Skip expensive border recomputation if the active window hasn't changed
-            if (This.HasProp("_lastActiveBorderTitle") && This._lastActiveBorderTitle = Win_Title)
-                return
-            This._lastActiveBorderTitle := Win_Title
-
             for EW_Hwnd, Objs in This.ThumbWindows.OwnProps() {
                 for names, GuiObj in Objs {
                     if (names = "Border") {
+                        ; Skip the active window — we handle it below
                         if (This.ThumbWindows.%EW_Hwnd%["Window"].Name = Win_Title)
                             continue
 
-                        ; Determine the border color for this INACTIVE thumbnail
-                        borderColor := ""
-                        borderTitle := This.CleanTitle(WinGetTitle("Ahk_Id " EW_Hwnd))
-
-                        ; Custom per-character colors take priority
-                        if (This.CustomColorsActive) {
-                            try {
-                                if (This.CustomColorsGet[borderTitle]["Char"] != "" && This.CustomColorsGet[borderTitle]["IABorder"] != "")
-                                    borderColor := This.CustomColorsGet[borderTitle]["IABorder"]
-                            }
+                        if (!This.ShowAllColoredBorders) {
+                            ; No colored inactive borders — hide them
+                            GuiObj.Show("Hide")
                         }
-
-                        ; Group colors only when ShowAllColoredBorders is ON
-                        if (borderColor = "" && This.ShowAllColoredBorders) {
+                        else if (!This.CustomColorsActive && This.ShowAllColoredBorders) {
+                            ; Check group color first, then fall back to inactive border color
+                            borderTitle := This.CleanTitle(WinGetTitle("Ahk_Id " EW_Hwnd))
                             groupColor := This.GetGroupColor(borderTitle)
-                            if (groupColor != "")
-                                borderColor := groupColor
+                            if (groupColor != "") {
+                                try
+                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := groupColor
+                                catch
+                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
+                            } else {
+                                try
+                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := This.InactiveClientBorderColor
+                                catch
+                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
+                            }
+                            This.BorderSize(This.ThumbWindows.%EW_Hwnd%["Window"].Hwnd, This.ThumbWindows.%EW_Hwnd%["Border"].Hwnd, This.InactiveClientBorderthickness)
                         }
-
-                        ; Fall back to Inactive Border Color
-                        if (borderColor = "") {
-                            try
-                                borderColor := This.InactiveClientBorderColor
-                            catch
-                                borderColor := "8A8A8A"
+                        else if (This.CustomColorsActive && This.ShowAllColoredBorders) {
+                            title := This.CleanTitle(WinGetTitle("Ahk_Id " EW_Hwnd))
+                            if (This.CustomColorsGet[title]["Char"] != "" && This.CustomColorsGet[title]["IABorder"] != "") {
+                                try
+                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := This.CustomColorsGet[title]["IABorder"]
+                                catch
+                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
+                            }
+                            else {
+                                try
+                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := This.InactiveClientBorderColor
+                                catch
+                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
+                            }
+                            This.BorderSize(This.ThumbWindows.%EW_Hwnd%["Window"].Hwnd, This.ThumbWindows.%EW_Hwnd%["Border"].Hwnd, This.InactiveClientBorderthickness)
                         }
-
-                        ; Apply the border color with INACTIVE border thickness
-                        try
-                            This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := borderColor
-                        catch
-                            This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
-                        This.BorderSize(This.ThumbWindows.%EW_Hwnd%["Window"].Hwnd, This.ThumbWindows.%EW_Hwnd%["Border"].Hwnd, This.InactiveClientBorderthickness)
-                        GuiObj.Show("NoActivate")
                     }
                 }
             }
-            ; FOCUSED/ACTIVE window border
-            if (!This.Thumbnail_visibility.Has(Win_Title) && This.ShowClientHighlightBorder) {
-                activeColor := ""
-                ; Custom per-character active border color
-                if (This.CustomColorsActive) {
-                    try {
-                        if (This.CustomColorsGet[Win_Title]["Char"] != "" && This.CustomColorsGet[Win_Title]["Border"] != "")
-                            activeColor := This.CustomColorsGet[Win_Title]["Border"]
-                    }
+            ; Always show the active client's highlight border (no longer gated by ShowClientHighlightBorder)
+            if (!This.Thumbnail_visibility.Has(Win_Title)) {
+                if (This.CustomColorsActive && This.CustomColorsGet[Win_Title]["Char"] != "" && This.CustomColorsGet[Win_Title]["Border"] != "") {
+                    This.ThumbWindows.%EVEHwnd%["Border"].BackColor := This.CustomColorsGet[Win_Title]["Border"]
+                    This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
                 }
-                ; Group color for focused window (when groups enabled)
-                if (activeColor = "" && This.ShowAllColoredBorders) {
-                    groupColor := This.GetGroupColor(Win_Title)
-                    if (groupColor != "")
-                        activeColor := groupColor
+                else {
+                    This.ThumbWindows.%EVEHwnd%["Border"].BackColor := This.ClientHighligtColor
+                    This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
                 }
-                ; Fall back to Highlight Color
-                if (activeColor = "")
-                    activeColor := This.ClientHighligtColor
-
-                This.ThumbWindows.%EVEHwnd%["Border"].BackColor := activeColor
-                This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
                 This.ThumbWindows.%EVEHwnd%["Border"].Show("NoActivate")
             }
         }

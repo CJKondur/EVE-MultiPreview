@@ -236,6 +236,9 @@ Class LiveThumb
             Return arrRet
         }
         Set {
+            ; Validate: need exactly 4 numeric elements
+            if (!(value is Array) || value.Length < 4)
+                return
             This.SetDwFlags("Destination")
             Loop 4
                 NumPut("Int", value[A_Index], this.THUMB_UPD_PROP_PTR, LiveThumb.DTP_OFFSETS.Destination * A_Index)
@@ -257,6 +260,9 @@ Class LiveThumb
             Return arrRet   
         }
         Set {
+            ; Validate: need exactly 4 numeric elements
+            if (!(value is Array) || value.Length < 4)
+                return
             This.SetDwFlags("Source")
             Loop 4
                 NumPut("Int", value[A_Index], this.THUMB_UPD_PROP_PTR, LiveThumb.DTP_OFFSETS.Source + 4*(A_Index-1))
