@@ -35,7 +35,14 @@ Shows how long each character has been logged in, right on the thumbnail. Update
 Reads your EVE chat logs and shows the current solar system on each thumbnail. Updates automatically when you jump systems, dock/undock, or self-destruct to a home station.
 
 ## Stats Overlay
-Per-character DPS, Logi, Mining, and Ratting stat tracking via standalone overlay windows. Mining mode separately tracks ore, gas, and ice. Configurable per character in Settings → Stats Overlay with adjustable font size.
+Per-character DPS, Logi, Mining, and Ratting stat tracking via standalone overlay windows. Each category displays real-time stats parsed from your game logs:
+
+- **DPS** — damage dealt per second, total damage out, weapon hits, volley damage
+- **Logi** — armor/shield repair amounts given and received, capacitor transfer
+- **Mining** — ore, gas (Fullerite, Cytoserocin, Mykoserocin), and ice tracked separately with GMPC/GMPH/IMPH stats
+- **Ratting** — bounty ticks, ISK/hr estimates, rat kills
+
+Configurable per character in Settings → Stats Overlay. Font size adjustable (6–16pt). Window positions and sizes persist across sessions. Stat windows automatically hide when you tab away from EVE and reappear when you return.
 
 ## Click-Through Mode
 Toggle a hotkey (F12 by default) to make all thumbnails click-through, so they don't steal focus when you're trying to interact with something behind them.
@@ -85,6 +92,12 @@ If you're coming from EVE-X-Preview, the app will ask if you want to bring your 
 
 ## Context-Sensitive Help Panel
 A built-in 📖 Help panel on the right side of the Settings window. Displays relevant documentation for whichever settings tab is active, updates automatically when switching tabs, and resizes with the window.
+
+## Live Clocks
+Local time and EVE time (UTC) displayed in the settings window header bar, updated every second. Handy for coordinating fleet ops or tracking downtime.
+
+## Security / TOS
+The Hotkey Key-Block Guard is disabled by default per EVE Online developer feedback. The feature is preserved in settings but greyed out — it can be re-enabled if CCP's TOS guidance changes in the future.
 
 ---
 

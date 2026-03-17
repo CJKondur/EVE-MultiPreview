@@ -22,6 +22,7 @@ This is a fork of [EVE-X-Preview](https://github.com/g0nzo83/EVE-X-Preview) by *
 - **Per-event alert sounds** — assign custom WAV/MP3 files with master volume control
 - **Session timer** — shows how long each character has been logged in
 - **System name overlay** — displays the current solar system on each thumbnail
+- **Stats overlay** — real-time DPS, Logi, Mining, and Ratting stat tracking per character in standalone overlay windows
 - **Click-through mode** — make thumbnails transparent to mouse clicks with a hotkey
 - **Hide/Show thumbnails toggle** — hotkey or tray menu toggle to instantly hide/show all thumbnails
 - **Secondary thumbnails (PiP)** — add a second independent live preview for any character with separate size, position, and opacity
@@ -30,6 +31,8 @@ This is a fork of [EVE-X-Preview](https://github.com/g0nzo83/EVE-X-Preview) by *
 - **FPS limiter** — built-in RTSS profile integration for capping background client FPS
 - **Multi-monitor support** — choose which monitor thumbnails appear on
 - **First-run setup wizard** — quick guided setup for new users
+- **Context-sensitive help** — built-in help panel in settings that updates based on active tab
+- **Live clocks** — local time and EVE time (UTC) in the settings header
 - **Customizable everything** — colors, borders, text, fonts, sizes, opacity, positions
 
 ## What It Doesn't Do
