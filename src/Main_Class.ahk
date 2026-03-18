@@ -912,13 +912,18 @@ Class Main_Class extends ThumbWindow {
                 title := thumbObj["Window"].Title
                 cleanName := RegExReplace(title, "^EVE - ", "")
                 if (cleanName = charName) {
-                    ; Restore to custom color or default
+                    ; Restore to custom color, group color, or default
                     if (This.CustomColorsActive && This.CustomColorsGet[title]["Char"] != "" && This.CustomColorsGet[title]["IABorder"] != "")
                         thumbObj["Border"].BackColor := This.CustomColorsGet[title]["IABorder"]
-                    else if (This.ShowAllColoredBorders)
-                        thumbObj["Border"].BackColor := This.InactiveClientBorderColor
-                    else
-                        thumbObj["Border"].Show("Hide")
+                    else {
+                        grpColor := This.GetGroupColor(cleanName)
+                        if (grpColor != "" && This.ShowAllColoredBorders)
+                            thumbObj["Border"].BackColor := grpColor
+                        else if (This.ShowAllColoredBorders)
+                            thumbObj["Border"].BackColor := This.InactiveClientBorderColor
+                        else
+                            thumbObj["Border"].Show("Hide")
+                    }
 
                     ; Force re-evaluation of active border on next timer tick.
                     ; Without this, if the currently-focused window's alert expires,

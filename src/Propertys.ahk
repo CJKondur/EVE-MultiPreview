@@ -399,26 +399,12 @@ class Propertys extends TrayMenu {
 
     ; Look up a character's group border color (returns "" if not in any group)
     GetGroupColor(charName) {
-        ; Only return group color if the group has at least one hotkey assigned
         for idx, group in This.ThumbnailGroups {
             for cidx, char in group["Characters"] {
                 if (char = charName) {
-                    ; Check if this group has hotkeys assigned in Hotkey_Groups
-                    groupName := group.Has("Name") ? group["Name"] : ""
-                    if (groupName != "") {
-                        try {
-                            hkGroups := This.Hotkey_Groups
-                            if (hkGroups.Has(groupName)) {
-                                gData := hkGroups[groupName]
-                                hasFwd := gData.Has("ForwardsHotkey") && gData["ForwardsHotkey"] != ""
-                                hasBwd := gData.Has("BackwardsHotkey") && gData["BackwardsHotkey"] != ""
-                                if (hasFwd || hasBwd)
-                                    return group["Color"]
-                            }
-                        }
-                    }
-                    ; No hotkeys assigned — don't use group color
-                    return ""
+                    color := group.Has("Color") ? group["Color"] : ""
+                    ; Strip # prefix — AHK BackColor expects raw hex (e.g. "4fc3f7")
+                    return (color != "") ? StrReplace(Trim(color, " `n`r`t"), "#", "") : ""
                 }
             }
         }

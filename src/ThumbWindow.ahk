@@ -124,12 +124,21 @@ Class ThumbWindow extends Propertys {
                 }
             }
             else {
-                try {
-                    ThumbObj["Border"].BackColor := This.InactiveClientBorderColor
-                }
-                catch as e {
-                    CheckError := 1
-                    MsgBox("Error: Client Highligt Color are wrong´nin: Profile Settings - " This.LastUsedProfile " Thumbnail Settings - Inactive Border Color `nUse the following syntax:`n HEX =>: #FFFFFF or 0xFFFFFF or FFFFFF`nRGB =>: 255, 255, 255 or rgb(255, 255, 255)")
+                ; Check group color before falling back to default inactive
+                groupColor := This.GetGroupColor(Win_Title)
+                if (groupColor != "") {
+                    try
+                        ThumbObj["Border"].BackColor := groupColor
+                    catch
+                        ThumbObj["Border"].BackColor := This.InactiveClientBorderColor
+                } else {
+                    try {
+                        ThumbObj["Border"].BackColor := This.InactiveClientBorderColor
+                    }
+                    catch as e {
+                        CheckError := 1
+                        MsgBox("Error: Client Highligt Color are wrong´nin: Profile Settings - " This.LastUsedProfile " Thumbnail Settings - Inactive Border Color `nUse the following syntax:`n HEX =>: #FFFFFF or 0xFFFFFF or FFFFFF`nRGB =>: 255, 255, 255 or rgb(255, 255, 255)")
+                    }
                 }
             }
         }
@@ -147,7 +156,11 @@ Class ThumbWindow extends Propertys {
 
         size := This.BorderSize(ThumbObj["Window"].Hwnd, ThumbObj["Border"].Hwnd)
 
-        ThumbObj["Border"].Show("w" size.w " h" size.h " x" size.x " y" size.y "NoActivate Hide")
+        ; Show borders immediately if ShowAllColoredBorders is enabled
+        if (This.ShowAllColoredBorders)
+            ThumbObj["Border"].Show("w" size.w " h" size.h " x" size.x " y" size.y "NoActivate")
+        else
+            ThumbObj["Border"].Show("w" size.w " h" size.h " x" size.x " y" size.y "NoActivate Hide")
 
         return ThumbObj
 
@@ -800,10 +813,19 @@ Class ThumbWindow extends Propertys {
                                     This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
                             }
                             else {
-                                try
-                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := This.InactiveClientBorderColor
-                                catch
-                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
+                                ; Fall back to group color if available
+                                grpColor := This.GetGroupColor(title)
+                                if (grpColor != "") {
+                                    try
+                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := grpColor
+                                    catch
+                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
+                                } else {
+                                    try
+                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := This.InactiveClientBorderColor
+                                    catch
+                                        This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
+                                }
                             }
                             This.BorderSize(This.ThumbWindows.%EW_Hwnd%["Window"].Hwnd, This.ThumbWindows.%EW_Hwnd%["Border"].Hwnd, This.InactiveClientBorderthickness)
                         }

@@ -1637,6 +1637,11 @@ Class Settings_Gui {
         y += 22
         P.Push This.S_Gui.Add("Edit", "x190 y" y " w330 h150 -Wrap vGroupChars", "")
 
+        ; Add Character search button
+        btnAddChar := This.S_Gui.Add("Button", "x525 y" y " w140 h26", "➕ Add Character")
+        btnAddChar.OnEvent("Click", (*) => This._GrpAddCharacter())
+        P.Push btnAddChar
+
         ; Buttons
         y += 160
         This.S_Gui.SetFont("s9 w600", "Segoe UI")
@@ -1682,13 +1687,19 @@ Class Settings_Gui {
                 }
                 This.S_Gui["GroupChars"].Value := chars
                 ; Update color preview
-                try This._grpColorPreview.Opt("Background" StrReplace(color, "#", ""))
+                try {
+                    This._grpColorPreview.Opt("Background" StrReplace(color, "#", ""))
+                    This._grpColorPreview.Redraw()
+                }
             } else {
                 ; "New Group" selected
                 This.S_Gui["GroupName"].Value := ""
                 This.S_Gui["GroupColor"].Value := "#4fc3f7"
                 This.S_Gui["GroupChars"].Value := ""
-                try This._grpColorPreview.Opt("Background4fc3f7")
+                try {
+                    This._grpColorPreview.Opt("Background4fc3f7")
+                    This._grpColorPreview.Redraw()
+                }
             }
         }
     }
@@ -1766,7 +1777,83 @@ Class Settings_Gui {
     ; Windows native color picker using ChooseColor API
     _grpPickColor() {
         This._PickColor("GroupColor")
-        try This._grpColorPreview.Opt("Background" Trim(This.S_Gui["GroupColor"].Value, "#"))
+        cleanHex := Trim(This.S_Gui["GroupColor"].Value, "# `n`r`t")
+        try {
+            This._grpColorPreview.Opt("Background" cleanHex)
+            This._grpColorPreview.Redraw()
+        }
+    }
+
+    ; Add a character to the currently selected thumbnail group via search popup
+    _GrpAddCharacter() {
+        try {
+            idx := This.S_Gui["GroupSelect"].Value
+            groups := This.ThumbnailGroups
+            if (idx <= 0 || idx > groups.Length) {
+                ToolTip("Select or create a group first")
+                SetTimer () => ToolTip(), -1500
+                return
+            }
+        } catch {
+            ToolTip("Select or create a group first")
+            SetTimer () => ToolTip(), -1500
+            return
+        }
+
+        ; Build known characters list
+        knownChars := This._GetKnownCharacters()
+
+        ; Create search popup
+        searchGui := Gui("+Owner" This.S_Gui.Hwnd " +ToolWindow -MinimizeBox -MaximizeBox", "Add Character to Group")
+        searchGui.BackColor := Settings_Gui.BG_DARK
+        searchGui.SetFont("s10 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        searchGui.Add("Text", "x10 y10 w270 BackgroundTrans", "Type to search or enter new name:")
+        searchEdit := searchGui.Add("Edit", "x10 y35 w270 vSearchField cFFFFFF Background" Settings_Gui.BG_PANEL)
+        charList := searchGui.Add("ListBox", "x10 y62 w270 h150 vCharList Background" Settings_Gui.BG_PANEL, knownChars)
+
+        btnOK := searchGui.Add("Button", "x10 y220 w130 h28 Default", "Add")
+        btnCancel := searchGui.Add("Button", "x150 y220 w130 h28", "Cancel")
+
+        ; Filter list as user types
+        searchEdit.OnEvent("Change", (*) => _FilterList())
+        charList.OnEvent("DoubleClick", (*) => _DoAdd())
+        btnOK.OnEvent("Click", (*) => _DoAdd())
+        btnCancel.OnEvent("Click", (*) => searchGui.Destroy())
+
+        _FilterList() {
+            query := StrLower(searchEdit.Value)
+            filtered := []
+            for idx, name in knownChars {
+                if (query = "" || InStr(StrLower(name), query))
+                    filtered.Push(name)
+            }
+            charList.Delete()
+            if (filtered.Length)
+                charList.Add(filtered)
+        }
+
+        mainRef := This
+
+        _DoAdd() {
+            ; Prefer selected list item, fall back to typed text
+            charName := ""
+            try charName := charList.Text
+            if (charName = "")
+                charName := Trim(searchEdit.Value, " ")
+            if (charName = "")
+                return
+
+            ; Append to GroupChars edit box
+            current := mainRef.S_Gui["GroupChars"].Value
+            if (current != "" && SubStr(current, -1) != "`n")
+                current .= "`n"
+            mainRef.S_Gui["GroupChars"].Value := current charName "`n"
+
+            searchGui.Destroy()
+        }
+
+        searchGui.Show("w290 h260")
     }
 
     ; Generic reusable color picker — works with any edit control by name
