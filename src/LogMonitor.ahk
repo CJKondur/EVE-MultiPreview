@@ -251,7 +251,7 @@ Class LogMonitor {
 
         hadActivity := false
 
-        for filePath, state in this._fileStates {
+        for filePath, state in this._fileStates.Clone() {  ; Clone prevents modification during iteration (RC-9)
             if (this._ReadNewLines(state))
                 hadActivity := true
         }

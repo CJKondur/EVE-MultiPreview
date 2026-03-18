@@ -3446,7 +3446,7 @@ Class Settings_Gui {
     ; PANEL: About
     ; ============================================================
     Panel_About() {
-        static APP_VERSION := "1.2.0"
+        static APP_VERSION := "1.2.1"
         static GITHUB_URL := "https://github.com/CJKondur/EVE-MultiPreview"
         static GITHUB_API := "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest"
 

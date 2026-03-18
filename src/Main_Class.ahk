@@ -221,6 +221,7 @@ Class Main_Class extends ThumbWindow {
     }
 
     HandleMainTimer() {
+        Critical  ; Prevent timer interruption during state modifications (RC-2, RC-5)
         static HideShowToggle := 0, WinList := {}
         try
             WinList := WinGetList(This.EVEExe)
@@ -445,10 +446,13 @@ Class Main_Class extends ThumbWindow {
             if (This.OnWinExist(Arr)) {
                 Try {
                     if !(WinExist("EVE - " This.CleanTitle(Arr[Index]))) {
+                        maxIter := length  ; Guard against infinite loop if all windows close (RC-15)
                         while (!(WinExist("EVE - " This.CleanTitle(Arr[Index])))) {
                             index += 1
                             if (Index > length)
                                 Index := 1
+                            if (--maxIter <= 0)
+                                return
                         }
                     }
                 This.ActivateEVEWindow(,,This.CleanTitle(Arr[Index]))
@@ -464,10 +468,13 @@ Class Main_Class extends ThumbWindow {
 
             if (This.OnWinExist(Arr)) {
                 if !(WinExist("EVE - " This.CleanTitle(Arr[Index]))) {
+                    maxIter := length  ; Guard against infinite loop if all windows close (RC-15)
                     while (!(WinExist("EVE - " This.CleanTitle(Arr[Index])))) {
                         Index -= 1
                         if (Index <= 0)
                             Index := length
+                        if (--maxIter <= 0)
+                            return
                     }
                 }
                 This.ActivateEVEWindow(,,This.CleanTitle(Arr[Index]))
@@ -696,6 +703,7 @@ Class Main_Class extends ThumbWindow {
 
     ; Update thumbnail overlay text with session timer, system name, and stat overlays
     RefreshSessionTimers() {
+        Critical  ; Prevent timer interruption during GUI state updates (RC-3)
         This._activeStatChars := Map()  ; Reset each tick for stat window lifecycle
         ; System names are now updated by LogMonitor in real-time via _CharSystems
         ; Hoist config read outside per-character loop (M4)
@@ -1136,6 +1144,8 @@ Class Main_Class extends ThumbWindow {
             Else If (msg == Main_Class.WM_LBUTTONDOWN) {
                 ;Activates the EVE Window by clicking on the Thumbnail 
                 if (wparam = 1) {
+                    if (!This.ThumbHwnd_EvEHwnd.Has(hwnd))  ; Guard: stale hwnd after destroy (RC-1)
+                        return 0
                     if !(WinActive(This.ThumbHwnd_EvEHwnd[hwnd]))
                         This.ActivateEVEWindow(hwnd)
                     ; Clear attack alert on thumbnail click
@@ -1151,7 +1161,7 @@ Class Main_Class extends ThumbWindow {
                 ; Ctrl+Lbutton, Minimizes the Window on whose thumbnail the user clicks
                 else if (wparam = 9) { 
                     ; Minimize
-                    if (!GetKeyState("RButton"))
+                    if (!GetKeyState("RButton") && This.ThumbHwnd_EvEHwnd.Has(hwnd))  ; Guard: stale hwnd (RC-1)
                         PostMessage 0x0112, 0xF020, , , This.ThumbHwnd_EvEHwnd[hwnd]
                 }
                 return 0
@@ -1308,6 +1318,7 @@ Class Main_Class extends ThumbWindow {
 
     ;if a EVE Window got closed this destroyes the Thumbnail and frees the memory.
     EvEWindowDestroy(hwnd?, WinTitle?) {
+        Critical  ; Prevent timer interruption during destroy (RC-2, RC-3, RC-8)
         if (IsSet(hwnd) && This.ThumbWindows.HasProp(hwnd)) {
             ; Preserve thumbnail position before destroying
             try {
@@ -1321,6 +1332,11 @@ Class Main_Class extends ThumbWindow {
                 if (K = "Thumbnail")
                     continue
                 v.Destroy()
+            }
+            ; Clean up reverse map: remove thumbnail hwnd → EVE hwnd entries (RC-1)
+            for thumbH, eveH in This.ThumbHwnd_EvEHwnd.Clone() {
+                if (eveH = hwnd)
+                    This.ThumbHwnd_EvEHwnd.Delete(thumbH)
             }
             This.ThumbWindows.DeleteProp(hwnd)
             This._DestroySecondaryThumb(hwnd)
@@ -1341,6 +1357,11 @@ Class Main_Class extends ThumbWindow {
                     if (K = "Thumbnail")
                         continue
                     v.Destroy()
+                }
+                ; Clean up reverse map: remove thumbnail hwnd → EVE hwnd entries (RC-1)
+                for thumbH, eveH in This.ThumbHwnd_EvEHwnd.Clone() {
+                    if (eveH = Win_Hwnd)
+                        This.ThumbHwnd_EvEHwnd.Delete(thumbH)
                 }
                 This.ThumbWindows.DeleteProp(Win_Hwnd)
                 This._DestroySecondaryThumb(Win_Hwnd)

@@ -371,7 +371,7 @@ Class ThumbWindow extends Propertys {
                 ; Primary thumbnail: move this thumb's GUI stack
                 Nx := x - state.x0, NEUx := state.wx + Nx
                 Ny := y - state.y0, NEUy := state.wy + Ny
-                if This.ThumbWindows.HasProp(This.ThumbHwnd_EvEHwnd[state.hwnd]) {
+                if (This.ThumbHwnd_EvEHwnd.Has(state.hwnd) && This.ThumbWindows.HasProp(This.ThumbHwnd_EvEHwnd[state.hwnd])) {  ; Guard: stale hwnd (RC-1)
                     for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[state.hwnd]% {
                         try WinMove(NEUx, NEUy, , , v.Hwnd)
                     }
@@ -497,12 +497,23 @@ Class ThumbWindow extends Propertys {
             if (Wh < This.ThumbnailMinimumSize["height"])
                 Wh := This.ThumbnailMinimumSize["height"]
 
-            for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[state.hwnd]% {
+            ; Guard: check stale hwnd before chained access (RC-1)
+            if (!This.ThumbHwnd_EvEHwnd.Has(state.hwnd)) {
+                This._FinishDrag()
+                return
+            }
+            eveH := This.ThumbHwnd_EvEHwnd[state.hwnd]
+            if (!This.ThumbWindows.HasProp(eveH)) {
+                This._FinishDrag()
+                return
+            }
+
+            for k, v in This.ThumbWindows.%eveH% {
                 try WinMove(, , Wn, Wh, v.hwnd)
             }
             try {
                 This.Update_Thumb(false, state.hwnd)
-                This.BorderSize(This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[state.hwnd]%["Window"].Hwnd, This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[state.hwnd]%["Border"].Hwnd)
+                This.BorderSize(This.ThumbWindows.%eveH%["Window"].Hwnd, This.ThumbWindows.%eveH%["Border"].Hwnd)
             }
 
             ; Per-character resize: If IndividualThumbnailResize is on, only resize this thumbnail
@@ -515,7 +526,10 @@ Class ThumbWindow extends Propertys {
                 for ThumbIDs in This.ThumbHwnd_EvEHwnd {
                     if (ThumbIDs == This.ThumbHwnd_EvEHwnd[state.hwnd])
                         continue
-                    for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[ThumbIDs]% {
+                    eveID := This.ThumbHwnd_EvEHwnd[ThumbIDs]
+                    if (!This.ThumbWindows.HasProp(eveID))  ; Guard: stale hwnd (RC-1)
+                        continue
+                    for k, v in This.ThumbWindows.%eveID% {
                         if k = "Window"
                             window := v.Hwnd
                         try WinMove(, , Wn, Wh, v.Hwnd)
@@ -622,8 +636,10 @@ Class ThumbWindow extends Propertys {
             ;If some window is in range then Snap the moving window into it
             ; Snap the full GUI Obj stack
             if (shouldMove) {
-                for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[hwnd]%
-                    WinMove(destX, destY, , , v.Hwnd)
+                if (This.ThumbHwnd_EvEHwnd.Has(hwnd) && This.ThumbWindows.HasProp(This.ThumbHwnd_EvEHwnd[hwnd])) {  ; Guard: stale hwnd (RC-1)
+                    for k, v in This.ThumbWindows.%This.ThumbHwnd_EvEHwnd[hwnd]%
+                        WinMove(destX, destY, , , v.Hwnd)
+                }
             }
         }
         ;Nested Function for the Window Calculation
