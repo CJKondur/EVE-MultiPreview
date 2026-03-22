@@ -272,31 +272,34 @@ Class StatTracker {
         return false  ; Default: NPC damage NOT counted
     }
 
-    ; Extract entity name from combat line (target for "to", source for "from")
+    ; Extract entity name and info from combat line (target for "to", source for "from")
     _ExtractEntity(line) {
         ; Try "to" entity (outgoing damage target)
-        if (RegExMatch(line, "to</font>.*?<b>(.*?)</b>", &m))
-            return Trim(RegExReplace(m[1], '<[^>]+>', ''))
+        if (RegExMatch(line, "to</font>.*?<b>(.*?)</b>(.*)", &m))
+            return { name: Trim(RegExReplace(m[1], '<[^>]+>', '')), info: m[2] }
         ; Try "from" entity (incoming damage source)
-        if (RegExMatch(line, "from</font>.*?<b>(.*?)</b>", &m))
-            return Trim(RegExReplace(m[1], '<[^>]+>', ''))
+        if (RegExMatch(line, "from</font>.*?<b>(.*?)</b>(.*)", &m))
+            return { name: Trim(RegExReplace(m[1], '<[^>]+>', '')), info: m[2] }
         ; Fallback: logi/cap lines
-        if (RegExMatch(line, "(?:to|by)\s+</font>.*?<b>(.*?)</b>", &m))
-            return Trim(RegExReplace(m[1], '<[^>]+>', ''))
+        if (RegExMatch(line, "(?:to|by)\s+</font>.*?<b>(.*?)</b>(.*)", &m))
+            return { name: Trim(RegExReplace(m[1], '<[^>]+>', '')), info: m[2] }
         return ""
     }
 
-    ; Check if an entity name is an NPC
-    _IsNpcEntity(name) {
-        if (name = "")
+    ; Check if an entity is an NPC
+    _IsNpcEntity(entity) {
+        if (entity = "" || entity.name = "")
             return false
+        
         ; Delegate to LogMonitor's comprehensive NPC check if available
         try {
             logMon := this._mainRef._LogMonitor
-            return logMon._IsNPC(name)
+            return logMon._IsNPC(entity.name, entity.info)
         }
-        ; Fallback heuristic: players have [CORP](Ship), NPCs don't
-        return (!InStr(name, "[") && !InStr(name, "("))
+        
+        ; Fallback heuristic: Player characters always have [CORP] tag or (Ship) type
+        ; immediately following their name in combat logs. NPCs never do.
+        return !(InStr(entity.info, "[") || InStr(entity.info, "("))
     }
 
     ; ==================== Rate Calculations ====================

@@ -636,7 +636,7 @@ Class LogMonitor {
                 ; PVE mode: extract attacker and skip if NPC
                 if (this._pveMode) {
                     attacker := this._ExtractAttacker(line)
-                    if (attacker != "" && this._IsNPC(attacker))
+                    if (attacker != "" && this._IsNPC(attacker.name, attacker.info))
                         return
                 }
                 this._EmitEvent(charName, "attack", LogMonitor.SEV_CRITICAL,
@@ -653,7 +653,7 @@ Class LogMonitor {
                 ; PVE mode: extract attacker and skip if NPC
                 if (this._pveMode) {
                     attacker := this._ExtractAttacker(line)
-                    if (attacker != "" && this._IsNPC(attacker))
+                    if (attacker != "" && this._IsNPC(attacker.name, attacker.info))
                         return
                 }
                 this._EmitEvent(charName, "warp_scramble", LogMonitor.SEV_CRITICAL,
@@ -929,24 +929,30 @@ Class LogMonitor {
         return Trim(system)
     }
 
-    ; Extract attacker name from a combat log line
-    ; Format: "... from <b>Attacker Name</b> - WeaponName ..."
+    ; Extract attacker name and trailing info from a combat log line
+    ; Format: "... from <b>Attacker Name</b>[CORP](Ship) - WeaponName ..."
     _ExtractAttacker(line) {
-        ; Look for "from" followed by <b>name</b>
-        if RegExMatch(line, "from\s*(?:<[^>]*>)*\s*<b>(.+?)</b>", &m)
-            return Trim(m[1])
+        ; Look for "from" followed by <b>name</b> and capture the trailing part
+        if RegExMatch(line, "from\s*(?:<[^>]*>)*\s*<b>(.+?)</b>(.*)", &m)
+            return { name: Trim(m[1]), info: m[2] }
+        
         ; Fallback: look for any <b> tag after "from"
         fromPos := InStr(line, "from")
         if (fromPos > 0) {
             rest := SubStr(line, fromPos)
-            if RegExMatch(rest, "<b>(.+?)</b>", &m)
-                return Trim(m[1])
+            if RegExMatch(rest, "<b>(.+?)</b>(.*)", &m)
+                return { name: Trim(m[1]), info: m[2] }
         }
         return ""
     }
 
-    ; Check if a name matches known NPC naming patterns
-    _IsNPC(name) {
+    ; Check if a name matches known NPC naming patterns or heuristics
+    _IsNPC(name, info := "") {
+        ; Heuristic: Player characters always have [CORP] tag and often (Ship) type
+        ; immediately following their name in combat logs. NPCs never do.
+        if (info != "" && (InStr(info, "[") || InStr(info, "(")))
+            return false
+
         ; Check prefixes
         for idx, prefix in LogMonitor.NPC_PREFIXES {
             if (SubStr(name, 1, StrLen(prefix)) = prefix)
@@ -957,6 +963,13 @@ Class LogMonitor {
             if (SubStr(name, -StrLen(suffix)) = suffix)
                 return true
         }
+
+        ; Fallback: If it has no brackets/parens and doesn't match a faction,
+        ; it's still likely an NPC (like 'Tower Sentry Gun' or 'Athanor')
+        ; We assume it's an NPC if info is present but lacks brackets.
+        if (info != "")
+            return true
+
         return false
     }
 }
