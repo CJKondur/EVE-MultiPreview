@@ -97,7 +97,9 @@ default_JSON := "
         "StatLogRetentionDays": 30,
         "StatOverlayOpacity": 200,
         "StatOverlayFontSize": 8,
-        "StatWindowPositions": {}
+        "StatWindowPositions": {},
+        "EveSettingsDir": "",
+        "EveBackupDir": ""
     },
     "_Profiles": {
         "Default": {

@@ -57,6 +57,14 @@ Class Main_Class extends ThumbWindow {
         for index, prefix in prefixArr
             Hotkey(  prefix . Main_Class.virtualKey, ObjBindMethod(This, "ActivateForgroundWindow"), "S P1")
 
+        ; Tray balloon click → focus the alerted character's EVE window
+        This._trayAlertChar := ""
+        This._trayAlertHwnd := 0  ; defensive init — prevents unset-property access
+        OnMessage(0x404, ObjBindMethod(This, "_OnTrayNotify"))
+
+        ; Floating alert hub — created after settings are loaded
+        This._alertHub := AlertHub(This)
+
         ; Register Hotkey for Puase Hotkeys if the user has is Set
         if (This.Suspend_Hotkeys_Hotkey != "") {
             HotIf (*) => WinExist(This.EVEExe)
@@ -867,6 +875,52 @@ Class Main_Class extends ThumbWindow {
 
     ; === LogMonitor Callback Methods ===
 
+    ; Shows a tray balloon AND a hub toast.
+    ; Caches the alerted EVE window HWND for click-to-focus in both systems.
+    ; eventType : LogMonitor event id e.g. "attack", "mine_cargo_full"
+    ; severity  : "critical" / "warning" / "info"
+    _ShowTrayAlert(charName, eventType, severity, text) {
+        This._trayAlertChar := charName
+        This._trayAlertHwnd := 0  ; reset before search
+        try {
+            for hwnd, thumbObj in This.ThumbWindows.OwnProps() {
+                if InStr(thumbObj["Window"].Title, charName) {
+                    This._trayAlertHwnd := Integer(hwnd)
+                    break
+                }
+            }
+        }
+        ; Resolve human-readable alert label
+        alertLabel := eventType
+        try {
+            if (LogMonitor.EVENT_DEFS.Has(eventType))
+                alertLabel := LogMonitor.EVENT_DEFS[eventType].label
+        }
+        ; Legacy TrayTip — only fires if hub is disabled (avoids duplicate notifications)
+        iconFlag := (severity = "critical") ? "16" : "17"
+        if (!This.AlertHubEnabled)
+            try TrayTip(text, "EVE Alert — " charName, iconFlag)
+        ; Hub toast (per-notification, independently clickable)
+        try This._alertHub.AddToast(charName, alertLabel, severity, This._trayAlertHwnd)
+    }
+
+    ; WM_TRAYNOTIFY (0x404) handler — lParam 0x405 = NIN_BALLOONUSERCLICK.
+    ; Uses DllCall("SetForegroundWindow") directly (same as ActivateForgroundWindow)
+    ; to bypass Windows focus-steal prevention that blocks WinActivate from message callbacks.
+    _OnTrayNotify(wParam, lParam, *) {
+        if (lParam != 0x405)  ; NIN_BALLOONUSERCLICK only
+            return
+        hwnd := This._trayAlertHwnd
+        if (!hwnd)
+            return
+        try {
+            if (WinGetMinMax("ahk_id " hwnd) = -1)       ; minimized
+                This.ShowWindowAsync(hwnd, 9)             ; SW_RESTORE
+            DllCall("SetForegroundWindow", "UInt", hwnd)
+            DllCall("SetForegroundWindow", "UInt", hwnd)  ; 2nd attempt (mirrors ActivateForgroundWindow)
+        }
+    }
+
     ; Called by LogMonitor when an alert event is detected
     _OnLogAlert(charName, eventType, severity, text) {
         ; Legacy compat: keep _AttackAlerts for ShowActiveBorder dismiss logic
@@ -875,18 +929,24 @@ Class Main_Class extends ThumbWindow {
     }
 
     ; Called by LogMonitor to apply flash visual per tick
-    _ApplyAlertFlash(charName, severity, text, flashOn) {
-        ; Get severity color from config
-        sevColors := This.SeverityColors
+    _ApplyAlertFlash(charName, severity, eventType, text, flashOn) {
+        ; Per-alert color override (AlertColors[eventType]) takes priority.
+        ; Falls back to severity-level color (SeverityColors) if not set.
         flashColor := "FF0000"  ; default fallback
         dimColor := "330000"
-        if (sevColors is Map) {
-            if (severity = "critical" && sevColors.Has("critical"))
-                flashColor := StrReplace(sevColors["critical"], "#", "")
-            else if (severity = "warning" && sevColors.Has("warning"))
-                flashColor := StrReplace(sevColors["warning"], "#", "")
-            else if (severity = "info" && sevColors.Has("info"))
-                flashColor := StrReplace(sevColors["info"], "#", "")
+        alertColors := This.AlertColors
+        if (alertColors is Map && alertColors.Has(eventType) && alertColors[eventType] != "")
+            flashColor := StrReplace(alertColors[eventType], "#", "")
+        else {
+            sevColors := This.SeverityColors
+            if (sevColors is Map) {
+                if (severity = "critical" && sevColors.Has("critical"))
+                    flashColor := StrReplace(sevColors["critical"], "#", "")
+                else if (severity = "warning" && sevColors.Has("warning"))
+                    flashColor := StrReplace(sevColors["warning"], "#", "")
+                else if (severity = "info" && sevColors.Has("info"))
+                    flashColor := StrReplace(sevColors["info"], "#", "")
+            }
         }
 
         for eveHwnd, thumbObj in This.ThumbWindows.OwnProps() {
@@ -1701,11 +1761,8 @@ Class Main_Class extends ThumbWindow {
             FileAppend(JSON.Dump(This._JSON, , "    "), tmpFile)
             FileMove(tmpFile, "EVE MultiPreview.json", true)
         } catch as err {
-            ; Fallback: direct write if atomic move fails
-            try {
-                FileDelete("EVE MultiPreview.json")
-                FileAppend(JSON.Dump(This._JSON, , "    "), "EVE MultiPreview.json")
-            }
+            ; Log the error but preserve existing settings file — do NOT delete it
+            try FileAppend(FormatTime(, "yyyy-MM-dd HH:mm:ss") " SaveJsonToFile failed: " err.Message "`n", "error_log.txt")
         }
     }
 

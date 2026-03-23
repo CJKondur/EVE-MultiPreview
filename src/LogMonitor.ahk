@@ -26,12 +26,16 @@ Class LogMonitor {
 
     ; Event type definitions: id => { severity, label }
     static EVENT_DEFS := Map(
-        "attack",       { severity: "critical", label: "Under Attack" },
-        "warp_scramble", { severity: "critical", label: "Warp Scrambled" },
-        "decloak",      { severity: "critical", label: "Decloaked" },
-        "fleet_invite", { severity: "warning",  label: "Fleet Invite" },
-        "convo_request", { severity: "warning", label: "Convo Request" },
-        "system_change", { severity: "info",    label: "System Change" }
+        "attack",               { severity: "critical", label: "Under Attack" },
+        "warp_scramble",        { severity: "critical", label: "Warp Scrambled" },
+        "decloak",              { severity: "critical", label: "Decloaked" },
+        "fleet_invite",         { severity: "warning",  label: "Fleet Invite" },
+        "convo_request",        { severity: "warning",  label: "Convo Request" },
+        "system_change",        { severity: "info",     label: "System Change" },
+        "mine_cargo_full",      { severity: "warning",  label: "Cargo Full" },
+        "mine_asteroid_depleted", { severity: "info",   label: "Asteroid Depleted" },
+        "mine_crystal_broken",  { severity: "warning",  label: "Crystal Broken" },
+        "mine_module_stopped",  { severity: "info",     label: "Miner Stopped" }
     )
 
     ; ==================== NPC Faction Prefixes ====================
@@ -75,18 +79,42 @@ Class LogMonitor {
         "Predator", "Hunter", "Destructor",
         ; Drone name suffixes (these appear as full names)
         ; Handled by _IsNPC suffix check: Alvi, Alvus, Alvatis, Alvior
+        ; --- Rogue Drone Abyssal Variants ---
+        ; Damage-type prefixes (no trailing space — match compounds like Sparkneedle)
+        "Spark", "Ember", "Strike", "Blast",
+        ; Hull types
+        "Tessella", "Tessera",
+        ; Role/ewar variants
+        "Fieldweaver", "Plateweaver", "Plateforger",
+        "Spotlighter", "Dissipator",
+        "Obfuscator", "Confuser",
+        "Snarecaster", "Fogcaster", "Gazedimmer",
         ; --- Sleepers ---
         "Sleepless", "Awakened", "Emergent",
+        ; --- Sleeper Abyssal (Lucid drones) ---
+        "Lucid",
         ; --- Triglavian ---
         "Starving", "Renewing", "Blinding",
         "Harrowing", "Ghosting", "Tangling",
-        "Raznaborg", "Vedmak", "Vila ",
+        "Shining", "Warding", "Striking",
+        "Raznaborg", "Vedmak", "Vila",
         "Zorya ",
+        ; --- Triglavian Abyssal Ship Types ---
+        "Damavik", "Kikimora", "Drekavac", "Leshak",
+        "Rodiva", "Hospodar",
         ; --- Drifter ---
         "Artemis", "Apollo", "Hikanta", "Drifter",
         "Tyrannos",
+        ; --- Drifter / Seeker Abyssal ---
+        "Seeker", "Deepwatcher", "Illuminator",
+        "Ephialtes", "Lucifer", "Karybdis", "Scylla",
+        "Spearfisher",
         ; --- EDENCOM ---
         "EDENCOM",
+        ; --- EDENCOM Abyssal (Disparu Troop) ---
+        "Arrester", "Attacker", "Drainer", "Marker",
+        "Thunderchild", "Stormbringer", "Skybreaker",
+        "Disparu", "Enforcer", "Pacifier", "Marshal ",
         ; --- Triglavian Invasion NPCs ---
         "Anchoring", "Liminal",
         ; --- Sentry Guns & Structures ---
@@ -94,6 +122,13 @@ Class LogMonitor {
         "Territorial",
         ; --- FOB / Diamond NPCs ---
         "Forward Operating",
+        ; --- Abyssal Environment NPCs ---
+        "Overmind", "Deviant", "Automata",
+        "Photic", "Twilit", "Bathyic", "Hadal", "Benthic", "Endobenthic",
+        ; --- Sansha Abyssal ---
+        "Devoted",
+        ; --- NPC Rank Prefixes ---
+        "Elite ",
         ; --- Mercenary NPCs ---
         "Mercenary",
         ; --- Thukker ---
@@ -109,7 +144,10 @@ Class LogMonitor {
     ; NPC name suffixes (for rogue drones: "Infester Alvi", etc.)
     static NPC_SUFFIXES := [
         " Alvi", " Alvus", " Alvatis", " Alvior",
-        " Tyrannos"
+        " Tyrannos",
+        ; --- Abyssal Rogue Drone suffixes ---
+        " Tessella", " Tessera",
+        " Rodeiva", " Rodiva"
     ]
 
     ; ==================== Instance State ====================
@@ -444,8 +482,10 @@ Class LogMonitor {
 
     _InitFileState(state) {
         ; Set position to end of file so we only process NEW lines
+        ; Use matching encoding to _ReadNewLines for consistency
         try {
-            f := FileOpen(state.filePath, "r")
+            enc := state.isChatLog ? "UTF-16" : "UTF-8-RAW"
+            f := FileOpen(state.filePath, "r", enc)
             state.size := f.Length
             state.pos := f.Length
             f.Close()
@@ -521,8 +561,11 @@ Class LogMonitor {
         ; FileGetSize / FileGetTime. On Windows, filesystem metadata can be
         ; stale when another process (EVE) has the file open for writing,
         ; causing us to miss new data for seconds or minutes.
+        ; Use explicit encoding to keep byte offsets consistent across Seek() calls.
+        ; Chat logs are UTF-16LE with BOM; game logs are typically UTF-8.
         try {
-            f := FileOpen(state.filePath, "r")
+            enc := state.isChatLog ? "UTF-16" : "UTF-8-RAW"
+            f := FileOpen(state.filePath, "r", enc)
         } catch
             return false
 
@@ -737,9 +780,77 @@ Class LogMonitor {
                 }
             }
         }
+        ; === Mining Events ===
+        ; Both (mining) and (notify) categories carry mining-related messages.
+        ; _ShouldParse() already includes both — no filter change needed.
+        if ((InStr(line, "(notify)") || InStr(line, "(mining)"))
+         && this._enabledEvents.Has("mine_cargo_full")) {
+            this._ParseMiningLine(line, charName)
+        }
     }
 
-    ; ==================== Event Dispatch ====================
+    ; ==================== Mining Log Parsing ====================
+    ; Handles (notify) and (mining) lines for mining-specific alerts.
+    ; All patterns verified against real EVE game logs and eve-apm-preview source.
+    _ParseMiningLine(line, charName) {
+
+        ; === WARNING: Cargo Full ===
+        ; Confirmed EVE log:
+        ;   (notify) Your Miner I has completed operations. Ship's cargo hold is full.
+        ; Pattern: "cargo hold is full" is highly specific — avoids false positives.
+        if (InStr(line, "(notify)")
+         && InStr(line, "cargo hold is full")
+         && this._enabledEvents.Has("mine_cargo_full") && this._enabledEvents["mine_cargo_full"]) {
+            this._EmitEvent(charName, "mine_cargo_full", LogMonitor.SEV_WARNING,
+                "⛏ Cargo hold full!")
+            return
+        }
+
+        ; === INFO: Asteroid Depleted ===
+        ; Confirmed EVE log:
+        ;   (notify) Miner I deactivates as it finds the resource it was harvesting a pale shadow of its former glory.
+        ; "pale shadow of its former glory" is CCP's unique asteroid-exhausted string.
+        ; NOTE: Do NOT match on "depleted" — (mining) logs "N units depleted from asteroid
+        ;       as residue" every single mining cycle (ore waste mechanic), which would spam.
+        if (InStr(line, "(notify)")
+         && InStr(line, "pale shadow of its former glory")
+         && this._enabledEvents.Has("mine_asteroid_depleted") && this._enabledEvents["mine_asteroid_depleted"]) {
+            this._EmitEvent(charName, "mine_asteroid_depleted", LogMonitor.SEV_INFO,
+                "🪨 Asteroid depleted")
+            return
+        }
+
+        ; === WARNING: Mining Crystal Broken ===
+        ; Confirmed EVE log (from eve-apm-preview source):
+        ;   (notify) Your Modulated Deep Core Miner II deactivates due to the destruction
+        ;            of the Modulated Deep Core Mining Crystal II it was fitted with.
+        ; Pattern: "deactivates due to the destruction" is unique to crystal fracture.
+        if (InStr(line, "(notify)")
+         && InStr(line, "deactivates due to the destruction")
+         && this._enabledEvents.Has("mine_crystal_broken") && this._enabledEvents["mine_crystal_broken"]) {
+            this._EmitEvent(charName, "mine_crystal_broken", LogMonitor.SEV_WARNING,
+                "💎 Mining crystal broken")
+            return
+        }
+
+        ; === INFO: Mining Module Deactivated (other reasons) ===
+        ; Catches remaining mining module deactivations not covered above,
+        ; e.g. manual stop, target lost, etc.
+        ; Guard: only (notify) lines with mining-related module name keywords.
+        ; The three specific cases above return early, so this never double-fires.
+        if (InStr(line, "(notify)")
+         && InStr(line, "deactivates")
+         && (InStr(line, "Miner ") || InStr(line, "Mining Laser") || InStr(line, "Harvester"))
+         && !InStr(line, "pale shadow")           ; already caught above
+         && !InStr(line, "cargo hold is full")    ; already caught above
+         && !InStr(line, "due to the destruction") ; already caught above
+         && this._enabledEvents.Has("mine_module_stopped") && this._enabledEvents["mine_module_stopped"]) {
+            this._EmitEvent(charName, "mine_module_stopped", LogMonitor.SEV_INFO,
+                "⚙ Miner deactivated")
+            return
+        }
+    }
+
 
     _EmitEvent(charName, eventType, severity, text) {
         ; Check if event type is enabled
@@ -773,7 +884,7 @@ Class LogMonitor {
         ; Tray notification (respects per-severity toggle)
         if (this._GetSeverityTrayNotify(severity)) {
             iconFlag := (severity = LogMonitor.SEV_CRITICAL) ? "16" : "17"
-            try TrayTip(text, "EVE Alert — " charName, iconFlag)
+            try this._mainRef._ShowTrayAlert(charName, eventType, severity, text)
         }
 
         ; Play alert sound if configured
@@ -884,15 +995,18 @@ Class LogMonitor {
                 } else if (alert.severity = LogMonitor.SEV_WARNING && highestSev != LogMonitor.SEV_CRITICAL) {
                     highestSev := LogMonitor.SEV_WARNING
                     highestText := alert.text
+                    highestEventType := eventType
                 } else if (highestText = "") {
                     highestText := alert.text
+                    highestEventType := eventType
                 }
             }
 
-            ; Apply visual
-            try this._mainRef._ApplyAlertFlash(charName, highestSev, highestText, this._flashState)
+            ; Apply visual — pass eventType so Main_Class can use per-alert color
+            try this._mainRef._ApplyAlertFlash(charName, highestSev, highestEventType, highestText, this._flashState)
         }
     }
+
 
     ; ==================== Alert Management ====================
 
@@ -930,17 +1044,29 @@ Class LogMonitor {
     }
 
     ; Extract attacker name from a combat log line
-    ; Format: "... from <b>Attacker Name</b> - WeaponName ..."
+    ; Handles multiple EVE combat log formats:
+    ;   Hit:  "... from <b>Attacker Name</b> - WeaponName ..."
+    ;   Miss: "... <b>Attacker Name</b> ... misses you ..."
     _ExtractAttacker(line) {
-        ; Look for "from" followed by <b>name</b>
+        ; Primary: look for "from" followed by <b>name</b>
         if RegExMatch(line, "from\s*(?:<[^>]*>)*\s*<b>(.+?)</b>", &m)
             return Trim(m[1])
-        ; Fallback: look for any <b> tag after "from"
+        ; Fallback 1: look for any <b> tag after "from"
         fromPos := InStr(line, "from")
         if (fromPos > 0) {
             rest := SubStr(line, fromPos)
             if RegExMatch(rest, "<b>(.+?)</b>", &m)
                 return Trim(m[1])
+        }
+        ; Fallback 2: find any <b>name</b> that isn't a number (damage)
+        ; This catches "misses you" lines where there's no "from" keyword
+        pos := 1
+        while RegExMatch(line, "<b>(.+?)</b>", &m, pos) {
+            candidate := Trim(m[1])
+            ; Skip pure numbers (damage values)
+            if !RegExMatch(candidate, "^\d+$")
+                return candidate
+            pos := m.Pos + m.Len
         }
         return ""
     }

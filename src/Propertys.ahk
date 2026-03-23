@@ -233,6 +233,54 @@ class Propertys extends TrayMenu {
         }
         set => This._JSON["global_Settings"]["SeverityColors"] := value
     }
+    AlertColors {
+        get {
+            if (!This._JSON["global_Settings"].Has("AlertColors"))
+                This._JSON["global_Settings"]["AlertColors"] := Map()
+            return This._JSON["global_Settings"]["AlertColors"]
+        }
+        set => This._JSON["global_Settings"]["AlertColors"] := value
+    }
+    AlertHubEnabled {
+        get {
+            if (!This._JSON["global_Settings"].Has("AlertHubEnabled"))
+                This._JSON["global_Settings"]["AlertHubEnabled"] := true
+            return This._JSON["global_Settings"]["AlertHubEnabled"]
+        }
+        set => This._JSON["global_Settings"]["AlertHubEnabled"] := value
+    }
+    AlertHubX {
+        get {
+            if (!This._JSON["global_Settings"].Has("AlertHubX"))
+                This._JSON["global_Settings"]["AlertHubX"] := 0
+            return This._JSON["global_Settings"]["AlertHubX"]
+        }
+        set => This._JSON["global_Settings"]["AlertHubX"] := value
+    }
+    AlertHubY {
+        get {
+            if (!This._JSON["global_Settings"].Has("AlertHubY"))
+                This._JSON["global_Settings"]["AlertHubY"] := 0
+            return This._JSON["global_Settings"]["AlertHubY"]
+        }
+        set => This._JSON["global_Settings"]["AlertHubY"] := value
+    }
+    AlertToastDirection {
+        get {
+            if (!This._JSON["global_Settings"].Has("AlertToastDirection"))
+                This._JSON["global_Settings"]["AlertToastDirection"] := 5  ; 5 = upper-left (default)
+            return This._JSON["global_Settings"]["AlertToastDirection"]
+        }
+        set => This._JSON["global_Settings"]["AlertToastDirection"] := value
+    }
+    AlertToastDuration {
+        get {
+            if (!This._JSON["global_Settings"].Has("AlertToastDuration"))
+                This._JSON["global_Settings"]["AlertToastDuration"] := 6
+            return This._JSON["global_Settings"]["AlertToastDuration"]
+        }
+        set => This._JSON["global_Settings"]["AlertToastDuration"] := value
+    }
     SeverityCooldowns {
         get {
             if (!This._JSON["global_Settings"].Has("SeverityCooldowns"))
@@ -564,9 +612,6 @@ class Propertys extends TrayMenu {
                     name := names
                     break
                 }
-                else
-                    nameIndex := index
-
             }
             if (nameIndex) {
                 if (This._JSON["_Profiles"][This.LastUsedProfile]["Custom Colors"]["cColors"]["Bordercolor"].Length >= nameIndex) {
@@ -1023,7 +1068,8 @@ class Propertys extends TrayMenu {
         state := !state
         state ? ToolTip("Hotkeys disabled") : ToolTip("Hotkeys enabled")
         Suspend(-1)
-
+        ; Swap hub icon to reflect suspend state
+        try This._alertHub.SetSuspended(state)
         SetTimer((*) => ToolTip(), -1500)
     }
 
@@ -1081,8 +1127,7 @@ class Propertys extends TrayMenu {
         else
             Return 0
 
-        FileDelete("EVE MultiPreview.json")
-        FileAppend(JSON.Dump(This._JSON, , "    "), "EVE MultiPreview.json")
+        This.SaveJsonToFile()
         This.SelectProfile_DDL.Delete()
         This.SelectProfile_DDL.Add(This.Profiles_to_Array())
         ControlChooseString(Obj.value, This.SelectProfile_DDL, "EVE MultiPreview - Settings")

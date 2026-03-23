@@ -822,9 +822,10 @@ Class ThumbWindow extends Propertys {
                         }
                         else if (This.CustomColorsActive && This.ShowAllColoredBorders) {
                             title := This.CleanTitle(WinGetTitle("Ahk_Id " EW_Hwnd))
-                            if (This.CustomColorsGet[title]["Char"] != "" && This.CustomColorsGet[title]["IABorder"] != "") {
+                            colorData := This.CustomColorsGet[title]
+                            if (colorData["Char"] != "" && colorData["IABorder"] != "") {
                                 try
-                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := This.CustomColorsGet[title]["IABorder"]
+                                    This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := colorData["IABorder"]
                                 catch
                                     This.ThumbWindows.%EW_Hwnd%["Border"].BackColor := "8A8A8A"
                             }
@@ -850,15 +851,18 @@ Class ThumbWindow extends Propertys {
             }
             ; Always show the active client's highlight border (no longer gated by ShowClientHighlightBorder)
             if (!This.Thumbnail_visibility.Has(Win_Title)) {
-                if (This.CustomColorsActive && This.CustomColorsGet[Win_Title]["Char"] != "" && This.CustomColorsGet[Win_Title]["Border"] != "") {
-                    This.ThumbWindows.%EVEHwnd%["Border"].BackColor := This.CustomColorsGet[Win_Title]["Border"]
-                    This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
+                try {
+                    activeColors := This.CustomColorsGet[Win_Title]
+                    if (This.CustomColorsActive && activeColors["Char"] != "" && activeColors["Border"] != "") {
+                        This.ThumbWindows.%EVEHwnd%["Border"].BackColor := activeColors["Border"]
+                        This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
+                    }
+                    else {
+                        This.ThumbWindows.%EVEHwnd%["Border"].BackColor := This.ClientHighligtColor
+                        This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
+                    }
+                    This.ThumbWindows.%EVEHwnd%["Border"].Show("NoActivate")
                 }
-                else {
-                    This.ThumbWindows.%EVEHwnd%["Border"].BackColor := This.ClientHighligtColor
-                    This.BorderSize(This.ThumbWindows.%EVEHwnd%["Window"].Hwnd, This.ThumbWindows.%EVEHwnd%["Border"].Hwnd, This.ClientHighligtBorderthickness)
-                }
-                This.ThumbWindows.%EVEHwnd%["Border"].Show("NoActivate")
             }
         }
     }

@@ -70,6 +70,21 @@ Class StatTracker {
         stats := this._charStats[charName]
         now := A_TickCount
 
+        ; Periodic pruning: prevent unbounded window growth when overlays are disabled
+        if (!stats.HasOwnProp("_pruneCounter"))
+            stats._pruneCounter := 0
+        stats._pruneCounter += 1
+        if (Mod(stats._pruneCounter, 50) = 0) {
+            this._PruneWindow(stats.dmgOutWindow, now)
+            this._PruneWindow(stats.dmgInWindow, now)
+            this._PruneWindow(stats.armorRepOutWindow, now)
+            this._PruneWindow(stats.shieldRepOutWindow, now)
+            this._PruneWindow(stats.capTransOutWindow, now)
+            this._PruneWindow(stats.miningCycles, now)
+            this._PruneWindow(stats.gasCycles, now)
+            this._PruneWindow(stats.iceCycles, now)
+        }
+
         ; === Parse combat lines ===
         if (InStr(line, "(combat)")) {
             this._ParseCombat(line, charName, stats, now)

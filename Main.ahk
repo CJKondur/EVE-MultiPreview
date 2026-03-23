@@ -12,6 +12,8 @@
 #Include <../src/LogMonitor>
 #Include <../src/StatTracker>
 #Include <../src/StatWindow>
+#Include <../src/EveManager>
+#Include <../src/AlertHub>
 
 #SingleInstance Force
 Persistent

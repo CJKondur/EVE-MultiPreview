@@ -42,8 +42,8 @@ Class Settings_Gui {
 
         ; ===== Sidebar (custom dark text controls) =====
         This.SidebarItems := Map()
-        This.SidebarKeys := ["General", "Thumbnails", "Layout", "Hotkeys", "Colors", "Groups", "Alerts", "Sounds", "Visibility", "Client", "FPS Limiter", "Stats Overlay", "About"]
-        sidebarLabels := ["  ⚙  General", "  🖼  Thumbnails", "  📐  Layout", "  ⌨  Hotkeys", "  🎨  Colors", "  📦  Groups", "  🚨  Alerts", "  🔊  Sounds", "  👁  Visibility", "  🖥  Client", "  🚀  FPS Limiter", "  📊  Stats Overlay", "  ℹ  About"]
+        This.SidebarKeys := ["General", "Thumbnails", "Layout", "Hotkeys", "Colors", "Groups", "Alerts", "Sounds", "Visibility", "Client", "FPS Limiter", "Stats Overlay", "EVE Manager", "About"]
+        sidebarLabels := ["  ⚙  General", "  🖼  Thumbnails", "  📐  Layout", "  ⌨  Hotkeys", "  🎨  Colors", "  📦  Groups", "  🚨  Alerts", "  🔊  Sounds", "  👁  Visibility", "  🖥  Client", "  🚀  FPS Limiter", "  📊  Stats Overlay", "  🗂  EVE Manager", "  ℹ  About"]
 
         ; Sidebar background panel — stretches to full window height
         This._sidebarBG := This.S_Gui.Add("Text", "x15 y55 w155 h835 Background" Settings_Gui.BG_SIDEBAR)
@@ -58,16 +58,20 @@ Class Settings_Gui {
             yPos += 38
         }
 
-        ; Simple Mode toggle — positioned below last sidebar item
-        This.S_Gui.SetFont("s9 w400 cCCCCCC", "Segoe UI")
-        This._simpleModeChk := This.S_Gui.Add("CheckBox", "x22 y" (yPos + 20) " w140 cCCCCCC BackgroundTrans Checked" (This.SimpleMode ? 1 : 0), "Simple Mode")
-        This._simpleModeChk.OnEvent("Click", (obj, *) => This._toggleSimpleMode(obj))
-
         ; ===== Panels container area =====
         This.S_Gui.Controls := Map()
-        This.S_Gui.AdvControls := Map()  ; Advanced-only controls per panel
         This._colorPreviews := Map()  ; Color preview boxes keyed by edit control name
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; ===== Build all panels before Show() =====
+        ; Maximum AHK speed optimizations during bulk control creation:
+        ;  - ListLines(false): skip line tracking overhead
+        ;  - Critical: prevent thread interruption by timers/hotkeys
+        ;  - WM_SETREDRAW OFF: skip internal layout calculations
+        This._builtPanels := Map()
+        ListLines(false)
+        Critical("On")
+        try DllCall("SendMessageW", "Ptr", This.S_Gui.Hwnd, "UInt", 0x000B, "Ptr", 0, "Ptr", 0)
 
         This.Panel_General()
         This.Panel_Thumbnails()
@@ -81,7 +85,12 @@ Class Settings_Gui {
         This.Panel_Client()
         This.Panel_FPSLimiter()
         This.Panel_StatsOverlay()
+        This.Panel_EveManager()
         This.Panel_About()
+
+        try DllCall("SendMessageW", "Ptr", This.S_Gui.Hwnd, "UInt", 0x000B, "Ptr", 1, "Ptr", 0)
+        Critical("Off")
+        ListLines(true)
 
         ; ===== Wiki / Help panel on the right side =====
         This._wikiSep := This.S_Gui.Add("Text", "x735 y55 w1 h800 Background333355")
@@ -89,7 +98,7 @@ Class Settings_Gui {
         This._wikiTitle := This.S_Gui.Add("Text", "x750 y62 w300 h28 BackgroundTrans", "📖 Help")
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
         This._wikiEdit := This.S_Gui.Add("Edit", "x750 y92 w320 h750 ReadOnly Multi -WantReturn -WantTab +0x200000 Background" Settings_Gui.BG_PANEL " c" Settings_Gui.TEXT_COLOR)
-        This._wikiEdit.Opt("-VScroll")
+        ; Scrollbar intentionally kept visible — content is long and users need it
         ; Apply dark scrollbar theme to wiki edit
         try DllCall("uxtheme\SetWindowTheme", "Ptr", This._wikiEdit.Hwnd, "Str", "DarkMode_Explorer", "Ptr", 0)
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
@@ -141,6 +150,7 @@ Class Settings_Gui {
 
         ; Show first panel, hide rest
         This.SwitchPanel("General")
+
         ; Restore persisted window size
         sw := This.SettingsWindowWidth
         sh := This.SettingsWindowHeight
@@ -368,8 +378,6 @@ Class Settings_Gui {
             ; Stretch sidebar background to fill height
             sidebarH := h - 60  ; 55px top offset + 5px padding
             This._sidebarBG.Move(, , , sidebarH)
-            ; Move Simple Mode checkbox to bottom of sidebar
-            This._simpleModeChk.Move(, h - 28)
 
             ; Resize wiki panel to fill right side
             wikiVisible := (w > 800)
@@ -395,23 +403,20 @@ Class Settings_Gui {
         ; Dark Explorer visual theme
         try DllCall("uxtheme\SetWindowTheme", "Ptr", lv.Hwnd, "Str", "DarkMode_Explorer", "Ptr", 0)
         ; Background color (BGR format) — matches BG_PANEL 16213e → 0x3e2116
-        SendMessage(0x1001, 0, 0x3e2116, lv.Hwnd)  ; LVM_SETBKCOLOR
-        SendMessage(0x1026, 0, 0x3e2116, lv.Hwnd)  ; LVM_SETTEXTBKCOLOR
+        try SendMessage(0x1001, 0, 0x3e2116, lv.Hwnd)  ; LVM_SETBKCOLOR
+        try SendMessage(0x1026, 0, 0x3e2116, lv.Hwnd)  ; LVM_SETTEXTBKCOLOR
         ; Text color — light gray e0e0e0 → 0xe0e0e0
-        SendMessage(0x1024, 0, 0xe0e0e0, lv.Hwnd)  ; LVM_SETTEXTCOLOR
+        try SendMessage(0x1024, 0, 0xe0e0e0, lv.Hwnd)  ; LVM_SETTEXTCOLOR
     }
 
     SwitchPanel(name) {
+        ; Freeze redraws — batch all visibility changes into one repaint
+        try DllCall("SendMessageW", "Ptr", This.S_Gui.Hwnd, "UInt", 0x000B, "Ptr", 0, "Ptr", 0)
+
         for key, arr in This.S_Gui.Controls {
             vis := (key = name) ? "Show" : "Hide"
             for i, ctrl in arr {
                 ctrl.Visible := (vis = "Show")
-            }
-            ; Handle advanced controls visibility
-            if (This.S_Gui.AdvControls.Has(key)) {
-                for i, ctrl in This.S_Gui.AdvControls[key] {
-                    ctrl.Visible := (vis = "Show" && !This.SimpleMode)
-                }
             }
         }
         ; Highlight active sidebar item
@@ -430,6 +435,11 @@ Class Settings_Gui {
         This._activePanel := name
         This._UpdateWikiContent()
 
+        ; Re-enforce EVE Manager mode visibility after panel switch
+        ; (SwitchPanel just forced all P[] controls visible)
+        if (name = "EVE Manager")
+            try This._EveManager_SetMode(This._eveMgrMode = "" ? "profile" : This._eveMgrMode)
+
         ; Re-render stat character slots when switching to/from Stats Overlay
         try {
             if (This._statCharRows.Length > 0) {
@@ -447,15 +457,12 @@ Class Settings_Gui {
                 }
             }
         }
+
+        ; Resume redraws and force a single full repaint
+        try DllCall("SendMessageW", "Ptr", This.S_Gui.Hwnd, "UInt", 0x000B, "Ptr", 1, "Ptr", 0)
+        try DllCall("RedrawWindow", "Ptr", This.S_Gui.Hwnd, "Ptr", 0, "Ptr", 0, "UInt", 0x0185)
     }
 
-    _toggleSimpleMode(obj) {
-        This.SimpleMode := obj.value
-        SetTimer(This.Save_Settings_Delay_Timer, -200)
-        ; Re-apply visibility for the current panel
-        if This.HasProp("_activePanel")
-            This.SwitchPanel(This._activePanel)
-    }
 
     ; Helper: Add a label + edit pair
     AddLabelEdit(arr, labelText, ypos, vName, value, editW := 150) {
@@ -476,9 +483,7 @@ Class Settings_Gui {
     ; ============================================================
     Panel_General() {
         P := []
-        A := []  ; Advanced-only controls
         This.S_Gui.Controls["General"] := P
-        This.S_Gui.AdvControls["General"] := A
 
         This.S_Gui.SetFont("s11 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
         P.Push This.S_Gui.Add("Text", "x190 y60 w400 h30 BackgroundTrans", "General Settings")
@@ -503,80 +508,80 @@ Class Settings_Gui {
 
         ; Advanced: Suspend hotkey
         y += 35
-        ctrl := This.AddLabelEdit(A, "Suspend Hotkeys Hotkey:", y, "Suspend_Hotkeys_Hotkey", This.Suspend_Hotkeys_Hotkey)
+        ctrl := This.AddLabelEdit(P, "Suspend Hotkeys Hotkey:", y, "Suspend_Hotkeys_Hotkey", This.Suspend_Hotkeys_Hotkey)
         ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
         btnCapture := This.S_Gui.Add("Button", "x610 y" y " w30 h22", "⌨")
         btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("Suspend_Hotkeys_Hotkey"))
-        A.Push btnCapture
+        P.Push btnCapture
 
         ; Advanced: Minimize delay
         y += 35
-        ctrl := This.AddLabelEdit(A, "Minimize EVE Window Delay (ms):", y, "Minimizeclients_Delay", This.Minimizeclients_Delay, 80)
+        ctrl := This.AddLabelEdit(P, "Minimize EVE Window Delay (ms):", y, "Minimizeclients_Delay", This.Minimizeclients_Delay, 80)
         ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
 
         ; Advanced: Click-through hotkey
         y += 35
-        ctrl := This.AddLabelEdit(A, "Click-Through Toggle Hotkey:", y, "ClickThroughHotkey", This.ClickThroughHotkey, 120)
+        ctrl := This.AddLabelEdit(P, "Click-Through Toggle Hotkey:", y, "ClickThroughHotkey", This.ClickThroughHotkey, 120)
         ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
         btnCapture := This.S_Gui.Add("Button", "x580 y" y " w30 h22", "⌨")
         btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("ClickThroughHotkey"))
-        A.Push btnCapture
+        P.Push btnCapture
 
         ; Advanced: Hide/Show Thumbnails hotkey
         y += 35
-        ctrl := This.AddLabelEdit(A, "Hide/Show All Hotkey:", y, "HideShowThumbnailsHotkey", This.HideShowThumbnailsHotkey, 120)
+        ctrl := This.AddLabelEdit(P, "Hide/Show All Hotkey:", y, "HideShowThumbnailsHotkey", This.HideShowThumbnailsHotkey, 120)
         ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
         btnCapture := This.S_Gui.Add("Button", "x580 y" y " w30 h22", "⌨")
         btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("HideShowThumbnailsHotkey"))
-        A.Push btnCapture
+        P.Push btnCapture
 
         ; Advanced: Hide/Show Primary Only hotkey
         y += 35
-        ctrl := This.AddLabelEdit(A, "Hide/Show Primary Hotkey:", y, "HidePrimaryHotkey", This.HidePrimaryHotkey, 120)
+        ctrl := This.AddLabelEdit(P, "Hide/Show Primary Hotkey:", y, "HidePrimaryHotkey", This.HidePrimaryHotkey, 120)
         ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
         btnCapture := This.S_Gui.Add("Button", "x580 y" y " w30 h22", "⌨")
         btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("HidePrimaryHotkey"))
-        A.Push btnCapture
+        P.Push btnCapture
 
         ; Advanced: Hide/Show Secondary (PiP) Only hotkey
         y += 35
-        ctrl := This.AddLabelEdit(A, "Hide/Show PiP Hotkey:", y, "HideSecondaryHotkey", This.HideSecondaryHotkey, 120)
+        ctrl := This.AddLabelEdit(P, "Hide/Show PiP Hotkey:", y, "HideSecondaryHotkey", This.HideSecondaryHotkey, 120)
         ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
         btnCapture := This.S_Gui.Add("Button", "x580 y" y " w30 h22", "⌨")
         btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("HideSecondaryHotkey"))
-        A.Push btnCapture
+        P.Push btnCapture
 
         ; Advanced: Profile Cycle Forward hotkey
         y += 35
-        ctrl := This.AddLabelEdit(A, "Profile Cycle Forward Hotkey:", y, "ProfileCycleForwardHotkey", This.ProfileCycleForwardHotkey, 120)
+        ctrl := This.AddLabelEdit(P, "Profile Cycle Forward Hotkey:", y, "ProfileCycleForwardHotkey", This.ProfileCycleForwardHotkey, 120)
         ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
         btnCapture := This.S_Gui.Add("Button", "x580 y" y " w30 h22", "⌨")
         btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("ProfileCycleForwardHotkey"))
-        A.Push btnCapture
+        P.Push btnCapture
 
         ; Advanced: Profile Cycle Backward hotkey
         y += 35
-        ctrl := This.AddLabelEdit(A, "Profile Cycle Backward Hotkey:", y, "ProfileCycleBackwardHotkey", This.ProfileCycleBackwardHotkey, 120)
+        ctrl := This.AddLabelEdit(P, "Profile Cycle Backward Hotkey:", y, "ProfileCycleBackwardHotkey", This.ProfileCycleBackwardHotkey, 120)
         ctrl.OnEvent("Change", (obj, *) => This._gHandler(obj))
         btnCapture := This.S_Gui.Add("Button", "x580 y" y " w30 h22", "⌨")
         btnCapture.OnEvent("Click", (obj, *) => This._CaptureHotkey("ProfileCycleBackwardHotkey"))
-        A.Push btnCapture
+        P.Push btnCapture
 
         ; Advanced: Lock positions toggle
         y += 35
-        This.AddLabelCheck(A, "Lock Thumbnail Positions:", y, "LockPositions", This.LockPositions).OnEvent("Click", (obj, *) => This._gHandler(obj))
+        This.AddLabelCheck(P, "Lock Thumbnail Positions:", y, "LockPositions", This.LockPositions).OnEvent("Click", (obj, *) => This._gHandler(obj))
 
         ; Advanced: Individual resize toggle
         y += 35
-        This.AddLabelCheck(A, "Resize Thumbnails Individually:", y, "IndividualThumbnailResize", This.IndividualThumbnailResize).OnEvent("Click", (obj, *) => This._gHandler(obj))
+        This.AddLabelCheck(P, "Resize Thumbnails Individually:", y, "IndividualThumbnailResize", This.IndividualThumbnailResize).OnEvent("Click", (obj, *) => This._gHandler(obj))
         y += 18
         This.S_Gui.SetFont("s8 w400 c666666", "Segoe UI")
-        A.Push This.S_Gui.Add("Text", "x215 y" y " w380 h16 BackgroundTrans", "When on, resizing one thumbnail won't affect others. Hold Ctrl to invert.")
+        P.Push This.S_Gui.Add("Text", "x215 y" y " w380 h16 BackgroundTrans", "When on, resizing one thumbnail won't affect others. Hold Ctrl to invert.")
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
 
         ; Advanced: Session timer
         y += 35
-        This.AddLabelCheck(A, "Show Session Timer on Thumbnails:", y, "ShowSessionTimer", This.ShowSessionTimer).OnEvent("Click", (obj, *) => This._gHandler(obj))
+        This.AddLabelCheck(P, "Show Session Timer on Thumbnails:", y, "ShowSessionTimer", This.ShowSessionTimer).OnEvent("Click", (obj, *) => This._gHandler(obj))
     }
 
     _gHandler(obj) {
@@ -669,9 +674,7 @@ Class Settings_Gui {
     ; ============================================================
     Panel_Thumbnails() {
         P := []
-        A := []  ; Advanced-only controls
         This.S_Gui.Controls["Thumbnails"] := P
-        This.S_Gui.AdvControls["Thumbnails"] := A
 
         This.S_Gui.SetFont("s11 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
         P.Push This.S_Gui.Add("Text", "x190 y60 w400 h30 BackgroundTrans", "Thumbnail Appearance")
@@ -697,60 +700,60 @@ Class Settings_Gui {
 
         ; === Advanced controls ===
         y += 40
-        A.Push This.S_Gui.Add("Text", "x190 y" y " w400 h1 +0x10")
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h1 +0x10")
         y += 12
         This.S_Gui.SetFont("s10 w600 c" Settings_Gui.ACCENT2, "Segoe UI")
-        A.Push This.S_Gui.Add("Text", "x190 y" y " w200 h22 BackgroundTrans", "Text & Overlay")
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w200 h22 BackgroundTrans", "Text & Overlay")
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
         y += 28
 
-        This.AddLabelCheck(A, "Show Text Overlay:", y, "ShowThumbnailTextOverlay", This.ShowThumbnailTextOverlay).OnEvent("Click", (obj, *) => This._tHandler(obj))
+        This.AddLabelCheck(P, "Show Text Overlay:", y, "ShowThumbnailTextOverlay", This.ShowThumbnailTextOverlay).OnEvent("Click", (obj, *) => This._tHandler(obj))
         y += 30
-        This.AddLabelEdit(A, "Text Color (Hex/RGB):", y, "ThumbnailTextColor", This.ThumbnailTextColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This.AddLabelEdit(P, "Text Color (Hex/RGB):", y, "ThumbnailTextColor", This.ThumbnailTextColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
         This._colorPreviews["ThumbnailTextColor"] := This.S_Gui.Add("Text", "x575 y" y " w22 h22 Background" StrReplace(This.ThumbnailTextColor, "#", ""))
-        A.Push This._colorPreviews["ThumbnailTextColor"]
+        P.Push This._colorPreviews["ThumbnailTextColor"]
         btnPick := This.S_Gui.Add("Button", "x600 y" y " w30 h22", "🎨")
         btnPick.OnEvent("Click", (obj, *) => This._PickColor("ThumbnailTextColor"))
-        A.Push btnPick
+        P.Push btnPick
         y += 30
-        This.AddLabelEdit(A, "Text Size:", y, "ThumbnailTextSize", This.ThumbnailTextSize, 50).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This.AddLabelEdit(P, "Text Size:", y, "ThumbnailTextSize", This.ThumbnailTextSize, 50).OnEvent("Change", (obj, *) => This._tHandler(obj))
         y += 30
-        This.AddLabelEdit(A, "Text Font:", y, "ThumbnailTextFont", This.ThumbnailTextFont, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This.AddLabelEdit(P, "Text Font:", y, "ThumbnailTextFont", This.ThumbnailTextFont, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
         y += 30
-        A.Push This.S_Gui.Add("Text", "x190 y" y " w140 h22 +0x200 BackgroundTrans", "Text Margins (w × h):")
-        A.Push This.S_Gui.Add("Edit", "x430 y" y " w50 vThumbnailTextMarginsx", This.ThumbnailTextMargins["x"])
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w140 h22 +0x200 BackgroundTrans", "Text Margins (w × h):")
+        P.Push This.S_Gui.Add("Edit", "x430 y" y " w50 vThumbnailTextMarginsx", This.ThumbnailTextMargins["x"])
         This.S_Gui["ThumbnailTextMarginsx"].OnEvent("Change", (obj, *) => This._tHandler(obj))
-        A.Push This.S_Gui.Add("Text", "x485 y" y " w15 h22 +0x200 BackgroundTrans", "×")
-        A.Push This.S_Gui.Add("Edit", "x505 y" y " w50 vThumbnailTextMarginsy", This.ThumbnailTextMargins["y"])
+        P.Push This.S_Gui.Add("Text", "x485 y" y " w15 h22 +0x200 BackgroundTrans", "×")
+        P.Push This.S_Gui.Add("Edit", "x505 y" y " w50 vThumbnailTextMarginsy", This.ThumbnailTextMargins["y"])
         This.S_Gui["ThumbnailTextMarginsy"].OnEvent("Change", (obj, *) => This._tHandler(obj))
 
         y += 35
-        This.AddLabelEdit(A, "Highlight Color (Hex/RGB):", y, "ClientHighligtColor", This.ClientHighligtColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This.AddLabelEdit(P, "Highlight Color (Hex/RGB):", y, "ClientHighligtColor", This.ClientHighligtColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
         This._colorPreviews["ClientHighligtColor"] := This.S_Gui.Add("Text", "x575 y" y " w22 h22 Background" StrReplace(This.ClientHighligtColor, "#", ""))
-        A.Push This._colorPreviews["ClientHighligtColor"]
+        P.Push This._colorPreviews["ClientHighligtColor"]
         btnPick := This.S_Gui.Add("Button", "x600 y" y " w30 h22", "🎨")
         btnPick.OnEvent("Click", (obj, *) => This._PickColor("ClientHighligtColor"))
-        A.Push btnPick
+        P.Push btnPick
         y += 30
-        This.AddLabelEdit(A, "Highlight Border (px):", y, "ClientHighligtBorderthickness", This.ClientHighligtBorderthickness, 50).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This.AddLabelEdit(P, "Highlight Border (px):", y, "ClientHighligtBorderthickness", This.ClientHighligtBorderthickness, 50).OnEvent("Change", (obj, *) => This._tHandler(obj))
         y += 30
-        This.AddLabelCheck(A, "Show Highlight Border:", y, "ShowClientHighlightBorder", This.ShowClientHighlightBorder).OnEvent("Click", (obj, *) => This._tHandler(obj))
+        This.AddLabelCheck(P, "Show Highlight Border:", y, "ShowClientHighlightBorder", This.ShowClientHighlightBorder).OnEvent("Click", (obj, *) => This._tHandler(obj))
         y += 30
-        This.AddLabelEdit(A, "Inactive Border (px):", y, "InactiveClientBorderthickness", This.InactiveClientBorderthickness, 50).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This.AddLabelEdit(P, "Inactive Border (px):", y, "InactiveClientBorderthickness", This.InactiveClientBorderthickness, 50).OnEvent("Change", (obj, *) => This._tHandler(obj))
         y += 30
-        This.AddLabelEdit(A, "Inactive Border Color:", y, "InactiveClientBorderColor", This.InactiveClientBorderColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This.AddLabelEdit(P, "Inactive Border Color:", y, "InactiveClientBorderColor", This.InactiveClientBorderColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
         This._colorPreviews["InactiveClientBorderColor"] := This.S_Gui.Add("Text", "x575 y" y " w22 h22 Background" StrReplace(This.InactiveClientBorderColor, "#", ""))
-        A.Push This._colorPreviews["InactiveClientBorderColor"]
+        P.Push This._colorPreviews["InactiveClientBorderColor"]
         btnPick := This.S_Gui.Add("Button", "x600 y" y " w30 h22", "🎨")
         btnPick.OnEvent("Click", (obj, *) => This._PickColor("InactiveClientBorderColor"))
-        A.Push btnPick
+        P.Push btnPick
         y += 30
-        This.AddLabelEdit(A, "Background Color:", y, "ThumbnailBackgroundColor", This.ThumbnailBackgroundColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
+        This.AddLabelEdit(P, "Background Color:", y, "ThumbnailBackgroundColor", This.ThumbnailBackgroundColor, 120).OnEvent("Change", (obj, *) => This._tHandler(obj))
         This._colorPreviews["ThumbnailBackgroundColor"] := This.S_Gui.Add("Text", "x575 y" y " w22 h22 Background" StrReplace(This.ThumbnailBackgroundColor, "#", ""))
-        A.Push This._colorPreviews["ThumbnailBackgroundColor"]
+        P.Push This._colorPreviews["ThumbnailBackgroundColor"]
         btnPick := This.S_Gui.Add("Button", "x600 y" y " w30 h22", "🎨")
         btnPick.OnEvent("Click", (obj, *) => This._PickColor("ThumbnailBackgroundColor"))
-        A.Push btnPick
+        P.Push btnPick
     }
 
     _tHandler(obj) {
@@ -859,6 +862,7 @@ Class Settings_Gui {
         This.S_Gui["ThumbnailSnapOn"].OnEvent("Click", (obj, *) => This._lHandler(obj))
         This.S_Gui["ThumbnailSnapOff"].OnEvent("Click", (obj, *) => This._lHandler(obj))
 
+        ; === Advanced controls ===
         y += 30
         This.AddLabelEdit(P, "Snap Distance (px):", y, "ThumbnailSnap_Distance", This.ThumbnailSnap_Distance, 55).OnEvent("Change", (obj, *) => This._lHandler(obj))
 
@@ -882,10 +886,14 @@ Class Settings_Gui {
             This.ThumbnailStartLocation["x"] := obj.value
         else if (obj.name = "ThumbnailStartLocationy")
             This.ThumbnailStartLocation["y"] := obj.value
-        else if (obj.name = "ThumbnailStartLocationwidth")
+        else if (obj.name = "ThumbnailStartLocationwidth") {
             This.ThumbnailStartLocation["width"] := obj.value
-        else if (obj.name = "ThumbnailStartLocationheight")
+            SetTimer(ObjBindMethod(This, "_ApplyThumbnailSize"), -300)
+        }
+        else if (obj.name = "ThumbnailStartLocationheight") {
             This.ThumbnailStartLocation["height"] := obj.value
+            SetTimer(ObjBindMethod(This, "_ApplyThumbnailSize"), -300)
+        }
         else if (obj.name = "ThumbnailMinimumSizewidth")
             This.ThumbnailMinimumSize["width"] := obj.value
         else if (obj.name = "ThumbnailMinimumSizeheight")
@@ -899,6 +907,37 @@ Class Settings_Gui {
         else if (obj.name = "PreferredMonitor")
             This.PreferredMonitor := obj.value
         SetTimer(This.Save_Settings_Delay_Timer, -200)
+    }
+
+    ; Propagate new default width/height to all saved positions and live thumbnails.
+    ; Called via debounced timer (300ms) so typing multi-digit values doesn't cause
+    ; resize storms.
+    _ApplyThumbnailSize() {
+        newW := This.ThumbnailStartLocation["width"]
+        newH := This.ThumbnailStartLocation["height"]
+
+        ; Update all saved per-character positions to use the new size
+        try {
+            positions := This.ThumbnailPositions  ; returns the full Map
+            for charName, rect in positions {
+                rect["width"] := newW
+                rect["height"] := newH
+            }
+        }
+
+        ; Resize all live thumbnails
+        try {
+            for EvEHwnd, GuiObj in This.ThumbWindows.OwnProps() {
+                for Names, Obj in GuiObj {
+                    if (Names = "Window") {
+                        WinGetPos(&curX, &curY, , , Obj.Hwnd)
+                        This.ThumbMove(curX, curY, newW, newH, GuiObj)
+                        This.BorderSize(GuiObj["Window"].Hwnd, GuiObj["Border"].Hwnd)
+                    }
+                }
+            }
+            This.Update_Thumb(true)
+        }
     }
 
     ; ============================================================
@@ -951,7 +990,7 @@ Class Settings_Gui {
         BtnCapture.OnEvent("Click", ObjBindMethod(This, "_Hotkey_Capture"))
         P.Push BtnCapture
 
-        ; --- Hotkey Groups section ---
+        ; --- Hotkey Groups section (Advanced) ---
         P.Push This.S_Gui.Add("Text", "x190 y330 w500 h1 +0x10")
         P.Push This.S_Gui.Add("Text", "x190 y338 w300 h22 +0x200 BackgroundTrans", "Hotkey Groups:")
 
@@ -2216,7 +2255,7 @@ Class Settings_Gui {
         P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h30 BackgroundTrans", "Alert Events")
         This.S_Gui.SetFont("s9 w400 c888888", "Segoe UI")
         y += 25
-        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h20 BackgroundTrans", "Toggle individual event detections. Colored labels show severity tier.")
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h36 BackgroundTrans", "Toggle individual event detections. Click " Chr(0x25A0) " to set a custom flash color per alert.")
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
 
         ; Master toggle (uses existing EnableAttackAlerts)
@@ -2233,48 +2272,72 @@ Class Settings_Gui {
 
         enabledTypes := This.EnabledAlertTypes
         eventList := [
-            {id: "attack",       label: "Under Attack",    sev: "🔴 CRITICAL", color: "FF4444"},
-            {id: "warp_scramble", label: "Warp Scrambled", sev: "🔴 CRITICAL", color: "FF4444"},
-            {id: "decloak",      label: "Decloaked",       sev: "🔴 CRITICAL", color: "FF4444"},
-            {id: "fleet_invite", label: "Fleet Invite",    sev: "🟠 WARNING",  color: "FFA500"},
-            {id: "convo_request", label: "Convo Request",  sev: "🟠 WARNING",  color: "FFA500"},
-            {id: "system_change", label: "System Change",  sev: "🔵 INFO",     color: "4A9EFF"}
+            {id: "attack",               label: "Under Attack",       sev: "🔴 CRITICAL", color: "FF4444"},
+            {id: "warp_scramble",         label: "Warp Scrambled",     sev: "🔴 CRITICAL", color: "FF4444"},
+            {id: "decloak",              label: "Decloaked",           sev: "🔴 CRITICAL", color: "FF4444"},
+            {id: "fleet_invite",         label: "Fleet Invite",        sev: "🟠 WARNING",  color: "FFA500"},
+            {id: "convo_request",        label: "Convo Request",       sev: "🟠 WARNING",  color: "FFA500"},
+            {id: "system_change",        label: "System Change",       sev: "🔵 INFO",     color: "4A9EFF"},
+            {id: "mine_cargo_full",      label: "Mining: Cargo Full",  sev: "🟠 WARNING",  color: "FFA500"},
+            {id: "mine_asteroid_depleted", label: "Mining: Depleted", sev: "🔵 INFO",     color: "4A9EFF"},
+            {id: "mine_crystal_broken",  label: "Mining: Crystal Broken", sev: "🟠 WARNING", color: "FFA500"},
+            {id: "mine_module_stopped",  label: "Mining: Miner Stopped", sev: "🔵 INFO",    color: "4A9EFF"}
         ]
 
         ; Two-column layout for event checkboxes
-        col1X := 190
-        col2X := 400
-        y += 35
-        startY := y
-        colCount := 0
+        ; Single-column layout — avoids label cutoff on longer mining alert names
+        colX := 190
+
+        ; Load current per-alert color overrides
+        alertColors := This.AlertColors
+
+        ; Severity → default flash hex from live SeverityColors (so swatch matches actual flash color)
+        sc := This.SeverityColors
+        sevDefault := Map(
+            "critical", StrReplace((sc is Map && sc.Has("critical")) ? sc["critical"] : "#FF0000", "#", ""),
+            "warning",  StrReplace((sc is Map && sc.Has("warning"))  ? sc["warning"]  : "#FFA500", "#", ""),
+            "info",     StrReplace((sc is Map && sc.Has("info"))     ? sc["info"]     : "#4A9EFF", "#", "")
+        )
 
         for idx, evt in eventList {
             isEnabled := enabledTypes.Has(evt.id) ? enabledTypes[evt.id] : true
-            xPos := (colCount = 0) ? col1X : col2X
+            y += 25
 
-            ; Severity label (colored small text)
+            ; Severity dot (colored emoji)
             This.S_Gui.SetFont("s8 w400 c" evt.color, "Segoe UI")
-            P.Push This.S_Gui.Add("Text", "x" xPos " y" y " w30 h20 +0x200 BackgroundTrans", SubStr(evt.sev, 1, 2))
+            P.Push This.S_Gui.Add("Text", "x" colX " y" y " w20 h20 +0x200 BackgroundTrans", SubStr(evt.sev, 1, 2))
             This.S_Gui.SetFont("s9 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
 
-            cb := This.S_Gui.Add("Checkbox", "x" (xPos + 30) " y" y " w160 h20 v" evt.id "Alert" (isEnabled ? " Checked" : ""), evt.label)
+            ; Checkbox
+            cb := This.S_Gui.Add("Checkbox", "x" (colX + 20) " y" y " w190 h20 v" evt.id "Alert" (isEnabled ? " Checked" : ""), evt.label)
             cb.OnEvent("Click", (obj, *) => This._alertEventHandler(obj))
             P.Push cb
 
-            colCount++
-            if (colCount >= 2) {
-                colCount := 0
-                y += 25
-            }
+            ; Color swatch — shows exact flash color: per-alert override OR live SeverityColors default
+            evtTier := InStr(evt.sev, "CRITICAL") ? "critical" : InStr(evt.sev, "WARNING") ? "warning" : "info"
+            swatchHex := (alertColors is Map && alertColors.Has(evt.id) && alertColors[evt.id] != "")
+                ? StrReplace(alertColors[evt.id], "#", "")
+                : sevDefault[evtTier]
+            evtId := evt.id
+            swatch := This.S_Gui.Add("Text", "x" (colX + 215) " y" (y + 2) " w15 h16 Background" swatchHex)
+            P.Push swatch
+
+            ; 🎨 Palette button — capture swatch+evtId by VALUE at bind time using .Bind()
+            ; .Bind(swatch, evtId) evaluates swatch and evtId NOW (current iteration values),
+            ; pre-filling them as args 1 & 2. Avoids the AHK v2 closure-capture-by-reference bug.
+            This.S_Gui.SetFont("s8", "Segoe UI")
+            btnPick := This.S_Gui.Add("Button", "x" (colX + 232) " y" y " w22 h20", "🎨")
+            btnPick.OnEvent("Click", ((sw, id, *) => This._alertColorHandler(sw, id)).Bind(swatch, evtId))
+            P.Push btnPick
+            This.S_Gui.SetFont("s9 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
         }
-        if (colCount != 0)
-            y += 25
+        y += 10  ; gap after last row
 
         ; --- Separator ---
         y += 10
         P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h1 +0x10")
 
-        ; === Section 3: Severity Settings ===
+        ; === Section 3: Severity Settings (Advanced) ===
         y += 12
         This.S_Gui.SetFont("s11 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
         P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h30 BackgroundTrans", "Severity Settings")
@@ -2338,7 +2401,39 @@ Class Settings_Gui {
         y += 40
         P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h1 +0x10")
 
-        ; === Section 4: Not Logged In Indicator (preserved) ===
+        ; === Section 3b: Alert Hub (Advanced) ===
+        y += 12
+        This.S_Gui.SetFont("s11 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h30 BackgroundTrans", "Alert Hub")
+        This.S_Gui.SetFont("s9 w400 c888888", "Segoe UI")
+        y += 25
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h36 BackgroundTrans", "Floating icon widget — drag it anywhere. Toasts stack above it when alerts fire. Right-click hub to dismiss all.")
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        y += 42
+        hubEnabled := This.AlertHubEnabled
+        cb := This.S_Gui.Add("Checkbox", "x190 y" y " w220 h22 vAlertHubEnabled" (hubEnabled ? " Checked" : ""), "Show Alert Hub on screen")
+        cb.OnEvent("Click", (obj, *) => This._hubHandler(obj))
+        P.Push cb
+
+        y += 30
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w160 h22 +0x200 BackgroundTrans", "Toast duration:")
+        toastDur := This.AlertToastDuration
+        durEdit := This.S_Gui.Add("Edit", "x360 y" y " w50 h22 Number vAlertToastDuration", toastDur)
+        durEdit.OnEvent("Change", (obj, *) => This._hubHandler(obj))
+        P.Push durEdit
+        P.Push This.S_Gui.Add("Text", "x415 y" y " w40 h22 +0x200 BackgroundTrans", "sec")
+
+        y += 30
+        resetBtn := This.S_Gui.Add("Button", "x360 y" y " w100 h22", "Reset Position")
+        resetBtn.OnEvent("Click", (*) => This._ResetHubPosition())
+        P.Push resetBtn
+
+        ; --- Separator ---
+        y += 50
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h1 +0x10")
+
+        ; === Section 4: Not Logged In Indicator (Advanced) ===
         y += 12
         This.S_Gui.SetFont("s11 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
         P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h30 BackgroundTrans", "Not Logged In Indicator")
@@ -2400,6 +2495,53 @@ Class Settings_Gui {
         SetTimer(This.Save_Settings_Delay_Timer, -200)
     }
 
+    ; Per-alert color picker — called when user clicks an alert color swatch
+    _alertColorHandler(swatchCtrl, eventId) {
+        ; Seed picker with current per-alert color
+        initColor := 0
+        try {
+            aColors := This.AlertColors
+            if (aColors is Map && aColors.Has(eventId) && aColors[eventId] != "") {
+                hex := StrReplace(aColors[eventId], "#", "")
+                r := Integer("0x" SubStr(hex, 1, 2))
+                g := Integer("0x" SubStr(hex, 3, 2))
+                b := Integer("0x" SubStr(hex, 5, 2))
+                initColor := r | (g << 8) | (b << 16)
+            }
+        }
+
+        ; CHOOSECOLOR structure — identical layout to _PickColor (36 bytes / 72 bytes)
+        ccSize       := A_PtrSize = 8 ? 72 : 36
+        cc           := Buffer(ccSize, 0)
+        customColors := Buffer(64, 0)   ; 16 COLORREF slots — lpCustColors CANNOT be NULL
+
+        NumPut("UInt", ccSize,              cc, 0)             ; lStructSize
+        NumPut("UPtr", This.S_Gui.Hwnd,    cc, A_PtrSize)      ; hwndOwner
+        NumPut("UInt", initColor,           cc, A_PtrSize * 3)  ; rgbResult
+        NumPut("UPtr", customColors.Ptr,   cc, A_PtrSize * 4)  ; lpCustColors  ← required!
+        NumPut("UInt", 0x00000003,         cc, A_PtrSize * 5)  ; Flags: CC_RGBINIT|CC_FULLOPEN
+
+        if (DllCall("comdlg32\ChooseColorW", "Ptr", cc.Ptr)) {
+            colorRef := NumGet(cc, A_PtrSize * 3, "UInt")
+            r := colorRef & 0xFF
+            g := (colorRef >> 8) & 0xFF
+            b := (colorRef >> 16) & 0xFF
+            hex := Format("{:02X}{:02X}{:02X}", r, g, b)
+
+            ; Persist to AlertColors
+            aColors := This.AlertColors
+            if !(aColors is Map)
+                aColors := Map()
+            aColors[eventId] := "#" hex
+            This.AlertColors := aColors
+            SetTimer(This.Save_Settings_Delay_Timer, -200)
+
+            ; Update swatch preview immediately
+            try swatchCtrl.Opt("Background" hex)
+            try swatchCtrl.Redraw()
+        }
+    }
+
     ; Handler for per-event alert toggle checkboxes
     _alertEventHandler(obj) {
         ; Extract event id from control name (e.g., "attackAlert" -> "attack")
@@ -2409,6 +2551,30 @@ Class Settings_Gui {
             enabledTypes[eventId] := obj.value ? true : false
         This.EnabledAlertTypes := enabledTypes
         This.NeedRestart := 1
+        SetTimer(This.Save_Settings_Delay_Timer, -200)
+    }
+
+    ; Handler for Alert Hub settings (enabled toggle + toast duration)
+    _hubHandler(obj) {
+        name := obj.name
+        if (name = "AlertHubEnabled") {
+            This.AlertHubEnabled := obj.value ? true : false
+            try This._mainRef._alertHub.UpdateVisibility()
+        } else if (name = "AlertToastDuration") {
+            dur := Integer(obj.value)
+            if (dur >= 1 && dur <= 120)
+                This.AlertToastDuration := dur
+        }
+        SetTimer(This.Save_Settings_Delay_Timer, -200)
+    }
+
+    ; Moves hub back to default bottom-right position and saves
+    _ResetHubPosition() {
+        x := A_ScreenWidth  - 58 - 24
+        y := A_ScreenHeight - 58 - 64
+        This.AlertHubX := x
+        This.AlertHubY := y
+        try This._mainRef._alertHub._hubGui.Move(x, y)
         SetTimer(This.Save_Settings_Delay_Timer, -200)
     }
 
@@ -2494,12 +2660,16 @@ Class Settings_Gui {
 
         ; === Per-Event Sound Rows ===
         soundEvents := [
-            {id: "attack",        label: "Under Attack",    sev: "🔴", color: "FF4444"},
-            {id: "warp_scramble",  label: "Warp Scrambled",  sev: "🔴", color: "FF4444"},
-            {id: "decloak",       label: "Decloaked",        sev: "🔴", color: "FF4444"},
-            {id: "fleet_invite",  label: "Fleet Invite",     sev: "🟠", color: "FFA500"},
-            {id: "convo_request", label: "Convo Request",    sev: "🟠", color: "FFA500"},
-            {id: "system_change", label: "System Change",    sev: "🔵", color: "4A9EFF"}
+            {id: "attack",               label: "Under Attack",          sev: "🔴", color: "FF4444"},
+            {id: "warp_scramble",         label: "Warp Scrambled",        sev: "🔴", color: "FF4444"},
+            {id: "decloak",              label: "Decloaked",              sev: "🔴", color: "FF4444"},
+            {id: "fleet_invite",         label: "Fleet Invite",           sev: "🟠", color: "FFA500"},
+            {id: "convo_request",        label: "Convo Request",          sev: "🟠", color: "FFA500"},
+            {id: "system_change",        label: "System Change",          sev: "🔵", color: "4A9EFF"},
+            {id: "mine_cargo_full",      label: "Mining: Cargo Full",     sev: "🟠", color: "FFA500"},
+            {id: "mine_asteroid_depleted", label: "Mining: Depleted",    sev: "🔵", color: "4A9EFF"},
+            {id: "mine_crystal_broken",  label: "Mining: Crystal Broken", sev: "🟠", color: "FFA500"},
+            {id: "mine_module_stopped",  label: "Mining: Miner Stopped",  sev: "🔵", color: "4A9EFF"}
         ]
 
         alertSounds := This.AlertSounds
@@ -2855,9 +3025,7 @@ Class Settings_Gui {
     ; ============================================================
     Panel_Client() {
         P := []
-        A := []  ; Advanced-only controls
         This.S_Gui.Controls["Client"] := P
-        This.S_Gui.AdvControls["Client"] := A
 
         This.S_Gui.SetFont("s11 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
         P.Push This.S_Gui.Add("Text", "x190 y60 w400 h30 BackgroundTrans", "Client Management")
@@ -2888,24 +3056,24 @@ Class Settings_Gui {
 
         ; === Advanced: Window Management ===
         y += 40
-        A.Push This.S_Gui.Add("Text", "x190 y" y " w400 h1 +0x10")
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w400 h1 +0x10")
         y += 12
         This.S_Gui.SetFont("s10 w600 c" Settings_Gui.ACCENT2, "Segoe UI")
-        A.Push This.S_Gui.Add("Text", "x190 y" y " w200 h22 BackgroundTrans", "Window Management")
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w200 h22 BackgroundTrans", "Window Management")
         This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
         y += 28
 
-        This.AddLabelCheck(A, "Minimize Inactive Clients:", y, "MinimizeInactiveClients", This.MinimizeInactiveClients).OnEvent("Click", (obj, *) => This._clHandler(obj))
+        This.AddLabelCheck(P, "Minimize Inactive Clients:", y, "MinimizeInactiveClients", This.MinimizeInactiveClients).OnEvent("Click", (obj, *) => This._clHandler(obj))
         y += 30
-        This.AddLabelCheck(A, "Always Maximize Clients:", y, "AlwaysMaximize", This.AlwaysMaximize).OnEvent("Click", (obj, *) => This._clHandler(obj))
+        This.AddLabelCheck(P, "Always Maximize Clients:", y, "AlwaysMaximize", This.AlwaysMaximize).OnEvent("Click", (obj, *) => This._clHandler(obj))
 
         y += 35
-        A.Push This.S_Gui.Add("Text", "x190 y" y " w200 h22 +0x200 BackgroundTrans", "Don't Minimize Clients:")
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w200 h22 +0x200 BackgroundTrans", "Don't Minimize Clients:")
         y += 22
         This._dontMinLV := This.S_Gui.Add("ListView", "x190 y" y " w220 h120 -Multi +NoSortHdr vDontMinLV", ["Character Name"])
         This._dontMinLV.ModifyCol(1, 200)
         This._DarkListView(This._dontMinLV)
-        A.Push This._dontMinLV
+        P.Push This._dontMinLV
 
         ; Populate from saved data
         for k in This.Dont_Minimize_Clients
@@ -2917,11 +3085,11 @@ Class Settings_Gui {
         y += 125
         btnAdd := This.S_Gui.Add("Button", "x190 y" y " w100 h26", "➕ Add")
         btnAdd.OnEvent("Click", ObjBindMethod(This, "_DontMin_Add"))
-        A.Push btnAdd
+        P.Push btnAdd
 
         btnDel := This.S_Gui.Add("Button", "x295 y" y " w100 h26", "❌ Delete")
         btnDel.OnEvent("Click", ObjBindMethod(This, "_DontMin_Delete"))
-        A.Push btnDel
+        P.Push btnDel
     }
 
     _DontMin_Sync() {
@@ -3075,9 +3243,7 @@ Class Settings_Gui {
     ; ============================================================
     Panel_StatsOverlay() {
         P := []
-        A := []
         This.S_Gui.Controls["Stats Overlay"] := P
-        This.S_Gui.AdvControls["Stats Overlay"] := A
 
         ; Panel header
         This.S_Gui.SetFont("s11 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
@@ -3443,10 +3609,719 @@ Class Settings_Gui {
     }
 
     ; ============================================================
+    ; PANEL: EVE Manager
+    ; ============================================================
+    Panel_EveManager() {
+        P := []
+        This.S_Gui.Controls["EVE Manager"] := P
+
+        ; --- Header ---
+        This.S_Gui.SetFont("s11 w700 c" Settings_Gui.ACCENT2, "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x190 y60 w500 h30 BackgroundTrans", "EVE Settings Profile Manager")
+        This.S_Gui.SetFont("s9 w400 c888888", "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x190 y85 w500 h20 BackgroundTrans", "Copy EVE settings from one profile to another. Backups created automatically.")
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; --- EVE Settings Directory row ---
+        y := 115
+        This.S_Gui.SetFont("s9 w600 c" Settings_Gui.ACCENT2, "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x190 y" y " w120 h24 +0x200 BackgroundTrans", "EVE Settings Folder:")
+        This.S_Gui.SetFont("s9 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; Auto-detect or use stored override
+        storedDir := This._JSON["global_Settings"].Has("EveSettingsDir") ? This._JSON["global_Settings"]["EveSettingsDir"] : ""
+        detectedDir := EveManager.FindEveDir(storedDir)
+        This._eveMgrDir := detectedDir
+
+        This._eveMgrDirEdit := This.S_Gui.Add("Edit", "x312 y" y " w310 h24 +ReadOnly c000000", detectedDir)
+        P.Push This._eveMgrDirEdit
+
+        btnBrowse := This.S_Gui.Add("Button", "x626 y" y " w70 h24", "📂 Browse")
+        btnBrowse.OnEvent("Click", (*) => This._EveManager_Browse())
+        P.Push btnBrowse
+
+        btnAutoDetect := This.S_Gui.Add("Button", "x700 y" y " w30 h24", "🔄")
+        btnAutoDetect.OnEvent("Click", (*) => This._EveManager_AutoDetect())
+        P.Push btnAutoDetect
+
+        ; --- Mode Toggle Buttons ---
+        y += 35
+        This.S_Gui.SetFont("s9 w700", "Segoe UI")
+        This._eveMgrBtnProfileMode := This.S_Gui.Add("Button", "x190 y" y " w155 h28", "📋 Profile Copy")
+        This._eveMgrBtnProfileMode.OnEvent("Click", (*) => This._EveManager_SetMode("profile"))
+        P.Push This._eveMgrBtnProfileMode
+        This._eveMgrBtnCharMode := This.S_Gui.Add("Button", "x350 y" y " w145 h28", "👤 Char Copy")
+        This._eveMgrBtnCharMode.OnEvent("Click", (*) => This._EveManager_SetMode("char"))
+        P.Push This._eveMgrBtnCharMode
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+        This._eveMgrMode := "profile"   ; start in profile mode
+
+        ; ── PROFILE COPY GROUP ─────────────────────────────
+        This._eveMgrProfileGroup := []
+
+        ; --- Two-column layout: Source (left) | Targets (right) ---
+        y += 35
+        This.S_Gui.SetFont("s9 w600 c" Settings_Gui.ACCENT2, "Segoe UI")
+        srcHdr := This.S_Gui.Add("Text", "x190 y" y " w200 h20 BackgroundTrans", "Source Profile (copy FROM):")
+        tgtHdr := This.S_Gui.Add("Text", "x430 y" y " w280 h20 BackgroundTrans", "Target Profiles (copy TO — check to select):")
+        This._eveMgrProfileGroup.Push srcHdr
+        This._eveMgrProfileGroup.Push tgtHdr
+        P.Push srcHdr
+        P.Push tgtHdr
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        y += 22
+        ; Source ListView (single-check)
+        This._eveMgrSrcLV := This.S_Gui.Add("ListView", "x190 y" y " w225 h220 Checked -Multi Background" Settings_Gui.BG_PANEL " c" Settings_Gui.TEXT_COLOR, ["Profile", "Chars"])
+        This._eveMgrSrcLV.ModifyCol(1, 180)
+        This._eveMgrSrcLV.ModifyCol(2, 40)
+        This._DarkListView(This._eveMgrSrcLV)
+        This._eveMgrSrcLV.OnEvent("ItemCheck", (*) => This._EveManager_EnforceSingleCheck())
+        This._eveMgrProfileGroup.Push This._eveMgrSrcLV
+        P.Push This._eveMgrSrcLV
+
+        ; Target ListView with checkboxes
+        This._eveMgrTgtLV := This.S_Gui.Add("ListView", "x430 y" y " w300 h220 Checked -Multi Background" Settings_Gui.BG_PANEL " c" Settings_Gui.TEXT_COLOR, ["Profile", "Chars"])
+        This._eveMgrTgtLV.ModifyCol(1, 215)
+        This._eveMgrTgtLV.ModifyCol(2, 40)
+        This._DarkListView(This._eveMgrTgtLV)
+        This._eveMgrProfileGroup.Push This._eveMgrTgtLV
+        P.Push This._eveMgrTgtLV
+
+        ; (status is now in shared section, not profile group)
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; --- Action Buttons (Profile mode) ---
+        y := 450   ; snug below lists (lists end at ~y=430)
+        This.S_Gui.SetFont("s9 w600", "Segoe UI")
+        btnRefresh := This.S_Gui.Add("Button", "x190 y" y " w120 h30", "🔄 Refresh List")
+        btnRefresh.OnEvent("Click", (*) => This._EveManager_Refresh())
+        This._eveMgrProfileGroup.Push btnRefresh
+        P.Push btnRefresh
+
+        btnBackup := This.S_Gui.Add("Button", "x318 y" y " w175 h30", "💾 Backup Checked Target Profile")
+        btnBackup.OnEvent("Click", (*) => This._EveManager_Backup())
+        This._eveMgrProfileGroup.Push btnBackup
+        P.Push btnBackup
+
+        This.S_Gui.SetFont("s9 w700", "Segoe UI")
+        btnCopy := This.S_Gui.Add("Button", "x501 y" y " w190 h30", "📋 Copy → Checked Targets")
+        btnCopy.OnEvent("Click", (*) => This._EveManager_Copy())
+        This._eveMgrProfileGroup.Push btnCopy
+        P.Push btnCopy
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; ── CHAR COPY GROUP ────────────────────────────────────
+        ; (initially hidden — shown when user clicks 'Char Copy')
+        ; Occupies same Y space as Profile Copy (they are mutually exclusive)
+        This._eveMgrCharGroup := []
+        yC := 185   ; same start Y as profile copy section labels
+
+        ; Column headers row
+        This.S_Gui.SetFont("s9 w600 c" Settings_Gui.ACCENT2, "Segoe UI")
+        cHdr1 := This.S_Gui.Add("Text", "x190 y" yC " w250 h20 BackgroundTrans", "Source (copy FROM):")
+        cHdr2 := This.S_Gui.Add("Text", "x460 y" yC " w270 h20 BackgroundTrans", "Target (copy TO):")
+        This._eveMgrCharGroup.Push cHdr1
+        This._eveMgrCharGroup.Push cHdr2
+        P.Push cHdr1
+        P.Push cHdr2
+        This.S_Gui.SetFont("s9 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; Source Profile dropdown
+        yC += 25
+        This.S_Gui.SetFont("s8 w400 c888888", "Segoe UI")
+        lCSrc := This.S_Gui.Add("Text", "x190 y" yC " w55 h24 +0x200 BackgroundTrans", "Profile:")
+        This._eveMgrCharGroup.Push lCSrc
+        P.Push lCSrc
+        This.S_Gui.SetFont("s9 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+        This._eveMgrCSrcProfileDD := This.S_Gui.Add("DropDownList", "x248 y" yC " w192 h200", [])
+        This._eveMgrCSrcProfileDD.OnEvent("Change", (*) => This._EveManager_CharSrcProfileChange())
+        This._eveMgrCharGroup.Push This._eveMgrCSrcProfileDD
+        P.Push This._eveMgrCSrcProfileDD
+
+        ; Target Profile dropdown (same Y)
+        This.S_Gui.SetFont("s8 w400 c888888", "Segoe UI")
+        lCTgt := This.S_Gui.Add("Text", "x460 y" yC " w55 h24 +0x200 BackgroundTrans", "Profile:")
+        This._eveMgrCharGroup.Push lCTgt
+        P.Push lCTgt
+        This.S_Gui.SetFont("s9 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+        This._eveMgrCTgtProfileDD := This.S_Gui.Add("DropDownList", "x518 y" yC " w212 h200", [])
+        This._eveMgrCTgtProfileDD.OnEvent("Change", (*) => This._EveManager_CharTgtProfileChange())
+        This._eveMgrCharGroup.Push This._eveMgrCTgtProfileDD
+        P.Push This._eveMgrCTgtProfileDD
+
+        ; Source Character ListView (left column)
+        yC += 30
+        This._eveMgrCSrcCharLV := This.S_Gui.Add("ListView", "x190 y" yC " w250 h300 Checked -Multi Background" Settings_Gui.BG_PANEL " c" Settings_Gui.TEXT_COLOR, ["ID", "Character Name"])
+        This._eveMgrCSrcCharLV.ModifyCol(1, 85)
+        This._eveMgrCSrcCharLV.ModifyCol(2, 158)
+        This._DarkListView(This._eveMgrCSrcCharLV)
+        This._eveMgrCSrcCharLV.OnEvent("ItemCheck", (*) => This._EveManager_EnforceSingleCheckChar())
+        This._eveMgrCharGroup.Push This._eveMgrCSrcCharLV
+        P.Push This._eveMgrCSrcCharLV
+
+        ; Target Character ListView (right column, same Y)
+        This._eveMgrCTgtCharLV := This.S_Gui.Add("ListView", "x460 y" yC " w270 h300 Checked -Multi Background" Settings_Gui.BG_PANEL " c" Settings_Gui.TEXT_COLOR, ["ID", "Character Name"])
+        This._eveMgrCTgtCharLV.ModifyCol(1, 85)
+        This._eveMgrCTgtCharLV.ModifyCol(2, 178)
+        This._DarkListView(This._eveMgrCTgtCharLV)
+        This._eveMgrCharGroup.Push This._eveMgrCTgtCharLV
+        P.Push This._eveMgrCTgtCharLV
+
+        ; Ensure EveManager JSON section and CharNameCache exist
+        if (!This._JSON.Has("EveManager"))
+            This._JSON["EveManager"] := Map()
+        if (!This._JSON["EveManager"].Has("CharNameCache"))
+            This._JSON["EveManager"]["CharNameCache"] := Map()
+
+        ; Load character name cache — order: Cache -> Logs
+        ; cacheSection is updated in-place (new log entries written back)
+        This._eveMgrNameMap := EveManager.LoadCharNameCache(
+            This.ChatLogDirectory,
+            This._JSON["EveManager"]["CharNameCache"]
+        )
+        ; Persist any new/updated entries from the log scan
+        SetTimer(This.Save_Settings_Delay_Timer, -500)
+
+        ; Copy ALL checkbox + Char Copy button (below both lists)
+        yC += 308
+        This._eveMgrCopyAllChk := This.S_Gui.Add("CheckBox", "x190 y" yC " w270 h24 BackgroundTrans c" Settings_Gui.TEXT_COLOR, "Copy to ALL characters in target profile")
+        This._eveMgrCharGroup.Push This._eveMgrCopyAllChk
+        P.Push This._eveMgrCopyAllChk
+
+        This.S_Gui.SetFont("s9 w700", "Segoe UI")
+        btnCharCopy := This.S_Gui.Add("Button", "x460 y" yC " w270 h24", "👤 Copy Char Settings")
+        btnCharCopy.OnEvent("Click", (*) => This._EveManager_CharCopy())
+        This._eveMgrCharGroup.Push btnCharCopy
+        P.Push btnCharCopy
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; Char group starts hidden (SwitchPanel hook will enforce this at activation too)
+        for _, ctrl in This._eveMgrCharGroup
+            ctrl.Visible := false
+
+
+        ; ── SHARED BOTTOM SECTION ──────────────────────────
+        yShared := 590
+
+        ; Shared status label
+        This.S_Gui.SetFont("s9 w400 c888888", "Segoe UI")
+        This._eveMgrStatus := This.S_Gui.Add("Text", "x190 y" yShared " w540 h20 BackgroundTrans", "Ready.")
+        P.Push This._eveMgrStatus
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; Backup Location row
+        yShared += 26
+        This.S_Gui.SetFont("s9 w600 c" Settings_Gui.ACCENT2, "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x190 y" yShared " w110 h24 +0x200 BackgroundTrans", "Backup Location:")
+        This.S_Gui.SetFont("s9 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        storedBackup := This._JSON["global_Settings"].Has("EveBackupDir") ? This._JSON["global_Settings"]["EveBackupDir"] : ""
+        defaultBackup := EnvGet("LOCALAPPDATA") . "\CCP\EVE\EVEMPBackups"
+        displayBackup := (storedBackup != "") ? storedBackup : defaultBackup
+
+        This._eveMgrBackupEdit := This.S_Gui.Add("Edit", "x302 y" yShared " w320 h24 +ReadOnly c000000", displayBackup)
+        P.Push This._eveMgrBackupEdit
+
+        btnBrowseBackup := This.S_Gui.Add("Button", "x626 y" yShared " w70 h24", "📂 Browse")
+        btnBrowseBackup.OnEvent("Click", (*) => This._EveManager_BrowseBackup())
+        P.Push btnBrowseBackup
+
+        btnResetBackup := This.S_Gui.Add("Button", "x700 y" yShared " w30 h24", "🔄")
+        btnResetBackup.OnEvent("Click", (*) => This._EveManager_ResetBackupDir())
+        P.Push btnResetBackup
+
+        ; Small note
+        This.S_Gui.SetFont("s8 w400 c555555", "Segoe UI")
+        P.Push This.S_Gui.Add("Text", "x190 y" (yShared + 28) " w540 h16 BackgroundTrans",
+            "prefs.ini is not copied (keeps per-profile display settings).")
+
+        ; ESI fetch button (one-shot with cooldown)
+        yShared += 52
+        This.S_Gui.SetFont("s9 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+        This._eveMgrEsiBtn := This.S_Gui.Add("Button", "x190 y" yShared " w390 h24",
+            "🌐 Fetch Missing Names via ESI (public, no login required)")
+        This._eveMgrEsiBtn.OnEvent("Click", (*) => This._EveManager_FetchESINames())
+        P.Push This._eveMgrEsiBtn
+        This.S_Gui.SetFont("s10 w400 c" Settings_Gui.TEXT_COLOR, "Segoe UI")
+
+        ; Populate on first open
+        This._EveManager_PopulateLists()
+    }
+
+    ; Switch between Profile Copy and Char Copy modes
+    _EveManager_SetMode(mode) {
+        This._eveMgrMode := mode
+        showProfile := (mode = "profile")
+        for _, ctrl in This._eveMgrProfileGroup
+            ctrl.Visible := showProfile
+        for _, ctrl in This._eveMgrCharGroup
+            ctrl.Visible := !showProfile
+        ; Visual feedback on mode buttons
+        if (showProfile) {
+            This._eveMgrBtnProfileMode.Opt("+Default")
+            This._eveMgrBtnCharMode.Opt("-Default")
+        } else {
+            This._eveMgrBtnProfileMode.Opt("-Default")
+            This._eveMgrBtnCharMode.Opt("+Default")
+        }
+    }
+
+    ; Single-check enforcement for Source Character ListView
+    _EveManager_EnforceSingleCheckChar(*) {
+        lastChecked := 0
+        row := 0
+        loop {
+            row := This._eveMgrCSrcCharLV.GetNext(row, "Checked")
+            if (!row)
+                break
+            if (lastChecked)
+                This._eveMgrCSrcCharLV.Modify(lastChecked, "-Check")
+            lastChecked := row
+        }
+    }
+
+    ; Repopulate source character list when source profile dropdown changes
+    _EveManager_CharSrcProfileChange(*) {
+        This._eveMgrCSrcCharLV.Delete()
+        profiles := EveManager.ListProfiles(This._eveMgrDir)
+        idx := This._eveMgrCSrcProfileDD.Value
+        if (!idx || idx > profiles.Length)
+            return
+        nameMap := This._eveMgrNameMap
+        chars := EveManager.ListCharacters(profiles[idx]["path"], nameMap)
+        for _, c in chars
+            This._eveMgrCSrcCharLV.Add("", c["id"], c["charName"] != "" ? c["charName"] : "")
+        This._eveMgrStatus.Value := "Source: " chars.Length " character(s) in " profiles[idx]["name"]
+    }
+
+    ; Repopulate target character list when target profile dropdown changes
+    _EveManager_CharTgtProfileChange(*) {
+        This._eveMgrCTgtCharLV.Delete()
+        profiles := EveManager.ListProfiles(This._eveMgrDir)
+        idx := This._eveMgrCTgtProfileDD.Value
+        if (!idx || idx > profiles.Length)
+            return
+        nameMap := This._eveMgrNameMap
+        chars := EveManager.ListCharacters(profiles[idx]["path"], nameMap)
+        for _, c in chars
+            This._eveMgrCTgtCharLV.Add("", c["id"], c["charName"] != "" ? c["charName"] : "")
+        This._eveMgrStatus.Value := "Target: " chars.Length " character(s) in " profiles[idx]["name"]
+    }
+
+    ; Char Copy action handler
+    _EveManager_CharCopy(*) {
+        profiles := EveManager.ListProfiles(This._eveMgrDir)
+
+        ; --- Validate source ---
+        srcIdx := This._eveMgrCSrcProfileDD.Value
+        if (!srcIdx || srcIdx > profiles.Length) {
+            MsgBox("Select a source profile.", "EVE Manager — Char Copy", "Icon! T4")
+            return
+        }
+        srcProfile := profiles[srcIdx]["path"]
+        srcRow := This._eveMgrCSrcCharLV.GetNext(0, "Checked")
+        if (!srcRow) {
+            MsgBox("Check a source character.", "EVE Manager — Char Copy", "Icon! T4")
+            return
+        }
+        ; ID is in column 1
+        srcCharId := This._eveMgrCSrcCharLV.GetText(srcRow, 1)
+        if (srcCharId = "")  ; fallback
+            srcCharId := This._eveMgrCSrcCharLV.GetText(srcRow, 2)
+
+        ; --- Validate target ---
+        tgtIdx := This._eveMgrCTgtProfileDD.Value
+        if (!tgtIdx || tgtIdx > profiles.Length) {
+            MsgBox("Select a target profile.", "EVE Manager — Char Copy", "Icon! T4")
+            return
+        }
+        tgtProfile := profiles[tgtIdx]["path"]
+
+        ; --- Build target char list ---
+        tgtChars := []
+        copyAll := This._eveMgrCopyAllChk.Value
+        if (copyAll) {
+            tgtChars := EveManager.ListCharacters(tgtProfile)
+        } else {
+            row := 0
+            allTgtChars := EveManager.ListCharacters(tgtProfile)
+            loop {
+                row := This._eveMgrCTgtCharLV.GetNext(row, "Checked")
+                if (!row)
+                    break
+                label := This._eveMgrCTgtCharLV.GetText(row, 1)  ; ID is col 1
+                if (label = "")  ; fallback
+                    label := This._eveMgrCTgtCharLV.GetText(row, 2)
+                id := label
+                for _, c in allTgtChars {
+                    if (c["id"] = id) {
+                        tgtChars.Push(c)
+                        break
+                    }
+                }
+            }
+        }
+        if (tgtChars.Length = 0) {
+            MsgBox("Check at least one target character, or tick 'Copy to ALL'.", "EVE Manager — Char Copy", "Icon! T4")
+            return
+        }
+
+        ; --- EVE running check ---
+        if (EveManager.IsEveRunning()) {
+            result := MsgBox("⚠ EVE is running. Copy may corrupt settings. Continue?", "EVE Manager", "YesNo Icon! 256")
+            if (result != "Yes")
+                return
+        }
+
+        ; --- Confirm ---
+        confirmMsg := "Copy char settings from:`n  " srcCharId " (" profiles[srcIdx]["name"] ")`n`nTo:`n"
+        for _, c in tgtChars
+            confirmMsg .= "  • " c["id"] " (" profiles[tgtIdx]["name"] ")`n"
+        result := MsgBox(confirmMsg, "EVE Manager — Confirm Char Copy", "YesNo Iconi")
+        if (result != "Yes")
+            return
+
+        ; --- Execute ---
+        backupRoot := This._EveManager_GetBackupRoot()
+        success := 0
+        fail := 0
+        skip := 0
+        for _, c in tgtChars {
+            if (srcProfile = tgtProfile && srcCharId = c["id"]) {
+                skip++
+                continue
+            }
+            copied := EveManager.CopyCharacterSettings(srcProfile, srcCharId, tgtProfile, c["id"], backupRoot)
+            if (copied > 0)
+                success++
+            else if (copied = 0)
+                skip++
+            else
+                fail++
+        }
+        msg := ""
+        if (success > 0)
+            msg .= "✅ " success " char(s) updated. "
+        if (fail > 0)
+            msg .= "❌ " fail " failed. "
+        if (skip > 0)
+            msg .= "(" skip " skipped — same char)"
+        This._eveMgrStatus.Value := Trim(msg)
+        ToolTip(Trim(msg))
+        SetTimer(() => ToolTip(), -3500)
+    }
+
+    ; Populate both listbox and listview from detected dir
+    _EveManager_PopulateLists() {
+        try {
+            This._eveMgrSrcLV.Delete()
+            This._eveMgrTgtLV.Delete()
+            if (This._eveMgrDir = "") {
+                This._eveMgrStatus.Value := "⚠ EVE settings folder not found. Use Browse to locate it."
+                return
+            }
+            profiles := EveManager.ListProfiles(This._eveMgrDir)
+            if (profiles.Length = 0) {
+                This._eveMgrStatus.Value := "No settings_* profiles found in: " This._eveMgrDir
+                return
+            }
+            ; Profile Copy lists
+            profileNames := []
+            for _, p in profiles {
+                This._eveMgrSrcLV.Add("", p["name"], p["charCount"])
+                This._eveMgrTgtLV.Add("", p["name"], p["charCount"])
+                profileNames.Push(p["name"])
+            }
+            ; Char Copy dropdowns — preserve selection if possible
+            prevSrc := This._eveMgrCSrcProfileDD.Value
+            prevTgt := This._eveMgrCTgtProfileDD.Value
+            This._eveMgrCSrcProfileDD.Delete()
+            This._eveMgrCTgtProfileDD.Delete()
+            for _, n in profileNames {
+                This._eveMgrCSrcProfileDD.Add([n])
+                This._eveMgrCTgtProfileDD.Add([n])
+            }
+            if (prevSrc >= 1 && prevSrc <= profileNames.Length)
+                This._eveMgrCSrcProfileDD.Choose(prevSrc)
+            if (prevTgt >= 1 && prevTgt <= profileNames.Length)
+                This._eveMgrCTgtProfileDD.Choose(prevTgt)
+
+            This._eveMgrStatus.Value := "Found " profiles.Length " profiles in: " This._eveMgrDir
+        } catch as e {
+            try This._eveMgrStatus.Value := "Error loading profiles: " e.Message
+        }
+    }
+
+    ; Refresh button handler
+    _EveManager_Refresh(*) {
+        storedDir := This._JSON["global_Settings"].Has("EveSettingsDir") ? This._JSON["global_Settings"]["EveSettingsDir"] : ""
+        This._eveMgrDir := EveManager.FindEveDir(storedDir)
+        This._eveMgrDirEdit.Value := This._eveMgrDir
+        This._EveManager_PopulateLists()
+    }
+
+    ; Auto-detect button handler
+    _EveManager_AutoDetect(*) {
+        This._eveMgrDir := EveManager.FindEveDir("")
+        This._eveMgrDirEdit.Value := This._eveMgrDir
+        This._JSON["global_Settings"]["EveSettingsDir"] := ""
+        SetTimer(This.Save_Settings_Delay_Timer, -200)
+        This._EveManager_PopulateLists()
+    }
+
+    ; Browse button handler
+    _EveManager_Browse(*) {
+        chosen := DirSelect("*" EnvGet("LOCALAPPDATA") "\CCP\EVE", 3, "Select your EVE settings parent folder (c_ccp_eve_tq_*)")
+        if (chosen = "")
+            return
+        This._eveMgrDir := chosen
+        This._eveMgrDirEdit.Value := chosen
+        This._JSON["global_Settings"]["EveSettingsDir"] := chosen
+        SetTimer(This.Save_Settings_Delay_Timer, -200)
+        This._EveManager_PopulateLists()
+    }
+
+    ; Get selected target profile paths from the ListView
+    _EveManager_GetCheckedTargets() {
+        targets := []
+        profiles := EveManager.ListProfiles(This._eveMgrDir)
+        row := 0
+        loop {
+            row := This._eveMgrTgtLV.GetNext(row, "Checked")
+            if (!row)
+                break
+            ; Find matching profile by name (strip char count suffix)
+            rowName := This._eveMgrTgtLV.GetText(row, 1)
+            for _, p in profiles {
+                if (p["name"] = rowName)
+                    targets.Push(p)
+            }
+        }
+        return targets
+    }
+
+    ; Enforce single-check in source ListView
+    _EveManager_EnforceSingleCheck(*) {
+        lastChecked := 0
+        row := 0
+        loop {
+            row := This._eveMgrSrcLV.GetNext(row, "Checked")
+            if (!row)
+                break
+            if (lastChecked)
+                This._eveMgrSrcLV.Modify(lastChecked, "-Check")
+            lastChecked := row
+        }
+    }
+
+    ; Get currently selected source profile path from source ListView
+    _EveManager_GetSource() {
+        row := This._eveMgrSrcLV.GetNext(0, "Checked")
+        if (!row)
+            return ""
+        srcName := This._eveMgrSrcLV.GetText(row, 1)
+        profiles := EveManager.ListProfiles(This._eveMgrDir)
+        for _, p in profiles {
+            if (p["name"] = srcName)
+                return p["path"]
+        }
+        return ""
+    }
+
+    ; Returns the current backup root path (stored override or default)
+    _EveManager_GetBackupRoot() {
+        stored := This._JSON["global_Settings"].Has("EveBackupDir") ? This._JSON["global_Settings"]["EveBackupDir"] : ""
+        return (stored != "") ? stored : EnvGet("LOCALAPPDATA") . "\CCP\EVE\EVEMPBackups"
+    }
+
+    ; Browse button handler for backup location
+    _EveManager_BrowseBackup(*) {
+        current := This._EveManager_GetBackupRoot()
+        chosen := DirSelect("*" current, 3, "Select backup destination folder")
+        if (chosen = "")
+            return
+        This._JSON["global_Settings"]["EveBackupDir"] := chosen
+        This._eveMgrBackupEdit.Value := chosen
+        SetTimer(This.Save_Settings_Delay_Timer, -200)
+    }
+
+    ; Reset backup location to default
+    _EveManager_ResetBackupDir(*) {
+        This._JSON["global_Settings"]["EveBackupDir"] := ""
+        This._eveMgrBackupEdit.Value := EnvGet("LOCALAPPDATA") . "\CCP\EVE\EVEMPBackups"
+        SetTimer(This.Save_Settings_Delay_Timer, -200)
+    }
+
+    ; ESI fetch button handler - one-shot with 60-second cooldown
+    _EveManager_FetchESINames(*) {
+        ; Disable button immediately to prevent double-click
+        This._eveMgrEsiBtn.Enabled := false
+        This._eveMgrEsiBtn.Text := "⏳ Fetching from ESI..."
+
+        if (This._eveMgrDir != "") {
+            ; Collect ALL charIds from both selected profiles direct from core_char_*.dat
+            profiles := EveManager.ListProfiles(This._eveMgrDir)
+            idsSeen := Map()
+            missing  := []
+            for _, ddVal in [This._eveMgrCSrcProfileDD.Value, This._eveMgrCTgtProfileDD.Value] {
+                if (ddVal >= 1 && ddVal <= profiles.Length) {
+                    chars := EveManager.ListCharacters(profiles[ddVal]["path"])
+                    for _, c in chars {
+                        id := c["id"]
+                        if (!This._eveMgrNameMap.Has(id) && !idsSeen.Has(id)) {
+                            idsSeen[id] := true
+                            missing.Push(id)
+                        }
+                    }
+                }
+            }
+            if (missing.Length > 0) {
+                This._eveMgrStatus.Value := "Fetching " missing.Length " name(s) from ESI..."
+                EveManager.EnrichWithESI(This._eveMgrNameMap, missing)
+            }
+        }
+
+        ; Repopulate both ListViews with updated names
+        This._EveManager_CharSrcProfileChange()
+        This._EveManager_CharTgtProfileChange()
+        This._eveMgrStatus.Value := "ESI name fetch complete."
+
+        ; Persist ESI results into the JSON cache
+        today := FormatTime(, "yyyy-MM-dd")
+        cacheSection := This._JSON["EveManager"]["CharNameCache"]
+        for _, charId in missing {
+            ; Only add if ESI actually resolved this ID (it's now in nameMap)
+            if (This._eveMgrNameMap.Has(charId) && !cacheSection.Has(charId))
+                cacheSection[charId] := Map(
+                    "name",    This._eveMgrNameMap[charId],
+                    "fetched", today,
+                    "method",  "ESI"
+                )
+        }
+        SetTimer(This.Save_Settings_Delay_Timer, -300)
+
+        ; Start 60-second cooldown — prevents rapid re-firing
+        This._eveMgrEsiCooldownSec := 60
+        This._eveMgrEsiCooldownTimer := ObjBindMethod(This, "_EveManager_ESICooldownTick")
+        SetTimer(This._eveMgrEsiCooldownTimer, -1000)
+    }
+
+    ; Countdown tick — decrements cooldown and re-enables button when done
+    _EveManager_ESICooldownTick() {
+        This._eveMgrEsiCooldownSec--
+        if (This._eveMgrEsiCooldownSec > 0) {
+            try This._eveMgrEsiBtn.Text := "⏳ ESI cooldown: " This._eveMgrEsiCooldownSec "s"
+            SetTimer(This._eveMgrEsiCooldownTimer, -1000)
+        } else {
+            try {
+                This._eveMgrEsiBtn.Enabled := true
+                This._eveMgrEsiBtn.Text := "🌐 Fetch Missing Names via ESI (public, no login required)"
+            }
+        }
+    }
+
+
+    ; Backup button handler
+    _EveManager_Backup(*) {
+        targets := This._EveManager_GetCheckedTargets()
+        if (targets.Length = 0) {
+            MsgBox("Check at least one target profile to back up.", "EVE Manager — Backup", "Icon! T4")
+            return
+        }
+        success := 0
+        fail := 0
+        for _, t in targets {
+            dst := EveManager.BackupProfile(t["path"], This._EveManager_GetBackupRoot())
+            if (dst != "")
+                success++
+            else
+                fail++
+        }
+        msg := success " profile(s) backed up successfully."
+        if (fail > 0)
+            msg .= " " fail " backup(s) failed."
+        This._eveMgrStatus.Value := "✅ " msg
+        ToolTip(msg)
+        SetTimer(() => ToolTip(), -3000)
+    }
+
+    ; Copy button handler
+    _EveManager_Copy(*) {
+        srcPath := This._EveManager_GetSource()
+        if (srcPath = "") {
+            MsgBox("Select a source profile on the left before copying.", "EVE Manager — Copy", "Icon! T4")
+            return
+        }
+        targets := This._EveManager_GetCheckedTargets()
+        if (targets.Length = 0) {
+            MsgBox("Check at least one target profile on the right.", "EVE Manager — Copy", "Icon! T4")
+            return
+        }
+        ; Warn if EVE is running
+        if (EveManager.IsEveRunning()) {
+            result := MsgBox(
+                "⚠ EVE Online is currently running.`n`n"
+                "Copying settings while EVE is open may corrupt your settings files.`n`n"
+                "It is strongly recommended to close all EVE clients before continuing.`n`n"
+                "Continue anyway?",
+                "EVE Manager — EVE is Running", "YesNo Icon! 256"
+            )
+            if (result != "Yes")
+                return
+        }
+        ; List target names for confirm dialog
+        srcName := This._eveMgrSrcLV.GetText(This._eveMgrSrcLV.GetNext(0, "Checked"), 1)
+        tgtNames := []
+        for _, t in targets
+            tgtNames.Push(t["name"])
+        confirmMsg := "Copy settings from:`n  " srcName "`n`nTo:`n"
+        for _, n in tgtNames
+            confirmMsg .= "  • " n "`n"
+        confirmMsg .= "`nA backup will be created for each target first. Proceed?"
+        result := MsgBox(confirmMsg, "EVE Manager — Confirm Copy", "YesNo Iconi")
+        if (result != "Yes")
+            return
+
+        ; Do backup then copy for each target
+        success := 0
+        fail := 0
+        backupFail := 0
+        for _, t in targets {
+            ; Backup first
+            bDst := EveManager.BackupProfile(t["path"], This._EveManager_GetBackupRoot())
+            if (bDst = "") {
+                backupFail++
+            }
+            ; Copy .dat files
+            copied := EveManager.CopyProfile(srcPath, t["path"])
+            if (copied >= 0)
+                success++
+            else
+                fail++
+        }
+        statusParts := []
+        if (success > 0)
+            statusParts.Push("✅ Copied to " success " profile(s).")
+        if (fail > 0)
+            statusParts.Push("❌ " fail " copy failure(s).")
+        if (backupFail > 0)
+            statusParts.Push("⚠ " backupFail " backup(s) failed.")
+        statusMsg := ""
+        for _, s in statusParts
+            statusMsg .= s " "
+        This._eveMgrStatus.Value := Trim(statusMsg)
+        ToolTip(Trim(statusMsg))
+        SetTimer(() => ToolTip(), -3500)
+        ; Refresh char counts
+        This._EveManager_PopulateLists()
+    }
+
+    ; ============================================================
     ; PANEL: About
     ; ============================================================
     Panel_About() {
-        static APP_VERSION := "1.2.1"
+        static APP_VERSION := "1.2.2"
         static GITHUB_URL := "https://github.com/CJKondur/EVE-MultiPreview"
         static GITHUB_API := "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest"
 
@@ -4217,14 +5092,20 @@ Class Settings_Gui {
                 . "and game logs in real time. When it`r`n"
                 . "detects a combat event, it triggers`r`n"
                 . "visual and audio alerts.`r`n`r`n"
-                . "Alert Events`r`n"
+                . "Combat Alerts`r`n"
                 . "────────────────────────────`r`n"
-                . "• Under Attack — you're taking damage`r`n"
+                . "• Under Attack — taking damage`r`n"
                 . "• Warp Scrambled — tackle detected`r`n"
                 . "• Decloaked — cloak dropped`r`n"
                 . "• Fleet Invite — fleet invitation`r`n"
-                . "• Convo Request — conversation request`r`n"
-                . "• System Change — jumped to new system`r`n`r`n"
+                . "• Convo Request — convo incoming`r`n"
+                . "• System Change — jumped systems`r`n`r`n"
+                . "Mining Alerts`r`n"
+                . "────────────────────────────`r`n"
+                . "• Cargo Full — cargo/ore hold full`r`n"
+                . "• Depleted — asteroid exhausted`r`n"
+                . "• Crystal Broken — crystal fractured`r`n"
+                . "• Miner Stopped — module deactivated`r`n`r`n"
                 . "Severity Tiers`r`n"
                 . "────────────────────────────`r`n"
                 . "🔴 Critical — Under Attack, Scrambled`r`n"
@@ -4233,6 +5114,18 @@ Class Settings_Gui {
                 . "Each tier has its own border color,`r`n"
                 . "cooldown timer, and tray notification`r`n"
                 . "toggle.`r`n`r`n"
+                . "Per-Alert Custom Colors`r`n"
+                . "────────────────────────────`r`n"
+                . "Each alert row has a colored \u25A0 square`r`n"
+                . "swatch. Click it to pick a custom`r`n"
+                . "flash color for that alert.`r`n`r`n"
+                . "Color priority order:`r`n"
+                . "1. Per-alert color (\u25A0 swatch)`r`n"
+                . "2. Severity tier color`r`n"
+                . "3. Default red fallback`r`n`r`n"
+                . "Clearing a per-alert color (re-pick`r`n"
+                . "the severity color) restores the`r`n"
+                . "tier default.`r`n`r`n"
                 . "PVE Mode`r`n"
                 . "────────────────────────────`r`n"
                 . "Ignores NPC/rat damage so you only`r`n"
@@ -4241,7 +5134,45 @@ Class Settings_Gui {
                 . "────────────────────────────`r`n"
                 . "Set paths to your EVE Chat Logs and`r`n"
                 . "Game Logs folders. Default paths work`r`n"
-                . "for standard EVE installations."
+                . "for standard EVE installations.`r`n`r`n"
+                . "Alert Hub`r`n"
+                . "────────────────────────────`r`n"
+                . "A floating hexagon widget that sits`r`n"
+                . "on your screen. Drag it anywhere.`r`n"
+                . "Right-click the hub to dismiss all`r`n"
+                . "active toasts.`r`n`r`n"
+                . "Toast Direction`r`n"
+                . "────────────────────────────`r`n"
+                . "Left-click the hub to open the`r`n"
+                . "direction picker. Choose which way`r`n"
+                . "toast notifications stack:`r`n"
+                . "• ↑ Up  • ↓ Down  • ← Left  • → Right`r`n"
+                . "The selected arrow highlights.`r`n`r`n"
+                . "Notification Badge`r`n"
+                . "────────────────────────────`r`n"
+                . "A red circular badge pops out at`r`n"
+                . "the top-right of the hexagon showing`r`n"
+                . "the count of active toasts (1-9+).`r`n`r`n"
+                . "• Click the badge to dismiss all toasts`r`n"
+                . "• Badge pulses white/red when a new`r`n"
+                . "  toast arrives (4 flashes)`r`n"
+                . "• Automatically hides when all toasts`r`n"
+                . "  expire or are dismissed`r`n`r`n"
+                . "Focus-Aware Visibility`r`n"
+                . "────────────────────────────`r`n"
+                . "The hub, badge, toasts, and picker`r`n"
+                . "stay always-on-top only when EVE is`r`n"
+                . "the foreground app. When you switch`r`n"
+                . "to another app (browser, Discord),`r`n"
+                . "they drop behind — no clutter.`r`n`r`n"
+                . "Toast Duration`r`n"
+                . "────────────────────────────`r`n"
+                . "Set how long each toast stays on`r`n"
+                . "screen (1-120 seconds). Default: 6s.`r`n`r`n"
+                . "Reset Position`r`n"
+                . "────────────────────────────`r`n"
+                . "Moves the hub back to the default`r`n"
+                . "bottom-right corner of your screen."
 
             case "Sounds":
                 return ""
@@ -4372,6 +5303,46 @@ Class Settings_Gui {
                 . "────────────────────────────`r`n"
                 . "Adjust the transparency and readability`r`n"
                 . "of stat overlays to your preference."
+
+            case "EVE Manager":
+                return ""
+                . "EVE MANAGER`r`n"
+                . "═══════════════════════════`r`n`r`n"
+                . "Copy EVE settings files from one`r`n"
+                . "profile folder to another.`r`n`r`n"
+                . "Profiles`r`n"
+                . "────────────────────────────`r`n"
+                . "EVE stores settings in folders`r`n"
+                . "named settings_* inside your EVE`r`n"
+                . "AppData directory. Each folder`r`n"
+                . "holds .dat files for your characters.`r`n`r`n"
+                . "How to use`r`n"
+                . "────────────────────────────`r`n"
+                . "1. Select a Source profile (left)`r`n"
+                . "2. Check Target profiles (right)`r`n"
+                . "3. Click Copy → Checked Targets`r`n`r`n"
+                . "Backups`r`n"
+                . "────────────────────────────`r`n"
+                . "Targets are backed up automatically`r`n"
+                . "before each copy to:`r`n"
+                . "AppData\Local\CCP\EVE\EVEMPBackups`r`n`r`n"
+                . "⚠ Close EVE clients before copying`r`n"
+                . "to avoid settings corruption.`r`n`r`n"
+                . "Character Names`r`n"
+                . "────────────────────────────`r`n"
+                . "Names are read from your EVE chat`r`n"
+                . "logs — the same logs EVE writes to`r`n"
+                . "Documents\EVE\logs\Chatlogs\.`r`n`r`n"
+                . "If you set a custom log path in`r`n"
+                . "General → Log Monitor, that path`r`n"
+                . "is checked first.`r`n`r`n"
+                . "Enable the ESI button (below) to`r`n"
+                . "look up names for characters`r`n"
+                . "not yet found in your chat logs.`r`n"
+                . "ESI lookups are public — no login.`r`n"
+                . "A 60-second cooldown prevents`r`n"
+                . "accidental ESI overuse.`r`n"
+                . "Results are cached for the session."
 
             case "About":
                 return ""
