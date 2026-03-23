@@ -32,7 +32,7 @@ A_MaxHotKeysPerInterval := 10000
 TODO #########################
 */
 
-;@Ahk2Exe-Let U_version = 1.0.4.
+;@Ahk2Exe-Let U_version = 1.2.3.
 ;@Ahk2Exe-SetVersion %U_version%
 ;@Ahk2Exe-SetFileVersion %U_version%
 ;@Ahk2Exe-SetCopyright gonzo83

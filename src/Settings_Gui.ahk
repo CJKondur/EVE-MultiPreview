@@ -2040,6 +2040,11 @@ Class Settings_Gui {
         if (conflict.source = excludeSource)
             return true
 
+        ; Allow individual character hotkeys to share the same key with each other
+        ; (only block if the conflict is a system hotkey, group hotkey, etc.)
+        if (InStr(excludeSource, "IndividualHK:") = 1 && InStr(conflict.source, "IndividualHK:") = 1)
+            return true
+
         result := MsgBox(
             "The hotkey '" newKey "' is already assigned to:`n`n" conflict.label "`n`nDo you want to unassign it from that setting and assign it here instead?",
             "Hotkey Conflict",
@@ -4321,7 +4326,7 @@ Class Settings_Gui {
     ; PANEL: About
     ; ============================================================
     Panel_About() {
-        static APP_VERSION := "1.2.2"
+        static APP_VERSION := "1.2.3"
         static GITHUB_URL := "https://github.com/CJKondur/EVE-MultiPreview"
         static GITHUB_API := "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest"
 
