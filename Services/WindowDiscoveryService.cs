@@ -92,14 +92,31 @@ public sealed class WindowDiscoveryService : IDisposable
 
     private void Poll()
     {
-        // Find all current EVE windows
-        var currentWindows = User32.FindWindowsByProcessName(EveProcessName);
+        // Find all current EVE windows (including those temporarily hidden if we already track them)
+        var knownHwnds = new HashSet<IntPtr>(_windows.Keys);
+        var currentWindows = User32.FindWindowsByProcessName(EveProcessName, knownHwnds);
         var currentHwnds = new HashSet<IntPtr>(currentWindows.Select(w => w.Hwnd));
 
         // Check for new windows or title changes
         foreach (var (hwnd, title) in currentWindows)
         {
+            string className = User32.GetWindowClassName(hwnd);
+            // Ignore tooltips, context menus (#32768), and other non-client UI elements spawned by exefile
+            if (!string.Equals(className, "triuiScreen", StringComparison.OrdinalIgnoreCase) && 
+                !className.StartsWith("EVE", StringComparison.OrdinalIgnoreCase))
+            {
+                // Fallback: If for some reason class name isn't triuiScreen, at least block tooltips explicitly
+                if (className.Contains("tooltip", StringComparison.OrdinalIgnoreCase) || className == "#32768")
+                    continue;
+            }
+
             string charName = ExtractCharacterName(title);
+
+            // Double guard against "Close", "Minimize", etc tooltips leaking through if class name was missed
+            if (string.Equals(title, "Close", StringComparison.OrdinalIgnoreCase) || 
+                string.Equals(title, "Minimize", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(title, "Maximize", StringComparison.OrdinalIgnoreCase))
+                continue;
 
             if (_windows.TryGetValue(hwnd, out var existing))
             {

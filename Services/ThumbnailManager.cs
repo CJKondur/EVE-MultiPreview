@@ -419,6 +419,24 @@ public sealed class ThumbnailManager : IDisposable
         });
     }
 
+    public void ApplySizeToCharacter(string name, int w, int h)
+    {
+        Application.Current?.Dispatcher.Invoke(() =>
+        {
+            if (string.IsNullOrEmpty(name)) return;
+            var thumb = _thumbnails.Values.FirstOrDefault(t => string.Equals(t.CharacterName, name, StringComparison.OrdinalIgnoreCase));
+            if (thumb != null)
+            {
+                thumb.Resize(w, h);
+                var pos = _settings.GetThumbnailPosition(name) ?? new ThumbnailRect { X = (int)thumb.Left, Y = (int)thumb.Top };
+                pos.Width = w;
+                pos.Height = h;
+                _settings.SaveThumbnailPosition(name, (int)pos.X, (int)pos.Y, w, h);
+                _settings.Save();
+            }
+        });
+    }
+
     /// <summary>
     /// Re-apply current settings to all existing thumbnails.
     /// Called when user clicks Apply in settings window.
@@ -441,8 +459,17 @@ public sealed class ThumbnailManager : IDisposable
                     var savedPos = _settings.GetThumbnailPosition(thumb.CharacterName);
                     if (savedPos != null)
                     {
+                        int applyW = s.IndividualThumbnailResize ? (int)savedPos.Width : (int)s.ThumbnailStartLocation.Width;
+                        int applyH = s.IndividualThumbnailResize ? (int)savedPos.Height : (int)s.ThumbnailStartLocation.Height;
+
                         thumb.MoveTo((int)savedPos.X, (int)savedPos.Y);
-                        thumb.Resize((int)savedPos.Width, (int)savedPos.Height);
+                        thumb.Resize(applyW, applyH);
+                    }
+                    else
+                    {
+                        // Apply layout defaults instantly to thumbnails that have never been manually moved
+                        thumb.MoveTo((int)s.ThumbnailStartLocation.X, (int)s.ThumbnailStartLocation.Y);
+                        thumb.Resize((int)s.ThumbnailStartLocation.Width, (int)s.ThumbnailStartLocation.Height);
                     }
                 }
             }
@@ -502,6 +529,13 @@ public sealed class ThumbnailManager : IDisposable
         if (_settings.Settings.ThumbnailSnap)
         {
             SnapThumbnail(thumb);
+        }
+
+        // Sync global settings layout size if uniform resize is enabled
+        if (!_settings.Settings.IndividualThumbnailResize)
+        {
+            _settings.Settings.ThumbnailStartLocation.Width = (int)thumb.Width;
+            _settings.Settings.ThumbnailStartLocation.Height = (int)thumb.Height;
         }
 
         // Save the (possibly snapped) position
@@ -573,37 +607,52 @@ public sealed class ThumbnailManager : IDisposable
 
     private void OnResizeAll(ThumbnailWindow source, int newW, int newH)
     {
+        if (!_settings.Settings.IndividualThumbnailResize)
+        {
+            _settings.Settings.ThumbnailStartLocation.Width = newW;
+            _settings.Settings.ThumbnailStartLocation.Height = newH;
+        }
+
         foreach (var (_, thumb) in _thumbnails)
         {
             if (thumb == source) continue;
             thumb.Resize(newW, newH);
+            if (!string.IsNullOrEmpty(thumb.CharacterName))
+            {
+                _settings.SaveThumbnailPosition(thumb.CharacterName, (int)thumb.Left, (int)thumb.Top, newW, newH);
+            }
         }
     }
 
     // ── Window Activation (matches AHK ActivateEVEWindow) ───────────
 
-    public void ActivateEveWindow(IntPtr hwnd, string? title = null)
+    // Guarantees strictly 1 thread per hotkey. Overlapping auto-repeats are completely discarded.
+    private readonly System.Threading.SemaphoreSlim _activationLock = new(1, 1);
+
+    public async void ActivateEveWindow(IntPtr hwnd, string? title = null)
     {
-        // If hwnd not provided, look up by character name from thumbnails
-        if (hwnd == IntPtr.Zero && !string.IsNullOrEmpty(title))
-        {
-            foreach (var (eveHwnd, thumb) in _thumbnails)
-            {
-                if (string.Equals(thumb.CharacterName, title, StringComparison.OrdinalIgnoreCase))
-                {
-                    hwnd = eveHwnd;
-                    break;
-                }
-            }
-        }
-
-        if (hwnd == IntPtr.Zero) return;
-
-        // AHK L1450: skip activation if window is already in foreground
-        if (Interop.User32.GetForegroundWindow() == hwnd) return;
-
+        // Drop any overlapping VM_HOTKEY auto-repeats (AHK #MaxThreadsPerHotkey 1 equivalent)
+        if (!_activationLock.Wait(0)) return;
         try
         {
+        // If hwnd not provided, look up by character name from thumbnails
+            if (hwnd == IntPtr.Zero && !string.IsNullOrEmpty(title))
+            {
+                foreach (var (eveHwnd, thumb) in _thumbnails)
+                {
+                    if (string.Equals(thumb.CharacterName, title, StringComparison.OrdinalIgnoreCase))
+                    {
+                        hwnd = eveHwnd;
+                        break;
+                    }
+                }
+            }
+
+            if (hwnd == IntPtr.Zero) return;
+
+            // AHK L1450: skip activation if window is already in foreground
+            if (Interop.User32.GetForegroundWindow() == hwnd) return;
+
             // Dismiss alert for this character
             if (!string.IsNullOrEmpty(title))
                 _alertFlashChars.TryRemove(title, out _);
@@ -626,10 +675,23 @@ public sealed class ThumbnailManager : IDisposable
             foreach (var (_, sw) in _statWindows)
                 sw.BringToFront();
 
-            // Direct SetForegroundWindow — fast, no AttachThreadInput overhead
-            // Two attempts (matches AHK L1505-1506)
-            if (!Interop.User32.SetForegroundWindow(hwnd))
-                Interop.User32.SetForegroundWindow(hwnd);
+            // Proven window activation
+            Interop.User32.ActivateWindow(hwnd);
+
+            // Delay 50ms for window activation and rendering.
+            // During this 50ms, EVE wakes up and begins polling inputs.
+            await System.Threading.Tasks.Task.Delay(50);
+
+            // Post WM_KEYUP directly to EVE's message queue for any physically held game keys.
+            // Since this bypasses DirectInput and goes straight to the EVE window, physical modifier/combo locks
+            // (like holding Up Arrow) do not interfere with the message processing here.
+            Interop.User32.PostGameKeysUp(hwnd);
+
+            // Wait a tiny frame (15ms) so EVE's physics/input loop cleanly processes the KeyUp state and fires the module.
+            await System.Threading.Tasks.Task.Delay(15);
+
+            // Post WM_KEYDOWN directly to EVE's message queue to re-prime the key for Hold + Click actions.
+            Interop.User32.PostGameKeysDown(hwnd);
 
             // Always maximize if setting is on and window is normal
             if (_settings.Settings.AlwaysMaximize && !Interop.User32.IsZoomed(hwnd))
@@ -650,6 +712,10 @@ public sealed class ThumbnailManager : IDisposable
         catch (Exception ex)
         {
             Debug.WriteLine($"[Activation:Error] ❌ ActivateEveWindow error: {ex.Message}");
+        }
+        finally
+        {
+            _activationLock.Release();
         }
     }
 
@@ -1193,21 +1259,23 @@ public sealed class ThumbnailManager : IDisposable
     private int _charSelectIndex = -1;
 
     /// <summary>Cycle through characters at the login/char-select screen.</summary>
-    public void CycleCharSelect(bool forward)
+    public async void CycleCharSelect(bool forward)
     {
-
-        // Find all char-select windows (title == "EVE" without character name)
-        var charSelectWindows = _thumbnails
-            .Where(kv => string.IsNullOrEmpty(kv.Value.CharacterName) || kv.Value.CharacterName == "EVE")
-            .Select(kv => kv.Key)
-            .OrderBy(h => h.ToInt64()) // Sort by HWND for stable ordering (matches AHK)
-            .ToList();
-
-        if (charSelectWindows.Count == 0)
+        if (!_activationLock.Wait(0)) return;
+        try
         {
-            Debug.WriteLine("[CharCycle:Select] ⚠ No char-select windows found");
-            return;
-        }
+            // Find all char-select windows (title == "EVE" without character name)
+            var charSelectWindows = _thumbnails
+                .Where(kv => string.IsNullOrEmpty(kv.Value.CharacterName) || kv.Value.CharacterName == "EVE")
+                .Select(kv => kv.Key)
+                .OrderBy(h => h.ToInt64()) // Sort by HWND for stable ordering (matches AHK)
+                .ToList();
+
+            if (charSelectWindows.Count == 0)
+            {
+                Debug.WriteLine("[CharCycle:Select] ⚠ No char-select windows found");
+                return;
+            }
 
         if (forward)
             _charSelectIndex = (_charSelectIndex + 1) % charSelectWindows.Count;
@@ -1220,8 +1288,19 @@ public sealed class ThumbnailManager : IDisposable
         if (Interop.User32.IsIconic(targetHwnd))
             Interop.User32.ShowWindowAsync(targetHwnd, Interop.User32.SW_RESTORE);
 
-        Interop.User32.SetForegroundWindow(targetHwnd);
+        // Proven window activation
+        Interop.User32.ActivateWindow(targetHwnd);
+
+        
+        // Replicate AHK SetWinDelay pacing
+        await System.Threading.Tasks.Task.Delay(50);
+
         Debug.WriteLine($"[CharCycle:Select] 🔄 Cycled to char-select window idx={_charSelectIndex}/{charSelectWindows.Count} (hwnd=0x{targetHwnd:X})");
+        }
+        finally
+        {
+            _activationLock.Release();
+        }
     }
 
     // ── Client Position Save/Restore ────────────────────────────────

@@ -229,6 +229,8 @@ public static class User32
     public const uint INPUT_KEYBOARD = 1;
     public const uint KEYEVENTF_KEYUP = 0x0002;
 
+    public const uint MAPVK_VK_TO_VSC = 0;
+
     /// <summary>
     /// AHK virtualkey: 0xE8 — unused virtual key used as activation trigger.
     /// Matches AHK Main_Class.ahk L22: static virtualKey := "vk0xE8"
@@ -256,6 +258,92 @@ public static class User32
 
         SendInput(2, inputs, Marshal.SizeOf<INPUT>());
     }
+
+    public const uint KEYEVENTF_SCANCODE = 0x0008;
+
+    [DllImport("user32.dll")]
+    public static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
+    /// <summary>
+    /// The target hwnd for the next vkE8 WM_HOTKEY activation.
+    /// Mirrors AHK's This.ActivateHwnd.
+    /// </summary>
+    public static IntPtr PendingActivateHwnd;
+
+    /// <summary>
+    /// Window activation: SetForegroundWindow + SetFocus.
+    /// </summary>
+    public static void ActivateWindow(IntPtr hwnd)
+    {
+        if (GetForegroundWindow() == hwnd) return;
+
+        SetForegroundWindow(hwnd);
+        SetFocus(hwnd);
+    }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr SetFocus(IntPtr hWnd);
+
+    /// <summary>
+    /// Called from the vkE8 RegisterHotKey WM_HOTKEY handler.
+    /// Mirrors AHK's ActivateForgroundWindow callback.
+    /// </summary>
+    public static void SetForegroundWindowForPending()
+    {
+        IntPtr hwnd = PendingActivateHwnd;
+        if (hwnd == IntPtr.Zero) return;
+
+        if (!SetForegroundWindow(hwnd))
+            SetForegroundWindow(hwnd);
+    }
+
+
+
+    /// <summary>
+    /// Posts WM_KEYUP messages directly to the target window for any physically held game keys.
+    /// This bypasses DirectInput hardware polling and forces the EVE client to process an UP transition.
+    /// </summary>
+    public static void PostGameKeysUp(IntPtr hwnd)
+    {
+        for (int vk = 0x08; vk <= 0xFE; vk++)
+        {
+            bool isGameKey = (vk >= 0x41 && vk <= 0x5A) || // A-Z
+                             (vk >= 0x30 && vk <= 0x39) || // 0-9
+                             (vk >= 0x60 && vk <= 0x69) || // Numpad 0-9
+                             (vk == 0x20);                 // Space
+
+            if (isGameKey && (GetAsyncKeyState(vk) & 0x8000) != 0)
+            {
+                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                IntPtr lParamUp = (IntPtr)((scanCode << 16) | 1u | (1u << 30) | (1u << 31));
+                PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, lParamUp);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Posts WM_KEYDOWN messages directly to the target window for any physically held game keys.
+    /// This re-establishes the 'held' intent for actions that require Hold + Click.
+    /// </summary>
+    public static void PostGameKeysDown(IntPtr hwnd)
+    {
+        for (int vk = 0x08; vk <= 0xFE; vk++)
+        {
+            bool isGameKey = (vk >= 0x41 && vk <= 0x5A) || // A-Z
+                             (vk >= 0x30 && vk <= 0x39) || // 0-9
+                             (vk >= 0x60 && vk <= 0x69) || // Numpad 0-9
+                             (vk == 0x20);                 // Space
+
+            if (isGameKey && (GetAsyncKeyState(vk) & 0x8000) != 0)
+            {
+                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1u);
+                PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
+            }
+        }
+    }
+
+
 
     // ── Process Name Helper ──────────────────────────────────────────
 
@@ -314,12 +402,17 @@ public static class User32
     /// <summary>
     /// Find all visible windows belonging to a specific process name.
     /// </summary>
-    public static List<(IntPtr Hwnd, string Title)> FindWindowsByProcessName(string processName)
+    public static List<(IntPtr Hwnd, string Title)> FindWindowsByProcessName(string processName, HashSet<IntPtr>? keepHwnds = null)
     {
         var results = new List<(IntPtr, string)>();
         EnumWindows((hWnd, _) =>
         {
-            if (!IsWindowVisible(hWnd)) return true;
+            // Windows Virtual Desktops or EVE fullscreen transitions briefly hide the window.
+            // If it's a known tracked HWND, keep yielding it so we don't prematurely destroy the thumbnail.
+            bool isVisible = IsWindowVisible(hWnd);
+            bool isKept = keepHwnds != null && keepHwnds.Contains(hWnd);
+            
+            if (!isVisible && !isKept) return true;
 
             string? procName = GetProcessName(hWnd);
             if (procName != null && procName.Equals(processName, StringComparison.OrdinalIgnoreCase))
@@ -332,14 +425,7 @@ public static class User32
         return results;
     }
 
-    // ── TOS Compliance: Key-Block Guard ────────────────────────────────
 
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
-
-    [DllImport("kernel32.dll")]
-    public static extern uint GetCurrentThreadId();
 
     /// <summary>
     /// TOS guard — returns true if ANY non-modifier key is physically held down,
@@ -386,8 +472,15 @@ public static class User32
         return outer;
     }
 
-    // ── Low-Level Mouse Hook ─────────────────────────────────────────
+    // ── Low-Level Mouse & Keyboard Hooks ─────────────────────────────
+    public const int WH_KEYBOARD_LL = 13;
     public const int WH_MOUSE_LL = 14;
+
+    public const int WM_KEYDOWN = 0x0100;
+    public const int WM_KEYUP = 0x0101;
+    public const int WM_SYSKEYDOWN = 0x0104;
+    public const int WM_SYSKEYUP = 0x0105;
+
     public const int WM_LBUTTONDOWN = 0x0201;
     public const int WM_RBUTTONDOWN = 0x0204;
     public const int WM_MBUTTONDOWN = 0x0207;
@@ -396,9 +489,23 @@ public static class User32
     public const int XBUTTON2 = 0x0002;
 
     public delegate IntPtr LowLevelMouseProc(int nCode, IntPtr wParam, IntPtr lParam);
+    public delegate IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct KBDLLHOOKSTRUCT
+    {
+        public uint vkCode;
+        public uint scanCode;
+        public uint flags;
+        public uint time;
+        public IntPtr dwExtraInfo;
+    }
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

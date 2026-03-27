@@ -9,7 +9,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>EVE MultiPreview</AssemblyName>
     <RootNamespace>EveMultiPreview</RootNamespace>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <Description>EVE Online multi-client thumbnail preview manager</Description>
 
     <!-- Publish settings -->

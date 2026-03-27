@@ -433,6 +433,59 @@ public partial class SettingsWindow
         _loadingDepth--;
     }
 
+    // ── ACTIVE CHARACTER SIZING ──
+    private void PopulateActiveChars()
+    {
+        if (_loading) return;
+        _loadingDepth++;
+        CmbActiveChars.Items.Clear();
+        if (_thumbnailManager != null)
+        {
+            var chars = _thumbnailManager.GetActiveCharacterNames();
+            foreach (var c in chars)
+                CmbActiveChars.Items.Add(c);
+        }
+        _loadingDepth--;
+    }
+
+    private void OnRefreshActiveChars(object s, RoutedEventArgs e)
+    {
+        PopulateActiveChars();
+        if (CmbActiveChars.Items.Count > 0)
+            CmbActiveChars.SelectedIndex = 0;
+    }
+
+    private void OnActiveCharSelected(object s, SelectionChangedEventArgs e)
+    {
+        if (_loading) return;
+        var charName = CmbActiveChars.SelectedItem as string;
+        if (!string.IsNullOrEmpty(charName) && _thumbnailManager != null)
+        {
+            var pos = _svc.GetThumbnailPosition(charName);
+            if (pos != null)
+            {
+                TxtActiveCharW.Text = pos.Width.ToString();
+                TxtActiveCharH.Text = pos.Height.ToString();
+            }
+            else
+            {
+                TxtActiveCharW.Text = S.ThumbnailStartLocation.Width.ToString();
+                TxtActiveCharH.Text = S.ThumbnailStartLocation.Height.ToString();
+            }
+        }
+    }
+
+    private void OnApplyActiveCharSize(object s, RoutedEventArgs e)
+    {
+        var charName = CmbActiveChars.SelectedItem as string;
+        if (string.IsNullOrEmpty(charName)) return;
+
+        if (int.TryParse(TxtActiveCharW.Text, out int w) && int.TryParse(TxtActiveCharH.Text, out int h))
+        {
+            _thumbnailManager?.ApplySizeToCharacter(charName, w, h);
+        }
+    }
+
     // ═══ HOTKEYS ═══
     private void LoadHotkeysList()
     {

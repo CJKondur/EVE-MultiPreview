@@ -25,9 +25,8 @@ public sealed class SettingsService : IDisposable
         PropertyNamingPolicy = null,
         ReadCommentHandling = JsonCommentHandling.Skip,
         AllowTrailingCommas = true,
-        // AHK may write numbers as floats or strings — accept any format
         NumberHandling = JsonNumberHandling.AllowReadingFromString | JsonNumberHandling.AllowNamedFloatingPointLiterals,
-        Converters = { new BoolOrIntConverter() }
+        Converters = { new BoolOrIntConverter(), new StringFallbackConverter() }
     };
 
     private readonly string _settingsPath;

@@ -73,7 +73,7 @@ public class AppSettings
     };
 
     // ── Alert Hub ───────────────────────────────────────────────────
-    public bool AlertHubEnabled { get; set; } = true;
+    public bool AlertHubEnabled { get; set; } = false;
     public int AlertHubX { get; set; } = 0;
     public int AlertHubY { get; set; } = 0;
     public int AlertToastDirection { get; set; } = 5;

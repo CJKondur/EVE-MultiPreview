@@ -174,7 +174,7 @@ public class AhkConfigRoot
             var cc = ahkProfile.CustomColors;
             if (cc != null)
             {
-                profile.CustomColorsActive = cc.cColorActive == "1" || cc.cColorActive == "true";
+                profile.CustomColorsActive = cc.cColorActive != 0;
                 profile.CustomColors = ConvertParallelArrayColors(cc.cColors);
             }
 
@@ -333,7 +333,7 @@ public class AhkConfigRoot
             // Custom Colors sub-object
             ap.CustomColors = new AhkCustomColors
             {
-                cColorActive = profile.CustomColorsActive ? "1" : "0",
+                cColorActive = profile.CustomColorsActive ? 1 : 0,
                 cColors = ConvertCustomColorsToParallel(profile.CustomColors),
             };
 
@@ -566,7 +566,7 @@ public class AhkClientSettings
 public class AhkCustomColors
 {
     [JsonPropertyName("cColorActive")]
-    public string cColorActive { get; set; } = "0";
+    public int cColorActive { get; set; }
 
     [JsonPropertyName("cColors")]
     public AhkCColors? cColors { get; set; }

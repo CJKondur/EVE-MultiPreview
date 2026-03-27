@@ -57,6 +57,8 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener("debug_log.txt"));
+        System.Diagnostics.Trace.AutoFlush = true;
         // Single-instance guard
         _singleInstanceMutex = new Mutex(true, "EveMultiPreview_SingleInstance", out bool createdNew);
         if (!createdNew)
@@ -644,18 +646,15 @@ public partial class App : Application
         }
 
         _settingsWindow = new SettingsWindow(_settings!, _thumbnailManager!);
-        _settingsWindow.Closed += (_, _) =>
+        
+        Action applyLiveSettings = () =>
         {
-            // Ensure topmost is restored when settings closes
-            _thumbnailManager?.SetSuppressTopmost(false);
-
-            _settingsWindow = null;
-            // Reload hotkeys when settings closed
+            // Reload hotkeys when settings change
             _hotkeyService?.RegisterFromSettings(
                 _settings!.Settings, _settings.CurrentProfile,
                 _thumbnailManager!, OpenSettings);
 
-            // Re-wire log monitor settings (guard against null during early startup)
+            // Re-wire log monitor settings
             if (_logMonitor != null && _settings != null)
             {
                 _logMonitor.PveMode = _settings.Settings.PveMode;
@@ -665,6 +664,17 @@ public partial class App : Application
                 if (_settings.Settings.SeverityCooldowns != null)
                     _logMonitor.SetEventCooldowns(_settings.Settings.SeverityCooldowns);
             }
+        };
+
+        _settingsWindow.SettingsApplied += applyLiveSettings;
+
+        _settingsWindow.Closed += (_, _) =>
+        {
+            // Ensure topmost is restored when settings closes
+            _thumbnailManager?.SetSuppressTopmost(false);
+
+            _settingsWindow = null;
+            applyLiveSettings();
 
             Debug.WriteLine("[App:Settings] ⚙ Settings window closed — services re-configured");
         };

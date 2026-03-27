@@ -442,6 +442,23 @@
                             <Label Content="h:" Margin="8,0,0,0"/><TextBox x:Name="TxtThumbHeight" Width="60" TextChanged="OnLayoutChanged"/>
                         </StackPanel>
                     </GroupBox>
+                    <GroupBox Header="Active Character Sizing">
+                        <StackPanel>
+                            <TextBlock Text="Set specific dimensions for an active thumbnail. Overrides default size." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,4">
+                                <Label Content="Character:"/>
+                                <ComboBox x:Name="CmbActiveChars" Width="180" SelectionChanged="OnActiveCharSelected"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                                <Button Content="↻ Refresh" Click="OnRefreshActiveChars" Padding="5,2" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <Label Content="w:"/><TextBox x:Name="TxtActiveCharW" Width="60"/>
+                                <Label Content="h:" Margin="8,0,0,0"/><TextBox x:Name="TxtActiveCharH" Width="60"/>
+                                <Button Content="Apply Size" Click="OnApplyActiveCharSize" Margin="12,0,0,0"
+                                        Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0" Padding="10,3"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
                     <GroupBox Header="Minimum Size">
                         <StackPanel Orientation="Horizontal">
                             <Label Content="w:"/><TextBox x:Name="TxtMinWidth" Width="60" TextChanged="OnLayoutChanged"/>
@@ -1147,7 +1164,7 @@
                 <!-- ══ 14. ABOUT ══ -->
                 <StackPanel x:Name="PanelAbout" Visibility="Collapsed">
                     <TextBlock Text="ℹ About" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,12"/>
-                    <TextBlock Text="EVE MultiPreview v2.0.0" FontSize="16"/>
+                    <TextBlock Text="EVE MultiPreview v2.0.1" FontSize="16"/>
                     <TextBlock Text="C# / WPF Edition" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8"/>
                     <TextBlock TextWrapping="Wrap"
                                Text="Multi-client thumbnail preview manager for EVE Online. Shows live DWM thumbnails of your EVE windows with click-to-switch, drag-to-reposition, custom borders, alerts, stat overlays, and per-character hotkeys."/>

@@ -349,7 +349,7 @@ public partial class SettingsWindow
             browseBtn.Click += (_, _) => { var ofd = new Microsoft.Win32.OpenFileDialog { Filter = "Audio|*.wav;*.mp3" }; if (ofd.ShowDialog() == true) fileTb.Text = ofd.FileName; };
             row.Children.Add(browseBtn);
             var playBtn = new Button { Content = "\u25b6", Style = (Style)FindResource("IconBtn"), Margin = new Thickness(2, 0, 0, 0) };
-            playBtn.Click += (_, _) => { if (File.Exists(fileTb.Text)) try { new System.Media.SoundPlayer(fileTb.Text).Play(); } catch { } };
+            playBtn.Click += (_, _) => { if (File.Exists(fileTb.Text)) try { var player = new System.Windows.Media.MediaPlayer(); player.Open(new Uri(fileTb.Text)); player.Play(); } catch { } };
             row.Children.Add(playBtn);
             var clearBtn = new Button { Content = "\u2715", Style = (Style)FindResource("IconBtn"), Margin = new Thickness(2, 0, 0, 0) };
             clearBtn.Click += (_, _) => { fileTb.Text = ""; };

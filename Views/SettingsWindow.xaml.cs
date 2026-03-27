@@ -31,6 +31,8 @@ public partial class SettingsWindow : Window
     private string _activePanel = "General";
     private bool _hasUnappliedChanges = false;
 
+    public event Action? SettingsApplied;
+
     // Click-to-capture hotkey state
     private TextBox? _captureTarget;
     private bool _isCapturing;
@@ -56,6 +58,7 @@ public partial class SettingsWindow : Window
             _autoApplyTimer.Stop();
             _svc.Save();
             _thumbnailManager?.ReapplySettings();
+            SettingsApplied?.Invoke();
             _hasUnappliedChanges = false;
         };
 
@@ -172,7 +175,7 @@ public partial class SettingsWindow : Window
         if (name == "Alerts") BuildAlertRows();
         if (name == "Sounds") BuildSoundRows();
         if (name == "FPSLimiter") DetectRtss();
-        if (name == "Layout") PopulateMonitors();
+        if (name == "Layout") { PopulateMonitors(); PopulateActiveChars(); }
         if (name == "StatsOverlay") LoadStatCharacters();
         if (name == "EVEManager") LoadEveManagerPanel();
         UpdateWikiContent();
@@ -360,6 +363,7 @@ public partial class SettingsWindow : Window
     {
         _svc.Save();
         _thumbnailManager?.ReapplySettings();
+        SettingsApplied?.Invoke();
         _hasUnappliedChanges = false;
     }
 
@@ -1080,7 +1084,7 @@ public partial class SettingsWindow : Window
         "About" =>
             "ABOUT\n" +
             "═══════════════════════════\n\n" +
-            "EVE MultiPreview v2.0.0\n" +
+            "EVE MultiPreview v2.0.1\n" +
             "C# / WPF Edition\n\n" +
             "Originally written in AutoHotkey v2.\n" +
             "Ported to C# for better performance,\n" +

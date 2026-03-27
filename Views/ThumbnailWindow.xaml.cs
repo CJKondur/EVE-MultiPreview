@@ -137,10 +137,10 @@ public partial class ThumbnailWindow : Window
         var source = (HwndSource)PresentationSource.FromVisual(this);
         _ownHwnd = source.Handle;
 
-        // Make window non-activating + layered (matches AHK +E0x08000000)
+        // Make window non-activating (WPF manages WS_EX_LAYERED via AllowsTransparency=True)
         int exStyle = User32.GetWindowLong(_ownHwnd, User32.GWL_EXSTYLE);
         User32.SetWindowLong(_ownHwnd, User32.GWL_EXSTYLE,
-            exStyle | User32.WS_EX_NOACTIVATE | User32.WS_EX_TOOLWINDOW | User32.WS_EX_LAYERED);
+            exStyle | User32.WS_EX_NOACTIVATE | User32.WS_EX_TOOLWINDOW);
 
         Debug.WriteLine($"[Thumb:Load] \u2705 Window loaded: hwnd=0x{_ownHwnd:X}, char='{CharacterName}'");
 
@@ -201,6 +201,22 @@ public partial class ThumbnailWindow : Window
         return IntPtr.Zero;
     }
 
+    private void UnHover()
+    {
+        if (!_isHovered) return;
+        _isHovered = false;
+
+        double offsetX = (Width - _baseWidth) / 2;
+        double offsetY = (Height - _baseHeight) / 2;
+
+        Width = _baseWidth;
+        Height = _baseHeight;
+        Left += offsetX;
+        Top += offsetY;
+        UpdateThumbnailSize();
+        _textOverlay?.SyncPosition(Left, Top, Width, Height);
+    }
+
     private void OnRightButtonDown()
     {
         if (IsLocked)
@@ -210,6 +226,8 @@ public partial class ThumbnailWindow : Window
             return;
         }
         if (_dragMode != DragMode.None) return;
+
+        UnHover(); // Reset hover state before starting drag to prevent zoom size from becoming the new base size
 
         // Get screen-space mouse position
         var screenPos = GetScreenMousePos();
@@ -253,6 +271,7 @@ public partial class ThumbnailWindow : Window
         if (_dragMode == DragMode.Drag)
         {
             // Right is held, left just pressed → switch to resize mode
+            UnHover(); // Ensure we are not zoomed while entering resize mode
             _dragMode = DragMode.Resize;
             var screenPos = GetScreenMousePos();
             _dragStartScreen = screenPos;
@@ -404,40 +423,42 @@ public partial class ThumbnailWindow : Window
 
     // ── Hover Zoom ──────────────────────────────────────────────────
 
+    private DispatcherTimer? _hoverTimer;
+
     protected override void OnMouseEnter(MouseEventArgs e)
     {
         base.OnMouseEnter(e);
         if (_hoverScale <= 1.0 || _dragMode != DragMode.None) return;
-        _isHovered = true;
 
-        double newWidth = _baseWidth * _hoverScale;
-        double newHeight = _baseHeight * _hoverScale;
-        double offsetX = (newWidth - _baseWidth) / 2;
-        double offsetY = (newHeight - _baseHeight) / 2;
+        _hoverTimer?.Stop();
+        _hoverTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+        _hoverTimer.Tick += (_, _) =>
+        {
+            _hoverTimer.Stop();
+            if (!IsMouseOver) return;
 
-        Width = newWidth;
-        Height = newHeight;
-        Left -= offsetX;
-        Top -= offsetY;
-        UpdateThumbnailSize();
-        _textOverlay?.SyncPosition(Left, Top, Width, Height);
+            _isHovered = true;
+
+            double newWidth = _baseWidth * _hoverScale;
+            double newHeight = _baseHeight * _hoverScale;
+            double offsetX = (newWidth - _baseWidth) / 2;
+            double offsetY = (newHeight - _baseHeight) / 2;
+
+            Width = newWidth;
+            Height = newHeight;
+            Left -= offsetX;
+            Top -= offsetY;
+            UpdateThumbnailSize();
+            _textOverlay?.SyncPosition(Left, Top, Width, Height);
+        };
+        _hoverTimer.Start();
     }
 
     protected override void OnMouseLeave(MouseEventArgs e)
     {
         base.OnMouseLeave(e);
-        if (!_isHovered) return;
-        _isHovered = false;
-
-        double offsetX = (Width - _baseWidth) / 2;
-        double offsetY = (Height - _baseHeight) / 2;
-
-        Width = _baseWidth;
-        Height = _baseHeight;
-        Left += offsetX;
-        Top += offsetY;
-        UpdateThumbnailSize();
-        _textOverlay?.SyncPosition(Left, Top, Width, Height);
+        _hoverTimer?.Stop();
+        UnHover();
     }
 
     // ── DWM Thumbnail Management ────────────────────────────────────
@@ -452,14 +473,25 @@ public partial class ThumbnailWindow : Window
             UpdateThumbnailSize();
     }
 
+    private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        UpdateThumbnailSize();
+    }
+
     public void UpdateThumbnailSize()
     {
         if (_thumbId == IntPtr.Zero) return;
+        
         int w = (int)ActualWidth;
         int h = (int)ActualHeight;
+        if (w == 0) w = (int)(double.IsNaN(Width) ? 0 : Width);
+        if (h == 0) h = (int)(double.IsNaN(Height) ? 0 : Height);
+        
         int b = _borderThickness;
-        // Inset the DWM thumbnail by border thickness — window background shows as border frame
-        DwmApi.UpdateThumbnailInset(_thumbId, w, h, b);
+        // Inset the DWM thumbnail by border thickness.
+        // Because the WPF BackgroundPanel now uses true BorderBrush with a Transparent center,
+        // passing _savedOpacity here natively blends the DWM thumbnail directly with the desktop.
+        DwmApi.UpdateThumbnailInset(_thumbId, w, h, b, _savedOpacity);
     }
 
     // ── Overlay Updates ─────────────────────────────────────────────
@@ -531,23 +563,32 @@ public partial class ThumbnailWindow : Window
                 {
                     case "text":
                         NotLoggedInOverlay.Visibility = Visibility.Visible;
+                        if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0;
+                        if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
                         break;
                     case "dim":
-                        Opacity = dim / 100.0;
+                        if (!_isDwmHidden) this.Opacity = (dim / 100.0) * (_savedOpacity / 255.0);
+                        if (_textOverlay != null) _textOverlay.Opacity = (dim / 100.0) * (_savedOpacity / 255.0);
                         NotLoggedInOverlay.Visibility = Visibility.Collapsed;
                         break;
                     case "border":
                         if (borderColor.HasValue)
                             SetBorder(borderColor.Value, 3);
                         NotLoggedInOverlay.Visibility = Visibility.Collapsed;
+                        if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0;
+                        if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
                         break;
                     case "color":
                         if (borderColor.HasValue)
                             SetBorder(borderColor.Value, 3);
                         NotLoggedInOverlay.Visibility = Visibility.Visible;
+                        if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0;
+                        if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
                         break;
                     default:
                         NotLoggedInOverlay.Visibility = Visibility.Visible;
+                        if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0;
+                        if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
                         break;
                 }
                 Debug.WriteLine($"[Thumb:NotLoggedIn] 🔧 '{CharacterName}' mode={mode}");
@@ -555,7 +596,8 @@ public partial class ThumbnailWindow : Window
             else
             {
                 NotLoggedInOverlay.Visibility = Visibility.Collapsed;
-                Opacity = 1.0; // Reset dim
+                if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0; // Reset dim to user preference
+                if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
             }
         });
     }
@@ -564,12 +606,15 @@ public partial class ThumbnailWindow : Window
     {
         Dispatcher.BeginInvoke(() =>
         {
-            // Window background IS the border — DWM thumbnail is inset to reveal it
-            BackgroundPanel.Background = thickness > 0
+            // Draw a proper hollow border instead of filling the window with a solid color.
+            // We use an almost-invisible alpha=1 brush instead of purely Transparent (alpha=0).
+            // This prevents Windows layered-window HitTest from ignoring clicks in the center!
+            BackgroundPanel.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+            BackgroundPanel.BorderBrush = thickness > 0
                 ? new SolidColorBrush(color)
-                : new SolidColorBrush(Color.FromRgb(0x57, 0x50, 0x4E)); // default bg
+                : System.Windows.Media.Brushes.Transparent;
+            BackgroundPanel.BorderThickness = new Thickness(thickness);
 
-            // Only re-inset DWM rect when thickness actually changes (expensive DWM API call)
             if (_borderThickness != thickness)
             {
                 _borderThickness = thickness;
@@ -626,17 +671,28 @@ public partial class ThumbnailWindow : Window
     {
         Dispatcher.Invoke(() =>
         {
-            BackgroundPanel.Background = new SolidColorBrush(color);
+            // Force effectively invisible background (alpha=1) to catch mouse hits.
+            // Solid opaque backgrounds here cause translucent DWM thumbnails to wash out into "muddy gray".
+            BackgroundPanel.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
         });
     }
 
     public void SetOpacity(byte opacity)
     {
         _savedOpacity = opacity;
-        // Use window-level transparency (matches AHK WinSetTransparent)
-        // NOT DWM thumbnail opacity, which causes hazy/foggy appearance
-        if (_ownHwnd != IntPtr.Zero && !_isDwmHidden)
-            User32.SetLayeredWindowAttributes(_ownHwnd, 0, opacity, User32.LWA_ALPHA);
+        
+        if (!_isDwmHidden)
+        {
+            this.Opacity = opacity / 255.0;
+        }
+
+        if (_textOverlay != null)
+        {
+            _textOverlay.Opacity = opacity / 255.0;
+        }
+
+        // Ensure the DWM thumbnail opacity matches the window wrapper
+        UpdateThumbnailSize();
     }
 
     public void SetTextOverlayVisible(bool visible)
@@ -701,8 +757,7 @@ public partial class ThumbnailWindow : Window
     {
         if (_isDwmHidden) return;
         _isDwmHidden = true;
-        if (_ownHwnd != IntPtr.Zero)
-            User32.SetLayeredWindowAttributes(_ownHwnd, 0, 0, User32.LWA_ALPHA);
+        this.Opacity = 0.0;
     }
 
     /// <summary>Restore DWM thumbnail visibility (reverse of HideDwmOnly).</summary>
@@ -710,8 +765,7 @@ public partial class ThumbnailWindow : Window
     {
         if (!_isDwmHidden) return;
         _isDwmHidden = false;
-        if (_ownHwnd != IntPtr.Zero)
-            User32.SetLayeredWindowAttributes(_ownHwnd, 0, _savedOpacity, User32.LWA_ALPHA);
+        this.Opacity = _savedOpacity / 255.0;
     }
 
     /// <summary>Sync text overlay position AND z-order with thumbnail.
