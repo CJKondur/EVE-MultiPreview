@@ -1,0 +1,92 @@
+<Window x:Class="EveMultiPreview.Views.QuickSwitchWheel"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ResizeMode="NoResize"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Title="QuickSwitch"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <DropShadowEffect x:Key="PanelShadow"
+                          ShadowDepth="4" BlurRadius="20"
+                          Opacity="0.5" Color="Black"/>
+        <Style x:Key="EditBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="#28283A"/>
+            <Setter Property="Foreground" Value="#90AECE"/>
+            <Setter Property="BorderBrush" Value="#40608aba"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#3a6aaa"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border x:Name="PanelBorder"
+            Background="#F0141420"
+            CornerRadius="12"
+            BorderBrush="#40608aba"
+            BorderThickness="1"
+            Padding="16"
+            Effect="{StaticResource PanelShadow}">
+        <StackPanel>
+            <!-- Title row -->
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Switch Character"
+                               Foreground="#b0c4de"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               FontFamily="Segoe UI"/>
+                    <TextBlock x:Name="TxtCount"
+                               Foreground="#60ffffff"
+                               FontSize="9"
+                               FontFamily="Segoe UI"
+                               Margin="0,0,0,8"/>
+                </StackPanel>
+
+                <Button x:Name="BtnEdit"
+                        Grid.Column="1"
+                        Content="✏ Edit"
+                        Style="{StaticResource EditBtnStyle}"
+                        VerticalAlignment="Top"
+                        Click="BtnEdit_Click"
+                        ToolTip="Edit card order"/>
+            </Grid>
+
+            <!-- Grid of character cards -->
+            <Canvas x:Name="ButtonCanvas"
+                    ClipToBounds="True"
+                    HorizontalAlignment="Center"/>
+        </StackPanel>
+    </Border>
+</Window>

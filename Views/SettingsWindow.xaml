@@ -1,0 +1,1196 @@
+<Window x:Class="EveMultiPreview.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EVE MultiPreview — Settings"
+        Width="820" Height="920"
+        MinWidth="620" MinHeight="500"
+        Background="{StaticResource BgDarkBrush}"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
+        ResizeMode="CanResize">
+
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Margin" Value="0,4"/>
+        </Style>
+        <Style TargetType="GroupBox">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Margin" Value="0,6"/>
+            <Setter Property="Padding" Value="10"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource BgPanelBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+        </Style>
+        <Style TargetType="Slider">
+            <Setter Property="Margin" Value="0,4"/>
+        </Style>
+        <!-- Dark ComboBox: WPF default template ignores Background/Foreground, so we must use a custom ControlTemplate -->
+        <ControlTemplate x:Key="DarkComboBoxToggle" TargetType="ToggleButton">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="20"/>
+                </Grid.ColumnDefinitions>
+                <Border x:Name="Border" Grid.ColumnSpan="2" Background="{StaticResource BgPanelBrush}"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="2"/>
+                <Path x:Name="Arrow" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                      Data="M 0 0 L 4 4 L 8 0 Z" Fill="White"/>
+            </Grid>
+        </ControlTemplate>
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Template="{StaticResource DarkComboBoxToggle}"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Focusable="False" ClickMode="Press"/>
+                            <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              Margin="6,3,23,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <Popup x:Name="Popup" IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom" Focusable="False" AllowsTransparency="True" PopupAnimation="Slide">
+                                <Grid x:Name="DropDown" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}" SnapsToDevicePixels="True">
+                                    <Border Background="{StaticResource BgPanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="2"/>
+                                    <ScrollViewer Margin="2" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#3a3a5e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Margin" Value="0,12,0,4"/>
+        </Style>
+        <!-- Sidebar button style with active highlight -->
+        <Style x:Key="NavBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="8,7"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#33FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Small icon button -->
+        <Style x:Key="IconBtn" TargetType="Button">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Foreground" Value="#222222"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="#e0e0e0" BorderBrush="#aaaaaa" BorderThickness="1" CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#f0f0f0"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#cccccc"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="170" MinWidth="120" MaxWidth="300"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition x:Name="WikiColumn" Width="0"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══ Profile Bar ═══ -->
+        <Border Grid.Row="0" Grid.ColumnSpan="5" Background="{StaticResource BgPanelBrush}"
+                Padding="12,6" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <DockPanel LastChildFill="False">
+                <!-- Clocks — right side -->
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                    <TextBlock Text="Local:" Foreground="#888888" FontSize="10" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                    <TextBlock x:Name="TxtClockLocal" Text="" Foreground="White" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock Text="EVE:" Foreground="#888888" FontSize="10" VerticalAlignment="Center" Margin="0,0,3,0"/>
+                    <TextBlock x:Name="TxtClockEve" Text="" Foreground="White" FontWeight="SemiBold" FontSize="11" VerticalAlignment="Center"/>
+                </StackPanel>
+                <!-- Profile controls — left side -->
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <TextBlock Text="Profile:" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,8,0"/>
+                    <ComboBox x:Name="CmbProfiles" Width="180" SelectionChanged="OnProfileChanged"
+                              Background="{StaticResource BgPanelBrush}" Foreground="White" Margin="0,0,8,0"/>
+                    <Button Content="New" Padding="10,3" Click="OnCreateProfile" Background="#e0e0e0"
+                            Foreground="#1a1a2e" BorderBrush="#cccccc"
+                            Margin="0,0,4,0"/>
+                    <Button Content="Delete" Padding="10,3" Click="OnDeleteProfile" Background="#e0e0e0"
+                            Foreground="#993333" BorderBrush="#cccccc" Margin="0,0,12,0"/>
+                    <Button Content="⟳ Apply" Padding="10,3" Click="OnApplySettings"
+                            Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"
+                            FontWeight="SemiBold" Margin="0,0,4,0"/>
+                    <Button Content="📋 Copy Layout" Padding="10,3" Click="OnCopyLayout"
+                            Background="#e0e0e0" Foreground="#1a1a2e"
+                            BorderBrush="#cccccc" ToolTip="Copy layout positions to all profiles"
+                            Margin="0,0,4,0"/>
+                    <Button Content="💾 Backup" Padding="10,3" Click="OnBackupConfig"
+                            Background="#e0e0e0" Foreground="#1a1a2e"
+                            BorderBrush="#cccccc" ToolTip="Create a timestamped backup of your config file"
+                            Margin="0,0,4,0"/>
+                    <Button x:Name="BtnColorBlind" Content="👁 CB Mode" Padding="10,3" Click="OnToggleColorBlind"
+                            Background="#e0e0e0" Foreground="#1a1a2e"
+                            BorderBrush="#cccccc" ToolTip="Toggle color blind friendly palette"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ═══ Sidebar ═══ -->
+        <Border Grid.Row="1" Grid.Column="0" Background="#FF0f3460" Padding="4,8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="SidebarPanel">
+                    <Button x:Name="NavGeneral" Content="  ⚙  General" Click="NavButton_Click" Tag="General" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavThumbnails" Content="  🖼  Thumbnails" Click="NavButton_Click" Tag="Thumbnails" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavLayout" Content="  📐  Layout" Click="NavButton_Click" Tag="Layout" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavHotkeys" Content="  ⌨  Char Hotkeys" Click="NavButton_Click" Tag="Hotkeys" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavColors" Content="  🎨  Colors" Click="NavButton_Click" Tag="Colors" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavGroups" Content="  📦  Groups" Click="NavButton_Click" Tag="Groups" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavAlerts" Content="  🚨  Alerts" Click="NavButton_Click" Tag="Alerts" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavSounds" Content="  🔊  Sounds" Click="NavButton_Click" Tag="Sounds" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavVisibility" Content="  👁  Visibility" Click="NavButton_Click" Tag="Visibility" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavClient" Content="  🖥  Client" Click="NavButton_Click" Tag="Client" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavFPS" Content="  🚀  FPS Limiter" Click="NavButton_Click" Tag="FPSLimiter" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavStats" Content="  📊  Stats Overlay" Click="NavButton_Click" Tag="StatsOverlay" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavManager" Content="  🗂  EVE Manager" Click="NavButton_Click" Tag="EVEManager" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavAbout" Content="  ℹ  About" Click="NavButton_Click" Tag="About" Style="{StaticResource NavBtn}"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ═══ Left Splitter ═══ -->
+        <GridSplitter Grid.Row="1" Grid.Column="1" Width="4" HorizontalAlignment="Center"
+                      VerticalAlignment="Stretch" Background="#FF1a1a3e" Cursor="SizeWE"/>
+
+        <!-- ═══ Content ═══ -->
+        <ScrollViewer Grid.Row="1" Grid.Column="2" Padding="16" VerticalScrollBarVisibility="Auto">
+            <Grid>
+
+                <!-- ══ 1. GENERAL ══ -->
+                <StackPanel x:Name="PanelGeneral" Visibility="Visible">
+                    <TextBlock Text="⚙ General Settings" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Core settings for EVE MultiPreview hotkey behavior." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Hotkey Scope">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Activation scope:"/>
+                            <ComboBox x:Name="CmbHotkeyScope" Width="200" SelectionChanged="OnGeneralChanged"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="White">
+                                <ComboBoxItem Content="Global" Tag="global"/>
+                                <ComboBoxItem Content="If an EVE window is Active" Tag="eve_active"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="System Hotkeys">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Suspend Hotkeys:" Width="200"/>
+                                <TextBox x:Name="TxtSuspendHotkey" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtSuspendHotkey" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Click-Through Toggle:" Width="200"/>
+                                <TextBox x:Name="TxtClickThroughHotkey" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtClickThroughHotkey" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Hide/Show All:" Width="200"/>
+                                <TextBox x:Name="TxtHideShowHotkey" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtHideShowHotkey" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Hide/Show Primary:" Width="200"/>
+                                <TextBox x:Name="TxtHidePrimaryHotkey" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtHidePrimaryHotkey" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Hide/Show PiP:" Width="200"/>
+                                <TextBox x:Name="TxtHideSecondaryHotkey" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtHideSecondaryHotkey" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Profile Cycle Forward:" Width="200"/>
+                                <TextBox x:Name="TxtProfileCycleForward" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtProfileCycleForward" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Profile Cycle Backward:" Width="200"/>
+                                <TextBox x:Name="TxtProfileCycleBackward" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtProfileCycleBackward" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Quick-Switch Wheel:" Width="200"/>
+                                <TextBox x:Name="TxtQuickSwitchHotkey" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtQuickSwitchHotkey" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Toggles">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkLockPositions" Content="Lock Thumbnail Positions" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
+                            <CheckBox x:Name="ChkIndividualResize" Content="Resize Thumbnails Individually" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
+                            <TextBlock Text="When on, resizing one thumbnail won't affect others. Hold Ctrl to invert."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,0"/>
+                            <CheckBox x:Name="ChkShowTimer" Content="Show Session Timer on Thumbnails" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Minimize">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Minimize EVE window delay:"/>
+                            <TextBox x:Name="TxtMinimizeDelay" Width="60" TextChanged="OnGeneralChanged"/>
+                            <Label Content="ms"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="UI Settings">
+                        <StackPanel>
+                            <TextBlock Text="Adjust the overall scale of the settings window UI." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="UI Scale:" Width="120"/>
+                                <Slider x:Name="SliderUiScale" Minimum="9" Maximum="20" Width="180"
+                                        IsSnapToTickEnabled="True" TickFrequency="1"
+                                        ValueChanged="OnUiScaleChanged"/>
+                                <TextBlock x:Name="TxtUiScaleValue" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 2. THUMBNAILS ══ -->
+                <StackPanel x:Name="PanelThumbnails" Visibility="Collapsed">
+                    <TextBlock Text="🖼 Thumbnail Appearance" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Control how your EVE client thumbnails look and feel." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Basic">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Opacity (0-100%):" Width="180"/>
+                                <Slider x:Name="SliderOpacity" Minimum="0" Maximum="100" Width="200" ValueChanged="OnOpacityChanged"/>
+                                <TextBlock x:Name="TxtOpacityValue" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
+                            <CheckBox x:Name="ChkAlwaysOnTop" Content="Always On Top" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <CheckBox x:Name="ChkHideOnLostFocus" Content="Hide When Alt-Tabbed" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <CheckBox x:Name="ChkHideActive" Content="Hide Active Thumbnail" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <CheckBox x:Name="ChkShowSystem" Content="Show System Name (from EVE logs)" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <CheckBox x:Name="ChkShowStats" Content="Show CPU/RAM per client" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                                <Label Content="Size:" Margin="12,0,0,0"/>
+                                <TextBox x:Name="TxtStatsTextSize" Width="35" Text="9" TextChanged="OnThumbnailChanged"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Text &amp; Overlay">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkShowName" Content="Show Text Overlay" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Text Color:" Width="140"/>
+                                <TextBox x:Name="TxtTextColor" Width="100" TextChanged="OnThumbnailChanged"/>
+                                <Border x:Name="PreviewTextColor" Width="22" Height="22" Margin="4,0,0,0" BorderBrush="Gray" BorderThickness="1"/>
+                                <Button Content="🎨" Style="{StaticResource IconBtn}" Click="OnPickColor" Tag="TxtTextColor" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Text Size:" Width="140"/>
+                                <TextBox x:Name="TxtTextSize" Width="50" TextChanged="OnThumbnailChanged"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Text Font:" Width="140"/>
+                                <TextBox x:Name="TxtTextFont" Width="150" TextChanged="OnThumbnailChanged"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Text Margins (W × H):" Width="140"/>
+                                <TextBox x:Name="TxtTextMarginX" Width="50" TextChanged="OnThumbnailChanged"/>
+                                <TextBlock Text=" × " VerticalAlignment="Center"/>
+                                <TextBox x:Name="TxtTextMarginY" Width="50" TextChanged="OnThumbnailChanged"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Borders">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Highlight Color:" Width="160"/>
+                                <TextBox x:Name="TxtActiveColor" Width="100" TextChanged="OnThumbnailChanged"/>
+                                <Border x:Name="PreviewActiveColor" Width="22" Height="22" Margin="4,0,0,0" BorderBrush="Gray" BorderThickness="1"/>
+                                <Button Content="🎨" Style="{StaticResource IconBtn}" Click="OnPickColor" Tag="TxtActiveColor" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Highlight Border (px):" Width="160"/>
+                                <TextBox x:Name="TxtActiveBorderThickness" Width="50" TextChanged="OnThumbnailChanged"/>
+                            </StackPanel>
+                            <CheckBox x:Name="ChkShowHighlightBorder" Content="Show Highlight Border" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <CheckBox x:Name="ChkShowAllBorders" Content="Show All Colored Borders" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Inactive Border (px):" Width="160"/>
+                                <TextBox x:Name="TxtFrameThickness" Width="50" TextChanged="OnThumbnailChanged"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Inactive Border Color:" Width="160"/>
+                                <TextBox x:Name="TxtInactiveColor" Width="100" TextChanged="OnThumbnailChanged"/>
+                                <Border x:Name="PreviewInactiveColor" Width="22" Height="22" Margin="4,0,0,0" BorderBrush="Gray" BorderThickness="1"/>
+                                <Button Content="🎨" Style="{StaticResource IconBtn}" Click="OnPickColor" Tag="TxtInactiveColor" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Background Color:" Width="160"/>
+                                <TextBox x:Name="TxtBackgroundColor" Width="100" TextChanged="OnThumbnailChanged"/>
+                                <Border x:Name="PreviewBgColor" Width="22" Height="22" Margin="4,0,0,0" BorderBrush="Gray" BorderThickness="1"/>
+                                <Button Content="🎨" Style="{StaticResource IconBtn}" Click="OnPickColor" Tag="TxtBackgroundColor" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Annotations">
+                        <StackPanel>
+                            <TextBlock Text="Add labels to thumbnails (e.g. Scout, DPS, Logi)." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                            <ListView x:Name="LstAnnotations" Height="120" Margin="0,0,0,4"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="White"
+                                      SelectionMode="Single">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character" Width="180" DisplayMemberBinding="{Binding Character}"/>
+                                        <GridViewColumn Header="Label" Width="120" DisplayMemberBinding="{Binding Label}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="✏ Edit" Padding="10,4" Click="OnEditAnnotation" Margin="0,0,4,0"/>
+                                <Button Content="🗑 Clear" Padding="10,4" Click="OnClearAnnotation"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 3. LAYOUT ══ -->
+                <StackPanel x:Name="PanelLayout" Visibility="Collapsed">
+                    <TextBlock Text="📐 Layout" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Thumbnail sizing, snapping, and positioning." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Default Location (x, y, w, h)">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="x:"/><TextBox x:Name="TxtStartX" Width="60" TextChanged="OnLayoutChanged"/>
+                            <Label Content="y:" Margin="8,0,0,0"/><TextBox x:Name="TxtStartY" Width="60" TextChanged="OnLayoutChanged"/>
+                            <Label Content="w:" Margin="8,0,0,0"/><TextBox x:Name="TxtThumbWidth" Width="60" TextChanged="OnLayoutChanged"/>
+                            <Label Content="h:" Margin="8,0,0,0"/><TextBox x:Name="TxtThumbHeight" Width="60" TextChanged="OnLayoutChanged"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Minimum Size">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="w:"/><TextBox x:Name="TxtMinWidth" Width="60" TextChanged="OnLayoutChanged"/>
+                            <Label Content="h:" Margin="8,0,0,0"/><TextBox x:Name="TxtMinHeight" Width="60" TextChanged="OnLayoutChanged"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Snapping">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkSnap" Content="Enable thumbnail snapping" Checked="OnLayoutChanged" Unchecked="OnLayoutChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <Label Content="Snap distance:"/>
+                                <TextBox x:Name="TxtSnapDistance" Width="60" TextChanged="OnLayoutChanged"/>
+                                <Label Content="px"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Hover Zoom">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkHoverZoom" Content="Zoom thumbnail on hover" Checked="OnLayoutChanged" Unchecked="OnLayoutChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <Label Content="Zoom scale:"/>
+                                <TextBox x:Name="TxtHoverScale" Width="60" TextChanged="OnLayoutChanged"/>
+                                <Label Content="x"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Monitor">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="Preferred Monitor:"/>
+                            <ComboBox x:Name="CmbPreferredMonitor" Width="200" SelectionChanged="OnLayoutChanged"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 4. CHAR HOTKEYS ══ -->
+                <StackPanel x:Name="PanelHotkeys" Visibility="Collapsed">
+                    <TextBlock Text="⌨ Per-Character Hotkeys" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Assign hotkeys to switch directly to specific characters." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Individual Character Hotkeys">
+                        <StackPanel>
+                            <ListView x:Name="LvHotkeys" Height="200"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}" SelectionChanged="OnHotkeySelected">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character" Width="220" DisplayMemberBinding="{Binding Character}"/>
+                                        <GridViewColumn Header="Hotkey" Width="150" DisplayMemberBinding="{Binding Hotkey}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="➕ Add" Padding="8,3" Click="OnHotkeyAdd" Margin="0,0,4,0"/>
+                                <Button Content="✏️ Edit" Padding="8,3" Click="OnHotkeyEdit" Margin="0,0,4,0"/>
+                                <Button Content="❌ Delete" Padding="8,3" Click="OnHotkeyDelete"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 5. COLORS ══ -->
+                <StackPanel x:Name="PanelColors" Visibility="Collapsed">
+                    <TextBlock Text="🎨 Custom Colors" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Set per-character custom border and text colors." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Per-Character Colors">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkCustomColorsActive" Content="Enable custom per-character colors"
+                                      Checked="OnColorChanged" Unchecked="OnColorChanged"/>
+                            <ListView x:Name="LvColors" Height="250" Margin="0,8,0,0"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}" SelectionChanged="OnColorRowSelected">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character" Width="140" DisplayMemberBinding="{Binding Character}"/>
+                                        <GridViewColumn Header="Active Border" Width="95" DisplayMemberBinding="{Binding ActiveBorder}"/>
+                                        <GridViewColumn Header="Text Color" Width="95" DisplayMemberBinding="{Binding TextColor}"/>
+                                        <GridViewColumn Header="Inactive Border" Width="95" DisplayMemberBinding="{Binding InactiveBorder}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="➕ Add" Padding="8,3" Click="OnColorAdd" Margin="0,0,4,0"/>
+                                <Button Content="✏️ Edit" Padding="8,3" Click="OnColorEdit" Margin="0,0,4,0"/>
+                                <Button Content="❌ Delete" Padding="8,3" Click="OnColorDelete"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="Preview:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBlock Text="Active" FontSize="9" Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <Border x:Name="ColorPreviewActive" Width="24" Height="20" BorderBrush="Gray" BorderThickness="1" Margin="0,0,8,0"/>
+                                <TextBlock Text="Text" FontSize="9" Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <Border x:Name="ColorPreviewText" Width="24" Height="20" BorderBrush="Gray" BorderThickness="1" Margin="0,0,8,0"/>
+                                <TextBlock Text="Inactive" FontSize="9" Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <Border x:Name="ColorPreviewInactive" Width="24" Height="20" BorderBrush="Gray" BorderThickness="1"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 6. GROUPS ══ -->
+                <StackPanel x:Name="PanelGroups" Visibility="Collapsed">
+                    <TextBlock Text="📦 Thumbnail Groups" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Group characters together with shared border colors and cycling hotkeys." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Groups">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkShowGroupBorders" Content="Show Group Borders" Checked="OnGroupBordersChanged" Unchecked="OnGroupBordersChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Label Content="Select Group:"/>
+                                <ComboBox x:Name="CmbGroupSelect" Width="200" SelectionChanged="OnGroupSelectChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Label Content="Group Name:" Width="100"/>
+                                <TextBox x:Name="TxtGroupName" Width="200"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Label Content="Border Color:" Width="100"/>
+                                <TextBox x:Name="TxtGroupColor" Width="100" TextChanged="OnGroupDataChanged"/>
+                                <Border x:Name="PreviewGroupColor" Width="22" Height="22" Margin="4,0,0,0" BorderBrush="Gray" BorderThickness="1"/>
+                                <Button Content="🎨" Style="{StaticResource IconBtn}" Click="OnPickColor" Tag="TxtGroupColor" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <TextBlock Text="Characters (one per line):" Margin="0,8,0,2"/>
+                            <TextBox x:Name="TxtGroupChars" Height="120" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="OnGroupDataChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="➕ Add Character" Padding="8,3" Click="OnGroupAddChar" Margin="0,0,8,0"/>
+                                <Button Content="💾 Save Group" Padding="8,3" Click="OnGroupSave" Margin="0,0,8,0"
+                                        Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0"/>
+                                <Button Content="🗑 Delete Group" Padding="8,3" Click="OnGroupDelete"
+                                        Foreground="#FF993333" BorderBrush="#FF993333"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Cycling Hotkey Groups">
+                        <StackPanel>
+                            <TextBlock Text="Create groups with dedicated forward/backward cycling hotkeys." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,6"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <ComboBox x:Name="CmbHotkeyGroup" Width="200" SelectionChanged="OnHotkeyGroupChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                                <Button Content="New" Padding="8,3" Click="OnHotkeyGroupNew" Margin="4,0,0,0"/>
+                                <Button Content="Delete" Padding="8,3" Click="OnHotkeyGroupDelete" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <TextBox x:Name="TxtHotkeyGroupChars" Height="100" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                     TextChanged="OnHotkeyGroupCharsChanged" IsEnabled="False"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Label Content="Forward:"/>
+                                <TextBox x:Name="TxtGroupFwd" Width="120" TextChanged="OnHotkeyGroupKeysChanged" IsEnabled="False"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtGroupFwd" Margin="4,0,0,0"/>
+                                <Label Content="Backward:" Margin="8,0,0,0"/>
+                                <TextBox x:Name="TxtGroupBwd" Width="120" TextChanged="OnHotkeyGroupKeysChanged" IsEnabled="False"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtGroupBwd" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <Button Content="➕ Add Character" Padding="8,3" Click="OnHotkeyGroupAddChar" Margin="0,6,0,0" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 7. ALERTS ══ -->
+                <StackPanel x:Name="PanelAlerts" Visibility="Collapsed">
+                    <TextBlock Text="🚨 Alert Settings" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Configure attack detection, log monitoring, and alert types." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Log Monitoring">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkChatLogMon" Content="Enable Chat Log Monitoring" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Chat Log Dir:" Width="100"/>
+                                <TextBox x:Name="TxtChatLogDir" Width="250" TextChanged="OnAlertChanged"/>
+                                <Button Content="📁" Style="{StaticResource IconBtn}" Click="OnBrowseChatLog" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <CheckBox x:Name="ChkGameLogMon" Content="Enable Game Log Monitoring" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Game Log Dir:" Width="100"/>
+                                <TextBox x:Name="TxtGameLogDir" Width="250" TextChanged="OnAlertChanged"/>
+                                <Button Content="📁" Style="{StaticResource IconBtn}" Click="OnBrowseGameLog" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Under Fire Indicator">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkUnderFire" Content="Pulse thumbnail border red when taking damage" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Timeout (seconds):" Width="140"/>
+                                <TextBox x:Name="TxtUnderFireTimeout" Width="50" TextChanged="OnAlertChanged"/>
+                            </StackPanel>
+                            <TextBlock Text="Thumbnail border pulses red while damage is being received. Clears after the timeout." Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic" Margin="0,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Alert Events">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkEnableAttackAlerts" Content="Enable Attack Alerts" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
+                            <CheckBox x:Name="ChkPveMode" Content="PVE Mode (Ignore NPC Damage)" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
+                            <TextBlock Text="Only alert on player damage — filters out rats, sentries, and NPCs."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,8"/>
+                            <!-- Per-event rows built in code-behind -->
+                            <StackPanel x:Name="AlertEventRows"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Severity Settings">
+                        <StackPanel x:Name="SeverityRows"/>
+                    </GroupBox>
+                    <GroupBox Header="Alert Hub">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkAlertHub" Content="Show Alert Hub on screen" Checked="OnManagerChanged" Unchecked="OnManagerChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Toast duration:" Width="120"/>
+                                <TextBox x:Name="TxtToastDuration" Width="50" TextChanged="OnManagerChanged"/>
+                                <Label Content="seconds"/>
+                            </StackPanel>
+                            <Button Content="Reset Hub Position" Padding="8,3" Click="OnResetHubPosition" HorizontalAlignment="Left" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Not Logged In Indicator">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Style:"/>
+                                <ComboBox x:Name="CmbNotLoggedIn" Width="140" SelectionChanged="OnAlertChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White">
+                                    <ComboBoxItem Content="None" Tag="none"/>
+                                    <ComboBoxItem Content="Text Overlay" Tag="text"/>
+                                    <ComboBoxItem Content="Border Color" Tag="border"/>
+                                    <ComboBoxItem Content="Dim" Tag="dim"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Indicator color:" Width="120"/>
+                                <TextBox x:Name="TxtNotLoggedInColor" Width="100" TextChanged="OnAlertChanged"/>
+                                <Border x:Name="PreviewNotLoggedIn" Width="22" Height="22" Margin="4,0,0,0" BorderBrush="Gray" BorderThickness="1"/>
+                                <Button Content="🎨" Style="{StaticResource IconBtn}" Click="OnPickColor" Tag="TxtNotLoggedInColor" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 8. SOUNDS ══ -->
+                <StackPanel x:Name="PanelSounds" Visibility="Collapsed">
+                    <TextBlock Text="🔊 Alert Sounds" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Assign custom audio files to alert events. Supports WAV and MP3." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Master">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkEnableSounds" Content="Enable Alert Sounds" Checked="OnSoundChanged" Unchecked="OnSoundChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Master Volume:" Width="120"/>
+                                <TextBox x:Name="TxtMasterVolume" Width="50" TextChanged="OnSoundChanged"/>
+                                <Label Content="(0-100)"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Per-Event Sounds">
+                        <!-- Built dynamically in code-behind -->
+                        <StackPanel x:Name="SoundEventRows"/>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 9. VISIBILITY ══ -->
+                <StackPanel x:Name="PanelVisibility" Visibility="Collapsed">
+                    <TextBlock Text="👁 Thumbnail Visibility" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Show or hide individual character thumbnails." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Primary Thumbnails">
+                        <StackPanel>
+                            <Button Content="🔄 Refresh" Click="OnRefreshVisibility" Padding="10,3" HorizontalAlignment="Left"
+                                    Background="#e0e0e0" Foreground="#1a1a2e"
+                                    BorderBrush="#cccccc" Margin="0,0,0,8"/>
+                            <TextBlock Text="Check to HIDE a character's thumbnail:" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <ListView x:Name="LvVisibility" Height="250"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character" Width="220" DisplayMemberBinding="{Binding Character}"/>
+                                        <GridViewColumn Header="Hidden" Width="80" DisplayMemberBinding="{Binding Hidden}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Secondary Thumbnails (PiP)">
+                        <StackPanel>
+                            <TextBlock Text="Add a second preview for any character — independent size, position, and opacity."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6"/>
+                            <ListView x:Name="LvSecondaryThumbnails" Height="150"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}" SelectionChanged="OnSecThumbSelected">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character" Width="180" DisplayMemberBinding="{Binding Character}"/>
+                                        <GridViewColumn Header="Enabled" Width="70" DisplayMemberBinding="{Binding Enabled}"/>
+                                        <GridViewColumn Header="Opacity" Width="70" DisplayMemberBinding="{Binding Opacity}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="➕ Add" Padding="8,3" Click="OnSecThumbAdd" Margin="0,0,4,0"/>
+                                <Button Content="❌ Remove" Padding="8,3" Click="OnSecThumbRemove" Margin="0,0,16,0"/>
+                                <Label Content="Opacity:"/>
+                                <Slider x:Name="SliderSecOpacity" Minimum="20" Maximum="255" Width="120" ValueChanged="OnSecThumbOpacityChanged"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 10. CLIENT ══ -->
+                <StackPanel x:Name="PanelClient" Visibility="Collapsed">
+                    <TextBlock Text="🖥 Client Management" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Control EVE client window behavior on switch." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Character Select Cycling">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkCharSelectCycle" Content="Enable Character Select Cycling" Checked="OnClientChanged" Unchecked="OnClientChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Label Content="Forward Hotkey:" Width="140"/>
+                                <TextBox x:Name="TxtCharSelectFwd" Width="120" TextChanged="OnClientChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtCharSelectFwd" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Label Content="Backward Hotkey:" Width="140"/>
+                                <TextBox x:Name="TxtCharSelectBwd" Width="120" TextChanged="OnClientChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtCharSelectBwd" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Window Management">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkMinimizeInactive" Content="Minimize inactive EVE clients on switch"
+                                      Checked="OnClientChanged" Unchecked="OnClientChanged"/>
+                            <CheckBox x:Name="ChkAlwaysMaximize" Content="Always maximize EVE when activated"
+                                      Checked="OnClientChanged" Unchecked="OnClientChanged"/>
+                            <CheckBox x:Name="ChkTrackClientPositions" Content="Track and restore client window positions"
+                                      Checked="OnClientChanged" Unchecked="OnClientChanged"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Don't Minimize Clients">
+                        <StackPanel>
+                            <TextBlock Text="Characters listed here will NEVER be minimized." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,4"/>
+                            <ListView x:Name="LvDontMinimize" Height="120"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character Name" Width="220" DisplayMemberBinding="{Binding CharacterName}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Button Content="➕ Add" Padding="8,3" Click="OnDontMinAdd" Margin="0,0,4,0"/>
+                                <Button Content="❌ Delete" Padding="8,3" Click="OnDontMinDelete"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 11. FPS LIMITER ══ -->
+                <StackPanel x:Name="PanelFPSLimiter" Visibility="Collapsed">
+                    <TextBlock Text="🚀 FPS Limiter" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="RTSS integration for per-client FPS limiting." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <TextBlock x:Name="TxtRtssStatus" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                    <GroupBox Header="Settings">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Background FPS:"/>
+                                <ComboBox x:Name="CmbFpsLimit" Width="100" SelectionChanged="OnFpsLimiterChanged">
+                                    <ComboBoxItem Content="5" Tag="5"/>
+                                    <ComboBoxItem Content="10" Tag="10"/>
+                                    <ComboBoxItem Content="15" Tag="15"/>
+                                    <ComboBoxItem Content="30" Tag="30"/>
+                                    <ComboBoxItem Content="60" Tag="60"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <Button Content="🔧 Apply RTSS Profile" Padding="10,5" Click="OnApplyRtssProfile"
+                                    HorizontalAlignment="Left" Margin="0,8,0,0"
+                                    Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0"/>
+                            <TextBlock Text="Tries direct write first. If access is denied, a one-time admin prompt copies the file."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic" Margin="0,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Manual Install">
+                        <StackPanel>
+                            <TextBlock Text="If you prefer not to grant admin access, copy the profile file manually:" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="Target folder:" Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock x:Name="TxtRtssProfilePath" Text="(detecting...)" Foreground="LimeGreen" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <Button Content="📋 Copy File to Clipboard" Padding="10,5" Click="OnCopyRtssProfile"
+                                        HorizontalAlignment="Left"/>
+                                <Button Content="📁 Open Target Folder" Padding="10,5" Click="OnOpenRtssFolder"
+                                        HorizontalAlignment="Left" Margin="6,0,0,0"/>
+                            </StackPanel>
+                            <TextBlock Text="Copy the file to clipboard, then paste it into the target folder above."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic" Margin="0,6,0,0" TextWrapping="Wrap" FontSize="10.5"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 12. STATS OVERLAY ══ -->
+                <StackPanel x:Name="PanelStatsOverlay" Visibility="Collapsed">
+                    <TextBlock Text="📊 Stats Overlay" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Configure real-time DPS, Logi, Mining, and Ratting overlays per character." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+
+                    <!-- Per-Character Stat Toggles -->
+                    <GroupBox Header="Active Characters">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <Button x:Name="BtnRefreshStatChars" Content="🔄 Refresh" Padding="8,3" Click="OnRefreshStatCharacters"
+                                        Background="#e0e0e0" Foreground="#1a1a2e"
+                                        BorderBrush="{StaticResource BorderBrush}" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                            <ListView x:Name="LvStatCharacters" MinHeight="60" MaxHeight="360"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character" Width="180" DisplayMemberBinding="{Binding Name}"/>
+                                        <GridViewColumn Header="⚔ DPS" Width="55">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Dps, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="🛡 Logi" Width="55">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Logi, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="⛏ Mine" Width="55">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Mining, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="💰 Rat" Width="55">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Ratting, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="👾 NPC" Width="55">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Npc, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <TextBlock Text="👾 NPC Toggle: When enabled, NPC damage is included in DPS stats. Off by default."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Display">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Font size:" Width="120"/>
+                                <Slider x:Name="SliderStatFont" Minimum="6" Maximum="16" Width="150" ValueChanged="OnStatsChanged"/>
+                                <TextBlock x:Name="TxtStatFontValue" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Overlay opacity:" Width="120"/>
+                                <Slider x:Name="SliderStatOpacity" Minimum="10" Maximum="255" Width="150" ValueChanged="OnStatsChanged"/>
+                                <TextBlock x:Name="TxtStatOpacityValue" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Background color:" Width="120"/>
+                                <TextBox x:Name="TxtStatBgColor" Width="90" TextChanged="OnStatsChanged"/>
+                                <Border x:Name="PreviewStatBg" Width="20" Height="20" CornerRadius="3"
+                                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="6,0,0,0"/>
+                                <Button Content="🎨" Style="{StaticResource IconBtn}" Click="OnPickColor" Tag="TxtStatBgColor" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Text color:" Width="120"/>
+                                <TextBox x:Name="TxtStatTextColor" Width="90" TextChanged="OnStatsChanged"/>
+                                <Border x:Name="PreviewStatText" Width="20" Height="20" CornerRadius="3"
+                                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Margin="6,0,0,0"/>
+                                <Button Content="🎨" Style="{StaticResource IconBtn}" Click="OnPickColor" Tag="TxtStatTextColor" Margin="4,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Stat Logging">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkStatLogging" Content="Enable stat logging to CSV" Checked="OnStatsChanged" Unchecked="OnStatsChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Log folder:" Width="100"/>
+                                <TextBox x:Name="TxtStatLogDir" Width="250" TextChanged="OnStatsChanged"/>
+                                <Button Content="📁" Style="{StaticResource IconBtn}" Click="OnBrowseStatLog" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Auto-delete after:" Width="120"/>
+                                <TextBox x:Name="TxtStatLogRetention" Width="50" TextChanged="OnStatsChanged"/>
+                                <Label Content="days"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Acronym Legend -->
+                    <GroupBox Header="Stat Acronym Legend">
+                        <TextBlock FontFamily="Consolas" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}" TextWrapping="Wrap"
+                                   Text="DPS:                         Mine:&#x0A;Out=Dmg/s Out                OMPC=Ore Mined/Cycle&#x0A;In=Dmg/s In                  OMPH=Ore Mined/Hour&#x0A;TDI=Total Dmg In             GMPC=Gas Mined/Cycle&#x0A;TDO=Total Dmg Out            GMPH=Gas Mined/Hour&#x0A;                             IMPH=Ice Mined/Hour&#x0A;&#x0A;Logi:                        Rat:&#x0A;ARPS=Armor Rep/s             TIPT=Total ISK/Tick&#x0A;SRPS=Shield Rep/s            TIPH=Total ISK/Hour&#x0A;CTPS=Cap Transf/s            TIPS=Total ISK/Session&#x0A;TARO=Total Armor Rep Out&#x0A;TARI=Total Armor Rep In&#x0A;TSRO=Total Shield Rep Out&#x0A;TSRI=Total Shield Rep In"/>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 13. EVE MANAGER ══ -->
+                <StackPanel x:Name="PanelEVEManager" Visibility="Collapsed">
+                    <TextBlock Text="EVE Settings Profile Manager" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Copy EVE settings from one profile to another. Backups created automatically." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+
+                    <!-- EVE Settings Folder -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="EVE Settings Folder:" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" VerticalAlignment="Center" Width="130"/>
+                        <TextBox x:Name="TxtEveSettingsDir" Width="300" IsReadOnly="True" TextChanged="OnEveManagerDirChanged"/>
+                        <Button Content="📂 Browse" Padding="8,3" Click="OnBrowseEveDir" Margin="4,0,0,0"
+                                Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"/>
+                        <Button Content="🔄" Padding="6,3" Click="OnAutoDetectEveDir" Margin="4,0,0,0"
+                                Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc" ToolTip="Auto-detect EVE settings folder"/>
+                    </StackPanel>
+
+                    <!-- Mode Toggle Buttons -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Button x:Name="BtnProfileCopyMode" Content="📋 Profile Copy" Padding="14,5" Click="OnEveMgrProfileMode"
+                                Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"
+                                FontWeight="SemiBold" Margin="0,0,4,0"/>
+                        <Button x:Name="BtnCharCopyMode" Content="👤 Char Copy" Padding="14,5" Click="OnEveMgrCharMode"
+                                Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"
+                                FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <!-- ── PROFILE COPY GROUP (shown by default) ── -->
+                    <StackPanel x:Name="EveMgrProfileGroup">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Column="0" Text="Source Profile (copy FROM):" FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Grid.Column="2" Text="Target Profiles (copy TO — check to select):" FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                            <ListView x:Name="LvEveMgrSource" Grid.Row="1" Grid.Column="0" Height="220"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}" FontSize="12">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Profile" Width="170">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                              Foreground="{StaticResource TextPrimaryBrush}" Margin="0,1"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Chars" Width="45" DisplayMemberBinding="{Binding CharCount}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <ListView x:Name="LvEveMgrTarget" Grid.Row="1" Grid.Column="2" Height="220"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}" FontSize="12">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Profile" Width="170">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                              Foreground="{StaticResource TextPrimaryBrush}" Margin="0,1"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Chars" Width="45" DisplayMemberBinding="{Binding CharCount}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Button Content="🔄 Refresh List" Padding="10,5" Click="OnRefreshProfiles"
+                                    Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc" Margin="0,0,8,0"/>
+                            <Button Content="💾 Backup Checked Target Profile" Padding="10,5" Click="OnBackupCheckedTargets"
+                                    Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc" Margin="0,0,8,0"/>
+                            <Button Content="📋 Copy → Checked Targets" Padding="10,5" Click="OnCopyToCheckedTargets"
+                                    Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- ── CHAR COPY GROUP (initially hidden) ── -->
+                    <StackPanel x:Name="EveMgrCharGroup" Visibility="Collapsed">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Column="0" Text="Source (copy FROM):" FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Grid.Column="2" Text="Target (copy TO):" FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="Profile:" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <ComboBox x:Name="CmbCharSrcProfile" Width="200" SelectionChanged="OnCharSrcProfileChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="Profile:" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <ComboBox x:Name="CmbCharTgtProfile" Width="200" SelectionChanged="OnCharTgtProfileChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                            </StackPanel>
+                            <TextBox x:Name="TxtCharSrcSearch" Grid.Row="2" Grid.Column="0"
+                                     TextChanged="OnCharSrcSearchChanged" Margin="0,0,0,4"
+                                     Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                     BorderBrush="{StaticResource BorderBrush}" Padding="4,3"
+                                     Tag="🔍 Search characters..."/>
+                            <TextBox x:Name="TxtCharTgtSearch" Grid.Row="2" Grid.Column="2"
+                                     TextChanged="OnCharTgtSearchChanged" Margin="0,0,0,4"
+                                     Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                     BorderBrush="{StaticResource BorderBrush}" Padding="4,3"
+                                     Tag="🔍 Search characters..."/>
+                            <ListView x:Name="LvCharSrcChars" Grid.Row="3" Grid.Column="0" Height="230"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}" FontSize="12">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character" Width="160">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                              Foreground="{StaticResource TextPrimaryBrush}" Margin="0,1"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="ID" Width="85" DisplayMemberBinding="{Binding Id}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <ListView x:Name="LvCharTgtChars" Grid.Row="3" Grid.Column="2" Height="230"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}" FontSize="12">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character" Width="160">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                              Foreground="{StaticResource TextPrimaryBrush}" Margin="0,1"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="ID" Width="85" DisplayMemberBinding="{Binding Id}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <CheckBox x:Name="ChkCopyAllChars" Grid.Row="4" Grid.Column="0"
+                                      Content="Copy to ALL characters in target profile" Margin="0,6,0,0"
+                                      Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <Button Grid.Row="4" Grid.Column="2" Content="👤 Copy Char Settings" Padding="10,5"
+                                    Click="OnCharCopyExecute" HorizontalAlignment="Right" Margin="0,6,0,0"
+                                    Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc" FontWeight="SemiBold"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- ── SHARED BOTTOM SECTION ── -->
+                    <TextBlock x:Name="TxtEveMgrStatus" Text="Ready." Foreground="#888888" FontSize="11" Margin="0,12,0,4"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <TextBlock Text="Backup Location:" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"
+                                   VerticalAlignment="Center" Width="120"/>
+                        <TextBox x:Name="TxtEveBackupDir" Width="300" IsReadOnly="True" TextChanged="OnEveManagerDirChanged"/>
+                        <Button Content="📂 Browse" Padding="8,3" Click="OnBrowseBackupDir" Margin="4,0,0,0"
+                                Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"/>
+                        <Button Content="🔄" Padding="6,3" Click="OnResetBackupDir" Margin="4,0,0,0"
+                                Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc" ToolTip="Reset to default"/>
+                    </StackPanel>
+                    <Button Content="🌐 Fetch Missing Names via ESI (public, no login required)" Padding="10,5"
+                            Click="OnFetchESI" HorizontalAlignment="Left" Margin="0,4,0,8"
+                            Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"/>
+                    <TextBlock x:Name="TxtCharNameStatus" Foreground="{StaticResource TextSecondaryBrush}"
+                               FontSize="10" Margin="0,0,0,8"/>
+                    <GroupBox Header="Data Management">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="📋 Copy Layout to All Profiles" Padding="10,5" Click="OnCopyLayout"
+                                    Background="#e0e0e0" Foreground="#1a1a2e"
+                                    BorderBrush="#cccccc" Margin="0,0,8,0"/>
+                            <Button Content="💾 Export Settings to File" Padding="10,5" Click="OnExportSettings"
+                                    Background="#e0e0e0" Foreground="#1a1a2e"
+                                    BorderBrush="#cccccc" Margin="0,0,8,0"/>
+                            <Button Content="📂 Import Settings from File" Padding="10,5" Click="OnImportSettings"
+                                    Background="#e0e0e0" Foreground="#1a1a2e"
+                                    BorderBrush="#cccccc"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ 14. ABOUT ══ -->
+                <StackPanel x:Name="PanelAbout" Visibility="Collapsed">
+                    <TextBlock Text="ℹ About" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,12"/>
+                    <TextBlock Text="EVE MultiPreview v2.0.0" FontSize="16"/>
+                    <TextBlock Text="C# / WPF Edition" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8"/>
+                    <TextBlock TextWrapping="Wrap"
+                               Text="Multi-client thumbnail preview manager for EVE Online. Shows live DWM thumbnails of your EVE windows with click-to-switch, drag-to-reposition, custom borders, alerts, stat overlays, and per-character hotkeys."/>
+                    <TextBlock Margin="0,12,0,0" Text="Originally written in AutoHotkey v2 by CJKondur."
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Margin="0,4,0,0" Text="Ported to C# WPF for improved performance, stability, and extensibility."
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <Button Content="🔗 GitHub" Padding="10,5" Click="OnOpenGitHub"
+                                Background="#e0e0e0" Foreground="#1a1a2e"
+                                BorderBrush="#cccccc"/>
+                        <Button x:Name="BtnCheckVersion" Content="🔄 Check for Updates" Padding="10,5" Margin="8,0,0,0"
+                                Click="OnCheckVersion"
+                                Background="#e0e0e0" Foreground="#1a1a2e"
+                                BorderBrush="#cccccc"/>
+                    </StackPanel>
+                    <TextBlock x:Name="TxtVersionResult" Margin="0,8,0,0" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Margin="0,16,0,0" TextWrapping="Wrap"
+                               Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
+                               Text="Pre-release builds may contain bugs or breaking changes. Settings may reset between pre-release updates."/>
+                </StackPanel>
+
+            </Grid>
+        </ScrollViewer>
+
+        <!-- ═══ Right Splitter ═══ -->
+        <GridSplitter x:Name="WikiSplitter" Grid.Row="1" Grid.Column="3" Width="4"
+                      HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                      Background="#FF1a1a3e" Cursor="SizeWE" Visibility="Collapsed"/>
+
+        <!-- ═══ Help/Wiki Sidebar ═══ -->
+        <Border x:Name="WikiPanel" Grid.Row="1" Grid.Column="4" Background="#FF141425" Padding="12,10"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Text="📖 Help" FontSize="15" FontWeight="Bold"
+                           Foreground="{StaticResource AccentBrush}" Margin="0,0,0,10"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <TextBlock x:Name="WikiContent" TextWrapping="Wrap" FontSize="11.5"
+                               FontFamily="Segoe UI" Foreground="#c0c8d8"
+                               LineHeight="17"/>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
