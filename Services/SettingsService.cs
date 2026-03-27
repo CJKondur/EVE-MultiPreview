@@ -85,10 +85,45 @@ public sealed class SettingsService : IDisposable
             }
             else
             {
-                _settings = new AppSettings();
-                _loadedSuccessfully = true; // New file — safe to save
+                // New file — check if EVE-O Preview legacy config exists
+                bool migratedEveO = false;
+                
+                string exeDir = Path.GetDirectoryName(Environment.ProcessPath) ?? AppDomain.CurrentDomain.BaseDirectory;
+                string localEveO = Path.Combine(exeDir, "EVE-O Preview.json");
+                string appDataEveO = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EVE-O Preview", "EVE-O Preview.json");
+                
+                string? eveOToMigrate = null;
+                if (File.Exists(localEveO)) eveOToMigrate = localEveO;
+                else if (File.Exists(appDataEveO)) eveOToMigrate = appDataEveO;
+
+                if (eveOToMigrate != null)
+                {
+                    try
+                    {
+                        string eveOJson = File.ReadAllText(eveOToMigrate);
+                        var eveORoot = JsonSerializer.Deserialize<EveOConfigRoot>(eveOJson, _jsonOptions);
+                        if (eveORoot != null)
+                        {
+                            _settings = eveORoot.ToAppSettings();
+                            _loadedSuccessfully = true;
+                            migratedEveO = true;
+                            System.Diagnostics.Debug.WriteLine($"[Settings] Successfully migrated legacy EVE-O Preview config from {eveOToMigrate}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[Settings] Failed to migrate EVE-O config: {ex.Message}");
+                    }
+                }
+
+                if (!migratedEveO)
+                {
+                    _settings = new AppSettings();
+                }
+
+                _loadedSuccessfully = true; // New file or migrated — safe to save
                 Save();
-                System.Diagnostics.Debug.WriteLine($"[Settings] Created default settings at {_settingsPath}");
+                System.Diagnostics.Debug.WriteLine($"[Settings] Created settings at {_settingsPath}");
             }
         }
         catch (Exception ex)
