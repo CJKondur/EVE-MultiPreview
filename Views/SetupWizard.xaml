@@ -1,0 +1,180 @@
+<Window x:Class="EveMultiPreview.Views.SetupWizard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EVE MultiPreview — Setup Wizard"
+        Width="560" Height="460"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#1a1a2e">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="AccentBrush" Color="#E36A0D"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#E0E0E0"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#999999"/>
+        <SolidColorBrush x:Key="CardBg" Color="#252540"/>
+        <SolidColorBrush x:Key="CardHover" Color="#303055"/>
+        <SolidColorBrush x:Key="BtnBg" Color="#333355"/>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ═══ Progress Bar ═══ -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,8">
+            <Ellipse x:Name="Dot1" Width="12" Height="12" Fill="{StaticResource AccentBrush}" Margin="4,0"/>
+            <Ellipse x:Name="Dot2" Width="12" Height="12" Fill="#444444" Margin="4,0"/>
+            <Ellipse x:Name="Dot3" Width="12" Height="12" Fill="#444444" Margin="4,0"/>
+            <Ellipse x:Name="Dot4" Width="12" Height="12" Fill="#444444" Margin="4,0"/>
+            <Ellipse x:Name="Dot5" Width="12" Height="12" Fill="#444444" Margin="4,0"/>
+        </StackPanel>
+
+        <!-- ═══ Content Pages ═══ -->
+        <Grid Grid.Row="1" Margin="24,0">
+
+            <!-- Step 1: Welcome -->
+            <StackPanel x:Name="Step1" Visibility="Visible">
+                <TextBlock Text="Welcome to EVE MultiPreview" FontSize="22" FontWeight="Bold"
+                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
+                <TextBlock Text="The C# edition of your multi-character preview tool."
+                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="✅ DWM thumbnail previews for all EVE clients" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                    <TextBlock Text="✅ Per-character hotkeys &amp; group cycling" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                    <TextBlock Text="✅ Attack detection with flash, sound, and toast alerts" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                    <TextBlock Text="✅ Real-time DPS, Logi, Mining &amp; Ratting stat overlays" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                    <TextBlock Text="✅ Profile management with import/export" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                    <TextBlock Text="✅ Secondary PiP thumbnails" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
+                </StackPanel>
+                <TextBlock Text="Let's get you set up in under a minute!"
+                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,24,0,0"
+                           FontStyle="Italic"/>
+            </StackPanel>
+
+            <!-- Step 2: Thumbnail Size -->
+            <StackPanel x:Name="Step2" Visibility="Collapsed">
+                <TextBlock Text="Choose Thumbnail Size" FontSize="18" FontWeight="Bold"
+                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
+                <TextBlock Text="Pick the best preset for your setup. You can change this later."
+                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                <UniformGrid Columns="3" Margin="0,8">
+                    <Border x:Name="CardDual" Background="{StaticResource CardBg}" CornerRadius="8" Margin="6"
+                            Padding="12" Cursor="Hand" MouseLeftButtonDown="OnSizeCard" Tag="300,200">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="🖥🖥" FontSize="24" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Dual Monitor" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"
+                                       HorizontalAlignment="Center" Margin="0,6,0,2"/>
+                            <TextBlock Text="300 × 200" Foreground="{StaticResource TextSecondary}" FontSize="11"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border x:Name="CardMulti" Background="{StaticResource CardBg}" CornerRadius="8" Margin="6"
+                            Padding="12" Cursor="Hand" MouseLeftButtonDown="OnSizeCard" Tag="200,150">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="🖥🖥🖥" FontSize="24" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Multi-Box" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"
+                                       HorizontalAlignment="Center" Margin="0,6,0,2"/>
+                            <TextBlock Text="200 × 150" Foreground="{StaticResource TextSecondary}" FontSize="11"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border x:Name="CardFleet" Background="{StaticResource CardBg}" CornerRadius="8" Margin="6"
+                            Padding="12" Cursor="Hand" MouseLeftButtonDown="OnSizeCard" Tag="150,100">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="⚓" FontSize="24" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Fleet" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"
+                                       HorizontalAlignment="Center" Margin="0,6,0,2"/>
+                            <TextBlock Text="150 × 100" Foreground="{StaticResource TextSecondary}" FontSize="11"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+                <TextBlock x:Name="TxtSelectedSize" Text="" Foreground="{StaticResource AccentBrush}"
+                           HorizontalAlignment="Center" Margin="0,12,0,0" FontWeight="SemiBold"/>
+            </StackPanel>
+
+            <!-- Step 3: Hotkeys -->
+            <StackPanel x:Name="Step3" Visibility="Collapsed">
+                <TextBlock Text="Set Up Hotkeys" FontSize="18" FontWeight="Bold"
+                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
+                <TextBlock Text="Optional: assign hotkeys to switch between characters. Click ⌨ to capture."
+                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,0,0,16" TextWrapping="Wrap"/>
+                <Grid HorizontalAlignment="Center" Width="400">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Character" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" Grid.Column="0" Margin="0,4"/>
+                    <TextBlock Text="Hotkey" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" Grid.Column="1" Margin="0,4"/>
+
+                    <TextBox x:Name="TxtWizChar1" Grid.Row="1" Grid.Column="0" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
+                    <TextBox x:Name="TxtWizKey1" Grid.Row="1" Grid.Column="1" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
+                    <Button Content="⌨" Grid.Row="1" Grid.Column="2" Click="OnWizCapture" Tag="TxtWizKey1" Width="28" Height="24"
+                            Background="#333355" Foreground="White" BorderBrush="#444"/>
+
+                    <TextBox x:Name="TxtWizChar2" Grid.Row="2" Grid.Column="0" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
+                    <TextBox x:Name="TxtWizKey2" Grid.Row="2" Grid.Column="1" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
+                    <Button Content="⌨" Grid.Row="2" Grid.Column="2" Click="OnWizCapture" Tag="TxtWizKey2" Width="28" Height="24"
+                            Background="#333355" Foreground="White" BorderBrush="#444"/>
+
+                    <TextBox x:Name="TxtWizChar3" Grid.Row="3" Grid.Column="0" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
+                    <TextBox x:Name="TxtWizKey3" Grid.Row="3" Grid.Column="1" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
+                    <Button Content="⌨" Grid.Row="3" Grid.Column="2" Click="OnWizCapture" Tag="TxtWizKey3" Width="28" Height="24"
+                            Background="#333355" Foreground="White" BorderBrush="#444"/>
+                </Grid>
+            </StackPanel>
+
+            <!-- Step 4: Character Select Cycling -->
+            <StackPanel x:Name="Step4" Visibility="Collapsed">
+                <TextBlock Text="Character Select Cycling" FontSize="18" FontWeight="Bold"
+                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
+                <TextBlock Text="Cycle through characters at the login screen with hotkeys."
+                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                <CheckBox x:Name="ChkWizCharCycle" Content="Enable Character Select Cycling"
+                          Foreground="White" Margin="60,8" IsChecked="True"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12">
+                    <TextBlock Text="Forward:" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" Width="80"/>
+                    <TextBox x:Name="TxtWizCycleFwd" Width="120" Background="#252540" Foreground="White" BorderBrush="#444" Text="F11"/>
+                    <Button Content="⌨" Click="OnWizCapture" Tag="TxtWizCycleFwd" Width="28" Height="24" Margin="4,0,0,0"
+                            Background="#333355" Foreground="White" BorderBrush="#444"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4">
+                    <TextBlock Text="Backward:" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" Width="80"/>
+                    <TextBox x:Name="TxtWizCycleBwd" Width="120" Background="#252540" Foreground="White" BorderBrush="#444" Text="F12"/>
+                    <Button Content="⌨" Click="OnWizCapture" Tag="TxtWizCycleBwd" Width="28" Height="24" Margin="4,0,0,0"
+                            Background="#333355" Foreground="White" BorderBrush="#444"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Step 5: Summary -->
+            <StackPanel x:Name="Step5" Visibility="Collapsed">
+                <TextBlock Text="You're All Set!" FontSize="22" FontWeight="Bold"
+                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
+                <TextBlock x:Name="TxtSummary" TextWrapping="Wrap"
+                           Foreground="{StaticResource TextPrimary}" Margin="40,0" LineHeight="22"/>
+                <TextBlock Text="You can change any of these settings later from the tray menu → Settings."
+                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center"
+                           Margin="0,24,0,0" FontStyle="Italic" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ═══ Navigation Buttons ═══ -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,16">
+            <Button x:Name="BtnBack" Content="← Back" Padding="16,8" Click="OnBack" Margin="4"
+                    Background="#333355" Foreground="White" BorderBrush="#444" Visibility="Collapsed"/>
+            <Button x:Name="BtnSkip" Content="Skip" Padding="16,8" Click="OnSkip" Margin="4"
+                    Background="Transparent" Foreground="{StaticResource TextSecondary}" BorderBrush="#444"/>
+            <Button x:Name="BtnNext" Content="Next →" Padding="16,8" Click="OnNext" Margin="4"
+                    Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0"
+                    FontWeight="SemiBold"/>
+        </StackPanel>
+    </Grid>
+</Window>

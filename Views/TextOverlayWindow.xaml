@@ -1,0 +1,79 @@
+<Window x:Class="EveMultiPreview.Views.TextOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None"
+        ShowInTaskbar="False"
+        Topmost="False"
+        ResizeMode="NoResize"
+        IsHitTestVisible="False"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Title="TextOverlay">
+
+    <StackPanel x:Name="TextOverlayPanel"
+                VerticalAlignment="Top"
+                HorizontalAlignment="Left"
+                Margin="5,5,5,0">
+        
+        <!-- Character name -->
+        <TextBlock x:Name="NameOverlay"
+                   Foreground="#FFfac57a"
+                   FontSize="12"
+                   FontFamily="Gill Sans MT"
+                   FontWeight="Medium"
+                   Visibility="Collapsed">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.9" Color="Black"/>
+            </TextBlock.Effect>
+        </TextBlock>
+
+        <!-- Annotation label (user-defined: "Scout", "DPS", "Logi", etc.) -->
+        <TextBlock x:Name="AnnotationOverlay"
+                   Foreground="#FF8ecfff"
+                   FontSize="9"
+                   FontFamily="Gill Sans MT"
+                   FontWeight="Normal"
+                   FontStyle="Italic"
+                   Visibility="Collapsed">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.9" Color="Black"/>
+            </TextBlock.Effect>
+        </TextBlock>
+
+        <!-- System name -->
+        <TextBlock x:Name="SystemOverlay"
+                   Foreground="#FFfac57a"
+                   FontSize="10"
+                   FontFamily="Gill Sans MT"
+                   FontWeight="Normal"
+                   Visibility="Collapsed">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.9" Color="Black"/>
+            </TextBlock.Effect>
+        </TextBlock>
+
+        <!-- Session timer -->
+        <TextBlock x:Name="TimerOverlay"
+                   Foreground="#FFfac57a"
+                   FontSize="10"
+                   FontFamily="Gill Sans MT"
+                   FontWeight="Normal"
+                   Visibility="Collapsed">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.9" Color="Black"/>
+            </TextBlock.Effect>
+        </TextBlock>
+
+        <!-- Process stats (CPU/RAM) -->
+        <TextBlock x:Name="ProcessStatsOverlay"
+                   Foreground="#FF90ee90"
+                   FontSize="9"
+                   FontFamily="Consolas"
+                   FontWeight="Normal"
+                   Visibility="Collapsed">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.9" Color="Black"/>
+            </TextBlock.Effect>
+        </TextBlock>
+    </StackPanel>
+</Window>
