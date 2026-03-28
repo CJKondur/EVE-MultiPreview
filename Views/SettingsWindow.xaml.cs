@@ -1084,7 +1084,7 @@ public partial class SettingsWindow : Window
         "About" =>
             "ABOUT\n" +
             "═══════════════════════════\n\n" +
-            "EVE MultiPreview v2.0.1\n" +
+            "EVE MultiPreview v2.0.2\n" +
             "C# / WPF Edition\n\n" +
             "Originally written in AutoHotkey v2.\n" +
             "Ported to C# for better performance,\n" +
@@ -1116,11 +1116,19 @@ public partial class SettingsWindow : Window
         target.Focus();
         target.PreviewKeyDown += OnHotkeyCaptured;
         target.PreviewMouseDown += OnMouseCaptured;
+
+        // Install a temporary low-level keyboard hook to catch exotic keys
+        // that WPF's PreviewKeyDown can't represent (e.g., hardware-mapped
+        // keystrokes from SteelSeries, Razer, Corsair software)
+        InstallCaptureHook();
+
         Debug.WriteLine($"[Settings:Capture] ⌨ Hotkey capture started for {target.Name}");
     }
 
     private void StopHotkeyCapture()
     {
+        RemoveCaptureHook();
+
         if (_captureTarget != null)
         {
             _captureTarget.PreviewKeyDown -= OnHotkeyCaptured;
@@ -1132,6 +1140,145 @@ public partial class SettingsWindow : Window
         }
         _captureTarget = null;
         _isCapturing = false;
+    }
+
+    // ── Low-Level Keyboard Hook for Exotic Key Capture ──────────────
+    // WPF's PreviewKeyDown can't intercept keys that don't map to the
+    // System.Windows.Input.Key enum (e.g., F13-F24 from SteelSeries/Razer
+    // hardware remapping software). This temporary hook catches the raw
+    // Win32 VK code and converts it to an AHK-format string.
+
+    private IntPtr _captureHookHandle = IntPtr.Zero;
+    private Interop.User32.LowLevelKeyboardProc? _captureHookProc;
+    private bool _captureHookFired = false; // prevent double-fire with PreviewKeyDown
+
+    private void InstallCaptureHook()
+    {
+        if (_captureHookHandle != IntPtr.Zero) return;
+        _captureHookFired = false;
+        _captureHookProc = CaptureHookCallback;
+        _captureHookHandle = Interop.User32.SetWindowsHookEx(
+            Interop.User32.WH_KEYBOARD_LL,
+            _captureHookProc,
+            Interop.User32.GetModuleHandle(null),
+            0);
+        Debug.WriteLine($"[Settings:Capture] 🪝 Low-level capture hook installed: {_captureHookHandle != IntPtr.Zero}");
+    }
+
+    private void RemoveCaptureHook()
+    {
+        if (_captureHookHandle != IntPtr.Zero)
+        {
+            Interop.User32.UnhookWindowsHookEx(_captureHookHandle);
+            _captureHookHandle = IntPtr.Zero;
+            Debug.WriteLine("[Settings:Capture] 🛑 Low-level capture hook removed");
+        }
+        _captureHookFired = false;
+    }
+
+    private IntPtr CaptureHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        if (nCode >= 0 && _isCapturing && !_captureHookFired)
+        {
+            int msg = wParam.ToInt32();
+            if (msg == Interop.User32.WM_KEYDOWN || msg == Interop.User32.WM_SYSKEYDOWN)
+            {
+                var hookStruct = Marshal.PtrToStructure<Interop.User32.KBDLLHOOKSTRUCT>(lParam);
+                uint vk = hookStruct.vkCode;
+
+                // Ignore modifier keys themselves
+                if (vk is 0xA0 or 0xA1 or 0xA2 or 0xA3 or 0x5B or 0x5C
+                    or 0x10 or 0x11 or 0x12)
+                {
+                    return Interop.User32.CallNextHookEx(_captureHookHandle, nCode, wParam, lParam);
+                }
+
+                // Escape cancels capture
+                if (vk == 0x1B)
+                {
+                    _captureHookFired = true;
+                    Dispatcher.BeginInvoke(() =>
+                    {
+                        if (_captureTarget != null) _captureTarget.Text = "";
+                        StopHotkeyCapture();
+                    });
+                    return Interop.User32.CallNextHookEx(_captureHookHandle, nCode, wParam, lParam);
+                }
+
+                // Try WPF conversion first — if it succeeds, let PreviewKeyDown handle it
+                var wpfKey = KeyInterop.KeyFromVirtualKey((int)vk);
+                if (wpfKey != Key.None && wpfKey != Key.DeadCharProcessed)
+                {
+                    // WPF can handle this key — let PreviewKeyDown fire normally
+                    return Interop.User32.CallNextHookEx(_captureHookHandle, nCode, wParam, lParam);
+                }
+
+                // WPF CAN'T handle this key — raw VK capture path
+                _captureHookFired = true;
+                string ahkName = VkToAhkName(vk);
+
+                // Build modifier string from current keyboard state
+                string modStr = "";
+                if (Interop.User32.IsKeyDown(0x11)) modStr += "^";  // Ctrl
+                if (Interop.User32.IsKeyDown(0x12)) modStr += "!";  // Alt
+                if (Interop.User32.IsKeyDown(0x10)) modStr += "+";  // Shift
+                if (Interop.User32.IsKeyDown(0x5B) || Interop.User32.IsKeyDown(0x5C)) modStr += "#"; // Win
+
+                string fullAhk = modStr + ahkName;
+
+                Dispatcher.BeginInvoke(() =>
+                {
+                    if (_captureTarget != null)
+                    {
+                        if (CheckHotkeyConflicts(fullAhk, _captureTarget.Name))
+                            Debug.WriteLine($"[Settings:Capture] ⛔ Blocked raw VK: {fullAhk} (conflict)");
+                        else
+                        {
+                            _captureTarget.Text = fullAhk;
+                            Debug.WriteLine($"[Settings:Capture] ✅ Raw VK captured: {fullAhk} (VK=0x{vk:X2})");
+                        }
+                    }
+                    StopHotkeyCapture();
+                });
+
+                // Block the key from reaching any app during capture
+                return (IntPtr)1;
+            }
+        }
+        return Interop.User32.CallNextHookEx(_captureHookHandle, nCode, wParam, lParam);
+    }
+
+    /// <summary>Convert a raw Win32 VK code to an AHK key name. Used for exotic hardware keys.</summary>
+    internal static string VkToAhkName(uint vk)
+    {
+        // F1-F24
+        if (vk >= 0x70 && vk <= 0x87)
+            return $"F{vk - 0x70 + 1}";
+
+        // Standard named keys
+        return vk switch
+        {
+            0x20 => "Space", 0x0D => "Enter", 0x09 => "Tab", 0x08 => "Backspace",
+            0x2E => "Delete", 0x2D => "Insert", 0x24 => "Home", 0x23 => "End",
+            0x21 => "PgUp", 0x22 => "PgDn",
+            0x26 => "Up", 0x28 => "Down", 0x25 => "Left", 0x27 => "Right",
+            0x13 => "Pause", 0x91 => "ScrollLock", 0x14 => "CapsLock", 0x90 => "NumLock",
+            0x2C => "PrintScreen", 0x1B => "Escape",
+            // Numpad
+            0x60 => "Numpad0", 0x61 => "Numpad1", 0x62 => "Numpad2",
+            0x63 => "Numpad3", 0x64 => "Numpad4", 0x65 => "Numpad5",
+            0x66 => "Numpad6", 0x67 => "Numpad7", 0x68 => "Numpad8",
+            0x69 => "Numpad9",
+            0x6A => "NumpadMult", 0x6B => "NumpadAdd", 0x6D => "NumpadSub",
+            0x6F => "NumpadDiv", 0x6E => "NumpadDot",
+            // Mouse (rarely appears here but just in case)
+            0x05 => "XButton1", 0x06 => "XButton2", 0x04 => "MButton",
+            // Letters/digits: VK_A-VK_Z (0x41-0x5A), VK_0-VK_9 (0x30-0x39)
+            _ when vk >= 0x41 && vk <= 0x5A => ((char)vk).ToString().ToLowerInvariant(),
+            _ when vk >= 0x30 && vk <= 0x39 => ((char)vk).ToString(),
+            // Truly unknown: emit a recognizable VK hex code
+            _ => $"vk{vk:X2}"
+        };
     }
 
     private void OnHotkeyCaptured(object sender, System.Windows.Input.KeyEventArgs e)
@@ -1223,10 +1370,17 @@ public partial class SettingsWindow : Window
             Key.F1 => "F1", Key.F2 => "F2", Key.F3 => "F3", Key.F4 => "F4",
             Key.F5 => "F5", Key.F6 => "F6", Key.F7 => "F7", Key.F8 => "F8",
             Key.F9 => "F9", Key.F10 => "F10", Key.F11 => "F11", Key.F12 => "F12",
+            Key.F13 => "F13", Key.F14 => "F14", Key.F15 => "F15", Key.F16 => "F16",
+            Key.F17 => "F17", Key.F18 => "F18", Key.F19 => "F19", Key.F20 => "F20",
+            Key.F21 => "F21", Key.F22 => "F22", Key.F23 => "F23", Key.F24 => "F24",
+            Key.Escape => "Escape",
             Key.Space => "Space", Key.Return => "Enter", Key.Tab => "Tab",
             Key.Back => "Backspace", Key.Delete => "Delete", Key.Insert => "Insert",
             Key.Home => "Home", Key.End => "End", Key.PageUp => "PgUp", Key.PageDown => "PgDn",
             Key.Up => "Up", Key.Down => "Down", Key.Left => "Left", Key.Right => "Right",
+            Key.Pause => "Pause", Key.Scroll => "ScrollLock",
+            Key.CapsLock => "CapsLock", Key.NumLock => "NumLock",
+            Key.PrintScreen => "PrintScreen",
             Key.NumPad0 => "Numpad0", Key.NumPad1 => "Numpad1", Key.NumPad2 => "Numpad2",
             Key.NumPad3 => "Numpad3", Key.NumPad4 => "Numpad4", Key.NumPad5 => "Numpad5",
             Key.NumPad6 => "Numpad6", Key.NumPad7 => "Numpad7", Key.NumPad8 => "Numpad8",

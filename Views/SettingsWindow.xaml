@@ -1164,7 +1164,7 @@
                 <!-- ══ 14. ABOUT ══ -->
                 <StackPanel x:Name="PanelAbout" Visibility="Collapsed">
                     <TextBlock Text="ℹ About" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,12"/>
-                    <TextBlock Text="EVE MultiPreview v2.0.1" FontSize="16"/>
+                    <TextBlock Text="EVE MultiPreview v2.0.2" FontSize="16"/>
                     <TextBlock Text="C# / WPF Edition" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8"/>
                     <TextBlock TextWrapping="Wrap"
                                Text="Multi-client thumbnail preview manager for EVE Online. Shows live DWM thumbnails of your EVE windows with click-to-switch, drag-to-reposition, custom borders, alerts, stat overlays, and per-character hotkeys."/>
