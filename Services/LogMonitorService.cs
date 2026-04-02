@@ -183,11 +183,14 @@ public sealed class LogMonitorService : IDisposable
         "Ephialtes", "Lucifer", "Karybdis", "Scylla",
         "Spearfisher",
         // ═══ EDENCOM ═══
-        "EDENCOM",
+        "EDENCOM", "New Eden ",
         "Arrester", "Attacker", "Drainer", "Marker",
         "Thunderchild", "Stormbringer", "Skybreaker",
         "Disparu", "Enforcer", "Pacifier", "Marshal ",
         "Upwell ",
+        "Vanguard", "Gunner", "Warden", "Provost", "Paragon", 
+        "Patrol", "Escort", "Defender", "Protector", "Sentinel", 
+        "Logistics", "Support", "Stalwart", "Preserver", "Custodian", "Responder",
         // ═══ Deathless Circle (Havoc expansion) ═══
         "Deathless ",
         // ═══ Sentry Guns & Structures ═══
@@ -198,7 +201,12 @@ public sealed class LogMonitorService : IDisposable
         "Angel Sentry",
         // ═══ FOB / Diamond NPCs ═══
         "Forward Operating",
-        "Diamond ", "FOB ",
+        "Diamond ", "FOB ", "♦",
+        // ═══ Additional Missing from SDE ═══
+        "Angel ", "Independent", "COSMOS ", "Metadrone", "Elite ", 
+        "Dread ", "Elder ", "Dire ", "Scout ", "EoM ", "AEGIS ", "ORE ", "[AIR]", 
+        "Blood ", "Mercenary ", "Thukker ", "Divine ", "Hunt ", "Guri ", "SoCT ", 
+        "Tetrimon ", "Sleeper ", "Federal ", "Infesting ", "Talocan ", "Cyber ",
         // ═══ Homefront Operations (25-pass audit) ═══
         "Homefront ",
         "Atgeir ", "Blight ", "Blindsider ", "Bastion ",
@@ -210,6 +218,7 @@ public sealed class LogMonitorService : IDisposable
         // ═══ Insurgency (Havoc expansion) ═══
         "Insurgency ",
         "Hakuzosu",
+        "Malakim", "Chorosh", "Zarzakh",
         // ═══ Faction Warfare NPCs ═══
         "Navy ",
         // ═══ Irregular entities (events, seasonal) ═══
@@ -261,7 +270,7 @@ public sealed class LogMonitorService : IDisposable
     // hull-type suffixes. Updated from 25-pass SDE audit.
     private static readonly string[] NpcSuffixes = {
         " Alvi", " Alvus", " Alvatis", " Alvior",
-        " Alvum",
+        " Alvum", " Apis", " Drone", " Colony", " Hive", " Swarm",
         " Tyrannos",
         " Tessella", " Tessera",
         " Rodeiva", " Rodiva",
@@ -767,14 +776,27 @@ public sealed class LogMonitorService : IDisposable
                 // PVE mode: extract attacker and skip if NPC
                 if (PveMode)
                 {
-                    // Fallback attacker extraction for miss lines (no "from" keyword)
-                    var missAttacker = Regex.Match(line, @"<b>(.+?)</b>");
+                    // Fallback attacker extraction for miss lines
+                    // EVE miss lines often lack HTML tags. e.g. "[ 2026.04.02 01:08:48 ] (combat) Angel Outer Zarzakh Dramiel misses you completely"
+                    var missAttacker = Regex.Match(line, @"\] \(combat\) (.*?) misses you");
                     if (missAttacker.Success)
                     {
-                        string name = missAttacker.Groups[1].Value.Trim();
+                        string rawName = missAttacker.Groups[1].Value;
+                        string name = Regex.Replace(rawName, @"<[^>]*>", "").Trim();
                         // Skip pure numbers (damage values)
                         if (!int.TryParse(name, out _) && IsNpc(name))
                             goto SkipCombat;
+                    }
+                    else
+                    {
+                        // Legacy fallback 
+                        missAttacker = Regex.Match(line, @"<b>(.+?)</b>");
+                        if (missAttacker.Success)
+                        {
+                            string name = missAttacker.Groups[1].Value.Trim();
+                            if (!int.TryParse(name, out _) && IsNpc(name))
+                                goto SkipCombat;
+                        }
                     }
                 }
                 _lastEventTime = DateTime.Now;
@@ -1101,6 +1123,10 @@ public sealed class LogMonitorService : IDisposable
 
     private static bool IsNpc(string name)
     {
+        // PvP Mitigation: In standard combat logs, player entities always have 
+        // their ship type and/or corporate ticker appended e.g., PlayerName[CORP](ShipName)
+        if (name.Contains('(') || name.Contains('[')) return false;
+
         // O(1) check for exact named officer NPCs first
         if (NpcExactNames.Contains(name)) return true;
         foreach (var prefix in NpcPrefixes)

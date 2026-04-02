@@ -227,6 +227,7 @@
                     <Button x:Name="NavVisibility" Content="  👁  Visibility" Click="NavButton_Click" Tag="Visibility" Style="{StaticResource NavBtn}"/>
                     <Button x:Name="NavClient" Content="  🖥  Client" Click="NavButton_Click" Tag="Client" Style="{StaticResource NavBtn}"/>
                     <Button x:Name="NavFPS" Content="  🚀  FPS Limiter" Click="NavButton_Click" Tag="FPSLimiter" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavPerformance" Content="  ⚡  Performance" Click="NavButton_Click" Tag="Performance" Style="{StaticResource NavBtn}"/>
                     <Button x:Name="NavStats" Content="  📊  Stats Overlay" Click="NavButton_Click" Tag="StatsOverlay" Style="{StaticResource NavBtn}"/>
                     <Button x:Name="NavManager" Content="  🗂  EVE Manager" Click="NavButton_Click" Tag="EVEManager" Style="{StaticResource NavBtn}"/>
                     <Button x:Name="NavAbout" Content="  ℹ  About" Click="NavButton_Click" Tag="About" Style="{StaticResource NavBtn}"/>
@@ -346,7 +347,7 @@
                             <CheckBox x:Name="ChkHideActive" Content="Hide Active Thumbnail" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkShowSystem" Content="Show System Name (from EVE logs)" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <StackPanel Orientation="Horizontal" Margin="0,3">
-                                <CheckBox x:Name="ChkShowStats" Content="Show CPU/RAM per client" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                                <CheckBox x:Name="ChkShowStats" Content="Show CPU/RAM/VRAM per client" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                                 <Label Content="Size:" Margin="12,0,0,0"/>
                                 <TextBox x:Name="TxtStatsTextSize" Width="35" Text="9" TextChanged="OnThumbnailChanged"/>
                             </StackPanel>
@@ -646,7 +647,7 @@
                     </GroupBox>
                     <GroupBox Header="Alert Events">
                         <StackPanel>
-                            <CheckBox x:Name="ChkEnableAttackAlerts" Content="Enable Attack Alerts" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
+
                             <CheckBox x:Name="ChkPveMode" Content="PVE Mode (Ignore NPC Damage)" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
                             <TextBlock Text="Only alert on player damage — filters out rats, sentries, and NPCs."
                                        Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,8"/>
@@ -806,6 +807,42 @@
                     </GroupBox>
                 </StackPanel>
 
+                <!-- ══ NEW: PERFORMANCE ══ -->
+                <StackPanel x:Name="PanelPerformance" Visibility="Collapsed">
+                    <TextBlock Text="⚡ CPU Performance &amp; Affinity" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Orchestrate CPU priority and core affinity to ensure inactive clients never steal P-Core cycles." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Global Settings">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkManageAffinity" Content="Enable Background Client Affinity/Priority Management" Checked="OnPerformanceChanged" Unchecked="OnPerformanceChanged"/>
+                            <TextBlock Text="When enabled, inactive EVE clients are dropped to 'Idle' priority to prevent stuttering." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,8"/>
+                            <CheckBox x:Name="ChkAutoBalanceCores" Content="Auto-Balance Inactive Clients to E-Cores (App Decides)" Checked="OnPerformanceChanged" Unchecked="OnPerformanceChanged"/>
+                            <TextBlock Text="Dynamically round-robins inactive clients across the bottom half of your logical cores (E-Cores or 2nd CCD)." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,4"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Per-Client Core Overrides">
+                        <StackPanel>
+                            <TextBlock Text="Explicitly force a specific character to a specific logical processor when they are INACTIVE. This overrides Auto-Balance." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                            <ListView x:Name="LvPerClientCores" Height="180"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Character" Width="220" DisplayMemberBinding="{Binding Character}"/>
+                                        <!-- The combo box is populated in code-behind but bound here -->
+                                        <GridViewColumn Header="Inactive Core" Width="150">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <ComboBox Width="130" ItemsSource="{Binding AvailableCores}" SelectedItem="{Binding SelectedCore, Mode=TwoWay}" SelectionChanged="OnPerClientCoreChanged" Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
                 <!-- ══ 11. FPS LIMITER ══ -->
                 <StackPanel x:Name="PanelFPSLimiter" Visibility="Collapsed">
                     <TextBlock Text="🚀 FPS Limiter" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
@@ -813,6 +850,8 @@
                     <TextBlock x:Name="TxtRtssStatus" FontWeight="SemiBold" Margin="0,0,0,8"/>
                     <GroupBox Header="Settings">
                         <StackPanel>
+                            <CheckBox x:Name="ChkShowFps" Content="Show FPS overlay on thumbnails (Top Right)" 
+                                      Checked="OnShowFpsChanged" Unchecked="OnShowFpsChanged" Margin="4,4,0,8" FontWeight="SemiBold"/>
                             <StackPanel Orientation="Horizontal" Margin="0,3">
                                 <Label Content="Background FPS:"/>
                                 <ComboBox x:Name="CmbFpsLimit" Width="100" SelectionChanged="OnFpsLimiterChanged">
@@ -1164,7 +1203,7 @@
                 <!-- ══ 14. ABOUT ══ -->
                 <StackPanel x:Name="PanelAbout" Visibility="Collapsed">
                     <TextBlock Text="ℹ About" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,12"/>
-                    <TextBlock Text="EVE MultiPreview v2.0.2" FontSize="16"/>
+                    <TextBlock x:Name="TxtAppVersion" Text="EVE MultiPreview vX.X.X" FontSize="16" Loaded="OnAboutLoaded"/>
                     <TextBlock Text="C# / WPF Edition" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,4,0,8"/>
                     <TextBlock TextWrapping="Wrap"
                                Text="Multi-client thumbnail preview manager for EVE Online. Shows live DWM thumbnails of your EVE windows with click-to-switch, drag-to-reposition, custom borders, alerts, stat overlays, and per-character hotkeys."/>
@@ -1181,6 +1220,8 @@
                                 Background="#e0e0e0" Foreground="#1a1a2e"
                                 BorderBrush="#cccccc"/>
                     </StackPanel>
+                    <CheckBox x:Name="ChkPreReleaseUpdates" Content="Receive Pre-Release Updates" Margin="0,8,0,0"
+                              Checked="OnPreReleaseChanged" Unchecked="OnPreReleaseChanged" Foreground="{StaticResource TextPrimaryBrush}"/>
                     <TextBlock x:Name="TxtVersionResult" Margin="0,8,0,0" TextWrapping="Wrap"
                                Foreground="{StaticResource TextSecondaryBrush}"/>
                     <TextBlock Margin="0,16,0,0" TextWrapping="Wrap"

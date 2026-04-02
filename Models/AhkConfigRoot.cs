@@ -10,6 +10,7 @@ namespace EveMultiPreview.Models;
 public class AhkConfigRoot
 {
     [JsonPropertyName("EveManager")]
+    [JsonConverter(typeof(AhkEveManagerConverter))]
     public AhkEveManager? EveManager { get; set; }
 
     [JsonPropertyName("_Profiles")]
@@ -49,12 +50,12 @@ public class AhkConfigRoot
         s.HideActiveThumbnail = g.HideActiveThumbnail != 0;
         s.IndividualThumbnailResize = g.IndividualThumbnailResize != 0;
         s.SimpleMode = g.SimpleMode != 0;
-        s.SetupCompleted = g.SetupCompleted != 0;
+        s.SetupCompleted = true; // Always bypass the First-Run wizard for migrated AHK users
         s.LastUsedProfile = g.LastUsedProfile ?? "Default";
         s.EnableKeyBlockGuard = g.EnableKeyBlockGuard != 0;
 
         // Alert settings
-        s.EnableAttackAlerts = g.EnableAttackAlerts != 0;
+
         s.PveMode = g.PVEMode != 0;
         s.EnableAlertSounds = g.EnableAlertSounds != 0;
         s.AlertSoundVolume = g.AlertSoundVolume;
@@ -92,6 +93,7 @@ public class AhkConfigRoot
         // RTSS
         s.RtssEnabled = g.RTSS_Enabled != 0;
         s.RtssFpsLimit = g.RTSS_IdleFPS;
+        s.ShowRtssFps = g.RTSS_ShowFPS != 0;
 
         // Char select
         s.CharSelectCyclingEnabled = g.CharSelectCyclingEnabled != 0;
@@ -178,6 +180,15 @@ public class AhkConfigRoot
                 profile.CustomColors = ConvertParallelArrayColors(cc.cColors);
             }
 
+            // Performance Settings
+            var ps = ahkProfile.PerformanceSettings;
+            if (ps != null)
+            {
+                profile.ManageAffinity = ps.ManageAffinity != 0;
+                profile.AutoBalanceCores = ps.AutoBalanceCores != 0;
+                profile.PerClientCores = ps.PerClientCores ?? new();
+            }
+
             s.Profiles[name] = profile;
         }
 
@@ -217,7 +228,7 @@ public class AhkConfigRoot
         g.EnableKeyBlockGuard = s.EnableKeyBlockGuard ? 1 : 0;
 
         // Alert
-        g.EnableAttackAlerts = s.EnableAttackAlerts ? 1 : 0;
+
         g.PVEMode = s.PveMode ? 1 : 0;
         g.EnableAlertSounds = s.EnableAlertSounds ? 1 : 0;
         g.AlertSoundVolume = s.AlertSoundVolume;
@@ -254,6 +265,7 @@ public class AhkConfigRoot
         // RTSS
         g.RTSS_Enabled = s.RtssEnabled ? 1 : 0;
         g.RTSS_IdleFPS = s.RtssFpsLimit;
+        g.RTSS_ShowFPS = s.ShowRtssFps ? 1 : 0;
 
         // Char select
         g.CharSelectCyclingEnabled = s.CharSelectCyclingEnabled ? 1 : 0;
@@ -335,6 +347,14 @@ public class AhkConfigRoot
             {
                 cColorActive = profile.CustomColorsActive ? 1 : 0,
                 cColors = ConvertCustomColorsToParallel(profile.CustomColors),
+            };
+
+            // Performance Settings sub-object
+            ap.PerformanceSettings = new AhkPerformanceSettings
+            {
+                ManageAffinity = profile.ManageAffinity ? 1 : 0,
+                AutoBalanceCores = profile.AutoBalanceCores ? 1 : 0,
+                PerClientCores = profile.PerClientCores,
             };
 
             root.Profiles[name] = ap;
@@ -475,6 +495,7 @@ public class AhkProfile
     [JsonPropertyName("Secondary Thumbnails")]
     public Dictionary<string, SecondaryThumbnailSettings>? SecondaryThumbnails { get; set; }
 
+
     [JsonPropertyName("Thumbnail Settings")]
     public AhkThumbnailSettings? ThumbnailSettings { get; set; }
 
@@ -489,6 +510,9 @@ public class AhkProfile
 
     [JsonPropertyName("Groups")]
     public Dictionary<string, ThumbnailGroup>? Groups { get; set; }
+
+    [JsonPropertyName("Performance Settings")]
+    public AhkPerformanceSettings? PerformanceSettings { get; set; }
 }
 
 // ── AHK Thumbnail Settings (per-profile sub-object) ────────────────
@@ -587,6 +611,20 @@ public class AhkCColors
     public List<string> IABordercolor { get; set; } = new();
 }
 
+// ── AHK Performance Settings (per-profile sub-object) ─────────────────
+
+public class AhkPerformanceSettings
+{
+    [JsonPropertyName("ManageAffinity")]
+    public int ManageAffinity { get; set; }
+
+    [JsonPropertyName("AutoBalanceCores")]
+    public int AutoBalanceCores { get; set; } = 1;
+
+    [JsonPropertyName("PerClientCores")]
+    public Dictionary<string, int>? PerClientCores { get; set; }
+}
+
 // ── AHK Global Settings ───────────────────────────────────────────
 
 public class AhkGlobalSettings
@@ -660,8 +698,6 @@ public class AhkGlobalSettings
     [JsonPropertyName("EnableKeyBlockGuard")]
     public int EnableKeyBlockGuard { get; set; }
 
-    [JsonPropertyName("EnableAttackAlerts")]
-    public int EnableAttackAlerts { get; set; }
 
     [JsonPropertyName("PVEMode")]
     public int PVEMode { get; set; }
@@ -750,6 +786,9 @@ public class AhkGlobalSettings
     [JsonPropertyName("RTSS_IdleFPS")]
     public int RTSS_IdleFPS { get; set; } = 15;
 
+    [JsonPropertyName("RTSS_ShowFPS")]
+    public int RTSS_ShowFPS { get; set; }
+
     [JsonPropertyName("CharSelect_CyclingEnabled")]
     public int CharSelectCyclingEnabled { get; set; }
 
@@ -811,4 +850,60 @@ public class AhkCharCacheEntry
 
     [JsonPropertyName("name")]
     public string? Name { get; set; }
+}
+
+public class AhkEveManagerConverter : JsonConverter<AhkEveManager>
+{
+    public override AhkEveManager? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.String)
+        {
+            // AHK serializes uninitialized objects as empty strings
+            reader.GetString(); 
+            return null;
+        }
+
+        if (reader.TokenType == JsonTokenType.StartObject)
+        {
+            var result = new AhkEveManager();
+            while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+            {
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    string propName = reader.GetString() ?? "";
+                    reader.Read();
+                    if (propName.Equals("CharNameCache", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (reader.TokenType == JsonTokenType.StartObject)
+                        {
+                            result.CharNameCache = JsonSerializer.Deserialize<Dictionary<string, AhkCharCacheEntry>>(ref reader, options);
+                        }
+                        else
+                        {
+                            reader.Skip();
+                        }
+                    }
+                    else
+                    {
+                        reader.Skip();
+                    }
+                }
+            }
+            return result;
+        }
+
+        reader.Skip();
+        return null;
+    }
+
+    public override void Write(Utf8JsonWriter writer, AhkEveManager value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        if (value.CharNameCache != null)
+        {
+            writer.WritePropertyName("CharNameCache");
+            JsonSerializer.Serialize(writer, value.CharNameCache, options);
+        }
+        writer.WriteEndObject();
+    }
 }

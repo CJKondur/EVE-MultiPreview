@@ -142,7 +142,10 @@ public sealed class SettingsService : IDisposable
             _settings = new AppSettings();
             _loadedSuccessfully = false; // CRITICAL: Don't allow Save to overwrite real config
         }
+        
     }
+    
+
 
     /// <summary>Save settings to disk using atomic write (temp file + rename). Thread-safe.
     /// Always saves in AHK-compatible format for backwards compatibility.</summary>

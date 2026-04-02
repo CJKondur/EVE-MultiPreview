@@ -491,7 +491,7 @@ public partial class ThumbnailWindow : Window
         // Inset the DWM thumbnail by border thickness.
         // Because the WPF BackgroundPanel now uses true BorderBrush with a Transparent center,
         // passing _savedOpacity here natively blends the DWM thumbnail directly with the desktop.
-        DwmApi.UpdateThumbnailInset(_thumbId, w, h, b, _savedOpacity);
+        DwmApi.UpdateThumbnailInset(_thumbId, w, h, b, _currentVisualOpacity);
     }
 
     // ── Overlay Updates ─────────────────────────────────────────────
@@ -537,6 +537,14 @@ public partial class ThumbnailWindow : Window
         });
     }
 
+    public void UpdateFpsStats(double fps, bool visible)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            _textOverlay?.UpdateFpsStats(fps, visible);
+        });
+    }
+
     public void SetProcessStatsTextSize(double fontSize)
     {
         Dispatcher.Invoke(() =>
@@ -552,6 +560,50 @@ public partial class ThumbnailWindow : Window
         return (int)pid;
     }
 
+    private byte _currentVisualOpacity = 255;
+    private Color? _baseBorderColor;
+
+    public void ApplyVisualOpacity(byte opacity)
+    {
+        _currentVisualOpacity = opacity;
+        
+        // DO NOT modify `this.Opacity`! Modifying the top-level Window opacity reduces the layered window's 
+        // SourceConstantAlpha which destroys hit-testing at low opacity thresholds.
+
+        // We only modify UI visibility when completely hiding (opacity == 0).
+        if (opacity == 0)
+        {
+            BorderOverlay.Visibility = Visibility.Collapsed;
+            if (_textOverlay != null) _textOverlay.Visibility = Visibility.Collapsed;
+            
+            // Allow NotLoggedInOverlay to fade gracefully instead of force-hiding
+            NotLoggedInOverlay.Opacity = 0;
+            
+            BackgroundPanel.Background = System.Windows.Media.Brushes.Transparent;
+            if (_baseBorderColor.HasValue && BackgroundPanel.BorderThickness.Left > 0)
+            {
+                BackgroundPanel.BorderBrush = System.Windows.Media.Brushes.Transparent;
+            }
+        }
+        else
+        {
+            BorderOverlay.Visibility = Visibility.Visible;
+            if (_textOverlay != null) _textOverlay.Visibility = Visibility.Visible;
+
+            NotLoggedInOverlay.Opacity = opacity / 255.0; // Respect user opacity
+            
+            BackgroundPanel.Background = new SolidColorBrush(Color.FromArgb(5, 0, 0, 0));
+            if (_baseBorderColor.HasValue && BackgroundPanel.BorderThickness.Left > 0)
+            {
+                // UI boundaries maintain solid 255 alpha for rendering crispness and hit-testing
+                BackgroundPanel.BorderBrush = new SolidColorBrush(Color.FromArgb(255, _baseBorderColor.Value.R, _baseBorderColor.Value.G, _baseBorderColor.Value.B));
+            }
+        }
+
+        // Push the actual opacity dynamically through the DWM API to fade the EVE client region underneath
+        UpdateThumbnailSize(); 
+    }
+
     /// <summary>Set Not-Logged-In indicator. Supports 4 modes: text, dim, border, color.</summary>
     public void SetNotLoggedIn(bool isCharSelect, string mode, Color? borderColor = null, int dim = 80)
     {
@@ -559,36 +611,30 @@ public partial class ThumbnailWindow : Window
         {
             if (isCharSelect && mode != "none")
             {
+                byte dimOpacity = (byte)(dim / 100.0 * _savedOpacity);
                 switch (mode.ToLowerInvariant())
                 {
                     case "text":
                         NotLoggedInOverlay.Visibility = Visibility.Visible;
-                        if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0;
-                        if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
+                        if (!_isDwmHidden) ApplyVisualOpacity(_savedOpacity);
                         break;
                     case "dim":
-                        if (!_isDwmHidden) this.Opacity = (dim / 100.0) * (_savedOpacity / 255.0);
-                        if (_textOverlay != null) _textOverlay.Opacity = (dim / 100.0) * (_savedOpacity / 255.0);
+                        if (!_isDwmHidden) ApplyVisualOpacity(dimOpacity);
                         NotLoggedInOverlay.Visibility = Visibility.Collapsed;
                         break;
                     case "border":
-                        if (borderColor.HasValue)
-                            SetBorder(borderColor.Value, 3);
+                        if (borderColor.HasValue) SetBorder(borderColor.Value, 3);
                         NotLoggedInOverlay.Visibility = Visibility.Collapsed;
-                        if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0;
-                        if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
+                        if (!_isDwmHidden) ApplyVisualOpacity(_savedOpacity);
                         break;
                     case "color":
-                        if (borderColor.HasValue)
-                            SetBorder(borderColor.Value, 3);
+                        if (borderColor.HasValue) SetBorder(borderColor.Value, 3);
                         NotLoggedInOverlay.Visibility = Visibility.Visible;
-                        if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0;
-                        if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
+                        if (!_isDwmHidden) ApplyVisualOpacity(_savedOpacity);
                         break;
                     default:
                         NotLoggedInOverlay.Visibility = Visibility.Visible;
-                        if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0;
-                        if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
+                        if (!_isDwmHidden) ApplyVisualOpacity(_savedOpacity);
                         break;
                 }
                 Debug.WriteLine($"[Thumb:NotLoggedIn] 🔧 '{CharacterName}' mode={mode}");
@@ -596,8 +642,7 @@ public partial class ThumbnailWindow : Window
             else
             {
                 NotLoggedInOverlay.Visibility = Visibility.Collapsed;
-                if (!_isDwmHidden) this.Opacity = _savedOpacity / 255.0; // Reset dim to user preference
-                if (_textOverlay != null) _textOverlay.Opacity = _savedOpacity / 255.0;
+                if (!_isDwmHidden) ApplyVisualOpacity(_savedOpacity); // Reset dim to user preference
             }
         });
     }
@@ -606,13 +651,18 @@ public partial class ThumbnailWindow : Window
     {
         Dispatcher.BeginInvoke(() =>
         {
-            // Draw a proper hollow border instead of filling the window with a solid color.
-            // We use an almost-invisible alpha=1 brush instead of purely Transparent (alpha=0).
-            // This prevents Windows layered-window HitTest from ignoring clicks in the center!
-            BackgroundPanel.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+            _baseBorderColor = color;
+            
+            BackgroundPanel.Background = _currentVisualOpacity == 0
+                ? System.Windows.Media.Brushes.Transparent
+                : new SolidColorBrush(Color.FromArgb(5, 0, 0, 0));
+
             BackgroundPanel.BorderBrush = thickness > 0
-                ? new SolidColorBrush(color)
+                ? (_currentVisualOpacity == 0 
+                    ? System.Windows.Media.Brushes.Transparent 
+                    : new SolidColorBrush(Color.FromArgb(_currentVisualOpacity, color.R, color.G, color.B)))
                 : System.Windows.Media.Brushes.Transparent;
+            
             BackgroundPanel.BorderThickness = new Thickness(thickness);
 
             if (_borderThickness != thickness)
@@ -671,9 +721,34 @@ public partial class ThumbnailWindow : Window
     {
         Dispatcher.Invoke(() =>
         {
-            // Force effectively invisible background (alpha=1) to catch mouse hits.
-            // Solid opaque backgrounds here cause translucent DWM thumbnails to wash out into "muddy gray".
-            BackgroundPanel.Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
+            // Force effectively invisible background (alpha=5) to catch mouse hits.
+            // Using 5 instead of 1 safely clears any Win32 layer hit-test quantization floors without washing out DWM thumbs.
+            BackgroundPanel.Background = new SolidColorBrush(Color.FromArgb(5, 0, 0, 0));
+        });
+    }
+
+    public void SetClickThrough(bool enable)
+    {
+        Dispatcher.Invoke(() => 
+        {
+            if (_textOverlay != null)
+            {
+                var source = (System.Windows.Interop.HwndSource)PresentationSource.FromVisual(_textOverlay);
+                if (source != null)
+                {
+                    int exStyle = Interop.User32.GetWindowLong(source.Handle, Interop.User32.GWL_EXSTYLE);
+                    if (enable)
+                        Interop.User32.SetWindowLong(source.Handle, Interop.User32.GWL_EXSTYLE,
+                            exStyle | Interop.User32.WS_EX_TRANSPARENT | Interop.User32.WS_EX_LAYERED);
+                    else
+                        Interop.User32.SetWindowLong(source.Handle, Interop.User32.GWL_EXSTYLE,
+                            exStyle & ~Interop.User32.WS_EX_TRANSPARENT);
+
+                    Interop.User32.SetWindowPos(source.Handle, IntPtr.Zero, 0, 0, 0, 0,
+                        Interop.User32.SWP_NOMOVE | Interop.User32.SWP_NOSIZE |
+                        Interop.User32.SWP_NOZORDER | Interop.User32.SWP_FRAMECHANGED | Interop.User32.SWP_NOACTIVATE);
+                }
+            }
         });
     }
 
@@ -683,16 +758,8 @@ public partial class ThumbnailWindow : Window
         
         if (!_isDwmHidden)
         {
-            this.Opacity = opacity / 255.0;
+            ApplyVisualOpacity(_savedOpacity);
         }
-
-        if (_textOverlay != null)
-        {
-            _textOverlay.Opacity = opacity / 255.0;
-        }
-
-        // Ensure the DWM thumbnail opacity matches the window wrapper
-        UpdateThumbnailSize();
     }
 
     public void SetTextOverlayVisible(bool visible)
@@ -765,7 +832,8 @@ public partial class ThumbnailWindow : Window
     {
         if (!_isDwmHidden) return;
         _isDwmHidden = false;
-        this.Opacity = _savedOpacity / 255.0;
+        this.Opacity = 1.0;
+        ApplyVisualOpacity(_currentVisualOpacity);
     }
 
     /// <summary>Sync text overlay position AND z-order with thumbnail.

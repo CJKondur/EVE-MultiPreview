@@ -22,8 +22,6 @@ public record EveWindow(IntPtr Hwnd, string Title, string CharacterName);
 /// </summary>
 public sealed class WindowDiscoveryService : IDisposable
 {
-    // EVE's process name (without .exe)
-    private const string EveProcessName = "exefile";
     private const int PollIntervalMs = 100; // Fast detection — EnumWindows is cheap at this rate
 
     private readonly ConcurrentDictionary<IntPtr, EveWindow> _windows = new();
@@ -94,7 +92,7 @@ public sealed class WindowDiscoveryService : IDisposable
     {
         // Find all current EVE windows (including those temporarily hidden if we already track them)
         var knownHwnds = new HashSet<IntPtr>(_windows.Keys);
-        var currentWindows = User32.FindWindowsByProcessName(EveProcessName, knownHwnds);
+        var currentWindows = Interop.User32.FindEveWindows(knownHwnds);
         var currentHwnds = new HashSet<IntPtr>(currentWindows.Select(w => w.Hwnd));
 
         // Check for new windows or title changes

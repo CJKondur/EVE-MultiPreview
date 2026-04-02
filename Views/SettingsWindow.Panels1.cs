@@ -234,7 +234,9 @@ public partial class SettingsWindow
         if (_loading || TxtOpacityValue == null) return;
         TxtOpacityValue.Text = $"{(int)SliderOpacity.Value}%";
         S.ThumbnailOpacity = (int)(SliderOpacity.Value * 255 / 100);
+        _thumbnailManager?.ApplyOpacityToAll();
         SaveDelayed();
+        _opacityOnlyChange = true; // Set AFTER SaveDelayed so it isn't cleared
     }
 
     private void SaveThumbnails()

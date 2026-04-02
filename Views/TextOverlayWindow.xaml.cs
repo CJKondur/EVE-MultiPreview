@@ -65,6 +65,7 @@ public partial class TextOverlayWindow : Window
 
     public void UpdateSystemName(string? systemName)
     {
+        System.Diagnostics.Debug.WriteLine($"[TextOverlay] UpdateSystemName called with: '{systemName ?? "NULL"}'");
         if (!string.IsNullOrEmpty(systemName))
         {
             SystemOverlay.Text = systemName;
@@ -110,25 +111,46 @@ public partial class TextOverlayWindow : Window
         TimerOverlay.FontFamily = font;
         TimerOverlay.FontSize = Math.Max(dipSize - (2 * (96.0 / 72.0)), 8);
         TimerOverlay.Foreground = brush;
+
+        FpsOverlay.FontFamily = font;
+        FpsOverlay.FontSize = dipSize;
+        FpsOverlay.Foreground = brush;
     }
 
     public void SetTextMargins(int marginX, int marginY)
     {
         TextOverlayPanel.Margin = new Thickness(marginX, marginY, marginX, 0);
+        FpsOverlay.Margin = new Thickness(0, marginY, marginX, 0);
     }
 
     // ── Process Stats ────────────────────────────────────────────────
+
+    public void UpdateFpsStats(double fps, bool visible)
+    {
+        if (visible)
+        {
+            FpsOverlay.Text = $"{fps:0.0} fps";
+            FpsOverlay.Visibility = Visibility.Visible;
+            if (fps < 30) FpsOverlay.Foreground = new SolidColorBrush(Color.FromRgb(255, 100, 100)); // Red if low
+            else if (fps < 50) FpsOverlay.Foreground = new SolidColorBrush(Color.FromRgb(255, 200, 100)); // Yellow if medium
+            else FpsOverlay.Foreground = NameOverlay.Foreground; // Default color if good
+        }
+        else
+        {
+            FpsOverlay.Visibility = Visibility.Collapsed;
+        }
+    }
 
     public void UpdateProcessStats(string? text)
     {
         if (!string.IsNullOrEmpty(text))
         {
             ProcessStatsOverlay.Text = text;
-            ProcessStatsOverlay.Visibility = Visibility.Visible;
+            ProcessStatsViewbox.Visibility = Visibility.Visible;
         }
         else
         {
-            ProcessStatsOverlay.Visibility = Visibility.Collapsed;
+            ProcessStatsViewbox.Visibility = Visibility.Collapsed;
         }
     }
 
@@ -146,6 +168,11 @@ public partial class TextOverlayWindow : Window
         Top = top;
         Width = width;
         Height = height;
+
+        // Update Viewbox max width so it knows when to shrink text
+        // Account for panel margins (5px each side default)
+        double availableWidth = Math.Max(width - TextOverlayPanel.Margin.Left - TextOverlayPanel.Margin.Right, 20);
+        ProcessStatsViewbox.MaxWidth = availableWidth;
     }
 
     /// <summary>Get the Win32 HWND for this window (for Win32 owner relationship).</summary>

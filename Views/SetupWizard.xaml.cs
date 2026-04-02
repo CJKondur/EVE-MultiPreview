@@ -23,7 +23,7 @@ public partial class SetupWizard : Window
 {
     private readonly SettingsService _svc;
     private int _currentStep = 1;
-    private int _selectedWidth = 200, _selectedHeight = 150;
+    private int _selectedWidth, _selectedHeight;
 
     // Dark title bar
     [DllImport("dwmapi.dll", PreserveSig = true)]
@@ -32,6 +32,8 @@ public partial class SetupWizard : Window
     public SetupWizard(SettingsService svc)
     {
         _svc = svc;
+        _selectedWidth = (int)_svc.Settings.ThumbnailStartLocation.Width;
+        _selectedHeight = (int)_svc.Settings.ThumbnailStartLocation.Height;
         InitializeComponent();
         Loaded += (_, _) =>
         {

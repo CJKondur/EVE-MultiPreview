@@ -283,7 +283,7 @@ public partial class SettingsWindow
         S.GameLogDirectory = TxtGameLogDir.Text;
         S.EnableUnderFireIndicator = ChkUnderFire.IsChecked == true;
         if (int.TryParse(TxtUnderFireTimeout.Text, out int uft) && uft > 0) S.UnderFireTimeoutSeconds = uft;
-        S.EnableAttackAlerts = ChkEnableAttackAlerts.IsChecked == true;
+
         S.PveMode = ChkPveMode.IsChecked == true;
         S.NotLoggedInIndicator = GetNotLoggedInType();
         S.NotLoggedInColor = TxtNotLoggedInColor.Text;
@@ -447,6 +447,13 @@ public partial class SettingsWindow
     }
 
     // ═══ FPS LIMITER ═══
+    private void OnShowFpsChanged(object s, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        S.ShowRtssFps = ChkShowFps.IsChecked == true;
+        SaveDelayed();
+    }
+
     private void OnFpsLimiterChanged(object s, SelectionChangedEventArgs e)
     {
         if (_loading) return;
@@ -1105,8 +1112,22 @@ public partial class SettingsWindow
     }
 
     // ═══ ABOUT ═══
-    private const string CURRENT_VERSION = "2.0.0";
+    private static readonly string CURRENT_VERSION =
+        typeof(SettingsWindow).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
     private static readonly System.Net.Http.HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
+
+    private void OnAboutLoaded(object s, RoutedEventArgs e)
+    {
+        TxtAppVersion.Text = $"EVE MultiPreview v{CURRENT_VERSION}";
+        ChkPreReleaseUpdates.IsChecked = _svc.Settings.ReceivePreReleaseUpdates;
+    }
+
+    private void OnPreReleaseChanged(object s, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        _svc.Settings.ReceivePreReleaseUpdates = ChkPreReleaseUpdates.IsChecked == true;
+        SaveDelayed();
+    }
 
     private void OnOpenGitHub(object s, RoutedEventArgs e)
     {
@@ -1121,42 +1142,22 @@ public partial class SettingsWindow
 
         try
         {
-            _httpClient.DefaultRequestHeaders.UserAgent.Clear();
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("EVE-MultiPreview/" + CURRENT_VERSION);
-            var json = await _httpClient.GetStringAsync("https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest");
+            var updateService = new Services.UpdateService();
+            bool hasUpdate = await updateService.CheckForUpdateAsync(_svc.Settings.ReceivePreReleaseUpdates);
 
-            // Parse tag_name from JSON (simple parse, no dependency needed)
-            var tagMatch = System.Text.RegularExpressions.Regex.Match(json, "\"tag_name\"\\s*:\\s*\"([^\"]+)\"");
-            var urlMatch = System.Text.RegularExpressions.Regex.Match(json, "\"html_url\"\\s*:\\s*\"([^\"]+)\"");
-
-            if (tagMatch.Success)
+            if (hasUpdate)
             {
-                var latestTag = tagMatch.Groups[1].Value.TrimStart('v', 'V');
-                var releaseUrl = urlMatch.Success ? urlMatch.Groups[1].Value : "https://github.com/CJKondur/EVE-MultiPreview/releases/latest";
+                TxtVersionResult.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFA500"));
+                TxtVersionResult.Text = $"⬆ Update available: v{updateService.LatestVersion} (you have v{CURRENT_VERSION})";
 
-                if (Version.TryParse(latestTag, out var latest) && Version.TryParse(CURRENT_VERSION, out var current))
-                {
-                    if (latest > current)
-                    {
-                        TxtVersionResult.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFA500"));
-                        TxtVersionResult.Text = $"⬆ Update available: v{latestTag} (you have v{CURRENT_VERSION})";
-                        TxtVersionResult.Cursor = System.Windows.Input.Cursors.Hand;
-                        TxtVersionResult.MouseDown += (_, _) => { try { Process.Start(new ProcessStartInfo(releaseUrl) { UseShellExecute = true }); } catch { } };
-                    }
-                    else
-                    {
-                        TxtVersionResult.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4AFF4A"));
-                        TxtVersionResult.Text = $"✅ You are up to date (v{CURRENT_VERSION})";
-                    }
-                }
-                else
-                {
-                    TxtVersionResult.Text = $"Latest release: {tagMatch.Groups[1].Value}  |  Current: v{CURRENT_VERSION}";
-                }
+                // Open the update dialog for one-click install
+                var dialog = new UpdateDialog(updateService) { Owner = this };
+                dialog.ShowDialog();
             }
             else
             {
-                TxtVersionResult.Text = "⚠ Could not parse release info.";
+                TxtVersionResult.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4AFF4A"));
+                TxtVersionResult.Text = $"✅ You are up to date (v{CURRENT_VERSION})";
             }
         }
         catch (Exception ex)

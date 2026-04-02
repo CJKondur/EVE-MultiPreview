@@ -70,11 +70,30 @@ public class EveOConfigRoot
     [JsonPropertyName("DisableThumbnail")]
     public Dictionary<string, bool>? DisableThumbnail { get; set; }
 
+    [JsonPropertyName("CycleGroup1ClientsOrder")]
+    public Dictionary<string, int>? CycleGroup1ClientsOrder { get; set; }
+
+    [JsonPropertyName("CycleGroup2ClientsOrder")]
+    public Dictionary<string, int>? CycleGroup2ClientsOrder { get; set; }
+
+    [JsonPropertyName("CycleGroup1ForwardHotkeys")]
+    public List<string>? CycleGroup1ForwardHotkeys { get; set; }
+
+    [JsonPropertyName("CycleGroup1BackwardHotkeys")]
+    public List<string>? CycleGroup1BackwardHotkeys { get; set; }
+
+    [JsonPropertyName("CycleGroup2ForwardHotkeys")]
+    public List<string>? CycleGroup2ForwardHotkeys { get; set; }
+
+    [JsonPropertyName("CycleGroup2BackwardHotkeys")]
+    public List<string>? CycleGroup2BackwardHotkeys { get; set; }
+
     // ── Conversion: EveOConfigRoot → AppSettings ────────────────────
 
     public AppSettings ToAppSettings()
     {
         var s = new AppSettings();
+        s.SetupCompleted = true; // Automatically bypass the First-Run Wizard for migrated EVE-O users
 
         // Safe parsing for "Width, Height" or "X, Y" WinForms string serializations
         var thumbSize = ParseSize(ThumbnailSize, 384, 216);
@@ -96,10 +115,7 @@ public class EveOConfigRoot
 
         if (!string.IsNullOrWhiteSpace(ActiveClientHighlightColor))
         {
-            // WinForms colors might be named like "GreenYellow" or argb.
-            // Mapping named colors robustly is complex without System.Drawing, so we default if hex parsing fails.
-            if (ActiveClientHighlightColor.StartsWith("#"))
-                profile.ClientHighlightColor = ActiveClientHighlightColor;
+            profile.ClientHighlightColor = ConvertNamedColorToHex(ActiveClientHighlightColor, "#E36A0D");
         }
 
         // Layouts
@@ -135,6 +151,37 @@ public class EveOConfigRoot
             }
         }
 
+        // Cycling Hotkey Groups
+        if (CycleGroup1ClientsOrder != null && CycleGroup1ClientsOrder.Count > 0)
+        {
+            var hg = new HotkeyGroup();
+            hg.ForwardsHotkey = CycleGroup1ForwardHotkeys?.FirstOrDefault() ?? "";
+            hg.BackwardsHotkey = CycleGroup1BackwardHotkeys?.FirstOrDefault() ?? "";
+
+            hg.Characters = CycleGroup1ClientsOrder
+                .OrderBy(kv => kv.Value)
+                .Select(kv => ExtractCharacterName(kv.Key))
+                .Where(name => !string.IsNullOrEmpty(name))
+                .ToList();
+
+            profile.HotkeyGroups["CycleGroup1"] = hg;
+        }
+
+        if (CycleGroup2ClientsOrder != null && CycleGroup2ClientsOrder.Count > 0)
+        {
+            var hg = new HotkeyGroup();
+            hg.ForwardsHotkey = CycleGroup2ForwardHotkeys?.FirstOrDefault() ?? "";
+            hg.BackwardsHotkey = CycleGroup2BackwardHotkeys?.FirstOrDefault() ?? "";
+
+            hg.Characters = CycleGroup2ClientsOrder
+                .OrderBy(kv => kv.Value)
+                .Select(kv => ExtractCharacterName(kv.Key))
+                .Where(name => !string.IsNullOrEmpty(name))
+                .ToList();
+
+            profile.HotkeyGroups["CycleGroup2"] = hg;
+        }
+
         s.Profiles["Default"] = profile;
         s.LastUsedProfile = "Default";
 
@@ -165,5 +212,25 @@ public class EveOConfigRoot
         if (title.StartsWith(prefix))
             return title.Substring(prefix.Length).Trim();
         return title;
+    }
+
+    private static string ConvertNamedColorToHex(string colorName, string fallback)
+    {
+        if (string.IsNullOrWhiteSpace(colorName)) return fallback;
+        if (colorName.StartsWith("#")) return colorName;
+
+        try
+        {
+            var converted = System.Windows.Media.ColorConverter.ConvertFromString(colorName);
+            if (converted is System.Windows.Media.Color c)
+            {
+                return $"#{c.A:X2}{c.R:X2}{c.G:X2}{c.B:X2}";
+            }
+        }
+        catch
+        {
+            // Fallback for custom undefined colors
+        }
+        return fallback;
     }
 }

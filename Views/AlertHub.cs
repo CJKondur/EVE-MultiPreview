@@ -295,7 +295,7 @@ public class AlertHub : IDisposable
             string? fgProc = null;
             try { fgProc = Interop.User32.GetProcessName(fgHwnd); } catch { }
 
-            bool shouldBeTopmost = fgProc is "exefile" or "EveMultiPreview" or "devenv" or "dotnet";
+            bool shouldBeTopmost = Interop.User32.IsEveOrAppProcess(fgProc) || fgProc is "devenv" or "dotnet";
 
             if (_hubWindow.Topmost != shouldBeTopmost)
             {

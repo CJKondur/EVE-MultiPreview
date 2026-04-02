@@ -32,6 +32,9 @@ public sealed class HotkeyService : IDisposable
     private readonly List<HotkeySpec> _storedSpecs = new();
     private record HotkeySpec(uint Modifiers, uint VirtualKey, Action Action, bool AllowRepeat);
 
+    // Track repeatable hotkey IDs so WndProc can drop stale key-repeat messages after key release
+    private readonly HashSet<int> _repeatableIds = new();
+
     // ── Mouse button hotkey support (WH_MOUSE_LL) ──
     private IntPtr _mouseHookHandle = IntPtr.Zero;
     private User32.LowLevelMouseProc? _mouseHookProc; // prevent GC
@@ -102,6 +105,7 @@ public sealed class HotkeyService : IDisposable
         foreach (var id in _hotkeyActions.Keys.ToList())
             User32.UnregisterHotKey(_hwndSource.Handle, id);
         _hotkeyActions.Clear();
+        _repeatableIds.Clear();
         _storedSpecs.Clear();
         _storedMouseBindings.Clear();
         _storedKeyboardBindings.Clear();
@@ -121,7 +125,11 @@ public sealed class HotkeyService : IDisposable
             int id = _nextId++;
             uint finalMods = spec.AllowRepeat ? spec.Modifiers : (spec.Modifiers | User32.MOD_NOREPEAT);
             if (User32.RegisterHotKey(_hwndSource.Handle, id, finalMods, spec.VirtualKey))
+            {
                 _hotkeyActions[id] = spec.Action;
+                if (spec.AllowRepeat)
+                    _repeatableIds.Add(id);
+            }
         }
         _hotkeysActive = true;
         Debug.WriteLine($"[Hotkey:Activate] ✅ Activated {_storedSpecs.Count} hotkeys (EVE windows detected)");
@@ -137,6 +145,7 @@ public sealed class HotkeyService : IDisposable
             User32.UnregisterHotKey(_hwndSource.Handle, id);
             _hotkeyActions.Remove(id);
         }
+        _repeatableIds.Clear();
         _hotkeysActive = false;
         Debug.WriteLine("[Hotkey:Deactivate] ⏸ Deactivated hotkeys (no EVE windows)");
     }
@@ -633,7 +642,7 @@ public sealed class HotkeyService : IDisposable
                 {
                     var fgHwnd = User32.GetForegroundWindow();
                     string? fgProc = User32.GetProcessName(fgHwnd);
-                    if (fgProc != "exefile" && fgProc != "EveMultiPreview")
+                    if (!User32.IsEveOrAppProcess(fgProc))
                     {
                         Debug.WriteLine($"[Hotkey:Blocked] 🚫 EVE Only scope blocked ID={id} (fg={fgProc})");
                         return IntPtr.Zero; // Don't fire
@@ -648,7 +657,7 @@ public sealed class HotkeyService : IDisposable
                 var fgHwnd2 = User32.GetForegroundWindow();
                 string? fgTitle = User32.GetWindowTitle(fgHwnd2);
                 if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                    && User32.GetProcessName(fgHwnd2) == "EveMultiPreview")
+                    && User32.IsAppProcessName(User32.GetProcessName(fgHwnd2)))
                 {
                     Debug.WriteLine($"[Hotkey:Blocked] 🚫 Settings window active, blocked ID={id}");
                     return IntPtr.Zero;
@@ -659,14 +668,14 @@ public sealed class HotkeyService : IDisposable
             Debug.WriteLine($"[Hotkey:Fired] \u26A1 WM_HOTKEY ID={id}");
             if (_hotkeyActions.TryGetValue(id, out var action))
             {
-                // ── TOS Key-Block Guard ──
-                if (_appSettings?.EnableKeyBlockGuard == true)
+                // Drop stale key-repeat messages: if this is a repeatable hotkey and the
+                // physical key has already been released, the message is a queued ghost.
+                if (_repeatableIds.Contains(id))
                 {
-                    // Extract the VK from lParam (high word)
-                    uint hotkeyVk = (uint)((lParam.ToInt64() >> 16) & 0xFFFF);
-                    if (User32.IsGameKeyHeld(hotkeyVk))
+                    uint vk = (uint)((lParam.ToInt64() >> 16) & 0xFFFF);
+                    if (!User32.IsKeyDown((int)vk))
                     {
-                        Debug.WriteLine($"[Hotkey:TOS] \uD83D\uDEAB Blocked ID={id} — game key held (guard active)");
+                        Debug.WriteLine($"[Hotkey:Stale] 🗑️ Dropped stale repeat ID={id}, VK=0x{vk:X} (key released)");
                         handled = true;
                         return IntPtr.Zero;
                     }
@@ -827,7 +836,7 @@ public sealed class HotkeyService : IDisposable
                         {
                             var fgHwnd = User32.GetForegroundWindow();
                             string? fgProc = User32.GetProcessName(fgHwnd);
-                            if (fgProc != "exefile" && fgProc != "EveMultiPreview") continue;
+                            if (!User32.IsEveOrAppProcess(fgProc)) continue;
                         }
                         catch { }
 
@@ -837,7 +846,7 @@ public sealed class HotkeyService : IDisposable
                             var fgHwnd = User32.GetForegroundWindow();
                             string? fgTitle = User32.GetWindowTitle(fgHwnd);
                             if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                                && User32.GetProcessName(fgHwnd) == "EveMultiPreview") continue;
+                                && User32.IsAppProcessName(User32.GetProcessName(fgHwnd))) continue;
                         }
                         catch { }
 
@@ -944,11 +953,11 @@ public sealed class HotkeyService : IDisposable
                             {
                                 var fgHwnd = User32.GetForegroundWindow();
                                 string? fgProc = User32.GetProcessName(fgHwnd);
-                                if (fgProc != "exefile" && fgProc != "EveMultiPreview") continue;
+                                if (!User32.IsEveOrAppProcess(fgProc)) continue;
                                 
                                 string? fgTitle = User32.GetWindowTitle(fgHwnd);
                                 if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                                    && fgProc == "EveMultiPreview") continue;
+                                    && User32.IsAppProcessName(fgProc)) continue;
                             }
                             catch { }
                         }

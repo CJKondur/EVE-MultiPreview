@@ -41,7 +41,7 @@ public class AppSettings
     public bool SetupCompleted { get; set; } = false;
 
     // ── Alert Settings ──────────────────────────────────────────────
-    public bool EnableAttackAlerts { get; set; } = false;
+
     public bool PveMode { get; set; } = false;
     public bool EnableAlertSounds { get; set; } = false;
     public int AlertSoundVolume { get; set; } = 100;
@@ -104,6 +104,8 @@ public class AppSettings
     // ── RTSS / Misc ─────────────────────────────────────────────────
     public bool RtssEnabled { get; set; } = false;
     public int RtssFpsLimit { get; set; } = 15;
+    public bool ShowRtssFps { get; set; } = false;
+    public bool ReceivePreReleaseUpdates { get; set; } = false;
 
     // ── Under Fire Indicator ────────────────────────────────────────
     public bool EnableUnderFireIndicator { get; set; } = true;
@@ -181,6 +183,11 @@ public class AppSettings
 
     // Per-profile secondary thumbnails proxy
     [JsonIgnore] public Dictionary<string, SecondaryThumbnailSettings> SecondaryThumbnails { get => _cp.SecondaryThumbnails; set => _cp.SecondaryThumbnails = value; }
+
+    // Per-profile performance settings proxies
+    [JsonIgnore] public bool ManageAffinity { get => _cp.ManageAffinity; set => _cp.ManageAffinity = value; }
+    [JsonIgnore] public bool AutoBalanceCores { get => _cp.AutoBalanceCores; set => _cp.AutoBalanceCores = value; }
+    [JsonIgnore] public Dictionary<string, int> PerClientCores { get => _cp.PerClientCores; set => _cp.PerClientCores = value; }
 
     // Per-profile hotkey groups proxy
     [JsonIgnore] public Dictionary<string, HotkeyGroup> HotkeyGroups { get => _cp.HotkeyGroups; set => _cp.HotkeyGroups = value; }
@@ -367,6 +374,11 @@ public class Profile
     // ── Per-profile Custom Colors (from AHK "Custom Colors" sub-object) ──
     public bool CustomColorsActive { get; set; } = false;
     public Dictionary<string, CustomColorEntry> CustomColors { get; set; } = new();
+
+    // ── Per-profile Performance Settings ──
+    public bool ManageAffinity { get; set; } = false;
+    public bool AutoBalanceCores { get; set; } = true;
+    public Dictionary<string, int> PerClientCores { get; set; } = new();
 }
 
 /// <summary>Per-character stat overlay configuration.</summary>
@@ -522,3 +534,4 @@ public class CharacterStatSettings
     [JsonPropertyName("npc")]
     public bool Npc { get; set; } = false;
 }
+

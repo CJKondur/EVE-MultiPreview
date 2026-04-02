@@ -272,14 +272,36 @@ public static class User32
 
     /// <summary>
     /// Window activation: SetForegroundWindow + SetFocus.
+    /// Uses AttachThreadInput to bypass UIPI/Foreground restrictions.
     /// </summary>
     public static void ActivateWindow(IntPtr hwnd)
     {
         if (GetForegroundWindow() == hwnd) return;
 
-        SetForegroundWindow(hwnd);
-        SetFocus(hwnd);
+        IntPtr fgHwnd = GetForegroundWindow();
+        uint fgThread = GetWindowThreadProcessId(fgHwnd, out _);
+        uint myThread = GetCurrentThreadId();
+
+        if (fgThread != myThread && fgThread != 0)
+        {
+            AttachThreadInput(myThread, fgThread, true);
+            SetForegroundWindow(hwnd);
+            SetFocus(hwnd);
+            AttachThreadInput(myThread, fgThread, false);
+        }
+        else
+        {
+            SetForegroundWindow(hwnd);
+            SetFocus(hwnd);
+        }
     }
+
+    [DllImport("kernel32.dll")]
+    public static extern uint GetCurrentThreadId();
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern IntPtr SetFocus(IntPtr hWnd);
@@ -300,19 +322,46 @@ public static class User32
 
 
     /// <summary>
-    /// Posts WM_KEYUP messages directly to the target window for any physically held game keys.
-    /// This bypasses DirectInput hardware polling and forces the EVE client to process an UP transition.
+    // Modifier VKs that EVE recognizes for key combinations
+    private static readonly int[] ModifierVks = {
+        0x10, // VK_SHIFT
+        0x11, // VK_CONTROL
+        0x12, // VK_MENU (Alt)
+        0xA0, // VK_LSHIFT
+        0xA1, // VK_RSHIFT
+        0xA2, // VK_LCONTROL
+        0xA3, // VK_RCONTROL
+        0xA4, // VK_LMENU (Left Alt)
+        0xA5, // VK_RMENU (Right Alt)
+    };
+
+    private static bool IsGameKey(int vk) =>
+        (vk >= 0x41 && vk <= 0x5A) || // A-Z
+        (vk >= 0x30 && vk <= 0x39) || // 0-9
+        (vk >= 0x60 && vk <= 0x69) || // Numpad 0-9
+        (vk >= 0x70 && vk <= 0x87) || // F1-F24
+        (vk == 0x20);                 // Space
+
+    /// <summary>
+    /// Posts WM_KEYUP for held game keys then held modifiers (game keys first, modifiers last).
+    /// Reverse order of PostGameKeysDown so EVE sees the combo released correctly.
     /// </summary>
     public static void PostGameKeysUp(IntPtr hwnd)
     {
+        // Game keys UP first
         for (int vk = 0x08; vk <= 0xFE; vk++)
         {
-            bool isGameKey = (vk >= 0x41 && vk <= 0x5A) || // A-Z
-                             (vk >= 0x30 && vk <= 0x39) || // 0-9
-                             (vk >= 0x60 && vk <= 0x69) || // Numpad 0-9
-                             (vk == 0x20);                 // Space
-
-            if (isGameKey && (GetAsyncKeyState(vk) & 0x8000) != 0)
+            if (IsGameKey(vk) && (GetAsyncKeyState(vk) & 0x8000) != 0)
+            {
+                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                IntPtr lParamUp = (IntPtr)((scanCode << 16) | 1u | (1u << 30) | (1u << 31));
+                PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, lParamUp);
+            }
+        }
+        // Modifiers UP last (Ctrl+D release = D up, then Ctrl up)
+        foreach (int vk in ModifierVks)
+        {
+            if ((GetAsyncKeyState(vk) & 0x8000) != 0)
             {
                 uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
                 IntPtr lParamUp = (IntPtr)((scanCode << 16) | 1u | (1u << 30) | (1u << 31));
@@ -322,11 +371,44 @@ public static class User32
     }
 
     /// <summary>
-    /// Posts WM_KEYDOWN messages directly to the target window for any physically held game keys.
-    /// This re-establishes the 'held' intent for actions that require Hold + Click.
+    /// Posts WM_KEYDOWN for held modifiers first, then held game keys.
+    /// Modifier-first order ensures EVE sees the combo correctly (e.g. Ctrl down, then D down = Ctrl+D).
+    /// Also includes F1-F24 for EVE drone/module shortcuts.
     /// </summary>
     public static void PostGameKeysDown(IntPtr hwnd)
     {
+        // Modifiers DOWN first (Ctrl+D = Ctrl down, then D down)
+        foreach (int vk in ModifierVks)
+        {
+            if ((GetAsyncKeyState(vk) & 0x8000) != 0)
+            {
+                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1u);
+                PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
+            }
+        }
+        // Game keys DOWN after modifiers
+        for (int vk = 0x08; vk <= 0xFE; vk++)
+        {
+            if (IsGameKey(vk) && (GetAsyncKeyState(vk) & 0x8000) != 0)
+            {
+                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1u);
+                PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Injects KEYDOWN events for all physically held game keys via SendInput.
+    /// Unlike PostMessage, SendInput goes through the real Windows input pipeline
+    /// (same as AHK's SendEvent), updating the system keyboard state that
+    /// DirectInput/Raw Input reads. Targets the current foreground window.
+    /// No KEYUP is sent — we want the key to stay "held."
+    /// </summary>
+    public static void SendGameKeysDown()
+    {
+        var inputs = new List<INPUT>();
         for (int vk = 0x08; vk <= 0xFE; vk++)
         {
             bool isGameKey = (vk >= 0x41 && vk <= 0x5A) || // A-Z
@@ -336,11 +418,43 @@ public static class User32
 
             if (isGameKey && (GetAsyncKeyState(vk) & 0x8000) != 0)
             {
-                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1u);
-                PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
+                var input = new INPUT { type = INPUT_KEYBOARD };
+                input.U.ki.wVk = (ushort)vk;
+                input.U.ki.wScan = (ushort)MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                // No KEYEVENTF_KEYUP flag → this is a key-down event
+                inputs.Add(input);
             }
         }
+        if (inputs.Count > 0)
+            SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf<INPUT>());
+    }
+
+    /// <summary>
+    /// Injects KEYUP events for all physically held game keys via SendInput.
+    /// EVE triggers actions on key release — this completes the press→release cycle
+    /// so the action actually fires on each client during rapid cycling.
+    /// </summary>
+    public static void SendGameKeysUp()
+    {
+        var inputs = new List<INPUT>();
+        for (int vk = 0x08; vk <= 0xFE; vk++)
+        {
+            bool isGameKey = (vk >= 0x41 && vk <= 0x5A) || // A-Z
+                             (vk >= 0x30 && vk <= 0x39) || // 0-9
+                             (vk >= 0x60 && vk <= 0x69) || // Numpad 0-9
+                             (vk == 0x20);                 // Space
+
+            if (isGameKey && (GetAsyncKeyState(vk) & 0x8000) != 0)
+            {
+                var input = new INPUT { type = INPUT_KEYBOARD };
+                input.U.ki.wVk = (ushort)vk;
+                input.U.ki.wScan = (ushort)MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                input.U.ki.dwFlags = KEYEVENTF_KEYUP;
+                inputs.Add(input);
+            }
+        }
+        if (inputs.Count > 0)
+            SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf<INPUT>());
     }
 
 
@@ -399,10 +513,28 @@ public static class User32
         }
     }
 
+    public static bool IsEveProcessName(string? procName)
+    {
+        if (string.IsNullOrEmpty(procName)) return false;
+        return procName.Equals("exefile", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsAppProcessName(string? procName)
+    {
+        if (string.IsNullOrEmpty(procName)) return false;
+        return procName.Equals("EveMultiPreview", StringComparison.OrdinalIgnoreCase) ||
+               procName.Equals("EVE MultiPreview", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsEveOrAppProcess(string? procName)
+    {
+        return IsEveProcessName(procName) || IsAppProcessName(procName);
+    }
+
     /// <summary>
     /// Find all visible windows belonging to a specific process name.
     /// </summary>
-    public static List<(IntPtr Hwnd, string Title)> FindWindowsByProcessName(string processName, HashSet<IntPtr>? keepHwnds = null)
+    public static List<(IntPtr Hwnd, string Title)> FindEveWindows(HashSet<IntPtr>? keepHwnds = null)
     {
         var results = new List<(IntPtr, string)>();
         EnumWindows((hWnd, _) =>
@@ -415,7 +547,7 @@ public static class User32
             if (!isVisible && !isKept) return true;
 
             string? procName = GetProcessName(hWnd);
-            if (procName != null && procName.Equals(processName, StringComparison.OrdinalIgnoreCase))
+            if (IsEveProcessName(procName))
             {
                 string title = GetWindowTitle(hWnd);
                 results.Add((hWnd, title));

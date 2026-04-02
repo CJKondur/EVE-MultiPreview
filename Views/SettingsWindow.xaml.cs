@@ -42,6 +42,7 @@ public partial class SettingsWindow : Window
 
     // Auto-apply timer — debounces 1s after last change, then reapplies settings live
     private readonly DispatcherTimer _autoApplyTimer;
+    private bool _opacityOnlyChange;
 
     // Dark title bar
     [DllImport("dwmapi.dll", PreserveSig = true)]
@@ -57,7 +58,15 @@ public partial class SettingsWindow : Window
         {
             _autoApplyTimer.Stop();
             _svc.Save();
-            _thumbnailManager?.ReapplySettings();
+            if (_opacityOnlyChange)
+            {
+                _thumbnailManager?.ApplyOpacityToAll();
+                _opacityOnlyChange = false;
+            }
+            else
+            {
+                _thumbnailManager?.ReapplySettings();
+            }
             SettingsApplied?.Invoke();
             _hasUnappliedChanges = false;
         };
@@ -148,7 +157,7 @@ public partial class SettingsWindow : Window
     // ══════════════════════════════════════════════════════════════
     //  NAVIGATION
     // ══════════════════════════════════════════════════════════════
-    private readonly string[] _panels = { "General","Thumbnails","Layout","Hotkeys","Colors","Groups","Alerts","Sounds","Visibility","Client","FPSLimiter","StatsOverlay","EVEManager","About" };
+    private readonly string[] _panels = { "General","Thumbnails","Layout","Hotkeys","Colors","Groups","Alerts","Sounds","Visibility","Client","Performance","FPSLimiter","StatsOverlay","EVEManager","About" };
 
     private void NavButton_Click(object sender, RoutedEventArgs e)
     {
@@ -178,6 +187,8 @@ public partial class SettingsWindow : Window
         if (name == "Layout") { PopulateMonitors(); PopulateActiveChars(); }
         if (name == "StatsOverlay") LoadStatCharacters();
         if (name == "EVEManager") LoadEveManagerPanel();
+        if (name == "Performance") LoadPerformanceSettings();
+
         UpdateWikiContent();
     }
 
@@ -269,7 +280,7 @@ public partial class SettingsWindow : Window
             TxtGameLogDir.Text = S.GameLogDirectory;
             ChkUnderFire.IsChecked = S.EnableUnderFireIndicator;
             TxtUnderFireTimeout.Text = S.UnderFireTimeoutSeconds.ToString();
-            ChkEnableAttackAlerts.IsChecked = S.EnableAttackAlerts;
+
             ChkPveMode.IsChecked = S.PveMode;
             ChkAlertHub.IsChecked = S.AlertHubEnabled;
             TxtToastDuration.Text = S.AlertToastDuration.ToString();
@@ -295,6 +306,7 @@ public partial class SettingsWindow : Window
             LoadDontMinimizeList();
 
             // FPS
+            ChkShowFps.IsChecked = S.ShowRtssFps;
             SelectFpsLimit(S.RtssFpsLimit);
 
             // Stats
@@ -330,6 +342,8 @@ public partial class SettingsWindow : Window
             // Reset the 1s auto-apply timer — after 1s of no further changes, apply live
             _autoApplyTimer.Stop();
             _autoApplyTimer.Start();
+            // Clear opacity-only flag — OnOpacityChanged re-sets it AFTER this call
+            _opacityOnlyChange = false;
         }
     }
 
@@ -1081,10 +1095,33 @@ public partial class SettingsWindow : Window
             "settings folder automatically in\n" +
             "%LOCALAPPDATA%\\CCP\\EVE.",
 
+        "Performance" => 
+            "PERFORMANCE & AFFINITY\n" +
+            "═══════════════════════════\n\n" +
+            "CPU Priority Management\n" +
+            "────────────────────────────\n" +
+            "Automatically drops background\n" +
+            "EVE clients to 'Idle' priority so\n" +
+            "your active window never stutters.\n\n" +
+            "E-Core Auto-Balancing\n" +
+            "────────────────────────────\n" +
+            "Routes inactive EVE clients to the\n" +
+            "bottom half of your system's processors\n" +
+            "(your E-Cores or 2nd CCD), leaving\n" +
+            "P-Cores entirely dedicated to your\n" +
+            "active client.\n\n" +
+            "Per-Character Overrides\n" +
+            "────────────────────────────\n" +
+            "Strictly bind a character to a single\n" +
+            "CPU core when it loses focus. This\n" +
+            "overrides the Auto-Balancer entirely.",
+
+
+
         "About" =>
             "ABOUT\n" +
             "═══════════════════════════\n\n" +
-            "EVE MultiPreview v2.0.2\n" +
+            "EVE MultiPreview v2.0.3\n" +
             "C# / WPF Edition\n\n" +
             "Originally written in AutoHotkey v2.\n" +
             "Ported to C# for better performance,\n" +
@@ -1468,6 +1505,99 @@ public partial class SettingsWindow : Window
             SaveGeneral();
         }
     }
+
+    // ══════════════════════════════════════════════════════════════
+    //  PERFORMANCE
+    // ══════════════════════════════════════════════════════════════
+
+    private void LoadPerformanceSettings()
+    {
+        _loadingDepth++;
+        try
+        {
+            ChkManageAffinity.IsChecked = S.ManageAffinity;
+            ChkAutoBalanceCores.IsChecked = S.AutoBalanceCores;
+
+            // Build core options list: "Auto (App Decides)", "Core 0", "Core 1", ...
+            var cores = new List<string> { "Auto (App Decides)" };
+            for (int i = 0; i < Environment.ProcessorCount; i++)
+                cores.Add($"Core {i}");
+
+            var rows = new List<PerClientCoreRow>();
+            var chars = new List<string>();
+            if (_thumbnailManager != null)
+            {
+                chars = _thumbnailManager.GetActiveCharacterNames()
+                    .Where(n => !string.IsNullOrEmpty(n))
+                    .OrderBy(n => n)
+                    .ToList();
+            }
+
+            foreach (var ch in chars)
+            {
+                int coreId = S.PerClientCores.GetValueOrDefault(ch, -1);
+                string selectedCore = coreId >= 0 && coreId < Environment.ProcessorCount
+                    ? $"Core {coreId}"
+                    : "Auto (App Decides)";
+
+                rows.Add(new PerClientCoreRow
+                {
+                    Character = ch,
+                    AvailableCores = cores,
+                    SelectedCore = selectedCore
+                });
+            }
+
+            LvPerClientCores.ItemsSource = rows;
+        }
+        finally { _loadingDepth--; }
+    }
+
+    private void OnPerformanceChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        S.ManageAffinity = ChkManageAffinity.IsChecked == true;
+        S.AutoBalanceCores = ChkAutoBalanceCores.IsChecked == true;
+        SaveDelayed();
+    }
+
+    private void OnPerClientCoreChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading || sender is not System.Windows.Controls.ComboBox cb || cb.DataContext is not PerClientCoreRow row) return;
+
+        int coreId = -1; // -1 means Auto
+        if (row.SelectedCore.StartsWith("Core "))
+        {
+            if (int.TryParse(row.SelectedCore.Substring(5), out int c))
+                coreId = c;
+        }
+
+        if (coreId == -1)
+            S.PerClientCores.Remove(row.Character);
+        else
+            S.PerClientCores[row.Character] = coreId;
+
+        SaveDelayed();
+    }
+
+}
+
+/// <summary>View model row for the Performance Core assignment grid.</summary>
+
+public class PerClientCoreRow : System.ComponentModel.INotifyPropertyChanged
+{
+    public string Character { get; set; } = "";
+    public List<string> AvailableCores { get; set; } = new();
+
+    private string _selectedCore = "";
+    public string SelectedCore
+    {
+        get => _selectedCore;
+        set { _selectedCore = value; OnPropertyChanged(nameof(SelectedCore)); }
+    }
+
+    public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+    private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
 }
 
 /// <summary>View model row for the per-character stat toggle grid.</summary>
@@ -1512,3 +1642,5 @@ public class CharItem : System.ComponentModel.INotifyPropertyChanged
     public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
 }
+
+

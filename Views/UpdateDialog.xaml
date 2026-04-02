@@ -1,0 +1,87 @@
+<Window x:Class="EveMultiPreview.Views.UpdateDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Update Available — EVE MultiPreview"
+        Width="520" Height="400" WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize" Background="#1a1a2e">
+
+    <Window.Resources>
+        <!-- Button style matching the app's premium dark theme -->
+        <Style x:Key="UpdateBtn" TargetType="Button">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="20,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="⬆ Update Available" FontSize="22" FontWeight="Bold"
+                   Foreground="#4a9eff" Margin="0,0,0,8"/>
+
+        <!-- Version info -->
+        <TextBlock x:Name="TxtVersionInfo" Grid.Row="1" FontSize="13" Foreground="#cccccc"
+                   Margin="0,0,0,12" TextWrapping="Wrap"/>
+
+        <!-- Release notes -->
+        <Border Grid.Row="2" Background="#0d0d1a" CornerRadius="6" Padding="12" Margin="0,0,0,12">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <TextBlock x:Name="TxtReleaseNotes" FontSize="12" Foreground="#aaaaaa"
+                           TextWrapping="Wrap" Text="Loading release notes..."/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- Progress bar (hidden until download starts) -->
+        <Grid Grid.Row="3" x:Name="ProgressPanel" Visibility="Collapsed" Margin="0,0,0,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ProgressBar x:Name="DownloadProgress" Grid.Row="0" Height="8"
+                         Minimum="0" Maximum="100" Value="0"
+                         Background="#0d0d1a" Foreground="#4a9eff"/>
+            <TextBlock x:Name="TxtProgressStatus" Grid.Row="1" FontSize="11"
+                       Foreground="#888888" Margin="0,4,0,0" Text="Downloading..."/>
+        </Grid>
+
+        <!-- Status text (shown during apply phase) -->
+        <TextBlock x:Name="TxtStatus" Grid.Row="4" FontSize="12" Foreground="#FFA500"
+                   Margin="0,0,0,12" Visibility="Collapsed" TextWrapping="Wrap"/>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnReleaseNotes" Content="📋 Release Page" Style="{StaticResource UpdateBtn}"
+                    Background="#2a2a4a" Foreground="#cccccc" Click="OnReleaseNotes" Margin="0,0,8,0"/>
+            <Button x:Name="BtnLater" Content="Later" Style="{StaticResource UpdateBtn}"
+                    Background="#333355" Foreground="#cccccc" Click="OnLater" Margin="0,0,8,0"/>
+            <Button x:Name="BtnUpdateNow" Content="⬆ Update Now" Style="{StaticResource UpdateBtn}"
+                    Background="#4a9eff" Foreground="White" Click="OnUpdateNow"/>
+        </StackPanel>
+    </Grid>
+</Window>

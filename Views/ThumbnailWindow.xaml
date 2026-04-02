@@ -20,8 +20,7 @@
         <!-- Background panel (visible when no thumbnail displayed) -->
         <Border x:Name="BackgroundPanel"
                 Background="#01000000"
-                BorderThickness="0"
-                IsHitTestVisible="False"/>
+                BorderThickness="0"/>
 
         <!-- Border overlay (colored frame around the thumbnail — uses region clipping in code-behind) -->
         <Border x:Name="BorderOverlay"

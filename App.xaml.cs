@@ -272,6 +272,34 @@ public partial class App : Application
             hotkeyToggleTimer.Start();
 
             PerfLog($"[Deferred] ✅ All deferred startup complete: {deferSw.ElapsedMilliseconds}ms total");
+
+            // ── Auto-Update Check (fire-and-forget, non-blocking) ──
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var updateService = new UpdateService();
+                    bool allowPreRelease = _settings?.Settings?.ReceivePreReleaseUpdates ?? false;
+                    bool hasUpdate = await updateService.CheckForUpdateAsync(allowPreRelease);
+                    if (hasUpdate)
+                    {
+                        PerfLog($"[Update] ⬆ Update available: v{updateService.LatestVersion}");
+                        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            var dialog = new UpdateDialog(updateService);
+                            dialog.ShowDialog();
+                        });
+                    }
+                    else
+                    {
+                        PerfLog($"[Update] ✅ Up to date (v{updateService.CurrentVersion})");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    PerfLog($"[Update] ⚠ Auto-check failed (non-fatal): {ex.Message}");
+                }
+            });
         };
         deferTimer.Start();
 

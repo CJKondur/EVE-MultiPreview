@@ -48,6 +48,11 @@ public sealed class ThumbnailManager : IDisposable
     private DispatcherTimer? _focusTimer;
     private DispatcherTimer? _sessionTimer;
     private DispatcherTimer? _statTimer;
+    private DispatcherTimer? _fpsTimer;
+
+    // Batch window creation — accumulate discovered windows and create in groups
+    private readonly List<EveWindow> _pendingWindows = new();
+    private DispatcherTimer? _batchTimer;
 
     // Visibility state (matches AHK toggle hotkeys)
     private bool _thumbnailsHidden = false;
@@ -79,8 +84,8 @@ public sealed class ThumbnailManager : IDisposable
     // Destroy debounce
     private readonly ConcurrentDictionary<IntPtr, DispatcherTimer> _destroyTimers = new();
 
-    // Character systems (populated by LogMonitor)
-    private readonly ConcurrentDictionary<string, string> _charSystems = new();
+    // Key = CharacterName (case-insensitive), Value = SystemName
+    private readonly ConcurrentDictionary<string, string> _charSystems = new(StringComparer.OrdinalIgnoreCase);
 
     // Under-fire tracking: character name → last damage timestamp
     private readonly ConcurrentDictionary<string, DateTime> _underFireChars = new();
@@ -150,7 +155,12 @@ public sealed class ThumbnailManager : IDisposable
         _statTimer.Tick += (_, _) => UpdateStatWindows();
         _statTimer.Start();
 
-        Debug.WriteLine("[AlertFlash:Start] 🔧 Focus (100ms), Session (1s), Flash (200ms), Stat (1s) timers started");
+        // FPS polling timer — 500ms interval for real-time overlay
+        _fpsTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+        _fpsTimer.Tick += (_, _) => UpdateFpsOverlays();
+        _fpsTimer.Start();
+
+        Debug.WriteLine("[AlertFlash:Start] 🔧 Focus (100ms), Session (1s), Flash (200ms), Stat (1s), FPS (500ms) timers started");
     }
 
     // ── Window Found / Lost ─────────────────────────────────────────
@@ -159,23 +169,70 @@ public sealed class ThumbnailManager : IDisposable
 
     private void OnWindowFound(EveWindow window)
     {
+        // Accumulate discovered windows and batch-create thumbnails.
+        // This prevents 20+ sequential BeginInvoke calls from blocking the UI thread.
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
-            var totalSw = Stopwatch.StartNew();
-            CreateThumbnailForWindow(window);
-            PerfLog($"Primary thumbnail for '{window.CharacterName}': {totalSw.ElapsedMilliseconds}ms total");
+            _pendingWindows.Add(window);
 
-            // Defer secondary PiP + stat windows 500ms after primary
+            // Restart the batch timer — after 50ms of no new windows, process the batch
+            if (_batchTimer == null)
+            {
+                _batchTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+                _batchTimer.Tick += (_, _) =>
+                {
+                    _batchTimer.Stop();
+                    CreateThumbnailBatch();
+                };
+            }
+            else
+            {
+                _batchTimer.Stop();
+            }
+            _batchTimer.Start();
+        });
+    }
+
+    private void CreateThumbnailBatch()
+    {
+        var batch = new List<EveWindow>(_pendingWindows);
+        _pendingWindows.Clear();
+
+        if (batch.Count == 0) return;
+
+        var totalSw = Stopwatch.StartNew();
+        const int groupSize = 5;
+        var deferredWindows = new List<EveWindow>();
+
+        for (int i = 0; i < batch.Count; i++)
+        {
+            CreateThumbnailForWindow(batch[i]);
+            deferredWindows.Add(batch[i]);
+
+            // Yield to the UI thread between groups to keep the app responsive
+            if ((i + 1) % groupSize == 0 && i + 1 < batch.Count)
+            {
+                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(
+                    () => { }, System.Windows.Threading.DispatcherPriority.Background);
+            }
+        }
+
+        PerfLog($"✅ Batch created {batch.Count} thumbnails in {totalSw.ElapsedMilliseconds}ms");
+
+        // Single consolidated deferred timer for all secondary/stat windows
+        if (deferredWindows.Count > 0)
+        {
             var deferTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
             deferTimer.Tick += (_, _) =>
             {
                 deferTimer.Stop();
                 var deferSw = Stopwatch.StartNew();
-                CreateDeferredWindows(window);
-                PerfLog($"Secondary/stat for '{window.CharacterName}': {deferSw.ElapsedMilliseconds}ms");
+                foreach (var window in deferredWindows)
+                    CreateDeferredWindows(window);
+                PerfLog($"✅ Batch deferred {deferredWindows.Count} secondary/stat windows in {deferSw.ElapsedMilliseconds}ms");
             };
             deferTimer.Start();
-        });
+        }
     }
 
     private void CreateThumbnailForWindow(EveWindow window)
@@ -223,13 +280,6 @@ public sealed class ThumbnailManager : IDisposable
         ApplySettings(thumbWindow, window);
         PerfLog($"ApplySettings: {sw.ElapsedMilliseconds}ms");
 
-        // Apply system name if already known from log monitor
-        if (!string.IsNullOrEmpty(window.CharacterName) &&
-            _charSystems.TryGetValue(window.CharacterName, out var sys))
-        {
-            thumbWindow.UpdateSystemName(sys);
-        }
-
         // Wire events
         thumbWindow.PositionChanged += OnThumbnailPositionChanged;
         thumbWindow.SwitchRequested += OnSwitchRequested;
@@ -241,6 +291,14 @@ public sealed class ThumbnailManager : IDisposable
         thumbWindow.Show();
         PerfLog($"Show: {sw.ElapsedMilliseconds}ms");
         _thumbnails[window.Hwnd] = thumbWindow;
+
+        // Apply system name *after* window show to guarantee WPF visibility rendering
+        if (!string.IsNullOrEmpty(window.CharacterName) &&
+            _settings.Settings.ShowSystemName &&
+            _charSystems.TryGetValue(window.CharacterName, out var finalSys))
+        {
+            thumbWindow.UpdateSystemName(finalSys);
+        }
 
         // Restore client position if tracking
         if (s.TrackClientPositions)
@@ -334,6 +392,8 @@ public sealed class ThumbnailManager : IDisposable
 
                     // Create stat windows for the new character
                     CreateStatWindowsForCharacter(window.CharacterName, window.Hwnd);
+
+
                 }
             }
         });
@@ -386,10 +446,10 @@ public sealed class ThumbnailManager : IDisposable
         else
             thumb.UpdateAnnotation(null);
 
-        // Border — always show with appropriate color
+        // Border — show with appropriate color, or hide if inactive border is empty
         {
             var borderColor = GetBorderColor(window.CharacterName, false);
-            int thickness = s.InactiveClientBorderThickness;
+            int thickness = ShouldShowInactiveBorder(window.CharacterName) ? s.InactiveClientBorderThickness : 0;
             thumb.SetBorder(borderColor, thickness);
         }
 
@@ -414,6 +474,7 @@ public sealed class ThumbnailManager : IDisposable
                 thumb.SetTopmost(topmost);
             foreach (var (_, pip) in _secondaryThumbnails)
                 pip.SetTopmost(topmost);
+
             foreach (var (_, sw) in _statWindows)
                 sw.Topmost = topmost;
         });
@@ -434,6 +495,22 @@ public sealed class ThumbnailManager : IDisposable
                 _settings.SaveThumbnailPosition(name, (int)pos.X, (int)pos.Y, w, h);
                 _settings.Save();
             }
+        });
+    }
+
+    /// <summary>
+    /// Apply only opacity to all thumbnails and PiPs without triggering a full ReapplySettings.
+    /// Used by the opacity slider for live preview without resizing thumbnails.
+    /// </summary>
+    public void ApplyOpacityToAll()
+    {
+        Application.Current?.Dispatcher.Invoke(() =>
+        {
+            var opacity = (byte)_settings.Settings.ThumbnailOpacity;
+            foreach (var (_, thumb) in _thumbnails)
+                thumb.SetOpacity(opacity);
+            foreach (var (_, pip) in _secondaryThumbnails)
+                pip.SetOpacity(opacity);
         });
     }
 
@@ -507,6 +584,7 @@ public sealed class ThumbnailManager : IDisposable
                 if (s.SecondaryThumbnails.TryGetValue(name, out var ss))
                     pip.SetOpacity((byte)ss.Opacity);
             }
+
 
             // Re-apply stat overlay settings (font size, opacity, topmost)
             foreach (var (_, statWin) in _statWindows)
@@ -629,45 +707,80 @@ public sealed class ThumbnailManager : IDisposable
     // Guarantees strictly 1 thread per hotkey. Overlapping auto-repeats are completely discarded.
     private readonly System.Threading.SemaphoreSlim _activationLock = new(1, 1);
 
-    public async void ActivateEveWindow(IntPtr hwnd, string? title = null)
+    public async void ActivateEveWindow(IntPtr hwnd, string? title = null, bool rapidSwitch = false)
     {
-        // Drop any overlapping VM_HOTKEY auto-repeats (AHK #MaxThreadsPerHotkey 1 equivalent)
-        if (!_activationLock.Wait(0)) return;
-        try
+        // ── Rapid-switch fast path: no semaphore, fire-and-forget activation off UI thread ──
+        if (rapidSwitch)
         {
-        // If hwnd not provided, look up by character name from thumbnails
+            // Resolve hwnd from character name if needed
             if (hwnd == IntPtr.Zero && !string.IsNullOrEmpty(title))
             {
                 foreach (var (eveHwnd, thumb) in _thumbnails)
                 {
                     if (string.Equals(thumb.CharacterName, title, StringComparison.OrdinalIgnoreCase))
-                    {
-                        hwnd = eveHwnd;
-                        break;
-                    }
+                    { hwnd = eveHwnd; break; }
                 }
             }
-
             if (hwnd == IntPtr.Zero) return;
 
-            // AHK L1450: skip activation if window is already in foreground
-            if (Interop.User32.GetForegroundWindow() == hwnd) return;
-
-            // Dismiss alert for this character
             if (!string.IsNullOrEmpty(title))
                 _alertFlashChars.TryRemove(title, out _);
 
             if (Interop.User32.IsIconic(hwnd))
             {
-                var s = _settings.Settings;
-                if (s.AlwaysMaximize)
+                if (_settings.Settings.AlwaysMaximize)
+                    Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
+                else
+                    Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_RESTORE);
+            }
+
+            // SetForegroundWindow directly — no AttachThreadInput (which resets keyboard state).
+            // We're inside a WM_HOTKEY handler so we have foreground activation rights.
+            Interop.User32.SetForegroundWindow(hwnd);
+
+            // 15ms pause to let EVE process the focus change
+            Thread.Sleep(15);
+
+            // EVE triggers actions on key RELEASE. PostMessage (not SendInput) because
+            // UIPI blocks SendInput to elevated processes. Send DOWN then UP so EVE
+            // sees a full press→release cycle and fires the action.
+            Interop.User32.PostGameKeysDown(hwnd);
+            Thread.Sleep(5);
+            Interop.User32.PostGameKeysUp(hwnd);
+
+            if (_settings.Settings.AlwaysMaximize && !Interop.User32.IsZoomed(hwnd))
+                Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
+            return;
+        }
+
+        // ── Normal path: semaphore-guarded with BringToFront + PostGameKeys ──
+        if (!_activationLock.Wait(0)) return;
+        try
+        {
+            if (hwnd == IntPtr.Zero && !string.IsNullOrEmpty(title))
+            {
+                foreach (var (eveHwnd, thumb) in _thumbnails)
+                {
+                    if (string.Equals(thumb.CharacterName, title, StringComparison.OrdinalIgnoreCase))
+                    { hwnd = eveHwnd; break; }
+                }
+            }
+
+            if (hwnd == IntPtr.Zero) return;
+            if (Interop.User32.GetForegroundWindow() == hwnd) return;
+
+            if (!string.IsNullOrEmpty(title))
+                _alertFlashChars.TryRemove(title, out _);
+
+            if (Interop.User32.IsIconic(hwnd))
+            {
+                if (_settings.Settings.AlwaysMaximize)
                     Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
                 else
                     Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_RESTORE);
             }
 
             // Bring thumbnails + overlays + stat windows to front BEFORE activating EVE window.
-            // This ensures overlays survive SetForegroundWindow without any visual flicker.
             foreach (var (_, t) in _thumbnails)
                 t.BringToFront();
             foreach (var (_, p) in _secondaryThumbnails)
@@ -675,29 +788,20 @@ public sealed class ThumbnailManager : IDisposable
             foreach (var (_, sw) in _statWindows)
                 sw.BringToFront();
 
-            // Proven window activation
             Interop.User32.ActivateWindow(hwnd);
 
             // Delay 50ms for window activation and rendering.
-            // During this 50ms, EVE wakes up and begins polling inputs.
             await System.Threading.Tasks.Task.Delay(50);
 
-            // Post WM_KEYUP directly to EVE's message queue for any physically held game keys.
-            // Since this bypasses DirectInput and goes straight to the EVE window, physical modifier/combo locks
-            // (like holding Up Arrow) do not interfere with the message processing here.
+            // EVE triggers actions on key RELEASE. Send DOWN→UP so EVE sees
+            // a full press→release cycle. Modifiers are included in correct order.
+            Interop.User32.PostGameKeysDown(hwnd);
+            await System.Threading.Tasks.Task.Delay(5);
             Interop.User32.PostGameKeysUp(hwnd);
 
-            // Wait a tiny frame (15ms) so EVE's physics/input loop cleanly processes the KeyUp state and fires the module.
-            await System.Threading.Tasks.Task.Delay(15);
-
-            // Post WM_KEYDOWN directly to EVE's message queue to re-prime the key for Hold + Click actions.
-            Interop.User32.PostGameKeysDown(hwnd);
-
-            // Always maximize if setting is on and window is normal
             if (_settings.Settings.AlwaysMaximize && !Interop.User32.IsZoomed(hwnd))
                 Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
 
-            // Minimize inactive clients after delay
             if (_settings.Settings.MinimizeInactiveClients)
             {
                 var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(_settings.Settings.MinimizeDelay) };
@@ -753,7 +857,7 @@ public sealed class ThumbnailManager : IDisposable
         // Check if EVE or our app is foreground
         string? fgProc = null;
         try { fgProc = Interop.User32.GetProcessName(fgHwnd); } catch { }
-        bool eveFocused = fgProc is "exefile" or "EVE MultiPreview";
+        bool eveFocused = Interop.User32.IsEveOrAppProcess(fgProc);
 
         // Hide thumbnails on lost focus (hide DWM preview only, text overlay stays via owner)
         if (s.HideThumbnailsOnLostFocus)
@@ -784,6 +888,7 @@ public sealed class ThumbnailManager : IDisposable
                 thumb.BringToFront();
             foreach (var (_, pip) in _secondaryThumbnails)
                 pip.BringToFront();
+
             // Stat overlays also need Win32 SetWindowPos — WPF Topmost alone
             // is insufficient against EVE's DirectX surface
             foreach (var (_, sw) in _statWindows)
@@ -842,12 +947,127 @@ public sealed class ThumbnailManager : IDisposable
                 }
                 else
                 {
-                    // Always show inactive border with appropriate color
+                    // Show inactive border only if a color is configured
                     var color = GetBorderColor(charName, false);
-                    thumb.SetBorder(color, s.InactiveClientBorderThickness);
+                    int thickness = ShouldShowInactiveBorder(charName) ? s.InactiveClientBorderThickness : 0;
+                    thumb.SetBorder(color, thickness);
                 }
             }
         }
+
+        // ── CPU Affinity & Priority Management ──
+        ManageCpuAffinity(fgHwnd, s);
+    }
+
+    private void ManageCpuAffinity(IntPtr activeHwnd, AppSettings s)
+    {
+        if (!s.ManageAffinity) return;
+
+        int totalCores = Environment.ProcessorCount;
+        int eCoreStart = totalCores / 2; // Bottom half of logical processors
+
+        // Collect all running EVE processes that we are tracking
+        var activeEves = new List<(Process Proc, string CharName, bool IsActive)>();
+        foreach (var (hwnd, thumb) in _thumbnails)
+        {
+            try
+            {
+                int pid = thumb.GetProcessId();
+                if (pid > 0)
+                {
+                    var p = Process.GetProcessById(pid);
+                    activeEves.Add((p, thumb.CharacterName, hwnd == activeHwnd));
+                }
+            }
+            catch { /* Process might have just exited */ }
+        }
+
+        int eCoreIndex = eCoreStart;
+
+        foreach (var eve in activeEves)
+        {
+            try
+            {
+                if (eve.IsActive)
+                {
+                    // Active client: Normal priority, all cores
+                    if (eve.Proc.PriorityClass != ProcessPriorityClass.Normal)
+                        eve.Proc.PriorityClass = ProcessPriorityClass.Normal;
+
+                    long allCoresMask = (1L << totalCores) - 1;
+                    if ((long)eve.Proc.ProcessorAffinity != allCoresMask)
+                        eve.Proc.ProcessorAffinity = (IntPtr)allCoresMask;
+                }
+                else
+                {
+                    // Inactive client: Idle priority
+                    if (eve.Proc.PriorityClass != ProcessPriorityClass.Idle)
+                        eve.Proc.PriorityClass = ProcessPriorityClass.Idle;
+
+                    // Inactive Core Assignment
+                    long affinityMask = 0;
+
+                    if (s.PerClientCores.TryGetValue(eve.CharName, out int overrideCore))
+                    {
+                        // Explicit user override
+                        affinityMask = 1L << overrideCore;
+                    }
+
+                    else if (s.AutoBalanceCores)
+                    {
+                        // Auto-balance round robin on E-cores
+                        affinityMask = 1L << eCoreIndex;
+                        eCoreIndex++;
+                        if (eCoreIndex >= totalCores)
+                            eCoreIndex = eCoreStart;
+                    }
+
+                    // If zero, it means auto-balance is off and no override exists. Don't restrict cores.
+                    if (affinityMask != 0)
+                    {
+                        if ((long)eve.Proc.ProcessorAffinity != affinityMask)
+                            eve.Proc.ProcessorAffinity = (IntPtr)affinityMask;
+                    }
+                    else
+                    {
+                        // Restore to all cores but keep 'Idle' priority
+                        long allCoresMask = (1L << totalCores) - 1;
+                        if ((long)eve.Proc.ProcessorAffinity != allCoresMask)
+                            eve.Proc.ProcessorAffinity = (IntPtr)allCoresMask;
+                    }
+                }
+            }
+            catch { /* Ignore Access Denied or Exited processes */ }
+            finally
+            {
+                eve.Proc.Dispose();
+            }
+        }
+    }
+
+    /// <summary>Check whether an inactive border should be shown for this character.
+    /// Returns false when InactiveClientBorderColor is empty and no custom/group color applies.</summary>
+    private bool ShouldShowInactiveBorder(string charName)
+    {
+        var s = _settings.Settings;
+
+        // Custom per-character inactive border — always show if configured
+        if (s.CustomColorsActive && s.CustomColors.TryGetValue(charName, out var custom)
+            && !string.IsNullOrEmpty(custom.InactiveBorder))
+            return true;
+
+        // Group color — show if enabled and character is in a group
+        if (s.ShowAllColoredBorders)
+        {
+            foreach (var group in s.ThumbnailGroups)
+            {
+                if (group.Members.Any(m => m.Equals(charName, StringComparison.OrdinalIgnoreCase)))
+                    return true;
+            }
+        }
+
+        // Default — empty means no border
+        return !string.IsNullOrWhiteSpace(s.InactiveClientBorderColor);
     }
 
     /// <summary>Get the correct border color for a character (custom → group → default).</summary>
@@ -1019,6 +1239,8 @@ public sealed class ThumbnailManager : IDisposable
 
 
 
+
+
     // ── Session Timer ────────────────────────────────────────────────
 
     private void UpdateSessionTimers()
@@ -1030,6 +1252,35 @@ public sealed class ThumbnailManager : IDisposable
             if (!string.IsNullOrEmpty(thumb.CharacterName))
             {
                 thumb.UpdateSessionTimer(thumb.SessionDuration);
+            }
+        }
+    }
+
+    private void UpdateFpsOverlays()
+    {
+        bool isEnabled = _settings.Settings.ShowRtssFps;
+        
+        if (!isEnabled)
+        {
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                thumb.UpdateFpsStats(0, false);
+            }
+            return;
+        }
+
+        var allFps = RtssMemoryReader.GetAllFps();
+
+        foreach (var (_, thumb) in _thumbnails)
+        {
+            int pid = thumb.GetProcessId();
+            if (pid > 0 && allFps.TryGetValue(pid, out double fps))
+            {
+                thumb.UpdateFpsStats(fps, true);
+            }
+            else
+            {
+                thumb.UpdateFpsStats(0, false);
             }
         }
     }
@@ -1457,27 +1708,25 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (members == null || members.Count == 0) return;
 
-        // Filter to only online characters (those with active EVE windows)
-        var onlineMembers = members.Where(m =>
-            _thumbnails.Values.Any(t =>
-                string.Equals(t.CharacterName, m, StringComparison.OrdinalIgnoreCase)))
-            .ToList();
+        // Filter to only online characters using HashSet for O(M+N) instead of O(M×N)
+        var onlineSet = new HashSet<string>(
+            _thumbnails.Values.Select(t => t.CharacterName),
+            StringComparer.OrdinalIgnoreCase);
+        var onlineMembers = members.Where(m => onlineSet.Contains(m)).ToList();
 
         if (onlineMembers.Count == 0) return;
 
         // Use REAL-TIME foreground window check instead of _lastActiveEveHwnd
         // (_lastActiveEveHwnd only updates every 100ms, too slow for rapid cycling)
         var fgHwnd = Interop.User32.GetForegroundWindow();
+        var previousActiveHwnd = _lastActiveEveHwnd;
         int currentIdx = -1;
         string? activeChar = null;
-        foreach (var (hwnd, thumb) in _thumbnails)
-        {
-            if (hwnd == fgHwnd)
-            {
-                activeChar = thumb.CharacterName;
-                break;
-            }
-        }
+
+        // O(1) lookup instead of iterating all thumbnails
+        if (_thumbnails.TryGetValue(fgHwnd, out var activeThumbnail))
+            activeChar = activeThumbnail.CharacterName;
+
         if (activeChar != null)
         {
             for (int i = 0; i < onlineMembers.Count; i++)
@@ -1500,36 +1749,40 @@ public sealed class ThumbnailManager : IDisposable
 
         // Update _lastActiveEveHwnd immediately so rapid subsequent cycles
         // (holding key down) don't get stale data from the 100ms timer
+        IntPtr targetHwnd = IntPtr.Zero;
         foreach (var (hwnd, thumb) in _thumbnails)
         {
             if (string.Equals(thumb.CharacterName, charName, StringComparison.OrdinalIgnoreCase))
             {
+                targetHwnd = hwnd;
                 _lastActiveEveHwnd = hwnd;
                 break;
             }
         }
 
-        ActivateEveWindow(IntPtr.Zero, charName);
-
-        // Immediate border update — don't wait for 50ms timer
-        // (timer has early return when _lastActiveEveHwnd matches, skipping border code)
+        // Update borders BEFORE activation so highlight is visually instant
+        // (ActivateWindow blocks on cross-process AttachThreadInput/SetForegroundWindow)
         var s = _settings.Settings;
         int activeThickness = s.ClientHighlightBorderThickness;
-        foreach (var (eveHwnd, thumb) in _thumbnails)
+
+        // Set new active border
+        if (targetHwnd != IntPtr.Zero && _thumbnails.TryGetValue(targetHwnd, out var targetThumb))
         {
-            bool isTarget = string.Equals(thumb.CharacterName, charName, StringComparison.OrdinalIgnoreCase);
-            if (isTarget)
-            {
-                var color = GetBorderColor(charName, true);
-                thumb.SetBorder(color, activeThickness);
-            }
-            else
-            {
-                // Always show inactive border with appropriate color
-                var color = GetBorderColor(thumb.CharacterName, false);
-                thumb.SetBorder(color, s.InactiveClientBorderThickness);
-            }
+            var color = GetBorderColor(charName, true);
+            targetThumb.SetBorder(color, activeThickness);
         }
+
+        // Reset previous active to inactive border
+        if (previousActiveHwnd != IntPtr.Zero && previousActiveHwnd != targetHwnd
+            && _thumbnails.TryGetValue(previousActiveHwnd, out var prevThumb))
+        {
+            var color = GetBorderColor(prevThumb.CharacterName, false);
+            int thickness = ShouldShowInactiveBorder(prevThumb.CharacterName) ? s.InactiveClientBorderThickness : 0;
+            prevThumb.SetBorder(color, thickness);
+        }
+
+        // Activate after borders are set — cross-process Win32 calls may block
+        ActivateEveWindow(targetHwnd, charName, rapidSwitch: true);
 
         Debug.WriteLine($"[Hotkey:GroupCycle] \ud83d\udd04 CycleGroup '{groupName}' \u2192 '{charName}' (idx={nextIdx}, online={onlineMembers.Count}/{members.Count})");
     }
@@ -1769,6 +2022,7 @@ public sealed class ThumbnailManager : IDisposable
         }
     }
 
+
     // ── Stat Overlay Window Lifecycle ────────────────────────────────
 
     private void CreateStatWindowsForCharacter(string charName, IntPtr eveHwnd)
@@ -1973,7 +2227,7 @@ public sealed class ThumbnailManager : IDisposable
             var fgHwnd = Interop.User32.GetForegroundWindow();
             string? fgProc = null;
             try { fgProc = Interop.User32.GetProcessName(fgHwnd); } catch { }
-            bool eveFocused = fgProc is "exefile" or "EVE MultiPreview";
+            bool eveFocused = Interop.User32.IsEveOrAppProcess(fgProc);
 
             foreach (var (_, sw) in _statWindows)
             {
