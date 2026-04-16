@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using EveMultiPreview.Interop;
 using EveMultiPreview.Models;
 using EveMultiPreview.Views;
 
@@ -256,11 +257,15 @@ public sealed class ThumbnailManager : IDisposable
         }
         else
         {
-            // Flow-layout: stack vertically, wrap to new column at screen edge
+            // Flow-layout: stack vertically, wrap to new column at screen edge.
+            // Screen.WorkingArea returns physical pixels; x/y/width/height are DIPs.
+            // Convert work area to DIPs for consistent math.
             int index = _thumbnails.Count;
             int gap = 8;
             var workArea = GetTargetMonitorWorkArea(s.PreferredMonitor);
-            int availableHeight = workArea.Bottom - y;
+            double dpiScale = DpiHelper.GetScaleFactorForPoint(
+                workArea.Left + workArea.Width / 2, workArea.Top + workArea.Height / 2);
+            int availableHeight = (int)DpiHelper.PhysicalToDip(workArea.Bottom, dpiScale) - y;
             int maxPerCol = Math.Max(1, availableHeight / (height + gap));
             int col = index / maxPerCol;
             int row = index % maxPerCol;
@@ -1136,8 +1141,9 @@ public sealed class ThumbnailManager : IDisposable
                 _tooltipWindow?.Close();
                 _tooltipTimer?.Stop();
 
-                // Get cursor position
+                // Get cursor position (physical pixels) and convert to DIPs for WPF properties
                 var cursorPos = System.Windows.Forms.Cursor.Position;
+                double dpi = DpiHelper.GetScaleFactorForPoint(cursorPos.X, cursorPos.Y);
 
                 // Create a small borderless tooltip window near the cursor (AHK ToolTip style)
                 _tooltipWindow = new System.Windows.Window
@@ -1149,8 +1155,8 @@ public sealed class ThumbnailManager : IDisposable
                     Topmost = true,
                     ShowInTaskbar = false,
                     SizeToContent = SizeToContent.WidthAndHeight,
-                    Left = cursorPos.X + 16,
-                    Top = cursorPos.Y + 16,
+                    Left = DpiHelper.PhysicalToDip(cursorPos.X, dpi) + 16,
+                    Top = DpiHelper.PhysicalToDip(cursorPos.Y, dpi) + 16,
                     Content = new System.Windows.Controls.TextBlock
                     {
                         Text = message,

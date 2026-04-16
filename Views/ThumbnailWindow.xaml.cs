@@ -330,6 +330,8 @@ public partial class ThumbnailWindow : Window
                 return;
             }
 
+            // Mouse delta is in physical pixels (Cursor.Position).
+            // _dragStartLeft/Top are WPF DIPs — convert to physical before combining.
             double dx = mouse.X - _dragStartScreen.X;
             double dy = mouse.Y - _dragStartScreen.Y;
 
@@ -338,8 +340,9 @@ public partial class ThumbnailWindow : Window
 
             if (_dragMovedPastThreshold)
             {
-                int newX = (int)(_dragStartLeft + dx);
-                int newY = (int)(_dragStartTop + dy);
+                double scale = DpiHelper.GetScaleFactor(this);
+                int newX = (int)(DpiHelper.DipToPhysical(_dragStartLeft, scale) + dx);
+                int newY = (int)(DpiHelper.DipToPhysical(_dragStartTop, scale) + dy);
 
                 // Direct Win32 move — bypasses WPF layout engine entirely (matches AHK WinMove)
                 if (_ownHwnd != IntPtr.Zero)
@@ -352,10 +355,10 @@ public partial class ThumbnailWindow : Window
                     User32.SetWindowPos(overlayHwnd, IntPtr.Zero, newX, newY, 0, 0,
                         User32.SWP_NOSIZE | User32.SWP_NOZORDER | User32.SWP_NOACTIVATE);
 
-                // Ctrl+drag → move all thumbnails
+                // Ctrl+drag → move all thumbnails (convert physical delta to DIPs for WPF consumers)
                 if (User32.IsKeyDown(User32.VK_LCONTROL))
                 {
-                    DragMoveAll?.Invoke(this, dx, dy);
+                    DragMoveAll?.Invoke(this, DpiHelper.PhysicalToDip(dx, scale), DpiHelper.PhysicalToDip(dy, scale));
                 }
             }
         }
@@ -369,11 +372,13 @@ public partial class ThumbnailWindow : Window
                 return;
             }
 
+            // Mouse delta is physical pixels (Cursor.Position); resize start values are DIPs.
             double dx = mouse.X - _dragStartScreen.X;
             double dy = mouse.Y - _dragStartScreen.Y;
+            double scale = DpiHelper.GetScaleFactor(this);
 
-            int newW = Math.Max((int)(_resizeStartWidth + dx), 80);
-            int newH = Math.Max((int)(_resizeStartHeight + dy), 50);
+            int newW = Math.Max((int)(_resizeStartWidth + DpiHelper.PhysicalToDip(dx, scale)), 80);
+            int newH = Math.Max((int)(_resizeStartHeight + DpiHelper.PhysicalToDip(dy, scale)), 50);
 
             Width = newW;
             Height = newH;
@@ -400,12 +405,14 @@ public partial class ThumbnailWindow : Window
             _dragTimer = null;
         }
 
-        // Sync WPF Left/Top from actual Win32 position (drag used SetWindowPos, not WPF properties)
+        // Sync WPF Left/Top from actual Win32 position (drag used SetWindowPos, not WPF properties).
+        // GetWindowRect returns physical pixels; WPF Left/Top are DIPs.
         if (_ownHwnd != IntPtr.Zero)
         {
             User32.GetWindowRect(_ownHwnd, out var rect);
-            Left = rect.Left;
-            Top = rect.Top;
+            double scale = DpiHelper.GetScaleFactor(this);
+            Left = DpiHelper.PhysicalToDip(rect.Left, scale);
+            Top = DpiHelper.PhysicalToDip(rect.Top, scale);
             _textOverlay?.SyncPosition(Left, Top, Width, Height);
         }
     }
@@ -481,17 +488,25 @@ public partial class ThumbnailWindow : Window
     public void UpdateThumbnailSize()
     {
         if (_thumbId == IntPtr.Zero) return;
-        
+
         int w = (int)ActualWidth;
         int h = (int)ActualHeight;
         if (w == 0) w = (int)(double.IsNaN(Width) ? 0 : Width);
         if (h == 0) h = (int)(double.IsNaN(Height) ? 0 : Height);
-        
+
         int b = _borderThickness;
+
+        // DWM rcDestination expects physical pixels, but WPF ActualWidth/Height are in DIPs.
+        // At 150% scaling: 280 DIPs → 420 physical pixels.
+        double scale = DpiHelper.GetScaleFactor(this);
+        int pw = DpiHelper.DipToPhysical(w, scale);
+        int ph = DpiHelper.DipToPhysical(h, scale);
+        int pb = DpiHelper.DipToPhysical(b, scale);
+
         // Inset the DWM thumbnail by border thickness.
         // Because the WPF BackgroundPanel now uses true BorderBrush with a Transparent center,
         // passing _savedOpacity here natively blends the DWM thumbnail directly with the desktop.
-        DwmApi.UpdateThumbnailInset(_thumbId, w, h, b, _currentVisualOpacity);
+        DwmApi.UpdateThumbnailInset(_thumbId, pw, ph, pb, _currentVisualOpacity);
     }
 
     // ── Overlay Updates ─────────────────────────────────────────────
@@ -852,12 +867,7 @@ public partial class ThumbnailWindow : Window
         var overlayHwnd = _textOverlay.GetHwnd();
         if (overlayHwnd == IntPtr.Zero) return;
 
-        // Position-only sync — z-order is asserted one-time by BringToFront()
-        // at transition points (EVE gains focus, thumbnail switch), not every tick.
-        // This prevents the overlay from constantly fighting browser z-order.
-        User32.SetWindowPos(overlayHwnd, IntPtr.Zero,
-            (int)Left, (int)Top, (int)Width, (int)Height,
-            User32.SWP_NOACTIVATE | User32.SWP_NOZORDER);
+        SetOverlayWindowPos(overlayHwnd, IntPtr.Zero, User32.SWP_NOACTIVATE | User32.SWP_NOZORDER);
     }
 
     /// <summary>Bring both thumbnail and overlay to the front of the z-order.
@@ -875,16 +885,13 @@ public partial class ThumbnailWindow : Window
                 User32.SWP_NOACTIVATE | User32.SWP_NOMOVE | User32.SWP_NOSIZE);
         }
 
-        // Bring overlay above thumbnail
         if (_textOverlay != null)
         {
             var overlayHwnd = _textOverlay.GetHwnd();
             if (overlayHwnd != IntPtr.Zero)
             {
                 var zOrder = Topmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
-                User32.SetWindowPos(overlayHwnd, zOrder,
-                    (int)Left, (int)Top, (int)Width, (int)Height,
-                    User32.SWP_NOACTIVATE);
+                SetOverlayWindowPos(overlayHwnd, zOrder, User32.SWP_NOACTIVATE);
             }
         }
     }
@@ -900,12 +907,19 @@ public partial class ThumbnailWindow : Window
         var overlayHwnd = _textOverlay.GetHwnd();
         if (overlayHwnd != IntPtr.Zero)
         {
-            // Re-assert overlay Topmost to match thumbnail (eve-o-preview pattern)
             var zOrder = Topmost ? User32.HWND_TOPMOST : User32.HWND_NOTOPMOST;
-            User32.SetWindowPos(overlayHwnd, zOrder,
-                (int)Left, (int)Top, (int)Width, (int)Height,
-                User32.SWP_NOACTIVATE | User32.SWP_SHOWWINDOW);
+            SetOverlayWindowPos(overlayHwnd, zOrder, User32.SWP_NOACTIVATE | User32.SWP_SHOWWINDOW);
         }
+    }
+
+    /// <summary>Position the text overlay via Win32, converting WPF DIPs to physical pixels.</summary>
+    private void SetOverlayWindowPos(IntPtr overlayHwnd, IntPtr zOrder, uint flags)
+    {
+        double scale = DpiHelper.GetScaleFactor(this);
+        User32.SetWindowPos(overlayHwnd, zOrder,
+            DpiHelper.DipToPhysical(Left, scale), DpiHelper.DipToPhysical(Top, scale),
+            DpiHelper.DipToPhysical(Width, scale), DpiHelper.DipToPhysical(Height, scale),
+            flags);
     }
 
     /// <summary>Set the topmost state for this thumbnail and its text overlay.
