@@ -255,16 +255,18 @@ public partial class StatOverlayWindow : Window
                 return;
             }
 
+            // Mouse delta is physical pixels (Cursor.Position); drag start values are DIPs.
             double dx = mouse.X - _dragStartScreen.X;
             double dy = mouse.Y - _dragStartScreen.Y;
+            double scale = DpiHelper.GetScaleFactor(this);
 
             if (!_dragMovedPastThreshold && (Math.Abs(dx) > 3 || Math.Abs(dy) > 3))
                 _dragMovedPastThreshold = true;
 
             if (_dragMovedPastThreshold)
             {
-                Left = _dragStartLeft + dx;
-                Top = _dragStartTop + dy;
+                Left = _dragStartLeft + DpiHelper.PhysicalToDip(dx, scale);
+                Top = _dragStartTop + DpiHelper.PhysicalToDip(dy, scale);
             }
         }
         else if (_dragMode == DragMode.Resize)
@@ -279,9 +281,10 @@ public partial class StatOverlayWindow : Window
 
             double dx = mouse.X - _dragStartScreen.X;
             double dy = mouse.Y - _dragStartScreen.Y;
+            double scale = DpiHelper.GetScaleFactor(this);
 
-            Width = Math.Max(80, _resizeStartWidth + dx);
-            Height = Math.Max(40, _resizeStartHeight + dy);
+            Width = Math.Max(80, _resizeStartWidth + DpiHelper.PhysicalToDip(dx, scale));
+            Height = Math.Max(40, _resizeStartHeight + DpiHelper.PhysicalToDip(dy, scale));
 
             // Ctrl+resize = individual only; no Ctrl = resize all stat windows
             if (!User32.IsKeyDown(User32.VK_LCONTROL))
