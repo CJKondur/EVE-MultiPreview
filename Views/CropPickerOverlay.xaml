@@ -1,0 +1,29 @@
+<Window x:Class="EveMultiPreview.Views.CropPickerOverlay"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="#40000000"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ResizeMode="NoResize"
+        Cursor="Cross"
+        Title="Pick Crop Area">
+    <Grid x:Name="RootGrid">
+        <Canvas x:Name="OverlayCanvas" Background="Transparent">
+            <Rectangle x:Name="Rubberband"
+                       Stroke="#FFFAC57A"
+                       StrokeThickness="2"
+                       StrokeDashArray="4 2"
+                       Fill="#30FAC57A"
+                       Visibility="Collapsed"/>
+        </Canvas>
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center"
+                Background="#CC000000" CornerRadius="4" Padding="10,4" Margin="0,8,0,0"
+                IsHitTestVisible="False">
+            <TextBlock x:Name="HintText"
+                       Foreground="#FFFAC57A" FontFamily="Segoe UI" FontSize="11"
+                       Text="Drag to select crop area — press Esc to cancel"/>
+        </Border>
+    </Grid>
+</Window>

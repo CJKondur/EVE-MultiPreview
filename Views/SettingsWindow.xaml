@@ -230,7 +230,9 @@
                     <Button x:Name="NavPerformance" Content="  ⚡  Performance" Click="NavButton_Click" Tag="Performance" Style="{StaticResource NavBtn}"/>
                     <Button x:Name="NavStats" Content="  📊  Stats Overlay" Click="NavButton_Click" Tag="StatsOverlay" Style="{StaticResource NavBtn}"/>
                     <Button x:Name="NavManager" Content="  🗂  EVE Manager" Click="NavButton_Click" Tag="EVEManager" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavCrop" Content="  ✂  Crop" Click="NavButton_Click" Tag="Crop" Style="{StaticResource NavBtn}"/>
                     <Button x:Name="NavAbout" Content="  ℹ  About" Click="NavButton_Click" Tag="About" Style="{StaticResource NavBtn}"/>
+                    <Button x:Name="NavDebug" Content="  🐛  Debug Logging" Click="NavButton_Click" Tag="Debug" Style="{StaticResource NavBtn}"/>
                 </StackPanel>
             </ScrollViewer>
         </Border>
@@ -326,6 +328,21 @@
                                         IsSnapToTickEnabled="True" TickFrequency="1"
                                         ValueChanged="OnUiScaleChanged"/>
                                 <TextBlock x:Name="TxtUiScaleValue" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Startup">
+                        <StackPanel>
+                            <TextBlock Text="Choose what happens to the Settings window when the app launches."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="On app launch:" Width="140"/>
+                                <ComboBox x:Name="CmbStartupSettings" Width="280" SelectionChanged="OnGeneralChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White">
+                                    <ComboBoxItem Content="Don't open Settings (stay in tray)" Tag="0"/>
+                                    <ComboBoxItem Content="Open Settings window"              Tag="1"/>
+                                    <ComboBoxItem Content="Open Settings minimized to taskbar" Tag="2"/>
+                                </ComboBox>
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>
@@ -893,6 +910,60 @@
                     <TextBlock Text="📊 Stats Overlay" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
                     <TextBlock Text="Configure real-time DPS, Logi, Mining, and Ratting overlays per character." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
 
+                    <!-- Global Master Switches — default for characters with no explicit override -->
+                    <GroupBox Header="Global Defaults">
+                        <StackPanel>
+                            <TextBlock Text="Pick which individual metrics are visible by default. Per-character overrides in the grid below can force any metric on or off."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/>
+
+                            <!-- Per-metric checkboxes: 4 columns by category -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <!-- DPS -->
+                                <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                    <TextBlock Text="⚔ DPS" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <CheckBox x:Name="ChkGmDpsOut" Content="Out · Dmg/s Out"    Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmDpsIn"  Content="In · Dmg/s In"      Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmTdi"    Content="TDI · Total Dmg In" Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmTdo"    Content="TDO · Total Dmg Out" Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmIncludeNpc" Content="Include NPC" Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged" Margin="0,6,0,0"/>
+                                </StackPanel>
+                                <!-- Logi -->
+                                <StackPanel Grid.Column="1" Margin="0,0,6,0">
+                                    <TextBlock Text="🛡 Logi" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <CheckBox x:Name="ChkGmArps" Content="ARPS · Armor Rep/s"          Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmSrps" Content="SRPS · Shield Rep/s"         Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmCtps" Content="CTPS · Cap Transf/s"         Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmTaro" Content="TARO · T. Armor Rep Out"     Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmTari" Content="TARI · T. Armor Rep In"      Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmTsro" Content="TSRO · T. Shield Rep Out"    Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmTsri" Content="TSRI · T. Shield Rep In"     Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                </StackPanel>
+                                <!-- Mining -->
+                                <StackPanel Grid.Column="2" Margin="0,0,6,0">
+                                    <TextBlock Text="⛏ Mining" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <CheckBox x:Name="ChkGmOmpc" Content="OMPC · Ore Mined/Cycle" Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmOmph" Content="OMPH · Ore Mined/Hour"  Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmGmpc" Content="GMPC · Gas Mined/Cycle" Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmGmph" Content="GMPH · Gas Mined/Hour"  Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmImph" Content="IMPH · Ice Mined/Hour"  Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                </StackPanel>
+                                <!-- Ratting -->
+                                <StackPanel Grid.Column="3">
+                                    <TextBlock Text="💰 Ratting" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                                    <CheckBox x:Name="ChkGmTipt" Content="TIPT · Total ISK/Tick"    Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmTiph" Content="TIPH · Total ISK/Hour"    Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                    <CheckBox x:Name="ChkGmTips" Content="TIPS · Total ISK/Session" Checked="OnStatGlobalChanged" Unchecked="OnStatGlobalChanged"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+
                     <!-- Per-Character Stat Toggles -->
                     <GroupBox Header="Active Characters">
                         <StackPanel>
@@ -900,45 +971,23 @@
                                 <Button x:Name="BtnRefreshStatChars" Content="🔄 Refresh" Padding="8,3" Click="OnRefreshStatCharacters"
                                         Background="#e0e0e0" Foreground="#1a1a2e"
                                         BorderBrush="{StaticResource BorderBrush}" HorizontalAlignment="Left"/>
+                                <TextBlock Text="Double-click a character (or press Edit) to set per-stat overrides." VerticalAlignment="Center"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="12,0,0,0"/>
                             </StackPanel>
                             <ListView x:Name="LvStatCharacters" MinHeight="60" MaxHeight="360"
                                       Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
-                                      BorderBrush="{StaticResource BorderBrush}">
+                                      BorderBrush="{StaticResource BorderBrush}"
+                                      MouseDoubleClick="OnStatCharRowDoubleClick">
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="Character" Width="180" DisplayMemberBinding="{Binding Name}"/>
-                                        <GridViewColumn Header="⚔ DPS" Width="55">
+                                        <GridViewColumn Header="Per-character overrides" Width="280" DisplayMemberBinding="{Binding Summary}"/>
+                                        <GridViewColumn Header="" Width="70">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding Dps, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="🛡 Logi" Width="55">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding Logi, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="⛏ Mine" Width="55">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding Mining, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="💰 Rat" Width="55">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding Ratting, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn Header="👾 NPC" Width="55">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <CheckBox IsChecked="{Binding Npc, Mode=TwoWay}" Checked="OnStatCharToggle" Unchecked="OnStatCharToggle"/>
+                                                    <Button Content="Edit" Padding="10,2" Click="OnStatCharEditClick"
+                                                            Background="#2a3347" Foreground="{StaticResource TextPrimaryBrush}"
+                                                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Cursor="Hand"/>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
@@ -1227,6 +1276,69 @@
                     <TextBlock Margin="0,16,0,0" TextWrapping="Wrap"
                                Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
                                Text="Pre-release builds may contain bugs or breaking changes. Settings may reset between pre-release updates."/>
+                </StackPanel>
+
+                <!-- ══ 15. DEBUG ══ -->
+                <StackPanel x:Name="PanelDebug" Visibility="Collapsed">
+                    <TextBlock Text="🐛 Debug Logging" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Granular toggles for generating diagnostic logs to troubleshoot issues." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <GroupBox Header="Logging Targets">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkDebugInjection" Content="Input Injection Logistics (Keystrokes &amp; Pulses)" 
+                                      Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
+                            <CheckBox x:Name="ChkDebugCycling" Content="Cycle Group &amp; Math Analytics (Client switching logic)" 
+                                      Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
+                            <CheckBox x:Name="ChkDebugWindowHooks" Content="Window Foreground &amp; Focus Hooks (EVE client detection)" 
+                                      Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
+                            <CheckBox x:Name="ChkDebugDwm" Content="Desktop Window Manager (Thumbnail API HResults)" 
+                                      Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Log Management">
+                        <StackPanel>
+                            <Button Content="📁 Open Logs Folder..." Padding="10,6" HorizontalAlignment="Left" Click="OnOpenLogsFolder"
+                                    Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0"/>
+                            <TextBlock Text="Logs are saved centrally, separating logic flows by target file." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,8,0,0" FontStyle="Italic"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+
+                <!-- ══ CROP ══ -->
+                <StackPanel x:Name="PanelCrop" Visibility="Collapsed">
+                    <TextBlock Text="✂ Crop" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="Spawn one or more cropped preview popups per EVE client. Right-click drag a popup to move it; right-click + left-click drag to resize."
+                               Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12" TextWrapping="Wrap"/>
+
+                    <GroupBox Header="Master">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkCropEnabled" Content="Enable cropped preview popups"
+                                      Checked="OnCropEnabledChanged" Unchecked="OnCropEnabledChanged"/>
+                            <TextBlock Text="When off, all crop popups are hidden (definitions are kept for next time)."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Crops">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Label Content="Character:" Width="80" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="CmbCropCharacter" Width="220"
+                                          SelectionChanged="OnCropCharacterChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                                <Button Content="🔄 Refresh" Margin="6,0,0,0" Padding="8,3"
+                                        Click="OnRefreshCropCharacters"
+                                        ToolTip="Re-scan live EVE clients and saved crop entries"
+                                        Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"/>
+                                <Button Content="➕ Add Crop" Margin="12,0,0,0" Padding="10,3"
+                                        Click="OnAddCrop"
+                                        Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0"/>
+                            </StackPanel>
+                            <StackPanel x:Name="CropListPanel"/>
+                            <TextBlock x:Name="CropEmptyHint"
+                                       Text="Pick a character above, then click ➕ Add Crop to create a named crop region."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
                 </StackPanel>
 
             </Grid>

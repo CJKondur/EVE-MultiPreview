@@ -23,6 +23,13 @@ public static class DwmApi
     [DllImport("dwmapi.dll", PreserveSig = true)]
     public static extern int DwmQueryThumbnailSourceSize(IntPtr thumbId, out SIZE size);
 
+    [DllImport("dwmapi.dll", PreserveSig = true)]
+    public static extern int DwmGetWindowAttribute(IntPtr hwnd, uint dwAttribute, out int pvAttribute, int cbAttribute);
+
+    // DWM window attributes
+    public const uint DWMWA_CLOAKED = 14;
+    public const uint DWMWA_NCRENDERING_ENABLED = 1;
+
     // ── Structures ───────────────────────────────────────────────────
 
     [Flags]
@@ -84,6 +91,7 @@ public static class DwmApi
     public static IntPtr RegisterThumbnail(IntPtr destHwnd, IntPtr srcHwnd)
     {
         int hr = DwmRegisterThumbnail(destHwnd, srcHwnd, out IntPtr thumbId);
+        EveMultiPreview.Services.DiagnosticsService.LogDwm($"[RegisterThumbnail] Dest: {destHwnd}, Src: {srcHwnd} -> HResult: 0x{hr:X8}, ThumbID: {thumbId}");
         return hr == 0 ? thumbId : IntPtr.Zero;
     }
 
@@ -93,7 +101,10 @@ public static class DwmApi
     public static void UnregisterThumbnail(IntPtr thumbId)
     {
         if (thumbId != IntPtr.Zero)
-            DwmUnregisterThumbnail(thumbId);
+        {
+            int hr = DwmUnregisterThumbnail(thumbId);
+            EveMultiPreview.Services.DiagnosticsService.LogDwm($"[UnregisterThumbnail] ThumbID: {thumbId} -> HResult: 0x{hr:X8}");
+        }
     }
 
     /// <summary>
@@ -112,7 +123,9 @@ public static class DwmApi
             fSourceClientAreaOnly = clientAreaOnly
         };
 
-        return DwmUpdateThumbnailProperties(thumbId, ref props) == 0;
+        int hr = DwmUpdateThumbnailProperties(thumbId, ref props);
+        EveMultiPreview.Services.DiagnosticsService.LogDwm($"[UpdateThumbnail] ThumbID: {thumbId}, W:{destWidth} H:{destHeight}, Opacity:{opacity} -> HResult: 0x{hr:X8}");
+        return hr == 0;
     }
 
     /// <summary>
@@ -132,7 +145,9 @@ public static class DwmApi
             fSourceClientAreaOnly = clientAreaOnly
         };
 
-        return DwmUpdateThumbnailProperties(thumbId, ref props) == 0;
+        int hr = DwmUpdateThumbnailProperties(thumbId, ref props);
+        EveMultiPreview.Services.DiagnosticsService.LogDwm($"[UpdateThumbnailInset] ThumbID: {thumbId}, W:{destWidth} H:{destHeight}, Inset:{border}, Opacity:{opacity} -> HResult: 0x{hr:X8}");
+        return hr == 0;
     }
 
     /// <summary>

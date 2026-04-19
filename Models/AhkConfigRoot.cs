@@ -51,15 +51,27 @@ public class AhkConfigRoot
         s.IndividualThumbnailResize = g.IndividualThumbnailResize != 0;
         s.SimpleMode = g.SimpleMode != 0;
         s.SetupCompleted = true; // Always bypass the First-Run wizard for migrated AHK users
+        // StartupSettings: clamp to known values; unknown/missing → Off
+        s.StartupSettings = g.StartupSettings switch
+        {
+            1 => StartupSettingsMode.Open,
+            2 => StartupSettingsMode.OpenMinimized,
+            _ => StartupSettingsMode.Off,
+        };
         s.LastUsedProfile = g.LastUsedProfile ?? "Default";
         s.EnableKeyBlockGuard = g.EnableKeyBlockGuard != 0;
+
+        s.EnableDebugLogging_Injection = g.EnableDebugLogging_Injection != 0;
+        s.EnableDebugLogging_Cycling = g.EnableDebugLogging_Cycling != 0;
+        s.EnableDebugLogging_WindowHooks = g.EnableDebugLogging_WindowHooks != 0;
+        s.EnableDebugLogging_DWM = g.EnableDebugLogging_DWM != 0;
 
         // Alert settings
 
         s.PveMode = g.PVEMode != 0;
         s.EnableAlertSounds = g.EnableAlertSounds != 0;
         s.AlertSoundVolume = g.AlertSoundVolume;
-        s.AlertHubEnabled = g.AlertHubEnabled != 0;
+        s.AlertHubEnabled = g.AlertHubEnabled != 0; // 0 for missing/new configs, 1 when user enables
         s.AlertHubX = g.AlertHubX;
         s.AlertHubY = g.AlertHubY;
         s.AlertToastDirection = g.AlertToastDirection;
@@ -89,6 +101,29 @@ public class AhkConfigRoot
         s.StatLogRetentionDays = g.StatLogRetentionDays;
         s.PerCharacterStats = ConvertStatOverlayConfig(g.StatOverlayConfig);
         s.StatWindowPositions = g.StatWindowPositions ?? new();
+
+        // Global stat metrics: prefer the canonical bitmask, fall back to migrating legacy category flags.
+        if (g.GlobalStatMetrics.HasValue)
+        {
+            s.GlobalStatMetrics = (StatMetrics)(uint)g.GlobalStatMetrics.Value;
+        }
+        else
+        {
+            var m = StatMetrics.None;
+            if (g.ShowDpsOverlay     is int dv && dv != 0) m |= StatMetrics.DpsMask;
+            if (g.ShowLogiOverlay    is int lv && lv != 0) m |= StatMetrics.LogiMask;
+            if (g.ShowMiningOverlay  is int mv && mv != 0) m |= StatMetrics.MineMask;
+            if (g.ShowRattingOverlay is int rv && rv != 0) m |= StatMetrics.RatMask;
+            if (g.IncludeNpcDamage   is int nv && nv != 0) m |= StatMetrics.IncludeNpc;
+            s.GlobalStatMetrics = m;
+        }
+
+        // Keep the legacy AppSettings mirrors in sync for any residual readers.
+        s.ShowDpsOverlay     = (s.GlobalStatMetrics & StatMetrics.DpsMask)  != 0;
+        s.ShowLogiOverlay    = (s.GlobalStatMetrics & StatMetrics.LogiMask) != 0;
+        s.ShowMiningOverlay  = (s.GlobalStatMetrics & StatMetrics.MineMask) != 0;
+        s.ShowRattingOverlay = (s.GlobalStatMetrics & StatMetrics.RatMask)  != 0;
+        s.IncludeNpcDamage   = (s.GlobalStatMetrics & StatMetrics.IncludeNpc) != 0;
 
         // RTSS
         s.RtssEnabled = g.RTSS_Enabled != 0;
@@ -189,6 +224,10 @@ public class AhkConfigRoot
                 profile.PerClientCores = ps.PerClientCores ?? new();
             }
 
+            // Crops (per-profile)
+            profile.CropEnabled = ahkProfile.CropEnabled != 0;
+            profile.Crops = ahkProfile.Crops ?? new();
+
             s.Profiles[name] = profile;
         }
 
@@ -224,8 +263,14 @@ public class AhkConfigRoot
         g.IndividualThumbnailResize = s.IndividualThumbnailResize ? 1 : 0;
         g.SimpleMode = s.SimpleMode ? 1 : 0;
         g.SetupCompleted = s.SetupCompleted ? 1 : 0;
+        g.StartupSettings = (int)s.StartupSettings;
         g.LastUsedProfile = s.LastUsedProfile;
         g.EnableKeyBlockGuard = s.EnableKeyBlockGuard ? 1 : 0;
+
+        g.EnableDebugLogging_Injection = s.EnableDebugLogging_Injection ? 1 : 0;
+        g.EnableDebugLogging_Cycling = s.EnableDebugLogging_Cycling ? 1 : 0;
+        g.EnableDebugLogging_WindowHooks = s.EnableDebugLogging_WindowHooks ? 1 : 0;
+        g.EnableDebugLogging_DWM = s.EnableDebugLogging_DWM ? 1 : 0;
 
         // Alert
 
@@ -261,6 +306,13 @@ public class AhkConfigRoot
         g.StatLogRetentionDays = s.StatLogRetentionDays;
         g.StatOverlayConfig = ConvertStatOverlayToAhk(s.PerCharacterStats);
         g.StatWindowPositions = s.StatWindowPositions;
+        g.GlobalStatMetrics = (long)(uint)s.GlobalStatMetrics;
+        // Clear legacy category fields so we don't re-migrate old values on the next load.
+        g.ShowDpsOverlay = null;
+        g.ShowLogiOverlay = null;
+        g.ShowMiningOverlay = null;
+        g.ShowRattingOverlay = null;
+        g.IncludeNpcDamage = null;
 
         // RTSS
         g.RTSS_Enabled = s.RtssEnabled ? 1 : 0;
@@ -357,6 +409,10 @@ public class AhkConfigRoot
                 PerClientCores = profile.PerClientCores,
             };
 
+            // Crops (per-profile)
+            ap.CropEnabled = profile.CropEnabled ? 1 : 0;
+            ap.Crops = profile.Crops;
+
             root.Profiles[name] = ap;
         }
 
@@ -404,6 +460,9 @@ public class AhkConfigRoot
         return result;
     }
 
+    // Stat overlay overrides persist as two uint bitmasks per character: forcedOn + forcedOff.
+    // Legacy format used category keys ("dps"/"logi"/"mining"/"ratting"/"npc") with 0/1 values;
+    // we migrate those into the corresponding metric-category masks on load.
     private static Dictionary<string, CharacterStatSettings> ConvertStatOverlayConfig(
         Dictionary<string, Dictionary<string, int>>? config)
     {
@@ -411,15 +470,33 @@ public class AhkConfigRoot
         if (config == null) return result;
         foreach (var (charName, stats) in config)
         {
-            result[charName] = new CharacterStatSettings
+            var cs = new CharacterStatSettings();
+
+            // New format: explicit bitmasks
+            if (stats.TryGetValue("forcedOn", out var fOn))   cs.ForcedOn  = (StatMetrics)(uint)fOn;
+            if (stats.TryGetValue("forcedOff", out var fOff)) cs.ForcedOff = (StatMetrics)(uint)fOff;
+
+            // Legacy migration: category flags → whole-category masks.
+            // Only apply when the new keys are absent, otherwise we'd clobber explicit edits.
+            if (!stats.ContainsKey("forcedOn") && !stats.ContainsKey("forcedOff"))
             {
-                Dps = stats.TryGetValue("dps", out var d) && d != 0,
-                Logi = stats.TryGetValue("logi", out var l) && l != 0,
-                Mining = stats.TryGetValue("mining", out var m) && m != 0,
-                Ratting = stats.TryGetValue("ratting", out var r) && r != 0,
-            };
+                MigrateCategory(cs, stats, "dps",     StatMetrics.DpsMask);
+                MigrateCategory(cs, stats, "logi",    StatMetrics.LogiMask);
+                MigrateCategory(cs, stats, "mining",  StatMetrics.MineMask);
+                MigrateCategory(cs, stats, "ratting", StatMetrics.RatMask);
+                MigrateCategory(cs, stats, "npc",     StatMetrics.IncludeNpc);
+            }
+
+            result[charName] = cs;
         }
         return result;
+
+        static void MigrateCategory(CharacterStatSettings cs, Dictionary<string, int> stats, string key, StatMetrics mask)
+        {
+            if (!stats.TryGetValue(key, out var v)) return;
+            if (v != 0) cs.ForcedOn |= mask;
+            else        cs.ForcedOff |= mask;
+        }
     }
 
     private static Dictionary<string, Dictionary<string, int>> ConvertStatOverlayToAhk(
@@ -431,10 +508,8 @@ public class AhkConfigRoot
         {
             result[charName] = new Dictionary<string, int>
             {
-                ["dps"] = stats.Dps ? 1 : 0,
-                ["logi"] = stats.Logi ? 1 : 0,
-                ["mining"] = stats.Mining ? 1 : 0,
-                ["ratting"] = stats.Ratting ? 1 : 0,
+                ["forcedOn"]  = (int)(uint)stats.ForcedOn,
+                ["forcedOff"] = (int)(uint)stats.ForcedOff,
             };
         }
         return result;
@@ -513,6 +588,12 @@ public class AhkProfile
 
     [JsonPropertyName("Performance Settings")]
     public AhkPerformanceSettings? PerformanceSettings { get; set; }
+
+    [JsonPropertyName("CropEnabled")]
+    public int CropEnabled { get; set; }
+
+    [JsonPropertyName("Crops")]
+    public Dictionary<string, List<CropDefinition>>? Crops { get; set; }
 }
 
 // ── AHK Thumbnail Settings (per-profile sub-object) ────────────────
@@ -692,12 +773,28 @@ public class AhkGlobalSettings
     [JsonPropertyName("SetupCompleted")]
     public int SetupCompleted { get; set; }
 
+    /// <summary>Auto-open behavior for the Settings window on app launch.
+    /// 0 = Off, 1 = Open, 2 = Open minimized to taskbar.</summary>
+    [JsonPropertyName("StartupSettings")]
+    public int StartupSettings { get; set; }
+
     [JsonPropertyName("LastUsedProfile")]
     public string? LastUsedProfile { get; set; } = "Default";
 
     [JsonPropertyName("EnableKeyBlockGuard")]
     public int EnableKeyBlockGuard { get; set; }
 
+    [JsonPropertyName("EnableDebugLogging_Injection")]
+    public int EnableDebugLogging_Injection { get; set; }
+
+    [JsonPropertyName("EnableDebugLogging_Cycling")]
+    public int EnableDebugLogging_Cycling { get; set; }
+
+    [JsonPropertyName("EnableDebugLogging_WindowHooks")]
+    public int EnableDebugLogging_WindowHooks { get; set; }
+
+    [JsonPropertyName("EnableDebugLogging_DWM")]
+    public int EnableDebugLogging_DWM { get; set; }
 
     [JsonPropertyName("PVEMode")]
     public int PVEMode { get; set; }
@@ -709,7 +806,7 @@ public class AhkGlobalSettings
     public int AlertSoundVolume { get; set; } = 100;
 
     [JsonPropertyName("AlertHubEnabled")]
-    public int AlertHubEnabled { get; set; } = 1;
+    public int AlertHubEnabled { get; set; } = 0;
 
     [JsonPropertyName("AlertHubX")]
     public int AlertHubX { get; set; }
@@ -761,6 +858,27 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("StatOverlayConfig")]
     public Dictionary<string, Dictionary<string, int>>? StatOverlayConfig { get; set; }
+
+    /// <summary>Canonical global metric bitmask (new per-metric format).</summary>
+    [JsonPropertyName("GlobalStatMetrics")]
+    public long? GlobalStatMetrics { get; set; }
+
+    // Legacy category-level master switches — kept only for one-shot migration into
+    // GlobalStatMetrics the first time an old config is loaded. Never written again.
+    [JsonPropertyName("ShowDpsOverlay")]
+    public int? ShowDpsOverlay { get; set; }
+
+    [JsonPropertyName("ShowLogiOverlay")]
+    public int? ShowLogiOverlay { get; set; }
+
+    [JsonPropertyName("ShowMiningOverlay")]
+    public int? ShowMiningOverlay { get; set; }
+
+    [JsonPropertyName("ShowRattingOverlay")]
+    public int? ShowRattingOverlay { get; set; }
+
+    [JsonPropertyName("IncludeNpcDamage")]
+    public int? IncludeNpcDamage { get; set; }
 
     [JsonPropertyName("StatOverlayFontSize")]
     public int StatOverlayFontSize { get; set; } = 8;

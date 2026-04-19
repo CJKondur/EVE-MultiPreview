@@ -15,6 +15,7 @@ using TextBox = System.Windows.Controls.TextBox;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using EveMultiPreview.Interop;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
 using WinForms = System.Windows.Forms;
@@ -25,6 +26,7 @@ public partial class SettingsWindow : Window
 {
     private readonly SettingsService _svc;
     private readonly ThumbnailManager? _thumbnailManager;
+    private readonly CropManager? _cropManager;
     private AppSettings S => _svc.Settings;
     private int _loadingDepth;
     private bool _loading => _loadingDepth > 0;
@@ -48,10 +50,11 @@ public partial class SettingsWindow : Window
     [DllImport("dwmapi.dll", PreserveSig = true)]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int val, int sz);
 
-    public SettingsWindow(SettingsService svc, ThumbnailManager? thumbnailManager = null)
+    public SettingsWindow(SettingsService svc, ThumbnailManager? thumbnailManager = null, CropManager? cropManager = null)
     {
         _svc = svc;
         _thumbnailManager = thumbnailManager;
+        _cropManager = cropManager;
 
         _autoApplyTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _autoApplyTimer.Tick += (_, _) =>
@@ -98,12 +101,14 @@ public partial class SettingsWindow : Window
         };
         SizeChanged += OnWindowSizeChanged;
         Closing += OnWindowClosing;
+        SourceInitialized += OnSourceInitializedRestoreSize;
 
         // Restore saved window size
         if (S.SettingsWindowWidth > 0)
             Width = S.SettingsWindowWidth;
         if (S.SettingsWindowHeight > 0)
             Height = S.SettingsWindowHeight;
+        System.Diagnostics.Debug.WriteLine($"[Settings:Ctor] restore size → {S.SettingsWindowWidth}x{S.SettingsWindowHeight} (applied Width={Width}, Height={Height})");
 
         // Live clock timer (Local + EVE/UTC)
         _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -157,7 +162,7 @@ public partial class SettingsWindow : Window
     // ══════════════════════════════════════════════════════════════
     //  NAVIGATION
     // ══════════════════════════════════════════════════════════════
-    private readonly string[] _panels = { "General","Thumbnails","Layout","Hotkeys","Colors","Groups","Alerts","Sounds","Visibility","Client","Performance","FPSLimiter","StatsOverlay","EVEManager","About" };
+    private readonly string[] _panels = { "General","Thumbnails","Layout","Hotkeys","Colors","Groups","Alerts","Sounds","Visibility","Client","Performance","FPSLimiter","StatsOverlay","EVEManager","About","Debug","Crop" };
 
     private void NavButton_Click(object sender, RoutedEventArgs e)
     {
@@ -188,6 +193,7 @@ public partial class SettingsWindow : Window
         if (name == "StatsOverlay") LoadStatCharacters();
         if (name == "EVEManager") LoadEveManagerPanel();
         if (name == "Performance") LoadPerformanceSettings();
+        if (name == "Crop") LoadCropPanel();
 
         UpdateWikiContent();
     }
@@ -219,6 +225,7 @@ public partial class SettingsWindow : Window
             ChkIndividualResize.IsChecked = S.IndividualThumbnailResize;
             ChkShowTimer.IsChecked = S.ShowSessionTimer;
             TxtMinimizeDelay.Text = S.MinimizeDelay.ToString();
+            CmbStartupSettings.SelectedIndex = (int)S.StartupSettings;
 
             // UI Scale
             SliderUiScale.Value = S.SettingsUiFontSize;
@@ -320,11 +327,18 @@ public partial class SettingsWindow : Window
             ChkStatLogging.IsChecked = S.StatLoggingEnabled;
             TxtStatLogDir.Text = S.StatLogDirectory;
             TxtStatLogRetention.Text = S.StatLogRetentionDays.ToString();
+            LoadStatGlobalCheckboxes();
             LoadStatCharacters();
 
             // Hotkeys
             LoadHotkeysList();
             LoadHotkeyGroups();
+
+            // Debug
+            if (ChkDebugInjection != null) ChkDebugInjection.IsChecked = S.EnableDebugLogging_Injection;
+            if (ChkDebugCycling != null) ChkDebugCycling.IsChecked = S.EnableDebugLogging_Cycling;
+            if (ChkDebugWindowHooks != null) ChkDebugWindowHooks.IsChecked = S.EnableDebugLogging_WindowHooks;
+            if (ChkDebugDwm != null) ChkDebugDwm.IsChecked = S.EnableDebugLogging_DWM;
 
             // Color blind button state
             UpdateColorBlindButton();
@@ -355,6 +369,9 @@ public partial class SettingsWindow : Window
         if (_loading || CmbProfiles.SelectedItem is not string name) return;
         _svc.SwitchProfile(name);
         LoadSettings();
+        _thumbnailManager?.ReapplySettings();
+        _cropManager?.Refresh();
+        SettingsApplied?.Invoke();
     }
 
     private void OnCreateProfile(object s, RoutedEventArgs e)
@@ -377,6 +394,7 @@ public partial class SettingsWindow : Window
     {
         _svc.Save();
         _thumbnailManager?.ReapplySettings();
+        _cropManager?.Refresh();
         SettingsApplied?.Invoke();
         _hasUnappliedChanges = false;
     }
@@ -466,6 +484,18 @@ public partial class SettingsWindow : Window
     //  WIKI / HELP SIDEBAR
     // ══════════════════════════════════════════════════════════════
 
+    private void OnSourceInitializedRestoreSize(object? sender, EventArgs e)
+    {
+        // Re-apply saved size after the HWND exists. Covers WPF timing edge cases
+        // where Width/Height set in the constructor don't fully commit when the
+        // window is Show()'n from a deferred dispatcher timer (auto-open path).
+        if (S.SettingsWindowWidth > 0 && Math.Abs(Width - S.SettingsWindowWidth) > 1)
+            Width = S.SettingsWindowWidth;
+        if (S.SettingsWindowHeight > 0 && Math.Abs(Height - S.SettingsWindowHeight) > 1)
+            Height = S.SettingsWindowHeight;
+        System.Diagnostics.Debug.WriteLine($"[Settings:SourceInit] size → Width={Width}, Height={Height}");
+    }
+
     private void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
     {
         // Show wiki panel when window is wide enough (matches AHK behavior)
@@ -487,6 +517,24 @@ public partial class SettingsWindow : Window
     {
         if (WikiContent == null) return;
         WikiContent.Text = GetWikiContent(_activePanel);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    //  DEBUG
+    // ══════════════════════════════════════════════════════════════
+    private void OnDebugChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        S.EnableDebugLogging_Injection = ChkDebugInjection?.IsChecked ?? false;
+        S.EnableDebugLogging_Cycling = ChkDebugCycling?.IsChecked ?? false;
+        S.EnableDebugLogging_WindowHooks = ChkDebugWindowHooks?.IsChecked ?? false;
+        S.EnableDebugLogging_DWM = ChkDebugDwm?.IsChecked ?? false;
+        SaveDelayed();
+    }
+
+    private void OnOpenLogsFolder(object sender, RoutedEventArgs e)
+    {
+        EveMultiPreview.Services.DiagnosticsService.OpenLogsFolder();
     }
 
     // ══════════════════════════════════════════════════════════════
@@ -1128,6 +1176,28 @@ public partial class SettingsWindow : Window
             "native DWM thumbnail support, and\n" +
             "modern UI capabilities.",
 
+        "Debug" =>
+            "DEBUG LOGGING\n" +
+            "═══════════════════════════\n\n" +
+            "Diagnostic output for troubleshooting\n" +
+            "input issues, window detection, and\n" +
+            "logic flow. Enable only when instructed\n" +
+            "by the developer.\n\n" +
+            "Input Injection Logistics\n" +
+            "────────────────────────────\n" +
+            "Logs exact keystrokes, scan codes, and\n" +
+            "delay pulses used to bypass EVE's\n" +
+            "input drops.\n\n" +
+            "Cycle Group & Math Analytics\n" +
+            "────────────────────────────\n" +
+            "Logs index math, throttle thresholds,\n" +
+            "and skip logic when holding hotkeys\n" +
+            "to cycle accounts.\n\n" +
+            "Window Hooks\n" +
+            "────────────────────────────\n" +
+            "Logs HWND focus checks, SetForegroundWindow\n" +
+            "attempts, and OS-level window states.",
+
         _ => "Select a panel from the sidebar\n" +
              "to see contextual help here."
     };
@@ -1580,6 +1650,307 @@ public partial class SettingsWindow : Window
         SaveDelayed();
     }
 
+    // ══════════════════════════════════════════════════════════════
+    //  CROP
+    // ══════════════════════════════════════════════════════════════
+
+    private string? _selectedCropCharacter;
+
+    private void LoadCropPanel()
+    {
+        _loadingDepth++;
+        try
+        {
+            ChkCropEnabled.IsChecked = S.CropEnabled;
+
+            // Merge live characters + any character already referenced in saved crops
+            var live = _thumbnailManager?.GetActiveCharacterNames() ?? Enumerable.Empty<string>();
+            var saved = S.Crops.Keys;
+            var all = live.Concat(saved)
+                          .Where(n => !string.IsNullOrWhiteSpace(n))
+                          .Distinct(StringComparer.OrdinalIgnoreCase)
+                          .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                          .ToList();
+
+            CmbCropCharacter.ItemsSource = all;
+            if (_selectedCropCharacter != null && all.Contains(_selectedCropCharacter, StringComparer.OrdinalIgnoreCase))
+                CmbCropCharacter.SelectedItem = _selectedCropCharacter;
+            else if (all.Count > 0)
+                CmbCropCharacter.SelectedIndex = 0;
+
+            _selectedCropCharacter = CmbCropCharacter.SelectedItem as string;
+            RebuildCropList();
+        }
+        finally { _loadingDepth--; }
+    }
+
+    private void OnRefreshCropCharacters(object sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        LoadCropPanel();
+    }
+
+    private void OnCropEnabledChanged(object sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        S.CropEnabled = ChkCropEnabled.IsChecked == true;
+        _svc.Save();
+        _cropManager?.Refresh();
+    }
+
+    private void OnCropCharacterChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading) return;
+        _selectedCropCharacter = CmbCropCharacter.SelectedItem as string;
+        RebuildCropList();
+    }
+
+    private void OnAddCrop(object sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        var ch = _selectedCropCharacter;
+        if (string.IsNullOrWhiteSpace(ch))
+        {
+            MessageBox.Show("Pick a character first.", "Add Crop", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        if (!S.Crops.TryGetValue(ch, out var list))
+        {
+            list = new List<CropDefinition>();
+            S.Crops[ch] = list;
+        }
+
+        var def = new CropDefinition
+        {
+            Name = $"Crop {list.Count + 1}",
+            PopupX = 100 + (list.Count * 30),
+            PopupY = 100 + (list.Count * 30)
+        };
+        list.Add(def);
+
+        _svc.Save();
+        RebuildCropList();
+        _cropManager?.Refresh();
+    }
+
+    private void RebuildCropList()
+    {
+        CropListPanel.Children.Clear();
+        var ch = _selectedCropCharacter;
+        if (string.IsNullOrWhiteSpace(ch) || !S.Crops.TryGetValue(ch, out var list) || list.Count == 0)
+        {
+            CropEmptyHint.Visibility = Visibility.Visible;
+            return;
+        }
+        CropEmptyHint.Visibility = Visibility.Collapsed;
+
+        foreach (var def in list)
+            CropListPanel.Children.Add(BuildCropRow(ch, def));
+    }
+
+    private UIElement BuildCropRow(string characterName, CropDefinition def)
+    {
+        var card = new Border
+        {
+            BorderBrush = (Brush)FindResource("BorderBrush"),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(4),
+            Margin = new Thickness(0, 2, 0, 2),
+            Padding = new Thickness(8)
+        };
+        var root = new StackPanel();
+
+        // Header row: name, label toggle, delete
+        var header = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 6) };
+        header.Children.Add(new System.Windows.Controls.Label { Content = "Name:", Width = 60 });
+        var txtName = new TextBox { Width = 180, Text = def.Name };
+        txtName.TextChanged += (_, _) =>
+        {
+            if (_loading) return;
+            def.Name = txtName.Text ?? "";
+            SaveAndApplyCrop(characterName, def);
+        };
+        header.Children.Add(txtName);
+
+        var chkLabel = new System.Windows.Controls.CheckBox
+        {
+            Content = "Show label",
+            IsChecked = def.ShowLabel,
+            Margin = new Thickness(12, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        chkLabel.Checked += (_, _) => { if (_loading) return; def.ShowLabel = true; SaveAndApplyCrop(characterName, def); };
+        chkLabel.Unchecked += (_, _) => { if (_loading) return; def.ShowLabel = false; SaveAndApplyCrop(characterName, def); };
+        header.Children.Add(chkLabel);
+
+        var btnPick = new Button
+        {
+            Content = "📐 Pick Area",
+            Margin = new Thickness(12, 0, 0, 0),
+            Padding = new Thickness(8, 2, 8, 2),
+            Background = (Brush)FindResource("AccentBrush"),
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0),
+            ToolTip = "Drag over the live thumbnail to pick the region of the EVE client to crop."
+        };
+        btnPick.Click += (_, _) => PickCropArea(characterName, def);
+        header.Children.Add(btnPick);
+
+        var btnDel = new Button
+        {
+            Content = "🗑 Delete",
+            Margin = new Thickness(12, 0, 0, 0),
+            Padding = new Thickness(8, 2, 8, 2),
+            Background = Brushes.DarkRed,
+            Foreground = Brushes.White,
+            BorderThickness = new Thickness(0)
+        };
+        btnDel.Click += (_, _) => DeleteCrop(characterName, def);
+        header.Children.Add(btnDel);
+        root.Children.Add(header);
+
+        // Source rect row
+        root.Children.Add(BuildRectRow(
+            "Source (on EVE client):", def.SourceX, def.SourceY, def.SourceWidth, def.SourceHeight,
+            (x, y, w, h) =>
+            {
+                def.SourceX = x; def.SourceY = y;
+                def.SourceWidth = Math.Max(1, w); def.SourceHeight = Math.Max(1, h);
+                SaveAndApplyCrop(characterName, def);
+            }));
+
+        // Popup rect row
+        root.Children.Add(BuildRectRow(
+            "Popup (on screen):", def.PopupX, def.PopupY, def.PopupWidth, def.PopupHeight,
+            (x, y, w, h) =>
+            {
+                def.PopupX = x; def.PopupY = y;
+                def.PopupWidth = Math.Max(40, w); def.PopupHeight = Math.Max(30, h);
+                SaveAndApplyCrop(characterName, def);
+            }));
+
+        root.Children.Add(new TextBlock
+        {
+            Text = "Tip: you can also right-click drag the popup to move it, and right-click + left-click drag to resize.",
+            Foreground = (Brush)FindResource("TextSecondaryBrush"),
+            FontSize = 10,
+            FontStyle = FontStyles.Italic,
+            Margin = new Thickness(0, 4, 0, 0),
+            TextWrapping = TextWrapping.Wrap
+        });
+
+        card.Child = root;
+        return card;
+    }
+
+    private UIElement BuildRectRow(string label, int x, int y, int w, int h, Action<int, int, int, int> onChange)
+    {
+        var row = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 2) };
+        row.Children.Add(new System.Windows.Controls.Label { Content = label, Width = 170 });
+
+        var tX = new TextBox { Width = 60, Text = x.ToString() };
+        var tY = new TextBox { Width = 60, Text = y.ToString() };
+        var tW = new TextBox { Width = 60, Text = w.ToString() };
+        var tH = new TextBox { Width = 60, Text = h.ToString() };
+
+        void Push()
+        {
+            if (_loading) return;
+            int.TryParse(tX.Text, out int nx);
+            int.TryParse(tY.Text, out int ny);
+            int.TryParse(tW.Text, out int nw);
+            int.TryParse(tH.Text, out int nh);
+            onChange(nx, ny, nw, nh);
+        }
+        tX.LostFocus += (_, _) => Push();
+        tY.LostFocus += (_, _) => Push();
+        tW.LostFocus += (_, _) => Push();
+        tH.LostFocus += (_, _) => Push();
+
+        row.Children.Add(new System.Windows.Controls.Label { Content = "X" }); row.Children.Add(tX);
+        row.Children.Add(new System.Windows.Controls.Label { Content = "Y", Margin = new Thickness(6, 0, 0, 0) }); row.Children.Add(tY);
+        row.Children.Add(new System.Windows.Controls.Label { Content = "W", Margin = new Thickness(6, 0, 0, 0) }); row.Children.Add(tW);
+        row.Children.Add(new System.Windows.Controls.Label { Content = "H", Margin = new Thickness(6, 0, 0, 0) }); row.Children.Add(tH);
+        return row;
+    }
+
+    private void DeleteCrop(string characterName, CropDefinition def)
+    {
+        if (!S.Crops.TryGetValue(characterName, out var list)) return;
+        if (MessageBox.Show($"Delete crop '{def.Name}'?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            return;
+        list.RemoveAll(c => string.Equals(c.Id, def.Id, StringComparison.Ordinal));
+        if (list.Count == 0) S.Crops.Remove(characterName);
+        _svc.Save();
+        RebuildCropList();
+        _cropManager?.Refresh();
+    }
+
+    private void SaveAndApplyCrop(string characterName, CropDefinition def)
+    {
+        _svc.Save();
+        _cropManager?.ApplyDefinitionEdits(characterName, def.Id);
+    }
+
+    private void PickCropArea(string characterName, CropDefinition def)
+    {
+        if (_thumbnailManager == null)
+        {
+            MessageBox.Show("Thumbnail manager not available.", "Pick Area",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var thumb = _thumbnailManager.GetThumbnailForCharacter(characterName);
+        if (thumb == null)
+        {
+            MessageBox.Show(
+                $"No live thumbnail for '{characterName}'. Launch the EVE client first.",
+                "Pick Area", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var (cx, cy, cW, cH) = CropPickerOverlay.QueryClientScreenRect(thumb.EveHwnd);
+        if (cW <= 0 || cH <= 0)
+        {
+            MessageBox.Show("Could not read EVE client area.", "Pick Area",
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        // Hide the Settings window so it doesn't steal focus back over the EVE client.
+        // Restored when the picker closes (both success and cancel paths).
+        var wasVisible = this.IsVisible;
+        this.Hide();
+
+        // Bring the EVE client to the foreground so the user sees exactly what they're cropping.
+        // The topmost overlay will sit on top and intercept all mouse input within the client area.
+        User32.SetForegroundWindow(thumb.EveHwnd);
+
+        var overlay = new CropPickerOverlay(cx, cy, cW, cH, cW, cH);
+        overlay.Completed += result =>
+        {
+            if (result is { } r)
+            {
+                def.SourceX = r.X;
+                def.SourceY = r.Y;
+                def.SourceWidth = r.W;
+                def.SourceHeight = r.H;
+                _svc.Save();
+                _cropManager?.ApplyDefinitionEdits(characterName, def.Id);
+                RebuildCropList();
+            }
+
+            if (wasVisible)
+            {
+                this.Show();
+                this.Activate();
+            }
+        };
+        overlay.Show();
+    }
+
 }
 
 /// <summary>View model row for the Performance Core assignment grid.</summary>
@@ -1600,16 +1971,49 @@ public class PerClientCoreRow : System.ComponentModel.INotifyPropertyChanged
     private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
 }
 
-/// <summary>View model row for the per-character stat toggle grid.</summary>
+/// <summary>
+/// View model row for the per-character stat grid. Mirrors the character's
+/// <see cref="CharacterStatSettings.ForcedOn"/> / <see cref="CharacterStatSettings.ForcedOff"/>
+/// bit sets; each bit is tri-state (force-on, force-off, inherit).
+/// Editing happens via <see cref="CharacterStatEditorWindow"/>; this row is read-only display.
+/// </summary>
 public class StatCharacterRow : System.ComponentModel.INotifyPropertyChanged
 {
     public string Name { get; set; } = "";
 
-    private bool _dps; public bool Dps { get => _dps; set { _dps = value; OnPropertyChanged(nameof(Dps)); } }
-    private bool _logi; public bool Logi { get => _logi; set { _logi = value; OnPropertyChanged(nameof(Logi)); } }
-    private bool _mining; public bool Mining { get => _mining; set { _mining = value; OnPropertyChanged(nameof(Mining)); } }
-    private bool _ratting; public bool Ratting { get => _ratting; set { _ratting = value; OnPropertyChanged(nameof(Ratting)); } }
-    private bool _npc; public bool Npc { get => _npc; set { _npc = value; OnPropertyChanged(nameof(Npc)); } }
+    private EveMultiPreview.Models.StatMetrics _forcedOn;
+    public EveMultiPreview.Models.StatMetrics ForcedOn
+    {
+        get => _forcedOn;
+        set { _forcedOn = value; OnPropertyChanged(nameof(ForcedOn)); OnPropertyChanged(nameof(Summary)); }
+    }
+
+    private EveMultiPreview.Models.StatMetrics _forcedOff;
+    public EveMultiPreview.Models.StatMetrics ForcedOff
+    {
+        get => _forcedOff;
+        set { _forcedOff = value; OnPropertyChanged(nameof(ForcedOff)); OnPropertyChanged(nameof(Summary)); }
+    }
+
+    /// <summary>One-line badge describing this character's overrides,
+    /// e.g. "3 ON, 1 OFF (16 inherit)".</summary>
+    public string Summary
+    {
+        get
+        {
+            int on = System.Numerics.BitOperations.PopCount((uint)_forcedOn);
+            int off = System.Numerics.BitOperations.PopCount((uint)_forcedOff);
+            if (on == 0 && off == 0) return "All inherit global";
+            int total = System.Numerics.BitOperations.PopCount(
+                (uint)EveMultiPreview.Models.StatMetrics.AllMetrics) + 1; // +1 for IncludeNpc
+            int inherit = total - on - off;
+            var parts = new System.Collections.Generic.List<string>();
+            if (on > 0)  parts.Add($"{on} ON");
+            if (off > 0) parts.Add($"{off} OFF");
+            parts.Add($"{inherit} inherit");
+            return string.Join(", ", parts);
+        }
+    }
 
     public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));

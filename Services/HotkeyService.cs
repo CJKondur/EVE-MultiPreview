@@ -26,14 +26,20 @@ public sealed class HotkeyService : IDisposable
     private bool _eveOnlyScope = false; // When true, hotkeys only fire when EVE is foreground
     private AppSettings? _appSettings; // For TOS key-block guard
     private int _suspendHotkeyId = -1; // Suspend hotkey is always allowed
+    private readonly List<int> _activationHotkeyIds = new(); // vkE8 internal activation hotkeys
     private bool _hotkeysActive = false; // Whether non-suspend hotkeys are currently registered
 
     // Stored hotkey specs for re-registration when EVE windows appear/disappear
     private readonly List<HotkeySpec> _storedSpecs = new();
     private record HotkeySpec(uint Modifiers, uint VirtualKey, Action Action, bool AllowRepeat);
 
-    // Track repeatable hotkey IDs so WndProc can drop stale key-repeat messages after key release
+    // Track repeatable hotkey IDs
     private readonly HashSet<int> _repeatableIds = new();
+    // Throttle ALL hotkeys: minimum interval between successive fires of the same ID.
+    // RegisterHotKey floods WM_HOTKEY on OS key-repeat (~30ms). AHK's Hotkey() hook
+    // naturally fires once-per-press; this throttle emulates that behavior.
+    private const int RepeatThrottleMs = 100;
+    private readonly Dictionary<int, long> _lastRepeatFireTick = new();
 
     // ── Mouse button hotkey support (WH_MOUSE_LL) ──
     private IntPtr _mouseHookHandle = IntPtr.Zero;
@@ -41,13 +47,6 @@ public sealed class HotkeyService : IDisposable
     private readonly List<MouseButtonBinding> _mouseBindings = new();
     private readonly List<MouseButtonBinding> _storedMouseBindings = new(); // persist across suspend
     private record MouseButtonBinding(uint Modifiers, string ButtonName, Action Action);
-
-    // ── Keyboard pass-through support (WH_KEYBOARD_LL) ──
-    private IntPtr _keyboardHookHandle = IntPtr.Zero;
-    private User32.LowLevelKeyboardProc? _keyboardHookProc; // prevent GC
-    private readonly List<KeyboardBinding> _keyboardBindings = new();
-    private readonly List<KeyboardBinding> _storedKeyboardBindings = new();
-    private record KeyboardBinding(uint Modifiers, uint VirtualKey, Action Action, bool AllowRepeat, bool Swallow = false);
 
     // Events for external wiring
     public event Action? SuspendToggled;
@@ -72,7 +71,6 @@ public sealed class HotkeyService : IDisposable
     /// <returns>Hotkey ID, or -1 on failure.</returns>
     public int Register(uint modifiers, uint key, Action action, bool allowRepeat = false)
     {
-        try { System.IO.File.AppendAllText(@"C:\Users\tensk\Desktop\EVE Projects\EveMultiPreview\hklog.txt", $"Register called: Mod={modifiers}, Key={key}, repeat={allowRepeat}\n"); } catch {}
         if (_hwndSource == null) return -1;
 
         int id = _nextId++;
@@ -80,12 +78,11 @@ public sealed class HotkeyService : IDisposable
         if (User32.RegisterHotKey(_hwndSource.Handle, id, finalMods, key))
         {
             _hotkeyActions[id] = action;
-            Debug.WriteLine($"[Hotkey:Register] \u2705 Registered ID={id}, Mod=0x{modifiers:X}, Key=0x{key:X}, repeat={allowRepeat}");
+            Debug.WriteLine($"[Hotkey:Register] ✅ Registered ID={id}, Mod=0x{modifiers:X}, Key=0x{key:X}, repeat={allowRepeat}");
             return id;
         }
 
         int err = System.Runtime.InteropServices.Marshal.GetLastWin32Error();
-        try { System.IO.File.AppendAllText(@"C:\Users\tensk\Desktop\EVE Projects\EveMultiPreview\hklog.txt", $"[Hotkey:Register] Failed Mod=0x{modifiers:X}, Key=0x{key:X} (err={err})\n"); } catch {}
         Debug.WriteLine($"[Hotkey:Register] ❌ Failed Mod=0x{modifiers:X}, Key=0x{key:X} (err={err})");
         return -1;
     }
@@ -106,11 +103,10 @@ public sealed class HotkeyService : IDisposable
             User32.UnregisterHotKey(_hwndSource.Handle, id);
         _hotkeyActions.Clear();
         _repeatableIds.Clear();
+        _lastRepeatFireTick.Clear();
         _storedSpecs.Clear();
         _storedMouseBindings.Clear();
-        _storedKeyboardBindings.Clear();
         RemoveMouseHook();
-        RemoveKeyboardHook();
         _suspendHotkeyId = -1;
         _hotkeysActive = false;
         _nextId = 1;
@@ -119,7 +115,11 @@ public sealed class HotkeyService : IDisposable
     /// <summary>Register all stored non-suspend hotkeys. Call when EVE windows appear.</summary>
     public void ActivateHotkeys()
     {
-        if (_hotkeysActive || _suspended || _hwndSource == null) return;
+        if (_hotkeysActive || _suspended || _hwndSource == null)
+        {
+            return;
+        }
+        int ok = 0, fail = 0;
         foreach (var spec in _storedSpecs)
         {
             int id = _nextId++;
@@ -129,10 +129,15 @@ public sealed class HotkeyService : IDisposable
                 _hotkeyActions[id] = spec.Action;
                 if (spec.AllowRepeat)
                     _repeatableIds.Add(id);
+                ok++;
+            }
+            else
+            {
+                fail++;
             }
         }
         _hotkeysActive = true;
-        Debug.WriteLine($"[Hotkey:Activate] ✅ Activated {_storedSpecs.Count} hotkeys (EVE windows detected)");
+        App.PerfLog($"[Hotkey:Activate] Registered {ok}/{_storedSpecs.Count} specs ({fail} failed, {_hotkeyActions.Count} total actions)");
     }
 
     /// <summary>Unregister all non-suspend hotkeys. Call when last EVE window closes.</summary>
@@ -146,6 +151,7 @@ public sealed class HotkeyService : IDisposable
             _hotkeyActions.Remove(id);
         }
         _repeatableIds.Clear();
+        _lastRepeatFireTick.Clear();
         _hotkeysActive = false;
         Debug.WriteLine("[Hotkey:Deactivate] ⏸ Deactivated hotkeys (no EVE windows)");
     }
@@ -169,9 +175,8 @@ public sealed class HotkeyService : IDisposable
             }
             _hotkeysActive = false;
 
-            // Remove mouse/keyboard hook so inputs return to Windows
+            // Remove mouse hook so inputs return to Windows
             RemoveMouseHook();
-            RemoveKeyboardHook();
 
             Debug.WriteLine("[Hotkey:Suspend] ⏸ All hotkeys unregistered, hooks removed — keys returned to Windows");
         }
@@ -182,7 +187,6 @@ public sealed class HotkeyService : IDisposable
 
             // Re-install hooks
             ReinstallMouseBindings();
-            ReinstallKeyboardBindings();
 
             Debug.WriteLine("[Hotkey:Suspend] ▶ All hotkeys re-registered, hooks restored");
         }
@@ -199,6 +203,10 @@ public sealed class HotkeyService : IDisposable
     {
         UnregisterAll();
 
+        Debug.WriteLine($"[Hotkey:Settings] Profile hotkeys: {profile.Hotkeys.Count}, Groups: {profile.HotkeyGroups.Count}");
+        foreach (var (name, binding) in profile.Hotkeys)
+            Debug.WriteLine($"[Hotkey:Settings]   char='{name}' key='{binding.Key}'");
+
         // Store settings ref for TOS guard
         _appSettings = settings;
 
@@ -206,18 +214,32 @@ public sealed class HotkeyService : IDisposable
         _eveOnlyScope = !settings.GlobalHotkeys;
         Debug.WriteLine($"[Hotkey:Scope] \uD83D\uDD27 EVE Only scope: {_eveOnlyScope}");
 
+        // ── Pre-calculate Cycle Keys to Ignore during Held Key Injection ──
+        Interop.User32.CycleKeysToIgnore.Clear();
+        void RegisterCycleKeyIgnore(string keyString)
+        {
+            if (string.IsNullOrWhiteSpace(keyString)) return;
+            var (_, vk) = ParseAhkHotkeyString(keyString);
+            if (vk != 0) Interop.User32.CycleKeysToIgnore.Add((int)vk);
+        }
+
+        RegisterCycleKeyIgnore(settings.ProfileCycleForwardHotkey);
+        RegisterCycleKeyIgnore(settings.ProfileCycleBackwardHotkey);
+        
+        if (settings.CharSelectCyclingEnabled)
+        {
+            RegisterCycleKeyIgnore(settings.CharSelectForwardHotkey);
+            RegisterCycleKeyIgnore(settings.CharSelectBackwardHotkey);
+        }
+
+        foreach (var group in profile.HotkeyGroups.Values)
+        {
+            RegisterCycleKeyIgnore(group.ForwardsHotkey);
+            RegisterCycleKeyIgnore(group.BackwardsHotkey);
+        }
+
         // Suspend hotkey
         _suspendHotkeyId = RegisterAhkHotkey(settings.SuspendHotkey, () => ToggleSuspend());
-
-        // Internal activation hotkey (vkE8) — mirrors AHK's ActivateForgroundWindow.
-        // When ActivateWindow sends vkE8 through the input pipeline, this WM_HOTKEY
-        // handler fires and calls SetForegroundWindow. Because the activation happens
-        // INSIDE the keyboard input pipeline, Windows preserves the physical keyboard
-        // state (held keys like D) across the focus transition.
-        Register(0, User32.VK_ACTIVATION, () =>
-        {
-            Interop.User32.SetForegroundWindowForPending();
-        });
 
         // Non-suspend hotkeys are stored and initially deactivated
         // They'll be activated when EVE windows are detected
@@ -371,7 +393,7 @@ public sealed class HotkeyService : IDisposable
             });
         }
 
-        Debug.WriteLine($"[Hotkey:Register] ✅ Stored {_storedSpecs.Count} hotkeys, suspend ID={_suspendHotkeyId} (eveOnly={_eveOnlyScope})");
+        App.PerfLog($"[Hotkey:Register] Stored {_storedSpecs.Count} specs, suspend ID={_suspendHotkeyId} (eveOnly={_eveOnlyScope})");
     }
 
     // Events for profile cycling
@@ -399,13 +421,6 @@ public sealed class HotkeyService : IDisposable
         Debug.WriteLine($"[Hotkey:Parse] 🔧 ParseAhk '{ahkKeyString}' → Mod=0x{parsedMods:X}, VK=0x{vk:X}");
         if (vk == 0) return -1;
 
-        bool isPassThrough = ahkKeyString.Contains('~');
-        if (isPassThrough)
-        {
-            AddKeyboardBinding(parsedMods, vk, action, false);
-            return -2;
-        }
-
         return Register(parsedMods, vk, action);
     }
 
@@ -424,16 +439,19 @@ public sealed class HotkeyService : IDisposable
         }
 
         var (parsedMods, vk) = ParseAhkHotkeyString(ahkKeyString);
-        if (vk == 0) return;
-
-        bool isPassThrough = ahkKeyString.Contains('~');
-        if (isPassThrough)
+        if (vk == 0)
         {
-            AddKeyboardBinding(parsedMods, vk, action, false);
+            Debug.WriteLine($"[Hotkey:Store] ⚠️ Failed to parse '{ahkKeyString}' — VK=0");
             return;
         }
 
-        _storedSpecs.Add(new HotkeySpec(parsedMods, vk, action, false));
+        Debug.WriteLine($"[Hotkey:Store] 📦 Storing '{ahkKeyString}' → Mod=0x{parsedMods:X}, VK=0x{vk:X} (16 wildcard combos)");
+
+        // Natively simulate wildcard modifiers by exhaustively registering all 16 modifier combinations
+        for (uint m = 0; m < 16; m++)
+        {
+            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, false));
+        }
     }
 
     /// <summary>Store a repeatable hotkey spec without registering it.</summary>
@@ -453,27 +471,11 @@ public sealed class HotkeyService : IDisposable
         var (parsedMods, vk) = ParseAhkHotkeyString(ahkKeyString);
         if (vk == 0) return;
         
-        bool isPassThrough = ahkKeyString.Contains('~');
-        if (isPassThrough)
+        // Natively simulate wildcard modifiers by exhaustively registering all 16 modifier combinations
+        for (uint m = 0; m < 16; m++)
         {
-            AddKeyboardBinding(parsedMods, vk, action, true);
-            return;
+            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, true));
         }
-
-        _storedSpecs.Add(new HotkeySpec(parsedMods, vk, action, true));
-    }
-
-    /// <summary>
-    /// Register a repeatable hotkey (allows key-repeat when held down).
-    /// Used for cycle hotkeys so holding continuously cycles through clients.
-    /// </summary>
-    public int RegisterRepeatableAhkHotkey(string ahkKeyString, Action action)
-    {
-        if (string.IsNullOrWhiteSpace(ahkKeyString)) return -1;
-        var (mods, vk) = ParseAhkHotkeyString(ahkKeyString);
-        if (vk == 0) return -1;
-        
-        return Register(mods, vk, action, allowRepeat: true);
     }
 
     /// <summary>
@@ -665,29 +667,29 @@ public sealed class HotkeyService : IDisposable
             }
             catch { }
 
-            Debug.WriteLine($"[Hotkey:Fired] \u26A1 WM_HOTKEY ID={id}");
+            // Throttle ALL hotkeys to prevent key-repeat flooding.
+            // RegisterHotKey sends WM_HOTKEY on every OS key-repeat (~30ms).
+            // AHK's Hotkey() hook fires once-per-press — this throttle emulates that.
+            {
+                long now = Environment.TickCount64;
+                if (_lastRepeatFireTick.TryGetValue(id, out long lastTick) &&
+                    (now - lastTick) < RepeatThrottleMs)
+                {
+                    return IntPtr.Zero; // Drop this repeat — too soon
+                }
+                _lastRepeatFireTick[id] = now;
+            }
+
+            Debug.WriteLine($"[Hotkey:Fired] ⚡ WM_HOTKEY ID={id}");
             if (_hotkeyActions.TryGetValue(id, out var action))
             {
-                // Drop stale key-repeat messages: if this is a repeatable hotkey and the
-                // physical key has already been released, the message is a queued ghost.
-                if (_repeatableIds.Contains(id))
-                {
-                    uint vk = (uint)((lParam.ToInt64() >> 16) & 0xFFFF);
-                    if (!User32.IsKeyDown((int)vk))
-                    {
-                        Debug.WriteLine($"[Hotkey:Stale] 🗑️ Dropped stale repeat ID={id}, VK=0x{vk:X} (key released)");
-                        handled = true;
-                        return IntPtr.Zero;
-                    }
-                }
-
                 try
                 {
                     action.Invoke();
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[Hotkey:Fired] \u274C Action exception for ID={id}: {ex.Message}");
+                    App.PerfLog($"[Hotkey:Error] Action exception ID={id}: {ex.Message}");
                 }
                 handled = true;
             }
@@ -826,169 +828,45 @@ public sealed class HotkeyService : IDisposable
                 if (User32.IsKeyDown(0x10)) currentMods |= User32.MOD_SHIFT;   // VK_SHIFT
                 if (User32.IsKeyDown(0x5B) || User32.IsKeyDown(0x5C)) currentMods |= User32.MOD_WIN;
 
-                foreach (var binding in _mouseBindings)
+                var bestBinding = _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == currentMods)
+                               ?? _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == 0);
+
+                if (bestBinding != null)
                 {
-                    if (binding.ButtonName == buttonName && binding.Modifiers == currentMods)
+                    var binding = bestBinding;
+                    // Mouse hooks ALWAYS use EVE-only scope to prevent stealing
+                    // XButton/MButton from other applications (even when GlobalHotkeys is on)
+                    try
                     {
-                        // Mouse hooks ALWAYS use EVE-only scope to prevent stealing
-                        // XButton/MButton from other applications (even when GlobalHotkeys is on)
-                        try
-                        {
-                            var fgHwnd = User32.GetForegroundWindow();
-                            string? fgProc = User32.GetProcessName(fgHwnd);
-                            if (!User32.IsEveOrAppProcess(fgProc)) continue;
-                        }
-                        catch { }
-
-                        // Settings window block
-                        try
-                        {
-                            var fgHwnd = User32.GetForegroundWindow();
-                            string? fgTitle = User32.GetWindowTitle(fgHwnd);
-                            if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                                && User32.IsAppProcessName(User32.GetProcessName(fgHwnd))) continue;
-                        }
-                        catch { }
-
-                        Debug.WriteLine($"[Hotkey:Mouse] ⚡ Fired: {buttonName} (mods=0x{currentMods:X})");
-                        System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
-                        {
-                            try { binding.Action.Invoke(); }
-                            catch (Exception ex) { Debug.WriteLine($"[Hotkey:Mouse] ❌ Action error: {ex.Message}"); }
-                        });
-
-                        // Return 1 to suppress the mouse event from reaching other apps
-                        return (IntPtr)1;
+                        var fgHwnd = User32.GetForegroundWindow();
+                        string? fgProc = User32.GetProcessName(fgHwnd);
+                        if (!User32.IsEveOrAppProcess(fgProc)) return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
                     }
+                    catch { }
+
+                    // Settings window block
+                    try
+                    {
+                        var fgHwnd = User32.GetForegroundWindow();
+                        string? fgTitle = User32.GetWindowTitle(fgHwnd);
+                        if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
+                            && User32.IsAppProcessName(User32.GetProcessName(fgHwnd))) return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+                    }
+                    catch { }
+
+                    Debug.WriteLine($"[Hotkey:Mouse] ⚡ Fired: {buttonName} (mods=0x{currentMods:X}) wildcard fallback");
+                    System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
+                    {
+                        try { binding.Action.Invoke(); }
+                        catch (Exception ex) { Debug.WriteLine($"[Hotkey:Mouse] ❌ Action error: {ex.Message}"); }
+                    });
+
+                    // Return 1 to suppress the mouse event from reaching other apps
+                    return (IntPtr)1;
                 }
             }
         }
 
         return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
-    }
-
-    // ── Keyboard Pass-Through Support ────────────────────────────────
-
-    private readonly HashSet<uint> _keysDown = new();
-
-    private void AddKeyboardBinding(uint mods, uint vk, Action action, bool allowRepeat, bool swallow = false)
-    {
-        var binding = new KeyboardBinding(mods, vk, action, allowRepeat, swallow);
-        _keyboardBindings.Add(binding);
-        _storedKeyboardBindings.Add(binding); // keep for suspend/resume
-        EnsureKeyboardHook();
-        Debug.WriteLine($"[Hotkey:Keyboard] ⌨️ Registered {(swallow ? "swallowing" : "passthrough")} binding: VK=0x{vk:X}");
-    }
-
-    private void ReinstallKeyboardBindings()
-    {
-        if (_storedKeyboardBindings.Count == 0) return;
-        foreach (var binding in _storedKeyboardBindings)
-            _keyboardBindings.Add(binding);
-        EnsureKeyboardHook();
-    }
-
-    private void EnsureKeyboardHook()
-    {
-        if (_keyboardHookHandle != IntPtr.Zero || _suspended) return;
-
-        _keyboardHookProc = KeyboardHookCallback; // prevent GC
-        _keyboardHookHandle = User32.SetWindowsHookEx(
-            User32.WH_KEYBOARD_LL,
-            _keyboardHookProc,
-            User32.GetModuleHandle(null),
-            0);
-
-        Debug.WriteLine($"[Hotkey:Keyboard] 🪝 Keyboard hook installed: {_keyboardHookHandle != IntPtr.Zero}");
-    }
-
-    private void RemoveKeyboardHook()
-    {
-        if (_keyboardHookHandle != IntPtr.Zero)
-        {
-            User32.UnhookWindowsHookEx(_keyboardHookHandle);
-            _keyboardHookHandle = IntPtr.Zero;
-            Debug.WriteLine("[Hotkey:Keyboard] 🛑 Keyboard hook removed");
-        }
-        _keyboardBindings.Clear();
-        _keysDown.Clear();
-    }
-
-    private IntPtr KeyboardHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
-    {
-        if (nCode >= 0 && _keyboardBindings.Count > 0)
-        {
-            int msg = wParam.ToInt32();
-            if (msg == User32.WM_KEYDOWN || msg == User32.WM_SYSKEYDOWN)
-            {
-                var hookStruct = Marshal.PtrToStructure<User32.KBDLLHOOKSTRUCT>(lParam);
-                uint vk = hookStruct.vkCode;
-
-                // Ignore modifier keys themselves as primary triggers
-                if (vk is 0xA0 or 0xA1 or 0xA2 or 0xA3 or 0x5B or 0x5C or 0x10 or 0x11 or 0x12)
-                    return User32.CallNextHookEx(_keyboardHookHandle, nCode, wParam, lParam);
-
-                bool isRepeat = _keysDown.Contains(vk);
-                _keysDown.Add(vk);
-
-                uint currentMods = 0;
-                if (User32.IsKeyDown(0x11)) currentMods |= User32.MOD_CONTROL;
-                if (User32.IsKeyDown(0x12)) currentMods |= User32.MOD_ALT;
-                if (User32.IsKeyDown(0x10)) currentMods |= User32.MOD_SHIFT;
-                if (User32.IsKeyDown(0x5B) || User32.IsKeyDown(0x5C)) currentMods |= User32.MOD_WIN;
-
-                bool actionFired = false;
-                foreach (var binding in _keyboardBindings)
-                {
-                    if (binding.VirtualKey == vk && binding.Modifiers == currentMods)
-                    {
-                        if (isRepeat && !binding.AllowRepeat) continue;
-
-                        // EVE-only scope logic
-                        // Non-swallowed keys (Passthrough) ALWAYS test scope to avoid stealing keys like ~ from other apps.
-                        // Swallowed keys (Cycle Hotkeys) respect the user's Global Hotkey setting (_eveOnlyScope).
-                        if (_eveOnlyScope || !binding.Swallow)
-                        {
-                            try
-                            {
-                                var fgHwnd = User32.GetForegroundWindow();
-                                string? fgProc = User32.GetProcessName(fgHwnd);
-                                if (!User32.IsEveOrAppProcess(fgProc)) continue;
-                                
-                                string? fgTitle = User32.GetWindowTitle(fgHwnd);
-                                if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                                    && User32.IsAppProcessName(fgProc)) continue;
-                            }
-                            catch { }
-                        }
-
-                        Debug.WriteLine($"[Hotkey:Keyboard] ⚡ Passthrough Fired: VK=0x{vk:X} (Mods=0x{currentMods:X})");
-                        System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
-                        {
-                            try { binding.Action.Invoke(); }
-                            catch (Exception ex) { Debug.WriteLine($"[Hotkey:Keyboard] ❌ Action error: {ex.Message}"); }
-                        });
-                        actionFired = true;
-                    }
-                }
-                
-                // If ANY matching binding has Swallow=true, block the key
-                // so it never enters the keyboard state.
-                if (actionFired)
-                {
-                    foreach (var binding in _keyboardBindings)
-                    {
-                        if (binding.VirtualKey == vk && binding.Modifiers == currentMods && binding.Swallow)
-                            return (IntPtr)1; // Block the key from reaching any application
-                    }
-                }
-            }
-            else if (msg == User32.WM_KEYUP || msg == User32.WM_SYSKEYUP)
-            {
-                var hookStruct = Marshal.PtrToStructure<User32.KBDLLHOOKSTRUCT>(lParam);
-                _keysDown.Remove(hookStruct.vkCode);
-            }
-        }
-        return User32.CallNextHookEx(_keyboardHookHandle, nCode, wParam, lParam);
     }
 }

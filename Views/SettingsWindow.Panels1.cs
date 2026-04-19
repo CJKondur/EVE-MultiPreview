@@ -212,6 +212,14 @@ public partial class SettingsWindow
         S.IndividualThumbnailResize = ChkIndividualResize.IsChecked == true;
         S.ShowSessionTimer = ChkShowTimer.IsChecked == true;
         if (int.TryParse(TxtMinimizeDelay.Text, out int md)) S.MinimizeDelay = md;
+        // Startup-settings mode: clamp to the 3 known values.
+        int startupIdx = CmbStartupSettings.SelectedIndex;
+        S.StartupSettings = startupIdx switch
+        {
+            1 => StartupSettingsMode.Open,
+            2 => StartupSettingsMode.OpenMinimized,
+            _ => StartupSettingsMode.Off,
+        };
         SaveDelayed();
     }
 

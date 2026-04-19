@@ -40,6 +40,15 @@ public class AppSettings
     public bool SimpleMode { get; set; } = false;
     public bool SetupCompleted { get; set; } = false;
 
+    /// <summary>Controls whether the Settings window auto-opens when the app launches.</summary>
+    public StartupSettingsMode StartupSettings { get; set; } = StartupSettingsMode.Off;
+
+    // ── Debug Logging ───────────────────────────────────────────────
+    public bool EnableDebugLogging_Injection { get; set; } = false;
+    public bool EnableDebugLogging_Cycling { get; set; } = false;
+    public bool EnableDebugLogging_WindowHooks { get; set; } = false;
+    public bool EnableDebugLogging_DWM { get; set; } = false;
+
     // ── Alert Settings ──────────────────────────────────────────────
 
     public bool PveMode { get; set; } = false;
@@ -95,6 +104,10 @@ public class AppSettings
     public int StatLogRetentionDays { get; set; } = 30;
     public Dictionary<string, CharacterStatSettings> PerCharacterStats { get; set; } = new();
     public Dictionary<string, ThumbnailRect> StatWindowPositions { get; set; } = new();
+
+    /// <summary>Global default metric set — bits that are visible for every character
+    /// unless overridden. Effective per-character = (Global | ForcedOn) &amp; ~ForcedOff.</summary>
+    public StatMetrics GlobalStatMetrics { get; set; } = StatMetrics.None;
 
     // ── Settings GUI ────────────────────────────────────────────────
     public int SettingsWindowWidth { get; set; } = 1080;
@@ -192,6 +205,10 @@ public class AppSettings
     // Per-profile hotkey groups proxy
     [JsonIgnore] public Dictionary<string, HotkeyGroup> HotkeyGroups { get => _cp.HotkeyGroups; set => _cp.HotkeyGroups = value; }
 
+    // Per-profile crop proxies
+    [JsonIgnore] public bool CropEnabled { get => _cp.CropEnabled; set => _cp.CropEnabled = value; }
+    [JsonIgnore] public Dictionary<string, List<CropDefinition>> Crops { get => _cp.Crops; set => _cp.Crops = value; }
+
     // Backwards-compat: SettingsWindowSize as an object (for code that uses SettingsWindowSize.Width/Height)
     [JsonIgnore] public WindowSize SettingsWindowSize => new() { Width = SettingsWindowWidth, Height = SettingsWindowHeight };
 
@@ -253,6 +270,18 @@ public class AppSettings
 }
 
 // ── Sub-Models ──────────────────────────────────────────────────────
+
+/// <summary>Controls what happens to the Settings window when the app starts.
+/// Persisted as an integer (0/1/2) for AHK compatibility.</summary>
+public enum StartupSettingsMode
+{
+    /// <summary>App starts to the tray — Settings stays closed until the user opens it.</summary>
+    Off = 0,
+    /// <summary>App automatically opens the Settings window on launch.</summary>
+    Open = 1,
+    /// <summary>App automatically opens the Settings window, already minimized to the taskbar.</summary>
+    OpenMinimized = 2,
+}
 
 public class ThumbnailRect
 {
@@ -379,6 +408,51 @@ public class Profile
     public bool ManageAffinity { get; set; } = false;
     public bool AutoBalanceCores { get; set; } = true;
     public Dictionary<string, int> PerClientCores { get; set; } = new();
+
+    // ── Per-profile Crops (multiple named crops per character) ──
+    public bool CropEnabled { get; set; } = false;
+    public Dictionary<string, List<CropDefinition>> Crops { get; set; } = new();
+}
+
+/// <summary>
+/// A single cropped DWM thumbnail popup definition.
+/// Source rect = region of the EVE client window to capture (rcSource).
+/// Popup rect = on-screen position and size of the popup window displaying that region.
+/// </summary>
+public class CropDefinition
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = Guid.NewGuid().ToString("N").Substring(0, 8);
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = "Crop";
+
+    [JsonPropertyName("sourceX")]
+    public int SourceX { get; set; } = 0;
+
+    [JsonPropertyName("sourceY")]
+    public int SourceY { get; set; } = 0;
+
+    [JsonPropertyName("sourceWidth")]
+    public int SourceWidth { get; set; } = 400;
+
+    [JsonPropertyName("sourceHeight")]
+    public int SourceHeight { get; set; } = 300;
+
+    [JsonPropertyName("popupX")]
+    public int PopupX { get; set; } = 100;
+
+    [JsonPropertyName("popupY")]
+    public int PopupY { get; set; } = 100;
+
+    [JsonPropertyName("popupWidth")]
+    public int PopupWidth { get; set; } = 320;
+
+    [JsonPropertyName("popupHeight")]
+    public int PopupHeight { get; set; } = 240;
+
+    [JsonPropertyName("showLabel")]
+    public bool ShowLabel { get; set; } = true;
 }
 
 /// <summary>Per-character stat overlay configuration.</summary>
@@ -517,21 +591,125 @@ public class HotkeyDictionaryConverter : JsonConverter<Dictionary<string, Hotkey
     }
 }
 
+/// <summary>
+/// Per-metric visibility flags for the stat overlay. One bit per metric (plus
+/// <see cref="IncludeNpc"/>). Resolution for a character:
+/// <c>effective = (GlobalStatMetrics | ForcedOn) &amp; ~ForcedOff</c>.
+/// </summary>
+[Flags]
+public enum StatMetrics : uint
+{
+    None = 0,
+
+    // DPS
+    DpsOut = 1u << 0, // Out = Dmg/s Out
+    DpsIn  = 1u << 1, // In = Dmg/s In
+    Tdi    = 1u << 2, // TDI = Total Dmg In
+    Tdo    = 1u << 3, // TDO = Total Dmg Out
+
+    // Logi
+    Arps = 1u << 4, // ARPS = Armor Rep/s
+    Srps = 1u << 5, // SRPS = Shield Rep/s
+    Ctps = 1u << 6, // CTPS = Cap Transf/s
+    Taro = 1u << 7, // TARO = Total Armor Rep Out
+    Tari = 1u << 8, // TARI = Total Armor Rep In
+    Tsro = 1u << 9, // TSRO = Total Shield Rep Out
+    Tsri = 1u << 10, // TSRI = Total Shield Rep In
+
+    // Mining
+    Ompc = 1u << 11, // OMPC = Ore Mined/Cycle
+    Omph = 1u << 12, // OMPH = Ore Mined/Hour
+    Gmpc = 1u << 13, // GMPC = Gas Mined/Cycle
+    Gmph = 1u << 14, // GMPH = Gas Mined/Hour
+    Imph = 1u << 15, // IMPH = Ice Mined/Hour
+
+    // Ratting
+    Tipt = 1u << 16, // TIPT = Total ISK/Tick
+    Tiph = 1u << 17, // TIPH = Total ISK/Hour
+    Tips = 1u << 18, // TIPS = Total ISK/Session
+
+    // Meta — affects what counts as DPS, not a metric itself
+    IncludeNpc = 1u << 19,
+
+    // Category masks (not stored on their own, used by the UI for group operations)
+    DpsMask  = DpsOut | DpsIn | Tdi | Tdo,
+    LogiMask = Arps | Srps | Ctps | Taro | Tari | Tsro | Tsri,
+    MineMask = Ompc | Omph | Gmpc | Gmph | Imph,
+    RatMask  = Tipt | Tiph | Tips,
+    AllMetrics = DpsMask | LogiMask | MineMask | RatMask,
+}
+
+/// <summary>
+/// Per-character override masks for the stat overlay. Each bit is tri-state:
+///   forced on  → set in <see cref="ForcedOn"/>, always visible for this character
+///   forced off → set in <see cref="ForcedOff"/>, always hidden for this character
+///   inherit    → absent from both masks, follows <see cref="AppSettings.GlobalStatMetrics"/>
+///
+/// A bit should never be set in both masks; <see cref="Resolve"/> treats ForcedOff as stronger.
+/// </summary>
 public class CharacterStatSettings
 {
-    [JsonPropertyName("dps")]
-    public bool Dps { get; set; } = false;
+    [JsonPropertyName("forcedOn")]
+    public StatMetrics ForcedOn { get; set; } = StatMetrics.None;
 
-    [JsonPropertyName("logi")]
-    public bool Logi { get; set; } = false;
+    [JsonPropertyName("forcedOff")]
+    public StatMetrics ForcedOff { get; set; } = StatMetrics.None;
 
-    [JsonPropertyName("mining")]
-    public bool Mining { get; set; } = false;
+    public static StatMetrics Resolve(StatMetrics global, CharacterStatSettings? overrides)
+    {
+        if (overrides == null) return global;
+        return (global | overrides.ForcedOn) & ~overrides.ForcedOff;
+    }
 
-    [JsonPropertyName("ratting")]
-    public bool Ratting { get; set; } = false;
+    /// <summary>Tri-state view for a specific bit — null = inherit, true = ForcedOn, false = ForcedOff.</summary>
+    public bool? GetOverrideState(StatMetrics bit)
+    {
+        if ((ForcedOff & bit) != 0) return false;
+        if ((ForcedOn & bit) != 0) return true;
+        return null;
+    }
 
-    [JsonPropertyName("npc")]
-    public bool Npc { get; set; } = false;
+    /// <summary>Set a tri-state override for the given bit.</summary>
+    public void SetOverrideState(StatMetrics bit, bool? state)
+    {
+        ForcedOn &= ~bit;
+        ForcedOff &= ~bit;
+        if (state == true) ForcedOn |= bit;
+        else if (state == false) ForcedOff |= bit;
+    }
+
+    public int OverrideCount => System.Numerics.BitOperations.PopCount((uint)(ForcedOn | ForcedOff));
+}
+
+/// <summary>Static metadata for a single stat metric — code, category, human label.</summary>
+public readonly record struct StatMetricDef(StatMetrics Bit, string Code, string Category, string Label);
+
+public static class StatMetricCatalog
+{
+    public static readonly StatMetricDef[] All =
+    {
+        new(StatMetrics.DpsOut, "Out",  "DPS",  "Dmg/s Out"),
+        new(StatMetrics.DpsIn,  "In",   "DPS",  "Dmg/s In"),
+        new(StatMetrics.Tdi,    "TDI",  "DPS",  "Total Dmg In"),
+        new(StatMetrics.Tdo,    "TDO",  "DPS",  "Total Dmg Out"),
+
+        new(StatMetrics.Arps, "ARPS", "Logi", "Armor Rep/s"),
+        new(StatMetrics.Srps, "SRPS", "Logi", "Shield Rep/s"),
+        new(StatMetrics.Ctps, "CTPS", "Logi", "Cap Transf/s"),
+        new(StatMetrics.Taro, "TARO", "Logi", "Total Armor Rep Out"),
+        new(StatMetrics.Tari, "TARI", "Logi", "Total Armor Rep In"),
+        new(StatMetrics.Tsro, "TSRO", "Logi", "Total Shield Rep Out"),
+        new(StatMetrics.Tsri, "TSRI", "Logi", "Total Shield Rep In"),
+
+        new(StatMetrics.Ompc, "OMPC", "Mine", "Ore Mined/Cycle"),
+        new(StatMetrics.Omph, "OMPH", "Mine", "Ore Mined/Hour"),
+        new(StatMetrics.Gmpc, "GMPC", "Mine", "Gas Mined/Cycle"),
+        new(StatMetrics.Gmph, "GMPH", "Mine", "Gas Mined/Hour"),
+        new(StatMetrics.Imph, "IMPH", "Mine", "Ice Mined/Hour"),
+
+        new(StatMetrics.Tipt, "TIPT", "Rat", "Total ISK/Tick"),
+        new(StatMetrics.Tiph, "TIPH", "Rat", "Total ISK/Hour"),
+        new(StatMetrics.Tips, "TIPS", "Rat", "Total ISK/Session"),
+    };
 }
 

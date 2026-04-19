@@ -1,0 +1,37 @@
+<Window x:Class="EveMultiPreview.Views.CropWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="False"
+        ResizeMode="NoResize"
+        SizeChanged="Window_SizeChanged"
+        Title="EVE Crop">
+    <!--
+        Borderless transparent popup. A DWM thumbnail is registered between
+        this HWND and the EVE client; DWM's rcSource selects the sub-rect of
+        the source's client area to show, and rcDestination stretches it to
+        fill this popup. Labels go in a companion TextOverlayWindow because
+        DWM thumbnails occlude WPF content.
+    -->
+    <Grid x:Name="RootGrid">
+        <Border x:Name="BackgroundPanel" Background="#01000000" BorderThickness="0"/>
+        <Border x:Name="LabelHost"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Background="#A0000000"
+                CornerRadius="3"
+                Padding="6,2"
+                Margin="4"
+                IsHitTestVisible="False">
+            <TextBlock x:Name="LabelText"
+                       Foreground="#FFFAC57A"
+                       FontFamily="Segoe UI"
+                       FontSize="11"
+                       FontWeight="SemiBold"
+                       Text="Crop"/>
+        </Border>
+    </Grid>
+</Window>

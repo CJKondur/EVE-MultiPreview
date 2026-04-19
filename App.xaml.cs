@@ -33,6 +33,7 @@ public partial class App : Application
     private StatTrackerService? _statTracker;
     private AlertHub? _alertHub;
     private ProcessMonitorService? _processMonitor;
+    private CropManager? _cropManager;
     private SettingsWindow? _settingsWindow;
 
     // Tray balloon click-to-focus (matches AHK _trayAlertChar/_trayAlertHwnd)
@@ -44,6 +45,8 @@ public partial class App : Application
 
     // Sound player (WPF MediaPlayer supports MP3 unlike System.Media.SoundPlayer)
     private MediaPlayer? _soundPlayer;
+
+    private bool _isShuttingDown = false;
 
     // ── Startup perf logging ──
     private static readonly string _perfLogPath = System.IO.Path.Combine(
@@ -84,9 +87,16 @@ public partial class App : Application
         CheckJsonMigration();
         PerfLog($"JSON migration check: {startupSw.ElapsedMilliseconds}ms");
 
+        // Reset Settings diagnostic log each run
+        try { System.IO.File.WriteAllText(SettingsDiagLogPath, $"--- Session start {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---{Environment.NewLine}"); } catch { }
+
         // 1. Load settings
         _settings = new SettingsService();
         _settings.Load();
+        
+        DiagnosticsService.Initialize();
+        DiagnosticsService.GlobalSettings = _settings.Settings;
+
         PerfLog($"Settings loaded: {startupSw.ElapsedMilliseconds}ms");
 
         // ── Setup Wizard gate ──
@@ -111,6 +121,10 @@ public partial class App : Application
         _processMonitor = new ProcessMonitorService();
         _thumbnailManager.SetProcessMonitor(_processMonitor);
         _processMonitor.Start();
+
+        // 4c. Crop manager (spawns per-character cropped DWM popups)
+        _cropManager = new CropManager(_discovery, _settings);
+        _cropManager.AttachThumbnailManager(_thumbnailManager);
         PerfLog($"Core services created: {startupSw.ElapsedMilliseconds}ms");
 
         // ── START DISCOVERY IMMEDIATELY — thumbnails appear ASAP ──
@@ -128,8 +142,12 @@ public partial class App : Application
             // 5. Initialize hotkey service
             _hotkeyService = new HotkeyService();
             _hotkeyService.Initialize();
+            var profile = _settings.CurrentProfile;
+            PerfLog($"[Hotkey] Profile='{_settings.Settings.LastUsedProfile}', CharHotkeys={profile.Hotkeys.Count}, Groups={profile.HotkeyGroups.Count}, Suspend='{_settings.Settings.SuspendHotkey}', Global={_settings.Settings.GlobalHotkeys}");
+            foreach (var (name, binding) in profile.Hotkeys)
+                PerfLog($"[Hotkey]   char='{name}' key='{binding.Key}'");
             _hotkeyService.RegisterFromSettings(
-                _settings.Settings, _settings.CurrentProfile,
+                _settings.Settings, profile,
                 _thumbnailManager, OpenSettings);
             PerfLog($"[Deferred] Hotkeys registered: {deferSw.ElapsedMilliseconds}ms");
 
@@ -261,9 +279,15 @@ public partial class App : Application
             {
                 Interval = TimeSpan.FromMilliseconds(500)
             };
+            bool _lastHotkeyToggleState = false;
             hotkeyToggleTimer.Tick += (_, _) =>
             {
                 bool hasWindows = _thumbnailManager?.GetActiveCharacterNames()?.Any() == true;
+                if (hasWindows != _lastHotkeyToggleState)
+                {
+                    PerfLog($"[Hotkey:Toggle] EVE windows present: {hasWindows} → {(hasWindows ? "ACTIVATE" : "DEACTIVATE")}");
+                    _lastHotkeyToggleState = hasWindows;
+                }
                 if (hasWindows)
                     _hotkeyService?.ActivateHotkeys();
                 else
@@ -307,7 +331,8 @@ public partial class App : Application
 
         // ── Reopen settings after Apply reload (AHK: reopen_settings.flag) ──
         var reopenFlag = Path.Combine(Path.GetTempPath(), "evemultipreview_reopen_settings.flag");
-        if (File.Exists(reopenFlag))
+        bool reopenAfterApply = File.Exists(reopenFlag);
+        if (reopenAfterApply)
         {
             try { File.Delete(reopenFlag); } catch { }
             var reopenTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
@@ -318,6 +343,23 @@ public partial class App : Application
                 Debug.WriteLine("[App:Startup] 🔧 Settings reopened after Apply");
             };
             reopenTimer.Start();
+        }
+
+        // ── Auto-open Settings on launch (user preference, StartupSettings) ──
+        // Skipped on Apply-reload (the reopen-flag path above already handles that case)
+        // and skipped while the Setup Wizard is still needed.
+        var startupMode = _settings.Settings.StartupSettings;
+        if (!reopenAfterApply && _settings.Settings.SetupCompleted
+            && startupMode != EveMultiPreview.Models.StartupSettingsMode.Off)
+        {
+            var startupTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(500) };
+            startupTimer.Tick += (_, _) =>
+            {
+                startupTimer.Stop();
+                OpenSettings(startMinimized: startupMode == EveMultiPreview.Models.StartupSettingsMode.OpenMinimized);
+                Debug.WriteLine($"[App:Startup] 🪟 Settings auto-opened (mode={startupMode})");
+            };
+            startupTimer.Start();
         }
 
         Debug.WriteLine("[App:Startup] ✅ All services started successfully");
@@ -478,10 +520,18 @@ public partial class App : Application
         menu.Items.Add(new ToolStripSeparator());
 
         // Settings
-        menu.Items.Add("⚙ Settings", null, (_, _) => OpenSettings());
+        // Defer to let the tray menu fully close before Show() — otherwise
+        // the NotifyIcon's internal message window steals foreground back
+        // and Settings appears but can't receive input.
+        menu.Items.Add("⚙ Settings", null, (_, _) =>
+        {
+            SettingsDiag("Tray menu item clicked");
+            Application.Current?.Dispatcher.BeginInvoke(new Action(() => OpenSettings()));
+        });
 
-        // Profile submenu
+        // Profile submenu (dynamically rebuilt to sync checks and profile list)
         var profileMenu = new ToolStripMenuItem("👤 Profiles");
+        profileMenu.DropDownOpening += (_, _) => RebuildProfileMenu(profileMenu);
         RebuildProfileMenu(profileMenu);
         menu.Items.Add(profileMenu);
 
@@ -587,8 +637,12 @@ public partial class App : Application
         // Exit
         menu.Items.Add("🚪 Exit", null, (_, _) => ExitApplication());
 
-        // Double-click to open settings
-        _trayIcon.DoubleClick += (_, _) => OpenSettings();
+        // Double-click to open settings (deferred — see Settings menu item above)
+        _trayIcon.DoubleClick += (_, _) =>
+        {
+            SettingsDiag("Tray double-click");
+            Application.Current?.Dispatcher.BeginInvoke(new Action(() => OpenSettings()));
+        };
 
 
     }
@@ -607,6 +661,9 @@ public partial class App : Application
             item.Click += (_, _) =>
             {
                 _settings.SwitchProfile(name);
+                
+                _thumbnailManager?.ReapplySettings();
+
                 _hotkeyService?.RegisterFromSettings(
                     _settings.Settings, _settings.CurrentProfile,
                     _thumbnailManager!, OpenSettings);
@@ -650,6 +707,7 @@ public partial class App : Application
 
         // Apply the new profile's settings to all running thumbnails
         _thumbnailManager?.ReapplySettings();
+        _cropManager?.Refresh();
 
         // Re-register hotkeys for new profile (AHK does Reload() which re-runs __New)
         _hotkeyService?.RegisterFromSettings(
@@ -662,21 +720,32 @@ public partial class App : Application
         Debug.WriteLine($"[App:Profile] 🔄 Cycled {(forward ? "forward" : "backward")} to profile: {newProfile}");
     }
 
-    private void OpenSettings()
+    private void OpenSettings() => OpenSettings(startMinimized: false);
+
+    private void OpenSettings(bool startMinimized)
     {
+        SettingsDiag($"OpenSettings called, startMinimized={startMinimized}, existing={_settingsWindow != null}");
         if (_settingsWindow != null && _settingsWindow.IsVisible)
         {
             if (_settingsWindow.WindowState == WindowState.Minimized)
                 _settingsWindow.WindowState = WindowState.Normal;
-            
+
             _settingsWindow.Activate();
+            SettingsDiag("Re-activated existing Settings window");
             return;
         }
 
-        _settingsWindow = new SettingsWindow(_settings!, _thumbnailManager!);
+        _settingsWindow = new SettingsWindow(_settings!, _thumbnailManager!, _cropManager);
+        // Set initial WindowState BEFORE Show() so WPF commits the restore rect
+        // with the saved Width/Height already applied. Setting WindowState after
+        // Show() can race the HWND map and corrupt the restore rect.
+        if (startMinimized)
+            _settingsWindow.WindowState = WindowState.Minimized;
         
         Action applyLiveSettings = () =>
         {
+            if (_isShuttingDown) return;
+
             // Reload hotkeys when settings change
             _hotkeyService?.RegisterFromSettings(
                 _settings!.Settings, _settings.CurrentProfile,
@@ -692,30 +761,103 @@ public partial class App : Application
                 if (_settings.Settings.SeverityCooldowns != null)
                     _logMonitor.SetEventCooldowns(_settings.Settings.SeverityCooldowns);
             }
+
+            // Dynamically show/hide the Alert Hub based on settings toggle
+            if (_isShuttingDown) return;
+            try
+            {
+                if (_settings != null && _settings.Settings.AlertHubEnabled)
+                    _alertHub?.Show();
+                else
+                    _alertHub?.Hide();
+            }
+            catch (InvalidOperationException)
+            {
+                // Ignore if the window was closed during shutdown
+            }
         };
 
         _settingsWindow.SettingsApplied += applyLiveSettings;
 
         _settingsWindow.Closed += (_, _) =>
         {
-            // Ensure topmost is restored when settings closes
+            SettingsDiag("Closed event fired");
+            // Ensure topmost + click-through are restored when settings closes
             _thumbnailManager?.SetSuppressTopmost(false);
+            _thumbnailManager?.SetSettingsClickSuppression(false);
+            _thumbnailManager?.SetSettingsOpen(false);
 
             _settingsWindow = null;
-            applyLiveSettings();
+            if (!_isShuttingDown)
+            {
+                applyLiveSettings();
+            }
 
             Debug.WriteLine("[App:Settings] ⚙ Settings window closed — services re-configured");
         };
 
-        // Suppress topmost only while settings window has focus — restore when user clicks away
-        _settingsWindow.Activated += (_, _) => _thumbnailManager?.SetSuppressTopmost(true);
-        _settingsWindow.Deactivated += (_, _) => _thumbnailManager?.SetSuppressTopmost(false);
+        // WinForms thumbnail windows hit-test their full client rect, so any
+        // z-order dance (Topmost, pin-below, SetWindowPos) is fragile — tray
+        // opens, minimize transitions, and foreground-lock all break it in
+        // different ways. Instead, flip thumbnails click-through while Settings
+        // is open: every click passes through them to whatever is below.
+        _settingsWindow.Activated += (_, _) =>
+        {
+            SettingsDiag("Activated event fired");
+            _thumbnailManager?.SetSuppressTopmost(true);
+            _thumbnailManager?.SetSettingsClickSuppression(true);
+        };
+        _settingsWindow.Deactivated += (_, _) =>
+        {
+            SettingsDiag("Deactivated event fired");
+            _thumbnailManager?.SetSuppressTopmost(false);
+            _thumbnailManager?.SetSettingsClickSuppression(false);
+        };
+        _settingsWindow.IsVisibleChanged += (_, e) =>
+            SettingsDiag($"IsVisibleChanged → {e.NewValue}");
+        _settingsWindow.StateChanged += (_, _) =>
+            SettingsDiag($"StateChanged → {_settingsWindow?.WindowState}");
 
+        SettingsDiag("About to call Show()");
         _settingsWindow.Show();
+        SettingsDiag($"Show() returned. IsVisible={_settingsWindow.IsVisible}, IsEnabled={_settingsWindow.IsEnabled}, State={_settingsWindow.WindowState}, Left={_settingsWindow.Left}, Top={_settingsWindow.Top}, W={_settingsWindow.Width}, H={_settingsWindow.Height}");
+
+        // Topmost-flip forces Settings to the top of the z-band without leaving
+        // it permanently topmost. Covers the case where Show() doesn't grant
+        // foreground rights (tray-menu paths, foreground-lock policy).
+        _settingsWindow.Topmost = true;
+        _settingsWindow.Topmost = false;
+        _settingsWindow.Activate();
+
+        var settingsHwnd = new System.Windows.Interop.WindowInteropHelper(_settingsWindow).Handle;
+        var fg = Interop.User32.GetForegroundWindow();
+        SettingsDiag($"After Activate: settingsHwnd=0x{settingsHwnd.ToInt64():X}, foreground=0x{fg.ToInt64():X}, match={settingsHwnd == fg}");
+
+        // Tray-menu opens don't always fire Activated. Apply suppressions
+        // synchronously so Settings is usable regardless of how it was opened.
+        _thumbnailManager?.SetSuppressTopmost(true);
+        _thumbnailManager?.SetSettingsClickSuppression(true);
+        _thumbnailManager?.SetSettingsOpen(true);
+        SettingsDiag("OpenSettings finished");
+    }
+
+    private static readonly string SettingsDiagLogPath = System.IO.Path.Combine(
+        System.IO.Path.GetTempPath(), "EveMultiPreview_SettingsDiag.log");
+
+    private static void SettingsDiag(string message)
+    {
+        try
+        {
+            var line = $"[{DateTime.Now:HH:mm:ss.fff}] [Settings] {message}{Environment.NewLine}";
+            System.IO.File.AppendAllText(SettingsDiagLogPath, line);
+            Debug.WriteLine(line.TrimEnd());
+        }
+        catch { /* logging must never throw */ }
     }
 
     private void ExitApplication()
     {
+        _isShuttingDown = true;
         // Save stat window positions before exit (AHK _OnAppExit pattern)
         _thumbnailManager?.SaveStatWindowPositions();
         _settings?.Save();
@@ -732,6 +874,7 @@ public partial class App : Application
         _logMonitor?.Dispose();
         _hotkeyService?.Dispose();
         _processMonitor?.Dispose();
+        _cropManager?.Dispose();
         _thumbnailManager?.Dispose();
         _discovery?.Dispose();
         _settings?.Dispose();

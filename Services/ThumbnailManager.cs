@@ -58,7 +58,9 @@ public sealed class ThumbnailManager : IDisposable
     private bool _thumbnailsHidden = false;
     private bool _primaryHidden = false;
     private bool _clickThroughActive = false;
-    private bool _suppressTopmost = false;  // Suppress topmost while settings window is open
+    private bool _settingsClickSuppressed = false;  // Force thumbnails click-through while Settings UI is open
+    private bool _suppressTopmost = false;  // Suppress topmost while settings window is active
+    private bool _settingsOpen = false;     // Settings window exists (even minimized) — keeps thumbnails visible
     private bool _lastEveFocused = false;   // Track focus transitions for one-time BringToFront
 
     // Alert flash state — per-severity rates + expiry (matches AHK)
@@ -237,6 +239,26 @@ public sealed class ThumbnailManager : IDisposable
 
     private void CreateThumbnailForWindow(EveWindow window)
     {
+        // Guard: skip if we already track this HWND
+        if (_thumbnails.ContainsKey(window.Hwnd))
+        {
+            Debug.WriteLine($"[Thumbnail:Dedup] ⚠️ Skipped duplicate HWND 0x{window.Hwnd:X} for '{window.CharacterName}'");
+            return;
+        }
+
+        // Guard: one thumbnail per process — exefile can spawn secondary windows
+        // that slip past class-name filters. Only the first HWND per PID gets a thumbnail.
+        Interop.User32.GetWindowThreadProcessId(window.Hwnd, out uint newPid);
+        foreach (var (existingHwnd, _) in _thumbnails)
+        {
+            Interop.User32.GetWindowThreadProcessId(existingHwnd, out uint existingPid);
+            if (existingPid == newPid)
+            {
+                Debug.WriteLine($"[Thumbnail:Dedup] ⚠️ Skipped HWND 0x{window.Hwnd:X} — PID {newPid} already tracked by 0x{existingHwnd:X}");
+                return;
+            }
+        }
+
         var sw = Stopwatch.StartNew();
 
         var s = _settings.Settings;
@@ -459,25 +481,40 @@ public sealed class ThumbnailManager : IDisposable
     }
 
     /// <summary>
-    /// Suppress or restore topmost state on all thumbnails and overlays.
-    /// Used when the Settings window opens/closes so it isn't buried under topmost overlays.
+    /// Tracks whether Settings is active; gates BringToFront so we don't fight
+    /// Settings for the top of the topmost band. Thumbnails stay at the user's
+    /// configured topmost state — Settings interaction is preserved by
+    /// click-through (SetSettingsClickSuppression), not by dropping topmost,
+    /// so the user never sees previews fall behind other apps while Settings
+    /// is open.
     /// </summary>
     public void SetSuppressTopmost(bool suppress)
     {
         _suppressTopmost = suppress;
-        Application.Current?.Dispatcher.Invoke(() =>
+        // Intentionally do NOT mutate topmost state on thumbnails/overlays/stats here.
+        // Prior versions flipped topmost=false while Settings was open, which caused
+        // previews to drop behind the browser/file-explorer even though the user had
+        // "Always on top" enabled. Click-through already makes Settings reachable.
+    }
+
+    /// <summary>
+    /// Marks the Settings window as open/closed. While open (even minimized),
+    /// thumbnails are kept visible so HideThumbnailsOnLostFocus doesn't erase
+    /// them the moment the user clicks another app while Settings is in the tray.
+    /// </summary>
+    public void SetSettingsOpen(bool open)
+    {
+        _settingsOpen = open;
+        if (open) return;
+
+        // On close, force a re-show in case previews were hidden while another
+        // app held focus during the Settings session.
+        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
         {
-            var s = _settings.Settings;
-            bool topmost = !suppress && s.ShowThumbnailsAlwaysOnTop;
-
+            if (_thumbnailsHidden || _primaryHidden) return;
             foreach (var (_, thumb) in _thumbnails)
-                thumb.SetTopmost(topmost);
-            foreach (var (_, pip) in _secondaryThumbnails)
-                pip.SetTopmost(topmost);
-
-            foreach (var (_, sw) in _statWindows)
-                sw.Topmost = topmost;
-        });
+                thumb.ShowDwmOnly();
+        }));
     }
 
     public void ApplySizeToCharacter(string name, int w, int h)
@@ -704,59 +741,11 @@ public sealed class ThumbnailManager : IDisposable
 
     // ── Window Activation (matches AHK ActivateEVEWindow) ───────────
 
-    // Guarantees strictly 1 thread per hotkey. Overlapping auto-repeats are completely discarded.
-    private readonly System.Threading.SemaphoreSlim _activationLock = new(1, 1);
-
-    public async void ActivateEveWindow(IntPtr hwnd, string? title = null, bool rapidSwitch = false)
+    public void ActivateEveWindow(IntPtr hwnd, string? title = null, bool rapidSwitch = false, Action? onActivated = null)
     {
-        // ── Rapid-switch fast path: no semaphore, fire-and-forget activation off UI thread ──
-        if (rapidSwitch)
-        {
-            // Resolve hwnd from character name if needed
-            if (hwnd == IntPtr.Zero && !string.IsNullOrEmpty(title))
-            {
-                foreach (var (eveHwnd, thumb) in _thumbnails)
-                {
-                    if (string.Equals(thumb.CharacterName, title, StringComparison.OrdinalIgnoreCase))
-                    { hwnd = eveHwnd; break; }
-                }
-            }
-            if (hwnd == IntPtr.Zero) return;
-
-            if (!string.IsNullOrEmpty(title))
-                _alertFlashChars.TryRemove(title, out _);
-
-            if (Interop.User32.IsIconic(hwnd))
-            {
-                if (_settings.Settings.AlwaysMaximize)
-                    Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
-                else
-                    Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_RESTORE);
-            }
-
-            // SetForegroundWindow directly — no AttachThreadInput (which resets keyboard state).
-            // We're inside a WM_HOTKEY handler so we have foreground activation rights.
-            Interop.User32.SetForegroundWindow(hwnd);
-
-            // 15ms pause to let EVE process the focus change
-            Thread.Sleep(15);
-
-            // EVE triggers actions on key RELEASE. PostMessage (not SendInput) because
-            // UIPI blocks SendInput to elevated processes. Send DOWN then UP so EVE
-            // sees a full press→release cycle and fires the action.
-            Interop.User32.PostGameKeysDown(hwnd);
-            Thread.Sleep(5);
-            Interop.User32.PostGameKeysUp(hwnd);
-
-            if (_settings.Settings.AlwaysMaximize && !Interop.User32.IsZoomed(hwnd))
-                Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
-            return;
-        }
-
-        // ── Normal path: semaphore-guarded with BringToFront + PostGameKeys ──
-        if (!_activationLock.Wait(0)) return;
         try
         {
+            // Resolve hwnd from character name if needed
             if (hwnd == IntPtr.Zero && !string.IsNullOrEmpty(title))
             {
                 foreach (var (eveHwnd, thumb) in _thumbnails)
@@ -780,46 +769,50 @@ public sealed class ThumbnailManager : IDisposable
                     Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_RESTORE);
             }
 
-            // Bring thumbnails + overlays + stat windows to front BEFORE activating EVE window.
-            foreach (var (_, t) in _thumbnails)
-                t.BringToFront();
-            foreach (var (_, p) in _secondaryThumbnails)
-                p.BringToFront();
-            foreach (var (_, sw) in _statWindows)
-                sw.BringToFront();
-
+            EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateEveWindow] 🚀 Executing Standard WIN32 Activation for HWND {hwnd} ({title ?? "unknown"})");
             Interop.User32.ActivateWindow(hwnd);
+            
+            // Execute visual callback instantaneously
+            onActivated?.Invoke();
 
-            // Delay 50ms for window activation and rendering.
-            await System.Threading.Tasks.Task.Delay(50);
+            // Explicitly pulse WM_KEYDOWN messages directly to the EVE client for held action keys
+            // This natively restores module firing without polluting global SendInput states
+            Interop.User32.FixTargetHeldKeys(hwnd);
 
-            // EVE triggers actions on key RELEASE. Send DOWN→UP so EVE sees
-            // a full press→release cycle. Modifiers are included in correct order.
-            Interop.User32.PostGameKeysDown(hwnd);
-            await System.Threading.Tasks.Task.Delay(5);
-            Interop.User32.PostGameKeysUp(hwnd);
+            // Defer WPF z-order operations to prevent dispatch pumping from eating the OS input state interrupt
+            Application.Current?.Dispatcher.BeginInvoke(() =>
+            {
+                // Bring thumbnails + overlays + stat windows to front BEFORE activating EVE window.
+                // This prevents them from flashing under the EVE window temporarily.
+                foreach (var (_, t) in _thumbnails)
+                    t.BringToFront();
+                foreach (var (_, p) in _secondaryThumbnails)
+                    p.BringToFront();
+                foreach (var (_, sw) in _statWindows)
+                    sw.BringToFront();
+            }, System.Windows.Threading.DispatcherPriority.Background);
 
             if (_settings.Settings.AlwaysMaximize && !Interop.User32.IsZoomed(hwnd))
                 Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
 
             if (_settings.Settings.MinimizeInactiveClients)
             {
-                var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(_settings.Settings.MinimizeDelay) };
-                timer.Tick += (_, _) =>
+                // Fire minimize cycle asynchronously so we don't block the hotkey rapid-fire thread
+                Application.Current?.Dispatcher.BeginInvoke(() =>
                 {
-                    timer.Stop();
-                    MinimizeInactiveClients(hwnd);
-                };
-                timer.Start();
+                    var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(_settings.Settings.MinimizeDelay) };
+                    timer.Tick += (_, _) =>
+                    {
+                        timer.Stop();
+                        MinimizeInactiveClients(hwnd);
+                    };
+                    timer.Start();
+                });
             }
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[Activation:Error] ❌ ActivateEveWindow error: {ex.Message}");
-        }
-        finally
-        {
-            _activationLock.Release();
         }
     }
 
@@ -859,14 +852,19 @@ public sealed class ThumbnailManager : IDisposable
         try { fgProc = Interop.User32.GetProcessName(fgHwnd); } catch { }
         bool eveFocused = Interop.User32.IsEveOrAppProcess(fgProc);
 
+        // While Settings is open (even minimized), treat the app as "focused" for
+        // visibility purposes — otherwise minimizing Settings onto another monitor
+        // causes HideThumbnailsOnLostFocus to blank every preview.
+        bool appVisibleContext = eveFocused || _settingsOpen;
+
         // Hide thumbnails on lost focus (hide DWM preview only, text overlay stays via owner)
         if (s.HideThumbnailsOnLostFocus)
         {
             foreach (var (_, thumb) in _thumbnails)
             {
-                if (!eveFocused && !_thumbnailsHidden)
+                if (!appVisibleContext && !_thumbnailsHidden)
                     thumb.HideDwmOnly(); // Opacity 0 — text overlay stays (Win32 owned)
-                else if (eveFocused && !_thumbnailsHidden && !_primaryHidden)
+                else if (appVisibleContext && !_thumbnailsHidden && !_primaryHidden)
                     thumb.ShowDwmOnly(); // Restore opacity — text overlay already visible
             }
         }
@@ -896,8 +894,28 @@ public sealed class ThumbnailManager : IDisposable
         }
         _lastEveFocused = eveFocused;
 
+        // Shield the fast-cycle tracker and visual borders from asynchronous OS focus lag.
+        // If we recently cycled, the native background window switch might still be resolving.
+        // Letting the slow OS tracker overwrite our state here will illegally rewind the cycle sequence.
+        if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < 500)
+            return;
+
         if (fgHwnd == _lastActiveEveHwnd) return;
         _lastActiveEveHwnd = fgHwnd;
+
+        // Re-assert z-order when switching between EVE clients (EVE→EVE transition).
+        // The false→true BringToFront above only fires when coming FROM a non-EVE app.
+        // EVE's DirectX surface aggressively fights for z-order in the TOPMOST band,
+        // pushing ThumbnailWindows behind while TextOverlays survive via owner semantics.
+        if (eveFocused && !_suppressTopmost && s.ShowThumbnailsAlwaysOnTop)
+        {
+            foreach (var (_, thumb) in _thumbnails)
+                thumb.BringToFront();
+            foreach (var (_, pip) in _secondaryThumbnails)
+                pip.BringToFront();
+            foreach (var (_, sw) in _statWindows)
+                sw.BringToFront();
+        }
 
         // Flash toggle moved to dedicated FlashAlertTick
 
@@ -1510,9 +1528,8 @@ public sealed class ThumbnailManager : IDisposable
     private int _charSelectIndex = -1;
 
     /// <summary>Cycle through characters at the login/char-select screen.</summary>
-    public async void CycleCharSelect(bool forward)
+    public void CycleCharSelect(bool forward)
     {
-        if (!_activationLock.Wait(0)) return;
         try
         {
             // Find all char-select windows (title == "EVE" without character name)
@@ -1528,29 +1545,37 @@ public sealed class ThumbnailManager : IDisposable
                 return;
             }
 
-        if (forward)
-            _charSelectIndex = (_charSelectIndex + 1) % charSelectWindows.Count;
-        else
-            _charSelectIndex = (_charSelectIndex - 1 + charSelectWindows.Count) % charSelectWindows.Count;
+            if (forward)
+                _charSelectIndex = (_charSelectIndex + 1) % charSelectWindows.Count;
+            else
+                _charSelectIndex = (_charSelectIndex - 1 + charSelectWindows.Count) % charSelectWindows.Count;
 
-        var targetHwnd = charSelectWindows[_charSelectIndex];
+            var targetHwnd = charSelectWindows[_charSelectIndex];
 
-        // Restore if minimized
-        if (Interop.User32.IsIconic(targetHwnd))
-            Interop.User32.ShowWindowAsync(targetHwnd, Interop.User32.SW_RESTORE);
+            // Restore if minimized
+            if (Interop.User32.IsIconic(targetHwnd))
+                Interop.User32.ShowWindowAsync(targetHwnd, Interop.User32.SW_RESTORE);
 
-        // Proven window activation
-        Interop.User32.ActivateWindow(targetHwnd);
+            // Raw window activation
+            Interop.User32.SetForegroundWindow(targetHwnd);
+            Interop.User32.SetFocus(targetHwnd);
+            
+            // Explicitly pass held login actions (like Enter) to Chromium message pump
+            Interop.User32.FixTargetHeldKeys(targetHwnd);
 
-        
-        // Replicate AHK SetWinDelay pacing
-        await System.Threading.Tasks.Task.Delay(50);
+            // Defer WPF z-order operations to prevent dispatch pumping from eating the OS input state interrupt
+            Application.Current?.Dispatcher.BeginInvoke(() =>
+            {
+                foreach (var (_, t) in _thumbnails) t.BringToFront();
+                foreach (var (_, p) in _secondaryThumbnails) p.BringToFront();
+                foreach (var (_, sw) in _statWindows) sw.BringToFront();
+            }, System.Windows.Threading.DispatcherPriority.Background);
 
-        Debug.WriteLine($"[CharCycle:Select] 🔄 Cycled to char-select window idx={_charSelectIndex}/{charSelectWindows.Count} (hwnd=0x{targetHwnd:X})");
+            Debug.WriteLine($"[CharCycle:Select] 🔄 Cycled to char-select window idx={_charSelectIndex}/{charSelectWindows.Count} (hwnd=0x{targetHwnd:X})");
         }
-        finally
+        catch (Exception ex)
         {
-            _activationLock.Release();
+            Debug.WriteLine($"[CharCycle:Error] ❌ CycleCharSelect error: {ex.Message}");
         }
     }
 
@@ -1622,6 +1647,27 @@ public sealed class ThumbnailManager : IDisposable
                 return hwnd;
         }
         return IntPtr.Zero;
+    }
+
+    /// <summary>Get the ThumbnailWindow for a given character name, or null if not present.</summary>
+    public ThumbnailWindow? GetThumbnailForCharacter(string characterName)
+    {
+        foreach (var thumb in _thumbnails.Values)
+        {
+            if (string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+                return thumb;
+        }
+        return null;
+    }
+
+    /// <summary>Snapshot the current on-screen bounds of every live primary thumbnail.
+    /// Used by other windows (e.g. CropWindow) to snap against thumbnails.</summary>
+    public IReadOnlyList<(double L, double T, double W, double H)> GetThumbnailBounds()
+    {
+        var list = new List<(double, double, double, double)>();
+        foreach (var thumb in _thumbnails.Values)
+            list.Add((thumb.Left, thumb.Top, thumb.Width, thumb.Height));
+        return list;
     }
 
     // ── Visibility Toggles ──────────────────────────────────────────
@@ -1703,22 +1749,38 @@ public sealed class ThumbnailManager : IDisposable
         ShowTooltipFeedback(_secondaryHidden ? "PiP: Hidden" : "PiP: Visible");
     }
 
+    private DateTime _lastCycleTime = DateTime.MinValue;
+
     /// <summary>Cycle through characters in a hotkey group.</summary>
     public void CycleGroup(string groupName, List<string> members, bool forward)
     {
         if (members == null || members.Count == 0) return;
+
+        // 100ms cycle throttle to prevent skipped clients when hotkey is held
+        if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < 100) return;
+        _lastCycleTime = DateTime.UtcNow;
+
+        void LogCycle(string msg)
+        {
+            EveMultiPreview.Services.DiagnosticsService.LogCycling(msg);
+        }
 
         // Filter to only online characters using HashSet for O(M+N) instead of O(M×N)
         var onlineSet = new HashSet<string>(
             _thumbnails.Values.Select(t => t.CharacterName),
             StringComparer.OrdinalIgnoreCase);
         var onlineMembers = members.Where(m => onlineSet.Contains(m)).ToList();
+        
+        LogCycle($"[CycleGroup] 🔄 Group '{groupName}' cycle {(forward ? "FWD" : "BWD")} requested. Target group has {members.Count} members. Currently Online: {onlineMembers.Count}");
 
         if (onlineMembers.Count == 0) return;
 
-        // Use REAL-TIME foreground window check instead of _lastActiveEveHwnd
-        // (_lastActiveEveHwnd only updates every 100ms, too slow for rapid cycling)
-        var fgHwnd = Interop.User32.GetForegroundWindow();
+        // Priority 1: Use our internally tracked _lastActiveEveHwnd. This prevents OS-level DirectX focus races from confusing the cycle order when hotkeys are spammed.
+        // Priority 2: Fallback to the literal OS foreground window if our tracker is uninitialized.
+        var fgHwnd = _lastActiveEveHwnd != IntPtr.Zero && _thumbnails.ContainsKey(_lastActiveEveHwnd)
+                     ? _lastActiveEveHwnd
+                     : Interop.User32.GetForegroundWindow();
+        
         var previousActiveHwnd = _lastActiveEveHwnd;
         int currentIdx = -1;
         string? activeChar = null;
@@ -1760,31 +1822,32 @@ public sealed class ThumbnailManager : IDisposable
             }
         }
 
-        // Update borders BEFORE activation so highlight is visually instant
-        // (ActivateWindow blocks on cross-process AttachThreadInput/SetForegroundWindow)
-        var s = _settings.Settings;
-        int activeThickness = s.ClientHighlightBorderThickness;
-
-        // Set new active border
-        if (targetHwnd != IntPtr.Zero && _thumbnails.TryGetValue(targetHwnd, out var targetThumb))
+        // Create the UI border update action. This will be securely dispatched 
+        // back to the WPF UI thread exactly after the window focus shift succeeds.
+        Action onActivated = () =>
         {
-            var color = GetBorderColor(charName, true);
-            targetThumb.SetBorder(color, activeThickness);
-        }
+            var s = _settings.Settings;
+            int activeThickness = s.ClientHighlightBorderThickness;
 
-        // Reset previous active to inactive border
-        if (previousActiveHwnd != IntPtr.Zero && previousActiveHwnd != targetHwnd
-            && _thumbnails.TryGetValue(previousActiveHwnd, out var prevThumb))
-        {
-            var color = GetBorderColor(prevThumb.CharacterName, false);
-            int thickness = ShouldShowInactiveBorder(prevThumb.CharacterName) ? s.InactiveClientBorderThickness : 0;
-            prevThumb.SetBorder(color, thickness);
-        }
+            // Set new active border
+            if (targetHwnd != IntPtr.Zero && _thumbnails.TryGetValue(targetHwnd, out var targetThumb))
+            {
+                var color = GetBorderColor(charName, true);
+                targetThumb.SetBorder(color, activeThickness);
+            }
 
-        // Activate after borders are set — cross-process Win32 calls may block
-        ActivateEveWindow(targetHwnd, charName, rapidSwitch: true);
+            // Reset previous active to inactive border
+            if (previousActiveHwnd != IntPtr.Zero && previousActiveHwnd != targetHwnd
+                && _thumbnails.TryGetValue(previousActiveHwnd, out var prevThumb))
+            {
+                var color = GetBorderColor(prevThumb.CharacterName, false);
+                int thickness = ShouldShowInactiveBorder(prevThumb.CharacterName) ? s.InactiveClientBorderThickness : 0;
+                prevThumb.SetBorder(color, thickness);
+            }
+        };
 
-        Debug.WriteLine($"[Hotkey:GroupCycle] \ud83d\udd04 CycleGroup '{groupName}' \u2192 '{charName}' (idx={nextIdx}, online={onlineMembers.Count}/{members.Count})");
+        LogCycle($"[CycleGroup] ➡️ Activating '{charName}' (HWND: {targetHwnd}). Online Members in pool: {string.Join(", ", onlineMembers)}");
+        ActivateEveWindow(targetHwnd, charName, rapidSwitch: true, onActivated: onActivated);
     }
 
     // ── Click-Through Toggle ────────────────────────────────────────
@@ -1792,24 +1855,45 @@ public sealed class ThumbnailManager : IDisposable
     public void ToggleClickThrough()
     {
         _clickThroughActive = !_clickThroughActive;
+        ApplyClickThroughStateToAll();
+        ShowTooltipFeedback(_clickThroughActive ? "Thumbnails: Click-Through ON" : "Thumbnails: Click-Through OFF");
+    }
+
+    /// <summary>
+    /// Forces all thumbnails click-through while the Settings UI is open so
+    /// clicks pass through them to Settings regardless of z-order. Independent
+    /// of the user-controlled <see cref="ToggleClickThrough"/> toggle — if either
+    /// is active, the thumbnails are click-through.
+    /// </summary>
+    public void SetSettingsClickSuppression(bool suppressed)
+    {
+        if (_settingsClickSuppressed == suppressed) return;
+        _settingsClickSuppressed = suppressed;
+        ApplyClickThroughStateToAll();
+    }
+
+    private void ApplyClickThroughStateToAll()
+    {
+        bool transparent = _clickThroughActive || _settingsClickSuppressed;
         Application.Current?.Dispatcher.Invoke(() =>
         {
             foreach (var (_, thumb) in _thumbnails)
-            {
-                var source = (System.Windows.Interop.HwndSource)PresentationSource.FromVisual(thumb);
-                if (source == null) continue;
-
-                int exStyle = Interop.User32.GetWindowLong(source.Handle, Interop.User32.GWL_EXSTYLE);
-                // AHK: all thumbnails align to unified _clickThroughActive state
-                if (_clickThroughActive)
-                    Interop.User32.SetWindowLong(source.Handle, Interop.User32.GWL_EXSTYLE,
-                        exStyle | Interop.User32.WS_EX_TRANSPARENT | Interop.User32.WS_EX_LAYERED);
-                else
-                    Interop.User32.SetWindowLong(source.Handle, Interop.User32.GWL_EXSTYLE,
-                        exStyle & ~Interop.User32.WS_EX_TRANSPARENT);
-            }
+                ApplyClickThroughExStyle(thumb, transparent);
+            foreach (var (_, pip) in _secondaryThumbnails)
+                ApplyClickThroughExStyle(pip, transparent);
         });
-        ShowTooltipFeedback(_clickThroughActive ? "Thumbnails: Click-Through ON" : "Thumbnails: Click-Through OFF");
+    }
+
+    private static void ApplyClickThroughExStyle(ThumbnailWindow window, bool transparent)
+    {
+        if (!window.IsHandleCreated) return;
+        var hwnd = window.Handle;
+        int exStyle = Interop.User32.GetWindowLong(hwnd, Interop.User32.GWL_EXSTYLE);
+        int newStyle = transparent
+            ? exStyle | Interop.User32.WS_EX_TRANSPARENT | Interop.User32.WS_EX_LAYERED
+            : exStyle & ~Interop.User32.WS_EX_TRANSPARENT;
+        if (newStyle != exStyle)
+            Interop.User32.SetWindowLong(hwnd, Interop.User32.GWL_EXSTYLE, newStyle);
     }
 
     // ── Lock Positions ──────────────────────────────────────────────
@@ -2029,11 +2113,11 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (string.IsNullOrEmpty(charName) || _statTracker == null) return;
 
-        // Read from PerCharacterStats (matches settings UI panel)
-        if (!_settings.Settings.PerCharacterStats.TryGetValue(charName, out var statConfig)) return;
-
-        // Need at least one column enabled
-        if (!statConfig.Dps && !statConfig.Logi && !statConfig.Mining && !statConfig.Ratting) return;
+        // Resolve per-character effective metric set — skip window if no metric is enabled.
+        var s = _settings.Settings;
+        s.PerCharacterStats.TryGetValue(charName, out var statConfig);
+        var effective = CharacterStatSettings.Resolve(s.GlobalStatMetrics, statConfig);
+        if ((effective & StatMetrics.AllMetrics) == 0) return;
 
         // AHK: ONE stat window per character (not per stat type)
         string key = charName;
@@ -2202,17 +2286,11 @@ public sealed class ThumbnailManager : IDisposable
             {
                 string charName = statWin.CharacterName;
 
-                // Read per-character config for which columns to show
-                bool showDps = true, showLogi = true, showMining = true, showRatting = true;
-                if (_settings.Settings.PerCharacterStats.TryGetValue(charName, out var statConfig))
-                {
-                    showDps = statConfig.Dps;
-                    showLogi = statConfig.Logi;
-                    showMining = statConfig.Mining;
-                    showRatting = statConfig.Ratting;
-                }
-
-                string overlayText = _statTracker.GetOverlayText(charName, showDps, showLogi, showMining, showRatting);
+                // Resolve per-character effective metric set then render only those bits.
+                var s = _settings.Settings;
+                s.PerCharacterStats.TryGetValue(charName, out var statConfig);
+                var effective = CharacterStatSettings.Resolve(s.GlobalStatMetrics, statConfig);
+                string overlayText = _statTracker.GetOverlayText(charName, effective);
                 if (!string.IsNullOrEmpty(overlayText))
                     statWin.UpdateOverlayText(overlayText);
                 else

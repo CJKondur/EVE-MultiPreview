@@ -377,7 +377,7 @@ public partial class SettingsWindow
 
     private void OnSecThumbSelected(object s, SelectionChangedEventArgs e)
     {
-        if (LvSecondaryThumbnails.SelectedItem == null) return;
+        if (_loading || LvSecondaryThumbnails.SelectedItem == null) return;
         var opacity = (int)LvSecondaryThumbnails.SelectedItem.GetType().GetProperty("Opacity")!.GetValue(LvSecondaryThumbnails.SelectedItem)!;
         SliderSecOpacity.Value = opacity;
     }
@@ -405,7 +405,21 @@ public partial class SettingsWindow
         if (_loading || LvSecondaryThumbnails.SelectedItem == null) return;
         var charName = (string)LvSecondaryThumbnails.SelectedItem.GetType().GetProperty("Character")!.GetValue(LvSecondaryThumbnails.SelectedItem)!;
         if (S.SecondaryThumbnails.TryGetValue(charName, out var settings))
-        { settings.Opacity = (int)SliderSecOpacity.Value; LoadSecondaryThumbnails(); SaveDelayed(); }
+        {
+            settings.Opacity = (int)SliderSecOpacity.Value;
+            _loadingDepth++;
+            LoadSecondaryThumbnails();
+            foreach (var item in LvSecondaryThumbnails.Items)
+            {
+                if ((string)item.GetType().GetProperty("Character")!.GetValue(item)! == charName)
+                {
+                    LvSecondaryThumbnails.SelectedItem = item;
+                    break;
+                }
+            }
+            _loadingDepth--;
+            SaveDelayed();
+        }
     }
 
     // ═══ CLIENT ═══
@@ -599,11 +613,8 @@ public partial class SettingsWindow
             _statCharRows.Add(new StatCharacterRow
             {
                 Name = name,
-                Dps = stats.Dps,
-                Logi = stats.Logi,
-                Mining = stats.Mining,
-                Ratting = stats.Ratting,
-                Npc = stats.Npc
+                ForcedOn = stats.ForcedOn,
+                ForcedOff = stats.ForcedOff,
             });
         }
         LvStatCharacters.ItemsSource = _statCharRows;
@@ -624,20 +635,79 @@ public partial class SettingsWindow
         LoadStatCharacters();
     }
 
-    private void OnStatCharToggle(object s, RoutedEventArgs e)
+    /// <summary>Double-click a row → open the per-character stat editor.</summary>
+    private void OnStatCharRowDoubleClick(object s, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (LvStatCharacters.SelectedItem is StatCharacterRow row)
+            OpenStatEditor(row);
+    }
+
+    /// <summary>Inline Edit button → open editor for this row (bypasses selection).</summary>
+    private void OnStatCharEditClick(object s, RoutedEventArgs e)
+    {
+        if (s is FrameworkElement fe && fe.DataContext is StatCharacterRow row)
+            OpenStatEditor(row);
+    }
+
+    private void OpenStatEditor(StatCharacterRow row)
+    {
+        // Pull the latest persisted settings for this character (or a blank = all inherit).
+        if (!S.PerCharacterStats.TryGetValue(row.Name, out var current))
+            current = new CharacterStatSettings();
+
+        var dlg = new CharacterStatEditorWindow(row.Name, current, S) { Owner = this };
+        if (dlg.ShowDialog() == true)
+        {
+            S.PerCharacterStats[row.Name] = dlg.Result;
+            row.ForcedOn  = dlg.Result.ForcedOn;
+            row.ForcedOff = dlg.Result.ForcedOff;
+            SaveDelayed();
+        }
+    }
+
+    /// <summary>Maps each Global-Defaults CheckBox to the <see cref="StatMetrics"/> bit it owns.
+    /// Single source of truth for both load (bits → IsChecked) and save (IsChecked → bits).</summary>
+    private (System.Windows.Controls.CheckBox Cb, StatMetrics Bit)[] StatGlobalBindings() => new[]
+    {
+        (ChkGmDpsOut,      StatMetrics.DpsOut),
+        (ChkGmDpsIn,       StatMetrics.DpsIn),
+        (ChkGmTdi,         StatMetrics.Tdi),
+        (ChkGmTdo,         StatMetrics.Tdo),
+        (ChkGmIncludeNpc,  StatMetrics.IncludeNpc),
+        (ChkGmArps,        StatMetrics.Arps),
+        (ChkGmSrps,        StatMetrics.Srps),
+        (ChkGmCtps,        StatMetrics.Ctps),
+        (ChkGmTaro,        StatMetrics.Taro),
+        (ChkGmTari,        StatMetrics.Tari),
+        (ChkGmTsro,        StatMetrics.Tsro),
+        (ChkGmTsri,        StatMetrics.Tsri),
+        (ChkGmOmpc,        StatMetrics.Ompc),
+        (ChkGmOmph,        StatMetrics.Omph),
+        (ChkGmGmpc,        StatMetrics.Gmpc),
+        (ChkGmGmph,        StatMetrics.Gmph),
+        (ChkGmImph,        StatMetrics.Imph),
+        (ChkGmTipt,        StatMetrics.Tipt),
+        (ChkGmTiph,        StatMetrics.Tiph),
+        (ChkGmTips,        StatMetrics.Tips),
+    };
+
+    /// <summary>Populate the Global-Defaults checkboxes from the currently loaded <see cref="AppSettings.GlobalStatMetrics"/>.</summary>
+    private void LoadStatGlobalCheckboxes()
+    {
+        var bits = S.GlobalStatMetrics;
+        foreach (var (cb, bit) in StatGlobalBindings())
+            cb.IsChecked = (bits & bit) != 0;
+    }
+
+    /// <summary>Persist the global master switches. These act as defaults — a character with
+    /// no explicit per-character override inherits them.</summary>
+    private void OnStatGlobalChanged(object s, RoutedEventArgs e)
     {
         if (_loading) return;
-        foreach (var row in _statCharRows)
-        {
-            S.PerCharacterStats[row.Name] = new CharacterStatSettings
-            {
-                Dps = row.Dps,
-                Logi = row.Logi,
-                Mining = row.Mining,
-                Ratting = row.Ratting,
-                Npc = row.Npc
-            };
-        }
+        var bits = StatMetrics.None;
+        foreach (var (cb, bit) in StatGlobalBindings())
+            if (cb.IsChecked == true) bits |= bit;
+        S.GlobalStatMetrics = bits;
         SaveDelayed();
     }
 

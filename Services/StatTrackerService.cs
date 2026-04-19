@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
 
@@ -284,69 +285,58 @@ public sealed class StatTrackerService
     // ── Overlay Text (AHK: side-by-side columns with abbreviations) ──
 
     /// <summary>Build multi-row overlay text matching AHK StatTracker format.
-    /// Side-by-side columns: [DPS] | [Logi] | [Mine] | [Rat]</summary>
-    public string GetOverlayText(string character, bool showDps, bool showLogi, bool showMining, bool showRatting)
+    /// Each metric in <paramref name="metrics"/> is rendered as its own line within
+    /// its category column; a category is skipped entirely if no metric for it is set.</summary>
+    public string GetOverlayText(string character, StatMetrics metrics)
     {
         var snap = GetSnapshot(character);
         int colWidth = 12;
         var columns = new List<List<string>>();
 
         // === DPS Column ===
-        if (showDps)
+        if ((metrics & StatMetrics.DpsMask) != 0)
         {
-            var col = new List<string>
-            {
-                "[DPS]",
-                $"Out:{FormatNumber(snap.Dps)}/s",
-                $"In:{FormatNumber(snap.IncomingDps)}/s",
-                $"TDI:{FormatNumber(snap.TotalDamageIn)}",
-                $"TDO:{FormatNumber(snap.TotalDamageOut)}",
-            };
+            var col = new List<string> { "[DPS]" };
+            if ((metrics & StatMetrics.DpsOut) != 0) col.Add($"Out:{FormatNumber(snap.Dps)}/s");
+            if ((metrics & StatMetrics.DpsIn)  != 0) col.Add($"In:{FormatNumber(snap.IncomingDps)}/s");
+            if ((metrics & StatMetrics.Tdi)    != 0) col.Add($"TDI:{FormatNumber(snap.TotalDamageIn)}");
+            if ((metrics & StatMetrics.Tdo)    != 0) col.Add($"TDO:{FormatNumber(snap.TotalDamageOut)}");
             columns.Add(col);
         }
 
         // === LOGI Column ===
-        if (showLogi)
+        if ((metrics & StatMetrics.LogiMask) != 0)
         {
-            var col = new List<string>
-            {
-                "[Logi]",
-                $"ARPS:{FormatNumber(snap.ArmorRepPerSec)}",
-                $"SRPS:{FormatNumber(snap.ShieldRepPerSec)}",
-                $"CTPS:{FormatNumber(snap.CapTransPerSec)}",
-                $"TARO:{FormatNumber(snap.TotalArmorRepOut)}",
-                $"TARI:{FormatNumber(snap.TotalArmorRepIn)}",
-                $"TSRO:{FormatNumber(snap.TotalShieldRepOut)}",
-                $"TSRI:{FormatNumber(snap.TotalShieldRepIn)}",
-            };
+            var col = new List<string> { "[Logi]" };
+            if ((metrics & StatMetrics.Arps) != 0) col.Add($"ARPS:{FormatNumber(snap.ArmorRepPerSec)}");
+            if ((metrics & StatMetrics.Srps) != 0) col.Add($"SRPS:{FormatNumber(snap.ShieldRepPerSec)}");
+            if ((metrics & StatMetrics.Ctps) != 0) col.Add($"CTPS:{FormatNumber(snap.CapTransPerSec)}");
+            if ((metrics & StatMetrics.Taro) != 0) col.Add($"TARO:{FormatNumber(snap.TotalArmorRepOut)}");
+            if ((metrics & StatMetrics.Tari) != 0) col.Add($"TARI:{FormatNumber(snap.TotalArmorRepIn)}");
+            if ((metrics & StatMetrics.Tsro) != 0) col.Add($"TSRO:{FormatNumber(snap.TotalShieldRepOut)}");
+            if ((metrics & StatMetrics.Tsri) != 0) col.Add($"TSRI:{FormatNumber(snap.TotalShieldRepIn)}");
             columns.Add(col);
         }
 
         // === MINE Column ===
-        if (showMining)
+        if ((metrics & StatMetrics.MineMask) != 0)
         {
-            var col = new List<string>
-            {
-                "[Mine]",
-                $"OMPC:{FormatNumber(snap.LastMineCycle)}",
-                $"OMPH:{FormatNumber(snap.OreMiningRate)}",
-                $"GMPC:{FormatNumber(snap.GasLastCycle)}",
-                $"GMPH:{FormatNumber(snap.GasMiningRate)}",
-                $"IMPH:{FormatNumber(snap.IceMiningRate)}",
-            };
+            var col = new List<string> { "[Mine]" };
+            if ((metrics & StatMetrics.Ompc) != 0) col.Add($"OMPC:{FormatNumber(snap.LastMineCycle)}");
+            if ((metrics & StatMetrics.Omph) != 0) col.Add($"OMPH:{FormatNumber(snap.OreMiningRate)}");
+            if ((metrics & StatMetrics.Gmpc) != 0) col.Add($"GMPC:{FormatNumber(snap.GasLastCycle)}");
+            if ((metrics & StatMetrics.Gmph) != 0) col.Add($"GMPH:{FormatNumber(snap.GasMiningRate)}");
+            if ((metrics & StatMetrics.Imph) != 0) col.Add($"IMPH:{FormatNumber(snap.IceMiningRate)}");
             columns.Add(col);
         }
 
         // === RAT Column ===
-        if (showRatting)
+        if ((metrics & StatMetrics.RatMask) != 0)
         {
-            var col = new List<string>
-            {
-                "[Rat]",
-                $"TIPT:{FormatNumber(snap.LastBountyTick)}",
-                $"TIPH:{FormatNumber(snap.BountyRate)}",
-                $"TIPS:{FormatNumber(snap.BountySession)}",
-            };
+            var col = new List<string> { "[Rat]" };
+            if ((metrics & StatMetrics.Tipt) != 0) col.Add($"TIPT:{FormatNumber(snap.LastBountyTick)}");
+            if ((metrics & StatMetrics.Tiph) != 0) col.Add($"TIPH:{FormatNumber(snap.BountyRate)}");
+            if ((metrics & StatMetrics.Tips) != 0) col.Add($"TIPS:{FormatNumber(snap.BountySession)}");
             columns.Add(col);
         }
 

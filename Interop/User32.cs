@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace EveMultiPreview.Interop;
 
@@ -21,6 +22,8 @@ public static class User32
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
@@ -41,6 +44,13 @@ public static class User32
     public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
     [DllImport("user32.dll")]
+    public static extern IntPtr GetAncestor(IntPtr hWnd, uint flags);
+
+    public const uint GA_PARENT = 1;
+    public const uint GA_ROOT = 2;
+    public const uint GA_ROOTOWNER = 3;
+
+    [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
 
     // ── Window Positioning ───────────────────────────────────────────
@@ -48,6 +58,25 @@ public static class User32
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool GetWindowRect(IntPtr hWnd, out DwmApi.RECT lpRect);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+    }
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetCursorPos(out POINT lpPoint);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool ClientToScreen(IntPtr hWnd, ref POINT lpPoint);
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -95,12 +124,7 @@ public static class User32
         public DwmApi.RECT rcNormalPosition;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct POINT
-    {
-        public int X;
-        public int Y;
-    }
+
 
     // ── Extended Window Styles ────────────────────────────────────────
 
@@ -259,6 +283,137 @@ public static class User32
         SendInput(2, inputs, Marshal.SizeOf<INPUT>());
     }
 
+    /// <summary>
+    /// Explicitly fires WM_KEYDOWN/WM_KEYUP directly into the target window's message queue.
+    /// Both Chromium login screens and DirectInput EVE clients can occasionally drop held-key
+    /// hardware repeat boundaries during WPF message pump interruptions. Pulsing targeted
+    /// PostMessages guarantees the module reliably fires without corrupting the global OS state.
+    /// </summary>
+    public static HashSet<int> CycleKeysToIgnore = new HashSet<int>();
+
+    public static void FixTargetHeldKeys(IntPtr hwnd)
+    {
+        uint WM_KEYDOWN = 0x0100;
+        uint WM_KEYUP = 0x0101;
+
+        void LogInjection(string msg)
+        {
+            EveMultiPreview.Services.DiagnosticsService.LogInjection(msg);
+        }
+
+        List<int> keysToCheck = new List<int>
+        {
+            0x0D, // Enter
+            0x20  // Space
+        };
+
+        // 0 to 9 (0x30 - 0x39)
+        for (int i = 0x30; i <= 0x39; i++) keysToCheck.Add(i);
+        // A to Z (0x41 - 0x5A) — includes navigation keys (D=dock, Q=approach, W=warp, etc.)
+        // Re-injected so held actions carry across client switches (matches AHK behavior).
+        for (int i = 0x41; i <= 0x5A; i++) keysToCheck.Add(i);
+        // F1 to F12 (0x70 - 0x7B)
+        for (int i = 0x70; i <= 0x7B; i++) keysToCheck.Add(i);
+        // F13 to F24 (0x7C - 0x87)
+        for (int i = 0x7C; i <= 0x87; i++) keysToCheck.Add(i);
+
+        List<int> pressedKeys = new List<int>();
+        foreach (var vk in keysToCheck)
+        {
+            if (CycleKeysToIgnore.Contains(vk)) continue;
+
+            if (IsKeyDown(vk))
+            {
+                pressedKeys.Add(vk);
+            }
+        }
+
+        // Handle Mouse Hotkeys (MButton, XButton1/Mouse4, XButton2/Mouse5)
+        bool hasMouse1 = IsKeyDown(0x04);
+        bool hasMouse2 = IsKeyDown(0x05);
+        bool hasMouse3 = IsKeyDown(0x06);
+
+        // Get Keyboard Layouts for logging
+        uint myThread = GetCurrentThreadId();
+        uint targetThread = GetWindowThreadProcessId(hwnd, out _);
+        IntPtr myHkl = GetKeyboardLayout(myThread);
+        IntPtr targetHkl = GetKeyboardLayout(targetThread);
+
+        if (pressedKeys.Count > 0 || hasMouse1 || hasMouse2 || hasMouse3)
+        {
+            bool hasCtrl = IsKeyDown(0x11);
+            bool hasAlt = IsKeyDown(0x12);
+            bool hasShift = IsKeyDown(0x10);
+
+            string keyStr = string.Join(",", pressedKeys.Select(k => $"0x{k:X}"));
+            LogInjection($"[FixTargetHeldKeys] 🎯 HWND {hwnd} | Keys: {keyStr} | Modifiers: Ctrl:{hasCtrl} Alt:{hasAlt} Shift:{hasShift} | M1:{hasMouse1} M2:{hasMouse2} M3:{hasMouse3} | HKL:0x{myHkl:X8}/0x{targetHkl:X8}");
+
+            POINT pt;
+            GetCursorPos(out pt);
+            ScreenToClient(hwnd, ref pt);
+            // Combine X/Y into lParam (low word = X, high word = Y)
+            IntPtr lParamMouse = (IntPtr)((pt.Y << 16) | (pt.X & 0xFFFF));
+
+            // Fire-and-forget task to send Down state, wait for engine to process, then send Up state.
+            // This prevents the WPF UI thread from blocking, and guarantees the EVE client sees the key
+            // held for at least one frame (30ms).
+            Task.Run(async () =>
+            {
+                // Give EVE's message pump enough time to process the WM_ACTIVATE and focus events
+                // before we send the mocked physical keydown states, otherwise it drops them.
+                await Task.Delay(20);
+
+                // --- STUCK MODIFIER FLUSH ---
+                // EVE clients frequently drop WM_KEYUP events for modifiers when losing focus rapidly.
+                // We force-flush any modifiers that are NOT physically held before injecting the DOWN phase.
+                void FlushModifier(uint vk)
+                {
+                    if (!IsKeyDown((int)vk))
+                    {
+                        uint scan = MapVirtualKey(vk, MAPVK_VK_TO_VSC);
+                        IntPtr lParamUpMod = (IntPtr)unchecked((int)(0xC0000000 | (scan << 16) | 1));
+                        PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, lParamUpMod);
+                    }
+                }
+                FlushModifier(0x10); // Shift
+                FlushModifier(0x11); // Ctrl
+                FlushModifier(0x12); // Alt
+                FlushModifier(0x5B); // LWin
+
+                // Send DOWN Phase
+                foreach (var vk in pressedKeys)
+                {
+                    uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                    IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1);
+                    PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
+                }
+                
+                if (hasMouse1) PostMessage(hwnd, 0x0207, IntPtr.Zero, lParamMouse); // WM_MBUTTONDOWN
+                if (hasMouse2) PostMessage(hwnd, 0x020B, (IntPtr)0x00010000, lParamMouse); // WM_XBUTTONDOWN (HighWord=XBUTTON1)
+                if (hasMouse3) PostMessage(hwnd, 0x020B, (IntPtr)0x00020000, lParamMouse); // WM_XBUTTONDOWN (HighWord=XBUTTON2)
+
+                // Give EVE's input polling time to catch the down state 
+                // (30ms ensures it crosses at least one ~16ms game tick boundary)
+                await Task.Delay(30);
+
+                // Send UP Phase
+                foreach (var vk in pressedKeys)
+                {
+                    uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                    // Bit 30 & 31 set = 0xC0000000, plus scancode and repeat count
+                    IntPtr lParamUp = (IntPtr)unchecked((int)(0xC0000000 | (scanCode << 16) | 1));
+                    PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, lParamUp);
+                }
+                
+                if (hasMouse1) PostMessage(hwnd, 0x0208, IntPtr.Zero, lParamMouse); // WM_MBUTTONUP
+                if (hasMouse2) PostMessage(hwnd, 0x020C, (IntPtr)0x00010000, lParamMouse); // WM_XBUTTONUP
+                if (hasMouse3) PostMessage(hwnd, 0x020C, (IntPtr)0x00020000, lParamMouse); // WM_XBUTTONUP
+                
+                LogInjection($"[FixTargetHeldKeys] ✅ Finished injecting held keys for HWND {hwnd}");
+            });
+        }
+    }
+
     public const uint KEYEVENTF_SCANCODE = 0x0008;
 
     [DllImport("user32.dll")]
@@ -270,32 +425,25 @@ public static class User32
     /// </summary>
     public static IntPtr PendingActivateHwnd;
 
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern bool BringWindowToTop(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);
+
     /// <summary>
-    /// Window activation: SetForegroundWindow + SetFocus.
-    /// Uses AttachThreadInput to bypass UIPI/Foreground restrictions.
+    /// Native Window Activation: Focuses the EVE Client locally.
+    /// Handled organically with Win32 HWND mapping.
     /// </summary>
     public static void ActivateWindow(IntPtr hwnd)
     {
         if (GetForegroundWindow() == hwnd) return;
-
-        IntPtr fgHwnd = GetForegroundWindow();
-        uint fgThread = GetWindowThreadProcessId(fgHwnd, out _);
-        uint myThread = GetCurrentThreadId();
-
-        if (fgThread != myThread && fgThread != 0)
-        {
-            AttachThreadInput(myThread, fgThread, true);
-            SetForegroundWindow(hwnd);
-            SetFocus(hwnd);
-            AttachThreadInput(myThread, fgThread, false);
-        }
-        else
-        {
-            SetForegroundWindow(hwnd);
-            SetFocus(hwnd);
-        }
+        
+        EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] Standard WIN32 Foreground Shift for HWND {hwnd}");
+        SetForegroundWindow(hwnd);
+        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     }
-
+    
     [DllImport("kernel32.dll")]
     public static extern uint GetCurrentThreadId();
 
@@ -305,157 +453,6 @@ public static class User32
 
     [DllImport("user32.dll", SetLastError = true)]
     public static extern IntPtr SetFocus(IntPtr hWnd);
-
-    /// <summary>
-    /// Called from the vkE8 RegisterHotKey WM_HOTKEY handler.
-    /// Mirrors AHK's ActivateForgroundWindow callback.
-    /// </summary>
-    public static void SetForegroundWindowForPending()
-    {
-        IntPtr hwnd = PendingActivateHwnd;
-        if (hwnd == IntPtr.Zero) return;
-
-        if (!SetForegroundWindow(hwnd))
-            SetForegroundWindow(hwnd);
-    }
-
-
-
-    /// <summary>
-    // Modifier VKs that EVE recognizes for key combinations
-    private static readonly int[] ModifierVks = {
-        0x10, // VK_SHIFT
-        0x11, // VK_CONTROL
-        0x12, // VK_MENU (Alt)
-        0xA0, // VK_LSHIFT
-        0xA1, // VK_RSHIFT
-        0xA2, // VK_LCONTROL
-        0xA3, // VK_RCONTROL
-        0xA4, // VK_LMENU (Left Alt)
-        0xA5, // VK_RMENU (Right Alt)
-    };
-
-    private static bool IsGameKey(int vk) =>
-        (vk >= 0x41 && vk <= 0x5A) || // A-Z
-        (vk >= 0x30 && vk <= 0x39) || // 0-9
-        (vk >= 0x60 && vk <= 0x69) || // Numpad 0-9
-        (vk >= 0x70 && vk <= 0x87) || // F1-F24
-        (vk == 0x20);                 // Space
-
-    /// <summary>
-    /// Posts WM_KEYUP for held game keys then held modifiers (game keys first, modifiers last).
-    /// Reverse order of PostGameKeysDown so EVE sees the combo released correctly.
-    /// </summary>
-    public static void PostGameKeysUp(IntPtr hwnd)
-    {
-        // Game keys UP first
-        for (int vk = 0x08; vk <= 0xFE; vk++)
-        {
-            if (IsGameKey(vk) && (GetAsyncKeyState(vk) & 0x8000) != 0)
-            {
-                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                IntPtr lParamUp = (IntPtr)((scanCode << 16) | 1u | (1u << 30) | (1u << 31));
-                PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, lParamUp);
-            }
-        }
-        // Modifiers UP last (Ctrl+D release = D up, then Ctrl up)
-        foreach (int vk in ModifierVks)
-        {
-            if ((GetAsyncKeyState(vk) & 0x8000) != 0)
-            {
-                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                IntPtr lParamUp = (IntPtr)((scanCode << 16) | 1u | (1u << 30) | (1u << 31));
-                PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, lParamUp);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Posts WM_KEYDOWN for held modifiers first, then held game keys.
-    /// Modifier-first order ensures EVE sees the combo correctly (e.g. Ctrl down, then D down = Ctrl+D).
-    /// Also includes F1-F24 for EVE drone/module shortcuts.
-    /// </summary>
-    public static void PostGameKeysDown(IntPtr hwnd)
-    {
-        // Modifiers DOWN first (Ctrl+D = Ctrl down, then D down)
-        foreach (int vk in ModifierVks)
-        {
-            if ((GetAsyncKeyState(vk) & 0x8000) != 0)
-            {
-                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1u);
-                PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
-            }
-        }
-        // Game keys DOWN after modifiers
-        for (int vk = 0x08; vk <= 0xFE; vk++)
-        {
-            if (IsGameKey(vk) && (GetAsyncKeyState(vk) & 0x8000) != 0)
-            {
-                uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1u);
-                PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Injects KEYDOWN events for all physically held game keys via SendInput.
-    /// Unlike PostMessage, SendInput goes through the real Windows input pipeline
-    /// (same as AHK's SendEvent), updating the system keyboard state that
-    /// DirectInput/Raw Input reads. Targets the current foreground window.
-    /// No KEYUP is sent — we want the key to stay "held."
-    /// </summary>
-    public static void SendGameKeysDown()
-    {
-        var inputs = new List<INPUT>();
-        for (int vk = 0x08; vk <= 0xFE; vk++)
-        {
-            bool isGameKey = (vk >= 0x41 && vk <= 0x5A) || // A-Z
-                             (vk >= 0x30 && vk <= 0x39) || // 0-9
-                             (vk >= 0x60 && vk <= 0x69) || // Numpad 0-9
-                             (vk == 0x20);                 // Space
-
-            if (isGameKey && (GetAsyncKeyState(vk) & 0x8000) != 0)
-            {
-                var input = new INPUT { type = INPUT_KEYBOARD };
-                input.U.ki.wVk = (ushort)vk;
-                input.U.ki.wScan = (ushort)MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                // No KEYEVENTF_KEYUP flag → this is a key-down event
-                inputs.Add(input);
-            }
-        }
-        if (inputs.Count > 0)
-            SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf<INPUT>());
-    }
-
-    /// <summary>
-    /// Injects KEYUP events for all physically held game keys via SendInput.
-    /// EVE triggers actions on key release — this completes the press→release cycle
-    /// so the action actually fires on each client during rapid cycling.
-    /// </summary>
-    public static void SendGameKeysUp()
-    {
-        var inputs = new List<INPUT>();
-        for (int vk = 0x08; vk <= 0xFE; vk++)
-        {
-            bool isGameKey = (vk >= 0x41 && vk <= 0x5A) || // A-Z
-                             (vk >= 0x30 && vk <= 0x39) || // 0-9
-                             (vk >= 0x60 && vk <= 0x69) || // Numpad 0-9
-                             (vk == 0x20);                 // Space
-
-            if (isGameKey && (GetAsyncKeyState(vk) & 0x8000) != 0)
-            {
-                var input = new INPUT { type = INPUT_KEYBOARD };
-                input.U.ki.wVk = (ushort)vk;
-                input.U.ki.wScan = (ushort)MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                input.U.ki.dwFlags = KEYEVENTF_KEYUP;
-                inputs.Add(input);
-            }
-        }
-        if (inputs.Count > 0)
-            SendInput((uint)inputs.Count, inputs.ToArray(), Marshal.SizeOf<INPUT>());
-    }
 
 
 
@@ -661,4 +658,7 @@ public static class User32
 
     /// <summary>Extract high word (used for XButton number from mouseData).</summary>
     public static int HIWORD(uint dword) => (int)((dword >> 16) & 0xFFFF);
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetKeyboardLayout(uint idThread);
 }

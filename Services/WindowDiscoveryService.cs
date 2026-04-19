@@ -99,14 +99,12 @@ public sealed class WindowDiscoveryService : IDisposable
         foreach (var (hwnd, title) in currentWindows)
         {
             string className = User32.GetWindowClassName(hwnd);
-            // Ignore tooltips, context menus (#32768), and other non-client UI elements spawned by exefile
-            if (!string.Equals(className, "triuiScreen", StringComparison.OrdinalIgnoreCase) && 
-                !className.StartsWith("EVE", StringComparison.OrdinalIgnoreCase))
-            {
-                // Fallback: If for some reason class name isn't triuiScreen, at least block tooltips explicitly
-                if (className.Contains("tooltip", StringComparison.OrdinalIgnoreCase) || className == "#32768")
-                    continue;
-            }
+            // Filter out non-game windows spawned by exefile (tooltips, context menus, CEF panels).
+            // The PID dedup in ThumbnailManager is the primary guard against duplicates —
+            // this filter catches the obvious non-game windows.
+            if (className.Contains("tooltip", StringComparison.OrdinalIgnoreCase) ||
+                className == "#32768")
+                continue;
 
             string charName = ExtractCharacterName(title);
 
