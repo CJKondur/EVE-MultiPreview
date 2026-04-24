@@ -9,9 +9,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <!-- PerMonitorV2: WinForms coords stay in physical pixels, WPF renders crisply
+         per monitor. Requires DIP/physical conversions anywhere the two meet
+         (see Interop/DpiHelper.cs). -->
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <AssemblyName>EVE MultiPreview</AssemblyName>
     <RootNamespace>EveMultiPreview</RootNamespace>
-    <Version>2.0.4</Version>
+    <Version>2.0.5</Version>
     <Description>EVE Online multi-client thumbnail preview manager</Description>
 
     <!-- Publish settings -->

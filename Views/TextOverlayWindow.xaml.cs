@@ -175,6 +175,23 @@ public partial class TextOverlayWindow : Window
         ProcessStatsViewbox.MaxWidth = availableWidth;
     }
 
+    /// <summary>Position this overlay from physical-pixel coordinates (WinForms
+    /// parent). Uses Win32 SetWindowPos for exact HWND placement and updates
+    /// the DIP-space Viewbox MaxWidth using the destination monitor's DPI.
+    /// Required with PerMonitorV2 because ThumbnailWindow (WinForms) base.Left/
+    /// base.Width are physical pixels, but WPF Left/Width are DIPs.</summary>
+    public void SyncPositionPhysical(int left, int top, int width, int height)
+    {
+        if (_ownHwnd == IntPtr.Zero) return;
+        User32.SetWindowPos(_ownHwnd, IntPtr.Zero, left, top, width, height,
+            User32.SWP_NOACTIVATE | User32.SWP_NOZORDER);
+
+        double scale = DpiHelper.GetScaleFactorForPoint(left, top);
+        double widthDip = DpiHelper.PhysicalToDip(width, scale);
+        double availableWidth = Math.Max(widthDip - TextOverlayPanel.Margin.Left - TextOverlayPanel.Margin.Right, 20);
+        ProcessStatsViewbox.MaxWidth = availableWidth;
+    }
+
     /// <summary>Get the Win32 HWND for this window (for Win32 owner relationship).</summary>
     public IntPtr GetHwnd() => _ownHwnd;
 }

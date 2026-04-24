@@ -40,6 +40,16 @@ public static class User32
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool IsZoomed(IntPtr hWnd);
 
+    // ── PrintWindow (frozen-frame capture) ────────────────────────────
+    // PW_RENDERFULLCONTENT (0x02) uses DWM composition — required for DirectX
+    // swap-chain windows (EVE) where the normal WM_PRINT path yields black.
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool PrintWindow(IntPtr hWnd, IntPtr hdcBlt, uint nFlags);
+
+    public const uint PW_RENDERFULLCONTENT = 0x00000002;
+
     [DllImport("user32.dll")]
     public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 
@@ -182,6 +192,8 @@ public static class User32
     public const int VK_LBUTTON = 0x01;
     public const int VK_RBUTTON = 0x02;
     public const int VK_LCONTROL = 0xA2;
+    public const int VK_LSHIFT = 0xA0;
+    public const int VK_RSHIFT = 0xA1;
 
     // ── SetWindowPos Constants ───────────────────────────────────────
 
@@ -254,6 +266,7 @@ public static class User32
     public const uint KEYEVENTF_KEYUP = 0x0002;
 
     public const uint MAPVK_VK_TO_VSC = 0;
+    public const uint MAPVK_VSC_TO_VK = 1;
 
     /// <summary>
     /// AHK virtualkey: 0xE8 — unused virtual key used as activation trigger.

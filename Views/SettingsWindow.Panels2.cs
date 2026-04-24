@@ -359,14 +359,60 @@ public partial class SettingsWindow
     }
 
     // ═══ VISIBILITY ═══
+    // Issue #21: union currently-tracked characters with the saved visibility
+    // dict so users who have never hidden anyone still see a populated list. The
+    // list now holds a typed row bound to an interactive checkbox.
     private void LoadVisibilityList()
     {
         LvVisibility.Items.Clear();
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var rows = new List<VisibilityRow>();
+
+        if (_thumbnailManager != null)
+        {
+            foreach (var name in _thumbnailManager.GetActiveCharacterNames())
+            {
+                if (string.IsNullOrEmpty(name) || !seen.Add(name)) continue;
+                bool hidden = S.ThumbnailVisibility.TryGetValue(name, out var v) && v != 0;
+                rows.Add(new VisibilityRow(name, hidden));
+            }
+        }
         foreach (var kv in S.ThumbnailVisibility)
-            LvVisibility.Items.Add(new { Character = kv.Key, Hidden = kv.Value != 0 ? "\u2714" : "" });
+        {
+            if (!seen.Add(kv.Key)) continue;
+            rows.Add(new VisibilityRow(kv.Key, kv.Value != 0));
+        }
+
+        foreach (var row in rows.OrderBy(r => r.Character, StringComparer.OrdinalIgnoreCase))
+            LvVisibility.Items.Add(row);
+    }
+
+    public class VisibilityRow
+    {
+        public string Character { get; set; }
+        public bool Hidden { get; set; }
+        public VisibilityRow(string character, bool hidden)
+        {
+            Character = character;
+            Hidden = hidden;
+        }
     }
 
     private void OnRefreshVisibility(object s, RoutedEventArgs e) => LoadVisibilityList();
+
+    private void OnVisibilityRowToggled(object sender, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        if (sender is not System.Windows.Controls.CheckBox cb) return;
+        if (cb.DataContext is not VisibilityRow row) return;
+
+        bool hidden = cb.IsChecked == true;
+        row.Hidden = hidden;
+        S.ThumbnailVisibility[row.Character] = hidden ? 1 : 0;
+        _thumbnailManager?.SetCharacterVisibility(row.Character, !hidden);
+        SaveDelayed();
+    }
 
     private void LoadSecondaryThumbnails()
     {

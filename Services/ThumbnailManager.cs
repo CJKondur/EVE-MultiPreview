@@ -43,8 +43,15 @@ public sealed class ThumbnailManager : IDisposable
     private readonly ConcurrentDictionary<string, StatOverlayWindow> _statWindows = new();
     private StatTrackerService? _statTracker;
 
+    // Session-only cycle exclusion (issue #16). Shift-click on a thumbnail toggles
+    // membership; excluded characters are skipped by CycleGroup/CycleAll until the
+    // user toggles them back or the app restarts. Not persisted.
+    private readonly ConcurrentDictionary<string, byte> _excludedFromCycle = new(StringComparer.OrdinalIgnoreCase);
+
     // Active window tracking
     private IntPtr _lastActiveEveHwnd = IntPtr.Zero;
+    private readonly System.Collections.Generic.HashSet<IntPtr> _iconicHwnds = new();
+    private FrozenFrameService? _frozenFrames;
     private DispatcherTimer? _focusTimer;
     private DispatcherTimer? _sessionTimer;
     private DispatcherTimer? _statTimer;
@@ -137,6 +144,12 @@ public sealed class ThumbnailManager : IDisposable
     /// </summary>
     public void StartFocusTracking()
     {
+        // Frozen-frame snapshot service — captures a PrintWindow bitmap per EVE
+        // HWND once a second so a last-rendered frame is available when the
+        // source window becomes iconic.
+        _frozenFrames = new FrozenFrameService();
+        _frozenFrames.Start(() => _thumbnails.Keys.ToArray());
+
         // Focus tracking — 100ms (closer to AHK's 50ms HandleMainTimerTick)
         _focusTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
         _focusTimer.Tick += (_, _) => UpdateActiveBorders();
@@ -308,6 +321,14 @@ public sealed class ThumbnailManager : IDisposable
         thumbWindow.MinimizeRequested += OnMinimizeRequested;
         thumbWindow.DragMoveAll += OnDragMoveAll;
         thumbWindow.ResizeAll += OnResizeAll;
+        thumbWindow.CycleExclusionRequested += OnCycleExclusionRequested;
+
+        // Restore any prior session-exclusion visual state
+        if (!string.IsNullOrEmpty(thumbWindow.CharacterName)
+            && _excludedFromCycle.ContainsKey(thumbWindow.CharacterName))
+        {
+            thumbWindow.SetCycleExcluded(true);
+        }
 
         PerfLog($"Pre-Show: {sw.ElapsedMilliseconds}ms");
         thumbWindow.Show();
@@ -348,6 +369,9 @@ public sealed class ThumbnailManager : IDisposable
 
     private void OnWindowLost(EveWindow window)
     {
+        _iconicHwnds.Remove(window.Hwnd);
+        _frozenFrames?.Forget(window.Hwnd);
+
         Application.Current?.Dispatcher.Invoke(() =>
         {
             if (_thumbnails.TryRemove(window.Hwnd, out var thumbWindow))
@@ -514,6 +538,10 @@ public sealed class ThumbnailManager : IDisposable
             if (_thumbnailsHidden || _primaryHidden) return;
             foreach (var (_, thumb) in _thumbnails)
                 thumb.ShowDwmOnly();
+            foreach (var (_, sw) in _statWindows)
+                sw.Visibility = Visibility.Visible;
+            foreach (var (_, pip) in _secondaryThumbnails)
+                pip.Visibility = Visibility.Visible;
         }));
     }
 
@@ -852,20 +880,71 @@ public sealed class ThumbnailManager : IDisposable
         try { fgProc = Interop.User32.GetProcessName(fgHwnd); } catch { }
         bool eveFocused = Interop.User32.IsEveOrAppProcess(fgProc);
 
-        // While Settings is open (even minimized), treat the app as "focused" for
-        // visibility purposes — otherwise minimizing Settings onto another monitor
-        // causes HideThumbnailsOnLostFocus to blank every preview.
-        bool appVisibleContext = eveFocused || _settingsOpen;
+        // Per-HWND iconic state — drives the live-DWM ↔ frozen-frame swap.
+        // When a source EVE window becomes iconic, DWM composes nothing into
+        // its thumbnail, so we switch to painting the last PrintWindow snapshot.
+        foreach (var (eveHwnd, thumb) in _thumbnails)
+        {
+            bool isIconic = Interop.User32.IsIconic(eveHwnd);
+            bool wasIconic = _iconicHwnds.Contains(eveHwnd);
+            if (isIconic == wasIconic) continue;
 
-        // Hide thumbnails on lost focus (hide DWM preview only, text overlay stays via owner)
+            if (isIconic)
+            {
+                _iconicHwnds.Add(eveHwnd);
+                var frame = _frozenFrames?.GetLastFrame(eveHwnd);
+                thumb.SetFrozenFrame(frame);
+                thumb.HideDwmOnly(); // DWM transparent so OnPaint's frozen bitmap shows.
+            }
+            else
+            {
+                _iconicHwnds.Remove(eveHwnd);
+                thumb.ClearFrozenFrame();
+                if (!_thumbnailsHidden && !_primaryHidden)
+                    thumb.ShowDwmOnly(); // Restore live DWM preview.
+            }
+        }
+
+        // Visibility gate for primary thumbnails under HideThumbnailsOnLostFocus.
+        // Hide only when every EVE window is closed (or Settings is also closed)
+        // — stat overlays and PiPs are decoupled from this and always stay up
+        // while any EVE client exists.
+        bool anyEveExists = _thumbnails.Count > 0;
+        bool appVisibleContext = anyEveExists || _settingsOpen;
+
         if (s.HideThumbnailsOnLostFocus)
         {
-            foreach (var (_, thumb) in _thumbnails)
+            foreach (var (eveHwnd, thumb) in _thumbnails)
             {
+                // Skip DWM toggling for iconic windows — they're painting a frozen
+                // frame and must keep _isDwmHidden=true for that to render.
+                if (_iconicHwnds.Contains(eveHwnd)) continue;
+
                 if (!appVisibleContext && !_thumbnailsHidden)
-                    thumb.HideDwmOnly(); // Opacity 0 — text overlay stays (Win32 owned)
+                    thumb.HideDwmOnly();
                 else if (appVisibleContext && !_thumbnailsHidden && !_primaryHidden)
-                    thumb.ShowDwmOnly(); // Restore opacity — text overlay already visible
+                    thumb.ShowDwmOnly();
+            }
+
+            // Stat overlays and PiPs normally stay visible whenever any client is
+            // tracked. When HideStatsOnLostFocus is opted-in (issue #12), they also
+            // collapse whenever EVE/our-app is not the foreground process — matching
+            // the pre-2026-04-23 behaviour for users who preferred it.
+            bool statsVisibleByFocus = !s.HideStatsOnLostFocus
+                || eveFocused || _settingsOpen;
+            var targetVisibility = anyEveExists && statsVisibleByFocus
+                                   && !_thumbnailsHidden && !_primaryHidden
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            foreach (var (_, sw) in _statWindows)
+            {
+                if (sw.Visibility != targetVisibility)
+                    sw.Visibility = targetVisibility;
+            }
+            foreach (var (_, pip) in _secondaryThumbnails)
+            {
+                if (pip.Visibility != targetVisibility)
+                    pip.Visibility = targetVisibility;
             }
         }
 
@@ -936,9 +1015,18 @@ public sealed class ThumbnailManager : IDisposable
             // Border color
             if (isActive)
             {
-                // Active border
-                var color = GetBorderColor(charName, true);
-                thumb.SetBorder(color, s.ClientHighlightBorderThickness);
+                // Active border — honor ShowClientHighlightBorder. When disabled,
+                // the active thumbnail gets no highlight at all (thickness 0) even
+                // while focused.
+                if (s.ShowClientHighlightBorder)
+                {
+                    var color = GetBorderColor(charName, true);
+                    thumb.SetBorder(color, s.ClientHighlightBorderThickness);
+                }
+                else
+                {
+                    thumb.SetBorder(Color.FromArgb(0, 0, 0, 0), 0);
+                }
             }
             else
             {
@@ -1154,8 +1242,9 @@ public sealed class ThumbnailManager : IDisposable
                 _tooltipWindow?.Close();
                 _tooltipTimer?.Stop();
 
-                // Get cursor position
+                // Get cursor position (physical pixels) and convert to DIPs for WPF Left/Top
                 var cursorPos = System.Windows.Forms.Cursor.Position;
+                double dpi = Interop.DpiHelper.GetScaleFactorForPoint(cursorPos.X, cursorPos.Y);
 
                 // Create a small borderless tooltip window near the cursor (AHK ToolTip style)
                 _tooltipWindow = new System.Windows.Window
@@ -1167,8 +1256,8 @@ public sealed class ThumbnailManager : IDisposable
                     Topmost = true,
                     ShowInTaskbar = false,
                     SizeToContent = SizeToContent.WidthAndHeight,
-                    Left = cursorPos.X + 16,
-                    Top = cursorPos.Y + 16,
+                    Left = Interop.DpiHelper.PhysicalToDip(cursorPos.X, dpi) + 16,
+                    Top = Interop.DpiHelper.PhysicalToDip(cursorPos.Y, dpi) + 16,
                     Content = new System.Windows.Controls.TextBlock
                     {
                         Text = message,
@@ -1541,7 +1630,16 @@ public sealed class ThumbnailManager : IDisposable
 
             if (charSelectWindows.Count == 0)
             {
-                Debug.WriteLine("[CharCycle:Select] ⚠ No char-select windows found");
+                Debug.WriteLine("[CharCycle:Select] ⚠ No char-select (login-screen) windows found — feature only cycles between EVE clients sitting on the character-select screen, not logged-in characters");
+                return;
+            }
+            if (charSelectWindows.Count == 1)
+            {
+                Debug.WriteLine("[CharCycle:Select] ⚠ Only one char-select window — nothing to cycle to");
+                // Still activate it so the hotkey at least feels responsive
+                var solo = charSelectWindows[0];
+                if (Interop.User32.IsIconic(solo)) Interop.User32.ShowWindowAsync(solo, Interop.User32.SW_RESTORE);
+                Interop.User32.SetForegroundWindow(solo);
                 return;
             }
 
@@ -1765,11 +1863,14 @@ public sealed class ThumbnailManager : IDisposable
             EveMultiPreview.Services.DiagnosticsService.LogCycling(msg);
         }
 
-        // Filter to only online characters using HashSet for O(M+N) instead of O(M×N)
+        // Filter to only online characters using HashSet for O(M+N) instead of O(M×N).
+        // Also drop anyone the user has shift-click-excluded this session (issue #16).
         var onlineSet = new HashSet<string>(
             _thumbnails.Values.Select(t => t.CharacterName),
             StringComparer.OrdinalIgnoreCase);
-        var onlineMembers = members.Where(m => onlineSet.Contains(m)).ToList();
+        var onlineMembers = members
+            .Where(m => onlineSet.Contains(m) && !_excludedFromCycle.ContainsKey(m))
+            .ToList();
         
         LogCycle($"[CycleGroup] 🔄 Group '{groupName}' cycle {(forward ? "FWD" : "BWD")} requested. Target group has {members.Count} members. Currently Online: {onlineMembers.Count}");
 
@@ -1848,6 +1949,107 @@ public sealed class ThumbnailManager : IDisposable
 
         LogCycle($"[CycleGroup] ➡️ Activating '{charName}' (HWND: {targetHwnd}). Online Members in pool: {string.Join(", ", onlineMembers)}");
         ActivateEveWindow(targetHwnd, charName, rapidSwitch: true, onActivated: onActivated);
+    }
+
+    /// <summary>Cycle across every tracked client regardless of profile or group
+    /// membership (issue #9). Keyed on HWND so it can include login-screen
+    /// windows (empty CharacterName) when IncludeLoginScreensInCycle is on
+    /// (issue #8). Shift-excluded characters (#16) are always skipped.</summary>
+    public void CycleAll(bool forward)
+    {
+        if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < 100) return;
+
+        bool includeLogins = _settings.Settings.IncludeLoginScreensInCycle;
+        var hwnds = _thumbnails
+            .OrderBy(kv => kv.Key.ToInt64())
+            .Where(kv =>
+            {
+                var name = kv.Value.CharacterName;
+                if (_excludedFromCycle.ContainsKey(name ?? "")) return false;
+                bool isLogin = string.IsNullOrEmpty(name);
+                return isLogin ? includeLogins : true;
+            })
+            .Select(kv => kv.Key)
+            .ToList();
+
+        if (hwnds.Count == 0) return;
+        _lastCycleTime = DateTime.UtcNow;
+
+        var fgHwnd = _lastActiveEveHwnd != IntPtr.Zero && _thumbnails.ContainsKey(_lastActiveEveHwnd)
+                     ? _lastActiveEveHwnd
+                     : Interop.User32.GetForegroundWindow();
+
+        int currentIdx = hwnds.IndexOf(fgHwnd);
+        int nextIdx = forward
+            ? (currentIdx + 1) % hwnds.Count
+            : (currentIdx - 1 + hwnds.Count) % hwnds.Count;
+
+        var targetHwnd = hwnds[nextIdx];
+        _lastActiveEveHwnd = targetHwnd;
+
+        string targetTitle = _thumbnails.TryGetValue(targetHwnd, out var tThumb) ? tThumb.CharacterName : "";
+        ActivateEveWindow(targetHwnd, targetTitle, rapidSwitch: true);
+    }
+
+    /// <summary>Show or hide the thumbnail for a specific character (issue #21).
+    /// Mirrors what the Settings visibility checkbox expresses; does not modify
+    /// any persisted settings itself — caller is responsible for updating
+    /// S.ThumbnailVisibility and calling SaveDelayed.</summary>
+    public void SetCharacterVisibility(string characterName, bool visible)
+    {
+        if (string.IsNullOrEmpty(characterName)) return;
+        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                if (!string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (visible) thumb.ShowWithOverlay();
+                else thumb.HideWithOverlay();
+            }
+        }));
+    }
+
+    // ── Session cycle-exclusion (issue #16) ─────────────────────────
+
+    /// <summary>True when the user has shift-click-excluded this character
+    /// from cycle rotations this session.</summary>
+    public bool IsExcludedFromCycle(string characterName)
+    {
+        return !string.IsNullOrEmpty(characterName)
+            && _excludedFromCycle.ContainsKey(characterName);
+    }
+
+    /// <summary>Flip session cycle-exclusion for a character. Also forces a
+    /// repaint of the matching thumbnail so the visual indicator updates.</summary>
+    public void ToggleCycleExclusion(string characterName)
+    {
+        if (string.IsNullOrEmpty(characterName)) return;
+        bool nowExcluded;
+        if (_excludedFromCycle.TryRemove(characterName, out _))
+        {
+            nowExcluded = false;
+        }
+        else
+        {
+            _excludedFromCycle[characterName] = 0;
+            nowExcluded = true;
+        }
+
+        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                if (string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+                {
+                    thumb.SetCycleExcluded(nowExcluded);
+                }
+            }
+        }));
+
+        ShowTooltipFeedback(nowExcluded
+            ? $"'{characterName}' excluded from cycle"
+            : $"'{characterName}' re-included in cycle");
     }
 
     // ── Click-Through Toggle ────────────────────────────────────────
@@ -2049,6 +2251,12 @@ public sealed class ThumbnailManager : IDisposable
         thumb.MinimizeRequested -= OnMinimizeRequested;
         thumb.DragMoveAll -= OnDragMoveAll;
         thumb.ResizeAll -= OnResizeAll;
+        thumb.CycleExclusionRequested -= OnCycleExclusionRequested;
+    }
+
+    private void OnCycleExclusionRequested(ThumbnailWindow thumb)
+    {
+        ToggleCycleExclusion(thumb.CharacterName);
     }
 
     /// <summary>Set the stat tracker service for stat window updates.</summary>
@@ -2299,23 +2507,9 @@ public sealed class ThumbnailManager : IDisposable
             catch { }
         }
 
-        // Also handle auto-hide on lost focus for stat windows
-        if (_settings.Settings.HideThumbnailsOnLostFocus)
-        {
-            var fgHwnd = Interop.User32.GetForegroundWindow();
-            string? fgProc = null;
-            try { fgProc = Interop.User32.GetProcessName(fgHwnd); } catch { }
-            bool eveFocused = Interop.User32.IsEveOrAppProcess(fgProc);
-
-            foreach (var (_, sw) in _statWindows)
-            {
-                sw.Visibility = eveFocused ? Visibility.Visible : Visibility.Collapsed;
-            }
-            foreach (var (_, pip) in _secondaryThumbnails)
-            {
-                pip.Visibility = eveFocused ? Visibility.Visible : Visibility.Collapsed;
-            }
-        }
+        // Visibility toggling on lost focus is handled in UpdateActiveBorders (50ms tick,
+        // uses appVisibleContext = eveFocused || _settingsOpen) so stats/PiPs stay in
+        // lockstep with primary thumbnails.
     }
 
     /// <summary>Save all stat window positions (called on app exit).</summary>
@@ -2340,6 +2534,8 @@ public sealed class ThumbnailManager : IDisposable
         _sessionTimer?.Stop();
         _flashTimer?.Stop();
         _statTimer?.Stop();
+        _frozenFrames?.Dispose();
+        _frozenFrames = null;
         _discovery.WindowFound -= OnWindowFound;
         _discovery.WindowLost -= OnWindowLost;
         _discovery.WindowTitleChanged -= OnWindowTitleChanged;

@@ -43,6 +43,11 @@ public class AhkConfigRoot
         s.HideSecondaryHotkey = g.HideSecondaryHotkey ?? "";
         s.ProfileCycleForwardHotkey = g.ProfileCycleForwardHotkey ?? "";
         s.ProfileCycleBackwardHotkey = g.ProfileCycleBackwardHotkey ?? "";
+        s.LockPositionsHotkey = g.LockPositionsHotkey ?? "";
+        s.GlobalCycleForwardHotkey = g.GlobalCycleForwardHotkey ?? "";
+        s.GlobalCycleBackwardHotkey = g.GlobalCycleBackwardHotkey ?? "";
+        s.HideStatsOnLostFocus = g.HideStatsOnLostFocus != 0;
+        s.IncludeLoginScreensInCycle = g.IncludeLoginScreensInCycle != 0;
         s.ShowSessionTimer = g.ShowSessionTimer != 0;
         s.ShowSystemName = g.ShowSystemName != 0;
         s.PreferredMonitor = g.PreferredMonitor;
@@ -134,6 +139,10 @@ public class AhkConfigRoot
         s.CharSelectCyclingEnabled = g.CharSelectCyclingEnabled != 0;
         s.CharSelectForwardHotkey = g.CharSelectForwardHotkey ?? "";
         s.CharSelectBackwardHotkey = g.CharSelectBackwardHotkey ?? "";
+
+        // Under Fire Indicator
+        s.EnableUnderFireIndicator = g.EnableUnderFireIndicator != 0;
+        s.UnderFireTimeoutSeconds = g.UnderFireTimeoutSeconds;
 
         // Process monitor
         s.ShowProcessStats = g.ShowProcessStats != 0;
@@ -255,6 +264,11 @@ public class AhkConfigRoot
         g.HideSecondaryHotkey = s.HideSecondaryHotkey;
         g.ProfileCycleForwardHotkey = s.ProfileCycleForwardHotkey;
         g.ProfileCycleBackwardHotkey = s.ProfileCycleBackwardHotkey;
+        g.LockPositionsHotkey = s.LockPositionsHotkey;
+        g.GlobalCycleForwardHotkey = s.GlobalCycleForwardHotkey;
+        g.GlobalCycleBackwardHotkey = s.GlobalCycleBackwardHotkey;
+        g.HideStatsOnLostFocus = s.HideStatsOnLostFocus ? 1 : 0;
+        g.IncludeLoginScreensInCycle = s.IncludeLoginScreensInCycle ? 1 : 0;
         g.ShowSessionTimer = s.ShowSessionTimer ? 1 : 0;
         g.ShowSystemName = s.ShowSystemName ? 1 : 0;
         g.PreferredMonitor = s.PreferredMonitor;
@@ -323,6 +337,10 @@ public class AhkConfigRoot
         g.CharSelectCyclingEnabled = s.CharSelectCyclingEnabled ? 1 : 0;
         g.CharSelectForwardHotkey = s.CharSelectForwardHotkey;
         g.CharSelectBackwardHotkey = s.CharSelectBackwardHotkey;
+
+        // Under Fire Indicator
+        g.EnableUnderFireIndicator = s.EnableUnderFireIndicator ? 1 : 0;
+        g.UnderFireTimeoutSeconds = s.UnderFireTimeoutSeconds;
 
         // Process monitor
         g.ShowProcessStats = s.ShowProcessStats ? 1 : 0;
@@ -749,6 +767,21 @@ public class AhkGlobalSettings
     [JsonPropertyName("ProfileCycleBackwardHotkey")]
     public string? ProfileCycleBackwardHotkey { get; set; } = "";
 
+    [JsonPropertyName("LockPositionsHotkey")]
+    public string? LockPositionsHotkey { get; set; } = "";
+
+    [JsonPropertyName("GlobalCycleForwardHotkey")]
+    public string? GlobalCycleForwardHotkey { get; set; } = "";
+
+    [JsonPropertyName("GlobalCycleBackwardHotkey")]
+    public string? GlobalCycleBackwardHotkey { get; set; } = "";
+
+    [JsonPropertyName("HideStatsOnLostFocus")]
+    public int HideStatsOnLostFocus { get; set; } = 0;
+
+    [JsonPropertyName("IncludeLoginScreensInCycle")]
+    public int IncludeLoginScreensInCycle { get; set; } = 0;
+
     [JsonPropertyName("ShowSessionTimer")]
     public int ShowSessionTimer { get; set; }
 
@@ -948,6 +981,15 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("ThumbnailAnnotations")]
     public Dictionary<string, string>? ThumbnailAnnotations { get; set; } = new();
+
+    // ── Under Fire Indicator ────────────────────────────────────────
+    // Default 1 (enabled) to match AppSettings default; previously unmapped,
+    // which caused user toggles to be lost on restart (issue #18).
+    [JsonPropertyName("EnableUnderFireIndicator")]
+    public int EnableUnderFireIndicator { get; set; } = 1;
+
+    [JsonPropertyName("UnderFireTimeoutSeconds")]
+    public int UnderFireTimeoutSeconds { get; set; } = 5;
 }
 
 // ── AHK EveManager ────────────────────────────────────────────────

@@ -35,6 +35,11 @@ public class AppSettings
     public string HideSecondaryHotkey { get; set; } = "";
     public string ProfileCycleForwardHotkey { get; set; } = "";
     public string ProfileCycleBackwardHotkey { get; set; } = "";
+    public string LockPositionsHotkey { get; set; } = "";
+    public string GlobalCycleForwardHotkey { get; set; } = "";
+    public string GlobalCycleBackwardHotkey { get; set; } = "";
+    public bool HideStatsOnLostFocus { get; set; } = false;
+    public bool IncludeLoginScreensInCycle { get; set; } = false;
     public bool ShowSessionTimer { get; set; } = false;
     public bool ShowSystemName { get; set; } = true;
     public bool SimpleMode { get; set; } = false;
@@ -631,8 +636,11 @@ public enum StatMetrics : uint
     // Meta — affects what counts as DPS, not a metric itself
     IncludeNpc = 1u << 19,
 
+    // Breakdown of incoming damage by damage type (issue #11)
+    DpsInByType = 1u << 20,
+
     // Category masks (not stored on their own, used by the UI for group operations)
-    DpsMask  = DpsOut | DpsIn | Tdi | Tdo,
+    DpsMask  = DpsOut | DpsIn | Tdi | Tdo | DpsInByType,
     LogiMask = Arps | Srps | Ctps | Taro | Tari | Tsro | Tsri,
     MineMask = Ompc | Omph | Gmpc | Gmph | Imph,
     RatMask  = Tipt | Tiph | Tips,

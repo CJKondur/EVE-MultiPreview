@@ -67,6 +67,10 @@ public class ThumbnailWindow : Form
     private byte _savedOpacity = 255;
     private bool _isDwmHidden;
 
+    // Frozen-frame snapshot shown when the source EVE window is minimized.
+    // Bitmap is owned by FrozenFrameService — we only hold a reference.
+    private Bitmap? _frozenFrame;
+
     private int _borderThickness;
 
     // Skip SetWindowPos when overlay position is unchanged.
@@ -82,6 +86,18 @@ public class ThumbnailWindow : Form
     public event Action<ThumbnailWindow>? MinimizeRequested;
     public event Action<ThumbnailWindow, double, double>? DragMoveAll;
     public event Action<ThumbnailWindow, int, int>? ResizeAll;
+    public event Action<ThumbnailWindow>? CycleExclusionRequested;
+
+    // Session-only cycle-exclusion visual state (issue #16). True when this
+    // character has been shift-clicked to skip in cycle rotations. Draws a
+    // red diagonal strikeout across the thumbnail.
+    private bool _cycleExcluded;
+    public void SetCycleExcluded(bool excluded)
+    {
+        if (_cycleExcluded == excluded) return;
+        _cycleExcluded = excluded;
+        if (IsHandleCreated) Invalidate();
+    }
 
     // ── WPF-compat shims ────────────────────────────────────────────
     // ThumbnailManager treats these as WPF-style (double coords, Visibility enum,
@@ -269,7 +285,7 @@ public class ThumbnailWindow : Form
         base.Left += offsetX;
         base.Top += offsetY;
         UpdateThumbnailSize();
-        _textOverlay?.SyncPosition(base.Left, base.Top, base.Width, base.Height);
+        _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
     }
 
     private void OnRightButtonDown()
@@ -342,6 +358,8 @@ public class ThumbnailWindow : Form
         {
             if (User32.IsKeyDown(User32.VK_LCONTROL))
                 MinimizeRequested?.Invoke(this);
+            else if (User32.IsKeyDown(User32.VK_LSHIFT) || User32.IsKeyDown(User32.VK_RSHIFT))
+                CycleExclusionRequested?.Invoke(this);  // Issue #16
             else
                 SwitchToEveClient();
         }
@@ -412,7 +430,7 @@ public class ThumbnailWindow : Form
             _baseWidth = newW;
             _baseHeight = newH;
             UpdateThumbnailSize();
-            _textOverlay?.SyncPosition(base.Left, base.Top, base.Width, base.Height);
+            _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
 
             bool resizeAll = !User32.IsKeyDown(User32.VK_LCONTROL);
             if (resizeAll)
@@ -437,7 +455,7 @@ public class ThumbnailWindow : Form
             User32.GetWindowRect(_ownHwnd, out var rect);
             base.Left = rect.Left;
             base.Top = rect.Top;
-            _textOverlay?.SyncPosition(base.Left, base.Top, base.Width, base.Height);
+            _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
         }
     }
 
@@ -480,7 +498,7 @@ public class ThumbnailWindow : Form
             base.Left -= offsetX;
             base.Top -= offsetY;
             UpdateThumbnailSize();
-            _textOverlay?.SyncPosition(base.Left, base.Top, base.Width, base.Height);
+            _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
         };
         _hoverTimer.Start();
     }
@@ -723,7 +741,7 @@ public class ThumbnailWindow : Form
             base.Width = width;
             base.Height = height;
             UpdateThumbnailSize();
-            _textOverlay?.SyncPosition(base.Left, base.Top, base.Width, base.Height);
+            _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
         }
     }
 
@@ -731,7 +749,7 @@ public class ThumbnailWindow : Form
     {
         base.Left = x;
         base.Top = y;
-        _textOverlay?.SyncPosition(base.Left, base.Top, base.Width, base.Height);
+        _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
     }
 
     public TimeSpan SessionDuration => DateTime.Now - _sessionStart;
@@ -832,6 +850,23 @@ public class ThumbnailWindow : Form
         _textOverlay?.Hide();
     }
 
+    /// <summary>Show a cached snapshot of the EVE window in the thumbnail area
+    /// instead of the live DWM preview — used when the source is minimized.
+    /// The bitmap is owned by the caller (FrozenFrameService); we just paint it.</summary>
+    public void SetFrozenFrame(Bitmap? frame)
+    {
+        if (ReferenceEquals(_frozenFrame, frame)) return;
+        _frozenFrame = frame;
+        if (IsHandleCreated) Invalidate();
+    }
+
+    public void ClearFrozenFrame()
+    {
+        if (_frozenFrame == null) return;
+        _frozenFrame = null;
+        if (IsHandleCreated) Invalidate();
+    }
+
     public void ShowWithOverlay()
     {
         Show();
@@ -855,6 +890,23 @@ public class ThumbnailWindow : Form
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.None;
 
+        // Frozen snapshot (shown when source EVE window is minimized and DWM
+        // composition is blank). Drawn inside the border inset so the colored
+        // frame still surrounds the content.
+        if (_frozenFrame != null && _isDwmHidden)
+        {
+            int b = Math.Max(0, _borderThickness);
+            var dest = new Rectangle(b, b,
+                Math.Max(1, ClientSize.Width - 2 * b),
+                Math.Max(1, ClientSize.Height - 2 * b));
+            try
+            {
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.DrawImage(_frozenFrame, dest);
+            }
+            catch { /* bitmap may have been disposed mid-paint by service — ignore */ }
+        }
+
         // Under-fire pulse takes priority over the normal border.
         if (_isUnderFire && _underFireColor is WpfColor uc)
         {
@@ -871,6 +923,16 @@ public class ThumbnailWindow : Form
                 Alignment = PenAlignment.Inset
             };
             g.DrawRectangle(pen, 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
+        }
+
+        // Cycle-excluded indicator (issue #16) — diagonal red line corner to corner.
+        if (_cycleExcluded)
+        {
+            using var pen = new Pen(Color.FromArgb(220, 220, 0, 0), Math.Max(3, _borderThickness + 1));
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.DrawLine(pen, 0, 0, ClientSize.Width, ClientSize.Height);
+            g.DrawLine(pen, ClientSize.Width, 0, 0, ClientSize.Height);
+            g.SmoothingMode = SmoothingMode.None;
         }
 
         // Not-Logged-In overlay — only visually effective when DWM thumbnail is

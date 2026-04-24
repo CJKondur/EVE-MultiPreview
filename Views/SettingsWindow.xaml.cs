@@ -1493,6 +1493,11 @@ public partial class SettingsWindow : Window
             Key.NumPad6 => "Numpad6", Key.NumPad7 => "Numpad7", Key.NumPad8 => "Numpad8",
             Key.NumPad9 => "Numpad9", Key.Multiply => "NumpadMult", Key.Add => "NumpadAdd",
             Key.Subtract => "NumpadSub", Key.Divide => "NumpadDiv", Key.Decimal => "NumpadDot",
+            // Top-row digits: WPF stringifies these as "D0".."D9" which the hotkey
+            // parser can't resolve. Emit the bare digit so ParseVirtualKey maps to
+            // VK_0..VK_9 directly.
+            Key.D0 => "0", Key.D1 => "1", Key.D2 => "2", Key.D3 => "3", Key.D4 => "4",
+            Key.D5 => "5", Key.D6 => "6", Key.D7 => "7", Key.D8 => "8", Key.D9 => "9",
             Key.OemTilde => "`", Key.OemMinus => "-", Key.OemPlus => "=",
             Key.OemOpenBrackets => "[", Key.OemCloseBrackets => "]",
             Key.OemPipe => "\\", Key.OemSemicolon => ";", Key.OemQuotes => "'",

@@ -1538,6 +1538,14 @@ public sealed class LogMonitorService : IDisposable
                 : "Unknown";
             bool isNpc = IsNpc(entityName);
 
+            // Extract weapon/ammo string for damage-type classification (issue #11).
+            // EVE line usually has a trailing " - Weapon Name - Quality" bold block.
+            string weaponText = "";
+            var weaponMatch = Regex.Match(line, @"<b>\s*-\s*(.*?)\s*-\s*[^<]*</b>");
+            if (weaponMatch.Success)
+                weaponText = Regex.Replace(weaponMatch.Groups[1].Value, @"<[^>]+>", "").Trim();
+            var damageType = DamageTypeClassifier.Classify(weaponText);
+
             // PvE mode: still record damage for stats, just don't trigger alert
             if (PveMode && isNpc)
             {
@@ -1547,7 +1555,8 @@ public sealed class LogMonitorService : IDisposable
                     Amount = amount,
                     SourceName = entityName,
                     CharacterName = character,
-                    IsNpc = true
+                    IsNpc = true,
+                    Type = damageType,
                 });
                 return;
             }
@@ -1559,7 +1568,8 @@ public sealed class LogMonitorService : IDisposable
                 Amount = amount,
                 SourceName = entityName,
                 CharacterName = character,
-                IsNpc = isNpc
+                IsNpc = isNpc,
+                Type = damageType,
             });
             TriggerAlert(character, "attack", "critical");
             return;
@@ -1889,6 +1899,86 @@ public record DamageEvent
     public string CharacterName { get; init; } = "";
     public bool IsMining { get; init; }
     public bool IsNpc { get; init; }
+
+    /// <summary>Best-effort damage-type classification from the weapon/ammo string
+    /// in the EVE combat log (issue #11). Unknown for outgoing damage and for any
+    /// entry whose weapon text doesn't match our keyword table.</summary>
+    public DamageType Type { get; init; } = DamageType.Unknown;
+}
+
+/// <summary>EVE's four damage types, plus Unknown for un-classifiable entries.</summary>
+public enum DamageType
+{
+    Unknown,
+    Em,
+    Thermal,
+    Kinetic,
+    Explosive,
+}
+
+/// <summary>Keyword-based damage-type classifier. Recognises common T1/T2
+/// ammunition names plus a handful of faction ammos. Pattern additions
+/// go here — the classifier is tolerant of case and partial matches.</summary>
+public static class DamageTypeClassifier
+{
+    // Order matters only when a weapon string could match multiple patterns;
+    // keep most-specific first. All comparisons are case-insensitive.
+    private static readonly (string keyword, DamageType type)[] _map =
+    {
+        // Missiles
+        ("scourge",   DamageType.Kinetic),
+        ("nova",      DamageType.Explosive),
+        ("mjolnir",   DamageType.Em),
+        ("inferno",   DamageType.Thermal),
+        // Hybrid ammo
+        ("antimatter", DamageType.Kinetic),
+        ("iron",      DamageType.Kinetic),
+        ("tungsten",  DamageType.Kinetic),
+        ("iridium",   DamageType.Kinetic),
+        ("lead",      DamageType.Kinetic),
+        ("thorium",   DamageType.Kinetic),
+        ("plutonium", DamageType.Kinetic),
+        ("uranium",   DamageType.Kinetic),
+        ("spike",     DamageType.Kinetic),
+        ("null",      DamageType.Kinetic),
+        ("javelin",   DamageType.Thermal),
+        ("void",      DamageType.Thermal),
+        // Projectile ammo
+        ("phased plasma", DamageType.Thermal),
+        ("emp",       DamageType.Em),
+        ("fusion",    DamageType.Explosive),
+        ("titanium sabot", DamageType.Kinetic),
+        ("depleted uranium", DamageType.Kinetic),
+        ("proton",    DamageType.Em),
+        ("barrage",   DamageType.Explosive),
+        ("hail",      DamageType.Explosive),
+        ("quake",     DamageType.Explosive),
+        ("tremor",    DamageType.Explosive),
+        // Laser crystals
+        ("multifrequency", DamageType.Em),
+        ("gamma",     DamageType.Em),
+        ("xray",      DamageType.Em),
+        ("x-ray",     DamageType.Em),
+        ("ultraviolet", DamageType.Em),
+        ("standard",  DamageType.Em),
+        ("microwave", DamageType.Thermal),
+        ("infrared",  DamageType.Thermal),
+        ("radio",     DamageType.Em),
+        ("aurora",    DamageType.Em),
+        ("scorch",    DamageType.Em),
+        ("conflagration", DamageType.Thermal),
+    };
+
+    public static DamageType Classify(string weaponText)
+    {
+        if (string.IsNullOrEmpty(weaponText)) return DamageType.Unknown;
+        foreach (var (keyword, type) in _map)
+        {
+            if (weaponText.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                return type;
+        }
+        return DamageType.Unknown;
+    }
 }
 
 public record RepairEvent

@@ -249,6 +249,7 @@
                 <StackPanel x:Name="PanelGeneral" Visibility="Visible">
                     <TextBlock Text="⚙ General Settings" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
                     <TextBlock Text="Core settings for EVE MultiPreview hotkey behavior." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
+                    <CheckBox x:Name="ChkShowTimer" Content="Show Session Timer on Thumbnails" Margin="0,0,0,12" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                     <GroupBox Header="Hotkey Scope">
                         <StackPanel Orientation="Horizontal">
                             <Label Content="Activation scope:"/>
@@ -309,7 +310,6 @@
                             <CheckBox x:Name="ChkIndividualResize" Content="Resize Thumbnails Individually" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                             <TextBlock Text="When on, resizing one thumbnail won't affect others. Hold Ctrl to invert."
                                        Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,0"/>
-                            <CheckBox x:Name="ChkShowTimer" Content="Show Session Timer on Thumbnails" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Minimize">
@@ -744,7 +744,16 @@
                                 <ListView.View>
                                     <GridView>
                                         <GridViewColumn Header="Character" Width="220" DisplayMemberBinding="{Binding Character}"/>
-                                        <GridViewColumn Header="Hidden" Width="80" DisplayMemberBinding="{Binding Hidden}"/>
+                                        <GridViewColumn Header="Hidden" Width="80">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox IsChecked="{Binding Hidden, Mode=TwoWay}"
+                                                              Checked="OnVisibilityRowToggled"
+                                                              Unchecked="OnVisibilityRowToggled"
+                                                              HorizontalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
                                     </GridView>
                                 </ListView.View>
                             </ListView>

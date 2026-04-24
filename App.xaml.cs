@@ -175,7 +175,7 @@ public partial class App : Application
             // ── Damage received (incoming) → stat tracker + alert ──
             _logMonitor.DamageReceived += (dmg) =>
             {
-                _statTracker.RecordDamage(dmg.CharacterName, dmg.Amount, true, dmg.IsNpc);
+                _statTracker.RecordDamage(dmg.CharacterName, dmg.Amount, true, dmg.IsNpc, damageType: dmg.Type);
                 _thumbnailManager?.SignalUnderFire(dmg.CharacterName);
                 Debug.WriteLine($"[App:Alert] 🔴 Damage received: {dmg.Amount} from '{dmg.SourceName}' to '{dmg.CharacterName}' (NPC={dmg.IsNpc})");
             };

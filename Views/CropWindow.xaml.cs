@@ -240,20 +240,26 @@ public partial class CropWindow : Window
                 return;
             }
 
+            // Mouse delta is physical pixels; _dragStartLeft/Top are DIPs.
             double dx = mouse.X - _dragStartScreen.X;
             double dy = mouse.Y - _dragStartScreen.Y;
+            double scale = DpiHelper.GetScaleFactor(this);
+            double dipDx = DpiHelper.PhysicalToDip(dx, scale);
+            double dipDy = DpiHelper.PhysicalToDip(dy, scale);
 
             if (!_dragMovedPastThreshold && (Math.Abs(dx) > 3 || Math.Abs(dy) > 3))
                 _dragMovedPastThreshold = true;
 
             if (_dragMovedPastThreshold)
             {
-                int newX = (int)(_dragStartLeft + dx);
-                int newY = (int)(_dragStartTop + dy);
+                double newLeftDip = _dragStartLeft + dipDx;
+                double newTopDip = _dragStartTop + dipDy;
+                int newPhysX = DpiHelper.DipToPhysical(newLeftDip, scale);
+                int newPhysY = DpiHelper.DipToPhysical(newTopDip, scale);
                 if (_ownHwnd != IntPtr.Zero)
-                    User32.SetWindowPos(_ownHwnd, IntPtr.Zero, newX, newY, 0, 0,
+                    User32.SetWindowPos(_ownHwnd, IntPtr.Zero, newPhysX, newPhysY, 0, 0,
                         User32.SWP_NOSIZE | User32.SWP_NOZORDER | User32.SWP_NOACTIVATE);
-                SyncTextOverlay(overrideLeft: newX, overrideTop: newY);
+                SyncTextOverlay(overrideLeft: newLeftDip, overrideTop: newTopDip);
             }
         }
         else if (_dragMode == DragMode.Resize)
@@ -267,9 +273,12 @@ public partial class CropWindow : Window
 
             double dx = mouse.X - _dragStartScreen.X;
             double dy = mouse.Y - _dragStartScreen.Y;
+            double scale = DpiHelper.GetScaleFactor(this);
+            double dipDx = DpiHelper.PhysicalToDip(dx, scale);
+            double dipDy = DpiHelper.PhysicalToDip(dy, scale);
 
-            int newW = Math.Max((int)(_resizeStartWidth + dx), 40);
-            int newH = Math.Max((int)(_resizeStartHeight + dy), 30);
+            double newW = Math.Max(_resizeStartWidth + dipDx, 40);
+            double newH = Math.Max(_resizeStartHeight + dipDy, 30);
 
             Width = newW;
             Height = newH;

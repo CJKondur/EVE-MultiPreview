@@ -31,7 +31,12 @@ public sealed class HotkeyService : IDisposable
 
     // Stored hotkey specs for re-registration when EVE windows appear/disappear
     private readonly List<HotkeySpec> _storedSpecs = new();
-    private record HotkeySpec(uint Modifiers, uint VirtualKey, Action Action, bool AllowRepeat);
+    // BaseModifiers = the user's originally specified modifier set (before wildcard
+    // expansion). Used at activation time to break collisions by specificity — a
+    // spec derived from "Ctrl+Alt+1" (BaseModifiers=Ctrl|Alt) wins the Ctrl+Alt+1
+    // slot over one derived from "Ctrl+1" (BaseModifiers=Ctrl) even though both
+    // wildcard-expand to include Ctrl+Alt+1.
+    private record HotkeySpec(uint Modifiers, uint VirtualKey, Action Action, bool AllowRepeat, uint BaseModifiers);
 
     // Track repeatable hotkey IDs
     private readonly HashSet<int> _repeatableIds = new();
@@ -119,8 +124,26 @@ public sealed class HotkeyService : IDisposable
         {
             return;
         }
-        int ok = 0, fail = 0;
+        // Resolve collisions before registering: multiple stored specs may target
+        // the same (VK, final-mods) slot because every stored hotkey exhaustively
+        // expands over all 16 modifier combinations. Without this pass, a generic
+        // "Ctrl+1" binding would claim the Ctrl+Alt+1 slot and block a specific
+        // "Ctrl+Alt+1" binding from ever firing. Specificity (more user-specified
+        // modifier bits) wins each slot.
+        var winners = new Dictionary<(uint Mods, uint Vk), HotkeySpec>();
         foreach (var spec in _storedSpecs)
+        {
+            var key = (spec.Modifiers, spec.VirtualKey);
+            if (!winners.TryGetValue(key, out var current) ||
+                System.Numerics.BitOperations.PopCount(spec.BaseModifiers) >
+                System.Numerics.BitOperations.PopCount(current.BaseModifiers))
+            {
+                winners[key] = spec;
+            }
+        }
+
+        int ok = 0, fail = 0;
+        foreach (var spec in winners.Values)
         {
             int id = _nextId++;
             uint finalMods = spec.AllowRepeat ? spec.Modifiers : (spec.Modifiers | User32.MOD_NOREPEAT);
@@ -270,6 +293,25 @@ public sealed class HotkeyService : IDisposable
         {
             if (_suspended) return;
             thumbnailManager.ToggleSecondaryVisibility();
+        });
+
+        // Lock thumbnail positions toggle (issue #10)
+        StoreAhkHotkey(settings.LockPositionsHotkey, () =>
+        {
+            if (_suspended) return;
+            thumbnailManager.ToggleLockPositions();
+        });
+
+        // Global cycle across ALL tracked clients, profile/group-agnostic (issue #9)
+        StoreRepeatableAhkHotkey(settings.GlobalCycleForwardHotkey, () =>
+        {
+            if (_suspended) return;
+            thumbnailManager.CycleAll(forward: true);
+        });
+        StoreRepeatableAhkHotkey(settings.GlobalCycleBackwardHotkey, () =>
+        {
+            if (_suspended) return;
+            thumbnailManager.CycleAll(forward: false);
         });
 
         // ── Char-select cycling hotkeys (AHK CharSelectCycling) ──
@@ -450,7 +492,7 @@ public sealed class HotkeyService : IDisposable
         // Natively simulate wildcard modifiers by exhaustively registering all 16 modifier combinations
         for (uint m = 0; m < 16; m++)
         {
-            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, false));
+            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, false, parsedMods));
         }
     }
 
@@ -474,7 +516,7 @@ public sealed class HotkeyService : IDisposable
         // Natively simulate wildcard modifiers by exhaustively registering all 16 modifier combinations
         for (uint m = 0; m < 16; m++)
         {
-            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, true));
+            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, true, parsedMods));
         }
     }
 
@@ -563,6 +605,18 @@ public sealed class HotkeyService : IDisposable
 
         key = key.Trim().ToUpperInvariant();
 
+        // Scancode form: "SC###" (hex). Used by AHK for hardware keys that have
+        // no Windows-level name (e.g. the backtick/tilde key on some layouts
+        // shows up as SC029). We resolve it through MapVirtualKey so the caller
+        // can still RegisterHotKey on the resulting VK.
+        if (key.Length > 2 && key[0] == 'S' && key[1] == 'C' &&
+            uint.TryParse(key[2..], System.Globalization.NumberStyles.HexNumber,
+                          System.Globalization.CultureInfo.InvariantCulture, out uint scanCode))
+        {
+            uint mappedVk = User32.MapVirtualKey(scanCode, User32.MAPVK_VSC_TO_VK);
+            if (mappedVk != 0) return mappedVk;
+        }
+
         // Function keys
         if (key.StartsWith("F") && int.TryParse(key[1..], out int fNum) && fNum >= 1 && fNum <= 24)
             return (uint)(0x70 + fNum - 1); // VK_F1 = 0x70
@@ -621,7 +675,7 @@ public sealed class HotkeyService : IDisposable
             "MINUS" or "HYPHEN" => 0xBD,
             "PERIOD" or "DOT" => 0xBE,
             "SLASH" => 0xBF,
-            "BACKQUOTE" or "TILDE" => 0xC0,
+            "BACKQUOTE" or "TILDE" or "`" or "~" => 0xC0,
             "LBRACKET" or "[" => 0xDB,
             "BACKSLASH" or "\\" => 0xDC,
             "RBRACKET" or "]" => 0xDD,

@@ -43,7 +43,7 @@ public sealed class StatTrackerService
 
     /// <summary>Record incoming or outgoing damage.</summary>
     public void RecordDamage(string character, int amount, bool isIncoming, bool isNpc = false,
-        string hitQuality = "")
+        string hitQuality = "", DamageType damageType = DamageType.Unknown)
     {
         var stats = GetOrCreate(character);
         var entry = new TimedValue(DateTime.UtcNow, amount);
@@ -52,6 +52,9 @@ public sealed class StatTrackerService
         {
             stats.DamageReceived.Add(entry);
             stats.TotalDamageIn += amount;
+
+            // Track per-type incoming for the damage-type breakdown overlay (issue #11)
+            stats.IncomingByType.AddOrUpdate(damageType, amount, (_, total) => total + amount);
 
             // Track volley (peak single hit) — NPC or player
             if (amount > stats.PeakVolley)
@@ -282,6 +285,14 @@ public sealed class StatTrackerService
         };
     }
 
+    /// <summary>Returns session totals per damage type for incoming damage
+    /// (issue #11). Keys missing → never-hit type.</summary>
+    public Dictionary<DamageType, long> GetIncomingByType(string character)
+    {
+        var stats = GetOrCreate(character);
+        return new Dictionary<DamageType, long>(stats.IncomingByType);
+    }
+
     // ── Overlay Text (AHK: side-by-side columns with abbreviations) ──
 
     /// <summary>Build multi-row overlay text matching AHK StatTracker format.
@@ -301,6 +312,27 @@ public sealed class StatTrackerService
             if ((metrics & StatMetrics.DpsIn)  != 0) col.Add($"In:{FormatNumber(snap.IncomingDps)}/s");
             if ((metrics & StatMetrics.Tdi)    != 0) col.Add($"TDI:{FormatNumber(snap.TotalDamageIn)}");
             if ((metrics & StatMetrics.Tdo)    != 0) col.Add($"TDO:{FormatNumber(snap.TotalDamageOut)}");
+            if ((metrics & StatMetrics.DpsInByType) != 0)
+            {
+                // Session breakdown of incoming damage by damage type (issue #11).
+                var byType = GetIncomingByType(character);
+                long total = byType.Values.Sum();
+                if (total > 0)
+                {
+                    foreach (var (label, t) in new[] {
+                        ("EM",  DamageType.Em),
+                        ("Th",  DamageType.Thermal),
+                        ("Ki",  DamageType.Kinetic),
+                        ("Ex",  DamageType.Explosive),
+                        ("?",   DamageType.Unknown),
+                    })
+                    {
+                        if (!byType.TryGetValue(t, out var v) || v == 0) continue;
+                        int pct = (int)Math.Round(v * 100.0 / total);
+                        col.Add($"{label}:{pct}%");
+                    }
+                }
+            }
             columns.Add(col);
         }
 
@@ -536,6 +568,10 @@ public sealed class StatTrackerService
         public int HitsOut { get; set; } = 0;
         public int MissesOut { get; set; } = 0;
         public double PeakVolley { get; set; } = 0;
+
+        // Per-type incoming damage totals (issue #11) — session accumulator used
+        // for the percentage breakdown in the DPS overlay. Not a windowed rate.
+        public ConcurrentDictionary<DamageType, long> IncomingByType { get; } = new();
 
         // Repairs given (AHK: separate armor/shield/cap)
         public double ArmorRepOut { get; set; } = 0;
