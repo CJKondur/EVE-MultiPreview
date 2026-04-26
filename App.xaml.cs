@@ -200,6 +200,30 @@ public partial class App : Application
                 Debug.WriteLine($"[App:Alert] 🌍 System change: '{charName}' → '{systemName}'");
                 _thumbnailManager.UpdateCharacterSystem(charName, systemName);
             };
+
+            // Cycle-wrap sound (issue #24) — plays whenever a cycle hotkey rolls
+            // from the last client back to the first (or vice-versa reversing).
+            _thumbnailManager.CycleWrapped += () =>
+            {
+                var s = _settings?.Settings;
+                if (s == null || !s.CycleWrapSoundEnabled) return;
+                if (string.IsNullOrEmpty(s.CycleWrapSoundFile)
+                    || !System.IO.File.Exists(s.CycleWrapSoundFile)) return;
+                try
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        _soundPlayer?.Open(new Uri(s.CycleWrapSoundFile));
+                        _soundPlayer!.Volume = s.AlertSoundVolume / 100.0;
+                        _soundPlayer.Play();
+                    });
+                    Debug.WriteLine($"[CycleWrap:Sound] 🔊 Playing '{System.IO.Path.GetFileName(s.CycleWrapSoundFile)}'");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[CycleWrap:Sound] ❌ {ex.Message}");
+                }
+            };
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
                 Debug.WriteLine($"[App:Alert] ⚡ Alert: {alertType} [{severity}] for '{charName}'");

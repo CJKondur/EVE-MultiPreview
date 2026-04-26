@@ -322,6 +322,7 @@ public sealed class ThumbnailManager : IDisposable
         thumbWindow.DragMoveAll += OnDragMoveAll;
         thumbWindow.ResizeAll += OnResizeAll;
         thumbWindow.CycleExclusionRequested += OnCycleExclusionRequested;
+        thumbWindow.LabelEditRequested += OnLabelEditRequested;
 
         // Restore any prior session-exclusion visual state
         if (!string.IsNullOrEmpty(thumbWindow.CharacterName)
@@ -426,6 +427,24 @@ public sealed class ThumbnailManager : IDisposable
                     thumbWindow.UpdateSystemName(sys);
                 }
 
+                // Re-apply custom label + per-label style for the now-resolved
+                // character (fixes the persistence bug where labels saved for a
+                // character were never restored if the EVE window first appeared
+                // at character-select with an empty name).
+                if (!string.IsNullOrEmpty(window.CharacterName))
+                {
+                    var s = _settings.Settings;
+                    if (s.ThumbnailAnnotations.TryGetValue(window.CharacterName, out var annotation))
+                        thumbWindow.UpdateAnnotation(annotation);
+                    else
+                        thumbWindow.UpdateAnnotation(null);
+
+                    if (s.ThumbnailLabelStyles.TryGetValue(window.CharacterName, out var labelStyle))
+                        thumbWindow.SetLabelStyle(labelStyle.Color, labelStyle.Size);
+                    else
+                        thumbWindow.SetLabelStyle(null, 0);
+                }
+
                 // Load saved position for new character
                 if (!string.IsNullOrEmpty(window.CharacterName))
                 {
@@ -486,11 +505,16 @@ public sealed class ThumbnailManager : IDisposable
         else
             thumb.UpdateSystemName(null);
 
-        // Annotation label
+        // Annotation label + per-label style overrides (v2.0.6)
         if (s.ThumbnailAnnotations.TryGetValue(window.CharacterName, out var annotation))
             thumb.UpdateAnnotation(annotation);
         else
             thumb.UpdateAnnotation(null);
+
+        if (s.ThumbnailLabelStyles.TryGetValue(window.CharacterName, out var labelStyle))
+            thumb.SetLabelStyle(labelStyle.Color, labelStyle.Size);
+        else
+            thumb.SetLabelStyle(null, 0);
 
         // Border — show with appropriate color, or hide if inactive border is empty
         {
@@ -1396,6 +1420,12 @@ public sealed class ThumbnailManager : IDisposable
 
     public void UpdateCharacterSystem(string characterName, string systemName)
     {
+        // Capture the previous system BEFORE overwriting so we can show a
+        // "old → new" transition animation (issue #25). First sighting (no
+        // previous entry) takes the plain-update path with no animation.
+        bool hadPrevious = _charSystems.TryGetValue(characterName, out var previousSystem);
+        bool changed = !hadPrevious
+            || !string.Equals(previousSystem, systemName, StringComparison.OrdinalIgnoreCase);
         _charSystems[characterName] = systemName;
 
         if (!_settings.Settings.ShowSystemName) return;
@@ -1404,7 +1434,12 @@ public sealed class ThumbnailManager : IDisposable
         {
             foreach (var (_, thumb) in _thumbnails)
             {
-                if (thumb.CharacterName.Equals(characterName, StringComparison.OrdinalIgnoreCase))
+                if (!thumb.CharacterName.Equals(characterName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (hadPrevious && changed && !string.IsNullOrEmpty(previousSystem))
+                    thumb.AnimateSystemTransition(previousSystem!, systemName);
+                else
                     thumb.UpdateSystemName(systemName);
             }
         });
@@ -1849,6 +1884,11 @@ public sealed class ThumbnailManager : IDisposable
 
     private DateTime _lastCycleTime = DateTime.MinValue;
 
+    /// <summary>Fired by CycleGroup / CycleAll whenever a cycle hotkey wraps
+    /// from the last active client back to the first (or first to last when
+    /// reversing). App.xaml.cs subscribes to play the cycle-wrap sound (#24).</summary>
+    public event Action? CycleWrapped;
+
     /// <summary>Cycle through characters in a hotkey group.</summary>
     public void CycleGroup(string groupName, List<string> members, bool forward)
     {
@@ -1903,10 +1943,22 @@ public sealed class ThumbnailManager : IDisposable
         }
 
         int nextIdx;
+        bool wrapped;
         if (forward)
+        {
             nextIdx = (currentIdx + 1) % onlineMembers.Count;
+            // Wrap: forward cycle landed on index 0 from the end of the list.
+            // Skip if currentIdx was -1 (no prior active) or onlineMembers.Count == 1.
+            wrapped = currentIdx > 0 && nextIdx == 0 && onlineMembers.Count > 1;
+        }
         else
+        {
             nextIdx = (currentIdx - 1 + onlineMembers.Count) % onlineMembers.Count;
+            wrapped = currentIdx >= 0 && currentIdx < onlineMembers.Count - 1
+                && nextIdx == onlineMembers.Count - 1 && onlineMembers.Count > 1;
+        }
+
+        if (wrapped) CycleWrapped?.Invoke();
 
         string charName = onlineMembers[nextIdx];
 
@@ -1984,11 +2036,35 @@ public sealed class ThumbnailManager : IDisposable
             ? (currentIdx + 1) % hwnds.Count
             : (currentIdx - 1 + hwnds.Count) % hwnds.Count;
 
+        bool wrapped = forward
+            ? currentIdx > 0 && nextIdx == 0 && hwnds.Count > 1
+            : currentIdx >= 0 && currentIdx < hwnds.Count - 1
+                && nextIdx == hwnds.Count - 1 && hwnds.Count > 1;
+        if (wrapped) CycleWrapped?.Invoke();
+
         var targetHwnd = hwnds[nextIdx];
         _lastActiveEveHwnd = targetHwnd;
 
         string targetTitle = _thumbnails.TryGetValue(targetHwnd, out var tThumb) ? tThumb.CharacterName : "";
         ActivateEveWindow(targetHwnd, targetTitle, rapidSwitch: true);
+    }
+
+    /// <summary>Push a new label text and per-label style override to the live
+    /// thumbnail for a character (v2.0.6). Caller is responsible for updating
+    /// persisted settings; this only drives the UI for immediate feedback.</summary>
+    public void UpdateCharacterLabel(string characterName, string? labelText, string? colorHex, int sizePt)
+    {
+        if (string.IsNullOrEmpty(characterName)) return;
+        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                if (!string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                thumb.UpdateAnnotation(string.IsNullOrWhiteSpace(labelText) ? null : labelText);
+                thumb.SetLabelStyle(colorHex, sizePt);
+            }
+        }));
     }
 
     /// <summary>Show or hide the thumbnail for a specific character (issue #21).
@@ -2252,11 +2328,33 @@ public sealed class ThumbnailManager : IDisposable
         thumb.DragMoveAll -= OnDragMoveAll;
         thumb.ResizeAll -= OnResizeAll;
         thumb.CycleExclusionRequested -= OnCycleExclusionRequested;
+        thumb.LabelEditRequested -= OnLabelEditRequested;
     }
 
     private void OnCycleExclusionRequested(ThumbnailWindow thumb)
     {
         ToggleCycleExclusion(thumb.CharacterName);
+    }
+
+    private void OnLabelEditRequested(ThumbnailWindow thumb)
+    {
+        if (string.IsNullOrEmpty(thumb.CharacterName)) return;
+        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            var editor = new Views.LabelEditorWindow(
+                thumb.CharacterName, _settings.Settings, this,
+                onSaved: () => _settings.SaveDelayed());
+
+            // Pick a sensible owner so the dialog centers and z-orders nicely
+            // without stealing activation from EVE clients behind it.
+            var owner = Application.Current?.Windows
+                .OfType<System.Windows.Window>()
+                .FirstOrDefault(w => w.IsLoaded && w.IsVisible);
+            if (owner != null) editor.Owner = owner;
+
+            editor.Topmost = true;
+            editor.ShowDialog();
+        }));
     }
 
     /// <summary>Set the stat tracker service for stat window updates.</summary>

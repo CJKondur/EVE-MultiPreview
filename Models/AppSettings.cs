@@ -146,7 +146,13 @@ public class AppSettings
     public List<ThumbnailGroup> ThumbnailGroups { get; set; } = new();
 
     // ── Thumbnail Annotations ───────────────────────────────────────
+    // Per-character custom label text (e.g. "Scout", "DPS", "Logi").
     public Dictionary<string, string> ThumbnailAnnotations { get; set; } = new();
+
+    // Per-character overrides for label color + size (2.0.6). Keys match
+    // ThumbnailAnnotations; missing entries fall back to the global thumbnail
+    // text color / size. Empty Color or Size==0 means "use default".
+    public Dictionary<string, ThumbnailLabelStyle> ThumbnailLabelStyles { get; set; } = new();
 
     // ── EVE Manager ─────────────────────────────────────────────────
     public bool EveManagerUseESI { get; set; } = true;
@@ -227,6 +233,11 @@ public class AppSettings
     public int AlertCooldown { get; set; } = 5;
     public bool AlertSoundEnabled { get; set; } = false;
     public string AlertSoundFile { get; set; } = "";
+
+    // Cycle-wrap sound (issue #24) — plays when a cycle hotkey rolls from the
+    // last client back to the first (or first back to the last when reversing).
+    public bool CycleWrapSoundEnabled { get; set; } = false;
+    public string CycleWrapSoundFile { get; set; } = "";
     public int AlertSoundCooldown { get; set; } = 10;
     public bool StatOverlayEnabled { get; set; } = false;
     public bool ShowDpsOverlay { get; set; } = false;
@@ -510,6 +521,20 @@ public class ThumbnailGroup
 
     [JsonPropertyName("members")]
     public List<string> Members { get; set; } = new();
+}
+
+/// <summary>
+/// Per-character override for thumbnail annotation text style. Color uses the
+/// usual hex format ("#RRGGBB" or "0xRRGGBB"); empty string means "use default
+/// thumbnail text color". Size is the label's point size; 0 means "use default".
+/// </summary>
+public class ThumbnailLabelStyle
+{
+    [JsonPropertyName("color")]
+    public string Color { get; set; } = "";
+
+    [JsonPropertyName("size")]
+    public int Size { get; set; } = 0;
 }
 
 public class HotkeyGroup

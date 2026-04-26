@@ -738,19 +738,30 @@
                                     Background="#e0e0e0" Foreground="#1a1a2e"
                                     BorderBrush="#cccccc" Margin="0,0,0,8"/>
                             <TextBlock Text="Check to HIDE a character's thumbnail:" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="Tip: you can also right-click a thumbnail (Ctrl+Right-click) to edit its label directly."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6"/>
                             <ListView x:Name="LvVisibility" Height="250"
                                       Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
                                       BorderBrush="{StaticResource BorderBrush}">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Character" Width="220" DisplayMemberBinding="{Binding Character}"/>
-                                        <GridViewColumn Header="Hidden" Width="80">
+                                        <GridViewColumn Header="Character" Width="180" DisplayMemberBinding="{Binding Character}"/>
+                                        <GridViewColumn Header="Hidden" Width="60">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <CheckBox IsChecked="{Binding Hidden, Mode=TwoWay}"
                                                               Checked="OnVisibilityRowToggled"
                                                               Unchecked="OnVisibilityRowToggled"
                                                               HorizontalAlignment="Center"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Label" Width="150" DisplayMemberBinding="{Binding Label}"/>
+                                        <GridViewColumn Header="" Width="70">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <Button Content="Edit…" Padding="8,2" Click="OnEditVisibilityLabel"
+                                                            ToolTip="Edit label text, color, and size"/>
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>

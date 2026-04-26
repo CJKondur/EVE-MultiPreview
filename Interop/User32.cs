@@ -304,6 +304,68 @@ public static class User32
     /// </summary>
     public static HashSet<int> CycleKeysToIgnore = new HashSet<int>();
 
+    // ── Sticky-held-letter tracking (issue #23) ─────────────────────────
+    // EVE click-modifier keys (D=dock, Q=approach, W=warp-to, etc.) need to STAY
+    // pressed on every client we cycle to until the user physically releases them
+    // — pulsing DOWN+UP would tell the new client the key was released the same
+    // frame it arrived, defeating the modifier.
+    //
+    // _heldKeyClients maps each tracked letter VK → the set of HWNDs we've sent
+    // a synthetic WM_KEYDOWN to. The poller watches IsKeyDown for each tracked
+    // VK; when the user releases the physical key, it blasts WM_KEYUP to every
+    // client we'd told it was held, then drops the entry. Letters get sticky
+    // treatment; everything else (digits / F-keys / Enter / Space / mouse
+    // buttons) keeps the existing one-shot DOWN+UP pulse.
+    private static readonly Dictionary<int, HashSet<IntPtr>> _heldKeyClients = new();
+    private static readonly object _heldKeyLock = new();
+    private static Task? _heldKeyPoller;
+    private static IntPtr _lastInjectedHwnd;
+
+    private static void EnsureHeldKeyPoller()
+    {
+        if (_heldKeyPoller != null && !_heldKeyPoller.IsCompleted) return;
+
+        _heldKeyPoller = Task.Run(async () =>
+        {
+            while (true)
+            {
+                await Task.Delay(50);
+                List<(int vk, HashSet<IntPtr> hwnds)> released = new();
+                lock (_heldKeyLock)
+                {
+                    foreach (var kv in _heldKeyClients)
+                    {
+                        if (!IsKeyDown(kv.Key))
+                            released.Add((kv.Key, new HashSet<IntPtr>(kv.Value)));
+                    }
+                    foreach (var r in released) _heldKeyClients.Remove(r.vk);
+                    if (_heldKeyClients.Count == 0)
+                    {
+                        // Send pending UPs outside lock then exit poller
+                        var snapshot = released;
+                        Task.Run(() => SendKeyUps(snapshot));
+                        return;
+                    }
+                }
+                if (released.Count > 0) SendKeyUps(released);
+            }
+        });
+
+        static void SendKeyUps(List<(int vk, HashSet<IntPtr> hwnds)> released)
+        {
+            const uint WM_KEYUP_LOCAL = 0x0101;
+            foreach (var (vk, hwnds) in released)
+            {
+                uint scan = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                IntPtr lParam = (IntPtr)unchecked((int)(0xC0000000 | (scan << 16) | 1));
+                foreach (var h in hwnds)
+                    PostMessage(h, WM_KEYUP_LOCAL, (IntPtr)vk, lParam);
+                EveMultiPreview.Services.DiagnosticsService.LogInjection(
+                    $"[HeldKeyPoller] ⤴ Released key 0x{vk:X} on {hwnds.Count} client(s)");
+            }
+        }
+    }
+
     public static void FixTargetHeldKeys(IntPtr hwnd)
     {
         uint WM_KEYDOWN = 0x0100;
@@ -364,21 +426,43 @@ public static class User32
             POINT pt;
             GetCursorPos(out pt);
             ScreenToClient(hwnd, ref pt);
-            // Combine X/Y into lParam (low word = X, high word = Y)
             IntPtr lParamMouse = (IntPtr)((pt.Y << 16) | (pt.X & 0xFFFF));
 
-            // Fire-and-forget task to send Down state, wait for engine to process, then send Up state.
-            // This prevents the WPF UI thread from blocking, and guarantees the EVE client sees the key
-            // held for at least one frame (30ms).
+            // Split into "sticky" letters (A-Z, EVE click-modifiers) and "one-shot"
+            // keys (digits / F-keys / Enter / Space). Letters get DOWN-only and
+            // are released by EnsureHeldKeyPoller when the user lifts the key.
+            var letterKeys = pressedKeys.Where(vk => vk >= 0x41 && vk <= 0x5A).ToList();
+            var pulseKeys  = pressedKeys.Where(vk => vk <  0x41 || vk >  0x5A).ToList();
+
+            // Track sticky letters: add the previously-injected hwnd (so it gets
+            // an UP later too — its native held state from when the user first
+            // pressed the key never received a UP because it lost focus first)
+            // and the new hwnd. Adds are idempotent within a HashSet.
+            IntPtr previousHwnd = _lastInjectedHwnd;
+            if (letterKeys.Count > 0)
+            {
+                lock (_heldKeyLock)
+                {
+                    foreach (var vk in letterKeys)
+                    {
+                        if (!_heldKeyClients.TryGetValue(vk, out var set))
+                        {
+                            set = new HashSet<IntPtr>();
+                            _heldKeyClients[vk] = set;
+                        }
+                        if (previousHwnd != IntPtr.Zero && previousHwnd != hwnd)
+                            set.Add(previousHwnd);
+                        set.Add(hwnd);
+                    }
+                    EnsureHeldKeyPoller();
+                }
+                _lastInjectedHwnd = hwnd;
+            }
+
             Task.Run(async () =>
             {
-                // Give EVE's message pump enough time to process the WM_ACTIVATE and focus events
-                // before we send the mocked physical keydown states, otherwise it drops them.
                 await Task.Delay(20);
 
-                // --- STUCK MODIFIER FLUSH ---
-                // EVE clients frequently drop WM_KEYUP events for modifiers when losing focus rapidly.
-                // We force-flush any modifiers that are NOT physically held before injecting the DOWN phase.
                 void FlushModifier(uint vk)
                 {
                     if (!IsKeyDown((int)vk))
@@ -393,36 +477,42 @@ public static class User32
                 FlushModifier(0x12); // Alt
                 FlushModifier(0x5B); // LWin
 
-                // Send DOWN Phase
-                foreach (var vk in pressedKeys)
+                // Sticky-letter DOWN — no UP is sent here. The poller fires UP
+                // when the user physically releases the key.
+                foreach (var vk in letterKeys)
                 {
                     uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
                     IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1);
                     PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
                 }
-                
-                if (hasMouse1) PostMessage(hwnd, 0x0207, IntPtr.Zero, lParamMouse); // WM_MBUTTONDOWN
-                if (hasMouse2) PostMessage(hwnd, 0x020B, (IntPtr)0x00010000, lParamMouse); // WM_XBUTTONDOWN (HighWord=XBUTTON1)
-                if (hasMouse3) PostMessage(hwnd, 0x020B, (IntPtr)0x00020000, lParamMouse); // WM_XBUTTONDOWN (HighWord=XBUTTON2)
 
-                // Give EVE's input polling time to catch the down state 
-                // (30ms ensures it crosses at least one ~16ms game tick boundary)
-                await Task.Delay(30);
-
-                // Send UP Phase
-                foreach (var vk in pressedKeys)
+                // One-shot DOWN
+                foreach (var vk in pulseKeys)
                 {
                     uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                    // Bit 30 & 31 set = 0xC0000000, plus scancode and repeat count
+                    IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1);
+                    PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
+                }
+
+                if (hasMouse1) PostMessage(hwnd, 0x0207, IntPtr.Zero, lParamMouse);
+                if (hasMouse2) PostMessage(hwnd, 0x020B, (IntPtr)0x00010000, lParamMouse);
+                if (hasMouse3) PostMessage(hwnd, 0x020B, (IntPtr)0x00020000, lParamMouse);
+
+                await Task.Delay(30);
+
+                // One-shot UP only — letters stay down until physical release.
+                foreach (var vk in pulseKeys)
+                {
+                    uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
                     IntPtr lParamUp = (IntPtr)unchecked((int)(0xC0000000 | (scanCode << 16) | 1));
                     PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, lParamUp);
                 }
-                
-                if (hasMouse1) PostMessage(hwnd, 0x0208, IntPtr.Zero, lParamMouse); // WM_MBUTTONUP
-                if (hasMouse2) PostMessage(hwnd, 0x020C, (IntPtr)0x00010000, lParamMouse); // WM_XBUTTONUP
-                if (hasMouse3) PostMessage(hwnd, 0x020C, (IntPtr)0x00020000, lParamMouse); // WM_XBUTTONUP
-                
-                LogInjection($"[FixTargetHeldKeys] ✅ Finished injecting held keys for HWND {hwnd}");
+
+                if (hasMouse1) PostMessage(hwnd, 0x0208, IntPtr.Zero, lParamMouse);
+                if (hasMouse2) PostMessage(hwnd, 0x020C, (IntPtr)0x00010000, lParamMouse);
+                if (hasMouse3) PostMessage(hwnd, 0x020C, (IntPtr)0x00020000, lParamMouse);
+
+                LogInjection($"[FixTargetHeldKeys] ✅ Finished injecting (sticky:{letterKeys.Count}, pulse:{pulseKeys.Count}) for HWND {hwnd}");
             });
         }
     }

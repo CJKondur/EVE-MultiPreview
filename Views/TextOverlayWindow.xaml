@@ -10,7 +10,23 @@
         Background="Transparent"
         Title="TextOverlay">
 
-    <Grid>
+    <Grid x:Name="OverlayRoot">
+        <!-- Cycle-exclusion strikeout (issue #16 / #27) — drawn here in the WPF
+             overlay (which sits ON TOP of the DWM thumbnail) instead of the
+             underlying WinForms client area, where DWM composition would hide
+             it. Visibility is toggled by SetCycleExcluded; lines stretch to the
+             window's full size via SizeChanged. -->
+        <Canvas x:Name="ExclusionStrikeout" IsHitTestVisible="False" Visibility="Collapsed">
+            <Line x:Name="ExclusionLineA" X1="0" Y1="0"
+                  Stroke="#FFDC0000" StrokeThickness="4"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                  Opacity="0.85"/>
+            <Line x:Name="ExclusionLineB" X1="0"
+                  Stroke="#FFDC0000" StrokeThickness="4"
+                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                  Opacity="0.85"/>
+        </Canvas>
+
         <StackPanel x:Name="TextOverlayPanel"
                     VerticalAlignment="Top"
                     HorizontalAlignment="Left"

@@ -76,6 +76,8 @@ public class AhkConfigRoot
         s.PveMode = g.PVEMode != 0;
         s.EnableAlertSounds = g.EnableAlertSounds != 0;
         s.AlertSoundVolume = g.AlertSoundVolume;
+        s.CycleWrapSoundEnabled = g.CycleWrapSoundEnabled != 0;
+        s.CycleWrapSoundFile = g.CycleWrapSoundFile ?? "";
         s.AlertHubEnabled = g.AlertHubEnabled != 0; // 0 for missing/new configs, 1 when user enables
         s.AlertHubX = g.AlertHubX;
         s.AlertHubY = g.AlertHubY;
@@ -150,6 +152,7 @@ public class AhkConfigRoot
 
         // Thumbnail annotations
         s.ThumbnailAnnotations = g.ThumbnailAnnotations ?? new();
+        s.ThumbnailLabelStyles = g.ThumbnailLabelStyles ?? new();
 
         // Quick-Switch Wheel
         s.QuickSwitchHotkey = g.QuickSwitchHotkey ?? "";
@@ -291,6 +294,8 @@ public class AhkConfigRoot
         g.PVEMode = s.PveMode ? 1 : 0;
         g.EnableAlertSounds = s.EnableAlertSounds ? 1 : 0;
         g.AlertSoundVolume = s.AlertSoundVolume;
+        g.CycleWrapSoundEnabled = s.CycleWrapSoundEnabled ? 1 : 0;
+        g.CycleWrapSoundFile = s.CycleWrapSoundFile;
         g.AlertHubEnabled = s.AlertHubEnabled ? 1 : 0;
         g.AlertHubX = s.AlertHubX;
         g.AlertHubY = s.AlertHubY;
@@ -348,6 +353,7 @@ public class AhkConfigRoot
 
         // Thumbnail annotations
         g.ThumbnailAnnotations = s.ThumbnailAnnotations ?? new();
+        g.ThumbnailLabelStyles = s.ThumbnailLabelStyles ?? new();
 
         // Quick-Switch Wheel
         g.QuickSwitchHotkey = s.QuickSwitchHotkey;
@@ -835,6 +841,12 @@ public class AhkGlobalSettings
     [JsonPropertyName("EnableAlertSounds")]
     public int EnableAlertSounds { get; set; }
 
+    [JsonPropertyName("CycleWrapSoundEnabled")]
+    public int CycleWrapSoundEnabled { get; set; }
+
+    [JsonPropertyName("CycleWrapSoundFile")]
+    public string? CycleWrapSoundFile { get; set; } = "";
+
     [JsonPropertyName("AlertSoundVolume")]
     public int AlertSoundVolume { get; set; } = 100;
 
@@ -981,6 +993,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("ThumbnailAnnotations")]
     public Dictionary<string, string>? ThumbnailAnnotations { get; set; } = new();
+
+    [JsonPropertyName("ThumbnailLabelStyles")]
+    public Dictionary<string, ThumbnailLabelStyle>? ThumbnailLabelStyles { get; set; } = new();
 
     // ── Under Fire Indicator ────────────────────────────────────────
     // Default 1 (enabled) to match AppSettings default; previously unmapped,

@@ -375,13 +375,15 @@ public partial class SettingsWindow
             {
                 if (string.IsNullOrEmpty(name) || !seen.Add(name)) continue;
                 bool hidden = S.ThumbnailVisibility.TryGetValue(name, out var v) && v != 0;
-                rows.Add(new VisibilityRow(name, hidden));
+                string label = S.ThumbnailAnnotations.GetValueOrDefault(name, "");
+                rows.Add(new VisibilityRow(name, hidden, label));
             }
         }
         foreach (var kv in S.ThumbnailVisibility)
         {
             if (!seen.Add(kv.Key)) continue;
-            rows.Add(new VisibilityRow(kv.Key, kv.Value != 0));
+            string label = S.ThumbnailAnnotations.GetValueOrDefault(kv.Key, "");
+            rows.Add(new VisibilityRow(kv.Key, kv.Value != 0, label));
         }
 
         foreach (var row in rows.OrderBy(r => r.Character, StringComparer.OrdinalIgnoreCase))
@@ -392,10 +394,12 @@ public partial class SettingsWindow
     {
         public string Character { get; set; }
         public bool Hidden { get; set; }
-        public VisibilityRow(string character, bool hidden)
+        public string Label { get; set; }
+        public VisibilityRow(string character, bool hidden, string label)
         {
             Character = character;
             Hidden = hidden;
+            Label = label;
         }
     }
 
@@ -412,6 +416,29 @@ public partial class SettingsWindow
         S.ThumbnailVisibility[row.Character] = hidden ? 1 : 0;
         _thumbnailManager?.SetCharacterVisibility(row.Character, !hidden);
         SaveDelayed();
+    }
+
+    // Visibility row "Edit Label" button handler — opens LabelEditorWindow,
+    // refreshes the row's Label cell after save, and persists via SaveDelayed.
+    private void OnEditVisibilityLabel(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.Button btn) return;
+        if (btn.DataContext is not VisibilityRow row) return;
+
+        var editor = new LabelEditorWindow(row.Character, S, _thumbnailManager,
+            onSaved: () =>
+            {
+                row.Label = S.ThumbnailAnnotations.GetValueOrDefault(row.Character, "");
+                // Rebind the row so the Label cell's DisplayMemberBinding refreshes
+                int idx = LvVisibility.Items.IndexOf(row);
+                if (idx >= 0)
+                {
+                    LvVisibility.Items.RemoveAt(idx);
+                    LvVisibility.Items.Insert(idx, row);
+                }
+                SaveDelayed();
+            }) { Owner = this };
+        editor.ShowDialog();
     }
 
     private void LoadSecondaryThumbnails()

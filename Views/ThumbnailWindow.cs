@@ -51,6 +51,10 @@ public class ThumbnailWindow : Form
     private bool _isDragging;
     public bool IsDragging => _isDragging;
 
+    // Timestamp of the current right-button press. Used to distinguish a brief
+    // click (→ open label editor) from a press-and-hold (→ drag).
+    private DateTime _rightDownAtUtc;
+
     private double _hoverScale = 1.0;
     private bool _isHovered;
     private bool _isMouseOver;
@@ -87,16 +91,58 @@ public class ThumbnailWindow : Form
     public event Action<ThumbnailWindow, double, double>? DragMoveAll;
     public event Action<ThumbnailWindow, int, int>? ResizeAll;
     public event Action<ThumbnailWindow>? CycleExclusionRequested;
+    /// <summary>Fired when a menu item in the right-click context menu asks to
+    /// open the label editor for this thumbnail (v2.0.6).</summary>
+    public event Action<ThumbnailWindow>? LabelEditRequested;
 
-    // Session-only cycle-exclusion visual state (issue #16). True when this
-    // character has been shift-clicked to skip in cycle rotations. Draws a
-    // red diagonal strikeout across the thumbnail.
+    // Right-click context menu (v2.0.6). Lazily built on first use, reused for
+    // subsequent right-clicks. Extend by adding more ToolStripItems in
+    // BuildContextMenu below.
+    private ContextMenuStrip? _contextMenu;
+
+    private void BuildContextMenu()
+    {
+        if (_contextMenu != null) return;
+        _contextMenu = new ContextMenuStrip
+        {
+            ShowImageMargin = false,
+        };
+
+        var editLabel = new ToolStripMenuItem("✏ Edit Label…");
+        editLabel.Click += (_, _) => LabelEditRequested?.Invoke(this);
+        _contextMenu.Items.Add(editLabel);
+
+        // Future menu items slot in here — e.g. "Copy Character Name",
+        // "Apply Group Color", "Exclude From Cycle", etc.
+    }
+
+    /// <summary>Show the right-click context menu at the current cursor
+    /// position. Called from OnRightButtonUp when the press was a plain click
+    /// (no drag).</summary>
+    private void ShowContextMenu()
+    {
+        BuildContextMenu();
+        if (_contextMenu == null) return;
+        try
+        {
+            _contextMenu.Show(Cursor.Position);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Thumb:ContextMenu] ⚠ Show failed: {ex.Message}");
+        }
+    }
+
+    // Session-only cycle-exclusion visual state (issue #16, drawing fixed in
+    // #27). The strikeout itself is rendered in the WPF TextOverlayWindow —
+    // drawing here in the WinForms client area is invisible because DWM
+    // composites the thumbnail surface over it.
     private bool _cycleExcluded;
     public void SetCycleExcluded(bool excluded)
     {
         if (_cycleExcluded == excluded) return;
         _cycleExcluded = excluded;
-        if (IsHandleCreated) Invalidate();
+        _textOverlay?.SetCycleExcluded(excluded);
     }
 
     // ── WPF-compat shims ────────────────────────────────────────────
@@ -290,6 +336,10 @@ public class ThumbnailWindow : Form
 
     private void OnRightButtonDown()
     {
+        // Record press time in all cases so a locked thumbnail's plain right-click
+        // still opens the label editor on release.
+        _rightDownAtUtc = DateTime.UtcNow;
+
         if (IsLocked)
         {
             Debug.WriteLine("[Thumb:Lock] drag blocked");
@@ -319,8 +369,12 @@ public class ThumbnailWindow : Form
         {
             if (!_dragMovedPastThreshold)
             {
+                // Plain right-click (press + release with no drag movement) —
+                // opens the thumbnail's right-click menu (v2.0.6). Drag intent
+                // is preserved: any ≥3px movement before release takes the drag
+                // path instead.
                 StopDrag();
-                SwitchToEveClient();
+                ShowContextMenu();
                 return;
             }
             StopDrag();
@@ -330,6 +384,12 @@ public class ThumbnailWindow : Form
         {
             StopDrag();
             SavePosition();
+        }
+        else if (IsLocked)
+        {
+            // Locked thumbnails never entered drag mode — plain right-click
+            // should still show the menu.
+            ShowContextMenu();
         }
     }
 
@@ -554,7 +614,17 @@ public class ThumbnailWindow : Form
     }
 
     public void UpdateAnnotation(string? text) => _textOverlay?.UpdateAnnotation(text);
+
+    /// <summary>Apply a per-character label color + size override (v2.0.6).
+    /// Empty colorHex / sizePt==0 revert to the global thumbnail text style.</summary>
+    public void SetLabelStyle(string? colorHex, int sizePt) =>
+        _textOverlay?.SetLabelStyle(colorHex, sizePt);
     public void UpdateSystemName(string? systemName) => _textOverlay?.UpdateSystemName(systemName);
+
+    /// <summary>Animate a system transition (issue #25): briefly show
+    /// "old → new" before settling to just the new system name.</summary>
+    public void AnimateSystemTransition(string from, string to, int durationMs = 3500) =>
+        _textOverlay?.AnimateSystemTransition(from, to, durationMs);
     public void UpdateSessionTimer(TimeSpan elapsed) => _textOverlay?.UpdateSessionTimer(elapsed);
     public void UpdateProcessStats(string? text) => _textOverlay?.UpdateProcessStats(text);
     public void UpdateFpsStats(double fps, bool visible) => _textOverlay?.UpdateFpsStats(fps, visible);
@@ -722,6 +792,11 @@ public class ThumbnailWindow : Form
     {
         _savedOpacity = opacity;
         if (!_isDwmHidden) ApplyVisualOpacity(_savedOpacity);
+        // Propagate to the WPF text overlay so character name, system, timer,
+        // CPU/RAM/VRAM and annotation fade together with the thumbnail. Previously
+        // the overlay stayed fully opaque while the frame faded, which looked
+        // broken at low opacity values.
+        _textOverlay?.SetWindowOpacity(opacity / 255.0);
     }
 
     public void SetTextOverlayVisible(bool visible) => _textOverlay?.SetTextOverlayVisible(visible);
@@ -925,15 +1000,9 @@ public class ThumbnailWindow : Form
             g.DrawRectangle(pen, 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
         }
 
-        // Cycle-excluded indicator (issue #16) — diagonal red line corner to corner.
-        if (_cycleExcluded)
-        {
-            using var pen = new Pen(Color.FromArgb(220, 220, 0, 0), Math.Max(3, _borderThickness + 1));
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.DrawLine(pen, 0, 0, ClientSize.Width, ClientSize.Height);
-            g.DrawLine(pen, ClientSize.Width, 0, 0, ClientSize.Height);
-            g.SmoothingMode = SmoothingMode.None;
-        }
+        // (Cycle-exclusion strikeout is now drawn in the WPF TextOverlayWindow —
+        //  see TextOverlayWindow.SetCycleExcluded. Drawing it here would be
+        //  hidden by DWM composition.)
 
         // Not-Logged-In overlay — only visually effective when DWM thumbnail is
         // at partial opacity (LWA_ALPHA fades the whole HWND including this paint,
@@ -976,6 +1045,9 @@ public class ThumbnailWindow : Form
         _underFirePulseTimer?.Stop();
         _underFirePulseTimer?.Dispose();
         _underFirePulseTimer = null;
+
+        _contextMenu?.Dispose();
+        _contextMenu = null;
 
         if (_thumbId != IntPtr.Zero)
         {

@@ -1,0 +1,50 @@
+<Window x:Class="EveMultiPreview.Views.LabelEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Edit Thumbnail Label"
+        Width="380" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{StaticResource BgBaseBrush}"
+        Foreground="{StaticResource TextPrimaryBrush}"
+        ShowInTaskbar="False">
+    <StackPanel Margin="14">
+        <TextBlock x:Name="HeaderText" FontSize="15" FontWeight="Bold"
+                   Foreground="{StaticResource AccentBrush}" Margin="0,0,0,10"/>
+
+        <TextBlock Text="Label text (e.g. Scout, DPS, Logi)" Margin="0,0,0,3"
+                   Foreground="{StaticResource TextSecondaryBrush}"/>
+        <TextBox x:Name="TxtLabel" FontSize="13" Margin="0,0,0,10"
+                 Background="{StaticResource BgPanelBrush}"
+                 Foreground="{StaticResource TextPrimaryBrush}"
+                 BorderBrush="{StaticResource BorderBrush}" Padding="4,2"/>
+
+        <TextBlock Text="Text color" Margin="0,0,0,3"
+                   Foreground="{StaticResource TextSecondaryBrush}"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBox x:Name="TxtColor" Width="120" FontSize="13" TextChanged="OnColorTextChanged"
+                     Background="{StaticResource BgPanelBrush}"
+                     Foreground="{StaticResource TextPrimaryBrush}"
+                     BorderBrush="{StaticResource BorderBrush}" Padding="4,2"/>
+            <Border x:Name="ColorSwatch" Width="24" Height="24" Margin="6,0,0,0"
+                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
+            <Button Content="🎨" Width="32" Height="26" Margin="6,0,0,0" Click="OnPickColor"/>
+            <Button Content="Default" Margin="6,0,0,0" Padding="8,2" Click="OnClearColor"
+                    ToolTip="Use the global thumbnail text color"/>
+        </StackPanel>
+
+        <TextBlock Text="Text size (pt) — leave blank or 0 to use default" Margin="0,0,0,3"
+                   Foreground="{StaticResource TextSecondaryBrush}"/>
+        <TextBox x:Name="TxtSize" Width="80" HorizontalAlignment="Left" FontSize="13" Margin="0,0,0,14"
+                 Background="{StaticResource BgPanelBrush}"
+                 Foreground="{StaticResource TextPrimaryBrush}"
+                 BorderBrush="{StaticResource BorderBrush}" Padding="4,2"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Remove Label" Padding="10,4" Click="OnRemove" Margin="0,0,8,0"
+                    ToolTip="Clear label text and any per-label style for this character"/>
+            <Button Content="Cancel" Padding="14,4" Click="OnCancel" Margin="0,0,8,0" IsCancel="True"/>
+            <Button Content="OK" Padding="14,4" Click="OnOk" IsDefault="True"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
