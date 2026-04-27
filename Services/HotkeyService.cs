@@ -70,6 +70,59 @@ public sealed class HotkeyService : IDisposable
         };
         _hwndSource = new HwndSource(parameters);
         _hwndSource.AddHook(WndProc);
+
+        RegisterActivationHotkey();
+    }
+
+    /// <summary>
+    /// Register the internal vk0xE8 hotkey used as the foreground-rights bridge.
+    ///
+    /// Why this exists: When a cycle hotkey is bound to a mouse button (XButton1/2,
+    /// MButton), it's caught via WH_MOUSE_LL and dispatched through BeginInvoke.
+    /// In that dispatch context our process has not "received the last input
+    /// event" (the hook suppressed it system-wide), so SetForegroundWindow
+    /// silently fails — the cycle's internal state advances and the highlight
+    /// border updates, but the EVE client never actually comes to front.
+    ///
+    /// AHK Main_Class works around this by SendInput-ing an unused virtual key
+    /// (vk0xE8) and RegisterHotKey-ing the same vk so the synthesized keystroke
+    /// fires WM_HOTKEY in our message thread. That dispatch arrives with
+    /// foreground-activation rights, which we use to call SetForegroundWindow
+    /// on the queued PendingActivateHwnd. We mirror that here.
+    /// </summary>
+    private void RegisterActivationHotkey()
+    {
+        if (_hwndSource == null) return;
+
+        int id = Register(0, User32.VK_ACTIVATION, () =>
+        {
+            var target = User32.PendingActivateHwnd;
+            if (target == IntPtr.Zero) return;
+            User32.PendingActivateHwnd = IntPtr.Zero;
+
+            try
+            {
+                if (User32.IsIconic(target))
+                    User32.ShowWindowAsync(target, User32.SW_RESTORE);
+                User32.SetForegroundWindow(target);
+                User32.SetWindowPos(target, User32.HWND_TOP, 0, 0, 0, 0,
+                    User32.SWP_NOMOVE | User32.SWP_NOSIZE);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Hotkey:Activation] ❌ vk0xE8 SetForegroundWindow failed: {ex.Message}");
+            }
+        });
+
+        if (id > 0)
+        {
+            _activationHotkeyIds.Add(id);
+            Debug.WriteLine($"[Hotkey:Activation] 🔑 vk0xE8 internal activation hotkey registered (id={id})");
+        }
+        else
+        {
+            Debug.WriteLine("[Hotkey:Activation] ⚠ Failed to register vk0xE8 — mouse-hook activations may not bring EVE clients to front when our process lacks foreground rights");
+        }
     }
 
     /// <summary>Register a global hotkey.</summary>
@@ -100,21 +153,41 @@ public sealed class HotkeyService : IDisposable
         _hotkeyActions.Remove(id);
     }
 
-    /// <summary>Unregister all hotkeys (including suspend).</summary>
+    /// <summary>Unregister all user-facing hotkeys (including suspend). The
+    /// internal vk0xE8 activation hotkey is preserved — it's an infrastructure
+    /// bridge for foreground rights, not a user binding, and must survive
+    /// settings reloads.</summary>
     public void UnregisterAll()
     {
         if (_hwndSource == null) return;
+        // Preserve cached actions for any IDs we keep so the dispatcher can
+        // still find them when WM_HOTKEY arrives.
+        var preserved = new Dictionary<int, Action>();
         foreach (var id in _hotkeyActions.Keys.ToList())
+        {
+            if (_activationHotkeyIds.Contains(id))
+            {
+                preserved[id] = _hotkeyActions[id];
+                continue;
+            }
             User32.UnregisterHotKey(_hwndSource.Handle, id);
+        }
         _hotkeyActions.Clear();
+        foreach (var kv in preserved) _hotkeyActions[kv.Key] = kv.Value;
+
         _repeatableIds.Clear();
+        // Don't clear _lastRepeatFireTick entries for preserved IDs (none use
+        // throttle, but conceptually correct); just leave it — stale entries
+        // for the unregistered IDs are harmless.
         _lastRepeatFireTick.Clear();
         _storedSpecs.Clear();
         _storedMouseBindings.Clear();
         RemoveMouseHook();
         _suspendHotkeyId = -1;
         _hotkeysActive = false;
-        _nextId = 1;
+        // NB: don't reset _nextId — the preserved activation-hotkey IDs would
+        // collide with the next Register() call. Letting it grow monotonically
+        // costs nothing (int32 has plenty of room) and keeps IDs unique.
     }
 
     /// <summary>Register all stored non-suspend hotkeys. Call when EVE windows appear.</summary>
@@ -668,18 +741,26 @@ public sealed class HotkeyService : IDisposable
             "XBUTTON1" => 0x05, // VK_XBUTTON1
             "XBUTTON2" => 0x06, // VK_XBUTTON2
             "MBUTTON" => 0x04,  // VK_MBUTTON
-            // OEM keys
-            "SEMICOLON" or "SC" => 0xBA,
-            "EQUALS" or "EQUAL" => 0xBB,
-            "COMMA" => 0xBC,
-            "MINUS" or "HYPHEN" => 0xBD,
-            "PERIOD" or "DOT" => 0xBE,
-            "SLASH" => 0xBF,
-            "BACKQUOTE" or "TILDE" or "`" or "~" => 0xC0,
-            "LBRACKET" or "[" => 0xDB,
-            "BACKSLASH" or "\\" => 0xDC,
-            "RBRACKET" or "]" => 0xDD,
-            "QUOTE" or "'" => 0xDE,
+            // OEM keys — accept the AHK long names, the bare punctuation
+            // glyph (so KeyToAhkName's round-trip succeeds), and the layout-
+            // agnostic Win32 "OemN" names (matches EVE-O-Preview's manual
+            // workaround for international keyboards: Swiss QWERTZ users can
+            // bind their § key by editing the config to "Oem2", since WPF
+            // captures the §-key as Key.OemQuestion → "/"). See issue #28.
+            "SEMICOLON" or "OEMSEMICOLON" or "OEM1" or ";" or "SC" => 0xBA,
+            "EQUALS" or "EQUAL" or "OEMPLUS" or "=" => 0xBB,
+            "COMMA" or "OEMCOMMA" or "," => 0xBC,
+            "MINUS" or "HYPHEN" or "OEMMINUS" or "-" => 0xBD,
+            "PERIOD" or "DOT" or "OEMPERIOD" or "." => 0xBE,
+            "SLASH" or "OEMQUESTION" or "OEM2" or "/" => 0xBF,
+            "BACKQUOTE" or "TILDE" or "OEMTILDE" or "OEM3" or "`" or "~" => 0xC0,
+            "LBRACKET" or "OEMOPENBRACKETS" or "OEM4" or "[" => 0xDB,
+            "BACKSLASH" or "OEMPIPE" or "OEM5" or "\\" => 0xDC,
+            "RBRACKET" or "OEMCLOSEBRACKETS" or "OEM6" or "]" => 0xDD,
+            "QUOTE" or "OEMQUOTES" or "OEM7" or "'" => 0xDE,
+            // VK_OEM_8 — country-specific (e.g. ° on Swiss French, Function
+            // key modifier on some laptops). No clean glyph alias.
+            "OEM8" => 0xDF,
             _ => 0
         };
     }
@@ -690,9 +771,14 @@ public sealed class HotkeyService : IDisposable
         if (msg == User32.WM_HOTKEY)
         {
             int id = wParam.ToInt32();
+            // The internal vk0xE8 activation hotkey is a foreground-rights bridge
+            // synthesized by our own ActivateWindow path. It must always fire
+            // regardless of EVE-only scope, the Settings-window block, or the
+            // repeat throttle — those guards exist to filter user-driven input.
+            bool isActivationHotkey = _activationHotkeyIds.Contains(id);
 
             // ── EVE Only scope check ──
-            if (_eveOnlyScope)
+            if (_eveOnlyScope && !isActivationHotkey)
             {
                 try
                 {
@@ -708,22 +794,26 @@ public sealed class HotkeyService : IDisposable
             }
 
             // M5: Exclude settings window from hotkey activation (matches AHK)
-            try
+            if (!isActivationHotkey)
             {
-                var fgHwnd2 = User32.GetForegroundWindow();
-                string? fgTitle = User32.GetWindowTitle(fgHwnd2);
-                if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                    && User32.IsAppProcessName(User32.GetProcessName(fgHwnd2)))
+                try
                 {
-                    Debug.WriteLine($"[Hotkey:Blocked] 🚫 Settings window active, blocked ID={id}");
-                    return IntPtr.Zero;
+                    var fgHwnd2 = User32.GetForegroundWindow();
+                    string? fgTitle = User32.GetWindowTitle(fgHwnd2);
+                    if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
+                        && User32.IsAppProcessName(User32.GetProcessName(fgHwnd2)))
+                    {
+                        Debug.WriteLine($"[Hotkey:Blocked] 🚫 Settings window active, blocked ID={id}");
+                        return IntPtr.Zero;
+                    }
                 }
+                catch { }
             }
-            catch { }
 
             // Throttle ALL hotkeys to prevent key-repeat flooding.
             // RegisterHotKey sends WM_HOTKEY on every OS key-repeat (~30ms).
             // AHK's Hotkey() hook fires once-per-press — this throttle emulates that.
+            if (!isActivationHotkey)
             {
                 long now = Environment.TickCount64;
                 if (_lastRepeatFireTick.TryGetValue(id, out long lastTick) &&
@@ -754,6 +844,16 @@ public sealed class HotkeyService : IDisposable
     public void Dispose()
     {
         UnregisterAll();
+        // UnregisterAll preserves activation hotkeys — release them on shutdown.
+        if (_hwndSource != null)
+        {
+            foreach (var id in _activationHotkeyIds)
+            {
+                User32.UnregisterHotKey(_hwndSource.Handle, id);
+                _hotkeyActions.Remove(id);
+            }
+            _activationHotkeyIds.Clear();
+        }
         RemoveMouseHook();
         _hwndSource?.RemoveHook(WndProc);
         _hwndSource?.Dispose();

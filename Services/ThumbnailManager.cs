@@ -52,6 +52,7 @@ public sealed class ThumbnailManager : IDisposable
     private IntPtr _lastActiveEveHwnd = IntPtr.Zero;
     private readonly System.Collections.Generic.HashSet<IntPtr> _iconicHwnds = new();
     private FrozenFrameService? _frozenFrames;
+    private WinEventHookService? _winEvents;
     private DispatcherTimer? _focusTimer;
     private DispatcherTimer? _sessionTimer;
     private DispatcherTimer? _statTimer;
@@ -142,18 +143,36 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>
     /// Start the focus tracker and session timer. Must be called on UI thread.
     /// </summary>
-    public void StartFocusTracking()
+    public void StartFocusTracking(WinEventHookService? winEvents = null)
     {
+        _winEvents = winEvents;
+
         // Frozen-frame snapshot service — captures a PrintWindow bitmap per EVE
-        // HWND once a second so a last-rendered frame is available when the
+        // HWND on a slow safety cadence and eagerly on MINIMIZESTART (via the
+        // win-event hook) so a last-rendered frame is available the instant the
         // source window becomes iconic.
         _frozenFrames = new FrozenFrameService();
-        _frozenFrames.Start(() => _thumbnails.Keys.ToArray());
+        _frozenFrames.Start(() => _thumbnails.Keys.ToArray(), _winEvents);
 
-        // Focus tracking — 100ms (closer to AHK's 50ms HandleMainTimerTick)
-        _focusTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
+        // Focus tracking — slow safety-net sweep at 250ms. Real-time response
+        // to focus changes / minimize transitions arrives via the win-event
+        // hooks below, which call UpdateActiveBorders on demand. The sweep
+        // still runs to handle transitions the OS doesn't event for (e.g.
+        // virtual-desktop changes) and to drive overlay position sync.
+        _focusTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         _focusTimer.Tick += (_, _) => UpdateActiveBorders();
         _focusTimer.Start();
+
+        // Event-driven wake-ups for sub-frame border response. The hook fires
+        // on the UI thread so we can call UpdateActiveBorders directly — but
+        // marshal via BeginInvoke to keep the hook callback short and let the
+        // OS dispatcher get back to delivering events.
+        if (_winEvents != null)
+        {
+            _winEvents.ForegroundChanged += OnForegroundOrMinimizeEvent;
+            _winEvents.WindowMinimizeStart += OnForegroundOrMinimizeEvent;
+            _winEvents.WindowMinimizeEnd += OnForegroundOrMinimizeEvent;
+        }
 
         // Session timer — 1 second intervals
         _sessionTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -889,6 +908,19 @@ public sealed class ThumbnailManager : IDisposable
     }
 
     // ── Active Border / Focus Tracking ───────────────────────────────
+
+    /// <summary>
+    /// WinEventHook callback bridge: the hook delivers foreground / minimize
+    /// transitions on the UI thread; we marshal a follow-up UpdateActiveBorders
+    /// at Background priority so the hook callback stays cheap and the heavy
+    /// sweep coalesces with whatever the dispatcher is already doing.
+    /// </summary>
+    private void OnForegroundOrMinimizeEvent(IntPtr _)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher == null) return;
+        dispatcher.BeginInvoke(new Action(UpdateActiveBorders), DispatcherPriority.Background);
+    }
 
     private void UpdateActiveBorders()
     {
@@ -2632,6 +2664,13 @@ public sealed class ThumbnailManager : IDisposable
         _sessionTimer?.Stop();
         _flashTimer?.Stop();
         _statTimer?.Stop();
+        if (_winEvents != null)
+        {
+            _winEvents.ForegroundChanged -= OnForegroundOrMinimizeEvent;
+            _winEvents.WindowMinimizeStart -= OnForegroundOrMinimizeEvent;
+            _winEvents.WindowMinimizeEnd -= OnForegroundOrMinimizeEvent;
+            _winEvents = null;
+        }
         _frozenFrames?.Dispose();
         _frozenFrames = null;
         _discovery.WindowFound -= OnWindowFound;

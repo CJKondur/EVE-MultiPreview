@@ -27,20 +27,84 @@ public sealed class FrozenFrameService : IDisposable
     private readonly object _inFlightLock = new();
     private readonly DispatcherTimer _captureTimer;
     private Func<IntPtr[]>? _hwndProvider;
+    private WinEventHookService? _winEvents;
     private bool _disposed;
 
     public FrozenFrameService()
     {
-        _captureTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        // Periodic capture is the safety net — the eager MINIMIZESTART hook is
+        // the primary trigger now, so we only need to refresh occasionally for
+        // windows that vanish without a minimize event (alt-tab to a covering
+        // fullscreen app, virtual-desktop switch, etc.). 5s keeps a recent-ish
+        // frame ready while keeping PrintWindow load low.
+        _captureTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
         _captureTimer.Tick += (_, _) => ScheduleCaptures();
     }
 
     /// <summary>Start polling. The provider returns the set of currently tracked
-    /// EVE HWNDs to snapshot — caller decides which windows are live.</summary>
-    public void Start(Func<IntPtr[]> hwndProvider)
+    /// EVE HWNDs to snapshot — caller decides which windows are live.
+    /// If <paramref name="winEvents"/> is provided, an eager pre-minimize capture
+    /// fires on EVENT_SYSTEM_MINIMIZESTART so the cached frame is up-to-the-instant
+    /// when the window goes iconic instead of up-to-5-seconds stale.</summary>
+    public void Start(Func<IntPtr[]> hwndProvider, WinEventHookService? winEvents = null)
     {
         _hwndProvider = hwndProvider;
+        _winEvents = winEvents;
+        if (_winEvents != null)
+            _winEvents.WindowMinimizeStart += OnMinimizeStart;
         _captureTimer.Start();
+    }
+
+    /// <summary>
+    /// Capture immediately for an HWND that is about to go iconic. Called
+    /// synchronously on the UI thread (the hook delivers there) — PrintWindow
+    /// is sync and takes ~50–100ms, which is invisible during a user-initiated
+    /// minimize click. Without this, dropping the periodic timer to 5s would
+    /// leave us showing a frame up to 5s old when the window minimizes.
+    /// </summary>
+    private void OnMinimizeStart(IntPtr hwnd)
+    {
+        if (_disposed || _hwndProvider == null) return;
+
+        // Only act on tracked EVE HWNDs.
+        bool tracked = false;
+        try
+        {
+            foreach (var h in _hwndProvider())
+            {
+                if (h == hwnd) { tracked = true; break; }
+            }
+        }
+        catch { return; }
+        if (!tracked) return;
+
+        // The system fires MINIMIZESTART before the window is actually iconic,
+        // so PrintWindow still returns the live D3D content here. Bail if a
+        // periodic capture is already in flight — avoids a double-capture.
+        lock (_inFlightLock)
+        {
+            if (!_inFlight.Add(hwnd)) return;
+        }
+
+        try
+        {
+            if (User32.IsIconic(hwnd)) return;
+            var bmp = CaptureWindow(hwnd);
+            if (bmp == null) return;
+            // Window may have completed minimization between PrintWindow start
+            // and now — discard a black frame in that case.
+            if (User32.IsIconic(hwnd)) { bmp.Dispose(); return; }
+            if (_lastFrames.TryGetValue(hwnd, out var old)) old.Dispose();
+            _lastFrames[hwnd] = bmp;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[FrozenFrame:MinimizeStart] ⚠ Failed for hwnd=0x{hwnd.ToInt64():X}: {ex.Message}");
+        }
+        finally
+        {
+            lock (_inFlightLock) _inFlight.Remove(hwnd);
+        }
     }
 
     /// <summary>Fetch the most recent cached frame for an HWND, or null if none
@@ -193,6 +257,8 @@ public sealed class FrozenFrameService : IDisposable
         if (_disposed) return;
         _disposed = true;
         _captureTimer.Stop();
+        if (_winEvents != null)
+            _winEvents.WindowMinimizeStart -= OnMinimizeStart;
         foreach (var (_, bmp) in _lastFrames) bmp.Dispose();
         _lastFrames.Clear();
     }

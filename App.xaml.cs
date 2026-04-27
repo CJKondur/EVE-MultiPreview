@@ -27,6 +27,7 @@ public partial class App : Application
     private NotifyIcon? _trayIcon;
     private SettingsService? _settings;
     private WindowDiscoveryService? _discovery;
+    private WinEventHookService? _winEvents;
     private ThumbnailManager? _thumbnailManager;
     private HotkeyService? _hotkeyService;
     private LogMonitorService? _logMonitor;
@@ -107,7 +108,12 @@ public partial class App : Application
             PerfLog($"Setup wizard: {startupSw.ElapsedMilliseconds}ms");
         }
 
-        // 2. Start window discovery
+        // 2. Window event hooks (single OS-level subscription shared across services)
+        //    and window discovery. Hooks must be installed on the UI thread —
+        //    OnStartup runs on it, so create here before anything backgrounds off.
+        _winEvents = new WinEventHookService();
+        _winEvents.Start();
+
         _discovery = new WindowDiscoveryService();
 
         // 3. Create thumbnail manager
@@ -128,8 +134,8 @@ public partial class App : Application
         PerfLog($"Core services created: {startupSw.ElapsedMilliseconds}ms");
 
         // ── START DISCOVERY IMMEDIATELY — thumbnails appear ASAP ──
-        _discovery.Start();
-        _thumbnailManager.StartFocusTracking();
+        _discovery.Start(_winEvents);
+        _thumbnailManager.StartFocusTracking(_winEvents);
         PerfLog($"Discovery + FocusTracking started: {startupSw.ElapsedMilliseconds}ms");
 
         // ── DEFER slower startup tasks so thumbnail BeginInvoke runs first ──
@@ -901,6 +907,7 @@ public partial class App : Application
         _cropManager?.Dispose();
         _thumbnailManager?.Dispose();
         _discovery?.Dispose();
+        _winEvents?.Dispose();
         _settings?.Dispose();
 
         if (_trayIcon != null)

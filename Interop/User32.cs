@@ -536,13 +536,34 @@ public static class User32
 
     /// <summary>
     /// Native Window Activation: Focuses the EVE Client locally.
-    /// Handled organically with Win32 HWND mapping.
+    ///
+    /// Activations dispatched from the WH_MOUSE_LL hook callback (XButton/MButton
+    /// cycle hotkeys) run in a context where our process holds no foreground-
+    /// activation rights — the suppressed click never reached any window, so
+    /// Windows considers no process to have "received the last input event".
+    /// SetForegroundWindow then silently fails and the EVE client never comes
+    /// to front, even though the cycle's internal state and highlight border
+    /// have already advanced.
+    ///
+    /// To recover, we mirror the AHK Main_Class trick: queue the target on
+    /// PendingActivateHwnd and synthesize a vk0xE8 keystroke. HotkeyService has
+    /// a global RegisterHotKey on that vk; the SendInput delivery fires WM_HOTKEY
+    /// in our message thread, which arrives with foreground-activation rights,
+    /// and the hotkey handler legally calls SetForegroundWindow on the queued
+    /// HWND. The direct SetForegroundWindow call below is kept as a fast path
+    /// for cases where we already have rights (WM_HOTKEY dispatch, real click,
+    /// our app being foreground); when it succeeds, the WM_HOTKEY-driven path
+    /// arrives moments later and is a no-op.
     /// </summary>
     public static void ActivateWindow(IntPtr hwnd)
     {
         if (GetForegroundWindow() == hwnd) return;
-        
+
         EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] Standard WIN32 Foreground Shift for HWND {hwnd}");
+
+        PendingActivateHwnd = hwnd;
+        InjectVirtualKey(VK_ACTIVATION);
+
         SetForegroundWindow(hwnd);
         SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
     }
@@ -764,4 +785,33 @@ public static class User32
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetKeyboardLayout(uint idThread);
+
+    // ── SetWinEventHook (foreground / minimize / window lifecycle) ────────
+    // Used by WinEventHookService to replace per-tick polling with event-driven
+    // wake-ups. WINEVENT_OUTOFCONTEXT requires the installing thread to have a
+    // message pump; the callback fires on that same thread (UI thread for WPF).
+
+    public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd,
+        int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    public static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc,
+        WinEventDelegate lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+    public const uint EVENT_OBJECT_CREATE       = 0x8000;
+    public const uint EVENT_OBJECT_DESTROY      = 0x8001;
+    public const uint EVENT_OBJECT_NAMECHANGE   = 0x800C;
+    public const uint EVENT_SYSTEM_FOREGROUND   = 0x0003;
+    public const uint EVENT_SYSTEM_MINIMIZESTART = 0x0016;
+    public const uint EVENT_SYSTEM_MINIMIZEEND   = 0x0017;
+
+    public const uint WINEVENT_OUTOFCONTEXT   = 0x0000;
+    public const uint WINEVENT_SKIPOWNPROCESS = 0x0002;
+
+    public const int OBJID_WINDOW = 0;
+    public const int CHILDID_SELF = 0;
 }
