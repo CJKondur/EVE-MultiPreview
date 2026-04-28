@@ -537,25 +537,31 @@ public static class User32
     /// <summary>
     /// Native Window Activation: Focuses the EVE Client locally.
     ///
-    /// Activations dispatched from the WH_MOUSE_LL hook callback (XButton/MButton
-    /// cycle hotkeys) run in a context where our process holds no foreground-
-    /// activation rights — the suppressed click never reached any window, so
-    /// Windows considers no process to have "received the last input event"
-    /// and SetForegroundWindow silently fails. Result: cycle highlight
-    /// advances but the EVE client never actually comes to front.
+    /// Four-tier dispatch, ordered by overhead:
     ///
-    /// Primary fix is AttachThreadInput: synchronously attach our calling
-    /// thread to the current foreground thread's input queue. While attached,
-    /// our thread shares input state with the foreground thread, which lets
-    /// SetForegroundWindow succeed regardless of how we got here. The detach
-    /// in finally always runs so we never leak the attachment.
+    ///   1. Direct SetForegroundWindow. Works when the calling context already
+    ///      has foreground-activation rights (WM_HOTKEY dispatch, recent click
+    ///      to our window, our app being foreground). Microseconds.
     ///
-    /// Fallback is the vk0xE8 synthetic-input path (HotkeyService registers
-    /// a global RegisterHotKey on vk0xE8; the SendInput delivery fires
-    /// WM_HOTKEY which the handler uses to retry SetForegroundWindow). This
-    /// only kicks in if AttachThreadInput didn't take — usually because the
-    /// foreground thread is in a journal-hook state, on a different desktop,
-    /// or the foreground HWND is null.
+    ///   2. Phantom keystroke + direct SetForegroundWindow. A single
+    ///      keybd_event(vk0xE8) updates Windows' "last input received" state
+    ///      so SetForegroundWindow's per-process rights check passes on the
+    ///      retry. Two cheap syscalls. Catches the mouse-hook-dispatched
+    ///      activation case without the thread-sync cost of AttachThreadInput.
+    ///      vk0xE8 is unassigned, so no app sees a meaningful keystroke; the
+    ///      WM_HOTKEY that fires from our own RegisterHotKey on it is a no-op
+    ///      because PendingActivateHwnd isn't set in this tier.
+    ///
+    ///   3. AttachThreadInput. Synchronously attaches our calling thread to
+    ///      the current foreground thread's input queue, sharing state and
+    ///      granting activation rights. Reliable but slow when the foreground
+    ///      thread is busy (e.g. EVE rendering DirectX) — the syscall waits
+    ///      on the foreground thread's response.
+    ///
+    ///   4. vk0xE8 RegisterHotKey bridge. Sets PendingActivateHwnd, SendInputs
+    ///      vk0xE8; the WM_HOTKEY handler retries SetForegroundWindow from a
+    ///      dispatch context with rights. Asynchronous — the activation lands
+    ///      a few ms later. Last resort if all the synchronous tiers failed.
     /// </summary>
     public static void ActivateWindow(IntPtr hwnd)
     {
@@ -566,6 +572,24 @@ public static class User32
         if (IsIconic(hwnd))
             ShowWindowAsync(hwnd, SW_RESTORE);
 
+        // Tier 1 — direct.
+        SetForegroundWindow(hwnd);
+        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        if (GetForegroundWindow() == hwnd) return;
+
+        // Tier 2 — phantom keystroke. Single synthetic key-down/up of an
+        // unassigned virtual-key updates the OS's "last input event" tracking
+        // for our process, granting SetForegroundWindow rights on the retry.
+        // Much cheaper than AttachThreadInput: no thread-sync, no foreground-
+        // thread waiting. Critical when foreground is a busy DirectX app like
+        // EVE itself (e.g. cycling between EVE clients on consecutive presses).
+        keybd_event((byte)VK_ACTIVATION, 0, 0, 0);
+        keybd_event((byte)VK_ACTIVATION, 0, KEYEVENTF_KEYUP, 0);
+        SetForegroundWindow(hwnd);
+        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        if (GetForegroundWindow() == hwnd) return;
+
+        // Tier 3 — AttachThreadInput borrow.
         var fgHwnd = GetForegroundWindow();
         uint fgThread = (fgHwnd != IntPtr.Zero) ? GetWindowThreadProcessId(fgHwnd, out _) : 0;
         uint ourThread = GetCurrentThreadId();
@@ -586,16 +610,12 @@ public static class User32
                 AttachThreadInput(ourThread, fgThread, false);
         }
 
-        // Fallback: if AttachThreadInput didn't grant the rights (rare),
-        // kick the asynchronous vk0xE8 synthetic-input path. HotkeyService's
-        // activation hotkey handler fires on the resulting WM_HOTKEY and
-        // retries SetForegroundWindow from a context with foreground rights.
-        if (GetForegroundWindow() != hwnd)
-        {
-            EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] AttachThreadInput path didn't take, kicking vk0xE8 fallback for HWND {hwnd}");
-            PendingActivateHwnd = hwnd;
-            InjectVirtualKey(VK_ACTIVATION);
-        }
+        if (GetForegroundWindow() == hwnd) return;
+
+        // Tier 4 — async vk0xE8 RegisterHotKey bridge.
+        EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] All synchronous tiers failed, kicking async vk0xE8 fallback for HWND {hwnd}");
+        PendingActivateHwnd = hwnd;
+        InjectVirtualKey(VK_ACTIVATION);
     }
     
     [DllImport("kernel32.dll")]

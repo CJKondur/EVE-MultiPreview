@@ -861,18 +861,16 @@ public sealed class HotkeyService : IDisposable
                 _lastRepeatFireTick[id] = now;
             }
 
-            // Queue-drainage gate: if the OS auto-repeat queue piled up while
-            // the user held the key, queued WM_HOTKEY events can outlive the
-            // physical release. Skip any whose trigger key isn't actually held
-            // anymore — that drains the backlog harmlessly without spending
-            // extra cycles on stale events. The activation hotkey is always
-            // synthesised by us (vk0xE8 isn't a key the user presses), so it
-            // bypasses this check.
-            if (!isActivationHotkey && _hotkeyVks.TryGetValue(id, out uint triggerVk)
-                && !User32.IsKeyDown((int)triggerVk))
-            {
-                return IntPtr.Zero;
-            }
+            // (Previously had an IsKeyDown gate here to drop queued WM_HOTKEY
+            // events whose trigger key was already physically released, as a
+            // workaround for queue buildup when actions ran slower than the
+            // OS post rate. That broke software-emulated key pulses — mouse
+            // drivers that send F6 down/up rapidly would have IsKeyDown
+            // return false during the "up" portion of each pulse, dropping
+            // legitimate cycles. With the User32.ActivateWindow fast path
+            // restored to 2.0.7 timing, queue buildup is no longer a real
+            // concern and the gate is removed. _hotkeyVks is kept for
+            // potential future use.)
 
             Debug.WriteLine($"[Hotkey:Fired] ⚡ WM_HOTKEY ID={id}");
             if (_hotkeyActions.TryGetValue(id, out var action))
@@ -1119,15 +1117,26 @@ public sealed class HotkeyService : IDisposable
         // Snapshot the user's current cycle-delay setting at arm time so changes
         // to Settings during a long hold don't retroactively jump the cadence.
         int delayMs = CycleDelayMs;
+
+        // Hold-detection threshold: how long the button has to be down before
+        // we treat the press as a deliberate "hold to cycle" rather than a
+        // single tap. Without this, a tap that runs slightly longer than
+        // CycleDelayMs (typical mouse taps can be 100–200 ms) would fire a
+        // second cycle from the first auto-repeat tick before WM_*BUTTONUP
+        // arrives. 250 ms matches the default Windows keyboard repeat delay
+        // and is the rough threshold humans use to distinguish tap from hold.
+        const int HoldDetectMs = 250;
+
         var timer = new System.Windows.Threading.DispatcherTimer
         {
-            Interval = TimeSpan.FromMilliseconds(delayMs)
+            Interval = TimeSpan.FromMilliseconds(HoldDetectMs)
         };
         _mouseRepeatTimer = timer;
 
         long startTicks = Environment.TickCount64;
         const long MaxRepeatDurationMs = 60_000;
 
+        bool firstTick = true;
         timer.Tick += (_, _) =>
         {
             // Safety cap: if 60 s has passed without a WM_*BUTTONUP, something
@@ -1138,6 +1147,14 @@ public sealed class HotkeyService : IDisposable
                 Debug.WriteLine($"[Hotkey:Mouse] ⚠ Repeat safety-cap stop after {MaxRepeatDurationMs}ms ({buttonName})");
                 StopMouseRepeat();
                 return;
+            }
+
+            // After the hold-detect threshold, switch to steady-state cycle
+            // cadence at the user's CycleDelayMs rate.
+            if (firstTick)
+            {
+                firstTick = false;
+                timer.Interval = TimeSpan.FromMilliseconds(delayMs);
             }
 
             var b = _mouseRepeatBinding;
