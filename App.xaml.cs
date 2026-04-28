@@ -770,7 +770,26 @@ public partial class App : Application
         // with the saved Width/Height already applied. Setting WindowState after
         // Show() can race the HWND map and corrupt the restore rect.
         if (startMinimized)
+        {
             _settingsWindow.WindowState = WindowState.Minimized;
+        }
+        else
+        {
+            // Auto-maximize when the saved size doesn't fit the work area —
+            // mostly catches 1080p users on the default 1080×1080 size, where
+            // the bottom of the panel would be hidden under the taskbar. Once
+            // the user resizes to something that fits, the saved smaller size
+            // is respected on subsequent opens. WorkArea is in DIPs, matching
+            // WPF's Width/Height semantics.
+            var workArea = SystemParameters.WorkArea;
+            int savedW = _settings!.Settings.SettingsWindowWidth;
+            int savedH = _settings!.Settings.SettingsWindowHeight;
+            if (savedH >= workArea.Height || savedW >= workArea.Width)
+            {
+                _settingsWindow.WindowState = WindowState.Maximized;
+                SettingsDiag($"Auto-maximized: saved {savedW}x{savedH} doesn't fit work area {workArea.Width}x{workArea.Height}");
+            }
+        }
         
         Action applyLiveSettings = () =>
         {

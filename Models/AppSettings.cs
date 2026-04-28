@@ -26,6 +26,12 @@ public class AppSettings
     // ── Behavior ────────────────────────────────────────────────────
     public bool HideActiveThumbnail { get; set; } = false;
     public int MinimizeDelay { get; set; } = 100;
+
+    /// <summary>Minimum interval, in milliseconds, between successive cycle-hotkey
+    /// fires while a cycle key/button is held. Acts as the keyboard hotkey
+    /// repeat throttle, the mouse-button auto-repeat interval, and the floor
+    /// inside CycleGroup. Lower = faster cycling, higher = slower. Default 100ms.</summary>
+    public int CycleDelayMs { get; set; } = 100;
     public bool EnableKeyBlockGuard { get; set; } = false;
     public bool GlobalHotkeys { get; set; } = true;
     public string SuspendHotkey { get; set; } = "";

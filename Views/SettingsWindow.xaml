@@ -319,6 +319,17 @@
                             <Label Content="ms"/>
                         </StackPanel>
                     </GroupBox>
+                    <GroupBox Header="Cycling">
+                        <StackPanel>
+                            <TextBlock Text="Time between cycles when a cycle hotkey is held down. Lower is faster, higher is slower. Default is 100ms."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Cycle delay:" Width="120"/>
+                                <TextBox x:Name="TxtCycleDelay" Width="60" TextChanged="OnGeneralChanged"/>
+                                <Label Content="ms"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
                     <GroupBox Header="UI Settings">
                         <StackPanel>
                             <TextBlock Text="Adjust the overall scale of the settings window UI." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6"/>

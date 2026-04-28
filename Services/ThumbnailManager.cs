@@ -1926,8 +1926,8 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (members == null || members.Count == 0) return;
 
-        // 100ms cycle throttle to prevent skipped clients when hotkey is held
-        if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < 100) return;
+        // User-configurable cycle throttle (default 100ms) to prevent skipped clients when hotkey is held.
+        if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < _settings.Settings.CycleDelayMs) return;
         _lastCycleTime = DateTime.UtcNow;
 
         void LogCycle(string msg)
@@ -2041,7 +2041,7 @@ public sealed class ThumbnailManager : IDisposable
     /// (issue #8). Shift-excluded characters (#16) are always skipped.</summary>
     public void CycleAll(bool forward)
     {
-        if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < 100) return;
+        if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < _settings.Settings.CycleDelayMs) return;
 
         bool includeLogins = _settings.Settings.IncludeLoginScreensInCycle;
         var hwnds = _thumbnails

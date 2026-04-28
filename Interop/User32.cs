@@ -540,32 +540,62 @@ public static class User32
     /// Activations dispatched from the WH_MOUSE_LL hook callback (XButton/MButton
     /// cycle hotkeys) run in a context where our process holds no foreground-
     /// activation rights — the suppressed click never reached any window, so
-    /// Windows considers no process to have "received the last input event".
-    /// SetForegroundWindow then silently fails and the EVE client never comes
-    /// to front, even though the cycle's internal state and highlight border
-    /// have already advanced.
+    /// Windows considers no process to have "received the last input event"
+    /// and SetForegroundWindow silently fails. Result: cycle highlight
+    /// advances but the EVE client never actually comes to front.
     ///
-    /// To recover, we mirror the AHK Main_Class trick: queue the target on
-    /// PendingActivateHwnd and synthesize a vk0xE8 keystroke. HotkeyService has
-    /// a global RegisterHotKey on that vk; the SendInput delivery fires WM_HOTKEY
-    /// in our message thread, which arrives with foreground-activation rights,
-    /// and the hotkey handler legally calls SetForegroundWindow on the queued
-    /// HWND. The direct SetForegroundWindow call below is kept as a fast path
-    /// for cases where we already have rights (WM_HOTKEY dispatch, real click,
-    /// our app being foreground); when it succeeds, the WM_HOTKEY-driven path
-    /// arrives moments later and is a no-op.
+    /// Primary fix is AttachThreadInput: synchronously attach our calling
+    /// thread to the current foreground thread's input queue. While attached,
+    /// our thread shares input state with the foreground thread, which lets
+    /// SetForegroundWindow succeed regardless of how we got here. The detach
+    /// in finally always runs so we never leak the attachment.
+    ///
+    /// Fallback is the vk0xE8 synthetic-input path (HotkeyService registers
+    /// a global RegisterHotKey on vk0xE8; the SendInput delivery fires
+    /// WM_HOTKEY which the handler uses to retry SetForegroundWindow). This
+    /// only kicks in if AttachThreadInput didn't take — usually because the
+    /// foreground thread is in a journal-hook state, on a different desktop,
+    /// or the foreground HWND is null.
     /// </summary>
     public static void ActivateWindow(IntPtr hwnd)
     {
         if (GetForegroundWindow() == hwnd) return;
 
-        EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] Standard WIN32 Foreground Shift for HWND {hwnd}");
+        EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] Foreground shift requested for HWND {hwnd}");
 
-        PendingActivateHwnd = hwnd;
-        InjectVirtualKey(VK_ACTIVATION);
+        if (IsIconic(hwnd))
+            ShowWindowAsync(hwnd, SW_RESTORE);
 
-        SetForegroundWindow(hwnd);
-        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        var fgHwnd = GetForegroundWindow();
+        uint fgThread = (fgHwnd != IntPtr.Zero) ? GetWindowThreadProcessId(fgHwnd, out _) : 0;
+        uint ourThread = GetCurrentThreadId();
+
+        bool attached = false;
+        try
+        {
+            if (fgThread != 0 && fgThread != ourThread)
+                attached = AttachThreadInput(ourThread, fgThread, true);
+
+            BringWindowToTop(hwnd);
+            SetForegroundWindow(hwnd);
+            SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        }
+        finally
+        {
+            if (attached)
+                AttachThreadInput(ourThread, fgThread, false);
+        }
+
+        // Fallback: if AttachThreadInput didn't grant the rights (rare),
+        // kick the asynchronous vk0xE8 synthetic-input path. HotkeyService's
+        // activation hotkey handler fires on the resulting WM_HOTKEY and
+        // retries SetForegroundWindow from a context with foreground rights.
+        if (GetForegroundWindow() != hwnd)
+        {
+            EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] AttachThreadInput path didn't take, kicking vk0xE8 fallback for HWND {hwnd}");
+            PendingActivateHwnd = hwnd;
+            InjectVirtualKey(VK_ACTIVATION);
+        }
     }
     
     [DllImport("kernel32.dll")]
@@ -735,9 +765,13 @@ public static class User32
     public const int WM_SYSKEYUP = 0x0105;
 
     public const int WM_LBUTTONDOWN = 0x0201;
+    public const int WM_LBUTTONUP   = 0x0202;
     public const int WM_RBUTTONDOWN = 0x0204;
+    public const int WM_RBUTTONUP   = 0x0205;
     public const int WM_MBUTTONDOWN = 0x0207;
+    public const int WM_MBUTTONUP   = 0x0208;
     public const int WM_XBUTTONDOWN = 0x020B;
+    public const int WM_XBUTTONUP   = 0x020C;
     public const int XBUTTON1 = 0x0001;
     public const int XBUTTON2 = 0x0002;
 

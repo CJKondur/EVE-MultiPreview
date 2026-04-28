@@ -21,6 +21,12 @@ public sealed class HotkeyService : IDisposable
 {
     private HwndSource? _hwndSource;
     private readonly Dictionary<int, Action> _hotkeyActions = new();
+    // Parallel to _hotkeyActions — the trigger virtual-key for each registered
+    // hotkey ID. Used by WndProc to discard queued WM_HOTKEY events whose
+    // trigger key has already been physically released. Without this, the OS
+    // auto-repeat queue can pile up faster than action processing drains it,
+    // and cycling continues for seconds after the user lets go.
+    private readonly Dictionary<int, uint> _hotkeyVks = new();
     private int _nextId = 1;
     private bool _suspended = false;
     private bool _eveOnlyScope = false; // When true, hotkeys only fire when EVE is foreground
@@ -43,7 +49,9 @@ public sealed class HotkeyService : IDisposable
     // Throttle ALL hotkeys: minimum interval between successive fires of the same ID.
     // RegisterHotKey floods WM_HOTKEY on OS key-repeat (~30ms). AHK's Hotkey() hook
     // naturally fires once-per-press; this throttle emulates that behavior.
-    private const int RepeatThrottleMs = 100;
+    // The actual delay comes from the user-configurable AppSettings.CycleDelayMs
+    // (default 100); fallback to 100 if settings haven't been wired yet.
+    private int CycleDelayMs => _appSettings?.CycleDelayMs ?? 100;
     private readonly Dictionary<int, long> _lastRepeatFireTick = new();
 
     // ── Mouse button hotkey support (WH_MOUSE_LL) ──
@@ -51,7 +59,19 @@ public sealed class HotkeyService : IDisposable
     private User32.LowLevelMouseProc? _mouseHookProc; // prevent GC
     private readonly List<MouseButtonBinding> _mouseBindings = new();
     private readonly List<MouseButtonBinding> _storedMouseBindings = new(); // persist across suspend
-    private record MouseButtonBinding(uint Modifiers, string ButtonName, Action Action);
+    private record MouseButtonBinding(uint Modifiers, string ButtonName, Action Action, bool AllowRepeat);
+
+    // Mouse buttons don't have OS-level auto-repeat the way keyboard keys do —
+    // holding XButton2 only fires a single WM_XBUTTONDOWN. For repeatable
+    // bindings (cycle hotkeys) we run our own repeat: when the hook sees a
+    // matching DOWN event we start a DispatcherTimer that re-fires the action
+    // until the corresponding UP event arrives.
+    // Both the initial repeat delay and the steady-state interval read from
+    // the user-configurable CycleDelayMs setting at the moment the timer arms,
+    // so changes via Settings take effect on the next button press.
+    private System.Windows.Threading.DispatcherTimer? _mouseRepeatTimer;
+    private string? _mouseRepeatButton;            // "XBUTTON1" / "XBUTTON2" / "MBUTTON" while repeating, else null
+    private MouseButtonBinding? _mouseRepeatBinding;
 
     // Events for external wiring
     public event Action? SuspendToggled;
@@ -136,6 +156,7 @@ public sealed class HotkeyService : IDisposable
         if (User32.RegisterHotKey(_hwndSource.Handle, id, finalMods, key))
         {
             _hotkeyActions[id] = action;
+            _hotkeyVks[id] = key;
             Debug.WriteLine($"[Hotkey:Register] ✅ Registered ID={id}, Mod=0x{modifiers:X}, Key=0x{key:X}, repeat={allowRepeat}");
             return id;
         }
@@ -151,6 +172,7 @@ public sealed class HotkeyService : IDisposable
         if (_hwndSource == null) return;
         User32.UnregisterHotKey(_hwndSource.Handle, id);
         _hotkeyActions.Remove(id);
+        _hotkeyVks.Remove(id);
     }
 
     /// <summary>Unregister all user-facing hotkeys (including suspend). The
@@ -160,20 +182,24 @@ public sealed class HotkeyService : IDisposable
     public void UnregisterAll()
     {
         if (_hwndSource == null) return;
-        // Preserve cached actions for any IDs we keep so the dispatcher can
+        // Preserve cached actions + VKs for any IDs we keep so the dispatcher can
         // still find them when WM_HOTKEY arrives.
-        var preserved = new Dictionary<int, Action>();
+        var preservedActions = new Dictionary<int, Action>();
+        var preservedVks = new Dictionary<int, uint>();
         foreach (var id in _hotkeyActions.Keys.ToList())
         {
             if (_activationHotkeyIds.Contains(id))
             {
-                preserved[id] = _hotkeyActions[id];
+                preservedActions[id] = _hotkeyActions[id];
+                if (_hotkeyVks.TryGetValue(id, out var vk)) preservedVks[id] = vk;
                 continue;
             }
             User32.UnregisterHotKey(_hwndSource.Handle, id);
         }
         _hotkeyActions.Clear();
-        foreach (var kv in preserved) _hotkeyActions[kv.Key] = kv.Value;
+        _hotkeyVks.Clear();
+        foreach (var kv in preservedActions) _hotkeyActions[kv.Key] = kv.Value;
+        foreach (var kv in preservedVks) _hotkeyVks[kv.Key] = kv.Value;
 
         _repeatableIds.Clear();
         // Don't clear _lastRepeatFireTick entries for preserved IDs (none use
@@ -223,6 +249,7 @@ public sealed class HotkeyService : IDisposable
             if (User32.RegisterHotKey(_hwndSource.Handle, id, finalMods, spec.VirtualKey))
             {
                 _hotkeyActions[id] = spec.Action;
+                _hotkeyVks[id] = spec.VirtualKey;
                 if (spec.AllowRepeat)
                     _repeatableIds.Add(id);
                 ok++;
@@ -243,8 +270,10 @@ public sealed class HotkeyService : IDisposable
         foreach (var id in _hotkeyActions.Keys.ToList())
         {
             if (id == _suspendHotkeyId) continue;
+            if (_activationHotkeyIds.Contains(id)) continue;
             User32.UnregisterHotKey(_hwndSource.Handle, id);
             _hotkeyActions.Remove(id);
+            _hotkeyVks.Remove(id);
         }
         _repeatableIds.Clear();
         _lastRepeatFireTick.Clear();
@@ -259,14 +288,17 @@ public sealed class HotkeyService : IDisposable
 
         if (_suspended)
         {
-            // Suspend: unregister all keyboard hotkeys EXCEPT the suspend toggle itself
+            // Suspend: unregister all keyboard hotkeys EXCEPT the suspend toggle
+            // and the internal vk0xE8 activation hotkey.
             if (_hwndSource != null)
             {
                 foreach (var id in _hotkeyActions.Keys.ToList())
                 {
                     if (id == _suspendHotkeyId) continue;
+                    if (_activationHotkeyIds.Contains(id)) continue;
                     User32.UnregisterHotKey(_hwndSource.Handle, id);
                     _hotkeyActions.Remove(id);
+                    _hotkeyVks.Remove(id);
                 }
             }
             _hotkeysActive = false;
@@ -527,7 +559,9 @@ public sealed class HotkeyService : IDisposable
         var (mods, keyPart) = ExtractModsAndKey(ahkKeyString);
         if (IsMouseButton(keyPart))
         {
-            AddMouseBinding(mods, keyPart.ToUpperInvariant(), action);
+            // RegisterAhkHotkey is used for one-shot bindings (Suspend toggle).
+            // No auto-repeat — single-fire only.
+            AddMouseBinding(mods, keyPart.ToUpperInvariant(), action, allowRepeat: false);
             Debug.WriteLine($"[Hotkey:Mouse] 🖱️ Registered mouse binding: {ahkKeyString}");
             return -2; // Special ID for mouse bindings
         }
@@ -548,7 +582,8 @@ public sealed class HotkeyService : IDisposable
         var (mods, keyPart) = ExtractModsAndKey(ahkKeyString);
         if (IsMouseButton(keyPart))
         {
-            AddMouseBinding(mods, keyPart.ToUpperInvariant(), action);
+            // Single-fire binding — character activation, toggle, etc. No repeat.
+            AddMouseBinding(mods, keyPart.ToUpperInvariant(), action, allowRepeat: false);
             Debug.WriteLine($"[Hotkey:Mouse] 🖱️ Stored mouse binding: {ahkKeyString}");
             return;
         }
@@ -578,7 +613,9 @@ public sealed class HotkeyService : IDisposable
         var (mods, keyPart) = ExtractModsAndKey(ahkKeyString);
         if (IsMouseButton(keyPart))
         {
-            AddMouseBinding(mods, keyPart.ToUpperInvariant(), action);
+            // Repeatable binding — cycle hotkey. Held button auto-repeats via
+            // the mouse-hook timer (mouse buttons have no OS-level repeat).
+            AddMouseBinding(mods, keyPart.ToUpperInvariant(), action, allowRepeat: true);
             Debug.WriteLine($"[Hotkey:Mouse] 🖱️ Stored repeatable mouse binding: {ahkKeyString}");
             return;
         }
@@ -817,11 +854,24 @@ public sealed class HotkeyService : IDisposable
             {
                 long now = Environment.TickCount64;
                 if (_lastRepeatFireTick.TryGetValue(id, out long lastTick) &&
-                    (now - lastTick) < RepeatThrottleMs)
+                    (now - lastTick) < CycleDelayMs)
                 {
                     return IntPtr.Zero; // Drop this repeat — too soon
                 }
                 _lastRepeatFireTick[id] = now;
+            }
+
+            // Queue-drainage gate: if the OS auto-repeat queue piled up while
+            // the user held the key, queued WM_HOTKEY events can outlive the
+            // physical release. Skip any whose trigger key isn't actually held
+            // anymore — that drains the backlog harmlessly without spending
+            // extra cycles on stale events. The activation hotkey is always
+            // synthesised by us (vk0xE8 isn't a key the user presses), so it
+            // bypasses this check.
+            if (!isActivationHotkey && _hotkeyVks.TryGetValue(id, out uint triggerVk)
+                && !User32.IsKeyDown((int)triggerVk))
+            {
+                return IntPtr.Zero;
             }
 
             Debug.WriteLine($"[Hotkey:Fired] ⚡ WM_HOTKEY ID={id}");
@@ -851,6 +901,7 @@ public sealed class HotkeyService : IDisposable
             {
                 User32.UnregisterHotKey(_hwndSource.Handle, id);
                 _hotkeyActions.Remove(id);
+                _hotkeyVks.Remove(id);
             }
             _activationHotkeyIds.Clear();
         }
@@ -903,7 +954,7 @@ public sealed class HotkeyService : IDisposable
         return (mods, keyPart);
     }
 
-    private void AddMouseBinding(uint mods, string buttonName, Action action)
+    private void AddMouseBinding(uint mods, string buttonName, Action action, bool allowRepeat)
     {
         // Normalize aliases
         buttonName = buttonName switch
@@ -914,7 +965,7 @@ public sealed class HotkeyService : IDisposable
             _ => buttonName
         };
 
-        var binding = new MouseButtonBinding(mods, buttonName, action);
+        var binding = new MouseButtonBinding(mods, buttonName, action, allowRepeat);
         _mouseBindings.Add(binding);
         _storedMouseBindings.Add(binding); // keep for suspend/resume
         EnsureMouseHook();
@@ -945,6 +996,7 @@ public sealed class HotkeyService : IDisposable
 
     private void RemoveMouseHook()
     {
+        StopMouseRepeat();
         if (_mouseHookHandle != IntPtr.Zero)
         {
             User32.UnhookWindowsHookEx(_mouseHookHandle);
@@ -960,67 +1012,151 @@ public sealed class HotkeyService : IDisposable
         {
             int msg = wParam.ToInt32();
             string? buttonName = null;
+            bool isDown = false, isUp = false;
 
-            if (msg == User32.WM_MBUTTONDOWN)
-            {
-                buttonName = "MBUTTON";
-            }
-            else if (msg == User32.WM_XBUTTONDOWN)
+            if (msg == User32.WM_MBUTTONDOWN) { buttonName = "MBUTTON"; isDown = true; }
+            else if (msg == User32.WM_MBUTTONUP) { buttonName = "MBUTTON"; isUp = true; }
+            else if (msg == User32.WM_XBUTTONDOWN || msg == User32.WM_XBUTTONUP)
             {
                 var hookStruct = Marshal.PtrToStructure<User32.MSLLHOOKSTRUCT>(lParam);
                 int xButton = User32.HIWORD(hookStruct.mouseData);
                 buttonName = xButton == User32.XBUTTON1 ? "XBUTTON1" :
                              xButton == User32.XBUTTON2 ? "XBUTTON2" : null;
+                isDown = msg == User32.WM_XBUTTONDOWN;
+                isUp   = msg == User32.WM_XBUTTONUP;
             }
 
             if (buttonName != null)
             {
-                // Check modifiers
-                uint currentMods = 0;
-                if (User32.IsKeyDown(0x11)) currentMods |= User32.MOD_CONTROL; // VK_CONTROL
-                if (User32.IsKeyDown(0x12)) currentMods |= User32.MOD_ALT;     // VK_MENU
-                if (User32.IsKeyDown(0x10)) currentMods |= User32.MOD_SHIFT;   // VK_SHIFT
-                if (User32.IsKeyDown(0x5B) || User32.IsKeyDown(0x5C)) currentMods |= User32.MOD_WIN;
+                bool hasAnyBinding = _mouseBindings.Any(b => b.ButtonName == buttonName);
 
-                var bestBinding = _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == currentMods)
-                               ?? _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == 0);
-
-                if (bestBinding != null)
+                // UP: stop any in-flight repeat for this button. Suppress the UP
+                // if we have a binding for this button so the focused app sees
+                // matched DOWN/UP (we suppressed the DOWN earlier).
+                if (isUp)
                 {
-                    var binding = bestBinding;
-                    // Mouse hooks ALWAYS use EVE-only scope to prevent stealing
-                    // XButton/MButton from other applications (even when GlobalHotkeys is on)
-                    try
+                    if (_mouseRepeatButton == buttonName)
+                        StopMouseRepeat();
+                    return hasAnyBinding
+                        ? (IntPtr)1
+                        : User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+                }
+
+                if (isDown)
+                {
+                    // Check modifiers
+                    uint currentMods = 0;
+                    if (User32.IsKeyDown(0x11)) currentMods |= User32.MOD_CONTROL; // VK_CONTROL
+                    if (User32.IsKeyDown(0x12)) currentMods |= User32.MOD_ALT;     // VK_MENU
+                    if (User32.IsKeyDown(0x10)) currentMods |= User32.MOD_SHIFT;   // VK_SHIFT
+                    if (User32.IsKeyDown(0x5B) || User32.IsKeyDown(0x5C)) currentMods |= User32.MOD_WIN;
+
+                    var bestBinding = _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == currentMods)
+                                   ?? _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == 0);
+
+                    if (bestBinding != null)
                     {
-                        var fgHwnd = User32.GetForegroundWindow();
-                        string? fgProc = User32.GetProcessName(fgHwnd);
-                        if (!User32.IsEveOrAppProcess(fgProc)) return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+                        var binding = bestBinding;
+                        // Mouse keybinds fire regardless of which app is foreground —
+                        // the user explicitly bound this button for cycling EVE clients,
+                        // so it should pull EVE forward whether they're in EVE, in their
+                        // browser, on the desktop, or anywhere else. Activation rights
+                        // for the cross-app foreground shift are handled by
+                        // User32.ActivateWindow's AttachThreadInput path.
+
+                        // Settings window block — keep this guard. While the user is
+                        // editing bindings in Settings, no cycle should fire and steal
+                        // focus mid-capture.
+                        try
+                        {
+                            var fgHwnd = User32.GetForegroundWindow();
+                            string? fgTitle = User32.GetWindowTitle(fgHwnd);
+                            if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
+                                && User32.IsAppProcessName(User32.GetProcessName(fgHwnd))) return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+                        }
+                        catch { }
+
+                        Debug.WriteLine($"[Hotkey:Mouse] ⚡ Fired: {buttonName} (mods=0x{currentMods:X}) repeat={binding.AllowRepeat}");
+                        System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
+                        {
+                            try { binding.Action.Invoke(); }
+                            catch (Exception ex) { Debug.WriteLine($"[Hotkey:Mouse] ❌ Action error: {ex.Message}"); }
+                        });
+
+                        // Mouse buttons have no OS-level auto-repeat, so for cycle
+                        // bindings (AllowRepeat) we run our own DispatcherTimer
+                        // that re-fires the action every CycleDelayMs (user-
+                        // configurable, default 100 ms) until WM_*BUTTONUP.
+                        if (binding.AllowRepeat)
+                            StartMouseRepeat(binding, buttonName);
+
+                        // Return 1 to suppress the mouse event from reaching other apps
+                        return (IntPtr)1;
                     }
-                    catch { }
-
-                    // Settings window block
-                    try
-                    {
-                        var fgHwnd = User32.GetForegroundWindow();
-                        string? fgTitle = User32.GetWindowTitle(fgHwnd);
-                        if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                            && User32.IsAppProcessName(User32.GetProcessName(fgHwnd))) return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
-                    }
-                    catch { }
-
-                    Debug.WriteLine($"[Hotkey:Mouse] ⚡ Fired: {buttonName} (mods=0x{currentMods:X}) wildcard fallback");
-                    System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
-                    {
-                        try { binding.Action.Invoke(); }
-                        catch (Exception ex) { Debug.WriteLine($"[Hotkey:Mouse] ❌ Action error: {ex.Message}"); }
-                    });
-
-                    // Return 1 to suppress the mouse event from reaching other apps
-                    return (IntPtr)1;
                 }
             }
         }
 
         return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+    }
+
+    /// <summary>Begin auto-repeating a mouse-bound action while the button is held.
+    /// Stopped by the WM_*BUTTONUP that arrives in MouseHookCallback. There's a
+    /// duration-based safety cap (60 s) so a missed UP can't cycle indefinitely.
+    ///
+    /// Note: we deliberately do NOT poll the button via GetAsyncKeyState here —
+    /// that API is unreliable for mouse buttons when the calling process isn't
+    /// the foreground process, which is exactly our scenario when cycling FROM
+    /// a non-EVE window. WM_*BUTTONUP from the low-level hook chain always
+    /// fires for real releases, so it's the authoritative stop signal.</summary>
+    private void StartMouseRepeat(MouseButtonBinding binding, string buttonName)
+    {
+        StopMouseRepeat(); // cancel any prior repeat first
+
+        _mouseRepeatBinding = binding;
+        _mouseRepeatButton = buttonName;
+
+        // Snapshot the user's current cycle-delay setting at arm time so changes
+        // to Settings during a long hold don't retroactively jump the cadence.
+        int delayMs = CycleDelayMs;
+        var timer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(delayMs)
+        };
+        _mouseRepeatTimer = timer;
+
+        long startTicks = Environment.TickCount64;
+        const long MaxRepeatDurationMs = 60_000;
+
+        timer.Tick += (_, _) =>
+        {
+            // Safety cap: if 60 s has passed without a WM_*BUTTONUP, something
+            // got stuck (mouse disconnected, hook torn down between events,
+            // etc.) — stop ourselves rather than cycle forever.
+            if (Environment.TickCount64 - startTicks > MaxRepeatDurationMs)
+            {
+                Debug.WriteLine($"[Hotkey:Mouse] ⚠ Repeat safety-cap stop after {MaxRepeatDurationMs}ms ({buttonName})");
+                StopMouseRepeat();
+                return;
+            }
+
+            var b = _mouseRepeatBinding;
+            if (b == null) return;
+            try { b.Action.Invoke(); }
+            catch (Exception ex) { Debug.WriteLine($"[Hotkey:Mouse] ❌ Repeat action error: {ex.Message}"); }
+        };
+
+        timer.Start();
+    }
+
+    private void StopMouseRepeat()
+    {
+        if (_mouseRepeatTimer != null)
+        {
+            _mouseRepeatTimer.Stop();
+            _mouseRepeatTimer = null;
+        }
+        _mouseRepeatBinding = null;
+        _mouseRepeatButton = null;
     }
 }

@@ -143,9 +143,21 @@ public partial class SettingsWindow : Window
             // No = close without applying
         }
 
-        // Save window size
-        S.SettingsWindowWidth = (int)Width;
-        S.SettingsWindowHeight = (int)Height;
+        // Save window size — but if we're closing while Maximized, use the
+        // RestoreBounds (the size before maximization) rather than the
+        // current Width/Height. Otherwise we'd persist the screen size and
+        // re-maximize forever, never letting the user's chosen smaller size
+        // come back through.
+        if (WindowState == WindowState.Maximized && RestoreBounds != Rect.Empty)
+        {
+            S.SettingsWindowWidth = (int)RestoreBounds.Width;
+            S.SettingsWindowHeight = (int)RestoreBounds.Height;
+        }
+        else
+        {
+            S.SettingsWindowWidth = (int)Width;
+            S.SettingsWindowHeight = (int)Height;
+        }
         _svc.Save();
         _clockTimer?.Stop();
     }
@@ -225,6 +237,7 @@ public partial class SettingsWindow : Window
             ChkIndividualResize.IsChecked = S.IndividualThumbnailResize;
             ChkShowTimer.IsChecked = S.ShowSessionTimer;
             TxtMinimizeDelay.Text = S.MinimizeDelay.ToString();
+            TxtCycleDelay.Text = S.CycleDelayMs.ToString();
             CmbStartupSettings.SelectedIndex = (int)S.StartupSettings;
 
             // UI Scale
