@@ -280,6 +280,30 @@ public partial class TextOverlayWindow : Window
 
     // ── Process Stats ────────────────────────────────────────────────
 
+    /// <summary>Update the unread-alert badge in the top-right corner.
+    /// count = 0 hides it; count >= 10 displays as "9+". colorHex is the
+    /// severity-tracked colour (`#RRGGBB` form).</summary>
+    public void SetAlertBadge(int count, string colorHex)
+    {
+        if (count <= 0)
+        {
+            AlertBadge.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        AlertBadgeText.Text = count >= 10 ? "9+" : count.ToString();
+        try
+        {
+            var c = (Color)System.Windows.Media.ColorConverter.ConvertFromString(colorHex);
+            AlertBadge.Background = new SolidColorBrush(c);
+        }
+        catch
+        {
+            AlertBadge.Background = new SolidColorBrush(Color.FromRgb(0xCC, 0x00, 0x00));
+        }
+        AlertBadge.Visibility = Visibility.Visible;
+    }
+
     public void UpdateFpsStats(double fps, bool visible)
     {
         if (visible)

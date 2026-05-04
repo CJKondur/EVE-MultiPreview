@@ -41,11 +41,19 @@ public partial class App : Application
     private string _trayAlertChar = "";
     private IntPtr _trayAlertHwnd = IntPtr.Zero;
 
-    // Per-event sound cooldowns
+    // Per-event sound cooldowns — keyed `{character}_{alertType}` so simultaneous
+    // alerts on different characters each get their own sound (the cooldown
+    // semantics still hold per-character).
     private readonly Dictionary<string, DateTime> _soundCooldowns = new();
 
-    // Sound player (WPF MediaPlayer supports MP3 unlike System.Media.SoundPlayer)
+    // Sound player for cycle-wrap chime (single instance is fine here — wraps
+    // can't overlap meaningfully).
     private MediaPlayer? _soundPlayer;
+
+    // Active alert MediaPlayer instances — kept alive until MediaEnded fires so a
+    // second alert in the same tick can't cancel the first one's playback.
+    private readonly object _soundPlayerLock = new();
+    private readonly List<MediaPlayer> _activeSoundPlayers = new();
 
     private bool _isShuttingDown = false;
 
@@ -240,18 +248,19 @@ public partial class App : Application
                     return;
                 }
                 _thumbnailManager.SetAlertFlash(charName, severity, alertType);
+                _thumbnailManager.IncrementAlertBadge(charName, severity);
                 bool trayEnabled = _settings.Settings.SeverityTrayNotify.TryGetValue(severity, out var tn) && tn;
 
-                // Show HUB toast only if the character's window is NOT the foreground window
+                // Always show the HUB toast when alerts are configured to surface
+                // there. Previously we suppressed the toast if the alerting
+                // character's window was the foreground — but when two or more
+                // clients alerted simultaneously and one of them happened to be
+                // foreground, that one's toast was silently dropped and the
+                // user only saw the background client's toast.
                 if (_settings.Settings.AlertHubEnabled && trayEnabled)
-                {
-                    var fgHwnd = Interop.User32.GetForegroundWindow();
-                    var charHwnd = _thumbnailManager.GetHwndForCharacter(charName);
-                    if (charHwnd == IntPtr.Zero || fgHwnd != charHwnd)
-                        _alertHub.ShowToast(charName, alertType, severity);
-                }
+                    _alertHub.ShowToast(charName, alertType, severity);
 
-                PlayAlertSound(alertType, severity);
+                PlayAlertSound(charName, alertType, severity);
             };
 
             _discovery.WindowTitleChanged += (window, oldTitle) =>
@@ -466,19 +475,22 @@ public partial class App : Application
 
     // ── Alert Sound System (per-event sounds, WAV/MP3 via MediaPlayer) ──
 
-    private void PlayAlertSound(string alertType, string severity)
+    private void PlayAlertSound(string character, string alertType, string severity)
     {
         var s = _settings?.Settings;
         if (s == null || !s.AlertSoundEnabled) return;
 
-        // Per-event sound cooldown check
-        string cooldownKey = $"sound_{alertType}";
+        // Per-character per-event sound cooldown check. Keying by character means
+        // simultaneous alerts on different clients (e.g. five chars depleting the
+        // same rock) each get their sound — only repeats from the *same* char on
+        // the *same* event are coalesced.
+        string cooldownKey = $"sound_{character}_{alertType}";
         int soundCooldown = s.SoundCooldowns?.GetValueOrDefault(alertType, 0) ?? 0;
         if (soundCooldown > 0 && _soundCooldowns.TryGetValue(cooldownKey, out var lastPlay))
         {
             if ((DateTime.Now - lastPlay).TotalSeconds < soundCooldown)
             {
-                Debug.WriteLine($"[AlertSound:Cooldown] ⏳ Sound cooldown active: {alertType} ({soundCooldown}s)");
+                Debug.WriteLine($"[AlertSound:Cooldown] ⏳ Sound cooldown active: {alertType} for '{character}' ({soundCooldown}s)");
                 return;
             }
         }
@@ -498,16 +510,30 @@ public partial class App : Application
 
         try
         {
-            // Use WPF MediaPlayer for MP3 support
+            // Each invocation gets its own MediaPlayer so concurrent alerts don't
+            // cancel each other (a shared MediaPlayer's second Open() unloads the
+            // first's media before it finishes playing). The instance is held in
+            // _activeSoundPlayers until MediaEnded fires, then disposed.
             Dispatcher.Invoke(() =>
             {
-                _soundPlayer?.Open(new Uri(soundFile));
-                _soundPlayer!.Volume = (s.AlertSoundVolume / 100.0);
-                _soundPlayer.Play();
+                var player = new MediaPlayer { Volume = s.AlertSoundVolume / 100.0 };
+                player.MediaEnded += (_, _) =>
+                {
+                    player.Close();
+                    lock (_soundPlayerLock) { _activeSoundPlayers.Remove(player); }
+                };
+                player.MediaFailed += (_, _) =>
+                {
+                    player.Close();
+                    lock (_soundPlayerLock) { _activeSoundPlayers.Remove(player); }
+                };
+                lock (_soundPlayerLock) { _activeSoundPlayers.Add(player); }
+                player.Open(new Uri(soundFile));
+                player.Play();
             });
 
             _soundCooldowns[cooldownKey] = DateTime.Now;
-            Debug.WriteLine($"[AlertSound:Play] 🔊 Playing '{System.IO.Path.GetFileName(soundFile)}' for {alertType} (vol={s.AlertSoundVolume}%)");
+            Debug.WriteLine($"[AlertSound:Play] 🔊 Playing '{System.IO.Path.GetFileName(soundFile)}' for {alertType} on '{character}' (vol={s.AlertSoundVolume}%)");
         }
         catch (Exception ex)
         {

@@ -569,8 +569,15 @@ public static class User32
 
         EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] Foreground shift requested for HWND {hwnd}");
 
-        if (IsIconic(hwnd))
-            ShowWindowAsync(hwnd, SW_RESTORE);
+        // Iconic-state restoration is handled by the caller (ThumbnailManager.
+        // ActivateEveWindow), which respects the AlwaysMaximize setting and
+        // chooses SW_MAXIMIZE vs SW_RESTORE accordingly. Calling SW_RESTORE
+        // a second time here used to race with the caller's async restore:
+        // if our IsIconic check ran before the caller's ShowWindowAsync had
+        // been processed by the target thread, we'd queue another SW_RESTORE.
+        // SW_RESTORE on an *already-restored, currently maximized* window
+        // un-maximizes it — producing a window that comes back smaller than
+        // it was before being minimized.
 
         // Tier 1 — direct.
         SetForegroundWindow(hwnd);

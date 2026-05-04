@@ -75,6 +75,17 @@ public sealed class ThumbnailManager : IDisposable
     private readonly ConcurrentDictionary<string, AlertFlashInfo> _alertFlashChars = new();
     private DispatcherTimer? _flashTimer;
 
+    // Per-character unread-alert badge state. Counts every alert fired for a
+    // character; clears when the user pulls that character's window to front.
+    // The strongest severity seen since last clear drives the badge color.
+    private readonly ConcurrentDictionary<string, AlertBadgeInfo> _alertBadges = new(StringComparer.OrdinalIgnoreCase);
+    // Severity ranking — higher = more important. Used so a Critical bumps
+    // the badge color even if subsequent Info alerts pile on after it.
+    private static readonly Dictionary<string, int> SeverityRank = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["info"] = 1, ["warning"] = 2, ["critical"] = 3
+    };
+
     // Per-severity flash rates (ms) from AHK
     private static readonly Dictionary<string, int> FlashRates = new()
     {
@@ -494,6 +505,7 @@ public sealed class ThumbnailManager : IDisposable
 
         // Opacity
         thumb.SetOpacity((byte)s.ThumbnailOpacity);
+        thumb.OpacityOnHover = s.OpacityOnHover;
 
         // Always on top
         thumb.SetTopmost(s.ShowThumbnailsAlwaysOnTop);
@@ -615,10 +627,17 @@ public sealed class ThumbnailManager : IDisposable
         Application.Current?.Dispatcher.Invoke(() =>
         {
             var opacity = (byte)_settings.Settings.ThumbnailOpacity;
+            bool hoverFull = _settings.Settings.OpacityOnHover;
             foreach (var (_, thumb) in _thumbnails)
+            {
                 thumb.SetOpacity(opacity);
+                thumb.OpacityOnHover = hoverFull;
+            }
             foreach (var (_, pip) in _secondaryThumbnails)
+            {
                 pip.SetOpacity(opacity);
+                pip.OpacityOnHover = hoverFull;
+            }
         });
     }
 
@@ -829,8 +848,22 @@ public sealed class ThumbnailManager : IDisposable
             if (hwnd == IntPtr.Zero) return;
             if (Interop.User32.GetForegroundWindow() == hwnd) return;
 
-            if (!string.IsNullOrEmpty(title))
-                _alertFlashChars.TryRemove(title, out _);
+            // Resolve the character name regardless of which call path we came in
+            // through: hotkey passes `title` directly; thumbnail click resolves
+            // `hwnd` first and leaves `title` null. We need the name to clear the
+            // alert flash + badge for the window the user is intentionally moving
+            // focus to. Doing it here (synchronously, on activation) is the only
+            // reliable path — relying on UpdateActiveBorders to clear the badge
+            // after the OS reports a foreground change can lose the clear behind
+            // the post-cycle z-order shield, especially during rapid cycling.
+            string? activatedChar = !string.IsNullOrEmpty(title)
+                ? title
+                : (_thumbnails.TryGetValue(hwnd, out var hwndThumb) ? hwndThumb.CharacterName : null);
+            if (!string.IsNullOrEmpty(activatedChar))
+            {
+                _alertFlashChars.TryRemove(activatedChar, out _);
+                ClearAlertBadge(activatedChar);
+            }
 
             if (Interop.User32.IsIconic(hwnd))
             {
@@ -982,10 +1015,12 @@ public sealed class ThumbnailManager : IDisposable
                     thumb.ShowDwmOnly();
             }
 
-            // Stat overlays and PiPs normally stay visible whenever any client is
-            // tracked. When HideStatsOnLostFocus is opted-in (issue #12), they also
-            // collapse whenever EVE/our-app is not the foreground process — matching
-            // the pre-2026-04-23 behaviour for users who preferred it.
+            // Stat overlays and PiPs stay visible as long as any EVE client is
+            // tracked — clicking off EVE shouldn't make them disappear, just
+            // stop being on top. The focus-aware Topmost flip below handles the
+            // "always on top" complaint from issue #30 without removing the
+            // overlay entirely. HideStatsOnLostFocus is the legacy opt-in for
+            // users who really do want them to disappear on focus loss.
             bool statsVisibleByFocus = !s.HideStatsOnLostFocus
                 || eveFocused || _settingsOpen;
             var targetVisibility = anyEveExists && statsVisibleByFocus
@@ -1027,7 +1062,40 @@ public sealed class ThumbnailManager : IDisposable
             foreach (var (_, sw) in _statWindows)
                 sw.BringToFront();
         }
+
+        // Focus-aware Topmost flip for stat overlays (and PiPs) — they should
+        // sit above EVE while you're playing, but slide behind your other
+        // windows the moment you click off the EVE client. Without this they
+        // stay glued to the top of every desktop, which is what marks-lolcode
+        // reported in #30. Honors the user's "Always on Top" thumbnails
+        // setting (`ShowThumbnailsAlwaysOnTop`) — if that's off, we never
+        // promote them to topmost regardless of focus.
+        if (eveFocused != _lastEveFocused)
+        {
+            bool topmost = eveFocused && s.ShowThumbnailsAlwaysOnTop;
+            foreach (var (_, sw) in _statWindows)
+            {
+                if (sw.Topmost != topmost) sw.Topmost = topmost;
+            }
+            foreach (var (_, pip) in _secondaryThumbnails)
+            {
+                if (pip.Topmost != topmost) pip.Topmost = topmost;
+            }
+        }
         _lastEveFocused = eveFocused;
+
+        // Clear the alert badge of whichever EVE window is currently foreground.
+        // Hoisted above the cycle-shield / no-change early-returns below because
+        // badge state is per-character and has nothing to do with z-order
+        // settling — without this, rapid cycling kept the badge visible on the
+        // newly focused client until the next un-shielded sweep.
+        foreach (var (eveHwnd, thumb) in _thumbnails)
+        {
+            if (eveHwnd != fgHwnd) continue;
+            var charName = thumb.CharacterName;
+            if (!string.IsNullOrEmpty(charName))
+                ClearAlertBadge(charName);
+        }
 
         // Shield the fast-cycle tracker and visual borders from asynchronous OS focus lag.
         // If we recently cycled, the native background window switch might still be resolving.
@@ -1264,24 +1332,30 @@ public sealed class ThumbnailManager : IDisposable
             : ParseColor(s.InactiveClientBorderColor);
     }
 
-    /// <summary>Resolve per-event alert flash color: AlertColors[eventType] → SeverityColors[severity] → default red.</summary>
+    /// <summary>Resolve per-event alert flash color: AlertColors[eventType] → SeverityColors[severity] → default red.
+    /// The user's global AlertOpacityPercent (0-100, default 100) is applied to
+    /// the resolved RGB color as the alpha channel — ThumbnailWindow.OnPaint
+    /// honors that alpha when drawing the flash border.</summary>
     private Color ResolveAlertFlashColor(string eventType, string severity)
     {
         var s = _settings.Settings;
 
+        Color baseColor;
         // 1. Per-event color override
         if (s.AlertColors.TryGetValue(eventType, out var eventColor) && !string.IsNullOrEmpty(eventColor))
-            return ParseColor(eventColor);
-
+            baseColor = ParseColor(eventColor);
         // 2. Severity-level color
-        if (s.SeverityColors.TryGetValue(severity, out var sevColor) && !string.IsNullOrEmpty(sevColor))
-            return ParseColor(sevColor);
-
+        else if (s.SeverityColors.TryGetValue(severity, out var sevColor) && !string.IsNullOrEmpty(sevColor))
+            baseColor = ParseColor(sevColor);
         // 3. Default flash color from settings, then hardcoded red
-        if (!string.IsNullOrEmpty(s.AlertFlashColor))
-            return ParseColor(s.AlertFlashColor);
+        else if (!string.IsNullOrEmpty(s.AlertFlashColor))
+            baseColor = ParseColor(s.AlertFlashColor);
+        else
+            baseColor = Color.FromRgb(0xFF, 0x00, 0x00); // Default red
 
-        return Color.FromRgb(0xFF, 0x00, 0x00); // Default red
+        int opacity = Math.Clamp(s.AlertOpacityPercent, 0, 100);
+        byte alpha = (byte)(opacity * 255 / 100);
+        return Color.FromArgb(alpha, baseColor.R, baseColor.G, baseColor.B);
     }
 
     /// <summary>Show a brief tooltip near the cursor for user feedback on toggle actions (matches AHK ToolTip).</summary>
@@ -1498,6 +1572,61 @@ public sealed class ThumbnailManager : IDisposable
             Debug.WriteLine($"[AlertFlash:Tick] ✅ Flash cleared: '{characterName}'");
     }
 
+    /// <summary>Bump the per-character unread-alert badge counter. Called from
+    /// App's AlertTriggered handler. Skips entirely if the alerting character's
+    /// window is currently the foreground — the user is already looking at it,
+    /// no need to badge them about something they're seeing in real time.</summary>
+    public void IncrementAlertBadge(string characterName, string severity)
+    {
+        if (string.IsNullOrEmpty(characterName)) return;
+        if (!_settings.Settings.ShowAlertBadgeOnThumbnails) return;
+
+        // If this character's EVE window is foreground right now, the user is
+        // already focused on it — they don't need a badge for something
+        // happening in their active client.
+        var fgHwnd = Interop.User32.GetForegroundWindow();
+        foreach (var (eveHwnd, thumb) in _thumbnails)
+        {
+            if (eveHwnd == fgHwnd
+                && string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+                return;
+        }
+
+        var info = _alertBadges.AddOrUpdate(
+            characterName,
+            _ => new AlertBadgeInfo { Count = 1, TopSeverity = severity },
+            (_, existing) => { existing.Count++; return existing; });
+
+        ApplyBadgeToThumbnail(characterName, info.Count);
+    }
+
+    /// <summary>Clear the per-character unread-alert badge. Called when the
+    /// user activates that character (cycle hotkey or thumbnail click brings
+    /// the EVE window to foreground), or whenever the settings toggle is
+    /// turned off.</summary>
+    public void ClearAlertBadge(string characterName)
+    {
+        if (string.IsNullOrEmpty(characterName)) return;
+        if (_alertBadges.TryRemove(characterName, out _))
+            ApplyBadgeToThumbnail(characterName, 0);
+    }
+
+    /// <summary>Push the badge count to the thumbnail's text overlay. The
+    /// badge is always painted red — the user explicitly wants it loud, not
+    /// severity-coded, so it stands out on the thumbnail at a glance.</summary>
+    private void ApplyBadgeToThumbnail(string characterName, int count)
+    {
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                if (!string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                thumb.SetAlertBadge(count, "#FF0000");
+            }
+        });
+    }
+
     /// <summary>Dedicated flash timer tick — handles per-severity flash rates, expiry, and border updates.</summary>
     private void FlashAlertTick()
     {
@@ -1531,18 +1660,26 @@ public sealed class ThumbnailManager : IDisposable
             if (thumb != null)
             {
                 var flashColor = ResolveAlertFlashColor(info.EventType, info.Severity);
+
+                // Resolve the resting border that should show *between* flash
+                // pulses — the configured active/group/per-character/inactive
+                // colour. Pulsing between this and the alert colour preserves
+                // visual context (which client is active, which group it
+                // belongs to) instead of stomping the configured colour
+                // entirely while the alert is up. Reported as #36 by darkscion0.
+                bool isActive = thumb.EveHwnd == Interop.User32.GetForegroundWindow();
+                var restingColor = GetBorderColor(charName, isActive);
+                int restingThickness = isActive
+                    ? s.ClientHighlightBorderThickness
+                    : s.InactiveClientBorderThickness;
+
                 if (info.ShowFlash)
-                {
-                    thumb.SetBorder(flashColor, s.ClientHighlightBorderThickness);
-                }
-                else if (info.Severity == "info")
                 {
                     thumb.SetBorder(flashColor, s.ClientHighlightBorderThickness);
                 }
                 else
                 {
-                    // Flash OFF for critical/warning: dim color (AHK: "330000")
-                    thumb.SetBorder(Color.FromRgb(0x33, 0x00, 0x00), s.ClientHighlightBorderThickness);
+                    thumb.SetBorder(restingColor, restingThickness);
                 }
             }
         }
@@ -2727,4 +2864,13 @@ public class AlertFlashInfo
     public string EventType { get; set; } = "attack";
     public bool ShowFlash { get; set; } = true;
     public DateTime LastToggleTime { get; set; }
+}
+
+/// <summary>Per-character unread-alert badge state — count of alerts fired
+/// since the user last activated this character, plus the strongest severity
+/// seen so the rendered badge can pick its colour. Cleared on activation.</summary>
+public class AlertBadgeInfo
+{
+    public int Count { get; set; }
+    public string TopSeverity { get; set; } = "info";
 }

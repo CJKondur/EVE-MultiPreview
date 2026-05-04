@@ -52,6 +52,7 @@ public sealed class LogMonitorService : IDisposable
     private readonly ConcurrentDictionary<string, DateTime> _alertCooldowns = new();
     private int _defaultCooldownSeconds = 5;
 
+
     // Per-event cooldown overrides from settings
     private Dictionary<string, int> _eventCooldowns = new();
 
@@ -1073,12 +1074,24 @@ public sealed class LogMonitorService : IDisposable
     {
         int newFiles = 0;
 
-        // Scan game logs
+        // Scan game logs.
+        //
+        // Track every gamelog modified within the recent activity window —
+        // that's all currently-running EVE clients. Previously this took the
+        // top 6 by mtime, which silently dropped log monitoring (and
+        // therefore alerts) for the 7th+ client when running larger
+        // multibox setups. The 50-file safety cap protects against
+        // pathological states where the directory has thousands of recent
+        // files all touched within the window.
         if (Directory.Exists(_gameLogPath))
         {
+            var cutoff = DateTime.Now - TimeSpan.FromMinutes(30);
             foreach (var file in Directory.GetFiles(_gameLogPath, "*.txt")
-                .OrderByDescending(File.GetLastWriteTime)
-                .Take(6))
+                .Select(f => new { Path = f, MTime = File.GetLastWriteTime(f) })
+                .Where(x => x.MTime >= cutoff)
+                .OrderByDescending(x => x.MTime)
+                .Take(50)
+                .Select(x => x.Path))
             {
                 if (!_trackedFiles.ContainsKey(file))
                 {
@@ -1485,6 +1498,20 @@ public sealed class LogMonitorService : IDisposable
                 TriggerAlert(character, "mine_crystal_broken", "warning");
                 return;
             }
+            // Asteroid Disappeared — lost the target lock mid-cycle because the
+            // rock no longer exists (fleetmate finished it, destroyed, warped
+            // away, etc.). Functionally the same as the "pale shadow" depletion
+            // — the user needs to grab a new rock — so it routes to the same
+            // alert. Gated on a mining-module-name keyword to avoid catching
+            // missile / remote-rep / tractor-beam target-lost messages, which
+            // share the same prefix and are common in PvP/PvE.
+            if (line.Contains("deactivates because its target,")
+                && line.Contains("is not locked")
+                && (line.Contains("Miner ") || line.Contains("Mining Laser") || line.Contains("Harvester")))
+            {
+                TriggerAlert(character, "mine_asteroid_depleted", "info");
+                return;
+            }
             // Mining Module Stopped (AHK: requires "deactivates" + module name keyword)
             if (line.Contains("deactivates")
                 && (line.Contains("Miner ") || line.Contains("Mining Laser") || line.Contains("Harvester"))
@@ -1735,17 +1762,27 @@ public sealed class LogMonitorService : IDisposable
 
     private static bool IsNpc(string name)
     {
-        // PvP Mitigation: In standard combat logs, player entities always have 
-        // their ship type and/or corporate ticker appended e.g., PlayerName[CORP](ShipName)
+        if (string.IsNullOrEmpty(name)) return false;
+
+        // EVE combat logs always render player damage sources with their
+        // ship type in parens AND/OR their corp ticker in brackets, e.g.
+        // "PlayerName[CORP](Battleship)". NPC sources never carry either.
+        // So: presence of either marker = player, absence = NPC.
+        //
+        // The explicit NpcPrefixes / NpcSuffixes / NpcExactNames tables
+        // below are kept for reference but no longer drive classification —
+        // they were never going to keep up with every mission, abyssal,
+        // homefront, insurgency, sleeper, drifter, etc. NPC family CCP
+        // adds, which is why mission NPCs not in the list were leaking
+        // past the PvE-mode filter and firing "Under Attack" alerts
+        // (issue #33).
         if (name.Contains('(') || name.Contains('[')) return false;
 
-        // O(1) check for exact named officer NPCs first
-        if (NpcExactNames.Contains(name)) return true;
-        foreach (var prefix in NpcPrefixes)
-            if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) return true;
-        foreach (var suffix in NpcSuffixes)
-            if (name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)) return true;
-        return false;
+        // Quick NPC affirmation via the explicit lists is still useful for
+        // logging / debugging; keep the matches in case we want to surface
+        // them later, but they no longer affect the return value.
+        _ = NpcExactNames.Contains(name);
+        return true;
     }
 
     public string? GetCharacterSystem(string characterName)

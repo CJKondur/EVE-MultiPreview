@@ -191,16 +191,24 @@ public partial class SettingsWindow
             var sevColor = GetSeverityColor(evt.sevKey);
             var swatchHex = S.AlertColors.TryGetValue(evt.id, out var ac) && !string.IsNullOrEmpty(ac) ? ac : sevColor;
             var swatch = new Border { Width = 16, Height = 16, Margin = new Thickness(0, 0, 4, 0), BorderBrush = Brushes.Gray, BorderThickness = new Thickness(1), VerticalAlignment = VerticalAlignment.Center };
-            try { swatch.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(swatchHex)); } catch { }
+            // Saved alert colors are stored in "0xRRGGBB" form (PickColor's output
+            // format) but ColorConverter only accepts "#RRGGBB". Without the swap,
+            // ConvertFromString throws on every restart, the catch silently swallows
+            // it, and the swatch falls back to its default grey/black — issue #31.
+            try { swatch.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(swatchHex.Replace("0x", "#"))); } catch { }
             row.Children.Add(swatch);
             var pickBtn = new Button { Content = "\ud83c\udfa8", Style = (Style)FindResource("IconBtn"), Margin = new Thickness(0, 0, 6, 0), Tag = evt.id };
             var capturedSwatch = swatch; var capturedId = evt.id;
             pickBtn.Click += (_, _) => { var c = PickColor(swatchHex); if (c != null) { S.AlertColors[capturedId] = c; try { capturedSwatch.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(c.Replace("0x", "#"))); } catch { } SaveDelayed(); } };
             row.Children.Add(pickBtn);
 
-            // Severity indicator + event name checkbox
-            var sevLabel = new TextBlock { Text = evt.sevEmoji, Width = 24, VerticalAlignment = VerticalAlignment.Center, FontSize = 12 };
-            try { sevLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sevColor)); } catch { }
+            // Severity indicator + event name checkbox.
+            // TextAlignment.Center keeps the glyph centered inside the 24-px
+            // slot regardless of which emoji is rendered — without it, the
+            // 🔴/🟠/🔵 emojis sit at slightly different x-offsets because
+            // their glyph widths differ in the system emoji font (issue #35).
+            var sevLabel = new TextBlock { Text = evt.sevEmoji, Width = 24, VerticalAlignment = VerticalAlignment.Center, FontSize = 12, TextAlignment = TextAlignment.Center };
+            try { sevLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sevColor.Replace("0x", "#"))); } catch { }
             row.Children.Add(sevLabel);
             var isEnabled = !S.EnabledAlertTypes.TryGetValue(evt.id, out var en) || en;
             var cb = new CheckBox { Content = evt.label, IsChecked = isEnabled, Tag = evt.id, Margin = new Thickness(0, 0, 8, 0) };
@@ -219,9 +227,9 @@ public partial class SettingsWindow
     {
         SeverityRows.Children.Clear();
         var tiers = new[] {
-            (id: "critical", label: "\ud83d\udd34 Critical", defCool: 5, defTray: true),
-            (id: "warning",  label: "\ud83d\udfe0 Warning",  defCool: 15, defTray: false),
-            (id: "info",     label: "\ud83d\udd35 Info",     defCool: 30, defTray: false)
+            (id: "critical", emoji: "\ud83d\udd34", name: "Critical", defCool: 5, defTray: true),
+            (id: "warning",  emoji: "\ud83d\udfe0", name: "Warning",  defCool: 15, defTray: false),
+            (id: "info",     emoji: "\ud83d\udd35", name: "Info",     defCool: 30, defTray: false)
         };
         var header = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 4) };
         header.Children.Add(new TextBlock { Text = "Color", Width = 52, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") });
@@ -229,7 +237,7 @@ public partial class SettingsWindow
         header.Children.Add(new TextBlock { Text = "Cooldown", Width = 80, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") });
         header.Children.Add(new TextBlock { Text = "Tray", Width = 40, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") });
         SeverityRows.Children.Add(header);
-        foreach (var (id, label, defCool, defTray) in tiers)
+        foreach (var (id, emoji, name, defCool, defTray) in tiers)
         {
             var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 2) };
 
@@ -237,7 +245,8 @@ public partial class SettingsWindow
             var defColor = GetSeverityColor(id);
             var color = S.SeverityColors.TryGetValue(id, out var sc) ? sc : defColor;
             var swatch = new Border { Width = 16, Height = 16, Margin = new Thickness(0, 0, 4, 0), BorderBrush = Brushes.Gray, BorderThickness = new Thickness(1), VerticalAlignment = VerticalAlignment.Center };
-            try { swatch.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)); } catch { }
+            // 0x→# normalization, same root cause as issue #31 above.
+            try { swatch.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color.Replace("0x", "#"))); } catch { }
             row.Children.Add(swatch);
             var capturedId = id;
             var capturedSwatch = swatch;
@@ -254,7 +263,13 @@ public partial class SettingsWindow
             };
             row.Children.Add(pickBtn);
 
-            row.Children.Add(new TextBlock { Text = label, Width = 110, VerticalAlignment = VerticalAlignment.Center, FontSize = 13, Foreground = (Brush)FindResource("TextPrimaryBrush") });
+            // Emoji + tier name in two separate TextBlocks: the emoji gets a
+            // fixed-width slot with centered text alignment so 🔴/🟠/🔵 sit at
+            // identical x-offsets across rows (same root cause as the alert
+            // events list — issue #35). The tier name then starts at the same
+            // x for every row.
+            row.Children.Add(new TextBlock { Text = emoji, Width = 24, VerticalAlignment = VerticalAlignment.Center, FontSize = 13, TextAlignment = TextAlignment.Center });
+            row.Children.Add(new TextBlock { Text = name, Width = 86, VerticalAlignment = VerticalAlignment.Center, FontSize = 13, Foreground = (Brush)FindResource("TextPrimaryBrush") });
 
             var cooldown = S.SeverityCooldowns.TryGetValue(id, out var cd) ? cd : defCool;
             var coolBox = new TextBox { Text = cooldown.ToString(), Width = 40, Margin = new Thickness(0, 0, 4, 0) };
@@ -285,9 +300,19 @@ public partial class SettingsWindow
         if (int.TryParse(TxtUnderFireTimeout.Text, out int uft) && uft > 0) S.UnderFireTimeoutSeconds = uft;
 
         S.PveMode = ChkPveMode.IsChecked == true;
+        S.AlertOpacityPercent = (int)SliderAlertOpacity.Value;
+        S.ShowAlertBadgeOnThumbnails = ChkAlertBadgeOnThumbnails.IsChecked == true;
         S.NotLoggedInIndicator = GetNotLoggedInType();
         S.NotLoggedInColor = TxtNotLoggedInColor.Text;
         SaveDelayed();
+    }
+
+    private void OnAlertOpacityChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (TxtAlertOpacityValue != null)
+            TxtAlertOpacityValue.Text = $"{(int)e.NewValue}%";
+        if (_loading) return;
+        SaveAlerts();
     }
 
     private void OnBrowseChatLog(object s, RoutedEventArgs e) { var d = BrowseFolder(TxtChatLogDir.Text); if (d != null) TxtChatLogDir.Text = d; }
@@ -329,7 +354,7 @@ public partial class SettingsWindow
             // Severity color indicator matching Severity Settings
             var sevColor = GetSeverityColor(evt.sevKey);
             Brush sevBrush;
-            try { sevBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sevColor)); } catch { sevBrush = Brushes.Gray; }
+            try { sevBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sevColor.Replace("0x", "#"))); } catch { sevBrush = Brushes.Gray; }
             var swatch = new Border { Width = 16, Height = 16, Margin = new Thickness(0, 0, 4, 0), BorderBrush = Brushes.Gray, BorderThickness = new Thickness(1), Background = sevBrush, VerticalAlignment = VerticalAlignment.Center };
             row.Children.Add(swatch);
 

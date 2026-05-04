@@ -250,6 +250,7 @@ public partial class SettingsWindow : Window
             TxtOpacityValue.Text = $"{(int)SliderOpacity.Value}%";
             ChkAlwaysOnTop.IsChecked = S.ShowThumbnailsAlwaysOnTop;
             ChkHideOnLostFocus.IsChecked = S.HideThumbnailsOnLostFocus;
+            ChkOpacityOnHover.IsChecked = S.OpacityOnHover;
             ChkHideActive.IsChecked = S.HideActiveThumbnail;
             ChkShowSystem.IsChecked = S.ShowSystemName;
             ChkShowStats.IsChecked = S.ShowProcessStats;
@@ -302,6 +303,10 @@ public partial class SettingsWindow : Window
             TxtUnderFireTimeout.Text = S.UnderFireTimeoutSeconds.ToString();
 
             ChkPveMode.IsChecked = S.PveMode;
+            int alertOpacity = Math.Clamp(S.AlertOpacityPercent, 10, 100);
+            SliderAlertOpacity.Value = alertOpacity;
+            TxtAlertOpacityValue.Text = $"{alertOpacity}%";
+            ChkAlertBadgeOnThumbnails.IsChecked = S.ShowAlertBadgeOnThumbnails;
             ChkAlertHub.IsChecked = S.AlertHubEnabled;
             TxtToastDuration.Text = S.AlertToastDuration.ToString();
             SetNotLoggedInDDL(S.NotLoggedInIndicator);

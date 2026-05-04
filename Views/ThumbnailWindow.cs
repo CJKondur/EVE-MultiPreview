@@ -532,10 +532,33 @@ public class ThumbnailWindow : Form
 
     // ── Hover zoom ───────────────────────────────────────────────
 
+    /// <summary>When true, hovering bumps the thumbnail to 100% opacity and
+    /// restores the previous opacity on leave. Drives issue #37.</summary>
+    public bool OpacityOnHover { get; set; }
+
+    private byte _opacityBeforeHover = 255;
+    private bool _opacityHoverActive;
+
     protected override void OnMouseEnter(EventArgs e)
     {
         base.OnMouseEnter(e);
         _isMouseOver = true;
+
+        // Hover-to-full-opacity. Bump both the WinForms thumbnail (LWA_ALPHA)
+        // AND the WPF text overlay (which is a separate window with its own
+        // Opacity property) so the character name / system / CPU / RAM / VRAM
+        // line snaps to fully opaque too. Snapshot the pre-hover values so
+        // the leave handler restores them exactly. Not gated on _isDwmHidden:
+        // when iconic, the frozen frame is faded by LWA_ALPHA the same way
+        // the live DWM thumbnail is.
+        if (OpacityOnHover && _currentVisualOpacity != 255 && !_opacityHoverActive)
+        {
+            _opacityBeforeHover = _currentVisualOpacity;
+            _opacityHoverActive = true;
+            ApplyVisualOpacity(255);
+            _textOverlay?.SetWindowOpacity(1.0);
+        }
+
         if (_hoverScale <= 1.0 || _dragMode != DragMode.None) return;
 
         _hoverTimer?.Stop();
@@ -568,6 +591,15 @@ public class ThumbnailWindow : Form
         base.OnMouseLeave(e);
         _isMouseOver = false;
         _hoverTimer?.Stop();
+
+        // Restore the pre-hover opacity on both surfaces (issue #37).
+        if (_opacityHoverActive)
+        {
+            _opacityHoverActive = false;
+            ApplyVisualOpacity(_opacityBeforeHover);
+            _textOverlay?.SetWindowOpacity(_opacityBeforeHover / 255.0);
+        }
+
         UnHover();
     }
 
@@ -629,6 +661,7 @@ public class ThumbnailWindow : Form
     public void UpdateProcessStats(string? text) => _textOverlay?.UpdateProcessStats(text);
     public void UpdateFpsStats(double fps, bool visible) => _textOverlay?.UpdateFpsStats(fps, visible);
     public void SetProcessStatsTextSize(double fontSize) => _textOverlay?.SetProcessStatsTextSize(fontSize);
+    public void SetAlertBadge(int count, string colorHex) => _textOverlay?.SetAlertBadge(count, colorHex);
 
     public int GetProcessId()
     {
@@ -791,11 +824,14 @@ public class ThumbnailWindow : Form
     public void SetOpacity(byte opacity)
     {
         _savedOpacity = opacity;
-        if (!_isDwmHidden) ApplyVisualOpacity(_savedOpacity);
-        // Propagate to the WPF text overlay so character name, system, timer,
-        // CPU/RAM/VRAM and annotation fade together with the thumbnail. Previously
-        // the overlay stayed fully opaque while the frame faded, which looked
-        // broken at low opacity values.
+        // Always push to the layered-window alpha. When the source EVE client is
+        // minimized, _isDwmHidden is true and OnPaint draws the frozen-frame
+        // snapshot via GDI — that paint is faded by LWA_ALPHA, so skipping the
+        // call here left iconic thumbnails stuck at their old opacity while the
+        // text overlay (which has independent opacity) faded correctly.
+        // _isDwmHidden is independent of LWA_ALPHA — HideDwmOnly only flips the
+        // binary DWM thumbnail composition, so updating alpha here is safe.
+        ApplyVisualOpacity(_savedOpacity);
         _textOverlay?.SetWindowOpacity(opacity / 255.0);
     }
 
@@ -993,7 +1029,11 @@ public class ThumbnailWindow : Form
         }
         else if (_borderThickness > 0 && _baseBorderColor is WpfColor bc)
         {
-            using var pen = new Pen(Color.FromArgb(255, bc.R, bc.G, bc.B), _borderThickness)
+            // Honor the alpha channel set by the caller. ThumbnailManager.
+            // ResolveAlertFlashColor multiplies AlertOpacityPercent into the
+            // alpha when computing flash colors (issue #34); regular non-flash
+            // borders set alpha=255 implicitly so they render unchanged.
+            using var pen = new Pen(Color.FromArgb(bc.A, bc.R, bc.G, bc.B), _borderThickness)
             {
                 Alignment = PenAlignment.Inset
             };

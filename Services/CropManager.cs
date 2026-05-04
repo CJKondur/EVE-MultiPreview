@@ -42,6 +42,7 @@ public sealed class CropManager : IDisposable
         _settings = settings;
         _discovery.WindowFound += OnWindowFound;
         _discovery.WindowLost += OnWindowLost;
+        _discovery.WindowTitleChanged += OnWindowTitleChanged;
     }
 
     /// <summary>Optional: let crop popups snap against live primary thumbnails.
@@ -108,6 +109,7 @@ public sealed class CropManager : IDisposable
     {
         _discovery.WindowFound -= OnWindowFound;
         _discovery.WindowLost -= OnWindowLost;
+        _discovery.WindowTitleChanged -= OnWindowTitleChanged;
         CloseAllInternal();
     }
 
@@ -133,6 +135,44 @@ public sealed class CropManager : IDisposable
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
             CloseCharacter(window.CharacterName);
+        });
+    }
+
+    /// <summary>
+    /// Title changes happen when an EVE client transitions from the character-
+    /// select screen ("EVE") to a logged-in character ("EVE - CharName"), or
+    /// when the player switches characters within the same client window.
+    ///
+    /// Without this handler, crop popups never spawned on app relaunch when
+    /// the user happened to launch the EVE clients while MultiPreview was
+    /// already running: WindowFound fires at the char-select screen with an
+    /// empty CharacterName so the early-return at the top of OnWindowFound
+    /// skips the binding, and the subsequent rename never reached us.
+    /// </summary>
+    private void OnWindowTitleChanged(EveWindow window, string oldTitle)
+    {
+        // Same EVE window may have shown a different character before. Evict
+        // any stale entries that pointed to this hwnd under another name —
+        // their crops no longer apply because the window now hosts a
+        // different (or no) character.
+        foreach (var kv in _liveHwnds.ToArray())
+        {
+            if (kv.Value == window.Hwnd
+                && !string.Equals(kv.Key, window.CharacterName, StringComparison.OrdinalIgnoreCase))
+            {
+                _liveHwnds.TryRemove(kv.Key, out _);
+                var staleChar = kv.Key;
+                Application.Current?.Dispatcher.BeginInvoke(() => CloseCharacter(staleChar));
+            }
+        }
+
+        if (string.IsNullOrEmpty(window.CharacterName)) return;
+        _liveHwnds[window.CharacterName] = window.Hwnd;
+
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            if (!_settings.Settings.CropEnabled) return;
+            ReconcileCharacter(window.CharacterName, window.Hwnd);
         });
     }
 

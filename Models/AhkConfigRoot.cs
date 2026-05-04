@@ -196,6 +196,7 @@ public class AhkConfigRoot
                 profile.HideThumbnailsOnLostFocus = ts.HideThumbnailsOnLostFocus != 0;
                 profile.ShowThumbnailsAlwaysOnTop = ts.ShowThumbnailsAlwaysOnTop != 0;
                 profile.ThumbnailOpacity = ts.ThumbnailOpacity;
+                profile.OpacityOnHover = ts.OpacityOnHover != 0;
                 profile.ClientHighlightBorderThickness = ts.ClientHighligtBorderthickness;
                 profile.ClientHighlightColor = ts.ClientHighligtColor ?? "#E36A0D";
                 profile.ShowClientHighlightBorder = ts.ShowClientHighlightBorder != 0;
@@ -395,6 +396,7 @@ public class AhkConfigRoot
                 HideThumbnailsOnLostFocus = profile.HideThumbnailsOnLostFocus ? 1 : 0,
                 ShowThumbnailsAlwaysOnTop = profile.ShowThumbnailsAlwaysOnTop ? 1 : 0,
                 ThumbnailOpacity = profile.ThumbnailOpacity,
+                OpacityOnHover = profile.OpacityOnHover ? 1 : 0,
                 ClientHighligtBorderthickness = profile.ClientHighlightBorderThickness,
                 ClientHighligtColor = profile.ClientHighlightColor,
                 ShowClientHighlightBorder = profile.ShowClientHighlightBorder ? 1 : 0,
@@ -635,6 +637,9 @@ public class AhkThumbnailSettings
 
     [JsonPropertyName("ThumbnailOpacity")]
     public int ThumbnailOpacity { get; set; } = 80;
+
+    [JsonPropertyName("OpacityOnHover")]
+    public int OpacityOnHover { get; set; } = 0;
 
     [JsonPropertyName("ClientHighligtBorderthickness")]
     public int ClientHighligtBorderthickness { get; set; } = 4;

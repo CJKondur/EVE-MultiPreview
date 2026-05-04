@@ -65,6 +65,18 @@ public class AppSettings
     public bool PveMode { get; set; } = false;
     public bool EnableAlertSounds { get; set; } = false;
     public int AlertSoundVolume { get; set; } = 100;
+
+    /// <summary>Opacity (0-100%) applied to the alert pulse border color across
+    /// all alert events. Default 100 = fully opaque (current behavior).
+    /// Lower values produce a softer pulse — useful when running 4+ clients
+    /// where the full-strength flashing borders feel visually loud (issue #34).</summary>
+    public int AlertOpacityPercent { get; set; } = 100;
+
+    /// <summary>When true, every fired alert paints a small numbered badge
+    /// in the corner of the alerting client's thumbnail (severity-coloured,
+    /// caps display at 9+). The count clears the moment that EVE client
+    /// becomes foreground. Default true.</summary>
+    public bool ShowAlertBadgeOnThumbnails { get; set; } = true;
     public Dictionary<string, string> AlertColors { get; set; } = new();
     public Dictionary<string, string> AlertSounds { get; set; } = new();
     public Dictionary<string, int> SoundCooldowns { get; set; } = new();
@@ -79,6 +91,13 @@ public class AppSettings
     {
         ["critical"] = "#FF0000", ["warning"] = "#FFA500", ["info"] = "#4A9EFF"
     };
+
+    /// <summary>16-slot palette of user-defined custom colors for the Windows
+    /// color picker dialog. Persisted across sessions and shared between every
+    /// alert color picker so a custom color you save once is available
+    /// everywhere. Stored as int[] to match WinForms.ColorDialog.CustomColors
+    /// directly (BGR-encoded Win32 COLORREF values).</summary>
+    public int[]? CustomColorPalette { get; set; }
     public Dictionary<string, int> SeverityCooldowns { get; set; } = new()
     {
         ["critical"] = 5, ["warning"] = 15, ["info"] = 30
@@ -186,6 +205,7 @@ public class AppSettings
     [JsonIgnore] public bool HideThumbnailsOnLostFocus { get => _cp.HideThumbnailsOnLostFocus; set => _cp.HideThumbnailsOnLostFocus = value; }
     [JsonIgnore] public bool ShowThumbnailsAlwaysOnTop { get => _cp.ShowThumbnailsAlwaysOnTop; set => _cp.ShowThumbnailsAlwaysOnTop = value; }
     [JsonIgnore] public int ThumbnailOpacity { get => _cp.ThumbnailOpacity; set => _cp.ThumbnailOpacity = value; }
+    [JsonIgnore] public bool OpacityOnHover { get => _cp.OpacityOnHover; set => _cp.OpacityOnHover = value; }
     [JsonIgnore] public int ClientHighlightBorderThickness { get => _cp.ClientHighlightBorderThickness; set => _cp.ClientHighlightBorderThickness = value; }
     [JsonIgnore] public string ClientHighlightColor { get => _cp.ClientHighlightColor; set => _cp.ClientHighlightColor = value; }
     [JsonIgnore] public bool ShowClientHighlightBorder { get => _cp.ShowClientHighlightBorder; set => _cp.ShowClientHighlightBorder = value; }
@@ -401,6 +421,7 @@ public class Profile
     public bool HideThumbnailsOnLostFocus { get; set; } = false;
     public bool ShowThumbnailsAlwaysOnTop { get; set; } = true;
     public int ThumbnailOpacity { get; set; } = 80;
+    public bool OpacityOnHover { get; set; } = false;
     public int ClientHighlightBorderThickness { get; set; } = 4;
     public string ClientHighlightColor { get; set; } = "#E36A0D";
     public bool ShowClientHighlightBorder { get; set; } = true;

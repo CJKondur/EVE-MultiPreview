@@ -370,6 +370,7 @@
                                 <Slider x:Name="SliderOpacity" Minimum="0" Maximum="100" Width="200" ValueChanged="OnOpacityChanged"/>
                                 <TextBlock x:Name="TxtOpacityValue" VerticalAlignment="Center" Margin="8,0,0,0"/>
                             </StackPanel>
+                            <CheckBox x:Name="ChkOpacityOnHover" Content="Bump To 100% Opacity On Hover" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkAlwaysOnTop" Content="Always On Top" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkHideOnLostFocus" Content="Hide When Alt-Tabbed" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkHideActive" Content="Hide Active Thumbnail" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
@@ -679,6 +680,18 @@
                             <CheckBox x:Name="ChkPveMode" Content="PVE Mode (Ignore NPC Damage)" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
                             <TextBlock Text="Only alert on player damage — filters out rats, sentries, and NPCs."
                                        Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,8"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Label Content="Pulse opacity:" Width="120" VerticalAlignment="Center"/>
+                                <Slider x:Name="SliderAlertOpacity" Minimum="10" Maximum="100" Width="180"
+                                        IsSnapToTickEnabled="True" TickFrequency="5"
+                                        ValueChanged="OnAlertOpacityChanged"/>
+                                <TextBlock x:Name="TxtAlertOpacityValue" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            </StackPanel>
+                            <TextBlock Text="Lowers the strength of the alert pulse border across all events. 100% = current behavior."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                            <CheckBox x:Name="ChkAlertBadgeOnThumbnails" Content="Show alert count badge on thumbnails" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
+                            <TextBlock Text="A small numbered badge appears on each thumbnail when its character receives alerts; clears the moment you bring that client to focus."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,8" TextWrapping="Wrap"/>
                             <!-- Per-event rows built in code-behind -->
                             <StackPanel x:Name="AlertEventRows"/>
                         </StackPanel>

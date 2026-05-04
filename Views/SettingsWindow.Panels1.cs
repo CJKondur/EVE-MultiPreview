@@ -27,6 +27,18 @@ public partial class SettingsWindow
     private string? PickColor(string? initialHex = null)
     {
         var dlg = new WinForms.ColorDialog { FullOpen = true };
+
+        // Load the user's persisted custom-color palette so any colors they've
+        // saved show up in the Windows color picker's "Custom colors" panel —
+        // both across sessions and across every place we open this dialog
+        // (issue #32: custom colors disappeared on restart and weren't shared
+        // between different alert pickers). The 16-slot int[] format matches
+        // ColorDialog.CustomColors exactly.
+        if (S.CustomColorPalette != null && S.CustomColorPalette.Length == 16)
+        {
+            try { dlg.CustomColors = (int[])S.CustomColorPalette.Clone(); } catch { }
+        }
+
         if (!string.IsNullOrEmpty(initialHex))
         {
             try
@@ -37,7 +49,12 @@ public partial class SettingsWindow
             catch { }
         }
         if (dlg.ShowDialog() == WinForms.DialogResult.OK)
+        {
+            // Persist whatever palette state the user left the dialog in,
+            // including any new "Add to Custom Colors" entries.
+            try { S.CustomColorPalette = (int[])dlg.CustomColors.Clone(); SaveDelayed(); } catch { }
             return $"0x{dlg.Color.R:x2}{dlg.Color.G:x2}{dlg.Color.B:x2}";
+        }
         return null;
     }
 
@@ -254,6 +271,7 @@ public partial class SettingsWindow
     {
         S.ShowThumbnailsAlwaysOnTop = ChkAlwaysOnTop.IsChecked == true;
         S.HideThumbnailsOnLostFocus = ChkHideOnLostFocus.IsChecked == true;
+        S.OpacityOnHover = ChkOpacityOnHover.IsChecked == true;
         S.HideActiveThumbnail = ChkHideActive.IsChecked == true;
         S.ShowSystemName = ChkShowSystem.IsChecked == true;
         S.ShowProcessStats = ChkShowStats.IsChecked == true;
