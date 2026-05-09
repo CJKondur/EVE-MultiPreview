@@ -59,6 +59,7 @@ public class AppSettings
     public bool EnableDebugLogging_Cycling { get; set; } = false;
     public bool EnableDebugLogging_WindowHooks { get; set; } = false;
     public bool EnableDebugLogging_DWM { get; set; } = false;
+    public bool EnableDebugLogging_Alerts { get; set; } = false;
 
     // ── Alert Settings ──────────────────────────────────────────────
 
@@ -77,6 +78,13 @@ public class AppSettings
     /// caps display at 9+). The count clears the moment that EVE client
     /// becomes foreground. Default true.</summary>
     public bool ShowAlertBadgeOnThumbnails { get; set; } = true;
+
+    /// <summary>Per-event opt-out for the thumbnail badge. Missing key = badge
+    /// fires for that event (default-on). Lets the user keep the global
+    /// `ShowAlertBadgeOnThumbnails` enabled while quieting specific events
+    /// (e.g. only badge on Under Attack, never on Cargo Full).</summary>
+    public Dictionary<string, bool> BadgeOnThumbnailAlertTypes { get; set; } = new();
+
     public Dictionary<string, string> AlertColors { get; set; } = new();
     public Dictionary<string, string> AlertSounds { get; set; } = new();
     public Dictionary<string, int> SoundCooldowns { get; set; } = new();

@@ -211,11 +211,28 @@ public partial class SettingsWindow
             try { sevLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sevColor.Replace("0x", "#"))); } catch { }
             row.Children.Add(sevLabel);
             var isEnabled = !S.EnabledAlertTypes.TryGetValue(evt.id, out var en) || en;
-            var cb = new CheckBox { Content = evt.label, IsChecked = isEnabled, Tag = evt.id, Margin = new Thickness(0, 0, 8, 0) };
+            var cb = new CheckBox { Content = evt.label, IsChecked = isEnabled, Tag = evt.id, Margin = new Thickness(0, 0, 8, 0), Width = 200 };
             cb.Foreground = (Brush)FindResource("TextPrimaryBrush");
             cb.Checked += (_, _) => { S.EnabledAlertTypes[evt.id] = true; SaveDelayed(); };
             cb.Unchecked += (_, _) => { S.EnabledAlertTypes[evt.id] = false; SaveDelayed(); };
             row.Children.Add(cb);
+
+            // Per-event "show badge on thumbnail" toggle. Missing key = on
+            // (default behavior). Lets the user keep alerts firing for an
+            // event while silencing its thumbnail badge — useful for chatty
+            // events like System Change. Requested by CJ.
+            var badgeOn = !S.BadgeOnThumbnailAlertTypes.TryGetValue(evt.id, out var bo) || bo;
+            var badgeCb = new CheckBox {
+                Content = "Badge",
+                IsChecked = badgeOn,
+                Margin = new Thickness(0, 0, 0, 0),
+                ToolTip = "Show alert count badge on thumbnail when this event fires"
+            };
+            badgeCb.Foreground = (Brush)FindResource("TextSecondaryBrush");
+            var capturedBadgeId = evt.id;
+            badgeCb.Checked += (_, _) => { S.BadgeOnThumbnailAlertTypes[capturedBadgeId] = true; SaveDelayed(); };
+            badgeCb.Unchecked += (_, _) => { S.BadgeOnThumbnailAlertTypes[capturedBadgeId] = false; SaveDelayed(); };
+            row.Children.Add(badgeCb);
 
             AlertEventRows.Children.Add(row);
         }
@@ -227,17 +244,18 @@ public partial class SettingsWindow
     {
         SeverityRows.Children.Clear();
         var tiers = new[] {
-            (id: "critical", emoji: "\ud83d\udd34", name: "Critical", defCool: 5, defTray: true),
-            (id: "warning",  emoji: "\ud83d\udfe0", name: "Warning",  defCool: 15, defTray: false),
-            (id: "info",     emoji: "\ud83d\udd35", name: "Info",     defCool: 30, defTray: false)
+            (id: "critical", emoji: "\ud83d\udd34", name: "Critical", defCool: 5,  defTray: true,  defFlash: 200),
+            (id: "warning",  emoji: "\ud83d\udfe0", name: "Warning",  defCool: 15, defTray: false, defFlash: 500),
+            (id: "info",     emoji: "\ud83d\udd35", name: "Info",     defCool: 30, defTray: false, defFlash: 1000)
         };
         var header = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 4) };
         header.Children.Add(new TextBlock { Text = "Color", Width = 52, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") });
         header.Children.Add(new TextBlock { Text = "Tier", Width = 110, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") });
         header.Children.Add(new TextBlock { Text = "Cooldown", Width = 80, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") });
         header.Children.Add(new TextBlock { Text = "Tray", Width = 40, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") });
+        header.Children.Add(new TextBlock { Text = "Pulse Speed", Width = 200, FontWeight = FontWeights.SemiBold, Foreground = (Brush)FindResource("AccentBrush") });
         SeverityRows.Children.Add(header);
-        foreach (var (id, emoji, name, defCool, defTray) in tiers)
+        foreach (var (id, emoji, name, defCool, defTray, defFlash) in tiers)
         {
             var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 2) };
 
@@ -282,6 +300,39 @@ public partial class SettingsWindow
             trayCb.Checked += (_, _) => { S.SeverityTrayNotify[capturedId] = true; SaveDelayed(); };
             trayCb.Unchecked += (_, _) => { S.SeverityTrayNotify[capturedId] = false; SaveDelayed(); };
             row.Children.Add(trayCb);
+
+            // Pulse-speed slider — controls how often the alert border toggles
+            // on/off in milliseconds. Lower = faster pulse. Range chosen to
+            // span from "very twitchy" (100ms) to "barely pulsing" (2000ms).
+            // Drives FlashAlertTick's per-severity rate; defaults preserve
+            // the legacy 200/500/1000 ms speeds. Requested by darkscion0 (#38).
+            var flashRate = S.SeverityFlashRates.TryGetValue(id, out var fr) ? fr : defFlash;
+            var flashSlider = new Slider {
+                Minimum = 100, Maximum = 2000,
+                Value = flashRate,
+                Width = 130,
+                IsSnapToTickEnabled = true,
+                TickFrequency = 50,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(8, 0, 6, 0)
+            };
+            var flashLabel = new TextBlock {
+                Text = $"{flashRate} ms",
+                Width = 60,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = (Brush)FindResource("TextSecondaryBrush")
+            };
+            flashSlider.ValueChanged += (_, e) =>
+            {
+                int v = (int)e.NewValue;
+                flashLabel.Text = $"{v} ms";
+                if (_loading) return;
+                S.SeverityFlashRates[capturedId] = v;
+                SaveDelayed();
+            };
+            row.Children.Add(flashSlider);
+            row.Children.Add(flashLabel);
+
             SeverityRows.Children.Add(row);
         }
     }

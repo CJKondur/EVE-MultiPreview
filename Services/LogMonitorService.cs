@@ -1102,6 +1102,8 @@ public sealed class LogMonitorService : IDisposable
                         LastPosition = 0
                     };
                     newFiles++;
+                    DiagnosticsService.LogAlerts(
+                        $"[Track] +gamelog {Path.GetFileName(file)} mtime={File.GetLastWriteTime(file):HH:mm:ss}");
                 }
             }
         }
@@ -1251,10 +1253,20 @@ public sealed class LogMonitorService : IDisposable
                 if (!isFirstRead)
                     state.LastPosition = fs.Position;
             }
-            catch (IOException) { }
+            catch (IOException ioex)
+            {
+                // EVE writes can briefly hold an exclusive lock, producing
+                // IOException here. Previously this was silently swallowed,
+                // leaving missed lines invisible. Surface them so a flurry of
+                // contention shows up in the diagnostic log.
+                DiagnosticsService.LogAlerts(
+                    $"[Read] ❌ IOException on {Path.GetFileName(path)} at pos={state.LastPosition}: {ioex.Message}");
+            }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[LogMonitor:Scan] ❌ Read error {Path.GetFileName(path)}: {ex.Message}");
+                DiagnosticsService.LogAlerts(
+                    $"[Read] ❌ Exception on {Path.GetFileName(path)} at pos={state.LastPosition}: {ex.GetType().Name}: {ex.Message}");
             }
         }
     }
@@ -1288,6 +1300,17 @@ public sealed class LogMonitorService : IDisposable
     private void ProcessLine(string line, LogFileState state)
     {
         if (string.IsNullOrWhiteSpace(line)) return;
+
+        // Trace every (notify) line we read — proves whether the LogMonitor
+        // is even seeing the line, separate from whether the parser matches.
+        // If a missed alert lacks a [Read] entry here, the upstream issue is
+        // file reading (mtime stale, file not tracked, partial-line lost).
+        if (line.Contains("(notify)") && state.Type == LogType.GameLog)
+        {
+            string charForTrace = _fileCharacterMap.GetValueOrDefault(state.Path, "<unresolved>");
+            DiagnosticsService.LogAlerts(
+                $"[Read] notify line from '{charForTrace}' file={Path.GetFileName(state.Path)}: {line.Trim()}");
+        }
 
         // Extract character name from log header
         var trimmed = line.TrimStart();
@@ -1483,18 +1506,21 @@ public sealed class LogMonitorService : IDisposable
             // Cargo Full
             if (line.Contains("cargo hold is full"))
             {
+                DiagnosticsService.LogAlerts($"[Parse] '{character}' matched cargo-full pattern: {line.Trim()}");
                 TriggerAlert(character, "mine_cargo_full", "warning");
                 return;
             }
             // Asteroid Depleted
             if (line.Contains("pale shadow of its former glory"))
             {
+                DiagnosticsService.LogAlerts($"[Parse] '{character}' matched pale-shadow pattern: {line.Trim()}");
                 TriggerAlert(character, "mine_asteroid_depleted", "info");
                 return;
             }
             // Crystal Broken
             if (line.Contains("deactivates due to the destruction"))
             {
+                DiagnosticsService.LogAlerts($"[Parse] '{character}' matched crystal-broken pattern: {line.Trim()}");
                 TriggerAlert(character, "mine_crystal_broken", "warning");
                 return;
             }
@@ -1705,10 +1731,13 @@ public sealed class LogMonitorService : IDisposable
 
     private void TriggerAlert(string character, string alertType, string severity)
     {
+        DiagnosticsService.LogAlerts($"[Trigger] entered: type={alertType} severity={severity} char='{character}' enabledTypesCount={_enabledAlertTypes.Count}");
+
         // ── Per-event enable/disable check ──
         if (_enabledAlertTypes.Count > 0 && _enabledAlertTypes.TryGetValue(alertType, out bool enabled) && !enabled)
         {
             Debug.WriteLine($"[LogMonitor:Event] 🚫 Alert disabled by settings: {alertType} for '{character}'");
+            DiagnosticsService.LogAlerts($"[Trigger] SUPPRESSED — disabled by settings: type={alertType} char='{character}'");
             return;
         }
 
@@ -1722,12 +1751,14 @@ public sealed class LogMonitorService : IDisposable
             if (elapsed < cooldownSec)
             {
                 Debug.WriteLine($"[LogMonitor:Cooldown] ⏳ Cooldown active: {alertType} for '{character}' ({elapsed:F1}s / {cooldownSec}s)");
+                DiagnosticsService.LogAlerts($"[Trigger] SUPPRESSED — cooldown active: type={alertType} char='{character}' elapsed={elapsed:F1}s/{cooldownSec}s");
                 return;
             }
         }
         _alertCooldowns[key] = DateTime.Now;
 
         Debug.WriteLine($"[LogMonitor:Event] ⚡ Alert fired: {alertType} [{severity}] for '{character}'");
+        DiagnosticsService.LogAlerts($"[Trigger] FIRED — invoking AlertTriggered: type={alertType} severity={severity} char='{character}'");
         AlertTriggered?.Invoke(character, alertType, severity);
     }
 

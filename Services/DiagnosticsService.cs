@@ -19,16 +19,29 @@ public static class DiagnosticsService
         }
     }
 
+    private static readonly object _writeLock = new();
+
     private static void AppendLog(string category, string message)
     {
+        // Serialize writes so concurrent calls from many chars firing at once
+        // can't lose entries to file-lock contention. File.AppendAllText opens
+        // the file with exclusive write each call, so two parallel calls would
+        // race; previously the loser was silently dropped.
         try
         {
             string fileName = $"debug_{category}.log";
             string path = Path.Combine(LogDir, fileName);
-            File.AppendAllText(path, $"[{DateTime.Now:HH:mm:ss.fff}] {message}\n");
+            string line = $"[{DateTime.Now:HH:mm:ss.fff}] {message}\n";
+            lock (_writeLock)
+            {
+                File.AppendAllText(path, line);
+            }
             Debug.WriteLine($"[{category}] {message}");
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Diag:{category}] ❌ Log write failed: {ex.Message}");
+        }
     }
 
     public static void LogInjection(string message)
@@ -60,6 +73,14 @@ public static class DiagnosticsService
         if (GlobalSettings?.EnableDebugLogging_DWM == true)
         {
             AppendLog("dwm", message);
+        }
+    }
+
+    public static void LogAlerts(string message)
+    {
+        if (GlobalSettings?.EnableDebugLogging_Alerts == true)
+        {
+            AppendLog("alerts", message);
         }
     }
 

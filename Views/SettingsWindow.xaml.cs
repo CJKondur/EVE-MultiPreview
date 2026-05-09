@@ -357,6 +357,7 @@ public partial class SettingsWindow : Window
             if (ChkDebugCycling != null) ChkDebugCycling.IsChecked = S.EnableDebugLogging_Cycling;
             if (ChkDebugWindowHooks != null) ChkDebugWindowHooks.IsChecked = S.EnableDebugLogging_WindowHooks;
             if (ChkDebugDwm != null) ChkDebugDwm.IsChecked = S.EnableDebugLogging_DWM;
+            if (ChkDebugAlerts != null) ChkDebugAlerts.IsChecked = S.EnableDebugLogging_Alerts;
 
             // Color blind button state
             UpdateColorBlindButton();
@@ -547,6 +548,7 @@ public partial class SettingsWindow : Window
         S.EnableDebugLogging_Cycling = ChkDebugCycling?.IsChecked ?? false;
         S.EnableDebugLogging_WindowHooks = ChkDebugWindowHooks?.IsChecked ?? false;
         S.EnableDebugLogging_DWM = ChkDebugDwm?.IsChecked ?? false;
+        S.EnableDebugLogging_Alerts = ChkDebugAlerts?.IsChecked ?? false;
         SaveDelayed();
     }
 

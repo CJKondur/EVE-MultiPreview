@@ -70,6 +70,7 @@ public class AhkConfigRoot
         s.EnableDebugLogging_Cycling = g.EnableDebugLogging_Cycling != 0;
         s.EnableDebugLogging_WindowHooks = g.EnableDebugLogging_WindowHooks != 0;
         s.EnableDebugLogging_DWM = g.EnableDebugLogging_DWM != 0;
+        s.EnableDebugLogging_Alerts = g.EnableDebugLogging_Alerts != 0;
 
         // Alert settings
 
@@ -93,6 +94,7 @@ public class AhkConfigRoot
         s.SeverityFlashRates = g.SeverityFlashRates ?? new();
         s.SeverityTrayNotify = ConvertIntDictToBoolDict(g.SeverityTrayNotify);
         s.EnabledAlertTypes = ConvertIntDictToBoolDict(g.EnabledAlertTypes);
+        s.BadgeOnThumbnailAlertTypes = ConvertIntDictToBoolDict(g.BadgeOnThumbnailAlertTypes);
 
         // Log monitoring
         s.EnableChatLogMonitoring = g.EnableChatLogMonitoring != 0;
@@ -289,6 +291,7 @@ public class AhkConfigRoot
         g.EnableDebugLogging_Cycling = s.EnableDebugLogging_Cycling ? 1 : 0;
         g.EnableDebugLogging_WindowHooks = s.EnableDebugLogging_WindowHooks ? 1 : 0;
         g.EnableDebugLogging_DWM = s.EnableDebugLogging_DWM ? 1 : 0;
+        g.EnableDebugLogging_Alerts = s.EnableDebugLogging_Alerts ? 1 : 0;
 
         // Alert
 
@@ -311,6 +314,7 @@ public class AhkConfigRoot
         g.SeverityFlashRates = s.SeverityFlashRates;
         g.SeverityTrayNotify = ConvertBoolDictToIntDict(s.SeverityTrayNotify);
         g.EnabledAlertTypes = ConvertBoolDictToIntDict(s.EnabledAlertTypes);
+        g.BadgeOnThumbnailAlertTypes = ConvertBoolDictToIntDict(s.BadgeOnThumbnailAlertTypes);
 
         // Log
         g.EnableChatLogMonitoring = s.EnableChatLogMonitoring ? 1 : 0;
@@ -840,6 +844,9 @@ public class AhkGlobalSettings
     [JsonPropertyName("EnableDebugLogging_DWM")]
     public int EnableDebugLogging_DWM { get; set; }
 
+    [JsonPropertyName("EnableDebugLogging_Alerts")]
+    public int EnableDebugLogging_Alerts { get; set; }
+
     [JsonPropertyName("PVEMode")]
     public int PVEMode { get; set; }
 
@@ -893,6 +900,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("EnabledAlertTypes")]
     public Dictionary<string, int>? EnabledAlertTypes { get; set; }
+
+    [JsonPropertyName("BadgeOnThumbnailAlertTypes")]
+    public Dictionary<string, int>? BadgeOnThumbnailAlertTypes { get; set; }
 
     [JsonPropertyName("EnableChatLogMonitoring")]
     public int EnableChatLogMonitoring { get; set; } = 1;

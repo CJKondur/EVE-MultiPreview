@@ -242,13 +242,20 @@ public partial class App : Application
             {
                 Debug.WriteLine($"[App:Alert] ⚡ Alert: {alertType} [{severity}] for '{charName}'");
                 var activeChars = _thumbnailManager.GetActiveCharacterNames();
+                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                    $"[App] AlertTriggered received: type={alertType} severity={severity} char='{charName}' " +
+                    $"activeChars=[{string.Join(", ", activeChars.Select(c => $"'{c}'"))}]");
                 if (!activeChars.Any(n => string.Equals(n, charName, StringComparison.OrdinalIgnoreCase)))
                 {
                     Debug.WriteLine($"[App:Alert] ⏭ Skipped — '{charName}' not in active windows");
+                    EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                        $"[App] DROPPED — '{charName}' not in active-windows list. Alert will not flash/badge/toast.");
                     return;
                 }
+                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                    $"[App] '{charName}' found in active windows, dispatching to flash/badge/toast/sound");
                 _thumbnailManager.SetAlertFlash(charName, severity, alertType);
-                _thumbnailManager.IncrementAlertBadge(charName, severity);
+                _thumbnailManager.IncrementAlertBadge(charName, severity, alertType);
                 bool trayEnabled = _settings.Settings.SeverityTrayNotify.TryGetValue(severity, out var tn) && tn;
 
                 // Always show the HUB toast when alerts are configured to surface
@@ -257,6 +264,8 @@ public partial class App : Application
                 // clients alerted simultaneously and one of them happened to be
                 // foreground, that one's toast was silently dropped and the
                 // user only saw the background client's toast.
+                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                    $"[App] toast decision for '{charName}': hubEnabled={_settings.Settings.AlertHubEnabled} trayNotify[{severity}]={trayEnabled}");
                 if (_settings.Settings.AlertHubEnabled && trayEnabled)
                     _alertHub.ShowToast(charName, alertType, severity);
 

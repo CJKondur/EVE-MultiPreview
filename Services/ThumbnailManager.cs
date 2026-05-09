@@ -445,6 +445,19 @@ public sealed class ThumbnailManager : IDisposable
 
                 thumbWindow.UpdateCharacterName(window.CharacterName);
 
+                // Re-apply cycle-exclusion visual after a character resolves
+                // post char-select. The thumbnail was created with an empty
+                // CharacterName (full EVE relaunch lands at char-select first),
+                // so the initial check in CreateThumbnail couldn't match the
+                // _excludedFromCycle entry. Issue #39 — without this re-apply
+                // the red X disappeared after a full client restart even
+                // though the character was still functionally excluded.
+                if (!string.IsNullOrEmpty(window.CharacterName))
+                {
+                    bool isExcluded = _excludedFromCycle.ContainsKey(window.CharacterName);
+                    thumbWindow.SetCycleExcluded(isExcluded);
+                }
+
                 // Check if char select (title == "EVE" without character name)
                 bool isCharSelect = string.IsNullOrEmpty(window.CharacterName) ||
                     window.Title == "EVE";
@@ -1576,20 +1589,53 @@ public sealed class ThumbnailManager : IDisposable
     /// App's AlertTriggered handler. Skips entirely if the alerting character's
     /// window is currently the foreground — the user is already looking at it,
     /// no need to badge them about something they're seeing in real time.</summary>
-    public void IncrementAlertBadge(string characterName, string severity)
+    public void IncrementAlertBadge(string characterName, string severity, string alertType = "")
     {
-        if (string.IsNullOrEmpty(characterName)) return;
-        if (!_settings.Settings.ShowAlertBadgeOnThumbnails) return;
+        if (string.IsNullOrEmpty(characterName))
+        {
+            DiagnosticsService.LogAlerts($"[Badge] DROPPED — empty character name");
+            return;
+        }
+        if (!_settings.Settings.ShowAlertBadgeOnThumbnails)
+        {
+            DiagnosticsService.LogAlerts($"[Badge] DROPPED — ShowAlertBadgeOnThumbnails=false for '{characterName}'");
+            return;
+        }
+
+        // Per-event opt-out. Missing key = on (badge fires) so existing
+        // installs keep behaving the same; the user can uncheck specific
+        // events in Settings → Alerts → Alert Events to silence their
+        // thumbnail badge while keeping toast / sound / pulse intact.
+        if (!string.IsNullOrEmpty(alertType)
+            && _settings.Settings.BadgeOnThumbnailAlertTypes.TryGetValue(alertType, out var perEvtBadge)
+            && !perEvtBadge)
+        {
+            DiagnosticsService.LogAlerts($"[Badge] DROPPED — badge disabled for event '{alertType}' on '{characterName}'");
+            return;
+        }
 
         // If this character's EVE window is foreground right now, the user is
         // already focused on it — they don't need a badge for something
         // happening in their active client.
         var fgHwnd = Interop.User32.GetForegroundWindow();
+        bool foundThumb = false;
         foreach (var (eveHwnd, thumb) in _thumbnails)
         {
+            if (string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+                foundThumb = true;
             if (eveHwnd == fgHwnd
                 && string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+            {
+                DiagnosticsService.LogAlerts($"[Badge] SUPPRESSED — '{characterName}' is foreground");
                 return;
+            }
+        }
+
+        if (!foundThumb)
+        {
+            DiagnosticsService.LogAlerts(
+                $"[Badge] WARN — no thumbnail in _thumbnails matches char='{characterName}'. " +
+                $"Tracked thumbs: [{string.Join(", ", _thumbnails.Values.Select(t => $"'{t.CharacterName}'"))}]");
         }
 
         var info = _alertBadges.AddOrUpdate(
@@ -1597,6 +1643,7 @@ public sealed class ThumbnailManager : IDisposable
             _ => new AlertBadgeInfo { Count = 1, TopSeverity = severity },
             (_, existing) => { existing.Count++; return existing; });
 
+        DiagnosticsService.LogAlerts($"[Badge] INCREMENTED — '{characterName}' count={info.Count} severity={severity}");
         ApplyBadgeToThumbnail(characterName, info.Count);
     }
 
@@ -1618,12 +1665,16 @@ public sealed class ThumbnailManager : IDisposable
     {
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
+            int matched = 0;
             foreach (var (_, thumb) in _thumbnails)
             {
                 if (!string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
                     continue;
                 thumb.SetAlertBadge(count, "#FF0000");
+                matched++;
             }
+            DiagnosticsService.LogAlerts(
+                $"[Badge] ApplyBadgeToThumbnail char='{characterName}' count={count} matchedThumbs={matched}");
         });
     }
 
@@ -1647,8 +1698,13 @@ public sealed class ThumbnailManager : IDisposable
                 continue;
             }
 
-            // Check if it's time to toggle based on severity rate
-            int rateMs = FlashRates.GetValueOrDefault(info.Severity, 500);
+            // Check if it's time to toggle based on severity rate. User-
+            // configurable via Settings → Alerts → Severity Settings (#38);
+            // falls back to the legacy 200 / 500 / 1000 ms defaults if a
+            // severity isn't in the settings dict.
+            int rateMs = s.SeverityFlashRates.TryGetValue(info.Severity, out var sr)
+                ? sr
+                : FlashRates.GetValueOrDefault(info.Severity, 500);
             if ((now - info.LastToggleTime).TotalMilliseconds >= rateMs)
             {
                 info.ShowFlash = !info.ShowFlash;

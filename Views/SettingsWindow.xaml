@@ -1334,7 +1334,9 @@
                                       Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
                             <CheckBox x:Name="ChkDebugWindowHooks" Content="Window Foreground &amp; Focus Hooks (EVE client detection)" 
                                       Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
-                            <CheckBox x:Name="ChkDebugDwm" Content="Desktop Window Manager (Thumbnail API HResults)" 
+                            <CheckBox x:Name="ChkDebugDwm" Content="Desktop Window Manager (Thumbnail API HResults)"
+                                      Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
+                            <CheckBox x:Name="ChkDebugAlerts" Content="Alert Pipeline (Parse → Trigger → Badge / Toast / Sound)"
                                       Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
                         </StackPanel>
                     </GroupBox>
