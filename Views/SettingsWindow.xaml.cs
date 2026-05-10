@@ -251,6 +251,19 @@ public partial class SettingsWindow : Window
             ChkAlwaysOnTop.IsChecked = S.ShowThumbnailsAlwaysOnTop;
             ChkHideOnLostFocus.IsChecked = S.HideThumbnailsOnLostFocus;
             ChkOpacityOnHover.IsChecked = S.OpacityOnHover;
+            // Cycle exclusion badge position — match by Tag string, default to TopLeft.
+            string pos = string.IsNullOrEmpty(S.CycleExclusionBadgePosition) ? "TopLeft" : S.CycleExclusionBadgePosition;
+            int posIdx = 0;
+            for (int i = 0; i < CmbExclusionBadgePos.Items.Count; i++)
+            {
+                if (CmbExclusionBadgePos.Items[i] is System.Windows.Controls.ComboBoxItem cbi
+                    && string.Equals(cbi.Tag as string, pos, StringComparison.Ordinal))
+                {
+                    posIdx = i;
+                    break;
+                }
+            }
+            CmbExclusionBadgePos.SelectedIndex = posIdx;
             ChkHideActive.IsChecked = S.HideActiveThumbnail;
             ChkShowSystem.IsChecked = S.ShowSystemName;
             ChkShowStats.IsChecked = S.ShowProcessStats;

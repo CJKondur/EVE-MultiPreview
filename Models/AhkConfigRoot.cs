@@ -97,6 +97,7 @@ public class AhkConfigRoot
         s.BadgeOnThumbnailAlertTypes = ConvertIntDictToBoolDict(g.BadgeOnThumbnailAlertTypes);
         s.StaticThumbnails = g.StaticThumbnails != 0;
         s.SuspendThumbnailsWhenBackground = g.SuspendThumbnailsWhenBackground != 0;
+        s.CycleExclusionBadgePosition = g.CycleExclusionBadgePosition ?? "TopLeft";
 
         // Log monitoring
         s.EnableChatLogMonitoring = g.EnableChatLogMonitoring != 0;
@@ -319,6 +320,7 @@ public class AhkConfigRoot
         g.BadgeOnThumbnailAlertTypes = ConvertBoolDictToIntDict(s.BadgeOnThumbnailAlertTypes);
         g.StaticThumbnails = s.StaticThumbnails ? 1 : 0;
         g.SuspendThumbnailsWhenBackground = s.SuspendThumbnailsWhenBackground ? 1 : 0;
+        g.CycleExclusionBadgePosition = s.CycleExclusionBadgePosition;
 
         // Log
         g.EnableChatLogMonitoring = s.EnableChatLogMonitoring ? 1 : 0;
@@ -913,6 +915,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("SuspendThumbnailsWhenBackground")]
     public int SuspendThumbnailsWhenBackground { get; set; }
+
+    [JsonPropertyName("CycleExclusionBadgePosition")]
+    public string? CycleExclusionBadgePosition { get; set; }
 
     [JsonPropertyName("EnableChatLogMonitoring")]
     public int EnableChatLogMonitoring { get; set; } = 1;

@@ -521,6 +521,9 @@ public sealed class ThumbnailManager : IDisposable
         thumb.SetOpacity((byte)s.ThumbnailOpacity);
         thumb.OpacityOnHover = s.OpacityOnHover;
 
+        // Cycle-exclusion badge position (one of nine anchor points). Issue #41.
+        thumb.SetCycleExclusionPosition(s.CycleExclusionBadgePosition);
+
         // Always on top
         thumb.SetTopmost(s.ShowThumbnailsAlwaysOnTop);
 

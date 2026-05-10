@@ -272,6 +272,11 @@ public partial class SettingsWindow
         S.ShowThumbnailsAlwaysOnTop = ChkAlwaysOnTop.IsChecked == true;
         S.HideThumbnailsOnLostFocus = ChkHideOnLostFocus.IsChecked == true;
         S.OpacityOnHover = ChkOpacityOnHover.IsChecked == true;
+        if (CmbExclusionBadgePos?.SelectedItem is System.Windows.Controls.ComboBoxItem cbiPos
+            && cbiPos.Tag is string posTag)
+        {
+            S.CycleExclusionBadgePosition = posTag;
+        }
         S.HideActiveThumbnail = ChkHideActive.IsChecked == true;
         S.ShowSystemName = ChkShowSystem.IsChecked == true;
         S.ShowProcessStats = ChkShowStats.IsChecked == true;

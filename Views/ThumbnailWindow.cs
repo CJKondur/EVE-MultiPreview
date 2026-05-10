@@ -145,6 +145,8 @@ public class ThumbnailWindow : Form
         _textOverlay?.SetCycleExcluded(excluded);
     }
 
+    public void SetCycleExclusionPosition(string position) => _textOverlay?.SetCycleExclusionPosition(position);
+
     // ── WPF-compat shims ────────────────────────────────────────────
     // ThumbnailManager treats these as WPF-style (double coords, Visibility enum,
     // Topmost/IsVisible spelling). Keep the contract bit-identical so callers

@@ -371,6 +371,23 @@
                                 <TextBlock x:Name="TxtOpacityValue" VerticalAlignment="Center" Margin="8,0,0,0"/>
                             </StackPanel>
                             <CheckBox x:Name="ChkOpacityOnHover" Content="Bump To 100% Opacity On Hover" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Cycle Exclusion Badge:" Width="180"/>
+                                <ComboBox x:Name="CmbExclusionBadgePos" Width="140" SelectionChanged="OnThumbnailChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White">
+                                    <ComboBoxItem Content="Top Left" Tag="TopLeft"/>
+                                    <ComboBoxItem Content="Top" Tag="Top"/>
+                                    <ComboBoxItem Content="Top Right" Tag="TopRight"/>
+                                    <ComboBoxItem Content="Left" Tag="Left"/>
+                                    <ComboBoxItem Content="Center" Tag="Center"/>
+                                    <ComboBoxItem Content="Right" Tag="Right"/>
+                                    <ComboBoxItem Content="Bottom Left" Tag="BottomLeft"/>
+                                    <ComboBoxItem Content="Bottom" Tag="Bottom"/>
+                                    <ComboBoxItem Content="Bottom Right" Tag="BottomRight"/>
+                                </ComboBox>
+                                <TextBlock Text="Position of the red ✕ on excluded thumbnails." VerticalAlignment="Center" Margin="8,0,0,0"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"/>
+                            </StackPanel>
                             <CheckBox x:Name="ChkAlwaysOnTop" Content="Always On Top" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkHideOnLostFocus" Content="Hide When Alt-Tabbed" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkHideActive" Content="Hide Active Thumbnail" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>

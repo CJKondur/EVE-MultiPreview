@@ -219,6 +219,63 @@ public partial class TextOverlayWindow : Window
         ExclusionBadge.Visibility = excluded ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    /// <summary>Move the cycle-exclusion badge to one of nine anchor points so
+    /// it can be kept clear of the character name / system / process-stats
+    /// overlays. Issue #41.</summary>
+    public void SetCycleExclusionPosition(string position)
+    {
+        const double inset = 4;
+        switch ((position ?? "TopLeft").Trim())
+        {
+            case "Top":
+                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+                ExclusionBadge.Margin = new Thickness(0, inset, 0, 0);
+                break;
+            case "TopRight":
+                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+                ExclusionBadge.Margin = new Thickness(0, inset, inset, 0);
+                break;
+            case "Left":
+                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                ExclusionBadge.Margin = new Thickness(inset, 0, 0, 0);
+                break;
+            case "Center":
+                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                ExclusionBadge.Margin = new Thickness(0);
+                break;
+            case "Right":
+                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                ExclusionBadge.Margin = new Thickness(0, 0, inset, 0);
+                break;
+            case "BottomLeft":
+                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
+                ExclusionBadge.Margin = new Thickness(inset, 0, 0, inset);
+                break;
+            case "Bottom":
+                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
+                ExclusionBadge.Margin = new Thickness(0, 0, 0, inset);
+                break;
+            case "BottomRight":
+                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
+                ExclusionBadge.Margin = new Thickness(0, 0, inset, inset);
+                break;
+            case "TopLeft":
+            default:
+                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+                ExclusionBadge.Margin = new Thickness(inset, inset, 0, 0);
+                break;
+        }
+    }
+
     /// <summary>Apply a per-label color and size override for the annotation.
     /// Pass empty <paramref name="colorHex"/> or <paramref name="sizePt"/>=0 to
     /// clear that override and fall back to the global thumbnail text style.</summary>

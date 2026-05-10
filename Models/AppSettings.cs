@@ -79,6 +79,12 @@ public class AppSettings
     /// becomes foreground. Default true.</summary>
     public bool ShowAlertBadgeOnThumbnails { get; set; } = true;
 
+    /// <summary>Where the cycle-exclusion badge sits on an excluded thumbnail.
+    /// Values: TopLeft, Top, TopRight, Left, Center, Right, BottomLeft, Bottom,
+    /// BottomRight. Default TopLeft. Configurable so it can be moved off
+    /// character-name / system-name overlays. Issue #41.</summary>
+    public string CycleExclusionBadgePosition { get; set; } = "TopLeft";
+
     /// <summary>Render every thumbnail from a periodic PrintWindow snapshot
     /// (~1s refresh) instead of the live DWM-composited preview. Trades smooth
     /// motion for a large GPU compositor saving — strongest win when running
