@@ -1612,6 +1612,8 @@ public partial class SettingsWindow : Window
         {
             ChkManageAffinity.IsChecked = S.ManageAffinity;
             ChkAutoBalanceCores.IsChecked = S.AutoBalanceCores;
+            ChkStaticThumbnails.IsChecked = S.StaticThumbnails;
+            ChkSuspendThumbsBackground.IsChecked = S.SuspendThumbnailsWhenBackground;
 
             // Build core options list: "Auto (App Decides)", "Core 0", "Core 1", ...
             var cores = new List<string> { "Auto (App Decides)" };
@@ -1653,6 +1655,8 @@ public partial class SettingsWindow : Window
         if (_loading) return;
         S.ManageAffinity = ChkManageAffinity.IsChecked == true;
         S.AutoBalanceCores = ChkAutoBalanceCores.IsChecked == true;
+        S.StaticThumbnails = ChkStaticThumbnails?.IsChecked == true;
+        S.SuspendThumbnailsWhenBackground = ChkSuspendThumbsBackground?.IsChecked == true;
         SaveDelayed();
     }
 

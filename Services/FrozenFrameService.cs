@@ -41,6 +41,15 @@ public sealed class FrozenFrameService : IDisposable
         _captureTimer.Tick += (_, _) => ScheduleCaptures();
     }
 
+    /// <summary>Switch the polling interval. Static-thumbnail mode uses a
+    /// faster cadence (~1 s) so the user sees ship motion update at a usable
+    /// rate; the default 5 s safety cadence is for the iconic-fallback path.</summary>
+    public void SetCaptureInterval(TimeSpan interval)
+    {
+        if (_captureTimer.Interval == interval) return;
+        _captureTimer.Interval = interval;
+    }
+
     /// <summary>Start polling. The provider returns the set of currently tracked
     /// EVE HWNDs to snapshot — caller decides which windows are live.
     /// If <paramref name="winEvents"/> is provided, an eager pre-minimize capture

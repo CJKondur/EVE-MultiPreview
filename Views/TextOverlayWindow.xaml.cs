@@ -21,13 +21,6 @@ public partial class TextOverlayWindow : Window
     {
         InitializeComponent();
         Loaded += OnLoaded;
-        // Stretch the strikeout lines whenever the overlay resizes (the
-        // ThumbnailWindow drives this via SyncPositionPhysical/SyncPosition).
-        SizeChanged += (_, _) =>
-        {
-            if (ExclusionStrikeout.Visibility == Visibility.Visible)
-                UpdateExclusionLines();
-        };
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -216,29 +209,14 @@ public partial class TextOverlayWindow : Window
         Opacity = opacity;
     }
 
-    /// <summary>Show or hide the diagonal cycle-exclusion strikeout (issue #16,
-    /// fixes #27). Lines are drawn here (WPF overlay) rather than on the
-    /// WinForms ThumbnailWindow because the DWM thumbnail composites over the
-    /// underlying form's client area and would hide the strikeout entirely.</summary>
+    /// <summary>Show or hide the cycle-exclusion badge (issue #16 / #27 / #40).
+    /// Drawn in the WPF overlay rather than the WinForms ThumbnailWindow because
+    /// the DWM thumbnail composites over the underlying form's client area and
+    /// would hide the indicator entirely. Replaced the original full-thumbnail
+    /// red X with a small top-left badge per #40.</summary>
     public void SetCycleExcluded(bool excluded)
     {
-        ExclusionStrikeout.Visibility = excluded ? Visibility.Visible : Visibility.Collapsed;
-        if (excluded) UpdateExclusionLines();
-    }
-
-    private void UpdateExclusionLines()
-    {
-        // Lines span corner-to-corner of the overlay window, with a small
-        // inset so the strokes don't get clipped at the edges.
-        const double inset = 2;
-        double w = Math.Max(0, ActualWidth - inset * 2);
-        double h = Math.Max(0, ActualHeight - inset * 2);
-
-        ExclusionLineA.X1 = inset; ExclusionLineA.Y1 = inset;
-        ExclusionLineA.X2 = inset + w; ExclusionLineA.Y2 = inset + h;
-
-        ExclusionLineB.X1 = inset + w; ExclusionLineB.Y1 = inset;
-        ExclusionLineB.X2 = inset; ExclusionLineB.Y2 = inset + h;
+        ExclusionBadge.Visibility = excluded ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>Apply a per-label color and size override for the annotation.

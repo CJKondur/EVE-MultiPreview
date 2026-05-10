@@ -95,6 +95,8 @@ public class AhkConfigRoot
         s.SeverityTrayNotify = ConvertIntDictToBoolDict(g.SeverityTrayNotify);
         s.EnabledAlertTypes = ConvertIntDictToBoolDict(g.EnabledAlertTypes);
         s.BadgeOnThumbnailAlertTypes = ConvertIntDictToBoolDict(g.BadgeOnThumbnailAlertTypes);
+        s.StaticThumbnails = g.StaticThumbnails != 0;
+        s.SuspendThumbnailsWhenBackground = g.SuspendThumbnailsWhenBackground != 0;
 
         // Log monitoring
         s.EnableChatLogMonitoring = g.EnableChatLogMonitoring != 0;
@@ -315,6 +317,8 @@ public class AhkConfigRoot
         g.SeverityTrayNotify = ConvertBoolDictToIntDict(s.SeverityTrayNotify);
         g.EnabledAlertTypes = ConvertBoolDictToIntDict(s.EnabledAlertTypes);
         g.BadgeOnThumbnailAlertTypes = ConvertBoolDictToIntDict(s.BadgeOnThumbnailAlertTypes);
+        g.StaticThumbnails = s.StaticThumbnails ? 1 : 0;
+        g.SuspendThumbnailsWhenBackground = s.SuspendThumbnailsWhenBackground ? 1 : 0;
 
         // Log
         g.EnableChatLogMonitoring = s.EnableChatLogMonitoring ? 1 : 0;
@@ -903,6 +907,12 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("BadgeOnThumbnailAlertTypes")]
     public Dictionary<string, int>? BadgeOnThumbnailAlertTypes { get; set; }
+
+    [JsonPropertyName("StaticThumbnails")]
+    public int StaticThumbnails { get; set; }
+
+    [JsonPropertyName("SuspendThumbnailsWhenBackground")]
+    public int SuspendThumbnailsWhenBackground { get; set; }
 
     [JsonPropertyName("EnableChatLogMonitoring")]
     public int EnableChatLogMonitoring { get; set; } = 1;

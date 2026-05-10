@@ -880,6 +880,18 @@
                             <TextBlock Text="Dynamically round-robins inactive clients across the bottom half of your logical cores (E-Cores or 2nd CCD)." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,4"/>
                         </StackPanel>
                     </GroupBox>
+                    <GroupBox Header="Thumbnail GPU Optimization">
+                        <StackPanel>
+                            <CheckBox x:Name="ChkStaticThumbnails" Content="Static Thumbnails (lower GPU)" Checked="OnPerformanceChanged" Unchecked="OnPerformanceChanged"/>
+                            <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,8" TextWrapping="Wrap">
+                                Replaces the live DWM-composited preview with a snapshot refreshed roughly once per second. Big GPU saving when running many clients (DWM no longer composites every frame), at the cost of choppy motion — ship movement updates on the snapshot cadence instead of smoothly. Best for fleets where you only need to glance at thumbnails occasionally rather than watch them constantly.
+                            </TextBlock>
+                            <CheckBox x:Name="ChkSuspendThumbsBackground" Content="Suspend Thumbnails When Background" Checked="OnPerformanceChanged" Unchecked="OnPerformanceChanged"/>
+                            <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,4" TextWrapping="Wrap">
+                                Freezes every thumbnail to its last frame whenever neither EVE nor MultiPreview is the foreground process. Resumes live composition the moment EVE or the app comes back. Invisible during active play; stops the GPU paying for thumbnails of windows you can't see while you're working in another app. Adds a sub-second wakeup lag when you alt-tab back.
+                            </TextBlock>
+                        </StackPanel>
+                    </GroupBox>
                     <GroupBox Header="Per-Client Core Overrides">
                         <StackPanel>
                             <TextBlock Text="Explicitly force a specific character to a specific logical processor when they are INACTIVE. This overrides Auto-Balance." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6" TextWrapping="Wrap"/>

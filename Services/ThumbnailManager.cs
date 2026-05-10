@@ -70,6 +70,7 @@ public sealed class ThumbnailManager : IDisposable
     private bool _suppressTopmost = false;  // Suppress topmost while settings window is active
     private bool _settingsOpen = false;     // Settings window exists (even minimized) — keeps thumbnails visible
     private bool _lastEveFocused = false;   // Track focus transitions for one-time BringToFront
+    private bool _lastGpuFreezeState = false; // StaticThumbnails / SuspendThumbnailsWhenBackground transitions
 
     // Alert flash state — per-severity rates + expiry (matches AHK)
     private readonly ConcurrentDictionary<string, AlertFlashInfo> _alertFlashChars = new();
@@ -1007,6 +1008,51 @@ public sealed class ThumbnailManager : IDisposable
             }
         }
 
+        // ── GPU-saving modes (StaticThumbnails / SuspendThumbnailsWhenBackground) ──
+        // Replace live DWM compositing with the cached PrintWindow snapshot
+        // for some or all thumbnails. The frozen-frame paint kicks in
+        // automatically once DWM is hidden AND a frame is set on the thumb
+        // (see ThumbnailWindow.OnPaint). Gate the capture cadence too: a
+        // 1 s refresh is the user-visible "static thumbnail" rate, while
+        // 5 s is the dormant safety cadence for the iconic-fallback path.
+        bool staticAll = s.StaticThumbnails;
+        bool suspendBg = s.SuspendThumbnailsWhenBackground && !eveFocused;
+        bool gpuFreeze = staticAll || suspendBg;
+        _frozenFrames?.SetCaptureInterval(staticAll
+            ? TimeSpan.FromSeconds(1)
+            : TimeSpan.FromSeconds(5));
+        if (gpuFreeze != _lastGpuFreezeState)
+        {
+            foreach (var (eveHwnd, thumb) in _thumbnails)
+            {
+                if (_iconicHwnds.Contains(eveHwnd)) continue;
+                if (gpuFreeze)
+                {
+                    var frame = _frozenFrames?.GetLastFrame(eveHwnd);
+                    if (frame != null) thumb.SetFrozenFrame(frame);
+                    thumb.HideDwmOnly();
+                }
+                else
+                {
+                    thumb.ClearFrozenFrame();
+                    if (!_thumbnailsHidden && !_primaryHidden)
+                        thumb.ShowDwmOnly();
+                }
+            }
+            _lastGpuFreezeState = gpuFreeze;
+        }
+        else if (gpuFreeze)
+        {
+            // Refresh frame on every tick while frozen — picks up new
+            // snapshots produced by FrozenFrameService at its current cadence.
+            foreach (var (eveHwnd, thumb) in _thumbnails)
+            {
+                if (_iconicHwnds.Contains(eveHwnd)) continue;
+                var frame = _frozenFrames?.GetLastFrame(eveHwnd);
+                if (frame != null) thumb.SetFrozenFrame(frame);
+            }
+        }
+
         // Visibility gate for primary thumbnails under HideThumbnailsOnLostFocus.
         // Hide only when every EVE window is closed (or Settings is also closed)
         // — stat overlays and PiPs are decoupled from this and always stay up
@@ -1021,6 +1067,10 @@ public sealed class ThumbnailManager : IDisposable
                 // Skip DWM toggling for iconic windows — they're painting a frozen
                 // frame and must keep _isDwmHidden=true for that to render.
                 if (_iconicHwnds.Contains(eveHwnd)) continue;
+
+                // Skip DWM unhide when GPU-freeze mode wants the thumb static —
+                // otherwise this loop would un-freeze every tick.
+                if (gpuFreeze) continue;
 
                 if (!appVisibleContext && !_thumbnailsHidden)
                     thumb.HideDwmOnly();
@@ -1140,13 +1190,23 @@ public sealed class ThumbnailManager : IDisposable
             bool isActive = eveHwnd == fgHwnd;
             string charName = thumb.CharacterName;
 
-            // Hide active thumbnail DWM preview (text overlay stays via owner + opacity)
-            if (s.HideActiveThumbnail && !_thumbnailsHidden)
+            // Hide active thumbnail DWM preview (text overlay stays via owner + opacity).
+            // Don't override GPU-freeze mode here — if static / suspend mode wants
+            // every non-iconic thumb hidden+frozen, the inactive `ShowDwmOnly` below
+            // would un-freeze them every tick.
+            if (s.HideActiveThumbnail && !_thumbnailsHidden && !gpuFreeze)
             {
                 if (isActive)
                     thumb.HideDwmOnly(); // Opacity 0 — text overlay stays
                 else
                     thumb.ShowDwmOnly(); // Restore inactive thumbnail opacity
+            }
+            else if (s.HideActiveThumbnail && !_thumbnailsHidden && gpuFreeze && isActive)
+            {
+                // Even in freeze mode, the active client's own EVE window is
+                // visible underneath — keep its DWM hidden so the user doesn't
+                // see a duplicate static thumbnail of their active client.
+                thumb.HideDwmOnly();
             }
 
             // Border color
@@ -1202,9 +1262,25 @@ public sealed class ThumbnailManager : IDisposable
         ManageCpuAffinity(fgHwnd, s);
     }
 
+    private bool _lastManageAffinityState = false;
+
     private void ManageCpuAffinity(IntPtr activeHwnd, AppSettings s)
     {
-        if (!s.ManageAffinity) return;
+        // Detect on→off transition and restore every tracked EVE process to
+        // Normal priority + full-core affinity once, otherwise the user's
+        // clients stay stuck at Idle / restricted cores after they uncheck the
+        // master toggle. Then bail. The tracker persists across calls so we
+        // only fire the reset once per disable, not on every tick.
+        if (!s.ManageAffinity)
+        {
+            if (_lastManageAffinityState)
+            {
+                ResetAllEveAffinity();
+                _lastManageAffinityState = false;
+            }
+            return;
+        }
+        _lastManageAffinityState = true;
 
         int totalCores = Environment.ProcessorCount;
         int eCoreStart = totalCores / 2; // Bottom half of logical processors
@@ -1285,6 +1361,36 @@ public sealed class ThumbnailManager : IDisposable
             {
                 eve.Proc.Dispose();
             }
+        }
+    }
+
+    /// <summary>Restore every tracked EVE process to Normal priority and the
+    /// full-cores affinity mask. Called once when the user disables
+    /// ManageAffinity so previously-throttled inactive clients aren't left
+    /// stuck on Idle priority + a single E-Core after the master toggle goes
+    /// off.</summary>
+    private void ResetAllEveAffinity()
+    {
+        int totalCores = Environment.ProcessorCount;
+        long allCoresMask = (1L << totalCores) - 1;
+
+        foreach (var (_, thumb) in _thumbnails)
+        {
+            int pid;
+            try { pid = thumb.GetProcessId(); }
+            catch { continue; }
+            if (pid <= 0) continue;
+
+            try
+            {
+                using var p = Process.GetProcessById(pid);
+                if (p.PriorityClass != ProcessPriorityClass.Normal)
+                    p.PriorityClass = ProcessPriorityClass.Normal;
+                if ((long)p.ProcessorAffinity != allCoresMask)
+                    p.ProcessorAffinity = (IntPtr)allCoresMask;
+                Debug.WriteLine($"[Affinity:Reset] '{thumb.CharacterName}' restored to Normal + all cores");
+            }
+            catch { /* process exited / access denied */ }
         }
     }
 

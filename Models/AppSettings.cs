@@ -79,6 +79,19 @@ public class AppSettings
     /// becomes foreground. Default true.</summary>
     public bool ShowAlertBadgeOnThumbnails { get; set; } = true;
 
+    /// <summary>Render every thumbnail from a periodic PrintWindow snapshot
+    /// (~1s refresh) instead of the live DWM-composited preview. Trades smooth
+    /// motion for a large GPU compositor saving — strongest win when running
+    /// many clients. Default off.</summary>
+    public bool StaticThumbnails { get; set; } = false;
+
+    /// <summary>Freeze every thumbnail to its last frame when neither EVE nor
+    /// MultiPreview is the foreground process; resume live DWM composition
+    /// the moment EVE / the app comes back. Invisible during active play,
+    /// stops the GPU compositing thumbnails for windows you can't see while
+    /// you're working in another app. Default off.</summary>
+    public bool SuspendThumbnailsWhenBackground { get; set; } = false;
+
     /// <summary>Per-event opt-out for the thumbnail badge. Missing key = badge
     /// fires for that event (default-on). Lets the user keep the global
     /// `ShowAlertBadgeOnThumbnails` enabled while quieting specific events

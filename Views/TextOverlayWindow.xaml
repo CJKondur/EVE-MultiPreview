@@ -11,21 +11,32 @@
         Title="TextOverlay">
 
     <Grid x:Name="OverlayRoot">
-        <!-- Cycle-exclusion strikeout (issue #16 / #27) — drawn here in the WPF
-             overlay (which sits ON TOP of the DWM thumbnail) instead of the
-             underlying WinForms client area, where DWM composition would hide
-             it. Visibility is toggled by SetCycleExcluded; lines stretch to the
-             window's full size via SizeChanged. -->
-        <Canvas x:Name="ExclusionStrikeout" IsHitTestVisible="False" Visibility="Collapsed">
-            <Line x:Name="ExclusionLineA" X1="0" Y1="0"
-                  Stroke="#FFDC0000" StrokeThickness="4"
-                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                  Opacity="0.85"/>
-            <Line x:Name="ExclusionLineB" X1="0"
-                  Stroke="#FFDC0000" StrokeThickness="4"
-                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                  Opacity="0.85"/>
-        </Canvas>
+        <!-- Cycle-exclusion indicator (issue #16 / #27 / #40) — small badge in
+             the top-LEFT corner, mirroring the alert-count badge in the top
+             right. Replaces the earlier corner-to-corner red X strikeout,
+             which obscured the thumbnail content. Visibility is toggled by
+             SetCycleExcluded. -->
+        <Border x:Name="ExclusionBadge"
+                Width="20" Height="20"
+                CornerRadius="10"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="4,4,0,0"
+                Background="#FFCC0000"
+                BorderBrush="White"
+                BorderThickness="1"
+                Visibility="Collapsed"
+                IsHitTestVisible="False">
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.9" Color="Black"/>
+            </Border.Effect>
+            <TextBlock Text="✕"
+                       Foreground="White"
+                       FontSize="12"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Border>
 
         <StackPanel x:Name="TextOverlayPanel"
                     VerticalAlignment="Top"
