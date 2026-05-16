@@ -860,8 +860,21 @@ public partial class SettingsWindow
         SaveDelayed();
     }
 
-    private void OnManagerChanged(object s, RoutedEventArgs e) { if (_loading) return; S.AlertHubEnabled = ChkAlertHub.IsChecked == true; SaveDelayed(); }
-    private void OnManagerChanged(object s, TextChangedEventArgs e) { if (_loading) return; if (int.TryParse(TxtToastDuration.Text, out int d)) S.AlertToastDuration = d; SaveDelayed(); }
+    private void OnManagerChanged(object s, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        S.AlertHubEnabled = ChkAlertHub.IsChecked == true;
+        S.AlertHubAutoHide = ChkAlertHubAutoHide?.IsChecked == true;
+        SaveDelayed();
+    }
+    private void OnManagerChanged(object s, TextChangedEventArgs e)
+    {
+        if (_loading) return;
+        if (int.TryParse(TxtToastDuration.Text, out int d)) S.AlertToastDuration = d;
+        if (TxtAlertHubAutoHideSeconds != null && int.TryParse(TxtAlertHubAutoHideSeconds.Text, out int ah) && ah > 0)
+            S.AlertHubAutoHideSeconds = ah;
+        SaveDelayed();
+    }
 
     // ═══ EVE MANAGER ═══
     private Dictionary<string, string> _charNameMap = new();

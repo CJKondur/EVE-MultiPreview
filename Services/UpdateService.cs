@@ -164,6 +164,21 @@ $newExe = '{EscapePs(downloadedExePath)}'
 $oldExe = Join-Path $appDir 'EVE MultiPreview.exe'
 Copy-Item $newExe $oldExe -Force
 
+# Clean up any stale dot-named exe / pdb left over from earlier installs
+# that pre-date the AssemblyName rename. The GitHub release ships the file
+# as 'EVE.MultiPreview.exe' (with a dot, GitHub-friendly), but the local
+# install is 'EVE MultiPreview.exe' (with a space). Old dot-named files
+# from previous versions sit alongside the space-named live exe and show
+# up as confusing duplicates in the install folder (issue #42, bug #3).
+$dotExe = Join-Path $appDir 'EVE.MultiPreview.exe'
+if (Test-Path $dotExe) {{
+    Remove-Item -Path $dotExe -Force -ErrorAction SilentlyContinue
+}}
+$dotPdb = Join-Path $appDir 'EVE.MultiPreview.pdb'
+if (Test-Path $dotPdb) {{
+    Remove-Item -Path $dotPdb -Force -ErrorAction SilentlyContinue
+}}
+
 # Restart the app
 Start-Process $oldExe
 

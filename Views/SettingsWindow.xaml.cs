@@ -103,12 +103,38 @@ public partial class SettingsWindow : Window
         Closing += OnWindowClosing;
         SourceInitialized += OnSourceInitializedRestoreSize;
 
-        // Restore saved window size
-        if (S.SettingsWindowWidth > 0)
-            Width = S.SettingsWindowWidth;
-        if (S.SettingsWindowHeight > 0)
-            Height = S.SettingsWindowHeight;
-        System.Diagnostics.Debug.WriteLine($"[Settings:Ctor] restore size → {S.SettingsWindowWidth}x{S.SettingsWindowHeight} (applied Width={Width}, Height={Height})");
+        // Restore saved window size — but only if it actually exposes the
+        // help sidebar. The wiki panel appears at ActualWidth >= 900 (see
+        // OnWindowSizeChanged). Anything narrower means the user opens
+        // settings without the contextual help, which is the regression
+        // reported as "tiny settings window with no help sidebar." If the
+        // saved size is below the threshold, compute a screen-aware default
+        // that always shows the sidebar and fits the user's work area.
+        const int MinReasonableWidth = 900;   // wiki sidebar threshold
+        const int MinReasonableHeight = 700;  // enough for 16 nav buttons + header
+
+        var workArea = System.Windows.SystemParameters.WorkArea;
+        if (S.SettingsWindowWidth >= MinReasonableWidth)
+        {
+            Width = Math.Min(S.SettingsWindowWidth, workArea.Width);
+        }
+        else
+        {
+            // Screen-aware default. Floor at 1100 (sidebar + comfortable
+            // panel area); cap at 1400 so 4K users don't get a giant
+            // settings window; otherwise 65% of work area.
+            Width = Math.Min(1400, Math.Max(1100, workArea.Width * 0.65));
+        }
+        if (S.SettingsWindowHeight >= MinReasonableHeight)
+        {
+            Height = Math.Min(S.SettingsWindowHeight, workArea.Height);
+        }
+        else
+        {
+            // Floor at 850, cap at 1100, otherwise 70% of work area.
+            Height = Math.Min(1100, Math.Max(850, workArea.Height * 0.70));
+        }
+        System.Diagnostics.Debug.WriteLine($"[Settings:Ctor] restore size → saved {S.SettingsWindowWidth}x{S.SettingsWindowHeight}, work area {workArea.Width:F0}x{workArea.Height:F0}, applied Width={Width}, Height={Height}");
 
         // Live clock timer (Local + EVE/UTC)
         _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -322,6 +348,8 @@ public partial class SettingsWindow : Window
             ChkAlertBadgeOnThumbnails.IsChecked = S.ShowAlertBadgeOnThumbnails;
             ChkAlertHub.IsChecked = S.AlertHubEnabled;
             TxtToastDuration.Text = S.AlertToastDuration.ToString();
+            ChkAlertHubAutoHide.IsChecked = S.AlertHubAutoHide;
+            TxtAlertHubAutoHideSeconds.Text = S.AlertHubAutoHideSeconds.ToString();
             SetNotLoggedInDDL(S.NotLoggedInIndicator);
             TxtNotLoggedInColor.Text = S.NotLoggedInColor;
             UpdateColorPreview(TxtNotLoggedInColor, PreviewNotLoggedIn);
@@ -521,9 +549,14 @@ public partial class SettingsWindow : Window
         // Re-apply saved size after the HWND exists. Covers WPF timing edge cases
         // where Width/Height set in the constructor don't fully commit when the
         // window is Show()'n from a deferred dispatcher timer (auto-open path).
-        if (S.SettingsWindowWidth > 0 && Math.Abs(Width - S.SettingsWindowWidth) > 1)
+        // Same sanity floor as the constructor — only re-apply saved size if it
+        // exposes the help sidebar; otherwise leave whatever the constructor
+        // computed (screen-aware default that always shows the sidebar).
+        const int MinReasonableWidth = 900;
+        const int MinReasonableHeight = 700;
+        if (S.SettingsWindowWidth >= MinReasonableWidth && Math.Abs(Width - S.SettingsWindowWidth) > 1)
             Width = S.SettingsWindowWidth;
-        if (S.SettingsWindowHeight > 0 && Math.Abs(Height - S.SettingsWindowHeight) > 1)
+        if (S.SettingsWindowHeight >= MinReasonableHeight && Math.Abs(Height - S.SettingsWindowHeight) > 1)
             Height = S.SettingsWindowHeight;
         System.Diagnostics.Debug.WriteLine($"[Settings:SourceInit] size → Width={Width}, Height={Height}");
     }
@@ -687,6 +720,13 @@ public partial class SettingsWindow : Window
             "Delay (in ms) before an inactive client\n" +
             "is minimized. Prevents accidental\n" +
             "minimization during fast switching.\n\n" +
+            "Cycle Delay\n" +
+            "────────────────────────────\n" +
+            "Time between activations when a cycle\n" +
+            "hotkey is held down (mouse button or\n" +
+            "key). Lower = faster repeat. Default\n" +
+            "100 ms feels natural for most setups;\n" +
+            "drop it for snappier cycling.\n\n" +
             "UI Scale\n" +
             "────────────────────────────\n" +
             "Adjusts the font size of the Settings\n" +
@@ -700,6 +740,22 @@ public partial class SettingsWindow : Window
             "────────────────────────────\n" +
             "Controls how transparent thumbnails are.\n" +
             "0% = invisible, 100% = fully opaque.\n\n" +
+            "Bump To 100% Opacity On Hover\n" +
+            "────────────────────────────\n" +
+            "When ON, hovering a thumbnail snaps it\n" +
+            "to fully opaque and restores the saved\n" +
+            "opacity when you move off. Useful if you\n" +
+            "keep thumbnails dim to stay out of the\n" +
+            "way but still want full clarity when\n" +
+            "you actually look at one.\n\n" +
+            "Cycle Exclusion Badge\n" +
+            "────────────────────────────\n" +
+            "Position of the red ✕ badge that marks\n" +
+            "characters excluded from cycle groups\n" +
+            "(shift-click a thumbnail to toggle). Pick\n" +
+            "any of nine anchor points so it stays\n" +
+            "clear of the character name and other\n" +
+            "text overlays.\n\n" +
             "Always On Top\n" +
             "────────────────────────────\n" +
             "Keeps thumbnails above all other windows.\n" +
@@ -897,8 +953,27 @@ public partial class SettingsWindow : Window
             "🔵 Info — Convo, System Change,\n" +
             "   Depleted, Miner Stopped\n\n" +
             "Each tier has its own border color,\n" +
-            "cooldown timer, and tray notification\n" +
-            "toggle.\n\n" +
+            "cooldown timer, tray notification toggle,\n" +
+            "and Pulse Speed slider (100 ms = very\n" +
+            "fast, 2000 ms = barely pulsing) so alerts\n" +
+            "can be tuned for visibility vs. distraction.\n\n" +
+            "Alert Pulse Opacity\n" +
+            "────────────────────────────\n" +
+            "Master slider that fades the alert pulse\n" +
+            "border across every event. 100% = full\n" +
+            "strength, lower = subtler. Useful for\n" +
+            "large multibox grids where multiple\n" +
+            "simultaneous flashes get overwhelming.\n\n" +
+            "Thumbnail Alert Badge\n" +
+            "────────────────────────────\n" +
+            "When ON globally, a red numbered badge\n" +
+            "appears on a thumbnail when its character\n" +
+            "fires an alert (clears the moment that\n" +
+            "client is focused). Each alert event row\n" +
+            "also has its own 'Badge' checkbox so you\n" +
+            "can keep an event firing toast/sound/pulse\n" +
+            "while silencing only its badge — useful\n" +
+            "for chatty events like System Change.\n\n" +
             "Per-Alert Custom Colors\n" +
             "────────────────────────────\n" +
             "Each alert row has a colored ■ square\n" +
@@ -1176,14 +1251,17 @@ public partial class SettingsWindow : Window
             "settings folder automatically in\n" +
             "%LOCALAPPDATA%\\CCP\\EVE.",
 
-        "Performance" => 
+        "Performance" =>
             "PERFORMANCE & AFFINITY\n" +
             "═══════════════════════════\n\n" +
             "CPU Priority Management\n" +
             "────────────────────────────\n" +
             "Automatically drops background\n" +
             "EVE clients to 'Idle' priority so\n" +
-            "your active window never stutters.\n\n" +
+            "your active window never stutters.\n" +
+            "Unchecking the master toggle restores\n" +
+            "every tracked client to Normal priority\n" +
+            "and full-core affinity in one pass.\n\n" +
             "E-Core Auto-Balancing\n" +
             "────────────────────────────\n" +
             "Routes inactive EVE clients to the\n" +
@@ -1195,27 +1273,59 @@ public partial class SettingsWindow : Window
             "────────────────────────────\n" +
             "Strictly bind a character to a single\n" +
             "CPU core when it loses focus. This\n" +
-            "overrides the Auto-Balancer entirely.",
+            "overrides the Auto-Balancer entirely.\n\n" +
+            "THUMBNAIL GPU OPTIMIZATION\n" +
+            "════════════════════════\n\n" +
+            "Static Thumbnails (Lower GPU)\n" +
+            "────────────────────────────\n" +
+            "Replaces the live DWM-composited preview\n" +
+            "with a snapshot refreshed roughly once\n" +
+            "per second. Big GPU saving when running\n" +
+            "many clients, at the cost of choppy\n" +
+            "motion — ship movement updates on the\n" +
+            "snapshot cadence instead of smoothly.\n" +
+            "Best for fleets where you glance at\n" +
+            "thumbnails occasionally rather than\n" +
+            "watch them constantly.\n\n" +
+            "Suspend Thumbnails When Background\n" +
+            "────────────────────────────\n" +
+            "Freezes every thumbnail to its last\n" +
+            "frame whenever neither EVE nor\n" +
+            "MultiPreview is the foreground process.\n" +
+            "Resumes live composition the moment EVE\n" +
+            "or the app comes back. Invisible during\n" +
+            "active play; stops the GPU paying for\n" +
+            "thumbnails of windows you can't see\n" +
+            "while you're in another app. Adds a\n" +
+            "sub-second wakeup lag on alt-tab back.",
 
 
 
         "About" =>
             "ABOUT\n" +
             "═══════════════════════════\n\n" +
-            "EVE MultiPreview v2.0.3\n" +
-            "C# / WPF Edition\n\n" +
+            "EVE MultiPreview\n" +
+            "C# / .NET 8 WPF Edition\n\n" +
+            "Version shown on the About panel\n" +
+            "matches the build you're running.\n\n" +
             "Originally written in AutoHotkey v2.\n" +
             "Ported to C# for better performance,\n" +
             "native DWM thumbnail support, and\n" +
-            "modern UI capabilities.",
+            "modern UI capabilities.\n\n" +
+            "File a bug, suggest a feature, or read\n" +
+            "release notes at:\n" +
+            "github.com/CJKondur/EVE-MultiPreview",
 
         "Debug" =>
             "DEBUG LOGGING\n" +
             "═══════════════════════════\n\n" +
             "Diagnostic output for troubleshooting\n" +
             "input issues, window detection, and\n" +
-            "logic flow. Enable only when instructed\n" +
-            "by the developer.\n\n" +
+            "logic flow. Enable only when needed —\n" +
+            "logs grow quickly under heavy use.\n\n" +
+            "Logs are written to Logs/ next to the\n" +
+            "exe, one file per channel. Use 📁 Open\n" +
+            "Logs Folder to jump to them.\n\n" +
             "Input Injection Logistics\n" +
             "────────────────────────────\n" +
             "Logs exact keystrokes, scan codes, and\n" +
@@ -1229,7 +1339,66 @@ public partial class SettingsWindow : Window
             "Window Hooks\n" +
             "────────────────────────────\n" +
             "Logs HWND focus checks, SetForegroundWindow\n" +
-            "attempts, and OS-level window states.",
+            "attempts, and OS-level window states.\n\n" +
+            "Desktop Window Manager\n" +
+            "────────────────────────────\n" +
+            "Logs DWM thumbnail-registration HResults\n" +
+            "and PrintWindow capture results. Use\n" +
+            "when thumbnails go blank, fail to\n" +
+            "register, or show frozen frames\n" +
+            "incorrectly.\n\n" +
+            "Alert Pipeline\n" +
+            "────────────────────────────\n" +
+            "Full trace of every log line through\n" +
+            "the alert pipeline: file read → parse\n" +
+            "match → trigger (cooldown / disabled /\n" +
+            "fired) → badge / toast / sound dispatch.\n" +
+            "Use when an alert you expected to fire\n" +
+            "didn't — every step logs which gate it\n" +
+            "did or didn't pass.",
+
+        "Crop" =>
+            "CROP POPUPS\n" +
+            "═══════════════════════════\n\n" +
+            "What Crops Do\n" +
+            "────────────────────────────\n" +
+            "Spawn one or more cropped preview\n" +
+            "popups per EVE client — show just a\n" +
+            "specific region of the client (Local\n" +
+            "chat, overview, target bar) in its own\n" +
+            "always-on-top window without bringing\n" +
+            "the full client forward.\n\n" +
+            "Master Toggle\n" +
+            "────────────────────────────\n" +
+            "'Enable cropped preview popups' is the\n" +
+            "global on/off. When off, all crop popups\n" +
+            "hide but their definitions are kept for\n" +
+            "next time.\n\n" +
+            "Creating a Crop\n" +
+            "────────────────────────────\n" +
+            "1. Pick a character from the dropdown\n" +
+            "2. Click ➕ Add Crop — a placeholder\n" +
+            "   crop row appears with a generated\n" +
+            "   name\n" +
+            "3. Click 📐 Pick Area, then drag over\n" +
+            "   the live thumbnail to select the\n" +
+            "   region you want to capture\n" +
+            "4. Adjust Name, Show Label, popup\n" +
+            "   position/size as needed\n\n" +
+            "Manipulating Popups\n" +
+            "────────────────────────────\n" +
+            "• Right-click + drag — move the popup\n" +
+            "• Right-click + left-click + drag —\n" +
+            "  resize the popup\n" +
+            "• 'Show label' overlays the crop name\n" +
+            "  in the top-left of the popup\n\n" +
+            "Persistence\n" +
+            "────────────────────────────\n" +
+            "Crops are saved per character per\n" +
+            "profile and re-spawn automatically when\n" +
+            "the character logs in. Closing an EVE\n" +
+            "client and logging back in restores the\n" +
+            "saved crops once the character resolves.",
 
         _ => "Select a panel from the sidebar\n" +
              "to see contextual help here."

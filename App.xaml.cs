@@ -75,6 +75,13 @@ public partial class App : Application
         _singleInstanceMutex = new Mutex(true, "EveMultiPreview_SingleInstance", out bool createdNew);
         if (!createdNew)
         {
+            // We allocated a Mutex object pointing at the existing kernel
+            // object but don't own it (Mutex(true, ...) only grants
+            // ownership when createdNew is true). Disposing here clears the
+            // handle so OnExit's release path can't trip ApplicationException
+            // by calling ReleaseMutex on an unowned mutex.
+            _singleInstanceMutex.Dispose();
+            _singleInstanceMutex = null;
             MessageBox.Show("EVE MultiPreview is already running.", "EVE MultiPreview",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
@@ -953,6 +960,14 @@ public partial class App : Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        // Cover every shutdown path: tray Exit (sets this in ExitApplication),
+        // UpdateService.ApplyUpdate calling Shutdown() directly, OS logoff
+        // routing WM_ENDSESSION through Shutdown(), and second-instance
+        // bail-out. Setting it here guarantees the applyLiveSettings gates
+        // (App.xaml.cs:831/850/875) see the right state even when shutdown
+        // bypasses ExitApplication.
+        _isShuttingDown = true;
+
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _alertHub?.Dispose();
         _logMonitor?.Dispose();
@@ -969,6 +984,18 @@ public partial class App : Application
             _trayIcon.Visible = false;
             _trayIcon.Dispose();
         }
+
+        // Release + dispose the single-instance mutex LAST so that if it
+        // throws (e.g. abandoned, not owned by this thread, or already
+        // disposed by the second-instance path), the rest of OnExit has
+        // already run. Catch every exception so the process can still exit
+        // cleanly even on hostile shutdown paths (OS logoff / process kill
+        // recovery). Process exit will release the kernel mutex regardless.
+        try { _singleInstanceMutex?.ReleaseMutex(); }
+        catch (Exception ex) { Debug.WriteLine($"[App:Exit] ⚠ ReleaseMutex: {ex.GetType().Name}: {ex.Message}"); }
+        try { _singleInstanceMutex?.Dispose(); }
+        catch (Exception ex) { Debug.WriteLine($"[App:Exit] ⚠ Mutex Dispose: {ex.GetType().Name}: {ex.Message}"); }
+        _singleInstanceMutex = null;
 
         base.OnExit(e);
     }

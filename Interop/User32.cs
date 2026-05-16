@@ -327,27 +327,47 @@ public static class User32
 
         _heldKeyPoller = Task.Run(async () =>
         {
+            // Each iteration is wrapped so a transient failure (e.g. OOM on
+            // HashSet alloc, or a future change introducing a throwable call)
+            // can't silently fault the task and leave keys logically pressed
+            // forever in the tracked EVE clients. Previously a single fault
+            // killed the poller; the next FixTargetHeldKeys would spawn a
+            // fresh one, but in the gap any new key DOWNs would target a
+            // stale snapshot. Keep the poller alive, log, and continue.
             while (true)
             {
-                await Task.Delay(50);
-                List<(int vk, HashSet<IntPtr> hwnds)> released = new();
-                lock (_heldKeyLock)
+                try
                 {
-                    foreach (var kv in _heldKeyClients)
+                    await Task.Delay(50);
+                    List<(int vk, HashSet<IntPtr> hwnds)> released = new();
+                    bool exitAfterFinalUps = false;
+                    lock (_heldKeyLock)
                     {
-                        if (!IsKeyDown(kv.Key))
-                            released.Add((kv.Key, new HashSet<IntPtr>(kv.Value)));
+                        foreach (var kv in _heldKeyClients)
+                        {
+                            if (!IsKeyDown(kv.Key))
+                                released.Add((kv.Key, new HashSet<IntPtr>(kv.Value)));
+                        }
+                        foreach (var r in released) _heldKeyClients.Remove(r.vk);
+                        if (_heldKeyClients.Count == 0)
+                            exitAfterFinalUps = true;
                     }
-                    foreach (var r in released) _heldKeyClients.Remove(r.vk);
-                    if (_heldKeyClients.Count == 0)
-                    {
-                        // Send pending UPs outside lock then exit poller
-                        var snapshot = released;
-                        Task.Run(() => SendKeyUps(snapshot));
-                        return;
-                    }
+                    // Send UPs synchronously so the WM_KEYUP messages are
+                    // posted before the poller's Task completes. The previous
+                    // implementation spawned Task.Run for this and returned
+                    // immediately; if the process exited microseconds later,
+                    // the spawned task could be aborted and the UP would
+                    // never reach EVE — leaving the held letter "pressed."
+                    // PostMessage is async at the OS level so this stays fast
+                    // (~150us total for a typical small fleet).
+                    if (released.Count > 0) SendKeyUps(released);
+                    if (exitAfterFinalUps) return;
                 }
-                if (released.Count > 0) SendKeyUps(released);
+                catch (Exception ex)
+                {
+                    EveMultiPreview.Services.DiagnosticsService.LogInjection(
+                        $"[HeldKeyPoller] ❌ Iteration faulted, continuing: {ex.GetType().Name}: {ex.Message}");
+                }
             }
         });
 

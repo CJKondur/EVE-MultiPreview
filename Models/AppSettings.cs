@@ -145,6 +145,13 @@ public class AppSettings
     public int AlertToastDirection { get; set; } = 5;
     public int AlertToastDuration { get; set; } = 6;
 
+    /// <summary>When enabled, the AlertHub hexagon is hidden after a quiet
+    /// period and only re-shows when a new alert fires. Requested by
+    /// @CatsLiKeDogs in issue #42 — keeps the hub from being a permanent
+    /// fixture on screen.</summary>
+    public bool AlertHubAutoHide { get; set; } = false;
+    public int AlertHubAutoHideSeconds { get; set; } = 5;
+
     // ── Log Monitoring ──────────────────────────────────────────────
     public bool EnableChatLogMonitoring { get; set; } = true;
     public bool EnableGameLogMonitoring { get; set; } = true;

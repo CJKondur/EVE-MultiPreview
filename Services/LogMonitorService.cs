@@ -1463,15 +1463,33 @@ public sealed class LogMonitorService : IDisposable
             return;
         }
 
-        // ── Warp scramble detection (AHK: only incoming — check "attempts to") ──
-        if ((line.Contains("warp scramble") || line.Contains("warp disrupt")) && line.Contains("attempts to"))
+        // ── Warp scramble detection ──
+        // EVE writes this as a (notify) line, not (combat):
+        //   (notify) You are within a warp disruption zone. Get N meters
+        //   from <attacker> to warp.
+        // The previous parser required "attempts to" — that string never
+        // appears in this EVE message, so the alert never fired (issue #42).
+        if (line.Contains("(notify)") && line.Contains("warp disruption zone"))
         {
-            // AHK: PVE mode filters NPC scrambles
+            // PVE mode filters NPC scramblers (sleeper towers, drone probes,
+            // gate sentries, mission rats with infinipoints, etc.). The notify
+            // format is plain text — no <b> tags — so we capture everything
+            // between "from " and " to warp" then run it through IsNpc plus
+            // the "owns the ship" apostrophe-s test. Player-owned ships look
+            // like "Pilot Name's ShipType"; NPC sources look like plain
+            // strings ("Warp Disrupt Probe", "Customs Office", etc.).
             if (PveMode)
             {
-                var attackerMatch = Regex.Match(line, @"from\s*(?:<[^>]*>)*\s*<b>(.+?)</b>");
-                if (attackerMatch.Success && IsNpc(attackerMatch.Groups[1].Value.Trim()))
-                    return;
+                var attackerMatch = Regex.Match(line, @"from\s+(.+?)\s+to warp");
+                if (attackerMatch.Success)
+                {
+                    string attacker = attackerMatch.Groups[1].Value.Trim();
+                    // A player-source string always contains the possessive
+                    // "'s " separator. If it doesn't, treat as NPC and skip.
+                    bool ownsShip = attacker.Contains("'s ");
+                    if (!ownsShip || IsNpc(attacker))
+                        return;
+                }
             }
             _lastEventTime = DateTime.Now;
             TriggerAlert(character, "warp_scramble", "critical");

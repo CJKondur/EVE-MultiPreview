@@ -38,6 +38,7 @@ public class AlertHub : IDisposable
 
     // Focus-aware z-ordering (AHK: 300ms timer)
     private DispatcherTimer? _focusTimer;
+    private DispatcherTimer? _autoHideTimer;
 
     // Toast stacking direction: 0=up, 1=right, 2=down, 3=left
     public int ToastDirection { get; set; }
@@ -216,6 +217,18 @@ public class AlertHub : IDisposable
         _focusTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
         _focusTimer.Tick += (_, _) => UpdateFocusAwareZOrder();
 
+        // ── Auto-hide timer (issue #42 suggestion) ──
+        // When AlertHubAutoHide is on, the hub hides itself after a quiet
+        // period and re-shows on the next alert. Timer is reset on every
+        // toast — so a burst of alerts keeps the hub up; a quiet pause
+        // hides it. One-shot per cycle, restarted by KickAutoHide().
+        _autoHideTimer = new DispatcherTimer();
+        _autoHideTimer.Tick += (_, _) =>
+        {
+            _autoHideTimer.Stop();
+            if (_settings.AlertHubAutoHide) Hide();
+        };
+
         Debug.WriteLine($"[AlertHub:Focus] 🔧 AlertHub created, direction={ToastDirection}, duration={ToastDurationSeconds}s");
     }
 
@@ -225,6 +238,10 @@ public class AlertHub : IDisposable
         {
             _hubWindow.Show();
             _focusTimer?.Start();
+            // If auto-hide is on, start the countdown immediately so a hub
+            // that came up with no traffic (e.g. on app launch) goes away.
+            // Subsequent toasts will reset the timer via KickAutoHide.
+            if (_settings.AlertHubAutoHide) KickAutoHide();
             Debug.WriteLine("[AlertHub:Focus] ✅ AlertHub shown, focus timer started");
         }
     }
@@ -233,6 +250,18 @@ public class AlertHub : IDisposable
     {
         _hubWindow.Hide();
         _focusTimer?.Stop();
+        _autoHideTimer?.Stop();
+    }
+
+    /// <summary>Reset the auto-hide countdown. Called whenever activity
+    /// happens (new toast). No-op when AlertHubAutoHide is off.</summary>
+    private void KickAutoHide()
+    {
+        if (!_settings.AlertHubAutoHide || _autoHideTimer == null) return;
+        int seconds = _settings.AlertHubAutoHideSeconds > 0 ? _settings.AlertHubAutoHideSeconds : 5;
+        _autoHideTimer.Stop();
+        _autoHideTimer.Interval = TimeSpan.FromSeconds(seconds);
+        _autoHideTimer.Start();
     }
 
     /// <summary>C8: Set suspended state — blocks toasts and changes icon to ⏸.</summary>
@@ -258,6 +287,13 @@ public class AlertHub : IDisposable
 
         Application.Current?.Dispatcher.Invoke(() =>
         {
+            // If auto-hide stashed the hub, bring it back. Show() is a no-op
+            // when already visible. Then reset the auto-hide countdown so
+            // bursts of toasts keep the hub up until things go quiet.
+            if (_settings.AlertHubAutoHide && !_hubWindow.IsVisible)
+                Show();
+            KickAutoHide();
+
             // Increment badge
             _unreadCount++;
             UpdateBadge();

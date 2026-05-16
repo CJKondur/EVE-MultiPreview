@@ -84,6 +84,8 @@ public class AhkConfigRoot
         s.AlertHubY = g.AlertHubY;
         s.AlertToastDirection = g.AlertToastDirection;
         s.AlertToastDuration = g.AlertToastDuration;
+        s.AlertHubAutoHide = g.AlertHubAutoHide != 0;
+        s.AlertHubAutoHideSeconds = g.AlertHubAutoHideSeconds > 0 ? g.AlertHubAutoHideSeconds : 5;
 
         // Dicts
         s.AlertColors = g.AlertColors ?? new();
@@ -308,6 +310,8 @@ public class AhkConfigRoot
         g.AlertHubY = s.AlertHubY;
         g.AlertToastDirection = s.AlertToastDirection;
         g.AlertToastDuration = s.AlertToastDuration;
+        g.AlertHubAutoHide = s.AlertHubAutoHide ? 1 : 0;
+        g.AlertHubAutoHideSeconds = s.AlertHubAutoHideSeconds;
 
         g.AlertColors = s.AlertColors;
         g.AlertSounds = s.AlertSounds;
@@ -882,6 +886,12 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("AlertToastDuration")]
     public int AlertToastDuration { get; set; } = 6;
+
+    [JsonPropertyName("AlertHubAutoHide")]
+    public int AlertHubAutoHide { get; set; }
+
+    [JsonPropertyName("AlertHubAutoHideSeconds")]
+    public int AlertHubAutoHideSeconds { get; set; } = 5;
 
     [JsonPropertyName("AlertColors")]
     public Dictionary<string, string>? AlertColors { get; set; }

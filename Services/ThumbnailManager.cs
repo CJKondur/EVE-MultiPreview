@@ -50,7 +50,11 @@ public sealed class ThumbnailManager : IDisposable
 
     // Active window tracking
     private IntPtr _lastActiveEveHwnd = IntPtr.Zero;
-    private readonly System.Collections.Generic.HashSet<IntPtr> _iconicHwnds = new();
+    // ConcurrentDictionary used as a thread-safe set because OnWindowLost
+    // (background poll thread) mutates this alongside UpdateActiveBorders
+    // (UI thread). The byte value is unused; only keys matter. Mechanical
+    // swap from HashSet — no call site iterates, so semantics are identical.
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<IntPtr, byte> _iconicHwnds = new();
     private FrozenFrameService? _frozenFrames;
     private WinEventHookService? _winEvents;
     private DispatcherTimer? _focusTimer;
@@ -71,6 +75,7 @@ public sealed class ThumbnailManager : IDisposable
     private bool _settingsOpen = false;     // Settings window exists (even minimized) — keeps thumbnails visible
     private bool _lastEveFocused = false;   // Track focus transitions for one-time BringToFront
     private bool _lastGpuFreezeState = false; // StaticThumbnails / SuspendThumbnailsWhenBackground transitions
+    private bool _lastHideActiveThumbnailState = false; // HideActiveThumbnail on→off transition tracking
 
     // Alert flash state — per-severity rates + expiry (matches AHK)
     private readonly ConcurrentDictionary<string, AlertFlashInfo> _alertFlashChars = new();
@@ -241,6 +246,20 @@ public sealed class ThumbnailManager : IDisposable
 
     private void CreateThumbnailBatch()
     {
+        // Race guard: this method can be reached via _batchTimer.Tick during
+        // the narrow window between Application.Shutdown() being called and
+        // OnExit running our timer stops. TextOverlayWindow's constructor
+        // calls Application.LoadComponent which throws InvalidOperationException
+        // ("The Application object is being shut down") if we proceed.
+        // Detect that state and bail before allocating any WPF windows.
+        // (Reported by @CatsLiKeDogs, issue #42.)
+        var app = Application.Current;
+        if (app == null || app.Dispatcher.HasShutdownStarted || app.Dispatcher.HasShutdownFinished)
+        {
+            _pendingWindows.Clear();
+            return;
+        }
+
         var batch = new List<EveWindow>(_pendingWindows);
         _pendingWindows.Clear();
 
@@ -401,7 +420,7 @@ public sealed class ThumbnailManager : IDisposable
 
     private void OnWindowLost(EveWindow window)
     {
-        _iconicHwnds.Remove(window.Hwnd);
+        _iconicHwnds.TryRemove(window.Hwnd, out _);
         _frozenFrames?.Forget(window.Hwnd);
 
         Application.Current?.Dispatcher.Invoke(() =>
@@ -464,11 +483,21 @@ public sealed class ThumbnailManager : IDisposable
                     window.Title == "EVE";
                 thumbWindow.SetNotLoggedIn(isCharSelect, _settings.Settings.NotLoggedInIndicator);
 
-                // Issue 5: Re-apply system name after character login
-                if (!string.IsNullOrEmpty(window.CharacterName) &&
-                    _charSystems.TryGetValue(window.CharacterName, out var sys))
+                // Issue 5: Re-apply system name after character login. Gated
+                // on ShowSystemName — without this, a character switch on an
+                // already-running client would silently re-enable the system
+                // overlay even with the setting off (issue #42, bug #1).
+                if (!string.IsNullOrEmpty(window.CharacterName)
+                    && _settings.Settings.ShowSystemName
+                    && _charSystems.TryGetValue(window.CharacterName, out var sys))
                 {
                     thumbWindow.UpdateSystemName(sys);
+                }
+                else if (!_settings.Settings.ShowSystemName)
+                {
+                    // Setting is off — make sure any previously-shown system
+                    // name is cleared if the user toggled it off mid-session.
+                    thumbWindow.UpdateSystemName(null);
                 }
 
                 // Re-apply custom label + per-label style for the now-resolved
@@ -992,19 +1021,19 @@ public sealed class ThumbnailManager : IDisposable
         foreach (var (eveHwnd, thumb) in _thumbnails)
         {
             bool isIconic = Interop.User32.IsIconic(eveHwnd);
-            bool wasIconic = _iconicHwnds.Contains(eveHwnd);
+            bool wasIconic = _iconicHwnds.ContainsKey(eveHwnd);
             if (isIconic == wasIconic) continue;
 
             if (isIconic)
             {
-                _iconicHwnds.Add(eveHwnd);
+                _iconicHwnds.TryAdd(eveHwnd, 0);
                 var frame = _frozenFrames?.GetLastFrame(eveHwnd);
                 thumb.SetFrozenFrame(frame);
                 thumb.HideDwmOnly(); // DWM transparent so OnPaint's frozen bitmap shows.
             }
             else
             {
-                _iconicHwnds.Remove(eveHwnd);
+                _iconicHwnds.TryRemove(eveHwnd, out _);
                 thumb.ClearFrozenFrame();
                 if (!_thumbnailsHidden && !_primaryHidden)
                     thumb.ShowDwmOnly(); // Restore live DWM preview.
@@ -1028,7 +1057,7 @@ public sealed class ThumbnailManager : IDisposable
         {
             foreach (var (eveHwnd, thumb) in _thumbnails)
             {
-                if (_iconicHwnds.Contains(eveHwnd)) continue;
+                if (_iconicHwnds.ContainsKey(eveHwnd)) continue;
                 if (gpuFreeze)
                 {
                     var frame = _frozenFrames?.GetLastFrame(eveHwnd);
@@ -1050,7 +1079,7 @@ public sealed class ThumbnailManager : IDisposable
             // snapshots produced by FrozenFrameService at its current cadence.
             foreach (var (eveHwnd, thumb) in _thumbnails)
             {
-                if (_iconicHwnds.Contains(eveHwnd)) continue;
+                if (_iconicHwnds.ContainsKey(eveHwnd)) continue;
                 var frame = _frozenFrames?.GetLastFrame(eveHwnd);
                 if (frame != null) thumb.SetFrozenFrame(frame);
             }
@@ -1069,7 +1098,7 @@ public sealed class ThumbnailManager : IDisposable
             {
                 // Skip DWM toggling for iconic windows — they're painting a frozen
                 // frame and must keep _isDwmHidden=true for that to render.
-                if (_iconicHwnds.Contains(eveHwnd)) continue;
+                if (_iconicHwnds.ContainsKey(eveHwnd)) continue;
 
                 // Skip DWM unhide when GPU-freeze mode wants the thumb static —
                 // otherwise this loop would un-freeze every tick.
@@ -1163,6 +1192,54 @@ public sealed class ThumbnailManager : IDisposable
                 ClearAlertBadge(charName);
         }
 
+        // ── Hide Active Thumbnail (issues #43 / #44) ──
+        // Fully hide (window + text overlay) the thumbnail of whichever EVE
+        // client is foreground — the user is already looking at the real
+        // client, so its thumbnail is redundant.
+        //   #43: HideWithOverlay removes the whole thumbnail. The previous
+        //        implementation used HideDwmOnly, which only blanked the live
+        //        preview and left a grey box with the name / system / border
+        //        still showing — the user expected it gone entirely.
+        //   #44: Hoisted above the cycle-shield early-return so it tracks
+        //        cycle-hotkey focus changes immediately. Previously this lived
+        //        in the shielded per-thumb loop, so during rapid cycling the
+        //        hidden state lagged behind the active border.
+        // Per-character Visibility-tab hides and the global hide-all flags
+        // take precedence — this feature never un-hides a thumb the user
+        // deliberately hid through those.
+        bool hideActiveNow = s.HideActiveThumbnail && !_thumbnailsHidden && !_primaryHidden;
+        if (hideActiveNow)
+        {
+            foreach (var (eveHwnd, thumb) in _thumbnails)
+            {
+                bool userHidChar = s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var vis) && vis == 0;
+                if (userHidChar) continue;
+                if (eveHwnd == fgHwnd)
+                {
+                    if (thumb.IsVisible) thumb.HideWithOverlay();
+                }
+                else
+                {
+                    if (!thumb.IsVisible) thumb.ShowWithOverlay();
+                }
+            }
+        }
+        else if (_lastHideActiveThumbnailState)
+        {
+            // Feature (or its enabling context) just turned off — restore
+            // every thumbnail it may have hidden, minus explicit per-char
+            // Visibility-tab hides and the global hide-all states.
+            if (!_thumbnailsHidden && !_primaryHidden)
+            {
+                foreach (var (_, thumb) in _thumbnails)
+                {
+                    bool userHidChar = s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var vis) && vis == 0;
+                    if (!userHidChar && !thumb.IsVisible) thumb.ShowWithOverlay();
+                }
+            }
+        }
+        _lastHideActiveThumbnailState = hideActiveNow;
+
         // Shield the fast-cycle tracker and visual borders from asynchronous OS focus lag.
         // If we recently cycled, the native background window switch might still be resolving.
         // Letting the slow OS tracker overwrite our state here will illegally rewind the cycle sequence.
@@ -1193,24 +1270,8 @@ public sealed class ThumbnailManager : IDisposable
             bool isActive = eveHwnd == fgHwnd;
             string charName = thumb.CharacterName;
 
-            // Hide active thumbnail DWM preview (text overlay stays via owner + opacity).
-            // Don't override GPU-freeze mode here — if static / suspend mode wants
-            // every non-iconic thumb hidden+frozen, the inactive `ShowDwmOnly` below
-            // would un-freeze them every tick.
-            if (s.HideActiveThumbnail && !_thumbnailsHidden && !gpuFreeze)
-            {
-                if (isActive)
-                    thumb.HideDwmOnly(); // Opacity 0 — text overlay stays
-                else
-                    thumb.ShowDwmOnly(); // Restore inactive thumbnail opacity
-            }
-            else if (s.HideActiveThumbnail && !_thumbnailsHidden && gpuFreeze && isActive)
-            {
-                // Even in freeze mode, the active client's own EVE window is
-                // visible underneath — keep its DWM hidden so the user doesn't
-                // see a duplicate static thumbnail of their active client.
-                thumb.HideDwmOnly();
-            }
+            // (Hide Active Thumbnail moved to a hoisted block above the
+            //  cycle-shield — see issues #43 / #44.)
 
             // Border color
             if (isActive)
@@ -2966,6 +3027,13 @@ public sealed class ThumbnailManager : IDisposable
         _sessionTimer?.Stop();
         _flashTimer?.Stop();
         _statTimer?.Stop();
+        // Previously missed — _fpsTimer (500 ms) and _batchTimer (50 ms,
+        // lazily created on first window discovery) could still tick during
+        // shutdown unwind and call into a half-disposed manager. Stop is
+        // idempotent so a no-op when the timer isn't running or was never
+        // created (?. handles the lazy _batchTimer null case).
+        _fpsTimer?.Stop();
+        _batchTimer?.Stop();
         if (_winEvents != null)
         {
             _winEvents.ForegroundChanged -= OnForegroundOrMinimizeEvent;
