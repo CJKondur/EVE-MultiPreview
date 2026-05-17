@@ -108,6 +108,76 @@ public sealed class EveManagerService
         return chars;
     }
 
+    // ── Account Listing ──────────────────────────────────────────
+
+    /// <summary>
+    /// Scans profilePath for core_user_&lt;userId&gt;.dat files. These hold the
+    /// per-account ESC settings (display, video, audio, keybinds) — shared by
+    /// every character on that EVE account. Returns list of (id, label).
+    /// Account IDs cannot be name-resolved (ESI exposes no user-id endpoint),
+    /// so the label is just the raw id.
+    /// </summary>
+    public static List<(string Id, string Label)> ListAccounts(string profilePath)
+    {
+        var accounts = new List<(string, string)>();
+        var seen = new HashSet<string>();
+        if (!Directory.Exists(profilePath)) return accounts;
+
+        var rx = new Regex(@"^core_user_(\d+)\.dat$", RegexOptions.IgnoreCase);
+        foreach (var file in Directory.EnumerateFiles(profilePath, "core_user_*.dat"))
+        {
+            var fname = System.IO.Path.GetFileName(file);
+            var m = rx.Match(fname);
+            if (!m.Success) continue;
+
+            var id = m.Groups[1].Value;
+            if (!seen.Add(id)) continue;
+            accounts.Add((id, $"Account {id}"));
+        }
+        return accounts;
+    }
+
+    /// <summary>
+    /// Copies a single account's ESC settings (core_user_&lt;id&gt;.dat) between
+    /// profiles. Backs up the existing destination file if backupRoot is set.
+    /// Returns number of files copied, -1 on error.
+    /// </summary>
+    public static int CopyAccountSettings(
+        string srcProfile, string srcUserId,
+        string dstProfile, string dstUserId,
+        string backupRoot = "")
+    {
+        try
+        {
+            if (!Directory.Exists(dstProfile))
+                Directory.CreateDirectory(dstProfile);
+
+            if (srcProfile == dstProfile && srcUserId == dstUserId)
+                return 0;
+
+            var srcFile = System.IO.Path.Combine(srcProfile, $"core_user_{srcUserId}.dat");
+            var dstFile = System.IO.Path.Combine(dstProfile, $"core_user_{dstUserId}.dat");
+
+            if (!File.Exists(srcFile)) return 0;
+
+            // Backup existing destination
+            if (!string.IsNullOrEmpty(backupRoot) && File.Exists(dstFile))
+            {
+                Directory.CreateDirectory(backupRoot);
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HHmmss");
+                File.Copy(dstFile, System.IO.Path.Combine(backupRoot,
+                    $"core_user_{dstUserId}_{timestamp}.bak"), true);
+            }
+
+            File.Copy(srcFile, dstFile, true);
+            return 1;
+        }
+        catch
+        {
+            return -1;
+        }
+    }
+
     // ── Backup ───────────────────────────────────────────────────
 
     /// <summary>

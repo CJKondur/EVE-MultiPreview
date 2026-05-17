@@ -172,6 +172,8 @@ public class AhkConfigRoot
         s.EveManagerUseESI = g.EveManagerUseESI != 0;
         s.EveBackupDir = g.EveBackupDir ?? "";
         s.EveSettingsDir = g.EveSettingsDir ?? "";
+        s.AccountCharacterMap = g.AccountCharacterMap ?? new();
+        s.AccountLabels = g.AccountLabels ?? new();
 
         // Thumbnail groups (global)
         s.ThumbnailGroups = g.ThumbnailGroups ?? new();
@@ -381,6 +383,8 @@ public class AhkConfigRoot
         g.EveManagerUseESI = s.EveManagerUseESI ? 1 : 0;
         g.EveBackupDir = s.EveBackupDir;
         g.EveSettingsDir = s.EveSettingsDir;
+        g.AccountCharacterMap = s.AccountCharacterMap;
+        g.AccountLabels = s.AccountLabels;
 
         // Thumbnail groups
         g.ThumbnailGroups = s.ThumbnailGroups;
@@ -1015,6 +1019,12 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("EveSettingsDir")]
     public string? EveSettingsDir { get; set; } = "";
+
+    [JsonPropertyName("AccountCharacterMap")]
+    public Dictionary<string, List<string>>? AccountCharacterMap { get; set; }
+
+    [JsonPropertyName("AccountLabels")]
+    public Dictionary<string, string>? AccountLabels { get; set; }
 
     [JsonPropertyName("ThumbnailGroups")]
     public List<ThumbnailGroup>? ThumbnailGroups { get; set; }

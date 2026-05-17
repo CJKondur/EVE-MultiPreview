@@ -879,11 +879,13 @@ public partial class SettingsWindow
     // ═══ EVE MANAGER ═══
     private Dictionary<string, string> _charNameMap = new();
     private List<(string Name, string Path, int CharCount)> _eveProfiles = new();
-    private string _eveMgrMode = "profile"; // "profile" or "char"
+    private string _eveMgrMode = "profile"; // "profile", "char", or "account"
     private System.Collections.ObjectModel.ObservableCollection<ProfileItem> _srcProfiles = new();
     private System.Collections.ObjectModel.ObservableCollection<ProfileItem> _tgtProfiles = new();
     private List<CharItem> _allSrcChars = new();
     private List<CharItem> _allTgtChars = new();
+    private List<CharItem> _allSrcAccounts = new();
+    private List<CharItem> _allTgtAccounts = new();
 
     private void OnEveManagerDirChanged(object s, TextChangedEventArgs e)
     {
@@ -928,12 +930,14 @@ public partial class SettingsWindow
     // ── MODE TOGGLE ──
     private void OnEveMgrProfileMode(object s, RoutedEventArgs e) => SetEveMgrMode("profile");
     private void OnEveMgrCharMode(object s, RoutedEventArgs e) => SetEveMgrMode("char");
+    private void OnEveMgrAccountMode(object s, RoutedEventArgs e) => SetEveMgrMode("account");
 
     private void SetEveMgrMode(string mode)
     {
         _eveMgrMode = mode;
         EveMgrProfileGroup.Visibility = mode == "profile" ? Visibility.Visible : Visibility.Collapsed;
         EveMgrCharGroup.Visibility = mode == "char" ? Visibility.Visible : Visibility.Collapsed;
+        EveMgrAccountGroup.Visibility = mode == "account" ? Visibility.Visible : Visibility.Collapsed;
 
         var activeBg = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4a9eff"));
         var activeFg = new SolidColorBrush(Colors.White);
@@ -944,10 +948,16 @@ public partial class SettingsWindow
         BtnProfileCopyMode.Foreground = mode == "profile" ? activeFg : normalFg;
         BtnCharCopyMode.Background = mode == "char" ? activeBg : normalBg;
         BtnCharCopyMode.Foreground = mode == "char" ? activeFg : normalFg;
+        BtnAccountCopyMode.Background = mode == "account" ? activeBg : normalBg;
+        BtnAccountCopyMode.Foreground = mode == "account" ? activeFg : normalFg;
 
         if (mode == "char" && _eveProfiles.Count > 0)
         {
             PopulateCharCopyDropdowns();
+        }
+        else if (mode == "account" && _eveProfiles.Count > 0)
+        {
+            PopulateAccountCopyDropdowns();
         }
     }
 
@@ -1186,6 +1196,178 @@ public partial class SettingsWindow
     {
         var prop = item.GetType().GetProperty("Id");
         return prop?.GetValue(item)?.ToString() ?? "";
+    }
+
+    // ── ACCOUNT COPY MODE ──
+    // Copies core_user_<id>.dat — the per-account ESC settings (display,
+    // video, audio, keybinds). Mirrors Char Copy but with no name resolution
+    // (ESI has no user-id endpoint), so accounts are labelled by raw id.
+    private void PopulateAccountCopyDropdowns()
+    {
+        CmbAcctSrcProfile.Items.Clear();
+        CmbAcctTgtProfile.Items.Clear();
+        foreach (var p in _eveProfiles)
+        {
+            CmbAcctSrcProfile.Items.Add(p.Name);
+            CmbAcctTgtProfile.Items.Add(p.Name);
+        }
+        if (_eveProfiles.Count > 0)
+        {
+            CmbAcctSrcProfile.SelectedIndex = 0;
+            CmbAcctTgtProfile.SelectedIndex = _eveProfiles.Count > 1 ? 1 : 0;
+        }
+    }
+
+    /// <summary>Builds a human-recognisable label for an EVE account id.
+    /// Priority: user-assigned label → auto-learned character names → raw id.
+    /// The character names come from AccountAssociationService observing
+    /// settings co-writes, resolved through the same name map Char Copy uses.</summary>
+    private string AccountLabel(string accountId)
+    {
+        if (S.AccountLabels.TryGetValue(accountId, out var manual) && !string.IsNullOrWhiteSpace(manual))
+            return $"{manual} (Acct {accountId})";
+
+        if (S.AccountCharacterMap.TryGetValue(accountId, out var charIds) && charIds.Count > 0)
+        {
+            var names = charIds
+                .Select(cid => _charNameMap.TryGetValue(cid, out var n) && !string.IsNullOrEmpty(n) ? n : null)
+                .Where(n => n != null)
+                .Cast<string>()
+                .ToList();
+            if (names.Count > 0)
+            {
+                var shown = string.Join(", ", names.Take(3));
+                if (names.Count > 3) shown += $" +{names.Count - 3}";
+                return $"{shown} (Acct {accountId})";
+            }
+        }
+        return $"Account {accountId}";
+    }
+
+    private void OnAcctSrcProfileChanged(object s, SelectionChangedEventArgs e)
+    {
+        var idx = CmbAcctSrcProfile.SelectedIndex;
+        if (idx < 0 || idx >= _eveProfiles.Count) return;
+        var accts = EveManagerService.ListAccounts(_eveProfiles[idx].Path);
+        _allSrcAccounts = accts.Select(a => new CharItem { Id = a.Id, Label = AccountLabel(a.Id) }).ToList();
+        TxtAcctSrcSearch.Text = "";
+        LvAcctSrcAccounts.ItemsSource = _allSrcAccounts;
+    }
+
+    private void OnAcctTgtProfileChanged(object s, SelectionChangedEventArgs e)
+    {
+        var idx = CmbAcctTgtProfile.SelectedIndex;
+        if (idx < 0 || idx >= _eveProfiles.Count) return;
+        var accts = EveManagerService.ListAccounts(_eveProfiles[idx].Path);
+        _allTgtAccounts = accts.Select(a => new CharItem { Id = a.Id, Label = AccountLabel(a.Id) }).ToList();
+        TxtAcctTgtSearch.Text = "";
+        LvAcctTgtAccounts.ItemsSource = _allTgtAccounts;
+    }
+
+    private void OnAcctSetLabel(object s, RoutedEventArgs e)
+    {
+        var srcAcct = _allSrcAccounts.FirstOrDefault(a => a.IsChecked);
+        if (srcAcct == null)
+        { MessageBox.Show("Check a source account to name.", "EVE Manager — Account Label"); return; }
+
+        var label = TxtAcctLabel.Text.Trim();
+        if (string.IsNullOrEmpty(label))
+            S.AccountLabels.Remove(srcAcct.Id);
+        else
+            S.AccountLabels[srcAcct.Id] = label;
+        SaveDelayed();
+
+        // Re-render both lists so the new label shows immediately.
+        TxtAcctLabel.Text = "";
+        OnAcctSrcProfileChanged(this, null!);
+        OnAcctTgtProfileChanged(this, null!);
+        TxtEveMgrStatus.Text = string.IsNullOrEmpty(label)
+            ? $"Cleared label for account {srcAcct.Id}."
+            : $"Account {srcAcct.Id} labelled '{label}'.";
+    }
+
+    private void OnAcctSrcSearchChanged(object s, TextChangedEventArgs e)
+    {
+        var filter = TxtAcctSrcSearch.Text.Trim();
+        if (string.IsNullOrEmpty(filter))
+            LvAcctSrcAccounts.ItemsSource = _allSrcAccounts;
+        else
+            LvAcctSrcAccounts.ItemsSource = _allSrcAccounts.Where(a =>
+                a.Label.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
+                a.Id.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    private void OnAcctTgtSearchChanged(object s, TextChangedEventArgs e)
+    {
+        var filter = TxtAcctTgtSearch.Text.Trim();
+        if (string.IsNullOrEmpty(filter))
+            LvAcctTgtAccounts.ItemsSource = _allTgtAccounts;
+        else
+            LvAcctTgtAccounts.ItemsSource = _allTgtAccounts.Where(a =>
+                a.Label.Contains(filter, StringComparison.OrdinalIgnoreCase) ||
+                a.Id.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    private void OnAcctCopyExecute(object s, RoutedEventArgs e)
+    {
+        var srcProfIdx = CmbAcctSrcProfile.SelectedIndex;
+        if (srcProfIdx < 0 || srcProfIdx >= _eveProfiles.Count)
+        { MessageBox.Show("Select a source profile.", "EVE Manager — Account Copy"); return; }
+
+        var srcAcctItem = _allSrcAccounts.FirstOrDefault(a => a.IsChecked);
+        if (srcAcctItem == null)
+        { MessageBox.Show("Check a source account.", "EVE Manager — Account Copy"); return; }
+
+        string srcUserId = srcAcctItem.Id;
+
+        var tgtProfIdx = CmbAcctTgtProfile.SelectedIndex;
+        if (tgtProfIdx < 0 || tgtProfIdx >= _eveProfiles.Count)
+        { MessageBox.Show("Select a target profile.", "EVE Manager — Account Copy"); return; }
+
+        var srcProfile = _eveProfiles[srcProfIdx];
+        var tgtProfile = _eveProfiles[tgtProfIdx];
+        var copyAll = ChkCopyAllAccounts.IsChecked == true;
+        var backupRoot = GetBackupRoot();
+
+        if (EveManagerService.IsEveRunning())
+        {
+            if (MessageBox.Show("EVE is running. Copying while running may corrupt settings. Continue?",
+                "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
+        }
+
+        if (copyAll)
+        {
+            var tgtAccts = EveManagerService.ListAccounts(tgtProfile.Path);
+            if (tgtAccts.Count == 0)
+            { MessageBox.Show("No accounts in target profile.", "EVE Manager — Account Copy"); return; }
+
+            if (MessageBox.Show($"Copy ESC settings from account {srcUserId} to ALL {tgtAccts.Count} account(s) in '{tgtProfile.Name}'?",
+                "Confirm Account Copy", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+
+            int total = 0;
+            foreach (var ta in tgtAccts)
+            {
+                var cnt = EveManagerService.CopyAccountSettings(srcProfile.Path, srcUserId, tgtProfile.Path, ta.Id, backupRoot);
+                if (cnt >= 0) total += cnt;
+            }
+            TxtEveMgrStatus.Text = $"Copied account settings to {tgtAccts.Count} account(s).";
+            MessageBox.Show($"Copied {total} file(s) to {tgtAccts.Count} account(s).", "Account Copy Complete");
+        }
+        else
+        {
+            var tgtAcctItem = _allTgtAccounts.FirstOrDefault(a => a.IsChecked);
+            if (tgtAcctItem == null)
+            { MessageBox.Show("Check a target account (or check 'Copy to ALL').", "EVE Manager — Account Copy"); return; }
+
+            string tgtUserId = tgtAcctItem.Id;
+
+            if (MessageBox.Show($"Copy account ESC settings:\n  {srcUserId} ({srcProfile.Name})\n→ {tgtUserId} ({tgtProfile.Name})\n\nContinue?",
+                "Confirm Account Copy", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+
+            var count = EveManagerService.CopyAccountSettings(srcProfile.Path, srcUserId, tgtProfile.Path, tgtUserId, backupRoot);
+            TxtEveMgrStatus.Text = count >= 0 ? $"Copied {count} account file(s)." : "Account copy failed.";
+            MessageBox.Show(count >= 0 ? $"Copied {count} file(s)." : "Copy failed.", "Account Copy");
+        }
     }
 
     // ── SHARED: ESI & NAME RESOLUTION ──

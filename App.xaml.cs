@@ -35,6 +35,7 @@ public partial class App : Application
     private AlertHub? _alertHub;
     private ProcessMonitorService? _processMonitor;
     private CropManager? _cropManager;
+    private AccountAssociationService? _accountAssoc;
     private SettingsWindow? _settingsWindow;
 
     // Tray balloon click-to-focus (matches AHK _trayAlertChar/_trayAlertHwnd)
@@ -298,6 +299,14 @@ public partial class App : Application
             _logMonitor.Start("", chatLogDir, gameLogDir);
             PerfLog($"[Deferred] LogMonitor started: {deferSw.ElapsedMilliseconds}ms");
 
+            // 7b. Account-association watcher — learns character→account
+            //     pairings from EVE settings co-writes so the EVE Manager
+            //     Account Copy panel can label accounts by their characters.
+            _accountAssoc = new AccountAssociationService();
+            _accountAssoc.PairLearned += OnAccountPairLearned;
+            _accountAssoc.Start(EveManagerService.FindEveDir(_settings.Settings.EveSettingsDir));
+            PerfLog($"[Deferred] AccountAssoc watcher: {deferSw.ElapsedMilliseconds}ms");
+
             // 8. Set up system tray
             SetupTrayIcon();
             PerfLog($"[Deferred] Tray icon: {deferSw.ElapsedMilliseconds}ms");
@@ -487,6 +496,32 @@ public partial class App : Application
                 }
             }
         }
+    }
+
+    // ── Account Association (EVE Manager Account Copy labelling) ──
+
+    /// <summary>Fired by AccountAssociationService on a background thread when
+    /// a character→account pairing is observed. Persists it into
+    /// AccountCharacterMap so the EVE Manager Account Copy panel can label the
+    /// account by its characters' names.</summary>
+    private void OnAccountPairLearned(string charId, string accountId)
+    {
+        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+        {
+            if (_settings == null) return;
+            var map = _settings.Settings.AccountCharacterMap;
+            if (!map.TryGetValue(accountId, out var chars))
+            {
+                chars = new List<string>();
+                map[accountId] = chars;
+            }
+            if (!chars.Contains(charId))
+            {
+                chars.Add(charId);
+                _settings.SaveDelayed();
+                Debug.WriteLine($"[App:AccountAssoc] 💾 Stored char {charId} → account {accountId}");
+            }
+        }));
     }
 
     // ── Alert Sound System (per-event sounds, WAV/MP3 via MediaPlayer) ──
@@ -973,6 +1008,7 @@ public partial class App : Application
         _logMonitor?.Dispose();
         _hotkeyService?.Dispose();
         _processMonitor?.Dispose();
+        _accountAssoc?.Dispose();
         _cropManager?.Dispose();
         _thumbnailManager?.Dispose();
         _discovery?.Dispose();

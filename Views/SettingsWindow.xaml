@@ -1153,6 +1153,9 @@
                                 FontWeight="SemiBold" Margin="0,0,4,0"/>
                         <Button x:Name="BtnCharCopyMode" Content="👤 Char Copy" Padding="14,5" Click="OnEveMgrCharMode"
                                 Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"
+                                FontWeight="SemiBold" Margin="0,0,4,0"/>
+                        <Button x:Name="BtnAccountCopyMode" Content="🔑 Account Copy" Padding="14,5" Click="OnEveMgrAccountMode"
+                                Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"
                                 FontWeight="SemiBold"/>
                     </StackPanel>
 
@@ -1297,6 +1300,102 @@
                                     Click="OnCharCopyExecute" HorizontalAlignment="Right" Margin="0,6,0,0"
                                     Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc" FontWeight="SemiBold"/>
                         </Grid>
+                    </StackPanel>
+
+                    <!-- ── ACCOUNT COPY GROUP (initially hidden) ── -->
+                    <StackPanel x:Name="EveMgrAccountGroup" Visibility="Collapsed">
+                        <TextBlock Text="Copies core_user_*.dat — the per-account ESC settings (display, video, audio, keybinds) shared by every character on that EVE account."
+                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6" TextWrapping="Wrap"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Column="0" Text="Source (copy FROM):" FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Grid.Column="2" Text="Target (copy TO):" FontWeight="SemiBold"
+                                       Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
+                            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="Profile:" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <ComboBox x:Name="CmbAcctSrcProfile" Width="200" SelectionChanged="OnAcctSrcProfileChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="Profile:" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <ComboBox x:Name="CmbAcctTgtProfile" Width="200" SelectionChanged="OnAcctTgtProfileChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                            </StackPanel>
+                            <TextBox x:Name="TxtAcctSrcSearch" Grid.Row="2" Grid.Column="0"
+                                     TextChanged="OnAcctSrcSearchChanged" Margin="0,0,0,4"
+                                     Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                     BorderBrush="{StaticResource BorderBrush}" Padding="4,3"
+                                     Tag="🔍 Search accounts..."/>
+                            <TextBox x:Name="TxtAcctTgtSearch" Grid.Row="2" Grid.Column="2"
+                                     TextChanged="OnAcctTgtSearchChanged" Margin="0,0,0,4"
+                                     Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                     BorderBrush="{StaticResource BorderBrush}" Padding="4,3"
+                                     Tag="🔍 Search accounts..."/>
+                            <ListView x:Name="LvAcctSrcAccounts" Grid.Row="3" Grid.Column="0" Height="230"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}" FontSize="12">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Account" Width="160">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                              Foreground="{StaticResource TextPrimaryBrush}" Margin="0,1"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="ID" Width="85" DisplayMemberBinding="{Binding Id}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <ListView x:Name="LvAcctTgtAccounts" Grid.Row="3" Grid.Column="2" Height="230"
+                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                      BorderBrush="{StaticResource BorderBrush}" FontSize="12">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Account" Width="160">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <CheckBox Content="{Binding Label}" IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                              Foreground="{StaticResource TextPrimaryBrush}" Margin="0,1"/>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="ID" Width="85" DisplayMemberBinding="{Binding Id}"/>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+                            <CheckBox x:Name="ChkCopyAllAccounts" Grid.Row="4" Grid.Column="0"
+                                      Content="Copy to ALL accounts in target profile" Margin="0,6,0,0"
+                                      Foreground="{StaticResource TextPrimaryBrush}"/>
+                            <Button Grid.Row="4" Grid.Column="2" Content="🔑 Copy Account Settings" Padding="10,5"
+                                    Click="OnAcctCopyExecute" HorizontalAlignment="Right" Margin="0,6,0,0"
+                                    Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc" FontWeight="SemiBold"/>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <TextBlock Text="Name checked source account:" Foreground="#888888"
+                                       VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBox x:Name="TxtAcctLabel" Width="180" Padding="4,3"
+                                     Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
+                                     BorderBrush="{StaticResource BorderBrush}"/>
+                            <Button Content="✎ Set Label" Padding="10,4" Click="OnAcctSetLabel" Margin="6,0,0,0"
+                                    Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"/>
+                        </StackPanel>
+                        <TextBlock Text="Accounts are also auto-labelled by their characters once they are seen logging out — no setup needed. Use Set Label only to override with your own name."
+                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"
+                                   Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
 
                     <!-- ── SHARED BOTTOM SECTION ── -->

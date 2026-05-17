@@ -1910,15 +1910,35 @@ public sealed class ThumbnailManager : IDisposable
             }
         }
 
-        // Remove expired flashes and restore their inactive borders
+        // Remove expired flashes and restore the correct resting border.
+        // The flashing character may be the foreground client — e.g. a
+        // system_change flash on the client you're actively flying after a
+        // jump. Restoring the inactive border unconditionally left the
+        // focused client with the wrong border colour until the next focus
+        // change (the bug: border didn't show after jumping system until you
+        // clicked the thumbnail or cycled away and back). Match the canonical
+        // active/inactive border logic from UpdateActiveBorders here.
+        IntPtr fg = Interop.User32.GetForegroundWindow();
         foreach (var name in toRemove)
         {
             _alertFlashChars.TryRemove(name, out _);
             var thumb = FindThumbnailByCharacter(name);
-            if (thumb != null)
+            if (thumb == null) continue;
+
+            if (thumb.EveHwnd == fg)
+            {
+                // Active client — restore the highlight border (honoring the
+                // ShowClientHighlightBorder toggle, same as UpdateActiveBorders).
+                if (s.ShowClientHighlightBorder)
+                    thumb.SetBorder(GetBorderColor(name, true), s.ClientHighlightBorderThickness);
+                else
+                    thumb.SetBorder(Color.FromArgb(0, 0, 0, 0), 0);
+            }
+            else
             {
                 var color = GetBorderColor(name, false);
-                thumb.SetBorder(color, s.InactiveClientBorderThickness);
+                int thickness = ShouldShowInactiveBorder(name) ? s.InactiveClientBorderThickness : 0;
+                thumb.SetBorder(color, thickness);
             }
         }
     }

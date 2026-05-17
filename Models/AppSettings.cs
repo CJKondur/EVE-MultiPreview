@@ -219,6 +219,19 @@ public class AppSettings
     public string EveSettingsDir { get; set; } = "";
     public AhkEveManager? EveManager { get; set; }
 
+    /// <summary>Learned account→character associations for the EVE Manager
+    /// Account Copy panel. Keyed by EVE account (user) ID; value is the set of
+    /// character IDs observed flushing settings alongside that account on
+    /// logout. Populated automatically by AccountAssociationService. Lets the
+    /// Account Copy list label an otherwise-anonymous user id by its
+    /// characters' names. Issue #45 follow-up.</summary>
+    public Dictionary<string, List<string>> AccountCharacterMap { get; set; } = new();
+
+    /// <summary>User-assigned friendly names for EVE accounts, keyed by
+    /// account (user) ID. Overrides the auto-derived character-name label in
+    /// the Account Copy list when set.</summary>
+    public Dictionary<string, string> AccountLabels { get; set; } = new();
+
     // ── Profiles ────────────────────────────────────────────────────
     public string LastUsedProfile { get; set; } = "Default";
     public Dictionary<string, Profile> Profiles { get; set; } = new()
