@@ -490,8 +490,14 @@ public partial class SettingsWindow
         bool hidden = cb.IsChecked == true;
         row.Hidden = hidden;
         S.ThumbnailVisibility[row.Character] = hidden ? 1 : 0;
+        // Apply the visibility change directly and persist the setting — but
+        // do NOT route through the SettingsWindow SaveDelayed(), which arms
+        // the 1s auto-apply → ReapplySettings(). That global re-apply resized
+        // every thumbnail and re-showed the just-hidden thumbnail's text
+        // overlay (issues #50 / #51). A visibility toggle only needs to hide
+        // one thumbnail and persist one flag.
         _thumbnailManager?.SetCharacterVisibility(row.Character, !hidden);
-        SaveDelayed();
+        _svc.SaveDelayed();
     }
 
     // Visibility row "Edit Label" button handler — opens LabelEditorWindow,
@@ -865,6 +871,7 @@ public partial class SettingsWindow
         if (_loading) return;
         S.AlertHubEnabled = ChkAlertHub.IsChecked == true;
         S.AlertHubAutoHide = ChkAlertHubAutoHide?.IsChecked == true;
+        S.SuppressAlertHubToastForActiveClient = ChkSuppressToastActive?.IsChecked == true;
         SaveDelayed();
     }
     private void OnManagerChanged(object s, TextChangedEventArgs e)
@@ -1264,6 +1271,119 @@ public partial class SettingsWindow
         LvAcctTgtAccounts.ItemsSource = _allTgtAccounts;
     }
 
+    /// <summary>Guided account-detection wizard (issue #46). Walks the user
+    /// through logging in one character at a time so each can be matched to
+    /// its account from the freshly-written .dat timestamps — reliable, unlike
+    /// the passive watcher which mis-paired when multiple accounts were logged
+    /// in at once.</summary>
+    private void OnAcctDetectWizard(object s, RoutedEventArgs e)
+    {
+        var eveDir = EveManagerService.FindEveDir(S.EveSettingsDir);
+        if (string.IsNullOrEmpty(eveDir))
+        {
+            MessageBox.Show("EVE settings folder not found. Set or auto-detect it first.",
+                "EVE Manager — Detect Account");
+            return;
+        }
+
+        if (MessageBox.Show(
+                "Account Detection\n\n" +
+                "This matches each character to its EVE account by watching which " +
+                "settings files EVE writes when you log in.\n\n" +
+                "Step 1: Log OUT of every EVE character (return all clients to the " +
+                "login screen or close them).\n\n" +
+                "Click OK once all characters are logged out.",
+                "Detect Account — Step 1", MessageBoxButton.OKCancel,
+                MessageBoxImage.Information) != MessageBoxResult.OK)
+            return;
+
+        // Run detection rounds until the user stops.
+        while (true)
+        {
+            // Baseline: only .dat files written AFTER this point count as a
+            // fresh login, so stale files can't be mistaken for the new pair.
+            var baseline = DateTime.UtcNow;
+
+            if (MessageBox.Show(
+                    "Step 2: Log IN exactly ONE character now and wait for it to " +
+                    "fully load into space or station.\n\n" +
+                    "Click OK once that character is fully logged in.",
+                    "Detect Account — Step 2", MessageBoxButton.OKCancel,
+                    MessageBoxImage.Information) != MessageBoxResult.OK)
+                break;
+
+            var (charId, userId, _) = EveManagerService.DetectNewestCharAccountPair(eveDir);
+            if (charId == null || userId == null)
+            {
+                if (MessageBox.Show("No character/account settings files were found. Try again?",
+                        "Detect Account", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                    break;
+                continue;
+            }
+
+            // Verify the detected char file is genuinely fresh (written after
+            // the baseline) — guards against the user clicking OK without
+            // actually logging anyone in.
+            bool freshLogin = false;
+            foreach (var dir in System.IO.Directory.EnumerateDirectories(eveDir, "settings*"))
+            {
+                var f = System.IO.Path.Combine(dir, $"core_char_{charId}.dat");
+                if (System.IO.File.Exists(f) && System.IO.File.GetLastWriteTimeUtc(f) >= baseline)
+                { freshLogin = true; break; }
+            }
+            if (!freshLogin)
+            {
+                if (MessageBox.Show(
+                        "No fresh character login was detected since Step 1.\n\n" +
+                        "Make sure you actually logged a character in and waited for it " +
+                        "to load. Try again?",
+                        "Detect Account", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                    break;
+                continue;
+            }
+
+            string charName = _charNameMap.TryGetValue(charId, out var n) && !string.IsNullOrEmpty(n)
+                ? n : $"character {charId}";
+
+            if (MessageBox.Show(
+                    $"Detected: {charName}\non account {userId}.\n\nIs that correct?",
+                    "Detect Account — Confirm", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                // Correct any stale association — remove this char from every
+                // other account before assigning it to the confirmed one.
+                foreach (var kv in S.AccountCharacterMap)
+                    kv.Value.RemoveAll(c => c == charId);
+
+                if (!S.AccountCharacterMap.TryGetValue(userId, out var chars))
+                {
+                    chars = new List<string>();
+                    S.AccountCharacterMap[userId] = chars;
+                }
+                if (!chars.Contains(charId)) chars.Add(charId);
+                SaveDelayed();
+
+                TxtEveMgrStatus.Text = $"Linked {charName} → account {userId}.";
+
+                // Refresh the account lists so the new label appears.
+                if (CmbAcctSrcProfile.SelectedIndex >= 0) OnAcctSrcProfileChanged(this, null!);
+                if (CmbAcctTgtProfile.SelectedIndex >= 0) OnAcctTgtProfileChanged(this, null!);
+            }
+            // else: not correct — fall through to the "detect another?" prompt
+            //       so the user can retry from Step 2.
+
+            if (MessageBox.Show(
+                    "Detect another character?\n\n" +
+                    "Log the current character OUT first, then click Yes and log in " +
+                    "the next one.",
+                    "Detect Account", MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) != MessageBoxResult.Yes)
+                break;
+        }
+
+        MessageBox.Show("Account detection finished.", "Detect Account");
+    }
+
     private void OnAcctSetLabel(object s, RoutedEventArgs e)
     {
         var srcAcct = _allSrcAccounts.FirstOrDefault(a => a.IsChecked);
@@ -1447,19 +1567,55 @@ public partial class SettingsWindow
             foreach (var kv in S.Profiles)
             {
                 if (kv.Key == dlg.SelectedFrom) continue;
-                kv.Value.ThumbnailPositions = new Dictionary<string, ThumbnailRect>(srcProfile.ThumbnailPositions);
+                if (dlg.FullProfileCopy)
+                    CopyProfileFull(srcProfile, kv.Value);
+                else
+                    kv.Value.ThumbnailPositions = new Dictionary<string, ThumbnailRect>(srcProfile.ThumbnailPositions);
                 count++;
             }
         }
-        else if (dlg.SelectedTo != null && S.Profiles.ContainsKey(dlg.SelectedTo))
+        else if (dlg.SelectedTo != null && S.Profiles.TryGetValue(dlg.SelectedTo, out var tgtProfile))
         {
-            S.Profiles[dlg.SelectedTo].ThumbnailPositions = new Dictionary<string, ThumbnailRect>(srcProfile.ThumbnailPositions);
+            if (dlg.FullProfileCopy)
+                CopyProfileFull(srcProfile, tgtProfile);
+            else
+                tgtProfile.ThumbnailPositions = new Dictionary<string, ThumbnailRect>(srcProfile.ThumbnailPositions);
             count = 1;
         }
 
         _svc.Save();
-        MessageBox.Show($"Layout copied from '{dlg.SelectedFrom}' to {(dlg.IsAllProfiles ? "all profiles" : $"'{dlg.SelectedTo}'")} ({count} profile{(count != 1 ? "s" : "")}).",
-            "Copy Layout");
+
+        // If the copy touched the profile currently in use, refresh the settings
+        // UI so the new values are visible without a manual profile reswitch.
+        bool affectedCurrent = dlg.IsAllProfiles
+            ? S.LastUsedProfile != dlg.SelectedFrom
+            : dlg.SelectedTo == S.LastUsedProfile;
+        if (dlg.FullProfileCopy && affectedCurrent)
+            LoadSettings();
+
+        var what = dlg.FullProfileCopy ? "Profile" : "Layout";
+        var tail = dlg.FullProfileCopy
+            ? "\n\nSwitch profiles to apply the copied settings to live thumbnails."
+            : "";
+        MessageBox.Show($"{what} copied from '{dlg.SelectedFrom}' to {(dlg.IsAllProfiles ? "all profiles" : $"'{dlg.SelectedTo}'")} ({count} profile{(count != 1 ? "s" : "")}).{tail}",
+            $"Copy {what}");
+    }
+
+    /// <summary>
+    /// Replace every per-profile setting in <paramref name="dst"/> with a deep
+    /// copy of <paramref name="src"/>. Uses a JSON round-trip so all nested
+    /// dictionaries/lists are independent, then assigns each property in place
+    /// (the target Profile reference is kept so live bindings stay valid).
+    /// </summary>
+    private static void CopyProfileFull(Profile src, Profile dst)
+    {
+        if (src == null || dst == null || ReferenceEquals(src, dst)) return;
+        var json = System.Text.Json.JsonSerializer.Serialize(src);
+        var clone = System.Text.Json.JsonSerializer.Deserialize<Profile>(json);
+        if (clone == null) return;
+        foreach (var p in typeof(Profile).GetProperties())
+            if (p.CanRead && p.CanWrite)
+                p.SetValue(dst, p.GetValue(clone));
     }
 
     private void OnBackupConfig(object s, RoutedEventArgs e)

@@ -197,9 +197,9 @@
                     <Button Content="⟳ Apply" Padding="10,3" Click="OnApplySettings"
                             Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"
                             FontWeight="SemiBold" Margin="0,0,4,0"/>
-                    <Button Content="📋 Copy Layout" Padding="10,3" Click="OnCopyLayout"
+                    <Button Content="📋 Copy Profile" Padding="10,3" Click="OnCopyLayout"
                             Background="#e0e0e0" Foreground="#1a1a2e"
-                            BorderBrush="#cccccc" ToolTip="Copy layout positions to all profiles"
+                            BorderBrush="#cccccc" ToolTip="Copy thumbnail layout — or an entire profile — to other profiles"
                             Margin="0,0,4,0"/>
                     <Button Content="💾 Backup" Padding="10,3" Click="OnBackupConfig"
                             Background="#e0e0e0" Foreground="#1a1a2e"
@@ -724,6 +724,9 @@
                                 <TextBox x:Name="TxtToastDuration" Width="50" TextChanged="OnManagerChanged"/>
                                 <Label Content="seconds"/>
                             </StackPanel>
+                            <CheckBox x:Name="ChkSuppressToastActive" Content="Don't toast the client I'm actively watching" Checked="OnManagerChanged" Unchecked="OnManagerChanged" Margin="0,4,0,0"/>
+                            <TextBlock Text="Skips the Hub toast for an alert on the foreground EVE client — you're already looking at it. Thumbnail flash, badge and sound still fire."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,4" TextWrapping="Wrap"/>
                             <CheckBox x:Name="ChkAlertHubAutoHide" Content="Auto-hide Hub after quiet period" Checked="OnManagerChanged" Unchecked="OnManagerChanged" Margin="0,4,0,0"/>
                             <StackPanel Orientation="Horizontal" Margin="24,2,0,0">
                                 <Label Content="Hide after:" Width="96"/>
@@ -1385,15 +1388,18 @@
                                     Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc" FontWeight="SemiBold"/>
                         </Grid>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Button Content="🔍 Detect Account" Padding="10,4" Click="OnAcctDetectWizard"
+                                    Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0"
+                                    FontWeight="SemiBold" Margin="0,0,10,0"/>
                             <TextBlock Text="Name checked source account:" Foreground="#888888"
                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <TextBox x:Name="TxtAcctLabel" Width="180" Padding="4,3"
+                            <TextBox x:Name="TxtAcctLabel" Width="160" Padding="4,3"
                                      Background="{StaticResource BgPanelBrush}" Foreground="{StaticResource TextPrimaryBrush}"
                                      BorderBrush="{StaticResource BorderBrush}"/>
                             <Button Content="✎ Set Label" Padding="10,4" Click="OnAcctSetLabel" Margin="6,0,0,0"
                                     Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"/>
                         </StackPanel>
-                        <TextBlock Text="Accounts are also auto-labelled by their characters once they are seen logging out — no setup needed. Use Set Label only to override with your own name."
+                        <TextBlock Text="Detect Account walks you through logging in one character at a time so each can be matched to its account reliably. Set Label lets you override an account's name manually."
                                    Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"
                                    Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
@@ -1416,7 +1422,7 @@
                                FontSize="10" Margin="0,0,0,8"/>
                     <GroupBox Header="Data Management">
                         <StackPanel Orientation="Horizontal">
-                            <Button Content="📋 Copy Layout to All Profiles" Padding="10,5" Click="OnCopyLayout"
+                            <Button Content="📋 Copy Profile to Other Profiles" Padding="10,5" Click="OnCopyLayout"
                                     Background="#e0e0e0" Foreground="#1a1a2e"
                                     BorderBrush="#cccccc" Margin="0,0,8,0"/>
                             <Button Content="💾 Export Settings to File" Padding="10,5" Click="OnExportSettings"

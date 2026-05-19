@@ -299,9 +299,13 @@ public partial class CropWindow : Window
 
         if (_ownHwnd != IntPtr.Zero)
         {
+            // GetWindowRect returns PHYSICAL pixels; WPF Left/Top are DIPs. On a
+            // scaled display, assigning physical values directly makes the window
+            // jump on release. Convert physical → DIP before syncing back.
             User32.GetWindowRect(_ownHwnd, out var rect);
-            Left = rect.Left;
-            Top = rect.Top;
+            double scale = DpiHelper.GetScaleFactor(this);
+            Left = DpiHelper.PhysicalToDip(rect.Left, scale);
+            Top = DpiHelper.PhysicalToDip(rect.Top, scale);
         }
         SyncTextOverlay();
     }

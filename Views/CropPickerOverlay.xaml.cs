@@ -20,14 +20,18 @@ public partial class CropPickerOverlay : Window
 {
     private readonly double _clientWidth;
     private readonly double _clientHeight;
+    private readonly int _physX;
+    private readonly int _physY;
+    private readonly int _physW;
+    private readonly int _physH;
     private bool _dragging;
     private Point _dragStart;
 
     /// <summary>Fires with the selection in EVE client coordinates on successful drag. Null on cancel.</summary>
     public event Action<(int X, int Y, int W, int H)?>? Completed;
 
-    public CropPickerOverlay(double targetLeft, double targetTop,
-                              double targetWidth, double targetHeight,
+    public CropPickerOverlay(int screenX, int screenY,
+                              int screenWidth, int screenHeight,
                               int clientWidth, int clientHeight)
     {
         InitializeComponent();
@@ -35,10 +39,16 @@ public partial class CropPickerOverlay : Window
         _clientWidth = Math.Max(1, clientWidth);
         _clientHeight = Math.Max(1, clientHeight);
 
-        Left = targetLeft;
-        Top = targetTop;
-        Width = Math.Max(40, targetWidth);
-        Height = Math.Max(30, targetHeight);
+        // The caller passes the EVE client area in PHYSICAL screen pixels. WPF's
+        // Left/Top/Width/Height are DIPs, so assigning physical values to them
+        // mis-places and (on a scaled display) over-sizes the overlay. Instead we
+        // position the HWND directly with SetWindowPos in OnLoaded — that API is
+        // DPI-immune. Once the window is sized in physical pixels, the existing
+        // _clientWidth / ActualWidth scale math resolves the selection correctly.
+        _physX = screenX;
+        _physY = screenY;
+        _physW = Math.Max(40, screenWidth);
+        _physH = Math.Max(30, screenHeight);
 
         OverlayCanvas.MouseLeftButtonDown += OnMouseDown;
         OverlayCanvas.MouseMove += OnMouseMove;
@@ -47,17 +57,25 @@ public partial class CropPickerOverlay : Window
         Loaded += OnLoaded;
     }
 
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        // Place AND size the overlay in physical pixels so it exactly covers the
+        // EVE client area regardless of DPI scaling, then pin it topmost. Doing
+        // this before the window is rendered avoids a one-frame flash at the wrong
+        // location. WPF Topmost alone loses to foreground-app juggling, hence the
+        // explicit HWND_TOPMOST.
+        var helper = new WindowInteropHelper(this);
+        if (helper.Handle != IntPtr.Zero)
+        {
+            User32.SetWindowPos(helper.Handle, User32.HWND_TOPMOST,
+                _physX, _physY, _physW, _physH,
+                User32.SWP_SHOWWINDOW);
+        }
+    }
+
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        // Pin overlay above everything via Win32 topmost (WPF Topmost alone loses
-        // to foreground-app juggling when we move the EVE client forward).
-        var source = (HwndSource)PresentationSource.FromVisual(this);
-        if (source != null)
-        {
-            User32.SetWindowPos(source.Handle, User32.HWND_TOPMOST,
-                0, 0, 0, 0,
-                User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_SHOWWINDOW);
-        }
         Activate();
         Focus();
     }

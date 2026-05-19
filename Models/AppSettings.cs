@@ -152,6 +152,12 @@ public class AppSettings
     public bool AlertHubAutoHide { get; set; } = false;
     public int AlertHubAutoHideSeconds { get; set; } = 5;
 
+    /// <summary>When on, no Alert Hub toast is shown for an alert on the EVE
+    /// client that is currently in the foreground — you're already looking at
+    /// it. Thumbnail flash / badge / sound still fire. Requested by
+    /// @CatsLiKeDogs in issue #47. Default off.</summary>
+    public bool SuppressAlertHubToastForActiveClient { get; set; } = false;
+
     // ── Log Monitoring ──────────────────────────────────────────────
     public bool EnableChatLogMonitoring { get; set; } = true;
     public bool EnableGameLogMonitoring { get; set; } = true;

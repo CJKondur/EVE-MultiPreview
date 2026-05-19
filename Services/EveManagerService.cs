@@ -178,6 +178,62 @@ public sealed class EveManagerService
         }
     }
 
+    // ── Guided Account Detection (issue #46) ─────────────────────
+
+    /// <summary>
+    /// Scans every settings_* folder under eveDir for the single most-recently
+    /// modified core_char_&lt;id&gt;.dat and core_user_&lt;id&gt;.dat. When the user
+    /// has just logged in exactly one character with all others logged out,
+    /// these two files are the freshly-written pair — an unambiguous
+    /// character→account association. Returns (charId, userId, charFolder) or
+    /// nulls if nothing matched.
+    ///
+    /// This replaces the passive co-write watcher, which mis-paired characters
+    /// because EVE keeps rewriting core_user_*.dat for every account that is
+    /// still logged in (issue #46).
+    /// </summary>
+    public static (string? CharId, string? UserId, string? Folder) DetectNewestCharAccountPair(string eveDir)
+    {
+        if (!Directory.Exists(eveDir)) return (null, null, null);
+
+        var charRx = new Regex(@"^core_char_(\d+)\.dat$", RegexOptions.IgnoreCase);
+        var userRx = new Regex(@"^core_user_(\d+)\.dat$", RegexOptions.IgnoreCase);
+
+        string? bestCharId = null, bestUserId = null, bestFolder = null;
+        DateTime bestCharTime = DateTime.MinValue, bestUserTime = DateTime.MinValue;
+
+        foreach (var dir in Directory.EnumerateDirectories(eveDir, "settings*"))
+        {
+            foreach (var file in Directory.EnumerateFiles(dir, "core_*.dat"))
+            {
+                var fname = System.IO.Path.GetFileName(file);
+                DateTime mtime;
+                try { mtime = File.GetLastWriteTimeUtc(file); }
+                catch { continue; }
+
+                var cm = charRx.Match(fname);
+                if (cm.Success)
+                {
+                    if (mtime > bestCharTime)
+                    {
+                        bestCharTime = mtime;
+                        bestCharId = cm.Groups[1].Value;
+                        bestFolder = dir;
+                    }
+                    continue;
+                }
+                var um = userRx.Match(fname);
+                if (um.Success && mtime > bestUserTime)
+                {
+                    bestUserTime = mtime;
+                    bestUserId = um.Groups[1].Value;
+                }
+            }
+        }
+
+        return (bestCharId, bestUserId, bestFolder);
+    }
+
     // ── Backup ───────────────────────────────────────────────────
 
     /// <summary>

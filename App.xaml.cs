@@ -35,7 +35,6 @@ public partial class App : Application
     private AlertHub? _alertHub;
     private ProcessMonitorService? _processMonitor;
     private CropManager? _cropManager;
-    private AccountAssociationService? _accountAssoc;
     private SettingsWindow? _settingsWindow;
 
     // Tray balloon click-to-focus (matches AHK _trayAlertChar/_trayAlertHwnd)
@@ -266,15 +265,23 @@ public partial class App : Application
                 _thumbnailManager.IncrementAlertBadge(charName, severity, alertType);
                 bool trayEnabled = _settings.Settings.SeverityTrayNotify.TryGetValue(severity, out var tn) && tn;
 
-                // Always show the HUB toast when alerts are configured to surface
-                // there. Previously we suppressed the toast if the alerting
-                // character's window was the foreground — but when two or more
-                // clients alerted simultaneously and one of them happened to be
-                // foreground, that one's toast was silently dropped and the
-                // user only saw the background client's toast.
+                // Hub toast gate. Shown when the hub is enabled AND the
+                // severity is configured to surface there. Optionally (issue
+                // #47) suppressed for the foreground EVE client — you're
+                // already looking at that client, so the toast is noise.
+                // The suppression is per-character: only the alerting char's
+                // own toast is dropped, never a background client's, so the
+                // old simultaneous-alert bug can't recur.
+                bool suppressForActive = false;
+                if (_settings.Settings.SuppressAlertHubToastForActiveClient)
+                {
+                    var alertHwnd = _thumbnailManager.GetHwndForCharacter(charName);
+                    suppressForActive = alertHwnd != IntPtr.Zero
+                        && alertHwnd == EveMultiPreview.Interop.User32.GetForegroundWindow();
+                }
                 EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                    $"[App] toast decision for '{charName}': hubEnabled={_settings.Settings.AlertHubEnabled} trayNotify[{severity}]={trayEnabled}");
-                if (_settings.Settings.AlertHubEnabled && trayEnabled)
+                    $"[App] toast decision for '{charName}': hubEnabled={_settings.Settings.AlertHubEnabled} trayNotify[{severity}]={trayEnabled} suppressForActive={suppressForActive}");
+                if (_settings.Settings.AlertHubEnabled && trayEnabled && !suppressForActive)
                     _alertHub.ShowToast(charName, alertType, severity);
 
                 PlayAlertSound(charName, alertType, severity);
@@ -298,14 +305,6 @@ public partial class App : Application
             var gameLogDir = _settings.Settings.GameLogDirectory;
             _logMonitor.Start("", chatLogDir, gameLogDir);
             PerfLog($"[Deferred] LogMonitor started: {deferSw.ElapsedMilliseconds}ms");
-
-            // 7b. Account-association watcher — learns character→account
-            //     pairings from EVE settings co-writes so the EVE Manager
-            //     Account Copy panel can label accounts by their characters.
-            _accountAssoc = new AccountAssociationService();
-            _accountAssoc.PairLearned += OnAccountPairLearned;
-            _accountAssoc.Start(EveManagerService.FindEveDir(_settings.Settings.EveSettingsDir));
-            PerfLog($"[Deferred] AccountAssoc watcher: {deferSw.ElapsedMilliseconds}ms");
 
             // 8. Set up system tray
             SetupTrayIcon();
@@ -496,32 +495,6 @@ public partial class App : Application
                 }
             }
         }
-    }
-
-    // ── Account Association (EVE Manager Account Copy labelling) ──
-
-    /// <summary>Fired by AccountAssociationService on a background thread when
-    /// a character→account pairing is observed. Persists it into
-    /// AccountCharacterMap so the EVE Manager Account Copy panel can label the
-    /// account by its characters' names.</summary>
-    private void OnAccountPairLearned(string charId, string accountId)
-    {
-        Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
-        {
-            if (_settings == null) return;
-            var map = _settings.Settings.AccountCharacterMap;
-            if (!map.TryGetValue(accountId, out var chars))
-            {
-                chars = new List<string>();
-                map[accountId] = chars;
-            }
-            if (!chars.Contains(charId))
-            {
-                chars.Add(charId);
-                _settings.SaveDelayed();
-                Debug.WriteLine($"[App:AccountAssoc] 💾 Stored char {charId} → account {accountId}");
-            }
-        }));
     }
 
     // ── Alert Sound System (per-event sounds, WAV/MP3 via MediaPlayer) ──
@@ -1008,7 +981,6 @@ public partial class App : Application
         _logMonitor?.Dispose();
         _hotkeyService?.Dispose();
         _processMonitor?.Dispose();
-        _accountAssoc?.Dispose();
         _cropManager?.Dispose();
         _thumbnailManager?.Dispose();
         _discovery?.Dispose();

@@ -350,6 +350,7 @@ public partial class SettingsWindow : Window
             TxtToastDuration.Text = S.AlertToastDuration.ToString();
             ChkAlertHubAutoHide.IsChecked = S.AlertHubAutoHide;
             TxtAlertHubAutoHideSeconds.Text = S.AlertHubAutoHideSeconds.ToString();
+            ChkSuppressToastActive.IsChecked = S.SuppressAlertHubToastForActiveClient;
             SetNotLoggedInDDL(S.NotLoggedInIndicator);
             TxtNotLoggedInColor.Text = S.NotLoggedInColor;
             UpdateColorPreview(TxtNotLoggedInColor, PreviewNotLoggedIn);

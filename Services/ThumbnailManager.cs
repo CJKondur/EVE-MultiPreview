@@ -722,6 +722,18 @@ public sealed class ThumbnailManager : IDisposable
                         thumb.Resize((int)s.ThumbnailStartLocation.Width, (int)s.ThumbnailStartLocation.Height);
                     }
                 }
+
+                // Respect a per-character Visibility-tab hide. ApplySettings
+                // re-shows the text overlay (SetTextOverlayVisible) and the
+                // MoveTo/Resize above can re-show the window, so a thumbnail
+                // the user hid would otherwise pop back on any settings
+                // re-apply (issues #50 / #51). Re-hide it last.
+                if (!string.IsNullOrEmpty(thumb.CharacterName)
+                    && s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var visFlag)
+                    && visFlag != 0)
+                {
+                    thumb.HideWithOverlay();
+                }
             }
 
             // ── Sync PiP thumbnails: create missing, destroy removed ──

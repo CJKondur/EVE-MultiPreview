@@ -10,6 +10,9 @@ public partial class CopyLayoutDialog : Window
     public string? SelectedTo { get; private set; }
     public bool Confirmed { get; private set; }
 
+    /// <summary>True when the user chose to copy the entire profile rather than just the thumbnail layout.</summary>
+    public bool FullProfileCopy { get; private set; }
+
     public CopyLayoutDialog(IEnumerable<string> profileNames, string currentProfile)
     {
         InitializeComponent();
@@ -33,6 +36,7 @@ public partial class CopyLayoutDialog : Window
         SelectedFrom = CmbFrom.SelectedItem as string;
         var toItem = CmbTo.SelectedItem as string;
         SelectedTo = toItem == "— All Profiles —" ? AllProfilesTag : toItem;
+        FullProfileCopy = RdoFullProfile.IsChecked == true;
         Confirmed = true;
         DialogResult = true;
         Close();
