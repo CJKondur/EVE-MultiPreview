@@ -56,6 +56,13 @@ public partial class SettingsWindow : Window
         _thumbnailManager = thumbnailManager;
         _cropManager = cropManager;
 
+        // If something external (tray menu, profile-cycle hotkey, …) switches
+        // the active profile while this window is open, the open UI is now bound
+        // to the wrong profile — any edit the user makes would leak into the
+        // newly-active profile based on stale on-screen values. Re-bind the UI
+        // whenever LastUsedProfile actually changes.
+        _svc.ProfileSwitched += OnSvcProfileSwitched;
+
         _autoApplyTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _autoApplyTimer.Tick += (_, _) =>
         {
@@ -186,6 +193,7 @@ public partial class SettingsWindow : Window
         }
         _svc.Save();
         _clockTimer?.Stop();
+        _svc.ProfileSwitched -= OnSvcProfileSwitched;
     }
 
     private void UpdateClocks()
@@ -377,6 +385,7 @@ public partial class SettingsWindow : Window
             SelectFpsLimit(S.RtssFpsLimit);
 
             // Stats
+            ChkStatsOverlayEnabled.IsChecked = S.StatOverlayEnabled;
             SliderStatFont.Value = S.StatOverlayFontSize;
             TxtStatFontValue.Text = S.StatOverlayFontSize.ToString();
             SliderStatOpacity.Value = S.StatOverlayOpacity;
@@ -428,11 +437,32 @@ public partial class SettingsWindow : Window
     private void OnProfileChanged(object s, SelectionChangedEventArgs e)
     {
         if (_loading || CmbProfiles.SelectedItem is not string name) return;
+        if (name == _svc.Settings.LastUsedProfile) return;
+        // SwitchProfile raises ProfileSwitched, which OnSvcProfileSwitched
+        // handles — UI reload + thumbnail/crop reapply happens there so the
+        // same path runs no matter who triggers the switch.
         _svc.SwitchProfile(name);
-        LoadSettings();
-        _thumbnailManager?.ReapplySettings();
-        _cropManager?.Refresh();
-        SettingsApplied?.Invoke();
+    }
+
+    /// <summary>Re-bind the UI whenever the active profile changes from any
+    /// source (this window's dropdown, the tray menu, or the cycle hotkey).
+    /// Without this, stale on-screen values from the previous profile would
+    /// be written back into the newly-active profile on the user's next edit.</summary>
+    private void OnSvcProfileSwitched(string name)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            if (CmbProfiles.SelectedItem as string != name)
+            {
+                _loadingDepth++;
+                try { CmbProfiles.SelectedItem = name; }
+                finally { _loadingDepth--; }
+            }
+            LoadSettings();
+            _thumbnailManager?.ReapplySettings();
+            _cropManager?.Refresh();
+            SettingsApplied?.Invoke();
+        });
     }
 
     private void OnCreateProfile(object s, RoutedEventArgs e)

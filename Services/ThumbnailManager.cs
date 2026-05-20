@@ -771,6 +771,27 @@ public sealed class ThumbnailManager : IDisposable
             }
 
 
+            // Sync stat overlays with the master ON/OFF toggle. When the user
+            // flips the switch in Settings, ReapplySettings is the path that
+            // creates / tears down windows so the change is immediate.
+            if (!s.StatOverlayEnabled)
+            {
+                // Master off: destroy every live overlay (positions are persisted
+                // by DestroyStatWindowsForCharacter, so toggling back on restores them).
+                foreach (var name in _statWindows.Keys.ToList())
+                    DestroyStatWindowsForCharacter(name);
+            }
+            else
+            {
+                // Master on: create any missing overlays for currently-tracked characters.
+                // CreateStatWindowsForCharacter is idempotent (it skips if the window already exists).
+                foreach (var (eveHwnd, thumb) in _thumbnails)
+                {
+                    if (!string.IsNullOrEmpty(thumb.CharacterName))
+                        CreateStatWindowsForCharacter(thumb.CharacterName, eveHwnd);
+                }
+            }
+
             // Re-apply stat overlay settings (font size, opacity, topmost)
             foreach (var (_, statWin) in _statWindows)
             {
@@ -2846,8 +2867,12 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (string.IsNullOrEmpty(charName) || _statTracker == null) return;
 
-        // Resolve per-character effective metric set — skip window if no metric is enabled.
+        // Master ON/OFF gate — when the user disables the Stats Overlay,
+        // no windows are ever created, regardless of per-metric / per-character settings.
         var s = _settings.Settings;
+        if (!s.StatOverlayEnabled) return;
+
+        // Resolve per-character effective metric set — skip window if no metric is enabled.
         s.PerCharacterStats.TryGetValue(charName, out var statConfig);
         var effective = CharacterStatSettings.Resolve(s.GlobalStatMetrics, statConfig);
         if ((effective & StatMetrics.AllMetrics) == 0) return;

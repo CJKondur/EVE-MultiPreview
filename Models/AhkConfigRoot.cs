@@ -77,6 +77,7 @@ public class AhkConfigRoot
         s.PveMode = g.PVEMode != 0;
         s.EnableAlertSounds = g.EnableAlertSounds != 0;
         s.AlertSoundVolume = g.AlertSoundVolume;
+        s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.CycleWrapSoundEnabled = g.CycleWrapSoundEnabled != 0;
         s.CycleWrapSoundFile = g.CycleWrapSoundFile ?? "";
         s.AlertHubEnabled = g.AlertHubEnabled != 0; // 0 for missing/new configs, 1 when user enables
@@ -109,6 +110,7 @@ public class AhkConfigRoot
         s.GameLogDirectory = g.GameLogDirectory ?? "";
 
         // Stats
+        s.StatOverlayEnabled = g.StatOverlayEnabled != 0;
         s.StatOverlayFontSize = g.StatOverlayFontSize;
         s.StatOverlayOpacity = g.StatOverlayOpacity;
         s.StatLoggingEnabled = g.StatLogEnabled != 0;
@@ -306,6 +308,7 @@ public class AhkConfigRoot
         g.PVEMode = s.PveMode ? 1 : 0;
         g.EnableAlertSounds = s.EnableAlertSounds ? 1 : 0;
         g.AlertSoundVolume = s.AlertSoundVolume;
+        g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.CycleWrapSoundEnabled = s.CycleWrapSoundEnabled ? 1 : 0;
         g.CycleWrapSoundFile = s.CycleWrapSoundFile;
         g.AlertHubEnabled = s.AlertHubEnabled ? 1 : 0;
@@ -337,6 +340,7 @@ public class AhkConfigRoot
         g.GameLogDirectory = s.GameLogDirectory;
 
         // Stats
+        g.StatOverlayEnabled = s.StatOverlayEnabled ? 1 : 0;
         g.StatOverlayFontSize = s.StatOverlayFontSize;
         g.StatOverlayOpacity = s.StatOverlayOpacity;
         g.StatLogEnabled = s.StatLoggingEnabled ? 1 : 0;
@@ -878,6 +882,9 @@ public class AhkGlobalSettings
     [JsonPropertyName("AlertSoundVolume")]
     public int AlertSoundVolume { get; set; } = 100;
 
+    [JsonPropertyName("AlertOpacityPercent")]
+    public int AlertOpacityPercent { get; set; } = 100;
+
     [JsonPropertyName("AlertHubEnabled")]
     public int AlertHubEnabled { get; set; } = 0;
 
@@ -973,6 +980,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("IncludeNpcDamage")]
     public int? IncludeNpcDamage { get; set; }
+
+    [JsonPropertyName("StatOverlayEnabled")]
+    public int StatOverlayEnabled { get; set; } = 1;
 
     [JsonPropertyName("StatOverlayFontSize")]
     public int StatOverlayFontSize { get; set; } = 8;

@@ -318,7 +318,7 @@ public class AppSettings
     public bool CycleWrapSoundEnabled { get; set; } = false;
     public string CycleWrapSoundFile { get; set; } = "";
     public int AlertSoundCooldown { get; set; } = 10;
-    public bool StatOverlayEnabled { get; set; } = false;
+    public bool StatOverlayEnabled { get; set; } = true;
     public bool ShowDpsOverlay { get; set; } = false;
     public bool ShowLogiOverlay { get; set; } = false;
     public bool ShowMiningOverlay { get; set; } = false;

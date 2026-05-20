@@ -994,6 +994,14 @@
                     <TextBlock Text="📊 Stats Overlay" FontSize="18" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
                     <TextBlock Text="Configure real-time DPS, Logi, Mining, and Ratting overlays per character." Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
 
+                    <!-- Master ON/OFF — when off, no stat overlay windows are created and any
+                         currently-open ones are closed. All per-character / per-metric settings below
+                         are preserved. -->
+                    <CheckBox x:Name="ChkStatsOverlayEnabled" Content="Enable Stats Overlay"
+                              Checked="OnStatsChanged" Unchecked="OnStatsChanged"
+                              FontWeight="SemiBold" Margin="0,0,0,10"
+                              ToolTip="Master switch. Off = no overlays appear, regardless of per-character or per-metric settings."/>
+
                     <!-- Global Master Switches — default for characters with no explicit override -->
                     <GroupBox Header="Global Defaults">
                         <StackPanel>

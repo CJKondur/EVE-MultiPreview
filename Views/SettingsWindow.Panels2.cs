@@ -735,6 +735,7 @@ public partial class SettingsWindow
 
     private void SaveStats()
     {
+        S.StatOverlayEnabled = ChkStatsOverlayEnabled.IsChecked == true;
         S.StatOverlayFontSize = (int)SliderStatFont.Value;
         S.StatOverlayOpacity = (int)SliderStatOpacity.Value;
         S.StatOverlayBgColor = TxtStatBgColor.Text;

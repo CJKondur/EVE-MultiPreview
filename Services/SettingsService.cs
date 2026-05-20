@@ -206,13 +206,20 @@ public sealed class SettingsService : IDisposable
 
     // ── Profile Management ──────────────────────────────────────────
 
+    /// <summary>Raised AFTER LastUsedProfile actually changes (and the new state
+    /// is persisted). Subscribers like the open Settings window use this to
+    /// re-bind their UI to the newly-active profile so further edits don't
+    /// leak into the wrong profile. Not raised when the requested profile is
+    /// already the active one.</summary>
+    public event Action<string>? ProfileSwitched;
+
     public void SwitchProfile(string profileName)
     {
-        if (_settings.Profiles.ContainsKey(profileName))
-        {
-            _settings.LastUsedProfile = profileName;
-            Save();
-        }
+        if (!_settings.Profiles.ContainsKey(profileName)) return;
+        bool changed = _settings.LastUsedProfile != profileName;
+        _settings.LastUsedProfile = profileName;
+        Save();
+        if (changed) ProfileSwitched?.Invoke(profileName);
     }
 
     public void CreateProfile(string name)
