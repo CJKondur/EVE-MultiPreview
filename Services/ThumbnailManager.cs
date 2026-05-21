@@ -73,6 +73,7 @@ public sealed class ThumbnailManager : IDisposable
     private bool _settingsClickSuppressed = false;  // Force thumbnails click-through while Settings UI is open
     private bool _suppressTopmost = false;  // Suppress topmost while settings window is active
     private bool _settingsOpen = false;     // Settings window exists (even minimized) — keeps thumbnails visible
+    private bool _primaryHiddenByFocus = false; // Primary thumbnails fully hidden by "Hide When Alt-Tabbed" (focus loss)
     private bool _lastEveFocused = false;   // Track focus transitions for one-time BringToFront
     private bool _lastGpuFreezeState = false; // StaticThumbnails / SuspendThumbnailsWhenBackground transitions
     private bool _lastHideActiveThumbnailState = false; // HideActiveThumbnail on→off transition tracking
@@ -1118,30 +1119,33 @@ public sealed class ThumbnailManager : IDisposable
             }
         }
 
-        // Visibility gate for primary thumbnails under HideThumbnailsOnLostFocus.
-        // Hide only when every EVE window is closed (or Settings is also closed)
-        // — stat overlays and PiPs are decoupled from this and always stay up
-        // while any EVE client exists.
+        // Visibility gate for primary thumbnails under HideThumbnailsOnLostFocus
+        // ("Hide When Alt-Tabbed"). Thumbnails are visible only while EVE or this
+        // app holds the foreground (or Settings is open); alt-tabbing to any other
+        // application fully hides them and refocusing EVE restores them. Per-character
+        // Visibility-tab hides are respected on restore. Stat overlays / PiPs follow
+        // the focus-aware block below.
         bool anyEveExists = _thumbnails.Count > 0;
-        bool appVisibleContext = anyEveExists || _settingsOpen;
+        bool appVisibleContext = eveFocused || _settingsOpen;
 
         if (s.HideThumbnailsOnLostFocus)
         {
             foreach (var (eveHwnd, thumb) in _thumbnails)
             {
-                // Skip DWM toggling for iconic windows — they're painting a frozen
-                // frame and must keep _isDwmHidden=true for that to render.
-                if (_iconicHwnds.ContainsKey(eveHwnd)) continue;
+                bool charHidden = !string.IsNullOrEmpty(thumb.CharacterName)
+                    && s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var vf) && vf != 0;
 
-                // Skip DWM unhide when GPU-freeze mode wants the thumb static —
-                // otherwise this loop would un-freeze every tick.
-                if (gpuFreeze) continue;
-
-                if (!appVisibleContext && !_thumbnailsHidden)
-                    thumb.HideDwmOnly();
-                else if (appVisibleContext && !_thumbnailsHidden && !_primaryHidden)
-                    thumb.ShowDwmOnly();
+                if (!appVisibleContext)
+                {
+                    if (!_thumbnailsHidden)
+                        thumb.HideWithOverlay();
+                }
+                else if (!_thumbnailsHidden && !_primaryHidden && !charHidden)
+                {
+                    thumb.ShowWithOverlay();
+                }
             }
+            _primaryHiddenByFocus = !appVisibleContext && !_thumbnailsHidden;
 
             // Stat overlays and PiPs stay visible as long as any EVE client is
             // tracked — clicking off EVE shouldn't make them disappear, just
@@ -1164,6 +1168,20 @@ public sealed class ThumbnailManager : IDisposable
             {
                 if (pip.Visibility != targetVisibility)
                     pip.Visibility = targetVisibility;
+            }
+        }
+        else if (_primaryHiddenByFocus)
+        {
+            // The feature was switched off while thumbnails were focus-hidden —
+            // restore them so they don't stay invisible. Per-character Visibility
+            // hides and the manager-level hide toggles still take precedence.
+            _primaryHiddenByFocus = false;
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                bool charHidden = !string.IsNullOrEmpty(thumb.CharacterName)
+                    && s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var vf) && vf != 0;
+                if (!_thumbnailsHidden && !_primaryHidden && !charHidden)
+                    thumb.ShowWithOverlay();
             }
         }
 
