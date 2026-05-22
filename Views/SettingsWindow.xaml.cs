@@ -272,6 +272,7 @@ public partial class SettingsWindow : Window
             ChkShowTimer.IsChecked = S.ShowSessionTimer;
             TxtMinimizeDelay.Text = S.MinimizeDelay.ToString();
             TxtCycleDelay.Text = S.CycleDelayMs.ToString();
+            ChkCycleWhileHeld.IsChecked = S.CycleWhileHeld;
             CmbStartupSettings.SelectedIndex = (int)S.StartupSettings;
 
             // UI Scale
@@ -2179,6 +2180,15 @@ public partial class SettingsWindow : Window
                 def.SourceY = r.Y;
                 def.SourceWidth = r.W;
                 def.SourceHeight = r.H;
+
+                // #56: size the popup to match the picked region so it isn't
+                // stretched/distorted. Source dims are physical client pixels;
+                // popup dims are DIPs, so convert using the EVE client's monitor
+                // scale to give the popup the same on-screen size as the region.
+                double scale = DpiHelper.GetScaleFactorForPoint(cx, cy);
+                def.PopupWidth = Math.Max(40, (int)Math.Round(r.W / scale));
+                def.PopupHeight = Math.Max(30, (int)Math.Round(r.H / scale));
+
                 _svc.Save();
                 _cropManager?.ApplyDefinitionEdits(characterName, def.Id);
                 RebuildCropList();

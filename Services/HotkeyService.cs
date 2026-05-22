@@ -52,7 +52,18 @@ public sealed class HotkeyService : IDisposable
     // The actual delay comes from the user-configurable AppSettings.CycleDelayMs
     // (default 100); fallback to 100 if settings haven't been wired yet.
     private int CycleDelayMs => _appSettings?.CycleDelayMs ?? 100;
+    // When false, a held cycle hotkey cycles exactly once per press (issue #59).
+    private bool CycleWhileHeld => _appSettings?.CycleWhileHeld ?? true;
     private readonly Dictionary<int, long> _lastRepeatFireTick = new();
+
+    // Cycle hotkeys are registered with MOD_NOREPEAT so the OS fires exactly one
+    // WM_HOTKEY per physical press — that single press always cycles immediately,
+    // regardless of CycleDelayMs (issue #60). Held-to-cycle is then driven by our
+    // own key-state poll timer (mirrors the mouse-button repeat path) so the cycle
+    // delay only governs the held cadence, never single taps.
+    private System.Windows.Threading.DispatcherTimer? _keyRepeatTimer;
+    private uint _keyRepeatVk;
+    private Action? _keyRepeatAction;
 
     // ── Mouse button hotkey support (WH_MOUSE_LL) ──
     private IntPtr _mouseHookHandle = IntPtr.Zero;
@@ -245,7 +256,10 @@ public sealed class HotkeyService : IDisposable
         foreach (var spec in winners.Values)
         {
             int id = _nextId++;
-            uint finalMods = spec.AllowRepeat ? spec.Modifiers : (spec.Modifiers | User32.MOD_NOREPEAT);
+            // Always MOD_NOREPEAT: one WM_HOTKEY per physical press. Held-to-cycle
+            // for repeatable bindings is handled by our own key-state poll timer
+            // (StartKeyRepeat), so a single tap never gets throttled by CycleDelayMs.
+            uint finalMods = spec.Modifiers | User32.MOD_NOREPEAT;
             if (User32.RegisterHotKey(_hwndSource.Handle, id, finalMods, spec.VirtualKey))
             {
                 _hotkeyActions[id] = spec.Action;
@@ -266,6 +280,7 @@ public sealed class HotkeyService : IDisposable
     /// <summary>Unregister all non-suspend hotkeys. Call when last EVE window closes.</summary>
     public void DeactivateHotkeys()
     {
+        StopKeyRepeat();
         if (!_hotkeysActive || _hwndSource == null) return;
         foreach (var id in _hotkeyActions.Keys.ToList())
         {
@@ -285,6 +300,7 @@ public sealed class HotkeyService : IDisposable
     public void ToggleSuspend()
     {
         _suspended = !_suspended;
+        StopKeyRepeat();
 
         if (_suspended)
         {
@@ -847,16 +863,18 @@ public sealed class HotkeyService : IDisposable
                 catch { }
             }
 
-            // Throttle ALL hotkeys to prevent key-repeat flooding.
-            // RegisterHotKey sends WM_HOTKEY on every OS key-repeat (~30ms).
-            // AHK's Hotkey() hook fires once-per-press — this throttle emulates that.
+            // Hotkeys are registered MOD_NOREPEAT, so this is one WM_HOTKEY per
+            // physical press — no OS key-repeat flood to collapse. Keep only a
+            // tiny fixed dedup to absorb any accidental double-post; do NOT gate on
+            // CycleDelayMs, which would swallow deliberate fast taps (issue #60).
+            const long RepeatDedupMs = 30;
             if (!isActivationHotkey)
             {
                 long now = Environment.TickCount64;
                 if (_lastRepeatFireTick.TryGetValue(id, out long lastTick) &&
-                    (now - lastTick) < CycleDelayMs)
+                    (now - lastTick) < RepeatDedupMs)
                 {
-                    return IntPtr.Zero; // Drop this repeat — too soon
+                    return IntPtr.Zero; // Drop accidental duplicate post
                 }
                 _lastRepeatFireTick[id] = now;
             }
@@ -884,6 +902,15 @@ public sealed class HotkeyService : IDisposable
                     App.PerfLog($"[Hotkey:Error] Action exception ID={id}: {ex.Message}");
                 }
                 handled = true;
+
+                // Held-to-cycle: for repeatable (cycle) bindings, keep re-firing
+                // while the key stays physically down — but only when the user has
+                // enabled it (issue #59). The single press above already cycled once.
+                if (CycleWhileHeld && _repeatableIds.Contains(id) &&
+                    _hotkeyVks.TryGetValue(id, out var vk))
+                {
+                    StartKeyRepeat(vk, action);
+                }
             }
         }
         return IntPtr.Zero;
@@ -891,6 +918,7 @@ public sealed class HotkeyService : IDisposable
 
     public void Dispose()
     {
+        StopKeyRepeat();
         UnregisterAll();
         // UnregisterAll preserves activation hotkeys — release them on shutdown.
         if (_hwndSource != null)
@@ -1085,7 +1113,7 @@ public sealed class HotkeyService : IDisposable
                         // bindings (AllowRepeat) we run our own DispatcherTimer
                         // that re-fires the action every CycleDelayMs (user-
                         // configurable, default 100 ms) until WM_*BUTTONUP.
-                        if (binding.AllowRepeat)
+                        if (binding.AllowRepeat && CycleWhileHeld)
                             StartMouseRepeat(binding, buttonName);
 
                         // Return 1 to suppress the mouse event from reaching other apps
@@ -1096,6 +1124,70 @@ public sealed class HotkeyService : IDisposable
         }
 
         return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+    }
+
+    /// <summary>Begin auto-repeating a keyboard cycle action while its key stays
+    /// physically down. Mirrors the mouse-button repeat: the initial press already
+    /// fired once, then after a hold-detect threshold we re-fire at the user's
+    /// CycleDelayMs cadence until the key is released (polled via GetAsyncKeyState).
+    /// A single tap never reaches the first tick, so it stays a one-shot.</summary>
+    private void StartKeyRepeat(uint vk, Action action)
+    {
+        StopKeyRepeat(); // cancel any prior repeat first
+
+        _keyRepeatVk = vk;
+        _keyRepeatAction = action;
+
+        int delayMs = CycleDelayMs;
+        const int HoldDetectMs = 250; // tap-vs-hold threshold (matches mouse path)
+
+        var timer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(HoldDetectMs)
+        };
+        _keyRepeatTimer = timer;
+
+        long startTicks = Environment.TickCount64;
+        const long MaxRepeatDurationMs = 60_000;
+
+        bool firstTick = true;
+        timer.Tick += (_, _) =>
+        {
+            // Safety cap so a missed key-up can't cycle forever.
+            if (Environment.TickCount64 - startTicks > MaxRepeatDurationMs)
+            {
+                StopKeyRepeat();
+                return;
+            }
+
+            // Stop the instant the key is physically released.
+            if (!User32.IsKeyDown((int)_keyRepeatVk))
+            {
+                StopKeyRepeat();
+                return;
+            }
+
+            // After hold-detect, switch to steady-state cycle cadence.
+            if (firstTick)
+            {
+                firstTick = false;
+                timer.Interval = TimeSpan.FromMilliseconds(delayMs);
+            }
+
+            var a = _keyRepeatAction;
+            if (a == null) return;
+            try { a.Invoke(); }
+            catch (Exception ex) { Debug.WriteLine($"[Hotkey:KeyRepeat] ❌ Repeat action error: {ex.Message}"); }
+        };
+
+        timer.Start();
+    }
+
+    private void StopKeyRepeat()
+    {
+        _keyRepeatTimer?.Stop();
+        _keyRepeatTimer = null;
+        _keyRepeatAction = null;
     }
 
     /// <summary>Begin auto-repeating a mouse-bound action while the button is held.

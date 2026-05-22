@@ -2360,8 +2360,9 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (members == null || members.Count == 0) return;
 
-        // User-configurable cycle throttle (default 100ms) to prevent skipped clients when hotkey is held.
-        if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < _settings.Settings.CycleDelayMs) return;
+        // Cadence is governed upstream by HotkeyService: one fire per press, plus a
+        // held-key repeat timer that paces at CycleDelayMs (issues #59/#60). No
+        // CycleDelayMs throttle here, or it would swallow deliberate fast taps.
         _lastCycleTime = DateTime.UtcNow;
 
         void LogCycle(string msg)
@@ -2475,8 +2476,8 @@ public sealed class ThumbnailManager : IDisposable
     /// (issue #8). Shift-excluded characters (#16) are always skipped.</summary>
     public void CycleAll(bool forward)
     {
-        if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < _settings.Settings.CycleDelayMs) return;
-
+        // Cadence governed upstream by HotkeyService (issues #59/#60) — no
+        // CycleDelayMs throttle here, which would block deliberate fast taps.
         bool includeLogins = _settings.Settings.IncludeLoginScreensInCycle;
         var hwnds = _thumbnails
             .OrderBy(kv => kv.Key.ToInt64())

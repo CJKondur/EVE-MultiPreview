@@ -32,6 +32,12 @@ public class AppSettings
     /// repeat throttle, the mouse-button auto-repeat interval, and the floor
     /// inside CycleGroup. Lower = faster cycling, higher = slower. Default 100ms.</summary>
     public int CycleDelayMs { get; set; } = 100;
+
+    /// <summary>When true (default), holding a cycle hotkey auto-repeats the cycle
+    /// at the CycleDelayMs cadence. When false, each press cycles exactly one
+    /// client no matter how long the key/button is held — one cycle per push
+    /// (issue #59).</summary>
+    public bool CycleWhileHeld { get; set; } = true;
     public bool EnableKeyBlockGuard { get; set; } = false;
     public bool GlobalHotkeys { get; set; } = true;
     public string SuspendHotkey { get; set; } = "";

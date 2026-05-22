@@ -56,6 +56,7 @@ public class AhkConfigRoot
         s.HideActiveThumbnail = g.HideActiveThumbnail != 0;
         s.IndividualThumbnailResize = g.IndividualThumbnailResize != 0;
         s.CycleDelayMs = g.CycleDelayMs;
+        s.CycleWhileHeld = g.CycleWhileHeld != 0;
         s.MinimizeDelay = g.MinimizeDelay;
         s.SimpleMode = g.SimpleMode != 0;
         s.SetupCompleted = true; // Always bypass the First-Run wizard for migrated AHK users
@@ -303,6 +304,7 @@ public class AhkConfigRoot
         g.HideActiveThumbnail = s.HideActiveThumbnail ? 1 : 0;
         g.IndividualThumbnailResize = s.IndividualThumbnailResize ? 1 : 0;
         g.CycleDelayMs = s.CycleDelayMs;
+        g.CycleWhileHeld = s.CycleWhileHeld ? 1 : 0;
         g.MinimizeDelay = s.MinimizeDelay;
         g.SimpleMode = s.SimpleMode ? 1 : 0;
         g.SetupCompleted = s.SetupCompleted ? 1 : 0;
@@ -860,6 +862,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("CycleDelayMs")]
     public int CycleDelayMs { get; set; } = 100;
+
+    [JsonPropertyName("CycleWhileHeld")]
+    public int CycleWhileHeld { get; set; } = 1;
 
     [JsonPropertyName("SimpleMode")]
     public int SimpleMode { get; set; }

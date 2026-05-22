@@ -328,6 +328,11 @@
                                 <TextBox x:Name="TxtCycleDelay" Width="60" TextChanged="OnGeneralChanged"/>
                                 <Label Content="ms"/>
                             </StackPanel>
+                            <CheckBox x:Name="ChkCycleWhileHeld" Content="Cycle while the hotkey is held down"
+                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="0,6,0,0"
+                                      ToolTip="On: holding a cycle hotkey keeps cycling at the delay above. Off: each press cycles exactly one client."/>
+                            <TextBlock Text="Turn this off to cycle one client per press (avoids fast-cycling key-stuck quirks)."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="UI Settings">
@@ -1199,7 +1204,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="Chars" Width="45" DisplayMemberBinding="{Binding CharCount}"/>
+                                        <GridViewColumn Header="Accounts" Width="65" DisplayMemberBinding="{Binding CharCount}"/>
                                     </GridView>
                                 </ListView.View>
                             </ListView>
@@ -1216,7 +1221,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="Chars" Width="45" DisplayMemberBinding="{Binding CharCount}"/>
+                                        <GridViewColumn Header="Accounts" Width="65" DisplayMemberBinding="{Binding CharCount}"/>
                                     </GridView>
                                 </ListView.View>
                             </ListView>

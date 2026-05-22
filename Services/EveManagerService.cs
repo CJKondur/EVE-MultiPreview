@@ -65,17 +65,21 @@ public sealed class EveManagerService
         foreach (var dir in Directory.EnumerateDirectories(eveDir, "settings*"))
         {
             var name = System.IO.Path.GetFileName(dir);
-            var charCount = CountCharFiles(dir);
+            var charCount = CountAccountFiles(dir);
             profiles.Add((name, dir, charCount));
         }
         return profiles;
     }
 
-    /// <summary>Returns the number of core_user_*.dat files found.</summary>
-    public static int CountCharFiles(string profilePath)
+    /// <summary>Returns the number of real per-account settings files
+    /// (core_user_&lt;numericId&gt;.dat) in a profile. EVE also writes a placeholder
+    /// "core_user__.dat" (empty id) that must not be counted — issue #57.</summary>
+    public static int CountAccountFiles(string profilePath)
     {
         if (!Directory.Exists(profilePath)) return 0;
-        return Directory.EnumerateFiles(profilePath, "core_user_*.dat").Count();
+        var rx = new Regex(@"^core_user_(\d+)\.dat$", RegexOptions.IgnoreCase);
+        return Directory.EnumerateFiles(profilePath, "core_user_*.dat")
+            .Count(f => rx.IsMatch(System.IO.Path.GetFileName(f)));
     }
 
     // ── Character Listing ────────────────────────────────────────

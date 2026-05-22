@@ -1553,7 +1553,29 @@ public partial class SettingsWindow
         var profileNames = S.Profiles.Keys.ToList();
         if (profileNames.Count < 2)
         {
-            MessageBox.Show("Need at least 2 profiles to copy layouts.", "Copy Layout");
+            // #58: with only one profile there's nothing to copy to — offer to
+            // create a second profile and copy the existing one straight into it,
+            // instead of just warning the user.
+            var newName = Microsoft.VisualBasic.Interaction.InputBox(
+                "You only have one profile. Enter a name for a new profile to copy it into:",
+                "Copy Profile", "").Trim();
+            if (string.IsNullOrWhiteSpace(newName)) return;
+            if (S.Profiles.ContainsKey(newName))
+            {
+                MessageBox.Show($"A profile named '{newName}' already exists.", "Copy Profile");
+                return;
+            }
+
+            var onlyName = profileNames[0];
+            var onlyProfile = S.Profiles[onlyName];
+            _svc.CreateProfile(newName);                 // creates the profile and makes it active
+            CopyProfileFull(onlyProfile, S.Profiles[newName]);
+            _svc.Save();
+            LoadSettings();                              // refresh dropdown + bound controls
+            _thumbnailManager?.ReapplySettings();
+            _cropManager?.Refresh();
+            SettingsApplied?.Invoke();
+            MessageBox.Show($"Created profile '{newName}' and copied '{onlyName}' into it.", "Copy Profile");
             return;
         }
 
