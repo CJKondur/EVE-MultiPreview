@@ -35,6 +35,7 @@ public class AhkConfigRoot
         s.ThumbnailSnap = g.ThumbnailSnap != 0;
         s.ThumbnailSnapDistance = g.ThumbnailSnapDistance;
         s.ThumbnailBackgroundColor = g.ThumbnailBackgroundColor ?? "0x57504e";
+        s.ColorBlindMode = g.ColorBlindMode != 0;
         s.GlobalHotkeys = g.GlobalHotkeys != 0;
         s.SuspendHotkey = g.SuspendHotkeysHotkey ?? "";
         s.ClickThroughHotkey = g.ClickThroughHotkey ?? "";
@@ -54,6 +55,8 @@ public class AhkConfigRoot
         s.LockPositions = g.LockPositions != 0;
         s.HideActiveThumbnail = g.HideActiveThumbnail != 0;
         s.IndividualThumbnailResize = g.IndividualThumbnailResize != 0;
+        s.CycleDelayMs = g.CycleDelayMs;
+        s.MinimizeDelay = g.MinimizeDelay;
         s.SimpleMode = g.SimpleMode != 0;
         s.SetupCompleted = true; // Always bypass the First-Run wizard for migrated AHK users
         // StartupSettings: clamp to known values; unknown/missing → Off
@@ -100,6 +103,8 @@ public class AhkConfigRoot
         s.EnabledAlertTypes = ConvertIntDictToBoolDict(g.EnabledAlertTypes);
         s.BadgeOnThumbnailAlertTypes = ConvertIntDictToBoolDict(g.BadgeOnThumbnailAlertTypes);
         s.StaticThumbnails = g.StaticThumbnails != 0;
+        s.ShowAlertBadgeOnThumbnails = g.ShowAlertBadgeOnThumbnails != 0;
+        s.CustomColorPalette = g.CustomColorPalette;
         s.SuspendThumbnailsWhenBackground = g.SuspendThumbnailsWhenBackground != 0;
         s.CycleExclusionBadgePosition = g.CycleExclusionBadgePosition ?? "TopLeft";
 
@@ -113,6 +118,8 @@ public class AhkConfigRoot
         s.StatOverlayEnabled = g.StatOverlayEnabled != 0;
         s.StatOverlayFontSize = g.StatOverlayFontSize;
         s.StatOverlayOpacity = g.StatOverlayOpacity;
+        s.StatOverlayBgColor = g.StatOverlayBgColor ?? "#1a1a2e";
+        s.StatOverlayTextColor = g.StatOverlayTextColor ?? "#00FF88";
         s.StatLoggingEnabled = g.StatLogEnabled != 0;
         s.StatLogDirectory = g.StatLogPath ?? "";
         s.StatLogRetentionDays = g.StatLogRetentionDays;
@@ -166,10 +173,13 @@ public class AhkConfigRoot
 
         // Quick-Switch Wheel
         s.QuickSwitchHotkey = g.QuickSwitchHotkey ?? "";
+        s.QuickSwitchCardOrder = g.QuickSwitchCardOrder ?? new();
 
         // Settings window
         s.SettingsWindowWidth = g.SettingsWindowWidth;
         s.SettingsWindowHeight = g.SettingsWindowHeight;
+        s.SettingsUiFontSize = g.SettingsUiFontSize;
+        s.ReceivePreReleaseUpdates = g.ReceivePreReleaseUpdates != 0;
 
         // Eve Manager
         s.EveManagerUseESI = g.EveManagerUseESI != 0;
@@ -272,6 +282,7 @@ public class AhkConfigRoot
         g.ThumbnailSnap = s.ThumbnailSnap ? 1 : 0;
         g.ThumbnailSnapDistance = s.ThumbnailSnapDistance;
         g.ThumbnailBackgroundColor = s.ThumbnailBackgroundColor;
+        g.ColorBlindMode = s.ColorBlindMode ? 1 : 0;
         g.GlobalHotkeys = s.GlobalHotkeys ? 1 : 0;
         g.SuspendHotkeysHotkey = s.SuspendHotkey;
         g.ClickThroughHotkey = s.ClickThroughHotkey;
@@ -291,6 +302,8 @@ public class AhkConfigRoot
         g.LockPositions = s.LockPositions ? 1 : 0;
         g.HideActiveThumbnail = s.HideActiveThumbnail ? 1 : 0;
         g.IndividualThumbnailResize = s.IndividualThumbnailResize ? 1 : 0;
+        g.CycleDelayMs = s.CycleDelayMs;
+        g.MinimizeDelay = s.MinimizeDelay;
         g.SimpleMode = s.SimpleMode ? 1 : 0;
         g.SetupCompleted = s.SetupCompleted ? 1 : 0;
         g.StartupSettings = (int)s.StartupSettings;
@@ -332,6 +345,8 @@ public class AhkConfigRoot
         g.StaticThumbnails = s.StaticThumbnails ? 1 : 0;
         g.SuspendThumbnailsWhenBackground = s.SuspendThumbnailsWhenBackground ? 1 : 0;
         g.CycleExclusionBadgePosition = s.CycleExclusionBadgePosition;
+        g.ShowAlertBadgeOnThumbnails = s.ShowAlertBadgeOnThumbnails ? 1 : 0;
+        g.CustomColorPalette = s.CustomColorPalette;
 
         // Log
         g.EnableChatLogMonitoring = s.EnableChatLogMonitoring ? 1 : 0;
@@ -343,6 +358,8 @@ public class AhkConfigRoot
         g.StatOverlayEnabled = s.StatOverlayEnabled ? 1 : 0;
         g.StatOverlayFontSize = s.StatOverlayFontSize;
         g.StatOverlayOpacity = s.StatOverlayOpacity;
+        g.StatOverlayBgColor = s.StatOverlayBgColor;
+        g.StatOverlayTextColor = s.StatOverlayTextColor;
         g.StatLogEnabled = s.StatLoggingEnabled ? 1 : 0;
         g.StatLogPath = s.StatLogDirectory;
         g.StatLogRetentionDays = s.StatLogRetentionDays;
@@ -380,10 +397,13 @@ public class AhkConfigRoot
 
         // Quick-Switch Wheel
         g.QuickSwitchHotkey = s.QuickSwitchHotkey;
+        g.QuickSwitchCardOrder = s.QuickSwitchCardOrder;
 
         // Settings window
         g.SettingsWindowWidth = s.SettingsWindowWidth;
         g.SettingsWindowHeight = s.SettingsWindowHeight;
+        g.SettingsUiFontSize = s.SettingsUiFontSize;
+        g.ReceivePreReleaseUpdates = s.ReceivePreReleaseUpdates ? 1 : 0;
 
         // Eve Manager
         g.EveManagerUseESI = s.EveManagerUseESI ? 1 : 0;
@@ -778,6 +798,9 @@ public class AhkGlobalSettings
     [JsonPropertyName("ThumbnailBackgroundColor")]
     public string? ThumbnailBackgroundColor { get; set; } = "#57504E";
 
+    [JsonPropertyName("ColorBlindMode")]
+    public int ColorBlindMode { get; set; }
+
     [JsonPropertyName("Global_Hotkeys")]
     public int GlobalHotkeys { get; set; } = 1;
 
@@ -834,6 +857,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("IndividualThumbnailResize")]
     public int IndividualThumbnailResize { get; set; }
+
+    [JsonPropertyName("CycleDelayMs")]
+    public int CycleDelayMs { get; set; } = 100;
 
     [JsonPropertyName("SimpleMode")]
     public int SimpleMode { get; set; }
@@ -939,6 +965,12 @@ public class AhkGlobalSettings
     [JsonPropertyName("StaticThumbnails")]
     public int StaticThumbnails { get; set; }
 
+    [JsonPropertyName("ShowAlertBadgeOnThumbnails")]
+    public int ShowAlertBadgeOnThumbnails { get; set; } = 1;
+
+    [JsonPropertyName("CustomColorPalette")]
+    public int[]? CustomColorPalette { get; set; }
+
     [JsonPropertyName("SuspendThumbnailsWhenBackground")]
     public int SuspendThumbnailsWhenBackground { get; set; }
 
@@ -990,6 +1022,12 @@ public class AhkGlobalSettings
     [JsonPropertyName("StatOverlayOpacity")]
     public int StatOverlayOpacity { get; set; } = 200;
 
+    [JsonPropertyName("StatOverlayBgColor")]
+    public string? StatOverlayBgColor { get; set; } = "#1a1a2e";
+
+    [JsonPropertyName("StatOverlayTextColor")]
+    public string? StatOverlayTextColor { get; set; } = "#00FF88";
+
     [JsonPropertyName("StatLogEnabled")]
     public int StatLogEnabled { get; set; }
 
@@ -1026,6 +1064,12 @@ public class AhkGlobalSettings
     [JsonPropertyName("SettingsWindowHeight")]
     public int SettingsWindowHeight { get; set; } = 1080;
 
+    [JsonPropertyName("SettingsUiFontSize")]
+    public int SettingsUiFontSize { get; set; } = 12;
+
+    [JsonPropertyName("ReceivePreReleaseUpdates")]
+    public int ReceivePreReleaseUpdates { get; set; }
+
     [JsonPropertyName("EveManagerUseESI")]
     public int EveManagerUseESI { get; set; } = 1;
 
@@ -1055,6 +1099,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("QuickSwitchHotkey")]
     public string? QuickSwitchHotkey { get; set; } = "";
+
+    [JsonPropertyName("QuickSwitchCardOrder")]
+    public List<string>? QuickSwitchCardOrder { get; set; }
 
     [JsonPropertyName("ThumbnailAnnotations")]
     public Dictionary<string, string>? ThumbnailAnnotations { get; set; } = new();
