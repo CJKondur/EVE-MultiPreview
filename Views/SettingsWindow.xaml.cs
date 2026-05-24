@@ -2073,6 +2073,41 @@ public partial class SettingsWindow : Window
                 SaveAndApplyCrop(characterName, def);
             }));
 
+        // Opacity + click-through row (#62)
+        var optRow = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 4, 0, 0) };
+        optRow.Children.Add(new System.Windows.Controls.Label { Content = "Opacity:", Width = 60, VerticalAlignment = VerticalAlignment.Center });
+        int initialOpacity = Math.Clamp(def.Opacity, 10, 100);
+        var sldOpacity = new System.Windows.Controls.Slider
+        {
+            Minimum = 10, Maximum = 100, Width = 160, Value = initialOpacity,
+            VerticalAlignment = VerticalAlignment.Center,
+            IsSnapToTickEnabled = true, TickFrequency = 5
+        };
+        var txtOpacity = new TextBlock { Text = $"{initialOpacity}%", Width = 42, Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+        sldOpacity.ValueChanged += (_, _) =>
+        {
+            int v = (int)sldOpacity.Value;
+            txtOpacity.Text = $"{v}%";
+            if (_loading) return;
+            def.Opacity = v;
+            SaveAndApplyCrop(characterName, def);
+        };
+        optRow.Children.Add(sldOpacity);
+        optRow.Children.Add(txtOpacity);
+
+        var chkClickThrough = new System.Windows.Controls.CheckBox
+        {
+            Content = "Click-through",
+            IsChecked = def.ClickThrough,
+            Margin = new Thickness(16, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            ToolTip = "Let mouse clicks pass through this crop to whatever is behind it. Disables dragging/resizing the popup until turned off."
+        };
+        chkClickThrough.Checked += (_, _) => { if (_loading) return; def.ClickThrough = true; SaveAndApplyCrop(characterName, def); };
+        chkClickThrough.Unchecked += (_, _) => { if (_loading) return; def.ClickThrough = false; SaveAndApplyCrop(characterName, def); };
+        optRow.Children.Add(chkClickThrough);
+        root.Children.Add(optRow);
+
         root.Children.Add(new TextBlock
         {
             Text = "Tip: you can also right-click drag the popup to move it, and right-click + left-click drag to resize.",

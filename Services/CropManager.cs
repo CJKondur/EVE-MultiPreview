@@ -102,6 +102,7 @@ public sealed class CropManager : IDisposable
             win.Height = Math.Max(30, def.PopupHeight);
             win.ApplyLabel();
             win.UpdateThumbnailDestination();
+            win.ApplyClickThrough();
         });
     }
 
@@ -203,6 +204,7 @@ public sealed class CropManager : IDisposable
                 existing.Rebind(hwnd);
                 existing.ApplyLabel();
                 existing.UpdateThumbnailDestination();
+                existing.ApplyClickThrough();
                 ApplyVisualSettings(existing);
                 continue;
             }

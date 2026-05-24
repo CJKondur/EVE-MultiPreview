@@ -387,6 +387,22 @@ public sealed class ThumbnailManager : IDisposable
         PerfLog($"Show: {sw.ElapsedMilliseconds}ms");
         _thumbnails[window.Hwnd] = thumbWindow;
 
+        // Honor a per-character "Hidden" choice (Visibility tab, 1 = hidden) and the
+        // global hide-all toggles on a freshly created thumbnail. Without this, a
+        // hidden character's thumbnail pops up on launch / relaunch and only the
+        // ReapplySettings path (triggered by a settings change) would hide it — so
+        // the user had to uncheck/recheck the option every session (#61).
+        if (!string.IsNullOrEmpty(window.CharacterName)
+            && s.ThumbnailVisibility.TryGetValue(window.CharacterName, out var visFlag)
+            && visFlag != 0)
+        {
+            thumbWindow.HideWithOverlay();
+        }
+        else if (_thumbnailsHidden || _primaryHidden)
+        {
+            thumbWindow.HideWithOverlay();
+        }
+
         // Apply system name *after* window show to guarantee WPF visibility rendering
         if (!string.IsNullOrEmpty(window.CharacterName) &&
             _settings.Settings.ShowSystemName &&
@@ -1263,7 +1279,7 @@ public sealed class ThumbnailManager : IDisposable
         {
             foreach (var (eveHwnd, thumb) in _thumbnails)
             {
-                bool userHidChar = s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var vis) && vis == 0;
+                bool userHidChar = s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var vis) && vis != 0;
                 if (userHidChar) continue;
                 if (eveHwnd == fgHwnd)
                 {
@@ -1284,7 +1300,7 @@ public sealed class ThumbnailManager : IDisposable
             {
                 foreach (var (_, thumb) in _thumbnails)
                 {
-                    bool userHidChar = s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var vis) && vis == 0;
+                    bool userHidChar = s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var vis) && vis != 0;
                     if (!userHidChar && !thumb.IsVisible) thumb.ShowWithOverlay();
                 }
             }

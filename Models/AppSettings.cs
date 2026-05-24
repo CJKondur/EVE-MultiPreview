@@ -555,6 +555,17 @@ public class CropDefinition
 
     [JsonPropertyName("showLabel")]
     public bool ShowLabel { get; set; } = true;
+
+    /// <summary>Crop popup opacity as a percent (10-100). 100 = fully opaque
+    /// (previous behavior). Applied to the DWM preview content (issue #62).</summary>
+    [JsonPropertyName("opacity")]
+    public int Opacity { get; set; } = 100;
+
+    /// <summary>When true, the crop popup ignores mouse input entirely (click-
+    /// through) so clicks land on whatever is behind it. Disables drag/resize of
+    /// the popup until turned back off (issue #62).</summary>
+    [JsonPropertyName("clickThrough")]
+    public bool ClickThrough { get; set; } = false;
 }
 
 /// <summary>Per-character stat overlay configuration.</summary>

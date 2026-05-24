@@ -112,6 +112,7 @@ public partial class CropWindow : Window
         source.AddHook(WndProc);
         RegisterDwmThumbnail();
         CreateTextOverlay();
+        ApplyClickThrough();
     }
 
     private void CreateTextOverlay()
@@ -359,6 +360,10 @@ public partial class CropWindow : Window
         int sw = Math.Max(1, Definition.SourceWidth);
         int sh = Math.Max(1, Definition.SourceHeight);
 
+        // Per-crop opacity (percent → 0-255). Clamp floor at 10% so a crop can't be
+        // made fully invisible by accident (issue #62).
+        byte opacity = (byte)(Math.Clamp(Definition.Opacity, 10, 100) * 255 / 100);
+
         var props = new DwmApi.DWM_THUMBNAIL_PROPERTIES
         {
             dwFlags = DwmApi.DWM_TNP.RECTDESTINATION | DwmApi.DWM_TNP.RECTSOURCE |
@@ -366,7 +371,7 @@ public partial class CropWindow : Window
                       DwmApi.DWM_TNP.SOURCECLIENTAREAONLY,
             rcDestination = new DwmApi.RECT(0, 0, w, h),
             rcSource = new DwmApi.RECT(sx, sy, sx + sw, sy + sh),
-            opacity = 255,
+            opacity = opacity,
             fVisible = true,
             fSourceClientAreaOnly = true,
         };
@@ -378,6 +383,31 @@ public partial class CropWindow : Window
 
     /// <summary>Call-site compatibility shim kept for older callers.</summary>
     public void UpdateCaptureViewbox() => UpdateThumbnailDestination();
+
+    /// <summary>Apply the crop's click-through state (issue #62): when on, the popup
+    /// (and its label overlay) carry WS_EX_TRANSPARENT so mouse input passes through
+    /// to whatever is behind — at the cost of not being draggable/resizable until
+    /// turned off. Reads <see cref="CropDefinition.ClickThrough"/>.</summary>
+    public void ApplyClickThrough()
+    {
+        if (_ownHwnd == IntPtr.Zero || Definition == null) return;
+        bool clickThrough = Definition.ClickThrough;
+
+        void Toggle(IntPtr hwnd)
+        {
+            if (hwnd == IntPtr.Zero) return;
+            int ex = User32.GetWindowLong(hwnd, User32.GWL_EXSTYLE);
+            int updated = clickThrough
+                ? ex | User32.WS_EX_TRANSPARENT | User32.WS_EX_LAYERED
+                : ex & ~User32.WS_EX_TRANSPARENT;
+            if (updated != ex)
+                User32.SetWindowLong(hwnd, User32.GWL_EXSTYLE, updated);
+        }
+
+        Toggle(_ownHwnd);
+        if (_textOverlay != null)
+            Toggle(new WindowInteropHelper(_textOverlay).Handle);
+    }
 
     /// <summary>Mirror the main window's Topmost flag onto the companion label overlay.</summary>
     public void SetTopmost(bool topmost)
