@@ -36,6 +36,10 @@ public sealed class CropManager : IDisposable
     private readonly ConcurrentDictionary<string, IntPtr> _liveHwnds
         = new(StringComparer.OrdinalIgnoreCase);
 
+    // Periodic self-heal for crops whose DWM thumbnail goes stale with no window
+    // event to trigger a rebind (issue #64 — crops vanish at random).
+    private readonly System.Windows.Threading.DispatcherTimer _healthTimer;
+
     public CropManager(WindowDiscoveryService discovery, SettingsService settings)
     {
         _discovery = discovery;
@@ -43,6 +47,29 @@ public sealed class CropManager : IDisposable
         _discovery.WindowFound += OnWindowFound;
         _discovery.WindowLost += OnWindowLost;
         _discovery.WindowTitleChanged += OnWindowTitleChanged;
+
+        _healthTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(4)
+        };
+        _healthTimer.Tick += (_, _) => HealthCheck();
+        _healthTimer.Start();
+    }
+
+    /// <summary>Re-validate every live crop's DWM thumbnail and rebuild any that
+    /// went stale, so a randomly-blanked crop recovers without the user toggling
+    /// crops off/on (issue #64).</summary>
+    private void HealthCheck()
+    {
+        if (!_settings.Settings.CropEnabled) return;
+        foreach (var perChar in _windows.Values)
+        {
+            foreach (var win in perChar.Values)
+            {
+                try { win.EnsureThumbnailHealthy(); }
+                catch (Exception ex) { Debug.WriteLine($"[CropManager] Health check failed: {ex.Message}"); }
+            }
+        }
     }
 
     /// <summary>Optional: let crop popups snap against live primary thumbnails.
@@ -108,6 +135,7 @@ public sealed class CropManager : IDisposable
 
     public void Dispose()
     {
+        _healthTimer.Stop();
         _discovery.WindowFound -= OnWindowFound;
         _discovery.WindowLost -= OnWindowLost;
         _discovery.WindowTitleChanged -= OnWindowTitleChanged;

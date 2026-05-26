@@ -348,9 +348,13 @@ public partial class CropWindow : Window
     /// the CropDefinition) to DWM. SOURCECLIENTAREAONLY makes rcSource
     /// coordinates client-relative, matching how CropDefinition stores them.
     /// </summary>
-    public void UpdateThumbnailDestination()
+    public void UpdateThumbnailDestination() => PushThumbnailProperties();
+
+    /// <summary>Push rcDestination + rcSource + opacity to DWM. Returns the
+    /// HRESULT so callers (the health check) can detect a stale registration.</summary>
+    private int PushThumbnailProperties()
     {
-        if (_thumbId == IntPtr.Zero || Definition == null) return;
+        if (_thumbId == IntPtr.Zero || Definition == null) return 0;
 
         int w = Math.Max(1, (int)Width);
         int h = Math.Max(1, (int)Height);
@@ -379,6 +383,34 @@ public partial class CropWindow : Window
         int hr = DwmApi.DwmUpdateThumbnailProperties(_thumbId, ref props);
         if (hr != 0)
             DiagnosticsService.LogDwm($"[Crop:DWM] UpdateThumbnailProperties hr=0x{hr:X8} (W:{w} H:{h} src={sx},{sy} {sw}x{sh})");
+        return hr;
+    }
+
+    /// <summary>
+    /// Self-heal a crop whose DWM thumbnail went stale (issue #64: crops vanish at
+    /// random and only come back when the user toggles crops off/on). Called
+    /// periodically by CropManager. If there's no registration, (re)create it; if
+    /// re-pushing properties fails, the registration is dead — rebuild it so the
+    /// crop reappears on its own.
+    /// </summary>
+    public void EnsureThumbnailHealthy()
+    {
+        if (_eveHwnd == IntPtr.Zero || _ownHwnd == IntPtr.Zero || Definition == null) return;
+
+        if (_thumbId == IntPtr.Zero)
+        {
+            RegisterDwmThumbnail();
+            return;
+        }
+
+        int hr = PushThumbnailProperties();
+        if (hr != 0)
+        {
+            DiagnosticsService.LogDwm($"[Crop:DWM] Heal: stale thumbnail hr=0x{hr:X8} for '{CharacterName}' — re-registering.");
+            DwmApi.UnregisterThumbnail(_thumbId);
+            _thumbId = IntPtr.Zero;
+            RegisterDwmThumbnail();
+        }
     }
 
     /// <summary>Call-site compatibility shim kept for older callers.</summary>

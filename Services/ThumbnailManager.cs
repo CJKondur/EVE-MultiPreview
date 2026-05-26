@@ -482,6 +482,11 @@ public sealed class ThumbnailManager : IDisposable
 
                 thumbWindow.UpdateCharacterName(window.CharacterName);
 
+                // UpdateCharacterName force-shows the name overlay; re-assert the
+                // user's "show character name" preference so a disabled overlay
+                // doesn't reappear when the character resolves at login (issue #63).
+                thumbWindow.SetTextOverlayVisible(_settings.Settings.ShowThumbnailTextOverlay);
+
                 // Re-apply cycle-exclusion visual after a character resolves
                 // post char-select. The thumbnail was created with an empty
                 // CharacterName (full EVE relaunch lands at char-select first),
@@ -548,11 +553,25 @@ public sealed class ThumbnailManager : IDisposable
                     // Create stat windows for the new character
                     CreateStatWindowsForCharacter(window.CharacterName, window.Hwnd);
 
-
+                    // Apply the per-character Hidden choice now that the character
+                    // is known. At creation the window was at char-select with an
+                    // empty name, so the creation-time hide couldn't match it — the
+                    // thumbnail would otherwise stay visible at login until a manual
+                    // toggle re-ran ReapplySettings (issue #63 / follow-up to #61).
+                    // Applied last so the MoveTo/Resize above can't re-show it.
+                    if (IsCharacterUserHidden(window.CharacterName) || _thumbnailsHidden || _primaryHidden)
+                        thumbWindow.HideWithOverlay();
                 }
             }
         });
     }
+
+    /// <summary>True when the user marked this character Hidden in the Visibility
+    /// tab (ThumbnailVisibility value != 0, where 1 = hidden).</summary>
+    private bool IsCharacterUserHidden(string characterName) =>
+        !string.IsNullOrEmpty(characterName)
+        && _settings.Settings.ThumbnailVisibility.TryGetValue(characterName, out var v)
+        && v != 0;
 
     // ── Settings Application ────────────────────────────────────────
 
