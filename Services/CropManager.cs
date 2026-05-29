@@ -40,6 +40,11 @@ public sealed class CropManager : IDisposable
     // event to trigger a rebind (issue #64 — crops vanish at random).
     private readonly System.Windows.Threading.DispatcherTimer _healthTimer;
 
+    // Window-event hook used to force-rebind a crop when its source EVE window
+    // restores from minimized (issue #65 — periodic health check missed this
+    // case because the registration was still nominally valid).
+    private WinEventHookService? _winEvents;
+
     public CropManager(WindowDiscoveryService discovery, SettingsService settings)
     {
         _discovery = discovery;
@@ -76,6 +81,36 @@ public sealed class CropManager : IDisposable
     /// Must be called before any CropWindow is created (i.e. before Refresh()).</summary>
     public void AttachThumbnailManager(ThumbnailManager thumbnailManager)
         => _thumbnailManager = thumbnailManager;
+
+    /// <summary>Wire the WinEvent hook so we can force-rebind a crop's DWM
+    /// thumbnail the moment its source EVE window restores from minimized —
+    /// the disappearance trigger reported in issue #65 that the 4s periodic
+    /// health check misses because the stale registration still passes
+    /// DwmUpdateThumbnailProperties.</summary>
+    public void AttachWinEvents(WinEventHookService winEvents)
+    {
+        if (_winEvents != null) return;
+        _winEvents = winEvents;
+        _winEvents.WindowMinimizeEnd += OnSourceMinimizeEnd;
+    }
+
+    private void OnSourceMinimizeEnd(IntPtr hwnd)
+    {
+        if (hwnd == IntPtr.Zero) return;
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            if (!_settings.Settings.CropEnabled) return;
+            foreach (var perChar in _windows.Values)
+            {
+                foreach (var win in perChar.Values)
+                {
+                    if (win.EveHwnd != hwnd) continue;
+                    try { win.ForceRebind(); }
+                    catch (Exception ex) { Debug.WriteLine($"[CropManager] ForceRebind on minimize-end failed: {ex.Message}"); }
+                }
+            }
+        });
+    }
 
     // ── Public API ──────────────────────────────────────────────────
 
@@ -139,6 +174,11 @@ public sealed class CropManager : IDisposable
         _discovery.WindowFound -= OnWindowFound;
         _discovery.WindowLost -= OnWindowLost;
         _discovery.WindowTitleChanged -= OnWindowTitleChanged;
+        if (_winEvents != null)
+        {
+            _winEvents.WindowMinimizeEnd -= OnSourceMinimizeEnd;
+            _winEvents = null;
+        }
         CloseAllInternal();
     }
 

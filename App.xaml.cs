@@ -146,6 +146,7 @@ public partial class App : Application
         // 4c. Crop manager (spawns per-character cropped DWM popups)
         _cropManager = new CropManager(_discovery, _settings);
         _cropManager.AttachThumbnailManager(_thumbnailManager);
+        if (_winEvents != null) _cropManager.AttachWinEvents(_winEvents);
         PerfLog($"Core services created: {startupSw.ElapsedMilliseconds}ms");
 
         // ── START DISCOVERY IMMEDIATELY — thumbnails appear ASAP ──

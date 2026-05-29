@@ -448,6 +448,23 @@ public partial class CropWindow : Window
         if (_textOverlay != null) _textOverlay.Topmost = topmost;
     }
 
+    /// <summary>Source EVE window the DWM thumbnail is composing from.</summary>
+    public IntPtr EveHwnd => _eveHwnd;
+
+    /// <summary>Tear down the current DWM thumbnail and immediately re-register a
+    /// fresh one against the same source. Used on minimize-restore transitions
+    /// where the registration goes stale but the source HWND is unchanged so
+    /// <see cref="Rebind"/> would no-op (issue #65).</summary>
+    public void ForceRebind()
+    {
+        if (_thumbId != IntPtr.Zero)
+        {
+            DwmApi.UnregisterThumbnail(_thumbId);
+            _thumbId = IntPtr.Zero;
+        }
+        RegisterDwmThumbnail();
+    }
+
     /// <summary>Rebind to a new EVE HWND (e.g. after the client was relaunched).</summary>
     public void Rebind(IntPtr eveHwnd)
     {
