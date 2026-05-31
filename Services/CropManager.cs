@@ -66,7 +66,9 @@ public sealed class CropManager : IDisposable
     /// crops off/on (issue #64).</summary>
     private void HealthCheck()
     {
-        if (!_settings.Settings.CropEnabled) return;
+        // Skip while crops are hidden (issue #66) — healing would needlessly
+        // re-register thumbnails for windows the user has toggled off.
+        if (!_settings.Settings.CropEnabled || _cropsHidden) return;
         foreach (var perChar in _windows.Values)
         {
             foreach (var win in perChar.Values)
@@ -77,10 +79,53 @@ public sealed class CropManager : IDisposable
         }
     }
 
-    /// <summary>Optional: let crop popups snap against live primary thumbnails.
-    /// Must be called before any CropWindow is created (i.e. before Refresh()).</summary>
+    // True while crops are hidden by the Hide/Show All keybind or the dedicated
+    // Hide/Show Crops keybind (issue #66). Newly spawned crops respect this.
+    private bool _cropsHidden;
+
+    /// <summary>Optional: let crop popups snap against live primary thumbnails, and
+    /// follow the Hide/Show All keybind + the dedicated Hide/Show Crops keybind
+    /// (issue #66). Must be called before any CropWindow is created.</summary>
     public void AttachThumbnailManager(ThumbnailManager thumbnailManager)
-        => _thumbnailManager = thumbnailManager;
+    {
+        _thumbnailManager = thumbnailManager;
+        _thumbnailManager.AllVisibilityChanged += SetCropsHidden;
+        _thumbnailManager.CropsVisibilityToggleRequested += ToggleCropsVisibility;
+    }
+
+    /// <summary>Show or hide every live crop. Driven by the Hide/Show All keybind
+    /// (crops follow the thumbnails' hidden state) — issue #66.</summary>
+    public void SetCropsHidden(bool hidden)
+    {
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            if (_cropsHidden == hidden) return;
+            _cropsHidden = hidden;
+            ApplyHiddenToAll();
+        });
+    }
+
+    /// <summary>Flip crop visibility. Driven by the dedicated Hide/Show Crops
+    /// keybind (issue #66).</summary>
+    public void ToggleCropsVisibility()
+    {
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            _cropsHidden = !_cropsHidden;
+            ApplyHiddenToAll();
+            _thumbnailManager?.ShowTooltipFeedback(_cropsHidden ? "Crops: Hidden" : "Crops: Visible");
+        });
+    }
+
+    private void ApplyHiddenToAll()
+    {
+        foreach (var perChar in _windows.Values)
+            foreach (var win in perChar.Values)
+            {
+                try { win.SetHidden(_cropsHidden); }
+                catch (Exception ex) { Debug.WriteLine($"[CropManager] SetHidden failed: {ex.Message}"); }
+            }
+    }
 
     /// <summary>Wire the WinEvent hook so we can force-rebind a crop's DWM
     /// thumbnail the moment its source EVE window restores from minimized —
@@ -99,7 +144,7 @@ public sealed class CropManager : IDisposable
         if (hwnd == IntPtr.Zero) return;
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
-            if (!_settings.Settings.CropEnabled) return;
+            if (!_settings.Settings.CropEnabled || _cropsHidden) return;
             foreach (var perChar in _windows.Values)
             {
                 foreach (var win in perChar.Values)
@@ -174,6 +219,11 @@ public sealed class CropManager : IDisposable
         _discovery.WindowFound -= OnWindowFound;
         _discovery.WindowLost -= OnWindowLost;
         _discovery.WindowTitleChanged -= OnWindowTitleChanged;
+        if (_thumbnailManager != null)
+        {
+            _thumbnailManager.AllVisibilityChanged -= SetCropsHidden;
+            _thumbnailManager.CropsVisibilityToggleRequested -= ToggleCropsVisibility;
+        }
         if (_winEvents != null)
         {
             _winEvents.WindowMinimizeEnd -= OnSourceMinimizeEnd;
@@ -274,6 +324,7 @@ public sealed class CropManager : IDisposable
                 existing.UpdateThumbnailDestination();
                 existing.ApplyClickThrough();
                 ApplyVisualSettings(existing);
+                existing.SetHidden(_cropsHidden);
                 continue;
             }
 
@@ -288,6 +339,8 @@ public sealed class CropManager : IDisposable
                 continue;
             }
             ApplyVisualSettings(win);
+            // A crop spawned while crops are toggled off must start hidden (issue #66).
+            if (_cropsHidden) win.SetHidden(true);
             perChar[def.Id] = win;
         }
 

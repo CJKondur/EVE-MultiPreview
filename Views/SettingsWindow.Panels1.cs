@@ -222,6 +222,7 @@ public partial class SettingsWindow
         S.HideShowThumbnailsHotkey = TxtHideShowHotkey.Text;
         S.HidePrimaryHotkey = TxtHidePrimaryHotkey.Text;
         S.HideSecondaryHotkey = TxtHideSecondaryHotkey.Text;
+        S.HideShowCropsHotkey = TxtHideCropsHotkey.Text;
         S.ProfileCycleForwardHotkey = TxtProfileCycleForward.Text;
         S.ProfileCycleBackwardHotkey = TxtProfileCycleBackward.Text;
         S.QuickSwitchHotkey = TxtQuickSwitchHotkey.Text;

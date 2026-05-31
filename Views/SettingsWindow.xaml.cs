@@ -264,6 +264,7 @@ public partial class SettingsWindow : Window
             TxtHideShowHotkey.Text = S.HideShowThumbnailsHotkey;
             TxtHidePrimaryHotkey.Text = S.HidePrimaryHotkey;
             TxtHideSecondaryHotkey.Text = S.HideSecondaryHotkey;
+            TxtHideCropsHotkey.Text = S.HideShowCropsHotkey;
             TxtProfileCycleForward.Text = S.ProfileCycleForwardHotkey;
             TxtProfileCycleBackward.Text = S.ProfileCycleBackwardHotkey;
             TxtQuickSwitchHotkey.Text = S.QuickSwitchHotkey;
@@ -1753,6 +1754,7 @@ public partial class SettingsWindow : Window
             ["TxtHideShowHotkey"] = TxtHideShowHotkey.Text,
             ["TxtHidePrimaryHotkey"] = TxtHidePrimaryHotkey.Text,
             ["TxtHideSecondaryHotkey"] = TxtHideSecondaryHotkey.Text,
+            ["TxtHideCropsHotkey"] = TxtHideCropsHotkey.Text,
             ["TxtProfileCycleForward"] = TxtProfileCycleForward.Text,
             ["TxtProfileCycleBackward"] = TxtProfileCycleBackward.Text,
             ["TxtCharSelectFwd"] = TxtCharSelectFwd.Text,

@@ -416,6 +416,14 @@ public sealed class HotkeyService : IDisposable
             thumbnailManager.ToggleSecondaryVisibility();
         });
 
+        // Hide/Show crops only (issue #66). Routed through ThumbnailManager so
+        // HotkeyService needs no direct CropManager reference.
+        StoreAhkHotkey(settings.HideShowCropsHotkey, () =>
+        {
+            if (_suspended) return;
+            thumbnailManager.ToggleCropsVisibility();
+        });
+
         // Lock thumbnail positions toggle (issue #10)
         StoreAhkHotkey(settings.LockPositionsHotkey, () =>
         {

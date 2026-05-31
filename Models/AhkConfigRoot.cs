@@ -42,6 +42,7 @@ public class AhkConfigRoot
         s.HideShowThumbnailsHotkey = g.HideShowThumbnailsHotkey ?? "";
         s.HidePrimaryHotkey = g.HidePrimaryHotkey ?? "";
         s.HideSecondaryHotkey = g.HideSecondaryHotkey ?? "";
+        s.HideShowCropsHotkey = g.HideShowCropsHotkey ?? "";
         s.ProfileCycleForwardHotkey = g.ProfileCycleForwardHotkey ?? "";
         s.ProfileCycleBackwardHotkey = g.ProfileCycleBackwardHotkey ?? "";
         s.LockPositionsHotkey = g.LockPositionsHotkey ?? "";
@@ -290,6 +291,7 @@ public class AhkConfigRoot
         g.HideShowThumbnailsHotkey = s.HideShowThumbnailsHotkey;
         g.HidePrimaryHotkey = s.HidePrimaryHotkey;
         g.HideSecondaryHotkey = s.HideSecondaryHotkey;
+        g.HideShowCropsHotkey = s.HideShowCropsHotkey;
         g.ProfileCycleForwardHotkey = s.ProfileCycleForwardHotkey;
         g.ProfileCycleBackwardHotkey = s.ProfileCycleBackwardHotkey;
         g.LockPositionsHotkey = s.LockPositionsHotkey;
@@ -820,6 +822,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("HideSecondaryHotkey")]
     public string? HideSecondaryHotkey { get; set; } = "";
+
+    [JsonPropertyName("HideShowCropsHotkey")]
+    public string? HideShowCropsHotkey { get; set; } = "";
 
     [JsonPropertyName("ProfileCycleForwardHotkey")]
     public string? ProfileCycleForwardHotkey { get; set; } = "";

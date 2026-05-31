@@ -448,6 +448,30 @@ public partial class CropWindow : Window
         if (_textOverlay != null) _textOverlay.Topmost = topmost;
     }
 
+    /// <summary>Whether this crop is currently hidden by a Hide/Show toggle (issue #66).</summary>
+    public bool IsHiddenByToggle { get; private set; }
+
+    /// <summary>Hide or show the crop popup and its companion label overlay as one
+    /// unit (issue #66 — Hide/Show All keybind + dedicated Hide/Show Crops keybind).
+    /// The DWM thumbnail registration lives on the popup HWND and survives the
+    /// WPF Hide/Show, so re-showing restores the live preview without a rebind.</summary>
+    public void SetHidden(bool hidden)
+    {
+        IsHiddenByToggle = hidden;
+        if (hidden)
+        {
+            Hide();
+            _textOverlay?.Hide();
+        }
+        else
+        {
+            Show();
+            _textOverlay?.Show();
+            // Re-assert source rect / opacity in case the registration idled while hidden.
+            UpdateThumbnailDestination();
+        }
+    }
+
     /// <summary>Source EVE window the DWM thumbnail is composing from.</summary>
     public IntPtr EveHwnd => _eveHwnd;
 

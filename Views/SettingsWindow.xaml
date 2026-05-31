@@ -288,6 +288,11 @@
                                 <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtHideSecondaryHotkey" Margin="4,0,0,0"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="Hide/Show Crops:" Width="200"/>
+                                <TextBox x:Name="TxtHideCropsHotkey" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtHideCropsHotkey" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
                                 <Label Content="Profile Cycle Forward:" Width="200"/>
                                 <TextBox x:Name="TxtProfileCycleForward" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
                                 <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtProfileCycleForward" Margin="4,0,0,0"/>

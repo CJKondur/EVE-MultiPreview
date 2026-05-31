@@ -15,7 +15,7 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <AssemblyName>EVE MultiPreview</AssemblyName>
     <RootNamespace>EveMultiPreview</RootNamespace>
-    <Version>2.1.13</Version>
+    <Version>2.1.14</Version>
     <Description>EVE Online multi-client thumbnail preview manager</Description>
 
     <!-- Publish settings -->

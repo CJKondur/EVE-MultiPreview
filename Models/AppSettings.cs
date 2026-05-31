@@ -45,6 +45,9 @@ public class AppSettings
     public string HideShowThumbnailsHotkey { get; set; } = "";
     public string HidePrimaryHotkey { get; set; } = "";
     public string HideSecondaryHotkey { get; set; } = "";
+
+    /// <summary>Dedicated keybind to hide/show all crop popups (issue #66).</summary>
+    public string HideShowCropsHotkey { get; set; } = "";
     public string ProfileCycleForwardHotkey { get; set; } = "";
     public string ProfileCycleBackwardHotkey { get; set; } = "";
     public string LockPositionsHotkey { get; set; } = "";

@@ -2306,6 +2306,15 @@ public sealed class ThumbnailManager : IDisposable
 
     // ── Visibility Toggles ──────────────────────────────────────────
 
+    /// <summary>Fires after the global "Hide/Show All" toggle flips, with the new
+    /// hidden state. CropManager subscribes so crops follow the keybind (issue #66).</summary>
+    public event Action<bool>? AllVisibilityChanged;
+
+    /// <summary>Fires when the dedicated "Hide/Show Crops" keybind is pressed.
+    /// CropManager owns the crop hidden-state, so it handles the actual toggle
+    /// (issue #66). Routed through here so HotkeyService needs no CropManager ref.</summary>
+    public event Action? CropsVisibilityToggleRequested;
+
     public void ToggleThumbnailVisibility()
     {
         _thumbnailsHidden = !_thumbnailsHidden;
@@ -2334,11 +2343,17 @@ public sealed class ThumbnailManager : IDisposable
                     : System.Windows.Visibility.Visible;
             }
         });
+        // Crops follow the Hide/Show All keybind (issue #66).
+        AllVisibilityChanged?.Invoke(_thumbnailsHidden);
         ShowTooltipFeedback(_thumbnailsHidden ? "Thumbnails: Hidden" : "Thumbnails: Visible");
     }
 
     /// <summary>Alias for ToggleThumbnailVisibility — matches AHK HideShowThumbnailsHotkey.</summary>
     public void ToggleAllVisibility() => ToggleThumbnailVisibility();
+
+    /// <summary>Dedicated "Hide/Show Crops" keybind entry point (issue #66). The
+    /// crop hidden-state lives in CropManager, which subscribes to this.</summary>
+    public void ToggleCropsVisibility() => CropsVisibilityToggleRequested?.Invoke();
 
     public void TogglePrimaryVisibility()
     {
