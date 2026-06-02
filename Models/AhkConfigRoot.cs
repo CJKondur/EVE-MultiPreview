@@ -83,6 +83,7 @@ public class AhkConfigRoot
         s.EnableAlertSounds = g.EnableAlertSounds != 0;
         s.AlertSoundVolume = g.AlertSoundVolume;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
+        s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.CycleWrapSoundEnabled = g.CycleWrapSoundEnabled != 0;
         s.CycleWrapSoundFile = g.CycleWrapSoundFile ?? "";
         s.AlertHubEnabled = g.AlertHubEnabled != 0; // 0 for missing/new configs, 1 when user enables
@@ -326,6 +327,7 @@ public class AhkConfigRoot
         g.EnableAlertSounds = s.EnableAlertSounds ? 1 : 0;
         g.AlertSoundVolume = s.AlertSoundVolume;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
+        g.AlertBorderThickness = s.AlertBorderThickness;
         g.CycleWrapSoundEnabled = s.CycleWrapSoundEnabled ? 1 : 0;
         g.CycleWrapSoundFile = s.CycleWrapSoundFile;
         g.AlertHubEnabled = s.AlertHubEnabled ? 1 : 0;
@@ -920,6 +922,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;
+
+    [JsonPropertyName("AlertBorderThickness")]
+    public int AlertBorderThickness { get; set; } = 3;
 
     [JsonPropertyName("AlertHubEnabled")]
     public int AlertHubEnabled { get; set; } = 0;

@@ -74,8 +74,20 @@ public sealed class HotkeyService : IDisposable
     private Action? _keyRepeatAction;
 
     // ── Mouse button hotkey support (WH_MOUSE_LL) ──
+    // The low-level mouse hook runs on a DEDICATED thread with its own message
+    // loop — NOT the WPF UI thread. A WH_MOUSE_LL callback is dispatched on the
+    // installing thread, and every system-wide mouse event serializes through it;
+    // installing it on the UI thread meant thumbnail compositing / timers stalled
+    // mouse input and the whole desktop's cursor stuttered while boxing. The
+    // matched button action and the repeat timer are still marshaled to the UI
+    // dispatcher; only the fast suppress/pass-through decision runs on this thread.
     private IntPtr _mouseHookHandle = IntPtr.Zero;
     private User32.LowLevelMouseProc? _mouseHookProc; // prevent GC
+    private System.Threading.Thread? _mouseHookThread;
+    private uint _mouseHookThreadId;
+    // Signaled once the hook thread has published its native thread id, so a
+    // remove that races a just-started thread can always post WM_QUIT to it.
+    private readonly System.Threading.ManualResetEventSlim _mouseHookReady = new(false);
     private readonly List<MouseButtonBinding> _mouseBindings = new();
     private readonly List<MouseButtonBinding> _storedMouseBindings = new(); // persist across suspend
     private record MouseButtonBinding(uint Modifiers, string ButtonName, Action Action, bool AllowRepeat);
@@ -1086,26 +1098,58 @@ public sealed class HotkeyService : IDisposable
 
     private void EnsureMouseHook()
     {
-        if (_mouseHookHandle != IntPtr.Zero || _suspended) return;
+        if (_mouseHookThread != null || _suspended) return;
 
+        _mouseHookReady.Reset();
+        _mouseHookThread = new System.Threading.Thread(MouseHookThreadProc)
+        {
+            IsBackground = true,
+            Name = "EmpMouseHook"
+        };
+        _mouseHookThread.Start();
+        // Wait until the thread has published its id (microseconds in practice) so a
+        // subsequent RemoveMouseHook can never miss it and orphan the thread.
+        _mouseHookReady.Wait(1000);
+        Debug.WriteLine("[Hotkey:Mouse] 🪝 Mouse hook thread starting");
+    }
+
+    /// <summary>Dedicated-thread body: install the LL mouse hook here so its
+    /// callback is dispatched on this thread (not the UI thread), then pump
+    /// messages until WM_QUIT is posted by RemoveMouseHook.</summary>
+    private void MouseHookThreadProc()
+    {
+        _mouseHookThreadId = User32.GetCurrentThreadId();
         _mouseHookProc = MouseHookCallback; // prevent GC collection
         _mouseHookHandle = User32.SetWindowsHookEx(
             User32.WH_MOUSE_LL,
             _mouseHookProc,
             User32.GetModuleHandle(null),
             0);
+        _mouseHookReady.Set(); // id + handle published
+        Debug.WriteLine($"[Hotkey:Mouse] 🪝 Mouse hook installed on dedicated thread: {_mouseHookHandle != IntPtr.Zero}");
 
-        Debug.WriteLine($"[Hotkey:Mouse] 🪝 Mouse hook installed: {_mouseHookHandle != IntPtr.Zero}");
+        // Message loop — required for the LL hook callback to be delivered here.
+        while (User32.GetMessage(out _, IntPtr.Zero, 0, 0) > 0) { /* WM_QUIT ends the loop */ }
+
+        if (_mouseHookHandle != IntPtr.Zero)
+        {
+            User32.UnhookWindowsHookEx(_mouseHookHandle);
+            _mouseHookHandle = IntPtr.Zero;
+        }
+        Debug.WriteLine("[Hotkey:Mouse] 🛑 Mouse hook thread exited");
     }
 
     private void RemoveMouseHook()
     {
         StopMouseRepeat();
-        if (_mouseHookHandle != IntPtr.Zero)
+        if (_mouseHookThread != null)
         {
-            User32.UnhookWindowsHookEx(_mouseHookHandle);
-            _mouseHookHandle = IntPtr.Zero;
-            Debug.WriteLine("[Hotkey:Mouse] 🛑 Mouse hook removed");
+            // Wake the hook thread's GetMessage loop so it unhooks and exits.
+            if (_mouseHookThreadId != 0)
+                User32.PostThreadMessage(_mouseHookThreadId, User32.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
+            _mouseHookThread = null;
+            _mouseHookThreadId = 0;
+            Debug.WriteLine("[Hotkey:Mouse] 🛑 Mouse hook removal requested");
         }
         _mouseBindings.Clear();
     }
@@ -1139,8 +1183,10 @@ public sealed class HotkeyService : IDisposable
                 // matched DOWN/UP (we suppressed the DOWN earlier).
                 if (isUp)
                 {
+                    // StopMouseRepeat touches a DispatcherTimer — marshal to UI thread
+                    // (this callback now runs on the dedicated hook thread).
                     if (_mouseRepeatButton == buttonName)
-                        StopMouseRepeat();
+                        System.Windows.Application.Current?.Dispatcher.BeginInvoke((Action)StopMouseRepeat);
                     return hasAnyBinding
                         ? (IntPtr)1
                         : User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
@@ -1181,18 +1227,22 @@ public sealed class HotkeyService : IDisposable
                         catch { }
 
                         Debug.WriteLine($"[Hotkey:Mouse] ⚡ Fired: {buttonName} (mods=0x{currentMods:X}) repeat={binding.AllowRepeat}");
+                        // Fire the action AND arm the repeat on the UI thread — both
+                        // touch WPF state / a DispatcherTimer, and this callback runs
+                        // on the dedicated hook thread.
+                        bool armRepeat = binding.AllowRepeat && CycleWhileHeld;
+                        var fireButton = buttonName;
                         System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
                         {
                             try { binding.Action.Invoke(); }
                             catch (Exception ex) { Debug.WriteLine($"[Hotkey:Mouse] ❌ Action error: {ex.Message}"); }
-                        });
 
-                        // Mouse buttons have no OS-level auto-repeat, so for cycle
-                        // bindings (AllowRepeat) we run our own DispatcherTimer
-                        // that re-fires the action every CycleDelayMs (user-
-                        // configurable, default 100 ms) until WM_*BUTTONUP.
-                        if (binding.AllowRepeat && CycleWhileHeld)
-                            StartMouseRepeat(binding, buttonName);
+                            // Mouse buttons have no OS-level auto-repeat, so for cycle
+                            // bindings we run our own DispatcherTimer that re-fires every
+                            // CycleDelayMs until WM_*BUTTONUP.
+                            if (armRepeat)
+                                StartMouseRepeat(binding, fireButton);
+                        });
 
                         // Return 1 to suppress the mouse event from reaching other apps
                         return (IntPtr)1;

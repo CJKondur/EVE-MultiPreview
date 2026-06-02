@@ -342,10 +342,18 @@ public sealed class ThumbnailManager : IDisposable
         }
         else
         {
+            // No saved position → place on the PREFERRED monitor (issue #70). The
+            // configured start X/Y is treated as an offset from that monitor's work
+            // area, so defaults land on the chosen screen instead of always the
+            // primary. (For the primary monitor work-area Left/Top are 0, so this is
+            // a no-op there — no regression for single-monitor users.)
+            var workArea = GetTargetMonitorWorkArea(s.PreferredMonitor);
+            x = workArea.Left + (int)s.ThumbnailStartLocation.X;
+            y = workArea.Top + (int)s.ThumbnailStartLocation.Y;
+
             // Flow-layout: stack vertically, wrap to new column at screen edge
             int index = _thumbnails.Count;
             int gap = 8;
-            var workArea = GetTargetMonitorWorkArea(s.PreferredMonitor);
             int availableHeight = workArea.Bottom - y;
             int maxPerCol = Math.Max(1, availableHeight / (height + gap));
             int col = index / maxPerCol;
@@ -753,8 +761,11 @@ public sealed class ThumbnailManager : IDisposable
                     }
                     else
                     {
-                        // Apply layout defaults instantly to thumbnails that have never been manually moved
-                        thumb.MoveTo((int)s.ThumbnailStartLocation.X, (int)s.ThumbnailStartLocation.Y);
+                        // Apply layout defaults instantly to thumbnails that have never
+                        // been manually moved — on the preferred monitor (issue #70).
+                        var wa = GetTargetMonitorWorkArea(s.PreferredMonitor);
+                        thumb.MoveTo(wa.Left + (int)s.ThumbnailStartLocation.X,
+                                     wa.Top + (int)s.ThumbnailStartLocation.Y);
                         thumb.Resize((int)s.ThumbnailStartLocation.Width, (int)s.ThumbnailStartLocation.Height);
                     }
                 }
@@ -1359,7 +1370,9 @@ public sealed class ThumbnailManager : IDisposable
             // (Hide Active Thumbnail moved to a hoisted block above the
             //  cycle-shield — see issues #43 / #44.)
 
-            // Border color
+            // Main border = resting active/inactive highlight, ALWAYS. The alert
+            // pulse lives on a separate nested inner border (#71) so a flashing
+            // client never loses its selection highlight.
             if (isActive)
             {
                 // Active border — honor ShowClientHighlightBorder. When disabled,
@@ -1377,35 +1390,14 @@ public sealed class ThumbnailManager : IDisposable
             }
             else
             {
-                // Check alert flash (severity-aware)
-                if (_alertFlashChars.TryGetValue(charName, out var flashInfo))
-                {
-                    // Per-event color cascade: AlertColors[eventType] → SeverityColors[severity] → default red
-                    var flashColor = ResolveAlertFlashColor(flashInfo.EventType, flashInfo.Severity);
-                    if (flashInfo.ShowFlash)
-                    {
-                        // Flash ON: show resolved flash color
-                        thumb.SetBorder(flashColor, s.ClientHighlightBorderThickness);
-                    }
-                    else if (flashInfo.Severity == "info")
-                    {
-                        // Info alerts: stay solid (no dim)
-                        thumb.SetBorder(flashColor, s.ClientHighlightBorderThickness);
-                    }
-                    else
-                    {
-                        // Flash OFF for critical/warning: dim color (AHK: "330000")
-                        thumb.SetBorder(Color.FromRgb(0x33, 0x00, 0x00), s.ClientHighlightBorderThickness);
-                    }
-                }
-                else
-                {
-                    // Show inactive border only if a color is configured
-                    var color = GetBorderColor(charName, false);
-                    int thickness = ShouldShowInactiveBorder(charName) ? s.InactiveClientBorderThickness : 0;
-                    thumb.SetBorder(color, thickness);
-                }
+                // Show inactive border only if a color is configured
+                var color = GetBorderColor(charName, false);
+                int thickness = ShouldShowInactiveBorder(charName) ? s.InactiveClientBorderThickness : 0;
+                thumb.SetBorder(color, thickness);
             }
+
+            // Nested inner alert border (independent of the main border above).
+            ApplyAlertBorder(thumb, _alertFlashChars.TryGetValue(charName, out var fi) ? fi : null);
         }
 
         // ── CPU Affinity & Priority Management ──
@@ -1935,6 +1927,33 @@ public sealed class ThumbnailManager : IDisposable
     }
 
     /// <summary>Dedicated flash timer tick — handles per-severity flash rates, expiry, and border updates.</summary>
+    /// <summary>Apply the nested inner alert border for a thumbnail (#71). The
+    /// inner band pulses on alert without disturbing the main highlight border, so
+    /// the selected client stays identifiable during a fleet-wide flash. Pass a
+    /// null/absent <paramref name="info"/> to clear it. Thickness is held at the
+    /// configured value for the whole alert (only the colour toggles while pulsing)
+    /// so the composited thumbnail doesn't jump on each pulse.</summary>
+    private void ApplyAlertBorder(ThumbnailWindow thumb, AlertFlashInfo? info)
+    {
+        var s = _settings.Settings;
+        int thickness = s.AlertBorderThickness;
+
+        // 0 disables the nested band entirely (per the Alerts-page note); also clear
+        // it when no alert is active.
+        if (info == null || thickness <= 0)
+        {
+            thumb.SetAlertBorder(null, 0);
+            return;
+        }
+
+        // Visible during the "on" phase, and continuously for info-severity
+        // (which doesn't pulse). Off-phase keeps the reserved thickness but paints
+        // nothing, so the band blinks while the main border stays put.
+        bool paint = info.ShowFlash || info.Severity == "info";
+        var color = ResolveAlertFlashColor(info.EventType, info.Severity);
+        thumb.SetAlertBorder(paint ? color : (Color?)null, thickness);
+    }
+
     private void FlashAlertTick()
     {
         if (_alertFlashChars.IsEmpty) return;
@@ -1983,16 +2002,12 @@ public sealed class ThumbnailManager : IDisposable
                 var restingColor = GetBorderColor(charName, isActive);
                 int restingThickness = isActive
                     ? s.ClientHighlightBorderThickness
-                    : s.InactiveClientBorderThickness;
+                    : (ShouldShowInactiveBorder(charName) ? s.InactiveClientBorderThickness : 0);
 
-                if (info.ShowFlash)
-                {
-                    thumb.SetBorder(flashColor, s.ClientHighlightBorderThickness);
-                }
-                else
-                {
-                    thumb.SetBorder(restingColor, restingThickness);
-                }
+                // Main border stays at the resting highlight at all times; the
+                // alert pulse rides the nested inner border (#71).
+                thumb.SetBorder(restingColor, restingThickness);
+                ApplyAlertBorder(thumb, info);
             }
         }
 
@@ -2010,6 +2025,10 @@ public sealed class ThumbnailManager : IDisposable
             _alertFlashChars.TryRemove(name, out _);
             var thumb = FindThumbnailByCharacter(name);
             if (thumb == null) continue;
+
+            // Alert over — remove the nested inner band; the main border was never
+            // disturbed so it already shows the correct resting highlight (#71).
+            thumb.SetAlertBorder(null, 0);
 
             if (thumb.EveHwnd == fg)
             {

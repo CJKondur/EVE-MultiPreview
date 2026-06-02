@@ -355,6 +355,7 @@ public partial class SettingsWindow : Window
             int alertOpacity = Math.Clamp(S.AlertOpacityPercent, 10, 100);
             SliderAlertOpacity.Value = alertOpacity;
             TxtAlertOpacityValue.Text = $"{alertOpacity}%";
+            TxtAlertBorderThickness.Text = S.AlertBorderThickness.ToString();
             ChkAlertBadgeOnThumbnails.IsChecked = S.ShowAlertBadgeOnThumbnails;
             ChkAlertHub.IsChecked = S.AlertHubEnabled;
             TxtToastDuration.Text = S.AlertToastDuration.ToString();

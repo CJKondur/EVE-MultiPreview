@@ -543,10 +543,18 @@
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Monitor">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="Preferred Monitor:"/>
-                            <ComboBox x:Name="CmbPreferredMonitor" Width="200" SelectionChanged="OnLayoutChanged"
-                                      Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="Preferred Monitor:" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="CmbPreferredMonitor" Width="200" SelectionChanged="OnLayoutChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                                <Button Content="🔍 Identify" Click="OnIdentifyMonitors" Padding="10,3" Margin="8,0,0,0"
+                                        Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="{StaticResource BorderBrush}"
+                                        VerticalAlignment="Center"
+                                        ToolTip="Briefly show each monitor's number (as numbered here) on that screen."/>
+                            </StackPanel>
+                            <TextBlock Text="These monitor numbers are MultiPreview's own and may not match Windows' display numbers. Use Identify to see which screen each number is. New thumbnails (with no saved position) appear on the preferred monitor."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,6,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
@@ -715,6 +723,13 @@
                                 <TextBlock x:Name="TxtAlertOpacityValue" VerticalAlignment="Center" Margin="8,0,0,0"/>
                             </StackPanel>
                             <TextBlock Text="Lowers the strength of the alert pulse border across all events. 100% = current behavior."
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <Label Content="Alert border width:" Width="120" VerticalAlignment="Center"/>
+                                <TextBox x:Name="TxtAlertBorderThickness" Width="50" TextChanged="OnAlertChanged"/>
+                                <Label Content="px" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Text="The alert pulse now draws as its own border nested just inside the selection border, so a fleet-wide flash never hides which client is selected. 0 disables it."
                                        Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,8" TextWrapping="Wrap"/>
                             <CheckBox x:Name="ChkAlertBadgeOnThumbnails" Content="Show alert count badge on thumbnails" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
                             <TextBlock Text="A small numbered badge appears on each thumbnail when its character receives alerts; clears the moment you bring that client to focus."

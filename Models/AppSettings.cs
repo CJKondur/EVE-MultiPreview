@@ -82,6 +82,11 @@ public class AppSettings
     /// where the full-strength flashing borders feel visually loud (issue #34).</summary>
     public int AlertOpacityPercent { get; set; } = 100;
 
+    /// <summary>Thickness (px) of the nested inner alert border that pulses on an
+    /// alert, drawn just inside the main highlight border so the selected client
+    /// stays identifiable during a fleet-wide flash (issue #71). Default 3.</summary>
+    public int AlertBorderThickness { get; set; } = 3;
+
     /// <summary>When true, every fired alert paints a small numbered badge
     /// in the corner of the alerting client's thumbnail (severity-coloured,
     /// caps display at 9+). The count clears the moment that EVE client
@@ -557,6 +562,7 @@ public class CropDefinition
     public int PopupHeight { get; set; } = 240;
 
     [JsonPropertyName("showLabel")]
+    [JsonConverter(typeof(FlexibleBoolConverter))]
     public bool ShowLabel { get; set; } = true;
 
     /// <summary>Crop popup opacity as a percent (10-100). 100 = fully opaque
@@ -568,6 +574,7 @@ public class CropDefinition
     /// through) so clicks land on whatever is behind it. Disables drag/resize of
     /// the popup until turned back off (issue #62).</summary>
     [JsonPropertyName("clickThrough")]
+    [JsonConverter(typeof(FlexibleBoolConverter))]
     public bool ClickThrough { get; set; } = false;
 }
 

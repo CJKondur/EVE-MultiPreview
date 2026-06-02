@@ -851,6 +851,30 @@ public static class User32
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern IntPtr GetModuleHandle(string? lpModuleName);
 
+    // ── Message loop (for running a WH_MOUSE_LL hook on a dedicated thread) ──
+    // A low-level hook's callback is dispatched on the thread that installed it,
+    // and that thread MUST pump messages. Running the mouse hook on its own
+    // thread keeps system-wide mouse input off the busy WPF UI thread.
+    public const uint WM_QUIT = 0x0012;
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MSG
+    {
+        public IntPtr hwnd;
+        public uint message;
+        public IntPtr wParam;
+        public IntPtr lParam;
+        public uint time;
+        public System.Drawing.Point pt;
+    }
+
+    [DllImport("user32.dll")]
+    public static extern int GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool PostThreadMessage(uint idThread, uint Msg, IntPtr wParam, IntPtr lParam);
+
     [StructLayout(LayoutKind.Sequential)]
     public struct MSLLHOOKSTRUCT
     {

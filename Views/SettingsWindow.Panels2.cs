@@ -352,6 +352,7 @@ public partial class SettingsWindow
 
         S.PveMode = ChkPveMode.IsChecked == true;
         S.AlertOpacityPercent = (int)SliderAlertOpacity.Value;
+        if (int.TryParse(TxtAlertBorderThickness.Text, out int abt)) S.AlertBorderThickness = Math.Clamp(abt, 0, 20);
         S.ShowAlertBadgeOnThumbnails = ChkAlertBadgeOnThumbnails.IsChecked == true;
         S.NotLoggedInIndicator = GetNotLoggedInType();
         S.NotLoggedInColor = TxtNotLoggedInColor.Text;

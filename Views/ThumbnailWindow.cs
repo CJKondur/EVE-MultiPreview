@@ -627,7 +627,10 @@ public class ThumbnailWindow : Form
     {
         if (_thumbId == IntPtr.Zero) return;
 
-        int b = Math.Max(0, _borderThickness);
+        // Reserve un-composited strip for BOTH the main border and the nested
+        // inner alert border (#71); otherwise the DWM thumbnail would paint over
+        // the inner band and hide it.
+        int b = Math.Max(0, _borderThickness) + Math.Max(0, _alertBorderThickness);
         int w = Math.Max(1, base.Width);
         int h = Math.Max(1, base.Height);
 
@@ -747,6 +750,26 @@ public class ThumbnailWindow : Form
             _borderThickness = thickness;
             ApplyThumbnailPresentation();
         }
+        if (IsHandleCreated) Invalidate();
+    }
+
+    // ── Inner alert border (#71) ─────────────────────────────────
+    // A SECOND border nested just inside the main highlight border. Alerts pulse
+    // this inner border instead of overwriting the main one, so a fleet-wide red
+    // flash never hides which client is currently selected. ApplyThumbnailPresentation
+    // reserves DWM inset space for both bands; the thickness is held constant for the
+    // duration of an alert (only the colour toggles while pulsing) so the composited
+    // thumbnail doesn't jump on every pulse.
+    private WpfColor? _alertBorderColor;
+    private int _alertBorderThickness;
+
+    public void SetAlertBorder(WpfColor? color, int thickness)
+    {
+        thickness = Math.Max(0, thickness);
+        bool insetChanged = thickness != _alertBorderThickness;
+        _alertBorderColor = color;
+        _alertBorderThickness = thickness;
+        if (insetChanged) ApplyThumbnailPresentation(); // resize DWM inset to fit the inner band
         if (IsHandleCreated) Invalidate();
     }
 
@@ -1040,6 +1063,25 @@ public class ThumbnailWindow : Form
                 Alignment = PenAlignment.Inset
             };
             g.DrawRectangle(pen, 0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
+        }
+
+        // Inner alert border (#71) — nested just inside the main border, drawn in
+        // the extra inset reserved by ApplyThumbnailPresentation. Pulses on alert
+        // without touching the main highlight, so the selected client stays
+        // identifiable during a fleet-wide flash. Suppressed during under-fire pulse.
+        if (!_isUnderFire && _alertBorderColor is WpfColor ac && _alertBorderThickness > 0)
+        {
+            int inset = Math.Max(0, _borderThickness);
+            int iw = ClientSize.Width - 2 * inset - 1;
+            int ih = ClientSize.Height - 2 * inset - 1;
+            if (iw > 0 && ih > 0)
+            {
+                using var pen = new Pen(Color.FromArgb(ac.A, ac.R, ac.G, ac.B), _alertBorderThickness)
+                {
+                    Alignment = PenAlignment.Inset
+                };
+                g.DrawRectangle(pen, inset, inset, iw, ih);
+            }
         }
 
         // (Cycle-exclusion strikeout is now drawn in the WPF TextOverlayWindow —
