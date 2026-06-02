@@ -35,6 +35,14 @@ public sealed class HotkeyService : IDisposable
     private readonly List<int> _activationHotkeyIds = new(); // vkE8 internal activation hotkeys
     private bool _hotkeysActive = false; // Whether non-suspend hotkeys are currently registered
 
+    // Foreground-gated registration (issue #68). In EVE-only scope, hotkeys must be
+    // UNREGISTERED while a non-EVE app is foreground — otherwise RegisterHotKey
+    // captures the key system-wide and swallows it (consumed but not actioned),
+    // never reaching e.g. a spreadsheet. We re-evaluate registration on every
+    // foreground change so keys pass through whenever they wouldn't be actioned.
+    private WinEventHookService? _scopeWinEvents;
+    private Func<bool>? _hasWindowsProvider;
+
     // Stored hotkey specs for re-registration when EVE windows appear/disappear
     private readonly List<HotkeySpec> _storedSpecs = new();
     // BaseModifiers = the user's originally specified modifier set (before wildcard
@@ -227,6 +235,56 @@ public sealed class HotkeyService : IDisposable
         // costs nothing (int32 has plenty of room) and keeps IDs unique.
     }
 
+    /// <summary>Wire foreground-change events so registration can be gated on which
+    /// app is in front (issue #68). <paramref name="hasWindows"/> reports whether any
+    /// EVE client is currently tracked. Call once at startup.</summary>
+    public void AttachWinEvents(WinEventHookService winEvents, Func<bool> hasWindows)
+    {
+        if (_scopeWinEvents != null) return;
+        _scopeWinEvents = winEvents;
+        _hasWindowsProvider = hasWindows;
+        _scopeWinEvents.ForegroundChanged += OnForegroundChangedForScope;
+    }
+
+    private void OnForegroundChangedForScope(IntPtr _) => EvaluateRegistration();
+
+    /// <summary>
+    /// Single source of truth for whether the user's hotkeys should currently be
+    /// registered with the OS. Drives both the foreground-change events and the
+    /// safety-net poll timer.
+    ///
+    /// • Suspended → leave as-is (ToggleSuspend owns that state).
+    /// • No EVE clients tracked → unregister (keys work normally everywhere).
+    /// • EVE-only scope → register ONLY while EVE or this app is foreground, so a
+    ///   keystroke that wouldn't be actioned is never consumed (issue #68).
+    /// • Global scope → register whenever clients exist (capture everywhere).
+    /// </summary>
+    public void EvaluateRegistration()
+    {
+        if (_suspended) return;
+
+        bool hasWindows = _hasWindowsProvider?.Invoke() ?? true;
+        if (!hasWindows)
+        {
+            DeactivateHotkeys();
+            return;
+        }
+
+        if (_eveOnlyScope)
+        {
+            bool fgIsEveOrApp = false;
+            try { fgIsEveOrApp = User32.IsEveOrAppProcess(User32.GetProcessName(User32.GetForegroundWindow())); }
+            catch { }
+
+            if (fgIsEveOrApp) ActivateHotkeys();
+            else DeactivateHotkeys();
+        }
+        else
+        {
+            ActivateHotkeys();
+        }
+    }
+
     /// <summary>Register all stored non-suspend hotkeys. Call when EVE windows appear.</summary>
     public void ActivateHotkeys()
     {
@@ -326,8 +384,10 @@ public sealed class HotkeyService : IDisposable
         }
         else
         {
-            // Resume: re-register all stored keyboard hotkeys
-            ActivateHotkeys();
+            // Resume: re-register stored hotkeys, but honor EVE-only scope +
+            // current foreground so we don't re-introduce the consume-not-action
+            // behavior while a non-EVE app is in front (issue #68).
+            EvaluateRegistration();
 
             // Re-install hooks
             ReinstallMouseBindings();
@@ -817,6 +877,11 @@ public sealed class HotkeyService : IDisposable
             "BACKQUOTE" or "TILDE" or "OEMTILDE" or "OEM3" or "`" or "~" => 0xC0,
             "LBRACKET" or "OEMOPENBRACKETS" or "OEM4" or "[" => 0xDB,
             "BACKSLASH" or "OEMPIPE" or "OEM5" or "\\" => 0xDC,
+            // VK_OEM_102 (0xE2) — the EXTRA key ISO keyboards place next to left
+            // Shift (the <>| / extra-backslash key). WPF reports it as
+            // Key.OemBackslash, distinct from OemPipe (0xDC) above. Without this
+            // it parsed to VK 0 and silently failed to register (issue #67).
+            "OEMBACKSLASH" or "OEM102" or "OEM_102" => 0xE2,
             "RBRACKET" or "OEMCLOSEBRACKETS" or "OEM6" or "]" => 0xDD,
             "QUOTE" or "OEMQUOTES" or "OEM7" or "'" => 0xDE,
             // VK_OEM_8 — country-specific (e.g. ° on Swiss French, Function
@@ -927,6 +992,11 @@ public sealed class HotkeyService : IDisposable
     public void Dispose()
     {
         StopKeyRepeat();
+        if (_scopeWinEvents != null)
+        {
+            _scopeWinEvents.ForegroundChanged -= OnForegroundChangedForScope;
+            _scopeWinEvents = null;
+        }
         UnregisterAll();
         // UnregisterAll preserves activation hotkeys — release them on shutdown.
         if (_hwndSource != null)

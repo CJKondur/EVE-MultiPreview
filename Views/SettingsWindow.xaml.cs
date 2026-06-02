@@ -1737,6 +1737,9 @@ public partial class SettingsWindow : Window
             Key.OemOpenBrackets => "[", Key.OemCloseBrackets => "]",
             Key.OemPipe => "\\", Key.OemSemicolon => ";", Key.OemQuotes => "'",
             Key.OemComma => ",", Key.OemPeriod => ".", Key.OemQuestion => "/",
+            // Distinct ISO <>| / extra-backslash key — emit a token the parser
+            // resolves to VK_OEM_102 rather than the "oembackslash" fallback (#67).
+            Key.OemBackslash => "OEM102",
             _ => key.ToString().ToLowerInvariant()
         };
     }

@@ -164,6 +164,11 @@ public partial class App : Application
             // 5. Initialize hotkey service
             _hotkeyService = new HotkeyService();
             _hotkeyService.Initialize();
+            // Foreground-gated registration so EVE-only hotkeys pass through to other
+            // apps when EVE isn't in front (issue #68).
+            if (_winEvents != null)
+                _hotkeyService.AttachWinEvents(_winEvents,
+                    () => _thumbnailManager?.GetActiveCharacterNames()?.Any() == true);
             var profile = _settings.CurrentProfile;
             PerfLog($"[Hotkey] Profile='{_settings.Settings.LastUsedProfile}', CharHotkeys={profile.Hotkeys.Count}, Groups={profile.HotkeyGroups.Count}, Suspend='{_settings.Settings.SuspendHotkey}', Global={_settings.Settings.GlobalHotkeys}");
             foreach (var (name, binding) in profile.Hotkeys)
@@ -349,13 +354,13 @@ public partial class App : Application
                 bool hasWindows = _thumbnailManager?.GetActiveCharacterNames()?.Any() == true;
                 if (hasWindows != _lastHotkeyToggleState)
                 {
-                    PerfLog($"[Hotkey:Toggle] EVE windows present: {hasWindows} → {(hasWindows ? "ACTIVATE" : "DEACTIVATE")}");
+                    PerfLog($"[Hotkey:Toggle] EVE windows present: {hasWindows} → re-evaluate registration");
                     _lastHotkeyToggleState = hasWindows;
                 }
-                if (hasWindows)
-                    _hotkeyService?.ActivateHotkeys();
-                else
-                    _hotkeyService?.DeactivateHotkeys();
+                // Safety-net poll. EvaluateRegistration also factors in EVE-only
+                // scope + current foreground (issue #68); foreground-change events
+                // drive the responsive path, this catches anything they miss.
+                _hotkeyService?.EvaluateRegistration();
             };
             hotkeyToggleTimer.Start();
 
