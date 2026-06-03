@@ -362,6 +362,10 @@ public sealed class ThumbnailManager : IDisposable
             y += row * (height + gap);
         }
 
+        // Never create a thumbnail fully off-screen (issue #74) — whether from the
+        // preferred-monitor default, a stale saved position, or column overflow.
+        (x, y) = EnsureOnScreen(x, y, width, height);
+
         PerfLog($"Settings lookup: {sw.ElapsedMilliseconds}ms");
 
         var thumbWindow = new ThumbnailWindow();
@@ -2815,6 +2819,36 @@ public sealed class ThumbnailManager : IDisposable
     // ── Helpers ──────────────────────────────────────────────────────
 
     /// <summary>
+    /// <summary>
+    /// Guarantee a thumbnail is created at least partially visible. If the
+    /// computed/saved position lands FULLY outside every connected monitor's work
+    /// area — e.g. a default placed on a Preferred Monitor that isn't where the
+    /// user is looking (issue #74), a saved position from a monitor that has since
+    /// been disconnected or renumbered, or column-overflow off a screen edge — clamp
+    /// it back onto the primary screen so it can't silently render off-screen
+    /// ("character is tracked, settings work, but no thumbnail shows").
+    /// All coordinates are physical pixels, matching Screen.WorkingArea.
+    /// </summary>
+    private static (int X, int Y) EnsureOnScreen(int x, int y, int width, int height)
+    {
+        int w = Math.Max(1, width), h = Math.Max(1, height);
+        var rect = new System.Drawing.Rectangle(x, y, w, h);
+
+        foreach (var screen in System.Windows.Forms.Screen.AllScreens)
+        {
+            if (screen.WorkingArea.IntersectsWith(rect))
+                return (x, y); // at least partially visible — leave the user's placement alone
+        }
+
+        // Fully off every screen → anchor onto the primary work area.
+        var wa = System.Windows.Forms.Screen.PrimaryScreen?.WorkingArea
+                 ?? new System.Drawing.Rectangle(0, 0, 1920, 1080);
+        int nx = w >= wa.Width ? wa.Left : Math.Max(wa.Left, Math.Min(x, wa.Right - w));
+        int ny = h >= wa.Height ? wa.Top : Math.Max(wa.Top, Math.Min(y, wa.Bottom - h));
+        Debug.WriteLine($"[Thumbnail:OnScreen] ⛑ Clamped off-screen thumbnail ({x},{y}) → ({nx},{ny})");
+        return (nx, ny);
+    }
+
     /// Returns the working area (excludes taskbar) for the preferred monitor.
     /// Falls back to the primary screen if the index is out of range.
     /// </summary>
