@@ -50,6 +50,34 @@ public sealed class FrozenFrameService : IDisposable
         _captureTimer.Interval = interval;
     }
 
+    /// <summary>
+    /// Enable or disable the PERIODIC capture timer. Off by default — periodic
+    /// PrintWindow of every client allocates a full-resolution intermediate bitmap
+    /// per window (a 4K client is ~33 MB on the Large Object Heap), so running it
+    /// every few seconds across many high-res clients triggers a periodic Gen2 GC
+    /// whose pause briefly stalls the mouse hook → a ~5 s micro-stutter (reported
+    /// with 8×4K clients). It's only actually needed by the GPU-saving modes
+    /// (Static / Suspend-when-background) which display these frames continuously;
+    /// the ordinary minimize→frozen-frame path is covered by the eager
+    /// MINIMIZESTART hook, which is always wired regardless of this flag.
+    /// </summary>
+    public void SetPeriodicCaptureEnabled(bool enabled)
+    {
+        if (_disposed) return;
+        if (enabled)
+        {
+            if (!_captureTimer.IsEnabled)
+            {
+                _captureTimer.Start();
+                ScheduleCaptures(); // populate immediately so entering static mode doesn't flash blank
+            }
+        }
+        else if (_captureTimer.IsEnabled)
+        {
+            _captureTimer.Stop();
+        }
+    }
+
     /// <summary>Start polling. The provider returns the set of currently tracked
     /// EVE HWNDs to snapshot — caller decides which windows are live.
     /// If <paramref name="winEvents"/> is provided, an eager pre-minimize capture
@@ -61,7 +89,11 @@ public sealed class FrozenFrameService : IDisposable
         _winEvents = winEvents;
         if (_winEvents != null)
             _winEvents.WindowMinimizeStart += OnMinimizeStart;
-        _captureTimer.Start();
+        // NOTE: the periodic timer is NOT started here. It's enabled on demand via
+        // SetPeriodicCaptureEnabled only when a GPU-saving mode needs continuous
+        // frames; the eager MINIMIZESTART hook (wired above) covers normal
+        // minimize→frozen-frame for everyone else without the periodic GC churn
+        // that caused the 8×4K mouse micro-stutter.
     }
 
     /// <summary>

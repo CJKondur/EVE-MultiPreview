@@ -1133,6 +1133,11 @@ public sealed class ThumbnailManager : IDisposable
         _frozenFrames?.SetCaptureInterval(staticAll
             ? TimeSpan.FromSeconds(1)
             : TimeSpan.FromSeconds(5));
+        // Only run the periodic PrintWindow capture when a GPU-saving mode actually
+        // needs continuous frames. Otherwise the large-bitmap churn (esp. many 4K
+        // clients) drives a periodic GC pause that micro-stutters the mouse. Normal
+        // minimize→frozen-frame is still covered by the eager MINIMIZESTART hook.
+        _frozenFrames?.SetPeriodicCaptureEnabled(gpuFreeze);
         if (gpuFreeze != _lastGpuFreezeState)
         {
             foreach (var (eveHwnd, thumb) in _thumbnails)
