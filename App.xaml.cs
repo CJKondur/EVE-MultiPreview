@@ -168,7 +168,7 @@ public partial class App : Application
             // apps when EVE isn't in front (issue #68).
             if (_winEvents != null)
                 _hotkeyService.AttachWinEvents(_winEvents,
-                    () => _thumbnailManager?.GetActiveCharacterNames()?.Any() == true);
+                    () => _thumbnailManager?.HasTrackedClients() == true);
             var profile = _settings.CurrentProfile;
             PerfLog($"[Hotkey] Profile='{_settings.Settings.LastUsedProfile}', CharHotkeys={profile.Hotkeys.Count}, Groups={profile.HotkeyGroups.Count}, Suspend='{_settings.Settings.SuspendHotkey}', Global={_settings.Settings.GlobalHotkeys}");
             foreach (var (name, binding) in profile.Hotkeys)
@@ -351,7 +351,7 @@ public partial class App : Application
             bool _lastHotkeyToggleState = false;
             hotkeyToggleTimer.Tick += (_, _) =>
             {
-                bool hasWindows = _thumbnailManager?.GetActiveCharacterNames()?.Any() == true;
+                bool hasWindows = _thumbnailManager?.HasTrackedClients() == true;
                 if (hasWindows != _lastHotkeyToggleState)
                 {
                     PerfLog($"[Hotkey:Toggle] EVE windows present: {hasWindows} → re-evaluate registration");

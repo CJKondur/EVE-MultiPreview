@@ -2300,6 +2300,12 @@ public sealed class ThumbnailManager : IDisposable
             .Distinct();
     }
 
+    /// <summary>True when ANY EVE client is tracked — including ones still on the
+    /// character-select screen (no character name yet). Hotkey activation keys off
+    /// this rather than logged-in character names so cycle/hotkeys work as soon as
+    /// clients are open, not only after a character logs in (issue #72).</summary>
+    public bool HasTrackedClients() => !_thumbnails.IsEmpty;
+
     /// <summary>Get the EVE window handle for a given character name.</summary>
     public IntPtr GetHwndForCharacter(string characterName)
     {
