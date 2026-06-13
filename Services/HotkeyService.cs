@@ -50,7 +50,14 @@ public sealed class HotkeyService : IDisposable
     // spec derived from "Ctrl+Alt+1" (BaseModifiers=Ctrl|Alt) wins the Ctrl+Alt+1
     // slot over one derived from "Ctrl+1" (BaseModifiers=Ctrl) even though both
     // wildcard-expand to include Ctrl+Alt+1.
-    private record HotkeySpec(uint Modifiers, uint VirtualKey, Action Action, bool AllowRepeat, uint BaseModifiers);
+    // Priority breaks (Modifiers,VK) collisions in ActivateHotkeys BEFORE specificity:
+    // a higher-priority binding wins a shared key. Character- and group-specific
+    // cycle/activation bindings use SPECIFIC_PRIORITY so they beat the profile-wide
+    // "cycle all" when the user binds the same key to both — otherwise the global
+    // cycle (registered first) won the slot and the group-forward key ran client-order
+    // cycling instead of group-order (issue #75). Default 0 = ordinary binding.
+    private const int SPECIFIC_PRIORITY = 10;
+    private record HotkeySpec(uint Modifiers, uint VirtualKey, Action Action, bool AllowRepeat, uint BaseModifiers, int Priority = 0);
 
     // Track repeatable hotkey IDs
     private readonly HashSet<int> _repeatableIds = new();
@@ -314,11 +321,20 @@ public sealed class HotkeyService : IDisposable
         foreach (var spec in _storedSpecs)
         {
             var key = (spec.Modifiers, spec.VirtualKey);
-            if (!winners.TryGetValue(key, out var current) ||
-                System.Numerics.BitOperations.PopCount(spec.BaseModifiers) >
-                System.Numerics.BitOperations.PopCount(current.BaseModifiers))
+            int specBits = System.Numerics.BitOperations.PopCount(spec.BaseModifiers);
+            if (!winners.TryGetValue(key, out var current))
             {
                 winners[key] = spec;
+            }
+            else
+            {
+                int curBits = System.Numerics.BitOperations.PopCount(current.BaseModifiers);
+                // Specificity wins FIRST: a deliberately-modified binding (e.g. Ctrl+Alt+1)
+                // must keep its slot against a plain binding that wildcard-expands into it.
+                // Only on EQUAL specificity does priority break the tie, so a character/group
+                // cycle beats the global "cycle all" on a shared key (issue #75).
+                if (specBits > curBits || (specBits == curBits && spec.Priority > current.Priority))
+                    winners[key] = spec;
             }
         }
 
@@ -580,7 +596,7 @@ public sealed class HotkeyService : IDisposable
                 {
                     if (_suspended) return;
                     thumbnailManager.ActivateEveWindow(IntPtr.Zero, capturedName);
-                });
+                }, priority: SPECIFIC_PRIORITY);
             }
             else
             {
@@ -588,7 +604,7 @@ public sealed class HotkeyService : IDisposable
                 {
                     if (_suspended) return;
                     thumbnailManager.CycleGroup(hotkeyStr + "_shared", capturedMembers, forward: true);
-                });
+                }, priority: SPECIFIC_PRIORITY);
             }
         }
 
@@ -622,7 +638,7 @@ public sealed class HotkeyService : IDisposable
             {
                 if (_suspended) return;
                 thumbnailManager.CycleGroup(hotkeyStr + "_fwd", members, forward: true);
-            });
+            }, priority: SPECIFIC_PRIORITY);
         }
 
         // Store merged backward hotkeys
@@ -633,7 +649,7 @@ public sealed class HotkeyService : IDisposable
             {
                 if (_suspended) return;
                 thumbnailManager.CycleGroup(hotkeyStr + "_bwd", members, forward: false);
-            });
+            }, priority: SPECIFIC_PRIORITY);
         }
 
         App.PerfLog($"[Hotkey:Register] Stored {_storedSpecs.Count} specs, suspend ID={_suspendHotkeyId} (eveOnly={_eveOnlyScope})");
@@ -669,8 +685,10 @@ public sealed class HotkeyService : IDisposable
         return Register(parsedMods, vk, action);
     }
 
-    /// <summary>Store a hotkey spec without registering it. Will be registered when ActivateHotkeys is called.</summary>
-    public void StoreAhkHotkey(string ahkKeyString, Action action)
+    /// <summary>Store a hotkey spec without registering it. Will be registered when ActivateHotkeys is called.
+    /// <paramref name="priority"/> wins (Modifiers,VK) collisions — use SPECIFIC_PRIORITY for
+    /// character/group-specific bindings so they beat the global cycle on a shared key (issue #75).</summary>
+    public void StoreAhkHotkey(string ahkKeyString, Action action, int priority = 0)
     {
         if (string.IsNullOrWhiteSpace(ahkKeyString)) return;
 
@@ -696,12 +714,13 @@ public sealed class HotkeyService : IDisposable
         // Natively simulate wildcard modifiers by exhaustively registering all 16 modifier combinations
         for (uint m = 0; m < 16; m++)
         {
-            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, false, parsedMods));
+            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, false, parsedMods, priority));
         }
     }
 
-    /// <summary>Store a repeatable hotkey spec without registering it.</summary>
-    public void StoreRepeatableAhkHotkey(string ahkKeyString, Action action)
+    /// <summary>Store a repeatable hotkey spec without registering it.
+    /// <paramref name="priority"/> wins (Modifiers,VK) collisions (see <see cref="StoreAhkHotkey"/>).</summary>
+    public void StoreRepeatableAhkHotkey(string ahkKeyString, Action action, int priority = 0)
     {
         if (string.IsNullOrWhiteSpace(ahkKeyString)) return;
 
@@ -722,7 +741,7 @@ public sealed class HotkeyService : IDisposable
         // Natively simulate wildcard modifiers by exhaustively registering all 16 modifier combinations
         for (uint m = 0; m < 16; m++)
         {
-            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, true, parsedMods));
+            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, true, parsedMods, priority));
         }
     }
 

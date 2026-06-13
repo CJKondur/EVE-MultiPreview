@@ -75,6 +75,7 @@ public sealed class ThumbnailManager : IDisposable
     private bool _settingsOpen = false;     // Settings window exists (even minimized) — keeps thumbnails visible
     private bool _primaryHiddenByFocus = false; // Primary thumbnails fully hidden by "Hide When Alt-Tabbed" (focus loss)
     private bool _lastEveFocused = false;   // Track focus transitions for one-time BringToFront
+    private IntPtr _lastZOrderHwnd = IntPtr.Zero; // Last foreground HWND we re-raised thumbnails for
     private bool _lastGpuFreezeState = false; // StaticThumbnails / SuspendThumbnailsWhenBackground transitions
     private bool _lastHideActiveThumbnailState = false; // HideActiveThumbnail on→off transition tracking
 
@@ -1346,6 +1347,26 @@ public sealed class ThumbnailManager : IDisposable
         }
         _lastHideActiveThumbnailState = hideActiveNow;
 
+        // Re-assert thumbnail z-order on ANY foreground change to an EVE client —
+        // BEFORE the cycle-shield / fg-unchanged early-returns below, which would
+        // otherwise skip it. Switching between EVE clients keeps eveFocused true, so
+        // the false→true BringToFront earlier never fires; without this re-raise the
+        // thumbnails get stuck behind the newly-focused client until you leave EVE
+        // entirely. Deliberately NOT gated on Always-On-Top (matching that earlier
+        // raise) so it also helps users who keep thumbnails non-topmost. This only
+        // touches z-order — it never updates _lastActiveEveHwnd, so the fast-cycle
+        // tracker and its shield below are unaffected.
+        if (eveFocused && fgHwnd != _lastZOrderHwnd && !_suppressTopmost)
+        {
+            _lastZOrderHwnd = fgHwnd;
+            foreach (var (_, thumb) in _thumbnails)
+                thumb.BringToFront();
+            foreach (var (_, pip) in _secondaryThumbnails)
+                pip.BringToFront();
+            foreach (var (_, sw) in _statWindows)
+                sw.BringToFront();
+        }
+
         // Shield the fast-cycle tracker and visual borders from asynchronous OS focus lag.
         // If we recently cycled, the native background window switch might still be resolving.
         // Letting the slow OS tracker overwrite our state here will illegally rewind the cycle sequence.
@@ -1354,20 +1375,6 @@ public sealed class ThumbnailManager : IDisposable
 
         if (fgHwnd == _lastActiveEveHwnd) return;
         _lastActiveEveHwnd = fgHwnd;
-
-        // Re-assert z-order when switching between EVE clients (EVE→EVE transition).
-        // The false→true BringToFront above only fires when coming FROM a non-EVE app.
-        // EVE's DirectX surface aggressively fights for z-order in the TOPMOST band,
-        // pushing ThumbnailWindows behind while TextOverlays survive via owner semantics.
-        if (eveFocused && !_suppressTopmost && s.ShowThumbnailsAlwaysOnTop)
-        {
-            foreach (var (_, thumb) in _thumbnails)
-                thumb.BringToFront();
-            foreach (var (_, pip) in _secondaryThumbnails)
-                pip.BringToFront();
-            foreach (var (_, sw) in _statWindows)
-                sw.BringToFront();
-        }
 
         // Flash toggle moved to dedicated FlashAlertTick
 
