@@ -1007,6 +1007,11 @@ public class ThumbnailWindow : Form
     {
         Show();
         _textOverlay?.Show();
+        // Re-assert z-order: a plain Show() re-inserts the window at a default
+        // position that lands BEHIND a focused EVE client, so a thumbnail re-shown
+        // after hide-on-lost-focus / hide-active / a visibility toggle would come
+        // back hidden behind the game. BringToFront honors the topmost setting.
+        BringToFront();
     }
 
     // ── Painting ─────────────────────────────────────────────────

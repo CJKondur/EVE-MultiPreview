@@ -1356,7 +1356,8 @@ public sealed class ThumbnailManager : IDisposable
         // raise) so it also helps users who keep thumbnails non-topmost. This only
         // touches z-order — it never updates _lastActiveEveHwnd, so the fast-cycle
         // tracker and its shield below are unaffected.
-        if (eveFocused && fgHwnd != _lastZOrderHwnd && !_suppressTopmost)
+        bool fgIsTrackedClient = _thumbnails.ContainsKey(fgHwnd);
+        if (eveFocused && fgIsTrackedClient && fgHwnd != _lastZOrderHwnd && !_suppressTopmost)
         {
             _lastZOrderHwnd = fgHwnd;
             foreach (var (_, thumb) in _thumbnails)
@@ -1365,6 +1366,14 @@ public sealed class ThumbnailManager : IDisposable
                 pip.BringToFront();
             foreach (var (_, sw) in _statWindows)
                 sw.BringToFront();
+        }
+        else if (!fgIsTrackedClient)
+        {
+            // Foreground is the MultiPreview app/settings or a non-EVE window — not an
+            // EVE client. Clear the tracker so RETURNING to a client (even the same
+            // one we last raised for) re-raises. Without this, app→same-client and
+            // settings→same-client left the thumbnails stuck behind (LittlePhish).
+            _lastZOrderHwnd = IntPtr.Zero;
         }
 
         // Shield the fast-cycle tracker and visual borders from asynchronous OS focus lag.
