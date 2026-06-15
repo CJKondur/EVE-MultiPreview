@@ -992,7 +992,8 @@ public sealed class ThumbnailManager : IDisposable
                 : (_thumbnails.TryGetValue(hwnd, out var hwndThumb) ? hwndThumb.CharacterName : null);
             if (!string.IsNullOrEmpty(activatedChar))
             {
-                _alertFlashChars.TryRemove(activatedChar, out _);
+                if (_alertFlashChars.TryRemove(activatedChar, out _))
+                    ClearAlertBorderFor(activatedChar); // clear the nested inner border now (#77)
                 ClearAlertBadge(activatedChar);
             }
 
@@ -1855,7 +1856,27 @@ public sealed class ThumbnailManager : IDisposable
     public void ClearAlertFlash(string characterName)
     {
         if (_alertFlashChars.TryRemove(characterName, out _))
+        {
+            ClearAlertBorderFor(characterName);
             Debug.WriteLine($"[AlertFlash:Tick] ✅ Flash cleared: '{characterName}'");
+        }
+    }
+
+    /// <summary>Explicitly clear the nested inner alert border for a character (#77).
+    /// When an alert entry is removed OUTSIDE FlashAlertTick (e.g. activating/cycling
+    /// to the client clears _alertFlashChars), FlashAlertTick no longer tracks it and
+    /// UpdateActiveBorders can skip its per-thumb clear under the post-cycle shield —
+    /// leaving the inner border stuck on until a click. Clearing here closes that gap.
+    /// Marshals to the UI thread for the WinForms SetAlertBorder call.</summary>
+    private void ClearAlertBorderFor(string characterName)
+    {
+        var thumb = FindThumbnailByCharacter(characterName);
+        if (thumb == null) return;
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher != null && !dispatcher.CheckAccess())
+            dispatcher.BeginInvoke(new Action(() => thumb.SetAlertBorder(null, 0)));
+        else
+            thumb.SetAlertBorder(null, 0);
     }
 
     /// <summary>Bump the per-character unread-alert badge counter. Called from

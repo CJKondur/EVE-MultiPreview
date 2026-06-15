@@ -992,6 +992,16 @@ public partial class SettingsWindow
         TxtEveMgrStatus.Text = EveManagerService.IsEveRunning()
             ? "\u26a0 EVE is running \u2014 close clients before copying"
             : $"\u2713 EVE is not running \u00b7 Found {_eveProfiles.Count} profile(s)";
+
+        // Rebuild the Char/Account dropdowns against the freshly-scanned profile
+        // list. Without this, Refresh updated only the profile-copy lists while the
+        // Char/Account source/target dropdowns stayed empty or stale \u2014 so they
+        // showed nothing until a full restart, and their SelectedIndex pointed into
+        // a different _eveProfiles than the copy read, resolving to the wrong
+        // profile path and reporting "0 files copied". Repopulating re-selects and
+        // re-loads the character lists from the current paths.
+        PopulateCharCopyDropdowns();
+        PopulateAccountCopyDropdowns();
     }
 
     private List<ProfileItem> EveProfileItems()

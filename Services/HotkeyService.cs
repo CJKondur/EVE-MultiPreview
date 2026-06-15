@@ -1286,40 +1286,49 @@ public sealed class HotkeyService : IDisposable
         _keyRepeatAction = action;
 
         int delayMs = CycleDelayMs;
-        const int HoldDetectMs = 250; // tap-vs-hold threshold (matches mouse path)
+        const int HoldDetectMs = 250; // key must stay down THIS long to count as a hold
+        const int HoldPollMs = 25;    // fine poll during hold-detect (catches taps between samples)
 
         var timer = new System.Windows.Threading.DispatcherTimer
         {
-            Interval = TimeSpan.FromMilliseconds(HoldDetectMs)
+            Interval = TimeSpan.FromMilliseconds(HoldPollMs)
         };
         _keyRepeatTimer = timer;
 
         long startTicks = Environment.TickCount64;
         const long MaxRepeatDurationMs = 60_000;
+        bool holdConfirmed = false;
 
-        bool firstTick = true;
         timer.Tick += (_, _) =>
         {
-            // Safety cap so a missed key-up can't cycle forever.
-            if (Environment.TickCount64 - startTicks > MaxRepeatDurationMs)
+            long elapsed = Environment.TickCount64 - startTicks;
+
+            // ── Hold-detect phase ──
+            // Only a CONTINUOUS hold may start auto-repeat. We poll finely (25 ms)
+            // and abort the moment the key reads up — so rapid client switching
+            // (tapping the cycle key, which releases between presses) can never be
+            // mistaken for a hold and kick off runaway cycling (issue #76). The
+            // initial press already fired exactly one cycle via WM_HOTKEY.
+            // (We intentionally do NOT use GetAsyncKeyState's "pressed since last
+            // call" bit: a physically-held key whose driver auto-repeats sets that
+            // bit too, which would falsely abort a legitimate hold.)
+            if (!holdConfirmed)
             {
-                StopKeyRepeat();
-                return;
+                if (!User32.IsKeyDown((int)_keyRepeatVk))
+                {
+                    StopKeyRepeat();
+                    return;
+                }
+                if (elapsed < HoldDetectMs)
+                    return; // still confirming a continuous hold — don't cycle yet
+                holdConfirmed = true;
+                timer.Interval = TimeSpan.FromMilliseconds(delayMs); // switch to steady cadence
+                // fall through to fire the first repeat now
             }
 
-            // Stop the instant the key is physically released.
-            if (!User32.IsKeyDown((int)_keyRepeatVk))
-            {
-                StopKeyRepeat();
-                return;
-            }
-
-            // After hold-detect, switch to steady-state cycle cadence.
-            if (firstTick)
-            {
-                firstTick = false;
-                timer.Interval = TimeSpan.FromMilliseconds(delayMs);
-            }
+            // ── Steady-state repeat ──
+            if (elapsed > MaxRepeatDurationMs) { StopKeyRepeat(); return; } // safety cap
+            if (!User32.IsKeyDown((int)_keyRepeatVk)) { StopKeyRepeat(); return; }
 
             var a = _keyRepeatAction;
             if (a == null) return;
