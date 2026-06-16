@@ -1268,28 +1268,32 @@ public sealed class ThumbnailManager : IDisposable
             pip.SyncOverlayPosition();
         }
 
-        // Focus-aware Topmost flip — must happen BEFORE BringToFront so that
-        // BringToFront uses the correct z-order band (HWND_TOPMOST vs HWND_TOP).
-        // Primary thumbnails (plus stats/PiPs) are raised to TOPMOST while EVE is
-        // focused so EVE's DirectX surface cannot push them under; they drop back
-        // to NOTOPMOST on focus loss — so they sit above EVE while you play but
-        // slide behind your other windows when you click off (the #30 behavior),
-        // unless ShowThumbnailsAlwaysOnTop keeps them raised permanently.
-        if (eveFocused != _lastEveFocused)
+        // Focus-aware Topmost — must happen BEFORE BringToFront so that BringToFront
+        // uses the correct z-order band (HWND_TOPMOST vs HWND_TOP). Thumbnails (and
+        // their text overlays), stats and PiPs are TOPMOST while EVE is focused so
+        // EVE's DirectX surface can't push them under, and drop to NOTOPMOST on focus
+        // loss — above EVE while you play, behind your other windows when you click
+        // off (#30) — unless ShowThumbnailsAlwaysOnTop keeps them raised permanently.
+        //
+        // This is IDEMPOTENT (converge to the desired state every sweep), NOT gated on
+        // an eveFocused transition: OnForegroundOrMinimizeEvent pre-sets
+        // _lastEveFocused=false synchronously to fix the focus-GAIN race, which
+        // consumes the true→false transition — so a transition-gated flip would never
+        // DROP topmost on focus loss, leaving thumbnails AND their overlays stuck above
+        // other windows. The per-window `Topmost != desired` guard keeps it a no-op
+        // except on an actual change.
+        bool desiredTopmost = eveFocused || s.ShowThumbnailsAlwaysOnTop;
+        foreach (var (_, thumb) in _thumbnails)
         {
-            bool topmost = eveFocused || s.ShowThumbnailsAlwaysOnTop;
-            foreach (var (_, thumb) in _thumbnails)
-            {
-                if (thumb.Topmost != topmost) thumb.SetTopmost(topmost);
-            }
-            foreach (var (_, sw) in _statWindows)
-            {
-                if (sw.Topmost != topmost) sw.Topmost = topmost;
-            }
-            foreach (var (_, pip) in _secondaryThumbnails)
-            {
-                if (pip.Topmost != topmost) pip.Topmost = topmost;
-            }
+            if (thumb.Topmost != desiredTopmost) thumb.SetTopmost(desiredTopmost);
+        }
+        foreach (var (_, sw) in _statWindows)
+        {
+            if (sw.Topmost != desiredTopmost) sw.Topmost = desiredTopmost;
+        }
+        foreach (var (_, pip) in _secondaryThumbnails)
+        {
+            if (pip.Topmost != desiredTopmost) pip.Topmost = desiredTopmost;
         }
 
         // One-time BringToFront when EVE gains focus (false→true transition).
