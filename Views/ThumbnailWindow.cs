@@ -926,9 +926,9 @@ public class ThumbnailWindow : Form
 
     public new void BringToFront()
     {
+        var zOrder = _isTopmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
         if (_ownHwnd != IntPtr.Zero)
         {
-            var zOrder = _isTopmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
             User32.SetWindowPos(_ownHwnd, zOrder, 0, 0, 0, 0,
                 User32.SWP_NOACTIVATE | User32.SWP_NOMOVE | User32.SWP_NOSIZE);
         }
@@ -938,7 +938,6 @@ public class ThumbnailWindow : Form
             var overlayHwnd = _textOverlay.GetHwnd();
             if (overlayHwnd != IntPtr.Zero)
             {
-                var zOrder = _isTopmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
                 User32.SetWindowPos(overlayHwnd, zOrder,
                     base.Left, base.Top, base.Width, base.Height,
                     User32.SWP_NOACTIVATE);

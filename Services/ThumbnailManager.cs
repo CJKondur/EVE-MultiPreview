@@ -1080,8 +1080,24 @@ public sealed class ThumbnailManager : IDisposable
     /// at Background priority so the hook callback stays cheap and the heavy
     /// sweep coalesces with whatever the dispatcher is already doing.
     /// </summary>
-    private void OnForegroundOrMinimizeEvent(IntPtr _)
+    private void OnForegroundOrMinimizeEvent(IntPtr hwnd)
     {
+        // Immediately snapshot non-EVE focus so tracking state is correct even
+        // if the queued UpdateActiveBorders runs too late to observe the
+        // intermediate state (e.g. rapid alt+tab: switcher + EVE both queue
+        // before either Background-priority invoke executes, GetForegroundWindow
+        // already returns EVE, the transition is missed, BringToFront never fires).
+        if (hwnd != IntPtr.Zero)
+        {
+            string? proc = null;
+            try { proc = Interop.User32.GetProcessName(hwnd); } catch { }
+            if (!Interop.User32.IsEveOrAppProcess(proc))
+            {
+                _lastEveFocused = false;
+                _lastZOrderHwnd = IntPtr.Zero;
+            }
+        }
+
         var dispatcher = Application.Current?.Dispatcher;
         if (dispatcher == null) return;
         dispatcher.BeginInvoke(new Action(UpdateActiveBorders), DispatcherPriority.Background);
@@ -1252,7 +1268,32 @@ public sealed class ThumbnailManager : IDisposable
             pip.SyncOverlayPosition();
         }
 
-        // One-time BringToFront when EVE gains focus (false→true transition)
+        // Focus-aware Topmost flip — must happen BEFORE BringToFront so that
+        // BringToFront uses the correct z-order band (HWND_TOPMOST vs HWND_TOP).
+        // Primary thumbnails (plus stats/PiPs) are raised to TOPMOST while EVE is
+        // focused so EVE's DirectX surface cannot push them under; they drop back
+        // to NOTOPMOST on focus loss — so they sit above EVE while you play but
+        // slide behind your other windows when you click off (the #30 behavior),
+        // unless ShowThumbnailsAlwaysOnTop keeps them raised permanently.
+        if (eveFocused != _lastEveFocused)
+        {
+            bool topmost = eveFocused || s.ShowThumbnailsAlwaysOnTop;
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                if (thumb.Topmost != topmost) thumb.SetTopmost(topmost);
+            }
+            foreach (var (_, sw) in _statWindows)
+            {
+                if (sw.Topmost != topmost) sw.Topmost = topmost;
+            }
+            foreach (var (_, pip) in _secondaryThumbnails)
+            {
+                if (pip.Topmost != topmost) pip.Topmost = topmost;
+            }
+        }
+
+        // One-time BringToFront when EVE gains focus (false→true transition).
+        // Runs AFTER the SetTopmost flip above so BringToFront uses HWND_TOPMOST.
         if (eveFocused && !_lastEveFocused && !_suppressTopmost)
         {
             foreach (var (_, thumb) in _thumbnails)
@@ -1264,26 +1305,6 @@ public sealed class ThumbnailManager : IDisposable
             // is insufficient against EVE's DirectX surface
             foreach (var (_, sw) in _statWindows)
                 sw.BringToFront();
-        }
-
-        // Focus-aware Topmost flip for stat overlays (and PiPs) — they should
-        // sit above EVE while you're playing, but slide behind your other
-        // windows the moment you click off the EVE client. Without this they
-        // stay glued to the top of every desktop, which is what marks-lolcode
-        // reported in #30. Honors the user's "Always on Top" thumbnails
-        // setting (`ShowThumbnailsAlwaysOnTop`) — if that's off, we never
-        // promote them to topmost regardless of focus.
-        if (eveFocused != _lastEveFocused)
-        {
-            bool topmost = eveFocused && s.ShowThumbnailsAlwaysOnTop;
-            foreach (var (_, sw) in _statWindows)
-            {
-                if (sw.Topmost != topmost) sw.Topmost = topmost;
-            }
-            foreach (var (_, pip) in _secondaryThumbnails)
-            {
-                if (pip.Topmost != topmost) pip.Topmost = topmost;
-            }
         }
         _lastEveFocused = eveFocused;
 
