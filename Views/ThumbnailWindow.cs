@@ -975,8 +975,27 @@ public class ThumbnailWindow : Form
             User32.SetWindowPos(_ownHwnd, insertAfter, 0, 0, 0, 0,
                 User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
         }
+        // Drop/raise the overlay's topmost via RAW SetWindowPos, NOT the WPF
+        // Topmost property. BringToFront/EnsureOverlayZOrder raise the overlay
+        // topmost with raw SetWindowPos, which WPF's internal Topmost state never
+        // sees — so a later `_textOverlay.Topmost = false` is a WPF no-op ("already
+        // false") and leaves WS_EX_TOPMOST set, stranding the label overlay on top
+        // of other windows even though the thumbnail body dropped. Managing it the
+        // same (raw) way here guarantees the topmost flag is actually cleared.
         if (_textOverlay != null)
-            _textOverlay.Topmost = topmost; // WPF setter already uses SWP_NOACTIVATE
+        {
+            var overlayHwnd = _textOverlay.GetHwnd();
+            if (overlayHwnd != IntPtr.Zero)
+            {
+                var insertAfter = topmost ? User32.HWND_TOPMOST : User32.HWND_NOTOPMOST;
+                User32.SetWindowPos(overlayHwnd, insertAfter, 0, 0, 0, 0,
+                    User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+            }
+            else
+            {
+                _textOverlay.Topmost = topmost; // handle not realized yet — set the WPF property
+            }
+        }
     }
 
     public void HideWithOverlay()

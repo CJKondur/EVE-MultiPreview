@@ -759,8 +759,14 @@ public sealed class ThumbnailManager : IDisposable
                     var savedPos = _settings.GetThumbnailPosition(thumb.CharacterName);
                     if (savedPos != null)
                     {
-                        int applyW = s.IndividualThumbnailResize ? (int)savedPos.Width : (int)s.ThumbnailStartLocation.Width;
-                        int applyH = s.IndividualThumbnailResize ? (int)savedPos.Height : (int)s.ThumbnailStartLocation.Height;
+                        // Use the SAVED per-thumbnail size, matching CreateThumbnailForWindow.
+                        // Previously this snapped every thumbnail to the global default size
+                        // when IndividualThumbnailResize was off — but creation honors each
+                        // saved size, so clicking Apply (which runs ReapplySettings) resized
+                        // thumbnails until relaunch (#79). Fall back to the global default only
+                        // when there's no valid saved size.
+                        int applyW = savedPos.Width > 0 ? (int)savedPos.Width : (int)s.ThumbnailStartLocation.Width;
+                        int applyH = savedPos.Height > 0 ? (int)savedPos.Height : (int)s.ThumbnailStartLocation.Height;
 
                         thumb.MoveTo((int)savedPos.X, (int)savedPos.Y);
                         thumb.Resize(applyW, applyH);
@@ -1283,7 +1289,14 @@ public sealed class ThumbnailManager : IDisposable
         // DROP topmost on focus loss, leaving thumbnails AND their overlays stuck above
         // other windows. The per-window `Topmost != desired` guard keeps it a no-op
         // except on an actual change.
-        bool desiredTopmost = eveFocused || s.ShowThumbnailsAlwaysOnTop;
+        // Topmost ONLY when the user opts in via Always-On-Top — NOT merely because
+        // an EVE client is focused. The earlier `eveFocused ||` forced thumbnails
+        // into the topmost band whenever any client had focus, so with Always-On-Top
+        // OFF they covered every other window you opened while playing and wouldn't
+        // drop back behind it. Now (OFF) thumbnails live in the normal z-band: the
+        // per-focus BringToFront + client-switch re-raise still lift them above the
+        // EVE client, but any window you focus stays above them. (ON = always topmost.)
+        bool desiredTopmost = s.ShowThumbnailsAlwaysOnTop;
         // On a CHANGE of the desired state, re-assert UNCONDITIONALLY on every window
         // (don't trust the cached _isTopmost guard): a freshly-launched thumbnail —
         // or its separate text-overlay window — can end up OS-topmost while the cache
