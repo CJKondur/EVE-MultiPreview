@@ -76,6 +76,7 @@ public sealed class ThumbnailManager : IDisposable
     private bool _primaryHiddenByFocus = false; // Primary thumbnails fully hidden by "Hide When Alt-Tabbed" (focus loss)
     private bool _lastEveFocused = false;   // Track focus transitions for one-time BringToFront
     private IntPtr _lastZOrderHwnd = IntPtr.Zero; // Last foreground HWND we re-raised thumbnails for
+    private bool? _lastAppliedTopmost;      // Last topmost state pushed to all windows (forces full re-assert on change)
     private bool _lastGpuFreezeState = false; // StaticThumbnails / SuspendThumbnailsWhenBackground transitions
     private bool _lastHideActiveThumbnailState = false; // HideActiveThumbnail on→off transition tracking
 
@@ -1283,17 +1284,28 @@ public sealed class ThumbnailManager : IDisposable
         // other windows. The per-window `Topmost != desired` guard keeps it a no-op
         // except on an actual change.
         bool desiredTopmost = eveFocused || s.ShowThumbnailsAlwaysOnTop;
+        // On a CHANGE of the desired state, re-assert UNCONDITIONALLY on every window
+        // (don't trust the cached _isTopmost guard): a freshly-launched thumbnail —
+        // or its separate text-overlay window — can end up OS-topmost while the cache
+        // reads not-topmost, so a purely cache-guarded flip would skip the drop and
+        // leave it stuck above other windows until the user toggled Always-On-Top
+        // (which resyncs via the same unconditional SetTopmost). Tracked via its own
+        // field so the synchronous _lastEveFocused snapshot can't defeat it. When the
+        // desired state is unchanged, fall back to the per-window guard so newly
+        // created thumbnails still converge without re-asserting everything each sweep.
+        bool topmostChanged = _lastAppliedTopmost != desiredTopmost;
+        _lastAppliedTopmost = desiredTopmost;
         foreach (var (_, thumb) in _thumbnails)
         {
-            if (thumb.Topmost != desiredTopmost) thumb.SetTopmost(desiredTopmost);
+            if (topmostChanged || thumb.Topmost != desiredTopmost) thumb.SetTopmost(desiredTopmost);
         }
         foreach (var (_, sw) in _statWindows)
         {
-            if (sw.Topmost != desiredTopmost) sw.Topmost = desiredTopmost;
+            if (topmostChanged || sw.Topmost != desiredTopmost) sw.Topmost = desiredTopmost;
         }
         foreach (var (_, pip) in _secondaryThumbnails)
         {
-            if (pip.Topmost != desiredTopmost) pip.Topmost = desiredTopmost;
+            if (topmostChanged || pip.Topmost != desiredTopmost) pip.SetTopmost(desiredTopmost);
         }
 
         // One-time BringToFront when EVE gains focus (false→true transition).
