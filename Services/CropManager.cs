@@ -63,12 +63,15 @@ public sealed class CropManager : IDisposable
 
     /// <summary>Re-validate every live crop's DWM thumbnail and rebuild any that
     /// went stale, so a randomly-blanked crop recovers without the user toggling
-    /// crops off/on (issue #64).</summary>
+    /// crops off/on (issue #64). Also (re)creates crops that were never spawned
+    /// for a live character (issue #80).</summary>
     private void HealthCheck()
     {
         // Skip while crops are hidden (issue #66) — healing would needlessly
         // re-register thumbnails for windows the user has toggled off.
-        if (!_settings.Settings.CropEnabled || _cropsHidden) return;
+        var s = _settings.Settings;
+        if (!s.CropEnabled || _cropsHidden) return;
+
         foreach (var perChar in _windows.Values)
         {
             foreach (var win in perChar.Values)
@@ -77,6 +80,41 @@ public sealed class CropManager : IDisposable
                 catch (Exception ex) { Debug.WriteLine($"[CropManager] Health check failed: {ex.Message}"); }
             }
         }
+
+        // Self-heal MISSING crops (issue #80 — "crops not showing on login").
+        // The per-character reconcile is reactive: it fires once per discovery
+        // event (OnWindowFound / OnWindowTitleChanged) and is gated on settings
+        // state at that instant. If a character's login event raced settings
+        // load — or was otherwise missed — its crops were never created and the
+        // only recovery was the user manually toggling crops off/on (which runs
+        // Refresh = reconcile-all). Reconcile here any live character whose live
+        // popups have drifted from its crop definitions — missing, extra, or
+        // swapped-but-same-count ids — so they correct on their own within one
+        // health-check cycle. No-op (and cheap) once the popups match the defs.
+        foreach (var (charName, hwnd) in _liveHwnds)
+        {
+            if (!s.Crops.TryGetValue(charName, out var defs) || defs.Count == 0) continue;
+            _windows.TryGetValue(charName, out var existing);
+            if (!CropsInSync(existing, defs))
+            {
+                try { ReconcileCharacter(charName, hwnd); }
+                catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop self-heal reconcile failed for '{charName}': {ex.Message}"); }
+            }
+        }
+    }
+
+    /// <summary>True when a character's live crop popups exactly match its current
+    /// definitions (same set of crop ids). Any drift — missing, extra, or
+    /// swapped-but-same-count ids — returns false so the health check reconciles
+    /// it (issue #80 self-heal; the id check catches a defs swap a count compare
+    /// would miss).</summary>
+    private static bool CropsInSync(Dictionary<string, CropWindow>? existing, List<CropDefinition> defs)
+    {
+        if ((existing?.Count ?? 0) != defs.Count) return false;
+        if (existing == null) return false; // unreachable when defs.Count > 0; satisfies null-flow
+        foreach (var def in defs)
+            if (!existing.ContainsKey(def.Id)) return false;
+        return true;
     }
 
     // True while crops are hidden by the Hide/Show All keybind or the dedicated

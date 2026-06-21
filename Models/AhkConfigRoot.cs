@@ -183,6 +183,7 @@ public class AhkConfigRoot
         s.SettingsWindowHeight = g.SettingsWindowHeight;
         s.SettingsUiFontSize = g.SettingsUiFontSize;
         s.ReceivePreReleaseUpdates = g.ReceivePreReleaseUpdates != 0;
+        s.CheckForUpdatesOnStartup = g.CheckForUpdatesOnStartup != 0;
 
         // Eve Manager
         s.EveManagerUseESI = g.EveManagerUseESI != 0;
@@ -410,6 +411,7 @@ public class AhkConfigRoot
         g.SettingsWindowHeight = s.SettingsWindowHeight;
         g.SettingsUiFontSize = s.SettingsUiFontSize;
         g.ReceivePreReleaseUpdates = s.ReceivePreReleaseUpdates ? 1 : 0;
+        g.CheckForUpdatesOnStartup = s.CheckForUpdatesOnStartup ? 1 : 0;
 
         // Eve Manager
         g.EveManagerUseESI = s.EveManagerUseESI ? 1 : 0;
@@ -1084,6 +1086,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("ReceivePreReleaseUpdates")]
     public int ReceivePreReleaseUpdates { get; set; }
+
+    [JsonPropertyName("CheckForUpdatesOnStartup")]
+    public int CheckForUpdatesOnStartup { get; set; } = 1;
 
     [JsonPropertyName("EveManagerUseESI")]
     public int EveManagerUseESI { get; set; } = 1;

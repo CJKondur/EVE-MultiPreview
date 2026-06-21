@@ -367,6 +367,9 @@ public partial class App : Application
             PerfLog($"[Deferred] ✅ All deferred startup complete: {deferSw.ElapsedMilliseconds}ms total");
 
             // ── Auto-Update Check (fire-and-forget, non-blocking) ──
+            // Gated on CheckForUpdatesOnStartup (About tab toggle). When off, no
+            // network call and no popup — users can still check via Settings → About.
+            if (_settings?.Settings?.CheckForUpdatesOnStartup ?? true)
             _ = Task.Run(async () =>
             {
                 try
@@ -379,8 +382,11 @@ public partial class App : Application
                         PerfLog($"[Update] ⬆ Update available: v{updateService.LatestVersion}");
                         await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                         {
+                            // Non-modal: a modal ShowDialog() runs a nested message loop
+                            // that swallows global hotkeys until dismissed. Show() lets the
+                            // user keep playing while the "update available" prompt sits open.
                             var dialog = new UpdateDialog(updateService);
-                            dialog.ShowDialog();
+                            dialog.Show();
                         });
                     }
                     else

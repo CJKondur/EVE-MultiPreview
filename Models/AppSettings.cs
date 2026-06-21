@@ -203,6 +203,7 @@ public class AppSettings
     public int RtssFpsLimit { get; set; } = 15;
     public bool ShowRtssFps { get; set; } = false;
     public bool ReceivePreReleaseUpdates { get; set; } = false;
+    public bool CheckForUpdatesOnStartup { get; set; } = true;
 
     // ── Under Fire Indicator ────────────────────────────────────────
     public bool EnableUnderFireIndicator { get; set; } = true;

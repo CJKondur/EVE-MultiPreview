@@ -1723,7 +1723,15 @@ public partial class SettingsWindow
     private void OnAboutLoaded(object s, RoutedEventArgs e)
     {
         TxtAppVersion.Text = $"EVE MultiPreview v{CURRENT_VERSION}";
+        ChkCheckUpdatesOnStartup.IsChecked = _svc.Settings.CheckForUpdatesOnStartup;
         ChkPreReleaseUpdates.IsChecked = _svc.Settings.ReceivePreReleaseUpdates;
+    }
+
+    private void OnCheckUpdatesOnStartupChanged(object s, RoutedEventArgs e)
+    {
+        if (_loading) return;
+        _svc.Settings.CheckForUpdatesOnStartup = ChkCheckUpdatesOnStartup.IsChecked == true;
+        SaveDelayed();
     }
 
     private void OnPreReleaseChanged(object s, RoutedEventArgs e)

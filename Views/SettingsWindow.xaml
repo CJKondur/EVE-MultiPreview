@@ -1488,6 +1488,8 @@
                                 Background="#e0e0e0" Foreground="#1a1a2e"
                                 BorderBrush="#cccccc"/>
                     </StackPanel>
+                    <CheckBox x:Name="ChkCheckUpdatesOnStartup" Content="Check for updates when the program starts" Margin="0,8,0,0"
+                              Checked="OnCheckUpdatesOnStartupChanged" Unchecked="OnCheckUpdatesOnStartupChanged" Foreground="{StaticResource TextPrimaryBrush}"/>
                     <CheckBox x:Name="ChkPreReleaseUpdates" Content="Receive Pre-Release Updates" Margin="0,8,0,0"
                               Checked="OnPreReleaseChanged" Unchecked="OnPreReleaseChanged" Foreground="{StaticResource TextPrimaryBrush}"/>
                     <TextBlock x:Name="TxtVersionResult" Margin="0,8,0,0" TextWrapping="Wrap"
