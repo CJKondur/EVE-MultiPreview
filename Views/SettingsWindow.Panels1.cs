@@ -272,6 +272,7 @@ public partial class SettingsWindow
     private void SaveThumbnails()
     {
         S.ShowThumbnailsAlwaysOnTop = ChkAlwaysOnTop.IsChecked == true;
+        S.KeepThumbnailsAboveClients = ChkAboveClients.IsChecked == true;
         S.HideThumbnailsOnLostFocus = ChkHideOnLostFocus.IsChecked == true;
         S.OpacityOnHover = ChkOpacityOnHover.IsChecked == true;
         if (CmbExclusionBadgePos?.SelectedItem is System.Windows.Controls.ComboBoxItem cbiPos

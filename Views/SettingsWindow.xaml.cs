@@ -56,6 +56,11 @@ public partial class SettingsWindow : Window
         _thumbnailManager = thumbnailManager;
         _cropManager = cropManager;
 
+        // Recovery net (issue #81): opening Settings always restores crops, so an
+        // accidental Hide-Crops keypress can't leave them stuck hidden — the user's
+        // natural "go to settings to fix it" reflex now just works, no toggle needed.
+        _cropManager?.ShowCrops();
+
         // If something external (tray menu, profile-cycle hotkey, …) switches
         // the active profile while this window is open, the open UI is now bound
         // to the wrong profile — any edit the user makes would leak into the
@@ -285,6 +290,7 @@ public partial class SettingsWindow : Window
             SliderOpacity.Value = S.ThumbnailOpacity * 100 / 255;
             TxtOpacityValue.Text = $"{(int)SliderOpacity.Value}%";
             ChkAlwaysOnTop.IsChecked = S.ShowThumbnailsAlwaysOnTop;
+            ChkAboveClients.IsChecked = S.KeepThumbnailsAboveClients;
             ChkHideOnLostFocus.IsChecked = S.HideThumbnailsOnLostFocus;
             ChkOpacityOnHover.IsChecked = S.OpacityOnHover;
             // Cycle exclusion badge position — match by Tag string, default to TopLeft.
@@ -521,6 +527,18 @@ public partial class SettingsWindow : Window
     private const string CbThumbnailText = "#FFFFFF";          // white — universally readable
     private const string NormalNotLoggedIn = "#555555";
     private const string CbNotLoggedIn = "#888888";            // brighter gray — better contrast for low vision
+
+    private void OnResetThumbnailPositions(object sender, RoutedEventArgs e)
+    {
+        var result = MessageBox.Show(
+            "Reset all thumbnails to their default positions and size?\n\nThis clears your custom layout for the current profile.",
+            "Reset Thumbnail Positions",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+        if (result != MessageBoxResult.Yes) return;
+
+        _thumbnailManager?.ResetThumbnailPositions();
+    }
 
     private void OnToggleColorBlind(object sender, RoutedEventArgs e)
     {

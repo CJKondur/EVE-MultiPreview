@@ -204,6 +204,14 @@ public sealed class SettingsService : IDisposable
         return CurrentProfile.ThumbnailPositions.GetValueOrDefault(characterName);
     }
 
+    /// <summary>Drop all saved per-character thumbnail positions for the current
+    /// profile so the next layout falls back to the default flow-layout. Caller
+    /// re-lays out the live thumbnails and persists.</summary>
+    public void ClearThumbnailPositions()
+    {
+        CurrentProfile.ThumbnailPositions.Clear();
+    }
+
     // ── Profile Management ──────────────────────────────────────────
 
     /// <summary>Raised AFTER LastUsedProfile actually changes (and the new state

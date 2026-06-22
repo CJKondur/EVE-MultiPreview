@@ -272,6 +272,7 @@ public class AppSettings
     [JsonIgnore] public bool ShowAllColoredBorders { get => _cp.ShowAllColoredBorders; set => _cp.ShowAllColoredBorders = value; }
     [JsonIgnore] public bool HideThumbnailsOnLostFocus { get => _cp.HideThumbnailsOnLostFocus; set => _cp.HideThumbnailsOnLostFocus = value; }
     [JsonIgnore] public bool ShowThumbnailsAlwaysOnTop { get => _cp.ShowThumbnailsAlwaysOnTop; set => _cp.ShowThumbnailsAlwaysOnTop = value; }
+    [JsonIgnore] public bool KeepThumbnailsAboveClients { get => _cp.KeepThumbnailsAboveClients; set => _cp.KeepThumbnailsAboveClients = value; }
     [JsonIgnore] public int ThumbnailOpacity { get => _cp.ThumbnailOpacity; set => _cp.ThumbnailOpacity = value; }
     [JsonIgnore] public bool OpacityOnHover { get => _cp.OpacityOnHover; set => _cp.OpacityOnHover = value; }
     [JsonIgnore] public int ClientHighlightBorderThickness { get => _cp.ClientHighlightBorderThickness; set => _cp.ClientHighlightBorderThickness = value; }
@@ -488,6 +489,7 @@ public class Profile
     public bool ShowAllColoredBorders { get; set; } = false;
     public bool HideThumbnailsOnLostFocus { get; set; } = false;
     public bool ShowThumbnailsAlwaysOnTop { get; set; } = true;
+    public bool KeepThumbnailsAboveClients { get; set; } = false;
     public int ThumbnailOpacity { get; set; } = 80;
     public bool OpacityOnHover { get; set; } = false;
     public int ClientHighlightBorderThickness { get; set; } = 4;

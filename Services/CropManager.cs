@@ -155,6 +155,22 @@ public sealed class CropManager : IDisposable
         });
     }
 
+    /// <summary>Recovery net (issue #81): force crops back to visible, clearing any
+    /// hidden state. The dedicated Hide/Show Crops keybind is a silent sticky toggle,
+    /// so a single stray press (e.g. a hotkey collision during heavy client cycling)
+    /// could leave crops stuck hidden with no automatic way back. Called from safe
+    /// anchors — opening Settings and switching profile — so the user always has a
+    /// reliable, no-guesswork way to get them back without the disable/enable dance.</summary>
+    public void ShowCrops()
+    {
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            if (!_cropsHidden) return;
+            _cropsHidden = false;
+            ApplyHiddenToAll();
+        });
+    }
+
     private void ApplyHiddenToAll()
     {
         foreach (var perChar in _windows.Values)

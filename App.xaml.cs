@@ -799,6 +799,7 @@ public partial class App : Application
 
         // Apply the new profile's settings to all running thumbnails
         _thumbnailManager?.ReapplySettings();
+        _cropManager?.ShowCrops();   // recovery net (issue #81): never carry a stuck crops-hidden state across a profile switch
         _cropManager?.Refresh();
 
         // Re-register hotkeys for new profile (AHK does Reload() which re-runs __New)

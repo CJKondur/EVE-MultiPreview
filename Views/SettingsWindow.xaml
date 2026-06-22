@@ -205,6 +205,10 @@
                             Background="#e0e0e0" Foreground="#1a1a2e"
                             BorderBrush="#cccccc" ToolTip="Create a timestamped backup of your config file"
                             Margin="0,0,4,0"/>
+                    <Button Content="↺ Reset Positions" Padding="10,3" Click="OnResetThumbnailPositions"
+                            Background="#e0e0e0" Foreground="#1a1a2e"
+                            BorderBrush="#cccccc" ToolTip="Move all thumbnails back to their default positions and size (current profile)"
+                            Margin="0,0,4,0"/>
                     <Button x:Name="BtnColorBlind" Content="👁 CB Mode" Padding="10,3" Click="OnToggleColorBlind"
                             Background="#e0e0e0" Foreground="#1a1a2e"
                             BorderBrush="#cccccc" ToolTip="Toggle color blind friendly palette"/>
@@ -399,6 +403,7 @@
                                            Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"/>
                             </StackPanel>
                             <CheckBox x:Name="ChkAlwaysOnTop" Content="Always On Top" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <CheckBox x:Name="ChkAboveClients" Content="Keep Above EVE Clients" ToolTip="Keeps thumbnails above your EVE clients while EVE is focused, but lets other apps (browser, Discord) cover them. Ignored when Always On Top is enabled." Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkHideOnLostFocus" Content="Hide When Alt-Tabbed" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkHideActive" Content="Hide Active Thumbnail" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkShowSystem" Content="Show System Name (from EVE logs)" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>

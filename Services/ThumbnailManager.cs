@@ -303,6 +303,52 @@ public sealed class ThumbnailManager : IDisposable
         }
     }
 
+    /// <summary>
+    /// Reset every primary thumbnail to its default flow-layout slot — the same
+    /// placement a fresh launch produces. Clears the current profile's saved
+    /// per-character positions (so the reset survives a relaunch), then re-sizes
+    /// and re-lays out the live thumbnails from ThumbnailStartLocation on the
+    /// preferred monitor. Primary thumbnails only — PiPs / stat overlays keep
+    /// their own positions. (User-requested "Reset Positions" button.)
+    /// </summary>
+    public void ResetThumbnailPositions()
+    {
+        Application.Current?.Dispatcher.Invoke(() =>
+        {
+            var s = _settings.Settings;
+
+            // Drop persisted positions first so they can't override the fresh layout.
+            _settings.ClearThumbnailPositions();
+
+            int width = (int)s.ThumbnailStartLocation.Width;
+            int height = (int)s.ThumbnailStartLocation.Height;
+            var workArea = GetTargetMonitorWorkArea(s.PreferredMonitor);
+            int startX = workArea.Left + (int)s.ThumbnailStartLocation.X;
+            int startY = workArea.Top + (int)s.ThumbnailStartLocation.Y;
+            const int gap = 8;
+            int availableHeight = workArea.Bottom - startY;
+            int maxPerCol = Math.Max(1, availableHeight / (height + gap));
+
+            // Same flow-layout as CreateThumbnailForWindow: stack vertically, wrap
+            // to a new column at the screen edge.
+            int index = 0;
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                int col = index / maxPerCol;
+                int row = index % maxPerCol;
+                int x = startX + col * (width + gap);
+                int y = startY + row * (height + gap);
+                (x, y) = EnsureOnScreen(x, y, width, height);
+                thumb.Resize(width, height);
+                thumb.MoveTo(x, y);
+                index++;
+            }
+
+            _settings.Save();
+            PerfLog($"[Reset] Thumbnail positions reset to default ({index} thumbnails)");
+        });
+    }
+
     private void CreateThumbnailForWindow(EveWindow window)
     {
         // Guard: skip if we already track this HWND
@@ -1296,7 +1342,15 @@ public sealed class ThumbnailManager : IDisposable
         // drop back behind it. Now (OFF) thumbnails live in the normal z-band: the
         // per-focus BringToFront + client-switch re-raise still lift them above the
         // EVE client, but any window you focus stays above them. (ON = always topmost.)
-        bool desiredTopmost = s.ShowThumbnailsAlwaysOnTop;
+        // KeepThumbnailsAboveClients (opt-in) makes thumbnails topmost ONLY while an
+        // EVE client (or this app) is foreground, then drops them the instant you
+        // focus a non-EVE app — so they're reliably above the clients while you play
+        // (no activation-race "lost behind") but never sit over Discord/your browser
+        // once you tab there. Topmost is deliberate: a non-topmost re-raise loses the
+        // race when an EVE client re-activates and gets stuck behind it (confirmed by
+        // LittlePhish). Always-On-Top keeps them topmost permanently (over everything).
+        bool desiredTopmost = s.ShowThumbnailsAlwaysOnTop
+                              || (s.KeepThumbnailsAboveClients && eveFocused);
         // On a CHANGE of the desired state, re-assert UNCONDITIONALLY on every window
         // (don't trust the cached _isTopmost guard): a freshly-launched thumbnail —
         // or its separate text-overlay window — can end up OS-topmost while the cache
@@ -1408,7 +1462,16 @@ public sealed class ThumbnailManager : IDisposable
         // touches z-order — it never updates _lastActiveEveHwnd, so the fast-cycle
         // tracker and its shield below are unaffected.
         bool fgIsTrackedClient = _thumbnails.ContainsKey(fgHwnd);
-        if (eveFocused && fgIsTrackedClient && fgHwnd != _lastZOrderHwnd && !_suppressTopmost)
+        // KeepThumbnailsAboveClients (opt-in) re-raises on EVERY sweep a client is
+        // foreground — not just when the foreground client CHANGES — so a thumbnail
+        // that got covered after the last switch (including returning to the SAME
+        // client, which the change-gate skips) is lifted back above the EVE clients
+        // within a sweep (~250ms). This reinforces the topmost flip above (BringToFront
+        // re-asserts HWND_TOPMOST) so a re-activated client can't leave it behind.
+        // Default OFF keeps the original change-gated single re-raise for everyone else.
+        bool clientFocusChanged = fgHwnd != _lastZOrderHwnd;
+        if (eveFocused && fgIsTrackedClient && !_suppressTopmost
+            && (clientFocusChanged || s.KeepThumbnailsAboveClients))
         {
             _lastZOrderHwnd = fgHwnd;
             foreach (var (_, thumb) in _thumbnails)
