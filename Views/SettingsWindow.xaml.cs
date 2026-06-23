@@ -1931,13 +1931,7 @@ public partial class SettingsWindow : Window
             ChkCropEnabled.IsChecked = S.CropEnabled;
 
             // Merge live characters + any character already referenced in saved crops
-            var live = _thumbnailManager?.GetActiveCharacterNames() ?? Enumerable.Empty<string>();
-            var saved = S.Crops.Keys;
-            var all = live.Concat(saved)
-                          .Where(n => !string.IsNullOrWhiteSpace(n))
-                          .Distinct(StringComparer.OrdinalIgnoreCase)
-                          .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
-                          .ToList();
+            var all = GetAllCropCharacterNames();
 
             CmbCropCharacter.ItemsSource = all;
             if (_selectedCropCharacter != null && all.Contains(_selectedCropCharacter, StringComparer.OrdinalIgnoreCase))
@@ -2063,6 +2057,20 @@ public partial class SettingsWindow : Window
         };
         btnPick.Click += (_, _) => PickCropArea(characterName, def);
         header.Children.Add(btnPick);
+
+        var btnCopy = new Button
+        {
+            Content = "📋 Copy to…",
+            Margin = new Thickness(12, 0, 0, 0),
+            Padding = new Thickness(8, 2, 8, 2),
+            Background = (Brush)FindResource("BgPanelBrush"),
+            Foreground = (Brush)FindResource("TextPrimaryBrush"),
+            BorderBrush = (Brush)FindResource("BorderBrush"),
+            BorderThickness = new Thickness(1),
+            ToolTip = "Copy this crop (region + size + opacity + click-through) to another character — or all of them. The popup lands at the same spot; drag it where you want it."
+        };
+        btnCopy.Click += (_, _) => ShowCopyCropMenu(btnCopy, characterName, def);
+        header.Children.Add(btnCopy);
 
         var btnDel = new Button
         {
@@ -2194,6 +2202,83 @@ public partial class SettingsWindow : Window
         _svc.Save();
         _cropManager?.ApplyDefinitionEdits(characterName, def.Id);
     }
+
+    /// <summary>Live characters + any character already referenced in saved crops,
+    /// de-duped and sorted. Shared by the crop character picker and the per-crop
+    /// "Copy to…" menu (issue #82).</summary>
+    private List<string> GetAllCropCharacterNames()
+    {
+        var live = _thumbnailManager?.GetActiveCharacterNames() ?? Enumerable.Empty<string>();
+        return live.Concat(S.Crops.Keys)
+                   .Where(n => !string.IsNullOrWhiteSpace(n))
+                   .Distinct(StringComparer.OrdinalIgnoreCase)
+                   .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                   .ToList();
+    }
+
+    /// <summary>Pop the per-crop "Copy to…" menu: "All other characters" plus each
+    /// individual target (issue #82 — copying crops across characters by hand was
+    /// tedious).</summary>
+    private void ShowCopyCropMenu(System.Windows.Controls.Button anchor, string sourceCharacter, CropDefinition def)
+    {
+        var targets = GetAllCropCharacterNames()
+            .Where(n => !string.Equals(n, sourceCharacter, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        var menu = new System.Windows.Controls.ContextMenu { PlacementTarget = anchor };
+        if (targets.Count == 0)
+        {
+            menu.Items.Add(new System.Windows.Controls.MenuItem { Header = "(no other characters)", IsEnabled = false });
+        }
+        else
+        {
+            var allItem = new System.Windows.Controls.MenuItem { Header = $"📋 All other characters ({targets.Count})" };
+            allItem.Click += (_, _) => CopyCropToTargets(def, targets);
+            menu.Items.Add(allItem);
+            menu.Items.Add(new System.Windows.Controls.Separator());
+            foreach (var t in targets)
+            {
+                var target = t; // capture per iteration
+                var item = new System.Windows.Controls.MenuItem { Header = target };
+                item.Click += (_, _) => CopyCropToTargets(def, new List<string> { target });
+                menu.Items.Add(item);
+            }
+        }
+        menu.IsOpen = true;
+    }
+
+    private void CopyCropToTargets(CropDefinition source, IReadOnlyCollection<string> targets)
+    {
+        foreach (var target in targets)
+        {
+            if (!S.Crops.TryGetValue(target, out var list))
+            {
+                list = new List<CropDefinition>();
+                S.Crops[target] = list;
+            }
+            list.Add(CloneCrop(source));
+        }
+
+        _svc.Save();
+        _cropManager?.Refresh();   // live target characters get the new crop immediately
+        RebuildCropList();         // reflect it if the user is viewing a target character
+
+        _thumbnailManager?.ShowTooltipFeedback(targets.Count == 1
+            ? $"Copied crop '{source.Name}' → {targets.First()}"
+            : $"Copied crop '{source.Name}' → {targets.Count} characters");
+    }
+
+    /// <summary>Deep-copy a crop definition with a fresh unique id. Popup position is
+    /// copied verbatim (issue #82 design choice) — the source region is the tedious
+    /// part to replicate; the user drags the popup where they want it per character.</summary>
+    private static CropDefinition CloneCrop(CropDefinition s) => new CropDefinition
+    {
+        // Id intentionally left to its fresh generated default so it's a distinct crop.
+        Name = s.Name,
+        SourceX = s.SourceX, SourceY = s.SourceY, SourceWidth = s.SourceWidth, SourceHeight = s.SourceHeight,
+        PopupX = s.PopupX, PopupY = s.PopupY, PopupWidth = s.PopupWidth, PopupHeight = s.PopupHeight,
+        ShowLabel = s.ShowLabel, Opacity = s.Opacity, ClickThrough = s.ClickThrough,
+    };
 
     private void PickCropArea(string characterName, CropDefinition def)
     {
