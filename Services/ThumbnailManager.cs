@@ -565,20 +565,24 @@ public sealed class ThumbnailManager : IDisposable
                     window.Title == "EVE";
                 thumbWindow.SetNotLoggedIn(isCharSelect, _settings.Settings.NotLoggedInIndicator);
 
-                // Issue 5: Re-apply system name after character login. Gated
-                // on ShowSystemName — without this, a character switch on an
-                // already-running client would silently re-enable the system
-                // overlay even with the setting off (issue #42, bug #1).
-                if (!string.IsNullOrEmpty(window.CharacterName)
-                    && _settings.Settings.ShowSystemName
+                // Resolve the system label to a DEFINITE state on every title
+                // change so a character switch can't leave the PREVIOUS character's
+                // system showing (issue #83 — logout/login another char in a
+                // different system kept the old system name). Cases:
+                //   • feature off  → clear (also stops a switch silently re-enabling
+                //     the overlay when off — issue #42, bug #1)
+                //   • feature on, new char's system already known → show it
+                //   • feature on, new char's system NOT known yet (just logged in /
+                //     at char-select) → clear; UpdateCharacterSystem repaints it once
+                //     the game log reports the new character's location.
+                if (_settings.Settings.ShowSystemName
+                    && !string.IsNullOrEmpty(window.CharacterName)
                     && _charSystems.TryGetValue(window.CharacterName, out var sys))
                 {
                     thumbWindow.UpdateSystemName(sys);
                 }
-                else if (!_settings.Settings.ShowSystemName)
+                else
                 {
-                    // Setting is off — make sure any previously-shown system
-                    // name is cleared if the user toggled it off mid-session.
                     thumbWindow.UpdateSystemName(null);
                 }
 
