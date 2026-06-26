@@ -34,6 +34,8 @@ public class AhkConfigRoot
         s.ThumbnailMinimumSize = g.ThumbnailMinimumSize ?? new ThumbnailSize { Width = 100, Height = 60 };
         s.ThumbnailSnap = g.ThumbnailSnap != 0;
         s.ThumbnailSnapDistance = g.ThumbnailSnapDistance;
+        s.ThumbnailGutter = g.ThumbnailGutter;
+        s.ConfineDragsToMonitor = g.ConfineDragsToMonitor != 0;
         s.ThumbnailBackgroundColor = g.ThumbnailBackgroundColor ?? "0x57504e";
         s.ColorBlindMode = g.ColorBlindMode != 0;
         s.GlobalHotkeys = g.GlobalHotkeys != 0;
@@ -48,6 +50,8 @@ public class AhkConfigRoot
         s.LockPositionsHotkey = g.LockPositionsHotkey ?? "";
         s.GlobalCycleForwardHotkey = g.GlobalCycleForwardHotkey ?? "";
         s.GlobalCycleBackwardHotkey = g.GlobalCycleBackwardHotkey ?? "";
+        s.UndoLayoutHotkey = g.UndoLayoutHotkey ?? "";
+        s.RedoLayoutHotkey = g.RedoLayoutHotkey ?? "";
         s.HideStatsOnLostFocus = g.HideStatsOnLostFocus != 0;
         s.IncludeLoginScreensInCycle = g.IncludeLoginScreensInCycle != 0;
         s.ShowSessionTimer = g.ShowSessionTimer != 0;
@@ -184,6 +188,10 @@ public class AhkConfigRoot
         s.SettingsUiFontSize = g.SettingsUiFontSize;
         s.ReceivePreReleaseUpdates = g.ReceivePreReleaseUpdates != 0;
         s.CheckForUpdatesOnStartup = g.CheckForUpdatesOnStartup != 0;
+        s.ShowBroadcastKeyHud = g.ShowBroadcastKeyHud != 0;
+        s.BroadcastHudX = g.BroadcastHudX;
+        s.BroadcastHudY = g.BroadcastHudY;
+        s.AutoSoloClientAudio = g.AutoSoloClientAudio != 0;
 
         // Eve Manager
         s.EveManagerUseESI = g.EveManagerUseESI != 0;
@@ -267,6 +275,7 @@ public class AhkConfigRoot
             // Crops (per-profile)
             profile.CropEnabled = ahkProfile.CropEnabled != 0;
             profile.Crops = ahkProfile.Crops ?? new();
+            profile.PerClientAudioVolume = ahkProfile.PerClientAudioVolume ?? new();
 
             s.Profiles[name] = profile;
         }
@@ -286,6 +295,8 @@ public class AhkConfigRoot
         g.ThumbnailMinimumSize = s.ThumbnailMinimumSize;
         g.ThumbnailSnap = s.ThumbnailSnap ? 1 : 0;
         g.ThumbnailSnapDistance = s.ThumbnailSnapDistance;
+        g.ThumbnailGutter = s.ThumbnailGutter;
+        g.ConfineDragsToMonitor = s.ConfineDragsToMonitor ? 1 : 0;
         g.ThumbnailBackgroundColor = s.ThumbnailBackgroundColor;
         g.ColorBlindMode = s.ColorBlindMode ? 1 : 0;
         g.GlobalHotkeys = s.GlobalHotkeys ? 1 : 0;
@@ -300,6 +311,8 @@ public class AhkConfigRoot
         g.LockPositionsHotkey = s.LockPositionsHotkey;
         g.GlobalCycleForwardHotkey = s.GlobalCycleForwardHotkey;
         g.GlobalCycleBackwardHotkey = s.GlobalCycleBackwardHotkey;
+        g.UndoLayoutHotkey = s.UndoLayoutHotkey;
+        g.RedoLayoutHotkey = s.RedoLayoutHotkey;
         g.HideStatsOnLostFocus = s.HideStatsOnLostFocus ? 1 : 0;
         g.IncludeLoginScreensInCycle = s.IncludeLoginScreensInCycle ? 1 : 0;
         g.ShowSessionTimer = s.ShowSessionTimer ? 1 : 0;
@@ -413,6 +426,10 @@ public class AhkConfigRoot
         g.SettingsUiFontSize = s.SettingsUiFontSize;
         g.ReceivePreReleaseUpdates = s.ReceivePreReleaseUpdates ? 1 : 0;
         g.CheckForUpdatesOnStartup = s.CheckForUpdatesOnStartup ? 1 : 0;
+        g.ShowBroadcastKeyHud = s.ShowBroadcastKeyHud ? 1 : 0;
+        g.BroadcastHudX = s.BroadcastHudX;
+        g.BroadcastHudY = s.BroadcastHudY;
+        g.AutoSoloClientAudio = s.AutoSoloClientAudio ? 1 : 0;
 
         // Eve Manager
         g.EveManagerUseESI = s.EveManagerUseESI ? 1 : 0;
@@ -492,6 +509,7 @@ public class AhkConfigRoot
             // Crops (per-profile)
             ap.CropEnabled = profile.CropEnabled ? 1 : 0;
             ap.Crops = profile.Crops;
+            ap.PerClientAudioVolume = profile.PerClientAudioVolume;
 
             root.Profiles[name] = ap;
         }
@@ -674,6 +692,9 @@ public class AhkProfile
 
     [JsonPropertyName("Crops")]
     public Dictionary<string, List<CropDefinition>>? Crops { get; set; }
+
+    [JsonPropertyName("PerClientAudioVolume")]
+    public Dictionary<string, int>? PerClientAudioVolume { get; set; }
 }
 
 // ── AHK Thumbnail Settings (per-profile sub-object) ────────────────
@@ -808,6 +829,12 @@ public class AhkGlobalSettings
     [JsonPropertyName("ThumbnailSnap_Distance")]
     public int ThumbnailSnapDistance { get; set; } = 20;
 
+    [JsonPropertyName("ThumbnailGutter")]
+    public int ThumbnailGutter { get; set; } = 8;
+
+    [JsonPropertyName("ConfineDragsToMonitor")]
+    public int ConfineDragsToMonitor { get; set; }
+
     [JsonPropertyName("ThumbnailBackgroundColor")]
     public string? ThumbnailBackgroundColor { get; set; } = "#57504E";
 
@@ -849,6 +876,12 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("GlobalCycleBackwardHotkey")]
     public string? GlobalCycleBackwardHotkey { get; set; } = "";
+
+    [JsonPropertyName("UndoLayoutHotkey")]
+    public string? UndoLayoutHotkey { get; set; } = "";
+
+    [JsonPropertyName("RedoLayoutHotkey")]
+    public string? RedoLayoutHotkey { get; set; } = "";
 
     [JsonPropertyName("HideStatsOnLostFocus")]
     public int HideStatsOnLostFocus { get; set; } = 0;
@@ -1094,6 +1127,18 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("CheckForUpdatesOnStartup")]
     public int CheckForUpdatesOnStartup { get; set; } = 1;
+
+    [JsonPropertyName("ShowBroadcastKeyHud")]
+    public int ShowBroadcastKeyHud { get; set; }
+
+    [JsonPropertyName("BroadcastHudX")]
+    public int BroadcastHudX { get; set; }
+
+    [JsonPropertyName("BroadcastHudY")]
+    public int BroadcastHudY { get; set; }
+
+    [JsonPropertyName("AutoSoloClientAudio")]
+    public int AutoSoloClientAudio { get; set; }
 
     [JsonPropertyName("EveManagerUseESI")]
     public int EveManagerUseESI { get; set; } = 1;

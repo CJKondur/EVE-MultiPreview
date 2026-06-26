@@ -226,7 +226,11 @@ public partial class SettingsWindow
         S.ProfileCycleForwardHotkey = TxtProfileCycleForward.Text;
         S.ProfileCycleBackwardHotkey = TxtProfileCycleBackward.Text;
         S.QuickSwitchHotkey = TxtQuickSwitchHotkey.Text;
+        S.UndoLayoutHotkey = TxtUndoLayoutHotkey.Text;
+        S.RedoLayoutHotkey = TxtRedoLayoutHotkey.Text;
         S.LockPositions = ChkLockPositions.IsChecked == true;
+        S.ShowBroadcastKeyHud = ChkBroadcastHud.IsChecked == true;
+        S.AutoSoloClientAudio = ChkAutoSoloAudio.IsChecked == true;
         S.IndividualThumbnailResize = ChkIndividualResize.IsChecked == true;
         S.ShowSessionTimer = ChkShowTimer.IsChecked == true;
         if (int.TryParse(TxtMinimizeDelay.Text, out int md)) S.MinimizeDelay = md;
@@ -448,6 +452,8 @@ public partial class SettingsWindow
         if (int.TryParse(TxtMinHeight.Text, out int mh)) S.ThumbnailMinimumSize.Height = mh;
         S.ThumbnailSnap = ChkSnap.IsChecked == true;
         if (int.TryParse(TxtSnapDistance.Text, out int sd)) S.ThumbnailSnapDistance = sd;
+        if (int.TryParse(TxtGutter.Text, out int gut)) S.ThumbnailGutter = Math.Max(0, gut);
+        S.ConfineDragsToMonitor = ChkConfineMonitor.IsChecked == true;
         S.ResizeThumbnailsOnHover = ChkHoverZoom.IsChecked == true;
         if (double.TryParse(TxtHoverScale.Text, out double hs)) S.HoverScale = hs;
         if (CmbPreferredMonitor.SelectedIndex >= 0)

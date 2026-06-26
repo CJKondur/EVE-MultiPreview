@@ -435,6 +435,154 @@ public partial class SettingsWindow
         }
     }
 
+    private void OnRefreshClientVolumes(object sender, RoutedEventArgs e) => BuildClientVolumeRows();
+
+    private void BuildClientVolumeRows()
+    {
+        ClientVolumeRows.Children.Clear();
+
+        var names = _thumbnailManager?.GetActiveCharacterNames();
+        var chars = new System.Collections.Generic.List<string>();
+        if (names != null)
+            foreach (var n in names)
+                if (!string.IsNullOrWhiteSpace(n)) chars.Add(n);
+        chars.Sort(StringComparer.OrdinalIgnoreCase);
+
+        if (chars.Count == 0)
+        {
+            ClientVolumeRows.Children.Add(new TextBlock
+            {
+                Text = "No running clients.",
+                Foreground = (Brush)FindResource("TextSecondaryBrush"),
+                FontStyle = FontStyles.Italic
+            });
+            return;
+        }
+
+        foreach (var name in chars)
+        {
+            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 2) };
+            row.Children.Add(new TextBlock { Text = name, Width = 160, VerticalAlignment = VerticalAlignment.Center });
+
+            int vol = _thumbnailManager!.GetClientVolume(name);
+            var slider = new System.Windows.Controls.Slider
+            {
+                Minimum = 0, Maximum = 100, Width = 180, Value = vol,
+                IsSnapToTickEnabled = true, TickFrequency = 5, VerticalAlignment = VerticalAlignment.Center
+            };
+            var lbl = new TextBlock { Text = $"{vol}%", Width = 42, Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+            string cap = name;
+            slider.ValueChanged += (_, _) =>
+            {
+                int v = (int)slider.Value;
+                lbl.Text = $"{v}%";
+                if (_loading) return;
+                _thumbnailManager?.SetClientVolume(cap, v);
+            };
+            row.Children.Add(slider);
+            row.Children.Add(lbl);
+            ClientVolumeRows.Children.Add(row);
+        }
+    }
+
+    // ═══ HOTKEY CONFLICT AUDIT ═══
+
+    private void OnRefreshHotkeyAudit(object sender, RoutedEventArgs e) => BuildHotkeyAudit();
+
+    private void BuildHotkeyAudit()
+    {
+        HotkeyAuditRows.Children.Clear();
+        var bindings = CollectBindings();
+
+        if (bindings.Count == 0)
+        {
+            HotkeyAuditRows.Children.Add(new TextBlock
+            {
+                Text = "No hotkeys bound.",
+                Foreground = (Brush)FindResource("TextSecondaryBrush"),
+                FontStyle = FontStyles.Italic
+            });
+            return;
+        }
+
+        // Count normalized keys → anything used more than once is a conflict.
+        var counts = new System.Collections.Generic.Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        foreach (var b in bindings)
+        {
+            var k = NormalizeHotkey(b.key);
+            if (k.Length == 0) continue;
+            counts[k] = counts.TryGetValue(k, out var c) ? c + 1 : 1;
+        }
+
+        int conflicts = 0;
+        foreach (var b in bindings)
+        {
+            var k = NormalizeHotkey(b.key);
+            bool conflict = k.Length > 0 && counts.TryGetValue(k, out var c) && c > 1;
+            if (conflict) conflicts++;
+
+            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1) };
+            row.Children.Add(new TextBlock
+            {
+                Text = b.action, Width = 240,
+                Foreground = conflict ? Brushes.IndianRed : (Brush)FindResource("TextPrimaryBrush")
+            });
+            row.Children.Add(new TextBlock
+            {
+                Text = string.IsNullOrWhiteSpace(b.key) ? "(unbound)" : b.key, Width = 140,
+                Foreground = conflict ? Brushes.IndianRed : (Brush)FindResource("TextSecondaryBrush")
+            });
+            if (conflict)
+                row.Children.Add(new TextBlock { Text = "⚠ conflict", Foreground = Brushes.IndianRed, FontWeight = FontWeights.SemiBold });
+            HotkeyAuditRows.Children.Add(row);
+        }
+
+        HotkeyAuditRows.Children.Insert(0, new TextBlock
+        {
+            Text = conflicts == 0 ? "✅ No conflicts." : $"⚠ {conflicts} binding(s) share a key with another.",
+            Foreground = conflicts == 0 ? Brushes.MediumSeaGreen : Brushes.IndianRed,
+            FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 6)
+        });
+    }
+
+    private static string NormalizeHotkey(string key)
+        => (key ?? "").Trim().Replace(" ", "").ToLowerInvariant();
+
+    private System.Collections.Generic.List<(string action, string key)> CollectBindings()
+    {
+        var list = new System.Collections.Generic.List<(string action, string key)>();
+        void Add(string action, string key) { if (!string.IsNullOrWhiteSpace(key)) list.Add((action, key)); }
+
+        // Global hotkeys
+        Add("Suspend", S.SuspendHotkey);
+        Add("Click-through toggle", S.ClickThroughHotkey);
+        Add("Hide/Show thumbnails", S.HideShowThumbnailsHotkey);
+        Add("Hide/Show primary", S.HidePrimaryHotkey);
+        Add("Hide/Show secondary", S.HideSecondaryHotkey);
+        Add("Hide/Show crops", S.HideShowCropsHotkey);
+        Add("Profile cycle forward", S.ProfileCycleForwardHotkey);
+        Add("Profile cycle backward", S.ProfileCycleBackwardHotkey);
+        Add("Quick-switch wheel", S.QuickSwitchHotkey);
+        Add("Lock positions", S.LockPositionsHotkey);
+        Add("Global cycle forward", S.GlobalCycleForwardHotkey);
+        Add("Global cycle backward", S.GlobalCycleBackwardHotkey);
+        Add("Layout undo", S.UndoLayoutHotkey);
+        Add("Layout redo", S.RedoLayoutHotkey);
+
+        // Per-character switch hotkeys
+        foreach (var (chr, hk) in _svc.CurrentProfile.Hotkeys)
+            Add($"Switch → {chr}", (hk.Modifiers ?? "") + (hk.Key ?? ""));
+
+        // Group cycle hotkeys
+        foreach (var (grp, g) in _svc.CurrentProfile.HotkeyGroups)
+        {
+            Add($"Group '{grp}' forward", g.ForwardsHotkey);
+            Add($"Group '{grp}' backward", g.BackwardsHotkey);
+        }
+
+        return list;
+    }
+
     // ═══ VISIBILITY ═══
     // Issue #21: union currently-tracked characters with the saved visibility
     // dict so users who have never hidden anyone still see a populated list. The

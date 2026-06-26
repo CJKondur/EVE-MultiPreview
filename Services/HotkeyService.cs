@@ -512,6 +512,18 @@ public sealed class HotkeyService : IDisposable
             thumbnailManager.ToggleCropsVisibility();
         });
 
+        // Optional global layout undo/redo (unbound by default; pick non-EVE keys).
+        StoreAhkHotkey(settings.UndoLayoutHotkey, () =>
+        {
+            if (_suspended) return;
+            thumbnailManager.UndoLayout();
+        });
+        StoreAhkHotkey(settings.RedoLayoutHotkey, () =>
+        {
+            if (_suspended) return;
+            thumbnailManager.RedoLayout();
+        });
+
         // Lock thumbnail positions toggle (issue #10)
         StoreAhkHotkey(settings.LockPositionsHotkey, () =>
         {

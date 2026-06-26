@@ -17,6 +17,12 @@ public class AppSettings
     public ThumbnailSize ThumbnailMinimumSize { get; set; } = new() { Width = 50, Height = 50 };
     public bool ThumbnailSnap { get; set; } = true;
     public int ThumbnailSnapDistance { get; set; } = 20;
+    // Edge-snap gutter: uniform gap (px) used when snapping a thumbnail adjacent to
+    // a neighbour, so walls build with even spacing instead of flush corners.
+    public int ThumbnailGutter { get; set; } = 8;
+    // When on, dragging a thumbnail keeps it on the monitor it started on (Ctrl is
+    // already taken by drag-all, so this is a setting rather than a modifier).
+    public bool ConfineDragsToMonitor { get; set; } = false;
     public bool IndividualThumbnailResize { get; set; } = false;
     public bool LockPositions { get; set; } = false;
     public int PreferredMonitor { get; set; } = 1;
@@ -53,6 +59,9 @@ public class AppSettings
     public string LockPositionsHotkey { get; set; } = "";
     public string GlobalCycleForwardHotkey { get; set; } = "";
     public string GlobalCycleBackwardHotkey { get; set; } = "";
+    // Optional global layout undo/redo hotkeys (empty = unbound; pick non-EVE keys).
+    public string UndoLayoutHotkey { get; set; } = "";
+    public string RedoLayoutHotkey { get; set; } = "";
     public bool HideStatsOnLostFocus { get; set; } = false;
     public bool IncludeLoginScreensInCycle { get; set; } = false;
     public bool ShowSessionTimer { get; set; } = false;
@@ -205,6 +214,16 @@ public class AppSettings
     public bool ReceivePreReleaseUpdates { get; set; } = false;
     public bool CheckForUpdatesOnStartup { get; set; } = true;
 
+    // ── Broadcast-key HUD (shows which held key is being propagated to clients) ──
+    public bool ShowBroadcastKeyHud { get; set; } = false;
+    public int BroadcastHudX { get; set; } = 0;
+    public int BroadcastHudY { get; set; } = 0;
+
+    // ── Per-process audio ───────────────────────────────────────────
+    // Auto-solo: when you switch to a client, mute all the other EVE clients and
+    // unmute the active one (Windows per-process audio, matched by PID).
+    public bool AutoSoloClientAudio { get; set; } = false;
+
     // ── Under Fire Indicator ────────────────────────────────────────
     public bool EnableUnderFireIndicator { get; set; } = true;
     public int UnderFireTimeoutSeconds { get; set; } = 5;
@@ -314,6 +333,7 @@ public class AppSettings
     // Per-profile crop proxies
     [JsonIgnore] public bool CropEnabled { get => _cp.CropEnabled; set => _cp.CropEnabled = value; }
     [JsonIgnore] public Dictionary<string, List<CropDefinition>> Crops { get => _cp.Crops; set => _cp.Crops = value; }
+    [JsonIgnore] public Dictionary<string, int> PerClientAudioVolume { get => _cp.PerClientAudioVolume; set => _cp.PerClientAudioVolume = value; }
 
     // Backwards-compat: SettingsWindowSize as an object (for code that uses SettingsWindowSize.Width/Height)
     [JsonIgnore] public WindowSize SettingsWindowSize => new() { Width = SettingsWindowWidth, Height = SettingsWindowHeight };
@@ -525,6 +545,9 @@ public class Profile
     // ── Per-profile Crops (multiple named crops per character) ──
     public bool CropEnabled { get; set; } = false;
     public Dictionary<string, List<CropDefinition>> Crops { get; set; } = new();
+    // Per-character audio volume (0-100; 100 = default/unchanged). Applied via Windows
+    // per-process audio and re-applied when a client is activated.
+    public Dictionary<string, int> PerClientAudioVolume { get; set; } = new();
 }
 
 /// <summary>

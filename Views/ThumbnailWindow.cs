@@ -95,10 +95,36 @@ public class ThumbnailWindow : Form
     /// open the label editor for this thumbnail (v2.0.6).</summary>
     public event Action<ThumbnailWindow>? LabelEditRequested;
 
+    /// <summary>Raised when the user picks an alert mute/snooze duration from the
+    /// right-click menu. minutes: &gt;0 snooze that many minutes, 0 unmute,
+    /// int.MaxValue mute until explicitly cleared.</summary>
+    public event Action<ThumbnailWindow, int>? AlertMuteRequested;
+
+    /// <summary>Raised from the Audio submenu. code: -1 = mute, 0..100 = set volume %.</summary>
+    public event Action<ThumbnailWindow, int>? AudioRequested;
+
+    /// <summary>When this character's alerts are muted: the moment the snooze ends,
+    /// DateTime.MaxValue for an indefinite mute, or null when not muted. Set by
+    /// ThumbnailManager; read by the context menu to show remaining time.</summary>
+    public DateTime? AlertMutedUntil { get; set; }
+
+    /// <summary>When true, a drag is clamped to the monitor it started on (Ctrl is
+    /// already taken by drag-all, so this is a setting, not a modifier). Set by
+    /// ThumbnailManager from ConfineDragsToMonitor.</summary>
+    public bool ConfineDragsToMonitor { get; set; }
+
+    /// <summary>Current per-client audio volume (0-100) for the right-click slider.
+    /// Set by ThumbnailManager from the saved per-client volume.</summary>
+    public int AudioVolume { get; set; } = 100;
+
     // Right-click context menu (v2.0.6). Lazily built on first use, reused for
     // subsequent right-clicks. Extend by adding more ToolStripItems in
     // BuildContextMenu below.
     private ContextMenuStrip? _contextMenu;
+    private ToolStripMenuItem? _muteMenu;
+    private ToolStripMenuItem? _audioMenu;
+    private TrackBar? _audioTrackBar;
+    private bool _suppressAudioSlider;
 
     private void BuildContextMenu()
     {
@@ -112,8 +138,57 @@ public class ThumbnailWindow : Form
         editLabel.Click += (_, _) => LabelEditRequested?.Invoke(this);
         _contextMenu.Items.Add(editLabel);
 
-        // Future menu items slot in here — e.g. "Copy Character Name",
-        // "Apply Group Color", "Exclude From Cycle", etc.
+        // Per-character alert mute / snooze — silence one alt's flash/badge/toast/
+        // sound without disabling alerts globally (e.g. a noisy or known-safe client).
+        _muteMenu = new ToolStripMenuItem("🔔 Mute Alerts");
+        void AddMute(string text, int minutes)
+        {
+            var item = new ToolStripMenuItem(text);
+            item.Click += (_, _) => AlertMuteRequested?.Invoke(this, minutes);
+            _muteMenu.DropDownItems.Add(item);
+        }
+        AddMute("For 10 minutes", 10);
+        AddMute("For 30 minutes", 30);
+        AddMute("For 1 hour", 60);
+        AddMute("Until I unmute", int.MaxValue);
+        _muteMenu.DropDownItems.Add(new ToolStripSeparator());
+        AddMute("Unmute", 0);
+        _contextMenu.Items.Add(_muteMenu);
+
+        // Per-client audio (Windows per-process volume/mute, matched by PID).
+        _audioMenu = new ToolStripMenuItem("🔊 Audio");
+
+        // A real volume slider hosted inside the dropdown via ToolStripControlHost.
+        _audioTrackBar = new TrackBar
+        {
+            Minimum = 0,
+            Maximum = 100,
+            TickFrequency = 10,
+            TickStyle = TickStyle.None,
+            AutoSize = false,
+            Width = 176,
+            Height = 30,
+        };
+        _audioTrackBar.ValueChanged += (_, _) =>
+        {
+            if (_suppressAudioSlider) return;
+            int v = _audioTrackBar.Value;
+            AudioVolume = v;
+            if (_audioMenu != null) _audioMenu.Text = $"🔊 Audio — {v}%";
+            AudioRequested?.Invoke(this, v);
+        };
+        _audioMenu.DropDownItems.Add(new ToolStripControlHost(_audioTrackBar) { AutoSize = false, Width = 182, Height = 34 });
+        _audioMenu.DropDownItems.Add(new ToolStripSeparator());
+
+        var muteItem = new ToolStripMenuItem("🔇 Mute");
+        muteItem.Click += (_, _) => AudioRequested?.Invoke(this, -1);
+        _audioMenu.DropDownItems.Add(muteItem);
+
+        var fullItem = new ToolStripMenuItem("🔊 100% (unmute)");
+        fullItem.Click += (_, _) => { AudioVolume = 100; AudioRequested?.Invoke(this, 100); };
+        _audioMenu.DropDownItems.Add(fullItem);
+
+        _contextMenu.Items.Add(_audioMenu);
     }
 
     /// <summary>Show the right-click context menu at the current cursor
@@ -123,6 +198,8 @@ public class ThumbnailWindow : Form
     {
         BuildContextMenu();
         if (_contextMenu == null) return;
+        RefreshMuteMenuState();
+        RefreshAudioMenuState();
         try
         {
             _contextMenu.Show(Cursor.Position);
@@ -131,6 +208,36 @@ public class ThumbnailWindow : Form
         {
             Debug.WriteLine($"[Thumb:ContextMenu] ⚠ Show failed: {ex.Message}");
         }
+    }
+
+    /// <summary>Update the Mute Alerts menu header to reflect the current mute state
+    /// (re-evaluated each time the menu opens, since the menu is built once).</summary>
+    private void RefreshMuteMenuState()
+    {
+        if (_muteMenu == null) return;
+        bool muted = AlertMutedUntil.HasValue
+            && (AlertMutedUntil.Value == DateTime.MaxValue || AlertMutedUntil.Value > DateTime.Now);
+        if (!muted)
+            _muteMenu.Text = "🔔 Mute Alerts";
+        else if (AlertMutedUntil!.Value == DateTime.MaxValue)
+            _muteMenu.Text = "🔇 Alerts muted (until unmuted)";
+        else
+        {
+            int mins = Math.Max(1, (int)Math.Ceiling((AlertMutedUntil.Value - DateTime.Now).TotalMinutes));
+            _muteMenu.Text = $"🔇 Alerts muted ({mins}m left)";
+        }
+    }
+
+    /// <summary>Sync the Audio submenu slider to the current per-client volume each
+    /// time the menu opens (the menu is built once and reused).</summary>
+    private void RefreshAudioMenuState()
+    {
+        if (_audioMenu == null || _audioTrackBar == null) return;
+        int v = Math.Max(0, Math.Min(100, AudioVolume));
+        _suppressAudioSlider = true;
+        _audioTrackBar.Value = v;
+        _suppressAudioSlider = false;
+        _audioMenu.Text = $"🔊 Audio — {v}%";
     }
 
     // Session-only cycle-exclusion visual state (issue #16, drawing fixed in
@@ -458,6 +565,15 @@ public class ThumbnailWindow : Form
             {
                 int newX = _dragStartLeft + dx;
                 int newY = _dragStartTop + dy;
+
+                // Keep the drag on the monitor it started on, if enabled.
+                if (ConfineDragsToMonitor)
+                {
+                    var wa = System.Windows.Forms.Screen.FromRectangle(
+                        new System.Drawing.Rectangle(_dragStartLeft, _dragStartTop, base.Width, base.Height)).WorkingArea;
+                    newX = Math.Max(wa.Left, Math.Min(newX, wa.Right - base.Width));
+                    newY = Math.Max(wa.Top, Math.Min(newY, wa.Bottom - base.Height));
+                }
 
                 if (_ownHwnd != IntPtr.Zero)
                     User32.SetWindowPos(_ownHwnd, IntPtr.Zero, newX, newY, 0, 0,

@@ -386,6 +386,41 @@ public static class User32
         }
     }
 
+    /// <summary>
+    /// The keys currently held that would be broadcast/propagated to a client on a
+    /// switch (the same set <see cref="FixTargetHeldKeys"/> injects), as friendly
+    /// labels for the broadcast-key HUD — modifiers first, then keys, then mouse.
+    /// Returns empty when nothing broadcastable is held (modifiers alone don't count,
+    /// matching the injection gate). Pure read of live key state; injects nothing.
+    /// </summary>
+    public static List<string> GetHeldBroadcastKeys()
+    {
+        var keys = new List<string>();
+        void AddIf(int vk, string name)
+        {
+            if (CycleKeysToIgnore.Contains(vk)) return;
+            if (IsKeyDown(vk)) keys.Add(name);
+        }
+
+        AddIf(0x0D, "Enter");
+        AddIf(0x20, "Space");
+        for (int i = 0x30; i <= 0x39; i++) AddIf(i, ((char)i).ToString());        // 0-9
+        for (int i = 0x41; i <= 0x5A; i++) AddIf(i, ((char)i).ToString());        // A-Z
+        for (int i = 0x70; i <= 0x87; i++) AddIf(i, "F" + (i - 0x70 + 1));        // F1-F24
+        if (IsKeyDown(0x04)) keys.Add("MMB");
+        if (IsKeyDown(0x05)) keys.Add("Mouse4");
+        if (IsKeyDown(0x06)) keys.Add("Mouse5");
+
+        if (keys.Count == 0) return keys; // nothing broadcastable held → HUD idle
+
+        var combo = new List<string>();
+        if (IsKeyDown(0x11)) combo.Add("Ctrl");
+        if (IsKeyDown(0x12)) combo.Add("Alt");
+        if (IsKeyDown(0x10)) combo.Add("Shift");
+        combo.AddRange(keys);
+        return combo;
+    }
+
     public static void FixTargetHeldKeys(IntPtr hwnd)
     {
         uint WM_KEYDOWN = 0x0100;

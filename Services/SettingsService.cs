@@ -37,6 +37,9 @@ public sealed class SettingsService : IDisposable
     private bool _loadedSuccessfully = false;
 
     public AppSettings Settings => _settings;
+
+    /// <summary>Directory the config lives in — used to co-locate layout_presets.json.</summary>
+    public string ConfigDirectory => Path.GetDirectoryName(_settingsPath) ?? AppContext.BaseDirectory;
     public Profile CurrentProfile => _settings.Profiles.GetValueOrDefault(_settings.LastUsedProfile) ?? new Profile();
 
     public SettingsService(string? settingsPath = null)
@@ -210,6 +213,27 @@ public sealed class SettingsService : IDisposable
     public void ClearThumbnailPositions()
     {
         CurrentProfile.ThumbnailPositions.Clear();
+    }
+
+    /// <summary>Deep copy of the current profile's saved thumbnail positions — for
+    /// the layout undo/redo stack.</summary>
+    public Dictionary<string, ThumbnailRect> GetThumbnailPositionsSnapshot()
+    {
+        var copy = new Dictionary<string, ThumbnailRect>();
+        foreach (var (k, v) in CurrentProfile.ThumbnailPositions)
+            copy[k] = new ThumbnailRect { X = v.X, Y = v.Y, Width = v.Width, Height = v.Height };
+        return copy;
+    }
+
+    /// <summary>Replace the current profile's saved thumbnail positions with a
+    /// snapshot (layout undo/redo) and persist.</summary>
+    public void RestoreThumbnailPositions(Dictionary<string, ThumbnailRect> snapshot)
+    {
+        var dict = CurrentProfile.ThumbnailPositions;
+        dict.Clear();
+        foreach (var (k, v) in snapshot)
+            dict[k] = new ThumbnailRect { X = v.X, Y = v.Y, Width = v.Width, Height = v.Height };
+        Save();
     }
 
     // ── Profile Management ──────────────────────────────────────────

@@ -33,6 +33,7 @@ public partial class App : Application
     private LogMonitorService? _logMonitor;
     private StatTrackerService? _statTracker;
     private AlertHub? _alertHub;
+    private BroadcastHudWindow? _broadcastHud;
     private ProcessMonitorService? _processMonitor;
     private CropManager? _cropManager;
     private SettingsWindow? _settingsWindow;
@@ -188,6 +189,10 @@ public partial class App : Application
             _alertHub.SaveRequested += () => _settings.SaveDelayed();
             PerfLog($"[Deferred] AlertHub created: {deferSw.ElapsedMilliseconds}ms");
 
+            // Broadcast-key HUD — self-gates on ShowBroadcastKeyHud each tick.
+            _broadcastHud = new BroadcastHudWindow(_settings.Settings);
+            _broadcastHud.SaveRequested += () => _settings.SaveDelayed();
+
             // 7. Start log monitor and wire events
             _logMonitor = new LogMonitorService();
             _logMonitor.PveMode = _settings.Settings.PveMode;
@@ -263,6 +268,13 @@ public partial class App : Application
                     Debug.WriteLine($"[App:Alert] ⏭ Skipped — '{charName}' not in active windows");
                     EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                         $"[App] DROPPED — '{charName}' not in active-windows list. Alert will not flash/badge/toast.");
+                    return;
+                }
+                if (_thumbnailManager.IsCharacterAlertMuted(charName))
+                {
+                    Debug.WriteLine($"[App:Alert] 🔇 Skipped — alerts muted/snoozed for '{charName}'");
+                    EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                        $"[App] MUTED — alerts snoozed for '{charName}'. No flash/badge/toast/sound.");
                     return;
                 }
                 EveMultiPreview.Services.DiagnosticsService.LogAlerts(
@@ -991,6 +1003,7 @@ public partial class App : Application
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _alertHub?.Dispose();
+        _broadcastHud?.Dispose();
         _logMonitor?.Dispose();
         _hotkeyService?.Dispose();
         _processMonitor?.Dispose();

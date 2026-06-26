@@ -238,9 +238,10 @@ public partial class SettingsWindow : Window
                     : Brushes.Transparent;
         }
         if (name == "Alerts") BuildAlertRows();
-        if (name == "Sounds") BuildSoundRows();
+        if (name == "Sounds") { BuildSoundRows(); BuildClientVolumeRows(); }
+        if (name == "Hotkeys") BuildHotkeyAudit();
         if (name == "FPSLimiter") DetectRtss();
-        if (name == "Layout") { PopulateMonitors(); PopulateActiveChars(); }
+        if (name == "Layout") { PopulateMonitors(); PopulateActiveChars(); PopulateLayoutPresets(); }
         if (name == "StatsOverlay") LoadStatCharacters();
         if (name == "EVEManager") LoadEveManagerPanel();
         if (name == "Performance") LoadPerformanceSettings();
@@ -273,7 +274,11 @@ public partial class SettingsWindow : Window
             TxtProfileCycleForward.Text = S.ProfileCycleForwardHotkey;
             TxtProfileCycleBackward.Text = S.ProfileCycleBackwardHotkey;
             TxtQuickSwitchHotkey.Text = S.QuickSwitchHotkey;
+            TxtUndoLayoutHotkey.Text = S.UndoLayoutHotkey;
+            TxtRedoLayoutHotkey.Text = S.RedoLayoutHotkey;
             ChkLockPositions.IsChecked = S.LockPositions;
+            ChkBroadcastHud.IsChecked = S.ShowBroadcastKeyHud;
+            ChkAutoSoloAudio.IsChecked = S.AutoSoloClientAudio;
             ChkIndividualResize.IsChecked = S.IndividualThumbnailResize;
             ChkShowTimer.IsChecked = S.ShowSessionTimer;
             TxtMinimizeDelay.Text = S.MinimizeDelay.ToString();
@@ -338,6 +343,8 @@ public partial class SettingsWindow : Window
             TxtMinHeight.Text = S.ThumbnailMinimumSize.Height.ToString();
             ChkSnap.IsChecked = S.ThumbnailSnap;
             TxtSnapDistance.Text = S.ThumbnailSnapDistance.ToString();
+            TxtGutter.Text = S.ThumbnailGutter.ToString();
+            ChkConfineMonitor.IsChecked = S.ConfineDragsToMonitor;
             ChkHoverZoom.IsChecked = S.ResizeThumbnailsOnHover;
             TxtHoverScale.Text = S.HoverScale.ToString("F1");
 
@@ -539,6 +546,9 @@ public partial class SettingsWindow : Window
 
         _thumbnailManager?.ResetThumbnailPositions();
     }
+
+    private void OnUndoLayout(object sender, RoutedEventArgs e) => _thumbnailManager?.UndoLayout();
+    private void OnRedoLayout(object sender, RoutedEventArgs e) => _thumbnailManager?.RedoLayout();
 
     private void OnToggleColorBlind(object sender, RoutedEventArgs e)
     {

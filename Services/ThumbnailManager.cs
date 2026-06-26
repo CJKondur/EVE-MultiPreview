@@ -117,6 +117,19 @@ public sealed class ThumbnailManager : IDisposable
     // Key = CharacterName (case-insensitive), Value = SystemName
     private readonly ConcurrentDictionary<string, string> _charSystems = new(StringComparer.OrdinalIgnoreCase);
 
+    // Key = CharacterName, Value = mute-until time (DateTime.MaxValue = until cleared).
+    // Per-character alert mute/snooze — runtime only, clears on app restart.
+    private readonly ConcurrentDictionary<string, DateTime> _alertMutedChars = new(StringComparer.OrdinalIgnoreCase);
+
+    // Per-process audio (auto-solo + per-client mute/volume), matched by PID.
+    private readonly AudioSessionService _audio = new();
+
+    // Layout undo/redo — bounded in-session stacks of saved-position snapshots.
+    private readonly List<Dictionary<string, ThumbnailRect>> _layoutUndo = new();
+    private readonly List<Dictionary<string, ThumbnailRect>> _layoutRedo = new();
+    private const int MaxLayoutHistory = 25;
+    private DateTime _lastResizeAllSnapshot = DateTime.MinValue;
+
     // Under-fire tracking: character name → last damage timestamp
     private readonly ConcurrentDictionary<string, DateTime> _underFireChars = new();
 
@@ -317,6 +330,10 @@ public sealed class ThumbnailManager : IDisposable
         {
             var s = _settings.Settings;
 
+            // Snapshot the pre-reset layout so this (previously irreversible) Reset
+            // can be undone.
+            PushLayoutSnapshot();
+
             // Drop persisted positions first so they can't override the fresh layout.
             _settings.ClearThumbnailPositions();
 
@@ -347,6 +364,197 @@ public sealed class ThumbnailManager : IDisposable
             _settings.Save();
             PerfLog($"[Reset] Thumbnail positions reset to default ({index} thumbnails)");
         });
+    }
+
+    // ── Layout undo / redo ──────────────────────────────────────────
+
+    /// <summary>Snapshot the current wall layout (saved positions + live thumbnail
+    /// bounds) onto the undo stack. Call BEFORE a destructive bulk op (Reset, drag-
+    /// all, resize-all) so it can be reverted. Clears the redo stack.</summary>
+    public void PushLayoutSnapshot()
+    {
+        _layoutUndo.Add(CaptureLiveLayout());
+        if (_layoutUndo.Count > MaxLayoutHistory) _layoutUndo.RemoveAt(0);
+        _layoutRedo.Clear();
+    }
+
+    public bool CanUndoLayout => _layoutUndo.Count > 0;
+    public bool CanRedoLayout => _layoutRedo.Count > 0;
+
+    /// <summary>Revert the wall to the last snapshot. False if nothing to undo.</summary>
+    public bool UndoLayout()
+    {
+        if (_layoutUndo.Count == 0) { ShowTooltipFeedback("Nothing to undo"); return false; }
+        _layoutRedo.Add(CaptureLiveLayout());
+        var snap = _layoutUndo[^1];
+        _layoutUndo.RemoveAt(_layoutUndo.Count - 1);
+        RestoreLayout(snap);
+        ShowTooltipFeedback("Layout: undone");
+        return true;
+    }
+
+    /// <summary>Re-apply the last undone layout. False if nothing to redo.</summary>
+    public bool RedoLayout()
+    {
+        if (_layoutRedo.Count == 0) { ShowTooltipFeedback("Nothing to redo"); return false; }
+        _layoutUndo.Add(CaptureLiveLayout());
+        var snap = _layoutRedo[^1];
+        _layoutRedo.RemoveAt(_layoutRedo.Count - 1);
+        RestoreLayout(snap);
+        ShowTooltipFeedback("Layout: redone");
+        return true;
+    }
+
+    private Dictionary<string, ThumbnailRect> CaptureLiveLayout()
+    {
+        // Saved positions (covers offline characters) overlaid with live thumbnail
+        // bounds (authoritative for what's currently on screen).
+        var snap = _settings.GetThumbnailPositionsSnapshot();
+        foreach (var (_, thumb) in _thumbnails)
+            if (!string.IsNullOrEmpty(thumb.CharacterName))
+                snap[thumb.CharacterName] = new ThumbnailRect
+                {
+                    X = thumb.Left, Y = thumb.Top, Width = thumb.Width, Height = thumb.Height
+                };
+        return snap;
+    }
+
+    private void RestoreLayout(Dictionary<string, ThumbnailRect> snap)
+    {
+        Application.Current?.Dispatcher.Invoke(() =>
+        {
+            _settings.RestoreThumbnailPositions(snap);
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                if (string.IsNullOrEmpty(thumb.CharacterName)) continue;
+                if (snap.TryGetValue(thumb.CharacterName, out var r))
+                {
+                    thumb.Resize((int)r.Width, (int)r.Height);
+                    thumb.MoveTo((int)r.X, (int)r.Y);
+                }
+            }
+        });
+    }
+
+    // ── Layout presets (monitor-relative, shareable) ────────────────
+
+    /// <summary>Capture the current wall as a named preset: each live character's
+    /// position/size as fractions of the monitor it's on, so the preset survives
+    /// resolution/monitor changes and transfers across machines.</summary>
+    public LayoutPreset CaptureCurrentLayoutPreset(string name)
+    {
+        var preset = new LayoutPreset
+        {
+            Name = name,
+            IncludesVisibility = true,
+            CropsEnabled = _settings.Settings.CropEnabled,
+        };
+        var screens = System.Windows.Forms.Screen.AllScreens;
+        foreach (var (_, thumb) in _thumbnails)
+        {
+            if (string.IsNullOrEmpty(thumb.CharacterName)) continue;
+            var rect = new System.Drawing.Rectangle(
+                (int)thumb.Left, (int)thumb.Top, (int)Math.Max(1, thumb.Width), (int)Math.Max(1, thumb.Height));
+            var screen = System.Windows.Forms.Screen.FromRectangle(rect);
+            int mon = Array.FindIndex(screens, s => s.DeviceName == screen.DeviceName);
+            if (mon < 0) mon = 0;
+            var wa = screen.WorkingArea;
+            double ww = Math.Max(1, wa.Width), wh = Math.Max(1, wa.Height);
+            preset.Slots.Add(new LayoutSlot
+            {
+                Character = thumb.CharacterName,
+                Monitor = mon,
+                Fx = (thumb.Left - wa.Left) / ww,
+                Fy = (thumb.Top - wa.Top) / wh,
+                Fw = thumb.Width / ww,
+                Fh = thumb.Height / wh,
+                Hidden = IsCharacterUserHidden(thumb.CharacterName),
+            });
+        }
+        return preset;
+    }
+
+    /// <summary>Apply a preset to the live wall. Slots match characters by exact name
+    /// first; any leftover slots map positionally to remaining characters (so a
+    /// shared preset with different character names still arranges your clients).</summary>
+    public void ApplyLayoutPreset(LayoutPreset preset)
+    {
+        Application.Current?.Dispatcher.Invoke(() =>
+        {
+            PushLayoutSnapshot();   // applying a preset is undoable
+            var screens = System.Windows.Forms.Screen.AllScreens;
+            var live = _thumbnails.Values.Where(t => !string.IsNullOrEmpty(t.CharacterName)).ToList();
+            var used = new HashSet<ThumbnailWindow>();
+
+            bool applyVis = preset.IncludesVisibility;
+            var leftover = new List<LayoutSlot>();
+            foreach (var slot in preset.Slots)
+            {
+                var thumb = live.FirstOrDefault(t => !used.Contains(t)
+                    && string.Equals(t.CharacterName, slot.Character, StringComparison.OrdinalIgnoreCase));
+                if (thumb != null) { ApplyPresetSlot(thumb, slot, screens, applyVis); used.Add(thumb); }
+                else leftover.Add(slot);
+            }
+
+            var remaining = live.Where(t => !used.Contains(t))
+                .OrderBy(t => t.CharacterName, StringComparer.OrdinalIgnoreCase).ToList();
+            for (int i = 0; i < leftover.Count && i < remaining.Count; i++)
+                ApplyPresetSlot(remaining[i], leftover[i], screens, applyVis);
+
+            // Crop master-toggle captured with the preset (CropManager picks this up
+            // when the caller refreshes it after apply).
+            if (applyVis) { _settings.Settings.CropEnabled = preset.CropsEnabled; _settings.Save(); }
+
+            ShowTooltipFeedback($"Layout: applied '{preset.Name}'");
+        });
+    }
+
+    /// <summary>Apply a preset using an explicit slot-index → character mapping (the
+    /// cross-machine remap dialog). Unmapped slots are skipped.</summary>
+    public void ApplyLayoutPresetMapped(LayoutPreset preset, Dictionary<int, string> mapping)
+    {
+        Application.Current?.Dispatcher.Invoke(() =>
+        {
+            PushLayoutSnapshot();
+            var screens = System.Windows.Forms.Screen.AllScreens;
+            bool applyVis = preset.IncludesVisibility;
+
+            for (int i = 0; i < preset.Slots.Count; i++)
+            {
+                if (!mapping.TryGetValue(i, out var targetChar) || string.IsNullOrEmpty(targetChar)) continue;
+                var thumb = _thumbnails.Values.FirstOrDefault(t =>
+                    string.Equals(t.CharacterName, targetChar, StringComparison.OrdinalIgnoreCase));
+                if (thumb != null) ApplyPresetSlot(thumb, preset.Slots[i], screens, applyVis);
+            }
+
+            if (applyVis) { _settings.Settings.CropEnabled = preset.CropsEnabled; _settings.Save(); }
+            ShowTooltipFeedback($"Layout: applied '{preset.Name}' (remapped)");
+        });
+    }
+
+    private void ApplyPresetSlot(ThumbnailWindow thumb, LayoutSlot slot, System.Windows.Forms.Screen[] screens, bool applyVis)
+    {
+        var screen = (slot.Monitor >= 0 && slot.Monitor < screens.Length)
+            ? screens[slot.Monitor]
+            : (System.Windows.Forms.Screen.PrimaryScreen ?? screens[0]);
+        var wa = screen.WorkingArea;
+        int w = Math.Max(40, (int)(slot.Fw * wa.Width));
+        int h = Math.Max(30, (int)(slot.Fh * wa.Height));
+        int x = wa.Left + (int)(slot.Fx * wa.Width);
+        int y = wa.Top + (int)(slot.Fy * wa.Height);
+        (x, y) = EnsureOnScreen(x, y, w, h);
+        thumb.Resize(w, h);
+        thumb.MoveTo(x, y);
+        if (!string.IsNullOrEmpty(thumb.CharacterName))
+            _settings.SaveThumbnailPosition(thumb.CharacterName, x, y, w, h);
+
+        // Restore the captured show/hide state for this character.
+        if (applyVis && !string.IsNullOrEmpty(thumb.CharacterName))
+        {
+            _settings.Settings.ThumbnailVisibility[thumb.CharacterName] = slot.Hidden ? 1 : 0;
+            if (slot.Hidden) thumb.HideWithOverlay();
+            else if (!_thumbnailsHidden && !_primaryHidden) thumb.ShowWithOverlay();
+        }
     }
 
     private void CreateThumbnailForWindow(EveWindow window)
@@ -434,6 +642,13 @@ public sealed class ThumbnailManager : IDisposable
         thumbWindow.ResizeAll += OnResizeAll;
         thumbWindow.CycleExclusionRequested += OnCycleExclusionRequested;
         thumbWindow.LabelEditRequested += OnLabelEditRequested;
+        thumbWindow.AlertMuteRequested += OnAlertMuteRequested;
+        thumbWindow.AudioRequested += OnAudioRequested;
+        thumbWindow.AudioVolume = GetClientVolume(window.CharacterName);
+        // New thumbnail picks up any active mute for its character (e.g. relaunch).
+        if (!string.IsNullOrEmpty(window.CharacterName)
+            && _alertMutedChars.TryGetValue(window.CharacterName, out var muteUntil))
+            thumbWindow.AlertMutedUntil = muteUntil;
 
         // Restore any prior session-exclusion visual state
         if (!string.IsNullOrEmpty(thumbWindow.CharacterName)
@@ -656,6 +871,9 @@ public sealed class ThumbnailManager : IDisposable
         // Always on top
         thumb.SetTopmost(s.ShowThumbnailsAlwaysOnTop);
 
+        // Confine drags to the starting monitor (edge-snap feature).
+        thumb.ConfineDragsToMonitor = s.ConfineDragsToMonitor;
+
         // Background color
         thumb.SetBackgroundColor(ParseColor(s.ThumbnailBackgroundColor));
 
@@ -796,6 +1014,9 @@ public sealed class ThumbnailManager : IDisposable
         Application.Current?.Dispatcher.Invoke(() =>
         {
             var s = _settings.Settings;
+
+            // If auto-solo audio was just turned off, restore every client's audio.
+            if (!s.AutoSoloClientAudio) UnmuteAllClientAudio();
 
             foreach (var (eveHwnd, thumb) in _thumbnails)
             {
@@ -956,6 +1177,7 @@ public sealed class ThumbnailManager : IDisposable
         // On first call of drag-all, store all positions
         if (_dragAllStartPositions.Count == 0)
         {
+            PushLayoutSnapshot();   // gesture start — snapshot for layout undo
             foreach (var (_, thumb) in _thumbnails)
             {
                 _dragAllStartPositions[thumb] = (thumb.Left, thumb.Top);
@@ -1000,6 +1222,11 @@ public sealed class ThumbnailManager : IDisposable
 
     private void OnResizeAll(ThumbnailWindow source, int newW, int newH)
     {
+        // Snapshot once per resize gesture (first event of a burst) for layout undo.
+        if ((DateTime.Now - _lastResizeAllSnapshot).TotalMilliseconds > 500)
+            PushLayoutSnapshot();
+        _lastResizeAllSnapshot = DateTime.Now;
+
         if (!_settings.Settings.IndividualThumbnailResize)
         {
             _settings.Settings.ThumbnailStartLocation.Width = newW;
@@ -1478,6 +1705,14 @@ public sealed class ThumbnailManager : IDisposable
             && (clientFocusChanged || s.KeepThumbnailsAboveClients))
         {
             _lastZOrderHwnd = fgHwnd;
+
+            // Audio on an actual client switch: auto-solo (if on) + re-apply this
+            // client's saved per-client volume so Settings-slider levels persist.
+            if (clientFocusChanged)
+            {
+                if (s.AutoSoloClientAudio) ApplyAudioSolo(fgHwnd);
+                ReapplyClientVolume(fgHwnd);
+            }
             foreach (var (_, thumb) in _thumbnails)
                 thumb.BringToFront();
             foreach (var (_, pip) in _secondaryThumbnails)
@@ -1830,52 +2065,68 @@ public sealed class ThumbnailManager : IDisposable
 
     // ── Snap ─────────────────────────────────────────────────────────
 
-    // M25: Corner-to-corner snapping (matches AHK Window_Snap algorithm)
+    // Edge-snap with even gutters (generalizes the old corner-to-corner snap):
+    // snaps the dragged window's Left and Top independently to the nearest of —
+    //   • a neighbour's aligned edge (left/right/top/bottom aligned), or
+    //   • adjacency to a neighbour with a uniform gutter gap, or
+    //   • the monitor work-area edge (flush).
+    // Aligning left+top to a neighbour reproduces the old corner snap, so existing
+    // behaviour is preserved while even-gap walls now build automatically.
     private void SnapThumbnail(ThumbnailWindow target)
     {
         int snapRange = _settings.Settings.ThumbnailSnapDistance;
-        double x = target.Left, y = target.Top;
-        double w = target.Width, h = target.Height;
+        if (snapRange <= 0) return;
+        int gutter = Math.Max(0, _settings.Settings.ThumbnailGutter);
 
-        // 4 corners of the dragged window
-        var myCorners = new[] { (x, y), (x + w, y), (x, y + h), (x + w, y + h) };
-        bool[] isRight = { false, true, false, true };
-        bool[] isBottom = { false, false, true, true };
+        double L = target.Left, T = target.Top, W = target.Width, H = target.Height;
 
-        double bestDist = snapRange + 1;
-        double destX = x, destY = y;
-        bool shouldMove = false;
-
+        var xCands = new List<double>();
+        var yCands = new List<double>();
         foreach (var (_, other) in _thumbnails)
         {
             if (other == target) continue;
             double oL = other.Left, oT = other.Top, oW = other.Width, oH = other.Height;
-            var targetCorners = new[] { (oL, oT), (oL + oW, oT), (oL, oT + oH), (oL + oW, oT + oH) };
-
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    double dx = myCorners[i].Item1 - targetCorners[j].Item1;
-                    double dy = myCorners[i].Item2 - targetCorners[j].Item2;
-                    double dist = Math.Sqrt(dx * dx + dy * dy);
-                    if (dist <= snapRange && dist < bestDist)
-                    {
-                        bestDist = dist;
-                        shouldMove = true;
-                        destX = targetCorners[j].Item1 - (isRight[i] ? w : 0);
-                        destY = targetCorners[j].Item2 - (isBottom[i] ? h : 0);
-                    }
-                }
-            }
+            // X: align left, align right, sit to the right of (gutter), sit to the left of (gutter)
+            xCands.Add(oL);
+            xCands.Add(oL + oW - W);
+            xCands.Add(oL + oW + gutter);
+            xCands.Add(oL - W - gutter);
+            // Y: align top, align bottom, sit below (gutter), sit above (gutter)
+            yCands.Add(oT);
+            yCands.Add(oT + oH - H);
+            yCands.Add(oT + oH + gutter);
+            yCands.Add(oT - H - gutter);
         }
 
-        if (shouldMove)
+        // Monitor work-area edges (flush to screen).
+        var wa = System.Windows.Forms.Screen.FromRectangle(
+            new System.Drawing.Rectangle((int)L, (int)T, (int)Math.Max(1, W), (int)Math.Max(1, H))).WorkingArea;
+        xCands.Add(wa.Left);
+        xCands.Add(wa.Right - W);
+        yCands.Add(wa.Top);
+        yCands.Add(wa.Bottom - H);
+
+        double newL = SnapAxis(L, xCands, snapRange);
+        double newT = SnapAxis(T, yCands, snapRange);
+
+        if (newL != L || newT != T)
         {
-            target.Left = destX;
-            target.Top = destY;
+            target.Left = newL;
+            target.Top = newT;
             target.SyncOverlayPosition();
         }
+    }
+
+    /// <summary>Snap a coordinate to the nearest candidate within snapRange, else unchanged.</summary>
+    private static double SnapAxis(double current, List<double> candidates, int snapRange)
+    {
+        double best = current, bestDelta = snapRange + 1;
+        foreach (var c in candidates)
+        {
+            double d = Math.Abs(c - current);
+            if (d <= snapRange && d < bestDelta) { bestDelta = d; best = c; }
+        }
+        return best;
     }
 
 
@@ -1953,6 +2204,139 @@ public sealed class ThumbnailManager : IDisposable
                     thumb.UpdateSystemName(systemName);
             }
         });
+    }
+
+    // ── Per-character alert mute / snooze ───────────────────────────
+
+    /// <summary>True while this character's alerts are muted/snoozed. Runtime-only;
+    /// expired snoozes auto-clean. Checked by the central alert handler so a muted
+    /// client raises no flash / badge / toast / sound.</summary>
+    public bool IsCharacterAlertMuted(string characterName)
+    {
+        if (string.IsNullOrEmpty(characterName)) return false;
+        if (!_alertMutedChars.TryGetValue(characterName, out var until)) return false;
+        if (until == DateTime.MaxValue || DateTime.Now < until) return true;
+        _alertMutedChars.TryRemove(characterName, out _); // snooze expired
+        return false;
+    }
+
+    /// <summary>Context-menu handler: minutes &gt;0 snoozes that long, 0 unmutes,
+    /// int.MaxValue mutes until explicitly cleared.</summary>
+    private void OnAlertMuteRequested(ThumbnailWindow thumb, int minutes)
+    {
+        var charName = thumb.CharacterName;
+        if (string.IsNullOrEmpty(charName)) return;
+
+        DateTime? until;
+        string label;
+        if (minutes <= 0)
+        {
+            _alertMutedChars.TryRemove(charName, out _);
+            until = null;
+            label = "🔔 Alerts unmuted";
+        }
+        else if (minutes == int.MaxValue)
+        {
+            until = DateTime.MaxValue;
+            _alertMutedChars[charName] = until.Value;
+            label = "🔇 Alerts muted";
+        }
+        else
+        {
+            until = DateTime.Now.AddMinutes(minutes);
+            _alertMutedChars[charName] = until.Value;
+            label = $"🔇 Alerts muted {minutes}m";
+        }
+
+        // Reflect on every thumbnail showing this character (menu header).
+        foreach (var (_, t) in _thumbnails)
+            if (t.CharacterName.Equals(charName, StringComparison.OrdinalIgnoreCase))
+                t.AlertMutedUntil = until;
+
+        // Clearing an in-progress flash on mute so a currently-flashing alt goes quiet now.
+        if (until != null) ClearAlertFlash(charName);
+
+        ShowTooltipFeedback($"{charName}: {label}");
+    }
+
+    // ── Per-process audio (auto-solo + per-client mute/volume) ──────
+
+    private HashSet<uint> CollectClientPids(IntPtr hwndToMatch, out uint pidForHwnd)
+    {
+        var pids = new HashSet<uint>();
+        pidForHwnd = 0;
+        foreach (var (hwnd, _) in _thumbnails)
+        {
+            Interop.User32.GetWindowThreadProcessId(hwnd, out uint p);
+            if (p == 0) continue;
+            pids.Add(p);
+            if (hwnd == hwndToMatch) pidForHwnd = p;
+        }
+        return pids;
+    }
+
+    /// <summary>Mute every tracked client except the active one (auto-solo).</summary>
+    private void ApplyAudioSolo(IntPtr activeHwnd)
+    {
+        var pids = CollectClientPids(activeHwnd, out uint activePid);
+        if (activePid != 0 && pids.Count > 0) _audio.ApplySolo(activePid, pids);
+    }
+
+    /// <summary>Unmute every tracked client's audio (auto-solo turned off / on exit).</summary>
+    public void UnmuteAllClientAudio()
+    {
+        var pids = CollectClientPids(IntPtr.Zero, out _);
+        if (pids.Count > 0) _audio.UnmuteAll(pids);
+    }
+
+    private void OnAudioRequested(ThumbnailWindow thumb, int code)
+    {
+        if (code < 0)
+        {
+            // Mute is a transient toggle (not persisted), like the auto-solo path.
+            Interop.User32.GetWindowThreadProcessId(thumb.EveHwnd, out uint pid);
+            if (pid != 0) _audio.SetMute(pid, true);
+            ShowTooltipFeedback($"{thumb.CharacterName}: audio muted");
+        }
+        else
+        {
+            // Volume from the right-click slider persists, same as the Settings slider.
+            SetClientVolume(thumb.CharacterName, code);
+        }
+    }
+
+    /// <summary>Set + persist a client's audio volume (0-100; 100 = default). Applied
+    /// live and re-applied when the client is next activated. Used by Settings sliders.</summary>
+    public void SetClientVolume(string characterName, int percent)
+    {
+        if (string.IsNullOrEmpty(characterName)) return;
+        percent = Math.Clamp(percent, 0, 100);
+        var map = _settings.Settings.PerClientAudioVolume;
+        if (percent >= 100) map.Remove(characterName);
+        else map[characterName] = percent;
+        _settings.SaveDelayed();   // sliders fire per-tick — debounce the write
+
+        foreach (var (hwnd, thumb) in _thumbnails)
+            if (string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+            {
+                thumb.AudioVolume = percent;   // keep the right-click slider in sync
+                Interop.User32.GetWindowThreadProcessId(hwnd, out uint pid);
+                if (pid != 0) _audio.SetVolume(pid, percent / 100f);
+            }
+    }
+
+    /// <summary>Persisted volume for a character (0-100; 100 if unset).</summary>
+    public int GetClientVolume(string characterName)
+        => _settings.Settings.PerClientAudioVolume.TryGetValue(characterName ?? "", out var v) ? v : 100;
+
+    private void ReapplyClientVolume(IntPtr hwnd)
+    {
+        if (!_thumbnails.TryGetValue(hwnd, out var thumb) || string.IsNullOrEmpty(thumb.CharacterName)) return;
+        if (_settings.Settings.PerClientAudioVolume.TryGetValue(thumb.CharacterName, out var v) && v < 100)
+        {
+            Interop.User32.GetWindowThreadProcessId(hwnd, out uint p);
+            if (p != 0) _audio.SetVolume(p, v / 100f);
+        }
     }
 
     // ── Alert Flash (per-severity rates + expiry) ────────────────────
@@ -3064,6 +3448,8 @@ public sealed class ThumbnailManager : IDisposable
         thumb.ResizeAll -= OnResizeAll;
         thumb.CycleExclusionRequested -= OnCycleExclusionRequested;
         thumb.LabelEditRequested -= OnLabelEditRequested;
+        thumb.AlertMuteRequested -= OnAlertMuteRequested;
+        thumb.AudioRequested -= OnAudioRequested;
     }
 
     private void OnCycleExclusionRequested(ThumbnailWindow thumb)
@@ -3367,6 +3753,9 @@ public sealed class ThumbnailManager : IDisposable
 
     public void Dispose()
     {
+        // Don't leave clients muted from auto-solo after we exit.
+        try { UnmuteAllClientAudio(); } catch { }
+
         _focusTimer?.Stop();
         _sessionTimer?.Stop();
         _flashTimer?.Stop();
