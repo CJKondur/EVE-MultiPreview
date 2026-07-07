@@ -27,6 +27,11 @@ public partial class CropWindow : Window
     private IntPtr _eveHwnd;
     private IntPtr _ownHwnd;
 
+    // One-time guard for the post-creation forced rebind (issue #80). A crop
+    // registered during the app-startup discovery burst can bind to a source
+    // EVE window before DWM has it composited, painting nothing.
+    private bool _initialRebindDone;
+
     // Companion topmost window that paints the label ON TOP of the DWM thumbnail
     // (DWM thumbnails occlude in-window WPF content).
     private TextOverlayWindow? _textOverlay;
@@ -400,6 +405,22 @@ public partial class CropWindow : Window
         if (_thumbId == IntPtr.Zero)
         {
             RegisterDwmThumbnail();
+            return;
+        }
+
+        // A crop registered during the app-startup discovery burst can bind to a
+        // source EVE window before DWM has it composited: the registration reports
+        // success (non-null id) and PushThumbnailProperties returns hr==0, yet the
+        // thumbnail paints nothing. Because the stale-check below only rebuilds on
+        // hr!=0 — and CropManager.CropsInSync only checks the popup exists — neither
+        // recovery path ever fires, so the crop stays blank until the user toggles
+        // crops off/on (a full destroy+recreate). Force one rebind against the
+        // by-now-composited source on the first health pass so a startup-race crop
+        // recovers on its own within one health-check cycle (issue #80).
+        if (!_initialRebindDone)
+        {
+            _initialRebindDone = true;
+            ForceRebind();
             return;
         }
 
