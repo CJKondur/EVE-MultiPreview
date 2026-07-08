@@ -394,6 +394,10 @@ public partial class SettingsWindow : Window
             ChkMinimizeInactive.IsChecked = S.MinimizeInactiveClients;
             ChkAlwaysMaximize.IsChecked = S.AlwaysMaximize;
             ChkTrackClientPositions.IsChecked = S.TrackClientPositions;
+            CmbClientPosition.SelectedIndex = Math.Clamp(S.ClientPositionMode, 0, 2);
+            TxtClientPositionX.Text = S.ClientPositionX.ToString();
+            TxtClientPositionY.Text = S.ClientPositionY.ToString();
+            UpdateClientPositionXYVisibility();
             LoadDontMinimizeList();
 
             // FPS

@@ -469,6 +469,28 @@ public partial class CropWindow : Window
         if (_textOverlay != null) _textOverlay.Topmost = topmost;
     }
 
+    /// <summary>Re-assert this crop's z-order above the EVE clients. A WPF Topmost
+    /// flag alone does not survive a client being activated on top of the crop —
+    /// the client raises over it and nothing pulls it back, so a crop placed on
+    /// top of a client vanishes underneath the moment you tab into that client
+    /// (issue #80). Mirrors ThumbnailWindow.BringToFront: a raw SWP_NOACTIVATE
+    /// z-order re-insert (no focus theft), with the label overlay lifted with it.</summary>
+    public void BringToFront()
+    {
+        IntPtr zOrder = Topmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
+        if (_ownHwnd != IntPtr.Zero)
+            User32.SetWindowPos(_ownHwnd, zOrder, 0, 0, 0, 0,
+                User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+
+        if (_textOverlay != null)
+        {
+            var overlayHwnd = new WindowInteropHelper(_textOverlay).Handle;
+            if (overlayHwnd != IntPtr.Zero)
+                User32.SetWindowPos(overlayHwnd, zOrder, 0, 0, 0, 0,
+                    User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+        }
+    }
+
     /// <summary>Whether this crop is currently hidden by a Hide/Show toggle (issue #66).</summary>
     public bool IsHiddenByToggle { get; private set; }
 

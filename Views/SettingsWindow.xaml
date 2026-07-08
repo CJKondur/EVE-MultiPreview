@@ -1001,6 +1001,21 @@
                                       Checked="OnClientChanged" Unchecked="OnClientChanged"/>
                             <CheckBox x:Name="ChkTrackClientPositions" Content="Track and restore client window positions"
                                       Checked="OnClientChanged" Unchecked="OnClientChanged"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Label Content="Client spawn position:" Width="140" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="CmbClientPosition" Width="200" SelectionChanged="OnClientPositionModeChanged">
+                                    <ComboBoxItem Content="Off (leave where EVE opens)"/>
+                                    <ComboBoxItem Content="Center on its monitor"/>
+                                    <ComboBoxItem Content="Custom X / Y"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel x:Name="PanelClientPositionXY" Orientation="Horizontal" Margin="140,4,0,0" Visibility="Collapsed">
+                                <Label Content="X:" VerticalAlignment="Center"/>
+                                <TextBox x:Name="TxtClientPositionX" Width="70" TextChanged="OnClientChanged"/>
+                                <Label Content="Y:" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                <TextBox x:Name="TxtClientPositionY" Width="70" TextChanged="OnClientChanged"/>
+                            </StackPanel>
+                            <TextBlock Text="Repositions each EVE client the moment it's detected — fixes fixed-window clients spawning in the top-left corner on ultrawide / large monitors. Ignored while 'Track and restore client window positions' is on." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Don't Minimize Clients">
@@ -1037,6 +1052,9 @@
                     </GroupBox>
                     <GroupBox Header="Thumbnail GPU Optimization">
                         <StackPanel>
+                            <Button x:Name="BtnLowGpuPreset" Content="⚡ Optimize for Low GPU (recommended for many clients)"
+                                    Click="OnLowGpuPreset" Padding="10,6" Margin="0,0,0,4" HorizontalAlignment="Left"/>
+                            <TextBlock Text="One click: minimizes inactive clients on switch AND suspends background thumbnails, so idle clients stop rendering entirely. The single biggest FPS / fan-noise win when multiboxing many clients." Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,10" TextWrapping="Wrap"/>
                             <CheckBox x:Name="ChkStaticThumbnails" Content="Static Thumbnails (lower GPU)" Checked="OnPerformanceChanged" Unchecked="OnPerformanceChanged"/>
                             <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,8" TextWrapping="Wrap">
                                 Replaces the live DWM-composited preview with a snapshot refreshed roughly once per second. Big GPU saving when running many clients (DWM no longer composites every frame), at the cost of choppy motion — ship movement updates on the snapshot cadence instead of smoothly. Best for fleets where you only need to glance at thumbnails occasionally rather than watch them constantly.

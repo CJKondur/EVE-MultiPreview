@@ -191,6 +191,35 @@ public sealed class CropManager : IDisposable
         if (_winEvents != null) return;
         _winEvents = winEvents;
         _winEvents.WindowMinimizeEnd += OnSourceMinimizeEnd;
+        _winEvents.ForegroundChanged += OnForegroundChanged;
+    }
+
+    /// <summary>Re-assert crop z-order when an EVE client (or the app) comes to the
+    /// foreground. WPF Topmost alone doesn't keep a crop above a client the user
+    /// tabs into — the activated client raises over the crop and stays there until
+    /// the user toggles crops off/on (issue #80: "crops hide under the main client").
+    /// Mirrors ThumbnailManager's focus-driven re-raise so crops placed on top of a
+    /// client survive tabbing into it. Only runs when the user has opted crops into
+    /// an always-on-top mode.</summary>
+    private void OnForegroundChanged(IntPtr fgHwnd)
+    {
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            var s = _settings.Settings;
+            if (!s.CropEnabled || _cropsHidden) return;
+            if (!s.ShowThumbnailsAlwaysOnTop && !s.KeepThumbnailsAboveClients) return;
+
+            string? fgProc = null;
+            try { fgProc = Interop.User32.GetProcessName(fgHwnd); } catch { }
+            if (!Interop.User32.IsEveOrAppProcess(fgProc)) return;
+
+            foreach (var perChar in _windows.Values)
+                foreach (var win in perChar.Values)
+                {
+                    try { win.BringToFront(); }
+                    catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop re-raise failed: {ex.Message}"); }
+                }
+        });
     }
 
     private void OnSourceMinimizeEnd(IntPtr hwnd)
@@ -281,6 +310,7 @@ public sealed class CropManager : IDisposable
         if (_winEvents != null)
         {
             _winEvents.WindowMinimizeEnd -= OnSourceMinimizeEnd;
+            _winEvents.ForegroundChanged -= OnForegroundChanged;
             _winEvents = null;
         }
         CloseAllInternal();

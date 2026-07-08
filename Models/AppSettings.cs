@@ -311,6 +311,10 @@ public class AppSettings
     [JsonIgnore] public bool MinimizeInactiveClients { get => _cp.MinimizeInactiveClients; set => _cp.MinimizeInactiveClients = value; }
     [JsonIgnore] public bool AlwaysMaximize { get => _cp.AlwaysMaximize; set => _cp.AlwaysMaximize = value; }
     [JsonIgnore] public bool TrackClientPositions { get => _cp.TrackClientPositions; set => _cp.TrackClientPositions = value; }
+    // Fixed client spawn position (issue #85): 0=Off, 1=Center on monitor, 2=Custom X/Y
+    [JsonIgnore] public int ClientPositionMode { get => _cp.ClientPositionMode; set => _cp.ClientPositionMode = value; }
+    [JsonIgnore] public int ClientPositionX { get => _cp.ClientPositionX; set => _cp.ClientPositionX = value; }
+    [JsonIgnore] public int ClientPositionY { get => _cp.ClientPositionY; set => _cp.ClientPositionY = value; }
 
     // Per-profile Custom Colors proxies
     [JsonIgnore] public bool CustomColorsActive { get => _cp.CustomColorsActive; set => _cp.CustomColorsActive = value; }
@@ -529,6 +533,10 @@ public class Profile
     public bool MinimizeInactiveClients { get; set; } = false;
     public bool AlwaysMaximize { get; set; } = false;
     public bool TrackClientPositions { get; set; } = false;
+    // Fixed client spawn position (issue #85): 0=Off, 1=Center on monitor, 2=Custom X/Y
+    public int ClientPositionMode { get; set; } = 0;
+    public int ClientPositionX { get; set; } = 0;
+    public int ClientPositionY { get; set; } = 0;
 
     // ── Per-profile Stat Overlay (per-character toggle for which stat types to show) ──
     public Dictionary<string, StatOverlayCharacterConfig> StatOverlayCharacters { get; set; } = new();

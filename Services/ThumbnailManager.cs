@@ -686,9 +686,13 @@ public sealed class ThumbnailManager : IDisposable
             thumbWindow.UpdateSystemName(finalSys);
         }
 
-        // Restore client position if tracking
+        // Restore client position if tracking; otherwise apply a fixed spawn
+        // position (center / custom) so fixed-window clients don't all open in
+        // the top-left corner on large/ultrawide monitors (issue #85).
         if (s.TrackClientPositions)
             RestoreClientPosition(window.Hwnd, window.CharacterName);
+        else
+            ApplyFixedClientPosition(window.Hwnd);
 
         PerfLog(
             $"✅ Created thumbnail for '{window.CharacterName}' @ ({x},{y}) {width}x{height} [{sw.ElapsedMilliseconds}ms]");
@@ -2823,6 +2827,45 @@ public sealed class ThumbnailManager : IDisposable
             {
                 Interop.User32.MoveWindow(hwnd, (int)pos.X, (int)pos.Y, (int)pos.Width, (int)pos.Height, true);
             }
+        }
+        catch { }
+    }
+
+    /// <summary>Move a freshly-discovered EVE client to a fixed spawn position —
+    /// centered on its current monitor, or a user-defined desktop X/Y — so
+    /// fixed-window clients don't all open in the top-left corner on large /
+    /// ultrawide monitors (issue #85). Keeps the window's current size (SWP_NOSIZE).
+    /// Skipped when the mode is Off or the window is maximized / minimized (nothing
+    /// to place). Only reached when position tracking is disabled.</summary>
+    private void ApplyFixedClientPosition(IntPtr hwnd)
+    {
+        int mode = _settings.Settings.ClientPositionMode; // 0=Off, 1=Center, 2=Custom
+        if (mode == 0) return;
+        if (Interop.User32.IsIconic(hwnd) || Interop.User32.IsZoomed(hwnd)) return;
+        if (!Interop.User32.GetWindowRect(hwnd, out var rect)) return;
+
+        int w = rect.Width, h = rect.Height;
+        if (w <= 0 || h <= 0) return;
+
+        int tx, ty;
+        if (mode == 1)
+        {
+            // GetWindowRect + Screen.Bounds + SetWindowPos are all physical device
+            // pixels, so no DPI conversion is needed here.
+            var b = System.Windows.Forms.Screen.FromHandle(hwnd).Bounds;
+            tx = b.Left + (b.Width - w) / 2;
+            ty = b.Top + (b.Height - h) / 2;
+        }
+        else
+        {
+            tx = _settings.Settings.ClientPositionX;
+            ty = _settings.Settings.ClientPositionY;
+        }
+
+        try
+        {
+            Interop.User32.SetWindowPos(hwnd, IntPtr.Zero, tx, ty, 0, 0,
+                Interop.User32.SWP_NOSIZE | Interop.User32.SWP_NOZORDER | Interop.User32.SWP_NOACTIVATE);
         }
         catch { }
     }

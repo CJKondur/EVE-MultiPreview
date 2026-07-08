@@ -253,6 +253,9 @@ public class AhkConfigRoot
                 profile.MinimizeInactiveClients = cs.MinimizeInactiveClients != 0;
                 profile.AlwaysMaximize = cs.AlwaysMaximize != 0;
                 profile.TrackClientPositions = cs.TrackClientPossitions != 0;
+                profile.ClientPositionMode = cs.ClientPositionMode;
+                profile.ClientPositionX = cs.ClientPositionX;
+                profile.ClientPositionY = cs.ClientPositionY;
             }
 
             // Custom Colors (per-profile sub-object with parallel arrays)
@@ -488,6 +491,9 @@ public class AhkConfigRoot
                 MinimizeInactiveClients = profile.MinimizeInactiveClients ? 1 : 0,
                 AlwaysMaximize = profile.AlwaysMaximize ? 1 : 0,
                 TrackClientPossitions = profile.TrackClientPositions ? 1 : 0,
+                ClientPositionMode = profile.ClientPositionMode,
+                ClientPositionX = profile.ClientPositionX,
+                ClientPositionY = profile.ClientPositionY,
                 DontMinimizeClients = profile.DontMinimizeClients,
             };
 
@@ -768,6 +774,15 @@ public class AhkClientSettings
 
     [JsonPropertyName("TrackClientPossitions")]
     public int TrackClientPossitions { get; set; }
+
+    [JsonPropertyName("ClientPositionMode")]
+    public int ClientPositionMode { get; set; }
+
+    [JsonPropertyName("ClientPositionX")]
+    public int ClientPositionX { get; set; }
+
+    [JsonPropertyName("ClientPositionY")]
+    public int ClientPositionY { get; set; }
 
     [JsonPropertyName("Dont_Minimize_Clients")]
     public List<string> DontMinimizeClients { get; set; } = new();

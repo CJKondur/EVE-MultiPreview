@@ -738,7 +738,44 @@ public partial class SettingsWindow
         S.MinimizeInactiveClients = ChkMinimizeInactive.IsChecked == true;
         S.AlwaysMaximize = ChkAlwaysMaximize.IsChecked == true;
         S.TrackClientPositions = ChkTrackClientPositions.IsChecked == true;
+        S.ClientPositionMode = CmbClientPosition.SelectedIndex < 0 ? 0 : CmbClientPosition.SelectedIndex;
+        if (int.TryParse(TxtClientPositionX.Text, out var cpx)) S.ClientPositionX = cpx;
+        if (int.TryParse(TxtClientPositionY.Text, out var cpy)) S.ClientPositionY = cpy;
         SaveDelayed();
+    }
+
+    // Fixed client spawn position (issue #85). Toggles the X/Y row for Custom mode,
+    // then persists via the shared SaveClient path.
+    private void OnClientPositionModeChanged(object s, SelectionChangedEventArgs e)
+    {
+        UpdateClientPositionXYVisibility();
+        if (_loading) return;
+        SaveClient();
+    }
+
+    private void UpdateClientPositionXYVisibility()
+    {
+        if (PanelClientPositionXY == null || CmbClientPosition == null) return;
+        PanelClientPositionXY.Visibility = CmbClientPosition.SelectedIndex == 2
+            ? System.Windows.Visibility.Visible
+            : System.Windows.Visibility.Collapsed;
+    }
+
+    // One-click low-GPU preset (issue #85): enable the two modes that stop idle
+    // clients from rendering. Setting IsChecked fires each checkbox's existing
+    // persist handler (SaveClient / OnPerformanceChanged), so no extra save here.
+    private void OnLowGpuPreset(object sender, RoutedEventArgs e)
+    {
+        ChkMinimizeInactive.IsChecked = true;         // per-profile, Clients panel
+        ChkSuspendThumbsBackground.IsChecked = true;  // global, Performance panel
+        System.Windows.MessageBox.Show(
+            "Low-GPU mode enabled:\n\n" +
+            "• Inactive clients are minimized on switch (they stop rendering)\n" +
+            "• Thumbnails freeze when EVE / MultiPreview isn't focused\n\n" +
+            "Tip: also set an in-game max FPS limit and enable vsync on each client.",
+            "Optimize for Low GPU",
+            System.Windows.MessageBoxButton.OK,
+            System.Windows.MessageBoxImage.Information);
     }
 
     private void LoadDontMinimizeList()
