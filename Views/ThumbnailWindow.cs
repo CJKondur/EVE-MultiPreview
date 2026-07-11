@@ -123,6 +123,9 @@ public class ThumbnailWindow : Form
     private ContextMenuStrip? _contextMenu;
     private ToolStripMenuItem? _muteMenu;
     private ToolStripMenuItem? _audioMenu;
+    // Static context-menu items with localizable text, re-labelled on each open so
+    // a language change applies without recreating the thumbnail (issue #86).
+    private readonly System.Collections.Generic.List<(ToolStripItem item, string key, string en)> _ctxLoc = new();
     private TrackBar? _audioTrackBar;
     private bool _suppressAudioSlider;
 
@@ -134,29 +137,41 @@ public class ThumbnailWindow : Form
             ShowImageMargin = false,
         };
 
-        var editLabel = new ToolStripMenuItem("✏ Edit Label…");
+        // Set an item's text from the active language (English fallback) and
+        // register it for re-labelling when the menu re-opens (issue #86).
+        void CtxL(ToolStripItem it, string key, string en)
+        {
+            it.Text = Services.LocalizationService.Str(key, en);
+            _ctxLoc.Add((it, key, en));
+        }
+
+        var editLabel = new ToolStripMenuItem();
+        CtxL(editLabel, "L.Ctx.EditLabel", "✏ Edit Label…");
         editLabel.Click += (_, _) => LabelEditRequested?.Invoke(this);
         _contextMenu.Items.Add(editLabel);
 
         // Per-character alert mute / snooze — silence one alt's flash/badge/toast/
         // sound without disabling alerts globally (e.g. a noisy or known-safe client).
-        _muteMenu = new ToolStripMenuItem("🔔 Mute Alerts");
-        void AddMute(string text, int minutes)
+        // _muteMenu text is dynamic (set by RefreshMuteMenuState on open).
+        _muteMenu = new ToolStripMenuItem();
+        void AddMute(string key, string en, int minutes)
         {
-            var item = new ToolStripMenuItem(text);
+            var item = new ToolStripMenuItem();
+            CtxL(item, key, en);
             item.Click += (_, _) => AlertMuteRequested?.Invoke(this, minutes);
             _muteMenu.DropDownItems.Add(item);
         }
-        AddMute("For 10 minutes", 10);
-        AddMute("For 30 minutes", 30);
-        AddMute("For 1 hour", 60);
-        AddMute("Until I unmute", int.MaxValue);
+        AddMute("L.Ctx.Mute10", "For 10 minutes", 10);
+        AddMute("L.Ctx.Mute30", "For 30 minutes", 30);
+        AddMute("L.Ctx.Mute60", "For 1 hour", 60);
+        AddMute("L.Ctx.MuteUntil", "Until I unmute", int.MaxValue);
         _muteMenu.DropDownItems.Add(new ToolStripSeparator());
-        AddMute("Unmute", 0);
+        AddMute("L.Ctx.Unmute", "Unmute", 0);
         _contextMenu.Items.Add(_muteMenu);
 
         // Per-client audio (Windows per-process volume/mute, matched by PID).
-        _audioMenu = new ToolStripMenuItem("🔊 Audio");
+        // _audioMenu text is dynamic (set by RefreshAudioMenuState on open).
+        _audioMenu = new ToolStripMenuItem();
 
         // A real volume slider hosted inside the dropdown via ToolStripControlHost.
         _audioTrackBar = new TrackBar
@@ -174,17 +189,19 @@ public class ThumbnailWindow : Form
             if (_suppressAudioSlider) return;
             int v = _audioTrackBar.Value;
             AudioVolume = v;
-            if (_audioMenu != null) _audioMenu.Text = $"🔊 Audio — {v}%";
+            if (_audioMenu != null) _audioMenu.Text = string.Format(Services.LocalizationService.Str("L.Ctx.AudioFmt", "🔊 Audio — {0}%"), v);
             AudioRequested?.Invoke(this, v);
         };
         _audioMenu.DropDownItems.Add(new ToolStripControlHost(_audioTrackBar) { AutoSize = false, Width = 182, Height = 34 });
         _audioMenu.DropDownItems.Add(new ToolStripSeparator());
 
-        var muteItem = new ToolStripMenuItem("🔇 Mute");
+        var muteItem = new ToolStripMenuItem();
+        CtxL(muteItem, "L.Ctx.AudioMute", "🔇 Mute");
         muteItem.Click += (_, _) => AudioRequested?.Invoke(this, -1);
         _audioMenu.DropDownItems.Add(muteItem);
 
-        var fullItem = new ToolStripMenuItem("🔊 100% (unmute)");
+        var fullItem = new ToolStripMenuItem();
+        CtxL(fullItem, "L.Ctx.Audio100", "🔊 100% (unmute)");
         fullItem.Click += (_, _) => { AudioVolume = 100; AudioRequested?.Invoke(this, 100); };
         _audioMenu.DropDownItems.Add(fullItem);
 
@@ -198,6 +215,9 @@ public class ThumbnailWindow : Form
     {
         BuildContextMenu();
         if (_contextMenu == null) return;
+        // Re-label static items for the active language before showing (issue #86).
+        foreach (var (it, key, en) in _ctxLoc)
+            it.Text = Services.LocalizationService.Str(key, en);
         RefreshMuteMenuState();
         RefreshAudioMenuState();
         try
@@ -218,13 +238,13 @@ public class ThumbnailWindow : Form
         bool muted = AlertMutedUntil.HasValue
             && (AlertMutedUntil.Value == DateTime.MaxValue || AlertMutedUntil.Value > DateTime.Now);
         if (!muted)
-            _muteMenu.Text = "🔔 Mute Alerts";
+            _muteMenu.Text = Services.LocalizationService.Str("L.Ctx.MuteAlerts", "🔔 Mute Alerts");
         else if (AlertMutedUntil!.Value == DateTime.MaxValue)
-            _muteMenu.Text = "🔇 Alerts muted (until unmuted)";
+            _muteMenu.Text = Services.LocalizationService.Str("L.Ctx.MutedUntilUnmuted", "🔇 Alerts muted (until unmuted)");
         else
         {
             int mins = Math.Max(1, (int)Math.Ceiling((AlertMutedUntil.Value - DateTime.Now).TotalMinutes));
-            _muteMenu.Text = $"🔇 Alerts muted ({mins}m left)";
+            _muteMenu.Text = string.Format(Services.LocalizationService.Str("L.Ctx.MutedMinsLeft", "🔇 Alerts muted ({0}m left)"), mins);
         }
     }
 
@@ -237,7 +257,7 @@ public class ThumbnailWindow : Form
         _suppressAudioSlider = true;
         _audioTrackBar.Value = v;
         _suppressAudioSlider = false;
-        _audioMenu.Text = $"🔊 Audio — {v}%";
+        _audioMenu.Text = string.Format(Services.LocalizationService.Str("L.Ctx.AudioFmt", "🔊 Audio — {0}%"), v);
     }
 
     // Session-only cycle-exclusion visual state (issue #16, drawing fixed in

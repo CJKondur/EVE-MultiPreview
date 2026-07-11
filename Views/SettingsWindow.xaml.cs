@@ -253,6 +253,20 @@ public partial class SettingsWindow : Window
     // ══════════════════════════════════════════════════════════════
     //  LOAD / SAVE
     // ══════════════════════════════════════════════════════════════
+    // Language switch (issue #86): persist the choice and swap the live string
+    // overlay. Open windows update immediately via DynamicResource; text set from
+    // code-behind refreshes when its window is reopened.
+    private void OnLanguageChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (_loading) return;
+        if (CmbLanguage.SelectedItem is not System.Windows.Controls.ComboBoxItem it) return;
+        var code = (it.Tag as string) ?? "en";
+        S.Language = code;
+        LocalizationService.SetLanguage(code);
+        UpdateWikiContent(); // refresh the Help sidebar in the new language immediately
+        SaveDelayed();
+    }
+
     private void LoadSettings()
     {
         _loadingDepth++;
@@ -264,6 +278,13 @@ public partial class SettingsWindow : Window
             CmbProfiles.SelectedItem = S.LastUsedProfile;
 
             // General
+            // Language selector (issue #86) — populate once, then select the active language.
+            if (CmbLanguage.Items.Count == 0)
+                foreach (var (code, name) in LocalizationService.Languages)
+                    CmbLanguage.Items.Add(new System.Windows.Controls.ComboBoxItem { Content = name, Tag = code });
+            foreach (System.Windows.Controls.ComboBoxItem it in CmbLanguage.Items)
+                if ((it.Tag as string) == LocalizationService.CurrentLanguage) { CmbLanguage.SelectedItem = it; break; }
+
             CmbHotkeyScope.SelectedIndex = S.GlobalHotkeys ? 0 : 1;
             TxtSuspendHotkey.Text = S.SuspendHotkey;
             TxtClickThroughHotkey.Text = S.ClickThroughHotkey;
@@ -734,7 +755,18 @@ public partial class SettingsWindow : Window
         return track?.Thumb;
     }
 
-    private static string GetWikiContent(string panelName) => panelName switch
+    /// <summary>Contextual Help-sidebar text for a panel. Resolves a translated
+    /// block from the active-language resource dictionary (key L.Wiki.&lt;panel&gt;)
+    /// when present, otherwise falls back to the English text below (issue #86).</summary>
+    private static string GetWikiContent(string panelName)
+    {
+        if (System.Windows.Application.Current?.TryFindResource($"L.Wiki.{panelName}") is string loc
+            && !string.IsNullOrWhiteSpace(loc))
+            return loc;
+        return GetWikiContentEnglish(panelName);
+    }
+
+    private static string GetWikiContentEnglish(string panelName) => panelName switch
     {
         "General" =>
             "GENERAL SETTINGS\n" +

@@ -214,6 +214,9 @@ public class AppSettings
     public bool ReceivePreReleaseUpdates { get; set; } = false;
     public bool CheckForUpdatesOnStartup { get; set; } = true;
 
+    // UI language (issue #86). Two-letter code ("en"/"zh"/...); "" = auto-detect from OS.
+    public string Language { get; set; } = "";
+
     // ── Broadcast-key HUD (shows which held key is being propagated to clients) ──
     public bool ShowBroadcastKeyHud { get; set; } = false;
     public int BroadcastHudX { get; set; } = 0;

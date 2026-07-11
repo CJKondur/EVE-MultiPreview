@@ -1,7 +1,7 @@
 <Window x:Class="EveMultiPreview.Views.CopyLayoutDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Copy Profile"
+        Title="{DynamicResource L.Copy.Title}"
         Width="420" Height="340"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -25,30 +25,30 @@
         </Grid.ColumnDefinitions>
 
         <!-- Copy from -->
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Copy from:" VerticalAlignment="Center"
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource L.Copy.From}" VerticalAlignment="Center"
                    Foreground="{StaticResource TextBrush}" FontSize="13" FontWeight="SemiBold"/>
         <ComboBox x:Name="CmbFrom" Grid.Row="0" Grid.Column="1" Height="28" Margin="0,0,0,12"
                   FontSize="12"/>
 
         <!-- Copy to -->
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Copy to:" VerticalAlignment="Center"
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource L.Copy.To}" VerticalAlignment="Center"
                    Foreground="{StaticResource TextBrush}" FontSize="13" FontWeight="SemiBold"/>
         <ComboBox x:Name="CmbTo" Grid.Row="1" Grid.Column="1" Height="28" Margin="0,0,0,12"
                   FontSize="12"/>
 
         <!-- What to copy -->
-        <TextBlock Grid.Row="2" Grid.Column="0" Text="What:" VerticalAlignment="Top" Margin="0,4,0,0"
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource L.Copy.What}" VerticalAlignment="Top" Margin="0,4,0,0"
                    Foreground="{StaticResource TextBrush}" FontSize="13" FontWeight="SemiBold"/>
         <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,0,0,8">
             <RadioButton x:Name="RdoLayoutOnly" GroupName="What" IsChecked="True"
                          Foreground="{StaticResource TextBrush}" FontSize="12" Margin="0,2">
-                <TextBlock Text="Thumbnail layout only" Foreground="{StaticResource TextBrush}"/>
+                <TextBlock Text="{DynamicResource L.Copy.LayoutOnly}" Foreground="{StaticResource TextBrush}"/>
             </RadioButton>
             <RadioButton x:Name="RdoFullProfile" GroupName="What"
                          Foreground="{StaticResource TextBrush}" FontSize="12" Margin="0,6,0,2">
                 <StackPanel>
-                    <TextBlock Text="Entire profile" Foreground="{StaticResource TextBrush}"/>
-                    <TextBlock Text="Layout, display settings, hotkeys, groups, crops and performance settings."
+                    <TextBlock Text="{DynamicResource L.Copy.EntireProfile}" Foreground="{StaticResource TextBrush}"/>
+                    <TextBlock Text="{DynamicResource L.Copy.EntireNote}"
                                Foreground="{StaticResource DimBrush}" FontSize="11"
                                TextWrapping="Wrap" Margin="0,2,0,0"/>
                 </StackPanel>
@@ -56,7 +56,7 @@
         </StackPanel>
 
         <!-- Copy button -->
-        <Button Grid.Row="3" Grid.ColumnSpan="2" Content="💾  Copy"
+        <Button Grid.Row="3" Grid.ColumnSpan="2" Content="{DynamicResource L.Copy.CopyBtn}"
                 Click="OnCopy" Height="36" FontSize="14" FontWeight="SemiBold"
                 Background="{StaticResource AccentBrush}" Foreground="White"
                 BorderThickness="0" Cursor="Hand" VerticalAlignment="Bottom"

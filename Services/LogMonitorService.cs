@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1353,17 +1353,18 @@ public sealed class LogMonitorService : IDisposable
 
     private void ParseChatLogLine(string line, string character)
     {
-        // AHK: Chat log parsing ONLY handles system changes — nothing else
-        // System change: "[ timestamp ] EVE System > Channel changed to Local : SystemName"
-        if (line.Contains("Channel changed to Local"))
+        // AHK: Chat log parsing ONLY handles system changes — nothing else.
+        // EVE localizes this line, so match per-language (issue #86):
+        //   en: "EVE System > Channel changed to Local : SystemName"
+        //   zh: "EVE系统 > 频道更换为本地：SystemName"   (note the full-width colon)
+        var systemMatch = Regex.Match(line, @"Channel changed to Local\s*[：:]\s*(.+)");
+        if (!systemMatch.Success)
+            systemMatch = Regex.Match(line, @"频道更换为本地\s*[：:]\s*(.+)");
+        if (systemMatch.Success)
         {
-            var systemMatch = Regex.Match(line, @"Channel changed to Local\s*:\s*(.+)");
-            if (systemMatch.Success)
-            {
-                string systemName = SanitizeSystemName(systemMatch.Groups[1].Value.Trim());
-                if (!string.IsNullOrEmpty(systemName))
-                    UpdateSystem(character, systemName, "chat");
-            }
+            string systemName = SanitizeSystemName(systemMatch.Groups[1].Value.Trim());
+            if (!string.IsNullOrEmpty(systemName))
+                UpdateSystem(character, systemName, "chat");
         }
     }
 
@@ -1469,7 +1470,11 @@ public sealed class LogMonitorService : IDisposable
         //   from <attacker> to warp.
         // The previous parser required "attempts to" — that string never
         // appears in this EVE message, so the alert never fired (issue #42).
-        if (line.Contains("(notify)") && line.Contains("warp disruption zone"))
+        // Chinese clients write a localized scramble line (issue #86: "试图跃迁扰频"
+        // = "attempts warp scramble") that lacks the English "(notify) ... warp
+        // disruption zone" wording, so match it directly.
+        bool zhScramble = line.Contains("试图跃迁扰频");
+        if ((line.Contains("(notify)") && line.Contains("warp disruption zone")) || zhScramble)
         {
             // PVE mode filters NPC scramblers (sleeper towers, drone probes,
             // gate sentries, mission rats with infinipoints, etc.). The notify
@@ -1478,7 +1483,9 @@ public sealed class LogMonitorService : IDisposable
             // the "owns the ship" apostrophe-s test. Player-owned ships look
             // like "Pilot Name's ShipType"; NPC sources look like plain
             // strings ("Warp Disrupt Probe", "Customs Office", etc.).
-            if (PveMode)
+            // The localized line doesn't carry the English attacker phrasing, so
+            // NPC filtering can't parse it — fire unconditionally for that path.
+            if (PveMode && !zhScramble)
             {
                 var attackerMatch = Regex.Match(line, @"from\s+(.+?)\s+to warp");
                 if (attackerMatch.Success)
@@ -1505,7 +1512,9 @@ public sealed class LogMonitorService : IDisposable
         }
 
         // ── Fleet Invite from game log (AHK: (question) + "join their fleet") ──
-        if (line.Contains("(question)") && line.Contains("join their fleet"))
+        // zh (issue #86): "邀请你加入舰队" = "invites you to join the fleet".
+        if ((line.Contains("(question)") && line.Contains("join their fleet"))
+            || line.Contains("邀请你加入舰队"))
         {
             TriggerAlert(character, "fleet_invite", "warning");
             return;

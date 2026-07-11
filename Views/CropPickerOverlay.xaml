@@ -8,7 +8,7 @@
         Topmost="True"
         ResizeMode="NoResize"
         Cursor="Cross"
-        Title="Pick Crop Area">
+        Title="{DynamicResource L.CropPick.Title}">
     <Grid x:Name="RootGrid">
         <Canvas x:Name="OverlayCanvas" Background="Transparent">
             <Rectangle x:Name="Rubberband"
@@ -23,7 +23,7 @@
                 IsHitTestVisible="False">
             <TextBlock x:Name="HintText"
                        Foreground="#FFFAC57A" FontFamily="Segoe UI" FontSize="11"
-                       Text="Drag to select crop area — press Esc to cancel"/>
+                       Text="{DynamicResource L.CropPick.Hint}"/>
         </Border>
     </Grid>
 </Window>
