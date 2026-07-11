@@ -28,6 +28,7 @@ public static class LocalizationService
         ("es", "Español"),
         ("ja", "日本語"),
         ("ko", "한국어"),
+        ("it", "Italiano"),
     };
 
     /// <summary>Resolve a localized string for the active language, falling back to

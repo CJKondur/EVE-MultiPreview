@@ -1473,8 +1473,12 @@ public sealed class LogMonitorService : IDisposable
         // Chinese clients write a localized scramble line (issue #86: "试图跃迁扰频"
         // = "attempts warp scramble") that lacks the English "(notify) ... warp
         // disruption zone" wording, so match it directly.
+        // Body phrase matched across all EVE client languages (extracted from EVE's
+        // localization files — issue #86), gated by the English "(notify)" tag which
+        // stays English in every client. The reported Chinese line (a separate,
+        // untagged message) is kept as an ungated anchor so it never regresses.
         bool zhScramble = line.Contains("试图跃迁扰频");
-        if ((line.Contains("(notify)") && line.Contains("warp disruption zone")) || zhScramble)
+        if ((line.Contains("(notify)") && AlertPatterns.Matches(line, "warp_scramble")) || zhScramble)
         {
             // PVE mode filters NPC scramblers (sleeper towers, drone probes,
             // gate sentries, mission rats with infinipoints, etc.). The notify
@@ -1485,7 +1489,10 @@ public sealed class LogMonitorService : IDisposable
             // strings ("Warp Disrupt Probe", "Customs Office", etc.).
             // The localized line doesn't carry the English attacker phrasing, so
             // NPC filtering can't parse it — fire unconditionally for that path.
-            if (PveMode && !zhScramble)
+            // NPC filtering parses the English "from <attacker> to warp" phrasing,
+            // so only apply it to the English notify line; other languages fire
+            // unconditionally (we can't parse the localized attacker text).
+            if (PveMode && line.Contains("warp disruption zone"))
             {
                 var attackerMatch = Regex.Match(line, @"from\s+(.+?)\s+to warp");
                 if (attackerMatch.Success)
@@ -1503,25 +1510,25 @@ public sealed class LogMonitorService : IDisposable
             return;
         }
 
-        // ── Decloak detection (AHK: "cloak deactivates" with (notify) tag) ──
-        if (line.Contains("cloak deactivates") && line.Contains("(notify)"))
+        // ── Decloak detection ((notify) tag + localized "cloak deactivates") ──
+        if (line.Contains("(notify)") && AlertPatterns.Matches(line, "decloak"))
         {
             _lastEventTime = DateTime.Now;
             TriggerAlert(character, "decloak", "critical");
             return;
         }
 
-        // ── Fleet Invite from game log (AHK: (question) + "join their fleet") ──
-        // zh (issue #86): "邀请你加入舰队" = "invites you to join the fleet".
-        if ((line.Contains("(question)") && line.Contains("join their fleet"))
+        // ── Fleet Invite from game log ((question) tag + localized body) ──
+        // The reported Chinese line is kept as an ungated anchor (issue #86).
+        if ((line.Contains("(question)") && AlertPatterns.Matches(line, "fleet_invite"))
             || line.Contains("邀请你加入舰队"))
         {
             TriggerAlert(character, "fleet_invite", "warning");
             return;
         }
 
-        // ── Convo Request from game log (AHK: (None) + "inviting you to a conversation") ──
-        if (line.Contains("(None)") && line.Contains("inviting you to a conversation"))
+        // ── Convo Request from game log ((None) tag + localized body) ──
+        if (line.Contains("(None)") && AlertPatterns.Matches(line, "convo_request"))
         {
             TriggerAlert(character, "convo_request", "warning");
             return;

@@ -31,6 +31,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
     <EmbeddedResource Include="Icon-Suspend.ico" />
+    <!-- Multi-language alert log substrings extracted from EVE's localization (issue #86) -->
+    <EmbeddedResource Include="Resources\alert_patterns.json" />
   </ItemGroup>
 
 </Project>
