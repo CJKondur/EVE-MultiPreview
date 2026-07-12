@@ -140,6 +140,29 @@ public sealed class CropManager : IDisposable
         _thumbnailManager = thumbnailManager;
         _thumbnailManager.AllVisibilityChanged += SetCropsHidden;
         _thumbnailManager.CropsVisibilityToggleRequested += ToggleCropsVisibility;
+        _thumbnailManager.CropZOrderReassertRequested += OnThumbnailZOrderReassert;
+    }
+
+    /// <summary>Re-raise crops in lockstep with the thumbnails' own z-order sweep.
+    /// Driven by <see cref="ThumbnailManager.CropZOrderReassertRequested"/>, which fires
+    /// from the 250ms focus poll on every client switch — so crops get the identical,
+    /// reliable treatment that keeps thumbnails above the clients, instead of a separate
+    /// edge-triggered re-raise that lost the race and let crops drop behind (#80/#87).</summary>
+    private void OnThumbnailZOrderReassert(bool desiredTopmost)
+    {
+        var s = _settings.Settings;
+        if (!s.CropEnabled || _cropsHidden) return;
+
+        foreach (var perChar in _windows.Values)
+            foreach (var win in perChar.Values)
+            {
+                try
+                {
+                    if (win.Topmost != desiredTopmost) win.SetTopmost(desiredTopmost);
+                    win.BringToFront();
+                }
+                catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop sweep re-raise failed: {ex.Message}"); }
+            }
     }
 
     /// <summary>Show or hide every live crop. Driven by the Hide/Show All keybind
@@ -244,16 +267,29 @@ public sealed class CropManager : IDisposable
     {
         var s = _settings.Settings;
         if (!s.CropEnabled || _cropsHidden) return;
-        if (!s.ShowThumbnailsAlwaysOnTop && !s.KeepThumbnailsAboveClients) return;
 
+        IntPtr fg = Interop.User32.GetForegroundWindow();
         string? fgProc = null;
-        try { fgProc = Interop.User32.GetProcessName(Interop.User32.GetForegroundWindow()); } catch { }
+        try { fgProc = Interop.User32.GetProcessName(fg); } catch { }
         bool eveFocused = Interop.User32.IsEveOrAppProcess(fgProc);
 
-        // Topmost while EVE/app is foreground (or always, under Always-On-Top);
-        // non-topmost otherwise. Set BEFORE BringToFront so it uses HWND_TOPMOST.
+        // Re-raise crops above the EVE client whenever a client (or this app) is
+        // foreground — NOT gated on Always-On-Top. The thumbnails' client-switch
+        // re-raise is deliberately un-gated too (ThumbnailManager), so a user who
+        // keeps previews non-topmost still gets them lifted over the client on a
+        // switch; crops used to early-return here when neither on-top mode was set,
+        // so for those users crops never re-raised at all while thumbnails did — the
+        // "thumbnails fine, crops still hide" report (#80/#87). Topmost while EVE/app
+        // is foreground (or always, under Always-On-Top); non-topmost otherwise, set
+        // BEFORE BringToFront so it uses the right z-order band.
         bool desiredTopmost = s.ShowThumbnailsAlwaysOnTop || (s.KeepThumbnailsAboveClients && eveFocused);
 
+        // Diagnostic (issue #80/#87): when a re-raise runs but crops still hide, the
+        // debug_dwm.log tells us WHY — is the client itself topmost (so nothing we do
+        // helps), or did the crop's topmost bit fail to stick? Logged once per pass.
+        bool fgTop = fg != IntPtr.Zero && (Interop.User32.GetWindowLong(fg, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0;
+
+        int cropCount = 0, cropTop = 0;
         foreach (var perChar in _windows.Values)
             foreach (var win in perChar.Values)
             {
@@ -263,9 +299,17 @@ public sealed class CropManager : IDisposable
                     // Only re-raise when an EVE/app window is up — raising on a
                     // tab-away would lift the crop over the app the user just chose.
                     if (eveFocused) win.BringToFront();
+
+                    cropCount++;
+                    var h = new System.Windows.Interop.WindowInteropHelper(win).Handle;
+                    if (h != IntPtr.Zero && (Interop.User32.GetWindowLong(h, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0)
+                        cropTop++;
                 }
                 catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop re-raise failed: {ex.Message}"); }
             }
+
+        if (cropCount > 0)
+            DiagnosticsService.LogDwm($"[Crop:ZOrder] fg=0x{fg.ToInt64():X} proc={fgProc ?? "?"} eveFocused={eveFocused} fgTopmost={fgTop} desiredTopmost={desiredTopmost} crops={cropCount} cropsTopmost={cropTop}");
     }
 
     private void OnSourceMinimizeEnd(IntPtr hwnd)
@@ -353,6 +397,7 @@ public sealed class CropManager : IDisposable
         {
             _thumbnailManager.AllVisibilityChanged -= SetCropsHidden;
             _thumbnailManager.CropsVisibilityToggleRequested -= ToggleCropsVisibility;
+            _thumbnailManager.CropZOrderReassertRequested -= OnThumbnailZOrderReassert;
         }
         if (_winEvents != null)
         {

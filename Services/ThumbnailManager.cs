@@ -1723,6 +1723,11 @@ public sealed class ThumbnailManager : IDisposable
                 pip.BringToFront();
             foreach (var (_, sw) in _statWindows)
                 sw.BringToFront();
+
+            // Crops ride the exact same reliable re-raise as the thumbnails above, so
+            // they stay over the client on every client switch instead of dropping
+            // behind it (#80/#87). CropManager mirrors the thumbnail logic.
+            CropZOrderReassertRequested?.Invoke(desiredTopmost);
         }
         else if (!fgIsTrackedClient)
         {
@@ -2929,6 +2934,13 @@ public sealed class ThumbnailManager : IDisposable
     /// CropManager owns the crop hidden-state, so it handles the actual toggle
     /// (issue #66). Routed through here so HotkeyService needs no CropManager ref.</summary>
     public event Action? CropsVisibilityToggleRequested;
+
+    /// <summary>Fires from the 250ms focus sweep whenever thumbnails re-assert their
+    /// z-order above the EVE clients — carries the desired topmost band. CropManager
+    /// subscribes so crops ride the SAME reliable poll as the thumbnails instead of a
+    /// separate edge-triggered window event that could miss/lose the activation race,
+    /// leaving crops behind the client while thumbnails stayed on top (#80/#87).</summary>
+    public event Action<bool>? CropZOrderReassertRequested;
 
     public void ToggleThumbnailVisibility()
     {
