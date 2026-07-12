@@ -40,6 +40,11 @@ public sealed class CropManager : IDisposable
     // event to trigger a rebind (issue #64 — crops vanish at random).
     private readonly System.Windows.Threading.DispatcherTimer _healthTimer;
 
+    // One-shot, debounced z-order re-raise fired ~150ms after a foreground change,
+    // once the newly activated client has settled — the immediate re-raise in the
+    // WinEvent handler otherwise races the client's own raise and loses (issue #80).
+    private readonly System.Windows.Threading.DispatcherTimer _settleReassertTimer;
+
     // Window-event hook used to force-rebind a crop when its source EVE window
     // restores from minimized (issue #65 — periodic health check missed this
     // case because the registration was still nominally valid).
@@ -59,6 +64,12 @@ public sealed class CropManager : IDisposable
         };
         _healthTimer.Tick += (_, _) => HealthCheck();
         _healthTimer.Start();
+
+        _settleReassertTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(150)
+        };
+        _settleReassertTimer.Tick += (_, _) => { _settleReassertTimer.Stop(); ApplyZOrder(); };
     }
 
     /// <summary>Re-validate every live crop's DWM thumbnail and rebuild any that
@@ -194,32 +205,67 @@ public sealed class CropManager : IDisposable
         _winEvents.ForegroundChanged += OnForegroundChanged;
     }
 
-    /// <summary>Re-assert crop z-order when an EVE client (or the app) comes to the
-    /// foreground. WPF Topmost alone doesn't keep a crop above a client the user
-    /// tabs into — the activated client raises over the crop and stays there until
-    /// the user toggles crops off/on (issue #80: "crops hide under the main client").
-    /// Mirrors ThumbnailManager's focus-driven re-raise so crops placed on top of a
-    /// client survive tabbing into it. Only runs when the user has opted crops into
-    /// an always-on-top mode.</summary>
+    /// <summary>Re-assert crop z-order when the foreground window changes. WPF Topmost
+    /// alone doesn't keep a crop above a client the user tabs into — the activated
+    /// client raises over the crop and stays there until the user toggles crops off/on
+    /// (issue #80: "crops hide under the main client the moment you tab in").
+    ///
+    /// This mirrors ThumbnailManager's focus-aware topmost model exactly, because a
+    /// bare non-topmost <see cref="CropWindow.BringToFront"/> (HWND_TOP) LOSES the
+    /// activation race — the re-activating EVE client gets stuck back on top (the same
+    /// failure the thumbnails hit, "confirmed by LittlePhish"). The winning move is to
+    /// put the crop into the TOPMOST band while an EVE client (or this app) is focused,
+    /// then BringToFront within that band. Under KeepThumbnailsAboveClients we DROP the
+    /// crop back to non-topmost the instant a non-EVE app is focused, so crops never
+    /// sit over Discord/your browser once you tab there; Always-On-Top keeps them
+    /// topmost permanently.</summary>
     private void OnForegroundChanged(IntPtr fgHwnd)
     {
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
-            var s = _settings.Settings;
-            if (!s.CropEnabled || _cropsHidden) return;
-            if (!s.ShowThumbnailsAlwaysOnTop && !s.KeepThumbnailsAboveClients) return;
-
-            string? fgProc = null;
-            try { fgProc = Interop.User32.GetProcessName(fgHwnd); } catch { }
-            if (!Interop.User32.IsEveOrAppProcess(fgProc)) return;
-
-            foreach (var perChar in _windows.Values)
-                foreach (var win in perChar.Values)
-                {
-                    try { win.BringToFront(); }
-                    catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop re-raise failed: {ex.Message}"); }
-                }
+            ApplyZOrder();
+            // The activated client can finish raising AFTER this immediate pass,
+            // leaving a topmost crop briefly behind it — the exact race the thumbnails
+            // dodge by re-raising on their 250ms post-settle sweep rather than in the
+            // WinEvent itself. Without a follow-up, a topmost crop still buries the
+            // moment you tab into a client and stays there (issue #80, Raikia). Fire
+            // one more debounced re-raise once the client has settled.
+            _settleReassertTimer.Stop();
+            _settleReassertTimer.Start();
         });
+    }
+
+    /// <summary>Converge crop z-order to the current focus state: topmost while an
+    /// EVE client (or this app) is foreground — or always, under Always-On-Top — then
+    /// re-raise within that band; drop to non-topmost when the user tabs to another app
+    /// (KeepThumbnailsAboveClients only). Shared by the foreground WinEvent and the
+    /// post-settle follow-up timer (issue #80).</summary>
+    private void ApplyZOrder()
+    {
+        var s = _settings.Settings;
+        if (!s.CropEnabled || _cropsHidden) return;
+        if (!s.ShowThumbnailsAlwaysOnTop && !s.KeepThumbnailsAboveClients) return;
+
+        string? fgProc = null;
+        try { fgProc = Interop.User32.GetProcessName(Interop.User32.GetForegroundWindow()); } catch { }
+        bool eveFocused = Interop.User32.IsEveOrAppProcess(fgProc);
+
+        // Topmost while EVE/app is foreground (or always, under Always-On-Top);
+        // non-topmost otherwise. Set BEFORE BringToFront so it uses HWND_TOPMOST.
+        bool desiredTopmost = s.ShowThumbnailsAlwaysOnTop || (s.KeepThumbnailsAboveClients && eveFocused);
+
+        foreach (var perChar in _windows.Values)
+            foreach (var win in perChar.Values)
+            {
+                try
+                {
+                    if (win.Topmost != desiredTopmost) win.SetTopmost(desiredTopmost);
+                    // Only re-raise when an EVE/app window is up — raising on a
+                    // tab-away would lift the crop over the app the user just chose.
+                    if (eveFocused) win.BringToFront();
+                }
+                catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop re-raise failed: {ex.Message}"); }
+            }
     }
 
     private void OnSourceMinimizeEnd(IntPtr hwnd)
@@ -299,6 +345,7 @@ public sealed class CropManager : IDisposable
     public void Dispose()
     {
         _healthTimer.Stop();
+        _settleReassertTimer.Stop();
         _discovery.WindowFound -= OnWindowFound;
         _discovery.WindowLost -= OnWindowLost;
         _discovery.WindowTitleChanged -= OnWindowTitleChanged;
@@ -527,8 +574,24 @@ public sealed class CropManager : IDisposable
     {
         var s = _settings.Settings;
 
-        // Always-on-top parity with ThumbnailWindow (also propagates to label overlay)
-        win.SetTopmost(s.ShowThumbnailsAlwaysOnTop);
+        // Always-on-top parity with ThumbnailWindow (also propagates to label overlay).
+        // Be focus-aware at creation: under KeepThumbnailsAboveClients a crop created
+        // while an EVE client is already foreground gets NO subsequent ForegroundChanged
+        // event, so a bare SetTopmost(false) would leave it buried behind the client
+        // until the user toggled crops off/on (issue #80's startup case). Start it in
+        // the topmost band when EVE/app is the current foreground.
+        bool eveFocusedNow = false;
+        try { eveFocusedNow = Interop.User32.IsEveOrAppProcess(Interop.User32.GetProcessName(Interop.User32.GetForegroundWindow())); }
+        catch { }
+        win.SetTopmost(s.ShowThumbnailsAlwaysOnTop || (s.KeepThumbnailsAboveClients && eveFocusedNow));
+
+        // Raise it above the client NOW if EVE/app is already foreground. A crop
+        // reconciled after you've tabbed to EVE — e.g. the slow ones still loading
+        // during a profile switch — gets no ForegroundChanged event of its own, so
+        // without this it stays flagged topmost yet sitting behind the client until
+        // the next focus change (issue #87: "crops fail to load if you tab to EVE too
+        // quick"). Same root cause as #80, just hit mid-load rather than on tab-in.
+        if (eveFocusedNow) win.BringToFront();
 
         // Parse font size from string setting (matches ThumbnailTextSize being string)
         double fontSize = 11;
