@@ -472,6 +472,11 @@ public partial class CropWindow : Window
     /// plus raw SetWindowPos, never the framework property.</summary>
     private bool _isTopmost;
 
+    /// <summary>The tracked topmost state (the OS truth we drive via raw SetWindowPos).
+    /// Read this instead of the WPF <c>Topmost</c> property, which isn't reliable on
+    /// this AllowsTransparency window.</summary>
+    public bool IsTopmostState => _isTopmost;
+
     /// <summary>The crop's own top-level HWND, resolved robustly (OnLoaded may not have
     /// cached it yet on very early calls).</summary>
     private IntPtr OwnHwnd =>
@@ -499,10 +504,6 @@ public partial class CropWindow : Window
                     User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
         }
 
-        // Keep the framework property consistent with the OS state so anything that
-        // reads win.Topmost (e.g. the CropManager convergence guard) stays correct.
-        try { Topmost = topmost; } catch { }
-        if (_textOverlay != null) { try { _textOverlay.Topmost = topmost; } catch { } }
     }
 
     /// <summary>Re-assert this crop's z-order above the EVE clients. A topmost flag

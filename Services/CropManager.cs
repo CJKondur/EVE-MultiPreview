@@ -40,10 +40,15 @@ public sealed class CropManager : IDisposable
     // event to trigger a rebind (issue #64 — crops vanish at random).
     private readonly System.Windows.Threading.DispatcherTimer _healthTimer;
 
-    // One-shot, debounced z-order re-raise fired ~150ms after a foreground change,
-    // once the newly activated client has settled — the immediate re-raise in the
-    // WinEvent handler otherwise races the client's own raise and loses (issue #80).
-    private readonly System.Windows.Threading.DispatcherTimer _settleReassertTimer;
+    // Trailing debounce for the crop z-order re-raise. The foreground WinEvent fires
+    // once PER client activation, so holding the cycle hotkey (a switch every
+    // CycleDelayMs) used to post one ApplyZOrder per step at Normal dispatcher
+    // priority — flooding the UI queue and STARVING the cycle's own Background-priority
+    // repeat timer, so the configured cycle delay was ignored and the lag grew the
+    // longer you held (the cycle regression). Coalescing collapses a whole cycle-storm
+    // into ONE re-raise once switching settles; crops are already topmost (raw
+    // SetWindowPos in CropWindow) so they don't fall behind during the brief coalesce.
+    private readonly System.Windows.Threading.DispatcherTimer _zorderDebounce;
 
     // Window-event hook used to force-rebind a crop when its source EVE window
     // restores from minimized (issue #65 — periodic health check missed this
@@ -65,11 +70,12 @@ public sealed class CropManager : IDisposable
         _healthTimer.Tick += (_, _) => HealthCheck();
         _healthTimer.Start();
 
-        _settleReassertTimer = new System.Windows.Threading.DispatcherTimer
+        _zorderDebounce = new System.Windows.Threading.DispatcherTimer(
+            System.Windows.Threading.DispatcherPriority.Background)
         {
-            Interval = TimeSpan.FromMilliseconds(150)
+            Interval = TimeSpan.FromMilliseconds(60)
         };
-        _settleReassertTimer.Tick += (_, _) => { _settleReassertTimer.Stop(); ApplyZOrder(); };
+        _zorderDebounce.Tick += (_, _) => { _zorderDebounce.Stop(); ApplyZOrder(); };
     }
 
     /// <summary>Re-validate every live crop's DWM thumbnail and rebuild any that
@@ -158,7 +164,7 @@ public sealed class CropManager : IDisposable
             {
                 try
                 {
-                    if (win.Topmost != desiredTopmost) win.SetTopmost(desiredTopmost);
+                    if (win.IsTopmostState != desiredTopmost) win.SetTopmost(desiredTopmost);
                     win.BringToFront();
                 }
                 catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop sweep re-raise failed: {ex.Message}"); }
@@ -244,25 +250,17 @@ public sealed class CropManager : IDisposable
     /// topmost permanently.</summary>
     private void OnForegroundChanged(IntPtr fgHwnd)
     {
-        Application.Current?.Dispatcher.BeginInvoke(() =>
-        {
-            ApplyZOrder();
-            // The activated client can finish raising AFTER this immediate pass,
-            // leaving a topmost crop briefly behind it — the exact race the thumbnails
-            // dodge by re-raising on their 250ms post-settle sweep rather than in the
-            // WinEvent itself. Without a follow-up, a topmost crop still buries the
-            // moment you tab into a client and stays there (issue #80, Raikia). Fire
-            // one more debounced re-raise once the client has settled.
-            _settleReassertTimer.Stop();
-            _settleReassertTimer.Start();
-        });
+        // Coalesce: restart the debounce instead of re-raising immediately. A burst of
+        // switches (held cycle key) collapses to a single ApplyZOrder once it settles,
+        // so we never flood the dispatcher and stall the cycle timer.
+        _zorderDebounce.Stop();
+        _zorderDebounce.Start();
     }
 
     /// <summary>Converge crop z-order to the current focus state: topmost while an
     /// EVE client (or this app) is foreground — or always, under Always-On-Top — then
     /// re-raise within that band; drop to non-topmost when the user tabs to another app
-    /// (KeepThumbnailsAboveClients only). Shared by the foreground WinEvent and the
-    /// post-settle follow-up timer (issue #80).</summary>
+    /// (KeepThumbnailsAboveClients only). Also driven by the thumbnail sweep hook.</summary>
     private void ApplyZOrder()
     {
         var s = _settings.Settings;
@@ -284,30 +282,41 @@ public sealed class CropManager : IDisposable
         // BEFORE BringToFront so it uses the right z-order band.
         bool desiredTopmost = s.ShowThumbnailsAlwaysOnTop || (s.KeepThumbnailsAboveClients && eveFocused);
 
-        // Diagnostic (issue #80/#87): when a re-raise runs but crops still hide, the
-        // debug_dwm.log tells us WHY — is the client itself topmost (so nothing we do
-        // helps), or did the crop's topmost bit fail to stick? Logged once per pass.
-        bool fgTop = fg != IntPtr.Zero && (Interop.User32.GetWindowLong(fg, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0;
-
-        int cropCount = 0, cropTop = 0;
         foreach (var perChar in _windows.Values)
             foreach (var win in perChar.Values)
             {
                 try
                 {
-                    if (win.Topmost != desiredTopmost) win.SetTopmost(desiredTopmost);
+                    if (win.IsTopmostState != desiredTopmost) win.SetTopmost(desiredTopmost);
                     // Only re-raise when an EVE/app window is up — raising on a
                     // tab-away would lift the crop over the app the user just chose.
                     if (eveFocused) win.BringToFront();
-
-                    cropCount++;
-                    var h = new System.Windows.Interop.WindowInteropHelper(win).Handle;
-                    if (h != IntPtr.Zero && (Interop.User32.GetWindowLong(h, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0)
-                        cropTop++;
                 }
                 catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop re-raise failed: {ex.Message}"); }
             }
 
+        // Diagnostic ONLY when DWM debug logging is enabled (issue #80/#87). It reads
+        // WS_EX_TOPMOST off the foreground window and every crop and appends to
+        // debug_dwm.log — a GetWindowLong-per-crop plus a synchronous disk write that
+        // fired on EVERY foreground change and made client-switching feel laggy. Behind
+        // the flag it costs nothing in normal use; testers who enable it still get the
+        // fgTopmost / cropsTopmost readout that pinned this bug down.
+        if (DiagnosticsService.GlobalSettings?.EnableDebugLogging_DWM == true)
+            LogCropZOrder(fg, fgProc, eveFocused, desiredTopmost);
+    }
+
+    private void LogCropZOrder(IntPtr fg, string? fgProc, bool eveFocused, bool desiredTopmost)
+    {
+        bool fgTop = fg != IntPtr.Zero && (Interop.User32.GetWindowLong(fg, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0;
+        int cropCount = 0, cropTop = 0;
+        foreach (var perChar in _windows.Values)
+            foreach (var win in perChar.Values)
+            {
+                cropCount++;
+                var h = new System.Windows.Interop.WindowInteropHelper(win).Handle;
+                if (h != IntPtr.Zero && (Interop.User32.GetWindowLong(h, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0)
+                    cropTop++;
+            }
         if (cropCount > 0)
             DiagnosticsService.LogDwm($"[Crop:ZOrder] fg=0x{fg.ToInt64():X} proc={fgProc ?? "?"} eveFocused={eveFocused} fgTopmost={fgTop} desiredTopmost={desiredTopmost} crops={cropCount} cropsTopmost={cropTop}");
     }
@@ -389,7 +398,7 @@ public sealed class CropManager : IDisposable
     public void Dispose()
     {
         _healthTimer.Stop();
-        _settleReassertTimer.Stop();
+        _zorderDebounce.Stop();
         _discovery.WindowFound -= OnWindowFound;
         _discovery.WindowLost -= OnWindowLost;
         _discovery.WindowTitleChanged -= OnWindowTitleChanged;
