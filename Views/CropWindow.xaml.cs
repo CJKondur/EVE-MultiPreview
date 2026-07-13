@@ -462,24 +462,62 @@ public partial class CropWindow : Window
             Toggle(new WindowInteropHelper(_textOverlay).Handle);
     }
 
-    /// <summary>Mirror the main window's Topmost flag onto the companion label overlay.</summary>
+    /// <summary>The desired topmost band, tracked explicitly. The WPF <c>Topmost</c>
+    /// property is NOT reliable on this AllowsTransparency (layered) window — setting
+    /// it does not consistently apply WS_EX_TOPMOST, and BringToFront reading it back
+    /// then picked HWND_TOP instead of HWND_TOPMOST, so the crop never actually entered
+    /// the topmost band and fell behind every client (issue #80/#87 — confirmed from a
+    /// user's debug_dwm.log: cropsTopmost was 0 while desiredTopmost was true). We now
+    /// drive z-order the way the working WinForms ThumbnailWindow does: a tracked bool
+    /// plus raw SetWindowPos, never the framework property.</summary>
+    private bool _isTopmost;
+
+    /// <summary>The crop's own top-level HWND, resolved robustly (OnLoaded may not have
+    /// cached it yet on very early calls).</summary>
+    private IntPtr OwnHwnd =>
+        _ownHwnd != IntPtr.Zero ? _ownHwnd : new WindowInteropHelper(this).Handle;
+
+    /// <summary>Set the crop (and its label overlay) into the topmost or normal band
+    /// via RAW SetWindowPos — the WPF Topmost property doesn't reliably apply
+    /// WS_EX_TOPMOST here. SWP_NOACTIVATE so we never steal focus. The WPF property is
+    /// kept in sync only so external reads (CropManager's convergence guard) agree.</summary>
     public void SetTopmost(bool topmost)
     {
-        Topmost = topmost;
-        if (_textOverlay != null) _textOverlay.Topmost = topmost;
+        _isTopmost = topmost;
+        var band = topmost ? User32.HWND_TOPMOST : User32.HWND_NOTOPMOST;
+
+        var own = OwnHwnd;
+        if (own != IntPtr.Zero)
+            User32.SetWindowPos(own, band, 0, 0, 0, 0,
+                User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+
+        if (_textOverlay != null)
+        {
+            var overlayHwnd = new WindowInteropHelper(_textOverlay).Handle;
+            if (overlayHwnd != IntPtr.Zero)
+                User32.SetWindowPos(overlayHwnd, band, 0, 0, 0, 0,
+                    User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+        }
+
+        // Keep the framework property consistent with the OS state so anything that
+        // reads win.Topmost (e.g. the CropManager convergence guard) stays correct.
+        try { Topmost = topmost; } catch { }
+        if (_textOverlay != null) { try { _textOverlay.Topmost = topmost; } catch { } }
     }
 
-    /// <summary>Re-assert this crop's z-order above the EVE clients. A WPF Topmost
-    /// flag alone does not survive a client being activated on top of the crop —
-    /// the client raises over it and nothing pulls it back, so a crop placed on
-    /// top of a client vanishes underneath the moment you tab into that client
-    /// (issue #80). Mirrors ThumbnailWindow.BringToFront: a raw SWP_NOACTIVATE
-    /// z-order re-insert (no focus theft), with the label overlay lifted with it.</summary>
+    /// <summary>Re-assert this crop's z-order above the EVE clients. A topmost flag
+    /// alone does not survive a client being activated on top of the crop — the client
+    /// raises over it and nothing pulls it back — so a crop vanishes underneath the
+    /// moment you tab into that client (issue #80). Mirrors ThumbnailWindow.BringToFront:
+    /// a raw SWP_NOACTIVATE z-order re-insert (no focus theft) using the TRACKED band,
+    /// not the framework Topmost property, with the label overlay lifted with it.</summary>
     public void BringToFront()
     {
-        IntPtr zOrder = Topmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
-        if (_ownHwnd != IntPtr.Zero)
-            User32.SetWindowPos(_ownHwnd, zOrder, 0, 0, 0, 0,
+        IntPtr zOrder = _isTopmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
+
+        var own = OwnHwnd;
+        if (own != IntPtr.Zero)
+            User32.SetWindowPos(own, zOrder, 0, 0, 0, 0,
                 User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
 
         if (_textOverlay != null)

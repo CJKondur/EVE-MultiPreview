@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace EveMultiPreview.Services;
 
@@ -49,5 +50,50 @@ public static class AlertPatterns
         foreach (var sub in subs)
             if (line.Contains(sub, StringComparison.Ordinal)) return true;
         return false;
+    }
+
+    /// <summary>The raw localized strings for a key (e.g. "log_header_keys" — every
+    /// language's word for the gamelog/chatlog "Listener:" header). Empty if absent.</summary>
+    public static string[] Get(string key) =>
+        _map.TryGetValue(key, out var v) ? v : Array.Empty<string>();
+
+    private static readonly Dictionary<string, Regex[]> _rx = new();
+
+    /// <summary>Compiled per-language capture regexes for a key (e.g. "jump_regex").
+    /// Built from EVE's own message templates: the LAST capture group is the value
+    /// (the destination system), which holds in every language regardless of word
+    /// order. Cached on first use; empty if the key is absent.</summary>
+    public static Regex[] Regexes(string key)
+    {
+        lock (_rx)
+        {
+            if (_rx.TryGetValue(key, out var cached)) return cached;
+            var built = new List<Regex>();
+            foreach (var pattern in Get(key))
+            {
+                try { built.Add(new Regex(pattern, RegexOptions.Compiled | RegexOptions.CultureInvariant)); }
+                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[AlertPatterns] bad regex '{pattern}': {ex.Message}"); }
+            }
+            var arr = built.ToArray();
+            _rx[key] = arr;
+            return arr;
+        }
+    }
+
+    /// <summary>Run the localized capture regexes for <paramref name="key"/> against
+    /// <paramref name="line"/> and return the LAST capture group (the system name),
+    /// or null if none match.</summary>
+    public static string? CaptureLast(string line, string key)
+    {
+        foreach (var rx in Regexes(key))
+        {
+            var m = rx.Match(line);
+            if (m.Success && m.Groups.Count > 1)
+            {
+                var v = m.Groups[m.Groups.Count - 1].Value.Trim();
+                if (!string.IsNullOrEmpty(v)) return v;
+            }
+        }
+        return null;
     }
 }
