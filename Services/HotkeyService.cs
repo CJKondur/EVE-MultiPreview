@@ -70,15 +70,15 @@ public sealed class HotkeyService : IDisposable
     // When false, a held cycle hotkey cycles exactly once per press (issue #59).
     private bool CycleWhileHeld => _appSettings?.CycleWhileHeld ?? true;
     private readonly Dictionary<int, long> _lastRepeatFireTick = new();
+    // When each WM_HOTKEY was POSTED (whether or not we acted on it). The gap between
+    // posts tells a held key's OS auto-repeat train (~30ms apart) from a fresh tap, so
+    // the train can be paced to CycleDelayMs while a tap still fires instantly (#60).
+    private readonly Dictionary<int, long> _lastHotkeyPostTick = new();
 
-    // Cycle hotkeys are registered with MOD_NOREPEAT so the OS fires exactly one
-    // WM_HOTKEY per physical press — that single press always cycles immediately,
-    // regardless of CycleDelayMs (issue #60). Held-to-cycle is then driven by our
-    // own key-state poll timer (mirrors the mouse-button repeat path) so the cycle
-    // delay only governs the held cadence, never single taps.
-    private System.Windows.Threading.DispatcherTimer? _keyRepeatTimer;
-    private uint _keyRepeatVk;
-    private Action? _keyRepeatAction;
+    // Held-to-cycle is driven by the OS key-repeat WM_HOTKEY stream: cycle hotkeys are
+    // registered WITHOUT MOD_NOREPEAT, so Windows re-posts while the key is physically
+    // held and stops the moment it is released. No self-running repeat timer exists, so
+    // cycling can never outlive the key press (see the note at the registration site).
 
     // ── Mouse button hotkey support (WH_MOUSE_LL) ──
     // The low-level mouse hook runs on a DEDICATED thread with its own message
@@ -244,6 +244,7 @@ public sealed class HotkeyService : IDisposable
         // throttle, but conceptually correct); just leave it — stale entries
         // for the unregistered IDs are harmless.
         _lastRepeatFireTick.Clear();
+        _lastHotkeyPostTick.Clear();
         _storedSpecs.Clear();
         _storedMouseBindings.Clear();
         RemoveMouseHook();
@@ -342,10 +343,25 @@ public sealed class HotkeyService : IDisposable
         foreach (var spec in winners.Values)
         {
             int id = _nextId++;
-            // Always MOD_NOREPEAT: one WM_HOTKEY per physical press. Held-to-cycle
-            // for repeatable bindings is handled by our own key-state poll timer
-            // (StartKeyRepeat), so a single tap never gets throttled by CycleDelayMs.
-            uint finalMods = spec.Modifiers | User32.MOD_NOREPEAT;
+            // Held-to-cycle is driven by the OS key-repeat WM_HOTKEY stream, so cycle
+            // hotkeys are registered WITHOUT MOD_NOREPEAT. Everything else keeps it
+            // (exactly one WM_HOTKEY per press).
+            //
+            // Why: the previous design cycled from our own timer that polled
+            // GetAsyncKeyState for the release. That is the app's ONLY release sensor,
+            // and it can be wrong — a remapper such as X-Mouse Button Control synthesises
+            // the key and emits its key-UP from its own low-level hook. Lose that one
+            // event and the key stays latched down system-wide, GetAsyncKeyState reports
+            // "still held" forever, and the timer cycled on its own for the full 60s cap
+            // (~600 client switches) with the user touching nothing — and every new press
+            // re-armed a fresh 60s, so mashing the key to stop it only prolonged it.
+            //
+            // The OS repeat stream cannot do that: it is produced by the physical key
+            // being held, stops the instant the key is released, and an injected key that
+            // never repeats simply yields one WM_HOTKEY. Runaway cycling becomes
+            // structurally impossible, so no timer and no safety cap are needed.
+            bool osDrivesHold = spec.AllowRepeat && CycleWhileHeld;
+            uint finalMods = osDrivesHold ? spec.Modifiers : (spec.Modifiers | User32.MOD_NOREPEAT);
             if (User32.RegisterHotKey(_hwndSource.Handle, id, finalMods, spec.VirtualKey))
             {
                 _hotkeyActions[id] = spec.Action;
@@ -366,7 +382,6 @@ public sealed class HotkeyService : IDisposable
     /// <summary>Unregister all non-suspend hotkeys. Call when last EVE window closes.</summary>
     public void DeactivateHotkeys()
     {
-        StopKeyRepeat();
         if (!_hotkeysActive || _hwndSource == null) return;
         foreach (var id in _hotkeyActions.Keys.ToList())
         {
@@ -378,6 +393,7 @@ public sealed class HotkeyService : IDisposable
         }
         _repeatableIds.Clear();
         _lastRepeatFireTick.Clear();
+        _lastHotkeyPostTick.Clear();
         _hotkeysActive = false;
         Debug.WriteLine("[Hotkey:Deactivate] ⏸ Deactivated hotkeys (no EVE windows)");
     }
@@ -386,7 +402,6 @@ public sealed class HotkeyService : IDisposable
     public void ToggleSuspend()
     {
         _suspended = !_suspended;
-        StopKeyRepeat();
 
         if (_suspended)
         {
@@ -979,18 +994,34 @@ public sealed class HotkeyService : IDisposable
                 catch { }
             }
 
-            // Hotkeys are registered MOD_NOREPEAT, so this is one WM_HOTKEY per
-            // physical press — no OS key-repeat flood to collapse. Keep only a
-            // tiny fixed dedup to absorb any accidental double-post; do NOT gate on
-            // CycleDelayMs, which would swallow deliberate fast taps (issue #60).
-            const long RepeatDedupMs = 30;
+            // Cycle hotkeys now receive the OS key-repeat stream (no MOD_NOREPEAT), so a
+            // held key posts WM_HOTKEY every ~30ms. Collapse that train to the user's
+            // CycleDelayMs cadence — but a FRESH press must always fire immediately, or
+            // deliberate fast taps get swallowed (issue #60).
+            //
+            // "Fresh press" vs "repeat train" is told apart by how fast the OS is posting:
+            // auto-repeat arrives in a continuous ~30ms train, whereas a tap is preceded
+            // by a real gap. So we time the POSTS (every WM_HOTKEY) separately from the
+            // FIRES (only the ones we act on).
+            const long RepeatDedupMs = 30;     // absorb accidental double-posts
+            const long HoldTrainGapMs = 150;   // posts closer than this = OS auto-repeat
             if (!isActivationHotkey)
             {
                 long now = Environment.TickCount64;
-                if (_lastRepeatFireTick.TryGetValue(id, out long lastTick) &&
-                    (now - lastTick) < RepeatDedupMs)
+
+                long postGap = _lastHotkeyPostTick.TryGetValue(id, out long lastPost)
+                    ? now - lastPost
+                    : long.MaxValue;
+                _lastHotkeyPostTick[id] = now;
+
+                if (postGap < RepeatDedupMs) return IntPtr.Zero;
+
+                // Inside an OS auto-repeat train (i.e. the key is being HELD): pace it.
+                if (postGap < HoldTrainGapMs && _repeatableIds.Contains(id) &&
+                    _lastRepeatFireTick.TryGetValue(id, out long lastFire) &&
+                    (now - lastFire) < CycleDelayMs)
                 {
-                    return IntPtr.Zero; // Drop accidental duplicate post
+                    return IntPtr.Zero;
                 }
                 _lastRepeatFireTick[id] = now;
             }
@@ -1019,14 +1050,10 @@ public sealed class HotkeyService : IDisposable
                 }
                 handled = true;
 
-                // Held-to-cycle: for repeatable (cycle) bindings, keep re-firing
-                // while the key stays physically down — but only when the user has
-                // enabled it (issue #59). The single press above already cycled once.
-                if (CycleWhileHeld && _repeatableIds.Contains(id) &&
-                    _hotkeyVks.TryGetValue(id, out var vk))
-                {
-                    StartKeyRepeat(vk, action);
-                }
+                // Held-to-cycle needs nothing here: while the key is physically held the
+                // OS keeps posting WM_HOTKEY and we land back in this handler, paced by
+                // the throttle above. Releasing the key stops the posts, so cycling stops
+                // on its own — no timer to run away.
             }
         }
         return IntPtr.Zero;
@@ -1034,7 +1061,6 @@ public sealed class HotkeyService : IDisposable
 
     public void Dispose()
     {
-        StopKeyRepeat();
         if (_scopeWinEvents != null)
         {
             _scopeWinEvents.ForegroundChanged -= OnForegroundChangedForScope;
@@ -1283,79 +1309,6 @@ public sealed class HotkeyService : IDisposable
         }
 
         return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
-    }
-
-    /// <summary>Begin auto-repeating a keyboard cycle action while its key stays
-    /// physically down. Mirrors the mouse-button repeat: the initial press already
-    /// fired once, then after a hold-detect threshold we re-fire at the user's
-    /// CycleDelayMs cadence until the key is released (polled via GetAsyncKeyState).
-    /// A single tap never reaches the first tick, so it stays a one-shot.</summary>
-    private void StartKeyRepeat(uint vk, Action action)
-    {
-        StopKeyRepeat(); // cancel any prior repeat first
-
-        _keyRepeatVk = vk;
-        _keyRepeatAction = action;
-
-        int delayMs = CycleDelayMs;
-        const int HoldDetectMs = 250; // key must stay down THIS long to count as a hold
-        const int HoldPollMs = 25;    // fine poll during hold-detect (catches taps between samples)
-
-        var timer = new System.Windows.Threading.DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(HoldPollMs)
-        };
-        _keyRepeatTimer = timer;
-
-        long startTicks = Environment.TickCount64;
-        const long MaxRepeatDurationMs = 60_000;
-        bool holdConfirmed = false;
-
-        timer.Tick += (_, _) =>
-        {
-            long elapsed = Environment.TickCount64 - startTicks;
-
-            // ── Hold-detect phase ──
-            // Only a CONTINUOUS hold may start auto-repeat. We poll finely (25 ms)
-            // and abort the moment the key reads up — so rapid client switching
-            // (tapping the cycle key, which releases between presses) can never be
-            // mistaken for a hold and kick off runaway cycling (issue #76). The
-            // initial press already fired exactly one cycle via WM_HOTKEY.
-            // (We intentionally do NOT use GetAsyncKeyState's "pressed since last
-            // call" bit: a physically-held key whose driver auto-repeats sets that
-            // bit too, which would falsely abort a legitimate hold.)
-            if (!holdConfirmed)
-            {
-                if (!User32.IsKeyDown((int)_keyRepeatVk))
-                {
-                    StopKeyRepeat();
-                    return;
-                }
-                if (elapsed < HoldDetectMs)
-                    return; // still confirming a continuous hold — don't cycle yet
-                holdConfirmed = true;
-                timer.Interval = TimeSpan.FromMilliseconds(delayMs); // switch to steady cadence
-                // fall through to fire the first repeat now
-            }
-
-            // ── Steady-state repeat ──
-            if (elapsed > MaxRepeatDurationMs) { StopKeyRepeat(); return; } // safety cap
-            if (!User32.IsKeyDown((int)_keyRepeatVk)) { StopKeyRepeat(); return; }
-
-            var a = _keyRepeatAction;
-            if (a == null) return;
-            try { a.Invoke(); }
-            catch (Exception ex) { Debug.WriteLine($"[Hotkey:KeyRepeat] ❌ Repeat action error: {ex.Message}"); }
-        };
-
-        timer.Start();
-    }
-
-    private void StopKeyRepeat()
-    {
-        _keyRepeatTimer?.Stop();
-        _keyRepeatTimer = null;
-        _keyRepeatAction = null;
     }
 
     /// <summary>Begin auto-repeating a mouse-bound action while the button is held.
