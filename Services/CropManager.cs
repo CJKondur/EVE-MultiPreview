@@ -146,29 +146,6 @@ public sealed class CropManager : IDisposable
         _thumbnailManager = thumbnailManager;
         _thumbnailManager.AllVisibilityChanged += SetCropsHidden;
         _thumbnailManager.CropsVisibilityToggleRequested += ToggleCropsVisibility;
-        _thumbnailManager.CropZOrderReassertRequested += OnThumbnailZOrderReassert;
-    }
-
-    /// <summary>Re-raise crops in lockstep with the thumbnails' own z-order sweep.
-    /// Driven by <see cref="ThumbnailManager.CropZOrderReassertRequested"/>, which fires
-    /// from the 250ms focus poll on every client switch — so crops get the identical,
-    /// reliable treatment that keeps thumbnails above the clients, instead of a separate
-    /// edge-triggered re-raise that lost the race and let crops drop behind (#80/#87).</summary>
-    private void OnThumbnailZOrderReassert(bool desiredTopmost)
-    {
-        var s = _settings.Settings;
-        if (!s.CropEnabled || _cropsHidden) return;
-
-        foreach (var perChar in _windows.Values)
-            foreach (var win in perChar.Values)
-            {
-                try
-                {
-                    if (win.IsTopmostState != desiredTopmost) win.SetTopmost(desiredTopmost);
-                    win.BringToFront();
-                }
-                catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop sweep re-raise failed: {ex.Message}"); }
-            }
     }
 
     /// <summary>Show or hide every live crop. Driven by the Hide/Show All keybind
@@ -271,29 +248,38 @@ public sealed class CropManager : IDisposable
         try { fgProc = Interop.User32.GetProcessName(fg); } catch { }
         bool eveFocused = Interop.User32.IsEveOrAppProcess(fgProc);
 
-        // Re-raise crops above the EVE client whenever a client (or this app) is
-        // foreground — NOT gated on Always-On-Top. The thumbnails' client-switch
-        // re-raise is deliberately un-gated too (ThumbnailManager), so a user who
-        // keeps previews non-topmost still gets them lifted over the client on a
-        // switch; crops used to early-return here when neither on-top mode was set,
-        // so for those users crops never re-raised at all while thumbnails did — the
-        // "thumbnails fine, crops still hide" report (#80/#87). Topmost while EVE/app
-        // is foreground (or always, under Always-On-Top); non-topmost otherwise, set
-        // BEFORE BringToFront so it uses the right z-order band.
+        // Crops keep themselves above the EVE clients purely by being TOPMOST (set via
+        // raw SetWindowPos in CropWindow — the actual #80/#87 fix). A topmost window is
+        // always above a non-topmost one, so nothing has to re-raise them.
+        //
+        // Deliberately NO BringToFront here. Raising a crop to the top of the topmost
+        // band also put it above the THUMBNAILS, and a crop is hit-testable — so any
+        // crop overlapping a thumbnail swallowed the click and you could no longer click
+        // a thumbnail to switch to that client. Thumbnails are the interactive surface;
+        // they must stay above the passive crop overlays.
+        //
+        // Topmost while EVE/app is foreground (or always, under Always-On-Top); drop to
+        // non-topmost otherwise so crops don't sit over Discord/your browser.
         bool desiredTopmost = s.ShowThumbnailsAlwaysOnTop || (s.KeepThumbnailsAboveClients && eveFocused);
 
+        bool anyChanged = false;
         foreach (var perChar in _windows.Values)
             foreach (var win in perChar.Values)
             {
                 try
                 {
-                    if (win.IsTopmostState != desiredTopmost) win.SetTopmost(desiredTopmost);
-                    // Only re-raise when an EVE/app window is up — raising on a
-                    // tab-away would lift the crop over the app the user just chose.
-                    if (eveFocused) win.BringToFront();
+                    if (win.IsTopmostState != desiredTopmost)
+                    {
+                        win.SetTopmost(desiredTopmost);
+                        anyChanged = true;
+                    }
                 }
-                catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop re-raise failed: {ex.Message}"); }
+                catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop topmost failed: {ex.Message}"); }
             }
+
+        // Going topmost lifts the crop to the TOP of the topmost band — over the
+        // thumbnails, whose clicks it would then swallow. Put the thumbnails back on top.
+        if (anyChanged) _thumbnailManager?.RaiseThumbnailsAboveOverlays();
 
         // Diagnostic ONLY when DWM debug logging is enabled (issue #80/#87). It reads
         // WS_EX_TOPMOST off the foreground window and every crop and appends to
@@ -406,7 +392,6 @@ public sealed class CropManager : IDisposable
         {
             _thumbnailManager.AllVisibilityChanged -= SetCropsHidden;
             _thumbnailManager.CropsVisibilityToggleRequested -= ToggleCropsVisibility;
-            _thumbnailManager.CropZOrderReassertRequested -= OnThumbnailZOrderReassert;
         }
         if (_winEvents != null)
         {
@@ -637,15 +622,14 @@ public sealed class CropManager : IDisposable
         bool eveFocusedNow = false;
         try { eveFocusedNow = Interop.User32.IsEveOrAppProcess(Interop.User32.GetProcessName(Interop.User32.GetForegroundWindow())); }
         catch { }
+        // SetTopmost alone puts it above the (non-topmost) clients — including a crop
+        // created mid-load while a client is already foreground (#87). No BringToFront:
+        // that would also lift it above the thumbnails and eat their clicks.
         win.SetTopmost(s.ShowThumbnailsAlwaysOnTop || (s.KeepThumbnailsAboveClients && eveFocusedNow));
 
-        // Raise it above the client NOW if EVE/app is already foreground. A crop
-        // reconciled after you've tabbed to EVE — e.g. the slow ones still loading
-        // during a profile switch — gets no ForegroundChanged event of its own, so
-        // without this it stays flagged topmost yet sitting behind the client until
-        // the next focus change (issue #87: "crops fail to load if you tab to EVE too
-        // quick"). Same root cause as #80, just hit mid-load rather than on tab-in.
-        if (eveFocusedNow) win.BringToFront();
+        // ...but going topmost still lands the crop at the top of the topmost band, so
+        // put the thumbnails back above it — they're what you click to switch client.
+        _thumbnailManager?.RaiseThumbnailsAboveOverlays();
 
         // Parse font size from string setting (matches ThumbnailTextSize being string)
         double fontSize = 11;
