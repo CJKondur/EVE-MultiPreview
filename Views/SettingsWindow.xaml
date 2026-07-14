@@ -71,6 +71,16 @@
                                               Content="{TemplateBinding SelectionBoxItem}"
                                               ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
                                               Margin="6,3,23,3" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            <!-- WPF only honours IsEditable="True" if the template contains a TextBox
+                                 named PART_EditableTextBox. Without it the box was uneditable, so a
+                                 Layout Preset could never be named — and with no presets saved yet the
+                                 dropdown was empty too, leaving no way to create the first one (#88). -->
+                            <TextBox x:Name="PART_EditableTextBox" Style="{x:Null}"
+                                     Visibility="Collapsed" Focusable="True"
+                                     Background="Transparent" Foreground="White" CaretBrush="White"
+                                     BorderThickness="0" Padding="0"
+                                     Margin="6,3,23,3" VerticalAlignment="Center"
+                                     IsReadOnly="{TemplateBinding IsReadOnly}"/>
                             <Popup x:Name="Popup" IsOpen="{TemplateBinding IsDropDownOpen}"
                                    Placement="Bottom" Focusable="False" AllowsTransparency="True" PopupAnimation="Slide">
                                 <Grid x:Name="DropDown" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}" SnapsToDevicePixels="True">
@@ -81,6 +91,12 @@
                                 </Grid>
                             </Popup>
                         </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEditable" Value="True">
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="ContentSite" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>

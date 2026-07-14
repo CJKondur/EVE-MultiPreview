@@ -98,6 +98,12 @@ public sealed class CropManager : IDisposable
             }
         }
 
+        // Self-heal z-order too. A crop whose topmost didn't stick at creation (common
+        // when several clients launch at once) would otherwise stay behind the client
+        // until the next foreground change. ApplyZOrder now compares against the crop's
+        // REAL WS_EX_TOPMOST bit, so this is a no-op unless one has actually drifted.
+        ApplyZOrder();
+
         // Self-heal MISSING crops (issue #80 — "crops not showing on login").
         // The per-character reconcile is reactive: it fires once per discovery
         // event (OnWindowFound / OnWindowTitleChanged) and is gated on settings

@@ -472,24 +472,50 @@ public partial class CropWindow : Window
     /// plus raw SetWindowPos, never the framework property.</summary>
     private bool _isTopmost;
 
-    /// <summary>The tracked topmost state (the OS truth we drive via raw SetWindowPos).
-    /// Read this instead of the WPF <c>Topmost</c> property, which isn't reliable on
-    /// this AllowsTransparency window.</summary>
-    public bool IsTopmostState => _isTopmost;
+    /// <summary>
+    /// Whether the window ACTUALLY carries WS_EX_TOPMOST right now — read from the OS,
+    /// not from a cached flag.
+    ///
+    /// This must not be a cached bool. A crop created during a client-launch burst can
+    /// have its SetWindowPos(HWND_TOPMOST) fail to stick (the HWND isn't fully realized
+    /// straight after Show(), and WPF can re-apply its own Topmost=false from the XAML
+    /// afterwards). If we then remembered "I set it to topmost", CropManager's
+    /// convergence guard (IsTopmostState != desired) would believe the crop was already
+    /// topmost and NEVER retry — leaving it stuck behind the client forever. That is
+    /// exactly what a user's log showed: crops grew 6 -> 15 while cropsTopmost stayed
+    /// frozen at 6 (#80/#87). Reading the real bit makes the guard self-healing: any
+    /// crop that isn't actually topmost gets fixed on the next pass.
+    /// </summary>
+    public bool IsTopmostState
+    {
+        get
+        {
+            var h = OwnHwnd;
+            if (h == IntPtr.Zero) return _isTopmost;   // not realized yet — fall back
+            return (User32.GetWindowLong(h, User32.GWL_EXSTYLE) & User32.WS_EX_TOPMOST) != 0;
+        }
+    }
 
     /// <summary>The crop's own top-level HWND, resolved robustly (OnLoaded may not have
     /// cached it yet on very early calls).</summary>
     private IntPtr OwnHwnd =>
         _ownHwnd != IntPtr.Zero ? _ownHwnd : new WindowInteropHelper(this).Handle;
 
-    /// <summary>Set the crop (and its label overlay) into the topmost or normal band
-    /// via RAW SetWindowPos — the WPF Topmost property doesn't reliably apply
-    /// WS_EX_TOPMOST here. SWP_NOACTIVATE so we never steal focus. The WPF property is
-    /// kept in sync only so external reads (CropManager's convergence guard) agree.</summary>
+    /// <summary>Set the crop (and its label overlay) into the topmost or normal band via
+    /// RAW SetWindowPos — the WPF Topmost property alone does not reliably apply
+    /// WS_EX_TOPMOST on this AllowsTransparency window. SWP_NOACTIVATE so we never steal
+    /// focus. We ALSO assign the WPF property: leaving it at its XAML default of false
+    /// lets WPF re-assert NOTOPMOST after Show() and silently undo the raw call, which is
+    /// how freshly-created crops ended up stuck behind the client (#80/#87).</summary>
     public void SetTopmost(bool topmost)
     {
         _isTopmost = topmost;
         var band = topmost ? User32.HWND_TOPMOST : User32.HWND_NOTOPMOST;
+
+        // Keep WPF's own view consistent FIRST, so it can't later push the window back
+        // out of the topmost band; then force the OS state with the raw call.
+        try { Topmost = topmost; } catch { }
+        if (_textOverlay != null) { try { _textOverlay.Topmost = topmost; } catch { } }
 
         var own = OwnHwnd;
         if (own != IntPtr.Zero)
