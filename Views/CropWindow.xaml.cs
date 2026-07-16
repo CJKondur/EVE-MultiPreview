@@ -114,6 +114,17 @@ public partial class CropWindow : Window
         User32.SetWindowLong(_ownHwnd, User32.GWL_EXSTYLE,
             exStyle | User32.WS_EX_NOACTIVATE | User32.WS_EX_TOOLWINDOW);
 
+        // Drop the implicit OWNER that WPF gives this window because of
+        // ShowInTaskbar="False" — WPF keeps such a window off the taskbar by parenting
+        // it to a hidden dummy owner. An OWNED window's z-order is slaved to its owner,
+        // so it cannot hold the topmost band on its own: SetWindowPos(HWND_TOPMOST)
+        // appeared to succeed but WS_EX_TOPMOST never stuck, and the crop sat behind the
+        // EVE client forever (#80/#87 — a user's [Crop:Stuck] log showed every stuck crop
+        // with topmost=False, child=False and a distinct owner= we never set).
+        // WS_EX_TOOLWINDOW above already keeps it out of the taskbar AND alt-tab, so the
+        // dummy owner buys nothing. Unowned, the crop can be genuinely topmost.
+        User32.SetWindowLongPtr(_ownHwnd, User32.GWLP_HWNDPARENT, IntPtr.Zero);
+
         source.AddHook(WndProc);
         RegisterDwmThumbnail();
         CreateTextOverlay();
