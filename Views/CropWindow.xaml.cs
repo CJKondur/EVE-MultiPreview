@@ -532,6 +532,26 @@ public partial class CropWindow : Window
 
     }
 
+    private const int WS_CHILD = unchecked((int)0x40000000);
+
+    /// <summary>One-line dump of why this crop may not be honouring topmost. Only used
+    /// by the DWM-debug diagnostic when a crop reads NOT topmost despite us setting it
+    /// (issue #80/#87: a subset of freshly-created crops stayed non-topmost and repeated
+    /// SetWindowPos(HWND_TOPMOST) never took — cause unknown, so measure it).</summary>
+    public string TopmostDiag()
+    {
+        var h = OwnHwnd;
+        if (h == IntPtr.Zero) return $"'{CharacterName}' hwnd=0 (window not realized)";
+        int ex = User32.GetWindowLong(h, User32.GWL_EXSTYLE);
+        int style = User32.GetWindowLong(h, User32.GWL_STYLE);
+        var owner = User32.GetWindowLongPtr(h, User32.GWLP_HWNDPARENT);
+        bool topmost = (ex & User32.WS_EX_TOPMOST) != 0;
+        bool child = (style & WS_CHILD) != 0;
+        bool srcIconic = _eveHwnd != IntPtr.Zero && User32.IsIconic(_eveHwnd);
+        return $"'{CharacterName}' hwnd=0x{h.ToInt64():X} topmost={topmost} child={child} " +
+               $"owner=0x{owner.ToInt64():X} src=0x{_eveHwnd.ToInt64():X} srcIconic={srcIconic}";
+    }
+
     /// <summary>Re-assert this crop's z-order above the EVE clients. A topmost flag
     /// alone does not survive a client being activated on top of the crop — the client
     /// raises over it and nothing pulls it back — so a crop vanishes underneath the

@@ -301,6 +301,7 @@ public sealed class CropManager : IDisposable
     {
         bool fgTop = fg != IntPtr.Zero && (Interop.User32.GetWindowLong(fg, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0;
         int cropCount = 0, cropTop = 0;
+        var stuck = new System.Collections.Generic.List<CropWindow>();
         foreach (var perChar in _windows.Values)
             foreach (var win in perChar.Values)
             {
@@ -308,9 +309,14 @@ public sealed class CropManager : IDisposable
                 var h = new System.Windows.Interop.WindowInteropHelper(win).Handle;
                 if (h != IntPtr.Zero && (Interop.User32.GetWindowLong(h, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0)
                     cropTop++;
+                else if (desiredTopmost)
+                    stuck.Add(win);
             }
         if (cropCount > 0)
             DiagnosticsService.LogDwm($"[Crop:ZOrder] fg=0x{fg.ToInt64():X} proc={fgProc ?? "?"} eveFocused={eveFocused} fgTopmost={fgTop} desiredTopmost={desiredTopmost} crops={cropCount} cropsTopmost={cropTop}");
+        // Dump the offenders so we can see WHY a crop won't go topmost (#80/#87).
+        foreach (var win in stuck)
+            DiagnosticsService.LogDwm($"[Crop:Stuck] {win.TopmostDiag()}");
     }
 
     private void OnSourceMinimizeEnd(IntPtr hwnd)
