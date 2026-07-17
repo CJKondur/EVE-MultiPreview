@@ -297,6 +297,8 @@ public sealed class CropManager : IDisposable
             LogCropZOrder(fg, fgProc, eveFocused, desiredTopmost);
     }
 
+    private string? _lastZOrderLogState;
+
     private void LogCropZOrder(IntPtr fg, string? fgProc, bool eveFocused, bool desiredTopmost)
     {
         bool fgTop = fg != IntPtr.Zero && (Interop.User32.GetWindowLong(fg, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0;
@@ -312,6 +314,13 @@ public sealed class CropManager : IDisposable
                 else if (desiredTopmost)
                     stuck.Add(win);
             }
+        // Only log when something CHANGED. The 4s health check re-ran this every tick,
+        // so a steady state buried the interesting transitions under thousands of
+        // identical lines.
+        var state = $"{fgProc}|{eveFocused}|{fgTop}|{desiredTopmost}|{cropCount}|{cropTop}";
+        if (state == _lastZOrderLogState) return;
+        _lastZOrderLogState = state;
+
         if (cropCount > 0)
             DiagnosticsService.LogDwm($"[Crop:ZOrder] fg=0x{fg.ToInt64():X} proc={fgProc ?? "?"} eveFocused={eveFocused} fgTopmost={fgTop} desiredTopmost={desiredTopmost} crops={cropCount} cropsTopmost={cropTop}");
         // Dump the offenders so we can see WHY a crop won't go topmost (#80/#87).

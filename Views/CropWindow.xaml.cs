@@ -138,7 +138,7 @@ public partial class CropWindow : Window
         _textOverlay.Top = Top;
         _textOverlay.Width = Math.Max(40, Width);
         _textOverlay.Height = Math.Max(30, Height);
-        _textOverlay.Topmost = Topmost;
+        _textOverlay.Topmost = _isTopmost;   // our tracked band, not WPF's cached view
         _textOverlay.Show();
 
         // Parent the overlay's HWND to the crop popup's HWND so z-order follows
@@ -518,20 +518,40 @@ public partial class CropWindow : Window
     /// focus. We ALSO assign the WPF property: leaving it at its XAML default of false
     /// lets WPF re-assert NOTOPMOST after Show() and silently undo the raw call, which is
     /// how freshly-created crops ended up stuck behind the client (#80/#87).</summary>
+    // Outcome of the LAST raw SetWindowPos on the crop itself. We ignored the return
+    // value for eight fix attempts; the diagnostic reports it so we can finally see
+    // whether Windows is refusing the call or silently accepting-and-ignoring it.
+    private bool _lastSwpOk;
+    private int _lastSwpErr;
+
     public void SetTopmost(bool topmost)
     {
         _isTopmost = topmost;
         var band = topmost ? User32.HWND_TOPMOST : User32.HWND_NOTOPMOST;
 
-        // Keep WPF's own view consistent FIRST, so it can't later push the window back
-        // out of the topmost band; then force the OS state with the raw call.
-        try { Topmost = topmost; } catch { }
-        if (_textOverlay != null) { try { _textOverlay.Topmost = topmost; } catch { } }
-
+        // NEVER touch the WPF Topmost property here — manage the z-band with raw
+        // SetWindowPos ONLY, exactly like ThumbnailWindow, the one window in this app
+        // that has never had a topmost bug (see its SetTopmost comment).
+        //
+        // Mixing the two is what kept #80/#87 alive. Raw SetWindowPos is invisible to
+        // WPF's Topmost DependencyProperty, so WPF's cached value drifts from the real
+        // WS_EX_TOPMOST bit. Once WPF caches "true", `Topmost = true` is a silent no-op,
+        // and WPF re-applies its own cached value on later window events (already
+        // observed in this file — see the IsTopmostState comment: "WPF can re-apply its
+        // own Topmost=false from the XAML"). Measured signature from the [Crop:Stuck]
+        // log: swpOk=True swpErr=0 wpfTopmost=True, yet the real topmost bit was False —
+        // the call succeeded and the bit still did not stick.
+        //
+        // The window is now created topmost (Topmost="True" in XAML) so WPF's cached
+        // view starts in the band we want and it never has to be *promoted* after the
+        // fact. Reads go through IsTopmostState, which checks the real bit, not WPF.
         var own = OwnHwnd;
         if (own != IntPtr.Zero)
-            User32.SetWindowPos(own, band, 0, 0, 0, 0,
+        {
+            _lastSwpOk = User32.SetWindowPos(own, band, 0, 0, 0, 0,
                 User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+            _lastSwpErr = _lastSwpOk ? 0 : System.Runtime.InteropServices.Marshal.GetLastWin32Error();
+        }
 
         if (_textOverlay != null)
         {
@@ -553,14 +573,20 @@ public partial class CropWindow : Window
     {
         var h = OwnHwnd;
         if (h == IntPtr.Zero) return $"'{CharacterName}' hwnd=0 (window not realized)";
+        // Is the cached _ownHwnd still a real window, and is it the SAME one WPF is
+        // using now? A stale handle would make every SetWindowPos a silent no-op.
+        var live = new WindowInteropHelper(this).Handle;
+        bool alive = User32.IsWindow(h);
         int ex = User32.GetWindowLong(h, User32.GWL_EXSTYLE);
         int style = User32.GetWindowLong(h, User32.GWL_STYLE);
         var owner = User32.GetWindowLongPtr(h, User32.GWLP_HWNDPARENT);
         bool topmost = (ex & User32.WS_EX_TOPMOST) != 0;
         bool child = (style & WS_CHILD) != 0;
         bool srcIconic = _eveHwnd != IntPtr.Zero && User32.IsIconic(_eveHwnd);
-        return $"'{CharacterName}' hwnd=0x{h.ToInt64():X} topmost={topmost} child={child} " +
-               $"owner=0x{owner.ToInt64():X} src=0x{_eveHwnd.ToInt64():X} srcIconic={srcIconic}";
+        return $"'{CharacterName}' hwnd=0x{h.ToInt64():X} live=0x{live.ToInt64():X} alive={alive} " +
+               $"vis={User32.IsWindowVisible(h)} topmost={topmost} child={child} owner=0x{owner.ToInt64():X} " +
+               $"swpOk={_lastSwpOk} swpErr={_lastSwpErr} wpfTopmost={Topmost} " +
+               $"src=0x{_eveHwnd.ToInt64():X} srcIconic={srcIconic}";
     }
 
     /// <summary>Re-assert this crop's z-order above the EVE clients. A topmost flag
