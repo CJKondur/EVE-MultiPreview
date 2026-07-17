@@ -7,7 +7,7 @@
         ResizeMode="NoResize"
         AllowsTransparency="True"
         Background="Transparent"
-        Title="QuickSwitch"
+        Title="{DynamicResource L.Qs.Title}"
         SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen">
 
@@ -62,7 +62,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Switch Character"
+                    <TextBlock Text="{DynamicResource L.Qs.SwitchChar}"
                                Foreground="#b0c4de"
                                FontSize="13"
                                FontWeight="SemiBold"
@@ -76,11 +76,11 @@
 
                 <Button x:Name="BtnEdit"
                         Grid.Column="1"
-                        Content="✏ Edit"
+                        Content="{DynamicResource L.Common.Edit}"
                         Style="{StaticResource EditBtnStyle}"
                         VerticalAlignment="Top"
                         Click="BtnEdit_Click"
-                        ToolTip="Edit card order"/>
+                        ToolTip="{DynamicResource L.Qs.EditTt}"/>
             </Grid>
 
             <!-- Grid of character cards -->

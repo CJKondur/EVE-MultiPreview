@@ -2930,6 +2930,22 @@ public sealed class ThumbnailManager : IDisposable
     /// (issue #66). Routed through here so HotkeyService needs no CropManager ref.</summary>
     public event Action? CropsVisibilityToggleRequested;
 
+    /// <summary>Lift the thumbnails (and PiPs / stat overlays) back to the top of their
+    /// z-order band.
+    ///
+    /// Crops are topmost too, and SetWindowPos(HWND_TOPMOST) doesn't just set the flag —
+    /// it moves the window to the TOP of the topmost band, i.e. above the thumbnails. A
+    /// crop is hit-testable, so a crop sitting over a thumbnail swallowed its click and
+    /// you could no longer click a thumbnail to switch to that client. The thumbnails are
+    /// the interactive surface; the crops are passive overlays, so the thumbnails must win.
+    /// CropManager calls this right after it (re)asserts crop topmost.</summary>
+    public void RaiseThumbnailsAboveOverlays()
+    {
+        foreach (var (_, thumb) in _thumbnails) thumb.BringToFront();
+        foreach (var (_, pip) in _secondaryThumbnails) pip.BringToFront();
+        foreach (var (_, sw) in _statWindows) sw.BringToFront();
+    }
+
     public void ToggleThumbnailVisibility()
     {
         _thumbnailsHidden = !_thumbnailsHidden;

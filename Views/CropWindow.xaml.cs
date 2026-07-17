@@ -114,6 +114,17 @@ public partial class CropWindow : Window
         User32.SetWindowLong(_ownHwnd, User32.GWL_EXSTYLE,
             exStyle | User32.WS_EX_NOACTIVATE | User32.WS_EX_TOOLWINDOW);
 
+        // Drop the implicit OWNER that WPF gives this window because of
+        // ShowInTaskbar="False" — WPF keeps such a window off the taskbar by parenting
+        // it to a hidden dummy owner. An OWNED window's z-order is slaved to its owner,
+        // so it cannot hold the topmost band on its own: SetWindowPos(HWND_TOPMOST)
+        // appeared to succeed but WS_EX_TOPMOST never stuck, and the crop sat behind the
+        // EVE client forever (#80/#87 — a user's [Crop:Stuck] log showed every stuck crop
+        // with topmost=False, child=False and a distinct owner= we never set).
+        // WS_EX_TOOLWINDOW above already keeps it out of the taskbar AND alt-tab, so the
+        // dummy owner buys nothing. Unowned, the crop can be genuinely topmost.
+        User32.SetWindowLongPtr(_ownHwnd, User32.GWLP_HWNDPARENT, IntPtr.Zero);
+
         source.AddHook(WndProc);
         RegisterDwmThumbnail();
         CreateTextOverlay();
@@ -127,7 +138,7 @@ public partial class CropWindow : Window
         _textOverlay.Top = Top;
         _textOverlay.Width = Math.Max(40, Width);
         _textOverlay.Height = Math.Max(30, Height);
-        _textOverlay.Topmost = Topmost;
+        _textOverlay.Topmost = _isTopmost;   // our tracked band, not WPF's cached view
         _textOverlay.Show();
 
         // Parent the overlay's HWND to the crop popup's HWND so z-order follows
@@ -462,24 +473,135 @@ public partial class CropWindow : Window
             Toggle(new WindowInteropHelper(_textOverlay).Handle);
     }
 
-    /// <summary>Mirror the main window's Topmost flag onto the companion label overlay.</summary>
-    public void SetTopmost(bool topmost)
+    /// <summary>The desired topmost band, tracked explicitly. The WPF <c>Topmost</c>
+    /// property is NOT reliable on this AllowsTransparency (layered) window — setting
+    /// it does not consistently apply WS_EX_TOPMOST, and BringToFront reading it back
+    /// then picked HWND_TOP instead of HWND_TOPMOST, so the crop never actually entered
+    /// the topmost band and fell behind every client (issue #80/#87 — confirmed from a
+    /// user's debug_dwm.log: cropsTopmost was 0 while desiredTopmost was true). We now
+    /// drive z-order the way the working WinForms ThumbnailWindow does: a tracked bool
+    /// plus raw SetWindowPos, never the framework property.</summary>
+    private bool _isTopmost;
+
+    /// <summary>
+    /// Whether the window ACTUALLY carries WS_EX_TOPMOST right now — read from the OS,
+    /// not from a cached flag.
+    ///
+    /// This must not be a cached bool. A crop created during a client-launch burst can
+    /// have its SetWindowPos(HWND_TOPMOST) fail to stick (the HWND isn't fully realized
+    /// straight after Show(), and WPF can re-apply its own Topmost=false from the XAML
+    /// afterwards). If we then remembered "I set it to topmost", CropManager's
+    /// convergence guard (IsTopmostState != desired) would believe the crop was already
+    /// topmost and NEVER retry — leaving it stuck behind the client forever. That is
+    /// exactly what a user's log showed: crops grew 6 -> 15 while cropsTopmost stayed
+    /// frozen at 6 (#80/#87). Reading the real bit makes the guard self-healing: any
+    /// crop that isn't actually topmost gets fixed on the next pass.
+    /// </summary>
+    public bool IsTopmostState
     {
-        Topmost = topmost;
-        if (_textOverlay != null) _textOverlay.Topmost = topmost;
+        get
+        {
+            var h = OwnHwnd;
+            if (h == IntPtr.Zero) return _isTopmost;   // not realized yet — fall back
+            return (User32.GetWindowLong(h, User32.GWL_EXSTYLE) & User32.WS_EX_TOPMOST) != 0;
+        }
     }
 
-    /// <summary>Re-assert this crop's z-order above the EVE clients. A WPF Topmost
-    /// flag alone does not survive a client being activated on top of the crop —
-    /// the client raises over it and nothing pulls it back, so a crop placed on
-    /// top of a client vanishes underneath the moment you tab into that client
-    /// (issue #80). Mirrors ThumbnailWindow.BringToFront: a raw SWP_NOACTIVATE
-    /// z-order re-insert (no focus theft), with the label overlay lifted with it.</summary>
+    /// <summary>The crop's own top-level HWND, resolved robustly (OnLoaded may not have
+    /// cached it yet on very early calls).</summary>
+    private IntPtr OwnHwnd =>
+        _ownHwnd != IntPtr.Zero ? _ownHwnd : new WindowInteropHelper(this).Handle;
+
+    /// <summary>Set the crop (and its label overlay) into the topmost or normal band via
+    /// RAW SetWindowPos — the WPF Topmost property alone does not reliably apply
+    /// WS_EX_TOPMOST on this AllowsTransparency window. SWP_NOACTIVATE so we never steal
+    /// focus. We ALSO assign the WPF property: leaving it at its XAML default of false
+    /// lets WPF re-assert NOTOPMOST after Show() and silently undo the raw call, which is
+    /// how freshly-created crops ended up stuck behind the client (#80/#87).</summary>
+    // Outcome of the LAST raw SetWindowPos on the crop itself. We ignored the return
+    // value for eight fix attempts; the diagnostic reports it so we can finally see
+    // whether Windows is refusing the call or silently accepting-and-ignoring it.
+    private bool _lastSwpOk;
+    private int _lastSwpErr;
+
+    public void SetTopmost(bool topmost)
+    {
+        _isTopmost = topmost;
+        var band = topmost ? User32.HWND_TOPMOST : User32.HWND_NOTOPMOST;
+
+        // NEVER touch the WPF Topmost property here — manage the z-band with raw
+        // SetWindowPos ONLY, exactly like ThumbnailWindow, the one window in this app
+        // that has never had a topmost bug (see its SetTopmost comment).
+        //
+        // Mixing the two is what kept #80/#87 alive. Raw SetWindowPos is invisible to
+        // WPF's Topmost DependencyProperty, so WPF's cached value drifts from the real
+        // WS_EX_TOPMOST bit. Once WPF caches "true", `Topmost = true` is a silent no-op,
+        // and WPF re-applies its own cached value on later window events (already
+        // observed in this file — see the IsTopmostState comment: "WPF can re-apply its
+        // own Topmost=false from the XAML"). Measured signature from the [Crop:Stuck]
+        // log: swpOk=True swpErr=0 wpfTopmost=True, yet the real topmost bit was False —
+        // the call succeeded and the bit still did not stick.
+        //
+        // The window is now created topmost (Topmost="True" in XAML) so WPF's cached
+        // view starts in the band we want and it never has to be *promoted* after the
+        // fact. Reads go through IsTopmostState, which checks the real bit, not WPF.
+        var own = OwnHwnd;
+        if (own != IntPtr.Zero)
+        {
+            _lastSwpOk = User32.SetWindowPos(own, band, 0, 0, 0, 0,
+                User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+            _lastSwpErr = _lastSwpOk ? 0 : System.Runtime.InteropServices.Marshal.GetLastWin32Error();
+        }
+
+        if (_textOverlay != null)
+        {
+            var overlayHwnd = new WindowInteropHelper(_textOverlay).Handle;
+            if (overlayHwnd != IntPtr.Zero)
+                User32.SetWindowPos(overlayHwnd, band, 0, 0, 0, 0,
+                    User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
+        }
+
+    }
+
+    private const int WS_CHILD = unchecked((int)0x40000000);
+
+    /// <summary>One-line dump of why this crop may not be honouring topmost. Only used
+    /// by the DWM-debug diagnostic when a crop reads NOT topmost despite us setting it
+    /// (issue #80/#87: a subset of freshly-created crops stayed non-topmost and repeated
+    /// SetWindowPos(HWND_TOPMOST) never took — cause unknown, so measure it).</summary>
+    public string TopmostDiag()
+    {
+        var h = OwnHwnd;
+        if (h == IntPtr.Zero) return $"'{CharacterName}' hwnd=0 (window not realized)";
+        // Is the cached _ownHwnd still a real window, and is it the SAME one WPF is
+        // using now? A stale handle would make every SetWindowPos a silent no-op.
+        var live = new WindowInteropHelper(this).Handle;
+        bool alive = User32.IsWindow(h);
+        int ex = User32.GetWindowLong(h, User32.GWL_EXSTYLE);
+        int style = User32.GetWindowLong(h, User32.GWL_STYLE);
+        var owner = User32.GetWindowLongPtr(h, User32.GWLP_HWNDPARENT);
+        bool topmost = (ex & User32.WS_EX_TOPMOST) != 0;
+        bool child = (style & WS_CHILD) != 0;
+        bool srcIconic = _eveHwnd != IntPtr.Zero && User32.IsIconic(_eveHwnd);
+        return $"'{CharacterName}' hwnd=0x{h.ToInt64():X} live=0x{live.ToInt64():X} alive={alive} " +
+               $"vis={User32.IsWindowVisible(h)} topmost={topmost} child={child} owner=0x{owner.ToInt64():X} " +
+               $"swpOk={_lastSwpOk} swpErr={_lastSwpErr} wpfTopmost={Topmost} " +
+               $"src=0x{_eveHwnd.ToInt64():X} srcIconic={srcIconic}";
+    }
+
+    /// <summary>Re-assert this crop's z-order above the EVE clients. A topmost flag
+    /// alone does not survive a client being activated on top of the crop — the client
+    /// raises over it and nothing pulls it back — so a crop vanishes underneath the
+    /// moment you tab into that client (issue #80). Mirrors ThumbnailWindow.BringToFront:
+    /// a raw SWP_NOACTIVATE z-order re-insert (no focus theft) using the TRACKED band,
+    /// not the framework Topmost property, with the label overlay lifted with it.</summary>
     public void BringToFront()
     {
-        IntPtr zOrder = Topmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
-        if (_ownHwnd != IntPtr.Zero)
-            User32.SetWindowPos(_ownHwnd, zOrder, 0, 0, 0, 0,
+        IntPtr zOrder = _isTopmost ? User32.HWND_TOPMOST : User32.HWND_TOP;
+
+        var own = OwnHwnd;
+        if (own != IntPtr.Zero)
+            User32.SetWindowPos(own, zOrder, 0, 0, 0, 0,
                 User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE);
 
         if (_textOverlay != null)

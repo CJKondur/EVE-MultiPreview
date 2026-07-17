@@ -40,6 +40,16 @@ public sealed class CropManager : IDisposable
     // event to trigger a rebind (issue #64 — crops vanish at random).
     private readonly System.Windows.Threading.DispatcherTimer _healthTimer;
 
+    // Trailing debounce for the crop z-order re-raise. The foreground WinEvent fires
+    // once PER client activation, so holding the cycle hotkey (a switch every
+    // CycleDelayMs) used to post one ApplyZOrder per step at Normal dispatcher
+    // priority — flooding the UI queue and STARVING the cycle's own Background-priority
+    // repeat timer, so the configured cycle delay was ignored and the lag grew the
+    // longer you held (the cycle regression). Coalescing collapses a whole cycle-storm
+    // into ONE re-raise once switching settles; crops are already topmost (raw
+    // SetWindowPos in CropWindow) so they don't fall behind during the brief coalesce.
+    private readonly System.Windows.Threading.DispatcherTimer _zorderDebounce;
+
     // Window-event hook used to force-rebind a crop when its source EVE window
     // restores from minimized (issue #65 — periodic health check missed this
     // case because the registration was still nominally valid).
@@ -59,6 +69,13 @@ public sealed class CropManager : IDisposable
         };
         _healthTimer.Tick += (_, _) => HealthCheck();
         _healthTimer.Start();
+
+        _zorderDebounce = new System.Windows.Threading.DispatcherTimer(
+            System.Windows.Threading.DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromMilliseconds(60)
+        };
+        _zorderDebounce.Tick += (_, _) => { _zorderDebounce.Stop(); ApplyZOrder(); };
     }
 
     /// <summary>Re-validate every live crop's DWM thumbnail and rebuild any that
@@ -80,6 +97,12 @@ public sealed class CropManager : IDisposable
                 catch (Exception ex) { Debug.WriteLine($"[CropManager] Health check failed: {ex.Message}"); }
             }
         }
+
+        // Self-heal z-order too. A crop whose topmost didn't stick at creation (common
+        // when several clients launch at once) would otherwise stay behind the client
+        // until the next foreground change. ApplyZOrder now compares against the crop's
+        // REAL WS_EX_TOPMOST bit, so this is a no-op unless one has actually drifted.
+        ApplyZOrder();
 
         // Self-heal MISSING crops (issue #80 — "crops not showing on login").
         // The per-character reconcile is reactive: it fires once per discovery
@@ -194,32 +217,115 @@ public sealed class CropManager : IDisposable
         _winEvents.ForegroundChanged += OnForegroundChanged;
     }
 
-    /// <summary>Re-assert crop z-order when an EVE client (or the app) comes to the
-    /// foreground. WPF Topmost alone doesn't keep a crop above a client the user
-    /// tabs into — the activated client raises over the crop and stays there until
-    /// the user toggles crops off/on (issue #80: "crops hide under the main client").
-    /// Mirrors ThumbnailManager's focus-driven re-raise so crops placed on top of a
-    /// client survive tabbing into it. Only runs when the user has opted crops into
-    /// an always-on-top mode.</summary>
+    /// <summary>Re-assert crop z-order when the foreground window changes. WPF Topmost
+    /// alone doesn't keep a crop above a client the user tabs into — the activated
+    /// client raises over the crop and stays there until the user toggles crops off/on
+    /// (issue #80: "crops hide under the main client the moment you tab in").
+    ///
+    /// This mirrors ThumbnailManager's focus-aware topmost model exactly, because a
+    /// bare non-topmost <see cref="CropWindow.BringToFront"/> (HWND_TOP) LOSES the
+    /// activation race — the re-activating EVE client gets stuck back on top (the same
+    /// failure the thumbnails hit, "confirmed by LittlePhish"). The winning move is to
+    /// put the crop into the TOPMOST band while an EVE client (or this app) is focused,
+    /// then BringToFront within that band. Under KeepThumbnailsAboveClients we DROP the
+    /// crop back to non-topmost the instant a non-EVE app is focused, so crops never
+    /// sit over Discord/your browser once you tab there; Always-On-Top keeps them
+    /// topmost permanently.</summary>
     private void OnForegroundChanged(IntPtr fgHwnd)
     {
-        Application.Current?.Dispatcher.BeginInvoke(() =>
-        {
-            var s = _settings.Settings;
-            if (!s.CropEnabled || _cropsHidden) return;
-            if (!s.ShowThumbnailsAlwaysOnTop && !s.KeepThumbnailsAboveClients) return;
+        // Coalesce: restart the debounce instead of re-raising immediately. A burst of
+        // switches (held cycle key) collapses to a single ApplyZOrder once it settles,
+        // so we never flood the dispatcher and stall the cycle timer.
+        _zorderDebounce.Stop();
+        _zorderDebounce.Start();
+    }
 
-            string? fgProc = null;
-            try { fgProc = Interop.User32.GetProcessName(fgHwnd); } catch { }
-            if (!Interop.User32.IsEveOrAppProcess(fgProc)) return;
+    /// <summary>Converge crop z-order to the current focus state: topmost while an
+    /// EVE client (or this app) is foreground — or always, under Always-On-Top — then
+    /// re-raise within that band; drop to non-topmost when the user tabs to another app
+    /// (KeepThumbnailsAboveClients only). Also driven by the thumbnail sweep hook.</summary>
+    private void ApplyZOrder()
+    {
+        var s = _settings.Settings;
+        if (!s.CropEnabled || _cropsHidden) return;
 
-            foreach (var perChar in _windows.Values)
-                foreach (var win in perChar.Values)
+        IntPtr fg = Interop.User32.GetForegroundWindow();
+        string? fgProc = null;
+        try { fgProc = Interop.User32.GetProcessName(fg); } catch { }
+        bool eveFocused = Interop.User32.IsEveOrAppProcess(fgProc);
+
+        // Crops keep themselves above the EVE clients purely by being TOPMOST (set via
+        // raw SetWindowPos in CropWindow — the actual #80/#87 fix). A topmost window is
+        // always above a non-topmost one, so nothing has to re-raise them.
+        //
+        // Deliberately NO BringToFront here. Raising a crop to the top of the topmost
+        // band also put it above the THUMBNAILS, and a crop is hit-testable — so any
+        // crop overlapping a thumbnail swallowed the click and you could no longer click
+        // a thumbnail to switch to that client. Thumbnails are the interactive surface;
+        // they must stay above the passive crop overlays.
+        //
+        // Topmost while EVE/app is foreground (or always, under Always-On-Top); drop to
+        // non-topmost otherwise so crops don't sit over Discord/your browser.
+        bool desiredTopmost = s.ShowThumbnailsAlwaysOnTop || (s.KeepThumbnailsAboveClients && eveFocused);
+
+        bool anyChanged = false;
+        foreach (var perChar in _windows.Values)
+            foreach (var win in perChar.Values)
+            {
+                try
                 {
-                    try { win.BringToFront(); }
-                    catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop re-raise failed: {ex.Message}"); }
+                    if (win.IsTopmostState != desiredTopmost)
+                    {
+                        win.SetTopmost(desiredTopmost);
+                        anyChanged = true;
+                    }
                 }
-        });
+                catch (Exception ex) { Debug.WriteLine($"[CropManager] Crop topmost failed: {ex.Message}"); }
+            }
+
+        // Going topmost lifts the crop to the TOP of the topmost band — over the
+        // thumbnails, whose clicks it would then swallow. Put the thumbnails back on top.
+        if (anyChanged) _thumbnailManager?.RaiseThumbnailsAboveOverlays();
+
+        // Diagnostic ONLY when DWM debug logging is enabled (issue #80/#87). It reads
+        // WS_EX_TOPMOST off the foreground window and every crop and appends to
+        // debug_dwm.log — a GetWindowLong-per-crop plus a synchronous disk write that
+        // fired on EVERY foreground change and made client-switching feel laggy. Behind
+        // the flag it costs nothing in normal use; testers who enable it still get the
+        // fgTopmost / cropsTopmost readout that pinned this bug down.
+        if (DiagnosticsService.GlobalSettings?.EnableDebugLogging_DWM == true)
+            LogCropZOrder(fg, fgProc, eveFocused, desiredTopmost);
+    }
+
+    private string? _lastZOrderLogState;
+
+    private void LogCropZOrder(IntPtr fg, string? fgProc, bool eveFocused, bool desiredTopmost)
+    {
+        bool fgTop = fg != IntPtr.Zero && (Interop.User32.GetWindowLong(fg, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0;
+        int cropCount = 0, cropTop = 0;
+        var stuck = new System.Collections.Generic.List<CropWindow>();
+        foreach (var perChar in _windows.Values)
+            foreach (var win in perChar.Values)
+            {
+                cropCount++;
+                var h = new System.Windows.Interop.WindowInteropHelper(win).Handle;
+                if (h != IntPtr.Zero && (Interop.User32.GetWindowLong(h, Interop.User32.GWL_EXSTYLE) & Interop.User32.WS_EX_TOPMOST) != 0)
+                    cropTop++;
+                else if (desiredTopmost)
+                    stuck.Add(win);
+            }
+        // Only log when something CHANGED. The 4s health check re-ran this every tick,
+        // so a steady state buried the interesting transitions under thousands of
+        // identical lines.
+        var state = $"{fgProc}|{eveFocused}|{fgTop}|{desiredTopmost}|{cropCount}|{cropTop}";
+        if (state == _lastZOrderLogState) return;
+        _lastZOrderLogState = state;
+
+        if (cropCount > 0)
+            DiagnosticsService.LogDwm($"[Crop:ZOrder] fg=0x{fg.ToInt64():X} proc={fgProc ?? "?"} eveFocused={eveFocused} fgTopmost={fgTop} desiredTopmost={desiredTopmost} crops={cropCount} cropsTopmost={cropTop}");
+        // Dump the offenders so we can see WHY a crop won't go topmost (#80/#87).
+        foreach (var win in stuck)
+            DiagnosticsService.LogDwm($"[Crop:Stuck] {win.TopmostDiag()}");
     }
 
     private void OnSourceMinimizeEnd(IntPtr hwnd)
@@ -299,6 +405,7 @@ public sealed class CropManager : IDisposable
     public void Dispose()
     {
         _healthTimer.Stop();
+        _zorderDebounce.Stop();
         _discovery.WindowFound -= OnWindowFound;
         _discovery.WindowLost -= OnWindowLost;
         _discovery.WindowTitleChanged -= OnWindowTitleChanged;
@@ -527,8 +634,23 @@ public sealed class CropManager : IDisposable
     {
         var s = _settings.Settings;
 
-        // Always-on-top parity with ThumbnailWindow (also propagates to label overlay)
-        win.SetTopmost(s.ShowThumbnailsAlwaysOnTop);
+        // Always-on-top parity with ThumbnailWindow (also propagates to label overlay).
+        // Be focus-aware at creation: under KeepThumbnailsAboveClients a crop created
+        // while an EVE client is already foreground gets NO subsequent ForegroundChanged
+        // event, so a bare SetTopmost(false) would leave it buried behind the client
+        // until the user toggled crops off/on (issue #80's startup case). Start it in
+        // the topmost band when EVE/app is the current foreground.
+        bool eveFocusedNow = false;
+        try { eveFocusedNow = Interop.User32.IsEveOrAppProcess(Interop.User32.GetProcessName(Interop.User32.GetForegroundWindow())); }
+        catch { }
+        // SetTopmost alone puts it above the (non-topmost) clients — including a crop
+        // created mid-load while a client is already foreground (#87). No BringToFront:
+        // that would also lift it above the thumbnails and eat their clicks.
+        win.SetTopmost(s.ShowThumbnailsAlwaysOnTop || (s.KeepThumbnailsAboveClients && eveFocusedNow));
+
+        // ...but going topmost still lands the crop at the top of the topmost band, so
+        // put the thumbnails back above it — they're what you click to switch client.
+        _thumbnailManager?.RaiseThumbnailsAboveOverlays();
 
         // Parse font size from string setting (matches ThumbnailTextSize being string)
         double fontSize = 11;

@@ -1,7 +1,7 @@
 <Window x:Class="EveMultiPreview.Views.CharacterStatEditorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Stat Overrides"
+        Title="{DynamicResource L.SE.Title}"
         Width="620" SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -31,19 +31,19 @@
     <StackPanel Margin="16,14">
         <TextBlock x:Name="TxtHeader" FontSize="16" FontWeight="Bold"
                    Foreground="{StaticResource AccentBrush}" Margin="0,0,0,4"/>
-        <TextBlock Text="Each row is a single metric. ☐ force OFF · ☑ force ON · ▣ inherit global. Use the category buttons to bulk-set all metrics in that category."
+        <TextBlock Text="{DynamicResource L.SE.Intro}"
                    TextWrapping="Wrap" FontSize="11"
                    Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,10"/>
 
         <!-- DPS -->
-        <GroupBox Header="⚔ DPS">
+        <GroupBox Header="{DynamicResource L.Stats.CatDps}">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <Button Content="All On" Click="OnCategoryAllOn" Tag="Dps" Padding="8,2" Margin="0,0,6,0"
+                    <Button Content="{DynamicResource L.SE.AllOn}" Click="OnCategoryAllOn" Tag="Dps" Padding="8,2" Margin="0,0,6,0"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
-                    <Button Content="All Off" Click="OnCategoryAllOff" Tag="Dps" Padding="8,2" Margin="0,0,6,0"
+                    <Button Content="{DynamicResource L.SE.AllOff}" Click="OnCategoryAllOff" Tag="Dps" Padding="8,2" Margin="0,0,6,0"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
-                    <Button Content="Inherit" Click="OnCategoryInherit" Tag="Dps" Padding="8,2"
+                    <Button Content="{DynamicResource L.SE.Inherit}" Click="OnCategoryInherit" Tag="Dps" Padding="8,2"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
                 </StackPanel>
                 <WrapPanel>
@@ -52,19 +52,19 @@
                     <CheckBox x:Name="CbTdi"    IsThreeState="True" Content="TDI · Total Dmg In"     MinWidth="170"/>
                     <CheckBox x:Name="CbTdo"    IsThreeState="True" Content="TDO · Total Dmg Out"    MinWidth="170"/>
                 </WrapPanel>
-                <CheckBox x:Name="CbIncludeNpc" IsThreeState="True" Content="Include NPC damage in DPS" Margin="0,6,0,0"/>
+                <CheckBox x:Name="CbIncludeNpc" IsThreeState="True" Content="{DynamicResource L.SE.IncludeNpc}" Margin="0,6,0,0"/>
             </StackPanel>
         </GroupBox>
 
         <!-- Logi -->
-        <GroupBox Header="🛡 Logi">
+        <GroupBox Header="{DynamicResource L.Stats.CatLogi}">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <Button Content="All On" Click="OnCategoryAllOn" Tag="Logi" Padding="8,2" Margin="0,0,6,0"
+                    <Button Content="{DynamicResource L.SE.AllOn}" Click="OnCategoryAllOn" Tag="Logi" Padding="8,2" Margin="0,0,6,0"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
-                    <Button Content="All Off" Click="OnCategoryAllOff" Tag="Logi" Padding="8,2" Margin="0,0,6,0"
+                    <Button Content="{DynamicResource L.SE.AllOff}" Click="OnCategoryAllOff" Tag="Logi" Padding="8,2" Margin="0,0,6,0"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
-                    <Button Content="Inherit" Click="OnCategoryInherit" Tag="Logi" Padding="8,2"
+                    <Button Content="{DynamicResource L.SE.Inherit}" Click="OnCategoryInherit" Tag="Logi" Padding="8,2"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
                 </StackPanel>
                 <WrapPanel>
@@ -80,14 +80,14 @@
         </GroupBox>
 
         <!-- Mining -->
-        <GroupBox Header="⛏ Mining">
+        <GroupBox Header="{DynamicResource L.Stats.CatMining}">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <Button Content="All On" Click="OnCategoryAllOn" Tag="Mine" Padding="8,2" Margin="0,0,6,0"
+                    <Button Content="{DynamicResource L.SE.AllOn}" Click="OnCategoryAllOn" Tag="Mine" Padding="8,2" Margin="0,0,6,0"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
-                    <Button Content="All Off" Click="OnCategoryAllOff" Tag="Mine" Padding="8,2" Margin="0,0,6,0"
+                    <Button Content="{DynamicResource L.SE.AllOff}" Click="OnCategoryAllOff" Tag="Mine" Padding="8,2" Margin="0,0,6,0"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
-                    <Button Content="Inherit" Click="OnCategoryInherit" Tag="Mine" Padding="8,2"
+                    <Button Content="{DynamicResource L.SE.Inherit}" Click="OnCategoryInherit" Tag="Mine" Padding="8,2"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
                 </StackPanel>
                 <WrapPanel>
@@ -101,14 +101,14 @@
         </GroupBox>
 
         <!-- Ratting -->
-        <GroupBox Header="💰 Ratting">
+        <GroupBox Header="{DynamicResource L.Stats.CatRatting}">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                    <Button Content="All On" Click="OnCategoryAllOn" Tag="Rat" Padding="8,2" Margin="0,0,6,0"
+                    <Button Content="{DynamicResource L.SE.AllOn}" Click="OnCategoryAllOn" Tag="Rat" Padding="8,2" Margin="0,0,6,0"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
-                    <Button Content="All Off" Click="OnCategoryAllOff" Tag="Rat" Padding="8,2" Margin="0,0,6,0"
+                    <Button Content="{DynamicResource L.SE.AllOff}" Click="OnCategoryAllOff" Tag="Rat" Padding="8,2" Margin="0,0,6,0"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
-                    <Button Content="Inherit" Click="OnCategoryInherit" Tag="Rat" Padding="8,2"
+                    <Button Content="{DynamicResource L.SE.Inherit}" Click="OnCategoryInherit" Tag="Rat" Padding="8,2"
                             Background="#2a3347" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Cursor="Hand"/>
                 </StackPanel>
                 <WrapPanel>
@@ -126,15 +126,15 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" x:Name="BtnResetAll" Content="Reset all to Inherit"
+            <Button Grid.Column="0" x:Name="BtnResetAll" Content="{DynamicResource L.SE.ResetAll}"
                     Click="OnResetAll" Padding="12,6" HorizontalAlignment="Left"
                     Background="#2a3347" Foreground="{StaticResource TextBrush}"
                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Cursor="Hand"/>
-            <Button Grid.Column="1" Content="Cancel" Click="OnCancel" IsCancel="True"
+            <Button Grid.Column="1" Content="{DynamicResource L.Common.Cancel}" Click="OnCancel" IsCancel="True"
                     Padding="16,6" Margin="0,0,8,0"
                     Background="#2a3347" Foreground="{StaticResource TextBrush}"
                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Cursor="Hand"/>
-            <Button Grid.Column="2" Content="Save" Click="OnSave" IsDefault="True"
+            <Button Grid.Column="2" Content="{DynamicResource L.Common.SaveWord}" Click="OnSave" IsDefault="True"
                     Padding="20,6" FontWeight="SemiBold"
                     Background="{StaticResource AccentBrush}" Foreground="White"
                     BorderThickness="0" Cursor="Hand"/>

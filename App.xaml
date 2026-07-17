@@ -3,6 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- UI string catalog base (English). Selected language overlays
+                     are merged on top at runtime by LocalizationService (issue #86). -->
+                <ResourceDictionary Source="Resources/Strings.en.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- Dark Theme Color System -->
         <Color x:Key="BgDark">#FF1A1A2E</Color>
         <Color x:Key="BgPanel">#FF252540</Color>
@@ -20,5 +26,6 @@
         <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
         <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}"/>
         <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

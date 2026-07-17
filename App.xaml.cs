@@ -25,6 +25,9 @@ public partial class App : Application
 {
     private static Mutex? _singleInstanceMutex;
     private NotifyIcon? _trayIcon;
+    // Tray menu items that carry localizable text, re-labelled on each menu open
+    // so a language change applies without an app restart (issue #86).
+    private readonly List<(System.Windows.Forms.ToolStripItem item, string key, string en)> _trayLoc = new();
     private SettingsService? _settings;
     private WindowDiscoveryService? _discovery;
     private WinEventHookService? _winEvents;
@@ -110,7 +113,11 @@ public partial class App : Application
         // 1. Load settings
         _settings = new SettingsService();
         _settings.Load();
-        
+
+        // Apply UI language before any window is shown (issue #86). "" auto-detects
+        // from the OS; falls back to English for unsupported languages.
+        Services.LocalizationService.SetLanguage(_settings.Settings.Language);
+
         DiagnosticsService.Initialize();
         DiagnosticsService.GlobalSettings = _settings.Settings;
 
@@ -618,7 +625,16 @@ public partial class App : Application
 
         var menu = _trayIcon.ContextMenuStrip;
 
-        // Header
+        // Local helper: set an item's text from the active language (English
+        // fallback) and register it so the menu re-labels itself when re-opened
+        // after a language change (issue #86).
+        void L(System.Windows.Forms.ToolStripItem it, string key, string en)
+        {
+            it.Text = LocalizationService.Str(key, en);
+            _trayLoc.Add((it, key, en));
+        }
+
+        // Header (product name — not localized)
         var header = menu.Items.Add("EVE MultiPreview");
         header.Enabled = false;
         menu.Items.Add(new ToolStripSeparator());
@@ -627,14 +643,16 @@ public partial class App : Application
         // Defer to let the tray menu fully close before Show() — otherwise
         // the NotifyIcon's internal message window steals foreground back
         // and Settings appears but can't receive input.
-        menu.Items.Add("⚙ Settings", null, (_, _) =>
+        var settingsItem = menu.Items.Add("", null, (_, _) =>
         {
             SettingsDiag("Tray menu item clicked");
             Application.Current?.Dispatcher.BeginInvoke(new Action(() => OpenSettings()));
         });
+        L(settingsItem, "L.Tray.Settings", "⚙ Settings");
 
         // Profile submenu (dynamically rebuilt to sync checks and profile list)
-        var profileMenu = new ToolStripMenuItem("👤 Profiles");
+        var profileMenu = new ToolStripMenuItem();
+        L(profileMenu, "L.Tray.Profiles", "👤 Profiles");
         profileMenu.DropDownOpening += (_, _) => RebuildProfileMenu(profileMenu);
         RebuildProfileMenu(profileMenu);
         menu.Items.Add(profileMenu);
@@ -642,7 +660,8 @@ public partial class App : Application
         menu.Items.Add(new ToolStripSeparator());
 
         // Suspend Hotkeys + AlertHub (C8)
-        var suspendItem = new ToolStripMenuItem("⏸ Suspend Hotkeys") { CheckOnClick = true };
+        var suspendItem = new ToolStripMenuItem { CheckOnClick = true };
+        L(suspendItem, "L.Tray.Suspend", "⏸ Suspend Hotkeys");
         suspendItem.Click += (_, _) =>
         {
             _hotkeyService?.ToggleSuspend();
@@ -651,53 +670,62 @@ public partial class App : Application
         menu.Items.Add(suspendItem);
 
         // Lock Positions toggle
-        var lockItem = new ToolStripMenuItem("🔒 Lock Positions")
+        var lockItem = new ToolStripMenuItem
         {
             CheckOnClick = true,
             Checked = _settings?.Settings.LockPositions ?? false
         };
+        L(lockItem, "L.Tray.Lock", "🔒 Lock Positions");
         lockItem.Click += (_, _) => _thumbnailManager?.ToggleLockPositions();
         menu.Items.Add(lockItem);
 
         // Hide/Show Thumbnails
-        var hideItem = new ToolStripMenuItem("👁 Toggle Thumbnails") { CheckOnClick = true };
+        var hideItem = new ToolStripMenuItem { CheckOnClick = true };
+        L(hideItem, "L.Tray.Toggle", "👁 Toggle Thumbnails");
         hideItem.Click += (_, _) => _thumbnailManager?.ToggleThumbnailVisibility();
         menu.Items.Add(hideItem);
 
         // Click-Through
-        var ctItem = new ToolStripMenuItem("↗ Click-Through Mode") { CheckOnClick = true };
+        var ctItem = new ToolStripMenuItem { CheckOnClick = true };
+        L(ctItem, "L.Tray.ClickThrough", "↗ Click-Through Mode");
         ctItem.Click += (_, _) => _thumbnailManager?.ToggleClickThrough();
         menu.Items.Add(ctItem);
 
         menu.Items.Add(new ToolStripSeparator());
 
         // Client position management
-        var posMenu = new ToolStripMenuItem("📐 Client Positions");
-        posMenu.DropDownItems.Add("💾 Save Positions", null, (_, _) =>
+        var posMenu = new ToolStripMenuItem();
+        L(posMenu, "L.Tray.ClientPositions", "📐 Client Positions");
+        var savePosItem = posMenu.DropDownItems.Add("", null, (_, _) =>
         {
             _thumbnailManager?.SaveClientPositions();
-            _trayIcon?.ShowBalloonTip(2000, "EVE MultiPreview", "Client positions saved", ToolTipIcon.Info);
+            _trayIcon?.ShowBalloonTip(2000, "EVE MultiPreview", LocalizationService.Str("L.Tray.PosSaved", "Client positions saved"), ToolTipIcon.Info);
         });
-        posMenu.DropDownItems.Add("📋 Restore Positions", null, (_, _) =>
+        L(savePosItem, "L.Tray.SavePositions", "💾 Save Positions");
+        var restorePosItem = posMenu.DropDownItems.Add("", null, (_, _) =>
         {
-            _trayIcon?.ShowBalloonTip(2000, "EVE MultiPreview", "Positions restored on next discovery cycle", ToolTipIcon.Info);
+            _trayIcon?.ShowBalloonTip(2000, "EVE MultiPreview", LocalizationService.Str("L.Tray.PosRestored", "Positions restored on next discovery cycle"), ToolTipIcon.Info);
         });
+        L(restorePosItem, "L.Tray.RestorePositions", "📋 Restore Positions");
         menu.Items.Add(posMenu);
 
         // Close all EVE clients
-        menu.Items.Add("❌ Close All EVE Clients", null, (_, _) =>
+        var closeAllItem = menu.Items.Add("", null, (_, _) =>
         {
             var result = System.Windows.MessageBox.Show(
-                "Close all EVE Online windows?", "Confirm",
+                LocalizationService.Str("L.Tray.CloseConfirm", "Close all EVE Online windows?"),
+                LocalizationService.Str("L.Tray.ConfirmTitle", "Confirm"),
                 MessageBoxButton.YesNo, MessageBoxImage.Warning);
             if (result == MessageBoxResult.Yes)
                 _thumbnailManager?.CloseAllEveWindows();
         });
+        L(closeAllItem, "L.Tray.CloseAll", "❌ Close All EVE Clients");
 
         menu.Items.Add(new ToolStripSeparator());
 
         // ── PiP Individual Toggle Submenu (AHK: TrayMenu._TrayPiPToggle) ──
-        var pipMenu = new ToolStripMenuItem("🖼 PiP Individual");
+        var pipMenu = new ToolStripMenuItem();
+        L(pipMenu, "L.Tray.PiP", "🖼 PiP Individual");
         try
         {
             var secondarySettings = _settings?.CurrentProfile.SecondaryThumbnails;
@@ -739,7 +767,16 @@ public partial class App : Application
         menu.Items.Add(new ToolStripSeparator());
 
         // Exit
-        menu.Items.Add("🚪 Exit", null, (_, _) => ExitApplication());
+        var exitItem = menu.Items.Add("", null, (_, _) => ExitApplication());
+        L(exitItem, "L.Tray.Exit", "🚪 Exit");
+
+        // Re-label all localizable items each time the menu opens, so a language
+        // change made in Settings takes effect without restarting (issue #86).
+        menu.Opening += (_, _) =>
+        {
+            foreach (var (it, key, en) in _trayLoc)
+                it.Text = LocalizationService.Str(key, en);
+        };
 
         // Double-click to open settings (deferred — see Settings menu item above)
         _trayIcon.DoubleClick += (_, _) =>

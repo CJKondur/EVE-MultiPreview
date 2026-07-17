@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1188,11 +1188,15 @@ public sealed class LogMonitorService : IDisposable
                             {
                                 var sysLine = sysReader.ReadLine();
                                 if (sysLine == null) break;
-                                if (sysLine.Contains("Channel changed to Local"))
+                                // Startup backfill of the current system from the Local
+                                // chat log. Was English-only with an ASCII-only colon, so
+                                // non-English clients launched with no system at all (#86).
+                                // Same trust rule as the live parser: EVE System only.
+                                if (IsEveSystemChatLine(sysLine))
                                 {
-                                    var match = Regex.Match(sysLine, @"Channel changed to Local\s*:\s*(.+)");
-                                    if (match.Success)
-                                        lastSystem = SanitizeSystemName(match.Groups[1].Value.Trim());
+                                    var sys = ExtractSystemFromLine(ResolveLocalizedNames(sysLine), LogType.ChatLog);
+                                    if (!string.IsNullOrEmpty(sys))
+                                        lastSystem = sys;
                                 }
                             }
                             if (!string.IsNullOrEmpty(lastSystem))
@@ -1271,35 +1275,57 @@ public sealed class LogMonitorService : IDisposable
         }
     }
 
+    /// <summary>
+    /// Pull the character name out of a log header line in ANY EVE client language.
+    /// EVE localizes the header key, so a Chinese client writes "收听者: Name" where an
+    /// English one writes "Listener: Name" (and CJK clients use a full-width colon).
+    /// Matching only the English key left the character unresolved on every non-English
+    /// client, which orphaned EVERY alert no matter how well the body text matched —
+    /// the real reason alerts stayed broken after the body phrases were localized
+    /// (issue #86, reported by @thouger). Keys come from EVE's own localization files
+    /// via AlertPatterns ("log_header_keys"); returns null when the line isn't a header.
+    /// </summary>
+    private static string? TryParseHeaderCharacter(string trimmed)
+    {
+        foreach (var key in AlertPatterns.Get("log_header_keys"))
+        {
+            if (!trimmed.StartsWith(key, StringComparison.Ordinal)) continue;
+
+            var rest = trimmed.Substring(key.Length).TrimStart();
+            // Accept ASCII ':' and the full-width '：' used by CJK clients.
+            if (rest.Length == 0 || (rest[0] != ':' && rest[0] != '：')) continue;
+
+            var name = rest.Substring(1).Trim();
+            if (!string.IsNullOrEmpty(name)) return name;
+        }
+        return null;
+    }
+
+    /// <summary>True when the line is a log header line in any language (so body
+    /// parsers can skip it).</summary>
+    private static bool IsHeaderLine(string trimmed) => TryParseHeaderCharacter(trimmed) != null;
+
     /// <summary>Only extract character name from header lines — used on first read to avoid processing old events.</summary>
     private void ProcessHeaderOnly(string line, LogFileState state)
     {
         if (string.IsNullOrWhiteSpace(line)) return;
-        var trimmed = line.TrimStart();
 
-        if (trimmed.StartsWith("Listener:"))
+        var charName = TryParseHeaderCharacter(line.TrimStart());
+        if (!string.IsNullOrEmpty(charName))
         {
-            string charName = trimmed.Substring("Listener:".Length).Trim();
-            if (!string.IsNullOrEmpty(charName))
-            {
-                _fileCharacterMap[state.Path] = charName;
-                Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified (header): '{charName}' from {Path.GetFileName(state.Path)}");
-            }
-        }
-        else if (state.Type == LogType.GameLog && trimmed.StartsWith("Character:"))
-        {
-            string charName = trimmed.Substring("Character:".Length).Trim();
-            if (!string.IsNullOrEmpty(charName))
-            {
-                _fileCharacterMap[state.Path] = charName;
-                Debug.WriteLine($"[LogMonitor:Scan] 👤 Game log character (header): '{charName}' from {Path.GetFileName(state.Path)}");
-            }
+            _fileCharacterMap[state.Path] = charName;
+            Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified (header): '{charName}' from {Path.GetFileName(state.Path)}");
         }
     }
 
     private void ProcessLine(string line, LogFileState state)
     {
         if (string.IsNullOrWhiteSpace(line)) return;
+
+        // Non-English clients wrap every proper noun in <localized hint="English">…*.
+        // Resolve to the English name up-front so all name-based checks below (system,
+        // ore, mining module, NPC ship type) behave exactly as on an English client.
+        line = ResolveLocalizedNames(line);
 
         // Trace every (notify) line we read — proves whether the LogMonitor
         // is even seeing the line, separate from whether the parser matches.
@@ -1312,30 +1338,15 @@ public sealed class LogMonitorService : IDisposable
                 $"[Read] notify line from '{charForTrace}' file={Path.GetFileName(state.Path)}: {line.Trim()}");
         }
 
-        // Extract character name from log header
+        // Extract character name from the log header — any EVE client language (#86).
         var trimmed = line.TrimStart();
-        if (trimmed.StartsWith("Listener:"))
+        var headerName = TryParseHeaderCharacter(trimmed);
+        if (!string.IsNullOrEmpty(headerName))
         {
-            string charName = trimmed.Substring("Listener:".Length).Trim();
-            if (!string.IsNullOrEmpty(charName))
-            {
-                var oldName = _fileCharacterMap.GetValueOrDefault(state.Path, "");
-                _fileCharacterMap[state.Path] = charName;
-                if (oldName != charName)
-                    Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified: '{charName}' from {Path.GetFileName(state.Path)}");
-            }
-            return;
-        }
-
-        // Also check Character: header in game logs
-        if (state.Type == LogType.GameLog && trimmed.StartsWith("Character:"))
-        {
-            string charName = trimmed.Substring("Character:".Length).Trim();
-            if (!string.IsNullOrEmpty(charName))
-            {
-                _fileCharacterMap[state.Path] = charName;
-                Debug.WriteLine($"[LogMonitor:Scan] 👤 Game log character: '{charName}' from {Path.GetFileName(state.Path)}");
-            }
+            var oldName = _fileCharacterMap.GetValueOrDefault(state.Path, "");
+            _fileCharacterMap[state.Path] = headerName;
+            if (oldName != headerName)
+                Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified: '{headerName}' from {Path.GetFileName(state.Path)}");
             return;
         }
 
@@ -1353,54 +1364,36 @@ public sealed class LogMonitorService : IDisposable
 
     private void ParseChatLogLine(string line, string character)
     {
-        // AHK: Chat log parsing ONLY handles system changes — nothing else
-        // System change: "[ timestamp ] EVE System > Channel changed to Local : SystemName"
-        if (line.Contains("Channel changed to Local"))
-        {
-            var systemMatch = Regex.Match(line, @"Channel changed to Local\s*:\s*(.+)");
-            if (systemMatch.Success)
-            {
-                string systemName = SanitizeSystemName(systemMatch.Groups[1].Value.Trim());
-                if (!string.IsNullOrEmpty(systemName))
-                    UpdateSystem(character, systemName, "chat");
-            }
-        }
+        // AHK: Chat log parsing ONLY handles system changes — nothing else.
+        // EVE localizes this line, so match per-language (issue #86):
+        //   en: "EVE System > Channel changed to Local : SystemName"
+        //   zh: "EVE系统 > 频道更换为本地：SystemName"   (note the full-width colon)
+        // Only EVE System may move the system — never another player's chat text.
+        if (!IsEveSystemChatLine(line)) return;
+
+        var systemName = ExtractSystemFromLine(line, LogType.ChatLog);
+        if (!string.IsNullOrEmpty(systemName))
+            UpdateSystem(character, systemName, "chat");
     }
 
     private void ParseGameLogLine(string line, string character)
     {
         var trimmedLine = line.TrimStart();
 
-        // Skip header lines
-        if (trimmedLine.StartsWith("Character:") || trimmedLine.StartsWith("Listener:"))
+        // Skip header lines (any language — #86)
+        if (IsHeaderLine(trimmedLine))
             return;
 
-        // ── System change from game logs (AHK: Jumping from, Undocking from) ──
-        if (line.Contains("(None)") && line.Contains("Jumping from"))
-        {
-            var jumpMatch = Regex.Match(line, @"Jumping from\s+(.+?)\s+to\s+(.+)");
-            if (jumpMatch.Success)
-            {
-                string destSystem = SanitizeSystemName(jumpMatch.Groups[2].Value.Trim());
-                if (!string.IsNullOrEmpty(destSystem))
-                    UpdateSystem(character, destSystem, "game-jump");
-            }
-        }
-        else if (line.Contains("Undocking from"))
-        {
-            int toIdx = line.IndexOf(" to ", line.IndexOf("Undocking from"), StringComparison.Ordinal);
-            if (toIdx > 0)
-            {
-                string sysName = line.Substring(toIdx + 4).Trim();
-                // AHK: strip " solar system." suffix
-                int solarIdx = sysName.IndexOf(" solar system.", StringComparison.Ordinal);
-                if (solarIdx >= 0)
-                    sysName = sysName.Substring(0, solarIdx);
-                sysName = SanitizeSystemName(sysName);
-                if (!string.IsNullOrEmpty(sysName))
-                    UpdateSystem(character, sysName, "game-undock");
-            }
-        }
+        // ── System change from game logs (jump / undock) ──
+        // Localized in every client, so the destination system is extracted with a
+        // regex built from EVE's OWN message template per language. In all languages
+        // the system is the LAST placeholder of the template, so CaptureLast() gets
+        // it without us knowing each language's word order (issue #86):
+        //   en: "Jumping from {gate} to {system}"      zh: "从{gate}跳到{system}"
+        //   en: "Undocking from {stn} to {sys} solar system."  ja: "{stn} から {sys} へ出港"
+        var destSystem = ExtractSystemFromLine(line, LogType.GameLog);
+        if (!string.IsNullOrEmpty(destSystem))
+            UpdateSystem(character, destSystem, "game-move");
 
 
         // ── Combat events ──
@@ -1409,9 +1402,13 @@ public sealed class LogMonitorService : IDisposable
             // AHK L678: attack alert fires on BOTH damage hits (0xffcc0000) AND misses.
             // ParseCombatLine handles damage lines. Miss lines have no damage number,
             // so they must be caught separately here.
-            if (line.Contains("misses you"))
+            // "misses you" is localized per client (#86) — match every language's
+            // phrasing from EVE's own files. The (combat) tag above stays English.
+            if (line.Contains("misses you") || AlertPatterns.Matches(line, "combat_miss"))
             {
-                // PVE mode: extract attacker and skip if NPC
+                // PVE mode: extract attacker and skip if NPC. The attacker regex below
+                // parses the ENGLISH phrasing; on a localized miss line it simply won't
+                // match, so the alert fires unfiltered rather than being lost.
                 if (PveMode)
                 {
                     // Fallback attacker extraction for miss lines
@@ -1469,7 +1466,15 @@ public sealed class LogMonitorService : IDisposable
         //   from <attacker> to warp.
         // The previous parser required "attempts to" — that string never
         // appears in this EVE message, so the alert never fired (issue #42).
-        if (line.Contains("(notify)") && line.Contains("warp disruption zone"))
+        // Chinese clients write a localized scramble line (issue #86: "试图跃迁扰频"
+        // = "attempts warp scramble") that lacks the English "(notify) ... warp
+        // disruption zone" wording, so match it directly.
+        // Body phrase matched across all EVE client languages (extracted from EVE's
+        // localization files — issue #86), gated by the English "(notify)" tag which
+        // stays English in every client. The reported Chinese line (a separate,
+        // untagged message) is kept as an ungated anchor so it never regresses.
+        bool zhScramble = line.Contains("试图跃迁扰频");
+        if ((line.Contains("(notify)") && AlertPatterns.Matches(line, "warp_scramble")) || zhScramble)
         {
             // PVE mode filters NPC scramblers (sleeper towers, drone probes,
             // gate sentries, mission rats with infinipoints, etc.). The notify
@@ -1478,7 +1483,12 @@ public sealed class LogMonitorService : IDisposable
             // the "owns the ship" apostrophe-s test. Player-owned ships look
             // like "Pilot Name's ShipType"; NPC sources look like plain
             // strings ("Warp Disrupt Probe", "Customs Office", etc.).
-            if (PveMode)
+            // The localized line doesn't carry the English attacker phrasing, so
+            // NPC filtering can't parse it — fire unconditionally for that path.
+            // NPC filtering parses the English "from <attacker> to warp" phrasing,
+            // so only apply it to the English notify line; other languages fire
+            // unconditionally (we can't parse the localized attacker text).
+            if (PveMode && line.Contains("warp disruption zone"))
             {
                 var attackerMatch = Regex.Match(line, @"from\s+(.+?)\s+to warp");
                 if (attackerMatch.Success)
@@ -1486,7 +1496,10 @@ public sealed class LogMonitorService : IDisposable
                     string attacker = attackerMatch.Groups[1].Value.Trim();
                     // A player-source string always contains the possessive
                     // "'s " separator. If it doesn't, treat as NPC and skip.
-                    bool ownsShip = attacker.Contains("'s ");
+                    // EVE renders the possessive with a TYPOGRAPHIC apostrophe in places.
+                    // Testing only the ASCII one made "Bob’s Rifter" look NPC-owned, which
+                    // suppressed real player tackle for everyone running PvE mode.
+                    bool ownsShip = attacker.Contains("'s ") || attacker.Contains("’s ");
                     if (!ownsShip || IsNpc(attacker))
                         return;
                 }
@@ -1496,23 +1509,25 @@ public sealed class LogMonitorService : IDisposable
             return;
         }
 
-        // ── Decloak detection (AHK: "cloak deactivates" with (notify) tag) ──
-        if (line.Contains("cloak deactivates") && line.Contains("(notify)"))
+        // ── Decloak detection ((notify) tag + localized "cloak deactivates") ──
+        if (line.Contains("(notify)") && AlertPatterns.Matches(line, "decloak"))
         {
             _lastEventTime = DateTime.Now;
             TriggerAlert(character, "decloak", "critical");
             return;
         }
 
-        // ── Fleet Invite from game log (AHK: (question) + "join their fleet") ──
-        if (line.Contains("(question)") && line.Contains("join their fleet"))
+        // ── Fleet Invite from game log ((question) tag + localized body) ──
+        // The reported Chinese line is kept as an ungated anchor (issue #86).
+        if ((line.Contains("(question)") && AlertPatterns.Matches(line, "fleet_invite"))
+            || line.Contains("邀请你加入舰队"))
         {
             TriggerAlert(character, "fleet_invite", "warning");
             return;
         }
 
-        // ── Convo Request from game log (AHK: (None) + "inviting you to a conversation") ──
-        if (line.Contains("(None)") && line.Contains("inviting you to a conversation"))
+        // ── Convo Request from game log ((None) tag + localized body) ──
+        if (line.Contains("(None)") && AlertPatterns.Matches(line, "convo_request"))
         {
             TriggerAlert(character, "convo_request", "warning");
             return;
@@ -1521,22 +1536,25 @@ public sealed class LogMonitorService : IDisposable
         // ── Mining alerts from (notify) lines (AHK: _ParseMiningLine checks (notify) tag) ──
         if (line.Contains("(notify)"))
         {
+            // These three messages are self-identifying (they only ever describe a
+            // mining module), so they need no module-name gate and localize directly
+            // from EVE's own text — issue #86.
             // Cargo Full
-            if (line.Contains("cargo hold is full"))
+            if (AlertPatterns.Matches(line, "mining_cargo_full"))
             {
                 DiagnosticsService.LogAlerts($"[Parse] '{character}' matched cargo-full pattern: {line.Trim()}");
                 TriggerAlert(character, "mine_cargo_full", "warning");
                 return;
             }
             // Asteroid Depleted
-            if (line.Contains("pale shadow of its former glory"))
+            if (AlertPatterns.Matches(line, "mining_depleted"))
             {
                 DiagnosticsService.LogAlerts($"[Parse] '{character}' matched pale-shadow pattern: {line.Trim()}");
                 TriggerAlert(character, "mine_asteroid_depleted", "info");
                 return;
             }
             // Crystal Broken
-            if (line.Contains("deactivates due to the destruction"))
+            if (AlertPatterns.Matches(line, "mining_crystal_broken"))
             {
                 DiagnosticsService.LogAlerts($"[Parse] '{character}' matched crystal-broken pattern: {line.Trim()}");
                 TriggerAlert(character, "mine_crystal_broken", "warning");
@@ -1549,19 +1567,29 @@ public sealed class LogMonitorService : IDisposable
             // alert. Gated on a mining-module-name keyword to avoid catching
             // missile / remote-rep / tractor-beam target-lost messages, which
             // share the same prefix and are common in PvP/PvE.
-            if (line.Contains("deactivates because its target,")
-                && line.Contains("is not locked")
-                && (line.Contains("Miner ") || line.Contains("Mining Laser") || line.Contains("Harvester")))
+            // The module-name gate still works on a localized client because
+            // ResolveLocalizedNames() has already rewritten <localized hint="Miner II">
+            // to the English name — so these English keywords match in every language.
+            bool isMiningModule = line.Contains("Miner ") || line.Contains("Mining Laser")
+                                  || line.Contains("Harvester")
+                                  || AlertPatterns.Matches(line, "mining_module_names");
+
+            if (AlertPatterns.Matches(line, "mining_target_lost") && isMiningModule)
             {
                 TriggerAlert(character, "mine_asteroid_depleted", "info");
                 return;
             }
-            // Mining Module Stopped (AHK: requires "deactivates" + module name keyword)
+            // Mining Module Stopped — the generic "a module deactivated" catch-all,
+            // gated on the module being a miner. EVE's generic deactivation wording is
+            // localized, and its CJK text collapses onto the same phrase as the
+            // target-lost message (so the extractor drops it as ambiguous rather than
+            // risk cross-firing). The four specific cases above already cover the real
+            // mining stops in every language; this stays an English-text fallback.
             if (line.Contains("deactivates")
-                && (line.Contains("Miner ") || line.Contains("Mining Laser") || line.Contains("Harvester"))
-                && !line.Contains("pale shadow")
-                && !line.Contains("cargo hold is full")
-                && !line.Contains("due to the destruction"))
+                && isMiningModule
+                && !AlertPatterns.Matches(line, "mining_depleted")
+                && !AlertPatterns.Matches(line, "mining_cargo_full")
+                && !AlertPatterns.Matches(line, "mining_crystal_broken"))
             {
                 TriggerAlert(character, "mine_module_stopped", "info");
                 return;
@@ -1655,21 +1683,25 @@ public sealed class LogMonitorService : IDisposable
             string repairType = "armor";
             bool isIncoming = false;
 
-            if (line.Contains("remote armor repaired to"))
+            // Localized per client (#86). "to" = outgoing (you repping), "by" =
+            // incoming. Any phrase that can't tell the two apart in a given language
+            // is dropped at extraction time, so a line we can't classify falls through
+            // to the skip below rather than being logged with the WRONG direction.
+            if (AlertPatterns.Matches(line, "logi_armor_to"))
             { repairType = "armor"; isIncoming = false; }
-            else if (line.Contains("remote armor repaired by"))
+            else if (AlertPatterns.Matches(line, "logi_armor_by"))
             { repairType = "armor"; isIncoming = true; }
-            else if (line.Contains("remote shield boosted to"))
+            else if (AlertPatterns.Matches(line, "logi_shield_to"))
             { repairType = "shield"; isIncoming = false; }
-            else if (line.Contains("remote shield boosted by"))
+            else if (AlertPatterns.Matches(line, "logi_shield_by"))
             { repairType = "shield"; isIncoming = true; }
-            else if (line.Contains("remote capacitor transmitted to"))
+            else if (AlertPatterns.Matches(line, "logi_cap_to"))
             { repairType = "capacitor"; isIncoming = false; }
-            else if (line.Contains("remote capacitor transmitted by"))
+            else if (AlertPatterns.Matches(line, "logi_cap_by"))
             { repairType = "capacitor"; isIncoming = true; }
             else
             {
-                // Unknown logi line — skip
+                // Unknown / ambiguous logi line — skip
                 return;
             }
 
@@ -1688,24 +1720,41 @@ public sealed class LogMonitorService : IDisposable
 
     private void ParseMiningLine(string line, string character)
     {
-        // AHK: Skip residue lines — "Additional X units depleted from asteroid as residue"
-        if (line.Contains("residue"))
+        // Residue is its OWN (mining) line carrying no ore name ("Additional N units
+        // depleted from asteroid as residue") — skip it, in any language (#86).
+        if (AlertPatterns.Matches(line, "mining_residue"))
             return;
 
-        // AHK: Only process "You mined" lines
-        if (!line.Contains("You mined"))
-            return;
-
-        // AHK approach: strip ALL HTML tags first, then extract units and ore type
-        // Real format: (mining) You mined <color=#ff8dc169>278 ... units of ... Veldspar II-Grade
+        // Strip markup first: EVE's tags are unclosed and mix colour syntaxes.
         string cleanLine = Regex.Replace(line, @"<[^>]+>", "");
 
-        // AHK regex: (\d[\d,]*)\D*?units?\s*of
-        var yieldMatch = Regex.Match(cleanLine, @"(\d[\d,]*)\D*?units?\s+of\s+(.+)$");
-        if (!yieldMatch.Success) return;
+        // Then drop the "[ 2026.07.13 01:41:45 ] (mining) " prefix. Korean's template
+        // LEADS with the ore placeholder, so its regex starts with a capture group —
+        // without this the ore would swallow the timestamp and the category tag.
+        cleanLine = LogLinePrefix.Replace(cleanLine, "");
 
-        int amount = int.Parse(yieldMatch.Groups[1].Value.Replace(",", ""));
-        string oreType = yieldMatch.Groups[2].Value.Trim();
+        // Yield line, in any client language. Built from EVE's own templates with
+        // NAMED groups because the operand order changes per language — Korean renders
+        // the ORE FIRST ("{ore} {amount}유닛 채굴"), so a positional regex would read the
+        // ore as the amount. Covers the normal and critical-success variants.
+        Match? yieldMatch = null;
+        foreach (var rx in AlertPatterns.Regexes("mining_yield_regex"))
+        {
+            var m = rx.Match(cleanLine);
+            if (m.Success && m.Groups["amount"].Success && m.Groups["ore"].Success)
+            {
+                yieldMatch = m;
+                break;
+            }
+        }
+        if (yieldMatch == null) return;
+
+        var rawAmount = yieldMatch.Groups["amount"].Value;
+        // Locales group thousands with , . or a space — keep only the digits.
+        var digits = Regex.Replace(rawAmount, @"[^\d]", "");
+        if (digits.Length == 0 || !int.TryParse(digits, out int amount)) return;
+
+        string oreType = yieldMatch.Groups["ore"].Value.Trim();
 
         // Classify ore type (AHK: _ClassifyOre)
         string mineType = "ore";
@@ -1800,6 +1849,129 @@ public sealed class LogMonitorService : IDisposable
     }
 
     /// <summary>AHK: _SanitizeSystemName — strip HTML, collapse whitespace, trailing punctuation.</summary>
+    /// <summary>
+    /// Resolve EVE's localized-name markup to the ENGLISH name (issue #86).
+    ///
+    /// A non-English client writes every proper noun as
+    ///     &lt;localized hint="Example System A"&gt;示例星系A*&lt;/localized&gt;
+    /// i.e. it carries the canonical ENGLISH name in the hint attribute and the
+    /// display name (terminated by '*') in the body. Rewriting each tag to its hint
+    /// turns a localized line into one whose NAMES are English, so every downstream
+    /// name check — system names, ore types, mining-module names, and the PvE NPC
+    /// ship-type filter — works unchanged in every client language, with no need to
+    /// ship translated name tables. Only the surrounding SENTENCE stays localized,
+    /// and that is matched by the per-language patterns.
+    /// The closing tag is optional: EVE omits it on some lines.
+    /// </summary>
+    /// <summary>The "[ 2026.07.13 01:41:45 ] (tag) " prefix every log line carries.</summary>
+    private static readonly Regex LogLinePrefix =
+        new(@"^\s*\[[^\]]*\]\s*\([^)]*\)\s*", RegexOptions.Compiled);
+
+    /// <summary>The speaker of a chat line: "[ ts ] SPEAKER > message".</summary>
+    private static readonly Regex ChatSpeaker =
+        new(@"^\s*\[[^\]]*\]\s*([^>]+?)\s*>", RegexOptions.Compiled);
+
+    /// <summary>
+    /// True only when a chat line was written by EVE's own "EVE System" speaker.
+    ///
+    /// A chat log is OTHER PLAYERS' text. The local-channel line
+    ///     [ ts ] EVE System &gt; Channel changed to Local : Jita
+    /// is the one line we trust to set the character's system — but without checking
+    /// WHO said it, any player could move your system (and fire a system-change alert)
+    /// simply by typing that sentence in local. The speaker field sits immediately
+    /// after the timestamp and is written by the client, not by the sender, so
+    /// anchoring there is spoof-proof. The name is localized ("EVE系统", "Система EVE"…),
+    /// so it comes from EVE's own files via AlertPatterns.
+    /// </summary>
+    private static bool IsEveSystemChatLine(string line)
+    {
+        var m = ChatSpeaker.Match(line);
+        if (!m.Success) return false;
+
+        var speaker = m.Groups[1].Value.Trim();
+        foreach (var s in AlertPatterns.Get("chat_system_sender"))
+            if (speaker.Equals(s, StringComparison.Ordinal)) return true;
+        return false;
+    }
+
+    private static readonly Regex LocalizedNameTag =
+        new(@"<localized\s+hint=""([^""]*)""\s*>([^*<]*)\*?(?:</localized>)?",
+            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    /// <summary>True when the text is plain Latin/ASCII — i.e. it is the English side
+    /// of a localized-name tag on a client whose own script is not Latin.</summary>
+    private static bool IsAsciiName(string s)
+    {
+        bool letter = false;
+        foreach (var c in s)
+        {
+            if (c > 127) return false;
+            if (char.IsLetter(c)) letter = true;
+        }
+        return letter;
+    }
+
+    internal static string ResolveLocalizedNames(string line)
+    {
+        if (line.IndexOf("<localized", StringComparison.OrdinalIgnoreCase) < 0) return line;
+
+        return LocalizedNameTag.Replace(line, m =>
+        {
+            string hint = m.Groups[1].Value;
+            string body = m.Groups[2].Value;
+
+            // The tag carries the name in BOTH languages, and which side is English
+            // depends on the player's "show item names in English" setting — NOT on a
+            // fixed position. A Chinese log has hint=English/body=Chinese; a Russian
+            // log with English names enabled has hint=Russian/body=English (both are
+            // real, captured samples). So pick whichever side is actually English
+            // rather than always taking the hint. When both sides are Latin (de/fr/es
+            // — indistinguishable by script) fall back to the hint; the localized
+            // module-name list covers that case.
+            bool hintEn = IsAsciiName(hint);
+            bool bodyEn = IsAsciiName(body);
+            if (hintEn && !bodyEn) return hint;
+            if (bodyEn && !hintEn) return body;
+            return string.IsNullOrEmpty(hint) ? body : hint;
+        });
+    }
+
+    /// <summary>
+    /// Destination system from a local-change / jump / undock line, in ANY client
+    /// language, or null. The identical English-only matching used to be copy-pasted
+    /// across the three parsers (live ParseGameLogLine, ExtractSystemFromGameLog and
+    /// ExtractSystemOnly backfills) — so two of the three were still English-only and
+    /// non-English clients started up with no system at all. One implementation now
+    /// serves all three. Expects <see cref="ResolveLocalizedNames"/> to have run, so
+    /// the captured name is already the canonical English one (issue #86).
+    /// </summary>
+    private static string? ExtractSystemFromLine(string line, LogType type)
+    {
+        // Chat logs carry ONLY the local-channel change. The jump/undock patterns must
+        // NEVER be run over chat: a chat line is other players' text, so anyone typing
+        // "Jumping from Jita to Amarr" in local would silently move YOUR displayed
+        // system. Keep the two sources strictly separated.
+        if (type == LogType.ChatLog)
+            return Clean(AlertPatterns.CaptureLast(line, "local_regex"));
+
+        // Game log. EVE tags the jump line (None) — keep that gate (as the original
+        // parser had) so a line that merely mentions the phrasing can't move the
+        // system. Undock is game-log-only and stays ungated, matching the original.
+        if (line.Contains("(None)"))
+        {
+            var jump = Clean(AlertPatterns.CaptureLast(line, "jump_regex"));
+            if (jump != null) return jump;
+        }
+        return Clean(AlertPatterns.CaptureLast(line, "undock_regex"));
+
+        static string? Clean(string? hit)
+        {
+            if (string.IsNullOrEmpty(hit)) return null;
+            var system = SanitizeSystemName(hit);
+            return string.IsNullOrEmpty(system) ? null : system;
+        }
+    }
+
     private static string SanitizeSystemName(string system)
     {
         system = Regex.Replace(system, @"<[^>]*>", "");
@@ -1877,27 +2049,11 @@ public sealed class LogMonitorService : IDisposable
                 var line = reader.ReadLine();
                 if (line == null) break;
 
-                if (line.Contains("Jumping from"))
-                {
-                    var m = Regex.Match(line, @"Jumping from\s+(.+?)\s+to\s+(.+)");
-                    if (m.Success)
-                    {
-                        var dest = SanitizeSystemName(m.Groups[2].Value.Trim());
-                        if (!string.IsNullOrEmpty(dest)) lastSystem = dest;
-                    }
-                }
-                else if (line.Contains("Undocking from"))
-                {
-                    int toIdx = line.IndexOf(" to ", line.IndexOf("Undocking from"), StringComparison.Ordinal);
-                    if (toIdx > 0)
-                    {
-                        string sysName = line.Substring(toIdx + 4).Trim();
-                        int solarIdx = sysName.IndexOf(" solar system.", StringComparison.Ordinal);
-                        if (solarIdx >= 0) sysName = sysName.Substring(0, solarIdx);
-                        sysName = SanitizeSystemName(sysName);
-                        if (!string.IsNullOrEmpty(sysName)) lastSystem = sysName;
-                    }
-                }
+                // Localized in every client (#86) — resolve names, then match the
+                // per-language jump/undock templates (last group = destination system).
+                line = ResolveLocalizedNames(line);
+                var dest = ExtractSystemFromLine(line, LogType.GameLog);
+                if (!string.IsNullOrEmpty(dest)) lastSystem = dest;
             }
 
             if (!string.IsNullOrEmpty(lastSystem))
@@ -1929,49 +2085,10 @@ public sealed class LogMonitorService : IDisposable
     /// </summary>
     private void ExtractSystemOnly(string line, string character)
     {
-        // Chat log: "Channel changed to Local : SystemName"
-        if (line.Contains("Channel changed to Local"))
-        {
-            var systemMatch = Regex.Match(line, @"Channel changed to Local\s*:\s*(.+)");
-            if (systemMatch.Success)
-            {
-                string systemName = SanitizeSystemName(systemMatch.Groups[1].Value.Trim());
-                if (!string.IsNullOrEmpty(systemName))
-                {
-                    _characterSystems[character] = systemName;
-                }
-            }
-        }
-        // Game log: "Jumping from X to Y"
-        else if (line.Contains("Jumping from"))
-        {
-            var jumpMatch = Regex.Match(line, @"Jumping from\s+(.+?)\s+to\s+(.+)");
-            if (jumpMatch.Success)
-            {
-                string destSystem = SanitizeSystemName(jumpMatch.Groups[2].Value.Trim());
-                if (!string.IsNullOrEmpty(destSystem))
-                {
-                    _characterSystems[character] = destSystem;
-                }
-            }
-        }
-        // Game log: "Undocking from X to SystemName"
-        else if (line.Contains("Undocking from"))
-        {
-            int toIdx = line.IndexOf(" to ", line.IndexOf("Undocking from"), StringComparison.Ordinal);
-            if (toIdx > 0)
-            {
-                string sysName = line.Substring(toIdx + 4).Trim();
-                int solarIdx = sysName.IndexOf(" solar system.", StringComparison.Ordinal);
-                if (solarIdx >= 0)
-                    sysName = sysName.Substring(0, solarIdx);
-                sysName = SanitizeSystemName(sysName);
-                if (!string.IsNullOrEmpty(sysName))
-                {
-                    _characterSystems[character] = sysName;
-                }
-            }
-        }
+        // Local-change (chat) / jump / undock, in any client language (#86).
+        var systemName = ExtractSystemFromLine(ResolveLocalizedNames(line), LogType.GameLog);
+        if (!string.IsNullOrEmpty(systemName))
+            _characterSystems[character] = systemName;
     }
 
     private enum LogType { GameLog, ChatLog }

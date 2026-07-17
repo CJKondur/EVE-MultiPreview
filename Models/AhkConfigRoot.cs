@@ -162,6 +162,7 @@ public class AhkConfigRoot
         s.ShowRtssFps = g.RTSS_ShowFPS != 0;
 
         // Char select
+        s.Language = g.Language ?? "";
         s.CharSelectCyclingEnabled = g.CharSelectCyclingEnabled != 0;
         s.CharSelectForwardHotkey = g.CharSelectForwardHotkey ?? "";
         s.CharSelectBackwardHotkey = g.CharSelectBackwardHotkey ?? "";
@@ -403,6 +404,7 @@ public class AhkConfigRoot
         g.RTSS_ShowFPS = s.ShowRtssFps ? 1 : 0;
 
         // Char select
+        g.Language = s.Language;
         g.CharSelectCyclingEnabled = s.CharSelectCyclingEnabled ? 1 : 0;
         g.CharSelectForwardHotkey = s.CharSelectForwardHotkey;
         g.CharSelectBackwardHotkey = s.CharSelectBackwardHotkey;
@@ -1118,6 +1120,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("RTSS_ShowFPS")]
     public int RTSS_ShowFPS { get; set; }
+
+    [JsonPropertyName("Language")]
+    public string? Language { get; set; } = "";
 
     [JsonPropertyName("CharSelect_CyclingEnabled")]
     public int CharSelectCyclingEnabled { get; set; }

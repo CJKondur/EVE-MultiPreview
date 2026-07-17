@@ -5,7 +5,7 @@
         AllowsTransparency="True"
         Background="Transparent"
         ShowInTaskbar="False"
-        Topmost="False"
+        Topmost="True"
         ResizeMode="NoResize"
         SizeChanged="Window_SizeChanged"
         Title="EVE Crop">
