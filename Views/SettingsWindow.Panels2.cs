@@ -1306,8 +1306,22 @@ public partial class SettingsWindow
         if (idx < 0 || idx >= _eveProfiles.Count) return;
         var chars = EveManagerService.ListCharacters(_eveProfiles[idx].Path, _charNameMap);
         _allSrcChars = chars.Select(c => new CharItem { Id = c.Id, Label = c.Label, CharName = c.CharName }).ToList();
+        // Source is copy-FROM: exactly one char makes sense (#91). Enforce single-select —
+        // checking one unchecks the rest, so the UI can't offer an ambiguous multi-source.
+        foreach (var c in _allSrcChars) c.PropertyChanged += OnSrcCharChecked;
         TxtCharSrcSearch.Text = "";
         LvCharSrcChars.ItemsSource = _allSrcChars;
+    }
+
+    private bool _suppressSrcCheck;
+    private void OnSrcCharChecked(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (_suppressSrcCheck || e.PropertyName != nameof(CharItem.IsChecked)) return;
+        if (sender is not CharItem changed || !changed.IsChecked) return;
+        _suppressSrcCheck = true;
+        foreach (var c in _allSrcChars)
+            if (!ReferenceEquals(c, changed) && c.IsChecked) c.IsChecked = false;
+        _suppressSrcCheck = false;
     }
 
     private void OnCharTgtProfileChanged(object s, SelectionChangedEventArgs e)
@@ -1382,17 +1396,23 @@ public partial class SettingsWindow
         }
         else
         {
-            var tgtCharItem = _allTgtChars.FirstOrDefault(c => c.IsChecked);
-            if (tgtCharItem == null)
+            // Copy to EVERY checked target, not just the first (#91). The target pane
+            // is a multi-select checkbox list, so honour every ticked character.
+            var tgtCharItems = _allTgtChars.Where(c => c.IsChecked).ToList();
+            if (tgtCharItems.Count == 0)
             { MessageBox.Show("Check a target character (or check 'Copy to ALL').", "EVE Manager \u2014 Char Copy"); return; }
 
-            string tgtCharId = tgtCharItem.Id;
-
-            if (MessageBox.Show($"Copy char settings:\n  {srcCharId} ({srcProfile.Name})\n\u2192 {tgtCharId} ({tgtProfile.Name})\n\nContinue?",
+            string targetList = string.Join("\n", tgtCharItems.Select(t => $"  \u2192 {t.Id} ({tgtProfile.Name})"));
+            if (MessageBox.Show($"Copy char settings from {srcCharId} ({srcProfile.Name}) to {tgtCharItems.Count} character(s):\n{targetList}\n\nContinue?",
                 "Confirm Char Copy", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
 
-            var count = EveManagerService.CopyCharacterSettings(srcProfile.Path, srcCharId, tgtProfile.Path, tgtCharId, backupRoot);
-            MessageBox.Show(count >= 0 ? $"Copied {count} file(s)." : "Copy failed.", "Char Copy");
+            int total = 0, ok = 0;
+            foreach (var t in tgtCharItems)
+            {
+                var count = EveManagerService.CopyCharacterSettings(srcProfile.Path, srcCharId, tgtProfile.Path, t.Id, backupRoot);
+                if (count >= 0) { total += count; ok++; }
+            }
+            MessageBox.Show(ok > 0 ? $"Copied {total} file(s) to {ok} character(s)." : "Copy failed.", "Char Copy");
         }
     }
 
