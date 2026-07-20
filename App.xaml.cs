@@ -144,6 +144,13 @@ public partial class App : Application
 
         // 4. Start stat tracker (needed before thumbnails fire)
         _statTracker = new StatTrackerService();
+        // Wire CSV stat-logging from settings (#settings-audit). SetCsvLogging was never
+        // called, so the "Enable Logging" checkbox + dir + retention did nothing. Applied
+        // at startup (restart to take effect), consistent with the log-monitor toggles.
+        _statTracker.SetCsvLogging(
+            _settings.Settings.StatLoggingEnabled,
+            _settings.Settings.StatLogDirectory,
+            _settings.Settings.StatLogRetentionDays);
         _thumbnailManager.SetStatTracker(_statTracker);
 
         // 4b. Process monitor (CPU/RAM per EVE client)
@@ -328,7 +335,9 @@ public partial class App : Application
 
             var chatLogDir = _settings.Settings.ChatLogDirectory;
             var gameLogDir = _settings.Settings.GameLogDirectory;
-            _logMonitor.Start("", chatLogDir, gameLogDir);
+            _logMonitor.Start("", chatLogDir, gameLogDir,
+                _settings.Settings.EnableChatLogMonitoring,
+                _settings.Settings.EnableGameLogMonitoring);
             PerfLog($"[Deferred] LogMonitor started: {deferSw.ElapsedMilliseconds}ms");
 
             // 8. Set up system tray
@@ -533,7 +542,10 @@ public partial class App : Application
     private void PlayAlertSound(string character, string alertType, string severity)
     {
         var s = _settings?.Settings;
-        if (s == null || !s.AlertSoundEnabled) return;
+        // EnableAlertSounds is the field the "Enable Sounds" master checkbox writes
+        // (#settings-audit). The old gate read AlertSoundEnabled, which no UI ever set,
+        // so the master toggle did nothing. Read the UI-backed field.
+        if (s == null || !s.EnableAlertSounds) return;
 
         // Per-character per-event sound cooldown check. Keying by character means
         // simultaneous alerts on different clients (e.g. five chars depleting the

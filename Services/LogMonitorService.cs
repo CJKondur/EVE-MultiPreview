@@ -904,7 +904,8 @@ public sealed class LogMonitorService : IDisposable
     };
 
     /// <summary>Start monitoring EVE log files.</summary>
-    public void Start(string eveLogsBasePath = "", string? chatLogOverride = null, string? gameLogOverride = null)
+    public void Start(string eveLogsBasePath = "", string? chatLogOverride = null, string? gameLogOverride = null,
+                      bool chatEnabled = true, bool gameEnabled = true)
     {
         if (_monitorTask != null) return;
 
@@ -921,6 +922,12 @@ public sealed class LogMonitorService : IDisposable
         _gameLogPath = !string.IsNullOrEmpty(gameLogOverride) && Directory.Exists(gameLogOverride)
             ? gameLogOverride
             : Path.Combine(eveLogsBasePath, "Gamelogs");
+
+        // Honour the per-type enable toggles (#settings-audit). Blanking a path makes
+        // both the watcher (TryCreateWatcher) and the scan (Directory.Exists) skip it,
+        // so a disabled log type is never watched or read. Applied at startup only.
+        if (!chatEnabled) _chatLogPath = "";
+        if (!gameEnabled) _gameLogPath = "";
 
         Debug.WriteLine($"[LogMonitor:Scan] 🔧 Starting monitors — Chat: {_chatLogPath}, Game: {_gameLogPath}");
 

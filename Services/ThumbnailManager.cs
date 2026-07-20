@@ -782,7 +782,8 @@ public sealed class ThumbnailManager : IDisposable
                 // Check if char select (title == "EVE" without character name)
                 bool isCharSelect = string.IsNullOrEmpty(window.CharacterName) ||
                     window.Title == "EVE";
-                thumbWindow.SetNotLoggedIn(isCharSelect, _settings.Settings.NotLoggedInIndicator);
+                thumbWindow.SetNotLoggedIn(isCharSelect, _settings.Settings.NotLoggedInIndicator,
+                    ParseColor(_settings.Settings.NotLoggedInColor));
 
                 // Resolve the system label to a DEFINITE state on every title
                 // change so a character switch can't leave the PREVIOUS character's
@@ -924,7 +925,7 @@ public sealed class ThumbnailManager : IDisposable
 
         // Not logged in
         bool isCharSelect = string.IsNullOrEmpty(window.CharacterName) || window.Title == "EVE";
-        thumb.SetNotLoggedIn(isCharSelect, s.NotLoggedInIndicator);
+        thumb.SetNotLoggedIn(isCharSelect, s.NotLoggedInIndicator, ParseColor(s.NotLoggedInColor));
     }
 
     /// <summary>
@@ -1231,11 +1232,15 @@ public sealed class ThumbnailManager : IDisposable
             PushLayoutSnapshot();
         _lastResizeAllSnapshot = DateTime.Now;
 
-        if (!_settings.Settings.IndividualThumbnailResize)
-        {
-            _settings.Settings.ThumbnailStartLocation.Width = newW;
-            _settings.Settings.ThumbnailStartLocation.Height = newH;
-        }
+        // Individual-resize mode: the source thumbnail already resized itself during
+        // the drag; do NOT propagate the new size to the other thumbnails. The gesture
+        // in ThumbnailWindow only checks the Ctrl key, so it fires this handler even in
+        // individual mode — the setting is the authority, and it's honoured here.
+        if (_settings.Settings.IndividualThumbnailResize)
+            return;
+
+        _settings.Settings.ThumbnailStartLocation.Width = newW;
+        _settings.Settings.ThumbnailStartLocation.Height = newH;
 
         foreach (var (_, thumb) in _thumbnails)
         {
