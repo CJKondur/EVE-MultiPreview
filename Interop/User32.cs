@@ -378,16 +378,21 @@ public static class User32
 
         static void SendKeyUps(List<(int vk, HashSet<IntPtr> hwnds)> released)
         {
+            const uint WM_KEYUP_LOCAL = 0x0101;
             foreach (var (vk, hwnds) in released)
             {
-                // Global UP via SendInput to match the global DOWN we injected (#92).
-                // The physical key is already up by the time the poller sees the
-                // release, so this is a clean-up event for the focused client —
-                // harmless if redundant. The tracked hwnd set is now informational
-                // only (SendInput is untargeted); kept for the log.
+                // Mirror the hybrid DOWN (#92): PostMessage WM_KEYUP to each client
+                // we told the key was down (message-queue readers), AND a global
+                // SendInput UP (device state). The physical key is already up by the
+                // time the poller sees the release, so the global UP is a harmless
+                // clean-up; the per-client UPs release the message-queue held state.
+                uint scan = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                IntPtr lParam = (IntPtr)unchecked((int)(0xC0000000 | (scan << 16) | 1));
+                foreach (var h in hwnds)
+                    PostMessage(h, WM_KEYUP_LOCAL, (IntPtr)vk, lParam);
                 SendInputScan(vk, keyUp: true);
                 EveMultiPreview.Services.DiagnosticsService.LogInjection(
-                    $"[HeldKeyPoller] ⤴ SendInput UP key 0x{vk:X} (was tracked on {hwnds.Count} client(s))");
+                    $"[HeldKeyPoller] ⤴ UP key 0x{vk:X} → PostMessage {hwnds.Count} client(s) + global SendInput");
             }
         }
     }
@@ -558,15 +563,28 @@ public static class User32
                 FlushModifier(0x12); // Alt
                 FlushModifier(0x5B); // LWin
 
-                // Sticky-letter DOWN via GLOBAL SendInput (#92), not PostMessage.
-                // EVE reads held modifiers through DirectInput (device layer),
-                // which never sees a posted WM_KEYDOWN — the old approach injected
-                // correctly (the log showed Keys:0x44) yet EVE ignored it. SendInput
-                // is untargeted, so we confirm our client is foreground first, or
-                // we'd fire the keystroke into the wrong window. No UP is sent here;
-                // the poller fires a global UP when the user physically releases.
+                // Sticky-key DOWN — HYBRID injection (#92). Two EVE input readers
+                // need two different things, so we do both:
+                //   1) PostMessage(WM_KEYDOWN) — a discrete press MESSAGE to the
+                //      specific client. Edge-triggered actions (e.g. F = engage
+                //      drones) fire on this. Worked pre-2.3.14; the SendInput-only
+                //      approach removed it and regressed those actions, because a
+                //      physically-held key is already down so a bare SendInput
+                //      down produces no new press edge.
+                //   2) SendInput scancode DOWN — drives the GLOBAL device state
+                //      (DirectInput) for level-held click-modifiers (e.g. D = dock)
+                //      on setups PostMessage alone didn't reach. Untargeted → only
+                //      fired once our client actually holds foreground.
+                // No UP here; the poller fires both UPs on physical release.
                 if (letterKeys.Count > 0)
                 {
+                    foreach (var vk in letterKeys)
+                    {
+                        uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                        IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1);
+                        PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
+                    }
+
                     bool isFg = false;
                     for (int attempt = 0; attempt < 6; attempt++)   // up to ~60ms for activation to settle
                     {
@@ -577,11 +595,11 @@ public static class User32
                     {
                         foreach (var vk in letterKeys)
                             SendInputScan(vk, keyUp: false);
-                        LogInjection($"[FixTargetHeldKeys] ⌨ SendInput DOWN {letterKeys.Count} sticky letter(s) → foreground HWND {hwnd}");
+                        LogInjection($"[FixTargetHeldKeys] ⌨ PostMessage + SendInput DOWN {letterKeys.Count} sticky key(s) → foreground HWND {hwnd}");
                     }
                     else
                     {
-                        LogInjection($"[FixTargetHeldKeys] ⏭ SendInput skipped — HWND {hwnd} never gained foreground (fg=0x{GetForegroundWindow().ToInt64():X})");
+                        LogInjection($"[FixTargetHeldKeys] ⌨ PostMessage DOWN {letterKeys.Count} sticky key(s) (SendInput skipped — HWND {hwnd} not foreground, fg=0x{GetForegroundWindow().ToInt64():X})");
                     }
                 }
 
