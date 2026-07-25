@@ -545,7 +545,16 @@ public partial class App : Application
         // EnableAlertSounds is the field the "Enable Sounds" master checkbox writes
         // (#settings-audit). The old gate read AlertSoundEnabled, which no UI ever set,
         // so the master toggle did nothing. Read the UI-backed field.
-        if (s == null || !s.EnableAlertSounds) return;
+        if (s == null || !s.EnableAlertSounds)
+        {
+            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                $"[Sound] GATED off: EnableAlertSounds={s?.EnableAlertSounds} for {alertType} on '{character}'");
+            return;
+        }
+        EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+            $"[Sound] enter: {alertType} on '{character}' | EnableAlertSounds={s.EnableAlertSounds} " +
+            $"volume={s.AlertSoundVolume} eventFile='{(s.AlertSounds != null && s.AlertSounds.TryGetValue(alertType, out var ef) ? ef : "")}' " +
+            $"globalFile='{s.AlertSoundFile}'");
 
         // Per-character per-event sound cooldown check. Keying by character means
         // simultaneous alerts on different clients (e.g. five chars depleting the
@@ -558,6 +567,8 @@ public partial class App : Application
             if ((DateTime.Now - lastPlay).TotalSeconds < soundCooldown)
             {
                 Debug.WriteLine($"[AlertSound:Cooldown] ⏳ Sound cooldown active: {alertType} for '{character}' ({soundCooldown}s)");
+                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                    $"[Sound] GATED cooldown: {alertType} on '{character}' within {soundCooldown}s of last play");
                 return;
             }
         }
@@ -572,6 +583,9 @@ public partial class App : Application
         if (string.IsNullOrEmpty(soundFile) || !System.IO.File.Exists(soundFile))
         {
             Debug.WriteLine($"[AlertSound:Play] ⚠ No sound file for {alertType} (file='{soundFile ?? "null"}')");
+            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                $"[Sound] GATED no-file: {alertType} on '{character}' resolved='{soundFile ?? "null"}' " +
+                $"(exists={(!string.IsNullOrEmpty(soundFile) && System.IO.File.Exists(soundFile))})");
             return;
         }
 
@@ -589,8 +603,10 @@ public partial class App : Application
                     player.Close();
                     lock (_soundPlayerLock) { _activeSoundPlayers.Remove(player); }
                 };
-                player.MediaFailed += (_, _) =>
+                player.MediaFailed += (_, args) =>
                 {
+                    EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                        $"[Sound] MediaFailed for {alertType} on '{character}' file='{soundFile}': {args.ErrorException?.Message}");
                     player.Close();
                     lock (_soundPlayerLock) { _activeSoundPlayers.Remove(player); }
                 };
@@ -601,10 +617,15 @@ public partial class App : Application
 
             _soundCooldowns[cooldownKey] = DateTime.Now;
             Debug.WriteLine($"[AlertSound:Play] 🔊 Playing '{System.IO.Path.GetFileName(soundFile)}' for {alertType} on '{character}' (vol={s.AlertSoundVolume}%)");
+            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                $"[Sound] PLAYING '{System.IO.Path.GetFileName(soundFile)}' for {alertType} on '{character}' at vol={s.AlertSoundVolume}%"
+                + (s.AlertSoundVolume == 0 ? " ⚠ VOLUME IS 0 — will be inaudible" : ""));
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[AlertSound:Play] ❌ Error playing sound: {ex.Message}");
+            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                $"[Sound] ERROR playing {alertType} on '{character}': {ex.GetType().Name}: {ex.Message}");
         }
     }
 

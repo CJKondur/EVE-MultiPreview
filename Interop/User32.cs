@@ -378,15 +378,16 @@ public static class User32
 
         static void SendKeyUps(List<(int vk, HashSet<IntPtr> hwnds)> released)
         {
-            const uint WM_KEYUP_LOCAL = 0x0101;
             foreach (var (vk, hwnds) in released)
             {
-                uint scan = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                IntPtr lParam = (IntPtr)unchecked((int)(0xC0000000 | (scan << 16) | 1));
-                foreach (var h in hwnds)
-                    PostMessage(h, WM_KEYUP_LOCAL, (IntPtr)vk, lParam);
+                // Global UP via SendInput to match the global DOWN we injected (#92).
+                // The physical key is already up by the time the poller sees the
+                // release, so this is a clean-up event for the focused client —
+                // harmless if redundant. The tracked hwnd set is now informational
+                // only (SendInput is untargeted); kept for the log.
+                SendInputScan(vk, keyUp: true);
                 EveMultiPreview.Services.DiagnosticsService.LogInjection(
-                    $"[HeldKeyPoller] ⤴ Released key 0x{vk:X} on {hwnds.Count} client(s)");
+                    $"[HeldKeyPoller] ⤴ SendInput UP key 0x{vk:X} (was tracked on {hwnds.Count} client(s))");
             }
         }
     }
@@ -424,6 +425,26 @@ public static class User32
         if (IsKeyDown(0x10)) combo.Add("Shift");
         combo.AddRange(keys);
         return combo;
+    }
+
+    /// <summary>
+    /// Inject a GLOBAL keyboard event via SendInput using the key's scancode.
+    /// Unlike PostMessage(WM_KEYDOWN), which only reaches a window's message
+    /// queue, SendInput drives the OS device/raw-input layer that DirectInput
+    /// reads — which is how EVE tracks held action keys (#92). SendInput is
+    /// untargeted: it lands on whatever window is foreground when it fires, so
+    /// callers MUST confirm the intended client holds foreground first.
+    /// Scancode-based (KEYEVENTF_SCANCODE) so it survives keyboard-layout
+    /// differences between clients. Sticky letters (A–Z) are non-extended.
+    /// </summary>
+    private static void SendInputScan(int vk, bool keyUp)
+    {
+        ushort scan = (ushort)MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+        var inputs = new INPUT[1];
+        inputs[0].type = INPUT_KEYBOARD;
+        inputs[0].U.ki.wScan = scan;
+        inputs[0].U.ki.dwFlags = KEYEVENTF_SCANCODE | (keyUp ? KEYEVENTF_KEYUP : 0);
+        SendInput(1, inputs, Marshal.SizeOf<INPUT>());
     }
 
     public static void FixTargetHeldKeys(IntPtr hwnd)
@@ -537,13 +558,31 @@ public static class User32
                 FlushModifier(0x12); // Alt
                 FlushModifier(0x5B); // LWin
 
-                // Sticky-letter DOWN — no UP is sent here. The poller fires UP
-                // when the user physically releases the key.
-                foreach (var vk in letterKeys)
+                // Sticky-letter DOWN via GLOBAL SendInput (#92), not PostMessage.
+                // EVE reads held modifiers through DirectInput (device layer),
+                // which never sees a posted WM_KEYDOWN — the old approach injected
+                // correctly (the log showed Keys:0x44) yet EVE ignored it. SendInput
+                // is untargeted, so we confirm our client is foreground first, or
+                // we'd fire the keystroke into the wrong window. No UP is sent here;
+                // the poller fires a global UP when the user physically releases.
+                if (letterKeys.Count > 0)
                 {
-                    uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
-                    IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1);
-                    PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
+                    bool isFg = false;
+                    for (int attempt = 0; attempt < 6; attempt++)   // up to ~60ms for activation to settle
+                    {
+                        if (GetForegroundWindow() == hwnd) { isFg = true; break; }
+                        await Task.Delay(10);
+                    }
+                    if (isFg)
+                    {
+                        foreach (var vk in letterKeys)
+                            SendInputScan(vk, keyUp: false);
+                        LogInjection($"[FixTargetHeldKeys] ⌨ SendInput DOWN {letterKeys.Count} sticky letter(s) → foreground HWND {hwnd}");
+                    }
+                    else
+                    {
+                        LogInjection($"[FixTargetHeldKeys] ⏭ SendInput skipped — HWND {hwnd} never gained foreground (fg=0x{GetForegroundWindow().ToInt64():X})");
+                    }
                 }
 
                 // One-shot DOWN
