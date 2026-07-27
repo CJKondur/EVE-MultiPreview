@@ -1261,6 +1261,15 @@ public sealed class HotkeyService : IDisposable
                     var bestBinding = _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == currentMods)
                                    ?? _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == 0);
 
+                    // Diagnostic (#92): the mouse-hook cycle path was a black box. Log
+                    // every DOWN we matched to a button, the live modifiers, how many
+                    // bindings exist for it, and whether one actually fired — so a
+                    // "button is eaten but doesn't cycle" report can be pinpointed.
+                    EveMultiPreview.Services.DiagnosticsService.LogCycling(
+                        $"[Hotkey:Mouse] DOWN {buttonName} mods=0x{currentMods:X} " +
+                        $"bindings-for-button={_mouseBindings.Count(b => b.ButtonName == buttonName)} " +
+                        $"matched={(bestBinding != null ? $"yes(repeat={bestBinding.AllowRepeat})" : "NO — no binding for these modifiers")}");
+
                     if (bestBinding != null)
                     {
                         var binding = bestBinding;
@@ -1279,7 +1288,12 @@ public sealed class HotkeyService : IDisposable
                             var fgHwnd = User32.GetForegroundWindow();
                             string? fgTitle = User32.GetWindowTitle(fgHwnd);
                             if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                                && User32.IsAppProcessName(User32.GetProcessName(fgHwnd))) return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+                                && User32.IsAppProcessName(User32.GetProcessName(fgHwnd)))
+                            {
+                                EveMultiPreview.Services.DiagnosticsService.LogCycling(
+                                    $"[Hotkey:Mouse] {buttonName} SUPPRESSED — Settings window is foreground, cycle not fired");
+                                return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+                            }
                         }
                         catch { }
 
@@ -1291,8 +1305,15 @@ public sealed class HotkeyService : IDisposable
                         var fireButton = buttonName;
                         System.Windows.Application.Current?.Dispatcher.BeginInvoke(() =>
                         {
+                            EveMultiPreview.Services.DiagnosticsService.LogCycling(
+                                $"[Hotkey:Mouse] invoking cycle action for {fireButton} (armRepeat={armRepeat})");
                             try { binding.Action.Invoke(); }
-                            catch (Exception ex) { Debug.WriteLine($"[Hotkey:Mouse] ❌ Action error: {ex.Message}"); }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"[Hotkey:Mouse] ❌ Action error: {ex.Message}");
+                                EveMultiPreview.Services.DiagnosticsService.LogCycling(
+                                    $"[Hotkey:Mouse] ❌ cycle action threw: {ex.GetType().Name}: {ex.Message}");
+                            }
 
                             // Mouse buttons have no OS-level auto-repeat, so for cycle
                             // bindings we run our own DispatcherTimer that re-fires every
