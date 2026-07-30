@@ -242,6 +242,7 @@ public partial class SettingsWindow : Window
         if (name == "Hotkeys") BuildHotkeyAudit();
         if (name == "FPSLimiter") DetectRtss();
         if (name == "Layout") { PopulateMonitors(); PopulateActiveChars(); PopulateLayoutPresets(); }
+        if (name == "Thumbnails") PopulateResizeChars();
         if (name == "StatsOverlay") LoadStatCharacters();
         if (name == "EVEManager") LoadEveManagerPanel();
         if (name == "Performance") LoadPerformanceSettings();
@@ -360,6 +361,9 @@ public partial class SettingsWindow : Window
             TxtStartY.Text = S.ThumbnailStartLocation.Y.ToString();
             TxtThumbWidth.Text = S.ThumbnailStartLocation.Width.ToString();
             TxtThumbHeight.Text = S.ThumbnailStartLocation.Height.ToString();
+            // Thumbnails panel resize boxes — seed from the current default size.
+            TxtResizeAllW.Text = S.ThumbnailStartLocation.Width.ToString();
+            TxtResizeAllH.Text = S.ThumbnailStartLocation.Height.ToString();
             TxtMinWidth.Text = S.ThumbnailMinimumSize.Width.ToString();
             TxtMinHeight.Text = S.ThumbnailMinimumSize.Height.ToString();
             ChkSnap.IsChecked = S.ThumbnailSnap;

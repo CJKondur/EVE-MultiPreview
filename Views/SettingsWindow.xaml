@@ -557,6 +557,34 @@
                             </StackPanel>
                         </StackPanel>
                     </GroupBox>
+                    <GroupBox Header="{DynamicResource L.Thumb.Resize}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource L.Thumb.ResizeNote}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6" TextWrapping="Wrap"/>
+
+                            <!-- Resize ALL thumbnails to an exact pixel size -->
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <Label Content="{DynamicResource L.Thumb.ResizeAll}" Width="130"/>
+                                <Label Content="{DynamicResource L.Common.W}"/><TextBox x:Name="TxtResizeAllW" Width="60"/>
+                                <Label Content="{DynamicResource L.Common.H}" Margin="8,0,0,0"/><TextBox x:Name="TxtResizeAllH" Width="60"/>
+                                <Button Content="{DynamicResource L.Thumb.ApplyAll}" Click="OnApplySizeToAll" Margin="12,0,0,0"
+                                        Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0" Padding="10,3"/>
+                            </StackPanel>
+
+                            <!-- Resize ONE character's thumbnail -->
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Label Content="{DynamicResource L.Thumb.ResizeOne}" Width="130"/>
+                                <ComboBox x:Name="CmbResizeChar" Width="160" SelectionChanged="OnResizeCharSelected"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                                <Button Content="{DynamicResource L.Common.Refresh}" Click="OnRefreshResizeChars" Padding="5,2" Margin="4,0,0,0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="130,4,0,0">
+                                <Label Content="{DynamicResource L.Common.W}"/><TextBox x:Name="TxtResizeCharW" Width="60"/>
+                                <Label Content="{DynamicResource L.Common.H}" Margin="8,0,0,0"/><TextBox x:Name="TxtResizeCharH" Width="60"/>
+                                <Button Content="{DynamicResource L.Thumb.ApplyOne}" Click="OnApplySizeToChar" Margin="12,0,0,0"
+                                        Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0" Padding="10,3"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </GroupBox>
                 </StackPanel>
 
                 <!-- ══ 3. LAYOUT ══ -->

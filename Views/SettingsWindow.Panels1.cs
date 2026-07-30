@@ -603,6 +603,84 @@ public partial class SettingsWindow
         }
     }
 
+    // ── Thumbnails panel: resize by exact pixel size (all / individual) ──
+    // Same minimums the drag-resize gesture enforces (ThumbnailWindow: 80x50),
+    // so a typo can't produce a thumbnail too small to grab and fix.
+    private const int MinThumbW = 80;
+    private const int MinThumbH = 50;
+
+    private void PopulateResizeChars()
+    {
+        _loadingDepth++;
+        var previous = CmbResizeChar.SelectedItem as string;
+        CmbResizeChar.Items.Clear();
+        if (_thumbnailManager != null)
+        {
+            foreach (var c in _thumbnailManager.GetActiveCharacterNames())
+                CmbResizeChar.Items.Add(c);
+        }
+        _loadingDepth--;
+        if (previous != null && CmbResizeChar.Items.Contains(previous))
+            CmbResizeChar.SelectedItem = previous;
+        else if (CmbResizeChar.Items.Count > 0)
+            CmbResizeChar.SelectedIndex = 0;
+    }
+
+    private void OnRefreshResizeChars(object s, RoutedEventArgs e) => PopulateResizeChars();
+
+    private void OnResizeCharSelected(object s, SelectionChangedEventArgs e)
+    {
+        if (_loading) return;
+        var charName = CmbResizeChar.SelectedItem as string;
+        if (string.IsNullOrEmpty(charName)) return;
+
+        // Show the character's current size, falling back to the default start size.
+        var pos = _svc.GetThumbnailPosition(charName);
+        TxtResizeCharW.Text = (pos != null && pos.Width > 0 ? pos.Width : S.ThumbnailStartLocation.Width).ToString();
+        TxtResizeCharH.Text = (pos != null && pos.Height > 0 ? pos.Height : S.ThumbnailStartLocation.Height).ToString();
+    }
+
+    private void OnApplySizeToAll(object s, RoutedEventArgs e)
+    {
+        if (!int.TryParse(TxtResizeAllW.Text, out int w) || !int.TryParse(TxtResizeAllH.Text, out int h))
+        {
+            MessageBox.Show("Enter a width and height in pixels.", "Resize Thumbnails");
+            return;
+        }
+        w = Math.Max(w, MinThumbW);
+        h = Math.Max(h, MinThumbH);
+        TxtResizeAllW.Text = w.ToString();
+        TxtResizeAllH.Text = h.ToString();
+
+        _thumbnailManager?.ApplySizeToAll(w, h);
+
+        // Keep the Layout panel's default-size boxes in step — ApplySizeToAll
+        // updates ThumbnailStartLocation, so the UI would otherwise show stale values.
+        TxtThumbWidth.Text = w.ToString();
+        TxtThumbHeight.Text = h.ToString();
+    }
+
+    private void OnApplySizeToChar(object s, RoutedEventArgs e)
+    {
+        var charName = CmbResizeChar.SelectedItem as string;
+        if (string.IsNullOrEmpty(charName))
+        {
+            MessageBox.Show("Select a character first.", "Resize Thumbnails");
+            return;
+        }
+        if (!int.TryParse(TxtResizeCharW.Text, out int w) || !int.TryParse(TxtResizeCharH.Text, out int h))
+        {
+            MessageBox.Show("Enter a width and height in pixels.", "Resize Thumbnails");
+            return;
+        }
+        w = Math.Max(w, MinThumbW);
+        h = Math.Max(h, MinThumbH);
+        TxtResizeCharW.Text = w.ToString();
+        TxtResizeCharH.Text = h.ToString();
+
+        _thumbnailManager?.ApplySizeToCharacter(charName, w, h);
+    }
+
     // ═══ HOTKEYS ═══
     private void LoadHotkeysList()
     {

@@ -969,6 +969,29 @@ public sealed class ThumbnailManager : IDisposable
         }));
     }
 
+    /// <summary>Resize EVERY live thumbnail to an exact pixel size and persist it.
+    /// Also updates the default start size so newly-appearing clients match.
+    /// Positions are left alone — only width/height change.</summary>
+    public void ApplySizeToAll(int w, int h)
+    {
+        Application.Current?.Dispatcher.Invoke(() =>
+        {
+            PushLayoutSnapshot();   // one snapshot for the whole operation (layout undo)
+
+            foreach (var (_, thumb) in _thumbnails)
+            {
+                thumb.Resize(w, h);
+                if (!string.IsNullOrEmpty(thumb.CharacterName))
+                    _settings.SaveThumbnailPosition(thumb.CharacterName, (int)thumb.Left, (int)thumb.Top, w, h);
+            }
+
+            // Keep the default in sync so clients that log in later get the same size.
+            _settings.Settings.ThumbnailStartLocation.Width = w;
+            _settings.Settings.ThumbnailStartLocation.Height = h;
+            _settings.Save();
+        });
+    }
+
     public void ApplySizeToCharacter(string name, int w, int h)
     {
         Application.Current?.Dispatcher.Invoke(() =>
