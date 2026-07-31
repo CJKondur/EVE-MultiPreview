@@ -2097,18 +2097,16 @@ public sealed class ThumbnailManager : IDisposable
 
     // ── Snap ─────────────────────────────────────────────────────────
 
-    // Edge-snap with even gutters (generalizes the old corner-to-corner snap):
-    // snaps the dragged window's Left and Top independently to the nearest of —
+    // Edge-snap: snaps the dragged window's Left and Top independently to the
+    // nearest of —
     //   • a neighbour's aligned edge (left/right/top/bottom aligned), or
-    //   • adjacency to a neighbour with a uniform gutter gap, or
+    //   • flush adjacency to a neighbour (edges touching, no gap), or
     //   • the monitor work-area edge (flush).
-    // Aligning left+top to a neighbour reproduces the old corner snap, so existing
-    // behaviour is preserved while even-gap walls now build automatically.
+    // Aligning left+top to a neighbour reproduces the old corner snap.
     private void SnapThumbnail(ThumbnailWindow target)
     {
         int snapRange = _settings.Settings.ThumbnailSnapDistance;
         if (snapRange <= 0) return;
-        int gutter = Math.Max(0, _settings.Settings.ThumbnailGutter);
 
         double L = target.Left, T = target.Top, W = target.Width, H = target.Height;
 
@@ -2118,16 +2116,23 @@ public sealed class ThumbnailManager : IDisposable
         {
             if (other == target) continue;
             double oL = other.Left, oT = other.Top, oW = other.Width, oH = other.Height;
-            // X: align left, align right, sit to the right of (gutter), sit to the left of (gutter)
+            // Side-by-side snapping is FLUSH ONLY — edges touching, no gap.
+            // The gutter-offset candidates (oL + oW + gutter etc.) were removed:
+            // they created an invisible stop a few pixels short of the real edge,
+            // and because both it and the flush position sat inside the snap
+            // range, thumbnails would often catch on the gap instead of meeting.
+            // ThumbnailGutter still spaces the auto-arrange grid; it just no
+            // longer influences drag snapping.
+            // X: align left, align right, sit flush right of, sit flush left of
             xCands.Add(oL);
             xCands.Add(oL + oW - W);
-            xCands.Add(oL + oW + gutter);
-            xCands.Add(oL - W - gutter);
-            // Y: align top, align bottom, sit below (gutter), sit above (gutter)
+            xCands.Add(oL + oW);
+            xCands.Add(oL - W);
+            // Y: align top, align bottom, sit flush below, sit flush above
             yCands.Add(oT);
             yCands.Add(oT + oH - H);
-            yCands.Add(oT + oH + gutter);
-            yCands.Add(oT - H - gutter);
+            yCands.Add(oT + oH);
+            yCands.Add(oT - H);
         }
 
         // Monitor work-area edges (flush to screen).
