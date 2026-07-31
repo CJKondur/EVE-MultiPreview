@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -604,10 +604,13 @@ public partial class SettingsWindow
     }
 
     // ── Thumbnails panel: resize by exact pixel size (all / individual) ──
-    // Same minimums the drag-resize gesture enforces (ThumbnailWindow: 80x50),
-    // so a typo can't produce a thumbnail too small to grab and fix.
-    private const int MinThumbW = 80;
-    private const int MinThumbH = 50;
+    // Floor is 1x1 — typed sizes are deliberately unrestricted so tiny//hidden
+    // thumbnails are possible. Note the drag-resize GESTURE still stops at 80x50
+    // (ThumbnailWindow), so a thumbnail shrunk below that can't be dragged back
+    // bigger; this Settings panel is the way to restore it (pick the character,
+    // type a size). 0 or negative would create a degenerate window, hence 1.
+    private const int MinThumbW = 1;
+    private const int MinThumbH = 1;
 
     private void PopulateResizeChars()
     {
@@ -644,7 +647,7 @@ public partial class SettingsWindow
     {
         if (!int.TryParse(TxtResizeAllW.Text, out int w) || !int.TryParse(TxtResizeAllH.Text, out int h))
         {
-            MessageBox.Show("Enter a width and height in pixels.", "Resize Thumbnails");
+            MessageBox.Show(EveMultiPreview.Services.LocalizationService.Str("L.Thumb.EnterSize", "Enter a width and height in pixels."), EveMultiPreview.Services.LocalizationService.Str("L.Thumb.Resize", "Resize Thumbnails"));
             return;
         }
         w = Math.Max(w, MinThumbW);
@@ -665,12 +668,12 @@ public partial class SettingsWindow
         var charName = CmbResizeChar.SelectedItem as string;
         if (string.IsNullOrEmpty(charName))
         {
-            MessageBox.Show("Select a character first.", "Resize Thumbnails");
+            MessageBox.Show(EveMultiPreview.Services.LocalizationService.Str("L.Thumb.SelectCharFirst", "Select a character first."), EveMultiPreview.Services.LocalizationService.Str("L.Thumb.Resize", "Resize Thumbnails"));
             return;
         }
         if (!int.TryParse(TxtResizeCharW.Text, out int w) || !int.TryParse(TxtResizeCharH.Text, out int h))
         {
-            MessageBox.Show("Enter a width and height in pixels.", "Resize Thumbnails");
+            MessageBox.Show(EveMultiPreview.Services.LocalizationService.Str("L.Thumb.EnterSize", "Enter a width and height in pixels."), EveMultiPreview.Services.LocalizationService.Str("L.Thumb.Resize", "Resize Thumbnails"));
             return;
         }
         w = Math.Max(w, MinThumbW);
@@ -691,6 +694,69 @@ public partial class SettingsWindow
     }
 
     private void OnHotkeySelected(object s, SelectionChangedEventArgs e) { }
+
+    // ── "+ Add All Active Clients" — shared plumbing ─────────────────
+    // Used by Annotations, Individual Character Hotkeys, Per-Character Colors,
+    // Groups and Don't Minimize Clients. Each caller supplies only "is it already
+    // there?" and "add it", so the dedupe/empty/feedback behaviour stays identical
+    // everywhere. Blank names (login screens with no character yet) are skipped.
+
+    private List<string> ActiveCharacterNames() =>
+        _thumbnailManager?.GetActiveCharacterNames()
+            .Where(n => !string.IsNullOrWhiteSpace(n)).ToList() ?? new List<string>();
+
+    /// <summary>Add every active client the target doesn't already contain.
+    /// Returns how many were added (0 = nothing to do, message already shown).
+    /// <paramref name="isGroup"/> only picks the wording of the "nothing to add"
+    /// message ("in this group" vs "in this list").</summary>
+    private int AddAllActiveClients(string title, Func<string, bool> alreadyHas, Action<string> add, bool isGroup = false)
+    {
+        var active = ActiveCharacterNames();
+        if (active.Count == 0)
+        {
+            MessageBox.Show(
+                EveMultiPreview.Services.LocalizationService.Str("L.Groups.NoActiveClients", "No active clients found."),
+                title);
+            return 0;
+        }
+
+        int added = 0;
+        foreach (var name in active)
+        {
+            if (alreadyHas(name)) continue;
+            add(name);
+            added++;
+        }
+
+        if (added == 0)
+            MessageBox.Show(
+                isGroup
+                    ? EveMultiPreview.Services.LocalizationService.Str("L.Groups.AllAlreadyAdded", "All active clients are already in this group.")
+                    : EveMultiPreview.Services.LocalizationService.Str("L.Common.AllAlreadyInList", "All active clients are already in this list."),
+                title);
+        return added;
+    }
+
+    private void OnAnnotationAddAllActive(object s, RoutedEventArgs e)
+    {
+        // Adds a blank label per character so the rows exist; Edit fills them in.
+        int added = AddAllActiveClients(
+            EveMultiPreview.Services.LocalizationService.Str("L.Thumb.Annotations", "Annotations"),
+            n => S.ThumbnailAnnotations.ContainsKey(n),
+            n => S.ThumbnailAnnotations[n] = "");
+        if (added > 0) { LoadAnnotations(); SaveDelayed(); }
+    }
+
+    private void OnHotkeyAddAllActive(object s, RoutedEventArgs e)
+    {
+        // Empty binding per character — the user then assigns keys via Edit.
+        var profile = _svc.CurrentProfile;
+        int added = AddAllActiveClients(
+            EveMultiPreview.Services.LocalizationService.Str("L.Hk.IndividualHeader", "Individual Character Hotkeys"),
+            n => profile.Hotkeys.ContainsKey(n),
+            n => profile.Hotkeys[n] = new HotkeyBinding { Key = "" });
+        if (added > 0) { LoadHotkeysList(); SaveDelayed(); }
+    }
 
     private void OnHotkeyAdd(object s, RoutedEventArgs e)
     {
@@ -874,6 +940,7 @@ public partial class SettingsWindow
             TxtHotkeyGroupChars.IsEnabled = true;
             TxtGroupFwd.IsEnabled = true;
             TxtGroupBwd.IsEnabled = true;
+            RebuildHotkeyGroupPills();
         }
     }
 
@@ -895,6 +962,7 @@ public partial class SettingsWindow
         TxtHotkeyGroupChars.Text = "";
         TxtGroupFwd.Text = "";
         TxtGroupBwd.Text = "";
+        HotkeyGroupPills.Children.Clear();
         SaveDelayed();
     }
 
@@ -904,6 +972,7 @@ public partial class SettingsWindow
         if (S.HotkeyGroups.TryGetValue(name, out var grp))
         {
             grp.Characters = TxtHotkeyGroupChars.Text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).Where(c => c.Length > 0).ToList();
+            RebuildHotkeyGroupPills();   // keep pills in step with manual text edits
             SaveDelayed();
         }
     }
@@ -928,7 +997,244 @@ public partial class SettingsWindow
         {
             if (!grp.Characters.Contains(charName)) grp.Characters.Add(charName);
             TxtHotkeyGroupChars.Text = string.Join("\n", grp.Characters);
+            RebuildHotkeyGroupPills();
             SaveDelayed();
         }
+    }
+
+    // ── Cycling group: drag-to-reorder character pills ──────────────
+    // The order of HotkeyGroup.Characters IS the cycle order (CycleGroup walks
+    // the list in order), so reordering pills reorders the cycle. The text box
+    // stays as the underlying editor; pills and text are kept in sync both ways.
+
+    /// <summary>Currently selected cycling group's character list, or null.</summary>
+    private List<string>? CurrentHotkeyGroupChars =>
+        CmbHotkeyGroup.SelectedItem is string n && S.HotkeyGroups.TryGetValue(n, out var g) ? g.Characters : null;
+
+    private void RebuildHotkeyGroupPills()
+    {
+        HotkeyGroupPills.Children.Clear();
+        var chars = CurrentHotkeyGroupChars;
+        if (chars == null) return;
+
+        for (int i = 0; i < chars.Count; i++)
+            HotkeyGroupPills.Children.Add(MakeCharacterPill(chars[i], i + 1));
+    }
+
+    private Border MakeCharacterPill(string charName, int position)
+    {
+        var row = new StackPanel { Orientation = Orientation.Horizontal };
+        // Position number in a filled badge — makes the cycle order pop at a glance.
+        row.Children.Add(new Border
+        {
+            Width = 18,
+            Height = 18,
+            CornerRadius = new CornerRadius(9),
+            Background = (Brush)FindResource("AccentBrush"),
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(0, 0, 6, 0),
+            Child = new TextBlock
+            {
+                Text = position.ToString(),
+                Foreground = Brushes.White,
+                FontSize = 10,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            }
+        });
+        row.Children.Add(new TextBlock
+        {
+            Text = charName,
+            Foreground = Brushes.White,
+            VerticalAlignment = VerticalAlignment.Center
+        });
+        var remove = new Button
+        {
+            Content = "✕",
+            Style = (Style)FindResource("IconBtn"),
+            Margin = new Thickness(5, 0, 0, 0),
+            ToolTip = EveMultiPreview.Services.LocalizationService.Str("L.Groups.PillRemoveTip", "Remove from group")
+        };
+        remove.Click += (_, _) => RemoveCharacterFromHotkeyGroup(charName);
+        row.Children.Add(remove);
+
+        var pill = new Border
+        {
+            CornerRadius = new CornerRadius(11),
+            Background = (Brush)FindResource("BgPanelBrush"),
+            BorderBrush = (Brush)FindResource("AccentBrush"),
+            BorderThickness = new Thickness(1),
+            Padding = new Thickness(8, 3, 6, 3),
+            Margin = new Thickness(0, 2, 4, 2),
+            Cursor = System.Windows.Input.Cursors.SizeAll,
+            Tag = charName,
+            AllowDrop = true,
+            Child = row,
+            ToolTip = EveMultiPreview.Services.LocalizationService.Str("L.Groups.PillDragTip", "Drag to change cycle order")
+        };
+        pill.PreviewMouseMove += OnPillMouseMove;
+        pill.Drop += OnPillDrop;
+        pill.DragOver += OnPillDragOver;
+        return pill;
+    }
+
+    // Live drag feedback: the pill being moved dims, and a thick accent bar marks
+    // the slot it will drop into — so the new order is obvious before releasing.
+    private Border? _dropTargetPill;
+
+    private void ClearPillDragVisuals()
+    {
+        foreach (var child in HotkeyGroupPills.Children)
+        {
+            if (child is not Border b) continue;
+            b.BorderBrush = (Brush)FindResource("AccentBrush");
+            b.BorderThickness = new Thickness(1);
+            b.Opacity = 1.0;
+        }
+        _dropTargetPill = null;
+    }
+
+    /// <summary>Mark where the drop will land: a fat bar on the leading edge of the
+    /// target pill, or on the trailing edge of the last pill when dropping at the end.</summary>
+    private void ShowDropIndicator(Border? target, bool atEnd = false)
+    {
+        if (ReferenceEquals(_dropTargetPill, target) && !atEnd) return;
+
+        foreach (var child in HotkeyGroupPills.Children)
+        {
+            if (child is not Border b) continue;
+            b.BorderBrush = (Brush)FindResource("AccentBrush");
+            b.BorderThickness = new Thickness(1);
+        }
+
+        if (atEnd)
+        {
+            if (HotkeyGroupPills.Children.Count > 0 &&
+                HotkeyGroupPills.Children[^1] is Border last)
+            {
+                last.BorderBrush = Brushes.White;
+                last.BorderThickness = new Thickness(1, 1, 5, 1);
+            }
+            _dropTargetPill = null;
+            return;
+        }
+
+        if (target != null)
+        {
+            target.BorderBrush = Brushes.White;
+            target.BorderThickness = new Thickness(5, 1, 1, 1);
+        }
+        _dropTargetPill = target;
+    }
+
+    private void OnPillMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        if (e.LeftButton != System.Windows.Input.MouseButtonState.Pressed) return;
+        if (sender is not Border pill || pill.Tag is not string charName) return;
+
+        // DoDragDrop blocks until the drop completes, so restoring afterwards
+        // in a finally guarantees visuals never stay stuck (including on cancel).
+        pill.Opacity = 0.4;
+        try { System.Windows.DragDrop.DoDragDrop(pill, charName, System.Windows.DragDropEffects.Move); }
+        finally { ClearPillDragVisuals(); }
+    }
+
+    private void OnPillDragOver(object sender, System.Windows.DragEventArgs e)
+    {
+        bool ok = e.Data.GetDataPresent(System.Windows.DataFormats.StringFormat);
+        e.Effects = ok ? System.Windows.DragDropEffects.Move : System.Windows.DragDropEffects.None;
+        if (ok && sender is Border pill) ShowDropIndicator(pill);
+        e.Handled = true;
+    }
+
+    /// <summary>Hovering empty space in the panel — the character will go to the end.</summary>
+    private void OnPillPanelDragOver(object sender, System.Windows.DragEventArgs e)
+    {
+        if (e.Handled) return;
+        bool ok = e.Data.GetDataPresent(System.Windows.DataFormats.StringFormat);
+        e.Effects = ok ? System.Windows.DragDropEffects.Move : System.Windows.DragDropEffects.None;
+        if (ok) ShowDropIndicator(null, atEnd: true);
+    }
+
+    /// <summary>Drop onto a pill — insert the dragged character at that pill's slot.</summary>
+    private void OnPillDrop(object sender, System.Windows.DragEventArgs e)
+    {
+        ClearPillDragVisuals();
+        if (sender is Border pill && pill.Tag is string targetChar)
+            MoveCharacterInHotkeyGroup(e.Data.GetData(System.Windows.DataFormats.StringFormat) as string, targetChar);
+        e.Handled = true;
+    }
+
+    /// <summary>Drop on empty space in the panel — send the character to the end.</summary>
+    private void OnPillPanelDrop(object sender, System.Windows.DragEventArgs e)
+    {
+        if (e.Handled) return;
+        ClearPillDragVisuals();
+        MoveCharacterInHotkeyGroup(e.Data.GetData(System.Windows.DataFormats.StringFormat) as string, null);
+    }
+
+    private void MoveCharacterInHotkeyGroup(string? dragged, string? targetChar)
+    {
+        var chars = CurrentHotkeyGroupChars;
+        if (chars == null || string.IsNullOrEmpty(dragged)) return;
+
+        int from = chars.IndexOf(dragged);
+        if (from < 0) return;
+        int to = targetChar != null ? chars.IndexOf(targetChar) : chars.Count - 1;
+        if (to < 0 || from == to) return;
+
+        chars.RemoveAt(from);
+        chars.Insert(to, dragged);
+        SyncHotkeyGroupCharsUi();
+    }
+
+    private void RemoveCharacterFromHotkeyGroup(string charName)
+    {
+        var chars = CurrentHotkeyGroupChars;
+        if (chars == null || !chars.Remove(charName)) return;
+        SyncHotkeyGroupCharsUi();
+    }
+
+    /// <summary>Push the in-memory list back to the text box (without re-triggering
+    /// its TextChanged save) and redraw the pills.</summary>
+    private void SyncHotkeyGroupCharsUi()
+    {
+        var chars = CurrentHotkeyGroupChars;
+        if (chars == null) return;
+        _loadingDepth++;
+        try { TxtHotkeyGroupChars.Text = string.Join("\n", chars); }
+        finally { _loadingDepth--; }
+        RebuildHotkeyGroupPills();
+        SaveDelayed();
+    }
+
+    private void OnHotkeyGroupAddAllActive(object s, RoutedEventArgs e)
+    {
+        var chars = CurrentHotkeyGroupChars;
+        if (chars == null)
+        {
+            MessageBox.Show(EveMultiPreview.Services.LocalizationService.Str("L.Groups.SelectGroupFirst", "Select or create a cycling group first."), EveMultiPreview.Services.LocalizationService.Str("L.Groups.CyclingHeader", "Cycling Hotkey Groups"));
+            return;
+        }
+
+        var active = _thumbnailManager?.GetActiveCharacterNames().ToList() ?? new List<string>();
+        if (active.Count == 0)
+        {
+            MessageBox.Show(EveMultiPreview.Services.LocalizationService.Str("L.Groups.NoActiveClients", "No active clients found."), EveMultiPreview.Services.LocalizationService.Str("L.Groups.CyclingHeader", "Cycling Hotkey Groups"));
+            return;
+        }
+
+        int added = 0;
+        foreach (var c in active)
+        {
+            if (string.IsNullOrWhiteSpace(c)) continue;   // skip login screens (no character name yet)
+            if (chars.Any(existing => string.Equals(existing, c, StringComparison.OrdinalIgnoreCase))) continue;
+            chars.Add(c);
+            added++;
+        }
+
+        if (added > 0) SyncHotkeyGroupCharsUi();
+        else MessageBox.Show(EveMultiPreview.Services.LocalizationService.Str("L.Groups.AllAlreadyAdded", "All active clients are already in this group."), EveMultiPreview.Services.LocalizationService.Str("L.Groups.CyclingHeader", "Cycling Hotkey Groups"));
     }
 }

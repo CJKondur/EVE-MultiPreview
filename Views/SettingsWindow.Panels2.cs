@@ -49,6 +49,21 @@ public partial class SettingsWindow
         catch { b.Background = Brushes.Gray; }
     }
 
+    private void OnColorAddAllActive(object s, RoutedEventArgs e)
+    {
+        // Seeded with the same defaults OnColorAdd falls back to, so rows appear
+        // immediately and each character can then be tuned via Edit — far better
+        // than opening three colour pickers per client.
+        int added = AddAllActiveClients(
+            EveMultiPreview.Services.LocalizationService.Str("L.Colors.Header", "Per-Character Colors"),
+            n => S.CustomColors.ContainsKey(n),
+            n => S.CustomColors[n] = new CustomColorEntry
+            {
+                Char = n, Border = "0xe36a0d", Text = "0xfac57a", InactiveBorder = "0x505050"
+            });
+        if (added > 0) { LoadColorsList(); SaveDelayed(); }
+    }
+
     private void OnColorAdd(object s, RoutedEventArgs e)
     {
         var name = ShowCharacterSearch("Add Custom Color");
@@ -166,6 +181,31 @@ public partial class SettingsWindow
         if (name == null) return;
         if (!string.IsNullOrEmpty(TxtGroupChars.Text) && !TxtGroupChars.Text.EndsWith("\n")) TxtGroupChars.Text += "\n";
         TxtGroupChars.Text += name + "\n";
+    }
+
+    private void OnGroupAddAllActive(object s, RoutedEventArgs e)
+    {
+        // This group's members live in the text box (one per line) until Save Group,
+        // so compare against — and append to — the text box, not saved state.
+        var existing = TxtGroupChars.Text
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(c => c.Trim())
+            .Where(c => c.Length > 0)
+            .ToList();
+
+        AddAllActiveClients(
+            EveMultiPreview.Services.LocalizationService.Str("L.Groups.Header", "Character Groups"),
+            n => existing.Any(x => string.Equals(x, n, StringComparison.OrdinalIgnoreCase)),
+            n =>
+            {
+                if (!string.IsNullOrEmpty(TxtGroupChars.Text) && !TxtGroupChars.Text.EndsWith("\n"))
+                    TxtGroupChars.Text += "\n";
+                TxtGroupChars.Text += n + "\n";
+                existing.Add(n);
+            },
+            isGroup: true);
+        // No SaveDelayed here — TxtGroupChars fires OnGroupDataChanged, and the
+        // group is committed by the existing Save Group button.
     }
 
     // ═══ ALERTS ═══
@@ -783,6 +823,16 @@ public partial class SettingsWindow
         LvDontMinimize.Items.Clear();
         foreach (var name in _svc.CurrentProfile.DontMinimizeClients)
             LvDontMinimize.Items.Add(new { CharacterName = name });
+    }
+
+    private void OnDontMinAddAllActive(object s, RoutedEventArgs e)
+    {
+        var list = _svc.CurrentProfile.DontMinimizeClients;
+        int added = AddAllActiveClients(
+            EveMultiPreview.Services.LocalizationService.Str("L.Client.DontMinimize", "Don't Minimize Clients"),
+            n => list.Any(x => string.Equals(x, n, StringComparison.OrdinalIgnoreCase)),
+            n => list.Add(n));
+        if (added > 0) { LoadDontMinimizeList(); SaveDelayed(); }
     }
 
     private void OnDontMinAdd(object s, RoutedEventArgs e)

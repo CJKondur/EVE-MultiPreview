@@ -422,11 +422,43 @@ public class ThumbnailWindow : Form
     private const int WM_LBUTTONDOWN = 0x0201;
     private const int WM_LBUTTONUP = 0x0202;
     private const int WM_SIZE = 0x0005;
+    private const int WM_GETMINMAXINFO = 0x0024;
+
+    /// <summary>Layout of the MINMAXINFO Windows passes with WM_GETMINMAXINFO.
+    /// ptMinTrackSize is the floor Windows enforces on a top-level window's size.</summary>
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct MINMAXINFO
+    {
+        public User32.POINT ptReserved;
+        public User32.POINT ptMaxSize;
+        public User32.POINT ptMaxPosition;
+        public User32.POINT ptMinTrackSize;
+        public User32.POINT ptMaxTrackSize;
+    }
 
     protected override void WndProc(ref Message m)
     {
         switch (m.Msg)
         {
+            // Windows applies a default MINIMUM TRACKING SIZE (SM_CXMINTRACK /
+            // SM_CYMINTRACK — roughly 130x30) to every top-level window. Below that
+            // the OS silently keeps the window bigger than we asked for, so a small
+            // thumbnail ends up with invisible padding around its rendered content —
+            // which is why snapping appeared to stop at a fixed edge instead of the
+            // true one: it was aligning the oversized WINDOW, not what you can see.
+            // Overriding the floor to 1x1 lets the window actually be as small as
+            // requested, so edges snap flush at any size.
+            case WM_GETMINMAXINFO:
+                base.WndProc(ref m);
+                try
+                {
+                    var mmi = System.Runtime.InteropServices.Marshal.PtrToStructure<MINMAXINFO>(m.LParam);
+                    mmi.ptMinTrackSize.X = 1;
+                    mmi.ptMinTrackSize.Y = 1;
+                    System.Runtime.InteropServices.Marshal.StructureToPtr(mmi, m.LParam, false);
+                }
+                catch { }
+                return;
             case WM_RBUTTONDOWN:
                 OnRightButtonDown();
                 return;
