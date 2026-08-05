@@ -96,9 +96,15 @@ public partial class SettingsWindow
         KeyboardNavigation.SetDirectionalNavigation(tb, KeyboardNavigationMode.None);
         tb.Focus(); // CRITICAL: TextBox must have focus to receive PreviewKeyDown
         Mouse.Capture(tb); // Route ALL mouse events to tb regardless of cursor position
+        // Safety net for #93: if anything ends capture-mode without going through
+        // CleanupCapture (window deactivated, alt-tab, panel switch), OnDeactivated
+        // calls this so the app can never be left holding the mouse capture — which
+        // silently ate every click system-wide until Ctrl+Alt+Del broke it.
+        _activeHotkeyCaptureCleanup = () => { CleanupCapture(); if (tb.Text == "Press a key or mouse button...") tb.Text = old; };
 
         void CleanupCapture()
         {
+            _activeHotkeyCaptureCleanup = null;
             tb.PreviewKeyDown -= CaptureKeyHandler;
             tb.PreviewMouseDown -= CaptureMouseHandler;
             tb.LostMouseCapture -= OnLostCapture;
@@ -160,7 +166,17 @@ public partial class SettingsWindow
                 _ => null
             };
 
-            if (buttonName == null) return; // ignore left/right clicks
+            if (buttonName == null)
+            {
+                // Left/right click CANCELS capture (#93). These aren't bindable, and
+                // previously they were swallowed by the active Mouse.Capture with no
+                // exit — so one stray click left the app eating every click on the
+                // desktop until Ctrl+Alt+Del. Now any non-bindable click ends capture.
+                me.Handled = true;
+                CleanupCapture();
+                tb.Text = old;
+                return;
+            }
 
             me.Handled = true;
             CleanupCapture();
@@ -864,7 +880,15 @@ public partial class SettingsWindow
                     MouseButton.Middle => "MButton",
                     _ => null
                 };
-                if (buttonName == null) return; // ignore left/right clicks
+                if (buttonName == null)
+                {
+                    // Left/right click cancels capture — see #93. Without this the
+                    // click is swallowed by Mouse.Capture and capture never ends.
+                    cme.Handled = true;
+                    CleanupCap();
+                    tb.Text = current;
+                    return;
+                }
 
                 cme.Handled = true;
                 CleanupCap();

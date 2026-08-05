@@ -512,6 +512,11 @@ public class Profile
     public Dictionary<string, int> ThumbnailVisibility { get; set; } = new();
     public List<string> DontMinimizeClients { get; set; } = new();
 
+    /// <summary>Name of the layout preset last applied to this profile, so switching
+    /// profiles can show which layout is in effect (#94). Display only — it does not
+    /// re-apply the preset by itself.</summary>
+    public string AppliedLayoutPreset { get; set; } = "";
+
     // ── Per-profile Thumbnail Settings (from AHK "Thumbnail Settings" sub-object) ──
     public bool ShowAllColoredBorders { get; set; } = false;
     public bool HideThumbnailsOnLostFocus { get; set; } = false;

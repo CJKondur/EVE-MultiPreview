@@ -682,6 +682,14 @@ public static class User32
     /// </summary>
     public static void ActivateWindow(IntPtr hwnd)
     {
+        // A new activation supersedes any queued one. Tier 4 parks a target in
+        // PendingActivateHwnd and relies on the vk0xE8 WM_HOTKEY to consume it; if
+        // that dispatch never arrives, the target is stranded — and the NEXT
+        // activation's Tier-2 phantom vk0xE8 keystroke (which assumes nothing is
+        // pending) would consume it and raise the previous client instead of the one
+        // just clicked. Clearing here makes that impossible (#95).
+        PendingActivateHwnd = IntPtr.Zero;
+
         if (GetForegroundWindow() == hwnd) return;
 
         EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] Foreground shift requested for HWND {hwnd}");

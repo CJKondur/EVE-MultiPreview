@@ -33,6 +33,19 @@ public partial class SettingsWindow : Window
     private string _activePanel = "General";
     private bool _hasUnappliedChanges = false;
 
+    /// <summary>Set while a hotkey-capture is holding the WPF mouse capture; cleared
+    /// by its cleanup. Invoked from OnDeactivated as a last-resort release so the app
+    /// can never keep the capture after losing focus and swallow every click (#93).</summary>
+    private Action? _activeHotkeyCaptureCleanup;
+
+    protected override void OnDeactivated(EventArgs e)
+    {
+        base.OnDeactivated(e);
+        var cleanup = _activeHotkeyCaptureCleanup;
+        _activeHotkeyCaptureCleanup = null;
+        cleanup?.Invoke();
+    }
+
     public event Action? SettingsApplied;
 
     // Click-to-capture hotkey state
@@ -504,6 +517,7 @@ public partial class SettingsWindow : Window
                 finally { _loadingDepth--; }
             }
             LoadSettings();
+            RefreshAppliedLayoutPresetDisplay();   // show the new profile's layout preset (#94)
             _thumbnailManager?.ReapplySettings();
             _cropManager?.Refresh();
             SettingsApplied?.Invoke();

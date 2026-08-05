@@ -501,11 +501,32 @@ public sealed class ThumbnailManager : IDisposable
             for (int i = 0; i < leftover.Count && i < remaining.Count; i++)
                 ApplyPresetSlot(remaining[i], leftover[i], screens, applyVis);
 
+            // PRE-POSITION offline characters (#94). Slots left over after the live
+            // thumbnails are used up belong to characters that aren't logged in yet —
+            // previously they were simply dropped, so you had to log a character in
+            // and re-apply just to record its spot. Persisting the resolved position
+            // now means the thumbnail appears in the right place the moment that
+            // client logs in: CreateThumbnailForWindow already reads these saved
+            // positions. Purely additive — these slots did nothing before.
+            int preStaged = 0;
+            for (int i = remaining.Count; i < leftover.Count; i++)
+            {
+                var slot = leftover[i];
+                if (string.IsNullOrWhiteSpace(slot.Character)) continue;
+                var (sx, sy, sw, sh) = ResolveSlotRect(slot, screens);
+                _settings.SaveThumbnailPosition(slot.Character, sx, sy, sw, sh);
+                if (applyVis) _settings.Settings.ThumbnailVisibility[slot.Character] = slot.Hidden ? 1 : 0;
+                preStaged++;
+            }
+            if (preStaged > 0) _settings.Save();
+
             // Crop master-toggle captured with the preset (CropManager picks this up
             // when the caller refreshes it after apply).
             if (applyVis) { _settings.Settings.CropEnabled = preset.CropsEnabled; _settings.Save(); }
 
-            ShowTooltipFeedback($"Layout: applied '{preset.Name}'");
+            ShowTooltipFeedback(preStaged > 0
+                ? $"Layout: applied '{preset.Name}' ({preStaged} saved for characters not logged in)"
+                : $"Layout: applied '{preset.Name}'");
         });
     }
 
@@ -532,7 +553,10 @@ public sealed class ThumbnailManager : IDisposable
         });
     }
 
-    private void ApplyPresetSlot(ThumbnailWindow thumb, LayoutSlot slot, System.Windows.Forms.Screen[] screens, bool applyVis)
+    /// <summary>Resolve a preset slot's fractional geometry to an absolute on-screen
+    /// rect for THIS machine's monitors. Shared by the live-thumbnail apply path and
+    /// the offline-character pre-position path.</summary>
+    private (int x, int y, int w, int h) ResolveSlotRect(LayoutSlot slot, System.Windows.Forms.Screen[] screens)
     {
         var screen = (slot.Monitor >= 0 && slot.Monitor < screens.Length)
             ? screens[slot.Monitor]
@@ -543,6 +567,12 @@ public sealed class ThumbnailManager : IDisposable
         int x = wa.Left + (int)(slot.Fx * wa.Width);
         int y = wa.Top + (int)(slot.Fy * wa.Height);
         (x, y) = EnsureOnScreen(x, y, w, h);
+        return (x, y, w, h);
+    }
+
+    private void ApplyPresetSlot(ThumbnailWindow thumb, LayoutSlot slot, System.Windows.Forms.Screen[] screens, bool applyVis)
+    {
+        var (x, y, w, h) = ResolveSlotRect(slot, screens);
         thumb.Resize(w, h);
         thumb.MoveTo(x, y);
         if (!string.IsNullOrEmpty(thumb.CharacterName))
@@ -1190,6 +1220,15 @@ public sealed class ThumbnailManager : IDisposable
 
     private void OnSwitchRequested(ThumbnailWindow thumb)
     {
+        // Diagnostic for #95 ("clicking a thumbnail brings up the previously active
+        // client"). This is the discriminator: if a click logs here with the RIGHT
+        // character but the wrong client comes forward, the fault is in activation;
+        // if a click logs nothing at all, the click never reached the thumbnail
+        // (something is sitting on top of it) and focus simply falls back to the
+        // last active client.
+        EveMultiPreview.Services.DiagnosticsService.LogWindowHook(
+            $"[Thumb:Click] switch requested for '{thumb.CharacterName}' hwnd=0x{thumb.EveHwnd.ToInt64():X} " +
+            $"fg=0x{Interop.User32.GetForegroundWindow().ToInt64():X}");
         ActivateEveWindow(thumb.EveHwnd, thumb.CharacterName);
     }
 

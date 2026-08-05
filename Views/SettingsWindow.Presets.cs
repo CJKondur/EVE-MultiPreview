@@ -15,7 +15,19 @@ public partial class SettingsWindow
         var current = CmbLayoutPresets.Text;
         CmbLayoutPresets.Items.Clear();
         foreach (var n in LayoutPresets.Names) CmbLayoutPresets.Items.Add(n);
-        CmbLayoutPresets.Text = current;
+        // Show the preset this profile is on when the box isn't mid-edit (#94) — switching
+        // profiles previously left the last-typed name showing, with no indication of
+        // which layout the newly-selected profile actually had applied.
+        CmbLayoutPresets.Text = string.IsNullOrWhiteSpace(current)
+            ? _svc.CurrentProfile.AppliedLayoutPreset
+            : current;
+    }
+
+    /// <summary>Called on profile switch so the preset box reflects the new profile.</summary>
+    private void RefreshAppliedLayoutPresetDisplay()
+    {
+        if (CmbLayoutPresets == null) return;
+        CmbLayoutPresets.Text = _svc.CurrentProfile.AppliedLayoutPreset;
     }
 
     private string PresetNameInBox() => (CmbLayoutPresets.Text ?? "").Trim();
@@ -52,6 +64,9 @@ public partial class SettingsWindow
             return;
         }
         _thumbnailManager?.ApplyLayoutPreset(preset);
+        // Remember which preset this profile is on, so switching profiles shows it (#94).
+        _svc.CurrentProfile.AppliedLayoutPreset = preset.Name;
+        _svc.SaveDelayed();
         // A preset that captured crop state may have flipped CropEnabled — reconcile crops.
         if (preset.IncludesVisibility) _cropManager?.Refresh();
     }
