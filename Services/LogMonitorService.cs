@@ -48,6 +48,26 @@ public sealed class LogMonitorService : IDisposable
     private readonly ConcurrentDictionary<string, string> _characterSystems = new(); // char → system
     private readonly ConcurrentDictionary<string, DateTime> _systemTimestamps = new(); // char → last system change time
 
+    // ── System-change source arbitration (#98) ────────────────────────────
+    // Two sources report the current system, and they disagree on TIMING:
+    //   • game log  — "Jumping from <gate> to <system>" fires when the jump is
+    //     INITIATED, so it names the destination while you're still in the tunnel.
+    //     Under TiDi that can be minutes early.
+    //   • chat log  — "Channel changed to Local : <system>" fires when local
+    //     actually loads, i.e. on ARRIVAL. This is the truthful moment.
+    // UpdateSystem dedupes by name, so previously whichever arrived first won —
+    // always the game log. We now DEFER a game-log system change for characters
+    // whose chat log is known to work, and drop it if chat confirms first.
+    // Characters with no working chat log keep the old immediate behaviour, so
+    // nobody who runs without chat logging loses system tracking.
+    private readonly ConcurrentDictionary<string, bool> _chatSystemWorks = new();      // char → chat log has reported a system
+    private readonly ConcurrentDictionary<string, (string System, DateTime At)> _pendingGameSystem = new();
+
+    /// <summary>How long a game-log system change waits for chat to confirm before
+    /// being applied anyway. Bounds the worst case to "late" rather than "never" if
+    /// a chat log stalls or rotates mid-jump.</summary>
+    private const double GameSystemDeferSeconds = 30.0;
+
     // Alert cooldowns — per-event type (matches AHK per-event cooldowns)
     private readonly ConcurrentDictionary<string, DateTime> _alertCooldowns = new();
     private int _defaultCooldownSeconds = 5;
@@ -989,6 +1009,7 @@ public sealed class LogMonitorService : IDisposable
                     ScanForNewFiles();
                 }
                 ReadNewLines();
+                FlushPendingGameSystems();   // #98 — apply deferred jumps chat never confirmed
 
                 // After first scan: fire SystemChanged once per character with final system
                 if (!_initialScanComplete)
@@ -1380,7 +1401,14 @@ public sealed class LogMonitorService : IDisposable
 
         var systemName = ExtractSystemFromLine(line, LogType.ChatLog);
         if (!string.IsNullOrEmpty(systemName))
+        {
+            // Chat is authoritative (#98): local loading means we have ARRIVED.
+            // Mark this character as chat-capable so game-log jumps defer to it,
+            // and drop any pending game-log guess — chat just settled it.
+            _chatSystemWorks[character] = true;
+            _pendingGameSystem.TryRemove(character, out _);
             UpdateSystem(character, systemName, "chat");
+        }
     }
 
     private void ParseGameLogLine(string line, string character)
@@ -1400,7 +1428,16 @@ public sealed class LogMonitorService : IDisposable
         //   en: "Undocking from {stn} to {sys} solar system."  ja: "{stn} から {sys} へ出港"
         var destSystem = ExtractSystemFromLine(line, LogType.GameLog);
         if (!string.IsNullOrEmpty(destSystem))
-            UpdateSystem(character, destSystem, "game-move");
+        {
+            // If this character's chat log reports systems, let chat settle it on
+            // arrival instead of announcing the destination at jump initiation (#98).
+            // Held only briefly — FlushPendingGameSystems applies it if chat stays
+            // silent, so a stalled chat log degrades to the old behaviour, not to none.
+            if (_chatSystemWorks.ContainsKey(character))
+                _pendingGameSystem[character] = (destSystem, DateTime.Now);
+            else
+                UpdateSystem(character, destSystem, "game-move");
+        }
 
 
         // ── Combat events ──
@@ -1514,6 +1551,51 @@ public sealed class LogMonitorService : IDisposable
             _lastEventTime = DateTime.Now;
             TriggerAlert(character, "warp_scramble", "critical");
             return;
+        }
+
+        // ── Warp scramble/disruption from the COMBAT log (#97) ──
+        // The (notify) block above only covers warp disruption BUBBLES ("You are
+        // within a warp disruption zone"). Being pointed or scrammed by a ship
+        // MODULE is a different message on a (combat) line —
+        //     "Warp scramble attempt from <Pilot>'s <Ship> to you!"
+        // — which nothing matched, so module tackle raised no alert, badge or sound
+        // at all. That is the case users actually care about most.
+        //
+        // Note: unlike every other alert phrase, this text is NOT present in EVE's
+        // localization tables (checked localization_fsd_<lang> and _main), so it is
+        // matched in English. Combat-log verbs appear to stay English like the
+        // "(combat)" tag itself; if a non-English client is found to translate it,
+        // add that wording to warp_scramble_combat in alert_patterns.json.
+        if (line.Contains("(combat)"))
+        {
+            // Combat lines are wrapped in colour/bold markup; strip tags so the
+            // phrase and the "to you" direction test see plain text.
+            string plain = Regex.Replace(line, "<[^>]*>", " ");
+            if (AlertPatterns.Matches(plain.ToLowerInvariant(), "warp_scramble_combat"))
+            {
+                // Only alert on INCOMING tackle. Scrambling someone else logs as
+                // "... from you to <target>", which must never raise a critical alert.
+                bool outgoing = Regex.IsMatch(plain, @"from\s+you\b", RegexOptions.IgnoreCase);
+                bool incoming = Regex.IsMatch(plain, @"to\s+you\b", RegexOptions.IgnoreCase);
+                if (incoming && !outgoing)
+                {
+                    // PvE mode: same NPC filter as the bubble path — player sources
+                    // carry the possessive ("Pilot's Ship"), NPC sources don't.
+                    if (PveMode)
+                    {
+                        var m = Regex.Match(plain, @"from\s+(.+?)\s+to\s+you", RegexOptions.IgnoreCase);
+                        if (m.Success)
+                        {
+                            string attacker = m.Groups[1].Value.Trim();
+                            bool ownsShip = attacker.Contains("'s ") || attacker.Contains("’s ");
+                            if (!ownsShip || IsNpc(attacker)) return;
+                        }
+                    }
+                    _lastEventTime = DateTime.Now;
+                    TriggerAlert(character, "warp_scramble", "critical");
+                    return;
+                }
+            }
         }
 
         // ── Decloak detection ((notify) tag + localized "cloak deactivates") ──
@@ -1834,6 +1916,20 @@ public sealed class LogMonitorService : IDisposable
         Debug.WriteLine($"[LogMonitor:Event] ⚡ Alert fired: {alertType} [{severity}] for '{character}'");
         DiagnosticsService.LogAlerts($"[Trigger] FIRED — invoking AlertTriggered: type={alertType} severity={severity} char='{character}'");
         AlertTriggered?.Invoke(character, alertType, severity);
+    }
+
+    /// <summary>Apply any deferred game-log system change whose grace period expired
+    /// without chat confirming (#98). Cheap no-op when nothing is pending.</summary>
+    private void FlushPendingGameSystems()
+    {
+        if (_pendingGameSystem.IsEmpty) return;
+        var now = DateTime.Now;
+        foreach (var kv in _pendingGameSystem)
+        {
+            if ((now - kv.Value.At).TotalSeconds < GameSystemDeferSeconds) continue;
+            if (_pendingGameSystem.TryRemove(kv.Key, out var pending))
+                UpdateSystem(kv.Key, pending.System, "game-move(deferred)");
+        }
     }
 
     private void UpdateSystem(string character, string systemName, string source)

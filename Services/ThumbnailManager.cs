@@ -2922,11 +2922,21 @@ public sealed class ThumbnailManager : IDisposable
         int tx, ty;
         if (mode == 1)
         {
-            // GetWindowRect + Screen.Bounds + SetWindowPos are all physical device
+            // Centre within the WORK AREA, not Screen.Bounds (#96). Bounds includes the
+            // taskbar strip, so centring in it pushes the window roughly half the taskbar
+            // height too low — a windowed client then extends underneath the taskbar,
+            // which is topmost and draws over it. WorkingArea excludes the taskbar (on
+            // whichever edge it lives), so the client lands fully visible.
+            // GetWindowRect + Screen bounds + SetWindowPos are all physical device
             // pixels, so no DPI conversion is needed here.
-            var b = System.Windows.Forms.Screen.FromHandle(hwnd).Bounds;
-            tx = b.Left + (b.Width - w) / 2;
-            ty = b.Top + (b.Height - h) / 2;
+            var wa = System.Windows.Forms.Screen.FromHandle(hwnd).WorkingArea;
+            tx = wa.Left + (wa.Width - w) / 2;
+            ty = wa.Top + (wa.Height - h) / 2;
+
+            // A window taller/wider than the work area would still centre to a negative
+            // offset and slide under the taskbar; pin it to the work-area origin instead.
+            if (w > wa.Width) tx = wa.Left;
+            if (h > wa.Height) ty = wa.Top;
         }
         else
         {
