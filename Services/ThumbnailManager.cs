@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1228,7 +1228,12 @@ public sealed class ThumbnailManager : IDisposable
         // last active client.
         EveMultiPreview.Services.DiagnosticsService.LogWindowHook(
             $"[Thumb:Click] switch requested for '{thumb.CharacterName}' hwnd=0x{thumb.EveHwnd.ToInt64():X} " +
-            $"fg=0x{Interop.User32.GetForegroundWindow().ToInt64():X}");
+            $"fg=0x{Interop.User32.GetForegroundWindow().ToInt64():X} " +
+            // #95: cursor + this thumbnail's rect. If successive clicks come from very
+            // different cursor positions but all land on the SAME thumbnail, that window
+            // is covering its neighbours (a stuck hover-zoom enlarges it by HoverScale).
+            $"cursor={System.Windows.Forms.Cursor.Position.X},{System.Windows.Forms.Cursor.Position.Y} " +
+            $"rect={thumb.Left},{thumb.Top},{thumb.Width}x{thumb.Height}");
         ActivateEveWindow(thumb.EveHwnd, thumb.CharacterName);
     }
 
@@ -1474,6 +1479,10 @@ public sealed class ThumbnailManager : IDisposable
         // Skip all heavy Win32/DWM work during drag — prevents contention
         if (_thumbnails.Values.Any(t => t.IsDragging))
             return;
+
+        // #95 watchdog: a thumbnail left stuck in its enlarged hover state covers its
+        // neighbours and eats their clicks. Cheap per-tick correction.
+        foreach (var (_, t) in _thumbnails) t.EnsureHoverStateValid();
 
         var fgHwnd = Interop.User32.GetForegroundWindow();
         var s = _settings.Settings;

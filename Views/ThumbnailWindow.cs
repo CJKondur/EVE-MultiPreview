@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -477,6 +477,21 @@ public class ThumbnailWindow : Form
                 return;
         }
         base.WndProc(ref m);
+    }
+
+    /// <summary>Safety net for #95. A hovered thumbnail is enlarged by HoverScale and
+    /// deliberately overlaps its neighbours. UnHover only runs from OnMouseLeave, so if
+    /// WinForms ever misses that leave (window resized/moved out from under the cursor,
+    /// capture quirks, the enlarged window swallowing the cursor), the thumbnail stays
+    /// big and every click aimed at the thumbnails underneath lands on IT instead —
+    /// which looks like "clicking any thumbnail always switches to the same client".
+    /// Cheap poll: if we think we're hovered but the cursor isn't inside us, undo it.</summary>
+    public void EnsureHoverStateValid()
+    {
+        if (!_isHovered) return;
+        if (base.Bounds.Contains(Cursor.Position)) return;
+        _isMouseOver = false;
+        UnHover();
     }
 
     private void UnHover()
