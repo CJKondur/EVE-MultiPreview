@@ -1237,6 +1237,29 @@ public partial class SettingsWindow : Window
             "Automatically maximizes each EVE client\n" +
             "when it receives focus. Useful if you\n" +
             "run windowed-fullscreen across monitors.\n\n" +
+            "Client Position\n" +
+            "────────────────────────────\n" +
+            "Off / Center / Custom. Puts each client\n" +
+            "in a fixed spot when it is detected AND\n" +
+            "each time you switch to it, so fixed-\n" +
+            "window clients stay put instead of\n" +
+            "opening top-left on large or ultrawide\n" +
+            "monitors. Ignored while 'Track Client\n" +
+            "Positions' is ON — that setting gives\n" +
+            "each character its own remembered spot.\n\n" +
+            "Let Active Client Cover Taskbar\n" +
+            "────────────────────────────\n" +
+            "For fixed-window clients sized to your\n" +
+            "full screen height. The client you are\n" +
+            "in is placed ABOVE the Windows taskbar\n" +
+            "so it uses the whole vertical space,\n" +
+            "and drops back below it the moment you\n" +
+            "switch away — so the taskbar and Start\n" +
+            "menu stay usable. Also centres clients\n" +
+            "on the whole screen instead of the\n" +
+            "desktop work area. Pair with Client\n" +
+            "Position = Center for one large central\n" +
+            "window with thumbnails around it.\n\n" +
             "Don't Minimize List\n" +
             "────────────────────────────\n" +
             "Characters on this list will NOT be\n" +
