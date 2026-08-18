@@ -1084,6 +1084,9 @@
                                 <TextBox x:Name="TxtClientPositionY" Width="70" TextChanged="OnClientChanged"/>
                             </StackPanel>
                             <TextBlock Text="{DynamicResource L.Client.SpawnNote}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                            <CheckBox x:Name="ChkClientCoverTaskbar" Content="{DynamicResource L.Client.CoverTaskbar}" Margin="0,10,0,0"
+                                      Checked="OnClientChanged" Unchecked="OnClientChanged"/>
+                            <TextBlock Text="{DynamicResource L.Client.CoverTaskbarNote}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="{DynamicResource L.Client.DontMinimize}">

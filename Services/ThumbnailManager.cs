@@ -1361,6 +1361,17 @@ public sealed class ThumbnailManager : IDisposable
             }
 
             EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateEveWindow] 🚀 Executing Standard WIN32 Activation for HWND {hwnd} ({title ?? "unknown"})");
+
+            // Re-apply the fixed client position on ACTIVATION, not just at spawn (#99).
+            // This is what makes the ISBoxer-style "one main window, thumbnails around
+            // it" layout hold: whichever client you switch to lands in the configured
+            // slot, even if it was opened before the setting, dragged aside, or
+            // restored from another position. No-ops when the mode is Off (the
+            // default), and Track client positions still wins — that setting exists
+            // precisely to give each character its OWN remembered spot.
+            if (!_settings.Settings.TrackClientPositions)
+                ApplyFixedClientPosition(hwnd);
+
             Interop.User32.ActivateWindow(hwnd);
             
             // Execute visual callback instantaneously
@@ -1808,6 +1819,10 @@ public sealed class ThumbnailManager : IDisposable
 
         if (fgHwnd == _lastActiveEveHwnd) return;
         _lastActiveEveHwnd = fgHwnd;
+
+        // Raise the newly-focused client over the taskbar / drop the previous one (#99).
+        // Runs only on an actual focus CHANGE, so this is not a per-tick SetWindowPos storm.
+        ApplyClientTaskbarCover(fgHwnd);
 
         // Flash toggle moved to dedicated FlashAlertTick
 
@@ -2909,6 +2924,43 @@ public sealed class ThumbnailManager : IDisposable
     /// ultrawide monitors (issue #85). Keeps the window's current size (SWP_NOSIZE).
     /// Skipped when the mode is Off or the window is maximized / minimized (nothing
     /// to place). Only reached when position tracking is disabled.</summary>
+    /// <summary>Tracks whether we currently have any EVE client parked in the topmost
+    /// band for "cover taskbar" mode, so turning the option off can put them back.</summary>
+    private bool _taskbarCoverApplied;
+
+    /// <summary>Raise the FOCUSED client above the taskbar and drop every other client
+    /// back out of the topmost band (#99).
+    ///
+    /// The taskbar is a topmost window, so a client in the normal band is always drawn
+    /// under it — SWP_NOZORDER elsewhere doesn't put it "below the taskbar", it just
+    /// leaves the band alone. Only topmost membership can cover it, which is how
+    /// ISBoxer/AHK achieve the same thing. Applied to the active client ONLY, and
+    /// reversed on blur, so the taskbar and Start menu stay reachable the moment you
+    /// switch away. Our thumbnails share the topmost band, so they are re-raised after.
+    /// </summary>
+    private void ApplyClientTaskbarCover(IntPtr fgHwnd)
+    {
+        bool enabled = _settings.Settings.ClientCoverTaskbar;
+        if (!enabled && !_taskbarCoverApplied) return;   // nothing to do, nothing to undo
+
+        foreach (var (eveHwnd, _) in _thumbnails)
+        {
+            // When the option is switched off, this pass runs once with every client
+            // going NOTOPMOST — otherwise a client would stay stuck over the taskbar.
+            bool topmost = enabled && eveHwnd == fgHwnd;
+            var band = topmost ? Interop.User32.HWND_TOPMOST : Interop.User32.HWND_NOTOPMOST;
+            try
+            {
+                Interop.User32.SetWindowPos(eveHwnd, band, 0, 0, 0, 0,
+                    Interop.User32.SWP_NOMOVE | Interop.User32.SWP_NOSIZE | Interop.User32.SWP_NOACTIVATE);
+            }
+            catch { }
+        }
+
+        _taskbarCoverApplied = enabled;
+        if (enabled) RaiseThumbnailsAboveOverlays();   // keep thumbnails above a topmost client
+    }
+
     private void ApplyFixedClientPosition(IntPtr hwnd)
     {
         int mode = _settings.Settings.ClientPositionMode; // 0=Off, 1=Center, 2=Custom
@@ -2929,12 +2981,17 @@ public sealed class ThumbnailManager : IDisposable
             // whichever edge it lives), so the client lands fully visible.
             // GetWindowRect + Screen bounds + SetWindowPos are all physical device
             // pixels, so no DPI conversion is needed here.
-            var wa = System.Windows.Forms.Screen.FromHandle(hwnd).WorkingArea;
+            // "Cover taskbar" mode (#99) deliberately uses the FULL screen: EVE's fixed
+            // window list offers the monitor's exact resolution, and such a window is
+            // taller than the work area — centring it there would push it down so the
+            // taskbar clips the bottom. Screen bounds centres it flush with the display.
+            var scr = System.Windows.Forms.Screen.FromHandle(hwnd);
+            var wa = _settings.Settings.ClientCoverTaskbar ? scr.Bounds : scr.WorkingArea;
             tx = wa.Left + (wa.Width - w) / 2;
             ty = wa.Top + (wa.Height - h) / 2;
 
-            // A window taller/wider than the work area would still centre to a negative
-            // offset and slide under the taskbar; pin it to the work-area origin instead.
+            // A window taller/wider than the area would still centre to a negative
+            // offset and slide under the taskbar; pin it to the area origin instead.
             if (w > wa.Width) tx = wa.Left;
             if (h > wa.Height) ty = wa.Top;
         }
@@ -3896,6 +3953,21 @@ public sealed class ThumbnailManager : IDisposable
     {
         // Don't leave clients muted from auto-solo after we exit.
         try { UnmuteAllClientAudio(); } catch { }
+
+        // Same principle for "cover taskbar" (#99): a client left in the topmost band
+        // would keep sitting over the taskbar after MultiPreview closes, with nothing
+        // left running to put it back. Drop them all out of it on the way out.
+        try
+        {
+            if (_taskbarCoverApplied)
+            {
+                foreach (var (eveHwnd, _) in _thumbnails)
+                    Interop.User32.SetWindowPos(eveHwnd, Interop.User32.HWND_NOTOPMOST, 0, 0, 0, 0,
+                        Interop.User32.SWP_NOMOVE | Interop.User32.SWP_NOSIZE | Interop.User32.SWP_NOACTIVATE);
+                _taskbarCoverApplied = false;
+            }
+        }
+        catch { }
 
         _focusTimer?.Stop();
         _sessionTimer?.Stop();

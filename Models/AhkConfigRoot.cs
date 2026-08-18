@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace EveMultiPreview.Models;
@@ -257,6 +257,7 @@ public class AhkConfigRoot
                 profile.ClientPositionMode = cs.ClientPositionMode;
                 profile.ClientPositionX = cs.ClientPositionX;
                 profile.ClientPositionY = cs.ClientPositionY;
+                profile.ClientCoverTaskbar = cs.ClientCoverTaskbar != 0;
             }
 
             // Custom Colors (per-profile sub-object with parallel arrays)
@@ -496,6 +497,7 @@ public class AhkConfigRoot
                 ClientPositionMode = profile.ClientPositionMode,
                 ClientPositionX = profile.ClientPositionX,
                 ClientPositionY = profile.ClientPositionY,
+                ClientCoverTaskbar = profile.ClientCoverTaskbar ? 1 : 0,
                 DontMinimizeClients = profile.DontMinimizeClients,
             };
 
@@ -779,6 +781,9 @@ public class AhkClientSettings
 
     [JsonPropertyName("ClientPositionMode")]
     public int ClientPositionMode { get; set; }
+
+    [JsonPropertyName("ClientCoverTaskbar")]
+    public int ClientCoverTaskbar { get; set; }
 
     [JsonPropertyName("ClientPositionX")]
     public int ClientPositionX { get; set; }

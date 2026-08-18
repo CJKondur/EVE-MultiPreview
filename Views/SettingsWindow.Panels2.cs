@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -778,6 +778,7 @@ public partial class SettingsWindow
         S.MinimizeInactiveClients = ChkMinimizeInactive.IsChecked == true;
         S.AlwaysMaximize = ChkAlwaysMaximize.IsChecked == true;
         S.TrackClientPositions = ChkTrackClientPositions.IsChecked == true;
+        S.ClientCoverTaskbar = ChkClientCoverTaskbar.IsChecked == true;
         S.ClientPositionMode = CmbClientPosition.SelectedIndex < 0 ? 0 : CmbClientPosition.SelectedIndex;
         if (int.TryParse(TxtClientPositionX.Text, out var cpx)) S.ClientPositionX = cpx;
         if (int.TryParse(TxtClientPositionY.Text, out var cpy)) S.ClientPositionY = cpy;

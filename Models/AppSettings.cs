@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -318,6 +318,8 @@ public class AppSettings
     [JsonIgnore] public int ClientPositionMode { get => _cp.ClientPositionMode; set => _cp.ClientPositionMode = value; }
     [JsonIgnore] public int ClientPositionX { get => _cp.ClientPositionX; set => _cp.ClientPositionX = value; }
     [JsonIgnore] public int ClientPositionY { get => _cp.ClientPositionY; set => _cp.ClientPositionY = value; }
+    // Let the ACTIVE client sit above the Windows taskbar (issue #99). Off by default.
+    [JsonIgnore] public bool ClientCoverTaskbar { get => _cp.ClientCoverTaskbar; set => _cp.ClientCoverTaskbar = value; }
 
     // Per-profile Custom Colors proxies
     [JsonIgnore] public bool CustomColorsActive { get => _cp.CustomColorsActive; set => _cp.CustomColorsActive = value; }
@@ -545,6 +547,11 @@ public class Profile
     public int ClientPositionMode { get; set; } = 0;
     public int ClientPositionX { get; set; } = 0;
     public int ClientPositionY { get; set; } = 0;
+    // Issue #99: when true, the focused EVE client is raised into the topmost band so a
+    // full-height fixed window covers the taskbar (ISBoxer-style), and dropped back out
+    // of it on blur so the taskbar stays usable. Centering also uses the whole screen
+    // instead of the work area, so a screen-height window is not pushed down.
+    public bool ClientCoverTaskbar { get; set; } = false;
 
     // ── Per-profile Stat Overlay (per-character toggle for which stat types to show) ──
     public Dictionary<string, StatOverlayCharacterConfig> StatOverlayCharacters { get; set; } = new();
