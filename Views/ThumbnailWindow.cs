@@ -421,6 +421,15 @@ public class ThumbnailWindow : Form
     private const int WM_RBUTTONUP = 0x0205;
     private const int WM_LBUTTONDOWN = 0x0201;
     private const int WM_LBUTTONUP = 0x0202;
+    // Double-click messages MUST be swallowed like the single-click ones (#95).
+    // We handle the button up/down pairs ourselves and never call base.WndProc for
+    // them. If a DBLCLK reaches base, WinForms treats it as a mouse-down and sets
+    // Capture = true — and because our WM_*BUTTONUP case returns early, base never
+    // runs the matching mouse-up that would release it. The window then holds mouse
+    // capture forever, receiving every click on screen, so whichever thumbnail was
+    // double-clicked "locks" and every later click switches to that same client.
+    private const int WM_LBUTTONDBLCLK = 0x0203;
+    private const int WM_RBUTTONDBLCLK = 0x0206;
     private const int WM_SIZE = 0x0005;
     private const int WM_GETMINMAXINFO = 0x0024;
 
@@ -460,12 +469,14 @@ public class ThumbnailWindow : Form
                 catch { }
                 return;
             case WM_RBUTTONDOWN:
+            case WM_RBUTTONDBLCLK:
                 OnRightButtonDown();
                 return;
             case WM_RBUTTONUP:
                 OnRightButtonUp();
                 return;
             case WM_LBUTTONDOWN:
+            case WM_LBUTTONDBLCLK:
                 OnLeftButtonDown();
                 return;
             case WM_LBUTTONUP:
@@ -601,6 +612,11 @@ public class ThumbnailWindow : Form
             // Resize keeps its early-return above: dragging outside is legitimate.
             if (!base.Bounds.Contains(Cursor.Position))
             {
+                // A stray click means this window is receiving mouse input it should
+                // not be — the known cause is stuck mouse capture (#95). Drop it, so
+                // the app recovers instead of staying wedged until restart.
+                if (base.Capture) base.Capture = false;
+
                 Services.DiagnosticsService.LogWindowHook(
                     $"[Thumb:Click] IGNORED stray click for '{CharacterName}' " +
                     $"cursor={Cursor.Position.X},{Cursor.Position.Y} " +
