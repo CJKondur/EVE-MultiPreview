@@ -1377,6 +1377,12 @@ public sealed class ThumbnailManager : IDisposable
             if (!_settings.Settings.TrackClientPositions)
                 ApplyFixedClientPosition(hwnd);
 
+            // Swap the cover-taskbar band here too (#100). The focus poll alone is too
+            // late for hotkey cycling — it skips the 500ms after a cycle, so the old
+            // client stayed above the new one. Runs before activation so the incoming
+            // client is already in the right band when it comes forward.
+            ApplyClientTaskbarCover(hwnd);
+
             Interop.User32.ActivateWindow(hwnd);
             
             // Execute visual callback instantaneously
@@ -2937,6 +2943,10 @@ public sealed class ThumbnailManager : IDisposable
     /// band for "cover taskbar" mode, so turning the option off can put them back.</summary>
     private bool _taskbarCoverApplied;
 
+    /// <summary>Client currently promoted into the topmost band for "cover taskbar",
+    /// so a switch only has to demote that one and promote the new one (#100).</summary>
+    private IntPtr _taskbarCoverTop = IntPtr.Zero;
+
     /// <summary>Raise the FOCUSED client above the taskbar and drop every other client
     /// back out of the topmost band (#99).
     ///
@@ -2952,22 +2962,47 @@ public sealed class ThumbnailManager : IDisposable
         bool enabled = _settings.Settings.ClientCoverTaskbar;
         if (!enabled && !_taskbarCoverApplied) return;   // nothing to do, nothing to undo
 
-        foreach (var (eveHwnd, _) in _thumbnails)
+        if (!enabled)
         {
-            // When the option is switched off, this pass runs once with every client
-            // going NOTOPMOST — otherwise a client would stay stuck over the taskbar.
-            bool topmost = enabled && eveHwnd == fgHwnd;
-            var band = topmost ? Interop.User32.HWND_TOPMOST : Interop.User32.HWND_NOTOPMOST;
-            try
-            {
-                Interop.User32.SetWindowPos(eveHwnd, band, 0, 0, 0, 0,
-                    Interop.User32.SWP_NOMOVE | Interop.User32.SWP_NOSIZE | Interop.User32.SWP_NOACTIVATE);
-            }
-            catch { }
+            // Option switched off: sweep every client out of the band once, or one
+            // would stay stuck over the taskbar with nothing left to put it back.
+            foreach (var (eveHwnd, _) in _thumbnails) SetTaskbarCoverBand(eveHwnd, false);
+            _taskbarCoverApplied = false;
+            _taskbarCoverTop = IntPtr.Zero;
+            return;
         }
 
-        _taskbarCoverApplied = enabled;
-        if (enabled) RaiseThumbnailsAboveOverlays();   // keep thumbnails above a topmost client
+        if (_taskbarCoverTop == fgHwnd) return;   // already the promoted client
+
+        // Demote the outgoing client BEFORE promoting the new one. Doing this only
+        // from the focus poll was the #100 regression: the poll ignores the 500ms
+        // after a cycle, so hotkey-switching left the previous client topmost and it
+        // stayed visible over the client you just switched to.
+        if (_taskbarCoverTop != IntPtr.Zero) SetTaskbarCoverBand(_taskbarCoverTop, false);
+        _taskbarCoverTop = IntPtr.Zero;
+
+        // Foreground may be our own app or a non-EVE window — then nothing is promoted
+        // and the taskbar is reachable again, which is the intended blur behaviour.
+        if (fgHwnd != IntPtr.Zero && _thumbnails.ContainsKey(fgHwnd))
+        {
+            SetTaskbarCoverBand(fgHwnd, true);
+            _taskbarCoverTop = fgHwnd;
+        }
+
+        _taskbarCoverApplied = true;
+        RaiseThumbnailsAboveOverlays();   // keep thumbnails above a topmost client
+    }
+
+    private static void SetTaskbarCoverBand(IntPtr hwnd, bool topmost)
+    {
+        try
+        {
+            Interop.User32.SetWindowPos(hwnd,
+                topmost ? Interop.User32.HWND_TOPMOST : Interop.User32.HWND_NOTOPMOST,
+                0, 0, 0, 0,
+                Interop.User32.SWP_NOMOVE | Interop.User32.SWP_NOSIZE | Interop.User32.SWP_NOACTIVATE);
+        }
+        catch { }
     }
 
     private void ApplyFixedClientPosition(IntPtr hwnd)
@@ -3970,10 +4005,9 @@ public sealed class ThumbnailManager : IDisposable
         {
             if (_taskbarCoverApplied)
             {
-                foreach (var (eveHwnd, _) in _thumbnails)
-                    Interop.User32.SetWindowPos(eveHwnd, Interop.User32.HWND_NOTOPMOST, 0, 0, 0, 0,
-                        Interop.User32.SWP_NOMOVE | Interop.User32.SWP_NOSIZE | Interop.User32.SWP_NOACTIVATE);
+                foreach (var (eveHwnd, _) in _thumbnails) SetTaskbarCoverBand(eveHwnd, false);
                 _taskbarCoverApplied = false;
+                _taskbarCoverTop = IntPtr.Zero;
             }
         }
         catch { }

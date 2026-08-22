@@ -592,6 +592,22 @@ public class ThumbnailWindow : Form
 
         if (_dragMode == DragMode.None)
         {
+            // A plain click MUST land inside this thumbnail (#95). Logs showed
+            // button-up arriving at a thumbnail ~800px from the cursor (cursor
+            // y=535 vs rect y=1320..1440), so every click switched to that one
+            // client no matter which thumbnail was aimed at. Whatever routes the
+            // stray message (stuck mouse capture, stale hit-test), attributing a
+            // click to a window the cursor isn't over is always wrong.
+            // Resize keeps its early-return above: dragging outside is legitimate.
+            if (!base.Bounds.Contains(Cursor.Position))
+            {
+                Services.DiagnosticsService.LogWindowHook(
+                    $"[Thumb:Click] IGNORED stray click for '{CharacterName}' " +
+                    $"cursor={Cursor.Position.X},{Cursor.Position.Y} " +
+                    $"rect={base.Left},{base.Top},{base.Width}x{base.Height}");
+                return;
+            }
+
             if (User32.IsKeyDown(User32.VK_LCONTROL))
                 MinimizeRequested?.Invoke(this);
             else if (User32.IsKeyDown(User32.VK_LSHIFT) || User32.IsKeyDown(User32.VK_RSHIFT))
