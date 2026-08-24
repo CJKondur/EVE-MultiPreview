@@ -519,8 +519,9 @@ public partial class SettingsWindow : Window
             }
             LoadSettings();
             RefreshAppliedLayoutPresetDisplay();   // show the new profile's layout preset (#94)
-            _thumbnailManager?.ReapplySettings();
-            _cropManager?.Refresh();
+            // Applying the profile (thumbnails + crops + hotkeys) is App's ProfileSwitched
+            // handler now (#101) — it runs whether or not this window is open. This one
+            // only re-binds the UI, so the two don't apply the same switch twice.
             SettingsApplied?.Invoke();
         });
     }
