@@ -58,6 +58,9 @@ public sealed class ThumbnailManager : IDisposable
     private FrozenFrameService? _frozenFrames;
     private WinEventHookService? _winEvents;
     private DispatcherTimer? _focusTimer;
+    /// <summary>Debounces RaiseThumbnailsAboveOverlays so a client switch never pays for
+    /// it inline — see the comment where it is created (#100).</summary>
+    private DispatcherTimer? _raiseOverlaysDebounce;
     private DispatcherTimer? _sessionTimer;
     private DispatcherTimer? _statTimer;
     private DispatcherTimer? _fpsTimer;
@@ -192,6 +195,19 @@ public sealed class ThumbnailManager : IDisposable
         // hooks below, which call UpdateActiveBorders on demand. The sweep
         // still runs to handle transitions the OS doesn't event for (e.g.
         // virtual-desktop changes) and to drive overlay position sync.
+        // Coalesce overlay re-raises off the client-switch path (#100). Raising every
+        // thumbnail/PiP/stat window is O(number of clients) and each one is a layered
+        // topmost window, so the z-order change makes DWM recompose — doing that inline
+        // on every switch is what made switching slower the more clients were open.
+        // 30ms is under a frame, so the raise still looks immediate, and a burst of
+        // cycling collapses into a single raise once it settles.
+        _raiseOverlaysDebounce = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
+        _raiseOverlaysDebounce.Tick += (_, _) =>
+        {
+            _raiseOverlaysDebounce?.Stop();
+            RaiseThumbnailsAboveOverlays();
+        };
+
         _focusTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
         _focusTimer.Tick += (_, _) => UpdateActiveBorders();
         _focusTimer.Start();
@@ -2990,7 +3006,11 @@ public sealed class ThumbnailManager : IDisposable
         }
 
         _taskbarCoverApplied = true;
-        RaiseThumbnailsAboveOverlays();   // keep thumbnails above a topmost client
+
+        // Keep thumbnails above the promoted client — but off this path, so switching
+        // stays O(1) no matter how many clients are open (#100).
+        _raiseOverlaysDebounce?.Stop();
+        _raiseOverlaysDebounce?.Start();
     }
 
     private static void SetTaskbarCoverBand(IntPtr hwnd, bool topmost)
@@ -3000,7 +3020,8 @@ public sealed class ThumbnailManager : IDisposable
             Interop.User32.SetWindowPos(hwnd,
                 topmost ? Interop.User32.HWND_TOPMOST : Interop.User32.HWND_NOTOPMOST,
                 0, 0, 0, 0,
-                Interop.User32.SWP_NOMOVE | Interop.User32.SWP_NOSIZE | Interop.User32.SWP_NOACTIVATE);
+                Interop.User32.SWP_NOMOVE | Interop.User32.SWP_NOSIZE |
+                Interop.User32.SWP_NOACTIVATE | Interop.User32.SWP_ASYNCWINDOWPOS);
         }
         catch { }
     }
@@ -3045,10 +3066,16 @@ public sealed class ThumbnailManager : IDisposable
             ty = _settings.Settings.ClientPositionY;
         }
 
+        // Already there? Don't spend a cross-process SetWindowPos on it. This runs on
+        // every client switch, and after the first switch the client is normally already
+        // in position, so this skips the call entirely most of the time (#100 delay).
+        if (rect.Left == tx && rect.Top == ty) return;
+
         try
         {
             Interop.User32.SetWindowPos(hwnd, IntPtr.Zero, tx, ty, 0, 0,
-                Interop.User32.SWP_NOSIZE | Interop.User32.SWP_NOZORDER | Interop.User32.SWP_NOACTIVATE);
+                Interop.User32.SWP_NOSIZE | Interop.User32.SWP_NOZORDER |
+                Interop.User32.SWP_NOACTIVATE | Interop.User32.SWP_ASYNCWINDOWPOS);
         }
         catch { }
     }
@@ -4023,6 +4050,7 @@ public sealed class ThumbnailManager : IDisposable
         // created (?. handles the lazy _batchTimer null case).
         _fpsTimer?.Stop();
         _batchTimer?.Stop();
+        _raiseOverlaysDebounce?.Stop();   // #100 debounce — same shutdown-unwind risk
         if (_winEvents != null)
         {
             _winEvents.ForegroundChanged -= OnForegroundOrMinimizeEvent;

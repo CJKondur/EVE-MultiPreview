@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -212,6 +212,12 @@ public static class User32
     public const uint SWP_SHOWWINDOW = 0x0040;
     public const uint SWP_FRAMECHANGED = 0x0020;
     public const uint SWP_NOZORDER = 0x0004;
+    /// <summary>Post the request to the target window's thread instead of blocking on it.
+    /// SetWindowPos on ANOTHER PROCESS's window is synchronous by default — it waits for
+    /// that window's thread to pump messages. An EVE client busy rendering can take a
+    /// while, and a client switch makes several such calls, which is what produced the
+    /// 0.5-1s switch delay reported on issue #100.</summary>
+    public const uint SWP_ASYNCWINDOWPOS = 0x4000;
 
     public const int SW_RESTORE = 9;
     public const int SW_SHOW = 5;
