@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -194,8 +194,19 @@ public partial class TextOverlayWindow : Window
 
     public void SetTextMargins(int marginX, int marginY)
     {
-        TextOverlayPanel.Margin = new Thickness(marginX, marginY, marginX, 0);
-        FpsOverlay.Margin = new Thickness(0, marginY, marginX, 0);
+        // TextOverlayPanel is HorizontalAlignment="Left", so the RIGHT margin positions
+        // nothing — it only subtracts from the available width. Passing marginX as both
+        // capped the label's usable travel at half the thumbnail width and then clipped
+        // it away entirely (#102). FpsOverlay below really is Right-aligned, so marginX
+        // as its right inset is correct there and stays.
+        TextOverlayPanel.Margin = new Thickness(marginX, marginY, 0, 0);
+        // FpsOverlay is anchored to the RIGHT, so driving its inset from the same
+        // setting as the left-aligned label moved the two toward each other and they
+        // overlapped in the middle with no collision handling (#102). Before the label
+        // fix above it was squeezed out before it could reach the counter, which hid
+        // this. The counter now keeps its own fixed inset; only the vertical margin,
+        // which applies to both edges the same way, is still shared.
+        FpsOverlay.Margin = new Thickness(0, marginY, 5, 0);
     }
 
     /// <summary>Fade the whole overlay window (text, annotation, all) to match

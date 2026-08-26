@@ -1605,14 +1605,22 @@ public sealed class ThumbnailManager : IDisposable
                 bool charHidden = !string.IsNullOrEmpty(thumb.CharacterName)
                     && s.ThumbnailVisibility.TryGetValue(thumb.CharacterName, out var vf) && vf != 0;
 
+                // The active-thumbnail block below owns the focused client's thumbnail.
+                // Without this the two writers fight: switching INTO a client shows its
+                // thumbnail here (it is genuinely hidden at that moment) and the active
+                // block hides it again in the same sweep — a one-frame flash (#102).
+                bool willHideAsActive = s.HideActiveThumbnail && eveHwnd == fgHwnd;
+
                 if (!appVisibleContext)
                 {
                     if (!_thumbnailsHidden)
                         thumb.HideWithOverlay();
                 }
-                else if (!_thumbnailsHidden && !_primaryHidden && !charHidden)
+                else if (!_thumbnailsHidden && !_primaryHidden && !charHidden && !willHideAsActive)
                 {
-                    thumb.ShowWithOverlay();
+                    // State-guarded: unguarded this re-showed every thumbnail on every
+                    // sweep, which is what made the active thumbnail flicker (#102).
+                    if (!thumb.IsVisible) thumb.ShowWithOverlay();
                 }
             }
             _primaryHiddenByFocus = !appVisibleContext && !_thumbnailsHidden;
@@ -1763,7 +1771,12 @@ public sealed class ThumbnailManager : IDisposable
         // Per-character Visibility-tab hides and the global hide-all flags
         // take precedence — this feature never un-hides a thumb the user
         // deliberately hid through those.
-        bool hideActiveNow = s.HideActiveThumbnail && !_thumbnailsHidden && !_primaryHidden;
+        // !_primaryHiddenByFocus (#102): while alt-tabbed the focus block above has just
+        // hidden every thumbnail. Without this the foreground window matches no client,
+        // so every thumbnail fell into the else branch below and was re-shown — undoing
+        // that hide on every sweep, which read as constant flicker while alt-tabbed.
+        bool hideActiveNow = s.HideActiveThumbnail && !_thumbnailsHidden && !_primaryHidden
+                             && !_primaryHiddenByFocus;
         if (hideActiveNow)
         {
             foreach (var (eveHwnd, thumb) in _thumbnails)
@@ -1785,7 +1798,11 @@ public sealed class ThumbnailManager : IDisposable
             // Feature (or its enabling context) just turned off — restore
             // every thumbnail it may have hidden, minus explicit per-char
             // Visibility-tab hides and the global hide-all states.
-            if (!_thumbnailsHidden && !_primaryHidden)
+            // !_primaryHiddenByFocus (#102): hunk 3 makes hideActiveNow flip to false on
+            // alt-tab, which fires this restore once and flashes the thumbnails back on
+            // the very tick the focus block hid them. Without it hunks 1-3 still leave a
+            // single-frame flash on every alt-tab.
+            if (!_thumbnailsHidden && !_primaryHidden && !_primaryHiddenByFocus)
             {
                 foreach (var (_, thumb) in _thumbnails)
                 {
