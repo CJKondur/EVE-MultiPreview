@@ -1,0 +1,644 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         UI string catalog — 简体中文 (Simplified Chinese).  Issue #86.
+         Machine-assisted translation pending native review — corrections
+         welcome. Only keys present here are overridden; anything omitted
+         falls back to Strings.en.xaml.
+         ══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Language selector (General panel) -->
+    <sys:String x:Key="L.Language.Group">语言</sys:String>
+    <sys:String x:Key="L.Language.Label">语言：</sys:String>
+    <sys:String x:Key="L.Language.Note">更改立即生效。部分文本会在重新打开窗口后更新。翻译由社区协助完成，欢迎指正。</sys:String>
+
+    <!-- Alerts panel -->
+    <sys:String x:Key="L.Alerts.Title">🚨 警报设置</sys:String>
+    <sys:String x:Key="L.Alerts.Subtitle">配置攻击检测、日志监控和警报类型。</sys:String>
+    <sys:String x:Key="L.Alerts.LogMonitoring">日志监控</sys:String>
+    <sys:String x:Key="L.Alerts.EnableChatLog">启用聊天日志监控</sys:String>
+    <sys:String x:Key="L.Alerts.EnableGameLog">启用游戏日志监控</sys:String>
+    <sys:String x:Key="L.Alerts.UnderFire">受到攻击指示器</sys:String>
+    <sys:String x:Key="L.Alerts.AlertEvents">警报事件</sys:String>
+    <sys:String x:Key="L.Alerts.Severity">严重性设置</sys:String>
+    <sys:String x:Key="L.Alerts.Hub">警报中心</sys:String>
+    <sys:String x:Key="L.Alerts.NotLoggedIn">未登录指示器</sys:String>
+    <sys:String x:Key="L.Alerts.ChatLogDir">聊天日志目录：</sys:String>
+    <sys:String x:Key="L.Alerts.GameLogDir">游戏日志目录：</sys:String>
+    <sys:String x:Key="L.Alerts.UnderFirePulse">受到伤害时缩略图边框闪烁红色</sys:String>
+    <sys:String x:Key="L.Alerts.TimeoutSeconds">超时（秒）：</sys:String>
+    <sys:String x:Key="L.Alerts.UnderFireNote">受到伤害时缩略图边框会持续闪烁红色，超时后清除。</sys:String>
+    <sys:String x:Key="L.Alerts.PveMode">PVE 模式（忽略 NPC 伤害）</sys:String>
+    <sys:String x:Key="L.Alerts.PveModeNote">仅对玩家伤害发出警报——过滤掉老鼠、哨兵和 NPC。</sys:String>
+    <sys:String x:Key="L.Alerts.PulseOpacity">脉冲不透明度：</sys:String>
+    <sys:String x:Key="L.Alerts.PulseOpacityNote">降低所有事件的警报脉冲边框强度。100% = 当前行为。</sys:String>
+    <sys:String x:Key="L.Alerts.BorderWidth">警报边框宽度：</sys:String>
+    <sys:String x:Key="L.Alerts.BorderWidthNote">警报脉冲现在作为独立边框绘制在选择边框内侧，因此全舰队闪烁不会遮挡当前选中的客户端。0 表示禁用。</sys:String>
+    <sys:String x:Key="L.Alerts.BadgeShow">在缩略图上显示警报计数徽章</sys:String>
+    <sys:String x:Key="L.Alerts.BadgeNote">当角色收到警报时，每个缩略图上会显示一个小数字徽章；将该客户端切换到前台时立即清除。</sys:String>
+    <sys:String x:Key="L.Alerts.HubShow">在屏幕上显示警报中心</sys:String>
+    <sys:String x:Key="L.Alerts.ToastDuration">弹窗持续时间：</sys:String>
+    <sys:String x:Key="L.Alerts.SuppressActive">不对我正在关注的客户端弹窗</sys:String>
+    <sys:String x:Key="L.Alerts.SuppressActiveNote">跳过前台 EVE 客户端警报的中心弹窗——你已经在看它了。缩略图闪烁、徽章和声音仍会触发。</sys:String>
+    <sys:String x:Key="L.Alerts.AutoHide">安静一段时间后自动隐藏中心</sys:String>
+    <sys:String x:Key="L.Alerts.HideAfter">隐藏于：</sys:String>
+    <sys:String x:Key="L.Alerts.HideAfterUnit">秒无新警报后</sys:String>
+    <sys:String x:Key="L.Alerts.AutoHideNote">启用后，中心六边形会随每个警报出现，保持超时时间，然后消失直到下一个警报。启用前请先定位一次。</sys:String>
+    <sys:String x:Key="L.Alerts.ResetHub">重置中心位置</sys:String>
+    <sys:String x:Key="L.Alerts.IndicatorColor">指示器颜色：</sys:String>
+    <sys:String x:Key="L.Alerts.NliNone">无</sys:String>
+    <sys:String x:Key="L.Alerts.NliText">文字覆盖</sys:String>
+    <sys:String x:Key="L.Alerts.NliBorder">边框颜色</sys:String>
+    <sys:String x:Key="L.Alerts.NliDim">变暗</sys:String>
+
+    <!-- General panel -->
+    <sys:String x:Key="L.General.Title">⚙ 常规设置</sys:String>
+    <sys:String x:Key="L.General.Subtitle">EVE MultiPreview 热键行为的核心设置。</sys:String>
+    <sys:String x:Key="L.General.ShowTimer">在缩略图上显示会话计时器</sys:String>
+    <sys:String x:Key="L.General.HotkeyScope">热键范围</sys:String>
+    <sys:String x:Key="L.General.ActivationScope">激活范围：</sys:String>
+    <sys:String x:Key="L.General.ScopeGlobal">全局</sys:String>
+    <sys:String x:Key="L.General.ScopeEveActive">当 EVE 窗口处于活动状态时</sys:String>
+    <sys:String x:Key="L.General.SystemHotkeys">系统热键</sys:String>
+    <sys:String x:Key="L.General.HkSuspend">暂停热键：</sys:String>
+    <sys:String x:Key="L.General.HkClickThrough">点击穿透切换：</sys:String>
+    <sys:String x:Key="L.General.HkHideAll">隐藏/显示全部：</sys:String>
+    <sys:String x:Key="L.General.HkHidePrimary">隐藏/显示主窗口：</sys:String>
+    <sys:String x:Key="L.General.HkHidePip">隐藏/显示画中画：</sys:String>
+    <sys:String x:Key="L.General.HkHideCrops">隐藏/显示裁剪：</sys:String>
+    <sys:String x:Key="L.General.HkProfileFwd">配置文件向前循环：</sys:String>
+    <sys:String x:Key="L.General.HkProfileBwd">配置文件向后循环：</sys:String>
+    <sys:String x:Key="L.General.HkQuickSwitch">快速切换轮盘：</sys:String>
+    <sys:String x:Key="L.General.HkUndo">布局撤销：</sys:String>
+    <sys:String x:Key="L.General.HkRedo">布局重做：</sys:String>
+    <sys:String x:Key="L.General.Toggles">开关</sys:String>
+    <sys:String x:Key="L.General.LockPositions">锁定缩略图位置</sys:String>
+    <sys:String x:Key="L.General.BroadcastHud">显示广播键 HUD</sys:String>
+    <sys:String x:Key="L.General.AutoSolo">自动独占活动客户端音频</sys:String>
+    <sys:String x:Key="L.General.IndividualResize">单独调整缩略图大小</sys:String>
+    <sys:String x:Key="L.General.IndividualResizeNote">启用后，调整一个缩略图的大小不会影响其他缩略图。按住 Ctrl 可反转。</sys:String>
+    <sys:String x:Key="L.General.Minimize">最小化</sys:String>
+    <sys:String x:Key="L.General.MinimizeDelay">最小化 EVE 窗口延迟：</sys:String>
+    <sys:String x:Key="L.General.Cycling">循环</sys:String>
+    <sys:String x:Key="L.General.CyclingNote">按住循环热键时每次循环之间的时间。越低越快，越高越慢。默认为 100 毫秒。</sys:String>
+    <sys:String x:Key="L.General.CycleDelay">循环延迟：</sys:String>
+    <sys:String x:Key="L.General.CycleWhileHeld">按住热键时持续循环</sys:String>
+    <sys:String x:Key="L.General.CycleWhileHeldNote">关闭此项可每次按键仅循环一个客户端（避免快速循环时按键卡住的问题）。</sys:String>
+    <sys:String x:Key="L.General.UiSettings">界面设置</sys:String>
+    <sys:String x:Key="L.General.UiSettingsNote">调整设置窗口界面的整体缩放。</sys:String>
+    <sys:String x:Key="L.General.UiScale">界面缩放：</sys:String>
+    <sys:String x:Key="L.General.Startup">启动</sys:String>
+    <sys:String x:Key="L.General.StartupNote">选择应用启动时设置窗口的行为。</sys:String>
+    <sys:String x:Key="L.General.OnAppLaunch">应用启动时：</sys:String>
+    <sys:String x:Key="L.General.StartupOff">不打开设置（保持在托盘）</sys:String>
+    <sys:String x:Key="L.General.StartupOpen">打开设置窗口</sys:String>
+    <sys:String x:Key="L.General.StartupMin">打开设置并最小化到任务栏</sys:String>
+
+    <!-- Thumbnails panel -->
+    <sys:String x:Key="L.Thumb.Title">🖼 缩略图外观</sys:String>
+    <sys:String x:Key="L.Thumb.Subtitle">控制 EVE 客户端缩略图的外观和风格。</sys:String>
+    <sys:String x:Key="L.Thumb.Basic">基本</sys:String>
+    <sys:String x:Key="L.Thumb.Opacity">不透明度（0-100%）：</sys:String>
+    <sys:String x:Key="L.Thumb.OpacityHover">悬停时提升至 100% 不透明度</sys:String>
+    <sys:String x:Key="L.Thumb.ExclusionBadge">循环排除徽章：</sys:String>
+    <sys:String x:Key="L.Thumb.ExclusionNote">被排除缩略图上红色 ✕ 的位置。</sys:String>
+    <sys:String x:Key="L.Thumb.AlwaysOnTop">始终置顶</sys:String>
+    <sys:String x:Key="L.Thumb.AboveClients">保持在 EVE 客户端之上</sys:String>
+    <sys:String x:Key="L.Thumb.HideAltTab">Alt-Tab 切换时隐藏</sys:String>
+    <sys:String x:Key="L.Thumb.HideActive">隐藏活动缩略图</sys:String>
+    <sys:String x:Key="L.Thumb.ShowSystem">显示星系名称（来自 EVE 日志）</sys:String>
+    <sys:String x:Key="L.Thumb.ShowStats">显示每个客户端的 CPU/RAM/VRAM</sys:String>
+    <sys:String x:Key="L.Thumb.TextOverlay">文字和覆盖层</sys:String>
+    <sys:String x:Key="L.Thumb.ShowTextOverlay">显示文字覆盖层</sys:String>
+    <sys:String x:Key="L.Thumb.TextColor">文字颜色：</sys:String>
+    <sys:String x:Key="L.Thumb.TextSize">文字大小：</sys:String>
+    <sys:String x:Key="L.Thumb.TextFont">文字字体：</sys:String>
+    <sys:String x:Key="L.Thumb.TextMargins">文字边距（宽 × 高）：</sys:String>
+    <sys:String x:Key="L.Thumb.Borders">边框</sys:String>
+    <sys:String x:Key="L.Thumb.HighlightColor">高亮颜色：</sys:String>
+    <sys:String x:Key="L.Thumb.HighlightBorder">高亮边框（像素）：</sys:String>
+    <sys:String x:Key="L.Thumb.ShowHighlightBorder">显示高亮边框</sys:String>
+    <sys:String x:Key="L.Thumb.ShowAllBorders">显示所有彩色边框</sys:String>
+    <sys:String x:Key="L.Thumb.InactiveBorder">非活动边框（像素）：</sys:String>
+    <sys:String x:Key="L.Thumb.InactiveBorderColor">非活动边框颜色：</sys:String>
+    <sys:String x:Key="L.Thumb.BgColor">背景颜色：</sys:String>
+    <sys:String x:Key="L.Thumb.Annotations">批注</sys:String>
+    <sys:String x:Key="L.Thumb.AnnotationsNote">为缩略图添加标签（例如 侦察、DPS、后勤）。</sys:String>
+    <sys:String x:Key="L.Thumb.Resize">调整缩略图大小</sys:String>
+    <sys:String x:Key="L.Thumb.ResizeNote">直接输入精确的像素尺寸，无需拖动。“所有缩略图”同时会成为新客户端的初始尺寸。</sys:String>
+    <sys:String x:Key="L.Thumb.ResizeAll">所有缩略图</sys:String>
+    <sys:String x:Key="L.Thumb.ResizeOne">单个角色</sys:String>
+    <sys:String x:Key="L.Thumb.ApplyAll">应用到全部</sys:String>
+    <sys:String x:Key="L.Thumb.ApplyOne">应用</sys:String>
+    <sys:String x:Key="L.Thumb.EnterSize">请输入宽度和高度（像素）。</sys:String>
+    <sys:String x:Key="L.Thumb.SelectCharFirst">请先选择一个角色。</sys:String>
+
+    <!-- Position terms (reusable) -->
+    <sys:String x:Key="L.Pos.TopLeft">左上</sys:String>
+    <sys:String x:Key="L.Pos.Top">上</sys:String>
+    <sys:String x:Key="L.Pos.TopRight">右上</sys:String>
+    <sys:String x:Key="L.Pos.Left">左</sys:String>
+    <sys:String x:Key="L.Pos.Center">中</sys:String>
+    <sys:String x:Key="L.Pos.Right">右</sys:String>
+    <sys:String x:Key="L.Pos.BottomLeft">左下</sys:String>
+    <sys:String x:Key="L.Pos.Bottom">下</sys:String>
+    <sys:String x:Key="L.Pos.BottomRight">右下</sys:String>
+
+    <!-- Layout panel -->
+    <sys:String x:Key="L.Layout.Title">📐 布局</sys:String>
+    <sys:String x:Key="L.Layout.Subtitle">缩略图的大小、吸附和定位。</sys:String>
+    <sys:String x:Key="L.Layout.DefaultLocation">默认位置（x, y, 宽, 高）</sys:String>
+    <sys:String x:Key="L.Layout.ActiveCharSizing">活动角色尺寸</sys:String>
+    <sys:String x:Key="L.Layout.ActiveCharNote">为活动缩略图设置特定尺寸。覆盖默认大小。</sys:String>
+    <sys:String x:Key="L.Layout.Character">角色：</sys:String>
+    <sys:String x:Key="L.Layout.ApplySize">应用尺寸</sys:String>
+    <sys:String x:Key="L.Layout.MinSize">最小尺寸</sys:String>
+    <sys:String x:Key="L.Layout.Snapping">吸附</sys:String>
+    <sys:String x:Key="L.Layout.EnableSnap">启用缩略图吸附</sys:String>
+    <sys:String x:Key="L.Layout.SnapDistance">吸附距离：</sys:String>
+    <sys:String x:Key="L.Layout.EdgeGutter">边缘间距：</sys:String>
+    <sys:String x:Key="L.Layout.ConfineMonitor">将拖动限制在单个显示器内</sys:String>
+    <sys:String x:Key="L.Layout.Presets">布局预设</sys:String>
+    <sys:String x:Key="L.Layout.PresetsNote">将整个墙保存为命名的、相对显示器的预设——一键应用，或导出以分享。</sys:String>
+    <sys:String x:Key="L.Layout.Remap">🔀 重新映射并应用…</sys:String>
+    <sys:String x:Key="L.Layout.HoverZoom">悬停缩放</sys:String>
+    <sys:String x:Key="L.Layout.ZoomOnHover">悬停时缩放缩略图</sys:String>
+    <sys:String x:Key="L.Layout.ZoomScale">缩放比例：</sys:String>
+    <sys:String x:Key="L.Layout.Monitor">显示器</sys:String>
+    <sys:String x:Key="L.Layout.PreferredMonitor">首选显示器：</sys:String>
+    <sys:String x:Key="L.Layout.Identify">🔍 识别</sys:String>
+    <sys:String x:Key="L.Layout.MonitorNote">这些显示器编号是 MultiPreview 自己的，可能与 Windows 的显示器编号不匹配。使用“识别”查看每个编号对应的屏幕。新缩略图（无已保存位置）会出现在首选显示器上。</sys:String>
+
+    <!-- Char Hotkeys panel -->
+    <sys:String x:Key="L.Hk.Title">⌨ 每角色热键</sys:String>
+    <sys:String x:Key="L.Hk.Subtitle">分配热键以直接切换到特定角色。</sys:String>
+    <sys:String x:Key="L.Hk.IndividualHeader">单个角色热键</sys:String>
+    <sys:String x:Key="L.Hk.AuditHeader">热键冲突审查</sys:String>
+    <sys:String x:Key="L.Hk.AuditNote">常规、角色热键和分组中的所有绑定。任何被绑定超过一次的键都会以红色标记。</sys:String>
+    <sys:String x:Key="L.Hk.Refresh">🔄 刷新</sys:String>
+
+    <!-- Colors panel -->
+    <sys:String x:Key="L.Colors.Title">🎨 自定义颜色</sys:String>
+    <sys:String x:Key="L.Colors.Subtitle">设置每个角色的自定义边框和文字颜色。</sys:String>
+    <sys:String x:Key="L.Colors.Header">每角色颜色</sys:String>
+    <sys:String x:Key="L.Colors.Enable">启用每角色自定义颜色</sys:String>
+    <sys:String x:Key="L.Colors.ColActiveBorder">活动边框</sys:String>
+    <sys:String x:Key="L.Colors.ColTextColor">文字颜色</sys:String>
+    <sys:String x:Key="L.Colors.ColInactiveBorder">非活动边框</sys:String>
+    <sys:String x:Key="L.Colors.Preview">预览：</sys:String>
+    <sys:String x:Key="L.Colors.Active">活动</sys:String>
+    <sys:String x:Key="L.Colors.Text">文字</sys:String>
+    <sys:String x:Key="L.Colors.Inactive">非活动</sys:String>
+
+    <!-- Groups panel -->
+    <sys:String x:Key="L.Groups.Title">📦 缩略图分组</sys:String>
+    <sys:String x:Key="L.Groups.Subtitle">将角色分组，共享边框颜色和循环热键。</sys:String>
+    <sys:String x:Key="L.Groups.Header">分组</sys:String>
+    <sys:String x:Key="L.Groups.ShowBorders">显示分组边框</sys:String>
+    <sys:String x:Key="L.Groups.SelectGroup">选择分组：</sys:String>
+    <sys:String x:Key="L.Groups.GroupName">分组名称：</sys:String>
+    <sys:String x:Key="L.Groups.BorderColor">边框颜色：</sys:String>
+    <sys:String x:Key="L.Groups.CharsPerLine">角色（每行一个）：</sys:String>
+    <sys:String x:Key="L.Groups.SaveGroup">💾 保存分组</sys:String>
+    <sys:String x:Key="L.Groups.DeleteGroup">🗑 删除分组</sys:String>
+    <sys:String x:Key="L.Groups.CyclingHeader">循环热键分组</sys:String>
+    <sys:String x:Key="L.Groups.CyclingNote">创建带有专用前进/后退循环热键的分组。</sys:String>
+    <sys:String x:Key="L.Groups.CycleOrderNote">拖动标签可更改客户端的切换顺序。点击 ✕ 可将其从分组中移除。</sys:String>
+    <sys:String x:Key="L.Groups.AddAllActive">+ 添加所有活动客户端</sys:String>
+    <sys:String x:Key="L.Groups.PillRemoveTip">从分组中移除</sys:String>
+    <sys:String x:Key="L.Groups.PillDragTip">拖动以更改切换顺序</sys:String>
+    <sys:String x:Key="L.Groups.SelectGroupFirst">请先选择或创建一个循环分组。</sys:String>
+    <sys:String x:Key="L.Groups.NoActiveClients">未找到活动的客户端。</sys:String>
+    <sys:String x:Key="L.Groups.AllAlreadyAdded">所有活动客户端都已在该分组中。</sys:String>
+    <sys:String x:Key="L.Groups.Forward">前进：</sys:String>
+    <sys:String x:Key="L.Groups.Backward">后退：</sys:String>
+
+    <!-- Sounds panel -->
+    <sys:String x:Key="L.Sounds.Title">🔊 警报声音</sys:String>
+    <sys:String x:Key="L.Sounds.Subtitle">为警报事件分配自定义音频文件。支持 WAV 和 MP3。</sys:String>
+    <sys:String x:Key="L.Sounds.Master">主控</sys:String>
+    <sys:String x:Key="L.Sounds.Enable">启用警报声音</sys:String>
+    <sys:String x:Key="L.Sounds.MasterVolume">主音量：</sys:String>
+    <sys:String x:Key="L.Sounds.Range0100">(0-100)</sys:String>
+    <sys:String x:Key="L.Sounds.PerEvent">每事件声音</sys:String>
+    <sys:String x:Key="L.Sounds.PerClientVol">每客户端音量</sys:String>
+    <sys:String x:Key="L.Sounds.PerClientNote">设置每个运行中客户端的音频音量（Windows 每进程）。音量会保存，并在你切换到该客户端时重新应用。</sys:String>
+
+    <!-- Visibility panel -->
+    <sys:String x:Key="L.Vis.Title">👁 缩略图可见性</sys:String>
+    <sys:String x:Key="L.Vis.Subtitle">显示或隐藏单个角色的缩略图。</sys:String>
+    <sys:String x:Key="L.Vis.Primary">主缩略图</sys:String>
+    <sys:String x:Key="L.Vis.CheckToHide">勾选以隐藏某角色的缩略图：</sys:String>
+    <sys:String x:Key="L.Vis.Tip">提示：你也可以右键点击缩略图（Ctrl+右键）直接编辑其标签。</sys:String>
+    <sys:String x:Key="L.Vis.ColHidden">隐藏</sys:String>
+    <sys:String x:Key="L.Vis.EditBtn">编辑…</sys:String>
+    <sys:String x:Key="L.Vis.Secondary">次要缩略图（画中画）</sys:String>
+    <sys:String x:Key="L.Vis.SecondaryNote">为任意角色添加第二个预览——独立的大小、位置和不透明度。</sys:String>
+
+    <!-- Client panel -->
+    <sys:String x:Key="L.Client.Title">🖥 客户端管理</sys:String>
+    <sys:String x:Key="L.Client.Subtitle">控制切换时 EVE 客户端窗口的行为。</sys:String>
+    <sys:String x:Key="L.Client.CharSelectCycling">角色选择循环</sys:String>
+    <sys:String x:Key="L.Client.EnableCharSelect">启用角色选择循环</sys:String>
+    <sys:String x:Key="L.Client.ForwardHotkey">前进热键：</sys:String>
+    <sys:String x:Key="L.Client.BackwardHotkey">后退热键：</sys:String>
+    <sys:String x:Key="L.Client.WindowMgmt">窗口管理</sys:String>
+    <sys:String x:Key="L.Client.MinimizeInactive">切换时最小化非活动的 EVE 客户端</sys:String>
+    <sys:String x:Key="L.Client.AlwaysMaximize">激活时始终最大化 EVE</sys:String>
+    <sys:String x:Key="L.Client.TrackPositions">跟踪并恢复客户端窗口位置</sys:String>
+    <sys:String x:Key="L.Client.SpawnPosition">客户端位置：</sys:String>
+    <sys:String x:Key="L.Client.SpawnOff">关闭（保持 EVE 打开的位置）</sys:String>
+    <sys:String x:Key="L.Client.SpawnCenter">在其显示器上居中</sys:String>
+    <sys:String x:Key="L.Client.SpawnCustom">自定义 X / Y</sys:String>
+    <sys:String x:Key="L.Client.SpawnNote">在检测到客户端时以及每次切换到该客户端时重新定位，使固定窗口客户端始终保持在同一位置，而不会在超宽或大尺寸显示器上从左上角打开。启用“记录并恢复客户端窗口位置”时将忽略此设置。</sys:String>
+    <sys:String x:Key="L.Client.CoverTaskbar">允许当前客户端遮盖任务栏</sys:String>
+    <sys:String x:Key="L.Client.CoverTaskbarNote">适用于与屏幕等高的固定窗口客户端。当前活动的客户端会显示在 Windows 任务栏之上，切换到其他窗口后立即退回任务栏下方，因此任务栏和开始菜单仍可正常使用。同时按整个屏幕而非工作区居中客户端。</sys:String>
+    <sys:String x:Key="L.Client.DontMinimize">不最小化的客户端</sys:String>
+    <sys:String x:Key="L.Client.DontMinNote">此处列出的角色将永远不会被最小化。</sys:String>
+
+    <!-- Performance panel -->
+    <sys:String x:Key="L.Perf.Title">⚡ CPU 性能与亲和性</sys:String>
+    <sys:String x:Key="L.Perf.Subtitle">协调 CPU 优先级和核心亲和性，确保非活动客户端永不抢占 P 核周期。</sys:String>
+    <sys:String x:Key="L.Perf.GlobalSettings">全局设置</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinity">启用后台客户端亲和性/优先级管理</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">启用后，非活动的 EVE 客户端会被降至“空闲”优先级以防止卡顿。</sys:String>
+    <sys:String x:Key="L.Perf.AutoBalance">自动平衡非活动客户端到 E 核（应用决定）</sys:String>
+    <sys:String x:Key="L.Perf.AutoBalanceNote">动态地将非活动客户端轮流分配到逻辑核心的后半部分（E 核或第二个 CCD）。</sys:String>
+    <sys:String x:Key="L.Perf.GpuOpt">缩略图 GPU 优化</sys:String>
+    <sys:String x:Key="L.Perf.LowGpuBtn">⚡ 为低 GPU 优化（推荐用于多客户端）</sys:String>
+    <sys:String x:Key="L.Perf.LowGpuNote">一键操作：切换时最小化非活动客户端，并暂停后台缩略图，使空闲客户端完全停止渲染。多开许多客户端时最大的 FPS / 风扇噪音改善。</sys:String>
+    <sys:String x:Key="L.Perf.StaticThumbs">静态缩略图（更低 GPU）</sys:String>
+    <sys:String x:Key="L.Perf.StaticThumbsNote">用大约每秒刷新一次的快照替换实时 DWM 合成预览。运行许多客户端时可大幅节省 GPU（DWM 不再逐帧合成），代价是画面不流畅——移动更新按快照节奏而非平滑显示。最适合只需偶尔瞥一眼缩略图而非持续观看的舰队。</sys:String>
+    <sys:String x:Key="L.Perf.SuspendBg">后台时暂停缩略图</sys:String>
+    <sys:String x:Key="L.Perf.SuspendBgNote">当 EVE 和 MultiPreview 都不是前台进程时，将每个缩略图冻结为其最后一帧。EVE 或应用回到前台的瞬间恢复实时合成。活跃游戏时不可见；当你在其他应用中工作时，停止 GPU 为看不见的窗口渲染缩略图。切回时会增加不到一秒的唤醒延迟。</sys:String>
+    <sys:String x:Key="L.Perf.CoreOverrides">每客户端核心覆盖</sys:String>
+    <sys:String x:Key="L.Perf.CoreOverridesNote">在特定角色处于非活动状态时，明确将其强制分配到特定逻辑处理器。这会覆盖自动平衡。</sys:String>
+    <sys:String x:Key="L.Perf.ColInactiveCore">非活动核心</sys:String>
+
+    <!-- FPS Limiter panel -->
+    <sys:String x:Key="L.Fps.Title">🚀 FPS 限制器</sys:String>
+    <sys:String x:Key="L.Fps.Subtitle">用于每客户端 FPS 限制的 RTSS 集成。</sys:String>
+    <sys:String x:Key="L.Fps.Settings">设置</sys:String>
+    <sys:String x:Key="L.Fps.ShowOverlay">在缩略图上显示 FPS 覆盖层（右上角）</sys:String>
+    <sys:String x:Key="L.Fps.BackgroundFps">后台 FPS：</sys:String>
+    <sys:String x:Key="L.Fps.ApplyProfile">🔧 应用 RTSS 配置文件</sys:String>
+    <sys:String x:Key="L.Fps.ApplyNote">先尝试直接写入。如果访问被拒绝，会有一次性的管理员提示来复制文件。</sys:String>
+    <sys:String x:Key="L.Fps.ManualInstall">手动安装</sys:String>
+    <sys:String x:Key="L.Fps.ManualNote">如果你不想授予管理员权限，可以手动复制配置文件：</sys:String>
+    <sys:String x:Key="L.Fps.TargetFolder">目标文件夹：</sys:String>
+    <sys:String x:Key="L.Fps.Detecting">(检测中...)</sys:String>
+    <sys:String x:Key="L.Fps.CopyFile">📋 复制文件到剪贴板</sys:String>
+    <sys:String x:Key="L.Fps.OpenFolder">📁 打开目标文件夹</sys:String>
+    <sys:String x:Key="L.Fps.ManualNote2">将文件复制到剪贴板，然后粘贴到上面的目标文件夹中。</sys:String>
+
+    <!-- Stats Overlay panel -->
+    <sys:String x:Key="L.Stats.Title">📊 数据覆盖层</sys:String>
+    <sys:String x:Key="L.Stats.Subtitle">为每个角色配置实时的 DPS、后勤、采矿和打怪覆盖层。</sys:String>
+    <sys:String x:Key="L.Stats.Enable">启用数据覆盖层</sys:String>
+    <sys:String x:Key="L.Stats.GlobalDefaults">全局默认</sys:String>
+    <sys:String x:Key="L.Stats.GlobalDefaultsNote">选择默认可见的各项指标。下方网格中的每角色覆盖可强制开启或关闭任何指标。</sys:String>
+    <sys:String x:Key="L.Stats.CatDps">⚔ DPS</sys:String>
+    <sys:String x:Key="L.Stats.CatLogi">🛡 后勤</sys:String>
+    <sys:String x:Key="L.Stats.CatMining">⛏ 采矿</sys:String>
+    <sys:String x:Key="L.Stats.CatRatting">💰 打怪</sys:String>
+    <sys:String x:Key="L.Stats.ActiveChars">活动角色</sys:String>
+    <sys:String x:Key="L.Stats.DoubleClickNote">双击角色（或按“编辑”）以设置每项数据的覆盖。</sys:String>
+    <sys:String x:Key="L.Stats.ColOverrides">每角色覆盖</sys:String>
+    <sys:String x:Key="L.Stats.NpcNote">👾 NPC 开关：启用后，NPC 伤害会计入 DPS 数据。默认关闭。</sys:String>
+    <sys:String x:Key="L.Stats.Display">显示</sys:String>
+    <sys:String x:Key="L.Stats.FontSize">字体大小：</sys:String>
+    <sys:String x:Key="L.Stats.OverlayOpacity">覆盖层不透明度：</sys:String>
+    <sys:String x:Key="L.Stats.BgColor">背景颜色：</sys:String>
+    <sys:String x:Key="L.Stats.TextColor">文字颜色：</sys:String>
+    <sys:String x:Key="L.Stats.Logging">数据日志</sys:String>
+    <sys:String x:Key="L.Stats.EnableLogging">启用数据日志记录到 CSV</sys:String>
+    <sys:String x:Key="L.Stats.LogFolder">日志文件夹：</sys:String>
+    <sys:String x:Key="L.Stats.AutoDelete">自动删除于：</sys:String>
+    <sys:String x:Key="L.Stats.Legend">数据缩写图例</sys:String>
+
+    <!-- About panel -->
+    <sys:String x:Key="L.About.Title">ℹ 关于</sys:String>
+    <sys:String x:Key="L.About.Edition">C# / WPF 版</sys:String>
+    <sys:String x:Key="L.About.Desc">EVE Online 的多客户端缩略图预览管理器。显示 EVE 窗口的实时 DWM 缩略图，支持点击切换、拖动重定位、自定义边框、警报、数据覆盖层和每角色热键。</sys:String>
+    <sys:String x:Key="L.About.Origin">最初由 CJKondur 用 AutoHotkey v2 编写。</sys:String>
+    <sys:String x:Key="L.About.Ported">移植到 C# WPF 以提升性能、稳定性和可扩展性。</sys:String>
+    <sys:String x:Key="L.About.GitHub">🔗 GitHub</sys:String>
+    <sys:String x:Key="L.About.CheckUpdates">🔄 检查更新</sys:String>
+    <sys:String x:Key="L.About.CheckOnStartup">程序启动时检查更新</sys:String>
+    <sys:String x:Key="L.About.PreRelease">接收预发布更新</sys:String>
+    <sys:String x:Key="L.About.PreReleaseNote">预发布版本可能包含错误或破坏性更改。设置可能在预发布更新之间重置。</sys:String>
+
+    <!-- Debug panel -->
+    <sys:String x:Key="L.Debug.Title">🐛 调试日志</sys:String>
+    <sys:String x:Key="L.Debug.Subtitle">用于生成诊断日志以排查问题的精细开关。</sys:String>
+    <sys:String x:Key="L.Debug.Targets">日志目标</sys:String>
+    <sys:String x:Key="L.Debug.Injection">输入注入逻辑（按键和脉冲）</sys:String>
+    <sys:String x:Key="L.Debug.Cycling">循环分组和数学分析（客户端切换逻辑）</sys:String>
+    <sys:String x:Key="L.Debug.WindowHooks">窗口前台和焦点挂钩（EVE 客户端检测）</sys:String>
+    <sys:String x:Key="L.Debug.Dwm">桌面窗口管理器（缩略图 API HResult）</sys:String>
+    <sys:String x:Key="L.Debug.Alerts">警报管线（解析 → 触发 → 徽章 / 弹窗 / 声音）</sys:String>
+    <sys:String x:Key="L.Debug.LogMgmt">日志管理</sys:String>
+    <sys:String x:Key="L.Debug.OpenLogs">📁 打开日志文件夹...</sys:String>
+    <sys:String x:Key="L.Debug.LogsNote">日志集中保存，按目标文件分离各逻辑流。</sys:String>
+
+    <!-- Crop panel -->
+    <sys:String x:Key="L.Crop.Title">✂ 裁剪</sys:String>
+    <sys:String x:Key="L.Crop.Subtitle">为每个 EVE 客户端生成一个或多个裁剪预览弹窗。右键拖动弹窗以移动；右键+左键拖动以调整大小。</sys:String>
+    <sys:String x:Key="L.Crop.Enable">启用裁剪预览弹窗</sys:String>
+    <sys:String x:Key="L.Crop.EnableNote">关闭时，所有裁剪弹窗都会隐藏（定义会保留以备下次使用）。</sys:String>
+    <sys:String x:Key="L.Crop.CropsHeader">裁剪</sys:String>
+    <sys:String x:Key="L.Crop.AddCrop">➕ 添加裁剪</sys:String>
+    <sys:String x:Key="L.Crop.EmptyHint">在上方选择一个角色，然后点击 ➕ 添加裁剪 以创建命名的裁剪区域。</sys:String>
+
+    <!-- Help sidebar -->
+    <sys:String x:Key="L.Help.Title">📖 帮助</sys:String>
+
+    <!-- EVE Manager panel -->
+    <sys:String x:Key="L.Eve.Title">EVE 设置配置文件管理器</sys:String>
+    <sys:String x:Key="L.Eve.Subtitle">将 EVE 设置从一个配置文件复制到另一个。自动创建备份。</sys:String>
+    <sys:String x:Key="L.Eve.SettingsFolder">EVE 设置文件夹：</sys:String>
+    <sys:String x:Key="L.Eve.ProfileCopyMode">📋 配置文件复制</sys:String>
+    <sys:String x:Key="L.Eve.CharCopyMode">👤 角色复制</sys:String>
+    <sys:String x:Key="L.Eve.AccountCopyMode">🔑 账户复制</sys:String>
+    <sys:String x:Key="L.Eve.SourceProfile">源配置文件（从此复制）：</sys:String>
+    <sys:String x:Key="L.Eve.TargetProfiles">目标配置文件（复制到——勾选以选择）：</sys:String>
+    <sys:String x:Key="L.Eve.ColProfile">配置文件</sys:String>
+    <sys:String x:Key="L.Eve.ColAccounts">账户</sys:String>
+    <sys:String x:Key="L.Eve.RefreshList">🔄 刷新列表</sys:String>
+    <sys:String x:Key="L.Eve.BackupChecked">💾 备份勾选的目标配置文件</sys:String>
+    <sys:String x:Key="L.Eve.CopyToChecked">📋 复制 → 勾选的目标</sys:String>
+    <sys:String x:Key="L.Eve.SourceShort">源（从此复制）：</sys:String>
+    <sys:String x:Key="L.Eve.TargetShort">目标（复制到）：</sys:String>
+    <sys:String x:Key="L.Eve.ProfileLabel">配置文件：</sys:String>
+    <sys:String x:Key="L.Eve.SearchChars">🔍 搜索角色...</sys:String>
+    <sys:String x:Key="L.Eve.CopyAllChars">复制到目标配置文件中的所有角色</sys:String>
+    <sys:String x:Key="L.Eve.CopyCharSettings">👤 复制角色设置</sys:String>
+    <sys:String x:Key="L.Eve.AccountNote">复制 core_user_*.dat——该 EVE 账户上每个角色共享的每账户 ESC 设置（显示、视频、音频、按键绑定）。</sys:String>
+    <sys:String x:Key="L.Eve.SearchAccounts">🔍 搜索账户...</sys:String>
+    <sys:String x:Key="L.Eve.ColAccount">账户</sys:String>
+    <sys:String x:Key="L.Eve.CopyAllAccounts">复制到目标配置文件中的所有账户</sys:String>
+    <sys:String x:Key="L.Eve.CopyAcctSettings">🔑 复制账户设置</sys:String>
+    <sys:String x:Key="L.Eve.DetectAccount">🔍 检测账户</sys:String>
+    <sys:String x:Key="L.Eve.NameAccount">命名勾选的源账户：</sys:String>
+    <sys:String x:Key="L.Eve.SetLabel">✎ 设置标签</sys:String>
+    <sys:String x:Key="L.Eve.DetectNote">“检测账户”会引导你一次登录一个角色，以便每个角色都能可靠地匹配到其账户。“设置标签”可让你手动覆盖账户名称。</sys:String>
+    <sys:String x:Key="L.Eve.BackupLocation">备份位置：</sys:String>
+    <sys:String x:Key="L.Eve.FetchEsi">🌐 通过 ESI 获取缺失名称（公开，无需登录）</sys:String>
+    <sys:String x:Key="L.Eve.DataMgmt">数据管理</sys:String>
+    <sys:String x:Key="L.Eve.CopyProfileOther">📋 复制配置文件到其他配置文件</sys:String>
+    <sys:String x:Key="L.Eve.ExportSettings">💾 导出设置到文件</sys:String>
+    <sys:String x:Key="L.Eve.ImportSettings">📂 从文件导入设置</sys:String>
+
+    <!-- Nav sidebar -->
+    <sys:String x:Key="L.Nav.General">  ⚙  常规</sys:String>
+    <sys:String x:Key="L.Nav.Thumbnails">  🖼  缩略图</sys:String>
+    <sys:String x:Key="L.Nav.Layout">  📐  布局</sys:String>
+    <sys:String x:Key="L.Nav.Hotkeys">  ⌨  角色热键</sys:String>
+    <sys:String x:Key="L.Nav.Colors">  🎨  颜色</sys:String>
+    <sys:String x:Key="L.Nav.Groups">  📦  分组</sys:String>
+    <sys:String x:Key="L.Nav.Alerts">  🚨  警报</sys:String>
+    <sys:String x:Key="L.Nav.Sounds">  🔊  声音</sys:String>
+    <sys:String x:Key="L.Nav.Visibility">  👁  可见性</sys:String>
+    <sys:String x:Key="L.Nav.Client">  🖥  客户端</sys:String>
+    <sys:String x:Key="L.Nav.FPS">  🚀  FPS 限制器</sys:String>
+    <sys:String x:Key="L.Nav.Performance">  ⚡  性能</sys:String>
+    <sys:String x:Key="L.Nav.Stats">  📊  数据覆盖层</sys:String>
+    <sys:String x:Key="L.Nav.Manager">  🗂  EVE 管理器</sys:String>
+    <sys:String x:Key="L.Nav.Crop">  ✂  裁剪</sys:String>
+    <sys:String x:Key="L.Nav.About">  ℹ  关于</sys:String>
+    <sys:String x:Key="L.Nav.Debug">  🐛  调试日志</sys:String>
+
+    <!-- Top toolbar + profile row -->
+    <sys:String x:Key="L.Top.Local">本地：</sys:String>
+    <sys:String x:Key="L.Top.Eve">EVE：</sys:String>
+    <sys:String x:Key="L.Top.Apply">⟳ 应用</sys:String>
+    <sys:String x:Key="L.Top.CopyProfile">📋 复制配置文件</sys:String>
+    <sys:String x:Key="L.Top.Backup">💾 备份</sys:String>
+    <sys:String x:Key="L.Top.ResetPositions">↺ 重置位置</sys:String>
+    <sys:String x:Key="L.Top.Undo">↶ 撤销</sys:String>
+    <sys:String x:Key="L.Top.Redo">↷ 重做</sys:String>
+    <sys:String x:Key="L.Top.CbMode">👁 色盲模式</sys:String>
+    <sys:String x:Key="L.Top.SearchPlaceholder">🔍 搜索设置 (Ctrl+F)</sys:String>
+
+    <!-- Tooltips -->
+    <sys:String x:Key="L.Tt.CopyProfile">将缩略图布局——或整个配置文件——复制到其他配置文件</sys:String>
+    <sys:String x:Key="L.Tt.Backup">创建带时间戳的配置文件备份</sys:String>
+    <sys:String x:Key="L.Tt.ResetPositions">将所有缩略图恢复到默认位置和大小（当前配置文件）</sys:String>
+    <sys:String x:Key="L.Tt.Undo">撤销上一次布局更改（全部移动 / 全部调整大小 / 重置位置）</sys:String>
+    <sys:String x:Key="L.Tt.Redo">重做上一次撤销的布局更改</sys:String>
+    <sys:String x:Key="L.Tt.CbMode">切换色盲友好调色板</sys:String>
+    <sys:String x:Key="L.Tt.SearchAll">搜索所有设置 (Ctrl+F)</sys:String>
+    <sys:String x:Key="L.Tt.UndoHotkey">可选。避免使用 EVE 使用的按键（例如 Ctrl+Z）。</sys:String>
+    <sys:String x:Key="L.Tt.RedoHotkey">可选。避免使用 EVE 使用的按键。</sys:String>
+    <sys:String x:Key="L.Tt.BroadcastHud">一个显示当前正在传播给客户端的按键的小型屏幕提示条。拖动可重新定位。</sys:String>
+    <sys:String x:Key="L.Tt.AutoSolo">当你切换到某个客户端时，静音其他 EVE 客户端并取消静音活动的那个（Windows 每进程音频）。每客户端的静音/音量也在每个缩略图的右键菜单中。</sys:String>
+    <sys:String x:Key="L.Tt.CycleWhileHeld">开：按住循环热键会以上面的延迟持续循环。关：每次按键精确循环一个客户端。</sys:String>
+    <sys:String x:Key="L.Tt.AboveClients">在 EVE 处于焦点时保持缩略图在 EVE 客户端之上，但允许其他应用（浏览器、Discord）遮盖它们。启用“始终置顶”时忽略此项。</sys:String>
+    <sys:String x:Key="L.Tt.EdgeGutter">边缘吸附相邻缩略图时留出的均匀间隙。</sys:String>
+    <sys:String x:Key="L.Tt.ConfineMonitor">启用后，拖动缩略图会将其保持在起始的显示器上。</sys:String>
+    <sys:String x:Key="L.Tt.PresetCombo">输入名称以保存，或选择已保存的预设以应用/导出。</sys:String>
+    <sys:String x:Key="L.Tt.PresetSave">以框中的名称保存当前墙（覆盖同名项）</sys:String>
+    <sys:String x:Key="L.Tt.PresetRemap">通过将预设的槽位映射到你自己的角色来应用预设——用于共享/跨机器的预设</sys:String>
+    <sys:String x:Key="L.Tt.PresetExport">将命名预设导出为可分享的文件</sys:String>
+    <sys:String x:Key="L.Tt.PresetImport">导入共享的预设文件</sys:String>
+    <sys:String x:Key="L.Tt.Identify">在各屏幕上短暂显示每个显示器的编号（如此处所标）。</sys:String>
+    <sys:String x:Key="L.Tt.EditLabel">编辑标签文字、颜色和大小</sys:String>
+    <sys:String x:Key="L.Tt.StatsMaster">主开关。关 = 不显示任何覆盖层，无论每角色或每指标的设置如何。</sys:String>
+    <sys:String x:Key="L.Tt.AutoDetectEve">自动检测 EVE 设置文件夹</sys:String>
+    <sys:String x:Key="L.Tt.ResetDefault">重置为默认</sys:String>
+    <sys:String x:Key="L.Tt.RescanCrop">重新扫描运行中的 EVE 客户端和已保存的裁剪条目</sys:String>
+
+    <!-- Copy Profile dialog -->
+    <sys:String x:Key="L.Copy.Title">复制配置文件</sys:String>
+    <sys:String x:Key="L.Copy.From">从此复制：</sys:String>
+    <sys:String x:Key="L.Copy.To">复制到：</sys:String>
+    <sys:String x:Key="L.Copy.What">内容：</sys:String>
+    <sys:String x:Key="L.Copy.LayoutOnly">仅缩略图布局</sys:String>
+    <sys:String x:Key="L.Copy.EntireProfile">整个配置文件</sys:String>
+    <sys:String x:Key="L.Copy.EntireNote">布局、显示设置、热键、分组、裁剪和性能设置。</sys:String>
+    <sys:String x:Key="L.Copy.CopyBtn">💾  复制</sys:String>
+
+    <!-- Label Editor dialog -->
+    <sys:String x:Key="L.Lbl.Title">编辑缩略图标签</sys:String>
+    <sys:String x:Key="L.Lbl.LabelText">标签文字（例如 侦察、DPS、后勤）</sys:String>
+    <sys:String x:Key="L.Lbl.TextColor">文字颜色</sys:String>
+    <sys:String x:Key="L.Lbl.Default">默认</sys:String>
+    <sys:String x:Key="L.Lbl.DefaultTt">使用全局缩略图文字颜色</sys:String>
+    <sys:String x:Key="L.Lbl.TextSize">文字大小（磅）——留空或填 0 使用默认</sys:String>
+    <sys:String x:Key="L.Lbl.Remove">移除标签</sys:String>
+    <sys:String x:Key="L.Lbl.RemoveTt">清除该角色的标签文字和任何按标签的样式</sys:String>
+
+    <!-- Update dialog -->
+    <sys:String x:Key="L.Upd.Title">有可用更新 — EVE MultiPreview</sys:String>
+    <sys:String x:Key="L.Upd.Header">⬆ 有可用更新</sys:String>
+    <sys:String x:Key="L.Upd.LoadingNotes">正在加载发布说明...</sys:String>
+    <sys:String x:Key="L.Upd.Downloading">正在下载...</sys:String>
+    <sys:String x:Key="L.Upd.ReleasePage">📋 发布页面</sys:String>
+    <sys:String x:Key="L.Upd.Later">稍后</sys:String>
+    <sys:String x:Key="L.Upd.UpdateNow">⬆ 立即更新</sys:String>
+
+    <!-- Character Picker dialog -->
+    <sys:String x:Key="L.Pick.Title">选择角色</sys:String>
+    <sys:String x:Key="L.Pick.SearchHint">搜索或输入名称...</sys:String>
+    <sys:String x:Key="L.Pick.ManualHint">或在上面的搜索框中输入新角色名称。</sys:String>
+
+    <!-- Quick Switch wheel -->
+    <sys:String x:Key="L.Qs.Title">快速切换</sys:String>
+    <sys:String x:Key="L.Qs.SwitchChar">切换角色</sys:String>
+    <sys:String x:Key="L.Qs.EditTt">编辑卡片顺序</sys:String>
+
+    <!-- Setup Wizard -->
+    <sys:String x:Key="L.Wiz.Title">EVE MultiPreview — 设置向导</sys:String>
+    <sys:String x:Key="L.Wiz.WelcomeTitle">欢迎使用 EVE MultiPreview</sys:String>
+    <sys:String x:Key="L.Wiz.WelcomeSub">你的多角色预览工具的 C# 版。</sys:String>
+    <sys:String x:Key="L.Wiz.Feat1">✅ 所有 EVE 客户端的 DWM 缩略图预览</sys:String>
+    <sys:String x:Key="L.Wiz.Feat2">✅ 每角色热键和分组循环</sys:String>
+    <sys:String x:Key="L.Wiz.Feat3">✅ 攻击检测，配合闪烁、声音和弹窗警报</sys:String>
+    <sys:String x:Key="L.Wiz.Feat4">✅ 实时 DPS、后勤、采矿和打怪数据覆盖层</sys:String>
+    <sys:String x:Key="L.Wiz.Feat5">✅ 配置文件管理，支持导入/导出</sys:String>
+    <sys:String x:Key="L.Wiz.Feat6">✅ 次要画中画缩略图</sys:String>
+    <sys:String x:Key="L.Wiz.WelcomeFooter">让我们在一分钟内完成设置！</sys:String>
+    <sys:String x:Key="L.Wiz.SizeTitle">选择缩略图大小</sys:String>
+    <sys:String x:Key="L.Wiz.SizeSub">为你的配置选择最合适的预设。稍后可以更改。</sys:String>
+    <sys:String x:Key="L.Wiz.SizeDual">双显示器</sys:String>
+    <sys:String x:Key="L.Wiz.SizeMulti">多开</sys:String>
+    <sys:String x:Key="L.Wiz.SizeFleet">舰队</sys:String>
+    <sys:String x:Key="L.Wiz.HkTitle">设置热键</sys:String>
+    <sys:String x:Key="L.Wiz.HkSub">可选：分配热键以在角色之间切换。点击 ⌨ 进行捕获。</sys:String>
+    <sys:String x:Key="L.Wiz.CycleSub">用热键在登录界面循环切换角色。</sys:String>
+    <sys:String x:Key="L.Wiz.DoneTitle">全部设置完成！</sys:String>
+    <sys:String x:Key="L.Wiz.DoneNote">你可以稍后从托盘菜单 → 设置 中更改任何这些设置。</sys:String>
+    <sys:String x:Key="L.Wiz.Back">← 返回</sys:String>
+    <sys:String x:Key="L.Wiz.Skip">跳过</sys:String>
+    <sys:String x:Key="L.Wiz.Next">下一步 →</sys:String>
+
+    <!-- Character Stat Editor dialog -->
+    <sys:String x:Key="L.SE.Title">数据覆盖</sys:String>
+    <sys:String x:Key="L.SE.Intro">每行是一个指标。☐ 强制关闭 · ☑ 强制开启 · ▣ 继承全局。使用分类按钮批量设置该分类中的所有指标。</sys:String>
+    <sys:String x:Key="L.SE.AllOn">全部开启</sys:String>
+    <sys:String x:Key="L.SE.AllOff">全部关闭</sys:String>
+    <sys:String x:Key="L.SE.Inherit">继承</sys:String>
+    <sys:String x:Key="L.SE.IncludeNpc">在 DPS 中包含 NPC 伤害</sys:String>
+    <sys:String x:Key="L.SE.ResetAll">全部重置为继承</sys:String>
+
+    <!-- Misc window titles / overlays -->
+    <sys:String x:Key="L.SettingsTitle">EVE MultiPreview — 设置</sys:String>
+    <sys:String x:Key="L.CropPick.Title">选择裁剪区域</sys:String>
+    <sys:String x:Key="L.CropPick.Hint">拖动以选择裁剪区域 — 按 Esc 取消</sys:String>
+
+    <!-- Shared / common terms -->
+    <sys:String x:Key="L.Common.Px">像素</sys:String>
+    <sys:String x:Key="L.Common.Seconds">秒</sys:String>
+    <sys:String x:Key="L.Common.Style">样式：</sys:String>
+    <sys:String x:Key="L.Common.Ms">毫秒</sys:String>
+    <sys:String x:Key="L.Common.Size">大小：</sys:String>
+    <sys:String x:Key="L.Common.Character">角色</sys:String>
+    <sys:String x:Key="L.Common.AllAlreadyInList">所有活动客户端都已在此列表中。</sys:String>
+    <sys:String x:Key="L.Common.Label">标签</sys:String>
+    <sys:String x:Key="L.Common.Edit">✏ 编辑</sys:String>
+    <sys:String x:Key="L.Common.Clear">🗑 清除</sys:String>
+    <sys:String x:Key="L.Common.X">x：</sys:String>
+    <sys:String x:Key="L.Common.Y">y：</sys:String>
+    <sys:String x:Key="L.Common.W">宽：</sys:String>
+    <sys:String x:Key="L.Common.H">高：</sys:String>
+    <sys:String x:Key="L.Common.Multiplier">倍</sys:String>
+    <sys:String x:Key="L.Common.Refresh">↻ 刷新</sys:String>
+    <sys:String x:Key="L.Common.Save">💾 保存</sys:String>
+    <sys:String x:Key="L.Common.Apply">✅ 应用</sys:String>
+    <sys:String x:Key="L.Common.Delete">🗑 删除</sys:String>
+    <sys:String x:Key="L.Common.Export">⬆ 导出…</sys:String>
+    <sys:String x:Key="L.Common.Import">⬇ 导入…</sys:String>
+    <sys:String x:Key="L.Common.Add">➕ 添加</sys:String>
+    <sys:String x:Key="L.Common.EditItem">✏️ 编辑</sys:String>
+    <sys:String x:Key="L.Common.DeleteItem">❌ 删除</sys:String>
+    <sys:String x:Key="L.Common.Hotkey">热键</sys:String>
+    <sys:String x:Key="L.Common.AddCharacter">➕ 添加角色</sys:String>
+    <sys:String x:Key="L.Common.New">新建</sys:String>
+    <sys:String x:Key="L.Common.DeleteWord">删除</sys:String>
+    <sys:String x:Key="L.Common.Enabled">已启用</sys:String>
+    <sys:String x:Key="L.Common.Opacity">不透明度</sys:String>
+    <sys:String x:Key="L.Common.OpacityColon">不透明度：</sys:String>
+    <sys:String x:Key="L.Common.Remove">❌ 移除</sys:String>
+    <sys:String x:Key="L.Common.XCap">X：</sys:String>
+    <sys:String x:Key="L.Common.YCap">Y：</sys:String>
+    <sys:String x:Key="L.Common.CharacterName">角色名称</sys:String>
+    <sys:String x:Key="L.Common.RefreshBtn">🔄 刷新</sys:String>
+    <sys:String x:Key="L.Common.EditWord">编辑</sys:String>
+    <sys:String x:Key="L.Common.Days">天</sys:String>
+    <sys:String x:Key="L.Common.Browse">📂 浏览</sys:String>
+    <sys:String x:Key="L.Common.Id">ID</sys:String>
+    <sys:String x:Key="L.Common.Ready">就绪。</sys:String>
+    <sys:String x:Key="L.Common.Ok">确定</sys:String>
+    <sys:String x:Key="L.Common.Cancel">取消</sys:String>
+    <sys:String x:Key="L.Common.SaveWord">保存</sys:String>
+
+    <!-- Contextual Help sidebar (Settings window wiki panels) -->
+    <sys:String x:Key="L.Wiki.General">常规设置&#x0A;═══════════════════════════&#x0A;&#x0A;热键生效范围&#x0A;────────────────────────────&#x0A;• 全局 — 即使当&#x0A;  EVE 不是活动窗口时也生效。&#x0A;• 仅 EVE 窗口活动时 — 热键&#x0A;  仅在 EVE 客户端获得焦点时触发。&#x0A;&#x0A;暂停热键&#x0A;────────────────────────────&#x0A;按下此组合键可临时&#x0A;禁用所有 MultiPreview 热键。&#x0A;再次按下即可重新启用。&#x0A;&#x0A;穿透点击切换&#x0A;────────────────────────────&#x0A;使缩略图忽略鼠标点击，&#x0A;从而不会抢占焦点。&#x0A;&#x0A;隐藏/显示热键&#x0A;────────────────────────────&#x0A;• 隐藏/显示全部 — 同时切换主&#x0A;  缩略图和 PiP 缩略图。&#x0A;• 隐藏/显示主缩略图 — 仅主缩略图。&#x0A;• 隐藏/显示 PiP — 仅 PiP 缩略图。&#x0A;&#x0A;配置文件循环&#x0A;────────────────────────────&#x0A;在配置文件间向前/向后循环。&#x0A;循环回绕（最后一个 → 第一个）。&#x0A;&#x0A;锁定位置&#x0A;────────────────────────────&#x0A;防止缩略图被&#x0A;意外拖动。&#x0A;&#x0A;单独调整缩略图大小&#x0A;────────────────────────────&#x0A;开启时，每个缩略图可&#x0A;独立调整大小。关闭时，调整一个&#x0A;会同时调整所有缩略图。&#x0A;&#x0A;快速切换热键&#x0A;────────────────────────────&#x0A;立即切换到上一个活动的&#x0A;EVE 客户端 — 便于在两个角色&#x0A;之间快速切换。&#x0A;&#x0A;会话计时器&#x0A;显示每个 EVE 客户端已&#x0A;在缩略图叠加层上运行的时长。&#x0A;&#x0A;最小化延迟&#x0A;────────────────────────────&#x0A;非活动客户端被最小化前的&#x0A;延迟（ms）。防止快速切换时&#x0A;意外最小化。&#x0A;&#x0A;循环延迟&#x0A;────────────────────────────&#x0A;按住循环热键（鼠标按键&#x0A;或按键）时，每次激活之间&#x0A;的时间。越小 = 重复越快。默认&#x0A;100 ms 对多数配置感觉自然；&#x0A;调低可获得更灵敏的循环。&#x0A;&#x0A;UI 缩放&#x0A;────────────────────────────&#x0A;调整设置界面&#x0A;窗口的字体大小。拖动滑块或&#x0A;点击轨道即可更改大小。</sys:String>
+
+    <sys:String x:Key="L.Wiki.Thumbnails">缩略图外观&#x0A;═══════════════════════════&#x0A;&#x0A;不透明度&#x0A;────────────────────────────&#x0A;控制缩略图的透明程度。&#x0A;0% = 不可见，100% = 完全不透明。&#x0A;&#x0A;悬停时提升至 100% 不透明度&#x0A;────────────────────────────&#x0A;开启时，悬停缩略图会使其&#x0A;变为完全不透明，移开后恢复&#x0A;已保存的不透明度。适合把&#x0A;缩略图保持暗淡以免碍事，&#x0A;但在真正查看某个时仍希望&#x0A;完全清晰。&#x0A;&#x0A;循环排除徽章&#x0A;────────────────────────────&#x0A;红色 ✕ 徽章的位置，用于标记&#x0A;被排除出循环组的角色&#x0A;（Shift+点击缩略图切换）。可选&#x0A;九个锚点之一，使其避开&#x0A;角色名称和其他&#x0A;文本叠加层。&#x0A;&#x0A;始终置顶&#x0A;────────────────────────────&#x0A;使缩略图位于所有其他窗口之上。&#x0A;多数多开场景建议开启。&#x0A;&#x0A;Alt-Tab 时隐藏&#x0A;────────────────────────────&#x0A;当没有 EVE 窗口活动时&#x0A;隐藏缩略图。切回时重新出现。&#x0A;&#x0A;隐藏活动缩略图&#x0A;────────────────────────────&#x0A;隐藏当前获得焦点的&#x0A;EVE 客户端的缩略图。&#x0A;&#x0A;星系名称&#x0A;────────────────────────────&#x0A;在每个缩略图上显示当前所在&#x0A;星系。读取自 EVE 聊天日志。&#x0A;&#x0A;进程状态&#x0A;────────────────────────────&#x0A;在每个缩略图上显示 CPU/内存信息。&#x0A;便于监控客户端性能。&#x0A;在下方字段调整文本大小。&#x0A;&#x0A;注释&#x0A;────────────────────────────&#x0A;为每个角色的缩略图添加自定义&#x0A;角色标签（Scout、DPS、Logi）。点击&#x0A;添加/编辑以设置标签，清除以移除。&#x0A;&#x0A;高级 — 文本与叠加&#x0A;════════════════════════&#x0A;&#x0A;• 文本叠加 — 缩略图上的角色名&#x0A;• 文本颜色/大小/字体 — 设置样式&#x0A;• 文本边距 — 相对左上角的偏移&#x0A;• 高亮边框 — 活动客户端缩略图&#x0A;  上的彩色边框&#x0A;• 非活动边框 — 所有其他缩略图的边框&#x0A;• 背景颜色 — 实时预览后面的&#x0A;  填充颜色</sys:String>
+
+    <sys:String x:Key="L.Wiki.Layout">缩略图布局&#x0A;═══════════════════════════&#x0A;&#x0A;默认位置&#x0A;────────────────────────────&#x0A;新缩略图在屏幕上出现的位置&#x0A;(x, y) 及其默认大小 (w, h)。&#x0A;已保存的现有位置不会改变。&#x0A;&#x0A;最小尺寸&#x0A;────────────────────────────&#x0A;允许的最小缩略图尺寸。&#x0A;&#x0A;缩略图吸附&#x0A;────────────────────────────&#x0A;开启时，缩略图在被拖到彼此&#x0A;附近或屏幕边缘附近时&#x0A;会相互吸附。&#x0A;&#x0A;悬停缩放&#x0A;────────────────────────────&#x0A;开启时，悬停缩略图时会放大。&#x0A;设置缩放系数&#x0A;（例如 1.5 = 正常大小的 150%）。&#x0A;&#x0A;首选显示器&#x0A;────────────────────────────&#x0A;将新缩略图放置在哪个显示器上。&#x0A;已保存的现有位置不会改变。&#x0A;&#x0A;提示：在设置窗口打开时拖动&#x0A;缩略图，然后用 ⟳ 应用来保存位置。</sys:String>
+
+    <sys:String x:Key="L.Wiki.Hotkeys">角色热键&#x0A;═══════════════════════════&#x0A;&#x0A;每角色热键&#x0A;────────────────────────────&#x0A;为每个 EVE 角色分配一个热键。&#x0A;按下它会将该角色的&#x0A;客户端切换到前台。&#x0A;&#x0A;同一 EVE 账号上的角色&#x0A;可以共用同一个热键。&#x0A;&#x0A;编辑热键&#x0A;────────────────────────────&#x0A;选择一个角色并点击编辑。&#x0A;直接输入组合键，或点击&#x0A;⌨ 捕获并按下你的组合键&#x0A;或鼠标按键（XButton1/2、MButton）。&#x0A;&#x0A;热键格式&#x0A;────────────────────────────&#x0A;使用 AHK v2 按键名称：&#x0A;• F1、F2、... F12&#x0A;• ^a = Ctrl+A&#x0A;• !a = Alt+A&#x0A;• +a = Shift+A&#x0A;• #a = Win+A&#x0A;• ^+F1 = Ctrl+Shift+F1&#x0A;• XButton1、XButton2、MButton&#x0A;&#x0A;冲突检测&#x0A;────────────────────────────&#x0A;如果热键与系统热键&#x0A;（常规选项卡）冲突，将被阻止。&#x0A;角色热键之间可以重叠。&#x0A;&#x0A;热键组&#x0A;════════════════════════&#x0A;&#x0A;分组循环&#x0A;────────────────────────────&#x0A;创建命名的角色分组，并为其&#x0A;分配 向前/向后 热键，只在&#x0A;该子集内循环切换。&#x0A;&#x0A;例如：一个包含你战斗角色的&#x0A;“PVP Fleet”组 — 一键即可逐个&#x0A;切换，而不涉及其他小号。&#x0A;&#x0A;管理分组&#x0A;────────────────────────────&#x0A;• 从角色列表下方的下拉框&#x0A;  选择或创建分组&#x0A;• 用 ➕ 添加角色 来添加角色&#x0A;• 分配 向前/向后 热键&#x0A;• 删除会移除整个分组</sys:String>
+
+    <sys:String x:Key="L.Wiki.Colors">自定义颜色&#x0A;═══════════════════════════&#x0A;&#x0A;每角色颜色&#x0A;────────────────────────────&#x0A;为每个角色分配独特的颜色&#x0A;以便快速视觉识别。&#x0A;&#x0A;每个角色有三种颜色：&#x0A;• 活动边框 — 获得焦点时&#x0A;• 文本颜色 — 名称叠加&#x0A;• 非活动边框 — 未获得焦点时&#x0A;&#x0A;如何设置颜色&#x0A;────────────────────────────&#x0A;1. 启用自定义颜色（切换为开）&#x0A;2. 点击添加，搜索一个角色&#x0A;3. 依次选择活动边框、文本和&#x0A;   非活动边框颜色&#x0A;4. 之后可用编辑/删除进行修改&#x0A;&#x0A;十六进制颜色格式&#x0A;────────────────────────────&#x0A;使用 6 位十六进制：FF0000 = 红，&#x0A;00FF00 = 绿，0000FF = 蓝。&#x0A;点击 🎨 打开取色器。</sys:String>
+
+    <sys:String x:Key="L.Wiki.Groups">分组&#x0A;═══════════════════════════&#x0A;&#x0A;缩略图分组&#x0A;────────────────────────────&#x0A;将角色分组并共用一种&#x0A;边框颜色以便快速视觉识别。&#x0A;启用“显示分组边框”以显示。&#x0A;&#x0A;创建分组&#x0A;────────────────────────────&#x0A;1. 输入分组名称&#x0A;2. 选择边框颜色&#x0A;3. 添加角色&#x0A;4. 点击保存分组&#x0A;&#x0A;循环热键组&#x0A;────────────────────────────&#x0A;创建带循环热键的命名分组&#x0A;以便用单个按键在一部分&#x0A;角色间快速切换。&#x0A;&#x0A;例如：包含你战斗角色的&#x0A;“PVP Fleet”组 — 仅用 向前/向后&#x0A;循环切换其中的角色。&#x0A;&#x0A;添加角色&#x0A;────────────────────────────&#x0A;点击“➕ 添加角色”以边输入&#x0A;边筛选搜索所有已知角色。</sys:String>
+
+    <sys:String x:Key="L.Wiki.Alerts">警报系统&#x0A;═══════════════════════════&#x0A;&#x0A;警报如何工作&#x0A;────────────────────────────&#x0A;MultiPreview 实时监控 EVE&#x0A;聊天日志和游戏日志。当它&#x0A;检测到战斗事件时，会触发&#x0A;视觉和音频警报。&#x0A;&#x0A;战斗警报&#x0A;────────────────────────────&#x0A;• 遭受攻击 — 正在承受伤害&#x0A;• 跃迁扰断 — 检测到缠斗&#x0A;• 解除隐形 — 隐形被打断&#x0A;• 舰队邀请 — 收到舰队邀请&#x0A;• 会话请求 — 收到会话请求&#x0A;• 星系变更 — 跳跃了星系&#x0A;&#x0A;采矿警报&#x0A;────────────────────────────&#x0A;• 货舱已满 — 货舱/矿石舱已满&#x0A;• 已采空 — 小行星耗尽&#x0A;• 晶体破损 — 晶体碎裂&#x0A;• 采矿器停止 — 模块已停用&#x0A;&#x0A;严重级别&#x0A;────────────────────────────&#x0A;🔴 严重 — 遭受攻击、扰断、&#x0A;   解除隐形&#x0A;🟠 警告 — 舰队邀请、货舱已满、&#x0A;   晶体破损&#x0A;🔵 信息 — 会话、星系变更、&#x0A;   已采空、采矿器停止&#x0A;&#x0A;每个级别都有各自的边框颜色、&#x0A;冷却计时、托盘通知开关，&#x0A;以及脉冲速度滑块（100 ms = 非常&#x0A;快，2000 ms = 几乎不脉冲），使警报&#x0A;可在醒目与干扰之间权衡调节。&#x0A;&#x0A;警报脉冲不透明度&#x0A;────────────────────────────&#x0A;主滑块，用于淡化所有事件的&#x0A;警报脉冲边框。100% = 完全&#x0A;强度，越低越柔和。适合&#x0A;大型多开阵列中多个警报&#x0A;同时闪烁令人眼花的情况。&#x0A;&#x0A;缩略图警报徽章&#x0A;────────────────────────────&#x0A;全局开启时，当某角色触发警报，&#x0A;其缩略图上会出现一个红色数字&#x0A;徽章（该客户端一被聚焦即清除）。&#x0A;每个警报事件行也有各自的&#x0A;“徽章”复选框，因此你可以让某&#x0A;事件仍触发弹窗/声音/脉冲，&#x0A;而只屏蔽它的徽章 — 适合&#x0A;星系变更这类频繁的事件。&#x0A;&#x0A;每警报自定义颜色&#x0A;────────────────────────────&#x0A;每个警报行都有一个彩色 ■ 方块&#x0A;色样。点击它可为该警报选择&#x0A;自定义闪烁颜色。&#x0A;&#x0A;颜色优先级顺序：&#x0A;1. 每警报颜色（■ 色样）&#x0A;2. 严重级别颜色&#x0A;3. 默认红色回退&#x0A;&#x0A;清除每警报颜色（重新选取&#x0A;该严重级别颜色）会恢复&#x0A;级别默认值。&#x0A;&#x0A;PVE 模式&#x0A;────────────────────────────&#x0A;忽略 NPC/刷怪伤害，使你只&#x0A;收到来自玩家攻击的警报。&#x0A;&#x0A;日志目录&#x0A;────────────────────────────&#x0A;设置你的 EVE 聊天日志和游戏&#x0A;日志文件夹的路径。默认路径适用于&#x0A;标准 EVE 安装。&#x0A;&#x0A;警报中枢&#x0A;────────────────────────────&#x0A;一个漂浮在屏幕上的六边形&#x0A;小部件。可拖动到任意位置。&#x0A;右键点击中枢可关闭所有&#x0A;活动弹窗。&#x0A;&#x0A;弹窗方向&#x0A;────────────────────────────&#x0A;左键点击中枢可打开&#x0A;方向选择器。选择弹窗通知&#x0A;的堆叠方向：&#x0A;• ↑ 上  • ↓ 下  • ← 左  • → 右&#x0A;所选箭头会高亮显示。&#x0A;&#x0A;通知徽章&#x0A;────────────────────────────&#x0A;一个红色圆形徽章会出现在&#x0A;六边形右上角，显示活动&#x0A;弹窗的数量（1-9+）。&#x0A;&#x0A;• 点击徽章可关闭所有弹窗&#x0A;• 有新弹窗到达时徽章会&#x0A;  白/红脉冲（闪烁 4 次）&#x0A;• 当所有弹窗过期或被关闭时&#x0A;  自动隐藏&#x0A;&#x0A;焦点感知可见性&#x0A;────────────────────────────&#x0A;中枢、徽章、弹窗和选择器&#x0A;仅在 EVE 为前台应用时&#x0A;保持置顶。当你切换到&#x0A;其他应用（浏览器、Discord）时，&#x0A;它们会退到后面 — 不再杂乱。&#x0A;&#x0A;弹窗持续时间&#x0A;────────────────────────────&#x0A;设置每个弹窗在屏幕上停留&#x0A;的时长（1-120 秒）。默认：6 秒。&#x0A;&#x0A;重置位置&#x0A;────────────────────────────&#x0A;将中枢移回屏幕右下角的&#x0A;默认位置。&#x0A;&#x0A;受击指示器&#x0A;────────────────────────────&#x0A;启用后，当某角色受到伤害时&#x0A;其缩略图会闪烁。超时&#x0A;控制闪烁在最后一次命中后&#x0A;持续多久。&#x0A;&#x0A;未登录指示器&#x0A;────────────────────────────&#x0A;针对处于登录界面的角色的&#x0A;视觉指示器。模式：&#x0A;• 无 — 无指示器&#x0A;• 文本 — 显示“未登录”&#x0A;• 边框 — 彩色边框&#x0A;• 变暗 — 降低缩略图不透明度&#x0A;使用十六进制字段 + 🎨 取色器&#x0A;设置指示器颜色。&#x0A;&#x0A;色盲模式&#x0A;────────────────────────────&#x0A;通过 👁 CB Mode 按钮切换。&#x0A;将所有严重级别、闪烁、高亮&#x0A;和叠加颜色替换为 Wong 的通用&#x0A;安全配色（朱红/黄/蓝）。&#x0A;影响所有使用颜色的选项卡。</sys:String>
+
+    <sys:String x:Key="L.Wiki.Sounds">警报声音&#x0A;═══════════════════════════&#x0A;&#x0A;每事件声音&#x0A;────────────────────────────&#x0A;为每个警报事件分配自定义&#x0A;WAV 或 MP3 文件。&#x0A;&#x0A;主音量&#x0A;────────────────────────────&#x0A;控制所有警报声音的&#x0A;播放音量（0-100）。&#x0A;&#x0A;试听按钮&#x0A;────────────────────────────&#x0A;点击任意声音旁的 ▶ 进行测试。&#x0A;点击 ✕ 可清除已分配的文件。&#x0A;&#x0A;每声音冷却&#x0A;────────────────────────────&#x0A;每个声音都有各自的冷却（秒），&#x0A;显示为右侧的数字字段。&#x0A;防止同一警报在战斗中&#x0A;过快地重复播放。</sys:String>
+
+    <sys:String x:Key="L.Wiki.Visibility">可见性&#x0A;═══════════════════════════&#x0A;&#x0A;缩略图可见性&#x0A;────────────────────────────&#x0A;勾选/取消勾选角色以显示或&#x0A;隐藏其主缩略图。&#x0A;&#x0A;副缩略图（PiP）&#x0A;────────────────────────────&#x0A;为任意角色添加第二个独立的&#x0A;实时预览。PiP 缩略图具有：&#x0A;• 独立的大小和位置&#x0A;• 可调节的不透明度&#x0A;• 无边框或警报效果&#x0A;• 可按角色启用/禁用&#x0A;&#x0A;刷新按钮&#x0A;────────────────────────────&#x0A;当角色在设置窗口打开时&#x0A;登录或退出时，点击 🔄 刷新&#x0A;以更新列表。</sys:String>
+
+    <sys:String x:Key="L.Wiki.Client">客户端设置&#x0A;═══════════════════════════&#x0A;&#x0A;角色选择界面循环&#x0A;────────────────────────────&#x0A;用热键在登录界面&#x0A;循环切换角色。&#x0A;&#x0A;最小化非活动客户端&#x0A;────────────────────────────&#x0A;自动最小化失去焦点的&#x0A;EVE 客户端。&#x0A;&#x0A;跟踪客户端位置&#x0A;────────────────────────────&#x0A;保存并恢复每个 EVE 客户端&#x0A;窗口的位置。&#x0A;&#x0A;始终最大化&#x0A;────────────────────────────&#x0A;当每个 EVE 客户端获得焦点时&#x0A;自动将其最大化。适合跨显示器&#x0A;运行窗口化全屏的情况。&#x0A;&#x0A;不最小化列表&#x0A;────────────────────────────&#x0A;即使“最小化非活动”开启，&#x0A;此列表中的角色也不会被&#x0A;自动最小化。用于需要保持&#x0A;可见的角色（例如侦察，&#x0A;挂单的市场小号）。&#x0A;&#x0A;客户端位置&#x0A;────────────────────────────&#x0A;关闭 / 居中 / 自定义。在检测到客户端时以及&#x0A;每次切换到该客户端时，都将其放到固定位置，&#x0A;使固定窗口客户端保持原位，而不会在超宽或大&#x0A;尺寸显示器上从左上角打开。启用“记录并恢复&#x0A;客户端窗口位置”时将忽略此设置。&#x0A;&#x0A;让当前客户端遮盖任务栏&#x0A;────────────────────────────&#x0A;适用于与屏幕等高的固定窗口客户端。当前所在&#x0A;的客户端会显示在 Windows 任务栏之上并占用&#x0A;整个高度；切换到其他窗口后立即退回任务栏&#x0A;下方，因此任务栏和开始菜单仍可正常使用。&#x0A;可与“客户端位置 = 居中”搭配，形成一个大的&#x0A;中央窗口，四周环绕缩略图。</sys:String>
+
+    <sys:String x:Key="L.Wiki.FPSLimiter">FPS 限制器 (RTSS)&#x0A;═══════════════════════════&#x0A;&#x0A;工作原理&#x0A;────────────────────────────&#x0A;1. 安装并运行 RTSS（随&#x0A;   MSI Afterburner 附带）&#x0A;2. 在上方设置期望的后台 FPS&#x0A;3. 点击“应用 RTSS 配置”&#x0A;4. RTSS 会自动限制&#x0A;   后台 EVE 客户端&#x0A;&#x0A;RTSS 必须在你启动 EVE 之前&#x0A;运行。如果 EVE 已经打开，请&#x0A;重启你的客户端。&#x0A;&#x0A;应用配置&#x0A;────────────────────────────&#x0A;尝试直接写入配置。&#x0A;如果文件夹受保护，会有一次性&#x0A;管理员提示仅复制该文件。&#x0A;应用本身从不需要管理员权限。&#x0A;&#x0A;手动安装&#x0A;────────────────────────────&#x0A;如果你完全不想要管理员提示：&#x0A;1. 点击“复制配置到剪贴板”&#x0A;2. 用“📁”打开目标文件夹&#x0A;3. 粘贴并另存为“exefile.exe.cfg”&#x0A;4. 重启 RTSS 以加载该配置。&#x0A;&#x0A;空闲 FPS 限制&#x0A;────────────────────────────&#x0A;当 EVE 客户端失去焦点时，RTSS&#x0A;会将其帧率降到此值。&#x0A;建议：空闲客户端 5-15 FPS。</sys:String>
+
+    <sys:String x:Key="L.Wiki.StatsOverlay">状态叠加层&#x0A;═══════════════════════════&#x0A;&#x0A;功能说明&#x0A;────────────────────────────&#x0A;在每个角色缩略图附近以浮动&#x0A;叠加层的形式显示实时战斗和&#x0A;活动统计。&#x0A;&#x0A;统计模式&#x0A;────────────────────────────&#x0A;⚔ DPS — 每秒造成和承受的&#x0A;  伤害，以及进出总伤害。&#x0A;⊕ Logi — 每秒装甲/护盾/电容&#x0A;  维修量，及进出总量。&#x0A;⛏ 采矿 — 每周期和每小时开采的&#x0A;  矿石、气云和冰矿。&#x0A;◎ 刷怪 — 每跳、每小时和每次&#x0A;  会话的 ISK（赏金追踪）。&#x0A;• NPC — 将 NPC 伤害计入 DPS。&#x0A;&#x0A;通过勾选上方角色列表中的复选框&#x0A;按角色启用。&#x0A;&#x0A;统计记录&#x0A;────────────────────────────&#x0A;将统计保存到 CSV 文件以便&#x0A;后续分析。设置日志文件夹并启用&#x0A;记录。自动删除会在设定的天数后&#x0A;清理旧文件。&#x0A;&#x0A;叠加层不透明度与字号&#x0A;────────────────────────────&#x0A;按你的偏好调整状态叠加层的&#x0A;透明度和可读性。&#x0A;&#x0A;颜色&#x0A;────────────────────────────&#x0A;• 背景颜色 — 叠加面板填充&#x0A;• 文本颜色 — 统计数字和标签&#x0A;用十六进制值或 🎨 取色器设置。</sys:String>
+
+    <sys:String x:Key="L.Wiki.EVEManager">EVE 管理器&#x0A;═══════════════════════════&#x0A;&#x0A;将 EVE 设置文件从一个&#x0A;配置文件夹复制到另一个。&#x0A;&#x0A;配置文件&#x0A;────────────────────────────&#x0A;EVE 将设置存储在你的 EVE&#x0A;AppData 目录中名为 settings_*&#x0A;的文件夹里。每个文件夹&#x0A;保存你角色的 .dat 文件。&#x0A;&#x0A;使用方法&#x0A;────────────────────────────&#x0A;1. 选择一个源配置（左侧）&#x0A;2. 勾选目标配置（右侧）&#x0A;3. 点击 复制 → 已勾选目标&#x0A;&#x0A;备份&#x0A;────────────────────────────&#x0A;每次复制前，目标都会自动&#x0A;备份到：&#x0A;AppData\Local\CCP\EVE\EVEMPBackups&#x0A;&#x0A;⚠ 复制前请关闭 EVE 客户端&#x0A;以避免设置损坏。&#x0A;&#x0A;角色名称&#x0A;────────────────────────────&#x0A;名称读取自你的 EVE 聊天&#x0A;日志 — 即 EVE 写入&#x0A;Documents\EVE\logs\Chatlogs\ 的日志。&#x0A;&#x0A;如果你在 常规 → 日志监控 中&#x0A;设置了自定义日志路径，会&#x0A;优先检查该路径。&#x0A;&#x0A;启用（下方的）ESI 按钮以&#x0A;查找尚未在你聊天日志中&#x0A;找到的角色名称。&#x0A;ESI 查询是公开的 — 无需登录。&#x0A;60 秒冷却可防止&#x0A;意外过度使用 ESI。&#x0A;结果会在本次会话中缓存。&#x0A;&#x0A;复制模式&#x0A;────────────────────────────&#x0A;• 配置复制 — 将一个 settings_*&#x0A;  文件夹的所有文件复制到另一个。&#x0A;  适合克隆整套配置。&#x0A;• 角色复制 — 在配置之间复制&#x0A;  单个角色的 .dat 文件。&#x0A;  适合同步单个角色。&#x0A;用顶部的选项卡切换模式。&#x0A;&#x0A;自动检测&#x0A;────────────────────────────&#x0A;点击 🔍 自动检测，在&#x0A;%LOCALAPPDATA%\CCP\EVE 中自动&#x0A;找到你的 EVE 设置文件夹。</sys:String>
+
+    <sys:String x:Key="L.Wiki.Performance">性能与亲和性&#x0A;═══════════════════════════&#x0A;&#x0A;CPU 优先级管理&#x0A;────────────────────────────&#x0A;自动将后台 EVE 客户端降到&#x0A;“空闲”优先级，使你的活动&#x0A;窗口永不卡顿。&#x0A;取消勾选主开关会一次性将每个&#x0A;被跟踪的客户端恢复到正常优先级&#x0A;和全核亲和性。&#x0A;&#x0A;E 核自动均衡&#x0A;────────────────────────────&#x0A;将非活动 EVE 客户端调度到&#x0A;系统处理器的下半部分&#x0A;（你的 E 核或第二个 CCD），使&#x0A;P 核完全专用于你的&#x0A;活动客户端。&#x0A;&#x0A;每角色覆盖&#x0A;────────────────────────────&#x0A;当角色失去焦点时，将其严格&#x0A;绑定到单个 CPU 核心。这会&#x0A;完全覆盖自动均衡器。&#x0A;&#x0A;缩略图 GPU 优化&#x0A;════════════════════════&#x0A;&#x0A;静态缩略图（更低 GPU）&#x0A;────────────────────────────&#x0A;用大约每秒刷新一次的快照&#x0A;替换实时 DWM 合成预览。&#x0A;运行多个客户端时可大幅节省&#x0A;GPU，代价是画面卡顿 —&#x0A;舰船移动按快照节奏更新，&#x0A;而非流畅更新。&#x0A;最适合偶尔瞥一眼缩略图&#x0A;而非持续盯着看的&#x0A;舰队场景。&#x0A;&#x0A;后台时暂停缩略图&#x0A;────────────────────────────&#x0A;每当 EVE 和 MultiPreview 都不是&#x0A;前台进程时，将每个缩略图&#x0A;冻结在其最后一帧。&#x0A;当 EVE 或应用回到前台的&#x0A;一刻恢复实时合成。活跃游戏时&#x0A;无感；避免 GPU 为你在其他应用中&#x0A;看不到的窗口缩略图付出开销。&#x0A;在 alt-tab 返回时会增加&#x0A;不到一秒的唤醒延迟。</sys:String>
+
+    <sys:String x:Key="L.Wiki.About">关于&#x0A;═══════════════════════════&#x0A;&#x0A;EVE MultiPreview&#x0A;C# / .NET 8 WPF 版&#x0A;&#x0A;关于面板上显示的版本&#x0A;与你运行的构建一致。&#x0A;&#x0A;最初用 AutoHotkey v2 编写。&#x0A;移植到 C# 以获得更好的性能、&#x0A;原生 DWM 缩略图支持，以及&#x0A;现代 UI 能力。&#x0A;&#x0A;提交 bug、建议功能或阅读&#x0A;发布说明：&#x0A;github.com/CJKondur/EVE-MultiPreview</sys:String>
+
+    <sys:String x:Key="L.Wiki.Debug">调试日志&#x0A;═══════════════════════════&#x0A;&#x0A;用于排查输入问题、窗口检测&#x0A;和逻辑流程的诊断输出。&#x0A;仅在需要时启用 —&#x0A;高强度使用时日志增长很快。&#x0A;&#x0A;日志写入 exe 旁边的 Logs/，&#x0A;每个通道一个文件。使用 📁 打开&#x0A;日志文件夹 可快速跳转。&#x0A;&#x0A;输入注入细节&#x0A;────────────────────────────&#x0A;记录用于绕过 EVE 输入丢失的&#x0A;确切按键、扫描码和&#x0A;延迟脉冲。&#x0A;&#x0A;循环组与数学分析&#x0A;────────────────────────────&#x0A;记录按住热键循环账号时的&#x0A;索引计算、节流阈值&#x0A;和跳过逻辑。&#x0A;&#x0A;窗口钩子&#x0A;────────────────────────────&#x0A;记录 HWND 焦点检查、SetForegroundWindow&#x0A;尝试，以及操作系统级窗口状态。&#x0A;&#x0A;桌面窗口管理器&#x0A;────────────────────────────&#x0A;记录 DWM 缩略图注册 HResult&#x0A;和 PrintWindow 捕获结果。当&#x0A;缩略图变空白、注册失败或&#x0A;错误地显示冻结帧时&#x0A;使用。&#x0A;&#x0A;警报管线&#x0A;────────────────────────────&#x0A;完整追踪每一行日志经过警报&#x0A;管线的过程：文件读取 → 解析&#x0A;匹配 → 触发（冷却/禁用/&#x0A;已触发）→ 徽章/弹窗/声音派发。&#x0A;当你预期触发的警报却没有&#x0A;触发时使用 — 每一步都记录它&#x0A;通过或未通过哪个关卡。</sys:String>
+
+    <sys:String x:Key="L.Wiki.Crop">裁剪弹窗&#x0A;═══════════════════════════&#x0A;&#x0A;裁剪的作用&#x0A;────────────────────────────&#x0A;为每个 EVE 客户端生成一个或&#x0A;多个裁剪预览弹窗 — 只显示&#x0A;客户端的特定区域（Local&#x0A;聊天、总览、目标栏），置于其&#x0A;自己的置顶窗口中，而无需&#x0A;将整个客户端切到前台。&#x0A;&#x0A;主开关&#x0A;────────────────────────────&#x0A;“启用裁剪预览弹窗”是&#x0A;全局开关。关闭时，所有裁剪弹窗&#x0A;隐藏，但其定义会保留供&#x0A;下次使用。&#x0A;&#x0A;创建裁剪&#x0A;────────────────────────────&#x0A;1. 从下拉框中选择一个角色&#x0A;2. 点击 ➕ 添加裁剪 — 会出现&#x0A;   一个带自动生成名称的&#x0A;   占位裁剪行&#x0A;3. 点击 📐 选取区域，然后在&#x0A;   实时缩略图上拖动以选择&#x0A;   你想捕获的区域&#x0A;4. 按需调整名称、显示标签、&#x0A;   弹窗位置/大小&#x0A;&#x0A;操作弹窗&#x0A;────────────────────────────&#x0A;• 右键 + 拖动 — 移动弹窗&#x0A;• 右键 + 左键 + 拖动 —&#x0A;  调整弹窗大小&#x0A;• “显示标签”会在弹窗左上角&#x0A;  叠加显示裁剪名称&#x0A;&#x0A;持久化&#x0A;────────────────────────────&#x0A;裁剪按角色、按配置保存，&#x0A;并在角色登录时自动重新&#x0A;生成。关闭一个 EVE 客户端&#x0A;并重新登录后，一旦角色解析完成&#x0A;就会恢复已保存的裁剪。</sys:String>
+
+    <!-- Tray menu -->
+    <sys:String x:Key="L.Tray.Settings">⚙ 设置</sys:String>
+    <sys:String x:Key="L.Tray.Profiles">👤 配置文件</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">⏸ 暂停热键</sys:String>
+    <sys:String x:Key="L.Tray.Lock">🔒 锁定位置</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">👁 切换缩略图</sys:String>
+    <sys:String x:Key="L.Tray.ClickThrough">↗ 点击穿透模式</sys:String>
+    <sys:String x:Key="L.Tray.ClientPositions">📐 客户端位置</sys:String>
+    <sys:String x:Key="L.Tray.SavePositions">💾 保存位置</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">📋 恢复位置</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">❌ 关闭所有 EVE 客户端</sys:String>
+    <sys:String x:Key="L.Tray.PiP">🖼 PiP 单独预览</sys:String>
+    <sys:String x:Key="L.Tray.Exit">🚪 退出</sys:String>
+    <sys:String x:Key="L.Tray.PosSaved">客户端位置已保存</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">位置将在下次发现周期恢复</sys:String>
+    <sys:String x:Key="L.Tray.CloseConfirm">关闭所有 EVE Online 窗口？</sys:String>
+    <sys:String x:Key="L.Tray.ConfirmTitle">确认</sys:String>
+
+    <!-- Thumbnail context menu -->
+    <sys:String x:Key="L.Ctx.EditLabel">✏ 编辑标签…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 静音警报</sys:String>
+    <sys:String x:Key="L.Ctx.Mute10">10 分钟</sys:String>
+    <sys:String x:Key="L.Ctx.Mute30">30 分钟</sys:String>
+    <sys:String x:Key="L.Ctx.Mute60">1 小时</sys:String>
+    <sys:String x:Key="L.Ctx.MuteUntil">直到我取消静音</sys:String>
+    <sys:String x:Key="L.Ctx.Unmute">取消静音</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 警报已静音（直到取消静音）</sys:String>
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 警报已静音（剩余 {0} 分钟）</sys:String>
+    <sys:String x:Key="L.Ctx.AudioFmt">🔊 音频 — {0}%</sys:String>
+    <sys:String x:Key="L.Ctx.AudioMute">🔇 静音</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">🔊 100%（取消静音）</sys:String>
+
+</ResourceDictionary>

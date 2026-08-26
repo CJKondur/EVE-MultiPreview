@@ -1,0 +1,644 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         UI string catalog — ITALIANO (Italian).  Issue #86.
+         Machine-assisted translation pending native review — corrections
+         welcome. Only keys present here are overridden; anything omitted
+         falls back to Strings.en.xaml.
+         ══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Language selector (General panel) -->
+    <sys:String x:Key="L.Language.Group">Lingua</sys:String>
+    <sys:String x:Key="L.Language.Label">Lingua:</sys:String>
+    <sys:String x:Key="L.Language.Note">Le modifiche si applicano immediatamente. Alcuni testi si aggiornano dopo aver riaperto una finestra. Le traduzioni sono realizzate con l'aiuto della comunità — correzioni benvenute.</sys:String>
+
+    <!-- Alerts panel -->
+    <sys:String x:Key="L.Alerts.Title">🚨 Impostazioni allarmi</sys:String>
+    <sys:String x:Key="L.Alerts.Subtitle">Configura il rilevamento degli attacchi, il monitoraggio dei log e i tipi di allarme.</sys:String>
+    <sys:String x:Key="L.Alerts.LogMonitoring">Monitoraggio dei log</sys:String>
+    <sys:String x:Key="L.Alerts.EnableChatLog">Abilita monitoraggio dei log di chat</sys:String>
+    <sys:String x:Key="L.Alerts.EnableGameLog">Abilita monitoraggio dei log di gioco</sys:String>
+    <sys:String x:Key="L.Alerts.UnderFire">Indicatore sotto attacco</sys:String>
+    <sys:String x:Key="L.Alerts.AlertEvents">Eventi di allarme</sys:String>
+    <sys:String x:Key="L.Alerts.Severity">Impostazioni di gravità</sys:String>
+    <sys:String x:Key="L.Alerts.Hub">Centro allarmi</sys:String>
+    <sys:String x:Key="L.Alerts.NotLoggedIn">Indicatore non connesso</sys:String>
+    <sys:String x:Key="L.Alerts.ChatLogDir">Cartella log di chat:</sys:String>
+    <sys:String x:Key="L.Alerts.GameLogDir">Cartella log di gioco:</sys:String>
+    <sys:String x:Key="L.Alerts.UnderFirePulse">Fai pulsare in rosso il bordo della miniatura quando subisci danni</sys:String>
+    <sys:String x:Key="L.Alerts.TimeoutSeconds">Timeout (secondi):</sys:String>
+    <sys:String x:Key="L.Alerts.UnderFireNote">Il bordo della miniatura pulsa in rosso mentre si stanno ricevendo danni. Si azzera dopo il timeout.</sys:String>
+    <sys:String x:Key="L.Alerts.PveMode">Modalità PVE (ignora i danni NPC)</sys:String>
+    <sys:String x:Key="L.Alerts.PveModeNote">Allarma solo per i danni dei giocatori — filtra rat, sentinelle e NPC.</sys:String>
+    <sys:String x:Key="L.Alerts.PulseOpacity">Opacità dell'impulso:</sys:String>
+    <sys:String x:Key="L.Alerts.PulseOpacityNote">Riduce l'intensità del bordo pulsante d'allarme per tutti gli eventi. 100% = comportamento attuale.</sys:String>
+    <sys:String x:Key="L.Alerts.BorderWidth">Larghezza bordo allarme:</sys:String>
+    <sys:String x:Key="L.Alerts.BorderWidthNote">L'impulso d'allarme ora viene disegnato come bordo a sé stante annidato appena all'interno del bordo di selezione, così un lampeggio esteso a tutta la flotta non nasconde mai quale client è selezionato. 0 lo disabilita.</sys:String>
+    <sys:String x:Key="L.Alerts.BadgeShow">Mostra il contatore degli allarmi sulle miniature</sys:String>
+    <sys:String x:Key="L.Alerts.BadgeNote">Un piccolo contatore numerato appare su ogni miniatura quando il suo personaggio riceve allarmi; si azzera nel momento in cui porti quel client in primo piano.</sys:String>
+    <sys:String x:Key="L.Alerts.HubShow">Mostra il centro allarmi sullo schermo</sys:String>
+    <sys:String x:Key="L.Alerts.ToastDuration">Durata notifica:</sys:String>
+    <sys:String x:Key="L.Alerts.SuppressActive">Non mostrare notifiche per il client che sto guardando attivamente</sys:String>
+    <sys:String x:Key="L.Alerts.SuppressActiveNote">Salta la notifica del centro per un allarme sul client EVE in primo piano — lo stai già guardando. Il lampeggio della miniatura, il contatore e il suono si attivano comunque.</sys:String>
+    <sys:String x:Key="L.Alerts.AutoHide">Nascondi automaticamente il centro dopo un periodo di inattività</sys:String>
+    <sys:String x:Key="L.Alerts.HideAfter">Nascondi dopo:</sys:String>
+    <sys:String x:Key="L.Alerts.HideAfterUnit">secondi senza nuovi allarmi</sys:String>
+    <sys:String x:Key="L.Alerts.AutoHideNote">Se attivo, l'esagono del centro appare a ogni allarme, resta per il timeout, poi scompare fino al successivo. Posizionalo una volta prima di abilitarlo.</sys:String>
+    <sys:String x:Key="L.Alerts.ResetHub">Reimposta posizione del centro</sys:String>
+    <sys:String x:Key="L.Alerts.IndicatorColor">Colore indicatore:</sys:String>
+    <sys:String x:Key="L.Alerts.NliNone">Nessuno</sys:String>
+    <sys:String x:Key="L.Alerts.NliText">Testo sovrapposto</sys:String>
+    <sys:String x:Key="L.Alerts.NliBorder">Colore bordo</sys:String>
+    <sys:String x:Key="L.Alerts.NliDim">Attenua</sys:String>
+
+    <!-- General panel -->
+    <sys:String x:Key="L.General.Title">⚙ Impostazioni generali</sys:String>
+    <sys:String x:Key="L.General.Subtitle">Impostazioni principali per il comportamento dei tasti di scelta rapida di EVE MultiPreview.</sys:String>
+    <sys:String x:Key="L.General.ShowTimer">Mostra il timer di sessione sulle miniature</sys:String>
+    <sys:String x:Key="L.General.HotkeyScope">Ambito dei tasti di scelta rapida</sys:String>
+    <sys:String x:Key="L.General.ActivationScope">Ambito di attivazione:</sys:String>
+    <sys:String x:Key="L.General.ScopeGlobal">Globale</sys:String>
+    <sys:String x:Key="L.General.ScopeEveActive">Quando una finestra EVE è attiva</sys:String>
+    <sys:String x:Key="L.General.SystemHotkeys">Tasti di scelta rapida di sistema</sys:String>
+    <sys:String x:Key="L.General.HkSuspend">Sospendi tasti di scelta rapida:</sys:String>
+    <sys:String x:Key="L.General.HkClickThrough">Attiva/disattiva click passante:</sys:String>
+    <sys:String x:Key="L.General.HkHideAll">Nascondi/mostra tutto:</sys:String>
+    <sys:String x:Key="L.General.HkHidePrimary">Nascondi/mostra principale:</sys:String>
+    <sys:String x:Key="L.General.HkHidePip">Nascondi/mostra PiP:</sys:String>
+    <sys:String x:Key="L.General.HkHideCrops">Nascondi/mostra ritagli:</sys:String>
+    <sys:String x:Key="L.General.HkProfileFwd">Ciclo profili avanti:</sys:String>
+    <sys:String x:Key="L.General.HkProfileBwd">Ciclo profili indietro:</sys:String>
+    <sys:String x:Key="L.General.HkQuickSwitch">Ruota di cambio rapido:</sys:String>
+    <sys:String x:Key="L.General.HkUndo">Annulla layout:</sys:String>
+    <sys:String x:Key="L.General.HkRedo">Ripeti layout:</sys:String>
+    <sys:String x:Key="L.General.Toggles">Interruttori</sys:String>
+    <sys:String x:Key="L.General.LockPositions">Blocca posizioni delle miniature</sys:String>
+    <sys:String x:Key="L.General.BroadcastHud">Mostra HUD del tasto di broadcast</sys:String>
+    <sys:String x:Key="L.General.AutoSolo">Isola automaticamente l'audio del client attivo</sys:String>
+    <sys:String x:Key="L.General.IndividualResize">Ridimensiona le miniature singolarmente</sys:String>
+    <sys:String x:Key="L.General.IndividualResizeNote">Se attivo, ridimensionare una miniatura non influisce sulle altre. Tieni premuto Ctrl per invertire.</sys:String>
+    <sys:String x:Key="L.General.Minimize">Riduci a icona</sys:String>
+    <sys:String x:Key="L.General.MinimizeDelay">Ritardo riduzione finestra EVE:</sys:String>
+    <sys:String x:Key="L.General.Cycling">Ciclo</sys:String>
+    <sys:String x:Key="L.General.CyclingNote">Tempo tra un ciclo e l'altro quando un tasto di ciclo è tenuto premuto. Più basso è più veloce, più alto è più lento. Il valore predefinito è 100 ms.</sys:String>
+    <sys:String x:Key="L.General.CycleDelay">Ritardo ciclo:</sys:String>
+    <sys:String x:Key="L.General.CycleWhileHeld">Cicla mentre il tasto è tenuto premuto</sys:String>
+    <sys:String x:Key="L.General.CycleWhileHeldNote">Disattivalo per ciclare un client per pressione (evita le stranezze di tasto bloccato durante il ciclo rapido).</sys:String>
+    <sys:String x:Key="L.General.UiSettings">Impostazioni interfaccia</sys:String>
+    <sys:String x:Key="L.General.UiSettingsNote">Regola la scala complessiva dell'interfaccia della finestra delle impostazioni.</sys:String>
+    <sys:String x:Key="L.General.UiScale">Scala interfaccia:</sys:String>
+    <sys:String x:Key="L.General.Startup">Avvio</sys:String>
+    <sys:String x:Key="L.General.StartupNote">Scegli cosa succede alla finestra delle impostazioni all'avvio dell'app.</sys:String>
+    <sys:String x:Key="L.General.OnAppLaunch">All'avvio dell'app:</sys:String>
+    <sys:String x:Key="L.General.StartupOff">Non aprire le impostazioni (resta nell'area di notifica)</sys:String>
+    <sys:String x:Key="L.General.StartupOpen">Apri la finestra delle impostazioni</sys:String>
+    <sys:String x:Key="L.General.StartupMin">Apri le impostazioni ridotte a icona nella barra delle applicazioni</sys:String>
+
+    <!-- Thumbnails panel -->
+    <sys:String x:Key="L.Thumb.Title">🖼 Aspetto delle miniature</sys:String>
+    <sys:String x:Key="L.Thumb.Subtitle">Controlla l'aspetto e lo stile delle miniature dei tuoi client EVE.</sys:String>
+    <sys:String x:Key="L.Thumb.Basic">Base</sys:String>
+    <sys:String x:Key="L.Thumb.Opacity">Opacità (0-100%):</sys:String>
+    <sys:String x:Key="L.Thumb.OpacityHover">Porta al 100% di opacità al passaggio del mouse</sys:String>
+    <sys:String x:Key="L.Thumb.ExclusionBadge">Contrassegno esclusione dal ciclo:</sys:String>
+    <sys:String x:Key="L.Thumb.ExclusionNote">Posizione della ✕ rossa sulle miniature escluse.</sys:String>
+    <sys:String x:Key="L.Thumb.AlwaysOnTop">Sempre in primo piano</sys:String>
+    <sys:String x:Key="L.Thumb.AboveClients">Mantieni sopra i client EVE</sys:String>
+    <sys:String x:Key="L.Thumb.HideAltTab">Nascondi durante Alt-Tab</sys:String>
+    <sys:String x:Key="L.Thumb.HideActive">Nascondi la miniatura attiva</sys:String>
+    <sys:String x:Key="L.Thumb.ShowSystem">Mostra il nome del sistema (dai log di EVE)</sys:String>
+    <sys:String x:Key="L.Thumb.ShowStats">Mostra CPU/RAM/VRAM per ogni client</sys:String>
+    <sys:String x:Key="L.Thumb.TextOverlay">Testo e sovrapposizioni</sys:String>
+    <sys:String x:Key="L.Thumb.ShowTextOverlay">Mostra testo sovrapposto</sys:String>
+    <sys:String x:Key="L.Thumb.TextColor">Colore testo:</sys:String>
+    <sys:String x:Key="L.Thumb.TextSize">Dimensione testo:</sys:String>
+    <sys:String x:Key="L.Thumb.TextFont">Carattere testo:</sys:String>
+    <sys:String x:Key="L.Thumb.TextMargins">Margini testo (largh. × alt.):</sys:String>
+    <sys:String x:Key="L.Thumb.Borders">Bordi</sys:String>
+    <sys:String x:Key="L.Thumb.HighlightColor">Colore evidenziazione:</sys:String>
+    <sys:String x:Key="L.Thumb.HighlightBorder">Bordo evidenziazione (px):</sys:String>
+    <sys:String x:Key="L.Thumb.ShowHighlightBorder">Mostra bordo di evidenziazione</sys:String>
+    <sys:String x:Key="L.Thumb.ShowAllBorders">Mostra tutti i bordi colorati</sys:String>
+    <sys:String x:Key="L.Thumb.InactiveBorder">Bordo inattivo (px):</sys:String>
+    <sys:String x:Key="L.Thumb.InactiveBorderColor">Colore bordo inattivo:</sys:String>
+    <sys:String x:Key="L.Thumb.BgColor">Colore di sfondo:</sys:String>
+    <sys:String x:Key="L.Thumb.Annotations">Annotazioni</sys:String>
+    <sys:String x:Key="L.Thumb.AnnotationsNote">Aggiungi etichette alle miniature (es. Scout, DPS, Logi).</sys:String>
+    <sys:String x:Key="L.Thumb.Resize">Ridimensiona miniature</sys:String>
+    <sys:String x:Key="L.Thumb.ResizeNote">Imposta una dimensione esatta in pixel invece di trascinare. «Tutte le miniature» diventa anche la dimensione iniziale dei nuovi client.</sys:String>
+    <sys:String x:Key="L.Thumb.ResizeAll">Tutte le miniature</sys:String>
+    <sys:String x:Key="L.Thumb.ResizeOne">Un personaggio</sys:String>
+    <sys:String x:Key="L.Thumb.ApplyAll">Applica a tutte</sys:String>
+    <sys:String x:Key="L.Thumb.ApplyOne">Applica</sys:String>
+    <sys:String x:Key="L.Thumb.EnterSize">Inserisci una larghezza e un'altezza in pixel.</sys:String>
+    <sys:String x:Key="L.Thumb.SelectCharFirst">Seleziona prima un personaggio.</sys:String>
+
+    <!-- Position terms (reusable) -->
+    <sys:String x:Key="L.Pos.TopLeft">In alto a sinistra</sys:String>
+    <sys:String x:Key="L.Pos.Top">In alto</sys:String>
+    <sys:String x:Key="L.Pos.TopRight">In alto a destra</sys:String>
+    <sys:String x:Key="L.Pos.Left">A sinistra</sys:String>
+    <sys:String x:Key="L.Pos.Center">Al centro</sys:String>
+    <sys:String x:Key="L.Pos.Right">A destra</sys:String>
+    <sys:String x:Key="L.Pos.BottomLeft">In basso a sinistra</sys:String>
+    <sys:String x:Key="L.Pos.Bottom">In basso</sys:String>
+    <sys:String x:Key="L.Pos.BottomRight">In basso a destra</sys:String>
+
+    <!-- Layout panel -->
+    <sys:String x:Key="L.Layout.Title">📐 Layout</sys:String>
+    <sys:String x:Key="L.Layout.Subtitle">Dimensione, aggancio e posizionamento delle miniature.</sys:String>
+    <sys:String x:Key="L.Layout.DefaultLocation">Posizione predefinita (x, y, largh., alt.)</sys:String>
+    <sys:String x:Key="L.Layout.ActiveCharSizing">Dimensione del personaggio attivo</sys:String>
+    <sys:String x:Key="L.Layout.ActiveCharNote">Imposta dimensioni specifiche per una miniatura attiva. Sovrascrive la dimensione predefinita.</sys:String>
+    <sys:String x:Key="L.Layout.Character">Personaggio:</sys:String>
+    <sys:String x:Key="L.Layout.ApplySize">Applica dimensione</sys:String>
+    <sys:String x:Key="L.Layout.MinSize">Dimensione minima</sys:String>
+    <sys:String x:Key="L.Layout.Snapping">Aggancio</sys:String>
+    <sys:String x:Key="L.Layout.EnableSnap">Abilita aggancio delle miniature</sys:String>
+    <sys:String x:Key="L.Layout.SnapDistance">Distanza di aggancio:</sys:String>
+    <sys:String x:Key="L.Layout.EdgeGutter">Spazio dai bordi:</sys:String>
+    <sys:String x:Key="L.Layout.ConfineMonitor">Limita il trascinamento a un solo monitor</sys:String>
+    <sys:String x:Key="L.Layout.Presets">Preimpostazioni di layout</sys:String>
+    <sys:String x:Key="L.Layout.PresetsNote">Salva l'intera parete come preimpostazione con nome, relativa al monitor — applicala con un clic o esportala per condividerla.</sys:String>
+    <sys:String x:Key="L.Layout.Remap">🔀 Rimappa e applica…</sys:String>
+    <sys:String x:Key="L.Layout.HoverZoom">Zoom al passaggio del mouse</sys:String>
+    <sys:String x:Key="L.Layout.ZoomOnHover">Ingrandisci la miniatura al passaggio del mouse</sys:String>
+    <sys:String x:Key="L.Layout.ZoomScale">Fattore di zoom:</sys:String>
+    <sys:String x:Key="L.Layout.Monitor">Monitor</sys:String>
+    <sys:String x:Key="L.Layout.PreferredMonitor">Monitor preferito:</sys:String>
+    <sys:String x:Key="L.Layout.Identify">🔍 Identifica</sys:String>
+    <sys:String x:Key="L.Layout.MonitorNote">Questi numeri di monitor sono propri di MultiPreview e potrebbero non corrispondere ai numeri di schermo di Windows. Usa Identifica per vedere a quale schermo corrisponde ogni numero. Le nuove miniature (senza posizione salvata) appaiono sul monitor preferito.</sys:String>
+
+    <!-- Char Hotkeys panel -->
+    <sys:String x:Key="L.Hk.Title">⌨ Tasti di scelta rapida per personaggio</sys:String>
+    <sys:String x:Key="L.Hk.Subtitle">Assegna tasti di scelta rapida per passare direttamente a personaggi specifici.</sys:String>
+    <sys:String x:Key="L.Hk.IndividualHeader">Tasti di scelta rapida per singolo personaggio</sys:String>
+    <sys:String x:Key="L.Hk.AuditHeader">Verifica conflitti dei tasti di scelta rapida</sys:String>
+    <sys:String x:Key="L.Hk.AuditNote">Tutte le assegnazioni in Generale, Tasti per personaggio e Gruppi. Qualsiasi tasto assegnato più di una volta è segnalato in rosso.</sys:String>
+    <sys:String x:Key="L.Hk.Refresh">🔄 Aggiorna</sys:String>
+
+    <!-- Colors panel -->
+    <sys:String x:Key="L.Colors.Title">🎨 Colori personalizzati</sys:String>
+    <sys:String x:Key="L.Colors.Subtitle">Imposta colori personalizzati di bordo e testo per ogni personaggio.</sys:String>
+    <sys:String x:Key="L.Colors.Header">Colori per personaggio</sys:String>
+    <sys:String x:Key="L.Colors.Enable">Abilita colori personalizzati per personaggio</sys:String>
+    <sys:String x:Key="L.Colors.ColActiveBorder">Bordo attivo</sys:String>
+    <sys:String x:Key="L.Colors.ColTextColor">Colore testo</sys:String>
+    <sys:String x:Key="L.Colors.ColInactiveBorder">Bordo inattivo</sys:String>
+    <sys:String x:Key="L.Colors.Preview">Anteprima:</sys:String>
+    <sys:String x:Key="L.Colors.Active">Attivo</sys:String>
+    <sys:String x:Key="L.Colors.Text">Testo</sys:String>
+    <sys:String x:Key="L.Colors.Inactive">Inattivo</sys:String>
+
+    <!-- Groups panel -->
+    <sys:String x:Key="L.Groups.Title">📦 Gruppi di miniature</sys:String>
+    <sys:String x:Key="L.Groups.Subtitle">Raggruppa i personaggi condividendo colore del bordo e tasti di ciclo.</sys:String>
+    <sys:String x:Key="L.Groups.Header">Gruppi</sys:String>
+    <sys:String x:Key="L.Groups.ShowBorders">Mostra bordi dei gruppi</sys:String>
+    <sys:String x:Key="L.Groups.SelectGroup">Seleziona gruppo:</sys:String>
+    <sys:String x:Key="L.Groups.GroupName">Nome gruppo:</sys:String>
+    <sys:String x:Key="L.Groups.BorderColor">Colore bordo:</sys:String>
+    <sys:String x:Key="L.Groups.CharsPerLine">Personaggi (uno per riga):</sys:String>
+    <sys:String x:Key="L.Groups.SaveGroup">💾 Salva gruppo</sys:String>
+    <sys:String x:Key="L.Groups.DeleteGroup">🗑 Elimina gruppo</sys:String>
+    <sys:String x:Key="L.Groups.CyclingHeader">Gruppi con tasti di ciclo</sys:String>
+    <sys:String x:Key="L.Groups.CyclingNote">Crea gruppi con tasti dedicati di ciclo avanti/indietro.</sys:String>
+    <sys:String x:Key="L.Groups.CycleOrderNote">Trascina le etichette per cambiare l'ordine di rotazione dei client. ✕ ne rimuove uno dal gruppo.</sys:String>
+    <sys:String x:Key="L.Groups.AddAllActive">+ Aggiungi tutti i client attivi</sys:String>
+    <sys:String x:Key="L.Groups.PillRemoveTip">Rimuovi dal gruppo</sys:String>
+    <sys:String x:Key="L.Groups.PillDragTip">Trascina per cambiare l'ordine</sys:String>
+    <sys:String x:Key="L.Groups.SelectGroupFirst">Seleziona o crea prima un gruppo di rotazione.</sys:String>
+    <sys:String x:Key="L.Groups.NoActiveClients">Nessun client attivo trovato.</sys:String>
+    <sys:String x:Key="L.Groups.AllAlreadyAdded">Tutti i client attivi sono già in questo gruppo.</sys:String>
+    <sys:String x:Key="L.Groups.Forward">Avanti:</sys:String>
+    <sys:String x:Key="L.Groups.Backward">Indietro:</sys:String>
+
+    <!-- Sounds panel -->
+    <sys:String x:Key="L.Sounds.Title">🔊 Suoni degli allarmi</sys:String>
+    <sys:String x:Key="L.Sounds.Subtitle">Assegna file audio personalizzati agli eventi di allarme. Supporta WAV e MP3.</sys:String>
+    <sys:String x:Key="L.Sounds.Master">Principale</sys:String>
+    <sys:String x:Key="L.Sounds.Enable">Abilita suoni degli allarmi</sys:String>
+    <sys:String x:Key="L.Sounds.MasterVolume">Volume principale:</sys:String>
+    <sys:String x:Key="L.Sounds.Range0100">(0-100)</sys:String>
+    <sys:String x:Key="L.Sounds.PerEvent">Suoni per evento</sys:String>
+    <sys:String x:Key="L.Sounds.PerClientVol">Volume per client</sys:String>
+    <sys:String x:Key="L.Sounds.PerClientNote">Imposta il volume audio di ogni client in esecuzione (per processo di Windows). I livelli vengono mantenuti e riapplicati quando passi a quel client.</sys:String>
+
+    <!-- Visibility panel -->
+    <sys:String x:Key="L.Vis.Title">👁 Visibilità delle miniature</sys:String>
+    <sys:String x:Key="L.Vis.Subtitle">Mostra o nascondi le miniature dei singoli personaggi.</sys:String>
+    <sys:String x:Key="L.Vis.Primary">Miniature principali</sys:String>
+    <sys:String x:Key="L.Vis.CheckToHide">Spunta per NASCONDERE la miniatura di un personaggio:</sys:String>
+    <sys:String x:Key="L.Vis.Tip">Suggerimento: puoi anche fare clic destro su una miniatura (Ctrl+clic destro) per modificarne direttamente l'etichetta.</sys:String>
+    <sys:String x:Key="L.Vis.ColHidden">Nascosta</sys:String>
+    <sys:String x:Key="L.Vis.EditBtn">Modifica…</sys:String>
+    <sys:String x:Key="L.Vis.Secondary">Miniature secondarie (PiP)</sys:String>
+    <sys:String x:Key="L.Vis.SecondaryNote">Aggiungi una seconda anteprima per qualsiasi personaggio — dimensione, posizione e opacità indipendenti.</sys:String>
+
+    <!-- Client panel -->
+    <sys:String x:Key="L.Client.Title">🖥 Gestione client</sys:String>
+    <sys:String x:Key="L.Client.Subtitle">Controlla il comportamento delle finestre dei client EVE al cambio.</sys:String>
+    <sys:String x:Key="L.Client.CharSelectCycling">Ciclo nella selezione personaggio</sys:String>
+    <sys:String x:Key="L.Client.EnableCharSelect">Abilita ciclo nella selezione personaggio</sys:String>
+    <sys:String x:Key="L.Client.ForwardHotkey">Tasto avanti:</sys:String>
+    <sys:String x:Key="L.Client.BackwardHotkey">Tasto indietro:</sys:String>
+    <sys:String x:Key="L.Client.WindowMgmt">Gestione finestre</sys:String>
+    <sys:String x:Key="L.Client.MinimizeInactive">Riduci a icona i client EVE inattivi al cambio</sys:String>
+    <sys:String x:Key="L.Client.AlwaysMaximize">Massimizza sempre EVE quando viene attivato</sys:String>
+    <sys:String x:Key="L.Client.TrackPositions">Traccia e ripristina le posizioni delle finestre dei client</sys:String>
+    <sys:String x:Key="L.Client.SpawnPosition">Posizione del client:</sys:String>
+    <sys:String x:Key="L.Client.SpawnOff">Disattivato (lascia dove EVE si apre)</sys:String>
+    <sys:String x:Key="L.Client.SpawnCenter">Centra sul suo monitor</sys:String>
+    <sys:String x:Key="L.Client.SpawnCustom">X / Y personalizzati</sys:String>
+    <sys:String x:Key="L.Client.SpawnNote">Riposiziona ogni client EVE al rilevamento E ogni volta che ci passi, così i client in finestra fissa restano in un unico punto invece di aprirsi in alto a sinistra su monitor ultrawide o grandi. Ignorato mentre «Traccia e ripristina le posizioni delle finestre client» è attivo.</sys:String>
+    <sys:String x:Key="L.Client.CoverTaskbar">Consenti al client attivo di coprire la barra delle applicazioni</sys:String>
+    <sys:String x:Key="L.Client.CoverTaskbarNote">Per client in finestra fissa alti quanto lo schermo. Il client attivo viene posto sopra la barra delle applicazioni di Windows e torna sotto appena cambi, così barra e menu Start restano utilizzabili. Centra inoltre i client sull'intero schermo anziché sull'area di lavoro.</sys:String>
+    <sys:String x:Key="L.Client.DontMinimize">Client da non ridurre a icona</sys:String>
+    <sys:String x:Key="L.Client.DontMinNote">I personaggi elencati qui non verranno MAI ridotti a icona.</sys:String>
+
+    <!-- Performance panel -->
+    <sys:String x:Key="L.Perf.Title">⚡ Prestazioni CPU e affinità</sys:String>
+    <sys:String x:Key="L.Perf.Subtitle">Orchestra priorità CPU e affinità dei core per assicurarti che i client inattivi non rubino mai cicli dei P-Core.</sys:String>
+    <sys:String x:Key="L.Perf.GlobalSettings">Impostazioni globali</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinity">Abilita gestione affinità/priorità dei client in background</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">Se abilitato, i client EVE inattivi vengono abbassati a priorità "Inattiva" per prevenire scatti.</sys:String>
+    <sys:String x:Key="L.Perf.AutoBalance">Bilancia automaticamente i client inattivi sugli E-Core (decide l'app)</sys:String>
+    <sys:String x:Key="L.Perf.AutoBalanceNote">Distribuisce dinamicamente a rotazione i client inattivi sulla metà inferiore dei tuoi core logici (E-Core o 2° CCD).</sys:String>
+    <sys:String x:Key="L.Perf.GpuOpt">Ottimizzazione GPU delle miniature</sys:String>
+    <sys:String x:Key="L.Perf.LowGpuBtn">⚡ Ottimizza per GPU ridotta (consigliato per molti client)</sys:String>
+    <sys:String x:Key="L.Perf.LowGpuNote">Un clic: riduce a icona i client inattivi al cambio E sospende le miniature in background, così i client inattivi smettono del tutto di renderizzare. Il singolo miglioramento maggiore di FPS / rumore delle ventole quando fai multiboxing con molti client.</sys:String>
+    <sys:String x:Key="L.Perf.StaticThumbs">Miniature statiche (GPU ridotta)</sys:String>
+    <sys:String x:Key="L.Perf.StaticThumbsNote">Sostituisce l'anteprima composita live del DWM con un'istantanea aggiornata circa una volta al secondo. Grande risparmio di GPU quando esegui molti client (il DWM non compone più ogni fotogramma), al costo di un movimento a scatti — il movimento delle navi si aggiorna al ritmo dell'istantanea invece che in modo fluido. Ideale per flotte in cui devi solo dare un'occhiata alle miniature di tanto in tanto invece di osservarle costantemente.</sys:String>
+    <sys:String x:Key="L.Perf.SuspendBg">Sospendi le miniature quando in background</sys:String>
+    <sys:String x:Key="L.Perf.SuspendBgNote">Congela ogni miniatura al suo ultimo fotogramma ogni volta che né EVE né MultiPreview sono il processo in primo piano. Riprende la composizione live nel momento in cui EVE o l'app tornano in primo piano. Impercettibile durante il gioco attivo; evita che la GPU paghi per le miniature di finestre che non puoi vedere mentre lavori in un'altra app. Aggiunge un ritardo di risveglio inferiore al secondo quando torni con Alt-Tab.</sys:String>
+    <sys:String x:Key="L.Perf.CoreOverrides">Override dei core per client</sys:String>
+    <sys:String x:Key="L.Perf.CoreOverridesNote">Forza esplicitamente un personaggio specifico su un processore logico specifico quando è INATTIVO. Questo sovrascrive il bilanciamento automatico.</sys:String>
+    <sys:String x:Key="L.Perf.ColInactiveCore">Core inattivo</sys:String>
+
+    <!-- FPS Limiter panel -->
+    <sys:String x:Key="L.Fps.Title">🚀 Limitatore FPS</sys:String>
+    <sys:String x:Key="L.Fps.Subtitle">Integrazione RTSS per limitare gli FPS per ogni client.</sys:String>
+    <sys:String x:Key="L.Fps.Settings">Impostazioni</sys:String>
+    <sys:String x:Key="L.Fps.ShowOverlay">Mostra l'indicatore FPS sulle miniature (in alto a destra)</sys:String>
+    <sys:String x:Key="L.Fps.BackgroundFps">FPS in background:</sys:String>
+    <sys:String x:Key="L.Fps.ApplyProfile">🔧 Applica profilo RTSS</sys:String>
+    <sys:String x:Key="L.Fps.ApplyNote">Prova prima la scrittura diretta. Se l'accesso viene negato, un prompt di amministratore una tantum copia il file.</sys:String>
+    <sys:String x:Key="L.Fps.ManualInstall">Installazione manuale</sys:String>
+    <sys:String x:Key="L.Fps.ManualNote">Se preferisci non concedere l'accesso da amministratore, copia manualmente il file del profilo:</sys:String>
+    <sys:String x:Key="L.Fps.TargetFolder">Cartella di destinazione:</sys:String>
+    <sys:String x:Key="L.Fps.Detecting">(rilevamento in corso...)</sys:String>
+    <sys:String x:Key="L.Fps.CopyFile">📋 Copia il file negli appunti</sys:String>
+    <sys:String x:Key="L.Fps.OpenFolder">📁 Apri la cartella di destinazione</sys:String>
+    <sys:String x:Key="L.Fps.ManualNote2">Copia il file negli appunti, poi incollalo nella cartella di destinazione qui sopra.</sys:String>
+
+    <!-- Stats Overlay panel -->
+    <sys:String x:Key="L.Stats.Title">📊 Sovrapposizione statistiche</sys:String>
+    <sys:String x:Key="L.Stats.Subtitle">Configura le sovrapposizioni in tempo reale di DPS, Logi, Mining e Ratting per ogni personaggio.</sys:String>
+    <sys:String x:Key="L.Stats.Enable">Abilita sovrapposizione statistiche</sys:String>
+    <sys:String x:Key="L.Stats.GlobalDefaults">Valori predefiniti globali</sys:String>
+    <sys:String x:Key="L.Stats.GlobalDefaultsNote">Scegli quali singole metriche sono visibili per impostazione predefinita. Gli override per personaggio nella griglia sottostante possono forzare qualsiasi metrica attiva o disattiva.</sys:String>
+    <sys:String x:Key="L.Stats.CatDps">⚔ DPS</sys:String>
+    <sys:String x:Key="L.Stats.CatLogi">🛡 Logi</sys:String>
+    <sys:String x:Key="L.Stats.CatMining">⛏ Mining</sys:String>
+    <sys:String x:Key="L.Stats.CatRatting">💰 Ratting</sys:String>
+    <sys:String x:Key="L.Stats.ActiveChars">Personaggi attivi</sys:String>
+    <sys:String x:Key="L.Stats.DoubleClickNote">Fai doppio clic su un personaggio (o premi Modifica) per impostare gli override per singola statistica.</sys:String>
+    <sys:String x:Key="L.Stats.ColOverrides">Override per personaggio</sys:String>
+    <sys:String x:Key="L.Stats.NpcNote">👾 Interruttore NPC: se abilitato, i danni NPC sono inclusi nelle statistiche DPS. Disattivato per impostazione predefinita.</sys:String>
+    <sys:String x:Key="L.Stats.Display">Visualizzazione</sys:String>
+    <sys:String x:Key="L.Stats.FontSize">Dimensione carattere:</sys:String>
+    <sys:String x:Key="L.Stats.OverlayOpacity">Opacità sovrapposizione:</sys:String>
+    <sys:String x:Key="L.Stats.BgColor">Colore di sfondo:</sys:String>
+    <sys:String x:Key="L.Stats.TextColor">Colore testo:</sys:String>
+    <sys:String x:Key="L.Stats.Logging">Registrazione statistiche</sys:String>
+    <sys:String x:Key="L.Stats.EnableLogging">Abilita registrazione statistiche su CSV</sys:String>
+    <sys:String x:Key="L.Stats.LogFolder">Cartella dei log:</sys:String>
+    <sys:String x:Key="L.Stats.AutoDelete">Elimina automaticamente dopo:</sys:String>
+    <sys:String x:Key="L.Stats.Legend">Legenda degli acronimi delle statistiche</sys:String>
+
+    <!-- About panel -->
+    <sys:String x:Key="L.About.Title">ℹ Informazioni</sys:String>
+    <sys:String x:Key="L.About.Edition">Edizione C# / WPF</sys:String>
+    <sys:String x:Key="L.About.Desc">Gestore di anteprime a miniatura multi-client per EVE Online. Mostra miniature DWM in tempo reale delle tue finestre EVE con clic per cambiare, trascinamento per riposizionare, bordi personalizzati, allarmi, sovrapposizioni di statistiche e tasti di scelta rapida per personaggio.</sys:String>
+    <sys:String x:Key="L.About.Origin">Scritto originariamente in AutoHotkey v2 da CJKondur.</sys:String>
+    <sys:String x:Key="L.About.Ported">Portato su C# WPF per migliorare prestazioni, stabilità ed estensibilità.</sys:String>
+    <sys:String x:Key="L.About.GitHub">🔗 GitHub</sys:String>
+    <sys:String x:Key="L.About.CheckUpdates">🔄 Controlla aggiornamenti</sys:String>
+    <sys:String x:Key="L.About.CheckOnStartup">Controlla aggiornamenti all'avvio del programma</sys:String>
+    <sys:String x:Key="L.About.PreRelease">Ricevi aggiornamenti in pre-release</sys:String>
+    <sys:String x:Key="L.About.PreReleaseNote">Le build in pre-release possono contenere bug o modifiche che rompono la compatibilità. Le impostazioni potrebbero azzerarsi tra un aggiornamento in pre-release e l'altro.</sys:String>
+
+    <!-- Debug panel -->
+    <sys:String x:Key="L.Debug.Title">🐛 Log di debug</sys:String>
+    <sys:String x:Key="L.Debug.Subtitle">Interruttori granulari per generare log diagnostici e risolvere problemi.</sys:String>
+    <sys:String x:Key="L.Debug.Targets">Destinazioni dei log</sys:String>
+    <sys:String x:Key="L.Debug.Injection">Logica di iniezione input (pressioni tasti e impulsi)</sys:String>
+    <sys:String x:Key="L.Debug.Cycling">Analisi gruppi di ciclo e calcoli (logica di cambio client)</sys:String>
+    <sys:String x:Key="L.Debug.WindowHooks">Hook di primo piano e focus delle finestre (rilevamento client EVE)</sys:String>
+    <sys:String x:Key="L.Debug.Dwm">Desktop Window Manager (HResult delle API delle miniature)</sys:String>
+    <sys:String x:Key="L.Debug.Alerts">Pipeline degli allarmi (analisi → attivazione → contatore / notifica / suono)</sys:String>
+    <sys:String x:Key="L.Debug.LogMgmt">Gestione dei log</sys:String>
+    <sys:String x:Key="L.Debug.OpenLogs">📁 Apri la cartella dei log...</sys:String>
+    <sys:String x:Key="L.Debug.LogsNote">I log vengono salvati in modo centralizzato, separando i flussi logici per file di destinazione.</sys:String>
+
+    <!-- Crop panel -->
+    <sys:String x:Key="L.Crop.Title">✂ Ritaglio</sys:String>
+    <sys:String x:Key="L.Crop.Subtitle">Genera uno o più popup di anteprima ritagliata per ogni client EVE. Trascina un popup con il clic destro per spostarlo; clic destro + trascinamento con il clic sinistro per ridimensionarlo.</sys:String>
+    <sys:String x:Key="L.Crop.Enable">Abilita popup di anteprima ritagliata</sys:String>
+    <sys:String x:Key="L.Crop.EnableNote">Quando disattivato, tutti i popup di ritaglio sono nascosti (le definizioni vengono mantenute per la volta successiva).</sys:String>
+    <sys:String x:Key="L.Crop.CropsHeader">Ritagli</sys:String>
+    <sys:String x:Key="L.Crop.AddCrop">➕ Aggiungi ritaglio</sys:String>
+    <sys:String x:Key="L.Crop.EmptyHint">Seleziona un personaggio qui sopra, poi fai clic su ➕ Aggiungi ritaglio per creare una regione di ritaglio con nome.</sys:String>
+
+    <!-- Help sidebar -->
+    <sys:String x:Key="L.Help.Title">📖 Guida</sys:String>
+
+    <!-- EVE Manager panel -->
+    <sys:String x:Key="L.Eve.Title">Gestore profili impostazioni EVE</sys:String>
+    <sys:String x:Key="L.Eve.Subtitle">Copia le impostazioni di EVE da un profilo all'altro. I backup vengono creati automaticamente.</sys:String>
+    <sys:String x:Key="L.Eve.SettingsFolder">Cartella impostazioni EVE:</sys:String>
+    <sys:String x:Key="L.Eve.ProfileCopyMode">📋 Copia profilo</sys:String>
+    <sys:String x:Key="L.Eve.CharCopyMode">👤 Copia personaggio</sys:String>
+    <sys:String x:Key="L.Eve.AccountCopyMode">🔑 Copia account</sys:String>
+    <sys:String x:Key="L.Eve.SourceProfile">Profilo di origine (copia DA):</sys:String>
+    <sys:String x:Key="L.Eve.TargetProfiles">Profili di destinazione (copia SU — spunta per selezionare):</sys:String>
+    <sys:String x:Key="L.Eve.ColProfile">Profilo</sys:String>
+    <sys:String x:Key="L.Eve.ColAccounts">Account</sys:String>
+    <sys:String x:Key="L.Eve.RefreshList">🔄 Aggiorna elenco</sys:String>
+    <sys:String x:Key="L.Eve.BackupChecked">💾 Backup dei profili di destinazione spuntati</sys:String>
+    <sys:String x:Key="L.Eve.CopyToChecked">📋 Copia → destinazioni spuntate</sys:String>
+    <sys:String x:Key="L.Eve.SourceShort">Origine (copia DA):</sys:String>
+    <sys:String x:Key="L.Eve.TargetShort">Destinazione (copia SU):</sys:String>
+    <sys:String x:Key="L.Eve.ProfileLabel">Profilo:</sys:String>
+    <sys:String x:Key="L.Eve.SearchChars">🔍 Cerca personaggi...</sys:String>
+    <sys:String x:Key="L.Eve.CopyAllChars">Copia a TUTTI i personaggi nel profilo di destinazione</sys:String>
+    <sys:String x:Key="L.Eve.CopyCharSettings">👤 Copia impostazioni personaggio</sys:String>
+    <sys:String x:Key="L.Eve.AccountNote">Copia core_user_*.dat — le impostazioni ESC per account (schermo, video, audio, tasti) condivise da ogni personaggio su quell'account EVE.</sys:String>
+    <sys:String x:Key="L.Eve.SearchAccounts">🔍 Cerca account...</sys:String>
+    <sys:String x:Key="L.Eve.ColAccount">Account</sys:String>
+    <sys:String x:Key="L.Eve.CopyAllAccounts">Copia a TUTTI gli account nel profilo di destinazione</sys:String>
+    <sys:String x:Key="L.Eve.CopyAcctSettings">🔑 Copia impostazioni account</sys:String>
+    <sys:String x:Key="L.Eve.DetectAccount">🔍 Rileva account</sys:String>
+    <sys:String x:Key="L.Eve.NameAccount">Assegna un nome all'account di origine spuntato:</sys:String>
+    <sys:String x:Key="L.Eve.SetLabel">✎ Imposta etichetta</sys:String>
+    <sys:String x:Key="L.Eve.DetectNote">Rileva account ti guida nell'accedere con un personaggio alla volta, così ognuno può essere abbinato in modo affidabile al suo account. Imposta etichetta ti permette di sovrascrivere manualmente il nome di un account.</sys:String>
+    <sys:String x:Key="L.Eve.BackupLocation">Posizione dei backup:</sys:String>
+    <sys:String x:Key="L.Eve.FetchEsi">🌐 Recupera i nomi mancanti tramite ESI (pubblico, nessun login richiesto)</sys:String>
+    <sys:String x:Key="L.Eve.DataMgmt">Gestione dei dati</sys:String>
+    <sys:String x:Key="L.Eve.CopyProfileOther">📋 Copia profilo su altri profili</sys:String>
+    <sys:String x:Key="L.Eve.ExportSettings">💾 Esporta impostazioni su file</sys:String>
+    <sys:String x:Key="L.Eve.ImportSettings">📂 Importa impostazioni da file</sys:String>
+
+    <!-- Nav sidebar -->
+    <sys:String x:Key="L.Nav.General">  ⚙  Generale</sys:String>
+    <sys:String x:Key="L.Nav.Thumbnails">  🖼  Miniature</sys:String>
+    <sys:String x:Key="L.Nav.Layout">  📐  Layout</sys:String>
+    <sys:String x:Key="L.Nav.Hotkeys">  ⌨  Tasti personaggio</sys:String>
+    <sys:String x:Key="L.Nav.Colors">  🎨  Colori</sys:String>
+    <sys:String x:Key="L.Nav.Groups">  📦  Gruppi</sys:String>
+    <sys:String x:Key="L.Nav.Alerts">  🚨  Allarmi</sys:String>
+    <sys:String x:Key="L.Nav.Sounds">  🔊  Suoni</sys:String>
+    <sys:String x:Key="L.Nav.Visibility">  👁  Visibilità</sys:String>
+    <sys:String x:Key="L.Nav.Client">  🖥  Client</sys:String>
+    <sys:String x:Key="L.Nav.FPS">  🚀  Limitatore FPS</sys:String>
+    <sys:String x:Key="L.Nav.Performance">  ⚡  Prestazioni</sys:String>
+    <sys:String x:Key="L.Nav.Stats">  📊  Statistiche</sys:String>
+    <sys:String x:Key="L.Nav.Manager">  🗂  Gestore EVE</sys:String>
+    <sys:String x:Key="L.Nav.Crop">  ✂  Ritaglio</sys:String>
+    <sys:String x:Key="L.Nav.About">  ℹ  Informazioni</sys:String>
+    <sys:String x:Key="L.Nav.Debug">  🐛  Log di debug</sys:String>
+
+    <!-- Top toolbar + profile row -->
+    <sys:String x:Key="L.Top.Local">Locale:</sys:String>
+    <sys:String x:Key="L.Top.Eve">EVE:</sys:String>
+    <sys:String x:Key="L.Top.Apply">⟳ Applica</sys:String>
+    <sys:String x:Key="L.Top.CopyProfile">📋 Copia profilo</sys:String>
+    <sys:String x:Key="L.Top.Backup">💾 Backup</sys:String>
+    <sys:String x:Key="L.Top.ResetPositions">↺ Reimposta posizioni</sys:String>
+    <sys:String x:Key="L.Top.Undo">↶ Annulla</sys:String>
+    <sys:String x:Key="L.Top.Redo">↷ Ripeti</sys:String>
+    <sys:String x:Key="L.Top.CbMode">👁 Modalità CB</sys:String>
+    <sys:String x:Key="L.Top.SearchPlaceholder">🔍 Cerca impostazioni (Ctrl+F)</sys:String>
+
+    <!-- Tooltips -->
+    <sys:String x:Key="L.Tt.CopyProfile">Copia il layout delle miniature — o un intero profilo — su altri profili</sys:String>
+    <sys:String x:Key="L.Tt.Backup">Crea un backup con marca temporale del tuo file di configurazione</sys:String>
+    <sys:String x:Key="L.Tt.ResetPositions">Riporta tutte le miniature alle posizioni e dimensioni predefinite (profilo corrente)</sys:String>
+    <sys:String x:Key="L.Tt.Undo">Annulla l'ultima modifica al layout (sposta tutto / ridimensiona tutto / Reimposta posizioni)</sys:String>
+    <sys:String x:Key="L.Tt.Redo">Ripeti l'ultima modifica al layout annullata</sys:String>
+    <sys:String x:Key="L.Tt.CbMode">Attiva/disattiva la palette adatta ai daltonici</sys:String>
+    <sys:String x:Key="L.Tt.SearchAll">Cerca in tutte le impostazioni (Ctrl+F)</sys:String>
+    <sys:String x:Key="L.Tt.UndoHotkey">Opzionale. Evita i tasti usati da EVE (es. Ctrl+Z).</sys:String>
+    <sys:String x:Key="L.Tt.RedoHotkey">Opzionale. Evita i tasti usati da EVE.</sys:String>
+    <sys:String x:Key="L.Tt.BroadcastHud">Una piccola pillola a schermo che mostra quale tasto tenuto premuto viene propagato ai tuoi client. Trascinala per riposizionarla.</sys:String>
+    <sys:String x:Key="L.Tt.AutoSolo">Quando passi a un client, silenzia gli altri client EVE e riattiva l'audio di quello attivo (audio per processo di Windows). Il silenziamento/volume per client è anche nel menu contestuale di ogni miniatura.</sys:String>
+    <sys:String x:Key="L.Tt.CycleWhileHeld">Attivo: tenere premuto un tasto di ciclo continua a ciclare al ritardo impostato sopra. Disattivo: ogni pressione cicla esattamente un client.</sys:String>
+    <sys:String x:Key="L.Tt.AboveClients">Mantiene le miniature sopra i tuoi client EVE mentre EVE è in focus, ma consente ad altre app (browser, Discord) di coprirle. Ignorato quando "Sempre in primo piano" è abilitato.</sys:String>
+    <sys:String x:Key="L.Tt.EdgeGutter">Spazio uniforme lasciato tra le miniature quando le agganci adiacenti ai bordi.</sys:String>
+    <sys:String x:Key="L.Tt.ConfineMonitor">Se attivo, trascinando una miniatura questa resta sul monitor da cui è partita.</sys:String>
+    <sys:String x:Key="L.Tt.PresetCombo">Digita un nome con cui salvare, oppure scegli una preimpostazione salvata da applicare/esportare.</sys:String>
+    <sys:String x:Key="L.Tt.PresetSave">Salva la parete corrente con il nome nella casella (sovrascrive un nome corrispondente)</sys:String>
+    <sys:String x:Key="L.Tt.PresetRemap">Applica una preimpostazione mappando i suoi slot ai tuoi personaggi — per preimpostazioni condivise / multi-macchina</sys:String>
+    <sys:String x:Key="L.Tt.PresetExport">Esporta la preimpostazione con nome in un file condivisibile</sys:String>
+    <sys:String x:Key="L.Tt.PresetImport">Importa un file di preimpostazione condiviso</sys:String>
+    <sys:String x:Key="L.Tt.Identify">Mostra brevemente il numero di ogni monitor (come numerato qui) su quello schermo.</sys:String>
+    <sys:String x:Key="L.Tt.EditLabel">Modifica testo, colore e dimensione dell'etichetta</sys:String>
+    <sys:String x:Key="L.Tt.StatsMaster">Interruttore principale. Disattivo = nessuna sovrapposizione appare, indipendentemente dalle impostazioni per personaggio o per metrica.</sys:String>
+    <sys:String x:Key="L.Tt.AutoDetectEve">Rileva automaticamente la cartella delle impostazioni EVE</sys:String>
+    <sys:String x:Key="L.Tt.ResetDefault">Reimposta al valore predefinito</sys:String>
+    <sys:String x:Key="L.Tt.RescanCrop">Riscansiona i client EVE attivi e le voci di ritaglio salvate</sys:String>
+
+    <!-- Copy Profile dialog -->
+    <sys:String x:Key="L.Copy.Title">Copia profilo</sys:String>
+    <sys:String x:Key="L.Copy.From">Copia da:</sys:String>
+    <sys:String x:Key="L.Copy.To">Copia su:</sys:String>
+    <sys:String x:Key="L.Copy.What">Cosa:</sys:String>
+    <sys:String x:Key="L.Copy.LayoutOnly">Solo layout delle miniature</sys:String>
+    <sys:String x:Key="L.Copy.EntireProfile">Intero profilo</sys:String>
+    <sys:String x:Key="L.Copy.EntireNote">Layout, impostazioni di visualizzazione, tasti di scelta rapida, gruppi, ritagli e impostazioni prestazioni.</sys:String>
+    <sys:String x:Key="L.Copy.CopyBtn">💾  Copia</sys:String>
+
+    <!-- Label Editor dialog -->
+    <sys:String x:Key="L.Lbl.Title">Modifica etichetta miniatura</sys:String>
+    <sys:String x:Key="L.Lbl.LabelText">Testo etichetta (es. Scout, DPS, Logi)</sys:String>
+    <sys:String x:Key="L.Lbl.TextColor">Colore testo</sys:String>
+    <sys:String x:Key="L.Lbl.Default">Predefinito</sys:String>
+    <sys:String x:Key="L.Lbl.DefaultTt">Usa il colore del testo globale delle miniature</sys:String>
+    <sys:String x:Key="L.Lbl.TextSize">Dimensione testo (pt) — lascia vuoto o 0 per usare il predefinito</sys:String>
+    <sys:String x:Key="L.Lbl.Remove">Rimuovi etichetta</sys:String>
+    <sys:String x:Key="L.Lbl.RemoveTt">Cancella il testo dell'etichetta e qualsiasi stile per etichetta per questo personaggio</sys:String>
+
+    <!-- Update dialog -->
+    <sys:String x:Key="L.Upd.Title">Aggiornamento disponibile — EVE MultiPreview</sys:String>
+    <sys:String x:Key="L.Upd.Header">⬆ Aggiornamento disponibile</sys:String>
+    <sys:String x:Key="L.Upd.LoadingNotes">Caricamento delle note di rilascio...</sys:String>
+    <sys:String x:Key="L.Upd.Downloading">Download in corso...</sys:String>
+    <sys:String x:Key="L.Upd.ReleasePage">📋 Pagina di rilascio</sys:String>
+    <sys:String x:Key="L.Upd.Later">Più tardi</sys:String>
+    <sys:String x:Key="L.Upd.UpdateNow">⬆ Aggiorna ora</sys:String>
+
+    <!-- Character Picker dialog -->
+    <sys:String x:Key="L.Pick.Title">Seleziona personaggio</sys:String>
+    <sys:String x:Key="L.Pick.SearchHint">Cerca o digita un nome...</sys:String>
+    <sys:String x:Key="L.Pick.ManualHint">Oppure digita il nome di un nuovo personaggio nella casella di ricerca qui sopra.</sys:String>
+
+    <!-- Quick Switch wheel -->
+    <sys:String x:Key="L.Qs.Title">Cambio rapido</sys:String>
+    <sys:String x:Key="L.Qs.SwitchChar">Cambia personaggio</sys:String>
+    <sys:String x:Key="L.Qs.EditTt">Modifica ordine delle schede</sys:String>
+
+    <!-- Setup Wizard -->
+    <sys:String x:Key="L.Wiz.Title">EVE MultiPreview — Procedura guidata</sys:String>
+    <sys:String x:Key="L.Wiz.WelcomeTitle">Benvenuto in EVE MultiPreview</sys:String>
+    <sys:String x:Key="L.Wiz.WelcomeSub">L'edizione C# del tuo strumento di anteprima multi-personaggio.</sys:String>
+    <sys:String x:Key="L.Wiz.Feat1">✅ Anteprime a miniatura DWM per tutti i client EVE</sys:String>
+    <sys:String x:Key="L.Wiz.Feat2">✅ Tasti di scelta rapida per personaggio e ciclo dei gruppi</sys:String>
+    <sys:String x:Key="L.Wiz.Feat3">✅ Rilevamento attacchi con lampeggio, suono e notifiche</sys:String>
+    <sys:String x:Key="L.Wiz.Feat4">✅ Sovrapposizioni di statistiche in tempo reale di DPS, Logi, Mining e Ratting</sys:String>
+    <sys:String x:Key="L.Wiz.Feat5">✅ Gestione dei profili con importazione/esportazione</sys:String>
+    <sys:String x:Key="L.Wiz.Feat6">✅ Miniature PiP secondarie</sys:String>
+    <sys:String x:Key="L.Wiz.WelcomeFooter">Completiamo la configurazione in meno di un minuto!</sys:String>
+    <sys:String x:Key="L.Wiz.SizeTitle">Scegli la dimensione delle miniature</sys:String>
+    <sys:String x:Key="L.Wiz.SizeSub">Scegli la preimpostazione migliore per la tua configurazione. Potrai cambiarla in seguito.</sys:String>
+    <sys:String x:Key="L.Wiz.SizeDual">Doppio monitor</sys:String>
+    <sys:String x:Key="L.Wiz.SizeMulti">Multi-box</sys:String>
+    <sys:String x:Key="L.Wiz.SizeFleet">Flotta</sys:String>
+    <sys:String x:Key="L.Wiz.HkTitle">Configura i tasti di scelta rapida</sys:String>
+    <sys:String x:Key="L.Wiz.HkSub">Opzionale: assegna tasti di scelta rapida per passare da un personaggio all'altro. Fai clic su ⌨ per acquisire.</sys:String>
+    <sys:String x:Key="L.Wiz.CycleSub">Cicla tra i personaggi nella schermata di accesso con i tasti di scelta rapida.</sys:String>
+    <sys:String x:Key="L.Wiz.DoneTitle">Tutto pronto!</sys:String>
+    <sys:String x:Key="L.Wiz.DoneNote">Potrai cambiare qualsiasi di queste impostazioni in seguito dal menu dell'area di notifica → Impostazioni.</sys:String>
+    <sys:String x:Key="L.Wiz.Back">← Indietro</sys:String>
+    <sys:String x:Key="L.Wiz.Skip">Salta</sys:String>
+    <sys:String x:Key="L.Wiz.Next">Avanti →</sys:String>
+
+    <!-- Character Stat Editor dialog -->
+    <sys:String x:Key="L.SE.Title">Override delle statistiche</sys:String>
+    <sys:String x:Key="L.SE.Intro">Ogni riga è una singola metrica. ☐ forza DISATTIVO · ☑ forza ATTIVO · ▣ eredita da globale. Usa i pulsanti di categoria per impostare in blocco tutte le metriche di quella categoria.</sys:String>
+    <sys:String x:Key="L.SE.AllOn">Tutti attivi</sys:String>
+    <sys:String x:Key="L.SE.AllOff">Tutti disattivi</sys:String>
+    <sys:String x:Key="L.SE.Inherit">Eredita</sys:String>
+    <sys:String x:Key="L.SE.IncludeNpc">Includi i danni NPC nel DPS</sys:String>
+    <sys:String x:Key="L.SE.ResetAll">Reimposta tutto su Eredita</sys:String>
+
+    <!-- Misc window titles / overlays -->
+    <sys:String x:Key="L.SettingsTitle">EVE MultiPreview — Impostazioni</sys:String>
+    <sys:String x:Key="L.CropPick.Title">Seleziona area di ritaglio</sys:String>
+    <sys:String x:Key="L.CropPick.Hint">Trascina per selezionare l'area di ritaglio — premi Esc per annullare</sys:String>
+
+    <!-- Shared / common terms -->
+    <sys:String x:Key="L.Common.Px">px</sys:String>
+    <sys:String x:Key="L.Common.Seconds">secondi</sys:String>
+    <sys:String x:Key="L.Common.Style">Stile:</sys:String>
+    <sys:String x:Key="L.Common.Ms">ms</sys:String>
+    <sys:String x:Key="L.Common.Size">Dimensione:</sys:String>
+    <sys:String x:Key="L.Common.Character">Personaggio</sys:String>
+    <sys:String x:Key="L.Common.AllAlreadyInList">Tutti i client attivi sono già in questo elenco.</sys:String>
+    <sys:String x:Key="L.Common.Label">Etichetta</sys:String>
+    <sys:String x:Key="L.Common.Edit">✏ Modifica</sys:String>
+    <sys:String x:Key="L.Common.Clear">🗑 Cancella</sys:String>
+    <sys:String x:Key="L.Common.X">x:</sys:String>
+    <sys:String x:Key="L.Common.Y">y:</sys:String>
+    <sys:String x:Key="L.Common.W">largh.:</sys:String>
+    <sys:String x:Key="L.Common.H">alt.:</sys:String>
+    <sys:String x:Key="L.Common.Multiplier">x</sys:String>
+    <sys:String x:Key="L.Common.Refresh">↻ Aggiorna</sys:String>
+    <sys:String x:Key="L.Common.Save">💾 Salva</sys:String>
+    <sys:String x:Key="L.Common.Apply">✅ Applica</sys:String>
+    <sys:String x:Key="L.Common.Delete">🗑 Elimina</sys:String>
+    <sys:String x:Key="L.Common.Export">⬆ Esporta…</sys:String>
+    <sys:String x:Key="L.Common.Import">⬇ Importa…</sys:String>
+    <sys:String x:Key="L.Common.Add">➕ Aggiungi</sys:String>
+    <sys:String x:Key="L.Common.EditItem">✏️ Modifica</sys:String>
+    <sys:String x:Key="L.Common.DeleteItem">❌ Elimina</sys:String>
+    <sys:String x:Key="L.Common.Hotkey">Tasto di scelta rapida</sys:String>
+    <sys:String x:Key="L.Common.AddCharacter">➕ Aggiungi personaggio</sys:String>
+    <sys:String x:Key="L.Common.New">Nuovo</sys:String>
+    <sys:String x:Key="L.Common.DeleteWord">Elimina</sys:String>
+    <sys:String x:Key="L.Common.Enabled">Abilitato</sys:String>
+    <sys:String x:Key="L.Common.Opacity">Opacità</sys:String>
+    <sys:String x:Key="L.Common.OpacityColon">Opacità:</sys:String>
+    <sys:String x:Key="L.Common.Remove">❌ Rimuovi</sys:String>
+    <sys:String x:Key="L.Common.XCap">X:</sys:String>
+    <sys:String x:Key="L.Common.YCap">Y:</sys:String>
+    <sys:String x:Key="L.Common.CharacterName">Nome personaggio</sys:String>
+    <sys:String x:Key="L.Common.RefreshBtn">🔄 Aggiorna</sys:String>
+    <sys:String x:Key="L.Common.EditWord">Modifica</sys:String>
+    <sys:String x:Key="L.Common.Days">giorni</sys:String>
+    <sys:String x:Key="L.Common.Browse">📂 Sfoglia</sys:String>
+    <sys:String x:Key="L.Common.Id">ID</sys:String>
+    <sys:String x:Key="L.Common.Ready">Pronto.</sys:String>
+    <sys:String x:Key="L.Common.Ok">OK</sys:String>
+    <sys:String x:Key="L.Common.Cancel">Annulla</sys:String>
+    <sys:String x:Key="L.Common.SaveWord">Salva</sys:String>
+
+    <!-- Contextual Help sidebar (Settings window wiki panels) -->
+    <sys:String x:Key="L.Wiki.General">Impostazioni generali&#x0A;═══════════════════════════&#x0A;&#x0A;Ambito di attivazione dei tasti di scelta rapida&#x0A;────────────────────────────&#x0A;• Globale — funziona anche quando&#x0A;  EVE non è la finestra attiva.&#x0A;• Solo quando una finestra EVE è attiva — i tasti&#x0A;  si attivano solo quando un client EVE è in focus.&#x0A;&#x0A;Sospendi tasti di scelta rapida&#x0A;────────────────────────────&#x0A;Premi questa combinazione per disabilitare&#x0A;temporaneamente tutti i tasti di MultiPreview.&#x0A;Premila di nuovo per riabilitarli.&#x0A;&#x0A;Attiva/disattiva click passante&#x0A;────────────────────────────&#x0A;Fa sì che le miniature ignorino i clic del mouse,&#x0A;così non rubano il focus.&#x0A;&#x0A;Tasti nascondi/mostra&#x0A;────────────────────────────&#x0A;• Nascondi/mostra tutto — commuta insieme le miniature&#x0A;  principali e PiP.&#x0A;• Nascondi/mostra principale — solo le miniature principali.&#x0A;• Nascondi/mostra PiP — solo le miniature PiP.&#x0A;&#x0A;Ciclo dei profili&#x0A;────────────────────────────&#x0A;Cicla avanti/indietro tra i profili.&#x0A;Il ciclo si avvolge (ultimo → primo).&#x0A;&#x0A;Blocca posizioni&#x0A;────────────────────────────&#x0A;Impedisce che le miniature vengano&#x0A;trascinate accidentalmente.&#x0A;&#x0A;Ridimensiona le miniature singolarmente&#x0A;────────────────────────────&#x0A;Se attivo, ogni miniatura può essere&#x0A;ridimensionata indipendentemente. Se disattivo, ridimensionarne&#x0A;una ridimensiona tutte le miniature.&#x0A;&#x0A;Tasto di cambio rapido&#x0A;────────────────────────────&#x0A;Passa immediatamente all'ultimo client&#x0A;EVE attivo — comodo per alternare&#x0A;rapidamente tra due personaggi.&#x0A;&#x0A;Timer di sessione&#x0A;Mostra da quanto tempo ogni client EVE&#x0A;è in esecuzione, nella sovrapposizione della miniatura.&#x0A;&#x0A;Ritardo di riduzione a icona&#x0A;────────────────────────────&#x0A;Ritardo (ms) prima che i client inattivi&#x0A;vengano ridotti a icona. Evita la riduzione&#x0A;accidentale durante i cambi rapidi.&#x0A;&#x0A;Ritardo ciclo&#x0A;────────────────────────────&#x0A;Tempo tra un'attivazione e l'altra mentre&#x0A;tieni premuto un tasto di ciclo (pulsante del mouse&#x0A;o tasto). Più basso = ripetizione più veloce. Il valore predefinito&#x0A;di 100 ms risulta naturale per la maggior parte delle configurazioni;&#x0A;abbassalo per un ciclo più reattivo.&#x0A;&#x0A;Scala interfaccia&#x0A;────────────────────────────&#x0A;Regola la dimensione del carattere della finestra&#x0A;delle impostazioni. Trascina il cursore o&#x0A;fai clic sulla barra per cambiare dimensione.</sys:String>
+
+    <sys:String x:Key="L.Wiki.Thumbnails">Aspetto delle miniature&#x0A;═══════════════════════════&#x0A;&#x0A;Opacità&#x0A;────────────────────────────&#x0A;Controlla quanto è trasparente la miniatura.&#x0A;0% = invisibile, 100% = completamente opaca.&#x0A;&#x0A;Porta al 100% di opacità al passaggio del mouse&#x0A;────────────────────────────&#x0A;Se attivo, passare il mouse sulla miniatura la rende&#x0A;completamente opaca, e ripristina l'opacità salvata&#x0A;quando allontani il mouse. Utile per tenere&#x0A;le miniature attenuate perché non intralcino,&#x0A;ma volerle comunque perfettamente nitide&#x0A;quando ne guardi davvero una.&#x0A;&#x0A;Contrassegno esclusione dal ciclo&#x0A;────────────────────────────&#x0A;Posizione del contrassegno ✕ rosso, usato per segnare&#x0A;i personaggi esclusi dal gruppo di ciclo&#x0A;(Shift+clic sulla miniatura per commutare). Scegli&#x0A;uno di nove punti di ancoraggio, così da evitare&#x0A;il nome del personaggio e altre&#x0A;sovrapposizioni di testo.&#x0A;&#x0A;Sempre in primo piano&#x0A;────────────────────────────&#x0A;Fa sì che le miniature stiano sopra tutte le altre finestre.&#x0A;Consigliato per la maggior parte degli scenari di multiboxing.&#x0A;&#x0A;Nascondi durante Alt-Tab&#x0A;────────────────────────────&#x0A;Nasconde le miniature quando nessuna finestra EVE&#x0A;è attiva. Riappaiono quando torni.&#x0A;&#x0A;Nascondi la miniatura attiva&#x0A;────────────────────────────&#x0A;Nasconde la miniatura del client EVE&#x0A;attualmente in focus.&#x0A;&#x0A;Nome del sistema&#x0A;────────────────────────────&#x0A;Mostra su ogni miniatura il sistema&#x0A;in cui ti trovi. Letto dai log di chat di EVE.&#x0A;&#x0A;Stato del processo&#x0A;────────────────────────────&#x0A;Mostra su ogni miniatura le info CPU/memoria.&#x0A;Utile per monitorare le prestazioni del client.&#x0A;Regola la dimensione del testo nel campo sottostante.&#x0A;&#x0A;Annotazioni&#x0A;────────────────────────────&#x0A;Aggiungi etichette di ruolo personalizzate alle miniature&#x0A;di ogni personaggio (Scout, DPS, Logi). Fai clic su&#x0A;Aggiungi/Modifica per impostare l'etichetta, Cancella per rimuoverla.&#x0A;&#x0A;Avanzate — Testo e sovrapposizioni&#x0A;════════════════════════&#x0A;&#x0A;• Testo sovrapposto — nome del personaggio sulla miniatura&#x0A;• Colore/dimensione/carattere testo — imposta lo stile&#x0A;• Margini testo — scostamento dall'angolo in alto a sinistra&#x0A;• Bordo di evidenziazione — bordo colorato sulla miniatura&#x0A;  del client attivo&#x0A;• Bordo inattivo — bordo di tutte le altre miniature&#x0A;• Colore di sfondo — colore di riempimento&#x0A;  dietro l'anteprima in tempo reale</sys:String>
+
+    <sys:String x:Key="L.Wiki.Layout">Layout delle miniature&#x0A;═══════════════════════════&#x0A;&#x0A;Posizione predefinita&#x0A;────────────────────────────&#x0A;La posizione (x, y) in cui le nuove miniature&#x0A;appaiono sullo schermo e la loro dimensione predefinita (largh., alt.).&#x0A;Le posizioni esistenti già salvate non cambiano.&#x0A;&#x0A;Dimensione minima&#x0A;────────────────────────────&#x0A;La dimensione minima consentita per una miniatura.&#x0A;&#x0A;Aggancio delle miniature&#x0A;────────────────────────────&#x0A;Se attivo, le miniature si agganciano tra loro&#x0A;quando vengono trascinate vicine l'una all'altra&#x0A;o vicino ai bordi dello schermo.&#x0A;&#x0A;Zoom al passaggio del mouse&#x0A;────────────────────────────&#x0A;Se attivo, la miniatura si ingrandisce al passaggio del mouse.&#x0A;Imposta il fattore di zoom&#x0A;(es. 1,5 = 150% della dimensione normale).&#x0A;&#x0A;Monitor preferito&#x0A;────────────────────────────&#x0A;Su quale monitor collocare le nuove miniature.&#x0A;Le posizioni esistenti già salvate non cambiano.&#x0A;&#x0A;Suggerimento: trascina le miniature mentre la finestra&#x0A;delle impostazioni è aperta, poi usa ⟳ Applica per salvarne la posizione.</sys:String>
+
+    <sys:String x:Key="L.Wiki.Hotkeys">Tasti personaggio&#x0A;═══════════════════════════&#x0A;&#x0A;Tasti per personaggio&#x0A;────────────────────────────&#x0A;Assegna un tasto di scelta rapida a ogni personaggio EVE.&#x0A;Premendolo, il client di quel personaggio&#x0A;viene portato in primo piano.&#x0A;&#x0A;I personaggi sullo stesso account EVE&#x0A;possono condividere lo stesso tasto.&#x0A;&#x0A;Modifica dei tasti&#x0A;────────────────────────────&#x0A;Seleziona un personaggio e fai clic su Modifica.&#x0A;Digita direttamente la combinazione, oppure fai clic su&#x0A;⌨ per acquisire e premi la tua combinazione&#x0A;o un pulsante del mouse (XButton1/2, MButton).&#x0A;&#x0A;Formato dei tasti&#x0A;────────────────────────────&#x0A;Usa i nomi dei tasti di AHK v2:&#x0A;• F1, F2, ... F12&#x0A;• ^a = Ctrl+A&#x0A;• !a = Alt+A&#x0A;• +a = Shift+A&#x0A;• #a = Win+A&#x0A;• ^+F1 = Ctrl+Shift+F1&#x0A;• XButton1, XButton2, MButton&#x0A;&#x0A;Rilevamento conflitti&#x0A;────────────────────────────&#x0A;Se un tasto è in conflitto con un tasto di sistema&#x0A;(scheda Generale), verrà bloccato.&#x0A;I tasti per personaggio possono sovrapporsi tra loro.&#x0A;&#x0A;Gruppi di tasti&#x0A;════════════════════════&#x0A;&#x0A;Ciclo dei gruppi&#x0A;────────────────────────────&#x0A;Crea gruppi di personaggi con nome e assegna loro&#x0A;tasti avanti/indietro che ciclano solo&#x0A;all'interno di quel sottoinsieme.&#x0A;&#x0A;Esempio: un gruppo "PVP Fleet" con i tuoi&#x0A;personaggi da combattimento — con un tasto puoi ciclare&#x0A;tra di loro uno alla volta, senza toccare gli altri alt.&#x0A;&#x0A;Gestione dei gruppi&#x0A;────────────────────────────&#x0A;• Seleziona o crea un gruppo dal menu&#x0A;  a discesa sotto l'elenco dei personaggi&#x0A;• Aggiungi personaggi con ➕ Aggiungi personaggio&#x0A;• Assegna i tasti avanti/indietro&#x0A;• Elimina rimuove l'intero gruppo</sys:String>
+
+    <sys:String x:Key="L.Wiki.Colors">Colori personalizzati&#x0A;═══════════════════════════&#x0A;&#x0A;Colori per personaggio&#x0A;────────────────────────────&#x0A;Assegna a ogni personaggio colori distintivi&#x0A;per un'identificazione visiva rapida.&#x0A;&#x0A;Ogni personaggio ha tre colori:&#x0A;• Bordo attivo — quando è in focus&#x0A;• Colore testo — sovrapposizione del nome&#x0A;• Bordo inattivo — quando non è in focus&#x0A;&#x0A;Come impostare i colori&#x0A;────────────────────────────&#x0A;1. Abilita i colori personalizzati (commuta su attivo)&#x0A;2. Fai clic su Aggiungi, cerca un personaggio&#x0A;3. Scegli in ordine i colori di bordo attivo, testo e&#x0A;   bordo inattivo&#x0A;4. In seguito puoi modificarli con Modifica/Elimina&#x0A;&#x0A;Formato colore esadecimale&#x0A;────────────────────────────&#x0A;Usa esadecimali a 6 cifre: FF0000 = rosso,&#x0A;00FF00 = verde, 0000FF = blu.&#x0A;Fai clic su 🎨 per aprire il selettore colori.</sys:String>
+
+    <sys:String x:Key="L.Wiki.Groups">Gruppi&#x0A;═══════════════════════════&#x0A;&#x0A;Gruppi di miniature&#x0A;────────────────────────────&#x0A;Raggruppa i personaggi condividendo un&#x0A;colore del bordo per un'identificazione visiva rapida.&#x0A;Abilita "Mostra bordi dei gruppi" per visualizzarli.&#x0A;&#x0A;Creazione di un gruppo&#x0A;────────────────────────────&#x0A;1. Inserisci il nome del gruppo&#x0A;2. Scegli il colore del bordo&#x0A;3. Aggiungi i personaggi&#x0A;4. Fai clic su Salva gruppo&#x0A;&#x0A;Gruppi con tasti di ciclo&#x0A;────────────────────────────&#x0A;Crea gruppi con nome dotati di tasti di ciclo&#x0A;per passare rapidamente, con un solo tasto,&#x0A;tra un sottoinsieme di personaggi.&#x0A;&#x0A;Esempio: un gruppo "PVP Fleet" con i tuoi&#x0A;personaggi da combattimento — cicla tra di loro&#x0A;solo con avanti/indietro.&#x0A;&#x0A;Aggiunta di personaggi&#x0A;────────────────────────────&#x0A;Fai clic su "➕ Aggiungi personaggio" per cercare tra&#x0A;tutti i personaggi noti filtrando mentre digiti.</sys:String>
+
+    <sys:String x:Key="L.Wiki.Alerts">Sistema di allarmi&#x0A;═══════════════════════════&#x0A;&#x0A;Come funzionano gli allarmi&#x0A;────────────────────────────&#x0A;MultiPreview monitora in tempo reale i log&#x0A;di chat e di gioco di EVE. Quando rileva&#x0A;un evento di combattimento, attiva&#x0A;allarmi visivi e sonori.&#x0A;&#x0A;Allarmi di combattimento&#x0A;────────────────────────────&#x0A;• Sotto attacco — stai subendo danni&#x0A;• Warp scramble — rilevato aggancio&#x0A;• Rivelato — l'invisibilità è stata interrotta&#x0A;• Invito flotta — ricevuto un invito alla flotta&#x0A;• Richiesta di sessione — ricevuta richiesta di sessione&#x0A;• Cambio sistema — hai saltato in un altro sistema&#x0A;&#x0A;Allarmi di mining&#x0A;────────────────────────────&#x0A;• Stiva piena — stiva/stiva minerali piena&#x0A;• Esaurito — asteroide esaurito&#x0A;• Cristallo danneggiato — cristallo frantumato&#x0A;• Estrattore fermo — modulo disattivato&#x0A;&#x0A;Livelli di gravità&#x0A;────────────────────────────&#x0A;🔴 Critico — sotto attacco, scramble,&#x0A;   rivelato&#x0A;🟠 Avviso — invito flotta, stiva piena,&#x0A;   cristallo danneggiato&#x0A;🔵 Info — sessione, cambio sistema,&#x0A;   esaurito, estrattore fermo&#x0A;&#x0A;Ogni livello ha il proprio colore del bordo,&#x0A;tempo di ricarica, interruttore di notifica nell'area di sistema&#x0A;e un cursore di velocità dell'impulso (100 ms = molto&#x0A;veloce, 2000 ms = quasi nessun impulso), così gli allarmi&#x0A;si possono regolare tra evidenza e disturbo.&#x0A;&#x0A;Opacità dell'impulso d'allarme&#x0A;────────────────────────────&#x0A;Cursore principale per attenuare il bordo&#x0A;pulsante d'allarme di tutti gli eventi. 100% = intensità&#x0A;piena, più basso è più tenue. Utile&#x0A;quando in grandi array di multiboxing più allarmi&#x0A;lampeggiano insieme rischiando di confondere.&#x0A;&#x0A;Contatore allarmi sulle miniature&#x0A;────────────────────────────&#x0A;Se abilitato a livello globale, quando un personaggio scatena un allarme&#x0A;sulla sua miniatura appare un contatore numerico&#x0A;rosso (si azzera appena quel client viene messo in focus).&#x0A;Ogni riga di evento di allarme ha anche la propria&#x0A;casella "Contatore", così puoi far sì che un&#x0A;evento attivi comunque notifica/suono/impulso,&#x0A;bloccandone solo il contatore — utile per&#x0A;eventi frequenti come il cambio sistema.&#x0A;&#x0A;Colori personalizzati per allarme&#x0A;────────────────────────────&#x0A;Ogni riga di allarme ha un campione di colore ■.&#x0A;Fai clic su di esso per scegliere un colore di&#x0A;lampeggio personalizzato per quell'allarme.&#x0A;&#x0A;Ordine di priorità dei colori:&#x0A;1. Colore per allarme (campione ■)&#x0A;2. Colore del livello di gravità&#x0A;3. Rosso predefinito di riserva&#x0A;&#x0A;Cancellare il colore per allarme (riscegliere&#x0A;il colore del livello di gravità) ripristina&#x0A;il valore predefinito del livello.&#x0A;&#x0A;Modalità PVE&#x0A;────────────────────────────&#x0A;Ignora i danni NPC/dei rat, così ricevi&#x0A;solo gli allarmi provenienti da attacchi di giocatori.&#x0A;&#x0A;Cartelle dei log&#x0A;────────────────────────────&#x0A;Imposta il percorso delle tue cartelle dei log&#x0A;di chat e di gioco di EVE. I percorsi predefiniti vanno bene per&#x0A;un'installazione EVE standard.&#x0A;&#x0A;Centro allarmi&#x0A;────────────────────────────&#x0A;Un piccolo widget esagonale che fluttua&#x0A;sullo schermo. Trascinabile ovunque.&#x0A;Fai clic destro sul centro per chiudere tutte&#x0A;le notifiche attive.&#x0A;&#x0A;Direzione delle notifiche&#x0A;────────────────────────────&#x0A;Fai clic sinistro sul centro per aprire&#x0A;il selettore di direzione. Scegli in che direzione&#x0A;si impilano le notifiche popup:&#x0A;• ↑ Su  • ↓ Giù  • ← Sinistra  • → Destra&#x0A;La freccia scelta viene evidenziata.&#x0A;&#x0A;Contatore delle notifiche&#x0A;────────────────────────────&#x0A;Un contatore circolare rosso appare&#x0A;nell'angolo in alto a destra dell'esagono, mostrando il numero&#x0A;di notifiche attive (1-9+).&#x0A;&#x0A;• Fai clic sul contatore per chiudere tutte le notifiche&#x0A;• Quando arriva una nuova notifica il contatore&#x0A;  pulsa bianco/rosso (lampeggia 4 volte)&#x0A;• Si nasconde automaticamente quando tutte le notifiche&#x0A;  scadono o vengono chiuse&#x0A;&#x0A;Visibilità in base al focus&#x0A;────────────────────────────&#x0A;Centro, contatore, notifiche e selettore&#x0A;restano in primo piano solo quando EVE è&#x0A;l'app in primo piano. Quando passi a&#x0A;un'altra app (browser, Discord),&#x0A;passano dietro — niente più confusione.&#x0A;&#x0A;Durata delle notifiche&#x0A;────────────────────────────&#x0A;Imposta quanto a lungo ogni notifica resta&#x0A;sullo schermo (1-120 secondi). Predefinito: 6 secondi.&#x0A;&#x0A;Reimposta posizione&#x0A;────────────────────────────&#x0A;Riporta il centro alla posizione predefinita&#x0A;nell'angolo in basso a destra dello schermo.&#x0A;&#x0A;Indicatore sotto attacco&#x0A;────────────────────────────&#x0A;Se abilitato, la miniatura di un personaggio lampeggia&#x0A;quando subisce danni. Il timeout&#x0A;controlla per quanto continua il lampeggio dopo&#x0A;l'ultimo colpo.&#x0A;&#x0A;Indicatore non connesso&#x0A;────────────────────────────&#x0A;Un indicatore visivo per i personaggi&#x0A;fermi nella schermata di accesso. Modalità:&#x0A;• Nessuno — nessun indicatore&#x0A;• Testo — mostra "Non connesso"&#x0A;• Bordo — bordo colorato&#x0A;• Attenua — riduce l'opacità della miniatura&#x0A;Usa il campo esadecimale + selettore 🎨&#x0A;per impostare il colore dell'indicatore.&#x0A;&#x0A;Modalità daltonici&#x0A;────────────────────────────&#x0A;Si commuta con il pulsante 👁 CB Mode.&#x0A;Sostituisce tutti i colori di gravità, lampeggio, evidenziazione&#x0A;e sovrapposizione con la palette universalmente&#x0A;sicura di Wong (vermiglio/giallo/blu).&#x0A;Interessa tutte le schede che usano i colori.</sys:String>
+
+    <sys:String x:Key="L.Wiki.Sounds">Suoni degli allarmi&#x0A;═══════════════════════════&#x0A;&#x0A;Suoni per evento&#x0A;────────────────────────────&#x0A;Assegna a ogni evento di allarme un file&#x0A;WAV o MP3 personalizzato.&#x0A;&#x0A;Volume principale&#x0A;────────────────────────────&#x0A;Controlla il volume di riproduzione&#x0A;di tutti i suoni degli allarmi (0-100).&#x0A;&#x0A;Pulsanti di anteprima&#x0A;────────────────────────────&#x0A;Fai clic su ▶ accanto a un suono per provarlo.&#x0A;Fai clic su ✕ per cancellare il file assegnato.&#x0A;&#x0A;Ricarica per suono&#x0A;────────────────────────────&#x0A;Ogni suono ha la propria ricarica (secondi),&#x0A;mostrata come campo numerico a destra.&#x0A;Evita che lo stesso allarme si ripeta&#x0A;troppo velocemente durante il combattimento.</sys:String>
+
+    <sys:String x:Key="L.Wiki.Visibility">Visibilità&#x0A;═══════════════════════════&#x0A;&#x0A;Visibilità delle miniature&#x0A;────────────────────────────&#x0A;Spunta/deseleziona i personaggi per mostrare o&#x0A;nascondere la loro miniatura principale.&#x0A;&#x0A;Miniature secondarie (PiP)&#x0A;────────────────────────────&#x0A;Aggiungi una seconda anteprima in tempo reale&#x0A;indipendente per qualsiasi personaggio. Le miniature PiP hanno:&#x0A;• Dimensione e posizione indipendenti&#x0A;• Opacità regolabile&#x0A;• Nessun bordo o effetto di allarme&#x0A;• Abilitazione/disabilitazione per personaggio&#x0A;&#x0A;Pulsante Aggiorna&#x0A;────────────────────────────&#x0A;Quando un personaggio accede o esce mentre&#x0A;la finestra delle impostazioni è aperta, fai clic su 🔄 Aggiorna&#x0A;per aggiornare l'elenco.</sys:String>
+
+    <sys:String x:Key="L.Wiki.Client">Impostazioni client&#x0A;═══════════════════════════&#x0A;&#x0A;Ciclo nella schermata di selezione personaggio&#x0A;────────────────────────────&#x0A;Cicla tra i personaggi nella schermata&#x0A;di accesso con i tasti di scelta rapida.&#x0A;&#x0A;Riduci a icona i client inattivi&#x0A;────────────────────────────&#x0A;Riduce automaticamente a icona i client EVE&#x0A;che perdono il focus.&#x0A;&#x0A;Traccia le posizioni dei client&#x0A;────────────────────────────&#x0A;Salva e ripristina la posizione della finestra&#x0A;di ogni client EVE.&#x0A;&#x0A;Massimizza sempre&#x0A;────────────────────────────&#x0A;Massimizza automaticamente ogni client EVE&#x0A;quando ottiene il focus. Utile per eseguire&#x0A;finestre a schermo intero su più monitor.&#x0A;&#x0A;Elenco da non ridurre a icona&#x0A;────────────────────────────&#x0A;Anche se "Riduci a icona gli inattivi" è attivo,&#x0A;i personaggi in questo elenco non verranno&#x0A;ridotti a icona automaticamente. Utile per i personaggi che devono&#x0A;restare visibili (es. scout,&#x0A;alt di mercato con ordini attivi).&#x0A;&#x0A;Posizione del client&#x0A;────────────────────────────&#x0A;Off / Centrato / Personalizzato. Mette ogni&#x0A;client in un punto fisso al rilevamento E ogni&#x0A;volta che ci passi, così i client in finestra&#x0A;fissa restano al loro posto invece di aprirsi&#x0A;in alto a sinistra su monitor grandi. Ignorato&#x0A;se «Traccia posizioni delle finestre» è ON.&#x0A;&#x0A;Client attivo sopra la barra applicazioni&#x0A;────────────────────────────&#x0A;Per client in finestra fissa alti quanto lo&#x0A;schermo. Il client attivo viene messo SOPRA la&#x0A;barra delle applicazioni e usa tutta l'altezza;&#x0A;torna sotto appena cambi, così barra e menu&#x0A;Start restano utilizzabili. Abbinalo a&#x0A;Posizione del client = Centrato per una grande&#x0A;finestra centrale con le miniature intorno.</sys:String>
+
+    <sys:String x:Key="L.Wiki.FPSLimiter">Limitatore FPS (RTSS)&#x0A;═══════════════════════════&#x0A;&#x0A;Come funziona&#x0A;────────────────────────────&#x0A;1. Installa ed esegui RTSS (fornito&#x0A;   con MSI Afterburner)&#x0A;2. Imposta gli FPS in background desiderati qui sopra&#x0A;3. Fai clic su "Applica profilo RTSS"&#x0A;4. RTSS limiterà automaticamente&#x0A;   i client EVE in background&#x0A;&#x0A;RTSS deve essere in esecuzione prima che tu avvii&#x0A;EVE. Se EVE è già aperto,&#x0A;riavvia i tuoi client.&#x0A;&#x0A;Applica profilo&#x0A;────────────────────────────&#x0A;Prova a scrivere direttamente il profilo.&#x0A;Se la cartella è protetta, un prompt di amministratore&#x0A;una tantum copia solo quel file.&#x0A;L'app in sé non richiede mai privilegi di amministratore.&#x0A;&#x0A;Installazione manuale&#x0A;────────────────────────────&#x0A;Se non vuoi affatto il prompt di amministratore:&#x0A;1. Fai clic su "Copia il profilo negli appunti"&#x0A;2. Apri la cartella di destinazione con "📁"&#x0A;3. Incolla e salva come "exefile.exe.cfg"&#x0A;4. Riavvia RTSS per caricare il profilo.&#x0A;&#x0A;Limite FPS in inattività&#x0A;────────────────────────────&#x0A;Quando un client EVE perde il focus, RTSS&#x0A;ne abbassa il frame rate a questo valore.&#x0A;Consigliato: 5-15 FPS per i client inattivi.</sys:String>
+
+    <sys:String x:Key="L.Wiki.StatsOverlay">Sovrapposizione statistiche&#x0A;═══════════════════════════&#x0A;&#x0A;Descrizione della funzione&#x0A;────────────────────────────&#x0A;Mostra statistiche di combattimento e attività&#x0A;in tempo reale sotto forma di sovrapposizione fluttuante&#x0A;vicino alla miniatura di ogni personaggio.&#x0A;&#x0A;Modalità statistiche&#x0A;────────────────────────────&#x0A;⚔ DPS — danni inflitti e subiti&#x0A;  al secondo, e danni totali in entrata e in uscita.&#x0A;⊕ Logi — riparazione di corazza/scudo/condensatore&#x0A;  al secondo, e totali in entrata e in uscita.&#x0A;⛏ Mining — minerali, nubi di gas e ghiaccio estratti&#x0A;  per ciclo e all'ora.&#x0A;◎ Ratting — ISK per salto, all'ora e per&#x0A;  sessione (tracciamento delle taglie).&#x0A;• NPC — include i danni NPC nel DPS.&#x0A;&#x0A;Abilita per personaggio spuntando le caselle&#x0A;nell'elenco dei personaggi qui sopra.&#x0A;&#x0A;Registrazione statistiche&#x0A;────────────────────────────&#x0A;Salva le statistiche in file CSV per&#x0A;analizzarle in seguito. Imposta la cartella dei log e abilita&#x0A;la registrazione. L'eliminazione automatica ripulisce i vecchi file&#x0A;dopo il numero di giorni impostato.&#x0A;&#x0A;Opacità e dimensione carattere della sovrapposizione&#x0A;────────────────────────────&#x0A;Regola trasparenza e leggibilità della&#x0A;sovrapposizione statistiche secondo le tue preferenze.&#x0A;&#x0A;Colori&#x0A;────────────────────────────&#x0A;• Colore di sfondo — riempimento del pannello di sovrapposizione&#x0A;• Colore testo — numeri ed etichette delle statistiche&#x0A;Imposta con valori esadecimali o il selettore 🎨.</sys:String>
+
+    <sys:String x:Key="L.Wiki.EVEManager">Gestore EVE&#x0A;═══════════════════════════&#x0A;&#x0A;Copia i file delle impostazioni di EVE da una&#x0A;cartella di profilo all'altra.&#x0A;&#x0A;Profili&#x0A;────────────────────────────&#x0A;EVE archivia le impostazioni in cartelle&#x0A;chiamate settings_* nella tua directory&#x0A;AppData di EVE. Ogni cartella&#x0A;contiene i file .dat dei tuoi personaggi.&#x0A;&#x0A;Come usarlo&#x0A;────────────────────────────&#x0A;1. Seleziona un profilo di origine (a sinistra)&#x0A;2. Spunta i profili di destinazione (a destra)&#x0A;3. Fai clic su Copia → destinazioni spuntate&#x0A;&#x0A;Backup&#x0A;────────────────────────────&#x0A;Prima di ogni copia, le destinazioni vengono&#x0A;automaticamente sottoposte a backup in:&#x0A;AppData\Local\CCP\EVE\EVEMPBackups&#x0A;&#x0A;⚠ Chiudi i client EVE prima di copiare&#x0A;per evitare la corruzione delle impostazioni.&#x0A;&#x0A;Nomi dei personaggi&#x0A;────────────────────────────&#x0A;I nomi vengono letti dai tuoi log di chat&#x0A;di EVE — quelli che EVE scrive in&#x0A;Documents\EVE\logs\Chatlogs\.&#x0A;&#x0A;Se hai impostato un percorso di log personalizzato in&#x0A;Generale → Monitoraggio dei log, verrà&#x0A;controllato prima quel percorso.&#x0A;&#x0A;Abilita il pulsante ESI (sotto) per&#x0A;trovare i nomi dei personaggi non ancora&#x0A;presenti nei tuoi log di chat.&#x0A;Le query ESI sono pubbliche — nessun login richiesto.&#x0A;Una ricarica di 60 secondi previene&#x0A;un uso accidentale eccessivo di ESI.&#x0A;I risultati vengono memorizzati nella cache per questa sessione.&#x0A;&#x0A;Modalità di copia&#x0A;────────────────────────────&#x0A;• Copia profilo — copia tutti i file di una cartella&#x0A;  settings_* in un'altra.&#x0A;  Ideale per clonare un'intera configurazione.&#x0A;• Copia personaggio — copia i file .dat di un&#x0A;  singolo personaggio tra i profili.&#x0A;  Ideale per sincronizzare un singolo personaggio.&#x0A;Cambia modalità con le schede in alto.&#x0A;&#x0A;Rilevamento automatico&#x0A;────────────────────────────&#x0A;Fai clic su 🔍 Rilevamento automatico per trovare&#x0A;automaticamente la tua cartella delle impostazioni EVE in&#x0A;%LOCALAPPDATA%\CCP\EVE.</sys:String>
+
+    <sys:String x:Key="L.Wiki.Performance">Prestazioni e affinità&#x0A;═══════════════════════════&#x0A;&#x0A;Gestione priorità CPU&#x0A;────────────────────────────&#x0A;Abbassa automaticamente i client EVE in background&#x0A;a priorità "Inattiva", così la tua finestra&#x0A;attiva non scatta mai.&#x0A;Deselezionare l'interruttore principale ripristina in una sola volta ogni&#x0A;client tracciato a priorità normale&#x0A;e affinità su tutti i core.&#x0A;&#x0A;Bilanciamento automatico sugli E-Core&#x0A;────────────────────────────&#x0A;Assegna i client EVE inattivi&#x0A;alla metà inferiore dei processori&#x0A;del sistema (i tuoi E-Core o il secondo CCD), così che&#x0A;i P-Core restino interamente dedicati al tuo&#x0A;client attivo.&#x0A;&#x0A;Override per personaggio&#x0A;────────────────────────────&#x0A;Quando un personaggio perde il focus, vincolalo rigidamente&#x0A;a un singolo core CPU. Questo&#x0A;sovrascrive completamente il bilanciatore automatico.&#x0A;&#x0A;Ottimizzazione GPU delle miniature&#x0A;════════════════════════&#x0A;&#x0A;Miniature statiche (GPU ridotta)&#x0A;────────────────────────────&#x0A;Sostituisce l'anteprima composita live del DWM&#x0A;con un'istantanea aggiornata circa una volta al secondo.&#x0A;Grande risparmio di GPU quando esegui più client,&#x0A;al costo di un movimento a scatti —&#x0A;il movimento delle navi si aggiorna al ritmo dell'istantanea,&#x0A;invece che in modo fluido.&#x0A;Ideale per gli scenari di flotta in cui dai&#x0A;un'occhiata occasionale alle miniature&#x0A;invece di fissarle costantemente.&#x0A;&#x0A;Sospendi le miniature quando in background&#x0A;────────────────────────────&#x0A;Ogni volta che né EVE né MultiPreview sono&#x0A;il processo in primo piano, congela ogni miniatura&#x0A;al suo ultimo fotogramma.&#x0A;Riprende la composizione live nel momento&#x0A;in cui EVE o l'app tornano in primo piano. Impercettibile durante il gioco attivo;&#x0A;evita che la GPU paghi per le miniature di finestre che&#x0A;non puoi vedere mentre lavori in un'altra app.&#x0A;Aggiunge un ritardo di risveglio inferiore&#x0A;al secondo quando torni con Alt-Tab.</sys:String>
+
+    <sys:String x:Key="L.Wiki.About">Informazioni&#x0A;═══════════════════════════&#x0A;&#x0A;EVE MultiPreview&#x0A;Edizione C# / .NET 8 WPF&#x0A;&#x0A;La versione mostrata nel pannello Informazioni&#x0A;corrisponde alla build che stai eseguendo.&#x0A;&#x0A;Scritto originariamente in AutoHotkey v2.&#x0A;Portato su C# per prestazioni migliori,&#x0A;supporto nativo alle miniature DWM e&#x0A;capacità di UI moderne.&#x0A;&#x0A;Per segnalare bug, suggerire funzioni o leggere&#x0A;le note di rilascio:&#x0A;github.com/CJKondur/EVE-MultiPreview</sys:String>
+
+    <sys:String x:Key="L.Wiki.Debug">Log di debug&#x0A;═══════════════════════════&#x0A;&#x0A;Output diagnostico per risolvere problemi di input, rilevamento&#x0A;delle finestre e flussi logici.&#x0A;Abilitalo solo quando serve —&#x0A;con un uso intenso i log crescono in fretta.&#x0A;&#x0A;I log vengono scritti in Logs/, accanto all'exe,&#x0A;un file per canale. Usa 📁 Apri&#x0A;la cartella dei log per accedervi rapidamente.&#x0A;&#x0A;Dettagli iniezione input&#x0A;────────────────────────────&#x0A;Registra i tasti esatti, gli scan code e&#x0A;gli impulsi ritardati usati per aggirare la perdita&#x0A;di input di EVE.&#x0A;&#x0A;Analisi gruppi di ciclo e calcoli&#x0A;────────────────────────────&#x0A;Registra i calcoli degli indici, le soglie di throttling&#x0A;e la logica di salto quando cicli tra gli account&#x0A;tenendo premuto un tasto.&#x0A;&#x0A;Hook delle finestre&#x0A;────────────────────────────&#x0A;Registra i controlli del focus HWND, i tentativi di&#x0A;SetForegroundWindow e lo stato delle finestre a livello di sistema operativo.&#x0A;&#x0A;Desktop Window Manager&#x0A;────────────────────────────&#x0A;Registra gli HResult di registrazione delle miniature DWM&#x0A;e i risultati di cattura di PrintWindow. Usalo&#x0A;quando le miniature diventano vuote, la registrazione&#x0A;fallisce o viene mostrato erroneamente un&#x0A;fotogramma congelato.&#x0A;&#x0A;Pipeline degli allarmi&#x0A;────────────────────────────&#x0A;Traccia in modo completo il percorso di ogni riga di log&#x0A;attraverso la pipeline degli allarmi: lettura del file → corrispondenza&#x0A;di analisi → attivazione (ricarica/disabilitato/&#x0A;già attivato) → invio di contatore/notifica/suono.&#x0A;Usalo quando un allarme che ti aspettavi non&#x0A;scatta — ogni passo registra a quale controllo&#x0A;è passato o meno.</sys:String>
+
+    <sys:String x:Key="L.Wiki.Crop">Popup di ritaglio&#x0A;═══════════════════════════&#x0A;&#x0A;A cosa serve il ritaglio&#x0A;────────────────────────────&#x0A;Genera uno o più popup di anteprima ritagliata&#x0A;per ogni client EVE — mostra solo&#x0A;una regione specifica del client (chat&#x0A;Local, overview, barra dei bersagli), in una sua&#x0A;finestra sempre in primo piano, senza bisogno&#x0A;di portare l'intero client in primo piano.&#x0A;&#x0A;Interruttore principale&#x0A;────────────────────────────&#x0A;"Abilita popup di anteprima ritagliata" è&#x0A;l'interruttore globale. Quando disattivato, tutti i popup di ritaglio&#x0A;sono nascosti, ma le loro definizioni restano&#x0A;per la volta successiva.&#x0A;&#x0A;Creazione di un ritaglio&#x0A;────────────────────────────&#x0A;1. Seleziona un personaggio dal menu a discesa&#x0A;2. Fai clic su ➕ Aggiungi ritaglio — apparirà&#x0A;   una riga di ritaglio segnaposto con&#x0A;   un nome generato automaticamente&#x0A;3. Fai clic su 📐 Seleziona area, poi trascina&#x0A;   sulla miniatura in tempo reale per selezionare&#x0A;   la regione che vuoi catturare&#x0A;4. Regola nome, etichetta visualizzata,&#x0A;   posizione/dimensione del popup secondo necessità&#x0A;&#x0A;Uso dei popup&#x0A;────────────────────────────&#x0A;• Clic destro + trascinamento — sposta il popup&#x0A;• Clic destro + clic sinistro + trascinamento —&#x0A;  ridimensiona il popup&#x0A;• "Mostra etichetta" sovrappone il nome del ritaglio&#x0A;  nell'angolo in alto a sinistra del popup&#x0A;&#x0A;Persistenza&#x0A;────────────────────────────&#x0A;I ritagli vengono salvati per personaggio, per profilo,&#x0A;e vengono rigenerati automaticamente quando il personaggio&#x0A;accede. Dopo aver chiuso un client EVE&#x0A;e riacceduto, i ritagli salvati vengono ripristinati&#x0A;non appena il personaggio è stato risolto.</sys:String>
+
+    <!-- Tray menu -->
+    <sys:String x:Key="L.Tray.Settings">⚙ Impostazioni</sys:String>
+    <sys:String x:Key="L.Tray.Profiles">👤 Profili</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">⏸ Sospendi tasti</sys:String>
+    <sys:String x:Key="L.Tray.Lock">🔒 Blocca posizioni</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">👁 Commuta miniature</sys:String>
+    <sys:String x:Key="L.Tray.ClickThrough">↗ Modalità click passante</sys:String>
+    <sys:String x:Key="L.Tray.ClientPositions">📐 Posizioni dei client</sys:String>
+    <sys:String x:Key="L.Tray.SavePositions">💾 Salva posizioni</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">📋 Ripristina posizioni</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">❌ Chiudi tutti i client EVE</sys:String>
+    <sys:String x:Key="L.Tray.PiP">🖼 Anteprima singola PiP</sys:String>
+    <sys:String x:Key="L.Tray.Exit">🚪 Esci</sys:String>
+    <sys:String x:Key="L.Tray.PosSaved">Posizioni dei client salvate</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">Le posizioni verranno ripristinate al prossimo ciclo di rilevamento</sys:String>
+    <sys:String x:Key="L.Tray.CloseConfirm">Chiudere tutte le finestre di EVE Online?</sys:String>
+    <sys:String x:Key="L.Tray.ConfirmTitle">Conferma</sys:String>
+
+    <!-- Thumbnail context menu -->
+    <sys:String x:Key="L.Ctx.EditLabel">✏ Modifica etichetta…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 Silenzia allarmi</sys:String>
+    <sys:String x:Key="L.Ctx.Mute10">10 minuti</sys:String>
+    <sys:String x:Key="L.Ctx.Mute30">30 minuti</sys:String>
+    <sys:String x:Key="L.Ctx.Mute60">1 ora</sys:String>
+    <sys:String x:Key="L.Ctx.MuteUntil">Finché non riattivo</sys:String>
+    <sys:String x:Key="L.Ctx.Unmute">Riattiva l'audio</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 Allarmi silenziati (finché non riattivi)</sys:String>
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 Allarmi silenziati ({0} minuti rimanenti)</sys:String>
+    <sys:String x:Key="L.Ctx.AudioFmt">🔊 Audio — {0}%</sys:String>
+    <sys:String x:Key="L.Ctx.AudioMute">🔇 Silenzia</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">🔊 100% (riattiva l'audio)</sys:String>
+
+</ResourceDictionary>

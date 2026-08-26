@@ -1,0 +1,627 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         UI string catalog — 日本語 (Japanese).  Issue #86.
+         Machine-assisted translation pending native review — corrections
+         welcome. Only keys present here are overridden; anything omitted
+         falls back to Strings.en.xaml.
+         ══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Language selector (General panel) -->
+    <sys:String x:Key="L.Language.Group">言語</sys:String>
+    <sys:String x:Key="L.Language.Label">言語：</sys:String>
+    <sys:String x:Key="L.Language.Note">変更は即座に反映されます。一部のテキストはウィンドウを開き直すと更新されます。翻訳はコミュニティによる協力です。修正を歓迎します。</sys:String>
+
+    <!-- Alerts panel -->
+    <sys:String x:Key="L.Alerts.Title">🚨 アラート設定</sys:String>
+    <sys:String x:Key="L.Alerts.Subtitle">攻撃検出、ログ監視、アラート種別を設定します。</sys:String>
+    <sys:String x:Key="L.Alerts.LogMonitoring">ログ監視</sys:String>
+    <sys:String x:Key="L.Alerts.EnableChatLog">チャットログ監視を有効化</sys:String>
+    <sys:String x:Key="L.Alerts.EnableGameLog">ゲームログ監視を有効化</sys:String>
+    <sys:String x:Key="L.Alerts.UnderFire">被攻撃インジケーター</sys:String>
+    <sys:String x:Key="L.Alerts.AlertEvents">アラートイベント</sys:String>
+    <sys:String x:Key="L.Alerts.Severity">重要度設定</sys:String>
+    <sys:String x:Key="L.Alerts.Hub">アラートハブ</sys:String>
+    <sys:String x:Key="L.Alerts.NotLoggedIn">未ログインインジケーター</sys:String>
+    <sys:String x:Key="L.Alerts.ChatLogDir">チャットログフォルダー：</sys:String>
+    <sys:String x:Key="L.Alerts.GameLogDir">ゲームログフォルダー：</sys:String>
+    <sys:String x:Key="L.Alerts.UnderFirePulse">ダメージを受けたときにサムネイルの枠を赤く点滅</sys:String>
+    <sys:String x:Key="L.Alerts.TimeoutSeconds">タイムアウト（秒）：</sys:String>
+    <sys:String x:Key="L.Alerts.UnderFireNote">ダメージを受けている間、サムネイルの枠が赤く点滅します。タイムアウト後に解除されます。</sys:String>
+    <sys:String x:Key="L.Alerts.PveMode">PVE モード（NPC ダメージを無視）</sys:String>
+    <sys:String x:Key="L.Alerts.PveModeNote">プレイヤーからのダメージのみアラートします。ラット、セントリー、NPC を除外します。</sys:String>
+    <sys:String x:Key="L.Alerts.PulseOpacity">点滅の不透明度：</sys:String>
+    <sys:String x:Key="L.Alerts.PulseOpacityNote">すべてのイベントでアラート点滅枠の強度を下げます。100% = 現在の動作。</sys:String>
+    <sys:String x:Key="L.Alerts.BorderWidth">アラート枠の幅：</sys:String>
+    <sys:String x:Key="L.Alerts.BorderWidthNote">アラートの点滅は選択枠のすぐ内側にネストした独自の枠として描画されるようになったため、艦隊全体の点滅でどのクライアントが選択されているか隠れることはありません。0 で無効になります。</sys:String>
+    <sys:String x:Key="L.Alerts.BadgeShow">サムネイルにアラート件数バッジを表示</sys:String>
+    <sys:String x:Key="L.Alerts.BadgeNote">キャラクターがアラートを受け取ると、各サムネイルに小さな番号付きバッジが表示されます。そのクライアントをフォーカスするとすぐに消えます。</sys:String>
+    <sys:String x:Key="L.Alerts.HubShow">アラートハブを画面に表示</sys:String>
+    <sys:String x:Key="L.Alerts.ToastDuration">トースト表示時間：</sys:String>
+    <sys:String x:Key="L.Alerts.SuppressActive">現在注視しているクライアントはトースト表示しない</sys:String>
+    <sys:String x:Key="L.Alerts.SuppressActiveNote">フォアグラウンドの EVE クライアントに対するアラートのハブトーストをスキップします。すでに見ているためです。サムネイルの点滅、バッジ、サウンドは引き続き動作します。</sys:String>
+    <sys:String x:Key="L.Alerts.AutoHide">静穏期間の後にハブを自動的に隠す</sys:String>
+    <sys:String x:Key="L.Alerts.HideAfter">隠すまで：</sys:String>
+    <sys:String x:Key="L.Alerts.HideAfterUnit">秒間新しいアラートがなければ</sys:String>
+    <sys:String x:Key="L.Alerts.AutoHideNote">オンにすると、ハブの六角形はアラートごとに表示され、タイムアウトの間残った後、次のアラートまで消えます。有効化する前に一度位置を決めてください。</sys:String>
+    <sys:String x:Key="L.Alerts.ResetHub">ハブの位置をリセット</sys:String>
+    <sys:String x:Key="L.Alerts.IndicatorColor">インジケーターの色：</sys:String>
+    <sys:String x:Key="L.Alerts.NliNone">なし</sys:String>
+    <sys:String x:Key="L.Alerts.NliText">テキストオーバーレイ</sys:String>
+    <sys:String x:Key="L.Alerts.NliBorder">枠の色</sys:String>
+    <sys:String x:Key="L.Alerts.NliDim">暗くする</sys:String>
+
+    <!-- General panel -->
+    <sys:String x:Key="L.General.Title">⚙ 一般設定</sys:String>
+    <sys:String x:Key="L.General.Subtitle">EVE MultiPreview のホットキー動作に関する基本設定。</sys:String>
+    <sys:String x:Key="L.General.ShowTimer">サムネイルにセッションタイマーを表示</sys:String>
+    <sys:String x:Key="L.General.HotkeyScope">ホットキーの範囲</sys:String>
+    <sys:String x:Key="L.General.ActivationScope">有効化の範囲：</sys:String>
+    <sys:String x:Key="L.General.ScopeGlobal">グローバル</sys:String>
+    <sys:String x:Key="L.General.ScopeEveActive">EVE ウィンドウがアクティブな場合</sys:String>
+    <sys:String x:Key="L.General.SystemHotkeys">システムホットキー</sys:String>
+    <sys:String x:Key="L.General.HkSuspend">ホットキーを一時停止：</sys:String>
+    <sys:String x:Key="L.General.HkClickThrough">クリックスルー切替：</sys:String>
+    <sys:String x:Key="L.General.HkHideAll">すべて表示/非表示：</sys:String>
+    <sys:String x:Key="L.General.HkHidePrimary">プライマリを表示/非表示：</sys:String>
+    <sys:String x:Key="L.General.HkHidePip">PiP を表示/非表示：</sys:String>
+    <sys:String x:Key="L.General.HkHideCrops">クロップを表示/非表示：</sys:String>
+    <sys:String x:Key="L.General.HkProfileFwd">プロファイルを順方向に切替：</sys:String>
+    <sys:String x:Key="L.General.HkProfileBwd">プロファイルを逆方向に切替：</sys:String>
+    <sys:String x:Key="L.General.HkQuickSwitch">クイックスイッチホイール：</sys:String>
+    <sys:String x:Key="L.General.HkUndo">レイアウトを元に戻す：</sys:String>
+    <sys:String x:Key="L.General.HkRedo">レイアウトをやり直す：</sys:String>
+    <sys:String x:Key="L.General.Toggles">切替</sys:String>
+    <sys:String x:Key="L.General.LockPositions">サムネイル位置をロック</sys:String>
+    <sys:String x:Key="L.General.BroadcastHud">ブロードキャストキー HUD を表示</sys:String>
+    <sys:String x:Key="L.General.AutoSolo">アクティブなクライアントの音声を自動でソロ再生</sys:String>
+    <sys:String x:Key="L.General.IndividualResize">サムネイルを個別にリサイズ</sys:String>
+    <sys:String x:Key="L.General.IndividualResizeNote">オンにすると、1 つのサムネイルをリサイズしても他に影響しません。Ctrl を押すと反転します。</sys:String>
+    <sys:String x:Key="L.General.Minimize">最小化</sys:String>
+    <sys:String x:Key="L.General.MinimizeDelay">EVE ウィンドウ最小化の遅延：</sys:String>
+    <sys:String x:Key="L.General.Cycling">サイクル</sys:String>
+    <sys:String x:Key="L.General.CyclingNote">サイクルホットキーを押し続けたときの各サイクル間の時間。小さいほど速く、大きいほど遅くなります。既定は 100ms です。</sys:String>
+    <sys:String x:Key="L.General.CycleDelay">サイクル遅延：</sys:String>
+    <sys:String x:Key="L.General.CycleWhileHeld">ホットキーを押し続けている間サイクルする</sys:String>
+    <sys:String x:Key="L.General.CycleWhileHeldNote">1 回の押下でクライアントを 1 つだけ切り替えるにはこれをオフにします（高速サイクル時のキー押しっぱなしの不具合を防ぎます）。</sys:String>
+    <sys:String x:Key="L.General.UiSettings">UI 設定</sys:String>
+    <sys:String x:Key="L.General.UiSettingsNote">設定ウィンドウ UI の全体的な拡大率を調整します。</sys:String>
+    <sys:String x:Key="L.General.UiScale">UI 拡大率：</sys:String>
+    <sys:String x:Key="L.General.Startup">起動</sys:String>
+    <sys:String x:Key="L.General.StartupNote">アプリ起動時に設定ウィンドウをどうするか選択します。</sys:String>
+    <sys:String x:Key="L.General.OnAppLaunch">アプリ起動時：</sys:String>
+    <sys:String x:Key="L.General.StartupOff">設定を開かない（トレイに常駐）</sys:String>
+    <sys:String x:Key="L.General.StartupOpen">設定ウィンドウを開く</sys:String>
+    <sys:String x:Key="L.General.StartupMin">設定をタスクバーに最小化して開く</sys:String>
+
+    <!-- Thumbnails panel -->
+    <sys:String x:Key="L.Thumb.Title">🖼 サムネイルの外観</sys:String>
+    <sys:String x:Key="L.Thumb.Subtitle">EVE クライアントのサムネイルの見た目と操作感を設定します。</sys:String>
+    <sys:String x:Key="L.Thumb.Basic">基本</sys:String>
+    <sys:String x:Key="L.Thumb.Opacity">不透明度（0-100%）：</sys:String>
+    <sys:String x:Key="L.Thumb.OpacityHover">ホバー時に不透明度を 100% にする</sys:String>
+    <sys:String x:Key="L.Thumb.ExclusionBadge">サイクル除外バッジ：</sys:String>
+    <sys:String x:Key="L.Thumb.ExclusionNote">除外されたサムネイル上の赤い ✕ の位置。</sys:String>
+    <sys:String x:Key="L.Thumb.AlwaysOnTop">常に最前面</sys:String>
+    <sys:String x:Key="L.Thumb.AboveClients">EVE クライアントより前面に保つ</sys:String>
+    <sys:String x:Key="L.Thumb.HideAltTab">Alt-Tab 時に非表示</sys:String>
+    <sys:String x:Key="L.Thumb.HideActive">アクティブなサムネイルを非表示</sys:String>
+    <sys:String x:Key="L.Thumb.ShowSystem">星系名を表示（EVE ログから）</sys:String>
+    <sys:String x:Key="L.Thumb.ShowStats">クライアントごとに CPU/RAM/VRAM を表示</sys:String>
+    <sys:String x:Key="L.Thumb.TextOverlay">テキスト &amp; オーバーレイ</sys:String>
+    <sys:String x:Key="L.Thumb.ShowTextOverlay">テキストオーバーレイを表示</sys:String>
+    <sys:String x:Key="L.Thumb.TextColor">テキストの色：</sys:String>
+    <sys:String x:Key="L.Thumb.TextSize">テキストサイズ：</sys:String>
+    <sys:String x:Key="L.Thumb.TextFont">テキストフォント：</sys:String>
+    <sys:String x:Key="L.Thumb.TextMargins">テキストの余白（W × H）：</sys:String>
+    <sys:String x:Key="L.Thumb.Borders">枠</sys:String>
+    <sys:String x:Key="L.Thumb.HighlightColor">ハイライトの色：</sys:String>
+    <sys:String x:Key="L.Thumb.HighlightBorder">ハイライト枠（px）：</sys:String>
+    <sys:String x:Key="L.Thumb.ShowHighlightBorder">ハイライト枠を表示</sys:String>
+    <sys:String x:Key="L.Thumb.ShowAllBorders">すべての色付き枠を表示</sys:String>
+    <sys:String x:Key="L.Thumb.InactiveBorder">非アクティブ枠（px）：</sys:String>
+    <sys:String x:Key="L.Thumb.InactiveBorderColor">非アクティブ枠の色：</sys:String>
+    <sys:String x:Key="L.Thumb.BgColor">背景色：</sys:String>
+    <sys:String x:Key="L.Thumb.Annotations">注釈</sys:String>
+    <sys:String x:Key="L.Thumb.AnnotationsNote">サムネイルにラベルを追加します（例: Scout、DPS、Logi）。</sys:String>
+    <sys:String x:Key="L.Thumb.Resize">サムネイルのサイズ変更</sys:String>
+    <sys:String x:Key="L.Thumb.ResizeNote">ドラッグせずに正確なピクセルサイズを指定します。「すべてのサムネイル」は新しいクライアントの初期サイズにもなります。</sys:String>
+    <sys:String x:Key="L.Thumb.ResizeAll">すべてのサムネイル</sys:String>
+    <sys:String x:Key="L.Thumb.ResizeOne">1 キャラクター</sys:String>
+    <sys:String x:Key="L.Thumb.ApplyAll">すべてに適用</sys:String>
+    <sys:String x:Key="L.Thumb.ApplyOne">適用</sys:String>
+    <sys:String x:Key="L.Thumb.EnterSize">幅と高さをピクセルで入力してください。</sys:String>
+    <sys:String x:Key="L.Thumb.SelectCharFirst">先にキャラクターを選択してください。</sys:String>
+
+    <!-- Position terms (reusable) -->
+    <sys:String x:Key="L.Pos.TopLeft">左上</sys:String>
+    <sys:String x:Key="L.Pos.Top">上</sys:String>
+    <sys:String x:Key="L.Pos.TopRight">右上</sys:String>
+    <sys:String x:Key="L.Pos.Left">左</sys:String>
+    <sys:String x:Key="L.Pos.Center">中央</sys:String>
+    <sys:String x:Key="L.Pos.Right">右</sys:String>
+    <sys:String x:Key="L.Pos.BottomLeft">左下</sys:String>
+    <sys:String x:Key="L.Pos.Bottom">下</sys:String>
+    <sys:String x:Key="L.Pos.BottomRight">右下</sys:String>
+
+    <!-- Layout panel -->
+    <sys:String x:Key="L.Layout.Title">📐 レイアウト</sys:String>
+    <sys:String x:Key="L.Layout.Subtitle">サムネイルのサイズ、スナップ、配置。</sys:String>
+    <sys:String x:Key="L.Layout.DefaultLocation">既定の位置（x, y, w, h）</sys:String>
+    <sys:String x:Key="L.Layout.ActiveCharSizing">アクティブキャラクターのサイズ</sys:String>
+    <sys:String x:Key="L.Layout.ActiveCharNote">アクティブなサムネイルに特定の寸法を設定します。既定サイズを上書きします。</sys:String>
+    <sys:String x:Key="L.Layout.Character">キャラクター：</sys:String>
+    <sys:String x:Key="L.Layout.ApplySize">サイズを適用</sys:String>
+    <sys:String x:Key="L.Layout.MinSize">最小サイズ</sys:String>
+    <sys:String x:Key="L.Layout.Snapping">スナップ</sys:String>
+    <sys:String x:Key="L.Layout.EnableSnap">サムネイルのスナップを有効化</sys:String>
+    <sys:String x:Key="L.Layout.SnapDistance">スナップ距離：</sys:String>
+    <sys:String x:Key="L.Layout.EdgeGutter">端の余白：</sys:String>
+    <sys:String x:Key="L.Layout.ConfineMonitor">ドラッグを 1 つのモニターに制限</sys:String>
+    <sys:String x:Key="L.Layout.Presets">レイアウトプリセット</sys:String>
+    <sys:String x:Key="L.Layout.PresetsNote">ウォール全体を名前付きのモニター相対プリセットとして保存し、ワンクリックで適用したり、共有用にエクスポートできます。</sys:String>
+    <sys:String x:Key="L.Layout.Remap">🔀 再マッピングして適用…</sys:String>
+    <sys:String x:Key="L.Layout.HoverZoom">ホバーズーム</sys:String>
+    <sys:String x:Key="L.Layout.ZoomOnHover">ホバー時にサムネイルをズーム</sys:String>
+    <sys:String x:Key="L.Layout.ZoomScale">ズーム倍率：</sys:String>
+    <sys:String x:Key="L.Layout.Monitor">モニター</sys:String>
+    <sys:String x:Key="L.Layout.PreferredMonitor">優先モニター：</sys:String>
+    <sys:String x:Key="L.Layout.Identify">🔍 識別</sys:String>
+    <sys:String x:Key="L.Layout.MonitorNote">これらのモニター番号は MultiPreview 独自のもので、Windows のディスプレイ番号と一致しない場合があります。識別を使って各番号がどの画面か確認してください。新しいサムネイル（保存された位置がないもの）は優先モニターに表示されます。</sys:String>
+
+    <!-- Char Hotkeys panel -->
+    <sys:String x:Key="L.Hk.Title">⌨ キャラクター別ホットキー</sys:String>
+    <sys:String x:Key="L.Hk.Subtitle">特定のキャラクターに直接切り替えるホットキーを割り当てます。</sys:String>
+    <sys:String x:Key="L.Hk.IndividualHeader">キャラクター別ホットキー</sys:String>
+    <sys:String x:Key="L.Hk.AuditHeader">ホットキー競合の監査</sys:String>
+    <sys:String x:Key="L.Hk.AuditNote">General、Char Hotkeys、Groups のすべての割り当て。2 回以上割り当てられたキーは赤で表示されます。</sys:String>
+    <sys:String x:Key="L.Hk.Refresh">🔄 更新</sys:String>
+
+    <!-- Colors panel -->
+    <sys:String x:Key="L.Colors.Title">🎨 カスタムカラー</sys:String>
+    <sys:String x:Key="L.Colors.Subtitle">キャラクターごとのカスタム枠色とテキスト色を設定します。</sys:String>
+    <sys:String x:Key="L.Colors.Header">キャラクター別カラー</sys:String>
+    <sys:String x:Key="L.Colors.Enable">キャラクター別カスタムカラーを有効化</sys:String>
+    <sys:String x:Key="L.Colors.ColActiveBorder">アクティブ枠</sys:String>
+    <sys:String x:Key="L.Colors.ColTextColor">テキストの色</sys:String>
+    <sys:String x:Key="L.Colors.ColInactiveBorder">非アクティブ枠</sys:String>
+    <sys:String x:Key="L.Colors.Preview">プレビュー：</sys:String>
+    <sys:String x:Key="L.Colors.Active">アクティブ</sys:String>
+    <sys:String x:Key="L.Colors.Text">テキスト</sys:String>
+    <sys:String x:Key="L.Colors.Inactive">非アクティブ</sys:String>
+
+    <!-- Groups panel -->
+    <sys:String x:Key="L.Groups.Title">📦 サムネイルグループ</sys:String>
+    <sys:String x:Key="L.Groups.Subtitle">キャラクターを共通の枠色とサイクルホットキーでグループ化します。</sys:String>
+    <sys:String x:Key="L.Groups.Header">グループ</sys:String>
+    <sys:String x:Key="L.Groups.ShowBorders">グループ枠を表示</sys:String>
+    <sys:String x:Key="L.Groups.SelectGroup">グループを選択：</sys:String>
+    <sys:String x:Key="L.Groups.GroupName">グループ名：</sys:String>
+    <sys:String x:Key="L.Groups.BorderColor">枠の色：</sys:String>
+    <sys:String x:Key="L.Groups.CharsPerLine">キャラクター（1 行に 1 つ）：</sys:String>
+    <sys:String x:Key="L.Groups.SaveGroup">💾 グループを保存</sys:String>
+    <sys:String x:Key="L.Groups.DeleteGroup">🗑 グループを削除</sys:String>
+    <sys:String x:Key="L.Groups.CyclingHeader">サイクルホットキーグループ</sys:String>
+    <sys:String x:Key="L.Groups.CyclingNote">専用の順方向/逆方向サイクルホットキーを持つグループを作成します。</sys:String>
+    <sys:String x:Key="L.Groups.CycleOrderNote">ピルをドラッグしてクライアントの切り替え順序を変更します。✕ でグループから削除します。</sys:String>
+    <sys:String x:Key="L.Groups.AddAllActive">+ アクティブなクライアントをすべて追加</sys:String>
+    <sys:String x:Key="L.Groups.PillRemoveTip">グループから削除</sys:String>
+    <sys:String x:Key="L.Groups.PillDragTip">ドラッグして順序を変更</sys:String>
+    <sys:String x:Key="L.Groups.SelectGroupFirst">先に切り替えグループを選択または作成してください。</sys:String>
+    <sys:String x:Key="L.Groups.NoActiveClients">アクティブなクライアントが見つかりません。</sys:String>
+    <sys:String x:Key="L.Groups.AllAlreadyAdded">アクティブなクライアントはすべてこのグループに含まれています。</sys:String>
+    <sys:String x:Key="L.Groups.Forward">順方向：</sys:String>
+    <sys:String x:Key="L.Groups.Backward">逆方向：</sys:String>
+
+    <!-- Sounds panel -->
+    <sys:String x:Key="L.Sounds.Title">🔊 アラートサウンド</sys:String>
+    <sys:String x:Key="L.Sounds.Subtitle">アラートイベントにカスタム音声ファイルを割り当てます。WAV と MP3 に対応。</sys:String>
+    <sys:String x:Key="L.Sounds.Master">マスター</sys:String>
+    <sys:String x:Key="L.Sounds.Enable">アラートサウンドを有効化</sys:String>
+    <sys:String x:Key="L.Sounds.MasterVolume">マスター音量：</sys:String>
+    <sys:String x:Key="L.Sounds.Range0100">(0-100)</sys:String>
+    <sys:String x:Key="L.Sounds.PerEvent">イベント別サウンド</sys:String>
+    <sys:String x:Key="L.Sounds.PerClientVol">クライアント別音量</sys:String>
+    <sys:String x:Key="L.Sounds.PerClientNote">実行中の各クライアントの音声音量を設定します（Windows のプロセス別）。レベルは保持され、そのクライアントに切り替えたときに再適用されます。</sys:String>
+
+    <!-- Visibility panel -->
+    <sys:String x:Key="L.Vis.Title">👁 サムネイルの表示</sys:String>
+    <sys:String x:Key="L.Vis.Subtitle">個々のキャラクターのサムネイルを表示または非表示にします。</sys:String>
+    <sys:String x:Key="L.Vis.Primary">プライマリサムネイル</sys:String>
+    <sys:String x:Key="L.Vis.CheckToHide">キャラクターのサムネイルを非表示にするにはチェック：</sys:String>
+    <sys:String x:Key="L.Vis.Tip">ヒント: サムネイルを右クリック（Ctrl+右クリック）してラベルを直接編集することもできます。</sys:String>
+    <sys:String x:Key="L.Vis.ColHidden">非表示</sys:String>
+    <sys:String x:Key="L.Vis.EditBtn">編集…</sys:String>
+    <sys:String x:Key="L.Vis.Secondary">セカンダリサムネイル（PiP）</sys:String>
+    <sys:String x:Key="L.Vis.SecondaryNote">任意のキャラクターに 2 つ目のプレビューを追加します。サイズ、位置、不透明度は独立しています。</sys:String>
+
+    <!-- Client panel -->
+    <sys:String x:Key="L.Client.Title">🖥 クライアント管理</sys:String>
+    <sys:String x:Key="L.Client.Subtitle">切り替え時の EVE クライアントウィンドウの動作を制御します。</sys:String>
+    <sys:String x:Key="L.Client.CharSelectCycling">キャラクター選択のサイクル</sys:String>
+    <sys:String x:Key="L.Client.EnableCharSelect">キャラクター選択のサイクルを有効化</sys:String>
+    <sys:String x:Key="L.Client.ForwardHotkey">順方向ホットキー：</sys:String>
+    <sys:String x:Key="L.Client.BackwardHotkey">逆方向ホットキー：</sys:String>
+    <sys:String x:Key="L.Client.WindowMgmt">ウィンドウ管理</sys:String>
+    <sys:String x:Key="L.Client.MinimizeInactive">切り替え時に非アクティブな EVE クライアントを最小化</sys:String>
+    <sys:String x:Key="L.Client.AlwaysMaximize">アクティブ化時に常に EVE を最大化</sys:String>
+    <sys:String x:Key="L.Client.TrackPositions">クライアントウィンドウの位置を記録して復元</sys:String>
+    <sys:String x:Key="L.Client.SpawnPosition">クライアントの位置:</sys:String>
+    <sys:String x:Key="L.Client.SpawnOff">オフ（EVE が開いた位置のまま）</sys:String>
+    <sys:String x:Key="L.Client.SpawnCenter">そのモニターの中央</sys:String>
+    <sys:String x:Key="L.Client.SpawnCustom">カスタム X / Y</sys:String>
+    <sys:String x:Key="L.Client.SpawnNote">各 EVE クライアントを検出時に加え、切り替えるたびに配置し直します。固定ウィンドウのクライアントがウルトワイドや大型モニターで左上に開くのを防ぎ、常に同じ場所に保ちます。「クライアントウィンドウ位置を記録・復元」が有効な間は無視されます。</sys:String>
+    <sys:String x:Key="L.Client.CoverTaskbar">アクティブなクライアントでタスクバーを覆う</sys:String>
+    <sys:String x:Key="L.Client.CoverTaskbarNote">画面の高さいっぱいの固定ウィンドウクライアント向け。フォーカス中のクライアントを Windows タスクバーの上に配置し、切り替えるとすぐに下に戻るので、タスクバーとスタートメニューはそのまま使えます。また、作業領域ではなく画面全体を基準に中央揃えします。</sys:String>
+    <sys:String x:Key="L.Client.DontMinimize">クライアントを最小化しない</sys:String>
+    <sys:String x:Key="L.Client.DontMinNote">ここに列挙されたキャラクターは決して最小化されません。</sys:String>
+
+    <!-- Performance panel -->
+    <sys:String x:Key="L.Perf.Title">⚡ CPU パフォーマンス &amp; アフィニティ</sys:String>
+    <sys:String x:Key="L.Perf.Subtitle">CPU の優先度とコアアフィニティを調整し、非アクティブなクライアントが P-Core のサイクルを奪わないようにします。</sys:String>
+    <sys:String x:Key="L.Perf.GlobalSettings">グローバル設定</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinity">バックグラウンドクライアントのアフィニティ/優先度管理を有効化</sys:String>
+    <sys:String x:Key="L.Perf.ManageAffinityNote">有効にすると、非アクティブな EVE クライアントは「アイドル」優先度に下げられ、カクつきを防ぎます。</sys:String>
+    <sys:String x:Key="L.Perf.AutoBalance">非アクティブなクライアントを E-Core に自動バランス（アプリに任せる）</sys:String>
+    <sys:String x:Key="L.Perf.AutoBalanceNote">非アクティブなクライアントを論理コアの下半分（E-Core または 2 つ目の CCD）に動的にラウンドロビンで割り当てます。</sys:String>
+    <sys:String x:Key="L.Perf.GpuOpt">サムネイルの GPU 最適化</sys:String>
+    <sys:String x:Key="L.Perf.LowGpuBtn">⚡ 低 GPU 向けに最適化（多数のクライアントに推奨）</sys:String>
+    <sys:String x:Key="L.Perf.LowGpuNote">ワンクリックで、切り替え時に非アクティブなクライアントを最小化し、さらにバックグラウンドのサムネイルを一時停止するため、アイドル状態のクライアントは描画を完全に止めます。多数のクライアントでマルチボックスするときに最も効果的な FPS/ファン騒音の削減策です。</sys:String>
+    <sys:String x:Key="L.Perf.StaticThumbs">静的サムネイル（GPU 負荷を軽減）</sys:String>
+    <sys:String x:Key="L.Perf.StaticThumbsNote">ライブの DWM 合成プレビューを、約 1 秒ごとに更新されるスナップショットに置き換えます。多数のクライアントを実行するときに GPU を大きく節約できますが（DWM が毎フレーム合成しなくなる）、動きがカクつく代償があります。艦の動きはスナップショットの更新間隔で反映され、滑らかにはなりません。サムネイルを常時見るのではなく、時々確認するだけでよい艦隊に最適です。</sys:String>
+    <sys:String x:Key="L.Perf.SuspendBg">バックグラウンド時にサムネイルを一時停止</sys:String>
+    <sys:String x:Key="L.Perf.SuspendBgNote">EVE も MultiPreview もフォアグラウンドでないときは、すべてのサムネイルを最後のフレームで固定します。EVE またはアプリが戻った瞬間にライブ合成を再開します。プレイ中は影響がなく、作業中に別のアプリで見えないウィンドウのサムネイルに GPU を使わせないようにします。Alt-Tab で戻ると 1 秒未満の復帰の遅れが生じます。</sys:String>
+    <sys:String x:Key="L.Perf.CoreOverrides">クライアント別コア上書き</sys:String>
+    <sys:String x:Key="L.Perf.CoreOverridesNote">特定のキャラクターが非アクティブなときに、特定の論理プロセッサへ明示的に固定します。これは自動バランスを上書きします。</sys:String>
+    <sys:String x:Key="L.Perf.ColInactiveCore">非アクティブコア</sys:String>
+
+    <!-- FPS Limiter panel -->
+    <sys:String x:Key="L.Fps.Title">🚀 FPS リミッター</sys:String>
+    <sys:String x:Key="L.Fps.Subtitle">クライアント別 FPS 制限のための RTSS 連携。</sys:String>
+    <sys:String x:Key="L.Fps.Settings">設定</sys:String>
+    <sys:String x:Key="L.Fps.ShowOverlay">サムネイルに FPS オーバーレイを表示（右上）</sys:String>
+    <sys:String x:Key="L.Fps.BackgroundFps">バックグラウンド FPS：</sys:String>
+    <sys:String x:Key="L.Fps.ApplyProfile">🔧 RTSS プロファイルを適用</sys:String>
+    <sys:String x:Key="L.Fps.ApplyNote">まず直接書き込みを試みます。アクセスが拒否された場合、一度だけ管理者プロンプトが表示されてファイルをコピーします。</sys:String>
+    <sys:String x:Key="L.Fps.ManualInstall">手動インストール</sys:String>
+    <sys:String x:Key="L.Fps.ManualNote">管理者アクセスを許可したくない場合は、プロファイルファイルを手動でコピーしてください：</sys:String>
+    <sys:String x:Key="L.Fps.TargetFolder">対象フォルダー：</sys:String>
+    <sys:String x:Key="L.Fps.Detecting">(検出中...)</sys:String>
+    <sys:String x:Key="L.Fps.CopyFile">📋 ファイルをクリップボードにコピー</sys:String>
+    <sys:String x:Key="L.Fps.OpenFolder">📁 対象フォルダーを開く</sys:String>
+    <sys:String x:Key="L.Fps.ManualNote2">ファイルをクリップボードにコピーし、上の対象フォルダーに貼り付けてください。</sys:String>
+
+    <!-- Stats Overlay panel (metric acronym rows + legend kept in English — universal EVE jargon) -->
+    <sys:String x:Key="L.Stats.Title">📊 統計オーバーレイ</sys:String>
+    <sys:String x:Key="L.Stats.Subtitle">キャラクターごとにリアルタイムの DPS、Logi、Mining、Ratting オーバーレイを設定します。</sys:String>
+    <sys:String x:Key="L.Stats.Enable">統計オーバーレイを有効化</sys:String>
+    <sys:String x:Key="L.Stats.GlobalDefaults">グローバル既定値</sys:String>
+    <sys:String x:Key="L.Stats.GlobalDefaultsNote">既定で表示する個々のメトリクスを選択します。下のグリッドのキャラクター別上書きで、任意のメトリクスを強制的にオン/オフできます。</sys:String>
+    <sys:String x:Key="L.Stats.CatDps">⚔ DPS</sys:String>
+    <sys:String x:Key="L.Stats.CatLogi">🛡 Logi</sys:String>
+    <sys:String x:Key="L.Stats.CatMining">⛏ 採掘</sys:String>
+    <sys:String x:Key="L.Stats.CatRatting">💰 Ratting</sys:String>
+    <sys:String x:Key="L.Stats.ActiveChars">アクティブなキャラクター</sys:String>
+    <sys:String x:Key="L.Stats.DoubleClickNote">キャラクターをダブルクリック（または編集を押す）してメトリクス別の上書きを設定します。</sys:String>
+    <sys:String x:Key="L.Stats.ColOverrides">キャラクター別上書き</sys:String>
+    <sys:String x:Key="L.Stats.NpcNote">👾 NPC 切替: 有効にすると、NPC ダメージが DPS 統計に含まれます。既定はオフです。</sys:String>
+    <sys:String x:Key="L.Stats.Display">表示</sys:String>
+    <sys:String x:Key="L.Stats.FontSize">フォントサイズ：</sys:String>
+    <sys:String x:Key="L.Stats.OverlayOpacity">オーバーレイの不透明度：</sys:String>
+    <sys:String x:Key="L.Stats.BgColor">背景色：</sys:String>
+    <sys:String x:Key="L.Stats.TextColor">テキストの色：</sys:String>
+    <sys:String x:Key="L.Stats.Logging">統計ロギング</sys:String>
+    <sys:String x:Key="L.Stats.EnableLogging">統計を CSV に記録する</sys:String>
+    <sys:String x:Key="L.Stats.LogFolder">ログフォルダー：</sys:String>
+    <sys:String x:Key="L.Stats.AutoDelete">自動削除まで：</sys:String>
+    <sys:String x:Key="L.Stats.Legend">統計略語の凡例</sys:String>
+
+    <!-- About panel -->
+    <sys:String x:Key="L.About.Title">ℹ 情報</sys:String>
+    <sys:String x:Key="L.About.Edition">C# / WPF エディション</sys:String>
+    <sys:String x:Key="L.About.Desc">EVE Online 向けのマルチクライアントサムネイルプレビュー管理ツール。EVE ウィンドウのライブ DWM サムネイルを表示し、クリックで切替、ドラッグで再配置、カスタム枠、アラート、統計オーバーレイ、キャラクター別ホットキーに対応します。</sys:String>
+    <sys:String x:Key="L.About.Origin">元は CJKondur によって AutoHotkey v2 で書かれました。</sys:String>
+    <sys:String x:Key="L.About.Ported">パフォーマンス、安定性、拡張性の向上のため C# WPF に移植されました。</sys:String>
+    <sys:String x:Key="L.About.GitHub">🔗 GitHub</sys:String>
+    <sys:String x:Key="L.About.CheckUpdates">🔄 更新を確認</sys:String>
+    <sys:String x:Key="L.About.CheckOnStartup">プログラム起動時に更新を確認する</sys:String>
+    <sys:String x:Key="L.About.PreRelease">プレリリース更新を受け取る</sys:String>
+    <sys:String x:Key="L.About.PreReleaseNote">プレリリースビルドにはバグや互換性を壊す変更が含まれる場合があります。プレリリース更新の間に設定がリセットされることがあります。</sys:String>
+
+    <!-- Debug panel -->
+    <sys:String x:Key="L.Debug.Title">🐛 デバッグログ</sys:String>
+    <sys:String x:Key="L.Debug.Subtitle">問題のトラブルシューティング用に診断ログを生成するための詳細な切替。</sys:String>
+    <sys:String x:Key="L.Debug.Targets">ログ対象</sys:String>
+    <sys:String x:Key="L.Debug.Injection">入力インジェクションの処理（キーストローク &amp; パルス）</sys:String>
+    <sys:String x:Key="L.Debug.Cycling">サイクルグループ &amp; 計算の分析（クライアント切替ロジック）</sys:String>
+    <sys:String x:Key="L.Debug.WindowHooks">ウィンドウのフォアグラウンド &amp; フォーカスフック（EVE クライアント検出）</sys:String>
+    <sys:String x:Key="L.Debug.Dwm">デスクトップウィンドウマネージャー（サムネイル API の HResult）</sys:String>
+    <sys:String x:Key="L.Debug.Alerts">アラートパイプライン（解析 → トリガー → バッジ / トースト / サウンド）</sys:String>
+    <sys:String x:Key="L.Debug.LogMgmt">ログ管理</sys:String>
+    <sys:String x:Key="L.Debug.OpenLogs">📁 ログフォルダーを開く...</sys:String>
+    <sys:String x:Key="L.Debug.LogsNote">ログは一元的に保存され、ロジックの流れを対象ファイル別に分けています。</sys:String>
+
+    <!-- Crop panel -->
+    <sys:String x:Key="L.Crop.Title">✂ クロップ</sys:String>
+    <sys:String x:Key="L.Crop.Subtitle">EVE クライアントごとに 1 つ以上の切り抜きプレビューポップアップを生成します。ポップアップを右クリックドラッグで移動、右クリック + 左クリックドラッグでリサイズします。</sys:String>
+    <sys:String x:Key="L.Crop.Enable">切り抜きプレビューポップアップを有効化</sys:String>
+    <sys:String x:Key="L.Crop.EnableNote">オフにすると、すべてのクロップポップアップが非表示になります（定義は次回のために保持されます）。</sys:String>
+    <sys:String x:Key="L.Crop.CropsHeader">クロップ</sys:String>
+    <sys:String x:Key="L.Crop.AddCrop">➕ クロップを追加</sys:String>
+    <sys:String x:Key="L.Crop.EmptyHint">上でキャラクターを選び、➕ クロップを追加をクリックして名前付きの切り抜き領域を作成してください。</sys:String>
+
+    <!-- Help sidebar -->
+    <sys:String x:Key="L.Help.Title">📖 ヘルプ</sys:String>
+
+    <!-- EVE Manager panel -->
+    <sys:String x:Key="L.Eve.Title">EVE 設定プロファイルマネージャー</sys:String>
+    <sys:String x:Key="L.Eve.Subtitle">EVE の設定をあるプロファイルから別のプロファイルへコピーします。バックアップは自動的に作成されます。</sys:String>
+    <sys:String x:Key="L.Eve.SettingsFolder">EVE 設定フォルダー：</sys:String>
+    <sys:String x:Key="L.Eve.ProfileCopyMode">📋 プロファイルコピー</sys:String>
+    <sys:String x:Key="L.Eve.CharCopyMode">👤 キャラクターコピー</sys:String>
+    <sys:String x:Key="L.Eve.AccountCopyMode">🔑 アカウントコピー</sys:String>
+    <sys:String x:Key="L.Eve.SourceProfile">コピー元プロファイル（コピー元）：</sys:String>
+    <sys:String x:Key="L.Eve.TargetProfiles">コピー先プロファイル（コピー先 — チェックして選択）：</sys:String>
+    <sys:String x:Key="L.Eve.ColProfile">プロファイル</sys:String>
+    <sys:String x:Key="L.Eve.ColAccounts">アカウント</sys:String>
+    <sys:String x:Key="L.Eve.RefreshList">🔄 リストを更新</sys:String>
+    <sys:String x:Key="L.Eve.BackupChecked">💾 チェックしたコピー先プロファイルをバックアップ</sys:String>
+    <sys:String x:Key="L.Eve.CopyToChecked">📋 コピー → チェックしたコピー先</sys:String>
+    <sys:String x:Key="L.Eve.SourceShort">コピー元（コピー元）：</sys:String>
+    <sys:String x:Key="L.Eve.TargetShort">コピー先（コピー先）：</sys:String>
+    <sys:String x:Key="L.Eve.ProfileLabel">プロファイル：</sys:String>
+    <sys:String x:Key="L.Eve.SearchChars">🔍 キャラクターを検索...</sys:String>
+    <sys:String x:Key="L.Eve.CopyAllChars">コピー先プロファイルのすべてのキャラクターにコピー</sys:String>
+    <sys:String x:Key="L.Eve.CopyCharSettings">👤 キャラクター設定をコピー</sys:String>
+    <sys:String x:Key="L.Eve.AccountNote">core_user_*.dat をコピーします。これは EVE アカウントのすべてのキャラクターで共有されるアカウント別の ESC 設定（表示、映像、音声、キー割り当て）です。</sys:String>
+    <sys:String x:Key="L.Eve.SearchAccounts">🔍 アカウントを検索...</sys:String>
+    <sys:String x:Key="L.Eve.ColAccount">アカウント</sys:String>
+    <sys:String x:Key="L.Eve.CopyAllAccounts">コピー先プロファイルのすべてのアカウントにコピー</sys:String>
+    <sys:String x:Key="L.Eve.CopyAcctSettings">🔑 アカウント設定をコピー</sys:String>
+    <sys:String x:Key="L.Eve.DetectAccount">🔍 アカウントを検出</sys:String>
+    <sys:String x:Key="L.Eve.NameAccount">チェックしたコピー元アカウントに名前を付ける：</sys:String>
+    <sys:String x:Key="L.Eve.SetLabel">✎ ラベルを設定</sys:String>
+    <sys:String x:Key="L.Eve.DetectNote">アカウント検出は、各キャラクターを確実にアカウントに対応付けられるよう、1 人ずつログインする手順を案内します。ラベル設定でアカウント名を手動で上書きできます。</sys:String>
+    <sys:String x:Key="L.Eve.BackupLocation">バックアップ場所：</sys:String>
+    <sys:String x:Key="L.Eve.FetchEsi">🌐 ESI で不足している名前を取得（公開、ログイン不要）</sys:String>
+    <sys:String x:Key="L.Eve.DataMgmt">データ管理</sys:String>
+    <sys:String x:Key="L.Eve.CopyProfileOther">📋 プロファイルを他のプロファイルにコピー</sys:String>
+    <sys:String x:Key="L.Eve.ExportSettings">💾 設定をファイルにエクスポート</sys:String>
+    <sys:String x:Key="L.Eve.ImportSettings">📂 設定をファイルからインポート</sys:String>
+
+    <!-- Nav sidebar (leading spaces kept for icon padding) -->
+    <sys:String x:Key="L.Nav.General">  ⚙  一般</sys:String>
+    <sys:String x:Key="L.Nav.Thumbnails">  🖼  サムネイル</sys:String>
+    <sys:String x:Key="L.Nav.Layout">  📐  レイアウト</sys:String>
+    <sys:String x:Key="L.Nav.Hotkeys">  ⌨  キャラクターホットキー</sys:String>
+    <sys:String x:Key="L.Nav.Colors">  🎨  カラー</sys:String>
+    <sys:String x:Key="L.Nav.Groups">  📦  グループ</sys:String>
+    <sys:String x:Key="L.Nav.Alerts">  🚨  アラート</sys:String>
+    <sys:String x:Key="L.Nav.Sounds">  🔊  サウンド</sys:String>
+    <sys:String x:Key="L.Nav.Visibility">  👁  表示</sys:String>
+    <sys:String x:Key="L.Nav.Client">  🖥  クライアント</sys:String>
+    <sys:String x:Key="L.Nav.FPS">  🚀  FPS リミッター</sys:String>
+    <sys:String x:Key="L.Nav.Performance">  ⚡  パフォーマンス</sys:String>
+    <sys:String x:Key="L.Nav.Stats">  📊  統計オーバーレイ</sys:String>
+    <sys:String x:Key="L.Nav.Manager">  🗂  EVE マネージャー</sys:String>
+    <sys:String x:Key="L.Nav.Crop">  ✂  クロップ</sys:String>
+    <sys:String x:Key="L.Nav.About">  ℹ  情報</sys:String>
+    <sys:String x:Key="L.Nav.Debug">  🐛  デバッグログ</sys:String>
+
+    <!-- Top toolbar + profile row -->
+    <sys:String x:Key="L.Top.Local">ローカル：</sys:String>
+    <sys:String x:Key="L.Top.Eve">EVE：</sys:String>
+    <sys:String x:Key="L.Top.Apply">⟳ 適用</sys:String>
+    <sys:String x:Key="L.Top.CopyProfile">📋 プロファイルをコピー</sys:String>
+    <sys:String x:Key="L.Top.Backup">💾 バックアップ</sys:String>
+    <sys:String x:Key="L.Top.ResetPositions">↺ 位置をリセット</sys:String>
+    <sys:String x:Key="L.Top.Undo">↶ 元に戻す</sys:String>
+    <sys:String x:Key="L.Top.Redo">↷ やり直す</sys:String>
+    <sys:String x:Key="L.Top.CbMode">👁 CB モード</sys:String>
+    <sys:String x:Key="L.Top.SearchPlaceholder">🔍 設定を検索（Ctrl+F）</sys:String>
+
+    <!-- Tooltips -->
+    <sys:String x:Key="L.Tt.CopyProfile">サムネイルレイアウト、またはプロファイル全体を他のプロファイルにコピーします</sys:String>
+    <sys:String x:Key="L.Tt.Backup">設定ファイルのタイムスタンプ付きバックアップを作成します</sys:String>
+    <sys:String x:Key="L.Tt.ResetPositions">すべてのサムネイルを既定の位置とサイズに戻します（現在のプロファイル）</sys:String>
+    <sys:String x:Key="L.Tt.Undo">直前のレイアウト変更を元に戻します（全体移動 / 全体リサイズ / 位置リセット）</sys:String>
+    <sys:String x:Key="L.Tt.Redo">直前に元に戻したレイアウト変更をやり直します</sys:String>
+    <sys:String x:Key="L.Tt.CbMode">色覚に配慮したパレットを切り替えます</sys:String>
+    <sys:String x:Key="L.Tt.SearchAll">すべての設定を検索します（Ctrl+F）</sys:String>
+    <sys:String x:Key="L.Tt.UndoHotkey">任意。EVE が使うキー（例: Ctrl+Z）は避けてください。</sys:String>
+    <sys:String x:Key="L.Tt.RedoHotkey">任意。EVE が使うキーは避けてください。</sys:String>
+    <sys:String x:Key="L.Tt.BroadcastHud">どの押しっぱなしキーがクライアントに伝播されているかを示す小さな画面上のピル。ドラッグで再配置できます。</sys:String>
+    <sys:String x:Key="L.Tt.AutoSolo">クライアントに切り替えると、他の EVE クライアントをミュートし、アクティブなものをミュート解除します（Windows のプロセス別音声）。クライアント別のミュート/音量は各サムネイルの右クリックメニューにもあります。</sys:String>
+    <sys:String x:Key="L.Tt.CycleWhileHeld">オン: サイクルホットキーを押し続けると上記の遅延でサイクルを続けます。オフ: 1 回の押下でちょうど 1 つのクライアントを切り替えます。</sys:String>
+    <sys:String x:Key="L.Tt.AboveClients">EVE がフォーカスされている間、サムネイルを EVE クライアントより前面に保ちますが、他のアプリ（ブラウザー、Discord）が覆うことは許します。常に最前面が有効なときは無視されます。</sys:String>
+    <sys:String x:Key="L.Tt.EdgeGutter">サムネイルを端にスナップして隣接させたときに残す均等な間隔。</sys:String>
+    <sys:String x:Key="L.Tt.ConfineMonitor">オンにすると、サムネイルをドラッグしても開始したモニター上に留まります。</sys:String>
+    <sys:String x:Key="L.Tt.PresetCombo">保存する名前を入力するか、適用/エクスポートする保存済みプリセットを選択します。</sys:String>
+    <sys:String x:Key="L.Tt.PresetSave">現在のウォールをボックス内の名前で保存します（一致する名前は上書きされます）</sys:String>
+    <sys:String x:Key="L.Tt.PresetRemap">プリセットのスロットを自分のキャラクターに対応付けて適用します。共有/マシン間プリセット向けです</sys:String>
+    <sys:String x:Key="L.Tt.PresetExport">名前付きプリセットを共有可能なファイルにエクスポートします</sys:String>
+    <sys:String x:Key="L.Tt.PresetImport">共有プリセットファイルをインポートします</sys:String>
+    <sys:String x:Key="L.Tt.Identify">各モニターの番号（ここでの番号）をその画面に短時間表示します。</sys:String>
+    <sys:String x:Key="L.Tt.EditLabel">ラベルのテキスト、色、サイズを編集します</sys:String>
+    <sys:String x:Key="L.Tt.StatsMaster">マスタースイッチ。オフ = キャラクター別やメトリクス別の設定に関わらずオーバーレイは表示されません。</sys:String>
+    <sys:String x:Key="L.Tt.AutoDetectEve">EVE 設定フォルダーを自動検出します</sys:String>
+    <sys:String x:Key="L.Tt.ResetDefault">既定にリセットします</sys:String>
+    <sys:String x:Key="L.Tt.RescanCrop">稼働中の EVE クライアントと保存済みのクロップエントリを再スキャンします</sys:String>
+
+    <!-- Copy Profile dialog -->
+    <sys:String x:Key="L.Copy.Title">プロファイルをコピー</sys:String>
+    <sys:String x:Key="L.Copy.From">コピー元：</sys:String>
+    <sys:String x:Key="L.Copy.To">コピー先：</sys:String>
+    <sys:String x:Key="L.Copy.What">対象：</sys:String>
+    <sys:String x:Key="L.Copy.LayoutOnly">サムネイルレイアウトのみ</sys:String>
+    <sys:String x:Key="L.Copy.EntireProfile">プロファイル全体</sys:String>
+    <sys:String x:Key="L.Copy.EntireNote">レイアウト、表示設定、ホットキー、グループ、クロップ、パフォーマンス設定。</sys:String>
+    <sys:String x:Key="L.Copy.CopyBtn">💾  コピー</sys:String>
+
+    <!-- Label Editor dialog -->
+    <sys:String x:Key="L.Lbl.Title">サムネイルラベルを編集</sys:String>
+    <sys:String x:Key="L.Lbl.LabelText">ラベルテキスト（例: Scout、DPS、Logi）</sys:String>
+    <sys:String x:Key="L.Lbl.TextColor">テキストの色</sys:String>
+    <sys:String x:Key="L.Lbl.Default">既定</sys:String>
+    <sys:String x:Key="L.Lbl.DefaultTt">グローバルのサムネイルテキスト色を使用します</sys:String>
+    <sys:String x:Key="L.Lbl.TextSize">テキストサイズ（pt）— 空欄または 0 で既定を使用</sys:String>
+    <sys:String x:Key="L.Lbl.Remove">ラベルを削除</sys:String>
+    <sys:String x:Key="L.Lbl.RemoveTt">このキャラクターのラベルテキストとラベル別スタイルをすべてクリアします</sys:String>
+
+    <!-- Update dialog -->
+    <sys:String x:Key="L.Upd.Title">更新があります — EVE MultiPreview</sys:String>
+    <sys:String x:Key="L.Upd.Header">⬆ 更新があります</sys:String>
+    <sys:String x:Key="L.Upd.LoadingNotes">リリースノートを読み込み中...</sys:String>
+    <sys:String x:Key="L.Upd.Downloading">ダウンロード中...</sys:String>
+    <sys:String x:Key="L.Upd.ReleasePage">📋 リリースページ</sys:String>
+    <sys:String x:Key="L.Upd.Later">後で</sys:String>
+    <sys:String x:Key="L.Upd.UpdateNow">⬆ 今すぐ更新</sys:String>
+
+    <!-- Character Picker dialog -->
+    <sys:String x:Key="L.Pick.Title">キャラクターを選択</sys:String>
+    <sys:String x:Key="L.Pick.SearchHint">検索または名前を入力...</sys:String>
+    <sys:String x:Key="L.Pick.ManualHint">または上の検索ボックスに新しいキャラクター名を入力してください。</sys:String>
+
+    <!-- Quick Switch wheel -->
+    <sys:String x:Key="L.Qs.Title">クイックスイッチ</sys:String>
+    <sys:String x:Key="L.Qs.SwitchChar">キャラクターを切替</sys:String>
+    <sys:String x:Key="L.Qs.EditTt">カードの並び順を編集</sys:String>
+
+    <!-- Setup Wizard -->
+    <sys:String x:Key="L.Wiz.Title">EVE MultiPreview — セットアップウィザード</sys:String>
+    <sys:String x:Key="L.Wiz.WelcomeTitle">EVE MultiPreview へようこそ</sys:String>
+    <sys:String x:Key="L.Wiz.WelcomeSub">マルチキャラクタープレビューツールの C# エディション。</sys:String>
+    <sys:String x:Key="L.Wiz.Feat1">✅ すべての EVE クライアントの DWM サムネイルプレビュー</sys:String>
+    <sys:String x:Key="L.Wiz.Feat2">✅ キャラクター別ホットキー &amp; グループサイクル</sys:String>
+    <sys:String x:Key="L.Wiz.Feat3">✅ 点滅、サウンド、トーストアラート付きの攻撃検出</sys:String>
+    <sys:String x:Key="L.Wiz.Feat4">✅ リアルタイムの DPS、Logi、Mining &amp; Ratting 統計オーバーレイ</sys:String>
+    <sys:String x:Key="L.Wiz.Feat5">✅ インポート/エクスポート対応のプロファイル管理</sys:String>
+    <sys:String x:Key="L.Wiz.Feat6">✅ セカンダリ PiP サムネイル</sys:String>
+    <sys:String x:Key="L.Wiz.WelcomeFooter">1 分もかからずにセットアップしましょう！</sys:String>
+    <sys:String x:Key="L.Wiz.SizeTitle">サムネイルサイズを選択</sys:String>
+    <sys:String x:Key="L.Wiz.SizeSub">環境に最適なプリセットを選んでください。後で変更できます。</sys:String>
+    <sys:String x:Key="L.Wiz.SizeDual">デュアルモニター</sys:String>
+    <sys:String x:Key="L.Wiz.SizeMulti">マルチボックス</sys:String>
+    <sys:String x:Key="L.Wiz.SizeFleet">艦隊</sys:String>
+    <sys:String x:Key="L.Wiz.HkTitle">ホットキーを設定</sys:String>
+    <sys:String x:Key="L.Wiz.HkSub">任意: キャラクター間を切り替えるホットキーを割り当てます。⌨ をクリックして取得します。</sys:String>
+    <sys:String x:Key="L.Wiz.CycleSub">ログイン画面でホットキーを使ってキャラクターを順番に切り替えます。</sys:String>
+    <sys:String x:Key="L.Wiz.DoneTitle">準備完了です！</sys:String>
+    <sys:String x:Key="L.Wiz.DoneNote">これらの設定はいずれも、後でトレイメニュー → 設定から変更できます。</sys:String>
+    <sys:String x:Key="L.Wiz.Back">← 戻る</sys:String>
+    <sys:String x:Key="L.Wiz.Skip">スキップ</sys:String>
+    <sys:String x:Key="L.Wiz.Next">次へ →</sys:String>
+
+    <!-- Character Stat Editor dialog (metric acronym checkboxes kept English) -->
+    <sys:String x:Key="L.SE.Title">統計の上書き</sys:String>
+    <sys:String x:Key="L.SE.Intro">各行は 1 つのメトリクスです。☐ 強制オフ · ☑ 強制オン · ▣ グローバルを継承。カテゴリボタンでそのカテゴリのすべてのメトリクスを一括設定できます。</sys:String>
+    <sys:String x:Key="L.SE.AllOn">すべてオン</sys:String>
+    <sys:String x:Key="L.SE.AllOff">すべてオフ</sys:String>
+    <sys:String x:Key="L.SE.Inherit">継承</sys:String>
+    <sys:String x:Key="L.SE.IncludeNpc">DPS に NPC ダメージを含める</sys:String>
+    <sys:String x:Key="L.SE.ResetAll">すべて継承にリセット</sys:String>
+
+    <!-- Misc window titles / overlays -->
+    <sys:String x:Key="L.SettingsTitle">EVE MultiPreview — 設定</sys:String>
+    <sys:String x:Key="L.CropPick.Title">クロップ領域を選択</sys:String>
+    <sys:String x:Key="L.CropPick.Hint">ドラッグして切り抜き領域を選択 — Esc でキャンセル</sys:String>
+
+    <!-- Shared / common terms -->
+    <sys:String x:Key="L.Common.Px">px</sys:String>
+    <sys:String x:Key="L.Common.Seconds">秒</sys:String>
+    <sys:String x:Key="L.Common.Style">スタイル：</sys:String>
+    <sys:String x:Key="L.Common.Ms">ms</sys:String>
+    <sys:String x:Key="L.Common.Size">サイズ：</sys:String>
+    <sys:String x:Key="L.Common.Character">キャラクター</sys:String>
+    <sys:String x:Key="L.Common.AllAlreadyInList">アクティブなクライアントはすべてこのリストに含まれています。</sys:String>
+    <sys:String x:Key="L.Common.Label">ラベル</sys:String>
+    <sys:String x:Key="L.Common.Edit">✏ 編集</sys:String>
+    <sys:String x:Key="L.Common.Clear">🗑 クリア</sys:String>
+    <sys:String x:Key="L.Common.X">x：</sys:String>
+    <sys:String x:Key="L.Common.Y">y：</sys:String>
+    <sys:String x:Key="L.Common.W">w：</sys:String>
+    <sys:String x:Key="L.Common.H">h：</sys:String>
+    <sys:String x:Key="L.Common.Multiplier">x</sys:String>
+    <sys:String x:Key="L.Common.Refresh">↻ 更新</sys:String>
+    <sys:String x:Key="L.Common.Save">💾 保存</sys:String>
+    <sys:String x:Key="L.Common.Apply">✅ 適用</sys:String>
+    <sys:String x:Key="L.Common.Delete">🗑 削除</sys:String>
+    <sys:String x:Key="L.Common.Export">⬆ エクスポート…</sys:String>
+    <sys:String x:Key="L.Common.Import">⬇ インポート…</sys:String>
+    <sys:String x:Key="L.Common.Add">➕ 追加</sys:String>
+    <sys:String x:Key="L.Common.EditItem">✏️ 編集</sys:String>
+    <sys:String x:Key="L.Common.DeleteItem">❌ 削除</sys:String>
+    <sys:String x:Key="L.Common.Hotkey">ホットキー</sys:String>
+    <sys:String x:Key="L.Common.AddCharacter">➕ キャラクターを追加</sys:String>
+    <sys:String x:Key="L.Common.New">新規</sys:String>
+    <sys:String x:Key="L.Common.DeleteWord">削除</sys:String>
+    <sys:String x:Key="L.Common.Enabled">有効</sys:String>
+    <sys:String x:Key="L.Common.Opacity">不透明度</sys:String>
+    <sys:String x:Key="L.Common.OpacityColon">不透明度：</sys:String>
+    <sys:String x:Key="L.Common.Remove">❌ 削除</sys:String>
+    <sys:String x:Key="L.Common.XCap">X：</sys:String>
+    <sys:String x:Key="L.Common.YCap">Y：</sys:String>
+    <sys:String x:Key="L.Common.CharacterName">キャラクター名</sys:String>
+    <sys:String x:Key="L.Common.RefreshBtn">🔄 更新</sys:String>
+    <sys:String x:Key="L.Common.EditWord">編集</sys:String>
+    <sys:String x:Key="L.Common.Days">日</sys:String>
+    <sys:String x:Key="L.Common.Browse">📂 参照</sys:String>
+    <sys:String x:Key="L.Common.Id">ID</sys:String>
+    <sys:String x:Key="L.Common.Ready">準備完了。</sys:String>
+    <sys:String x:Key="L.Common.Ok">OK</sys:String>
+    <sys:String x:Key="L.Common.Cancel">キャンセル</sys:String>
+    <sys:String x:Key="L.Common.SaveWord">保存</sys:String>
+
+    <!-- Contextual Help sidebar (wiki) content -->
+    <sys:String x:Key="L.Wiki.General">一般設定&#x0A;═══════════════════════════&#x0A;&#x0A;ホットキーの有効範囲&#x0A;────────────────────────────&#x0A;• グローバル — EVE がアクティブウィンドウ&#x0A;  でなくてもホットキーが機能します。&#x0A;• EVE ウィンドウがアクティブなときのみ —&#x0A;  EVE クライアントにフォーカスがあるときだけ&#x0A;  ホットキーが作動します。&#x0A;&#x0A;ホットキーの一時停止&#x0A;────────────────────────────&#x0A;このキーの組み合わせを押すと、すべての&#x0A;MultiPreview ホットキーを一時的に無効化します。&#x0A;もう一度押すと再度有効になります。&#x0A;&#x0A;クリックスルー切り替え&#x0A;────────────────────────────&#x0A;サムネイルがマウスクリックを無視するようにし、&#x0A;フォーカスを奪わないようにします。&#x0A;&#x0A;表示/非表示ホットキー&#x0A;────────────────────────────&#x0A;• すべて表示/非表示 — プライマリと PiP&#x0A;  サムネイルを同時に切り替えます。&#x0A;• プライマリの表示/非表示 — プライマリのみ。&#x0A;• PiP の表示/非表示 — PiP サムネイルのみ。&#x0A;&#x0A;プロファイルの切り替え&#x0A;────────────────────────────&#x0A;プロファイルを前後に切り替えます。&#x0A;末尾から先頭へ循環します。&#x0A;&#x0A;位置のロック&#x0A;────────────────────────────&#x0A;サムネイルが誤ってドラッグされるのを&#x0A;防ぎます。&#x0A;&#x0A;サムネイル個別リサイズ&#x0A;────────────────────────────&#x0A;オンのとき、各サムネイルを個別にサイズ変更&#x0A;できます。オフのときは、1 つをリサイズすると&#x0A;すべてのサムネイルが一緒に変わります。&#x0A;&#x0A;クイックスイッチホットキー&#x0A;────────────────────────────&#x0A;直前にアクティブだった EVE クライアントへ&#x0A;即座に切り替えます。2 つのキャラクター間を&#x0A;素早く行き来するのに便利です。&#x0A;&#x0A;セッションタイマー&#x0A;各 EVE クライアントの起動時間をサムネイル&#x0A;オーバーレイに表示します。&#x0A;&#x0A;最小化の遅延&#x0A;────────────────────────────&#x0A;非アクティブなクライアントが最小化されるまでの&#x0A;遅延（ms）。素早い切り替え中の誤った最小化を&#x0A;防ぎます。&#x0A;&#x0A;循環の遅延&#x0A;────────────────────────────&#x0A;循環ホットキー（マウスボタンまたはキー）を&#x0A;押し続けたときの各アクティブ化の間隔。&#x0A;小さいほど速く繰り返します。既定の 100 ms は&#x0A;多くの環境で自然に感じられます。より軽快な&#x0A;循環にしたい場合は下げてください。&#x0A;&#x0A;UI スケール&#x0A;────────────────────────────&#x0A;設定 UI ウィンドウのフォントサイズを調整します。&#x0A;スライダーをドラッグするか、トラックをクリック&#x0A;してサイズを変更します。</sys:String>
+    <sys:String x:Key="L.Wiki.Thumbnails">サムネイルの外観&#x0A;═══════════════════════════&#x0A;&#x0A;不透明度&#x0A;────────────────────────────&#x0A;サムネイルの透明度を調整します。&#x0A;0% = 非表示、100% = 完全に不透明。&#x0A;&#x0A;ホバー時に不透明度を 100% に&#x0A;────────────────────────────&#x0A;オンのとき、サムネイルにカーソルを合わせると&#x0A;完全に不透明になり、離れると保存した不透明度に&#x0A;戻ります。普段はサムネイルを薄く表示して邪魔に&#x0A;ならないようにしつつ、実際に見るときははっきり&#x0A;見たい場合に便利です。&#x0A;&#x0A;循環除外バッジ&#x0A;────────────────────────────&#x0A;循環グループから除外されたキャラクターを示す&#x0A;赤い ✕ バッジの位置（サムネイルを Shift +&#x0A;クリックで切り替え）。9 つのアンカー位置から&#x0A;選べるので、キャラクター名や他のテキスト&#x0A;オーバーレイと重ならないようにできます。&#x0A;&#x0A;常に最前面&#x0A;────────────────────────────&#x0A;サムネイルを他のすべてのウィンドウより前面に&#x0A;保ちます。多くのマルチボックス環境でオン推奨です。&#x0A;&#x0A;Alt-Tab 時に非表示&#x0A;────────────────────────────&#x0A;EVE ウィンドウがアクティブでないときにサムネイル&#x0A;を非表示にします。戻ると再表示されます。&#x0A;&#x0A;アクティブなサムネイルを非表示&#x0A;────────────────────────────&#x0A;現在フォーカスされている EVE クライアントの&#x0A;サムネイルを非表示にします。&#x0A;&#x0A;星系名&#x0A;────────────────────────────&#x0A;現在いる星系を各サムネイルに表示します。&#x0A;EVE のチャットログから読み取ります。&#x0A;&#x0A;プロセス統計&#x0A;────────────────────────────&#x0A;各サムネイルに CPU/メモリ情報を表示します。&#x0A;クライアントのパフォーマンス監視に便利です。&#x0A;テキストサイズは下のフィールドで調整します。&#x0A;&#x0A;注釈&#x0A;────────────────────────────&#x0A;各キャラクターのサムネイルにカスタムの役割&#x0A;ラベル（Scout、DPS、Logi）を追加します。&#x0A;追加/編集でラベルを設定、クリアで削除します。&#x0A;&#x0A;詳細設定 — テキストとオーバーレイ&#x0A;════════════════════════&#x0A;&#x0A;• テキストオーバーレイ — サムネイル上の&#x0A;  キャラクター名&#x0A;• テキストの色 / サイズ / フォント — スタイル調整&#x0A;• テキストの余白 — 左上からのオフセット&#x0A;• 強調枠 — アクティブなクライアントの&#x0A;  サムネイルに付く色付きの枠&#x0A;• 非アクティブ枠 — 他のすべてに付く枠&#x0A;• 背景色 — ライブプレビュー背後の塗り色</sys:String>
+    <sys:String x:Key="L.Wiki.Layout">サムネイルレイアウト&#x0A;═══════════════════════════&#x0A;&#x0A;既定の位置&#x0A;────────────────────────────&#x0A;新しいサムネイルが画面上に表示される位置&#x0A;(x, y) と既定サイズ (w, h)。既存の保存済み位置&#x0A;は変更されません。&#x0A;&#x0A;最小サイズ&#x0A;────────────────────────────&#x0A;サムネイルに許可される最小の寸法。&#x0A;&#x0A;サムネイルスナップ&#x0A;────────────────────────────&#x0A;オンのとき、サムネイルを互いに近づけてドラッグ&#x0A;したり画面の端に近づけたりすると吸着します。&#x0A;&#x0A;ホバーズーム&#x0A;────────────────────────────&#x0A;オンのとき、サムネイルにカーソルを合わせると&#x0A;拡大します。倍率（例: 1.5 = 通常サイズの 150%）&#x0A;を設定します。&#x0A;&#x0A;優先モニター&#x0A;────────────────────────────&#x0A;新しいサムネイルを配置するモニター。&#x0A;既存の保存済み位置は変更されません。&#x0A;&#x0A;ヒント: 設定を開いたままサムネイルをドラッグし、&#x0A;⟳ 適用で位置を保存します。</sys:String>
+    <sys:String x:Key="L.Wiki.Hotkeys">キャラクターホットキー&#x0A;═══════════════════════════&#x0A;&#x0A;キャラクター別ホットキー&#x0A;────────────────────────────&#x0A;各 EVE キャラクターにホットキーを割り当てます。&#x0A;押すとそのキャラクターのクライアントが前面に&#x0A;表示されます。&#x0A;&#x0A;同じ EVE アカウント上のキャラクターは&#x0A;同じホットキーを共有できます。&#x0A;&#x0A;ホットキーの編集&#x0A;────────────────────────────&#x0A;キャラクターを選択して編集をクリックします。&#x0A;キーの組み合わせを直接入力するか、⌨ キャプチャ&#x0A;をクリックしてキーの組み合わせまたはマウス&#x0A;ボタン（XButton1/2、MButton）を押します。&#x0A;&#x0A;ホットキーの書式&#x0A;────────────────────────────&#x0A;AHK v2 のキー名を使用します:&#x0A;• F1、F2、... F12&#x0A;• ^a = Ctrl+A&#x0A;• !a = Alt+A&#x0A;• +a = Shift+A&#x0A;• #a = Win+A&#x0A;• ^+F1 = Ctrl+Shift+F1&#x0A;• XButton1、XButton2、MButton&#x0A;&#x0A;競合の検出&#x0A;────────────────────────────&#x0A;ホットキーがシステムホットキー（一般タブ）と&#x0A;競合する場合はブロックされます。&#x0A;キャラクターホットキー同士は重複できます。&#x0A;&#x0A;ホットキーグループ&#x0A;════════════════════════&#x0A;&#x0A;グループ循環&#x0A;────────────────────────────&#x0A;名前付きのキャラクターグループを作成し、&#x0A;前進 / 後退ホットキーを割り当てて、その&#x0A;サブセットのみを循環します。&#x0A;&#x0A;例: 戦闘キャラクターをまとめた「PVP Fleet」&#x0A;グループ — 1 つのキーでアルトに触れずに&#x0A;順番に切り替えられます。&#x0A;&#x0A;グループの管理&#x0A;────────────────────────────&#x0A;• キャラクターリストの下のドロップダウンで&#x0A;  グループを選択または作成します&#x0A;• ➕ キャラクター追加で追加します&#x0A;• 前進 / 後退ホットキーを割り当てます&#x0A;• 削除でグループ全体を削除します</sys:String>
+    <sys:String x:Key="L.Wiki.Colors">カスタムカラー&#x0A;═══════════════════════════&#x0A;&#x0A;キャラクター別カラー&#x0A;────────────────────────────&#x0A;素早く見分けられるように、各キャラクターに&#x0A;固有の色を割り当てます。&#x0A;&#x0A;各キャラクターに 3 つの色が設定されます:&#x0A;• アクティブ枠 — フォーカス時&#x0A;• テキストの色 — 名前オーバーレイ&#x0A;• 非アクティブ枠 — 非フォーカス時&#x0A;&#x0A;色の設定方法&#x0A;────────────────────────────&#x0A;1. カスタムカラーを有効化（オンに切り替え）&#x0A;2. 追加をクリックし、キャラクターを検索&#x0A;3. アクティブ枠、テキスト、非アクティブ枠の&#x0A;   色を順に選択&#x0A;4. 後で編集/削除で変更できます&#x0A;&#x0A;16 進カラーの書式&#x0A;────────────────────────────&#x0A;6 桁の 16 進数を使用します: FF0000 = 赤、&#x0A;00FF00 = 緑、0000FF = 青。&#x0A;🎨 をクリックするとカラーピッカーが開きます。</sys:String>
+    <sys:String x:Key="L.Wiki.Groups">グループ&#x0A;═══════════════════════════&#x0A;&#x0A;サムネイルグループ&#x0A;────────────────────────────&#x0A;素早く見分けられるように、共有の枠色で&#x0A;キャラクターをグループ化します。&#x0A;「グループ枠を表示」を有効にすると表示されます。&#x0A;&#x0A;グループの作成&#x0A;────────────────────────────&#x0A;1. グループ名を入力&#x0A;2. 枠色を選択&#x0A;3. キャラクターを追加&#x0A;4. グループを保存をクリック&#x0A;&#x0A;循環ホットキーグループ&#x0A;────────────────────────────&#x0A;循環ホットキー付きの名前付きグループを作成し、&#x0A;1 つのキーでキャラクターのサブセットを素早く&#x0A;切り替えます。&#x0A;&#x0A;例: 戦闘キャラクターをまとめた「PVP Fleet」&#x0A;グループ — 前進 / 後退でそれらだけを循環します。&#x0A;&#x0A;キャラクターの追加&#x0A;────────────────────────────&#x0A;「➕ キャラクター追加」をクリックすると、&#x0A;入力フィルターで既知のすべてのキャラクターを&#x0A;検索できます。</sys:String>
+    <sys:String x:Key="L.Wiki.Alerts">アラートシステム&#x0A;═══════════════════════════&#x0A;&#x0A;アラートの仕組み&#x0A;────────────────────────────&#x0A;MultiPreview は EVE のチャットログとゲームログを&#x0A;リアルタイムで監視します。戦闘イベントを検出&#x0A;すると、視覚および音声アラートを発動します。&#x0A;&#x0A;戦闘アラート&#x0A;────────────────────────────&#x0A;• 被攻撃 — ダメージを受けている&#x0A;• ワープスクランブル — タックル検出&#x0A;• クローク解除 — クロークが外れた&#x0A;• フリート招待 — フリートへの招待&#x0A;• 会話リクエスト — 会話の着信&#x0A;• 星系移動 — 星系をジャンプした&#x0A;&#x0A;採掘アラート&#x0A;────────────────────────────&#x0A;• カーゴ満杯 — カーゴ / 鉱石ホールドが満杯&#x0A;• 枯渇 — アステロイドが尽きた&#x0A;• クリスタル破損 — クリスタルが割れた&#x0A;• マイナー停止 — モジュールが停止した&#x0A;&#x0A;重要度ティア&#x0A;────────────────────────────&#x0A;🔴 重大 — 被攻撃、スクランブル、&#x0A;   クローク解除&#x0A;🟠 警告 — フリート招待、カーゴ満杯、&#x0A;   クリスタル破損&#x0A;🔵 情報 — 会話、星系移動、&#x0A;   枯渇、マイナー停止&#x0A;&#x0A;各ティアには独自の枠色、クールダウンタイマー、&#x0A;トレイ通知の切り替え、点滅速度スライダー&#x0A;（100 ms = 非常に速い、2000 ms = ほとんど&#x0A;点滅しない）があり、視認性と煩わしさのバランス&#x0A;に合わせて調整できます。&#x0A;&#x0A;アラート点滅の不透明度&#x0A;────────────────────────────&#x0A;すべてのイベントでアラート点滅枠を薄くする&#x0A;マスタースライダー。100% = 最大の強さ、&#x0A;低いほど控えめになります。複数の点滅が同時に&#x0A;発生して見づらくなる大規模なマルチボックス&#x0A;グリッドで便利です。&#x0A;&#x0A;サムネイルアラートバッジ&#x0A;────────────────────────────&#x0A;グローバルにオンのとき、キャラクターがアラート&#x0A;を発すると赤い番号付きバッジがサムネイルに&#x0A;表示されます（そのクライアントがフォーカスされた&#x0A;瞬間に消えます）。各アラートイベント行にも独自の&#x0A;「バッジ」チェックボックスがあるため、トースト /&#x0A;サウンド / 点滅は残しつつバッジだけを消せます。&#x0A;星系移動のような頻発イベントに便利です。&#x0A;&#x0A;アラート別カスタムカラー&#x0A;────────────────────────────&#x0A;各アラート行には色付きの ■ の四角いスウォッチ&#x0A;があります。クリックするとそのアラートの点滅色&#x0A;をカスタムで選べます。&#x0A;&#x0A;色の優先順位:&#x0A;1. アラート別の色（■ スウォッチ）&#x0A;2. 重要度ティアの色&#x0A;3. 既定の赤（フォールバック）&#x0A;&#x0A;アラート別の色をクリア（重要度の色を選び直す）&#x0A;すると、ティアの既定に戻ります。&#x0A;&#x0A;PVE モード&#x0A;────────────────────────────&#x0A;NPC / ラットのダメージを無視し、プレイヤーの&#x0A;攻撃からのみアラートを受け取ります。&#x0A;&#x0A;ログフォルダー&#x0A;────────────────────────────&#x0A;EVE のチャットログとゲームログのフォルダーの&#x0A;パスを設定します。標準の EVE インストールでは&#x0A;既定のパスで動作します。&#x0A;&#x0A;アラートハブ&#x0A;────────────────────────────&#x0A;画面上に配置される浮動の六角形ウィジェット。&#x0A;好きな場所にドラッグできます。ハブを右クリック&#x0A;するとアクティブなトーストをすべて消せます。&#x0A;&#x0A;トーストの方向&#x0A;────────────────────────────&#x0A;ハブを左クリックすると方向ピッカーが開きます。&#x0A;トースト通知が積み重なる方向を選びます:&#x0A;• ↑ 上  • ↓ 下  • ← 左  • → 右&#x0A;選択した矢印が強調表示されます。&#x0A;&#x0A;通知バッジ&#x0A;────────────────────────────&#x0A;六角形の右上に赤い円形バッジが現れ、&#x0A;アクティブなトーストの数（1-9+）を表示します。&#x0A;&#x0A;• バッジをクリックするとすべてのトーストを消去&#x0A;• 新しいトーストが届くとバッジが白 / 赤に&#x0A;  点滅します（4 回）&#x0A;• すべてのトーストが期限切れまたは消去されると&#x0A;  自動的に非表示になります&#x0A;&#x0A;フォーカス連動の表示&#x0A;────────────────────────────&#x0A;ハブ、バッジ、トースト、ピッカーは、EVE が&#x0A;前面のアプリのときだけ常に最前面に留まります。&#x0A;別のアプリ（ブラウザー、Discord）に切り替えると&#x0A;背後に下がり、散らかりません。&#x0A;&#x0A;トーストの表示時間&#x0A;────────────────────────────&#x0A;各トーストが画面に留まる時間（1-120 秒）を&#x0A;設定します。既定: 6 秒。&#x0A;&#x0A;位置のリセット&#x0A;────────────────────────────&#x0A;ハブを画面右下の既定位置に戻します。&#x0A;&#x0A;被攻撃インジケーター&#x0A;────────────────────────────&#x0A;有効にすると、そのキャラクターがダメージを&#x0A;受けたときにサムネイルが点滅します。タイム&#x0A;アウトで、最後の被弾後に点滅が続く時間を&#x0A;制御します。&#x0A;&#x0A;未ログインインジケーター&#x0A;────────────────────────────&#x0A;ログイン画面にいるキャラクターの視覚&#x0A;インジケーター。モード:&#x0A;• なし — インジケーターなし&#x0A;• テキスト — 「未ログイン」を表示&#x0A;• 枠 — 色付きの枠&#x0A;• 減光 — サムネイルの不透明度を下げる&#x0A;16 進フィールド + 🎨 ピッカーでインジケーターの&#x0A;色を設定します。&#x0A;&#x0A;色覚サポートモード&#x0A;────────────────────────────&#x0A;👁 CB モードボタンで切り替えます。すべての&#x0A;重要度、点滅、強調、オーバーレイの色を Wong の&#x0A;ユニバーサルに安全なパレット（朱色 / 黄 / 青）に&#x0A;置き換えます。色を使うすべてのタブに影響します。</sys:String>
+    <sys:String x:Key="L.Wiki.Sounds">アラートサウンド&#x0A;═══════════════════════════&#x0A;&#x0A;イベント別サウンド&#x0A;────────────────────────────&#x0A;各アラートイベントにカスタムの WAV または MP3&#x0A;ファイルを割り当てます。&#x0A;&#x0A;マスター音量&#x0A;────────────────────────────&#x0A;すべてのアラートサウンドの再生音量を制御します&#x0A;（0-100）。&#x0A;&#x0A;プレビューボタン&#x0A;────────────────────────────&#x0A;任意のサウンドの隣の ▶ をクリックすると試聴&#x0A;できます。✕ をクリックすると割り当てた&#x0A;ファイルをクリアします。&#x0A;&#x0A;サウンド別クールダウン&#x0A;────────────────────────────&#x0A;各サウンドには右側の数値フィールドに表示される&#x0A;独自のクールダウン（秒）があります。戦闘中に&#x0A;同じアラートが短時間で連続再生されるのを&#x0A;防ぎます。</sys:String>
+    <sys:String x:Key="L.Wiki.Visibility">表示&#x0A;═══════════════════════════&#x0A;&#x0A;サムネイルの表示&#x0A;────────────────────────────&#x0A;キャラクターのチェックを付けたり外したりして、&#x0A;プライマリサムネイルを表示 / 非表示します。&#x0A;&#x0A;セカンダリサムネイル (PiP)&#x0A;────────────────────────────&#x0A;任意のキャラクターに、独立した 2 つ目の&#x0A;ライブプレビューを追加します。PiP サムネイル&#x0A;には次の特徴があります:&#x0A;• サイズと位置が別&#x0A;• 不透明度を調整可能&#x0A;• 枠やアラート効果なし&#x0A;• キャラクターごとに有効 / 無効&#x0A;&#x0A;更新ボタン&#x0A;────────────────────────────&#x0A;設定ウィンドウを開いている間にキャラクターが&#x0A;ログインまたはログアウトした場合、🔄 更新を&#x0A;クリックしてリストを更新します。</sys:String>
+    <sys:String x:Key="L.Wiki.Client">クライアント設定&#x0A;═══════════════════════════&#x0A;&#x0A;キャラクター選択の循環&#x0A;────────────────────────────&#x0A;ログイン画面でホットキーを使ってキャラクターを&#x0A;切り替えます。&#x0A;&#x0A;非アクティブクライアントの最小化&#x0A;────────────────────────────&#x0A;フォーカスを失った EVE クライアントを自動的に&#x0A;最小化します。&#x0A;&#x0A;クライアント位置の追跡&#x0A;────────────────────────────&#x0A;各 EVE クライアントウィンドウの位置を保存・&#x0A;復元します。&#x0A;&#x0A;常に最大化&#x0A;────────────────────────────&#x0A;フォーカスを受けたときに各 EVE クライアントを&#x0A;自動的に最大化します。複数モニターでウィンドウ&#x0A;フルスクリーンを使う場合に便利です。&#x0A;&#x0A;最小化しないリスト&#x0A;────────────────────────────&#x0A;このリストのキャラクターは、「非アクティブを&#x0A;最小化」がオンでも自動最小化されません。表示した&#x0A;ままにする必要があるキャラクター（例: スカウト、&#x0A;オーダーを出しているマーケットアルト）に&#x0A;使用します。&#x0A;&#x0A;クライアントの位置&#x0A;────────────────────────────&#x0A;オフ / 中央 / カスタム。検出時に加えて、切り&#x0A;替えるたびに各クライアントを固定位置へ配置&#x0A;します。固定ウィンドウのクライアントがウル&#x0A;トラワイドや大型モニターで左上に開くのを防&#x0A;ぎます。「クライアント位置を記録・復元」が&#x0A;有効な間は無視されます。&#x0A;&#x0A;アクティブなクライアントでタスクバーを覆う&#x0A;────────────────────────────&#x0A;画面の高さいっぱいの固定ウィンドウ向け。現&#x0A;在使用中のクライアントが Windows タスクバー&#x0A;の上に配置され、高さを最大限に使えます。切&#x0A;り替えるとすぐ下に戻るため、タスクバーとス&#x0A;タートメニューはそのまま使えます。「クライ&#x0A;アントの位置 = 中央」と組み合わせると、中央&#x0A;の大きなウィンドウの周りにサムネイルを配置&#x0A;できます。</sys:String>
+    <sys:String x:Key="L.Wiki.FPSLimiter">FPS リミッター (RTSS)&#x0A;═══════════════════════════&#x0A;&#x0A;仕組み&#x0A;────────────────────────────&#x0A;1. RTSS（MSI Afterburner に付属）を&#x0A;   インストールして実行します&#x0A;2. 上で希望のバックグラウンド FPS を設定します&#x0A;3. 「RTSS プロファイルを適用」をクリックします&#x0A;4. RTSS がバックグラウンドの EVE クライアントを&#x0A;   自動的に制限します&#x0A;&#x0A;RTSS は EVE を起動する前に実行しておく必要が&#x0A;あります。EVE が既に開いている場合は、&#x0A;クライアントを再起動してください。&#x0A;&#x0A;プロファイルの適用&#x0A;────────────────────────────&#x0A;プロファイルを直接書き込もうとします。&#x0A;フォルダーが保護されている場合、1 回だけの&#x0A;管理者プロンプトでファイルのみをコピーします。&#x0A;アプリ自体に管理者権限は不要です。&#x0A;&#x0A;手動インストール&#x0A;────────────────────────────&#x0A;管理者プロンプトを一切出したくない場合:&#x0A;1. 「プロファイルをクリップボードにコピー」を&#x0A;   クリック&#x0A;2. 「📁」でターゲットフォルダーを開く&#x0A;3. 貼り付けて「exefile.exe.cfg」として保存&#x0A;4. RTSS を再起動してプロファイルを読み込む&#x0A;&#x0A;アイドル FPS 制限&#x0A;────────────────────────────&#x0A;EVE クライアントがフォーカスを失うと、RTSS は&#x0A;フレームレートをこの値まで下げます。&#x0A;推奨: アイドルクライアントで 5-15 FPS。</sys:String>
+    <sys:String x:Key="L.Wiki.StatsOverlay">統計オーバーレイ&#x0A;═══════════════════════════&#x0A;&#x0A;機能&#x0A;────────────────────────────&#x0A;リアルタイムの戦闘・活動統計を、各キャラクター&#x0A;のサムネイル近くに浮動オーバーレイとして表示&#x0A;します。&#x0A;&#x0A;統計モード&#x0A;────────────────────────────&#x0A;⚔ DPS — 1 秒あたりの与ダメージと被ダメージ、&#x0A;  総与被ダメージ。&#x0A;⊕ Logi — 1 秒あたりのアーマー / シールド /&#x0A;  キャップ修理、与被の合計。&#x0A;⛏ Mine — 1 サイクルおよび 1 時間あたりに採掘&#x0A;  した鉱石、ガス、氷。&#x0A;◎ Rat — ティックあたり、1 時間あたり、&#x0A;  セッションあたりの ISK（報奨金追跡）。&#x0A;• NPC — DPS に NPC ダメージを含める。&#x0A;&#x0A;上のキャラクターリストでチェックを付けると、&#x0A;キャラクターごとに有効になります。&#x0A;&#x0A;統計ログ&#x0A;────────────────────────────&#x0A;後で分析できるよう、統計を CSV ファイルに保存&#x0A;します。ログフォルダーを設定してログを有効に&#x0A;します。自動削除で、設定した日数を過ぎた古い&#x0A;ファイルを整理します。&#x0A;&#x0A;オーバーレイの不透明度とフォントサイズ&#x0A;────────────────────────────&#x0A;統計オーバーレイの透明度と読みやすさを好みに&#x0A;合わせて調整します。&#x0A;&#x0A;色&#x0A;────────────────────────────&#x0A;• 背景色 — オーバーレイパネルの塗り&#x0A;• テキストの色 — 統計の数値とラベル&#x0A;16 進値または 🎨 カラーピッカーで設定します。</sys:String>
+    <sys:String x:Key="L.Wiki.EVEManager">EVE マネージャー&#x0A;═══════════════════════════&#x0A;&#x0A;EVE の設定ファイルをあるプロファイルフォルダー&#x0A;から別のフォルダーへコピーします。&#x0A;&#x0A;プロファイル&#x0A;────────────────────────────&#x0A;EVE は設定を、EVE の AppData ディレクトリ内の&#x0A;settings_* という名前のフォルダーに保存します。&#x0A;各フォルダーにはキャラクターの .dat ファイルが&#x0A;含まれます。&#x0A;&#x0A;使い方&#x0A;────────────────────────────&#x0A;1. ソースプロファイルを選択（左）&#x0A;2. ターゲットプロファイルにチェック（右）&#x0A;3. コピー → チェックしたターゲット をクリック&#x0A;&#x0A;バックアップ&#x0A;────────────────────────────&#x0A;各コピーの前に、ターゲットは自動的に次の場所へ&#x0A;バックアップされます:&#x0A;AppData\Local\CCP\EVE\EVEMPBackups&#x0A;&#x0A;⚠ 設定の破損を避けるため、コピー前に EVE&#x0A;クライアントを閉じてください。&#x0A;&#x0A;キャラクター名&#x0A;────────────────────────────&#x0A;名前は EVE のチャットログ — EVE が&#x0A;Documents\EVE\logs\Chatlogs\ に書き込むのと&#x0A;同じログ — から読み取られます。&#x0A;&#x0A;一般 → ログ監視でカスタムのログパスを設定した&#x0A;場合は、そのパスが最初に確認されます。&#x0A;&#x0A;チャットログにまだ見つからないキャラクターの&#x0A;名前を調べるには、（下の）ESI ボタンを有効に&#x0A;します。ESI 検索は公開情報で、ログイン不要です。&#x0A;ESI の使いすぎを防ぐため 60 秒のクールダウンが&#x0A;あります。結果はセッション中キャッシュされます。&#x0A;&#x0A;コピーモード&#x0A;────────────────────────────&#x0A;• プロファイルコピー — 1 つの settings_*&#x0A;  フォルダーから別のフォルダーへすべての&#x0A;  ファイルをコピーします。設定全体の複製に&#x0A;  適しています。&#x0A;• キャラクターコピー — 1 人のキャラクターの&#x0A;  .dat ファイルをプロファイル間でコピーします。&#x0A;  1 人のキャラクターの同期に適しています。&#x0A;上部のタブでモードを切り替えます。&#x0A;&#x0A;自動検出&#x0A;────────────────────────────&#x0A;🔍 自動検出をクリックすると、&#x0A;%LOCALAPPDATA%\CCP\EVE 内の EVE 設定フォルダー&#x0A;を自動的に見つけます。</sys:String>
+    <sys:String x:Key="L.Wiki.Performance">パフォーマンスとアフィニティ&#x0A;═══════════════════════════&#x0A;&#x0A;CPU 優先度の管理&#x0A;────────────────────────────&#x0A;バックグラウンドの EVE クライアントを自動的に&#x0A;「アイドル」優先度に下げ、アクティブなウィンドウ&#x0A;が決してカクつかないようにします。マスター&#x0A;切り替えのチェックを外すと、追跡中のすべての&#x0A;クライアントを一括で通常優先度と全コア&#x0A;アフィニティに戻します。&#x0A;&#x0A;E コア自動バランシング&#x0A;────────────────────────────&#x0A;非アクティブな EVE クライアントを、システムの&#x0A;プロセッサの下半分（E コアまたは 2 つ目の CCD）&#x0A;に振り分け、P コアをアクティブなクライアント&#x0A;専用に残します。&#x0A;&#x0A;キャラクター別のオーバーライド&#x0A;────────────────────────────&#x0A;キャラクターがフォーカスを失ったときに、単一の&#x0A;CPU コアに厳密に固定します。これは自動バランサー&#x0A;を完全に上書きします。&#x0A;&#x0A;サムネイル GPU 最適化&#x0A;════════════════════════&#x0A;&#x0A;静的サムネイル（GPU 負荷低減）&#x0A;────────────────────────────&#x0A;ライブの DWM 合成プレビューを、およそ 1 秒に&#x0A;1 回更新されるスナップショットに置き換えます。&#x0A;多数のクライアントを実行するときに GPU を大きく&#x0A;節約できますが、動きがカクつく代償があります —&#x0A;艦の動きは滑らかにではなくスナップショットの&#x0A;間隔で更新されます。サムネイルを常に見続けるの&#x0A;ではなく時々ちらっと見るフリートに最適です。&#x0A;&#x0A;バックグラウンド時にサムネイルを一時停止&#x0A;────────────────────────────&#x0A;EVE も MultiPreview も前面プロセスでないときは、&#x0A;各サムネイルを最後のフレームで凍結します。EVE&#x0A;またはアプリが戻った瞬間にライブ合成を再開&#x0A;します。アクティブなプレイ中は気づかれず、別の&#x0A;アプリにいる間、見えないウィンドウのサムネイル&#x0A;に GPU を消費しなくなります。Alt-Tab で戻った&#x0A;ときに 1 秒未満の復帰の遅れが加わります。</sys:String>
+    <sys:String x:Key="L.Wiki.About">概要&#x0A;═══════════════════════════&#x0A;&#x0A;EVE MultiPreview&#x0A;C# / .NET 8 WPF Edition&#x0A;&#x0A;概要パネルに表示されるバージョンは、実行中の&#x0A;ビルドと一致します。&#x0A;&#x0A;もともとは AutoHotkey v2 で書かれていました。&#x0A;パフォーマンスの向上、ネイティブの DWM&#x0A;サムネイルサポート、モダンな UI 機能のために&#x0A;C# へ移植されました。&#x0A;&#x0A;バグの報告、機能の提案、リリースノートの閲覧は&#x0A;こちら:&#x0A;github.com/CJKondur/EVE-MultiPreview</sys:String>
+    <sys:String x:Key="L.Wiki.Debug">デバッグログ&#x0A;═══════════════════════════&#x0A;&#x0A;入力の問題、ウィンドウ検出、ロジックフローの&#x0A;トラブルシューティング用の診断出力。必要なとき&#x0A;のみ有効にしてください — 多用するとログは急速に&#x0A;増えます。&#x0A;&#x0A;ログは exe の隣の Logs/ に、チャンネルごとに&#x0A;1 ファイルで書き込まれます。📁 ログフォルダーを&#x0A;開く で移動できます。&#x0A;&#x0A;入力インジェクションのロジスティクス&#x0A;────────────────────────────&#x0A;EVE の入力ドロップを回避するために使う正確な&#x0A;キーストローク、スキャンコード、遅延パルスを&#x0A;ログに記録します。&#x0A;&#x0A;循環グループと計算の分析&#x0A;────────────────────────────&#x0A;アカウントを循環するためにホットキーを押し&#x0A;続けたときのインデックス計算、スロットルしきい値、&#x0A;スキップロジックをログに記録します。&#x0A;&#x0A;ウィンドウフック&#x0A;────────────────────────────&#x0A;HWND フォーカスチェック、SetForegroundWindow の&#x0A;試行、OS レベルのウィンドウ状態をログに記録&#x0A;します。&#x0A;&#x0A;Desktop Window Manager&#x0A;────────────────────────────&#x0A;DWM サムネイル登録の HResult と PrintWindow&#x0A;キャプチャ結果をログに記録します。サムネイルが&#x0A;空白になる、登録に失敗する、凍結フレームを&#x0A;誤って表示する場合に使用します。&#x0A;&#x0A;アラートパイプライン&#x0A;────────────────────────────&#x0A;アラートパイプラインを通るすべてのログ行の完全な&#x0A;トレース: ファイル読み取り → パース照合 →&#x0A;トリガー（クールダウン / 無効 / 発動）→ バッジ /&#x0A;トースト / サウンドのディスパッチ。発動を期待した&#x0A;アラートが発動しなかったときに使用します —&#x0A;各ステップがどのゲートを通過したかしなかったかを&#x0A;記録します。</sys:String>
+    <!-- Tray menu -->
+    <sys:String x:Key="L.Tray.Settings">⚙ 設定</sys:String>
+    <sys:String x:Key="L.Tray.Profiles">👤 プロファイル</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">⏸ ホットキーを一時停止</sys:String>
+    <sys:String x:Key="L.Tray.Lock">🔒 位置をロック</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">👁 サムネイルを表示/非表示</sys:String>
+    <sys:String x:Key="L.Tray.ClickThrough">↗ クリックスルーモード</sys:String>
+    <sys:String x:Key="L.Tray.ClientPositions">📐 クライアント位置</sys:String>
+    <sys:String x:Key="L.Tray.SavePositions">💾 位置を保存</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">📋 位置を復元</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">❌ すべての EVE クライアントを閉じる</sys:String>
+    <sys:String x:Key="L.Tray.PiP">🖼 PiP（個別）</sys:String>
+    <sys:String x:Key="L.Tray.Exit">🚪 終了</sys:String>
+    <sys:String x:Key="L.Tray.PosSaved">クライアント位置を保存しました</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">次の検出サイクルで位置を復元します</sys:String>
+    <sys:String x:Key="L.Tray.CloseConfirm">すべての EVE Online ウィンドウを閉じますか？</sys:String>
+    <sys:String x:Key="L.Tray.ConfirmTitle">確認</sys:String>
+
+    <!-- Thumbnail context menu -->
+    <sys:String x:Key="L.Ctx.EditLabel">✏ ラベルを編集…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 アラートをミュート</sys:String>
+    <sys:String x:Key="L.Ctx.Mute10">10 分間</sys:String>
+    <sys:String x:Key="L.Ctx.Mute30">30 分間</sys:String>
+    <sys:String x:Key="L.Ctx.Mute60">1 時間</sys:String>
+    <sys:String x:Key="L.Ctx.MuteUntil">ミュート解除するまで</sys:String>
+    <sys:String x:Key="L.Ctx.Unmute">ミュート解除</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 アラートをミュート中（解除するまで）</sys:String>
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 アラートをミュート中（残り {0} 分）</sys:String>
+    <sys:String x:Key="L.Ctx.AudioFmt">🔊 音声 — {0}%</sys:String>
+    <sys:String x:Key="L.Ctx.AudioMute">🔇 ミュート</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">🔊 100%（ミュート解除）</sys:String>
+
+    <sys:String x:Key="L.Wiki.Crop">クロップポップアップ&#x0A;═══════════════════════════&#x0A;&#x0A;クロップの機能&#x0A;────────────────────────────&#x0A;EVE クライアントごとに 1 つ以上の切り抜き&#x0A;プレビューポップアップを生成します — クライ&#x0A;アントの特定の領域（ローカルチャット、&#x0A;オーバービュー、ターゲットバー）だけを、フル&#x0A;クライアントを前面に出すことなく独自の常に&#x0A;最前面ウィンドウに表示します。&#x0A;&#x0A;マスター切り替え&#x0A;────────────────────────────&#x0A;「切り抜きプレビューポップアップを有効化」が&#x0A;グローバルのオン / オフです。オフのときはすべての&#x0A;クロップポップアップが隠れますが、定義は次回の&#x0A;ために保持されます。&#x0A;&#x0A;クロップの作成&#x0A;────────────────────────────&#x0A;1. ドロップダウンからキャラクターを選択&#x0A;2. ➕ クロップ追加 をクリック — 生成された&#x0A;   名前を持つプレースホルダーのクロップ行が&#x0A;   表示されます&#x0A;3. 📐 領域を選択 をクリックし、ライブサム&#x0A;   ネイル上をドラッグしてキャプチャしたい領域を&#x0A;   選択します&#x0A;4. 名前、ラベル表示、ポップアップの位置 /&#x0A;   サイズを必要に応じて調整します&#x0A;&#x0A;ポップアップの操作&#x0A;────────────────────────────&#x0A;• 右クリック + ドラッグ — ポップアップを移動&#x0A;• 右クリック + 左クリック + ドラッグ —&#x0A;  ポップアップをリサイズ&#x0A;• 「ラベルを表示」はクロップ名をポップアップの&#x0A;  左上にオーバーレイします&#x0A;&#x0A;永続化&#x0A;────────────────────────────&#x0A;クロップはキャラクターごと・プロファイルごとに&#x0A;保存され、キャラクターがログインすると自動的に&#x0A;再生成されます。EVE クライアントを閉じて再度&#x0A;ログインすると、キャラクターが解決され次第&#x0A;保存済みのクロップが復元されます。</sys:String>
+</ResourceDictionary>
