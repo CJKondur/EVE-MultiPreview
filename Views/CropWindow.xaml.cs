@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Interop;
@@ -243,12 +243,12 @@ public partial class CropWindow : Window
 
         if (_dragMode == DragMode.Drag)
         {
-            if (!User32.IsKeyDown(User32.VK_RBUTTON))
+            if (!User32.IsKeyDown(User32.VkSecondaryButton))
             {
                 OnRightButtonUp();
                 return;
             }
-            if (User32.IsKeyDown(User32.VK_LBUTTON))
+            if (User32.IsKeyDown(User32.VkPrimaryButton))
             {
                 _dragMode = DragMode.Resize;
                 _dragStartScreen = mouse;
@@ -281,7 +281,7 @@ public partial class CropWindow : Window
         }
         else if (_dragMode == DragMode.Resize)
         {
-            if (!User32.IsKeyDown(User32.VK_LBUTTON) || !User32.IsKeyDown(User32.VK_RBUTTON))
+            if (!User32.IsKeyDown(User32.VkPrimaryButton) || !User32.IsKeyDown(User32.VkSecondaryButton))
             {
                 StopDrag();
                 SaveBounds();

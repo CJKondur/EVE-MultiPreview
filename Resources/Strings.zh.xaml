@@ -282,6 +282,9 @@
     <sys:String x:Key="L.Fps.Subtitle">用于每客户端 FPS 限制的 RTSS 集成。</sys:String>
     <sys:String x:Key="L.Fps.Settings">设置</sys:String>
     <sys:String x:Key="L.Fps.ShowOverlay">在缩略图上显示 FPS 覆盖层（右上角）</sys:String>
+    <sys:String x:Key="L.Fps.OverlayMargin">计数器边距 右 × 上（像素）</sys:String>
+    <sys:String x:Key="L.Fps.OverlayTextSize">计数器文字大小（磅）</sys:String>
+    <sys:String x:Key="L.Fps.OverlayNote">-1 保持默认位置（距右边缘 5 像素，与名称对齐）。文字大小为 0 时跟随缩略图文字大小。</sys:String>
     <sys:String x:Key="L.Fps.BackgroundFps">后台 FPS：</sys:String>
     <sys:String x:Key="L.Fps.ApplyProfile">🔧 应用 RTSS 配置文件</sys:String>
     <sys:String x:Key="L.Fps.ApplyNote">先尝试直接写入。如果访问被拒绝，会有一次性的管理员提示来复制文件。</sys:String>

@@ -282,6 +282,9 @@
     <sys:String x:Key="L.Fps.Subtitle">클라이언트별 FPS 제한을 위한 RTSS 통합.</sys:String>
     <sys:String x:Key="L.Fps.Settings">설정</sys:String>
     <sys:String x:Key="L.Fps.ShowOverlay">썸네일에 FPS 오버레이 표시(오른쪽 위)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayMargin">카운터 여백 오른쪽 × 위 (px)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayTextSize">카운터 텍스트 크기 (pt)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayNote">-1이면 기본 위치(오른쪽 가장자리에서 5px, 이름과 같은 높이)를 사용합니다. 텍스트 크기 0은 썸네일 텍스트 크기를 따릅니다.</sys:String>
     <sys:String x:Key="L.Fps.BackgroundFps">백그라운드 FPS:</sys:String>
     <sys:String x:Key="L.Fps.ApplyProfile">🔧 RTSS 프로필 적용</sys:String>
     <sys:String x:Key="L.Fps.ApplyNote">먼저 직접 쓰기를 시도합니다. 액세스가 거부되면 일회성 관리자 프롬프트로 파일을 복사합니다.</sys:String>

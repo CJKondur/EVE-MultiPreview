@@ -639,13 +639,13 @@ public class ThumbnailWindow : Form
 
         if (_dragMode == DragMode.Drag)
         {
-            if (!User32.IsKeyDown(User32.VK_RBUTTON))
+            if (!User32.IsKeyDown(User32.VkSecondaryButton))
             {
                 OnRightButtonUp();
                 return;
             }
 
-            if (User32.IsKeyDown(User32.VK_LBUTTON))
+            if (User32.IsKeyDown(User32.VkPrimaryButton))
             {
                 _dragMode = DragMode.Resize;
                 _dragStartScreen = mouse;
@@ -689,7 +689,7 @@ public class ThumbnailWindow : Form
         }
         else if (_dragMode == DragMode.Resize)
         {
-            if (!User32.IsKeyDown(User32.VK_LBUTTON) || !User32.IsKeyDown(User32.VK_RBUTTON))
+            if (!User32.IsKeyDown(User32.VkPrimaryButton) || !User32.IsKeyDown(User32.VkSecondaryButton))
             {
                 StopDrag();
                 SavePosition();
@@ -1076,9 +1076,10 @@ public class ThumbnailWindow : Form
     }
 
     public void SetTextOverlayVisible(bool visible) => _textOverlay?.SetTextOverlayVisible(visible);
-    public void SetTextStyle(string fontFamily, double fontSize, WpfColor color)
-        => _textOverlay?.SetTextStyle(fontFamily, fontSize, color);
-    public void SetTextMargins(int marginX, int marginY) => _textOverlay?.SetTextMargins(marginX, marginY);
+    public void SetTextStyle(string fontFamily, double fontSize, WpfColor color, double fpsFontSizePt = 0)
+        => _textOverlay?.SetTextStyle(fontFamily, fontSize, color, fpsFontSizePt);
+    public void SetTextMargins(int marginX, int marginY, int fpsMarginX = -1, int fpsMarginY = -1)
+        => _textOverlay?.SetTextMargins(marginX, marginY, fpsMarginX, fpsMarginY);
 
     // ── Position/Size ────────────────────────────────────────────
 

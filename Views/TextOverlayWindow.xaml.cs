@@ -159,7 +159,7 @@ public partial class TextOverlayWindow : Window
     private int _labelSizePtOverride;
     private string _labelFontFamily = "Segoe UI";
 
-    public void SetTextStyle(string fontFamily, double fontSize, Color color)
+    public void SetTextStyle(string fontFamily, double fontSize, Color color, double fpsFontSizePt = 0)
     {
         var brush = new SolidColorBrush(color);
         var font = new System.Windows.Media.FontFamily(fontFamily);
@@ -188,11 +188,12 @@ public partial class TextOverlayWindow : Window
         TimerOverlay.Foreground = brush;
 
         FpsOverlay.FontFamily = font;
-        FpsOverlay.FontSize = dipSize;
+        // 0 = follow the thumbnail text size, as it always did (#103).
+        FpsOverlay.FontSize = fpsFontSizePt > 0 ? fpsFontSizePt * (96.0 / 72.0) : dipSize;
         FpsOverlay.Foreground = brush;
     }
 
-    public void SetTextMargins(int marginX, int marginY)
+    public void SetTextMargins(int marginX, int marginY, int fpsMarginX = -1, int fpsMarginY = -1)
     {
         // TextOverlayPanel is HorizontalAlignment="Left", so the RIGHT margin positions
         // nothing — it only subtracts from the available width. Passing marginX as both
@@ -206,7 +207,14 @@ public partial class TextOverlayWindow : Window
         // fix above it was squeezed out before it could reach the counter, which hid
         // this. The counter now keeps its own fixed inset; only the vertical margin,
         // which applies to both edges the same way, is still shared.
-        FpsOverlay.Margin = new Thickness(0, marginY, 5, 0);
+        // Both counter insets are opt-in (#103): -1 keeps the shared vertical
+        // margin and the fixed 5px right inset that #102 settled on, so an
+        // untouched config renders exactly as before.
+        FpsOverlay.Margin = new Thickness(
+            0,
+            fpsMarginY >= 0 ? fpsMarginY : marginY,
+            fpsMarginX >= 0 ? fpsMarginX : 5,
+            0);
     }
 
     /// <summary>Fade the whole overlay window (text, annotation, all) to match

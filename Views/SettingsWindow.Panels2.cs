@@ -860,6 +860,17 @@ public partial class SettingsWindow
         SaveDelayed();
     }
 
+    // Blank or partly-typed input ("-", "") simply leaves the stored value
+    // alone rather than resetting it to 0 mid-keystroke.
+    private void OnFpsOverlayLayoutChanged(object s, TextChangedEventArgs e)
+    {
+        if (_loading) return;
+        if (int.TryParse(TxtFpsMarginX.Text, out int fmx)) S.FpsOverlayMarginX = fmx;
+        if (int.TryParse(TxtFpsMarginY.Text, out int fmy)) S.FpsOverlayMarginY = fmy;
+        if (int.TryParse(TxtFpsTextSize.Text, out int fts)) S.FpsOverlayTextSize = fts;
+        SaveDelayed();
+    }
+
     private void OnFpsLimiterChanged(object s, SelectionChangedEventArgs e)
     {
         if (_loading) return;

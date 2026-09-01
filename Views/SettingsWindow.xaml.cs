@@ -441,6 +441,9 @@ public partial class SettingsWindow : Window
 
             // FPS
             ChkShowFps.IsChecked = S.ShowRtssFps;
+            TxtFpsMarginX.Text = S.FpsOverlayMarginX.ToString();
+            TxtFpsMarginY.Text = S.FpsOverlayMarginY.ToString();
+            TxtFpsTextSize.Text = S.FpsOverlayTextSize.ToString();
             SelectFpsLimit(S.RtssFpsLimit);
 
             // Stats

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -239,14 +239,14 @@ public partial class StatOverlayWindow : Window
         if (_dragMode == DragMode.Drag)
         {
             // Check if right button is still held
-            if (!User32.IsKeyDown(User32.VK_RBUTTON))
+            if (!User32.IsKeyDown(User32.VkSecondaryButton))
             {
                 OnRightButtonUp();
                 return;
             }
 
             // Check if left button is now held → switch to resize
-            if (User32.IsKeyDown(User32.VK_LBUTTON))
+            if (User32.IsKeyDown(User32.VkPrimaryButton))
             {
                 _dragMode = DragMode.Resize;
                 _dragStartScreen = mouse;
@@ -272,7 +272,7 @@ public partial class StatOverlayWindow : Window
         else if (_dragMode == DragMode.Resize)
         {
             // End resize if either button released
-            if (!User32.IsKeyDown(User32.VK_LBUTTON) || !User32.IsKeyDown(User32.VK_RBUTTON))
+            if (!User32.IsKeyDown(User32.VkPrimaryButton) || !User32.IsKeyDown(User32.VkSecondaryButton))
             {
                 StopDrag();
                 SavePosition();

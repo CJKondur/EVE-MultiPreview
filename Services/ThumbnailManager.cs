@@ -936,8 +936,10 @@ public sealed class ThumbnailManager : IDisposable
         thumb.SetTextOverlayVisible(s.ShowThumbnailTextOverlay);
         thumb.SetTextStyle(s.ThumbnailTextFont,
             double.TryParse(s.ThumbnailTextSize, out var fs) ? fs : 12,
-            ParseColor(s.ThumbnailTextColor));
-        thumb.SetTextMargins((int)s.ThumbnailTextMargins.X, (int)s.ThumbnailTextMargins.Y);
+            ParseColor(s.ThumbnailTextColor),
+            s.FpsOverlayTextSize);
+        thumb.SetTextMargins((int)s.ThumbnailTextMargins.X, (int)s.ThumbnailTextMargins.Y,
+            s.FpsOverlayMarginX, s.FpsOverlayMarginY);
 
         // Process stats text size
         thumb.SetProcessStatsTextSize(

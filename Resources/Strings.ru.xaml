@@ -282,6 +282,9 @@
     <sys:String x:Key="L.Fps.Subtitle">Интеграция с RTSS для ограничения FPS по клиентам.</sys:String>
     <sys:String x:Key="L.Fps.Settings">Настройки</sys:String>
     <sys:String x:Key="L.Fps.ShowOverlay">Показывать оверлей FPS на миниатюрах (вверху справа)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayMargin">Отступ счётчика справа × сверху (px)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayTextSize">Размер текста счётчика (pt)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayNote">-1 сохраняет положение по умолчанию (5 px от правого края, на уровне имени). Размер 0 следует размеру текста миниатюры.</sys:String>
     <sys:String x:Key="L.Fps.BackgroundFps">FPS в фоне:</sys:String>
     <sys:String x:Key="L.Fps.ApplyProfile">🔧 Применить профиль RTSS</sys:String>
     <sys:String x:Key="L.Fps.ApplyNote">Сначала пробует прямую запись. Если доступ запрещён, однократный запрос прав администратора копирует файл.</sys:String>

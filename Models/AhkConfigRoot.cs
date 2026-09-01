@@ -160,6 +160,9 @@ public class AhkConfigRoot
         s.RtssEnabled = g.RTSS_Enabled != 0;
         s.RtssFpsLimit = g.RTSS_IdleFPS;
         s.ShowRtssFps = g.RTSS_ShowFPS != 0;
+        s.FpsOverlayMarginX = g.FpsOverlayMarginX;
+        s.FpsOverlayMarginY = g.FpsOverlayMarginY;
+        s.FpsOverlayTextSize = g.FpsOverlayTextSize;
 
         // Char select
         s.Language = g.Language ?? "";
@@ -403,6 +406,9 @@ public class AhkConfigRoot
         g.RTSS_Enabled = s.RtssEnabled ? 1 : 0;
         g.RTSS_IdleFPS = s.RtssFpsLimit;
         g.RTSS_ShowFPS = s.ShowRtssFps ? 1 : 0;
+        g.FpsOverlayMarginX = s.FpsOverlayMarginX;
+        g.FpsOverlayMarginY = s.FpsOverlayMarginY;
+        g.FpsOverlayTextSize = s.FpsOverlayTextSize;
 
         // Char select
         g.Language = s.Language;
@@ -1125,6 +1131,15 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("RTSS_ShowFPS")]
     public int RTSS_ShowFPS { get; set; }
+
+    [JsonPropertyName("FpsOverlayMarginX")]
+    public int FpsOverlayMarginX { get; set; } = -1;
+
+    [JsonPropertyName("FpsOverlayMarginY")]
+    public int FpsOverlayMarginY { get; set; } = -1;
+
+    [JsonPropertyName("FpsOverlayTextSize")]
+    public int FpsOverlayTextSize { get; set; }
 
     [JsonPropertyName("Language")]
     public string? Language { get; set; } = "";

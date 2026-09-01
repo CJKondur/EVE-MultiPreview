@@ -283,6 +283,9 @@
     <sys:String x:Key="L.Fps.Subtitle">RTSS integration for per-client FPS limiting.</sys:String>
     <sys:String x:Key="L.Fps.Settings">Settings</sys:String>
     <sys:String x:Key="L.Fps.ShowOverlay">Show FPS overlay on thumbnails (Top Right)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayMargin">Counter inset right × top (px)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayTextSize">Counter text size (pt)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayNote">-1 keeps the default position (5px in from the right edge, level with the name label). Text size 0 follows the thumbnail text size.</sys:String>
     <sys:String x:Key="L.Fps.BackgroundFps">Background FPS:</sys:String>
     <sys:String x:Key="L.Fps.ApplyProfile">🔧 Apply RTSS Profile</sys:String>
     <sys:String x:Key="L.Fps.ApplyNote">Tries direct write first. If access is denied, a one-time admin prompt copies the file.</sys:String>

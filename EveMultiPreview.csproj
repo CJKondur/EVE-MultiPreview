@@ -15,10 +15,14 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <AssemblyName>EVE MultiPreview</AssemblyName>
     <RootNamespace>EveMultiPreview</RootNamespace>
-    <Version>2.3.28</Version>
+    <Version>2.3.29</Version>
     <Description>EVE Online multi-client thumbnail preview manager</Description>
 
     <!-- Publish settings -->
+    <!-- The standalone exe is ~69MB, so it publishes OUTSIDE the repo entirely:
+         a sibling folder, not a gitignored subfolder. Being out of the working
+         tree means it cannot be committed even by an `git add -A`. -->
+    <PublishDir>..\EVE-MultiPreview-Release\</PublishDir>
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PublishSingleFile>true</PublishSingleFile>

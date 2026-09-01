@@ -196,6 +196,26 @@ public static class User32
 
     public const int VK_LBUTTON = 0x01;
     public const int VK_RBUTTON = 0x02;
+
+    public const int SM_SWAPBUTTON = 23;
+
+    [DllImport("user32.dll")]
+    public static extern int GetSystemMetrics(int nIndex);
+
+    // Left-handed users swap the mouse buttons in Windows, which swaps their
+    // MEANING: the physical right button then sends WM_LBUTTONDOWN. Mouse
+    // MESSAGES honour that swap, but GetAsyncKeyState does NOT - VK_LBUTTON is
+    // always the physical left button. A drag opened by a message and then
+    // polled by the raw VK therefore reads "not held" on its first tick and
+    // dies instantly, which is why left-handed users could not drag a window
+    // with either button. Poll these wherever a mouse MESSAGE began the
+    // interaction. Read live, never cached: users toggle the setting freely.
+    public static int VkPrimaryButton =>
+        GetSystemMetrics(SM_SWAPBUTTON) != 0 ? VK_RBUTTON : VK_LBUTTON;
+
+    public static int VkSecondaryButton =>
+        GetSystemMetrics(SM_SWAPBUTTON) != 0 ? VK_LBUTTON : VK_RBUTTON;
+
     public const int VK_LCONTROL = 0xA2;
     public const int VK_LSHIFT = 0xA0;
     public const int VK_RSHIFT = 0xA1;

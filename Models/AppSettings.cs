@@ -211,6 +211,12 @@ public class AppSettings
     public bool RtssEnabled { get; set; } = false;
     public int RtssFpsLimit { get; set; } = 15;
     public bool ShowRtssFps { get; set; } = false;
+
+    // FPS counter layout (#103). Sentinels keep every existing config
+    // pixel-identical: -1 = the fixed 5px inset, 0 = follow ThumbnailTextSize.
+    public int FpsOverlayMarginX { get; set; } = -1;
+    public int FpsOverlayMarginY { get; set; } = -1;
+    public int FpsOverlayTextSize { get; set; } = 0;
     public bool ReceivePreReleaseUpdates { get; set; } = false;
     public bool CheckForUpdatesOnStartup { get; set; } = true;
 

@@ -282,6 +282,9 @@
     <sys:String x:Key="L.Fps.Subtitle">RTSS-Integration zur FPS-Begrenzung pro Client.</sys:String>
     <sys:String x:Key="L.Fps.Settings">Einstellungen</sys:String>
     <sys:String x:Key="L.Fps.ShowOverlay">FPS-Überlagerung auf Vorschauen anzeigen (oben rechts)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayMargin">Zählerabstand rechts × oben (px)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayTextSize">Zähler-Textgröße (pt)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayNote">-1 behält die Standardposition bei (5 px vom rechten Rand, auf Höhe des Namens). Textgröße 0 folgt der Thumbnail-Textgröße.</sys:String>
     <sys:String x:Key="L.Fps.BackgroundFps">Hintergrund-FPS:</sys:String>
     <sys:String x:Key="L.Fps.ApplyProfile">🔧 RTSS-Profil anwenden</sys:String>
     <sys:String x:Key="L.Fps.ApplyNote">Versucht zuerst direktes Schreiben. Wird der Zugriff verweigert, kopiert eine einmalige Administratoraufforderung die Datei.</sys:String>

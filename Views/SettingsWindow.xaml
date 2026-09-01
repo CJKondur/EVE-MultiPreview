@@ -1167,6 +1167,18 @@
                             <CheckBox x:Name="ChkShowFps" Content="{DynamicResource L.Fps.ShowOverlay}"
                                       Checked="OnShowFpsChanged" Unchecked="OnShowFpsChanged" Margin="4,4,0,8" FontWeight="SemiBold"/>
                             <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="{DynamicResource L.Fps.OverlayMargin}" Width="190"/>
+                                <TextBox x:Name="TxtFpsMarginX" Width="50" TextChanged="OnFpsOverlayLayoutChanged"/>
+                                <TextBlock Text=" × " VerticalAlignment="Center"/>
+                                <TextBox x:Name="TxtFpsMarginY" Width="50" TextChanged="OnFpsOverlayLayoutChanged"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="{DynamicResource L.Fps.OverlayTextSize}" Width="190"/>
+                                <TextBox x:Name="TxtFpsTextSize" Width="50" TextChanged="OnFpsOverlayLayoutChanged"/>
+                            </StackPanel>
+                            <TextBlock Text="{DynamicResource L.Fps.OverlayNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic" Margin="0,2,0,8" TextWrapping="Wrap" FontSize="10.5"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
                                 <Label Content="{DynamicResource L.Fps.BackgroundFps}"/>
                                 <ComboBox x:Name="CmbFpsLimit" Width="100" SelectionChanged="OnFpsLimiterChanged">
                                     <ComboBoxItem Content="5" Tag="5"/>

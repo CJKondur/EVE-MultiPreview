@@ -282,6 +282,9 @@
     <sys:String x:Key="L.Fps.Subtitle">クライアント別 FPS 制限のための RTSS 連携。</sys:String>
     <sys:String x:Key="L.Fps.Settings">設定</sys:String>
     <sys:String x:Key="L.Fps.ShowOverlay">サムネイルに FPS オーバーレイを表示（右上）</sys:String>
+    <sys:String x:Key="L.Fps.OverlayMargin">カウンターの余白 右 × 上 (px)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayTextSize">カウンターの文字サイズ (pt)</sys:String>
+    <sys:String x:Key="L.Fps.OverlayNote">-1 で既定の位置（右端から 5px、名前と同じ高さ）になります。文字サイズ 0 はサムネイルの文字サイズに従います。</sys:String>
     <sys:String x:Key="L.Fps.BackgroundFps">バックグラウンド FPS：</sys:String>
     <sys:String x:Key="L.Fps.ApplyProfile">🔧 RTSS プロファイルを適用</sys:String>
     <sys:String x:Key="L.Fps.ApplyNote">まず直接書き込みを試みます。アクセスが拒否された場合、一度だけ管理者プロンプトが表示されてファイルをコピーします。</sys:String>
