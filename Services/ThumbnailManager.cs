@@ -1858,6 +1858,12 @@ public sealed class ThumbnailManager : IDisposable
             // EVE client. Clear the tracker so RETURNING to a client (even the same
             // one we last raised for) re-raises. Without this, app→same-client and
             // settings→same-client left the thumbnails stuck behind (LittlePhish).
+            //
+            // Fires exactly once on the transition (guarded by _lastZOrderHwnd still
+            // holding the previously-active client) — otherwise auto-solo leaves that
+            // client as the sole unmuted one for as long as focus stays off EVE.
+            if (_lastZOrderHwnd != IntPtr.Zero && s.AutoSoloClientAudio && s.MuteAllClientAudioWhenNoneActive)
+                MuteAllClientAudio();
             _lastZOrderHwnd = IntPtr.Zero;
         }
 
@@ -2428,6 +2434,15 @@ public sealed class ThumbnailManager : IDisposable
     {
         var pids = CollectClientPids(IntPtr.Zero, out _);
         if (pids.Count > 0) _audio.UnmuteAll(pids);
+    }
+
+    /// <summary>Mute every tracked client's audio. Used when focus leaves EVE
+    /// entirely and MuteAllClientAudioWhenNoneActive is on, so the previously-active
+    /// client doesn't stay the sole unmuted one.</summary>
+    private void MuteAllClientAudio()
+    {
+        var pids = CollectClientPids(IntPtr.Zero, out _);
+        foreach (var pid in pids) _audio.SetMute(pid, true);
     }
 
     private void OnAudioRequested(ThumbnailWindow thumb, int code)

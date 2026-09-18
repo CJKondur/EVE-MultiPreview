@@ -314,6 +314,7 @@ public partial class SettingsWindow : Window
             ChkLockPositions.IsChecked = S.LockPositions;
             ChkBroadcastHud.IsChecked = S.ShowBroadcastKeyHud;
             ChkAutoSoloAudio.IsChecked = S.AutoSoloClientAudio;
+            ChkMuteAllWhenNoneActive.IsChecked = S.MuteAllClientAudioWhenNoneActive;
             ChkIndividualResize.IsChecked = S.IndividualThumbnailResize;
             ChkShowTimer.IsChecked = S.ShowSessionTimer;
             TxtMinimizeDelay.Text = S.MinimizeDelay.ToString();
