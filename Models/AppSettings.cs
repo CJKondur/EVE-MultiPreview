@@ -239,6 +239,10 @@ public class AppSettings
     // Auto-solo: when you switch to a client, mute all the other EVE clients and
     // unmute the active one (Windows per-process audio, matched by PID).
     public bool AutoSoloClientAudio { get; set; } = false;
+    // When no EVE client is active (focus is on another app/window), mute every
+    // tracked client instead of leaving the last-active one unmuted. Only takes
+    // effect while AutoSoloClientAudio is on.
+    public bool MuteAllClientAudioWhenNoneActive { get; set; } = false;
 
     // ── Under Fire Indicator ────────────────────────────────────────
     public bool EnableUnderFireIndicator { get; set; } = true;
