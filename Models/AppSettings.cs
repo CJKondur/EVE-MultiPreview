@@ -46,6 +46,13 @@ public class AppSettings
     public bool CycleWhileHeld { get; set; } = true;
     public bool EnableKeyBlockGuard { get; set; } = false;
     public bool GlobalHotkeys { get; set; } = true;
+
+    // Hotkeys wildcard-expand over all 16 modifier combinations, so a bare "V"
+    // binding also claims Ctrl+V / Shift+V / Win+V and paste never reaches EVE
+    // (#105). ON (default) keeps that AHK-style behaviour, which EVE players rely
+    // on - Ctrl is held to lock targets, Shift to add, and cycling must still work.
+    // OFF registers the exact combination only, so Ctrl+V passes through.
+    public bool HotkeyWildcardModifiers { get; set; } = true;
     public string SuspendHotkey { get; set; } = "";
     public string ClickThroughHotkey { get; set; } = "";
     public string HideShowThumbnailsHotkey { get; set; } = "";

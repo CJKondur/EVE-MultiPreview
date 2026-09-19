@@ -61,6 +61,8 @@
     <sys:String x:Key="L.General.ActivationScope">Portée d'activation:</sys:String>
     <sys:String x:Key="L.General.ScopeGlobal">Globale</sys:String>
     <sys:String x:Key="L.General.ScopeEveActive">Si une fenêtre EVE est active</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcard">Les raccourcis se déclenchent même si Ctrl / Maj / Alt est maintenu</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcardNote">Activé : un raccourci fonctionne même si vous maintenez un modificateur — dans EVE, Ctrl sert à verrouiller les cibles. Désactivé : un raccourci à touche unique comme V ne se déclenche que seul, donc Ctrl+V atteint le client pour coller.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Raccourcis système</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Suspendre les raccourcis:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Bascule clic traversant:</sys:String>
@@ -611,7 +613,7 @@
     <sys:String x:Key="L.Tray.PiP">🖼 PiP individuel</sys:String>
     <sys:String x:Key="L.Tray.Exit">🚪 Quitter</sys:String>
     <sys:String x:Key="L.Tray.PosSaved">Positions des clients enregistrées</sys:String>
-    <sys:String x:Key="L.Tray.PosRestored">Positions restaurées au prochain cycle de détection</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">Positions des clients restaurées</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Fermer toutes les fenêtres EVE Online ?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Confirmer</sys:String>
 

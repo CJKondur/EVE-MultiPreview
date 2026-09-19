@@ -300,6 +300,7 @@ public partial class SettingsWindow : Window
                 if ((it.Tag as string) == LocalizationService.CurrentLanguage) { CmbLanguage.SelectedItem = it; break; }
 
             CmbHotkeyScope.SelectedIndex = S.GlobalHotkeys ? 0 : 1;
+            ChkHotkeyWildcard.IsChecked = S.HotkeyWildcardModifiers;
             TxtSuspendHotkey.Text = S.SuspendHotkey;
             TxtClickThroughHotkey.Text = S.ClickThroughHotkey;
             TxtHideShowHotkey.Text = S.HideShowThumbnailsHotkey;

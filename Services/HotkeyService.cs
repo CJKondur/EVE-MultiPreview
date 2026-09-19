@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -738,8 +738,12 @@ public sealed class HotkeyService : IDisposable
 
         Debug.WriteLine($"[Hotkey:Store] 📦 Storing '{ahkKeyString}' → Mod=0x{parsedMods:X}, VK=0x{vk:X} (16 wildcard combos)");
 
-        // Natively simulate wildcard modifiers by exhaustively registering all 16 modifier combinations
-        for (uint m = 0; m < 16; m++)
+        // Wildcard expansion emulates AHK's *hotkey: the binding fires even while
+        // the user holds a modifier. EVE players depend on that (Ctrl held to lock).
+        // Its cost is that a bare key also claims Ctrl+<key>, blocking paste (#105),
+        // so it can be turned off for exact matching - m=0 is the exact combination.
+        uint combos = _appSettings?.HotkeyWildcardModifiers == false ? 1u : 16u;
+        for (uint m = 0; m < combos; m++)
         {
             _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, false, parsedMods, priority));
         }
@@ -765,8 +769,12 @@ public sealed class HotkeyService : IDisposable
         var (parsedMods, vk) = ParseAhkHotkeyString(ahkKeyString);
         if (vk == 0) return;
         
-        // Natively simulate wildcard modifiers by exhaustively registering all 16 modifier combinations
-        for (uint m = 0; m < 16; m++)
+        // Wildcard expansion emulates AHK's *hotkey: the binding fires even while
+        // the user holds a modifier. EVE players depend on that (Ctrl held to lock).
+        // Its cost is that a bare key also claims Ctrl+<key>, blocking paste (#105),
+        // so it can be turned off for exact matching - m=0 is the exact combination.
+        uint combos = _appSettings?.HotkeyWildcardModifiers == false ? 1u : 16u;
+        for (uint m = 0; m < combos; m++)
         {
             _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, true, parsedMods, priority));
         }

@@ -61,6 +61,8 @@
     <sys:String x:Key="L.General.ActivationScope">활성화 범위:</sys:String>
     <sys:String x:Key="L.General.ScopeGlobal">전역</sys:String>
     <sys:String x:Key="L.General.ScopeEveActive">EVE 창이 활성 상태일 때</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcard">Ctrl / Shift / Alt 를 누른 채로도 단축키 실행</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcardNote">켜줐: 수식어 키를 누르고 있어도 단축키가 작동합니다 — EVE에서는 대상을 잠금 때 Ctrl을 누릅니다. 꺼짐: V 같은 단일 키 단축키는 단독으로만 작동하므로 Ctrl+V가 붙여넣기를 위해 클라이언트에 전달됩니다.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">시스템 단축키</sys:String>
     <sys:String x:Key="L.General.HkSuspend">단축키 일시 중지:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">클릭 통과 전환:</sys:String>
@@ -610,7 +612,7 @@
     <sys:String x:Key="L.Tray.PiP">🖼 PiP 개별</sys:String>
     <sys:String x:Key="L.Tray.Exit">🚪 종료</sys:String>
     <sys:String x:Key="L.Tray.PosSaved">클라이언트 위치가 저장되었습니다</sys:String>
-    <sys:String x:Key="L.Tray.PosRestored">다음 감지 주기에 위치가 복원됩니다</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">클라이언트 위치를 복원했습니다</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">모든 EVE Online 창을 닫으시겠습니까?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">확인</sys:String>
 

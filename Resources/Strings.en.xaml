@@ -62,6 +62,8 @@
     <sys:String x:Key="L.General.ActivationScope">Activation scope:</sys:String>
     <sys:String x:Key="L.General.ScopeGlobal">Global</sys:String>
     <sys:String x:Key="L.General.ScopeEveActive">If an EVE window is Active</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcard">Hotkeys still fire while Ctrl / Shift / Alt is held</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcardNote">On: a hotkey works even while you hold a modifier — EVE players hold Ctrl to lock targets. Off: a single-key hotkey such as V only fires on its own, so Ctrl+V reaches the client for pasting.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">System Hotkeys</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Suspend Hotkeys:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Click-Through Toggle:</sys:String>

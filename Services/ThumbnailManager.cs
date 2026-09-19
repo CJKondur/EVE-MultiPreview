@@ -2956,16 +2956,46 @@ public sealed class ThumbnailManager : IDisposable
 
         try
         {
-            if (pos.IsMaximized == 1)
+            // One placement call, not MoveWindow / SW_MAXIMIZE. SW_MAXIMIZE maximizes on
+            // the monitor the window is CURRENTLY on, so a client saved maximized on
+            // another monitor never moved there; and MoveWindow on a maximized or
+            // minimized window doesn't change where it restores to. rcNormalPosition
+            // picks the monitor for every state. It is in WORKSPACE coordinates, which
+            // a top/left taskbar on the primary monitor offsets from the saved screen rect.
+            var wp = new Interop.User32.WINDOWPLACEMENT
             {
-                Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
+                length = (uint)System.Runtime.InteropServices.Marshal.SizeOf<Interop.User32.WINDOWPLACEMENT>()
+            };
+            if (!Interop.User32.GetWindowPlacement(hwnd, ref wp)) return;
+
+            var prim = System.Windows.Forms.Screen.PrimaryScreen!;
+            int x = (int)pos.X - (prim.WorkingArea.Left - prim.Bounds.Left);
+            int y = (int)pos.Y - (prim.WorkingArea.Top - prim.Bounds.Top);
+            wp.rcNormalPosition = new Interop.DwmApi.RECT(x, y, x + (int)pos.Width, y + (int)pos.Height);
+
+            bool max = pos.IsMaximized == 1;
+            if (Interop.User32.IsIconic(hwnd))
+            {
+                // Leave minimized clients minimized; they restore onto the saved monitor.
+                wp.showCmd = Interop.User32.SW_SHOWMINNOACTIVE;
+                wp.flags = max ? Interop.User32.WPF_RESTORETOMAXIMIZED : 0;
             }
             else
             {
-                Interop.User32.MoveWindow(hwnd, (int)pos.X, (int)pos.Y, (int)pos.Width, (int)pos.Height, true);
+                wp.showCmd = (uint)(max ? Interop.User32.SW_MAXIMIZE : Interop.User32.SW_SHOWNOACTIVATE);
             }
+            Interop.User32.SetWindowPlacement(hwnd, ref wp);
         }
         catch { }
+    }
+
+    /// <summary>Profile switch: move every running client to the NEW profile's saved
+    /// position, which may be on another monitor. Restore used to run only when a
+    /// client was first detected, so switching profiles never moved open clients.</summary>
+    public void RestoreAllClientPositions()
+    {
+        foreach (var (hwnd, thumb) in _thumbnails)
+            RestoreClientPosition(hwnd, thumb.CharacterName);
     }
 
     /// <summary>Move a freshly-discovered EVE client to a fixed spawn position —

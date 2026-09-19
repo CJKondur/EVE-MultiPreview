@@ -233,6 +233,7 @@ public partial class SettingsWindow
     private void SaveGeneral()
     {
         S.GlobalHotkeys = CmbHotkeyScope.SelectedIndex == 0;
+        S.HotkeyWildcardModifiers = ChkHotkeyWildcard.IsChecked == true;
         S.SuspendHotkey = TxtSuspendHotkey.Text;
         S.ClickThroughHotkey = TxtClickThroughHotkey.Text;
         S.HideShowThumbnailsHotkey = TxtHideShowHotkey.Text;

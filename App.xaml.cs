@@ -172,6 +172,8 @@ public partial class App : Application
         _settings.ProfileSwitched += name =>
         {
             _thumbnailManager?.ReapplySettings();
+            if (_settings.Settings.TrackClientPositions)
+                _thumbnailManager?.RestoreAllClientPositions();
             // Recovery net (issue #81): never carry a stuck crops-hidden state across a switch.
             _cropManager?.ShowCrops();
             _cropManager?.Refresh();
@@ -756,7 +758,10 @@ public partial class App : Application
         L(savePosItem, "L.Tray.SavePositions", "💾 Save Positions");
         var restorePosItem = posMenu.DropDownItems.Add("", null, (_, _) =>
         {
-            _trayIcon?.ShowBalloonTip(2000, "EVE MultiPreview", LocalizationService.Str("L.Tray.PosRestored", "Positions restored on next discovery cycle"), ToolTipIcon.Info);
+            // Used to only show this balloon: restore ran solely for newly detected
+            // clients, so already-open clients never moved.
+            _thumbnailManager?.RestoreAllClientPositions();
+            _trayIcon?.ShowBalloonTip(2000, "EVE MultiPreview", LocalizationService.Str("L.Tray.PosRestored", "Client positions restored"), ToolTipIcon.Info);
         });
         L(restorePosItem, "L.Tray.RestorePositions", "📋 Restore Positions");
         menu.Items.Add(posMenu);

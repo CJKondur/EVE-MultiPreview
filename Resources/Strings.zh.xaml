@@ -61,6 +61,8 @@
     <sys:String x:Key="L.General.ActivationScope">激活范围：</sys:String>
     <sys:String x:Key="L.General.ScopeGlobal">全局</sys:String>
     <sys:String x:Key="L.General.ScopeEveActive">当 EVE 窗口处于活动状态时</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcard">按住 Ctrl / Shift / Alt 时快捷键仍然生效</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcardNote">开启：即使按住修饰键，快捷键仍然有效 — 在 EVE 中需要按住 Ctrl 锁定目标。关闭：像 V 这样的单键快捷键只在单独按下时生效，因此 Ctrl+V 可以传递给客户端用于粘贴。</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">系统热键</sys:String>
     <sys:String x:Key="L.General.HkSuspend">暂停热键：</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">点击穿透切换：</sys:String>
@@ -626,7 +628,7 @@
     <sys:String x:Key="L.Tray.PiP">🖼 PiP 单独预览</sys:String>
     <sys:String x:Key="L.Tray.Exit">🚪 退出</sys:String>
     <sys:String x:Key="L.Tray.PosSaved">客户端位置已保存</sys:String>
-    <sys:String x:Key="L.Tray.PosRestored">位置将在下次发现周期恢复</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">已恢复客户端位置</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">关闭所有 EVE Online 窗口？</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">确认</sys:String>
 

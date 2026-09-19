@@ -61,6 +61,8 @@
     <sys:String x:Key="L.General.ActivationScope">Область активации:</sys:String>
     <sys:String x:Key="L.General.ScopeGlobal">Глобально</sys:String>
     <sys:String x:Key="L.General.ScopeEveActive">Если окно EVE активно</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcard">Горячие клавиши срабатывают даже при зажатом Ctrl / Shift / Alt</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcardNote">Включено: горячая клавиша работает даже при зажатом модификаторе — в EVE Ctrl держат для захвата целей. Выключено: одиночная клавиша вроде V срабатывает только сама по себе, и Ctrl+V доходит до клиента для вставки.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Системные горячие клавиши</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Приостановить горячие клавиши:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Переключение сквозного клика:</sys:String>
@@ -628,7 +630,7 @@
     <sys:String x:Key="L.Tray.PiP">🖼 PiP по отдельности</sys:String>
     <sys:String x:Key="L.Tray.Exit">🚪 Выход</sys:String>
     <sys:String x:Key="L.Tray.PosSaved">Позиции клиентов сохранены</sys:String>
-    <sys:String x:Key="L.Tray.PosRestored">Позиции будут восстановлены при следующем цикле обнаружения</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">Позиции клиентов восстановлены</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Закрыть все окна EVE Online?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Подтверждение</sys:String>
 

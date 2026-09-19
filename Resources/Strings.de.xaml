@@ -61,6 +61,8 @@
     <sys:String x:Key="L.General.ActivationScope">Aktivierungsbereich:</sys:String>
     <sys:String x:Key="L.General.ScopeGlobal">Global</sys:String>
     <sys:String x:Key="L.General.ScopeEveActive">Wenn ein EVE-Fenster aktiv ist</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcard">Hotkeys auslösen, auch während Strg / Umschalt / Alt gedrückt ist</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcardNote">Ein: Ein Hotkey funktioniert auch bei gedrückter Modifikatortaste — in EVE wird Strg zum Anvisieren gehalten. Aus: Ein Einzeltasten-Hotkey wie V löst nur allein aus, sodass Strg+V zum Einfügen beim Client ankommt.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">System-Hotkeys</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Hotkeys pausieren:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Klick-Durchlass umschalten:</sys:String>
@@ -607,7 +609,7 @@
     <sys:String x:Key="L.Tray.PiP">🖼 PiP einzeln</sys:String>
     <sys:String x:Key="L.Tray.Exit">🚪 Beenden</sys:String>
     <sys:String x:Key="L.Tray.PosSaved">Client-Positionen gespeichert</sys:String>
-    <sys:String x:Key="L.Tray.PosRestored">Positionen werden im nächsten Erkennungszyklus wiederhergestellt</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">Client-Positionen wiederhergestellt</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Alle EVE-Online-Fenster schließen?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Bestätigen</sys:String>
 

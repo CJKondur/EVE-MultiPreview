@@ -61,6 +61,8 @@
     <sys:String x:Key="L.General.ActivationScope">Ámbito de activación:</sys:String>
     <sys:String x:Key="L.General.ScopeGlobal">Global</sys:String>
     <sys:String x:Key="L.General.ScopeEveActive">Si una ventana de EVE está activa</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcard">Las teclas rápidas se activan aunque mantengas Ctrl / Mayús / Alt</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcardNote">Activado: una tecla rápida funciona aunque mantengas un modificador — en EVE se mantiene Ctrl para fijar objetivos. Desactivado: una tecla rápida simple como V solo se activa sola, así que Ctrl+V llega al cliente para pegar.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Teclas rápidas del sistema</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Suspender teclas rápidas:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Alternar clic a través:</sys:String>
@@ -630,7 +632,7 @@
     <sys:String x:Key="L.Tray.PiP">🖼 PiP individual</sys:String>
     <sys:String x:Key="L.Tray.Exit">🚪 Salir</sys:String>
     <sys:String x:Key="L.Tray.PosSaved">Posiciones de clientes guardadas</sys:String>
-    <sys:String x:Key="L.Tray.PosRestored">Las posiciones se restaurarán en el próximo ciclo de detección</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">Posiciones de clientes restauradas</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">¿Cerrar todas las ventanas de EVE Online?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Confirmar</sys:String>
 

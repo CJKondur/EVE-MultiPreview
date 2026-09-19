@@ -246,6 +246,8 @@ public static class User32
     public const int SW_FORCEMINIMIZE = 11;
     public const int SW_MAXIMIZE = 3;
     public const int SW_SHOWNOACTIVATE = 4;
+    public const int SW_SHOWMINNOACTIVE = 7;
+    public const uint WPF_RESTORETOMAXIMIZED = 0x0002;
 
     // ── Global Hotkeys ───────────────────────────────────────────────
 
@@ -515,6 +517,22 @@ public static class User32
             }
         }
 
+        // Held MODIFIERS (Ctrl / Shift / Alt) must cross a client switch too:
+        // Ctrl+click is EVE's lock-target. They are deliberately NOT in
+        // keysToCheck because they need different treatment from both buckets:
+        // not a one-shot pulse (that releases the modifier the frame it lands)
+        // and not the letters' hybrid PostMessage+SendInput. The user is
+        // physically holding the key, so global/DirectInput state is ALREADY
+        // correct - only the incoming client's per-window key state is stale.
+        // PostMessage alone fixes that; adding SendInput would mutate global
+        // modifier state for no gain and risk a system-wide stuck Ctrl.
+        List<int> heldModifiers = new List<int>();
+        foreach (var mod in new[] { 0x10, 0x11, 0x12 })   // Shift, Ctrl, Alt
+        {
+            if (CycleKeysToIgnore.Contains(mod)) continue;
+            if (IsKeyDown(mod)) heldModifiers.Add(mod);
+        }
+
         // Handle Mouse Hotkeys (MButton, XButton1/Mouse4, XButton2/Mouse5)
         bool hasMouse1 = IsKeyDown(0x04);
         bool hasMouse2 = IsKeyDown(0x05);
@@ -526,7 +544,7 @@ public static class User32
         IntPtr myHkl = GetKeyboardLayout(myThread);
         IntPtr targetHkl = GetKeyboardLayout(targetThread);
 
-        if (pressedKeys.Count > 0 || hasMouse1 || hasMouse2 || hasMouse3)
+        if (pressedKeys.Count > 0 || heldModifiers.Count > 0 || hasMouse1 || hasMouse2 || hasMouse3)
         {
             bool hasCtrl = IsKeyDown(0x11);
             bool hasAlt = IsKeyDown(0x12);
@@ -551,11 +569,11 @@ public static class User32
             // pressed the key never received a UP because it lost focus first)
             // and the new hwnd. Adds are idempotent within a HashSet.
             IntPtr previousHwnd = _lastInjectedHwnd;
-            if (letterKeys.Count > 0)
+            if (letterKeys.Count > 0 || heldModifiers.Count > 0)
             {
                 lock (_heldKeyLock)
                 {
-                    foreach (var vk in letterKeys)
+                    foreach (var vk in letterKeys.Concat(heldModifiers))
                     {
                         if (!_heldKeyClients.TryGetValue(vk, out var set))
                         {
@@ -588,6 +606,18 @@ public static class User32
                 FlushModifier(0x11); // Ctrl
                 FlushModifier(0x12); // Alt
                 FlushModifier(0x5B); // LWin
+
+                // Modifier DOWN - PostMessage only (see note above). Sent before
+                // the sticky/pulse keys so a Ctrl+<key> combination arrives in the
+                // right order. No UP here; the poller fires it on physical release.
+                foreach (var vk in heldModifiers)
+                {
+                    uint modScan = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
+                    IntPtr lParamModDown = (IntPtr)((modScan << 16) | 1);
+                    PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamModDown);
+                }
+                if (heldModifiers.Count > 0)
+                    LogInjection($"[FixTargetHeldKeys] ⌨ PostMessage DOWN {heldModifiers.Count} modifier(s) → HWND {hwnd}");
 
                 // Sticky-key DOWN — HYBRID injection (#92). Two EVE input readers
                 // need two different things, so we do both:

@@ -310,13 +310,20 @@
                     </GroupBox>
                     <CheckBox x:Name="ChkShowTimer" Content="{DynamicResource L.General.ShowTimer}" Margin="0,0,0,12" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                     <GroupBox Header="{DynamicResource L.General.HotkeyScope}">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Content="{DynamicResource L.General.ActivationScope}"/>
-                            <ComboBox x:Name="CmbHotkeyScope" Width="200" SelectionChanged="OnGeneralChanged"
-                                      Background="{StaticResource BgPanelBrush}" Foreground="White">
-                                <ComboBoxItem Content="{DynamicResource L.General.ScopeGlobal}" Tag="global"/>
-                                <ComboBoxItem Content="{DynamicResource L.General.ScopeEveActive}" Tag="eve_active"/>
-                            </ComboBox>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{DynamicResource L.General.ActivationScope}"/>
+                                <ComboBox x:Name="CmbHotkeyScope" Width="200" SelectionChanged="OnGeneralChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White">
+                                    <ComboBoxItem Content="{DynamicResource L.General.ScopeGlobal}" Tag="global"/>
+                                    <ComboBoxItem Content="{DynamicResource L.General.ScopeEveActive}" Tag="eve_active"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <CheckBox x:Name="ChkHotkeyWildcard" Content="{DynamicResource L.General.HotkeyWildcard}"
+                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
+                            <TextBlock Text="{DynamicResource L.General.HotkeyWildcardNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
+                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="{DynamicResource L.General.SystemHotkeys}">

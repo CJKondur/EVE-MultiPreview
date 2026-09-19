@@ -61,6 +61,8 @@
     <sys:String x:Key="L.General.ActivationScope">有効化の範囲：</sys:String>
     <sys:String x:Key="L.General.ScopeGlobal">グローバル</sys:String>
     <sys:String x:Key="L.General.ScopeEveActive">EVE ウィンドウがアクティブな場合</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcard">Ctrl / Shift / Alt を押していてもホットキーを発動する</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcardNote">オン: 修飾キーを押していてもホットキーが働きます — EVE ではターゲットロックに Ctrl を押したままにします。オフ: V などの単一キーは単独で押したときだけ発動し、Ctrl+V は貼り付けのためクライアントに届きます。</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">システムホットキー</sys:String>
     <sys:String x:Key="L.General.HkSuspend">ホットキーを一時停止：</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">クリックスルー切替：</sys:String>
@@ -608,7 +610,7 @@
     <sys:String x:Key="L.Tray.PiP">🖼 PiP（個別）</sys:String>
     <sys:String x:Key="L.Tray.Exit">🚪 終了</sys:String>
     <sys:String x:Key="L.Tray.PosSaved">クライアント位置を保存しました</sys:String>
-    <sys:String x:Key="L.Tray.PosRestored">次の検出サイクルで位置を復元します</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">クライアントの位置を復元しました</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">すべての EVE Online ウィンドウを閉じますか？</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">確認</sys:String>
 

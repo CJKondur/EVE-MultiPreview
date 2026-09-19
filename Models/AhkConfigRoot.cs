@@ -39,6 +39,7 @@ public class AhkConfigRoot
         s.ThumbnailBackgroundColor = g.ThumbnailBackgroundColor ?? "0x57504e";
         s.ColorBlindMode = g.ColorBlindMode != 0;
         s.GlobalHotkeys = g.GlobalHotkeys != 0;
+        s.HotkeyWildcardModifiers = g.HotkeyWildcardModifiers != 0;
         s.SuspendHotkey = g.SuspendHotkeysHotkey ?? "";
         s.ClickThroughHotkey = g.ClickThroughHotkey ?? "";
         s.HideShowThumbnailsHotkey = g.HideShowThumbnailsHotkey ?? "";
@@ -308,6 +309,7 @@ public class AhkConfigRoot
         g.ThumbnailBackgroundColor = s.ThumbnailBackgroundColor;
         g.ColorBlindMode = s.ColorBlindMode ? 1 : 0;
         g.GlobalHotkeys = s.GlobalHotkeys ? 1 : 0;
+        g.HotkeyWildcardModifiers = s.HotkeyWildcardModifiers ? 1 : 0;
         g.SuspendHotkeysHotkey = s.SuspendHotkey;
         g.ClickThroughHotkey = s.ClickThroughHotkey;
         g.HideShowThumbnailsHotkey = s.HideShowThumbnailsHotkey;
@@ -871,6 +873,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("Global_Hotkeys")]
     public int GlobalHotkeys { get; set; } = 1;
+
+    [JsonPropertyName("HotkeyWildcardModifiers")]
+    public int HotkeyWildcardModifiers { get; set; } = 1;
 
     [JsonPropertyName("Suspend_Hotkeys_Hotkey")]
     public string? SuspendHotkeysHotkey { get; set; } = "";
