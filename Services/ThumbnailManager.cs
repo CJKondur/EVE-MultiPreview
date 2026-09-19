@@ -1488,6 +1488,15 @@ public sealed class ThumbnailManager : IDisposable
             try { proc = Interop.User32.GetProcessName(hwnd); } catch { }
             if (!Interop.User32.IsEveOrAppProcess(proc))
             {
+                // Mute-all-when-inactive HERE, before we zero _lastZOrderHwnd below —
+                // this synchronous clear runs ahead of the Background-priority
+                // UpdateActiveBorders sweep (see comment above), so its own
+                // "_lastZOrderHwnd still holds the previous client" guard always saw
+                // Zero and never fired.
+                var s = _settings.Settings;
+                if (_lastZOrderHwnd != IntPtr.Zero && s.AutoSoloClientAudio && s.MuteAllClientAudioWhenNoneActive)
+                    MuteAllClientAudio();
+
                 _lastEveFocused = false;
                 _lastZOrderHwnd = IntPtr.Zero;
             }
@@ -1862,6 +1871,9 @@ public sealed class ThumbnailManager : IDisposable
             // Fires exactly once on the transition (guarded by _lastZOrderHwnd still
             // holding the previously-active client) — otherwise auto-solo leaves that
             // client as the sole unmuted one for as long as focus stays off EVE.
+            // Only reachable here for an app/Settings-window switch: a genuine
+            // non-EVE switch is caught synchronously in OnForegroundOrMinimizeEvent
+            // below, which clears _lastZOrderHwnd before this sweep ever runs.
             if (_lastZOrderHwnd != IntPtr.Zero && s.AutoSoloClientAudio && s.MuteAllClientAudioWhenNoneActive)
                 MuteAllClientAudio();
             _lastZOrderHwnd = IntPtr.Zero;
