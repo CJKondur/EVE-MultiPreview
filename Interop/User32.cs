@@ -607,9 +607,9 @@ public static class User32
                 FlushModifier(0x12); // Alt
                 FlushModifier(0x5B); // LWin
 
-                // Modifier DOWN - PostMessage only (see note above). Sent before
-                // the sticky/pulse keys so a Ctrl+<key> combination arrives in the
-                // right order. No UP here; the poller fires it on physical release.
+                // Modifier DOWN, message half. Sent before the sticky/pulse keys so a
+                // Ctrl+<key> combination arrives in the right order. No UP here; the
+                // poller fires it on physical release.
                 foreach (var vk in heldModifiers)
                 {
                     uint modScan = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
@@ -640,13 +640,46 @@ public static class User32
                         IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1);
                         PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
                     }
+                }
 
-                    bool isFg = false;
-                    for (int attempt = 0; attempt < 6; attempt++)   // up to ~60ms for activation to settle
+                // SendInput is UNTARGETED, so it must wait until our client actually
+                // holds foreground or it would assert device state at whatever window
+                // is in front. One wait shared by modifiers and letters.
+                bool isFg = false;
+                if (letterKeys.Count > 0 || heldModifiers.Count > 0)
+                {
+                    // ~150ms, not 60: a cycle across many heavy EVE clients can take
+                    // longer than 60ms to actually hand over foreground, and missing the
+                    // window silently drops the device half - the difference between a
+                    // held modifier locking a target and doing nothing (#108). Loop exits
+                    // on the first check in the normal case, so this costs nothing.
+                    for (int attempt = 0; attempt < 15; attempt++)
                     {
                         if (GetForegroundWindow() == hwnd) { isFg = true; break; }
                         await Task.Delay(10);
                     }
+                }
+
+                // Modifier DOWN, device half (#108). PostMessage alone reaches EVE's UI
+                // layer - Ctrl-click row select responds to it - but NOT its lock-target
+                // action, which reads the device state. That is the same two-reader split
+                // the letters' hybrid below was built for, and it is why a lock modifier
+                // remapped to a LETTER locked on switch while Ctrl never did: letters got
+                // this half, modifiers did not. Re-check IsKeyDown immediately before
+                // injecting: asserting a modifier the user has already released would
+                // leave it stuck system-wide, and the release poller reads the same
+                // GetAsyncKeyState we would have just falsified, so it could not undo it.
+                if (isFg && heldModifiers.Count > 0)
+                {
+                    int asserted = 0;
+                    foreach (var vk in heldModifiers)
+                        if (IsKeyDown(vk)) { SendInputScan(vk, keyUp: false); asserted++; }
+                    if (asserted > 0)
+                        LogInjection($"[FixTargetHeldKeys] ⌨ SendInput DOWN {asserted} modifier(s) → foreground HWND {hwnd}");
+                }
+
+                if (letterKeys.Count > 0)
+                {
                     if (isFg)
                     {
                         foreach (var vk in letterKeys)
