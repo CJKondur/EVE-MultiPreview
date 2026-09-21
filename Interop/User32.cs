@@ -673,9 +673,24 @@ public static class User32
                 {
                     int asserted = 0;
                     foreach (var vk in heldModifiers)
-                        if (IsKeyDown(vk)) { SendInputScan(vk, keyUp: false); asserted++; }
+                    {
+                        // RE-PRESS, not a bare DOWN. The key is physically held, so the
+                        // device state already reads down and a lone SendInput DOWN changes
+                        // nothing - no edge is produced (the sticky-key note below says the
+                        // same thing about letters). EVE's lock-target action wants that
+                        // edge: releasing Ctrl by hand after a switch and pressing it again
+                        // always locks, which is precisely this pair. UP then DOWN, with no
+                        // await between them, so the modifier is never observably released.
+                        // Guarded by IsKeyDown so a modifier the user has already let go of
+                        // is never re-asserted - the release poller reads the same
+                        // GetAsyncKeyState we would be falsifying and could not undo it.
+                        if (!IsKeyDown(vk)) continue;
+                        SendInputScan(vk, keyUp: true);
+                        SendInputScan(vk, keyUp: false);
+                        asserted++;
+                    }
                     if (asserted > 0)
-                        LogInjection($"[FixTargetHeldKeys] ⌨ SendInput DOWN {asserted} modifier(s) → foreground HWND {hwnd}");
+                        LogInjection($"[FixTargetHeldKeys] ⌨ SendInput RE-PRESS {asserted} modifier(s) → foreground HWND {hwnd}");
                 }
 
                 if (letterKeys.Count > 0)
