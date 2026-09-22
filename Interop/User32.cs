@@ -279,10 +279,38 @@ public static class User32
         public InputUnion U;
     }
 
+    /// <summary>The Win32 INPUT union. MOUSEINPUT is the LARGEST member, so it must be
+    /// declared even though we only ever send keyboard events: the union's size sets
+    /// sizeof(INPUT), and SendInput validates the cbSize we pass against its own.
+    /// Declaring only KEYBDINPUT gives 32 bytes on x64 where Windows expects 40, and
+    /// EVERY SendInput call then fails with ERROR_INVALID_PARAMETER (87) - silently,
+    /// because the return value was discarded. That made the device-state half of the
+    /// held-key hybrid dead code from the day it was written (#92, #108).</summary>
     [StructLayout(LayoutKind.Explicit)]
     public struct InputUnion
     {
+        [FieldOffset(0)] public MOUSEINPUT mi;
         [FieldOffset(0)] public KEYBDINPUT ki;
+        [FieldOffset(0)] public HARDWAREINPUT hi;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct MOUSEINPUT
+    {
+        public int dx;
+        public int dy;
+        public uint mouseData;
+        public uint dwFlags;
+        public uint time;
+        public IntPtr dwExtraInfo;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct HARDWAREINPUT
+    {
+        public uint uMsg;
+        public ushort wParamL;
+        public ushort wParamH;
     }
 
     [StructLayout(LayoutKind.Sequential)]
