@@ -470,14 +470,20 @@ public static class User32
     /// Scancode-based (KEYEVENTF_SCANCODE) so it survives keyboard-layout
     /// differences between clients. Sticky letters (A–Z) are non-extended.
     /// </summary>
-    private static void SendInputScan(int vk, bool keyUp)
+    /// <summary>Inject a scancode key event. Returns the number of events actually
+    /// inserted - 0 means the OS REFUSED it, and the reason matters: if the foreground
+    /// window belongs to a process running at a higher integrity level (EVE started as
+    /// administrator while we are not), UIPI blocks injected input into it and returns
+    /// ERROR_ACCESS_DENIED. That failure is invisible unless this value is checked, which
+    /// is how a "the log says we sent it" false trail happened on #108.</summary>
+    private static uint SendInputScan(int vk, bool keyUp)
     {
         ushort scan = (ushort)MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
         var inputs = new INPUT[1];
         inputs[0].type = INPUT_KEYBOARD;
         inputs[0].U.ki.wScan = scan;
         inputs[0].U.ki.dwFlags = KEYEVENTF_SCANCODE | (keyUp ? KEYEVENTF_KEYUP : 0);
-        SendInput(1, inputs, Marshal.SizeOf<INPUT>());
+        return SendInput(1, inputs, Marshal.SizeOf<INPUT>());
     }
 
     public static void FixTargetHeldKeys(IntPtr hwnd)
@@ -610,14 +616,18 @@ public static class User32
                 // Modifier DOWN, message half. Sent before the sticky/pulse keys so a
                 // Ctrl+<key> combination arrives in the right order. No UP here; the
                 // poller fires it on physical release.
+                int modPosted = 0, modPostFailed = 0, modPostErr = 0;
                 foreach (var vk in heldModifiers)
                 {
                     uint modScan = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
                     IntPtr lParamModDown = (IntPtr)((modScan << 16) | 1);
-                    PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamModDown);
+                    if (PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamModDown)) modPosted++;
+                    else { modPostFailed++; modPostErr = Marshal.GetLastWin32Error(); }
                 }
                 if (heldModifiers.Count > 0)
-                    LogInjection($"[FixTargetHeldKeys] ⌨ PostMessage DOWN {heldModifiers.Count} modifier(s) → HWND {hwnd}");
+                    LogInjection(modPostFailed == 0
+                        ? $"[FixTargetHeldKeys] ⌨ PostMessage DOWN {modPosted} modifier(s) → HWND {hwnd}"
+                        : $"[FixTargetHeldKeys] ❌ PostMessage DOWN REFUSED for {modPostFailed}/{heldModifiers.Count} modifier(s) → HWND {hwnd} (err={modPostErr}{(modPostErr == 5 ? " ACCESS_DENIED - the client is running at a higher integrity level than we are, e.g. EVE started as administrator" : "")})");
 
                 // Sticky-key DOWN — HYBRID injection (#92). Two EVE input readers
                 // need two different things, so we do both:
@@ -671,7 +681,7 @@ public static class User32
                 // GetAsyncKeyState we would have just falsified, so it could not undo it.
                 if (isFg && heldModifiers.Count > 0)
                 {
-                    int asserted = 0;
+                    int asserted = 0, refused = 0, sendErr = 0;
                     foreach (var vk in heldModifiers)
                     {
                         // RE-PRESS, not a bare DOWN. The key is physically held, so the
@@ -686,9 +696,12 @@ public static class User32
                         // GetAsyncKeyState we would be falsifying and could not undo it.
                         if (!IsKeyDown(vk)) continue;
                         SendInputScan(vk, keyUp: true);
-                        SendInputScan(vk, keyUp: false);
-                        asserted++;
+                        if (SendInputScan(vk, keyUp: false) == 0)
+                        { refused++; sendErr = Marshal.GetLastWin32Error(); }
+                        else asserted++;
                     }
+                    if (refused > 0)
+                        LogInjection($"[FixTargetHeldKeys] ❌ SendInput RE-PRESS REFUSED by the OS for {refused} modifier(s) → foreground HWND {hwnd} (err={sendErr}{(sendErr == 5 ? " ACCESS_DENIED - injected input is blocked into a higher-integrity window, e.g. EVE started as administrator while we are not" : "")})");
                     if (asserted > 0)
                         LogInjection($"[FixTargetHeldKeys] ⌨ SendInput RE-PRESS {asserted} modifier(s) → foreground HWND {hwnd}");
                 }
@@ -873,7 +886,7 @@ public static class User32
 
     // ── Message Posting ──────────────────────────────────────────────
 
-    [DllImport("user32.dll")]
+    [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
