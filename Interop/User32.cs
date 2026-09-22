@@ -852,7 +852,16 @@ public static class User32
         // Tier 1 — direct.
         SetForegroundWindow(hwnd);
         SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-        if (GetForegroundWindow() == hwnd) return;
+        if (GetForegroundWindow() == hwnd)
+        {
+            // Which tier ran matters beyond curiosity: Tier 3 borrows the foreground
+            // thread's input queue via AttachThreadInput, which can leave a target's
+            // key state desynchronised - a held modifier read as released. If one
+            // machine locks a target across a switch and another does not on the same
+            // build, the tier taken is the first thing to compare (#108).
+            EveMultiPreview.Services.DiagnosticsService.LogWindowHook("[ActivateWindow] ✅ Tier 1 (direct SetForegroundWindow)");
+            return;
+        }
 
         // Tier 2 — phantom keystroke. Single synthetic key-down/up of an
         // unassigned virtual-key updates the OS's "last input event" tracking
@@ -864,7 +873,11 @@ public static class User32
         keybd_event((byte)VK_ACTIVATION, 0, KEYEVENTF_KEYUP, 0);
         SetForegroundWindow(hwnd);
         SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-        if (GetForegroundWindow() == hwnd) return;
+        if (GetForegroundWindow() == hwnd)
+        {
+            EveMultiPreview.Services.DiagnosticsService.LogWindowHook("[ActivateWindow] ✅ Tier 2 (phantom keystroke + SetForegroundWindow)");
+            return;
+        }
 
         // Tier 3 — AttachThreadInput borrow.
         var fgHwnd = GetForegroundWindow();
@@ -887,7 +900,11 @@ public static class User32
                 AttachThreadInput(ourThread, fgThread, false);
         }
 
-        if (GetForegroundWindow() == hwnd) return;
+        if (GetForegroundWindow() == hwnd)
+        {
+            EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] ✅ Tier 3 (AttachThreadInput borrow from thread {fgThread}) — this tier can desync the target's held-key state");
+            return;
+        }
 
         // Tier 4 — async vk0xE8 RegisterHotKey bridge.
         EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] All synchronous tiers failed, kicking async vk0xE8 fallback for HWND {hwnd}");
