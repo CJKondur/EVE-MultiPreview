@@ -234,6 +234,7 @@ public partial class SettingsWindow
     {
         S.GlobalHotkeys = CmbHotkeyScope.SelectedIndex == 0;
         S.HotkeyWildcardModifiers = ChkHotkeyWildcard.IsChecked == true;
+        S.PropagateHeldModifiers = ChkPropagateModifiers.IsChecked == true;
         S.SuspendHotkey = TxtSuspendHotkey.Text;
         S.ClickThroughHotkey = TxtClickThroughHotkey.Text;
         S.HideShowThumbnailsHotkey = TxtHideShowHotkey.Text;

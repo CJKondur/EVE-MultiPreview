@@ -64,6 +64,8 @@
     <sys:String x:Key="L.General.ScopeEveActive">If an EVE window is Active</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">Hotkeys still fire while Ctrl / Shift / Alt is held</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">On: a hotkey works even while you hold a modifier — EVE players hold Ctrl to lock targets. Off: a single-key hotkey such as V only fires on its own, so Ctrl+V reaches the client for pasting.</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">Carry held Ctrl / Shift / Alt to the client you switch to</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">On: holding Ctrl to lock a target keeps working after you cycle to another client. Turn it off if locking stops working after a switch — on some setups the client already sees the held key and these extra keystrokes get in the way.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">System Hotkeys</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Suspend Hotkeys:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Click-Through Toggle:</sys:String>

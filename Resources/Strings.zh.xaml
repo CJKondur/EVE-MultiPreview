@@ -63,6 +63,8 @@
     <sys:String x:Key="L.General.ScopeEveActive">当 EVE 窗口处于活动状态时</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">按住 Ctrl / Shift / Alt 时快捷键仍然生效</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">开启：即使按住修饰键，快捷键仍然有效 — 在 EVE 中需要按住 Ctrl 锁定目标。关闭：像 V 这样的单键快捷键只在单独按下时生效，因此 Ctrl+V 可以传递给客户端用于粘贴。</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">将按住的 Ctrl / Shift / Alt 传递给切换到的客户端</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">开启：按住 Ctrl 锁定目标在切换到其他客户端后仍然有效。如果切换后无法锁定，请关闭此项：在某些系统上客户端已能识别按住的按键，额外的按键信号反而会干扰。</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">系统热键</sys:String>
     <sys:String x:Key="L.General.HkSuspend">暂停热键：</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">点击穿透切换：</sys:String>

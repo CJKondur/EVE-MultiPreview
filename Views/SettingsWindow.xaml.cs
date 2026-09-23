@@ -301,6 +301,7 @@ public partial class SettingsWindow : Window
 
             CmbHotkeyScope.SelectedIndex = S.GlobalHotkeys ? 0 : 1;
             ChkHotkeyWildcard.IsChecked = S.HotkeyWildcardModifiers;
+            ChkPropagateModifiers.IsChecked = S.PropagateHeldModifiers;
             TxtSuspendHotkey.Text = S.SuspendHotkey;
             TxtClickThroughHotkey.Text = S.ClickThroughHotkey;
             TxtHideShowHotkey.Text = S.HideShowThumbnailsHotkey;

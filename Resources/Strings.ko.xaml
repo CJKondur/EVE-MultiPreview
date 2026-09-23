@@ -63,6 +63,8 @@
     <sys:String x:Key="L.General.ScopeEveActive">EVE 창이 활성 상태일 때</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">Ctrl / Shift / Alt 를 누른 채로도 단축키 실행</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">켜줐: 수식어 키를 누르고 있어도 단축키가 작동합니다 — EVE에서는 대상을 잠금 때 Ctrl을 누릅니다. 꺼짐: V 같은 단일 키 단축키는 단독으로만 작동하므로 Ctrl+V가 붙여넣기를 위해 클라이언트에 전달됩니다.</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">누르고 있는 Ctrl / Shift / Alt 를 전환한 클라이언트로 전달</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">켜줐: Ctrl을 누른 채 대상을 잠그는 동작이 다른 클라이언트로 전환한 뒤에도 작동합니다. 전환 후 잠금이 되지 않으면 끄세요. 일부 환경에서는 클라이언트가 이미 눌린 키를 인식하고 있어 추가 입력이 방해가 됩니다.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">시스템 단축키</sys:String>
     <sys:String x:Key="L.General.HkSuspend">단축키 일시 중지:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">클릭 통과 전환:</sys:String>

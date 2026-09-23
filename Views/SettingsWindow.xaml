@@ -321,6 +321,11 @@
                             </StackPanel>
                             <CheckBox x:Name="ChkHotkeyWildcard" Content="{DynamicResource L.General.HotkeyWildcard}"
                                       Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
+                            <CheckBox x:Name="ChkPropagateModifiers" Content="{DynamicResource L.General.PropagateModifiers}"
+                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
+                            <TextBlock Text="{DynamicResource L.General.PropagateModifiersNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
+                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
                             <TextBlock Text="{DynamicResource L.General.HotkeyWildcardNote}"
                                        Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
                                        Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>

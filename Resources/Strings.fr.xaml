@@ -63,6 +63,8 @@
     <sys:String x:Key="L.General.ScopeEveActive">Si une fenêtre EVE est active</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">Les raccourcis se déclenchent même si Ctrl / Maj / Alt est maintenu</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">Activé : un raccourci fonctionne même si vous maintenez un modificateur — dans EVE, Ctrl sert à verrouiller les cibles. Désactivé : un raccourci à touche unique comme V ne se déclenche que seul, donc Ctrl+V atteint le client pour coller.</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">Transmettre Ctrl / Maj / Alt maintenus au client vers lequel vous basculez</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">Activé : maintenir Ctrl pour verrouiller une cible continue de fonctionner après un changement de client. Désactivez si le verrouillage cesse de fonctionner après un basculement — sur certaines configurations, le client détecte déjà la touche maintenue et ces frappes supplémentaires gênent.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Raccourcis système</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Suspendre les raccourcis:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Bascule clic traversant:</sys:String>

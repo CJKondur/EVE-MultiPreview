@@ -53,6 +53,13 @@ public class AppSettings
     // on - Ctrl is held to lock targets, Shift to add, and cycling must still work.
     // OFF registers the exact combination only, so Ctrl+V passes through.
     public bool HotkeyWildcardModifiers { get; set; } = true;
+
+    // Carry a held Ctrl/Shift/Alt into the client you switch to (#108). ON is the
+    // 2.3.30+ behaviour and is what makes hold-Ctrl-and-lock work across a cycle on
+    // most setups. On some it does not help AND the synthetic key events appear to
+    // interfere with a modifier the client can already see, so it can be turned off
+    // to get the pre-2.3.30 behaviour of leaving the physically-held key alone.
+    public bool PropagateHeldModifiers { get; set; } = true;
     public string SuspendHotkey { get; set; } = "";
     public string ClickThroughHotkey { get; set; } = "";
     public string HideShowThumbnailsHotkey { get; set; } = "";

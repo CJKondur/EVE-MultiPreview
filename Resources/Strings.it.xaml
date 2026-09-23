@@ -63,6 +63,8 @@
     <sys:String x:Key="L.General.ScopeEveActive">Quando una finestra EVE è attiva</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">I tasti di scelta rapida si attivano anche tenendo premuto Ctrl / Maiusc / Alt</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">Attivo: una scorciatoia funziona anche mentre tieni premuto un modificatore — in EVE si tiene Ctrl per agganciare i bersagli. Disattivo: una scorciatoia a tasto singolo come V si attiva solo da sola, così Ctrl+V arriva al client per incollare.</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">Trasferisci Ctrl / Maiusc / Alt tenuti premuti al client su cui passi</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">Attivo: tenere premuto Ctrl per agganciare un bersaglio continua a funzionare dopo essere passati a un altro client. Disattivalo se l'aggancio smette di funzionare dopo un cambio: su alcune configurazioni il client rileva già il tasto premuto e questi input aggiuntivi lo disturbano.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Tasti di scelta rapida di sistema</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Sospendi tasti di scelta rapida:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Attiva/disattiva click passante:</sys:String>

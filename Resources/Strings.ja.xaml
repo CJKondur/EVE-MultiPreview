@@ -63,6 +63,8 @@
     <sys:String x:Key="L.General.ScopeEveActive">EVE ウィンドウがアクティブな場合</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">Ctrl / Shift / Alt を押していてもホットキーを発動する</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">オン: 修飾キーを押していてもホットキーが働きます — EVE ではターゲットロックに Ctrl を押したままにします。オフ: V などの単一キーは単独で押したときだけ発動し、Ctrl+V は貼り付けのためクライアントに届きます。</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">押したままの Ctrl / Shift / Alt を切り替え先のクライアントに引き継ぐ</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">オン: Ctrl を押したままのターゲットロックが、別のクライアントに切り替えた後も機能します。切り替え後にロックできなくなる場合はオフにしてください。環境によってはクライアントが既に押下を認識しており、追加のキー入力が邪魔になります。</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">システムホットキー</sys:String>
     <sys:String x:Key="L.General.HkSuspend">ホットキーを一時停止：</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">クリックスルー切替：</sys:String>

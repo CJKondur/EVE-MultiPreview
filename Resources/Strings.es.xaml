@@ -63,6 +63,8 @@
     <sys:String x:Key="L.General.ScopeEveActive">Si una ventana de EVE está activa</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">Las teclas rápidas se activan aunque mantengas Ctrl / Mayús / Alt</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">Activado: una tecla rápida funciona aunque mantengas un modificador — en EVE se mantiene Ctrl para fijar objetivos. Desactivado: una tecla rápida simple como V solo se activa sola, así que Ctrl+V llega al cliente para pegar.</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">Transferir Ctrl / Mayús / Alt mantenidos al cliente al que cambias</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">Activado: mantener Ctrl para fijar un objetivo sigue funcionando tras cambiar a otro cliente. Descactívalo si el fijado deja de funcionar tras un cambio: en algunos equipos el cliente ya detecta la tecla mantenida y estas pulsaciones adicionales estorban.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Teclas rápidas del sistema</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Suspender teclas rápidas:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Alternar clic a través:</sys:String>

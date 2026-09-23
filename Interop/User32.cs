@@ -561,10 +561,17 @@ public static class User32
         // PostMessage alone fixes that; adding SendInput would mutate global
         // modifier state for no gain and risk a system-wide stuck Ctrl.
         List<int> heldModifiers = new List<int>();
-        foreach (var mod in new[] { 0x10, 0x11, 0x12 })   // Shift, Ctrl, Alt
+        // Opt-out (#108): on some setups the client already sees the physically-held
+        // modifier and these synthetic events do not help - and the re-press briefly
+        // releases it, which may be worse than doing nothing. Off = pre-2.3.30
+        // behaviour: leave a held modifier entirely alone.
+        if (EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.PropagateHeldModifiers != false)
         {
-            if (CycleKeysToIgnore.Contains(mod)) continue;
-            if (IsKeyDown(mod)) heldModifiers.Add(mod);
+            foreach (var mod in new[] { 0x10, 0x11, 0x12 })   // Shift, Ctrl, Alt
+            {
+                if (CycleKeysToIgnore.Contains(mod)) continue;
+                if (IsKeyDown(mod)) heldModifiers.Add(mod);
+            }
         }
 
         // Handle Mouse Hotkeys (MButton, XButton1/Mouse4, XButton2/Mouse5)
@@ -723,6 +730,17 @@ public static class User32
                         // is never re-asserted - the release poller reads the same
                         // GetAsyncKeyState we would be falsifying and could not undo it.
                         if (!IsKeyDown(vk)) continue;
+
+                        // NEVER device-re-press SHIFT. Windows counts five consecutive
+                        // Shift presses as the Sticky Keys gesture, and it does not care
+                        // that they are synthetic: cycling five clients with Shift held
+                        // popped Sticky Keys on a user's machine. Harmless before 2.3.34
+                        // only because SendInput was silently failing every call; the
+                        // moment it started working, this became a real keystroke storm.
+                        // Shift still gets the PostMessage half above, which is targeted
+                        // at the one client and cannot trip an accessibility gesture.
+                        if (vk == 0x10) continue;
+
                         SendInputScan(vk, keyUp: true);
                         if (SendInputScan(vk, keyUp: false) == 0)
                         { refused++; sendErr = Marshal.GetLastWin32Error(); }

@@ -63,6 +63,8 @@
     <sys:String x:Key="L.General.ScopeEveActive">Если окно EVE активно</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">Горячие клавиши срабатывают даже при зажатом Ctrl / Shift / Alt</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">Включено: горячая клавиша работает даже при зажатом модификаторе — в EVE Ctrl держат для захвата целей. Выключено: одиночная клавиша вроде V срабатывает только сама по себе, и Ctrl+V доходит до клиента для вставки.</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">Передавать удерживаемые Ctrl / Shift / Alt клиенту, на который переключаетесь</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">Включено: удержание Ctrl для захвата цели продолжает работать после переключения на другой клиент. Выключите, если захват перестаёт работать после переключения: на некоторых системах клиент и так видит удерживаемую клавишу, а эти дополнительные нажатия мешают.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Системные горячие клавиши</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Приостановить горячие клавиши:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Переключение сквозного клика:</sys:String>

@@ -63,6 +63,8 @@
     <sys:String x:Key="L.General.ScopeEveActive">Wenn ein EVE-Fenster aktiv ist</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">Hotkeys auslösen, auch während Strg / Umschalt / Alt gedrückt ist</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">Ein: Ein Hotkey funktioniert auch bei gedrückter Modifikatortaste — in EVE wird Strg zum Anvisieren gehalten. Aus: Ein Einzeltasten-Hotkey wie V löst nur allein aus, sodass Strg+V zum Einfügen beim Client ankommt.</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">Gedrückte Strg-/Umschalt-/Alt-Taste an den gewechselten Client weitergeben</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">Ein: Strg gedrückt halten zum Anvisieren funktioniert auch nach dem Wechsel zu einem anderen Client. Ausschalten, falls das Anvisieren nach einem Wechsel nicht mehr geht — auf manchen Systemen erkennt der Client die gedrückte Taste bereits und diese zusätzlichen Tastensignale stören.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">System-Hotkeys</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Hotkeys pausieren:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Klick-Durchlass umschalten:</sys:String>
