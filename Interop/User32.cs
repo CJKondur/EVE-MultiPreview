@@ -867,9 +867,16 @@ public static class User32
         // un-maximizes it — producing a window that comes back smaller than
         // it was before being minimized.
 
+        // Every z-order raise below is SWP_NOACTIVATE. SetForegroundWindow already
+        // activates the client; a second, activating SetWindowPos on the SAME window
+        // runs EVE's focus handling twice, and on some setups the first click after
+        // a switch then only moves EVE's internal focus to the overview instead of
+        // acting on it - Ctrl+click would select a row rather than lock it (#108).
+        // EVE-X-Preview, which does not show the problem, activates with a bare
+        // SetForegroundWindow and never calls SetWindowPos on the client at all.
         // Tier 1 — direct.
         SetForegroundWindow(hwnd);
-        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         if (GetForegroundWindow() == hwnd)
         {
             // Which tier ran matters beyond curiosity: Tier 3 borrows the foreground
@@ -890,7 +897,7 @@ public static class User32
         keybd_event((byte)VK_ACTIVATION, 0, 0, 0);
         keybd_event((byte)VK_ACTIVATION, 0, KEYEVENTF_KEYUP, 0);
         SetForegroundWindow(hwnd);
-        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         if (GetForegroundWindow() == hwnd)
         {
             EveMultiPreview.Services.DiagnosticsService.LogWindowHook("[ActivateWindow] ✅ Tier 2 (phantom keystroke + SetForegroundWindow)");
@@ -910,7 +917,7 @@ public static class User32
 
             BringWindowToTop(hwnd);
             SetForegroundWindow(hwnd);
-            SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+            SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         }
         finally
         {
