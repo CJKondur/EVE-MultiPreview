@@ -9,10 +9,10 @@ namespace EveMultiPreview.Models;
 /// "Fixed slots"). Several clients may share one slot — they stack exactly on top
 /// of each other and switching brings the one you want to the front.
 ///
-/// X/Y/Width/Height describe the GAME AREA (the client area) in physical pixels,
-/// relative to the monitor's full bounds (not the work area — a slot may cover the
-/// taskbar). For a Fixed Window client the window is exactly this rect; for a
-/// windowed client the frame is added around it.
+/// X/Y/Width/Height describe the VISIBLE WINDOW, relative to the monitor's full
+/// bounds (not the work area — a slot may cover the taskbar). A Fixed Window client
+/// fills it exactly; a windowed client's title bar and borders sit inside it (its
+/// invisible resize borders are excluded).
 /// </summary>
 public class ClientSlot
 {

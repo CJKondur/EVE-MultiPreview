@@ -771,6 +771,7 @@ public sealed class ThumbnailManager : IDisposable
 
         Application.Current?.Dispatcher.Invoke(() =>
         {
+            _slotInsets.TryRemove(window.Hwnd, out _);
             if (_thumbnails.TryRemove(window.Hwnd, out var thumbWindow))
             {
                 if (!string.IsNullOrEmpty(thumbWindow.CharacterName))
@@ -3127,13 +3128,13 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>
     /// Snap an EVE client into its fixed slot: the character's own slot, else the
     /// profile's default slot (see <see cref="ClientSlotRules"/>). The slot rect is the
-    /// GAME AREA — a Fixed Window (borderless) client gets it exactly; a windowed
-    /// client has its frame added around it. Clients sharing a slot stack on top of
-    /// each other; the active one is brought forward by activation as usual.
+    /// VISIBLE WINDOW — a Fixed Window (borderless) client fills it exactly; a windowed
+    /// client's title bar and borders sit inside it. Clients sharing a slot stack on top
+    /// of each other; the active one is brought forward by activation as usual.
     ///
     /// Safe by construction: no-op unless mode 3 is on and a slot resolves; the rect
     /// is validated against its monitor before any SetWindowPos; already-placed
-    /// windows cost nothing (client-area early-out). Minimized / maximized windows
+    /// windows cost nothing (visible-frame early-out). Minimized / maximized windows
     /// get their restore rect set instead, so they land in the slot when restored.
     /// </summary>
     private void ApplyClientSlot(IntPtr hwnd, string? characterName)
@@ -3163,20 +3164,15 @@ public sealed class ThumbnailManager : IDisposable
             return;
         }
 
-        int gx = b.Left + slot.X, gy = b.Top + slot.Y;
+        // The slot is the VISIBLE window: a Fixed Window client fills it exactly; a
+        // windowed client's title bar and borders sit inside it. SetWindowPos works on
+        // the window rect, which for captioned windows also includes invisible resize
+        // borders (~9 px left/right/bottom) — add those back so the VISIBLE frame lands
+        // on the slot.
+        int vx = b.Left + slot.X, vy = b.Top + slot.Y, vw = slot.Width, vh = slot.Height;
         bool resize = s.ClientSlotsResize;
-
-        // Outer window rect: game area, plus the frame when the client is in Window mode.
-        int style = Interop.User32.GetWindowLong(hwnd, Interop.User32.GWL_STYLE);
-        int exStyle = Interop.User32.GetWindowLong(hwnd, Interop.User32.GWL_EXSTYLE);
-        var outer = new Interop.DwmApi.RECT(gx, gy, gx + slot.Width, gy + slot.Height);
-        if ((style & Interop.User32.WS_CAPTION) == Interop.User32.WS_CAPTION)
-        {
-            uint dpi = Interop.User32.GetDpiForWindow(hwnd);
-            if (dpi == 0 || !Interop.User32.AdjustWindowRectExForDpi(ref outer, style, false, exStyle, dpi))
-                return;
-        }
-        int ow = outer.Right - outer.Left, oh = outer.Bottom - outer.Top;
+        bool windowed = (Interop.User32.GetWindowLong(hwnd, Interop.User32.GWL_STYLE)
+                         & Interop.User32.WS_CAPTION) == Interop.User32.WS_CAPTION;
 
         try
         {
@@ -3184,22 +3180,26 @@ public sealed class ThumbnailManager : IDisposable
             if (iconic || Interop.User32.IsZoomed(hwnd))
             {
                 // Set the restore rect; SetWindowPos on a minimized/maximized window
-                // doesn't change where it restores to. rcNormalPosition is in WORKSPACE
-                // coordinates (offset by a top/left taskbar on the primary monitor).
+                // doesn't change where it restores to. Insets can't be measured while
+                // minimized, so use the last ones seen for this window (0 for Fixed
+                // Window clients). rcNormalPosition is in WORKSPACE coordinates (offset
+                // by a top/left taskbar on the primary monitor).
+                _slotInsets.TryGetValue(hwnd, out var ins);
                 var wp = new Interop.User32.WINDOWPLACEMENT
                 {
                     length = (uint)System.Runtime.InteropServices.Marshal.SizeOf<Interop.User32.WINDOWPLACEMENT>()
                 };
                 if (!Interop.User32.GetWindowPlacement(hwnd, ref wp)) return;
                 var prim = System.Windows.Forms.Screen.PrimaryScreen!;
-                int wx = outer.Left - (prim.WorkingArea.Left - prim.Bounds.Left);
-                int wy = outer.Top - (prim.WorkingArea.Top - prim.Bounds.Top);
+                int wx = vx - ins.Left - (prim.WorkingArea.Left - prim.Bounds.Left);
+                int wy = vy - ins.Top - (prim.WorkingArea.Top - prim.Bounds.Top);
+                int ww = vw + ins.Left + ins.Right, wh = vh + ins.Top + ins.Bottom;
                 if (!resize)
                 {
-                    ow = wp.rcNormalPosition.Right - wp.rcNormalPosition.Left;
-                    oh = wp.rcNormalPosition.Bottom - wp.rcNormalPosition.Top;
+                    ww = wp.rcNormalPosition.Right - wp.rcNormalPosition.Left;
+                    wh = wp.rcNormalPosition.Bottom - wp.rcNormalPosition.Top;
                 }
-                wp.rcNormalPosition = new Interop.DwmApi.RECT(wx, wy, wx + ow, wy + oh);
+                wp.rcNormalPosition = new Interop.DwmApi.RECT(wx, wy, wx + ww, wy + wh);
                 // Minimized stays minimized (restores into the slot); maximized is
                 // restored into the slot — a maximized client can't sit in one.
                 wp.showCmd = iconic ? (uint)Interop.User32.SW_SHOWMINNOACTIVE : (uint)Interop.User32.SW_SHOWNOACTIVATE;
@@ -3210,28 +3210,32 @@ public sealed class ThumbnailManager : IDisposable
                 return;
             }
 
-            // Early-out: already exactly in the slot (compare the CLIENT area — the
-            // window rect includes invisible borders on windowed clients).
-            if (Interop.User32.GetClientRect(hwnd, out var cr))
-            {
-                var p = new Interop.User32.POINT { X = 0, Y = 0 };
-                Interop.User32.ClientToScreen(hwnd, ref p);
-                bool posOk = p.X == gx && p.Y == gy;
-                bool sizeOk = cr.Right == slot.Width && cr.Bottom == slot.Height;
-                if (posOk && (sizeOk || !resize)) return;
-            }
+            if (!Interop.DwmApi.TryGetVisibleFrame(hwnd, out var vis, out var insets)) return;
+            _slotInsets[hwnd] = insets;
 
+            // Early-out: the visible frame is already exactly the slot.
+            bool posOk = vis.Left == vx && vis.Top == vy;
+            bool sizeOk = vis.Right - vis.Left == vw && vis.Bottom - vis.Top == vh;
+            if (posOk && (sizeOk || !resize)) return;
+
+            int tx = vx - insets.Left, ty = vy - insets.Top;
+            int tw = vw + insets.Left + insets.Right, th = vh + insets.Top + insets.Bottom;
             uint flags = Interop.User32.SWP_NOZORDER | Interop.User32.SWP_NOACTIVATE | Interop.User32.SWP_ASYNCWINDOWPOS;
             if (!resize) flags |= Interop.User32.SWP_NOSIZE;
-            Interop.User32.SetWindowPos(hwnd, IntPtr.Zero, outer.Left, outer.Top, ow, oh, flags);
+            Interop.User32.SetWindowPos(hwnd, IntPtr.Zero, tx, ty, tw, th, flags);
             DiagnosticsService.LogWindowHook(
-                $"[ClientSlot] 📌 '{characterName}' → '{slot.Name}' game area {gx},{gy} {slot.Width}x{slot.Height} (outer {outer.Left},{outer.Top} {ow}x{oh}, resize={resize})");
+                $"[ClientSlot] 📌 '{characterName}' → '{slot.Name}' visible {vx},{vy} {vw}x{vh} " +
+                $"({(windowed ? "windowed" : "fixed")}, window rect {tx},{ty} {tw}x{th}, resize={resize})");
         }
         catch (Exception ex)
         {
             DiagnosticsService.LogWindowHook($"[ClientSlot] ❌ '{characterName}': {ex.Message}");
         }
     }
+
+    /// <summary>Invisible resize-border insets last measured per client window, used to
+    /// set the restore rect of a minimized/maximized windowed client.</summary>
+    private readonly ConcurrentDictionary<IntPtr, Interop.DwmApi.RECT> _slotInsets = new();
 
     /// <summary>Find a slot's monitor: same device name and resolution, else the first
     /// monitor with that resolution (Windows can renumber DISPLAYn). Never falls back
