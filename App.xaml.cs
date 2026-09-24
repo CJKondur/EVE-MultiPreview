@@ -835,6 +835,18 @@ public partial class App : Application
                 it.Text = LocalizationService.Str(key, en);
         };
 
+        // Pause the thumbnail focus sweep while the menu is up. Opening the menu
+        // makes this app foreground, and the sweep would otherwise re-show and
+        // re-raise thumbnails over it — closing or burying the menu.
+        menu.Opening += (_, _) =>
+        {
+            _thumbnailManager?.SetTrayMenuOpen(true);
+            SettingsDiag("Tray menu opening");
+        };
+        menu.Opened += (_, _) => SettingsDiag("Tray menu opened");
+        menu.Closing += (_, e) => SettingsDiag($"Tray menu closing, reason={e.CloseReason}");
+        menu.Closed += (_, _) => _thumbnailManager?.SetTrayMenuOpen(false);
+
         // Double-click to open settings (deferred — see Settings menu item above)
         _trayIcon.DoubleClick += (_, _) =>
         {

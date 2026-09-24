@@ -76,6 +76,7 @@ public sealed class ThumbnailManager : IDisposable
     private bool _settingsClickSuppressed = false;  // Force thumbnails click-through while Settings UI is open
     private bool _suppressTopmost = false;  // Suppress topmost while settings window is active
     private bool _settingsOpen = false;     // Settings window exists (even minimized) — keeps thumbnails visible
+    private bool _trayMenuOpen = false;     // Tray context menu is showing — focus sweep paused so it can't close/bury it
     private bool _primaryHiddenByFocus = false; // Primary thumbnails fully hidden by "Hide When Alt-Tabbed" (focus loss)
     private bool _lastEveFocused = false;   // Track focus transitions for one-time BringToFront
     private IntPtr _lastZOrderHwnd = IntPtr.Zero; // Last foreground HWND we re-raised thumbnails for
@@ -994,6 +995,15 @@ public sealed class ThumbnailManager : IDisposable
     }
 
     /// <summary>
+    /// Marks the tray context menu as open/closed. Opening the menu makes this app
+    /// the foreground process, which the focus sweep treats like "EVE regained focus":
+    /// it re-shows hidden thumbnails (a WPF overlay Show() takes activation, which
+    /// closes the menu) and raises everything to HWND_TOPMOST (above the menu). The
+    /// sweep is paused while the menu is open and resumes on the next tick after it closes.
+    /// </summary>
+    public void SetTrayMenuOpen(bool open) => _trayMenuOpen = open;
+
+    /// <summary>
     /// Marks the Settings window as open/closed. While open (even minimized),
     /// thumbnails are kept visible so HideThumbnailsOnLostFocus doesn't erase
     /// them the moment the user clicks another app while Settings is in the tray.
@@ -1511,6 +1521,10 @@ public sealed class ThumbnailManager : IDisposable
     {
         // Skip all heavy Win32/DWM work during drag — prevents contention
         if (_thumbnails.Values.Any(t => t.IsDragging))
+            return;
+
+        // Tray menu open: leave visibility and z-order alone (see SetTrayMenuOpen).
+        if (_trayMenuOpen)
             return;
 
         // #95 watchdog: a thumbnail left stuck in its enlarged hover state covers its
