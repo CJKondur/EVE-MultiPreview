@@ -1248,14 +1248,34 @@ public partial class SettingsWindow : Window
             "run windowed-fullscreen across monitors.\n\n" +
             "Client Position\n" +
             "────────────────────────────\n" +
-            "Off / Center / Custom. Puts each client\n" +
-            "in a fixed spot when it is detected AND\n" +
-            "each time you switch to it, so fixed-\n" +
-            "window clients stay put instead of\n" +
-            "opening top-left on large or ultrawide\n" +
-            "monitors. Ignored while 'Track Client\n" +
+            "Off / Center / Custom / Fixed slots.\n" +
+            "Puts each client in a fixed spot when\n" +
+            "it is detected AND each time you switch\n" +
+            "to it, so fixed-window clients stay put\n" +
+            "instead of opening top-left on large or\n" +
+            "ultrawide monitors. Center and Custom\n" +
+            "are ignored while 'Track Client\n" +
             "Positions' is ON — that setting gives\n" +
             "each character its own remembered spot.\n\n" +
+            "Fixed Slots\n" +
+            "────────────────────────────\n" +
+            "Client Position = Fixed slots. Define\n" +
+            "slots — an exact position and size on\n" +
+            "any monitor — and each client snaps into\n" +
+            "its slot when it opens, when its\n" +
+            "character logs in, on a profile switch,\n" +
+            "and every time you switch to it.\n" +
+            "Clients go to the slot that lists their\n" +
+            "character, otherwise to the Default\n" +
+            "slot; several clients can share a slot\n" +
+            "and stack on top of each other. 'Never\n" +
+            "move' characters are left alone.\n" +
+            "Easiest setup: put a client where you\n" +
+            "want it, then use 'Capture from client…'.\n" +
+            "While slots are on, Track Client\n" +
+            "Positions and Always Maximize are\n" +
+            "ignored. Tray → Client Positions →\n" +
+            "Snap to Slots re-applies every slot.\n\n" +
             "Let Active Client Cover Taskbar\n" +
             "────────────────────────────\n" +
             "For fixed-window clients sized to your\n" +

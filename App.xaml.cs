@@ -772,7 +772,13 @@ public partial class App : Application
             _thumbnailManager?.ApplyAllClientSlots());
         L(snapSlotsItem, "L.Tray.SnapToSlots", "📌 Snap to Slots");
         posMenu.DropDownOpening += (_, _) =>
-            snapSlotsItem.Enabled = _settings?.Settings.ClientPositionMode == 3;
+        {
+            bool slotsMode = _settings?.Settings.ClientPositionMode == 3;
+            snapSlotsItem.Enabled = slotsMode;
+            // Restoring tracked positions would pull clients out of their slots until
+            // the next switch snapped them back - slots own the client rect in mode 3.
+            restorePosItem.Enabled = !slotsMode;
+        };
         menu.Items.Add(posMenu);
 
         // Close all EVE clients

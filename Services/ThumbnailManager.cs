@@ -2211,6 +2211,7 @@ public sealed class ThumbnailManager : IDisposable
                         System.Windows.Media.Color.FromArgb(230, 40, 40, 40)),
                     Topmost = true,
                     ShowInTaskbar = false,
+                    ShowActivated = false, // Passive overlay: showing it must never take focus from the EVE client (#110).
                     SizeToContent = SizeToContent.WidthAndHeight,
                     Left = Interop.DpiHelper.PhysicalToDip(cursorPos.X, dpi) + 16,
                     Top = Interop.DpiHelper.PhysicalToDip(cursorPos.Y, dpi) + 16,

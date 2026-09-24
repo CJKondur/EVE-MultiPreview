@@ -69,6 +69,7 @@ public class AlertHub : IDisposable
             AllowsTransparency = true,
             Background = Brushes.Transparent,
             ShowInTaskbar = false,
+            ShowActivated = false, // Passive overlay: showing it must never take focus from the EVE client (#110).
             Topmost = true,
             Width = 68,
             Height = 68,
@@ -581,6 +582,7 @@ internal class AlertToast : IDisposable
             AllowsTransparency = true,
             Background = Brushes.Transparent,
             ShowInTaskbar = false,
+            ShowActivated = false, // Passive overlay: showing it must never take focus from the EVE client (#110).
             Topmost = true,
             Width = 200,
             Height = 50,

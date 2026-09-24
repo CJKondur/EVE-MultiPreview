@@ -73,6 +73,7 @@ public sealed class BroadcastHudWindow : IDisposable
             AllowsTransparency = true,
             Background = Brushes.Transparent,
             ShowInTaskbar = false,
+            ShowActivated = false, // Passive overlay: showing it must never take focus from the EVE client (#110).
             Topmost = true,
             ResizeMode = ResizeMode.NoResize,
             SizeToContent = SizeToContent.WidthAndHeight,

@@ -259,6 +259,34 @@
     <sys:String x:Key="L.Client.SpawnOff">关闭（保持 EVE 打开的位置）</sys:String>
     <sys:String x:Key="L.Client.SpawnCenter">在其显示器上居中</sys:String>
     <sys:String x:Key="L.Client.SpawnCustom">自定义 X / Y</sys:String>
+    <sys:String x:Key="L.Client.SlotNoDefault">无默认槽位（仅移动已列出的角色）</sys:String>
+    <sys:String x:Key="L.Client.SlotDefault">默认</sys:String>
+    <sys:String x:Key="L.Client.SlotDefaultTip">角色未列在任何槽位中的客户端会放到这里（包括处于角色选择界面的客户端）。</sys:String>
+    <sys:String x:Key="L.Client.SlotMonitorMissing">（未连接）</sys:String>
+    <sys:String x:Key="L.Client.SlotDelete">删除</sys:String>
+    <sys:String x:Key="L.Client.SlotCapture">从客户端捕获…</sys:String>
+    <sys:String x:Key="L.Client.SlotCaptureTip">将某个正在运行的客户端当前的窗口（位置、大小和显示器）用于此槽位。</sys:String>
+    <sys:String x:Key="L.Client.SlotFill">填满屏幕</sys:String>
+    <sys:String x:Key="L.Client.SlotCharacters">角色：</sys:String>
+    <sys:String x:Key="L.Client.SlotAddCharTitle">将角色分配到“{0}”</sys:String>
+    <sys:String x:Key="L.Client.SlotNoMonitor">显示器未连接——将跳过此槽位。</sys:String>
+    <sys:String x:Key="L.Client.SlotTooSmall">太小——最小为 640×360。将跳过此槽位。</sys:String>
+    <sys:String x:Key="L.Client.SlotNoFit">超出 {0}×{1} 显示器范围——将跳过此槽位。</sys:String>
+    <sys:String x:Key="L.Client.SlotWhoDefault">默认槽位</sys:String>
+    <sys:String x:Key="L.Client.SlotScaledWarn">此显示器的 Windows 缩放比例与主显示器不同。EVE 不支持这种情况，因此这里的画面会被重新缩放。位置和大小仍然精确；数值使用本程序在这台 {2}×{3} 显示器上的 {0}×{1} 单位。若要让客户端像素级精确，请将此显示器的缩放比例设为与主显示器相同。</sys:String>
+    <sys:String x:Key="L.Client.SlotRemoveChar">移除</sys:String>
+    <sys:String x:Key="L.Client.SlotAddChar">+ 添加…</sys:String>
+    <sys:String x:Key="L.Client.SlotExcluded">从不移动：</sys:String>
+    <sys:String x:Key="L.Client.SlotExcludeTitle">从不移动此角色</sys:String>
+    <sys:String x:Key="L.Client.SlotExcludedNote">这些角色的窗口永远不会被移动或调整大小，即使设有默认槽位。</sys:String>
+    <sys:String x:Key="L.Client.SlotPrimary">主显示器</sys:String>
+    <sys:String x:Key="L.Client.SlotScaledShort">缩放比例不同</sys:String>
+    <sys:String x:Key="L.Client.SlotNoClients">没有正在运行且已登录的 EVE 客户端</sys:String>
+    <sys:String x:Key="L.Client.SlotCaptureFail">该客户端不在普通窗口中（可能已最小化或最大化）。请将其还原后重试。</sys:String>
+    <sys:String x:Key="L.Client.SpawnSlots">固定槽位</sys:String>
+    <sys:String x:Key="L.Client.SlotsNote">槽位是客户端窗口被放置的位置——在任意显示器上都有精确的位置和大小。客户端会进入列出其角色的槽位，否则进入默认槽位；多个客户端可以共用一个槽位。固定窗口客户端会精确填满槽位；窗口模式客户端的标题栏保留在槽位内。提示：先把客户端放到想要的位置，再使用“从客户端捕获”。</sys:String>
+    <sys:String x:Key="L.Client.SlotAdd">+ 添加槽位</sys:String>
+    <sys:String x:Key="L.Client.SlotApplyNow">📌 立即吸附客户端</sys:String>
     <sys:String x:Key="L.Client.SpawnNote">在检测到客户端时以及每次切换到该客户端时重新定位，使固定窗口客户端始终保持在同一位置，而不会在超宽或大尺寸显示器上从左上角打开。启用“记录并恢复客户端窗口位置”时将忽略此设置。</sys:String>
     <sys:String x:Key="L.Client.CoverTaskbar">允许当前客户端遮盖任务栏</sys:String>
     <sys:String x:Key="L.Client.CoverTaskbarNote">适用于与屏幕等高的固定窗口客户端。当前活动的客户端会显示在 Windows 任务栏之上，切换到其他窗口后立即退回任务栏下方，因此任务栏和开始菜单仍可正常使用。同时按整个屏幕而非工作区居中客户端。</sys:String>
@@ -604,7 +632,7 @@
 
     <sys:String x:Key="L.Wiki.Visibility">可见性&#x0A;═══════════════════════════&#x0A;&#x0A;缩略图可见性&#x0A;────────────────────────────&#x0A;勾选/取消勾选角色以显示或&#x0A;隐藏其主缩略图。&#x0A;&#x0A;副缩略图（PiP）&#x0A;────────────────────────────&#x0A;为任意角色添加第二个独立的&#x0A;实时预览。PiP 缩略图具有：&#x0A;• 独立的大小和位置&#x0A;• 可调节的不透明度&#x0A;• 无边框或警报效果&#x0A;• 可按角色启用/禁用&#x0A;&#x0A;刷新按钮&#x0A;────────────────────────────&#x0A;当角色在设置窗口打开时&#x0A;登录或退出时，点击 🔄 刷新&#x0A;以更新列表。</sys:String>
 
-    <sys:String x:Key="L.Wiki.Client">客户端设置&#x0A;═══════════════════════════&#x0A;&#x0A;角色选择界面循环&#x0A;────────────────────────────&#x0A;用热键在登录界面&#x0A;循环切换角色。&#x0A;&#x0A;最小化非活动客户端&#x0A;────────────────────────────&#x0A;自动最小化失去焦点的&#x0A;EVE 客户端。&#x0A;&#x0A;跟踪客户端位置&#x0A;────────────────────────────&#x0A;保存并恢复每个 EVE 客户端&#x0A;窗口的位置。&#x0A;&#x0A;始终最大化&#x0A;────────────────────────────&#x0A;当每个 EVE 客户端获得焦点时&#x0A;自动将其最大化。适合跨显示器&#x0A;运行窗口化全屏的情况。&#x0A;&#x0A;不最小化列表&#x0A;────────────────────────────&#x0A;即使“最小化非活动”开启，&#x0A;此列表中的角色也不会被&#x0A;自动最小化。用于需要保持&#x0A;可见的角色（例如侦察，&#x0A;挂单的市场小号）。&#x0A;&#x0A;客户端位置&#x0A;────────────────────────────&#x0A;关闭 / 居中 / 自定义。在检测到客户端时以及&#x0A;每次切换到该客户端时，都将其放到固定位置，&#x0A;使固定窗口客户端保持原位，而不会在超宽或大&#x0A;尺寸显示器上从左上角打开。启用“记录并恢复&#x0A;客户端窗口位置”时将忽略此设置。&#x0A;&#x0A;让当前客户端遮盖任务栏&#x0A;────────────────────────────&#x0A;适用于与屏幕等高的固定窗口客户端。当前所在&#x0A;的客户端会显示在 Windows 任务栏之上并占用&#x0A;整个高度；切换到其他窗口后立即退回任务栏&#x0A;下方，因此任务栏和开始菜单仍可正常使用。&#x0A;可与“客户端位置 = 居中”搭配，形成一个大的&#x0A;中央窗口，四周环绕缩略图。</sys:String>
+    <sys:String x:Key="L.Wiki.Client">客户端设置&#x0A;═══════════════════════════&#x0A;&#x0A;角色选择界面循环&#x0A;────────────────────────────&#x0A;用热键在登录界面&#x0A;循环切换角色。&#x0A;&#x0A;最小化非活动客户端&#x0A;────────────────────────────&#x0A;自动最小化失去焦点的&#x0A;EVE 客户端。&#x0A;&#x0A;跟踪客户端位置&#x0A;────────────────────────────&#x0A;保存并恢复每个 EVE 客户端&#x0A;窗口的位置。&#x0A;&#x0A;始终最大化&#x0A;────────────────────────────&#x0A;当每个 EVE 客户端获得焦点时&#x0A;自动将其最大化。适合跨显示器&#x0A;运行窗口化全屏的情况。&#x0A;&#x0A;不最小化列表&#x0A;────────────────────────────&#x0A;即使“最小化非活动”开启，&#x0A;此列表中的角色也不会被&#x0A;自动最小化。用于需要保持&#x0A;可见的角色（例如侦察，&#x0A;挂单的市场小号）。&#x0A;&#x0A;客户端位置&#x0A;────────────────────────────&#x0A;关闭 / 居中 / 自定义 /&#x0A;固定槽位。在检测到客户端时以及&#x0A;每次切换到该客户端时，都将其放到固定位置，&#x0A;使固定窗口客户端保持原位，而不会在超宽或大&#x0A;尺寸显示器上从左上角打开。启用“记录并恢复&#x0A;客户端窗口位置”时将忽略此设置。&#x0A;&#x0A;让当前客户端遮盖任务栏&#x0A;────────────────────────────&#x0A;适用于与屏幕等高的固定窗口客户端。当前所在&#x0A;的客户端会显示在 Windows 任务栏之上并占用&#x0A;整个高度；切换到其他窗口后立即退回任务栏&#x0A;下方，因此任务栏和开始菜单仍可正常使用。&#x0A;可与“客户端位置 = 居中”搭配，形成一个大的&#x0A;中央窗口，四周环绕缩略图。&#x0A;&#x0A;固定槽位&#x0A;────────────────────────────&#x0A;客户端位置 = 固定槽位。定义若干槽位&#x0A;（在任意显示器上精确的位置和大小），&#x0A;每个客户端都会吸附到自己的槽位：启动时、&#x0A;角色登录时、切换配置文件时，&#x0A;以及每次切换到它时。&#x0A;客户端会进入列出其角色的槽位，&#x0A;否则进入默认槽位；多个客户端可以&#x0A;共用一个槽位并相互叠放。&#x0A;“从不移动”列表中的角色不受影响。&#x0A;最简单的方法：先把客户端放到想要的位置，&#x0A;再使用“从客户端捕获…”。&#x0A;启用槽位时，“跟踪客户端位置”和&#x0A;“始终最大化”会被忽略。&#x0A;托盘 → 客户端位置 → 吸附到槽位&#x0A;可立即重新应用所有槽位。</sys:String>
 
     <sys:String x:Key="L.Wiki.FPSLimiter">FPS 限制器 (RTSS)&#x0A;═══════════════════════════&#x0A;&#x0A;工作原理&#x0A;────────────────────────────&#x0A;1. 安装并运行 RTSS（随&#x0A;   MSI Afterburner 附带）&#x0A;2. 在上方设置期望的后台 FPS&#x0A;3. 点击“应用 RTSS 配置”&#x0A;4. RTSS 会自动限制&#x0A;   后台 EVE 客户端&#x0A;&#x0A;RTSS 必须在你启动 EVE 之前&#x0A;运行。如果 EVE 已经打开，请&#x0A;重启你的客户端。&#x0A;&#x0A;应用配置&#x0A;────────────────────────────&#x0A;尝试直接写入配置。&#x0A;如果文件夹受保护，会有一次性&#x0A;管理员提示仅复制该文件。&#x0A;应用本身从不需要管理员权限。&#x0A;&#x0A;手动安装&#x0A;────────────────────────────&#x0A;如果你完全不想要管理员提示：&#x0A;1. 点击“复制配置到剪贴板”&#x0A;2. 用“📁”打开目标文件夹&#x0A;3. 粘贴并另存为“exefile.exe.cfg”&#x0A;4. 重启 RTSS 以加载该配置。&#x0A;&#x0A;空闲 FPS 限制&#x0A;────────────────────────────&#x0A;当 EVE 客户端失去焦点时，RTSS&#x0A;会将其帧率降到此值。&#x0A;建议：空闲客户端 5-15 FPS。</sys:String>
 
@@ -630,6 +658,7 @@
     <sys:String x:Key="L.Tray.ClientPositions">📐 客户端位置</sys:String>
     <sys:String x:Key="L.Tray.SavePositions">💾 保存位置</sys:String>
     <sys:String x:Key="L.Tray.RestorePositions">📋 恢复位置</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">📌 吸附到槽位</sys:String>
     <sys:String x:Key="L.Tray.CloseAll">❌ 关闭所有 EVE 客户端</sys:String>
     <sys:String x:Key="L.Tray.PiP">🖼 PiP 单独预览</sys:String>
     <sys:String x:Key="L.Tray.Exit">🚪 退出</sys:String>
