@@ -437,10 +437,11 @@ public partial class SettingsWindow : Window
             ChkAlwaysMaximize.IsChecked = S.AlwaysMaximize;
             ChkTrackClientPositions.IsChecked = S.TrackClientPositions;
             ChkClientCoverTaskbar.IsChecked = S.ClientCoverTaskbar;
-            CmbClientPosition.SelectedIndex = Math.Clamp(S.ClientPositionMode, 0, 2);
+            CmbClientPosition.SelectedIndex = Math.Clamp(S.ClientPositionMode, 0, 3);
             TxtClientPositionX.Text = S.ClientPositionX.ToString();
             TxtClientPositionY.Text = S.ClientPositionY.ToString();
             UpdateClientPositionXYVisibility();
+            LoadClientSlots();
             LoadDontMinimizeList();
 
             // FPS

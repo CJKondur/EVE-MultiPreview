@@ -265,6 +265,10 @@ public class AhkConfigRoot
                 profile.ClientPositionX = cs.ClientPositionX;
                 profile.ClientPositionY = cs.ClientPositionY;
                 profile.ClientCoverTaskbar = cs.ClientCoverTaskbar != 0;
+                profile.ClientSlots = cs.ClientSlots ?? new();
+                profile.DefaultClientSlotId = cs.DefaultClientSlotId ?? "";
+                profile.ClientSlotExcluded = cs.ClientSlotExcluded ?? new();
+                profile.ClientSlotsResize = cs.ClientSlotsResize != 0;
             }
 
             // Custom Colors (per-profile sub-object with parallel arrays)
@@ -512,6 +516,10 @@ public class AhkConfigRoot
                 ClientPositionX = profile.ClientPositionX,
                 ClientPositionY = profile.ClientPositionY,
                 ClientCoverTaskbar = profile.ClientCoverTaskbar ? 1 : 0,
+                ClientSlots = profile.ClientSlots,
+                DefaultClientSlotId = profile.DefaultClientSlotId,
+                ClientSlotExcluded = profile.ClientSlotExcluded,
+                ClientSlotsResize = profile.ClientSlotsResize ? 1 : 0,
                 DontMinimizeClients = profile.DontMinimizeClients,
             };
 
@@ -804,6 +812,20 @@ public class AhkClientSettings
 
     [JsonPropertyName("ClientPositionY")]
     public int ClientPositionY { get; set; }
+
+    // Fixed client slots (ClientPositionMode = 3). Absent in older configs → empty.
+    [JsonPropertyName("ClientSlots")]
+    public List<ClientSlot>? ClientSlots { get; set; }
+
+    [JsonPropertyName("DefaultClientSlotId")]
+    public string? DefaultClientSlotId { get; set; }
+
+    [JsonPropertyName("ClientSlotExcluded")]
+    public List<string>? ClientSlotExcluded { get; set; }
+
+    // Defaults to 1 so configs written before this key existed keep resizing on.
+    [JsonPropertyName("ClientSlotsResize")]
+    public int ClientSlotsResize { get; set; } = 1;
 
     [JsonPropertyName("Dont_Minimize_Clients")]
     public List<string> DontMinimizeClients { get; set; } = new();

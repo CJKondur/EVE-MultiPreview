@@ -345,12 +345,17 @@ public class AppSettings
     [JsonIgnore] public bool MinimizeInactiveClients { get => _cp.MinimizeInactiveClients; set => _cp.MinimizeInactiveClients = value; }
     [JsonIgnore] public bool AlwaysMaximize { get => _cp.AlwaysMaximize; set => _cp.AlwaysMaximize = value; }
     [JsonIgnore] public bool TrackClientPositions { get => _cp.TrackClientPositions; set => _cp.TrackClientPositions = value; }
-    // Fixed client spawn position (issue #85): 0=Off, 1=Center on monitor, 2=Custom X/Y
+    // Fixed client spawn position (issue #85): 0=Off, 1=Center on monitor, 2=Custom X/Y, 3=Fixed slots
     [JsonIgnore] public int ClientPositionMode { get => _cp.ClientPositionMode; set => _cp.ClientPositionMode = value; }
     [JsonIgnore] public int ClientPositionX { get => _cp.ClientPositionX; set => _cp.ClientPositionX = value; }
     [JsonIgnore] public int ClientPositionY { get => _cp.ClientPositionY; set => _cp.ClientPositionY = value; }
     // Let the ACTIVE client sit above the Windows taskbar (issue #99). Off by default.
     [JsonIgnore] public bool ClientCoverTaskbar { get => _cp.ClientCoverTaskbar; set => _cp.ClientCoverTaskbar = value; }
+    // Fixed client slots (ClientPositionMode = 3)
+    [JsonIgnore] public List<ClientSlot> ClientSlots { get => _cp.ClientSlots; set => _cp.ClientSlots = value; }
+    [JsonIgnore] public string DefaultClientSlotId { get => _cp.DefaultClientSlotId; set => _cp.DefaultClientSlotId = value; }
+    [JsonIgnore] public List<string> ClientSlotExcluded { get => _cp.ClientSlotExcluded; set => _cp.ClientSlotExcluded = value; }
+    [JsonIgnore] public bool ClientSlotsResize { get => _cp.ClientSlotsResize; set => _cp.ClientSlotsResize = value; }
 
     // Per-profile Custom Colors proxies
     [JsonIgnore] public bool CustomColorsActive { get => _cp.CustomColorsActive; set => _cp.CustomColorsActive = value; }
@@ -583,6 +588,15 @@ public class Profile
     // of it on blur so the taskbar stays usable. Centering also uses the whole screen
     // instead of the work area, so a screen-height window is not pushed down.
     public bool ClientCoverTaskbar { get; set; } = false;
+
+    // Fixed client slots (ClientPositionMode = 3). See Models/ClientSlot.cs.
+    public List<ClientSlot> ClientSlots { get; set; } = new();
+    /// <summary>Slot for clients not listed in any slot ("" = leave them alone).</summary>
+    public string DefaultClientSlotId { get; set; } = "";
+    /// <summary>Characters never positioned, even when a default slot exists.</summary>
+    public List<string> ClientSlotExcluded { get; set; } = new();
+    /// <summary>Resize clients to their slot (true) or only move them. Hidden fallback.</summary>
+    public bool ClientSlotsResize { get; set; } = true;
 
     // ── Per-profile Stat Overlay (per-character toggle for which stat types to show) ──
     public Dictionary<string, StatOverlayCharacterConfig> StatOverlayCharacters { get; set; } = new();

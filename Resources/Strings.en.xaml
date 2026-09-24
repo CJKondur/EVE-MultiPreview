@@ -260,6 +260,10 @@
     <sys:String x:Key="L.Client.SpawnOff">Off (leave where EVE opens)</sys:String>
     <sys:String x:Key="L.Client.SpawnCenter">Center on its monitor</sys:String>
     <sys:String x:Key="L.Client.SpawnCustom">Custom X / Y</sys:String>
+    <sys:String x:Key="L.Client.SpawnSlots">Fixed slots</sys:String>
+    <sys:String x:Key="L.Client.SlotsNote">Each slot is where a client's window is snapped — exact position and size, on any monitor. Clients go to the slot that lists their character, otherwise to the Default slot; several clients can share one slot. Fixed Window clients fill the slot exactly; Window-mode clients keep their title bar inside it. Tip: place a client where you want it, then use Capture.</sys:String>
+    <sys:String x:Key="L.Client.SlotAdd">+ Add slot</sys:String>
+    <sys:String x:Key="L.Client.SlotApplyNow">📌 Snap clients now</sys:String>
     <sys:String x:Key="L.Client.SpawnNote">Repositions each EVE client when it is detected AND each time you switch to it, so fixed-window clients stay in one place instead of opening in the top-left corner on ultrawide / large monitors. Ignored while 'Track and restore client window positions' is on.</sys:String>
     <sys:String x:Key="L.Client.CoverTaskbar">Let the active client cover the taskbar</sys:String>
     <sys:String x:Key="L.Client.CoverTaskbarNote">For fixed-window clients sized to your full screen height. The focused client is placed above the Windows taskbar and drops back below it as soon as you switch away, so the taskbar and Start menu stay usable. Also centres clients against the whole screen instead of the desktop work area.</sys:String>

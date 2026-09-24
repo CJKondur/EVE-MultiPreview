@@ -800,6 +800,14 @@ public partial class SettingsWindow
         PanelClientPositionXY.Visibility = CmbClientPosition.SelectedIndex == 2
             ? System.Windows.Visibility.Visible
             : System.Windows.Visibility.Collapsed;
+
+        // Fixed slots (3) own the client rect: show the slot editor, and grey out
+        // the two options the slots override (they're ignored while it's on).
+        bool slots = CmbClientPosition.SelectedIndex == 3;
+        if (PanelClientSlots != null)
+            PanelClientSlots.Visibility = slots ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        if (ChkTrackClientPositions != null) ChkTrackClientPositions.IsEnabled = !slots;
+        if (ChkAlwaysMaximize != null) ChkAlwaysMaximize.IsEnabled = !slots;
     }
 
     // One-click low-GPU preset (issue #85): enable the two modes that stop idle

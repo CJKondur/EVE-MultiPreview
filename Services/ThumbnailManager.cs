@@ -736,7 +736,11 @@ public sealed class ThumbnailManager : IDisposable
         // Restore client position if tracking; otherwise apply a fixed spawn
         // position (center / custom) so fixed-window clients don't all open in
         // the top-left corner on large/ultrawide monitors (issue #85).
-        if (s.TrackClientPositions)
+        // Fixed slots (mode 3) take precedence over Track positions: EVE relaunches at
+        // its remembered size, so the slot must be re-applied on every new window.
+        if (s.ClientPositionMode == 3)
+            ApplyClientSlot(window.Hwnd, window.CharacterName);
+        else if (s.TrackClientPositions)
             RestoreClientPosition(window.Hwnd, window.CharacterName);
         else
             ApplyFixedClientPosition(window.Hwnd);
@@ -768,6 +772,7 @@ public sealed class ThumbnailManager : IDisposable
 
         Application.Current?.Dispatcher.Invoke(() =>
         {
+            _slotInsets.TryRemove(window.Hwnd, out _);
             if (_thumbnails.TryRemove(window.Hwnd, out var thumbWindow))
             {
                 if (!string.IsNullOrEmpty(thumbWindow.CharacterName))
@@ -825,6 +830,10 @@ public sealed class ThumbnailManager : IDisposable
                     bool isExcluded = _excludedFromCycle.ContainsKey(window.CharacterName);
                     thumbWindow.SetCycleExcluded(isExcluded);
                 }
+
+                // Fixed slots: a client at character select sits in the default slot;
+                // once the character resolves, move it to that character's own slot.
+                ApplyClientSlot(window.Hwnd, window.CharacterName);
 
                 // Check if char select (title == "EVE" without character name)
                 bool isCharSelect = string.IsNullOrEmpty(window.CharacterName) ||
@@ -1385,9 +1394,19 @@ public sealed class ThumbnailManager : IDisposable
                 ClearAlertBadge(activatedChar);
             }
 
+            // Fixed slots own the client's rect: Always-maximize and Track positions
+            // would fight the slot, so both are ignored in mode 3.
+            bool slotsMode = _settings.Settings.ClientPositionMode == 3;
+
+            // Apply the slot BEFORE restoring a minimized client: for an iconic window
+            // it sets the restore rect, so the restore below lands straight in the slot.
+            // (After the async restore it could race and re-minimize the window.)
+            if (slotsMode)
+                ApplyClientSlot(hwnd, activatedChar);
+
             if (Interop.User32.IsIconic(hwnd))
             {
-                if (_settings.Settings.AlwaysMaximize)
+                if (_settings.Settings.AlwaysMaximize && !slotsMode)
                     Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
                 else
                     Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_RESTORE);
@@ -1402,7 +1421,7 @@ public sealed class ThumbnailManager : IDisposable
             // restored from another position. No-ops when the mode is Off (the
             // default), and Track client positions still wins — that setting exists
             // precisely to give each character its OWN remembered spot.
-            if (!_settings.Settings.TrackClientPositions)
+            if (!slotsMode && !_settings.Settings.TrackClientPositions)
                 ApplyFixedClientPosition(hwnd);
 
             // Swap the cover-taskbar band here too (#100). The focus poll alone is too
@@ -1433,7 +1452,7 @@ public sealed class ThumbnailManager : IDisposable
                     sw.BringToFront();
             }, System.Windows.Threading.DispatcherPriority.Background);
 
-            if (_settings.Settings.AlwaysMaximize && !Interop.User32.IsZoomed(hwnd))
+            if (_settings.Settings.AlwaysMaximize && !slotsMode && !Interop.User32.IsZoomed(hwnd))
                 Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
 
             if (_settings.Settings.MinimizeInactiveClients)
@@ -3118,10 +3137,182 @@ public sealed class ThumbnailManager : IDisposable
         catch { }
     }
 
+    // ── Fixed client slots (ClientPositionMode = 3) ─────────────────
+
+    /// <summary>
+    /// Snap an EVE client into its fixed slot: the character's own slot, else the
+    /// profile's default slot (see <see cref="ClientSlotRules"/>). The slot rect is the
+    /// VISIBLE WINDOW — a Fixed Window (borderless) client fills it exactly; a windowed
+    /// client's title bar and borders sit inside it. Clients sharing a slot stack on top
+    /// of each other; the active one is brought forward by activation as usual.
+    ///
+    /// Safe by construction: no-op unless mode 3 is on and a slot resolves; the rect
+    /// is validated against its monitor before any SetWindowPos; already-placed
+    /// windows cost nothing (visible-frame early-out). Minimized / maximized windows
+    /// get their restore rect set instead, so they land in the slot when restored.
+    /// </summary>
+    private void ApplyClientSlot(IntPtr hwnd, string? characterName, bool allowRecheck = true)
+    {
+        var s = _settings.Settings;
+        if (s.ClientPositionMode != 3 || hwnd == IntPtr.Zero) return;
+
+        var slot = ClientSlotRules.Resolve(_settings.CurrentProfile, characterName);
+        if (slot == null) return;   // excluded, or no own/default slot: leave it alone
+
+        var screen = FindSlotScreen(slot);
+        if (screen == null)
+        {
+            DiagnosticsService.LogWindowHook(
+                $"[ClientSlot] ⏭ '{characterName}': monitor {slot.MonitorDeviceName} ({slot.MonitorWidth}x{slot.MonitorHeight}) for slot '{slot.Name}' not found");
+            return;
+        }
+
+        // Never send an absurd rect to the client (spike lesson: a bad height once went
+        // out as 14,817,394 px). Slots must fit their monitor and be a usable size.
+        var b = screen.Bounds;
+        if (slot.Width < 640 || slot.Height < 360 || slot.Width > b.Width || slot.Height > b.Height
+            || slot.X < 0 || slot.Y < 0 || slot.X + slot.Width > b.Width || slot.Y + slot.Height > b.Height)
+        {
+            DiagnosticsService.LogWindowHook(
+                $"[ClientSlot] ⛔ slot '{slot.Name}' {slot.X},{slot.Y} {slot.Width}x{slot.Height} doesn't fit {screen.DeviceName} {b.Width}x{b.Height}");
+            return;
+        }
+
+        // The slot is the VISIBLE window: a Fixed Window client fills it exactly; a
+        // windowed client's title bar and borders sit inside it. SetWindowPos works on
+        // the window rect, which for captioned windows also includes invisible resize
+        // borders (~9 px left/right/bottom) — add those back so the VISIBLE frame lands
+        // on the slot.
+        int vx = b.Left + slot.X, vy = b.Top + slot.Y, vw = slot.Width, vh = slot.Height;
+        bool resize = s.ClientSlotsResize;
+        bool windowed = (Interop.User32.GetWindowLong(hwnd, Interop.User32.GWL_STYLE)
+                         & Interop.User32.WS_CAPTION) == Interop.User32.WS_CAPTION;
+
+        try
+        {
+            bool iconic = Interop.User32.IsIconic(hwnd);
+            if (iconic || Interop.User32.IsZoomed(hwnd))
+            {
+                // Set the restore rect; SetWindowPos on a minimized/maximized window
+                // doesn't change where it restores to. Insets can't be measured while
+                // minimized, so use the last ones seen for this window (0 for Fixed
+                // Window clients). rcNormalPosition is in WORKSPACE coordinates (offset
+                // by a top/left taskbar on the primary monitor).
+                _slotInsets.TryGetValue(hwnd, out var ins);
+                var wp = new Interop.User32.WINDOWPLACEMENT
+                {
+                    length = (uint)System.Runtime.InteropServices.Marshal.SizeOf<Interop.User32.WINDOWPLACEMENT>()
+                };
+                if (!Interop.User32.GetWindowPlacement(hwnd, ref wp)) return;
+                var prim = System.Windows.Forms.Screen.PrimaryScreen!;
+                int wx = vx - ins.Left - (prim.WorkingArea.Left - prim.Bounds.Left);
+                int wy = vy - ins.Top - (prim.WorkingArea.Top - prim.Bounds.Top);
+                int ww = vw + ins.Left + ins.Right, wh = vh + ins.Top + ins.Bottom;
+                if (!resize)
+                {
+                    ww = wp.rcNormalPosition.Right - wp.rcNormalPosition.Left;
+                    wh = wp.rcNormalPosition.Bottom - wp.rcNormalPosition.Top;
+                }
+                wp.rcNormalPosition = new Interop.DwmApi.RECT(wx, wy, wx + ww, wy + wh);
+                // Minimized stays minimized (restores into the slot); maximized is
+                // restored into the slot — a maximized client can't sit in one.
+                wp.showCmd = iconic ? (uint)Interop.User32.SW_SHOWMINNOACTIVE : (uint)Interop.User32.SW_SHOWNOACTIVATE;
+                wp.flags = 0;
+                Interop.User32.SetWindowPlacement(hwnd, ref wp);
+                DiagnosticsService.LogWindowHook(
+                    $"[ClientSlot] 📌 '{characterName}' → '{slot.Name}' (restore rect, was {(iconic ? "minimized" : "maximized")})");
+                return;
+            }
+
+            if (!Interop.DwmApi.TryGetVisibleFrame(hwnd, out var vis, out var insets, out bool measured)) return;
+
+            // A windowed client's invisible borders can't be measured while it sits on a
+            // monitor whose scaling differs from the primary's (DWM reports physical px,
+            // this system-aware app sees scaled px). Use the borders last measured for it,
+            // skip the early-out (the visible rect isn't trustworthy), and re-check once
+            // after the move, when it's on the target monitor.
+            bool reliable = measured || !windowed;   // Fixed Window clients have no invisible border
+            if (measured) _slotInsets[hwnd] = insets;
+            else if (windowed && _slotInsets.TryGetValue(hwnd, out var cached)) insets = cached;
+
+            // Early-out: the visible frame is already exactly the slot.
+            if (reliable)
+            {
+                bool posOk = vis.Left == vx && vis.Top == vy;
+                bool sizeOk = vis.Right - vis.Left == vw && vis.Bottom - vis.Top == vh;
+                if (posOk && (sizeOk || !resize)) return;
+            }
+
+            int tx = vx - insets.Left, ty = vy - insets.Top;
+            int tw = vw + insets.Left + insets.Right, th = vh + insets.Top + insets.Bottom;
+            uint flags = Interop.User32.SWP_NOZORDER | Interop.User32.SWP_NOACTIVATE | Interop.User32.SWP_ASYNCWINDOWPOS;
+            if (!resize) flags |= Interop.User32.SWP_NOSIZE;
+            Interop.User32.SetWindowPos(hwnd, IntPtr.Zero, tx, ty, tw, th, flags);
+            DiagnosticsService.LogWindowHook(
+                $"[ClientSlot] 📌 '{characterName}' → '{slot.Name}' visible {vx},{vy} {vw}x{vh} " +
+                $"({(windowed ? "windowed" : "fixed")}, window rect {tx},{ty} {tw}x{th}, resize={resize}" +
+                $"{(reliable ? "" : ", borders unmeasured")})");
+
+            if (!reliable && allowRecheck)
+                ScheduleSlotRecheck(hwnd, characterName);
+        }
+        catch (Exception ex)
+        {
+            DiagnosticsService.LogWindowHook($"[ClientSlot] ❌ '{characterName}': {ex.Message}");
+        }
+    }
+
+    /// <summary>Apply the slot once more shortly after a move whose invisible borders
+    /// couldn't be measured — by then the window is on the target monitor. One recheck
+    /// only (allowRecheck: false), so this can never loop.</summary>
+    private void ScheduleSlotRecheck(IntPtr hwnd, string? characterName)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher == null) return;
+        dispatcher.BeginInvoke(new Action(() =>
+        {
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                if (_thumbnails.ContainsKey(hwnd))
+                    ApplyClientSlot(hwnd, characterName, allowRecheck: false);
+            };
+            timer.Start();
+        }));
+    }
+
+    /// <summary>Invisible resize-border insets last measured per client window, used to
+    /// set the restore rect of a minimized/maximized windowed client.</summary>
+    private readonly ConcurrentDictionary<IntPtr, Interop.DwmApi.RECT> _slotInsets = new();
+
+    /// <summary>Find a slot's monitor: same device name and resolution, else the first
+    /// monitor with that resolution (Windows can renumber DISPLAYn). Never falls back
+    /// to a different-sized monitor — the slot would land somewhere unintended.</summary>
+    private static System.Windows.Forms.Screen? FindSlotScreen(ClientSlot slot)
+    {
+        var screens = System.Windows.Forms.Screen.AllScreens;
+        bool hasSize = slot.MonitorWidth > 0 && slot.MonitorHeight > 0;
+        bool SizeMatch(System.Windows.Forms.Screen sc) =>
+            !hasSize || (sc.Bounds.Width == slot.MonitorWidth && sc.Bounds.Height == slot.MonitorHeight);
+
+        return screens.FirstOrDefault(sc => sc.DeviceName == slot.MonitorDeviceName && SizeMatch(sc))
+            ?? (hasSize ? screens.FirstOrDefault(SizeMatch) : null);
+    }
+
+    /// <summary>Snap every tracked client into its slot (tray "Snap to slots", profile
+    /// switch). No-op unless Fixed slots mode is on.</summary>
+    public void ApplyAllClientSlots()
+    {
+        if (_settings.Settings.ClientPositionMode != 3) return;
+        foreach (var (hwnd, thumb) in _thumbnails)
+            ApplyClientSlot(hwnd, thumb.CharacterName);
+    }
+
     private void ApplyFixedClientPosition(IntPtr hwnd)
     {
-        int mode = _settings.Settings.ClientPositionMode; // 0=Off, 1=Center, 2=Custom
-        if (mode == 0) return;
+        int mode = _settings.Settings.ClientPositionMode; // 0=Off, 1=Center, 2=Custom, 3=Fixed slots
+        if (mode != 1 && mode != 2) return;   // 3 is handled by ApplyClientSlot
         if (Interop.User32.IsIconic(hwnd) || Interop.User32.IsZoomed(hwnd)) return;
         if (!Interop.User32.GetWindowRect(hwnd, out var rect)) return;
 

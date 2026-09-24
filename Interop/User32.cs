@@ -157,6 +157,8 @@ public static class User32
     public const int GWLP_HWNDPARENT = -8;
     public const int GWL_EXSTYLE = -20;
     public const int GWL_STYLE = -16;
+    /// <summary>Title bar (WS_BORDER | WS_DLGFRAME). EVE "Window mode" has it; "Fixed Window" doesn't.</summary>
+    public const int WS_CAPTION = 0x00C00000;
     public const int WS_EX_TRANSPARENT = 0x00000020;
     public const int WS_EX_TOOLWINDOW = 0x00000080;
     public const int WS_EX_NOACTIVATE = 0x08000000;

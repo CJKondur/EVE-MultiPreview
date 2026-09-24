@@ -26,9 +26,44 @@ public static class DwmApi
     [DllImport("dwmapi.dll", PreserveSig = true)]
     public static extern int DwmGetWindowAttribute(IntPtr hwnd, uint dwAttribute, out int pvAttribute, int cbAttribute);
 
+    [DllImport("dwmapi.dll", PreserveSig = true)]
+    public static extern int DwmGetWindowAttribute(IntPtr hwnd, uint dwAttribute, out RECT pvAttribute, int cbAttribute);
+
     // DWM window attributes
+    public const uint DWMWA_EXTENDED_FRAME_BOUNDS = 9;
     public const uint DWMWA_CLOAKED = 14;
+
     public const uint DWMWA_NCRENDERING_ENABLED = 1;
+
+    /// <summary>
+    /// The window's VISIBLE frame — what the user sees, without the invisible resize
+    /// borders Windows 10/11 include in GetWindowRect (≈9 px left/right/bottom on a
+    /// captioned window). Also returns the invisible insets (visible minus window rect).
+    /// Falls back to the window rect with zero insets when DWM's answer looks wrong:
+    /// DWM always reports physical pixels, while GetWindowRect is DPI-virtualized for
+    /// system-aware callers on a monitor whose scaling differs from the primary's.
+    /// <paramref name="measured"/> is false in that fallback case.
+    /// </summary>
+    public static bool TryGetVisibleFrame(IntPtr hwnd, out RECT visible, out RECT insets, out bool measured)
+    {
+        insets = default;
+        measured = false;
+        if (!User32.GetWindowRect(hwnd, out var wr)) { visible = default; return false; }
+        visible = wr;
+        if (DwmGetWindowAttribute(hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, out RECT fb,
+                System.Runtime.InteropServices.Marshal.SizeOf<RECT>()) != 0)
+            return true;
+
+        int l = fb.Left - wr.Left, t = fb.Top - wr.Top, r = wr.Right - fb.Right, b = wr.Bottom - fb.Bottom;
+        const int MaxInset = 32;   // real invisible borders are single-digit px (×DPI)
+        if (l < 0 || t < 0 || r < 0 || b < 0 || l > MaxInset || t > MaxInset || r > MaxInset || b > MaxInset)
+            return true;           // mismatched coordinate spaces: treat as no invisible border
+
+        visible = fb;
+        insets = new RECT(l, t, r, b);
+        measured = true;
+        return true;
+    }
 
     // ── Structures ───────────────────────────────────────────────────
 

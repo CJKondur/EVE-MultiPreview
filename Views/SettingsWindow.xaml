@@ -1093,6 +1093,7 @@
                                     <ComboBoxItem Content="{DynamicResource L.Client.SpawnOff}"/>
                                     <ComboBoxItem Content="{DynamicResource L.Client.SpawnCenter}"/>
                                     <ComboBoxItem Content="{DynamicResource L.Client.SpawnCustom}"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Client.SpawnSlots}"/>
                                 </ComboBox>
                             </StackPanel>
                             <StackPanel x:Name="PanelClientPositionXY" Orientation="Horizontal" Margin="140,4,0,0" Visibility="Collapsed">
@@ -1100,6 +1101,18 @@
                                 <TextBox x:Name="TxtClientPositionX" Width="70" TextChanged="OnClientChanged"/>
                                 <Label Content="{DynamicResource L.Common.YCap}" Margin="10,0,0,0" VerticalAlignment="Center"/>
                                 <TextBox x:Name="TxtClientPositionY" Width="70" TextChanged="OnClientChanged"/>
+                            </StackPanel>
+                            <!-- Fixed slots (ClientPositionMode = 3): rows are built in SettingsWindow.Slots.cs -->
+                            <StackPanel x:Name="PanelClientSlots" Margin="0,8,0,0" Visibility="Collapsed">
+                                <TextBlock Text="{DynamicResource L.Client.SlotsNote}" Foreground="{StaticResource TextSecondaryBrush}"
+                                           FontSize="10" TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                <StackPanel x:Name="PanelSlotRows"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                    <Button Content="{DynamicResource L.Client.SlotAdd}" Padding="8,3" Click="OnSlotAdd"
+                                            Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"/>
+                                    <Button Content="{DynamicResource L.Client.SlotApplyNow}" Padding="8,3" Margin="6,0,0,0" Click="OnSlotApplyNow"
+                                            Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"/>
+                                </StackPanel>
                             </StackPanel>
                             <TextBlock Text="{DynamicResource L.Client.SpawnNote}" Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,2,0,0" TextWrapping="Wrap"/>
                             <CheckBox x:Name="ChkClientCoverTaskbar" Content="{DynamicResource L.Client.CoverTaskbar}" Margin="0,10,0,0"
