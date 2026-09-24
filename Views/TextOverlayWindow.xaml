@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         WindowStyle="None"
         ShowInTaskbar="False"
+        ShowActivated="False"
         Topmost="False"
         ResizeMode="NoResize"
         IsHitTestVisible="False"
