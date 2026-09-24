@@ -42,10 +42,12 @@ public static class DwmApi
     /// Falls back to the window rect with zero insets when DWM's answer looks wrong:
     /// DWM always reports physical pixels, while GetWindowRect is DPI-virtualized for
     /// system-aware callers on a monitor whose scaling differs from the primary's.
+    /// <paramref name="measured"/> is false in that fallback case.
     /// </summary>
-    public static bool TryGetVisibleFrame(IntPtr hwnd, out RECT visible, out RECT insets)
+    public static bool TryGetVisibleFrame(IntPtr hwnd, out RECT visible, out RECT insets, out bool measured)
     {
         insets = default;
+        measured = false;
         if (!User32.GetWindowRect(hwnd, out var wr)) { visible = default; return false; }
         visible = wr;
         if (DwmGetWindowAttribute(hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, out RECT fb,
@@ -59,6 +61,7 @@ public static class DwmApi
 
         visible = fb;
         insets = new RECT(l, t, r, b);
+        measured = true;
         return true;
     }
 

@@ -3137,7 +3137,7 @@ public sealed class ThumbnailManager : IDisposable
     /// windows cost nothing (visible-frame early-out). Minimized / maximized windows
     /// get their restore rect set instead, so they land in the slot when restored.
     /// </summary>
-    private void ApplyClientSlot(IntPtr hwnd, string? characterName)
+    private void ApplyClientSlot(IntPtr hwnd, string? characterName, bool allowRecheck = true)
     {
         var s = _settings.Settings;
         if (s.ClientPositionMode != 3 || hwnd == IntPtr.Zero) return;
@@ -3210,13 +3210,24 @@ public sealed class ThumbnailManager : IDisposable
                 return;
             }
 
-            if (!Interop.DwmApi.TryGetVisibleFrame(hwnd, out var vis, out var insets)) return;
-            _slotInsets[hwnd] = insets;
+            if (!Interop.DwmApi.TryGetVisibleFrame(hwnd, out var vis, out var insets, out bool measured)) return;
+
+            // A windowed client's invisible borders can't be measured while it sits on a
+            // monitor whose scaling differs from the primary's (DWM reports physical px,
+            // this system-aware app sees scaled px). Use the borders last measured for it,
+            // skip the early-out (the visible rect isn't trustworthy), and re-check once
+            // after the move, when it's on the target monitor.
+            bool reliable = measured || !windowed;   // Fixed Window clients have no invisible border
+            if (measured) _slotInsets[hwnd] = insets;
+            else if (windowed && _slotInsets.TryGetValue(hwnd, out var cached)) insets = cached;
 
             // Early-out: the visible frame is already exactly the slot.
-            bool posOk = vis.Left == vx && vis.Top == vy;
-            bool sizeOk = vis.Right - vis.Left == vw && vis.Bottom - vis.Top == vh;
-            if (posOk && (sizeOk || !resize)) return;
+            if (reliable)
+            {
+                bool posOk = vis.Left == vx && vis.Top == vy;
+                bool sizeOk = vis.Right - vis.Left == vw && vis.Bottom - vis.Top == vh;
+                if (posOk && (sizeOk || !resize)) return;
+            }
 
             int tx = vx - insets.Left, ty = vy - insets.Top;
             int tw = vw + insets.Left + insets.Right, th = vh + insets.Top + insets.Bottom;
@@ -3225,12 +3236,36 @@ public sealed class ThumbnailManager : IDisposable
             Interop.User32.SetWindowPos(hwnd, IntPtr.Zero, tx, ty, tw, th, flags);
             DiagnosticsService.LogWindowHook(
                 $"[ClientSlot] 📌 '{characterName}' → '{slot.Name}' visible {vx},{vy} {vw}x{vh} " +
-                $"({(windowed ? "windowed" : "fixed")}, window rect {tx},{ty} {tw}x{th}, resize={resize})");
+                $"({(windowed ? "windowed" : "fixed")}, window rect {tx},{ty} {tw}x{th}, resize={resize}" +
+                $"{(reliable ? "" : ", borders unmeasured")})");
+
+            if (!reliable && allowRecheck)
+                ScheduleSlotRecheck(hwnd, characterName);
         }
         catch (Exception ex)
         {
             DiagnosticsService.LogWindowHook($"[ClientSlot] ❌ '{characterName}': {ex.Message}");
         }
+    }
+
+    /// <summary>Apply the slot once more shortly after a move whose invisible borders
+    /// couldn't be measured — by then the window is on the target monitor. One recheck
+    /// only (allowRecheck: false), so this can never loop.</summary>
+    private void ScheduleSlotRecheck(IntPtr hwnd, string? characterName)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher == null) return;
+        dispatcher.BeginInvoke(new Action(() =>
+        {
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                if (_thumbnails.ContainsKey(hwnd))
+                    ApplyClientSlot(hwnd, characterName, allowRecheck: false);
+            };
+            timer.Start();
+        }));
     }
 
     /// <summary>Invisible resize-border insets last measured per client window, used to
