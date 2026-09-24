@@ -82,6 +82,7 @@
     <sys:String x:Key="L.General.LockPositions">Lock Thumbnail Positions</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">Show Broadcast-Key HUD</sys:String>
     <sys:String x:Key="L.General.AutoSolo">Auto-solo active client audio</sys:String>
+    <sys:String x:Key="L.General.MuteAllWhenNoneActive">Mute all clients when no EVE client is active</sys:String>
     <sys:String x:Key="L.General.IndividualResize">Resize Thumbnails Individually</sys:String>
     <sys:String x:Key="L.General.IndividualResizeNote">When on, resizing one thumbnail won't affect others. Hold Ctrl to invert.</sys:String>
     <sys:String x:Key="L.General.Minimize">Minimize</sys:String>
@@ -442,6 +443,7 @@
     <sys:String x:Key="L.Tt.RedoHotkey">Optional. Avoid keys EVE uses.</sys:String>
     <sys:String x:Key="L.Tt.BroadcastHud">A small on-screen pill showing which held key is being propagated to your clients. Drag it to reposition.</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">When you switch to a client, mute the other EVE clients and unmute the active one (Windows per-process audio). Per-client mute/volume is also on each thumbnail's right-click menu.</sys:String>
+    <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">Requires Auto-solo. When focus leaves EVE entirely (e.g. you switch to another app), mute every client instead of leaving the last-active one unmuted.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">On: holding a cycle hotkey keeps cycling at the delay above. Off: each press cycles exactly one client.</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">Keeps thumbnails above your EVE clients while EVE is focused, but lets other apps (browser, Discord) cover them. Ignored when Always On Top is enabled.</sys:String>
     <sys:String x:Key="L.Tt.EdgeGutter">Even gap left between thumbnails when edge-snapping them adjacent.</sys:String>

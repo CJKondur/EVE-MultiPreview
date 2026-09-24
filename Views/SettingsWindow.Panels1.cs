@@ -249,6 +249,7 @@ public partial class SettingsWindow
         S.LockPositions = ChkLockPositions.IsChecked == true;
         S.ShowBroadcastKeyHud = ChkBroadcastHud.IsChecked == true;
         S.AutoSoloClientAudio = ChkAutoSoloAudio.IsChecked == true;
+        S.MuteAllClientAudioWhenNoneActive = ChkMuteAllWhenNoneActive.IsChecked == true;
         S.IndividualThumbnailResize = ChkIndividualResize.IsChecked == true;
         S.ShowSessionTimer = ChkShowTimer.IsChecked == true;
         if (int.TryParse(TxtMinimizeDelay.Text, out int md)) S.MinimizeDelay = md;

@@ -198,6 +198,7 @@ public class AhkConfigRoot
         s.BroadcastHudX = g.BroadcastHudX;
         s.BroadcastHudY = g.BroadcastHudY;
         s.AutoSoloClientAudio = g.AutoSoloClientAudio != 0;
+        s.MuteAllClientAudioWhenNoneActive = g.MuteAllClientAudioWhenNoneActive != 0;
 
         // Eve Manager
         s.EveManagerUseESI = g.EveManagerUseESI != 0;
@@ -446,6 +447,7 @@ public class AhkConfigRoot
         g.BroadcastHudX = s.BroadcastHudX;
         g.BroadcastHudY = s.BroadcastHudY;
         g.AutoSoloClientAudio = s.AutoSoloClientAudio ? 1 : 0;
+        g.MuteAllClientAudioWhenNoneActive = s.MuteAllClientAudioWhenNoneActive ? 1 : 0;
 
         // Eve Manager
         g.EveManagerUseESI = s.EveManagerUseESI ? 1 : 0;
@@ -1189,6 +1191,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("AutoSoloClientAudio")]
     public int AutoSoloClientAudio { get; set; }
+
+    [JsonPropertyName("MuteAllClientAudioWhenNoneActive")]
+    public int MuteAllClientAudioWhenNoneActive { get; set; }
 
     [JsonPropertyName("EveManagerUseESI")]
     public int EveManagerUseESI { get; set; } = 1;
