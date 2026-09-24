@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">オン: 修飾キーを押していてもホットキーが働きます — EVE ではターゲットロックに Ctrl を押したままにします。オフ: V などの単一キーは単独で押したときだけ発動し、Ctrl+V は貼り付けのためクライアントに届きます。</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">押したままの Ctrl / Shift / Alt を切り替え先のクライアントに引き継ぐ</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">オン: Ctrl を押したままのターゲットロックが、別のクライアントに切り替えた後も機能します。切り替え後にロックできなくなる場合はオフにしてください。環境によってはクライアントが既に押下を認識しており、追加のキー入力が邪魔になります。</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokes">ホットキーのキー入力を EVE から隠す（EVE-X-Preview と同じ）</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">オン: ホットキーでクライアントを切り替えたとき、切り替え先のクライアントにはそのキーが一切届きません。オフ: キーを離した信号が切り替え先に届き、最初のクリックがオーバービューにフォーカスするだけで操作にならないことがあります。</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">システムホットキー</sys:String>
     <sys:String x:Key="L.General.HkSuspend">ホットキーを一時停止：</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">クリックスルー切替：</sys:String>
@@ -81,6 +83,7 @@
     <sys:String x:Key="L.General.LockPositions">サムネイル位置をロック</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">ブロードキャストキー HUD を表示</sys:String>
     <sys:String x:Key="L.General.AutoSolo">アクティブなクライアントの音声を自動でソロ再生</sys:String>
+    <sys:String x:Key="L.General.MuteAllWhenNoneActive">アクティブな EVE クライアントがないときは全クライアントをミュート</sys:String>
     <sys:String x:Key="L.General.IndividualResize">サムネイルを個別にリサイズ</sys:String>
     <sys:String x:Key="L.General.IndividualResizeNote">オンにすると、1 つのサムネイルをリサイズしても他に影響しません。Ctrl を押すと反転します。</sys:String>
     <sys:String x:Key="L.General.Minimize">最小化</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="L.Tt.RedoHotkey">任意。EVE が使うキーは避けてください。</sys:String>
     <sys:String x:Key="L.Tt.BroadcastHud">どの押しっぱなしキーがクライアントに伝播されているかを示す小さな画面上のピル。ドラッグで再配置できます。</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">クライアントに切り替えると、他の EVE クライアントをミュートし、アクティブなものをミュート解除します（Windows のプロセス別音声）。クライアント別のミュート/音量は各サムネイルの右クリックメニューにもあります。</sys:String>
+    <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">「アクティブなクライアントの音声を自動でソロ再生」が必要です。フォーカスが EVE から完全に離れたとき（別のアプリに切り替えたときなど）、最後にアクティブだったクライアントの音を残さず、すべてのクライアントをミュートします。</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">オン: サイクルホットキーを押し続けると上記の遅延でサイクルを続けます。オフ: 1 回の押下でちょうど 1 つのクライアントを切り替えます。</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">EVE がフォーカスされている間、サムネイルを EVE クライアントより前面に保ちますが、他のアプリ（ブラウザー、Discord）が覆うことは許します。常に最前面が有効なときは無視されます。</sys:String>
     <sys:String x:Key="L.Tt.EdgeGutter">サムネイルを端にスナップして隣接させたときに残す均等な間隔。</sys:String>

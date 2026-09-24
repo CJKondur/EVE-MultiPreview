@@ -60,6 +60,13 @@ public class AppSettings
     // interfere with a modifier the client can already see, so it can be turned off
     // to get the pre-2.3.30 behaviour of leaving the physically-held key alone.
     public bool PropagateHeldModifiers { get; set; } = true;
+
+    // Hide a hotkey's whole keystroke from the clients (#108). RegisterHotKey swallows
+    // the key-down but lets the key-UP through to whatever is foreground - after a
+    // client-switching hotkey that is the client we just switched INTO. A low-level
+    // hook hides both halves, as AutoHotkey (EVE-X-Preview) does. Off = hook not
+    // installed; RegisterHotKey alone, exactly the pre-2.3.38 behaviour.
+    public bool HideHotkeyKeystrokes { get; set; } = true;
     public string SuspendHotkey { get; set; } = "";
     public string ClickThroughHotkey { get; set; } = "";
     public string HideShowThumbnailsHotkey { get; set; } = "";

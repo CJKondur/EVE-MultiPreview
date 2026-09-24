@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">켜줐: 수식어 키를 누르고 있어도 단축키가 작동합니다 — EVE에서는 대상을 잠금 때 Ctrl을 누릅니다. 꺼짐: V 같은 단일 키 단축키는 단독으로만 작동하므로 Ctrl+V가 붙여넣기를 위해 클라이언트에 전달됩니다.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">누르고 있는 Ctrl / Shift / Alt 를 전환한 클라이언트로 전달</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">켜줐: Ctrl을 누른 채 대상을 잠그는 동작이 다른 클라이언트로 전환한 뒤에도 작동합니다. 전환 후 잠금이 되지 않으면 끄세요. 일부 환경에서는 클라이언트가 이미 눌린 키를 인식하고 있어 추가 입력이 방해가 됩니다.</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokes">EVE에서 단축키 입력 숨기기 (EVE-X-Preview와 동일)</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">켜짐: 단축키로 클라이언트를 전환하면 전환된 클라이언트는 그 키를 전혀 받지 않습니다. 꺼짐: 키를 뗀 신호가 그 클라이언트에 전달되어, 그곳에서의 첫 클릭이 동작 대신 오버뷰에 포커스만 줄 수 있습니다.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">시스템 단축키</sys:String>
     <sys:String x:Key="L.General.HkSuspend">단축키 일시 중지:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">클릭 통과 전환:</sys:String>
@@ -81,6 +83,7 @@
     <sys:String x:Key="L.General.LockPositions">썸네일 위치 잠금</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">브로드캐스트 키 HUD 표시</sys:String>
     <sys:String x:Key="L.General.AutoSolo">활성 클라이언트 오디오 자동 단독 재생</sys:String>
+    <sys:String x:Key="L.General.MuteAllWhenNoneActive">활성 EVE 클라이언트가 없으면 모든 클라이언트 음소거</sys:String>
     <sys:String x:Key="L.General.IndividualResize">썸네일 크기 개별 조정</sys:String>
     <sys:String x:Key="L.General.IndividualResizeNote">켜면 한 썸네일의 크기를 조정해도 다른 썸네일에 영향을 주지 않습니다. Ctrl을 누르면 반대로 동작합니다.</sys:String>
     <sys:String x:Key="L.General.Minimize">최소화</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="L.Tt.RedoHotkey">선택 사항. EVE가 사용하는 키는 피하세요.</sys:String>
     <sys:String x:Key="L.Tt.BroadcastHud">클라이언트에 전파되고 있는 눌린 키를 보여주는 작은 화면 알약형 표시. 드래그하여 위치를 조정하세요.</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">클라이언트로 전환하면 다른 EVE 클라이언트를 음소거하고 활성 클라이언트의 음소거를 해제합니다(Windows 프로세스별 오디오). 클라이언트별 음소거/볼륨은 각 썸네일의 오른쪽 클릭 메뉴에도 있습니다.</sys:String>
+    <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">'활성 클라이언트 오디오 자동 단독 재생'이 필요합니다. 포커스가 EVE를 완전히 벗어나면(예: 다른 앱으로 전환) 마지막 활성 클라이언트의 소리를 남기지 않고 모든 클라이언트를 음소거합니다.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">켬: 순환 단축키를 누르고 있으면 위의 지연으로 계속 순환합니다. 끔: 누를 때마다 정확히 하나의 클라이언트를 순환합니다.</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">EVE가 포커스일 때 썸네일을 EVE 클라이언트 위에 유지하지만, 다른 앱(브라우저, Discord)이 가릴 수 있게 합니다. 항상 위가 켜져 있으면 무시됩니다.</sys:String>
     <sys:String x:Key="L.Tt.EdgeGutter">썸네일을 가장자리 스냅으로 인접하게 붙일 때 남기는 균일한 간격.</sys:String>

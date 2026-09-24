@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Attivo: una scorciatoia funziona anche mentre tieni premuto un modificatore — in EVE si tiene Ctrl per agganciare i bersagli. Disattivo: una scorciatoia a tasto singolo come V si attiva solo da sola, così Ctrl+V arriva al client per incollare.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Trasferisci Ctrl / Maiusc / Alt tenuti premuti al client su cui passi</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Attivo: tenere premuto Ctrl per agganciare un bersaglio continua a funzionare dopo essere passati a un altro client. Disattivalo se l'aggancio smette di funzionare dopo un cambio: su alcune configurazioni il client rileva già il tasto premuto e questi input aggiuntivi lo disturbano.</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokes">Nascondi a EVE le pressioni dei tasti di scelta rapida (come EVE-X-Preview)</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Attivo: quando una scorciatoia cambia client, il client su cui arrivi non vede mai quel tasto. Disattivo: il rilascio del tasto raggiunge quel client, e il primo clic lì potrebbe solo mettere a fuoco l'overview invece di agire.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Tasti di scelta rapida di sistema</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Sospendi tasti di scelta rapida:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Attiva/disattiva click passante:</sys:String>
@@ -81,6 +83,7 @@
     <sys:String x:Key="L.General.LockPositions">Blocca posizioni delle miniature</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">Mostra HUD del tasto di broadcast</sys:String>
     <sys:String x:Key="L.General.AutoSolo">Isola automaticamente l'audio del client attivo</sys:String>
+    <sys:String x:Key="L.General.MuteAllWhenNoneActive">Silenzia tutti i client quando nessun client EVE è attivo</sys:String>
     <sys:String x:Key="L.General.IndividualResize">Ridimensiona le miniature singolarmente</sys:String>
     <sys:String x:Key="L.General.IndividualResizeNote">Se attivo, ridimensionare una miniatura non influisce sulle altre. Tieni premuto Ctrl per invertire.</sys:String>
     <sys:String x:Key="L.General.Minimize">Riduci a icona</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="L.Tt.RedoHotkey">Opzionale. Evita i tasti usati da EVE.</sys:String>
     <sys:String x:Key="L.Tt.BroadcastHud">Una piccola pillola a schermo che mostra quale tasto tenuto premuto viene propagato ai tuoi client. Trascinala per riposizionarla.</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">Quando passi a un client, silenzia gli altri client EVE e riattiva l'audio di quello attivo (audio per processo di Windows). Il silenziamento/volume per client è anche nel menu contestuale di ogni miniatura.</sys:String>
+    <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">Richiede «Isola automaticamente l'audio del client attivo». Quando il focus lascia del tutto EVE (ad esempio passando a un'altra app), silenzia tutti i client invece di lasciare udibile l'ultimo attivo.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">Attivo: tenere premuto un tasto di ciclo continua a ciclare al ritardo impostato sopra. Disattivo: ogni pressione cicla esattamente un client.</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">Mantiene le miniature sopra i tuoi client EVE mentre EVE è in focus, ma consente ad altre app (browser, Discord) di coprirle. Ignorato quando "Sempre in primo piano" è abilitato.</sys:String>
     <sys:String x:Key="L.Tt.EdgeGutter">Spazio uniforme lasciato tra le miniature quando le agganci adiacenti ai bordi.</sys:String>

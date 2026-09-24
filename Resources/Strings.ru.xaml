@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Включено: горячая клавиша работает даже при зажатом модификаторе — в EVE Ctrl держат для захвата целей. Выключено: одиночная клавиша вроде V срабатывает только сама по себе, и Ctrl+V доходит до клиента для вставки.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Передавать удерживаемые Ctrl / Shift / Alt клиенту, на который переключаетесь</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Включено: удержание Ctrl для захвата цели продолжает работать после переключения на другой клиент. Выключите, если захват перестаёт работать после переключения: на некоторых системах клиент и так видит удерживаемую клавишу, а эти дополнительные нажатия мешают.</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokes">Скрывать нажатия горячих клавиш от EVE (как EVE-X-Preview)</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Включено: когда горячая клавиша переключает клиента, клиент, на который вы переключились, вообще не видит эту клавишу. Выключено: отпускание клавиши доходит до этого клиента, и первый клик в нём может лишь переключить фокус на обзор вместо действия.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Системные горячие клавиши</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Приостановить горячие клавиши:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Переключение сквозного клика:</sys:String>
@@ -81,6 +83,7 @@
     <sys:String x:Key="L.General.LockPositions">Зафиксировать позиции миниатюр</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">Показывать HUD трансляции клавиш</sys:String>
     <sys:String x:Key="L.General.AutoSolo">Автоизоляция звука активного клиента</sys:String>
+    <sys:String x:Key="L.General.MuteAllWhenNoneActive">Отключать звук всех клиентов, когда ни один клиент EVE не активен</sys:String>
     <sys:String x:Key="L.General.IndividualResize">Изменять размер миниатюр по отдельности</sys:String>
     <sys:String x:Key="L.General.IndividualResizeNote">Когда включено, изменение размера одной миниатюры не влияет на другие. Удерживайте Ctrl для инверсии.</sys:String>
     <sys:String x:Key="L.General.Minimize">Сворачивание</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="L.Tt.RedoHotkey">Необязательно. Избегайте клавиш, используемых EVE.</sys:String>
     <sys:String x:Key="L.Tt.BroadcastHud">Небольшая экранная плашка, показывающая, какая удерживаемая клавиша транслируется вашим клиентам. Перетащите её для перемещения.</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">При переключении на клиент отключает звук других клиентов EVE и включает звук активного (аудио по процессам Windows). Отключение звука/громкость по клиентам также есть в контекстном меню каждой миниатюры.</sys:String>
+    <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">Требует «Автоизоляция звука активного клиента». Когда фокус полностью уходит из EVE (например, при переключении в другое приложение), звук отключается у всех клиентов, а не остаётся у последнего активного.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">Вкл.: удержание горячей клавиши цикла продолжает переключение с задержкой выше. Выкл.: каждое нажатие переключает ровно один клиент.</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">Держит миниатюры поверх ваших клиентов EVE, пока EVE в фокусе, но позволяет другим приложениям (браузер, Discord) закрывать их. Игнорируется, когда включено «Всегда поверх».</sys:String>
     <sys:String x:Key="L.Tt.EdgeGutter">Равный зазор, оставляемый между миниатюрами при их привязке впритык друг к другу.</sys:String>

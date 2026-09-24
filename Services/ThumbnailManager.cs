@@ -2453,8 +2453,10 @@ public sealed class ThumbnailManager : IDisposable
     /// client doesn't stay the sole unmuted one.</summary>
     private void MuteAllClientAudio()
     {
+        // One session enumeration for all clients, not one per client: this runs
+        // synchronously on every switch away from EVE.
         var pids = CollectClientPids(IntPtr.Zero, out _);
-        foreach (var pid in pids) _audio.SetMute(pid, true);
+        if (pids.Count > 0) _audio.MuteAll(pids);
     }
 
     private void OnAudioRequested(ThumbnailWindow thumb, int code)

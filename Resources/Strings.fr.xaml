@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Activé : un raccourci fonctionne même si vous maintenez un modificateur — dans EVE, Ctrl sert à verrouiller les cibles. Désactivé : un raccourci à touche unique comme V ne se déclenche que seul, donc Ctrl+V atteint le client pour coller.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Transmettre Ctrl / Maj / Alt maintenus au client vers lequel vous basculez</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Activé : maintenir Ctrl pour verrouiller une cible continue de fonctionner après un changement de client. Désactivez si le verrouillage cesse de fonctionner après un basculement — sur certaines configurations, le client détecte déjà la touche maintenue et ces frappes supplémentaires gênent.</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokes">Masquer à EVE les frappes des raccourcis (comme EVE-X-Preview)</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Activé : quand un raccourci change de client, le client ciblé ne voit jamais cette touche. Désactivé : le relâchement de la touche atteint ce client, et votre premier clic peut alors seulement donner le focus à l'overview au lieu d'agir.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Raccourcis système</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Suspendre les raccourcis:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Bascule clic traversant:</sys:String>
@@ -81,6 +83,7 @@
     <sys:String x:Key="L.General.LockPositions">Verrouiller les positions des miniatures</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">Afficher le HUD de touche diffusée</sys:String>
     <sys:String x:Key="L.General.AutoSolo">Isoler automatiquement l'audio du client actif</sys:String>
+    <sys:String x:Key="L.General.MuteAllWhenNoneActive">Couper le son de tous les clients quand aucun client EVE n'est actif</sys:String>
     <sys:String x:Key="L.General.IndividualResize">Redimensionner les miniatures individuellement</sys:String>
     <sys:String x:Key="L.General.IndividualResizeNote">Une fois activé, redimensionner une miniature n'affecte pas les autres. Maintenez Ctrl pour inverser.</sys:String>
     <sys:String x:Key="L.General.Minimize">Réduire</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="L.Tt.RedoHotkey">Optionnel. Évitez les touches utilisées par EVE.</sys:String>
     <sys:String x:Key="L.Tt.BroadcastHud">Une petite pastille à l'écran indiquant quelle touche maintenue est propagée à vos clients. Faites-la glisser pour la repositionner.</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">Lorsque vous passez à un client, coupez le son des autres clients EVE et rétablissez celui du client actif (audio par processus Windows). La coupure/le volume par client sont aussi dans le menu clic droit de chaque miniature.</sys:String>
+    <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">Nécessite « Isoler automatiquement l'audio du client actif ». Quand le focus quitte complètement EVE (par exemple en passant à une autre application), coupe le son de tous les clients au lieu de laisser le dernier client actif audible.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">Activé: maintenir un raccourci de cycle continue de cycler au délai ci-dessus. Désactivé: chaque appui cycle exactement un client.</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">Garde les miniatures au-dessus de vos clients EVE tant qu'EVE est au premier plan, mais laisse d'autres apps (navigateur, Discord) les couvrir. Ignoré lorsque Toujours au premier plan est activé.</sys:String>
     <sys:String x:Key="L.Tt.EdgeGutter">Espace régulier laissé entre les miniatures lors de leur alignement adjacent aux bords.</sys:String>

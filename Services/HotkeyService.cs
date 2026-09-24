@@ -99,6 +99,32 @@ public sealed class HotkeyService : IDisposable
     private readonly List<MouseButtonBinding> _storedMouseBindings = new(); // persist across suspend
     private record MouseButtonBinding(uint Modifiers, string ButtonName, Action Action, bool AllowRepeat);
 
+    // ── Hide hotkey keystrokes from the clients (WH_KEYBOARD_LL, #108) ──
+    // RegisterHotKey swallows a hotkey's key-DOWN but NOT its key-UP: the up goes to
+    // whatever is foreground when the key is released, and after a client-switching
+    // hotkey that is the client we just switched INTO. Every Ctrl+TAB cycle therefore
+    // dropped an orphan "Ctrl+TAB up" on the incoming client, right before the user's
+    // first click - which only focused EVE's overview instead of locking the target.
+    // AutoHotkey, and so EVE-X-Preview, hides BOTH halves with its keyboard hook
+    // (AHK hotkey.cpp / hook.cpp). This does the same: a real keystroke that lands on
+    // one of our registered slots has its down AND up swallowed here, and we post the
+    // same WM_HOTKEY our window already handles, so scope, the Settings block,
+    // throttling and repeat pacing are all unchanged. It must be both halves or
+    // neither - swallowing only the up leaves the key logically stuck down
+    // system-wide (verified). RegisterHotKey stays registered underneath, so injected
+    // keys, and everything if Windows ever drops this hook, keep today's path.
+    private record KeySlot(int Id, bool Repeat);
+    private volatile Dictionary<(uint Mods, uint Vk), KeySlot>? _keyHookMap; // published by the UI thread
+    private System.Threading.Thread? _keyHookThread;
+    private uint _keyHookThreadId;
+    private readonly System.Threading.ManualResetEventSlim _keyHookReady = new(false);
+    private IntPtr _hotkeyHwnd;
+    private const uint LLKHF_INJECTED = 0x10;
+    private const uint LLKHF_UP = 0x80;
+    // Marks a WM_HOTKEY posted by the hook (lParam bit 15 is never set by Windows,
+    // whose lParam is modifiers | vk<<16), purely so the cycling log can say so.
+    private const int HiddenKeystrokeMark = 0x8000;
+
     // Mouse buttons don't have OS-level auto-repeat the way keyboard keys do —
     // holding XButton2 only fires a single WM_XBUTTONDOWN. For repeatable
     // bindings (cycle hotkeys) we run our own repeat: when the hook sees a
@@ -128,6 +154,7 @@ public sealed class HotkeyService : IDisposable
         };
         _hwndSource = new HwndSource(parameters);
         _hwndSource.AddHook(WndProc);
+        _hotkeyHwnd = _hwndSource.Handle;
 
         RegisterActivationHotkey();
     }
@@ -248,6 +275,7 @@ public sealed class HotkeyService : IDisposable
         _storedSpecs.Clear();
         _storedMouseBindings.Clear();
         RemoveMouseHook();
+        _keyHookMap = null;
         _suspendHotkeyId = -1;
         _hotkeysActive = false;
         // NB: don't reset _nextId — the preserved activation-hotkey IDs would
@@ -340,6 +368,8 @@ public sealed class HotkeyService : IDisposable
         }
 
         int ok = 0, fail = 0;
+        // Only slots that actually registered - a key another app owns is not ours to hide.
+        var hiddenSlots = new Dictionary<(uint Mods, uint Vk), KeySlot>();
         foreach (var spec in winners.Values)
         {
             int id = _nextId++;
@@ -368,12 +398,22 @@ public sealed class HotkeyService : IDisposable
                 _hotkeyVks[id] = spec.VirtualKey;
                 if (spec.AllowRepeat)
                     _repeatableIds.Add(id);
+                hiddenSlots[(spec.Modifiers & 0xF, spec.VirtualKey)] = new KeySlot(id, osDrivesHold);
                 ok++;
             }
             else
             {
                 fail++;
             }
+        }
+        if (_appSettings?.HideHotkeyKeystrokes != false && hiddenSlots.Count > 0)
+        {
+            EnsureKeyHook();
+            _keyHookMap = hiddenSlots;
+        }
+        else
+        {
+            RemoveKeyHook();
         }
         _hotkeysActive = true;
         App.PerfLog($"[Hotkey:Activate] Registered {ok}/{_storedSpecs.Count} specs ({fail} failed, {_hotkeyActions.Count} total actions)");
@@ -394,6 +434,7 @@ public sealed class HotkeyService : IDisposable
         _repeatableIds.Clear();
         _lastRepeatFireTick.Clear();
         _lastHotkeyPostTick.Clear();
+        _keyHookMap = null; // nothing registered -> nothing to hide; keys pass straight through
         _hotkeysActive = false;
         Debug.WriteLine("[Hotkey:Deactivate] ⏸ Deactivated hotkeys (no EVE windows)");
     }
@@ -420,8 +461,9 @@ public sealed class HotkeyService : IDisposable
             }
             _hotkeysActive = false;
 
-            // Remove mouse hook so inputs return to Windows
+            // Remove both hooks so inputs return to Windows
             RemoveMouseHook();
+            RemoveKeyHook();
 
             Debug.WriteLine("[Hotkey:Suspend] ⏸ All hotkeys unregistered, hooks removed — keys returned to Windows");
         }
@@ -1046,6 +1088,8 @@ public sealed class HotkeyService : IDisposable
             // potential future use.)
 
             Debug.WriteLine($"[Hotkey:Fired] ⚡ WM_HOTKEY ID={id}");
+            if ((lParam.ToInt64() & HiddenKeystrokeMark) != 0)
+                DiagnosticsService.LogCycling($"[Hotkey:KeyHook] ID={id} fired with its keystroke hidden from the clients (down and up)");
             if (_hotkeyActions.TryGetValue(id, out var action))
             {
                 try
@@ -1087,6 +1131,7 @@ public sealed class HotkeyService : IDisposable
             _activationHotkeyIds.Clear();
         }
         RemoveMouseHook();
+        RemoveKeyHook();
         _hwndSource?.RemoveHook(WndProc);
         _hwndSource?.Dispose();
     }
@@ -1217,6 +1262,113 @@ public sealed class HotkeyService : IDisposable
             Debug.WriteLine("[Hotkey:Mouse] 🛑 Mouse hook removal requested");
         }
         _mouseBindings.Clear();
+    }
+
+    private void EnsureKeyHook()
+    {
+        if (_keyHookThread != null) return;
+        _keyHookReady.Reset();
+        _keyHookThread = new System.Threading.Thread(KeyHookThreadProc)
+        {
+            IsBackground = true,
+            Name = "EmpKeyHook"
+        };
+        _keyHookThread.Start();
+        _keyHookReady.Wait(1000); // thread id published, so RemoveKeyHook can always reach it
+    }
+
+    private void RemoveKeyHook()
+    {
+        _keyHookMap = null;
+        if (_keyHookThread == null) return;
+        if (_keyHookThreadId != 0)
+            User32.PostThreadMessage(_keyHookThreadId, User32.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
+        _keyHookThread = null;
+        _keyHookThreadId = 0;
+    }
+
+    /// <summary>Dedicated-thread body, same shape as the mouse hook's: a low-level hook
+    /// is called on its installing thread, so it gets its own message loop and never
+    /// waits behind the UI thread. The pressed-key table is LOCAL to this thread: a
+    /// hook being replaced can briefly overlap its successor, and each must only ever
+    /// release keys it swallowed itself.</summary>
+    private void KeyHookThreadProc()
+    {
+        var hiddenDown = new Dictionary<uint, KeySlot>();
+        IntPtr handle = IntPtr.Zero;
+        User32.LowLevelKeyboardProc proc = (nCode, wParam, lParam) =>
+            KeyHookCallback(hiddenDown, handle, nCode, wParam, lParam);
+
+        _keyHookThreadId = User32.GetCurrentThreadId();
+        handle = User32.SetWindowsHookEx(User32.WH_KEYBOARD_LL, proc, User32.GetModuleHandle(null), 0);
+        _keyHookReady.Set();
+        App.PerfLog($"[Hotkey:KeyHook] Keystroke-hiding hook installed: {handle != IntPtr.Zero}");
+
+        while (User32.GetMessage(out _, IntPtr.Zero, 0, 0) > 0) { /* WM_QUIT ends the loop */ }
+
+        if (handle != IntPtr.Zero)
+            User32.UnhookWindowsHookEx(handle);
+        GC.KeepAlive(proc); // the OS holds only a raw pointer to this delegate
+    }
+
+    /// <summary>Runs for every keystroke system-wide, so it only does table lookups -
+    /// no logging, no I/O, nothing that could approach the OS hook timeout.</summary>
+    private IntPtr KeyHookCallback(Dictionary<uint, KeySlot> hiddenDown, IntPtr handle,
+        int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        if (nCode >= 0)
+        {
+            var kb = Marshal.PtrToStructure<User32.KBDLLHOOKSTRUCT>(lParam);
+            // Real keystrokes only. Injected ones - our own vk0xE8 activation bridge, the
+            // held-modifier re-press, remapper software - keep the RegisterHotKey path.
+            if ((kb.flags & LLKHF_INJECTED) == 0)
+            {
+                uint vk = kb.vkCode;
+                if ((kb.flags & LLKHF_UP) != 0)
+                {
+                    // Hide the release of a press we hid. Any other release is not ours.
+                    if (hiddenDown.Remove(vk)) return (IntPtr)1;
+                }
+                else if (hiddenDown.TryGetValue(vk, out var held))
+                {
+                    // Keyboard auto-repeat of a press we own. Mirror RegisterHotKey: a
+                    // repeat slot re-posts (held-to-cycle); a MOD_NOREPEAT slot does not.
+                    if (held.Repeat) PostHiddenHotkey(held.Id, vk);
+                    return (IntPtr)1;
+                }
+                else if (!User32.IsKeyDown((int)vk))
+                {
+                    // Fresh press (the async state does not include this event yet). A key
+                    // that is ALREADY down was pressed before we owned it - e.g. held while
+                    // the slots were published - so it is left alone end to end: hiding
+                    // only its release would strand it logically down.
+                    var map = _keyHookMap;
+                    if (map != null && map.TryGetValue((CurrentHotkeyMods(), vk), out var slot))
+                    {
+                        hiddenDown[vk] = slot;
+                        PostHiddenHotkey(slot.Id, vk);
+                        return (IntPtr)1;
+                    }
+                }
+            }
+        }
+        return User32.CallNextHookEx(handle, nCode, wParam, lParam);
+    }
+
+    private void PostHiddenHotkey(int id, uint vk) =>
+        User32.PostMessage(_hotkeyHwnd, (uint)User32.WM_HOTKEY, (IntPtr)id,
+            (IntPtr)((int)(vk << 16) | HiddenKeystrokeMark));
+
+    /// <summary>Modifier state in RegisterHotKey's terms (either-side Ctrl/Alt/Shift/Win),
+    /// matching what the OS itself compares against a registered slot.</summary>
+    private static uint CurrentHotkeyMods()
+    {
+        uint m = 0;
+        if (User32.IsKeyDown(0x12)) m |= User32.MOD_ALT;
+        if (User32.IsKeyDown(0x11)) m |= User32.MOD_CONTROL;
+        if (User32.IsKeyDown(0x10)) m |= User32.MOD_SHIFT;
+        if (User32.IsKeyDown(0x5B) || User32.IsKeyDown(0x5C)) m |= User32.MOD_WIN;
+        return m;
     }
 
     private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)

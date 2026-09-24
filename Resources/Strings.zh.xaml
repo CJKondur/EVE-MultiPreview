@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">开启：即使按住修饰键，快捷键仍然有效 — 在 EVE 中需要按住 Ctrl 锁定目标。关闭：像 V 这样的单键快捷键只在单独按下时生效，因此 Ctrl+V 可以传递给客户端用于粘贴。</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">将按住的 Ctrl / Shift / Alt 传递给切换到的客户端</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">开启：按住 Ctrl 锁定目标在切换到其他客户端后仍然有效。如果切换后无法锁定，请关闭此项：在某些系统上客户端已能识别按住的按键，额外的按键信号反而会干扰。</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokes">对 EVE 隐藏快捷键按键（与 EVE-X-Preview 相同）</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">开启：快捷键切换客户端时，切换到的客户端完全不会收到该按键。关闭：按键松开的信号会传到该客户端，您在那里的第一次点击可能只会聚焦总览而不执行操作。</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">系统热键</sys:String>
     <sys:String x:Key="L.General.HkSuspend">暂停热键：</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">点击穿透切换：</sys:String>
@@ -81,6 +83,7 @@
     <sys:String x:Key="L.General.LockPositions">锁定缩略图位置</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">显示广播键 HUD</sys:String>
     <sys:String x:Key="L.General.AutoSolo">自动独占活动客户端音频</sys:String>
+    <sys:String x:Key="L.General.MuteAllWhenNoneActive">没有活动的 EVE 客户端时静音所有客户端</sys:String>
     <sys:String x:Key="L.General.IndividualResize">单独调整缩略图大小</sys:String>
     <sys:String x:Key="L.General.IndividualResizeNote">启用后，调整一个缩略图的大小不会影响其他缩略图。按住 Ctrl 可反转。</sys:String>
     <sys:String x:Key="L.General.Minimize">最小化</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="L.Tt.RedoHotkey">可选。避免使用 EVE 使用的按键。</sys:String>
     <sys:String x:Key="L.Tt.BroadcastHud">一个显示当前正在传播给客户端的按键的小型屏幕提示条。拖动可重新定位。</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">当你切换到某个客户端时，静音其他 EVE 客户端并取消静音活动的那个（Windows 每进程音频）。每客户端的静音/音量也在每个缩略图的右键菜单中。</sys:String>
+    <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">需要开启“自动独占活动客户端音频”。当焦点完全离开 EVE（例如切换到其他应用）时，静音所有客户端，而不是让最后一个活动客户端继续发声。</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">开：按住循环热键会以上面的延迟持续循环。关：每次按键精确循环一个客户端。</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">在 EVE 处于焦点时保持缩略图在 EVE 客户端之上，但允许其他应用（浏览器、Discord）遮盖它们。启用“始终置顶”时忽略此项。</sys:String>
     <sys:String x:Key="L.Tt.EdgeGutter">边缘吸附相邻缩略图时留出的均匀间隙。</sys:String>

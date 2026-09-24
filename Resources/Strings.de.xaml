@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Ein: Ein Hotkey funktioniert auch bei gedrückter Modifikatortaste — in EVE wird Strg zum Anvisieren gehalten. Aus: Ein Einzeltasten-Hotkey wie V löst nur allein aus, sodass Strg+V zum Einfügen beim Client ankommt.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Gedrückte Strg-/Umschalt-/Alt-Taste an den gewechselten Client weitergeben</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Ein: Strg gedrückt halten zum Anvisieren funktioniert auch nach dem Wechsel zu einem anderen Client. Ausschalten, falls das Anvisieren nach einem Wechsel nicht mehr geht — auf manchen Systemen erkennt der Client die gedrückte Taste bereits und diese zusätzlichen Tastensignale stören.</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokes">Hotkey-Tastendrücke vor EVE verbergen (wie EVE-X-Preview)</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Ein: Wenn ein Hotkey den Client wechselt, bekommt der neue Client diese Taste nie zu sehen. Aus: Das Loslassen der Taste erreicht den neuen Client, und dein erster Klick dort fokussiert dann eventuell nur die Übersicht, statt etwas auszulösen.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">System-Hotkeys</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Hotkeys pausieren:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Klick-Durchlass umschalten:</sys:String>
@@ -81,6 +83,7 @@
     <sys:String x:Key="L.General.LockPositions">Vorschaupositionen sperren</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">Broadcast-Tasten-HUD anzeigen</sys:String>
     <sys:String x:Key="L.General.AutoSolo">Audio des aktiven Clients automatisch isolieren</sys:String>
+    <sys:String x:Key="L.General.MuteAllWhenNoneActive">Alle Clients stummschalten, wenn kein EVE-Client aktiv ist</sys:String>
     <sys:String x:Key="L.General.IndividualResize">Vorschauen einzeln skalieren</sys:String>
     <sys:String x:Key="L.General.IndividualResizeNote">Wenn aktiviert, wirkt sich das Skalieren einer Vorschau nicht auf die anderen aus. Halte Strg, um umzukehren.</sys:String>
     <sys:String x:Key="L.General.Minimize">Minimieren</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="L.Tt.RedoHotkey">Optional. Vermeide von EVE genutzte Tasten.</sys:String>
     <sys:String x:Key="L.Tt.BroadcastHud">Eine kleine Bildschirmpille, die anzeigt, welche gehaltene Taste an deine Clients weitergegeben wird. Ziehe sie, um sie neu zu positionieren.</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">Wenn du zu einem Client wechselst, werden die anderen EVE-Clients stummgeschaltet und der aktive lautgestellt (Windows-Audio pro Prozess). Stummschaltung/Lautstärke pro Client findest du auch im Rechtsklick-Menü jeder Vorschau.</sys:String>
+    <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">Erfordert „Audio des aktiven Clients automatisch isolieren“. Wenn der Fokus EVE ganz verlässt (z. B. beim Wechsel in eine andere App), werden alle Clients stummgeschaltet, statt den zuletzt aktiven hörbar zu lassen.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">Ein: Halten eines Durchlauf-Hotkeys durchläuft weiter mit der oben eingestellten Verzögerung. Aus: Jeder Druck durchläuft genau einen Client.</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">Hält Vorschauen über deinen EVE-Clients, solange EVE fokussiert ist, lässt aber andere Apps (Browser, Discord) sie verdecken. Wird ignoriert, wenn „Immer im Vordergrund“ aktiviert ist.</sys:String>
     <sys:String x:Key="L.Tt.EdgeGutter">Gleichmäßiger Abstand, der zwischen Vorschauen bleibt, wenn sie am Rand aneinander einrasten.</sys:String>

@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Activado: una tecla rápida funciona aunque mantengas un modificador — en EVE se mantiene Ctrl para fijar objetivos. Desactivado: una tecla rápida simple como V solo se activa sola, así que Ctrl+V llega al cliente para pegar.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Transferir Ctrl / Mayús / Alt mantenidos al cliente al que cambias</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Activado: mantener Ctrl para fijar un objetivo sigue funcionando tras cambiar a otro cliente. Descactívalo si el fijado deja de funcionar tras un cambio: en algunos equipos el cliente ya detecta la tecla mantenida y estas pulsaciones adicionales estorban.</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokes">Ocultar a EVE las pulsaciones de las teclas rápidas (como EVE-X-Preview)</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Activado: cuando una tecla rápida cambia de cliente, el cliente al que llegas nunca ve esa tecla. Desactivado: la liberación de la tecla llega a ese cliente, y tu primer clic allí puede solo enfocar el overview en lugar de actuar.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Teclas rápidas del sistema</sys:String>
     <sys:String x:Key="L.General.HkSuspend">Suspender teclas rápidas:</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">Alternar clic a través:</sys:String>
@@ -81,6 +83,7 @@
     <sys:String x:Key="L.General.LockPositions">Bloquear posiciones de las miniaturas</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">Mostrar HUD de tecla de difusión</sys:String>
     <sys:String x:Key="L.General.AutoSolo">Aislar automáticamente el audio del cliente activo</sys:String>
+    <sys:String x:Key="L.General.MuteAllWhenNoneActive">Silenciar todos los clientes cuando ningún cliente de EVE esté activo</sys:String>
     <sys:String x:Key="L.General.IndividualResize">Redimensionar miniaturas individualmente</sys:String>
     <sys:String x:Key="L.General.IndividualResizeNote">Cuando está activo, redimensionar una miniatura no afecta a las demás. Mantén Ctrl para invertir.</sys:String>
     <sys:String x:Key="L.General.Minimize">Minimizar</sys:String>
@@ -441,6 +444,7 @@
     <sys:String x:Key="L.Tt.RedoHotkey">Opcional. Evita teclas que use EVE.</sys:String>
     <sys:String x:Key="L.Tt.BroadcastHud">Una pequeña píldora en pantalla que muestra qué tecla mantenida se está propagando a tus clientes. Arrástrala para reposicionarla.</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">Cuando cambias a un cliente, silencia los demás clientes de EVE y activa el sonido del activo (audio por proceso en Windows). El silencio/volumen por cliente también está en el menú contextual de cada miniatura.</sys:String>
+    <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">Requiere «Aislar automáticamente el audio del cliente activo». Cuando el foco sale por completo de EVE (por ejemplo, al cambiar a otra aplicación), silencia todos los clientes en lugar de dejar con sonido el último activo.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">Activado: mantener una tecla de ciclado sigue ciclando al retardo de arriba. Desactivado: cada pulsación cicla exactamente un cliente.</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">Mantiene las miniaturas por encima de tus clientes de EVE mientras EVE tiene el foco, pero permite que otras apps (navegador, Discord) las cubran. Se ignora cuando Siempre visible está activado.</sys:String>
     <sys:String x:Key="L.Tt.EdgeGutter">Espacio uniforme dejado entre miniaturas al ajustarlas por bordes adyacentes.</sys:String>

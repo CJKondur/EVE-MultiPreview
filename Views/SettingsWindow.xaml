@@ -321,12 +321,17 @@
                             </StackPanel>
                             <CheckBox x:Name="ChkHotkeyWildcard" Content="{DynamicResource L.General.HotkeyWildcard}"
                                       Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
+                            <TextBlock Text="{DynamicResource L.General.HotkeyWildcardNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
+                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
+                            <CheckBox x:Name="ChkHideHotkeyKeystrokes" Content="{DynamicResource L.General.HideHotkeyKeystrokes}"
+                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
+                            <TextBlock Text="{DynamicResource L.General.HideHotkeyKeystrokesNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
+                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
                             <CheckBox x:Name="ChkPropagateModifiers" Content="{DynamicResource L.General.PropagateModifiers}"
                                       Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
                             <TextBlock Text="{DynamicResource L.General.PropagateModifiersNote}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
-                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
-                            <TextBlock Text="{DynamicResource L.General.HotkeyWildcardNote}"
                                        Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
                                        Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
                         </StackPanel>
@@ -395,7 +400,7 @@
                             <CheckBox x:Name="ChkLockPositions" Content="{DynamicResource L.General.LockPositions}" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                             <CheckBox x:Name="ChkBroadcastHud" Content="{DynamicResource L.General.BroadcastHud}" ToolTip="{DynamicResource L.Tt.BroadcastHud}" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                             <CheckBox x:Name="ChkAutoSoloAudio" Content="{DynamicResource L.General.AutoSolo}" ToolTip="{DynamicResource L.Tt.AutoSolo}" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
-                            <CheckBox x:Name="ChkMuteAllWhenNoneActive" Content="{DynamicResource L.General.MuteAllWhenNoneActive}" ToolTip="{DynamicResource L.Tt.MuteAllWhenNoneActive}" Margin="24,0,0,0" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
+                            <CheckBox x:Name="ChkMuteAllWhenNoneActive" Content="{DynamicResource L.General.MuteAllWhenNoneActive}" ToolTip="{DynamicResource L.Tt.MuteAllWhenNoneActive}" IsEnabled="{Binding IsChecked, ElementName=ChkAutoSoloAudio}" Margin="24,0,0,0" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                             <CheckBox x:Name="ChkIndividualResize" Content="{DynamicResource L.General.IndividualResize}" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                             <TextBlock Text="{DynamicResource L.General.IndividualResizeNote}"
                                        Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,0"/>

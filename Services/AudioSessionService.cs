@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -34,6 +34,11 @@ public sealed class AudioSessionService
     /// <summary>Unmute every client in <paramref name="pids"/> (restore on disable/exit).</summary>
     public void UnmuteAll(HashSet<uint> pids)
         => EnumerateSessions((p, vol) => { if (pids.Contains(p)) vol.SetMute(false, ref _noCtx); });
+
+    /// <summary>Mute every client in <paramref name="pids"/> in ONE session enumeration.
+    /// Calling <see cref="SetMute"/> per client enumerates all sessions once per client.</summary>
+    public void MuteAll(HashSet<uint> pids)
+        => EnumerateSessions((p, vol) => { if (pids.Contains(p)) vol.SetMute(true, ref _noCtx); });
 
     // One enumeration of the default render device's sessions; invokes the callback
     // with each session's owning PID + its ISimpleAudioVolume.
