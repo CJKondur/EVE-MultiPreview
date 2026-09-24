@@ -735,7 +735,11 @@ public sealed class ThumbnailManager : IDisposable
         // Restore client position if tracking; otherwise apply a fixed spawn
         // position (center / custom) so fixed-window clients don't all open in
         // the top-left corner on large/ultrawide monitors (issue #85).
-        if (s.TrackClientPositions)
+        // Fixed slots (mode 3) take precedence over Track positions: EVE relaunches at
+        // its remembered size, so the slot must be re-applied on every new window.
+        if (s.ClientPositionMode == 3)
+            ApplyClientSlot(window.Hwnd, window.CharacterName);
+        else if (s.TrackClientPositions)
             RestoreClientPosition(window.Hwnd, window.CharacterName);
         else
             ApplyFixedClientPosition(window.Hwnd);
@@ -824,6 +828,10 @@ public sealed class ThumbnailManager : IDisposable
                     bool isExcluded = _excludedFromCycle.ContainsKey(window.CharacterName);
                     thumbWindow.SetCycleExcluded(isExcluded);
                 }
+
+                // Fixed slots: a client at character select sits in the default slot;
+                // once the character resolves, move it to that character's own slot.
+                ApplyClientSlot(window.Hwnd, window.CharacterName);
 
                 // Check if char select (title == "EVE" without character name)
                 bool isCharSelect = string.IsNullOrEmpty(window.CharacterName) ||
@@ -1375,9 +1383,19 @@ public sealed class ThumbnailManager : IDisposable
                 ClearAlertBadge(activatedChar);
             }
 
+            // Fixed slots own the client's rect: Always-maximize and Track positions
+            // would fight the slot, so both are ignored in mode 3.
+            bool slotsMode = _settings.Settings.ClientPositionMode == 3;
+
+            // Apply the slot BEFORE restoring a minimized client: for an iconic window
+            // it sets the restore rect, so the restore below lands straight in the slot.
+            // (After the async restore it could race and re-minimize the window.)
+            if (slotsMode)
+                ApplyClientSlot(hwnd, activatedChar);
+
             if (Interop.User32.IsIconic(hwnd))
             {
-                if (_settings.Settings.AlwaysMaximize)
+                if (_settings.Settings.AlwaysMaximize && !slotsMode)
                     Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
                 else
                     Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_RESTORE);
@@ -1392,7 +1410,7 @@ public sealed class ThumbnailManager : IDisposable
             // restored from another position. No-ops when the mode is Off (the
             // default), and Track client positions still wins — that setting exists
             // precisely to give each character its OWN remembered spot.
-            if (!_settings.Settings.TrackClientPositions)
+            if (!slotsMode && !_settings.Settings.TrackClientPositions)
                 ApplyFixedClientPosition(hwnd);
 
             // Swap the cover-taskbar band here too (#100). The focus poll alone is too
@@ -1423,7 +1441,7 @@ public sealed class ThumbnailManager : IDisposable
                     sw.BringToFront();
             }, System.Windows.Threading.DispatcherPriority.Background);
 
-            if (_settings.Settings.AlwaysMaximize && !Interop.User32.IsZoomed(hwnd))
+            if (_settings.Settings.AlwaysMaximize && !slotsMode && !Interop.User32.IsZoomed(hwnd))
                 Interop.User32.ShowWindowAsync(hwnd, Interop.User32.SW_MAXIMIZE);
 
             if (_settings.Settings.MinimizeInactiveClients)
@@ -3104,10 +3122,144 @@ public sealed class ThumbnailManager : IDisposable
         catch { }
     }
 
+    // ── Fixed client slots (ClientPositionMode = 3) ─────────────────
+
+    /// <summary>
+    /// Snap an EVE client into its fixed slot: the character's own slot, else the
+    /// profile's default slot (see <see cref="ClientSlotRules"/>). The slot rect is the
+    /// GAME AREA — a Fixed Window (borderless) client gets it exactly; a windowed
+    /// client has its frame added around it. Clients sharing a slot stack on top of
+    /// each other; the active one is brought forward by activation as usual.
+    ///
+    /// Safe by construction: no-op unless mode 3 is on and a slot resolves; the rect
+    /// is validated against its monitor before any SetWindowPos; already-placed
+    /// windows cost nothing (client-area early-out). Minimized / maximized windows
+    /// get their restore rect set instead, so they land in the slot when restored.
+    /// </summary>
+    private void ApplyClientSlot(IntPtr hwnd, string? characterName)
+    {
+        var s = _settings.Settings;
+        if (s.ClientPositionMode != 3 || hwnd == IntPtr.Zero) return;
+
+        var slot = ClientSlotRules.Resolve(_settings.CurrentProfile, characterName);
+        if (slot == null) return;   // excluded, or no own/default slot: leave it alone
+
+        var screen = FindSlotScreen(slot);
+        if (screen == null)
+        {
+            DiagnosticsService.LogWindowHook(
+                $"[ClientSlot] ⏭ '{characterName}': monitor {slot.MonitorDeviceName} ({slot.MonitorWidth}x{slot.MonitorHeight}) for slot '{slot.Name}' not found");
+            return;
+        }
+
+        // Never send an absurd rect to the client (spike lesson: a bad height once went
+        // out as 14,817,394 px). Slots must fit their monitor and be a usable size.
+        var b = screen.Bounds;
+        if (slot.Width < 640 || slot.Height < 360 || slot.Width > b.Width || slot.Height > b.Height
+            || slot.X < 0 || slot.Y < 0 || slot.X + slot.Width > b.Width || slot.Y + slot.Height > b.Height)
+        {
+            DiagnosticsService.LogWindowHook(
+                $"[ClientSlot] ⛔ slot '{slot.Name}' {slot.X},{slot.Y} {slot.Width}x{slot.Height} doesn't fit {screen.DeviceName} {b.Width}x{b.Height}");
+            return;
+        }
+
+        int gx = b.Left + slot.X, gy = b.Top + slot.Y;
+        bool resize = s.ClientSlotsResize;
+
+        // Outer window rect: game area, plus the frame when the client is in Window mode.
+        int style = Interop.User32.GetWindowLong(hwnd, Interop.User32.GWL_STYLE);
+        int exStyle = Interop.User32.GetWindowLong(hwnd, Interop.User32.GWL_EXSTYLE);
+        var outer = new Interop.DwmApi.RECT(gx, gy, gx + slot.Width, gy + slot.Height);
+        if ((style & Interop.User32.WS_CAPTION) == Interop.User32.WS_CAPTION)
+        {
+            uint dpi = Interop.User32.GetDpiForWindow(hwnd);
+            if (dpi == 0 || !Interop.User32.AdjustWindowRectExForDpi(ref outer, style, false, exStyle, dpi))
+                return;
+        }
+        int ow = outer.Right - outer.Left, oh = outer.Bottom - outer.Top;
+
+        try
+        {
+            bool iconic = Interop.User32.IsIconic(hwnd);
+            if (iconic || Interop.User32.IsZoomed(hwnd))
+            {
+                // Set the restore rect; SetWindowPos on a minimized/maximized window
+                // doesn't change where it restores to. rcNormalPosition is in WORKSPACE
+                // coordinates (offset by a top/left taskbar on the primary monitor).
+                var wp = new Interop.User32.WINDOWPLACEMENT
+                {
+                    length = (uint)System.Runtime.InteropServices.Marshal.SizeOf<Interop.User32.WINDOWPLACEMENT>()
+                };
+                if (!Interop.User32.GetWindowPlacement(hwnd, ref wp)) return;
+                var prim = System.Windows.Forms.Screen.PrimaryScreen!;
+                int wx = outer.Left - (prim.WorkingArea.Left - prim.Bounds.Left);
+                int wy = outer.Top - (prim.WorkingArea.Top - prim.Bounds.Top);
+                if (!resize)
+                {
+                    ow = wp.rcNormalPosition.Right - wp.rcNormalPosition.Left;
+                    oh = wp.rcNormalPosition.Bottom - wp.rcNormalPosition.Top;
+                }
+                wp.rcNormalPosition = new Interop.DwmApi.RECT(wx, wy, wx + ow, wy + oh);
+                // Minimized stays minimized (restores into the slot); maximized is
+                // restored into the slot — a maximized client can't sit in one.
+                wp.showCmd = iconic ? (uint)Interop.User32.SW_SHOWMINNOACTIVE : (uint)Interop.User32.SW_SHOWNOACTIVATE;
+                wp.flags = 0;
+                Interop.User32.SetWindowPlacement(hwnd, ref wp);
+                DiagnosticsService.LogWindowHook(
+                    $"[ClientSlot] 📌 '{characterName}' → '{slot.Name}' (restore rect, was {(iconic ? "minimized" : "maximized")})");
+                return;
+            }
+
+            // Early-out: already exactly in the slot (compare the CLIENT area — the
+            // window rect includes invisible borders on windowed clients).
+            if (Interop.User32.GetClientRect(hwnd, out var cr))
+            {
+                var p = new Interop.User32.POINT { X = 0, Y = 0 };
+                Interop.User32.ClientToScreen(hwnd, ref p);
+                bool posOk = p.X == gx && p.Y == gy;
+                bool sizeOk = cr.Right == slot.Width && cr.Bottom == slot.Height;
+                if (posOk && (sizeOk || !resize)) return;
+            }
+
+            uint flags = Interop.User32.SWP_NOZORDER | Interop.User32.SWP_NOACTIVATE | Interop.User32.SWP_ASYNCWINDOWPOS;
+            if (!resize) flags |= Interop.User32.SWP_NOSIZE;
+            Interop.User32.SetWindowPos(hwnd, IntPtr.Zero, outer.Left, outer.Top, ow, oh, flags);
+            DiagnosticsService.LogWindowHook(
+                $"[ClientSlot] 📌 '{characterName}' → '{slot.Name}' game area {gx},{gy} {slot.Width}x{slot.Height} (outer {outer.Left},{outer.Top} {ow}x{oh}, resize={resize})");
+        }
+        catch (Exception ex)
+        {
+            DiagnosticsService.LogWindowHook($"[ClientSlot] ❌ '{characterName}': {ex.Message}");
+        }
+    }
+
+    /// <summary>Find a slot's monitor: same device name and resolution, else the first
+    /// monitor with that resolution (Windows can renumber DISPLAYn). Never falls back
+    /// to a different-sized monitor — the slot would land somewhere unintended.</summary>
+    private static System.Windows.Forms.Screen? FindSlotScreen(ClientSlot slot)
+    {
+        var screens = System.Windows.Forms.Screen.AllScreens;
+        bool hasSize = slot.MonitorWidth > 0 && slot.MonitorHeight > 0;
+        bool SizeMatch(System.Windows.Forms.Screen sc) =>
+            !hasSize || (sc.Bounds.Width == slot.MonitorWidth && sc.Bounds.Height == slot.MonitorHeight);
+
+        return screens.FirstOrDefault(sc => sc.DeviceName == slot.MonitorDeviceName && SizeMatch(sc))
+            ?? (hasSize ? screens.FirstOrDefault(SizeMatch) : null);
+    }
+
+    /// <summary>Snap every tracked client into its slot (tray "Snap to slots", profile
+    /// switch). No-op unless Fixed slots mode is on.</summary>
+    public void ApplyAllClientSlots()
+    {
+        if (_settings.Settings.ClientPositionMode != 3) return;
+        foreach (var (hwnd, thumb) in _thumbnails)
+            ApplyClientSlot(hwnd, thumb.CharacterName);
+    }
+
     private void ApplyFixedClientPosition(IntPtr hwnd)
     {
-        int mode = _settings.Settings.ClientPositionMode; // 0=Off, 1=Center, 2=Custom
-        if (mode == 0) return;
+        int mode = _settings.Settings.ClientPositionMode; // 0=Off, 1=Center, 2=Custom, 3=Fixed slots
+        if (mode != 1 && mode != 2) return;   // 3 is handled by ApplyClientSlot
         if (Interop.User32.IsIconic(hwnd) || Interop.User32.IsZoomed(hwnd)) return;
         if (!Interop.User32.GetWindowRect(hwnd, out var rect)) return;
 

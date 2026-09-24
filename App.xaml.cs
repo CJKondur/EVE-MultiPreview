@@ -172,7 +172,9 @@ public partial class App : Application
         _settings.ProfileSwitched += name =>
         {
             _thumbnailManager?.ReapplySettings();
-            if (_settings.Settings.TrackClientPositions)
+            if (_settings.Settings.ClientPositionMode == 3)
+                _thumbnailManager?.ApplyAllClientSlots();
+            else if (_settings.Settings.TrackClientPositions)
                 _thumbnailManager?.RestoreAllClientPositions();
             // Recovery net (issue #81): never carry a stuck crops-hidden state across a switch.
             _cropManager?.ShowCrops();
@@ -764,6 +766,13 @@ public partial class App : Application
             _trayIcon?.ShowBalloonTip(2000, "EVE MultiPreview", LocalizationService.Str("L.Tray.PosRestored", "Client positions restored"), ToolTipIcon.Info);
         });
         L(restorePosItem, "L.Tray.RestorePositions", "📋 Restore Positions");
+        // Fixed slots: snap every client into its slot now. Enabled only while
+        // Fixed slots mode is on — otherwise slots are never applied.
+        var snapSlotsItem = posMenu.DropDownItems.Add("", null, (_, _) =>
+            _thumbnailManager?.ApplyAllClientSlots());
+        L(snapSlotsItem, "L.Tray.SnapToSlots", "📌 Snap to Slots");
+        posMenu.DropDownOpening += (_, _) =>
+            snapSlotsItem.Enabled = _settings?.Settings.ClientPositionMode == 3;
         menu.Items.Add(posMenu);
 
         // Close all EVE clients
