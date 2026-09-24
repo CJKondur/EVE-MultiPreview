@@ -27,13 +27,19 @@ public sealed class EveManagerService
 
     /// <summary>
     /// Returns the path to the EVE settings parent that contains
-    /// settings_* sub-folders. Scans %LOCALAPPDATA%\CCP\EVE\ for
-    /// the first dir matching c_ccp_eve_tq_* if overridePath is blank.
+    /// settings_* sub-folders. Scans %LOCALAPPDATA%\CCP\EVE\ for an
+    /// install folder if overridePath is blank.
     /// </summary>
     public static string FindEveDir(string overridePath = "")
     {
         if (!string.IsNullOrEmpty(overridePath) && Directory.Exists(overridePath))
+        {
+            // A single settings_* profile was picked: the profiles live in its parent.
+            var trimmed = overridePath.TrimEnd('\\', '/');
+            if (Path.GetFileName(trimmed).StartsWith("settings", StringComparison.OrdinalIgnoreCase))
+                return Path.GetDirectoryName(trimmed) ?? overridePath;
             return overridePath;
+        }
 
         var baseDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -42,13 +48,16 @@ public sealed class EveManagerService
         if (!Directory.Exists(baseDir))
             return string.Empty;
 
-        // Prefer Tranquility
-        var tqDir = Directory.EnumerateDirectories(baseDir, "c_ccp_eve_tq_*").FirstOrDefault();
-        if (tqDir != null) return tqDir;
-
-        // Fallback to any c_ccp_eve_* folder
-        var anyDir = Directory.EnumerateDirectories(baseDir, "c_ccp_eve_*").FirstOrDefault();
-        return anyDir ?? string.Empty;
+        // EVE names the folder after the install path plus the server, e.g.
+        // c_ccp_eve_tq_tranquility or c_eve_sharedcache_tq_tranquility, so match any
+        // "<something>_<server>" folder that holds settings_* profiles. (Our own
+        // EVEMPBackups folder has no underscore, so it never matches.) Prefer
+        // Tranquility, then the most recently modified install.
+        return Directory.EnumerateDirectories(baseDir, "*_*")
+            .Where(d => Directory.EnumerateDirectories(d, "settings*").Any())
+            .OrderByDescending(d => d.EndsWith("_tranquility", StringComparison.OrdinalIgnoreCase))
+            .ThenByDescending(Directory.GetLastWriteTimeUtc)
+            .FirstOrDefault() ?? string.Empty;
     }
 
     // ── Profile Listing ──────────────────────────────────────────
@@ -370,9 +379,10 @@ public sealed class EveManagerService
         }
 
         // Step 2: Scan chat logs
+        // MyDocuments follows Documents when OneDrive redirects it; %USERPROFILE%\Documents doesn't.
         var defaultLogDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            "Documents", "EVE", "logs", "Chatlogs");
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            "EVE", "logs", "Chatlogs");
 
         var dirs = new List<string>();
         if (!string.IsNullOrEmpty(configuredLogDir) && Directory.Exists(configuredLogDir))
