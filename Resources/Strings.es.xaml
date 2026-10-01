@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Activado: una tecla rápida funciona aunque mantengas un modificador — en EVE se mantiene Ctrl para fijar objetivos. Desactivado: una tecla rápida simple como V solo se activa sola, así que Ctrl+V llega al cliente para pegar.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Transferir Ctrl / Mayús / Alt mantenidos al cliente al que cambias</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Activado: mantener Ctrl para fijar un objetivo sigue funcionando tras cambiar a otro cliente. Descactívalo si el fijado deja de funcionar tras un cambio: en algunos equipos el cliente ya detecta la tecla mantenida y estas pulsaciones adicionales estorban.</sys:String>
+    <sys:String x:Key="L.General.PropagateKeys">Transferir otras teclas mantenidas al cliente al que cambias</sys:String>
+    <sys:String x:Key="L.General.PropagateKeysNote">Activado: las letras, números, teclas F, Intro, Espacio y botones del ratón que sigues manteniendo al cambiar se pulsan también en el nuevo cliente (mantén F1 y cicla para activarlo en cada uno). Desactívalo si una tecla de módulo que aún no has soltado se activa en el siguiente cliente y tu propia pulsación luego la vuelve a desactivar. Ctrl / Mayús / Alt mantenidos siguen el ajuste de arriba.</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">Ocultar a EVE las pulsaciones de las teclas rápidas (como EVE-X-Preview)</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Activado: cuando una tecla rápida cambia de cliente, el cliente al que llegas nunca ve esa tecla. Desactivado: la liberación de la tecla llega a ese cliente, y tu primer clic allí puede solo enfocar el overview en lugar de actuar.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Teclas rápidas del sistema</sys:String>
@@ -102,6 +104,8 @@
     <sys:String x:Key="L.General.StartupOff">No abrir Configuración (permanecer en la bandeja)</sys:String>
     <sys:String x:Key="L.General.StartupOpen">Abrir la ventana de Configuración</sys:String>
     <sys:String x:Key="L.General.StartupMin">Abrir Configuración minimizada en la barra de tareas</sys:String>
+    <sys:String x:Key="L.General.StartWithWindows">Iniciar EVE MultiPreview al iniciar sesión en Windows</sys:String>
+    <sys:String x:Key="L.General.StartWithWindowsNote">Ejecuta esta copia del programa al iniciar sesión. Si después ejecutas una copia desde otra carpeta (por ejemplo, una versión nueva), esa pasa a ser la que se inicia. Desactívalo antes de borrar el programa.</sys:String>
 
     <!-- Thumbnails panel -->
     <sys:String x:Key="L.Thumb.Title">🖼 Apariencia de las miniaturas</sys:String>

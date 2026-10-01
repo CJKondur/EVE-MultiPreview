@@ -66,6 +66,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">On: a hotkey works even while you hold a modifier — EVE players hold Ctrl to lock targets. Off: a single-key hotkey such as V only fires on its own, so Ctrl+V reaches the client for pasting.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Carry held Ctrl / Shift / Alt to the client you switch to</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">On: holding Ctrl to lock a target keeps working after you cycle to another client. Turn it off if locking stops working after a switch — on some setups the client already sees the held key and these extra keystrokes get in the way.</sys:String>
+    <sys:String x:Key="L.General.PropagateKeys">Carry other held keys to the client you switch to</sys:String>
+    <sys:String x:Key="L.General.PropagateKeysNote">On: letters, numbers, F-keys, Enter, Space and mouse buttons you are still holding when you switch are pressed in the new client too (hold F1 and cycle to fire it on each). Turn it off if a module key you have not released yet activates on the next client and your own press then turns it back off. Held Ctrl / Shift / Alt follow the setting above.</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">Hide hotkey keystrokes from EVE (as EVE-X-Preview does)</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">On: when a hotkey switches clients, the client you land on never sees that key. Off: the key's release reaches that client, which can make your first click there only focus EVE's overview instead of acting.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">System Hotkeys</sys:String>
@@ -103,6 +105,8 @@
     <sys:String x:Key="L.General.StartupOff">Don't open Settings (stay in tray)</sys:String>
     <sys:String x:Key="L.General.StartupOpen">Open Settings window</sys:String>
     <sys:String x:Key="L.General.StartupMin">Open Settings minimized to taskbar</sys:String>
+    <sys:String x:Key="L.General.StartWithWindows">Start EVE MultiPreview when you sign in to Windows</sys:String>
+    <sys:String x:Key="L.General.StartWithWindowsNote">Runs this copy of the program at sign-in. If you later run a copy from another folder (for example a new version), that one takes over. Turn this off before deleting the program.</sys:String>
 
     <!-- Thumbnails panel -->
     <sys:String x:Key="L.Thumb.Title">🖼 Thumbnail Appearance</sys:String>

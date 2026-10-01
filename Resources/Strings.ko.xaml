@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">켜줐: 수식어 키를 누르고 있어도 단축키가 작동합니다 — EVE에서는 대상을 잠금 때 Ctrl을 누릅니다. 꺼짐: V 같은 단일 키 단축키는 단독으로만 작동하므로 Ctrl+V가 붙여넣기를 위해 클라이언트에 전달됩니다.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">누르고 있는 Ctrl / Shift / Alt 를 전환한 클라이언트로 전달</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">켜줐: Ctrl을 누른 채 대상을 잠그는 동작이 다른 클라이언트로 전환한 뒤에도 작동합니다. 전환 후 잠금이 되지 않으면 끄세요. 일부 환경에서는 클라이언트가 이미 눌린 키를 인식하고 있어 추가 입력이 방해가 됩니다.</sys:String>
+    <sys:String x:Key="L.General.PropagateKeys">누르고 있는 다른 키를 전환한 클라이언트로 전달</sys:String>
+    <sys:String x:Key="L.General.PropagateKeysNote">켜짐: 전환할 때 아직 누르고 있는 문자, 숫자, F 키, Enter, Space, 마우스 버튼이 새 클라이언트에서도 눌립니다 (F1을 누른 채 순환하면 각 클라이언트에서 발동). 아직 떼지 않은 모듈 키가 다음 클라이언트에서 켜지고 직접 누르면 다시 꺼진다면 끄세요. 누르고 있는 Ctrl / Shift / Alt 는 위의 설정을 따릅니다.</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">EVE에서 단축키 입력 숨기기 (EVE-X-Preview와 동일)</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">켜짐: 단축키로 클라이언트를 전환하면 전환된 클라이언트는 그 키를 전혀 받지 않습니다. 꺼짐: 키를 뗀 신호가 그 클라이언트에 전달되어, 그곳에서의 첫 클릭이 동작 대신 오버뷰에 포커스만 줄 수 있습니다.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">시스템 단축키</sys:String>
@@ -102,6 +104,8 @@
     <sys:String x:Key="L.General.StartupOff">설정을 열지 않음(트레이에 유지)</sys:String>
     <sys:String x:Key="L.General.StartupOpen">설정 창 열기</sys:String>
     <sys:String x:Key="L.General.StartupMin">설정을 작업 표시줄에 최소화하여 열기</sys:String>
+    <sys:String x:Key="L.General.StartWithWindows">Windows 로그인 시 EVE MultiPreview 시작</sys:String>
+    <sys:String x:Key="L.General.StartWithWindowsNote">로그인할 때 이 프로그램을 실행합니다. 나중에 다른 폴더의 사본(예: 새 버전)을 실행하면 그 사본이 대신 시작됩니다. 프로그램을 삭제하기 전에 끄세요.</sys:String>
 
     <!-- Thumbnails panel -->
     <sys:String x:Key="L.Thumb.Title">🖼 썸네일 외관</sys:String>

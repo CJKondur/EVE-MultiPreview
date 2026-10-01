@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Activé : un raccourci fonctionne même si vous maintenez un modificateur — dans EVE, Ctrl sert à verrouiller les cibles. Désactivé : un raccourci à touche unique comme V ne se déclenche que seul, donc Ctrl+V atteint le client pour coller.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Transmettre Ctrl / Maj / Alt maintenus au client vers lequel vous basculez</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Activé : maintenir Ctrl pour verrouiller une cible continue de fonctionner après un changement de client. Désactivez si le verrouillage cesse de fonctionner après un basculement — sur certaines configurations, le client détecte déjà la touche maintenue et ces frappes supplémentaires gênent.</sys:String>
+    <sys:String x:Key="L.General.PropagateKeys">Transmettre les autres touches maintenues au client vers lequel vous basculez</sys:String>
+    <sys:String x:Key="L.General.PropagateKeysNote">Activé : les lettres, chiffres, touches F, Entrée, Espace et boutons de souris encore maintenus au moment du basculement sont aussi pressés dans le nouveau client (maintenir F1 et faire défiler pour le déclencher sur chacun). Désactivez si une touche de module pas encore relâchée s'active sur le client suivant et que votre propre appui la désactive ensuite. Ctrl / Maj / Alt maintenus suivent le réglage ci-dessus.</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">Masquer à EVE les frappes des raccourcis (comme EVE-X-Preview)</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Activé : quand un raccourci change de client, le client ciblé ne voit jamais cette touche. Désactivé : le relâchement de la touche atteint ce client, et votre premier clic peut alors seulement donner le focus à l'overview au lieu d'agir.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Raccourcis système</sys:String>
@@ -102,6 +104,8 @@
     <sys:String x:Key="L.General.StartupOff">Ne pas ouvrir les paramètres (rester dans la barre d'état)</sys:String>
     <sys:String x:Key="L.General.StartupOpen">Ouvrir la fenêtre des paramètres</sys:String>
     <sys:String x:Key="L.General.StartupMin">Ouvrir les paramètres réduits dans la barre des tâches</sys:String>
+    <sys:String x:Key="L.General.StartWithWindows">Lancer EVE MultiPreview à l'ouverture de session Windows</sys:String>
+    <sys:String x:Key="L.General.StartWithWindowsNote">Lance cette copie du programme à l'ouverture de session. Si vous lancez ensuite une copie depuis un autre dossier (par exemple une nouvelle version), c'est elle qui prend le relais. Désactivez avant de supprimer le programme.</sys:String>
 
     <!-- Thumbnails panel -->
     <sys:String x:Key="L.Thumb.Title">🖼 Apparence des miniatures</sys:String>

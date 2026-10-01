@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Attivo: una scorciatoia funziona anche mentre tieni premuto un modificatore — in EVE si tiene Ctrl per agganciare i bersagli. Disattivo: una scorciatoia a tasto singolo come V si attiva solo da sola, così Ctrl+V arriva al client per incollare.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Trasferisci Ctrl / Maiusc / Alt tenuti premuti al client su cui passi</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Attivo: tenere premuto Ctrl per agganciare un bersaglio continua a funzionare dopo essere passati a un altro client. Disattivalo se l'aggancio smette di funzionare dopo un cambio: su alcune configurazioni il client rileva già il tasto premuto e questi input aggiuntivi lo disturbano.</sys:String>
+    <sys:String x:Key="L.General.PropagateKeys">Trasferisci gli altri tasti tenuti premuti al client su cui passi</sys:String>
+    <sys:String x:Key="L.General.PropagateKeysNote">Attivo: lettere, numeri, tasti F, Invio, Spazio e pulsanti del mouse ancora premuti quando cambi vengono premuti anche nel nuovo client (tieni premuto F1 e scorri per attivarlo su ciascuno). Disattivalo se un tasto modulo non ancora rilasciato si attiva sul client successivo e la tua pressione lo disattiva di nuovo. Ctrl / Maiusc / Alt tenuti premuti seguono l'impostazione sopra.</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">Nascondi a EVE le pressioni dei tasti di scelta rapida (come EVE-X-Preview)</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Attivo: quando una scorciatoia cambia client, il client su cui arrivi non vede mai quel tasto. Disattivo: il rilascio del tasto raggiunge quel client, e il primo clic lì potrebbe solo mettere a fuoco l'overview invece di agire.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Tasti di scelta rapida di sistema</sys:String>
@@ -102,6 +104,8 @@
     <sys:String x:Key="L.General.StartupOff">Non aprire le impostazioni (resta nell'area di notifica)</sys:String>
     <sys:String x:Key="L.General.StartupOpen">Apri la finestra delle impostazioni</sys:String>
     <sys:String x:Key="L.General.StartupMin">Apri le impostazioni ridotte a icona nella barra delle applicazioni</sys:String>
+    <sys:String x:Key="L.General.StartWithWindows">Avvia EVE MultiPreview all'accesso a Windows</sys:String>
+    <sys:String x:Key="L.General.StartWithWindowsNote">Avvia questa copia del programma all'accesso. Se in seguito avvii una copia da un'altra cartella (ad esempio una nuova versione), sarà quella ad avviarsi. Disattivalo prima di eliminare il programma.</sys:String>
 
     <!-- Thumbnails panel -->
     <sys:String x:Key="L.Thumb.Title">🖼 Aspetto delle miniature</sys:String>

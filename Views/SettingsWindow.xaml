@@ -334,6 +334,11 @@
                             <TextBlock Text="{DynamicResource L.General.PropagateModifiersNote}"
                                        Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
                                        Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
+                            <CheckBox x:Name="ChkPropagateKeys" Content="{DynamicResource L.General.PropagateKeys}"
+                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
+                            <TextBlock Text="{DynamicResource L.General.PropagateKeysNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
+                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="{DynamicResource L.General.SystemHotkeys}">
@@ -443,6 +448,11 @@
                     </GroupBox>
                     <GroupBox Header="{DynamicResource L.General.Startup}">
                         <StackPanel>
+                            <CheckBox x:Name="ChkStartWithWindows" Content="{DynamicResource L.General.StartWithWindows}"
+                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
+                            <TextBlock Text="{DynamicResource L.General.StartWithWindowsNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
+                                       Margin="4,4,0,10" TextWrapping="Wrap" FontSize="10.5"/>
                             <TextBlock Text="{DynamicResource L.General.StartupNote}"
                                        Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6"/>
                             <StackPanel Orientation="Horizontal" Margin="0,3">

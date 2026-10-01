@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Включено: горячая клавиша работает даже при зажатом модификаторе — в EVE Ctrl держат для захвата целей. Выключено: одиночная клавиша вроде V срабатывает только сама по себе, и Ctrl+V доходит до клиента для вставки.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Передавать удерживаемые Ctrl / Shift / Alt клиенту, на который переключаетесь</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Включено: удержание Ctrl для захвата цели продолжает работать после переключения на другой клиент. Выключите, если захват перестаёт работать после переключения: на некоторых системах клиент и так видит удерживаемую клавишу, а эти дополнительные нажатия мешают.</sys:String>
+    <sys:String x:Key="L.General.PropagateKeys">Передавать другие удерживаемые клавиши клиенту, на который переключаетесь</sys:String>
+    <sys:String x:Key="L.General.PropagateKeysNote">Включено: буквы, цифры, F-клавиши, Enter, пробел и кнопки мыши, которые ещё удерживаются в момент переключения, нажимаются и в новом клиенте (удерживайте F1 и переключайтесь, чтобы сработало на каждом). Выключите, если ещё не отпущенная клавиша модуля включает его на следующем клиенте, а ваше собственное нажатие затем выключает обратно. Удерживаемые Ctrl / Shift / Alt подчиняются настройке выше.</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">Скрывать нажатия горячих клавиш от EVE (как EVE-X-Preview)</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Включено: когда горячая клавиша переключает клиента, клиент, на который вы переключились, вообще не видит эту клавишу. Выключено: отпускание клавиши доходит до этого клиента, и первый клик в нём может лишь переключить фокус на обзор вместо действия.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">Системные горячие клавиши</sys:String>
@@ -102,6 +104,8 @@
     <sys:String x:Key="L.General.StartupOff">Не открывать настройки (оставаться в трее)</sys:String>
     <sys:String x:Key="L.General.StartupOpen">Открыть окно настроек</sys:String>
     <sys:String x:Key="L.General.StartupMin">Открыть настройки свёрнутыми на панель задач</sys:String>
+    <sys:String x:Key="L.General.StartWithWindows">Запускать EVE MultiPreview при входе в Windows</sys:String>
+    <sys:String x:Key="L.General.StartWithWindowsNote">Запускает эту копию программы при входе в систему. Если позже вы запустите копию из другой папки (например, новую версию), запускаться будет она. Выключите перед удалением программы.</sys:String>
 
     <!-- Thumbnails panel -->
     <sys:String x:Key="L.Thumb.Title">🖼 Внешний вид миниатюр</sys:String>

@@ -527,6 +527,17 @@ public sealed class HotkeyService : IDisposable
             RegisterCycleKeyIgnore(group.BackwardsHotkey);
         }
 
+        // Every other client-switching key too (#112). Missing, the key that did the
+        // switch was still held when FixTargetHeldKeys ran and got re-sent into the
+        // client it switched to - pressing a character's own "F5" also pressed F5 in
+        // that client. Hidden keystrokes masked it (a swallowed press never reaches
+        // the key state); it showed with hiding off or with a key sent by mouse/macro
+        // software, which the hook deliberately leaves alone.
+        RegisterCycleKeyIgnore(settings.GlobalCycleForwardHotkey);
+        RegisterCycleKeyIgnore(settings.GlobalCycleBackwardHotkey);
+        foreach (var binding in profile.Hotkeys.Values)
+            RegisterCycleKeyIgnore(binding.Key);
+
         // Suspend hotkey
         _suspendHotkeyId = RegisterAhkHotkey(settings.SuspendHotkey, () => ToggleSuspend());
 

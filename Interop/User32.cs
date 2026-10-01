@@ -465,6 +465,8 @@ public static class User32
     public static List<string> GetHeldBroadcastKeys()
     {
         var keys = new List<string>();
+        // Carrying held keys is off (#112): nothing would be broadcast, so the HUD stays idle.
+        if (EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.PropagateHeldKeys == false) return keys;
         void AddIf(int vk, string name)
         {
             if (CycleKeysToIgnore.Contains(vk)) return;
@@ -542,10 +544,14 @@ public static class User32
         // F13 to F24 (0x7C - 0x87)
         for (int i = 0x7C; i <= 0x87; i++) keysToCheck.Add(i);
 
+        // Opt-out (#112): off = only held modifiers cross a switch; letters, digits,
+        // F-keys, Enter, Space and mouse buttons are left alone.
+        bool carryKeys = EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.PropagateHeldKeys != false;
+
         List<int> pressedKeys = new List<int>();
         foreach (var vk in keysToCheck)
         {
-            if (CycleKeysToIgnore.Contains(vk)) continue;
+            if (!carryKeys || CycleKeysToIgnore.Contains(vk)) continue;
 
             if (IsKeyDown(vk))
             {
@@ -577,9 +583,9 @@ public static class User32
         }
 
         // Handle Mouse Hotkeys (MButton, XButton1/Mouse4, XButton2/Mouse5)
-        bool hasMouse1 = IsKeyDown(0x04);
-        bool hasMouse2 = IsKeyDown(0x05);
-        bool hasMouse3 = IsKeyDown(0x06);
+        bool hasMouse1 = carryKeys && IsKeyDown(0x04);
+        bool hasMouse2 = carryKeys && IsKeyDown(0x05);
+        bool hasMouse3 = carryKeys && IsKeyDown(0x06);
 
         // Get Keyboard Layouts for logging
         uint myThread = GetCurrentThreadId();

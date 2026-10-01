@@ -73,6 +73,9 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        // A sign-in launch (Start with Windows, #113) starts in System32, not next to
+        // the exe as a double-click does - and debug_log.txt below is a relative path.
+        Environment.CurrentDirectory = Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory;
         System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener("debug_log.txt"));
         System.Diagnostics.Trace.AutoFlush = true;
         // Single-instance guard
@@ -93,6 +96,7 @@ public partial class App : Application
         }
 
         base.OnStartup(e);
+        StartWithWindows.RefreshPath();
         // Clear perf log on each launch
         try { System.IO.File.WriteAllText(_perfLogPath, ""); } catch { }
 

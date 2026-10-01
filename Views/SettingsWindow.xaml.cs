@@ -302,6 +302,7 @@ public partial class SettingsWindow : Window
             CmbHotkeyScope.SelectedIndex = S.GlobalHotkeys ? 0 : 1;
             ChkHotkeyWildcard.IsChecked = S.HotkeyWildcardModifiers;
             ChkPropagateModifiers.IsChecked = S.PropagateHeldModifiers;
+            ChkPropagateKeys.IsChecked = S.PropagateHeldKeys;
             ChkHideHotkeyKeystrokes.IsChecked = S.HideHotkeyKeystrokes;
             TxtSuspendHotkey.Text = S.SuspendHotkey;
             TxtClickThroughHotkey.Text = S.ClickThroughHotkey;
@@ -324,6 +325,7 @@ public partial class SettingsWindow : Window
             TxtCycleDelay.Text = S.CycleDelayMs.ToString();
             ChkCycleWhileHeld.IsChecked = S.CycleWhileHeld;
             CmbStartupSettings.SelectedIndex = (int)S.StartupSettings;
+            ChkStartWithWindows.IsChecked = StartWithWindows.IsEnabled();
 
             // UI Scale
             SliderUiScale.Value = S.SettingsUiFontSize;

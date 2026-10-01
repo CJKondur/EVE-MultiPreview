@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">Ein: Ein Hotkey funktioniert auch bei gedrückter Modifikatortaste — in EVE wird Strg zum Anvisieren gehalten. Aus: Ein Einzeltasten-Hotkey wie V löst nur allein aus, sodass Strg+V zum Einfügen beim Client ankommt.</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">Gedrückte Strg-/Umschalt-/Alt-Taste an den gewechselten Client weitergeben</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">Ein: Strg gedrückt halten zum Anvisieren funktioniert auch nach dem Wechsel zu einem anderen Client. Ausschalten, falls das Anvisieren nach einem Wechsel nicht mehr geht — auf manchen Systemen erkennt der Client die gedrückte Taste bereits und diese zusätzlichen Tastensignale stören.</sys:String>
+    <sys:String x:Key="L.General.PropagateKeys">Andere gedrückte Tasten an den gewechselten Client weitergeben</sys:String>
+    <sys:String x:Key="L.General.PropagateKeysNote">Ein: Buchstaben, Zahlen, F-Tasten, Enter, Leertaste und Maustasten, die beim Wechsel noch gedrückt sind, werden auch im neuen Client gedrückt (F1 halten und durchschalten, um es auf jedem auszulösen). Ausschalten, falls eine noch nicht losgelassene Modul-Taste auf dem nächsten Client aktiviert und dein eigener Tastendruck sie dann wieder abschaltet. Gedrückte Strg / Umschalt / Alt folgen der Einstellung darüber.</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">Hotkey-Tastendrücke vor EVE verbergen (wie EVE-X-Preview)</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">Ein: Wenn ein Hotkey den Client wechselt, bekommt der neue Client diese Taste nie zu sehen. Aus: Das Loslassen der Taste erreicht den neuen Client, und dein erster Klick dort fokussiert dann eventuell nur die Übersicht, statt etwas auszulösen.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">System-Hotkeys</sys:String>
@@ -102,6 +104,8 @@
     <sys:String x:Key="L.General.StartupOff">Einstellungen nicht öffnen (im Tray bleiben)</sys:String>
     <sys:String x:Key="L.General.StartupOpen">Einstellungsfenster öffnen</sys:String>
     <sys:String x:Key="L.General.StartupMin">Einstellungen minimiert in der Taskleiste öffnen</sys:String>
+    <sys:String x:Key="L.General.StartWithWindows">EVE MultiPreview bei der Windows-Anmeldung starten</sys:String>
+    <sys:String x:Key="L.General.StartWithWindowsNote">Startet diese Programmkopie bei der Anmeldung. Startest du später eine Kopie aus einem anderen Ordner (z. B. eine neue Version), übernimmt diese. Vor dem Löschen des Programms ausschalten.</sys:String>
 
     <!-- Thumbnails panel -->
     <sys:String x:Key="L.Thumb.Title">🖼 Vorschau-Erscheinungsbild</sys:String>

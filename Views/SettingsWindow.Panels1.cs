@@ -235,6 +235,7 @@ public partial class SettingsWindow
         S.GlobalHotkeys = CmbHotkeyScope.SelectedIndex == 0;
         S.HotkeyWildcardModifiers = ChkHotkeyWildcard.IsChecked == true;
         S.PropagateHeldModifiers = ChkPropagateModifiers.IsChecked == true;
+        S.PropagateHeldKeys = ChkPropagateKeys.IsChecked == true;
         S.HideHotkeyKeystrokes = ChkHideHotkeyKeystrokes.IsChecked == true;
         S.SuspendHotkey = TxtSuspendHotkey.Text;
         S.ClickThroughHotkey = TxtClickThroughHotkey.Text;
@@ -266,6 +267,10 @@ public partial class SettingsWindow
             2 => StartupSettingsMode.OpenMinimized,
             _ => StartupSettingsMode.Off,
         };
+        // Lives in the registry, not the settings file (#113); write only on a change.
+        bool startWithWindows = ChkStartWithWindows.IsChecked == true;
+        if (startWithWindows != Services.StartWithWindows.IsEnabled())
+            Services.StartWithWindows.Set(startWithWindows);
         SaveDelayed();
     }
 

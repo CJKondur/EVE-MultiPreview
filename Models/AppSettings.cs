@@ -61,6 +61,13 @@ public class AppSettings
     // to get the pre-2.3.30 behaviour of leaving the physically-held key alone.
     public bool PropagateHeldModifiers { get; set; } = true;
 
+    // Carry held NON-modifier keys (letters, digits, F-keys, Enter, Space, mouse
+    // buttons) into the client you switch to (#112). ON is the long-standing
+    // behaviour (hold F1 and cycle to fire it on each client). OFF for players who
+    // tap a module key and switch before releasing it: the carried press activates
+    // the module on the next client and their own press then toggles it back off.
+    public bool PropagateHeldKeys { get; set; } = true;
+
     // Hide a hotkey's whole keystroke from the clients (#108). RegisterHotKey swallows
     // the key-down but lets the key-UP through to whatever is foreground - after a
     // client-switching hotkey that is the client we just switched INTO. A low-level

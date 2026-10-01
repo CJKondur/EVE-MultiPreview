@@ -65,6 +65,8 @@
     <sys:String x:Key="L.General.HotkeyWildcardNote">开启：即使按住修饰键，快捷键仍然有效 — 在 EVE 中需要按住 Ctrl 锁定目标。关闭：像 V 这样的单键快捷键只在单独按下时生效，因此 Ctrl+V 可以传递给客户端用于粘贴。</sys:String>
     <sys:String x:Key="L.General.PropagateModifiers">将按住的 Ctrl / Shift / Alt 传递给切换到的客户端</sys:String>
     <sys:String x:Key="L.General.PropagateModifiersNote">开启：按住 Ctrl 锁定目标在切换到其他客户端后仍然有效。如果切换后无法锁定，请关闭此项：在某些系统上客户端已能识别按住的按键，额外的按键信号反而会干扰。</sys:String>
+    <sys:String x:Key="L.General.PropagateKeys">将其他按住的按键传递给切换到的客户端</sys:String>
+    <sys:String x:Key="L.General.PropagateKeysNote">开启：切换时仍按住的字母、数字、F 键、Enter、空格和鼠标按键也会在新客户端中按下（按住 F1 并循环切换即可在每个客户端上触发）。如果尚未松开的模块按键在下一个客户端上被激活，随后你自己的按键又把它关掉，请关闭此项。按住的 Ctrl / Shift / Alt 遵循上方的设置。</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">对 EVE 隐藏快捷键按键（与 EVE-X-Preview 相同）</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">开启：快捷键切换客户端时，切换到的客户端完全不会收到该按键。关闭：按键松开的信号会传到该客户端，您在那里的第一次点击可能只会聚焦总览而不执行操作。</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">系统热键</sys:String>
@@ -102,6 +104,8 @@
     <sys:String x:Key="L.General.StartupOff">不打开设置（保持在托盘）</sys:String>
     <sys:String x:Key="L.General.StartupOpen">打开设置窗口</sys:String>
     <sys:String x:Key="L.General.StartupMin">打开设置并最小化到任务栏</sys:String>
+    <sys:String x:Key="L.General.StartWithWindows">登录 Windows 时启动 EVE MultiPreview</sys:String>
+    <sys:String x:Key="L.General.StartWithWindowsNote">登录时运行此程序副本。如果之后从其他文件夹运行副本（例如新版本），则改为启动该副本。删除程序前请先关闭此项。</sys:String>
 
     <!-- Thumbnails panel -->
     <sys:String x:Key="L.Thumb.Title">🖼 缩略图外观</sys:String>
