@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -207,4 +210,54 @@ Remove-Item -Path (Split-Path $newExe -Parent) -Recurse -Force -ErrorAction Sile
     }
 
     private static string EscapePs(string path) => path.Replace("'", "''");
+
+    // ── Install a specific version (upgrade or downgrade) ───────────
+
+    /// <summary>One installable GitHub release.</summary>
+    public sealed record ReleaseInfo(string Version, string DownloadUrl, string? Notes, string? PageUrl, bool PreRelease);
+
+    private const string RELEASES_URL = "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases?per_page=100";
+    // Only ever this repository's own release assets, whatever the API returns.
+    private const string ASSET_URL_PREFIX = "https://github.com/CJKondur/EVE-MultiPreview/releases/download/";
+
+    /// <summary>Every release that ships the exe, newest first. Pre-releases only when
+    /// <paramref name="includePreReleases"/> (the About tab's pre-release opt-in).</summary>
+    public async Task<List<ReleaseInfo>> ListReleasesAsync(bool includePreReleases)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, RELEASES_URL);
+        req.Headers.UserAgent.ParseAdd("EVE-MultiPreview/" + CurrentVersion);
+        using var resp = await _httpClient.SendAsync(req);
+        resp.EnsureSuccessStatusCode();
+        using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
+
+        var list = new List<(Version V, ReleaseInfo R)>();
+        foreach (var r in doc.RootElement.EnumerateArray())
+        {
+            bool pre = r.TryGetProperty("prerelease", out var p) && p.GetBoolean();
+            if ((r.TryGetProperty("draft", out var d) && d.GetBoolean()) || (pre && !includePreReleases)) continue;
+            var tag = r.GetProperty("tag_name").GetString()?.TrimStart('v', 'V');
+            if (!System.Version.TryParse(tag, out var version)) continue;
+
+            string? url = null;
+            foreach (var a in r.GetProperty("assets").EnumerateArray())
+                if (a.GetProperty("name").GetString() == EXE_ASSET_NAME)
+                    url = a.GetProperty("browser_download_url").GetString();
+            if (url == null || !url.StartsWith(ASSET_URL_PREFIX, StringComparison.Ordinal)) continue;
+
+            list.Add((version, new ReleaseInfo(tag!, url,
+                r.TryGetProperty("body", out var b) ? b.GetString() : null,
+                r.TryGetProperty("html_url", out var h) ? h.GetString() : null, pre)));
+        }
+        return list.OrderByDescending(x => x.V).Select(x => x.R).ToList();
+    }
+
+    /// <summary>Aim this service at a chosen release, so the normal DownloadUpdateAsync →
+    /// ApplyUpdate path (config backup, exe swap, relaunch) installs it.</summary>
+    public void Select(ReleaseInfo release)
+    {
+        LatestVersion = release.Version;
+        DownloadUrl = release.DownloadUrl;
+        ReleaseNotes = release.Notes;
+        ReleasePageUrl = release.PageUrl;
+    }
 }

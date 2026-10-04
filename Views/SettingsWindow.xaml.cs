@@ -1606,7 +1606,17 @@ public partial class SettingsWindow : Window
             "modern UI capabilities.\n\n" +
             "File a bug, suggest a feature, or read\n" +
             "release notes at:\n" +
-            "github.com/CJKondur/EVE-MultiPreview",
+            "github.com/CJKondur/EVE-MultiPreview\n\n" +
+            "Install a Specific Version\n" +
+            "────────────────────────────\n" +
+            "Pick any released version, older or\n" +
+            "newer, and install it in place of this\n" +
+            "one — useful if an update broke\n" +
+            "something for you. Settings are backed\n" +
+            "up first (Backups folder). Going back to\n" +
+            "an older version turns off the startup\n" +
+            "update check; turn it back on here when\n" +
+            "you want updates again.",
 
         "Debug" =>
             "DEBUG LOGGING\n" +

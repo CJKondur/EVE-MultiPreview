@@ -382,6 +382,9 @@
     <sys:String x:Key="L.About.CheckOnStartup">程序启动时检查更新</sys:String>
     <sys:String x:Key="L.About.PreRelease">接收预发布更新</sys:String>
     <sys:String x:Key="L.About.PreReleaseNote">预发布版本可能包含错误或破坏性更改。设置可能在预发布更新之间重置。</sys:String>
+    <sys:String x:Key="L.About.OtherVersionNote">选择任意已发布的版本（更旧或更新）替换当前版本安装——当某次更新给你带来问题时很有用。安装前会先备份你的设置。回退到旧版本时会关闭启动时检查更新，以免它立即提示更新回来。</sys:String>
+    <sys:String x:Key="L.About.InstallVersion">⬇ 安装…</sys:String>
+    <sys:String x:Key="L.About.OtherVersion">安装指定版本：</sys:String>
 
     <!-- Debug panel -->
     <sys:String x:Key="L.Debug.Title">🐛 调试日志</sys:String>
@@ -532,6 +535,14 @@
     <sys:String x:Key="L.Upd.ReleasePage">📋 发布页面</sys:String>
     <sys:String x:Key="L.Upd.Later">稍后</sys:String>
     <sys:String x:Key="L.Upd.UpdateNow">⬆ 立即更新</sys:String>
+    <sys:String x:Key="L.Upd.InstallBtn">⬇ 安装</sys:String>
+    <sys:String x:Key="L.Upd.OlderInfo">你当前是 v{0}。将安装更旧的 v{1}。安装前会先把设置备份到 Backups 文件夹；v{1} 之后新增的选项在它保存设置时会丢失。“程序启动时检查更新”将被关闭，以免 v{1} 立即提示更新回来。</sys:String>
+    <sys:String x:Key="L.Upd.PickInfo">你当前是 v{0}。将安装 v{1}。</sys:String>
+    <sys:String x:Key="L.Upd.PickHeader">⬇ 安装 v{0}</sys:String>
+    <sys:String x:Key="L.About.VersionsFailed">❌ 无法加载版本列表：{0}</sys:String>
+    <sys:String x:Key="L.About.PreReleaseTag">（预发布）</sys:String>
+    <sys:String x:Key="L.About.Installed">（已安装）</sys:String>
+    <sys:String x:Key="L.About.LoadingVersions">正在加载…</sys:String>
 
     <!-- Character Picker dialog -->
     <sys:String x:Key="L.Pick.Title">选择角色</sys:String>
@@ -657,7 +668,7 @@
 
     <sys:String x:Key="L.Wiki.Performance">性能与亲和性&#x0A;═══════════════════════════&#x0A;&#x0A;CPU 优先级管理&#x0A;────────────────────────────&#x0A;自动将后台 EVE 客户端降到&#x0A;“空闲”优先级，使你的活动&#x0A;窗口永不卡顿。&#x0A;取消勾选主开关会一次性将每个&#x0A;被跟踪的客户端恢复到正常优先级&#x0A;和全核亲和性。&#x0A;&#x0A;E 核自动均衡&#x0A;────────────────────────────&#x0A;将非活动 EVE 客户端调度到&#x0A;系统处理器的下半部分&#x0A;（你的 E 核或第二个 CCD），使&#x0A;P 核完全专用于你的&#x0A;活动客户端。&#x0A;&#x0A;每角色覆盖&#x0A;────────────────────────────&#x0A;当角色失去焦点时，将其严格&#x0A;绑定到单个 CPU 核心。这会&#x0A;完全覆盖自动均衡器。&#x0A;&#x0A;缩略图 GPU 优化&#x0A;════════════════════════&#x0A;&#x0A;静态缩略图（更低 GPU）&#x0A;────────────────────────────&#x0A;用大约每秒刷新一次的快照&#x0A;替换实时 DWM 合成预览。&#x0A;运行多个客户端时可大幅节省&#x0A;GPU，代价是画面卡顿 —&#x0A;舰船移动按快照节奏更新，&#x0A;而非流畅更新。&#x0A;最适合偶尔瞥一眼缩略图&#x0A;而非持续盯着看的&#x0A;舰队场景。&#x0A;&#x0A;后台时暂停缩略图&#x0A;────────────────────────────&#x0A;每当 EVE 和 MultiPreview 都不是&#x0A;前台进程时，将每个缩略图&#x0A;冻结在其最后一帧。&#x0A;当 EVE 或应用回到前台的&#x0A;一刻恢复实时合成。活跃游戏时&#x0A;无感；避免 GPU 为你在其他应用中&#x0A;看不到的窗口缩略图付出开销。&#x0A;在 alt-tab 返回时会增加&#x0A;不到一秒的唤醒延迟。</sys:String>
 
-    <sys:String x:Key="L.Wiki.About">关于&#x0A;═══════════════════════════&#x0A;&#x0A;EVE MultiPreview&#x0A;C# / .NET 8 WPF 版&#x0A;&#x0A;关于面板上显示的版本&#x0A;与你运行的构建一致。&#x0A;&#x0A;最初用 AutoHotkey v2 编写。&#x0A;移植到 C# 以获得更好的性能、&#x0A;原生 DWM 缩略图支持，以及&#x0A;现代 UI 能力。&#x0A;&#x0A;提交 bug、建议功能或阅读&#x0A;发布说明：&#x0A;github.com/CJKondur/EVE-MultiPreview</sys:String>
+    <sys:String x:Key="L.Wiki.About">关于&#x0A;═══════════════════════════&#x0A;&#x0A;EVE MultiPreview&#x0A;C# / .NET 8 WPF 版&#x0A;&#x0A;关于面板上显示的版本&#x0A;与你运行的构建一致。&#x0A;&#x0A;最初用 AutoHotkey v2 编写。&#x0A;移植到 C# 以获得更好的性能、&#x0A;原生 DWM 缩略图支持，以及&#x0A;现代 UI 能力。&#x0A;&#x0A;提交 bug、建议功能或阅读&#x0A;发布说明：&#x0A;github.com/CJKondur/EVE-MultiPreview&#x0A;&#x0A;安装指定版本&#x0A;────────────────────────────&#x0A;选择任意已发布的版本（更旧或更新）&#x0A;替换当前版本安装——当某次更新带来&#x0A;问题时很有用。安装前会先备份设置&#x0A;（Backups 文件夹）。回退到旧版本会&#x0A;关闭启动时检查更新；想恢复更新时&#x0A;在这里重新开启即可。</sys:String>
 
     <sys:String x:Key="L.Wiki.Debug">调试日志&#x0A;═══════════════════════════&#x0A;&#x0A;用于排查输入问题、窗口检测&#x0A;和逻辑流程的诊断输出。&#x0A;仅在需要时启用 —&#x0A;高强度使用时日志增长很快。&#x0A;&#x0A;日志写入 exe 旁边的 Logs/，&#x0A;每个通道一个文件。使用 📁 打开&#x0A;日志文件夹 可快速跳转。&#x0A;&#x0A;输入注入细节&#x0A;────────────────────────────&#x0A;记录用于绕过 EVE 输入丢失的&#x0A;确切按键、扫描码和&#x0A;延迟脉冲。&#x0A;&#x0A;循环组与数学分析&#x0A;────────────────────────────&#x0A;记录按住热键循环账号时的&#x0A;索引计算、节流阈值&#x0A;和跳过逻辑。&#x0A;&#x0A;窗口钩子&#x0A;────────────────────────────&#x0A;记录 HWND 焦点检查、SetForegroundWindow&#x0A;尝试，以及操作系统级窗口状态。&#x0A;&#x0A;桌面窗口管理器&#x0A;────────────────────────────&#x0A;记录 DWM 缩略图注册 HResult&#x0A;和 PrintWindow 捕获结果。当&#x0A;缩略图变空白、注册失败或&#x0A;错误地显示冻结帧时&#x0A;使用。&#x0A;&#x0A;警报管线&#x0A;────────────────────────────&#x0A;完整追踪每一行日志经过警报&#x0A;管线的过程：文件读取 → 解析&#x0A;匹配 → 触发（冷却/禁用/&#x0A;已触发）→ 徽章/弹窗/声音派发。&#x0A;当你预期触发的警报却没有&#x0A;触发时使用 — 每一步都记录它&#x0A;通过或未通过哪个关卡。</sys:String>
 

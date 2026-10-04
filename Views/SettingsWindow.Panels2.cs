@@ -2094,4 +2094,58 @@ public partial class SettingsWindow
             BtnCheckVersion.Content = "🔄 Check for Updates";
         }
     }
+
+    // ── Install a specific version (upgrade or downgrade) ──
+    // The list is fetched only when the user opens the dropdown, so opening Settings or
+    // the About tab never makes a network call on its own.
+    private bool _versionsLoaded;
+
+    private async void OnOtherVersionsOpened(object? s, EventArgs e)
+    {
+        if (_versionsLoaded) return;
+        _versionsLoaded = true;
+        CmbOtherVersion.Items.Clear();
+        CmbOtherVersion.Items.Add(new ComboBoxItem
+        {
+            Content = EveMultiPreview.Services.LocalizationService.Str("L.About.LoadingVersions", "Loading…"),
+            IsEnabled = false
+        });
+        try
+        {
+            var releases = await new Services.UpdateService().ListReleasesAsync(_svc.Settings.ReceivePreReleaseUpdates);
+            CmbOtherVersion.Items.Clear();
+            foreach (var r in releases)
+            {
+                bool installed = r.Version == CURRENT_VERSION;
+                string label = "v" + r.Version
+                    + (installed ? " " + EveMultiPreview.Services.LocalizationService.Str("L.About.Installed", "(installed)") : "")
+                    + (r.PreRelease ? " " + EveMultiPreview.Services.LocalizationService.Str("L.About.PreReleaseTag", "(pre-release)") : "");
+                CmbOtherVersion.Items.Add(new ComboBoxItem { Content = label, Tag = r, IsEnabled = !installed });
+            }
+        }
+        catch (Exception ex)
+        {
+            _versionsLoaded = false;   // let the next open retry
+            CmbOtherVersion.Items.Clear();
+            TxtVersionResult.Foreground = new SolidColorBrush(Colors.IndianRed);
+            TxtVersionResult.Text = string.Format(
+                EveMultiPreview.Services.LocalizationService.Str("L.About.VersionsFailed", "❌ Could not load the version list: {0}"), ex.Message);
+        }
+    }
+
+    private void OnInstallVersion(object s, RoutedEventArgs e)
+    {
+        if (CmbOtherVersion.SelectedItem is not ComboBoxItem { Tag: Services.UpdateService.ReleaseInfo release }) return;
+
+        var updateService = new Services.UpdateService();
+        updateService.Select(release);
+        bool older = Version.Parse(release.Version) < Version.Parse(CURRENT_VERSION);
+
+        // A downgrade turns off the startup update check, or the older version would offer
+        // to update straight back on every launch. Saved synchronously: the app exits next.
+        Action? beforeApply = older
+            ? () => { _svc.Settings.CheckForUpdatesOnStartup = false; _svc.Save(); }
+            : null;
+        new UpdateDialog(updateService, specificVersion: true, beforeApply) { Owner = this }.ShowDialog();
+    }
 }

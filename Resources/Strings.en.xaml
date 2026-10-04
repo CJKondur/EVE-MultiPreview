@@ -383,6 +383,9 @@
     <sys:String x:Key="L.About.CheckOnStartup">Check for updates when the program starts</sys:String>
     <sys:String x:Key="L.About.PreRelease">Receive Pre-Release Updates</sys:String>
     <sys:String x:Key="L.About.PreReleaseNote">Pre-release builds may contain bugs or breaking changes. Settings may reset between pre-release updates.</sys:String>
+    <sys:String x:Key="L.About.OtherVersionNote">Pick any released version, older or newer, to install it in place of this one — handy if an update broke something for you. Your settings are backed up first. Going back to an older version turns off the startup update check so it doesn't offer to update straight back.</sys:String>
+    <sys:String x:Key="L.About.InstallVersion">⬇ Install…</sys:String>
+    <sys:String x:Key="L.About.OtherVersion">Install a specific version:</sys:String>
 
     <!-- Debug panel -->
     <sys:String x:Key="L.Debug.Title">🐛 Debug Logging</sys:String>

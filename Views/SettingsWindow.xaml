@@ -1780,6 +1780,15 @@
                               Checked="OnPreReleaseChanged" Unchecked="OnPreReleaseChanged" Foreground="{StaticResource TextPrimaryBrush}"/>
                     <TextBlock x:Name="TxtVersionResult" Margin="0,8,0,0" TextWrapping="Wrap"
                                Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <Label Content="{DynamicResource L.About.OtherVersion}" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="CmbOtherVersion" Width="170" Margin="4,0,0,0" DropDownOpened="OnOtherVersionsOpened"
+                                  Background="{StaticResource BgPanelBrush}" Foreground="White"/>
+                        <Button x:Name="BtnInstallVersion" Content="{DynamicResource L.About.InstallVersion}" Padding="10,5" Margin="8,0,0,0"
+                                Click="OnInstallVersion" Background="#e0e0e0" Foreground="#1a1a2e" BorderBrush="#cccccc"/>
+                    </StackPanel>
+                    <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" FontSize="10.5" FontStyle="Italic"
+                               Foreground="{StaticResource TextSecondaryBrush}" Text="{DynamicResource L.About.OtherVersionNote}"/>
                     <TextBlock Margin="0,16,0,0" TextWrapping="Wrap"
                                Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
                                Text="{DynamicResource L.About.PreReleaseNote}"/>
