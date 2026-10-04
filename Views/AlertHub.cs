@@ -25,6 +25,26 @@ namespace EveMultiPreview.Views;
 /// </summary>
 public class AlertHub : IDisposable
 {
+    /// <summary>Translated name of an alert event, shared by the hub toast and the
+    /// text written on the alerting thumbnail (#115).</summary>
+    public static string EventDisplayName(string alertType) =>
+        Services.LocalizationService.Str("L.AlertEvt." + alertType, alertType switch
+        {
+            "attack" => "Under attack",
+            "warp_scramble" => "Warp scrambled",
+            "decloak" => "Decloaked",
+            "fleet_invite" => "Fleet invite",
+            "convo_request" => "Convo request",
+            "system_change" => "System changed",
+            "mine_cargo_full" => "Cargo full",
+            "mine_asteroid_depleted" => "Asteroid depleted",
+            "mine_crystal_broken" => "Crystal broken",
+            "mine_module_stopped" => "Miner stopped",
+            "follow_warp" => "Fleet warp",
+            "regroup" => "Regrouping",
+            _ => alertType
+        });
+
     private readonly Window _hubWindow;
     private readonly Border _hubBadge;
     private readonly TextBlock _badgeText;
@@ -610,20 +630,7 @@ internal class AlertToast : IDisposable
             _ => "🔔"
         };
 
-        string displayType = alertType switch
-        {
-            "attack" => "Under Attack!",
-            "warp_scramble" => "Warp Scrambled!",
-            "decloak" => "Decloaked!",
-            "fleet_invite" => "Fleet Invite",
-            "convo_request" => "Convo Request",
-            "system_change" => "System Changed",
-            "mine_cargo_full" => "Cargo Full!",
-            "mine_asteroid_depleted" => "Asteroid Depleted",
-            "mine_crystal_broken" => "Crystal Broken!",
-            "mine_module_stopped" => "Module Stopped",
-            _ => alertType
-        };
+        string displayType = AlertHub.EventDisplayName(alertType);
 
         stack.Children.Add(new TextBlock
         {

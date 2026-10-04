@@ -126,6 +126,21 @@
             </TextBlock.Effect>
         </TextBlock>
 
+        <!-- What the current alert is ("Warp scrambled", "Fleet warp"), in the alert's
+             colour, for as long as it lasts (#115). Anchor set by SetAlertTextPosition. -->
+        <TextBlock x:Name="AlertTextOverlay"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,4"
+                   FontSize="14"
+                   FontFamily="Gill Sans MT"
+                   FontWeight="Bold"
+                   Visibility="Collapsed">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="1" Color="Black"/>
+            </TextBlock.Effect>
+        </TextBlock>
+
         <!-- Per-character unread alert badge (matches AlertHub badge styling).
              Severity-coloured circle with white count, painted top-right and
              rendered AFTER FpsOverlay so it draws on top when both are visible.

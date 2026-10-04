@@ -191,6 +191,10 @@ public partial class TextOverlayWindow : Window
         // 0 = follow the thumbnail text size, as it always did (#103).
         FpsOverlay.FontSize = fpsFontSizePt > 0 ? fpsFontSizePt * (96.0 / 72.0) : dipSize;
         FpsOverlay.Foreground = brush;
+
+        // Alert text: same face, a step larger so it reads at a glance; its colour is the alert's.
+        AlertTextOverlay.FontFamily = font;
+        AlertTextOverlay.FontSize = dipSize + (2 * (96.0 / 72.0));
     }
 
     public void SetTextMargins(int marginX, int marginY, int fpsMarginX = -1, int fpsMarginY = -1)
@@ -241,59 +245,79 @@ public partial class TextOverlayWindow : Window
     /// <summary>Move the cycle-exclusion badge to one of nine anchor points so
     /// it can be kept clear of the character name / system / process-stats
     /// overlays. Issue #41.</summary>
-    public void SetCycleExclusionPosition(string position)
+    public void SetCycleExclusionPosition(string position) => Anchor(ExclusionBadge, position ?? "TopLeft");
+
+    /// <summary>Place an overlay element at one of nine anchor points, inset from the edge.</summary>
+    private static void Anchor(FrameworkElement el, string position)
     {
         const double inset = 4;
-        switch ((position ?? "TopLeft").Trim())
+        switch (position.Trim())
         {
             case "Top":
-                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
-                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Top;
-                ExclusionBadge.Margin = new Thickness(0, inset, 0, 0);
+                el.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+                el.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+                el.Margin = new Thickness(0, inset, 0, 0);
                 break;
             case "TopRight":
-                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
-                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Top;
-                ExclusionBadge.Margin = new Thickness(0, inset, inset, 0);
+                el.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                el.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+                el.Margin = new Thickness(0, inset, inset, 0);
                 break;
             case "Left":
-                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                ExclusionBadge.Margin = new Thickness(inset, 0, 0, 0);
+                el.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                el.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                el.Margin = new Thickness(inset, 0, 0, 0);
                 break;
             case "Center":
-                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
-                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                ExclusionBadge.Margin = new Thickness(0);
+                el.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+                el.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                el.Margin = new Thickness(0);
                 break;
             case "Right":
-                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
-                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-                ExclusionBadge.Margin = new Thickness(0, 0, inset, 0);
+                el.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                el.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                el.Margin = new Thickness(0, 0, inset, 0);
                 break;
             case "BottomLeft":
-                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
-                ExclusionBadge.Margin = new Thickness(inset, 0, 0, inset);
+                el.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                el.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
+                el.Margin = new Thickness(inset, 0, 0, inset);
                 break;
             case "Bottom":
-                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
-                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
-                ExclusionBadge.Margin = new Thickness(0, 0, 0, inset);
+                el.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+                el.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
+                el.Margin = new Thickness(0, 0, 0, inset);
                 break;
             case "BottomRight":
-                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
-                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
-                ExclusionBadge.Margin = new Thickness(0, 0, inset, inset);
+                el.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                el.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
+                el.Margin = new Thickness(0, 0, inset, inset);
                 break;
             case "TopLeft":
             default:
-                ExclusionBadge.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                ExclusionBadge.VerticalAlignment = System.Windows.VerticalAlignment.Top;
-                ExclusionBadge.Margin = new Thickness(inset, inset, 0, 0);
+                el.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                el.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+                el.Margin = new Thickness(inset, inset, 0, 0);
                 break;
         }
     }
+
+    /// <summary>Show what the current alert is on the thumbnail (#115); null hides it.
+    /// Called every flash tick, so an unchanged text/colour is a no-op.</summary>
+    public void SetAlertText(string? text, Color color)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            AlertTextOverlay.Visibility = Visibility.Collapsed;
+            return;
+        }
+        if (AlertTextOverlay.Text != text) AlertTextOverlay.Text = text;
+        if (AlertTextOverlay.Foreground is not SolidColorBrush b || b.Color != color)
+            AlertTextOverlay.Foreground = new SolidColorBrush(color);
+        AlertTextOverlay.Visibility = Visibility.Visible;
+    }
+
+    public void SetAlertTextPosition(string position) => Anchor(AlertTextOverlay, position ?? "Bottom");
 
     /// <summary>Apply a per-label color and size override for the annotation.
     /// Pass empty <paramref name="colorHex"/> or <paramref name="sizePt"/>=0 to

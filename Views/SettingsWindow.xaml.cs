@@ -315,6 +315,7 @@ public partial class SettingsWindow : Window
             TxtQuickSwitchHotkey.Text = S.QuickSwitchHotkey;
             TxtUndoLayoutHotkey.Text = S.UndoLayoutHotkey;
             TxtRedoLayoutHotkey.Text = S.RedoLayoutHotkey;
+            TxtCloseAllClientsHotkey.Text = S.CloseAllClientsHotkey;
             ChkLockPositions.IsChecked = S.LockPositions;
             ChkBroadcastHud.IsChecked = S.ShowBroadcastKeyHud;
             ChkAutoSoloAudio.IsChecked = S.AutoSoloClientAudio;
@@ -352,6 +353,8 @@ public partial class SettingsWindow : Window
                 }
             }
             CmbExclusionBadgePos.SelectedIndex = posIdx;
+            CmbCtrlClick.SelectedIndex = Math.Clamp(S.CtrlClickAction, 0, 2);
+            CmbShiftClick.SelectedIndex = Math.Clamp(S.ShiftClickAction, 0, 2);
             ChkHideActive.IsChecked = S.HideActiveThumbnail;
             ChkShowSystem.IsChecked = S.ShowSystemName;
             ChkShowStats.IsChecked = S.ShowProcessStats;
@@ -366,6 +369,7 @@ public partial class SettingsWindow : Window
             TxtActiveBorderThickness.Text = S.ClientHighlightBorderThickness.ToString();
             ChkShowHighlightBorder.IsChecked = S.ShowClientHighlightBorder;
             ChkShowAllBorders.IsChecked = S.ShowAllColoredBorders;
+            ChkHighlightOverridesGroup.IsChecked = S.HighlightOverridesGroupColor;
             TxtFrameThickness.Text = S.InactiveClientBorderThickness.ToString();
             TxtInactiveColor.Text = S.InactiveClientBorderColor;
             TxtBackgroundColor.Text = S.ThumbnailBackgroundColor;
@@ -414,6 +418,9 @@ public partial class SettingsWindow : Window
             TxtAlertOpacityValue.Text = $"{alertOpacity}%";
             TxtAlertBorderThickness.Text = S.AlertBorderThickness.ToString();
             ChkAlertBadgeOnThumbnails.IsChecked = S.ShowAlertBadgeOnThumbnails;
+            ChkAlertText.IsChecked = S.ShowAlertTextOnThumbnails;
+            CmbAlertTextPos.SelectedItem = CmbAlertTextPos.Items.OfType<System.Windows.Controls.ComboBoxItem>()
+                .FirstOrDefault(i => (i.Tag as string) == S.AlertTextPosition) ?? CmbAlertTextPos.Items[7];
             ChkAlertHub.IsChecked = S.AlertHubEnabled;
             TxtToastDuration.Text = S.AlertToastDuration.ToString();
             ChkAlertHubAutoHide.IsChecked = S.AlertHubAutoHide;
@@ -807,6 +814,34 @@ public partial class SettingsWindow : Window
             "  EVE is not the active window.\n" +
             "• If an EVE window is Active — hotkeys\n" +
             "  only fire when an EVE client has focus.\n\n" +
+            "Hotkeys While Ctrl/Shift/Alt Is Held\n" +
+            "────────────────────────────\n" +
+            "ON (default): a hotkey still fires while\n" +
+            "you hold a modifier — EVE players hold\n" +
+            "Ctrl to lock targets. OFF: a single-key\n" +
+            "hotkey such as V only fires on its own,\n" +
+            "so Ctrl+V reaches the client for pasting.\n\n" +
+            "Hide Hotkey Keystrokes From EVE\n" +
+            "────────────────────────────\n" +
+            "ON (default): when a hotkey switches\n" +
+            "clients, the client you land on never\n" +
+            "sees that key (as EVE-X-Preview does).\n" +
+            "OFF: the key's release reaches it, and\n" +
+            "your first click there may only focus\n" +
+            "EVE's overview instead of acting.\n\n" +
+            "Carry Held Keys to the Next Client\n" +
+            "────────────────────────────\n" +
+            "• Ctrl / Shift / Alt — a held modifier\n" +
+            "  follows you, so holding Ctrl to lock\n" +
+            "  keeps working after a switch.\n" +
+            "• Other keys — letters, numbers, F-keys,\n" +
+            "  Enter, Space and mouse buttons you are\n" +
+            "  still holding are pressed in the new\n" +
+            "  client too (hold F1 and cycle to fire\n" +
+            "  it on each). Turn this off if a module\n" +
+            "  key you have not released yet fires on\n" +
+            "  the next client and your own press\n" +
+            "  then turns it back off.\n\n" +
             "Suspend Hotkeys\n" +
             "────────────────────────────\n" +
             "Press this key combo to temporarily\n" +
@@ -822,14 +857,37 @@ public partial class SettingsWindow : Window
             "  AND PiP thumbnails at once.\n" +
             "• Hide/Show Primary — only primary.\n" +
             "• Hide/Show PiP — only PiP thumbnails.\n\n" +
+            "Hide/Show Crops\n" +
+            "────────────────────────────\n" +
+            "Toggles every crop window at once.\n\n" +
             "Profile Cycling\n" +
             "────────────────────────────\n" +
             "Cycle forward/backward through profiles.\n" +
             "Wraps around (last → first).\n\n" +
+            "Layout Undo / Redo\n" +
+            "────────────────────────────\n" +
+            "Steps back and forward through your\n" +
+            "thumbnail layout changes.\n\n" +
+            "Close All Clients\n" +
+            "────────────────────────────\n" +
+            "Ends every EVE client MultiPreview is\n" +
+            "tracking, after one confirmation, so a\n" +
+            "stray key press cannot drop your fleet.\n\n" +
             "Lock Positions\n" +
             "────────────────────────────\n" +
             "Prevents thumbnails from being\n" +
             "accidentally dragged.\n\n" +
+            "Broadcast-Key HUD\n" +
+            "────────────────────────────\n" +
+            "A small on-screen pill showing which\n" +
+            "held key is being carried into your\n" +
+            "clients. Drag it to reposition.\n\n" +
+            "Auto-Solo Client Audio\n" +
+            "────────────────────────────\n" +
+            "When you switch clients, the others are\n" +
+            "muted and the active one is unmuted.\n" +
+            "The option below it also mutes every\n" +
+            "client while no EVE client is in front.\n\n" +
             "Individual Thumbnail Resize\n" +
             "────────────────────────────\n" +
             "When ON, each thumbnail can be resized\n" +
@@ -855,11 +913,32 @@ public partial class SettingsWindow : Window
             "key). Lower = faster repeat. Default\n" +
             "100 ms feels natural for most setups;\n" +
             "drop it for snappier cycling.\n\n" +
+            "Cycle While Held\n" +
+            "────────────────────────────\n" +
+            "ON: holding a cycle hotkey keeps cycling\n" +
+            "at the cycle delay. OFF: one client per\n" +
+            "press, however long you hold the key.\n" +
+            "The cycle delay is also the shortest gap\n" +
+            "between two switches on a cycle or group\n" +
+            "key — faster taps are ignored. A\n" +
+            "character's own hotkey has no such limit.\n\n" +
             "UI Scale\n" +
             "────────────────────────────\n" +
             "Adjusts the font size of the Settings\n" +
             "UI window. Drag the slider or click\n" +
-            "on the track to change the size.",
+            "on the track to change the size.\n\n" +
+            "Start With Windows\n" +
+            "────────────────────────────\n" +
+            "Starts this copy of MultiPreview when\n" +
+            "you sign in to Windows. If you later run\n" +
+            "a copy from another folder (for example\n" +
+            "a new version), that one takes over.\n" +
+            "Turn it off before deleting the program.\n\n" +
+            "On App Launch\n" +
+            "────────────────────────────\n" +
+            "Whether the Settings window opens when\n" +
+            "MultiPreview starts: not at all, open,\n" +
+            "or minimized to the taskbar.",
 
         "Thumbnails" =>
             "THUMBNAIL APPEARANCE\n" +
@@ -884,6 +963,16 @@ public partial class SettingsWindow : Window
             "any of nine anchor points so it stays\n" +
             "clear of the character name and other\n" +
             "text overlays.\n\n" +
+            "Ctrl / Shift + Click\n" +
+            "────────────────────────────\n" +
+            "Choose what Ctrl + click and Shift +\n" +
+            "click on a thumbnail do: switch to the\n" +
+            "client (like a plain click), minimize\n" +
+            "it, or exclude it from cycling.\n" +
+            "Defaults: Ctrl = minimize, Shift =\n" +
+            "exclude. Ctrl is also EVE's lock key —\n" +
+            "set Ctrl to switch if you click\n" +
+            "thumbnails while locking targets.\n\n" +
             "Always On Top\n" +
             "────────────────────────────\n" +
             "Keeps thumbnails above all other windows.\n" +
@@ -910,6 +999,13 @@ public partial class SettingsWindow : Window
             "Add custom role labels (Scout, DPS, Logi)\n" +
             "to each character's thumbnail. Click\n" +
             "Add/Edit to set a label, Clear to remove.\n\n" +
+            "Right-Click Menu\n" +
+            "────────────────────────────\n" +
+            "• Edit Label — set the role label\n" +
+            "• Mute alerts — snooze this client's\n" +
+            "  alerts for a while or until unmuted\n" +
+            "• Audio — this client's volume or mute\n" +
+            "• Close client — ends that client at once\n\n" +
             "ADVANCED — Text & Overlay\n" +
             "════════════════════════\n\n" +
             "• Text Overlay — character name on thumb\n" +
@@ -919,7 +1015,10 @@ public partial class SettingsWindow : Window
             "  the active client's thumbnail\n" +
             "• Inactive Border — border on all others\n" +
             "• Background Color — fill color behind\n" +
-            "  the live preview",
+            "  the live preview\n" +
+            "• Keep highlight in colored groups —\n" +
+            "  with group colors on, the active\n" +
+            "  client still gets the highlight color",
 
         "Layout" =>
             "THUMBNAIL LAYOUT\n" +
@@ -1066,6 +1165,15 @@ public partial class SettingsWindow : Window
             "• Fleet Invite — fleet invitation\n" +
             "• Convo Request — convo incoming\n" +
             "• System Change — jumped systems\n\n" +
+            "Fleet Alerts\n" +
+            "────────────────────────────\n" +
+            "• Fleet Warp — this client follows the\n" +
+            "  FC's fleet warp\n" +
+            "• Fleet Regroup — this client regroups\n" +
+            "  to the FC\n" +
+            "Both are Warning tier and fire on every\n" +
+            "client that actually goes, so you can\n" +
+            "see who was left behind.\n\n" +
             "Mining Alerts\n" +
             "────────────────────────────\n" +
             "• Cargo Full — cargo/ore hold full\n" +
@@ -1102,6 +1210,19 @@ public partial class SettingsWindow : Window
             "can keep an event firing toast/sound/pulse\n" +
             "while silencing only its badge — useful\n" +
             "for chatty events like System Change.\n\n" +
+            "Alert Text on Thumbnails\n" +
+            "────────────────────────────\n" +
+            "Writes what happened ('Warp scrambled',\n" +
+            "'Fleet warp') on the alerting thumbnail\n" +
+            "in the event's color for as long as the\n" +
+            "alert lasts. Pick any of nine positions.\n\n" +
+            "Steady Border and Duration\n" +
+            "────────────────────────────\n" +
+            "Each alert row has a Steady box (the\n" +
+            "border holds instead of blinking) and a\n" +
+            "duration in seconds. Empty = the default\n" +
+            "for its severity (8 / 6 / 4 s). 0 = keep\n" +
+            "it until you switch to that client.\n\n" +
             "Per-Alert Custom Colors\n" +
             "────────────────────────────\n" +
             "Each alert row has a colored ■ square\n" +

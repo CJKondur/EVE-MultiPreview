@@ -364,5 +364,25 @@
   "warp_scramble_combat": [
     "warp scramble attempt",
     "warp disruption attempt"
+  ],
+  "follow_warp_regex": [
+    "(.+?)\\s+の先導でワープします",
+    "Folge\\s+(.+?)\\s+in\\s+den\\s+Warp",
+    "Following\\s+(.+?)\\s+in\\s+warp",
+    "Siguiendo\\s+a\\s+(.+?)\\s+en\\s+warp\\.",
+    "Voler\\s+en\\s+warp\\s+derrière\\s+le\\s+leader,\\s+(.+)",
+    "Переход\\s+в\\s+варп\\-режим\\s+по\\s+приказу\\s+(.+)",
+    "跟随(.+?)跃迁",
+    "워프로\\s+(.+?)을\\(를\\)\\s+따라가는\\s+중"
+  ],
+  "regroup_regex": [
+    "(.+?)\\(으\\)로재집결\\s+중",
+    "(.+?)\\s+を中心に集合します",
+    "Neugruppierung\\s+bei\\s+(.+)",
+    "Reagrupándose\\s+con\\s+(.+?)\\.",
+    "Regroupement\\s+sous\\s+les\\s+ordres\\s+de\\s+:\\s+(.+)",
+    "Regrouping\\s+to\\s+(.+)",
+    "Перегруппировка\\s+у\\s+(.+)",
+    "重新集合在(.+?)周围"
   ]
 }

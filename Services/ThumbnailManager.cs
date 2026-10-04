@@ -50,6 +50,7 @@ public sealed class ThumbnailManager : IDisposable
 
     // Active window tracking
     private IntPtr _lastActiveEveHwnd = IntPtr.Zero;
+    private IntPtr _lastSweptHwnd = IntPtr.Zero;   // foreground the focus sweep last reconciled
     // ConcurrentDictionary used as a thread-safe set because OnWindowLost
     // (background poll thread) mutates this alongside UpdateActiveBorders
     // (UI thread). The byte value is unused; only keys matter. Mechanical
@@ -691,6 +692,7 @@ public sealed class ThumbnailManager : IDisposable
         thumbWindow.LabelEditRequested += OnLabelEditRequested;
         thumbWindow.AlertMuteRequested += OnAlertMuteRequested;
         thumbWindow.AudioRequested += OnAudioRequested;
+        thumbWindow.CloseClientRequested += OnCloseClientRequested;
         thumbWindow.AudioVolume = GetClientVolume(window.CharacterName);
         // New thumbnail picks up any active mute for its character (e.g. relaunch).
         if (!string.IsNullOrEmpty(window.CharacterName)
@@ -928,6 +930,7 @@ public sealed class ThumbnailManager : IDisposable
 
         // Cycle-exclusion badge position (one of nine anchor points). Issue #41.
         thumb.SetCycleExclusionPosition(s.CycleExclusionBadgePosition);
+        thumb.SetAlertTextPosition(s.AlertTextPosition);
 
         // Always on top
         thumb.SetTopmost(s.ShowThumbnailsAlwaysOnTop);
@@ -1279,6 +1282,43 @@ public sealed class ThumbnailManager : IDisposable
         Interop.User32.ShowWindowAsync(thumb.EveHwnd, Interop.User32.SW_FORCEMINIMIZE);
     }
 
+    // Right-click → Close client (#115): ends the process at once, no prompt - picking
+    // it from a menu is already deliberate, and the point is speed.
+    private void OnCloseClientRequested(ThumbnailWindow thumb) => KillClient(thumb.EveHwnd);
+
+    /// <summary>Close-all hotkey (#115): ends every tracked EVE client after ONE
+    /// confirmation, so a stray keypress cannot drop the whole fleet.</summary>
+    public void CloseAllClients()
+    {
+        var hwnds = _thumbnails.Keys.ToList();
+        if (hwnds.Count == 0) return;
+        var answer = System.Windows.MessageBox.Show(
+            string.Format(LocalizationService.Str("L.Msg.CloseAllConfirm", "End all {0} EVE clients now?"), hwnds.Count),
+            "EVE MultiPreview", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No,
+            System.Windows.MessageBoxOptions.DefaultDesktopOnly);   // shows above a full-screen client
+        if (answer != MessageBoxResult.Yes) return;
+        foreach (var hwnd in hwnds) KillClient(hwnd);
+    }
+
+    private static void KillClient(IntPtr hwnd)
+    {
+        // The PID comes from the live window, and only an EVE client is ever ended.
+        Interop.User32.GetWindowThreadProcessId(hwnd, out uint pid);
+        if (pid == 0) return;
+        try
+        {
+            using var p = Process.GetProcessById((int)pid);
+            if (!Interop.User32.IsEveProcessName(p.ProcessName)) return;
+            p.Kill();
+            DiagnosticsService.LogWindowHook($"[CloseClient] ended EVE client pid={pid}");
+        }
+        catch (Exception ex)
+        {
+            // Already gone, or ACCESS_DENIED when EVE runs elevated and we do not.
+            DiagnosticsService.LogWindowHook($"[CloseClient] could not end pid={pid}: {ex.Message}");
+        }
+    }
+
 
 
     private void OnDragMoveAll(ThumbnailWindow source, double dx, double dy)
@@ -1359,7 +1399,7 @@ public sealed class ThumbnailManager : IDisposable
 
     // ── Window Activation (matches AHK ActivateEVEWindow) ───────────
 
-    public void ActivateEveWindow(IntPtr hwnd, string? title = null, bool rapidSwitch = false, Action? onActivated = null)
+    public void ActivateEveWindow(IntPtr hwnd, string? title = null, bool rapidSwitch = false)
     {
         try
         {
@@ -1431,9 +1471,19 @@ public sealed class ThumbnailManager : IDisposable
             ApplyClientTaskbarCover(hwnd);
 
             Interop.User32.ActivateWindow(hwnd);
-            
-            // Execute visual callback instantaneously
-            onActivated?.Invoke();
+
+            // Paint the highlight NOW, for every way of switching (#112). Only group
+            // cycling did, through its own callback; a character's own hotkey and a
+            // thumbnail click waited for the focus sweep, which stands down for 500ms
+            // after any cycle, so their highlight visibly lagged. The shield stamp keeps
+            // that sweep from repainting the OLD client while the OS finishes the switch,
+            // and clearing its marker makes it re-check reality once the shield lifts
+            // (correcting the highlight if the switch was refused, and applying CPU
+            // affinity, which follows the settled client rather than every cycle step).
+            _lastActiveEveHwnd = hwnd;
+            _lastCycleTime = DateTime.UtcNow;
+            _lastSweptHwnd = IntPtr.Zero;
+            ApplyActiveBorders(hwnd);
 
             // Explicitly pulse WM_KEYDOWN messages directly to the EVE client for held action keys
             // This natively restores module firing without polluting global SendInput states
@@ -1918,7 +1968,13 @@ public sealed class ThumbnailManager : IDisposable
         if ((DateTime.UtcNow - _lastCycleTime).TotalMilliseconds < 500)
             return;
 
-        if (fgHwnd == _lastActiveEveHwnd) return;
+        // Its own marker, not _lastActiveEveHwnd (#112): a switch WE make sets that
+        // tracker up front, because the cycle order reads it, so this check used to
+        // conclude nothing had changed - global cycling never repainted the highlight
+        // and CPU affinity never followed a cycle. ActivateEveWindow clears this marker
+        // so the sweep re-checks reality once the shield above lifts.
+        if (fgHwnd == _lastSweptHwnd) return;
+        _lastSweptHwnd = fgHwnd;
         _lastActiveEveHwnd = fgHwnd;
 
         // Raise the newly-focused client over the taskbar / drop the previous one (#99).
@@ -1927,9 +1983,21 @@ public sealed class ThumbnailManager : IDisposable
 
         // Flash toggle moved to dedicated FlashAlertTick
 
+        ApplyActiveBorders(fgHwnd);
+
+        // ── CPU Affinity & Priority Management ──
+        ManageCpuAffinity(fgHwnd, s);
+    }
+
+    /// <summary>Paint the resting highlight: <paramref name="activeHwnd"/>'s thumbnail
+    /// active, every other one inactive, plus each one's nested alert border (#71).
+    /// Called by the focus sweep and, synchronously, by every switch we make.</summary>
+    private void ApplyActiveBorders(IntPtr activeHwnd)
+    {
+        var s = _settings.Settings;
         foreach (var (eveHwnd, thumb) in _thumbnails)
         {
-            bool isActive = eveHwnd == fgHwnd;
+            bool isActive = eveHwnd == activeHwnd;
             string charName = thumb.CharacterName;
 
             // (Hide Active Thumbnail moved to a hoisted block above the
@@ -1964,9 +2032,6 @@ public sealed class ThumbnailManager : IDisposable
             // Nested inner alert border (independent of the main border above).
             ApplyAlertBorder(thumb, _alertFlashChars.TryGetValue(charName, out var fi) ? fi : null);
         }
-
-        // ── CPU Affinity & Priority Management ──
-        ManageCpuAffinity(fgHwnd, s);
     }
 
     private bool _lastManageAffinityState = false;
@@ -2140,8 +2205,9 @@ public sealed class ThumbnailManager : IDisposable
                 return ParseColor(custom.InactiveBorder);
         }
 
-        // 2. Thumbnail group color (only when Show Group Borders is enabled)
-        if (s.ShowAllColoredBorders)
+        // 2. Thumbnail group color (only when Show Group Borders is enabled). Optionally
+        //    not for the active client, so it stands out from the rest of its group (#115).
+        if (s.ShowAllColoredBorders && !(isActive && s.HighlightOverridesGroupColor))
         {
             foreach (var group in s.ThumbnailGroups)
             {
@@ -2577,11 +2643,12 @@ public sealed class ThumbnailManager : IDisposable
     {
         var thumb = FindThumbnailByCharacter(characterName);
         if (thumb == null) return;
+        void Clear() { thumb.SetAlertBorder(null, 0); thumb.SetAlertText(null, default); }
         var dispatcher = Application.Current?.Dispatcher;
         if (dispatcher != null && !dispatcher.CheckAccess())
-            dispatcher.BeginInvoke(new Action(() => thumb.SetAlertBorder(null, 0)));
+            dispatcher.BeginInvoke(new Action(Clear));
         else
-            thumb.SetAlertBorder(null, 0);
+            Clear();
     }
 
     /// <summary>Bump the per-character unread-alert badge counter. Called from
@@ -2698,9 +2765,11 @@ public sealed class ThumbnailManager : IDisposable
         }
 
         // Visible during the "on" phase, and continuously for info-severity
-        // (which doesn't pulse). Off-phase keeps the reserved thickness but paints
-        // nothing, so the band blinks while the main border stays put.
-        bool paint = info.ShowFlash || info.Severity == "info";
+        // (which doesn't pulse) or an event set to a steady border (#115). Off-phase
+        // keeps the reserved thickness but paints nothing, so the band blinks while
+        // the main border stays put.
+        bool paint = info.ShowFlash || info.Severity == "info"
+                     || s.AlertSolidBorder.GetValueOrDefault(info.EventType);
         var color = ResolveAlertFlashColor(info.EventType, info.Severity);
         thumb.SetAlertBorder(paint ? color : (Color?)null, thickness);
     }
@@ -2713,11 +2782,19 @@ public sealed class ThumbnailManager : IDisposable
         var s = _settings.Settings;
         var toRemove = new List<string>();
 
+        IntPtr fgNow = Interop.User32.GetForegroundWindow();
         foreach (var (charName, info) in _alertFlashChars)
         {
-            // Check expiry
-            int expirySec = FlashExpiry.GetValueOrDefault(info.Severity, 6);
-            if ((now - info.StartTime).TotalSeconds >= expirySec)
+            // Check expiry. Per-event duration overrides the severity default (#115);
+            // 0 = keep it until you switch to that client - or right away when the
+            // alert is on the client you are already in, which no switch would clear.
+            int expirySec = s.AlertDurations.TryGetValue(info.EventType, out var dur) && dur >= 0
+                ? dur
+                : FlashExpiry.GetValueOrDefault(info.Severity, 6);
+            bool expired = expirySec == 0
+                ? FindThumbnailByCharacter(charName) is not { } alertThumb || alertThumb.EveHwnd == fgNow   // gone = over
+                : (now - info.StartTime).TotalSeconds >= expirySec;
+            if (expired)
             {
                 toRemove.Add(charName);
                 Debug.WriteLine($"[AlertFlash:Expire] ⏰ Flash expired: '{charName}' after {expirySec}s ({info.Severity})");
@@ -2759,6 +2836,11 @@ public sealed class ThumbnailManager : IDisposable
                 // alert pulse rides the nested inner border (#71).
                 thumb.SetBorder(restingColor, restingThickness);
                 ApplyAlertBorder(thumb, info);
+
+                // What happened, written on the thumbnail in the alert's colour (#115).
+                // Full opacity: the opacity setting softens the border, not the words.
+                thumb.SetAlertText(s.ShowAlertTextOnThumbnails ? Views.AlertHub.EventDisplayName(info.EventType) : null,
+                    Color.FromRgb(flashColor.R, flashColor.G, flashColor.B));
             }
         }
 
@@ -2780,6 +2862,7 @@ public sealed class ThumbnailManager : IDisposable
             // Alert over — remove the nested inner band; the main border was never
             // disturbed so it already shows the correct resting highlight (#71).
             thumb.SetAlertBorder(null, 0);
+            thumb.SetAlertText(null, default);
 
             if (thumb.EveHwnd == fg)
             {
@@ -3564,7 +3647,6 @@ public sealed class ThumbnailManager : IDisposable
                      ? _lastActiveEveHwnd
                      : Interop.User32.GetForegroundWindow();
         
-        var previousActiveHwnd = _lastActiveEveHwnd;
         int currentIdx = -1;
         string? activeChar = null;
 
@@ -3617,32 +3699,8 @@ public sealed class ThumbnailManager : IDisposable
             }
         }
 
-        // Create the UI border update action. This will be securely dispatched 
-        // back to the WPF UI thread exactly after the window focus shift succeeds.
-        Action onActivated = () =>
-        {
-            var s = _settings.Settings;
-            int activeThickness = s.ClientHighlightBorderThickness;
-
-            // Set new active border
-            if (targetHwnd != IntPtr.Zero && _thumbnails.TryGetValue(targetHwnd, out var targetThumb))
-            {
-                var color = GetBorderColor(charName, true);
-                targetThumb.SetBorder(color, activeThickness);
-            }
-
-            // Reset previous active to inactive border
-            if (previousActiveHwnd != IntPtr.Zero && previousActiveHwnd != targetHwnd
-                && _thumbnails.TryGetValue(previousActiveHwnd, out var prevThumb))
-            {
-                var color = GetBorderColor(prevThumb.CharacterName, false);
-                int thickness = ShouldShowInactiveBorder(prevThumb.CharacterName) ? s.InactiveClientBorderThickness : 0;
-                prevThumb.SetBorder(color, thickness);
-            }
-        };
-
         LogCycle($"[CycleGroup] ➡️ Activating '{charName}' (HWND: {targetHwnd}). Online Members in pool: {string.Join(", ", onlineMembers)}");
-        ActivateEveWindow(targetHwnd, charName, rapidSwitch: true, onActivated: onActivated);
+        ActivateEveWindow(targetHwnd, charName, rapidSwitch: true);
     }
 
     /// <summary>Cycle across every tracked client regardless of profile or group
@@ -4003,6 +4061,7 @@ public sealed class ThumbnailManager : IDisposable
         thumb.LabelEditRequested -= OnLabelEditRequested;
         thumb.AlertMuteRequested -= OnAlertMuteRequested;
         thumb.AudioRequested -= OnAudioRequested;
+        thumb.CloseClientRequested -= OnCloseClientRequested;
     }
 
     private void OnCycleExclusionRequested(ThumbnailWindow thumb)

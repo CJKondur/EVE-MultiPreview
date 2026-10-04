@@ -214,7 +214,8 @@ public partial class SettingsWindow
         ("decloak","Decloaked","critical","\ud83d\udd34"), ("fleet_invite","Fleet Invite","warning","\ud83d\udfe0"),
         ("convo_request","Convo Request","warning","\ud83d\udfe0"), ("system_change","System Change","info","\ud83d\udd35"),
         ("mine_cargo_full","Mining: Cargo Full","warning","\ud83d\udfe0"), ("mine_asteroid_depleted","Mining: Depleted","info","\ud83d\udd35"),
-        ("mine_crystal_broken","Mining: Crystal Broken","warning","\ud83d\udfe0"), ("mine_module_stopped","Mining: Miner Stopped","info","\ud83d\udd35")
+        ("mine_crystal_broken","Mining: Crystal Broken","warning","\ud83d\udfe0"), ("mine_module_stopped","Mining: Miner Stopped","info","\ud83d\udd35"),
+        ("follow_warp","Fleet Warp","warning","\ud83d\udfe0"), ("regroup","Fleet Regroup","warning","\ud83d\udfe0")
     };
 
     private string GetSeverityColor(string sevKey) =>
@@ -273,6 +274,38 @@ public partial class SettingsWindow
             badgeCb.Checked += (_, _) => { S.BadgeOnThumbnailAlertTypes[capturedBadgeId] = true; SaveDelayed(); };
             badgeCb.Unchecked += (_, _) => { S.BadgeOnThumbnailAlertTypes[capturedBadgeId] = false; SaveDelayed(); };
             row.Children.Add(badgeCb);
+
+            // Steady border instead of blinking, and how long the alert stays up (#115).
+            var steadyCb = new CheckBox
+            {
+                Content = EveMultiPreview.Services.LocalizationService.Str("L.Alerts.Steady", "Steady"),
+                IsChecked = S.AlertSolidBorder.GetValueOrDefault(evt.id),
+                Margin = new Thickness(10, 0, 0, 0),
+                ToolTip = EveMultiPreview.Services.LocalizationService.Str("L.Alerts.SteadyTip", "Hold the alert border steady instead of blinking"),
+                Foreground = (Brush)FindResource("TextSecondaryBrush")
+            };
+            steadyCb.Checked += (_, _) => { S.AlertSolidBorder[capturedBadgeId] = true; SaveDelayed(); };
+            steadyCb.Unchecked += (_, _) => { S.AlertSolidBorder[capturedBadgeId] = false; SaveDelayed(); };
+            row.Children.Add(steadyCb);
+
+            var durTip = EveMultiPreview.Services.LocalizationService.Str("L.Alerts.DurationTip",
+                "Seconds the alert stays on the thumbnail. Empty = the default for its severity. 0 = until you switch to that client.");
+            var durBox = new TextBox
+            {
+                Text = S.AlertDurations.TryGetValue(evt.id, out var dsec) ? dsec.ToString() : "",
+                Width = 36, Margin = new Thickness(10, 0, 2, 0), ToolTip = durTip
+            };
+            durBox.TextChanged += (_, _) =>
+            {
+                if (_loading) return;
+                if (string.IsNullOrWhiteSpace(durBox.Text)) S.AlertDurations.Remove(capturedBadgeId);
+                else if (int.TryParse(durBox.Text, out int d) && d >= 0) S.AlertDurations[capturedBadgeId] = Math.Min(d, 3600);
+                else return;
+                SaveDelayed();
+            };
+            row.Children.Add(durBox);
+            row.Children.Add(new TextBlock { Text = "s", VerticalAlignment = VerticalAlignment.Center, ToolTip = durTip,
+                Foreground = (Brush)FindResource("TextSecondaryBrush") });
 
             AlertEventRows.Children.Add(row);
         }
@@ -394,6 +427,8 @@ public partial class SettingsWindow
         S.AlertOpacityPercent = (int)SliderAlertOpacity.Value;
         if (int.TryParse(TxtAlertBorderThickness.Text, out int abt)) S.AlertBorderThickness = Math.Clamp(abt, 0, 20);
         S.ShowAlertBadgeOnThumbnails = ChkAlertBadgeOnThumbnails.IsChecked == true;
+        S.ShowAlertTextOnThumbnails = ChkAlertText.IsChecked == true;
+        if (CmbAlertTextPos.SelectedItem is ComboBoxItem posItem && posItem.Tag is string pos) S.AlertTextPosition = pos;
         S.NotLoggedInIndicator = GetNotLoggedInType();
         S.NotLoggedInColor = TxtNotLoggedInColor.Text;
         SaveDelayed();
@@ -608,6 +643,7 @@ public partial class SettingsWindow
         Add("Global cycle backward", S.GlobalCycleBackwardHotkey);
         Add("Layout undo", S.UndoLayoutHotkey);
         Add("Layout redo", S.RedoLayoutHotkey);
+        Add("Close all clients", S.CloseAllClientsHotkey);
 
         // Per-character switch hotkeys
         foreach (var (chr, hk) in _svc.CurrentProfile.Hotkeys)

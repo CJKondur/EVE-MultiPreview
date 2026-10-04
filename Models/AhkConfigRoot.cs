@@ -43,6 +43,8 @@ public class AhkConfigRoot
         s.PropagateHeldModifiers = g.PropagateHeldModifiers != 0;
         s.PropagateHeldKeys = g.PropagateHeldKeys != 0;
         s.HideHotkeyKeystrokes = g.HideHotkeyKeystrokes != 0;
+        s.CtrlClickAction = Math.Clamp(g.CtrlClickAction, 0, 2);
+        s.ShiftClickAction = Math.Clamp(g.ShiftClickAction, 0, 2);
         s.SuspendHotkey = g.SuspendHotkeysHotkey ?? "";
         s.ClickThroughHotkey = g.ClickThroughHotkey ?? "";
         s.HideShowThumbnailsHotkey = g.HideShowThumbnailsHotkey ?? "";
@@ -56,6 +58,7 @@ public class AhkConfigRoot
         s.GlobalCycleBackwardHotkey = g.GlobalCycleBackwardHotkey ?? "";
         s.UndoLayoutHotkey = g.UndoLayoutHotkey ?? "";
         s.RedoLayoutHotkey = g.RedoLayoutHotkey ?? "";
+        s.CloseAllClientsHotkey = g.CloseAllClientsHotkey ?? "";
         s.HideStatsOnLostFocus = g.HideStatsOnLostFocus != 0;
         s.IncludeLoginScreensInCycle = g.IncludeLoginScreensInCycle != 0;
         s.ShowSessionTimer = g.ShowSessionTimer != 0;
@@ -113,6 +116,10 @@ public class AhkConfigRoot
         s.SeverityTrayNotify = ConvertIntDictToBoolDict(g.SeverityTrayNotify);
         s.EnabledAlertTypes = ConvertIntDictToBoolDict(g.EnabledAlertTypes);
         s.BadgeOnThumbnailAlertTypes = ConvertIntDictToBoolDict(g.BadgeOnThumbnailAlertTypes);
+        s.AlertSolidBorder = ConvertIntDictToBoolDict(g.AlertSolidBorder);
+        s.AlertDurations = g.AlertDurations ?? new();
+        s.ShowAlertTextOnThumbnails = g.ShowAlertTextOnThumbnails != 0;
+        s.AlertTextPosition = string.IsNullOrWhiteSpace(g.AlertTextPosition) ? "Bottom" : g.AlertTextPosition;
         s.StaticThumbnails = g.StaticThumbnails != 0;
         s.ShowAlertBadgeOnThumbnails = g.ShowAlertBadgeOnThumbnails != 0;
         s.CustomColorPalette = g.CustomColorPalette;
@@ -244,6 +251,7 @@ public class AhkConfigRoot
                 profile.ClientHighlightBorderThickness = ts.ClientHighligtBorderthickness;
                 profile.ClientHighlightColor = ts.ClientHighligtColor ?? "#E36A0D";
                 profile.ShowClientHighlightBorder = ts.ShowClientHighlightBorder != 0;
+                profile.HighlightOverridesGroupColor = ts.HighlightOverridesGroupColor != 0;
                 profile.ThumbnailTextFont = ts.ThumbnailTextFont ?? "Gill Sans MT";
                 profile.ThumbnailTextSize = ts.ThumbnailTextSize.ToString();
                 profile.ThumbnailTextColor = ts.ThumbnailTextColor ?? "#FAC57A";
@@ -321,6 +329,8 @@ public class AhkConfigRoot
         g.PropagateHeldModifiers = s.PropagateHeldModifiers ? 1 : 0;
         g.PropagateHeldKeys = s.PropagateHeldKeys ? 1 : 0;
         g.HideHotkeyKeystrokes = s.HideHotkeyKeystrokes ? 1 : 0;
+        g.CtrlClickAction = s.CtrlClickAction;
+        g.ShiftClickAction = s.ShiftClickAction;
         g.SuspendHotkeysHotkey = s.SuspendHotkey;
         g.ClickThroughHotkey = s.ClickThroughHotkey;
         g.HideShowThumbnailsHotkey = s.HideShowThumbnailsHotkey;
@@ -334,6 +344,7 @@ public class AhkConfigRoot
         g.GlobalCycleBackwardHotkey = s.GlobalCycleBackwardHotkey;
         g.UndoLayoutHotkey = s.UndoLayoutHotkey;
         g.RedoLayoutHotkey = s.RedoLayoutHotkey;
+        g.CloseAllClientsHotkey = s.CloseAllClientsHotkey;
         g.HideStatsOnLostFocus = s.HideStatsOnLostFocus ? 1 : 0;
         g.IncludeLoginScreensInCycle = s.IncludeLoginScreensInCycle ? 1 : 0;
         g.ShowSessionTimer = s.ShowSessionTimer ? 1 : 0;
@@ -384,6 +395,10 @@ public class AhkConfigRoot
         g.SeverityTrayNotify = ConvertBoolDictToIntDict(s.SeverityTrayNotify);
         g.EnabledAlertTypes = ConvertBoolDictToIntDict(s.EnabledAlertTypes);
         g.BadgeOnThumbnailAlertTypes = ConvertBoolDictToIntDict(s.BadgeOnThumbnailAlertTypes);
+        g.AlertSolidBorder = ConvertBoolDictToIntDict(s.AlertSolidBorder);
+        g.AlertDurations = s.AlertDurations;
+        g.ShowAlertTextOnThumbnails = s.ShowAlertTextOnThumbnails ? 1 : 0;
+        g.AlertTextPosition = s.AlertTextPosition;
         g.StaticThumbnails = s.StaticThumbnails ? 1 : 0;
         g.SuspendThumbnailsWhenBackground = s.SuspendThumbnailsWhenBackground ? 1 : 0;
         g.CycleExclusionBadgePosition = s.CycleExclusionBadgePosition;
@@ -497,6 +512,7 @@ public class AhkConfigRoot
                 ClientHighligtBorderthickness = profile.ClientHighlightBorderThickness,
                 ClientHighligtColor = profile.ClientHighlightColor,
                 ShowClientHighlightBorder = profile.ShowClientHighlightBorder ? 1 : 0,
+                HighlightOverridesGroupColor = profile.HighlightOverridesGroupColor ? 1 : 0,
                 ThumbnailTextFont = profile.ThumbnailTextFont,
                 ThumbnailTextSize = int.TryParse(profile.ThumbnailTextSize, out var sz) ? sz : 12,
                 ThumbnailTextColor = profile.ThumbnailTextColor,
@@ -762,6 +778,9 @@ public class AhkThumbnailSettings
     [JsonPropertyName("ShowClientHighlightBorder")]
     public int ShowClientHighlightBorder { get; set; } = 1;
 
+    [JsonPropertyName("HighlightOverridesGroupColor")]
+    public int HighlightOverridesGroupColor { get; set; }
+
     [JsonPropertyName("ThumbnailTextFont")]
     public string? ThumbnailTextFont { get; set; } = "Gill Sans MT";
 
@@ -916,6 +935,12 @@ public class AhkGlobalSettings
     [JsonPropertyName("HideHotkeyKeystrokes")]
     public int HideHotkeyKeystrokes { get; set; } = 1;
 
+    [JsonPropertyName("CtrlClickAction")]
+    public int CtrlClickAction { get; set; } = 1;
+
+    [JsonPropertyName("ShiftClickAction")]
+    public int ShiftClickAction { get; set; } = 2;
+
     [JsonPropertyName("Suspend_Hotkeys_Hotkey")]
     public string? SuspendHotkeysHotkey { get; set; } = "";
 
@@ -954,6 +979,9 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("RedoLayoutHotkey")]
     public string? RedoLayoutHotkey { get; set; } = "";
+
+    [JsonPropertyName("CloseAllClientsHotkey")]
+    public string? CloseAllClientsHotkey { get; set; } = "";
 
     [JsonPropertyName("HideStatsOnLostFocus")]
     public int HideStatsOnLostFocus { get; set; } = 0;
@@ -1088,6 +1116,18 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("BadgeOnThumbnailAlertTypes")]
     public Dictionary<string, int>? BadgeOnThumbnailAlertTypes { get; set; }
+
+    [JsonPropertyName("AlertSolidBorder")]
+    public Dictionary<string, int>? AlertSolidBorder { get; set; }
+
+    [JsonPropertyName("AlertDurations")]
+    public Dictionary<string, int>? AlertDurations { get; set; }
+
+    [JsonPropertyName("ShowAlertTextOnThumbnails")]
+    public int ShowAlertTextOnThumbnails { get; set; } = 1;
+
+    [JsonPropertyName("AlertTextPosition")]
+    public string? AlertTextPosition { get; set; } = "Bottom";
 
     [JsonPropertyName("StaticThumbnails")]
     public int StaticThumbnails { get; set; }

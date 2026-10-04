@@ -39,6 +39,9 @@
     <sys:String x:Key="L.Alerts.BorderWidthNote">The alert pulse now draws as its own border nested just inside the selection border, so a fleet-wide flash never hides which client is selected. 0 disables it.</sys:String>
     <sys:String x:Key="L.Alerts.BadgeShow">Show alert count badge on thumbnails</sys:String>
     <sys:String x:Key="L.Alerts.BadgeNote">A small numbered badge appears on each thumbnail when its character receives alerts; clears the moment you bring that client to focus.</sys:String>
+    <sys:String x:Key="L.Alerts.EventRowsNote">Per event: color, on/off, count badge, Steady (the border does not blink) and how many seconds it stays up (empty = the default for its severity, 0 = until you switch to that client).</sys:String>
+    <sys:String x:Key="L.Alerts.TextNote">For example “Warp scrambled” or “Fleet warp”, in the event's color, while the alert lasts.</sys:String>
+    <sys:String x:Key="L.Alerts.TextShow">Write what happened on the thumbnail</sys:String>
     <sys:String x:Key="L.Alerts.HubShow">Show Alert Hub on screen</sys:String>
     <sys:String x:Key="L.Alerts.ToastDuration">Toast duration:</sys:String>
     <sys:String x:Key="L.Alerts.SuppressActive">Don't toast the client I'm actively watching</sys:String>
@@ -82,6 +85,8 @@
     <sys:String x:Key="L.General.HkQuickSwitch">Quick-Switch Wheel:</sys:String>
     <sys:String x:Key="L.General.HkUndo">Layout Undo:</sys:String>
     <sys:String x:Key="L.General.HkRedo">Layout Redo:</sys:String>
+    <sys:String x:Key="L.Tt.CloseAllHotkey">Ends every EVE client MultiPreview is tracking, after one confirmation.</sys:String>
+    <sys:String x:Key="L.General.HkCloseAll">Close all clients:</sys:String>
     <sys:String x:Key="L.General.Toggles">Toggles</sys:String>
     <sys:String x:Key="L.General.LockPositions">Lock Thumbnail Positions</sys:String>
     <sys:String x:Key="L.General.BroadcastHud">Show Broadcast-Key HUD</sys:String>
@@ -133,6 +138,12 @@
     <sys:String x:Key="L.Thumb.HighlightBorder">Highlight Border (px):</sys:String>
     <sys:String x:Key="L.Thumb.ShowHighlightBorder">Show Highlight Border</sys:String>
     <sys:String x:Key="L.Thumb.ShowAllBorders">Show All Colored Borders</sys:String>
+    <sys:String x:Key="L.Thumb.ClickExclude">Exclude from / include in cycling</sys:String>
+    <sys:String x:Key="L.Thumb.ClickMinimize">Minimize the client</sys:String>
+    <sys:String x:Key="L.Thumb.ClickSwitch">Switch to the client (like a plain click)</sys:String>
+    <sys:String x:Key="L.Thumb.ShiftClick">Shift + click a thumbnail:</sys:String>
+    <sys:String x:Key="L.Thumb.CtrlClick">Ctrl + click a thumbnail:</sys:String>
+    <sys:String x:Key="L.Thumb.HighlightOverridesGroup">Active client keeps the highlight color inside a colored group</sys:String>
     <sys:String x:Key="L.Thumb.InactiveBorder">Inactive Border (px):</sys:String>
     <sys:String x:Key="L.Thumb.InactiveBorderColor">Inactive Border Color:</sys:String>
     <sys:String x:Key="L.Thumb.BgColor">Background Color:</sys:String>

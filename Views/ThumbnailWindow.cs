@@ -103,6 +103,9 @@ public class ThumbnailWindow : Form
     /// <summary>Raised from the Audio submenu. code: -1 = mute, 0..100 = set volume %.</summary>
     public event Action<ThumbnailWindow, int>? AudioRequested;
 
+    /// <summary>Raised by the right-click "Close client" item (#115).</summary>
+    public event Action<ThumbnailWindow>? CloseClientRequested;
+
     /// <summary>When this character's alerts are muted: the moment the snooze ends,
     /// DateTime.MaxValue for an indefinite mute, or null when not muted. Set by
     /// ThumbnailManager; read by the context menu to show remaining time.</summary>
@@ -206,6 +209,13 @@ public class ThumbnailWindow : Form
         _audioMenu.DropDownItems.Add(fullItem);
 
         _contextMenu.Items.Add(_audioMenu);
+
+        // Last and below a separator, away from the everyday items: it ends the client.
+        _contextMenu.Items.Add(new ToolStripSeparator());
+        var closeItem = new ToolStripMenuItem();
+        CtxL(closeItem, "L.Ctx.CloseClient", "❌ Close client");
+        closeItem.Click += (_, _) => CloseClientRequested?.Invoke(this);
+        _contextMenu.Items.Add(closeItem);
     }
 
     /// <summary>Show the right-click context menu at the current cursor
@@ -624,9 +634,15 @@ public class ThumbnailWindow : Form
                 return;
             }
 
-            if (User32.IsKeyDown(User32.VK_LCONTROL))
+            // Modifier+click actions are user-chosen (#115): Ctrl is also EVE's lock-target
+            // key, so a pilot holding it who clicked a thumbnail minimized the client.
+            var gs = Services.DiagnosticsService.GlobalSettings;
+            int action = User32.IsKeyDown(User32.VK_LCONTROL) ? gs?.CtrlClickAction ?? 1
+                : User32.IsKeyDown(User32.VK_LSHIFT) || User32.IsKeyDown(User32.VK_RSHIFT) ? gs?.ShiftClickAction ?? 2
+                : 0;
+            if (action == 1)
                 MinimizeRequested?.Invoke(this);
-            else if (User32.IsKeyDown(User32.VK_LSHIFT) || User32.IsKeyDown(User32.VK_RSHIFT))
+            else if (action == 2)
                 CycleExclusionRequested?.Invoke(this);  // Issue #16
             else
                 SwitchToEveClient();
@@ -882,6 +898,8 @@ public class ThumbnailWindow : Form
     public void UpdateFpsStats(double fps, bool visible) => _textOverlay?.UpdateFpsStats(fps, visible);
     public void SetProcessStatsTextSize(double fontSize) => _textOverlay?.SetProcessStatsTextSize(fontSize);
     public void SetAlertBadge(int count, string colorHex) => _textOverlay?.SetAlertBadge(count, colorHex);
+    public void SetAlertText(string? text, WpfColor color) => _textOverlay?.SetAlertText(text, color);
+    public void SetAlertTextPosition(string position) => _textOverlay?.SetAlertTextPosition(position);
 
     public int GetProcessId()
     {

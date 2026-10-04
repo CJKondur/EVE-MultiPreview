@@ -248,6 +248,7 @@ public partial class SettingsWindow
         S.QuickSwitchHotkey = TxtQuickSwitchHotkey.Text;
         S.UndoLayoutHotkey = TxtUndoLayoutHotkey.Text;
         S.RedoLayoutHotkey = TxtRedoLayoutHotkey.Text;
+        S.CloseAllClientsHotkey = TxtCloseAllClientsHotkey.Text;
         S.LockPositions = ChkLockPositions.IsChecked == true;
         S.ShowBroadcastKeyHud = ChkBroadcastHud.IsChecked == true;
         S.AutoSoloClientAudio = ChkAutoSoloAudio.IsChecked == true;
@@ -309,6 +310,8 @@ public partial class SettingsWindow
         {
             S.CycleExclusionBadgePosition = posTag;
         }
+        if (CmbCtrlClick.SelectedIndex >= 0) S.CtrlClickAction = CmbCtrlClick.SelectedIndex;
+        if (CmbShiftClick.SelectedIndex >= 0) S.ShiftClickAction = CmbShiftClick.SelectedIndex;
         S.HideActiveThumbnail = ChkHideActive.IsChecked == true;
         S.ShowSystemName = ChkShowSystem.IsChecked == true;
         S.ShowProcessStats = ChkShowStats.IsChecked == true;
@@ -323,6 +326,7 @@ public partial class SettingsWindow
         if (int.TryParse(TxtActiveBorderThickness.Text, out int abt)) S.ClientHighlightBorderThickness = abt;
         S.ShowClientHighlightBorder = ChkShowHighlightBorder.IsChecked == true;
         S.ShowAllColoredBorders = ChkShowAllBorders.IsChecked == true;
+        S.HighlightOverridesGroupColor = ChkHighlightOverridesGroup.IsChecked == true;
         // Sync the Groups tab checkbox
         _loadingDepth++;
         ChkShowGroupBorders.IsChecked = S.ShowAllColoredBorders;

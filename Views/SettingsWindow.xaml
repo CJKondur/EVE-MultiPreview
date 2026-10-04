@@ -398,6 +398,11 @@
                                 <TextBox x:Name="TxtRedoLayoutHotkey" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
                                 <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtRedoLayoutHotkey" Margin="4,0,0,0"/>
                             </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="{DynamicResource L.General.HkCloseAll}" Width="200" ToolTip="{DynamicResource L.Tt.CloseAllHotkey}"/>
+                                <TextBox x:Name="TxtCloseAllClientsHotkey" Width="120" TextChanged="OnGeneralChanged" GotFocus="OnHotkeyFieldGotFocus" LostFocus="OnHotkeyFieldLostFocus"/>
+                                <Button Content="⌨" Style="{StaticResource IconBtn}" Click="OnCaptureHotkey" Tag="TxtCloseAllClientsHotkey" Margin="4,0,0,0"/>
+                            </StackPanel>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="{DynamicResource L.General.Toggles}">
@@ -497,6 +502,24 @@
                                 <TextBlock Text="{DynamicResource L.Thumb.ExclusionNote}" VerticalAlignment="Center" Margin="8,0,0,0"
                                            Foreground="{StaticResource TextSecondaryBrush}" FontSize="10"/>
                             </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="{DynamicResource L.Thumb.CtrlClick}" Width="180"/>
+                                <ComboBox x:Name="CmbCtrlClick" Width="200" SelectionChanged="OnThumbnailChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White">
+                                    <ComboBoxItem Content="{DynamicResource L.Thumb.ClickSwitch}"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Thumb.ClickMinimize}"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Thumb.ClickExclude}"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3">
+                                <Label Content="{DynamicResource L.Thumb.ShiftClick}" Width="180"/>
+                                <ComboBox x:Name="CmbShiftClick" Width="200" SelectionChanged="OnThumbnailChanged"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White">
+                                    <ComboBoxItem Content="{DynamicResource L.Thumb.ClickSwitch}"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Thumb.ClickMinimize}"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Thumb.ClickExclude}"/>
+                                </ComboBox>
+                            </StackPanel>
                             <CheckBox x:Name="ChkAlwaysOnTop" Content="{DynamicResource L.Thumb.AlwaysOnTop}" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkAboveClients" Content="{DynamicResource L.Thumb.AboveClients}" ToolTip="{DynamicResource L.Tt.AboveClients}" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkHideOnLostFocus" Content="{DynamicResource L.Thumb.HideAltTab}" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
@@ -548,6 +571,8 @@
                             </StackPanel>
                             <CheckBox x:Name="ChkShowHighlightBorder" Content="{DynamicResource L.Thumb.ShowHighlightBorder}" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
                             <CheckBox x:Name="ChkShowAllBorders" Content="{DynamicResource L.Thumb.ShowAllBorders}" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"/>
+                            <CheckBox x:Name="ChkHighlightOverridesGroup" Content="{DynamicResource L.Thumb.HighlightOverridesGroup}" Checked="OnThumbnailChanged" Unchecked="OnThumbnailChanged"
+                                      IsEnabled="{Binding IsChecked, ElementName=ChkShowAllBorders}" Margin="20,2,0,0"/>
                             <StackPanel Orientation="Horizontal" Margin="0,3">
                                 <Label Content="{DynamicResource L.Thumb.InactiveBorder}" Width="160"/>
                                 <TextBox x:Name="TxtFrameThickness" Width="50" TextChanged="OnThumbnailChanged"/>
@@ -923,6 +948,26 @@
                             <CheckBox x:Name="ChkAlertBadgeOnThumbnails" Content="{DynamicResource L.Alerts.BadgeShow}" Checked="OnAlertChanged" Unchecked="OnAlertChanged"/>
                             <TextBlock Text="{DynamicResource L.Alerts.BadgeNote}"
                                        Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,8" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox x:Name="ChkAlertText" Content="{DynamicResource L.Alerts.TextShow}" Checked="OnAlertChanged" Unchecked="OnAlertChanged" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="CmbAlertTextPos" Width="140" Margin="12,0,0,0" SelectionChanged="OnAlertChanged"
+                                          IsEnabled="{Binding IsChecked, ElementName=ChkAlertText}"
+                                          Background="{StaticResource BgPanelBrush}" Foreground="White">
+                                    <ComboBoxItem Content="{DynamicResource L.Pos.TopLeft}" Tag="TopLeft"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Pos.Top}" Tag="Top"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Pos.TopRight}" Tag="TopRight"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Pos.Left}" Tag="Left"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Pos.Center}" Tag="Center"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Pos.Right}" Tag="Right"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Pos.BottomLeft}" Tag="BottomLeft"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Pos.Bottom}" Tag="Bottom"/>
+                                    <ComboBoxItem Content="{DynamicResource L.Pos.BottomRight}" Tag="BottomRight"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <TextBlock Text="{DynamicResource L.Alerts.TextNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="24,0,0,8" TextWrapping="Wrap"/>
+                            <TextBlock Text="{DynamicResource L.Alerts.EventRowsNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontSize="10" Margin="0,0,0,6" TextWrapping="Wrap"/>
                             <!-- Per-event rows built in code-behind -->
                             <StackPanel x:Name="AlertEventRows"/>
                         </StackPanel>

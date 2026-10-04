@@ -1606,6 +1606,23 @@ public sealed class LogMonitorService : IDisposable
             return;
         }
 
+        // ── Fleet warp / regroup ((notify) tag + localized template, #115) ──
+        // Fires on each client that actually took the FC's warp, so a pack with mixed
+        // skills shows at a glance which clients went and which were left behind.
+        if (line.Contains("(notify)"))
+        {
+            if (AlertPatterns.CaptureLast(line, "follow_warp_regex") != null)
+            {
+                TriggerAlert(character, "follow_warp", "warning");
+                return;
+            }
+            if (AlertPatterns.CaptureLast(line, "regroup_regex") != null)
+            {
+                TriggerAlert(character, "regroup", "warning");
+                return;
+            }
+        }
+
         // ── Fleet Invite from game log ((question) tag + localized body) ──
         // The reported Chinese line is kept as an ungated anchor (issue #86).
         if ((line.Contains("(question)") && AlertPatterns.Matches(line, "fleet_invite"))

@@ -92,7 +92,9 @@ dotnet publish -c Release -r win-x64 --self-contained false -o ./bin/Publish
 | Action | How |
 | --- | --- |
 | Switch to a client | Left-click its thumbnail |
-| Minimize a client | Ctrl + click its thumbnail |
+| Minimize a client | Ctrl + click its thumbnail (changeable in Settings → Thumbnails) |
+| Exclude a client from cycling | Shift + click its thumbnail (changeable in Settings → Thumbnails) |
+| Close (end) a client | Right-click its thumbnail → Close client |
 | Move a thumbnail | Right-click drag |
 | Move all thumbnails | Ctrl + right-click drag |
 | Resize all thumbnails | Hold both mouse buttons and drag |

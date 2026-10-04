@@ -592,6 +592,12 @@ public sealed class HotkeyService : IDisposable
             thumbnailManager.RedoLayout();
         });
 
+        StoreAhkHotkey(settings.CloseAllClientsHotkey, () =>
+        {
+            if (_suspended) return;
+            thumbnailManager.CloseAllClients();
+        });
+
         // Lock thumbnail positions toggle (issue #10)
         StoreAhkHotkey(settings.LockPositionsHotkey, () =>
         {

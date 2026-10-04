@@ -74,6 +74,12 @@ public class AppSettings
     // hook hides both halves, as AutoHotkey (EVE-X-Preview) does. Off = hook not
     // installed; RegisterHotKey alone, exactly the pre-2.3.38 behaviour.
     public bool HideHotkeyKeystrokes { get; set; } = true;
+
+    // What Ctrl+click / Shift+click on a thumbnail do (#115): 0 = switch to the client
+    // like a plain click, 1 = minimize it, 2 = toggle cycle exclusion. Defaults keep the
+    // EVE-X-style behaviour; Ctrl is also EVE's lock-target key, hence the choice.
+    public int CtrlClickAction { get; set; } = 1;
+    public int ShiftClickAction { get; set; } = 2;
     public string SuspendHotkey { get; set; } = "";
     public string ClickThroughHotkey { get; set; } = "";
     public string HideShowThumbnailsHotkey { get; set; } = "";
@@ -90,6 +96,8 @@ public class AppSettings
     // Optional global layout undo/redo hotkeys (empty = unbound; pick non-EVE keys).
     public string UndoLayoutHotkey { get; set; } = "";
     public string RedoLayoutHotkey { get; set; } = "";
+    // Ends every tracked EVE client process after one confirmation (#115).
+    public string CloseAllClientsHotkey { get; set; } = "";
     public bool HideStatsOnLostFocus { get; set; } = false;
     public bool IncludeLoginScreensInCycle { get; set; } = false;
     public bool ShowSessionTimer { get; set; } = false;
@@ -154,6 +162,16 @@ public class AppSettings
     /// `ShowAlertBadgeOnThumbnails` enabled while quieting specific events
     /// (e.g. only badge on Under Attack, never on Cargo Full).</summary>
     public Dictionary<string, bool> BadgeOnThumbnailAlertTypes { get; set; } = new();
+
+    // Per-event alert display, modelled on EVE-APM Preview (#115). Missing key = the
+    // severity default (critical/warning blink, info steady; 8/6/4 s).
+    public Dictionary<string, bool> AlertSolidBorder { get; set; } = new();  // true = steady, no blinking
+    public Dictionary<string, int> AlertDurations { get; set; } = new();     // seconds; 0 = until you switch to that client
+
+    /// <summary>Write what happened ("Warp scrambled", "Fleet warp") on the alerting
+    /// client's thumbnail, in the event's colour, for as long as its alert lasts (#115).</summary>
+    public bool ShowAlertTextOnThumbnails { get; set; } = true;
+    public string AlertTextPosition { get; set; } = "Bottom";   // one of the 9 anchors, like CycleExclusionBadgePosition
 
     public Dictionary<string, string> AlertColors { get; set; } = new();
     public Dictionary<string, string> AlertSounds { get; set; } = new();
@@ -338,6 +356,7 @@ public class AppSettings
     [JsonIgnore] public int ClientHighlightBorderThickness { get => _cp.ClientHighlightBorderThickness; set => _cp.ClientHighlightBorderThickness = value; }
     [JsonIgnore] public string ClientHighlightColor { get => _cp.ClientHighlightColor; set => _cp.ClientHighlightColor = value; }
     [JsonIgnore] public bool ShowClientHighlightBorder { get => _cp.ShowClientHighlightBorder; set => _cp.ShowClientHighlightBorder = value; }
+    [JsonIgnore] public bool HighlightOverridesGroupColor { get => _cp.HighlightOverridesGroupColor; set => _cp.HighlightOverridesGroupColor = value; }
     [JsonIgnore] public string ThumbnailTextFont { get => _cp.ThumbnailTextFont; set => _cp.ThumbnailTextFont = value; }
     [JsonIgnore] public string ThumbnailTextSize { get => _cp.ThumbnailTextSize; set => _cp.ThumbnailTextSize = value; }
     [JsonIgnore] public string ThumbnailTextColor { get => _cp.ThumbnailTextColor; set => _cp.ThumbnailTextColor = value; }
@@ -572,6 +591,9 @@ public class Profile
     public int ClientHighlightBorderThickness { get; set; } = 4;
     public string ClientHighlightColor { get; set; } = "#E36A0D";
     public bool ShowClientHighlightBorder { get; set; } = true;
+    // Group colours paint a group's active AND inactive clients alike, so the one you
+    // are in cannot be told apart at a glance. On = active client uses ClientHighlightColor (#115).
+    public bool HighlightOverridesGroupColor { get; set; } = false;
     public string ThumbnailTextFont { get; set; } = "Gill Sans MT";
     public string ThumbnailTextSize { get; set; } = "12";
     public string ThumbnailTextColor { get; set; } = "#FAC57A";
