@@ -339,6 +339,11 @@
                             <TextBlock Text="{DynamicResource L.General.PropagateKeysNote}"
                                        Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
                                        Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
+                            <CheckBox x:Name="ChkHideHeldKeys" Content="{DynamicResource L.General.HideHeldKeys}"
+                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
+                            <TextBlock Text="{DynamicResource L.General.HideHeldKeysNote}"
+                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
+                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="{DynamicResource L.General.SystemHotkeys}">

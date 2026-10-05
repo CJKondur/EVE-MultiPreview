@@ -1470,6 +1470,9 @@ public sealed class ThumbnailManager : IDisposable
             // client is already in the right band when it comes forward.
             ApplyClientTaskbarCover(hwnd);
 
+            // Before activation: a held key is released while the client being left is
+            // still in front, so the one we switch to never sees it (#115, opt-in).
+            Interop.User32.HideHeldKeysBeforeSwitch();
             Interop.User32.ActivateWindow(hwnd);
 
             // Paint the highlight NOW, for every way of switching (#112). Only group

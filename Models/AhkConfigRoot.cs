@@ -42,6 +42,7 @@ public class AhkConfigRoot
         s.HotkeyWildcardModifiers = g.HotkeyWildcardModifiers != 0;
         s.PropagateHeldModifiers = g.PropagateHeldModifiers != 0;
         s.PropagateHeldKeys = g.PropagateHeldKeys != 0;
+        s.HideHeldKeysOnSwitch = g.HideHeldKeysOnSwitch != 0;
         s.HideHotkeyKeystrokes = g.HideHotkeyKeystrokes != 0;
         s.CtrlClickAction = Math.Clamp(g.CtrlClickAction, 0, 2);
         s.ShiftClickAction = Math.Clamp(g.ShiftClickAction, 0, 2);
@@ -328,6 +329,7 @@ public class AhkConfigRoot
         g.HotkeyWildcardModifiers = s.HotkeyWildcardModifiers ? 1 : 0;
         g.PropagateHeldModifiers = s.PropagateHeldModifiers ? 1 : 0;
         g.PropagateHeldKeys = s.PropagateHeldKeys ? 1 : 0;
+        g.HideHeldKeysOnSwitch = s.HideHeldKeysOnSwitch ? 1 : 0;
         g.HideHotkeyKeystrokes = s.HideHotkeyKeystrokes ? 1 : 0;
         g.CtrlClickAction = s.CtrlClickAction;
         g.ShiftClickAction = s.ShiftClickAction;
@@ -926,11 +928,16 @@ public class AhkGlobalSettings
     [JsonPropertyName("HotkeyWildcardModifiers")]
     public int HotkeyWildcardModifiers { get; set; } = 1;
 
+    // Both default OFF since 2.3.42: a config that never saved these keys gets off;
+    // one that saved them keeps the user's value.
     [JsonPropertyName("PropagateHeldModifiers")]
-    public int PropagateHeldModifiers { get; set; } = 1;
+    public int PropagateHeldModifiers { get; set; }
 
     [JsonPropertyName("PropagateHeldKeys")]
-    public int PropagateHeldKeys { get; set; } = 1;
+    public int PropagateHeldKeys { get; set; }
+
+    [JsonPropertyName("HideHeldKeysOnSwitch")]
+    public int HideHeldKeysOnSwitch { get; set; }
 
     [JsonPropertyName("HideHotkeyKeystrokes")]
     public int HideHotkeyKeystrokes { get; set; } = 1;

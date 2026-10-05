@@ -406,10 +406,15 @@ public sealed class HotkeyService : IDisposable
                 fail++;
             }
         }
-        if (_appSettings?.HideHotkeyKeystrokes != false && hiddenSlots.Count > 0)
+        // One keyboard hook serves both kinds of hiding: hotkey keystrokes, and keys still
+        // held across a switch (#115).
+        bool hideHotkeys = _appSettings?.HideHotkeyKeystrokes != false && hiddenSlots.Count > 0;
+        bool hideHeld = _appSettings?.HideHeldKeysOnSwitch == true;
+        if (hideHotkeys || hideHeld)
         {
             EnsureKeyHook();
-            _keyHookMap = hiddenSlots;
+            _keyHookMap = hideHotkeys ? hiddenSlots : null;
+            User32.HeldKeyHidingReady = hideHeld;
         }
         else
         {
@@ -1297,6 +1302,7 @@ public sealed class HotkeyService : IDisposable
     private void RemoveKeyHook()
     {
         _keyHookMap = null;
+        User32.HeldKeyHidingReady = false;   // nothing left to swallow the repeats / release
         if (_keyHookThread == null) return;
         if (_keyHookThreadId != 0)
             User32.PostThreadMessage(_keyHookThreadId, User32.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
@@ -1341,6 +1347,10 @@ public sealed class HotkeyService : IDisposable
             if ((kb.flags & LLKHF_INJECTED) == 0)
             {
                 uint vk = kb.vkCode;
+                // A key still held across a client switch, hidden from the client we
+                // switched to until it is released (#115). Checked first: its async state
+                // already reads "up", which the fresh-press test below would misread.
+                if (User32.ConsumeHiddenHeldKey(vk, (kb.flags & LLKHF_UP) != 0)) return (IntPtr)1;
                 if ((kb.flags & LLKHF_UP) != 0)
                 {
                     // Hide the release of a press we hid. Any other release is not ours.

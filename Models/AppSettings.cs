@@ -54,19 +54,24 @@ public class AppSettings
     // OFF registers the exact combination only, so Ctrl+V passes through.
     public bool HotkeyWildcardModifiers { get; set; } = true;
 
-    // Carry a held Ctrl/Shift/Alt into the client you switch to (#108). ON is the
-    // 2.3.30+ behaviour and is what makes hold-Ctrl-and-lock work across a cycle on
-    // most setups. On some it does not help AND the synthetic key events appear to
-    // interfere with a modifier the client can already see, so it can be turned off
-    // to get the pre-2.3.30 behaviour of leaving the physically-held key alone.
-    public bool PropagateHeldModifiers { get; set; } = true;
+    // Carry a held Ctrl/Shift/Alt into the client you switch to (#108). ON is what
+    // makes hold-Ctrl-and-lock work across a cycle on most setups. On some it does not
+    // help AND the synthetic key events appear to interfere with a modifier the client
+    // can already see. OFF by default since 2.3.42 (opt-in): the physically-held key
+    // is left alone, as before 2.3.30.
+    public bool PropagateHeldModifiers { get; set; } = false;
 
     // Carry held NON-modifier keys (letters, digits, F-keys, Enter, Space, mouse
-    // buttons) into the client you switch to (#112). ON is the long-standing
-    // behaviour (hold F1 and cycle to fire it on each client). OFF for players who
-    // tap a module key and switch before releasing it: the carried press activates
-    // the module on the next client and their own press then toggles it back off.
-    public bool PropagateHeldKeys { get; set; } = true;
+    // buttons) into the client you switch to (#112): hold F1 and cycle to fire it on
+    // each client. OFF by default since 2.3.42 (opt-in): a module key tapped just
+    // before a switch would otherwise fire on the next client, and the player's own
+    // press then toggles it back off.
+    public bool PropagateHeldKeys { get; set; } = false;
+
+    // Hide a key still held across a switch from the client you land on (#115): its
+    // release otherwise counts there as a tap - held A (align) made the next client
+    // align to its selected item. Ordinary keys only; overrides PropagateHeldKeys.
+    public bool HideHeldKeysOnSwitch { get; set; } = false;
 
     // Hide a hotkey's whole keystroke from the clients (#108). RegisterHotKey swallows
     // the key-down but lets the key-UP through to whatever is foreground - after a

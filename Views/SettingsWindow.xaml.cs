@@ -303,6 +303,7 @@ public partial class SettingsWindow : Window
             ChkHotkeyWildcard.IsChecked = S.HotkeyWildcardModifiers;
             ChkPropagateModifiers.IsChecked = S.PropagateHeldModifiers;
             ChkPropagateKeys.IsChecked = S.PropagateHeldKeys;
+            ChkHideHeldKeys.IsChecked = S.HideHeldKeysOnSwitch;
             ChkHideHotkeyKeystrokes.IsChecked = S.HideHotkeyKeystrokes;
             TxtSuspendHotkey.Text = S.SuspendHotkey;
             TxtClickThroughHotkey.Text = S.ClickThroughHotkey;
@@ -831,6 +832,8 @@ public partial class SettingsWindow : Window
             "EVE's overview instead of acting.\n\n" +
             "Carry Held Keys to the Next Client\n" +
             "────────────────────────────\n" +
+            "Both are off by default; turn on what\n" +
+            "you need.\n" +
             "• Ctrl / Shift / Alt — a held modifier\n" +
             "  follows you, so holding Ctrl to lock\n" +
             "  keeps working after a switch.\n" +
@@ -842,6 +845,18 @@ public partial class SettingsWindow : Window
             "  key you have not released yet fires on\n" +
             "  the next client and your own press\n" +
             "  then turns it back off.\n\n" +
+            "Hide Held Keys From the Next Client\n" +
+            "────────────────────────────\n" +
+            "Off by default. Letters, numbers,\n" +
+            "F-keys, Enter and Space still down when\n" +
+            "you switch are released in the client\n" +
+            "you leave and kept from the one you land\n" +
+            "on until you let go — so holding A\n" +
+            "(align) or S (warp) can't make the next\n" +
+            "client align or warp. Takes priority\n" +
+            "over carrying other keys. Ctrl / Shift /\n" +
+            "Alt are never hidden (that would break\n" +
+            "hotkeys like Ctrl+TAB).\n\n" +
             "Suspend Hotkeys\n" +
             "────────────────────────────\n" +
             "Press this key combo to temporarily\n" +

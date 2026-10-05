@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -466,7 +467,7 @@ public static class User32
     {
         var keys = new List<string>();
         // Carrying held keys is off (#112): nothing would be broadcast, so the HUD stays idle.
-        if (EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.PropagateHeldKeys == false) return keys;
+        if (EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.PropagateHeldKeys != true) return keys;
         void AddIf(int vk, string name)
         {
             if (CycleKeysToIgnore.Contains(vk)) return;
@@ -518,6 +519,66 @@ public static class User32
         return SendInput(1, inputs, Marshal.SizeOf<INPUT>());
     }
 
+    /// <summary>The ordinary (non-modifier) keys a switch carries or hides: Enter, Space,
+    /// 0-9, A-Z (EVE's click keys: A align, S warp, D dock, Q approach…) and F1-F24.</summary>
+    private static readonly int[] OrdinaryHeldKeys =
+        new[] { 0x0D, 0x20 }
+        .Concat(Enumerable.Range(0x30, 10))    // 0-9
+        .Concat(Enumerable.Range(0x41, 26))    // A-Z
+        .Concat(Enumerable.Range(0x70, 24))    // F1-F24
+        .ToArray();
+
+    // ── Hide still-held keys from the client you switch to (#115) ──────
+    // An EVE key still down when you switch is seen held by the client you land on,
+    // and its release then counts there as a tap: holding A to align on one client
+    // and switching made the NEXT client align to whatever its overview had selected.
+    // This releases the key in the client you LEAVE and swallows its leftover
+    // auto-repeats and its real release, so the new client never sees it at all.
+    private static readonly ConcurrentDictionary<uint, byte> _hiddenHeldKeys = new();
+
+    /// <summary>Set by HotkeyService while its keyboard hook is running with the option on:
+    /// without the hook the leftover repeats and release would reach the new client anyway.</summary>
+    public static volatile bool HeldKeyHidingReady;
+
+    /// <summary>Call BEFORE activating the next client.</summary>
+    public static void HideHeldKeysBeforeSwitch()
+    {
+        if (!HeldKeyHidingReady) return;
+        var released = new List<int>();
+        foreach (var vk in OrdinaryHeldKeys)
+        {
+            if (CycleKeysToIgnore.Contains(vk) || !IsKeyDown(vk)) continue;
+            _hiddenHeldKeys[(uint)vk] = 0;   // first, so no real repeat slips in between
+            if (SendInputScan(vk, keyUp: true) == 0)
+            {
+                // Refused (e.g. EVE elevated): the key is still logically down, and
+                // swallowing its real release would leave it stuck down system-wide.
+                _hiddenHeldKeys.TryRemove((uint)vk, out _);
+                continue;
+            }
+            released.Add(vk);
+        }
+        if (released.Count == 0) return;
+        // The injected release must be delivered while the OLD client is still in front,
+        // or the new one receives it - the very tap this exists to prevent. The async key
+        // state flips once Windows has routed it, so wait for that (normally < 1 ms).
+        for (int i = 0; i < 30 && released.Any(IsKeyDown); i++)
+            System.Threading.Thread.Sleep(1);
+        EveMultiPreview.Services.DiagnosticsService.LogInjection(
+            $"[HideHeldKeys] released before switch: {string.Join(",", released.Select(k => $"0x{k:X}"))}");
+    }
+
+    /// <summary>Keyboard-hook side: true = swallow this REAL keystroke. A hidden key's
+    /// repeats are swallowed until its real release, which is swallowed too and ends it.
+    /// If that release never arrives (taken by other software), the next real press and
+    /// release of the key are swallowed once and the entry clears itself.</summary>
+    public static bool ConsumeHiddenHeldKey(uint vk, bool keyUp)
+    {
+        if (!_hiddenHeldKeys.ContainsKey(vk)) return false;
+        if (keyUp) _hiddenHeldKeys.TryRemove(vk, out _);
+        return true;
+    }
+
     public static void FixTargetHeldKeys(IntPtr hwnd)
     {
         uint WM_KEYDOWN = 0x0100;
@@ -528,25 +589,12 @@ public static class User32
             EveMultiPreview.Services.DiagnosticsService.LogInjection(msg);
         }
 
-        List<int> keysToCheck = new List<int>
-        {
-            0x0D, // Enter
-            0x20  // Space
-        };
-
-        // 0 to 9 (0x30 - 0x39)
-        for (int i = 0x30; i <= 0x39; i++) keysToCheck.Add(i);
-        // A to Z (0x41 - 0x5A) — includes navigation keys (D=dock, Q=approach, W=warp, etc.)
         // Re-injected so held actions carry across client switches (matches AHK behavior).
-        for (int i = 0x41; i <= 0x5A; i++) keysToCheck.Add(i);
-        // F1 to F12 (0x70 - 0x7B)
-        for (int i = 0x70; i <= 0x7B; i++) keysToCheck.Add(i);
-        // F13 to F24 (0x7C - 0x87)
-        for (int i = 0x7C; i <= 0x87; i++) keysToCheck.Add(i);
+        var keysToCheck = OrdinaryHeldKeys;
 
-        // Opt-out (#112): off = only held modifiers cross a switch; letters, digits,
-        // F-keys, Enter, Space and mouse buttons are left alone.
-        bool carryKeys = EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.PropagateHeldKeys != false;
+        // Opt-in since 2.3.42 (#112): off = letters, digits, F-keys, Enter, Space and
+        // mouse buttons are left alone on a switch.
+        bool carryKeys = EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.PropagateHeldKeys == true;
 
         List<int> pressedKeys = new List<int>();
         foreach (var vk in keysToCheck)
@@ -569,11 +617,11 @@ public static class User32
         // PostMessage alone fixes that; adding SendInput would mutate global
         // modifier state for no gain and risk a system-wide stuck Ctrl.
         List<int> heldModifiers = new List<int>();
-        // Opt-out (#108): on some setups the client already sees the physically-held
-        // modifier and these synthetic events do not help - and the re-press briefly
-        // releases it, which may be worse than doing nothing. Off = pre-2.3.30
-        // behaviour: leave a held modifier entirely alone.
-        if (EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.PropagateHeldModifiers != false)
+        // Opt-in since 2.3.42 (#108): on some setups the client already sees the
+        // physically-held modifier and these synthetic events do not help - and the
+        // re-press briefly releases it, which may be worse than doing nothing. Off =
+        // pre-2.3.30 behaviour: leave a held modifier entirely alone.
+        if (EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.PropagateHeldModifiers == true)
         {
             foreach (var mod in new[] { 0x10, 0x11, 0x12 })   // Shift, Ctrl, Alt
             {

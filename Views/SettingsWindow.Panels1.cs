@@ -236,6 +236,7 @@ public partial class SettingsWindow
         S.HotkeyWildcardModifiers = ChkHotkeyWildcard.IsChecked == true;
         S.PropagateHeldModifiers = ChkPropagateModifiers.IsChecked == true;
         S.PropagateHeldKeys = ChkPropagateKeys.IsChecked == true;
+        S.HideHeldKeysOnSwitch = ChkHideHeldKeys.IsChecked == true;
         S.HideHotkeyKeystrokes = ChkHideHotkeyKeystrokes.IsChecked == true;
         S.SuspendHotkey = TxtSuspendHotkey.Text;
         S.ClickThroughHotkey = TxtClickThroughHotkey.Text;
