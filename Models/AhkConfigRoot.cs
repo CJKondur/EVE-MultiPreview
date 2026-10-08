@@ -72,6 +72,8 @@ public class AhkConfigRoot
         s.CycleWhileHeld = g.CycleWhileHeld != 0;
         s.MinimizeDelay = g.MinimizeDelay;
         s.SimpleMode = g.SimpleMode != 0;
+        s.UseLegacySettingsWindow = g.UseLegacySettingsWindow != 0;
+        s.SettingsHelpOpen = g.SettingsHelpOpen != 0;
         s.SetupCompleted = true; // Always bypass the First-Run wizard for migrated AHK users
         // StartupSettings: clamp to known values; unknown/missing → Off
         s.StartupSettings = g.StartupSettings switch
@@ -359,6 +361,8 @@ public class AhkConfigRoot
         g.CycleWhileHeld = s.CycleWhileHeld ? 1 : 0;
         g.MinimizeDelay = s.MinimizeDelay;
         g.SimpleMode = s.SimpleMode ? 1 : 0;
+        g.UseLegacySettingsWindow = s.UseLegacySettingsWindow ? 1 : 0;
+        g.SettingsHelpOpen = s.SettingsHelpOpen ? 1 : 0;
         g.SetupCompleted = s.SetupCompleted ? 1 : 0;
         g.StartupSettings = (int)s.StartupSettings;
         g.LastUsedProfile = s.LastUsedProfile;
@@ -1022,6 +1026,12 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("SimpleMode")]
     public int SimpleMode { get; set; }
+
+    [JsonPropertyName("UseLegacySettingsWindow")]
+    public int UseLegacySettingsWindow { get; set; } = 1;
+
+    [JsonPropertyName("SettingsHelpOpen")]
+    public int SettingsHelpOpen { get; set; } = 0;
 
     [JsonPropertyName("SetupCompleted")]
     public int SetupCompleted { get; set; }
