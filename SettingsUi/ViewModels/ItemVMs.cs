@@ -139,7 +139,7 @@ public sealed class SettingVM : ItemVM
 
     private void CaptureHotkey()
     {
-        var result = Ctx.Host.CaptureHotkey(HotkeyUses.IdOf(D),D.Get(Ctx.S) as string);
+        var result = Ctx.Host.CaptureHotkey(HotkeyUses.IdOf(D), D.Get(Ctx.S) as string);
         if (result != null) Commit(result);
     }
 

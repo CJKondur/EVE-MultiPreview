@@ -108,6 +108,7 @@ public sealed class ShellVM : ObservableObject, IDisposable
             _ctx.S.SimpleMode = value;
             _ctx.Applier.Request(ApplyScope.Save);
             if (value && Home != null) Show(Home, null);
+            else Current?.Refresh();   // ShowIf-gated items (the Simple banner on Home) follow the mode now
             RaiseAll();
         }
     }

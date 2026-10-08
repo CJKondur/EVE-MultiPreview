@@ -42,6 +42,10 @@ public static class SearchIndex
                             foreach (var a in r.Actions)
                                 Add(list, SearchKind.Action, resolve(a.LabelKey), english(a.LabelKey), path, page.Id, r.Id);
                             break;
+                        case EditorItem e:
+                            Add(list, SearchKind.Setting, resolve(e.LabelKey),
+                                Join(english(e.LabelKey), resolve(e.LabelKey + ".Desc"), sectionTitle), path, page.Id, e.Id);
+                            break;
                     }
                 }
             }

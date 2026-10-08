@@ -26,7 +26,8 @@ public sealed class HomeTilesEditor : System.Windows.Controls.UserControl, IRefr
     public IReadOnlyList<string> Names { get; private set; } = Array.Empty<string>();
 
     private string Signature() =>
-        string.Join("\n", CharacterDirectory.Running(_ctx).Select(n => n + "|" + CharacterStores.SystemOf(_ctx, n)));
+        string.Join("\n", CharacterDirectory.Running(_ctx).Select(n =>
+            n + "|" + CharacterStores.SystemOf(_ctx, n) + "|" + CharacterStores.IsShown(_ctx.S, n) + "|" + CharacterStores.HotkeyOf(_ctx.S, n)));
 
     public void Refresh()
     {

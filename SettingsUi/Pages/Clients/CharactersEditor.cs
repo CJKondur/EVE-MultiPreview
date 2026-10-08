@@ -36,7 +36,7 @@ public sealed class CharactersEditor : System.Windows.Controls.UserControl, IRef
         buttons.Margin = new Thickness(0, 12, 0, 0);
         stack.Children.Add(buttons);
         Content = EditorCard.Frame(stack);
-        LiveRefresh.Attach(this, () => { if (Signature() != _signature) Refresh(); });
+        LiveRefresh.Attach(this, () => RefreshIfChanged());
         Refresh();
     }
 
@@ -48,8 +48,19 @@ public sealed class CharactersEditor : System.Windows.Controls.UserControl, IRef
     private string Signature()
     {
         var running = CharacterDirectory.Running(_ctx);
-        return string.Join("\n", CharacterDirectory.Known(_ctx.S, running).Select(n => n + "|" + CharacterStores.SystemOf(_ctx, n)))
+        return string.Join("\n", CharacterDirectory.Known(_ctx.S, running).Select(n =>
+                   n + "|" + CharacterStores.SystemOf(_ctx, n) + "|" + CharacterStores.IsShown(_ctx.S, n) + "|"
+                   + CharacterStores.IsInCycle(_ctx, n) + "|" + CharacterStores.HotkeyOf(_ctx.S, n) + "|"
+                   + string.Join(",", CharacterStores.GroupsOf(_ctx.S, n))))
                + "\n" + string.Join(",", running);
+    }
+
+    /// <summary>The 2 s poll: redraws only when a row's state changed outside this window. Public for tests.</summary>
+    public bool RefreshIfChanged()
+    {
+        if (Signature() == _signature) return false;
+        Refresh();
+        return true;
     }
 
     public void Refresh()

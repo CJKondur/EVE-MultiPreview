@@ -900,7 +900,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">'{0}' is already on the list.</sys:String>
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Colours</sys:String>
     <sys:String x:Key="L.S.clients.characters.customColors">Use per-character colours</sys:String>
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Each character's own border and text colours, set on its page. Off: every character uses the Thumbnails colours.</sys:String>
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Each character's own border colours, set on its page. Off: every character uses the Thumbnails colours.</sys:String>
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Clicking thumbnails</sys:String>
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Ctrl+click on a thumbnail</sys:String>
     <sys:String x:Key="L.S.clients.characters.shiftClick">Shift+click on a thumbnail</sys:String>
@@ -911,7 +911,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">The character list</sys:String>
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Hotkey** switches straight to that character. Click it to record a key.&#x0A;- **Show** hides or shows its thumbnail.&#x0A;- **Cycle** leaves it out of the next and previous client keys until MultiPreview restarts.&#x0A;- **›** opens the character's own page.&#x0A;&#x0A;Two characters can share a hotkey: pressing it switches between them.&#x0A;&#x0A;**Add all running clients** keeps your running characters on the list after they log out.</sys:String>
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Clicking thumbnails</sys:String>
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">A plain click switches to that client. **Ctrl+click** and **Shift+click** can minimize it or skip it when cycling instead. Ctrl is also EVE's lock-target key, so pick what suits how you play.&#x0A;&#x0A;**Use per-character colours** turns on the border and text colours you set on each character's page.</sys:String>
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">A plain click switches to that client. **Ctrl+click** and **Shift+click** can minimize it or skip it when cycling instead. Ctrl is also EVE's lock-target key, so pick what suits how you play.&#x0A;&#x0A;**Use per-character colours** turns on the border colours you set on each character's page.</sys:String>
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Character</sys:String>
     <sys:String x:Key="L.S.Page.character.Desc">Everything MultiPreview keeps for this character, in one place.</sys:String>
@@ -1053,7 +1053,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts">Keys used twice</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">Updates as you change keys. Characters that share a key on purpose aren't listed.</sys:String>
     <sys:String x:Key="L.S.Conflicts.None">No conflicts: every key does one thing.</sys:String>
-    <sys:String x:Key="L.S.Conflicts.Count">{0} key conflict(s). Only one of each pair runs when you press the key. Click one to change it.</sys:String>
+    <sys:String x:Key="L.S.Conflicts.Count">{0} key(s) are used twice. Pick a different key for one of each pair.</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.Intro">Keys that switch clients and control MultiPreview, and how they behave. The conflict check at the bottom shows keys that do two things.</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">Where hotkeys work</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**Everywhere** catches your hotkeys whatever app is in front, so a key pressed in a browser still switches clients. **Only while EVE is in front** leaves the keys alone in other apps.&#x0A;&#x0A;**Hotkeys work while Ctrl, Shift or Alt is held** matters if you hold Ctrl to lock targets. Turn it off if a one-key hotkey stops Ctrl+V or Ctrl+C reaching EVE.&#x0A;&#x0A;**Hide hotkeys from EVE** stops the client you switch to from seeing the key you pressed.</sys:String>

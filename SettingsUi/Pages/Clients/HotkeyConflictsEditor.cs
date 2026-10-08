@@ -48,7 +48,7 @@ public sealed class HotkeyConflictsEditor : System.Windows.Controls.UserControl,
         foreach (var clash in Clashes)
         {
             var row = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
-            var key = EditorCard.Value(HotkeyText.ToDisplay(clash.Key));
+            var key = EditorCard.Value(clash.KeyText);
             key.SetResourceReference(TextBlock.FontFamilyProperty, "Fx.MonoFont");
             key.Margin = new Thickness(0, 0, 12, 0);
             row.Children.Add(key);

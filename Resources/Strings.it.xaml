@@ -922,7 +922,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">«{0}» è già nell'elenco.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Colori</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">Usa colori per personaggio</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">I colori di bordo e testo propri di ogni personaggio, impostati nella sua pagina. Disattivato: tutti i personaggi usano i colori delle miniature.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">I colori di bordo propri di ogni personaggio, impostati nella sua pagina. Disattivato: tutti i personaggi usano i colori delle miniature.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Clic sulle miniature</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Ctrl+clic su una miniatura</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">Maiusc+clic su una miniatura</sys:String> <!-- draft -->
@@ -933,7 +933,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">L'elenco dei personaggi</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Scorciatoia** passa direttamente a quel personaggio. Fai clic per registrare un tasto.&#x0A;- **Mostra** nasconde o mostra la sua miniatura.&#x0A;- **Ciclo** lo esclude dai tasti client successivo e precedente fino al riavvio di MultiPreview.&#x0A;- **›** apre la pagina del personaggio.&#x0A;&#x0A;Due personaggi possono condividere una scorciatoia: premendola si passa dall'uno all'altro.&#x0A;&#x0A;**Aggiungi tutti i client in esecuzione** mantiene in elenco i tuoi personaggi attivi dopo la disconnessione.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Clic sulle miniature</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Un clic semplice passa a quel client. **Ctrl+clic** e **Maiusc+clic** possono invece ridurlo a icona o saltarlo nel ciclo. Ctrl è anche il tasto di blocco bersaglio di EVE, quindi scegli ciò che si adatta al tuo modo di giocare.&#x0A;&#x0A;**Usa colori per personaggio** attiva i colori di bordo e testo impostati nella pagina di ogni personaggio.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Un clic semplice passa a quel client. **Ctrl+clic** e **Maiusc+clic** possono invece ridurlo a icona o saltarlo nel ciclo. Ctrl è anche il tasto di blocco bersaglio di EVE, quindi scegli ciò che si adatta al tuo modo di giocare.&#x0A;&#x0A;**Usa colori per personaggio** attiva i colori di bordo impostati nella pagina di ogni personaggio.</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Personaggio</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">Tutto ciò che MultiPreview conserva per questo personaggio, in un unico posto.</sys:String> <!-- draft -->
@@ -1074,7 +1074,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts">Tasti usati due volte</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">Si aggiorna mentre cambi i tasti. I personaggi che condividono un tasto di proposito non sono elencati.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">Nessun conflitto: ogni tasto fa una sola cosa.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Conflicts.Count">{0} conflitto/i di tasti. Per ogni coppia ne viene eseguito solo uno quando premi il tasto. Fai clic su uno per cambiarlo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Conflicts.Count">{0} tasto/i usato/i due volte. Scegli un tasto diverso per uno di ogni coppia.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.Intro">Tasti che cambiano client e controllano MultiPreview, e come si comportano. Il controllo dei conflitti in fondo mostra i tasti che fanno due cose.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">Dove funzionano le scorciatoie</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**Ovunque** intercetta le tue scorciatoie qualunque app sia in primo piano, quindi un tasto premuto in un browser cambia comunque client. **Solo con EVE in primo piano** lascia stare i tasti nelle altre app.&#x0A;&#x0A;**Le scorciatoie funzionano con Ctrl, Maiusc o Alt premuto** conta se tieni premuto Ctrl per bloccare i bersagli. Disattivalo se una scorciatoia a un tasto impedisce a Ctrl+V o Ctrl+C di raggiungere EVE.&#x0A;&#x0A;**Nascondi le scorciatoie a EVE** impedisce al client a cui passi di vedere il tasto premuto.</sys:String> <!-- draft -->

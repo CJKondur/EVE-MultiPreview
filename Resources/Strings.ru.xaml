@@ -924,7 +924,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">«{0}» уже есть в списке.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Цвета</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">Цвета для каждого персонажа</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Собственные цвета рамки и текста каждого персонажа, задаются на его странице. Выкл.: все персонажи используют цвета миниатюр.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Собственные цвета рамки каждого персонажа, задаются на его странице. Выкл.: все персонажи используют цвета миниатюр.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Щелчки по миниатюрам</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Ctrl+щелчок по миниатюре</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">Shift+щелчок по миниатюре</sys:String> <!-- draft -->
@@ -935,7 +935,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">Список персонажей</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Горячая клавиша** сразу переключает на этого персонажа. Нажмите на неё, чтобы записать клавишу.&#x0A;- **Показ** скрывает или показывает его миниатюру.&#x0A;- **Цикл** исключает его из клавиш следующего и предыдущего клиента до перезапуска MultiPreview.&#x0A;- **›** открывает страницу персонажа.&#x0A;&#x0A;Два персонажа могут делить одну клавишу: нажатие переключает между ними.&#x0A;&#x0A;**Добавить все запущенные клиенты** оставляет запущенных персонажей в списке и после выхода из игры.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Щелчки по миниатюрам</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Обычный щелчок переключает на этот клиент. **Ctrl+щелчок** и **Shift+щелчок** могут вместо этого свернуть его или пропустить при переключении. Ctrl также служит в EVE клавишей захвата цели, так что выбирайте то, что подходит вашему стилю игры.&#x0A;&#x0A;**Цвета для каждого персонажа** включают цвета рамки и текста, заданные на странице каждого персонажа.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Обычный щелчок переключает на этот клиент. **Ctrl+щелчок** и **Shift+щелчок** могут вместо этого свернуть его или пропустить при переключении. Ctrl также служит в EVE клавишей захвата цели, так что выбирайте то, что подходит вашему стилю игры.&#x0A;&#x0A;**Цвета для каждого персонажа** включают цвета рамки, заданные на странице каждого персонажа.</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Персонаж</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">Всё, что MultiPreview хранит об этом персонаже, в одном месте.</sys:String> <!-- draft -->
@@ -1076,7 +1076,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts">Клавиши, используемые дважды</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">Обновляется по мере изменения клавиш. Персонажи, намеренно делящие клавишу, не перечисляются.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">Конфликтов нет: каждая клавиша делает одно дело.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Conflicts.Count">Конфликтов клавиш: {0}. При нажатии выполняется только одно из каждой пары. Нажмите на одно, чтобы изменить.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Conflicts.Count">Клавиш, используемых дважды: {0}. Выберите другую клавишу для одной из каждой пары.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.Intro">Клавиши, которые переключают клиенты и управляют MultiPreview, и как они работают. Проверка конфликтов внизу показывает клавиши, делающие два дела.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">Где работают горячие клавиши</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**Везде** перехватывает ваши горячие клавиши в любом приложении на переднем плане, так что клавиша, нажатая в браузере, всё равно переключает клиенты. **Только когда EVE на переднем плане**: клавиши не трогаются в других приложениях.&#x0A;&#x0A;**Горячие клавиши работают при зажатых Ctrl, Shift или Alt** важно, если вы держите Ctrl для захвата целей. Отключите, если горячая клавиша из одной кнопки не даёт Ctrl+V или Ctrl+C дойти до EVE.&#x0A;&#x0A;**Скрывать горячие клавиши от EVE** не даёт клиенту, на который вы переключились, увидеть нажатую клавишу.</sys:String> <!-- draft -->

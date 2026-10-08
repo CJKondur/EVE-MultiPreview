@@ -5,8 +5,15 @@ using EveMultiPreview.Services;
 
 namespace EveMultiPreview.SettingsUi;
 
-/// <summary>Two uses that fire on the same key. Key is the first use's hotkey string.</summary>
-public sealed record HotkeyClash(string Key, HotkeyUse First, HotkeyUse Second);
+/// <summary>Two uses whose keys collide. Key is the first use's hotkey string.</summary>
+public sealed record HotkeyClash(string Key, HotkeyUse First, HotkeyUse Second)
+{
+    /// <summary>The key to show: both when the two uses' keys differ (wildcard modifiers), e.g. "A / Ctrl + A".</summary>
+    public string KeyText =>
+        string.Equals(First.Hotkey.Trim(), Second.Hotkey.Trim(), StringComparison.OrdinalIgnoreCase)
+            ? HotkeyText.ToDisplay(First.Hotkey)
+            : HotkeyText.ToDisplay(First.Hotkey) + " / " + HotkeyText.ToDisplay(Second.Hotkey);
+}
 
 /// <summary>The conflict check (spec §5, replaces the Hotkey Conflict Audit), with the capture
 /// dialog's clash rule.</summary>

@@ -11,8 +11,11 @@ public static class HotkeyCapture
     /// Alt+F4 or an exception.</summary>
     public static string? Run(HotkeyService? hotkeys, Func<string?> showDialog)
     {
-        hotkeys?.BeginCapture();
-        try { return showDialog(); }
+        try
+        {
+            hotkeys?.BeginCapture();   // inside the try: it raises the depth first, so a throw part-way still gets its EndCapture
+            return showDialog();
+        }
         finally { hotkeys?.EndCapture(); }
     }
 }

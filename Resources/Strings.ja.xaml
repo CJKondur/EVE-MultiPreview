@@ -905,7 +905,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">「{0}」はすでにリストにあります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">キャラクターごとの色を使う</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">各キャラクターのページで設定した枠線と文字の色を使います。オフ：すべてのキャラクターがサムネイルの色を使います。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">各キャラクターのページで設定した枠線の色を使います。オフ：すべてのキャラクターがサムネイルの色を使います。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">サムネイルのクリック</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">サムネイルを Ctrl+クリック</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">サムネイルを Shift+クリック</sys:String> <!-- draft -->
@@ -916,7 +916,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">キャラクター一覧</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **ホットキー**は、そのキャラクターに直接切り替えます。クリックしてキーを記録します。&#x0A;- **表示**は、サムネイルの表示と非表示を切り替えます。&#x0A;- **巡回**は、MultiPreview を再起動するまで、次・前のクライアントキーの対象から外します。&#x0A;- **›** は、そのキャラクター専用のページを開きます。&#x0A;&#x0A;2 人のキャラクターで 1 つのホットキーを共有できます。押すと両者の間で切り替わります。&#x0A;&#x0A;**起動中のクライアントをすべて追加**すると、ログアウト後も起動中のキャラクターがリストに残ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">サムネイルのクリック</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">通常のクリックはそのクライアントに切り替えます。**Ctrl+クリック**と **Shift+クリック**では、代わりに最小化したり、巡回時にスキップしたりできます。Ctrl は EVE のターゲットロックキーでもあるので、プレイスタイルに合うものを選んでください。&#x0A;&#x0A;**キャラクターごとの色を使う**を有効にすると、各キャラクターのページで設定した枠線と文字の色が使われます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">通常のクリックはそのクライアントに切り替えます。**Ctrl+クリック**と **Shift+クリック**では、代わりに最小化したり、巡回時にスキップしたりできます。Ctrl は EVE のターゲットロックキーでもあるので、プレイスタイルに合うものを選んでください。&#x0A;&#x0A;**キャラクターごとの色を使う**を有効にすると、各キャラクターのページで設定した枠線の色が使われます。</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">キャラクター</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">このキャラクターについて MultiPreview が保存している内容をまとめて表示します。</sys:String> <!-- draft -->
@@ -1057,7 +1057,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts">2 回使われているキー</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">キーを変更するたびに更新されます。意図的にキーを共有しているキャラクターは表示されません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">競合なし: どのキーも 1 つの動作だけです。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Conflicts.Count">キーの競合が {0} 件あります。キーを押すと、各ペアのうち 1 つだけが実行されます。クリックして変更してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Conflicts.Count">{0} 個のキーが二重に使われています。各ペアの一方に別のキーを選んでください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.Intro">クライアントの切り替えや MultiPreview の操作に使うキーと、その動作です。下の競合チェックでは、2 つの動作に使われているキーが分かります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">ホットキーが有効な場所</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**どこでも**は、どのアプリが最前面でもホットキーを拾うので、ブラウザでキーを押してもクライアントが切り替わります。**EVE が最前面のときだけ**は、他のアプリではキーに干渉しません。&#x0A;&#x0A;**Ctrl、Shift、Alt を押している間もホットキーを有効にする**は、Ctrl を押してターゲットをロックする人に重要です。1 キーのホットキーのせいで Ctrl+V や Ctrl+C が EVE に届かない場合はオフにしてください。&#x0A;&#x0A;**ホットキーを EVE から隠す**は、切り替え先のクライアントに押したキーが見えないようにします。</sys:String> <!-- draft -->

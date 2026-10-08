@@ -17,16 +17,19 @@ public sealed class VolumeEditor : System.Windows.Controls.UserControl, IRefresh
     public VolumeEditor(SettingsContext ctx)
     {
         _ctx = ctx;
-        LiveRefresh.Attach(this, () => { if (string.Join("\n", CharacterDirectory.Running(_ctx)) != _signature) Refresh(); });
+        LiveRefresh.Attach(this, () => { if (Signature(CharacterDirectory.Running(_ctx)) != _signature) Refresh(); });
         Refresh();
     }
 
     public IReadOnlyList<string> Names { get; private set; } = Array.Empty<string>();
 
+    private string Signature(IEnumerable<string> names) =>
+        string.Join("\n", names.Select(n => n + "|" + CharacterFields.Volume(_ctx.S, n)));
+
     public void Refresh()
     {
         Names = CharacterDirectory.Running(_ctx);
-        _signature = string.Join("\n", Names);
+        _signature = Signature(Names);
         var rows = new StackPanel();
         if (Names.Count == 0) rows.Children.Add(EditorCard.Note("L.S.clients.audio.volume.Empty"));
         foreach (var name in Names) rows.Children.Add(Row(name));
@@ -39,8 +42,8 @@ public sealed class VolumeEditor : System.Windows.Controls.UserControl, IRefresh
         readout.MinWidth = 48;
         var slider = new Slider
         {
-            Minimum = 0, Maximum = 100, Width = 220, TickFrequency = 5, IsSnapToTickEnabled = true,
-            SmallChange = 5, LargeChange = 5, Value = CharacterFields.Volume(_ctx.S, name),
+            Minimum = 0, Maximum = 100, Width = 220, TickFrequency = 1, IsSnapToTickEnabled = true,
+            SmallChange = 1, LargeChange = 5, Value = CharacterFields.Volume(_ctx.S, name),
             VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 12, 0),
         };
         void Show(double v) => readout.Text = ((int)Math.Round(v)) + SettingsContext.Str("L.S.Unit.Percent");
@@ -51,6 +54,7 @@ public sealed class VolumeEditor : System.Windows.Controls.UserControl, IRefresh
             Show(v);
             if (_ctx.Services.Thumbnails is { } tm) tm.SetClientVolume(name, v);   // stores, saves, sets the running client
             else { CharacterFields.SetVolume(_ctx.S, name, v); _ctx.Applier.Request(ApplyScope.Save); }
+            _signature = Signature(Names);   // our own write must not trigger a redraw mid-drag
         };
         var grid = new Grid { Margin = new Thickness(0, 4, 0, 4) };
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });

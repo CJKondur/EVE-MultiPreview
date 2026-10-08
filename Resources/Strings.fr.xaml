@@ -907,7 +907,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">« {0} » est déjà dans la liste.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Couleurs</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">Utiliser des couleurs par personnage</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Les couleurs de bordure et de texte propres à chaque personnage, réglées sur sa page. Désactivé : tous les personnages utilisent les couleurs des miniatures.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Les couleurs de bordure propres à chaque personnage, réglées sur sa page. Désactivé : tous les personnages utilisent les couleurs des miniatures.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Clic sur les miniatures</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Ctrl+clic sur une miniature</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">Maj+clic sur une miniature</sys:String> <!-- draft -->
@@ -918,7 +918,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">La liste des personnages</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Raccourci** bascule directement vers ce personnage. Cliquez dessus pour enregistrer une touche.&#x0A;- **Afficher** masque ou affiche sa miniature.&#x0A;- **Cycle** l'exclut des touches client suivant et précédent jusqu'au redémarrage de MultiPreview.&#x0A;- **›** ouvre la page du personnage.&#x0A;&#x0A;Deux personnages peuvent partager un raccourci : l'appuyer bascule alors de l'un à l'autre.&#x0A;&#x0A;**Ajouter tous les clients en cours** garde vos personnages actifs dans la liste après leur déconnexion.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Clic sur les miniatures</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Un simple clic bascule vers ce client. **Ctrl+clic** et **Maj+clic** peuvent plutôt le réduire ou le sauter dans le cycle. Ctrl est aussi la touche de verrouillage de cible d'EVE, choisissez donc ce qui convient à votre façon de jouer.&#x0A;&#x0A;**Utiliser des couleurs par personnage** active les couleurs de bordure et de texte définies sur la page de chaque personnage.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Un simple clic bascule vers ce client. **Ctrl+clic** et **Maj+clic** peuvent plutôt le réduire ou le sauter dans le cycle. Ctrl est aussi la touche de verrouillage de cible d'EVE, choisissez donc ce qui convient à votre façon de jouer.&#x0A;&#x0A;**Utiliser des couleurs par personnage** active les couleurs de bordure définies sur la page de chaque personnage.</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Personnage</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">Tout ce que MultiPreview conserve pour ce personnage, au même endroit.</sys:String> <!-- draft -->
@@ -1059,7 +1059,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts">Touches utilisées deux fois</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">Se met à jour quand vous changez les touches. Les personnages qui partagent une touche volontairement ne sont pas listés.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">Aucun conflit : chaque touche fait une seule chose.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Conflicts.Count">{0} conflit(s) de touches. Un seul de chaque paire s'exécute quand vous appuyez sur la touche. Cliquez sur l'un pour le modifier.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Conflicts.Count">{0} touche(s) utilisée(s) deux fois. Choisissez une autre touche pour l'une de chaque paire.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.Intro">Les touches qui changent de client et pilotent MultiPreview, et leur comportement. La vérification des conflits en bas montre les touches qui font deux choses.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">Où fonctionnent les raccourcis</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**Partout** capte vos raccourcis quelle que soit l'application au premier plan, donc une touche pressée dans un navigateur change quand même de client. **Seulement quand EVE est au premier plan** laisse les touches tranquilles dans les autres applications.&#x0A;&#x0A;**Les raccourcis fonctionnent avec Ctrl, Maj ou Alt maintenu** compte si vous maintenez Ctrl pour verrouiller des cibles. Désactivez si un raccourci à une touche empêche Ctrl+V ou Ctrl+C d'atteindre EVE.&#x0A;&#x0A;**Cacher les raccourcis à EVE** empêche le client vers lequel vous passez de voir la touche pressée.</sys:String> <!-- draft -->

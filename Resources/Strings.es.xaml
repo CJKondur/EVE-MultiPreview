@@ -926,7 +926,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">«{0}» ya está en la lista.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Colores</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">Usar colores por personaje</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Los colores de borde y texto propios de cada personaje, definidos en su página. Desactivado: todos los personajes usan los colores de las miniaturas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Los colores de borde propios de cada personaje, definidos en su página. Desactivado: todos los personajes usan los colores de las miniaturas.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Clic en las miniaturas</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Ctrl+clic en una miniatura</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">Mayús+clic en una miniatura</sys:String> <!-- draft -->
@@ -937,7 +937,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">La lista de personajes</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Atajo** cambia directamente a ese personaje. Haz clic para grabar una tecla.&#x0A;- **Mostrar** oculta o muestra su miniatura.&#x0A;- **Ciclo** lo deja fuera de las teclas de cliente siguiente y anterior hasta que MultiPreview se reinicie.&#x0A;- **›** abre la página del personaje.&#x0A;&#x0A;Dos personajes pueden compartir un atajo: al pulsarlo se alterna entre ellos.&#x0A;&#x0A;**Añadir todos los clientes en ejecución** mantiene a tus personajes activos en la lista después de que cierren sesión.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Clic en las miniaturas</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Un clic normal cambia a ese cliente. **Ctrl+clic** y **Mayús+clic** pueden minimizarlo o saltarlo al alternar. Ctrl también es la tecla de fijar objetivo de EVE, así que elige lo que mejor se adapte a tu forma de jugar.&#x0A;&#x0A;**Usar colores por personaje** activa los colores de borde y texto que defines en la página de cada personaje.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Un clic normal cambia a ese cliente. **Ctrl+clic** y **Mayús+clic** pueden minimizarlo o saltarlo al alternar. Ctrl también es la tecla de fijar objetivo de EVE, así que elige lo que mejor se adapte a tu forma de jugar.&#x0A;&#x0A;**Usar colores por personaje** activa los colores de borde que defines en la página de cada personaje.</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Personaje</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">Todo lo que MultiPreview guarda de este personaje, en un solo lugar.</sys:String> <!-- draft -->
@@ -1078,7 +1078,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts">Teclas usadas dos veces</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">Se actualiza al cambiar teclas. Los personajes que comparten tecla a propósito no aparecen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">Sin conflictos: cada tecla hace una sola cosa.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Conflicts.Count">{0} conflicto(s) de teclas. Solo se ejecuta uno de cada par al pulsar la tecla. Haz clic en uno para cambiarlo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Conflicts.Count">{0} tecla(s) usada(s) dos veces. Elige otra tecla para una de cada par.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.Intro">Teclas que cambian de cliente y controlan MultiPreview, y cómo se comportan. La comprobación de conflictos de abajo muestra las teclas que hacen dos cosas.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">Dónde funcionan los atajos</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**En todas partes** captura tus atajos sea cual sea la aplicación en primer plano, así que una tecla pulsada en un navegador sigue cambiando de cliente. **Solo con EVE en primer plano** deja las teclas en paz en otras aplicaciones.&#x0A;&#x0A;**Los atajos funcionan con Ctrl, Mayús o Alt pulsado** importa si mantienes Ctrl para fijar objetivos. Desactívalo si un atajo de una tecla impide que Ctrl+V o Ctrl+C lleguen a EVE.&#x0A;&#x0A;**Ocultar los atajos a EVE** evita que el cliente al que cambias vea la tecla que pulsaste.</sys:String> <!-- draft -->

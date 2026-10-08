@@ -183,7 +183,7 @@ public static class CharacterPage
             (s, v) => CharacterFields.SetVolume(s, name, (int)Math.Round(Convert.ToDouble(v, CultureInfo.InvariantCulture))),
             binds: new[] { "AppSettings.PerClientAudioVolume" }) with
         {
-            Min = 0, Max = 100, Step = 5, UnitKey = "L.S.Unit.Percent",
+            Min = 0, Max = 100, Step = 1, UnitKey = "L.S.Unit.Percent",
             // Sets the running client's volume now (and stores the same value).
             OnChanged = ctx => ctx.Services.Thumbnails?.SetClientVolume(name, CharacterFields.Volume(ctx.S, name)),
         }),

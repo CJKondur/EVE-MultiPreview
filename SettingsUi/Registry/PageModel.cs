@@ -76,4 +76,7 @@ public sealed record EditorItem(string Id, Func<SettingsContext, FrameworkElemen
     public IReadOnlyList<string> Replaces { get; init; } = Array.Empty<string>();
     /// <summary>The editor shows only while this returns true (spec §6 conditional rows).</summary>
     public Func<AppSettings, bool>? ShowIf { get; init; }
+    /// <summary>Search indexes the editor under this label key; null = its card title "L.S.{Id}".</summary>
+    public string? SearchLabelKey { get; init; }
+    public string LabelKey => SearchLabelKey ?? "L.S." + Id;
 }

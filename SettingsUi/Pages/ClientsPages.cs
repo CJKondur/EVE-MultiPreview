@@ -171,6 +171,7 @@ public static class ClientsPages
         {
             new EditorItem("clients.groups.editor", ctx => new GroupsEditor(ctx))
             {
+                SearchLabelKey = "L.S.clients.groups.new",
                 Binds = new[] { "AppSettings.ThumbnailGroups", "AppSettings.HotkeyGroups" },
                 Replaces = new[]
                 {

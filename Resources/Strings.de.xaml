@@ -904,7 +904,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">„{0}“ steht schon in der Liste.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Farben</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">Farben pro Charakter verwenden</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Rahmen- und Textfarben jedes Charakters, eingestellt auf seiner Seite. Aus: Alle Charaktere nutzen die Farben der Vorschaubilder.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Rahmenfarben jedes Charakters, eingestellt auf seiner Seite. Aus: Alle Charaktere nutzen die Farben der Vorschaubilder.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Klick auf Vorschaubilder</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Strg+Klick auf ein Vorschaubild</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">Umschalt+Klick auf ein Vorschaubild</sys:String> <!-- draft -->
@@ -915,7 +915,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">Die Charakterliste</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Hotkey** wechselt direkt zu diesem Charakter. Klicke darauf, um eine Taste aufzunehmen.&#x0A;- **Anzeigen** blendet sein Vorschaubild ein oder aus.&#x0A;- **Wechsel** nimmt ihn bis zum Neustart von MultiPreview aus den Tasten für nächsten und vorherigen Client heraus.&#x0A;- **›** öffnet die eigene Seite des Charakters.&#x0A;&#x0A;Zwei Charaktere können sich einen Hotkey teilen: Er wechselt dann zwischen ihnen.&#x0A;&#x0A;**Alle laufenden Clients hinzufügen** behält deine laufenden Charaktere in der Liste, auch nach dem Abmelden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Klick auf Vorschaubilder</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Ein einfacher Klick wechselt zu diesem Client. **Strg+Klick** und **Umschalt+Klick** können ihn stattdessen minimieren oder beim Wechseln überspringen. Strg ist auch die Ziel-sperren-Taste von EVE, wähle also, was zu deinem Spielstil passt.&#x0A;&#x0A;**Farben pro Charakter verwenden** aktiviert die Rahmen- und Textfarben, die du auf der Seite jedes Charakters festlegst.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Ein einfacher Klick wechselt zu diesem Client. **Strg+Klick** und **Umschalt+Klick** können ihn stattdessen minimieren oder beim Wechseln überspringen. Strg ist auch die Ziel-sperren-Taste von EVE, wähle also, was zu deinem Spielstil passt.&#x0A;&#x0A;**Farben pro Charakter verwenden** aktiviert die Rahmenfarben, die du auf der Seite jedes Charakters festlegst.</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Charakter</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">Alles, was MultiPreview zu diesem Charakter speichert, an einem Ort.</sys:String> <!-- draft -->
@@ -975,7 +975,7 @@
     <sys:String x:Key="L.S.character.statsDamage">Schaden</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsLogi">Reparaturen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsMining">Bergbau</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.character.statsRatting">Ratten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.statsRatting">Ratting</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.StatsDefault">Standard</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.StatsOn">An</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.StatsOff">Aus</sys:String> <!-- draft -->
@@ -1056,7 +1056,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts">Doppelt belegte Tasten</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">Aktualisiert sich, wenn du Tasten änderst. Charaktere, die absichtlich eine Taste teilen, werden nicht aufgeführt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">Keine Konflikte: Jede Taste macht eine Sache.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Conflicts.Count">{0} Tastenkonflikt(e). Von jedem Paar läuft nur eines, wenn du die Taste drückst. Klicke eines an, um es zu ändern.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Conflicts.Count">{0} Taste(n) doppelt belegt. Wähle für eines jedes Paars eine andere Taste.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.Intro">Tasten, die Clients wechseln und MultiPreview steuern, und wie sie sich verhalten. Die Konfliktprüfung unten zeigt Tasten mit zwei Aufgaben.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">Wo Hotkeys funktionieren</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**Überall** fängt deine Hotkeys ab, egal welche App vorn ist, sodass eine Taste im Browser trotzdem Clients wechselt. **Nur wenn EVE im Vordergrund ist** lässt die Tasten in anderen Apps in Ruhe.&#x0A;&#x0A;**Hotkeys funktionieren bei gehaltenem Strg, Umschalt oder Alt** ist wichtig, wenn du Strg zum Sperren von Zielen hältst. Schalte es aus, wenn ein Ein-Tasten-Hotkey Strg+V oder Strg+C daran hindert, EVE zu erreichen.&#x0A;&#x0A;**Hotkeys vor EVE verbergen** verhindert, dass der Client, zu dem du wechselst, die gedrückte Taste sieht.</sys:String> <!-- draft -->

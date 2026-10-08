@@ -922,7 +922,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">“{0}”已在列表中。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">颜色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">使用每个角色的专属颜色</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">每个角色在其页面中设置的专属边框和文字颜色。关闭：所有角色使用缩略图的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">每个角色在其页面中设置的专属边框颜色。关闭：所有角色使用缩略图的颜色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">点击缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">按住 Ctrl 点击缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">按住 Shift 点击缩略图</sys:String> <!-- draft -->
@@ -933,7 +933,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">角色列表</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **热键**直接切换到该角色。点击它即可录制按键。&#x0A;- **显示**隐藏或显示它的缩略图。&#x0A;- **轮换**在 MultiPreview 重启前，将其排除在下一个和上一个客户端按键之外。&#x0A;- **›** 打开该角色自己的页面。&#x0A;&#x0A;两个角色可以共用一个热键：按下后会在它们之间切换。&#x0A;&#x0A;**添加所有运行中的客户端**会让正在运行的角色在下线后仍保留在列表中。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">点击缩略图</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">普通点击会切换到该客户端。**Ctrl+点击**和 **Shift+点击**可以改为将其最小化或在轮换时跳过。Ctrl 也是 EVE 的锁定目标键，请选择适合你游戏方式的选项。&#x0A;&#x0A;**使用每个角色的专属颜色**会启用你在每个角色页面中设置的边框和文字颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">普通点击会切换到该客户端。**Ctrl+点击**和 **Shift+点击**可以改为将其最小化或在轮换时跳过。Ctrl 也是 EVE 的锁定目标键，请选择适合你游戏方式的选项。&#x0A;&#x0A;**使用每个角色的专属颜色**会启用你在每个角色页面中设置的边框颜色。</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">MultiPreview 为此角色保存的所有内容,集中在一处。</sys:String> <!-- draft -->
@@ -1074,7 +1074,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts">被重复使用的按键</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">随着你更改按键而更新。有意共用一个按键的角色不会列出。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">没有冲突：每个按键只做一件事。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Conflicts.Count">{0} 个按键冲突。按下该键时，每对中只有一个会执行。点击其中一个进行更改。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Conflicts.Count">{0} 个按键被重复使用。请为每对中的一个换用其他按键。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.Intro">用于切换客户端和控制 MultiPreview 的按键，以及它们的行为。底部的冲突检查会显示同时做两件事的按键。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">热键在哪里生效</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**任何位置**无论哪个应用位于前台都会捕获你的热键，因此在浏览器中按键仍会切换客户端。**仅在 EVE 位于前台时**不会影响其他应用中的按键。&#x0A;&#x0A;如果你按住 Ctrl 锁定目标，**按住 Ctrl、Shift 或 Alt 时热键仍然有效**就很重要。如果单键热键使 Ctrl+V 或 Ctrl+C 无法到达 EVE，请关闭它。&#x0A;&#x0A;**对 EVE 隐藏热键**可防止你切换到的客户端看到你按下的键。</sys:String> <!-- draft -->
