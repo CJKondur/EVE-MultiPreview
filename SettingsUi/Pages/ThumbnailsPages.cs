@@ -17,7 +17,7 @@ public static class ThumbnailsPages
     /// <summary>The page the character page's crop link opens.</summary>
     public const string CropsId = CharacterPage.CropsPageId;
 
-    public static IReadOnlyList<PageDef> All => new[] { Appearance(), Text() };
+    public static IReadOnlyList<PageDef> All => new[] { Appearance(), Text(), Layout() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -39,6 +39,13 @@ public static class ThumbnailsPages
             "thumbs.text.inactiveColor", "thumbs.text.inactiveWidth", "thumbs.text.groupBorders",
         }),
         new HelpTopic(TextId, "marks", new[] { "thumbs.text.badgePosition" }),
+        new HelpTopic(LayoutId, "screens", new[]
+        {
+            "thumbs.layout.monitor", "thumbs.layout.identifyRow", "thumbs.layout.startX", "thumbs.layout.startY",
+            "thumbs.layout.startWidth", "thumbs.layout.startHeight",
+        }),
+        new HelpTopic(LayoutId, "lining", new[] { "thumbs.layout.snap", "thumbs.layout.snapDistance", "thumbs.layout.confine", "thumbs.layout.lock" }),
+        new HelpTopic(LayoutId, "history", new[] { "thumbs.layout.history" }),
     };
 
     private static SettingItem Toggle(string id, Expression<Func<AppSettings, bool>> prop, ApplyScope apply, params string[] replaces) =>
@@ -212,4 +219,56 @@ public static class ThumbnailsPages
             }),
         }),
     });
+
+    private static PageDef Layout() => new(LayoutId, NavGroup.Thumbnails, new[]
+    {
+        new SectionDef("thumbs.layout.screens", new PageItem[]
+        {
+            // Home's editor again (MultiPreview's own 1-based order); it repaints thumbnails.
+            new EditorItem("thumbs.layout.monitor", ctx => new MonitorPickerEditor(ctx, "thumbs.layout.monitor"))
+            {
+                Binds = new[] { "AppSettings.PreferredMonitor" },
+                Replaces = new[] { "CmbPreferredMonitor" },
+            },
+            new ActionRow("thumbs.layout.identifyRow", new[]
+            {
+                // Shows a badge on every real monitor for 2.5 s: never run it in a test.
+                new ActionDef("thumbs.layout.identify", _ => MonitorIdentify.Show(MonitorBadge)) { Replaces = new[] { "OnIdentifyMonitors" } },
+            }),
+        }),
+        new SectionDef("thumbs.layout.newThumbnails", new PageItem[]
+        {
+            // Used for a thumbnail with no saved place (a new client, Reset); a re-apply moves those at once.
+            Number("thumbs.layout.startX", s => s.ThumbnailStartLocation.X, -10000, 10000, ApplyScope.Thumbnails, "TxtStartX"),
+            Number("thumbs.layout.startY", s => s.ThumbnailStartLocation.Y, -10000, 10000, ApplyScope.Thumbnails, "TxtStartY"),
+            Number("thumbs.layout.startWidth", s => s.ThumbnailStartLocation.Width, CharacterSize.Min, CharacterSize.Max, ApplyScope.Thumbnails, "TxtThumbWidth"),
+            Number("thumbs.layout.startHeight", s => s.ThumbnailStartLocation.Height, CharacterSize.Min, CharacterSize.Max, ApplyScope.Thumbnails, "TxtThumbHeight"),
+        }),
+        new SectionDef("thumbs.layout.lining", new PageItem[]
+        {
+            // Read when a drag ends: Save is enough.
+            Toggle("thumbs.layout.snap", s => s.ThumbnailSnap, ApplyScope.Save, "ChkSnap"),
+            // TxtGutter set ThumbnailGutter, which nothing reads since snapping went flush-only (a parity exclusion).
+            new SettingItem(Setting.Number("thumbs.layout.snapDistance", s => s.ThumbnailSnapDistance, 1, 200, "L.S.Unit.Px") with
+            {
+                ShowIf = s => s.ThumbnailSnap,
+                Replaces = new[] { "TxtSnapDistance", "TxtGutter" },
+            }),
+            // ReapplySettings passes these to every thumbnail (lock also to second thumbnails and stats windows).
+            Toggle("thumbs.layout.confine", s => s.ConfineDragsToMonitor, ApplyScope.Thumbnails, "ChkConfineMonitor"),
+            Toggle("thumbs.layout.lock", s => s.LockPositions, ApplyScope.Thumbnails, "ChkLockPositions"),
+        }),
+        new SectionDef("thumbs.layout.undo", new PageItem[]
+        {
+            new EditorItem("thumbs.layout.history", ctx => new LayoutHistoryEditor(ctx))
+            {
+                Replaces = new[] { "OnUndoLayout", "OnRedoLayout", "OnResetThumbnailPositions" },
+            },
+        }),
+    });
+
+    /// <summary>"Monitor 2" (and "(primary)" below it) on Identify's badges, in the settings language.</summary>
+    private static string MonitorBadge(int number, bool primary) =>
+        string.Format(SettingsContext.Str("L.S.Monitor.Badge"), number)
+        + (primary ? "\n" + SettingsContext.Str("L.S.Monitor.Primary") : "");
 }
