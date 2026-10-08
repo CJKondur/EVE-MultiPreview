@@ -57,21 +57,27 @@ public static class ThumbnailFields
     public static bool TryWhole(string? text, out int value)
     {
         var t = text?.Trim() ?? "";
-        return int.TryParse(t, NumberStyles.Integer | Grouping(t, CultureInfo.CurrentCulture), CultureInfo.CurrentCulture, out value)
-            || int.TryParse(t, NumberStyles.Integer | Grouping(t, CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, out value);
+        var current = Grouped(t, CultureInfo.CurrentCulture, out var currentStyle);
+        var invariant = Grouped(t, CultureInfo.InvariantCulture, out var invariantStyle);
+        return int.TryParse(current, NumberStyles.Integer | currentStyle, CultureInfo.CurrentCulture, out value)
+            || int.TryParse(invariant, NumberStyles.Integer | invariantStyle, CultureInfo.InvariantCulture, out value);
     }
 
     /// <summary>AllowThousands only when the text really is grouped: every group after the first is exactly three digits
     /// and the integer part ends there or at the decimal separator. .NET doesn't check group sizes, so "1.5" would
     /// otherwise read as 15 in de-DE. The one rule for every number box.</summary>
-    public static NumberStyles Grouping(string text, CultureInfo culture)
+    public static string Grouped(string text, CultureInfo culture, out NumberStyles style)
     {
+        style = NumberStyles.None;
         var sep = culture.NumberFormat.NumberGroupSeparator;
-        if (sep.Length == 0 || !text.Contains(sep, StringComparison.Ordinal)) return NumberStyles.None;
+        // fr groups with U+202F and ru with U+00A0, but players type a plain space: all three spaces are one separator.
+        if (sep.Length == 1 && sep[0] is ' ' or ' ' or ' ')
+            text = text.Replace(' ', sep[0]).Replace(' ', sep[0]).Replace(' ', sep[0]);
+        if (sep.Length == 0 || !text.Contains(sep, StringComparison.Ordinal)) return text;
         var s = System.Text.RegularExpressions.Regex.Escape(sep);
         var d = System.Text.RegularExpressions.Regex.Escape(culture.NumberFormat.NumberDecimalSeparator);
-        return System.Text.RegularExpressions.Regex.IsMatch(text, $@"^[+-]?\d{{1,3}}({s}\d{{3}})+($|{d})")
-            ? NumberStyles.AllowThousands : NumberStyles.None;
+        if (System.Text.RegularExpressions.Regex.IsMatch(text, $@"^[+-]?\d{{1,3}}({s}\d{{3}})+($|{d})")) style = NumberStyles.AllowThousands;
+        return text;
     }
 
     // ── The nine anchor points (CycleExclusionBadgePosition; Plan 3c reuses them for AlertTextPosition) ──
