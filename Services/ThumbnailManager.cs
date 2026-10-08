@@ -4087,6 +4087,7 @@ public sealed class ThumbnailManager : IDisposable
         thumb.AudioRequested -= OnAudioRequested;
         thumb.CloseClientRequested -= OnCloseClientRequested;
         thumb.SettingsRequested -= OnSettingsRequested;
+        thumb.SystemLookup = null;
     }
 
     private void OnCycleExclusionRequested(ThumbnailWindow thumb)

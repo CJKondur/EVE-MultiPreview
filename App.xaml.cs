@@ -526,7 +526,7 @@ public partial class App : Application
             LogError(ex);
     }
 
-    private static void LogError(Exception ex)
+    internal static void LogError(Exception ex)
     {
         try
         {
@@ -700,7 +700,7 @@ public partial class App : Application
             SetSecondary = (name, on) =>
             {
                 // AHK: TrayMenu._TrayPiPToggle
-                var pips = _settings?.CurrentProfile.SecondaryThumbnails;
+                var pips = _settings?.Settings.SecondaryThumbnails;   // the list the tray shows reads the same source
                 if (pips == null || !pips.TryGetValue(name, out var pip)) return;
                 pip.IsEnabled = on;
                 if (on) _thumbnailManager?.CreateSecondaryForCharacter(name);
@@ -818,7 +818,8 @@ public partial class App : Application
             if (_settingsWindow.WindowState == WindowState.Minimized)
                 _settingsWindow.WindowState = WindowState.Normal;
 
-            SettingsUi.SettingsShell.OpenOn(_settingsWindow, pageId);   // already open: move it to the page, then to the front
+            try { SettingsUi.SettingsShell.OpenOn(_settingsWindow, pageId); }   // already open: move it to the page, then to the front
+            catch (Exception ex) { LogError(ex); }   // a failed navigation still brings the window forward
             _settingsWindow.Activate();
             SettingsDiag("Re-activated existing Settings window");
             return;
@@ -875,7 +876,6 @@ public partial class App : Application
                     AlertHub = _alertHub,
                 });
                 shell.SettingsApplied += applyLiveSettings;
-                SettingsUi.SettingsShell.OpenOn(shell, pageId);
                 opened = shell;
             }
             catch (Exception ex)
@@ -893,6 +893,9 @@ public partial class App : Application
             opened = legacy;
         }
         _settingsWindow = opened;
+        // After the try above: a failed navigation leaves the new window on its default page, not a hidden shell behind.
+        try { SettingsUi.SettingsShell.OpenOn(opened, pageId); }
+        catch (Exception ex) { LogError(ex); }
 
         // Set initial WindowState BEFORE Show() so WPF commits the restore rect
         // with the saved Width/Height already applied. Setting WindowState after

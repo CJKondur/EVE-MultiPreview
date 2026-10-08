@@ -101,12 +101,21 @@ public partial class UpdateDialog : Window
 
     private void OnReleaseNotes(object s, RoutedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(_updateService.ReleasePageUrl))
+        var url = _updateService.ReleasePageUrl;
+        if (!IsSafeReleaseUrl(url))
         {
-            try { Process.Start(new ProcessStartInfo(_updateService.ReleasePageUrl) { UseShellExecute = true }); }
-            catch { }
+            if (!string.IsNullOrEmpty(url)) App.LogError(new InvalidOperationException("Release page URL refused (not https://github.com): " + url));
+            return;
         }
+        try { Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true }); }
+        catch { }
     }
+
+    /// <summary>The URL comes from GitHub's JSON and is opened with shell execute: only an https github.com page is allowed.</summary>
+    public static bool IsSafeReleaseUrl(string? url) =>
+        Uri.TryCreate(url, UriKind.Absolute, out var u)
+        && u.Scheme == Uri.UriSchemeHttps
+        && string.Equals(u.Host, "github.com", StringComparison.OrdinalIgnoreCase);
 
     private void OnLater(object s, RoutedEventArgs e)
     {

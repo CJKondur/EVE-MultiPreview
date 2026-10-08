@@ -154,6 +154,7 @@ public class ThumbnailWindow : Form
         }
         catch (Exception ex)
         {
+            App.LogError(ex);   // Debug.WriteLine is compiled out in Release
             Debug.WriteLine($"[Thumb:ContextMenu] ⚠ Show failed: {ex.Message}");
         }
     }

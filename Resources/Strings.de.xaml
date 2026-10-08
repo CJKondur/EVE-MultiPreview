@@ -1880,7 +1880,7 @@
     <sys:String x:Key="L.Wiz.SumSize">Vorschaugröße: {0} × {1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOnFmt">Charakterauswahl-Durchlauf: an (vorwärts {0}, rückwärts {1})</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOff">Charakterauswahl-Durchlauf: aus</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Upd.ReadyFmt">Version {1} ist bereit. Sie haben {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ReadyFmt">Version {1} ist bereit. Du hast {0}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.WhatsNew">Neuigkeiten</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.NoNotes">Keine Versionshinweise verfügbar.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.ProgressFmt">Wird heruntergeladen… {0}</sys:String> <!-- draft -->

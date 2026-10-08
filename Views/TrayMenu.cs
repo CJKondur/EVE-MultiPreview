@@ -126,6 +126,14 @@ public sealed class TrayMenu : IDisposable
     /// <summary>Re-reads labels, check marks, hotkey hints and the two lists. Runs every time the menu opens.</summary>
     public void Refresh()
     {
+        // Runs on Strip.Opening, inside the NotifyIcon's WndProc: a throw here would reach Application.OnThreadException
+        // and WinForms' own modal Quit dialog.
+        try { RefreshCore(); }
+        catch (Exception ex) { App.LogError(ex); }
+    }
+
+    private void RefreshCore()
+    {
         foreach (var (item, key, english) in _labels) item.Text = LocalizationService.Str(key, english);
         var s = _a.Settings();
         _profiles.Text = string.Format(LocalizationService.Str("L.Tray.ProfileFmt", "Profile: {0}"), s?.LastUsedProfile ?? "");
@@ -162,7 +170,7 @@ public sealed class TrayMenu : IDisposable
 
     private void RebuildProfiles(AppSettings? s)
     {
-        _profiles.DropDownItems.Clear();
+        ClearAndDispose(_profiles);
         foreach (var name in _a.ProfileNames())
         {
             var item = new ToolStripMenuItem(name) { Name = TrayCommands.Profile, Checked = name == s?.LastUsedProfile };
@@ -179,7 +187,7 @@ public sealed class TrayMenu : IDisposable
     /// profile switch, never showed in it.</summary>
     private void RebuildSecondary(AppSettings? s)
     {
-        _secondary.DropDownItems.Clear();
+        ClearAndDispose(_secondary);
         foreach (var (name, pip) in s?.SecondaryThumbnails ?? new Dictionary<string, SecondaryThumbnailSettings>())
         {
             var item = new ToolStripMenuItem(name) { Name = TrayCommands.SecondaryCharacter, Checked = pip.IsEnabled };
@@ -188,6 +196,14 @@ public sealed class TrayMenu : IDisposable
             _secondary.DropDownItems.Add(item);
         }
         _secondary.Enabled = _secondary.DropDownItems.Count > 0;
+    }
+
+    /// <summary>Removes and disposes a submenu's old items. Never an item's Image: the glyph images are a shared cache.</summary>
+    private static void ClearAndDispose(ToolStripMenuItem menu)
+    {
+        var old = menu.DropDownItems.Cast<ToolStripItem>().ToList();
+        menu.DropDownItems.Clear();
+        foreach (var item in old) item.Dispose();
     }
 
     private ToolStripMenuItem Item(string name, string? key, string english, char? glyph, Action? click)
