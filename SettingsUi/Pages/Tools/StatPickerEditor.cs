@@ -88,7 +88,7 @@ public sealed class StatPickerEditor : System.Windows.Controls.UserControl, IRef
         }
         combo.SelectedIndex = StateOf(bit);
         combo.SelectionChanged += (_, _) => Set(bit, combo.SelectedIndex);
-        AutomationProperties.SetName(combo, SettingsContext.Str(m.LabelKey));
+        Loc.SetNameKey(combo, m.LabelKey);
         var label = new TextBlock { VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 12, 0) };
         label.SetResourceReference(StyleProperty, "Fx.Label");
         Loc.SetKey(label, m.LabelKey);

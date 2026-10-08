@@ -32,7 +32,7 @@ public sealed class StatMetricsEditor : System.Windows.Controls.UserControl, IRe
             {
                 var bit = m.Bit;
                 var toggle = EditorCard.Toggle(StatsFields.IsOn(_ctx.S.GlobalStatMetrics, bit), on => Set(bit, on));
-                AutomationProperties.SetName(toggle, SettingsContext.Str(m.LabelKey));
+                Loc.SetNameKey(toggle, m.LabelKey);
                 var label = new TextBlock { VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 12, 0) };
                 label.SetResourceReference(StyleProperty, "Fx.Label");
                 Loc.SetKey(label, m.LabelKey);

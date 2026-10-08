@@ -43,7 +43,7 @@ public sealed class ColorBlindEditor : System.Windows.Controls.UserControl, IRef
     {
         _ctx = ctx;
         _toggle = EditorCard.Toggle(ctx.S.ColorBlindMode, OnToggle);
-        AutomationProperties.SetName(_toggle, SettingsContext.Str("L.S.alerts.look.colorBlind"));
+        Loc.SetNameKey(_toggle, "L.S.alerts.look.colorBlind");
         Content = EditorCard.Build("alerts.look.colorBlind", _toggle);
     }
 

@@ -46,7 +46,7 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
         _accountTo = new EntryPicker("L.S.Eve.Targets", false, p => Model.Accounts(p));
         Loc.SetKey(_charToAll, "L.S.Eve.ToAllCharacters");
         Loc.SetKey(_accountToAll, "L.S.Eve.ToAllAccounts");
-        AutomationProperties.SetName(_accountName, Str("L.S.Eve.Label"));
+        Loc.SetNameKey(_accountName, "L.S.Eve.Label");
         _fetch = EditorCard.Button("L.S.Eve.FetchNames", FetchNames);
 
         var root = new StackPanel();
@@ -83,7 +83,7 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
     private static TextBox ReadOnlyBox(string nameKey)
     {
         var box = new TextBox { IsReadOnly = true, MinWidth = 320, VerticalContentAlignment = VerticalAlignment.Center };
-        AutomationProperties.SetName(box, Str(nameKey));
+        Loc.SetNameKey(box, nameKey);
         return box;
     }
 

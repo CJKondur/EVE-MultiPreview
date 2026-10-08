@@ -67,8 +67,8 @@ public sealed class CharacterSizeEditor : System.Windows.Controls.UserControl, I
         _name = name;
         _apply = EditorCard.Button("L.S.Act.character.applySize", Apply);
         _message.SetResourceReference(StyleProperty, "Fx.Error");
-        System.Windows.Automation.AutomationProperties.SetName(_width, SettingsContext.Str("L.S.Slot.W"));
-        System.Windows.Automation.AutomationProperties.SetName(_height, SettingsContext.Str("L.S.Slot.H"));
+        Loc.SetNameKey(_width, "L.S.Slot.W");
+        Loc.SetNameKey(_height, "L.S.Slot.H");
         Content = EditorCard.Build("character.size",
             EditorCard.Row(_width, EditorCard.Value("×"), _height, EditorCard.Note("L.S.Unit.Px"), _apply), _message);
         Refresh();

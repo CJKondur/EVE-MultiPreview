@@ -38,7 +38,7 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
     public CropsEditor(SettingsContext ctx)
     {
         _ctx = ctx;
-        AutomationProperties.SetName(_picker, Str("L.S.thumbs.crops.editor"));
+        Loc.SetNameKey(_picker, "L.S.thumbs.crops.editor");
         _picker.SelectionChanged += (_, _) =>
         {
             if (_loading || _picker.SelectedItem is not string name) return;
@@ -122,7 +122,7 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
 
         // Name, its label on the window, and the actions.
         var name = new TextBox { Text = def.Name, MinWidth = 180, VerticalContentAlignment = VerticalAlignment.Center };
-        AutomationProperties.SetName(name, Str("L.S.Crops.Name"));
+        Loc.SetNameKey(name, "L.S.Crops.Name");
         void CommitName()
         {
             var text = name.Text.Trim();
@@ -133,7 +133,7 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
         name.LostFocus += (_, _) => CommitName();
         name.KeyDown += (_, e) => { if (e.Key == Key.Enter) { CommitName(); e.Handled = true; } };
         var showName = EditorCard.Toggle(def.ShowLabel, on => { def.ShowLabel = on; Store(character, def); });
-        AutomationProperties.SetName(showName, Str("L.S.Crops.ShowName"));
+        Loc.SetNameKey(showName, "L.S.Crops.ShowName");
         Button? copy = null;
         copy = EditorCard.Button("L.S.Crops.CopyTo", () => ShowCopyMenu(copy!, character, def));
         var actions = EditorCard.Row(
@@ -162,7 +162,7 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
             IsSnapToTickEnabled = true, SmallChange = 5, LargeChange = 10, VerticalAlignment = VerticalAlignment.Center,
             Value = Math.Clamp(def.Opacity, CropEdits.MinOpacity, CropEdits.MaxOpacity),
         };
-        AutomationProperties.SetName(slider, Str("L.S.Crops.Opacity"));
+        Loc.SetNameKey(slider, "L.S.Crops.Opacity");
         void ShowOpacity(double v) => readout.Text = ((int)Math.Round(v)).ToString(CultureInfo.CurrentCulture) + Str("L.S.Unit.Percent");
         ShowOpacity(slider.Value);
         slider.ValueChanged += (_, e) =>
@@ -174,7 +174,7 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
             Store(character, def);
         };
         var clickThrough = EditorCard.Toggle(def.ClickThrough, on => { def.ClickThrough = on; Store(character, def); });
-        AutomationProperties.SetName(clickThrough, Str("L.S.Crops.ClickThrough"));
+        Loc.SetNameKey(clickThrough, "L.S.Crops.ClickThrough");
         var line4 = new WrapPanel();
         line4.Children.Add(EditorCard.Field("L.S.Crops.Opacity", EditorCard.Row(slider, readout)));
         line4.Children.Add(EditorCard.Field("L.S.Crops.ClickThrough", clickThrough));

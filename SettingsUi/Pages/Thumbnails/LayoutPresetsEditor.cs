@@ -28,7 +28,7 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     {
         _ctx = ctx;
         _library = new LayoutPresetService(ctx.Service.ConfigDirectory);
-        AutomationProperties.SetName(_list, Str("L.S.thumbs.layout.presets"));
+        Loc.SetNameKey(_list, "L.S.thumbs.layout.presets");
         _list.SelectionChanged += (_, _) =>
         {
             if (_loading) return;

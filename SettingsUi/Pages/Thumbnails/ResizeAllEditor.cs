@@ -41,8 +41,8 @@ public sealed class ResizeAllEditor : System.Windows.Controls.UserControl, IRefr
     public ResizeAllEditor(SettingsContext ctx)
     {
         _ctx = ctx;
-        AutomationProperties.SetName(_width, SettingsContext.Str("L.S.Slot.W"));
-        AutomationProperties.SetName(_height, SettingsContext.Str("L.S.Slot.H"));
+        Loc.SetNameKey(_width, "L.S.Slot.W");
+        Loc.SetNameKey(_height, "L.S.Slot.H");
         _message.SetResourceReference(StyleProperty, "Fx.Error");
         Content = EditorCard.Build("thumbs.appearance.resizeAll",
             EditorCard.Row(_width, EditorCard.Value("×"), _height, EditorCard.Note("L.S.Unit.Px"),
