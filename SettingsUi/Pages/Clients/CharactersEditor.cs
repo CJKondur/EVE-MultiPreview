@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using EveMultiPreview.Services;
 
@@ -101,12 +102,17 @@ public sealed class CharactersEditor : System.Windows.Controls.UserControl, IRef
             bool isRunning = running.Contains(n, StringComparer.OrdinalIgnoreCase);
             Place(EditorCard.Value(n, strong: true), r, 0);
             Place(EditorCard.Value(CharacterStores.SystemOf(_ctx, n) ?? (isRunning ? "" : Str("L.S.Characters.Offline")), secondary: true), r, 1);
-            Place(EditorCard.HotkeyButton(CharacterStores.HotkeyOf(_ctx.S, n), () => { if (CharacterStores.CaptureHotkey(_ctx, n)) Refresh(); }), r, 2);
+            var key = EditorCard.HotkeyButton(CharacterStores.HotkeyOf(_ctx.S, n), () => { if (CharacterStores.CaptureHotkey(_ctx, n)) Refresh(); });
+            AutomationProperties.SetName(key, EditorCard.ForName("L.S.Characters.ColHotkey", n));
+            Place(key, r, 2);
             var groups = CharacterStores.GroupsOf(_ctx.S, n);
             Place(EditorCard.Value(groups.Count == 0 ? "—" : string.Join(", ", groups), secondary: true), r, 3);
-            Place(EditorCard.Toggle(CharacterStores.IsShown(_ctx.S, n), on => CharacterStores.SetShown(_ctx, n, on)), r, 4);
+            var shown = EditorCard.Toggle(CharacterStores.IsShown(_ctx.S, n), on => CharacterStores.SetShown(_ctx, n, on));
+            AutomationProperties.SetName(shown, EditorCard.ForName("L.S.Characters.ColShow", n));
+            Place(shown, r, 4);
             var inCycle = CharacterStores.IsInCycle(_ctx, n);
             var cycle = EditorCard.Toggle(inCycle ?? true, on => CharacterStores.SetInCycle(_ctx, n, on));
+            AutomationProperties.SetName(cycle, EditorCard.ForName("L.S.Characters.ColCycle", n));
             cycle.IsEnabled = inCycle != null;
             Place(cycle, r, 5);
             Place(EditorCard.Open(string.Format(Str("L.S.Characters.Open"), n), () => _ctx.Host.Navigate(CharacterPage.IdFor(n))), r, 6);

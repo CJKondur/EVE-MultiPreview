@@ -1848,4 +1848,11 @@
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE names account files only by number. **Detect accounts…** walks you through logging in one character at a time to learn which account each one is on, and **Set name** gives an account your own name. **Fetch missing names** looks up character names on EVE's public servers (ESI), sending only the character numbers.</sys:String>
     <sys:String x:Key="L.S.Eve.AndMore">…and {0} more</sys:String>
     <sys:String x:Key="L.S.StatsPicker.ResetConfirm">Use the defaults for every number of this character? Its own choices are removed.</sys:String>
+    <!-- Screen-reader names and info-line severities (Plan 3d) -->
+    <sys:String x:Key="L.S.A11y.ForName">{0}: {1}</sys:String>
+    <sys:String x:Key="L.S.Groups.NameBox">Group name</sys:String>
+    <sys:String x:Key="L.S.Slot.NameBox">Slot name</sys:String>
+    <sys:String x:Key="L.S.Info.Note">Note</sys:String>
+    <sys:String x:Key="L.S.Info.Warning">Warning</sys:String>
+    <sys:String x:Key="L.S.Info.Error">Problem</sys:String>
 </ResourceDictionary>

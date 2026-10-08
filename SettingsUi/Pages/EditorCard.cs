@@ -11,6 +11,12 @@ using Button = System.Windows.Controls.Button;
 using CheckBox = System.Windows.Controls.CheckBox;
 using Control = System.Windows.Controls.Control;
 using Orientation = System.Windows.Controls.Orientation;
+using ButtonBase = System.Windows.Controls.Primitives.ButtonBase;
+using ComboBox = System.Windows.Controls.ComboBox;
+using ListBox = System.Windows.Controls.ListBox;
+using Panel = System.Windows.Controls.Panel;
+using Slider = System.Windows.Controls.Slider;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace EveMultiPreview.SettingsUi;
 
@@ -21,6 +27,7 @@ public static class EditorCard
     /// "L.S.{id}.Desc", a control on the right (optional) and content below it (optional).</summary>
     public static Border Build(string id, UIElement? right, UIElement? below = null)
     {
+        NameFrom(right, "L.S." + id);
         var label = new TextBlock();
         label.SetResourceReference(FrameworkElement.StyleProperty, "Fx.Label");
         Loc.SetKey(label, "L.S." + id);
@@ -104,6 +111,7 @@ public static class EditorCard
     /// <summary>A label (resource key) before its control, for rows inside a card.</summary>
     public static StackPanel Field(string key, UIElement control)
     {
+        NameFrom(control, key);
         var label = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 8, 0) };
         label.SetResourceReference(FrameworkElement.StyleProperty, "Fx.Label");
         Loc.SetKey(label, key);
@@ -112,6 +120,38 @@ public static class EditorCard
         row.Children.Add(control);
         return row;
     }
+
+    /// <summary>Gives a control that can't name itself (a box, list, slider, switch or swatch) the label's screen-reader
+    /// name, and does the same for each such control in a panel. A control the code already named, or a button with
+    /// text, is left alone (Plan 3d).</summary>
+    public static void NameFrom(UIElement? element, string key)
+    {
+        switch (element)
+        {
+            case Panel panel:
+                foreach (UIElement child in panel.Children) NameFrom(child, key);
+                break;
+            case Control c when NeedsName(c):
+                Loc.SetNameKey(c, key);
+                break;
+        }
+    }
+
+    private static bool NeedsName(Control c)
+    {
+        if (!string.IsNullOrEmpty(AutomationProperties.GetName(c)) || Loc.GetNameKey(c) != null) return false;
+        return c switch
+        {
+            TextBox or ComboBox or Slider or ListBox => true,
+            // A switch has no text of its own and a swatch shows only a colour; a button with text names itself.
+            ButtonBase b => b.Content is null or Border && Loc.GetKey(b) == null,
+            _ => false,
+        };
+    }
+
+    /// <summary>"Show: Logi": a table cell's column name and the row's character, for screen readers.</summary>
+    public static string ForName(string labelKey, string name) =>
+        string.Format(SettingsContext.Str("L.S.A11y.ForName"), SettingsContext.Str(labelKey), name);
 
     /// <summary>The Fx toggle switch. The initial state is set before the handlers, so building
     /// one never reports a change.</summary>

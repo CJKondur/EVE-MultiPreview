@@ -1866,4 +1866,11 @@
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE nomina i file account solo con numeri. **Rileva account…** ti guida a entrare con un personaggio alla volta per capire su quale account si trova, e **Imposta nome** dà a un account un nome tuo. **Recupera nomi mancanti** cerca i nomi dei personaggi sui server pubblici di EVE (ESI), inviando solo i numeri dei personaggi.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…e altri {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.StatsPicker.ResetConfirm">Usare i valori predefiniti per tutti i numeri di questo personaggio? Le sue scelte personali vengono rimosse.</sys:String> <!-- draft -->
+    <!-- Screen-reader names and info-line severities (Plan 3d) -->
+    <sys:String x:Key="L.S.A11y.ForName">{0}: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.NameBox">Nome del gruppo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Slot.NameBox">Nome dello slot</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Note">Nota</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Warning">Avviso</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Error">Problema</sys:String> <!-- draft -->
 </ResourceDictionary>

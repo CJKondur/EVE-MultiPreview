@@ -87,6 +87,7 @@ public sealed class GroupsEditor : System.Windows.Controls.UserControl, IRefresh
 
         // Name and Delete.
         var name = new TextBox { Text = g.Name, MinWidth = 220, VerticalContentAlignment = VerticalAlignment.Center };
+        System.Windows.Automation.AutomationProperties.SetName(name, Str("L.S.Groups.NameBox"));
         void CommitName()
         {
             if (name.Text.Trim() == g.Name) return;

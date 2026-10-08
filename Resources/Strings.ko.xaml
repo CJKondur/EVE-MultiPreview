@@ -1849,4 +1849,11 @@
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE는 계정 파일을 번호로만 부릅니다. **계정 감지…**는 캐릭터를 한 번에 하나씩 로그인하도록 안내해 각 캐릭터가 어느 계정인지 알아내고, **이름 지정**은 계정에 원하는 이름을 붙입니다. **누락된 이름 가져오기**는 EVE 공개 서버(ESI)에서 캐릭터 이름을 조회하며 캐릭터 번호만 전송합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…외 {0}개</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.StatsPicker.ResetConfirm">이 캐릭터의 모든 수치를 기본값으로 되돌릴까요? 개별 설정이 삭제됩니다.</sys:String> <!-- draft -->
+    <!-- Screen-reader names and info-line severities (Plan 3d) -->
+    <sys:String x:Key="L.S.A11y.ForName">{0}: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.NameBox">그룹 이름</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Slot.NameBox">슬롯 이름</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Note">참고</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Warning">경고</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Error">문제</sys:String> <!-- draft -->
 </ResourceDictionary>

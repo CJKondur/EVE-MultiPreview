@@ -84,6 +84,7 @@ public sealed class SlotsEditor : System.Windows.Controls.UserControl, IRefresha
 
         // Name, default, monitor, delete.
         var name = new TextBox { Text = slot.Name, MinWidth = 160, VerticalContentAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 8) };
+        System.Windows.Automation.AutomationProperties.SetName(name, Str("L.S.Slot.NameBox"));
         name.LostFocus += (_, _) => { if (name.Text != slot.Name) { slot.Name = name.Text; Saved(); } };
         var isDefault = new RadioButton
         {

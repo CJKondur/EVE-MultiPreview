@@ -1866,4 +1866,11 @@
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE 只用编号命名账号文件。**检测账号…** 引导你每次登录一个角色，以了解它属于哪个账号；**设置名称** 为账号设置你自己的名称。**获取缺失的名称** 在 EVE 公共服务器 (ESI) 上查询角色名称，只发送角色编号。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…以及另外 {0} 个</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.StatsPicker.ResetConfirm">让该角色的所有数字都使用默认设置？它自己的选择将被移除。</sys:String> <!-- draft -->
+    <!-- Screen-reader names and info-line severities (Plan 3d) -->
+    <sys:String x:Key="L.S.A11y.ForName">{0}：{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.NameBox">组名称</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Slot.NameBox">槽位名称</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Note">提示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Warning">警告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Error">问题</sys:String> <!-- draft -->
 </ResourceDictionary>

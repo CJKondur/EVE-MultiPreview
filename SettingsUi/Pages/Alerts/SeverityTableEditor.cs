@@ -108,11 +108,14 @@ public sealed class SeverityTableEditor : System.Windows.Controls.UserControl, I
         return _table.RowDefinitions.Count - 1;
     }
 
+    /// <summary>Column 3 ("Toast in the alert hub") holds switches: header and switch are centred over each other.</summary>
+    private const int SwitchColumn = 3;
+
     private void Place(FrameworkElement element, int row, int column)
     {
         element.Margin = new Thickness(0, 4, 20, 4);
         element.VerticalAlignment = VerticalAlignment.Center;
-        element.HorizontalAlignment = HorizontalAlignment.Left;
+        element.HorizontalAlignment = column == SwitchColumn ? HorizontalAlignment.Center : HorizontalAlignment.Left;
         Grid.SetRow(element, row);
         Grid.SetColumn(element, column);
         _table.Children.Add(element);

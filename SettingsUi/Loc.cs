@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 
 namespace EveMultiPreview.SettingsUi;
@@ -13,6 +14,21 @@ public static class Loc
 
     public static string? GetKey(DependencyObject d) => (string?)d.GetValue(KeyProperty);
     public static void SetKey(DependencyObject d, string? value) => d.SetValue(KeyProperty, value);
+
+    /// <summary>Sets AutomationProperties.Name from the resource named by NameKey, so a screen reader reads the card's
+    /// label in the current language and follows a live language switch (Plan 3d).</summary>
+    public static readonly DependencyProperty NameKeyProperty = DependencyProperty.RegisterAttached(
+        "NameKey", typeof(string), typeof(Loc), new PropertyMetadata(null, OnNameKeyChanged));
+
+    public static string? GetNameKey(DependencyObject d) => (string?)d.GetValue(NameKeyProperty);
+    public static void SetNameKey(DependencyObject d, string? value) => d.SetValue(NameKeyProperty, value);
+
+    private static void OnNameKeyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not FrameworkElement fe) return;
+        if (e.NewValue is string key && key.Length > 0) fe.SetResourceReference(AutomationProperties.NameProperty, key);
+        else fe.ClearValue(AutomationProperties.NameProperty);
+    }
 
     private static void OnKeyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {

@@ -189,11 +189,15 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
         return _table.RowDefinitions.Count - 1;
     }
 
+    /// <summary>Badge, Steady and On (columns 4–6) are switches: their headers and switches are centred in the column, so
+    /// each header sits over its switch (left-aligned, a header lined up with the switch's On/Off text instead).</summary>
+    private const int FirstSwitchColumn = 4;
+
     private void Place(FrameworkElement element, int row, int column)
     {
         element.Margin = new Thickness(0, 4, 16, 4);
         element.VerticalAlignment = VerticalAlignment.Center;
-        element.HorizontalAlignment = HorizontalAlignment.Left;
+        element.HorizontalAlignment = column >= FirstSwitchColumn ? HorizontalAlignment.Center : HorizontalAlignment.Left;
         Grid.SetRow(element, row);
         Grid.SetColumn(element, column);
         _table.Children.Add(element);

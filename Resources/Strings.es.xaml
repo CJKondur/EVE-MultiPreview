@@ -1870,4 +1870,11 @@
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE nombra los archivos de cuenta solo con números. **Detectar cuentas…** te guía para iniciar sesión con un personaje cada vez y saber en qué cuenta está, y **Poner nombre** da a una cuenta tu propio nombre. **Obtener nombres que faltan** busca nombres de personajes en los servidores públicos de EVE (ESI), enviando solo los números de personaje.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…y {0} más</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.StatsPicker.ResetConfirm">¿Usar los valores por defecto para todas las cifras de este personaje? Se eliminan sus propias elecciones.</sys:String> <!-- draft -->
+    <!-- Screen-reader names and info-line severities (Plan 3d) -->
+    <sys:String x:Key="L.S.A11y.ForName">{0}: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.NameBox">Nombre del grupo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Slot.NameBox">Nombre de la ranura</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Note">Nota</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Warning">Advertencia</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Error">Problema</sys:String> <!-- draft -->
 </ResourceDictionary>

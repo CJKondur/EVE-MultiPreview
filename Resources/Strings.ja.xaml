@@ -1849,4 +1849,11 @@
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE はアカウントのファイルを番号だけで呼びます。**アカウントを検出…** は 1 キャラクターずつログインして、それぞれがどのアカウントかを調べる手順を案内し、**名前を設定** はアカウントに自分の名前を付けます。**不足している名前を取得** は EVE の公開サーバー（ESI）でキャラクター名を調べ、キャラクター番号だけを送信します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…ほか {0} 件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.StatsPicker.ResetConfirm">このキャラクターのすべての数値を既定に戻しますか？個別の設定は削除されます。</sys:String> <!-- draft -->
+    <!-- Screen-reader names and info-line severities (Plan 3d) -->
+    <sys:String x:Key="L.S.A11y.ForName">{0}：{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.NameBox">グループ名</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Slot.NameBox">スロット名</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Note">メモ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Warning">警告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Error">問題</sys:String> <!-- draft -->
 </ResourceDictionary>

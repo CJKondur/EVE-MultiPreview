@@ -1868,4 +1868,11 @@
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE называет файлы аккаунтов только номерами. **Определить аккаунты…** проведёт вас через вход одним персонажем за раз, чтобы узнать, на каком аккаунте каждый, а **Задать имя** даёт аккаунту ваше имя. **Получить недостающие имена** запрашивает имена персонажей на публичных серверах EVE (ESI), отправляя только номера персонажей.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…и ещё {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.StatsPicker.ResetConfirm">Использовать значения по умолчанию для всех показателей этого персонажа? Его собственные настройки будут удалены.</sys:String> <!-- draft -->
+    <!-- Screen-reader names and info-line severities (Plan 3d) -->
+    <sys:String x:Key="L.S.A11y.ForName">{0}: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.NameBox">Название группы</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Slot.NameBox">Название слота</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Note">Примечание</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Warning">Предупреждение</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Error">Проблема</sys:String> <!-- draft -->
 </ResourceDictionary>

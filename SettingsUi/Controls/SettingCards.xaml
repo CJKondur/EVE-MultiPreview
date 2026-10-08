@@ -97,20 +97,20 @@
 
     <DataTemplate x:Key="Fx.Card.Toggle">
         <ContentControl Style="{StaticResource Fx.CardHost}">
-            <CheckBox Style="{StaticResource Fx.ToggleSwitch}" IsChecked="{Binding IsOn}"/>
+            <CheckBox Style="{StaticResource Fx.ToggleSwitch}" IsChecked="{Binding IsOn}" local:Loc.NameKey="{Binding LabelKey}"/>
         </ContentControl>
     </DataTemplate>
 
     <DataTemplate x:Key="Fx.Card.Choice">
         <ContentControl Style="{StaticResource Fx.CardHost}">
-            <ComboBox MinWidth="200" ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"
+            <ComboBox MinWidth="200" local:Loc.NameKey="{Binding LabelKey}" ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"
                       ItemTemplate="{StaticResource Fx.OptionText}"/>
         </ContentControl>
     </DataTemplate>
 
     <DataTemplate x:Key="Fx.Card.Segmented">
         <ContentControl Style="{StaticResource Fx.CardHost}">
-            <ListBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"
+            <ListBox local:Loc.NameKey="{Binding LabelKey}" ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"
                      ItemTemplate="{StaticResource Fx.OptionText}" BorderThickness="1"
                      BorderBrush="{StaticResource Fx.BorderBrush}" Background="{StaticResource Fx.ControlBrush}">
                 <ListBox.ItemsPanel>
@@ -127,7 +127,7 @@
                            VerticalAlignment="Center" MinWidth="32" TextAlignment="Right"/>
                 <TextBlock local:Loc.Key="{Binding UnitKey}" Foreground="{StaticResource Fx.TextSecondaryBrush}"
                            VerticalAlignment="Center" Margin="4,0,12,0"/>
-                <Slider Width="200" VerticalAlignment="Center" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                <Slider local:Loc.NameKey="{Binding LabelKey}" Width="200" VerticalAlignment="Center" Minimum="{Binding Min}" Maximum="{Binding Max}"
                         SmallChange="{Binding Step}" LargeChange="{Binding Step}" TickFrequency="{Binding Step}"
                         IsSnapToTickEnabled="True" Value="{Binding Number, Delay=150}"/>
             </StackPanel>
@@ -137,7 +137,7 @@
     <DataTemplate x:Key="Fx.Card.Number">
         <ContentControl Style="{StaticResource Fx.CardHost}">
             <StackPanel Orientation="Horizontal">
-                <TextBox MinWidth="80" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+                <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="80" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
                 <TextBlock local:Loc.Key="{Binding UnitKey}" Foreground="{StaticResource Fx.TextSecondaryBrush}"
                            VerticalAlignment="Center" Margin="8,0,0,0"/>
             </StackPanel>
@@ -146,14 +146,14 @@
 
     <DataTemplate x:Key="Fx.Card.Text">
         <ContentControl Style="{StaticResource Fx.CardHost}">
-            <TextBox MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+            <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
         </ContentControl>
     </DataTemplate>
 
     <DataTemplate x:Key="Fx.Card.Folder">
         <ContentControl Style="{StaticResource Fx.CardHost}">
             <StackPanel Orientation="Horizontal">
-                <TextBox MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+                <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
                 <Button local:Loc.Key="L.S.Shell.Browse" Command="{Binding BrowseCommand}" Margin="8,0,0,0" Padding="12,4"/>
             </StackPanel>
         </ContentControl>
@@ -162,7 +162,7 @@
     <DataTemplate x:Key="Fx.Card.File">
         <ContentControl Style="{StaticResource Fx.CardHost}">
             <StackPanel Orientation="Horizontal">
-                <TextBox MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+                <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
                 <Button local:Loc.Key="L.S.Shell.Browse" Command="{Binding BrowseCommand}" Margin="8,0,0,0" Padding="12,4"/>
             </StackPanel>
         </ContentControl>
@@ -171,11 +171,11 @@
     <DataTemplate x:Key="Fx.Card.Color">
         <ContentControl Style="{StaticResource Fx.CardHost}">
             <StackPanel Orientation="Horizontal">
-                <Button Command="{Binding PickColorCommand}" Width="32" Height="32" Padding="0" Margin="0,0,8,0">
+                <Button local:Loc.NameKey="{Binding LabelKey}" Command="{Binding PickColorCommand}" Width="32" Height="32" Padding="0" Margin="0,0,8,0">
                     <Border Width="22" Height="22" CornerRadius="4" BorderThickness="1" BorderBrush="{StaticResource Fx.BorderBrush}"
                             Background="{Binding Text, Converter={StaticResource Fx.ColorBrush}}"/>
                 </Button>
-                <TextBox MinWidth="96" FontFamily="{StaticResource Fx.MonoFont}"
+                <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="96" FontFamily="{StaticResource Fx.MonoFont}"
                          Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
             </StackPanel>
         </ContentControl>
@@ -184,7 +184,8 @@
     <DataTemplate x:Key="Fx.Card.Hotkey">
         <ContentControl Style="{StaticResource Fx.CardHost}">
             <StackPanel Orientation="Horizontal">
-                <Button Command="{Binding CaptureHotkeyCommand}" MinWidth="120" Padding="12,4">
+                <Button local:Loc.NameKey="{Binding LabelKey}" AutomationProperties.HelpText="{Binding HotkeyDisplay}"
+                        Command="{Binding CaptureHotkeyCommand}" MinWidth="120" Padding="12,4">
                     <TextBlock Text="{Binding HotkeyDisplay}" FontFamily="{StaticResource Fx.MonoFont}"/>
                 </Button>
                 <Button local:Loc.Key="L.S.Hotkey.Clear" Command="{Binding ClearCommand}" Margin="8,0,0,0" Padding="12,4"
@@ -215,27 +216,53 @@
         </ContentControl>
     </DataTemplate>
 
-    <!-- Info line: a coloured bar plus text. Colour is never the only signal (spec §7): the text says it. -->
+    <!-- Info line: a coloured bar, a severity glyph and the text. The glyph's shape and its screen-reader name say the
+         severity, so colour never stands alone (spec §7). Search outlines the line it lands on (spec §6). -->
     <DataTemplate x:Key="Fx.Info">
-        <Border x:Name="Bar" BorderThickness="3,0,0,0" BorderBrush="{StaticResource Fx.InfoBrush}"
-                Background="{StaticResource Fx.CardBrush}" CornerRadius="{StaticResource Fx.Radius}"
-                Padding="12,8" Margin="0,0,0,4"
-                Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
-            <TextBlock Text="{Binding Text}" Style="{StaticResource Fx.Label}"/>
-        </Border>
+        <Grid Margin="0,0,0,4" Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <Border x:Name="Bar" BorderThickness="3,0,0,0" BorderBrush="{StaticResource Fx.InfoBrush}"
+                    Background="{StaticResource Fx.CardBrush}" CornerRadius="{StaticResource Fx.Radius}" Padding="12,8">
+                <DockPanel>
+                    <TextBlock x:Name="Glyph" DockPanel.Dock="Left" Text="&#xE946;" FontFamily="{StaticResource Fx.IconFont}"
+                               Foreground="{StaticResource Fx.InfoBrush}" VerticalAlignment="Top" Margin="0,3,10,0"
+                               local:Loc.NameKey="L.S.Info.Note"/>
+                    <TextBlock Text="{Binding Text}" Style="{StaticResource Fx.Label}"/>
+                </DockPanel>
+            </Border>
+            <Border x:Name="Highlight" BorderThickness="1" BorderBrush="{StaticResource Fx.AccentBrush}"
+                    CornerRadius="{StaticResource Fx.Radius}" IsHitTestVisible="False" Visibility="Collapsed"/>
+        </Grid>
         <DataTemplate.Triggers>
             <DataTrigger Binding="{Binding Severity}" Value="Warning">
                 <Setter TargetName="Bar" Property="BorderBrush" Value="{StaticResource Fx.WarningBrush}"/>
+                <Setter TargetName="Glyph" Property="Text" Value="&#xE7BA;"/>
+                <Setter TargetName="Glyph" Property="Foreground" Value="{StaticResource Fx.WarningBrush}"/>
+                <Setter TargetName="Glyph" Property="local:Loc.NameKey" Value="L.S.Info.Warning"/>
             </DataTrigger>
             <DataTrigger Binding="{Binding Severity}" Value="Error">
                 <Setter TargetName="Bar" Property="BorderBrush" Value="{StaticResource Fx.CriticalBrush}"/>
+                <Setter TargetName="Glyph" Property="Text" Value="&#xEA39;"/>
+                <Setter TargetName="Glyph" Property="Foreground" Value="{StaticResource Fx.CriticalBrush}"/>
+                <Setter TargetName="Glyph" Property="local:Loc.NameKey" Value="L.S.Info.Error"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                <Setter TargetName="Highlight" Property="Visibility" Value="Visible"/>
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
 
+    <!-- A hand-built editor. Its own card keeps the 4 px gap below it (Fx.Card), so the search outline stops above it. -->
     <DataTemplate x:Key="Fx.Editor">
-        <ContentPresenter Content="{Binding Element}" Margin="0,0,0,4"
-                          Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}"/>
+        <Grid Margin="0,0,0,4" Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <ContentPresenter Content="{Binding Element}"/>
+            <Border x:Name="Highlight" BorderThickness="1" BorderBrush="{StaticResource Fx.AccentBrush}" Margin="0,0,0,4"
+                    CornerRadius="{StaticResource Fx.Radius}" IsHitTestVisible="False" Visibility="Collapsed"/>
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                <Setter TargetName="Highlight" Property="Visibility" Value="Visible"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
     </DataTemplate>
 
     <DataTemplate x:Key="Fx.Section">

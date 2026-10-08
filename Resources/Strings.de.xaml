@@ -1848,4 +1848,11 @@
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE benennt Account-Dateien nur mit Nummern. **Accounts erkennen…** führt dich durch das Einloggen jeweils eines Charakters, um zu erfahren, auf welchem Account er liegt, und **Name setzen** gibt einem Account einen eigenen Namen. **Fehlende Namen abrufen** fragt Charakternamen bei den öffentlichen EVE-Servern (ESI) ab und sendet dabei nur die Charakternummern.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.AndMore">…und {0} weitere</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.StatsPicker.ResetConfirm">Für alle Zahlen dieses Charakters die Standardwerte verwenden? Seine eigenen Einstellungen werden entfernt.</sys:String> <!-- draft -->
+    <!-- Screen-reader names and info-line severities (Plan 3d) -->
+    <sys:String x:Key="L.S.A11y.ForName">{0}: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.NameBox">Gruppenname</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Slot.NameBox">Slot-Name</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Note">Hinweis</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Warning">Warnung</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Info.Error">Problem</sys:String> <!-- draft -->
 </ResourceDictionary>
