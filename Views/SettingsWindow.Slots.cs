@@ -343,53 +343,9 @@ public partial class SettingsWindow
         return $"{index + 1}: {pw}×{ph}{primary}{scaled}";
     }
 
-    // ── Mixed-DPI detection ─────────────────────────────────────────
-    // EVE is system-DPI-aware (spike, 2026-09-24): on a monitor whose Windows scaling
-    // differs from the primary's, Windows rescales its image, and EVE believes its
-    // window is larger than it is. This app is system-aware too, so per-monitor DPI
-    // queries all return the primary's DPI. The reliable signal is the monitor's real
-    // display-mode resolution (EnumDisplaySettings is never virtualized) versus the
-    // bounds this process sees: they differ exactly when the scaling differs.
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    private struct DEVMODE
-    {
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string dmDeviceName;
-        public short dmSpecVersion, dmDriverVersion, dmSize, dmDriverExtra;
-        public int dmFields, dmPositionX, dmPositionY, dmDisplayOrientation, dmDisplayFixedOutput;
-        public short dmColor, dmDuplex, dmYResolution, dmTTOption, dmCollate;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)] public string dmFormName;
-        public short dmLogPixels;
-        public int dmBitsPerPel, dmPelsWidth, dmPelsHeight, dmDisplayFlags, dmDisplayFrequency;
-        public int dmICMMethod, dmICMIntent, dmMediaType, dmDitherType, dmReserved1, dmReserved2, dmPanningWidth, dmPanningHeight;
-    }
-
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    private static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
-    private const int ENUM_CURRENT_SETTINGS = -1;
-
-    /// <summary>The monitor's real resolution; falls back to the bounds this process sees.</summary>
-    private static (int W, int H) PhysicalResolution(WinForms.Screen sc)
-    {
-        var dm = new DEVMODE { dmSize = (short)Marshal.SizeOf<DEVMODE>() };
-        if (EnumDisplaySettings(sc.DeviceName, ENUM_CURRENT_SETTINGS, ref dm) && dm.dmPelsWidth > 0 && dm.dmPelsHeight > 0)
-            return (dm.dmPelsWidth, dm.dmPelsHeight);
-        return (sc.Bounds.Width, sc.Bounds.Height);
-    }
-
-    /// <summary>True when this monitor's Windows scaling differs from the primary's.</summary>
-    private static bool ScalingDiffersFromPrimary(WinForms.Screen sc)
-    {
-        if (sc.Primary) return false;
-        var (pw, _) = PhysicalResolution(sc);
-        if (pw != sc.Bounds.Width) return true;   // bounds virtualized: system-aware process
-        // Per-monitor-aware process: bounds are physical, so compare effective DPIs.
-        var prim = WinForms.Screen.PrimaryScreen;
-        if (prim == null) return false;
-        double a = Interop.DpiHelper.GetScaleFactorForPoint(sc.Bounds.Left + sc.Bounds.Width / 2, sc.Bounds.Top + sc.Bounds.Height / 2);
-        double b = Interop.DpiHelper.GetScaleFactorForPoint(prim.Bounds.Left + prim.Bounds.Width / 2, prim.Bounds.Top + prim.Bounds.Height / 2);
-        return Math.Abs(a - b) > 0.01;
-    }
+    // Mixed-DPI detection lives in Services/MonitorInfo.cs, shared with the new settings window.
+    private static (int W, int H) PhysicalResolution(WinForms.Screen sc) => MonitorInfo.PhysicalResolution(sc);
+    private static bool ScalingDiffersFromPrimary(WinForms.Screen sc) => MonitorInfo.ScalingDiffersFromPrimary(sc);
 
     /// <summary>Store a rect on a slot (relative to <paramref name="sc"/>) and refresh the editor.</summary>
     private void SetSlotRect(ClientSlot slot, WinForms.Screen sc, int x, int y, int w, int h)

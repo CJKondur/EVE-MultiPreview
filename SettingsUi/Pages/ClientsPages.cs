@@ -16,7 +16,7 @@ public static class ClientsPages
     public const string WindowsId = "clients.windows";
     public const string AudioId = "clients.audio";
 
-    public static IReadOnlyList<PageDef> All => new[] { Characters(), Hotkeys(), Groups() };
+    public static IReadOnlyList<PageDef> All => new[] { Characters(), Hotkeys(), Groups(), Windows(), Audio() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -38,6 +38,16 @@ public static class ClientsPages
         new HelpTopic(HotkeysId, "conflicts", new[] { "clients.hotkeys.conflicts" }),
         new HelpTopic(GroupsId, "keys", new[] { "clients.groups.editor" }),
         new HelpTopic(GroupsId, "scope", new[] { "clients.groups.showBorders" }),
+        new HelpTopic(WindowsId, "minimize", new[] { "clients.windows.minimizeInactive", "clients.windows.minimizeDelay", "clients.windows.neverMinimize" }),
+        new HelpTopic(WindowsId, "position", new[]
+        {
+            "clients.windows.positionMode", "clients.windows.positionX", "clients.windows.positionY",
+            "clients.windows.alwaysMaximize", "clients.windows.trackPositions", "clients.windows.coverTaskbar",
+        }),
+        new HelpTopic(WindowsId, "slots", new[] { "clients.windows.slotEditor", "clients.windows.slotsResize" }),
+        new HelpTopic(WindowsId, "charSelect", new[] { "clients.windows.charSelectCycle", "clients.windows.charSelectNext", "clients.windows.charSelectPrevious" }),
+        new HelpTopic(AudioId, "solo", new[] { "clients.audio.autoSolo", "clients.audio.muteNoneActive" }),
+        new HelpTopic(AudioId, "volume", new[] { "clients.audio.volume" }),
     };
 
     private static PageDef Characters() => new(CharactersId, NavGroup.Clients, new[]
@@ -169,6 +179,106 @@ public static class ClientsPages
                     "OnGroupSave", "OnGroupDelete", "OnGroupAddChar", "OnGroupAddAllActive",
                     "OnHotkeyGroupNew", "OnHotkeyGroupDelete", "OnHotkeyGroupAddChar", "OnHotkeyGroupAddAllActive",
                 },
+            },
+        }),
+    });
+
+    // ThumbnailManager reads every setting here when a client is found or switched to: Save for all.
+    private static PageDef Windows() => new(WindowsId, NavGroup.Clients, new[]
+    {
+        new SectionDef("clients.windows.minimizing", new PageItem[]
+        {
+            Toggle("clients.windows.minimizeInactive", s => s.MinimizeInactiveClients, "ChkMinimizeInactive"),
+            new SettingItem(Setting.Number("clients.windows.minimizeDelay", s => s.MinimizeDelay, 0, 5000, "L.S.Unit.Ms") with
+            {
+                ShowIf = s => s.MinimizeInactiveClients,
+                Replaces = new[] { "TxtMinimizeDelay" },
+            }),
+            new EditorItem("clients.windows.neverMinimize", ctx => new NeverMinimizeEditor(ctx))
+            {
+                ShowIf = s => s.MinimizeInactiveClients,
+                Binds = new[] { "Profile.DontMinimizeClients" },
+                Replaces = new[] { "LvDontMinimize", "OnDontMinAdd", "OnDontMinDelete", "OnDontMinAddAllActive" },
+            },
+        }),
+        new SectionDef("clients.windows.placement", new PageItem[]
+        {
+            new SettingItem(Setting.Choice("clients.windows.positionMode", s => s.ClientPositionMode, new[]
+            {
+                new ChoiceOption(0, "L.S.Opt.PositionOff"),
+                new ChoiceOption(1, "L.S.Opt.PositionCenter"),
+                new ChoiceOption(2, "L.S.Opt.PositionCustom"),
+                new ChoiceOption(3, "L.S.Opt.PositionSlots"),
+            }) with { Replaces = new[] { "CmbClientPosition" } }),
+            new SettingItem(Setting.Number("clients.windows.positionX", s => s.ClientPositionX, -20000, 20000, "L.S.Unit.Px") with
+            {
+                ShowIf = s => s.ClientPositionMode == 2, Replaces = new[] { "TxtClientPositionX" },
+            }),
+            new SettingItem(Setting.Number("clients.windows.positionY", s => s.ClientPositionY, -20000, 20000, "L.S.Unit.Px") with
+            {
+                ShowIf = s => s.ClientPositionMode == 2, Replaces = new[] { "TxtClientPositionY" },
+            }),
+            // Fixed slots own the window rect, so these two are ignored (the old window greyed them out).
+            new SettingItem(Setting.Toggle("clients.windows.alwaysMaximize", s => s.AlwaysMaximize) with
+            {
+                ShowIf = s => s.ClientPositionMode != 3, Replaces = new[] { "ChkAlwaysMaximize" },
+            }),
+            new SettingItem(Setting.Toggle("clients.windows.trackPositions", s => s.TrackClientPositions) with
+            {
+                ShowIf = s => s.ClientPositionMode != 3, Replaces = new[] { "ChkTrackClientPositions" },
+            }),
+            Toggle("clients.windows.coverTaskbar", s => s.ClientCoverTaskbar, "ChkClientCoverTaskbar"),
+        }),
+        new SectionDef("clients.windows.slots", new PageItem[]
+        {
+            new EditorItem("clients.windows.slotEditor", ctx => new SlotsEditor(ctx))
+            {
+                ShowIf = s => s.ClientPositionMode == 3,
+                Binds = new[] { "AppSettings.ClientSlots", "AppSettings.DefaultClientSlotId", "AppSettings.ClientSlotExcluded" },
+                Replaces = new[] { "OnSlotAdd", "OnSlotApplyNow" },
+            },
+            new SettingItem(Setting.Toggle("clients.windows.slotsResize", s => s.ClientSlotsResize) with
+            {
+                ShowIf = s => s.ClientPositionMode == 3,
+            }),
+        }),
+        new SectionDef("clients.windows.charSelect", new PageItem[]
+        {
+            // RegisterFromSettings registers the two keys only while this is on (App re-registers on Applied).
+            Toggle("clients.windows.charSelectCycle", s => s.CharSelectCyclingEnabled, "ChkCharSelectCycle"),
+            new SettingItem(Setting.Hotkey("clients.windows.charSelectNext", s => s.CharSelectForwardHotkey) with
+            {
+                ShowIf = s => s.CharSelectCyclingEnabled, Replaces = new[] { "TxtCharSelectFwd" },
+            }),
+            new SettingItem(Setting.Hotkey("clients.windows.charSelectPrevious", s => s.CharSelectBackwardHotkey) with
+            {
+                ShowIf = s => s.CharSelectCyclingEnabled, Replaces = new[] { "TxtCharSelectBwd" },
+            }),
+        }),
+    });
+
+    private static PageDef Audio() => new(AudioId, NavGroup.Clients, new[]
+    {
+        new SectionDef("clients.audio.solo", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("clients.audio.autoSolo", s => s.AutoSoloClientAudio) with
+            {
+                // ReapplySettings unmuted everything when this was off; do just that, without a full
+                // thumbnail re-apply. On takes effect at the next switch (ApplyAudioSolo on focus change).
+                OnChanged = ctx => { if (!ctx.S.AutoSoloClientAudio) ctx.Services.Thumbnails?.UnmuteAllClientAudio(); },
+                Replaces = new[] { "ChkAutoSoloAudio" },
+            }),
+            new SettingItem(Setting.Toggle("clients.audio.muteNoneActive", s => s.MuteAllClientAudioWhenNoneActive) with
+            {
+                ShowIf = s => s.AutoSoloClientAudio, Replaces = new[] { "ChkMuteAllWhenNoneActive" },
+            }),
+        }),
+        new SectionDef("clients.audio.volumes", new PageItem[]
+        {
+            new EditorItem("clients.audio.volume", ctx => new VolumeEditor(ctx))
+            {
+                Binds = new[] { "AppSettings.PerClientAudioVolume" },
+                Replaces = new[] { "OnRefreshClientVolumes" },
             },
         }),
     });
