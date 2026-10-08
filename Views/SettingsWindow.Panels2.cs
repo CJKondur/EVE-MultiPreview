@@ -1892,11 +1892,10 @@ public partial class SettingsWindow
             var onlyProfile = S.Profiles[onlyName];
             _svc.CreateProfile(newName);                 // creates the profile and makes it active
             CopyProfileFull(onlyProfile, S.Profiles[newName]);
-            _svc.Save();
             LoadSettings();                              // refresh dropdown + bound controls
-            _thumbnailManager?.ReapplySettings();
-            _cropManager?.Refresh();
-            SettingsApplied?.Invoke();
+            // After LoadSettings: it can queue a debounced apply; ApplyNow clears it.
+            // Saves, reapplies thumbnails, refreshes crops, raises SettingsApplied.
+            _applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
             MessageBox.Show($"Created profile '{newName}' and copied '{onlyName}' into it.", "Copy Profile");
             return;
         }
