@@ -1884,4 +1884,6 @@
     <sys:String x:Key="L.Tray.HideSecondary">Nascondi seconde miniature</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenSettingsFmt">Apri le impostazioni di {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.LoginScreen">Selezione personaggio</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.ClickToSwitch">Clicca per passare</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemClickFmt">{0} · clicca per passare</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -1867,4 +1867,6 @@
     <sys:String x:Key="L.Tray.HideSecondary">セカンドサムネイルを非表示</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenSettingsFmt">{0} の設定を開く</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.LoginScreen">キャラクター選択</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.ClickToSwitch">クリックで切り替え</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemClickFmt">{0} · クリックで切り替え</sys:String> <!-- draft -->
 </ResourceDictionary>

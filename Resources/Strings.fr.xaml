@@ -1869,4 +1869,6 @@
     <sys:String x:Key="L.Tray.HideSecondary">Masquer les secondes vignettes</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenSettingsFmt">Ouvrir les paramètres de {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.LoginScreen">Sélection de personnage</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.ClickToSwitch">Cliquez pour changer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemClickFmt">{0} · cliquez pour changer</sys:String> <!-- draft -->
 </ResourceDictionary>

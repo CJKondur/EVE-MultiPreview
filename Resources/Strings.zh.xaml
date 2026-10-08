@@ -1884,4 +1884,6 @@
     <sys:String x:Key="L.Tray.HideSecondary">隐藏第二缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenSettingsFmt">打开 {0} 的设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.LoginScreen">角色选择</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.ClickToSwitch">点击切换</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemClickFmt">{0} · 点击切换</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -232,6 +232,7 @@ public partial class App : Application
                 _thumbnailManager.ActivateEveWindow(IntPtr.Zero, charName);
             };
             _alertHub.SaveRequested += () => _settings.SaveDelayed();
+            _alertHub.SystemLookup = _thumbnailManager.GetCharacterSystem;   // "Jita · click to switch" on toasts (Plan 4)
             PerfLog($"[Deferred] AlertHub created: {deferSw.ElapsedMilliseconds}ms");
 
             // Broadcast-key HUD — self-gates on ShowBroadcastKeyHud each tick.

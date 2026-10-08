@@ -1867,4 +1867,6 @@
     <sys:String x:Key="L.Tray.HideSecondary">보조 썸네일 숨기기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenSettingsFmt">설정 열기: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.LoginScreen">캐릭터 선택</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.ClickToSwitch">클릭하여 전환</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemClickFmt">{0} · 클릭하여 전환</sys:String> <!-- draft -->
 </ResourceDictionary>

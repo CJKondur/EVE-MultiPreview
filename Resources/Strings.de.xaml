@@ -1866,4 +1866,6 @@
     <sys:String x:Key="L.Tray.HideSecondary">Zweite Vorschaubilder ausblenden</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenSettingsFmt">Einstellungen von {0} öffnen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.LoginScreen">Charakterauswahl</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.ClickToSwitch">Zum Wechseln klicken</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemClickFmt">{0} · zum Wechseln klicken</sys:String> <!-- draft -->
 </ResourceDictionary>

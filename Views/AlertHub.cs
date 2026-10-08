@@ -46,9 +46,7 @@ public class AlertHub : IDisposable
         });
 
     private readonly Window _hubWindow;
-    private readonly Border _hubBadge;
-    private readonly TextBlock _badgeText;
-    private readonly TextBlock _hubIcon;
+    private readonly AlertHubVisuals.HubParts _hub;
     private readonly List<AlertToast> _activeToasts = new();
     private int _unreadCount = 0;
     private readonly AppSettings _settings;
@@ -70,6 +68,12 @@ public class AlertHub : IDisposable
     // Event for requesting settings save (direction change, position change)
     public event Action? SaveRequested;
 
+    /// <summary>The system a character was last seen in, for the toast (App sets ThumbnailManager.GetCharacterSystem).</summary>
+    public Func<string, string?>? SystemLookup { get; set; }
+
+    /// <summary>The bell, its badge and the icon (tests render them; the window itself is never shown in a test).</summary>
+    public AlertHubVisuals.HubParts Parts => _hub;
+
     public AlertHub(AppSettings settings)
     {
         _settings = settings;
@@ -82,7 +86,8 @@ public class AlertHub : IDisposable
 
         ToastDurationSeconds = Math.Max(1, settings.AlertToastDuration);
 
-        // Create the hub window (C6: 64x64 to match AHK hexagonal size)
+        // The hub window (68 × 68, as before, so saved positions and the toast stack don't move) holds the round bell
+        // and its count badge (Plan 4, the F2 reference). Transparent around the bell: clicks there reach the window below.
         _hubWindow = new Window
         {
             WindowStyle = WindowStyle.None,
@@ -91,73 +96,14 @@ public class AlertHub : IDisposable
             ShowInTaskbar = false,
             ShowActivated = false, // Passive overlay: showing it must never take focus from the EVE client (#110).
             Topmost = true,
-            Width = 68,
-            Height = 68,
-            ResizeMode = ResizeMode.NoResize
+            Width = AlertHubVisuals.HubWindowSize,
+            Height = AlertHubVisuals.HubWindowSize,
+            ResizeMode = ResizeMode.NoResize,
+            FontFamily = AlertHubVisuals.TextFont,
         };
-
-        // Create hub button with badge
-        var grid = new Grid();
-
-        // C6: Hub hexagon (matches AHK AlertHub hexagonal shape)
-        var hubHexagon = new System.Windows.Shapes.Polygon
-        {
-            Points = new PointCollection
-            {
-                new System.Windows.Point(32, 0),   // top
-                new System.Windows.Point(60, 16),  // top-right
-                new System.Windows.Point(60, 48),  // bottom-right
-                new System.Windows.Point(32, 64),  // bottom
-                new System.Windows.Point(4, 48),   // bottom-left
-                new System.Windows.Point(4, 16)    // top-left
-            },
-            Fill = new SolidColorBrush(Color.FromRgb(50, 50, 60)),
-            Stroke = new SolidColorBrush(Color.FromRgb(80, 140, 220)),
-            StrokeThickness = 2,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center,
-            Cursor = System.Windows.Input.Cursors.Hand
-        };
-
-        // C6: Default icon 🚨 (matches AHK)
-        _hubIcon = new TextBlock
-        {
-            Text = "\U0001F6A8",  // 🚨
-            FontSize = 22,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-
-        // Container for hexagon + icon overlay
-        var hubContainer = new Grid { Width = 64, Height = 64 };
-        hubContainer.Children.Add(hubHexagon);
-        hubContainer.Children.Add(_hubIcon);
-
-        // Badge (notification count)
-        _hubBadge = new Border
-        {
-            Width = 16,
-            Height = 16,
-            CornerRadius = new CornerRadius(8),
-            Background = Brushes.Red,
-            HorizontalAlignment = HorizontalAlignment.Right,
-            VerticalAlignment = VerticalAlignment.Top,
-            Visibility = Visibility.Collapsed
-        };
-
-        _badgeText = new TextBlock
-        {
-            FontSize = 9,
-            Foreground = Brushes.White,
-            FontWeight = FontWeights.Bold,
-            HorizontalAlignment = HorizontalAlignment.Center,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-        _hubBadge.Child = _badgeText;
-
-        grid.Children.Add(hubContainer);
-        grid.Children.Add(_hubBadge);
-        _hubWindow.Content = grid;
+        _hub = AlertHubVisuals.BuildHub();
+        var hubContainer = _hub.Bell;
+        _hubWindow.Content = _hub.Root;
 
         // Position from settings
         if (settings.AlertHubX != 0 || settings.AlertHubY != 0)
@@ -317,16 +263,16 @@ public class AlertHub : IDisposable
         _autoHideTimer.Start();
     }
 
-    /// <summary>C8: Set suspended state — blocks toasts and changes icon to ⏸.</summary>
+    /// <summary>C8: Set suspended state — blocks toasts and shows the pause sign on the hub.</summary>
     public void SetSuspended(bool suspended)
     {
         _isSuspended = suspended;
-        Application.Current?.Dispatcher.Invoke(() =>
-        {
-            _hubIcon.Text = suspended ? "⏸" : "\U0001F6A8"; // ⏸ or 🚨
-        });
+        _hubWindow.Dispatcher.Invoke(RefreshIcon);
         Debug.WriteLine($"[AlertHub:Suspend] {(suspended ? "⏸ Suspended" : "▶ Resumed")}");
     }
+
+    /// <summary>The hub's icon follows one rule (AlertHubVisuals.HubGlyph): picker open, paused, else the bell.</summary>
+    private void RefreshIcon() => _hub.Icon.Text = AlertHubVisuals.HubGlyph(_directionPicker != null, _isSuspended);
 
     /// <summary>Show a toast notification for an alert event.</summary>
     public void ShowToast(string characterName, string alertType, string severity)
@@ -355,7 +301,7 @@ public class AlertHub : IDisposable
             var color = GetSeverityColor(severity);
 
             // Create toast window
-            var toast = new AlertToast(characterName, alertType, severity, color, ToastDurationSeconds);
+            var toast = new AlertToast(characterName, alertType, color, ToastDurationSeconds, SystemLookup?.Invoke(characterName));
             toast.Window.Closed += (_, _) =>
             {
                 _activeToasts.RemoveAll(t => t == toast);
@@ -400,11 +346,11 @@ public class AlertHub : IDisposable
 
     private void PositionToast(AlertToast toast, int index)
     {
-        double spacing = 5;
-        double toastH = 50;
-        double toastW = 200;
-        double hubW = 68;
-        double hubH = 68;
+        double spacing = AlertHubVisuals.ToastGap;
+        double toastH = AlertHubVisuals.ToastHeight;
+        double toastW = AlertHubVisuals.ToastWidth;
+        double hubW = AlertHubVisuals.HubWindowSize;
+        double hubH = AlertHubVisuals.HubWindowSize;
         double hubCenterX = _hubWindow.Left + hubW / 2;
         double hubCenterY = _hubWindow.Top + hubH / 2;
 
@@ -445,14 +391,9 @@ public class AlertHub : IDisposable
         {
             _directionPicker.Close();
             _directionPicker = null;
-            _hubIcon.Text = _unreadCount > 0 ? "🚨" : "🔔";
+            RefreshIcon();
             return;
         }
-
-        _hubIcon.Text = "✕"; // Swap to ✕ while picker is open
-
-        var accent = Color.FromRgb(227, 106, 13); // #E36A0D
-        var dimmed = Color.FromRgb(100, 100, 110);
 
         var popup = new Window
         {
@@ -472,35 +413,15 @@ public class AlertHub : IDisposable
             Height = 100
         };
 
-        // Create directional arrows — all solid equilateral triangles for consistency
-        string[] arrows = { "▲", "▶", "▼", "◀" };
-        // Center each 28x28 button in 100x100 canvas (center=50, offset=50-14=36)
+        // Up, right, down, left: 28 × 28 buttons centred on the edges of the 100 × 100 picker (centre 50, 50 − 14 = 36).
+        string[] arrows = { AlertHubVisuals.Glyphs.Up, AlertHubVisuals.Glyphs.Right, AlertHubVisuals.Glyphs.Down, AlertHubVisuals.Glyphs.Left };
+        string[] names = { "up", "right", "down", "left" };
         double[,] positions = { { 36, 2 }, { 70, 36 }, { 36, 70 }, { 2, 36 } };
 
         for (int i = 0; i < 4; i++)
         {
             int dir = i;
-            bool isCurrentDir = ToastDirection == dir;
-
-            var arrowBtn = new Border
-            {
-                Width = 28,
-                Height = 28,
-                CornerRadius = new CornerRadius(4),
-                Background = new SolidColorBrush(isCurrentDir ? accent : dimmed),
-                BorderBrush = new SolidColorBrush(isCurrentDir ? accent : Color.FromRgb(60, 60, 70)),
-                BorderThickness = new Thickness(isCurrentDir ? 2 : 1),
-                Cursor = System.Windows.Input.Cursors.Hand,
-                Child = new TextBlock
-                {
-                    Text = arrows[i],
-                    FontSize = 14,
-                    Foreground = Brushes.White,
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    VerticalAlignment = VerticalAlignment.Center
-                }
-            };
-
+            var arrowBtn = AlertHubVisuals.BuildPickerButton(arrows[i], current: ToastDirection == dir);
             Canvas.SetLeft(arrowBtn, positions[i, 0]);
             Canvas.SetTop(arrowBtn, positions[i, 1]);
 
@@ -511,40 +432,23 @@ public class AlertHub : IDisposable
                 SaveRequested?.Invoke();
                 ReflowToasts();
                 popup.Close();
-                _hubIcon.Text = _unreadCount > 0 ? "🚨" : "🔔";
                 _directionPicker = null;
-                Debug.WriteLine($"[AlertHub:Direction] ✅ Toast direction set to {dir} ({arrows[dir]})");
+                RefreshIcon();
+                Debug.WriteLine($"[AlertHub:Direction] ✅ Toast direction set to {dir} ({names[dir]})");
             };
 
             canvas.Children.Add(arrowBtn);
         }
 
-        // Close button in center
-        var closeBtn = new Border
-        {
-            Width = 26,
-            Height = 26,
-            CornerRadius = new CornerRadius(13),
-            Background = new SolidColorBrush(Color.FromRgb(60, 60, 70)),
-            BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 110)),
-            BorderThickness = new Thickness(1),
-            Cursor = System.Windows.Input.Cursors.Hand,
-            Child = new TextBlock
-            {
-                Text = "✕",
-                FontSize = 12,
-                Foreground = Brushes.White,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center
-            }
-        };
+        // Close button in the centre
+        var closeBtn = AlertHubVisuals.BuildPickerButton(AlertHubVisuals.Glyphs.Close, current: false, size: 26, round: true);
         Canvas.SetLeft(closeBtn, 37);
         Canvas.SetTop(closeBtn, 37);
         closeBtn.MouseLeftButtonDown += (_, _) =>
         {
             popup.Close();
-            _hubIcon.Text = _unreadCount > 0 ? "🚨" : "🔔";
             _directionPicker = null;
+            RefreshIcon();
         };
         canvas.Children.Add(closeBtn);
 
@@ -557,41 +461,32 @@ public class AlertHub : IDisposable
         popup.Deactivated += (_, _) =>
         {
             try { popup.Close(); } catch { }
-            _hubIcon.Text = _unreadCount > 0 ? "🚨" : "🔔";
             _directionPicker = null;
+            RefreshIcon();
         };
 
-        popup.Show();
         _directionPicker = popup;
+        RefreshIcon();   // ✕ while the picker is open
+        popup.Show();
         Debug.WriteLine($"[AlertHub:Direction] 🔧 Direction picker opened (current={ToastDirection})");
     }
 
     private void UpdateBadge()
     {
-        if (_unreadCount > 0)
-        {
-            _badgeText.Text = _unreadCount > 9 ? "9+" : _unreadCount.ToString();
-            _hubBadge.Visibility = Visibility.Visible;
+        AlertHubVisuals.SetBadge(_hub, _unreadCount);
+        RefreshIcon();
+        if (_unreadCount == 0) return;
 
-            // Hub emoji swap (AHK: 🚨 when active)
-            _hubIcon.Text = "🚨";
-
-            // Badge pulse animation (AHK: 4×200ms white↔red)
-            var pulse = new ColorAnimation(
-                Colors.Red, Colors.White,
-                TimeSpan.FromMilliseconds(200))
-            {
-                AutoReverse = true,
-                RepeatBehavior = new RepeatBehavior(4)
-            };
-            _hubBadge.Background = new SolidColorBrush(Colors.Red);
-            ((SolidColorBrush)_hubBadge.Background).BeginAnimation(SolidColorBrush.ColorProperty, pulse);
-        }
-        else
+        // Badge pulse (AHK: 4×200ms badge colour ↔ white)
+        var badgeColour = FluentPalette.Color("Fx.AlertBadge");
+        var pulse = new ColorAnimation(badgeColour, Colors.White, TimeSpan.FromMilliseconds(200))
         {
-            _hubBadge.Visibility = Visibility.Collapsed;
-            _hubIcon.Text = "🔔";
-        }
+            AutoReverse = true,
+            RepeatBehavior = new RepeatBehavior(4)
+        };
+        var background = new SolidColorBrush(badgeColour);
+        _hub.Badge.Background = background;
+        background.BeginAnimation(SolidColorBrush.ColorProperty, pulse);
     }
 
     private Color GetSeverityColor(string severity)
@@ -619,14 +514,15 @@ public class AlertHub : IDisposable
     }
 }
 
-/// <summary>Individual toast notification window.</summary>
+/// <summary>One toast window (Plan 4: the reference's toast, built by AlertHubVisuals). Left-click switches to the
+/// character, right-click dismisses, and it closes by itself after the toast length.</summary>
 internal class AlertToast : IDisposable
 {
     public Window Window { get; }
     public event Action? Clicked;
     private readonly DispatcherTimer _dismissTimer;
 
-    public AlertToast(string characterName, string alertType, string severity, Color severityColor, int durationSeconds)
+    public AlertToast(string characterName, string alertType, Color severityColor, int durationSeconds, string? system = null)
     {
         Window = new Window
         {
@@ -636,53 +532,13 @@ internal class AlertToast : IDisposable
             ShowInTaskbar = false,
             ShowActivated = false, // Passive overlay: showing it must never take focus from the EVE client (#110).
             Topmost = true,
-            Width = 200,
-            Height = 50,
-            ResizeMode = ResizeMode.NoResize
+            Width = AlertHubVisuals.ToastWidth,
+            Height = AlertHubVisuals.ToastHeight,
+            ResizeMode = ResizeMode.NoResize,
+            FontFamily = AlertHubVisuals.TextFont,
         };
 
-        var border = new Border
-        {
-            Background = new SolidColorBrush(Color.FromArgb(230, 30, 30, 40)),
-            BorderBrush = new SolidColorBrush(severityColor),
-            BorderThickness = new Thickness(2),
-            CornerRadius = new CornerRadius(6),
-            Padding = new Thickness(8, 4, 8, 4),
-            Cursor = System.Windows.Input.Cursors.Hand
-        };
-
-        var stack = new StackPanel();
-
-        // Alert type + severity icon
-        string icon = severity switch
-        {
-            "critical" => "🚨",
-            "warning" => "⚠️",
-            "info" => "ℹ️",
-            _ => "🔔"
-        };
-
-        string displayType = AlertHub.EventDisplayName(alertType);
-
-        stack.Children.Add(new TextBlock
-        {
-            Text = $"{icon} {displayType}",
-            Foreground = new SolidColorBrush(severityColor),
-            FontSize = 12,
-            FontWeight = FontWeights.SemiBold,
-            FontFamily = new System.Windows.Media.FontFamily("Segoe UI")
-        });
-
-        stack.Children.Add(new TextBlock
-        {
-            Text = characterName,
-            Foreground = Brushes.White,
-            FontSize = 10,
-            FontFamily = new System.Windows.Media.FontFamily("Segoe UI"),
-            Opacity = 0.8
-        });
-
-        border.Child = stack;
+        var border = AlertHubVisuals.BuildToast(characterName, alertType, severityColor, system);
 
         // Click to focus character
         border.MouseLeftButtonDown += (_, _) =>

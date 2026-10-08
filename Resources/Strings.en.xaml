@@ -1866,4 +1866,6 @@
     <sys:String x:Key="L.Tray.HideSecondary">Hide second thumbnails</sys:String>
     <sys:String x:Key="L.Ctx.OpenSettingsFmt">Open {0}'s settings</sys:String>
     <sys:String x:Key="L.Ctx.LoginScreen">Character select</sys:String>
+    <sys:String x:Key="L.Hub.ClickToSwitch">Click to switch</sys:String>
+    <sys:String x:Key="L.Hub.SystemClickFmt">{0} · click to switch</sys:String>
 </ResourceDictionary>
