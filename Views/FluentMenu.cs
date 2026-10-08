@@ -3,7 +3,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -33,6 +35,12 @@ public static class FluentMenu
 
     private static readonly Font MenuFont = new("Segoe UI", 9.75f);   // 13 px at 96 DPI, as the reference
 
+    private static readonly ConditionalWeakTable<ToolStrip, object> Styled = new();
+
+    /// <summary>Glyph bitmaps shared by every item that draws the same glyph, colour and size. Menus are rebuilt on each
+    /// open and ToolStripItemCollection.Clear() doesn't dispose images, so per-item bitmaps would pile up. Never disposed.</summary>
+    private static readonly ConcurrentDictionary<(char, int, int, int), Bitmap> GlyphCache = new();
+
     private sealed record Look(char? Glyph, bool Destructive);
 
     /// <summary>Gives an item an icon, drawn when its menu shows icons. Call before adding the item to a styled menu.</summary>
@@ -51,6 +59,7 @@ public static class FluentMenu
     /// the icon column, and rows sized as items arrive, so items rebuilt on every open are sized too.</summary>
     public static void Style(ToolStripDropDown menu, bool showIcons)
     {
+        if (!Styled.TryAdd(menu, Styled)) return;   // already styled: handlers and renderer must not stack
         menu.Renderer = new FluentMenuRenderer();
         menu.Font = MenuFont;
         if (menu is ToolStripDropDownMenu dropDown)
@@ -73,8 +82,11 @@ public static class FluentMenu
             item.Padding = new Padding(item.Padding.Left, pad, item.Padding.Right, pad);
         }
         if (item.Tag is Look { Glyph: char glyph } look)
-            item.Image = GlyphImage(glyph, FluentPalette.Drawing(look.Destructive ? "Fx.Critical" : "Fx.Icon"),
-                menu.ImageScalingSize.Width, menu.ImageScalingSize.Height);
+        {
+            var colour = FluentPalette.Drawing(look.Destructive ? "Fx.Critical" : "Fx.Icon");
+            var (w, h) = (menu.ImageScalingSize.Width, menu.ImageScalingSize.Height);
+            item.Image = GlyphCache.GetOrAdd((glyph, colour.ToArgb(), w, h), _ => GlyphImage(glyph, colour, w, h));
+        }
     }
 
     /// <summary>A glyph of the icon font in the right-hand <paramref name="height"/>-pixel square of a
