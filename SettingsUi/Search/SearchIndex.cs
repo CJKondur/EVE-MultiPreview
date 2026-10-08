@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace EveMultiPreview.SettingsUi;
 
-public enum SearchKind { Page, Setting, Action, Help }
+public enum SearchKind { Page, Section, Setting, Action, Help }
 
 /// <summary>Text is shown; Alt (English label, description, help body) only matches.
 /// ItemId is the card to highlight; null for a page.</summary>
@@ -28,6 +28,7 @@ public static class SearchIndex
             foreach (var section in page.Sections)
             {
                 var sectionTitle = resolve(section.TitleKey);
+                Add(list, SearchKind.Section, sectionTitle, english(section.TitleKey), path, page.Id, section.Items.FirstOrDefault()?.Id);
                 foreach (var item in section.Items)
                 {
                     switch (item)
