@@ -60,8 +60,11 @@ public static class MergedGroups
         return list;
     }
 
+    /// <summary>Free when no colour group and no hotkey group of ANY profile uses the name.</summary>
     public static bool IsNameFree(AppSettings s, string name) =>
-        !s.ThumbnailGroups.Any(g => g.Name == name) && !s.HotkeyGroups.ContainsKey(name);
+        !s.ThumbnailGroups.Any(g => g.Name == name)
+        && !s.HotkeyGroups.ContainsKey(name)
+        && !s.Profiles.Values.Any(p => p.HotkeyGroups.ContainsKey(name));
 
     /// <summary>"New group": an empty hotkey half in this profile. Null for a blank or used name.</summary>
     public static MergedGroup? New(AppSettings s, string name)
@@ -91,6 +94,7 @@ public static class MergedGroups
     {
         if (g.Keys == null)
         {
+            if (key.Length == 0) return true;   // clearing a key on a group with no key half: nothing to clear
             if (s.HotkeyGroups.ContainsKey(g.Name)) return false;
             g.Keys = new HotkeyGroup { Characters = g.Members.ToList() };
             s.HotkeyGroups[g.Name] = g.Keys;
@@ -133,17 +137,15 @@ public static class MergedGroups
         SetMembers(g, list);
     }
 
-    /// <summary>Renames both halves. False for a blank name or one another group uses.</summary>
+    /// <summary>Renames both halves: the colour group (global) and the key half in EVERY profile
+    /// that has one. False for a blank name or one any group in any profile uses.</summary>
     public static bool Rename(AppSettings s, MergedGroup g, string newName)
     {
         newName = newName.Trim();
         if (newName == g.Name) return true;
         if (newName.Length == 0 || !IsNameFree(s, newName)) return false;
-        if (g.Keys != null)
-        {
-            if (s.HotkeyGroups.TryGetValue(g.Name, out var k) && ReferenceEquals(k, g.Keys)) s.HotkeyGroups.Remove(g.Name);
-            s.HotkeyGroups[newName] = g.Keys;
-        }
+        foreach (var profile in s.Profiles.Values)
+            if (profile.HotkeyGroups.Remove(g.Name, out var half)) profile.HotkeyGroups[newName] = half;
         if (g.Colour != null) g.Colour.Name = newName;
         g.Name = newName;
         return true;

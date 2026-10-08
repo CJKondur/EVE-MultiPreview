@@ -96,7 +96,8 @@ public sealed class GroupsEditor : System.Windows.Controls.UserControl, IRefresh
                 name.Text = g.Name;
                 return;
             }
-            Changed(ApplyScope.Thumbnails);
+            name.Text = g.Name;   // in place: a rebuild would eat the click that moved focus
+            _ctx.Applier.Request(ApplyScope.Thumbnails);
         }
         name.LostFocus += (_, _) => CommitName();
         name.KeyDown += (_, e) => { if (e.Key == Key.Enter) { CommitName(); e.Handled = true; } };
