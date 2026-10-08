@@ -20,7 +20,12 @@ public static class HotkeyUses
 
     /// <summary>Uses that aren't hotkey cards: character keys and group keys (registered by the
     /// Clients pages). A source may return uses with no key; All() drops them.</summary>
-    public static readonly List<Func<AppSettings, IEnumerable<HotkeyUse>>> Sources = new() { GroupKeys };
+    public static readonly List<Func<AppSettings, IEnumerable<HotkeyUse>>> Sources = new() { CharacterKeys, GroupKeys };
+
+    /// <summary>This profile's character keys, set or not (Clients › Characters).</summary>
+    public static IEnumerable<HotkeyUse> CharacterKeys(AppSettings s) =>
+        CharacterDirectory.Current(s).Hotkeys.Select(kv =>
+            new HotkeyUse(CharacterId(kv.Key), string.Format(SettingsContext.Str("L.S.Use.Character"), kv.Key), kv.Value?.Key ?? ""));
 
     /// <summary>This profile's group keys, set or not (Clients › Groups).</summary>
     public static IEnumerable<HotkeyUse> GroupKeys(AppSettings s) =>

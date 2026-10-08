@@ -15,12 +15,52 @@ public static class ClientsPages
     public const string WindowsId = "clients.windows";
     public const string AudioId = "clients.audio";
 
-    public static IReadOnlyList<PageDef> All => new[] { Groups() };
+    public static IReadOnlyList<PageDef> All => new[] { Characters(), Groups() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
+        new HelpTopic(CharactersId, "table", new[] { "clients.characters.table" }),
+        new HelpTopic(CharactersId, "clicks", new[] { "clients.characters.ctrlClick", "clients.characters.shiftClick", "clients.characters.customColors" }),
         new HelpTopic(GroupsId, "keys", new[] { "clients.groups.editor" }),
         new HelpTopic(GroupsId, "scope", new[] { "clients.groups.showBorders" }),
+    };
+
+    private static PageDef Characters() => new(CharactersId, NavGroup.Clients, new[]
+    {
+        new SectionDef("clients.characters.list", new PageItem[]
+        {
+            new EditorItem("clients.characters.table", ctx => new CharactersEditor(ctx))
+            {
+                Binds = new[] { "Profile.Hotkeys", "AppSettings.ThumbnailVisibility" },
+                // The hotkey cell captures and clears (OnHotkeyEdit/OnHotkeyDelete). Running characters are
+                // listed anyway, so the annotation and colour "add all" buttons have nothing left to do.
+                Replaces = new[]
+                {
+                    "LvHotkeys", "LvVisibility", "OnHotkeyAdd", "OnHotkeyAddAllActive", "OnHotkeyEdit", "OnHotkeyDelete",
+                    "OnRefreshVisibility", "OnAnnotationAddAllActive", "OnColorAddAllActive",
+                },
+            },
+        }),
+        new SectionDef("clients.characters.colors", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("clients.characters.customColors", s => s.CustomColorsActive, ApplyScope.Thumbnails) with
+            {
+                Replaces = new[] { "ChkCustomColorsActive" },
+            }),
+        }),
+        new SectionDef("clients.characters.clicks", new PageItem[]
+        {
+            // Read live by ThumbnailWindow on every click: Save is enough.
+            new SettingItem(Setting.Choice("clients.characters.ctrlClick", s => s.CtrlClickAction, ClickOptions()) with { Replaces = new[] { "CmbCtrlClick" } }),
+            new SettingItem(Setting.Choice("clients.characters.shiftClick", s => s.ShiftClickAction, ClickOptions()) with { Replaces = new[] { "CmbShiftClick" } }),
+        }),
+    });
+
+    private static IReadOnlyList<ChoiceOption> ClickOptions() => new[]
+    {
+        new ChoiceOption(0, "L.S.Opt.ClickSwitch"),
+        new ChoiceOption(1, "L.S.Opt.ClickMinimize"),
+        new ChoiceOption(2, "L.S.Opt.ClickExclude"),
     };
 
     private static PageDef Groups() => new(GroupsId, NavGroup.Clients, new[]

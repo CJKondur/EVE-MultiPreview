@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace EveMultiPreview.SettingsUi;
 
-public enum SearchKind { Page, Section, Setting, Action, Help }
+public enum SearchKind { Page, Section, Setting, Action, Help, Character }
 
 /// <summary>Text is shown; Alt (English label, description, help body) only matches.
 /// ItemId is the card to highlight; null for a page.</summary>

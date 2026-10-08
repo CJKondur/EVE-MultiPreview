@@ -881,4 +881,35 @@
     <sys:String x:Key="L.Help.clients.groups.keys.Body">**Next client** and **Previous client** switch between the group's members in the order shown. Drag a name onto another to move it there, or onto empty space to move it last.&#x0A;&#x0A;A character can be in several groups. Groups that share a next key take turns as one list.</sys:String>
     <sys:String x:Key="L.Help.clients.groups.scope.Title">Colours and profiles</sys:String>
     <sys:String x:Key="L.Help.clients.groups.scope.Body">A group's **colour** applies in every profile. Its **keys** and **order** belong to the current profile, so each profile can switch differently.&#x0A;&#x0A;Turn on **Show group borders** to paint every member's thumbnail in its group colour.&#x0A;&#x0A;**Delete** asks whether to remove the whole group, colour included, or only this profile's keys and order.</sys:String>
+    <!-- Clients › Characters -->
+    <sys:String x:Key="L.S.Page.clients.characters">Characters</sys:String>
+    <sys:String x:Key="L.S.Page.clients.characters.Desc">Your characters, their keys and thumbnails. Open one to see everything about it.</sys:String>
+    <sys:String x:Key="L.S.Sec.clients.characters.list">All characters</sys:String>
+    <sys:String x:Key="L.S.Characters.ColCharacter">Character</sys:String>
+    <sys:String x:Key="L.S.Characters.ColSystem">System</sys:String>
+    <sys:String x:Key="L.S.Characters.ColHotkey">Hotkey</sys:String>
+    <sys:String x:Key="L.S.Characters.ColGroup">Group</sys:String>
+    <sys:String x:Key="L.S.Characters.ColShow">Show</sys:String>
+    <sys:String x:Key="L.S.Characters.ColCycle">Cycle</sys:String>
+    <sys:String x:Key="L.S.Characters.Offline">Not running</sys:String>
+    <sys:String x:Key="L.S.Characters.Open">Open {0}'s settings</sys:String>
+    <sys:String x:Key="L.S.Characters.Empty">No characters yet. Start EVE and log in, or add one by name.</sys:String>
+    <sys:String x:Key="L.S.Characters.CycleNote">Cycle lasts until MultiPreview restarts: a character you take out of cycling comes back next time.</sys:String>
+    <sys:String x:Key="L.S.Characters.Add">Add a character…</sys:String>
+    <sys:String x:Key="L.S.Characters.AddTitle">Add a character</sys:String>
+    <sys:String x:Key="L.S.Characters.AddExists">'{0}' is already on the list.</sys:String>
+    <sys:String x:Key="L.S.Sec.clients.characters.colors">Colours</sys:String>
+    <sys:String x:Key="L.S.clients.characters.customColors">Use per-character colours</sys:String>
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Each character's own border and text colours, set on its page. Off: every character uses the Thumbnails colours.</sys:String>
+    <sys:String x:Key="L.S.Sec.clients.characters.clicks">Clicking thumbnails</sys:String>
+    <sys:String x:Key="L.S.clients.characters.ctrlClick">Ctrl+click on a thumbnail</sys:String>
+    <sys:String x:Key="L.S.clients.characters.shiftClick">Shift+click on a thumbnail</sys:String>
+    <sys:String x:Key="L.S.Opt.ClickSwitch">Switch to it</sys:String>
+    <sys:String x:Key="L.S.Opt.ClickMinimize">Minimize it</sys:String>
+    <sys:String x:Key="L.S.Opt.ClickExclude">Skip it when cycling</sys:String>
+    <sys:String x:Key="L.Help.clients.characters.Intro">Every character MultiPreview knows: the ones running now and the ones you set up before. Open a character with › to see all of its settings on one page.</sys:String>
+    <sys:String x:Key="L.Help.clients.characters.table.Title">The character list</sys:String>
+    <sys:String x:Key="L.Help.clients.characters.table.Body">- **Hotkey** switches straight to that character. Click it to record a key.&#x0A;- **Show** hides or shows its thumbnail.&#x0A;- **Cycle** leaves it out of the next and previous client keys until MultiPreview restarts.&#x0A;- **›** opens the character's own page.&#x0A;&#x0A;Two characters can share a hotkey: pressing it switches between them.&#x0A;&#x0A;**Add all running clients** keeps your running characters on the list after they log out.</sys:String>
+    <sys:String x:Key="L.Help.clients.characters.clicks.Title">Clicking thumbnails</sys:String>
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">A plain click switches to that client. **Ctrl+click** and **Shift+click** can minimize it or skip it when cycling instead. Ctrl is also EVE's lock-target key, so pick what suits how you play.&#x0A;&#x0A;**Use per-character colours** turns on the border and text colours you set on each character's page.</sys:String>
 </ResourceDictionary>

@@ -183,11 +183,24 @@ public partial class SettingsShell : Window, ISettingsHost
         UpdateHelp();
     }
 
-    /// <summary>Built on first use and rebuilt after a reload, so a language switch is searchable at once.</summary>
-    private IReadOnlyList<SearchEntry> SearchEntries() =>
-        _searchIndex ??= SearchIndex.Build(_pages, HelpTopics.All,
-            key => LocalizationService.Str(key, ""),
-            key => EnglishText(key));
+    private string? _searchCharacters;
+
+    /// <summary>Built on first use, rebuilt after a reload (a language switch) and whenever the known
+    /// characters change, so a client that just logged in is searchable (spec §6).</summary>
+    private IReadOnlyList<SearchEntry> SearchEntries()
+    {
+        var names = CharacterDirectory.Known(_ctx.S, CharacterDirectory.Running(_ctx));
+        var key = string.Join("\n", names);
+        if (_searchIndex == null || key != _searchCharacters)
+        {
+            _searchCharacters = key;
+            _searchIndex = SearchIndex.Build(_pages, HelpTopics.All,
+                k => LocalizationService.Str(k, ""),
+                k => EnglishText(k),
+                extra: CharacterStores.SearchEntries(names, k => LocalizationService.Str(k, "")));
+        }
+        return _searchIndex;
+    }
 
     private static Dictionary<string, string>? _english;
 
