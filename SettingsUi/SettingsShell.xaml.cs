@@ -323,15 +323,32 @@ public partial class SettingsShell : Window, ISettingsHost
         }
     }
 
-    /// <summary>Opening help widens a narrow window instead of squeezing the page. A window that grows is nudged left
-    /// so it stays on the screen; a window that isn't on the screen (tests) is left where it is.</summary>
+    /// <summary>Opening help widens a narrow window instead of squeezing the page, on the monitor the window is on. A
+    /// window that grows is nudged left so it stays on that monitor; a window that isn't on it (tests) is left where it
+    /// is, and so is a maximized one.</summary>
     private void KeepRoomForThePage()
     {
-        var area = SystemParameters.WorkArea;
+        var area = WorkAreaOfThisMonitor();
         MinWidth = Math.Min(Vm.HelpOpen ? HelpOpenMinWidth : ClosedMinWidth, area.Width);
-        var width = Math.Max(Width, MinWidth);
-        if (Left >= area.Left && Left < area.Right && Left + width > area.Right)
-            Left = Math.Max(area.Left, area.Right - width);
+        if (WindowState != WindowState.Normal) return;
+        if (Width < MinWidth) Width = MinWidth;
+        Left = NudgedLeft(Left, Width, area.Left, area.Right);
+    }
+
+    /// <summary>The left edge that keeps a window of this width inside [areaLeft, areaRight], or the same left when the
+    /// window starts outside that span (or has no position yet).</summary>
+    public static double NudgedLeft(double left, double width, double areaLeft, double areaRight) =>
+        left >= areaLeft && left < areaRight && left + width > areaRight
+            ? Math.Max(areaLeft, areaRight - width)
+            : left;
+
+    private Rect WorkAreaOfThisMonitor()
+    {
+        var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        if (hwnd == IntPtr.Zero) return SystemParameters.WorkArea;
+        var px = MonitorInfo.WorkAreaOf(hwnd);
+        var dpi = VisualTreeHelper.GetDpi(this);
+        return new Rect(px.Left / dpi.DpiScaleX, px.Top / dpi.DpiScaleY, px.Width / dpi.DpiScaleX, px.Height / dpi.DpiScaleY);
     }
 
     /// <summary>While help is open, the card under the mouse or keyboard focus scrolls the pane to its topic.</summary>

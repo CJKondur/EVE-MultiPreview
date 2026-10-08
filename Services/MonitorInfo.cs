@@ -39,6 +39,9 @@ public static class MonitorInfo
         return (sc.Bounds.Width, sc.Bounds.Height);
     }
 
+    /// <summary>The work area (screen minus taskbar), in this process's pixels, of the monitor the window is mostly on.</summary>
+    public static System.Drawing.Rectangle WorkAreaOf(IntPtr hwnd) => WinForms.Screen.FromHandle(hwnd).WorkingArea;
+
     /// <summary>True when this monitor's Windows scaling differs from the primary's.</summary>
     public static bool ScalingDiffersFromPrimary(WinForms.Screen sc)
     {
