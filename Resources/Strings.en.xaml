@@ -718,4 +718,25 @@
     <sys:String x:Key="L.S.Off">Off</sys:String>
     <sys:String x:Key="L.S.Shell.Browse">Browse…</sys:String>
     <sys:String x:Key="L.S.Unit.Percent">%</sys:String>
+    <sys:String x:Key="L.S.Profile.New">New profile…</sys:String>
+    <sys:String x:Key="L.S.Profile.Copy">Copy to other profiles…</sys:String>
+    <sys:String x:Key="L.S.Profile.Delete">Delete profile…</sys:String>
+    <sys:String x:Key="L.S.Profile.BackUp">Back up settings now</sys:String>
+    <sys:String x:Key="L.S.Profile.Manage">Manage profiles</sys:String>
+    <sys:String x:Key="L.S.Profile.NamePrompt">Name for the new profile:</sys:String>
+    <sys:String x:Key="L.S.Profile.Created">Profile '{0}' created and switched to.</sys:String>
+    <sys:String x:Key="L.S.Profile.NameTaken">Can't use '{0}': the name is empty or already taken.</sys:String>
+    <sys:String x:Key="L.S.Profile.DeleteTitle">Delete profile</sys:String>
+    <sys:String x:Key="L.S.Profile.DeleteConfirm">Delete the profile '{0}'? Its positions, hotkeys and settings are removed. This can't be undone.</sys:String>
+    <sys:String x:Key="L.S.Profile.Deleted">Profile '{0}' deleted.</sys:String>
+    <sys:String x:Key="L.S.Profile.LastOne">You can't delete your only profile.</sys:String>
+    <sys:String x:Key="L.S.Profile.Copied">Copied to {0} profile(s).</sys:String>
+    <sys:String x:Key="L.S.Profile.OnlyOne">You have one profile. Name a new profile to copy it into:</sys:String>
+    <sys:String x:Key="L.S.Backup.Saved">Backup saved: {0}</sys:String>
+    <sys:String x:Key="L.S.Backup.Exported">Settings exported.</sys:String>
+    <sys:String x:Key="L.S.Backup.NotSettings">That file isn't a MultiPreview settings file.</sys:String>
+    <sys:String x:Key="L.S.Backup.ImportTitle">Import settings</sys:String>
+    <sys:String x:Key="L.S.Backup.ImportConfirm">Replace all your settings, in every profile, with the ones in {0}? Your current settings are backed up first.</sys:String>
+    <sys:String x:Key="L.S.Backup.Imported">Settings imported. Restart MultiPreview so every part of the app uses them.</sys:String>
+    <sys:String x:Key="L.S.Backup.Failed">That didn't work: {0}</sys:String>
 </ResourceDictionary>

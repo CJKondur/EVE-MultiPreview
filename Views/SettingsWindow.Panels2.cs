@@ -1951,16 +1951,7 @@ public partial class SettingsWindow
     /// dictionaries/lists are independent, then assigns each property in place
     /// (the target Profile reference is kept so live bindings stay valid).
     /// </summary>
-    private static void CopyProfileFull(Profile src, Profile dst)
-    {
-        if (src == null || dst == null || ReferenceEquals(src, dst)) return;
-        var json = System.Text.Json.JsonSerializer.Serialize(src);
-        var clone = System.Text.Json.JsonSerializer.Deserialize<Profile>(json);
-        if (clone == null) return;
-        foreach (var p in typeof(Profile).GetProperties())
-            if (p.CanRead && p.CanWrite)
-                p.SetValue(dst, p.GetValue(clone));
-    }
+    private static void CopyProfileFull(Profile src, Profile dst) => ProfileCopy.CopyFull(src, dst);
 
     private void OnBackupConfig(object s, RoutedEventArgs e)
     {

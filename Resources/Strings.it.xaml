@@ -742,4 +742,25 @@
     <sys:String x:Key="L.S.Off">Disattivo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Browse">Sfoglia…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.New">Nuovo profilo…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copy">Copia in altri profili…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Delete">Elimina profilo…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.BackUp">Esegui subito il backup delle impostazioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Manage">Gestisci profili</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NamePrompt">Nome del nuovo profilo:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Created">Profilo '{0}' creato e attivato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NameTaken">Impossibile usare '{0}': il nome è vuoto o già in uso.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteTitle">Elimina profilo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteConfirm">Eliminare il profilo '{0}'? Posizioni, scorciatoie e impostazioni verranno rimosse. L'operazione non può essere annullata.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Deleted">Profilo '{0}' eliminato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LastOne">Non puoi eliminare l'unico profilo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copied">Copiato in {0} profilo/i.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.OnlyOne">Hai un solo profilo. Inserisci il nome di un nuovo profilo in cui copiarlo:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Saved">Backup salvato: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Exported">Impostazioni esportate.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.NotSettings">Questo file non è un file di impostazioni di MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportTitle">Importa impostazioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportConfirm">Sostituire tutte le impostazioni, in ogni profilo, con quelle di {0}? Le impostazioni attuali vengono prima salvate in un backup.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">Impostazioni importate. Riavvia MultiPreview per far usare le impostazioni a ogni parte dell'app.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Failed">Non ha funzionato: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

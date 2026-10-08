@@ -725,4 +725,25 @@
     <sys:String x:Key="L.S.Off">オフ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Browse">参照…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.New">新しいプロファイル…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copy">他のプロファイルにコピー…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Delete">プロファイルを削除…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.BackUp">今すぐ設定をバックアップ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Manage">プロファイルの管理</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NamePrompt">新しいプロファイルの名前:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Created">プロファイル「{0}」を作成して切り替えました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NameTaken">「{0}」は使用できません。名前が空か、すでに使われています。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteTitle">プロファイルを削除</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteConfirm">プロファイル「{0}」を削除しますか？位置、ホットキー、設定が削除され、元に戻せません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Deleted">プロファイル「{0}」を削除しました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LastOne">唯一のプロファイルは削除できません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copied">{0} 件のプロファイルにコピーしました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.OnlyOne">プロファイルが 1 つだけです。コピー先の新しいプロファイル名を入力してください:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Saved">バックアップを保存しました: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Exported">設定をエクスポートしました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.NotSettings">このファイルは MultiPreview の設定ファイルではありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportTitle">設定のインポート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportConfirm">すべてのプロファイルの設定を {0} の内容に置き換えますか？現在の設定は先にバックアップされます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">設定をインポートしました。アプリ全体に反映するには MultiPreview を再起動してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Failed">うまくいきませんでした: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

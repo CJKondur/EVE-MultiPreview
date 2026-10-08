@@ -746,4 +746,25 @@
     <sys:String x:Key="L.S.Off">Desactivado</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Browse">Examinar…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.New">Nuevo perfil…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copy">Copiar a otros perfiles…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Delete">Eliminar perfil…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.BackUp">Hacer copia de seguridad ahora</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Manage">Administrar perfiles</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NamePrompt">Nombre del nuevo perfil:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Created">Perfil '{0}' creado y activado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NameTaken">No se puede usar '{0}': el nombre está vacío o ya está en uso.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteTitle">Eliminar perfil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteConfirm">¿Eliminar el perfil '{0}'? Se borrarán sus posiciones, atajos y ajustes. No se puede deshacer.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Deleted">Perfil '{0}' eliminado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LastOne">No puedes eliminar tu único perfil.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copied">Copiado a {0} perfil(es).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.OnlyOne">Tienes un solo perfil. Escribe el nombre de un perfil nuevo al que copiarlo:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Saved">Copia de seguridad guardada: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Exported">Ajustes exportados.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.NotSettings">Ese archivo no es un archivo de ajustes de MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportTitle">Importar ajustes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportConfirm">¿Reemplazar todos tus ajustes, en todos los perfiles, por los de {0}? Antes se hará una copia de seguridad de tus ajustes actuales.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">Ajustes importados. Reinicia MultiPreview para que todas las partes de la aplicación los usen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Failed">No ha funcionado: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

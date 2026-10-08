@@ -50,6 +50,20 @@ public sealed class SettingsService : IDisposable
 
     /// <summary>Directory the config lives in — used to co-locate layout_presets.json.</summary>
     public string ConfigDirectory => Path.GetDirectoryName(_settingsPath) ?? AppContext.BaseDirectory;
+    /// <summary>Full path of the settings file (backups and exports copy it).</summary>
+    public string SettingsPath => _settingsPath;
+
+    /// <summary>Parses settings-file text in either format (AHK nested, or flat), with the same
+    /// options Load uses. Throws JsonException when the text is not a settings file.</summary>
+    public static AppSettings ParseJson(string json)
+    {
+        if (json.Contains("\"global_Settings\"") || json.Contains("\"_Profiles\""))
+            return (JsonSerializer.Deserialize<AhkConfigRoot>(json, _jsonOptions)
+                    ?? throw new JsonException("Not a settings file")).ToAppSettings();
+        return JsonSerializer.Deserialize<AppSettings>(json, _jsonOptions)
+               ?? throw new JsonException("Not a settings file");
+    }
+
     public Profile CurrentProfile => _settings.Profiles.GetValueOrDefault(_settings.LastUsedProfile) ?? new Profile();
 
     public SettingsService(string? settingsPath = null)

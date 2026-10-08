@@ -744,4 +744,25 @@
     <sys:String x:Key="L.S.Off">Выкл</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Browse">Обзор…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.New">Новый профиль…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copy">Копировать в другие профили…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Delete">Удалить профиль…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.BackUp">Создать резервную копию настроек</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Manage">Управление профилями</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NamePrompt">Название нового профиля:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Created">Профиль «{0}» создан, выполнено переключение на него.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NameTaken">Нельзя использовать «{0}»: название пустое или уже занято.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteTitle">Удалить профиль</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteConfirm">Удалить профиль «{0}»? Его позиции, горячие клавиши и настройки будут удалены. Это нельзя отменить.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Deleted">Профиль «{0}» удалён.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LastOne">Нельзя удалить единственный профиль.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copied">Скопировано в профилей: {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.OnlyOne">У вас один профиль. Введите название нового профиля, в который его скопировать:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Saved">Резервная копия сохранена: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Exported">Настройки экспортированы.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.NotSettings">Этот файл не является файлом настроек MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportTitle">Импорт настроек</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportConfirm">Заменить все ваши настройки во всех профилях настройками из {0}? Текущие настройки сначала будут сохранены в резервной копии.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">Настройки импортированы. Перезапустите MultiPreview, чтобы все части приложения использовали их.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Failed">Не получилось: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -725,4 +725,25 @@
     <sys:String x:Key="L.S.Off">꺼짐</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Browse">찾아보기…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.New">새 프로필…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copy">다른 프로필로 복사…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Delete">프로필 삭제…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.BackUp">지금 설정 백업</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Manage">프로필 관리</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NamePrompt">새 프로필 이름:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Created">프로필 '{0}'을(를) 만들고 전환했습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NameTaken">'{0}'을(를) 사용할 수 없습니다. 이름이 비어 있거나 이미 사용 중입니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteTitle">프로필 삭제</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteConfirm">프로필 '{0}'을(를) 삭제할까요? 위치, 단축키, 설정이 삭제되며 되돌릴 수 없습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Deleted">프로필 '{0}'을(를) 삭제했습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LastOne">유일한 프로필은 삭제할 수 없습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copied">{0}개 프로필로 복사했습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.OnlyOne">프로필이 하나뿐입니다. 복사할 새 프로필 이름을 입력하세요:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Saved">백업을 저장했습니다: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Exported">설정을 내보냈습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.NotSettings">MultiPreview 설정 파일이 아닙니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportTitle">설정 가져오기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportConfirm">모든 프로필의 설정을 {0}의 설정으로 바꿀까요? 현재 설정은 먼저 백업됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">설정을 가져왔습니다. 앱의 모든 부분에 적용하려면 MultiPreview를 다시 시작하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Failed">작동하지 않았습니다: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

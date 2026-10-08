@@ -20,6 +20,12 @@ public interface ISettingsHost
     string? CaptureHotkey(string settingId, string? current);
     /// <summary>Re-read every card from settings (after an action changed many values, a language change, an import).</summary>
     void Reload();
+
+    /// <summary>Asks for one line of text (a profile name). Null when cancelled or left empty.</summary>
+    string? AskText(string title, string prompt, string initial);
+
+    /// <summary>Owner for modal dialogs the window opens (copy profile, update). Null in tests.</summary>
+    System.Windows.Window? DialogOwner { get; }
 }
 
 /// <summary>Live app services the window may call. Every member may be null (tests, or a

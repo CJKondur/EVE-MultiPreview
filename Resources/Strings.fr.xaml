@@ -727,4 +727,25 @@
     <sys:String x:Key="L.S.Off">Désactivé</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Browse">Parcourir…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.New">Nouveau profil…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copy">Copier vers d'autres profils…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Delete">Supprimer le profil…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.BackUp">Sauvegarder les paramètres maintenant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Manage">Gérer les profils</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NamePrompt">Nom du nouveau profil :</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Created">Profil « {0} » créé et activé.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NameTaken">Impossible d'utiliser « {0} » : le nom est vide ou déjà pris.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteTitle">Supprimer le profil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteConfirm">Supprimer le profil « {0} » ? Ses positions, raccourcis et paramètres seront supprimés. Cette action est irréversible.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Deleted">Profil « {0} » supprimé.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LastOne">Vous ne pouvez pas supprimer votre seul profil.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copied">Copié vers {0} profil(s).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.OnlyOne">Vous n'avez qu'un profil. Nommez un nouveau profil dans lequel le copier :</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Saved">Sauvegarde enregistrée : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Exported">Paramètres exportés.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.NotSettings">Ce fichier n'est pas un fichier de paramètres MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportTitle">Importer les paramètres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportConfirm">Remplacer tous vos paramètres, dans tous les profils, par ceux de {0} ? Vos paramètres actuels sont d'abord sauvegardés.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">Paramètres importés. Redémarrez MultiPreview pour que toutes les parties de l'application les utilisent.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Failed">Cela n'a pas fonctionné : {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

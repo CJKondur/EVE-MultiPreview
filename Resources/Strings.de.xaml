@@ -724,4 +724,25 @@
     <sys:String x:Key="L.S.Off">Aus</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Browse">Durchsuchen…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.New">Neues Profil…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copy">In andere Profile kopieren…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Delete">Profil löschen…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.BackUp">Einstellungen jetzt sichern</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Manage">Profile verwalten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NamePrompt">Name für das neue Profil:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Created">Profil „{0}“ erstellt und gewechselt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.NameTaken">„{0}“ kann nicht verwendet werden: Der Name ist leer oder bereits vergeben.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteTitle">Profil löschen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.DeleteConfirm">Profil „{0}“ löschen? Positionen, Hotkeys und Einstellungen werden entfernt. Das lässt sich nicht rückgängig machen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Deleted">Profil „{0}“ gelöscht.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LastOne">Das einzige Profil kann nicht gelöscht werden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.Copied">In {0} Profil(e) kopiert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.OnlyOne">Du hast nur ein Profil. Gib den Namen eines neuen Profils ein, in das kopiert werden soll:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Saved">Sicherung gespeichert: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Exported">Einstellungen exportiert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.NotSettings">Diese Datei ist keine MultiPreview-Einstellungsdatei.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportTitle">Einstellungen importieren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.ImportConfirm">Alle Einstellungen in allen Profilen durch die aus {0} ersetzen? Deine aktuellen Einstellungen werden zuvor gesichert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">Einstellungen importiert. Starte MultiPreview neu, damit alle Teile der App sie verwenden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Failed">Das hat nicht funktioniert: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>
