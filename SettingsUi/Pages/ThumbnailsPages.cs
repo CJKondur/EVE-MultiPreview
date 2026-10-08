@@ -17,7 +17,7 @@ public static class ThumbnailsPages
     /// <summary>The page the character page's crop link opens.</summary>
     public const string CropsId = CharacterPage.CropsPageId;
 
-    public static IReadOnlyList<PageDef> All => new[] { Appearance(), Text(), Layout() };
+    public static IReadOnlyList<PageDef> All => new[] { Appearance(), Text(), Layout(), Visibility() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -47,6 +47,12 @@ public static class ThumbnailsPages
         new HelpTopic(LayoutId, "lining", new[] { "thumbs.layout.snap", "thumbs.layout.snapDistance", "thumbs.layout.confine", "thumbs.layout.lock" }),
         new HelpTopic(LayoutId, "presets", new[] { "thumbs.layout.presets" }),
         new HelpTopic(LayoutId, "history", new[] { "thumbs.layout.history" }),
+        new HelpTopic(VisibilityId, "stacking", new[]
+        {
+            "thumbs.visibility.alwaysOnTop", "thumbs.visibility.aboveClients", "thumbs.visibility.hideOnLostFocus", "thumbs.visibility.hideActive",
+        }),
+        new HelpTopic(VisibilityId, "login", new[] { "thumbs.visibility.notLoggedIn", "thumbs.visibility.notLoggedInColor" }),
+        new HelpTopic(VisibilityId, "pip", new[] { "thumbs.visibility.pipTable" }),
     };
 
     private static SettingItem Toggle(string id, Expression<Func<AppSettings, bool>> prop, ApplyScope apply, params string[] replaces) =>
@@ -277,6 +283,46 @@ public static class ThumbnailsPages
             new EditorItem("thumbs.layout.history", ctx => new LayoutHistoryEditor(ctx))
             {
                 Replaces = new[] { "OnUndoLayout", "OnRedoLayout", "OnResetThumbnailPositions" },
+            },
+        }),
+    });
+
+    private static PageDef Visibility() => new(VisibilityId, NavGroup.Thumbnails, new[]
+    {
+        new SectionDef("thumbs.visibility.stacking", new PageItem[]
+        {
+            // ReapplySettings re-pins thumbnails, second thumbnails and stats windows; crop windows follow on Refresh.
+            Toggle("thumbs.visibility.alwaysOnTop", s => s.ShowThumbnailsAlwaysOnTop, ApplyScope.Thumbnails | ApplyScope.Crops, "ChkAlwaysOnTop"),
+            // Read by the 250 ms focus sweep (and CropManager on a focus change): Save is enough.
+            Toggle("thumbs.visibility.aboveClients", s => s.KeepThumbnailsAboveClients, ApplyScope.Save, "ChkAboveClients"),
+        }),
+        new SectionDef("thumbs.visibility.hiding", new PageItem[]
+        {
+            Toggle("thumbs.visibility.hideOnLostFocus", s => s.HideThumbnailsOnLostFocus, ApplyScope.Save, "ChkHideOnLostFocus"),
+            Toggle("thumbs.visibility.hideActive", s => s.HideActiveThumbnail, ApplyScope.Save, "ChkHideActive"),
+        }),
+        new SectionDef("thumbs.visibility.login", new PageItem[]
+        {
+            // ApplySettings marks the thumbnails of clients still at character selection.
+            new SettingItem(Setting.Choice("thumbs.visibility.notLoggedIn", s => s.NotLoggedInIndicator, new[]
+            {
+                new ChoiceOption("none", "L.S.Opt.NotLoggedInNone"),
+                new ChoiceOption("text", "L.S.Opt.NotLoggedInText"),
+                new ChoiceOption("border", "L.S.Opt.NotLoggedInBorder"),
+                new ChoiceOption("dim", "L.S.Opt.NotLoggedInDim"),
+            }, ApplyScope.Thumbnails) with { Replaces = new[] { "CmbNotLoggedIn" } }),
+            new SettingItem(Colour("thumbs.visibility.notLoggedInColor", s => s.NotLoggedInColor, ApplyScope.Thumbnails) with
+            {
+                ShowIf = s => ThumbnailFields.UsesLoginColour(s.NotLoggedInIndicator),
+                Replaces = new[] { "TxtNotLoggedInColor" },
+            }),
+        }),
+        new SectionDef("thumbs.visibility.pip", new PageItem[]
+        {
+            new EditorItem("thumbs.visibility.pipTable", ctx => new PipEditor(ctx))
+            {
+                Binds = new[] { "AppSettings.SecondaryThumbnails" },
+                Replaces = new[] { "LvSecondaryThumbnails", "SliderSecOpacity", "OnSecThumbAdd", "OnSecThumbRemove" },
             },
         }),
     });

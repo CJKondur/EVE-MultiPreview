@@ -70,4 +70,10 @@ public static class ThumbnailFields
 
     /// <summary>The old list showed an empty or unknown position as top left (and wrote nothing).</summary>
     public static string Anchor(string? stored) => stored != null && Array.IndexOf(Anchors, stored) >= 0 ? stored : "TopLeft";
+
+    // ── Login mark (NotLoggedInIndicator) ──
+
+    /// <summary>ThumbnailWindow.SetNotLoggedIn uses the colour only for "border" (and the older "color").</summary>
+    public static bool UsesLoginColour(string? style) =>
+        string.Equals(style, "border", StringComparison.OrdinalIgnoreCase) || string.Equals(style, "color", StringComparison.OrdinalIgnoreCase);
 }
