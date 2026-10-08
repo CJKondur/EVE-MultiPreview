@@ -971,7 +971,6 @@
     <sys:String x:Key="L.S.Sec.character.colors">Colores</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsOff">Los colores por personaje están desactivados en este perfil. Activa Usar colores por personaje en Clientes › Personajes para usarlos.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorActive">Borde si está activo</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.character.colorText">Texto</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorInactive">Borde si no está activo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsReset">Volver a los colores del perfil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.character.resetColors">Restablecer colores</sys:String> <!-- draft -->
@@ -981,5 +980,5 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">Miniatura de este personaje</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Etiqueta** añade tu propio texto, como Scout. Su color y tamaño pueden diferir del resto del texto.&#x0A;- **Tamaño propio** da a esta miniatura su propio ancho y alto. El personaje debe haber iniciado sesión al menos una vez en este perfil.&#x0A;- **Segunda miniatura** añade una vista imagen en imagen independiente del mismo cliente.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">Colores</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">Estos colores de borde y texto solo se usan mientras **Usar colores por personaje** esté activado en el perfil (Clientes › Personajes).&#x0A;&#x0A;**Restablecer colores** vuelve a los colores que usan todos los personajes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">Estos colores de borde solo se usan mientras **Usar colores por personaje** esté activado en el perfil (Clientes › Personajes).&#x0A;&#x0A;**Restablecer colores** vuelve a los colores que usan todos los personajes.</sys:String> <!-- draft -->
 </ResourceDictionary>

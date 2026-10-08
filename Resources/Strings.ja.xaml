@@ -950,7 +950,6 @@
     <sys:String x:Key="L.S.Sec.character.colors">色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsOff">このプロファイルではキャラクター別の色がオフです。使用するには「クライアント › キャラクター」で「キャラクター別の色を使う」をオンにしてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorActive">アクティブ時の枠線</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.character.colorText">文字</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorInactive">非アクティブ時の枠線</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsReset">プロファイルの色に戻す</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.character.resetColors">色をリセット</sys:String> <!-- draft -->
@@ -960,5 +959,5 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">このキャラクターのサムネイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **ラベル**は独自のテキスト(Scout など)を追加します。色とサイズは他のテキストと変えられます。&#x0A;- **個別サイズ**はこのサムネイルに専用の幅と高さを与えます。このプロファイルで一度ログインしている必要があります。&#x0A;- **2つ目のサムネイル**は同じクライアントの別のピクチャーインピクチャー表示を追加します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">色</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">これらの枠線と文字の色は、プロファイルで**キャラクター別の色を使う**がオンの間だけ使われます(クライアント › キャラクター)。&#x0A;&#x0A;**色をリセット**は、全キャラクター共通の色に戻します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">これらの枠線の色は、プロファイルで**キャラクター別の色を使う**がオンの間だけ使われます(クライアント › キャラクター)。&#x0A;&#x0A;**色をリセット**は、全キャラクター共通の色に戻します。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -969,7 +969,6 @@
     <sys:String x:Key="L.S.Sec.character.colors">Цвета</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsOff">Цвета персонажей выключены в этом профиле. Включите «Использовать цвета персонажей» в разделе «Клиенты › Персонажи», чтобы они действовали.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorActive">Рамка при активности</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.character.colorText">Текст</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorInactive">Рамка при неактивности</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsReset">Вернуть цвета профиля</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.character.resetColors">Сбросить цвета</sys:String> <!-- draft -->
@@ -979,5 +978,5 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">Миниатюра персонажа</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Подпись** добавляет ваш текст, например Scout. Её цвет и размер могут отличаться от остального текста.&#x0A;- **Свой размер** задаёт миниатюре отдельную ширину и высоту. Персонаж должен хотя бы раз войти в игру в этом профиле.&#x0A;- **Вторая миниатюра** добавляет отдельное окно «картинка в картинке» того же клиента.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">Цвета</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">Эти цвета рамок и текста используются, только когда в профиле включено **Использовать цвета персонажей** (Клиенты › Персонажи).&#x0A;&#x0A;**Сбросить цвета** возвращает цвета, общие для всех персонажей.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">Эти цвета рамок используются, только когда в профиле включено **Использовать цвета персонажей** (Клиенты › Персонажи).&#x0A;&#x0A;**Сбросить цвета** возвращает цвета, общие для всех персонажей.</sys:String> <!-- draft -->
 </ResourceDictionary>

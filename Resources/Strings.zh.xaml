@@ -967,7 +967,6 @@
     <sys:String x:Key="L.S.Sec.character.colors">颜色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsOff">此配置文件已关闭按角色颜色。请在“客户端 › 角色”下开启“使用按角色颜色”后再使用这些设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorActive">激活时的边框</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.character.colorText">文字</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorInactive">未激活时的边框</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsReset">恢复为配置文件颜色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.character.resetColors">重置颜色</sys:String> <!-- draft -->
@@ -977,5 +976,5 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">此角色的缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **标签**添加你自己的文字,例如 Scout。其颜色和大小可以与其他文字不同。&#x0A;- **独立大小**为此缩略图设置单独的宽度和高度。角色需要在此配置文件中至少登录过一次。&#x0A;- **第二缩略图**为同一客户端添加单独的画中画视图。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">颜色</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">仅当配置文件开启**使用按角色颜色**(客户端 › 角色)时,才会使用这些边框和文字颜色。&#x0A;&#x0A;**重置颜色**会恢复为所有角色通用的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">仅当配置文件开启**使用按角色颜色**(客户端 › 角色)时,才会使用这些边框颜色。&#x0A;&#x0A;**重置颜色**会恢复为所有角色通用的颜色。</sys:String> <!-- draft -->
 </ResourceDictionary>

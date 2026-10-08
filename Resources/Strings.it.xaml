@@ -967,7 +967,6 @@
     <sys:String x:Key="L.S.Sec.character.colors">Colori</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsOff">I colori per personaggio sono disattivati in questo profilo. Attiva Usa colori per personaggio in Client › Personaggi per usarli.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorActive">Bordo se attivo</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.character.colorText">Testo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorInactive">Bordo se non attivo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsReset">Torna ai colori del profilo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.character.resetColors">Reimposta colori</sys:String> <!-- draft -->
@@ -977,5 +976,5 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">Miniatura di questo personaggio</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Etichetta** aggiunge il tuo testo, come Scout. Colore e dimensione possono differire dal resto del testo.&#x0A;- **Dimensione propria** dà a questa miniatura larghezza e altezza proprie. Il personaggio deve aver effettuato l'accesso almeno una volta in questo profilo.&#x0A;- **Seconda miniatura** aggiunge una vista picture-in-picture separata dello stesso client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">Colori</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">Questi colori di bordo e testo sono usati solo mentre **Usa colori per personaggio** è attivo per il profilo (Client › Personaggi).&#x0A;&#x0A;**Reimposta colori** torna ai colori usati da tutti i personaggi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">Questi colori di bordo sono usati solo mentre **Usa colori per personaggio** è attivo per il profilo (Client › Personaggi).&#x0A;&#x0A;**Reimposta colori** torna ai colori usati da tutti i personaggi.</sys:String> <!-- draft -->
 </ResourceDictionary>

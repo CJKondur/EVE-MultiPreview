@@ -27,7 +27,7 @@ public static class CharacterFields
     public static int LabelSize(AppSettings s, string name) =>
         s.ThumbnailLabelStyles.TryGetValue(name, out var st) ? st.Size : 0;
 
-    public static void SetLabelColor(AppSettings s, string name, string? color) => SetStyle(s, name, color?.Trim() ?? "", LabelSize(s, name));
+    public static void SetLabelColor(AppSettings s, string name, string? color) => SetStyle(s, name, Normalize(color?.Trim() ?? ""), LabelSize(s, name));
     public static void SetLabelSize(AppSettings s, string name, int size) => SetStyle(s, name, LabelColor(s, name), Math.Max(0, size));
 
     /// <summary>LabelEditorWindow: no colour and size 0 = no style entry.</summary>
@@ -45,18 +45,22 @@ public static class CharacterFields
         ctx.Services.Thumbnails?.UpdateCharacterLabel(name, text.Length == 0 ? null : text, color.Length == 0 ? null : color, LabelSize(ctx.S, name));
     }
 
+    /// <summary>The colour picker returns #RRGGBB; the old window stored 0xrrggbb. Other formats stay as entered.</summary>
+    public static string Normalize(string color) =>
+        System.Text.RegularExpressions.Regex.IsMatch(color, "^#[0-9A-Fa-f]{6}$") ? "0x" + color[1..].ToLowerInvariant() : color;
+
     // ── Custom colours (Profile.CustomColors, gated by CustomColorsActive) ──
 
     /// <summary>The old window's colours for a new entry (P2:52): active border, text, inactive border.</summary>
     public const string DefaultBorder = "0xe36a0d", DefaultText = "0xfac57a", DefaultInactive = "0x505050";
 
-    public enum ColorPart { Border, Text, Inactive }
+    public enum ColorPart { Border, Inactive }
 
     public static string Color(AppSettings s, string name, ColorPart part)
     {
         if (!s.CustomColors.TryGetValue(name, out var e))
-            return part switch { ColorPart.Border => DefaultBorder, ColorPart.Text => DefaultText, _ => DefaultInactive };
-        return part switch { ColorPart.Border => e.Border, ColorPart.Text => e.Text, _ => e.InactiveBorder };
+            return part == ColorPart.Border ? DefaultBorder : DefaultInactive;
+        return part == ColorPart.Border ? e.Border : e.InactiveBorder;
     }
 
     /// <summary>The first edit makes the entry, seeded with the old defaults for the other two.</summary>
@@ -64,12 +68,9 @@ public static class CharacterFields
     {
         if (!s.CustomColors.TryGetValue(name, out var e))
             s.CustomColors[name] = e = new CustomColorEntry { Char = name, Border = DefaultBorder, Text = DefaultText, InactiveBorder = DefaultInactive };
-        switch (part)
-        {
-            case ColorPart.Border: e.Border = color; break;
-            case ColorPart.Text: e.Text = color; break;
-            default: e.InactiveBorder = color; break;
-        }
+        color = Normalize(color);
+        if (part == ColorPart.Border) e.Border = color;
+        else e.InactiveBorder = color;
     }
 
     // ── Second thumbnail (Profile.SecondaryThumbnails) ──

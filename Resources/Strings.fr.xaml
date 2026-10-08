@@ -952,7 +952,6 @@
     <sys:String x:Key="L.S.Sec.character.colors">Couleurs</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsOff">Les couleurs par personnage sont désactivées dans ce profil. Activez Utiliser les couleurs par personnage sous Clients › Personnages pour les appliquer.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorActive">Bordure si actif</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.character.colorText">Texte</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorInactive">Bordure si inactif</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsReset">Revenir aux couleurs du profil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.character.resetColors">Réinitialiser les couleurs</sys:String> <!-- draft -->
@@ -962,5 +961,5 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">Miniature de ce personnage</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Étiquette** ajoute votre propre texte, comme Scout. Sa couleur et sa taille peuvent différer du reste du texte.&#x0A;- **Taille propre** donne à cette miniature sa propre largeur et hauteur. Le personnage doit s'être connecté au moins une fois dans ce profil.&#x0A;- **Deuxième miniature** ajoute une vue image dans l'image distincte du même client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">Couleurs</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">Ces couleurs de bordure et de texte ne sont utilisées que lorsque **Utiliser les couleurs par personnage** est activé pour le profil (Clients › Personnages).&#x0A;&#x0A;**Réinitialiser les couleurs** revient aux couleurs communes à tous les personnages.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">Ces couleurs de bordure ne sont utilisées que lorsque **Utiliser les couleurs par personnage** est activé pour le profil (Clients › Personnages).&#x0A;&#x0A;**Réinitialiser les couleurs** revient aux couleurs communes à tous les personnages.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -950,7 +950,6 @@
     <sys:String x:Key="L.S.Sec.character.colors">색상</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsOff">이 프로필에서는 캐릭터별 색상이 꺼져 있습니다. 사용하려면 클라이언트 › 캐릭터에서 '캐릭터별 색상 사용'을 켜세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorActive">활성 시 테두리</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.character.colorText">글자</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorInactive">비활성 시 테두리</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorsReset">프로필 색상으로 되돌리기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.character.resetColors">색상 초기화</sys:String> <!-- draft -->
@@ -960,5 +959,5 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">이 캐릭터의 미리보기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **라벨**은 Scout 같은 직접 입력한 텍스트를 추가합니다. 색상과 크기는 다른 텍스트와 다르게 할 수 있습니다.&#x0A;- **개별 크기**는 이 미리보기에 고유한 너비와 높이를 줍니다. 이 프로필에서 캐릭터가 한 번 로그인한 적이 있어야 합니다.&#x0A;- **두 번째 미리보기**는 같은 클라이언트의 별도 화면 속 화면 보기를 추가합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">색상</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">이 테두리와 글자 색상은 프로필에서 **캐릭터별 색상 사용**이 켜져 있을 때만 사용됩니다(클라이언트 › 캐릭터).&#x0A;&#x0A;**색상 초기화**는 모든 캐릭터가 쓰는 색상으로 되돌립니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">이 테두리 색상은 프로필에서 **캐릭터별 색상 사용**이 켜져 있을 때만 사용됩니다(클라이언트 › 캐릭터).&#x0A;&#x0A;**색상 초기화**는 모든 캐릭터가 쓰는 색상으로 되돌립니다.</sys:String> <!-- draft -->
 </ResourceDictionary>

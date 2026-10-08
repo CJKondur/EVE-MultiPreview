@@ -945,7 +945,6 @@
     <sys:String x:Key="L.S.Sec.character.colors">Colours</sys:String>
     <sys:String x:Key="L.S.character.colorsOff">Per-character colours are off in this profile. Turn on Use per-character colours under Clients › Characters to use these.</sys:String>
     <sys:String x:Key="L.S.character.colorActive">Border when active</sys:String>
-    <sys:String x:Key="L.S.character.colorText">Text</sys:String>
     <sys:String x:Key="L.S.character.colorInactive">Border when not active</sys:String>
     <sys:String x:Key="L.S.character.colorsReset">Back to the profile colours</sys:String>
     <sys:String x:Key="L.S.Act.character.resetColors">Reset colours</sys:String>
@@ -955,5 +954,5 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">This character's thumbnail</sys:String>
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Label** adds your own text, like Scout. Its colour and size can differ from the other text.&#x0A;- **Own size** gives this thumbnail its own width and height. A character needs to have been logged in once in this profile.&#x0A;- **Second thumbnail** adds a separate picture-in-picture view of the same client.</sys:String>
     <sys:String x:Key="L.Help.character.colors.Title">Colours</sys:String>
-    <sys:String x:Key="L.Help.character.colors.Body">These borders and text colours are used only while **Use per-character colours** is on for the profile (Clients › Characters).&#x0A;&#x0A;**Reset colours** goes back to the colours every character uses.</sys:String>
+    <sys:String x:Key="L.Help.character.colors.Body">These border colours are used only while **Use per-character colours** is on for the profile (Clients › Characters).&#x0A;&#x0A;**Reset colours** goes back to the colours every character uses.</sys:String>
 </ResourceDictionary>

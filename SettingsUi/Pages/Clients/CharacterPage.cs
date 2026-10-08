@@ -38,7 +38,7 @@ public static class CharacterPage
         {
             "character.show", "character.label", "character.labelColor", "character.labelSize", "character.size", "character.pip", "character.pipOpacity",
         }),
-        new HelpTopic(TemplateId, "colors", new[] { "character.colorsOff", "character.colorActive", "character.colorText", "character.colorInactive", "character.colorsReset" }),
+        new HelpTopic(TemplateId, "colors", new[] { "character.colorsOff", "character.colorActive", "character.colorInactive", "character.colorsReset" }),
     };
 
     private static IReadOnlyList<SectionDef> Sections(string name) => new[]
@@ -134,7 +134,6 @@ public static class CharacterPage
     {
         new InfoItem("character.colorsOff", InfoSeverity.Info) { ShowIf = s => !s.CustomColorsActive },
         ColorCard("character.colorActive", name, CharacterFields.ColorPart.Border, new[] { "LvColors", "OnColorAdd", "OnColorEdit", "OnPickColor" }),
-        ColorCard("character.colorText", name, CharacterFields.ColorPart.Text, Array.Empty<string>()),
         ColorCard("character.colorInactive", name, CharacterFields.ColorPart.Inactive, Array.Empty<string>()),
         new ActionRow("character.colorsReset", new[]
         {
@@ -142,7 +141,7 @@ public static class CharacterPage
             {
                 ctx.S.CustomColors.Remove(name);
                 ctx.Applier.Request(ApplyScope.Thumbnails);
-                ctx.Host.Reload();   // the three colour cards show the defaults again
+                ctx.Host.Reload();   // the two colour cards show the defaults again
             }) { Replaces = new[] { "OnColorDelete" } },
         }) { ShowIf = s => s.CustomColors.ContainsKey(name) },
     });
