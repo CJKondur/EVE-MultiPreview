@@ -676,18 +676,18 @@
     <sys:String x:Key="L.Tray.ConfirmTitle">Bestätigen</sys:String>
 
     <!-- Preview context menu -->
-    <sys:String x:Key="L.Ctx.EditLabel">✏ Beschriftung bearbeiten…</sys:String>
-    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 Warnungen stummschalten</sys:String>
+    <sys:String x:Key="L.Ctx.EditLabel">Beschriftung bearbeiten…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">Warnungen stummschalten</sys:String>
     <sys:String x:Key="L.Ctx.Mute10">Für 10 Minuten</sys:String>
     <sys:String x:Key="L.Ctx.Mute30">Für 30 Minuten</sys:String>
     <sys:String x:Key="L.Ctx.Mute60">Für 1 Stunde</sys:String>
     <sys:String x:Key="L.Ctx.MuteUntil">Bis ich die Stummschaltung aufhebe</sys:String>
     <sys:String x:Key="L.Ctx.Unmute">Stummschaltung aufheben</sys:String>
-    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 Warnungen stummgeschaltet (bis zur Aufhebung)</sys:String>
-    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 Warnungen stummgeschaltet (noch {0}m)</sys:String>
-    <sys:String x:Key="L.Ctx.AudioFmt">🔊 Audio — {0}%</sys:String>
-    <sys:String x:Key="L.Ctx.AudioMute">🔇 Stummschalten</sys:String>
-    <sys:String x:Key="L.Ctx.Audio100">🔊 100% (Stummschaltung aufheben)</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">Warnungen stummgeschaltet, bis du sie aufhebst</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">Warnungen stummgeschaltet (noch {0} Min.)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioFmt">Spiellautstärke: {0}%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioMute">Stummschalten</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">100% (Stummschaltung aufheben)</sys:String>
     <sys:String x:Key="L.AlertEvt.regroup">Neugruppierung</sys:String>
     <sys:String x:Key="L.AlertEvt.follow_warp">Flottenwarp</sys:String>
     <sys:String x:Key="L.AlertEvt.mine_module_stopped">Bergbaumodul gestoppt</sys:String>
@@ -704,7 +704,7 @@
     <sys:String x:Key="L.Alerts.SteadyTip">Warnrahmen ruhig halten statt blinken</sys:String>
     <sys:String x:Key="L.Alerts.Steady">Ruhig</sys:String>
     <sys:String x:Key="L.Msg.CloseAllConfirm">Alle {0} EVE-Clients jetzt beenden?</sys:String>
-    <sys:String x:Key="L.Ctx.CloseClient">❌ Client schließen</sys:String>
+    <sys:String x:Key="L.Ctx.CloseClient">Client schließen</sys:String>
 
     <sys:String x:Key="L.Wiki.Crop">ZUSCHNITT-POPUPS&#x0A;═══════════════════════════&#x0A;&#x0A;Was Zuschnitte tun&#x0A;────────────────────────────&#x0A;Erzeugen ein oder mehrere zugeschnittene&#x0A;Vorschau-Popups pro EVE-Client — zeigen nur eine&#x0A;bestimmte Region des Clients (Local-Chat, Übersicht,&#x0A;Ziel-Leiste) in einem eigenen, stets im Vordergrund&#x0A;liegenden Fenster, ohne den vollen Client in den&#x0A;Vordergrund zu holen.&#x0A;&#x0A;Haupt-Umschalter&#x0A;────────────────────────────&#x0A;'Zugeschnittene Vorschau-Popups aktivieren' ist der&#x0A;globale An/Aus-Schalter. Ist er aus, verbergen sich&#x0A;alle Zuschnitt-Popups, aber ihre Definitionen bleiben&#x0A;für das nächste Mal erhalten.&#x0A;&#x0A;Einen Zuschnitt erstellen&#x0A;────────────────────────────&#x0A;1. Wähle einen Charakter aus dem Dropdown&#x0A;2. Klicke ➕ Zuschnitt hinzufügen — eine&#x0A;   Platzhalter-Zuschnittzeile mit einem&#x0A;   generierten Namen erscheint&#x0A;3. Klicke 📐 Bereich wählen und ziehe dann über&#x0A;   das Live-Vorschaubild, um die Region&#x0A;   auszuwählen, die du erfassen willst&#x0A;4. Passe Name, Label anzeigen und Popup-&#x0A;   Position/-Größe nach Bedarf an&#x0A;&#x0A;Popups handhaben&#x0A;────────────────────────────&#x0A;• Rechtsklick + Ziehen — Popup verschieben&#x0A;• Rechtsklick + Linksklick + Ziehen —&#x0A;  Popup skalieren&#x0A;• 'Label anzeigen' überlagert den Zuschnittnamen&#x0A;  oben links im Popup&#x0A;&#x0A;Persistenz&#x0A;────────────────────────────&#x0A;Zuschnitte werden pro Charakter pro Profil&#x0A;gespeichert und erscheinen automatisch neu, wenn&#x0A;der Charakter sich einloggt. Schließen eines EVE-&#x0A;Clients und erneutes Einloggen stellt die&#x0A;gespeicherten Zuschnitte wieder her, sobald der&#x0A;Charakter aufgelöst ist.</sys:String>
     <!-- ══ Settings window (rework): shared strings ══ -->
@@ -1864,4 +1864,6 @@
     <sys:String x:Key="L.Tray.ProfileFmt">Profil: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.ManageProfiles">Profile verwalten…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.HideSecondary">Zweite Vorschaubilder ausblenden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenSettingsFmt">Einstellungen von {0} öffnen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.LoginScreen">Charakterauswahl</sys:String> <!-- draft -->
 </ResourceDictionary>

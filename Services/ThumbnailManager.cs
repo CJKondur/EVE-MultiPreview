@@ -693,6 +693,8 @@ public sealed class ThumbnailManager : IDisposable
         thumbWindow.AlertMuteRequested += OnAlertMuteRequested;
         thumbWindow.AudioRequested += OnAudioRequested;
         thumbWindow.CloseClientRequested += OnCloseClientRequested;
+        thumbWindow.SettingsRequested += OnSettingsRequested;
+        thumbWindow.SystemLookup = GetCharacterSystem;
         thumbWindow.AudioVolume = GetClientVolume(window.CharacterName);
         // New thumbnail picks up any active mute for its character (e.g. relaunch).
         if (!string.IsNullOrEmpty(window.CharacterName)
@@ -1295,6 +1297,14 @@ public sealed class ThumbnailManager : IDisposable
     // Right-click → Close client (#115): ends the process at once, no prompt - picking
     // it from a menu is already deliberate, and the point is speed.
     private void OnCloseClientRequested(ThumbnailWindow thumb) => KillClient(thumb.EveHwnd);
+
+    /// <summary>A thumbnail's "Open ‹character›'s settings" (spec D6). App opens settings on that character's page.</summary>
+    public event Action<string>? CharacterSettingsRequested;
+
+    private void OnSettingsRequested(ThumbnailWindow thumb)
+    {
+        if (ThumbnailMenu.HasCharacter(thumb.CharacterName)) CharacterSettingsRequested?.Invoke(thumb.CharacterName);
+    }
 
     /// <summary>Close-all hotkey (#115): ends every tracked EVE client after ONE
     /// confirmation, so a stray keypress cannot drop the whole fleet.</summary>
@@ -4086,6 +4096,7 @@ public sealed class ThumbnailManager : IDisposable
         thumb.AlertMuteRequested -= OnAlertMuteRequested;
         thumb.AudioRequested -= OnAudioRequested;
         thumb.CloseClientRequested -= OnCloseClientRequested;
+        thumb.SettingsRequested -= OnSettingsRequested;
     }
 
     private void OnCycleExclusionRequested(ThumbnailWindow thumb)

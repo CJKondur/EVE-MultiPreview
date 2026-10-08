@@ -144,6 +144,11 @@ public partial class App : Application
 
         // 3. Create thumbnail manager
         _thumbnailManager = new ThumbnailManager(_discovery, _settings);
+        // D6: a thumbnail's "Open ‹character›'s settings" opens settings on that character's page (Plan 4). Deferred, as
+        // the tray's Settings item is, so the right-click menu has closed before the window shows.
+        _thumbnailManager.CharacterSettingsRequested += name =>
+            Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+                OpenSettings(startMinimized: false, pageId: SettingsUi.CharacterPage.IdFor(name))));
 
         // 4. Start stat tracker (needed before thumbnails fire)
         _statTracker = new StatTrackerService();

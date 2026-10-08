@@ -697,18 +697,18 @@
     <sys:String x:Key="L.Tray.ConfirmTitle">Подтверждение</sys:String>
 
     <!-- Thumbnail context menu -->
-    <sys:String x:Key="L.Ctx.EditLabel">✏ Изменить подпись…</sys:String>
-    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 Отключить оповещения</sys:String>
+    <sys:String x:Key="L.Ctx.EditLabel">Изменить подпись…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">Отключить оповещения</sys:String>
     <sys:String x:Key="L.Ctx.Mute10">На 10 минут</sys:String>
     <sys:String x:Key="L.Ctx.Mute30">На 30 минут</sys:String>
     <sys:String x:Key="L.Ctx.Mute60">На 1 час</sys:String>
     <sys:String x:Key="L.Ctx.MuteUntil">Пока не включу снова</sys:String>
     <sys:String x:Key="L.Ctx.Unmute">Включить снова</sys:String>
-    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 Оповещения отключены (до включения)</sys:String>
-    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 Оповещения отключены (осталось {0}м)</sys:String>
-    <sys:String x:Key="L.Ctx.AudioFmt">🔊 Звук — {0}%</sys:String>
-    <sys:String x:Key="L.Ctx.AudioMute">🔇 Без звука</sys:String>
-    <sys:String x:Key="L.Ctx.Audio100">🔊 100% (включить звук)</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">Оповещения отключены, пока вы не включите их</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">Оповещения отключены (осталось {0} мин)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioFmt">Громкость игры: {0}%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioMute">Без звука</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">100% (включить звук)</sys:String>
     <sys:String x:Key="L.AlertEvt.regroup">Перегруппировка</sys:String>
     <sys:String x:Key="L.AlertEvt.follow_warp">Варп флота</sys:String>
     <sys:String x:Key="L.AlertEvt.mine_module_stopped">Бур остановлен</sys:String>
@@ -725,7 +725,7 @@
     <sys:String x:Key="L.Alerts.SteadyTip">Рамка оповещения горит постоянно, без мигания</sys:String>
     <sys:String x:Key="L.Alerts.Steady">Постоянно</sys:String>
     <sys:String x:Key="L.Msg.CloseAllConfirm">Завершить все клиенты EVE ({0}) сейчас?</sys:String>
-    <sys:String x:Key="L.Ctx.CloseClient">❌ Закрыть клиент</sys:String>
+    <sys:String x:Key="L.Ctx.CloseClient">Закрыть клиент</sys:String>
 
     <!-- ══ Settings window (rework): shared strings ══ -->
     <sys:String x:Key="L.S.Err.NotANumber">Введите число.</sys:String> <!-- draft -->
@@ -1884,4 +1884,6 @@
     <sys:String x:Key="L.Tray.ProfileFmt">Профиль: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.ManageProfiles">Управление профилями…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.HideSecondary">Скрыть вторые миниатюры</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenSettingsFmt">Открыть настройки: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.LoginScreen">Выбор персонажа</sys:String> <!-- draft -->
 </ResourceDictionary>

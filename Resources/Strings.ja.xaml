@@ -677,18 +677,18 @@
     <sys:String x:Key="L.Tray.ConfirmTitle">確認</sys:String>
 
     <!-- Thumbnail context menu -->
-    <sys:String x:Key="L.Ctx.EditLabel">✏ ラベルを編集…</sys:String>
-    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 アラートをミュート</sys:String>
+    <sys:String x:Key="L.Ctx.EditLabel">ラベルを編集…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">アラートをミュート</sys:String>
     <sys:String x:Key="L.Ctx.Mute10">10 分間</sys:String>
     <sys:String x:Key="L.Ctx.Mute30">30 分間</sys:String>
     <sys:String x:Key="L.Ctx.Mute60">1 時間</sys:String>
     <sys:String x:Key="L.Ctx.MuteUntil">ミュート解除するまで</sys:String>
     <sys:String x:Key="L.Ctx.Unmute">ミュート解除</sys:String>
-    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 アラートをミュート中（解除するまで）</sys:String>
-    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 アラートをミュート中（残り {0} 分）</sys:String>
-    <sys:String x:Key="L.Ctx.AudioFmt">🔊 音声 — {0}%</sys:String>
-    <sys:String x:Key="L.Ctx.AudioMute">🔇 ミュート</sys:String>
-    <sys:String x:Key="L.Ctx.Audio100">🔊 100%（ミュート解除）</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">アラートはミュート中（解除するまで）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">アラートをミュート中（残り {0} 分）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioFmt">ゲーム音量：{0}%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioMute">ミュート</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">100%（ミュート解除）</sys:String>
     <sys:String x:Key="L.AlertEvt.regroup">集合</sys:String>
     <sys:String x:Key="L.AlertEvt.follow_warp">フリートワープ</sys:String>
     <sys:String x:Key="L.AlertEvt.mine_module_stopped">採掘機停止</sys:String>
@@ -705,7 +705,7 @@
     <sys:String x:Key="L.Alerts.SteadyTip">アラート枠を点滅させずに点灯させる</sys:String>
     <sys:String x:Key="L.Alerts.Steady">点灯</sys:String>
     <sys:String x:Key="L.Msg.CloseAllConfirm">{0} 個の EVE クライアントをすべて今すぐ終了しますか？</sys:String>
-    <sys:String x:Key="L.Ctx.CloseClient">❌ クライアントを閉じる</sys:String>
+    <sys:String x:Key="L.Ctx.CloseClient">クライアントを閉じる</sys:String>
 
     <sys:String x:Key="L.Wiki.Crop">クロップポップアップ&#x0A;═══════════════════════════&#x0A;&#x0A;クロップの機能&#x0A;────────────────────────────&#x0A;EVE クライアントごとに 1 つ以上の切り抜き&#x0A;プレビューポップアップを生成します — クライ&#x0A;アントの特定の領域（ローカルチャット、&#x0A;オーバービュー、ターゲットバー）だけを、フル&#x0A;クライアントを前面に出すことなく独自の常に&#x0A;最前面ウィンドウに表示します。&#x0A;&#x0A;マスター切り替え&#x0A;────────────────────────────&#x0A;「切り抜きプレビューポップアップを有効化」が&#x0A;グローバルのオン / オフです。オフのときはすべての&#x0A;クロップポップアップが隠れますが、定義は次回の&#x0A;ために保持されます。&#x0A;&#x0A;クロップの作成&#x0A;────────────────────────────&#x0A;1. ドロップダウンからキャラクターを選択&#x0A;2. ➕ クロップ追加 をクリック — 生成された&#x0A;   名前を持つプレースホルダーのクロップ行が&#x0A;   表示されます&#x0A;3. 📐 領域を選択 をクリックし、ライブサム&#x0A;   ネイル上をドラッグしてキャプチャしたい領域を&#x0A;   選択します&#x0A;4. 名前、ラベル表示、ポップアップの位置 /&#x0A;   サイズを必要に応じて調整します&#x0A;&#x0A;ポップアップの操作&#x0A;────────────────────────────&#x0A;• 右クリック + ドラッグ — ポップアップを移動&#x0A;• 右クリック + 左クリック + ドラッグ —&#x0A;  ポップアップをリサイズ&#x0A;• 「ラベルを表示」はクロップ名をポップアップの&#x0A;  左上にオーバーレイします&#x0A;&#x0A;永続化&#x0A;────────────────────────────&#x0A;クロップはキャラクターごと・プロファイルごとに&#x0A;保存され、キャラクターがログインすると自動的に&#x0A;再生成されます。EVE クライアントを閉じて再度&#x0A;ログインすると、キャラクターが解決され次第&#x0A;保存済みのクロップが復元されます。</sys:String>
     <!-- ══ Settings window (rework): shared strings ══ -->
@@ -1865,4 +1865,6 @@
     <sys:String x:Key="L.Tray.ProfileFmt">プロファイル: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.ManageProfiles">プロファイルを管理…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.HideSecondary">セカンドサムネイルを非表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenSettingsFmt">{0} の設定を開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.LoginScreen">キャラクター選択</sys:String> <!-- draft -->
 </ResourceDictionary>

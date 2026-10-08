@@ -655,19 +655,19 @@
     <sys:String x:Key="L.Tray.ConfirmTitle">Confirm</sys:String>
 
     <!-- Thumbnail right-click menu -->
-    <sys:String x:Key="L.Ctx.EditLabel">✏ Edit Label…</sys:String>
-    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 Mute Alerts</sys:String>
+    <sys:String x:Key="L.Ctx.EditLabel">Edit label…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">Mute alerts</sys:String>
     <sys:String x:Key="L.Ctx.Mute10">For 10 minutes</sys:String>
     <sys:String x:Key="L.Ctx.Mute30">For 30 minutes</sys:String>
     <sys:String x:Key="L.Ctx.Mute60">For 1 hour</sys:String>
     <sys:String x:Key="L.Ctx.MuteUntil">Until I unmute</sys:String>
     <sys:String x:Key="L.Ctx.Unmute">Unmute</sys:String>
-    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 Alerts muted (until unmuted)</sys:String>
-    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 Alerts muted ({0}m left)</sys:String>
-    <sys:String x:Key="L.Ctx.AudioFmt">🔊 Audio — {0}%</sys:String>
-    <sys:String x:Key="L.Ctx.AudioMute">🔇 Mute</sys:String>
-    <sys:String x:Key="L.Ctx.Audio100">🔊 100% (unmute)</sys:String>
-    <sys:String x:Key="L.Ctx.CloseClient">❌ Close client</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">Alerts muted until you unmute</sys:String>
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">Alerts muted ({0} min left)</sys:String>
+    <sys:String x:Key="L.Ctx.AudioFmt">Game volume: {0}%</sys:String>
+    <sys:String x:Key="L.Ctx.AudioMute">Mute</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">100% (unmute)</sys:String>
+    <sys:String x:Key="L.Ctx.CloseClient">Close client</sys:String>
 
     <!-- Alert event names (alert hub toasts and thumbnail text) -->
     <sys:String x:Key="L.AlertEvt.attack">Under attack</sys:String>
@@ -1864,4 +1864,6 @@
     <sys:String x:Key="L.Tray.ProfileFmt">Profile: {0}</sys:String>
     <sys:String x:Key="L.Tray.ManageProfiles">Manage profiles…</sys:String>
     <sys:String x:Key="L.Tray.HideSecondary">Hide second thumbnails</sys:String>
+    <sys:String x:Key="L.Ctx.OpenSettingsFmt">Open {0}'s settings</sys:String>
+    <sys:String x:Key="L.Ctx.LoginScreen">Character select</sys:String>
 </ResourceDictionary>

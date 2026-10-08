@@ -679,18 +679,18 @@
     <sys:String x:Key="L.Tray.ConfirmTitle">확인</sys:String>
 
     <!-- Thumbnail context menu -->
-    <sys:String x:Key="L.Ctx.EditLabel">✏ 라벨 편집…</sys:String>
-    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 경보 음소거</sys:String>
+    <sys:String x:Key="L.Ctx.EditLabel">라벨 편집…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">경보 음소거</sys:String>
     <sys:String x:Key="L.Ctx.Mute10">10분 동안</sys:String>
     <sys:String x:Key="L.Ctx.Mute30">30분 동안</sys:String>
     <sys:String x:Key="L.Ctx.Mute60">1시간 동안</sys:String>
     <sys:String x:Key="L.Ctx.MuteUntil">음소거를 해제할 때까지</sys:String>
     <sys:String x:Key="L.Ctx.Unmute">음소거 해제</sys:String>
-    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 경보 음소거됨 (해제할 때까지)</sys:String>
-    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 경보 음소거됨 ({0}분 남음)</sys:String>
-    <sys:String x:Key="L.Ctx.AudioFmt">🔊 오디오 — {0}%</sys:String>
-    <sys:String x:Key="L.Ctx.AudioMute">🔇 음소거</sys:String>
-    <sys:String x:Key="L.Ctx.Audio100">🔊 100% (음소거 해제)</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">경보 음소거됨 (해제할 때까지)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">경보 음소거됨 ({0}분 남음)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioFmt">게임 음량: {0}%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioMute">음소거</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">100% (음소거 해제)</sys:String>
     <sys:String x:Key="L.AlertEvt.regroup">재집결</sys:String>
     <sys:String x:Key="L.AlertEvt.follow_warp">함대 워프</sys:String>
     <sys:String x:Key="L.AlertEvt.mine_module_stopped">채굴기 정지</sys:String>
@@ -707,7 +707,7 @@
     <sys:String x:Key="L.Alerts.SteadyTip">경보 테두리를 깜박이지 않고 고정 표시</sys:String>
     <sys:String x:Key="L.Alerts.Steady">고정</sys:String>
     <sys:String x:Key="L.Msg.CloseAllConfirm">EVE 클라이언트 {0}개를 지금 모두 종료할까요?</sys:String>
-    <sys:String x:Key="L.Ctx.CloseClient">❌ 클라이언트 닫기</sys:String>
+    <sys:String x:Key="L.Ctx.CloseClient">클라이언트 닫기</sys:String>
     <!-- ══ Settings window (rework): shared strings ══ -->
     <sys:String x:Key="L.S.Err.NotANumber">숫자를 입력하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Range">{0}에서 {1} 사이의 숫자를 입력하세요.</sys:String> <!-- draft -->
@@ -1865,4 +1865,6 @@
     <sys:String x:Key="L.Tray.ProfileFmt">프로필: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.ManageProfiles">프로필 관리…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.HideSecondary">보조 썸네일 숨기기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenSettingsFmt">설정 열기: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.LoginScreen">캐릭터 선택</sys:String> <!-- draft -->
 </ResourceDictionary>

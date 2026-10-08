@@ -680,18 +680,18 @@
     <sys:String x:Key="L.Tray.ConfirmTitle">Confirmer</sys:String>
 
     <!-- Thumbnail context menu -->
-    <sys:String x:Key="L.Ctx.EditLabel">✏ Modifier l'étiquette…</sys:String>
-    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 Couper les alertes</sys:String>
+    <sys:String x:Key="L.Ctx.EditLabel">Modifier l'étiquette…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">Couper les alertes</sys:String>
     <sys:String x:Key="L.Ctx.Mute10">Pendant 10 minutes</sys:String>
     <sys:String x:Key="L.Ctx.Mute30">Pendant 30 minutes</sys:String>
     <sys:String x:Key="L.Ctx.Mute60">Pendant 1 heure</sys:String>
     <sys:String x:Key="L.Ctx.MuteUntil">Jusqu'à réactivation</sys:String>
     <sys:String x:Key="L.Ctx.Unmute">Réactiver le son</sys:String>
-    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 Alertes coupées (jusqu'à réactivation)</sys:String>
-    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 Alertes coupées ({0}m restantes)</sys:String>
-    <sys:String x:Key="L.Ctx.AudioFmt">🔊 Audio — {0}%</sys:String>
-    <sys:String x:Key="L.Ctx.AudioMute">🔇 Couper le son</sys:String>
-    <sys:String x:Key="L.Ctx.Audio100">🔊 100% (réactiver)</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">Alertes coupées jusqu'à réactivation</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">Alertes coupées ({0} min restantes)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioFmt">Volume du jeu : {0}%</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.AudioMute">Couper le son</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">100% (réactiver)</sys:String>
     <sys:String x:Key="L.AlertEvt.regroup">Regroupement</sys:String>
     <sys:String x:Key="L.AlertEvt.follow_warp">Warp de flotte</sys:String>
     <sys:String x:Key="L.AlertEvt.mine_module_stopped">Mineur arrêté</sys:String>
@@ -708,7 +708,7 @@
     <sys:String x:Key="L.Alerts.SteadyTip">Garder la bordure d'alerte fixe au lieu de clignoter</sys:String>
     <sys:String x:Key="L.Alerts.Steady">Fixe</sys:String>
     <sys:String x:Key="L.Msg.CloseAllConfirm">Fermer maintenant les {0} clients EVE ?</sys:String>
-    <sys:String x:Key="L.Ctx.CloseClient">❌ Fermer le client</sys:String>
+    <sys:String x:Key="L.Ctx.CloseClient">Fermer le client</sys:String>
 
     <!-- ══ Settings window (rework): shared strings ══ -->
     <sys:String x:Key="L.S.Err.NotANumber">Saisissez un nombre.</sys:String> <!-- draft -->
@@ -1867,4 +1867,6 @@
     <sys:String x:Key="L.Tray.ProfileFmt">Profil : {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.ManageProfiles">Gérer les profils…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.HideSecondary">Masquer les secondes vignettes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenSettingsFmt">Ouvrir les paramètres de {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.LoginScreen">Sélection de personnage</sys:String> <!-- draft -->
 </ResourceDictionary>
