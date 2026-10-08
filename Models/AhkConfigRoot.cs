@@ -1028,7 +1028,7 @@ public class AhkGlobalSettings
     public int SimpleMode { get; set; }
 
     [JsonPropertyName("UseLegacySettingsWindow")]
-    public int UseLegacySettingsWindow { get; set; } = 1;
+    public int UseLegacySettingsWindow { get; set; } = 0;
 
     [JsonPropertyName("SettingsHelpOpen")]
     public int SettingsHelpOpen { get; set; } = 0;

@@ -151,6 +151,17 @@ public sealed class HotkeyService : IDisposable
 
     public bool IsSuspended => _suspended;
 
+    /// <summary>The open settings window (App sets it when settings opens and clears it when it closes). Hotkeys don't
+    /// fire while it is in front; its title is translated, so the English-title match alone missed it (IDEAS P23).</summary>
+    public IntPtr SettingsWindowHandle { get; set; }
+
+    /// <summary>Hotkeys stay quiet while a MultiPreview settings window is in front (matches AHK): the open settings
+    /// window by its handle, or a MultiPreview window whose title says "Settings" (the old window's title is English in
+    /// every language).</summary>
+    public static bool IsSettingsForeground(IntPtr foreground, IntPtr settingsWindow, string? title, string? processName) =>
+        (foreground != IntPtr.Zero && foreground == settingsWindow)
+        || (title != null && title.Contains("Settings", StringComparison.OrdinalIgnoreCase) && User32.IsAppProcessName(processName));
+
     /// <summary>Initialize the hotkey service. Must be called on UI thread.</summary>
     public void Initialize()
     {
@@ -1122,9 +1133,7 @@ public sealed class HotkeyService : IDisposable
                 try
                 {
                     var fgHwnd2 = User32.GetForegroundWindow();
-                    string? fgTitle = User32.GetWindowTitle(fgHwnd2);
-                    if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                        && User32.IsAppProcessName(User32.GetProcessName(fgHwnd2)))
+                    if (IsSettingsForeground(fgHwnd2, SettingsWindowHandle, User32.GetWindowTitle(fgHwnd2), User32.GetProcessName(fgHwnd2)))
                     {
                         Debug.WriteLine($"[Hotkey:Blocked] 🚫 Settings window active, blocked ID={id}");
                         return IntPtr.Zero;
@@ -1540,9 +1549,7 @@ public sealed class HotkeyService : IDisposable
                         try
                         {
                             var fgHwnd = User32.GetForegroundWindow();
-                            string? fgTitle = User32.GetWindowTitle(fgHwnd);
-                            if (fgTitle != null && fgTitle.Contains("Settings", StringComparison.OrdinalIgnoreCase)
-                                && User32.IsAppProcessName(User32.GetProcessName(fgHwnd)))
+                            if (IsSettingsForeground(fgHwnd, SettingsWindowHandle, User32.GetWindowTitle(fgHwnd), User32.GetProcessName(fgHwnd)))
                             {
                                 EveMultiPreview.Services.DiagnosticsService.LogCycling(
                                     $"[Hotkey:Mouse] {buttonName} SUPPRESSED — Settings window is foreground, cycle not fired");

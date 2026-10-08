@@ -975,7 +975,9 @@ public partial class SettingsWindow : Window
             "Existing saved positions are NOT changed.\n\n" +
             "Minimum Size\n" +
             "────────────────────────────\n" +
-            "Smallest allowed thumbnail dimensions.\n\n" +
+            "Has no effect: the smallest size you\n" +
+            "can drag a thumbnail to is fixed at\n" +
+            "80 × 50.\n\n" +
             "Thumbnail Snap\n" +
             "────────────────────────────\n" +
             "When ON, thumbnails will snap together\n" +
@@ -1134,10 +1136,14 @@ public partial class SettingsWindow : Window
             "🔵 Info — Convo, System Change,\n" +
             "   Depleted, Miner Stopped\n\n" +
             "Each tier has its own border color,\n" +
-            "cooldown timer, tray notification toggle,\n" +
-            "and Pulse Speed slider (100 ms = very\n" +
-            "fast, 2000 ms = barely pulsing) so alerts\n" +
-            "can be tuned for visibility vs. distraction.\n\n" +
+            "tray notification toggle and Pulse\n" +
+            "Speed slider (100 ms = very fast,\n" +
+            "2000 ms = barely pulsing) so alerts can\n" +
+            "be tuned for visibility vs. distraction.\n" +
+            "The tier Cooldown has no effect: every\n" +
+            "alert waits the same quiet time before\n" +
+            "it can repeat (set under Alerts › Events\n" +
+            "in the new settings window).\n\n" +
             "Alert Pulse Opacity\n" +
             "────────────────────────────\n" +
             "Master slider that fades the alert pulse\n" +
@@ -1225,8 +1231,10 @@ public partial class SettingsWindow : Window
             "screen (1-120 seconds). Default: 6s.\n\n" +
             "Reset Position\n" +
             "────────────────────────────\n" +
-            "Moves the hub back to the default\n" +
-            "bottom-right corner of your screen.\n\n" +
+            "Forgets where you dragged the hub. It\n" +
+            "goes back to the right edge of your\n" +
+            "main screen the next time MultiPreview\n" +
+            "starts.\n\n" +
             "Under Fire Indicator\n" +
             "────────────────────────────\n" +
             "When enabled, thumbnails flash when\n" +
@@ -1542,7 +1550,7 @@ public partial class SettingsWindow : Window
             "ABOUT\n" +
             "═══════════════════════════\n\n" +
             "EVE MultiPreview\n" +
-            "C# / .NET 8 WPF Edition\n\n" +
+            "C# / .NET 10 WPF Edition\n\n" +
             "Version shown on the About panel\n" +
             "matches the build you're running.\n\n" +
             "Originally written in AutoHotkey v2.\n" +
@@ -1561,7 +1569,14 @@ public partial class SettingsWindow : Window
             "up first (Backups folder). Going back to\n" +
             "an older version turns off the startup\n" +
             "update check; turn it back on here when\n" +
-            "you want updates again.",
+            "you want updates again.\n\n" +
+            "New Settings Window\n" +
+            "────────────────────────────\n" +
+            "This is the old settings window. Tick\n" +
+            "'Use the new settings window' above and\n" +
+            "reopen settings to go back to the new\n" +
+            "one. The old window will be removed in a\n" +
+            "later release.",
 
         "Debug" =>
             "DEBUG LOGGING\n" +

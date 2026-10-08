@@ -838,8 +838,8 @@
     <sys:String x:Key="L.Help.app.about.updates.Title">Updates</sys:String>
     <sys:String x:Key="L.Help.app.about.updates.Body">MultiPreview checks GitHub for a new release when it starts, unless you turn that off. **Check for updates** checks right now.&#x0A;&#x0A;**Install a specific version** lists every release. Installing an older one turns off the startup check, so it doesn't offer to update straight back.</sys:String>
     <sys:String x:Key="L.Help.app.about.window.Title">The old settings window</sys:String>
-    <sys:String x:Key="L.Help.app.about.window.Body">The previous settings window stays available while the new one settles in. Turn on **Use the old settings window**, then reopen settings to use it. In the old window, **Try the new settings window** brings you back.</sys:String>
-    <sys:String x:Key="L.S.Old.TryNewWindow">Try the new settings window (preview). Takes effect the next time you open settings.</sys:String>
+    <sys:String x:Key="L.Help.app.about.window.Body">The previous settings window stays available for now. Turn on **Use the old settings window**, then reopen settings to use it. In the old window, **Use the new settings window** brings you back. The old window will be removed in a later release.</sys:String>
+    <sys:String x:Key="L.S.Old.TryNewWindow">Use the new settings window. Takes effect the next time you open settings.</sys:String>
     <!-- Hotkey capture (Plan 3a): keys MultiPreview can't use; labels for keys that aren't cards -->
     <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview can't use this key. Pick another one.</sys:String>
     <sys:String x:Key="L.S.Use.Character">Switch to {0}</sys:String>

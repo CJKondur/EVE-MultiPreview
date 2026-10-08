@@ -1042,6 +1042,7 @@ public partial class App : Application
             _thumbnailManager?.SetSettingsOpen(false);
 
             _settingsWindow = null;
+            if (_hotkeyService != null) _hotkeyService.SettingsWindowHandle = IntPtr.Zero;
             if (!_isShuttingDown)
             {
                 applyLiveSettings();
@@ -1084,6 +1085,9 @@ public partial class App : Application
         _settingsWindow.Activate();
 
         var settingsHwnd = new System.Windows.Interop.WindowInteropHelper(_settingsWindow).Handle;
+        // Hotkeys stay quiet while settings is in front. The new window's title is translated, so the service gets its
+        // handle instead of looking for "Settings" in the title (IDEAS P23).
+        if (_hotkeyService != null) _hotkeyService.SettingsWindowHandle = settingsHwnd;
         var fg = Interop.User32.GetForegroundWindow();
         SettingsDiag($"After Activate: settingsHwnd=0x{settingsHwnd.ToInt64():X}, foreground=0x{fg.ToInt64():X}, match={settingsHwnd == fg}");
 

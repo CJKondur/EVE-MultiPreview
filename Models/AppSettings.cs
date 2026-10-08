@@ -109,9 +109,9 @@ public class AppSettings
     public bool ShowSystemName { get; set; } = true;
     public bool SimpleMode { get; set; } = false;
 
-    /// <summary>Open the old settings window instead of the new one (settings UI rework,
-    /// spec §12). True during Plan 2 so players see no change; Plan 3 flips the default.</summary>
-    public bool UseLegacySettingsWindow { get; set; } = true;
+    /// <summary>Open the old settings window instead of the new one (settings UI rework, spec §12). False: the new
+    /// window is the default (Plan 3d); About › "Use the old settings window" sets it for a release or two.</summary>
+    public bool UseLegacySettingsWindow { get; set; } = false;
 
     /// <summary>The new settings window's help pane is open (spec §9: closed until ? is pressed).</summary>
     public bool SettingsHelpOpen { get; set; } = false;
