@@ -1,0 +1,57 @@
+using System;
+using EveMultiPreview.Interop;
+using EveMultiPreview.Models;
+using EveMultiPreview.Views;
+
+namespace EveMultiPreview.SettingsUi;
+
+/// <summary>"Edit area" for a crop window (the old PickCropArea): hide the settings window, bring the
+/// client to the front, let the player drag over it (CropPickerOverlay), store the part they picked and
+/// bring the settings window back, through a CropPickSession.</summary>
+public static class CropAreaPick
+{
+    /// <summary>Returns the L.* key of why picking couldn't start ({0} = the character), or null once the
+    /// picker is open. <paramref name="picked"/> runs after a part was stored, before the window returns.</summary>
+    public static string? Start(SettingsContext ctx, string character, CropDefinition def, Action picked)
+    {
+        var thumb = ctx.Services.Thumbnails?.GetThumbnailForCharacter(character);
+        if (thumb == null) return "L.S.Crops.NeedsClient";
+        var (cx, cy, cw, ch) = CropPickerOverlay.QueryClientScreenRect(thumb.EveHwnd);
+        if (cw <= 0 || ch <= 0) return "L.S.Crops.NoClientArea";
+
+        // Hidden so it can't come back over the client while the player picks; then shown and activated
+        // again, as the old window did.
+        var window = ctx.Host.DialogOwner;
+        bool wasVisible = window?.IsVisible == true;
+        var session = new CropPickSession(
+            hide: () => { if (wasVisible) window?.Hide(); },
+            restore: () =>
+            {
+                if (!wasVisible || window == null) return;
+                window.Show();
+                window.Activate();
+            });
+
+        void Store((int X, int Y, int W, int H) r)
+        {
+            CropEdits.ApplyPick(def, r, DpiHelper.GetScaleFactorForPoint(cx, cy));
+            picked();
+        }
+
+        try
+        {
+            User32.SetForegroundWindow(thumb.EveHwnd);
+            var overlay = new CropPickerOverlay(cx, cy, cw, ch, cw, ch);
+            overlay.Completed += r => session.End(r, Store);
+            overlay.Closed += (_, _) => session.End(null, Store);   // Alt+F4, or anything else that closes it
+            overlay.Show();
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CropAreaPick] picker failed: {ex.Message}");
+            session.End(null, Store);
+            return "L.S.Crops.PickFailed";
+        }
+    }
+}
