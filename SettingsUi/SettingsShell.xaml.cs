@@ -37,7 +37,8 @@ public partial class SettingsShell : Window, ISettingsHost
     public SettingsShell(SettingsService service, AppServices services)
         : this(service, services, new DispatcherDebounceTimer(TimeSpan.FromSeconds(1)), SettingsRegistry.Pages) { }
 
-    public SettingsShell(SettingsService service, AppServices services, IDebounceTimer timer, IReadOnlyList<PageDef> pages)
+    public SettingsShell(SettingsService service, AppServices services, IDebounceTimer timer, IReadOnlyList<PageDef> pages,
+        Func<string, PageDef?>? resolve = null)
     {
         InitializeComponent();
         _pages = pages;
@@ -50,7 +51,7 @@ public partial class SettingsShell : Window, ISettingsHost
             timer: timer);
         applier.Applied += () => SettingsApplied?.Invoke();
         _ctx = new SettingsContext(service, applier, services, this);
-        Vm = new ShellVM(_ctx, pages, a => Dispatcher.BeginInvoke(a));
+        Vm = new ShellVM(_ctx, pages, a => Dispatcher.BeginInvoke(a), resolve ?? SettingsRegistry.Dynamic);
         Vm.Reloaded += () => { ApplyLanguageAndScale(); SettingsApplied?.Invoke(); };
         DataContext = Vm;
 
@@ -237,8 +238,7 @@ public partial class SettingsShell : Window, ISettingsHost
 
     private void OnBreadcrumbGroup(object sender, RoutedEventArgs e)
     {
-        var group = Vm.Groups.FirstOrDefault(g => g.Group == Vm.Current?.Page.Group);
-        group?.OpenCommand.Execute(null);
+        if (Vm.BreadcrumbTargetId is { } target) Navigate(target);
     }
 
     private void OnRetrySave(object sender, RoutedEventArgs e) => Vm.RetrySave();
@@ -283,7 +283,7 @@ public partial class SettingsShell : Window, ISettingsHost
     {
         HelpColumn.Width = new GridLength(Vm.HelpOpen ? 320 : 0);
         HelpHost.Visibility = Vm.HelpOpen ? Visibility.Visible : Visibility.Collapsed;
-        var page = Vm.Current?.Page.Id;
+        var page = Vm.Current?.Page.HelpId;
         if (Vm.HelpOpen && page != null && page != _helpPage)
         {
             _help.ShowPage(page);

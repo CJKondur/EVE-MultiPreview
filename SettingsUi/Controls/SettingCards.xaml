@@ -234,7 +234,8 @@
     </DataTemplate>
 
     <DataTemplate x:Key="Fx.Editor">
-        <ContentPresenter Content="{Binding Element}" Margin="0,0,0,4"/>
+        <ContentPresenter Content="{Binding Element}" Margin="0,0,0,4"
+                          Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="Fx.Section">

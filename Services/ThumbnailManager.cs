@@ -3799,6 +3799,16 @@ public sealed class ThumbnailManager : IDisposable
             && _excludedFromCycle.ContainsKey(characterName);
     }
 
+    /// <summary>The system this character was last seen in (from its logs), or null.</summary>
+    public string? GetCharacterSystem(string characterName) =>
+        !string.IsNullOrEmpty(characterName) && _charSystems.TryGetValue(characterName, out var system) ? system : null;
+
+    /// <summary>True while "Hide/Show all" has the thumbnails hidden (runtime state, not saved).</summary>
+    public bool AllThumbnailsHidden => _thumbnailsHidden;
+
+    /// <summary>True while the click-through toggle is on (runtime state, not saved).</summary>
+    public bool ClickThroughOn => _clickThroughActive;
+
     /// <summary>Flip session cycle-exclusion for a character. Also forces a
     /// repaint of the matching thumbnail so the visual indicator updates.</summary>
     public void ToggleCycleExclusion(string characterName)

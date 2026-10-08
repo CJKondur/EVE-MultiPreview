@@ -230,7 +230,7 @@ public sealed class EditorVM : ItemVM
     private FrameworkElement? _element;
     public EditorVM(EditorItem def, SettingsContext ctx) : base(def.Id, ctx) => Def = def;
     public EditorItem Def { get; }
-    public override bool IsVisible => true;
+    public override bool IsVisible => Def.ShowIf?.Invoke(Ctx.S) ?? true;
     public FrameworkElement Element => _element ??= Def.Create(Ctx);
     public override void Refresh() { (_element as IRefreshable)?.Refresh(); RaiseAll(); }
 }

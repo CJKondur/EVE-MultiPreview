@@ -53,12 +53,16 @@ public sealed class ShellVM : ObservableObject, IDisposable
 {
     private readonly SettingsContext _ctx;
     private readonly Action<Action> _marshal;
+    private readonly Func<string, PageDef?>? _resolve;
     private readonly Dictionary<string, PageVM> _pages = new();
 
-    public ShellVM(SettingsContext ctx, IReadOnlyList<PageDef> pages, Action<Action> marshal)
+    /// <param name="resolve">Builds a page that isn't in <paramref name="pages"/> from its id (a
+    /// character page, "character/Logi"); null when there is none.</param>
+    public ShellVM(SettingsContext ctx, IReadOnlyList<PageDef> pages, Action<Action> marshal, Func<string, PageDef?>? resolve = null)
     {
         _ctx = ctx;
         _marshal = marshal;
+        _resolve = resolve;
         Pages = pages;
         Home = pages.FirstOrDefault(p => p.Group == NavGroup.Home);
         Groups = pages.Where(p => p.Group != NavGroup.Home)
@@ -78,7 +82,16 @@ public sealed class ShellVM : ObservableObject, IDisposable
     public PageDef? Home { get; }
     public bool HasHome => Home != null;
     public PageVM? Current { get; private set; }
-    public string? GroupTitleKey => Current == null || Current.Page.Group == NavGroup.Home ? null : "L.S.Nav." + Current.Page.Group;
+    /// <summary>The breadcrumb's first part: a dynamic page's parent ("Characters"), else the group.</summary>
+    public string? GroupTitleKey =>
+        Current == null || Current.Page.Group == NavGroup.Home ? null
+        : Current.Page.ParentId is { } parent ? Pages.FirstOrDefault(p => p.Id == parent)?.TitleKey
+        : "L.S.Nav." + Current.Page.Group;
+
+    /// <summary>Where clicking the breadcrumb's first part goes: the parent page, else the group's first page.</summary>
+    public string? BreadcrumbTargetId =>
+        Current?.Page.ParentId ?? Groups.FirstOrDefault(g => g.Group == Current?.Page.Group)?.Pages.FirstOrDefault()?.Page.Id;
+
     public ICommand HomeCommand { get; }
     public ICommand AllSettingsCommand { get; }
     public ItemVM? HighlightedItem { get; private set; }
@@ -116,7 +129,8 @@ public sealed class ShellVM : ObservableObject, IDisposable
 
     public void Navigate(string pageId, string? itemId = null)
     {
-        var page = Pages.FirstOrDefault(p => p.Id == pageId);
+        var page = Pages.FirstOrDefault(p => p.Id == pageId)
+                   ?? (_pages.TryGetValue(pageId, out var built) ? built.Page : _resolve?.Invoke(pageId));
         if (page == null) return;
         if (page.Group != NavGroup.Home && IsSimple)
         {
@@ -176,10 +190,11 @@ public sealed class ShellVM : ObservableObject, IDisposable
         if (!_pages.TryGetValue(page.Id, out var vm)) _pages[page.Id] = vm = new PageVM(page, _ctx);
         else vm.Refresh();   // values may have changed elsewhere (a thumbnail drag, a hotkey, another page)
         Current = vm;
+        var navId = page.ParentId ?? page.Id;   // a character page keeps "Characters" selected
         foreach (var g in Groups)
         {
             g.IsExpanded = g.Group == page.Group;
-            foreach (var p in g.Pages) p.IsSelected = p.Page.Id == page.Id;
+            foreach (var p in g.Pages) p.IsSelected = p.Page.Id == navId;
             g.RaiseCurrent();
         }
         ClearHighlight();

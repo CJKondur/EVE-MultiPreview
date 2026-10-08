@@ -8,11 +8,25 @@ namespace EveMultiPreview.SettingsUi;
 /// <summary>Navigation groups in the order the pane shows them (spec §4, §5).</summary>
 public enum NavGroup { Home, Clients, Thumbnails, Alerts, Performance, Tools, App }
 
-/// <summary>A navigation page. Title "L.S.Page.{Id}", description "L.S.Page.{Id}.Desc".</summary>
+/// <summary>A page. Title "L.S.Page.{KeyId}", description "L.S.Page.{KeyId}.Desc", help
+/// "L.Help.{HelpId}.*". A page built at run time (a character page) sets Title, ParentId and Template.</summary>
 public sealed record PageDef(string Id, NavGroup Group, IReadOnlyList<SectionDef> Sections)
 {
-    public string TitleKey => "L.S.Page." + Id;
-    public string DescKey => "L.S.Page." + Id + ".Desc";
+    /// <summary>Shown instead of the TitleKey resource: a character's name, never translated.</summary>
+    public string? Title { get; init; }
+
+    /// <summary>A page opened from another page instead of the navigation pane (a character page
+    /// from Characters). The breadcrumb names and opens the parent, and the parent stays selected.</summary>
+    public string? ParentId { get; init; }
+
+    /// <summary>Pages built at run time share one set of keys and one help page: "character"
+    /// for every character page.</summary>
+    public string? Template { get; init; }
+
+    public string KeyId => Template ?? Id;
+    public string TitleKey => "L.S.Page." + KeyId;
+    public string DescKey => "L.S.Page." + KeyId + ".Desc";
+    public string HelpId => KeyId;
 }
 
 /// <summary>A titled block of cards. Title "L.S.Sec.{Id}". Ids are unique across all pages.</summary>
@@ -60,4 +74,6 @@ public sealed record EditorItem(string Id, Func<SettingsContext, FrameworkElemen
 {
     public IReadOnlyList<string> Binds { get; init; } = Array.Empty<string>();
     public IReadOnlyList<string> Replaces { get; init; } = Array.Empty<string>();
+    /// <summary>The editor shows only while this returns true (spec §6 conditional rows).</summary>
+    public Func<AppSettings, bool>? ShowIf { get; init; }
 }

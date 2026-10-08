@@ -126,7 +126,18 @@
                         </Button>
                         <TextBlock Text="  ›  " Style="{StaticResource Fx.Breadcrumb}"
                                    Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
-                        <TextBlock local:Loc.Key="{Binding Current.Page.TitleKey}" Style="{StaticResource Fx.PageTitle}"/>
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource Fx.PageTitle}">
+                                    <Setter Property="Text" Value="{Binding Current.Page.Title}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
+                                            <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </WrapPanel>
                     <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{StaticResource Fx.PageDesc}"/>
                 </StackPanel>
