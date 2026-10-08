@@ -50,7 +50,8 @@ public sealed class GroupsEditor : System.Windows.Controls.UserControl, IRefresh
     {
         bool? everywhere;
         if (g.Colour != null && g.Keys != null)
-            everywhere = _ctx.Host.ConfirmChoice(Str("L.S.Groups.DeleteTitle"), string.Format(Str("L.S.Groups.DeleteBoth"), g.Name));
+            everywhere = _ctx.Host.ConfirmChoice(Str("L.S.Groups.DeleteTitle"), string.Format(Str("L.S.Groups.DeleteBoth"), g.Name),
+                Str("L.S.Groups.DeleteEverywhere"), Str("L.S.Groups.DeleteKeysOnly"));
         else
             everywhere = _ctx.Host.Confirm(Str("L.S.Groups.DeleteTitle"),
                 string.Format(Str(g.Colour != null ? "L.S.Groups.DeleteColour" : "L.S.Groups.DeleteKeys"), g.Name))

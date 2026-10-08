@@ -879,7 +879,7 @@
     <sys:String x:Key="L.S.Groups.Scope">色はすべてのプロファイルに適用されます。キーと順序はこのプロファイルに属します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.Delete">削除…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteTitle">グループを削除</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Groups.DeleteBoth">グループ「{0}」を削除しますか？&#x0A;&#x0A;はい：すべて削除します。色はすべてのプロファイルから、キーと順序はこのプロファイルから消えます。&#x0A;いいえ：このプロファイルのキーと順序のみ削除します。色のグループは残ります。&#x0A;キャンセル：残します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteBoth">グループ「{0}」を削除しますか？&#x0A;&#x0A;すべて削除：色はすべてのプロファイルから、キーと順序はこのプロファイルから消えます。&#x0A;このプロファイルのキーのみ：キーと順序は削除され、色のグループは残ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteColour">グループ「{0}」を削除しますか？ 色はすべてのプロファイルから消えます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeys">グループ「{0}」をこのプロファイルから削除しますか？</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.Intro">グループは、枠の色を共有し、専用の次へ・前へキーを持つキャラクターのまとまりです。艦隊、採掘チーム、斥候などに使えます。</sys:String> <!-- draft -->
@@ -1859,4 +1859,7 @@
     <!-- Core pins this PC can't use (Plan 3d) -->
     <sys:String x:Key="L.S.character.coreStale">コア {0} に固定されていますが、このPCにはそのコアがないため、固定は無効です。コアを選ぶか、「自動」を選んで固定を解除してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.CoreTable.Stale">コア {0}（このPCにはありません）</sys:String> <!-- draft -->
+    <!-- The group delete question's buttons (Plan 3d) -->
+    <sys:String x:Key="L.S.Groups.DeleteEverywhere">すべて削除</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteKeysOnly">このプロファイルのキーのみ</sys:String> <!-- draft -->
 </ResourceDictionary>

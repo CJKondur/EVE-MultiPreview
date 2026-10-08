@@ -29,8 +29,9 @@ public interface ISettingsHost
     /// character search). Null when cancelled.</summary>
     string? PickCharacter(string title, IReadOnlyList<string> names);
 
-    /// <summary>A three-way question: Yes = true, No = false, Cancel = null.</summary>
-    bool? ConfirmChoice(string title, string body);
+    /// <summary>A three-way question with buttons that say what they do, in the settings language: the first button =
+    /// true, the second = false, Cancel (and Esc or closing) = null.</summary>
+    bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel);
 
     /// <summary>Owner for modal dialogs the window opens (copy profile, update). Null in tests.</summary>
     System.Windows.Window? DialogOwner { get; }

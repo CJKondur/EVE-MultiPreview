@@ -879,7 +879,7 @@
     <sys:String x:Key="L.S.Groups.Scope">색은 모든 프로필에 적용됩니다. 키와 순서는 이 프로필에 속합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.Delete">삭제…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteTitle">그룹 삭제</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Groups.DeleteBoth">'{0}' 그룹을 삭제할까요?&#x0A;&#x0A;예: 모든 곳에서 삭제합니다. 색은 모든 프로필에서, 키와 순서는 이 프로필에서 사라집니다.&#x0A;아니요: 이 프로필의 키와 순서만 제거합니다. 색 그룹은 남습니다.&#x0A;취소: 그대로 둡니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteBoth">'{0}' 그룹을 삭제할까요?&#x0A;&#x0A;모든 곳에서 삭제: 색은 모든 프로필에서, 키와 순서는 이 프로필에서 사라집니다.&#x0A;이 프로필의 키만: 키와 순서는 제거되고, 색 그룹은 남습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteColour">'{0}' 그룹을 삭제할까요? 색이 모든 프로필에서 사라집니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeys">'{0}' 그룹을 이 프로필에서 삭제할까요?</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.Intro">그룹은 테두리 색을 공유하고 자체 다음·이전 키를 가진 캐릭터 모음입니다. 함대, 채굴 팀, 정찰대 등에 사용하세요.</sys:String> <!-- draft -->
@@ -1859,4 +1859,7 @@
     <!-- Core pins this PC can't use (Plan 3d) -->
     <sys:String x:Key="L.S.character.coreStale">코어 {0}에 고정되어 있지만 이 PC에는 해당 코어가 없어 고정이 적용되지 않아요. 코어를 선택하거나 '자동'을 선택해 고정을 해제하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.CoreTable.Stale">코어 {0} (이 PC에 없음)</sys:String> <!-- draft -->
+    <!-- The group delete question's buttons (Plan 3d) -->
+    <sys:String x:Key="L.S.Groups.DeleteEverywhere">모든 곳에서 삭제</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteKeysOnly">이 프로필의 키만</sys:String> <!-- draft -->
 </ResourceDictionary>

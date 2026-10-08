@@ -896,7 +896,7 @@
     <sys:String x:Key="L.S.Groups.Scope">Il colore vale per tutti i profili. Tasti e ordine appartengono a questo profilo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.Delete">Elimina…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteTitle">Elimina gruppo</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Groups.DeleteBoth">Eliminare il gruppo '{0}'?&#x0A;&#x0A;Sì: eliminalo ovunque. Il suo colore sparisce da tutti i profili, i suoi tasti e l'ordine da questo profilo.&#x0A;No: rimuovi solo i tasti e l'ordine di questo profilo. Il gruppo colore resta.&#x0A;Annulla: mantienilo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteBoth">Eliminare il gruppo '{0}'?&#x0A;&#x0A;Elimina ovunque: il suo colore sparisce da tutti i profili, i suoi tasti e l'ordine da questo profilo.&#x0A;Solo i tasti di questo profilo: i tasti e l'ordine vengono rimossi, il gruppo colore resta.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteColour">Eliminare il gruppo '{0}'? Il suo colore sparisce da tutti i profili.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeys">Eliminare il gruppo '{0}' da questo profilo?</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.Intro">Un gruppo è un insieme di personaggi con un colore del bordo comune e i propri tasti per successivo e precedente. Usalo per una flotta, una squadra di mining o i tuoi esploratori.</sys:String> <!-- draft -->
@@ -1876,4 +1876,7 @@
     <!-- Core pins this PC can't use (Plan 3d) -->
     <sys:String x:Key="L.S.character.coreStale">Fissato al core {0}, che questo PC non ha, quindi il blocco non fa nulla. Scegli un core, oppure «Automatico» per rimuoverlo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.CoreTable.Stale">Core {0} (non presente su questo PC)</sys:String> <!-- draft -->
+    <!-- The group delete question's buttons (Plan 3d) -->
+    <sys:String x:Key="L.S.Groups.DeleteEverywhere">Elimina ovunque</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Solo i tasti di questo profilo</sys:String> <!-- draft -->
 </ResourceDictionary>

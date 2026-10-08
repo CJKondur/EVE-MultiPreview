@@ -896,7 +896,7 @@
     <sys:String x:Key="L.S.Groups.Scope">颜色对所有配置文件生效。按键和顺序属于当前配置文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.Delete">删除…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteTitle">删除分组</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Groups.DeleteBoth">删除分组“{0}”？&#x0A;&#x0A;是：全部删除。其颜色将从所有配置文件中移除，其按键和顺序将从当前配置文件中移除。&#x0A;否：仅移除当前配置文件的按键和顺序，颜色分组保留。&#x0A;取消：保留。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteBoth">删除分组“{0}”？&#x0A;&#x0A;全部删除：其颜色将从所有配置文件中移除，其按键和顺序将从当前配置文件中移除。&#x0A;仅当前配置文件的按键：移除按键和顺序，颜色分组保留。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteColour">删除分组“{0}”？其颜色将从所有配置文件中移除。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeys">从当前配置文件中删除分组“{0}”？</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.Intro">分组是一组共用边框颜色、并拥有各自上一个和下一个切换键的角色。可用于舰队、采矿队或侦察队。</sys:String> <!-- draft -->
@@ -1876,4 +1876,7 @@
     <!-- Core pins this PC can't use (Plan 3d) -->
     <sys:String x:Key="L.S.character.coreStale">已固定到核心 {0}，但这台电脑没有该核心，因此该固定不起作用。请选择一个核心，或选择“自动”来移除固定。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.CoreTable.Stale">核心 {0}（这台电脑上没有）</sys:String> <!-- draft -->
+    <!-- The group delete question's buttons (Plan 3d) -->
+    <sys:String x:Key="L.S.Groups.DeleteEverywhere">全部删除</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteKeysOnly">仅当前配置文件的按键</sys:String> <!-- draft -->
 </ResourceDictionary>

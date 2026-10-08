@@ -898,7 +898,7 @@
     <sys:String x:Key="L.S.Groups.Scope">Цвет действует во всех профилях. Клавиши и порядок относятся к этому профилю.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.Delete">Удалить…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteTitle">Удалить группу</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Groups.DeleteBoth">Удалить группу '{0}'?&#x0A;&#x0A;Да: удалить везде. Её цвет исчезнет из всех профилей, а клавиши и порядок — из этого профиля.&#x0A;Нет: убрать только клавиши и порядок этого профиля. Цветовая группа останется.&#x0A;Отмена: оставить.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteBoth">Удалить группу '{0}'?&#x0A;&#x0A;Удалить везде: её цвет исчезнет из всех профилей, а клавиши и порядок — из этого профиля.&#x0A;Только клавиши этого профиля: клавиши и порядок будут убраны, цветовая группа останется.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteColour">Удалить группу '{0}'? Её цвет исчезнет из всех профилей.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeys">Удалить группу '{0}' из этого профиля?</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.Intro">Группа — это набор персонажей с общим цветом рамки и собственными клавишами следующего и предыдущего клиента. Используйте её для флота, добывающей команды или разведчиков.</sys:String> <!-- draft -->
@@ -1878,4 +1878,7 @@
     <!-- Core pins this PC can't use (Plan 3d) -->
     <sys:String x:Key="L.S.character.coreStale">Закреплено за ядром {0}, которого нет на этом ПК, поэтому закрепление не действует. Выберите ядро или «Автоматически», чтобы убрать закрепление.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.CoreTable.Stale">Ядро {0} (нет на этом ПК)</sys:String> <!-- draft -->
+    <!-- The group delete question's buttons (Plan 3d) -->
+    <sys:String x:Key="L.S.Groups.DeleteEverywhere">Удалить везде</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Только клавиши этого профиля</sys:String> <!-- draft -->
 </ResourceDictionary>

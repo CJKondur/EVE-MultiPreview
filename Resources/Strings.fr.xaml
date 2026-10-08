@@ -881,7 +881,7 @@
     <sys:String x:Key="L.S.Groups.Scope">La couleur s'applique à tous les profils. Les touches et l'ordre appartiennent à ce profil.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.Delete">Supprimer…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteTitle">Supprimer le groupe</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Groups.DeleteBoth">Supprimer le groupe '{0}' ?&#x0A;&#x0A;Oui : le supprimer partout. Sa couleur disparaît de tous les profils, ses touches et son ordre de ce profil.&#x0A;Non : retirer seulement les touches et l'ordre de ce profil. Le groupe de couleur reste.&#x0A;Annuler : le garder.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteBoth">Supprimer le groupe '{0}' ?&#x0A;&#x0A;Supprimer partout : sa couleur disparaît de tous les profils, ses touches et son ordre de ce profil.&#x0A;Seulement les touches de ce profil : les touches et l'ordre sont retirés, le groupe de couleur reste.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteColour">Supprimer le groupe '{0}' ? Sa couleur disparaît de tous les profils.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeys">Supprimer le groupe '{0}' de ce profil ?</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.Intro">Un groupe est un ensemble de personnages avec une couleur de bordure commune et ses propres touches suivant et précédent. Utilisez-en un pour une flotte, une équipe de minage ou vos éclaireurs.</sys:String> <!-- draft -->
@@ -1861,4 +1861,7 @@
     <!-- Core pins this PC can't use (Plan 3d) -->
     <sys:String x:Key="L.S.character.coreStale">Épinglé sur le cœur {0}, que ce PC n'a pas : l'épinglage ne sert à rien. Choisissez un cœur, ou « Automatique » pour le retirer.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.CoreTable.Stale">Cœur {0} (absent de ce PC)</sys:String> <!-- draft -->
+    <!-- The group delete question's buttons (Plan 3d) -->
+    <sys:String x:Key="L.S.Groups.DeleteEverywhere">Supprimer partout</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Seulement les touches de ce profil</sys:String> <!-- draft -->
 </ResourceDictionary>

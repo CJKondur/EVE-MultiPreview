@@ -173,13 +173,12 @@ public partial class SettingsShell : Window, ISettingsHost
         return dialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(dialog.SelectedName) ? dialog.SelectedName!.Trim() : null;
     }
 
-    public bool? ConfirmChoice(string title, string body) =>
-        MessageBox.Show(this, body, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question) switch
-        {
-            MessageBoxResult.Yes => true,
-            MessageBoxResult.No => false,
-            _ => null,
-        };
+    public bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel)
+    {
+        var dialog = new ChoiceDialog(title, body, yesLabel, noLabel) { Owner = this };
+        dialog.ShowDialog();
+        return dialog.Result;
+    }
 
     public string? AskText(string title, string prompt, string initial)
     {

@@ -878,7 +878,7 @@
     <sys:String x:Key="L.S.Groups.Scope">Die Farbe gilt für alle Profile. Tasten und Reihenfolge gehören zu diesem Profil.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.Delete">Löschen…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteTitle">Gruppe löschen</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Groups.DeleteBoth">Gruppe '{0}' löschen?&#x0A;&#x0A;Ja: überall löschen. Die Farbe verschwindet aus allen Profilen, Tasten und Reihenfolge aus diesem Profil.&#x0A;Nein: nur Tasten und Reihenfolge dieses Profils entfernen. Die Farbgruppe bleibt.&#x0A;Abbrechen: behalten.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteBoth">Gruppe '{0}' löschen?&#x0A;&#x0A;Überall löschen: Die Farbe verschwindet aus allen Profilen, Tasten und Reihenfolge aus diesem Profil.&#x0A;Nur die Tasten dieses Profils: Tasten und Reihenfolge werden entfernt, die Farbgruppe bleibt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteColour">Gruppe '{0}' löschen? Ihre Farbe verschwindet aus allen Profilen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeys">Gruppe '{0}' aus diesem Profil löschen?</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.Intro">Eine Gruppe ist eine Menge von Charakteren mit gemeinsamer Rahmenfarbe und eigenen Tasten für nächsten und vorherigen Client. Nutze eine für eine Flotte, eine Mining-Crew oder deine Scouts.</sys:String> <!-- draft -->
@@ -1858,4 +1858,7 @@
     <!-- Core pins this PC can't use (Plan 3d) -->
     <sys:String x:Key="L.S.character.coreStale">An Kern {0} gebunden, den dieser PC nicht hat – die Bindung bewirkt nichts. Wähle einen Kern oder „Automatisch“, um sie zu entfernen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.CoreTable.Stale">Kern {0} (nicht auf diesem PC)</sys:String> <!-- draft -->
+    <!-- The group delete question's buttons (Plan 3d) -->
+    <sys:String x:Key="L.S.Groups.DeleteEverywhere">Überall löschen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Nur die Tasten dieses Profils</sys:String> <!-- draft -->
 </ResourceDictionary>
