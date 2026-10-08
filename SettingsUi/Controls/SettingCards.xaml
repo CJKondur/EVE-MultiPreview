@@ -1,0 +1,245 @@
+<ResourceDictionary x:Class="EveMultiPreview.SettingsUi.SettingCards"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:EveMultiPreview.SettingsUi">
+    <ResourceDictionary.MergedDictionaries>
+        <local:SettingsTheme/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <BooleanToVisibilityConverter x:Key="Fx.BoolToVis"/>
+    <local:ColorTextToBrushConverter x:Key="Fx.ColorBrush"/>
+    <local:SettingTemplateSelector x:Key="Fx.Selector"/>
+
+    <!-- Toggle switch with On/Off text (spec §6). Motion: none beyond the instant state change. -->
+    <Style x:Key="Fx.ToggleSwitch" TargetType="CheckBox">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Focusable" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <TextBlock x:Name="State" local:Loc.Key="L.S.Off" Foreground="{StaticResource Fx.TextBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <Border x:Name="Track" Width="40" Height="20" CornerRadius="10" BorderThickness="1"
+                                BorderBrush="{StaticResource Fx.TextSecondaryBrush}" Background="Transparent">
+                            <Ellipse x:Name="Knob" Width="12" Height="12" Margin="4,0" HorizontalAlignment="Left"
+                                     Fill="{StaticResource Fx.TextSecondaryBrush}"/>
+                        </Border>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="State" Property="local:Loc.Key" Value="L.S.On"/>
+                            <Setter TargetName="Track" Property="Background" Value="{StaticResource Fx.AccentBrush}"/>
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource Fx.AccentBrush}"/>
+                            <Setter TargetName="Knob" Property="Fill" Value="#FF000000"/>
+                            <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource Fx.TextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Card frame: label, description and error on the left; the control (Content) on the right. -->
+    <Style x:Key="Fx.CardHost" TargetType="ContentControl">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border x:Name="Card" Style="{StaticResource Fx.Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                                <TextBlock local:Loc.Key="{Binding LabelKey}" Style="{StaticResource Fx.Label}"/>
+                                <TextBlock local:Loc.Key="{Binding DescKey}" Style="{StaticResource Fx.Desc}"/>
+                                <TextBlock Text="{Binding Error}" Style="{StaticResource Fx.Error}"
+                                           Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
+                            </StackPanel>
+                            <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                            <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource Fx.AccentBrush}"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Option text: Literal when set (language names, percentages), else the LabelKey resource. -->
+    <DataTemplate x:Key="Fx.OptionText">
+        <TextBlock>
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Text" Value="{Binding Literal}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Literal}" Value="{x:Null}">
+                            <Setter Property="local:Loc.Key" Value="{Binding LabelKey}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Toggle">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <CheckBox Style="{StaticResource Fx.ToggleSwitch}" IsChecked="{Binding IsOn}"/>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Choice">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <ComboBox MinWidth="200" ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"
+                      ItemTemplate="{StaticResource Fx.OptionText}"/>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Segmented">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <ListBox ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"
+                     ItemTemplate="{StaticResource Fx.OptionText}" BorderThickness="1"
+                     BorderBrush="{StaticResource Fx.BorderBrush}" Background="{StaticResource Fx.ControlBrush}">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Slider">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding Number, StringFormat=N0}" Foreground="{StaticResource Fx.TextBrush}"
+                           VerticalAlignment="Center" MinWidth="32" TextAlignment="Right"/>
+                <TextBlock local:Loc.Key="{Binding UnitKey}" Foreground="{StaticResource Fx.TextSecondaryBrush}"
+                           VerticalAlignment="Center" Margin="4,0,12,0"/>
+                <Slider Width="200" VerticalAlignment="Center" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                        SmallChange="{Binding Step}" LargeChange="{Binding Step}" TickFrequency="{Binding Step}"
+                        IsSnapToTickEnabled="True" Value="{Binding Number, Delay=150}"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Number">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <TextBox MinWidth="80" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+                <TextBlock local:Loc.Key="{Binding UnitKey}" Foreground="{StaticResource Fx.TextSecondaryBrush}"
+                           VerticalAlignment="Center" Margin="8,0,0,0"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Text">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <TextBox MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Folder">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <TextBox MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+                <Button local:Loc.Key="L.S.Shell.Browse" Command="{Binding BrowseCommand}" Margin="8,0,0,0" Padding="12,4"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.File">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <TextBox MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+                <Button local:Loc.Key="L.S.Shell.Browse" Command="{Binding BrowseCommand}" Margin="8,0,0,0" Padding="12,4"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Color">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <Button Command="{Binding PickColorCommand}" Width="32" Height="32" Padding="0" Margin="0,0,8,0">
+                    <Border Width="22" Height="22" CornerRadius="4" BorderThickness="1" BorderBrush="{StaticResource Fx.BorderBrush}"
+                            Background="{Binding Text, Converter={StaticResource Fx.ColorBrush}}"/>
+                </Button>
+                <TextBox MinWidth="96" FontFamily="{StaticResource Fx.MonoFont}"
+                         Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Hotkey">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <Button Command="{Binding CaptureHotkeyCommand}" MinWidth="120" Padding="12,4">
+                    <TextBlock Text="{Binding HotkeyDisplay}" FontFamily="{StaticResource Fx.MonoFont}"/>
+                </Button>
+                <Button local:Loc.Key="L.S.Hotkey.Clear" Command="{Binding ClearCommand}" Margin="8,0,0,0" Padding="12,4"
+                        Visibility="{Binding HasValue, Converter={StaticResource Fx.BoolToVis}}"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Card.Actions">
+        <ContentControl Style="{StaticResource Fx.CardHost}">
+            <ItemsControl ItemsSource="{Binding Buttons}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding Command}" Margin="8,0,0,0" Padding="12,4">
+                            <TextBlock x:Name="Label" local:Loc.Key="{Binding LabelKey}"/>
+                        </Button>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsDestructive}" Value="True">
+                                <Setter TargetName="Label" Property="Foreground" Value="{StaticResource Fx.CriticalBrush}"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ContentControl>
+    </DataTemplate>
+
+    <!-- Info line: a coloured bar plus text. Colour is never the only signal (spec §7): the text says it. -->
+    <DataTemplate x:Key="Fx.Info">
+        <Border x:Name="Bar" BorderThickness="3,0,0,0" BorderBrush="{StaticResource Fx.InfoBrush}"
+                Background="{StaticResource Fx.CardBrush}" CornerRadius="{StaticResource Fx.Radius}"
+                Padding="12,8" Margin="0,0,0,4"
+                Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <TextBlock Text="{Binding Text}" Style="{StaticResource Fx.Label}"/>
+        </Border>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Severity}" Value="Warning">
+                <Setter TargetName="Bar" Property="BorderBrush" Value="{StaticResource Fx.WarningBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Severity}" Value="Error">
+                <Setter TargetName="Bar" Property="BorderBrush" Value="{StaticResource Fx.CriticalBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Editor">
+        <ContentPresenter Content="{Binding Element}" Margin="0,0,0,4"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Fx.Section">
+        <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{StaticResource Fx.SectionTitle}"/>
+            <ItemsControl ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource Fx.Selector}" Focusable="False"/>
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

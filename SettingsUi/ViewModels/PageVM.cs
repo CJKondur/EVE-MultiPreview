@@ -1,0 +1,48 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace EveMultiPreview.SettingsUi;
+
+public sealed class SectionVM : ObservableObject
+{
+    public SectionVM(SectionDef def, IReadOnlyList<ItemVM> items) { Def = def; Items = items; }
+    public SectionDef Def { get; }
+    public string TitleKey => Def.TitleKey;
+    public IReadOnlyList<ItemVM> Items { get; }
+    /// <summary>A section whose every card is hidden disappears with its title.</summary>
+    public bool IsVisible => Items.Any(i => i.IsVisible);
+    public void RaiseVisibility() { foreach (var i in Items) i.RaiseVisibility(); Raise(nameof(IsVisible)); }
+}
+
+public sealed class PageVM : ObservableObject
+{
+    public PageVM(PageDef page, SettingsContext ctx)
+    {
+        Page = page;
+        Sections = page.Sections.Select(s => new SectionVM(s, s.Items.Select(i => Create(i, ctx)).ToList())).ToList();
+        foreach (var item in Items) item.Changed += RefreshVisibility;
+    }
+
+    public PageDef Page { get; }
+    public IReadOnlyList<SectionVM> Sections { get; }
+    public IEnumerable<ItemVM> Items => Sections.SelectMany(s => s.Items);
+    public ItemVM? Find(string id) => Items.FirstOrDefault(i => i.Id == id);
+
+    public void Refresh()
+    {
+        foreach (var i in Items) i.Refresh();
+        RefreshVisibility();
+    }
+
+    private void RefreshVisibility() { foreach (var s in Sections) s.RaiseVisibility(); }
+
+    private static ItemVM Create(PageItem item, SettingsContext ctx) => item switch
+    {
+        SettingItem si => new SettingVM(si.Setting, ctx),
+        ActionRow ar => new ActionRowVM(ar, ctx),
+        InfoItem ii => new InfoVM(ii, ctx),
+        EditorItem ei => new EditorVM(ei, ctx),
+        _ => throw new NotSupportedException(item.GetType().Name),
+    };
+}

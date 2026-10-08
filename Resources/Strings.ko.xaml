@@ -721,4 +721,8 @@
     <sys:String x:Key="L.S.Hotkey.Change">변경</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Ok">확인</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Cancel">취소</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.On">켜짐</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Off">꺼짐</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Browse">찾아보기…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
 </ResourceDictionary>

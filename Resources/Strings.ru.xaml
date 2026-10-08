@@ -740,4 +740,8 @@
     <sys:String x:Key="L.S.Hotkey.Change">Изменить</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Ok">ОК</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Cancel">Отмена</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.On">Вкл</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Off">Выкл</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Browse">Обзор…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
 </ResourceDictionary>

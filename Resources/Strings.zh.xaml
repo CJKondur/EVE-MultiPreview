@@ -738,4 +738,8 @@
     <sys:String x:Key="L.S.Hotkey.Change">更改</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Ok">确定</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Cancel">取消</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.On">开</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Off">关</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Browse">浏览…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
 </ResourceDictionary>

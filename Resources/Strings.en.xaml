@@ -714,4 +714,8 @@
     <sys:String x:Key="L.S.Hotkey.Change">Change</sys:String>
     <sys:String x:Key="L.S.Shell.Ok">OK</sys:String>
     <sys:String x:Key="L.S.Shell.Cancel">Cancel</sys:String>
+    <sys:String x:Key="L.S.On">On</sys:String>
+    <sys:String x:Key="L.S.Off">Off</sys:String>
+    <sys:String x:Key="L.S.Shell.Browse">Browse…</sys:String>
+    <sys:String x:Key="L.S.Unit.Percent">%</sys:String>
 </ResourceDictionary>

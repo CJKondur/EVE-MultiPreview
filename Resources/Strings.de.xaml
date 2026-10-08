@@ -720,4 +720,8 @@
     <sys:String x:Key="L.S.Hotkey.Change">Ändern</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Ok">OK</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Cancel">Abbrechen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.On">An</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Off">Aus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Browse">Durchsuchen…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Percent">%</sys:String> <!-- draft -->
 </ResourceDictionary>

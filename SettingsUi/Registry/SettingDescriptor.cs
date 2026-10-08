@@ -55,6 +55,9 @@ public sealed record SettingDescriptor
 
     public IReadOnlyList<ChoiceOption> Options { get; init; } = Array.Empty<ChoiceOption>();
 
+    /// <summary>Open-file dialog filter for File settings ("WAV files|*.wav").</summary>
+    public string FileFilter { get; init; } = "All files|*.*";
+
     /// <summary>Returns the L.* key of an error for a value that must not be stored, or null.
     /// The message may use {0} and {1} for Min and Max (spec §8.5).</summary>
     public Func<object?, string?>? Validate { get; init; }
