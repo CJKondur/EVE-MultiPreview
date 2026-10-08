@@ -298,7 +298,7 @@ public class AlertHub : IDisposable
             UpdateBadge();
 
             // Get severity color
-            var color = GetSeverityColor(severity);
+            var color = ToastColor(alertType, severity);
 
             // Create toast window
             var toast = new AlertToast(characterName, alertType, color, ToastDurationSeconds, SystemLookup?.Invoke(characterName));
@@ -489,19 +489,9 @@ public class AlertHub : IDisposable
         background.BeginAnimation(SolidColorBrush.ColorProperty, pulse);
     }
 
-    private Color GetSeverityColor(string severity)
-    {
-        if (_settings.SeverityColors.TryGetValue(severity, out var hex))
-            return ThumbnailManager.ParseColor(hex);
-
-        return severity switch
-        {
-            "critical" => Color.FromRgb(255, 51, 51),
-            "warning" => Color.FromRgb(255, 165, 0),
-            "info" => Color.FromRgb(74, 158, 255),
-            _ => Color.FromRgb(150, 150, 150)
-        };
-    }
+    /// <summary>The toast bar's colour: the colour the thumbnail flashes for this alert (AlertColours.Resolve).</summary>
+    public Color ToastColor(string alertType, string severity) =>
+        ThumbnailManager.ParseColor(AlertColours.Resolve(_settings, alertType, severity));
 
     public void Dispose()
     {

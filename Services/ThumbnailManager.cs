@@ -2255,18 +2255,8 @@ public sealed class ThumbnailManager : IDisposable
     {
         var s = _settings.Settings;
 
-        Color baseColor;
-        // 1. Per-event color override
-        if (s.AlertColors.TryGetValue(eventType, out var eventColor) && !string.IsNullOrEmpty(eventColor))
-            baseColor = ParseColor(eventColor);
-        // 2. Severity-level color
-        else if (s.SeverityColors.TryGetValue(severity, out var sevColor) && !string.IsNullOrEmpty(sevColor))
-            baseColor = ParseColor(sevColor);
-        // 3. Default flash color from settings, then hardcoded red
-        else if (!string.IsNullOrEmpty(s.AlertFlashColor))
-            baseColor = ParseColor(s.AlertFlashColor);
-        else
-            baseColor = Color.FromRgb(0xFF, 0x00, 0x00); // Default red
+        // Per-event override, severity, AlertFlashColor, red: one rule shared with the alert hub's toasts.
+        var baseColor = ParseColor(AlertColours.Resolve(s, eventType, severity));
 
         int opacity = Math.Clamp(s.AlertOpacityPercent, 0, 100);
         byte alpha = (byte)(opacity * 255 / 100);
