@@ -4,7 +4,7 @@
         xmlns:local="clr-namespace:EveMultiPreview.SettingsUi"
         ThemeMode="Dark"
         Background="{DynamicResource Fx.BgBrush}"
-        Width="1240" Height="800" MinWidth="720" MinHeight="480"
+        Width="1240" Height="800" MinWidth="960" MinHeight="480"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
     <Window.Resources>
         <ResourceDictionary>

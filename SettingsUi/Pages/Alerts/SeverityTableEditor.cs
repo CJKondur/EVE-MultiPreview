@@ -41,7 +41,14 @@ public sealed class SeverityTableEditor : System.Windows.Controls.UserControl, I
         _table.ColumnDefinitions.Clear();
         foreach (var _ in Columns) _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         int header = AddRow();
-        for (int c = 0; c < Columns.Length; c++) Place(EditorCard.Note(Columns[c], strong: true), header, c);
+        for (int c = 0; c < Columns.Length; c++)
+        {
+            // A long header wraps instead of widening the table past the card (Fx.Desc wraps; the cap makes it).
+            var head = EditorCard.Note(Columns[c], strong: true);
+            head.MaxWidth = 140;
+            if (c == SwitchColumn) head.TextAlignment = TextAlignment.Center;
+            Place(head, header, c);
+        }
         foreach (var severity in AlertEvents.Severities)
         {
             int r = AddRow();

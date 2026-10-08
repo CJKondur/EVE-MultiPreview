@@ -304,11 +304,16 @@ public partial class SettingsShell : Window, ISettingsHost
     private string? _helpPage;
     private string? _helpItem;
 
+    /// <summary>Every page fits from about 600 px of content (the pseudo-locale pass, Plan 3d): a 960 px window with help
+    /// closed, 1240 px with the 320 px help column open, as far as the screen allows.</summary>
+    public const double ClosedMinWidth = 960, HelpOpenMinWidth = 1240;
+
     /// <summary>Help column: 320 px when open, 0 when closed (spec §4: it pushes the content left).</summary>
     private void UpdateHelp()
     {
         HelpColumn.Width = new GridLength(Vm.HelpOpen ? 320 : 0);
         HelpHost.Visibility = Vm.HelpOpen ? Visibility.Visible : Visibility.Collapsed;
+        KeepRoomForThePage();
         var page = Vm.Current?.Page.HelpId;
         if (Vm.HelpOpen && page != null && page != _helpPage)
         {
@@ -316,6 +321,17 @@ public partial class SettingsShell : Window, ISettingsHost
             _helpPage = page;
             _helpItem = null;
         }
+    }
+
+    /// <summary>Opening help widens a narrow window instead of squeezing the page. A window that grows is nudged left
+    /// so it stays on the screen; a window that isn't on the screen (tests) is left where it is.</summary>
+    private void KeepRoomForThePage()
+    {
+        var area = SystemParameters.WorkArea;
+        MinWidth = Math.Min(Vm.HelpOpen ? HelpOpenMinWidth : ClosedMinWidth, area.Width);
+        var width = Math.Max(Width, MinWidth);
+        if (Left >= area.Left && Left < area.Right && Left + width > area.Right)
+            Left = Math.Max(area.Left, area.Right - width);
     }
 
     /// <summary>While help is open, the card under the mouse or keyboard focus scrolls the pane to its topic.</summary>

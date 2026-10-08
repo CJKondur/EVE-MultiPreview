@@ -97,15 +97,39 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
     private UIElement FoldersCard()
     {
         var stack = new StackPanel();
-        stack.Children.Add(EditorCard.Field("L.S.Eve.SettingsFolder", EditorCard.Row(_settingsFolder,
-            EditorCard.Button("L.S.Shell.Browse", BrowseSettings), EditorCard.Button("L.S.Eve.Find", FindSettings))));
-        stack.Children.Add(EditorCard.Field("L.S.Eve.BackupFolder", EditorCard.Row(_backupFolder,
-            EditorCard.Button("L.S.Shell.Browse", BrowseBackup), EditorCard.Button("L.S.Eve.StandardBackup", StandardBackup))));
+        stack.Children.Add(FolderField("L.S.Eve.SettingsFolder", _settingsFolder,
+            EditorCard.Button("L.S.Shell.Browse", BrowseSettings), EditorCard.Button("L.S.Eve.Find", FindSettings)));
+        stack.Children.Add(FolderField("L.S.Eve.BackupFolder", _backupFolder,
+            EditorCard.Button("L.S.Shell.Browse", BrowseBackup), EditorCard.Button("L.S.Eve.StandardBackup", StandardBackup)));
         var refresh = EditorCard.Button("L.S.Eve.Refresh", Refresh);
         refresh.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
         stack.Children.Add(refresh);
         stack.Children.Add(_status);
         return EditorCard.Build("tools.eve.editor", null, stack);
+    }
+
+    /// <summary>A folder: its label, the path across the whole card (a long path scrolls inside the box instead of
+    /// pushing the buttons off the card), then its buttons, which wrap when a translation is long (Plan 3d).</summary>
+    private static UIElement FolderField(string labelKey, TextBox box, params Button[] buttons)
+    {
+        var label = new TextBlock();
+        label.SetResourceReference(StyleProperty, "Fx.Label");
+        Loc.SetKey(label, labelKey);
+        EditorCard.NameFrom(box, labelKey);
+        box.MinWidth = 0;
+        box.HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch;
+        box.Margin = new Thickness(0, 4, 0, 4);
+        var row = new WrapPanel();
+        foreach (var b in buttons)
+        {
+            b.Margin = new Thickness(0, 0, 8, 4);
+            row.Children.Add(b);
+        }
+        var stack = new StackPanel { Margin = new Thickness(0, 0, 0, 8) };
+        stack.Children.Add(label);
+        stack.Children.Add(box);
+        stack.Children.Add(row);
+        return stack;
     }
 
     private UIElement ModeCard()
