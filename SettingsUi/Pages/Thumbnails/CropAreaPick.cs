@@ -42,8 +42,8 @@ public static class CropAreaPick
         {
             User32.SetForegroundWindow(thumb.EveHwnd);
             var overlay = new CropPickerOverlay(cx, cy, cw, ch, cw, ch);
-            overlay.Completed += r => session.End(r, Store);
-            overlay.Closed += (_, _) => session.End(null, Store);   // Alt+F4, or anything else that closes it
+            overlay.Completed += r => Finish(session, r, Store, ctx.Host.Toast);
+            overlay.Closed += (_, _) => Finish(session, null, Store, ctx.Host.Toast);   // Alt+F4, or anything else that closes it
             overlay.Show();
             return null;
         }
@@ -52,6 +52,23 @@ public static class CropAreaPick
             System.Diagnostics.Debug.WriteLine($"[CropAreaPick] picker failed: {ex.Message}");
             session.End(null, Store);
             return "L.S.Crops.PickFailed";
+        }
+    }
+
+    /// <summary>Ends the session from an overlay event. Nothing escapes: an exception thrown while storing
+    /// would skip the overlay's own Close() and reach the dispatcher, so it becomes a toast instead. The
+    /// session has already brought the settings window back by then.</summary>
+    public static void Finish(CropPickSession session, (int X, int Y, int W, int H)? picked,
+        Action<(int X, int Y, int W, int H)> store, Action<string> toast)
+    {
+        try
+        {
+            session.End(picked, store);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[CropAreaPick] storing the area failed: {ex.Message}");
+            toast(SettingsContext.Str("L.S.Crops.PickFailed"));
         }
     }
 }
