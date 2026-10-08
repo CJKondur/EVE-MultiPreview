@@ -9,7 +9,7 @@ public static class SettingsRegistry
 {
     public static IReadOnlyList<PageDef> Pages { get; } = BuildPages();
 
-    private static IReadOnlyList<PageDef> BuildPages() => new List<PageDef>();
+    private static IReadOnlyList<PageDef> BuildPages() => new List<PageDef>(AppPages.All);
 
     /// <summary>Settings the shell itself edits (not through a card): the Simple/Advanced switch.</summary>
     public static IReadOnlyList<string> ShellBinds { get; } = new[] { "AppSettings.SimpleMode" };

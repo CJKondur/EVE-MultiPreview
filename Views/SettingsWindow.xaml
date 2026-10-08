@@ -1783,6 +1783,8 @@
                               Checked="OnCheckUpdatesOnStartupChanged" Unchecked="OnCheckUpdatesOnStartupChanged" Foreground="{StaticResource TextPrimaryBrush}"/>
                     <CheckBox x:Name="ChkPreReleaseUpdates" Content="{DynamicResource L.About.PreRelease}" Margin="0,8,0,0"
                               Checked="OnPreReleaseChanged" Unchecked="OnPreReleaseChanged" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <CheckBox x:Name="ChkUseNewSettingsWindow" Content="{DynamicResource L.S.Old.TryNewWindow}" Margin="0,8,0,0"
+                              Checked="OnUseNewSettingsWindowChanged" Unchecked="OnUseNewSettingsWindowChanged" Foreground="{StaticResource TextPrimaryBrush}"/>
                     <TextBlock x:Name="TxtVersionResult" Margin="0,8,0,0" TextWrapping="Wrap"
                                Foreground="{StaticResource TextSecondaryBrush}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,16,0,0">

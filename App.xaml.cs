@@ -39,7 +39,7 @@ public partial class App : Application
     private BroadcastHudWindow? _broadcastHud;
     private ProcessMonitorService? _processMonitor;
     private CropManager? _cropManager;
-    private SettingsWindow? _settingsWindow;
+    private Window? _settingsWindow;
 
     // Tray balloon click-to-focus (matches AHK _trayAlertChar/_trayAlertHwnd)
     private string _trayAlertChar = "";
@@ -938,42 +938,18 @@ public partial class App : Application
     private void OpenSettings(bool startMinimized)
     {
         SettingsDiag($"OpenSettings called, startMinimized={startMinimized}, existing={_settingsWindow != null}");
-        if (_settingsWindow != null && _settingsWindow.IsVisible)
+        // != null rather than IsVisible: the old window hides itself while picking a crop area,
+        // and an IsVisible check opened a second settings window during that pick.
+        if (_settingsWindow != null)
         {
             if (_settingsWindow.WindowState == WindowState.Minimized)
                 _settingsWindow.WindowState = WindowState.Normal;
-
-            _settingsWindow.Activate();
+            if (_settingsWindow.IsVisible)
+                _settingsWindow.Activate();
             SettingsDiag("Re-activated existing Settings window");
             return;
         }
 
-        _settingsWindow = new SettingsWindow(_settings!, _thumbnailManager!, _cropManager);
-        // Set initial WindowState BEFORE Show() so WPF commits the restore rect
-        // with the saved Width/Height already applied. Setting WindowState after
-        // Show() can race the HWND map and corrupt the restore rect.
-        if (startMinimized)
-        {
-            _settingsWindow.WindowState = WindowState.Minimized;
-        }
-        else
-        {
-            // Auto-maximize when the saved size doesn't fit the work area —
-            // mostly catches 1080p users on the default 1080×1080 size, where
-            // the bottom of the panel would be hidden under the taskbar. Once
-            // the user resizes to something that fits, the saved smaller size
-            // is respected on subsequent opens. WorkArea is in DIPs, matching
-            // WPF's Width/Height semantics.
-            var workArea = SystemParameters.WorkArea;
-            int savedW = _settings!.Settings.SettingsWindowWidth;
-            int savedH = _settings!.Settings.SettingsWindowHeight;
-            if (savedH >= workArea.Height || savedW >= workArea.Width)
-            {
-                _settingsWindow.WindowState = WindowState.Maximized;
-                SettingsDiag($"Auto-maximized: saved {savedW}x{savedH} doesn't fit work area {workArea.Width}x{workArea.Height}");
-            }
-        }
-        
         Action applyLiveSettings = () =>
         {
             if (_isShuttingDown) return;
@@ -1009,7 +985,52 @@ public partial class App : Application
             }
         };
 
-        _settingsWindow.SettingsApplied += applyLiveSettings;
+        // UseLegacySettingsWindow (spec §12): the old window stays reachable for a release or two.
+        if (_settings!.Settings.UseLegacySettingsWindow)
+        {
+            var legacy = new SettingsWindow(_settings!, _thumbnailManager!, _cropManager);
+            legacy.SettingsApplied += applyLiveSettings;
+            _settingsWindow = legacy;
+        }
+        else
+        {
+            var shell = new SettingsUi.SettingsShell(_settings!, new SettingsUi.AppServices
+            {
+                Thumbnails = _thumbnailManager,
+                Crops = _cropManager,
+                Hotkeys = _hotkeyService,
+            });
+            shell.SettingsApplied += applyLiveSettings;
+            _settingsWindow = shell;
+        }
+
+        // Set initial WindowState BEFORE Show() so WPF commits the restore rect
+        // with the saved Width/Height already applied. Setting WindowState after
+        // Show() can race the HWND map and corrupt the restore rect.
+        if (startMinimized)
+        {
+            _settingsWindow.WindowState = WindowState.Minimized;
+        }
+        else
+        {
+            if (_settingsWindow is SettingsWindow)
+            {
+                // Auto-maximize when the saved size doesn't fit the work area —
+                // mostly catches 1080p users on the default 1080×1080 size, where
+                // the bottom of the panel would be hidden under the taskbar. Once
+                // the user resizes to something that fits, the saved smaller size
+                // is respected on subsequent opens. WorkArea is in DIPs, matching
+                // WPF's Width/Height semantics.
+                var workArea = SystemParameters.WorkArea;
+                int savedW = _settings!.Settings.SettingsWindowWidth;
+                int savedH = _settings!.Settings.SettingsWindowHeight;
+                if (savedH >= workArea.Height || savedW >= workArea.Width)
+                {
+                    _settingsWindow.WindowState = WindowState.Maximized;
+                    SettingsDiag($"Auto-maximized: saved {savedW}x{savedH} doesn't fit work area {workArea.Width}x{workArea.Height}");
+                }
+            }
+        }
 
         _settingsWindow.Closed += (_, _) =>
         {
