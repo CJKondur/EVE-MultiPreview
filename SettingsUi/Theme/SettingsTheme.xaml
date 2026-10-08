@@ -27,9 +27,92 @@
     <SolidColorBrush x:Key="Fx.WarningBrush" Color="{StaticResource Fx.Warning}"/>
     <SolidColorBrush x:Key="Fx.InfoBrush" Color="{StaticResource Fx.Info}"/>
 
+    <!-- Phase 2 tokens (Plan 4, F2-Fluent-Around): menus and toasts (flyouts), menu icons, disabled menu text, control
+         outlines, a selected surface (the picked size, the highlighted wheel card), text on accent, the alert count badge. -->
+    <Color x:Key="Fx.Flyout">#FF2C2C2C</Color>
+    <Color x:Key="Fx.FlyoutBorder">#FF454545</Color>
+    <Color x:Key="Fx.Icon">#FFD0D0D0</Color>
+    <Color x:Key="Fx.TextDisabled">#FF787878</Color>
+    <Color x:Key="Fx.ControlEdge">#FF5A5A5A</Color>
+    <Color x:Key="Fx.AccentSoft">#FF2F3A42</Color>
+    <Color x:Key="Fx.OnAccent">#FF00202F</Color>
+    <Color x:Key="Fx.AlertBadge">#FFFF6B57</Color>
+    <Color x:Key="Fx.OnAlertBadge">#FF2A0A05</Color>
+
+    <SolidColorBrush x:Key="Fx.FlyoutBrush" Color="{StaticResource Fx.Flyout}"/>
+    <SolidColorBrush x:Key="Fx.FlyoutBorderBrush" Color="{StaticResource Fx.FlyoutBorder}"/>
+    <SolidColorBrush x:Key="Fx.IconBrush" Color="{StaticResource Fx.Icon}"/>
+    <SolidColorBrush x:Key="Fx.TextDisabledBrush" Color="{StaticResource Fx.TextDisabled}"/>
+    <SolidColorBrush x:Key="Fx.ControlEdgeBrush" Color="{StaticResource Fx.ControlEdge}"/>
+    <SolidColorBrush x:Key="Fx.AccentSoftBrush" Color="{StaticResource Fx.AccentSoft}"/>
+    <SolidColorBrush x:Key="Fx.OnAccentBrush" Color="{StaticResource Fx.OnAccent}"/>
+    <SolidColorBrush x:Key="Fx.AlertBadgeBrush" Color="{StaticResource Fx.AlertBadge}"/>
+    <SolidColorBrush x:Key="Fx.OnAlertBadgeBrush" Color="{StaticResource Fx.OnAlertBadge}"/>
+
     <FontFamily x:Key="Fx.MonoFont">Cascadia Mono, Consolas</FontFamily>
     <FontFamily x:Key="Fx.IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
     <CornerRadius x:Key="Fx.Radius">6</CornerRadius>
+    <!-- Menus, toasts, dialogs and wheel cards (Plan 4). -->
+    <CornerRadius x:Key="Fx.FlyoutRadius">8</CornerRadius>
+
+    <!-- The one filled button of a dialog (Next, Update now): accent with dark text (Plan 4). Hover and press dim it;
+         keyboard focus keeps WPF's own focus rectangle. -->
+    <Style x:Key="Fx.PrimaryButton" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource Fx.AccentBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource Fx.OnAccentBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="16,6"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.9"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A plain button for windows without the Fluent theme (the quick-switch wheel draws itself on a transparent
+         window, where ThemeMode can't be used). -->
+    <Style x:Key="Fx.QuietButton" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource Fx.ControlBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Fx.BorderBrush}"/>
+        <Setter Property="Padding" Value="12,4"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1,1,1,1" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Fx.FlyoutBorderBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- A setting card: 4 px gap below each card (spec §7). -->
     <Style x:Key="Fx.Card" TargetType="Border">
