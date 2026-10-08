@@ -713,6 +713,8 @@
     <sys:String x:Key="L.S.Hotkey.None">Not set</sys:String>
     <sys:String x:Key="L.S.Hotkey.Change">Change</sys:String>
     <sys:String x:Key="L.S.Shell.Ok">OK</sys:String>
+    <sys:String x:Key="L.S.Help.Title">Help</sys:String>
+    <sys:String x:Key="L.S.Help.Close">Close help</sys:String>
     <sys:String x:Key="L.S.Shell.Cancel">Cancel</sys:String>
     <sys:String x:Key="L.S.On">On</sys:String>
     <sys:String x:Key="L.S.Off">Off</sys:String>

@@ -722,6 +722,8 @@
     <sys:String x:Key="L.S.Hotkey.None">Non défini</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Hotkey.Change">Modifier</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Ok">OK</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Help.Title">Aide</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Help.Close">Fermer l'aide</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Cancel">Annuler</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.On">Activé</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Off">Désactivé</sys:String> <!-- draft -->

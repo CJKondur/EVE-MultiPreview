@@ -720,6 +720,8 @@
     <sys:String x:Key="L.S.Hotkey.None">未設定</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Hotkey.Change">変更</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Ok">OK</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Help.Title">ヘルプ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Help.Close">ヘルプを閉じる</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Cancel">キャンセル</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.On">オン</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Off">オフ</sys:String> <!-- draft -->

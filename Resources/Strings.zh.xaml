@@ -737,6 +737,8 @@
     <sys:String x:Key="L.S.Hotkey.None">未设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Hotkey.Change">更改</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Ok">确定</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Help.Title">帮助</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Help.Close">关闭帮助</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Cancel">取消</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.On">开</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Off">关</sys:String> <!-- draft -->

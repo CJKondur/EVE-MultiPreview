@@ -24,6 +24,7 @@ public partial class SettingsShell : Window, ISettingsHost
     private readonly DispatcherTimer _clock = new() { Interval = TimeSpan.FromSeconds(1) };
     private readonly DispatcherTimer _toastTimer = new() { Interval = TimeSpan.FromSeconds(3) };
     private readonly DispatcherTimer _highlightTimer = new() { Interval = TimeSpan.FromSeconds(2) };
+    private readonly HelpPane _help = new();
 
     /// <summary>Same contract as SettingsWindow.SettingsApplied: App re-registers hotkeys and syncs
     /// the log monitor and alert hub on it (App.xaml.cs applyLiveSettings).</summary>
@@ -57,6 +58,16 @@ public partial class SettingsShell : Window, ISettingsHost
         UpdateTitle();
         _toastTimer.Tick += (_, _) => { _toastTimer.Stop(); ToastHost.Visibility = Visibility.Collapsed; };
         _highlightTimer.Tick += (_, _) => { _highlightTimer.Stop(); Vm.ClearHighlight(); };
+
+        HelpHost.Content = _help;
+        _help.CloseRequested += () => Vm.HelpOpen = false;
+        Vm.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is "" or nameof(ShellVM.HelpOpen) or nameof(ShellVM.Current)) UpdateHelp();
+        };
+        Sections.MouseMove += (_, e) => FollowHelp(e.OriginalSource);
+        Sections.GotKeyboardFocus += (_, e) => FollowHelp(e.OriginalSource);
+        UpdateHelp();
 
         Closing += (_, _) => { SaveSize(); Vm.OnClosing(); };
         Closed += (_, _) => { _clock.Stop(); _toastTimer.Stop(); _highlightTimer.Stop(); Vm.Dispose(); };
@@ -138,6 +149,8 @@ public partial class SettingsShell : Window, ISettingsHost
     {
         Vm.Reload();
         ApplyLanguageAndScale();
+        _helpPage = null;
+        UpdateHelp();
     }
 
     public Window? DialogOwner => this;
@@ -207,6 +220,37 @@ public partial class SettingsShell : Window, ISettingsHost
         if (bounds.Width < MinWidth || bounds.Height < MinHeight) return;
         _ctx.S.SettingsWindowWidth = (int)bounds.Width;
         _ctx.S.SettingsWindowHeight = (int)bounds.Height;
+    }
+
+    private string? _helpPage;
+    private string? _helpItem;
+
+    /// <summary>Help column: 320 px when open, 0 when closed (spec §4: it pushes the content left).</summary>
+    private void UpdateHelp()
+    {
+        HelpColumn.Width = new GridLength(Vm.HelpOpen ? 320 : 0);
+        HelpHost.Visibility = Vm.HelpOpen ? Visibility.Visible : Visibility.Collapsed;
+        var page = Vm.Current?.Page.Id;
+        if (Vm.HelpOpen && page != null && page != _helpPage)
+        {
+            _help.ShowPage(page);
+            _helpPage = page;
+            _helpItem = null;
+        }
+    }
+
+    /// <summary>While help is open, the card under the mouse or keyboard focus scrolls the pane to its topic.</summary>
+    private void FollowHelp(object source)
+    {
+        if (!Vm.HelpOpen) return;
+        for (var node = source as DependencyObject; node != null; node = VisualTreeHelper.GetParent(node))
+        {
+            if (node is FrameworkElement { DataContext: ItemVM item })
+            {
+                if (item.Id != _helpItem && _help.ScrollToTopicFor(item.Id)) _helpItem = item.Id;
+                return;
+            }
+        }
     }
 
     private FrameworkElement? FindItemElement(string itemId)
