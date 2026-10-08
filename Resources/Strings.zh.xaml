@@ -766,6 +766,7 @@
     <sys:String x:Key="L.S.Backup.Imported">设置已导入。请重启 MultiPreview，使应用的各部分都使用这些设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">操作失败：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Title">EVE MultiPreview 设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Search.Placeholder">查找设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">配置文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">本页帮助</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">显示所有设置</sys:String> <!-- draft -->

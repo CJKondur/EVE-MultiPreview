@@ -751,6 +751,7 @@
     <sys:String x:Key="L.S.Backup.Imported">Paramètres importés. Redémarrez MultiPreview pour que toutes les parties de l'application les utilisent.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">Cela n'a pas fonctionné : {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Title">Paramètres d'EVE MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Search.Placeholder">Rechercher un paramètre</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Profil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Aide pour cette page</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Afficher tous les paramètres</sys:String> <!-- draft -->

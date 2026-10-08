@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using EveMultiPreview.Models;
@@ -25,6 +26,9 @@ public partial class SettingsShell : Window, ISettingsHost
     private readonly DispatcherTimer _toastTimer = new() { Interval = TimeSpan.FromSeconds(3) };
     private readonly DispatcherTimer _highlightTimer = new() { Interval = TimeSpan.FromSeconds(2) };
     private readonly HelpPane _help = new();
+    private readonly IReadOnlyList<PageDef> _pages;
+    private IReadOnlyList<SearchEntry>? _searchIndex;
+    private SearchBox? _search;
 
     /// <summary>Same contract as SettingsWindow.SettingsApplied: App re-registers hotkeys and syncs
     /// the log monitor and alert hub on it (App.xaml.cs applyLiveSettings).</summary>
@@ -36,6 +40,7 @@ public partial class SettingsShell : Window, ISettingsHost
     public SettingsShell(SettingsService service, AppServices services, IDebounceTimer timer, IReadOnlyList<PageDef> pages)
     {
         InitializeComponent();
+        _pages = pages;
         _svc = service;
         var applier = new SettingsApplier(
             save: service.Save,
@@ -68,6 +73,10 @@ public partial class SettingsShell : Window, ISettingsHost
         Sections.MouseMove += (_, e) => FollowHelp(e.OriginalSource);
         Sections.GotKeyboardFocus += (_, e) => FollowHelp(e.OriginalSource);
         UpdateHelp();
+
+        _search = new SearchBox(SearchEntries, entry => Navigate(entry.PageId, entry.ItemId));
+        SearchHost.Content = _search;
+        InputBindings.Add(new KeyBinding(new RelayCommand(_ => _search.FocusBox()), Key.F, ModifierKeys.Control));
 
         Closing += (_, _) => { SaveSize(); Vm.OnClosing(); };
         Closed += (_, _) => { _clock.Stop(); _toastTimer.Stop(); _highlightTimer.Stop(); Vm.Dispose(); };
@@ -150,7 +159,32 @@ public partial class SettingsShell : Window, ISettingsHost
         Vm.Reload();
         ApplyLanguageAndScale();
         _helpPage = null;
+        _searchIndex = null;
         UpdateHelp();
+    }
+
+    /// <summary>Built on first use and rebuilt after a reload, so a language switch is searchable at once.</summary>
+    private IReadOnlyList<SearchEntry> SearchEntries() =>
+        _searchIndex ??= SearchIndex.Build(_pages, HelpTopics.All,
+            key => LocalizationService.Str(key, ""),
+            key => EnglishText(key));
+
+    private static Dictionary<string, string>? _english;
+
+    /// <summary>The English catalog (always merged first in App.xaml) read once, for the search aliases.</summary>
+    private static string EnglishText(string key)
+    {
+        if (_english == null)
+        {
+            var dict = System.Windows.Application.Current?.Resources.MergedDictionaries
+                .FirstOrDefault(d => d.Source?.OriginalString.EndsWith("Strings.en.xaml", StringComparison.OrdinalIgnoreCase) == true);
+            if (dict != null)
+            {
+                _english = new Dictionary<string, string>();
+                foreach (var k in dict.Keys.OfType<string>()) if (dict[k] is string v) _english[k] = v;
+            }
+        }
+        return _english != null && _english.TryGetValue(key, out var text) ? text : LocalizationService.Str(key, "");
     }
 
     public Window? DialogOwner => this;

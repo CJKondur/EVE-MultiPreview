@@ -749,6 +749,7 @@
     <sys:String x:Key="L.S.Backup.Imported">설정을 가져왔습니다. 앱의 모든 부분에 적용하려면 MultiPreview를 다시 시작하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">작동하지 않았습니다: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Title">EVE MultiPreview 설정</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Search.Placeholder">설정 찾기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">프로필</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">이 페이지 도움말</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">모든 설정 표시</sys:String> <!-- draft -->

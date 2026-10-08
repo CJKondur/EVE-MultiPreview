@@ -770,6 +770,7 @@
     <sys:String x:Key="L.S.Backup.Imported">Ajustes importados. Reinicia MultiPreview para que todas las partes de la aplicación los usen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">No ha funcionado: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Title">Ajustes de EVE MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Search.Placeholder">Buscar un ajuste</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Perfil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Ayuda de esta página</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Mostrar todos los ajustes</sys:String> <!-- draft -->

@@ -766,6 +766,7 @@
     <sys:String x:Key="L.S.Backup.Imported">Impostazioni importate. Riavvia MultiPreview per far usare le impostazioni a ogni parte dell'app.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">Non ha funzionato: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Title">Impostazioni di EVE MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Search.Placeholder">Cerca un'impostazione</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Profilo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Guida per questa pagina</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Mostra tutte le impostazioni</sys:String> <!-- draft -->

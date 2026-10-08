@@ -749,6 +749,7 @@
     <sys:String x:Key="L.S.Backup.Imported">設定をインポートしました。アプリ全体に反映するには MultiPreview を再起動してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">うまくいきませんでした: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Title">EVE MultiPreview の設定</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Search.Placeholder">設定を検索</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">プロファイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">このページのヘルプ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">すべての設定を表示</sys:String> <!-- draft -->
