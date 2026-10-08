@@ -67,14 +67,14 @@ public static class AppPages
             new EditorItem("app.profiles.current", ctx => new ProfileEditor(ctx))
             {
                 Binds = new[] { "AppSettings.LastUsedProfile", "AppSettings.Profiles" },
-                Replaces = new[] { "OnCopyLayout" },
+                Replaces = new[] { "OnCopyLayout", "CmbProfiles", "OnProfileChanged", "OnCreateProfile", "OnDeleteProfile" },
             },
         }),
         new SectionDef("app.profiles.backups", new PageItem[]
         {
             new ActionRow("app.profiles.backup", new[]
             {
-                new ActionDef("app.profiles.backupNow", SettingsBackup.BackupInteractive),
+                new ActionDef("app.profiles.backupNow", SettingsBackup.BackupInteractive) { Replaces = new[] { "OnBackupConfig" } },
                 new ActionDef("app.profiles.export", SettingsBackup.ExportInteractive) { Replaces = new[] { "OnExportSettings" } },
                 // ImportInteractive asks for confirmation itself, after checking the file is valid.
                 new ActionDef("app.profiles.import", SettingsBackup.ImportInteractive) { Replaces = new[] { "OnImportSettings" } },
