@@ -972,6 +972,8 @@ public partial class App : Application
             if (_isShuttingDown) return;
             try
             {
+                // Toast length and stacking side were read only when the hub was made (Plan 3c).
+                _alertHub?.ApplySettings();
                 if (_settings != null && _settings.Settings.AlertHubEnabled)
                     _alertHub?.Show();
                 else
@@ -997,6 +999,7 @@ public partial class App : Application
                 Thumbnails = _thumbnailManager,
                 Crops = _cropManager,
                 Hotkeys = _hotkeyService,
+                AlertHub = _alertHub,
             });
             shell.SettingsApplied += applyLiveSettings;
             _settingsWindow = shell;

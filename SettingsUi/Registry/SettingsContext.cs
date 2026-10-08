@@ -43,6 +43,8 @@ public sealed class AppServices
     public ThumbnailManager? Thumbnails { get; init; }
     public CropManager? Crops { get; init; }
     public HotkeyService? Hotkeys { get; init; }
+    /// <summary>The alert hub, for Alerts › Alert hub › Reset position (Plan 3c).</summary>
+    public Views.AlertHub? AlertHub { get; init; }
 }
 
 public sealed class SettingsContext

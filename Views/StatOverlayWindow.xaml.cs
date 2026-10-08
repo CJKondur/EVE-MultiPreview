@@ -99,29 +99,36 @@ public partial class StatOverlayWindow : Window
 
     public void SetBackgroundColor(string hex)
     {
+        if (ParseOverlayColor(hex) is not { } color) return;   // unreadable: keep the current colour, as before
         Dispatcher.Invoke(() =>
-        {
-            try
-            {
-                var color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex);
-                RootBorder.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0xD0, color.R, color.G, color.B));
-            }
-            catch { }
-        });
+            RootBorder.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0xD0, color.R, color.G, color.B)));
     }
 
     public void SetTextColor(string hex)
     {
+        if (ParseOverlayColor(hex) is not { } color) return;
         Dispatcher.Invoke(() =>
         {
-            try
-            {
-                var brush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex));
-                StatLabel.Foreground = brush;
-                StatUnit.Foreground = brush;
-            }
-            catch { }
+            var brush = new SolidColorBrush(color);
+            StatLabel.Foreground = brush;
+            StatUnit.Foreground = brush;
         });
+    }
+
+    /// <summary>The colour in a stats colour setting: what WPF reads (#RRGGBB, #AARRGGBB, a name), as before,
+    /// then 0xRRGGBB, RRGGBB and rgb(r,g,b) (AppSettings.ParseColor). The old settings window's colour picker
+    /// stored 0xrrggbb, which used to be ignored. Null when it is none of these.</summary>
+    public static System.Windows.Media.Color? ParseOverlayColor(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return null;
+        try { return (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(text.Trim()); }
+        catch { }
+        try
+        {
+            var c = Models.AppSettings.ParseColor(text, System.Windows.Media.Colors.Transparent);
+            return c == System.Windows.Media.Colors.Transparent ? null : c;
+        }
+        catch { return null; }   // rgb(300,0,0) throws inside ParseColor
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)

@@ -274,6 +274,38 @@ public class AlertHub : IDisposable
         _autoHideTimer?.Stop();
     }
 
+    /// <summary>Re-reads the toast settings the constructor read once: AlertToastDuration, and
+    /// AlertToastDirection clamped to 0–3 as at startup. App calls this on every settings apply, so a
+    /// change shows on the next toast instead of after a restart; toasts already up move to the new side.</summary>
+    public void ApplySettings()
+    {
+        ToastDurationSeconds = _settings.AlertToastDuration;
+        int dir = Math.Clamp(_settings.AlertToastDirection, 0, 3);
+        if (dir == ToastDirection) return;
+        ToastDirection = dir;
+        ReflowToasts();
+    }
+
+    /// <summary>The hub's place when none is saved (AlertHubX and AlertHubY both 0): the right edge of the
+    /// primary screen, halfway down, as the constructor places it.</summary>
+    public static System.Windows.Point DefaultPosition =>
+        new(SystemParameters.PrimaryScreenWidth - 60, SystemParameters.PrimaryScreenHeight / 2);
+
+    /// <summary>Settings › Alert hub › Reset position: the hub moves back to its default place now and the saved
+    /// place is forgotten (0, 0). The old reset only cleared the saved place, so the hub stayed put until a restart.</summary>
+    public void ResetPosition()
+    {
+        var p = DefaultPosition;
+        _hubWindow.Left = p.X;
+        _hubWindow.Top = p.Y;
+        _settings.AlertHubX = 0;   // LocationChanged may just have stored the default's coordinates
+        _settings.AlertHubY = 0;
+        ReflowToasts();
+    }
+
+    /// <summary>Where the hub window is (tests).</summary>
+    public System.Windows.Point HubPosition => new(_hubWindow.Left, _hubWindow.Top);
+
     /// <summary>Reset the auto-hide countdown. Called whenever activity
     /// happens (new toast). No-op when AlertHubAutoHide is off.</summary>
     private void KickAutoHide()
