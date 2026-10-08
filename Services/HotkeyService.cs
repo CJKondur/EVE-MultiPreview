@@ -159,8 +159,21 @@ public sealed class HotkeyService : IDisposable
     /// window by its handle, or a MultiPreview window whose title says "Settings" (the old window's title is English in
     /// every language).</summary>
     public static bool IsSettingsForeground(IntPtr foreground, IntPtr settingsWindow, string? title, string? processName) =>
-        (foreground != IntPtr.Zero && foreground == settingsWindow)
-        || (title != null && title.Contains("Settings", StringComparison.OrdinalIgnoreCase) && User32.IsAppProcessName(processName));
+        IsSettingsForegroundLazy(foreground, settingsWindow, () => title, () => processName);
+
+    /// <summary>Same answer as the overload above, in the cheapest order: the handle first, then the title, and the
+    /// process lookup (a system process snapshot) only when the title says "Settings". This runs inside the keyboard
+    /// and mouse hooks on every event, so the providers are only called when needed.</summary>
+    public static bool IsSettingsForegroundLazy(IntPtr foreground, IntPtr settingsWindow, Func<string?> title, Func<string?> processName)
+    {
+        if (foreground == IntPtr.Zero) return false;
+        if (foreground == settingsWindow) return true;
+        var t = title();
+        return t != null && t.Contains("Settings", StringComparison.OrdinalIgnoreCase) && User32.IsAppProcessName(processName());
+    }
+
+    private bool SettingsInFront(IntPtr foreground) =>
+        IsSettingsForegroundLazy(foreground, SettingsWindowHandle, () => User32.GetWindowTitle(foreground), () => User32.GetProcessName(foreground));
 
     /// <summary>Initialize the hotkey service. Must be called on UI thread.</summary>
     public void Initialize()
@@ -1133,7 +1146,7 @@ public sealed class HotkeyService : IDisposable
                 try
                 {
                     var fgHwnd2 = User32.GetForegroundWindow();
-                    if (IsSettingsForeground(fgHwnd2, SettingsWindowHandle, User32.GetWindowTitle(fgHwnd2), User32.GetProcessName(fgHwnd2)))
+                    if (SettingsInFront(fgHwnd2))
                     {
                         Debug.WriteLine($"[Hotkey:Blocked] 🚫 Settings window active, blocked ID={id}");
                         return IntPtr.Zero;
@@ -1549,7 +1562,7 @@ public sealed class HotkeyService : IDisposable
                         try
                         {
                             var fgHwnd = User32.GetForegroundWindow();
-                            if (IsSettingsForeground(fgHwnd, SettingsWindowHandle, User32.GetWindowTitle(fgHwnd), User32.GetProcessName(fgHwnd)))
+                            if (SettingsInFront(fgHwnd))
                             {
                                 EveMultiPreview.Services.DiagnosticsService.LogCycling(
                                     $"[Hotkey:Mouse] {buttonName} SUPPRESSED — Settings window is foreground, cycle not fired");

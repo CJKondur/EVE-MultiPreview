@@ -1573,10 +1573,10 @@ public partial class SettingsWindow : Window
             "New Settings Window\n" +
             "────────────────────────────\n" +
             "This is the old settings window. Tick\n" +
-            "'Use the new settings window' above and\n" +
-            "reopen settings to go back to the new\n" +
-            "one. The old window will be removed in a\n" +
-            "later release.",
+            "'Use the new settings window' on the\n" +
+            "About page and reopen settings to go\n" +
+            "back to the new one. The old window will\n" +
+            "be removed in a later release.",
 
         "Debug" =>
             "DEBUG LOGGING\n" +
