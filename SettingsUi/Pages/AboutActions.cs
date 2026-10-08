@@ -21,6 +21,8 @@ public static class AboutActions
     /// offers the update dialog when there is one.</summary>
     public static async void CheckNow(SettingsContext ctx)
     {
+        if (_checking) return;
+        _checking = true;
         ctx.Host.Toast(SettingsContext.Str("L.S.About.Checking"));
         try
         {
@@ -34,5 +36,8 @@ public static class AboutActions
         {
             ctx.Host.Toast(string.Format(SettingsContext.Str("L.S.About.CheckFailed"), ex.Message));
         }
+        finally { _checking = false; }
     }
+
+    private static bool _checking;
 }

@@ -30,6 +30,8 @@ public sealed class HotkeyCaptureModel : ObservableObject
         if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt
                 or Key.LeftShift or Key.RightShift or Key.LWin or Key.RWin)
             return true;   // a modifier alone: wait for the real key
+        if (key is Key.None or Key.ImeProcessed or Key.DeadCharProcessed or Key.System)
+            return true;   // unresolved key: swallow it, never store it
         Take(HotkeyText.ModifierPrefix(mods) + HotkeyText.KeyToAhkName(key));
         return true;
     }

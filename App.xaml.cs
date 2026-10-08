@@ -938,14 +938,12 @@ public partial class App : Application
     private void OpenSettings(bool startMinimized)
     {
         SettingsDiag($"OpenSettings called, startMinimized={startMinimized}, existing={_settingsWindow != null}");
-        // != null rather than IsVisible: the old window hides itself while picking a crop area,
-        // and an IsVisible check opened a second settings window during that pick.
-        if (_settingsWindow != null)
+        if (_settingsWindow != null && _settingsWindow.IsVisible)
         {
             if (_settingsWindow.WindowState == WindowState.Minimized)
                 _settingsWindow.WindowState = WindowState.Normal;
-            if (_settingsWindow.IsVisible)
-                _settingsWindow.Activate();
+
+            _settingsWindow.Activate();
             SettingsDiag("Re-activated existing Settings window");
             return;
         }

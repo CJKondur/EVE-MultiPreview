@@ -28,7 +28,13 @@ public partial class HotkeyCaptureDialog : Window
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
-        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+        var key = e.Key switch
+        {
+            Key.System => e.SystemKey,
+            Key.ImeProcessed => e.ImeProcessedKey,
+            Key.DeadCharProcessed => e.DeadCharProcessedKey,
+            _ => e.Key,
+        };
         e.Handled = _model.OnKey(key, Keyboard.Modifiers);
         if (_model.Cancelled) DialogResult = false;
     }

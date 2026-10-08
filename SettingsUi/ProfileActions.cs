@@ -39,12 +39,15 @@ public static class ProfileActions
     {
         if (!ctx.S.Profiles.TryGetValue(from, out var src)) return 0;
         var targets = ctx.S.Profiles.Where(kv => kv.Key != from && (to == null || kv.Key == to)).Select(kv => kv.Value).ToList();
+        var activeHit = false;
         foreach (var dst in targets)
         {
             if (full) ProfileCopy.CopyFull(src, dst);
             else dst.ThumbnailPositions = new Dictionary<string, ThumbnailRect>(src.ThumbnailPositions);
+            if (ctx.S.Profiles.TryGetValue(ctx.S.LastUsedProfile, out var active) && ReferenceEquals(active, dst)) activeHit = true;
         }
-        if (targets.Count > 0) ctx.Applier.Request(ApplyScope.Thumbnails);
+        if (full && activeHit) ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
+        else if (targets.Count > 0) ctx.Applier.Request(ApplyScope.Thumbnails);
         return targets.Count;
     }
 

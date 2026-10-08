@@ -69,8 +69,12 @@ public static class Setting
     internal static bool IsColor(string? s)
     {
         if (string.IsNullOrWhiteSpace(s)) return false;
-        var parsed = AppSettings.ParseColor(s, System.Windows.Media.Colors.Transparent);
-        return parsed != System.Windows.Media.Colors.Transparent;
+        try
+        {
+            var parsed = AppSettings.ParseColor(s, System.Windows.Media.Colors.Transparent);
+            return parsed != System.Windows.Media.Colors.Transparent;
+        }
+        catch { return false; }   // ParseColor throws on rgb(300,0,0)
     }
 
     private static SettingDescriptor Make<T>(string id, SettingKind kind, Expression<Func<AppSettings, T>> prop, ApplyScope apply)

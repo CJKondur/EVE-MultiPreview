@@ -60,6 +60,13 @@ public sealed class SettingsService : IDisposable
         if (json.Contains("\"global_Settings\"") || json.Contains("\"_Profiles\""))
             return (JsonSerializer.Deserialize<AhkConfigRoot>(json, _jsonOptions)
                     ?? throw new JsonException("Not a settings file")).ToAppSettings();
+        using (var doc = JsonDocument.Parse(json, new JsonDocumentOptions
+               { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true }))
+        {
+            if (doc.RootElement.ValueKind != JsonValueKind.Object
+                || !doc.RootElement.EnumerateObject().Any(p => p.Name.Equals("Profiles", StringComparison.OrdinalIgnoreCase)))
+                throw new JsonException("Not a settings file");
+        }
         return JsonSerializer.Deserialize<AppSettings>(json, _jsonOptions)
                ?? throw new JsonException("Not a settings file");
     }
