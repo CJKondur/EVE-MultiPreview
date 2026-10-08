@@ -553,7 +553,7 @@
 
     <!-- Quick Switch wheel -->
     <sys:String x:Key="L.Qs.Title">クイックスイッチ</sys:String>
-    <sys:String x:Key="L.Qs.SwitchChar">キャラクターを切替</sys:String>
+    <sys:String x:Key="L.Qs.SwitchChar">切り替え先…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.EditTt">カードの並び順を編集</sys:String>
 
     <!-- Setup Wizard -->
@@ -1869,4 +1869,10 @@
     <sys:String x:Key="L.Ctx.LoginScreen">キャラクター選択</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.ClickToSwitch">クリックで切り替え</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.SystemClickFmt">{0} · クリックで切り替え</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintFmt">1–{0} キーまたはクリック</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintOne">1 キーまたはクリック</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Reorder">ドラッグして並べ替え</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Edit">順序を編集</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Save">順序を保存</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.SaveTt">カードの順序を保存</sys:String> <!-- draft -->
 </ResourceDictionary>

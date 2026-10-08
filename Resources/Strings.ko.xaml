@@ -553,7 +553,7 @@
 
     <!-- Quick Switch wheel -->
     <sys:String x:Key="L.Qs.Title">빠른 전환</sys:String>
-    <sys:String x:Key="L.Qs.SwitchChar">캐릭터 전환</sys:String>
+    <sys:String x:Key="L.Qs.SwitchChar">전환 대상…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.EditTt">카드 순서 편집</sys:String>
 
     <!-- Setup Wizard -->
@@ -1869,4 +1869,10 @@
     <sys:String x:Key="L.Ctx.LoginScreen">캐릭터 선택</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.ClickToSwitch">클릭하여 전환</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.SystemClickFmt">{0} · 클릭하여 전환</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintFmt">1–{0} 키를 누르거나 클릭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintOne">1 키를 누르거나 클릭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Reorder">드래그하여 순서 변경</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Edit">순서 편집</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Save">순서 저장</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.SaveTt">카드 순서 저장</sys:String> <!-- draft -->
 </ResourceDictionary>

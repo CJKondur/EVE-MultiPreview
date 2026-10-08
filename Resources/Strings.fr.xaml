@@ -553,7 +553,7 @@
 
     <!-- Quick Switch wheel -->
     <sys:String x:Key="L.Qs.Title">QuickSwitch</sys:String>
-    <sys:String x:Key="L.Qs.SwitchChar">Changer de personnage</sys:String>
+    <sys:String x:Key="L.Qs.SwitchChar">Passer à…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.EditTt">Modifier l'ordre des cartes</sys:String>
 
     <!-- Setup Wizard -->
@@ -1871,4 +1871,10 @@
     <sys:String x:Key="L.Ctx.LoginScreen">Sélection de personnage</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.ClickToSwitch">Cliquez pour changer</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.SystemClickFmt">{0} · cliquez pour changer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintFmt">Appuyez sur 1–{0} ou cliquez</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintOne">Appuyez sur 1 ou cliquez</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Reorder">Faites glisser pour réordonner</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Edit">Modifier l'ordre</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Save">Enregistrer l'ordre</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.SaveTt">Enregistrer l'ordre des cartes</sys:String> <!-- draft -->
 </ResourceDictionary>

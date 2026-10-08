@@ -546,7 +546,7 @@
 
     <!-- Quick Switch wheel -->
     <sys:String x:Key="L.Qs.Title">QuickSwitch</sys:String>
-    <sys:String x:Key="L.Qs.SwitchChar">Switch Character</sys:String>
+    <sys:String x:Key="L.Qs.SwitchChar">Switch to…</sys:String>
     <sys:String x:Key="L.Qs.EditTt">Edit card order</sys:String>
 
     <!-- Setup Wizard -->
@@ -1868,4 +1868,10 @@
     <sys:String x:Key="L.Ctx.LoginScreen">Character select</sys:String>
     <sys:String x:Key="L.Hub.ClickToSwitch">Click to switch</sys:String>
     <sys:String x:Key="L.Hub.SystemClickFmt">{0} · click to switch</sys:String>
+    <sys:String x:Key="L.Qs.HintFmt">Press 1–{0} or click</sys:String>
+    <sys:String x:Key="L.Qs.HintOne">Press 1 or click</sys:String>
+    <sys:String x:Key="L.Qs.Reorder">Drag to reorder</sys:String>
+    <sys:String x:Key="L.Qs.Edit">Edit order</sys:String>
+    <sys:String x:Key="L.Qs.Save">Save order</sys:String>
+    <sys:String x:Key="L.Qs.SaveTt">Save card order</sys:String>
 </ResourceDictionary>

@@ -3000,7 +3000,7 @@ public sealed class ThumbnailManager : IDisposable
                     Debug.WriteLine($"[QuickSwitch] 💾 Card order saved: {string.Join(", ", newOrder)}");
                 };
 
-                _quickSwitchWheel.ShowWheel(ordered);
+                _quickSwitchWheel.ShowWheel(ordered, GetCharacterSystem);
             }
             catch (Exception ex)
             {

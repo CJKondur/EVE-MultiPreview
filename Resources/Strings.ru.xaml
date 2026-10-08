@@ -553,7 +553,7 @@
 
     <!-- Quick Switch wheel -->
     <sys:String x:Key="L.Qs.Title">QuickSwitch</sys:String>
-    <sys:String x:Key="L.Qs.SwitchChar">Переключить персонажа</sys:String>
+    <sys:String x:Key="L.Qs.SwitchChar">Переключиться на…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.EditTt">Изменить порядок карточек</sys:String>
 
     <!-- Setup Wizard -->
@@ -1888,4 +1888,10 @@
     <sys:String x:Key="L.Ctx.LoginScreen">Выбор персонажа</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.ClickToSwitch">Нажмите, чтобы переключиться</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.SystemClickFmt">{0} · нажмите, чтобы переключиться</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintFmt">Нажмите 1–{0} или щёлкните</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintOne">Нажмите 1 или щёлкните</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Reorder">Перетащите, чтобы изменить порядок</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Edit">Изменить порядок</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Save">Сохранить порядок</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.SaveTt">Сохранить порядок карточек</sys:String> <!-- draft -->
 </ResourceDictionary>

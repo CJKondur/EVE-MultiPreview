@@ -553,7 +553,7 @@
 
     <!-- Quick Switch wheel -->
     <sys:String x:Key="L.Qs.Title">快速切换</sys:String>
-    <sys:String x:Key="L.Qs.SwitchChar">切换角色</sys:String>
+    <sys:String x:Key="L.Qs.SwitchChar">切换到…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.EditTt">编辑卡片顺序</sys:String>
 
     <!-- Setup Wizard -->
@@ -1886,4 +1886,10 @@
     <sys:String x:Key="L.Ctx.LoginScreen">角色选择</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.ClickToSwitch">点击切换</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.SystemClickFmt">{0} · 点击切换</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintFmt">按 1–{0} 或点击</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.HintOne">按 1 或点击</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Reorder">拖动以调整顺序</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Edit">编辑顺序</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.Save">保存顺序</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Qs.SaveTt">保存卡片顺序</sys:String> <!-- draft -->
 </ResourceDictionary>

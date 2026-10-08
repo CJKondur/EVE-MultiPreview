@@ -6,21 +6,24 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using EveMultiPreview.Services;
+using EveMultiPreview.SettingsUi;
 
-using Color          = System.Windows.Media.Color;
 using Cursors        = System.Windows.Input.Cursors;
 using FontFamily     = System.Windows.Media.FontFamily;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs   = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using Panel          = System.Windows.Controls.Panel;
 using Point          = System.Windows.Point;
+using Size           = System.Windows.Size;
 
 namespace EveMultiPreview.Views;
 
 /// <summary>
-/// Quick-switch card grid for fast character selection.
-/// Normal mode: click or press 1-9 to switch. Hotkey again closes.
-/// Edit mode: drag cards to reorder, then Save.
+/// Quick-switch wheel (Plan 4, the F2 reference): the clients' cards around a centre disc, each with its number key, name
+/// and system. Normal mode: click a card or press 1–9; the hotkey again, Esc or clicking elsewhere closes. Edit mode: drag
+/// cards to reorder, then Save order. With more clients than a ring fits on the screen, the cards go in rows.
 /// </summary>
 public partial class QuickSwitchWheel : Window
 {
@@ -28,121 +31,170 @@ public partial class QuickSwitchWheel : Window
     public event Action<string>? CharacterSelected;
     public event Action<List<string>>? OrderSaved;
 
+    /// <summary>Width the disc's text wraps at; the disc grows past 150 px when its text needs more room.</summary>
+    private const double DiscTextWidth = 126;
+
     // ── Card state ────────────────────────────────────────────────────
     private readonly List<CardEntry> _cards = new();
     private bool _editMode = false;
+    private QuickSwitchLayout _layout = QuickSwitchLayout.For(0, new Size(1, 1));
 
     // ── Drag state ────────────────────────────────────────────────────
     private CardEntry? _dragCard;
     private Point _dragOffset;       // cursor pos relative to card top-left
-    private int _dragOriginalIndex;
 
-    // ── Layout constants ──────────────────────────────────────────────
-    private const double CardW = 160;
-    private const double CardH = 46;
-    private const double CardGap = 7;
-    private int _cols;
-    private int _rows;
+    private enum CardLook { Normal, Hover, Edit, Drag }
 
-    // ── Colors ────────────────────────────────────────────────────────
-    private static readonly SolidColorBrush BgNormal   = new(Color.FromArgb(0xFF, 0x24, 0x24, 0x34));
-    private static readonly SolidColorBrush BgHover    = new(Color.FromArgb(0xFF, 0x3a, 0x6a, 0xaa));
-    private static readonly SolidColorBrush BgEdit     = new(Color.FromArgb(0xFF, 0x30, 0x20, 0x48));
-    private static readonly SolidColorBrush BgDrag     = new(Color.FromArgb(0xCC, 0x55, 0x33, 0xaa));
-    private static readonly SolidColorBrush FgNormal   = new(Color.FromRgb(0xfa, 0xc5, 0x7a));
-    private static readonly SolidColorBrush FgHover    = new(Color.FromRgb(0xFF, 0xFF, 0xFF));
-    private static readonly SolidColorBrush BorderEdit = new(Color.FromArgb(0xA0, 0xaa, 0x55, 0xff));
-
-    // ── Inner class ───────────────────────────────────────────────────
-    private class CardEntry
+    private sealed class CardEntry
     {
-        public string   Name   { get; set; } = "";
-        public Border   Card   { get; set; } = null!;
-        public TextBlock Label { get; set; } = null!;
-        public int      Index  { get; set; }   // logical grid position
+        public string Name { get; init; } = "";
+        public Border Card { get; init; } = null!;
+        public Border Number { get; init; } = null!;
+        public TextBlock NumberText { get; init; } = null!;
+        public int Index { get; set; }   // slot in the layout
     }
 
     public QuickSwitchWheel()
     {
         InitializeComponent();
-        KeyDown      += OnKeyDown;
-        Deactivated  += (_, _) => { if (!_editMode) CloseWheel(); };
+        FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
+        KeyDown += OnKeyDown;
+        Deactivated += (_, _) => { if (!_editMode) CloseWheel(); };
     }
 
     // ─────────────────────────────────────────────────────────────────
     // Public API
     // ─────────────────────────────────────────────────────────────────
 
-    public void ShowWheel(List<string> characters)
+    /// <summary>Builds the cards, in this order, without showing the window (ShowWheel shows it; tests call this).</summary>
+    public void Populate(List<string> characters, Func<string, string?>? systemOf = null)
     {
         _cards.Clear();
         ButtonCanvas.Children.Clear();
         _editMode = false;
+        UpdateHeader(characters.Count);
 
-        int count = characters.Count;
-        TxtCount.Text = $"{count} client{(count != 1 ? "s" : "")}";
-        UpdateEditButton();
+        var area = SystemParameters.WorkArea;
+        _layout = QuickSwitchLayout.For(characters.Count, new Size(area.Width * 0.9, area.Height * 0.9), MeasureDisc());
+        ApplyLayout();
 
-        _cols = count <= 4 ? 2 : 3;
-        _rows = (int)Math.Ceiling((double)count / _cols);
-
-        double gridW = _cols * CardW + (_cols - 1) * CardGap;
-        double gridH = _rows * CardH + (_rows - 1) * CardGap;
-        ButtonCanvas.Width  = gridW;
-        ButtonCanvas.Height = gridH;
-
-        for (int i = 0; i < count; i++)
-            CreateCard(characters[i], i);
-
+        for (int i = 0; i < characters.Count; i++)
+            CreateCard(characters[i], i, systemOf?.Invoke(characters[i]));
         PositionAllCards();
+    }
 
+    public void ShowWheel(List<string> characters, Func<string, string?>? systemOf = null)
+    {
+        Populate(characters, systemOf);
         Opacity = 0;
         Show();
         Focus();
-        new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(150))
-            .Let(a => BeginAnimation(OpacityProperty, a));
+        BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(150)));
     }
 
-    /// <summary>Force-close without the Deactivated guard blocking.Called by ThumbnailManager toggle.</summary>
+    /// <summary>Force-close without the Deactivated guard blocking. Called by ThumbnailManager toggle.</summary>
     public void ForceClose() => CloseWheel();
+
+    /// <summary>The cards' names in slot order (tests).</summary>
+    public IReadOnlyList<string> CardOrder => _cards.OrderBy(c => c.Index).Select(c => c.Name).ToList();
+
+    /// <summary>Where the cards are (tests).</summary>
+    public QuickSwitchLayout CardLayout => _layout;
+
+    /// <summary>The number key shown on each card in slot order, "" where none (tests).</summary>
+    public IReadOnlyList<string> CardNumbers =>
+        _cards.OrderBy(c => c.Index).Select(c => c.Number.Visibility == Visibility.Visible ? c.NumberText.Text : "").ToList();
+
+    // ─────────────────────────────────────────────────────────────────
+    // Layout
+    // ─────────────────────────────────────────────────────────────────
+
+    /// <summary>The disc is 150 px, or the diagonal of its text where a language needs more.</summary>
+    private double MeasureDisc()
+    {
+        DiscContent.Measure(new Size(DiscTextWidth + DiscContent.Margin.Left + DiscContent.Margin.Right, double.PositiveInfinity));
+        var d = DiscContent.DesiredSize;
+        return Math.Max(QuickSwitchLayout.DiscSize, Math.Ceiling(Math.Sqrt(d.Width * d.Width + d.Height * d.Height)) + 4);
+    }
+
+    private void ApplyLayout()
+    {
+        var l = _layout;
+        ButtonCanvas.Width = l.Canvas.Width;
+        ButtonCanvas.Height = l.Canvas.Height;
+        if (l.Ring)
+        {
+            Grid.SetRow(Disc, 1);
+            Disc.Width = Disc.Height = l.Disc;
+            Disc.CornerRadius = new CornerRadius(l.Disc / 2);
+            Disc.Margin = new Thickness(l.Centre.X - l.Disc / 2, l.Centre.Y - l.Disc / 2, 0, 0);
+        }
+        else
+        {
+            Grid.SetRow(Disc, 0);
+            Disc.Width = l.Canvas.Width;
+            Disc.Height = double.NaN;
+            Disc.CornerRadius = (CornerRadius)FindResource("Fx.FlyoutRadius");
+            Disc.Margin = new Thickness(0, 0, 0, QuickSwitchLayout.Gap);
+        }
+    }
 
     // ─────────────────────────────────────────────────────────────────
     // Card factory
     // ─────────────────────────────────────────────────────────────────
 
-    private void CreateCard(string name, int index)
+    private void CreateCard(string name, int index, string? system)
     {
-        var label = new TextBlock
+        var numberText = new TextBlock
         {
-            Text              = NumberPrefix(index, name),
-            Foreground        = FgNormal,
-            FontSize          = 12.5,
-            FontFamily        = new FontFamily("Segoe UI"),
-            FontWeight        = FontWeights.SemiBold,
-            TextTrimming      = TextTrimming.CharacterEllipsis,
-            MaxWidth          = CardW - 22,
-            HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
-            VerticalAlignment   = System.Windows.VerticalAlignment.Center,
+            FontFamily = TryFindResource("Fx.MonoFont") as FontFamily ?? new FontFamily("Consolas"),
+            FontSize = 11,
+            Foreground = FluentPalette.Brush("Fx.Text"),
         };
-
+        var number = new Border
+        {
+            Background = FluentPalette.Brush("Fx.Control"),
+            BorderBrush = FluentPalette.Brush("Fx.Border"),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(6, 0, 6, 1),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Child = numberText,
+        };
+        var nameText = new TextBlock
+        {
+            Text = name,
+            FontSize = 13,
+            FontWeight = FontWeights.SemiBold,
+            Foreground = FluentPalette.Brush("Fx.Text"),
+            TextTrimming = TextTrimming.CharacterEllipsis,
+            Margin = new Thickness(0, 6, 0, 0),
+        };
+        var systemText = new TextBlock
+        {
+            Text = system ?? "",
+            FontSize = 12,
+            Foreground = FluentPalette.Brush("Fx.TextSecondary"),
+            TextTrimming = TextTrimming.CharacterEllipsis,
+            Visibility = string.IsNullOrWhiteSpace(system) ? Visibility.Collapsed : Visibility.Visible,
+        };
         var card = new Border
         {
-            Background      = BgNormal,
-            BorderBrush     = new SolidColorBrush(Color.FromArgb(0x30, 0x60, 0x8a, 0xba)),
+            Width = QuickSwitchLayout.CardWidth,
+            Height = QuickSwitchLayout.CardHeight,
+            CornerRadius = new CornerRadius(8),
             BorderThickness = new Thickness(1),
-            CornerRadius    = new CornerRadius(7),
-            Width           = CardW,
-            Height          = CardH,
-            Child           = label,
-            Cursor          = Cursors.Hand,
+            Padding = new Thickness(10, 8, 10, 8),
+            Child = new StackPanel { Children = { number, nameText, systemText } },
         };
 
-        var entry = new CardEntry { Name = name, Card = card, Label = label, Index = index };
+        var entry = new CardEntry { Name = name, Card = card, Number = number, NumberText = numberText, Index = index };
+        SetLook(entry, CardLook.Normal);
         _cards.Add(entry);
 
         // Normal-mode interactions
-        card.MouseEnter       += (_, _) => { if (!_editMode) SetHoverStyle(entry, true); };
-        card.MouseLeave       += (_, _) => { if (!_editMode) SetHoverStyle(entry, false); };
+        card.MouseEnter += (_, _) => { if (!_editMode) SetLook(entry, CardLook.Hover); };
+        card.MouseLeave += (_, _) => { if (!_editMode) SetLook(entry, CardLook.Normal); };
         card.MouseLeftButtonDown += (_, e) =>
         {
             if (_editMode)
@@ -158,46 +210,46 @@ public partial class QuickSwitchWheel : Window
         ButtonCanvas.Children.Add(card);
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Layout helpers
-    // ─────────────────────────────────────────────────────────────────
+    private static void SetLook(CardEntry e, CardLook look)
+    {
+        bool lit = look is CardLook.Hover or CardLook.Drag;
+        e.Card.Background = FluentPalette.Brush(lit ? "Fx.AccentSoft" : "Fx.CardColor");
+        e.Card.BorderBrush = FluentPalette.Brush(look == CardLook.Normal ? "Fx.FlyoutBorder" : "Fx.Accent");
+        e.Card.Opacity = look == CardLook.Drag ? 0.85 : 1.0;
+        e.Card.Cursor = look is CardLook.Edit or CardLook.Drag ? Cursors.SizeAll : Cursors.Hand;
+    }
 
     private void PositionAllCards()
     {
         foreach (var e in _cards)
         {
-            (double x, double y) = GridPos(e.Index);
-            Canvas.SetLeft(e.Card, x);
-            Canvas.SetTop(e.Card, y);
+            Canvas.SetLeft(e.Card, _layout.Slots[e.Index].X);
+            Canvas.SetTop(e.Card, _layout.Slots[e.Index].Y);
             Panel.SetZIndex(e.Card, 0);
+        }
+        RefreshNumbers();
+    }
+
+    /// <summary>Keys 1–9 pick the first nine slots; later cards have no number and are clicked.</summary>
+    private void RefreshNumbers()
+    {
+        foreach (var e in _cards)
+        {
+            e.NumberText.Text = (e.Index + 1).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            e.Number.Visibility = e.Index < 9 ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 
-    private (double x, double y) GridPos(int index)
+    private void UpdateHeader(int count)
     {
-        int col = index % _cols;
-        int row = index / _cols;
-        return (col * (CardW + CardGap), row * (CardH + CardGap));
+        TxtCount.Text = _editMode ? Str("L.Qs.Reorder", "Drag to reorder")
+            : count <= 1 ? Str("L.Qs.HintOne", "Press 1 or click")
+            : string.Format(Str("L.Qs.HintFmt", "Press 1–{0} or click"), Math.Min(count, 9));
+        BtnEdit.Content = _editMode ? Str("L.Qs.Save", "Save order") : Str("L.Qs.Edit", "Edit order");
+        BtnEdit.ToolTip = _editMode ? Str("L.Qs.SaveTt", "Save card order") : Str("L.Qs.EditTt", "Edit card order");
     }
 
-    private static string NumberPrefix(int index, string name)
-        => index < 9 ? $"{index + 1}  {name}" : name;
-
-    private void RefreshLabels()
-    {
-        foreach (var e in _cards)
-            e.Label.Text = NumberPrefix(e.Index, e.Name);
-    }
-
-    // ─────────────────────────────────────────────────────────────────
-    // Hover style
-    // ─────────────────────────────────────────────────────────────────
-
-    private static void SetHoverStyle(CardEntry e, bool hovered)
-    {
-        e.Card.Background    = hovered ? BgHover : BgNormal;
-        e.Label.Foreground   = hovered ? FgHover : FgNormal;
-    }
+    private static string Str(string key, string english) => LocalizationService.Str(key, english);
 
     // ─────────────────────────────────────────────────────────────────
     // Edit mode
@@ -206,40 +258,8 @@ public partial class QuickSwitchWheel : Window
     private void ToggleEditMode()
     {
         _editMode = !_editMode;
-        UpdateEditButton();
-
-        if (_editMode)
-        {
-            // Visual cue: tint cards purple, add dashed border
-            foreach (var e in _cards)
-            {
-                e.Card.Background    = BgEdit;
-                e.Card.BorderBrush   = BorderEdit;
-                e.Card.BorderThickness = new Thickness(1.5);
-                e.Card.Cursor        = Cursors.SizeAll;
-            }
-            TxtCount.Text = "Drag to reorder — then Save";
-        }
-        else
-        {
-            // Restore normal style
-            var normalBorder = new SolidColorBrush(Color.FromArgb(0x30, 0x60, 0x8a, 0xba));
-            foreach (var e in _cards)
-            {
-                e.Card.Background    = BgNormal;
-                e.Card.BorderBrush   = normalBorder;
-                e.Card.BorderThickness = new Thickness(1);
-                e.Card.Cursor        = Cursors.Hand;
-            }
-            TxtCount.Text = $"{_cards.Count} client{(_cards.Count != 1 ? "s" : "")}";
-        }
-    }
-
-    private void UpdateEditButton()
-    {
-        if (BtnEdit == null) return;
-        BtnEdit.Content = _editMode ? "💾 Save" : "✏ Edit";
-        BtnEdit.ToolTip = _editMode ? "Save card order" : "Edit card order";
+        foreach (var e in _cards) SetLook(e, _editMode ? CardLook.Edit : CardLook.Normal);
+        UpdateHeader(_cards.Count);
     }
 
     private void BtnEdit_Click(object sender, RoutedEventArgs e)
@@ -247,14 +267,9 @@ public partial class QuickSwitchWheel : Window
         if (_editMode)
         {
             // Save: emit order
-            var order = _cards.OrderBy(c => c.Index).Select(c => c.Name).ToList();
-            OrderSaved?.Invoke(order);
-            ToggleEditMode();
+            OrderSaved?.Invoke(CardOrder.ToList());
         }
-        else
-        {
-            ToggleEditMode();
-        }
+        ToggleEditMode();
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -263,16 +278,14 @@ public partial class QuickSwitchWheel : Window
 
     private void BeginDrag(CardEntry entry, MouseButtonEventArgs e)
     {
-        _dragCard         = entry;
-        _dragOriginalIndex = entry.Index;
-        _dragOffset       = e.GetPosition(entry.Card);
+        _dragCard   = entry;
+        _dragOffset = e.GetPosition(entry.Card);
 
         // Lift card above others
         Panel.SetZIndex(entry.Card, 99);
-        entry.Card.Background = BgDrag;
-        entry.Card.Opacity    = 0.85;
+        SetLook(entry, CardLook.Drag);
 
-        ButtonCanvas.MouseMove       += OnDragMove;
+        ButtonCanvas.MouseMove         += OnDragMove;
         ButtonCanvas.MouseLeftButtonUp += OnDragEnd;
         ButtonCanvas.CaptureMouse();
         e.Handled = true;
@@ -283,71 +296,46 @@ public partial class QuickSwitchWheel : Window
         if (_dragCard == null) return;
 
         var pos = e.GetPosition(ButtonCanvas);
-        double left = pos.X - _dragOffset.X;
-        double top  = pos.Y - _dragOffset.Y;
-
-        // Clamp within canvas
-        left = Math.Max(0, Math.Min(left, ButtonCanvas.Width  - CardW));
-        top  = Math.Max(0, Math.Min(top,  ButtonCanvas.Height - CardH));
-
+        double left = Math.Max(0, Math.Min(pos.X - _dragOffset.X, ButtonCanvas.Width - QuickSwitchLayout.CardWidth));
+        double top  = Math.Max(0, Math.Min(pos.Y - _dragOffset.Y, ButtonCanvas.Height - QuickSwitchLayout.CardHeight));
         Canvas.SetLeft(_dragCard.Card, left);
         Canvas.SetTop(_dragCard.Card, top);
 
         // Find which slot we're hovering over
-        int hoverIndex = HitTestSlot(pos);
+        int hoverIndex = _layout.SlotAt(pos);
         if (hoverIndex >= 0 && hoverIndex != _dragCard.Index)
             SwapCards(_dragCard, hoverIndex);
     }
 
     private void OnDragEnd(object sender, MouseButtonEventArgs e)
     {
-        ButtonCanvas.MouseMove        -= OnDragMove;
+        ButtonCanvas.MouseMove         -= OnDragMove;
         ButtonCanvas.MouseLeftButtonUp -= OnDragEnd;
         ButtonCanvas.ReleaseMouseCapture();
 
         if (_dragCard == null) return;
 
-        // Snap card to its final grid position
-        (double x, double y) = GridPos(_dragCard.Index);
-        Canvas.SetLeft(_dragCard.Card, x);
-        Canvas.SetTop(_dragCard.Card, y);
+        // Snap card to its final slot
+        Canvas.SetLeft(_dragCard.Card, _layout.Slots[_dragCard.Index].X);
+        Canvas.SetTop(_dragCard.Card, _layout.Slots[_dragCard.Index].Y);
         Panel.SetZIndex(_dragCard.Card, 0);
-        _dragCard.Card.Background = BgEdit;
-        _dragCard.Card.Opacity    = 1.0;
+        SetLook(_dragCard, CardLook.Edit);
         _dragCard = null;
     }
 
-    /// <summary>Return the grid slot index nearest to the given canvas point, or -1.</summary>
-    private int HitTestSlot(Point canvasPos)
-    {
-        for (int i = 0; i < _cols * _rows; i++)
-        {
-            (double sx, double sy) = GridPos(i);
-            if (canvasPos.X >= sx && canvasPos.X < sx + CardW &&
-                canvasPos.Y >= sy && canvasPos.Y < sy + CardH)
-                return i;
-        }
-        return -1;
-    }
-
-    /// <summary>Swap the dragged card into targetIndex, shifting the card currently there.</summary>
+    /// <summary>Swap the dragged card into targetIndex, moving the card that was there to the dragged card's slot.</summary>
     private void SwapCards(CardEntry drag, int targetIndex)
     {
-        // Find the card currently at targetIndex
         var displaced = _cards.FirstOrDefault(c => c.Index == targetIndex && c != drag);
         if (displaced == null) return;
 
-        // Swap indices
         displaced.Index = drag.Index;
         drag.Index      = targetIndex;
 
-        // Animate displaced card to its new position
-        (double dx, double dy) = GridPos(displaced.Index);
-        Canvas.SetLeft(displaced.Card, dx);
-        Canvas.SetTop(displaced.Card, dy);
+        Canvas.SetLeft(displaced.Card, _layout.Slots[displaced.Index].X);
+        Canvas.SetTop(displaced.Card, _layout.Slots[displaced.Index].Y);
 
-        // Update number labels
-        RefreshLabels();
+        RefreshNumbers();
     }
 
     // ─────────────────────────────────────────────────────────────────
@@ -395,10 +383,4 @@ public partial class QuickSwitchWheel : Window
         fadeOut.Completed += (_, _) => Close();
         BeginAnimation(OpacityProperty, fadeOut);
     }
-}
-
-// ── Extension helper ─────────────────────────────────────────────────
-file static class AnimExt
-{
-    public static T Let<T>(this T self, Action<T> action) { action(self); return self; }
 }
