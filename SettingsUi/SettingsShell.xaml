@@ -1,0 +1,166 @@
+<Window x:Class="EveMultiPreview.SettingsUi.SettingsShell"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:EveMultiPreview.SettingsUi"
+        ThemeMode="Dark"
+        Background="{DynamicResource Fx.BgBrush}"
+        Width="1240" Height="800" MinWidth="720" MinHeight="480"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <local:SettingCards/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Navigation entry: icon + text, accent bar when current. -->
+            <Style x:Key="Fx.NavButton" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="Padding" Value="12,8"/>
+                <Setter Property="Margin" Value="0,1"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid x:Name="Root" Background="{DynamicResource Fx.BgBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="264"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition x:Name="HelpColumn" Width="0"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ═══ Navigation pane (spec §4) ═══ -->
+        <DockPanel Grid.Column="0" Margin="8,8,4,8">
+            <Button x:Name="ProfileButton" DockPanel.Dock="Top" Style="{StaticResource Fx.NavButton}" Click="OnProfileMenu">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="32" Height="32" CornerRadius="16" Background="{StaticResource Fx.AccentBrush}">
+                        <TextBlock Text="{Binding ProfileInitial}" Foreground="#FF000000" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ProfileName}" Style="{StaticResource Fx.Label}" FontWeight="SemiBold"/>
+                        <TextBlock local:Loc.Key="L.S.Shell.Profile" Style="{StaticResource Fx.Desc}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Button>
+
+            <ContentControl x:Name="SearchHost" DockPanel.Dock="Top" Margin="0,8,0,8" Focusable="False"
+                            Visibility="{Binding ShowGroups, Converter={StaticResource Fx.BoolToVis}}"/>
+
+            <Border DockPanel.Dock="Bottom" Padding="12,8" Margin="0,8,0,0">
+                <DockPanel>
+                    <CheckBox DockPanel.Dock="Right" Style="{StaticResource Fx.ToggleSwitch}" IsChecked="{Binding IsAdvanced}"/>
+                    <TextBlock local:Loc.Key="L.S.Shell.Advanced" Style="{StaticResource Fx.Label}" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Border>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+                <StackPanel>
+                    <Button Style="{StaticResource Fx.NavButton}" Command="{Binding HomeCommand}"
+                            Visibility="{Binding HasHome, Converter={StaticResource Fx.BoolToVis}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE80F;" FontFamily="{StaticResource Fx.IconFont}" Foreground="{StaticResource Fx.TextBrush}" VerticalAlignment="Center"/>
+                            <TextBlock local:Loc.Key="L.S.Nav.Home" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource Fx.NavButton}" Command="{Binding AllSettingsCommand}"
+                            Visibility="{Binding IsSimple, Converter={StaticResource Fx.BoolToVis}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE713;" FontFamily="{StaticResource Fx.IconFont}" Foreground="{StaticResource Fx.TextBrush}" VerticalAlignment="Center"/>
+                            <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <ItemsControl ItemsSource="{Binding Groups}" Focusable="False"
+                                  Visibility="{Binding ShowGroups, Converter={StaticResource Fx.BoolToVis}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <Button Style="{StaticResource Fx.NavButton}" Command="{Binding OpenCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource Fx.IconFont}"
+                                                       Foreground="{StaticResource Fx.TextBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <ItemsControl ItemsSource="{Binding Pages}" Focusable="False"
+                                                  Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource Fx.NavButton}" Command="{Binding OpenCommand}" Padding="40,6,12,6">
+                                                    <Grid>
+                                                        <Border x:Name="Bar" Width="3" Height="16" CornerRadius="2" HorizontalAlignment="Left"
+                                                                Margin="-14,0,0,0" Background="{StaticResource Fx.AccentBrush}" Visibility="Collapsed"/>
+                                                        <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{StaticResource Fx.Label}"/>
+                                                    </Grid>
+                                                </Button>
+                                                <DataTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </DataTemplate.Triggers>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- ═══ Content ═══ -->
+        <DockPanel Grid.Column="1" Margin="24,16,24,0">
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <WrapPanel>
+                        <Button Style="{StaticResource Fx.NavButton}" Padding="0" Margin="0" Click="OnBreadcrumbGroup"
+                                Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
+                            <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{StaticResource Fx.Breadcrumb}"/>
+                        </Button>
+                        <TextBlock Text="  ›  " Style="{StaticResource Fx.Breadcrumb}"
+                                   Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
+                        <TextBlock local:Loc.Key="{Binding Current.Page.TitleKey}" Style="{StaticResource Fx.PageTitle}"/>
+                    </WrapPanel>
+                    <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{StaticResource Fx.PageDesc}"/>
+                </StackPanel>
+                <ToggleButton Grid.Column="1" IsChecked="{Binding HelpOpen}" Content="?" FontWeight="SemiBold"
+                              Width="36" Height="36" VerticalAlignment="Top" Margin="16,4,0,0"
+                              ToolTip="{DynamicResource L.S.Shell.Help}"/>
+            </Grid>
+
+            <!-- Save error bar (spec §8.5): stays until a save succeeds. -->
+            <Border DockPanel.Dock="Top" Margin="0,12,0,0" Padding="12,8" CornerRadius="{StaticResource Fx.Radius}"
+                    BorderThickness="3,0,0,0" BorderBrush="{StaticResource Fx.CriticalBrush}" Background="{StaticResource Fx.CardBrush}"
+                    Visibility="{Binding HasSaveError, Converter={StaticResource Fx.BoolToVis}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" local:Loc.Key="L.S.Shell.Retry" Click="OnRetrySave" Padding="12,4" Margin="12,0,0,0"
+                            Visibility="{Binding CanRetrySave, Converter={StaticResource Fx.BoolToVis}}"/>
+                    <TextBlock local:Loc.Key="{Binding SaveErrorKey}" Style="{StaticResource Fx.Label}" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Border>
+
+            <ScrollViewer x:Name="ContentScroll" VerticalScrollBarVisibility="Auto" Focusable="False" Margin="0,8,0,0">
+                <ItemsControl x:Name="Sections" ItemsSource="{Binding Current.Sections}"
+                              ItemTemplate="{StaticResource Fx.Section}" Margin="0,0,0,24" Focusable="False"/>
+            </ScrollViewer>
+        </DockPanel>
+
+        <!-- Toast: inside the window, never a separate window, never takes focus (spec §4). -->
+        <Border x:Name="ToastHost" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="24"
+                Padding="16,10" CornerRadius="{StaticResource Fx.Radius}" BorderThickness="1"
+                BorderBrush="{StaticResource Fx.BorderBrush}" Background="{StaticResource Fx.CardBrush}"
+                IsHitTestVisible="False" Visibility="Collapsed">
+            <TextBlock x:Name="ToastText" Style="{StaticResource Fx.Label}" MaxWidth="420"/>
+        </Border>
+
+        <!-- Help pane (Task 9). -->
+        <ContentControl x:Name="HelpHost" Grid.Column="2" Focusable="False"/>
+    </Grid>
+</Window>

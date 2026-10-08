@@ -765,4 +765,19 @@
     <sys:String x:Key="L.S.Backup.ImportConfirm">Заменить все ваши настройки во всех профилях настройками из {0}? Текущие настройки сначала будут сохранены в резервной копии.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Imported">Настройки импортированы. Перезапустите MultiPreview, чтобы все части приложения использовали их.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">Не получилось: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Title">Настройки EVE MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Profile">Профиль</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Help">Справка по этой странице</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Advanced">Показать все настройки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Retry">Повторить</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveFailed">Не удалось сохранить настройки. Проверьте, что папка MultiPreview не защищена от записи и на диске есть свободное место, затем повторите.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveBlocked">Файл настроек не удалось прочитать при запуске MultiPreview, поэтому изменения не сохраняются. Оригинал сохранён рядом в виде копии .bak.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Home">Главная</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.AllSettings">Все настройки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Clients">Клиенты</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Thumbnails">Миниатюры</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Alerts">Оповещения</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Performance">Производительность</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Tools">Инструменты</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">Приложение</sys:String> <!-- draft -->
 </ResourceDictionary>

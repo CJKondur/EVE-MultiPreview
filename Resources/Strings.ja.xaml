@@ -746,4 +746,19 @@
     <sys:String x:Key="L.S.Backup.ImportConfirm">すべてのプロファイルの設定を {0} の内容に置き換えますか？現在の設定は先にバックアップされます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Imported">設定をインポートしました。アプリ全体に反映するには MultiPreview を再起動してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">うまくいきませんでした: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Title">EVE MultiPreview の設定</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Profile">プロファイル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Help">このページのヘルプ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Advanced">すべての設定を表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Retry">再試行</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveFailed">設定を保存できませんでした。MultiPreview フォルダーが読み取り専用でないこと、空き容量があることを確認してから再試行してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveBlocked">MultiPreview の起動時に設定ファイルを読み込めなかったため、変更は保存されません。元のファイルは .bak コピーとして隣に残してあります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Home">ホーム</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.AllSettings">すべての設定</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Clients">クライアント</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Thumbnails">サムネイル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Alerts">アラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Performance">パフォーマンス</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Tools">ツール</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">アプリ</sys:String> <!-- draft -->
 </ResourceDictionary>

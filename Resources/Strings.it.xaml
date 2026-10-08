@@ -763,4 +763,19 @@
     <sys:String x:Key="L.S.Backup.ImportConfirm">Sostituire tutte le impostazioni, in ogni profilo, con quelle di {0}? Le impostazioni attuali vengono prima salvate in un backup.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Imported">Impostazioni importate. Riavvia MultiPreview per far usare le impostazioni a ogni parte dell'app.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">Non ha funzionato: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Title">Impostazioni di EVE MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Profile">Profilo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Help">Guida per questa pagina</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Advanced">Mostra tutte le impostazioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Retry">Riprova</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveFailed">Non è stato possibile salvare le tue impostazioni. Controlla che la cartella di MultiPreview non sia di sola lettura e abbia spazio libero, poi riprova.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveBlocked">Non è stato possibile leggere il file delle impostazioni all'avvio di MultiPreview, quindi le modifiche non vengono salvate. L'originale è conservato accanto come copia .bak.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Home">Home</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.AllSettings">Tutte le impostazioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Clients">Client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Thumbnails">Miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Alerts">Avvisi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Performance">Prestazioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Tools">Strumenti</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">App</sys:String> <!-- draft -->
 </ResourceDictionary>

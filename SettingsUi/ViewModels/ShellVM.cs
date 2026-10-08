@@ -1,0 +1,198 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Input;
+using EveMultiPreview.Services;
+
+namespace EveMultiPreview.SettingsUi;
+
+public sealed class NavPageVM : ObservableObject
+{
+    private bool _selected;
+    public NavPageVM(PageDef page, Action<string> navigate)
+    {
+        Page = page;
+        OpenCommand = new RelayCommand(_ => navigate(page.Id));
+    }
+    public PageDef Page { get; }
+    public string TitleKey => Page.TitleKey;
+    public bool IsSelected { get => _selected; set { _selected = value; Raise(); } }
+    public ICommand OpenCommand { get; }
+}
+
+public sealed class NavGroupVM : ObservableObject
+{
+    private bool _expanded;
+    public NavGroupVM(NavGroup group, IReadOnlyList<NavPageVM> pages, Action<string> navigate)
+    {
+        Group = group;
+        Pages = pages;
+        OpenCommand = new RelayCommand(_ => navigate(pages[0].Page.Id));
+    }
+    public NavGroup Group { get; }
+    public string TitleKey => "L.S.Nav." + Group;
+    /// <summary>Segoe Fluent Icons glyph (falls back to Segoe MDL2 Assets on Windows 10).</summary>
+    public string Icon => Group switch
+    {
+        NavGroup.Clients => "",
+        NavGroup.Thumbnails => "",
+        NavGroup.Alerts => "",
+        NavGroup.Performance => "",
+        NavGroup.Tools => "",
+        _ => "",
+    };
+    public IReadOnlyList<NavPageVM> Pages { get; }
+    public bool IsExpanded { get => _expanded; set { _expanded = value; Raise(); } }
+    public bool IsCurrent => Pages.Any(p => p.IsSelected);
+    public ICommand OpenCommand { get; }
+    public void RaiseCurrent() => Raise(nameof(IsCurrent));
+}
+
+/// <summary>The window's state: navigation, Simple/Advanced, help, profile, save errors (spec §4).</summary>
+public sealed class ShellVM : ObservableObject, IDisposable
+{
+    private readonly SettingsContext _ctx;
+    private readonly Action<Action> _marshal;
+    private readonly Dictionary<string, PageVM> _pages = new();
+
+    public ShellVM(SettingsContext ctx, IReadOnlyList<PageDef> pages, Action<Action> marshal)
+    {
+        _ctx = ctx;
+        _marshal = marshal;
+        Pages = pages;
+        Home = pages.FirstOrDefault(p => p.Group == NavGroup.Home);
+        Groups = pages.Where(p => p.Group != NavGroup.Home)
+                      .GroupBy(p => p.Group).OrderBy(g => g.Key)
+                      .Select(g => new NavGroupVM(g.Key, g.Select(p => new NavPageVM(p, id => Navigate(id))).ToList(), id => Navigate(id)))
+                      .ToList();
+        HomeCommand = new RelayCommand(_ => { if (Home != null) Navigate(Home.Id); });
+        AllSettingsCommand = new RelayCommand(_ => AllSettings());
+        ctx.Service.ProfileSwitched += OnProfileSwitched;
+        ctx.Service.SaveCompleted += OnSaveCompletedAnyThread;
+        var start = Home ?? pages.FirstOrDefault();
+        if (start != null) Show(start, null);
+    }
+
+    public IReadOnlyList<PageDef> Pages { get; }
+    public IReadOnlyList<NavGroupVM> Groups { get; }
+    public PageDef? Home { get; }
+    public bool HasHome => Home != null;
+    public PageVM? Current { get; private set; }
+    public string? GroupTitleKey => Current == null || Current.Page.Group == NavGroup.Home ? null : "L.S.Nav." + Current.Page.Group;
+    public ICommand HomeCommand { get; }
+    public ICommand AllSettingsCommand { get; }
+    public ItemVM? HighlightedItem { get; private set; }
+
+    /// <summary>Raised after a profile switch re-read every card. The shell forwards it as SettingsApplied.</summary>
+    public event Action? Reloaded;
+
+    public bool IsSimple
+    {
+        get => _ctx.S.SimpleMode;
+        set
+        {
+            if (value == IsSimple) return;
+            _ctx.S.SimpleMode = value;
+            _ctx.Applier.Request(ApplyScope.Save);
+            if (value && Home != null) Show(Home, null);
+            RaiseAll();
+        }
+    }
+    public bool IsAdvanced { get => !IsSimple; set => IsSimple = !value; }
+    public bool ShowGroups => !IsSimple;
+
+    public bool HelpOpen
+    {
+        get => _ctx.S.SettingsHelpOpen;
+        set { _ctx.S.SettingsHelpOpen = value; _ctx.Applier.Request(ApplyScope.Save); Raise(); }
+    }
+
+    public string ProfileName => _ctx.S.LastUsedProfile;
+    public string ProfileInitial => ProfileName.Length > 0 ? ProfileName[..1].ToUpperInvariant() : "?";
+
+    public string? SaveErrorKey { get; private set; }
+    public bool HasSaveError => SaveErrorKey != null;
+    public bool CanRetrySave => SaveErrorKey == "L.S.Shell.SaveFailed";
+
+    public void Navigate(string pageId, string? itemId = null)
+    {
+        var page = Pages.FirstOrDefault(p => p.Id == pageId);
+        if (page == null) return;
+        if (page.Group != NavGroup.Home && IsSimple)
+        {
+            _ctx.S.SimpleMode = false;   // an Advanced page from search or help: show where it lives
+            _ctx.Applier.Request(ApplyScope.Save);
+        }
+        Show(page, itemId);
+    }
+
+    public void AllSettings()
+    {
+        IsSimple = false;
+        var first = Groups.FirstOrDefault()?.Pages.FirstOrDefault();
+        if (first != null && (Current == null || Current.Page.Group == NavGroup.Home)) Show(first.Page, null);
+    }
+
+    public void ClearHighlight()
+    {
+        if (HighlightedItem != null) HighlightedItem.IsHighlighted = false;
+        HighlightedItem = null;
+    }
+
+    /// <summary>Re-read every card on the current page (pages are re-read whenever they're shown).</summary>
+    public void Reload()
+    {
+        Current?.Refresh();
+        RaiseAll();
+    }
+
+    /// <summary>Spec D5: no Apply button and no prompt. Closing applies anything still waiting
+    /// and saves (the window size is written just before this).</summary>
+    public void OnClosing() => _ctx.Applier.ApplyNow();
+
+    public void OnSaveCompleted(SaveStatus status)
+    {
+        SaveErrorKey = status switch
+        {
+            SaveStatus.WriteFailed => "L.S.Shell.SaveFailed",
+            SaveStatus.BlockedAfterLoadError => "L.S.Shell.SaveBlocked",
+            _ => null,
+        };
+        Raise(nameof(SaveErrorKey));
+        Raise(nameof(HasSaveError));
+        Raise(nameof(CanRetrySave));
+    }
+
+    public void RetrySave() => _ctx.Service.Save();
+
+    public void Dispose()
+    {
+        _ctx.Service.ProfileSwitched -= OnProfileSwitched;
+        _ctx.Service.SaveCompleted -= OnSaveCompletedAnyThread;
+    }
+
+    private void Show(PageDef page, string? itemId)
+    {
+        if (!_pages.TryGetValue(page.Id, out var vm)) _pages[page.Id] = vm = new PageVM(page, _ctx);
+        else vm.Refresh();   // values may have changed elsewhere (a thumbnail drag, a hotkey, another page)
+        Current = vm;
+        foreach (var g in Groups)
+        {
+            g.IsExpanded = g.Group == page.Group;
+            foreach (var p in g.Pages) p.IsSelected = p.Page.Id == page.Id;
+            g.RaiseCurrent();
+        }
+        ClearHighlight();
+        if (itemId != null && vm.Find(itemId) is { } item) { item.IsHighlighted = true; HighlightedItem = item; }
+        RaiseAll();
+    }
+
+    private void OnProfileSwitched(string _) => _marshal(() =>
+    {
+        foreach (var page in _pages.Values) page.Refresh();
+        RaiseAll();
+        Reloaded?.Invoke();
+    });
+
+    private void OnSaveCompletedAnyThread(SaveStatus status) => _marshal(() => OnSaveCompleted(status));
+}

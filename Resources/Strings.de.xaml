@@ -745,4 +745,19 @@
     <sys:String x:Key="L.S.Backup.ImportConfirm">Alle Einstellungen in allen Profilen durch die aus {0} ersetzen? Deine aktuellen Einstellungen werden zuvor gesichert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Imported">Einstellungen importiert. Starte MultiPreview neu, damit alle Teile der App sie verwenden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">Das hat nicht funktioniert: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Title">EVE MultiPreview-Einstellungen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Profile">Profil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Help">Hilfe zu dieser Seite</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Advanced">Alle Einstellungen anzeigen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Retry">Erneut versuchen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveFailed">Deine Einstellungen konnten nicht gespeichert werden. Prüfe, ob der MultiPreview-Ordner schreibgeschützt ist und freien Speicherplatz hat, und versuche es dann erneut.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveBlocked">Deine Einstellungsdatei konnte beim Start von MultiPreview nicht gelesen werden, daher werden Änderungen nicht gespeichert. Das Original bleibt als .bak-Kopie daneben erhalten.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Home">Start</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.AllSettings">Alle Einstellungen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Clients">Clients</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Thumbnails">Vorschaubilder</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Alerts">Warnungen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Performance">Leistung</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Tools">Werkzeuge</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">App</sys:String> <!-- draft -->
 </ResourceDictionary>

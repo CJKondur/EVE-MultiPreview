@@ -748,4 +748,19 @@
     <sys:String x:Key="L.S.Backup.ImportConfirm">Remplacer tous vos paramètres, dans tous les profils, par ceux de {0} ? Vos paramètres actuels sont d'abord sauvegardés.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Imported">Paramètres importés. Redémarrez MultiPreview pour que toutes les parties de l'application les utilisent.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">Cela n'a pas fonctionné : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Title">Paramètres d'EVE MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Profile">Profil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Help">Aide pour cette page</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Advanced">Afficher tous les paramètres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Retry">Réessayer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveFailed">Impossible d'enregistrer tes paramètres. Vérifie que le dossier MultiPreview n'est pas en lecture seule et qu'il reste de l'espace libre, puis réessaie.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveBlocked">Ton fichier de paramètres n'a pas pu être lu au démarrage de MultiPreview, donc les modifications ne sont pas enregistrées. L'original est conservé à côté sous forme de copie .bak.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Home">Accueil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.AllSettings">Tous les paramètres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Clients">Clients</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Thumbnails">Miniatures</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Alerts">Alertes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Performance">Performances</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Tools">Outils</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">Application</sys:String> <!-- draft -->
 </ResourceDictionary>

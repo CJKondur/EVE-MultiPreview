@@ -763,4 +763,19 @@
     <sys:String x:Key="L.S.Backup.ImportConfirm">要用 {0} 中的设置替换你所有配置文件中的全部设置吗？当前设置会先被备份。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Imported">设置已导入。请重启 MultiPreview，使应用的各部分都使用这些设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">操作失败：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Title">EVE MultiPreview 设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Profile">配置文件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Help">本页帮助</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Advanced">显示所有设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Retry">重试</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveFailed">无法保存你的设置。请检查 MultiPreview 文件夹是否为只读以及是否有可用空间，然后重试。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveBlocked">MultiPreview 启动时无法读取你的设置文件，因此更改不会被保存。原文件已作为 .bak 副本保留在旁边。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Home">主页</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.AllSettings">所有设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Clients">客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Thumbnails">缩略图</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Alerts">警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Performance">性能</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.Tools">工具</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">应用</sys:String> <!-- draft -->
 </ResourceDictionary>
