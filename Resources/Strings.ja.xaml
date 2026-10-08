@@ -1741,4 +1741,25 @@
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字サイズ、不透明度、2つの色はすべての統計ウィンドウに適用されます。色は #RRGGBB で入力するか、色見本から選べます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">統計の保存</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Body">**統計を CSV ファイルに保存** をオンにすると、MultiPreview はログフォルダーにキャラクターごと・1日ごとにファイルを書き込みます（表計算ソフト向け）。保存期間より古いファイルは MultiPreview の起動時に削除されます。ログ記録の変更は次回の起動時に反映されます。</sys:String> <!-- draft -->
+    <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
+    <sys:String x:Key="L.S.character.statsPicker">数値を選ぶ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.statsPicker.Desc">このキャラクターの個別の数値を表示・非表示にします。「既定」は全キャラクター共通の数値（ツール › 統計オーバーレイ）に従います。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Open">数値を選ぶ…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Close">リストを閉じる</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultShown">既定（表示）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultHidden">既定（非表示）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Always">常に表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Never">表示しない</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Reset">すべての数値を既定に戻す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Title">個別の数値を選ぶ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Body">**数値を選ぶ…**には、統計オーバーレイが表示できるすべての数値が並びます。**既定**は全キャラクター共通のリストに従い、**常に表示**と**表示しない**はこのキャラクターだけに効きます。上のグループスイッチはグループ全体を一度に設定します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.tools.stats.characters">キャラクターごと</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable">キャラクターごとの数値</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable.Desc">キャラクターを開いて、専用の数値を選びます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.ColNumbers">数値</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Default">既定</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Summary">常に表示 {0} 件、非表示 {1} 件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Empty">まだキャラクターがいません。EVE を起動してログインするか、クライアント › キャラクター でキャラクターを追加してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Title">キャラクターごとの数値</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Body">キャラクターごとに違う数値を表示できます。たとえばロジスティクスのサブ垢ではリペア量です。表には全キャラクターが並び、› でそのページの**数値を選ぶ**が開きます。</sys:String> <!-- draft -->
 </ResourceDictionary>

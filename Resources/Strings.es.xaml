@@ -1762,4 +1762,25 @@
     <sys:String x:Key="L.Help.tools.stats.look.Body">El tamaño del texto, la opacidad y los dos colores se aplican a todas las ventanas de estadísticas. Los colores se pueden escribir como #RRGGBB o elegir con la muestra.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Guardar estadísticas</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Body">Con **Guardar estadísticas en archivos CSV** activado, MultiPreview escribe un archivo por personaje y día en la carpeta de registros, para una hoja de cálculo. Los archivos más antiguos que el tiempo de conservación se eliminan al iniciar MultiPreview. Los cambios del registro se aplican en el siguiente inicio.</sys:String> <!-- draft -->
+    <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
+    <sys:String x:Key="L.S.character.statsPicker">Elegir cifras</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.statsPicker.Desc">Muestra u oculta cifras individuales para este personaje. «Predeterminado» sigue las cifras de todos los personajes (Herramientas › Superposición de estadísticas).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Open">Elegir cifras…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Close">Ocultar la lista</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultShown">Predeterminado (visible)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultHidden">Predeterminado (oculto)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Always">Mostrar siempre</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Never">No mostrar nunca</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Reset">Usar los valores predeterminados en todas las cifras</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Title">Elegir cifras individuales</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Body">**Elegir cifras…** lista todas las cifras que puede mostrar la superposición de estadísticas. **Predeterminado** sigue la lista de todos los personajes; **Mostrar siempre** y **No mostrar nunca** valen solo para este personaje. Los interruptores de grupo de arriba ajustan un grupo entero a la vez.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.tools.stats.characters">Por personaje</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable">Cifras por personaje</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable.Desc">Abre un personaje para elegir sus propias cifras.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.ColNumbers">Cifras</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Default">Predeterminado</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Summary">{0} siempre visibles, {1} nunca visibles</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Empty">Aún no hay personajes. Inicia EVE y entra, o añade personajes en Clientes › Personajes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Title">Cifras por personaje</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Body">Un personaje puede mostrar cifras distintas, por ejemplo las reparaciones en un alt de logística. La tabla lista todos los personajes; › abre su página en **Elegir cifras**.</sys:String> <!-- draft -->
 </ResourceDictionary>

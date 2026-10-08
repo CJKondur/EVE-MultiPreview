@@ -19,6 +19,7 @@ public static class ToolsPages
     {
         new HelpTopic(StatsId, "overlay", new[] { "tools.stats.enabled", "tools.stats.hideOnLostFocus" }),
         new HelpTopic(StatsId, "numbers", new[] { "tools.stats.metrics" }),
+        new HelpTopic(StatsId, "characters", new[] { "tools.stats.characterTable" }),
         new HelpTopic(StatsId, "look", new[] { "tools.stats.fontSize", "tools.stats.opacity", "tools.stats.background", "tools.stats.textColor" }),
         new HelpTopic(StatsId, "logging", new[]
         {
@@ -59,6 +60,15 @@ public static class ToolsPages
             {
                 Binds = new[] { "AppSettings.GlobalStatMetrics" },
                 Replaces = StatsFields.GlobalControls,
+            },
+        }),
+        new SectionDef("tools.stats.characters", new PageItem[]
+        {
+            // Reads only: each › opens a character's own picker. It follows running clients by itself, so the
+            // old Refresh button has no job.
+            new EditorItem("tools.stats.characterTable", ctx => new StatCharactersEditor(ctx))
+            {
+                Replaces = new[] { "LvStatCharacters", "BtnRefreshStatChars" },
             },
         }),
         new SectionDef("tools.stats.look", new PageItem[]

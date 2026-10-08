@@ -1740,4 +1740,25 @@
     <sys:String x:Key="L.Help.tools.stats.look.Body">Textgröße, Deckkraft und die beiden Farben gelten für alle Statistikfenster. Farben können als #RRGGBB eingegeben oder per Farbfeld gewählt werden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Statistik speichern</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Body">Mit **Statistik in CSV-Dateien speichern** schreibt MultiPreview pro Charakter und Tag eine Datei in den Protokollordner, für eine Tabellenkalkulation. Dateien, die älter als die Aufbewahrungszeit sind, werden beim Start von MultiPreview gelöscht. Änderungen an der Protokollierung gelten ab dem nächsten Start.</sys:String> <!-- draft -->
+    <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
+    <sys:String x:Key="L.S.character.statsPicker">Zahlen auswählen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.statsPicker.Desc">Einzelne Zahlen für diesen Charakter ein- oder ausblenden. „Standard“ folgt den Zahlen für alle Charaktere (Werkzeuge › Statistik-Overlay).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Open">Zahlen auswählen…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Close">Liste ausblenden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultShown">Standard (angezeigt)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultHidden">Standard (ausgeblendet)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Always">Immer anzeigen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Never">Nie anzeigen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Reset">Für alle Zahlen die Standardwerte verwenden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Title">Einzelne Zahlen wählen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Body">**Zahlen auswählen…** listet jede Zahl auf, die das Statistik-Overlay anzeigen kann. **Standard** folgt der Liste für alle Charaktere; **Immer anzeigen** und **Nie anzeigen** gelten nur für diesen Charakter. Die Gruppenschalter oben stellen eine ganze Gruppe auf einmal ein.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.tools.stats.characters">Pro Charakter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable">Zahlen pro Charakter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable.Desc">Öffne einen Charakter, um seine eigenen Zahlen zu wählen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.ColNumbers">Zahlen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Default">Standard</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Summary">{0} immer angezeigt, {1} nie angezeigt</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Empty">Noch keine Charaktere. Starte EVE und melde dich an oder füge Charaktere unter Clients › Charaktere hinzu.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Title">Zahlen pro Charakter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Body">Ein Charakter kann andere Zahlen anzeigen, zum Beispiel Reparaturen bei einem Logistik-Alt. Die Tabelle listet jeden Charakter; › öffnet dessen Seite bei **Zahlen auswählen**.</sys:String> <!-- draft -->
 </ResourceDictionary>

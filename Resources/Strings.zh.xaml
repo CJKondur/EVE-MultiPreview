@@ -1758,4 +1758,25 @@
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字大小、不透明度和两种颜色适用于所有统计窗口。颜色可输入 #RRGGBB 或用色块选取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">保存统计</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Body">开启 **将统计保存为 CSV 文件** 后，MultiPreview 会在日志文件夹中为每个角色每天写入一个文件，可用于电子表格。超过保留时间的文件会在 MultiPreview 启动时删除。日志更改将在下次启动时生效。</sys:String> <!-- draft -->
+    <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
+    <sys:String x:Key="L.S.character.statsPicker">选择数字</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.statsPicker.Desc">为此角色显示或隐藏单个数字。“默认”跟随所有角色的数字（工具 › 统计叠加层）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Open">选择数字…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Close">隐藏列表</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultShown">默认（显示）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultHidden">默认（隐藏）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Always">始终显示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Never">从不显示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Reset">所有数字使用默认值</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Title">选择单个数字</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Body">**选择数字…**列出统计叠加层可显示的每个数字。**默认**跟随所有角色的列表；**始终显示**和**从不显示**仅对此角色生效。上方的分组开关可一次设置整个分组。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.tools.stats.characters">每个角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable">每个角色的数字</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable.Desc">打开角色以选择其专属数字。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.ColNumbers">数字</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Default">默认</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Summary">始终显示 {0} 项，从不显示 {1} 项</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Empty">还没有角色。启动 EVE 并登录，或在 客户端 › 角色 添加角色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Title">每个角色的数字</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Body">角色可以显示不同的数字，例如后勤小号显示维修量。表格列出所有角色；› 会打开其页面的**选择数字**。</sys:String> <!-- draft -->
 </ResourceDictionary>

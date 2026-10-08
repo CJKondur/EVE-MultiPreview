@@ -1740,4 +1740,25 @@
     <sys:String x:Key="L.Help.tools.stats.look.Body">Text size, opacity and the two colours apply to every stats window. Colours can be typed as #RRGGBB or picked with the swatch.</sys:String>
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Saving stats</sys:String>
     <sys:String x:Key="L.Help.tools.stats.logging.Body">With **Save stats to CSV files** on, MultiPreview writes one file per character per day into the log folder, for a spreadsheet. Files older than the keep time are deleted when MultiPreview starts. Logging changes take effect at the next start.</sys:String>
+    <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
+    <sys:String x:Key="L.S.character.statsPicker">Choose numbers</sys:String>
+    <sys:String x:Key="L.S.character.statsPicker.Desc">Show or hide single numbers for this character. Default follows the numbers for every character (Tools › Stats overlay).</sys:String>
+    <sys:String x:Key="L.S.StatsPicker.Open">Choose numbers…</sys:String>
+    <sys:String x:Key="L.S.StatsPicker.Close">Hide the list</sys:String>
+    <sys:String x:Key="L.S.StatsPicker.DefaultShown">Default (shown)</sys:String>
+    <sys:String x:Key="L.S.StatsPicker.DefaultHidden">Default (hidden)</sys:String>
+    <sys:String x:Key="L.S.StatsPicker.Always">Always show</sys:String>
+    <sys:String x:Key="L.S.StatsPicker.Never">Never show</sys:String>
+    <sys:String x:Key="L.S.StatsPicker.Reset">Use the defaults for every number</sys:String>
+    <sys:String x:Key="L.Help.character.numbers.Title">Choosing single numbers</sys:String>
+    <sys:String x:Key="L.Help.character.numbers.Body">**Choose numbers…** lists every number the stats overlay can show. **Default** follows the list for every character; **Always show** and **Never show** decide for this character only. The group switches above set a whole group at once.</sys:String>
+    <sys:String x:Key="L.S.Sec.tools.stats.characters">Per character</sys:String>
+    <sys:String x:Key="L.S.tools.stats.characterTable">Numbers per character</sys:String>
+    <sys:String x:Key="L.S.tools.stats.characterTable.Desc">Open a character to choose its own numbers.</sys:String>
+    <sys:String x:Key="L.S.StatsTable.ColNumbers">Numbers</sys:String>
+    <sys:String x:Key="L.S.StatsTable.Default">Default</sys:String>
+    <sys:String x:Key="L.S.StatsTable.Summary">{0} always shown, {1} never shown</sys:String>
+    <sys:String x:Key="L.S.StatsTable.Empty">No characters yet. Start EVE and log in, or add characters on Clients › Characters.</sys:String>
+    <sys:String x:Key="L.Help.tools.stats.characters.Title">Numbers per character</sys:String>
+    <sys:String x:Key="L.Help.tools.stats.characters.Body">A character can show different numbers, for example repairs on a logistics alt. The table lists every character; › opens its page at **Choose numbers**.</sys:String>
 </ResourceDictionary>

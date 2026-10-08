@@ -1760,4 +1760,25 @@
     <sys:String x:Key="L.Help.tools.stats.look.Body">Размер текста, непрозрачность и два цвета применяются ко всем окнам статистики. Цвета можно ввести как #RRGGBB или выбрать на образце.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Сохранение статистики</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Body">Если включено **Сохранять статистику в файлы CSV**, MultiPreview записывает по одному файлу на персонажа в день в папку журналов — для таблиц. Файлы старше срока хранения удаляются при запуске MultiPreview. Изменения журналирования вступают в силу при следующем запуске.</sys:String> <!-- draft -->
+    <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
+    <sys:String x:Key="L.S.character.statsPicker">Выбор показателей</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.statsPicker.Desc">Показывать или скрывать отдельные показатели для этого персонажа. «По умолчанию» следует показателям для всех персонажей (Инструменты › Оверлей статистики).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Open">Выбрать показатели…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Close">Скрыть список</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultShown">По умолчанию (показан)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultHidden">По умолчанию (скрыт)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Always">Всегда показывать</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Never">Никогда не показывать</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Reset">Использовать значения по умолчанию для всех показателей</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Title">Выбор отдельных показателей</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Body">**Выбрать показатели…** — список всех показателей, которые может отображать оверлей статистики. **По умолчанию** следует списку для всех персонажей; **Всегда показывать** и **Никогда не показывать** действуют только для этого персонажа. Переключатели групп выше задают сразу целую группу.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.tools.stats.characters">Для каждого персонажа</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable">Показатели по персонажам</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable.Desc">Откройте персонажа, чтобы выбрать его показатели.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.ColNumbers">Показатели</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Default">По умолчанию</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Summary">Всегда показаны: {0}, никогда: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Empty">Персонажей пока нет. Запустите EVE и войдите или добавьте персонажей в разделе Клиенты › Персонажи.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Title">Показатели по персонажам</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Body">Разные персонажи могут показывать разные показатели, например ремонт у логистического альта. В таблице все персонажи; › открывает его страницу на пункте **Выбрать показатели**.</sys:String> <!-- draft -->
 </ResourceDictionary>

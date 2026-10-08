@@ -47,6 +47,7 @@ public static class CharacterPage
         {
             "character.statsOff", "character.statsNote", "character.statsDamage", "character.statsLogi", "character.statsMining", "character.statsRatting",
         }),
+        new HelpTopic(TemplateId, "numbers", new[] { "character.statsPicker" }),
         new HelpTopic(TemplateId, "crops", new[] { "character.cropCount", "character.cropsLink" }),
         new HelpTopic(TemplateId, "remove", new[] { "character.forgetRow" }),
     };
@@ -197,6 +198,12 @@ public static class CharacterPage
         StatsCard("character.statsLogi", name, StatMetrics.LogiMask),
         StatsCard("character.statsMining", name, StatMetrics.MineMask),
         StatsCard("character.statsRatting", name, StatMetrics.RatMask),
+        // The full per-number picker (the old CharacterStatEditorWindow), under the group switches (Plan 3c).
+        new EditorItem("character.statsPicker", ctx => new StatPickerEditor(ctx, name))
+        {
+            Binds = new[] { "AppSettings.PerCharacterStats" },
+            Replaces = new[] { "OnStatCharEditClick" },
+        },
     });
 
     // A re-apply creates or removes the character's stats window when its numbers change.

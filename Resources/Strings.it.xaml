@@ -1758,4 +1758,25 @@
     <sys:String x:Key="L.Help.tools.stats.look.Body">Dimensione del testo, opacità e i due colori valgono per tutte le finestre delle statistiche. I colori si possono digitare come #RRGGBB o scegliere con il campione.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Salvare le statistiche</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Body">Con **Salva le statistiche in file CSV** attivo, MultiPreview scrive un file per personaggio al giorno nella cartella dei log, per un foglio di calcolo. I file più vecchi del tempo di conservazione vengono eliminati all'avvio di MultiPreview. Le modifiche alla registrazione hanno effetto al prossimo avvio.</sys:String> <!-- draft -->
+    <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
+    <sys:String x:Key="L.S.character.statsPicker">Scegli i numeri</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.statsPicker.Desc">Mostra o nascondi singoli numeri per questo personaggio. «Predefinito» segue i numeri di tutti i personaggi (Strumenti › Overlay statistiche).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Open">Scegli i numeri…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Close">Nascondi l'elenco</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultShown">Predefinito (visibile)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.DefaultHidden">Predefinito (nascosto)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Always">Mostra sempre</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Never">Non mostrare mai</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.Reset">Usa i valori predefiniti per tutti i numeri</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Title">Scegliere singoli numeri</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.numbers.Body">**Scegli i numeri…** elenca tutti i numeri che l'overlay statistiche può mostrare. **Predefinito** segue l'elenco di tutti i personaggi; **Mostra sempre** e **Non mostrare mai** valgono solo per questo personaggio. Gli interruttori di gruppo sopra impostano un intero gruppo in una volta.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.tools.stats.characters">Per personaggio</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable">Numeri per personaggio</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.characterTable.Desc">Apri un personaggio per scegliere i suoi numeri.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.ColNumbers">Numeri</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Default">Predefinito</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Summary">{0} sempre mostrati, {1} mai mostrati</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsTable.Empty">Ancora nessun personaggio. Avvia EVE e accedi, oppure aggiungi personaggi in Client › Personaggi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Title">Numeri per personaggio</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.characters.Body">Un personaggio può mostrare numeri diversi, per esempio le riparazioni su un alt di logistica. La tabella elenca tutti i personaggi; › apre la sua pagina su **Scegli i numeri**.</sys:String> <!-- draft -->
 </ResourceDictionary>
