@@ -905,6 +905,7 @@ public class ThumbnailWindow : Form
     public void AnimateSystemTransition(string from, string to, int durationMs = 3500) =>
         _textOverlay?.AnimateSystemTransition(from, to, durationMs);
     public void UpdateSessionTimer(TimeSpan elapsed) => _textOverlay?.UpdateSessionTimer(elapsed);
+    public void HideSessionTimer() => _textOverlay?.HideSessionTimer();
     public void UpdateProcessStats(string? text) => _textOverlay?.UpdateProcessStats(text);
     public void UpdateFpsStats(double fps, bool visible) => _textOverlay?.UpdateFpsStats(fps, visible);
     public void SetProcessStatsTextSize(double fontSize) => _textOverlay?.SetProcessStatsTextSize(fontSize);

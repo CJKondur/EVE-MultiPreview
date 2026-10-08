@@ -917,6 +917,16 @@ public sealed class ThumbnailManager : IDisposable
 
     // ── Settings Application ────────────────────────────────────────
 
+    /// <summary>The zoom ApplySettings gives a thumbnail: HoverScale while hover zoom is on, else 1.0,
+    /// which ThumbnailWindow treats as no zoom. Unticking hover zoom used to keep the old scale until
+    /// a restart, because the scale was only ever set while it was on.</summary>
+    public static double HoverScaleFor(AppSettings s) => s.ResizeThumbnailsOnHover ? s.HoverScale : 1.0;
+
+    /// <summary>A second thumbnail's own opacity (SecondaryThumbnailSettings.Opacity, the value
+    /// ReapplySettings applies); the main thumbnail opacity only when it has no entry.</summary>
+    public static byte PipOpacityFor(AppSettings s, string character) =>
+        (byte)Math.Clamp(s.SecondaryThumbnails.TryGetValue(character, out var ss) ? ss.Opacity : s.ThumbnailOpacity, 0, 255);
+
     private void ApplySettings(ThumbnailWindow thumb, EveWindow window)
     {
         var s = _settings.Settings;
@@ -941,9 +951,8 @@ public sealed class ThumbnailManager : IDisposable
         // Background color
         thumb.SetBackgroundColor(ParseColor(s.ThumbnailBackgroundColor));
 
-        // Hover zoom
-        if (s.ResizeThumbnailsOnHover)
-            thumb.SetHoverScale(s.HoverScale);
+        // Hover zoom. 1.0 = off, so unticking it applies at once.
+        thumb.SetHoverScale(HoverScaleFor(s));
 
         // Text overlay
         thumb.SetTextOverlayVisible(s.ShowThumbnailTextOverlay);
@@ -1095,9 +1104,10 @@ public sealed class ThumbnailManager : IDisposable
                 thumb.SetOpacity(opacity);
                 thumb.OpacityOnHover = hoverFull;
             }
-            foreach (var (_, pip) in _secondaryThumbnails)
+            // Each second thumbnail keeps its own opacity, the value ReapplySettings applies.
+            foreach (var (name, pip) in _secondaryThumbnails)
             {
-                pip.SetOpacity(opacity);
+                pip.SetOpacity(PipOpacityFor(_settings.Settings, name));
                 pip.OpacityOnHover = hoverFull;
             }
         });
@@ -2399,14 +2409,12 @@ public sealed class ThumbnailManager : IDisposable
 
     private void UpdateSessionTimers()
     {
-        if (!_settings.Settings.ShowSessionTimer) return;
-
+        // Off: hide the timer, or the last time stays frozen on every thumbnail until a restart.
+        bool show = _settings.Settings.ShowSessionTimer;
         foreach (var (_, thumb) in _thumbnails)
         {
-            if (!string.IsNullOrEmpty(thumb.CharacterName))
-            {
-                thumb.UpdateSessionTimer(thumb.SessionDuration);
-            }
+            if (!show) thumb.HideSessionTimer();
+            else if (!string.IsNullOrEmpty(thumb.CharacterName)) thumb.UpdateSessionTimer(thumb.SessionDuration);
         }
     }
 

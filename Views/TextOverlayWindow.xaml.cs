@@ -144,6 +144,9 @@ public partial class TextOverlayWindow : Window
         TimerOverlay.Visibility = Visibility.Visible;
     }
 
+    /// <summary>The session timer is turned off: hide it (it starts hidden in the XAML).</summary>
+    public void HideSessionTimer() => TimerOverlay.Visibility = Visibility.Collapsed;
+
     public void SetTextOverlayVisible(bool visible)
     {
         // Only controls the character name overlay — other overlays (system, timer, 
