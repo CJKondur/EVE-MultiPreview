@@ -1593,7 +1593,7 @@
     <sys:String x:Key="L.S.Sounds.WaitFor">{0} 再次播放前的秒数</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.Missing">没有可播放的声音，或找不到其文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.WaitError">请输入 {0} 到 {1} 之间的秒数。留空或 0 = 不等待。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Sounds.Note">等待：某个角色播放声音后，该事件的声音在这么多秒内保持静音。留空或 0 = 不等待（事件 中的静默时间仍然有效）。“播放”使用上面的音量。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.Note">等待：某个角色播放声音后，该事件的声音在这么多秒内保持静音。留空或 0 = 不等待（“事件”中的静默时间仍然有效）。“播放”使用上面的音量。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.Intro">警报可以播放声音。先选一个适用于所有事件的默认声音，再给部分事件指定各自的声音。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.sounds.Title">选择声音</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.sounds.Body">- **更改…** 选择 WAV 或 MP3 文件；**播放** 以上面的音量试听；**清除** 恢复为默认声音。&#x0A;- 既没有自己声音也没有默认声音的事件不会发声。&#x0A;- **等待** 防止同一事件的声音对同一角色反复播放，例如每个矿工的矿石都被采空时。</sys:String> <!-- draft -->
@@ -1623,7 +1623,7 @@
     <sys:String x:Key="L.S.AlertHub.ResetDone">警报中心已回到主屏幕右边缘。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.Intro">警报中心是一个始终显示在 EVE 之上的小图标。每个警报都可以在它旁边显示一个提示条，标明客户端和事件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.hub.Title">提示条</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.hub.Body">哪些严重程度会显示提示条，请在 外观 &amp; 严重程度 中设置。单击提示条可切换到该客户端；单击警报中心可清除所有提示条。可将警报中心拖到任意位置，右键单击可选择提示条的堆叠方向。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.hub.Body">哪些严重程度会显示提示条，请在“外观 &amp; 严重程度”中设置。单击提示条可切换到该客户端；单击警报中心可清除所有提示条。可将警报中心拖到任意位置，右键单击可选择提示条的堆叠方向。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.hiding.Title">隐藏警报中心</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.hiding.Body">**安静时隐藏** 会让警报中心在有警报到来之前不碍事。如果警报中心跑到屏幕外，**重置位置** 可以把它找回来。</sys:String> <!-- draft -->
     <!-- Performance (Plan 3c) -->
@@ -1864,4 +1864,6 @@
     <sys:String x:Key="L.Help.tools.eve.copy.Body">- **整个配置文件** 把一个 EVE 配置文件（settings_ 文件夹）的所有文件复制到其他配置文件。&#x0A;- **单个角色** 把一个角色的窗口、总览和聊天设置复制到其他角色。&#x0A;- **单个账号** 在账号之间复制画面、音频和按键。&#x0A;&#x0A;请先关闭所有 EVE 客户端：EVE 会在客户端关闭时写入设置，可能撤销复制结果。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">账号名称</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE 只用编号命名账号文件。**检测账号…** 引导你每次登录一个角色，以了解它属于哪个账号；**设置名称** 为账号设置你自己的名称。**获取缺失的名称** 在 EVE 公共服务器 (ESI) 上查询角色名称，只发送角色编号。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AndMore">…以及另外 {0} 个</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.ResetConfirm">让该角色的所有数字都使用默认设置？它自己的选择将被移除。</sys:String> <!-- draft -->
 </ResourceDictionary>

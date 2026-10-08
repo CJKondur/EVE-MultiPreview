@@ -1846,4 +1846,6 @@
     <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Whole profile** copies every file of one EVE profile (a settings_ folder) onto others.&#x0A;- **One character** copies a character's windows, overview and chat setup onto other characters.&#x0A;- **One account** copies graphics, audio and keys between accounts.&#x0A;&#x0A;Close every EVE client first: EVE writes its settings when a client closes and can undo the copy.</sys:String>
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">Account names</sys:String>
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE names account files only by number. **Detect accounts…** walks you through logging in one character at a time to learn which account each one is on, and **Set name** gives an account your own name. **Fetch missing names** looks up character names on EVE's public servers (ESI), sending only the character numbers.</sys:String>
+    <sys:String x:Key="L.S.Eve.AndMore">…and {0} more</sys:String>
+    <sys:String x:Key="L.S.StatsPicker.ResetConfirm">Use the defaults for every number of this character? Its own choices are removed.</sys:String>
 </ResourceDictionary>

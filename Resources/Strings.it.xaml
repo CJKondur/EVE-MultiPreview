@@ -1864,4 +1864,6 @@
     <sys:String x:Key="L.Help.tools.eve.copy.Body">- **Profilo intero** copia tutti i file di un profilo EVE (una cartella settings_) su altri.&#x0A;- **Un personaggio** copia finestre, panoramica e chat di un personaggio su altri personaggi.&#x0A;- **Un account** copia grafica, audio e tasti tra account.&#x0A;&#x0A;Chiudi prima tutti i client EVE: EVE scrive le impostazioni alla chiusura di un client e può annullare la copia.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">Nomi degli account</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE nomina i file account solo con numeri. **Rileva account…** ti guida a entrare con un personaggio alla volta per capire su quale account si trova, e **Imposta nome** dà a un account un nome tuo. **Recupera nomi mancanti** cerca i nomi dei personaggi sui server pubblici di EVE (ESI), inviando solo i numeri dei personaggi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AndMore">…e altri {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.ResetConfirm">Usare i valori predefiniti per tutti i numeri di questo personaggio? Le sue scelte personali vengono rimosse.</sys:String> <!-- draft -->
 </ResourceDictionary>

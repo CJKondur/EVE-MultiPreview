@@ -1576,7 +1576,7 @@
     <sys:String x:Key="L.S.Sounds.WaitFor">{0} が再び鳴るまでの秒数</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.Missing">再生する音がないか、ファイルが見つかりません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.WaitError">{0} から {1} までの秒数を入力してください。空欄または 0 = 待機なし。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Sounds.Note">待機：キャラクターに対して音が鳴ったあと、そのイベントの音はこの秒数のあいだ鳴りません。空欄または 0 = 待機なし（イベント の静音時間は引き続き適用されます）。「再生」は上の音量を使います。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.Note">待機：キャラクターに対して音が鳴ったあと、そのイベントの音はこの秒数のあいだ鳴りません。空欄または 0 = 待機なし（「イベント」の静音時間は引き続き適用されます）。「再生」は上の音量を使います。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.Intro">アラートは音を鳴らせます。すべてのイベント共通の既定の音を選び、必要なイベントには専用の音を設定します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.sounds.Title">音の選び方</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.sounds.Body">- **変更…** で WAV または MP3 ファイルを選び、**再生** で上の音量で試聴し、**クリア** で既定の音に戻します。&#x0A;- 専用の音も既定の音もないイベントは無音です。&#x0A;- **待機** は、同じイベントの音が1人のキャラクターに対して繰り返されるのを防ぎます。たとえば、採掘者全員の岩が尽きる場合などです。</sys:String> <!-- draft -->
@@ -1847,4 +1847,6 @@
     <sys:String x:Key="L.Help.tools.eve.copy.Body">- **プロファイル全体**：1 つの EVE プロファイル（settings_ フォルダー）のすべてのファイルを他へコピーします。&#x0A;- **1 キャラクター**：キャラクターのウィンドウ、オーバービュー、チャット設定を他のキャラクターへコピーします。&#x0A;- **1 アカウント**：アカウント間でグラフィック、オーディオ、キーをコピーします。&#x0A;&#x0A;先にすべての EVE クライアントを閉じてください。EVE はクライアントを閉じるときに設定を書き込むため、コピーが取り消されることがあります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">アカウント名</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE はアカウントのファイルを番号だけで呼びます。**アカウントを検出…** は 1 キャラクターずつログインして、それぞれがどのアカウントかを調べる手順を案内し、**名前を設定** はアカウントに自分の名前を付けます。**不足している名前を取得** は EVE の公開サーバー（ESI）でキャラクター名を調べ、キャラクター番号だけを送信します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AndMore">…ほか {0} 件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.ResetConfirm">このキャラクターのすべての数値を既定に戻しますか？個別の設定は削除されます。</sys:String> <!-- draft -->
 </ResourceDictionary>

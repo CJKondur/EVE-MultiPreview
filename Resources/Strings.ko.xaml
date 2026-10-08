@@ -1847,4 +1847,6 @@
     <sys:String x:Key="L.Help.tools.eve.copy.Body">- **전체 프로필**은 한 EVE 프로필(settings_ 폴더)의 모든 파일을 다른 프로필로 복사합니다.&#x0A;- **캐릭터 하나**는 캐릭터의 창, 오버뷰, 채팅 설정을 다른 캐릭터로 복사합니다.&#x0A;- **계정 하나**는 계정 사이에서 그래픽, 오디오, 키를 복사합니다.&#x0A;&#x0A;먼저 모든 EVE 클라이언트를 닫으세요. EVE는 클라이언트를 닫을 때 설정을 기록하므로 복사가 되돌려질 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Title">계정 이름</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.eve.accounts.Body">EVE는 계정 파일을 번호로만 부릅니다. **계정 감지…**는 캐릭터를 한 번에 하나씩 로그인하도록 안내해 각 캐릭터가 어느 계정인지 알아내고, **이름 지정**은 계정에 원하는 이름을 붙입니다. **누락된 이름 가져오기**는 EVE 공개 서버(ESI)에서 캐릭터 이름을 조회하며 캐릭터 번호만 전송합니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.AndMore">…외 {0}개</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.StatsPicker.ResetConfirm">이 캐릭터의 모든 수치를 기본값으로 되돌릴까요? 개별 설정이 삭제됩니다.</sys:String> <!-- draft -->
 </ResourceDictionary>

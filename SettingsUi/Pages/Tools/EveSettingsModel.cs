@@ -69,11 +69,14 @@ public sealed class EveSettingsModel
     /// <summary>The status line: nothing found, how many profiles, and a warning while EVE runs.</summary>
     public string StatusText()
     {
-        if (Profiles.Count == 0)
-            return EveDir is { Length: > 0 } dir ? string.Format(Str("L.S.Eve.NoProfiles"), dir) : Str("L.S.Eve.NotFound");
+        if (Profiles.Count == 0) return NoProfilesText();
         var found = string.Format(Str("L.S.Eve.Found"), Profiles.Count);
         return EveRunning ? Str("L.S.Eve.Running") + " " + found : found;
     }
+
+    /// <summary>Nothing to list: no EVE folder found, or no settings_ profile in the one chosen.</summary>
+    private string NoProfilesText() =>
+        EveDir is { Length: > 0 } dir ? string.Format(Str("L.S.Eve.NoProfiles"), dir) : Str("L.S.Eve.NotFound");
 
     public void SetSettingsFolder(string path)
     {
@@ -217,6 +220,16 @@ public sealed class EveSettingsModel
         return new EveCopyResult(files, ok, failed);
     }
 
+    public const int MaxListedTargets = 10;
+
+    /// <summary>One label per line, the first <see cref="MaxListedTargets"/>, then "and {n} more".</summary>
+    public static string TargetList(IReadOnlyList<string> labels)
+    {
+        var lines = labels.Take(MaxListedTargets).ToList();
+        if (labels.Count > MaxListedTargets) lines.Add(string.Format(Str("L.S.Eve.AndMore"), labels.Count - MaxListedTargets));
+        return string.Join('\n', lines);
+    }
+
     public static string Report(EveCopyResult r) => r.Failed > 0
         ? string.Format(Str("L.S.Eve.CopiedWithFailures"), r.Files, r.Targets, r.Failed)
         : string.Format(Str("L.S.Eve.Copied"), r.Files, r.Targets);
@@ -264,8 +277,10 @@ public sealed class EveSettingsModel
             return;
         }
         if (!ConfirmIfEveRunning()) return;
+        // Ticks survive a search redraw, so targets the search hides are copied onto too: the question names them all.
         var body = string.Format(Str(accounts ? "L.S.Eve.CopyAccountsConfirm" : "L.S.Eve.CopyCharactersConfirm"),
-            accounts ? AccountLabel(sourceId) : CharacterLabel(sourceId), ids.Count, target.Name);
+                accounts ? AccountLabel(sourceId) : CharacterLabel(sourceId), ids.Count, target.Name)
+            + "\n\n" + TargetList(ids.Select(id => accounts ? AccountLabel(id) : CharacterLabel(id)).ToList());
         if (!_ctx.Host.Confirm(Str("L.S.Eve.CopyTitle"), body)) return;
         var result = accounts ? CopyAccount(source, sourceId, target, ids) : CopyCharacter(source, sourceId, target, ids);
         _ctx.Host.Toast(Report(result));
@@ -372,11 +387,12 @@ public sealed class EveSettingsModel
     /// <summary>Fetch missing names with toasts. Offline or refused: a plain message, not the exception text.</summary>
     public async Task FetchNamesInteractive()
     {
-        var missing = MissingNameIds();
-        if (missing.Count == 0) { Toast("L.S.Eve.NamesComplete"); return; }
-        _ctx.Host.Toast(string.Format(Str("L.S.Eve.Fetching"), missing.Count));
+        if (Profiles.Count == 0) { _ctx.Host.Toast(NoProfilesText()); return; }   // nothing to look up: no network
         try
         {
+            var missing = MissingNameIds();
+            if (missing.Count == 0) { Toast("L.S.Eve.NamesComplete"); return; }
+            _ctx.Host.Toast(string.Format(Str("L.S.Eve.Fetching"), missing.Count));
             var added = await FetchMissingNamesAsync();
             _ctx.Host.Toast(string.Format(Str("L.S.Eve.Fetched"), added ?? 0));
         }

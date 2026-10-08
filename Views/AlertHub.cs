@@ -80,7 +80,7 @@ public class AlertHub : IDisposable
         if (dir != ToastDirection)
             Debug.WriteLine($"[AlertHub:Direction] ⚠ Clamped direction {dir} → {ToastDirection}");
 
-        ToastDurationSeconds = settings.AlertToastDuration;
+        ToastDurationSeconds = Math.Max(1, settings.AlertToastDuration);
 
         // Create the hub window (C6: 64x64 to match AHK hexagonal size)
         _hubWindow = new Window
@@ -279,7 +279,7 @@ public class AlertHub : IDisposable
     /// change shows on the next toast instead of after a restart; toasts already up move to the new side.</summary>
     public void ApplySettings()
     {
-        ToastDurationSeconds = _settings.AlertToastDuration;
+        ToastDurationSeconds = Math.Max(1, _settings.AlertToastDuration);
         int dir = Math.Clamp(_settings.AlertToastDirection, 0, 3);
         if (dir == ToastDirection) return;
         ToastDirection = dir;

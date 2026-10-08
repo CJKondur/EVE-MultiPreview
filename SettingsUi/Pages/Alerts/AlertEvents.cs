@@ -121,10 +121,10 @@ public static class AlertFields
 
     public static void ClearColour(AppSettings s, string key) => s.AlertColors.Remove(key);
 
-    /// <summary>The severity's stored colour, else the old window's defaults.</summary>
+    /// <summary>The severity's stored colour, else what ThumbnailManager.ResolveAlertFlashColor paints: AlertFlashColor, then red.</summary>
     public static string SeverityColour(AppSettings s, string severity) =>
-        s.SeverityColors.TryGetValue(severity, out var c) && !string.IsNullOrWhiteSpace(c) ? c
-        : severity == AlertEvents.Critical ? "#FF0000" : severity == AlertEvents.Warning ? "#FFA500" : "#4A9EFF";
+        s.SeverityColors.TryGetValue(severity, out var c) && !string.IsNullOrEmpty(c) ? c
+        : !string.IsNullOrEmpty(s.AlertFlashColor) ? s.AlertFlashColor : "#FF0000";
 
     // ── Look & severity (AlertOpacityPercent, AlertTextPosition, SeverityFlashRates, SeverityTrayNotify, SeverityColors) ──
 
@@ -148,9 +148,9 @@ public static class AlertFields
 
     public static void SetFlashRate(AppSettings s, string severity, int ms) => s.SeverityFlashRates[severity] = ms;
 
-    /// <summary>The App's toast gate (SeverityTrayNotify): stored, else only critical.</summary>
+    /// <summary>The App's toast gate (SeverityTrayNotify): a missing key means no toast.</summary>
     public static bool HubToast(AppSettings s, string severity) =>
-        s.SeverityTrayNotify.TryGetValue(severity, out var on) ? on : severity == AlertEvents.Critical;
+        s.SeverityTrayNotify.TryGetValue(severity, out var on) && on;
 
     public static void SetHubToast(AppSettings s, string severity, bool on) => s.SeverityTrayNotify[severity] = on;
 

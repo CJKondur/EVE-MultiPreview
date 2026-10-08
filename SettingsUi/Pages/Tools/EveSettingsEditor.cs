@@ -317,9 +317,16 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
     private async void FetchNames()
     {
         _fetch.IsEnabled = false;
-        try { await Model.FetchNamesInteractive(); }
+        try
+        {
+            await Model.FetchNamesInteractive();
+            ReloadPickers();
+        }
+        catch (Exception)
+        {
+            _ctx.Host.Toast(Str("L.S.Eve.FetchFailed"));   // an async void must never let one escape
+        }
         finally { _fetch.IsEnabled = true; }
-        ReloadPickers();
     }
 
     /// <summary>One side of a character or account copy: its profile, a search box and the profile's entries, one

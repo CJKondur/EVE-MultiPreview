@@ -30,9 +30,15 @@ public static class AlertSoundFields
         else s.AlertSounds[key] = path;
     }
 
-    /// <summary>What plays for the event: its own file, else the default sound.</summary>
+    /// <summary>A stored whitespace-only path: App.PlayAlertSound takes it as the event's file (it only falls back
+    /// to the default for an empty one), finds no such file and plays nothing.</summary>
+    public static bool IsBlankOwn(AppSettings s, string key) =>
+        s.AlertSounds.TryGetValue(key, out var f) && !string.IsNullOrEmpty(f) && string.IsNullOrWhiteSpace(f);
+
+    /// <summary>What plays for the event: its own file, else the default sound; "" when a blank own path means silence.</summary>
     public static string PlayedFile(AppSettings s, string key) =>
-        OwnFile(s, key) is { Length: > 0 } own ? own : s.AlertSoundFile?.Trim() ?? "";
+        IsBlankOwn(s, key) ? ""
+        : OwnFile(s, key) is { Length: > 0 } own ? own : s.AlertSoundFile?.Trim() ?? "";
 
     /// <summary>Seconds before the event's sound plays again for one character. Missing, 0 or negative = no wait,
     /// as App.PlayAlertSound reads it (the old box showed 5 for a missing value).</summary>
@@ -119,12 +125,12 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
         for (int c = 0; c < Columns.Length; c++)
             if (Columns[c].Length > 0) Place(EditorCard.Note(Columns[c], strong: true), header, c);
         AddRow(null, Str("L.S.Sounds.Default"), _ctx.S.AlertSoundFile?.Trim() ?? "");
-        foreach (var e in AlertEvents.All) AddRow(e.Key, AlertEvents.Name(e.Key), AlertSoundFields.OwnFile(_ctx.S, e.Key));
+        foreach (var e in AlertEvents.All) AddRow(e.Key, AlertEvents.Name(e.Key), AlertSoundFields.OwnFile(_ctx.S, e.Key), AlertSoundFields.IsBlankOwn(_ctx.S, e.Key));
         ShowError(null);
     }
 
     /// <summary>One row; a null key is the default sound (no Wait cell).</summary>
-    private void AddRow(string? key, string name, string own)
+    private void AddRow(string? key, string name, string own, bool blank = false)
     {
         int r = AddRow();
         if (key == null) Place(EditorCard.Note("L.S.Sounds.Default", strong: true), r, 0);
@@ -135,12 +141,12 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
             Loc.SetKey(label, "L.AlertEvt." + key);
             Place(label, r, 0);
         }
-        // The file's name; an event without one plays the default sound.
+        // The file's name; an event without one plays the default sound, and a blank path plays nothing.
         Place(own.Length > 0 ? EditorCard.Value(System.IO.Path.GetFileName(own), secondary: true)
-            : EditorCard.Note(key == null ? "L.S.Sounds.None" : "L.S.Sounds.UsesDefault"), r, 1);
+            : EditorCard.Note(key == null || blank ? "L.S.Sounds.None" : "L.S.Sounds.UsesDefault"), r, 1);
         Place(RowButton("L.S.Sounds.Change", "L.S.Sounds.ChangeFor", name, () => Change(key)), r, 2);
         Place(RowButton("L.S.Sounds.Play", "L.S.Sounds.PlayFor", name, () => Play(key)), r, 3);
-        if (own.Length > 0) Place(RowButton("L.S.Sounds.Clear", "L.S.Sounds.ClearFor", name, () => Clear(key)), r, 4);
+        if (own.Length > 0 || blank) Place(RowButton("L.S.Sounds.Clear", "L.S.Sounds.ClearFor", name, () => Clear(key)), r, 4);
         if (key != null) Place(WaitBox(key, name), r, 5);
     }
 
