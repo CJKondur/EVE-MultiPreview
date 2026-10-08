@@ -560,12 +560,12 @@
     <sys:String x:Key="L.Wiz.Title">EVE MultiPreview — Мастер настройки</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeTitle">Добро пожаловать в EVE MultiPreview</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeSub">Редакция C# вашего инструмента предпросмотра нескольких персонажей.</sys:String>
-    <sys:String x:Key="L.Wiz.Feat1">✅ DWM-предпросмотр миниатюр для всех клиентов EVE</sys:String>
-    <sys:String x:Key="L.Wiz.Feat2">✅ Горячие клавиши по персонажам &amp; цикл по группам</sys:String>
-    <sys:String x:Key="L.Wiz.Feat3">✅ Обнаружение атак со вспышкой, звуком и всплывающими оповещениями</sys:String>
-    <sys:String x:Key="L.Wiz.Feat4">✅ Оверлеи статистики DPS, Logi, добычи &amp; фарма в реальном времени</sys:String>
-    <sys:String x:Key="L.Wiz.Feat5">✅ Управление профилями с импортом/экспортом</sys:String>
-    <sys:String x:Key="L.Wiz.Feat6">✅ Вторичные миниатюры PiP</sys:String>
+    <sys:String x:Key="L.Wiz.Feat1">DWM-предпросмотр миниатюр для всех клиентов EVE</sys:String>
+    <sys:String x:Key="L.Wiz.Feat2">Горячие клавиши по персонажам &amp; цикл по группам</sys:String>
+    <sys:String x:Key="L.Wiz.Feat3">Обнаружение атак со вспышкой, звуком и всплывающими оповещениями</sys:String>
+    <sys:String x:Key="L.Wiz.Feat4">Оверлеи статистики DPS, Logi, добычи &amp; фарма в реальном времени</sys:String>
+    <sys:String x:Key="L.Wiz.Feat5">Управление профилями с импортом/экспортом</sys:String>
+    <sys:String x:Key="L.Wiz.Feat6">Вторичные миниатюры PiP</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeFooter">Давайте настроим всё меньше чем за минуту!</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">Выберите размер миниатюр</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">Выберите лучший пресет для вашей конфигурации. Это можно изменить позже.</sys:String>
@@ -576,10 +576,10 @@
     <sys:String x:Key="L.Wiz.HkSub">Необязательно: назначьте горячие клавиши для переключения между персонажами. Нажмите ⌨ для захвата.</sys:String>
     <sys:String x:Key="L.Wiz.CycleSub">Переключайтесь между персонажами на экране входа с помощью горячих клавиш.</sys:String>
     <sys:String x:Key="L.Wiz.DoneTitle">Всё готово!</sys:String>
-    <sys:String x:Key="L.Wiz.DoneNote">Любую из этих настроек можно изменить позже через меню в трее → Настройки.</sys:String>
-    <sys:String x:Key="L.Wiz.Back">← Назад</sys:String>
+    <sys:String x:Key="L.Wiz.DoneNote">Любую из этих настроек можно изменить позже через меню в трее › Настройки.</sys:String>
+    <sys:String x:Key="L.Wiz.Back">Назад</sys:String>
     <sys:String x:Key="L.Wiz.Skip">Пропустить</sys:String>
-    <sys:String x:Key="L.Wiz.Next">Далее →</sys:String>
+    <sys:String x:Key="L.Wiz.Next">Далее</sys:String>
 
     <!-- Character Stat Editor dialog (metric acronym checkboxes kept English) -->
     <sys:String x:Key="L.SE.Title">Переопределения статистики</sys:String>
@@ -1894,4 +1894,11 @@
     <sys:String x:Key="L.Qs.Edit">Изменить порядок</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.Save">Сохранить порядок</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.SaveTt">Сохранить порядок карточек</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.Done">Готово</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.StepFmt">Шаг {0} из {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SelectedFmt">Выбрано: {0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.PressKey">Нажмите клавишу…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumSize">Размер миниатюр: {0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOnFmt">Цикл выбора персонажа: вкл. (вперёд {0}, назад {1})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOff">Цикл выбора персонажа: выкл.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -553,12 +553,12 @@
     <sys:String x:Key="L.Wiz.Title">EVE MultiPreview — Setup Wizard</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeTitle">Welcome to EVE MultiPreview</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeSub">The C# edition of your multi-character preview tool.</sys:String>
-    <sys:String x:Key="L.Wiz.Feat1">✅ DWM thumbnail previews for all EVE clients</sys:String>
-    <sys:String x:Key="L.Wiz.Feat2">✅ Per-character hotkeys &amp; group cycling</sys:String>
-    <sys:String x:Key="L.Wiz.Feat3">✅ Attack detection with flash, sound, and toast alerts</sys:String>
-    <sys:String x:Key="L.Wiz.Feat4">✅ Real-time DPS, Logi, Mining &amp; Ratting stat overlays</sys:String>
-    <sys:String x:Key="L.Wiz.Feat5">✅ Profile management with import/export</sys:String>
-    <sys:String x:Key="L.Wiz.Feat6">✅ Secondary PiP thumbnails</sys:String>
+    <sys:String x:Key="L.Wiz.Feat1">DWM thumbnail previews for all EVE clients</sys:String>
+    <sys:String x:Key="L.Wiz.Feat2">Per-character hotkeys &amp; group cycling</sys:String>
+    <sys:String x:Key="L.Wiz.Feat3">Attack detection with flash, sound, and toast alerts</sys:String>
+    <sys:String x:Key="L.Wiz.Feat4">Real-time DPS, Logi, Mining &amp; Ratting stat overlays</sys:String>
+    <sys:String x:Key="L.Wiz.Feat5">Profile management with import/export</sys:String>
+    <sys:String x:Key="L.Wiz.Feat6">Secondary PiP thumbnails</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeFooter">Let's get you set up in under a minute!</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">Choose Thumbnail Size</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">Pick the best preset for your setup. You can change this later.</sys:String>
@@ -569,10 +569,10 @@
     <sys:String x:Key="L.Wiz.HkSub">Optional: assign hotkeys to switch between characters. Click ⌨ to capture.</sys:String>
     <sys:String x:Key="L.Wiz.CycleSub">Cycle through characters at the login screen with hotkeys.</sys:String>
     <sys:String x:Key="L.Wiz.DoneTitle">You're All Set!</sys:String>
-    <sys:String x:Key="L.Wiz.DoneNote">You can change any of these settings later from the tray menu → Settings.</sys:String>
-    <sys:String x:Key="L.Wiz.Back">← Back</sys:String>
+    <sys:String x:Key="L.Wiz.DoneNote">You can change any of these settings later from the tray menu › Settings.</sys:String>
+    <sys:String x:Key="L.Wiz.Back">Back</sys:String>
     <sys:String x:Key="L.Wiz.Skip">Skip</sys:String>
-    <sys:String x:Key="L.Wiz.Next">Next →</sys:String>
+    <sys:String x:Key="L.Wiz.Next">Next</sys:String>
 
     <!-- Character Stat Editor dialog (metric acronym checkboxes kept English) -->
     <sys:String x:Key="L.SE.Title">Stat Overrides</sys:String>
@@ -1874,4 +1874,11 @@
     <sys:String x:Key="L.Qs.Edit">Edit order</sys:String>
     <sys:String x:Key="L.Qs.Save">Save order</sys:String>
     <sys:String x:Key="L.Qs.SaveTt">Save card order</sys:String>
+    <sys:String x:Key="L.Wiz.Done">Done</sys:String>
+    <sys:String x:Key="L.Wiz.StepFmt">Step {0} of {1}</sys:String>
+    <sys:String x:Key="L.Wiz.SelectedFmt">Selected: {0} × {1}</sys:String>
+    <sys:String x:Key="L.Wiz.PressKey">Press a key…</sys:String>
+    <sys:String x:Key="L.Wiz.SumSize">Thumbnail size: {0} × {1}</sys:String>
+    <sys:String x:Key="L.Wiz.SumCycleOnFmt">Character-select cycling: on (forward {0}, backward {1})</sys:String>
+    <sys:String x:Key="L.Wiz.SumCycleOff">Character-select cycling: off</sys:String>
 </ResourceDictionary>

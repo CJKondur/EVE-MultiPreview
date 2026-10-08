@@ -560,12 +560,12 @@
     <sys:String x:Key="L.Wiz.Title">EVE MultiPreview — Asistente de configuración</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeTitle">Te damos la bienvenida a EVE MultiPreview</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeSub">La edición C# de tu herramienta de vista previa multipersonaje.</sys:String>
-    <sys:String x:Key="L.Wiz.Feat1">✅ Vistas previas en miniatura DWM para todos los clientes de EVE</sys:String>
-    <sys:String x:Key="L.Wiz.Feat2">✅ Teclas rápidas por personaje y ciclado de grupos</sys:String>
-    <sys:String x:Key="L.Wiz.Feat3">✅ Detección de ataques con destello, sonido y notificaciones</sys:String>
-    <sys:String x:Key="L.Wiz.Feat4">✅ Superposiciones de estadísticas en tiempo real de DPS, Logi, Minería y Ratting</sys:String>
-    <sys:String x:Key="L.Wiz.Feat5">✅ Gestión de perfiles con importación/exportación</sys:String>
-    <sys:String x:Key="L.Wiz.Feat6">✅ Miniaturas PiP secundarias</sys:String>
+    <sys:String x:Key="L.Wiz.Feat1">Vistas previas en miniatura DWM para todos los clientes de EVE</sys:String>
+    <sys:String x:Key="L.Wiz.Feat2">Teclas rápidas por personaje y ciclado de grupos</sys:String>
+    <sys:String x:Key="L.Wiz.Feat3">Detección de ataques con destello, sonido y notificaciones</sys:String>
+    <sys:String x:Key="L.Wiz.Feat4">Superposiciones de estadísticas en tiempo real de DPS, Logi, Minería y Ratting</sys:String>
+    <sys:String x:Key="L.Wiz.Feat5">Gestión de perfiles con importación/exportación</sys:String>
+    <sys:String x:Key="L.Wiz.Feat6">Miniaturas PiP secundarias</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeFooter">¡Vamos a configurarte en menos de un minuto!</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">Elige el tamaño de las miniaturas</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">Elige el mejor preajuste para tu configuración. Puedes cambiarlo más tarde.</sys:String>
@@ -576,10 +576,10 @@
     <sys:String x:Key="L.Wiz.HkSub">Opcional: asigna teclas rápidas para cambiar entre personajes. Haz clic en ⌨ para capturar.</sys:String>
     <sys:String x:Key="L.Wiz.CycleSub">Cicla entre personajes en la pantalla de inicio de sesión con teclas rápidas.</sys:String>
     <sys:String x:Key="L.Wiz.DoneTitle">¡Todo listo!</sys:String>
-    <sys:String x:Key="L.Wiz.DoneNote">Puedes cambiar cualquiera de estos ajustes más tarde desde el menú de la bandeja → Configuración.</sys:String>
-    <sys:String x:Key="L.Wiz.Back">← Atrás</sys:String>
+    <sys:String x:Key="L.Wiz.DoneNote">Puedes cambiar cualquiera de estos ajustes más tarde desde el menú de la bandeja › Configuración.</sys:String>
+    <sys:String x:Key="L.Wiz.Back">Atrás</sys:String>
     <sys:String x:Key="L.Wiz.Skip">Omitir</sys:String>
-    <sys:String x:Key="L.Wiz.Next">Siguiente →</sys:String>
+    <sys:String x:Key="L.Wiz.Next">Siguiente</sys:String>
 
     <!-- Character Stat Editor dialog (metric acronym checkboxes kept English) -->
     <sys:String x:Key="L.SE.Title">Anulaciones de estadísticas</sys:String>
@@ -1896,4 +1896,11 @@
     <sys:String x:Key="L.Qs.Edit">Editar orden</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.Save">Guardar orden</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.SaveTt">Guardar el orden de las tarjetas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.Done">Listo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.StepFmt">Paso {0} de {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SelectedFmt">Seleccionado: {0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.PressKey">Pulsa una tecla…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumSize">Tamaño de miniaturas: {0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOnFmt">Ciclado de selección de personaje: activado (hacia delante {0}, hacia atrás {1})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOff">Ciclado de selección de personaje: desactivado</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -560,12 +560,12 @@
     <sys:String x:Key="L.Wiz.Title">EVE MultiPreview — 设置向导</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeTitle">欢迎使用 EVE MultiPreview</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeSub">你的多角色预览工具的 C# 版。</sys:String>
-    <sys:String x:Key="L.Wiz.Feat1">✅ 所有 EVE 客户端的 DWM 缩略图预览</sys:String>
-    <sys:String x:Key="L.Wiz.Feat2">✅ 每角色热键和分组循环</sys:String>
-    <sys:String x:Key="L.Wiz.Feat3">✅ 攻击检测，配合闪烁、声音和弹窗警报</sys:String>
-    <sys:String x:Key="L.Wiz.Feat4">✅ 实时 DPS、后勤、采矿和打怪数据覆盖层</sys:String>
-    <sys:String x:Key="L.Wiz.Feat5">✅ 配置文件管理，支持导入/导出</sys:String>
-    <sys:String x:Key="L.Wiz.Feat6">✅ 次要画中画缩略图</sys:String>
+    <sys:String x:Key="L.Wiz.Feat1">所有 EVE 客户端的 DWM 缩略图预览</sys:String>
+    <sys:String x:Key="L.Wiz.Feat2">每角色热键和分组循环</sys:String>
+    <sys:String x:Key="L.Wiz.Feat3">攻击检测，配合闪烁、声音和弹窗警报</sys:String>
+    <sys:String x:Key="L.Wiz.Feat4">实时 DPS、后勤、采矿和打怪数据覆盖层</sys:String>
+    <sys:String x:Key="L.Wiz.Feat5">配置文件管理，支持导入/导出</sys:String>
+    <sys:String x:Key="L.Wiz.Feat6">次要画中画缩略图</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeFooter">让我们在一分钟内完成设置！</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">选择缩略图大小</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">为你的配置选择最合适的预设。稍后可以更改。</sys:String>
@@ -576,10 +576,10 @@
     <sys:String x:Key="L.Wiz.HkSub">可选：分配热键以在角色之间切换。点击 ⌨ 进行捕获。</sys:String>
     <sys:String x:Key="L.Wiz.CycleSub">用热键在登录界面循环切换角色。</sys:String>
     <sys:String x:Key="L.Wiz.DoneTitle">全部设置完成！</sys:String>
-    <sys:String x:Key="L.Wiz.DoneNote">你可以稍后从托盘菜单 → 设置 中更改任何这些设置。</sys:String>
-    <sys:String x:Key="L.Wiz.Back">← 返回</sys:String>
+    <sys:String x:Key="L.Wiz.DoneNote">你可以稍后从托盘菜单 › 设置 中更改任何这些设置。</sys:String>
+    <sys:String x:Key="L.Wiz.Back">返回</sys:String>
     <sys:String x:Key="L.Wiz.Skip">跳过</sys:String>
-    <sys:String x:Key="L.Wiz.Next">下一步 →</sys:String>
+    <sys:String x:Key="L.Wiz.Next">下一步</sys:String>
 
     <!-- Character Stat Editor dialog -->
     <sys:String x:Key="L.SE.Title">数据覆盖</sys:String>
@@ -1892,4 +1892,11 @@
     <sys:String x:Key="L.Qs.Edit">编辑顺序</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.Save">保存顺序</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.SaveTt">保存卡片顺序</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.Done">完成</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.StepFmt">第 {0} 步，共 {1} 步</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SelectedFmt">已选择：{0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.PressKey">按下一个键…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumSize">缩略图大小：{0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOnFmt">角色选择循环：开（前进 {0}，后退 {1}）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOff">角色选择循环：关</sys:String> <!-- draft -->
 </ResourceDictionary>

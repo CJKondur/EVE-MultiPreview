@@ -560,12 +560,12 @@
     <sys:String x:Key="L.Wiz.Title">EVE MultiPreview — セットアップウィザード</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeTitle">EVE MultiPreview へようこそ</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeSub">マルチキャラクタープレビューツールの C# エディション。</sys:String>
-    <sys:String x:Key="L.Wiz.Feat1">✅ すべての EVE クライアントの DWM サムネイルプレビュー</sys:String>
-    <sys:String x:Key="L.Wiz.Feat2">✅ キャラクター別ホットキー &amp; グループサイクル</sys:String>
-    <sys:String x:Key="L.Wiz.Feat3">✅ 点滅、サウンド、トーストアラート付きの攻撃検出</sys:String>
-    <sys:String x:Key="L.Wiz.Feat4">✅ リアルタイムの DPS、Logi、Mining &amp; Ratting 統計オーバーレイ</sys:String>
-    <sys:String x:Key="L.Wiz.Feat5">✅ インポート/エクスポート対応のプロファイル管理</sys:String>
-    <sys:String x:Key="L.Wiz.Feat6">✅ セカンダリ PiP サムネイル</sys:String>
+    <sys:String x:Key="L.Wiz.Feat1">すべての EVE クライアントの DWM サムネイルプレビュー</sys:String>
+    <sys:String x:Key="L.Wiz.Feat2">キャラクター別ホットキー &amp; グループサイクル</sys:String>
+    <sys:String x:Key="L.Wiz.Feat3">点滅、サウンド、トーストアラート付きの攻撃検出</sys:String>
+    <sys:String x:Key="L.Wiz.Feat4">リアルタイムの DPS、Logi、Mining &amp; Ratting 統計オーバーレイ</sys:String>
+    <sys:String x:Key="L.Wiz.Feat5">インポート/エクスポート対応のプロファイル管理</sys:String>
+    <sys:String x:Key="L.Wiz.Feat6">セカンダリ PiP サムネイル</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeFooter">1 分もかからずにセットアップしましょう！</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">サムネイルサイズを選択</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">環境に最適なプリセットを選んでください。後で変更できます。</sys:String>
@@ -576,10 +576,10 @@
     <sys:String x:Key="L.Wiz.HkSub">任意: キャラクター間を切り替えるホットキーを割り当てます。⌨ をクリックして取得します。</sys:String>
     <sys:String x:Key="L.Wiz.CycleSub">ログイン画面でホットキーを使ってキャラクターを順番に切り替えます。</sys:String>
     <sys:String x:Key="L.Wiz.DoneTitle">準備完了です！</sys:String>
-    <sys:String x:Key="L.Wiz.DoneNote">これらの設定はいずれも、後でトレイメニュー → 設定から変更できます。</sys:String>
-    <sys:String x:Key="L.Wiz.Back">← 戻る</sys:String>
+    <sys:String x:Key="L.Wiz.DoneNote">これらの設定はいずれも、後でトレイメニュー › 設定から変更できます。</sys:String>
+    <sys:String x:Key="L.Wiz.Back">戻る</sys:String>
     <sys:String x:Key="L.Wiz.Skip">スキップ</sys:String>
-    <sys:String x:Key="L.Wiz.Next">次へ →</sys:String>
+    <sys:String x:Key="L.Wiz.Next">次へ</sys:String>
 
     <!-- Character Stat Editor dialog (metric acronym checkboxes kept English) -->
     <sys:String x:Key="L.SE.Title">統計の上書き</sys:String>
@@ -1875,4 +1875,11 @@
     <sys:String x:Key="L.Qs.Edit">順序を編集</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.Save">順序を保存</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.SaveTt">カードの順序を保存</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.Done">完了</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.StepFmt">ステップ {0} / {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SelectedFmt">選択中：{0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.PressKey">キーを押してください…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumSize">サムネイルのサイズ：{0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOnFmt">キャラクター選択のサイクル：オン（順方向 {0}、逆方向 {1}）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOff">キャラクター選択のサイクル：オフ</sys:String> <!-- draft -->
 </ResourceDictionary>

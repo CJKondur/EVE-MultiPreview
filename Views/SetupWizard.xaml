@@ -1,180 +1,233 @@
 <Window x:Class="EveMultiPreview.Views.SetupWizard"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:EveMultiPreview.SettingsUi"
+        ThemeMode="Dark"
         Title="{DynamicResource L.Wiz.Title}"
-        Width="560" Height="460"
+        Width="600" SizeToContent="Height" MinHeight="480"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Background="#1a1a2e">
+        Background="{DynamicResource Fx.CardBrush}">
 
+    <!-- Plan 4, the F2 reference's first-run dialog. The steps, choices and what Done saves are unchanged. -->
     <Window.Resources>
-        <SolidColorBrush x:Key="AccentBrush" Color="#E36A0D"/>
-        <SolidColorBrush x:Key="TextPrimary" Color="#E0E0E0"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#999999"/>
-        <SolidColorBrush x:Key="CardBg" Color="#252540"/>
-        <SolidColorBrush x:Key="CardHover" Color="#303055"/>
-        <SolidColorBrush x:Key="BtnBg" Color="#333355"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:SettingsTheme/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="Wiz.Title" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="22"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+            <Style x:Key="Wiz.Sub" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Foreground" Value="{StaticResource Fx.TextSecondaryBrush}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="Margin" Value="0,8,0,0"/>
+            </Style>
+            <Style x:Key="Wiz.Text" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            <Style x:Key="Wiz.StepBar" TargetType="Border">
+                <Setter Property="Width" Value="28"/>
+                <Setter Property="Height" Value="4"/>
+                <Setter Property="CornerRadius" Value="2"/>
+                <Setter Property="Margin" Value="0,0,8,0"/>
+                <Setter Property="Background" Value="{StaticResource Fx.FlyoutBorderBrush}"/>
+            </Style>
+
+            <!-- A thumbnail-size choice: a card with a preview; the picked one has an accent edge (the reference's .opt.on).
+                 Radio buttons, so arrow keys move between them. -->
+            <Style x:Key="Wiz.SizeCard" TargetType="RadioButton">
+                <Setter Property="GroupName" Value="Size"/>
+                <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Margin" Value="0,0,10,0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="Bd" Background="{StaticResource Fx.CardBrush}" BorderBrush="{StaticResource Fx.BorderBrush}"
+                                    BorderThickness="1" CornerRadius="{StaticResource Fx.Radius}" Padding="10,16">
+                                <ContentPresenter HorizontalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource Fx.CardHoverBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource Fx.AccentSoftBrush}"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Fx.AccentBrush}"/>
+                                    <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                                    <Setter TargetName="Bd" Property="Padding" Value="9,15"/>
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Fx.AccentBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="Wiz.Preview" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource Fx.BgBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Fx.ControlEdgeBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+            </Style>
+            <Style x:Key="Wiz.Check" TargetType="TextBlock">
+                <Setter Property="Text" Value="&#xE73E;"/>
+                <Setter Property="FontFamily" Value="{StaticResource Fx.IconFont}"/>
+                <Setter Property="Foreground" Value="{StaticResource Fx.AccentBrush}"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="0,0,10,0"/>
+            </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <!-- The Fluent theme leaves the window's own background to the system backdrop, so the content paints the surface. -->
+    <DockPanel Background="{StaticResource Fx.CardBrush}">
+        <!-- ═══ Footer: Skip on the left; Back and Next/Done on the right ═══ -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource Fx.BgBrush}" BorderBrush="{StaticResource Fx.BorderBrush}"
+                BorderThickness="0,1,0,0" Padding="26,16">
+            <DockPanel LastChildFill="False">
+                <Button x:Name="BtnSkip" DockPanel.Dock="Left" Content="{DynamicResource L.Wiz.Skip}" Padding="16,6" Click="OnSkip"/>
+                <Button x:Name="BtnNext" DockPanel.Dock="Right" Style="{StaticResource Fx.PrimaryButton}" Click="OnNext" Margin="8,0,0,0"/>
+                <Button x:Name="BtnBack" DockPanel.Dock="Right" Content="{DynamicResource L.Wiz.Back}" Padding="16,6" Click="OnBack"
+                        Visibility="Collapsed"/>
+            </DockPanel>
+        </Border>
 
-        <!-- ═══ Progress Bar ═══ -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,8">
-            <Ellipse x:Name="Dot1" Width="12" Height="12" Fill="{StaticResource AccentBrush}" Margin="4,0"/>
-            <Ellipse x:Name="Dot2" Width="12" Height="12" Fill="#444444" Margin="4,0"/>
-            <Ellipse x:Name="Dot3" Width="12" Height="12" Fill="#444444" Margin="4,0"/>
-            <Ellipse x:Name="Dot4" Width="12" Height="12" Fill="#444444" Margin="4,0"/>
-            <Ellipse x:Name="Dot5" Width="12" Height="12" Fill="#444444" Margin="4,0"/>
-        </StackPanel>
-
-        <!-- ═══ Content Pages ═══ -->
-        <Grid Grid.Row="1" Margin="24,0">
-
-            <!-- Step 1: Welcome -->
-            <StackPanel x:Name="Step1" Visibility="Visible">
-                <TextBlock Text="{DynamicResource L.Wiz.WelcomeTitle}" FontSize="22" FontWeight="Bold"
-                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
-                <TextBlock Text="{DynamicResource L.Wiz.WelcomeSub}"
-                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,0,0,24"/>
-                <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Text="{DynamicResource L.Wiz.Feat1}" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
-                    <TextBlock Text="{DynamicResource L.Wiz.Feat2}" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
-                    <TextBlock Text="{DynamicResource L.Wiz.Feat3}" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
-                    <TextBlock Text="{DynamicResource L.Wiz.Feat4}" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
-                    <TextBlock Text="{DynamicResource L.Wiz.Feat5}" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
-                    <TextBlock Text="{DynamicResource L.Wiz.Feat6}" Foreground="{StaticResource TextPrimary}" Margin="0,4"/>
-                </StackPanel>
-                <TextBlock Text="{DynamicResource L.Wiz.WelcomeFooter}"
-                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,24,0,0"
-                           FontStyle="Italic"/>
+        <StackPanel Margin="26,24,26,20">
+            <!-- ═══ Progress: one bar per step, then "Step 2 of 5" ═══ -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Border x:Name="Bar1" Style="{StaticResource Wiz.StepBar}"/>
+                <Border x:Name="Bar2" Style="{StaticResource Wiz.StepBar}"/>
+                <Border x:Name="Bar3" Style="{StaticResource Wiz.StepBar}"/>
+                <Border x:Name="Bar4" Style="{StaticResource Wiz.StepBar}"/>
+                <Border x:Name="Bar5" Style="{StaticResource Wiz.StepBar}"/>
+                <TextBlock x:Name="TxtStep" FontSize="12" Foreground="{StaticResource Fx.TextSecondaryBrush}" VerticalAlignment="Center"/>
             </StackPanel>
 
-            <!-- Step 2: Thumbnail Size -->
+            <!-- Step 1: Welcome (and the language, spec §10) -->
+            <StackPanel x:Name="Step1" Visibility="Visible">
+                <TextBlock Text="{DynamicResource L.Wiz.WelcomeTitle}" Style="{StaticResource Wiz.Title}"/>
+                <TextBlock Text="{DynamicResource L.Wiz.WelcomeSub}" Style="{StaticResource Wiz.Sub}"/>
+                <StackPanel Margin="0,16,0,0">
+                    <DockPanel Margin="0,3"><TextBlock Style="{StaticResource Wiz.Check}"/><TextBlock Text="{DynamicResource L.Wiz.Feat1}" Style="{StaticResource Wiz.Text}"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Style="{StaticResource Wiz.Check}"/><TextBlock Text="{DynamicResource L.Wiz.Feat2}" Style="{StaticResource Wiz.Text}"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Style="{StaticResource Wiz.Check}"/><TextBlock Text="{DynamicResource L.Wiz.Feat3}" Style="{StaticResource Wiz.Text}"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Style="{StaticResource Wiz.Check}"/><TextBlock Text="{DynamicResource L.Wiz.Feat4}" Style="{StaticResource Wiz.Text}"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Style="{StaticResource Wiz.Check}"/><TextBlock Text="{DynamicResource L.Wiz.Feat5}" Style="{StaticResource Wiz.Text}"/></DockPanel>
+                    <DockPanel Margin="0,3"><TextBlock Style="{StaticResource Wiz.Check}"/><TextBlock Text="{DynamicResource L.Wiz.Feat6}" Style="{StaticResource Wiz.Text}"/></DockPanel>
+                </StackPanel>
+                <DockPanel Margin="0,20,0,0">
+                    <ComboBox x:Name="CmbLanguage" DockPanel.Dock="Right" MinWidth="220"/>
+                    <TextBlock Text="{DynamicResource L.S.app.general.language}" Style="{StaticResource Wiz.Text}" Margin="0,0,12,0"/>
+                </DockPanel>
+                <TextBlock Text="{DynamicResource L.Wiz.WelcomeFooter}" Style="{StaticResource Wiz.Sub}" Margin="0,20,0,0"/>
+            </StackPanel>
+
+            <!-- Step 2: Thumbnail size (the presets are the app's own, not the reference's sample numbers) -->
             <StackPanel x:Name="Step2" Visibility="Collapsed">
-                <TextBlock Text="{DynamicResource L.Wiz.SizeTitle}" FontSize="18" FontWeight="Bold"
-                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
-                <TextBlock Text="{DynamicResource L.Wiz.SizeSub}"
-                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                <UniformGrid Columns="3" Margin="0,8">
-                    <Border x:Name="CardDual" Background="{StaticResource CardBg}" CornerRadius="8" Margin="6"
-                            Padding="12" Cursor="Hand" MouseLeftButtonDown="OnSizeCard" Tag="300,200">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="🖥🖥" FontSize="24" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{DynamicResource L.Wiz.SizeDual}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"
-                                       HorizontalAlignment="Center" Margin="0,6,0,2"/>
-                            <TextBlock Text="300 × 200" Foreground="{StaticResource TextSecondary}" FontSize="11"
-                                       HorizontalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource L.Wiz.SizeTitle}" Style="{StaticResource Wiz.Title}"/>
+                <TextBlock Text="{DynamicResource L.Wiz.SizeSub}" Style="{StaticResource Wiz.Sub}"/>
+                <UniformGrid Columns="3" Margin="0,16,-10,0">
+                    <RadioButton x:Name="CardDual" Style="{StaticResource Wiz.SizeCard}" Tag="300,200" Checked="OnSizeCard">
+                        <StackPanel>
+                            <Border Style="{StaticResource Wiz.Preview}" Width="90" Height="60"/>
+                            <TextBlock Text="{DynamicResource L.Wiz.SizeDual}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
+                            <TextBlock Text="300 × 200" FontSize="12" Foreground="{StaticResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
-                    </Border>
-                    <Border x:Name="CardMulti" Background="{StaticResource CardBg}" CornerRadius="8" Margin="6"
-                            Padding="12" Cursor="Hand" MouseLeftButtonDown="OnSizeCard" Tag="200,150">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="🖥🖥🖥" FontSize="24" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{DynamicResource L.Wiz.SizeMulti}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"
-                                       HorizontalAlignment="Center" Margin="0,6,0,2"/>
-                            <TextBlock Text="200 × 150" Foreground="{StaticResource TextSecondary}" FontSize="11"
-                                       HorizontalAlignment="Center"/>
+                    </RadioButton>
+                    <RadioButton x:Name="CardMulti" Style="{StaticResource Wiz.SizeCard}" Tag="200,150" Checked="OnSizeCard">
+                        <StackPanel>
+                            <Border Style="{StaticResource Wiz.Preview}" Width="66" Height="50" Margin="0,5,0,15"/>
+                            <TextBlock Text="{DynamicResource L.Wiz.SizeMulti}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
+                            <TextBlock Text="200 × 150" FontSize="12" Foreground="{StaticResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
-                    </Border>
-                    <Border x:Name="CardFleet" Background="{StaticResource CardBg}" CornerRadius="8" Margin="6"
-                            Padding="12" Cursor="Hand" MouseLeftButtonDown="OnSizeCard" Tag="150,100">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="⚓" FontSize="24" HorizontalAlignment="Center"/>
-                            <TextBlock Text="{DynamicResource L.Wiz.SizeFleet}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimary}"
-                                       HorizontalAlignment="Center" Margin="0,6,0,2"/>
-                            <TextBlock Text="150 × 100" Foreground="{StaticResource TextSecondary}" FontSize="11"
-                                       HorizontalAlignment="Center"/>
+                    </RadioButton>
+                    <RadioButton x:Name="CardFleet" Style="{StaticResource Wiz.SizeCard}" Tag="150,100" Checked="OnSizeCard">
+                        <StackPanel>
+                            <Border Style="{StaticResource Wiz.Preview}" Width="50" Height="34" Margin="0,13,0,23"/>
+                            <TextBlock Text="{DynamicResource L.Wiz.SizeFleet}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
+                            <TextBlock Text="150 × 100" FontSize="12" Foreground="{StaticResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
-                    </Border>
+                    </RadioButton>
                 </UniformGrid>
-                <TextBlock x:Name="TxtSelectedSize" Text="" Foreground="{StaticResource AccentBrush}"
-                           HorizontalAlignment="Center" Margin="0,12,0,0" FontWeight="SemiBold"/>
+                <TextBlock x:Name="TxtSelectedSize" Foreground="{StaticResource Fx.AccentBrush}" FontWeight="SemiBold" Margin="0,12,0,0"/>
             </StackPanel>
 
             <!-- Step 3: Hotkeys -->
             <StackPanel x:Name="Step3" Visibility="Collapsed">
-                <TextBlock Text="{DynamicResource L.Wiz.HkTitle}" FontSize="18" FontWeight="Bold"
-                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
-                <TextBlock Text="{DynamicResource L.Wiz.HkSub}"
-                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,0,0,16" TextWrapping="Wrap"/>
-                <Grid HorizontalAlignment="Center" Width="400">
+                <TextBlock Text="{DynamicResource L.Wiz.HkTitle}" Style="{StaticResource Wiz.Title}"/>
+                <TextBlock Text="{DynamicResource L.Wiz.HkSub}" Style="{StaticResource Wiz.Sub}"/>
+                <Grid Margin="0,16,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="{DynamicResource L.Common.Character}" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" Grid.Column="0" Margin="0,4"/>
-                    <TextBlock Text="{DynamicResource L.Common.Hotkey}" FontWeight="SemiBold" Foreground="{StaticResource TextSecondary}" Grid.Column="1" Margin="0,4"/>
+                    <TextBlock Text="{DynamicResource L.Common.Character}" Foreground="{StaticResource Fx.TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Grid.Column="2" Text="{DynamicResource L.Common.Hotkey}" Foreground="{StaticResource Fx.TextSecondaryBrush}" Margin="0,0,0,4"/>
 
-                    <TextBox x:Name="TxtWizChar1" Grid.Row="1" Grid.Column="0" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
-                    <TextBox x:Name="TxtWizKey1" Grid.Row="1" Grid.Column="1" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
-                    <Button Content="⌨" Grid.Row="1" Grid.Column="2" Click="OnWizCapture" Tag="TxtWizKey1" Width="28" Height="24"
-                            Background="#333355" Foreground="White" BorderBrush="#444"/>
+                    <TextBox x:Name="TxtWizChar1" Grid.Row="1" Margin="0,3"/>
+                    <TextBox x:Name="TxtWizKey1" Grid.Row="1" Grid.Column="2" Margin="0,3"/>
+                    <Button Grid.Row="1" Grid.Column="3" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizKey1"/>
 
-                    <TextBox x:Name="TxtWizChar2" Grid.Row="2" Grid.Column="0" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
-                    <TextBox x:Name="TxtWizKey2" Grid.Row="2" Grid.Column="1" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
-                    <Button Content="⌨" Grid.Row="2" Grid.Column="2" Click="OnWizCapture" Tag="TxtWizKey2" Width="28" Height="24"
-                            Background="#333355" Foreground="White" BorderBrush="#444"/>
+                    <TextBox x:Name="TxtWizChar2" Grid.Row="2" Margin="0,3"/>
+                    <TextBox x:Name="TxtWizKey2" Grid.Row="2" Grid.Column="2" Margin="0,3"/>
+                    <Button Grid.Row="2" Grid.Column="3" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizKey2"/>
 
-                    <TextBox x:Name="TxtWizChar3" Grid.Row="3" Grid.Column="0" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
-                    <TextBox x:Name="TxtWizKey3" Grid.Row="3" Grid.Column="1" Margin="0,3,4,3" Background="#252540" Foreground="White" BorderBrush="#444"/>
-                    <Button Content="⌨" Grid.Row="3" Grid.Column="2" Click="OnWizCapture" Tag="TxtWizKey3" Width="28" Height="24"
-                            Background="#333355" Foreground="White" BorderBrush="#444"/>
+                    <TextBox x:Name="TxtWizChar3" Grid.Row="3" Margin="0,3"/>
+                    <TextBox x:Name="TxtWizKey3" Grid.Row="3" Grid.Column="2" Margin="0,3"/>
+                    <Button Grid.Row="3" Grid.Column="3" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizKey3"/>
                 </Grid>
             </StackPanel>
 
-            <!-- Step 4: Character Select Cycling -->
+            <!-- Step 4: Character select cycling -->
             <StackPanel x:Name="Step4" Visibility="Collapsed">
-                <TextBlock Text="{DynamicResource L.Client.CharSelectCycling}" FontSize="18" FontWeight="Bold"
-                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
-                <TextBlock Text="{DynamicResource L.Wiz.CycleSub}"
-                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,0,0,20"/>
-                <CheckBox x:Name="ChkWizCharCycle" Content="{DynamicResource L.Client.EnableCharSelect}"
-                          Foreground="White" Margin="60,8" IsChecked="True"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12">
-                    <TextBlock Text="{DynamicResource L.Groups.Forward}" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" Width="80"/>
-                    <TextBox x:Name="TxtWizCycleFwd" Width="120" Background="#252540" Foreground="White" BorderBrush="#444" Text="F11"/>
-                    <Button Content="⌨" Click="OnWizCapture" Tag="TxtWizCycleFwd" Width="28" Height="24" Margin="4,0,0,0"
-                            Background="#333355" Foreground="White" BorderBrush="#444"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,4">
-                    <TextBlock Text="{DynamicResource L.Groups.Backward}" Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" Width="80"/>
-                    <TextBox x:Name="TxtWizCycleBwd" Width="120" Background="#252540" Foreground="White" BorderBrush="#444" Text="F12"/>
-                    <Button Content="⌨" Click="OnWizCapture" Tag="TxtWizCycleBwd" Width="28" Height="24" Margin="4,0,0,0"
-                            Background="#333355" Foreground="White" BorderBrush="#444"/>
-                </StackPanel>
+                <TextBlock Text="{DynamicResource L.Client.CharSelectCycling}" Style="{StaticResource Wiz.Title}"/>
+                <TextBlock Text="{DynamicResource L.Wiz.CycleSub}" Style="{StaticResource Wiz.Sub}"/>
+                <CheckBox x:Name="ChkWizCharCycle" Content="{DynamicResource L.Client.EnableCharSelect}" IsChecked="True" Margin="0,16,0,8"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{DynamicResource L.Groups.Forward}" Style="{StaticResource Wiz.Text}" Margin="0,0,12,0"/>
+                    <TextBox x:Name="TxtWizCycleFwd" Grid.Column="1" Text="F11" Margin="0,3"/>
+                    <Button Grid.Column="2" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizCycleFwd"/>
+                    <TextBlock Grid.Row="1" Text="{DynamicResource L.Groups.Backward}" Style="{StaticResource Wiz.Text}" Margin="0,0,12,0"/>
+                    <TextBox x:Name="TxtWizCycleBwd" Grid.Row="1" Grid.Column="1" Text="F12" Margin="0,3"/>
+                    <Button Grid.Row="1" Grid.Column="2" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizCycleBwd"/>
+                </Grid>
             </StackPanel>
 
             <!-- Step 5: Summary -->
             <StackPanel x:Name="Step5" Visibility="Collapsed">
-                <TextBlock Text="{DynamicResource L.Wiz.DoneTitle}" FontSize="22" FontWeight="Bold"
-                           Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,20,0,16"/>
-                <TextBlock x:Name="TxtSummary" TextWrapping="Wrap"
-                           Foreground="{StaticResource TextPrimary}" Margin="40,0" LineHeight="22"/>
-                <TextBlock Text="{DynamicResource L.Wiz.DoneNote}"
-                           Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center"
-                           Margin="0,24,0,0" FontStyle="Italic" TextWrapping="Wrap"/>
+                <TextBlock Text="{DynamicResource L.Wiz.DoneTitle}" Style="{StaticResource Wiz.Title}"/>
+                <Border Background="{StaticResource Fx.BgBrush}" BorderBrush="{StaticResource Fx.BorderBrush}" BorderThickness="1"
+                        CornerRadius="{StaticResource Fx.Radius}" Padding="16,12" Margin="0,16,0,0">
+                    <TextBlock x:Name="TxtSummary" Style="{StaticResource Wiz.Text}" LineHeight="22"/>
+                </Border>
+                <TextBlock Text="{DynamicResource L.Wiz.DoneNote}" Style="{StaticResource Wiz.Sub}" Margin="0,16,0,0"/>
             </StackPanel>
-        </Grid>
-
-        <!-- ═══ Navigation Buttons ═══ -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,16">
-            <Button x:Name="BtnBack" Content="{DynamicResource L.Wiz.Back}" Padding="16,8" Click="OnBack" Margin="4"
-                    Background="#333355" Foreground="White" BorderBrush="#444" Visibility="Collapsed"/>
-            <Button x:Name="BtnSkip" Content="{DynamicResource L.Wiz.Skip}" Padding="16,8" Click="OnSkip" Margin="4"
-                    Background="Transparent" Foreground="{StaticResource TextSecondary}" BorderBrush="#444"/>
-            <Button x:Name="BtnNext" Content="{DynamicResource L.Wiz.Next}" Padding="16,8" Click="OnNext" Margin="4"
-                    Background="{StaticResource AccentBrush}" Foreground="White" BorderThickness="0"
-                    FontWeight="SemiBold"/>
         </StackPanel>
-    </Grid>
+    </DockPanel>
 </Window>

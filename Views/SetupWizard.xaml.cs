@@ -1,29 +1,36 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
+using EveMultiPreview.SettingsUi;
 using TextBox = System.Windows.Controls.TextBox;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using Color = System.Windows.Media.Color;
 using Button = System.Windows.Controls.Button;
+using ComboBox = System.Windows.Controls.ComboBox;
+using Control = System.Windows.Controls.Control;
 
 namespace EveMultiPreview.Views;
 
 /// <summary>
 /// 5-step first-run setup wizard (AHK: SetupWizard.ahk).
 /// Steps: Welcome → Size Picker → Hotkeys → Char Select → Summary.
-/// Sets SetupCompleted=true on finish.
+/// Sets SetupCompleted=true on finish. Plan 4 restyled it after the F2 reference; the steps, choices and what Done saves
+/// are unchanged, plus the language picker spec §10 puts in step 1.
 /// </summary>
 public partial class SetupWizard : Window
 {
+    public const int StepCount = 5;
+
     private readonly SettingsService _svc;
     private int _currentStep = 1;
     private int _selectedWidth, _selectedHeight;
+    private bool _sizePicked;
 
     // Dark title bar
     [DllImport("dwmapi.dll", PreserveSig = true)]
@@ -35,49 +42,54 @@ public partial class SetupWizard : Window
         _selectedWidth = (int)_svc.Settings.ThumbnailStartLocation.Width;
         _selectedHeight = (int)_svc.Settings.ThumbnailStartLocation.Height;
         InitializeComponent();
+        FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
         Loaded += (_, _) =>
         {
             var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
             int dark = 1;
             DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int));
         };
-        UpdateNavigation();
+        BuildLanguageList();
+        SelectMatchingSizeCard();
+        ShowStep(1);
     }
 
-    private void ShowStep(int step)
+    /// <summary>The step showing, 1–5.</summary>
+    public int CurrentStep => _currentStep;
+
+    /// <summary>Shows step 1–5: the step's panel, the progress bars and the buttons. Next, Back and Skip call it; tests
+    /// use it to render each step.</summary>
+    public void ShowStep(int step)
     {
-        _currentStep = step;
+        _currentStep = Math.Clamp(step, 1, StepCount);
 
-        Step1.Visibility = step == 1 ? Visibility.Visible : Visibility.Collapsed;
-        Step2.Visibility = step == 2 ? Visibility.Visible : Visibility.Collapsed;
-        Step3.Visibility = step == 3 ? Visibility.Visible : Visibility.Collapsed;
-        Step4.Visibility = step == 4 ? Visibility.Visible : Visibility.Collapsed;
-        Step5.Visibility = step == 5 ? Visibility.Visible : Visibility.Collapsed;
+        var steps = new UIElement[] { Step1, Step2, Step3, Step4, Step5 };
+        for (int i = 0; i < steps.Length; i++)
+            steps[i].Visibility = i == _currentStep - 1 ? Visibility.Visible : Visibility.Collapsed;
 
-        // Update progress dots
-        var dots = new[] { Dot1, Dot2, Dot3, Dot4, Dot5 };
-        var accent = (SolidColorBrush)FindResource("AccentBrush");
-        for (int i = 0; i < dots.Length; i++)
-        {
-            dots[i].Fill = i < step
-                ? (i == step - 1 ? accent : new SolidColorBrush(Color.FromRgb(80, 180, 80)))
-                : new SolidColorBrush(Color.FromRgb(68, 68, 68));
-        }
+        // Done and current steps in accent, the ones to come in the flyout border colour (the reference's step bars).
+        var bars = new[] { Bar1, Bar2, Bar3, Bar4, Bar5 };
+        for (int i = 0; i < bars.Length; i++)
+            bars[i].SetResourceReference(Border.BackgroundProperty, i < _currentStep ? "Fx.AccentBrush" : "Fx.FlyoutBorderBrush");
 
-        if (step == 5) BuildSummary();
         UpdateNavigation();
     }
 
+    /// <summary>Text set in code, re-read after a language change (the old code wrote English "Next →" and "✅ Done"
+    /// over the translated button text).</summary>
     private void UpdateNavigation()
     {
         BtnBack.Visibility = _currentStep > 1 ? Visibility.Visible : Visibility.Collapsed;
-        BtnSkip.Visibility = _currentStep < 5 ? Visibility.Visible : Visibility.Collapsed;
-        BtnNext.Content = _currentStep == 5 ? "✅ Done" : "Next →";
+        BtnSkip.Visibility = _currentStep < StepCount ? Visibility.Visible : Visibility.Collapsed;
+        BtnNext.SetResourceReference(ContentControl.ContentProperty, _currentStep == StepCount ? "L.Wiz.Done" : "L.Wiz.Next");
+        TxtStep.Text = string.Format(Str("L.Wiz.StepFmt", "Step {0} of {1}"), _currentStep, StepCount);
+        if (_sizePicked) ShowSelectedSize();
+        if (_currentStep == StepCount) BuildSummary();
     }
 
     private void OnNext(object sender, RoutedEventArgs e)
     {
-        if (_currentStep == 5)
+        if (_currentStep == StepCount)
         {
             ApplyWizardSettings();
             Close();
@@ -91,32 +103,60 @@ public partial class SetupWizard : Window
         if (_currentStep > 1) ShowStep(_currentStep - 1);
     }
 
+    /// <summary>Skips this step (not the whole setup), as before.</summary>
     private void OnSkip(object sender, RoutedEventArgs e)
     {
         ShowStep(_currentStep + 1);
     }
 
+    // ── Language (spec §10: the same choice as App › General › Language) ──
+
+    private void BuildLanguageList()
+    {
+        var automatic = new ComboBoxItem { Tag = "" };
+        automatic.SetResourceReference(ContentControl.ContentProperty, "L.S.Opt.LanguageAuto");
+        CmbLanguage.Items.Add(automatic);
+        foreach (var (code, name) in LocalizationService.Languages)
+            CmbLanguage.Items.Add(new ComboBoxItem { Tag = code, Content = name });
+        CmbLanguage.SelectedItem = CmbLanguage.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Tag == _svc.Settings.Language)
+                                   ?? automatic;
+        CmbLanguage.SelectionChanged += OnLanguageChanged;
+    }
+
+    /// <summary>Switches the language at once, as App › General › Language does; saved with the rest at Done.</summary>
+    private void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (CmbLanguage.SelectedItem is not ComboBoxItem { Tag: string code }) return;
+        _svc.Settings.Language = code;
+        LocalizationService.SetLanguage(code);
+        FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
+        UpdateNavigation();
+    }
+
     // ── Size Card Selection ──
 
-    private void OnSizeCard(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    private void OnSizeCard(object sender, RoutedEventArgs e)
     {
-        if (sender is not Border card || card.Tag is not string sizeStr) return;
+        if (sender is not FrameworkElement { Tag: string sizeStr }) return;
         var parts = sizeStr.Split(',');
         if (parts.Length != 2) return;
 
-        _selectedWidth = int.Parse(parts[0]);
-        _selectedHeight = int.Parse(parts[1]);
-
-        // Highlight selected card
-        var accent = (SolidColorBrush)FindResource("AccentBrush");
-        var normal = (SolidColorBrush)FindResource("CardBg");
-        CardDual.Background = normal;
-        CardMulti.Background = normal;
-        CardFleet.Background = normal;
-        card.Background = accent;
-
-        TxtSelectedSize.Text = $"Selected: {_selectedWidth} × {_selectedHeight}";
+        _selectedWidth = int.Parse(parts[0], CultureInfo.InvariantCulture);
+        _selectedHeight = int.Parse(parts[1], CultureInfo.InvariantCulture);
+        _sizePicked = true;
+        ShowSelectedSize();
         Debug.WriteLine($"[SetupWizard] 📐 Size selected: {_selectedWidth}x{_selectedHeight}");
+    }
+
+    private void ShowSelectedSize() =>
+        TxtSelectedSize.Text = string.Format(Str("L.Wiz.SelectedFmt", "Selected: {0} × {1}"), _selectedWidth, _selectedHeight);
+
+    /// <summary>When the current size is one of the presets, that card starts picked (it changes nothing: Done would save
+    /// the same size).</summary>
+    private void SelectMatchingSizeCard()
+    {
+        foreach (var card in new[] { CardDual, CardMulti, CardFleet })
+            if ((string)card.Tag == $"{_selectedWidth},{_selectedHeight}") card.IsChecked = true;
     }
 
     // ── Hotkey Capture ──
@@ -132,12 +172,12 @@ public partial class SetupWizard : Window
         if (_wizCaptureTarget != null)
         {
             _wizCaptureTarget.PreviewKeyDown -= OnWizKeyCaptured;
-            _wizCaptureTarget.Background = new SolidColorBrush(Color.FromRgb(37, 37, 64));
+            _wizCaptureTarget.ClearValue(Control.BackgroundProperty);
         }
 
         _wizCaptureTarget = target;
-        target.Text = "Press a key...";
-        target.Background = new SolidColorBrush(Color.FromRgb(80, 40, 20));
+        target.Text = Str("L.Wiz.PressKey", "Press a key…");
+        target.SetResourceReference(Control.BackgroundProperty, "Fx.AccentSoftBrush");
         target.Focus();
         target.PreviewKeyDown += OnWizKeyCaptured;
     }
@@ -156,7 +196,7 @@ public partial class SetupWizard : Window
             if (_wizCaptureTarget != null)
             {
                 _wizCaptureTarget.Text = "";
-                _wizCaptureTarget.Background = new SolidColorBrush(Color.FromRgb(37, 37, 64));
+                _wizCaptureTarget.ClearValue(Control.BackgroundProperty);
                 _wizCaptureTarget.PreviewKeyDown -= OnWizKeyCaptured;
                 _wizCaptureTarget = null;
             }
@@ -168,12 +208,12 @@ public partial class SetupWizard : Window
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt)) ahk += "!";
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) ahk += "+";
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Windows)) ahk += "#";
-        ahk += SettingsWindow.KeyToAhkName(key);
+        ahk += HotkeyText.KeyToAhkName(key);
 
         if (_wizCaptureTarget != null)
         {
             _wizCaptureTarget.Text = ahk;
-            _wizCaptureTarget.Background = new SolidColorBrush(Color.FromRgb(37, 37, 64));
+            _wizCaptureTarget.ClearValue(Control.BackgroundProperty);
             _wizCaptureTarget.PreviewKeyDown -= OnWizKeyCaptured;
             _wizCaptureTarget = null;
         }
@@ -183,21 +223,20 @@ public partial class SetupWizard : Window
 
     private void BuildSummary()
     {
-        string summary = $"📐 Thumbnail size: {_selectedWidth} × {_selectedHeight}\n\n";
-
-        if (!string.IsNullOrWhiteSpace(TxtWizChar1.Text) && !string.IsNullOrWhiteSpace(TxtWizKey1.Text))
-            summary += $"⌨ {TxtWizChar1.Text} → {TxtWizKey1.Text}\n";
-        if (!string.IsNullOrWhiteSpace(TxtWizChar2.Text) && !string.IsNullOrWhiteSpace(TxtWizKey2.Text))
-            summary += $"⌨ {TxtWizChar2.Text} → {TxtWizKey2.Text}\n";
-        if (!string.IsNullOrWhiteSpace(TxtWizChar3.Text) && !string.IsNullOrWhiteSpace(TxtWizKey3.Text))
-            summary += $"⌨ {TxtWizChar3.Text} → {TxtWizKey3.Text}\n";
-
-        summary += $"\n🔄 Char Select Cycling: {(ChkWizCharCycle.IsChecked == true ? "Enabled" : "Disabled")}";
-        if (ChkWizCharCycle.IsChecked == true)
-            summary += $"\n   Forward: {TxtWizCycleFwd.Text} | Backward: {TxtWizCycleBwd.Text}";
-
-        TxtSummary.Text = summary;
+        var lines = new System.Collections.Generic.List<string>
+        {
+            string.Format(Str("L.Wiz.SumSize", "Thumbnail size: {0} × {1}"), _selectedWidth, _selectedHeight),
+        };
+        foreach (var (name, key) in new[] { (TxtWizChar1, TxtWizKey1), (TxtWizChar2, TxtWizKey2), (TxtWizChar3, TxtWizKey3) })
+            if (!string.IsNullOrWhiteSpace(name.Text) && !string.IsNullOrWhiteSpace(key.Text))
+                lines.Add($"{name.Text} → {key.Text}");
+        lines.Add(ChkWizCharCycle.IsChecked == true
+            ? string.Format(Str("L.Wiz.SumCycleOnFmt", "Character-select cycling: on (forward {0}, backward {1})"), TxtWizCycleFwd.Text, TxtWizCycleBwd.Text)
+            : Str("L.Wiz.SumCycleOff", "Character-select cycling: off"));
+        TxtSummary.Text = string.Join("\n", lines);
     }
+
+    private static string Str(string key, string english) => LocalizationService.Str(key, english);
 
     // ── Apply ──
 

@@ -560,12 +560,12 @@
     <sys:String x:Key="L.Wiz.Title">EVE MultiPreview — Einrichtungsassistent</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeTitle">Willkommen bei EVE MultiPreview</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeSub">Die C#-Edition deines Multi-Charakter-Vorschau-Tools.</sys:String>
-    <sys:String x:Key="L.Wiz.Feat1">✅ DWM-Vorschauen für alle EVE-Clients</sys:String>
-    <sys:String x:Key="L.Wiz.Feat2">✅ Hotkeys pro Charakter &amp; Gruppendurchlauf</sys:String>
-    <sys:String x:Key="L.Wiz.Feat3">✅ Angriffserkennung mit Blink-, Sound- und Toast-Warnungen</sys:String>
-    <sys:String x:Key="L.Wiz.Feat4">✅ Echtzeit-Überlagerungen für DPS, Logi, Mining &amp; Ratting</sys:String>
-    <sys:String x:Key="L.Wiz.Feat5">✅ Profilverwaltung mit Import/Export</sys:String>
-    <sys:String x:Key="L.Wiz.Feat6">✅ Sekundäre PiP-Vorschauen</sys:String>
+    <sys:String x:Key="L.Wiz.Feat1">DWM-Vorschauen für alle EVE-Clients</sys:String>
+    <sys:String x:Key="L.Wiz.Feat2">Hotkeys pro Charakter &amp; Gruppendurchlauf</sys:String>
+    <sys:String x:Key="L.Wiz.Feat3">Angriffserkennung mit Blink-, Sound- und Toast-Warnungen</sys:String>
+    <sys:String x:Key="L.Wiz.Feat4">Echtzeit-Überlagerungen für DPS, Logi, Mining &amp; Ratting</sys:String>
+    <sys:String x:Key="L.Wiz.Feat5">Profilverwaltung mit Import/Export</sys:String>
+    <sys:String x:Key="L.Wiz.Feat6">Sekundäre PiP-Vorschauen</sys:String>
     <sys:String x:Key="L.Wiz.WelcomeFooter">Richten wir dich in unter einer Minute ein!</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">Vorschaugröße wählen</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">Wähle die beste Voreinstellung für dein Setup. Du kannst dies später ändern.</sys:String>
@@ -576,10 +576,10 @@
     <sys:String x:Key="L.Wiz.HkSub">Optional: Weise Hotkeys zu, um zwischen Charakteren zu wechseln. Klicke auf ⌨, um zu erfassen.</sys:String>
     <sys:String x:Key="L.Wiz.CycleSub">Durchlaufe Charaktere im Login-Bildschirm per Hotkeys.</sys:String>
     <sys:String x:Key="L.Wiz.DoneTitle">Alles eingerichtet!</sys:String>
-    <sys:String x:Key="L.Wiz.DoneNote">Du kannst alle diese Einstellungen später über das Tray-Menü → Einstellungen ändern.</sys:String>
-    <sys:String x:Key="L.Wiz.Back">← Zurück</sys:String>
+    <sys:String x:Key="L.Wiz.DoneNote">Du kannst alle diese Einstellungen später über das Tray-Menü › Einstellungen ändern.</sys:String>
+    <sys:String x:Key="L.Wiz.Back">Zurück</sys:String>
     <sys:String x:Key="L.Wiz.Skip">Überspringen</sys:String>
-    <sys:String x:Key="L.Wiz.Next">Weiter →</sys:String>
+    <sys:String x:Key="L.Wiz.Next">Weiter</sys:String>
 
     <!-- Character Stat Editor dialog (metric acronym checkboxes kept English) -->
     <sys:String x:Key="L.SE.Title">Statistik-Überschreibungen</sys:String>
@@ -1874,4 +1874,11 @@
     <sys:String x:Key="L.Qs.Edit">Reihenfolge ändern</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.Save">Reihenfolge speichern</sys:String> <!-- draft -->
     <sys:String x:Key="L.Qs.SaveTt">Reihenfolge der Karten speichern</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.Done">Fertig</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.StepFmt">Schritt {0} von {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SelectedFmt">Ausgewählt: {0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.PressKey">Taste drücken…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumSize">Vorschaugröße: {0} × {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOnFmt">Charakterauswahl-Durchlauf: an (vorwärts {0}, rückwärts {1})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.SumCycleOff">Charakterauswahl-Durchlauf: aus</sys:String> <!-- draft -->
 </ResourceDictionary>
