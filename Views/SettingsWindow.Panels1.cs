@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using EveMultiPreview.Models;
+using EveMultiPreview.Services;
 using Button = System.Windows.Controls.Button;
 using Color = System.Windows.Media.Color;
 using Brushes = System.Windows.Media.Brushes;
@@ -296,8 +297,8 @@ public partial class SettingsWindow
         TxtOpacityValue.Text = $"{(int)SliderOpacity.Value}%";
         S.ThumbnailOpacity = (int)(SliderOpacity.Value * 255 / 100);
         _thumbnailManager?.ApplyOpacityToAll();
-        SaveDelayed();
-        _opacityOnlyChange = true; // Set AFTER SaveDelayed so it isn't cleared
+        _svc.SaveDelayed();
+        _applier.Request(ApplyScope.Opacity);
     }
 
     private void SaveThumbnails()

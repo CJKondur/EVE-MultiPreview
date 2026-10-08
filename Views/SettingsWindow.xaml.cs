@@ -31,7 +31,6 @@ public partial class SettingsWindow : Window
     private int _loadingDepth;
     private bool _loading => _loadingDepth > 0;
     private string _activePanel = "General";
-    private bool _hasUnappliedChanges = false;
 
     /// <summary>Set while a hotkey-capture is holding the WPF mouse capture; cleared
     /// by its cleanup. Invoked from OnDeactivated as a last-resort release so the app
@@ -55,9 +54,8 @@ public partial class SettingsWindow : Window
     // Live clock timer
     private DispatcherTimer? _clockTimer;
 
-    // Auto-apply timer — debounces 1s after last change, then reapplies settings live
-    private readonly DispatcherTimer _autoApplyTimer;
-    private bool _opacityOnlyChange;
+    // Debounced save → reapply → SettingsApplied; shared with the new settings window.
+    private readonly SettingsApplier _applier;
 
     // Dark title bar
     [DllImport("dwmapi.dll", PreserveSig = true)]
@@ -81,23 +79,13 @@ public partial class SettingsWindow : Window
         // whenever LastUsedProfile actually changes.
         _svc.ProfileSwitched += OnSvcProfileSwitched;
 
-        _autoApplyTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _autoApplyTimer.Tick += (_, _) =>
-        {
-            _autoApplyTimer.Stop();
-            _svc.Save();
-            if (_opacityOnlyChange)
-            {
-                _thumbnailManager?.ApplyOpacityToAll();
-                _opacityOnlyChange = false;
-            }
-            else
-            {
-                _thumbnailManager?.ReapplySettings();
-            }
-            SettingsApplied?.Invoke();
-            _hasUnappliedChanges = false;
-        };
+        _applier = new SettingsApplier(
+            save: () => _svc.Save(),
+            reapplyThumbnails: () => _thumbnailManager?.ReapplySettings(),
+            reapplyOpacity: () => _thumbnailManager?.ApplyOpacityToAll(),
+            refreshCrops: () => _cropManager?.Refresh(),
+            timer: new DispatcherDebounceTimer(TimeSpan.FromSeconds(1)));
+        _applier.Applied += () => SettingsApplied?.Invoke();
 
         // Outer guard — must survive until WPF's Loaded event fires.
         // WPF defers events (Checked, SelectionChanged, TextChanged) that
@@ -173,7 +161,7 @@ public partial class SettingsWindow : Window
     private void OnWindowClosing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         // Prompt if there are changes that haven't been applied
-        if (_hasUnappliedChanges)
+        if (_applier.HasPending)
         {
             var result = MessageBox.Show(
                 "You have unapplied changes.\n\nDo you want to apply them before closing?",
@@ -183,8 +171,7 @@ public partial class SettingsWindow : Window
 
             if (result == MessageBoxResult.Yes)
             {
-                _svc.Save();
-                _thumbnailManager?.ReapplySettings();
+                _applier.ApplyNow();
             }
             else if (result == MessageBoxResult.Cancel)
             {
@@ -497,14 +484,8 @@ public partial class SettingsWindow : Window
     {
         if (!_loading)
         {
-            _hasUnappliedChanges = true;
             _svc.SaveDelayed();
-
-            // Reset the 1s auto-apply timer — after 1s of no further changes, apply live
-            _autoApplyTimer.Stop();
-            _autoApplyTimer.Start();
-            // Clear opacity-only flag — OnOpacityChanged re-sets it AFTER this call
-            _opacityOnlyChange = false;
+            _applier.Request(ApplyScope.Thumbnails);
         }
     }
 
@@ -562,11 +543,7 @@ public partial class SettingsWindow : Window
 
     private void OnApplySettings(object s, RoutedEventArgs e)
     {
-        _svc.Save();
-        _thumbnailManager?.ReapplySettings();
-        _cropManager?.Refresh();
-        SettingsApplied?.Invoke();
-        _hasUnappliedChanges = false;
+        _applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
     }
 
     // ══════════════════════════════════════════════════════════════
