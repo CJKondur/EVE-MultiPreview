@@ -210,7 +210,8 @@ public partial class SettingsShell : Window, ISettingsHost
             _searchIndex = SearchIndex.Build(_pages, HelpTopics.All,
                 k => LocalizationService.Str(k, ""),
                 k => EnglishText(k),
-                extra: CharacterStores.SearchEntries(names, k => LocalizationService.Str(k, "")));
+                extra: CharacterStores.SearchEntries(names, k => LocalizationService.Str(k, ""))
+                    .Concat(AlertEvents.SearchEntries(k => LocalizationService.Str(k, ""), EnglishText)));
         }
         return _searchIndex;
     }
