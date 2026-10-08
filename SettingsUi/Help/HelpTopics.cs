@@ -17,7 +17,7 @@ public static class HelpTopics
     /// <summary>Every page's topics. Tasks 11–12 add the App pages'; Plan 3 adds the rest.</summary>
     public static IReadOnlyList<HelpTopic> All { get; } = Build();
 
-    private static IReadOnlyList<HelpTopic> Build() => HomePage.Help.Concat(ClientsPages.Help).Concat(CharacterPage.Help).Concat(AppPages.Help).ToList();
+    private static IReadOnlyList<HelpTopic> Build() => HomePage.Help.Concat(ClientsPages.Help).Concat(CharacterPage.Help).Concat(ThumbnailsPages.Help).Concat(AppPages.Help).ToList();
 
     public static IEnumerable<HelpTopic> ForPage(string pageId) => All.Where(t => t.PageId == pageId);
     public static HelpTopic? ForSetting(string itemId) => All.FirstOrDefault(t => t.SettingIds.Contains(itemId));

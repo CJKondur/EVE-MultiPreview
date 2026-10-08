@@ -1236,4 +1236,31 @@
     <sys:String x:Key="L.Help.home.alerts.Body">MultiPreview читает журналы чата и боя EVE и подсвечивает миниатюру клиента, которому вы нужны. Включите события, которые для вас важны. Остальные события, цвета и звуки находятся в разделе «Оповещения» во всех настройках.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Title">Быстрые действия</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Body">Каждый переключатель делает то же, что и его горячая клавиша, показанная рядом: скрыть все миниатюры, закрепить их на месте, приостановить все горячие клавиши или пропускать клики сквозь миниатюры.&#x0A;&#x0A;**Показать все настройки** открывает все страницы, если вам нужно больше, чем самое важное.</sys:String> <!-- draft -->
+    <!-- Thumbnails › Appearance (Plan 3b) -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance">Внешний вид</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance.Desc">Размер, прозрачность, увеличение и фон всех миниатюр.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.size">Размер</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll">Изменить размер всех миниатюр</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll.Desc">Ширина × высота. «Применить ко всем» меняет размер каждой миниатюры на месте, а новые миниатюры появляются с этим размером. Отмена — в разделе «Раскладка &amp; экраны».</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.thumbs.appearance.applySize">Применить ко всем</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize">Менять размер миниатюр по одной</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize.Desc">Вкл.: изменение размера затрагивает только одну миниатюру. Выкл.: за ней следуют все, если не удерживать Ctrl.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.seeThrough">Прозрачность</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity">Прозрачность</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity.Desc">Чем ниже значение, тем лучше видна игра позади. Это та же настройка, что и на Главной.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover">Непрозрачная под мышью</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover.Desc">Миниатюра становится полностью непрозрачной, пока над ней мышь.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.zoom">Увеличение при наведении</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom">Увеличение под мышью</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom.Desc">Миниатюра увеличивается, пока на ней лежит мышь.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale">Размер увеличения</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale.Desc">Насколько она вырастает по сравнению с обычным размером.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.backdrop">Фон</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background">Цвет фона</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background.Desc">Заливает миниатюру там, где нет картинки.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.Intro">Как выглядит каждая миниатюра: её размер, насколько просвечивает игра, увеличение под мышью и цвет за картинкой. У персонажа может быть и свой размер — он задаётся на его странице.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Title">Размер миниатюр</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**Изменить размер всех миниатюр** одним действием задаёт им одинаковый размер, и новые миниатюры появляются с ним. Миниатюры остаются на своих местах, а **Отменить** («Раскладка &amp; экраны») возвращает прежние размеры.&#x0A;&#x0A;Чтобы менять размер вручную, удерживайте правую кнопку мыши на миниатюре, нажмите ещё и левую и тяните. Если **Менять размер миниатюр по одной** выключено, за ней следуют все; удерживайте Ctrl, чтобы изменить только одну.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Title">Прозрачность, увеличение и фон</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **Прозрачность** позволяет видеть игру позади. **Непрозрачная под мышью** делает миниатюру непрозрачной, пока вы на неё наводите.&#x0A;- **Увеличение под мышью** увеличивает миниатюру, пока на ней лежит мышь, до выбранного **Размера увеличения**.&#x0A;- **Цвет фона** заливает миниатюру там, где нет картинки.</sys:String> <!-- draft -->
 </ResourceDictionary>

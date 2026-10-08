@@ -1217,4 +1217,31 @@
     <sys:String x:Key="L.Help.home.alerts.Body">MultiPreview は EVE のチャットログと戦闘ログを読み取り、あなたを必要としているクライアントのサムネイルを点滅させます。気になるイベントをオンにしてください。そのほかのイベント、色、サウンドは、すべての設定の「アラート」にあります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Title">クイック操作</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Body">各スイッチは、隣に表示されたホットキーと同じ動作をします。すべてのサムネイルを隠す、位置を固定する、すべてのホットキーを一時停止する、クリックをサムネイルに透過させる、のいずれかです。&#x0A;&#x0A;**すべての設定を表示** は、基本以上の設定が必要なときにすべてのページを開きます。</sys:String> <!-- draft -->
+    <!-- Thumbnails › Appearance (Plan 3b) -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance">外観</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance.Desc">すべてのサムネイルのサイズ、不透明度、ズーム、背景。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.size">サイズ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll">すべてのサムネイルをリサイズ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll.Desc">幅 × 高さ。「すべてに適用」で各サムネイルをその場でリサイズし、新しいサムネイルもこのサイズで始まります。元に戻すには「レイアウト &amp; 画面」を使います。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.thumbs.appearance.applySize">すべてに適用</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize">サムネイルを1つずつリサイズ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize.Desc">オン: リサイズはそのサムネイルだけに反映されます。オフ: Ctrl を押さない限り、すべてのサムネイルが追従します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.seeThrough">不透明度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity">不透明度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity.Desc">低いほど後ろのゲームが透けて見えます。ホームと同じ設定です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover">マウスの下では不透明</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover.Desc">マウスが乗っている間、サムネイルは完全に不透明になります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.zoom">ホバーズーム</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom">マウスの下でズーム</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom.Desc">マウスが乗っている間、サムネイルが拡大します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale">ズームサイズ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale.Desc">通常のサイズと比べてどこまで大きくなるか。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.backdrop">背景</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background">背景色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background.Desc">画像がない部分をサムネイルで塗りつぶします。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.Intro">各サムネイルの見た目: サイズ、ゲームがどれだけ透けるか、マウスの下でのズーム、画像の後ろの色。キャラクターごとに専用のサイズを持たせることもでき、そのページで設定します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Title">サムネイルのサイズ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**すべてのサムネイルをリサイズ**は、全部を一度にまったく同じサイズにし、新しいサムネイルもそのサイズで始まります。サムネイルの位置は変わらず、**元に戻す**（レイアウト &amp; 画面）で以前のサイズに戻せます。&#x0A;&#x0A;手動でリサイズするには、サムネイル上で右ボタンを押したまま左ボタンも押してドラッグします。**サムネイルを1つずつリサイズ**がオフなら全部が追従し、Ctrl を押すと1つだけリサイズできます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Title">不透明度、ズーム、背景</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **不透明度**で後ろのゲームを透かせます。**マウスの下では不透明**は、ポイントしている間サムネイルを不透明にします。&#x0A;- **マウスの下でズーム**は、マウスが乗っている間サムネイルを選んだ**ズームサイズ**まで拡大します。&#x0A;- **背景色**は、画像がない部分をサムネイルで塗りつぶします。</sys:String> <!-- draft -->
 </ResourceDictionary>

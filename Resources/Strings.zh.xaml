@@ -1234,4 +1234,31 @@
     <sys:String x:Key="L.Help.home.alerts.Body">MultiPreview 会读取 EVE 的聊天和战斗日志，并让需要你的客户端的缩略图闪烁。开启你关心的事件即可。其他事件、颜色和声音在所有设置的“警报”下。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Title">快捷操作</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Body">每个开关的作用与旁边显示的热键相同：隐藏所有缩略图、将它们锁定在原位、暂停所有热键，或让点击穿透缩略图。&#x0A;&#x0A;**显示所有设置** 会打开所有页面，如果你需要的不止这些基本设置。</sys:String> <!-- draft -->
+    <!-- Thumbnails › Appearance (Plan 3b) -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance">外观</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance.Desc">所有缩略图的大小、不透明度、缩放和背景。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.size">大小</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll">调整所有缩略图大小</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll.Desc">宽 × 高。“应用到全部”会就地调整每个缩略图的大小，新缩略图也将以此大小开始。可在“布局 &amp; 屏幕”中撤销。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.thumbs.appearance.applySize">应用到全部</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize">逐个调整缩略图大小</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize.Desc">开：调整大小只影响该缩略图。关：所有缩略图一起变化，按住 Ctrl 除外。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.seeThrough">不透明度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity">不透明度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity.Desc">越低，后面的游戏越能透出来。与主页上的是同一设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover">鼠标悬停时不透明</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover.Desc">鼠标悬停在缩略图上时，它会变为完全不透明。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.zoom">悬停缩放</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom">鼠标下缩放</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom.Desc">鼠标停留在缩略图上时，它会放大。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale">缩放大小</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale.Desc">相对于正常大小放大多少。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.backdrop">背景</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background">背景颜色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background.Desc">在没有画面的地方填充缩略图。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.Intro">每个缩略图的外观：大小、透出多少游戏画面、鼠标下的缩放，以及画面后面的颜色。角色也可以有自己的大小，在其页面中设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Title">缩略图大小</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**调整所有缩略图大小**可一次让所有缩略图变为完全相同的大小，新缩略图也以此大小开始。缩略图位置不变，**撤销**（布局 &amp; 屏幕）可恢复原来的大小。&#x0A;&#x0A;手动调整大小：在缩略图上按住鼠标右键，再按下左键并拖动。关闭**逐个调整缩略图大小**时，所有缩略图一起变化；按住 Ctrl 可只调整一个。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Title">不透明度、缩放和背景</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **不透明度**让后面的游戏透出来。**鼠标悬停时不透明**会在你指向缩略图时使其不透明。&#x0A;- **鼠标下缩放**会在鼠标停留时放大缩略图，大小为你选择的**缩放大小**。&#x0A;- **背景颜色**在没有画面的地方填充缩略图。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -1216,4 +1216,31 @@
     <sys:String x:Key="L.Help.home.alerts.Body">MultiPreview reads EVE's chat and combat logs and flashes the thumbnail of the client that needs you. Turn on the events you care about. Every other event, colours and sounds are under Alerts in all settings.</sys:String>
     <sys:String x:Key="L.Help.home.quick.Title">Quick actions</sys:String>
     <sys:String x:Key="L.Help.home.quick.Body">Each switch does the same as its hotkey, shown next to it: hide every thumbnail, lock them in place, pause all hotkeys, or let clicks go through the thumbnails.&#x0A;&#x0A;**Show all settings** opens every page, if you want more than the essentials.</sys:String>
+    <!-- Thumbnails › Appearance (Plan 3b) -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance">Appearance</sys:String>
+    <sys:String x:Key="L.S.Page.thumbs.appearance.Desc">Size, opacity, zoom and background for every thumbnail.</sys:String>
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.size">Size</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll">Resize every thumbnail</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll.Desc">Width × height. Apply to all resizes every thumbnail where it is, and new thumbnails start at this size. Undo it under Layout &amp; screens.</sys:String>
+    <sys:String x:Key="L.S.Act.thumbs.appearance.applySize">Apply to all</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize">Resize thumbnails one at a time</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize.Desc">On: resizing a thumbnail changes only that one. Off: every thumbnail follows, unless you hold Ctrl.</sys:String>
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.seeThrough">Opacity</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.opacity">Opacity</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.opacity.Desc">Lower lets the game behind show through. The same setting as on Home.</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover">Solid under the mouse</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover.Desc">A thumbnail turns fully opaque while the mouse is over it.</sys:String>
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.zoom">Hover zoom</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom">Zoom under the mouse</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom.Desc">A thumbnail grows while the mouse rests on it.</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale">Zoom size</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale.Desc">How big it grows, compared with its normal size.</sys:String>
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.backdrop">Background</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.background">Background colour</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.background.Desc">Fills a thumbnail where there is no picture.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.appearance.Intro">How every thumbnail looks: its size, how much of the game shows through it, the zoom under the mouse and the colour behind the picture. A character can also have its own size, set on its page.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Title">Sizing thumbnails</sys:String>
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**Resize every thumbnail** gives all of them the same exact size at once, and new thumbnails start at it. Thumbnails stay where they are, and **Undo** (Layout &amp; screens) puts the old sizes back.&#x0A;&#x0A;To size by hand, hold the right mouse button on a thumbnail, press the left button too and drag. With **Resize thumbnails one at a time** off, every thumbnail follows; hold Ctrl to size just one.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Title">Opacity, zoom and background</sys:String>
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **Opacity** lets the game behind show through. **Solid under the mouse** makes a thumbnail opaque while you point at it.&#x0A;- **Zoom under the mouse** enlarges a thumbnail while the mouse rests on it, to the **Zoom size** you pick.&#x0A;- **Background colour** fills a thumbnail where there is no picture.</sys:String>
 </ResourceDictionary>

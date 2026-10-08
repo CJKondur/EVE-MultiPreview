@@ -1219,4 +1219,31 @@
     <sys:String x:Key="L.Help.home.alerts.Body">MultiPreview lit les journaux de discussion et de combat d'EVE et fait clignoter la miniature du client qui a besoin de vous. Activez les événements qui vous importent. Les autres événements, les couleurs et les sons sont sous Alertes dans tous les réglages.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Title">Actions rapides</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Body">Chaque interrupteur fait comme son raccourci, affiché à côté : masquer toutes les miniatures, les verrouiller en place, mettre tous les raccourcis en pause ou laisser passer les clics à travers les miniatures.&#x0A;&#x0A;**Afficher tous les réglages** ouvre toutes les pages, si vous voulez plus que l'essentiel.</sys:String> <!-- draft -->
+    <!-- Thumbnails › Appearance (Plan 3b) -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance">Apparence</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance.Desc">Taille, opacité, zoom et arrière-plan de toutes les vignettes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.size">Taille</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll">Redimensionner toutes les vignettes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll.Desc">Largeur × hauteur. « Appliquer à toutes » redimensionne chaque vignette sur place, et les nouvelles vignettes démarrent à cette taille. Annulable sous Disposition &amp; écrans.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.thumbs.appearance.applySize">Appliquer à toutes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize">Redimensionner les vignettes une par une</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize.Desc">Activé : redimensionner une vignette ne change que celle-ci. Désactivé : toutes suivent, sauf si vous maintenez Ctrl.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.seeThrough">Opacité</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity">Opacité</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity.Desc">Plus bas laisse mieux voir le jeu derrière. Même réglage que sur Accueil.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover">Opaque sous la souris</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover.Desc">Une vignette devient totalement opaque quand la souris passe dessus.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.zoom">Zoom au survol</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom">Zoom sous la souris</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom.Desc">Une vignette grossit tant que la souris reste dessus.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale">Taille du zoom</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale.Desc">De combien elle grossit, par rapport à sa taille normale.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.backdrop">Arrière-plan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background">Couleur d'arrière-plan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background.Desc">Remplit une vignette là où il n'y a pas d'image.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.Intro">L'aspect de chaque vignette : sa taille, la part du jeu qui transparaît, le zoom sous la souris et la couleur derrière l'image. Un personnage peut aussi avoir sa propre taille, réglée sur sa page.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Title">Dimensionner les vignettes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**Redimensionner toutes les vignettes** leur donne à toutes exactement la même taille d'un coup, et les nouvelles vignettes démarrent à cette taille. Les vignettes restent où elles sont, et **Annuler** (Disposition &amp; écrans) rétablit les anciennes tailles.&#x0A;&#x0A;Pour redimensionner à la main, maintenez le bouton droit sur une vignette, appuyez aussi sur le gauche et faites glisser. Avec **Redimensionner les vignettes une par une** désactivé, toutes suivent ; maintenez Ctrl pour n'en redimensionner qu'une.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Title">Opacité, zoom et arrière-plan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **Opacité** laisse transparaître le jeu derrière. **Opaque sous la souris** rend une vignette opaque tant que vous la pointez.&#x0A;- **Zoom sous la souris** agrandit une vignette tant que la souris reste dessus, à la **Taille du zoom** choisie.&#x0A;- **Couleur d'arrière-plan** remplit une vignette là où il n'y a pas d'image.</sys:String> <!-- draft -->
 </ResourceDictionary>

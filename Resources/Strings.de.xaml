@@ -1216,4 +1216,31 @@
     <sys:String x:Key="L.Help.home.alerts.Body">MultiPreview liest die Chat- und Kampfprotokolle von EVE und lässt die Vorschau des Clients blinken, der dich braucht. Schalte die Ereignisse ein, die dir wichtig sind. Alle anderen Ereignisse, Farben und Töne findest du unter Warnungen in allen Einstellungen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Title">Schnellaktionen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Body">Jeder Schalter tut dasselbe wie sein daneben gezeigter Hotkey: alle Vorschaubilder ausblenden, an Ort und Stelle sperren, alle Hotkeys pausieren oder Klicks durch die Vorschaubilder lassen.&#x0A;&#x0A;**Alle Einstellungen anzeigen** öffnet alle Seiten, falls du mehr als das Wichtigste willst.</sys:String> <!-- draft -->
+    <!-- Thumbnails › Appearance (Plan 3b) -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance">Darstellung</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance.Desc">Größe, Deckkraft, Zoom und Hintergrund für alle Vorschaubilder.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.size">Größe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll">Alle Vorschaubilder skalieren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll.Desc">Breite × Höhe. „Auf alle anwenden“ skaliert jedes Vorschaubild an Ort und Stelle; neue Vorschaubilder starten mit dieser Größe. Rückgängig unter Layout &amp; Bildschirme.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.thumbs.appearance.applySize">Auf alle anwenden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize">Vorschaubilder einzeln skalieren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize.Desc">An: Das Skalieren ändert nur dieses eine Vorschaubild. Aus: Alle folgen, außer du hältst Strg gedrückt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.seeThrough">Deckkraft</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity">Deckkraft</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity.Desc">Niedriger lässt mehr vom Spiel dahinter durchscheinen. Dieselbe Einstellung wie auf Start.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover">Undurchsichtig unter der Maus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover.Desc">Ein Vorschaubild wird voll undurchsichtig, solange die Maus darüber ist.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.zoom">Hover-Zoom</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom">Zoom unter der Maus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom.Desc">Ein Vorschaubild wächst, solange die Maus darauf ruht.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale">Zoomgröße</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale.Desc">Wie groß es wird, verglichen mit der normalen Größe.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.backdrop">Hintergrund</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background">Hintergrundfarbe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background.Desc">Füllt ein Vorschaubild, wo kein Bild ist.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.Intro">Wie jedes Vorschaubild aussieht: seine Größe, wie viel vom Spiel durchscheint, der Zoom unter der Maus und die Farbe hinter dem Bild. Ein Charakter kann auch eine eigene Größe haben, die auf seiner Seite eingestellt wird.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Title">Vorschaubilder skalieren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**Alle Vorschaubilder skalieren** gibt allen auf einmal genau dieselbe Größe, und neue Vorschaubilder starten damit. Die Vorschaubilder bleiben, wo sie sind, und **Rückgängig** (Layout &amp; Bildschirme) stellt die alten Größen wieder her.&#x0A;&#x0A;Zum Skalieren von Hand halte die rechte Maustaste auf einem Vorschaubild, drücke zusätzlich die linke und ziehe. Ist **Vorschaubilder einzeln skalieren** aus, folgen alle; halte Strg, um nur eines zu skalieren.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Title">Deckkraft, Zoom und Hintergrund</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **Deckkraft** lässt das Spiel dahinter durchscheinen. **Undurchsichtig unter der Maus** macht ein Vorschaubild undurchsichtig, solange du darauf zeigst.&#x0A;- **Zoom unter der Maus** vergrößert ein Vorschaubild, solange die Maus darauf ruht, auf die gewählte **Zoomgröße**.&#x0A;- **Hintergrundfarbe** füllt ein Vorschaubild, wo kein Bild ist.</sys:String> <!-- draft -->
 </ResourceDictionary>

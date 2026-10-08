@@ -1238,4 +1238,31 @@
     <sys:String x:Key="L.Help.home.alerts.Body">MultiPreview lee los registros de chat y de combate de EVE y hace parpadear la miniatura del cliente que te necesita. Activa los eventos que te importan. El resto de eventos, los colores y los sonidos están en Alertas, en todos los ajustes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Title">Acciones rápidas</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.quick.Body">Cada interruptor hace lo mismo que su atajo, mostrado al lado: ocultar todas las miniaturas, bloquearlas en su sitio, pausar todos los atajos o dejar que los clics atraviesen las miniaturas.&#x0A;&#x0A;**Mostrar todos los ajustes** abre todas las páginas, si quieres más que lo esencial.</sys:String> <!-- draft -->
+    <!-- Thumbnails › Appearance (Plan 3b) -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance">Apariencia</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.thumbs.appearance.Desc">Tamaño, opacidad, zoom y fondo de todas las miniaturas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.size">Tamaño</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll">Cambiar el tamaño de todas las miniaturas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.resizeAll.Desc">Ancho × alto. «Aplicar a todas» cambia el tamaño de cada miniatura donde está, y las miniaturas nuevas empiezan con este tamaño. Se deshace en Diseño &amp; pantallas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.thumbs.appearance.applySize">Aplicar a todas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize">Cambiar el tamaño de las miniaturas una a una</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.individualResize.Desc">Activado: cambiar el tamaño de una miniatura solo afecta a esa. Desactivado: todas la siguen, salvo que mantengas Ctrl.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.seeThrough">Opacidad</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity">Opacidad</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacity.Desc">Más baja deja ver más el juego de detrás. Es el mismo ajuste que en Inicio.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover">Sólida bajo el ratón</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.opacityOnHover.Desc">Una miniatura se vuelve totalmente opaca mientras el ratón está encima.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.zoom">Zoom al pasar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom">Zoom bajo el ratón</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverZoom.Desc">Una miniatura crece mientras el ratón descansa sobre ella.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale">Tamaño del zoom</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.hoverScale.Desc">Cuánto crece, comparado con su tamaño normal.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.thumbs.appearance.backdrop">Fondo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background">Color de fondo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.background.Desc">Rellena una miniatura donde no hay imagen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.Intro">Cómo se ve cada miniatura: su tamaño, cuánto del juego se transparenta, el zoom bajo el ratón y el color detrás de la imagen. Un personaje también puede tener su propio tamaño, que se ajusta en su página.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Title">Tamaño de las miniaturas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**Cambiar el tamaño de todas las miniaturas** les da a todas exactamente el mismo tamaño de una vez, y las miniaturas nuevas empiezan con él. Las miniaturas se quedan donde están, y **Deshacer** (Diseño &amp; pantallas) devuelve los tamaños anteriores.&#x0A;&#x0A;Para cambiar el tamaño a mano, mantén el botón derecho sobre una miniatura, pulsa también el izquierdo y arrastra. Con **Cambiar el tamaño de las miniaturas una a una** desactivado, todas la siguen; mantén Ctrl para cambiar solo una.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Title">Opacidad, zoom y fondo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **Opacidad** deja ver el juego de detrás. **Sólida bajo el ratón** vuelve opaca una miniatura mientras la señalas.&#x0A;- **Zoom bajo el ratón** agranda una miniatura mientras el ratón descansa sobre ella, al **Tamaño del zoom** que elijas.&#x0A;- **Color de fondo** rellena una miniatura donde no hay imagen.</sys:String> <!-- draft -->
 </ResourceDictionary>
