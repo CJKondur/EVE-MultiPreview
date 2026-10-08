@@ -864,4 +864,8 @@
     <sys:String x:Key="L.Help.app.about.window.Title">La vecchia finestra delle impostazioni</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">La finestra delle impostazioni precedente resta disponibile mentre quella nuova si assesta. Attiva **Usa la vecchia finestra delle impostazioni**, poi riapri le impostazioni. Nella vecchia finestra, **Prova la nuova finestra delle impostazioni** ti riporta qui.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">Prova la nuova finestra delle impostazioni (anteprima). Ha effetto alla prossima apertura delle impostazioni.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview non può usare questo tasto. Scegline un altro.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.Character">Passa a {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupNext">Gruppo {0}: client successivo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupPrevious">Gruppo {0}: client precedente</sys:String> <!-- draft -->
 </ResourceDictionary>

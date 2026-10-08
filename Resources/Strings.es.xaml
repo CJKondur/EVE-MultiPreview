@@ -868,4 +868,8 @@
     <sys:String x:Key="L.Help.app.about.window.Title">La ventana de ajustes antigua</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">La ventana de ajustes anterior sigue disponible mientras la nueva se asienta. Activa **Usar la ventana de ajustes antigua** y vuelve a abrir los ajustes. En la ventana antigua, **Probar la nueva ventana de ajustes** te trae de vuelta.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">Probar la nueva ventana de ajustes (vista previa). Surte efecto la próxima vez que abras los ajustes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview no puede usar esta tecla. Elige otra.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.Character">Cambiar a {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupNext">Grupo {0}: siguiente cliente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupPrevious">Grupo {0}: cliente anterior</sys:String> <!-- draft -->
 </ResourceDictionary>

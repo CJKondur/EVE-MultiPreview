@@ -35,6 +35,15 @@ public sealed class HotkeyService : IDisposable
     private readonly List<int> _activationHotkeyIds = new(); // vkE8 internal activation hotkeys
     private bool _hotkeysActive = false; // Whether non-suspend hotkeys are currently registered
 
+    // ── Capture mode (the settings window's hotkey dialog) ──
+    // While the new settings window records a hotkey, every key and button this service
+    // holds is released, so the press reaches the dialog: RegisterHotKey, the keystroke-
+    // hiding hook and the mouse hook would otherwise swallow it (and switch clients), and
+    // the dialog's clash warning could never see an already-bound key. Counted, so nested
+    // Begin/End pairs are safe; SettingsUi.HotkeyCapture.Run always ends it in a finally.
+    private int _captureDepth;
+    private string _suspendAhk = "";
+
     // Foreground-gated registration (issue #68). In EVE-only scope, hotkeys must be
     // UNREGISTERED while a non-EVE app is foreground — otherwise RegisterHotKey
     // captures the key system-wide and swallows it (consumed but not actioned),
@@ -296,47 +305,50 @@ public sealed class HotkeyService : IDisposable
 
     private void OnForegroundChangedForScope(IntPtr _) => EvaluateRegistration();
 
+    /// <summary>What <see cref="EvaluateRegistration"/> does next.</summary>
+    public enum RegistrationStep { Leave, Activate, Deactivate }
+
+    /// <summary>
+    /// The registration rule, kept pure so it can be tested (issue #68):
+    /// • Suspended → leave as-is (ToggleSuspend owns that state).
+    /// • Capturing in the settings window → leave as-is (EndCapture restores).
+    /// • No EVE clients tracked → unregister (keys work normally everywhere).
+    /// • EVE-only scope → register ONLY while EVE or this app is foreground, so a
+    ///   keystroke that wouldn't be actioned is never consumed.
+    /// • Global scope → register whenever clients exist (capture everywhere).
+    /// </summary>
+    public static RegistrationStep DecideRegistration(bool suspended, bool capturing, Func<bool> hasWindows,
+        bool eveOnlyScope, Func<bool> foregroundIsEveOrApp)
+    {
+        if (suspended || capturing) return RegistrationStep.Leave;
+        if (!hasWindows()) return RegistrationStep.Deactivate;
+        if (!eveOnlyScope) return RegistrationStep.Activate;
+        return foregroundIsEveOrApp() ? RegistrationStep.Activate : RegistrationStep.Deactivate;
+    }
+
     /// <summary>
     /// Single source of truth for whether the user's hotkeys should currently be
     /// registered with the OS. Drives both the foreground-change events and the
-    /// safety-net poll timer.
-    ///
-    /// • Suspended → leave as-is (ToggleSuspend owns that state).
-    /// • No EVE clients tracked → unregister (keys work normally everywhere).
-    /// • EVE-only scope → register ONLY while EVE or this app is foreground, so a
-    ///   keystroke that wouldn't be actioned is never consumed (issue #68).
-    /// • Global scope → register whenever clients exist (capture everywhere).
+    /// safety-net poll timer. The rule is <see cref="DecideRegistration"/>.
     /// </summary>
     public void EvaluateRegistration()
     {
-        if (_suspended) return;
-
-        bool hasWindows = _hasWindowsProvider?.Invoke() ?? true;
-        if (!hasWindows)
-        {
-            DeactivateHotkeys();
-            return;
-        }
-
-        if (_eveOnlyScope)
-        {
-            bool fgIsEveOrApp = false;
-            try { fgIsEveOrApp = User32.IsEveOrAppProcess(User32.GetProcessName(User32.GetForegroundWindow())); }
-            catch { }
-
-            if (fgIsEveOrApp) ActivateHotkeys();
-            else DeactivateHotkeys();
-        }
-        else
-        {
-            ActivateHotkeys();
-        }
+        var step = DecideRegistration(_suspended, IsCapturing,
+            () => _hasWindowsProvider?.Invoke() ?? true,
+            _eveOnlyScope,
+            () =>
+            {
+                try { return User32.IsEveOrAppProcess(User32.GetProcessName(User32.GetForegroundWindow())); }
+                catch { return false; }
+            });
+        if (step == RegistrationStep.Activate) ActivateHotkeys();
+        else if (step == RegistrationStep.Deactivate) DeactivateHotkeys();
     }
 
     /// <summary>Register all stored non-suspend hotkeys. Call when EVE windows appear.</summary>
     public void ActivateHotkeys()
     {
-        if (_hotkeysActive || _suspended || _hwndSource == null)
+        if (_hotkeysActive || _suspended || _captureDepth > 0 || _hwndSource == null)
         {
             return;
         }
@@ -489,6 +501,57 @@ public sealed class HotkeyService : IDisposable
         Debug.WriteLine($"[Hotkey:Scope] ⏸ Suspend: {_suspended}");
     }
 
+    /// <summary>True while the settings window's hotkey dialog is open.</summary>
+    public bool IsCapturing => _captureDepth > 0;
+
+    /// <summary>Release every hotkey and hook (the vk0xE8 activation bridge stays) until the
+    /// matching <see cref="EndCapture"/>. Stored specs and mouse bindings are kept.</summary>
+    public void BeginCapture()
+    {
+        if (_captureDepth++ > 0) return;
+        if (_hwndSource != null)
+        {
+            foreach (var id in _hotkeyActions.Keys.ToList())
+            {
+                if (_activationHotkeyIds.Contains(id)) continue;
+                User32.UnregisterHotKey(_hwndSource.Handle, id);
+                _hotkeyActions.Remove(id);
+                _hotkeyVks.Remove(id);
+            }
+        }
+        _suspendHotkeyId = -1;
+        _repeatableIds.Clear();
+        _lastRepeatFireTick.Clear();
+        _lastHotkeyPostTick.Clear();
+        _hotkeysActive = false;
+        RemoveMouseHook();
+        RemoveKeyHook();
+    }
+
+    /// <summary>Undo <see cref="BeginCapture"/>: the suspend key, the mouse bindings (unless
+    /// paused) and the foreground-gated registration all come back as they were.</summary>
+    public void EndCapture()
+    {
+        if (_captureDepth == 0 || --_captureDepth > 0) return;
+        RestoreSuspendHotkey();
+        if (!_suspended && _storedMouseBindings.Count > 0)
+        {
+            _mouseBindings.Clear();
+            _mouseBindings.AddRange(_storedMouseBindings);
+            EnsureMouseHook();
+        }
+        EvaluateRegistration();
+    }
+
+    /// <summary>A keyboard suspend key is registered directly; a mouse-button one lives in the
+    /// stored mouse bindings and comes back with them.</summary>
+    private void RestoreSuspendHotkey()
+    {
+        if (_suspendHotkeyId > 0 || string.IsNullOrWhiteSpace(_suspendAhk)) return;
+        if (IsMouseButton(ExtractModsAndKey(_suspendAhk).KeyPart)) return;
+        _suspendHotkeyId = RegisterAhkHotkey(_suspendAhk, () => ToggleSuspend());
+    }
+
     /// <summary>
     /// Register all hotkeys from settings. Call from UI thread after services are wired.
     /// </summary>
@@ -543,8 +606,12 @@ public sealed class HotkeyService : IDisposable
         foreach (var binding in profile.Hotkeys.Values)
             RegisterCycleKeyIgnore(binding.Key);
 
-        // Suspend hotkey
-        _suspendHotkeyId = RegisterAhkHotkey(settings.SuspendHotkey, () => ToggleSuspend());
+        // Suspend hotkey. In capture mode a keyboard suspend key waits for EndCapture (a
+        // mouse one is stored with the other mouse bindings; EnsureMouseHook waits too).
+        _suspendAhk = settings.SuspendHotkey;
+        _suspendHotkeyId = IsCapturing && !IsMouseButton(ExtractModsAndKey(_suspendAhk).KeyPart)
+            ? -1
+            : RegisterAhkHotkey(settings.SuspendHotkey, () => ToggleSuspend());
 
         // Non-suspend hotkeys are stored and initially deactivated
         // They'll be activated when EVE windows are detected
@@ -1230,7 +1297,7 @@ public sealed class HotkeyService : IDisposable
 
     private void EnsureMouseHook()
     {
-        if (_mouseHookThread != null || _suspended) return;
+        if (_mouseHookThread != null || _suspended || _captureDepth > 0) return;
 
         _mouseHookReady.Reset();
         _mouseHookThread = new System.Threading.Thread(MouseHookThreadProc)

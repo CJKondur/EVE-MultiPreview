@@ -46,8 +46,11 @@ public static class Setting
         Make(id, SettingKind.Color, prop, apply) with { Validate = v => IsColor(v as string) ? null : ErrColor };
 
     /// <summary>Hotkeys apply through App's re-registration on Applied, so Save is the scope.</summary>
-    public static SettingDescriptor Hotkey(string id, Expression<Func<AppSettings, string>> prop) =>
-        Make(id, SettingKind.Hotkey, prop, ApplyScope.Save);
+    public static SettingDescriptor Hotkey(string id, Expression<Func<AppSettings, string>> prop)
+    {
+        var d = Make(id, SettingKind.Hotkey, prop, ApplyScope.Save);
+        return d with { UseId = d.Binds[0] };
+    }
 
     /// <summary>A setting whose value is not one AppSettings property (registry key, derived value).</summary>
     public static SettingDescriptor Custom(string id, SettingKind kind, Func<AppSettings, object?> get, Action<AppSettings, object?> set,

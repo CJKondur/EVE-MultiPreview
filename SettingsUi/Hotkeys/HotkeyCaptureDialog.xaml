@@ -21,6 +21,8 @@
             <TextBlock Text="{Binding Display}" FontFamily="{StaticResource Fx.MonoFont}" FontSize="20"
                        Foreground="{StaticResource Fx.TextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
+        <TextBlock local:Loc.Key="L.S.Hotkey.Unusable" Foreground="{StaticResource Fx.CriticalBrush}" TextWrapping="Wrap"
+                   Margin="0,12,0,0" Visibility="{Binding Unusable, Converter={StaticResource BoolToVis}}"/>
         <StackPanel Visibility="{Binding HasClashes, Converter={StaticResource BoolToVis}}" Margin="0,12,0,0">
             <TextBlock local:Loc.Key="L.S.Hotkey.UsedBy" Foreground="{StaticResource Fx.WarningBrush}" FontWeight="SemiBold"/>
             <ItemsControl ItemsSource="{Binding Clashes}">
@@ -35,7 +37,7 @@
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
             <Button local:Loc.Key="L.S.Hotkey.Clear" Click="OnClear" Margin="0,0,8,0" Padding="16,6"/>
             <Button local:Loc.Key="L.S.Shell.Cancel" Click="OnCancel" Margin="0,0,8,0" Padding="16,6"/>
-            <Button local:Loc.Key="L.S.Shell.Ok" Click="OnOk" Padding="16,6" IsEnabled="{Binding HasCandidate}"/>
+            <Button local:Loc.Key="L.S.Shell.Ok" Click="OnOk" Padding="16,6" IsEnabled="{Binding CanAccept}"/>
         </StackPanel>
     </StackPanel>
 </Window>

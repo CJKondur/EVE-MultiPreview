@@ -866,4 +866,8 @@
     <sys:String x:Key="L.Help.app.about.window.Title">Старое окно настроек</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">Прежнее окно настроек остаётся доступным, пока новое обкатывается. Включите **Использовать старое окно настроек** и откройте настройки заново. В старом окне вернуться сюда можно кнопкой **Попробовать новое окно настроек**.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">Попробовать новое окно настроек (предпросмотр). Вступит в силу при следующем открытии настроек.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview не может использовать эту клавишу. Выберите другую.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.Character">Переключиться на {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupNext">Группа {0}: следующий клиент</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupPrevious">Группа {0}: предыдущий клиент</sys:String> <!-- draft -->
 </ResourceDictionary>

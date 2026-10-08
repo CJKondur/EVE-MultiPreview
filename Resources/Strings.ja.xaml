@@ -847,4 +847,8 @@
     <sys:String x:Key="L.Help.app.about.window.Title">旧設定ウィンドウ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">新しいウィンドウが安定するまで、以前の設定ウィンドウも使えます。**旧設定ウィンドウを使う**をオンにして設定を開き直してください。旧ウィンドウの**新しい設定ウィンドウを試す**で戻れます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">新しい設定ウィンドウを試す（プレビュー）。次に設定を開いたときから有効になります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview ではこのキーを使えません。別のキーを選んでください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.Character">{0} に切り替え</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupNext">グループ {0}：次のクライアント</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupPrevious">グループ {0}：前のクライアント</sys:String> <!-- draft -->
 </ResourceDictionary>

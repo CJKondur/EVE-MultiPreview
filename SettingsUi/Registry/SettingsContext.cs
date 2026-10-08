@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
 
@@ -16,13 +17,20 @@ public interface ISettingsHost
     string? PickFile(string? initial, string filter);
     string? PickSaveFile(string defaultName, string filter);
     string? PickColor(string? initial);
-    /// <summary>Opens the hotkey capture dialog. Returns the new AHK hotkey string, "" to clear, null if cancelled.</summary>
+    /// <summary>Opens the hotkey capture dialog for a use id (HotkeyUses.IdOf). Returns the new AHK hotkey string, "" to clear, null if cancelled.</summary>
     string? CaptureHotkey(string settingId, string? current);
     /// <summary>Re-read every card from settings (after an action changed many values, a language change, an import).</summary>
     void Reload();
 
     /// <summary>Asks for one line of text (a profile name). Null when cancelled or left empty.</summary>
     string? AskText(string title, string prompt, string initial);
+
+    /// <summary>Picks a character from <paramref name="names"/>, or a typed name (the old window's
+    /// character search). Null when cancelled.</summary>
+    string? PickCharacter(string title, IReadOnlyList<string> names);
+
+    /// <summary>A three-way question: Yes = true, No = false, Cancel = null.</summary>
+    bool? ConfirmChoice(string title, string body);
 
     /// <summary>Owner for modal dialogs the window opens (copy profile, update). Null in tests.</summary>
     System.Windows.Window? DialogOwner { get; }

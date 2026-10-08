@@ -849,4 +849,8 @@
     <sys:String x:Key="L.Help.app.about.window.Title">L'ancienne fenêtre de paramètres</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">L'ancienne fenêtre de paramètres reste disponible le temps que la nouvelle fasse ses preuves. Activez **Utiliser l'ancienne fenêtre de paramètres**, puis rouvrez les paramètres. Dans l'ancienne fenêtre, **Essayer la nouvelle fenêtre de paramètres** vous ramène ici.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">Essayer la nouvelle fenêtre de paramètres (aperçu). Prend effet à la prochaine ouverture des paramètres.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview ne peut pas utiliser cette touche. Choisissez-en une autre.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.Character">Basculer vers {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupNext">Groupe {0} : client suivant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupPrevious">Groupe {0} : client précédent</sys:String> <!-- draft -->
 </ResourceDictionary>

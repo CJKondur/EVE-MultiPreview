@@ -846,4 +846,8 @@
     <sys:String x:Key="L.Help.app.about.window.Title">Das alte Einstellungsfenster</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">Das frühere Einstellungsfenster bleibt verfügbar, solange sich das neue einspielt. Schalte **Altes Einstellungsfenster verwenden** ein und öffne die Einstellungen neu. Im alten Fenster bringt dich **Neues Einstellungsfenster testen** zurück.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">Neues Einstellungsfenster ausprobieren (Vorschau). Wirkt beim nächsten Öffnen der Einstellungen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview kann diese Taste nicht verwenden. Wähle eine andere.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.Character">Zu {0} wechseln</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupNext">Gruppe {0}: nächster Client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupPrevious">Gruppe {0}: vorheriger Client</sys:String> <!-- draft -->
 </ResourceDictionary>

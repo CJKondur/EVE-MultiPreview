@@ -142,11 +142,30 @@ public partial class SettingsShell : Window, ISettingsHost
 
     public string? CaptureHotkey(string settingId, string? current)
     {
-        var label = SettingsRegistry.Settings.FirstOrDefault(s => s.Id == settingId)?.LabelKey;
-        var dialog = new HotkeyCaptureDialog(label != null ? SettingsContext.Str(label) : settingId, current,
-            candidate => HotkeyUses.Clashes(_ctx.S, SettingsRegistry.Settings, candidate, settingId)) { Owner = this };
-        return dialog.ShowDialog() == true ? dialog.Result : null;
+        var title = HotkeyUses.LabelFor(_ctx.S, SettingsRegistry.Settings, settingId) ?? settingId;
+        // Capture mode: every MultiPreview hotkey is released while the dialog is open, so a bound
+        // key reaches it (and the clash list) instead of switching clients (Plan 3a Task 1).
+        return HotkeyCapture.Run(_ctx.Services.Hotkeys, () =>
+        {
+            var dialog = new HotkeyCaptureDialog(title, current,
+                candidate => HotkeyUses.Clashes(_ctx.S, SettingsRegistry.Settings, candidate, settingId)) { Owner = this };
+            return dialog.ShowDialog() == true ? dialog.Result : null;
+        });
     }
+
+    public string? PickCharacter(string title, IReadOnlyList<string> names)
+    {
+        var dialog = new Views.CharacterPickerDialog(title, names) { Owner = this };
+        return dialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(dialog.SelectedName) ? dialog.SelectedName!.Trim() : null;
+    }
+
+    public bool? ConfirmChoice(string title, string body) =>
+        MessageBox.Show(this, body, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question) switch
+        {
+            MessageBoxResult.Yes => true,
+            MessageBoxResult.No => false,
+            _ => null,
+        };
 
     public string? AskText(string title, string prompt, string initial)
     {

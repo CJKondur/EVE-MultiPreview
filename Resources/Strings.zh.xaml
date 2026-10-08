@@ -864,4 +864,8 @@
     <sys:String x:Key="L.Help.app.about.window.Title">旧版设置窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">在新窗口稳定下来之前，旧版设置窗口仍然可用。打开**使用旧版设置窗口**，然后重新打开设置即可使用。在旧窗口中，点击**试用新版设置窗口**即可回来。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">试用新的设置窗口（预览）。下次打开设置时生效。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview 无法使用此按键，请换一个。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.Character">切换到 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupNext">分组 {0}：下一个客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Use.GroupPrevious">分组 {0}：上一个客户端</sys:String> <!-- draft -->
 </ResourceDictionary>

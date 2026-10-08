@@ -43,6 +43,11 @@ public sealed record SettingDescriptor
     /// <summary>Old settings-window x:Names and handler names this card replaces (parity test).</summary>
     public IReadOnlyList<string> Replaces { get; init; } = Array.Empty<string>();
 
+    /// <summary>Hotkey cards: the id the key is known by for clashes and the conflict check.
+    /// Setting.Hotkey sets the bound property ("AppSettings.SuspendHotkey"), so the same key on two
+    /// pages counts once; a character card uses "character:&lt;name&gt;". Null = the descriptor id.</summary>
+    public string? UseId { get; init; }
+
     /// <summary>Get/Set touch state outside AppSettings (registry, files). Tests never call Set.</summary>
     public bool External { get; init; }
 

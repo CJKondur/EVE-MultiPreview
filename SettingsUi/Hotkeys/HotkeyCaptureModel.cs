@@ -23,6 +23,10 @@ public sealed class HotkeyCaptureModel : ObservableObject
     public bool HasClashes => Clashes.Count > 0;
     public bool Cancelled { get; private set; }
 
+    /// <summary>The last key pressed is one HotkeyService can't bind (HotkeyText.IsUsable).</summary>
+    public bool Unusable { get; private set; }
+    public bool CanAccept => HasCandidate && !Unusable;
+
     /// <summary>Returns true when the key was consumed (the dialog marks it handled).</summary>
     public bool OnKey(Key key, ModifierKeys mods)
     {
@@ -48,7 +52,8 @@ public sealed class HotkeyCaptureModel : ObservableObject
     private void Take(string ahk)
     {
         Candidate = ahk;
-        Clashes = _findClashes(ahk);
+        Unusable = !HotkeyText.IsUsable(ahk);
+        Clashes = Unusable ? Array.Empty<HotkeyUse>() : _findClashes(ahk);
         RaiseAll();
     }
 }

@@ -66,6 +66,16 @@ public static class HotkeyText
         _ => null,
     };
 
+    /// <summary>Whether HotkeyService can bind this string: a mouse button its hook handles, or a
+    /// key its parser resolves to a virtual key. Anything else (e.g. "apps", "browserback") would
+    /// be saved and silently never fire.</summary>
+    public static bool IsUsable(string? ahk)
+    {
+        if (string.IsNullOrWhiteSpace(ahk)) return false;
+        var (_, key) = Split(ahk);
+        return HotkeyService.IsMouseButton(key) || HotkeyService.ParseAhkHotkeyString(ahk).VirtualKey != 0;
+    }
+
     /// <summary>"^!XButton1" -> ("^!", "XButton1"). The last character is always the key, so a
     /// bare "+" or "#" is never mistaken for a modifier.</summary>
     public static (string Mods, string Key) Split(string ahk)
