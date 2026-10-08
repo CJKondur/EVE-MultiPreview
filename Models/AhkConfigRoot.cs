@@ -68,6 +68,8 @@ public class AhkConfigRoot
         s.LockPositions = g.LockPositions != 0;
         s.HideActiveThumbnail = g.HideActiveThumbnail != 0;
         s.IndividualThumbnailResize = g.IndividualThumbnailResize != 0;
+        s.ResizeThumbnailsOnHover = g.ResizeThumbnailsOnHover != 0;
+        s.HoverScale = g.HoverScale;
         s.CycleDelayMs = g.CycleDelayMs;
         s.CycleWhileHeld = g.CycleWhileHeld != 0;
         s.MinimizeDelay = g.MinimizeDelay;
@@ -98,6 +100,9 @@ public class AhkConfigRoot
         s.AlertSoundVolume = g.AlertSoundVolume;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
+        s.AlertCooldown = g.AlertCooldown;
+        s.AlertSoundFile = g.AlertSoundFile ?? "";
+        s.AlertFlashColor = g.AlertFlashColor ?? "0xff0000";
         s.CycleWrapSoundEnabled = g.CycleWrapSoundEnabled != 0;
         s.CycleWrapSoundFile = g.CycleWrapSoundFile ?? "";
         s.AlertHubEnabled = g.AlertHubEnabled != 0; // 0 for missing/new configs, 1 when user enables
@@ -245,6 +250,7 @@ public class AhkConfigRoot
             var ts = ahkProfile.ThumbnailSettings;
             if (ts != null)
             {
+                profile.AppliedLayoutPreset = ts.AppliedLayoutPreset ?? "";
                 profile.ShowAllColoredBorders = ts.ShowAllColoredBorders != 0;
                 profile.HideThumbnailsOnLostFocus = ts.HideThumbnailsOnLostFocus != 0;
                 profile.ShowThumbnailsAlwaysOnTop = ts.ShowThumbnailsAlwaysOnTop != 0;
@@ -357,6 +363,8 @@ public class AhkConfigRoot
         g.LockPositions = s.LockPositions ? 1 : 0;
         g.HideActiveThumbnail = s.HideActiveThumbnail ? 1 : 0;
         g.IndividualThumbnailResize = s.IndividualThumbnailResize ? 1 : 0;
+        g.ResizeThumbnailsOnHover = s.ResizeThumbnailsOnHover ? 1 : 0;
+        g.HoverScale = s.HoverScale;
         g.CycleDelayMs = s.CycleDelayMs;
         g.CycleWhileHeld = s.CycleWhileHeld ? 1 : 0;
         g.MinimizeDelay = s.MinimizeDelay;
@@ -381,6 +389,9 @@ public class AhkConfigRoot
         g.AlertSoundVolume = s.AlertSoundVolume;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
+        g.AlertCooldown = s.AlertCooldown;
+        g.AlertSoundFile = s.AlertSoundFile;
+        g.AlertFlashColor = s.AlertFlashColor;
         g.CycleWrapSoundEnabled = s.CycleWrapSoundEnabled ? 1 : 0;
         g.CycleWrapSoundFile = s.CycleWrapSoundFile;
         g.AlertHubEnabled = s.AlertHubEnabled ? 1 : 0;
@@ -509,6 +520,7 @@ public class AhkConfigRoot
             // Thumbnail Settings sub-object
             ap.ThumbnailSettings = new AhkThumbnailSettings
             {
+                AppliedLayoutPreset = profile.AppliedLayoutPreset,
                 ShowAllColoredBorders = profile.ShowAllColoredBorders ? 1 : 0,
                 HideThumbnailsOnLostFocus = profile.HideThumbnailsOnLostFocus ? 1 : 0,
                 ShowThumbnailsAlwaysOnTop = profile.ShowThumbnailsAlwaysOnTop ? 1 : 0,
@@ -757,6 +769,11 @@ public class AhkProfile
 
 public class AhkThumbnailSettings
 {
+    /// <summary>The layout preset last applied to this profile (#94). Saved since the settings rework; a file
+    /// without it loads "".</summary>
+    [JsonPropertyName("AppliedLayoutPreset")]
+    public string? AppliedLayoutPreset { get; set; } = "";
+
     [JsonPropertyName("ShowAllColoredBorders")]
     public int ShowAllColoredBorders { get; set; }
 
@@ -1018,6 +1035,13 @@ public class AhkGlobalSettings
     [JsonPropertyName("IndividualThumbnailResize")]
     public int IndividualThumbnailResize { get; set; }
 
+    // Hover zoom and its size were live-only until the settings rework; a file without them loads off and 1.5.
+    [JsonPropertyName("ResizeThumbnailsOnHover")]
+    public int ResizeThumbnailsOnHover { get; set; }
+
+    [JsonPropertyName("HoverScale")]
+    public double HoverScale { get; set; } = 1.5;
+
     [JsonPropertyName("CycleDelayMs")]
     public int CycleDelayMs { get; set; } = 100;
 
@@ -1082,6 +1106,17 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("AlertBorderThickness")]
     public int AlertBorderThickness { get; set; } = 3;
+
+    // The repeat wait, the default alert sound and the last-resort flash colour were live-only until the settings
+    // rework; a file without them loads 5 s, no sound and red.
+    [JsonPropertyName("AlertCooldown")]
+    public int AlertCooldown { get; set; } = 5;
+
+    [JsonPropertyName("AlertSoundFile")]
+    public string? AlertSoundFile { get; set; } = "";
+
+    [JsonPropertyName("AlertFlashColor")]
+    public string? AlertFlashColor { get; set; } = "0xff0000";
 
     [JsonPropertyName("AlertHubEnabled")]
     public int AlertHubEnabled { get; set; } = 0;
