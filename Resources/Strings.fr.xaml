@@ -662,19 +662,18 @@
     <sys:String x:Key="L.Wiki.Crop">POPUPS DE RECADRAGE&#x0A;═══════════════════════════&#x0A;&#x0A;Ce que font les recadrages&#x0A;────────────────────────────&#x0A;Génère un ou plusieurs popups d'aperçu recadrés&#x0A;par client EVE — affiche juste une région&#x0A;spécifique du client (chat Local, vue d'ensemble,&#x0A;barre de cibles) dans sa propre fenêtre toujours&#x0A;au premier plan sans amener le client complet au&#x0A;premier plan.&#x0A;&#x0A;Bascule maître&#x0A;────────────────────────────&#x0A;'Activer les popups d'aperçu recadrés' est le&#x0A;on/off global. Quand désactivé, tous les popups&#x0A;de recadrage se masquent mais leurs définitions&#x0A;sont conservées pour la prochaine fois.&#x0A;&#x0A;Créer un recadrage&#x0A;────────────────────────────&#x0A;1. Choisissez un personnage dans le menu déroulant&#x0A;2. Cliquez sur ➕ Ajouter recadrage — une ligne&#x0A;   de recadrage provisoire apparaît avec un nom&#x0A;   généré&#x0A;3. Cliquez sur 📐 Choisir la zone, puis&#x0A;   glissez sur la miniature en direct pour&#x0A;   sélectionner la région à capturer&#x0A;4. Ajustez le nom, Afficher l'étiquette, la&#x0A;   position/taille du popup selon les besoins&#x0A;&#x0A;Manipuler les popups&#x0A;────────────────────────────&#x0A;• Clic droit + glisser — déplacer le popup&#x0A;• Clic droit + clic gauche + glisser —&#x0A;  redimensionner le popup&#x0A;• 'Afficher l'étiquette' superpose le nom du&#x0A;  recadrage en haut à gauche du popup&#x0A;&#x0A;Persistance&#x0A;────────────────────────────&#x0A;Les recadrages sont enregistrés par personnage et&#x0A;par profil, et réapparaissent automatiquement quand&#x0A;le personnage se connecte. Fermer un client EVE et&#x0A;se reconnecter restaure les recadrages enregistrés&#x0A;une fois le personnage résolu.</sys:String>
 
     <!-- Tray menu -->
-    <sys:String x:Key="L.Tray.Settings">⚙ Paramètres</sys:String>
-    <sys:String x:Key="L.Tray.Profiles">👤 Profils</sys:String>
-    <sys:String x:Key="L.Tray.Suspend">⏸ Suspendre les raccourcis</sys:String>
-    <sys:String x:Key="L.Tray.Lock">🔒 Verrouiller les positions</sys:String>
-    <sys:String x:Key="L.Tray.Toggle">👁 Basculer les miniatures</sys:String>
-    <sys:String x:Key="L.Tray.ClickThrough">↗ Mode clic traversant</sys:String>
-    <sys:String x:Key="L.Tray.ClientPositions">📐 Positions des clients</sys:String>
-    <sys:String x:Key="L.Tray.SavePositions">💾 Enregistrer les positions</sys:String>
-    <sys:String x:Key="L.Tray.RestorePositions">📋 Restaurer les positions</sys:String>
-    <sys:String x:Key="L.Tray.SnapToSlots">📌 Placer dans les emplacements</sys:String>
-    <sys:String x:Key="L.Tray.CloseAll">❌ Fermer tous les clients EVE</sys:String>
-    <sys:String x:Key="L.Tray.PiP">🖼 PiP individuel</sys:String>
-    <sys:String x:Key="L.Tray.Exit">🚪 Quitter</sys:String>
+    <sys:String x:Key="L.Tray.Settings">Paramètres</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">Suspendre les raccourcis</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Lock">Verrouiller les positions</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">Masquer les vignettes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClickThrough">Clic traversant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClientPositions">Fenêtres des clients</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.SavePositions">Enregistrer les positions</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">Restaurer les positions</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">Placer dans les emplacements</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">Fermer tous les clients EVE…</sys:String>
+    <sys:String x:Key="L.Tray.PiP">Secondes vignettes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Exit">Quitter MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Positions des clients enregistrées</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Positions des clients restaurées</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Fermer toutes les fenêtres EVE Online ?</sys:String>
@@ -1864,4 +1863,8 @@
     <!-- The group delete question's buttons (Plan 3d) -->
     <sys:String x:Key="L.S.Groups.DeleteEverywhere">Supprimer partout</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Seulement les touches de ce profil</sys:String> <!-- draft -->
+    <!-- Phase 2 surfaces (Plan 4) -->
+    <sys:String x:Key="L.Tray.ProfileFmt">Profil : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ManageProfiles">Gérer les profils…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HideSecondary">Masquer les secondes vignettes</sys:String> <!-- draft -->
 </ResourceDictionary>

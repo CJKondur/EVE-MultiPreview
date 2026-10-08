@@ -658,19 +658,18 @@
     <sys:String x:Key="L.Wiki.About">ÜBER&#x0A;═══════════════════════════&#x0A;&#x0A;EVE MultiPreview&#x0A;C# / .NET 10 WPF Edition&#x0A;&#x0A;Die im Über-Panel gezeigte Version entspricht&#x0A;dem Build, den du gerade ausführst.&#x0A;&#x0A;Ursprünglich in AutoHotkey v2 geschrieben.&#x0A;Nach C# portiert für bessere Leistung, native&#x0A;DWM-Vorschaubild-Unterstützung und moderne&#x0A;UI-Fähigkeiten.&#x0A;&#x0A;Melde einen Fehler, schlage eine Funktion vor oder&#x0A;lies die Release Notes unter:&#x0A;github.com/CJKondur/EVE-MultiPreview&#x0A;&#x0A;Bestimmte Version installieren&#x0A;────────────────────────────&#x0A;Wähle eine beliebige veröffentlichte&#x0A;Version, älter oder neuer, und&#x0A;installiere sie anstelle dieser —&#x0A;praktisch, wenn ein Update etwas kaputt&#x0A;gemacht hat. Einstellungen werden vorher&#x0A;gesichert (Ordner Backups). Beim Wechsel&#x0A;auf eine ältere Version wird die&#x0A;Update-Prüfung beim Start ausgeschaltet;&#x0A;schalte sie hier wieder ein, wenn du&#x0A;wieder Updates willst.&#x0A;&#x0A;Neues Einstellungsfenster&#x0A;────────────────────────────&#x0A;Dies ist das alte Einstellungsfenster. Setze&#x0A;auf der Seite 'Über' den Haken bei&#x0A;'Neues Einstellungsfenster verwenden'&#x0A;und öffne die Einstellungen neu, um zum&#x0A;neuen zurückzukehren. Das alte Fenster wird&#x0A;in einer späteren Version entfernt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiki.Debug">DEBUG-PROTOKOLLIERUNG&#x0A;═══════════════════════════&#x0A;&#x0A;Diagnoseausgabe zur Fehlersuche bei Eingabe-&#x0A;problemen, Fenstererkennung und Logikablauf.&#x0A;Aktiviere sie nur bei Bedarf — Protokolle wachsen&#x0A;bei starker Nutzung schnell.&#x0A;&#x0A;Protokolle werden nach Logs/ neben der EXE&#x0A;geschrieben, eine Datei pro Kanal. Nutze 📁 Logs-&#x0A;Ordner öffnen, um dorthin zu springen.&#x0A;&#x0A;Eingabe-Injektions-Logistik&#x0A;────────────────────────────&#x0A;Protokolliert exakte Tastenanschläge, Scancodes und&#x0A;Verzögerungsimpulse, die genutzt werden, um EVEs&#x0A;Eingabeverluste zu umgehen.&#x0A;&#x0A;Zyklus-Gruppen- &amp; Mathematik-Analyse&#x0A;────────────────────────────&#x0A;Protokolliert Index-Mathematik, Drossel-Schwellen&#x0A;und Sprunglogik beim Halten von Hotkeys zum&#x0A;Durchschalten von Accounts.&#x0A;&#x0A;Fenster-Hooks&#x0A;────────────────────────────&#x0A;Protokolliert HWND-Fokusprüfungen, SetForegroundWindow-&#x0A;Versuche und Fensterzustände auf OS-Ebene.&#x0A;&#x0A;Desktop Window Manager&#x0A;────────────────────────────&#x0A;Protokolliert HResults der DWM-Vorschaubild-Registrierung&#x0A;und Ergebnisse der PrintWindow-Erfassung. Nutze es,&#x0A;wenn Vorschaubilder leer werden, sich nicht registrieren&#x0A;lassen oder fälschlich eingefrorene Frames zeigen.&#x0A;&#x0A;Alarm-Pipeline&#x0A;────────────────────────────&#x0A;Vollständige Verfolgung jeder Protokollzeile durch&#x0A;die Alarm-Pipeline: Datei-Lesen → Parse-Treffer →&#x0A;Auslöser (Cooldown / deaktiviert / ausgelöst) →&#x0A;Abzeichen-/Toast-/Ton-Versand. Nutze es, wenn ein&#x0A;erwarteter Alarm nicht ausgelöst wurde — jeder Schritt&#x0A;protokolliert, welches Tor er passiert hat oder nicht.</sys:String>
     <!-- Tray menu -->
-    <sys:String x:Key="L.Tray.Settings">⚙ Einstellungen</sys:String>
-    <sys:String x:Key="L.Tray.Profiles">👤 Profile</sys:String>
-    <sys:String x:Key="L.Tray.Suspend">⏸ Hotkeys pausieren</sys:String>
-    <sys:String x:Key="L.Tray.Lock">🔒 Positionen sperren</sys:String>
-    <sys:String x:Key="L.Tray.Toggle">👁 Vorschauen umschalten</sys:String>
-    <sys:String x:Key="L.Tray.ClickThrough">↗ Klick-Durchlass-Modus</sys:String>
-    <sys:String x:Key="L.Tray.ClientPositions">📐 Client-Positionen</sys:String>
-    <sys:String x:Key="L.Tray.SavePositions">💾 Positionen speichern</sys:String>
-    <sys:String x:Key="L.Tray.RestorePositions">📋 Positionen wiederherstellen</sys:String>
-    <sys:String x:Key="L.Tray.SnapToSlots">📌 In Slots einrasten</sys:String>
-    <sys:String x:Key="L.Tray.CloseAll">❌ Alle EVE-Clients schließen</sys:String>
-    <sys:String x:Key="L.Tray.PiP">🖼 PiP einzeln</sys:String>
-    <sys:String x:Key="L.Tray.Exit">🚪 Beenden</sys:String>
+    <sys:String x:Key="L.Tray.Settings">Einstellungen</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">Hotkeys pausieren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Lock">Positionen sperren</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">Vorschauen ausblenden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClickThrough">Klick-Durchlass</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClientPositions">Client-Fenster</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.SavePositions">Positionen speichern</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">Positionen wiederherstellen</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">In Slots einrasten</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">Alle EVE-Clients schließen…</sys:String>
+    <sys:String x:Key="L.Tray.PiP">Zweite Vorschaubilder</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Exit">MultiPreview beenden</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Client-Positionen gespeichert</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Client-Positionen wiederhergestellt</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Alle EVE-Online-Fenster schließen?</sys:String>
@@ -1861,4 +1860,8 @@
     <!-- The group delete question's buttons (Plan 3d) -->
     <sys:String x:Key="L.S.Groups.DeleteEverywhere">Überall löschen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Nur die Tasten dieses Profils</sys:String> <!-- draft -->
+    <!-- Phase 2 surfaces (Plan 4) -->
+    <sys:String x:Key="L.Tray.ProfileFmt">Profil: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ManageProfiles">Profile verwalten…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HideSecondary">Zweite Vorschaubilder ausblenden</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -681,19 +681,18 @@
     <sys:String x:Key="L.Wiki.Crop">VENTANAS DE RECORTE&#x0A;═══════════════════════════&#x0A;&#x0A;Qué hacen los recortes&#x0A;────────────────────────────&#x0A;Generan una o más ventanas emergentes de&#x0A;vista previa recortada por cliente de EVE —&#x0A;muestran solo una región concreta del&#x0A;cliente (chat Local, resumen, barra de&#x0A;objetivo) en su propia ventana siempre&#x0A;visible sin traer el cliente completo al&#x0A;frente.&#x0A;&#x0A;Interruptor principal&#x0A;────────────────────────────&#x0A;'Activar ventanas emergentes de recorte' es&#x0A;el interruptor global. Cuando está apagado,&#x0A;todas las ventanas de recorte se ocultan pero&#x0A;sus definiciones se conservan para la próxima&#x0A;vez.&#x0A;&#x0A;Crear un recorte&#x0A;────────────────────────────&#x0A;1. Elige un personaje en el desplegable&#x0A;2. Haz clic en ➕ Añadir recorte — aparece&#x0A;   una fila de recorte de marcador con un&#x0A;   nombre generado&#x0A;3. Haz clic en 📐 Elegir área y luego arrastra&#x0A;   sobre la miniatura en vivo para seleccionar&#x0A;   la región que quieres capturar&#x0A;4. Ajusta el nombre, Mostrar etiqueta y la&#x0A;   posición/tamaño de la ventana según&#x0A;   necesites&#x0A;&#x0A;Manipular las ventanas emergentes&#x0A;────────────────────────────&#x0A;• Clic derecho + arrastrar — mueve la ventana&#x0A;• Clic derecho + clic izquierdo + arrastrar —&#x0A;  redimensiona la ventana&#x0A;• 'Mostrar etiqueta' superpone el nombre del&#x0A;  recorte en la esquina superior izquierda&#x0A;&#x0A;Persistencia&#x0A;────────────────────────────&#x0A;Los recortes se guardan por personaje y por&#x0A;perfil y se regeneran automáticamente cuando&#x0A;el personaje inicia sesión. Al cerrar un&#x0A;cliente de EVE y volver a entrar se restauran&#x0A;los recortes guardados en cuanto se resuelve&#x0A;el personaje.</sys:String>
 
     <!-- Tray menu -->
-    <sys:String x:Key="L.Tray.Settings">⚙ Configuración</sys:String>
-    <sys:String x:Key="L.Tray.Profiles">👤 Perfiles</sys:String>
-    <sys:String x:Key="L.Tray.Suspend">⏸ Suspender teclas rápidas</sys:String>
-    <sys:String x:Key="L.Tray.Lock">🔒 Bloquear posiciones</sys:String>
-    <sys:String x:Key="L.Tray.Toggle">👁 Alternar miniaturas</sys:String>
-    <sys:String x:Key="L.Tray.ClickThrough">↗ Modo clic a través</sys:String>
-    <sys:String x:Key="L.Tray.ClientPositions">📐 Posiciones de clientes</sys:String>
-    <sys:String x:Key="L.Tray.SavePositions">💾 Guardar posiciones</sys:String>
-    <sys:String x:Key="L.Tray.RestorePositions">📋 Restaurar posiciones</sys:String>
-    <sys:String x:Key="L.Tray.SnapToSlots">📌 Encajar en ranuras</sys:String>
-    <sys:String x:Key="L.Tray.CloseAll">❌ Cerrar todos los clientes de EVE</sys:String>
-    <sys:String x:Key="L.Tray.PiP">🖼 PiP individual</sys:String>
-    <sys:String x:Key="L.Tray.Exit">🚪 Salir</sys:String>
+    <sys:String x:Key="L.Tray.Settings">Configuración</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">Pausar atajos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Lock">Bloquear posiciones</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">Ocultar miniaturas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClickThrough">Clic a través</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClientPositions">Ventanas de clientes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.SavePositions">Guardar posiciones</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">Restaurar posiciones</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">Encajar en ranuras</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">Cerrar todos los clientes de EVE…</sys:String>
+    <sys:String x:Key="L.Tray.PiP">Segundas miniaturas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Exit">Salir de MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Posiciones de clientes guardadas</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Posiciones de clientes restauradas</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">¿Cerrar todas las ventanas de EVE Online?</sys:String>
@@ -1883,4 +1882,8 @@
     <!-- The group delete question's buttons (Plan 3d) -->
     <sys:String x:Key="L.S.Groups.DeleteEverywhere">Eliminar en todas partes</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Solo las teclas de este perfil</sys:String> <!-- draft -->
+    <!-- Phase 2 surfaces (Plan 4) -->
+    <sys:String x:Key="L.Tray.ProfileFmt">Perfil: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ManageProfiles">Administrar perfiles…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HideSecondary">Ocultar segundas miniaturas</sys:String> <!-- draft -->
 </ResourceDictionary>

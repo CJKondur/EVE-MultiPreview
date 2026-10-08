@@ -637,19 +637,18 @@
     <!-- ══ Strings that used to live only as code fallbacks (settings UI rework, Plan 1 Task 7) ══ -->
 
     <!-- Tray menu -->
-    <sys:String x:Key="L.Tray.Settings">⚙ Settings</sys:String>
-    <sys:String x:Key="L.Tray.Profiles">👤 Profiles</sys:String>
-    <sys:String x:Key="L.Tray.Suspend">⏸ Suspend Hotkeys</sys:String>
-    <sys:String x:Key="L.Tray.Lock">🔒 Lock Positions</sys:String>
-    <sys:String x:Key="L.Tray.Toggle">👁 Toggle Thumbnails</sys:String>
-    <sys:String x:Key="L.Tray.ClickThrough">↗ Click-Through Mode</sys:String>
-    <sys:String x:Key="L.Tray.ClientPositions">📐 Client Positions</sys:String>
-    <sys:String x:Key="L.Tray.SavePositions">💾 Save Positions</sys:String>
-    <sys:String x:Key="L.Tray.RestorePositions">📋 Restore Positions</sys:String>
-    <sys:String x:Key="L.Tray.SnapToSlots">📌 Snap to Slots</sys:String>
-    <sys:String x:Key="L.Tray.CloseAll">❌ Close All EVE Clients</sys:String>
-    <sys:String x:Key="L.Tray.PiP">🖼 PiP Individual</sys:String>
-    <sys:String x:Key="L.Tray.Exit">🚪 Exit</sys:String>
+    <sys:String x:Key="L.Tray.Settings">Settings</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">Pause hotkeys</sys:String>
+    <sys:String x:Key="L.Tray.Lock">Lock positions</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">Hide thumbnails</sys:String>
+    <sys:String x:Key="L.Tray.ClickThrough">Click-through</sys:String>
+    <sys:String x:Key="L.Tray.ClientPositions">Client windows</sys:String>
+    <sys:String x:Key="L.Tray.SavePositions">Save positions</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">Restore positions</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">Snap to slots</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">Close all EVE clients…</sys:String>
+    <sys:String x:Key="L.Tray.PiP">Second thumbnails</sys:String>
+    <sys:String x:Key="L.Tray.Exit">Exit MultiPreview</sys:String>
     <sys:String x:Key="L.Tray.PosSaved">Client positions saved</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Client positions restored</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Close all EVE Online windows?</sys:String>
@@ -1861,4 +1860,8 @@
     <!-- The group delete question's buttons (Plan 3d) -->
     <sys:String x:Key="L.S.Groups.DeleteEverywhere">Delete everywhere</sys:String>
     <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Only this profile's keys</sys:String>
+    <!-- Phase 2 surfaces (Plan 4) -->
+    <sys:String x:Key="L.Tray.ProfileFmt">Profile: {0}</sys:String>
+    <sys:String x:Key="L.Tray.ManageProfiles">Manage profiles…</sys:String>
+    <sys:String x:Key="L.Tray.HideSecondary">Hide second thumbnails</sys:String>
 </ResourceDictionary>

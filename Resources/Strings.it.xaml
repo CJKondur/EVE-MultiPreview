@@ -677,19 +677,18 @@
     <sys:String x:Key="L.Wiki.Crop">Popup di ritaglio&#x0A;═══════════════════════════&#x0A;&#x0A;A cosa serve il ritaglio&#x0A;────────────────────────────&#x0A;Genera uno o più popup di anteprima ritagliata&#x0A;per ogni client EVE — mostra solo&#x0A;una regione specifica del client (chat&#x0A;Local, overview, barra dei bersagli), in una sua&#x0A;finestra sempre in primo piano, senza bisogno&#x0A;di portare l'intero client in primo piano.&#x0A;&#x0A;Interruttore principale&#x0A;────────────────────────────&#x0A;"Abilita popup di anteprima ritagliata" è&#x0A;l'interruttore globale. Quando disattivato, tutti i popup di ritaglio&#x0A;sono nascosti, ma le loro definizioni restano&#x0A;per la volta successiva.&#x0A;&#x0A;Creazione di un ritaglio&#x0A;────────────────────────────&#x0A;1. Seleziona un personaggio dal menu a discesa&#x0A;2. Fai clic su ➕ Aggiungi ritaglio — apparirà&#x0A;   una riga di ritaglio segnaposto con&#x0A;   un nome generato automaticamente&#x0A;3. Fai clic su 📐 Seleziona area, poi trascina&#x0A;   sulla miniatura in tempo reale per selezionare&#x0A;   la regione che vuoi catturare&#x0A;4. Regola nome, etichetta visualizzata,&#x0A;   posizione/dimensione del popup secondo necessità&#x0A;&#x0A;Uso dei popup&#x0A;────────────────────────────&#x0A;• Clic destro + trascinamento — sposta il popup&#x0A;• Clic destro + clic sinistro + trascinamento —&#x0A;  ridimensiona il popup&#x0A;• "Mostra etichetta" sovrappone il nome del ritaglio&#x0A;  nell'angolo in alto a sinistra del popup&#x0A;&#x0A;Persistenza&#x0A;────────────────────────────&#x0A;I ritagli vengono salvati per personaggio, per profilo,&#x0A;e vengono rigenerati automaticamente quando il personaggio&#x0A;accede. Dopo aver chiuso un client EVE&#x0A;e riacceduto, i ritagli salvati vengono ripristinati&#x0A;non appena il personaggio è stato risolto.</sys:String>
 
     <!-- Tray menu -->
-    <sys:String x:Key="L.Tray.Settings">⚙ Impostazioni</sys:String>
-    <sys:String x:Key="L.Tray.Profiles">👤 Profili</sys:String>
-    <sys:String x:Key="L.Tray.Suspend">⏸ Sospendi tasti</sys:String>
-    <sys:String x:Key="L.Tray.Lock">🔒 Blocca posizioni</sys:String>
-    <sys:String x:Key="L.Tray.Toggle">👁 Commuta miniature</sys:String>
-    <sys:String x:Key="L.Tray.ClickThrough">↗ Modalità click passante</sys:String>
-    <sys:String x:Key="L.Tray.ClientPositions">📐 Posizioni dei client</sys:String>
-    <sys:String x:Key="L.Tray.SavePositions">💾 Salva posizioni</sys:String>
-    <sys:String x:Key="L.Tray.RestorePositions">📋 Ripristina posizioni</sys:String>
-    <sys:String x:Key="L.Tray.SnapToSlots">📌 Aggancia agli slot</sys:String>
-    <sys:String x:Key="L.Tray.CloseAll">❌ Chiudi tutti i client EVE</sys:String>
-    <sys:String x:Key="L.Tray.PiP">🖼 Anteprima singola PiP</sys:String>
-    <sys:String x:Key="L.Tray.Exit">🚪 Esci</sys:String>
+    <sys:String x:Key="L.Tray.Settings">Impostazioni</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">Sospendi i tasti rapidi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Lock">Blocca posizioni</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">Nascondi miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClickThrough">Click passante</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClientPositions">Finestre dei client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.SavePositions">Salva posizioni</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">Ripristina posizioni</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">Aggancia agli slot</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">Chiudi tutti i client EVE…</sys:String>
+    <sys:String x:Key="L.Tray.PiP">Seconde miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Exit">Esci da MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Posizioni dei client salvate</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Posizioni dei client ripristinate</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Chiudere tutte le finestre di EVE Online?</sys:String>
@@ -1879,4 +1878,8 @@
     <!-- The group delete question's buttons (Plan 3d) -->
     <sys:String x:Key="L.S.Groups.DeleteEverywhere">Elimina ovunque</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Solo i tasti di questo profilo</sys:String> <!-- draft -->
+    <!-- Phase 2 surfaces (Plan 4) -->
+    <sys:String x:Key="L.Tray.ProfileFmt">Profilo: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ManageProfiles">Gestisci profili…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HideSecondary">Nascondi seconde miniature</sys:String> <!-- draft -->
 </ResourceDictionary>

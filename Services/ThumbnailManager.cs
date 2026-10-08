@@ -3599,6 +3599,9 @@ public sealed class ThumbnailManager : IDisposable
 
     private bool _secondaryHidden = false;
 
+    /// <summary>True while "hide second thumbnails" has them hidden (runtime state, not saved). The tray menu's check.</summary>
+    public bool SecondaryThumbnailsHidden => _secondaryHidden;
+
     /// <summary>Toggle visibility of secondary (PiP) thumbnails only.</summary>
     public void ToggleSecondaryVisibility()
     {

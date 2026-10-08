@@ -661,19 +661,18 @@
     <sys:String x:Key="L.Wiki.Debug">디버그 로깅&#x0A;═══════════════════════════&#x0A;&#x0A;입력 문제, 창 감지, 로직 흐름 문제 해결을&#x0A;위한 진단 출력입니다. 필요할 때만&#x0A;켜세요 — 과도한 사용 시 로그가 빠르게&#x0A;커집니다.&#x0A;&#x0A;로그는 exe 옆의 Logs/에 채널당 한 파일씩&#x0A;기록됩니다. 📁 Open Logs Folder로&#x0A;바로 이동하세요.&#x0A;&#x0A;입력 주입 로지스틱스&#x0A;────────────────────────────&#x0A;EVE의 입력 누락을 우회하는 데 사용된 정확한&#x0A;키 입력, 스캔 코드, 지연 펄스를 기록합니다.&#x0A;&#x0A;순환 그룹 &amp; 계산 분석&#x0A;────────────────────────────&#x0A;계정 순환을 위해 단축키를 누르고 있을 때의&#x0A;인덱스 계산, 스로틀 임계값, 건너뛰기&#x0A;로직을 기록합니다.&#x0A;&#x0A;창 후킹&#x0A;────────────────────────────&#x0A;HWND 포커스 확인, SetForegroundWindow&#x0A;시도, OS 수준 창 상태를 기록합니다.&#x0A;&#x0A;Desktop Window Manager&#x0A;────────────────────────────&#x0A;DWM 썸네일 등록 HResult와 PrintWindow&#x0A;캡처 결과를 기록합니다. 썸네일이 비거나,&#x0A;등록에 실패하거나, 멈춘 프레임을 잘못&#x0A;표시할 때 사용하세요.&#x0A;&#x0A;경보 파이프라인&#x0A;────────────────────────────&#x0A;모든 로그 줄이 경보 파이프라인을 통과하는&#x0A;전체 추적: 파일 읽기 → 파싱 일치 → 트리거&#x0A;(쿨다운 / 비활성화 / 발생) → 배지 / 토스트&#x0A;/ 사운드 디스패치. 발생할 것으로 예상한&#x0A;경보가 발생하지 않았을 때 사용하세요 —&#x0A;각 단계가 어떤 게이트를 통과했는지&#x0A;또는 못 했는지 기록합니다.</sys:String>
     <sys:String x:Key="L.Wiki.Crop">크롭 팝업&#x0A;═══════════════════════════&#x0A;&#x0A;크롭의 기능&#x0A;────────────────────────────&#x0A;EVE 클라이언트마다 하나 이상의 잘라낸&#x0A;미리보기 팝업을 띄웁니다 — 전체 클라이언트를&#x0A;앞으로 가져오지 않고 클라이언트의 특정&#x0A;영역(Local 채팅, 오버뷰, 타겟 바)만 자체&#x0A;항상 위 창에 표시합니다.&#x0A;&#x0A;마스터 토글&#x0A;────────────────────────────&#x0A;'잘라낸 미리보기 팝업 사용'이 전역 켜기/&#x0A;끄기입니다. 끄면 모든 크롭 팝업이 숨겨지지만&#x0A;정의는 다음을 위해 유지됩니다.&#x0A;&#x0A;크롭 생성&#x0A;────────────────────────────&#x0A;1. 드롭다운에서 캐릭터 선택&#x0A;2. ➕ Add Crop 클릭 — 생성된 이름의&#x0A;   자리표시 크롭 행이 나타남&#x0A;3. 📐 Pick Area를 클릭한 뒤 라이브&#x0A;   썸네일 위로 드래그하여 캡처할 영역&#x0A;   선택&#x0A;4. 필요에 따라 이름, Show Label, 팝업&#x0A;   위치/크기 조절&#x0A;&#x0A;팝업 조작&#x0A;────────────────────────────&#x0A;• 우클릭 + 드래그 — 팝업 이동&#x0A;• 우클릭 + 좌클릭 + 드래그 — 팝업 크기&#x0A;  조절&#x0A;• 'Show label'은 팝업 좌상단에 크롭&#x0A;  이름을 오버레이합니다&#x0A;&#x0A;지속성&#x0A;────────────────────────────&#x0A;크롭은 프로필별 캐릭터별로 저장되며&#x0A;캐릭터가 접속하면 자동으로 다시 나타납니다.&#x0A;EVE 클라이언트를 닫고 다시 로그인하면&#x0A;캐릭터가 확인되는 즉시 저장된 크롭이&#x0A;복원됩니다.</sys:String>
     <!-- Tray menu -->
-    <sys:String x:Key="L.Tray.Settings">⚙ 설정</sys:String>
-    <sys:String x:Key="L.Tray.Profiles">👤 프로필</sys:String>
-    <sys:String x:Key="L.Tray.Suspend">⏸ 단축키 일시 중지</sys:String>
-    <sys:String x:Key="L.Tray.Lock">🔒 위치 잠금</sys:String>
-    <sys:String x:Key="L.Tray.Toggle">👁 썸네일 전환</sys:String>
-    <sys:String x:Key="L.Tray.ClickThrough">↗ 클릭 통과 모드</sys:String>
-    <sys:String x:Key="L.Tray.ClientPositions">📐 클라이언트 위치</sys:String>
-    <sys:String x:Key="L.Tray.SavePositions">💾 위치 저장</sys:String>
-    <sys:String x:Key="L.Tray.RestorePositions">📋 위치 복원</sys:String>
-    <sys:String x:Key="L.Tray.SnapToSlots">📌 슬롯에 맞추기</sys:String>
-    <sys:String x:Key="L.Tray.CloseAll">❌ 모든 EVE 클라이언트 닫기</sys:String>
-    <sys:String x:Key="L.Tray.PiP">🖼 PiP 개별</sys:String>
-    <sys:String x:Key="L.Tray.Exit">🚪 종료</sys:String>
+    <sys:String x:Key="L.Tray.Settings">설정</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">단축키 일시 중지</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Lock">위치 잠금</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">썸네일 숨기기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClickThrough">클릭 통과</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClientPositions">클라이언트 창</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.SavePositions">위치 저장</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">위치 복원</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">슬롯에 맞추기</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">모든 EVE 클라이언트 닫기…</sys:String>
+    <sys:String x:Key="L.Tray.PiP">보조 썸네일</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Exit">MultiPreview 종료</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">클라이언트 위치가 저장되었습니다</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">클라이언트 위치를 복원했습니다</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">모든 EVE Online 창을 닫으시겠습니까?</sys:String>
@@ -1862,4 +1861,8 @@
     <!-- The group delete question's buttons (Plan 3d) -->
     <sys:String x:Key="L.S.Groups.DeleteEverywhere">모든 곳에서 삭제</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeysOnly">이 프로필의 키만</sys:String> <!-- draft -->
+    <!-- Phase 2 surfaces (Plan 4) -->
+    <sys:String x:Key="L.Tray.ProfileFmt">프로필: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ManageProfiles">프로필 관리…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HideSecondary">보조 썸네일 숨기기</sys:String> <!-- draft -->
 </ResourceDictionary>

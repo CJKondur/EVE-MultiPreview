@@ -239,6 +239,16 @@ public partial class SettingsShell : Window, ISettingsHost
 
     public Window? DialogOwner => this;
 
+    /// <summary>Opens settings on a page (Plan 4): a thumbnail's "Open ‹character›'s settings" (D6) and the tray's Manage
+    /// profiles…. Only the new window has pages; the old one opens as it always did. Returns whether the window now shows
+    /// that page. Like search, a page outside Home leaves Simple mode (ShellVM.Navigate).</summary>
+    public static bool OpenOn(Window window, string? pageId)
+    {
+        if (string.IsNullOrEmpty(pageId) || window is not SettingsShell shell) return false;
+        shell.Navigate(pageId);
+        return shell.Vm.Current?.Page.Id == pageId;
+    }
+
     // ── Chrome ───────────────────────────────────────────────────────
 
     private void OnProfileMenu(object sender, RoutedEventArgs e)

@@ -677,19 +677,18 @@
     <sys:String x:Key="L.Wiki.Crop">裁剪弹窗&#x0A;═══════════════════════════&#x0A;&#x0A;裁剪的作用&#x0A;────────────────────────────&#x0A;为每个 EVE 客户端生成一个或&#x0A;多个裁剪预览弹窗 — 只显示&#x0A;客户端的特定区域（Local&#x0A;聊天、总览、目标栏），置于其&#x0A;自己的置顶窗口中，而无需&#x0A;将整个客户端切到前台。&#x0A;&#x0A;主开关&#x0A;────────────────────────────&#x0A;“启用裁剪预览弹窗”是&#x0A;全局开关。关闭时，所有裁剪弹窗&#x0A;隐藏，但其定义会保留供&#x0A;下次使用。&#x0A;&#x0A;创建裁剪&#x0A;────────────────────────────&#x0A;1. 从下拉框中选择一个角色&#x0A;2. 点击 ➕ 添加裁剪 — 会出现&#x0A;   一个带自动生成名称的&#x0A;   占位裁剪行&#x0A;3. 点击 📐 选取区域，然后在&#x0A;   实时缩略图上拖动以选择&#x0A;   你想捕获的区域&#x0A;4. 按需调整名称、显示标签、&#x0A;   弹窗位置/大小&#x0A;&#x0A;操作弹窗&#x0A;────────────────────────────&#x0A;• 右键 + 拖动 — 移动弹窗&#x0A;• 右键 + 左键 + 拖动 —&#x0A;  调整弹窗大小&#x0A;• “显示标签”会在弹窗左上角&#x0A;  叠加显示裁剪名称&#x0A;&#x0A;持久化&#x0A;────────────────────────────&#x0A;裁剪按角色、按配置保存，&#x0A;并在角色登录时自动重新&#x0A;生成。关闭一个 EVE 客户端&#x0A;并重新登录后，一旦角色解析完成&#x0A;就会恢复已保存的裁剪。</sys:String>
 
     <!-- Tray menu -->
-    <sys:String x:Key="L.Tray.Settings">⚙ 设置</sys:String>
-    <sys:String x:Key="L.Tray.Profiles">👤 配置文件</sys:String>
-    <sys:String x:Key="L.Tray.Suspend">⏸ 暂停热键</sys:String>
-    <sys:String x:Key="L.Tray.Lock">🔒 锁定位置</sys:String>
-    <sys:String x:Key="L.Tray.Toggle">👁 切换缩略图</sys:String>
-    <sys:String x:Key="L.Tray.ClickThrough">↗ 点击穿透模式</sys:String>
-    <sys:String x:Key="L.Tray.ClientPositions">📐 客户端位置</sys:String>
-    <sys:String x:Key="L.Tray.SavePositions">💾 保存位置</sys:String>
-    <sys:String x:Key="L.Tray.RestorePositions">📋 恢复位置</sys:String>
-    <sys:String x:Key="L.Tray.SnapToSlots">📌 吸附到槽位</sys:String>
-    <sys:String x:Key="L.Tray.CloseAll">❌ 关闭所有 EVE 客户端</sys:String>
-    <sys:String x:Key="L.Tray.PiP">🖼 PiP 单独预览</sys:String>
-    <sys:String x:Key="L.Tray.Exit">🚪 退出</sys:String>
+    <sys:String x:Key="L.Tray.Settings">设置</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">暂停热键</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Lock">锁定位置</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">隐藏缩略图</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClickThrough">点击穿透</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClientPositions">客户端窗口</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.SavePositions">保存位置</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">恢复位置</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">吸附到槽位</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">关闭所有 EVE 客户端…</sys:String>
+    <sys:String x:Key="L.Tray.PiP">第二缩略图</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Exit">退出 MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">客户端位置已保存</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">已恢复客户端位置</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">关闭所有 EVE Online 窗口？</sys:String>
@@ -1879,4 +1878,8 @@
     <!-- The group delete question's buttons (Plan 3d) -->
     <sys:String x:Key="L.S.Groups.DeleteEverywhere">全部删除</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeysOnly">仅当前配置文件的按键</sys:String> <!-- draft -->
+    <!-- Phase 2 surfaces (Plan 4) -->
+    <sys:String x:Key="L.Tray.ProfileFmt">配置文件：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ManageProfiles">管理配置文件…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HideSecondary">隐藏第二缩略图</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -659,19 +659,18 @@
     <sys:String x:Key="L.Wiki.About">概要&#x0A;═══════════════════════════&#x0A;&#x0A;EVE MultiPreview&#x0A;C# / .NET 10 WPF Edition&#x0A;&#x0A;概要パネルに表示されるバージョンは、実行中の&#x0A;ビルドと一致します。&#x0A;&#x0A;もともとは AutoHotkey v2 で書かれていました。&#x0A;パフォーマンスの向上、ネイティブの DWM&#x0A;サムネイルサポート、モダンな UI 機能のために&#x0A;C# へ移植されました。&#x0A;&#x0A;バグの報告、機能の提案、リリースノートの閲覧は&#x0A;こちら:&#x0A;github.com/CJKondur/EVE-MultiPreview&#x0A;&#x0A;特定のバージョンをインストール&#x0A;────────────────────────────&#x0A;公開済みの任意のバージョン（古くても&#x0A;新しくても）を選び、このバージョンの&#x0A;代わりにインストールできます。更新で&#x0A;不具合が出たときに便利です。設定は&#x0A;先にバックアップされます（Backups&#x0A;フォルダー）。古いバージョンに戻すと&#x0A;起動時の更新確認がオフになります。&#x0A;更新を再開したいときはここでオンに&#x0A;戻してください。&#x0A;&#x0A;新しい設定ウィンドウ&#x0A;────────────────────────────&#x0A;これは旧設定ウィンドウです。「情報」ページで&#x0A;「新しい設定ウィンドウを使う」をオンにして&#x0A;設定を開き直すと、新しいウィンドウに&#x0A;戻れます。旧ウィンドウは今後のバージョンで&#x0A;削除されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiki.Debug">デバッグログ&#x0A;═══════════════════════════&#x0A;&#x0A;入力の問題、ウィンドウ検出、ロジックフローの&#x0A;トラブルシューティング用の診断出力。必要なとき&#x0A;のみ有効にしてください — 多用するとログは急速に&#x0A;増えます。&#x0A;&#x0A;ログは exe の隣の Logs/ に、チャンネルごとに&#x0A;1 ファイルで書き込まれます。📁 ログフォルダーを&#x0A;開く で移動できます。&#x0A;&#x0A;入力インジェクションのロジスティクス&#x0A;────────────────────────────&#x0A;EVE の入力ドロップを回避するために使う正確な&#x0A;キーストローク、スキャンコード、遅延パルスを&#x0A;ログに記録します。&#x0A;&#x0A;循環グループと計算の分析&#x0A;────────────────────────────&#x0A;アカウントを循環するためにホットキーを押し&#x0A;続けたときのインデックス計算、スロットルしきい値、&#x0A;スキップロジックをログに記録します。&#x0A;&#x0A;ウィンドウフック&#x0A;────────────────────────────&#x0A;HWND フォーカスチェック、SetForegroundWindow の&#x0A;試行、OS レベルのウィンドウ状態をログに記録&#x0A;します。&#x0A;&#x0A;Desktop Window Manager&#x0A;────────────────────────────&#x0A;DWM サムネイル登録の HResult と PrintWindow&#x0A;キャプチャ結果をログに記録します。サムネイルが&#x0A;空白になる、登録に失敗する、凍結フレームを&#x0A;誤って表示する場合に使用します。&#x0A;&#x0A;アラートパイプライン&#x0A;────────────────────────────&#x0A;アラートパイプラインを通るすべてのログ行の完全な&#x0A;トレース: ファイル読み取り → パース照合 →&#x0A;トリガー（クールダウン / 無効 / 発動）→ バッジ /&#x0A;トースト / サウンドのディスパッチ。発動を期待した&#x0A;アラートが発動しなかったときに使用します —&#x0A;各ステップがどのゲートを通過したかしなかったかを&#x0A;記録します。</sys:String>
     <!-- Tray menu -->
-    <sys:String x:Key="L.Tray.Settings">⚙ 設定</sys:String>
-    <sys:String x:Key="L.Tray.Profiles">👤 プロファイル</sys:String>
-    <sys:String x:Key="L.Tray.Suspend">⏸ ホットキーを一時停止</sys:String>
-    <sys:String x:Key="L.Tray.Lock">🔒 位置をロック</sys:String>
-    <sys:String x:Key="L.Tray.Toggle">👁 サムネイルを表示/非表示</sys:String>
-    <sys:String x:Key="L.Tray.ClickThrough">↗ クリックスルーモード</sys:String>
-    <sys:String x:Key="L.Tray.ClientPositions">📐 クライアント位置</sys:String>
-    <sys:String x:Key="L.Tray.SavePositions">💾 位置を保存</sys:String>
-    <sys:String x:Key="L.Tray.RestorePositions">📋 位置を復元</sys:String>
-    <sys:String x:Key="L.Tray.SnapToSlots">📌 スロットに配置</sys:String>
-    <sys:String x:Key="L.Tray.CloseAll">❌ すべての EVE クライアントを閉じる</sys:String>
-    <sys:String x:Key="L.Tray.PiP">🖼 PiP（個別）</sys:String>
-    <sys:String x:Key="L.Tray.Exit">🚪 終了</sys:String>
+    <sys:String x:Key="L.Tray.Settings">設定</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">ホットキーを一時停止</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Lock">位置をロック</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">サムネイルを非表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClickThrough">クリック透過</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClientPositions">クライアントウィンドウ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.SavePositions">位置を保存</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">位置を復元</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">スロットに配置</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">すべての EVE クライアントを閉じる…</sys:String>
+    <sys:String x:Key="L.Tray.PiP">セカンドサムネイル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Exit">MultiPreview を終了</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">クライアント位置を保存しました</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">クライアントの位置を復元しました</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">すべての EVE Online ウィンドウを閉じますか？</sys:String>
@@ -1862,4 +1861,8 @@
     <!-- The group delete question's buttons (Plan 3d) -->
     <sys:String x:Key="L.S.Groups.DeleteEverywhere">すべて削除</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeysOnly">このプロファイルのキーのみ</sys:String> <!-- draft -->
+    <!-- Phase 2 surfaces (Plan 4) -->
+    <sys:String x:Key="L.Tray.ProfileFmt">プロファイル: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ManageProfiles">プロファイルを管理…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HideSecondary">セカンドサムネイルを非表示</sys:String> <!-- draft -->
 </ResourceDictionary>

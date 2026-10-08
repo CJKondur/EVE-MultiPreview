@@ -679,19 +679,18 @@
     <sys:String x:Key="L.Wiki.Crop">ВСПЛЫВАЮЩИЕ ОБРЕЗКИ&#x0A;═══════════════════════════&#x0A;&#x0A;Что делают обрезки&#x0A;────────────────────────────&#x0A;Создают одно или несколько обрезанных&#x0A;всплывающих превью на клиент EVE — показывают&#x0A;только конкретную область клиента (чат Local,&#x0A;обзор, панель целей) в отдельном&#x0A;окне поверх всех, не выводя&#x0A;весь клиент на передний план.&#x0A;&#x0A;Главный переключатель&#x0A;────────────────────────────&#x0A;«Включить всплывающие обрезки превью» — это&#x0A;глобальное вкл/выкл. Когда выкл, все обрезки&#x0A;скрываются, но их определения сохраняются до&#x0A;следующего раза.&#x0A;&#x0A;Создание обрезки&#x0A;────────────────────────────&#x0A;1. Выберите персонажа из списка&#x0A;2. Нажмите ➕ Добавить обрезку — появится&#x0A;   строка-заготовка обрезки со сгенерированным&#x0A;   именем&#x0A;3. Нажмите 📐 Выбрать область, затем протяните&#x0A;   по живой миниатюре, чтобы выбрать&#x0A;   нужную область захвата&#x0A;4. При необходимости настройте имя, показ метки,&#x0A;   позицию/размер окна&#x0A;&#x0A;Управление окнами&#x0A;────────────────────────────&#x0A;• Правый клик + перетаскивание — двигать окно&#x0A;• Правый клик + левый клик + перетаскивание —&#x0A;  изменить размер окна&#x0A;• «Показать метку» выводит имя обрезки&#x0A;  в левом верхнем углу окна&#x0A;&#x0A;Сохранение&#x0A;────────────────────────────&#x0A;Обрезки сохраняются на персонажа на&#x0A;профиль и появляются автоматически при&#x0A;входе персонажа. Закрытие клиента EVE&#x0A;и повторный вход восстанавливают&#x0A;сохранённые обрезки, когда персонаж определится.</sys:String>
 
     <!-- Tray menu -->
-    <sys:String x:Key="L.Tray.Settings">⚙ Настройки</sys:String>
-    <sys:String x:Key="L.Tray.Profiles">👤 Профили</sys:String>
-    <sys:String x:Key="L.Tray.Suspend">⏸ Приостановить горячие клавиши</sys:String>
-    <sys:String x:Key="L.Tray.Lock">🔒 Зафиксировать позиции</sys:String>
-    <sys:String x:Key="L.Tray.Toggle">👁 Переключить миниатюры</sys:String>
-    <sys:String x:Key="L.Tray.ClickThrough">↗ Режим сквозного клика</sys:String>
-    <sys:String x:Key="L.Tray.ClientPositions">📐 Позиции клиентов</sys:String>
-    <sys:String x:Key="L.Tray.SavePositions">💾 Сохранить позиции</sys:String>
-    <sys:String x:Key="L.Tray.RestorePositions">📋 Восстановить позиции</sys:String>
-    <sys:String x:Key="L.Tray.SnapToSlots">📌 Расставить по слотам</sys:String>
-    <sys:String x:Key="L.Tray.CloseAll">❌ Закрыть все клиенты EVE</sys:String>
-    <sys:String x:Key="L.Tray.PiP">🖼 PiP по отдельности</sys:String>
-    <sys:String x:Key="L.Tray.Exit">🚪 Выход</sys:String>
+    <sys:String x:Key="L.Tray.Settings">Настройки</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">Приостановить горячие клавиши</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Lock">Зафиксировать позиции</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">Скрыть миниатюры</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClickThrough">Сквозной клик</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ClientPositions">Окна клиентов</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.SavePositions">Сохранить позиции</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">Восстановить позиции</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">Расставить по слотам</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">Закрыть все клиенты EVE…</sys:String>
+    <sys:String x:Key="L.Tray.PiP">Вторые миниатюры</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Exit">Выйти из MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Позиции клиентов сохранены</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Позиции клиентов восстановлены</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Закрыть все окна EVE Online?</sys:String>
@@ -1881,4 +1880,8 @@
     <!-- The group delete question's buttons (Plan 3d) -->
     <sys:String x:Key="L.S.Groups.DeleteEverywhere">Удалить везде</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Groups.DeleteKeysOnly">Только клавиши этого профиля</sys:String> <!-- draft -->
+    <!-- Phase 2 surfaces (Plan 4) -->
+    <sys:String x:Key="L.Tray.ProfileFmt">Профиль: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.ManageProfiles">Управление профилями…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HideSecondary">Скрыть вторые миниатюры</sys:String> <!-- draft -->
 </ResourceDictionary>
