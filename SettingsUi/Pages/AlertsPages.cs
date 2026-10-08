@@ -18,7 +18,7 @@ public static class AlertsPages
     /// <summary>The event table: where event search results land.</summary>
     public const string EventTableId = "alerts.events.table";
 
-    public static IReadOnlyList<PageDef> All => new[] { Events(), Look() };
+    public static IReadOnlyList<PageDef> All => new[] { Events(), Look(), Sounds(), Hub() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -34,6 +34,9 @@ public static class AlertsPages
         }),
         new HelpTopic(LookId, "severity", new[] { "alerts.look.severityTable" }),
         new HelpTopic(LookId, "colorBlind", new[] { "alerts.look.colorBlind" }),
+        new HelpTopic(SoundsId, "sounds", new[] { "alerts.sounds.enabled", "alerts.sounds.volume", "alerts.sounds.table" }),
+        new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
+        new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
     };
 
     private static SettingItem Toggle(string id, Expression<Func<AppSettings, bool>> prop, params string[] replaces) =>
@@ -134,6 +137,98 @@ public static class AlertsPages
                 Binds = ColorBlindSwitch.Binds,
                 Replaces = new[] { "BtnColorBlind" },
             },
+        }),
+    });
+
+    /// <summary>Sound files MediaPlayer plays (as Clients › Hotkeys' wrap-around sound).</summary>
+    public static string SoundFilter =>
+        LocalizationService.Str("L.S.Filter.Sounds", "Sound files") + " (*.wav, *.mp3)|*.wav;*.mp3|*.*|*.*";
+
+    private static bool HubOn(AppSettings s) => s.AlertHubEnabled;
+
+    /// <summary>Old OnResetHubPosition only cleared the saved place; the hub moved at the next start. Now it moves
+    /// at once (AlertHub.ResetPosition, Task 1) when the window has the hub.</summary>
+    public static void ResetHubPosition(SettingsContext ctx)
+    {
+        ctx.S.AlertHubX = 0;
+        ctx.S.AlertHubY = 0;
+        ctx.Services.AlertHub?.ResetPosition();
+        ctx.Applier.Request(ApplyScope.Save);
+        ctx.Host.Toast(SettingsContext.Str("L.S.AlertHub.ResetDone"));
+    }
+
+    private static PageDef Sounds() => new(SoundsId, NavGroup.Alerts, new[]
+    {
+        new SectionDef("alerts.sounds.main", new PageItem[]
+        {
+            // App.PlayAlertSound reads both at every alert. The switch is Home's "Play a sound" too.
+            Toggle("alerts.sounds.enabled", s => s.EnableAlertSounds, "ChkEnableSounds"),
+            new SettingItem(Setting.Custom("alerts.sounds.volume", SettingKind.Slider,
+                s => Math.Clamp(s.AlertSoundVolume, 0, 100),
+                (s, v) => s.AlertSoundVolume = (int)Math.Round(Convert.ToDouble(v, CultureInfo.InvariantCulture)),
+                binds: new[] { "AppSettings.AlertSoundVolume" }) with
+            {
+                Min = 0, Max = 100, Step = 1, UnitKey = "L.S.Unit.Percent",
+                Replaces = new[] { "TxtMasterVolume" },
+            }),
+        }),
+        new SectionDef("alerts.sounds.list", new PageItem[]
+        {
+            new EditorItem("alerts.sounds.table", ctx => new SoundTableEditor(ctx))
+            {
+                Binds = new[] { "AppSettings.AlertSoundFile", "AppSettings.AlertSounds", "AppSettings.SoundCooldowns" },
+            },
+        }),
+    });
+
+    private static PageDef Hub() => new(HubId, NavGroup.Alerts, new[]
+    {
+        new SectionDef("alerts.hub.main", new PageItem[]
+        {
+            // App shows or hides the hub on Applied.
+            Toggle("alerts.hub.enabled", s => s.AlertHubEnabled, "ChkAlertHub"),
+            // App pushes both to the hub on Applied (AlertHub.ApplySettings, Task 1).
+            new SettingItem(Setting.Number("alerts.hub.duration", s => s.AlertToastDuration, 1, 120, "L.S.Unit.Sec") with
+            {
+                ShowIf = HubOn,
+                Replaces = new[] { "TxtToastDuration" },
+            }),
+            new SettingItem(Setting.Custom("alerts.hub.direction", SettingKind.Segmented,
+                s => Math.Clamp(s.AlertToastDirection, 0, 3),
+                (s, v) => s.AlertToastDirection = Convert.ToInt32(v, CultureInfo.InvariantCulture),
+                binds: new[] { "AppSettings.AlertToastDirection" }) with
+            {
+                Options = new[]
+                {
+                    new ChoiceOption(0, "L.S.Opt.DirUp"), new ChoiceOption(1, "L.S.Opt.DirRight"),
+                    new ChoiceOption(2, "L.S.Opt.DirDown"), new ChoiceOption(3, "L.S.Opt.DirLeft"),
+                },
+                ShowIf = HubOn,
+            }),
+            // Read for every toast.
+            new SettingItem(Setting.Toggle("alerts.hub.skipActive", s => s.SuppressAlertHubToastForActiveClient) with
+            {
+                ShowIf = HubOn,
+                Replaces = new[] { "ChkSuppressToastActive" },
+            }),
+        }),
+        new SectionDef("alerts.hub.hiding", new PageItem[]
+        {
+            // The hub reads both each time it would hide.
+            new SettingItem(Setting.Toggle("alerts.hub.autoHide", s => s.AlertHubAutoHide) with
+            {
+                ShowIf = HubOn,
+                Replaces = new[] { "ChkAlertHubAutoHide" },
+            }),
+            new SettingItem(Setting.Number("alerts.hub.autoHideAfter", s => s.AlertHubAutoHideSeconds, 1, 3600, "L.S.Unit.Sec") with
+            {
+                ShowIf = s => s.AlertHubEnabled && s.AlertHubAutoHide,
+                Replaces = new[] { "TxtAlertHubAutoHideSeconds" },
+            }),
+            new ActionRow("alerts.hub.positionRow", new[]
+            {
+                new ActionDef("alerts.hub.resetPosition", ResetHubPosition) { Replaces = new[] { "OnResetHubPosition" } },
+            }) { ShowIf = HubOn },
         }),
     });
 }
