@@ -709,4 +709,8 @@
     <sys:String x:Key="L.Alerts.Steady">고정</sys:String>
     <sys:String x:Key="L.Msg.CloseAllConfirm">EVE 클라이언트 {0}개를 지금 모두 종료할까요?</sys:String>
     <sys:String x:Key="L.Ctx.CloseClient">❌ 클라이언트 닫기</sys:String>
+    <!-- ══ Settings window (rework): shared strings ══ -->
+    <sys:String x:Key="L.S.Err.NotANumber">숫자를 입력하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Err.Range">{0}에서 {1} 사이의 숫자를 입력하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Err.Color">#4CC2FF 같은 색상을 입력하세요.</sys:String> <!-- draft -->
 </ResourceDictionary>

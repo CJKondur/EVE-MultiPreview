@@ -726,4 +726,8 @@
     <sys:String x:Key="L.Msg.CloseAllConfirm">Chiudere ora tutti i {0} client EVE?</sys:String>
     <sys:String x:Key="L.Ctx.CloseClient">❌ Chiudi il client</sys:String>
 
+    <!-- ══ Settings window (rework): shared strings ══ -->
+    <sys:String x:Key="L.S.Err.NotANumber">Inserisci un numero.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Err.Range">Inserisci un numero da {0} a {1}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Err.Color">Inserisci un colore come #4CC2FF.</sys:String> <!-- draft -->
 </ResourceDictionary>

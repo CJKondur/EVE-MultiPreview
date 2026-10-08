@@ -726,4 +726,8 @@
     <sys:String x:Key="L.Msg.CloseAllConfirm">立即结束全部 {0} 个 EVE 客户端？</sys:String>
     <sys:String x:Key="L.Ctx.CloseClient">❌ 关闭客户端</sys:String>
 
+    <!-- ══ Settings window (rework): shared strings ══ -->
+    <sys:String x:Key="L.S.Err.NotANumber">请输入数字。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Err.Range">请输入 {0} 到 {1} 之间的数字。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Err.Color">请输入颜色，例如 #4CC2FF。</sys:String> <!-- draft -->
 </ResourceDictionary>

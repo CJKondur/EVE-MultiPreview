@@ -702,4 +702,8 @@
     <!-- Messages -->
     <sys:String x:Key="L.Msg.CloseAllConfirm">End all {0} EVE clients now?</sys:String>
 
+    <!-- ══ Settings window (rework): shared strings ══ -->
+    <sys:String x:Key="L.S.Err.NotANumber">Enter a number.</sys:String>
+    <sys:String x:Key="L.S.Err.Range">Enter a number from {0} to {1}.</sys:String>
+    <sys:String x:Key="L.S.Err.Color">Enter a colour like #4CC2FF.</sys:String>
 </ResourceDictionary>
