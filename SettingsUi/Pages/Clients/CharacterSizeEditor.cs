@@ -46,9 +46,7 @@ public static class CharacterSize
         return null;
     }
 
-    private static bool TryInt(string text, out int value) =>
-        int.TryParse(text.Trim(), NumberStyles.Integer, CultureInfo.CurrentCulture, out value)
-        || int.TryParse(text.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+    private static bool TryInt(string text, out int value) => ThumbnailFields.TryWhole(text, out value);
 }
 
 /// <summary>Character page › Own size: width × height and Apply, with an inline error (spec §8.5).</summary>

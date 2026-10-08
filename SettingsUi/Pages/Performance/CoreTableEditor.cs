@@ -67,14 +67,23 @@ public sealed class CoreTableEditor : System.Windows.Controls.UserControl, IRefr
         }
     }
 
-    /// <summary>The selection is made before the handler: building a row never writes.</summary>
+    /// <summary>The selection is made before the handler: building a row never writes. A pin to a core this PC doesn't
+    /// have is listed as its own entry and selected, so choosing Automatic clears it.</summary>
     private ComboBox CoreBox(string name)
     {
         var box = new ComboBox { MinWidth = 160 };
         var options = CharacterFields.CoreOptions();
         foreach (var o in options) box.Items.Add(new ComboBoxItem { Content = o.Literal ?? Str(o.LabelKey), Tag = o.Value });
-        var current = CharacterFields.Core(_ctx.S, name);
-        box.SelectedIndex = options.ToList().FindIndex(o => Equals(o.Value, current));
+        if (CharacterFields.StalePin(_ctx.S, name) is { } stale)
+        {
+            box.Items.Add(new ComboBoxItem { Content = string.Format(Str("L.S.CoreTable.Stale"), stale), Tag = "stale" });
+            box.SelectedIndex = box.Items.Count - 1;
+        }
+        else
+        {
+            var current = CharacterFields.Core(_ctx.S, name);
+            box.SelectedIndex = options.ToList().FindIndex(o => Equals(o.Value, current));
+        }
         box.SelectionChanged += (_, _) => { if (box.SelectedItem is ComboBoxItem { Tag: int core }) SetCore(name, core); };
         AutomationProperties.SetName(box, string.Format(Str("L.S.CoreTable.CoreFor"), name));
         return box;
@@ -83,10 +92,13 @@ public sealed class CoreTableEditor : System.Windows.Controls.UserControl, IRefr
     /// <summary>A core for this character's client while it's in the background; Automatic removes the pin.</summary>
     public void SetCore(string name, int core)
     {
-        if (CharacterFields.Core(_ctx.S, name) == core && (core >= 0 || !_ctx.S.PerClientCores.ContainsKey(name))) return;
+        var stale = CharacterFields.StalePin(_ctx.S, name) != null;
+        if (!stale && CharacterFields.Core(_ctx.S, name) == core && (core >= 0 || !_ctx.S.PerClientCores.ContainsKey(name))) return;
         CharacterFields.SetCore(_ctx.S, name, core);
         _ctx.Applier.Request(ApplyScope.Save);
         _signature = Signature();
+        // The "not on this PC" entry goes once the pin is replaced; rebuild after the combo box has finished its event.
+        if (stale) Dispatcher.BeginInvoke(new Action(Refresh));
     }
 
     private int AddRow()

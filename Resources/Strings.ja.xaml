@@ -1856,4 +1856,7 @@
     <sys:String x:Key="L.S.Info.Note">メモ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Warning">警告</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Error">問題</sys:String> <!-- draft -->
+    <!-- Core pins this PC can't use (Plan 3d) -->
+    <sys:String x:Key="L.S.character.coreStale">コア {0} に固定されていますが、このPCにはそのコアがないため、固定は無効です。コアを選ぶか、「自動」を選んで固定を解除してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CoreTable.Stale">コア {0}（このPCにはありません）</sys:String> <!-- draft -->
 </ResourceDictionary>

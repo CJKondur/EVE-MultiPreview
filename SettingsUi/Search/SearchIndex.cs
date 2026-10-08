@@ -63,7 +63,7 @@ public static class SearchIndex
     public static IReadOnlyList<SearchEntry> Query(IReadOnlyList<SearchEntry> index, string query, int max = 20)
     {
         var q = query.Trim();
-        if (q.Length < 2) return Array.Empty<SearchEntry>();
+        if (!IsSearchable(q)) return Array.Empty<SearchEntry>();
         return index
             .Select(e => (e, rank: e.Text.StartsWith(q, StringComparison.CurrentCultureIgnoreCase) ? 0
                                  : e.Text.Contains(q, StringComparison.CurrentCultureIgnoreCase) ? 1
@@ -72,6 +72,23 @@ public static class SearchIndex
             .OrderBy(x => x.rank).ThenBy(x => x.e.Kind == SearchKind.Help ? 1 : 0).ThenBy(x => x.e.Text.Length)
             .Select(x => x.e).Take(max).ToList();
     }
+
+    /// <summary>Two characters, or one Chinese, Japanese or Korean character, which is already a word ("音", "열").</summary>
+    public static bool IsSearchable(string query)
+    {
+        var q = query.Trim();
+        return q.Length >= 2 || (q.Length == 1 && IsCjk(q[0]));
+    }
+
+    private static bool IsCjk(char c) =>
+        c is >= '\u3040' and <= '\u30FF'      // Hiragana, Katakana
+          or >= '\u3400' and <= '\u4DBF'      // CJK Extension A
+          or >= '\u4E00' and <= '\u9FFF'      // CJK Unified Ideographs
+          or >= '\uAC00' and <= '\uD7AF'      // Hangul syllables
+          or >= '\u1100' and <= '\u11FF'      // Hangul Jamo
+          or >= '\u3130' and <= '\u318F'      // Hangul compatibility Jamo
+          or >= '\uF900' and <= '\uFAFF'      // CJK compatibility ideographs
+          or >= '\uFF66' and <= '\uFF9F';     // half-width Katakana
 
     private static void Add(List<SearchEntry> list, SearchKind kind, string text, string alt, string path, string pageId, string? itemId)
     {

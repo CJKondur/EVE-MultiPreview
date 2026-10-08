@@ -162,7 +162,7 @@ public sealed class SlotsEditor : System.Windows.Controls.UserControl, IRefresha
         var box = new TextBox { Text = value.ToString(CultureInfo.CurrentCulture), Width = 64, VerticalContentAlignment = VerticalAlignment.Center };
         void Commit()
         {
-            if (!int.TryParse(box.Text.Trim(), NumberStyles.Integer, CultureInfo.CurrentCulture, out var v))
+            if (!ThumbnailFields.TryWhole(box.Text, out var v))
             {
                 box.Text = value.ToString(CultureInfo.CurrentCulture);
                 return;

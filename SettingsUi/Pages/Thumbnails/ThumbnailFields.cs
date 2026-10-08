@@ -57,7 +57,7 @@ public static class ThumbnailFields
     public static bool TryWhole(string? text, out int value)
     {
         var t = text?.Trim() ?? "";
-        return int.TryParse(t, NumberStyles.Integer, CultureInfo.CurrentCulture, out value)
+        return int.TryParse(t, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out value)
             || int.TryParse(t, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
     }
 

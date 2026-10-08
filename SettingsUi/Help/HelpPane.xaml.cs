@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using EveMultiPreview.Services;
+using Point = System.Windows.Point;
 
 namespace EveMultiPreview.SettingsUi;
 
@@ -52,13 +53,19 @@ public partial class HelpPane : System.Windows.Controls.UserControl
         Scroll.ScrollToTop();
     }
 
-    /// <summary>Scrolls to the topic that explains <paramref name="itemId"/>; false if none does.</summary>
+    /// <summary>Scrolls the topic that explains <paramref name="itemId"/> to the top of the pane (spec §9); false if no
+    /// topic does. BringIntoView stopped as soon as the topic was visible, usually at the bottom.</summary>
     public bool ScrollToTopicFor(string itemId)
     {
         if (!_topicElements.TryGetValue(itemId, out var element)) return false;
-        element.BringIntoView();
+        Scroll.UpdateLayout();
+        Scroll.ScrollToVerticalOffset(element.TranslatePoint(new Point(0, 0), Body).Y);
         return true;
     }
+
+    /// <summary>How far below the top of the visible help the topic for <paramref name="itemId"/> starts (tests); NaN if none.</summary>
+    public double TopicTop(string itemId) =>
+        _topicElements.TryGetValue(itemId, out var element) ? element.TranslatePoint(new Point(0, 0), Scroll).Y : double.NaN;
 
     private void AddBlocks(string? text, System.Windows.Controls.Panel target)
     {

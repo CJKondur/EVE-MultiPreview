@@ -1855,4 +1855,7 @@
     <sys:String x:Key="L.S.Info.Note">Hinweis</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Warning">Warnung</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Error">Problem</sys:String> <!-- draft -->
+    <!-- Core pins this PC can't use (Plan 3d) -->
+    <sys:String x:Key="L.S.character.coreStale">An Kern {0} gebunden, den dieser PC nicht hat – die Bindung bewirkt nichts. Wähle einen Kern oder „Automatisch“, um sie zu entfernen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CoreTable.Stale">Kern {0} (nicht auf diesem PC)</sys:String> <!-- draft -->
 </ResourceDictionary>

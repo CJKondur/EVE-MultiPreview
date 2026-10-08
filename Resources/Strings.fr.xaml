@@ -1858,4 +1858,7 @@
     <sys:String x:Key="L.S.Info.Note">Remarque</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Warning">Avertissement</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Error">Problème</sys:String> <!-- draft -->
+    <!-- Core pins this PC can't use (Plan 3d) -->
+    <sys:String x:Key="L.S.character.coreStale">Épinglé sur le cœur {0}, que ce PC n'a pas : l'épinglage ne sert à rien. Choisissez un cœur, ou « Automatique » pour le retirer.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CoreTable.Stale">Cœur {0} (absent de ce PC)</sys:String> <!-- draft -->
 </ResourceDictionary>

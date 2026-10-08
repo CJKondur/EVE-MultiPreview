@@ -1873,4 +1873,7 @@
     <sys:String x:Key="L.S.Info.Note">提示</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Warning">警告</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Error">问题</sys:String> <!-- draft -->
+    <!-- Core pins this PC can't use (Plan 3d) -->
+    <sys:String x:Key="L.S.character.coreStale">已固定到核心 {0}，但这台电脑没有该核心，因此该固定不起作用。请选择一个核心，或选择“自动”来移除固定。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CoreTable.Stale">核心 {0}（这台电脑上没有）</sys:String> <!-- draft -->
 </ResourceDictionary>

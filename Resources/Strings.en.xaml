@@ -1855,4 +1855,7 @@
     <sys:String x:Key="L.S.Info.Note">Note</sys:String>
     <sys:String x:Key="L.S.Info.Warning">Warning</sys:String>
     <sys:String x:Key="L.S.Info.Error">Problem</sys:String>
+    <!-- Core pins this PC can't use (Plan 3d) -->
+    <sys:String x:Key="L.S.character.coreStale">Pinned to core {0}, which this PC doesn't have, so the pin does nothing. Pick a core, or Automatic to remove it.</sys:String>
+    <sys:String x:Key="L.S.CoreTable.Stale">Core {0} (not on this PC)</sys:String>
 </ResourceDictionary>

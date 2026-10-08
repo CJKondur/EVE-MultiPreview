@@ -1875,4 +1875,7 @@
     <sys:String x:Key="L.S.Info.Note">Примечание</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Warning">Предупреждение</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Error">Проблема</sys:String> <!-- draft -->
+    <!-- Core pins this PC can't use (Plan 3d) -->
+    <sys:String x:Key="L.S.character.coreStale">Закреплено за ядром {0}, которого нет на этом ПК, поэтому закрепление не действует. Выберите ядро или «Автоматически», чтобы убрать закрепление.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CoreTable.Stale">Ядро {0} (нет на этом ПК)</sys:String> <!-- draft -->
 </ResourceDictionary>

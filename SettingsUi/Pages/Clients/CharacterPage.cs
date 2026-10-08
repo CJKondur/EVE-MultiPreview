@@ -42,7 +42,7 @@ public static class CharacterPage
             "character.show", "character.label", "character.labelColor", "character.labelSize", "character.size", "character.pip", "character.pipOpacity",
         }),
         new HelpTopic(TemplateId, "colors", new[] { "character.colorsOff", "character.colorActive", "character.colorInactive", "character.colorsReset" }),
-        new HelpTopic(TemplateId, "clients", new[] { "character.neverMinimize", "character.core", "character.volume" }),
+        new HelpTopic(TemplateId, "clients", new[] { "character.neverMinimize", "character.core", "character.coreStale", "character.volume" }),
         new HelpTopic(TemplateId, "stats", new[]
         {
             "character.statsOff", "character.statsNote", "character.statsDamage", "character.statsLogi", "character.statsMining", "character.statsRatting",
@@ -132,7 +132,7 @@ public static class CharacterPage
             },
         }),
         new SettingItem(Setting.Custom("character.pipOpacity", SettingKind.Slider,
-            s => CharacterFields.PipOpacity(s, name),
+            s => Math.Clamp(CharacterFields.PipOpacity(s, name), 8, 100),   // the slider's range, as every slider card's getter
             (s, v) => CharacterFields.SetPipOpacity(s, name, Convert.ToDouble(v, CultureInfo.InvariantCulture)),
             binds: new[] { "AppSettings.SecondaryThumbnails" }, apply: ApplyScope.Opacity) with
         {
@@ -175,10 +175,17 @@ public static class CharacterPage
             (s, v) => CharacterFields.SetNeverMinimize(s, name, v is true),
             binds: new[] { "Profile.DontMinimizeClients" })),
         // Read by the affinity pass while ManageAffinity is on: Save is enough.
+        // A pin to a core this PC doesn't have shows as itself (no choice selected) with a warning, so picking Automatic
+        // differs from it and clears it.
         new SettingItem(Setting.Custom("character.core", SettingKind.Choice,
-            s => CharacterFields.Core(s, name),
+            s => CharacterFields.StalePin(s, name) ?? CharacterFields.Core(s, name),
             (s, v) => CharacterFields.SetCore(s, name, Convert.ToInt32(v, CultureInfo.InvariantCulture)),
             binds: new[] { "AppSettings.PerClientCores" }) with { Options = CharacterFields.CoreOptions() }),
+        new InfoItem("character.coreStale", InfoSeverity.Warning)
+        {
+            Args = ctx => new object[] { CharacterFields.StalePin(ctx.S, name) ?? 0 },
+            ShowIf = s => CharacterFields.StalePin(s, name) != null,
+        },
         new SettingItem(Setting.Custom("character.volume", SettingKind.Slider,
             s => CharacterFields.Volume(s, name),
             (s, v) => CharacterFields.SetVolume(s, name, (int)Math.Round(Convert.ToDouble(v, CultureInfo.InvariantCulture))),

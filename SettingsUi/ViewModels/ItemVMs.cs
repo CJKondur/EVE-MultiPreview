@@ -111,7 +111,9 @@ public sealed class SettingVM : ItemVM
     {
         var errorKey = D.Validate?.Invoke(value);
         if (errorKey != null) { ShowError(errorKey); return; }
-        var unchanged = Same(D.Get(Ctx.S), value);
+        var current = D.Get(Ctx.S);
+        // A colour typed with spaces round it is the same colour: storing it again would only save for nothing.
+        var unchanged = Same(current, value) || (D.Kind == SettingKind.Color && value is string typed && Same(current, typed.Trim()));
         _draft = null;
         _error = null;
         if (!unchanged)
@@ -166,7 +168,7 @@ public sealed class SettingVM : ItemVM
     private static bool TryParseNumber(string? s, out double n)
     {
         s = s?.Trim() ?? "";
-        return double.TryParse(s, NumberStyles.Float, CultureInfo.CurrentCulture, out n)
+        return double.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out n)
             || double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out n);
     }
 }

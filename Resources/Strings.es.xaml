@@ -1877,4 +1877,7 @@
     <sys:String x:Key="L.S.Info.Note">Nota</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Warning">Advertencia</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Error">Problema</sys:String> <!-- draft -->
+    <!-- Core pins this PC can't use (Plan 3d) -->
+    <sys:String x:Key="L.S.character.coreStale">Fijado al núcleo {0}, que este PC no tiene, así que la fijación no hace nada. Elige un núcleo, o «Automático» para quitarla.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CoreTable.Stale">Núcleo {0} (no está en este PC)</sys:String> <!-- draft -->
 </ResourceDictionary>

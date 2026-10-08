@@ -115,6 +115,11 @@ public static class CharacterFields
     public static int Core(AppSettings s, string name) =>
         s.PerClientCores.TryGetValue(name, out var c) && c >= 0 && c < Environment.ProcessorCount ? c : AutoCore;
 
+    /// <summary>A stored pin this PC can't use (a core it doesn't have, or a negative number), else null. The affinity
+    /// pass can't apply it either, and Core() reads it as Automatic, so without this it could never be cleared.</summary>
+    public static int? StalePin(AppSettings s, string name) =>
+        s.PerClientCores.TryGetValue(name, out var c) && (c < 0 || c >= Environment.ProcessorCount) ? c : null;
+
     public static void SetCore(AppSettings s, string name, int core)
     {
         if (core < 0) s.PerClientCores.Remove(name);

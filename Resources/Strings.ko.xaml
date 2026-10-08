@@ -1856,4 +1856,7 @@
     <sys:String x:Key="L.S.Info.Note">참고</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Warning">경고</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Error">문제</sys:String> <!-- draft -->
+    <!-- Core pins this PC can't use (Plan 3d) -->
+    <sys:String x:Key="L.S.character.coreStale">코어 {0}에 고정되어 있지만 이 PC에는 해당 코어가 없어 고정이 적용되지 않아요. 코어를 선택하거나 '자동'을 선택해 고정을 해제하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CoreTable.Stale">코어 {0} (이 PC에 없음)</sys:String> <!-- draft -->
 </ResourceDictionary>

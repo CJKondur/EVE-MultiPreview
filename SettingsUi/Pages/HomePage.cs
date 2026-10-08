@@ -59,7 +59,9 @@ public static class HomePage
         new SectionDef("home.thumbnails", new PageItem[]
         {
             Simple(Setting.Custom("home.size", SettingKind.Slider,
-                s => s.ThumbnailStartLocation.Width,
+                // Clamped and whole like every slider card's getter: the readout and the thumb always agree, and a
+                // stored width under 80 px shows 80 without being rewritten.
+                s => Math.Clamp(Math.Round(s.ThumbnailStartLocation.Width), ThumbnailSize16x9.MinWidth, ThumbnailSize16x9.MaxWidth),
                 (s, v) => ThumbnailSize16x9.Store(s, Convert.ToDouble(v, CultureInfo.InvariantCulture)),
                 binds: new[] { "AppSettings.ThumbnailStartLocation" }) with
             {

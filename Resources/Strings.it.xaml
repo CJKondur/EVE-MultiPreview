@@ -1873,4 +1873,7 @@
     <sys:String x:Key="L.S.Info.Note">Nota</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Warning">Avviso</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Info.Error">Problema</sys:String> <!-- draft -->
+    <!-- Core pins this PC can't use (Plan 3d) -->
+    <sys:String x:Key="L.S.character.coreStale">Fissato al core {0}, che questo PC non ha, quindi il blocco non fa nulla. Scegli un core, oppure «Automatico» per rimuoverlo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CoreTable.Stale">Core {0} (non presente su questo PC)</sys:String> <!-- draft -->
 </ResourceDictionary>
