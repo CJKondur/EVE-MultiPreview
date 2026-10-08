@@ -17,7 +17,7 @@ public static class ThumbnailsPages
     /// <summary>The page the character page's crop link opens.</summary>
     public const string CropsId = CharacterPage.CropsPageId;
 
-    public static IReadOnlyList<PageDef> All => new[] { Appearance(), Text(), Layout(), Visibility() };
+    public static IReadOnlyList<PageDef> All => new[] { Appearance(), Text(), Layout(), Visibility(), Crops() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -53,6 +53,8 @@ public static class ThumbnailsPages
         }),
         new HelpTopic(VisibilityId, "login", new[] { "thumbs.visibility.notLoggedIn", "thumbs.visibility.notLoggedInColor" }),
         new HelpTopic(VisibilityId, "pip", new[] { "thumbs.visibility.pipTable" }),
+        new HelpTopic(CropsId, "crops", new[] { "thumbs.crops.enabled", "thumbs.crops.off", "thumbs.crops.editor" }),
+        new HelpTopic(CropsId, "options", new[] { "thumbs.crops.editor" }),
     };
 
     private static SettingItem Toggle(string id, Expression<Func<AppSettings, bool>> prop, ApplyScope apply, params string[] replaces) =>
@@ -283,6 +285,26 @@ public static class ThumbnailsPages
             new EditorItem("thumbs.layout.history", ctx => new LayoutHistoryEditor(ctx))
             {
                 Replaces = new[] { "OnUndoLayout", "OnRedoLayout", "OnResetThumbnailPositions" },
+            },
+        }),
+    });
+
+    private static PageDef Crops() => new(CropsId, NavGroup.Thumbnails, new[]
+    {
+        new SectionDef("thumbs.crops.master", new PageItem[]
+        {
+            // CropManager.Refresh opens or closes every crop window (the old switch saved and refreshed at once).
+            Toggle("thumbs.crops.enabled", s => s.CropEnabled, ApplyScope.Crops, "ChkCropEnabled"),
+            new InfoItem("thumbs.crops.off", InfoSeverity.Info) { ShowIf = s => !s.CropEnabled },
+        }),
+        new SectionDef("thumbs.crops.list", new PageItem[]
+        {
+            new EditorItem("thumbs.crops.editor", ctx => new CropsEditor(ctx))
+            {
+                SearchLabelKey = "L.S.Act.thumbs.crops.add",
+                Binds = new[] { "AppSettings.Crops" },
+                // The list follows running clients by itself, so the old Refresh button has no job.
+                Replaces = new[] { "CmbCropCharacter", "OnAddCrop", "OnRefreshCropCharacters" },
             },
         }),
     });
