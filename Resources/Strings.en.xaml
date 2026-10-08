@@ -634,4 +634,72 @@
     <sys:String x:Key="L.Common.Cancel">Cancel</sys:String>
     <sys:String x:Key="L.Common.SaveWord">Save</sys:String>
 
+    <!-- ══ Strings that used to live only as code fallbacks (settings UI rework, Plan 1 Task 7) ══ -->
+
+    <!-- Tray menu -->
+    <sys:String x:Key="L.Tray.Settings">⚙ Settings</sys:String>
+    <sys:String x:Key="L.Tray.Profiles">👤 Profiles</sys:String>
+    <sys:String x:Key="L.Tray.Suspend">⏸ Suspend Hotkeys</sys:String>
+    <sys:String x:Key="L.Tray.Lock">🔒 Lock Positions</sys:String>
+    <sys:String x:Key="L.Tray.Toggle">👁 Toggle Thumbnails</sys:String>
+    <sys:String x:Key="L.Tray.ClickThrough">↗ Click-Through Mode</sys:String>
+    <sys:String x:Key="L.Tray.ClientPositions">📐 Client Positions</sys:String>
+    <sys:String x:Key="L.Tray.SavePositions">💾 Save Positions</sys:String>
+    <sys:String x:Key="L.Tray.RestorePositions">📋 Restore Positions</sys:String>
+    <sys:String x:Key="L.Tray.SnapToSlots">📌 Snap to Slots</sys:String>
+    <sys:String x:Key="L.Tray.CloseAll">❌ Close All EVE Clients</sys:String>
+    <sys:String x:Key="L.Tray.PiP">🖼 PiP Individual</sys:String>
+    <sys:String x:Key="L.Tray.Exit">🚪 Exit</sys:String>
+    <sys:String x:Key="L.Tray.PosSaved">Client positions saved</sys:String>
+    <sys:String x:Key="L.Tray.PosRestored">Client positions restored</sys:String>
+    <sys:String x:Key="L.Tray.CloseConfirm">Close all EVE Online windows?</sys:String>
+    <sys:String x:Key="L.Tray.ConfirmTitle">Confirm</sys:String>
+
+    <!-- Thumbnail right-click menu -->
+    <sys:String x:Key="L.Ctx.EditLabel">✏ Edit Label…</sys:String>
+    <sys:String x:Key="L.Ctx.MuteAlerts">🔔 Mute Alerts</sys:String>
+    <sys:String x:Key="L.Ctx.Mute10">For 10 minutes</sys:String>
+    <sys:String x:Key="L.Ctx.Mute30">For 30 minutes</sys:String>
+    <sys:String x:Key="L.Ctx.Mute60">For 1 hour</sys:String>
+    <sys:String x:Key="L.Ctx.MuteUntil">Until I unmute</sys:String>
+    <sys:String x:Key="L.Ctx.Unmute">Unmute</sys:String>
+    <sys:String x:Key="L.Ctx.MutedUntilUnmuted">🔇 Alerts muted (until unmuted)</sys:String>
+    <sys:String x:Key="L.Ctx.MutedMinsLeft">🔇 Alerts muted ({0}m left)</sys:String>
+    <sys:String x:Key="L.Ctx.AudioFmt">🔊 Audio — {0}%</sys:String>
+    <sys:String x:Key="L.Ctx.AudioMute">🔇 Mute</sys:String>
+    <sys:String x:Key="L.Ctx.Audio100">🔊 100% (unmute)</sys:String>
+    <sys:String x:Key="L.Ctx.CloseClient">❌ Close client</sys:String>
+
+    <!-- Alert event names (alert hub toasts and thumbnail text) -->
+    <sys:String x:Key="L.AlertEvt.attack">Under attack</sys:String>
+    <sys:String x:Key="L.AlertEvt.warp_scramble">Warp scrambled</sys:String>
+    <sys:String x:Key="L.AlertEvt.decloak">Decloaked</sys:String>
+    <sys:String x:Key="L.AlertEvt.fleet_invite">Fleet invite</sys:String>
+    <sys:String x:Key="L.AlertEvt.convo_request">Convo request</sys:String>
+    <sys:String x:Key="L.AlertEvt.system_change">System changed</sys:String>
+    <sys:String x:Key="L.AlertEvt.mine_cargo_full">Cargo full</sys:String>
+    <sys:String x:Key="L.AlertEvt.mine_asteroid_depleted">Asteroid depleted</sys:String>
+    <sys:String x:Key="L.AlertEvt.mine_crystal_broken">Crystal broken</sys:String>
+    <sys:String x:Key="L.AlertEvt.mine_module_stopped">Miner stopped</sys:String>
+    <sys:String x:Key="L.AlertEvt.follow_warp">Fleet warp</sys:String>
+    <sys:String x:Key="L.AlertEvt.regroup">Regrouping</sys:String>
+
+    <!-- About / version install -->
+    <sys:String x:Key="L.About.VersionsFailed">❌ Could not load the version list: {0}</sys:String>
+    <sys:String x:Key="L.About.PreReleaseTag">(pre-release)</sys:String>
+    <sys:String x:Key="L.About.Installed">(installed)</sys:String>
+    <sys:String x:Key="L.About.LoadingVersions">Loading…</sys:String>
+    <sys:String x:Key="L.Upd.InstallBtn">⬇ Install</sys:String>
+    <sys:String x:Key="L.Upd.OlderInfo">You have v{0}. This installs the OLDER v{1}. Your settings are backed up to the Backups folder first; options added after v{1} are lost if it saves them. "Check for updates when the program starts" is turned off so v{1} does not offer to update straight back.</sys:String>
+    <sys:String x:Key="L.Upd.PickInfo">You have v{0}. This installs v{1}.</sys:String>
+    <sys:String x:Key="L.Upd.PickHeader">⬇ Install v{0}</sys:String>
+
+    <!-- Alerts panel, code-built rows -->
+    <sys:String x:Key="L.Alerts.DurationTip">Seconds the alert stays on the thumbnail. Empty = the default for its severity. 0 = until you switch to that client.</sys:String>
+    <sys:String x:Key="L.Alerts.SteadyTip">Hold the alert border steady instead of blinking</sys:String>
+    <sys:String x:Key="L.Alerts.Steady">Steady</sys:String>
+
+    <!-- Messages -->
+    <sys:String x:Key="L.Msg.CloseAllConfirm">End all {0} EVE clients now?</sys:String>
+
 </ResourceDictionary>
