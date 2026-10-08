@@ -45,6 +45,7 @@ public static class ThumbnailsPages
             "thumbs.layout.startWidth", "thumbs.layout.startHeight",
         }),
         new HelpTopic(LayoutId, "lining", new[] { "thumbs.layout.snap", "thumbs.layout.snapDistance", "thumbs.layout.confine", "thumbs.layout.lock" }),
+        new HelpTopic(LayoutId, "presets", new[] { "thumbs.layout.presets" }),
         new HelpTopic(LayoutId, "history", new[] { "thumbs.layout.history" }),
     };
 
@@ -257,6 +258,19 @@ public static class ThumbnailsPages
             // ReapplySettings passes these to every thumbnail (lock also to second thumbnails and stats windows).
             Toggle("thumbs.layout.confine", s => s.ConfineDragsToMonitor, ApplyScope.Thumbnails, "ChkConfineMonitor"),
             Toggle("thumbs.layout.lock", s => s.LockPositions, ApplyScope.Thumbnails, "ChkLockPositions"),
+        }),
+        new SectionDef("thumbs.layout.saved", new PageItem[]
+        {
+            new EditorItem("thumbs.layout.presets", ctx => new LayoutPresetsEditor(ctx))
+            {
+                // Apply records the layout this profile is on; the layouts themselves live in their own file.
+                Binds = new[] { "Profile.AppliedLayoutPreset" },
+                Replaces = new[]
+                {
+                    "CmbLayoutPresets", "OnSaveLayoutPreset", "OnApplyLayoutPreset", "OnRemapLayoutPreset",
+                    "OnDeleteLayoutPreset", "OnExportLayoutPreset", "OnImportLayoutPreset",
+                },
+            },
         }),
         new SectionDef("thumbs.layout.undo", new PageItem[]
         {

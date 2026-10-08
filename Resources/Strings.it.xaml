@@ -1360,4 +1360,35 @@
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">Tieni premuto il tasto destro su una miniatura e trascina per spostarla; tieni premuto anche Ctrl per spostarle tutte.&#x0A;- **Aggancia ai bordi** allinea una miniatura alle vicine e al bordo dello schermo quando la rilasci.&#x0A;- **Mantieni i trascinamenti su un monitor** impedisce a una miniatura di passare a un altro schermo.&#x0A;- **Blocca la posizione delle miniature** impedisce ogni spostamento e ridimensionamento.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">Annulla e reimposta</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Body">**Annulla** e **Ripeti** vanno avanti e indietro tra le modifiche che hanno spostato o ridimensionato tutte le miniature insieme: trascinarle tutte, ridimensionarle tutte, un layout salvato o una reimpostazione. Hanno anche scorciatoie (Client › Scorciatoie e cambio client).&#x0A;&#x0A;**Reimposta tutte le posizioni** rimette ogni miniatura in colonna nella posizione e con la dimensione delle nuove miniature, e cancella le posizioni salvate in questo profilo.</sys:String> <!-- draft -->
+    <!-- Thumbnails › Layout &amp; screens › Saved layouts (Plan 3b) -->
+    <sys:String x:Key="L.S.Sec.thumbs.layout.saved">Layout salvati</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets">I tuoi layout</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets.Desc">Salva dove si trova ogni miniatura e quanto è grande, poi ripristinale con un clic (preset di layout). Condiviso da tutti i profili.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Apply">Applica</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Remap">Riassegna e applica…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Delete">Elimina…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Save">Salva layout attuale…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Export">Esporta…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Import">Importa…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Empty">Nessun layout salvato. Disponi le miniature, poi salva il layout.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoneUsed">Questo profilo non ha ancora usato un layout salvato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Current">Ultimo utilizzo di questo profilo: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PickFirst">Scegli prima un layout salvato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Applied">Layout '{0}' applicato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoClients">Nessun client in esecuzione da posizionare.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoThumbnails">Nessuna miniatura da salvare. Avvia prima i tuoi client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.SaveTitle">Salva layout</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NamePrompt">Nome di questo layout:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceTitle">Sostituisci layout</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceConfirm">Esiste già un layout chiamato '{0}'. Sostituirlo?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Saved">Layout '{0}' salvato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteTitle">Elimina layout</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteConfirm">Eliminare il layout salvato '{0}'?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Exported">Salvato come {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ExportFailed">Impossibile scrivere quel file.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Imported">Layout '{0}' importato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImportFailed">Quel file non è un layout MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Filter.Layouts">Layout MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Title">Layout salvati</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**Salva layout attuale** ricorda dove si trova la miniatura di ogni personaggio in esecuzione e la sua dimensione, come quota del suo schermo, così il layout si adatta anche dopo un cambio di risoluzione. Ricorda anche quali miniature sono nascoste e se le finestre di ritaglio sono attive.&#x0A;- **Applica** rimette a posto le miniature. I personaggi non connessi ricevono il loro posto all'accesso.&#x0A;- **Riassegna e applica** ti lascia scegliere quale personaggio occupa ogni posto, per esempio in un layout di un altro giocatore.&#x0A;- **Esporta** e **Importa** condividono un layout come file.</sys:String> <!-- draft -->
 </ResourceDictionary>

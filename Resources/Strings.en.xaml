@@ -1342,4 +1342,35 @@
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">Hold the right mouse button on a thumbnail and drag to move it; hold Ctrl too to move them all.&#x0A;- **Snap to edges** lines a thumbnail up with its neighbours and the screen edge when you let go.&#x0A;- **Keep drags on one monitor** stops a thumbnail crossing to another screen.&#x0A;- **Lock thumbnail positions** stops all moving and resizing.</sys:String>
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">Undo and reset</sys:String>
     <sys:String x:Key="L.Help.thumbs.layout.history.Body">**Undo** and **Redo** step back and forward through changes that moved or resized every thumbnail at once: dragging them all, resizing them all, a saved layout or a reset. They have hotkeys too (Clients › Hotkeys &amp; switching).&#x0A;&#x0A;**Reset all positions** puts every thumbnail back in a column at the place and size for new thumbnails, and clears the places saved in this profile.</sys:String>
+    <!-- Thumbnails › Layout &amp; screens › Saved layouts (Plan 3b) -->
+    <sys:String x:Key="L.S.Sec.thumbs.layout.saved">Saved layouts</sys:String>
+    <sys:String x:Key="L.S.thumbs.layout.presets">Your layouts</sys:String>
+    <sys:String x:Key="L.S.thumbs.layout.presets.Desc">Save where every thumbnail is and how big, then put them back in one click (layout presets). Shared by every profile.</sys:String>
+    <sys:String x:Key="L.S.Presets.Apply">Apply</sys:String>
+    <sys:String x:Key="L.S.Presets.Remap">Remap and apply…</sys:String>
+    <sys:String x:Key="L.S.Presets.Delete">Delete…</sys:String>
+    <sys:String x:Key="L.S.Presets.Save">Save current layout…</sys:String>
+    <sys:String x:Key="L.S.Presets.Export">Export…</sys:String>
+    <sys:String x:Key="L.S.Presets.Import">Import…</sys:String>
+    <sys:String x:Key="L.S.Presets.Empty">No saved layouts yet. Place your thumbnails, then save the layout.</sys:String>
+    <sys:String x:Key="L.S.Presets.NoneUsed">This profile hasn't used a saved layout yet.</sys:String>
+    <sys:String x:Key="L.S.Presets.Current">This profile last used: {0}</sys:String>
+    <sys:String x:Key="L.S.Presets.PickFirst">Pick a saved layout first.</sys:String>
+    <sys:String x:Key="L.S.Presets.Applied">Layout '{0}' applied.</sys:String>
+    <sys:String x:Key="L.S.Presets.NoClients">No clients are running to place.</sys:String>
+    <sys:String x:Key="L.S.Presets.NoThumbnails">There are no thumbnails to save. Start your clients first.</sys:String>
+    <sys:String x:Key="L.S.Presets.SaveTitle">Save layout</sys:String>
+    <sys:String x:Key="L.S.Presets.NamePrompt">Name for this layout:</sys:String>
+    <sys:String x:Key="L.S.Presets.ReplaceTitle">Replace layout</sys:String>
+    <sys:String x:Key="L.S.Presets.ReplaceConfirm">A layout called '{0}' already exists. Replace it?</sys:String>
+    <sys:String x:Key="L.S.Presets.Saved">Layout '{0}' saved.</sys:String>
+    <sys:String x:Key="L.S.Presets.DeleteTitle">Delete layout</sys:String>
+    <sys:String x:Key="L.S.Presets.DeleteConfirm">Delete the saved layout '{0}'?</sys:String>
+    <sys:String x:Key="L.S.Presets.Exported">Saved as {0}.</sys:String>
+    <sys:String x:Key="L.S.Presets.ExportFailed">Couldn't write that file.</sys:String>
+    <sys:String x:Key="L.S.Presets.Imported">Layout '{0}' imported.</sys:String>
+    <sys:String x:Key="L.S.Presets.ImportFailed">That file isn't a MultiPreview layout.</sys:String>
+    <sys:String x:Key="L.S.Filter.Layouts">MultiPreview layouts</sys:String>
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Title">Saved layouts</sys:String>
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**Save current layout** remembers where every running character's thumbnail is and how big, as a share of its screen, so the layout still fits after a resolution change. It also remembers which thumbnails are hidden and whether crop windows are on.&#x0A;- **Apply** puts the thumbnails back. Characters that aren't logged in get their place when they log in.&#x0A;- **Remap and apply** lets you choose which of your characters takes each place, for example in a layout from another player.&#x0A;- **Export** and **Import** share a layout as a file.</sys:String>
 </ResourceDictionary>

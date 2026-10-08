@@ -1360,4 +1360,35 @@
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">在缩略图上按住鼠标右键并拖动即可移动；同时按住 Ctrl 可移动全部。&#x0A;- **吸附到边缘**会在你松开时让缩略图与相邻缩略图和屏幕边缘对齐。&#x0A;- **拖动限制在一台显示器内**可防止缩略图跨到另一块屏幕。&#x0A;- **锁定缩略图位置**会禁止所有移动和调整大小。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">撤销与重置</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Body">**撤销**和**重做**可在一次性移动或调整所有缩略图大小的更改中前后切换：拖动全部、调整全部大小、已保存的布局或重置。它们也有热键（客户端 › 热键与切换）。&#x0A;&#x0A;**重置所有位置**会把每个缩略图按新缩略图的位置和大小放回一列，并清除此配置文件中保存的位置。</sys:String> <!-- draft -->
+    <!-- Thumbnails › Layout &amp; screens › Saved layouts (Plan 3b) -->
+    <sys:String x:Key="L.S.Sec.thumbs.layout.saved">已保存的布局</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets">你的布局</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets.Desc">保存每个缩略图的位置和大小，然后一键还原（布局预设）。所有配置文件共用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Apply">应用</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Remap">重新分配并应用…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Delete">删除…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Save">保存当前布局…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Export">导出…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Import">导入…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Empty">还没有已保存的布局。先摆好缩略图，再保存布局。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoneUsed">此配置文件还没有使用过已保存的布局。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Current">此配置文件上次使用：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PickFirst">请先选择一个已保存的布局。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Applied">已应用布局“{0}”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoClients">没有正在运行的客户端可供放置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoThumbnails">没有可保存的缩略图。请先启动客户端。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.SaveTitle">保存布局</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NamePrompt">此布局的名称：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceTitle">替换布局</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceConfirm">已存在名为“{0}”的布局。要替换吗？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Saved">已保存布局“{0}”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteTitle">删除布局</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteConfirm">删除已保存的布局“{0}”？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Exported">已另存为 {0}。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ExportFailed">无法写入该文件。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Imported">已导入布局“{0}”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImportFailed">该文件不是 MultiPreview 布局。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Filter.Layouts">MultiPreview 布局</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Title">已保存的布局</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**保存当前布局**会记住每个运行中角色的缩略图位置和大小（按其屏幕的比例），因此更改分辨率后布局仍然适用。它还会记住哪些缩略图被隐藏，以及裁剪窗口是否开启。&#x0A;- **应用**会把缩略图放回原位。尚未登录的角色会在登录时获得位置。&#x0A;- **重新分配并应用**让你选择由哪个角色占用每个位置，例如使用其他玩家的布局时。&#x0A;- **导出**和**导入**以文件形式分享布局。</sys:String> <!-- draft -->
 </ResourceDictionary>

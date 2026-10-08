@@ -1362,4 +1362,35 @@
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">Удерживайте правую кнопку мыши на миниатюре и тяните, чтобы переместить её; удерживайте ещё и Ctrl, чтобы переместить все.&#x0A;- **Прилипать к краям** выравнивает миниатюру по соседним и краю экрана, когда вы её отпускаете.&#x0A;- **Не выводить перетаскивание за монитор** не даёт миниатюре перейти на другой экран.&#x0A;- **Заблокировать положение миниатюр** запрещает любое перемещение и изменение размера.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">Отмена и сброс</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Body">**Отменить** и **Повторить** проходят назад и вперёд по изменениям, которые сразу переместили или изменили размер всех миниатюр: перетаскивание всех, изменение размера всех, сохранённая раскладка или сброс. Для них есть и горячие клавиши (Клиенты › Горячие клавиши и переключение).&#x0A;&#x0A;**Сбросить все позиции** возвращает каждую миниатюру в столбец на место и в размер для новых миниатюр и очищает места, сохранённые в этом профиле.</sys:String> <!-- draft -->
+    <!-- Thumbnails › Layout &amp; screens › Saved layouts (Plan 3b) -->
+    <sys:String x:Key="L.S.Sec.thumbs.layout.saved">Сохранённые раскладки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets">Ваши раскладки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets.Desc">Сохраните, где находится каждая миниатюра и какого она размера, и возвращайте всё одним щелчком (пресеты раскладки). Общие для всех профилей.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Apply">Применить</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Remap">Переназначить и применить…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Delete">Удалить…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Save">Сохранить текущую раскладку…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Export">Экспорт…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Import">Импорт…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Empty">Сохранённых раскладок пока нет. Расставьте миниатюры и сохраните раскладку.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoneUsed">Этот профиль ещё не использовал сохранённую раскладку.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Current">Этот профиль последним использовал: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PickFirst">Сначала выберите сохранённую раскладку.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Applied">Раскладка '{0}' применена.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoClients">Нет запущенных клиентов для размещения.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoThumbnails">Нет миниатюр для сохранения. Сначала запустите клиенты.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.SaveTitle">Сохранить раскладку</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NamePrompt">Название раскладки:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceTitle">Заменить раскладку</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceConfirm">Раскладка '{0}' уже существует. Заменить её?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Saved">Раскладка '{0}' сохранена.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteTitle">Удалить раскладку</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteConfirm">Удалить сохранённую раскладку '{0}'?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Exported">Сохранено как {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ExportFailed">Не удалось записать этот файл.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Imported">Раскладка '{0}' импортирована.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImportFailed">Этот файл не является раскладкой MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Filter.Layouts">Раскладки MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Title">Сохранённые раскладки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**Сохранить текущую раскладку** запоминает, где находится миниатюра каждого запущенного персонажа и какого она размера, как долю его экрана, чтобы раскладка подходила и после смены разрешения. Также запоминает, какие миниатюры скрыты и включены ли окна кадрирования.&#x0A;- **Применить** возвращает миниатюры на места. Персонажи, не вошедшие в игру, получают место при входе.&#x0A;- **Переназначить и применить** позволяет выбрать, какой из ваших персонажей займёт каждое место, например в раскладке другого игрока.&#x0A;- **Экспорт** и **Импорт** позволяют поделиться раскладкой в виде файла.</sys:String> <!-- draft -->
 </ResourceDictionary>

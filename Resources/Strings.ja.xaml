@@ -1343,4 +1343,35 @@
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">サムネイルの上で右ボタンを押したままドラッグすると移動できます。Ctrl も押すと全部を移動します。&#x0A;- **端にスナップ**は、放したときにサムネイルを隣のサムネイルや画面の端にそろえます。&#x0A;- **ドラッグを1つのモニター内に制限**は、サムネイルが別の画面に移るのを防ぎます。&#x0A;- **サムネイルの位置をロック**は、すべての移動とリサイズを止めます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">元に戻す・リセット</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Body">**元に戻す**と**やり直し**は、すべてのサムネイルを一度に移動・リサイズした変更（全部をドラッグ、全部をリサイズ、保存したレイアウト、リセット）を前後にたどります。ホットキーもあります（クライアント › ホットキーと切り替え）。&#x0A;&#x0A;**すべての位置をリセット**は、すべてのサムネイルを新しいサムネイルの場所とサイズで列に戻し、このプロファイルに保存された位置を消去します。</sys:String> <!-- draft -->
+    <!-- Thumbnails › Layout &amp; screens › Saved layouts (Plan 3b) -->
+    <sys:String x:Key="L.S.Sec.thumbs.layout.saved">保存したレイアウト</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets">あなたのレイアウト</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets.Desc">各サムネイルの位置とサイズを保存し、ワンクリックで元に戻せます（レイアウトプリセット）。すべてのプロファイルで共通です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Apply">適用</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Remap">割り当て直して適用…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Delete">削除…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Save">現在のレイアウトを保存…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Export">エクスポート…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Import">インポート…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Empty">保存したレイアウトはまだありません。サムネイルを配置してから保存してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoneUsed">このプロファイルはまだ保存したレイアウトを使っていません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Current">このプロファイルが最後に使用: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PickFirst">先に保存したレイアウトを選んでください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Applied">レイアウト '{0}' を適用しました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoClients">配置するクライアントが起動していません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoThumbnails">保存するサムネイルがありません。先にクライアントを起動してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.SaveTitle">レイアウトを保存</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NamePrompt">このレイアウトの名前:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceTitle">レイアウトを置き換え</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceConfirm">'{0}' というレイアウトは既にあります。置き換えますか？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Saved">レイアウト '{0}' を保存しました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteTitle">レイアウトを削除</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteConfirm">保存したレイアウト '{0}' を削除しますか？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Exported">{0} として保存しました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ExportFailed">そのファイルに書き込めませんでした。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Imported">レイアウト '{0}' をインポートしました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImportFailed">そのファイルは MultiPreview のレイアウトではありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Filter.Layouts">MultiPreview レイアウト</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Title">保存したレイアウト</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**現在のレイアウトを保存**は、起動中の各キャラクターのサムネイルの位置とサイズを、画面に対する割合で記憶します。そのため解像度を変えてもレイアウトが合います。非表示のサムネイルと、クロップウィンドウがオンかどうかも記憶します。&#x0A;- **適用**でサムネイルを元の位置に戻します。ログインしていないキャラクターは、ログイン時に場所が割り当てられます。&#x0A;- **割り当て直して適用**では、どのキャラクターがどの場所に入るかを選べます。他のプレイヤーのレイアウトを使うときなどに便利です。&#x0A;- **エクスポート**と**インポート**でレイアウトをファイルとして共有できます。</sys:String> <!-- draft -->
 </ResourceDictionary>

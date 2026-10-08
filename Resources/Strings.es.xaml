@@ -1364,4 +1364,35 @@
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">Mantén el botón derecho sobre una miniatura y arrastra para moverla; mantén también Ctrl para moverlas todas.&#x0A;- **Ajustar a los bordes** alinea una miniatura con sus vecinas y el borde de la pantalla al soltarla.&#x0A;- **Mantener los arrastres en un monitor** evita que una miniatura pase a otra pantalla.&#x0A;- **Bloquear la posición de las miniaturas** impide mover y cambiar el tamaño.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">Deshacer y restablecer</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Body">**Deshacer** y **Rehacer** retroceden y avanzan por los cambios que movieron o cambiaron el tamaño de todas las miniaturas a la vez: arrastrarlas todas, cambiar el tamaño de todas, un diseño guardado o un restablecimiento. También tienen atajos (Clientes › Atajos y cambio de cliente).&#x0A;&#x0A;**Restablecer todas las posiciones** pone cada miniatura en una columna en el lugar y con el tamaño de las miniaturas nuevas, y borra los lugares guardados en este perfil.</sys:String> <!-- draft -->
+    <!-- Thumbnails › Layout &amp; screens › Saved layouts (Plan 3b) -->
+    <sys:String x:Key="L.S.Sec.thumbs.layout.saved">Diseños guardados</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets">Tus diseños</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets.Desc">Guarda dónde está cada miniatura y su tamaño, y restáuralas con un clic (preajustes de diseño). Compartido por todos los perfiles.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Apply">Aplicar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Remap">Reasignar y aplicar…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Delete">Eliminar…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Save">Guardar diseño actual…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Export">Exportar…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Import">Importar…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Empty">Aún no hay diseños guardados. Coloca tus miniaturas y guarda el diseño.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoneUsed">Este perfil aún no ha usado un diseño guardado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Current">Último uso de este perfil: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PickFirst">Elige primero un diseño guardado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Applied">Diseño '{0}' aplicado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoClients">No hay clientes en ejecución que colocar.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoThumbnails">No hay miniaturas que guardar. Inicia primero tus clientes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.SaveTitle">Guardar diseño</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NamePrompt">Nombre de este diseño:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceTitle">Reemplazar diseño</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceConfirm">Ya existe un diseño llamado '{0}'. ¿Reemplazarlo?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Saved">Diseño '{0}' guardado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteTitle">Eliminar diseño</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteConfirm">¿Eliminar el diseño guardado '{0}'?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Exported">Guardado como {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ExportFailed">No se pudo escribir ese archivo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Imported">Diseño '{0}' importado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImportFailed">Ese archivo no es un diseño de MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Filter.Layouts">Diseños de MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Title">Diseños guardados</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**Guardar diseño actual** recuerda dónde está la miniatura de cada personaje en ejecución y su tamaño, como proporción de su pantalla, para que el diseño siga encajando tras cambiar la resolución. También recuerda qué miniaturas están ocultas y si las ventanas de recorte están activas.&#x0A;- **Aplicar** devuelve las miniaturas a su sitio. Los personajes sin sesión iniciada reciben su lugar al iniciar sesión.&#x0A;- **Reasignar y aplicar** te deja elegir qué personaje ocupa cada lugar, por ejemplo en un diseño de otro jugador.&#x0A;- **Exportar** e **Importar** comparten un diseño como archivo.</sys:String> <!-- draft -->
 </ResourceDictionary>

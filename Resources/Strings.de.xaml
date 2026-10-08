@@ -1342,4 +1342,35 @@
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">Halte die rechte Maustaste auf einem Vorschaubild und ziehe, um es zu verschieben; halte zusätzlich Strg, um alle zu verschieben.&#x0A;- **An Kanten einrasten** richtet ein Vorschaubild beim Loslassen an seinen Nachbarn und am Bildschirmrand aus.&#x0A;- **Ziehen auf einem Monitor halten** verhindert, dass ein Vorschaubild auf einen anderen Bildschirm wechselt.&#x0A;- **Positionen der Vorschaubilder sperren** verhindert jedes Verschieben und Skalieren.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">Rückgängig und Zurücksetzen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Body">**Rückgängig** und **Wiederholen** gehen durch Änderungen vor und zurück, die alle Vorschaubilder auf einmal verschoben oder skaliert haben: alle ziehen, alle skalieren, ein gespeichertes Layout oder ein Zurücksetzen. Dafür gibt es auch Hotkeys (Clients › Hotkeys &amp; Wechseln).&#x0A;&#x0A;**Alle Positionen zurücksetzen** setzt jedes Vorschaubild in einer Spalte an den Platz und in die Größe für neue Vorschaubilder und löscht die in diesem Profil gespeicherten Plätze.</sys:String> <!-- draft -->
+    <!-- Thumbnails › Layout &amp; screens › Saved layouts (Plan 3b) -->
+    <sys:String x:Key="L.S.Sec.thumbs.layout.saved">Gespeicherte Layouts</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets">Deine Layouts</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets.Desc">Speichere, wo jedes Vorschaubild liegt und wie groß es ist, und stelle alles mit einem Klick wieder her (Layout-Vorlagen). Gilt für alle Profile.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Apply">Anwenden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Remap">Zuordnen und anwenden…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Delete">Löschen…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Save">Aktuelles Layout speichern…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Export">Exportieren…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Import">Importieren…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Empty">Noch keine gespeicherten Layouts. Ordne deine Vorschaubilder an und speichere das Layout.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoneUsed">Dieses Profil hat noch kein gespeichertes Layout verwendet.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Current">Dieses Profil nutzte zuletzt: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PickFirst">Wähle zuerst ein gespeichertes Layout.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Applied">Layout '{0}' angewendet.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoClients">Es laufen keine Clients, die platziert werden könnten.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoThumbnails">Es gibt keine Vorschaubilder zum Speichern. Starte zuerst deine Clients.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.SaveTitle">Layout speichern</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NamePrompt">Name für dieses Layout:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceTitle">Layout ersetzen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceConfirm">Ein Layout namens '{0}' existiert bereits. Ersetzen?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Saved">Layout '{0}' gespeichert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteTitle">Layout löschen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteConfirm">Das gespeicherte Layout '{0}' löschen?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Exported">Gespeichert als {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ExportFailed">Die Datei konnte nicht geschrieben werden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Imported">Layout '{0}' importiert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImportFailed">Diese Datei ist kein MultiPreview-Layout.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Filter.Layouts">MultiPreview-Layouts</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Title">Gespeicherte Layouts</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**Aktuelles Layout speichern** merkt sich, wo das Vorschaubild jedes laufenden Charakters liegt und wie groß es ist, als Anteil seines Bildschirms, damit das Layout auch nach einer Auflösungsänderung passt. Es merkt sich auch, welche Vorschaubilder ausgeblendet sind und ob Crop-Fenster an sind.&#x0A;- **Anwenden** setzt die Vorschaubilder zurück. Nicht eingeloggte Charaktere bekommen ihren Platz beim Einloggen.&#x0A;- **Zuordnen und anwenden** lässt dich wählen, welcher deiner Charaktere welchen Platz bekommt, zum Beispiel bei einem Layout eines anderen Spielers.&#x0A;- **Exportieren** und **Importieren** teilen ein Layout als Datei.</sys:String> <!-- draft -->
 </ResourceDictionary>

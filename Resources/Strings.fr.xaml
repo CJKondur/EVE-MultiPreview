@@ -1345,4 +1345,35 @@
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">Maintenez le bouton droit sur une vignette et faites glisser pour la déplacer ; maintenez aussi Ctrl pour les déplacer toutes.&#x0A;- **Aimanter aux bords** aligne une vignette sur ses voisines et le bord de l'écran quand vous la relâchez.&#x0A;- **Garder les déplacements sur un écran** empêche une vignette de passer sur un autre écran.&#x0A;- **Verrouiller la position des vignettes** empêche tout déplacement et redimensionnement.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">Annuler et réinitialiser</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Body">**Annuler** et **Rétablir** parcourent les changements qui ont déplacé ou redimensionné toutes les vignettes à la fois : tout glisser, tout redimensionner, une disposition enregistrée ou une réinitialisation. Ils ont aussi des raccourcis (Clients › Raccourcis et changement de client).&#x0A;&#x0A;**Réinitialiser toutes les positions** remet chaque vignette en colonne à l'emplacement et à la taille des nouvelles vignettes, et efface les emplacements enregistrés dans ce profil.</sys:String> <!-- draft -->
+    <!-- Thumbnails › Layout &amp; screens › Saved layouts (Plan 3b) -->
+    <sys:String x:Key="L.S.Sec.thumbs.layout.saved">Dispositions enregistrées</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets">Vos dispositions</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.presets.Desc">Enregistrez l'emplacement et la taille de chaque miniature, puis rétablissez-les d'un clic (préréglages de disposition). Partagé par tous les profils.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Apply">Appliquer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Remap">Réattribuer et appliquer…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Delete">Supprimer…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Save">Enregistrer la disposition actuelle…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Export">Exporter…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Import">Importer…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Empty">Aucune disposition enregistrée. Placez vos miniatures, puis enregistrez la disposition.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoneUsed">Ce profil n'a pas encore utilisé de disposition enregistrée.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Current">Dernière utilisation par ce profil : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PickFirst">Choisissez d'abord une disposition enregistrée.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Applied">Disposition '{0}' appliquée.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoClients">Aucun client en cours à placer.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NoThumbnails">Aucune miniature à enregistrer. Lancez d'abord vos clients.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.SaveTitle">Enregistrer la disposition</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.NamePrompt">Nom de cette disposition :</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceTitle">Remplacer la disposition</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ReplaceConfirm">Une disposition nommée '{0}' existe déjà. La remplacer ?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Saved">Disposition '{0}' enregistrée.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteTitle">Supprimer la disposition</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.DeleteConfirm">Supprimer la disposition enregistrée '{0}' ?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Exported">Enregistré sous {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ExportFailed">Impossible d'écrire ce fichier.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Imported">Disposition '{0}' importée.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImportFailed">Ce fichier n'est pas une disposition MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Filter.Layouts">Dispositions MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Title">Dispositions enregistrées</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**Enregistrer la disposition actuelle** mémorise l'emplacement et la taille de la miniature de chaque personnage en cours, en proportion de son écran, pour que la disposition convienne encore après un changement de résolution. Elle mémorise aussi les miniatures masquées et si les fenêtres de recadrage sont actives.&#x0A;- **Appliquer** remet les miniatures en place. Les personnages non connectés reçoivent leur place à la connexion.&#x0A;- **Réattribuer et appliquer** vous laisse choisir quel personnage prend chaque place, par exemple pour une disposition d'un autre joueur.&#x0A;- **Exporter** et **Importer** partagent une disposition sous forme de fichier.</sys:String> <!-- draft -->
 </ResourceDictionary>
