@@ -83,6 +83,7 @@ public class ThumbnailWindow : Form
     // Public WPF-style properties preserved for ThumbnailManager contract.
     public IntPtr EveHwnd => _eveHwnd;
     public string CharacterName { get; private set; } = string.Empty;
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public bool IsLocked { get; set; }
 
     public event Action<ThumbnailWindow, int, int, int, int>? PositionChanged;
@@ -109,15 +110,18 @@ public class ThumbnailWindow : Form
     /// <summary>When this character's alerts are muted: the moment the snooze ends,
     /// DateTime.MaxValue for an indefinite mute, or null when not muted. Set by
     /// ThumbnailManager; read by the context menu to show remaining time.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public DateTime? AlertMutedUntil { get; set; }
 
     /// <summary>When true, a drag is clamped to the monitor it started on (Ctrl is
     /// already taken by drag-all, so this is a setting, not a modifier). Set by
     /// ThumbnailManager from ConfineDragsToMonitor.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public bool ConfineDragsToMonitor { get; set; }
 
     /// <summary>Current per-client audio volume (0-100) for the right-click slider.
     /// Set by ThumbnailManager from the saved per-client volume.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public int AudioVolume { get; set; } = 100;
 
     // Right-click context menu (v2.0.6). Lazily built on first use, reused for
@@ -289,21 +293,25 @@ public class ThumbnailWindow : Form
     // Topmost/IsVisible spelling). Keep the contract bit-identical so callers
     // don't need to change when we swap the backing framework.
 
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Left
     {
         get => base.Left;
         set => base.Left = (int)value;
     }
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Top
     {
         get => base.Top;
         set => base.Top = (int)value;
     }
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Width
     {
         get => base.Width;
         set => base.Width = (int)value;
     }
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Height
     {
         get => base.Height;
@@ -315,12 +323,14 @@ public class ThumbnailWindow : Form
     // foreground from whatever had it (notably the Settings UI). All reads
     // and writes to topmost state must go through this field + SetTopmostNoActivate.
     private bool _isTopmost;
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public bool Topmost
     {
         get => _isTopmost;
         set => SetTopmost(value);
     }
     public bool IsVisible => Visible;
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public WpfVisibility Visibility
     {
         get => Visible ? WpfVisibility.Visible : WpfVisibility.Collapsed;
@@ -767,6 +777,7 @@ public class ThumbnailWindow : Form
 
     /// <summary>When true, hovering bumps the thumbnail to 100% opacity and
     /// restores the previous opacity on leave. Drives issue #37.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public bool OpacityOnHover { get; set; }
 
     private byte _opacityBeforeHover = 255;
