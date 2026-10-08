@@ -57,8 +57,21 @@ public static class ThumbnailFields
     public static bool TryWhole(string? text, out int value)
     {
         var t = text?.Trim() ?? "";
-        return int.TryParse(t, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out value)
-            || int.TryParse(t, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+        return int.TryParse(t, NumberStyles.Integer | Grouping(t, CultureInfo.CurrentCulture), CultureInfo.CurrentCulture, out value)
+            || int.TryParse(t, NumberStyles.Integer | Grouping(t, CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, out value);
+    }
+
+    /// <summary>AllowThousands only when the text really is grouped: every group after the first is exactly three digits
+    /// and the integer part ends there or at the decimal separator. .NET doesn't check group sizes, so "1.5" would
+    /// otherwise read as 15 in de-DE. The one rule for every number box.</summary>
+    public static NumberStyles Grouping(string text, CultureInfo culture)
+    {
+        var sep = culture.NumberFormat.NumberGroupSeparator;
+        if (sep.Length == 0 || !text.Contains(sep, StringComparison.Ordinal)) return NumberStyles.None;
+        var s = System.Text.RegularExpressions.Regex.Escape(sep);
+        var d = System.Text.RegularExpressions.Regex.Escape(culture.NumberFormat.NumberDecimalSeparator);
+        return System.Text.RegularExpressions.Regex.IsMatch(text, $@"^[+-]?\d{{1,3}}({s}\d{{3}})+($|{d})")
+            ? NumberStyles.AllowThousands : NumberStyles.None;
     }
 
     // ── The nine anchor points (CycleExclusionBadgePosition; Plan 3c reuses them for AlertTextPosition) ──

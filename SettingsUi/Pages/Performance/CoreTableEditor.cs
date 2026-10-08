@@ -35,7 +35,7 @@ public sealed class CoreTableEditor : System.Windows.Controls.UserControl, IRefr
 
     private IReadOnlyList<string> Current() => CharacterDirectory.Known(_ctx.S, CharacterDirectory.Running(_ctx));
 
-    private string Signature() => string.Join("\n", Current().Select(n => n + "|" + CharacterFields.Core(_ctx.S, n)));
+    private string Signature() => string.Join("\n", Current().Select(n => n + "|" + (CharacterFields.StalePin(_ctx.S, n) ?? CharacterFields.Core(_ctx.S, n))));
 
     public void Refresh()
     {

@@ -168,8 +168,8 @@ public sealed class SettingVM : ItemVM
     private static bool TryParseNumber(string? s, out double n)
     {
         s = s?.Trim() ?? "";
-        return double.TryParse(s, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out n)
-            || double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out n);
+        return double.TryParse(s, NumberStyles.Float | ThumbnailFields.Grouping(s, CultureInfo.CurrentCulture), CultureInfo.CurrentCulture, out n)
+            || double.TryParse(s, NumberStyles.Float | ThumbnailFields.Grouping(s, CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, out n);
     }
 }
 
