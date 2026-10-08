@@ -730,4 +730,12 @@
     <sys:String x:Key="L.S.Err.NotANumber">请输入数字。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Range">请输入 {0} 到 {1} 之间的数字。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Color">请输入颜色，例如 #4CC2FF。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Prompt">按下一个键或组合键，或鼠标中键、第 4 键、第 5 键。按 Esc 取消。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedBy">已被以下项使用：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedByNote">你仍可保留：它们将共用此按键。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Clear">清除</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.None">未设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Change">更改</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Ok">确定</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Cancel">取消</sys:String> <!-- draft -->
 </ResourceDictionary>

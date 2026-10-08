@@ -712,4 +712,12 @@
     <sys:String x:Key="L.S.Err.NotANumber">Gib eine Zahl ein.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Range">Gib eine Zahl von {0} bis {1} ein.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Color">Gib eine Farbe wie #4CC2FF ein.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Prompt">Drücke eine Taste oder Tastenkombination oder die mittlere, 4. oder 5. Maustaste. Esc bricht ab.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedBy">Bereits belegt durch:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedByNote">Du kannst sie trotzdem behalten: Sie teilen sich dann die Taste.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Clear">Löschen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.None">Nicht festgelegt</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Change">Ändern</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Ok">OK</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Cancel">Abbrechen</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -732,4 +732,12 @@
     <sys:String x:Key="L.S.Err.NotANumber">Введите число.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Range">Введите число от {0} до {1}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Color">Введите цвет, например #4CC2FF.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Prompt">Нажмите клавишу или сочетание клавиш, либо среднюю, 4-ю или 5-ю кнопку мыши. Esc — отмена.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedBy">Уже используется:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedByNote">Можно оставить как есть: они будут использовать одну клавишу.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Clear">Очистить</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.None">Не задано</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Change">Изменить</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Ok">ОК</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Cancel">Отмена</sys:String> <!-- draft -->
 </ResourceDictionary>

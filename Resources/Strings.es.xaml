@@ -734,4 +734,12 @@
     <sys:String x:Key="L.S.Err.NotANumber">Introduce un número.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Range">Introduce un número de {0} a {1}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Color">Introduce un color como #4CC2FF.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Prompt">Pulsa una tecla o combinación, o el botón central, 4 o 5 del ratón. Esc cancela.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedBy">Ya lo usa:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedByNote">Puedes conservarla igualmente: compartirán la tecla.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Clear">Borrar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.None">Sin asignar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Change">Cambiar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Ok">Aceptar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Cancel">Cancelar</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -713,4 +713,12 @@
     <sys:String x:Key="L.S.Err.NotANumber">숫자를 입력하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Range">{0}에서 {1} 사이의 숫자를 입력하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Color">#4CC2FF 같은 색상을 입력하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Prompt">키 또는 키 조합, 혹은 마우스 가운데·4번·5번 버튼을 누르세요. Esc를 누르면 취소됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedBy">이미 사용 중:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedByNote">그대로 유지해도 됩니다. 같은 키를 함께 사용하게 됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Clear">지우기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.None">설정 안 됨</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Change">변경</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Ok">확인</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Cancel">취소</sys:String> <!-- draft -->
 </ResourceDictionary>

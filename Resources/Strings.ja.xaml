@@ -713,4 +713,12 @@
     <sys:String x:Key="L.S.Err.NotANumber">数値を入力してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Range">{0} から {1} までの数値を入力してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Color">#4CC2FF のような色を入力してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Prompt">キーまたはキーの組み合わせ、もしくはマウスの中ボタン・4番・5番ボタンを押してください。Esc でキャンセルします。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedBy">すでに使用中：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.UsedByNote">そのまま使うこともできます。同じキーを共有します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Clear">クリア</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.None">未設定</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Hotkey.Change">変更</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Ok">OK</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Cancel">キャンセル</sys:String> <!-- draft -->
 </ResourceDictionary>
