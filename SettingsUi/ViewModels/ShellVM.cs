@@ -71,10 +71,11 @@ public sealed class ShellVM : ObservableObject, IDisposable
                       .ToList();
         HomeCommand = new RelayCommand(_ => { if (Home != null) Navigate(Home.Id); });
         AllSettingsCommand = new RelayCommand(_ => AllSettings());
-        ctx.Service.ProfileSwitched += OnProfileSwitched;
-        ctx.Service.SaveCompleted += OnSaveCompletedAnyThread;
         var start = Home ?? pages.FirstOrDefault();
         if (start != null) Show(start, null);
+        // Subscribe last: if Show throws, the app falls back to the old window and no dead view-model stays wired up.
+        ctx.Service.ProfileSwitched += OnProfileSwitched;
+        ctx.Service.SaveCompleted += OnSaveCompletedAnyThread;
     }
 
     public IReadOnlyList<PageDef> Pages { get; }

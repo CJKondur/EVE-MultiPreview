@@ -986,24 +986,36 @@ public partial class App : Application
         };
 
         // UseLegacySettingsWindow (spec §12): the old window stays reachable for a release or two.
-        if (_settings!.Settings.UseLegacySettingsWindow)
+        Window? opened = null;
+        if (!_settings!.Settings.UseLegacySettingsWindow)
+        {
+            try
+            {
+                var shell = new SettingsUi.SettingsShell(_settings!, new SettingsUi.AppServices
+                {
+                    Thumbnails = _thumbnailManager,
+                    Crops = _cropManager,
+                    Hotkeys = _hotkeyService,
+                    AlertHub = _alertHub,
+                });
+                shell.SettingsApplied += applyLiveSettings;
+                opened = shell;
+            }
+            catch (Exception ex)
+            {
+                // Without this, a failing new window is swallowed by the dispatcher and Settings does nothing, every time.
+                // The setting is left alone: a transient failure must not flip the player's choice for good.
+                LogError(ex);
+                SettingsDiag($"New settings window failed to open ({ex.GetType().Name}: {ex.Message}); opening the old one");
+            }
+        }
+        if (opened == null)
         {
             var legacy = new SettingsWindow(_settings!, _thumbnailManager!, _cropManager);
             legacy.SettingsApplied += applyLiveSettings;
-            _settingsWindow = legacy;
+            opened = legacy;
         }
-        else
-        {
-            var shell = new SettingsUi.SettingsShell(_settings!, new SettingsUi.AppServices
-            {
-                Thumbnails = _thumbnailManager,
-                Crops = _cropManager,
-                Hotkeys = _hotkeyService,
-                AlertHub = _alertHub,
-            });
-            shell.SettingsApplied += applyLiveSettings;
-            _settingsWindow = shell;
-        }
+        _settingsWindow = opened;
 
         // Set initial WindowState BEFORE Show() so WPF commits the restore rect
         // with the saved Width/Height already applied. Setting WindowState after

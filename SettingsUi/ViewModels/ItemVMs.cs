@@ -169,7 +169,7 @@ public sealed class SettingVM : ItemVM
     {
         s = s?.Trim() ?? "";
         var current = ThumbnailFields.Grouped(s, CultureInfo.CurrentCulture, out var currentStyle);
-        var invariant = ThumbnailFields.Grouped(s, CultureInfo.InvariantCulture, out var invariantStyle);
+        var invariant = ThumbnailFields.InvariantGrouped(s, out var invariantStyle);
         return double.TryParse(current, NumberStyles.Float | currentStyle, CultureInfo.CurrentCulture, out n)
             || double.TryParse(invariant, NumberStyles.Float | invariantStyle, CultureInfo.InvariantCulture, out n);
     }

@@ -58,9 +58,18 @@ public static class ThumbnailFields
     {
         var t = text?.Trim() ?? "";
         var current = Grouped(t, CultureInfo.CurrentCulture, out var currentStyle);
-        var invariant = Grouped(t, CultureInfo.InvariantCulture, out var invariantStyle);
+        var invariant = InvariantGrouped(t, out var invariantStyle);
         return int.TryParse(current, NumberStyles.Integer | currentStyle, CultureInfo.CurrentCulture, out value)
             || int.TryParse(invariant, NumberStyles.Integer | invariantStyle, CultureInfo.InvariantCulture, out value);
+    }
+
+    /// <summary>The invariant fallback. Where the player's decimal separator is a comma (de, fr, ru, es, it), a comma is a
+    /// decimal point, so the invariant form never groups: "1,500" is 1.5 there, not 1500.</summary>
+    public static string InvariantGrouped(string text, out NumberStyles style)
+    {
+        var result = Grouped(text, CultureInfo.InvariantCulture, out style);
+        if (CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator == ",") style = NumberStyles.None;
+        return result;
     }
 
     /// <summary>AllowThousands only when the text really is grouped: every group after the first is exactly three digits
@@ -71,8 +80,8 @@ public static class ThumbnailFields
         style = NumberStyles.None;
         var sep = culture.NumberFormat.NumberGroupSeparator;
         // fr groups with U+202F and ru with U+00A0, but players type a plain space: all three spaces are one separator.
-        if (sep.Length == 1 && sep[0] is ' ' or ' ' or ' ')
-            text = text.Replace(' ', sep[0]).Replace(' ', sep[0]).Replace(' ', sep[0]);
+        if (sep.Length == 1 && sep[0] is ' ' or '\u00A0' or '\u202F')
+            text = text.Replace(' ', sep[0]).Replace('\u00A0', sep[0]).Replace('\u202F', sep[0]);
         if (sep.Length == 0 || !text.Contains(sep, StringComparison.Ordinal)) return text;
         var s = System.Text.RegularExpressions.Regex.Escape(sep);
         var d = System.Text.RegularExpressions.Regex.Escape(culture.NumberFormat.NumberDecimalSeparator);

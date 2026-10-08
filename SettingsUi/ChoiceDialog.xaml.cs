@@ -1,6 +1,4 @@
 using System.Windows;
-using System.Windows.Input;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 
 namespace EveMultiPreview.SettingsUi;
 
@@ -17,7 +15,6 @@ public partial class ChoiceDialog : Window
         BodyText.Text = body;
         YesButton.Content = yesLabel;
         NoButton.Content = noLabel;
-        PreviewKeyDown += OnPreviewKeyDown;
     }
 
     /// <summary>True for the first button, false for the second, null for Cancel, Esc or closing.</summary>
@@ -26,13 +23,6 @@ public partial class ChoiceDialog : Window
     private void OnYes(object sender, RoutedEventArgs e) => Finish(true);
     private void OnNo(object sender, RoutedEventArgs e) => Finish(false);
     private void OnCancel(object sender, RoutedEventArgs e) => Finish(null);
-
-    private void OnPreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key != Key.Escape) return;
-        e.Handled = true;
-        Finish(null);
-    }
 
     private void Finish(bool? result)
     {

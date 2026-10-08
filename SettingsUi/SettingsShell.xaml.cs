@@ -79,6 +79,10 @@ public partial class SettingsShell : Window, ISettingsHost
         SearchHost.Content = _search;
         InputBindings.Add(new KeyBinding(new RelayCommand(_ => _search.FocusBox()), Key.F, ModifierKeys.Control));
 
+        // The constructor ran before there was a handle, so it measured the primary monitor.
+        SourceInitialized += (_, _) => UpdateMinWidth();
+        DpiChanged += (_, _) => UpdateMinWidth();
+
         Closing += (_, _) => { SaveSize(); Vm.OnClosing(); };
         Closed += (_, _) => { _clock.Stop(); _toastTimer.Stop(); _highlightTimer.Stop(); Vm.Dispose(); };
     }
@@ -279,8 +283,9 @@ public partial class SettingsShell : Window, ISettingsHost
     private void ApplyLanguageAndScale()
     {
         FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
-        var scale = Math.Clamp(_ctx.S.SettingsUiFontSize, 9, 20) / 12.0;
+        var scale = _scale = Math.Clamp(_ctx.S.SettingsUiFontSize, 9, 20) / 12.0;
         Root.LayoutTransform = Math.Abs(scale - 1.0) < 0.001 ? Transform.Identity : new ScaleTransform(scale, scale);
+        UpdateMinWidth();
     }
 
     /// <summary>1240×800 unless a settings window was resized before; never larger than the work area.</summary>
@@ -301,6 +306,7 @@ public partial class SettingsShell : Window, ISettingsHost
         _ctx.S.SettingsWindowHeight = (int)bounds.Height;
     }
 
+    private double _scale = 1.0;
     private string? _helpPage;
     private string? _helpItem;
 
@@ -328,11 +334,19 @@ public partial class SettingsShell : Window, ISettingsHost
     /// is, and so is a maximized one.</summary>
     private void KeepRoomForThePage()
     {
-        var area = WorkAreaOfThisMonitor();
-        MinWidth = Math.Min(Vm.HelpOpen ? HelpOpenMinWidth : ClosedMinWidth, area.Width);
+        var area = UpdateMinWidth();
         if (WindowState != WindowState.Normal) return;
-        if (Width < MinWidth) Width = MinWidth;
-        Left = NudgedLeft(Left, Width, area.Left, area.Right);
+        // Nudge only when this call grew the window: a window the player dragged part-way off the screen stays put.
+        if (Width < MinWidth) { Width = MinWidth; Left = NudgedLeft(Left, Width, area.Left, area.Right); }
+    }
+
+    /// <summary>The minimum width scales with the window's UI size (the content's scale transform is inside the window),
+    /// and is capped by the work area of the monitor the window is on. Returns that work area.</summary>
+    private Rect UpdateMinWidth()
+    {
+        var area = WorkAreaOfThisMonitor();
+        MinWidth = Math.Min((Vm.HelpOpen ? HelpOpenMinWidth : ClosedMinWidth) * _scale, area.Width);
+        return area;
     }
 
     /// <summary>The left edge that keeps a window of this width inside [areaLeft, areaRight], or the same left when the

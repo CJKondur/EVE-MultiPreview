@@ -16,6 +16,7 @@ public partial class HelpPane : System.Windows.Controls.UserControl
     private readonly Func<string, string?> _resolve;
     private readonly IReadOnlyList<HelpTopic> _topics;
     private readonly Dictionary<string, FrameworkElement> _topicElements = new();
+    private FrameworkElement? _scrolledTo;
 
     /// <summary>App use: strings from the live resources, topics from HelpTopics.All.</summary>
     public HelpPane() : this(key => LocalizationService.Str(key, ""), HelpTopics.All) { }
@@ -36,6 +37,7 @@ public partial class HelpPane : System.Windows.Controls.UserControl
     {
         Body.Children.Clear();
         _topicElements.Clear();
+        _scrolledTo = null;
         TopicCount = 0;
         AddBlocks(_resolve(HelpTopics.IntroKey(pageId)), Body);
         foreach (var topic in _topics.Where(t => t.PageId == pageId))
@@ -58,6 +60,8 @@ public partial class HelpPane : System.Windows.Controls.UserControl
     public bool ScrollToTopicFor(string itemId)
     {
         if (!_topicElements.TryGetValue(itemId, out var element)) return false;
+        if (element == _scrolledTo) return true;   // already brought to the top: hovering another card of it leaves the pane alone
+        _scrolledTo = element;
         Scroll.UpdateLayout();
         Scroll.ScrollToVerticalOffset(element.TranslatePoint(new Point(0, 0), Body).Y);
         return true;
