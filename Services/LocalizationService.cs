@@ -37,9 +37,14 @@ public static class LocalizationService
     /// (tray menu, thumbnail context menu) — issue #86.</summary>
     public static string Str(string key, string fallback)
     {
-        var s = Application.Current?.TryFindResource(key) as string;
+        var app = Application.Current;
+        var s = app != null ? app.TryFindResource(key) as string : DetachedStrings?.Invoke(key);
         return string.IsNullOrEmpty(s) ? fallback : s;
     }
+
+    /// <summary>Strings for code-built text when no Application exists: off-screen test snapshots and the
+    /// pseudo-locale pass (Plan 3d). The app always has an Application, so this is never read there.</summary>
+    public static Func<string, string?>? DetachedStrings { get; set; }
 
     private static ResourceDictionary? _overlay;
 
