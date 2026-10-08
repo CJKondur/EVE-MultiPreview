@@ -38,10 +38,11 @@ public static class CropAreaPick
             picked();
         }
 
+        CropPickerOverlay? overlay = null;
         try
         {
             User32.SetForegroundWindow(thumb.EveHwnd);
-            var overlay = new CropPickerOverlay(cx, cy, cw, ch, cw, ch);
+            overlay = new CropPickerOverlay(cx, cy, cw, ch, cw, ch);
             overlay.Completed += r => Finish(session, r, Store, ctx.Host.Toast);
             overlay.Closed += (_, _) => Finish(session, null, Store, ctx.Host.Toast);   // Alt+F4, or anything else that closes it
             overlay.Show();
@@ -50,7 +51,8 @@ public static class CropAreaPick
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[CropAreaPick] picker failed: {ex.Message}");
-            session.End(null, Store);
+            try { overlay?.Close(); } catch { }   // a half-open overlay would keep eating the mouse
+            session.End(null, Store);              // once: Closed may already have ended it
             return "L.S.Crops.PickFailed";
         }
     }

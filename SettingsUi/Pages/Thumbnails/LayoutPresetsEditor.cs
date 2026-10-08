@@ -181,7 +181,7 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
             _library.Export(preset, file);
             _ctx.Host.Toast(string.Format(Str("L.S.Presets.Exported"), Path.GetFileName(file)));
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException)
         {
             _ctx.Host.Toast(Str("L.S.Presets.ExportFailed"));
         }

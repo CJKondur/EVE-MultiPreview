@@ -41,7 +41,7 @@ public static class SecondThumbnails
 
 /// <summary>Thumbnails › Visibility › Second thumbnails (spec §5): one row per character with On, opacity
 /// (%), › to the character page and Remove; Add… below. On/off create or close the second thumbnail at
-/// once; ReapplySettings (ApplyScope.Thumbnails) applies its opacity, as the old slider did.</summary>
+/// once; ApplyOpacityToAll (ApplyScope.Opacity) applies its opacity, as the old slider did.</summary>
 public sealed class PipEditor : System.Windows.Controls.UserControl, IRefreshable
 {
     private const double MinPercent = 8, MaxPercent = 100;   // the old slider's 20–255 bytes
@@ -146,7 +146,7 @@ public sealed class PipEditor : System.Windows.Controls.UserControl, IRefreshabl
     {
         if (CharacterFields.PipOpacity(_ctx.S, name) == (int)Math.Round(percent)) return;
         CharacterFields.SetPipOpacity(_ctx.S, name, percent);
-        _ctx.Applier.Request(ApplyScope.Thumbnails);   // ReapplySettings gives each second thumbnail its own opacity
+        _ctx.Applier.Request(ApplyScope.Opacity);   // ApplyOpacityToAll gives each second thumbnail its own opacity
     }
 
     public void Add()

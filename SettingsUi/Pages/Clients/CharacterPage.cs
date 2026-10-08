@@ -133,7 +133,7 @@ public static class CharacterPage
         new SettingItem(Setting.Custom("character.pipOpacity", SettingKind.Slider,
             s => CharacterFields.PipOpacity(s, name),
             (s, v) => CharacterFields.SetPipOpacity(s, name, Convert.ToDouble(v, CultureInfo.InvariantCulture)),
-            binds: new[] { "AppSettings.SecondaryThumbnails" }, apply: ApplyScope.Thumbnails) with
+            binds: new[] { "AppSettings.SecondaryThumbnails" }, apply: ApplyScope.Opacity) with
         {
             Min = 8, Max = 100, Step = 1, UnitKey = "L.S.Unit.Percent",
             ShowIf = s => CharacterFields.PipOn(s, name),
@@ -213,7 +213,7 @@ public static class CharacterPage
     {
         new InfoItem("character.cropCount", InfoSeverity.Info)
         {
-            Args = ctx => new object[] { ctx.S.Crops.TryGetValue(name, out var list) ? list.Count : 0 },
+            Args = ctx => new object[] { CropEdits.Of(ctx.S, name).Count },
         },
         new ActionRow("character.cropsLink", new[]
         {
