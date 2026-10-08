@@ -1390,5 +1390,5 @@
     <sys:String x:Key="L.S.Presets.ImportFailed">该文件不是 MultiPreview 布局。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Filter.Layouts">MultiPreview 布局</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.presets.Title">已保存的布局</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**保存当前布局**会记住每个运行中角色的缩略图位置和大小（按其屏幕的比例），因此更改分辨率后布局仍然适用。它还会记住哪些缩略图被隐藏，以及裁剪窗口是否开启。&#x0A;- **应用**会把缩略图放回原位。尚未登录的角色会在登录时获得位置。&#x0A;- **重新分配并应用**让你选择由哪个角色占用每个位置，例如使用其他玩家的布局时。&#x0A;- **导出**和**导入**以文件形式分享布局。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**保存当前布局**会记住每个运行中角色的缩略图位置和大小（按其屏幕的比例），因此更改分辨率后布局仍然适用。它还会记住哪些缩略图被隐藏，以及裁剪窗口是否开启。&#x0A;- **应用**会把缩略图放回原位。尚未登录的角色会在登录时获得位置。&#x0A;- **重新分配并应用**让你选择由哪个角色占用每个位置，例如使用其他玩家的布局时。&#x0A;- **导出**和**导入**以文件形式分享布局。 导入与现有布局同名的布局时，会先询问是否替换。</sys:String> <!-- draft -->
 </ResourceDictionary>

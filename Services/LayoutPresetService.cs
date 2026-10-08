@@ -63,9 +63,8 @@ public sealed class LayoutPresetService
     public void Export(LayoutPreset preset, string file)
         => File.WriteAllText(file, JsonSerializer.Serialize(preset, Json));
 
-    /// <summary>Import a single shared preset file, add it to the library, return it
-    /// (null on failure / empty preset).</summary>
-    public LayoutPreset? Import(string file)
+    /// <summary>Parse a shared preset file without adding it (null on failure / empty preset).</summary>
+    public LayoutPreset? ReadFile(string file)
     {
         try
         {
@@ -73,9 +72,17 @@ public sealed class LayoutPresetService
             if (preset == null || preset.Slots == null || preset.Slots.Count == 0) return null;
             if (string.IsNullOrWhiteSpace(preset.Name))
                 preset.Name = Path.GetFileNameWithoutExtension(file);
-            AddOrReplace(preset);
             return preset;
         }
         catch { return null; }
+    }
+
+    /// <summary>Import a single shared preset file, add it to the library, return it
+    /// (null on failure / empty preset).</summary>
+    public LayoutPreset? Import(string file)
+    {
+        var preset = ReadFile(file);
+        if (preset != null) AddOrReplace(preset);
+        return preset;
     }
 }

@@ -52,6 +52,9 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     /// <summary>The saved layouts, in the file's order.</summary>
     public IReadOnlyList<string> Names { get; private set; } = Array.Empty<string>();
 
+    /// <summary>Test seam: stands in for ThumbnailManager.CaptureCurrentLayoutPreset.</summary>
+    public Func<string, LayoutPreset?>? Capture { get; set; }
+
     /// <summary>The layout the buttons act on, or null.</summary>
     public string? Selected { get; private set; }
 
@@ -144,11 +147,12 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     public void SaveCurrent()
     {
         var tm = _ctx.Services.Thumbnails;
-        if (tm == null || CharacterDirectory.Running(_ctx).Count == 0) { _ctx.Host.Toast(Str("L.S.Presets.NoThumbnails")); return; }
+        var capture = Capture ?? (tm == null || CharacterDirectory.Running(_ctx).Count == 0 ? null : tm.CaptureCurrentLayoutPreset);
+        if (capture == null) { _ctx.Host.Toast(Str("L.S.Presets.NoThumbnails")); return; }
         var name = _ctx.Host.AskText(Str("L.S.Presets.SaveTitle"), Str("L.S.Presets.NamePrompt"), Selected ?? "")?.Trim();
         if (string.IsNullOrEmpty(name)) return;
-        var preset = tm.CaptureCurrentLayoutPreset(name);
-        if (preset.Slots.Count == 0) { _ctx.Host.Toast(Str("L.S.Presets.NoThumbnails")); return; }
+        var preset = capture(name);
+        if (preset == null || preset.Slots.Count == 0) { _ctx.Host.Toast(Str("L.S.Presets.NoThumbnails")); return; }
         if (_library.Get(name) != null
             && !_ctx.Host.Confirm(Str("L.S.Presets.ReplaceTitle"), string.Format(Str("L.S.Presets.ReplaceConfirm"), name))) return;
         _library.AddOrReplace(preset);
@@ -183,13 +187,16 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         }
     }
 
-    /// <summary>Old OnImportLayoutPreset: adds the file's layout (replacing one with its name).</summary>
+    /// <summary>Old OnImportLayoutPreset: adds the file's layout, asking before it replaces one with its name.</summary>
     public void Import()
     {
         var file = _ctx.Host.PickFile(null, OpenFilter);
         if (file == null) return;
-        var preset = _library.Import(file);
+        var preset = _library.ReadFile(file);
         if (preset == null) { _ctx.Host.Toast(Str("L.S.Presets.ImportFailed")); return; }
+        if (_library.Get(preset.Name) != null
+            && !_ctx.Host.Confirm(Str("L.S.Presets.ReplaceTitle"), string.Format(Str("L.S.Presets.ReplaceConfirm"), preset.Name))) return;
+        _library.AddOrReplace(preset);
         Selected = preset.Name;
         Refresh();
         _ctx.Host.Toast(string.Format(Str("L.S.Presets.Imported"), preset.Name));
