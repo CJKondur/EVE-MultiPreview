@@ -73,7 +73,7 @@
     <sys:String x:Key="L.General.HideHeldKeys">对切换到的客户端隐藏仍按住的按键</sys:String>
     <sys:String x:Key="L.General.HideHeldKeysNote">适用于字母、数字、F 键、Enter 和空格。切换时仍按住的按键会在离开的客户端中松开，并在你松开之前对新客户端隐藏——因此按住 A（对齐）或 S（跃迁）不会让下一个客户端对齐或跃迁。优先于“将其他按住的按键传递给切换到的客户端”。Ctrl / Shift / Alt 永远不会被隐藏：它们遵循上方各自的选项，隐藏它们会破坏像 Ctrl+TAB 这样按住修饰键的快捷键。</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">对 EVE 隐藏快捷键按键（与 EVE-X-Preview 相同）</sys:String>
-    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">开启：快捷键切换客户端时，切换到的客户端完全不会收到该按键。关闭：按键松开的信号会传到该客户端，您在那里的第一次点击可能只会聚焦总览而不执行操作。</sys:String>
+    <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">开启：快捷键切换客户端时，切换到的客户端完全不会收到该按键。关闭：按键松开的信号会传到该客户端，你在那里的第一次点击可能只会聚焦总览而不执行操作。</sys:String> <!-- draft -->
     <sys:String x:Key="L.General.SystemHotkeys">系统热键</sys:String>
     <sys:String x:Key="L.General.HkSuspend">暂停热键：</sys:String>
     <sys:String x:Key="L.General.HkClickThrough">点击穿透切换：</sys:String>
@@ -976,11 +976,11 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">此角色的缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **标签**添加你自己的文字,例如 Scout。其颜色和大小可以与其他文字不同。&#x0A;- **独立大小**为此缩略图设置单独的宽度和高度。角色需要在此配置文件中至少登录过一次。&#x0A;- **第二缩略图**为同一客户端添加单独的画中画视图。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">颜色</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">仅当配置文件开启**使用按角色颜色**(客户端 › 角色)时,才会使用这些边框颜色。&#x0A;&#x0A;**重置颜色**会恢复为所有角色通用的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">仅当配置文件开启**使用每个角色的专属颜色**(客户端 › 角色)时,才会使用这些边框颜色。&#x0A;&#x0A;**重置颜色**会恢复为所有角色通用的颜色。</sys:String> <!-- draft -->
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">客户端窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.neverMinimize">从不最小化</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.character.neverMinimize.Desc">当“切换时最小化客户端”开启时,保持此客户端打开(客户端 › 窗口和位置)。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.neverMinimize.Desc">当“切换时最小化客户端”开启时,保持此客户端打开(客户端 › 窗口与位置)。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.core">后台 CPU 核心</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.core.Desc">仅在管理后台优先级时使用(性能 › CPU)。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.CoreAuto">自动</sys:String> <!-- draft -->
@@ -1316,7 +1316,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">客户端统计</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">显示每个客户端占用的 CPU、内存（RAM）和显存（VRAM），每隔几秒更新一次。便于发现卡顿的客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">边框</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **高亮边框**标出你正在玩的客户端。更改会在你返回 EVE 时显示。&#x0A;- 其他每个客户端使用**其他客户端**下设置的边框。颜色留空则无边框。&#x0A;- 分组可以用分组颜色绘制其成员（客户端 › 分组）。**在彩色分组内保留高亮**会让你正在玩的客户端保留高亮颜色。&#x0A;- 角色自己的边框颜色在其页面中设置，并在开启**使用角色专属颜色**时生效。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **高亮边框**标出你正在玩的客户端。更改会在你返回 EVE 时显示。&#x0A;- 其他每个客户端使用**其他客户端**下设置的边框。颜色留空则无边框。&#x0A;- 分组可以用分组颜色绘制其成员（客户端 › 分组）。**在彩色分组内保留高亮**会让你正在玩的客户端保留高亮颜色。&#x0A;- 角色自己的边框颜色在其页面中设置，并在开启**使用每个角色的专属颜色**时生效。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">已跳过客户端的标记</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">被你移出循环切换的客户端（默认 Shift+点击）会显示红色 ✕。可选择它位于缩略图的哪个角或哪条边。</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -1433,7 +1433,7 @@
     <sys:String x:Key="L.Help.thumbs.visibility.login.Title">处于登录界面的客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.login.Body">仍停留在角色选择界面的客户端可以显示**“未登录”**文字、**彩色边框**，或者**变暗**，方便你看出哪些客户端还需要登录。&#x0A;&#x0A;文字绘制在实时画面下方，因此只有缩略图部分透明时才可见（外观 › 不透明度）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.pip.Title">第二缩略图</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.visibility.pip.Body">第二缩略图是客户端的额外视图，有自己的位置、大小和不透明度，例如在墙旁边放一个主号的大视图。&#x0A;&#x0A;**添加**用于选择角色；像拖动其他缩略图一样拖动第二缩略图。关闭它会保留位置和大小供下次使用，而**移除**会丢弃它们。每个角色的页面都有同样的开关，也可以用热键隐藏所有第二缩略图（客户端 › 热键 &amp; 切换）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.pip.Body">第二缩略图是客户端的额外视图，有自己的位置、大小和不透明度，例如在墙旁边放一个主号的大视图。&#x0A;&#x0A;**添加**用于选择角色；像拖动其他缩略图一样拖动第二缩略图。关闭它会保留位置和大小供下次使用，而**移除**会丢弃它们。每个角色的页面都有同样的开关，也可以用热键隐藏所有第二缩略图（客户端 › 热键与切换）。</sys:String> <!-- draft -->
     <!-- Thumbnails › Crop windows (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.crops">裁剪窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.thumbs.crops.Desc">每个小窗口显示客户端的一部分，例如总览或本地聊天。</sys:String> <!-- draft -->

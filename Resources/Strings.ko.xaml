@@ -65,9 +65,9 @@
     <sys:String x:Key="L.General.ScopeGlobal">전역</sys:String>
     <sys:String x:Key="L.General.ScopeEveActive">EVE 창이 활성 상태일 때</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">Ctrl / Shift / Alt 를 누른 채로도 단축키 실행</sys:String>
-    <sys:String x:Key="L.General.HotkeyWildcardNote">켜줐: 수식어 키를 누르고 있어도 단축키가 작동합니다 — EVE에서는 대상을 잠금 때 Ctrl을 누릅니다. 꺼짐: V 같은 단일 키 단축키는 단독으로만 작동하므로 Ctrl+V가 붙여넣기를 위해 클라이언트에 전달됩니다.</sys:String>
+    <sys:String x:Key="L.General.HotkeyWildcardNote">켜짐: 수식어 키를 누르고 있어도 단축키가 작동합니다 — EVE에서는 대상을 잠금 때 Ctrl을 누릅니다. 꺼짐: V 같은 단일 키 단축키는 단독으로만 작동하므로 Ctrl+V가 붙여넣기를 위해 클라이언트에 전달됩니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.General.PropagateModifiers">누르고 있는 Ctrl / Shift / Alt 를 전환한 클라이언트로 전달</sys:String>
-    <sys:String x:Key="L.General.PropagateModifiersNote">켜줐: Ctrl을 누른 채 대상을 잠그는 동작이 다른 클라이언트로 전환한 뒤에도 작동합니다. 전환 후 잠금이 되지 않으면 끄세요. 일부 환경에서는 클라이언트가 이미 눌린 키를 인식하고 있어 추가 입력이 방해가 됩니다.</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">켜짐: Ctrl을 누른 채 대상을 잠그는 동작이 다른 클라이언트로 전환한 뒤에도 작동합니다. 전환 후 잠금이 되지 않으면 끄세요. 일부 환경에서는 클라이언트가 이미 눌린 키를 인식하고 있어 추가 입력이 방해가 됩니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.General.PropagateKeys">누르고 있는 다른 키를 전환한 클라이언트로 전달</sys:String>
     <sys:String x:Key="L.General.PropagateKeysNote">켜짐: 전환할 때 아직 누르고 있는 문자, 숫자, F 키, Enter, Space, 마우스 버튼이 새 클라이언트에서도 눌립니다 (F1을 누른 채 순환하면 각 클라이언트에서 발동). 아직 떼지 않은 모듈 키가 다음 클라이언트에서 켜지고 직접 누르면 다시 꺼진다면 끄세요. 누르고 있는 Ctrl / Shift / Alt 는 위의 설정을 따릅니다.</sys:String>
     <sys:String x:Key="L.General.HideHeldKeys">아직 누르고 있는 키를 전환한 클라이언트에서 숨기기</sys:String>
@@ -1416,7 +1416,7 @@
     <sys:String x:Key="L.Help.thumbs.visibility.login.Title">로그인 화면의 클라이언트</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.login.Body">캐릭터 선택 화면에 있는 클라이언트는 **'로그인 안 됨'** 텍스트, **색 테두리**를 보여주거나 **어둡게** 표시할 수 있어, 아직 로그인해야 할 클라이언트를 알 수 있습니다.&#x0A;&#x0A;텍스트는 실시간 화면 아래에 그려지므로 썸네일이 일부 투명할 때만 보입니다 (모양 › 불투명도).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.pip.Title">보조 썸네일</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.visibility.pip.Body">보조 썸네일은 위치·크기·불투명도를 따로 가지는 클라이언트의 추가 화면입니다. 예를 들어 벽 옆에 메인 캐릭터의 큰 화면을 둘 수 있습니다.&#x0A;&#x0A;**추가**로 캐릭터를 고르고, 다른 썸네일처럼 보조 썸네일을 끌어서 옮기세요. 끄면 위치와 크기가 다음을 위해 유지되고, **제거**하면 사라집니다. 각 캐릭터 페이지에도 같은 스위치가 있고, 단축키로 모든 보조 썸네일을 숨길 수 있습니다 (클라이언트 › 단축키 &amp; 전환).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.pip.Body">보조 썸네일은 위치·크기·불투명도를 따로 가지는 클라이언트의 추가 화면입니다. 예를 들어 벽 옆에 메인 캐릭터의 큰 화면을 둘 수 있습니다.&#x0A;&#x0A;**추가**로 캐릭터를 고르고, 다른 썸네일처럼 보조 썸네일을 끌어서 옮기세요. 끄면 위치와 크기가 다음을 위해 유지되고, **제거**하면 사라집니다. 각 캐릭터 페이지에도 같은 스위치가 있고, 단축키로 모든 보조 썸네일을 숨길 수 있습니다 (클라이언트 › 단축키 및 전환).</sys:String> <!-- draft -->
     <!-- Thumbnails › Crop windows (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.crops">크롭 창</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.thumbs.crops.Desc">각각 클라이언트의 한 부분(예: 오버뷰나 로컬 채팅)을 보여 주는 작은 창입니다.</sys:String> <!-- draft -->

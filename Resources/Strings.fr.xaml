@@ -756,8 +756,8 @@
     <sys:String x:Key="L.S.Shell.Help">Aide pour cette page</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Afficher tous les paramètres</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Retry">Réessayer</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Shell.SaveFailed">Impossible d'enregistrer tes paramètres. Vérifie que le dossier MultiPreview n'est pas en lecture seule et qu'il reste de l'espace libre, puis réessaie.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Shell.SaveBlocked">Ton fichier de paramètres n'a pas pu être lu au démarrage de MultiPreview, donc les modifications ne sont pas enregistrées. L'original est conservé à côté sous forme de copie .bak.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveFailed">Impossible d'enregistrer vos paramètres. Vérifiez que le dossier MultiPreview n'est pas en lecture seule et qu'il reste de l'espace libre, puis réessayez.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveBlocked">Votre fichier de paramètres n'a pas pu être lu au démarrage de MultiPreview, donc les modifications ne sont pas enregistrées. L'original est conservé à côté sous forme de copie .bak.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Home">Accueil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.AllSettings">Tous les paramètres</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Clients">Clients</sys:String> <!-- draft -->
@@ -961,7 +961,7 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">Miniature de ce personnage</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Étiquette** ajoute votre propre texte, comme Scout. Sa couleur et sa taille peuvent différer du reste du texte.&#x0A;- **Taille propre** donne à cette miniature sa propre largeur et hauteur. Le personnage doit s'être connecté au moins une fois dans ce profil.&#x0A;- **Deuxième miniature** ajoute une vue image dans l'image distincte du même client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">Couleurs</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">Ces couleurs de bordure ne sont utilisées que lorsque **Utiliser les couleurs par personnage** est activé pour le profil (Clients › Personnages).&#x0A;&#x0A;**Réinitialiser les couleurs** revient aux couleurs communes à tous les personnages.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">Ces couleurs de bordure ne sont utilisées que lorsque **Utiliser des couleurs par personnage** est activé pour le profil (Clients › Personnages).&#x0A;&#x0A;**Réinitialiser les couleurs** revient aux couleurs communes à tous les personnages.</sys:String> <!-- draft -->
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">Fenêtre du client</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.neverMinimize">Ne jamais réduire</sys:String> <!-- draft -->
@@ -1301,7 +1301,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Statistiques du client</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">Affiche la quantité de CPU, de mémoire (RAM) et de mémoire graphique (VRAM) utilisée par chaque client, mise à jour toutes les quelques secondes. Pratique pour repérer un client en difficulté.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Bordures</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- La **bordure de surbrillance** repère le client dans lequel vous jouez. Les changements s'affichent quand vous revenez dans EVE.&#x0A;- Chaque autre client reçoit la bordure définie sous **Autres clients**. Laissez sa couleur vide pour aucune bordure.&#x0A;- Les groupes peuvent peindre leurs membres à la couleur du groupe (Clients › Groupes). **Garder la surbrillance dans un groupe coloré** garde la couleur de surbrillance sur le client dans lequel vous jouez.&#x0A;- Les couleurs de bordure propres à un personnage se règlent sur sa page et servent tant que **Utiliser les couleurs par personnage** est activé.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- La **bordure de surbrillance** repère le client dans lequel vous jouez. Les changements s'affichent quand vous revenez dans EVE.&#x0A;- Chaque autre client reçoit la bordure définie sous **Autres clients**. Laissez sa couleur vide pour aucune bordure.&#x0A;- Les groupes peuvent peindre leurs membres à la couleur du groupe (Clients › Groupes). **Garder la surbrillance dans un groupe coloré** garde la couleur de surbrillance sur le client dans lequel vous jouez.&#x0A;- Les couleurs de bordure propres à un personnage se règlent sur sa page et servent tant que **Utiliser des couleurs par personnage** est activé.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">Le repère du client ignoré</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">Un client que vous retirez de la rotation (Maj+clic par défaut) affiche un ✕ rouge. Choisissez le coin ou le bord de la miniature où il se place.</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -1383,11 +1383,11 @@
     <sys:String x:Key="L.S.thumbs.visibility.alwaysOnTop">Toujours au premier plan</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.visibility.alwaysOnTop.Desc">Les vignettes restent au-dessus de toutes les autres fenêtres, navigateur compris.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.visibility.aboveClients">Garder au-dessus des clients EVE</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.visibility.aboveClients.Desc">Pendant que tu joues, les vignettes restent au-dessus de tes clients EVE mais d'autres applications peuvent les recouvrir. Prévu pour « Toujours au premier plan » désactivé.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.visibility.aboveClients.Desc">Pendant que vous jouez, les vignettes restent au-dessus de vos clients EVE mais d'autres applications peuvent les recouvrir. Prévu pour « Toujours au premier plan » désactivé.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.thumbs.visibility.hiding">Quand masquer</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.visibility.hideOnLostFocus">Masquer quand tu passes à une autre application</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.visibility.hideOnLostFocus">Masquer quand vous passez à une autre application</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.visibility.hideOnLostFocus.Desc">Les vignettes disparaissent tant qu'aucun client EVE n'est au premier plan et reviennent dès qu'un l'est. Elles restent quand les réglages sont ouverts.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.visibility.hideActive">Masquer le client que tu joues</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.visibility.hideActive">Masquer le client que vous jouez</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.visibility.hideActive.Desc">Seule la vignette du client au premier plan est masquée.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.thumbs.visibility.login">Clients à l'écran de connexion</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.visibility.notLoggedIn">Marque pour un client non connecté</sys:String> <!-- draft -->
@@ -1414,11 +1414,11 @@
     <sys:String x:Key="L.S.Pip.RemoveConfirm">Supprimer la seconde vignette de {0} ? Sa position et sa taille sont oubliées. Pour les garder, désactive-la plutôt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.Intro">Quand les vignettes restent au-dessus des autres fenêtres ou s'effacent, l'aspect d'un client à l'écran de connexion et les secondes vignettes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.stacking.Title">Rester au premier plan et masquer</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.visibility.stacking.Body">- **Toujours au premier plan** garde les vignettes au-dessus de toutes les fenêtres, navigateur compris.&#x0A;- **Garder au-dessus des clients EVE** les garde au-dessus d'EVE pendant que tu joues mais laisse d'autres applications les recouvrir. À utiliser avec « Toujours au premier plan » désactivé.&#x0A;- **Masquer quand tu passes à une autre application** les efface tant qu'aucun client EVE n'est au premier plan.&#x0A;- **Masquer le client que tu joues** masque seulement la vignette du client au premier plan, puisque tu le regardes déjà.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.stacking.Body">- **Toujours au premier plan** garde les vignettes au-dessus de toutes les fenêtres, navigateur compris.&#x0A;- **Garder au-dessus des clients EVE** les garde au-dessus d'EVE pendant que vous jouez mais laisse d'autres applications les recouvrir. À utiliser avec « Toujours au premier plan » désactivé.&#x0A;- **Masquer quand vous passez à une autre application** les efface tant qu'aucun client EVE n'est au premier plan.&#x0A;- **Masquer le client que vous jouez** masque seulement la vignette du client au premier plan, puisque vous le regardez déjà.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.login.Title">Clients à l'écran de connexion</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.login.Body">Un client encore à la sélection du personnage peut afficher le texte **« Non connecté »**, une **bordure colorée**, ou être **assombri**, pour voir quels clients restent à connecter.&#x0A;&#x0A;Le texte est dessiné sous l'image en direct : il n'apparaît que lorsque les vignettes sont en partie transparentes (Apparence › Opacité).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.pip.Title">Secondes vignettes</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.visibility.pip.Body">Une seconde vignette est une vue supplémentaire d'un client avec sa propre position, taille et opacité, par exemple une grande vue de ton main à côté du mur.&#x0A;&#x0A;**Ajouter** choisit un personnage ; déplace la seconde vignette comme n'importe quelle autre. La désactiver garde sa position et sa taille pour la prochaine fois, tandis que **Supprimer** les oublie. La page de chaque personnage a le même interrupteur, et un raccourci peut masquer toutes les secondes vignettes (Clients › Raccourcis &amp; changement).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.pip.Body">Une seconde vignette est une vue supplémentaire d'un client avec sa propre position, taille et opacité, par exemple une grande vue de votre main à côté du mur.&#x0A;&#x0A;**Ajouter** choisit un personnage ; déplacez la seconde vignette comme n'importe quelle autre. La désactiver garde sa position et sa taille pour la prochaine fois, tandis que **Supprimer** les oublie. La page de chaque personnage a le même interrupteur, et un raccourci peut masquer toutes les secondes vignettes (Clients › Raccourcis et changement de client).</sys:String> <!-- draft -->
     <!-- Thumbnails › Crop windows (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.crops">Fenêtres de recadrage</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.thumbs.crops.Desc">De petites fenêtres qui montrent chacune une partie d'un client, comme sa vue d'ensemble ou le chat local.</sys:String> <!-- draft -->
@@ -1456,7 +1456,7 @@
     <sys:String x:Key="L.Help.thumbs.crops.crops.Title">Créer une fenêtre de recadrage</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.crops.Body">- Choisissez un personnage et cliquez sur **Ajouter une fenêtre de recadrage**.&#x0A;- Client lancé, cliquez sur **Modifier la zone** et faites glisser sur la partie voulue. La fenêtre prend la même taille.&#x0A;- Faites glisser une fenêtre de recadrage avec le bouton droit pour la déplacer ; appuyez aussi sur le bouton gauche pour la redimensionner.&#x0A;&#x0A;**Copier vers** donne la même fenêtre de recadrage aux autres personnages, au même endroit de l'écran.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.crops.options.Title">Opacité, clics et désactivation</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacité** laisse transparaître ce qui est derrière. Avec **Les clics traversent** activé, vos clics atteignent la fenêtre derrière, et la fenêtre de recadrage ne peut plus être déplacée.&#x0A;&#x0A;**Afficher les fenêtres de recadrage** désactivé les masque toutes et les conserve pour la prochaine fois. Un raccourci peut aussi les masquer (Clients › Raccourcis &amp; changement).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.crops.options.Body">**Opacité** laisse transparaître ce qui est derrière. Avec **Les clics traversent** activé, vos clics atteignent la fenêtre derrière, et la fenêtre de recadrage ne peut plus être déplacée.&#x0A;&#x0A;**Afficher les fenêtres de recadrage** désactivé les masque toutes et les conserve pour la prochaine fois. Un raccourci peut aussi les masquer (Clients › Raccourcis et changement de client).</sys:String> <!-- draft -->
     <!-- Alerts › Events (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.events">Événements</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">Ce que MultiPreview surveille dans les journaux d'EVE, et comment chaque alerte s'affiche.</sys:String> <!-- draft -->
@@ -1613,36 +1613,36 @@
     <sys:String x:Key="L.Help.alerts.hub.hiding.Body">**Masquer au calme** garde le centre à l'écart jusqu'à l'arrivée d'une alerte. Si le centre sort de l'écran, **Réinitialiser la position** le ramène.</sys:String> <!-- draft -->
     <!-- Performance (Plan 3c) -->
     <sys:String x:Key="L.S.Page.perf.cpu">CPU</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Page.perf.cpu.Desc">Donne le processeur au client que tu joues et garde les autres sur moins.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.perf.cpu.Desc">Donnez le processeur au client que vous jouez et gardez les autres sur moins.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.cpu.priority">Clients en arrière-plan</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.cpu.manage">Gérer la priorité en arrière-plan</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.perf.cpu.manage.Desc">Les clients que tu ne joues pas tournent en priorité basse. Celui au premier plan a la priorité normale et tous les cœurs. Pour ce profil.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.perf.cpu.manage.Desc">Les clients que vous ne jouez pas tournent en priorité basse. Celui au premier plan a la priorité normale et tous les cœurs. Pour ce profil.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.cpu.autoBalance">Répartir les clients d'arrière-plan sur les derniers cœurs</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.perf.cpu.autoBalance.Desc">Chaque client en arrière-plan reçoit un cœur de la seconde moitié de tes cœurs (les cœurs économes sur la plupart des processeurs Intel). Un cœur épinglé ci-dessous a la priorité.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.perf.cpu.autoBalance.Desc">Chaque client en arrière-plan reçoit un cœur de la seconde moitié de vos cœurs (les cœurs économes sur la plupart des processeurs Intel). Un cœur épinglé ci-dessous a la priorité.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.cpu.pins">Cœurs épinglés</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.cpu.coreTable">Cœur de chaque personnage</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.cpu.coreTable.Desc">Le cœur qu'utilise le client d'un personnage en arrière-plan. Automatique suit l'interrupteur ci-dessus.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.CoreTable.ColCore">Cœur en arrière-plan</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.CoreTable.Empty">Aucun personnage pour l'instant. Lance EVE et connecte-toi, ou ajoute des personnages dans Clients › Personnages.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.CoreTable.Empty">Aucun personnage pour l'instant. Lancez EVE et connectez-vous, ou ajoutez des personnages dans Clients › Personnages.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.CoreTable.CoreFor">Cœur pour {0}</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.cpu.Intro">Avec beaucoup de clients, celui que tu joues doit avoir le processeur. MultiPreview peut abaisser les autres et garder chacun sur un cœur.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.cpu.Intro">Avec beaucoup de clients, celui que vous jouez doit avoir le processeur. MultiPreview peut abaisser les autres et garder chacun sur un cœur.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">Priorité en arrière-plan et cœurs</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Avec **Gérer la priorité en arrière-plan** activé, chaque client que tu ne joues pas tourne en priorité basse ; celui au premier plan tourne normalement sur tous les cœurs. Désactivé, chaque client retrouve sa priorité normale et tous les cœurs.&#x0A;- **Répartir les clients d'arrière-plan sur les derniers cœurs** donne à chacun un cœur de la seconde moitié de tes cœurs.&#x0A;- Un **cœur épinglé** garde un personnage sur le cœur que tu choisis. La page du personnage a le même réglage.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.cpu.priority.Body">Avec **Gérer la priorité en arrière-plan** activé, chaque client que vous ne jouez pas tourne en priorité basse ; celui au premier plan tourne normalement sur tous les cœurs. Désactivé, chaque client retrouve sa priorité normale et tous les cœurs.&#x0A;- **Répartir les clients d'arrière-plan sur les derniers cœurs** donne à chacun un cœur de la seconde moitié de vos cœurs.&#x0A;- Un **cœur épinglé** garde un personnage sur le cœur que vous choisissez. La page du personnage a le même réglage.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Page.perf.gpu.Desc">Économise la puissance graphique quand tu lances beaucoup de clients.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.perf.gpu.Desc">Économise la puissance graphique quand vous lancez beaucoup de clients.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">Réglage rapide</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.gpu.presetRow">Réglage faible GPU</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.perf.gpu.presetRow.Desc">Active deux réglages : réduire les clients quand tu changes de fenêtre (Clients › Fenêtres &amp; positions) et figer les miniatures quand tu es dans une autre application.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.perf.gpu.presetRow.Desc">Active deux réglages : réduire les clients quand vous changez de fenêtre (Clients › Fenêtres &amp; positions) et figer les miniatures quand vous êtes dans une autre application.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.perf.gpu.lowGpu">Utiliser le réglage faible GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Perf.LowGpuDone">Réglage faible GPU activé. Astuce : fixe aussi une limite d'images par seconde et la vsync dans chaque client EVE.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.thumbnails">Miniatures</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.gpu.static">Miniatures fixes</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.gpu.static.Desc">Les miniatures affichent une image fixe par seconde au lieu de la vidéo en direct. Une grosse économie avec beaucoup de clients.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.gpu.suspend">Figer les miniatures en arrière-plan</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.perf.gpu.suspend.Desc">Tant que ni EVE ni MultiPreview n'est au premier plan, les miniatures gardent leur dernière image. Elles repassent en direct à ton retour.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.perf.gpu.suspend.Desc">Tant que ni EVE ni MultiPreview n'est au premier plan, les miniatures gardent leur dernière image. Elles repassent en direct à votre retour.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.gpu.Intro">Chaque miniature en direct coûte de la puissance graphique. Ces réglages réduisent ce coût, au prix de moins de mouvement.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.gpu.gpu.Title">Économiser le GPU</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.gpu.gpu.Body">- **Miniatures fixes** échange la fluidité contre une grosse économie, en permanence.&#x0A;- **Figer les miniatures en arrière-plan** ne coûte rien quand tu joues et économise quand tu es dans une autre application.&#x0A;- **Utiliser le réglage faible GPU** active ce gel et réduit les clients que tu quittes, pour qu'ils arrêtent de dessiner.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.gpu.gpu.Body">- **Miniatures fixes** échange la fluidité contre une grosse économie, en permanence.&#x0A;- **Figer les miniatures en arrière-plan** ne coûte rien quand vous jouez et économise quand vous êtes dans une autre application.&#x0A;- **Utiliser le réglage faible GPU** active ce gel et réduit les clients que vous quittez, pour qu'ils arrêtent de dessiner.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.fps">Limiteur de FPS</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.fps.Desc">Garde les clients en arrière-plan à une faible cadence avec RivaTuner Statistics Server, et affiche les FPS de chaque client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.fps.rtss">RivaTuner Statistics Server</sys:String> <!-- draft -->
@@ -1676,9 +1676,9 @@
     <sys:String x:Key="L.S.Perf.CopyFailed">Impossible de copier le fichier de profil. Réessaie.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Perf.NoRtss">RTSS n'est pas installé, il n'y a donc pas de dossier à ouvrir.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Perf.OpenFailed">Impossible d'ouvrir le dossier.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.fps.Intro">RivaTuner Statistics Server (RTSS) peut garder les clients EVE que tu ne joues pas à une faible cadence, ce qui économise beaucoup de GPU et d'énergie. MultiPreview écrit le profil RTSS pour toi et peut afficher les FPS de chaque client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.fps.Intro">RivaTuner Statistics Server (RTSS) peut garder les clients EVE que vous ne jouez pas à une faible cadence, ce qui économise beaucoup de GPU et d'énergie. MultiPreview écrit le profil RTSS pour vous et peut afficher les FPS de chaque client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.limit.Title">Limiter les clients en arrière-plan</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.fps.limit.Body">Choisis une **cadence en arrière-plan**, puis appuie sur **Appliquer à RTSS**. Le profil ne limite EVE qu'en arrière-plan, le client que tu joues garde sa pleine cadence. RTSS redémarre pour le charger, et Windows peut demander une autorisation.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.fps.limit.Body">Choisissez une **cadence en arrière-plan**, puis appuyez sur **Appliquer à RTSS**. Le profil ne limite EVE qu'en arrière-plan, le client que vous jouez garde sa pleine cadence. RTSS redémarre pour le charger, et Windows peut demander une autorisation.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.counter.Title">Le compteur FPS</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.counter.Body">Avec RTSS lancé, chaque miniature peut afficher la cadence de son client dans le coin supérieur droit. Déplace-le avec les deux distances ou change sa taille ; -1 et 0 gardent la position et la taille habituelles.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.manual.Title">Installer le profil à la main</sys:String> <!-- draft -->
@@ -1688,7 +1688,7 @@
     <sys:String x:Key="L.S.Page.tools.stats.Desc">Des chiffres en direct à côté de chaque miniature : dégâts, réparations, minage et ISK.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.tools.stats.overlay">Overlay</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.enabled">Afficher l'overlay de statistiques</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.enabled.Desc">Une petite fenêtre par personnage avec les chiffres choisis ci-dessous. Déplacez-la avec le bouton droit de la souris.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.enabled.Desc">Une petite fenêtre par personnage avec les chiffres sélectionnés ci-dessous. Déplacez-la avec le bouton droit de la souris.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.hideOnLostFocus">Masquer quand vous passez à une autre application</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.hideOnLostFocus.Desc">Les fenêtres de statistiques se masquent tant que ni EVE ni MultiPreview n'est au premier plan.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.tools.stats.numbers">Chiffres</sys:String> <!-- draft -->

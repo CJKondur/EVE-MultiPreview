@@ -914,7 +914,7 @@
     <sys:String x:Key="L.S.Opt.ClickExclude">巡回時にスキップする</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.Intro">MultiPreview が把握しているすべてのキャラクターです。現在起動中のものと、以前に設定したものが含まれます。› で開くと、そのキャラクターのすべての設定を 1 ページで確認できます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Title">キャラクター一覧</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.table.Body">- **ホットキー**は、そのキャラクターに直接切り替えます。クリックしてキーを記録します。&#x0A;- **表示**は、サムネイルの表示と非表示を切り替えます。&#x0A;- **巡回**は、MultiPreview を再起動するまで、次・前のクライアントキーの対象から外します。&#x0A;- **›** は、そのキャラクター専用のページを開きます。&#x0A;&#x0A;2 人のキャラクターで 1 つのホットキーを共有できます。押すと両者の間で切り替わります。&#x0A;&#x0A;**起動中のクライアントをすべて追加**すると、ログアウト後も起動中のキャラクターがリストに残ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.table.Body">- **ホットキー**は、そのキャラクターに直接切り替えます。クリックしてキーを記録します。&#x0A;- **表示**は、サムネイルの表示と非表示を切り替えます。&#x0A;- **巡回**は、MultiPreview を再起動するまで、次・前のクライアントキーの対象から外します。&#x0A;- **›** は、そのキャラクター専用のページを開きます。&#x0A;&#x0A;2 人のキャラクターで 1 つのホットキーを共有できます。押すと両者の間で切り替わります。&#x0A;&#x0A;**実行中のクライアントをすべて追加**すると、ログアウト後も起動中のキャラクターがリストに残ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">サムネイルのクリック</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Body">通常のクリックはそのクライアントに切り替えます。**Ctrl+クリック**と **Shift+クリック**では、代わりに最小化したり、巡回時にスキップしたりできます。Ctrl は EVE のターゲットロックキーでもあるので、プレイスタイルに合うものを選んでください。&#x0A;&#x0A;**キャラクターごとの色を使う**を有効にすると、各キャラクターのページで設定した枠線の色が使われます。</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
@@ -959,7 +959,7 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">このキャラクターのサムネイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **ラベル**は独自のテキスト(Scout など)を追加します。色とサイズは他のテキストと変えられます。&#x0A;- **個別サイズ**はこのサムネイルに専用の幅と高さを与えます。このプロファイルで一度ログインしている必要があります。&#x0A;- **2つ目のサムネイル**は同じクライアントの別のピクチャーインピクチャー表示を追加します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">色</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">これらの枠線の色は、プロファイルで**キャラクター別の色を使う**がオンの間だけ使われます(クライアント › キャラクター)。&#x0A;&#x0A;**色をリセット**は、全キャラクター共通の色に戻します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">これらの枠線の色は、プロファイルで**キャラクターごとの色を使う**がオンの間だけ使われます(クライアント › キャラクター)。&#x0A;&#x0A;**色をリセット**は、全キャラクター共通の色に戻します。</sys:String> <!-- draft -->
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">クライアントウィンドウ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.neverMinimize">最小化しない</sys:String> <!-- draft -->
@@ -1299,7 +1299,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">クライアント統計</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">各クライアントが使用している CPU、メモリ（RAM）、グラフィックスメモリ（VRAM）の量を数秒ごとに更新して表示します。動作が重いクライアントを見つけるのに便利です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">枠線</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **ハイライト枠**はプレイ中のクライアントを示します。変更は EVE に戻ると反映されます。&#x0A;- ほかのクライアントには **その他のクライアント** の枠が付きます。色を空にすると枠なしになります。&#x0A;- グループはメンバーをグループの色で描けます（クライアント › グループ）。**色付きグループ内でもハイライトを維持**を使うと、プレイ中のクライアントはハイライトの色のままになります。&#x0A;- キャラクター固有の枠の色はそのページで設定し、**キャラクター別の色を使う**がオンの間使われます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **ハイライト枠**はプレイ中のクライアントを示します。変更は EVE に戻ると反映されます。&#x0A;- ほかのクライアントには **その他のクライアント** の枠が付きます。色を空にすると枠なしになります。&#x0A;- グループはメンバーをグループの色で描けます（クライアント › グループ）。**色付きグループ内でもハイライトを維持**を使うと、プレイ中のクライアントはハイライトの色のままになります。&#x0A;- キャラクター固有の枠の色はそのページで設定し、**キャラクターごとの色を使う**がオンの間使われます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">スキップ中クライアントのマーク</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">巡回から外したクライアント（既定では Shift+クリック）には赤い ✕ が表示されます。サムネイルのどの角または辺に置くかを選べます。</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
