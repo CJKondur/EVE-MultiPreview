@@ -9,7 +9,7 @@ namespace EveMultiPreview.SettingsUi;
 /// <summary>Spec §5 App group: General, Profiles &amp; backups, About &amp; updates, Diagnostics.</summary>
 public static class AppPages
 {
-    public static IReadOnlyList<PageDef> All => new[] { General(), Diagnostics() };
+    public static IReadOnlyList<PageDef> All => new[] { General(), Profiles(), About(), Diagnostics() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -20,6 +20,10 @@ public static class AppPages
             "app.diagnostics.injection", "app.diagnostics.cycling", "app.diagnostics.windowHooks",
             "app.diagnostics.dwm", "app.diagnostics.alerts", "app.diagnostics.folder",
         }),
+        new HelpTopic("app.profiles", "profiles", new[] { "app.profiles.current" }),
+        new HelpTopic("app.profiles", "backups", new[] { "app.profiles.backup" }),
+        new HelpTopic("app.about", "updates", new[] { "app.about.links", "app.about.checkOnStartup", "app.about.preRelease", "app.about.installVersion" }),
+        new HelpTopic("app.about", "window", new[] { "app.about.useOldWindow" }),
     };
 
     private static PageDef General() => new("app.general", NavGroup.App, new[]
@@ -53,6 +57,54 @@ public static class AppPages
                 _ => StartWithWindows.IsEnabled(),
                 (_, v) => StartWithWindows.Set(v is true),
                 binds: Array.Empty<string>()) with { External = true, Replaces = new[] { "ChkStartWithWindows" } }),
+        }),
+    });
+
+    private static PageDef Profiles() => new("app.profiles", NavGroup.App, new[]
+    {
+        new SectionDef("app.profiles.profiles", new PageItem[]
+        {
+            new EditorItem("app.profiles.current", ctx => new ProfileEditor(ctx))
+            {
+                Binds = new[] { "AppSettings.LastUsedProfile", "AppSettings.Profiles" },
+                Replaces = new[] { "OnCopyLayout" },
+            },
+        }),
+        new SectionDef("app.profiles.backups", new PageItem[]
+        {
+            new ActionRow("app.profiles.backup", new[]
+            {
+                new ActionDef("app.profiles.backupNow", SettingsBackup.BackupInteractive),
+                new ActionDef("app.profiles.export", SettingsBackup.ExportInteractive) { Replaces = new[] { "OnExportSettings" } },
+                // ImportInteractive asks for confirmation itself, after checking the file is valid.
+                new ActionDef("app.profiles.import", SettingsBackup.ImportInteractive) { Replaces = new[] { "OnImportSettings" } },
+            }),
+        }),
+    });
+
+    private static PageDef About() => new("app.about", NavGroup.App, new[]
+    {
+        new SectionDef("app.about.version", new PageItem[]
+        {
+            new InfoItem("app.about.versionText", InfoSeverity.Info) { Args = _ => new object[] { AboutActions.VersionText } },
+            new ActionRow("app.about.links", new[]
+            {
+                new ActionDef("app.about.checkNow", AboutActions.CheckNow) { Replaces = new[] { "BtnCheckVersion" } },
+                new ActionDef("app.about.github", _ => AboutActions.OpenGitHub()) { Replaces = new[] { "OnOpenGitHub" } },
+            }),
+        }),
+        new SectionDef("app.about.updates", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("app.about.checkOnStartup", s => s.CheckForUpdatesOnStartup) with { Replaces = new[] { "ChkCheckUpdatesOnStartup" } }),
+            new SettingItem(Setting.Toggle("app.about.preRelease", s => s.ReceivePreReleaseUpdates) with { Replaces = new[] { "ChkPreReleaseUpdates" } }),
+            new EditorItem("app.about.installVersion", ctx => new VersionPickerEditor(ctx)) { Replaces = new[] { "CmbOtherVersion", "BtnInstallVersion" } },
+        }),
+        new SectionDef("app.about.window", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("app.about.useOldWindow", s => s.UseLegacySettingsWindow) with
+            {
+                OnChanged = ctx => ctx.Host.Toast(SettingsContext.Str("L.S.app.about.useOldWindow.Toast")),
+            }),
         }),
     });
 
