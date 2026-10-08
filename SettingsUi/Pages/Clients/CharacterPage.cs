@@ -16,6 +16,9 @@ public static class CharacterPage
     /// <summary>The name the registry template is built for. EVE names can't contain '&lt;'.</summary>
     public const string TemplateName = "<character>";
 
+    /// <summary>Thumbnails › Crop windows (Plan 3b). The crop link shows once that page exists.</summary>
+    public const string CropsPageId = "thumbs.crops";
+
     public static string IdFor(string name) => Prefix + name;
 
     public static PageDef? TryBuild(string id) =>
@@ -39,11 +42,18 @@ public static class CharacterPage
             "character.show", "character.label", "character.labelColor", "character.labelSize", "character.size", "character.pip", "character.pipOpacity",
         }),
         new HelpTopic(TemplateId, "colors", new[] { "character.colorsOff", "character.colorActive", "character.colorInactive", "character.colorsReset" }),
+        new HelpTopic(TemplateId, "clients", new[] { "character.neverMinimize", "character.core", "character.volume" }),
+        new HelpTopic(TemplateId, "stats", new[]
+        {
+            "character.statsOff", "character.statsNote", "character.statsDamage", "character.statsLogi", "character.statsMining", "character.statsRatting",
+        }),
+        new HelpTopic(TemplateId, "crops", new[] { "character.cropCount", "character.cropsLink" }),
+        new HelpTopic(TemplateId, "remove", new[] { "character.forgetRow" }),
     };
 
     private static IReadOnlyList<SectionDef> Sections(string name) => new[]
     {
-        Switching(name), Thumbnail(name), Colors(name),
+        Switching(name), Thumbnail(name), Colors(name), ClientWindow(name), Stats(name), Crops(name), Remove(name),
     };
 
     private static SectionDef Switching(string name) => new("character.switching", new PageItem[]
@@ -155,4 +165,68 @@ public static class CharacterPage
             Validate = v => Setting.IsColor(v as string) ? null : Setting.ErrColor,
             Replaces = replaces,
         });
+
+    private static SectionDef ClientWindow(string name) => new("character.clients", new PageItem[]
+    {
+        // Read on every switch by MinimizeInactiveClients: Save is enough.
+        new SettingItem(Setting.Custom("character.neverMinimize", SettingKind.Toggle,
+            s => CharacterFields.NeverMinimize(s, name),
+            (s, v) => CharacterFields.SetNeverMinimize(s, name, v is true),
+            binds: new[] { "Profile.DontMinimizeClients" })),
+        // Read by the affinity pass while ManageAffinity is on: Save is enough.
+        new SettingItem(Setting.Custom("character.core", SettingKind.Choice,
+            s => CharacterFields.Core(s, name),
+            (s, v) => CharacterFields.SetCore(s, name, Convert.ToInt32(v, CultureInfo.InvariantCulture)),
+            binds: new[] { "AppSettings.PerClientCores" }) with { Options = CharacterFields.CoreOptions() }),
+        new SettingItem(Setting.Custom("character.volume", SettingKind.Slider,
+            s => CharacterFields.Volume(s, name),
+            (s, v) => CharacterFields.SetVolume(s, name, (int)Math.Round(Convert.ToDouble(v, CultureInfo.InvariantCulture))),
+            binds: new[] { "AppSettings.PerClientAudioVolume" }) with
+        {
+            Min = 0, Max = 100, Step = 5, UnitKey = "L.S.Unit.Percent",
+            // Sets the running client's volume now (and stores the same value).
+            OnChanged = ctx => ctx.Services.Thumbnails?.SetClientVolume(name, CharacterFields.Volume(ctx.S, name)),
+        }),
+    });
+
+    private static SectionDef Stats(string name) => new("character.stats", new PageItem[]
+    {
+        new InfoItem("character.statsOff", InfoSeverity.Info) { ShowIf = s => !s.StatOverlayEnabled },
+        new InfoItem("character.statsNote", InfoSeverity.Info),
+        StatsCard("character.statsDamage", name, StatMetrics.DpsMask),
+        StatsCard("character.statsLogi", name, StatMetrics.LogiMask),
+        StatsCard("character.statsMining", name, StatMetrics.MineMask),
+        StatsCard("character.statsRatting", name, StatMetrics.RatMask),
+    });
+
+    // A re-apply creates or removes the character's stats window when its numbers change.
+    private static SettingItem StatsCard(string id, string name, StatMetrics mask) =>
+        new(Setting.Custom(id, SettingKind.Segmented,
+            s => CharacterFields.StatsCategory(s, name, mask),
+            (s, v) => CharacterFields.SetStatsCategory(s, name, mask, Convert.ToInt32(v, CultureInfo.InvariantCulture)),
+            binds: new[] { "AppSettings.PerCharacterStats" }, apply: ApplyScope.Thumbnails) with
+        {
+            Options = CharacterFields.StatsOptions,
+        });
+
+    private static SectionDef Crops(string name) => new("character.crops", new PageItem[]
+    {
+        new InfoItem("character.cropCount", InfoSeverity.Info)
+        {
+            Args = ctx => new object[] { ctx.S.Crops.TryGetValue(name, out var list) ? list.Count : 0 },
+        },
+        new ActionRow("character.cropsLink", new[]
+        {
+            new ActionDef("character.openCrops", ctx => ctx.Host.Navigate(CropsPageId)),
+        }) { ShowIf = _ => SettingsRegistry.Page(CropsPageId) != null },
+    });
+
+    private static SectionDef Remove(string name) => new("character.remove", new PageItem[]
+    {
+        new ActionRow("character.forgetRow", new[]
+        {
+            // ForgetInteractive asks itself, naming the character (spec §6: destructive actions confirm).
+            new ActionDef("character.forget", ctx => CharacterForget.ForgetInteractive(ctx, name)) { Destructive = true },
+        }),
+    });
 }

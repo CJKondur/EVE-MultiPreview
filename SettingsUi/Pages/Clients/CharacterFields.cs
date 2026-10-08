@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using EveMultiPreview.Models;
 
@@ -93,5 +94,79 @@ public static class CharacterFields
         if (!s.SecondaryThumbnails.TryGetValue(name, out var p))
             s.SecondaryThumbnails[name] = p = new SecondaryThumbnailSettings { Enabled = 0 };
         p.Opacity = OpacityPercent.ToByte(Math.Clamp(percent, 8, 100));
+    }
+
+    // ── Client window (Profile.DontMinimizeClients, PerClientCores, PerClientAudioVolume) ──
+
+    public static bool NeverMinimize(AppSettings s, string name) =>
+        CharacterDirectory.Current(s).DontMinimizeClients.Any(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>At most once, whatever the case (the old Add had no duplicate check).</summary>
+    public static void SetNeverMinimize(AppSettings s, string name, bool on)
+    {
+        var list = CharacterDirectory.Current(s).DontMinimizeClients;
+        list.RemoveAll(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase));
+        if (on) list.Add(name);
+    }
+
+    public const int AutoCore = -1;
+
+    /// <summary>A core this PC doesn't have reads as Automatic, as the old core table showed it.</summary>
+    public static int Core(AppSettings s, string name) =>
+        s.PerClientCores.TryGetValue(name, out var c) && c >= 0 && c < Environment.ProcessorCount ? c : AutoCore;
+
+    public static void SetCore(AppSettings s, string name, int core)
+    {
+        if (core < 0) s.PerClientCores.Remove(name);
+        else s.PerClientCores[name] = core;
+    }
+
+    public static IReadOnlyList<ChoiceOption> CoreOptions() =>
+        new[] { new ChoiceOption(AutoCore, "L.S.Opt.CoreAuto") }
+            .Concat(Enumerable.Range(0, Environment.ProcessorCount).Select(i =>
+                new ChoiceOption(i, "") { Literal = string.Format(CultureInfo.CurrentCulture, SettingsContext.Str("L.S.Opt.CoreN"), i) }))
+            .ToList();
+
+    public static int Volume(AppSettings s, string name) =>
+        s.PerClientAudioVolume.TryGetValue(name, out var v) ? Math.Clamp(v, 0, 100) : 100;
+
+    /// <summary>ThumbnailManager.SetClientVolume's rule: 100 % (or more) = no entry.</summary>
+    public static void SetVolume(AppSettings s, string name, int percent)
+    {
+        percent = Math.Clamp(percent, 0, 100);
+        if (percent >= 100) s.PerClientAudioVolume.Remove(name);
+        else s.PerClientAudioVolume[name] = percent;
+    }
+
+    // ── Stats overlay by category (AppSettings.PerCharacterStats) ──
+
+    public static readonly IReadOnlyList<ChoiceOption> StatsOptions = new[]
+    {
+        new ChoiceOption(0, "L.S.Opt.StatsDefault"),
+        new ChoiceOption(1, "L.S.Opt.StatsOn"),
+        new ChoiceOption(2, "L.S.Opt.StatsOff"),
+    };
+
+    /// <summary>0 = default (follows the numbers chosen for everyone), 1 = all on, 2 = all off,
+    /// 3 = mixed (numbers set one by one; no option selected).</summary>
+    public static int StatsCategory(AppSettings s, string name, StatMetrics mask)
+    {
+        if (!s.PerCharacterStats.TryGetValue(name, out var c)) return 0;
+        var on = c.ForcedOn & mask;
+        var off = c.ForcedOff & mask;
+        if (on == 0 && off == 0) return 0;
+        if (on == mask && off == 0) return 1;
+        if (off == mask && on == 0) return 2;
+        return 3;
+    }
+
+    /// <summary>The old editor's category buttons (All on / All off / Inherit). No entry is kept
+    /// once nothing is forced.</summary>
+    public static void SetStatsCategory(AppSettings s, string name, StatMetrics mask, int state)
+    {
+        if (state is < 0 or > 2) return;
+        if (!s.PerCharacterStats.TryGetValue(name, out var c)) s.PerCharacterStats[name] = c = new CharacterStatSettings();
+        c.SetOverrideState(mask, state == 1 ? true : state == 2 ? false : null);
+        if (c.ForcedOn == StatMetrics.None && c.ForcedOff == StatMetrics.None) s.PerCharacterStats.Remove(name);
     }
 }
