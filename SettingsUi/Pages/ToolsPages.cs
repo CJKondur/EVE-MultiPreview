@@ -13,7 +13,7 @@ public static class ToolsPages
     public const string StatsId = "tools.stats";
     public const string EveId = "tools.eve";
 
-    public static IReadOnlyList<PageDef> All => new[] { Stats() };
+    public static IReadOnlyList<PageDef> All => new[] { Stats(), Eve() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -25,6 +25,8 @@ public static class ToolsPages
         {
             "tools.stats.restartNote", "tools.stats.csv", "tools.stats.logFolder", "tools.stats.noFolder", "tools.stats.keepDays", "tools.stats.keepZero",
         }),
+        new HelpTopic(EveId, "copy", new[] { "tools.eve.editor" }),
+        new HelpTopic(EveId, "accounts", new[] { "tools.eve.editor" }),
     };
 
     /// <summary>A stats overlay colour: anything the overlay paints (StatOverlayWindow.ParseOverlayColor), stored
@@ -111,6 +113,36 @@ public static class ToolsPages
                 Replaces = new[] { "TxtStatLogRetention" },
             }),
             new InfoItem("tools.stats.keepZero", InfoSeverity.Warning) { ShowIf = s => s.StatLoggingEnabled && s.StatLogRetentionDays < 1 },
+        }),
+    });
+
+    private static PageDef Eve() => new(EveId, NavGroup.Tools, new[]
+    {
+        new SectionDef("tools.eve.main", new PageItem[]
+        {
+            new EditorItem("tools.eve.editor", ctx => new EveSettingsEditor(ctx))
+            {
+                SearchLabelKey = "L.S.Eve.SearchLabel",
+                // The folders, account names and the character-account links are written by its buttons. EveManager
+                // (the saved character-name cache) is read for names, never written, as the old panel did.
+                Binds = new[]
+                {
+                    "AppSettings.EveSettingsDir", "AppSettings.EveBackupDir", "AppSettings.AccountLabels",
+                    "AppSettings.AccountCharacterMap", "AppSettings.EveManager",
+                },
+                Replaces = new[]
+                {
+                    "TxtEveSettingsDir", "TxtEveBackupDir", "OnBrowseEveDir", "OnAutoDetectEveDir", "OnBrowseBackupDir",
+                    "OnResetBackupDir", "OnRefreshProfiles",
+                    "BtnProfileCopyMode", "BtnCharCopyMode", "BtnAccountCopyMode",
+                    "LvEveMgrSource", "LvEveMgrTarget", "OnBackupCheckedTargets", "OnCopyToCheckedTargets",
+                    "CmbCharSrcProfile", "CmbCharTgtProfile", "TxtCharSrcSearch", "TxtCharTgtSearch",
+                    "LvCharSrcChars", "LvCharTgtChars", "ChkCopyAllChars", "OnCharCopyExecute",
+                    "CmbAcctSrcProfile", "CmbAcctTgtProfile", "TxtAcctSrcSearch", "TxtAcctTgtSearch",
+                    "LvAcctSrcAccounts", "LvAcctTgtAccounts", "ChkCopyAllAccounts", "OnAcctCopyExecute",
+                    "OnAcctDetectWizard", "TxtAcctLabel", "OnAcctSetLabel", "OnFetchESI",
+                },
+            },
         }),
     });
 }
