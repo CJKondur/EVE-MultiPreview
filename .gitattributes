@@ -1,2 +1,4 @@
 # Golden fixtures are compared byte for byte (line endings included): never convert them.
 *.golden.json -text
+# Players' config files (ConfigCompatibilityTests) are compared byte for byte too: CRLF stays CRLF.
+tests/EveMultiPreview.Tests/Fixtures/configs/*.json -text
