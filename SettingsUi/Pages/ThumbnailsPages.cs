@@ -89,8 +89,18 @@ public static class ThumbnailsPages
     }
 
     private static SettingItem Number<T>(string id, Expression<Func<AppSettings, T>> prop, double min, double max,
-        ApplyScope apply, params string[] replaces) =>
-        new(Setting.Number(id, prop, min, max, "L.S.Unit.Px", apply) with { Replaces = replaces });
+        ApplyScope apply, params string[] replaces)
+    {
+        var d = Setting.Number(id, prop, min, max, "L.S.Unit.Px", apply);
+        // The margins and the start place are doubles in the model, but the old boxes stored whole numbers
+        // (the runtime casts to int): round half away from zero, so "5.5" stores 6.
+        if (typeof(T) == typeof(double))
+        {
+            var set = d.Set;
+            d = d with { Set = (s, v) => set(s, Math.Round(Convert.ToDouble(v, CultureInfo.InvariantCulture), MidpointRounding.AwayFromZero)) };
+        }
+        return new(d with { Replaces = replaces });
+    }
 
     private static PageDef Appearance() => new(AppearanceId, NavGroup.Thumbnails, new[]
     {
