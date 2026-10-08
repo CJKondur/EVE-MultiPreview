@@ -66,7 +66,7 @@ If you're migrating from the AHK version or EVE-X-Preview, drop the exe in the s
 ## Building from Source
 
 **Prerequisites:**
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (or later)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (10.0.100 or later)
 
 **Clone and build:**
 ```bash
@@ -76,13 +76,13 @@ cd EveMultiPreview
 
 **Self-contained single-file** (recommended — no runtime install needed for end users):
 ```bash
-dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true -o ./bin/Publish
+dotnet publish EveMultiPreview.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true -o ./bin/Publish
 ```
 Output: `bin/Publish/EVE MultiPreview.exe` — one file, runs anywhere, no dependencies.
 
-**Framework-dependent** (smaller output, requires .NET 8 Desktop Runtime on the target machine):
+**Framework-dependent** (smaller output, requires .NET 10 Desktop Runtime on the target machine):
 ```bash
-dotnet publish -c Release -r win-x64 --self-contained false -o ./bin/Publish
+dotnet publish EveMultiPreview.csproj -c Release -r win-x64 --self-contained false /p:PublishSingleFile=false /p:EnableCompressionInSingleFile=false -o ./bin/Publish
 ```
 
 ---
