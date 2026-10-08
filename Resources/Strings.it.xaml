@@ -1529,4 +1529,42 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Body">La **modalità PVE** è per ratting e missioni: gli NPC che ti sparano o ti scramblano non generano più un avviso, i giocatori sì.&#x0A;&#x0A;Il **bordo sotto attacco** pulsa in rosso su una miniatura mentre quel client subisce danni e scompare alcuni secondi dopo l'ultimo colpo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">La tabella degli eventi</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Body">Ogni riga è un tipo di avviso.&#x0A;- La **gravità** è fissa per ogni evento. Dà all'evento il suo colore, la velocità del lampeggio e la scelta della notifica (Aspetto &amp; gravità).&#x0A;- Il **colore** dà a un evento un colore proprio; ↺ torna a quello della gravità.&#x0A;- **Dura** è quanto l'avviso resta sulla miniatura.&#x0A;- Il **badge** conta l'evento sulla miniatura; **Fisso** mantiene il bordo invece di lampeggiare.&#x0A;- **Attivo** disattiva completamente l'evento.&#x0A;&#x0A;Il **tempo di quiete** impedisce che lo stesso avviso si ripeta per un personaggio per alcuni secondi.</sys:String> <!-- draft -->
+    <!-- Alerts › Look & severity (Plan 3c) -->
+    <sys:String x:Key="L.S.Page.alerts.look">Aspetto &amp; gravità</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.alerts.look.Desc">Come appaiono gli avvisi sulle miniature, le tre gravità e la modalità daltonici.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.thumbnail">Sulla miniatura</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse">Intensità dell'impulso</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse.Desc">Quanto è piena la tinta dell'avviso. Più basso è più morbido, utile con molti client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth">Larghezza del bordo dell'avviso</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth.Desc">La banda che lampeggia subito dentro il bordo della miniatura. 0 = nessuna banda.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge">Badge contatore</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge.Desc">Un piccolo numero nell'angolo della miniatura conta gli avvisi finché non passi a quel client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text">Scrivi cosa è successo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text.Desc">Mostra l'evento, per esempio «Warp scrambled», sulla miniatura finché l'avviso dura.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition">Posizione del testo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition.Desc">Dove si trova quel testo sulla miniatura.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.severity">Gravità</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable">Impostazioni di gravità</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable.Desc">Ogni evento è critico, avviso o info. Valgono per tutti gli eventi di quella gravità.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColSeverity">Gravità</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColColour">Colore</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColFlash">Velocità di lampeggio</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColHub">Notifica nell'hub avvisi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.InfoSteady">Sempre fisso</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.Note">Il colore è usato da ogni evento senza un colore proprio (Eventi). La velocità di lampeggio è quanto veloce lampeggia il bordo: più basso è più veloce. Le notifiche compaiono solo con l'hub avvisi attivo (Hub avvisi).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.PickColour">Scegli un colore per gli avvisi {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.FlashFor">Velocità di lampeggio per gli avvisi {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.HubFor">Notifica per gli avvisi {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.accessibility">Accessibilità</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind">Modalità daltonici</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Colori che i giocatori daltonici sanno distinguere, per gli avvisi, il bordo di evidenziazione, il testo delle miniature, il segno di accesso e la sovrapposizione delle statistiche. Cambiare sostituisce questi colori.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Attivare la modalità daltonici? Sostituisce i tuoi colori di avviso, evidenziazione, testo delle miniature, segno di accesso e statistiche con un set adatto ai daltonici e rimuove i colori dati ai singoli eventi. Disattivarla in seguito applica i colori standard, non quelli attuali.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOff">Disattivare la modalità daltonici? Applica i colori standard di avviso, evidenziazione, testo delle miniature, segno di accesso e statistiche. I colori che avevi prima di attivarla non tornano.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.Intro">Come appare un avviso su una miniatura. Le impostazioni di gravità valgono per tutti gli eventi di quella gravità; un singolo evento può comunque avere un colore proprio nella pagina Eventi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">Sulla miniatura</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Body">Un avviso fa lampeggiare una banda subito dentro il bordo della miniatura, così vedi comunque quale client è attivo.&#x0A;- **Intensità dell'impulso** ammorbidisce il colore; **Larghezza del bordo dell'avviso** imposta la banda (0 la disattiva).&#x0A;- Il **badge contatore** conta gli avvisi finché non passi a quel client.&#x0A;- **Scrivi cosa è successo** mette il nome dell'evento sulla miniatura nel colore dell'avviso.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Title">Gravità</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Body">Ogni evento è **critico**, **avviso** o **info**. Ogni gravità ha un colore, una velocità di lampeggio e la scelta se i suoi avvisi mostrino una notifica nell'hub avvisi. Gli avvisi info non lampeggiano: restano fissi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">Modalità daltonici</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">La modalità daltonici passa alla tavolozza Wong, colori che restano distinti per ogni tipo di daltonismo. Sostituisce i colori di avviso, evidenziazione, testo delle miniature, segno di accesso e statistiche e rimuove i colori per evento, quindi chiede prima. Disattivarla applica i colori standard.</sys:String> <!-- draft -->
 </ResourceDictionary>

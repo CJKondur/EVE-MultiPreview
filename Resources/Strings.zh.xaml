@@ -1529,4 +1529,42 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 模式**适用于刷怪和任务：NPC 攻击或扰断你时不再触发警报，玩家仍会触发。&#x0A;&#x0A;**受攻击边框**在该客户端受到伤害时于缩略图上闪烁红色，并在最后一次受击几秒后消失。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">事件表</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Body">每一行是一种警报。&#x0A;- **严重程度**对每个事件是固定的。它决定事件的颜色、闪烁速度和通知选择（外观 &amp; 严重程度）。&#x0A;- **颜色**为单个事件指定专属颜色；↺ 恢复为严重程度的颜色。&#x0A;- **持续**是警报停留在缩略图上的时间。&#x0A;- **角标**在缩略图上统计该事件；**常亮**保持边框常亮而不闪烁。&#x0A;- **开启**可完全关闭该事件。&#x0A;&#x0A;**静默时间**可在几秒内阻止同一警报为某个角色重复触发。</sys:String> <!-- draft -->
+    <!-- Alerts › Look & severity (Plan 3c) -->
+    <sys:String x:Key="L.S.Page.alerts.look">外观 &amp; 严重程度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.alerts.look.Desc">警报在缩略图上的外观、三种严重程度，以及色盲模式。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.thumbnail">缩略图上</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse">脉冲强度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse.Desc">警报颜色的实心程度。越低越柔和，客户端多时更舒服。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth">警报边框宽度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth.Desc">在缩略图边框内侧闪烁的色带。0 = 不显示色带。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge">计数角标</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge.Desc">缩略图角落的小数字会统计警报数量，直到你切换到该客户端。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text">写出发生了什么</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text.Desc">警报持续期间，在缩略图上显示事件名称，例如“跃迁被干扰”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition">文字位置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition.Desc">该文字在缩略图上的位置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.severity">严重程度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable">严重程度设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable.Desc">每个事件都是严重、警告或信息。这些设置对该严重程度的所有事件生效。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColSeverity">严重程度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColColour">颜色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColFlash">闪烁速度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColHub">在警报中心弹出提示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.InfoSteady">始终常亮</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.Note">没有自己颜色的事件都使用这里的颜色（事件）。闪烁速度是边框闪烁的快慢：数值越小越快。只有警报中心开启时才会弹出提示（警报中心）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.PickColour">为{0}警报选择颜色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.FlashFor">{0}警报的闪烁速度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.HubFor">{0}警报的提示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.accessibility">辅助功能</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind">色盲模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">为色盲玩家提供可区分的颜色，用于警报、高亮边框、缩略图文字、登录标记和统计叠加层。切换会替换这些颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">开启色盲模式？这会把你的警报、高亮、缩略图文字、登录标记和统计颜色替换为色盲友好的一组，并移除你为单个事件设置的颜色。以后关闭只会恢复标准颜色，而不是你现在的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOff">关闭色盲模式？这会设置标准的警报、高亮、缩略图文字、登录标记和统计颜色。开启前你使用的颜色不会恢复。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.Intro">警报在缩略图上的外观。严重程度设置对该严重程度的所有事件生效；单个事件仍可在事件页面设置自己的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">缩略图上</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Body">警报会在缩略图边框内侧闪烁一条色带，这样你仍能看出哪个客户端处于活动状态。&#x0A;- **脉冲强度**让颜色更柔和；**警报边框宽度**设置色带宽度（0 为关闭）。&#x0A;- **计数角标**统计警报数量，直到你切换到该客户端。&#x0A;- **写出发生了什么**会用警报颜色在缩略图上显示事件名称。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Title">严重程度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Body">每个事件都是**严重**、**警告**或**信息**。每种严重程度有颜色、闪烁速度，以及其警报是否在警报中心弹出提示的选项。信息警报不闪烁，保持常亮。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">色盲模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">色盲模式会切换到 Wong 调色板，这组颜色对各类色盲都能保持区分。它会替换警报、高亮、缩略图文字、登录标记和统计颜色，并移除单个事件的颜色，所以会先询问。关闭后会设置标准颜色。</sys:String> <!-- draft -->
 </ResourceDictionary>

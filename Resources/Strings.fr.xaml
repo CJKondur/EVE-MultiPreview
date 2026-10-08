@@ -1514,4 +1514,42 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Body">Le **mode PVE** est pour le ratting et les missions : les PNJ qui vous tirent dessus ou vous scramblent ne déclenchent plus d'alerte, les joueurs, si.&#x0A;&#x0A;La **bordure sous le feu** pulse en rouge sur une miniature tant que ce client subit des dégâts, et disparaît quelques secondes après le dernier coup.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">Le tableau des événements</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Body">Chaque ligne est un type d'alerte.&#x0A;- La **gravité** est fixe pour chaque événement. Elle donne à l'événement sa couleur, sa vitesse de clignotement et son choix de notification (Apparence &amp; gravité).&#x0A;- La **couleur** donne à un événement sa propre couleur ; ↺ revient à celle de la gravité.&#x0A;- La **durée** est le temps que l'alerte reste sur la miniature.&#x0A;- Le **badge** compte l'événement sur la miniature ; **Fixe** maintient la bordure au lieu de clignoter.&#x0A;- **Actif** désactive complètement l'événement.&#x0A;&#x0A;Le **délai** empêche la même alerte de se répéter pour un personnage pendant quelques secondes.</sys:String> <!-- draft -->
+    <!-- Alerts › Look & severity (Plan 3c) -->
+    <sys:String x:Key="L.S.Page.alerts.look">Apparence &amp; gravité</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.alerts.look.Desc">L'apparence des alertes sur les miniatures, les trois gravités et le mode daltonien.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.thumbnail">Sur la miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse">Intensité de la pulsation</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse.Desc">À quel point la couleur de l'alerte est pleine. Plus bas, c'est plus doux, ce qui aide avec beaucoup de clients.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth">Largeur de la bordure d'alerte</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth.Desc">La bande qui clignote juste à l'intérieur de la bordure de la miniature. 0 = pas de bande.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge">Badge compteur</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge.Desc">Un petit nombre dans le coin de la miniature compte les alertes jusqu'à ce que vous passiez à ce client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text">Écrire ce qui s'est passé</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text.Desc">Affiche l'événement, par exemple « Warp scrambled », sur la miniature tant que l'alerte dure.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition">Position du texte</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition.Desc">L'endroit où ce texte se place sur la miniature.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.severity">Gravités</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable">Paramètres de gravité</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable.Desc">Chaque événement est critique, avertissement ou info. Ces réglages valent pour tous les événements de cette gravité.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColSeverity">Gravité</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColColour">Couleur</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColFlash">Vitesse de clignotement</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColHub">Notification dans le centre d'alertes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.InfoSteady">Toujours fixe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.Note">La couleur est utilisée par chaque événement sans couleur propre (Événements). La vitesse de clignotement est la rapidité du clignotement de la bordure : plus bas, c'est plus rapide. Les notifications n'apparaissent que si le centre d'alertes est activé (Centre d'alertes).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.PickColour">Choisir une couleur pour les alertes {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.FlashFor">Vitesse de clignotement des alertes {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.HubFor">Notification pour les alertes {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.accessibility">Accessibilité</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind">Mode daltonien</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Des couleurs que les joueurs daltoniens peuvent distinguer, pour les alertes, la bordure de surbrillance, le texte des miniatures, la marque de connexion et la superposition des stats. Basculer remplace ces couleurs.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Activer le mode daltonien ? Il remplace vos couleurs d'alerte, de surbrillance, de texte des miniatures, de marque de connexion et de stats par un jeu adapté au daltonisme, et supprime les couleurs que vous avez données à des événements précis. Le désactiver plus tard applique les couleurs standard, pas celles que vous avez maintenant.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOff">Désactiver le mode daltonien ? Il applique les couleurs standard d'alerte, de surbrillance, de texte des miniatures, de marque de connexion et de stats. Les couleurs que vous aviez avant de l'activer ne reviennent pas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.Intro">L'apparence d'une alerte sur une miniature. Les réglages de gravité valent pour tous les événements de cette gravité ; un événement peut toujours avoir sa propre couleur sur la page Événements.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">Sur la miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Body">Une alerte fait clignoter une bande juste à l'intérieur de la bordure de la miniature, pour que vous voyiez toujours quel client est actif.&#x0A;- **Intensité de la pulsation** adoucit la couleur ; **Largeur de la bordure d'alerte** règle la bande (0 la désactive).&#x0A;- Le **badge compteur** compte les alertes jusqu'à ce que vous passiez à ce client.&#x0A;- **Écrire ce qui s'est passé** affiche le nom de l'événement sur la miniature, dans la couleur de l'alerte.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Title">Gravités</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Body">Chaque événement est **critique**, **avertissement** ou **info**. Chaque gravité a une couleur, une vitesse de clignotement et le choix d'afficher ou non une notification dans le centre d'alertes. Les alertes info ne clignotent pas : elles restent fixes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">Mode daltonien</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">Le mode daltonien passe à la palette Wong, des couleurs qui restent distinctes pour tous les types de daltonisme. Il remplace les couleurs d'alerte, de surbrillance, de texte des miniatures, de marque de connexion et de stats et supprime les couleurs par événement, donc il demande d'abord. Le désactiver applique les couleurs standard.</sys:String> <!-- draft -->
 </ResourceDictionary>

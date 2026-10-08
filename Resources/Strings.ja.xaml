@@ -1512,4 +1512,42 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE モード**はラッティングやミッション向けです。NPC に撃たれたりスクランブルされてもアラートは出なくなり、プレイヤーなら出ます。&#x0A;&#x0A;**被弾の枠**は、そのクライアントがダメージを受けている間サムネイルで赤く点滅し、最後の被弾から数秒後に消えます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">イベント表</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Body">各行が 1 種類のアラートです。&#x0A;- **重大度**はイベントごとに固定です。イベントの色、点滅の速さ、通知の選択を決めます（外観 &amp; 重大度）。&#x0A;- **色**は 1 つのイベントに専用の色を付けます。↺ で重大度の色に戻ります。&#x0A;- **継続**はアラートがサムネイルに残る時間です。&#x0A;- **バッジ**はサムネイル上でイベントを数えます。**点灯**は点滅ではなく枠を保持します。&#x0A;- **オン**でそのイベントを完全に無効にします。&#x0A;&#x0A;**静止時間**は、同じアラートが同じキャラクターに数秒間繰り返されるのを防ぎます。</sys:String> <!-- draft -->
+    <!-- Alerts › Look & severity (Plan 3c) -->
+    <sys:String x:Key="L.S.Page.alerts.look">外観 &amp; 重大度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.alerts.look.Desc">サムネイル上のアラートの見え方、3つの重大度、色覚サポートモード。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.thumbnail">サムネイル上</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse">パルスの強さ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse.Desc">アラートの色の濃さ。低いほど柔らかく、クライアントが多いときに見やすくなります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth">アラート枠の太さ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth.Desc">サムネイルの枠のすぐ内側で点滅する帯。0 = 帯なし。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge">カウントバッジ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge.Desc">サムネイルの隅の小さな数字が、そのクライアントに切り替えるまでアラートを数えます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text">起きたことを書く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text.Desc">アラートの間、「Warp scrambled」などのイベントをサムネイルに表示します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition">テキストの位置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition.Desc">そのテキストをサムネイルのどこに置くか。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.severity">重大度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable">重大度の設定</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable.Desc">すべてのイベントは重大、警告、情報のいずれかです。この設定はその重大度のすべてのイベントに適用されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColSeverity">重大度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColColour">色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColFlash">点滅速度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColHub">アラートハブにトースト表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.InfoSteady">常に点灯</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.Note">独自の色がないイベントはこの色を使います（イベント）。点滅速度は枠が点滅する速さで、小さいほど速くなります。トーストはアラートハブがオンのときだけ表示されます（アラートハブ）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.PickColour">{0}アラートの色を選ぶ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.FlashFor">{0}アラートの点滅速度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.HubFor">{0}アラートのトースト</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.accessibility">アクセシビリティ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind">色覚サポートモード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">色覚の違いがあるプレイヤーでも見分けやすい色を、アラート、ハイライト枠、サムネイルのテキスト、ログインマーク、統計オーバーレイに使います。切り替えるとこれらの色が置き換わります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">色覚サポートモードをオンにしますか？ アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色を色覚サポート用のセットに置き換え、個別のイベントに付けた色を削除します。後でオフにすると、今の色ではなく標準の色になります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOff">色覚サポートモードをオフにしますか？ アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色を標準に戻します。オンにする前の色は戻りません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.Intro">サムネイル上でのアラートの見え方。重大度の設定はその重大度のすべてのイベントに適用されます。個別のイベントは、イベントページで独自の色を持てます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">サムネイル上</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Body">アラートはサムネイルの枠のすぐ内側で帯を点滅させるので、どのクライアントがアクティブかも分かります。&#x0A;- **パルスの強さ**は色を柔らかくし、**アラート枠の太さ**は帯の太さを決めます（0 でオフ）。&#x0A;- **カウントバッジ**は、そのクライアントに切り替えるまでアラートを数えます。&#x0A;- **起きたことを書く**は、イベント名をアラートの色でサムネイルに表示します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Title">重大度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Body">すべてのイベントは**重大**、**警告**、**情報**のいずれかです。重大度ごとに、色、点滅速度、アラートハブにトーストを出すかどうかを選べます。情報アラートは点滅せず、常に点灯します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">色覚サポートモード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">色覚サポートモードは Wong パレットに切り替えます。どのタイプの色覚でも区別しやすい色です。アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色を置き換え、イベントごとの色を削除するため、先に確認します。オフにすると標準の色になります。</sys:String> <!-- draft -->
 </ResourceDictionary>

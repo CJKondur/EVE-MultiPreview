@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq.Expressions;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
@@ -17,7 +18,7 @@ public static class AlertsPages
     /// <summary>The event table: where event search results land.</summary>
     public const string EventTableId = "alerts.events.table";
 
-    public static IReadOnlyList<PageDef> All => new[] { Events() };
+    public static IReadOnlyList<PageDef> All => new[] { Events(), Look() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -27,6 +28,12 @@ public static class AlertsPages
         }),
         new HelpTopic(EventsId, "combat", new[] { "alerts.events.pve", "alerts.events.underFire", "alerts.events.underFireTime" }),
         new HelpTopic(EventsId, "table", new[] { EventTableId, "alerts.events.repeatWait" }),
+        new HelpTopic(LookId, "thumbnail", new[]
+        {
+            "alerts.look.pulse", "alerts.look.borderWidth", "alerts.look.badge", "alerts.look.text", "alerts.look.textPosition",
+        }),
+        new HelpTopic(LookId, "severity", new[] { "alerts.look.severityTable" }),
+        new HelpTopic(LookId, "colorBlind", new[] { "alerts.look.colorBlind" }),
     };
 
     private static SettingItem Toggle(string id, Expression<Func<AppSettings, bool>> prop, params string[] replaces) =>
@@ -78,6 +85,54 @@ public static class AlertsPages
                     "AppSettings.AlertColors", "AppSettings.AlertDurations", "AppSettings.BadgeOnThumbnailAlertTypes",
                     "AppSettings.AlertSolidBorder", "AppSettings.EnabledAlertTypes",
                 },
+            },
+        }),
+    });
+
+    private static PageDef Look() => new(LookId, NavGroup.Alerts, new[]
+    {
+        new SectionDef("alerts.look.thumbnail", new PageItem[]
+        {
+            // ResolveAlertFlashColor reads it at every flash tick.
+            new SettingItem(Setting.Custom("alerts.look.pulse", SettingKind.Slider,
+                s => AlertFields.PulsePercent(s.AlertOpacityPercent),
+                (s, v) => s.AlertOpacityPercent = (int)Math.Round(Convert.ToDouble(v, CultureInfo.InvariantCulture)),
+                binds: new[] { "AppSettings.AlertOpacityPercent" }) with
+            {
+                Min = AlertFields.PulseMin, Max = AlertFields.PulseMax, Step = AlertFields.PulseStep, UnitKey = "L.S.Unit.Percent",
+                Replaces = new[] { "SliderAlertOpacity" },
+            }),
+            // ApplyAlertBorder reads it at every flash tick; 0 = no band (the old box clamped to 0–20 too).
+            new SettingItem(Setting.Number("alerts.look.borderWidth", s => s.AlertBorderThickness, 0, 20, "L.S.Unit.Px") with
+            {
+                Replaces = new[] { "TxtAlertBorderThickness" },
+            }),
+            Toggle("alerts.look.badge", s => s.ShowAlertBadgeOnThumbnails, "ChkAlertBadgeOnThumbnails"),
+            Toggle("alerts.look.text", s => s.ShowAlertTextOnThumbnails, "ChkAlertText"),
+            // Placed by the per-thumbnail apply (ReapplySettings → SetAlertTextPosition).
+            new SettingItem(Setting.Custom("alerts.look.textPosition", SettingKind.Choice,
+                s => AlertFields.TextPosition(s.AlertTextPosition),
+                (s, v) => s.AlertTextPosition = v as string ?? "Bottom",
+                binds: new[] { "AppSettings.AlertTextPosition" }, apply: ApplyScope.Thumbnails) with
+            {
+                Options = ThumbnailFields.AnchorOptions,
+                ShowIf = s => s.ShowAlertTextOnThumbnails,
+                Replaces = new[] { "CmbAlertTextPos" },
+            }),
+        }),
+        new SectionDef("alerts.look.severity", new PageItem[]
+        {
+            new EditorItem("alerts.look.severityTable", ctx => new SeverityTableEditor(ctx))
+            {
+                Binds = new[] { "AppSettings.SeverityColors", "AppSettings.SeverityFlashRates", "AppSettings.SeverityTrayNotify" },
+            },
+        }),
+        new SectionDef("alerts.look.accessibility", new PageItem[]
+        {
+            new EditorItem("alerts.look.colorBlind", ctx => new ColorBlindEditor(ctx))
+            {
+                Binds = ColorBlindSwitch.Binds,
+                Replaces = new[] { "BtnColorBlind" },
             },
         }),
     });

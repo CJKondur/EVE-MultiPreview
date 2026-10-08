@@ -1511,4 +1511,42 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Body">Der **PVE-Modus** ist für Ratting und Missionen: NPCs, die auf dich schießen oder dich scrammen, lösen keinen Alarm mehr aus, Spieler schon.&#x0A;&#x0A;Der **Beschuss-Rahmen** pulsiert rot auf einem Vorschaubild, solange dieser Client Schaden nimmt, und verschwindet einige Sekunden nach dem letzten Treffer.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">Die Ereignistabelle</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Body">Jede Zeile ist eine Alarmart.&#x0A;- **Schweregrad** ist für jedes Ereignis fest. Er bestimmt Farbe, Blinkgeschwindigkeit und Meldungsauswahl des Ereignisses (Aussehen &amp; Schweregrad).&#x0A;- **Farbe** gibt einem Ereignis eine eigene Farbe; ↺ geht zurück zu der des Schweregrads.&#x0A;- **Dauer** ist, wie lange der Alarm auf dem Vorschaubild bleibt.&#x0A;- **Zähler** zählt das Ereignis auf dem Vorschaubild; **Dauerhaft** hält den Rahmen, statt zu blinken.&#x0A;- **An** schaltet das Ereignis ganz ab.&#x0A;&#x0A;Die **Ruhezeit** verhindert, dass sich derselbe Alarm für einen Charakter einige Sekunden lang wiederholt.</sys:String> <!-- draft -->
+    <!-- Alerts › Look & severity (Plan 3c) -->
+    <sys:String x:Key="L.S.Page.alerts.look">Aussehen &amp; Schweregrad</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.alerts.look.Desc">Wie Alarme auf Vorschaubildern aussehen, die drei Schweregrade und der Farbenblind-Modus.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.thumbnail">Auf dem Vorschaubild</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse">Pulsstärke</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse.Desc">Wie deckend die Alarmfarbe ist. Niedriger ist weicher, das hilft bei vielen Clients.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth">Breite des Alarmrahmens</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth.Desc">Das Band, das knapp innerhalb des Vorschaubild-Rahmens blinkt. 0 = kein Band.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge">Zähler</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge.Desc">Eine kleine Zahl in der Ecke des Vorschaubilds zählt Alarme, bis du zu diesem Client wechselst.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text">Schreiben, was passiert ist</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text.Desc">Zeigt das Ereignis, etwa „Warp scrambled“, auf dem Vorschaubild, solange der Alarm läuft.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition">Textposition</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition.Desc">Wo dieser Text auf dem Vorschaubild sitzt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.severity">Schweregrade</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable">Schweregrad-Einstellungen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable.Desc">Jedes Ereignis ist kritisch, Warnung oder Info. Das gilt für alle Ereignisse dieses Schweregrads.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColSeverity">Schweregrad</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColColour">Farbe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColFlash">Blinktempo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColHub">Toast in der Alarmzentrale</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.InfoSteady">Immer dauerhaft</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.Note">Die Farbe nutzt jedes Ereignis ohne eigene Farbe (Ereignisse). Das Blinktempo bestimmt, wie schnell der Rahmen blinkt: niedriger ist schneller. Toasts erscheinen nur, solange die Alarmzentrale an ist (Alarmzentrale).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.PickColour">Farbe für {0}-Alarme wählen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.FlashFor">Blinktempo für {0}-Alarme</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.HubFor">Toast für {0}-Alarme</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.accessibility">Barrierefreiheit</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind">Farbenblind-Modus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Farben, die Farbenblinde unterscheiden können, für Alarme, den Hervorhebungsrahmen, Vorschaubild-Text, die Login-Markierung und das Statistik-Overlay. Das Umschalten ersetzt diese Farben.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Farbenblind-Modus einschalten? Er ersetzt deine Farben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik durch einen farbenblindengeeigneten Satz und entfernt die Farben, die du einzelnen Ereignissen gegeben hast. Beim späteren Ausschalten gelten die Standardfarben, nicht die jetzigen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOff">Farbenblind-Modus ausschalten? Er setzt die Standardfarben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik. Farben, die du vor dem Einschalten hattest, kommen nicht zurück.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.Intro">Wie ein Alarm auf einem Vorschaubild aussieht. Die Schweregrad-Einstellungen gelten für alle Ereignisse dieses Schweregrads; ein einzelnes Ereignis kann auf der Seite Ereignisse trotzdem eine eigene Farbe haben.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">Auf dem Vorschaubild</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Body">Ein Alarm lässt ein Band knapp innerhalb des Vorschaubild-Rahmens blinken, sodass du weiterhin siehst, welcher Client aktiv ist.&#x0A;- **Pulsstärke** macht die Farbe weicher; **Breite des Alarmrahmens** legt das Band fest (0 schaltet es aus).&#x0A;- Der **Zähler** zählt Alarme, bis du zu diesem Client wechselst.&#x0A;- **Schreiben, was passiert ist** zeigt den Namen des Ereignisses in der Alarmfarbe auf dem Vorschaubild.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Title">Schweregrade</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Body">Jedes Ereignis ist **kritisch**, **Warnung** oder **Info**. Jeder Schweregrad hat eine Farbe, ein Blinktempo und die Wahl, ob seine Alarme einen Toast in der Alarmzentrale zeigen. Info-Alarme blinken nicht: Sie bleiben dauerhaft.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">Farbenblind-Modus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">Der Farbenblind-Modus wechselt zur Wong-Palette, Farben, die bei jeder Form von Farbenblindheit unterscheidbar bleiben. Er ersetzt die Farben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik und entfernt Farben einzelner Ereignisse, deshalb fragt er zuerst. Beim Ausschalten gelten die Standardfarben.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -1512,4 +1512,42 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 모드**는 래팅과 미션용입니다. NPC가 나를 공격하거나 스크램해도 더 이상 알림이 울리지 않고, 플레이어는 울립니다.&#x0A;&#x0A;**피격 테두리**는 해당 클라이언트가 피해를 받는 동안 썸네일에서 붉게 깜빡이며, 마지막 피격 몇 초 뒤에 사라집니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">이벤트 표</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Body">각 행은 알림 한 종류입니다.&#x0A;- **심각도**는 이벤트마다 고정입니다. 이벤트의 색상, 깜빡임 속도, 토스트 선택을 정합니다(모양 &amp; 심각도).&#x0A;- **색상**은 이벤트 하나에 고유 색상을 줍니다. ↺는 심각도 색상으로 되돌립니다.&#x0A;- **지속**은 알림이 썸네일에 남는 시간입니다.&#x0A;- **배지**는 썸네일에서 이벤트를 셉니다. **고정**은 깜빡이는 대신 테두리를 유지합니다.&#x0A;- **켜짐**은 이벤트를 완전히 끕니다.&#x0A;&#x0A;**대기 시간**은 같은 알림이 캐릭터에게 몇 초 동안 반복되는 것을 막습니다.</sys:String> <!-- draft -->
+    <!-- Alerts › Look & severity (Plan 3c) -->
+    <sys:String x:Key="L.S.Page.alerts.look">모양 &amp; 심각도</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.alerts.look.Desc">썸네일에서 알림이 보이는 모양, 세 가지 심각도, 색맹 모드.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.thumbnail">썸네일에서</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse">펄스 강도</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.pulse.Desc">알림 색이 얼마나 진한지. 낮을수록 부드러워서 클라이언트가 많을 때 도움이 됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth">알림 테두리 두께</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.borderWidth.Desc">썸네일 테두리 바로 안쪽에서 깜박이는 띠. 0 = 띠 없음.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge">카운트 배지</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.badge.Desc">썸네일 모서리의 작은 숫자가 해당 클라이언트로 전환할 때까지 알림을 셉니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text">일어난 일 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.text.Desc">알림이 이어지는 동안 "Warp scrambled" 같은 이벤트를 썸네일에 표시합니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition">텍스트 위치</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.textPosition.Desc">그 텍스트가 썸네일 어디에 놓일지.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.severity">심각도</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable">심각도 설정</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.severityTable.Desc">모든 이벤트는 치명, 경고 또는 정보입니다. 이 설정은 해당 심각도의 모든 이벤트에 적용됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColSeverity">심각도</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColColour">색</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColFlash">깜박임 속도</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.ColHub">알림 허브에 토스트 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.InfoSteady">항상 고정</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.Note">자체 색이 없는 이벤트는 모두 이 색을 씁니다(이벤트). 깜박임 속도는 테두리가 깜박이는 빠르기이며, 낮을수록 빠릅니다. 토스트는 알림 허브가 켜져 있을 때만 표시됩니다(알림 허브).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.PickColour">{0} 알림 색 선택</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.FlashFor">{0} 알림의 깜박임 속도</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Severity.HubFor">{0} 알림의 토스트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.look.accessibility">접근성</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind">색맹 모드</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">색맹 플레이어도 구분할 수 있는 색을 알림, 강조 테두리, 썸네일 텍스트, 로그인 표시, 통계 오버레이에 씁니다. 전환하면 해당 색이 바뀝니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">색맹 모드를 켤까요? 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계 색을 색맹에 안전한 세트로 바꾸고, 개별 이벤트에 지정한 색을 지웁니다. 나중에 끄면 지금의 색이 아니라 표준 색이 적용됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOff">색맹 모드를 끌까요? 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계의 표준 색이 적용됩니다. 켜기 전에 쓰던 색은 돌아오지 않습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.Intro">썸네일에서 알림이 보이는 모양입니다. 심각도 설정은 해당 심각도의 모든 이벤트에 적용되며, 개별 이벤트는 이벤트 페이지에서 자기 색을 가질 수 있습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">썸네일에서</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Body">알림은 썸네일 테두리 바로 안쪽의 띠를 깜박여서, 어느 클라이언트가 활성인지 계속 볼 수 있습니다.&#x0A;- **펄스 강도**는 색을 부드럽게 하고, **알림 테두리 두께**는 띠를 정합니다(0이면 끔).&#x0A;- **카운트 배지**는 해당 클라이언트로 전환할 때까지 알림을 셉니다.&#x0A;- **일어난 일 표시**는 이벤트 이름을 알림 색으로 썸네일에 표시합니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Title">심각도</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.severity.Body">모든 이벤트는 **치명**, **경고** 또는 **정보**입니다. 심각도마다 색, 깜박임 속도, 알림 허브에 토스트를 띄울지 여부를 정할 수 있습니다. 정보 알림은 깜박이지 않고 고정되어 있습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">색맹 모드</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">색맹 모드는 Wong 팔레트로 전환합니다. 어떤 종류의 색맹이든 구분이 유지되는 색입니다. 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계 색을 바꾸고 이벤트별 색을 지우기 때문에 먼저 묻습니다. 끄면 표준 색이 적용됩니다.</sys:String> <!-- draft -->
 </ResourceDictionary>

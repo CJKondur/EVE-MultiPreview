@@ -125,4 +125,35 @@ public static class AlertFields
     public static string SeverityColour(AppSettings s, string severity) =>
         s.SeverityColors.TryGetValue(severity, out var c) && !string.IsNullOrWhiteSpace(c) ? c
         : severity == AlertEvents.Critical ? "#FF0000" : severity == AlertEvents.Warning ? "#FFA500" : "#4A9EFF";
+
+    // ── Look & severity (AlertOpacityPercent, AlertTextPosition, SeverityFlashRates, SeverityTrayNotify, SeverityColors) ──
+
+    public const double PulseMin = 10, PulseMax = 100, PulseStep = 5;
+
+    /// <summary>The old slider's 10–100 % in steps of 5, clamped and rounded, so the slider never moves a stored value.</summary>
+    public static double PulsePercent(int stored) => Math.Clamp(Math.Round(stored / PulseStep) * PulseStep, PulseMin, PulseMax);
+
+    /// <summary>What TextOverlayWindow paints: a missing value is "Bottom"; an empty or unknown one falls to top left.</summary>
+    public static string TextPosition(string? stored) => stored == null ? "Bottom" : ThumbnailFields.Anchor(stored);
+
+    public const int FlashMin = 100, FlashMax = 2000, FlashStep = 50;
+
+    /// <summary>ThumbnailManager.FlashAlertTick's rate: the stored one, else 200 / 500 / 1000 ms.</summary>
+    public static int FlashRate(AppSettings s, string severity) =>
+        s.SeverityFlashRates.TryGetValue(severity, out var ms) ? ms
+        : severity == AlertEvents.Critical ? 200 : severity == AlertEvents.Warning ? 500 : 1000;
+
+    /// <summary>The slider's place for a stored rate: whole steps of 50 within 100–2000.</summary>
+    public static double FlashSlider(int ms) => Math.Clamp(Math.Round(ms / (double)FlashStep) * FlashStep, FlashMin, FlashMax);
+
+    public static void SetFlashRate(AppSettings s, string severity, int ms) => s.SeverityFlashRates[severity] = ms;
+
+    /// <summary>The App's toast gate (SeverityTrayNotify): stored, else only critical.</summary>
+    public static bool HubToast(AppSettings s, string severity) =>
+        s.SeverityTrayNotify.TryGetValue(severity, out var on) ? on : severity == AlertEvents.Critical;
+
+    public static void SetHubToast(AppSettings s, string severity, bool on) => s.SeverityTrayNotify[severity] = on;
+
+    public static void SetSeverityColour(AppSettings s, string severity, string picked) =>
+        s.SeverityColors[severity] = ThumbnailFields.StoreColour(picked);
 }

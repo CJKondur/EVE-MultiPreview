@@ -1511,4 +1511,42 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE mode** is for ratting and missions: NPCs shooting or scrambling you no longer raise an alert, players still do.&#x0A;&#x0A;The **under-fire border** pulses red on a thumbnail while that client takes damage, and goes a few seconds after the last hit.</sys:String>
     <sys:String x:Key="L.Help.alerts.events.table.Title">The event table</sys:String>
     <sys:String x:Key="L.Help.alerts.events.table.Body">Each row is one kind of alert.&#x0A;- **Severity** is fixed for each event. It gives the event its colour, flash speed and toast choice (Look &amp; severity).&#x0A;- **Colour** gives one event its own colour; ↺ goes back to the severity's.&#x0A;- **Lasts** is how long the alert stays on the thumbnail.&#x0A;- **Badge** counts the event on the thumbnail; **Steady** holds the border instead of blinking.&#x0A;- **On** turns the event off completely.&#x0A;&#x0A;**Quiet time** stops the same alert repeating for a character for a few seconds.</sys:String>
+    <!-- Alerts › Look & severity (Plan 3c) -->
+    <sys:String x:Key="L.S.Page.alerts.look">Look &amp; severity</sys:String>
+    <sys:String x:Key="L.S.Page.alerts.look.Desc">How alerts look on thumbnails, the three severities, and colour-blind mode.</sys:String>
+    <sys:String x:Key="L.S.Sec.alerts.look.thumbnail">On the thumbnail</sys:String>
+    <sys:String x:Key="L.S.alerts.look.pulse">Pulse strength</sys:String>
+    <sys:String x:Key="L.S.alerts.look.pulse.Desc">How solid the alert colour is. Lower is softer, which helps with many clients.</sys:String>
+    <sys:String x:Key="L.S.alerts.look.borderWidth">Alert border width</sys:String>
+    <sys:String x:Key="L.S.alerts.look.borderWidth.Desc">The band that flashes just inside the thumbnail's border. 0 = no band.</sys:String>
+    <sys:String x:Key="L.S.alerts.look.badge">Count badge</sys:String>
+    <sys:String x:Key="L.S.alerts.look.badge.Desc">A small number in the thumbnail's corner counts alerts until you switch to that client.</sys:String>
+    <sys:String x:Key="L.S.alerts.look.text">Write what happened</sys:String>
+    <sys:String x:Key="L.S.alerts.look.text.Desc">Shows the event, such as "Warp scrambled", on the thumbnail while the alert lasts.</sys:String>
+    <sys:String x:Key="L.S.alerts.look.textPosition">Text position</sys:String>
+    <sys:String x:Key="L.S.alerts.look.textPosition.Desc">Where that text sits on the thumbnail.</sys:String>
+    <sys:String x:Key="L.S.Sec.alerts.look.severity">Severities</sys:String>
+    <sys:String x:Key="L.S.alerts.look.severityTable">Severity settings</sys:String>
+    <sys:String x:Key="L.S.alerts.look.severityTable.Desc">Every event is critical, warning or info. These apply to every event of that severity.</sys:String>
+    <sys:String x:Key="L.S.Severity.ColSeverity">Severity</sys:String>
+    <sys:String x:Key="L.S.Severity.ColColour">Colour</sys:String>
+    <sys:String x:Key="L.S.Severity.ColFlash">Flash speed</sys:String>
+    <sys:String x:Key="L.S.Severity.ColHub">Toast in the alert hub</sys:String>
+    <sys:String x:Key="L.S.Severity.InfoSteady">Always steady</sys:String>
+    <sys:String x:Key="L.S.Severity.Note">The colour is used by every event without its own colour (Events). Flash speed is how fast the border blinks: lower is faster. Toasts show only while the alert hub is on (Alert hub).</sys:String>
+    <sys:String x:Key="L.S.Severity.PickColour">Pick a colour for {0} alerts</sys:String>
+    <sys:String x:Key="L.S.Severity.FlashFor">Flash speed for {0} alerts</sys:String>
+    <sys:String x:Key="L.S.Severity.HubFor">Toast for {0} alerts</sys:String>
+    <sys:String x:Key="L.S.Sec.alerts.look.accessibility">Accessibility</sys:String>
+    <sys:String x:Key="L.S.alerts.look.colorBlind">Colour-blind mode</sys:String>
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Colours colour-blind players can tell apart, for alerts, the highlight border, thumbnail text, the login mark and the stats overlay. Switching replaces those colours.</sys:String>
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Turn on colour-blind mode? It replaces your alert, highlight, thumbnail text, login mark and stats colours with a colour-blind-safe set, and removes the colours you gave single events. Turning it off later sets the standard colours, not the ones you have now.</sys:String>
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOff">Turn off colour-blind mode? It sets the standard alert, highlight, thumbnail text, login mark and stats colours. Colours you had before turning it on don't come back.</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.Intro">How an alert looks on a thumbnail. Severity settings apply to every event of that severity; a single event can still have its own colour on the Events page.</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">On the thumbnail</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.thumbnail.Body">An alert flashes a band just inside the thumbnail's border, so you can still see which client is active.&#x0A;- **Pulse strength** softens the colour; **Alert border width** sets the band (0 turns it off).&#x0A;- The **count badge** counts alerts until you switch to that client.&#x0A;- **Write what happened** puts the event's name on the thumbnail in the alert's colour.</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.severity.Title">Severities</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.severity.Body">Every event is **critical**, **warning** or **info**. Each severity has a colour, a flash speed and a choice of whether its alerts show a toast in the alert hub. Info alerts don't blink: they stay steady.</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">Colour-blind mode</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">Colour-blind mode switches to the Wong palette, colours that stay distinct for every kind of colour blindness. It replaces the alert, highlight, thumbnail text, login mark and stats colours and removes per-event colours, so it asks first. Turning it off sets the standard colours.</sys:String>
 </ResourceDictionary>
