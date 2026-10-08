@@ -181,7 +181,8 @@ public sealed class EveSettingsModel
         int files = 0, failed = 0;
         foreach (var t in list)
         {
-            EveManagerService.BackupProfile(t.Path, BackupRoot);
+            // Never replace a profile that wasn't backed up first.
+            if (EveManagerService.BackupProfile(t.Path, BackupRoot).Length == 0) { failed++; continue; }
             var n = EveManagerService.CopyProfile(source.Path, t.Path);
             if (n >= 0) files += n;
             else failed++;
@@ -191,17 +192,24 @@ public sealed class EveSettingsModel
 
     /// <summary>Old OnCharCopyExecute: one character's file onto each target character, each replaced file backed up.</summary>
     public EveCopyResult CopyCharacter(EveProfile source, string sourceId, EveProfile target, IEnumerable<string> targetIds) =>
-        CopyEach(targetIds, id => EveManagerService.CopyCharacterSettings(source.Path, sourceId, target.Path, id, BackupRoot));
+        CopyEach(sourceId, targetIds, id => EveManagerService.CopyCharacterSettings(source.Path, sourceId, target.Path, id, BackupRoot));
 
     /// <summary>Old OnAcctCopyExecute: one account's file onto each target account, each replaced file backed up.</summary>
     public EveCopyResult CopyAccount(EveProfile source, string sourceId, EveProfile target, IEnumerable<string> targetIds) =>
-        CopyEach(targetIds, id => EveManagerService.CopyAccountSettings(source.Path, sourceId, target.Path, id, BackupRoot));
+        CopyEach(sourceId, targetIds, id => EveManagerService.CopyAccountSettings(source.Path, sourceId, target.Path, id, BackupRoot));
 
-    private static EveCopyResult CopyEach(IEnumerable<string> ids, Func<string, int> copy)
+    /// <summary>Ids go into file names (core_char_{id}.dat), so only digits are accepted: anything else is counted failed
+    /// and never reaches the file system. A bad source id copies nothing.</summary>
+    private static bool IsNumericId(string id) => id.Length > 0 && id.All(c => c is >= '0' and <= '9');
+
+    private static EveCopyResult CopyEach(string sourceId, IEnumerable<string> ids, Func<string, int> copy)
     {
+        var list = ids.ToList();
+        if (!IsNumericId(sourceId)) return new EveCopyResult(0, 0, list.Count);
         int files = 0, ok = 0, failed = 0;
-        foreach (var id in ids)
+        foreach (var id in list)
         {
+            if (!IsNumericId(id)) { failed++; continue; }
             var n = copy(id);
             if (n >= 0) { files += n; ok++; }
             else failed++;
