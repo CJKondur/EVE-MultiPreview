@@ -120,8 +120,18 @@ public static class ThumbnailSize16x9
         s.ThumbnailStartLocation.Height = HeightFor(width);
     }
 
-    /// <summary>ThumbnailManager.ApplySizeToAll resizes every live thumbnail, keeps an undo step,
-    /// stores the same size and saves.</summary>
+    private static IDebounceTimer? _timer;
+
+    /// <summary>The slider commits every 150 ms; each ApplySizeToAll pushes an undo step and saves
+    /// every position, so one drag would flood the undo history. Debounced to once per gesture.</summary>
+    public static Func<IDebounceTimer> TimerFactory { get; set; } = () => new DispatcherDebounceTimer(TimeSpan.FromMilliseconds(500));
+
+    /// <summary>Restarts the 500 ms timer; when it elapses, ThumbnailManager.ApplySizeToAll resizes
+    /// every live thumbnail once, to the size stored at that moment (one undo step, saves).</summary>
     public static void Apply(SettingsContext ctx) =>
-        ctx.Services.Thumbnails?.ApplySizeToAll((int)ctx.S.ThumbnailStartLocation.Width, (int)ctx.S.ThumbnailStartLocation.Height);
+        Schedule(_timer ??= TimerFactory(), () => ((int)ctx.S.ThumbnailStartLocation.Width, (int)ctx.S.ThumbnailStartLocation.Height),
+                 (w, h) => ctx.Services.Thumbnails?.ApplySizeToAll(w, h));
+
+    public static void Schedule(IDebounceTimer timer, Func<(int W, int H)> size, Action<int, int> apply) =>
+        timer.Restart(() => { var (w, h) = size(); apply(w, h); });
 }
