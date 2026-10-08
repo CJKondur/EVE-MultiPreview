@@ -8,6 +8,16 @@ using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
 
+/// <summary>Outcome of one SettingsService.Save() attempt (spec §8.5 save-failure bar).</summary>
+public enum SaveStatus
+{
+    Saved,
+    /// <summary>Writing the file failed (disk full, read-only folder, file locked).</summary>
+    WriteFailed,
+    /// <summary>The file failed to load at startup, so saving is blocked to protect it.</summary>
+    BlockedAfterLoadError,
+}
+
 /// <summary>
 /// Manages loading, saving, and accessing application settings.
 /// Uses atomic file writes (temp + rename) to prevent data loss — same pattern as AHK version.
@@ -150,10 +160,15 @@ public sealed class SettingsService : IDisposable
     
 
 
+    /// <summary>Raised after every Save() attempt with its outcome. Raised on the thread that
+    /// saved: SaveDelayed saves on a timer thread, so UI subscribers must marshal.</summary>
+    public event Action<SaveStatus>? SaveCompleted;
+
     /// <summary>Save settings to disk using atomic write (temp file + rename). Thread-safe.
     /// Always saves in AHK-compatible format for backwards compatibility.</summary>
     public void Save()
     {
+        SaveStatus status;
         lock (_saveLock)
         {
             try
@@ -162,23 +177,28 @@ public sealed class SettingsService : IDisposable
                 if (!_loadedSuccessfully)
                 {
                     System.Diagnostics.Debug.WriteLine("[Settings] Save blocked — config was not loaded successfully");
-                    return;
+                    status = SaveStatus.BlockedAfterLoadError;
                 }
-
-                // Convert flat AppSettings → nested AHK format for backwards compat
-                var ahkRoot = AhkConfigRoot.FromAppSettings(_settings);
-                string json = JsonSerializer.Serialize(ahkRoot, _jsonOptions);
-                string tempPath = _settingsPath + ".tmp";
-                File.WriteAllText(tempPath, json);
-                File.Move(tempPath, _settingsPath, overwrite: true);
-                _lastSaveTime = DateTime.Now;
+                else
+                {
+                    // Convert flat AppSettings → nested AHK format for backwards compat
+                    var ahkRoot = AhkConfigRoot.FromAppSettings(_settings);
+                    string json = JsonSerializer.Serialize(ahkRoot, _jsonOptions);
+                    string tempPath = _settingsPath + ".tmp";
+                    File.WriteAllText(tempPath, json);
+                    File.Move(tempPath, _settingsPath, overwrite: true);
+                    _lastSaveTime = DateTime.Now;
+                    status = SaveStatus.Saved;
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[Settings] Save error: {ex.Message}");
                 LogError(ex);
+                status = SaveStatus.WriteFailed;
             }
         }
+        SaveCompleted?.Invoke(status);
     }
 
     /// <summary>Debounced save — waits 200ms before actually saving (matches AHK Save_Settings_Delay_Timer).</summary>

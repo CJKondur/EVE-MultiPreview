@@ -1,0 +1,2 @@
+# Golden fixtures are compared byte for byte (line endings included): never convert them.
+*.golden.json -text
