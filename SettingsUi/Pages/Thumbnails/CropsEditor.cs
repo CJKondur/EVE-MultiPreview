@@ -51,8 +51,8 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
         root.Children.Add(_cards);
         Content = root;
         // Clients start and close, and dragging a crop window moves it (CropManager writes the new place):
-        // re-read, but never while the player is typing in this editor.
-        LiveRefresh.Attach(this, () => { if (!IsKeyboardFocusWithin && Signature() != _signature) Refresh(); });
+        // re-read, but never while the player is typing in a box of this editor (a click on a button or a slider doesn't stop it).
+        LiveRefresh.Attach(this, () => { if (!IsTyping() && Signature() != _signature) Refresh(); });
         Refresh();
     }
 
@@ -64,6 +64,8 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
 
     /// <summary>The crop windows shown.</summary>
     public IReadOnlyList<CropDefinition> Crops => Selected == null ? Array.Empty<CropDefinition>() : CropEdits.Of(_ctx.S, Selected);
+
+    private bool IsTyping() => Keyboard.FocusedElement is TextBox t && IsAncestorOf(t);
 
     private static string Str(string key) => SettingsContext.Str(key);
 
@@ -146,9 +148,9 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
         stack.Children.Add(line1);
 
         // The part of the client (client pixels) and the window on screen (DIPs).
-        stack.Children.Add(RectRow("L.S.Crops.Area", (def.SourceX, def.SourceY, def.SourceWidth, def.SourceHeight), CropEdits.SourceMin,
+        stack.Children.Add(RectRow("L.S.Crops.Area", () => (def.SourceX, def.SourceY, def.SourceWidth, def.SourceHeight), CropEdits.SourceMin,
             r => { CropEdits.SetSource(def, r); Store(character, def); }, ShowError));
-        stack.Children.Add(RectRow("L.S.Crops.Window", (def.PopupX, def.PopupY, def.PopupWidth, def.PopupHeight), CropEdits.PopupMin,
+        stack.Children.Add(RectRow("L.S.Crops.Window", () => (def.PopupX, def.PopupY, def.PopupWidth, def.PopupHeight), CropEdits.PopupMin,
             r => { CropEdits.SetPopup(def, r); Store(character, def); }, ShowError));
 
         // Opacity and click-through. Value before the handler: building a card never writes (a stored 3 % shows as 10 %).
@@ -186,11 +188,12 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
     }
 
     /// <summary>X, Y, width and height boxes. A box stores on Enter or when it loses focus; a bad entry
-    /// shows an error in the card and the old value comes back (spec §8.5).</summary>
-    private UIElement RectRow(string labelKey, (int X, int Y, int W, int H) rect, (int X, int Y, int W, int H) min,
+    /// shows an error in the card and the old value comes back (spec §8.5). <paramref name="read"/> gives the
+    /// definition's current values: only the edited field is taken from the box, so a crop window dragged
+    /// since the card was built keeps its new place.</summary>
+    private UIElement RectRow(string labelKey, Func<(int X, int Y, int W, int H)> read, (int X, int Y, int W, int H) min,
         Action<(int X, int Y, int W, int H)> store, Action<string?> showError)
     {
-        var current = rect;
         var wrap = new WrapPanel();
         var label = EditorCard.Note(labelKey, strong: true);
         label.Margin = new Thickness(0, 0, 12, 8);
@@ -199,22 +202,25 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
         void Box(string key, Func<(int X, int Y, int W, int H), int> get,
             Func<(int X, int Y, int W, int H), int, (int X, int Y, int W, int H)> set, int minimum)
         {
-            var box = new TextBox { Text = get(current).ToString(CultureInfo.CurrentCulture), Width = 64, VerticalContentAlignment = VerticalAlignment.Center };
+            string Shown() => get(read()).ToString(CultureInfo.CurrentCulture);
+            var given = Shown();
+            var box = new TextBox { Text = given, Width = 64, VerticalContentAlignment = VerticalAlignment.Center };
             AutomationProperties.SetName(box, Str(labelKey) + " " + Str(key));
             void Commit()
             {
+                if (box.Text == given) return;   // untouched: don't write the old value over a dragged window
                 var errorKey = CropEdits.CheckNumber(box.Text, minimum, CropEdits.Limit, out var value);
                 if (errorKey != null)
                 {
-                    box.Text = get(current).ToString(CultureInfo.CurrentCulture);
+                    box.Text = given = Shown();
                     showError(string.Format(CultureInfo.CurrentCulture, Str(errorKey), minimum, CropEdits.Limit));
                     return;
                 }
                 showError(null);
+                var current = read();
                 var next = set(current, value);
-                if (next == current) return;
-                current = next;
-                store(current);
+                if (next != current) store(next);
+                box.Text = given = Shown();      // what the definition kept (a size is clamped)
             }
             box.LostFocus += (_, _) => Commit();
             box.KeyDown += (_, e) => { if (e.Key == Key.Enter) { Commit(); e.Handled = true; } };
@@ -266,9 +272,18 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
         _signature = Signature();
     }
 
+    /// <summary>Who a crop can be copied to: running characters and those that already have crop windows
+    /// (the old GetAllCropCharacterNames), not the source.</summary>
+    public IReadOnlyList<string> CopyTargets(string character) =>
+        CharacterDirectory.Running(_ctx).Concat(_ctx.S.Crops.Keys)
+            .Where(n => !string.IsNullOrWhiteSpace(n) && !string.Equals(n, character, StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
     private void ShowCopyMenu(Button anchor, string character, CropDefinition def)
     {
-        var targets = Names.Where(n => !string.Equals(n, character, StringComparison.OrdinalIgnoreCase)).ToList();
+        var targets = CopyTargets(character);
         var menu = new ContextMenu { PlacementTarget = anchor };
         if (targets.Count == 0)
         {
