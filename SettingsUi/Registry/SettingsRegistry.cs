@@ -15,7 +15,8 @@ public static class SettingsRegistry
 
     public static IEnumerable<PageDef> AllPages => Pages.Concat(Templates);
 
-    private static IReadOnlyList<PageDef> BuildPages() => HomePage.All.Concat(ClientsPages.All).Concat(ThumbnailsPages.All).Concat(AlertsPages.All).Concat(AppPages.All).ToList();
+    private static IReadOnlyList<PageDef> BuildPages() => HomePage.All.Concat(ClientsPages.All).Concat(ThumbnailsPages.All).Concat(AlertsPages.All)
+            .Concat(PerformancePages.All).Concat(AppPages.All).ToList();
 
     private static IReadOnlyList<PageDef> BuildTemplates() => new List<PageDef> { CharacterPage.Template };
 

@@ -1,0 +1,107 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Windows;
+using System.Windows.Automation;
+using System.Windows.Controls;
+using EveMultiPreview.Services;
+using ComboBox = System.Windows.Controls.ComboBox;
+using HorizontalAlignment = System.Windows.HorizontalAlignment;
+
+namespace EveMultiPreview.SettingsUi;
+
+/// <summary>Performance › CPU › Core for each character (old LvPerClientCores): every known character, not just the
+/// running ones, with the character page's core choices and › to its page. Read by the affinity pass every tick
+/// while management is on: a change only saves.</summary>
+public sealed class CoreTableEditor : System.Windows.Controls.UserControl, IRefreshable
+{
+    private readonly SettingsContext _ctx;
+    private readonly Grid _table = new();
+    private string _signature = "";
+
+    public CoreTableEditor(SettingsContext ctx)
+    {
+        _ctx = ctx;
+        Content = EditorCard.Build("perf.cpu.coreTable", null, _table);
+        LiveRefresh.Attach(this, () => { if (Signature() != _signature) Refresh(); });
+        Refresh();
+    }
+
+    /// <summary>The characters listed, in order.</summary>
+    public IReadOnlyList<string> Names { get; private set; } = Array.Empty<string>();
+
+    private static string Str(string key) => SettingsContext.Str(key);
+
+    private IReadOnlyList<string> Current() => CharacterDirectory.Known(_ctx.S, CharacterDirectory.Running(_ctx));
+
+    private string Signature() => string.Join("\n", Current().Select(n => n + "|" + CharacterFields.Core(_ctx.S, n)));
+
+    public void Refresh()
+    {
+        Names = Current();
+        _signature = Signature();
+        _table.Children.Clear();
+        _table.RowDefinitions.Clear();
+        _table.ColumnDefinitions.Clear();
+        _table.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        int header = AddRow();
+        Place(EditorCard.Note("L.S.Characters.ColCharacter", strong: true), header, 0);
+        Place(EditorCard.Note("L.S.CoreTable.ColCore", strong: true), header, 1);
+        if (Names.Count == 0)
+        {
+            var empty = EditorCard.Note("L.S.CoreTable.Empty");
+            Place(empty, AddRow(), 0);
+            Grid.SetColumnSpan(empty, 3);
+            return;
+        }
+        foreach (var name in Names)
+        {
+            int r = AddRow();
+            Place(EditorCard.Value(name, strong: true), r, 0);
+            Place(CoreBox(name), r, 1);
+            Place(EditorCard.Open(string.Format(Str("L.S.Characters.Open"), name),
+                () => _ctx.Host.Navigate(CharacterPage.IdFor(name), "character.core")), r, 2);
+        }
+    }
+
+    /// <summary>The selection is made before the handler: building a row never writes.</summary>
+    private ComboBox CoreBox(string name)
+    {
+        var box = new ComboBox { MinWidth = 160 };
+        var options = CharacterFields.CoreOptions();
+        foreach (var o in options) box.Items.Add(new ComboBoxItem { Content = o.Literal ?? Str(o.LabelKey), Tag = o.Value });
+        var current = CharacterFields.Core(_ctx.S, name);
+        box.SelectedIndex = options.ToList().FindIndex(o => Equals(o.Value, current));
+        box.SelectionChanged += (_, _) => { if (box.SelectedItem is ComboBoxItem { Tag: int core }) SetCore(name, core); };
+        AutomationProperties.SetName(box, string.Format(Str("L.S.CoreTable.CoreFor"), name));
+        return box;
+    }
+
+    /// <summary>A core for this character's client while it's in the background; Automatic removes the pin.</summary>
+    public void SetCore(string name, int core)
+    {
+        if (CharacterFields.Core(_ctx.S, name) == core && (core >= 0 || !_ctx.S.PerClientCores.ContainsKey(name))) return;
+        CharacterFields.SetCore(_ctx.S, name, core);
+        _ctx.Applier.Request(ApplyScope.Save);
+        _signature = Signature();
+    }
+
+    private int AddRow()
+    {
+        _table.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        return _table.RowDefinitions.Count - 1;
+    }
+
+    private void Place(FrameworkElement element, int row, int column)
+    {
+        element.Margin = new Thickness(0, 4, 16, 4);
+        element.VerticalAlignment = VerticalAlignment.Center;
+        element.HorizontalAlignment = HorizontalAlignment.Left;
+        Grid.SetRow(element, row);
+        Grid.SetColumn(element, column);
+        _table.Children.Add(element);
+    }
+}
