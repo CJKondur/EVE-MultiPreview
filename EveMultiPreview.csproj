@@ -19,7 +19,7 @@
     <Description>EVE Online multi-client thumbnail preview manager</Description>
 
     <!-- Publish settings -->
-    <!-- The standalone exe is ~69MB, so it publishes OUTSIDE the repo entirely:
+    <!-- The standalone exe is ~76MB, so it publishes OUTSIDE the repo entirely:
          a sibling folder, not a gitignored subfolder. Being out of the working
          tree means it cannot be committed even by an `git add -A`. -->
     <PublishDir>..\EVE-MultiPreview-Release\</PublishDir>
