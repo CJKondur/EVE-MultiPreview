@@ -133,12 +133,25 @@ public partial class SettingsShell : Window, ISettingsHost
     public string? PickColor(string? initial)
     {
         using var d = new WinForms.ColorDialog { FullOpen = true };
+        // The old window's shared custom palette: a colour saved once shows in every picker.
+        if (_ctx.S.CustomColorPalette is { Length: > 0 } palette) d.CustomColors = palette;
         if (!string.IsNullOrEmpty(initial))
         {
             var c = AppSettings.ParseColor(initial, Color.FromRgb(0xFF, 0xFF, 0xFF));
             d.Color = System.Drawing.Color.FromArgb(c.R, c.G, c.B);
         }
-        return d.ShowDialog() == WinForms.DialogResult.OK ? $"#{d.Color.R:X2}{d.Color.G:X2}{d.Color.B:X2}" : null;
+        var owner = new DialogOwnerHandle(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+        if (d.ShowDialog(owner) != WinForms.DialogResult.OK) return null;
+        _ctx.S.CustomColorPalette = d.CustomColors;
+        _ctx.Applier.Request(ApplyScope.Save);
+        return $"#{d.Color.R:X2}{d.Color.G:X2}{d.Color.B:X2}";
+    }
+
+    /// <summary>Makes this window the WinForms colour dialog's owner, so it opens over settings.</summary>
+    private sealed class DialogOwnerHandle : WinForms.IWin32Window
+    {
+        public DialogOwnerHandle(IntPtr handle) => Handle = handle;
+        public IntPtr Handle { get; }
     }
 
     public string? CaptureHotkey(string settingId, string? current)

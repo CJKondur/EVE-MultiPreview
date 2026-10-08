@@ -1,9 +1,159 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using EveMultiPreview.Models;
+using EveMultiPreview.Services;
+
 namespace EveMultiPreview.SettingsUi;
 
-/// <summary>The per-character page (spec §8.4), reached as "character/&lt;name&gt;".</summary>
+/// <summary>The per-character page (spec §5, §8.4, D4), reached as "character/&lt;name&gt;" from the
+/// Characters table, Home tiles, search and (Plan 4) the thumbnail menu. An aggregation view: each
+/// card reads and writes the store the old window's editor used.</summary>
 public static class CharacterPage
 {
     public const string Prefix = "character/";
+    public const string TemplateId = "character";
+    /// <summary>The name the registry template is built for. EVE names can't contain '&lt;'.</summary>
+    public const string TemplateName = "<character>";
 
     public static string IdFor(string name) => Prefix + name;
+
+    public static PageDef? TryBuild(string id) =>
+        id.StartsWith(Prefix, StringComparison.Ordinal) && id.Length > Prefix.Length ? Build(id[Prefix.Length..]) : null;
+
+    /// <summary>Checked by the registry, coverage, string and help tests; never navigated.</summary>
+    public static PageDef Template { get; } = Build(TemplateName);
+
+    public static PageDef Build(string name) => new(IdFor(name), NavGroup.Clients, Sections(name))
+    {
+        Title = name,
+        ParentId = ClientsPages.CharactersId,
+        Template = TemplateId,
+    };
+
+    public static IReadOnlyList<HelpTopic> Help => new[]
+    {
+        new HelpTopic(TemplateId, "switching", new[] { "character.hotkey", "character.cycle", "character.groups", "character.noGroup", "character.groupsLink" }),
+        new HelpTopic(TemplateId, "thumbnail", new[]
+        {
+            "character.show", "character.label", "character.labelColor", "character.labelSize", "character.size", "character.pip", "character.pipOpacity",
+        }),
+        new HelpTopic(TemplateId, "colors", new[] { "character.colorsOff", "character.colorActive", "character.colorText", "character.colorInactive", "character.colorsReset" }),
+    };
+
+    private static IReadOnlyList<SectionDef> Sections(string name) => new[]
+    {
+        Switching(name), Thumbnail(name), Colors(name),
+    };
+
+    private static SectionDef Switching(string name) => new("character.switching", new PageItem[]
+    {
+        new SettingItem(Setting.Custom("character.hotkey", SettingKind.Hotkey,
+            s => CharacterStores.HotkeyOf(s, name),
+            (s, v) => CharacterStores.SetHotkey(s, name, v as string ?? ""),
+            binds: new[] { "Profile.Hotkeys" }) with { UseId = HotkeyUses.CharacterId(name) }),
+        new EditorItem("character.cycle", ctx => new CharacterCycleEditor(ctx, name)),
+        new InfoItem("character.groups", InfoSeverity.Info)
+        {
+            Args = ctx => new object[] { string.Join(", ", CharacterStores.GroupsOf(ctx.S, name)) },
+            ShowIf = s => CharacterStores.GroupsOf(s, name).Count > 0,
+        },
+        new InfoItem("character.noGroup", InfoSeverity.Info) { ShowIf = s => CharacterStores.GroupsOf(s, name).Count == 0 },
+        new ActionRow("character.groupsLink", new[]
+        {
+            new ActionDef("character.openGroups", ctx => ctx.Host.Navigate(ClientsPages.GroupsId)),
+        }),
+    });
+
+    private static SectionDef Thumbnail(string name) => new("character.thumbnail", new PageItem[]
+    {
+        // As the Characters table: store 0/1, show or hide that thumbnail now, only save (#50, #51).
+        new SettingItem(Setting.Custom("character.show", SettingKind.Toggle,
+            s => CharacterStores.IsShown(s, name),
+            (s, v) => CharacterStores.StoreShown(s, name, v is true),
+            binds: new[] { "AppSettings.ThumbnailVisibility" }) with
+        {
+            OnChanged = ctx => ctx.Services.Thumbnails?.SetCharacterVisibility(name, CharacterStores.IsShown(ctx.S, name)),
+        }),
+        new SettingItem(Setting.Custom("character.label", SettingKind.Text,
+            s => CharacterFields.Label(s, name),
+            (s, v) => CharacterFields.SetLabel(s, name, v as string),
+            binds: new[] { "AppSettings.ThumbnailAnnotations" }) with
+        {
+            OnChanged = ctx => CharacterFields.PushLabel(ctx, name),
+            Replaces = new[] { "LstAnnotations", "OnEditAnnotation", "OnClearAnnotation", "OnEditVisibilityLabel" },
+        }),
+        new SettingItem(Setting.Custom("character.labelColor", SettingKind.Color,
+            s => CharacterFields.LabelColor(s, name),
+            (s, v) => CharacterFields.SetLabelColor(s, name, v as string),
+            binds: new[] { "AppSettings.ThumbnailLabelStyles" }) with
+        {
+            Validate = v => v is string text && (text.Trim().Length == 0 || Setting.IsColor(text)) ? null : Setting.ErrColor,
+            OnChanged = ctx => CharacterFields.PushLabel(ctx, name),
+        }),
+        new SettingItem(Setting.Custom("character.labelSize", SettingKind.Number,
+            s => CharacterFields.LabelSize(s, name),
+            (s, v) => CharacterFields.SetLabelSize(s, name, Convert.ToInt32(v, CultureInfo.InvariantCulture)),
+            binds: new[] { "AppSettings.ThumbnailLabelStyles" }) with
+        {
+            Min = 0, Max = 72, UnitKey = "L.S.Unit.Pt", Validate = v => Setting.RangeError(v, 0, 72),
+            OnChanged = ctx => CharacterFields.PushLabel(ctx, name),
+        }),
+        new EditorItem("character.size", ctx => new CharacterSizeEditor(ctx, name))
+        {
+            Binds = new[] { "Profile.ThumbnailPositions" },
+            Replaces = new[]
+            {
+                "CmbActiveChars", "TxtActiveCharW", "TxtActiveCharH", "OnApplyActiveCharSize", "OnRefreshActiveChars",
+                "CmbResizeChar", "TxtResizeCharW", "TxtResizeCharH", "OnApplySizeToChar", "OnRefreshResizeChars",
+            },
+        },
+        // ReapplySettings syncs second thumbnails; create/destroy at once as the old Add/Remove did.
+        new SettingItem(Setting.Custom("character.pip", SettingKind.Toggle,
+            s => CharacterFields.PipOn(s, name),
+            (s, v) => CharacterFields.SetPip(s, name, v is true),
+            binds: new[] { "AppSettings.SecondaryThumbnails" }, apply: ApplyScope.Thumbnails) with
+        {
+            OnChanged = ctx =>
+            {
+                if (CharacterFields.PipOn(ctx.S, name)) ctx.Services.Thumbnails?.CreateSecondaryForCharacter(name);
+                else ctx.Services.Thumbnails?.DestroySecondaryForCharacter(name);
+            },
+        }),
+        new SettingItem(Setting.Custom("character.pipOpacity", SettingKind.Slider,
+            s => CharacterFields.PipOpacity(s, name),
+            (s, v) => CharacterFields.SetPipOpacity(s, name, Convert.ToDouble(v, CultureInfo.InvariantCulture)),
+            binds: new[] { "AppSettings.SecondaryThumbnails" }, apply: ApplyScope.Thumbnails) with
+        {
+            Min = 8, Max = 100, Step = 1, UnitKey = "L.S.Unit.Percent",
+            ShowIf = s => CharacterFields.PipOn(s, name),
+        }),
+    });
+
+    private static SectionDef Colors(string name) => new("character.colors", new PageItem[]
+    {
+        new InfoItem("character.colorsOff", InfoSeverity.Info) { ShowIf = s => !s.CustomColorsActive },
+        ColorCard("character.colorActive", name, CharacterFields.ColorPart.Border, new[] { "LvColors", "OnColorAdd", "OnColorEdit", "OnPickColor" }),
+        ColorCard("character.colorText", name, CharacterFields.ColorPart.Text, Array.Empty<string>()),
+        ColorCard("character.colorInactive", name, CharacterFields.ColorPart.Inactive, Array.Empty<string>()),
+        new ActionRow("character.colorsReset", new[]
+        {
+            new ActionDef("character.resetColors", ctx =>
+            {
+                ctx.S.CustomColors.Remove(name);
+                ctx.Applier.Request(ApplyScope.Thumbnails);
+                ctx.Host.Reload();   // the three colour cards show the defaults again
+            }) { Replaces = new[] { "OnColorDelete" } },
+        }) { ShowIf = s => s.CustomColors.ContainsKey(name) },
+    });
+
+    private static SettingItem ColorCard(string id, string name, CharacterFields.ColorPart part, IReadOnlyList<string> replaces) =>
+        new(Setting.Custom(id, SettingKind.Color,
+            s => CharacterFields.Color(s, name, part),
+            (s, v) => CharacterFields.SetColor(s, name, part, v as string ?? ""),
+            binds: new[] { "AppSettings.CustomColors" }, apply: ApplyScope.Thumbnails) with
+        {
+            Validate = v => Setting.IsColor(v as string) ? null : Setting.ErrColor,
+            Replaces = replaces,
+        });
 }

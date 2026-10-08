@@ -17,13 +17,14 @@ public static class SettingsRegistry
 
     private static IReadOnlyList<PageDef> BuildPages() => ClientsPages.All.Concat(AppPages.All).ToList();
 
-    private static IReadOnlyList<PageDef> BuildTemplates() => new List<PageDef>();
+    private static IReadOnlyList<PageDef> BuildTemplates() => new List<PageDef> { CharacterPage.Template };
 
-    /// <summary>Builds a page from its id ("character/Logi"), or null. Plan 3a Task 5 adds the character page.</summary>
-    public static PageDef? Dynamic(string id) => null;
+    /// <summary>Builds a page from its id ("character/Logi"), or null.</summary>
+    public static PageDef? Dynamic(string id) => CharacterPage.TryBuild(id);
 
-    /// <summary>Settings the shell itself edits (not through a card): the Simple/Advanced switch.</summary>
-    public static IReadOnlyList<string> ShellBinds { get; } = new[] { "AppSettings.SimpleMode" };
+    /// <summary>Settings the shell itself edits (not through a card): the Simple/Advanced switch, and
+    /// the colour dialog's shared custom palette.</summary>
+    public static IReadOnlyList<string> ShellBinds { get; } = new[] { "AppSettings.SimpleMode", "AppSettings.CustomColorPalette" };
 
     public static PageDef? Page(string id) => Pages.FirstOrDefault(p => p.Id == id);
 
