@@ -69,7 +69,7 @@ public class AhkConfigRoot
         s.HideActiveThumbnail = g.HideActiveThumbnail != 0;
         s.IndividualThumbnailResize = g.IndividualThumbnailResize != 0;
         s.ResizeThumbnailsOnHover = g.ResizeThumbnailsOnHover != 0;
-        s.HoverScale = g.HoverScale;
+        s.HoverScale = UsableHoverScale(g.HoverScale);
         s.CycleDelayMs = g.CycleDelayMs;
         s.CycleWhileHeld = g.CycleWhileHeld != 0;
         s.MinimizeDelay = g.MinimizeDelay;
@@ -364,7 +364,7 @@ public class AhkConfigRoot
         g.HideActiveThumbnail = s.HideActiveThumbnail ? 1 : 0;
         g.IndividualThumbnailResize = s.IndividualThumbnailResize ? 1 : 0;
         g.ResizeThumbnailsOnHover = s.ResizeThumbnailsOnHover ? 1 : 0;
-        g.HoverScale = s.HoverScale;
+        g.HoverScale = UsableHoverScale(s.HoverScale);
         g.CycleDelayMs = s.CycleDelayMs;
         g.CycleWhileHeld = s.CycleWhileHeld ? 1 : 0;
         g.MinimizeDelay = s.MinimizeDelay;
@@ -586,6 +586,9 @@ public class AhkConfigRoot
     }
 
     // ── Helpers ─────────────────────────────────────────────────────
+
+    /// <summary>A hover zoom scale a thumbnail can use, else the default 1.5 (an odd hand-edited value reads as NaN).</summary>
+    private static double UsableHoverScale(double scale) => double.IsFinite(scale) && scale > 0 ? scale : 1.5;
 
     private static Dictionary<string, bool> ConvertIntDictToBoolDict(Dictionary<string, int>? dict)
     {
@@ -1040,6 +1043,7 @@ public class AhkGlobalSettings
     public int ResizeThumbnailsOnHover { get; set; }
 
     [JsonPropertyName("HoverScale")]
+    [JsonConverter(typeof(EveMultiPreview.Converters.LenientDoubleConverter))]
     public double HoverScale { get; set; } = 1.5;
 
     [JsonPropertyName("CycleDelayMs")]
