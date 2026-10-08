@@ -1,13 +1,18 @@
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 using EveMultiPreview.Services;
+using EveMultiPreview.SettingsUi;
 
 namespace EveMultiPreview.Views;
 
 /// <summary>
-/// Modal dialog shown when a new version is available.
-/// Handles download with progress and triggers the self-update.
+/// Dialog shown when a new version is available, or for a version picked in About.
+/// Handles download with progress and triggers the self-update. Plan 4 restyled it after the F2 reference; the buttons
+/// and what they do are unchanged.
 /// </summary>
 public partial class UpdateDialog : Window
 {
@@ -21,29 +26,78 @@ public partial class UpdateDialog : Window
     public UpdateDialog(UpdateService updateService, bool specificVersion = false, Action? beforeApply = null)
     {
         InitializeComponent();
+        FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
         _updateService = updateService;
         _beforeApply = beforeApply;
 
-        TxtVersionInfo.Text = $"A new version of EVE MultiPreview is available!\n" +
-                              $"Current: v{_updateService.CurrentVersion}  →  New: v{_updateService.LatestVersion}";
+        TxtVersionInfo.Text = string.Format(Str("L.Upd.ReadyFmt", "Version {1} is ready. You have {0}."),
+            _updateService.CurrentVersion, _updateService.LatestVersion);
 
         if (specificVersion)
         {
             string cur = _updateService.CurrentVersion, target = _updateService.LatestVersion ?? "?";
             bool older = Version.TryParse(target, out var t) && Version.TryParse(cur, out var c) && t < c;
             Title = "EVE MultiPreview";
-            TxtHeader.Text = string.Format(LocalizationService.Str("L.Upd.PickHeader", "⬇ Install v{0}"), target);
+            TxtHeader.Text = string.Format(Str("L.Upd.PickHeader", "Install v{0}"), target);
             TxtVersionInfo.Text = string.Format(older
-                ? LocalizationService.Str("L.Upd.OlderInfo",
+                ? Str("L.Upd.OlderInfo",
                     "You have v{0}. This installs the OLDER v{1}. Your settings are backed up to the Backups folder first; options added after v{1} are lost if it saves them. \"Check for updates when the program starts\" is turned off so v{1} does not offer to update straight back.")
-                : LocalizationService.Str("L.Upd.PickInfo", "You have v{0}. This installs v{1}."), cur, target);
-            BtnUpdateNow.Content = LocalizationService.Str("L.Upd.InstallBtn", "⬇ Install");
+                : Str("L.Upd.PickInfo", "You have v{0}. This installs v{1}."), cur, target);
+            BtnUpdateNow.Content = Str("L.Upd.InstallBtn", "Install");
         }
 
-        TxtReleaseNotes.Text = !string.IsNullOrWhiteSpace(_updateService.ReleaseNotes)
-            ? _updateService.ReleaseNotes
-            : "No release notes available.";
+        ShowNotes(_updateService.ReleaseNotes);
     }
+
+    /// <summary>The dialog the startup update check opens (App). It appears without taking focus, so a player in a fight
+    /// keeps typing into EVE (spec §6, §11.7); the About page's dialogs open in front as before.</summary>
+    public static UpdateDialog ForStartupCheck(UpdateService updateService) => new(updateService) { ShowActivated = false };
+
+    /// <summary>"What's new", then the release notes formatted: headings and **labels** bold, bullets as bullets.</summary>
+    private void ShowNotes(string? markdown)
+    {
+        NotesPanel.Children.Clear();
+        NotesPanel.Children.Add(new TextBlock
+        {
+            Text = Str("L.Upd.WhatsNew", "What's new"),
+            FontWeight = FontWeights.SemiBold,
+            FontSize = 13,
+            Foreground = FluentPalette.Brush("Fx.Text"),
+            Margin = new Thickness(0, 0, 0, 6),
+        });
+        var blocks = ReleaseNotesMarkup.Parse(markdown);
+        if (blocks.Count == 0)
+        {
+            NotesPanel.Children.Add(Line(Str("L.Upd.NoNotes", "No release notes available.")));
+            return;
+        }
+        foreach (var block in blocks)
+        {
+            var text = Line(null);
+            if (block is HelpBullet)
+            {
+                text.Margin = new Thickness(12, 2, 0, 2);
+                text.Inlines.Add(new Run("•  "));
+            }
+            foreach (var run in block.Runs)
+                text.Inlines.Add(run.Bold
+                    ? new Bold(new Run(run.Text)) { Foreground = FluentPalette.Brush("Fx.Text") }
+                    : new Run(run.Text));
+            NotesPanel.Children.Add(text);
+        }
+    }
+
+    private static TextBlock Line(string? text) => new()
+    {
+        Text = text ?? "",
+        FontSize = 13,
+        LineHeight = 20,
+        TextWrapping = TextWrapping.Wrap,
+        Foreground = FluentPalette.Brush("Fx.TextSecondary"),
+        Margin = new Thickness(0, 4, 0, 4),
+    };
+
+    private static string Str(string key, string english) => LocalizationService.Str(key, english);
 
     private void OnReleaseNotes(object s, RoutedEventArgs e)
     {
@@ -67,7 +121,7 @@ public partial class UpdateDialog : Window
 
         // Disable buttons during download
         BtnUpdateNow.IsEnabled = false;
-        BtnUpdateNow.Content = "⏳ Downloading...";
+        BtnUpdateNow.Content = Str("L.Upd.Downloading", "Downloading…");
         BtnLater.IsEnabled = false;
         BtnReleaseNotes.IsEnabled = false;
 
@@ -79,14 +133,14 @@ public partial class UpdateDialog : Window
             var progress = new Progress<double>(p =>
             {
                 DownloadProgress.Value = p * 100;
-                TxtProgressStatus.Text = $"Downloading... {p:P0}";
+                TxtProgressStatus.Text = string.Format(Str("L.Upd.ProgressFmt", "Downloading… {0}"), p.ToString("P0", CultureInfo.CurrentCulture));
             });
 
             var downloadedPath = await _updateService.DownloadUpdateAsync(progress);
 
             // Download complete — apply update
-            TxtProgressStatus.Text = "Download complete. Applying update...";
-            TxtStatus.Text = "🔄 Restarting with updated version...";
+            TxtProgressStatus.Text = Str("L.Upd.Applying", "Download complete. Applying the update…");
+            TxtStatus.Text = Str("L.Upd.Restarting", "Restarting with the new version…");
             TxtStatus.Visibility = Visibility.Visible;
 
             // Brief pause so user sees the message
@@ -104,7 +158,7 @@ public partial class UpdateDialog : Window
             BtnReleaseNotes.IsEnabled = true;
             ProgressPanel.Visibility = Visibility.Collapsed;
 
-            TxtStatus.Text = $"❌ Update failed: {ex.Message}";
+            TxtStatus.Text = string.Format(Str("L.Upd.FailedFmt", "The update failed: {0}"), ex.Message);
             TxtStatus.Visibility = Visibility.Visible;
             Debug.WriteLine($"[Update] Download/apply failed: {ex}");
         }

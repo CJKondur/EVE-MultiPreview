@@ -531,16 +531,15 @@
 
     <!-- Update dialog -->
     <sys:String x:Key="L.Upd.Title">업데이트 사용 가능 — EVE MultiPreview</sys:String>
-    <sys:String x:Key="L.Upd.Header">⬆ 업데이트 사용 가능</sys:String>
-    <sys:String x:Key="L.Upd.LoadingNotes">릴리스 노트 로드 중...</sys:String>
-    <sys:String x:Key="L.Upd.Downloading">다운로드 중...</sys:String>
-    <sys:String x:Key="L.Upd.ReleasePage">📋 릴리스 페이지</sys:String>
+    <sys:String x:Key="L.Upd.Header">업데이트 사용 가능</sys:String>
+    <sys:String x:Key="L.Upd.Downloading">다운로드 중…</sys:String>
+    <sys:String x:Key="L.Upd.ReleasePage">릴리스 페이지</sys:String>
     <sys:String x:Key="L.Upd.Later">나중에</sys:String>
-    <sys:String x:Key="L.Upd.UpdateNow">⬆ 지금 업데이트</sys:String>
-    <sys:String x:Key="L.Upd.InstallBtn">⬇ 설치</sys:String>
+    <sys:String x:Key="L.Upd.UpdateNow">지금 업데이트</sys:String>
+    <sys:String x:Key="L.Upd.InstallBtn">설치</sys:String>
     <sys:String x:Key="L.Upd.OlderInfo">현재 v{0}입니다. 더 오래된 v{1}을(를) 설치합니다. 설정은 먼저 Backups 폴더에 백업되며, v{1} 이후에 추가된 옵션은 v{1}이 설정을 저장하면 사라집니다. v{1}이 바로 업데이트를 권하지 않도록 “프로그램 시작 시 업데이트 확인”이 꺼집니다.</sys:String>
     <sys:String x:Key="L.Upd.PickInfo">현재 v{0}입니다. v{1}을(를) 설치합니다.</sys:String>
-    <sys:String x:Key="L.Upd.PickHeader">⬇ v{0} 설치</sys:String>
+    <sys:String x:Key="L.Upd.PickHeader">v{0} 설치</sys:String>
     <sys:String x:Key="L.About.VersionsFailed">❌ 버전 목록을 불러오지 못했습니다: {0}</sys:String>
     <sys:String x:Key="L.About.PreReleaseTag">(사전 릴리스)</sys:String>
     <sys:String x:Key="L.About.Installed">(설치됨)</sys:String>
@@ -1882,4 +1881,11 @@
     <sys:String x:Key="L.Wiz.SumSize">썸네일 크기: {0} × {1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOnFmt">캐릭터 선택 순환: 켜짐 (앞으로 {0}, 뒤로 {1})</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOff">캐릭터 선택 순환: 꺼짐</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ReadyFmt">버전 {1}을(를) 사용할 수 있습니다. 현재 버전은 {0}입니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.WhatsNew">새로운 기능</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NoNotes">사용 가능한 릴리스 노트가 없습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ProgressFmt">다운로드 중… {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Applying">다운로드가 완료되었습니다. 업데이트를 적용하는 중…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Restarting">새 버전으로 다시 시작하는 중…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.FailedFmt">업데이트 실패: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

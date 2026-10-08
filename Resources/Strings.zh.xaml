@@ -531,16 +531,15 @@
 
     <!-- Update dialog -->
     <sys:String x:Key="L.Upd.Title">有可用更新 — EVE MultiPreview</sys:String>
-    <sys:String x:Key="L.Upd.Header">⬆ 有可用更新</sys:String>
-    <sys:String x:Key="L.Upd.LoadingNotes">正在加载发布说明...</sys:String>
-    <sys:String x:Key="L.Upd.Downloading">正在下载...</sys:String>
-    <sys:String x:Key="L.Upd.ReleasePage">📋 发布页面</sys:String>
+    <sys:String x:Key="L.Upd.Header">有可用更新</sys:String>
+    <sys:String x:Key="L.Upd.Downloading">正在下载…</sys:String>
+    <sys:String x:Key="L.Upd.ReleasePage">发布页面</sys:String>
     <sys:String x:Key="L.Upd.Later">稍后</sys:String>
-    <sys:String x:Key="L.Upd.UpdateNow">⬆ 立即更新</sys:String>
-    <sys:String x:Key="L.Upd.InstallBtn">⬇ 安装</sys:String>
+    <sys:String x:Key="L.Upd.UpdateNow">立即更新</sys:String>
+    <sys:String x:Key="L.Upd.InstallBtn">安装</sys:String>
     <sys:String x:Key="L.Upd.OlderInfo">你当前是 v{0}。将安装更旧的 v{1}。安装前会先把设置备份到 Backups 文件夹；v{1} 之后新增的选项在它保存设置时会丢失。“程序启动时检查更新”将被关闭，以免 v{1} 立即提示更新回来。</sys:String>
     <sys:String x:Key="L.Upd.PickInfo">你当前是 v{0}。将安装 v{1}。</sys:String>
-    <sys:String x:Key="L.Upd.PickHeader">⬇ 安装 v{0}</sys:String>
+    <sys:String x:Key="L.Upd.PickHeader">安装 v{0}</sys:String>
     <sys:String x:Key="L.About.VersionsFailed">❌ 无法加载版本列表：{0}</sys:String>
     <sys:String x:Key="L.About.PreReleaseTag">（预发布）</sys:String>
     <sys:String x:Key="L.About.Installed">（已安装）</sys:String>
@@ -1899,4 +1898,11 @@
     <sys:String x:Key="L.Wiz.SumSize">缩略图大小：{0} × {1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOnFmt">角色选择循环：开（前进 {0}，后退 {1}）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOff">角色选择循环：关</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ReadyFmt">版本 {1} 已就绪。你当前的版本是 {0}。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.WhatsNew">更新内容</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NoNotes">没有可用的发布说明。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ProgressFmt">正在下载… {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Applying">下载完成。正在应用更新…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Restarting">正在以新版本重新启动…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.FailedFmt">更新失败：{0}</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -532,12 +532,11 @@
 
     <!-- Update dialog -->
     <sys:String x:Key="L.Upd.Title">Update Available — EVE MultiPreview</sys:String>
-    <sys:String x:Key="L.Upd.Header">⬆ Update Available</sys:String>
-    <sys:String x:Key="L.Upd.LoadingNotes">Loading release notes...</sys:String>
-    <sys:String x:Key="L.Upd.Downloading">Downloading...</sys:String>
-    <sys:String x:Key="L.Upd.ReleasePage">📋 Release Page</sys:String>
+    <sys:String x:Key="L.Upd.Header">Update available</sys:String>
+    <sys:String x:Key="L.Upd.Downloading">Downloading…</sys:String>
+    <sys:String x:Key="L.Upd.ReleasePage">Release page</sys:String>
     <sys:String x:Key="L.Upd.Later">Later</sys:String>
-    <sys:String x:Key="L.Upd.UpdateNow">⬆ Update Now</sys:String>
+    <sys:String x:Key="L.Upd.UpdateNow">Update now</sys:String>
 
     <!-- Character Picker dialog -->
     <sys:String x:Key="L.Pick.Title">Select Character</sys:String>
@@ -688,10 +687,10 @@
     <sys:String x:Key="L.About.PreReleaseTag">(pre-release)</sys:String>
     <sys:String x:Key="L.About.Installed">(installed)</sys:String>
     <sys:String x:Key="L.About.LoadingVersions">Loading…</sys:String>
-    <sys:String x:Key="L.Upd.InstallBtn">⬇ Install</sys:String>
+    <sys:String x:Key="L.Upd.InstallBtn">Install</sys:String>
     <sys:String x:Key="L.Upd.OlderInfo">You have v{0}. This installs the OLDER v{1}. Your settings are backed up to the Backups folder first; options added after v{1} are lost if it saves them. "Check for updates when the program starts" is turned off so v{1} does not offer to update straight back.</sys:String>
     <sys:String x:Key="L.Upd.PickInfo">You have v{0}. This installs v{1}.</sys:String>
-    <sys:String x:Key="L.Upd.PickHeader">⬇ Install v{0}</sys:String>
+    <sys:String x:Key="L.Upd.PickHeader">Install v{0}</sys:String>
 
     <!-- Alerts panel, code-built rows -->
     <sys:String x:Key="L.Alerts.DurationTip">Seconds the alert stays on the thumbnail. Empty = the default for its severity. 0 = until you switch to that client.</sys:String>
@@ -1881,4 +1880,11 @@
     <sys:String x:Key="L.Wiz.SumSize">Thumbnail size: {0} × {1}</sys:String>
     <sys:String x:Key="L.Wiz.SumCycleOnFmt">Character-select cycling: on (forward {0}, backward {1})</sys:String>
     <sys:String x:Key="L.Wiz.SumCycleOff">Character-select cycling: off</sys:String>
+    <sys:String x:Key="L.Upd.ReadyFmt">Version {1} is ready. You have {0}.</sys:String>
+    <sys:String x:Key="L.Upd.WhatsNew">What's new</sys:String>
+    <sys:String x:Key="L.Upd.NoNotes">No release notes available.</sys:String>
+    <sys:String x:Key="L.Upd.ProgressFmt">Downloading… {0}</sys:String>
+    <sys:String x:Key="L.Upd.Applying">Download complete. Applying the update…</sys:String>
+    <sys:String x:Key="L.Upd.Restarting">Restarting with the new version…</sys:String>
+    <sys:String x:Key="L.Upd.FailedFmt">The update failed: {0}</sys:String>
 </ResourceDictionary>

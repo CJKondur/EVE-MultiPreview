@@ -444,8 +444,9 @@ public partial class App : Application
                         {
                             // Non-modal: a modal ShowDialog() runs a nested message loop
                             // that swallows global hotkeys until dismissed. Show() lets the
-                            // user keep playing while the "update available" prompt sits open.
-                            var dialog = new UpdateDialog(updateService);
+                            // user keep playing while the "update available" prompt sits open,
+                            // and it no longer takes focus from the game (Plan 4).
+                            var dialog = UpdateDialog.ForStartupCheck(updateService);
                             dialog.Show();
                         });
                     }

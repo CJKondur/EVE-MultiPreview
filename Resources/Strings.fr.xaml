@@ -531,16 +531,15 @@
 
     <!-- Update dialog -->
     <sys:String x:Key="L.Upd.Title">Mise à jour disponible — EVE MultiPreview</sys:String>
-    <sys:String x:Key="L.Upd.Header">⬆ Mise à jour disponible</sys:String>
-    <sys:String x:Key="L.Upd.LoadingNotes">Chargement des notes de version...</sys:String>
-    <sys:String x:Key="L.Upd.Downloading">Téléchargement...</sys:String>
-    <sys:String x:Key="L.Upd.ReleasePage">📋 Page de version</sys:String>
+    <sys:String x:Key="L.Upd.Header">Mise à jour disponible</sys:String>
+    <sys:String x:Key="L.Upd.Downloading">Téléchargement…</sys:String>
+    <sys:String x:Key="L.Upd.ReleasePage">Page de version</sys:String>
     <sys:String x:Key="L.Upd.Later">Plus tard</sys:String>
-    <sys:String x:Key="L.Upd.UpdateNow">⬆ Mettre à jour maintenant</sys:String>
-    <sys:String x:Key="L.Upd.InstallBtn">⬇ Installer</sys:String>
+    <sys:String x:Key="L.Upd.UpdateNow">Mettre à jour maintenant</sys:String>
+    <sys:String x:Key="L.Upd.InstallBtn">Installer</sys:String>
     <sys:String x:Key="L.Upd.OlderInfo">Vous avez la v{0}. Ceci installe la v{1}, PLUS ANCIENNE. Vos paramètres sont d'abord sauvegardés dans le dossier Backups ; les options ajoutées après la v{1} sont perdues si elle les enregistre. « Rechercher des mises à jour au démarrage du programme » est désactivé pour que la v{1} ne propose pas aussitôt de remettre à jour.</sys:String>
     <sys:String x:Key="L.Upd.PickInfo">Vous avez la v{0}. Ceci installe la v{1}.</sys:String>
-    <sys:String x:Key="L.Upd.PickHeader">⬇ Installer la v{0}</sys:String>
+    <sys:String x:Key="L.Upd.PickHeader">Installer la v{0}</sys:String>
     <sys:String x:Key="L.About.VersionsFailed">❌ Impossible de charger la liste des versions : {0}</sys:String>
     <sys:String x:Key="L.About.PreReleaseTag">(préversion)</sys:String>
     <sys:String x:Key="L.About.Installed">(installée)</sys:String>
@@ -1884,4 +1883,11 @@
     <sys:String x:Key="L.Wiz.SumSize">Taille des miniatures : {0} × {1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOnFmt">Cyclage de sélection de personnage : activé (avant {0}, arrière {1})</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOff">Cyclage de sélection de personnage : désactivé</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ReadyFmt">La version {1} est prête. Vous avez la {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.WhatsNew">Nouveautés</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NoNotes">Aucune note de version disponible.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ProgressFmt">Téléchargement… {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Applying">Téléchargement terminé. Application de la mise à jour…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Restarting">Redémarrage avec la nouvelle version…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.FailedFmt">Échec de la mise à jour : {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

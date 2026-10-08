@@ -531,16 +531,15 @@
 
     <!-- Update dialog -->
     <sys:String x:Key="L.Upd.Title">更新があります — EVE MultiPreview</sys:String>
-    <sys:String x:Key="L.Upd.Header">⬆ 更新があります</sys:String>
-    <sys:String x:Key="L.Upd.LoadingNotes">リリースノートを読み込み中...</sys:String>
-    <sys:String x:Key="L.Upd.Downloading">ダウンロード中...</sys:String>
-    <sys:String x:Key="L.Upd.ReleasePage">📋 リリースページ</sys:String>
+    <sys:String x:Key="L.Upd.Header">更新があります</sys:String>
+    <sys:String x:Key="L.Upd.Downloading">ダウンロード中…</sys:String>
+    <sys:String x:Key="L.Upd.ReleasePage">リリースページ</sys:String>
     <sys:String x:Key="L.Upd.Later">後で</sys:String>
-    <sys:String x:Key="L.Upd.UpdateNow">⬆ 今すぐ更新</sys:String>
-    <sys:String x:Key="L.Upd.InstallBtn">⬇ インストール</sys:String>
+    <sys:String x:Key="L.Upd.UpdateNow">今すぐ更新</sys:String>
+    <sys:String x:Key="L.Upd.InstallBtn">インストール</sys:String>
     <sys:String x:Key="L.Upd.OlderInfo">現在は v{0} です。古い v{1} をインストールします。設定は先に Backups フォルダーへバックアップされます。v{1} より後に追加されたオプションは、v{1} が設定を保存すると失われます。v{1} がすぐに更新を勧めないよう「プログラム起動時に更新を確認する」はオフになります。</sys:String>
     <sys:String x:Key="L.Upd.PickInfo">現在は v{0} です。v{1} をインストールします。</sys:String>
-    <sys:String x:Key="L.Upd.PickHeader">⬇ v{0} をインストール</sys:String>
+    <sys:String x:Key="L.Upd.PickHeader">v{0} をインストール</sys:String>
     <sys:String x:Key="L.About.VersionsFailed">❌ バージョン一覧を読み込めませんでした：{0}</sys:String>
     <sys:String x:Key="L.About.PreReleaseTag">（プレリリース）</sys:String>
     <sys:String x:Key="L.About.Installed">（インストール済み）</sys:String>
@@ -1882,4 +1881,11 @@
     <sys:String x:Key="L.Wiz.SumSize">サムネイルのサイズ：{0} × {1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOnFmt">キャラクター選択のサイクル：オン（順方向 {0}、逆方向 {1}）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOff">キャラクター選択のサイクル：オフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ReadyFmt">バージョン {1} の準備ができました。現在は {0} です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.WhatsNew">新機能</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NoNotes">リリースノートはありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ProgressFmt">ダウンロード中… {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Applying">ダウンロードが完了しました。更新を適用しています…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Restarting">新しいバージョンで再起動しています…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.FailedFmt">更新に失敗しました: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

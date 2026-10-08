@@ -531,16 +531,15 @@
 
     <!-- Update dialog -->
     <sys:String x:Key="L.Upd.Title">Aggiornamento disponibile — EVE MultiPreview</sys:String>
-    <sys:String x:Key="L.Upd.Header">⬆ Aggiornamento disponibile</sys:String>
-    <sys:String x:Key="L.Upd.LoadingNotes">Caricamento delle note di rilascio...</sys:String>
-    <sys:String x:Key="L.Upd.Downloading">Download in corso...</sys:String>
-    <sys:String x:Key="L.Upd.ReleasePage">📋 Pagina di rilascio</sys:String>
+    <sys:String x:Key="L.Upd.Header">Aggiornamento disponibile</sys:String>
+    <sys:String x:Key="L.Upd.Downloading">Download in corso…</sys:String>
+    <sys:String x:Key="L.Upd.ReleasePage">Pagina di rilascio</sys:String>
     <sys:String x:Key="L.Upd.Later">Più tardi</sys:String>
-    <sys:String x:Key="L.Upd.UpdateNow">⬆ Aggiorna ora</sys:String>
-    <sys:String x:Key="L.Upd.InstallBtn">⬇ Installa</sys:String>
+    <sys:String x:Key="L.Upd.UpdateNow">Aggiorna ora</sys:String>
+    <sys:String x:Key="L.Upd.InstallBtn">Installa</sys:String>
     <sys:String x:Key="L.Upd.OlderInfo">Hai la v{0}. Questo installa la v{1}, PIÙ VECCHIA. Le impostazioni vengono prima salvate nella cartella Backups; le opzioni aggiunte dopo la v{1} vanno perse se le salva. «Controlla aggiornamenti all'avvio del programma» viene disattivato, così la v{1} non propone subito di aggiornare.</sys:String>
     <sys:String x:Key="L.Upd.PickInfo">Hai la v{0}. Questo installa la v{1}.</sys:String>
-    <sys:String x:Key="L.Upd.PickHeader">⬇ Installa v{0}</sys:String>
+    <sys:String x:Key="L.Upd.PickHeader">Installa v{0}</sys:String>
     <sys:String x:Key="L.About.VersionsFailed">❌ Impossibile caricare l'elenco delle versioni: {0}</sys:String>
     <sys:String x:Key="L.About.PreReleaseTag">(pre-release)</sys:String>
     <sys:String x:Key="L.About.Installed">(installata)</sys:String>
@@ -1899,4 +1898,11 @@
     <sys:String x:Key="L.Wiz.SumSize">Dimensione miniature: {0} × {1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOnFmt">Ciclo nella selezione personaggio: attivo (avanti {0}, indietro {1})</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SumCycleOff">Ciclo nella selezione personaggio: disattivo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ReadyFmt">La versione {1} è pronta. Hai la {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.WhatsNew">Novità</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NoNotes">Nessuna nota di rilascio disponibile.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.ProgressFmt">Download in corso… {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Applying">Download completato. Applicazione dell'aggiornamento…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.Restarting">Riavvio con la nuova versione…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.FailedFmt">Aggiornamento non riuscito: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>
