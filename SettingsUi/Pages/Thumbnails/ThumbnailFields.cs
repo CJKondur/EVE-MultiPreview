@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace EveMultiPreview.SettingsUi;
@@ -58,4 +60,14 @@ public static class ThumbnailFields
         return int.TryParse(t, NumberStyles.Integer, CultureInfo.CurrentCulture, out value)
             || int.TryParse(t, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
     }
+
+    // ── The nine anchor points (CycleExclusionBadgePosition; Plan 3c reuses them for AlertTextPosition) ──
+
+    private static readonly string[] Anchors = { "TopLeft", "Top", "TopRight", "Left", "Center", "Right", "BottomLeft", "Bottom", "BottomRight" };
+
+    public static IReadOnlyList<ChoiceOption> AnchorOptions { get; } =
+        Anchors.Select(a => new ChoiceOption(a, "L.S.Opt.Anchor" + a)).ToList();
+
+    /// <summary>The old list showed an empty or unknown position as top left (and wrote nothing).</summary>
+    public static string Anchor(string? stored) => stored != null && Array.IndexOf(Anchors, stored) >= 0 ? stored : "TopLeft";
 }

@@ -17,7 +17,7 @@ public static class ThumbnailsPages
     /// <summary>The page the character page's crop link opens.</summary>
     public const string CropsId = CharacterPage.CropsPageId;
 
-    public static IReadOnlyList<PageDef> All => new[] { Appearance() };
+    public static IReadOnlyList<PageDef> All => new[] { Appearance(), Text() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -27,6 +27,18 @@ public static class ThumbnailsPages
             "thumbs.appearance.opacity", "thumbs.appearance.opacityOnHover", "thumbs.appearance.hoverZoom",
             "thumbs.appearance.hoverScale", "thumbs.appearance.background",
         }),
+        new HelpTopic(TextId, "text", new[]
+        {
+            "thumbs.text.showText", "thumbs.text.showSystem", "thumbs.text.showTimer", "thumbs.text.color",
+            "thumbs.text.font", "thumbs.text.size", "thumbs.text.marginX", "thumbs.text.marginY",
+        }),
+        new HelpTopic(TextId, "stats", new[] { "thumbs.text.showStats", "thumbs.text.statsSize" }),
+        new HelpTopic(TextId, "borders", new[]
+        {
+            "thumbs.text.highlight", "thumbs.text.highlightColor", "thumbs.text.highlightWidth", "thumbs.text.highlightInGroup",
+            "thumbs.text.inactiveColor", "thumbs.text.inactiveWidth", "thumbs.text.groupBorders",
+        }),
+        new HelpTopic(TextId, "marks", new[] { "thumbs.text.badgePosition" }),
     };
 
     private static SettingItem Toggle(string id, Expression<Func<AppSettings, bool>> prop, ApplyScope apply, params string[] replaces) =>
@@ -43,6 +55,26 @@ public static class ThumbnailsPages
             Validate = v => ThumbnailFields.IsPaintable(v as string, allowEmpty) ? null : Setting.ErrColor,
         };
     }
+
+    /// <summary>A size stored as text (ThumbnailTextSize, ProcessStatsTextSize): shown as a number, stored as
+    /// a whole number (ThumbnailFields.WriteSize). Unreadable text shows <paramref name="fallback"/>.</summary>
+    private static SettingDescriptor TextSize(string id, Expression<Func<AppSettings, string>> prop, double fallback,
+        double min, double max, ApplyScope apply)
+    {
+        var text = Setting.Text(id, prop, apply);   // the Get, Set and Binds of the text property
+        return Setting.Custom(id, SettingKind.Number,
+            s => ThumbnailFields.ReadSize(text.Get(s) as string, fallback),
+            (s, v) => text.Set(s, ThumbnailFields.WriteSize(v)),
+            text.Binds, apply) with
+        {
+            Min = min, Max = max, UnitKey = "L.S.Unit.Pt",
+            Validate = v => Setting.RangeError(v, min, max),
+        };
+    }
+
+    private static SettingItem Number<T>(string id, Expression<Func<AppSettings, T>> prop, double min, double max,
+        ApplyScope apply, params string[] replaces) =>
+        new(Setting.Number(id, prop, min, max, "L.S.Unit.Px", apply) with { Replaces = replaces });
 
     private static PageDef Appearance() => new(AppearanceId, NavGroup.Thumbnails, new[]
     {
@@ -92,6 +124,91 @@ public static class ThumbnailsPages
             new SettingItem(Colour("thumbs.appearance.background", s => s.ThumbnailBackgroundColor, ApplyScope.Thumbnails) with
             {
                 Replaces = new[] { "TxtBackgroundColor" },
+            }),
+        }),
+    });
+
+    private static PageDef Text() => new(TextId, NavGroup.Thumbnails, new[]
+    {
+        new SectionDef("thumbs.text.labels", new PageItem[]
+        {
+            // ApplySettings shows or hides the name and the system on every thumbnail.
+            Toggle("thumbs.text.showText", s => s.ShowThumbnailTextOverlay, ApplyScope.Thumbnails, "ChkShowName"),
+            Toggle("thumbs.text.showSystem", s => s.ShowSystemName, ApplyScope.Thumbnails, "ChkShowSystem"),
+            // Spec D11: moved here from General. Read every second (and hidden while off, Task 1).
+            Toggle("thumbs.text.showTimer", s => s.ShowSessionTimer, ApplyScope.Save, "ChkShowTimer"),
+            // Crop window names use the same colour, font and size (CropManager re-reads them on Refresh).
+            new SettingItem(Colour("thumbs.text.color", s => s.ThumbnailTextColor, ApplyScope.Thumbnails | ApplyScope.Crops) with
+            {
+                Replaces = new[] { "TxtTextColor" },
+            }),
+            new SettingItem(Setting.Text("thumbs.text.font", s => s.ThumbnailTextFont, ApplyScope.Thumbnails | ApplyScope.Crops) with
+            {
+                Validate = v => string.IsNullOrWhiteSpace(v as string) ? "L.S.Err.FontName" : null,
+                Replaces = new[] { "TxtTextFont" },
+            }),
+            new SettingItem(TextSize("thumbs.text.size", s => s.ThumbnailTextSize, 12, 6, 48, ApplyScope.Thumbnails | ApplyScope.Crops) with
+            {
+                Replaces = new[] { "TxtTextSize" },
+            }),
+            Number("thumbs.text.marginX", s => s.ThumbnailTextMargins.X, 0, 500, ApplyScope.Thumbnails, "TxtTextMarginX"),
+            Number("thumbs.text.marginY", s => s.ThumbnailTextMargins.Y, 0, 500, ApplyScope.Thumbnails, "TxtTextMarginY"),
+        }),
+        new SectionDef("thumbs.text.stats", new PageItem[]
+        {
+            // A re-apply clears the numbers when this goes off; on, they are read at each stats tick.
+            Toggle("thumbs.text.showStats", s => s.ShowProcessStats, ApplyScope.Thumbnails, "ChkShowStats"),
+            new SettingItem(TextSize("thumbs.text.statsSize", s => s.ProcessStatsTextSize, 9, 6, 36, ApplyScope.Thumbnails) with
+            {
+                ShowIf = s => s.ShowProcessStats,
+                Replaces = new[] { "TxtStatsTextSize" },
+            }),
+        }),
+        new SectionDef("thumbs.text.active", new PageItem[]
+        {
+            // Painted by the focus sweep when the client in front changes. While settings is in front no
+            // client is, so a change shows when the player goes back to EVE: Save is enough.
+            Toggle("thumbs.text.highlight", s => s.ShowClientHighlightBorder, ApplyScope.Save, "ChkShowHighlightBorder"),
+            new SettingItem(Colour("thumbs.text.highlightColor", s => s.ClientHighlightColor, ApplyScope.Save) with
+            {
+                ShowIf = s => s.ShowClientHighlightBorder,
+                Replaces = new[] { "TxtActiveColor" },
+            }),
+            new SettingItem(Setting.Number("thumbs.text.highlightWidth", s => s.ClientHighlightBorderThickness, 1, 30, "L.S.Unit.Px") with
+            {
+                ShowIf = s => s.ShowClientHighlightBorder,
+                Replaces = new[] { "TxtActiveBorderThickness" },
+            }),
+            // Matters only while group borders are on (the old switch was greyed out otherwise).
+            new SettingItem(Setting.Toggle("thumbs.text.highlightInGroup", s => s.HighlightOverridesGroupColor) with
+            {
+                ShowIf = s => s.ShowClientHighlightBorder && s.ShowAllColoredBorders,
+                Replaces = new[] { "ChkHighlightOverridesGroup" },
+            }),
+        }),
+        new SectionDef("thumbs.text.others", new PageItem[]
+        {
+            // ApplySettings repaints every thumbnail with the not-in-front look at once.
+            new SettingItem(Colour("thumbs.text.inactiveColor", s => s.InactiveClientBorderColor, ApplyScope.Thumbnails, allowEmpty: true) with
+            {
+                Replaces = new[] { "TxtInactiveColor" },
+            }),
+            Number("thumbs.text.inactiveWidth", s => s.InactiveClientBorderThickness, 0, 30, ApplyScope.Thumbnails, "TxtFrameThickness"),
+            // ShowAllColoredBorders has one switch, on Groups (spec §5; Plan 3a claimed ChkShowAllBorders there).
+            new ActionRow("thumbs.text.groupBorders", new[]
+            {
+                new ActionDef("thumbs.text.openGroups", ctx => ctx.Host.Navigate(ClientsPages.GroupsId, "clients.groups.showBorders")),
+            }),
+        }),
+        new SectionDef("thumbs.text.marks", new PageItem[]
+        {
+            new SettingItem(Setting.Custom("thumbs.text.badgePosition", SettingKind.Choice,
+                s => ThumbnailFields.Anchor(s.CycleExclusionBadgePosition),
+                (s, v) => s.CycleExclusionBadgePosition = v as string ?? "TopLeft",
+                binds: new[] { "AppSettings.CycleExclusionBadgePosition" }, apply: ApplyScope.Thumbnails) with
+            {
+                Options = ThumbnailFields.AnchorOptions,
+                Replaces = new[] { "CmbExclusionBadgePos" },
             }),
         }),
     });
