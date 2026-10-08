@@ -31,8 +31,8 @@ public partial class QuickSwitchWheel : Window
     public event Action<string>? CharacterSelected;
     public event Action<List<string>>? OrderSaved;
 
-    /// <summary>Width the disc's text wraps at; the disc grows past 150 px when its text needs more room.</summary>
-    private const double DiscTextWidth = 126;
+    /// <summary>The disc's border, both sides; the text wraps at the disc's width less this and its own margin.</summary>
+    private const double DiscBorder = 2;
 
     // ── Card state ────────────────────────────────────────────────────
     private readonly List<CardEntry> _cards = new();
@@ -75,7 +75,7 @@ public partial class QuickSwitchWheel : Window
         UpdateHeader(characters.Count);
 
         var area = SystemParameters.WorkArea;
-        _layout = QuickSwitchLayout.For(characters.Count, new Size(area.Width * 0.9, area.Height * 0.9), MeasureDisc());
+        _layout = QuickSwitchLayout.For(characters.Count, new Size(area.Width * 0.9, area.Height * 0.9), MeasureDisc(characters.Count));
         ApplyLayout();
 
         for (int i = 0; i < characters.Count; i++)
@@ -109,12 +109,39 @@ public partial class QuickSwitchWheel : Window
     // Layout
     // ─────────────────────────────────────────────────────────────────
 
-    /// <summary>The disc is 150 px, or the diagonal of its text where a language needs more.</summary>
-    private double MeasureDisc()
+    /// <summary>The disc is 150 px, or the diagonal of its text where a language needs more. Edit mode swaps in other
+    /// (possibly longer) text, so both states are measured and the larger wins. The text wraps at the disc's own inner
+    /// width, so a bigger disc wraps it wider: grow until the text fits (it stops quickly, the text only gets shorter).</summary>
+    private double MeasureDisc(int count)
     {
-        DiscContent.Measure(new Size(DiscTextWidth + DiscContent.Margin.Left + DiscContent.Margin.Right, double.PositiveInfinity));
-        var d = DiscContent.DesiredSize;
-        return Math.Max(QuickSwitchLayout.DiscSize, Math.Ceiling(Math.Sqrt(d.Width * d.Width + d.Height * d.Height)) + 4);
+        bool editMode = _editMode;
+        double disc = QuickSwitchLayout.DiscSize;
+        for (int pass = 0; pass < 12; pass++)
+        {
+            double diagonal = 0;
+            foreach (bool edit in new[] { false, true })
+            {
+                _editMode = edit;
+                UpdateHeader(count);
+                InvalidateTree(DiscContent);   // a direct Measure with an unchanged constraint would return the cached size
+                DiscContent.Measure(new Size(disc - DiscBorder, double.PositiveInfinity));
+                var d = DiscContent.DesiredSize;
+                diagonal = Math.Max(diagonal, Math.Sqrt(d.Width * d.Width + d.Height * d.Height));
+            }
+            double needed = Math.Ceiling(diagonal) + 4;
+            if (needed <= disc) break;
+            disc = needed;
+        }
+        _editMode = editMode;
+        UpdateHeader(count);
+        return disc;
+    }
+
+    private static void InvalidateTree(DependencyObject node)
+    {
+        (node as UIElement)?.InvalidateMeasure();
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(node); i++)
+            InvalidateTree(VisualTreeHelper.GetChild(node, i));
     }
 
     private void ApplyLayout()
