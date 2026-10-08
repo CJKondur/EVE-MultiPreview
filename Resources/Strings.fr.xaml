@@ -1411,7 +1411,7 @@
     <sys:String x:Key="L.S.Pip.OpacityFor">Opacité de la seconde vignette de {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Pip.RemoveFor">Supprimer la seconde vignette de {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Pip.RemoveTitle">Supprimer la seconde vignette</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Pip.RemoveConfirm">Supprimer la seconde vignette de {0} ? Sa position et sa taille sont oubliées. Pour les garder, désactive-la plutôt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Pip.RemoveConfirm">Supprimer la seconde vignette de {0} ? Sa position et sa taille sont oubliées. Pour les garder, désactivez-la plutôt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.Intro">Quand les vignettes restent au-dessus des autres fenêtres ou s'effacent, l'aspect d'un client à l'écran de connexion et les secondes vignettes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.stacking.Title">Rester au premier plan et masquer</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.stacking.Body">- **Toujours au premier plan** garde les vignettes au-dessus de toutes les fenêtres, navigateur compris.&#x0A;- **Garder au-dessus des clients EVE** les garde au-dessus d'EVE pendant que vous jouez mais laisse d'autres applications les recouvrir. À utiliser avec « Toujours au premier plan » désactivé.&#x0A;- **Masquer quand vous passez à une autre application** les efface tant qu'aucun client EVE n'est au premier plan.&#x0A;- **Masquer le client que vous jouez** masque seulement la vignette du client au premier plan, puisque vous le regardez déjà.</sys:String> <!-- draft -->
@@ -1644,13 +1644,13 @@
     <sys:String x:Key="L.Help.perf.gpu.gpu.Title">Économiser le GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.gpu.gpu.Body">- **Miniatures fixes** échange la fluidité contre une grosse économie, en permanence.&#x0A;- **Figer les miniatures en arrière-plan** ne coûte rien quand vous jouez et économise quand vous êtes dans une autre application.&#x0A;- **Utiliser le réglage faible GPU** active ce gel et réduit les clients que vous quittez, pour qu'ils arrêtent de dessiner.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.fps">Limiteur de FPS</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Page.perf.fps.Desc">Garde les clients en arrière-plan à une faible cadence avec RivaTuner Statistics Server, et affiche les FPS de chaque client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.perf.fps.Desc">Gardez les clients en arrière-plan à une faible cadence avec RivaTuner Statistics Server, et affichez les FPS de chaque client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.fps.rtss">RivaTuner Statistics Server</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.rtssMissing">RivaTuner Statistics Server (RTSS) n'est pas installé. La limite d'images et le compteur FPS en ont besoin ; il vient avec MSI Afterburner, ou seul.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.rtssFound">RivaTuner Statistics Server (RTSS) est installé.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.fps.limit">Limite d'images</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.background">Cadence en arrière-plan</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.perf.fps.background.Desc">La cadence à laquelle les clients EVE descendent quand ils ne sont pas au premier plan. Applique-la à RTSS avec le bouton ci-dessous.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.perf.fps.background.Desc">La cadence à laquelle les clients EVE descendent quand ils ne sont pas au premier plan. Appliquez-la à RTSS avec le bouton ci-dessous.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.applyRow">Profil RTSS</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.applyRow.Desc">Écrit un profil EVE dans RTSS et le redémarre. Windows peut demander une autorisation.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.perf.fps.apply">Appliquer à RTSS</sys:String> <!-- draft -->
@@ -1666,13 +1666,13 @@
     <sys:String x:Key="L.S.perf.fps.size">Taille du texte</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.size.Desc">0 = la même taille que le texte de la miniature.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.fps.manual">Installer à la main</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.perf.fps.target">Si Appliquer à RTSS ne peut pas écrire le profil, copie le fichier et colle-le dans {0}, puis redémarre RTSS.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.perf.fps.target">Si Appliquer à RTSS ne peut pas écrire le profil, copiez le fichier et collez-le dans {0}, puis redémarrez RTSS.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.manualRow">Fichier de profil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.manualRow.Desc">Copier met le fichier dans le presse-papiers, prêt à coller dans l'Explorateur de fichiers.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.perf.fps.copyFile">Copier le fichier</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.perf.fps.openFolder">Ouvrir le dossier</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Perf.NoRtssFolder">(RTSS n'est pas installé)</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Perf.FileCopied">Fichier de profil copié. Colle-le dans {0}, puis redémarre RTSS.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Perf.FileCopied">Fichier de profil copié. Collez-le dans {0}, puis redémarrez RTSS.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Perf.CopyFailed">Impossible de copier le fichier de profil. Réessaie.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Perf.NoRtss">RTSS n'est pas installé, il n'y a donc pas de dossier à ouvrir.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Perf.OpenFailed">Impossible d'ouvrir le dossier.</sys:String> <!-- draft -->
@@ -1680,7 +1680,7 @@
     <sys:String x:Key="L.Help.perf.fps.limit.Title">Limiter les clients en arrière-plan</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.limit.Body">Choisissez une **cadence en arrière-plan**, puis appuyez sur **Appliquer à RTSS**. Le profil ne limite EVE qu'en arrière-plan, le client que vous jouez garde sa pleine cadence. RTSS redémarre pour le charger, et Windows peut demander une autorisation.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.counter.Title">Le compteur FPS</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.fps.counter.Body">Avec RTSS lancé, chaque miniature peut afficher la cadence de son client dans le coin supérieur droit. Déplace-le avec les deux distances ou change sa taille ; -1 et 0 gardent la position et la taille habituelles.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.fps.counter.Body">Avec RTSS lancé, chaque miniature peut afficher la cadence de son client dans le coin supérieur droit. Déplacez-le avec les deux distances ou changez sa taille ; -1 et 0 gardent la position et la taille habituelles.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.manual.Title">Installer le profil à la main</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.manual.Body">Si Windows refuse l'autorisation, appuie sur **Copier le fichier**, puis **Ouvrir le dossier**, colle le fichier là et redémarre RTSS.</sys:String> <!-- draft -->
     <!-- Tools › Stats overlay (Plan 3c) -->

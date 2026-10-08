@@ -1630,7 +1630,7 @@
     <sys:String x:Key="L.Help.alerts.hub.hiding.Body">**Скрывать в тишине** убирает центр с глаз до прихода оповещения. Если центр ушёл за экран, **Сбросить положение** вернёт его.</sys:String> <!-- draft -->
     <!-- Performance (Plan 3c) -->
     <sys:String x:Key="L.S.Page.perf.cpu">CPU</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Page.perf.cpu.Desc">Отдай процессор клиенту, в котором играешь, а остальные держи на меньшем.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.perf.cpu.Desc">Отдайте процессор клиенту, в котором вы играете, а остальные держите на меньшем.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.cpu.priority">Фоновые клиенты</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.cpu.manage">Управлять фоновым приоритетом</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.cpu.manage.Desc">Клиенты, в которых вы не играете, работают с низким приоритетом. Передний получает обычный приоритет и все ядра. Для этого профиля.</sys:String> <!-- draft -->
@@ -1646,7 +1646,7 @@
     <sys:String x:Key="L.Help.perf.cpu.priority.Title">Фоновый приоритет и ядра</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.cpu.priority.Body">Когда включено **Управлять фоновым приоритетом**, каждый клиент, в котором вы не играете, работает с низким приоритетом; передний работает как обычно на всех ядрах. При выключении каждый клиент снова получает обычный приоритет и все ядра.&#x0A;- **Распределять фоновые клиенты по последним ядрам** даёт каждому ядро из второй половины ваших ядер.&#x0A;- **Закреплённое ядро** держит персонажа на выбранном ядре. На странице персонажа есть та же настройка.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.gpu">GPU</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Page.perf.gpu.Desc">Экономь графическую мощность, когда запускаешь много клиентов.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.perf.gpu.Desc">Экономьте графическую мощность, когда запускаете много клиентов.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.gpu.preset">Быстрая настройка</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.gpu.presetRow">Настройка для слабой GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.gpu.presetRow.Desc">Включает две настройки: сворачивать клиенты при переключении (Клиенты › Окна и позиции) и замораживать миниатюры, пока вы в другом приложении.</sys:String> <!-- draft -->
@@ -1661,7 +1661,7 @@
     <sys:String x:Key="L.Help.perf.gpu.gpu.Title">Экономия GPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.gpu.gpu.Body">- **Неподвижные миниатюры** меняют плавное движение на большую экономию, постоянно.&#x0A;- **Замораживать миниатюры в фоне** ничего не стоит, пока вы играете, и экономит, пока вы в другом приложении.&#x0A;- **Применить настройку для слабой GPU** включает это замораживание и сворачивает клиенты, из которых вы ушли, чтобы они перестали рисовать.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.perf.fps">Ограничитель FPS</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Page.perf.fps.Desc">Держи фоновые клиенты на низкой частоте кадров через RivaTuner Statistics Server и показывай FPS каждого клиента.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.perf.fps.Desc">Держите фоновые клиенты на низкой частоте кадров через RivaTuner Statistics Server и показывайте FPS каждого клиента.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.perf.fps.rtss">RivaTuner Statistics Server</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.rtssMissing">RivaTuner Statistics Server (RTSS) не установлен. Ограничение кадров и счётчик FPS требуют его; он идёт с MSI Afterburner или отдельно.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.perf.fps.rtssFound">RivaTuner Statistics Server (RTSS) установлен.</sys:String> <!-- draft -->
@@ -1697,7 +1697,7 @@
     <sys:String x:Key="L.Help.perf.fps.limit.Title">Ограничение фоновых клиентов</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.limit.Body">Выберите **частоту кадров в фоне**, затем нажмите **Применить к RTSS**. Профиль ограничивает EVE только в фоне, поэтому клиент, в котором вы играете, сохраняет полную частоту кадров. RTSS перезапускается, чтобы загрузить его, и Windows может запросить разрешение.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.counter.Title">Счётчик FPS</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.perf.fps.counter.Body">Когда RTSS запущен, каждая миниатюра может показывать частоту кадров своего клиента в правом верхнем углу. Сдвигай её двумя отступами или меняй размер; -1 и 0 оставляют обычное место и размер.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.perf.fps.counter.Body">Когда RTSS запущен, каждая миниатюра может показывать частоту кадров своего клиента в правом верхнем углу. Сдвигайте её двумя отступами или меняйте размер; -1 и 0 оставляют обычное место и размер.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.manual.Title">Установка профиля вручную</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.perf.fps.manual.Body">Если Windows отказывает в разрешении, нажмите **Скопировать файл**, затем **Открыть папку**, вставьте файл туда и перезапустите RTSS.</sys:String> <!-- draft -->
     <!-- Tools › Stats overlay (Plan 3c) -->
