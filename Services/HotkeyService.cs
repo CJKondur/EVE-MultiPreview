@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -108,6 +108,10 @@ public sealed class HotkeyService : IDisposable
     private readonly List<MouseButtonBinding> _storedMouseBindings = new(); // persist across suspend
     private record MouseButtonBinding(uint Modifiers, string ButtonName, Action Action, bool AllowRepeat);
 
+    // The pause key when it is a mouse button: the one binding the mouse hook keeps while paused, so the button
+    // that paused can also resume (IDEAS P24). Null for a keyboard pause key or none.
+    private MouseButtonBinding? _suspendMouseBinding;
+
     // ── Hide hotkey keystrokes from the clients (WH_KEYBOARD_LL, #108) ──
     // RegisterHotKey swallows a hotkey's key-DOWN but NOT its key-UP: the up goes to
     // whatever is foreground when the key is released, and after a client-switching
@@ -151,6 +155,9 @@ public sealed class HotkeyService : IDisposable
 
     public bool IsSuspended => _suspended;
 
+    /// <summary>The buttons the mouse hook acts on now: every mouse binding, or while paused only the pause key (tests).</summary>
+    public IReadOnlyList<string> HookedMouseButtons => _mouseBindings.Select(b => b.ButtonName).ToList();
+
     /// <summary>The open settings window (App sets it when settings opens and clears it when it closes). Hotkeys don't
     /// fire while it is in front; its title is translated, so the English-title match alone missed it (IDEAS P23).</summary>
     public IntPtr SettingsWindowHandle { get; set; }
@@ -161,19 +168,26 @@ public sealed class HotkeyService : IDisposable
     public static bool IsSettingsForeground(IntPtr foreground, IntPtr settingsWindow, string? title, string? processName) =>
         IsSettingsForegroundLazy(foreground, settingsWindow, () => title, () => processName);
 
-    /// <summary>Same answer as the overload above, in the cheapest order: the handle first, then the title, and the
-    /// process lookup (a system process snapshot) only when the title says "Settings". This runs inside the keyboard
-    /// and mouse hooks on every event, so the providers are only called when needed.</summary>
-    public static bool IsSettingsForegroundLazy(IntPtr foreground, IntPtr settingsWindow, Func<string?> title, Func<string?> processName)
+    /// <summary>Same answer as the overload above, in the cheapest order: the handle first, then (only while settings is
+    /// open) whether the settings window owns the window in front, then the title, and the process lookup (a system
+    /// process snapshot) only when the title says "Settings". This runs when a hotkey fires or a bound mouse button is
+    /// pressed, so the providers are only called when needed.</summary>
+    /// <param name="rootOwner">The window that ultimately owns <paramref name="foreground"/> (GetAncestor GA_ROOTOWNER).
+    /// The settings window's own dialogs (a question, the colour picker, the hotkey capture, a name box) have translated
+    /// titles; their owner is the settings window in every language (IDEAS P23).</param>
+    public static bool IsSettingsForegroundLazy(IntPtr foreground, IntPtr settingsWindow, Func<string?> title, Func<string?> processName,
+        Func<IntPtr>? rootOwner = null)
     {
         if (foreground == IntPtr.Zero) return false;
         if (foreground == settingsWindow) return true;
+        if (settingsWindow != IntPtr.Zero && rootOwner != null && rootOwner() == settingsWindow) return true;
         var t = title();
         return t != null && t.Contains("Settings", StringComparison.OrdinalIgnoreCase) && User32.IsAppProcessName(processName());
     }
 
     private bool SettingsInFront(IntPtr foreground) =>
-        IsSettingsForegroundLazy(foreground, SettingsWindowHandle, () => User32.GetWindowTitle(foreground), () => User32.GetProcessName(foreground));
+        IsSettingsForegroundLazy(foreground, SettingsWindowHandle, () => User32.GetWindowTitle(foreground), () => User32.GetProcessName(foreground),
+            () => User32.GetAncestor(foreground, User32.GA_ROOTOWNER));
 
     /// <summary>Initialize the hotkey service. Must be called on UI thread.</summary>
     public void Initialize()
@@ -307,6 +321,7 @@ public sealed class HotkeyService : IDisposable
         _lastHotkeyPostTick.Clear();
         _storedSpecs.Clear();
         _storedMouseBindings.Clear();
+        _suspendMouseBinding = null;
         RemoveMouseHook();
         _keyHookMap = null;
         _suspendHotkeyId = -1;
@@ -502,9 +517,10 @@ public sealed class HotkeyService : IDisposable
             }
             _hotkeysActive = false;
 
-            // Remove both hooks so inputs return to Windows
-            RemoveMouseHook();
+            // Inputs go back to Windows: the keyboard hook goes, and the mouse hook keeps only a pause key on a
+            // mouse button, so that button can resume (IDEAS P24).
             RemoveKeyHook();
+            ReinstallMouseBindings();
 
             Debug.WriteLine("[Hotkey:Suspend] ⏸ All hotkeys unregistered, hooks removed — keys returned to Windows");
         }
@@ -552,18 +568,13 @@ public sealed class HotkeyService : IDisposable
         RemoveKeyHook();
     }
 
-    /// <summary>Undo <see cref="BeginCapture"/>: the suspend key, the mouse bindings (unless
-    /// paused) and the foreground-gated registration all come back as they were.</summary>
+    /// <summary>Undo <see cref="BeginCapture"/>: the suspend key, the mouse bindings (while paused only a
+    /// pause key on a mouse button) and the foreground-gated registration all come back as they were.</summary>
     public void EndCapture()
     {
         if (_captureDepth == 0 || --_captureDepth > 0) return;
         RestoreSuspendHotkey();
-        if (!_suspended && _storedMouseBindings.Count > 0)
-        {
-            _mouseBindings.Clear();
-            _mouseBindings.AddRange(_storedMouseBindings);
-            EnsureMouseHook();
-        }
+        ReinstallMouseBindings();
         EvaluateRegistration();
     }
 
@@ -635,7 +646,7 @@ public sealed class HotkeyService : IDisposable
         _suspendAhk = settings.SuspendHotkey;
         _suspendHotkeyId = IsCapturing && !IsMouseButton(ExtractModsAndKey(_suspendAhk).KeyPart)
             ? -1
-            : RegisterAhkHotkey(settings.SuspendHotkey, () => ToggleSuspend());
+            : RegisterSuspendKey(settings.SuspendHotkey);
 
         // Non-suspend hotkeys are stored and initially deactivated
         // They'll be activated when EVE windows are detected
@@ -865,6 +876,16 @@ public sealed class HotkeyService : IDisposable
         if (vk == 0) return -1;
 
         return Register(parsedMods, vk, action);
+    }
+
+    /// <summary>The pause key. A keyboard key is registered as before; a mouse button joins the mouse bindings as the
+    /// one the hook keeps while paused, so the button that paused can also resume (IDEAS P24).</summary>
+    private int RegisterSuspendKey(string ahkKeyString)
+    {
+        var (mods, keyPart) = ExtractModsAndKey(ahkKeyString ?? "");
+        if (!IsMouseButton(keyPart)) return RegisterAhkHotkey(ahkKeyString ?? "", () => ToggleSuspend());
+        AddMouseBinding(mods, keyPart.ToUpperInvariant(), () => ToggleSuspend(), allowRepeat: false, isSuspend: true);
+        return -2;   // RegisterAhkHotkey's id for a mouse binding
     }
 
     /// <summary>Store a hotkey spec without registering it. Will be registered when ActivateHotkeys is called.
@@ -1291,7 +1312,7 @@ public sealed class HotkeyService : IDisposable
         return (mods, keyPart);
     }
 
-    private void AddMouseBinding(uint mods, string buttonName, Action action, bool allowRepeat)
+    private void AddMouseBinding(uint mods, string buttonName, Action action, bool allowRepeat, bool isSuspend = false)
     {
         // Normalize aliases
         buttonName = buttonName switch
@@ -1303,23 +1324,29 @@ public sealed class HotkeyService : IDisposable
         };
 
         var binding = new MouseButtonBinding(mods, buttonName, action, allowRepeat);
-        _mouseBindings.Add(binding);
+        if (isSuspend) _suspendMouseBinding = binding;
         _storedMouseBindings.Add(binding); // keep for suspend/resume
+        if (_suspended && !isSuspend) return;   // paused: only the pause key is hooked (IDEAS P24); the rest come back on resume
+        _mouseBindings.Add(binding);
         EnsureMouseHook();
     }
 
-    /// <summary>Reinstall mouse bindings from stored specs after resume from suspend.</summary>
+    /// <summary>Re-arms the mouse hook from the stored bindings: all of them, or while paused only the pause key, so a
+    /// pause key on a mouse button can resume (IDEAS P24) while every other button goes back to Windows. A running hook
+    /// is stopped first rather than having its list changed under it.</summary>
     private void ReinstallMouseBindings()
     {
-        if (_storedMouseBindings.Count == 0) return;
-        foreach (var binding in _storedMouseBindings)
-            _mouseBindings.Add(binding);
+        RemoveMouseHook();
+        if (!_suspended) _mouseBindings.AddRange(_storedMouseBindings);
+        else if (_suspendMouseBinding != null) _mouseBindings.Add(_suspendMouseBinding);
         EnsureMouseHook();
     }
 
+    /// <summary>Installs the hook when there is something to hook. A service that was never Initialize()d (tests)
+    /// installs none.</summary>
     private void EnsureMouseHook()
     {
-        if (_mouseHookThread != null || _suspended || _captureDepth > 0) return;
+        if (_mouseHookThread != null || _captureDepth > 0 || _mouseBindings.Count == 0 || _hwndSource == null) return;
 
         _mouseHookReady.Reset();
         _mouseHookThread = new System.Threading.Thread(MouseHookThreadProc)
