@@ -753,7 +753,7 @@
     <sys:String x:Key="L.S.Shell.Advanced">모든 설정 표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Retry">다시 시도</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SaveFailed">설정을 저장할 수 없습니다. MultiPreview 폴더가 읽기 전용이 아니고 여유 공간이 있는지 확인한 뒤 다시 시도하세요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Shell.SaveBlocked">MultiPreview를 시작할 때 설정 파일을 읽을 수 없어 변경 사항이 저장되지 않습니다. 원본은 .bak 사본으로 옆에 보관되어 있습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SaveBlocked">MultiPreview를 시작할 때 설정 파일을 읽을 수 없었거나 파일이 없어 변경 사항이 저장되지 않습니다. 다음에 시작할 때 MultiPreview가 다시 묻습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Home">홈</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.AllSettings">모든 설정</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Clients">클라이언트</sys:String> <!-- draft -->
@@ -809,7 +809,7 @@
     <sys:String x:Key="L.S.app.profiles.current.Desc">프로필마다 썸네일 위치, 단축키, 색상, 레이아웃을 따로 저장합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.profiles.backups">백업</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.profiles.backup">설정 파일</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.profiles.backup.Desc">백업은 설정 폴더 안의 Backups 폴더에 저장됩니다. MultiPreview는 시작할 때마다 사본도 보관합니다(최근 10개). 내보내기와 가져오기로 설정을 다른 PC로 옮길 수 있습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.backup.Desc">백업은 설정 폴더 안의 Backups 폴더에 저장됩니다. MultiPreview는 마지막 사본 이후 설정이 바뀌었으면 시작할 때에도 사본을 보관합니다(최근 10개). 내보내기와 가져오기로 설정을 다른 PC로 옮길 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.backupNow">지금 백업</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.export">내보내기…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.import">가져오기…</sys:String> <!-- draft -->
@@ -817,7 +817,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">프로필 사용법</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **새로 만들기**는 빈 프로필을 만들고 그 프로필로 전환합니다.&#x0A;- **복사**는 한 프로필을 다른 프로필로 복사합니다. 전부 또는 썸네일 위치만 복사할 수 있습니다.&#x0A;- **삭제**는 현재 프로필을 영구 삭제합니다. 항상 하나 이상은 남습니다.&#x0A;&#x0A;왼쪽 위의 프로필 메뉴나 프로필 단축키로도 전환할 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">백업 및 다른 PC로 옮기기</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**지금 백업**는 날짜가 붙은 사본을 Backups 폴더에 저장합니다. MultiPreview는 시작할 때마다(최근 10개), 그리고 업데이트 전에도 사본을 보관하며, 설정 파일을 읽을 수 없으면 시작할 때 이 사본들을 제안합니다.&#x0A;&#x0A;**내보내기**는 설정 파일을 원하는 곳에 저장합니다. **가져오기**는 모든 설정을 내보낸 파일로 바꿉니다. 현재 설정은 먼저 백업되며, 가져온 설정을 모든 곳에 적용하려면 MultiPreview를 다시 시작해야 합니다.&#x0A;&#x0A;설정은 %APPDATA%\EVE MultiPreview에 저장됩니다. 대신 MultiPreview.exe 옆에 두려면(포터블 설치) MultiPreview를 닫고, 설정 파일을 그곳에 복사한 뒤, exe 옆에 portable.txt라는 빈 파일을 만드세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**지금 백업**은 날짜가 붙은 사본을 Backups 폴더에 저장합니다. MultiPreview는 마지막 사본 이후 설정이 바뀌었으면 시작할 때에도 사본을 보관하고(최근 10개), 업데이트 전에도 보관합니다. 설정 파일을 읽을 수 없거나 파일이 없으면 시작할 때 이 사본들을 제안합니다.&#x0A;&#x0A;**내보내기**는 설정 파일을 원하는 곳에 저장합니다. **가져오기**는 모든 설정을 내보낸 파일로 바꿉니다. 현재 설정은 먼저 백업되며, 가져온 설정을 모든 곳에 적용하려면 MultiPreview를 다시 시작해야 합니다.&#x0A;&#x0A;설정은 보통 %APPDATA%\EVE MultiPreview에 저장됩니다. 대신 MultiPreview.exe 옆에 두려면(포터블 설치) MultiPreview를 닫고, 설정 파일을 그곳에 복사한 뒤, exe 옆에 portable.txt라는 빈 파일을 만드세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">정보 및 업데이트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about.Desc">버전, 업데이트, 이전 설정 창.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String> <!-- draft -->
@@ -1926,7 +1926,7 @@
     <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe 옆의 설정 파일</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Backup">Backups 폴더에 저장된 사본</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Failed">그 사본은 복원하지 못했어요. 다른 것을 선택하세요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Move.Note">EVE MultiPreview는 이제 설정을 이 폴더에 보관해요:&#x0A;{0}&#x0A;&#x0A;여기(MultiPreview.exe 옆)에 있는 설정 파일은 버전 {2} 이전의 사본이에요. 아래의 이전 버전 설치 경우를 빼면 MultiPreview는 이 파일을 더 이상 사용하지 않으며, 백업으로 보관해도 돼요. 위의 설정 파일이 사라지면 MultiPreview가 다음 시작 때 이 파일을 다시 복사해요.&#x0A;&#x0A;대신 모든 것을 exe 옆에 두려면(예: USB 메모리에 둔 포터블 설치): MultiPreview를 닫고, 위 폴더의 설정 파일(레이아웃 프리셋을 쓴다면 layout_presets.json도)을 이 폴더에 복사한 뒤, 여기에 {1}라는 이름의 빈 파일을 만드세요. 그러면 MultiPreview는 예전처럼 여기에서 파일을 읽고 저장해요.&#x0A;&#x0A;설정 › 앱 설정 › 정보 및 업데이트에서 이전 버전을 설치하면, 이전 버전은 exe 옆의 파일을 읽기 때문에 MultiPreview가 먼저 현재 설정과 레이아웃 프리셋을 여기에 복사해요. 여기에 있던 파일은 위 폴더 안의 Backups 폴더에 보관돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Move.Note">EVE MultiPreview는 이제 설정을 이 폴더에 보관해요:&#x0A;{0}&#x0A;&#x0A;여기(MultiPreview.exe 옆)에 있는 설정 파일은 버전 {2} 이전의 사본이에요. 아래의 이전 버전 설치 경우를 빼면 MultiPreview는 이 파일을 더 이상 사용하지 않으며, 백업으로 보관해도 돼요. 위의 설정 파일이 사라지면 MultiPreview가 다음 시작 때 어떤 사본을 복원할지 물어봐요: 더 최신 백업 중 하나 또는 이 파일이에요. 더 최신 백업이 없으면 묻지 않고 이 파일을 다시 복사해요.&#x0A;&#x0A;대신 모든 것을 exe 옆에 두려면(예: USB 메모리에 둔 포터블 설치): MultiPreview를 닫고, 위 폴더의 설정 파일(레이아웃 프리셋을 쓴다면 layout_presets.json도)을 이 폴더에 복사한 뒤, 여기에 {1}라는 이름의 빈 파일을 만드세요. 그러면 MultiPreview는 예전처럼 여기에서 파일을 읽고 저장해요.&#x0A;&#x0A;설정 › 앱 설정 › 정보 및 업데이트에서 이전 버전을 설치하면, 이전 버전은 exe 옆의 파일을 읽기 때문에 MultiPreview가 먼저 현재 설정과 레이아웃 프리셋을 여기에 복사해요. 여기에 있던 파일은 위 폴더 안의 Backups 폴더에 보관돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Crash.Title">MultiPreview가 예기치 않게 종료됐어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Crash.Body">마지막 세션({0}에 시작)이 MultiPreview가 정상적으로 닫히지 않은 채 끝났어요. 충돌했거나 작업 관리자 또는 정전으로 중단됐을 수 있어요. 문제가 있었다면 Logs 폴더의 error_log.txt에 원인이 적혀 있을 수 있어요. 버그 보고서에 첨부하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Crash.Open">Logs 폴더 열기</sys:String> <!-- draft -->
@@ -1942,4 +1942,7 @@
     <sys:String x:Key="L.S.Act.app.diagnostics.openErrorLog">오류 로그 열기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.errors.Title">오류와 예기치 않은 종료</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.errors.Body">MultiPreview는 문제가 생겨도 계속 실행되며, 일어난 일을 **오류 로그**에 기록합니다. 처리한 오류가 있는 동안에는 트레이 아이콘 툴팁에 그 수가 표시됩니다.&#x0A;&#x0A;직접 닫지 않았는데 MultiPreview가 종료된 경우(충돌, 작업 관리자, 정전), 다음에 시작할 때 알려 주고 로그 폴더를 열 수 있게 해 줍니다.&#x0A;&#x0A;버그를 신고할 때는 로그 폴더의 error_log.txt를 첨부하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Missing.Title">설정 파일이 없어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Missing.Body">MultiPreview가 설정 파일을 찾을 수 없어요:&#x0A;{0}&#x0A;&#x0A;파일은 없어졌지만 설정 사본을 찾았어요. 복원할 사본을 선택하세요.&#x0A;&#x0A;“새로 시작”은 처음 시작할 때처럼 기본 설정으로 다시 시작해요. 백업은 Backups 폴더에 그대로 남아요.&#x0A;&#x0A;이 창을 닫으면 MultiPreview는 이번 세션에 기본 설정을 사용하고, 아무것도 저장하지 않으며, 다음에 시작할 때 다시 물어봐요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Missing.Fresh">새로 시작</sys:String> <!-- draft -->
 </ResourceDictionary>
