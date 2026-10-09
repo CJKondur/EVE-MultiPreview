@@ -30,7 +30,8 @@ public enum HandBackState { NothingToDo, Done, Failed }
 public readonly record struct HandBackResult(HandBackState State, string? Reason = null);
 
 /// <summary>IDEAS #57: the settings live in %APPDATA%\EVE MultiPreview, not beside the exe. The first start copies the
-/// old file (and its layout presets and backups), checks the copy, and never deletes or changes the original.
+/// old file (and its layout presets and backups), checks the copy, and never deletes or changes the original. If the
+/// file later goes missing, the original is copied back only while the settings folder has no newer backup.
 /// portable.txt beside the exe keeps everything there. Nothing here writes through a symbolic link or a junction:
 /// every file is written under a new temporary name and moved onto its own name, which replaces a link rather than
 /// following it, and a linked settings folder is refused. Folders are created with the user's default permissions.</summary>
@@ -82,6 +83,15 @@ public static class SettingsHome
                 notes.Add($"Settings stay next to the exe: {exeFile} is a link to another place, which a move would break.");
                 return StayNextToExe(exeDir, notes, errors);
             }
+            // The settings file is gone from a folder whose Backups holds copies saved after the file beside the exe.
+            // Copying that file back would quietly return the player to the settings from before the move, so the file
+            // stays missing and StartupSettings.Open asks which copy to restore. With no newer copy this is a first move
+            // (also one that was interrupted) or a new Windows profile, and the file beside the exe is the newest there is.
+            if (exeHasFile && HasNewerBackup(appDataDir, exeFile))
+            {
+                notes.Add($"The settings file is missing from {appDataDir}, and its Backups folder holds copies newer than {exeFile}: MultiPreview asks which to restore.");
+                return new(appDataDir, false, false, null, noNote, notes, errors);
+            }
             if (exeHasFile)
             {
                 try { SettingsService.ParseForLoad(File.ReadAllText(exeFile)); }
@@ -117,6 +127,14 @@ public static class SettingsHome
 
     private static SettingsHomeResult StayNextToExe(string exeDir, List<string> notes, List<string> errors) =>
         new(exeDir, false, false, null, false, notes, errors);
+
+    /// <summary>The settings folder's Backups holds a settings file that loads and was saved after
+    /// <paramref name="exeFile"/> (a copy keeps the time of the file it was made from).</summary>
+    private static bool HasNewerBackup(string configDir, string exeFile)
+    {
+        var saved = File.GetLastWriteTime(exeFile);
+        return SettingsRestore.Choices(Path.Combine(configDir, "Backups"), null).Any(c => c.Saved > saved);
+    }
 
     /// <summary>Writes what Resolve decided to the error log: its notes as notes, and a fallback to the exe folder as an
     /// error, so it is counted and the tray shows it. App calls it once per start.</summary>

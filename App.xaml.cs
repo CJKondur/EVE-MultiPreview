@@ -128,14 +128,17 @@ public partial class App : Application
         SettingsHome.Report(_home, ErrorLog.Shared, DateTime.Now);   // what moved, or why the settings stay beside the exe
 
         // ── JSON Migration ──
-        CheckJsonMigration(AppPaths.ExeDir, AppPaths.SettingsPath);
+        // Not while the missing-file prompt is due: that question comes first, and a settings file made here would hide it.
+        if (!StartupSettings.MissingWithCopies(AppPaths.SettingsPath, CopyBesideExe()))
+            CheckJsonMigration(AppPaths.ExeDir, AppPaths.SettingsPath);
         PerfLog($"JSON migration check: {startupSw.ElapsedMilliseconds}ms");
 
         // Reset Settings diagnostic log each run
         try { System.IO.File.WriteAllText(SettingsDiagLogPath, $"--- Session start {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---{Environment.NewLine}"); } catch { }
 
-        // 1. Load settings (from the settings folder, IDEAS #57), then the restore prompt, the newer-file question, the
-        // startup copy and the note. Nothing in it can stop startup (StartupSettings contains every throw).
+        // 1. Load settings (from the settings folder, IDEAS #57), with the missing-file prompt before it when the file is
+        // gone, then the restore prompt, the newer-file question, the startup copy and the note. Nothing in it can stop
+        // startup (StartupSettings contains every throw).
         _settings = new SettingsService(AppPaths.SettingsPath);
         StartupSettings.Open(_settings, _home, AppPaths.ExeDir, CopyBesideExe(), AskAtStartup, LocalizationService.Str,
             DateTime.Now, LogError, Thread.Sleep,
@@ -588,7 +591,7 @@ public partial class App : Application
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[App:Migration] ❌ Migration failed: {ex.Message}");
+                    LogError(ex);   // counted and in the error log: the player said yes, and starts on defaults instead
                 }
             }
         }
@@ -596,7 +599,8 @@ public partial class App : Application
 
     // ── Settings folder, backups and errors (IDEAS #49, #55, #57) ──
 
-    /// <summary>A startup question (the restore prompt, the newer-file question): before the main UI, so modal.</summary>
+    /// <summary>A startup question (the missing-file and restore prompts, the newer-file question): before the main UI,
+    /// so modal.</summary>
     private static int? AskAtStartup(string title, string body, IReadOnlyList<string> choices)
     {
         var dialog = new StartupDialog(title, body, choices);
@@ -620,7 +624,8 @@ public partial class App : Application
         "EVE MultiPreview now keeps its settings in this folder:\n{0}\n\n"
         + "The settings file here, beside MultiPreview.exe, is the copy from before version {2}. MultiPreview doesn't use it "
         + "any more, apart from the older-version case below, and you can keep it as a backup. If the settings file above "
-        + "ever goes missing, MultiPreview copies this one back on the next start.\n\n"
+        + "ever goes missing, MultiPreview asks on the next start which copy to restore: one of its newer backups, or this "
+        + "file. If it has no newer backup, it copies this file back without asking.\n\n"
         + "To keep everything beside the exe instead (a portable install, for example on a USB stick): close MultiPreview, "
         + "copy the settings file (and layout_presets.json, if you use layout presets) from the folder above into this "
         + "folder, and create an empty file named {1} here. MultiPreview then reads and saves its files here, as before.\n\n"
