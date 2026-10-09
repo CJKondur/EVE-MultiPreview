@@ -134,36 +134,14 @@ public partial class App : Application
         // Reset Settings diagnostic log each run
         try { System.IO.File.WriteAllText(SettingsDiagLogPath, $"--- Session start {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---{Environment.NewLine}"); } catch { }
 
-        // 1. Load settings (from the settings folder, IDEAS #57)
+        // 1. Load settings (from the settings folder, IDEAS #57), then the restore prompt, the newer-file question, the
+        // startup copy and the note. Nothing in it can stop startup (StartupSettings contains every throw).
         _settings = new SettingsService(AppPaths.SettingsPath);
-        _settings.Load();
-        // A file another program holds for a moment (a backup tool, a cloud sync) is tried again before it counts as unreadable.
-        for (int retry = 0; retry < 2 && _settings.LastLoadError is IOException; retry++)
-        {
-            Thread.Sleep(500);
-            _settings.Load();
-        }
-
-        // Apply UI language before any window is shown (issue #86). "" auto-detects
-        // from the OS; falls back to English for unsupported languages.
-        Services.LocalizationService.SetLanguage(_settings.Settings.Language);
-
-        if (!_settings.LoadedSuccessfully)
-        {
-            // IDEAS #49: offer the backups instead of running the session on defaults.
-            if (SettingsRestore.Offer(_settings, CopyBesideExe(), AskAtStartup, LocalizationService.Str, DateTime.Now))
-                Services.LocalizationService.SetLanguage(_settings.Settings.Language);
-        }
-        else
-        {
-            // IDEAS #57: a different settings file in the other place, changed later (an older version ran there). Never
-            // for a portable install, which asks nothing at startup.
-            if (_home.OtherCopy != null && !_home.Portable
-                && SettingsHome.OfferOtherCopy(_settings, _home.OtherCopy, AskAtStartup, LocalizationService.Str, DateTime.Now))
-                Services.LocalizationService.SetLanguage(_settings.Settings.Language);
-            SettingsUi.SettingsBackup.KeepStartupCopy(_settings, DateTime.Now);   // IDEAS #49
-        }
-        if (_home.NoteNeeded) SettingsHome.WriteNote(AppPaths.ExeDir, MovedNoteText());
+        StartupSettings.Open(_settings, _home, AppPaths.ExeDir, CopyBesideExe(), AskAtStartup, LocalizationService.Str,
+            DateTime.Now, LogError, Thread.Sleep,
+            // Apply UI language before any window is shown (issue #86). "" auto-detects from the OS; falls back to
+            // English for unsupported languages.
+            () => Services.LocalizationService.SetLanguage(_settings.Settings.Language), MovedNoteText);
 
         DiagnosticsService.Initialize();
         DiagnosticsService.GlobalSettings = _settings.Settings;
@@ -171,9 +149,8 @@ public partial class App : Application
         PerfLog($"Settings loaded: {startupSw.ElapsedMilliseconds}ms");
 
         // ── Setup Wizard gate ──
-        // Not after a load that failed (started with defaults): the player has a setup, and nothing the wizard set could
-        // be saved over their file anyway (IDEAS #49).
-        if (_settings.LoadedSuccessfully && !_settings.Settings.SetupCompleted)
+        // Not after a load that failed (started with defaults, IDEAS #49).
+        if (StartupSettings.NeedsSetupWizard(_settings))
         {
             var wizard = new SetupWizard(_settings);
             wizard.ShowDialog();
@@ -606,7 +583,7 @@ public partial class App : Application
             {
                 try
                 {
-                    File.Copy(oldFile, newFile);
+                    SettingsHome.CopyNoFollow(oldFile, newFile, overwrite: false);   // never over a settings file, never through a link
                     Debug.WriteLine("[App:Migration] ✅ Migrated EVE-X-Preview.json → EVE MultiPreview.json");
                 }
                 catch (Exception ex)

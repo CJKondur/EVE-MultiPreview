@@ -102,8 +102,10 @@ public sealed class SettingsService : IDisposable
         _settingsPath = settingsPath ?? AppPaths.SettingsPath;
     }
 
-    /// <summary>Load settings from disk. Creates default settings if file doesn't exist.</summary>
-    public void Load()
+    /// <summary>Load settings from disk. Creates default settings if file doesn't exist. <paramref name="recordFailure"/>
+    /// false leaves a failed load out of the error log, for a caller that tries again and records the last failure once
+    /// (StartupSettings); LastLoadError is set either way.</summary>
+    public void Load(bool recordFailure = true)
     {
         try
         {
@@ -165,7 +167,7 @@ public sealed class SettingsService : IDisposable
         {
             System.Diagnostics.Debug.WriteLine($"[Settings] Load error: {ex.Message}");
             LastLoadError = ex;
-            LogError(ex);
+            if (recordFailure) LogError(ex);
             // Back up the broken file so we don't lose user data
             try
             {

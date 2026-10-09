@@ -126,10 +126,17 @@ public sealed class TrayMenu : IDisposable
     /// error) how many and where to look (IDEAS #55). Cut to Windows' 127 characters.</summary>
     public static string TooltipText(bool suspended, int errors)
     {
+        var text = UncutTooltipText(suspended, errors);
+        return text.Length <= TooltipMax ? text : text[..TooltipMax];
+    }
+
+    /// <summary>The tooltip before it is cut to Windows' limit; a test checks the translations fit without the cut.</summary>
+    public static string UncutTooltipText(bool suspended, int errors)
+    {
         var text = suspended ? "⏸ EVE MultiPreview (SUSPENDED)" : "EVE MultiPreview";
         if (errors > 0)
             text += "\n" + string.Format(LocalizationService.Str("L.Tray.Errors", "Errors handled: {0}. See App settings › Diagnostics."), errors);
-        return text.Length <= TooltipMax ? text : text[..TooltipMax];
+        return text;
     }
 
     /// <summary>Re-reads labels, check marks, hotkey hints and the two lists. Runs every time the menu opens.</summary>
