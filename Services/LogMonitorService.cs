@@ -30,6 +30,10 @@ public sealed class LogMonitorService : IDisposable
     private string _chatLogPath = "";
     private string _gameLogPath = "";
 
+    // A folder change from Reconfigure (IDEAS P30), taken by the reading thread before its next read.
+    private (string Chat, string Game)? _pendingFolders;
+    private readonly object _foldersLock = new();
+
     // Hybrid: FileSystemWatcher for instant wake + polling fallback
     private readonly SemaphoreSlim _wakeSignal = new(0, 1);
     private FileSystemWatcher? _chatWatcher;
@@ -929,25 +933,7 @@ public sealed class LogMonitorService : IDisposable
     {
         if (_monitorTask != null) return;
 
-        if (string.IsNullOrEmpty(eveLogsBasePath))
-        {
-            string docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            eveLogsBasePath = Path.Combine(docs, "EVE", "logs");
-        }
-
-        // Use overrides from settings if provided
-        _chatLogPath = !string.IsNullOrEmpty(chatLogOverride) && Directory.Exists(chatLogOverride)
-            ? chatLogOverride
-            : Path.Combine(eveLogsBasePath, "Chatlogs");
-        _gameLogPath = !string.IsNullOrEmpty(gameLogOverride) && Directory.Exists(gameLogOverride)
-            ? gameLogOverride
-            : Path.Combine(eveLogsBasePath, "Gamelogs");
-
-        // Honour the per-type enable toggles (#settings-audit). Blanking a path makes
-        // both the watcher (TryCreateWatcher) and the scan (Directory.Exists) skip it,
-        // so a disabled log type is never watched or read. Applied at startup only.
-        if (!chatEnabled) _chatLogPath = "";
-        if (!gameEnabled) _gameLogPath = "";
+        (_chatLogPath, _gameLogPath) = ResolveFolders(eveLogsBasePath, chatLogOverride, gameLogOverride, chatEnabled, gameEnabled);
 
         Debug.WriteLine($"[LogMonitor:Scan] 🔧 Starting monitors — Chat: {_chatLogPath}, Game: {_gameLogPath}");
 
@@ -977,6 +963,84 @@ public sealed class LogMonitorService : IDisposable
         Debug.WriteLine("[LogMonitor:Scan] 🛑 Log monitor stopped");
     }
 
+    /// <summary>The two folders read, as Start always resolved them: a chosen folder that exists, else EVE's usual one
+    /// under <paramref name="eveLogsBasePath"/> (Documents\EVE\logs when empty), and "" for a log type that is off, so
+    /// it is neither watched nor scanned (#settings-audit).</summary>
+    public static (string Chat, string Game) ResolveFolders(string eveLogsBasePath, string? chatLogOverride, string? gameLogOverride,
+        bool chatEnabled, bool gameEnabled)
+    {
+        if (string.IsNullOrEmpty(eveLogsBasePath))
+            eveLogsBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "EVE", "logs");
+        var chat = !string.IsNullOrEmpty(chatLogOverride) && Directory.Exists(chatLogOverride)
+            ? chatLogOverride
+            : Path.Combine(eveLogsBasePath, "Chatlogs");
+        var game = !string.IsNullOrEmpty(gameLogOverride) && Directory.Exists(gameLogOverride)
+            ? gameLogOverride
+            : Path.Combine(eveLogsBasePath, "Gamelogs");
+        return (chatEnabled ? chat : "", gameEnabled ? game : "");
+    }
+
+    /// <summary>Applies log-reading settings while running (IDEAS P30): the two log switches and the two folders. The
+    /// reading thread takes the change before its next read, so nothing reads beside it. A file in a folder still read
+    /// keeps its place, so no line is read twice or skipped; a file in a folder no longer read is dropped; a folder read
+    /// again starts at the end of each file, as at startup. App calls it after every settings change; the same folders
+    /// again change nothing.</summary>
+    public void Reconfigure(string? chatLogOverride, string? gameLogOverride, bool chatEnabled, bool gameEnabled)
+    {
+        var folders = ResolveFolders("", chatLogOverride, gameLogOverride, chatEnabled, gameEnabled);
+        lock (_foldersLock) _pendingFolders = folders;
+        if (_cts == null) { ApplyPendingFolders(); return; }   // not reading (before Start, tests): at once
+        try { if (_wakeSignal.CurrentCount == 0) _wakeSignal.Release(); }
+        catch (SemaphoreFullException) { }                      // a file change woke it first
+    }
+
+    /// <summary>Takes a folder change from Reconfigure. Runs on the reading thread (or before Start), never beside a read.</summary>
+    private void ApplyPendingFolders()
+    {
+        (string Chat, string Game) next;
+        lock (_foldersLock)
+        {
+            if (_pendingFolders is not { } pending) return;
+            _pendingFolders = null;
+            next = pending;
+        }
+        if (next.Chat == _chatLogPath && next.Game == _gameLogPath) return;
+
+        StopFileWatchers();
+        _chatLogPath = next.Chat;
+        _gameLogPath = next.Game;
+        foreach (var (path, state) in _trackedFiles)
+        {
+            if (IsIn(path, state.Type == LogType.ChatLog ? _chatLogPath : _gameLogPath)) continue;
+            _trackedFiles.TryRemove(path, out _);
+            _fileCharacterMap.TryRemove(path, out _);
+        }
+        if (_cts != null) StartFileWatchers();
+        _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1;   // look for the new folder's files on this pass
+        _initialScanComplete = false;                    // and send the systems found there once, as at startup
+        Debug.WriteLine($"[LogMonitor:Scan] 🔧 Folders now — Chat: {_chatLogPath}, Game: {_gameLogPath}");
+    }
+
+    private static bool IsIn(string file, string folder) =>
+        folder.Length > 0 && string.Equals(Path.GetDirectoryName(file)?.TrimEnd('\\', '/'), folder.TrimEnd('\\', '/'),
+            StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>One pass of the reading loop: a pending folder change, new files, new lines, then the systems found on a
+    /// first read. Tests drive the monitor with it; it does nothing while Start's thread reads (two readers would read
+    /// lines twice).</summary>
+    public void PollOnce()
+    {
+        if (_cts != null) return;
+        ApplyPendingFolders();
+        ScanForNewFiles();
+        ReadNewLines();
+        if (!_initialScanComplete)
+        {
+            _initialScanComplete = true;
+            FlushBackfillSystems();
+        }
+    }
+
     /// <summary>Force re-scan for new log files (called on character login).</summary>
     public void Refresh()
     {
@@ -1001,6 +1065,8 @@ public sealed class LogMonitorService : IDisposable
         {
             try
             {
+                ApplyPendingFolders();   // a settings change (IDEAS P30), on this thread, between reads
+
                 // Throttle file discovery — only scan every Nth poll cycle
                 _scanThrottleCounter++;
                 if (_scanThrottleCounter >= SCAN_EVERY_N_POLLS)

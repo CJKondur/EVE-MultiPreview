@@ -1481,7 +1481,6 @@
     <sys:String x:Key="L.S.Page.alerts.events">Eventos</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">Qué vigila MultiPreview en los registros de EVE y cómo se muestra cada alerta.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.logs">Lectura de los registros de EVE</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.restartNote">Activar o desactivar un registro, o cambiar su carpeta, surte efecto la próxima vez que se inicie MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatLog">Leer registros de chat</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatLog.Desc">Indica a MultiPreview en qué sistema está cada cliente: alertas de cambio de sistema y el nombre del sistema en las miniaturas.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatFolder">Carpeta de registros de chat</sys:String> <!-- draft -->
@@ -1529,7 +1528,7 @@
     <sys:String x:Key="L.S.Unit.Sec">s</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.Intro">MultiPreview lee los archivos de registro que EVE escribe para cada cliente y genera una alerta cuando ocurre algo: te disparan, te hacen scram, te invitan, se agota una roca. Una alerta hace parpadear la miniatura de ese cliente y también puede añadirle una insignia, escribir lo ocurrido, reproducir un sonido y mostrar un aviso.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.logs.Title">De dónde vienen las alertas</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.logs.Body">- Los **registros de chat** indican a MultiPreview en qué sistema está cada cliente.&#x0A;- Los **registros de juego** contienen líneas de combate, flota, conversación y minería, y alimentan la superposición de estadísticas.&#x0A;&#x0A;Ambos están activados por defecto y se leen de las carpetas habituales de EVE. Cambia una carpeta solo si moviste los registros de EVE. Estos cambios surten efecto la próxima vez que se inicie MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.logs.Body">- Los **registros de chat** indican a MultiPreview en qué sistema está cada cliente.&#x0A;- Los **registros de juego** contienen líneas de combate, flota, conversación y minería, y alimentan la superposición de estadísticas.&#x0A;&#x0A;Ambos están activados por defecto y se leen de las carpetas habituales de EVE. Cambia una carpeta solo si moviste los registros de EVE. Un cambio se aplica al instante y la lectura continúa donde estaba, así que ninguna alerta aparece dos veces.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Title">Modo PVE y borde de ataque</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">El **modo PVE** es para ratting y misiones: los NPC que te disparan o te hacen scram ya no generan alerta, los jugadores sí.&#x0A;&#x0A;El **borde de ataque** pulsa en rojo en una miniatura mientras ese cliente recibe daño y desaparece unos segundos después del último golpe.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">La tabla de eventos</sys:String> <!-- draft -->
@@ -1744,15 +1743,14 @@
     <sys:String x:Key="L.S.tools.stats.textColor">Color del texto</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.textColor.Desc">El color de las cifras. El Modo daltónico lo reemplaza.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.tools.stats.logging">Registro</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.restartNote">Los cambios del registro se aplican la próxima vez que se inicie MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.csv">Guardar estadísticas en archivos CSV</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.csv.Desc">Un archivo por personaje y día, para una hoja de cálculo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.logFolder">Carpeta de registros</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">Dónde se guardan los archivos. Se crea si no existe.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">Elige una carpeta de registros: sin ella no se guarda nada.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">Conservar archivos durante</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Los archivos de estadísticas más antiguos de la carpeta se eliminan al iniciar MultiPreview.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepZero">«Conservar archivos durante» es 0 días o menos, así que todos los archivos de estadísticas de la carpeta se eliminarán la próxima vez que se inicie MultiPreview. Pon 1 o más.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Los archivos de estadísticas más antiguos de la carpeta se eliminan al iniciar MultiPreview y cuando cambias estos ajustes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepZero">«Conservar archivos durante» es 0 días o menos, así que nunca se elimina ningún archivo de estadísticas. Pon un número de días para eliminar los archivos más antiguos.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">días</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">La superposición de estadísticas muestra cifras en vivo junto a cada cliente: daño por segundo, reparaciones, mineral extraído, ISK ganados. Vienen de los registros de juego de EVE, así que deben leerse los registros de juego (Alertas › Eventos).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">La superposición</sys:String> <!-- draft -->
@@ -1762,7 +1760,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Aspecto</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">El tamaño del texto, la opacidad y los dos colores se aplican a todas las ventanas de estadísticas. Los colores se pueden escribir como #RRGGBB o elegir con la muestra.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Guardar estadísticas</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Con **Guardar estadísticas en archivos CSV** activado, MultiPreview escribe un archivo por personaje y día en la carpeta de registros, para una hoja de cálculo. Los archivos más antiguos que el tiempo de conservación se eliminan al iniciar MultiPreview. Los cambios del registro se aplican en el siguiente inicio.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Con **Guardar estadísticas en archivos CSV** activado, MultiPreview escribe un archivo por personaje y día en la carpeta de registros, para una hoja de cálculo. Los archivos más antiguos que el tiempo de conservación se eliminan al iniciar MultiPreview y cuando cambias estos ajustes; 0 días conserva todos los archivos. Los cambios se aplican al instante.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Elegir cifras</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Muestra u oculta cifras individuales para este personaje. «Predeterminado» sigue las cifras de todos los personajes (Herramientas › Superposición de estadísticas).</sys:String> <!-- draft -->

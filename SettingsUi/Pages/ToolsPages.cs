@@ -23,7 +23,7 @@ public static class ToolsPages
         new HelpTopic(StatsId, "look", new[] { "tools.stats.fontSize", "tools.stats.opacity", "tools.stats.background", "tools.stats.textColor" }),
         new HelpTopic(StatsId, "logging", new[]
         {
-            "tools.stats.restartNote", "tools.stats.csv", "tools.stats.logFolder", "tools.stats.noFolder", "tools.stats.keepDays", "tools.stats.keepZero",
+            "tools.stats.csv", "tools.stats.logFolder", "tools.stats.noFolder", "tools.stats.keepDays", "tools.stats.keepZero",
         }),
         new HelpTopic(EveId, "copy", new[] { "tools.eve.editor" }),
         new HelpTopic(EveId, "accounts", new[] { "tools.eve.editor" }),
@@ -97,8 +97,7 @@ public static class ToolsPages
         }),
         new SectionDef("tools.stats.logging", new PageItem[]
         {
-            // StatTrackerService.SetCsvLogging reads all three once, at startup (ruling 11).
-            new InfoItem("tools.stats.restartNote", InfoSeverity.Info),
+            // App passes all three to StatTrackerService.SetCsvLogging on Applied (IDEAS P31).
             new SettingItem(Setting.Toggle("tools.stats.csv", s => s.StatLoggingEnabled) with { Replaces = new[] { "ChkStatLogging" } }),
             new SettingItem(Setting.Folder("tools.stats.logFolder", s => s.StatLogDirectory) with
             {
@@ -106,13 +105,14 @@ public static class ToolsPages
                 Replaces = new[] { "TxtStatLogDir", "OnBrowseStatLog" },
             }),
             new InfoItem("tools.stats.noFolder", InfoSeverity.Warning) { ShowIf = s => s.StatLoggingEnabled && string.IsNullOrWhiteSpace(s.StatLogDirectory) },
-            // 0 or less would delete every stats file at the next start: refused here, and a stored one is called out.
+            // A stored 0 or less keeps every file (StatTrackerService.CleanupOldLogs, IDEAS P31); the box takes 1 or more.
+
             new SettingItem(Setting.Number("tools.stats.keepDays", s => s.StatLogRetentionDays, 1, 3650, "L.S.Unit.Days") with
             {
                 ShowIf = s => s.StatLoggingEnabled,
                 Replaces = new[] { "TxtStatLogRetention" },
             }),
-            new InfoItem("tools.stats.keepZero", InfoSeverity.Warning) { ShowIf = s => s.StatLoggingEnabled && s.StatLogRetentionDays < 1 },
+            new InfoItem("tools.stats.keepZero", InfoSeverity.Info) { ShowIf = s => s.StatLoggingEnabled && s.StatLogRetentionDays < 1 },
         }),
     });
 

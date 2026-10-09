@@ -1459,7 +1459,6 @@
     <sys:String x:Key="L.S.Page.alerts.events">Events</sys:String>
     <sys:String x:Key="L.S.Page.alerts.events.Desc">What MultiPreview watches for in EVE's logs, and how each alert shows.</sys:String>
     <sys:String x:Key="L.S.Sec.alerts.events.logs">Reading EVE's logs</sys:String>
-    <sys:String x:Key="L.S.alerts.events.restartNote">Turning a log on or off, or changing its folder, takes effect the next time MultiPreview starts.</sys:String>
     <sys:String x:Key="L.S.alerts.events.chatLog">Read chat logs</sys:String>
     <sys:String x:Key="L.S.alerts.events.chatLog.Desc">Tells MultiPreview which system each client is in: system-change alerts and the system name on thumbnails.</sys:String>
     <sys:String x:Key="L.S.alerts.events.chatFolder">Chat log folder</sys:String>
@@ -1507,7 +1506,7 @@
     <sys:String x:Key="L.S.Unit.Sec">s</sys:String>
     <sys:String x:Key="L.Help.alerts.events.Intro">MultiPreview reads the log files EVE writes for each client and raises an alert when something happens: you're shot at, scrambled, invited, a rock runs dry. An alert flashes that client's thumbnail and can also badge it, write what happened on it, play a sound and show a toast.</sys:String>
     <sys:String x:Key="L.Help.alerts.events.logs.Title">Where alerts come from</sys:String>
-    <sys:String x:Key="L.Help.alerts.events.logs.Body">- **Chat logs** tell MultiPreview which system each client is in.&#x0A;- **Game logs** carry combat, fleet, conversation and mining lines, and feed the stats overlay.&#x0A;&#x0A;Both are on by default and read from EVE's usual folders. Change a folder only if you moved EVE's logs. These changes take effect the next time MultiPreview starts.</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.logs.Body">- **Chat logs** tell MultiPreview which system each client is in.&#x0A;- **Game logs** carry combat, fleet, conversation and mining lines, and feed the stats overlay.&#x0A;&#x0A;Both are on by default and read from EVE's usual folders. Change a folder only if you moved EVE's logs. A change applies at once, and reading carries on where it was, so no alert shows twice.</sys:String>
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE mode and the under-fire border</sys:String>
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE mode** is for ratting and missions: NPCs shooting or scrambling you no longer raise an alert, players still do.&#x0A;&#x0A;The **under-fire border** pulses red on a thumbnail while that client takes damage, and goes a few seconds after the last hit.</sys:String>
     <sys:String x:Key="L.Help.alerts.events.table.Title">The event table</sys:String>
@@ -1722,15 +1721,14 @@
     <sys:String x:Key="L.S.tools.stats.textColor">Text colour</sys:String>
     <sys:String x:Key="L.S.tools.stats.textColor.Desc">The colour of the numbers. Colour-blind mode replaces it.</sys:String>
     <sys:String x:Key="L.S.Sec.tools.stats.logging">Logging</sys:String>
-    <sys:String x:Key="L.S.tools.stats.restartNote">Logging changes take effect the next time MultiPreview starts.</sys:String>
     <sys:String x:Key="L.S.tools.stats.csv">Save stats to CSV files</sys:String>
     <sys:String x:Key="L.S.tools.stats.csv.Desc">One file per character per day, for a spreadsheet.</sys:String>
     <sys:String x:Key="L.S.tools.stats.logFolder">Log folder</sys:String>
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">Where the files go. It's made if it doesn't exist.</sys:String>
     <sys:String x:Key="L.S.tools.stats.noFolder">Choose a log folder: without one nothing is saved.</sys:String>
     <sys:String x:Key="L.S.tools.stats.keepDays">Keep files for</sys:String>
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Older stats files in the folder are deleted when MultiPreview starts.</sys:String>
-    <sys:String x:Key="L.S.tools.stats.keepZero">Keep files for is 0 days or less, so every stats file in the folder will be deleted the next time MultiPreview starts. Set 1 or more.</sys:String>
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Older stats files in the folder are deleted when MultiPreview starts and when you change these settings.</sys:String>
+    <sys:String x:Key="L.S.tools.stats.keepZero">Keep files for is 0 days or less, so no stats file is ever deleted. Enter a number of days to delete older files.</sys:String>
     <sys:String x:Key="L.S.Unit.Days">days</sys:String>
     <sys:String x:Key="L.Help.tools.stats.Intro">The stats overlay puts live numbers beside each client: damage per second, repairs, ore mined, ISK earned. They come from EVE's game logs, so game logs must be read (Alerts › Events).</sys:String>
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">The overlay</sys:String>
@@ -1740,7 +1738,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Look</sys:String>
     <sys:String x:Key="L.Help.tools.stats.look.Body">Text size, opacity and the two colours apply to every stats window. Colours can be typed as #RRGGBB or picked with the swatch.</sys:String>
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Saving stats</sys:String>
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">With **Save stats to CSV files** on, MultiPreview writes one file per character per day into the log folder, for a spreadsheet. Files older than the keep time are deleted when MultiPreview starts. Logging changes take effect at the next start.</sys:String>
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">With **Save stats to CSV files** on, MultiPreview writes one file per character per day into the log folder, for a spreadsheet. Files older than the keep time are deleted when MultiPreview starts and when you change these settings; 0 days keeps every file. Changes apply at once.</sys:String>
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Choose numbers</sys:String>
     <sys:String x:Key="L.S.character.statsPicker.Desc">Show or hide single numbers for this character. Default follows the numbers for every character (Tools › Stats overlay).</sys:String>

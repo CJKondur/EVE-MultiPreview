@@ -24,7 +24,7 @@ public static class AlertsPages
     {
         new HelpTopic(EventsId, "logs", new[]
         {
-            "alerts.events.restartNote", "alerts.events.chatLog", "alerts.events.chatFolder", "alerts.events.gameLog", "alerts.events.gameFolder",
+            "alerts.events.chatLog", "alerts.events.chatFolder", "alerts.events.gameLog", "alerts.events.gameFolder",
         }),
         new HelpTopic(EventsId, "combat", new[] { "alerts.events.pve", "alerts.events.underFire", "alerts.events.underFireTime" }),
         new HelpTopic(EventsId, "table", new[] { EventTableId, "alerts.events.repeatWait" }),
@@ -46,8 +46,7 @@ public static class AlertsPages
     {
         new SectionDef("alerts.events.logs", new PageItem[]
         {
-            // LogMonitorService.Start reads the four settings below once, at startup (ruling 5).
-            new InfoItem("alerts.events.restartNote", InfoSeverity.Info),
+            // App passes the four settings below to the log monitor on Applied (LogMonitorService.Reconfigure, IDEAS P30).
             Toggle("alerts.events.chatLog", s => s.EnableChatLogMonitoring, "ChkChatLogMon"),
             new SettingItem(Setting.Folder("alerts.events.chatFolder", s => s.ChatLogDirectory) with
             {

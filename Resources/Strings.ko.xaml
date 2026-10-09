@@ -1460,7 +1460,6 @@
     <sys:String x:Key="L.S.Page.alerts.events">이벤트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">MultiPreview가 EVE 로그에서 무엇을 감시하는지, 그리고 각 알림이 어떻게 표시되는지.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.logs">EVE 로그 읽기</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.restartNote">로그를 켜거나 끄거나 폴더를 바꾸면 MultiPreview를 다음에 시작할 때 적용됩니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatLog">채팅 로그 읽기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatLog.Desc">각 클라이언트가 어느 성계에 있는지 MultiPreview에 알려 줍니다. 성계 변경 알림과 썸네일의 성계 이름에 쓰입니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatFolder">채팅 로그 폴더</sys:String> <!-- draft -->
@@ -1508,7 +1507,7 @@
     <sys:String x:Key="L.S.Unit.Sec">초</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.Intro">MultiPreview는 EVE가 각 클라이언트에 기록하는 로그 파일을 읽고, 공격받음, 스크램됨, 초대받음, 바위 고갈 같은 일이 생기면 알림을 띄웁니다. 알림은 해당 클라이언트의 썸네일을 깜빡이게 하며, 배지를 달고, 일어난 일을 적고, 소리를 재생하고, 토스트를 표시할 수도 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.logs.Title">알림이 오는 곳</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.logs.Body">- **채팅 로그**는 각 클라이언트가 어느 성계에 있는지 MultiPreview에 알려 줍니다.&#x0A;- **게임 로그**에는 전투, 함대, 대화, 채굴 줄이 들어 있으며 통계 오버레이에도 쓰입니다.&#x0A;&#x0A;둘 다 기본으로 켜져 있고 EVE의 기본 폴더에서 읽습니다. EVE 로그를 옮겼을 때만 폴더를 바꾸세요. 이 변경은 MultiPreview를 다음에 시작할 때 적용됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.logs.Body">- **채팅 로그**는 각 클라이언트가 어느 성계에 있는지 MultiPreview에 알려 줍니다.&#x0A;- **게임 로그**에는 전투, 함대, 대화, 채굴 줄이 들어 있으며 통계 오버레이에도 쓰입니다.&#x0A;&#x0A;둘 다 기본으로 켜져 있고 EVE의 기본 폴더에서 읽습니다. EVE 로그를 옮겼을 때만 폴더를 바꾸세요. 변경은 바로 적용되고 읽기는 이전 위치에서 이어지므로 알림이 두 번 뜨지 않습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE 모드와 피격 테두리</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 모드**는 래팅과 미션용입니다. NPC가 나를 공격하거나 스크램해도 더 이상 알림이 울리지 않고, 플레이어는 울립니다.&#x0A;&#x0A;**피격 테두리**는 해당 클라이언트가 피해를 받는 동안 썸네일에서 붉게 깜빡이며, 마지막 피격 몇 초 뒤에 사라집니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">이벤트 표</sys:String> <!-- draft -->
@@ -1723,15 +1722,14 @@
     <sys:String x:Key="L.S.tools.stats.textColor">글자색</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.textColor.Desc">수치의 색. 색맹 모드를 켜면 이 색이 대체됩니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.tools.stats.logging">로그 기록</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.restartNote">로그 기록 변경은 다음에 MultiPreview를 시작할 때 적용됩니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.csv">통계를 CSV 파일로 저장</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.csv.Desc">캐릭터별로 하루에 파일 하나, 스프레드시트용입니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.logFolder">로그 폴더</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">파일이 저장될 위치. 없으면 만들어집니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">로그 폴더를 선택하세요. 폴더가 없으면 아무것도 저장되지 않습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">파일 보관 기간</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">폴더의 오래된 통계 파일은 MultiPreview를 시작할 때 삭제됩니다.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepZero">“파일 보관 기간”이 0일 이하이므로 다음에 MultiPreview를 시작할 때 폴더의 모든 통계 파일이 삭제됩니다. 1 이상으로 설정하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">폴더의 오래된 통계 파일은 MultiPreview를 시작할 때와 이 설정을 바꿀 때 삭제됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepZero">“파일 보관 기간”이 0일 이하이므로 통계 파일은 삭제되지 않습니다. 오래된 파일을 삭제하려면 일수를 입력하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">일</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">통계 오버레이는 각 클라이언트 옆에 실시간 수치(초당 피해, 수리, 채굴량, 획득 ISK)를 보여 줍니다. 수치는 EVE의 게임 로그에서 가져오므로 게임 로그를 읽어야 합니다(알림 › 이벤트).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">오버레이</sys:String> <!-- draft -->
@@ -1741,7 +1739,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">모양</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">글자 크기, 불투명도, 두 가지 색은 모든 통계 창에 적용됩니다. 색은 #RRGGBB로 입력하거나 색상 견본으로 고를 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">통계 저장</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">**통계를 CSV 파일로 저장**를 켜면 MultiPreview가 로그 폴더에 캐릭터별로 하루에 파일 하나를 기록합니다(스프레드시트용). 보관 기간보다 오래된 파일은 MultiPreview를 시작할 때 삭제됩니다. 로그 기록 변경은 다음 시작 때 적용됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">**통계를 CSV 파일로 저장**를 켜면 MultiPreview가 로그 폴더에 캐릭터별로 하루에 파일 하나를 기록합니다(스프레드시트용). 보관 기간보다 오래된 파일은 MultiPreview를 시작할 때와 이 설정을 바꿀 때 삭제되며, 0일이면 모든 파일을 보관합니다. 변경은 바로 적용됩니다.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">숫자 선택</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">이 캐릭터의 개별 숫자를 표시하거나 숨깁니다. 기본값은 모든 캐릭터의 숫자(도구 › 통계 오버레이)를 따릅니다.</sys:String> <!-- draft -->

@@ -1477,7 +1477,6 @@
     <sys:String x:Key="L.S.Page.alerts.events">事件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">MultiPreview 在 EVE 日志中监视什么，以及每种警报如何显示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.logs">读取 EVE 日志</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.restartNote">开启或关闭日志、或更改其文件夹，将在 MultiPreview 下次启动时生效。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatLog">读取聊天日志</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatLog.Desc">让 MultiPreview 知道每个客户端所在的星系：用于换星系警报和缩略图上的星系名称。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatFolder">聊天日志文件夹</sys:String> <!-- draft -->
@@ -1525,7 +1524,7 @@
     <sys:String x:Key="L.S.Unit.Sec">秒</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.Intro">MultiPreview 会读取 EVE 为每个客户端写入的日志文件，并在发生事件时触发警报：你被攻击、被扰断、被邀请，或矿石被采空。警报会让该客户端的缩略图闪烁，还可以加上角标、写出发生了什么、播放声音并显示通知。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.logs.Title">警报从哪里来</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.logs.Body">- **聊天日志**让 MultiPreview 知道每个客户端所在的星系。&#x0A;- **游戏日志**包含战斗、舰队、对话和采矿的记录，并为统计叠加层提供数据。&#x0A;&#x0A;两者默认开启，并从 EVE 的默认文件夹读取。只有移动过 EVE 日志时才需要更改文件夹。这些更改将在 MultiPreview 下次启动时生效。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.logs.Body">- **聊天日志**让 MultiPreview 知道每个客户端所在的星系。&#x0A;- **游戏日志**包含战斗、舰队、对话和采矿的记录，并为统计叠加层提供数据。&#x0A;&#x0A;两者默认开启，并从 EVE 的默认文件夹读取。只有移动过 EVE 日志时才需要更改文件夹。更改会立即生效，读取会从原位置继续，因此不会重复提示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE 模式与受攻击边框</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 模式**适用于刷怪和任务：NPC 攻击或扰断你时不再触发警报，玩家仍会触发。&#x0A;&#x0A;**受攻击边框**在该客户端受到伤害时于缩略图上闪烁红色，并在最后一次受击几秒后消失。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">事件表</sys:String> <!-- draft -->
@@ -1740,15 +1739,14 @@
     <sys:String x:Key="L.S.tools.stats.textColor">文字颜色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.textColor.Desc">数据的颜色。色盲模式会替换它。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.tools.stats.logging">日志</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.restartNote">日志更改将在下次启动 MultiPreview 时生效。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.csv">将统计保存为 CSV 文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.csv.Desc">每个角色每天一个文件，可用于电子表格。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.logFolder">日志文件夹</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">文件的保存位置。不存在时会自动创建。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">请选择日志文件夹：没有文件夹就不会保存任何内容。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">文件保留时间</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">启动 MultiPreview 时会删除文件夹中较旧的统计文件。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepZero">“文件保留时间”为 0 天或更少，因此下次启动 MultiPreview 时将删除文件夹中的所有统计文件。请设置为 1 或更大。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">启动 MultiPreview 时以及你更改这些设置时，会删除文件夹中较旧的统计文件。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepZero">“文件保留时间”为 0 天或更少，因此不会删除任何统计文件。输入天数即可删除较旧的文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">天</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">统计叠加层会在每个客户端旁显示实时数据：每秒伤害、维修、采矿量、获得的 ISK。数据来自 EVE 的游戏日志，因此必须读取游戏日志（警报 › 事件）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">叠加层</sys:String> <!-- draft -->
@@ -1758,7 +1756,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">外观</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字大小、不透明度和两种颜色适用于所有统计窗口。颜色可输入 #RRGGBB 或用色块选取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">保存统计</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">开启 **将统计保存为 CSV 文件** 后，MultiPreview 会在日志文件夹中为每个角色每天写入一个文件，可用于电子表格。超过保留时间的文件会在 MultiPreview 启动时删除。日志更改将在下次启动时生效。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">开启 **将统计保存为 CSV 文件** 后，MultiPreview 会在日志文件夹中为每个角色每天写入一个文件，可用于电子表格。超过保留时间的文件会在 MultiPreview 启动时以及你更改这些设置时删除；0 天表示保留所有文件。更改会立即生效。</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">选择数字</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">为此角色显示或隐藏单个数字。“默认”跟随所有角色的数字（工具 › 统计叠加层）。</sys:String> <!-- draft -->

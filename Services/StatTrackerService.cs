@@ -27,10 +27,16 @@ public sealed class StatTrackerService
     private bool _csvLoggingEnabled = false;
     private string _csvLogDirectory = "";
     private int _csvRetentionDays = 30;
+    private bool _csvConfigured;
 
-    /// <summary>Configure CSV stat logging.</summary>
+    /// <summary>Configure CSV stat logging. App calls it at startup and after every settings change, so a change applies
+    /// at once (IDEAS P31); the same three values again do nothing, so the folder isn't scanned on every change.</summary>
     public void SetCsvLogging(bool enabled, string directory, int retentionDays = 30)
     {
+        directory ??= "";
+        if (_csvConfigured && enabled == _csvLoggingEnabled && directory == _csvLogDirectory && retentionDays == _csvRetentionDays)
+            return;
+        _csvConfigured = true;
         _csvLoggingEnabled = enabled;
         _csvLogDirectory = directory;
         _csvRetentionDays = retentionDays;
@@ -535,6 +541,9 @@ public sealed class StatTrackerService
     private void CleanupOldLogs()
     {
         if (string.IsNullOrEmpty(_csvLogDirectory) || !Directory.Exists(_csvLogDirectory))
+            return;
+        // 0 days or less keeps every file (IDEAS P31): the cutoff used to become "now", deleting them all.
+        if (_csvRetentionDays <= 0)
             return;
 
         try

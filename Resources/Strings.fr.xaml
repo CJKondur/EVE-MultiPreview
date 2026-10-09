@@ -1462,7 +1462,6 @@
     <sys:String x:Key="L.S.Page.alerts.events">Événements</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.events.Desc">Ce que MultiPreview surveille dans les journaux d'EVE, et comment chaque alerte s'affiche.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.logs">Lecture des journaux d'EVE</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.restartNote">Activer ou désactiver un journal, ou changer son dossier, ne prend effet qu'au prochain démarrage de MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatLog">Lire les journaux de chat</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatLog.Desc">Indique à MultiPreview dans quel système se trouve chaque client : alertes de changement de système et nom du système sur les miniatures.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.chatFolder">Dossier des journaux de chat</sys:String> <!-- draft -->
@@ -1510,7 +1509,7 @@
     <sys:String x:Key="L.S.Unit.Sec">s</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.Intro">MultiPreview lit les fichiers journaux qu'EVE écrit pour chaque client et déclenche une alerte quand quelque chose se passe : on vous tire dessus, on vous scramble, on vous invite, un rocher est épuisé. Une alerte fait clignoter la miniature du client et peut aussi y ajouter un badge, y écrire ce qui s'est passé, jouer un son et afficher une notification.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.logs.Title">D'où viennent les alertes</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.logs.Body">- Les **journaux de chat** indiquent à MultiPreview dans quel système se trouve chaque client.&#x0A;- Les **journaux de jeu** contiennent les lignes de combat, de flotte, de conversation et de minage, et alimentent la superposition de statistiques.&#x0A;&#x0A;Les deux sont activés par défaut et lus depuis les dossiers habituels d'EVE. Ne changez un dossier que si vous avez déplacé les journaux d'EVE. Ces changements prennent effet au prochain démarrage de MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.logs.Body">- Les **journaux de chat** indiquent à MultiPreview dans quel système se trouve chaque client.&#x0A;- Les **journaux de jeu** contiennent les lignes de combat, de flotte, de conversation et de minage, et alimentent la superposition de statistiques.&#x0A;&#x0A;Les deux sont activés par défaut et lus depuis les dossiers habituels d'EVE. Ne changez un dossier que si vous avez déplacé les journaux d'EVE. Un changement s'applique immédiatement et la lecture reprend là où elle en était, donc aucune alerte n'apparaît deux fois.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Title">Mode PVE et bordure sous le feu</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">Le **mode PVE** est pour le ratting et les missions : les PNJ qui vous tirent dessus ou vous scramblent ne déclenchent plus d'alerte, les joueurs, si.&#x0A;&#x0A;La **bordure sous le feu** pulse en rouge sur une miniature tant que ce client subit des dégâts, et disparaît quelques secondes après le dernier coup.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">Le tableau des événements</sys:String> <!-- draft -->
@@ -1725,15 +1724,14 @@
     <sys:String x:Key="L.S.tools.stats.textColor">Couleur du texte</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.textColor.Desc">La couleur des chiffres. Le Mode daltonien la remplace.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.tools.stats.logging">Journalisation</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.restartNote">Les changements de journalisation s'appliquent au prochain démarrage de MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.csv">Enregistrer les statistiques en fichiers CSV</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.csv.Desc">Un fichier par personnage et par jour, pour un tableur.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.logFolder">Dossier des journaux</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">Où vont les fichiers. Il est créé s'il n'existe pas.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">Choisissez un dossier de journaux : sans dossier, rien n'est enregistré.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">Conserver les fichiers pendant</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Les anciens fichiers de statistiques du dossier sont supprimés au démarrage de MultiPreview.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepZero">« Conserver les fichiers pendant » vaut 0 jour ou moins : tous les fichiers de statistiques du dossier seront donc supprimés au prochain démarrage de MultiPreview. Indiquez 1 ou plus.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Les fichiers de statistiques plus anciens du dossier sont supprimés au démarrage de MultiPreview et quand vous modifiez ces réglages.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepZero">« Conserver les fichiers pendant » vaut 0 jour ou moins : aucun fichier de statistiques n'est donc jamais supprimé. Indiquez un nombre de jours pour supprimer les fichiers plus anciens.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">jours</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">L'overlay de statistiques affiche des chiffres en direct à côté de chaque client : dégâts par seconde, réparations, minerai extrait, ISK gagnés. Ils proviennent des journaux de jeu d'EVE, qui doivent donc être lus (Alertes › Événements).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">L'overlay</sys:String> <!-- draft -->
@@ -1743,7 +1741,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Apparence</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">La taille du texte, l'opacité et les deux couleurs s'appliquent à toutes les fenêtres de statistiques. Les couleurs peuvent être saisies en #RRGGBB ou choisies avec la pastille.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Enregistrer les statistiques</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Avec **Enregistrer les statistiques en fichiers CSV** activé, MultiPreview écrit un fichier par personnage et par jour dans le dossier des journaux, pour un tableur. Les fichiers plus anciens que la durée de conservation sont supprimés au démarrage de MultiPreview. Les changements de journalisation s'appliquent au prochain démarrage.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Avec **Enregistrer les statistiques en fichiers CSV** activé, MultiPreview écrit un fichier par personnage et par jour dans le dossier des journaux, pour un tableur. Les fichiers plus anciens que la durée de conservation sont supprimés au démarrage de MultiPreview et quand vous modifiez ces réglages ; 0 jour conserve tous les fichiers. Les changements s'appliquent immédiatement.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Choisir les chiffres</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Afficher ou masquer des chiffres individuels pour ce personnage. « Par défaut » suit les chiffres de tous les personnages (Outils › Overlay de statistiques).</sys:String> <!-- draft -->

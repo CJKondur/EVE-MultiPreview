@@ -154,7 +154,7 @@ public partial class App : Application
         _statTracker = new StatTrackerService();
         // Wire CSV stat-logging from settings (#settings-audit). SetCsvLogging was never
         // called, so the "Enable Logging" checkbox + dir + retention did nothing. Applied
-        // at startup (restart to take effect), consistent with the log-monitor toggles.
+        // here and again after every settings change (applyLiveSettings, IDEAS P31).
         _statTracker.SetCsvLogging(
             _settings.Settings.StatLoggingEnabled,
             _settings.Settings.StatLogDirectory,
@@ -844,7 +844,16 @@ public partial class App : Application
                     _logMonitor.SetEnabledAlertTypes(_settings.Settings.EnabledAlertTypes);
                 if (_settings.Settings.SeverityCooldowns != null)
                     _logMonitor.SetEventCooldowns(_settings.Settings.SeverityCooldowns);
+                // The two log switches and folders apply live (IDEAS P30): the reading thread changes folders before
+                // its next read and keeps each file's place. The same folders again change nothing.
+                _logMonitor.Reconfigure(_settings.Settings.ChatLogDirectory, _settings.Settings.GameLogDirectory,
+                    _settings.Settings.EnableChatLogMonitoring, _settings.Settings.EnableGameLogMonitoring);
             }
+
+            // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
+            if (_statTracker != null && _settings != null)
+                _statTracker.SetCsvLogging(_settings.Settings.StatLoggingEnabled, _settings.Settings.StatLogDirectory,
+                    _settings.Settings.StatLogRetentionDays);
 
             // Dynamically show/hide the Alert Hub based on settings toggle
             if (_isShuttingDown) return;
