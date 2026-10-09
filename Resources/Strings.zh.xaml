@@ -1557,8 +1557,8 @@
     <sys:String x:Key="L.S.Severity.HubFor">{0}警报的提示</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.look.accessibility">辅助功能</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.colorBlind">色盲模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">为色盲玩家提供可区分的颜色，用于警报、高亮边框、缩略图文字、登录标记和统计叠加层。切换会替换这些颜色。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">开启色盲模式？这会把你的警报、高亮、缩略图文字、登录标记和统计颜色替换为色盲友好的一组，并移除你为单个事件设置的颜色。以后关闭只会恢复标准颜色，而不是你现在的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">为色盲玩家提供可区分的颜色，用于警报、高亮边框、缩略图文字、登录标记和统计叠加层。关闭会还给你原来的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">开启色盲模式？这会把你的警报、高亮、缩略图文字、登录标记和统计颜色替换为色盲友好的一组，并移除你为单个事件设置的颜色。以后关闭会还给你原来的颜色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOff">关闭色盲模式？这会设置标准的警报、高亮、缩略图文字、登录标记和统计颜色。开启前你使用的颜色不会恢复。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.Intro">警报在缩略图上的外观。严重程度设置对该严重程度的所有事件生效；单个事件仍可在事件页面设置自己的颜色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">缩略图上</sys:String> <!-- draft -->
@@ -1566,7 +1566,7 @@
     <sys:String x:Key="L.Help.alerts.look.severity.Title">严重程度</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.severity.Body">每个事件都是**严重**、**警告**或**信息**。每种严重程度有颜色、闪烁速度，以及其警报是否在警报中心弹出提示的选项。信息警报不闪烁，保持常亮。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">色盲模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">色盲模式会切换到 Wong 调色板，这组颜色对各类色盲都能保持区分。它会替换警报、高亮、缩略图文字、登录标记和统计颜色，并移除单个事件的颜色，所以会先询问。关闭后会设置标准颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">色盲模式会切换到 Wong 调色板，这组颜色对各类色盲都能保持区分。它会替换警报、高亮、缩略图文字、登录标记和统计颜色，并移除单个事件的颜色，所以会先询问。关闭后会还给你开启前的颜色。如果它是在旧版 MultiPreview 中开启的，关闭后会设置标准颜色。</sys:String> <!-- draft -->
     <!-- Alerts › Sounds and Alert hub (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.sounds">声音</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.sounds.Desc">一个声音用于所有警报，或为每个事件单独设置。</sys:String> <!-- draft -->
@@ -1926,4 +1926,5 @@
     <sys:String x:Key="L.S.tools.stats.countNpc.Desc">关闭后，NPC 造成和受到的伤害不计入伤害数据，因此只显示与玩家的战斗。打怪获得的 ISK 仍会计入。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText">文字颜色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">设置该角色缩略图上的文字颜色。在你选择之前，使用 缩略图 › 文字和边框 中的文字颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">关闭色盲模式？你的警报、高亮、缩略图文字、登录标记和统计颜色，以及你为单个事件设置的颜色，会恢复为开启前的样子。</sys:String> <!-- draft -->
 </ResourceDictionary>

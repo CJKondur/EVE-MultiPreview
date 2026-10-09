@@ -39,6 +39,7 @@ public class AhkConfigRoot
         s.ConfineDragsToMonitor = g.ConfineDragsToMonitor != 0;
         s.ThumbnailBackgroundColor = g.ThumbnailBackgroundColor ?? "0x57504e";
         s.ColorBlindMode = g.ColorBlindMode != 0;
+        s.ColorBlindSavedColors = g.ColorBlindSavedColors ?? "";
         s.GlobalHotkeys = g.GlobalHotkeys != 0;
         s.HotkeyWildcardModifiers = g.HotkeyWildcardModifiers != 0;
         s.PropagateHeldModifiers = g.PropagateHeldModifiers != 0;
@@ -340,6 +341,7 @@ public class AhkConfigRoot
         g.ConfineDragsToMonitor = s.ConfineDragsToMonitor ? 1 : 0;
         g.ThumbnailBackgroundColor = s.ThumbnailBackgroundColor;
         g.ColorBlindMode = s.ColorBlindMode ? 1 : 0;
+        g.ColorBlindSavedColors = s.ColorBlindSavedColors;
         g.GlobalHotkeys = s.GlobalHotkeys ? 1 : 0;
         g.HotkeyWildcardModifiers = s.HotkeyWildcardModifiers ? 1 : 0;
         g.PropagateHeldModifiers = s.PropagateHeldModifiers ? 1 : 0;
@@ -961,6 +963,11 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("ColorBlindMode")]
     public int ColorBlindMode { get; set; }
+
+    // New in the ideas batch (IDEAS P29): the colours colour-blind mode replaced, as one line of JSON text. A file
+    // without it loads "", and turning the mode off then sets the standard colours, as before.
+    [JsonPropertyName("ColorBlindSavedColors")]
+    public string? ColorBlindSavedColors { get; set; } = "";
 
     [JsonPropertyName("Global_Hotkeys")]
     public int GlobalHotkeys { get; set; } = 1;

@@ -1542,8 +1542,8 @@
     <sys:String x:Key="L.S.Severity.HubFor">Notification pour les alertes {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.look.accessibility">Accessibilité</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.colorBlind">Mode daltonien</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Des couleurs que les joueurs daltoniens peuvent distinguer, pour les alertes, la bordure de surbrillance, le texte des miniatures, la marque de connexion et la superposition des stats. Basculer remplace ces couleurs.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Activer le mode daltonien ? Il remplace vos couleurs d'alerte, de surbrillance, de texte des miniatures, de marque de connexion et de stats par un jeu adapté au daltonisme, et supprime les couleurs que vous avez données à des événements précis. Le désactiver plus tard applique les couleurs standard, pas celles que vous avez maintenant.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Des couleurs que les joueurs daltoniens peuvent distinguer, pour les alertes, la bordure de surbrillance, le texte des miniatures, la marque de connexion et la superposition des stats. Le désactiver vous rend vos propres couleurs.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Activer le mode daltonien ? Il remplace vos couleurs d'alerte, de surbrillance, de texte des miniatures, de marque de connexion et de stats par un jeu adapté au daltonisme, et supprime les couleurs que vous avez données à des événements précis. Le désactiver plus tard vous rend vos couleurs.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOff">Désactiver le mode daltonien ? Il applique les couleurs standard d'alerte, de surbrillance, de texte des miniatures, de marque de connexion et de stats. Les couleurs que vous aviez avant de l'activer ne reviennent pas.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.Intro">L'apparence d'une alerte sur une miniature. Les réglages de gravité valent pour tous les événements de cette gravité ; un événement peut toujours avoir sa propre couleur sur la page Événements.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">Sur la miniature</sys:String> <!-- draft -->
@@ -1551,7 +1551,7 @@
     <sys:String x:Key="L.Help.alerts.look.severity.Title">Gravités</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.severity.Body">Chaque événement est **critique**, **avertissement** ou **info**. Chaque gravité a une couleur, une vitesse de clignotement et le choix d'afficher ou non une notification dans le centre d'alertes. Les alertes info ne clignotent pas : elles restent fixes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">Mode daltonien</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">Le mode daltonien passe à la palette Wong, des couleurs qui restent distinctes pour tous les types de daltonisme. Il remplace les couleurs d'alerte, de surbrillance, de texte des miniatures, de marque de connexion et de stats et supprime les couleurs par événement, donc il demande d'abord. Le désactiver applique les couleurs standard.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">Le mode daltonien passe à la palette Wong, des couleurs qui restent distinctes pour tous les types de daltonisme. Il remplace les couleurs d'alerte, de surbrillance, de texte des miniatures, de marque de connexion et de stats et supprime les couleurs par événement, donc il demande d'abord. Le désactiver rend les couleurs que vous aviez avant. Si le mode a été activé dans une ancienne version de MultiPreview, le désactiver applique les couleurs standard.</sys:String> <!-- draft -->
     <!-- Alerts › Sounds and Alert hub (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.sounds">Sons</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.sounds.Desc">Un seul son pour toutes les alertes, ou un son différent pour chaque événement.</sys:String> <!-- draft -->
@@ -1911,4 +1911,5 @@
     <sys:String x:Key="L.S.tools.stats.countNpc.Desc">Désactivé : les coups des PNJ et sur les PNJ restent hors des chiffres de dégâts, qui ne montrent alors que les combats contre des joueurs. L'ISK du ratting compte toujours.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText">Couleur du texte</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">Colore le texte de la miniature de ce personnage. Tant que vous n'en choisissez pas, c'est la couleur du texte de Miniatures › Texte et bordures.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">Désactiver le mode daltonien ? Vos couleurs d'alerte, de surbrillance, de texte des miniatures, de marque de connexion et de stats, ainsi que celles que vous avez données à des événements précis, reviennent à ce qu'elles étaient avant l'activation.</sys:String> <!-- draft -->
 </ResourceDictionary>

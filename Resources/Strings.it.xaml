@@ -1557,8 +1557,8 @@
     <sys:String x:Key="L.S.Severity.HubFor">Notifica per gli avvisi {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.look.accessibility">Accessibilità</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.colorBlind">Modalità daltonici</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Colori che i giocatori daltonici sanno distinguere, per gli avvisi, il bordo di evidenziazione, il testo delle miniature, il segno di accesso e la sovrapposizione delle statistiche. Cambiare sostituisce questi colori.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Attivare la modalità daltonici? Sostituisce i tuoi colori di avviso, evidenziazione, testo delle miniature, segno di accesso e statistiche con un set adatto ai daltonici e rimuove i colori dati ai singoli eventi. Disattivarla in seguito applica i colori standard, non quelli attuali.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Colori che i giocatori daltonici sanno distinguere, per gli avvisi, il bordo di evidenziazione, il testo delle miniature, il segno di accesso e la sovrapposizione delle statistiche. Disattivarla ti restituisce i tuoi colori.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Attivare la modalità daltonici? Sostituisce i tuoi colori di avviso, evidenziazione, testo delle miniature, segno di accesso e statistiche con un set adatto ai daltonici e rimuove i colori dati ai singoli eventi. Disattivarla in seguito ti restituisce i tuoi colori.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOff">Disattivare la modalità daltonici? Applica i colori standard di avviso, evidenziazione, testo delle miniature, segno di accesso e statistiche. I colori che avevi prima di attivarla non tornano.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.Intro">Come appare un avviso su una miniatura. Le impostazioni di gravità valgono per tutti gli eventi di quella gravità; un singolo evento può comunque avere un colore proprio nella pagina Eventi.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">Sulla miniatura</sys:String> <!-- draft -->
@@ -1566,7 +1566,7 @@
     <sys:String x:Key="L.Help.alerts.look.severity.Title">Gravità</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.severity.Body">Ogni evento è **critico**, **avviso** o **info**. Ogni gravità ha un colore, una velocità di lampeggio e la scelta se i suoi avvisi mostrino una notifica nell'hub avvisi. Gli avvisi info non lampeggiano: restano fissi.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">Modalità daltonici</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">La modalità daltonici passa alla tavolozza Wong, colori che restano distinti per ogni tipo di daltonismo. Sostituisce i colori di avviso, evidenziazione, testo delle miniature, segno di accesso e statistiche e rimuove i colori per evento, quindi chiede prima. Disattivarla applica i colori standard.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">La modalità daltonici passa alla tavolozza Wong, colori che restano distinti per ogni tipo di daltonismo. Sostituisce i colori di avviso, evidenziazione, testo delle miniature, segno di accesso e statistiche e rimuove i colori per evento, quindi chiede prima. Disattivarla restituisce i colori che avevi prima. Se è stata attivata in una vecchia versione di MultiPreview, disattivarla applica i colori standard.</sys:String> <!-- draft -->
     <!-- Alerts › Sounds and Alert hub (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.sounds">Suoni</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.sounds.Desc">Un solo suono per tutti gli avvisi, oppure uno diverso per ogni evento.</sys:String> <!-- draft -->
@@ -1926,4 +1926,5 @@
     <sys:String x:Key="L.S.tools.stats.countNpc.Desc">Disattivato: i colpi degli NPC e contro gli NPC restano fuori dai numeri del danno, che mostrano solo gli scontri con i giocatori. Gli ISK del ratting contano ancora.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText">Colore del testo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">Colora il testo sulla miniatura di questo personaggio. Finché non ne scegli uno, si usa il colore del testo di Miniature › Testo e bordi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">Disattivare la modalità daltonici? I tuoi colori di avvisi, evidenziazione, testo delle miniature, segno di accesso e statistiche, e quelli dati ai singoli eventi, tornano a come erano prima di attivarla.</sys:String> <!-- draft -->
 </ResourceDictionary>

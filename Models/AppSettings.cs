@@ -31,6 +31,9 @@ public class AppSettings
     public int PreferredMonitor { get; set; } = 1;
     public string ThumbnailBackgroundColor { get; set; } = "#57504E";
     public bool ColorBlindMode { get; set; } = false;
+    /// <summary>The colours turning colour-blind mode on replaced, so turning it off gives them back (IDEAS P29). JSON text
+    /// written by ColorBlindPalette; "" when nothing is kept (off, or turned on before this key existed).</summary>
+    public string ColorBlindSavedColors { get; set; } = "";
 
     // ── Behavior ────────────────────────────────────────────────────
     public bool HideActiveThumbnail { get; set; } = false;

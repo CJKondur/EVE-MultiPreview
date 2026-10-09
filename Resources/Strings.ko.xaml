@@ -1540,8 +1540,8 @@
     <sys:String x:Key="L.S.Severity.HubFor">{0} 알림의 토스트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.look.accessibility">접근성</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.colorBlind">색맹 모드</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">색맹 플레이어도 구분할 수 있는 색을 알림, 강조 테두리, 썸네일 텍스트, 로그인 표시, 통계 오버레이에 씁니다. 전환하면 해당 색이 바뀝니다.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">색맹 모드를 켤까요? 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계 색을 색맹에 안전한 세트로 바꾸고, 개별 이벤트에 지정한 색을 지웁니다. 나중에 끄면 지금의 색이 아니라 표준 색이 적용됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">색맹 플레이어도 구분할 수 있는 색을 알림, 강조 테두리, 썸네일 텍스트, 로그인 표시, 통계 오버레이에 씁니다. 끄면 원래 색이 돌아와요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">색맹 모드를 켤까요? 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계 색을 색맹에 안전한 세트로 바꾸고, 개별 이벤트에 지정한 색을 지웁니다. 나중에 끄면 원래 색이 돌아와요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOff">색맹 모드를 끌까요? 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계의 표준 색이 적용됩니다. 켜기 전에 쓰던 색은 돌아오지 않습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.Intro">썸네일에서 알림이 보이는 모양입니다. 심각도 설정은 해당 심각도의 모든 이벤트에 적용되며, 개별 이벤트는 이벤트 페이지에서 자기 색을 가질 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">썸네일에서</sys:String> <!-- draft -->
@@ -1549,7 +1549,7 @@
     <sys:String x:Key="L.Help.alerts.look.severity.Title">심각도</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.severity.Body">모든 이벤트는 **치명**, **경고** 또는 **정보**입니다. 심각도마다 색, 깜박임 속도, 알림 허브에 토스트를 띄울지 여부를 정할 수 있습니다. 정보 알림은 깜박이지 않고 고정되어 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">색맹 모드</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">색맹 모드는 Wong 팔레트로 전환합니다. 어떤 종류의 색맹이든 구분이 유지되는 색입니다. 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계 색을 바꾸고 이벤트별 색을 지우기 때문에 먼저 묻습니다. 끄면 표준 색이 적용됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">색맹 모드는 Wong 팔레트로 전환합니다. 어떤 종류의 색맹이든 구분이 유지되는 색입니다. 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계 색을 바꾸고 이벤트별 색을 지우기 때문에 먼저 묻습니다. 끄면 켜기 전의 색이 돌아와요. 예전 버전의 MultiPreview에서 켠 경우에는 끄면 표준 색이 적용돼요.</sys:String> <!-- draft -->
     <!-- Alerts › Sounds and Alert hub (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.sounds">소리</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.sounds.Desc">모든 알림에 하나의 소리를 쓰거나, 이벤트마다 다른 소리를 지정합니다.</sys:String> <!-- draft -->
@@ -1909,4 +1909,5 @@
     <sys:String x:Key="L.S.tools.stats.countNpc.Desc">끄면 NPC가 입히거나 받은 피해가 피해 수치에서 빠져서 플레이어와의 전투만 보여요. 래팅으로 번 ISK는 계속 집계돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText">텍스트 색상</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">이 캐릭터 미리보기의 글자 색을 정해요. 고르기 전에는 미리보기 › 텍스트 및 테두리의 텍스트 색상을 사용해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">색맹 모드를 끌까요? 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계 색과 개별 이벤트에 지정한 색이 켜기 전 색으로 돌아가요.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -1540,8 +1540,8 @@
     <sys:String x:Key="L.S.Severity.HubFor">{0}アラートのトースト</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.look.accessibility">アクセシビリティ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.colorBlind">色覚サポートモード</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">色覚の違いがあるプレイヤーでも見分けやすい色を、アラート、ハイライト枠、サムネイルのテキスト、ログインマーク、統計オーバーレイに使います。切り替えるとこれらの色が置き換わります。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">色覚サポートモードをオンにしますか？ アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色を色覚サポート用のセットに置き換え、個別のイベントに付けた色を削除します。後でオフにすると、今の色ではなく標準の色になります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">色覚の違いがあるプレイヤーでも見分けやすい色を、アラート、ハイライト枠、サムネイルのテキスト、ログインマーク、統計オーバーレイに使います。オフにすると、元の色に戻ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">色覚サポートモードをオンにしますか？ アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色を色覚サポート用のセットに置き換え、個別のイベントに付けた色を削除します。後でオフにすると、元の色に戻ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOff">色覚サポートモードをオフにしますか？ アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色を標準に戻します。オンにする前の色は戻りません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.Intro">サムネイル上でのアラートの見え方。重大度の設定はその重大度のすべてのイベントに適用されます。個別のイベントは、イベントページで独自の色を持てます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">サムネイル上</sys:String> <!-- draft -->
@@ -1549,7 +1549,7 @@
     <sys:String x:Key="L.Help.alerts.look.severity.Title">重大度</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.severity.Body">すべてのイベントは**重大**、**警告**、**情報**のいずれかです。重大度ごとに、色、点滅速度、アラートハブにトーストを出すかどうかを選べます。情報アラートは点滅せず、常に点灯します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">色覚サポートモード</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">色覚サポートモードは Wong パレットに切り替えます。どのタイプの色覚でも区別しやすい色です。アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色を置き換え、イベントごとの色を削除するため、先に確認します。オフにすると標準の色になります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">色覚サポートモードは Wong パレットに切り替えます。どのタイプの色覚でも区別しやすい色です。アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色を置き換え、イベントごとの色を削除するため、先に確認します。オフにすると、オンにする前の色に戻ります。古いバージョンの MultiPreview でオンにした場合は、オフにすると標準の色になります。</sys:String> <!-- draft -->
     <!-- Alerts › Sounds and Alert hub (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.sounds">サウンド</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.sounds.Desc">すべてのアラートに1つの音、またはイベントごとに別の音を設定できます。</sys:String> <!-- draft -->
@@ -1909,4 +1909,5 @@
     <sys:String x:Key="L.S.tools.stats.countNpc.Desc">オフ：NPC が与えた／受けたダメージはダメージ数値に含まれず、プレイヤーとの戦闘だけが表示されます。ラッティングの ISK は引き続き加算されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText">テキストの色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">このキャラクターのサムネイル上の文字の色を設定します。選ぶまでは サムネイル › テキストと枠線 のテキストの色が使われます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">色覚サポートモードをオフにしますか？ アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色と、個別のイベントに付けた色は、オンにする前の色に戻ります。</sys:String> <!-- draft -->
 </ResourceDictionary>

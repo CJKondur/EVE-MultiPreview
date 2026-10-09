@@ -1561,8 +1561,8 @@
     <sys:String x:Key="L.S.Severity.HubFor">Aviso para las alertas {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.look.accessibility">Accesibilidad</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.colorBlind">Modo daltónico</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Colores que los jugadores daltónicos pueden distinguir, para las alertas, el borde de resaltado, el texto de las miniaturas, la marca de inicio de sesión y la superposición de estadísticas. Al cambiar se reemplazan esos colores.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">¿Activar el modo daltónico? Reemplaza tus colores de alerta, resaltado, texto de miniaturas, marca de inicio de sesión y estadísticas por un conjunto apto para daltónicos, y quita los colores que diste a eventos concretos. Si lo desactivas después, se aplican los colores estándar, no los que tienes ahora.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Colores que los jugadores daltónicos pueden distinguir, para las alertas, el borde de resaltado, el texto de las miniaturas, la marca de inicio de sesión y la superposición de estadísticas. Al desactivarlo recuperas tus propios colores.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">¿Activar el modo daltónico? Reemplaza tus colores de alerta, resaltado, texto de miniaturas, marca de inicio de sesión y estadísticas por un conjunto apto para daltónicos, y quita los colores que diste a eventos concretos. Si lo desactivas después, recuperas tus colores.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOff">¿Desactivar el modo daltónico? Aplica los colores estándar de alerta, resaltado, texto de miniaturas, marca de inicio de sesión y estadísticas. Los colores que tenías antes de activarlo no vuelven.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.Intro">Cómo se ve una alerta en una miniatura. Los ajustes de gravedad valen para todos los eventos de esa gravedad; un evento concreto aún puede tener su propio color en la página Eventos.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">En la miniatura</sys:String> <!-- draft -->
@@ -1570,7 +1570,7 @@
     <sys:String x:Key="L.Help.alerts.look.severity.Title">Gravedades</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.severity.Body">Cada evento es **crítico**, **aviso** o **info**. Cada gravedad tiene un color, una velocidad de parpadeo y la opción de que sus alertas muestren un aviso en el centro de alertas. Las alertas info no parpadean: se quedan fijas.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">Modo daltónico</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">El modo daltónico cambia a la paleta Wong, colores que se distinguen con cualquier tipo de daltonismo. Reemplaza los colores de alerta, resaltado, texto de miniaturas, marca de inicio de sesión y estadísticas y quita los colores por evento, así que pregunta antes. Al desactivarlo se aplican los colores estándar.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">El modo daltónico cambia a la paleta Wong, colores que se distinguen con cualquier tipo de daltonismo. Reemplaza los colores de alerta, resaltado, texto de miniaturas, marca de inicio de sesión y estadísticas y quita los colores por evento, así que pregunta antes. Al desactivarlo se recuperan los colores que tenías antes. Si se activó en una versión antigua de MultiPreview, al desactivarlo se aplican los colores estándar.</sys:String> <!-- draft -->
     <!-- Alerts › Sounds and Alert hub (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.sounds">Sonidos</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.sounds.Desc">Un sonido para todas las alertas, o uno distinto para cada evento.</sys:String> <!-- draft -->
@@ -1930,4 +1930,5 @@
     <sys:String x:Key="L.S.tools.stats.countNpc.Desc">Desactivado: los golpes de y a los NPC quedan fuera de las cifras de daño, que solo muestran combates con jugadores. Los ISK del ratting siguen contando.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText">Color del texto</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">Colorea el texto de la miniatura de este personaje. Hasta que elijas uno, se usa el color del texto de Miniaturas › Texto y bordes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">¿Desactivar el modo daltónico? Tus colores de alertas, resaltado, texto de miniaturas, marca de inicio de sesión y estadísticas, y los que diste a eventos concretos, vuelven a ser los que eran antes de activarlo.</sys:String> <!-- draft -->
 </ResourceDictionary>

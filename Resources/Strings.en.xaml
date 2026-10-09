@@ -1539,8 +1539,8 @@
     <sys:String x:Key="L.S.Severity.HubFor">Toast for {0} alerts</sys:String>
     <sys:String x:Key="L.S.Sec.alerts.look.accessibility">Accessibility</sys:String>
     <sys:String x:Key="L.S.alerts.look.colorBlind">Colour-blind mode</sys:String>
-    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Colours colour-blind players can tell apart, for alerts, the highlight border, thumbnail text, the login mark and the stats overlay. Switching replaces those colours.</sys:String>
-    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Turn on colour-blind mode? It replaces your alert, highlight, thumbnail text, login mark and stats colours with a colour-blind-safe set, and removes the colours you gave single events. Turning it off later sets the standard colours, not the ones you have now.</sys:String>
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Colours colour-blind players can tell apart, for alerts, the highlight border, thumbnail text, the login mark and the stats overlay. Turning it off gives your own colours back.</sys:String>
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Turn on colour-blind mode? It replaces your alert, highlight, thumbnail text, login mark and stats colours with a colour-blind-safe set, and removes the colours you gave single events. Turning it off later gives your colours back.</sys:String>
     <sys:String x:Key="L.S.ColorBlind.ConfirmOff">Turn off colour-blind mode? It sets the standard alert, highlight, thumbnail text, login mark and stats colours. Colours you had before turning it on don't come back.</sys:String>
     <sys:String x:Key="L.Help.alerts.look.Intro">How an alert looks on a thumbnail. Severity settings apply to every event of that severity; a single event can still have its own colour on the Events page.</sys:String>
     <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">On the thumbnail</sys:String>
@@ -1548,7 +1548,7 @@
     <sys:String x:Key="L.Help.alerts.look.severity.Title">Severities</sys:String>
     <sys:String x:Key="L.Help.alerts.look.severity.Body">Every event is **critical**, **warning** or **info**. Each severity has a colour, a flash speed and a choice of whether its alerts show a toast in the alert hub. Info alerts don't blink: they stay steady.</sys:String>
     <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">Colour-blind mode</sys:String>
-    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">Colour-blind mode switches to the Wong palette, colours that stay distinct for every kind of colour blindness. It replaces the alert, highlight, thumbnail text, login mark and stats colours and removes per-event colours, so it asks first. Turning it off sets the standard colours.</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">Colour-blind mode switches to the Wong palette, colours that stay distinct for every kind of colour blindness. It replaces the alert, highlight, thumbnail text, login mark and stats colours and removes per-event colours, so it asks first. Turning it off gives back the colours you had before. If it was turned on in an older version of MultiPreview, turning it off sets the standard colours.</sys:String>
     <!-- Alerts › Sounds and Alert hub (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.sounds">Sounds</sys:String>
     <sys:String x:Key="L.S.Page.alerts.sounds.Desc">One sound for every alert, or a different one for each event.</sys:String>
@@ -1908,4 +1908,5 @@
     <sys:String x:Key="L.S.tools.stats.countNpc.Desc">Off: hits from and on NPCs stay out of the damage numbers, so they show fights with players only. ISK from ratting still counts.</sys:String>
     <sys:String x:Key="L.S.character.colorText">Text colour</sys:String>
     <sys:String x:Key="L.S.character.colorText.Desc">Colours the text on this character's thumbnail. Until you pick one, it is the text colour from Thumbnails › Text &amp; borders.</sys:String>
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">Turn off colour-blind mode? Your alert, highlight, thumbnail text, login mark and stats colours, and the colours you gave single events, go back to what they were before you turned it on.</sys:String>
 </ResourceDictionary>

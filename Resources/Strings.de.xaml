@@ -1539,8 +1539,8 @@
     <sys:String x:Key="L.S.Severity.HubFor">Toast für {0}-Alarme</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.look.accessibility">Barrierefreiheit</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.colorBlind">Farbenblind-Modus</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Farben, die Farbenblinde unterscheiden können, für Alarme, den Hervorhebungsrahmen, Vorschaubild-Text, die Login-Markierung und das Statistik-Overlay. Das Umschalten ersetzt diese Farben.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Farbenblind-Modus einschalten? Er ersetzt deine Farben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik durch einen farbenblindengeeigneten Satz und entfernt die Farben, die du einzelnen Ereignissen gegeben hast. Beim späteren Ausschalten gelten die Standardfarben, nicht die jetzigen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.colorBlind.Desc">Farben, die Farbenblinde unterscheiden können, für Alarme, den Hervorhebungsrahmen, Vorschaubild-Text, die Login-Markierung und das Statistik-Overlay. Beim Ausschalten bekommst du deine eigenen Farben zurück.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOn">Farbenblind-Modus einschalten? Er ersetzt deine Farben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik durch einen farbenblindengeeigneten Satz und entfernt die Farben, die du einzelnen Ereignissen gegeben hast. Beim späteren Ausschalten bekommst du deine Farben zurück.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOff">Farbenblind-Modus ausschalten? Er setzt die Standardfarben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik. Farben, die du vor dem Einschalten hattest, kommen nicht zurück.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.Intro">Wie ein Alarm auf einem Vorschaubild aussieht. Die Schweregrad-Einstellungen gelten für alle Ereignisse dieses Schweregrads; ein einzelnes Ereignis kann auf der Seite Ereignisse trotzdem eine eigene Farbe haben.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.thumbnail.Title">Auf dem Vorschaubild</sys:String> <!-- draft -->
@@ -1548,7 +1548,7 @@
     <sys:String x:Key="L.Help.alerts.look.severity.Title">Schweregrade</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.severity.Body">Jedes Ereignis ist **kritisch**, **Warnung** oder **Info**. Jeder Schweregrad hat eine Farbe, ein Blinktempo und die Wahl, ob seine Alarme einen Toast in der Alarmzentrale zeigen. Info-Alarme blinken nicht: Sie bleiben dauerhaft.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.colorBlind.Title">Farbenblind-Modus</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">Der Farbenblind-Modus wechselt zur Wong-Palette, Farben, die bei jeder Form von Farbenblindheit unterscheidbar bleiben. Er ersetzt die Farben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik und entfernt Farben einzelner Ereignisse, deshalb fragt er zuerst. Beim Ausschalten gelten die Standardfarben.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.colorBlind.Body">Der Farbenblind-Modus wechselt zur Wong-Palette, Farben, die bei jeder Form von Farbenblindheit unterscheidbar bleiben. Er ersetzt die Farben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik und entfernt Farben einzelner Ereignisse, deshalb fragt er zuerst. Beim Ausschalten kommen die Farben von vorher zurück. Wurde der Modus in einer älteren MultiPreview-Version eingeschaltet, gelten beim Ausschalten die Standardfarben.</sys:String> <!-- draft -->
     <!-- Alerts › Sounds and Alert hub (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.sounds">Töne</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.sounds.Desc">Ein Ton für alle Alarme oder ein eigener für jedes Ereignis.</sys:String> <!-- draft -->
@@ -1908,4 +1908,5 @@
     <sys:String x:Key="L.S.tools.stats.countNpc.Desc">Aus: Treffer von und auf NPCs bleiben aus den Schadenswerten heraus, sie zeigen also nur Kämpfe mit Spielern. ISK vom Ratting zählt weiterhin.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText">Textfarbe</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">Färbt den Text auf dem Vorschaubild dieses Charakters. Solange du keine Farbe wählst, gilt die Textfarbe aus Vorschaubilder › Text und Rahmen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">Farbenblind-Modus ausschalten? Deine Farben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik sowie die Farben, die du einzelnen Ereignissen gegeben hast, kehren zu dem zurück, was sie vor dem Einschalten waren.</sys:String> <!-- draft -->
 </ResourceDictionary>
