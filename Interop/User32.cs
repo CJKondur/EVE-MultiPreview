@@ -1128,15 +1128,35 @@ public static class User32
     public static string? GetProcessName(IntPtr hWnd)
     {
         GetWindowThreadProcessId(hWnd, out uint pid);
+        return pid == 0 ? null : ProcessNames.Get(pid);
+    }
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool QueryFullProcessImageNameW(IntPtr process, uint flags, StringBuilder exeName, ref uint size);
+
+    /// <summary>Asks Windows for one process's exe name ("exefile"), or null when it is gone or protected. One open
+    /// and one query: no list of every process, and no wait that lets other window messages run (see
+    /// <see cref="ProcessNames"/>, which remembers the answer).</summary>
+    public static string? ReadProcessName(uint pid)
+    {
+        if (pid == 0) return null;
+        var process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+        if (process == IntPtr.Zero) return null;
         try
         {
-            using var proc = Process.GetProcessById((int)pid);
-            return proc.ProcessName;
+            var path = new StringBuilder(1024);
+            uint size = (uint)path.Capacity;
+            return QueryFullProcessImageNameW(process, 0, path, ref size) && size > 0 ? ProcessNameFromPath(path.ToString(0, (int)size)) : null;
         }
-        catch
-        {
-            return null;
-        }
+        finally { CloseHandle(process); }
+    }
+
+    /// <summary>The file name without its folder and without ".exe", as System.Diagnostics.Process named it.</summary>
+    public static string ProcessNameFromPath(string path)
+    {
+        var name = System.IO.Path.GetFileName(path);
+        return name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) ? name[..^4] : name;
     }
 
     public static bool IsEveProcessName(string? procName)
