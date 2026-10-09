@@ -36,8 +36,27 @@ public sealed class HookWatchdog
     /// <param name="Cursor">GetCursorPos, or null when Windows didn't say (a locked screen).</param>
     /// <param name="WindowInFront">A window is in front whose input this process's hooks can see: not the lock screen or
     /// a UAC prompt (no foreground window), and not an elevated window, where no hook of a normal process sees input.</param>
+    /// <param name="BoundButtonDown">A mouse button the hook has a binding for is physically down. A new hook would
+    /// swallow its release and strand the button down in the client, so nothing is reinstalled until it is up.</param>
+    /// <param name="CursorWindowVisible">The window under the cursor passes the same test as the one in front: hovering
+    /// an elevated window on another monitor legitimately produces no hook calls.</param>
     public readonly record struct MouseLook(int Now, bool Installed, int Generation, int LastCallback, int? LastInput,
-        (int X, int Y)? Cursor, bool WindowInFront);
+        (int X, int Y)? Cursor, bool WindowInFront, bool BoundButtonDown = false, bool CursorWindowVisible = true);
+
+    /// <summary>One look at the keyboard hook, taken on the UI thread when a hotkey arrived without the hook's mark.</summary>
+    /// <param name="MessageTime">When the system posted the WM_HOTKEY (GetMessageTime), not when it was handled: a UI
+    /// thread that was busy must not make a healthy hook look silent. A live hook stamps before the OS posts it.</param>
+    /// <param name="LastCallback">The hook's last stamp.</param>
+    /// <param name="InstalledAt">When the hook was installed (TickCount).</param>
+    /// <param name="Generation">Bumps every time the service installs or removes the keyboard hook.</param>
+    /// <param name="Installed">A keyboard hook thread is supposed to be running.</param>
+    /// <param name="SlotIsHidden">The hotkey is one whose keystroke the hook should have hidden.</param>
+    /// <param name="HeldKeyHidden">A key hidden after a switch is still down (removing the hook would strand it).</param>
+    /// <param name="HooksSeeForeground">The window in front is one whose input the hooks can see.</param>
+    public readonly record struct KeyLook(int MessageTime, int LastCallback, int InstalledAt, int Generation, bool Installed,
+        bool Suspended, bool Capturing, bool Disposed, bool SlotIsHidden, bool HeldKeyHidden, bool HooksSeeForeground);
+
+    private (int Generation, int Stamp, int At)? _keyStrike;
 
     private MouseLook? _previous;
     private int _suspicious;
@@ -48,6 +67,14 @@ public sealed class HookWatchdog
 
     /// <summary>The session's reinstall allowance is used up.</summary>
     public bool LimitReached => Reinstalls >= MaxReinstallsPerSession;
+
+    /// <summary>Forget a keyboard strike: the hook is gone, or was heard from.</summary>
+    public void ForgetKeyStrike() => _keyStrike = null;
+
+    /// <summary>The service may still reinstall the mouse hook after a dead verdict: it was not disposed, no hotkey capture
+    /// started, and the hook is the same one the look saw (not removed, not installed again) since.</summary>
+    public static bool MouseMayReinstall(bool disposed, bool capturing, bool installedNow, int generationNow, int generationLooked) =>
+        !disposed && !capturing && installedNow && generationNow == generationLooked;
 
     /// <summary>True when the mouse hook has missed input on <see cref="LooksToAct"/> looks in a row. Any install or
     /// removal by the service (pause, resume, settings, a hotkey capture, a reinstall) starts the count again, and so
@@ -64,11 +91,41 @@ public sealed class HookWatchdog
         }
         bool cursorMoved = now.Cursor is { } c && p.Cursor is { } pc && c != pc;
         bool inputSince = now.LastInput is int input && After(input, p.Now);
-        bool calledSince = After(now.LastCallback, p.Now);
-        _suspicious = now.WindowInFront && cursorMoved && inputSince && !calledSince ? _suspicious + 1 : 0;
+        bool calledSince = !After(p.Now, now.LastCallback);   // a stamp in the same millisecond as the last look counts as a call
+        _suspicious = now.WindowInFront && now.CursorWindowVisible && cursorMoved && inputSince && !calledSince ? _suspicious + 1 : 0;
         if (_suspicious < LooksToAct) return false;
+        if (now.BoundButtonDown) return false;   // keeps the count: the next look tries again, with the button up
         _suspicious = 0;
         return true;
+    }
+
+    /// <summary>True when a hotkey the keyboard hook should have hidden came without it, twice: the second unmarked hotkey
+    /// that arrives at least <see cref="KeyQuietMs"/> after the first, with the hook's stamp unchanged in between and no
+    /// install or removal in between. One strike alone proves nothing (hotkeys queued behind an elevated window reach a
+    /// healthy hook late). Nothing counts while the hook is removed on purpose (<c>Suspended</c>, <c>Capturing</c>,
+    /// <c>Disposed</c>, not <c>Installed</c>), while a hidden key is held, or while the window in front is one the hooks
+    /// can't see.</summary>
+    public bool KeyHookLooksDead(KeyLook k)
+    {
+        if (k.Disposed || k.Suspended || k.Capturing || !k.Installed || !k.SlotIsHidden)
+        {
+            _keyStrike = null;
+            return false;
+        }
+        if (!KeyHookMissedPress(k.MessageTime, k.LastCallback, k.InstalledAt))
+        {
+            _keyStrike = null;
+            return false;
+        }
+        if (!k.HooksSeeForeground || k.HeldKeyHidden) return false;
+        if (_keyStrike is { } s && s.Generation == k.Generation && s.Stamp == k.LastCallback)
+        {
+            if (!After(k.MessageTime, unchecked(s.At + KeyQuietMs))) return false;   // too soon after the first: keep that one
+            _keyStrike = null;
+            return true;
+        }
+        _keyStrike = (k.Generation, k.LastCallback, k.MessageTime);
+        return false;
     }
 
     /// <summary>True when a hotkey the keyboard hook should have hidden arrived without it, and the hook hasn't been called

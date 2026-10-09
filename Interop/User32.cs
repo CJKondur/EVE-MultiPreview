@@ -157,6 +157,14 @@ public static class User32
     /// watchdog never removes the keyboard hook then: that would strand the key down in the client (IDEAS #41).</summary>
     public static bool HasHiddenHeldKeys => !_hiddenHeldKeys.IsEmpty;
 
+    /// <summary>The time (Environment.TickCount's clock) of the message being handled: for a WM_HOTKEY, when the
+    /// system posted it, so a handler that ran late still knows when the key was pressed (IDEAS #41).</summary>
+    [DllImport("user32.dll")]
+    public static extern int GetMessageTime();
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr WindowFromPoint(POINT point);
+
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);

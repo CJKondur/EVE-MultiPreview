@@ -144,9 +144,12 @@ public sealed class HotkeyService : IDisposable
     private readonly HookWatchdog _mouseWatchdog = new(), _keyWatchdog = new();
     private System.Windows.Threading.DispatcherTimer? _watchdogTimer;
     private bool _disposed;
-    private bool _watchdogLimitNoted;         // the "limit reached" note is written once
+    private bool _mouseLimitNoted, _keyLimitNoted;   // each hook's "limit reached" note is written once
+    private int _keyHookGeneration;           // bumps whenever this service installs or removes the keyboard hook
     private IntPtr _hooksSeeHwnd;             // the last foreground window asked about, and the answer
     private bool _hooksSeeInput;
+    private IntPtr _hooksSeeCursorHwnd;       // the same for the top-level window under the cursor
+    private bool _hooksSeeCursor;
     private IntPtr _hotkeyHwnd;
     private const uint LLKHF_INJECTED = 0x10;
     private const uint LLKHF_UP = 0x80;
@@ -1168,7 +1171,7 @@ public sealed class HotkeyService : IDisposable
         {
             int id = wParam.ToInt32();
             // IDEAS #41: a hotkey whose keystroke the keyboard hook should have hidden arrived the ordinary way.
-            if ((lParam.ToInt64() & HiddenKeystrokeMark) == 0) CheckKeyHook(id);
+            if ((lParam.ToInt64() & HiddenKeystrokeMark) == 0) CheckKeyHook(id, User32.GetMessageTime());
             // The internal vk0xE8 activation hotkey is a foreground-rights bridge
             // synthesized by our own ActivateWindow path. It must always fire
             // regardless of EVE-only scope, the Settings-window block, or the
@@ -1449,6 +1452,7 @@ public sealed class HotkeyService : IDisposable
     private void EnsureKeyHook()
     {
         if (_keyHookThread != null) return;
+        _keyHookGeneration++;   // the watchdog starts over (IDEAS #41)
         _keyHookTick = _keyHookInstalledTick = Environment.TickCount;   // the watchdog's clock starts at install (IDEAS #41)
         _keyHookReady.Reset();
         _keyHookThread = new System.Threading.Thread(KeyHookThreadProc)
@@ -1465,6 +1469,7 @@ public sealed class HotkeyService : IDisposable
         _keyHookMap = null;
         User32.HeldKeyHidingReady = false;   // nothing left to swallow the repeats / release
         if (_keyHookThread == null) return;
+        _keyHookGeneration++;   // the watchdog starts over (IDEAS #41)
         if (_keyHookThreadId != 0)
             User32.PostThreadMessage(_keyHookThreadId, User32.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
         _keyHookThread = null;
@@ -1472,89 +1477,132 @@ public sealed class HotkeyService : IDisposable
     }
 
     /// <summary>IDEAS #41, every 2 s on the UI thread: puts the mouse hook back when Windows dropped it, through
-    /// ReinstallMouseBindings, the path pause and resume use (so a paused service keeps only its pause button). It only
-    /// acts on a hook this service has installed and not removed: a removed one (pause without a pause button, a hotkey
-    /// capture, shutdown) is not "installed" in the look, and the state is read again right before acting. Never throws.</summary>
+    /// ReinstallMouseBindings, the path pause and resume use (so a paused service keeps only its pause button). With no
+    /// mouse hook installed it reads nothing. The rules are HookWatchdog's; this gathers the inputs and acts. Never throws.</summary>
     private void CheckMouseHook()
     {
         try
         {
             if (_disposed) return;
-            var foreground = User32.GetForegroundWindow();
-            var look = new HookWatchdog.MouseLook(Environment.TickCount, _mouseHookThread != null, _mouseHookGeneration,
-                _mouseHookTick, User32.LastInputTick(),
-                User32.GetCursorPos(out var cursor) ? (cursor.X, cursor.Y) : null,
-                ForegroundHooksSeeInput(foreground));
+            if (_mouseHookThread == null)
+            {
+                _mouseWatchdog.MouseLooksDead(new HookWatchdog.MouseLook(Environment.TickCount, false, _mouseHookGeneration, 0, null, null, false));
+                return;
+            }
+            // The devices first, the hook's stamp after them: a call between the reads is then seen, not missed.
+            bool gotCursor = User32.GetCursorPos(out var cursor);
+            var lastInput = User32.LastInputTick();
+            bool seeForeground = ForegroundHooksSeeInput(User32.GetForegroundWindow());
+            bool seeUnderCursor = gotCursor && CursorWindowHooksSeeInput(cursor);
+            bool buttonDown = BoundMouseButtonDown();
+            int generation = _mouseHookGeneration;
+            int stamp = _mouseHookTick;
+            int now = Environment.TickCount;
+            var look = new HookWatchdog.MouseLook(now, true, generation, stamp, lastInput,
+                gotCursor ? (cursor.X, cursor.Y) : null, seeForeground, buttonDown, seeUnderCursor);
             if (!_mouseWatchdog.MouseLooksDead(look)) return;
             // Same UI-thread turn as the look, but nothing may have been removed or reinstalled since: ask again.
-            if (_disposed || _captureDepth > 0 || _mouseHookThread == null || _mouseHookGeneration != look.Generation) return;
-            if (!_mouseWatchdog.MayReinstall(look.Now)) { NoteLimitOnce(_mouseWatchdog); return; }
+            if (!HookWatchdog.MouseMayReinstall(_disposed, _captureDepth > 0, _mouseHookThread != null, _mouseHookGeneration, look.Generation)) return;
+            if (!_mouseWatchdog.MayReinstall(now)) { NoteLimitOnce(_mouseWatchdog, ref _mouseLimitNoted, "mouse"); return; }
             ReinstallMouseBindings();
-            if (_mouseHookThread == null) return;
-            ErrorLog.Shared.Note($"[Hotkey:Watchdog] Windows stopped calling the mouse hook (the cursor moved, the hook was "
-                + $"silent for {unchecked(look.Now - look.LastCallback)} ms); put it back ({_mouseWatchdog.Reinstalls} this session).", DateTime.Now);
+            ErrorLog.Shared.Note($"[Hotkey:Watchdog] mouse hook stopped receiving input (silent {unchecked(now - stamp)} ms, foreground: "
+                + $"{ForegroundExeName()}); reinstalling ({_mouseWatchdog.Reinstalls} of {HookWatchdog.MaxReinstallsPerSession}).", DateTime.Now);
         }
         catch (Exception ex) { Debug.WriteLine($"[Hotkey:Watchdog] Mouse check failed: {ex.Message}"); }
     }
 
-    /// <summary>IDEAS #41, when a hotkey arrives without the hook's mark: if its keystroke was one the keyboard hook hides
-    /// and the hook has been silent for 2 s, Windows dropped it, and it is put back with the same keys to hide. Cheap
-    /// reads first (this runs for every unmarked hotkey, including a held key's repeats). Never throws.</summary>
-    private void CheckKeyHook(int id)
+    /// <summary>IDEAS #41, when a hotkey arrives without the hook's mark (<paramref name="messageTime"/> is when the system
+    /// posted it): if its keystroke was one the keyboard hook hides and the hook was silent, twice, Windows dropped it, and
+    /// it is put back with the same keys to hide. Cheap reads first (this runs for every unmarked hotkey, including a held
+    /// key's repeats). The rules are HookWatchdog's. Never throws.</summary>
+    private void CheckKeyHook(int id, int messageTime)
     {
         try
         {
             var map = _keyHookMap;
-            if (_disposed || _suspended || _captureDepth > 0 || _keyHookThread == null || map == null) return;
-            int now = Environment.TickCount;
+            if (_disposed || _keyHookThread == null || map == null) { _keyWatchdog.ForgetKeyStrike(); return; }
             int lastCall = _keyHookTick;
-            if (!HookWatchdog.KeyHookMissedPress(now, lastCall, _keyHookInstalledTick)) return;
+            if (!HookWatchdog.KeyHookMissedPress(messageTime, lastCall, _keyHookInstalledTick)) { _keyWatchdog.ForgetKeyStrike(); return; }
             bool hidden = false;
             foreach (var slot in map.Values)
                 if (slot.Id == id) { hidden = true; break; }
-            if (!hidden) return;
-            // An elevated window (or none: lock screen) in front: the hook is expected to be silent there.
-            if (!ForegroundHooksSeeInput(User32.GetForegroundWindow())) return;
-            // A key hidden after a switch is still down: removing the hook now would strand it.
-            if (User32.HasHiddenHeldKeys) return;
-            if (!_keyWatchdog.MayReinstall(now)) { NoteLimitOnce(_keyWatchdog); return; }
+            var look = new HookWatchdog.KeyLook(messageTime, lastCall, _keyHookInstalledTick, _keyHookGeneration, true,
+                _suspended, _captureDepth > 0, _disposed, hidden, User32.HasHiddenHeldKeys,
+                ForegroundHooksSeeInput(User32.GetForegroundWindow()));
+            if (!_keyWatchdog.KeyHookLooksDead(look)) return;
+            if (!_keyWatchdog.MayReinstall(Environment.TickCount)) { NoteLimitOnce(_keyWatchdog, ref _keyLimitNoted, "keyboard"); return; }
             ReinstallKeyHook();
-            ErrorLog.Shared.Note($"[Hotkey:Watchdog] Windows stopped calling the keyboard hook (a hotkey came without it, the hook "
-                + $"was silent for {unchecked(now - lastCall)} ms); put it back ({_keyWatchdog.Reinstalls} this session).", DateTime.Now);
+            ErrorLog.Shared.Note($"[Hotkey:Watchdog] keyboard hook stopped receiving input (silent {unchecked(messageTime - lastCall)} ms, foreground: "
+                + $"{ForegroundExeName()}); reinstalling ({_keyWatchdog.Reinstalls} of {HookWatchdog.MaxReinstallsPerSession}).", DateTime.Now);
         }
         catch (Exception ex) { Debug.WriteLine($"[Hotkey:Watchdog] Key check failed: {ex.Message}"); }
     }
 
     /// <summary>A new keyboard hook thread with the same keys to hide and the same held-key hiding. A press the old hook
     /// missed is left alone: the new hook doesn't own it, so hiding only its release can't strand the key down.</summary>
-    private void ReinstallKeyHook()
+    private void ReinstallKeyHook() => ReinstallKeyHook(RemoveKeyHook, EnsureKeyHook);
+
+    /// <summary>The same with the install and remove passed in, so a test can run it without a real hook.</summary>
+    private void ReinstallKeyHook(Action remove, Action ensure)
     {
         var map = _keyHookMap;
         bool held = User32.HeldKeyHidingReady;
-        RemoveKeyHook();
-        EnsureKeyHook();
+        remove();
+        ensure();
         _keyHookMap = map;
         User32.HeldKeyHidingReady = held;
     }
 
     /// <summary>Whether the window in front is one this process's hooks can see input for (not elevated over a normal
     /// process). The answer for the last window asked about is kept, so the process lookup runs on a change of window.</summary>
-    private bool ForegroundHooksSeeInput(IntPtr foreground)
+    private bool ForegroundHooksSeeInput(IntPtr foreground) =>
+        HooksSeeCached(foreground, ref _hooksSeeHwnd, ref _hooksSeeInput);
+
+    /// <summary>The same for the top-level window under the cursor (a non-foreground elevated window may get input the
+    /// hooks never see). Zero (nothing there, or can't tell) is "no".</summary>
+    private bool CursorWindowHooksSeeInput(User32.POINT cursor)
     {
-        if (foreground != _hooksSeeHwnd)
-        {
-            _hooksSeeHwnd = foreground;
-            _hooksSeeInput = User32.HooksSeeInputFor(foreground);
-        }
-        return _hooksSeeInput;
+        var window = User32.WindowFromPoint(cursor);
+        var root = window == IntPtr.Zero ? IntPtr.Zero : User32.GetAncestor(window, User32.GA_ROOT);
+        return HooksSeeCached(root, ref _hooksSeeCursorHwnd, ref _hooksSeeCursor);
     }
 
-    /// <summary>The session's reinstall allowance is used up: one note says so, then nothing more is written.</summary>
-    private void NoteLimitOnce(HookWatchdog watchdog)
+    private static bool HooksSeeCached(IntPtr hwnd, ref IntPtr cachedHwnd, ref bool cachedResult)
     {
-        if (!watchdog.LimitReached || _watchdogLimitNoted) return;
-        _watchdogLimitNoted = true;
-        ErrorLog.Shared.Note($"[Hotkey:Watchdog] {HookWatchdog.MaxReinstallsPerSession} hook reinstalls this session; no more will be tried.", DateTime.Now);
+        if (hwnd == IntPtr.Zero) return false;
+        if (hwnd != cachedHwnd)
+        {
+            cachedHwnd = hwnd;
+            cachedResult = User32.HooksSeeInputFor(hwnd);
+        }
+        return cachedResult;
+    }
+
+    /// <summary>A mouse button the hook has a binding for is physically down.</summary>
+    private bool BoundMouseButtonDown()
+    {
+        foreach (var binding in _mouseBindings)
+        {
+            int vk = binding.ButtonName switch { "MBUTTON" => 0x04, "XBUTTON1" => 0x05, "XBUTTON2" => 0x06, _ => 0 };
+            if (vk != 0 && User32.IsKeyDown(vk)) return true;
+        }
+        return false;
+    }
+
+    /// <summary>The exe name of the window in front (no title, no path), for a note a reader can triage.</summary>
+    private static string ForegroundExeName()
+    {
+        try { return User32.GetProcessName(User32.GetForegroundWindow()) ?? "unknown"; }
+        catch { return "unknown"; }
+    }
+
+    /// <summary>One hook used up its session allowance: one note says which, then nothing more is written for it.</summary>
+    private static void NoteLimitOnce(HookWatchdog watchdog, ref bool noted, string which)
+    {
+        if (!watchdog.LimitReached || noted) return;
+        noted = true;
+        ErrorLog.Shared.Note($"[Hotkey:Watchdog] the {which} hook has been reinstalled {HookWatchdog.MaxReinstallsPerSession} times this session; "
+            + $"no more reinstalls of it will be tried.", DateTime.Now);
     }
 
     /// <summary>Dedicated-thread body, same shape as the mouse hook's: a low-level hook
