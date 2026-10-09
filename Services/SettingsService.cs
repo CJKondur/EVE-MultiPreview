@@ -71,16 +71,36 @@ public sealed class SettingsService : IDisposable
                ?? throw new JsonException("Not a settings file");
     }
 
+
+    /// <summary>Parses settings-file text exactly as Load does: the AHK nested format when the text has
+    /// "global_Settings", otherwise the flat format. Throws (JsonException and others) where Load would fail.</summary>
+    public static AppSettings ParseForLoad(string json)
+    {
+        if (json.Contains("\"global_Settings\""))
+            return (JsonSerializer.Deserialize<AhkConfigRoot>(json, _jsonOptions)
+                    ?? throw new JsonException("Not a settings file")).ToAppSettings();
+        return JsonSerializer.Deserialize<AppSettings>(json, _jsonOptions) ?? new AppSettings();
+    }
+
+    /// <summary>The text Save writes for these settings. Two files hold the same settings when their Canonical texts
+    /// are equal (the settings move checks its copy this way, IDEAS #57).</summary>
+    public static string Canonical(AppSettings settings) =>
+        JsonSerializer.Serialize(AhkConfigRoot.FromAppSettings(settings), _jsonOptions);
+
+    /// <summary>True once Load has read the file (or created it). False before Load and after a load that failed: the
+    /// session then runs on defaults and saving is blocked, and App offers the restore prompt (IDEAS #49).</summary>
+    public bool LoadedSuccessfully => _loadedSuccessfully;
+
+    /// <summary>Why the last Load failed, or null. A file another program holds open fails with an IOException, which
+    /// App retries before it offers a restore.</summary>
+    public Exception? LastLoadError { get; private set; }
+
     public Profile CurrentProfile => _settings.Profiles.GetValueOrDefault(_settings.LastUsedProfile) ?? new Profile();
 
     public SettingsService(string? settingsPath = null)
     {
-        // For single-file self-contained apps, AppDomain.CurrentDomain.BaseDirectory
-        // points to the temp extraction directory — NOT where the exe lives.
-        // Environment.ProcessPath gives the actual exe path on disk.
-        var exeDir = Path.GetDirectoryName(Environment.ProcessPath)
-                     ?? AppDomain.CurrentDomain.BaseDirectory;
-        _settingsPath = settingsPath ?? Path.Combine(exeDir, "EVE MultiPreview.json");
+        // The settings folder App chose at startup (IDEAS #57): %APPDATA%\EVE MultiPreview, or the exe folder.
+        _settingsPath = settingsPath ?? AppPaths.SettingsPath;
     }
 
     /// <summary>Load settings from disk. Creates default settings if file doesn't exist.</summary>
@@ -90,32 +110,12 @@ public sealed class SettingsService : IDisposable
         {
             if (File.Exists(_settingsPath))
             {
-                string json = File.ReadAllText(_settingsPath);
-
-                // Detect format: AHK JSON has "global_Settings" wrapper
-                if (json.Contains("\"global_Settings\""))
-                {
-                    // AHK format → deserialize to intermediate model, then convert
-                    var ahkRoot = JsonSerializer.Deserialize<AhkConfigRoot>(json, _jsonOptions);
-                    if (ahkRoot != null)
-                    {
-                        _settings = ahkRoot.ToAppSettings();
-                        _loadedSuccessfully = true;
-                        System.Diagnostics.Debug.WriteLine($"[Settings] Loaded AHK format from {_settingsPath}");
-                    }
-                    else
-                    {
-                        _settings = new AppSettings();
-                        _loadedSuccessfully = false;
-                    }
-                }
-                else
-                {
-                    // C# native format (future) — try direct deserialize
-                    _settings = JsonSerializer.Deserialize<AppSettings>(json, _jsonOptions) ?? new AppSettings();
-                    _loadedSuccessfully = true;
-                    System.Diagnostics.Debug.WriteLine($"[Settings] Loaded C# format from {_settingsPath}");
-                }
+                // The AHK nested format (has "global_Settings") or the flat C# format. A file that parses to nothing
+                // throws here and is handled like any other unreadable file below (.bak, error log, restore prompt).
+                _settings = ParseForLoad(File.ReadAllText(_settingsPath));
+                _loadedSuccessfully = true;
+                LastLoadError = null;
+                System.Diagnostics.Debug.WriteLine($"[Settings] Loaded {_settingsPath}");
             }
             else
             {
@@ -156,6 +156,7 @@ public sealed class SettingsService : IDisposable
                 }
 
                 _loadedSuccessfully = true; // New file or migrated — safe to save
+                LastLoadError = null;
                 Save();
                 System.Diagnostics.Debug.WriteLine($"[Settings] Created settings at {_settingsPath}");
             }
@@ -163,6 +164,7 @@ public sealed class SettingsService : IDisposable
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[Settings] Load error: {ex.Message}");
+            LastLoadError = ex;
             LogError(ex);
             // Back up the broken file so we don't lose user data
             try
