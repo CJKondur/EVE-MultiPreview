@@ -53,8 +53,12 @@ public sealed class HookWatchdog
     /// <param name="SlotIsHidden">The hotkey is one whose keystroke the hook should have hidden.</param>
     /// <param name="HeldKeyHidden">A key hidden after a switch is still down (removing the hook would strand it).</param>
     /// <param name="HooksSeeForeground">The window in front is one whose input the hooks can see.</param>
+    /// <param name="NoForeground">No window is in front at all (GetForegroundWindow gave zero): Windows is between two
+    /// windows in a switch, or the screen is locked. Not the same as a window the hooks can't see: it says nothing
+    /// about the hook, in either direction.</param>
     public readonly record struct KeyLook(int MessageTime, int LastCallback, int InstalledAt, int Generation, bool Installed,
-        bool Suspended, bool Capturing, bool Disposed, bool SlotIsHidden, bool HeldKeyHidden, bool HooksSeeForeground);
+        bool Suspended, bool Capturing, bool Disposed, bool SlotIsHidden, bool HeldKeyHidden, bool HooksSeeForeground,
+        bool NoForeground);
 
     private (int Generation, int Stamp, int At)? _keyStrike;
 
@@ -103,8 +107,8 @@ public sealed class HookWatchdog
     /// that arrives at least <see cref="KeyQuietMs"/> after the first, with the hook's stamp unchanged in between and no
     /// install or removal in between. One strike alone proves nothing (hotkeys queued behind an elevated window reach a
     /// healthy hook late). Nothing counts while the hook is removed on purpose (<c>Suspended</c>, <c>Capturing</c>,
-    /// <c>Disposed</c>, not <c>Installed</c>), while a hidden key is held, or while the window in front is one the hooks
-    /// can't see.</summary>
+    /// <c>Disposed</c>, not <c>Installed</c>), while a hidden key is held, while the window in front is one the hooks
+    /// can't see (that also clears a strike), or while there is no window in front at all (that keeps it).</summary>
     public bool KeyHookLooksDead(KeyLook k)
     {
         if (k.Disposed || k.Suspended || k.Capturing || !k.Installed)
@@ -120,6 +124,8 @@ public sealed class HookWatchdog
         // A hotkey the hook doesn't hide (the app's own vk0xE8 activation bridge) is no evidence either way: it leaves
         // a strike from a real one alone. A live hook stamps on it, and a stamp change resets the strike anyway.
         if (!k.SlotIsHidden) return false;
+        // No window in front for a moment (mid-switch): no evidence either way, so a strike from before stays.
+        if (k.NoForeground) return false;
         if (!k.HooksSeeForeground)
         {
             _keyStrike = null;   // an elevated window in front: the hooks are expected to be silent, and what came before proves nothing

@@ -1528,9 +1528,10 @@ public sealed class HotkeyService : IDisposable
             bool hidden = false;
             foreach (var slot in map.Values)
                 if (slot.Id == id) { hidden = true; break; }
+            var foreground = User32.GetForegroundWindow();
             var look = new HookWatchdog.KeyLook(messageTime, lastCall, _keyHookInstalledTick, _keyHookGeneration, _keyHookThread != null,
                 _suspended, _captureDepth > 0, _disposed, hidden, User32.HasHiddenHeldKeys,
-                ForegroundHooksSeeInput(User32.GetForegroundWindow()));
+                ForegroundHooksSeeInput(foreground), foreground == IntPtr.Zero);
             if (!_keyWatchdog.KeyHookLooksDead(look)) return;
             if (!_keyWatchdog.MayReinstall(Environment.TickCount)) { NoteLimitOnce(_keyWatchdog, ref _keyLimitNoted, "keyboard"); return; }
             ReinstallKeyHook();
