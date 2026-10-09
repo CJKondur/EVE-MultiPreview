@@ -7,16 +7,14 @@ namespace EveMultiPreview.Services;
 
 public static class DiagnosticsService
 {
-    private static readonly string LogDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
-    
+    /// <summary>The Logs folder in the settings folder (IDEAS #57): the debug logs and error_log.txt.</summary>
+    private static string LogDir => AppPaths.LogsDir;
+
     public static AppSettings? GlobalSettings { get; set; }
 
     public static void Initialize()
     {
-        if (!Directory.Exists(LogDir))
-        {
-            try { Directory.CreateDirectory(LogDir); } catch { }
-        }
+        try { Directory.CreateDirectory(LogDir); } catch { }
     }
 
     private static readonly object _writeLock = new();
@@ -101,15 +99,29 @@ public static class DiagnosticsService
         }
     }
 
-    public static void OpenLogsFolder()
+    public static void OpenLogsFolder() => OpenFolder(LogDir);
+
+    /// <summary>Opens error_log.txt in the program Windows uses for text files (IDEAS #55), or the logs folder while
+    /// there is no error log yet.</summary>
+    public static void OpenErrorLog()
     {
-        if (Directory.Exists(LogDir))
+        var path = ErrorLog.Shared.FilePath;
+        if (File.Exists(path))
         {
-            Process.Start("explorer.exe", LogDir);
+            try { Process.Start(new ProcessStartInfo(path) { UseShellExecute = true }); return; }
+            catch (Exception ex) { Debug.WriteLine($"[Diag] ❌ Open error log failed: {ex.Message}"); }
         }
-        else
+        OpenLogsFolder();
+    }
+
+    /// <summary>Opens a folder in Explorer, creating it first. The path goes as one argument, spaces and all.</summary>
+    public static void OpenFolder(string dir)
+    {
+        try
         {
-            Process.Start("explorer.exe", AppDomain.CurrentDomain.BaseDirectory);
+            Directory.CreateDirectory(dir);
+            Process.Start(new ProcessStartInfo("explorer.exe") { ArgumentList = { dir } });
         }
+        catch (Exception ex) { Debug.WriteLine($"[Diag] ❌ Open folder failed: {ex.Message}"); }
     }
 }

@@ -353,18 +353,9 @@ public sealed class SettingsService : IDisposable
 
     // ── Error Logging ───────────────────────────────────────────────
 
-    private static void LogError(Exception ex)
-    {
-        try
-        {
-            var exeDir = Path.GetDirectoryName(Environment.ProcessPath)
-                         ?? AppDomain.CurrentDomain.BaseDirectory;
-            string logPath = Path.Combine(exeDir, "error_log.txt");
-            string entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Settings Save Error: {ex.Message}\r\n{ex.StackTrace}\r\n\r\n";
-            File.AppendAllText(logPath, entry);
-        }
-        catch { }
-    }
+    /// <summary>A failed load or save: counted, and written to the error log in the settings folder (IDEAS #55).
+    /// Never throws.</summary>
+    private static void LogError(Exception ex) => ErrorLog.Shared.Record(ex, "Settings", DateTime.Now);
 
     public void Dispose()
     {

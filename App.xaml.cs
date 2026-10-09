@@ -530,19 +530,12 @@ public partial class App : Application
             LogError(ex);
     }
 
+    /// <summary>An error MultiPreview handled and kept running after: counted, and written to Logs\error_log.txt in the
+    /// settings folder (IDEAS #55). Never throws.</summary>
     internal static void LogError(Exception ex)
     {
-        try
-        {
-            string logPath = Path.Combine(
-                Path.GetDirectoryName(Environment.ProcessPath) ?? ".",
-                "error_log.txt");
-            string entry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {ex.GetType().Name}: {ex.Message}\n" +
-                           $"  Stack: {ex.StackTrace}\n";
-            File.AppendAllText(logPath, entry);
-            Debug.WriteLine($"[App:Error] ❌ Logged error: {ex.GetType().Name}: {ex.Message}");
-        }
-        catch { }
+        ErrorLog.Shared.Record(ex, "App", DateTime.Now);
+        Debug.WriteLine($"[App:Error] ❌ Logged error: {ex.GetType().Name}: {ex.Message}");
     }
 
     // ── JSON Migration (AHK: EVE-X-Preview → EVE MultiPreview) ───────
