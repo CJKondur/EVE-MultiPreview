@@ -115,7 +115,8 @@
         </DockPanel>
 
         <!-- ═══ Content ═══ -->
-        <DockPanel Grid.Column="1" Margin="24,16,24,0">
+        <!-- Bottom margin: a strip of window below the scrolling area, so the settings don't run into the window's edge. -->
+        <DockPanel Grid.Column="1" Margin="24,16,24,16">
             <Grid DockPanel.Dock="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -160,9 +161,12 @@
                 </DockPanel>
             </Border>
 
-            <ScrollViewer x:Name="ContentScroll" VerticalScrollBarVisibility="Auto" Focusable="False" Margin="0,8,0,0">
+            <!-- The scroll bar is drawn over the right edge of whatever scrolls. The viewer reaches 20 px into the
+                 column's right margin and the cards stay 20 px short of it, so the bar sits beside the cards and the
+                 cards still end where the page header ends. -->
+            <ScrollViewer x:Name="ContentScroll" VerticalScrollBarVisibility="Auto" Focusable="False" Margin="0,8,-20,0">
                 <ItemsControl x:Name="Sections" ItemsSource="{Binding Current.Sections}"
-                              ItemTemplate="{StaticResource Fx.Section}" Margin="0,0,0,24" Focusable="False"/>
+                              ItemTemplate="{StaticResource Fx.Section}" Margin="0,0,20,24" Focusable="False"/>
             </ScrollViewer>
         </DockPanel>
 
