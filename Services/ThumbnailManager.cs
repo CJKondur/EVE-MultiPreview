@@ -689,17 +689,7 @@ public sealed class ThumbnailManager : IDisposable
         thumbWindow.DragMoveAll += OnDragMoveAll;
         thumbWindow.ResizeAll += OnResizeAll;
         thumbWindow.CycleExclusionRequested += OnCycleExclusionRequested;
-        thumbWindow.LabelEditRequested += OnLabelEditRequested;
-        thumbWindow.AlertMuteRequested += OnAlertMuteRequested;
-        thumbWindow.AudioRequested += OnAudioRequested;
-        thumbWindow.CloseClientRequested += OnCloseClientRequested;
-        thumbWindow.SettingsRequested += OnSettingsRequested;
-        thumbWindow.SystemLookup = GetCharacterSystem;
-        thumbWindow.AudioVolume = GetClientVolume(window.CharacterName);
-        // New thumbnail picks up any active mute for its character (e.g. relaunch).
-        if (!string.IsNullOrEmpty(window.CharacterName)
-            && _alertMutedChars.TryGetValue(window.CharacterName, out var muteUntil))
-            thumbWindow.AlertMutedUntil = muteUntil;
+        WireMenu(thumbWindow);
 
         // Restore any prior session-exclusion visual state
         if (!string.IsNullOrEmpty(thumbWindow.CharacterName)
@@ -2518,10 +2508,13 @@ public sealed class ThumbnailManager : IDisposable
             label = $"🔇 Alerts muted {minutes}m";
         }
 
-        // Reflect on every thumbnail showing this character (menu header).
+        // Reflect on every thumbnail showing this character (menu header), its second thumbnail too (IDEAS P36).
         foreach (var (_, t) in _thumbnails)
             if (t.CharacterName.Equals(charName, StringComparison.OrdinalIgnoreCase))
                 t.AlertMutedUntil = until;
+        foreach (var (_, pip) in _secondaryThumbnails)
+            if (pip.CharacterName.Equals(charName, StringComparison.OrdinalIgnoreCase))
+                pip.AlertMutedUntil = until;
 
         // Clearing an in-progress flash on mute so a currently-flashing alt goes quiet now.
         if (until != null) ClearAlertFlash(charName);
@@ -2604,6 +2597,10 @@ public sealed class ThumbnailManager : IDisposable
                 Interop.User32.GetWindowThreadProcessId(hwnd, out uint pid);
                 if (pid != 0) _audio.SetVolume(pid, percent / 100f);
             }
+        // The second thumbnail's slider shows the same client volume (IDEAS P36); the loop above set it.
+        foreach (var (_, pip) in _secondaryThumbnails)
+            if (string.Equals(pip.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
+                pip.AudioVolume = percent;
     }
 
     /// <summary>Persisted volume for a character (0-100; 100 if unset).</summary>
@@ -3973,6 +3970,7 @@ public sealed class ThumbnailManager : IDisposable
         {
             if (_secondaryThumbnails.TryRemove(charName, out var pip))
             {
+                UnwireMenu(pip);
                 pip.Close();
                 Debug.WriteLine($"[PiP:Destroy] 🗑 Destroyed PiP for '{charName}'");
             }
@@ -4082,17 +4080,40 @@ public sealed class ThumbnailManager : IDisposable
         thumb.DragMoveAll -= OnDragMoveAll;
         thumb.ResizeAll -= OnResizeAll;
         thumb.CycleExclusionRequested -= OnCycleExclusionRequested;
+        UnwireMenu(thumb);
+    }
+
+    private void OnCycleExclusionRequested(ThumbnailWindow thumb)
+    {
+        ToggleCycleExclusion(thumb.CharacterName);
+    }
+
+    /// <summary>The right-click menu's five actions and the state it shows (system, game volume, mute), for a thumbnail
+    /// and a second thumbnail alike (IDEAS P36).</summary>
+    private void WireMenu(ThumbnailWindow thumb)
+    {
+        thumb.LabelEditRequested += OnLabelEditRequested;
+        thumb.AlertMuteRequested += OnAlertMuteRequested;
+        thumb.AudioRequested += OnAudioRequested;
+        thumb.CloseClientRequested += OnCloseClientRequested;
+        thumb.SettingsRequested += OnSettingsRequested;
+        thumb.SystemLookup = GetCharacterSystem;
+        thumb.AudioVolume = GetClientVolume(thumb.CharacterName);
+        // A new thumbnail picks up any active mute for its character (e.g. relaunch).
+        if (!string.IsNullOrEmpty(thumb.CharacterName)
+            && _alertMutedChars.TryGetValue(thumb.CharacterName, out var muteUntil))
+            thumb.AlertMutedUntil = muteUntil;
+    }
+
+    /// <summary>Undoes <see cref="WireMenu"/>, so a destroyed second thumbnail leaves nothing subscribed to the manager.</summary>
+    private void UnwireMenu(ThumbnailWindow thumb)
+    {
         thumb.LabelEditRequested -= OnLabelEditRequested;
         thumb.AlertMuteRequested -= OnAlertMuteRequested;
         thumb.AudioRequested -= OnAudioRequested;
         thumb.CloseClientRequested -= OnCloseClientRequested;
         thumb.SettingsRequested -= OnSettingsRequested;
         thumb.SystemLookup = null;
-    }
-
-    private void OnCycleExclusionRequested(ThumbnailWindow thumb)
-    {
-        ToggleCycleExclusion(thumb.CharacterName);
     }
 
     private void OnLabelEditRequested(ThumbnailWindow thumb)
@@ -4150,6 +4171,8 @@ public sealed class ThumbnailManager : IDisposable
                     _settings.SaveDelayed();
                 }
             };
+            // Its right-click menu does what the main thumbnail's does (IDEAS P36: it raised events nobody handled).
+            WireMenu(pip);
 
             pip.Show();
             _secondaryThumbnails[charName] = pip;
@@ -4165,6 +4188,7 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (_secondaryThumbnails.TryRemove(charName, out var pip))
         {
+            UnwireMenu(pip);
             pip.Cleanup();
             pip.Close();
             Debug.WriteLine($"[PiP:Destroy] 🛑 PiP destroyed for '{charName}'");
@@ -4454,6 +4478,7 @@ public sealed class ThumbnailManager : IDisposable
                 // Secondary PiP thumbnails
                 foreach (var (_, pip) in _secondaryThumbnails)
                 {
+                    UnwireMenu(pip);
                     pip.Cleanup();
                     pip.Close();
                 }
