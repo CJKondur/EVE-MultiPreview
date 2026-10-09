@@ -71,7 +71,6 @@ public sealed class SettingsService : IDisposable
                ?? throw new JsonException("Not a settings file");
     }
 
-
     /// <summary>Parses settings-file text exactly as Load does: the AHK nested format when the text has
     /// "global_Settings", otherwise the flat format. Throws (JsonException and others) where Load would fail.</summary>
     public static AppSettings ParseForLoad(string json)
@@ -110,8 +109,9 @@ public sealed class SettingsService : IDisposable
         {
             if (File.Exists(_settingsPath))
             {
-                // The AHK nested format (has "global_Settings") or the flat C# format. A file that parses to nothing
-                // throws here and is handled like any other unreadable file below (.bak, error log, restore prompt).
+                // The AHK nested format (has "global_Settings") or the flat C# format. Text that is not valid JSON, or an
+                // AHK-format file that deserializes to null, throws here and is handled like any other unreadable file
+                // below (.bak, error log, restore prompt). Flat-format text that is valid JSON but empty loads as defaults.
                 _settings = ParseForLoad(File.ReadAllText(_settingsPath));
                 _loadedSuccessfully = true;
                 LastLoadError = null;

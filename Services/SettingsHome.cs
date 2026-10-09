@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text;
 
 namespace EveMultiPreview.Services;
 
@@ -33,8 +32,21 @@ public static class SettingsHome
         string appFile = Path.Combine(appDataDir, AppPaths.SettingsFileName);
         try
         {
+            // GetFolderPath(ApplicationData) is "" when Windows can't verify the folder, and a relative path would depend
+            // on how the app was started: either way the settings stay where they have always been.
+            if (!Path.IsPathFullyQualified(appDataDir))
+            {
+                notes.Add($"Settings stay next to the exe: the AppData folder \"{appDataDir}\" is not a full path.");
+                return StayNextToExe(exeDir, notes);
+            }
+
             if (IsPortable(exeDir))
                 return new(exeDir, true, false, NewerOther(exeFile, appFile), false, notes);
+
+            // The exe sits inside the AppData folder itself: there is nothing to move, and no note to leave.
+            if (string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(exeDir)),
+                    Path.TrimEndingDirectorySeparator(Path.GetFullPath(appDataDir)), StringComparison.OrdinalIgnoreCase))
+                return StayNextToExe(exeDir, notes);
 
             if (IsLink(appDataDir) || IsLink(appFile))
             {
@@ -110,7 +122,7 @@ public static class SettingsHome
         catch (Exception ex) { notes.Add($"Not copied: {from} ({ex.GetType().Name}: {ex.Message})"); }
     }
 
-    /// <summary>The other settings file when it differs from the active one and was changed after it; null otherwise
+    /// <summary>The other settings file when it differs from the active one, was changed after it and loads; null otherwise
     /// (also when either is missing, or the other is a link or in a linked folder).</summary>
     public static string? NewerOther(string activeFile, string otherFile)
     {
@@ -119,7 +131,9 @@ public static class SettingsHome
             if (!File.Exists(activeFile) || !File.Exists(otherFile)) return null;
             if (IsLink(otherFile) || IsLink(Path.GetDirectoryName(otherFile)!)) return null;
             if (File.GetLastWriteTimeUtc(otherFile) <= File.GetLastWriteTimeUtc(activeFile)) return null;
-            return File.ReadAllBytes(otherFile).AsSpan().SequenceEqual(File.ReadAllBytes(activeFile)) ? null : otherFile;
+            if (File.ReadAllBytes(otherFile).AsSpan().SequenceEqual(File.ReadAllBytes(activeFile))) return null;
+            SettingsService.ParseForLoad(File.ReadAllText(otherFile));   // a file that doesn't load is never offered
+            return otherFile;
         }
         catch { return null; }
     }
@@ -155,7 +169,10 @@ public static class SettingsHome
         try
         {
             using (var stream = new FileStream(tmp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
                 stream.Write(bytes);
+                stream.Flush(flushToDisk: true);   // on disk before it takes the target's name
+            }
             File.SetLastWriteTimeUtc(tmp, File.GetLastWriteTimeUtc(from));
             if (verifySettings && !IsSameSettingsFile(tmp, from))
                 throw new InvalidDataException($"The copy of {from} didn't match the original.");
@@ -167,13 +184,14 @@ public static class SettingsHome
         }
     }
 
-    /// <summary>The move's check (IDEAS #57): the copy has the original's bytes, and loading the copy gives the same
-    /// settings as loading the original. Throws when the original can't be loaded.</summary>
+    /// <summary>The move's check (IDEAS #57): the copy has the original's bytes, and Load's parser reads it. Identical
+    /// bytes already mean identical settings; comparing parsed settings would only fail falsely, because ids missing from
+    /// the file get new GUIDs on every parse.</summary>
     public static bool IsSameSettingsFile(string copy, string original)
     {
         if (!File.ReadAllBytes(copy).AsSpan().SequenceEqual(File.ReadAllBytes(original))) return false;
-        return SettingsService.Canonical(SettingsService.ParseForLoad(File.ReadAllText(copy)))
-            == SettingsService.Canonical(SettingsService.ParseForLoad(File.ReadAllText(original)));
+        try { SettingsService.ParseForLoad(File.ReadAllText(copy)); return true; }
+        catch { return false; }
     }
 
     /// <summary>Backups\EVE MultiPreview_‹kind›_yyyy-MM-dd_HH-mm-ss.json. Kinds: auto (a startup copy), pre-update (the
