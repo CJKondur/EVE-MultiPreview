@@ -1511,7 +1511,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE 모드와 피격 테두리</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 모드**는 래팅과 미션용입니다. NPC가 나를 공격하거나 스크램해도 더 이상 알림이 울리지 않고, 플레이어는 울립니다.&#x0A;&#x0A;**피격 테두리**는 해당 클라이언트가 피해를 받는 동안 썸네일에서 붉게 깜빡이며, 마지막 피격 몇 초 뒤에 사라집니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">이벤트 표</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">각 행은 알림 한 종류입니다.&#x0A;- **심각도**는 이벤트마다 고정입니다. 이벤트의 색상, 깜빡임 속도, 토스트 선택을 정합니다(모양 &amp; 심각도).&#x0A;- **색상**은 이벤트 하나에 고유 색상을 줍니다. ↺는 심각도 색상으로 되돌립니다.&#x0A;- **지속**은 알림이 썸네일에 남는 시간입니다.&#x0A;- **배지**는 썸네일에서 이벤트를 셉니다. **고정**은 깜빡이는 대신 테두리를 유지합니다.&#x0A;- **켜짐**은 이벤트를 완전히 끕니다.&#x0A;&#x0A;**대기 시간**은 같은 알림이 캐릭터에게 몇 초 동안 반복되는 것을 막습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">각 행은 알림 한 종류입니다.&#x0A;- **심각도**는 이벤트마다 고정입니다. 이벤트의 색상, 깜빡임 속도, 토스트 선택을 정합니다(모양 &amp; 심각도).&#x0A;- **색상**은 이벤트 하나에 고유 색상을 줍니다. ↺는 심각도 색상으로 되돌립니다.&#x0A;- **지속**은 알림이 썸네일에 남는 시간입니다.&#x0A;- **배지**는 썸네일에서 이벤트를 셉니다. **고정**은 깜빡이는 대신 테두리를 유지합니다.&#x0A;- **켜짐**은 이벤트를 완전히 끕니다.&#x0A;&#x0A;**대기 시간**은 같은 알림이 캐릭터에게 몇 초 동안 반복되는 것을 막습니다. **심각도별 대기 시간**(모양 &amp; 심각도)은 심각도마다 자기 시간을 줘요.</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">모양 &amp; 심각도</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">썸네일에서 알림이 보이는 모양, 세 가지 심각도, 색맹 모드.</sys:String> <!-- draft -->
@@ -1889,4 +1889,14 @@
     <sys:String x:Key="L.Upd.Applying">다운로드가 완료되었습니다. 업데이트를 적용하는 중…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.Restarting">새 버전으로 다시 시작하는 중…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.FailedFmt">업데이트 실패: {0}</sys:String> <!-- draft -->
+    <!-- Ideas batch 1 (Plan 5) -->
+    <sys:String x:Key="L.S.Sec.alerts.look.repeats">반복</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity">심각도별 대기 시간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity.Desc">켜면 심각, 경고, 정보 알림이 각자 자기 시간만큼 기다린 뒤에 같은 알림이 캐릭터에게 다시 표시돼요. 끄면 모든 알림이 이벤트 페이지의 대기 시간만큼 기다려요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitCritical">심각 알림 대기 시간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitWarning">경고 알림 대기 시간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitInfo">정보 알림 대기 시간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repeatBySeverity">심각도마다 자기 대기 시간이 있어요: 알림 › 모양 &amp; 심각도.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Title">심각도별 대기 시간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">캐릭터에게 방금 울린 알림은 잠시 조용해져서, 전투 중에 같은 알림이 쏟아지지 않아요.&#x0A;- **심각도별 대기 시간**이 꺼져 있으면 모든 알림이 이벤트 페이지의 대기 시간(바꾸지 않았다면 5초)만큼 기다려요.&#x0A;- 켜면 심각, 경고, 정보 알림이 각자 자기 시간만큼 기다려요. 예를 들어 심각은 2초, 정보는 60초예요. 모두 5초에서 시작하므로 숫자를 바꾸기 전에는 켜도 달라지는 게 없어요.</sys:String> <!-- draft -->
 </ResourceDictionary>

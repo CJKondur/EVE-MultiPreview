@@ -251,6 +251,7 @@ public partial class App : Application
                 _logMonitor.SetEnabledAlertTypes(_settings.Settings.EnabledAlertTypes);
             if (_settings.Settings.SeverityCooldowns != null)
                 _logMonitor.SetEventCooldowns(_settings.Settings.SeverityCooldowns);
+            _logMonitor.SetSeverityCooldowns(LogMonitorService.SeverityWaits(_settings.Settings));   // IDEAS P28
 
             // ── Damage received (incoming) → stat tracker + alert ──
             _logMonitor.DamageReceived += (dmg) =>
@@ -844,6 +845,7 @@ public partial class App : Application
                     _logMonitor.SetEnabledAlertTypes(_settings.Settings.EnabledAlertTypes);
                 if (_settings.Settings.SeverityCooldowns != null)
                     _logMonitor.SetEventCooldowns(_settings.Settings.SeverityCooldowns);
+                _logMonitor.SetSeverityCooldowns(LogMonitorService.SeverityWaits(_settings.Settings));   // IDEAS P28
                 // The two log switches and folders apply live (IDEAS P30): the reading thread changes folders before
                 // its next read and keeps each file's place. The same folders again change nothing.
                 _logMonitor.Reconfigure(_settings.Settings.ChatLogDirectory, _settings.Settings.GameLogDirectory,

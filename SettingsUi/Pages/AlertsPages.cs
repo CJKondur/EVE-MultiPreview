@@ -27,12 +27,16 @@ public static class AlertsPages
             "alerts.events.chatLog", "alerts.events.chatFolder", "alerts.events.gameLog", "alerts.events.gameFolder",
         }),
         new HelpTopic(EventsId, "combat", new[] { "alerts.events.pve", "alerts.events.underFire", "alerts.events.underFireTime" }),
-        new HelpTopic(EventsId, "table", new[] { EventTableId, "alerts.events.repeatWait" }),
+        new HelpTopic(EventsId, "table", new[] { EventTableId, "alerts.events.repeatWait", "alerts.events.repeatBySeverity" }),
         new HelpTopic(LookId, "thumbnail", new[]
         {
             "alerts.look.pulse", "alerts.look.borderWidth", "alerts.look.badge", "alerts.look.text", "alerts.look.textPosition",
         }),
         new HelpTopic(LookId, "severity", new[] { "alerts.look.severityTable" }),
+        new HelpTopic(LookId, "repeats", new[]
+        {
+            "alerts.look.waitBySeverity", "alerts.look.waitCritical", "alerts.look.waitWarning", "alerts.look.waitInfo",
+        }),
         new HelpTopic(LookId, "colorBlind", new[] { "alerts.look.colorBlind" }),
         new HelpTopic(SoundsId, "sounds", new[] { "alerts.sounds.enabled", "alerts.sounds.volume", "alerts.sounds.table" }),
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
@@ -74,9 +78,13 @@ public static class AlertsPages
         }),
         new SectionDef("alerts.events.repeats", new PageItem[]
         {
-            // App pushes it to the log monitor on Applied (SetCooldown). It is the wait every event uses: the
-            // severity cooldowns never match (ruling 1, IDEAS P28).
-            new SettingItem(Setting.Number("alerts.events.repeatWait", s => s.AlertCooldown, 0, 600, "L.S.Unit.Sec")),
+            // App pushes it to the log monitor on Applied (SetCooldown). Every alert waits it, unless Quiet time per
+            // severity is on (Look & severity, IDEAS P28); the old SeverityCooldowns never match.
+            new SettingItem(Setting.Number("alerts.events.repeatWait", s => s.AlertCooldown, 0, 600, "L.S.Unit.Sec") with
+            {
+                ShowIf = s => !s.AlertCooldownBySeverity,
+            }),
+            new InfoItem("alerts.events.repeatBySeverity", InfoSeverity.Info) { ShowIf = s => s.AlertCooldownBySeverity },
         }),
         new SectionDef("alerts.events.list", new PageItem[]
         {
@@ -129,6 +137,15 @@ public static class AlertsPages
                 Binds = new[] { "AppSettings.SeverityColors", "AppSettings.SeverityFlashRates", "AppSettings.SeverityTrayNotify" },
             },
         }),
+        new SectionDef("alerts.look.repeats", new PageItem[]
+        {
+            // App passes them to the log monitor on Applied (LogMonitorService.SeverityWaits, IDEAS P28). New keys: a
+            // file without them keeps every alert on the one quiet time (Events).
+            new SettingItem(Setting.Toggle("alerts.look.waitBySeverity", s => s.AlertCooldownBySeverity)),
+            Wait("alerts.look.waitCritical", s => s.AlertCooldownCritical),
+            Wait("alerts.look.waitWarning", s => s.AlertCooldownWarning),
+            Wait("alerts.look.waitInfo", s => s.AlertCooldownInfo),
+        }),
         new SectionDef("alerts.look.accessibility", new PageItem[]
         {
             new EditorItem("alerts.look.colorBlind", ctx => new ColorBlindEditor(ctx))
@@ -138,6 +155,10 @@ public static class AlertsPages
             },
         }),
     });
+
+    /// <summary>One severity's quiet time, shown while Quiet time per severity is on.</summary>
+    private static SettingItem Wait(string id, Expression<Func<AppSettings, int>> prop) =>
+        new(Setting.Number(id, prop, 0, 600, "L.S.Unit.Sec") with { ShowIf = s => s.AlertCooldownBySeverity });
 
     /// <summary>Sound files MediaPlayer plays (as Clients › Hotkeys' wrap-around sound).</summary>
     public static string SoundFilter =>

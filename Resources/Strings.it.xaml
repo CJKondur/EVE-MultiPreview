@@ -1528,7 +1528,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">Modalità PVE e bordo sotto attacco</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">La **modalità PVE** è per ratting e missioni: gli NPC che ti sparano o ti scramblano non generano più un avviso, i giocatori sì.&#x0A;&#x0A;Il **bordo sotto attacco** pulsa in rosso su una miniatura mentre quel client subisce danni e scompare alcuni secondi dopo l'ultimo colpo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">La tabella degli eventi</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">Ogni riga è un tipo di avviso.&#x0A;- La **gravità** è fissa per ogni evento. Dà all'evento il suo colore, la velocità del lampeggio e la scelta della notifica (Aspetto &amp; gravità).&#x0A;- Il **colore** dà a un evento un colore proprio; ↺ torna a quello della gravità.&#x0A;- **Dura** è quanto l'avviso resta sulla miniatura.&#x0A;- Il **badge** conta l'evento sulla miniatura; **Fisso** mantiene il bordo invece di lampeggiare.&#x0A;- **Attivo** disattiva completamente l'evento.&#x0A;&#x0A;Il **tempo di quiete** impedisce che lo stesso avviso si ripeta per un personaggio per alcuni secondi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">Ogni riga è un tipo di avviso.&#x0A;- La **gravità** è fissa per ogni evento. Dà all'evento il suo colore, la velocità del lampeggio e la scelta della notifica (Aspetto &amp; gravità).&#x0A;- Il **colore** dà a un evento un colore proprio; ↺ torna a quello della gravità.&#x0A;- **Dura** è quanto l'avviso resta sulla miniatura.&#x0A;- Il **badge** conta l'evento sulla miniatura; **Fisso** mantiene il bordo invece di lampeggiare.&#x0A;- **Attivo** disattiva completamente l'evento.&#x0A;&#x0A;Il **tempo di quiete** impedisce che lo stesso avviso si ripeta per un personaggio per alcuni secondi. **Tempo di quiete per gravità** (Aspetto &amp; gravità) dà a ogni gravità il suo.</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">Aspetto &amp; gravità</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">Come appaiono gli avvisi sulle miniature, le tre gravità e la modalità daltonici.</sys:String> <!-- draft -->
@@ -1906,4 +1906,14 @@
     <sys:String x:Key="L.Upd.Applying">Download completato. Applicazione dell'aggiornamento…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.Restarting">Riavvio con la nuova versione…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.FailedFmt">Aggiornamento non riuscito: {0}</sys:String> <!-- draft -->
+    <!-- Ideas batch 1 (Plan 5) -->
+    <sys:String x:Key="L.S.Sec.alerts.look.repeats">Ripetizioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity">Tempo di quiete per gravità</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity.Desc">Attivo: gli avvisi critici, di avvertimento e informativi aspettano ciascuno il proprio tempo prima che lo stesso avviso venga mostrato di nuovo per un personaggio. Disattivo: tutti gli avvisi aspettano il tempo di quiete della pagina Eventi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitCritical">Gli avvisi critici restano in silenzio per</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitWarning">Gli avvisi di avvertimento restano in silenzio per</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitInfo">Gli avvisi informativi restano in silenzio per</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repeatBySeverity">Ogni gravità ha il suo tempo di quiete: Avvisi › Aspetto &amp; gravità.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Title">Tempo di quiete per gravità</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">Un avviso appena scattato per un personaggio resta in silenzio per un po', così uno scontro non ti sommerge con lo stesso avviso.&#x0A;- Con **Tempo di quiete per gravità** disattivato, tutti gli avvisi aspettano il tempo di quiete della pagina Eventi (5 secondi, a meno che tu non l'abbia cambiato).&#x0A;- Attivo, gli avvisi critici, di avvertimento e informativi aspettano ciascuno il proprio tempo, per esempio 2 secondi per i critici e 60 per gli informativi. Ognuno parte da 5 secondi, quindi attivarlo non cambia nulla finché non cambi un numero.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -210,6 +210,14 @@ public class AppSettings
     {
         ["critical"] = 5, ["warning"] = 15, ["info"] = 30
     };
+
+    /// <summary>Per-severity quiet times (IDEAS P28). Off: every alert waits AlertCooldown, as it always has; the old
+    /// SeverityCooldowns above never took effect and still doesn't (files store 5/15/30 there). On: each severity waits
+    /// its own number of seconds, 5 until the player changes them.</summary>
+    public bool AlertCooldownBySeverity { get; set; } = false;
+    public int AlertCooldownCritical { get; set; } = 5;
+    public int AlertCooldownWarning { get; set; } = 5;
+    public int AlertCooldownInfo { get; set; } = 5;
     public Dictionary<string, int> SeverityFlashRates { get; set; } = new()
     {
         ["critical"] = 200, ["warning"] = 500, ["info"] = 1000

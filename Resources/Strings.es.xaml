@@ -1532,7 +1532,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">Modo PVE y borde de ataque</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">El **modo PVE** es para ratting y misiones: los NPC que te disparan o te hacen scram ya no generan alerta, los jugadores sí.&#x0A;&#x0A;El **borde de ataque** pulsa en rojo en una miniatura mientras ese cliente recibe daño y desaparece unos segundos después del último golpe.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">La tabla de eventos</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">Cada fila es un tipo de alerta.&#x0A;- La **gravedad** es fija para cada evento. Da al evento su color, velocidad de parpadeo y opción de aviso (Aspecto &amp; gravedad).&#x0A;- El **color** da a un evento su propio color; ↺ vuelve al de la gravedad.&#x0A;- **Dura** es cuánto tiempo permanece la alerta en la miniatura.&#x0A;- La **insignia** cuenta el evento en la miniatura; **Fijo** mantiene el borde en lugar de parpadear.&#x0A;- **Activo** desactiva el evento por completo.&#x0A;&#x0A;El **tiempo de silencio** evita que la misma alerta se repita para un personaje durante unos segundos.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">Cada fila es un tipo de alerta.&#x0A;- La **gravedad** es fija para cada evento. Da al evento su color, velocidad de parpadeo y opción de aviso (Aspecto &amp; gravedad).&#x0A;- El **color** da a un evento su propio color; ↺ vuelve al de la gravedad.&#x0A;- **Dura** es cuánto tiempo permanece la alerta en la miniatura.&#x0A;- La **insignia** cuenta el evento en la miniatura; **Fijo** mantiene el borde en lugar de parpadear.&#x0A;- **Activo** desactiva el evento por completo.&#x0A;&#x0A;El **tiempo de silencio** evita que la misma alerta se repita para un personaje durante unos segundos. **Tiempo de silencio por gravedad** (Aspecto &amp; gravedad) da a cada gravedad el suyo.</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">Aspecto &amp; gravedad</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">Cómo se ven las alertas en las miniaturas, las tres gravedades y el modo daltónico.</sys:String> <!-- draft -->
@@ -1910,4 +1910,14 @@
     <sys:String x:Key="L.Upd.Applying">Descarga completada. Aplicando la actualización…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.Restarting">Reiniciando con la nueva versión…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.FailedFmt">Error en la actualización: {0}</sys:String> <!-- draft -->
+    <!-- Ideas batch 1 (Plan 5) -->
+    <sys:String x:Key="L.S.Sec.alerts.look.repeats">Repeticiones</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity">Tiempo de silencio por gravedad</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity.Desc">Activado: las alertas críticas, de aviso y de información esperan cada una su propio tiempo antes de que la misma alerta vuelva a mostrarse para un personaje. Desactivado: todas las alertas esperan el tiempo de silencio de la página Eventos.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitCritical">Las alertas críticas permanecen en silencio durante</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitWarning">Las alertas de aviso permanecen en silencio durante</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitInfo">Las alertas de información permanecen en silencio durante</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repeatBySeverity">Cada gravedad tiene su propio tiempo de silencio: Alertas › Aspecto &amp; gravedad.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Title">Tiempo de silencio por gravedad</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">Una alerta que acaba de saltar para un personaje permanece en silencio un rato, para que un combate no te inunde con la misma alerta.&#x0A;- Con **Tiempo de silencio por gravedad** desactivado, todas las alertas esperan el tiempo de silencio de la página Eventos (5 segundos, salvo que lo hayas cambiado).&#x0A;- Activado, las alertas críticas, de aviso y de información esperan cada una su propio tiempo, por ejemplo 2 segundos para las críticas y 60 para las de información. Cada uno empieza en 5 segundos, así que activarlo no cambia nada hasta que cambies un número.</sys:String> <!-- draft -->
 </ResourceDictionary>

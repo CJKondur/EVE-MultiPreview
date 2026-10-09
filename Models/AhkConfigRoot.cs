@@ -101,6 +101,10 @@ public class AhkConfigRoot
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
+        s.AlertCooldownBySeverity = g.AlertCooldownBySeverity != 0;
+        s.AlertCooldownCritical = g.AlertCooldownCritical;
+        s.AlertCooldownWarning = g.AlertCooldownWarning;
+        s.AlertCooldownInfo = g.AlertCooldownInfo;
         s.AlertSoundFile = g.AlertSoundFile ?? "";
         s.AlertFlashColor = g.AlertFlashColor ?? "0xff0000";
         s.CycleWrapSoundEnabled = g.CycleWrapSoundEnabled != 0;
@@ -390,6 +394,10 @@ public class AhkConfigRoot
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
+        g.AlertCooldownBySeverity = s.AlertCooldownBySeverity ? 1 : 0;
+        g.AlertCooldownCritical = s.AlertCooldownCritical;
+        g.AlertCooldownWarning = s.AlertCooldownWarning;
+        g.AlertCooldownInfo = s.AlertCooldownInfo;
         g.AlertSoundFile = s.AlertSoundFile;
         g.AlertFlashColor = s.AlertFlashColor;
         g.CycleWrapSoundEnabled = s.CycleWrapSoundEnabled ? 1 : 0;
@@ -1115,6 +1123,19 @@ public class AhkGlobalSettings
     // rework; a file without them loads 5 s, no sound and red.
     [JsonPropertyName("AlertCooldown")]
     public int AlertCooldown { get; set; } = 5;
+
+    // Per-severity quiet times (IDEAS P28), new in the settings rework: a file without them loads off, 5 s each.
+    [JsonPropertyName("AlertCooldownBySeverity")]
+    public int AlertCooldownBySeverity { get; set; }
+
+    [JsonPropertyName("AlertCooldownCritical")]
+    public int AlertCooldownCritical { get; set; } = 5;
+
+    [JsonPropertyName("AlertCooldownWarning")]
+    public int AlertCooldownWarning { get; set; } = 5;
+
+    [JsonPropertyName("AlertCooldownInfo")]
+    public int AlertCooldownInfo { get; set; } = 5;
 
     [JsonPropertyName("AlertSoundFile")]
     public string? AlertSoundFile { get; set; } = "";

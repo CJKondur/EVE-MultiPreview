@@ -1513,7 +1513,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">Mode PVE et bordure sous le feu</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">Le **mode PVE** est pour le ratting et les missions : les PNJ qui vous tirent dessus ou vous scramblent ne déclenchent plus d'alerte, les joueurs, si.&#x0A;&#x0A;La **bordure sous le feu** pulse en rouge sur une miniature tant que ce client subit des dégâts, et disparaît quelques secondes après le dernier coup.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">Le tableau des événements</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">Chaque ligne est un type d'alerte.&#x0A;- La **gravité** est fixe pour chaque événement. Elle donne à l'événement sa couleur, sa vitesse de clignotement et son choix de notification (Apparence &amp; gravité).&#x0A;- La **couleur** donne à un événement sa propre couleur ; ↺ revient à celle de la gravité.&#x0A;- La **durée** est le temps que l'alerte reste sur la miniature.&#x0A;- Le **badge** compte l'événement sur la miniature ; **Fixe** maintient la bordure au lieu de clignoter.&#x0A;- **Actif** désactive complètement l'événement.&#x0A;&#x0A;Le **délai** empêche la même alerte de se répéter pour un personnage pendant quelques secondes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">Chaque ligne est un type d'alerte.&#x0A;- La **gravité** est fixe pour chaque événement. Elle donne à l'événement sa couleur, sa vitesse de clignotement et son choix de notification (Apparence &amp; gravité).&#x0A;- La **couleur** donne à un événement sa propre couleur ; ↺ revient à celle de la gravité.&#x0A;- La **durée** est le temps que l'alerte reste sur la miniature.&#x0A;- Le **badge** compte l'événement sur la miniature ; **Fixe** maintient la bordure au lieu de clignoter.&#x0A;- **Actif** désactive complètement l'événement.&#x0A;&#x0A;Le **délai** empêche la même alerte de se répéter pour un personnage pendant quelques secondes. **Délai par gravité** (Apparence &amp; gravité) donne à chaque gravité le sien.</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">Apparence &amp; gravité</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">L'apparence des alertes sur les miniatures, les trois gravités et le mode daltonien.</sys:String> <!-- draft -->
@@ -1891,4 +1891,14 @@
     <sys:String x:Key="L.Upd.Applying">Téléchargement terminé. Application de la mise à jour…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.Restarting">Redémarrage avec la nouvelle version…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.FailedFmt">Échec de la mise à jour : {0}</sys:String> <!-- draft -->
+    <!-- Ideas batch 1 (Plan 5) -->
+    <sys:String x:Key="L.S.Sec.alerts.look.repeats">Répétitions</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity">Délai par gravité</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity.Desc">Activé : les alertes critiques, d'avertissement et d'information attendent chacune leur propre délai avant que la même alerte s'affiche de nouveau pour un personnage. Désactivé : toutes les alertes attendent le délai de la page Événements.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitCritical">Les alertes critiques restent silencieuses pendant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitWarning">Les alertes d'avertissement restent silencieuses pendant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitInfo">Les alertes d'information restent silencieuses pendant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repeatBySeverity">Chaque gravité a son propre délai : Alertes › Apparence &amp; gravité.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Title">Délai par gravité</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">Une alerte qui vient de se déclencher pour un personnage reste silencieuse un moment, pour qu'un combat ne vous noie pas sous la même alerte.&#x0A;- Si **Délai par gravité** est désactivé, toutes les alertes attendent le délai de la page Événements (5 secondes, sauf si vous l'avez changé).&#x0A;- Activé, les alertes critiques, d'avertissement et d'information attendent chacune leur propre délai, par exemple 2 secondes pour les critiques et 60 pour les informations. Chacun démarre à 5 secondes : l'activer ne change donc rien tant que vous ne modifiez pas un chiffre.</sys:String> <!-- draft -->
 </ResourceDictionary>

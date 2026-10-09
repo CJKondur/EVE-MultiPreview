@@ -1510,7 +1510,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE mode and the under-fire border</sys:String>
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE mode** is for ratting and missions: NPCs shooting or scrambling you no longer raise an alert, players still do.&#x0A;&#x0A;The **under-fire border** pulses red on a thumbnail while that client takes damage, and goes a few seconds after the last hit.</sys:String>
     <sys:String x:Key="L.Help.alerts.events.table.Title">The event table</sys:String>
-    <sys:String x:Key="L.Help.alerts.events.table.Body">Each row is one kind of alert.&#x0A;- **Severity** is fixed for each event. It gives the event its colour, flash speed and toast choice (Look &amp; severity).&#x0A;- **Colour** gives one event its own colour; ↺ goes back to the severity's.&#x0A;- **Lasts** is how long the alert stays on the thumbnail.&#x0A;- **Badge** counts the event on the thumbnail; **Steady** holds the border instead of blinking.&#x0A;- **On** turns the event off completely.&#x0A;&#x0A;**Quiet time** stops the same alert repeating for a character for a few seconds.</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.table.Body">Each row is one kind of alert.&#x0A;- **Severity** is fixed for each event. It gives the event its colour, flash speed and toast choice (Look &amp; severity).&#x0A;- **Colour** gives one event its own colour; ↺ goes back to the severity's.&#x0A;- **Lasts** is how long the alert stays on the thumbnail.&#x0A;- **Badge** counts the event on the thumbnail; **Steady** holds the border instead of blinking.&#x0A;- **On** turns the event off completely.&#x0A;&#x0A;**Quiet time** stops the same alert repeating for a character for a few seconds. **Quiet time per severity** (Look &amp; severity) gives each severity its own.</sys:String>
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">Look &amp; severity</sys:String>
     <sys:String x:Key="L.S.Page.alerts.look.Desc">How alerts look on thumbnails, the three severities, and colour-blind mode.</sys:String>
@@ -1888,4 +1888,14 @@
     <sys:String x:Key="L.Upd.Applying">Download complete. Applying the update…</sys:String>
     <sys:String x:Key="L.Upd.Restarting">Restarting with the new version…</sys:String>
     <sys:String x:Key="L.Upd.FailedFmt">The update failed: {0}</sys:String>
+    <!-- Ideas batch 1 (Plan 5) -->
+    <sys:String x:Key="L.S.Sec.alerts.look.repeats">Repeats</sys:String>
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity">Quiet time per severity</sys:String>
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity.Desc">On: critical, warning and info alerts each wait their own time before the same alert shows again for a character. Off: every alert waits the quiet time on the Events page.</sys:String>
+    <sys:String x:Key="L.S.alerts.look.waitCritical">Critical alerts stay quiet for</sys:String>
+    <sys:String x:Key="L.S.alerts.look.waitWarning">Warning alerts stay quiet for</sys:String>
+    <sys:String x:Key="L.S.alerts.look.waitInfo">Info alerts stay quiet for</sys:String>
+    <sys:String x:Key="L.S.alerts.events.repeatBySeverity">Each severity has its own quiet time: Alerts › Look &amp; severity.</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.repeats.Title">Quiet time per severity</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">An alert that just fired for a character stays quiet for a while, so a fight doesn't flood you with the same alert.&#x0A;- With **Quiet time per severity** off, every alert waits the quiet time on the Events page (5 seconds unless you changed it).&#x0A;- Turned on, critical, warning and info alerts each wait their own time, for example 2 seconds for critical and 60 for info. Each starts at 5 seconds, so turning it on changes nothing until you change a number.</sys:String>
 </ResourceDictionary>

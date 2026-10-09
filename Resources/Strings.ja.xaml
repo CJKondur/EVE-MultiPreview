@@ -1511,7 +1511,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE モードと被弾の枠</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE モード**はラッティングやミッション向けです。NPC に撃たれたりスクランブルされてもアラートは出なくなり、プレイヤーなら出ます。&#x0A;&#x0A;**被弾の枠**は、そのクライアントがダメージを受けている間サムネイルで赤く点滅し、最後の被弾から数秒後に消えます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">イベント表</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">各行が 1 種類のアラートです。&#x0A;- **重大度**はイベントごとに固定です。イベントの色、点滅の速さ、通知の選択を決めます（外観 &amp; 重大度）。&#x0A;- **色**は 1 つのイベントに専用の色を付けます。↺ で重大度の色に戻ります。&#x0A;- **継続**はアラートがサムネイルに残る時間です。&#x0A;- **バッジ**はサムネイル上でイベントを数えます。**点灯**は点滅ではなく枠を保持します。&#x0A;- **オン**でそのイベントを完全に無効にします。&#x0A;&#x0A;**静止時間**は、同じアラートが同じキャラクターに数秒間繰り返されるのを防ぎます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">各行が 1 種類のアラートです。&#x0A;- **重大度**はイベントごとに固定です。イベントの色、点滅の速さ、通知の選択を決めます（外観 &amp; 重大度）。&#x0A;- **色**は 1 つのイベントに専用の色を付けます。↺ で重大度の色に戻ります。&#x0A;- **継続**はアラートがサムネイルに残る時間です。&#x0A;- **バッジ**はサムネイル上でイベントを数えます。**点灯**は点滅ではなく枠を保持します。&#x0A;- **オン**でそのイベントを完全に無効にします。&#x0A;&#x0A;**静止時間**は、同じアラートが同じキャラクターに数秒間繰り返されるのを防ぎます。**重大度ごとの静止時間**（外観 &amp; 重大度）は、重大度ごとに専用の時間を設定します。</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">外観 &amp; 重大度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">サムネイル上のアラートの見え方、3つの重大度、色覚サポートモード。</sys:String> <!-- draft -->
@@ -1889,4 +1889,14 @@
     <sys:String x:Key="L.Upd.Applying">ダウンロードが完了しました。更新を適用しています…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.Restarting">新しいバージョンで再起動しています…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.FailedFmt">更新に失敗しました: {0}</sys:String> <!-- draft -->
+    <!-- Ideas batch 1 (Plan 5) -->
+    <sys:String x:Key="L.S.Sec.alerts.look.repeats">繰り返し</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity">重大度ごとの静止時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity.Desc">オン：重大、警告、情報のアラートが、それぞれ自分の時間だけ待ってから、同じアラートがキャラクターに再び表示されます。オフ：すべてのアラートがイベントページの静止時間だけ待ちます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitCritical">重大アラートの静止時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitWarning">警告アラートの静止時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitInfo">情報アラートの静止時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repeatBySeverity">重大度ごとに専用の静止時間があります：アラート › 外観 &amp; 重大度。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Title">重大度ごとの静止時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">キャラクターに出たばかりのアラートはしばらく静かになるので、戦闘中に同じアラートが大量に出ることはありません。&#x0A;- **重大度ごとの静止時間**がオフのとき、すべてのアラートはイベントページの静止時間（変更していなければ 5 秒）だけ待ちます。&#x0A;- オンにすると、重大、警告、情報のアラートがそれぞれ自分の時間だけ待ちます。たとえば重大は 2 秒、情報は 60 秒です。どれも 5 秒から始まるので、数値を変えるまでオンにしても何も変わりません。</sys:String> <!-- draft -->
 </ResourceDictionary>

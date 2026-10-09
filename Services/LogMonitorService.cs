@@ -84,6 +84,9 @@ public sealed class LogMonitorService : IDisposable
     // Per-event cooldown overrides from settings
     private Dictionary<string, int> _eventCooldowns = new();
 
+    // Per-severity quiet times (IDEAS P28): null while they are off, so every alert waits as it always did.
+    private IReadOnlyDictionary<string, int>? _severityCooldowns;
+
     // Per-event enable/disable from settings
     private Dictionary<string, bool> _enabledAlertTypes = new();
 
@@ -1085,6 +1088,23 @@ public sealed class LogMonitorService : IDisposable
     /// <summary>Configure per-event cooldowns from settings.</summary>
     public void SetEventCooldowns(Dictionary<string, int> cooldowns) => _eventCooldowns = cooldowns ?? new();
 
+    /// <summary>Per-severity quiet times from settings (SeverityWaits); null turns them off.</summary>
+    public void SetSeverityCooldowns(IReadOnlyDictionary<string, int>? bySeverity) => _severityCooldowns = bySeverity;
+
+    /// <summary>What App passes to SetSeverityCooldowns (IDEAS P28): the three quiet times while Quiet time per severity
+    /// is on, else null. The old SeverityCooldowns (5/15/30 in every file) is never read for this.</summary>
+    public static IReadOnlyDictionary<string, int>? SeverityWaits(AppSettings s) => s.AlertCooldownBySeverity
+        ? new Dictionary<string, int> { ["critical"] = s.AlertCooldownCritical, ["warning"] = s.AlertCooldownWarning, ["info"] = s.AlertCooldownInfo }
+        : null;
+
+    /// <summary>How long the same alert stays quiet for a character: its severity's quiet time while those are on, else
+    /// what it always was (an entry under the event's own name, which no settings window writes, else the one quiet time).</summary>
+    public static int CooldownFor(string alertType, string severity, IReadOnlyDictionary<string, int>? bySeverity,
+        IReadOnlyDictionary<string, int> byEvent, int quietTime) =>
+        bySeverity != null && bySeverity.TryGetValue(severity, out var wait) ? wait
+        : byEvent.TryGetValue(alertType, out var old) ? old
+        : quietTime;
+
     /// <summary>Configure per-event enable/disable from settings.</summary>
     public void SetEnabledAlertTypes(Dictionary<string, bool> enabled) => _enabledAlertTypes = enabled ?? new();
 
@@ -2022,7 +2042,7 @@ public sealed class LogMonitorService : IDisposable
 
         // ── Per-event cooldown check ──
         string key = $"{character}_{alertType}";
-        int cooldownSec = _eventCooldowns.GetValueOrDefault(alertType, _defaultCooldownSeconds);
+        int cooldownSec = CooldownFor(alertType, severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds);
 
         if (_alertCooldowns.TryGetValue(key, out var lastTime))
         {

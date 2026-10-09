@@ -1510,7 +1510,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE-Modus und Beschuss-Rahmen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">Der **PVE-Modus** ist für Ratting und Missionen: NPCs, die auf dich schießen oder dich scrammen, lösen keinen Alarm mehr aus, Spieler schon.&#x0A;&#x0A;Der **Beschuss-Rahmen** pulsiert rot auf einem Vorschaubild, solange dieser Client Schaden nimmt, und verschwindet einige Sekunden nach dem letzten Treffer.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">Die Ereignistabelle</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">Jede Zeile ist eine Alarmart.&#x0A;- **Schweregrad** ist für jedes Ereignis fest. Er bestimmt Farbe, Blinkgeschwindigkeit und Meldungsauswahl des Ereignisses (Aussehen &amp; Schweregrad).&#x0A;- **Farbe** gibt einem Ereignis eine eigene Farbe; ↺ geht zurück zu der des Schweregrads.&#x0A;- **Dauer** ist, wie lange der Alarm auf dem Vorschaubild bleibt.&#x0A;- **Zähler** zählt das Ereignis auf dem Vorschaubild; **Dauerhaft** hält den Rahmen, statt zu blinken.&#x0A;- **An** schaltet das Ereignis ganz ab.&#x0A;&#x0A;Die **Ruhezeit** verhindert, dass sich derselbe Alarm für einen Charakter einige Sekunden lang wiederholt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">Jede Zeile ist eine Alarmart.&#x0A;- **Schweregrad** ist für jedes Ereignis fest. Er bestimmt Farbe, Blinkgeschwindigkeit und Meldungsauswahl des Ereignisses (Aussehen &amp; Schweregrad).&#x0A;- **Farbe** gibt einem Ereignis eine eigene Farbe; ↺ geht zurück zu der des Schweregrads.&#x0A;- **Dauer** ist, wie lange der Alarm auf dem Vorschaubild bleibt.&#x0A;- **Zähler** zählt das Ereignis auf dem Vorschaubild; **Dauerhaft** hält den Rahmen, statt zu blinken.&#x0A;- **An** schaltet das Ereignis ganz ab.&#x0A;&#x0A;Die **Ruhezeit** verhindert, dass sich derselbe Alarm für einen Charakter einige Sekunden lang wiederholt. **Ruhezeit pro Schweregrad** (Aussehen &amp; Schweregrad) gibt jedem Schweregrad seine eigene.</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">Aussehen &amp; Schweregrad</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">Wie Alarme auf Vorschaubildern aussehen, die drei Schweregrade und der Farbenblind-Modus.</sys:String> <!-- draft -->
@@ -1888,4 +1888,14 @@
     <sys:String x:Key="L.Upd.Applying">Download abgeschlossen. Das Update wird angewendet…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.Restarting">Neustart mit der neuen Version…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.FailedFmt">Das Update ist fehlgeschlagen: {0}</sys:String> <!-- draft -->
+    <!-- Ideas batch 1 (Plan 5) -->
+    <sys:String x:Key="L.S.Sec.alerts.look.repeats">Wiederholungen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity">Ruhezeit pro Schweregrad</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitBySeverity.Desc">An: Kritische, Warn- und Info-Alarme warten jeweils ihre eigene Zeit, bevor derselbe Alarm für einen Charakter erneut erscheint. Aus: Jeder Alarm wartet die Ruhezeit der Seite Ereignisse.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitCritical">Kritische Alarme bleiben still für</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitWarning">Warnalarme bleiben still für</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.waitInfo">Info-Alarme bleiben still für</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repeatBySeverity">Jeder Schweregrad hat seine eigene Ruhezeit: Warnungen › Aussehen &amp; Schweregrad.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Title">Ruhezeit pro Schweregrad</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">Ein Alarm, der gerade für einen Charakter ausgelöst wurde, bleibt eine Weile still, damit dich ein Kampf nicht mit demselben Alarm überflutet.&#x0A;- Ist **Ruhezeit pro Schweregrad** aus, wartet jeder Alarm die Ruhezeit der Seite Ereignisse (5 Sekunden, falls du sie nicht geändert hast).&#x0A;- Eingeschaltet warten kritische, Warn- und Info-Alarme jeweils ihre eigene Zeit, zum Beispiel 2 Sekunden für kritische und 60 für Info. Jede beginnt bei 5 Sekunden, also ändert das Einschalten nichts, bis du eine Zahl änderst.</sys:String> <!-- draft -->
 </ResourceDictionary>
