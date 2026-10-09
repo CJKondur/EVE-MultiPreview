@@ -1925,4 +1925,10 @@
     <sys:String x:Key="L.Start.Restore.BesideExe">the settings file beside MultiPreview.exe</sys:String>
     <sys:String x:Key="L.Start.Restore.Backup">a saved copy in the Backups folder</sys:String>
     <sys:String x:Key="L.Start.Restore.Failed">That copy couldn't be restored. Pick another.</sys:String>
+    <sys:String x:Key="L.Move.Note">EVE MultiPreview now keeps its settings in this folder:&#x0A;{0}&#x0A;&#x0A;The settings file here, beside MultiPreview.exe, is the copy from before version {2}. MultiPreview doesn't use it any more, apart from the older-version case below, and you can keep it as a backup. If the settings file above ever goes missing, MultiPreview copies this one back on the next start.&#x0A;&#x0A;To keep everything beside the exe instead (a portable install, for example on a USB stick): close MultiPreview, copy the settings file (and layout_presets.json, if you use layout presets) from the folder above into this folder, and create an empty file named {1} here. MultiPreview then reads and saves its files here, as before.&#x0A;&#x0A;If you install an older version from Settings › App settings › About &amp; updates, MultiPreview first copies your current settings and layout presets here, because older versions read the files beside the exe. The files that were here are kept in the Backups folder inside the folder above.</sys:String>
+    <sys:String x:Key="L.Start.Crash.Title">MultiPreview closed unexpectedly</sys:String>
+    <sys:String x:Key="L.Start.Crash.Body">The last session, started {0}, ended without MultiPreview closing: it crashed, or was stopped by Task Manager or a power cut. If something went wrong, error_log.txt in the logs folder may say what. Attach it to a bug report.</sys:String>
+    <sys:String x:Key="L.Start.Crash.Open">Open the logs folder</sys:String>
+    <sys:String x:Key="L.Start.Crash.Close">Close</sys:String>
+    <sys:String x:Key="L.Tray.Errors">Errors handled: {0}. See App settings › Diagnostics.</sys:String>
 </ResourceDictionary>

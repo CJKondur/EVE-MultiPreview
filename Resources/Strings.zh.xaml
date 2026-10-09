@@ -1943,4 +1943,10 @@
     <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe 旁边的设置文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Backup">Backups 文件夹中保存的副本</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Failed">无法恢复该副本。请选择另一个。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Move.Note">EVE MultiPreview 现在把设置保存在这个文件夹中：&#x0A;{0}&#x0A;&#x0A;这里的设置文件（在 MultiPreview.exe 旁边）是版本 {2} 之前的副本。除下面提到的安装旧版本的情况外，MultiPreview 不再使用它，你可以把它留作备份。如果上面的设置文件丢失，MultiPreview 会在下次启动时把这个文件复制回去。&#x0A;&#x0A;如果你想让所有文件仍保存在 exe 旁边（便携安装，例如放在 U 盘上）：先关闭 MultiPreview，把上面文件夹中的设置文件（如果你使用布局预设，还有 layout_presets.json）复制到这个文件夹，再在这里创建一个名为 {1} 的空文件。之后 MultiPreview 会像以前一样在这里读取和保存它的文件。&#x0A;&#x0A;如果你通过 设置 › 应用设置 › 关于与更新 安装旧版本，MultiPreview 会先把你当前的设置和布局预设复制到这里，因为旧版本读取的是 exe 旁边的文件。原来在这里的文件会保存在上面那个文件夹内的 Backups 文件夹中。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Title">MultiPreview 意外关闭了</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Body">上一次运行（启动于 {0}）结束时 MultiPreview 没有正常关闭：它崩溃了，或被任务管理器终止，或遇到了断电。如果出了问题，日志文件夹中的 error_log.txt 可能会说明原因。提交错误报告时请附上它。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Open">打开日志文件夹</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Close">关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Errors">已处理的错误：{0}。请查看 应用设置 › 诊断。</sys:String> <!-- draft -->
 </ResourceDictionary>

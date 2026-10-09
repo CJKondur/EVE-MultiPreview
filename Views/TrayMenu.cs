@@ -119,6 +119,19 @@ public sealed class TrayMenu : IDisposable
 
     public ContextMenuStrip Strip { get; }
 
+    /// <summary>Windows' limit for a tray tooltip. NotifyIcon.Text throws on anything longer.</summary>
+    public const int TooltipMax = 127;
+
+    /// <summary>The tray icon's tooltip: the name and the pause state, as before, then (once MultiPreview has handled an
+    /// error) how many and where to look (IDEAS #55). Cut to Windows' 127 characters.</summary>
+    public static string TooltipText(bool suspended, int errors)
+    {
+        var text = suspended ? "⏸ EVE MultiPreview (SUSPENDED)" : "EVE MultiPreview";
+        if (errors > 0)
+            text += "\n" + string.Format(LocalizationService.Str("L.Tray.Errors", "Errors handled: {0}. See App settings › Diagnostics."), errors);
+        return text.Length <= TooltipMax ? text : text[..TooltipMax];
+    }
+
     /// <summary>Re-reads labels, check marks, hotkey hints and the two lists. Runs every time the menu opens.</summary>
     public void Refresh()
     {

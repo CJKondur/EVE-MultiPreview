@@ -1926,4 +1926,10 @@
     <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe 옆의 설정 파일</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Backup">Backups 폴더에 저장된 사본</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Failed">그 사본은 복원하지 못했어요. 다른 것을 선택하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Move.Note">EVE MultiPreview는 이제 설정을 이 폴더에 보관해요:&#x0A;{0}&#x0A;&#x0A;여기(MultiPreview.exe 옆)에 있는 설정 파일은 버전 {2} 이전의 사본이에요. 아래의 이전 버전 설치 경우를 빼면 MultiPreview는 이 파일을 더 이상 사용하지 않으며, 백업으로 보관해도 돼요. 위의 설정 파일이 사라지면 MultiPreview가 다음 시작 때 이 파일을 다시 복사해요.&#x0A;&#x0A;대신 모든 것을 exe 옆에 두려면(예: USB 메모리에 둔 포터블 설치): MultiPreview를 닫고, 위 폴더의 설정 파일(레이아웃 프리셋을 쓴다면 layout_presets.json도)을 이 폴더에 복사한 뒤, 여기에 {1}라는 이름의 빈 파일을 만드세요. 그러면 MultiPreview는 예전처럼 여기에서 파일을 읽고 저장해요.&#x0A;&#x0A;설정 › 앱 설정 › 정보 및 업데이트에서 이전 버전을 설치하면, 이전 버전은 exe 옆의 파일을 읽기 때문에 MultiPreview가 먼저 현재 설정과 레이아웃 프리셋을 여기에 복사해요. 여기에 있던 파일은 위 폴더 안의 Backups 폴더에 보관돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Title">MultiPreview가 예기치 않게 종료됐어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Body">마지막 세션({0}에 시작)이 MultiPreview가 정상적으로 닫히지 않은 채 끝났어요. 충돌했거나 작업 관리자 또는 정전으로 중단됐을 수 있어요. 문제가 있었다면 Logs 폴더의 error_log.txt에 원인이 적혀 있을 수 있어요. 버그 보고서에 첨부하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Open">Logs 폴더 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Close">닫기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Errors">처리한 오류: {0}개. 앱 설정 › 진단을 확인하세요.</sys:String> <!-- draft -->
 </ResourceDictionary>

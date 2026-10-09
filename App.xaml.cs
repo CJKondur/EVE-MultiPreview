@@ -40,6 +40,13 @@ public partial class App : Application
     private CropManager? _cropManager;
     private Window? _settingsWindow;
 
+    // IDEAS #57: where the settings live this run, decided first thing in OnStartup.
+    private SettingsHomeResult? _home;
+    // IDEAS #55: the marker that tells an unexpected end from a clean exit, and one queued tray tooltip refresh.
+    private RunMarker? _runMarker;
+    private DateTime? _previousRunStart;
+    private int _trayTextQueued;
+
     // Tray balloon click-to-focus (matches AHK _trayAlertChar/_trayAlertHwnd)
     private string _trayAlertChar = "";
     private IntPtr _trayAlertHwnd = IntPtr.Zero;
@@ -73,10 +80,8 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         // A sign-in launch (Start with Windows, #113) starts in System32, not next to
-        // the exe as a double-click does - and debug_log.txt below is a relative path.
-        Environment.CurrentDirectory = Path.GetDirectoryName(Environment.ProcessPath) ?? Environment.CurrentDirectory;
-        System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener("debug_log.txt"));
-        System.Diagnostics.Trace.AutoFlush = true;
+        // the exe as a double-click does: relative paths keep resolving beside the exe.
+        Environment.CurrentDirectory = AppPaths.ExeDir;
         // Single-instance guard
         _singleInstanceMutex = new Mutex(true, "EveMultiPreview_SingleInstance", out bool createdNew);
         if (!createdNew)
@@ -94,6 +99,20 @@ public partial class App : Application
             return;
         }
 
+        // IDEAS #57: where the settings live, decided (and on the first start, moved to AppData) before anything writes
+        // a file. Only the instance that holds the single-instance lock gets here.
+        _home = SettingsHome.Resolve(AppPaths.ExeDir, AppPaths.AppDataDir);
+        AppPaths.Use(_home.ConfigDir);
+        try { Directory.CreateDirectory(AppPaths.LogsDir); } catch { }
+        System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener(Path.Combine(AppPaths.LogsDir, "debug_log.txt")));
+        System.Diagnostics.Trace.AutoFlush = true;
+
+        // IDEAS #55: a marker the last session left behind means it ended without closing.
+        _runMarker = new RunMarker(AppPaths.ConfigDir);
+        _previousRunStart = _runMarker.Begin(DateTime.Now);
+        RunMarker.PreviousUncleanStart = _previousRunStart;
+        SessionEnding += (_, _) => _runMarker?.End();   // Windows is signing out or shutting down: a clean end
+
         base.OnStartup(e);
         StartWithWindows.RefreshPath();
         // Clear perf log on each launch
@@ -105,21 +124,46 @@ public partial class App : Application
         // ── Global Error Handler ──
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
+        ErrorLog.Shared.Changed += QueueTrayText;   // IDEAS #55: the tray tooltip counts handled errors
+        foreach (var line in _home.Notes) ErrorLog.Shared.Note(line, DateTime.Now);
 
         // ── JSON Migration ──
-        CheckJsonMigration();
+        CheckJsonMigration(AppPaths.ExeDir, AppPaths.SettingsPath);
         PerfLog($"JSON migration check: {startupSw.ElapsedMilliseconds}ms");
 
         // Reset Settings diagnostic log each run
         try { System.IO.File.WriteAllText(SettingsDiagLogPath, $"--- Session start {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---{Environment.NewLine}"); } catch { }
 
-        // 1. Load settings
-        _settings = new SettingsService();
+        // 1. Load settings (from the settings folder, IDEAS #57)
+        _settings = new SettingsService(AppPaths.SettingsPath);
         _settings.Load();
+        // A file another program holds for a moment (a backup tool, a cloud sync) is tried again before it counts as unreadable.
+        for (int retry = 0; retry < 2 && _settings.LastLoadError is IOException; retry++)
+        {
+            Thread.Sleep(500);
+            _settings.Load();
+        }
 
         // Apply UI language before any window is shown (issue #86). "" auto-detects
         // from the OS; falls back to English for unsupported languages.
         Services.LocalizationService.SetLanguage(_settings.Settings.Language);
+
+        if (!_settings.LoadedSuccessfully)
+        {
+            // IDEAS #49: offer the backups instead of running the session on defaults.
+            if (SettingsRestore.Offer(_settings, CopyBesideExe(), AskAtStartup, LocalizationService.Str, DateTime.Now))
+                Services.LocalizationService.SetLanguage(_settings.Settings.Language);
+        }
+        else
+        {
+            // IDEAS #57: a different settings file in the other place, changed later (an older version ran there). Never
+            // for a portable install, which asks nothing at startup.
+            if (_home.OtherCopy != null && !_home.Portable
+                && SettingsHome.OfferOtherCopy(_settings, _home.OtherCopy, AskAtStartup, LocalizationService.Str, DateTime.Now))
+                Services.LocalizationService.SetLanguage(_settings.Settings.Language);
+            SettingsUi.SettingsBackup.KeepStartupCopy(_settings, DateTime.Now);   // IDEAS #49
+        }
+        if (_home.NoteNeeded) SettingsHome.WriteNote(AppPaths.ExeDir, MovedNoteText());
 
         DiagnosticsService.Initialize();
         DiagnosticsService.GlobalSettings = _settings.Settings;
@@ -127,7 +171,9 @@ public partial class App : Application
         PerfLog($"Settings loaded: {startupSw.ElapsedMilliseconds}ms");
 
         // ── Setup Wizard gate ──
-        if (!_settings.Settings.SetupCompleted)
+        // Not after a load that failed (started with defaults): the player has a setup, and nothing the wizard set could
+        // be saved over their file anyway (IDEAS #49).
+        if (_settings.LoadedSuccessfully && !_settings.Settings.SetupCompleted)
         {
             var wizard = new SetupWizard(_settings);
             wizard.ShowDialog();
@@ -388,9 +434,7 @@ public partial class App : Application
             {
                 if (_trayIcon != null)
                 {
-                    _trayIcon.Text = _hotkeyService.IsSuspended
-                        ? "⏸ EVE MultiPreview (SUSPENDED)"
-                        : "EVE MultiPreview";
+                    _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService.IsSuspended, ErrorLog.Shared.Count);
                     var asm = System.Reflection.Assembly.GetExecutingAssembly();
                     var icoName = _hotkeyService.IsSuspended ? "EveMultiPreview.Icon-Suspend.ico" : "EveMultiPreview.Icon.ico";
                     var icoStream = asm.GetManifestResourceStream(icoName);
@@ -429,6 +473,9 @@ public partial class App : Application
             hotkeyToggleTimer.Start();
 
             PerfLog($"[Deferred] ✅ All deferred startup complete: {deferSw.ElapsedMilliseconds}ms total");
+
+            // IDEAS #55: once, after a session that ended without closing.
+            if (_previousRunStart is DateTime previousStart) ShowUncleanExitNotice(previousStart);
 
             // ── Auto-Update Check (fire-and-forget, non-blocking) ──
             // Gated on CheckForUpdatesOnStartup (About tab toggle). When off, no
@@ -509,12 +556,14 @@ public partial class App : Application
 
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        // Silently skip DWM race conditions (matches AHK behavior)
+        // DWM race conditions (matches AHK behavior): still handled quietly, but now counted and written to the error
+        // log once per kind each session (IDEAS #55), so they no longer vanish.
         if (e.Exception is System.Runtime.InteropServices.COMException ||
             e.Exception.Message.Contains("Missing a required parameter") ||
             e.Exception is System.ComponentModel.Win32Exception)
         {
-            Debug.WriteLine($"[App:Error] ⚠ Silently handled: {e.Exception.GetType().Name}: {e.Exception.Message}");
+            Debug.WriteLine($"[App:Error] ⚠ Quietly handled: {e.Exception.GetType().Name}: {e.Exception.Message}");
+            ErrorLog.Shared.Record(e.Exception, "UI (window race)", DateTime.Now);
             e.Handled = true;
             return;
         }
@@ -526,8 +575,9 @@ public partial class App : Application
 
     private void OnAppDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
+        // The process is ending: written here, and the run marker stays, so the next start says so (IDEAS #55).
         if (e.ExceptionObject is Exception ex)
-            LogError(ex);
+            ErrorLog.Shared.Record(ex, "Crash", DateTime.Now);
     }
 
     /// <summary>An error MultiPreview handled and kept running after: counted, and written to Logs\error_log.txt in the
@@ -540,11 +590,11 @@ public partial class App : Application
 
     // ── JSON Migration (AHK: EVE-X-Preview → EVE MultiPreview) ───────
 
-    private static void CheckJsonMigration()
+    /// <summary>EVE-X-Preview's file beside the exe becomes the settings file in the settings folder (IDEAS #57), and
+    /// only while that folder has none: after the move, the file beside the exe is not the one MultiPreview reads.</summary>
+    private static void CheckJsonMigration(string exeDir, string newFile)
     {
-        var exeDir = Path.GetDirectoryName(Environment.ProcessPath) ?? ".";
         var oldFile = Path.Combine(exeDir, "EVE-X-Preview.json");
-        var newFile = Path.Combine(exeDir, "EVE MultiPreview.json");
 
         if (File.Exists(oldFile) && !File.Exists(newFile))
         {
@@ -566,6 +616,87 @@ public partial class App : Application
             }
         }
     }
+
+    // ── Settings folder, backups and errors (IDEAS #49, #55, #57) ──
+
+    /// <summary>A startup question (the restore prompt, the newer-file question): before the main UI, so modal.</summary>
+    private static int? AskAtStartup(string title, string body, IReadOnlyList<string> choices)
+    {
+        var dialog = new StartupDialog(title, body, choices);
+        dialog.ShowDialog();
+        return dialog.Choice;
+    }
+
+    /// <summary>The settings file beside the exe, when the settings folder is elsewhere: the copy from before the move,
+    /// which the restore prompt also offers. Null when portable.</summary>
+    private static string? CopyBesideExe() =>
+        string.Equals(Path.GetFullPath(AppPaths.ConfigDir), Path.GetFullPath(AppPaths.ExeDir), StringComparison.OrdinalIgnoreCase)
+            ? null
+            : Path.Combine(AppPaths.ExeDir, AppPaths.SettingsFileName);
+
+    /// <summary>The note left beside the exe when the settings moved, in the player's language.</summary>
+    private static string MovedNoteText() => string.Format(
+        LocalizationService.Str("L.Move.Note", MovedNoteEnglish),
+        AppPaths.ConfigDir, AppPaths.PortableMarkerName, SettingsUi.AboutActions.VersionText);
+
+    private const string MovedNoteEnglish =
+        "EVE MultiPreview now keeps its settings in this folder:\n{0}\n\n"
+        + "The settings file here, beside MultiPreview.exe, is the copy from before version {2}. MultiPreview doesn't use it "
+        + "any more, apart from the older-version case below, and you can keep it as a backup. If the settings file above "
+        + "ever goes missing, MultiPreview copies this one back on the next start.\n\n"
+        + "To keep everything beside the exe instead (a portable install, for example on a USB stick): close MultiPreview, "
+        + "copy the settings file (and layout_presets.json, if you use layout presets) from the folder above into this "
+        + "folder, and create an empty file named {1} here. MultiPreview then reads and saves its files here, as before.\n\n"
+        + "If you install an older version from Settings › App settings › About & updates, MultiPreview first copies your "
+        + "current settings and layout presets here, because older versions read the files beside the exe. The files that "
+        + "were here are kept in the Backups folder inside the folder above.";
+
+    /// <summary>ErrorLog.Changed, from any thread: one tooltip refresh queued at a time, so a burst of errors can't
+    /// flood the dispatcher. It never throws or records an error itself, or a failing refresh would feed itself.</summary>
+    private void QueueTrayText()
+    {
+        if (Interlocked.Exchange(ref _trayTextQueued, 1) == 1) return;
+        try
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                Interlocked.Exchange(ref _trayTextQueued, 0);
+                try
+                {
+                    if (_trayIcon != null)
+                        _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count);
+                }
+                catch { /* a tooltip must never raise another error */ }
+            }));
+        }
+        catch { Interlocked.Exchange(ref _trayTextQueued, 0); }
+    }
+
+    /// <summary>IDEAS #55: the last session ended without closing (a crash, Task Manager, a power cut). One notice, which
+    /// doesn't take focus from the game, offering the logs folder.</summary>
+    private static void ShowUncleanExitNotice(DateTime started)
+    {
+        try
+        {
+            var notice = new StartupDialog(
+                LocalizationService.Str("L.Start.Crash.Title", "MultiPreview closed unexpectedly"),
+                string.Format(LocalizationService.Str("L.Start.Crash.Body", UncleanBodyEnglish),
+                    started.ToString("g", System.Globalization.CultureInfo.CurrentCulture)),
+                new[]
+                {
+                    LocalizationService.Str("L.Start.Crash.Open", "Open the logs folder"),
+                    LocalizationService.Str("L.Start.Crash.Close", "Close"),
+                })
+            { ShowActivated = false };
+            notice.Closed += (_, _) => { if (notice.Choice == 0) DiagnosticsService.OpenLogsFolder(); };
+            notice.Show();
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    private const string UncleanBodyEnglish =
+        "The last session, started {0}, ended without MultiPreview closing: it crashed, or was stopped by Task Manager "
+        + "or a power cut. If something went wrong, error_log.txt in the logs folder may say what. Attach it to a bug report.";
 
     // ── Alert Sound System (per-event sounds, WAV/MP3 via MediaPlayer) ──
 
@@ -726,7 +857,7 @@ public partial class App : Application
 
         _trayIcon = new NotifyIcon
         {
-            Text = "EVE MultiPreview",
+            Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count),
             Icon = trayIco,
             Visible = true,
             ContextMenuStrip = _trayMenu.Strip
@@ -1037,6 +1168,12 @@ public partial class App : Application
         // (App.xaml.cs:831/850/875) see the right state even when shutdown
         // bypasses ExitApplication.
         _isShuttingDown = true;
+
+        // IDEAS #55: a clean exit. First, so a Dispose that throws below can't leave a marker that reports a crash that
+        // didn't happen. Only the instance that began the marker deletes it; the second instance never did. An update
+        // exits through here too (ApplyUpdate calls Shutdown), and its script waits for this process to be gone before it
+        // starts the new one.
+        _runMarker?.End();
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _alertHub?.Dispose();

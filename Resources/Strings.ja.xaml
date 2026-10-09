@@ -1926,4 +1926,10 @@
     <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe と同じ場所にある設定ファイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Backup">Backups フォルダーに保存されたコピー</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Failed">そのコピーは復元できませんでした。別のものを選んでください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Move.Note">EVE MultiPreview は設定をこのフォルダーに保存するようになりました：&#x0A;{0}&#x0A;&#x0A;ここ（MultiPreview.exe と同じ場所）にある設定ファイルは、バージョン {2} より前のコピーです。古いバージョンをインストールする場合（下記）を除き、MultiPreview はこのファイルを使いません。バックアップとして残しておけます。上の設定ファイルがなくなった場合は、次回の起動時に MultiPreview がこのファイルをコピーし直します。&#x0A;&#x0A;代わりにすべてを exe と同じ場所に置く場合（USB メモリなどのポータブル インストール）：MultiPreview を閉じ、上のフォルダーの設定ファイル（レイアウト プリセットを使っている場合は layout_presets.json も）をこのフォルダーにコピーして、ここに {1} という名前の空のファイルを作成します。以後、MultiPreview はこれまでどおりここでファイルを読み書きします。&#x0A;&#x0A;設定 › アプリの設定 › 情報とアップデート から古いバージョンをインストールすると、古いバージョンは exe と同じ場所のファイルを読むため、MultiPreview は先に現在の設定とレイアウト プリセットをここにコピーします。ここにあったファイルは、上のフォルダー内の Backups フォルダーに残ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Title">MultiPreview が予期せず終了しました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Body">前回のセッション（{0} に開始）は、MultiPreview が正常に閉じられないまま終了しました。クラッシュしたか、タスク マネージャーや停電で停止された可能性があります。問題が起きた場合は、Logs フォルダー内の error_log.txt に原因が書かれていることがあります。バグ報告に添付してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Open">Logs フォルダーを開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Close">閉じる</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Errors">処理済みのエラー：{0} 件。アプリの設定 › 診断 を参照してください。</sys:String> <!-- draft -->
 </ResourceDictionary>
