@@ -828,7 +828,7 @@
     <sys:String x:Key="L.S.app.profiles.current.Desc">Каждый профиль хранит свои позиции миниатюр, горячие клавиши, цвета и раскладку.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.profiles.backups">Резервные копии</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.profiles.backup">Файл настроек</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.profiles.backup.Desc">Копии сохраняются в папку Backups рядом с MultiPreview. Экспорт и импорт переносят настройки на другой ПК.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.backup.Desc">Резервные копии попадают в папку Backups внутри папки ваших настроек. MultiPreview также сохраняет копию при каждом запуске (последние 10). Экспорт и импорт переносят ваши настройки на другой ПК.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.backupNow">Сохранить сейчас</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.export">Экспорт…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.import">Импорт…</sys:String> <!-- draft -->
@@ -836,7 +836,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">Работа с профилями</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **Новый** создаёт пустой профиль и переключает на него.&#x0A;- **Копировать** копирует один профиль в другой: всё или только позиции миниатюр.&#x0A;- **Удалить** навсегда удаляет текущий профиль. Хотя бы один всегда остаётся.&#x0A;&#x0A;Переключаться можно и из меню профилей вверху слева, и горячими клавишами профилей.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">Резервные копии и переезд на другой ПК</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**Сохранить сейчас** кладёт копию с датой в папку Backups рядом с MultiPreview.&#x0A;&#x0A;**Экспорт** сохраняет файл настроек куда угодно. **Импорт** заменяет все настройки файлом из экспорта. Сначала делается копия текущих настроек, а чтобы импортированные заработали везде, MultiPreview нужно перезапустить.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**Сохранить сейчас** сохраняет копию с датой в папке Backups. MultiPreview также сохраняет копию при каждом запуске (последние 10) и перед каждым обновлением, а если файл настроек не удаётся прочитать, предлагает эти копии при запуске.&#x0A;&#x0A;**Экспорт** сохраняет файл настроек куда угодно. **Импорт** заменяет все ваши настройки экспортированным файлом. Текущие настройки сначала копируются в резерв, а чтобы импортированные настройки заработали везде, MultiPreview нужно перезапустить.&#x0A;&#x0A;Ваши настройки хранятся в %APPDATA%\EVE MultiPreview. Чтобы хранить их рядом с MultiPreview.exe (переносная установка), закройте MultiPreview, скопируйте файл настроек туда и положите рядом с exe пустой файл portable.txt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">О программе и обновления</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about.Desc">Версия, обновления и старое окно настроек.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String> <!-- draft -->
@@ -1951,4 +1951,14 @@
     <sys:String x:Key="L.Start.Crash.Open">Открыть папку журналов</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Crash.Close">Закрыть</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.Errors">Обработано ошибок: {0}. Смотрите Настройки приложения › Диагностика.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.folderText">Ваши настройки хранятся в {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.profiles.openFolder">Открыть папку</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.diagnostics.errors">Ошибки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorCount">Ошибок обработано с запуска MultiPreview: {0}. Программа продолжила работать. Подробности для отчёта об ошибке есть в журнале ошибок.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.uncleanExit">Последний сеанс, начатый {0}, закрылся не штатно: MultiPreview аварийно завершился или был остановлен. Причину может подсказать журнал ошибок.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog">Журнал ошибок</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog.Desc">Ошибки, которые MultiPreview обработал и не остановился; хранятся в папке журналов.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.openErrorLog">Открыть журнал ошибок</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Title">Ошибки и неожиданное закрытие</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Body">MultiPreview продолжает работать, если что-то пошло не так, и записывает произошедшее в **Журнал ошибок**. Пока есть обработанные ошибки, подсказка значка в трее показывает их число.&#x0A;&#x0A;Если MultiPreview закрылся без вашего участия (сбой, диспетчер задач, отключение питания), он сообщит об этом при следующем запуске и предложит папку журналов.&#x0A;&#x0A;Сообщая об ошибке, приложите error_log.txt из папки журналов.</sys:String> <!-- draft -->
 </ResourceDictionary>

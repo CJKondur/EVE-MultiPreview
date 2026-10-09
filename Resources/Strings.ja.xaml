@@ -809,7 +809,7 @@
     <sys:String x:Key="L.S.app.profiles.current.Desc">プロファイルごとに、サムネイルの位置、ホットキー、色、レイアウトが保存されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.profiles.backups">バックアップ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.profiles.backup">設定ファイル</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.profiles.backup.Desc">バックアップは MultiPreview の隣の Backups フォルダーに保存されます。エクスポートとインポートで設定を別の PC に移せます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.backup.Desc">バックアップは設定フォルダー内の Backups フォルダーに保存されます。MultiPreview は起動のたびにコピーも保存します(直近 10 件)。エクスポートとインポートで、設定を別の PC に移せます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.backupNow">今すぐバックアップ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.export">エクスポート…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.import">インポート…</sys:String> <!-- draft -->
@@ -817,7 +817,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">プロファイルの使い方</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新規**は空のプロファイルを作成して切り替えます。&#x0A;- **コピー**は、あるプロファイルを別のプロファイルにコピーします。すべて、またはサムネイルの位置だけを選べます。&#x0A;- **削除**は現在のプロファイルを完全に削除します。最低 1 つは必ず残ります。&#x0A;&#x0A;左上のプロファイルメニューや、プロファイル用ホットキーでも切り替えられます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">バックアップと別の PC への移行</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**今すぐバックアップ**は、MultiPreview の隣の Backups フォルダーに日付付きのコピーを保存します。&#x0A;&#x0A;**エクスポート**は設定ファイルを好きな場所に保存します。**インポート**は、エクスポートしたファイルですべての設定を置き換えます。現在の設定は先にバックアップされ、インポートした設定をすべてに反映するには MultiPreview の再起動が必要です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**今すぐバックアップ**は日付付きのコピーを Backups フォルダーに保存します。MultiPreview は起動のたびと、更新の前にもコピーを保存します(起動時のコピーは直近 10 件)。設定ファイルを読み込めない場合は、起動時にこれらのコピーを提案します。&#x0A;&#x0A;**エクスポート**は設定ファイルを好きな場所に保存します。**インポート**はすべての設定をエクスポートしたファイルに置き換えます。現在の設定は先にバックアップされ、インポートした設定をすべてに反映するには MultiPreview の再起動が必要です。&#x0A;&#x0A;設定は %APPDATA%\EVE MultiPreview に保存されます。代わりに MultiPreview.exe の隣に置くには(ポータブルインストール)、MultiPreview を閉じ、設定ファイルをそこへコピーして、exe の隣に portable.txt という空のファイルを置いてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">情報とアップデート</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about.Desc">バージョン、アップデート、旧設定ウィンドウ。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String> <!-- draft -->
@@ -1932,4 +1932,14 @@
     <sys:String x:Key="L.Start.Crash.Open">Logs フォルダーを開く</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Crash.Close">閉じる</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.Errors">処理済みのエラー：{0} 件。アプリの設定 › 診断 を参照してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.folderText">設定は {0} に保存されています。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.profiles.openFolder">フォルダーを開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.diagnostics.errors">エラー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorCount">MultiPreview の起動後に処理したエラー: {0} 件。動作は止まりませんでした。バグ報告用の詳細はエラーログにあります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.uncleanExit">前回のセッション(開始: {0})は正常に終了しませんでした。MultiPreview がクラッシュしたか、停止されました。理由はエラーログに残っているかもしれません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog">エラーログ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog.Desc">MultiPreview が停止せずに処理したエラー。ログフォルダーに保存されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.openErrorLog">エラーログを開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Title">エラーと予期しない終了</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Body">MultiPreview は問題が起きても動作を続け、起きたことを**エラーログ**に書き込みます。処理したエラーがある間は、トレイアイコンのツールチップにその件数が表示されます。&#x0A;&#x0A;自分で閉じていないのに MultiPreview が終了した場合(クラッシュ、タスクマネージャー、停電など)、次回の起動時にそのことを伝え、ログフォルダーを開けるようにします。&#x0A;&#x0A;バグを報告するときは、ログフォルダーの error_log.txt を添付してください。</sys:String> <!-- draft -->
 </ResourceDictionary>

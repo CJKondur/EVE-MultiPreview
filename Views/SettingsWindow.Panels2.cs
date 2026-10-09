@@ -1957,11 +1957,11 @@ public partial class SettingsWindow
     {
         try
         {
-            var appDir = AppDomain.CurrentDomain.BaseDirectory;
-            var configPath = Path.Combine(appDir, "EVE MultiPreview.json");
+            // The settings folder (IDEAS #57): after the move, the file beside the exe is the old copy.
+            var configPath = _svc.SettingsPath;
             if (!File.Exists(configPath)) { MessageBox.Show("Config file not found.", "Backup"); return; }
 
-            var backupDir = Path.Combine(appDir, "Backups");
+            var backupDir = Path.Combine(_svc.ConfigDirectory, "Backups");
             Directory.CreateDirectory(backupDir);
 
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
@@ -1980,7 +1980,7 @@ public partial class SettingsWindow
         var dlg = new Microsoft.Win32.SaveFileDialog { Filter = "JSON|*.json", FileName = "EVE MultiPreview.json" };
         if (dlg.ShowDialog() == true)
         {
-            File.Copy(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EVE MultiPreview.json"), dlg.FileName, true);
+            File.Copy(_svc.SettingsPath, dlg.FileName, true);   // the settings folder's file (IDEAS #57)
             MessageBox.Show("Settings exported.");
         }
     }

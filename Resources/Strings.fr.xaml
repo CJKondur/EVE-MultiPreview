@@ -811,7 +811,7 @@
     <sys:String x:Key="L.S.app.profiles.current.Desc">Chaque profil garde ses propres positions de miniatures, raccourcis, couleurs et dispositions.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.profiles.backups">Sauvegardes</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.profiles.backup">Fichier de paramètres</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.profiles.backup.Desc">Les sauvegardes vont dans le dossier Backups à côté de MultiPreview. L'export et l'import déplacent vos paramètres vers un autre PC.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.backup.Desc">Les sauvegardes vont dans le dossier Backups de votre dossier de paramètres. MultiPreview garde aussi une copie à chaque démarrage (les 10 dernières). L'export et l'import déplacent vos paramètres vers un autre PC.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.backupNow">Sauvegarder maintenant</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.export">Exporter…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.import">Importer…</sys:String> <!-- draft -->
@@ -819,7 +819,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">Travailler avec les profils</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **Nouveau** crée un profil vide et bascule dessus.&#x0A;- **Copier** copie un profil vers un autre : tout, ou seulement les positions des miniatures.&#x0A;- **Supprimer** retire définitivement le profil actuel. Il en reste toujours au moins un.&#x0A;&#x0A;Vous pouvez aussi changer depuis le menu des profils en haut à gauche, ou avec les raccourcis de profil.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">Sauvegardes et passage sur un autre PC</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**Sauvegarder maintenant** enregistre une copie datée dans le dossier Backups à côté de MultiPreview.&#x0A;&#x0A;**Exporter** enregistre votre fichier de paramètres où vous voulez. **Importer** remplace tous vos paramètres par un fichier exporté. Vos paramètres actuels sont d'abord sauvegardés, et MultiPreview doit redémarrer pour utiliser partout les paramètres importés.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**Sauvegarder maintenant** enregistre une copie datée dans le dossier Backups. MultiPreview garde aussi une copie à chaque démarrage (les 10 dernières) et une avant chaque mise à jour, et si votre fichier de paramètres est illisible, il propose ces copies au démarrage.&#x0A;&#x0A;**Exporter** enregistre votre fichier de paramètres où vous voulez. **Importer** remplace tous vos paramètres par un fichier exporté. Vos paramètres actuels sont d'abord sauvegardés, et MultiPreview doit redémarrer pour utiliser partout les paramètres importés.&#x0A;&#x0A;Vos paramètres sont conservés dans %APPDATA%\EVE MultiPreview. Pour les garder plutôt à côté de MultiPreview.exe (installation portable), fermez MultiPreview, copiez-y votre fichier de paramètres et placez à côté de l'exe un fichier vide nommé portable.txt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">À propos et mises à jour</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about.Desc">Version, mises à jour et ancienne fenêtre de paramètres.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String> <!-- draft -->
@@ -1934,4 +1934,14 @@
     <sys:String x:Key="L.Start.Crash.Open">Ouvrir le dossier Logs</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Crash.Close">Fermer</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.Errors">Erreurs gérées : {0}. Voir Paramètres de l'application › Diagnostic.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.folderText">Vos paramètres sont conservés dans {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.profiles.openFolder">Ouvrir le dossier</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.diagnostics.errors">Erreurs</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorCount">Erreurs gérées depuis le démarrage de MultiPreview : {0}. Il a continué de fonctionner. Le journal des erreurs contient les détails pour un rapport de bogue.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.uncleanExit">La dernière session, démarrée le {0}, ne s'est pas fermée normalement : MultiPreview a planté ou a été arrêté. Le journal des erreurs peut en donner la raison.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog">Journal des erreurs</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog.Desc">Erreurs que MultiPreview a gérées sans s'arrêter, conservées dans le dossier des journaux.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.openErrorLog">Ouvrir le journal des erreurs</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Title">Erreurs et fermetures inattendues</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Body">MultiPreview continue de fonctionner quand quelque chose se passe mal, et consigne ce qui s'est passé dans le **Journal des erreurs**. Tant qu'il a géré des erreurs, l'info-bulle de l'icône de la zone de notification en indique le nombre.&#x0A;&#x0A;Si MultiPreview s'est fermé sans que vous le fermiez (plantage, Gestionnaire des tâches, coupure de courant), il le dit au prochain démarrage et propose le dossier des journaux.&#x0A;&#x0A;Quand vous signalez un bogue, joignez error_log.txt du dossier des journaux.</sys:String> <!-- draft -->
 </ResourceDictionary>

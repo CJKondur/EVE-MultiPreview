@@ -802,7 +802,7 @@
     <sys:String x:Key="L.S.app.profiles.current.Desc">Each profile keeps its own thumbnail positions, hotkeys, colours and layout.</sys:String>
     <sys:String x:Key="L.S.Sec.app.profiles.backups">Backups</sys:String>
     <sys:String x:Key="L.S.app.profiles.backup">Settings file</sys:String>
-    <sys:String x:Key="L.S.app.profiles.backup.Desc">Backups go to the Backups folder next to MultiPreview. Export and import move your settings to another PC.</sys:String>
+    <sys:String x:Key="L.S.app.profiles.backup.Desc">Backups go to the Backups folder in your settings folder. MultiPreview also keeps a copy each time it starts (the last 10). Export and import move your settings to another PC.</sys:String>
     <sys:String x:Key="L.S.Act.app.profiles.backupNow">Back up now</sys:String>
     <sys:String x:Key="L.S.Act.app.profiles.export">Export…</sys:String>
     <sys:String x:Key="L.S.Act.app.profiles.import">Import…</sys:String>
@@ -810,7 +810,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">Working with profiles</sys:String>
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **New** starts an empty profile and switches to it.&#x0A;- **Copy** copies one profile into another: everything, or only thumbnail positions.&#x0A;- **Delete** removes the current profile for good. You always keep at least one.&#x0A;&#x0A;You can also switch from the profile menu at the top left, or with the profile hotkeys.</sys:String>
     <sys:String x:Key="L.Help.app.profiles.backups.Title">Backups and moving to another PC</sys:String>
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**Back up now** saves a dated copy in the Backups folder next to MultiPreview.&#x0A;&#x0A;**Export** saves your settings file wherever you like. **Import** replaces all your settings with an exported file. Your current settings are backed up first, and MultiPreview needs a restart to use the imported ones everywhere.</sys:String>
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**Back up now** saves a dated copy in the Backups folder. MultiPreview also keeps a copy each time it starts (the last 10) and one before every update, and if your settings file can't be read, it offers these copies when it starts.&#x0A;&#x0A;**Export** saves your settings file wherever you like. **Import** replaces all your settings with an exported file. Your current settings are backed up first, and MultiPreview needs a restart to use the imported ones everywhere.&#x0A;&#x0A;Your settings are kept in %APPDATA%\EVE MultiPreview. To keep them beside MultiPreview.exe instead (a portable install), close MultiPreview, copy your settings file there, and put an empty file named portable.txt beside the exe.</sys:String>
     <sys:String x:Key="L.S.Page.app.about">About &amp; updates</sys:String>
     <sys:String x:Key="L.S.Page.app.about.Desc">Version, updates and the old settings window.</sys:String>
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String>
@@ -1931,4 +1931,14 @@
     <sys:String x:Key="L.Start.Crash.Open">Open the logs folder</sys:String>
     <sys:String x:Key="L.Start.Crash.Close">Close</sys:String>
     <sys:String x:Key="L.Tray.Errors">Errors handled: {0}. See App settings › Diagnostics.</sys:String>
+    <sys:String x:Key="L.S.app.profiles.folderText">Your settings are kept in {0}.</sys:String>
+    <sys:String x:Key="L.S.Act.app.profiles.openFolder">Open folder</sys:String>
+    <sys:String x:Key="L.S.Sec.app.diagnostics.errors">Errors</sys:String>
+    <sys:String x:Key="L.S.app.diagnostics.errorCount">Errors handled since MultiPreview started: {0}. It kept running. The error log has the details for a bug report.</sys:String>
+    <sys:String x:Key="L.S.app.diagnostics.uncleanExit">The last session, started {0}, didn't close normally: MultiPreview crashed or was stopped. The error log may say why.</sys:String>
+    <sys:String x:Key="L.S.app.diagnostics.errorLog">Error log</sys:String>
+    <sys:String x:Key="L.S.app.diagnostics.errorLog.Desc">Errors MultiPreview handled without stopping, kept in the logs folder.</sys:String>
+    <sys:String x:Key="L.S.Act.app.diagnostics.openErrorLog">Open error log</sys:String>
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Title">Errors and unexpected closes</sys:String>
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Body">MultiPreview keeps running when something goes wrong, and writes what happened to the **Error log**. While it has handled errors, the tray icon's tooltip says how many.&#x0A;&#x0A;If MultiPreview closed without you closing it (a crash, Task Manager, a power cut), it says so the next time it starts and offers the logs folder.&#x0A;&#x0A;When you report a bug, attach error_log.txt from the logs folder.</sys:String>
 </ResourceDictionary>

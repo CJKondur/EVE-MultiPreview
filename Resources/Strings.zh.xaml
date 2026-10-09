@@ -826,7 +826,7 @@
     <sys:String x:Key="L.S.app.profiles.current.Desc">每个配置文件都保存各自的缩略图位置、热键、颜色和布局。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.profiles.backups">备份</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.profiles.backup">设置文件</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.profiles.backup.Desc">备份会保存到 MultiPreview 旁边的 Backups 文件夹。导出和导入可把设置转移到另一台电脑。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.backup.Desc">备份保存在你的设置文件夹的 Backups 文件夹中。MultiPreview 每次启动时也会保留一份副本(最近 10 份)。导出和导入可将你的设置转移到另一台电脑。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.backupNow">立即备份</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.export">导出…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.import">导入…</sys:String> <!-- draft -->
@@ -834,7 +834,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">使用配置文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新建**会创建空配置文件并切换到它。&#x0A;- **复制**把一个配置文件复制到另一个：全部内容，或仅缩略图位置。&#x0A;- **删除**会永久删除当前配置文件。始终至少保留一个。&#x0A;&#x0A;你也可以从左上角的配置文件菜单或配置文件热键切换。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">备份与迁移到另一台电脑</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**立即备份**会在 MultiPreview 旁边的 Backups 文件夹中保存一份带日期的副本。&#x0A;&#x0A;**导出**可把设置文件保存到任意位置。**导入**会用导出的文件替换你的所有设置。当前设置会先备份，且需要重启 MultiPreview 才能在所有地方使用导入的设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**立即备份**会在 Backups 文件夹中保存一份带日期的副本。MultiPreview 每次启动时也会保留一份副本(最近 10 份),每次更新前也会保留一份;如果无法读取你的设置文件,启动时会提供这些副本。&#x0A;&#x0A;**导出**会把你的设置文件保存到你喜欢的位置。**导入**会用导出的文件替换你的全部设置。当前设置会先备份,MultiPreview 需要重启才能在各处使用导入的设置。&#x0A;&#x0A;你的设置保存在 %APPDATA%\EVE MultiPreview。若想改为保存在 MultiPreview.exe 旁边(便携安装),请关闭 MultiPreview,把设置文件复制到那里,并在 exe 旁放一个名为 portable.txt 的空文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">关于与更新</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about.Desc">版本、更新以及旧版设置窗口。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String> <!-- draft -->
@@ -1949,4 +1949,14 @@
     <sys:String x:Key="L.Start.Crash.Open">打开日志文件夹</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Crash.Close">关闭</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.Errors">已处理的错误：{0}。请查看 应用设置 › 诊断。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.folderText">你的设置保存在 {0}。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.profiles.openFolder">打开文件夹</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.diagnostics.errors">错误</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorCount">自 MultiPreview 启动以来已处理的错误:{0}。它一直在运行。错误日志中有可附在错误报告里的详细信息。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.uncleanExit">上一次会话(启动于 {0})没有正常关闭:MultiPreview 崩溃或被终止。错误日志可能会说明原因。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog">错误日志</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog.Desc">MultiPreview 处理后继续运行的错误,保存在日志文件夹中。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.openErrorLog">打开错误日志</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Title">错误与意外关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Body">出现问题时 MultiPreview 会继续运行,并把发生的情况写入**错误日志**。已处理错误时,托盘图标的提示会显示数量。&#x0A;&#x0A;如果 MultiPreview 不是由你关闭的(崩溃、任务管理器、断电),下次启动时它会告诉你,并提供日志文件夹。&#x0A;&#x0A;报告错误时,请附上日志文件夹中的 error_log.txt。</sys:String> <!-- draft -->
 </ResourceDictionary>

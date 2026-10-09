@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
@@ -20,6 +21,7 @@ public static class AppPages
             "app.diagnostics.injection", "app.diagnostics.cycling", "app.diagnostics.windowHooks",
             "app.diagnostics.dwm", "app.diagnostics.alerts", "app.diagnostics.folder",
         }),
+        new HelpTopic("app.diagnostics", "errors", new[] { "app.diagnostics.errorLog" }),
         new HelpTopic("app.profiles", "profiles", new[] { "app.profiles.current" }),
         new HelpTopic("app.profiles", "backups", new[] { "app.profiles.backup" }),
         new HelpTopic("app.about", "updates", new[] { "app.about.links", "app.about.checkOnStartup", "app.about.preRelease", "app.about.installVersion" }),
@@ -72,12 +74,15 @@ public static class AppPages
         }),
         new SectionDef("app.profiles.backups", new PageItem[]
         {
+            // IDEAS #57: %APPDATA%\EVE MultiPreview, or the exe folder when portable.
+            new InfoItem("app.profiles.folderText", InfoSeverity.Info) { Args = _ => new object[] { AppPaths.ConfigDir } },
             new ActionRow("app.profiles.backup", new[]
             {
                 new ActionDef("app.profiles.backupNow", SettingsBackup.BackupInteractive) { Replaces = new[] { "OnBackupConfig" } },
                 new ActionDef("app.profiles.export", SettingsBackup.ExportInteractive) { Replaces = new[] { "OnExportSettings" } },
                 // ImportInteractive asks for confirmation itself, after checking the file is valid.
                 new ActionDef("app.profiles.import", SettingsBackup.ImportInteractive) { Replaces = new[] { "OnImportSettings" } },
+                new ActionDef("app.profiles.openFolder", _ => DiagnosticsService.OpenFolder(AppPaths.ConfigDir)),
             }),
         }),
     });
@@ -110,6 +115,25 @@ public static class AppPages
 
     private static PageDef Diagnostics() => new("app.diagnostics", NavGroup.App, new[]
     {
+        // IDEAS #55: errors MultiPreview handled and kept running after, and a last session that didn't close.
+        // Both lines read their value each time the page is built or refreshed, not once at startup.
+        new SectionDef("app.diagnostics.errors", new PageItem[]
+        {
+            new InfoItem("app.diagnostics.errorCount", InfoSeverity.Warning)
+            {
+                ShowIf = _ => ErrorLog.Shared.Count > 0,
+                Args = _ => new object[] { ErrorLog.Shared.Count },
+            },
+            new InfoItem("app.diagnostics.uncleanExit", InfoSeverity.Warning)
+            {
+                ShowIf = _ => RunMarker.PreviousUncleanStart != null,
+                Args = _ => new object[] { RunMarker.PreviousUncleanStart?.ToString("g", CultureInfo.CurrentCulture) ?? "" },
+            },
+            new ActionRow("app.diagnostics.errorLog", new[]
+            {
+                new ActionDef("app.diagnostics.openErrorLog", _ => DiagnosticsService.OpenErrorLog()),
+            }),
+        }),
         new SectionDef("app.diagnostics.logs", new PageItem[]
         {
             new InfoItem("app.diagnostics.note", InfoSeverity.Info),

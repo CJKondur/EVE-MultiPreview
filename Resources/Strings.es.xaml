@@ -830,7 +830,7 @@
     <sys:String x:Key="L.S.app.profiles.current.Desc">Cada perfil guarda sus propias posiciones de miniaturas, atajos, colores y diseño.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.profiles.backups">Copias de seguridad</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.profiles.backup">Archivo de ajustes</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.profiles.backup.Desc">Las copias van a la carpeta Backups junto a MultiPreview. Exportar e importar llevan tus ajustes a otro PC.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.backup.Desc">Las copias van a la carpeta Backups dentro de tu carpeta de ajustes. MultiPreview también guarda una copia cada vez que se inicia (las últimas 10). Exportar e importar llevan tus ajustes a otro PC.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.backupNow">Respaldar ahora</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.export">Exportar…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.profiles.import">Importar…</sys:String> <!-- draft -->
@@ -838,7 +838,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">Trabajar con perfiles</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **Nuevo** crea un perfil vacío y cambia a él.&#x0A;- **Copiar** copia un perfil en otro: todo, o solo las posiciones de las miniaturas.&#x0A;- **Eliminar** borra el perfil actual para siempre. Siempre te queda al menos uno.&#x0A;&#x0A;También puedes cambiar desde el menú de perfiles arriba a la izquierda, o con los atajos de perfil.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">Copias de seguridad y cambio a otro PC</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**Respaldar ahora** guarda una copia con fecha en la carpeta Backups junto a MultiPreview.&#x0A;&#x0A;**Exportar** guarda tu archivo de ajustes donde quieras. **Importar** reemplaza todos tus ajustes con un archivo exportado. Tus ajustes actuales se respaldan antes, y MultiPreview necesita reiniciarse para usar los importados en todas partes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**Respaldar ahora** guarda una copia con fecha en la carpeta Backups. MultiPreview también guarda una copia cada vez que se inicia (las últimas 10) y una antes de cada actualización, y si no se puede leer tu archivo de ajustes, ofrece estas copias al iniciarse.&#x0A;&#x0A;**Exportar** guarda tu archivo de ajustes donde quieras. **Importar** sustituye todos tus ajustes por un archivo exportado. Tus ajustes actuales se respaldan primero, y MultiPreview necesita reiniciarse para usar los importados en todas partes.&#x0A;&#x0A;Tus ajustes se guardan en %APPDATA%\EVE MultiPreview. Para mantenerlos junto a MultiPreview.exe (instalación portátil), cierra MultiPreview, copia allí tu archivo de ajustes y pon un archivo vacío llamado portable.txt junto al exe.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">Acerca de y actualizaciones</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about.Desc">Versión, actualizaciones y la ventana de ajustes antigua.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String> <!-- draft -->
@@ -1953,4 +1953,14 @@
     <sys:String x:Key="L.Start.Crash.Open">Abrir la carpeta Logs</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Crash.Close">Cerrar</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.Errors">Errores gestionados: {0}. Consulta Ajustes de la aplicación › Diagnóstico.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.folderText">Tus ajustes se guardan en {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.profiles.openFolder">Abrir carpeta</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.diagnostics.errors">Errores</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorCount">Errores gestionados desde que se inició MultiPreview: {0}. Siguió funcionando. El registro de errores tiene los detalles para un informe de error.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.uncleanExit">La última sesión, iniciada {0}, no se cerró con normalidad: MultiPreview se bloqueó o se detuvo. El registro de errores puede indicar por qué.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog">Registro de errores</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.errorLog.Desc">Errores que MultiPreview gestionó sin detenerse, guardados en la carpeta de registros.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.openErrorLog">Abrir registro de errores</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Title">Errores y cierres inesperados</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.errors.Body">MultiPreview sigue funcionando cuando algo sale mal y anota lo ocurrido en el **Registro de errores**. Mientras haya errores gestionados, la descripción emergente del icono de la bandeja indica cuántos.&#x0A;&#x0A;Si MultiPreview se cerró sin que lo cerraras (un bloqueo, el Administrador de tareas, un corte de luz), lo dice la próxima vez que se inicia y ofrece la carpeta de registros.&#x0A;&#x0A;Cuando informes de un error, adjunta error_log.txt de la carpeta de registros.</sys:String> <!-- draft -->
 </ResourceDictionary>
