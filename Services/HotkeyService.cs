@@ -1486,10 +1486,12 @@ public sealed class HotkeyService : IDisposable
             if (_disposed) return;
             if (_mouseHookThread == null)
             {
-                _mouseWatchdog.MouseLooksDead(new HookWatchdog.MouseLook(Environment.TickCount, false, _mouseHookGeneration, 0, null, null, false));
+                _mouseWatchdog.MouseLooksDead(new HookWatchdog.MouseLook(Environment.TickCount, false, _mouseHookGeneration, 0, null, null, false, true, false));
                 return;
             }
-            // The devices first, the hook's stamp after them: a call between the reads is then seen, not missed.
+            // The time first, the devices next, the hook's stamp last: a call that lands during the reads is then credited
+            // to this look's stamp only if its input is in this look too, never ahead of it.
+            int now = Environment.TickCount;
             bool gotCursor = User32.GetCursorPos(out var cursor);
             var lastInput = User32.LastInputTick();
             bool seeForeground = ForegroundHooksSeeInput(User32.GetForegroundWindow());
@@ -1497,7 +1499,6 @@ public sealed class HotkeyService : IDisposable
             bool buttonDown = BoundMouseButtonDown();
             int generation = _mouseHookGeneration;
             int stamp = _mouseHookTick;
-            int now = Environment.TickCount;
             var look = new HookWatchdog.MouseLook(now, true, generation, stamp, lastInput,
                 gotCursor ? (cursor.X, cursor.Y) : null, seeForeground, buttonDown, seeUnderCursor);
             if (!_mouseWatchdog.MouseLooksDead(look)) return;
@@ -1520,13 +1521,14 @@ public sealed class HotkeyService : IDisposable
         try
         {
             var map = _keyHookMap;
-            if (_disposed || _keyHookThread == null || map == null) { _keyWatchdog.ForgetKeyStrike(); return; }
+            if (_disposed || _keyHookThread == null) { _keyWatchdog.ForgetKeyStrike(); return; }
+            if (map == null) return;   // hotkeys deactivated: nothing to judge, and a strike from before is left alone
             int lastCall = _keyHookTick;
             if (!HookWatchdog.KeyHookMissedPress(messageTime, lastCall, _keyHookInstalledTick)) { _keyWatchdog.ForgetKeyStrike(); return; }
             bool hidden = false;
             foreach (var slot in map.Values)
                 if (slot.Id == id) { hidden = true; break; }
-            var look = new HookWatchdog.KeyLook(messageTime, lastCall, _keyHookInstalledTick, _keyHookGeneration, true,
+            var look = new HookWatchdog.KeyLook(messageTime, lastCall, _keyHookInstalledTick, _keyHookGeneration, _keyHookThread != null,
                 _suspended, _captureDepth > 0, _disposed, hidden, User32.HasHiddenHeldKeys,
                 ForegroundHooksSeeInput(User32.GetForegroundWindow()));
             if (!_keyWatchdog.KeyHookLooksDead(look)) return;
@@ -1583,11 +1585,15 @@ public sealed class HotkeyService : IDisposable
     {
         foreach (var binding in _mouseBindings)
         {
-            int vk = binding.ButtonName switch { "MBUTTON" => 0x04, "XBUTTON1" => 0x05, "XBUTTON2" => 0x06, _ => 0 };
+            int vk = MouseButtonVirtualKey(binding.ButtonName);
             if (vk != 0 && User32.IsKeyDown(vk)) return true;
         }
         return false;
     }
+
+    /// <summary>The virtual key whose state says whether a bound mouse button is down; 0 for any other name.</summary>
+    public static int MouseButtonVirtualKey(string buttonName) =>
+        buttonName switch { "MBUTTON" => 0x04, "XBUTTON1" => 0x05, "XBUTTON2" => 0x06, _ => 0 };
 
     /// <summary>The exe name of the window in front (no title, no path), for a note a reader can triage.</summary>
     private static string ForegroundExeName()

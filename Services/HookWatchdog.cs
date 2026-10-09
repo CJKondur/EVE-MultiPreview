@@ -41,7 +41,7 @@ public sealed class HookWatchdog
     /// <param name="CursorWindowVisible">The window under the cursor passes the same test as the one in front: hovering
     /// an elevated window on another monitor legitimately produces no hook calls.</param>
     public readonly record struct MouseLook(int Now, bool Installed, int Generation, int LastCallback, int? LastInput,
-        (int X, int Y)? Cursor, bool WindowInFront, bool BoundButtonDown = false, bool CursorWindowVisible = true);
+        (int X, int Y)? Cursor, bool WindowInFront, bool BoundButtonDown, bool CursorWindowVisible);
 
     /// <summary>One look at the keyboard hook, taken on the UI thread when a hotkey arrived without the hook's mark.</summary>
     /// <param name="MessageTime">When the system posted the WM_HOTKEY (GetMessageTime), not when it was handled: a UI
@@ -107,7 +107,7 @@ public sealed class HookWatchdog
     /// can't see.</summary>
     public bool KeyHookLooksDead(KeyLook k)
     {
-        if (k.Disposed || k.Suspended || k.Capturing || !k.Installed || !k.SlotIsHidden)
+        if (k.Disposed || k.Suspended || k.Capturing || !k.Installed)
         {
             _keyStrike = null;
             return false;
@@ -117,7 +117,15 @@ public sealed class HookWatchdog
             _keyStrike = null;
             return false;
         }
-        if (!k.HooksSeeForeground || k.HeldKeyHidden) return false;
+        // A hotkey the hook doesn't hide (the app's own vk0xE8 activation bridge) is no evidence either way: it leaves
+        // a strike from a real one alone. A live hook stamps on it, and a stamp change resets the strike anyway.
+        if (!k.SlotIsHidden) return false;
+        if (!k.HooksSeeForeground)
+        {
+            _keyStrike = null;   // an elevated window in front: the hooks are expected to be silent, and what came before proves nothing
+            return false;
+        }
+        if (k.HeldKeyHidden) return false;
         if (_keyStrike is { } s && s.Generation == k.Generation && s.Stamp == k.LastCallback)
         {
             if (!After(k.MessageTime, unchecked(s.At + KeyQuietMs))) return false;   // too soon after the first: keep that one
