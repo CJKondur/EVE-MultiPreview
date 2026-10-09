@@ -495,7 +495,7 @@
     <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">需要开启“自动独占活动客户端音频”。当焦点完全离开 EVE（例如切换到其他应用）时，静音所有客户端，而不是让最后一个活动客户端继续发声。</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">开：按住循环热键会以上面的延迟持续循环。关：每次按键精确循环一个客户端。</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">在 EVE 处于焦点时保持缩略图在 EVE 客户端之上，但允许其他应用（浏览器、Discord）遮盖它们。启用“始终置顶”时忽略此项。</sys:String>
-    <sys:String x:Key="L.Tt.EdgeGutter">边缘吸附相邻缩略图时留出的均匀间隙。</sys:String>
+    <sys:String x:Key="L.Tt.EdgeGutter">MultiPreview 摆放缩略图（新客户端和重置位置）时，相邻缩略图之间留出的均匀间隙。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tt.ConfineMonitor">启用后，拖动缩略图会将其保持在起始的显示器上。</sys:String>
     <sys:String x:Key="L.Tt.PresetCombo">输入名称以保存，或选择已保存的预设以应用/导出。</sys:String>
     <sys:String x:Key="L.Tt.PresetSave">以框中的名称保存当前墙（覆盖同名项）</sys:String>
@@ -1915,7 +1915,7 @@
     <sys:String x:Key="L.S.alerts.look.waitInfo">信息警报静默时长</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.repeatBySeverity">每种严重程度都有自己的静默时间：警报 › 外观 &amp; 严重程度。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.repeats.Title">按严重程度设置静默时间</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.repeats.Body">刚为某个角色触发的警报会静默一段时间，这样一场战斗不会用同一警报刷屏。&#x0A;- **按严重程度设置静默时间**关闭时，所有警报都等待事件页面上的静默时间（除非你改过，默认 5 秒）。&#x0A;- 开启后，严重、警告和信息警报各自等待自己的时间，例如严重 2 秒、信息 60 秒。每项从 5 秒开始，所以在你修改数字之前，开启它不会带来任何变化。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">刚为某个角色触发的警报会静默一段时间，这样一场战斗不会用同一警报刷屏。&#x0A;- **按严重程度设置静默时间**关闭时，所有警报都等待事件页面上的静默时间（除非你改过，默认 5 秒）。&#x0A;- 开启后，严重、警告和信息警报各自等待自己的时间，例如严重 2 秒、信息 60 秒。每项都从 5 秒开始，无论事件页面上的静默时间是多少，所以开启后警报的等待时间可能会变化，直到你设置自己的数字。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.minSizeOn">限制缩略图的最小尺寸</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.minSizeOn.Desc">关闭：手动调整缩略图大小时，最小到 80 × 50。开启：最小到下方设定的大小。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.minWidth">最小宽度</sys:String> <!-- draft -->

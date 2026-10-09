@@ -861,6 +861,11 @@ public sealed class ThumbnailManager : IDisposable
                         thumbWindow.SetLabelStyle(null, 0);
                 }
 
+                // The character's own text colour (or the profile's, when it has none): a client that
+                // starts at character select would otherwise keep the profile colour after login, and a
+                // switch from A to B would leave A's colour on B.
+                ApplyTextStyle(thumbWindow, _settings.Settings, window.CharacterName);
+
                 // Load saved position for new character
                 if (!string.IsNullOrEmpty(window.CharacterName))
                 {
@@ -914,6 +919,14 @@ public sealed class ThumbnailManager : IDisposable
             ? own.Text
             : s.ThumbnailTextColor;
 
+    /// <summary>Paints a thumbnail's text style: the profile's font and size, and the character's own text colour when it has one.
+    /// ApplySettings and the title-change path share it, so a client that logs in (or switches character) gets the right colour.</summary>
+    public static void ApplyTextStyle(ThumbnailWindow thumb, AppSettings s, string character) =>
+        thumb.SetTextStyle(s.ThumbnailTextFont,
+            double.TryParse(s.ThumbnailTextSize, out var fs) ? fs : 12,
+            ParseColor(TextColourFor(s, character)),
+            s.FpsOverlayTextSize);
+
     /// <summary>The range the resize limit's width and height may take (the settings cards use it too).</summary>
     public const int MinFloor = 20, MaxFloor = 2000;
 
@@ -930,7 +943,7 @@ public sealed class ThumbnailManager : IDisposable
     /// fixed 8 px, the default every file stores).</summary>
     public static (int X, int Y) FlowSlot(int index, int startX, int startY, int width, int height, int gap, int workBottom)
     {
-        gap = Math.Max(0, gap);
+        gap = Math.Clamp(gap, 0, 200);   // the card's range; a hand-edited file can't overflow the layout
         int maxPerCol = Math.Max(1, (workBottom - startY) / Math.Max(1, height + gap));
         return (startX + index / maxPerCol * (width + gap), startY + index % maxPerCol * (height + gap));
     }
@@ -968,10 +981,7 @@ public sealed class ThumbnailManager : IDisposable
 
         // Text overlay
         thumb.SetTextOverlayVisible(s.ShowThumbnailTextOverlay);
-        thumb.SetTextStyle(s.ThumbnailTextFont,
-            double.TryParse(s.ThumbnailTextSize, out var fs) ? fs : 12,
-            ParseColor(TextColourFor(s, window.CharacterName)),   // a character's own text colour (per-character colours)
-            s.FpsOverlayTextSize);
+        ApplyTextStyle(thumb, s, window.CharacterName);
         thumb.SetTextMargins((int)s.ThumbnailTextMargins.X, (int)s.ThumbnailTextMargins.Y,
             s.FpsOverlayMarginX, s.FpsOverlayMarginY);
 

@@ -388,9 +388,16 @@ public sealed class EveSettingsModel
         var missing = MissingNameIds();
         if (missing.Count == 0) return null;
         int before = Names.Count;
-        await _fetchNames(Names, missing);
-        var found = missing.Where(Names.ContainsKey).ToDictionary(id => id, id => Names[id]);
-        if (EveManagerService.RememberNames(S, found, DateTime.Now) > 0) _ctx.Applier.Request(ApplyScope.Save);
+        try
+        {
+            await _fetchNames(Names, missing);
+        }
+        finally
+        {
+            // Names found before a failure are kept too, so the next try doesn't ask for them again.
+            var found = missing.Where(Names.ContainsKey).ToDictionary(id => id, id => Names[id]);
+            if (EveManagerService.RememberNames(S, found, DateTime.Now) > 0) _ctx.Applier.Request(ApplyScope.Save);
+        }
         return Names.Count - before;
     }
 

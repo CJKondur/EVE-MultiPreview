@@ -316,7 +316,7 @@ public class AlertHub : IDisposable
             {
                 var oldest = _activeToasts[0];
                 _activeToasts.RemoveAt(0);
-                try { oldest.Window.Close(); } catch { }
+                try { oldest.Dispose(); } catch { }   // stops its dismiss timer too
             }
 
             toast.Window.Closed += (_, _) =>

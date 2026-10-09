@@ -57,6 +57,7 @@ public static class HotkeyText
     public static string? VkToAhkName(int vk)
     {
         if (vk is <= 0x07 or >= 0xFF) return null;                                        // no key, mouse buttons, "no mapping"
+        if (vk is 0xE5 or 0xE7) return null;                                              // VK_PROCESSKEY, VK_PACKET: IME / injected text, not keys
         if (vk is 0x10 or 0x11 or 0x12 or 0x5B or 0x5C or (>= 0xA0 and <= 0xA5)) return null;   // Shift, Ctrl, Alt, Win
         if (vk is >= 0x70 and <= 0x87) return "F" + (vk - 0x6F).ToString(CultureInfo.InvariantCulture);
         return "vk" + vk.ToString("X2", CultureInfo.InvariantCulture);

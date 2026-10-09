@@ -110,8 +110,8 @@ public static class ColorBlindPalette
         catch (JsonException) { return null; }
     }
 
-    /// <summary>Gives the kept colours back. The three per-profile colours go back to the profile they came from (the
-    /// current one if that profile is gone); another current profile keeps its own, which the mode never changed.</summary>
+    /// <summary>Gives the kept colours back. The three per-profile colours go back to the profile they came from (none if
+    /// that profile is gone); another current profile keeps its own, which the mode never changed.</summary>
     private static void Restore(AppSettings s, Dictionary<string, string> kept)
     {
         string? Kept(string key) => kept.TryGetValue(key, out var v) && !string.IsNullOrEmpty(v) ? v : null;
@@ -127,7 +127,9 @@ public static class ColorBlindPalette
             if (key.StartsWith(EventPrefix, StringComparison.Ordinal) && !string.IsNullOrEmpty(colour))
                 s.AlertColors[key[EventPrefix.Length..]] = colour;
 
-        var profile = Kept(ProfileKey) is { } name && s.Profiles.TryGetValue(name, out var p) ? p : null;
+        var from = Kept(ProfileKey);
+        if (from != null && !s.Profiles.ContainsKey(from)) return;   // that profile was deleted: the current one's own colours stay
+        var profile = from != null ? s.Profiles[from] : null;
         if (profile == null)
         {
             s.ClientHighlightColor = Kept(nameof(AppSettings.ClientHighlightColor)) ?? NormalHighlightColor;

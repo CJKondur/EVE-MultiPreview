@@ -98,7 +98,6 @@ public sealed class HotkeyService : IDisposable
     // matched button action and the repeat timer are still marshaled to the UI
     // dispatcher; only the fast suppress/pass-through decision runs on this thread.
     private IntPtr _mouseHookHandle = IntPtr.Zero;
-    private User32.LowLevelMouseProc? _mouseHookProc; // prevent GC
     private System.Threading.Thread? _mouseHookThread;
     private uint _mouseHookThreadId;
     // Signaled once the hook thread has published its native thread id, so a
@@ -1377,12 +1376,14 @@ public sealed class HotkeyService : IDisposable
     private void MouseHookThreadProc()
     {
         _mouseHookThreadId = User32.GetCurrentThreadId();
-        _mouseHookProc = MouseHookCallback; // prevent GC collection
+        // The delegate lives in this thread's local, not a shared field: the next hook thread must not overwrite it while
+        // this thread's hook is still installed, or the OS would call a collected delegate.
+        User32.LowLevelMouseProc mouseProc = MouseHookCallback;
         // This thread owns the hook it installs: a replaced thread can wake from WM_QUIT after its successor has
         // installed a new hook, and must then unhook only its own, never the successor's.
         var handle = User32.SetWindowsHookEx(
             User32.WH_MOUSE_LL,
-            _mouseHookProc,
+            mouseProc,
             User32.GetModuleHandle(null),
             0);
         _mouseHookHandle = handle;
@@ -1398,6 +1399,7 @@ public sealed class HotkeyService : IDisposable
             // Clear the shared field only if it is still ours.
             System.Threading.Interlocked.CompareExchange(ref _mouseHookHandle, IntPtr.Zero, handle);
         }
+        GC.KeepAlive(mouseProc); // the OS holds only a raw pointer to this delegate
         Debug.WriteLine("[Hotkey:Mouse] 🛑 Mouse hook thread exited");
     }
 

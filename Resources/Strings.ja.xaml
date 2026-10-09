@@ -495,7 +495,7 @@
     <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">「アクティブなクライアントの音声を自動でソロ再生」が必要です。フォーカスが EVE から完全に離れたとき（別のアプリに切り替えたときなど）、最後にアクティブだったクライアントの音を残さず、すべてのクライアントをミュートします。</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">オン: サイクルホットキーを押し続けると上記の遅延でサイクルを続けます。オフ: 1 回の押下でちょうど 1 つのクライアントを切り替えます。</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">EVE がフォーカスされている間、サムネイルを EVE クライアントより前面に保ちますが、他のアプリ（ブラウザー、Discord）が覆うことは許します。常に最前面が有効なときは無視されます。</sys:String>
-    <sys:String x:Key="L.Tt.EdgeGutter">サムネイルを端にスナップして隣接させたときに残す均等な間隔。</sys:String>
+    <sys:String x:Key="L.Tt.EdgeGutter">MultiPreview が配置するサムネイル（新しいクライアントと位置のリセット）の間に空ける均等な間隔。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tt.ConfineMonitor">オンにすると、サムネイルをドラッグしても開始したモニター上に留まります。</sys:String>
     <sys:String x:Key="L.Tt.PresetCombo">保存する名前を入力するか、適用/エクスポートする保存済みプリセットを選択します。</sys:String>
     <sys:String x:Key="L.Tt.PresetSave">現在のウォールをボックス内の名前で保存します（一致する名前は上書きされます）</sys:String>
@@ -1898,7 +1898,7 @@
     <sys:String x:Key="L.S.alerts.look.waitInfo">情報アラートの静止時間</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.repeatBySeverity">重大度ごとに専用の静止時間があります：アラート › 外観 &amp; 重大度。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.repeats.Title">重大度ごとの静止時間</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.repeats.Body">キャラクターに出たばかりのアラートはしばらく静かになるので、戦闘中に同じアラートが大量に出ることはありません。&#x0A;- **重大度ごとの静止時間**がオフのとき、すべてのアラートはイベントページの静止時間（変更していなければ 5 秒）だけ待ちます。&#x0A;- オンにすると、重大、警告、情報のアラートがそれぞれ自分の時間だけ待ちます。たとえば重大は 2 秒、情報は 60 秒です。どれも 5 秒から始まるので、数値を変えるまでオンにしても何も変わりません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">キャラクターに出たばかりのアラートはしばらく静かになるので、戦闘中に同じアラートが大量に出ることはありません。&#x0A;- **重大度ごとの静止時間**がオフのとき、すべてのアラートはイベントページの静止時間（変更していなければ 5 秒）だけ待ちます。&#x0A;- オンにすると、重大、警告、情報のアラートがそれぞれ自分の時間だけ待ちます。たとえば重大は 2 秒、情報は 60 秒です。どれもイベントページの設定に関係なく 5 秒から始まるので、オンにすると待ち時間が変わることがあります。好みの数値に変えてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.minSizeOn">サムネイルの最小サイズを制限</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.minSizeOn.Desc">オフ：手動でリサイズすると 80 × 50 で止まります。オン：下のサイズで止まります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.minWidth">最小の幅</sys:String> <!-- draft -->

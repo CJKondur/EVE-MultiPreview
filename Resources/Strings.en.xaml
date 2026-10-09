@@ -496,7 +496,7 @@
     <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">Requires Auto-solo. When focus leaves EVE entirely (e.g. you switch to another app), mute every client instead of leaving the last-active one unmuted.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">On: holding a cycle hotkey keeps cycling at the delay above. Off: each press cycles exactly one client.</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">Keeps thumbnails above your EVE clients while EVE is focused, but lets other apps (browser, Discord) cover them. Ignored when Always On Top is enabled.</sys:String>
-    <sys:String x:Key="L.Tt.EdgeGutter">Even gap left between thumbnails when edge-snapping them adjacent.</sys:String>
+    <sys:String x:Key="L.Tt.EdgeGutter">Even gap left between the thumbnails MultiPreview places (new clients and Reset positions).</sys:String>
     <sys:String x:Key="L.Tt.ConfineMonitor">When on, dragging a thumbnail keeps it on the monitor it started on.</sys:String>
     <sys:String x:Key="L.Tt.PresetCombo">Type a name to save under, or pick a saved preset to apply/export.</sys:String>
     <sys:String x:Key="L.Tt.PresetSave">Save the current wall under the name in the box (overwrites a matching name)</sys:String>
@@ -1897,7 +1897,7 @@
     <sys:String x:Key="L.S.alerts.look.waitInfo">Info alerts stay quiet for</sys:String>
     <sys:String x:Key="L.S.alerts.events.repeatBySeverity">Each severity has its own quiet time: Alerts › Look &amp; severity.</sys:String>
     <sys:String x:Key="L.Help.alerts.look.repeats.Title">Quiet time per severity</sys:String>
-    <sys:String x:Key="L.Help.alerts.look.repeats.Body">An alert that just fired for a character stays quiet for a while, so a fight doesn't flood you with the same alert.&#x0A;- With **Quiet time per severity** off, every alert waits the quiet time on the Events page (5 seconds unless you changed it).&#x0A;- Turned on, critical, warning and info alerts each wait their own time, for example 2 seconds for critical and 60 for info. Each starts at 5 seconds, so turning it on changes nothing until you change a number.</sys:String>
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">An alert that just fired for a character stays quiet for a while, so a fight doesn't flood you with the same alert.&#x0A;- With **Quiet time per severity** off, every alert waits the quiet time on the Events page (5 seconds unless you changed it).&#x0A;- Turned on, critical, warning and info alerts each wait their own time, for example 2 seconds for critical and 60 for info. Each starts at 5 seconds, whatever quiet time the Events page has, so turning it on can change how long alerts wait until you set your own numbers.</sys:String>
     <sys:String x:Key="L.S.thumbs.appearance.minSizeOn">Limit how small thumbnails get</sys:String>
     <sys:String x:Key="L.S.thumbs.appearance.minSizeOn.Desc">Off: resizing a thumbnail by hand stops at 80 × 50. On: it stops at the size below.</sys:String>
     <sys:String x:Key="L.S.thumbs.appearance.minWidth">Smallest width</sys:String>

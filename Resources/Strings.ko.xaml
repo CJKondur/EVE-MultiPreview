@@ -495,7 +495,7 @@
     <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">'활성 클라이언트 오디오 자동 단독 재생'이 필요합니다. 포커스가 EVE를 완전히 벗어나면(예: 다른 앱으로 전환) 마지막 활성 클라이언트의 소리를 남기지 않고 모든 클라이언트를 음소거합니다.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">켬: 순환 단축키를 누르고 있으면 위의 지연으로 계속 순환합니다. 끔: 누를 때마다 정확히 하나의 클라이언트를 순환합니다.</sys:String>
     <sys:String x:Key="L.Tt.AboveClients">EVE가 포커스일 때 썸네일을 EVE 클라이언트 위에 유지하지만, 다른 앱(브라우저, Discord)이 가릴 수 있게 합니다. 항상 위가 켜져 있으면 무시됩니다.</sys:String>
-    <sys:String x:Key="L.Tt.EdgeGutter">썸네일을 가장자리 스냅으로 인접하게 붙일 때 남기는 균일한 간격.</sys:String>
+    <sys:String x:Key="L.Tt.EdgeGutter">MultiPreview가 배치하는 썸네일(새 클라이언트와 위치 초기화) 사이에 두는 균일한 간격.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tt.ConfineMonitor">켜면 썸네일을 드래그해도 시작한 모니터에 유지됩니다.</sys:String>
     <sys:String x:Key="L.Tt.PresetCombo">저장할 이름을 입력하거나, 적용/내보낼 저장된 프리셋을 선택하세요.</sys:String>
     <sys:String x:Key="L.Tt.PresetSave">현재 배치를 상자의 이름으로 저장(동일한 이름은 덮어씀)</sys:String>
@@ -1898,7 +1898,7 @@
     <sys:String x:Key="L.S.alerts.look.waitInfo">정보 알림 대기 시간</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.repeatBySeverity">심각도마다 자기 대기 시간이 있어요: 알림 › 모양 &amp; 심각도.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.repeats.Title">심각도별 대기 시간</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.repeats.Body">캐릭터에게 방금 울린 알림은 잠시 조용해져서, 전투 중에 같은 알림이 쏟아지지 않아요.&#x0A;- **심각도별 대기 시간**이 꺼져 있으면 모든 알림이 이벤트 페이지의 대기 시간(바꾸지 않았다면 5초)만큼 기다려요.&#x0A;- 켜면 심각, 경고, 정보 알림이 각자 자기 시간만큼 기다려요. 예를 들어 심각은 2초, 정보는 60초예요. 모두 5초에서 시작하므로 숫자를 바꾸기 전에는 켜도 달라지는 게 없어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.repeats.Body">캐릭터에게 방금 울린 알림은 잠시 조용해져서, 전투 중에 같은 알림이 쏟아지지 않아요.&#x0A;- **심각도별 대기 시간**이 꺼져 있으면 모든 알림이 이벤트 페이지의 대기 시간(바꾸지 않았다면 5초)만큼 기다려요.&#x0A;- 켜면 심각, 경고, 정보 알림이 각자 자기 시간만큼 기다려요. 예를 들어 심각은 2초, 정보는 60초예요. 모두 이벤트 페이지의 대기 시간과 상관없이 5초에서 시작하므로, 켜면 알림이 기다리는 시간이 달라질 수 있어요. 원하는 숫자로 바꿔 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.minSizeOn">썸네일 최소 크기 제한</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.minSizeOn.Desc">꺼짐: 직접 크기를 조정하면 80 × 50에서 멈춰요. 켜짐: 아래 크기에서 멈춰요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.minWidth">최소 너비</sys:String> <!-- draft -->

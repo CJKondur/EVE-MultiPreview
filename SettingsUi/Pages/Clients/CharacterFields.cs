@@ -64,18 +64,27 @@ public static class CharacterFields
         s.CustomColors.TryGetValue(name, out var e);
         return part switch
         {
-            ColorPart.Border => e?.Border ?? DefaultBorder,
-            ColorPart.Inactive => e?.InactiveBorder ?? DefaultInactive,
+            ColorPart.Border => string.IsNullOrEmpty(e?.Border) ? DefaultBorder : e.Border,
+            ColorPart.Inactive => string.IsNullOrEmpty(e?.InactiveBorder) ? DefaultInactive : e.InactiveBorder,
             _ => e != null && CustomColorEntry.HasOwnText(e.Text) ? e.Text : s.ThumbnailTextColor,
         };
     }
 
-    /// <summary>The first edit makes the entry, seeded with the old defaults for the other two. A text colour is kept as
-    /// picked (#RRGGBB): the seed 0xfac57a means "none chosen", so a chosen #FAC57A must stay apart from it.</summary>
+    /// <summary>The first edit makes the entry. A border edit seeds the old defaults for the other two; a text-colour edit
+    /// leaves both borders empty (ThumbnailManager skips an empty border), so choosing a text colour never changes a
+    /// border. A text colour is kept as picked (#RRGGBB): the seed 0xfac57a means "none chosen", so a chosen #FAC57A
+    /// must stay apart from it.</summary>
     public static void SetColor(AppSettings s, string name, ColorPart part, string color)
     {
         if (!s.CustomColors.TryGetValue(name, out var e))
-            s.CustomColors[name] = e = new CustomColorEntry { Char = name, Border = DefaultBorder, Text = DefaultText, InactiveBorder = DefaultInactive };
+        {
+            bool textOnly = part == ColorPart.Text;
+            s.CustomColors[name] = e = new CustomColorEntry
+            {
+                Char = name, Text = DefaultText,
+                Border = textOnly ? "" : DefaultBorder, InactiveBorder = textOnly ? "" : DefaultInactive,
+            };
+        }
         switch (part)
         {
             case ColorPart.Border: e.Border = Normalize(color); break;
