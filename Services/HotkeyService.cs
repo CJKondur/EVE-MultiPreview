@@ -1054,6 +1054,14 @@ public sealed class HotkeyService : IDisposable
             if (mappedVk != 0) return mappedVk;
         }
 
+        // AHK's vkNN form (hex): any key, including ones with no name below (F13–F24 sent by keyboard software,
+        // media and vendor keys). The settings window stores a key it can't name this way (IDEAS P22).
+        if (key.Length is 3 or 4 && key[0] == 'V' && key[1] == 'K' &&
+            uint.TryParse(key[2..], System.Globalization.NumberStyles.HexNumber,
+                          System.Globalization.CultureInfo.InvariantCulture, out uint vkCode) &&
+            vkCode is >= 0x08 and <= 0xFE)
+            return vkCode;
+
         // Function keys
         if (key.StartsWith("F") && int.TryParse(key[1..], out int fNum) && fNum >= 1 && fNum <= 24)
             return (uint)(0x70 + fNum - 1); // VK_F1 = 0x70

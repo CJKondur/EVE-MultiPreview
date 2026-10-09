@@ -27,16 +27,21 @@ public sealed class HotkeyCaptureModel : ObservableObject
     public bool Unusable { get; private set; }
     public bool CanAccept => HasCandidate && !Unusable;
 
-    /// <summary>Returns true when the key was consumed (the dialog marks it handled).</summary>
-    public bool OnKey(Key key, ModifierKeys mods)
+    /// <summary>Returns true when the key was consumed (the dialog marks it handled). <paramref name="virtualKey"/> is the
+    /// key's raw Windows code (0 = unknown): a key WPF can't name (Key.None), or one the runtime can't read by name, is
+    /// stored by its code instead (HotkeyText.VkToAhkName, IDEAS P22).</summary>
+    public bool OnKey(Key key, ModifierKeys mods, int virtualKey = 0)
     {
         if (key == Key.Escape) { Cancelled = true; return true; }
         if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt
                 or Key.LeftShift or Key.RightShift or Key.LWin or Key.RWin)
             return true;   // a modifier alone: wait for the real key
-        if (key is Key.None or Key.ImeProcessed or Key.DeadCharProcessed or Key.System)
+        if (key is Key.ImeProcessed or Key.DeadCharProcessed or Key.System)
             return true;   // unresolved key: swallow it, never store it
-        Take(HotkeyText.ModifierPrefix(mods) + HotkeyText.KeyToAhkName(key));
+        var name = key == Key.None ? null : HotkeyText.KeyToAhkName(key);
+        if (name == null || !HotkeyText.IsUsable(name)) name = HotkeyText.VkToAhkName(virtualKey) ?? name;
+        if (name == null) return true;   // Key.None with no code: swallow it, never store it
+        Take(HotkeyText.ModifierPrefix(mods) + name);
         return true;
     }
 

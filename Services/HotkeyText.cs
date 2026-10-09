@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 
@@ -48,6 +49,17 @@ public static class HotkeyText
             Key.OemBackslash => "OEM102",
             _ => key.ToString().ToLowerInvariant()
         };
+    }
+
+    /// <summary>A name HotkeyService parses for a raw Windows key code, for a key WPF can't name (Key.None: vendor keys,
+    /// F13–F24 sent by keyboard software) or one with no AHK name above (media keys): F1–F24 by name, any other key in
+    /// AHK's vkNN form (IDEAS P22). Null for no key, a modifier or a mouse button, which are never captured this way.</summary>
+    public static string? VkToAhkName(int vk)
+    {
+        if (vk is <= 0x07 or >= 0xFF) return null;                                        // no key, mouse buttons, "no mapping"
+        if (vk is 0x10 or 0x11 or 0x12 or 0x5B or 0x5C or (>= 0xA0 and <= 0xA5)) return null;   // Shift, Ctrl, Alt, Win
+        if (vk is >= 0x70 and <= 0x87) return "F" + (vk - 0x6F).ToString(CultureInfo.InvariantCulture);
+        return "vk" + vk.ToString("X2", CultureInfo.InvariantCulture);
     }
 
     /// <summary>Modifier prefix in the fixed order the capture has always used: ^ ! + #.</summary>
