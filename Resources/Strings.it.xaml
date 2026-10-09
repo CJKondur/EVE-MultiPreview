@@ -1927,4 +1927,9 @@
     <sys:String x:Key="L.S.character.colorText">Colore del testo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">Colora il testo sulla miniatura di questo personaggio. Finché non ne scegli uno, si usa il colore del testo di Miniature › Testo e bordi.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">Disattivare la modalità daltonici? I tuoi colori di avvisi, evidenziazione, testo delle miniature, segno di accesso e statistiche, e quelli dati ai singoli eventi, tornano a come erano prima di attivarla.</sys:String> <!-- draft -->
+    <!-- Ideas batch 2 (Plan 6) -->
+    <sys:String x:Key="L.Start.Newer.Title">È stato trovato un file di impostazioni più recente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Body">Il tuo file di impostazioni è:&#x0A;{0}&#x0A;ultima modifica: {1}.&#x0A;&#x0A;Un altro file di impostazioni è stato modificato dopo, il {3}:&#x0A;{2}&#x0A;&#x0A;Succede quando una versione precedente di MultiPreview è stata eseguita da quella cartella o un file di impostazioni è stato copiato lì. Usare il file più recente? Le tue impostazioni attuali vengono prima conservate nella cartella Backups.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Use">Usa il file più recente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Keep">Mantieni le mie impostazioni attuali</sys:String> <!-- draft -->
 </ResourceDictionary>

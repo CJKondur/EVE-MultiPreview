@@ -1910,4 +1910,9 @@
     <sys:String x:Key="L.S.character.colorText">テキストの色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">このキャラクターのサムネイル上の文字の色を設定します。選ぶまでは サムネイル › テキストと枠線 のテキストの色が使われます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">色覚サポートモードをオフにしますか？ アラート、ハイライト、サムネイルのテキスト、ログインマーク、統計の色と、個別のイベントに付けた色は、オンにする前の色に戻ります。</sys:String> <!-- draft -->
+    <!-- Ideas batch 2 (Plan 6) -->
+    <sys:String x:Key="L.Start.Newer.Title">より新しい設定ファイルが見つかりました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Body">現在の設定ファイル：&#x0A;{0}&#x0A;最終更新：{1}&#x0A;&#x0A;別の設定ファイルがその後に更新されています（{3}）：&#x0A;{2}&#x0A;&#x0A;これは、古いバージョンの MultiPreview がそのフォルダーから実行された場合や、設定ファイルがそこにコピーされた場合に起こります。新しいファイルを使用しますか？ 現在の設定は先に Backups フォルダーに保存されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Use">新しいファイルを使用する</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Keep">現在の設定を維持する</sys:String> <!-- draft -->
 </ResourceDictionary>

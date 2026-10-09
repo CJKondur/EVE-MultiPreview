@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 namespace EveMultiPreview.Services;
 
@@ -206,5 +207,96 @@ public static class SettingsHome
         if (IsLink(dir)) throw new IOException($"{dir} is a link, and MultiPreview never writes through one.");
         Directory.CreateDirectory(dir);
         return dir;
+    }
+
+    /// <summary>"Use the newer file": the current file is kept in Backups as EVE MultiPreview_replaced_…, then the other
+    /// file is copied over it and checked. False, with the current file as it was, when anything fails.</summary>
+    public static bool UseOtherCopy(string activeFile, string otherFile, DateTime now)
+    {
+        try
+        {
+            if (IsLink(otherFile)) return false;
+            var backups = BackupsFolder(Path.GetDirectoryName(activeFile)!);
+            CopyNoFollow(activeFile, BackupFile(backups, "replaced", now), overwrite: false);
+            CopyNoFollow(otherFile, activeFile, overwrite: true, verifySettings: true);
+            return true;
+        }
+        catch { return false; }
+    }
+
+    /// <summary>"Keep my current settings": marks the current file as changed now (or just after the other file, if a
+    /// wrong clock dated that one in the future), so the other file is no longer the newer one and the question waits
+    /// until that file changes again.</summary>
+    public static void KeepCurrent(string activeFile, string otherFile, DateTime utcNow)
+    {
+        try
+        {
+            var other = File.GetLastWriteTimeUtc(otherFile);
+            File.SetLastWriteTimeUtc(activeFile, other >= utcNow ? other.AddSeconds(1) : utcNow);
+        }
+        catch { }
+    }
+
+    /// <summary>The newer-file question at startup, asked through <paramref name="ask"/> (App: a StartupDialog; tests: an
+    /// answer). Closing it without an answer asks again next time. True when the other file was taken and the settings
+    /// loaded again from it.</summary>
+    public static bool OfferOtherCopy(SettingsService svc, string otherFile, Func<string, string, IReadOnlyList<string>, int?> ask,
+        Func<string, string, string> str, DateTime now)
+    {
+        string When(string file) => File.GetLastWriteTime(file).ToString("g", CultureInfo.CurrentCulture);
+        var body = string.Format(str("L.Start.Newer.Body", NewerBodyEnglish), svc.SettingsPath, When(svc.SettingsPath), otherFile, When(otherFile));
+        var answer = ask(str("L.Start.Newer.Title", "A newer settings file was found"), body,
+            new[] { str("L.Start.Newer.Use", "Use the newer file"), str("L.Start.Newer.Keep", "Keep my current settings") });
+        if (answer == 1) KeepCurrent(svc.SettingsPath, otherFile, now.ToUniversalTime());
+        if (answer != 0 || !UseOtherCopy(svc.SettingsPath, otherFile, now)) return false;
+        svc.Load();
+        return svc.LoadedSuccessfully;
+    }
+
+    private const string NewerBodyEnglish =
+        "Your settings file is:\n{0}\nlast changed {1}.\n\nA different settings file was changed after it, on {3}:\n{2}\n\n"
+        + "This happens when an older version of MultiPreview ran from that folder, or a settings file was copied there. "
+        + "Use the newer file? Your current settings are kept in the Backups folder first.";
+
+    /// <summary>Before an older version is installed (IDEAS #57). Older versions read the settings file beside the exe,
+    /// so the current settings are copied there first (checked), and the file that was there is kept in Backups as
+    /// EVE MultiPreview_exe-folder_…. Nothing to do when portable (one file) or when the two are already the same.
+    /// False when nothing was copied.</summary>
+    public static bool HandBack(string activeFile, string exeDir, DateTime now)
+    {
+        try
+        {
+            var exeFile = Path.Combine(exeDir, AppPaths.SettingsFileName);
+            if (string.Equals(Path.GetFullPath(activeFile), Path.GetFullPath(exeFile), StringComparison.OrdinalIgnoreCase)) return false;
+            if (!File.Exists(activeFile) || IsLink(exeFile)) return false;
+            if (File.Exists(exeFile))
+            {
+                if (File.ReadAllBytes(exeFile).AsSpan().SequenceEqual(File.ReadAllBytes(activeFile))) return false;
+                CopyNoFollow(exeFile, BackupFile(BackupsFolder(Path.GetDirectoryName(activeFile)!), "exe-folder", now), overwrite: false);
+            }
+            CopyNoFollow(activeFile, exeFile, overwrite: true, verifySettings: true);
+            return true;
+        }
+        catch { return false; }
+    }
+
+    /// <summary>Writes the note beside the exe (best effort: a folder MultiPreview can't write to just gets no note).
+    /// Windows line breaks and a UTF-8 BOM, so Notepad shows every language.</summary>
+    public static bool WriteNote(string exeDir, string text)
+    {
+        var path = Path.Combine(exeDir, AppPaths.MovedNoteName);
+        var tmp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            if (IsLink(path)) return false;
+            File.WriteAllText(tmp, text.Replace("\r\n", "\n").Replace("\n", "\r\n"), new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
+            File.Move(tmp, path, overwrite: true);
+            return true;
+        }
+        catch { return false; }
+        finally
+        {
+            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { }
+        }
     }
 }

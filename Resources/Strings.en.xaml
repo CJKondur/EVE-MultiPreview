@@ -1909,4 +1909,9 @@
     <sys:String x:Key="L.S.character.colorText">Text colour</sys:String>
     <sys:String x:Key="L.S.character.colorText.Desc">Colours the text on this character's thumbnail. Until you pick one, it is the text colour from Thumbnails › Text &amp; borders.</sys:String>
     <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">Turn off colour-blind mode? Your alert, highlight, thumbnail text, login mark and stats colours, and the colours you gave single events, go back to what they were before you turned it on.</sys:String>
+    <!-- Ideas batch 2 (Plan 6) -->
+    <sys:String x:Key="L.Start.Newer.Title">A newer settings file was found</sys:String>
+    <sys:String x:Key="L.Start.Newer.Body">Your settings file is:&#x0A;{0}&#x0A;last changed {1}.&#x0A;&#x0A;A different settings file was changed after it, on {3}:&#x0A;{2}&#x0A;&#x0A;This happens when an older version of MultiPreview ran from that folder, or a settings file was copied there. Use the newer file? Your current settings are kept in the Backups folder first.</sys:String>
+    <sys:String x:Key="L.Start.Newer.Use">Use the newer file</sys:String>
+    <sys:String x:Key="L.Start.Newer.Keep">Keep my current settings</sys:String>
 </ResourceDictionary>

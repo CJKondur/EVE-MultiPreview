@@ -1909,4 +1909,9 @@
     <sys:String x:Key="L.S.character.colorText">Textfarbe</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">Färbt den Text auf dem Vorschaubild dieses Charakters. Solange du keine Farbe wählst, gilt die Textfarbe aus Vorschaubilder › Text und Rahmen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">Farbenblind-Modus ausschalten? Deine Farben für Alarme, Hervorhebung, Vorschaubild-Text, Login-Markierung und Statistik sowie die Farben, die du einzelnen Ereignissen gegeben hast, kehren zu dem zurück, was sie vor dem Einschalten waren.</sys:String> <!-- draft -->
+    <!-- Ideas batch 2 (Plan 6) -->
+    <sys:String x:Key="L.Start.Newer.Title">Eine neuere Einstellungsdatei wurde gefunden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Body">Deine Einstellungsdatei ist:&#x0A;{0}&#x0A;zuletzt geändert {1}.&#x0A;&#x0A;Eine andere Einstellungsdatei wurde danach geändert, am {3}:&#x0A;{2}&#x0A;&#x0A;Das passiert, wenn eine ältere Version von MultiPreview aus diesem Ordner gestartet wurde oder eine Einstellungsdatei dorthin kopiert wurde. Die neuere Datei verwenden? Deine aktuellen Einstellungen werden vorher im Ordner Backups gesichert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Use">Neuere Datei verwenden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Keep">Meine aktuellen Einstellungen behalten</sys:String> <!-- draft -->
 </ResourceDictionary>

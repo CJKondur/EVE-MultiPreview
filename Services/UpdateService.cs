@@ -135,62 +135,19 @@ public sealed class UpdateService
     }
 
     /// <summary>
-    /// Spawn the PowerShell updater script that waits for exit, backs up config,
-    /// replaces the exe, and relaunches. Then shuts down the current app.
+    /// Spawn the PowerShell updater script that waits for exit, backs up the settings file, replaces the exe, and
+    /// relaunches. Then shuts down the current app.
     /// </summary>
     public void ApplyUpdate(string downloadedExePath)
     {
         var appDir = AppDomain.CurrentDomain.BaseDirectory;
         var scriptPath = Path.Combine(Path.GetTempPath(), "EVEMultiPreview_update", "update.ps1");
 
-        var script = $@"
-# EVE MultiPreview Auto-Updater
-# Wait for the main process to exit
-Start-Sleep -Seconds 2
-$maxWait = 30; $waited = 0
-while ((Get-Process -Name 'EVE MultiPreview' -ErrorAction SilentlyContinue) -and $waited -lt $maxWait) {{
-    Start-Sleep -Seconds 1; $waited++
-}}
+        // An older version reads the settings file beside the exe (IDEAS #57): it gets the current settings first.
+        if (IsOlder(LatestVersion, CurrentVersion))
+            SettingsHome.HandBack(AppPaths.SettingsPath, AppPaths.ExeDir, DateTime.Now);
 
-# Backup config file
-$appDir = '{EscapePs(appDir)}'
-$configFile = Join-Path $appDir 'EVE MultiPreview.json'
-if (Test-Path $configFile) {{
-    $backupDir = Join-Path $appDir 'Backups'
-    New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
-    $timestamp = Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'
-    Copy-Item $configFile (Join-Path $backupDir ""EVE MultiPreview_pre-update_$timestamp.json"")
-}}
-
-# Replace the executable
-$newExe = '{EscapePs(downloadedExePath)}'
-$oldExe = Join-Path $appDir 'EVE MultiPreview.exe'
-Copy-Item $newExe $oldExe -Force
-
-# Clean up any stale dot-named exe / pdb left over from earlier installs
-# that pre-date the AssemblyName rename. The GitHub release ships the file
-# as 'EVE.MultiPreview.exe' (with a dot, GitHub-friendly), but the local
-# install is 'EVE MultiPreview.exe' (with a space). Old dot-named files
-# from previous versions sit alongside the space-named live exe and show
-# up as confusing duplicates in the install folder (issue #42, bug #3).
-$dotExe = Join-Path $appDir 'EVE.MultiPreview.exe'
-if (Test-Path $dotExe) {{
-    Remove-Item -Path $dotExe -Force -ErrorAction SilentlyContinue
-}}
-$dotPdb = Join-Path $appDir 'EVE.MultiPreview.pdb'
-if (Test-Path $dotPdb) {{
-    Remove-Item -Path $dotPdb -Force -ErrorAction SilentlyContinue
-}}
-
-# Restart the app
-Start-Process $oldExe
-
-# Clean up temp download
-Start-Sleep -Seconds 3
-Remove-Item -Path (Split-Path $newExe -Parent) -Recurse -Force -ErrorAction SilentlyContinue
-";
-
-        File.WriteAllText(scriptPath, script);
+        File.WriteAllText(scriptPath, UpdaterScript(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath));
 
         // Launch PowerShell hidden
         var psi = new ProcessStartInfo
@@ -208,6 +165,59 @@ Remove-Item -Path (Split-Path $newExe -Parent) -Recurse -Force -ErrorAction Sile
             System.Windows.Application.Current.Shutdown();
         });
     }
+
+    /// <summary>True when <paramref name="target"/> is an older version than <paramref name="current"/> (a downgrade).</summary>
+    public static bool IsOlder(string? target, string current) =>
+        Version.TryParse(target, out var t) && Version.TryParse(current, out var c) && t < c;
+
+    /// <summary>The updater: waits for MultiPreview to exit, copies the settings file into the Backups folder beside it
+    /// (the settings folder, IDEAS #57), replaces the exe in <paramref name="appDir"/> and starts it again.</summary>
+    public static string UpdaterScript(string appDir, string settingsFile, string backupDir, string downloadedExePath) => $@"
+# EVE MultiPreview Auto-Updater
+# Wait for the main process to exit
+Start-Sleep -Seconds 2
+$maxWait = 30; $waited = 0
+while ((Get-Process -Name 'EVE MultiPreview' -ErrorAction SilentlyContinue) -and $waited -lt $maxWait) {{
+    Start-Sleep -Seconds 1; $waited++
+}}
+
+# Back up the settings file (in the settings folder: AppData, or beside the exe when portable)
+$appDir = '{EscapePs(appDir)}'
+$configFile = '{EscapePs(settingsFile)}'
+if (Test-Path -LiteralPath $configFile) {{
+    $backupDir = '{EscapePs(backupDir)}'
+    New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
+    $timestamp = Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'
+    Copy-Item -LiteralPath $configFile -Destination (Join-Path $backupDir ""EVE MultiPreview_pre-update_$timestamp.json"")
+}}
+
+# Replace the executable
+$newExe = '{EscapePs(downloadedExePath)}'
+$oldExe = Join-Path $appDir 'EVE MultiPreview.exe'
+Copy-Item -LiteralPath $newExe -Destination $oldExe -Force
+
+# Clean up any stale dot-named exe / pdb left over from earlier installs
+# that pre-date the AssemblyName rename. The GitHub release ships the file
+# as 'EVE.MultiPreview.exe' (with a dot, GitHub-friendly), but the local
+# install is 'EVE MultiPreview.exe' (with a space). Old dot-named files
+# from previous versions sit alongside the space-named live exe and show
+# up as confusing duplicates in the install folder (issue #42, bug #3).
+$dotExe = Join-Path $appDir 'EVE.MultiPreview.exe'
+if (Test-Path -LiteralPath $dotExe) {{
+    Remove-Item -LiteralPath $dotExe -Force -ErrorAction SilentlyContinue
+}}
+$dotPdb = Join-Path $appDir 'EVE.MultiPreview.pdb'
+if (Test-Path -LiteralPath $dotPdb) {{
+    Remove-Item -LiteralPath $dotPdb -Force -ErrorAction SilentlyContinue
+}}
+
+# Restart the app
+Start-Process -FilePath $oldExe
+
+# Clean up temp download
+Start-Sleep -Seconds 3
+Remove-Item -LiteralPath (Split-Path -LiteralPath $newExe -Parent) -Recurse -Force -ErrorAction SilentlyContinue
+";
 
     private static string EscapePs(string path) => path.Replace("'", "''");
 

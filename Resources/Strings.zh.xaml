@@ -1927,4 +1927,9 @@
     <sys:String x:Key="L.S.character.colorText">文字颜色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">设置该角色缩略图上的文字颜色。在你选择之前，使用 缩略图 › 文字和边框 中的文字颜色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">关闭色盲模式？你的警报、高亮、缩略图文字、登录标记和统计颜色，以及你为单个事件设置的颜色，会恢复为开启前的样子。</sys:String> <!-- draft -->
+    <!-- Ideas batch 2 (Plan 6) -->
+    <sys:String x:Key="L.Start.Newer.Title">发现了更新的设置文件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Body">你的设置文件是：&#x0A;{0}&#x0A;最后修改于 {1}。&#x0A;&#x0A;另一个设置文件在它之后被修改，时间为 {3}：&#x0A;{2}&#x0A;&#x0A;当旧版 MultiPreview 从那个文件夹运行，或者有设置文件被复制到那里时，就会出现这种情况。要使用较新的文件吗？你当前的设置会先保存在 Backups 文件夹中。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Use">使用较新的文件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Keep">保留我当前的设置</sys:String> <!-- draft -->
 </ResourceDictionary>

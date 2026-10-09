@@ -1931,4 +1931,9 @@
     <sys:String x:Key="L.S.character.colorText">Color del texto</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">Colorea el texto de la miniatura de este personaje. Hasta que elijas uno, se usa el color del texto de Miniaturas › Texto y bordes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">¿Desactivar el modo daltónico? Tus colores de alertas, resaltado, texto de miniaturas, marca de inicio de sesión y estadísticas, y los que diste a eventos concretos, vuelven a ser los que eran antes de activarlo.</sys:String> <!-- draft -->
+    <!-- Ideas batch 2 (Plan 6) -->
+    <sys:String x:Key="L.Start.Newer.Title">Se encontró un archivo de ajustes más reciente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Body">Tu archivo de ajustes es:&#x0A;{0}&#x0A;última modificación: {1}.&#x0A;&#x0A;Otro archivo de ajustes se modificó después, el {3}:&#x0A;{2}&#x0A;&#x0A;Esto pasa cuando una versión anterior de MultiPreview se ejecutó desde esa carpeta o se copió allí un archivo de ajustes. ¿Usar el archivo más reciente? Tus ajustes actuales se guardan antes en la carpeta Backups.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Use">Usar el archivo más reciente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Keep">Mantener mis ajustes actuales</sys:String> <!-- draft -->
 </ResourceDictionary>

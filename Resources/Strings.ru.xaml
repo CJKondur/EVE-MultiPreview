@@ -1929,4 +1929,9 @@
     <sys:String x:Key="L.S.character.colorText">Цвет текста</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">Задаёт цвет текста на миниатюре этого персонажа. Пока вы не выберете цвет, используется цвет текста из Миниатюры › Текст и рамки.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">Выключить режим для дальтоников? Цвета оповещений, подсветки, текста на миниатюрах, метки входа и статистики, а также цвета, заданные для отдельных событий, вернутся к тем, что были до включения.</sys:String> <!-- draft -->
+    <!-- Ideas batch 2 (Plan 6) -->
+    <sys:String x:Key="L.Start.Newer.Title">Найден более новый файл настроек</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Body">Ваш файл настроек:&#x0A;{0}&#x0A;последнее изменение: {1}.&#x0A;&#x0A;Другой файл настроек был изменён позже, {3}:&#x0A;{2}&#x0A;&#x0A;Так бывает, когда из той папки запускалась более старая версия MultiPreview или туда скопировали файл настроек. Использовать более новый файл? Ваши текущие настройки сначала сохранятся в папке Backups.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Use">Использовать более новый файл</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Keep">Оставить мои текущие настройки</sys:String> <!-- draft -->
 </ResourceDictionary>

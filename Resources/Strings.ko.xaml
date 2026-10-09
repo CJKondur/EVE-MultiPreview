@@ -1910,4 +1910,9 @@
     <sys:String x:Key="L.S.character.colorText">텍스트 색상</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.colorText.Desc">이 캐릭터 미리보기의 글자 색을 정해요. 고르기 전에는 미리보기 › 텍스트 및 테두리의 텍스트 색상을 사용해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.ColorBlind.ConfirmOffRestore">색맹 모드를 끌까요? 알림, 강조, 썸네일 텍스트, 로그인 표시, 통계 색과 개별 이벤트에 지정한 색이 켜기 전 색으로 돌아가요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 2 (Plan 6) -->
+    <sys:String x:Key="L.Start.Newer.Title">더 최신 설정 파일을 찾았어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Body">현재 설정 파일:&#x0A;{0}&#x0A;마지막 변경: {1}&#x0A;&#x0A;다른 설정 파일이 그 뒤에 변경되었어요({3}):&#x0A;{2}&#x0A;&#x0A;이전 버전의 MultiPreview를 그 폴더에서 실행했거나 설정 파일을 그곳에 복사했을 때 이런 일이 생겨요. 더 최신 파일을 사용할까요? 현재 설정은 먼저 Backups 폴더에 보관돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Use">최신 파일 사용</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Newer.Keep">내 현재 설정 유지</sys:String> <!-- draft -->
 </ResourceDictionary>
