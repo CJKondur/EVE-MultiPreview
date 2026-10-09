@@ -22,6 +22,22 @@ public static class AlertHubVisuals
     public const double BellSize = 44;
     public const double ToastWidth = 300, ToastHeight = 64, ToastGap = 8;
 
+    /// <summary>How many toasts fit between the hub and the edge of its monitor's work area in the stacking direction (0 up,
+    /// 1 right, 2 down, 3 left), at least one: the newest always shows (IDEAS P39: a sideways stack ran off the screen
+    /// after about six).</summary>
+    public static int ToastsThatFit(int direction, Rect hub, Rect workArea)
+    {
+        double room = direction switch
+        {
+            0 => hub.Top - workArea.Top,
+            1 => workArea.Right - hub.Right,
+            2 => workArea.Bottom - hub.Bottom,
+            _ => hub.Left - workArea.Left,
+        };
+        double step = direction is 1 or 3 ? ToastWidth + ToastGap : ToastHeight + ToastGap;
+        return Math.Max(1, (int)Math.Floor(room / step));
+    }
+
     /// <summary>Segoe Fluent Icons code points.</summary>
     public static class Glyphs
     {

@@ -271,6 +271,14 @@ public class AlertHub : IDisposable
         Debug.WriteLine($"[AlertHub:Suspend] {(suspended ? "⏸ Suspended" : "▶ Resumed")}");
     }
 
+    /// <summary>Whether toasts are paused (tests).</summary>
+    public bool IsSuspended => _isSuspended;
+
+    /// <summary>Toasts pause whenever hotkeys pause, whichever way they were paused: the pause hotkey, Home's quick
+    /// action or the tray (IDEAS P37). One rule, at the one place the pause state changes.</summary>
+    public void FollowPauseOf(HotkeyService hotkeys) =>
+        hotkeys.SuspendToggled += () => SetSuspended(hotkeys.IsSuspended);
+
     /// <summary>The hub's icon follows one rule (AlertHubVisuals.HubGlyph): picker open, paused, else the bell.</summary>
     private void RefreshIcon() => _hub.Icon.Text = AlertHubVisuals.HubGlyph(_directionPicker != null, _isSuspended);
 
@@ -297,11 +305,20 @@ public class AlertHub : IDisposable
             _unreadCount++;
             UpdateBadge();
 
-            // Get severity color
-            var color = ToastColor(alertType, severity);
+            // The focus-aware state now, then the toast with it: above EVE, never above another program (IDEAS P38).
+            UpdateFocusAwareZOrder();
+            var toast = NewToast(characterName, alertType, severity);
 
-            // Create toast window
-            var toast = new AlertToast(characterName, alertType, color, ToastDurationSeconds, SystemLookup?.Invoke(characterName));
+            // No more toasts than fit between the hub and the screen edge (IDEAS P39): the oldest closes early. Its
+            // alert is still on its thumbnail and counted on the bell.
+            int fit = AlertHubVisuals.ToastsThatFit(ToastDirection, HubBounds, HubWorkArea());
+            while (_activeToasts.Count >= fit)
+            {
+                var oldest = _activeToasts[0];
+                _activeToasts.RemoveAt(0);
+                try { oldest.Window.Close(); } catch { }
+            }
+
             toast.Window.Closed += (_, _) =>
             {
                 _activeToasts.RemoveAll(t => t == toast);
@@ -319,6 +336,27 @@ public class AlertHub : IDisposable
 
             Debug.WriteLine($"[AlertHub:Toast] 📢 Toast shown: {alertType} [{severity}] for '{characterName}' (active={_activeToasts.Count})");
         });
+    }
+
+    /// <summary>A toast for an alert, not shown yet. It starts with the hub's focus-aware Topmost (IDEAS P38): it used to
+    /// start topmost and stay over a browser in front until it closed.</summary>
+    private AlertToast NewToast(string characterName, string alertType, string severity) =>
+        new(characterName, alertType, ToastColor(alertType, severity), ToastDurationSeconds,
+            SystemLookup?.Invoke(characterName), topmost: _hubWindow.Topmost);
+
+    /// <summary>The hub window's place and size, in WPF units.</summary>
+    private Rect HubBounds => new(_hubWindow.Left, _hubWindow.Top, AlertHubVisuals.HubWindowSize, AlertHubVisuals.HubWindowSize);
+
+    /// <summary>The work area of the monitor the hub is on, in WPF units; the primary one's before the hub has a window.</summary>
+    private Rect HubWorkArea()
+    {
+        var handle = new System.Windows.Interop.WindowInteropHelper(_hubWindow).Handle;
+        var source = PresentationSource.FromVisual(_hubWindow);
+        if (handle == IntPtr.Zero || source?.CompositionTarget == null) return SystemParameters.WorkArea;
+        var area = System.Windows.Forms.Screen.FromHandle(handle).WorkingArea;
+        var toWpf = source.CompositionTarget.TransformFromDevice;
+        return new Rect(toWpf.Transform(new System.Windows.Point(area.Left, area.Top)),
+                        toWpf.Transform(new System.Windows.Point(area.Right, area.Bottom)));
     }
 
     /// <summary>Focus-aware z-ordering: only Topmost when EVE or our app is foreground.</summary>
@@ -512,7 +550,10 @@ internal class AlertToast : IDisposable
     public event Action? Clicked;
     private readonly DispatcherTimer _dismissTimer;
 
-    public AlertToast(string characterName, string alertType, Color severityColor, int durationSeconds, string? system = null)
+    /// <param name="topmost">The hub's focus-aware state when the toast is made (IDEAS P38); the hub's timer flips it
+    /// with the hub's own afterwards.</param>
+    public AlertToast(string characterName, string alertType, Color severityColor, int durationSeconds, string? system = null,
+        bool topmost = true)
     {
         Window = new Window
         {
@@ -521,7 +562,7 @@ internal class AlertToast : IDisposable
             Background = Brushes.Transparent,
             ShowInTaskbar = false,
             ShowActivated = false, // Passive overlay: showing it must never take focus from the EVE client (#110).
-            Topmost = true,
+            Topmost = topmost,
             Width = AlertHubVisuals.ToastWidth,
             Height = AlertHubVisuals.ToastHeight,
             ResizeMode = ResizeMode.NoResize,

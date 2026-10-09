@@ -233,6 +233,8 @@ public partial class App : Application
             };
             _alertHub.SaveRequested += () => _settings.SaveDelayed();
             _alertHub.SystemLookup = _thumbnailManager.GetCharacterSystem;   // "Jita · click to switch" on toasts (Plan 4)
+            // Toasts pause with the hotkeys on every path: the pause hotkey, Home and the tray (IDEAS P37).
+            _alertHub.FollowPauseOf(_hotkeyService);
             PerfLog($"[Deferred] AlertHub created: {deferSw.ElapsedMilliseconds}ms");
 
             // Broadcast-key HUD — self-gates on ShowBroadcastKeyHud each tick.
@@ -689,7 +691,6 @@ public partial class App : Application
             SwitchProfile = name => _settings?.SwitchProfile(name),   // ProfileSwitched applies it (#101)
             IsSuspended = () => _hotkeyService?.IsSuspended ?? false,
             ToggleSuspend = () => _hotkeyService?.ToggleSuspend(),
-            SetHubSuspended = paused => _alertHub?.SetSuspended(paused),
             ToggleLock = () => _thumbnailManager?.ToggleLockPositions(),
             ThumbnailsHidden = () => _thumbnailManager?.AllThumbnailsHidden ?? false,
             ToggleThumbnails = () => _thumbnailManager?.ToggleThumbnailVisibility(),

@@ -43,7 +43,6 @@ public sealed class TrayMenuActions
     public Action<string> SwitchProfile { get; init; } = _ => { };
     public Func<bool> IsSuspended { get; init; } = () => false;
     public Action ToggleSuspend { get; init; } = () => { };
-    public Action<bool> SetHubSuspended { get; init; } = _ => { };
     public Action ToggleLock { get; init; } = () => { };
     public Func<bool> ThumbnailsHidden { get; init; } = () => false;
     public Action ToggleThumbnails { get; init; } = () => { };
@@ -86,11 +85,8 @@ public sealed class TrayMenu : IDisposable
         Strip.Items.Add(_profiles);
         Strip.Items.Add(new ToolStripSeparator());
 
-        _suspend = Item(TrayCommands.Suspend, "L.Tray.Suspend", "Pause hotkeys", FluentMenu.Glyphs.Pause, () =>
-        {
-            _a.ToggleSuspend();
-            _a.SetHubSuspended(_a.IsSuspended());   // the real state: the old menu sent its own check mark, stale after a hotkey pause
-        });
+        // The alert hub follows the pause by itself (AlertHub.FollowPauseOf, IDEAS P37), whichever way it was paused.
+        _suspend = Item(TrayCommands.Suspend, "L.Tray.Suspend", "Pause hotkeys", FluentMenu.Glyphs.Pause, _a.ToggleSuspend);
         _lock = Item(TrayCommands.Lock, "L.Tray.Lock", "Lock positions", FluentMenu.Glyphs.Lock, _a.ToggleLock);
         _hide = Item(TrayCommands.HideThumbnails, "L.Tray.Toggle", "Hide thumbnails", FluentMenu.Glyphs.Eye, _a.ToggleThumbnails);
         _clickThrough = Item(TrayCommands.ClickThrough, "L.Tray.ClickThrough", "Click-through", FluentMenu.Glyphs.Pointer, _a.ToggleClickThrough);
