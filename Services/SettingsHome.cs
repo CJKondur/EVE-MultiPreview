@@ -265,7 +265,9 @@ public static class SettingsHome
         bool carried = false;
         foreach (var (key, value) in mine)
         {
-            if (theirs.ContainsKey(key)) continue;
+            // The loader matches names without regard to case, last one wins: a key the other file spells differently
+            // is still its value, and ours beside it would override it.
+            if (theirs.Any(p => string.Equals(p.Key, key, StringComparison.OrdinalIgnoreCase))) continue;
             theirs[key] = value?.DeepClone();
             carried = true;
         }
