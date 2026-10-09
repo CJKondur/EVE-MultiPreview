@@ -22,21 +22,26 @@ public enum EveCopyMode { Profile, Character, Account }
 
 /// <summary>Tools › EVE settings without its UI. File work is the old window's EveManagerService calls, unchanged;
 /// every question and message goes through ISettingsHost. Settings it writes: EveSettingsDir, EveBackupDir,
-/// AccountLabels, AccountCharacterMap. EveManager (the saved name cache) is read, never written, as before.</summary>
+/// AccountLabels, AccountCharacterMap, and EveManager (the saved name cache) for names fetched from ESI (IDEAS P33).</summary>
 public sealed class EveSettingsModel
 {
     private readonly SettingsContext _ctx;
     private readonly Func<bool> _eveRunning;
     private readonly Func<AppSettings, Dictionary<string, string>> _loadNames;
+    private readonly Func<Dictionary<string, string>, IEnumerable<string>, Task> _fetchNames;
     private Dictionary<string, string>? _names;
 
     /// <param name="eveRunning">Whether an EVE client runs (default: EveManagerService.IsEveRunning).</param>
     /// <param name="loadNames">Character number → name (default: LoadNames, which reads EVE's chat logs).</param>
-    public EveSettingsModel(SettingsContext ctx, Func<bool>? eveRunning = null, Func<AppSettings, Dictionary<string, string>>? loadNames = null)
+    /// <param name="fetchNames">Adds names for character numbers to the map (default: EveManagerService.EnrichWithESI, the
+    /// public ESI lookup). Tests give their own: they never reach the network.</param>
+    public EveSettingsModel(SettingsContext ctx, Func<bool>? eveRunning = null, Func<AppSettings, Dictionary<string, string>>? loadNames = null,
+        Func<Dictionary<string, string>, IEnumerable<string>, Task>? fetchNames = null)
     {
         _ctx = ctx;
         _eveRunning = eveRunning ?? EveManagerService.IsEveRunning;
         _loadNames = loadNames ?? LoadNames;
+        _fetchNames = fetchNames ?? EveManagerService.EnrichWithESI;
     }
 
     private AppSettings S => _ctx.S;
@@ -107,27 +112,29 @@ public sealed class EveSettingsModel
     // ── Names and lists ──
 
     /// <summary>Character number → name, loaded the first time a list needs a name, plus names fetched this session.
-    /// Fetched names aren't saved, as before (IDEAS P33).</summary>
+    /// Fetched names are kept in the settings too, so the next session doesn't fetch them again (IDEAS P33).</summary>
     public Dictionary<string, string> Names => _names ??= _loadNames(S);
 
     /// <summary>Old LoadEveManagerPanel: the saved cache (EveManager.CharNameCache), then the first lines of EVE's chat
     /// logs (the Alerts chat log folder, then Documents\EVE\logs\Chatlogs). Writes nothing to the settings.</summary>
-    public static Dictionary<string, string> LoadNames(AppSettings s)
+    public static Dictionary<string, string> LoadNames(AppSettings s) =>
+        EveManagerService.LoadCharNameCache(s.ChatLogDirectory, CachedNames(s));
+
+    /// <summary>The saved name cache (EveManager.CharNameCache) in the shape LoadCharNameCache seeds from; null when there
+    /// is none.</summary>
+    public static Dictionary<string, Dictionary<string, string>>? CachedNames(AppSettings s)
     {
-        Dictionary<string, Dictionary<string, string>>? cache = null;
-        if (s.EveManager?.CharNameCache != null)
+        if (s.EveManager?.CharNameCache == null) return null;
+        var cache = new Dictionary<string, Dictionary<string, string>>();
+        foreach (var (id, entry) in s.EveManager.CharNameCache)
         {
-            cache = new Dictionary<string, Dictionary<string, string>>();
-            foreach (var (id, entry) in s.EveManager.CharNameCache)
-            {
-                var d = new Dictionary<string, string>();
-                if (!string.IsNullOrEmpty(entry.Name)) d["name"] = entry.Name;
-                if (!string.IsNullOrEmpty(entry.Fetched)) d["fetched"] = entry.Fetched;
-                if (!string.IsNullOrEmpty(entry.Method)) d["method"] = entry.Method;
-                cache[id] = d;
-            }
+            var d = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(entry.Name)) d["name"] = entry.Name;
+            if (!string.IsNullOrEmpty(entry.Fetched)) d["fetched"] = entry.Fetched;
+            if (!string.IsNullOrEmpty(entry.Method)) d["method"] = entry.Method;
+            cache[id] = d;
         }
-        return EveManagerService.LoadCharNameCache(s.ChatLogDirectory, cache);
+        return cache;
     }
 
     public IReadOnlyList<EveEntry> Characters(EveProfile profile) =>
@@ -373,14 +380,17 @@ public sealed class EveSettingsModel
             .Distinct().Where(id => !Names.ContainsKey(id)).ToList();
 
     /// <summary>Old OnFetchESI: EveManagerService.EnrichWithESI, unchanged (a POST to ESI's public /universe/names with
-    /// character numbers only; not through the EVE Projects proxy rule, IDEAS P33). Returns how many names were added,
-    /// or null when none was missing. Network: never call it in a test.</summary>
+    /// character numbers only, no login; the owner keeps it direct: a player's PC can't use the server proxy, IDEAS P33).
+    /// The names it finds are kept in the settings' name cache. Returns how many names were added, or null when none
+    /// was missing. In a test, give the model its own fetch.</summary>
     public async Task<int?> FetchMissingNamesAsync()
     {
         var missing = MissingNameIds();
         if (missing.Count == 0) return null;
         int before = Names.Count;
-        await EveManagerService.EnrichWithESI(Names, missing);
+        await _fetchNames(Names, missing);
+        var found = missing.Where(Names.ContainsKey).ToDictionary(id => id, id => Names[id]);
+        if (EveManagerService.RememberNames(S, found, DateTime.Now) > 0) _ctx.Applier.Request(ApplyScope.Save);
         return Names.Count - before;
     }
 

@@ -1817,7 +1817,7 @@
     <sys:String x:Key="L.S.Eve.Label">所选账号的名称</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SetLabel">设置名称</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.FetchNames">获取缺失的名称</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.FetchNote">在 EVE 公共服务器 (ESI) 上查询只显示编号的角色。只发送编号，无需登录。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.FetchNote">在 EVE 公共服务器 (ESI) 上查询只显示编号的角色。只发送编号，无需登录。找到的名称会被保存，下次不再重复查询。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedSource">请选择要复制自的配置文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedTargets">请至少勾选一个要复制到的配置文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SameProfile">复制来源的配置文件不能同时作为目标。</sys:String> <!-- draft -->

@@ -1800,7 +1800,7 @@
     <sys:String x:Key="L.S.Eve.Label">선택한 계정의 이름</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SetLabel">이름 지정</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.FetchNames">누락된 이름 가져오기</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.FetchNote">번호로만 표시된 캐릭터를 EVE 공개 서버(ESI)에서 조회합니다. 번호만 전송하며 로그인은 필요 없습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.FetchNote">번호로만 표시된 캐릭터를 EVE 공개 서버(ESI)에서 조회합니다. 번호만 전송하며 로그인은 필요 없습니다. 찾은 이름은 저장되어 다시 조회하지 않습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedSource">복사할 원본 프로필을 선택하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedTargets">복사 대상 프로필을 하나 이상 선택하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SameProfile">복사 원본 프로필은 복사 대상이 될 수 없습니다.</sys:String> <!-- draft -->

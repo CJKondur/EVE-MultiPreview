@@ -1821,7 +1821,7 @@
     <sys:String x:Key="L.S.Eve.Label">Nombre de la cuenta elegida</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SetLabel">Poner nombre</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.FetchNames">Obtener nombres que faltan</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.FetchNote">Busca en los servidores públicos de EVE (ESI) los personajes que solo aparecen con su número. Solo envía los números y no requiere iniciar sesión.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.FetchNote">Busca en los servidores públicos de EVE (ESI) los personajes que solo aparecen con su número. Solo envía los números y no requiere iniciar sesión. Los nombres que encuentra se guardan, así que no se vuelven a buscar.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedSource">Elige el perfil de origen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedTargets">Marca al menos un perfil de destino.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SameProfile">El perfil de origen no puede ser también el de destino.</sys:String> <!-- draft -->

@@ -1800,7 +1800,7 @@
     <sys:String x:Key="L.S.Eve.Label">選択したアカウントの名前</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SetLabel">名前を設定</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.FetchNames">不足している名前を取得</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.FetchNote">番号だけで表示されているキャラクターを EVE の公開サーバー（ESI）で調べます。送信するのは番号のみで、ログインは不要です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.FetchNote">番号だけで表示されているキャラクターを EVE の公開サーバー（ESI）で調べます。送信するのは番号のみで、ログインは不要です。見つかった名前は保存されるため、再度調べることはありません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedSource">コピー元のプロファイルを選んでください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedTargets">コピー先のプロファイルを 1 つ以上チェックしてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SameProfile">コピー元のプロファイルをコピー先にもすることはできません。</sys:String> <!-- draft -->

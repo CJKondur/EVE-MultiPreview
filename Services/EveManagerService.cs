@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
 
@@ -454,6 +455,29 @@ public sealed class EveManagerService
         }
 
         return nameMap;
+    }
+
+    /// <summary>Keeps names a lookup found in the settings' name cache (EveManager.CharNameCache, the store the AHK app
+    /// used too), so LoadCharNameCache seeds them next time instead of asking ESI again (IDEAS P33). Returns how many
+    /// entries were added or changed.</summary>
+    public static int RememberNames(AppSettings s, IReadOnlyDictionary<string, string> found, DateTime when)
+    {
+        int changed = 0;
+        foreach (var (id, name) in found)
+        {
+            if (string.IsNullOrWhiteSpace(name)) continue;
+            s.EveManager ??= new AhkEveManager();
+            s.EveManager.CharNameCache ??= new Dictionary<string, AhkCharCacheEntry>();
+            if (s.EveManager.CharNameCache.TryGetValue(id, out var known) && known.Name == name) continue;
+            s.EveManager.CharNameCache[id] = new AhkCharCacheEntry
+            {
+                Name = name,
+                Fetched = when.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                Method = "ESI",
+            };
+            changed++;
+        }
+        return changed;
     }
 
     // ── ESI Name Resolution ──────────────────────────────────────

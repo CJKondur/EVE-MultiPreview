@@ -1799,7 +1799,7 @@
     <sys:String x:Key="L.S.Eve.Label">Name für den gewählten Account</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SetLabel">Name setzen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.FetchNames">Fehlende Namen abrufen</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.FetchNote">Fragt Charaktere, die nur als Nummer erscheinen, bei den öffentlichen EVE-Servern (ESI) ab. Es werden nur die Nummern gesendet, eine Anmeldung ist nicht nötig.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.FetchNote">Fragt Charaktere, die nur als Nummer erscheinen, bei den öffentlichen EVE-Servern (ESI) ab. Es werden nur die Nummern gesendet, eine Anmeldung ist nicht nötig. Gefundene Namen werden gespeichert und nicht erneut abgefragt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedSource">Wähle das Profil, von dem kopiert wird.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedTargets">Markiere mindestens ein Profil, in das kopiert wird.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SameProfile">Das Profil, von dem du kopierst, kann nicht zugleich das Ziel sein.</sys:String> <!-- draft -->

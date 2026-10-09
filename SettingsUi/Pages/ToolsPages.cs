@@ -129,7 +129,7 @@ public static class ToolsPages
             {
                 SearchLabelKey = "L.S.Eve.SearchLabel",
                 // The folders, account names and the character-account links are written by its buttons. EveManager
-                // (the saved character-name cache) is read for names, never written, as the old panel did.
+                // (the saved character-name cache) is read for names, and keeps names fetched from ESI (IDEAS P33).
                 Binds = new[]
                 {
                     "AppSettings.EveSettingsDir", "AppSettings.EveBackupDir", "AppSettings.AccountLabels",

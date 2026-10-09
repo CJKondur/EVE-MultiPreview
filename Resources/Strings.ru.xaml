@@ -1819,7 +1819,7 @@
     <sys:String x:Key="L.S.Eve.Label">Имя для выбранного аккаунта</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SetLabel">Задать имя</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.FetchNames">Получить недостающие имена</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Eve.FetchNote">Запрашивает персонажей, показанных только номером, на публичных серверах EVE (ESI). Отправляются только номера, вход не нужен.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Eve.FetchNote">Запрашивает персонажей, показанных только номером, на публичных серверах EVE (ESI). Отправляются только номера, вход не нужен. Найденные имена сохраняются, поэтому повторно их запрашивать не нужно.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedSource">Выберите профиль, из которого копировать.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.NeedTargets">Отметьте хотя бы один профиль, в который копировать.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Eve.SameProfile">Профиль-источник не может быть и целью копирования.</sys:String> <!-- draft -->

@@ -1799,7 +1799,7 @@
     <sys:String x:Key="L.S.Eve.Label">Name for the chosen account</sys:String>
     <sys:String x:Key="L.S.Eve.SetLabel">Set name</sys:String>
     <sys:String x:Key="L.S.Eve.FetchNames">Fetch missing names</sys:String>
-    <sys:String x:Key="L.S.Eve.FetchNote">Looks up characters shown only by number on EVE's public servers (ESI). It sends only the numbers and needs no login.</sys:String>
+    <sys:String x:Key="L.S.Eve.FetchNote">Looks up characters shown only by number on EVE's public servers (ESI). It sends only the numbers and needs no login. Names it finds are kept, so they aren't looked up again.</sys:String>
     <sys:String x:Key="L.S.Eve.NeedSource">Choose the profile to copy from.</sys:String>
     <sys:String x:Key="L.S.Eve.NeedTargets">Tick at least one profile to copy to.</sys:String>
     <sys:String x:Key="L.S.Eve.SameProfile">The profile you copy from can't also be the one you copy to.</sys:String>
