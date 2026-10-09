@@ -18,7 +18,7 @@ public static class HomePage
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
         new HelpTopic(Id, "clients", new[] { "home.tiles" }),
-        new HelpTopic(Id, "switching", new[] { "home.next", "home.previous" }),
+        new HelpTopic(Id, "switching", new[] { "home.groupKeys", "home.next", "home.previous" }),
         new HelpTopic(Id, "thumbnails", new[] { "home.size", "home.opacity", "home.monitor" }),
         new HelpTopic(Id, "alerts", new[] { "home.alertAttack", "home.alertScram", "home.alertDecloak", "home.alertFleet", "home.alertSound" }),
         new HelpTopic(Id, "quick", new[] { "home.quickActions", "home.startWithWindows", "home.showAllRow" }),
@@ -53,6 +53,11 @@ public static class HomePage
         }),
         new SectionDef("home.switching", new PageItem[]
         {
+            new EditorItem("home.groupKeys", ctx => new HomeGroupKeysEditor(ctx))
+            {
+                Binds = new[] { "Profile.HotkeyGroups" },
+                ShowIf = s => s.HotkeyGroups.Count > 0,
+            },
             Simple(Setting.Hotkey("home.next", s => s.GlobalCycleForwardHotkey)),
             Simple(Setting.Hotkey("home.previous", s => s.GlobalCycleBackwardHotkey)),
         }),

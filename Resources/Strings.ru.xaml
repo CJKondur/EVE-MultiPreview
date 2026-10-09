@@ -1039,9 +1039,9 @@
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">Показывать, какая зажатая клавиша передаётся</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">Небольшая плашка на экране. Перетащите её, куда удобно.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">Переключение между клиентами</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Следующий клиент</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Следующий клиент, все запущенные клиенты</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">Переключает на следующий запущенный клиент независимо от группы.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Предыдущий клиент</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Предыдущий клиент, все запущенные клиенты</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld">Продолжать переключение, пока клавиша удерживается</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld.Desc">Выкл.: каждое нажатие переключает ровно один клиент.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay">Интервал между переключениями при удержании</sys:String> <!-- draft -->
@@ -1191,10 +1191,13 @@
     <sys:String x:Key="L.S.home.empty">Нет запущенных клиентов EVE</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.empty.Desc">Запустите EVE и войдите: каждый персонаж получит здесь плитку с горячей клавишей и переключателем миниатюры.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Home.Show">Миниатюра</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Home.GroupRow">{0} · клиентов: {1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.switching">Переключение</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next">Следующий клиент</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next.Desc">Переключает на следующий запущенный клиент. У каждой плитки выше тоже может быть своя клавиша.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.previous">Предыдущий клиент</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys">Клавиши групп</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys.Desc">Каждая группа в этом профиле переключает только своих участников.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next">Следующий клиент, все запущенные клиенты</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next.Desc">Обходит все запущенные клиенты, независимо от группы. У каждой плитки выше тоже может быть своя клавиша.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.previous">Предыдущий клиент, все запущенные клиенты</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">Миниатюры</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">Размер миниатюр</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">Ширина каждой миниатюры; высота подстраивается в пропорции 16:9. Потяните за край миниатюры, чтобы изменить размер только её.</sys:String> <!-- draft -->
@@ -1227,7 +1230,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">Ваши клиенты</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">У каждого запущенного персонажа есть плитка. Нажмите на её клавишу, чтобы записать горячую клавишу для прямого переключения на него, а переключателем скройте или покажите его миниатюру. **›** открывает все настройки этого персонажа.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">Переключение клиентов</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**Следующий клиент** и **Предыдущий клиент** обходят все запущенные клиенты. Удерживайте клавишу, чтобы продолжать. Для флота или команды майнеров у групп есть свои клавиши (Клиенты › Группы).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">**Клавиши групп** переключают участников одной группы в её порядке: задайте их здесь или в разделе Клиенты › Группы.&#x0A;**Следующий клиент** и **Предыдущий клиент, все запущенные клиенты** обходят все запущенные клиенты. Удерживайте клавишу, чтобы продолжать.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">Миниатюры</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**Размер миниатюр** задаётся для всех сразу и сохраняет пропорции 16:9. Перетащите миниатюру, чтобы переместить её, или потяните за край, чтобы изменить размер только её.&#x0A;&#x0A;**Непрозрачность** позволяет игре просвечивать. Другие варианты есть в разделе «Миниатюры» во всех настройках.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">Боевые оповещения</sys:String> <!-- draft -->

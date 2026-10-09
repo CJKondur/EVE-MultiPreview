@@ -1037,9 +1037,9 @@
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">显示正在带过去的按键</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">屏幕上的一个小标签。可以拖到任意位置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">在客户端之间切换</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">下一个客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">下一个客户端，所有正在运行的客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">切换到下一个正在运行的客户端，不论其分组。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">上一个客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">上一个客户端，所有正在运行的客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld">按住按键时持续切换</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld.Desc">关闭：每次按键只切换一个客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay">按住时两次切换的间隔</sys:String> <!-- draft -->
@@ -1189,10 +1189,13 @@
     <sys:String x:Key="L.S.home.empty">没有正在运行的 EVE 客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.empty.Desc">启动 EVE 并登录：每个角色会在此显示一个磁贴，包含其热键和缩略图开关。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Home.Show">缩略图</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Home.GroupRow">{0} · {1} 个客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.switching">切换</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next">下一个客户端</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next.Desc">切换到下一个正在运行的客户端。上方每个磁贴也可以设置各自的按键。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.previous">上一个客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys">分组按键</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys.Desc">此配置文件中的每个分组都会在自己的成员之间切换。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next">下一个客户端，所有正在运行的客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next.Desc">会遍历所有正在运行的客户端，不论属于哪个分组。上方每个磁贴也可以设置各自的按键。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.previous">上一个客户端，所有正在运行的客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">缩略图大小</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">每个缩略图的宽度；高度按 16:9 自动调整。拖动某个缩略图的边缘可单独调整它的大小。</sys:String> <!-- draft -->
@@ -1225,7 +1228,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">你的客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">每个正在运行的角色都有一个磁贴。点击其按键可录制直接切换到该角色的热键，并用开关隐藏或显示其缩略图。**›** 会打开该角色的所有设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">切换客户端</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**下一个客户端** 和 **上一个客户端** 会遍历所有正在运行的客户端。按住按键可持续切换。对于舰队或采矿小队，分组有各自的按键（客户端 › 分组）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">**分组按键** 会按分组自己的顺序在该组成员之间切换：可在此处设置，也可在 客户端 › 分组 中设置。&#x0A;**下一个客户端** 和 **上一个客户端，所有正在运行的客户端** 会遍历所有正在运行的客户端。按住按键可持续切换。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**缩略图大小** 一次设置所有缩略图并保持 16:9 比例。拖动缩略图可移动它，拖动其边缘可单独调整它的大小。&#x0A;&#x0A;**不透明度** 让游戏画面透出来。更多外观选项在所有设置的“缩略图”下。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">战斗警报</sys:String> <!-- draft -->

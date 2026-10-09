@@ -1022,9 +1022,9 @@
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">Afficher quelle touche maintenue est transmise</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">Une petite pastille à l'écran. Déplacez-la où vous voulez.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">Changer de client</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Client suivant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Client suivant, tous les clients en cours d'exécution</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">Passe au client en cours suivant, quel que soit son groupe.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Client précédent</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Client précédent, tous les clients en cours d'exécution</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld">Continuer à changer tant que la touche est maintenue</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld.Desc">Désactivé : chaque pression change d'un seul client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay">Délai entre les changements en maintenant la touche</sys:String> <!-- draft -->
@@ -1174,10 +1174,13 @@
     <sys:String x:Key="L.S.home.empty">Aucun client EVE n'est lancé</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.empty.Desc">Lancez EVE et connectez-vous : chaque personnage obtient ici une tuile avec son raccourci et un interrupteur de miniature.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Home.Show">Miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Home.GroupRow">{0} · {1} clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.switching">Changement de client</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next">Client suivant</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next.Desc">Passe au client suivant en cours d'exécution. Chaque tuile ci-dessus peut aussi avoir sa propre touche.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.previous">Client précédent</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys">Touches de groupe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys.Desc">Chaque groupe de ce profil passe d'un de ses membres à l'autre.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next">Client suivant, tous les clients en cours d'exécution</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next.Desc">Parcourt tous les clients en cours d'exécution, quel que soit leur groupe. Chaque tuile ci-dessus peut aussi avoir sa propre touche.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.previous">Client précédent, tous les clients en cours d'exécution</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">Miniatures</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">Taille des miniatures</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">Largeur de chaque miniature ; la hauteur suit en 16:9. Faites glisser le bord d'une miniature pour la redimensionner seule.</sys:String> <!-- draft -->
@@ -1210,7 +1213,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">Vos clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">Chaque personnage en cours d'exécution a une tuile. Cliquez sur sa touche pour enregistrer un raccourci qui bascule directement vers lui, et utilisez l'interrupteur pour masquer ou afficher sa miniature. **›** ouvre tous les réglages de ce personnage.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">Changer de client</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**Client suivant** et **Client précédent** parcourent tous vos clients en cours d'exécution. Maintenez la touche pour continuer. Pour une flotte ou une équipe de minage, les groupes ont leurs propres touches (Clients › Groupes).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">Les **touches de groupe** parcourent les membres d'un groupe, dans son ordre : définissez-les ici ou sous Clients › Groupes.&#x0A;**Client suivant** et **Client précédent, tous les clients en cours d'exécution** parcourent tous les clients en cours d'exécution. Maintenez une touche pour continuer.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">Miniatures</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**Taille des miniatures** règle toutes les miniatures d'un coup en gardant le format 16:9. Faites glisser une miniature pour la déplacer, ou son bord pour redimensionner celle-là seule.&#x0A;&#x0A;**Opacité** laisse transparaître le jeu. D'autres options sont sous Miniatures dans tous les réglages.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">Alertes de combat</sys:String> <!-- draft -->

@@ -178,15 +178,7 @@ public sealed class GroupsEditor : System.Windows.Controls.UserControl, IRefresh
 
     private void CaptureKey(MergedGroup g, bool next)
     {
-        var id = next ? HotkeyUses.GroupNextId(g.Name) : HotkeyUses.GroupPreviousId(g.Name);
-        var key = _ctx.Host.CaptureHotkey(id, next ? g.NextKey : g.PreviousKey);
-        if (key == null) return;
-        if (!MergedGroups.SetKey(_ctx.S, g, next, key))
-        {
-            _ctx.Host.Toast(string.Format(Str("L.S.Groups.DuplicateName"), g.Name));
-            return;
-        }
-        Changed(ApplyScope.Save);
+        if (GroupKeys.Capture(_ctx, g, next)) Refresh();
     }
 
     private void AddMember(MergedGroup g)

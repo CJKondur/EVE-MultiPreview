@@ -1020,9 +1020,9 @@
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">引き継いでいるキーを表示する</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">画面上の小さなラベルです。好きな場所にドラッグできます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">クライアント間の切り替え</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">次のクライアント</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">次のクライアント、起動中のすべてのクライアント</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">グループに関係なく、次の起動中のクライアントに切り替えます。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">前のクライアント</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">前のクライアント、起動中のすべてのクライアント</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld">キーを押している間は切り替え続ける</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld.Desc">オフ: 1 回押すごとにちょうど 1 つのクライアントに切り替わります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay">押している間の切り替え間隔</sys:String> <!-- draft -->
@@ -1172,10 +1172,13 @@
     <sys:String x:Key="L.S.home.empty">EVE クライアントが起動していません</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.empty.Desc">EVE を起動してログインすると、キャラクターごとにホットキーとサムネイルのスイッチ付きのタイルがここに表示されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Home.Show">サムネイル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Home.GroupRow">{0} · クライアント {1} 件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.switching">切り替え</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next">次のクライアント</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next.Desc">次に起動中のクライアントへ切り替えます。上の各タイルにも個別のキーを設定できます。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.previous">前のクライアント</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys">グループキー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys.Desc">このプロファイルの各グループは、それぞれのメンバーの間で切り替えます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next">次のクライアント、起動中のすべてのクライアント</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next.Desc">グループに関係なく、起動中のすべてのクライアントを順に切り替えます。上の各タイルにも個別のキーを設定できます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.previous">前のクライアント、起動中のすべてのクライアント</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">サムネイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">サムネイルのサイズ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">すべてのサムネイルの幅です。高さは 16:9 で自動的に決まります。サムネイルの端をドラッグすると、そのサムネイルだけサイズを変えられます。</sys:String> <!-- draft -->
@@ -1208,7 +1211,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">あなたのクライアント</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">起動中のキャラクターごとにタイルが表示されます。キーをクリックすると、そのキャラクターへ直接切り替えるホットキーを記録でき、スイッチでサムネイルの表示と非表示を切り替えられます。**›** でそのキャラクターのすべての設定を開きます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">クライアントの切り替え</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**次のクライアント** と **前のクライアント** は、起動中のすべてのクライアントを順に切り替えます。キーを押し続けると切り替えが続きます。艦隊やマイニングのクルーには、グループごとのキーがあります（クライアント › グループ）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">**グループキー** は、グループのメンバーをその順番で切り替えます。ここか、クライアント › グループで設定できます。&#x0A;**次のクライアント** と **前のクライアント、起動中のすべてのクライアント** は、起動中のすべてのクライアントを順に切り替えます。キーを押し続けると切り替えが続きます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">サムネイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**サムネイルのサイズ** はすべてのサムネイルを一度に設定し、16:9 の形を保ちます。サムネイルをドラッグすると移動でき、端をドラッグするとそのサムネイルだけサイズを変えられます。&#x0A;&#x0A;**不透明度** でゲーム画面が透けて見えます。ほかの見た目の設定は、すべての設定の「サムネイル」にあります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">戦闘アラート</sys:String> <!-- draft -->

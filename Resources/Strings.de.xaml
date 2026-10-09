@@ -1019,9 +1019,9 @@
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">Anzeigen, welche gehaltene Taste mitgenommen wird</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">Eine kleine Anzeige auf dem Bildschirm. Zieh sie, wohin du willst.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">Zwischen Clients wechseln</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Nächster Client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Nächster Client, alle laufenden Clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">Wechselt zum nächsten laufenden Client, egal in welcher Gruppe.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Vorheriger Client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Vorheriger Client, alle laufenden Clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld">Weiterwechseln, solange die Taste gehalten wird</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld.Desc">Aus: Jeder Tastendruck wechselt genau einen Client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay">Zeit zwischen Wechseln bei gehaltener Taste</sys:String> <!-- draft -->
@@ -1171,10 +1171,13 @@
     <sys:String x:Key="L.S.home.empty">Es läuft kein EVE-Client</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.empty.Desc">Starte EVE und melde dich an: Jeder Charakter bekommt hier eine Kachel mit Hotkey und Vorschau-Schalter.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Home.Show">Vorschau</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Home.GroupRow">{0} · {1} Clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.switching">Wechseln</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next">Nächster Client</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next.Desc">Wechselt zum nächsten laufenden Client. Jede Kachel oben kann auch eine eigene Taste haben.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.previous">Vorheriger Client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys">Gruppentasten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys.Desc">Jede Gruppe in diesem Profil schaltet durch ihre eigenen Mitglieder.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next">Nächster Client, alle laufenden Clients</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next.Desc">Geht durch jeden laufenden Client, egal in welcher Gruppe. Jede Kachel oben kann auch eine eigene Taste haben.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.previous">Vorheriger Client, alle laufenden Clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">Vorschaubilder</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">Größe der Vorschau</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">Breite jeder Vorschau; die Höhe folgt im Format 16:9. Zieh am Rand einer Vorschau, um nur sie anzupassen.</sys:String> <!-- draft -->
@@ -1207,7 +1210,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">Deine Clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">Jeder laufende Charakter bekommt eine Kachel. Klick auf die Taste, um einen Hotkey aufzunehmen, der direkt zu ihm wechselt, und blende die Vorschau mit dem Schalter aus oder ein. **›** öffnet alle Einstellungen dieses Charakters.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">Clients wechseln</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**Nächster Client** und **Vorheriger Client** gehen durch alle laufenden Clients. Halte die Taste, um weiterzuschalten. Für eine Flotte oder eine Mining-Crew haben Gruppen eigene Tasten (Clients › Gruppen).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">**Gruppentasten** schalten durch die Mitglieder einer Gruppe, in deren Reihenfolge: Stelle sie hier oder unter Clients › Gruppen ein.&#x0A;**Nächster Client** und **Vorheriger Client, alle laufenden Clients** gehen durch alle laufenden Clients. Halte eine Taste, um weiterzuschalten.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">Vorschaubilder</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**Größe der Vorschau** stellt alle Vorschaubilder auf einmal ein und behält das Format 16:9. Zieh eine Vorschau, um sie zu verschieben, oder zieh an ihrem Rand, um nur sie anzupassen.&#x0A;&#x0A;**Deckkraft** lässt das Spiel durchscheinen. Mehr Optionen findest du unter Vorschaubilder in allen Einstellungen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">Kampfwarnungen</sys:String> <!-- draft -->

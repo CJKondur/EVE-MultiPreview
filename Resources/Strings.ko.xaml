@@ -1020,9 +1020,9 @@
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">넘겨지는 키 표시하기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">화면에 표시되는 작은 알약 모양 표시입니다. 원하는 곳으로 끌어 놓으세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">클라이언트 간 전환</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">다음 클라이언트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">다음 클라이언트, 실행 중인 모든 클라이언트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">그룹과 관계없이 실행 중인 다음 클라이언트로 전환합니다.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">이전 클라이언트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">이전 클라이언트, 실행 중인 모든 클라이언트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld">키를 누르고 있는 동안 계속 전환</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld.Desc">꺼짐: 한 번 누를 때마다 정확히 한 클라이언트만 전환합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay">누르고 있을 때 전환 간격</sys:String> <!-- draft -->
@@ -1172,10 +1172,13 @@
     <sys:String x:Key="L.S.home.empty">실행 중인 EVE 클라이언트가 없습니다</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.empty.Desc">EVE를 실행하고 로그인하세요. 캐릭터마다 단축키와 미리보기 스위치가 있는 타일이 여기에 표시됩니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Home.Show">미리보기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Home.GroupRow">{0} · 클라이언트 {1}개</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.switching">전환</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next">다음 클라이언트</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next.Desc">실행 중인 다음 클라이언트로 전환합니다. 위의 각 타일에도 개별 키를 지정할 수 있습니다.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.previous">이전 클라이언트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys">그룹 키</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys.Desc">이 프로필의 각 그룹은 자기 구성원끼리 전환합니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next">다음 클라이언트, 실행 중인 모든 클라이언트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next.Desc">그룹과 관계없이 실행 중인 모든 클라이언트를 차례로 전환합니다. 위의 각 타일에도 개별 키를 지정할 수 있습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.previous">이전 클라이언트, 실행 중인 모든 클라이언트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">미리보기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">미리보기 크기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">모든 미리보기의 너비입니다. 높이는 16:9로 따라갑니다. 미리보기의 가장자리를 드래그하면 그 미리보기만 크기를 바꿀 수 있습니다.</sys:String> <!-- draft -->
@@ -1208,7 +1211,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">내 클라이언트</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">실행 중인 캐릭터마다 타일이 표시됩니다. 키를 클릭하면 해당 캐릭터로 바로 전환하는 단축키를 기록할 수 있고, 스위치로 미리보기를 숨기거나 표시할 수 있습니다. **›** 는 그 캐릭터의 모든 설정을 엽니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">클라이언트 전환</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**다음 클라이언트** 와 **이전 클라이언트** 는 실행 중인 모든 클라이언트를 차례로 전환합니다. 키를 누르고 있으면 계속 전환됩니다. 함대나 채굴 팀에는 그룹별 키가 있습니다(클라이언트 › 그룹).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">**그룹 키** 는 한 그룹의 구성원을 그 순서대로 전환합니다. 여기서 또는 클라이언트 › 그룹에서 설정하세요.&#x0A;**다음 클라이언트** 와 **이전 클라이언트, 실행 중인 모든 클라이언트** 는 실행 중인 모든 클라이언트를 차례로 전환합니다. 키를 누르고 있으면 계속 전환됩니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">미리보기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**미리보기 크기** 는 모든 미리보기를 한 번에 설정하고 16:9 비율을 유지합니다. 미리보기를 드래그하면 이동하고, 가장자리를 드래그하면 그 미리보기만 크기를 바꿉니다.&#x0A;&#x0A;**불투명도** 는 게임 화면이 비쳐 보이게 합니다. 더 많은 옵션은 모든 설정의 미리보기에 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">전투 알림</sys:String> <!-- draft -->

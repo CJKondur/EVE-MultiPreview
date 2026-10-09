@@ -1041,9 +1041,9 @@
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">Mostrar qué tecla pulsada se está pasando</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">Una pequeña píldora en pantalla. Arrástrala donde quieras.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">Cambio entre clientes</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Cliente siguiente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Cliente siguiente, todos los clientes en ejecución</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">Cambia al siguiente cliente en ejecución, sea cual sea su grupo.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Cliente anterior</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Cliente anterior, todos los clientes en ejecución</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld">Seguir cambiando mientras se mantiene la tecla</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld.Desc">Desactivado: cada pulsación cambia exactamente un cliente.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay">Tiempo entre cambios al mantener la tecla</sys:String> <!-- draft -->
@@ -1193,10 +1193,13 @@
     <sys:String x:Key="L.S.home.empty">No hay clientes de EVE en ejecución</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.empty.Desc">Inicia EVE y entra: cada personaje tiene aquí un mosaico con su atajo y un interruptor de miniatura.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Home.Show">Miniatura</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Home.GroupRow">{0} · {1} clientes</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.switching">Cambio de cliente</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next">Cliente siguiente</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.next.Desc">Cambia al siguiente cliente en ejecución. Cada mosaico de arriba también puede tener su propia tecla.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.home.previous">Cliente anterior</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys">Teclas de grupo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.groupKeys.Desc">Cada grupo de este perfil cambia entre sus propios miembros.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next">Cliente siguiente, todos los clientes en ejecución</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.next.Desc">Recorre todos los clientes en ejecución, sea cual sea su grupo. Cada mosaico de arriba también puede tener su propia tecla.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.home.previous">Cliente anterior, todos los clientes en ejecución</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.home.thumbnails">Miniaturas</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size">Tamaño de miniatura</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.home.size.Desc">Ancho de cada miniatura; el alto sigue en 16:9. Arrastra el borde de una miniatura para cambiar solo esa.</sys:String> <!-- draft -->
@@ -1229,7 +1232,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">Tus clientes</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.clients.Body">Cada personaje en ejecución tiene un mosaico. Haz clic en su tecla para grabar un atajo que cambia directamente a él, y usa el interruptor para ocultar o mostrar su miniatura. **›** abre todos los ajustes de ese personaje.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.switching.Title">Cambiar de cliente</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.home.switching.Body">**Cliente siguiente** y **Cliente anterior** recorren todos tus clientes en ejecución. Mantén la tecla para seguir. Para una flota o un equipo de minería, los grupos tienen sus propias teclas (Clientes › Grupos).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.home.switching.Body">Las **teclas de grupo** recorren los miembros de un grupo, en su orden: configúralas aquí o en Clientes › Grupos.&#x0A;**Cliente siguiente** y **Cliente anterior, todos los clientes en ejecución** recorren todos los clientes en ejecución. Mantén una tecla para seguir.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Title">Miniaturas</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.thumbnails.Body">**Tamaño de miniatura** ajusta todas las miniaturas a la vez y mantiene el formato 16:9. Arrastra una miniatura para moverla, o su borde para cambiar solo esa.&#x0A;&#x0A;**Opacidad** deja ver el juego. Hay más opciones en Miniaturas, en todos los ajustes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.home.alerts.Title">Alertas de combate</sys:String> <!-- draft -->

@@ -1016,9 +1016,9 @@
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">Show which held key is carried</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">A small on-screen pill. Drag it where you like.</sys:String>
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">Switching between clients</sys:String>
-    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Next client</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Next client, all running clients</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">Switches to the next running client, whatever its group.</sys:String>
-    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Previous client</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.cyclePrevious">Previous client, all running clients</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld">Keep switching while the key is held</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.cycleWhileHeld.Desc">Off: each press switches exactly one client.</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay">Time between switches while held</sys:String>
@@ -1171,10 +1171,13 @@
     <sys:String x:Key="L.S.home.empty">No EVE clients are running</sys:String>
     <sys:String x:Key="L.S.home.empty.Desc">Start EVE and log in: each character gets a tile here, with its hotkey and a thumbnail switch.</sys:String>
     <sys:String x:Key="L.S.Home.Show">Thumbnail</sys:String>
+    <sys:String x:Key="L.S.Home.GroupRow">{0} · {1} clients</sys:String>
     <sys:String x:Key="L.S.Sec.home.switching">Switching</sys:String>
-    <sys:String x:Key="L.S.home.next">Next client</sys:String>
-    <sys:String x:Key="L.S.home.next.Desc">Switches to the next running client. Each tile above can have its own key too.</sys:String>
-    <sys:String x:Key="L.S.home.previous">Previous client</sys:String>
+    <sys:String x:Key="L.S.home.groupKeys">Group keys</sys:String>
+    <sys:String x:Key="L.S.home.groupKeys.Desc">Each group in this profile switches through its own members.</sys:String>
+    <sys:String x:Key="L.S.home.next">Next client, all running clients</sys:String>
+    <sys:String x:Key="L.S.home.next.Desc">Goes through every running client, whatever its group. Each tile above can have its own key too.</sys:String>
+    <sys:String x:Key="L.S.home.previous">Previous client, all running clients</sys:String>
     <sys:String x:Key="L.S.Sec.home.thumbnails">Thumbnails</sys:String>
     <sys:String x:Key="L.S.home.size">Thumbnail size</sys:String>
     <sys:String x:Key="L.S.home.size.Desc">Width of every thumbnail; the height follows at 16:9. Drag a thumbnail's edge to size one on its own.</sys:String>
@@ -1207,7 +1210,7 @@
     <sys:String x:Key="L.Help.home.clients.Title">Your clients</sys:String>
     <sys:String x:Key="L.Help.home.clients.Body">Each running character gets a tile. Click its key to record a hotkey that switches straight to it, and use the switch to hide or show its thumbnail. **›** opens every setting for that character.</sys:String>
     <sys:String x:Key="L.Help.home.switching.Title">Switching clients</sys:String>
-    <sys:String x:Key="L.Help.home.switching.Body">**Next client** and **Previous client** go through all your running clients. Hold the key to keep going. For a fleet or a mining crew, groups have their own keys (Clients › Groups).</sys:String>
+    <sys:String x:Key="L.Help.home.switching.Body">**Group keys** switch through one group's members, in its order: set them here or under Clients › Groups.&#x0A;**Next client** and **Previous client, all running clients** go through every running client. Hold a key to keep going.</sys:String>
     <sys:String x:Key="L.Help.home.thumbnails.Title">Thumbnails</sys:String>
     <sys:String x:Key="L.Help.home.thumbnails.Body">**Thumbnail size** sets every thumbnail at once and keeps a 16:9 shape. Drag a thumbnail to move it, or drag its edge to size just that one.&#x0A;&#x0A;**Opacity** lets the game show through. More looks are under Thumbnails in all settings.</sys:String>
     <sys:String x:Key="L.Help.home.alerts.Title">Combat alerts</sys:String>
