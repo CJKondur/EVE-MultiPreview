@@ -55,23 +55,33 @@ public static class CharacterFields
     /// <summary>The old window's colours for a new entry (P2:52): active border, text, inactive border.</summary>
     public const string DefaultBorder = "0xe36a0d", DefaultText = "0xfac57a", DefaultInactive = "0x505050";
 
-    public enum ColorPart { Border, Inactive }
+    public enum ColorPart { Border, Inactive, Text }
 
+    /// <summary>The colour a card shows. Text: the one the thumbnail paints, the profile's text colour until one is chosen
+    /// (ThumbnailManager.TextColourFor).</summary>
     public static string Color(AppSettings s, string name, ColorPart part)
     {
-        if (!s.CustomColors.TryGetValue(name, out var e))
-            return part == ColorPart.Border ? DefaultBorder : DefaultInactive;
-        return part == ColorPart.Border ? e.Border : e.InactiveBorder;
+        s.CustomColors.TryGetValue(name, out var e);
+        return part switch
+        {
+            ColorPart.Border => e?.Border ?? DefaultBorder,
+            ColorPart.Inactive => e?.InactiveBorder ?? DefaultInactive,
+            _ => e != null && CustomColorEntry.HasOwnText(e.Text) ? e.Text : s.ThumbnailTextColor,
+        };
     }
 
-    /// <summary>The first edit makes the entry, seeded with the old defaults for the other two.</summary>
+    /// <summary>The first edit makes the entry, seeded with the old defaults for the other two. A text colour is kept as
+    /// picked (#RRGGBB): the seed 0xfac57a means "none chosen", so a chosen #FAC57A must stay apart from it.</summary>
     public static void SetColor(AppSettings s, string name, ColorPart part, string color)
     {
         if (!s.CustomColors.TryGetValue(name, out var e))
             s.CustomColors[name] = e = new CustomColorEntry { Char = name, Border = DefaultBorder, Text = DefaultText, InactiveBorder = DefaultInactive };
-        color = Normalize(color);
-        if (part == ColorPart.Border) e.Border = color;
-        else e.InactiveBorder = color;
+        switch (part)
+        {
+            case ColorPart.Border: e.Border = Normalize(color); break;
+            case ColorPart.Inactive: e.InactiveBorder = Normalize(color); break;
+            default: e.Text = color.Trim(); break;
+        }
     }
 
     // ── Second thumbnail (Profile.SecondaryThumbnails) ──

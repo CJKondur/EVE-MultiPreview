@@ -902,7 +902,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">„{0}“ steht schon in der Liste.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Farben</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">Farben pro Charakter verwenden</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Rahmenfarben jedes Charakters, eingestellt auf seiner Seite. Aus: Alle Charaktere nutzen die Farben der Vorschaubilder.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Rahmen- und Textfarben jedes Charakters, eingestellt auf seiner Seite. Aus: Alle Charaktere nutzen die Farben der Vorschaubilder.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Klick auf Vorschaubilder</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Strg+Klick auf ein Vorschaubild</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">Umschalt+Klick auf ein Vorschaubild</sys:String> <!-- draft -->
@@ -913,7 +913,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">Die Charakterliste</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Hotkey** wechselt direkt zu diesem Charakter. Klicke darauf, um eine Taste aufzunehmen.&#x0A;- **Anzeigen** blendet sein Vorschaubild ein oder aus.&#x0A;- **Wechsel** nimmt ihn bis zum Neustart von MultiPreview aus den Tasten für nächsten und vorherigen Client heraus.&#x0A;- **›** öffnet die eigene Seite des Charakters.&#x0A;&#x0A;Zwei Charaktere können sich einen Hotkey teilen: Er wechselt dann zwischen ihnen.&#x0A;&#x0A;**Alle laufenden Clients hinzufügen** behält deine laufenden Charaktere in der Liste, auch nach dem Abmelden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Klick auf Vorschaubilder</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Ein einfacher Klick wechselt zu diesem Client. **Strg+Klick** und **Umschalt+Klick** können ihn stattdessen minimieren oder beim Wechseln überspringen. Strg ist auch die Ziel-sperren-Taste von EVE, wähle also, was zu deinem Spielstil passt.&#x0A;&#x0A;**Farben pro Charakter verwenden** aktiviert die Rahmenfarben, die du auf der Seite jedes Charakters festlegst.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Ein einfacher Klick wechselt zu diesem Client. **Strg+Klick** und **Umschalt+Klick** können ihn stattdessen minimieren oder beim Wechseln überspringen. Strg ist auch die Ziel-sperren-Taste von EVE, wähle also, was zu deinem Spielstil passt.&#x0A;&#x0A;**Farben pro Charakter verwenden** aktiviert die Rahmen- und Textfarben, die du auf der Seite jedes Charakters festlegst.</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Charakter</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">Alles, was MultiPreview zu diesem Charakter speichert, an einem Ort.</sys:String> <!-- draft -->
@@ -956,7 +956,7 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">Vorschau dieses Charakters</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Beschriftung** fügt deinen eigenen Text hinzu, z. B. Scout. Farbe und Größe können vom übrigen Text abweichen.&#x0A;- **Eigene Größe** gibt dieser Vorschau eine eigene Breite und Höhe. Der Charakter muss in diesem Profil einmal angemeldet gewesen sein.&#x0A;- **Zweite Vorschau** fügt eine separate Bild-in-Bild-Ansicht desselben Clients hinzu.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">Farben</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">Diese Rahmenfarben gelten nur, solange **Farben pro Charakter verwenden** für das Profil aktiv ist (Clients › Charaktere).&#x0A;&#x0A;**Farben zurücksetzen** kehrt zu den Farben zurück, die alle Charaktere verwenden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">Diese Farben gelten nur, solange **Farben pro Charakter verwenden** für das Profil aktiv ist (Clients › Charaktere).&#x0A;- Die zwei Rahmenfarben markieren das Vorschaubild dieses Charakters, je nachdem, ob es der Client ist, den du spielst, oder nicht.&#x0A;- **Textfarbe** färbt den Text auf seinem Vorschaubild. Solange du keine wählst, folgt sie Vorschaubilder › Text und Rahmen.&#x0A;&#x0A;**Farben zurücksetzen** kehrt zu den Farben zurück, die alle Charaktere verwenden.</sys:String> <!-- draft -->
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">Client-Fenster</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.neverMinimize">Nie minimieren</sys:String> <!-- draft -->
@@ -1469,7 +1469,7 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">Leer lassen für EVEs üblichen Ordner, Documents\EVE\logs\Gamelogs.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.combat">Kampf</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.pve">PVE-Modus</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPCs, die auf dich schießen oder dich scrammen, lösen keinen Alarm aus; Spieler schon. NPC-Schaden zählt weiterhin im Statistik-Overlay.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPCs, die auf dich schießen oder dich scrammen, lösen keinen Alarm aus; Spieler schon. NPC-Schaden zählt weiterhin im Statistik-Overlay, solange du das nicht ausschaltest (Werkzeuge › Statistik-Overlay).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire">Beschuss-Rahmen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">Ein Vorschaubild pulsiert rot, solange dieser Client Schaden von Spielern oder NPCs nimmt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime">Beschuss-Rahmen bleibt</sys:String> <!-- draft -->
@@ -1734,7 +1734,7 @@
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">Das Overlay</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Body">Jeder Charakter mit anzeigbaren Werten bekommt ein kleines Fenster. Mit der rechten Maustaste verschieben; zum Vergrößern zusätzlich die linke Taste drücken. **Beim Wechsel zu einer anderen App ausblenden** hält die Fenster aus dem Weg, solange du nicht in EVE bist.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.numbers.Title">Werte auswählen</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.numbers.Body">Die Werte hier gelten für jeden Charakter. Ein Charakter kann einzelne Werte oder ganze Gruppen auf seiner eigenen Seite (Clients › Charaktere › der Charakter) ein- oder ausschalten. Das Kürzel in Klammern ist das, was das Overlay schreibt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.numbers.Body">Die Werte hier gelten für jeden Charakter. Ein Charakter kann einzelne Werte oder ganze Gruppen auf seiner eigenen Seite (Clients › Charaktere › der Charakter) ein- oder ausschalten. Das Kürzel in Klammern ist das, was das Overlay schreibt.&#x0A;&#x0A;**NPC-Schaden zählen** legt fest, ob Treffer von und auf NPCs in den Schadenswerten zählen. Bleibt an, solange du es nicht ausschaltest.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Title">Aussehen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">Textgröße, Deckkraft und die beiden Farben gelten für alle Statistikfenster. Farben können als #RRGGBB eingegeben oder per Farbfeld gewählt werden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Statistik speichern</sys:String> <!-- draft -->
@@ -1904,4 +1904,8 @@
     <sys:String x:Key="L.S.thumbs.appearance.minHeight">Kleinste Höhe</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap">Abstand zwischen Vorschaubildern</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap.Desc">Der Platz, den MultiPreview zwischen Vorschaubildern lässt, die es selbst platziert: Clients ohne gespeicherten Platz und Alle Positionen zurücksetzen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc">NPC-Schaden zählen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc.Desc">Aus: Treffer von und auf NPCs bleiben aus den Schadenswerten heraus, sie zeigen also nur Kämpfe mit Spielern. ISK vom Ratting zählt weiterhin.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText">Textfarbe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText.Desc">Färbt den Text auf dem Vorschaubild dieses Charakters. Solange du keine Farbe wählst, gilt die Textfarbe aus Vorschaubilder › Text und Rahmen.</sys:String> <!-- draft -->
 </ResourceDictionary>

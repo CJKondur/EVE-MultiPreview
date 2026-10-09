@@ -922,7 +922,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">«{0}» уже есть в списке.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Цвета</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">Цвета для каждого персонажа</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Собственные цвета рамки каждого персонажа, задаются на его странице. Выкл.: все персонажи используют цвета миниатюр.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Собственные цвета рамки и текста каждого персонажа, задаются на его странице. Выкл.: все персонажи используют цвета миниатюр.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Щелчки по миниатюрам</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Ctrl+щелчок по миниатюре</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">Shift+щелчок по миниатюре</sys:String> <!-- draft -->
@@ -933,7 +933,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">Список персонажей</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Горячая клавиша** сразу переключает на этого персонажа. Нажмите на неё, чтобы записать клавишу.&#x0A;- **Показ** скрывает или показывает его миниатюру.&#x0A;- **Цикл** исключает его из клавиш следующего и предыдущего клиента до перезапуска MultiPreview.&#x0A;- **›** открывает страницу персонажа.&#x0A;&#x0A;Два персонажа могут делить одну клавишу: нажатие переключает между ними.&#x0A;&#x0A;**Добавить все запущенные клиенты** оставляет запущенных персонажей в списке и после выхода из игры.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Щелчки по миниатюрам</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Обычный щелчок переключает на этот клиент. **Ctrl+щелчок** и **Shift+щелчок** могут вместо этого свернуть его или пропустить при переключении. Ctrl также служит в EVE клавишей захвата цели, так что выбирайте то, что подходит вашему стилю игры.&#x0A;&#x0A;**Цвета для каждого персонажа** включают цвета рамки, заданные на странице каждого персонажа.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Обычный щелчок переключает на этот клиент. **Ctrl+щелчок** и **Shift+щелчок** могут вместо этого свернуть его или пропустить при переключении. Ctrl также служит в EVE клавишей захвата цели, так что выбирайте то, что подходит вашему стилю игры.&#x0A;&#x0A;**Цвета для каждого персонажа** включают цвета рамки и текста, заданные на странице каждого персонажа.</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Персонаж</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">Всё, что MultiPreview хранит об этом персонаже, в одном месте.</sys:String> <!-- draft -->
@@ -976,7 +976,7 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">Миниатюра персонажа</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Подпись** добавляет ваш текст, например Scout. Её цвет и размер могут отличаться от остального текста.&#x0A;- **Свой размер** задаёт миниатюре отдельную ширину и высоту. Персонаж должен хотя бы раз войти в игру в этом профиле.&#x0A;- **Вторая миниатюра** добавляет отдельное окно «картинка в картинке» того же клиента.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">Цвета</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">Эти цвета рамок используются, только когда в профиле включён параметр **Цвета для каждого персонажа** (Клиенты › Персонажи).&#x0A;&#x0A;**Сбросить цвета** возвращает цвета, общие для всех персонажей.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">Эти цвета используются, только когда в профиле включён параметр **Цвета для каждого персонажа** (Клиенты › Персонажи).&#x0A;- Два цвета рамки отмечают миниатюру этого персонажа, когда это клиент, в котором вы играете, и когда нет.&#x0A;- **Цвет текста** задаёт цвет текста на его миниатюре. Пока вы не выберете цвет, используется Миниатюры › Текст и рамки.&#x0A;&#x0A;**Сбросить цвета** возвращает цвета, общие для всех персонажей.</sys:String> <!-- draft -->
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">Окно клиента</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.neverMinimize">Никогда не сворачивать</sys:String> <!-- draft -->
@@ -1489,7 +1489,7 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">Оставьте пустым для обычной папки EVE, Documents\EVE\logs\Gamelogs.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.combat">Бой</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.pve">Режим PVE</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC, которые стреляют по вам или скремблируют вас, не вызывают оповещение; игроки вызывают. Урон от NPC по-прежнему учитывается в оверлее статистики.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC, которые стреляют по вам или скремблируют вас, не вызывают оповещение; игроки вызывают. Урон от NPC по-прежнему учитывается в оверлее статистики, если вы не отключите это (Инструменты › Оверлей статистики).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire">Рамка под огнём</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">Миниатюра пульсирует красным, пока этот клиент получает урон от игроков или NPC.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime">Рамка под огнём держится</sys:String> <!-- draft -->
@@ -1754,7 +1754,7 @@
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">Оверлей</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Body">Каждый персонаж, у которого есть что показать, получает небольшое окно. Перетаскивайте его правой кнопкой мыши; чтобы изменить размер, зажмите ещё и левую. **Скрывать при переключении на другое приложение** убирает окна, пока вы не в EVE.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.numbers.Title">Выбор показателей</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.numbers.Body">Показатели здесь действуют для всех персонажей. Отдельные показатели или целые группы можно включать и отключать на странице персонажа (Клиенты › Персонажи › персонаж). Короткий код в скобках — то, что пишет оверлей.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.numbers.Body">Показатели здесь действуют для всех персонажей. Отдельные показатели или целые группы можно включать и отключать на странице персонажа (Клиенты › Персонажи › персонаж). Короткий код в скобках — то, что пишет оверлей.&#x0A;&#x0A;**Учитывать урон NPC** определяет, учитывается ли урон от NPC и по NPC в показателях урона. Остаётся включённым, пока вы не отключите.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Title">Внешний вид</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">Размер текста, непрозрачность и два цвета применяются ко всем окнам статистики. Цвета можно ввести как #RRGGBB или выбрать на образце.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Сохранение статистики</sys:String> <!-- draft -->
@@ -1924,4 +1924,8 @@
     <sys:String x:Key="L.S.thumbs.appearance.minHeight">Наименьшая высота</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap">Промежуток между миниатюрами</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap.Desc">Место, которое MultiPreview оставляет между миниатюрами, которые сам размещает: клиенты без сохранённого места и «Сбросить все позиции».</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc">Учитывать урон NPC</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc.Desc">Выкл.: урон от NPC и по NPC не входит в показатели урона, так что они показывают только бои с игроками. ISK от ратинга по-прежнему учитываются.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText">Цвет текста</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText.Desc">Задаёт цвет текста на миниатюре этого персонажа. Пока вы не выберете цвет, используется цвет текста из Миниатюры › Текст и рамки.</sys:String> <!-- draft -->
 </ResourceDictionary>

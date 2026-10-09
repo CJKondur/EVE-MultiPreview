@@ -920,7 +920,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">«{0}» è già nell'elenco.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Colori</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">Usa colori per personaggio</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">I colori di bordo propri di ogni personaggio, impostati nella sua pagina. Disattivato: tutti i personaggi usano i colori delle miniature.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">I colori di bordo e di testo propri di ogni personaggio, impostati nella sua pagina. Disattivato: tutti i personaggi usano i colori delle miniature.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Clic sulle miniature</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Ctrl+clic su una miniatura</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">Maiusc+clic su una miniatura</sys:String> <!-- draft -->
@@ -931,7 +931,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">L'elenco dei personaggi</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Scorciatoia** passa direttamente a quel personaggio. Fai clic per registrare un tasto.&#x0A;- **Mostra** nasconde o mostra la sua miniatura.&#x0A;- **Ciclo** lo esclude dai tasti client successivo e precedente fino al riavvio di MultiPreview.&#x0A;- **›** apre la pagina del personaggio.&#x0A;&#x0A;Due personaggi possono condividere una scorciatoia: premendola si passa dall'uno all'altro.&#x0A;&#x0A;**Aggiungi tutti i client in esecuzione** mantiene in elenco i tuoi personaggi attivi dopo la disconnessione.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Clic sulle miniature</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Un clic semplice passa a quel client. **Ctrl+clic** e **Maiusc+clic** possono invece ridurlo a icona o saltarlo nel ciclo. Ctrl è anche il tasto di blocco bersaglio di EVE, quindi scegli ciò che si adatta al tuo modo di giocare.&#x0A;&#x0A;**Usa colori per personaggio** attiva i colori di bordo impostati nella pagina di ogni personaggio.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">Un clic semplice passa a quel client. **Ctrl+clic** e **Maiusc+clic** possono invece ridurlo a icona o saltarlo nel ciclo. Ctrl è anche il tasto di blocco bersaglio di EVE, quindi scegli ciò che si adatta al tuo modo di giocare.&#x0A;&#x0A;**Usa colori per personaggio** attiva i colori di bordo e di testo impostati nella pagina di ogni personaggio.</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Personaggio</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">Tutto ciò che MultiPreview conserva per questo personaggio, in un unico posto.</sys:String> <!-- draft -->
@@ -974,7 +974,7 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">Miniatura di questo personaggio</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Etichetta** aggiunge il tuo testo, come Scout. Colore e dimensione possono differire dal resto del testo.&#x0A;- **Dimensione propria** dà a questa miniatura larghezza e altezza proprie. Il personaggio deve aver effettuato l'accesso almeno una volta in questo profilo.&#x0A;- **Seconda miniatura** aggiunge una vista picture-in-picture separata dello stesso client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">Colori</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">Questi colori di bordo sono usati solo mentre **Usa colori per personaggio** è attivo per il profilo (Client › Personaggi).&#x0A;&#x0A;**Reimposta colori** torna ai colori usati da tutti i personaggi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">Questi colori sono usati solo mentre **Usa colori per personaggio** è attivo per il profilo (Client › Personaggi).&#x0A;- I due colori di bordo segnano la miniatura di questo personaggio quando è il client che stai usando e quando non lo è.&#x0A;- **Colore del testo** colora il testo sulla sua miniatura. Finché non ne scegli uno, segue Miniature › Testo e bordi.&#x0A;&#x0A;**Reimposta colori** torna ai colori usati da tutti i personaggi.</sys:String> <!-- draft -->
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">Finestra del client</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.neverMinimize">Non minimizzare mai</sys:String> <!-- draft -->
@@ -1487,7 +1487,7 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">Lascia vuoto per la cartella abituale di EVE, Documents\EVE\logs\Gamelogs.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.combat">Combattimento</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.pve">Modalità PVE</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">Gli NPC che ti sparano o ti scramblano non generano un avviso; i giocatori sì. Il danno degli NPC conta ancora nella sovrapposizione delle statistiche.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">Gli NPC che ti sparano o ti scramblano non generano un avviso; i giocatori sì. Il danno degli NPC conta ancora nella sovrapposizione delle statistiche, a meno che tu non lo disattivi (Strumenti › Overlay statistiche).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire">Bordo sotto attacco</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">Una miniatura pulsa in rosso mentre quel client subisce danni, da giocatori o NPC.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime">Durata del bordo sotto attacco</sys:String> <!-- draft -->
@@ -1752,7 +1752,7 @@
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">L'overlay</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Body">Ogni personaggio con numeri da mostrare ottiene una piccola finestra. Trascinala con il tasto destro; premi anche il sinistro per ridimensionarla. **Nascondi quando passi a un'altra app** tiene le finestre fuori dai piedi quando non sei in EVE.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.numbers.Title">Scegliere i numeri</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.numbers.Body">I numeri qui valgono per ogni personaggio. Un personaggio può attivare o disattivare singoli numeri o interi gruppi dalla sua pagina (Client › Personaggi › il personaggio). Il codice breve tra parentesi è ciò che scrive l'overlay.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.numbers.Body">I numeri qui valgono per ogni personaggio. Un personaggio può attivare o disattivare singoli numeri o interi gruppi dalla sua pagina (Client › Personaggi › il personaggio). Il codice breve tra parentesi è ciò che scrive l'overlay.&#x0A;&#x0A;**Conteggia il danno degli NPC** decide se i colpi degli NPC e contro gli NPC contano nei numeri del danno. Resta attivo a meno che tu non lo disattivi.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Title">Aspetto</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">Dimensione del testo, opacità e i due colori valgono per tutte le finestre delle statistiche. I colori si possono digitare come #RRGGBB o scegliere con il campione.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Salvare le statistiche</sys:String> <!-- draft -->
@@ -1922,4 +1922,8 @@
     <sys:String x:Key="L.S.thumbs.appearance.minHeight">Altezza minima</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap">Distanza tra le miniature</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap.Desc">Lo spazio che MultiPreview lascia tra le miniature che posiziona da solo: i client senza posizione salvata e Reimposta tutte le posizioni.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc">Conteggia il danno degli NPC</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc.Desc">Disattivato: i colpi degli NPC e contro gli NPC restano fuori dai numeri del danno, che mostrano solo gli scontri con i giocatori. Gli ISK del ratting contano ancora.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText">Colore del testo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText.Desc">Colora il testo sulla miniatura di questo personaggio. Finché non ne scegli uno, si usa il colore del testo di Miniature › Testo e bordi.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -903,7 +903,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">「{0}」はすでにリストにあります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">キャラクターごとの色を使う</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">各キャラクターのページで設定した枠線の色を使います。オフ：すべてのキャラクターがサムネイルの色を使います。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">各キャラクターのページで設定した枠線とテキストの色を使います。オフ：すべてのキャラクターがサムネイルの色を使います。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">サムネイルのクリック</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">サムネイルを Ctrl+クリック</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">サムネイルを Shift+クリック</sys:String> <!-- draft -->
@@ -914,7 +914,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">キャラクター一覧</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **ホットキー**は、そのキャラクターに直接切り替えます。クリックしてキーを記録します。&#x0A;- **表示**は、サムネイルの表示と非表示を切り替えます。&#x0A;- **巡回**は、MultiPreview を再起動するまで、次・前のクライアントキーの対象から外します。&#x0A;- **›** は、そのキャラクター専用のページを開きます。&#x0A;&#x0A;2 人のキャラクターで 1 つのホットキーを共有できます。押すと両者の間で切り替わります。&#x0A;&#x0A;**実行中のクライアントをすべて追加**すると、ログアウト後も起動中のキャラクターがリストに残ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">サムネイルのクリック</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">通常のクリックはそのクライアントに切り替えます。**Ctrl+クリック**と **Shift+クリック**では、代わりに最小化したり、巡回時にスキップしたりできます。Ctrl は EVE のターゲットロックキーでもあるので、プレイスタイルに合うものを選んでください。&#x0A;&#x0A;**キャラクターごとの色を使う**を有効にすると、各キャラクターのページで設定した枠線の色が使われます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">通常のクリックはそのクライアントに切り替えます。**Ctrl+クリック**と **Shift+クリック**では、代わりに最小化したり、巡回時にスキップしたりできます。Ctrl は EVE のターゲットロックキーでもあるので、プレイスタイルに合うものを選んでください。&#x0A;&#x0A;**キャラクターごとの色を使う**を有効にすると、各キャラクターのページで設定した枠線とテキストの色が使われます。</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">キャラクター</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">このキャラクターについて MultiPreview が保存している内容をまとめて表示します。</sys:String> <!-- draft -->
@@ -957,7 +957,7 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">このキャラクターのサムネイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **ラベル**は独自のテキスト(Scout など)を追加します。色とサイズは他のテキストと変えられます。&#x0A;- **個別サイズ**はこのサムネイルに専用の幅と高さを与えます。このプロファイルで一度ログインしている必要があります。&#x0A;- **2つ目のサムネイル**は同じクライアントの別のピクチャーインピクチャー表示を追加します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">色</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">これらの枠線の色は、プロファイルで**キャラクターごとの色を使う**がオンの間だけ使われます(クライアント › キャラクター)。&#x0A;&#x0A;**色をリセット**は、全キャラクター共通の色に戻します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">これらの色は、プロファイルで**キャラクターごとの色を使う**がオンの間だけ使われます(クライアント › キャラクター)。&#x0A;- 2 つの枠線の色は、そのキャラクターのサムネイルに、プレイ中のクライアントのときとそうでないときで使われます。&#x0A;- **テキストの色**は、サムネイル上の文字に使われます。選ぶまでは サムネイル › テキストと枠線 に従います。&#x0A;&#x0A;**色をリセット**は、全キャラクター共通の色に戻します。</sys:String> <!-- draft -->
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">クライアントウィンドウ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.neverMinimize">最小化しない</sys:String> <!-- draft -->
@@ -1470,7 +1470,7 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">空欄なら EVE の通常のフォルダ（Documents\EVE\logs\Gamelogs）を使います。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.combat">戦闘</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.pve">PVE モード</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC に撃たれたりスクランブルされてもアラートは出ません。プレイヤーなら出ます。NPC のダメージは統計オーバーレイに引き続き加算されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC に撃たれたりスクランブルされてもアラートは出ません。プレイヤーなら出ます。NPC のダメージは、オフにしない限り統計オーバーレイに引き続き加算されます（ツール › 統計オーバーレイ）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire">被弾の枠</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">そのクライアントがプレイヤーまたは NPC からダメージを受けている間、サムネイルが赤く点滅します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime">被弾の枠の表示時間</sys:String> <!-- draft -->
@@ -1735,7 +1735,7 @@
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">オーバーレイ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Body">表示する数値があるキャラクターごとに小さなウィンドウが表示されます。右ボタンでドラッグして移動し、左ボタンも押すとサイズを変更できます。**他のアプリに切り替えたら隠す** をオンにすると、EVE を使っていないあいだウィンドウが邪魔になりません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.numbers.Title">数値の選択</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.numbers.Body">ここでの数値はすべてのキャラクターに適用されます。キャラクターは自分のページ（クライアント › キャラクター › 該当キャラクター）で、個々の数値やグループ単位でオン／オフを切り替えられます。括弧内の短いコードはオーバーレイに書き込まれる表記です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.numbers.Body">ここでの数値はすべてのキャラクターに適用されます。キャラクターは自分のページ（クライアント › キャラクター › 該当キャラクター）で、個々の数値やグループ単位でオン／オフを切り替えられます。括弧内の短いコードはオーバーレイに書き込まれる表記です。&#x0A;&#x0A;**NPCのダメージを数える**は、NPC が与えた／受けたダメージをダメージ数値に含めるかどうかを決めます。オフにしない限りオンのままです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Title">外観</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字サイズ、不透明度、2つの色はすべての統計ウィンドウに適用されます。色は #RRGGBB で入力するか、色見本から選べます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">統計の保存</sys:String> <!-- draft -->
@@ -1905,4 +1905,8 @@
     <sys:String x:Key="L.S.thumbs.appearance.minHeight">最小の高さ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap">サムネイルの間隔</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap.Desc">MultiPreview が自分で配置するサムネイルの間にあける間隔です。保存された位置のないクライアントと、すべての位置をリセットが対象です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc">NPCのダメージを数える</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc.Desc">オフ：NPC が与えた／受けたダメージはダメージ数値に含まれず、プレイヤーとの戦闘だけが表示されます。ラッティングの ISK は引き続き加算されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText">テキストの色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText.Desc">このキャラクターのサムネイル上の文字の色を設定します。選ぶまでは サムネイル › テキストと枠線 のテキストの色が使われます。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -271,6 +271,11 @@ public class AppSettings
     /// unless overridden. Effective per-character = (Global | ForcedOn) &amp; ~ForcedOff.</summary>
     public StatMetrics GlobalStatMetrics { get; set; } = StatMetrics.None;
 
+    /// <summary>Leave hits from and on NPCs out of the stats overlay's damage numbers (IDEAS P32). A new key, off: every
+    /// hit counts, as it always did. The old StatMetrics.IncludeNpc bit can't carry this: every file stores it off while
+    /// every hit has always counted.</summary>
+    public bool StatsExcludeNpcDamage { get; set; } = false;
+
     // ── Settings GUI ────────────────────────────────────────────────
     public int SettingsWindowWidth { get; set; } = 1080;
     public int SettingsWindowHeight { get; set; } = 1080;
@@ -556,6 +561,17 @@ public class CustomColorEntry
     public string Border { get; set; } = "FFFFFF";
     public string Text { get; set; } = "FFFFFF";
     public string InactiveBorder { get; set; } = "FFFFFF";
+
+    /// <summary>Whether <paramref name="text"/> is a text colour the player chose. The two values an entry gets without a
+    /// choice are not: this class's default (also what an AHK file short of text colours loads) and the 0xfac57a both
+    /// settings windows seed a new entry with. Text was never painted until the ideas batch, so a file holding them
+    /// keeps the profile's text colour.</summary>
+    public static bool HasOwnText(string? text)
+    {
+        var t = text?.Trim() ?? "";
+        return t.Length > 0 && !t.Equals("FFFFFF", StringComparison.OrdinalIgnoreCase)
+               && !t.Equals("0xfac57a", StringComparison.OrdinalIgnoreCase);
+    }
 }
 
 public class SecondaryThumbnailSettings

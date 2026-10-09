@@ -18,7 +18,7 @@ public static class ToolsPages
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
         new HelpTopic(StatsId, "overlay", new[] { "tools.stats.enabled", "tools.stats.hideOnLostFocus" }),
-        new HelpTopic(StatsId, "numbers", new[] { "tools.stats.metrics" }),
+        new HelpTopic(StatsId, "numbers", new[] { "tools.stats.metrics", "tools.stats.countNpc" }),
         new HelpTopic(StatsId, "characters", new[] { "tools.stats.characterTable" }),
         new HelpTopic(StatsId, "look", new[] { "tools.stats.fontSize", "tools.stats.opacity", "tools.stats.background", "tools.stats.textColor" }),
         new HelpTopic(StatsId, "logging", new[]
@@ -63,6 +63,12 @@ public static class ToolsPages
                 Binds = new[] { "AppSettings.GlobalStatMetrics" },
                 Replaces = StatsFields.GlobalControls,
             },
+            // App passes it to the stats tracker at startup and on Applied (IDEAS P32). Stored the other way round
+            // (StatsExcludeNpcDamage), so a file without the key counts every hit, as before.
+            new SettingItem(Setting.Custom("tools.stats.countNpc", SettingKind.Toggle,
+                s => !s.StatsExcludeNpcDamage,
+                (s, v) => s.StatsExcludeNpcDamage = v is not true,
+                binds: new[] { "AppSettings.StatsExcludeNpcDamage" })),
         }),
         new SectionDef("tools.stats.characters", new PageItem[]
         {

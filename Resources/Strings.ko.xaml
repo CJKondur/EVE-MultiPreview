@@ -903,7 +903,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">'{0}'은(는) 이미 목록에 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">색상</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">캐릭터별 색상 사용</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">각 캐릭터 페이지에서 설정한 테두리 색상을 사용합니다. 끄면 모든 캐릭터가 미리보기 색상을 사용합니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">각 캐릭터 페이지에서 설정한 테두리 및 텍스트 색상을 사용합니다. 끄면 모든 캐릭터가 미리보기 색상을 사용합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">미리보기 클릭</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">미리보기 Ctrl+클릭</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">미리보기 Shift+클릭</sys:String> <!-- draft -->
@@ -914,7 +914,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">캐릭터 목록</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **단축키**는 해당 캐릭터로 바로 전환합니다. 클릭해서 키를 기록하세요.&#x0A;- **표시**는 미리보기를 숨기거나 표시합니다.&#x0A;- **순환**은 MultiPreview를 다시 시작할 때까지 다음/이전 클라이언트 키에서 제외합니다.&#x0A;- **›** 는 해당 캐릭터의 전용 페이지를 엽니다.&#x0A;&#x0A;두 캐릭터가 단축키를 공유할 수 있습니다. 누르면 두 캐릭터 사이를 전환합니다.&#x0A;&#x0A;**실행 중인 클라이언트 모두 추가**는 로그아웃한 뒤에도 실행 중이던 캐릭터를 목록에 유지합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">미리보기 클릭</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">일반 클릭은 해당 클라이언트로 전환합니다. **Ctrl+클릭**과 **Shift+클릭**은 대신 최소화하거나 순환 시 건너뛰도록 설정할 수 있습니다. Ctrl은 EVE의 대상 고정 키이기도 하므로 플레이 방식에 맞게 선택하세요.&#x0A;&#x0A;**캐릭터별 색상 사용**을 켜면 각 캐릭터 페이지에서 설정한 테두리 색상이 적용됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">일반 클릭은 해당 클라이언트로 전환합니다. **Ctrl+클릭**과 **Shift+클릭**은 대신 최소화하거나 순환 시 건너뛰도록 설정할 수 있습니다. Ctrl은 EVE의 대상 고정 키이기도 하므로 플레이 방식에 맞게 선택하세요.&#x0A;&#x0A;**캐릭터별 색상 사용**을 켜면 각 캐릭터 페이지에서 설정한 테두리 및 텍스트 색상이 적용됩니다.</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">캐릭터</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">이 캐릭터에 대해 MultiPreview가 저장한 모든 내용을 한곳에 모았습니다.</sys:String> <!-- draft -->
@@ -957,7 +957,7 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">이 캐릭터의 미리보기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **라벨**은 Scout 같은 직접 입력한 텍스트를 추가합니다. 색상과 크기는 다른 텍스트와 다르게 할 수 있습니다.&#x0A;- **개별 크기**는 이 미리보기에 고유한 너비와 높이를 줍니다. 이 프로필에서 캐릭터가 한 번 로그인한 적이 있어야 합니다.&#x0A;- **두 번째 미리보기**는 같은 클라이언트의 별도 화면 속 화면 보기를 추가합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">색상</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">이 테두리 색상은 프로필에서 **캐릭터별 색상 사용**이 켜져 있을 때만 사용됩니다(클라이언트 › 캐릭터).&#x0A;&#x0A;**색상 초기화**는 모든 캐릭터가 쓰는 색상으로 되돌립니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">이 색상은 프로필에서 **캐릭터별 색상 사용**이 켜져 있을 때만 사용돼요(클라이언트 › 캐릭터).&#x0A;- 테두리 색상 두 가지는 이 캐릭터가 지금 플레이 중인 클라이언트일 때와 아닐 때 미리보기를 표시해요.&#x0A;- **텍스트 색상**은 미리보기의 글자 색이에요. 고르기 전에는 미리보기 › 텍스트 및 테두리를 따라가요.&#x0A;&#x0A;**색상 초기화**는 모든 캐릭터가 쓰는 색상으로 되돌려요.</sys:String> <!-- draft -->
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">클라이언트 창</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.neverMinimize">최소화하지 않음</sys:String> <!-- draft -->
@@ -1470,7 +1470,7 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">비워 두면 EVE의 기본 폴더(Documents\EVE\logs\Gamelogs)를 사용합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.combat">전투</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.pve">PVE 모드</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC가 나를 공격하거나 스크램해도 알림이 울리지 않으며, 플레이어는 울립니다. NPC 피해는 통계 오버레이에 계속 포함됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC가 나를 공격하거나 스크램해도 알림이 울리지 않으며, 플레이어는 울립니다. NPC 피해는 끄지 않는 한 통계 오버레이에 계속 포함돼요(도구 › 통계 오버레이).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire">피격 테두리</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">해당 클라이언트가 플레이어나 NPC에게 피해를 받는 동안 썸네일이 붉게 깜빡입니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime">피격 테두리 지속</sys:String> <!-- draft -->
@@ -1735,7 +1735,7 @@
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">오버레이</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Body">표시할 수치가 있는 캐릭터마다 작은 창이 생깁니다. 오른쪽 버튼으로 드래그해 이동하고, 왼쪽 버튼도 함께 누르면 크기를 조절합니다. **다른 앱으로 전환하면 숨기기**를 켜면 EVE를 쓰지 않을 때 창이 방해되지 않습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.numbers.Title">수치 선택</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.numbers.Body">여기의 수치는 모든 캐릭터에 적용됩니다. 캐릭터는 자기 페이지(클라이언트 › 캐릭터 › 해당 캐릭터)에서 개별 수치나 그룹 전체를 켜고 끌 수 있습니다. 괄호 안의 짧은 코드는 오버레이가 기록하는 표기입니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.numbers.Body">여기의 수치는 모든 캐릭터에 적용됩니다. 캐릭터는 자기 페이지(클라이언트 › 캐릭터 › 해당 캐릭터)에서 개별 수치나 그룹 전체를 켜고 끌 수 있습니다. 괄호 안의 짧은 코드는 오버레이가 기록하는 표기입니다.&#x0A;&#x0A;**NPC 피해 집계**는 NPC가 입히거나 받은 피해를 피해 수치에 포함할지 정해요. 끄지 않는 한 켜져 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Title">모양</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">글자 크기, 불투명도, 두 가지 색은 모든 통계 창에 적용됩니다. 색은 #RRGGBB로 입력하거나 색상 견본으로 고를 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">통계 저장</sys:String> <!-- draft -->
@@ -1905,4 +1905,8 @@
     <sys:String x:Key="L.S.thumbs.appearance.minHeight">최소 높이</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap">썸네일 사이 간격</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap.Desc">MultiPreview가 직접 배치하는 썸네일 사이에 두는 간격이에요. 저장된 위치가 없는 클라이언트와 모든 위치 초기화에 적용돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc">NPC 피해 집계</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc.Desc">끄면 NPC가 입히거나 받은 피해가 피해 수치에서 빠져서 플레이어와의 전투만 보여요. 래팅으로 번 ISK는 계속 집계돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText">텍스트 색상</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText.Desc">이 캐릭터 미리보기의 글자 색을 정해요. 고르기 전에는 미리보기 › 텍스트 및 테두리의 텍스트 색상을 사용해요.</sys:String> <!-- draft -->
 </ResourceDictionary>

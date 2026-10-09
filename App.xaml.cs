@@ -159,6 +159,7 @@ public partial class App : Application
             _settings.Settings.StatLoggingEnabled,
             _settings.Settings.StatLogDirectory,
             _settings.Settings.StatLogRetentionDays);
+        _statTracker.CountNpcDamage = !_settings.Settings.StatsExcludeNpcDamage;   // IDEAS P32
         _thumbnailManager.SetStatTracker(_statTracker);
 
         // 4b. Process monitor (CPU/RAM per EVE client)
@@ -854,8 +855,11 @@ public partial class App : Application
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)
+            {
                 _statTracker.SetCsvLogging(_settings.Settings.StatLoggingEnabled, _settings.Settings.StatLogDirectory,
                     _settings.Settings.StatLogRetentionDays);
+                _statTracker.CountNpcDamage = !_settings.Settings.StatsExcludeNpcDamage;   // IDEAS P32
+            }
 
             // Dynamically show/hide the Alert Hub based on settings toggle
             if (_isShuttingDown) return;

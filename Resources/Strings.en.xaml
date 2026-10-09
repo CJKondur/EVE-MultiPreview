@@ -898,7 +898,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">'{0}' is already on the list.</sys:String>
     <sys:String x:Key="L.S.Sec.clients.characters.colors">Colours</sys:String>
     <sys:String x:Key="L.S.clients.characters.customColors">Use per-character colours</sys:String>
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Each character's own border colours, set on its page. Off: every character uses the Thumbnails colours.</sys:String>
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">Each character's own border and text colours, set on its page. Off: every character uses the Thumbnails colours.</sys:String>
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">Clicking thumbnails</sys:String>
     <sys:String x:Key="L.S.clients.characters.ctrlClick">Ctrl+click on a thumbnail</sys:String>
     <sys:String x:Key="L.S.clients.characters.shiftClick">Shift+click on a thumbnail</sys:String>
@@ -909,7 +909,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">The character list</sys:String>
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **Hotkey** switches straight to that character. Click it to record a key.&#x0A;- **Show** hides or shows its thumbnail.&#x0A;- **Cycle** leaves it out of the next and previous client keys until MultiPreview restarts.&#x0A;- **›** opens the character's own page.&#x0A;&#x0A;Two characters can share a hotkey: pressing it switches between them.&#x0A;&#x0A;**Add all running clients** keeps your running characters on the list after they log out.</sys:String>
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">Clicking thumbnails</sys:String>
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">A plain click switches to that client. **Ctrl+click** and **Shift+click** can minimize it or skip it when cycling instead. Ctrl is also EVE's lock-target key, so pick what suits how you play.&#x0A;&#x0A;**Use per-character colours** turns on the border colours you set on each character's page.</sys:String>
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">A plain click switches to that client. **Ctrl+click** and **Shift+click** can minimize it or skip it when cycling instead. Ctrl is also EVE's lock-target key, so pick what suits how you play.&#x0A;&#x0A;**Use per-character colours** turns on the border and text colours you set on each character's page.</sys:String>
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">Character</sys:String>
     <sys:String x:Key="L.S.Page.character.Desc">Everything MultiPreview keeps for this character, in one place.</sys:String>
@@ -952,7 +952,7 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">This character's thumbnail</sys:String>
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **Label** adds your own text, like Scout. Its colour and size can differ from the other text.&#x0A;- **Own size** gives this thumbnail its own width and height. A character needs to have been logged in once in this profile.&#x0A;- **Second thumbnail** adds a separate picture-in-picture view of the same client.</sys:String>
     <sys:String x:Key="L.Help.character.colors.Title">Colours</sys:String>
-    <sys:String x:Key="L.Help.character.colors.Body">These border colours are used only while **Use per-character colours** is on for the profile (Clients › Characters).&#x0A;&#x0A;**Reset colours** goes back to the colours every character uses.</sys:String>
+    <sys:String x:Key="L.Help.character.colors.Body">These colours are used only while **Use per-character colours** is on for the profile (Clients › Characters).&#x0A;- The two border colours mark this character's thumbnail when it is the client you're playing and when it isn't.&#x0A;- **Text colour** colours the text on its thumbnail. Until you pick one, it follows Thumbnails › Text &amp; borders.&#x0A;&#x0A;**Reset colours** goes back to the colours every character uses.</sys:String>
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">Client window</sys:String>
     <sys:String x:Key="L.S.character.neverMinimize">Never minimize</sys:String>
@@ -1469,7 +1469,7 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">Leave empty for EVE's usual folder, Documents\EVE\logs\Gamelogs.</sys:String>
     <sys:String x:Key="L.S.Sec.alerts.events.combat">Combat</sys:String>
     <sys:String x:Key="L.S.alerts.events.pve">PVE mode</sys:String>
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPCs shooting or scrambling you don't raise an alert; players still do. NPC damage still counts in the stats overlay.</sys:String>
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPCs shooting or scrambling you don't raise an alert; players still do. NPC damage still counts in the stats overlay unless you turn that off (Tools › Stats overlay).</sys:String>
     <sys:String x:Key="L.S.alerts.events.underFire">Under-fire border</sys:String>
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">A thumbnail pulses red while that client takes damage, from players or NPCs.</sys:String>
     <sys:String x:Key="L.S.alerts.events.underFireTime">Under-fire border lasts</sys:String>
@@ -1734,7 +1734,7 @@
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">The overlay</sys:String>
     <sys:String x:Key="L.Help.tools.stats.overlay.Body">Each character with numbers to show gets a small window. Drag it with the right mouse button; press the left button too to resize it. **Hide when you switch to another app** keeps the windows out of the way while you're not in EVE.</sys:String>
     <sys:String x:Key="L.Help.tools.stats.numbers.Title">Choosing numbers</sys:String>
-    <sys:String x:Key="L.Help.tools.stats.numbers.Body">The numbers here are for every character. A character can turn single numbers or whole groups on or off on its own page (Clients › Characters › the character). The short code in brackets is what the overlay writes.</sys:String>
+    <sys:String x:Key="L.Help.tools.stats.numbers.Body">The numbers here are for every character. A character can turn single numbers or whole groups on or off on its own page (Clients › Characters › the character). The short code in brackets is what the overlay writes.&#x0A;&#x0A;**Count NPC damage** decides whether hits from and on NPCs count in the damage numbers. It stays on unless you turn it off.</sys:String>
     <sys:String x:Key="L.Help.tools.stats.look.Title">Look</sys:String>
     <sys:String x:Key="L.Help.tools.stats.look.Body">Text size, opacity and the two colours apply to every stats window. Colours can be typed as #RRGGBB or picked with the swatch.</sys:String>
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Saving stats</sys:String>
@@ -1904,4 +1904,8 @@
     <sys:String x:Key="L.S.thumbs.appearance.minHeight">Smallest height</sys:String>
     <sys:String x:Key="L.S.thumbs.layout.gap">Gap between thumbnails</sys:String>
     <sys:String x:Key="L.S.thumbs.layout.gap.Desc">The space MultiPreview leaves between the thumbnails it places itself: clients with no saved place, and Reset all positions.</sys:String>
+    <sys:String x:Key="L.S.tools.stats.countNpc">Count NPC damage</sys:String>
+    <sys:String x:Key="L.S.tools.stats.countNpc.Desc">Off: hits from and on NPCs stay out of the damage numbers, so they show fights with players only. ISK from ratting still counts.</sys:String>
+    <sys:String x:Key="L.S.character.colorText">Text colour</sys:String>
+    <sys:String x:Key="L.S.character.colorText.Desc">Colours the text on this character's thumbnail. Until you pick one, it is the text colour from Thumbnails › Text &amp; borders.</sys:String>
 </ResourceDictionary>

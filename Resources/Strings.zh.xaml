@@ -920,7 +920,7 @@
     <sys:String x:Key="L.S.Characters.AddExists">“{0}”已在列表中。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.colors">颜色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.customColors">使用每个角色的专属颜色</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.characters.customColors.Desc">每个角色在其页面中设置的专属边框颜色。关闭：所有角色使用缩略图的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.characters.customColors.Desc">每个角色在其页面中设置的专属边框和文字颜色。关闭：所有角色使用缩略图的颜色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.characters.clicks">点击缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.ctrlClick">按住 Ctrl 点击缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.characters.shiftClick">按住 Shift 点击缩略图</sys:String> <!-- draft -->
@@ -931,7 +931,7 @@
     <sys:String x:Key="L.Help.clients.characters.table.Title">角色列表</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.table.Body">- **热键**直接切换到该角色。点击它即可录制按键。&#x0A;- **显示**隐藏或显示它的缩略图。&#x0A;- **轮换**在 MultiPreview 重启前，将其排除在下一个和上一个客户端按键之外。&#x0A;- **›** 打开该角色自己的页面。&#x0A;&#x0A;两个角色可以共用一个热键：按下后会在它们之间切换。&#x0A;&#x0A;**添加所有运行中的客户端**会让正在运行的角色在下线后仍保留在列表中。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.characters.clicks.Title">点击缩略图</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.characters.clicks.Body">普通点击会切换到该客户端。**Ctrl+点击**和 **Shift+点击**可以改为将其最小化或在轮换时跳过。Ctrl 也是 EVE 的锁定目标键，请选择适合你游戏方式的选项。&#x0A;&#x0A;**使用每个角色的专属颜色**会启用你在每个角色页面中设置的边框颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.characters.clicks.Body">普通点击会切换到该客户端。**Ctrl+点击**和 **Shift+点击**可以改为将其最小化或在轮换时跳过。Ctrl 也是 EVE 的锁定目标键，请选择适合你游戏方式的选项。&#x0A;&#x0A;**使用每个角色的专属颜色**会启用你在每个角色页面中设置的边框和文字颜色。</sys:String> <!-- draft -->
     <!-- Character page (one per character) -->
     <sys:String x:Key="L.S.Page.character">角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.character.Desc">MultiPreview 为此角色保存的所有内容,集中在一处。</sys:String> <!-- draft -->
@@ -974,7 +974,7 @@
     <sys:String x:Key="L.Help.character.thumbnail.Title">此角色的缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.thumbnail.Body">- **标签**添加你自己的文字,例如 Scout。其颜色和大小可以与其他文字不同。&#x0A;- **独立大小**为此缩略图设置单独的宽度和高度。角色需要在此配置文件中至少登录过一次。&#x0A;- **第二缩略图**为同一客户端添加单独的画中画视图。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.character.colors.Title">颜色</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.character.colors.Body">仅当配置文件开启**使用每个角色的专属颜色**(客户端 › 角色)时,才会使用这些边框颜色。&#x0A;&#x0A;**重置颜色**会恢复为所有角色通用的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.character.colors.Body">仅当配置文件开启**使用每个角色的专属颜色**(客户端 › 角色)时,才会使用这些颜色。&#x0A;- 两种边框颜色用于标记该角色的缩略图：它是你正在玩的客户端时用一种，不是时用另一种。&#x0A;- **文字颜色**用于其缩略图上的文字。在你选择之前，它跟随 缩略图 › 文字和边框。&#x0A;&#x0A;**重置颜色**会恢复为所有角色通用的颜色。</sys:String> <!-- draft -->
     <!-- Character page, part 2 -->
     <sys:String x:Key="L.S.Sec.character.clients">客户端窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.neverMinimize">从不最小化</sys:String> <!-- draft -->
@@ -1487,7 +1487,7 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">留空则使用 EVE 的默认文件夹 Documents\EVE\logs\Gamelogs。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.combat">战斗</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.pve">PVE 模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC 攻击或扰断你时不会触发警报；玩家仍会触发。NPC 伤害仍计入统计叠加层。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC 攻击或扰断你时不会触发警报；玩家仍会触发。除非你关闭它（工具 › 统计叠加层），NPC 伤害仍计入统计叠加层。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire">受攻击边框</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">该客户端受到玩家或 NPC 伤害时，缩略图会闪烁红色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime">受攻击边框持续</sys:String> <!-- draft -->
@@ -1752,7 +1752,7 @@
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">叠加层</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Body">每个有数据可显示的角色都会有一个小窗口。用鼠标右键拖动；同时按住左键可调整大小。**切换到其他应用时隐藏** 可在你不在 EVE 时让窗口不挡视线。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.numbers.Title">选择数据</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.numbers.Body">这里的数据适用于所有角色。角色可以在自己的页面（客户端 › 角色 › 该角色）中单独开关某项数据或整组数据。括号中的短代码是叠加层显示的内容。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.numbers.Body">这里的数据适用于所有角色。角色可以在自己的页面（客户端 › 角色 › 该角色）中单独开关某项数据或整组数据。括号中的短代码是叠加层显示的内容。&#x0A;&#x0A;**统计 NPC 伤害**决定 NPC 造成和受到的伤害是否计入伤害数据。除非你关闭，否则保持开启。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Title">外观</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字大小、不透明度和两种颜色适用于所有统计窗口。颜色可输入 #RRGGBB 或用色块选取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">保存统计</sys:String> <!-- draft -->
@@ -1922,4 +1922,8 @@
     <sys:String x:Key="L.S.thumbs.appearance.minHeight">最小高度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap">缩略图之间的间距</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.layout.gap.Desc">MultiPreview 自己摆放缩略图时留出的间距：适用于没有保存位置的客户端，以及重置所有位置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc">统计 NPC 伤害</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.countNpc.Desc">关闭后，NPC 造成和受到的伤害不计入伤害数据，因此只显示与玩家的战斗。打怪获得的 ISK 仍会计入。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText">文字颜色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.character.colorText.Desc">设置该角色缩略图上的文字颜色。在你选择之前，使用 缩略图 › 文字和边框 中的文字颜色。</sys:String> <!-- draft -->
 </ResourceDictionary>

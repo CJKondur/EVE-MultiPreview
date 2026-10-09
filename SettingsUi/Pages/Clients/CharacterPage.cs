@@ -41,7 +41,10 @@ public static class CharacterPage
         {
             "character.show", "character.label", "character.labelColor", "character.labelSize", "character.size", "character.pip", "character.pipOpacity",
         }),
-        new HelpTopic(TemplateId, "colors", new[] { "character.colorsOff", "character.colorActive", "character.colorInactive", "character.colorsReset" }),
+        new HelpTopic(TemplateId, "colors", new[]
+        {
+            "character.colorsOff", "character.colorActive", "character.colorInactive", "character.colorText", "character.colorsReset",
+        }),
         new HelpTopic(TemplateId, "clients", new[] { "character.neverMinimize", "character.core", "character.coreStale", "character.volume" }),
         new HelpTopic(TemplateId, "stats", new[]
         {
@@ -146,13 +149,15 @@ public static class CharacterPage
         new InfoItem("character.colorsOff", InfoSeverity.Info) { ShowIf = s => !s.CustomColorsActive },
         ColorCard("character.colorActive", name, CharacterFields.ColorPart.Border, new[] { "LvColors", "OnColorAdd", "OnColorEdit", "OnPickColor" }),
         ColorCard("character.colorInactive", name, CharacterFields.ColorPart.Inactive, Array.Empty<string>()),
+        // The thumbnail's text (ThumbnailManager.TextColourFor): stored since the AHK app, painted since the ideas batch.
+        ColorCard("character.colorText", name, CharacterFields.ColorPart.Text, Array.Empty<string>()),
         new ActionRow("character.colorsReset", new[]
         {
             new ActionDef("character.resetColors", ctx =>
             {
                 ctx.S.CustomColors.Remove(name);
                 ctx.Applier.Request(ApplyScope.Thumbnails);
-                ctx.Host.Reload();   // the two colour cards show the defaults again
+                ctx.Host.Reload();   // the three colour cards show the defaults again
             }) { Replaces = new[] { "OnColorDelete" } },
         }) { ShowIf = s => s.CustomColors.ContainsKey(name) },
     });

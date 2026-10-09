@@ -906,6 +906,14 @@ public sealed class ThumbnailManager : IDisposable
     public static byte PipOpacityFor(AppSettings s, string character) =>
         (byte)Math.Clamp(s.SecondaryThumbnails.TryGetValue(character, out var ss) ? ss.Opacity : s.ThumbnailOpacity, 0, 255);
 
+    /// <summary>A character's thumbnail text colour: its own (Character page › Colours) while per-character colours are on
+    /// and one was chosen, else the profile's text colour, as always (CustomColorEntry.HasOwnText).</summary>
+    public static string TextColourFor(AppSettings s, string character) =>
+        s.CustomColorsActive && !string.IsNullOrEmpty(character) && s.CustomColors.TryGetValue(character, out var own)
+        && CustomColorEntry.HasOwnText(own.Text)
+            ? own.Text
+            : s.ThumbnailTextColor;
+
     /// <summary>The range the resize limit's width and height may take (the settings cards use it too).</summary>
     public const int MinFloor = 20, MaxFloor = 2000;
 
@@ -962,7 +970,7 @@ public sealed class ThumbnailManager : IDisposable
         thumb.SetTextOverlayVisible(s.ShowThumbnailTextOverlay);
         thumb.SetTextStyle(s.ThumbnailTextFont,
             double.TryParse(s.ThumbnailTextSize, out var fs) ? fs : 12,
-            ParseColor(s.ThumbnailTextColor),
+            ParseColor(TextColourFor(s, window.CharacterName)),   // a character's own text colour (per-character colours)
             s.FpsOverlayTextSize);
         thumb.SetTextMargins((int)s.ThumbnailTextMargins.X, (int)s.ThumbnailTextMargins.Y,
             s.FpsOverlayMarginX, s.FpsOverlayMarginY);

@@ -29,6 +29,10 @@ public sealed class StatTrackerService
     private int _csvRetentionDays = 30;
     private bool _csvConfigured;
 
+    /// <summary>Whether hits from and on NPCs count in the damage numbers (Tools › Stats overlay › Count NPC damage, IDEAS
+    /// P32). App sets it from StatsExcludeNpcDamage; on unless the player turns it off, so nobody's numbers change.</summary>
+    public bool CountNpcDamage { get; set; } = true;
+
     /// <summary>Configure CSV stat logging. App calls it at startup and after every settings change, so turning logging
     /// on or off applies at once (IDEAS P31). Old files are deleted by the first call only (startup): the old settings
     /// window saves on every keystroke, so a live change must never delete anything. The same values again do nothing.</summary>
@@ -55,6 +59,15 @@ public sealed class StatTrackerService
     {
         var stats = GetOrCreate(character);
         var entry = new TimedValue(DateTime.UtcNow, amount);
+
+        if (isNpc && !CountNpcDamage)
+        {
+            // Left out of every damage number (IDEAS P32). Ratting still sees the NPC hit, and the CSV log keeps it.
+            if (!isIncoming) stats.BountyTicks.Add(entry);
+            CheckAndPrune(character, stats);
+            LogCsv(character, isIncoming ? "DMG_IN" : "DMG_OUT", amount);
+            return;
+        }
 
         if (isIncoming)
         {

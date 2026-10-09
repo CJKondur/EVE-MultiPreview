@@ -154,6 +154,7 @@ public class AhkConfigRoot
         s.StatLoggingEnabled = g.StatLogEnabled != 0;
         s.StatLogDirectory = g.StatLogPath ?? "";
         s.StatLogRetentionDays = g.StatLogRetentionDays;
+        s.StatsExcludeNpcDamage = g.StatsExcludeNpcDamage != 0;
         s.PerCharacterStats = ConvertStatOverlayConfig(g.StatOverlayConfig);
         s.StatWindowPositions = g.StatWindowPositions ?? new();
 
@@ -447,6 +448,7 @@ public class AhkConfigRoot
         g.StatLogEnabled = s.StatLoggingEnabled ? 1 : 0;
         g.StatLogPath = s.StatLogDirectory;
         g.StatLogRetentionDays = s.StatLogRetentionDays;
+        g.StatsExcludeNpcDamage = s.StatsExcludeNpcDamage ? 1 : 0;
         g.StatOverlayConfig = ConvertStatOverlayToAhk(s.PerCharacterStats);
         g.StatWindowPositions = s.StatWindowPositions;
         g.GlobalStatMetrics = (long)(uint)s.GlobalStatMetrics;
@@ -1286,6 +1288,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("StatLogRetentionDays")]
     public int StatLogRetentionDays { get; set; } = 30;
+
+    // New in the ideas batch (IDEAS P32): a file without it loads off, every hit counts.
+    [JsonPropertyName("StatsExcludeNpcDamage")]
+    public int StatsExcludeNpcDamage { get; set; }
 
     [JsonPropertyName("StatWindowPositions")]
     public Dictionary<string, ThumbnailRect>? StatWindowPositions { get; set; }
