@@ -23,7 +23,8 @@ public static class ProcessNames
 
     public static int Count => Names.Count;
 
-    /// <summary>The exe name without its folder and ".exe" ("exefile"), or null when Windows won't say.</summary>
+    /// <summary>The exe name without its folder and ".exe" ("exefile"); see <see cref="User32.ReadProcessName"/> for
+    /// process 0, protected processes and processes that are gone.</summary>
     public static string? Get(uint pid) => Get(pid, Environment.TickCount, User32.ReadProcessName);
 
     public static string? Get(uint pid, int now, Func<uint, string?> read)
@@ -31,7 +32,7 @@ public static class ProcessNames
         if (Names.TryGetValue(pid, out var known) && unchecked(now - known.At) is >= 0 and < KeepMs) return known.Name;
         if (Names.Count >= MaxEntries) Names.Clear();
         var name = read(pid);
-        Names[pid] = (name, now);   // a process that can't be read is remembered too, so a burst from it costs one failed open
+        Names[pid] = (name, now);   // a process that is gone or can't be read is remembered too: a burst costs one failed open
         return name;
     }
 

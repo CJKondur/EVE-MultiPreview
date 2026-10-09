@@ -1128,26 +1128,34 @@ public static class User32
     public static string? GetProcessName(IntPtr hWnd)
     {
         GetWindowThreadProcessId(hWnd, out uint pid);
-        return pid == 0 ? null : ProcessNames.Get(pid);
+        return ProcessNames.Get(pid);
     }
+
+    /// <summary>What <see cref="ReadProcessName"/> answers for a process that exists but won't say what it is (a
+    /// system process such as dwm). Never an EVE client and never this app.</summary>
+    public const string ProtectedProcess = "(protected)";
+
+    private const int ERROR_ACCESS_DENIED = 5;
 
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool QueryFullProcessImageNameW(IntPtr process, uint flags, StringBuilder exeName, ref uint size);
 
-    /// <summary>Asks Windows for one process's exe name ("exefile"), or null when it is gone or protected. One open
-    /// and one query: no list of every process, and no wait that lets other window messages run (see
-    /// <see cref="ProcessNames"/>, which remembers the answer).</summary>
+    /// <summary>Asks Windows for one process's exe name ("exefile"). One open and one query: no list of every process,
+    /// and no wait that lets other window messages run (see <see cref="ProcessNames"/>, which remembers the answer).
+    /// The special cases answer as System.Diagnostics.Process did, because callers decide by them: process 0 (what a
+    /// window that is already gone reports) is "Idle"; a process that exists but can't be read is
+    /// <see cref="ProtectedProcess"/>; only a process that is gone is null.</summary>
     public static string? ReadProcessName(uint pid)
     {
-        if (pid == 0) return null;
+        if (pid == 0) return "Idle";
         var process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
-        if (process == IntPtr.Zero) return null;
+        if (process == IntPtr.Zero) return Marshal.GetLastWin32Error() == ERROR_ACCESS_DENIED ? ProtectedProcess : null;
         try
         {
             var path = new StringBuilder(1024);
             uint size = (uint)path.Capacity;
-            return QueryFullProcessImageNameW(process, 0, path, ref size) && size > 0 ? ProcessNameFromPath(path.ToString(0, (int)size)) : null;
+            return QueryFullProcessImageNameW(process, 0, path, ref size) && size > 0 ? ProcessNameFromPath(path.ToString(0, (int)size)) : ProtectedProcess;
         }
         finally { CloseHandle(process); }
     }
