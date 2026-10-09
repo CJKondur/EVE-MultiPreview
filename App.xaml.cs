@@ -103,8 +103,12 @@ public partial class App : Application
         // a file. Only the instance that holds the single-instance lock gets here.
         _home = SettingsHome.Resolve(AppPaths.ExeDir, AppPaths.AppDataDir);
         AppPaths.Use(_home.ConfigDir);
-        try { Directory.CreateDirectory(AppPaths.LogsDir); } catch { }
-        System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener(Path.Combine(AppPaths.LogsDir, "debug_log.txt")));
+        // A Logs folder that is a link gets no log files: MultiPreview never writes through one.
+        if (AppPaths.LogsWritable)
+        {
+            try { Directory.CreateDirectory(AppPaths.LogsDir); } catch { }
+            System.Diagnostics.Trace.Listeners.Add(new System.Diagnostics.TextWriterTraceListener(Path.Combine(AppPaths.LogsDir, "debug_log.txt")));
+        }
         System.Diagnostics.Trace.AutoFlush = true;
 
         // IDEAS #55: a marker the last session left behind means it ended without closing.
@@ -126,6 +130,9 @@ public partial class App : Application
         AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
         ErrorLog.Shared.Changed += QueueTrayText;   // IDEAS #55: the tray tooltip counts handled errors
         SettingsHome.Report(_home, ErrorLog.Shared, DateTime.Now);   // what moved, or why the settings stay beside the exe
+        // Counted once (the tray shows it), though with no log file to write it to.
+        if (!AppPaths.LogsWritable)
+            LogError(new IOException($"{AppPaths.LogsDir} is a link, and MultiPreview never writes through one: no log files this session."));
 
         // ── JSON Migration ──
         // Not while the missing-file prompt is due: that question comes first, and a settings file made here would hide it.
@@ -557,7 +564,7 @@ public partial class App : Application
     {
         // The process is ending: written here, and the run marker stays, so the next start says so (IDEAS #55).
         if (e.ExceptionObject is Exception ex)
-            ErrorLog.Shared.Record(ex, "Crash", DateTime.Now);
+            ErrorLog.Shared.RecordCrash(ex, DateTime.Now);   // always written, whatever the session logged before
     }
 
     /// <summary>An error MultiPreview handled and kept running after: counted, and written to Logs\error_log.txt in the

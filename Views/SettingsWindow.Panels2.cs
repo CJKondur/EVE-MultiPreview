@@ -1961,8 +1961,7 @@ public partial class SettingsWindow
             var configPath = _svc.SettingsPath;
             if (!File.Exists(configPath)) { MessageBox.Show("Config file not found.", "Backup"); return; }
 
-            var backupDir = Path.Combine(_svc.ConfigDirectory, "Backups");
-            Directory.CreateDirectory(backupDir);
+            var backupDir = SettingsHome.BackupsFolder(_svc.ConfigDirectory);   // refuses a Backups folder that is a link
 
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
             var backupPath = Path.Combine(backupDir, $"EVE MultiPreview_{timestamp}.json");

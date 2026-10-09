@@ -6,7 +6,9 @@ namespace EveMultiPreview.Services;
 
 /// <summary>Tells an unexpected end from a clean exit (IDEAS #55). The instance that holds the single-instance lock
 /// writes a marker into the settings folder when it starts and deletes it when it exits cleanly (or Windows signs out),
-/// so a marker found at the next start means that session ended some other way: a crash, Task Manager, a power cut.</summary>
+/// so a marker found at the next start means that session ended some other way: a crash, Task Manager, a power cut.
+/// The marker is written under a new temporary name and moved onto its own, and a link at its name is left alone:
+/// not read, not written through, not deleted.</summary>
 public sealed class RunMarker
 {
     public const string FileName = "EVE MultiPreview.running";
@@ -24,6 +26,7 @@ public sealed class RunMarker
     /// then marks this session as running. Never throws.</summary>
     public DateTime? Begin(DateTime now)
     {
+        if (SettingsHome.IsLink(_path)) return null;   // a link is no marker of ours, and nothing is written through it
         DateTime? previous = null;
         try
         {
@@ -33,13 +36,21 @@ public sealed class RunMarker
                     : File.GetLastWriteTime(_path);
         }
         catch { }
+        var tmp = _path + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
-            File.WriteAllText(_path, now.ToString("o", CultureInfo.InvariantCulture));
+            using (var stream = new FileStream(tmp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var writer = new StreamWriter(stream))
+                writer.Write(now.ToString("o", CultureInfo.InvariantCulture));
+            File.Move(tmp, _path, overwrite: true);   // replaces whatever has that name, instead of writing into it
             _written = true;
         }
         catch { }
+        finally
+        {
+            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { }
+        }
         return previous;
     }
 

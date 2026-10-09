@@ -34,7 +34,16 @@ public static class AppPaths
     public static string LogsDir => Path.Combine(ConfigDir, "Logs");
     public static string ErrorLogPath => Path.Combine(LogsDir, "error_log.txt");
 
+    /// <summary>False while the Logs folder is a link (a junction or a symbolic link): MultiPreview never writes through
+    /// one, so this run writes no log files (the error log, the debug logs, the trace file). Checked once, when the
+    /// settings folder is set.</summary>
+    public static bool LogsWritable { get; private set; } = true;
+
     /// <summary>Sets the settings folder. App calls it once, right after SettingsHome.Resolve; a test that calls it puts
     /// the old value back when it ends.</summary>
-    public static void Use(string configDir) => ConfigDir = configDir;
+    public static void Use(string configDir)
+    {
+        ConfigDir = configDir;
+        LogsWritable = !SettingsHome.IsLink(LogsDir);
+    }
 }

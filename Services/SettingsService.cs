@@ -166,7 +166,7 @@ public sealed class SettingsService : IDisposable
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[Settings] Load error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[Settings] Load error: {ErrorLog.Describe(ex)}");   // no JSON path: it names characters
             LastLoadError = ex;
             if (recordFailure) LogError(ex);
             // Back up the broken file so we don't lose user data

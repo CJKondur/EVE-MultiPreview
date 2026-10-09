@@ -97,7 +97,7 @@ public static class SettingsHome
                 try { SettingsService.ParseForLoad(File.ReadAllText(exeFile)); }
                 catch (Exception ex)
                 {
-                    notes.Add($"Settings stay next to the exe this time: {exeFile} can't be read ({ex.GetType().Name}: {ex.Message}). They move once it loads.");
+                    notes.Add($"Settings stay next to the exe this time: {exeFile} can't be read ({ErrorLog.Describe(ex)}). They move once it loads.");
                     return StayNextToExe(exeDir, notes, errors);
                 }
             }
@@ -114,7 +114,7 @@ public static class SettingsHome
         }
         catch (Exception ex)
         {
-            notes.Add($"Settings stay next to the exe this time: {ex.GetType().Name}: {ex.Message}");
+            notes.Add($"Settings stay next to the exe this time: {ErrorLog.Describe(ex)}");
             return StayNextToExe(exeDir, notes, errors);
         }
     }
@@ -168,7 +168,7 @@ public static class SettingsHome
             foreach (var file in Directory.EnumerateFiles(from, "*.json", SearchOption.TopDirectoryOnly))
                 CopyIfNew(file, Path.Combine(to, Path.GetFileName(file)), notes);
         }
-        catch (Exception ex) { notes.Add($"Backups not copied: {ex.GetType().Name}: {ex.Message}"); }
+        catch (Exception ex) { notes.Add($"Backups not copied: {ErrorLog.Describe(ex)}"); }
     }
 
     private static void CopyIfNew(string from, string to, List<string> notes)
@@ -177,7 +177,7 @@ public static class SettingsHome
         {
             if (File.Exists(from) && !IsLink(from) && !File.Exists(to)) CopyNoFollow(from, to, overwrite: false);
         }
-        catch (Exception ex) { notes.Add($"Not copied: {from} ({ex.GetType().Name}: {ex.Message})"); }
+        catch (Exception ex) { notes.Add($"Not copied: {from} ({ErrorLog.Describe(ex)})"); }
     }
 
     /// <summary>The other settings file when it holds other settings than the active one, was changed after it and
@@ -453,7 +453,7 @@ public static class SettingsHome
             if (string.Equals(Path.GetFullPath(activeFile), Path.GetFullPath(exeFile), StringComparison.OrdinalIgnoreCase)) return default;
             if (!File.Exists(activeFile)) return default;
             try { SettingsService.ParseForLoad(File.ReadAllText(activeFile)); }
-            catch (Exception ex) { return Failed($"the current settings file doesn't load ({ex.GetType().Name}: {ex.Message})"); }
+            catch (Exception ex) { return Failed($"the current settings file doesn't load ({ErrorLog.Describe(ex)})"); }
 
             var activeDir = Path.GetDirectoryName(activeFile)!;
             bool settings = HandBackFile(activeFile, exeFile, activeDir, "EVE MultiPreview", now, verifySettings: true);
@@ -465,10 +465,10 @@ public static class SettingsHome
                 presets = HandBackFile(Path.Combine(activeDir, "layout_presets.json"), Path.Combine(exeDir, "layout_presets.json"),
                     activeDir, "layout_presets", now, verifySettings: false);
             }
-            catch (Exception ex) { presetsReason = $"layout_presets.json was not handed back ({ex.GetType().Name}: {ex.Message})"; }
+            catch (Exception ex) { presetsReason = $"layout_presets.json was not handed back ({ErrorLog.Describe(ex)})"; }
             return settings || presets ? new(HandBackState.Done, presetsReason) : new(HandBackState.NothingToDo, presetsReason);
         }
-        catch (Exception ex) { return Failed($"{ex.GetType().Name}: {ex.Message}"); }
+        catch (Exception ex) { return Failed(ErrorLog.Describe(ex)); }
 
         static HandBackResult Failed(string reason) => new(HandBackState.Failed, reason);
     }

@@ -14,6 +14,7 @@ public static class DiagnosticsService
 
     public static void Initialize()
     {
+        if (!AppPaths.LogsWritable) return;   // a Logs folder that is a link: nothing is written through it
         try { Directory.CreateDirectory(LogDir); } catch { }
     }
 
@@ -35,6 +36,7 @@ public static class DiagnosticsService
         // can't lose entries to file-lock contention. File.AppendAllText opens
         // the file with exclusive write each call, so two parallel calls would
         // race; previously the loser was silently dropped.
+        if (!AppPaths.LogsWritable) return;   // a Logs folder that is a link: nothing is written through it
         try
         {
             string fileName = $"debug_{category}.log";
