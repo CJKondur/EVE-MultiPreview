@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -104,7 +104,9 @@ public sealed class HotkeyService : IDisposable
     // Signaled once the hook thread has published its native thread id, so a
     // remove that races a just-started thread can always post WM_QUIT to it.
     private readonly System.Threading.ManualResetEventSlim _mouseHookReady = new(false);
-    private readonly List<MouseButtonBinding> _mouseBindings = new();
+    // Copy-on-write: the hook thread reads this while the UI thread changes it, so a change builds a new list and
+    // swaps the reference; the callback takes one snapshot per event and never sees a list being modified.
+    private volatile List<MouseButtonBinding> _mouseBindings = new();
     private readonly List<MouseButtonBinding> _storedMouseBindings = new(); // persist across suspend
     private record MouseButtonBinding(uint Modifiers, string ButtonName, Action Action, bool AllowRepeat);
 
@@ -293,7 +295,6 @@ public sealed class HotkeyService : IDisposable
     /// settings reloads.</summary>
     public void UnregisterAll()
     {
-        if (_hwndSource == null) return;
         // Preserve cached actions + VKs for any IDs we keep so the dispatcher can
         // still find them when WM_HOTKEY arrives.
         var preservedActions = new Dictionary<int, Action>();
@@ -306,7 +307,7 @@ public sealed class HotkeyService : IDisposable
                 if (_hotkeyVks.TryGetValue(id, out var vk)) preservedVks[id] = vk;
                 continue;
             }
-            User32.UnregisterHotKey(_hwndSource.Handle, id);
+            if (_hwndSource != null) User32.UnregisterHotKey(_hwndSource.Handle, id);   // null only in tests that never Initialize()
         }
         _hotkeyActions.Clear();
         _hotkeyVks.Clear();
@@ -1327,7 +1328,7 @@ public sealed class HotkeyService : IDisposable
         if (isSuspend) _suspendMouseBinding = binding;
         _storedMouseBindings.Add(binding); // keep for suspend/resume
         if (_suspended && !isSuspend) return;   // paused: only the pause key is hooked (IDEAS P24); the rest come back on resume
-        _mouseBindings.Add(binding);
+        _mouseBindings = new List<MouseButtonBinding>(_mouseBindings) { binding };
         EnsureMouseHook();
     }
 
@@ -1337,8 +1338,9 @@ public sealed class HotkeyService : IDisposable
     private void ReinstallMouseBindings()
     {
         RemoveMouseHook();
-        if (!_suspended) _mouseBindings.AddRange(_storedMouseBindings);
-        else if (_suspendMouseBinding != null) _mouseBindings.Add(_suspendMouseBinding);
+        _mouseBindings = !_suspended ? new List<MouseButtonBinding>(_storedMouseBindings)
+            : _suspendMouseBinding != null ? new List<MouseButtonBinding> { _suspendMouseBinding }
+            : new List<MouseButtonBinding>();
         EnsureMouseHook();
     }
 
@@ -1368,21 +1370,25 @@ public sealed class HotkeyService : IDisposable
     {
         _mouseHookThreadId = User32.GetCurrentThreadId();
         _mouseHookProc = MouseHookCallback; // prevent GC collection
-        _mouseHookHandle = User32.SetWindowsHookEx(
+        // This thread owns the hook it installs: a replaced thread can wake from WM_QUIT after its successor has
+        // installed a new hook, and must then unhook only its own, never the successor's.
+        var handle = User32.SetWindowsHookEx(
             User32.WH_MOUSE_LL,
             _mouseHookProc,
             User32.GetModuleHandle(null),
             0);
+        _mouseHookHandle = handle;
         _mouseHookReady.Set(); // id + handle published
-        Debug.WriteLine($"[Hotkey:Mouse] 🪝 Mouse hook installed on dedicated thread: {_mouseHookHandle != IntPtr.Zero}");
+        Debug.WriteLine($"[Hotkey:Mouse] 🪝 Mouse hook installed on dedicated thread: {handle != IntPtr.Zero}");
 
         // Message loop — required for the LL hook callback to be delivered here.
         while (User32.GetMessage(out _, IntPtr.Zero, 0, 0) > 0) { /* WM_QUIT ends the loop */ }
 
-        if (_mouseHookHandle != IntPtr.Zero)
+        if (handle != IntPtr.Zero)
         {
-            User32.UnhookWindowsHookEx(_mouseHookHandle);
-            _mouseHookHandle = IntPtr.Zero;
+            User32.UnhookWindowsHookEx(handle);
+            // Clear the shared field only if it is still ours.
+            System.Threading.Interlocked.CompareExchange(ref _mouseHookHandle, IntPtr.Zero, handle);
         }
         Debug.WriteLine("[Hotkey:Mouse] 🛑 Mouse hook thread exited");
     }
@@ -1399,7 +1405,7 @@ public sealed class HotkeyService : IDisposable
             _mouseHookThreadId = 0;
             Debug.WriteLine("[Hotkey:Mouse] 🛑 Mouse hook removal requested");
         }
-        _mouseBindings.Clear();
+        _mouseBindings = new List<MouseButtonBinding>();
     }
 
     private void EnsureKeyHook()
@@ -1516,7 +1522,8 @@ public sealed class HotkeyService : IDisposable
 
     private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
     {
-        if (nCode >= 0 && _mouseBindings.Count > 0)
+        var bindings = _mouseBindings;   // one snapshot per event
+        if (nCode >= 0 && bindings.Count > 0)
         {
             int msg = wParam.ToInt32();
             string? buttonName = null;
@@ -1536,7 +1543,7 @@ public sealed class HotkeyService : IDisposable
 
             if (buttonName != null)
             {
-                bool hasAnyBinding = _mouseBindings.Any(b => b.ButtonName == buttonName);
+                bool hasAnyBinding = bindings.Any(b => b.ButtonName == buttonName);
 
                 // UP: stop any in-flight repeat for this button. Suppress the UP
                 // if we have a binding for this button so the focused app sees
@@ -1561,8 +1568,8 @@ public sealed class HotkeyService : IDisposable
                     if (User32.IsKeyDown(0x10)) currentMods |= User32.MOD_SHIFT;   // VK_SHIFT
                     if (User32.IsKeyDown(0x5B) || User32.IsKeyDown(0x5C)) currentMods |= User32.MOD_WIN;
 
-                    var bestBinding = _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == currentMods)
-                                   ?? _mouseBindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == 0);
+                    var bestBinding = bindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == currentMods)
+                                   ?? bindings.FirstOrDefault(b => b.ButtonName == buttonName && b.Modifiers == 0);
 
                     // Diagnostic (#92): the mouse-hook cycle path was a black box. Log
                     // every DOWN we matched to a button, the live modifiers, how many
@@ -1570,7 +1577,7 @@ public sealed class HotkeyService : IDisposable
                     // "button is eaten but doesn't cycle" report can be pinpointed.
                     EveMultiPreview.Services.DiagnosticsService.LogCycling(
                         $"[Hotkey:Mouse] DOWN {buttonName} mods=0x{currentMods:X} " +
-                        $"bindings-for-button={_mouseBindings.Count(b => b.ButtonName == buttonName)} " +
+                        $"bindings-for-button={bindings.Count(b => b.ButtonName == buttonName)} " +
                         $"matched={(bestBinding != null ? $"yes(repeat={bestBinding.AllowRepeat})" : "NO — no binding for these modifiers")}");
 
                     if (bestBinding != null)
