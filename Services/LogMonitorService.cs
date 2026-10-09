@@ -1223,6 +1223,59 @@ public sealed class LogMonitorService : IDisposable
         }
     }
 
+    /// <summary>Game logs written within this long count as a running client's.</summary>
+    public static readonly TimeSpan GameLogWindow = TimeSpan.FromMinutes(30);
+    /// <summary>The most game logs and Local chat logs one scan takes on.</summary>
+    public const int GameLogsTaken = 50, LocalLogsTaken = 12;
+
+    /// <summary>The game logs a scan takes on: the folder's *.txt files written in the last 30 minutes, newest first, at
+    /// most 50, as full paths.</summary>
+    public static IReadOnlyList<string> RecentGameLogs(string folder, DateTime now)
+    {
+        var cutoff = now - GameLogWindow;
+        return LogTimes(folder, "*.txt", now)
+            .Where(x => x.Written >= cutoff)
+            .OrderByDescending(x => x.Written)
+            .Take(GameLogsTaken)
+            .Select(x => x.Path)
+            .ToList();
+    }
+
+    /// <summary>The Local chat logs a scan takes on (for the system each character is in): the folder's Local_*.txt
+    /// files, newest first, at most 12, as full paths.</summary>
+    public static IReadOnlyList<string> NewestLocalLogs(string folder, DateTime now) =>
+        LogTimes(folder, "Local_*.txt", now)
+            .OrderByDescending(x => x.Written)
+            .Take(LocalLogsTaken)
+            .Select(x => x.Path)
+            .ToList();
+
+    /// <summary>A log with a sign of life this recent (created, or listed as written) may still be open in a client.</summary>
+    public static readonly TimeSpan OpenLogLookback = TimeSpan.FromDays(7);
+
+    /// <summary>Whether a log must be asked itself when it was last written, instead of trusting the folder's listing.
+    /// Windows only updates a file's line in the listing when a handle on it closes, and EVE keeps a session's log open,
+    /// so a running client's log can be listed with a time that is hours old. A log created or listed as written in the
+    /// last 7 days may be such a file; one older than that on both counts is not being written (a session can't
+    /// outlast the daily downtime by that much), and its listed time is the true one.</summary>
+    public static bool MayStillBeOpen(DateTime created, DateTime listedAsWritten, DateTime now) =>
+        created >= now - OpenLogLookback || listedAsWritten >= now - OpenLogLookback;
+
+    /// <summary>Every matching file of a folder with the time it was last written. One pass over the folder's own
+    /// listing, which carries every file's times; only the few files that may still be open in a client
+    /// (<see cref="MayStillBeOpen"/>) are asked themselves, as every file was before. On a folder of 10,000 old logs
+    /// that separate question per file, at every scan, cost most of a processor core.</summary>
+    private static IEnumerable<(string Path, DateTime Written)> LogTimes(string folder, string pattern, DateTime now)
+    {
+        foreach (var file in new DirectoryInfo(folder).EnumerateFiles(pattern))
+        {
+            var path = Path.GetFullPath(file.FullName);
+            var written = file.LastWriteTime;
+            if (MayStillBeOpen(file.CreationTime, written, now)) written = File.GetLastWriteTime(path);
+            yield return (path, written);
+        }
+    }
+
     private void ScanForNewFiles()
     {
         int newFiles = 0;
@@ -1238,13 +1291,7 @@ public sealed class LogMonitorService : IDisposable
         // files all touched within the window.
         if (Directory.Exists(_gameLogPath))
         {
-            var cutoff = DateTime.Now - TimeSpan.FromMinutes(30);
-            foreach (var file in Directory.GetFiles(_gameLogPath, "*.txt")
-                .Select(f => new { Path = f, MTime = File.GetLastWriteTime(f) })
-                .Where(x => x.MTime >= cutoff)
-                .OrderByDescending(x => x.MTime)
-                .Take(50)
-                .Select(x => Path.GetFullPath(x.Path)))
+            foreach (var file in RecentGameLogs(_gameLogPath, DateTime.Now))
             {
                 if (!_trackedFiles.ContainsKey(file))
                 {
@@ -1264,10 +1311,7 @@ public sealed class LogMonitorService : IDisposable
         // Scan Local chat logs (for system detection)
         if (Directory.Exists(_chatLogPath))
         {
-            foreach (var file in Directory.GetFiles(_chatLogPath, "Local_*.txt")
-                .OrderByDescending(File.GetLastWriteTime)
-                .Take(12)
-                .Select(f => Path.GetFullPath(f)))
+            foreach (var file in NewestLocalLogs(_chatLogPath, DateTime.Now))
             {
                 if (!_trackedFiles.ContainsKey(file))
                 {
