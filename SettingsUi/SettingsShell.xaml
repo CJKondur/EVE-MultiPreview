@@ -72,8 +72,7 @@
                             <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
                         </StackPanel>
                     </Button>
-                    <ItemsControl ItemsSource="{Binding Groups}" Focusable="False"
-                                  Visibility="{Binding ShowGroups, Converter={StaticResource Fx.BoolToVis}}">
+                    <ItemsControl ItemsSource="{Binding VisibleGroups}" Focusable="False">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>

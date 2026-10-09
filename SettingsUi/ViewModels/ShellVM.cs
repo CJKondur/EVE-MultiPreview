@@ -116,6 +116,13 @@ public sealed class ShellVM : ObservableObject, IDisposable
     public bool IsAdvanced { get => !IsSimple; set => IsSimple = !value; }
     public bool ShowGroups => !IsSimple;
 
+    /// <summary>Simple mode is Home plus the App pages (owner, 2026-10-08): language, profiles, updates and
+    /// diagnostics stay one click away. Every other page is Advanced.</summary>
+    public static bool InSimpleMode(PageDef page) => page.Group is NavGroup.Home or NavGroup.App;
+
+    /// <summary>The sidebar's groups: only App in Simple mode, every group in Advanced.</summary>
+    public IReadOnlyList<NavGroupVM> VisibleGroups => IsSimple ? Groups.Where(g => g.Group == NavGroup.App).ToList() : Groups;
+
     public bool HelpOpen
     {
         get => _ctx.S.SettingsHelpOpen;
@@ -134,7 +141,7 @@ public sealed class ShellVM : ObservableObject, IDisposable
         var page = Pages.FirstOrDefault(p => p.Id == pageId)
                    ?? (_pages.TryGetValue(pageId, out var built) ? built.Page : _resolve?.Invoke(pageId));
         if (page == null) return;
-        if (page.Group != NavGroup.Home && IsSimple)
+        if (!InSimpleMode(page) && IsSimple)
         {
             _ctx.S.SimpleMode = false;   // an Advanced page from search or help: show where it lives
             _ctx.Applier.Request(ApplyScope.Save);

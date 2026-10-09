@@ -73,6 +73,7 @@ public partial class SettingsShell : Window, ISettingsHost
         };
         Sections.MouseMove += (_, e) => FollowHelp(e.OriginalSource);
         Sections.GotKeyboardFocus += (_, e) => FollowHelp(e.OriginalSource);
+        _helpShown = Vm.HelpOpen;   // remembered open: the saved width already holds the column
         UpdateHelp();
 
         _search = new SearchBox(SearchEntries, entry => Navigate(entry.PageId, entry.ItemId));
@@ -324,12 +325,23 @@ public partial class SettingsShell : Window, ISettingsHost
     /// closed, 1240 px with the 320 px help column open, as far as the screen allows.</summary>
     public const double ClosedMinWidth = 960, HelpOpenMinWidth = 1240;
 
-    /// <summary>Help column: 320 px when open, 0 when closed (spec §4: it pushes the content left).</summary>
+    /// <summary>The help column's width before the window's UI scale.</summary>
+    public const double HelpWidth = 320;
+
+    /// <summary>Whether the help column is shown now; opening and closing are told apart from page changes by it.
+    /// Starts as the remembered state, so a window that opens with help open keeps its saved width.</summary>
+    private bool _helpShown;
+
+    /// <summary>Help column: 320 px when open, 0 when closed. Opening it adds the column on the window's right and
+    /// closing it gives that width back (owner, 2026-10-08), so the page keeps its width.</summary>
     private void UpdateHelp()
     {
-        HelpColumn.Width = new GridLength(Vm.HelpOpen ? 320 : 0);
+        bool toggled = Vm.HelpOpen != _helpShown;
+        _helpShown = Vm.HelpOpen;
+        HelpColumn.Width = new GridLength(Vm.HelpOpen ? HelpWidth : 0);
         HelpHost.Visibility = Vm.HelpOpen ? Visibility.Visible : Visibility.Collapsed;
-        KeepRoomForThePage();
+        if (toggled) ResizeForHelp();
+        else KeepRoomForThePage();
         var page = Vm.Current?.Page.HelpId;
         if (Vm.HelpOpen && page != null && page != _helpPage)
         {
@@ -349,6 +361,23 @@ public partial class SettingsShell : Window, ISettingsHost
         // Nudge only when this call grew the window: a window the player dragged part-way off the screen stays put.
         if (Width < MinWidth) { Width = MinWidth; Left = NudgedLeft(Left, Width, area.Left, area.Right); }
     }
+
+    /// <summary>Help was opened or closed: the window grows or shrinks by the column (scaled with the UI size) on its right
+    /// edge. A window that would then run past its monitor's right edge is moved left just enough; a maximized one
+    /// can't grow, so there the column shares the space.</summary>
+    private void ResizeForHelp()
+    {
+        var width = Width;   // read first: raising MinWidth below snaps the window up to it
+        var area = UpdateMinWidth();
+        if (WindowState != WindowState.Normal) return;
+        Width = WidthForHelp(width, Vm.HelpOpen, HelpWidth * _scale, MinWidth, area.Width);
+        Left = NudgedLeft(Left, Width, area.Left, area.Right);
+    }
+
+    /// <summary>The window width after help opens (adds the column) or closes (removes it), held between the minimum
+    /// width and the width of the monitor's work area.</summary>
+    public static double WidthForHelp(double width, bool opening, double column, double minWidth, double areaWidth) =>
+        Math.Min(Math.Max(opening ? width + column : width - column, minWidth), Math.Max(minWidth, areaWidth));
 
     /// <summary>The minimum width scales with the window's UI size (the content's scale transform is inside the window),
     /// and is capped by the work area of the monitor the window is on. Returns that work area.</summary>
