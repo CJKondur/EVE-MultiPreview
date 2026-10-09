@@ -1727,7 +1727,7 @@
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">Where the files go. It's made if it doesn't exist.</sys:String>
     <sys:String x:Key="L.S.tools.stats.noFolder">Choose a log folder: without one nothing is saved.</sys:String>
     <sys:String x:Key="L.S.tools.stats.keepDays">Keep files for</sys:String>
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Older stats files in the folder are deleted when MultiPreview starts and when you change these settings.</sys:String>
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Older stats files in the folder are deleted when MultiPreview starts.</sys:String>
     <sys:String x:Key="L.S.tools.stats.keepZero">Keep files for is 0 days or less, so no stats file is ever deleted. Enter a number of days to delete older files.</sys:String>
     <sys:String x:Key="L.S.Unit.Days">days</sys:String>
     <sys:String x:Key="L.Help.tools.stats.Intro">The stats overlay puts live numbers beside each client: damage per second, repairs, ore mined, ISK earned. They come from EVE's game logs, so game logs must be read (Alerts › Events).</sys:String>
@@ -1738,7 +1738,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Look</sys:String>
     <sys:String x:Key="L.Help.tools.stats.look.Body">Text size, opacity and the two colours apply to every stats window. Colours can be typed as #RRGGBB or picked with the swatch.</sys:String>
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Saving stats</sys:String>
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">With **Save stats to CSV files** on, MultiPreview writes one file per character per day into the log folder, for a spreadsheet. Files older than the keep time are deleted when MultiPreview starts and when you change these settings; 0 days keeps every file. Changes apply at once.</sys:String>
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">With **Save stats to CSV files** on, MultiPreview writes one file per character per day into the log folder, for a spreadsheet. Files older than the keep time are deleted when MultiPreview starts; 0 days keeps every file. Turning logging on or off applies at once; a new keep time applies from the next start.</sys:String>
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Choose numbers</sys:String>
     <sys:String x:Key="L.S.character.statsPicker.Desc">Show or hide single numbers for this character. Default follows the numbers for every character (Tools › Stats overlay).</sys:String>

@@ -1749,7 +1749,7 @@
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">Dónde se guardan los archivos. Se crea si no existe.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">Elige una carpeta de registros: sin ella no se guarda nada.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">Conservar archivos durante</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Los archivos de estadísticas más antiguos de la carpeta se eliminan al iniciar MultiPreview y cuando cambias estos ajustes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Los archivos de estadísticas más antiguos de la carpeta se eliminan al iniciar MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepZero">«Conservar archivos durante» es 0 días o menos, así que nunca se elimina ningún archivo de estadísticas. Pon un número de días para eliminar los archivos más antiguos.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">días</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">La superposición de estadísticas muestra cifras en vivo junto a cada cliente: daño por segundo, reparaciones, mineral extraído, ISK ganados. Vienen de los registros de juego de EVE, así que deben leerse los registros de juego (Alertas › Eventos).</sys:String> <!-- draft -->
@@ -1760,7 +1760,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Aspecto</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">El tamaño del texto, la opacidad y los dos colores se aplican a todas las ventanas de estadísticas. Los colores se pueden escribir como #RRGGBB o elegir con la muestra.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Guardar estadísticas</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Con **Guardar estadísticas en archivos CSV** activado, MultiPreview escribe un archivo por personaje y día en la carpeta de registros, para una hoja de cálculo. Los archivos más antiguos que el tiempo de conservación se eliminan al iniciar MultiPreview y cuando cambias estos ajustes; 0 días conserva todos los archivos. Los cambios se aplican al instante.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Con **Guardar estadísticas en archivos CSV** activado, MultiPreview escribe un archivo por personaje y día en la carpeta de registros, para una hoja de cálculo. Los archivos más antiguos que el tiempo de conservación se eliminan al iniciar MultiPreview; 0 días conserva todos los archivos. Activar o desactivar el registro se aplica al instante; un nuevo tiempo de conservación, desde el siguiente inicio.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Elegir cifras</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Muestra u oculta cifras individuales para este personaje. «Predeterminado» sigue las cifras de todos los personajes (Herramientas › Superposición de estadísticas).</sys:String> <!-- draft -->

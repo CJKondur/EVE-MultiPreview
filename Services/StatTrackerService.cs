@@ -29,21 +29,23 @@ public sealed class StatTrackerService
     private int _csvRetentionDays = 30;
     private bool _csvConfigured;
 
-    /// <summary>Configure CSV stat logging. App calls it at startup and after every settings change, so a change applies
-    /// at once (IDEAS P31); the same three values again do nothing, so the folder isn't scanned on every change.</summary>
+    /// <summary>Configure CSV stat logging. App calls it at startup and after every settings change, so turning logging
+    /// on or off applies at once (IDEAS P31). Old files are deleted by the first call only (startup): the old settings
+    /// window saves on every keystroke, so a live change must never delete anything. The same values again do nothing.</summary>
     public void SetCsvLogging(bool enabled, string directory, int retentionDays = 30)
     {
         directory ??= "";
         if (_csvConfigured && enabled == _csvLoggingEnabled && directory == _csvLogDirectory && retentionDays == _csvRetentionDays)
             return;
+        bool startup = !_csvConfigured;
         _csvConfigured = true;
         _csvLoggingEnabled = enabled;
         _csvLogDirectory = directory;
         _csvRetentionDays = retentionDays;
         Debug.WriteLine($"[StatTracker:CSV] 🔧 CSV logging: enabled={enabled}, dir='{directory}', retention={retentionDays}d");
 
-        // AHK: Run auto-cleanup on startup
-        if (enabled && !string.IsNullOrEmpty(directory))
+        // AHK: Run auto-cleanup on startup only; a shorter keep time applies at the next start.
+        if (startup && enabled && !string.IsNullOrEmpty(directory))
             CleanupOldLogs();
     }
 

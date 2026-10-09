@@ -23,7 +23,8 @@ public sealed class LogMonitorService : IDisposable
 {
     private CancellationTokenSource? _cts;
     private Task? _monitorTask;
-    private readonly ConcurrentDictionary<string, LogFileState> _trackedFiles = new();
+    // Keyed by full path, compared ignoring case: one file is one entry however its folder was typed (IDEAS P30).
+    private readonly ConcurrentDictionary<string, LogFileState> _trackedFiles = new(StringComparer.OrdinalIgnoreCase);
     private bool _initialScanComplete = false;
 
     // EVE log paths (configurable via settings)
@@ -31,8 +32,11 @@ public sealed class LogMonitorService : IDisposable
     private string _gameLogPath = "";
 
     // A folder change from Reconfigure (IDEAS P30), taken by the reading thread before its next read.
-    private (string Chat, string Game)? _pendingFolders;
+    // The raw settings are stored; the reading thread resolves them (Directory.Exists can stall on an unreachable share).
+    private (string? Chat, string? Game, bool ChatOn, bool GameOn)? _pendingFolders;
     private readonly object _foldersLock = new();
+    private readonly object _watchLock = new();   // watcher swap vs Stop
+    private volatile bool _scanRequested;         // Refresh asks; the reading thread scans
 
     // Hybrid: FileSystemWatcher for instant wake + polling fallback
     private readonly SemaphoreSlim _wakeSignal = new(0, 1);
@@ -48,7 +52,7 @@ public sealed class LogMonitorService : IDisposable
     private const int SCAN_EVERY_N_POLLS = 20;  // only scan for new files every 20th cycle
 
     // Character tracking
-    private readonly ConcurrentDictionary<string, string> _fileCharacterMap = new(); // filepath → character name
+    private readonly ConcurrentDictionary<string, string> _fileCharacterMap = new(StringComparer.OrdinalIgnoreCase); // filepath → character name
     private readonly ConcurrentDictionary<string, string> _characterSystems = new(); // char → system
     private readonly ConcurrentDictionary<string, DateTime> _systemTimestamps = new(); // char → last system change time
 
@@ -987,43 +991,69 @@ public sealed class LogMonitorService : IDisposable
     /// again change nothing.</summary>
     public void Reconfigure(string? chatLogOverride, string? gameLogOverride, bool chatEnabled, bool gameEnabled)
     {
-        var folders = ResolveFolders("", chatLogOverride, gameLogOverride, chatEnabled, gameEnabled);
-        lock (_foldersLock) _pendingFolders = folders;
+        lock (_foldersLock) _pendingFolders = (chatLogOverride, gameLogOverride, chatEnabled, gameEnabled);
         if (_cts == null) { ApplyPendingFolders(); return; }   // not reading (before Start, tests): at once
+        WakeReader();
+    }
+
+    /// <summary>Wakes the reading thread; a second waker (a file change, Refresh) finds the signal full and does nothing.</summary>
+    private void WakeReader()
+    {
         try { if (_wakeSignal.CurrentCount == 0) _wakeSignal.Release(); }
-        catch (SemaphoreFullException) { }                      // a file change woke it first
+        catch (SemaphoreFullException) { }
     }
 
     /// <summary>Takes a folder change from Reconfigure. Runs on the reading thread (or before Start), never beside a read.</summary>
     private void ApplyPendingFolders()
     {
-        (string Chat, string Game) next;
+        (string? Chat, string? Game, bool ChatOn, bool GameOn) pending;
         lock (_foldersLock)
         {
-            if (_pendingFolders is not { } pending) return;
+            if (_pendingFolders is not { } p) return;
             _pendingFolders = null;
-            next = pending;
+            pending = p;
         }
-        if (next.Chat == _chatLogPath && next.Game == _gameLogPath) return;
+        var next = ResolveFolders("", pending.Chat, pending.Game, pending.ChatOn, pending.GameOn);
+        bool chatSame = SameFolder(next.Chat, _chatLogPath), gameSame = SameFolder(next.Game, _gameLogPath);
+        if (chatSame && gameSame) return;   // the same folders, however typed: keep the old strings and every position
 
-        StopFileWatchers();
-        _chatLogPath = next.Chat;
-        _gameLogPath = next.Game;
-        foreach (var (path, state) in _trackedFiles)
+        lock (_watchLock)
         {
-            if (IsIn(path, state.Type == LogType.ChatLog ? _chatLogPath : _gameLogPath)) continue;
-            _trackedFiles.TryRemove(path, out _);
-            _fileCharacterMap.TryRemove(path, out _);
+            if (_cts is { IsCancellationRequested: true }) return;   // Stop is running: start no new watchers
+            StopFileWatchers();
+            if (!chatSame) _chatLogPath = next.Chat;
+            if (!gameSame) _gameLogPath = next.Game;
+            foreach (var (path, state) in _trackedFiles)
+            {
+                if (IsIn(path, state.Type == LogType.ChatLog ? _chatLogPath : _gameLogPath)) continue;
+                _trackedFiles.TryRemove(path, out _);
+                _fileCharacterMap.TryRemove(path, out _);
+            }
+            if (_cts != null) StartFileWatchers();
         }
-        if (_cts != null) StartFileWatchers();
         _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1;   // look for the new folder's files on this pass
         _initialScanComplete = false;                    // and send the systems found there once, as at startup
         Debug.WriteLine($"[LogMonitor:Scan] 🔧 Folders now — Chat: {_chatLogPath}, Game: {_gameLogPath}");
     }
 
+    /// <summary>One spelling of a folder for every comparison: full path, no trailing separator ("" stays "").</summary>
+    private static string NormalFolder(string? folder)
+    {
+        if (string.IsNullOrEmpty(folder)) return "";
+        try
+        {
+            var full = Path.GetFullPath(folder);
+            var trimmed = full.TrimEnd('\\', '/');
+            return trimmed.Length == 0 ? full : trimmed;
+        }
+        catch (Exception) { return folder.TrimEnd('\\', '/'); }
+    }
+
+    private static bool SameFolder(string? a, string? b) =>
+        string.Equals(NormalFolder(a), NormalFolder(b), StringComparison.OrdinalIgnoreCase);
+
     private static bool IsIn(string file, string folder) =>
-        folder.Length > 0 && string.Equals(Path.GetDirectoryName(file)?.TrimEnd('\\', '/'), folder.TrimEnd('\\', '/'),
-            StringComparison.OrdinalIgnoreCase);
+        folder.Length > 0 && SameFolder(Path.GetDirectoryName(file), folder);
 
     /// <summary>One pass of the reading loop: a pending folder change, new files, new lines, then the systems found on a
     /// first read. Tests drive the monitor with it; it does nothing while Start's thread reads (two readers would read
@@ -1045,7 +1075,9 @@ public sealed class LogMonitorService : IDisposable
     public void Refresh()
     {
         Debug.WriteLine("[LogMonitor:Scan] 🔄 Refresh triggered — scanning for new log files");
-        ScanForNewFiles();
+        // Only the reading thread scans (it could re-add a file a folder change just dropped): ask, then wake it.
+        _scanRequested = true;
+        WakeReader();
     }
 
     public void SetCooldown(int seconds) => _defaultCooldownSeconds = seconds;
@@ -1066,6 +1098,7 @@ public sealed class LogMonitorService : IDisposable
             try
             {
                 ApplyPendingFolders();   // a settings change (IDEAS P30), on this thread, between reads
+                if (_scanRequested) { _scanRequested = false; _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1; }
 
                 // Throttle file discovery — only scan every Nth poll cycle
                 _scanThrottleCounter++;
@@ -1112,8 +1145,11 @@ public sealed class LogMonitorService : IDisposable
 
     private void StartFileWatchers()
     {
-        _chatWatcher = TryCreateWatcher(_chatLogPath, "Local_*.txt");
-        _gameWatcher = TryCreateWatcher(_gameLogPath, "*.txt");
+        lock (_watchLock)
+        {
+            _chatWatcher = TryCreateWatcher(_chatLogPath, "Local_*.txt");
+            _gameWatcher = TryCreateWatcher(_gameLogPath, "*.txt");
+        }
         Debug.WriteLine($"[LogMonitor:FSW] ⚡ FileSystemWatchers started (chat={_chatWatcher != null}, game={_gameWatcher != null})");
     }
 
@@ -1143,24 +1179,27 @@ public sealed class LogMonitorService : IDisposable
 
     private void OnLogFileChanged(object sender, FileSystemEventArgs e)
     {
-        // Wake the monitor loop immediately — don't wait for fallback poll
-        if (_wakeSignal.CurrentCount == 0)
-            _wakeSignal.Release();
+        // Wake the monitor loop immediately — don't wait for fallback poll. A second releaser used to throw from a
+        // thread-pool thread and end the process (IDEAS P41).
+        WakeReader();
     }
 
     private void StopFileWatchers()
     {
-        if (_chatWatcher != null)
+        lock (_watchLock)
         {
-            _chatWatcher.EnableRaisingEvents = false;
-            _chatWatcher.Dispose();
-            _chatWatcher = null;
-        }
-        if (_gameWatcher != null)
-        {
-            _gameWatcher.EnableRaisingEvents = false;
-            _gameWatcher.Dispose();
-            _gameWatcher = null;
+            if (_chatWatcher != null)
+            {
+                _chatWatcher.EnableRaisingEvents = false;
+                _chatWatcher.Dispose();
+                _chatWatcher = null;
+            }
+            if (_gameWatcher != null)
+            {
+                _gameWatcher.EnableRaisingEvents = false;
+                _gameWatcher.Dispose();
+                _gameWatcher = null;
+            }
         }
     }
 
@@ -1185,7 +1224,7 @@ public sealed class LogMonitorService : IDisposable
                 .Where(x => x.MTime >= cutoff)
                 .OrderByDescending(x => x.MTime)
                 .Take(50)
-                .Select(x => x.Path))
+                .Select(x => Path.GetFullPath(x.Path)))
             {
                 if (!_trackedFiles.ContainsKey(file))
                 {
@@ -1207,7 +1246,8 @@ public sealed class LogMonitorService : IDisposable
         {
             foreach (var file in Directory.GetFiles(_chatLogPath, "Local_*.txt")
                 .OrderByDescending(File.GetLastWriteTime)
-                .Take(12))
+                .Take(12)
+                .Select(f => Path.GetFullPath(f)))
             {
                 if (!_trackedFiles.ContainsKey(file))
                 {

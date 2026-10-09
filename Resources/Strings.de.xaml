@@ -1727,7 +1727,7 @@
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">Wohin die Dateien kommen. Er wird angelegt, falls er nicht existiert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">Wähle einen Protokollordner: Ohne Ordner wird nichts gespeichert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">Dateien aufbewahren für</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Ältere Statistikdateien im Ordner werden beim Start von MultiPreview und beim Ändern dieser Einstellungen gelöscht.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Ältere Statistikdateien im Ordner werden beim Start von MultiPreview gelöscht.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepZero">„Dateien aufbewahren für“ ist 0 Tage oder weniger, daher wird keine Statistikdatei gelöscht. Gib eine Anzahl Tage ein, um ältere Dateien zu löschen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">Tage</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">Das Statistik-Overlay zeigt Live-Werte neben jedem Client: Schaden pro Sekunde, Reparaturen, abgebautes Erz, verdiente ISK. Sie stammen aus den Spiel-Logs von EVE, deshalb müssen Spiel-Logs gelesen werden (Warnungen › Ereignisse).</sys:String> <!-- draft -->
@@ -1738,7 +1738,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Aussehen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">Textgröße, Deckkraft und die beiden Farben gelten für alle Statistikfenster. Farben können als #RRGGBB eingegeben oder per Farbfeld gewählt werden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Statistik speichern</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Mit **Statistik in CSV-Dateien speichern** schreibt MultiPreview pro Charakter und Tag eine Datei in den Protokollordner, für eine Tabellenkalkulation. Dateien, die älter als die Aufbewahrungszeit sind, werden beim Start von MultiPreview und beim Ändern dieser Einstellungen gelöscht; 0 Tage behält alle Dateien. Änderungen gelten sofort.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Mit **Statistik in CSV-Dateien speichern** schreibt MultiPreview pro Charakter und Tag eine Datei in den Protokollordner, für eine Tabellenkalkulation. Dateien, die älter als die Aufbewahrungszeit sind, werden beim Start von MultiPreview gelöscht; 0 Tage behält alle Dateien. Das Ein- und Ausschalten der Protokollierung gilt sofort, eine neue Aufbewahrungszeit ab dem nächsten Start.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Zahlen auswählen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Einzelne Zahlen für diesen Charakter ein- oder ausblenden. „Standard“ folgt den Zahlen für alle Charaktere (Werkzeuge › Statistik-Overlay).</sys:String> <!-- draft -->

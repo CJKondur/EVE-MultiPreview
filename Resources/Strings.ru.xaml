@@ -1747,7 +1747,7 @@
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">Куда сохраняются файлы. Если её нет, она будет создана.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">Выберите папку журналов: без неё ничего не сохраняется.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">Хранить файлы</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Старые файлы статистики в папке удаляются при запуске MultiPreview и при изменении этих настроек.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Старые файлы статистики в папке удаляются при запуске MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepZero">«Хранить файлы» — 0 дней или меньше, поэтому ни один файл статистики не удаляется. Укажите число дней, чтобы удалять старые файлы.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">дн.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">Оверлей статистики показывает данные в реальном времени рядом с каждым клиентом: урон в секунду, ремонт, добытую руду, заработанные ISK. Они берутся из игровых логов EVE, поэтому чтение игровых логов должно быть включено (Оповещения › События).</sys:String> <!-- draft -->
@@ -1758,7 +1758,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Внешний вид</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">Размер текста, непрозрачность и два цвета применяются ко всем окнам статистики. Цвета можно ввести как #RRGGBB или выбрать на образце.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Сохранение статистики</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Если включено **Сохранять статистику в файлы CSV**, MultiPreview записывает по одному файлу на персонажа в день в папку журналов — для таблиц. Файлы старше срока хранения удаляются при запуске MultiPreview и при изменении этих настроек; 0 дней — хранить все файлы. Изменения применяются сразу.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Если включено **Сохранять статистику в файлы CSV**, MultiPreview записывает по одному файлу на персонажа в день в папку журналов — для таблиц. Файлы старше срока хранения удаляются при запуске MultiPreview; 0 дней — хранить все файлы. Включение и отключение журналирования применяется сразу, а новый срок хранения — со следующего запуска.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Выбор показателей</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Показывать или скрывать отдельные показатели для этого персонажа. «По умолчанию» следует показателям для всех персонажей (Инструменты › Оверлей статистики).</sys:String> <!-- draft -->

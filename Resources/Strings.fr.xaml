@@ -1730,7 +1730,7 @@
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">Où vont les fichiers. Il est créé s'il n'existe pas.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">Choisissez un dossier de journaux : sans dossier, rien n'est enregistré.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">Conserver les fichiers pendant</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Les fichiers de statistiques plus anciens du dossier sont supprimés au démarrage de MultiPreview et quand vous modifiez ces réglages.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">Les anciens fichiers de statistiques du dossier sont supprimés au démarrage de MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepZero">« Conserver les fichiers pendant » vaut 0 jour ou moins : aucun fichier de statistiques n'est donc jamais supprimé. Indiquez un nombre de jours pour supprimer les fichiers plus anciens.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">jours</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">L'overlay de statistiques affiche des chiffres en direct à côté de chaque client : dégâts par seconde, réparations, minerai extrait, ISK gagnés. Ils proviennent des journaux de jeu d'EVE, qui doivent donc être lus (Alertes › Événements).</sys:String> <!-- draft -->
@@ -1741,7 +1741,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Apparence</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">La taille du texte, l'opacité et les deux couleurs s'appliquent à toutes les fenêtres de statistiques. Les couleurs peuvent être saisies en #RRGGBB ou choisies avec la pastille.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Enregistrer les statistiques</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Avec **Enregistrer les statistiques en fichiers CSV** activé, MultiPreview écrit un fichier par personnage et par jour dans le dossier des journaux, pour un tableur. Les fichiers plus anciens que la durée de conservation sont supprimés au démarrage de MultiPreview et quand vous modifiez ces réglages ; 0 jour conserve tous les fichiers. Les changements s'appliquent immédiatement.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Avec **Enregistrer les statistiques en fichiers CSV** activé, MultiPreview écrit un fichier par personnage et par jour dans le dossier des journaux, pour un tableur. Les fichiers plus anciens que la durée de conservation sont supprimés au démarrage de MultiPreview ; 0 jour conserve tous les fichiers. Activer ou désactiver la journalisation s'applique immédiatement, une nouvelle durée de conservation dès le prochain démarrage.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Choisir les chiffres</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Afficher ou masquer des chiffres individuels pour ce personnage. « Par défaut » suit les chiffres de tous les personnages (Outils › Overlay de statistiques).</sys:String> <!-- draft -->

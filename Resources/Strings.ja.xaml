@@ -1728,7 +1728,7 @@
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">ファイルの保存先。存在しない場合は作成されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">ログフォルダーを選んでください。フォルダーがないと何も保存されません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">ファイルの保存期間</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">フォルダー内の古い統計ファイルは、MultiPreview の起動時と、これらの設定を変更したときに削除されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">フォルダー内の古い統計ファイルは、MultiPreview の起動時に削除されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepZero">「ファイルの保存期間」が 0 日以下のため、統計ファイルは削除されません。古いファイルを削除するには日数を入力してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">日</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">統計オーバーレイは、各クライアントの横にリアルタイムの数値（秒間ダメージ、リペア、採掘量、獲得 ISK）を表示します。数値は EVE のゲームログから取得するため、ゲームログの読み取りが必要です（アラート › イベント）。</sys:String> <!-- draft -->
@@ -1739,7 +1739,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">外観</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字サイズ、不透明度、2つの色はすべての統計ウィンドウに適用されます。色は #RRGGBB で入力するか、色見本から選べます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">統計の保存</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">**統計を CSV ファイルに保存** をオンにすると、MultiPreview はログフォルダーにキャラクターごと・1日ごとにファイルを書き込みます（表計算ソフト向け）。保存期間より古いファイルは、MultiPreview の起動時と、これらの設定を変更したときに削除されます。0 日の場合はすべてのファイルを保持します。変更はすぐに反映されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">**統計を CSV ファイルに保存** をオンにすると、MultiPreview はログフォルダーにキャラクターごと・1日ごとにファイルを書き込みます（表計算ソフト向け）。保存期間より古いファイルは MultiPreview の起動時に削除されます。0 日の場合はすべてのファイルを保持します。ログ記録のオン/オフはすぐに反映され、新しい保存期間は次回の起動から有効になります。</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">数値を選ぶ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">このキャラクターの個別の数値を表示・非表示にします。「既定」は全キャラクター共通の数値（ツール › 統計オーバーレイ）に従います。</sys:String> <!-- draft -->

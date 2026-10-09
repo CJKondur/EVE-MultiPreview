@@ -106,7 +106,6 @@ public static class ToolsPages
             }),
             new InfoItem("tools.stats.noFolder", InfoSeverity.Warning) { ShowIf = s => s.StatLoggingEnabled && string.IsNullOrWhiteSpace(s.StatLogDirectory) },
             // A stored 0 or less keeps every file (StatTrackerService.CleanupOldLogs, IDEAS P31); the box takes 1 or more.
-
             new SettingItem(Setting.Number("tools.stats.keepDays", s => s.StatLogRetentionDays, 1, 3650, "L.S.Unit.Days") with
             {
                 ShowIf = s => s.StatLoggingEnabled,

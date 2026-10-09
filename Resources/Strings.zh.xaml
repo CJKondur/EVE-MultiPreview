@@ -1745,7 +1745,7 @@
     <sys:String x:Key="L.S.tools.stats.logFolder.Desc">文件的保存位置。不存在时会自动创建。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.noFolder">请选择日志文件夹：没有文件夹就不会保存任何内容。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepDays">文件保留时间</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">启动 MultiPreview 时以及你更改这些设置时，会删除文件夹中较旧的统计文件。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.tools.stats.keepDays.Desc">启动 MultiPreview 时会删除文件夹中较旧的统计文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.tools.stats.keepZero">“文件保留时间”为 0 天或更少，因此不会删除任何统计文件。输入天数即可删除较旧的文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Days">天</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.Intro">统计叠加层会在每个客户端旁显示实时数据：每秒伤害、维修、采矿量、获得的 ISK。数据来自 EVE 的游戏日志，因此必须读取游戏日志（警报 › 事件）。</sys:String> <!-- draft -->
@@ -1756,7 +1756,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">外观</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字大小、不透明度和两种颜色适用于所有统计窗口。颜色可输入 #RRGGBB 或用色块选取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">保存统计</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">开启 **将统计保存为 CSV 文件** 后，MultiPreview 会在日志文件夹中为每个角色每天写入一个文件，可用于电子表格。超过保留时间的文件会在 MultiPreview 启动时以及你更改这些设置时删除；0 天表示保留所有文件。更改会立即生效。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">开启 **将统计保存为 CSV 文件** 后，MultiPreview 会在日志文件夹中为每个角色每天写入一个文件，可用于电子表格。超过保留时间的文件会在 MultiPreview 启动时删除；0 天表示保留所有文件。开启或关闭日志会立即生效，新的保留时间从下次启动起生效。</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">选择数字</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">为此角色显示或隐藏单个数字。“默认”跟随所有角色的数字（工具 › 统计叠加层）。</sys:String> <!-- draft -->
