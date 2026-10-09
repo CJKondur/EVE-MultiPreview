@@ -32,6 +32,7 @@ public class AhkConfigRoot
         // ── Global Settings ─────────────────────────────────────────
         s.ThumbnailStartLocation = g.ThumbnailStartLocation ?? new ThumbnailRect { X = 20, Y = 20, Width = 280, Height = 180 };
         s.ThumbnailMinimumSize = g.ThumbnailMinimumSize ?? new ThumbnailSize { Width = 100, Height = 60 };
+        s.ThumbnailMinimumSizeEnabled = g.ThumbnailMinimumSizeEnabled != 0;
         s.ThumbnailSnap = g.ThumbnailSnap != 0;
         s.ThumbnailSnapDistance = g.ThumbnailSnapDistance;
         s.ThumbnailGutter = g.ThumbnailGutter;
@@ -331,6 +332,7 @@ public class AhkConfigRoot
         // ── Global Settings ─────────────────────────────────────────
         g.ThumbnailStartLocation = s.ThumbnailStartLocation;
         g.ThumbnailMinimumSize = s.ThumbnailMinimumSize;
+        g.ThumbnailMinimumSizeEnabled = s.ThumbnailMinimumSizeEnabled ? 1 : 0;
         g.ThumbnailSnap = s.ThumbnailSnap ? 1 : 0;
         g.ThumbnailSnapDistance = s.ThumbnailSnapDistance;
         g.ThumbnailGutter = s.ThumbnailGutter;
@@ -935,6 +937,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("ThumbnailMinimumSize")]
     public ThumbnailSize? ThumbnailMinimumSize { get; set; }
+
+    // New in the settings rework (IDEAS P26): a file without it loads off, the fixed 80 x 50 floor.
+    [JsonPropertyName("ThumbnailMinimumSizeEnabled")]
+    public int ThumbnailMinimumSizeEnabled { get; set; }
 
     [JsonPropertyName("ThumbnailSnap")]
     public int ThumbnailSnap { get; set; } = 1;

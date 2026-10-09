@@ -1241,7 +1241,7 @@
     <sys:String x:Key="L.S.thumbs.appearance.background.Desc">Fills a thumbnail where there is no picture.</sys:String>
     <sys:String x:Key="L.Help.thumbs.appearance.Intro">How every thumbnail looks: its size, how much of the game shows through it, the zoom under the mouse and the colour behind the picture. A character can also have its own size, set on its page.</sys:String>
     <sys:String x:Key="L.Help.thumbs.appearance.size.Title">Sizing thumbnails</sys:String>
-    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**Resize every thumbnail** gives all of them the same exact size at once, and new thumbnails start at it. Thumbnails stay where they are, and **Undo** (Layout &amp; screens) puts the old sizes back.&#x0A;&#x0A;To size by hand, hold the right mouse button on a thumbnail, press the left button too and drag. With **Resize thumbnails one at a time** off, every thumbnail follows; hold Ctrl to size just one.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**Resize every thumbnail** gives all of them the same exact size at once, and new thumbnails start at it. Thumbnails stay where they are, and **Undo** (Layout &amp; screens) puts the old sizes back.&#x0A;&#x0A;To size by hand, hold the right mouse button on a thumbnail, press the left button too and drag. With **Resize thumbnails one at a time** off, every thumbnail follows; hold Ctrl to size just one.&#x0A;&#x0A;**Limit how small thumbnails get** sets the smallest size a drag can give. While it is off, that is 80 × 50.</sys:String>
     <sys:String x:Key="L.Help.thumbs.appearance.look.Title">Opacity, zoom and background</sys:String>
     <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **Opacity** lets the game behind show through. **Solid under the mouse** makes a thumbnail opaque while you point at it.&#x0A;- **Zoom under the mouse** enlarges a thumbnail while the mouse rests on it, to the **Zoom size** you pick.&#x0A;- **Background colour** fills a thumbnail where there is no picture.</sys:String>
     <!-- Thumbnails Text and borders (Plan 3b) -->
@@ -1338,7 +1338,7 @@
     <sys:String x:Key="L.S.Layout.ResetConfirm">Put every thumbnail back in a column where new thumbnails appear, at the starting size? The places saved in this profile are cleared. You can undo it.</sys:String>
     <sys:String x:Key="L.Help.thumbs.layout.Intro">Where thumbnails appear and how they line up when you drag them, saved layouts you can put back in one click, and undo.</sys:String>
     <sys:String x:Key="L.Help.thumbs.layout.screens.Title">Screens and new thumbnails</sys:String>
-    <sys:String x:Key="L.Help.thumbs.layout.screens.Body">A thumbnail with no saved place appears on the **monitor for new thumbnails**, at the distance and size under **New thumbnails**.&#x0A;&#x0A;Press **Identify** to see which screen has which number: MultiPreview's numbers can differ from Windows' display numbers.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.layout.screens.Body">A thumbnail with no saved place appears on the **monitor for new thumbnails**, at the distance and size under **New thumbnails**.&#x0A;&#x0A;Press **Identify** to see which screen has which number: MultiPreview's numbers can differ from Windows' display numbers.&#x0A;&#x0A;MultiPreview puts such thumbnails in a column, **Gap between thumbnails** apart, and starts a new column at the bottom of the screen. **Reset all positions** lays every thumbnail out that way.</sys:String>
     <sys:String x:Key="L.Help.thumbs.layout.lining.Title">Moving thumbnails</sys:String>
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">Hold the right mouse button on a thumbnail and drag to move it; hold Ctrl too to move them all.&#x0A;- **Snap to edges** lines a thumbnail up with its neighbours and the screen edge when you let go.&#x0A;- **Keep drags on one monitor** stops a thumbnail crossing to another screen.&#x0A;- **Lock thumbnail positions** stops all moving and resizing.</sys:String>
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">Undo and reset</sys:String>
@@ -1898,4 +1898,10 @@
     <sys:String x:Key="L.S.alerts.events.repeatBySeverity">Each severity has its own quiet time: Alerts › Look &amp; severity.</sys:String>
     <sys:String x:Key="L.Help.alerts.look.repeats.Title">Quiet time per severity</sys:String>
     <sys:String x:Key="L.Help.alerts.look.repeats.Body">An alert that just fired for a character stays quiet for a while, so a fight doesn't flood you with the same alert.&#x0A;- With **Quiet time per severity** off, every alert waits the quiet time on the Events page (5 seconds unless you changed it).&#x0A;- Turned on, critical, warning and info alerts each wait their own time, for example 2 seconds for critical and 60 for info. Each starts at 5 seconds, so turning it on changes nothing until you change a number.</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.minSizeOn">Limit how small thumbnails get</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.minSizeOn.Desc">Off: resizing a thumbnail by hand stops at 80 × 50. On: it stops at the size below.</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.minWidth">Smallest width</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.minHeight">Smallest height</sys:String>
+    <sys:String x:Key="L.S.thumbs.layout.gap">Gap between thumbnails</sys:String>
+    <sys:String x:Key="L.S.thumbs.layout.gap.Desc">The space MultiPreview leaves between the thumbnails it places itself: clients with no saved place, and Reset all positions.</sys:String>
 </ResourceDictionary>

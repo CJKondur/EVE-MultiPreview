@@ -1242,7 +1242,7 @@
     <sys:String x:Key="L.S.thumbs.appearance.background.Desc">그림이 없는 부분을 썸네일에 채웁니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.Intro">각 썸네일의 모양: 크기, 게임이 얼마나 비치는지, 마우스 아래 확대, 그림 뒤의 색. 캐릭터마다 자체 크기를 가질 수도 있으며, 해당 페이지에서 설정합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.size.Title">썸네일 크기 조정</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**모든 썸네일 크기 조정**은 한 번에 모두 똑같은 크기로 만들고, 새 썸네일도 그 크기로 시작합니다. 썸네일은 제자리에 그대로 있고, **되돌리기**(레이아웃 &amp; 화면)로 이전 크기를 복원할 수 있습니다.&#x0A;&#x0A;직접 크기를 조정하려면 썸네일 위에서 마우스 오른쪽 버튼을 누른 채 왼쪽 버튼도 눌러 드래그하세요. **썸네일을 하나씩 크기 조정**이 꺼져 있으면 모두 따라가며, Ctrl을 누르면 하나만 조정됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**모든 썸네일 크기 조정**은 한 번에 모두 똑같은 크기로 만들고, 새 썸네일도 그 크기로 시작합니다. 썸네일은 제자리에 그대로 있고, **되돌리기**(레이아웃 &amp; 화면)로 이전 크기를 복원할 수 있습니다.&#x0A;&#x0A;직접 크기를 조정하려면 썸네일 위에서 마우스 오른쪽 버튼을 누른 채 왼쪽 버튼도 눌러 드래그하세요. **썸네일을 하나씩 크기 조정**이 꺼져 있으면 모두 따라가며, Ctrl을 누르면 하나만 조정됩니다.&#x0A;&#x0A;**썸네일 최소 크기 제한**은 드래그로 줄일 수 있는 가장 작은 크기를 정해요. 꺼져 있는 동안은 80 × 50이에요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Title">불투명도, 확대, 배경</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **불투명도**는 뒤의 게임이 비쳐 보이게 합니다. **마우스 아래에서는 불투명**은 가리키는 동안 썸네일을 불투명하게 만듭니다.&#x0A;- **마우스 아래에서 확대**는 마우스가 올라가 있는 동안 썸네일을 선택한 **확대 크기**로 키웁니다.&#x0A;- **배경색**은 그림이 없는 부분을 썸네일에 채웁니다.</sys:String> <!-- draft -->
     <!-- Thumbnails Text and borders (Plan 3b) -->
@@ -1339,7 +1339,7 @@
     <sys:String x:Key="L.S.Layout.ResetConfirm">모든 썸네일을 시작 크기로 새 썸네일이 나타나는 곳의 한 열에 되돌릴까요? 이 프로필에 저장된 위치가 지워집니다. 되돌릴 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.Intro">썸네일이 나타나는 위치와 드래그할 때의 정렬 방식, 한 번에 복원할 수 있는 저장된 레이아웃, 그리고 되돌리기.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.screens.Title">화면과 새 썸네일</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.screens.Body">저장된 위치가 없는 썸네일은 **새 썸네일용 모니터**에 **새 썸네일**에서 정한 거리와 크기로 나타납니다.&#x0A;&#x0A;**식별**을 누르면 어느 화면이 몇 번인지 볼 수 있습니다. MultiPreview의 번호는 Windows의 디스플레이 번호와 다를 수 있습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.screens.Body">저장된 위치가 없는 썸네일은 **새 썸네일용 모니터**에 **새 썸네일**에서 정한 거리와 크기로 나타납니다.&#x0A;&#x0A;**식별**을 누르면 어느 화면이 몇 번인지 볼 수 있습니다. MultiPreview의 번호는 Windows의 디스플레이 번호와 다를 수 있습니다.&#x0A;&#x0A;MultiPreview는 이런 썸네일을 **썸네일 사이 간격**만큼 띄워 한 열로 놓고, 화면 아래쪽에서 새 열을 시작해요. **모든 위치 초기화**는 모든 썸네일을 이렇게 배치해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.lining.Title">썸네일 옮기기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">썸네일 위에서 마우스 오른쪽 버튼을 누른 채 드래그하면 옮길 수 있고, Ctrl도 누르면 모두 옮깁니다.&#x0A;- **가장자리에 맞추기**는 놓을 때 썸네일을 이웃 썸네일과 화면 가장자리에 맞춥니다.&#x0A;- **드래그를 한 모니터에 유지**는 썸네일이 다른 화면으로 넘어가는 것을 막습니다.&#x0A;- **썸네일 위치 잠금**은 모든 이동과 크기 조정을 막습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">되돌리기 및 초기화</sys:String> <!-- draft -->
@@ -1899,4 +1899,10 @@
     <sys:String x:Key="L.S.alerts.events.repeatBySeverity">심각도마다 자기 대기 시간이 있어요: 알림 › 모양 &amp; 심각도.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.repeats.Title">심각도별 대기 시간</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.repeats.Body">캐릭터에게 방금 울린 알림은 잠시 조용해져서, 전투 중에 같은 알림이 쏟아지지 않아요.&#x0A;- **심각도별 대기 시간**이 꺼져 있으면 모든 알림이 이벤트 페이지의 대기 시간(바꾸지 않았다면 5초)만큼 기다려요.&#x0A;- 켜면 심각, 경고, 정보 알림이 각자 자기 시간만큼 기다려요. 예를 들어 심각은 2초, 정보는 60초예요. 모두 5초에서 시작하므로 숫자를 바꾸기 전에는 켜도 달라지는 게 없어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minSizeOn">썸네일 최소 크기 제한</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minSizeOn.Desc">꺼짐: 직접 크기를 조정하면 80 × 50에서 멈춰요. 켜짐: 아래 크기에서 멈춰요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minWidth">최소 너비</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minHeight">최소 높이</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.gap">썸네일 사이 간격</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.gap.Desc">MultiPreview가 직접 배치하는 썸네일 사이에 두는 간격이에요. 저장된 위치가 없는 클라이언트와 모든 위치 초기화에 적용돼요.</sys:String> <!-- draft -->
 </ResourceDictionary>

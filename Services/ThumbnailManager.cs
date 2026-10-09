@@ -360,19 +360,13 @@ public sealed class ThumbnailManager : IDisposable
             var workArea = GetTargetMonitorWorkArea(s.PreferredMonitor);
             int startX = workArea.Left + (int)s.ThumbnailStartLocation.X;
             int startY = workArea.Top + (int)s.ThumbnailStartLocation.Y;
-            const int gap = 8;
-            int availableHeight = workArea.Bottom - startY;
-            int maxPerCol = Math.Max(1, availableHeight / (height + gap));
 
             // Same flow-layout as CreateThumbnailForWindow: stack vertically, wrap
-            // to a new column at the screen edge.
+            // to a new column at the screen edge, ThumbnailGutter apart (IDEAS P27).
             int index = 0;
             foreach (var (_, thumb) in _thumbnails)
             {
-                int col = index / maxPerCol;
-                int row = index % maxPerCol;
-                int x = startX + col * (width + gap);
-                int y = startY + row * (height + gap);
+                var (x, y) = FlowSlot(index, startX, startY, width, height, s.ThumbnailGutter, workArea.Bottom);
                 (x, y) = EnsureOnScreen(x, y, width, height);
                 thumb.Resize(width, height);
                 thumb.MoveTo(x, y);
@@ -655,15 +649,8 @@ public sealed class ThumbnailManager : IDisposable
             x = workArea.Left + (int)s.ThumbnailStartLocation.X;
             y = workArea.Top + (int)s.ThumbnailStartLocation.Y;
 
-            // Flow-layout: stack vertically, wrap to new column at screen edge
-            int index = _thumbnails.Count;
-            int gap = 8;
-            int availableHeight = workArea.Bottom - y;
-            int maxPerCol = Math.Max(1, availableHeight / (height + gap));
-            int col = index / maxPerCol;
-            int row = index % maxPerCol;
-            x += col * (width + gap);
-            y += row * (height + gap);
+            // Flow-layout: stack vertically, wrap to new column at screen edge, ThumbnailGutter apart (IDEAS P27)
+            (x, y) = FlowSlot(_thumbnails.Count, x, y, width, height, s.ThumbnailGutter, workArea.Bottom);
         }
 
         // Never create a thumbnail fully off-screen (issue #74) — whether from the
@@ -919,6 +906,27 @@ public sealed class ThumbnailManager : IDisposable
     public static byte PipOpacityFor(AppSettings s, string character) =>
         (byte)Math.Clamp(s.SecondaryThumbnails.TryGetValue(character, out var ss) ? ss.Opacity : s.ThumbnailOpacity, 0, 255);
 
+    /// <summary>The range the resize limit's width and height may take (the settings cards use it too).</summary>
+    public const int MinFloor = 20, MaxFloor = 2000;
+
+    /// <summary>The smallest size a thumbnail can be dragged to (IDEAS P26): 80 × 50, as it always was, until the player
+    /// turns on the limit; then the minimum size, held to MinFloor–MaxFloor. Files store 50 × 50, EVE-O imports 192 × 108
+    /// and old AHK files 100 × 60, none of which ever had an effect, so nobody's drags change by themselves.</summary>
+    public static (int Width, int Height) ResizeFloor(AppSettings s) =>
+        s.ThumbnailMinimumSizeEnabled && s.ThumbnailMinimumSize is { } min
+            ? (Math.Clamp((int)Math.Round(min.Width), MinFloor, MaxFloor), Math.Clamp((int)Math.Round(min.Height), MinFloor, MaxFloor))
+            : (80, 50);
+
+    /// <summary>Where the index-th thumbnail goes in the column MultiPreview lays out for new clients and Reset positions:
+    /// down from the start place, a new column at the bottom of the work area, ThumbnailGutter apart (IDEAS P27; it was a
+    /// fixed 8 px, the default every file stores).</summary>
+    public static (int X, int Y) FlowSlot(int index, int startX, int startY, int width, int height, int gap, int workBottom)
+    {
+        gap = Math.Max(0, gap);
+        int maxPerCol = Math.Max(1, (workBottom - startY) / Math.Max(1, height + gap));
+        return (startX + index / maxPerCol * (width + gap), startY + index % maxPerCol * (height + gap));
+    }
+
     private void ApplySettings(ThumbnailWindow thumb, EveWindow window)
     {
         var s = _settings.Settings;
@@ -939,6 +947,10 @@ public sealed class ThumbnailManager : IDisposable
 
         // Confine drags to the starting monitor (edge-snap feature).
         thumb.ConfineDragsToMonitor = s.ConfineDragsToMonitor;
+
+        // The smallest size a resize drag gives (IDEAS P26).
+        var (floorW, floorH) = ResizeFloor(s);
+        thumb.ResizeFloor = new System.Drawing.Size(floorW, floorH);
 
         // Background color
         thumb.SetBackgroundColor(ParseColor(s.ThumbnailBackgroundColor));
@@ -2346,8 +2358,8 @@ public sealed class ThumbnailManager : IDisposable
             // they created an invisible stop a few pixels short of the real edge,
             // and because both it and the flush position sat inside the snap
             // range, thumbnails would often catch on the gap instead of meeting.
-            // ThumbnailGutter still spaces the auto-arrange grid; it just no
-            // longer influences drag snapping.
+            // ThumbnailGutter spaces the column MultiPreview lays out (FlowSlot);
+            // it doesn't influence drag snapping.
             // X: align left, align right, sit flush right of, sit flush left of
             xCands.Add(oL);
             xCands.Add(oL + oW - W);

@@ -21,7 +21,11 @@ public static class ThumbnailsPages
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
-        new HelpTopic(AppearanceId, "size", new[] { "thumbs.appearance.resizeAll", "thumbs.appearance.individualResize" }),
+        new HelpTopic(AppearanceId, "size", new[]
+        {
+            "thumbs.appearance.resizeAll", "thumbs.appearance.individualResize", "thumbs.appearance.minSizeOn",
+            "thumbs.appearance.minWidth", "thumbs.appearance.minHeight",
+        }),
         new HelpTopic(AppearanceId, "look", new[]
         {
             "thumbs.appearance.opacity", "thumbs.appearance.opacityOnHover", "thumbs.appearance.hoverZoom",
@@ -42,7 +46,7 @@ public static class ThumbnailsPages
         new HelpTopic(LayoutId, "screens", new[]
         {
             "thumbs.layout.monitor", "thumbs.layout.identifyRow", "thumbs.layout.startX", "thumbs.layout.startY",
-            "thumbs.layout.startWidth", "thumbs.layout.startHeight",
+            "thumbs.layout.startWidth", "thumbs.layout.startHeight", "thumbs.layout.gap",
         }),
         new HelpTopic(LayoutId, "lining", new[] { "thumbs.layout.snap", "thumbs.layout.snapDistance", "thumbs.layout.confine", "thumbs.layout.lock" }),
         new HelpTopic(LayoutId, "presets", new[] { "thumbs.layout.presets" }),
@@ -102,6 +106,13 @@ public static class ThumbnailsPages
         return new(d with { Replaces = replaces });
     }
 
+    /// <summary>One side of the resize limit (IDEAS P26): whole pixels, shown while the limit is on.</summary>
+    private static SettingItem MinSize(string id, Expression<Func<AppSettings, double>> prop, string replaces)
+    {
+        var item = Number(id, prop, ThumbnailManager.MinFloor, ThumbnailManager.MaxFloor, ApplyScope.Thumbnails, replaces);
+        return new(item.Setting with { ShowIf = s => s.ThumbnailMinimumSizeEnabled });
+    }
+
     private static PageDef Appearance() => new(AppearanceId, NavGroup.Thumbnails, new[]
     {
         new SectionDef("thumbs.appearance.size", new PageItem[]
@@ -109,12 +120,14 @@ public static class ThumbnailsPages
             new EditorItem("thumbs.appearance.resizeAll", ctx => new ResizeAllEditor(ctx))
             {
                 Binds = new[] { "AppSettings.ThumbnailStartLocation" },
-                // TxtMinWidth/TxtMinHeight set ThumbnailMinimumSize, which nothing reads: the drag-resize
-                // floor is fixed at 80×50 (thumbnails.md 0.4). No card; the setting is a parity exclusion.
-                Replaces = new[] { "TxtResizeAllW", "TxtResizeAllH", "OnApplySizeToAll", "TxtMinWidth", "TxtMinHeight" },
+                Replaces = new[] { "TxtResizeAllW", "TxtResizeAllH", "OnApplySizeToAll" },
             },
             // Read at each resize gesture: Save is enough.
             Toggle("thumbs.appearance.individualResize", s => s.IndividualThumbnailResize, ApplyScope.Save, "ChkIndividualResize"),
+            // The drag-resize floor (IDEAS P26). ApplySettings hands every thumbnail its floor, so a re-apply makes it live.
+            Toggle("thumbs.appearance.minSizeOn", s => s.ThumbnailMinimumSizeEnabled, ApplyScope.Thumbnails),
+            MinSize("thumbs.appearance.minWidth", s => s.ThumbnailMinimumSize.Width, "TxtMinWidth"),
+            MinSize("thumbs.appearance.minHeight", s => s.ThumbnailMinimumSize.Height, "TxtMinHeight"),
         }),
         new SectionDef("thumbs.appearance.seeThrough", new PageItem[]
         {
@@ -262,16 +275,21 @@ public static class ThumbnailsPages
             Number("thumbs.layout.startY", s => s.ThumbnailStartLocation.Y, -10000, 10000, ApplyScope.Thumbnails, "TxtStartY"),
             Number("thumbs.layout.startWidth", s => s.ThumbnailStartLocation.Width, CharacterSize.Min, CharacterSize.Max, ApplyScope.Thumbnails, "TxtThumbWidth"),
             Number("thumbs.layout.startHeight", s => s.ThumbnailStartLocation.Height, CharacterSize.Min, CharacterSize.Max, ApplyScope.Thumbnails, "TxtThumbHeight"),
+            // The gap in the column new thumbnails and Reset use (ThumbnailManager.FlowSlot, IDEAS P27); read when a
+            // thumbnail is placed, so Save is enough.
+            new SettingItem(Setting.Number("thumbs.layout.gap", s => s.ThumbnailGutter, 0, 200, "L.S.Unit.Px") with
+            {
+                Replaces = new[] { "TxtGutter" },
+            }),
         }),
         new SectionDef("thumbs.layout.lining", new PageItem[]
         {
             // Read when a drag ends: Save is enough.
             Toggle("thumbs.layout.snap", s => s.ThumbnailSnap, ApplyScope.Save, "ChkSnap"),
-            // TxtGutter set ThumbnailGutter, which nothing reads since snapping went flush-only (a parity exclusion).
             new SettingItem(Setting.Number("thumbs.layout.snapDistance", s => s.ThumbnailSnapDistance, 1, 200, "L.S.Unit.Px") with
             {
                 ShowIf = s => s.ThumbnailSnap,
-                Replaces = new[] { "TxtSnapDistance", "TxtGutter" },
+                Replaces = new[] { "TxtSnapDistance" },
             }),
             // ReapplySettings passes these to every thumbnail (lock also to second thumbnails and stats windows).
             Toggle("thumbs.layout.confine", s => s.ConfineDragsToMonitor, ApplyScope.Thumbnails, "ChkConfineMonitor"),

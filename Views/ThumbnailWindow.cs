@@ -128,6 +128,15 @@ public class ThumbnailWindow : Form
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public bool ConfineDragsToMonitor { get; set; }
 
+    /// <summary>The smallest size a resize drag gives (IDEAS P26): 80 × 50 as it always was, or the minimum size the
+    /// player turned on. Set by ThumbnailManager.ApplySettings (ResizeFloor).</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public System.Drawing.Size ResizeFloor { get; set; } = new(80, 50);
+
+    /// <summary>The size a resize drag gives: the start size plus the mouse movement, never below the floor.</summary>
+    public static (int Width, int Height) ResizedTo(int startWidth, int startHeight, int dx, int dy, System.Drawing.Size floor) =>
+        (Math.Max(startWidth + dx, floor.Width), Math.Max(startHeight + dy, floor.Height));
+
     /// <summary>Current per-client audio volume (0-100) for the right-click slider.
     /// Set by ThumbnailManager from the saved per-client volume.</summary>
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
@@ -610,8 +619,7 @@ public class ThumbnailWindow : Form
             int dx = mouse.X - _dragStartScreen.X;
             int dy = mouse.Y - _dragStartScreen.Y;
 
-            int newW = Math.Max(_resizeStartWidth + dx, 80);
-            int newH = Math.Max(_resizeStartHeight + dy, 50);
+            var (newW, newH) = ResizedTo(_resizeStartWidth, _resizeStartHeight, dx, dy, ResizeFloor);
 
             base.Width = newW;
             base.Height = newH;

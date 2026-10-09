@@ -1259,7 +1259,7 @@
     <sys:String x:Key="L.S.thumbs.appearance.background.Desc">在没有画面的地方填充缩略图。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.Intro">每个缩略图的外观：大小、透出多少游戏画面、鼠标下的缩放，以及画面后面的颜色。角色也可以有自己的大小，在其页面中设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.size.Title">缩略图大小</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**调整所有缩略图大小**可一次让所有缩略图变为完全相同的大小，新缩略图也以此大小开始。缩略图位置不变，**撤销**（布局 &amp; 屏幕）可恢复原来的大小。&#x0A;&#x0A;手动调整大小：在缩略图上按住鼠标右键，再按下左键并拖动。关闭**逐个调整缩略图大小**时，所有缩略图一起变化；按住 Ctrl 可只调整一个。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**调整所有缩略图大小**可一次让所有缩略图变为完全相同的大小，新缩略图也以此大小开始。缩略图位置不变，**撤销**（布局 &amp; 屏幕）可恢复原来的大小。&#x0A;&#x0A;手动调整大小：在缩略图上按住鼠标右键，再按下左键并拖动。关闭**逐个调整缩略图大小**时，所有缩略图一起变化；按住 Ctrl 可只调整一个。&#x0A;&#x0A;**限制缩略图的最小尺寸**设定拖动调整时能得到的最小大小。关闭时为 80 × 50。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Title">不透明度、缩放和背景</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **不透明度**让后面的游戏透出来。**鼠标悬停时不透明**会在你指向缩略图时使其不透明。&#x0A;- **鼠标下缩放**会在鼠标停留时放大缩略图，大小为你选择的**缩放大小**。&#x0A;- **背景颜色**在没有画面的地方填充缩略图。</sys:String> <!-- draft -->
     <!-- Thumbnails Text and borders (Plan 3b) -->
@@ -1356,7 +1356,7 @@
     <sys:String x:Key="L.S.Layout.ResetConfirm">把所有缩略图按起始大小放回新缩略图出现位置的一列中吗？此配置文件中保存的位置将被清除。你可以撤销。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.Intro">缩略图出现的位置以及拖动时如何对齐、可一键恢复的已保存布局，以及撤销。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.screens.Title">屏幕与新缩略图</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.screens.Body">没有保存位置的缩略图会出现在**新缩略图所在的显示器**上，距离和大小见**新缩略图**。&#x0A;&#x0A;按**识别**可查看每块屏幕的编号：MultiPreview 的编号可能与 Windows 的显示器编号不同。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.screens.Body">没有保存位置的缩略图会出现在**新缩略图所在的显示器**上，距离和大小见**新缩略图**。&#x0A;&#x0A;按**识别**可查看每块屏幕的编号：MultiPreview 的编号可能与 Windows 的显示器编号不同。&#x0A;&#x0A;MultiPreview 会把这类缩略图排成一列，间隔为**缩略图之间的间距**，到屏幕底部再另起一列。**重置所有位置**会把所有缩略图都这样排列。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.lining.Title">移动缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">在缩略图上按住鼠标右键并拖动即可移动；同时按住 Ctrl 可移动全部。&#x0A;- **吸附到边缘**会在你松开时让缩略图与相邻缩略图和屏幕边缘对齐。&#x0A;- **拖动限制在一台显示器内**可防止缩略图跨到另一块屏幕。&#x0A;- **锁定缩略图位置**会禁止所有移动和调整大小。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">撤销与重置</sys:String> <!-- draft -->
@@ -1916,4 +1916,10 @@
     <sys:String x:Key="L.S.alerts.events.repeatBySeverity">每种严重程度都有自己的静默时间：警报 › 外观 &amp; 严重程度。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.repeats.Title">按严重程度设置静默时间</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.repeats.Body">刚为某个角色触发的警报会静默一段时间，这样一场战斗不会用同一警报刷屏。&#x0A;- **按严重程度设置静默时间**关闭时，所有警报都等待事件页面上的静默时间（除非你改过，默认 5 秒）。&#x0A;- 开启后，严重、警告和信息警报各自等待自己的时间，例如严重 2 秒、信息 60 秒。每项从 5 秒开始，所以在你修改数字之前，开启它不会带来任何变化。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minSizeOn">限制缩略图的最小尺寸</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minSizeOn.Desc">关闭：手动调整缩略图大小时，最小到 80 × 50。开启：最小到下方设定的大小。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minWidth">最小宽度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minHeight">最小高度</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.gap">缩略图之间的间距</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.gap.Desc">MultiPreview 自己摆放缩略图时留出的间距：适用于没有保存位置的客户端，以及重置所有位置。</sys:String> <!-- draft -->
 </ResourceDictionary>

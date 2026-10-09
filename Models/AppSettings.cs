@@ -15,10 +15,13 @@ public class AppSettings
     // ── Layout ──────────────────────────────────────────────────────
     public ThumbnailRect ThumbnailStartLocation { get; set; } = new() { X = 20, Y = 20, Width = 280, Height = 180 };
     public ThumbnailSize ThumbnailMinimumSize { get; set; } = new() { Width = 50, Height = 50 };
+    // The minimum size is the drag-resize floor only once this is on (IDEAS P26). Files store 50 x 50, EVE-O imports
+    // 192 x 108 and old AHK files 100 x 60 without ever having had an effect, so off keeps today's fixed 80 x 50.
+    public bool ThumbnailMinimumSizeEnabled { get; set; } = false;
     public bool ThumbnailSnap { get; set; } = true;
     public int ThumbnailSnapDistance { get; set; } = 20;
-    // Edge-snap gutter: uniform gap (px) used when snapping a thumbnail adjacent to
-    // a neighbour, so walls build with even spacing instead of flush corners.
+    // The gap between thumbnails MultiPreview places itself: new clients with no saved place and Reset positions
+    // (ThumbnailManager.FlowSlot, IDEAS P27). Drag snapping is flush.
     public int ThumbnailGutter { get; set; } = 8;
     // When on, dragging a thumbnail keeps it on the monitor it started on (Ctrl is
     // already taken by drag-all, so this is a setting rather than a modifier).

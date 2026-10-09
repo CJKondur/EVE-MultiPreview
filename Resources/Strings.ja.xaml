@@ -1242,7 +1242,7 @@
     <sys:String x:Key="L.S.thumbs.appearance.background.Desc">画像がない部分をサムネイルで塗りつぶします。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.Intro">各サムネイルの見た目: サイズ、ゲームがどれだけ透けるか、マウスの下でのズーム、画像の後ろの色。キャラクターごとに専用のサイズを持たせることもでき、そのページで設定します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.size.Title">サムネイルのサイズ</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**すべてのサムネイルをリサイズ**は、全部を一度にまったく同じサイズにし、新しいサムネイルもそのサイズで始まります。サムネイルの位置は変わらず、**元に戻す**（レイアウト &amp; 画面）で以前のサイズに戻せます。&#x0A;&#x0A;手動でリサイズするには、サムネイル上で右ボタンを押したまま左ボタンも押してドラッグします。**サムネイルを1つずつリサイズ**がオフなら全部が追従し、Ctrl を押すと1つだけリサイズできます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**すべてのサムネイルをリサイズ**は、全部を一度にまったく同じサイズにし、新しいサムネイルもそのサイズで始まります。サムネイルの位置は変わらず、**元に戻す**（レイアウト &amp; 画面）で以前のサイズに戻せます。&#x0A;&#x0A;手動でリサイズするには、サムネイル上で右ボタンを押したまま左ボタンも押してドラッグします。**サムネイルを1つずつリサイズ**がオフなら全部が追従し、Ctrl を押すと1つだけリサイズできます。&#x0A;&#x0A;**サムネイルの最小サイズを制限**は、ドラッグで得られる最小のサイズを決めます。オフの間は 80 × 50 です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Title">不透明度、ズーム、背景</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **不透明度**で後ろのゲームを透かせます。**マウスの下では不透明**は、ポイントしている間サムネイルを不透明にします。&#x0A;- **マウスの下でズーム**は、マウスが乗っている間サムネイルを選んだ**ズームサイズ**まで拡大します。&#x0A;- **背景色**は、画像がない部分をサムネイルで塗りつぶします。</sys:String> <!-- draft -->
     <!-- Thumbnails Text and borders (Plan 3b) -->
@@ -1339,7 +1339,7 @@
     <sys:String x:Key="L.S.Layout.ResetConfirm">すべてのサムネイルを、開始サイズで新しいサムネイルが表示される場所の列に戻しますか？このプロファイルに保存された位置は消去されます。元に戻すことができます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.Intro">サムネイルが表示される場所とドラッグ時の整列のしかた、ワンクリックで戻せる保存レイアウト、そして元に戻す操作。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.screens.Title">画面と新しいサムネイル</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.screens.Body">保存された位置のないサムネイルは、**新しいサムネイルのモニター**に、**新しいサムネイル**で指定した距離とサイズで表示されます。&#x0A;&#x0A;**識別**を押すと、どの画面が何番かを確認できます。MultiPreview の番号は Windows のディスプレイ番号と異なる場合があります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.screens.Body">保存された位置のないサムネイルは、**新しいサムネイルのモニター**に、**新しいサムネイル**で指定した距離とサイズで表示されます。&#x0A;&#x0A;**識別**を押すと、どの画面が何番かを確認できます。MultiPreview の番号は Windows のディスプレイ番号と異なる場合があります。&#x0A;&#x0A;MultiPreview はこうしたサムネイルを、**サムネイルの間隔**だけあけて1列に並べ、画面の下端で次の列を始めます。**すべての位置をリセット**を押すと、すべてのサムネイルがこのように並びます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.lining.Title">サムネイルの移動</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.lining.Body">サムネイルの上で右ボタンを押したままドラッグすると移動できます。Ctrl も押すと全部を移動します。&#x0A;- **端にスナップ**は、放したときにサムネイルを隣のサムネイルや画面の端にそろえます。&#x0A;- **ドラッグを1つのモニター内に制限**は、サムネイルが別の画面に移るのを防ぎます。&#x0A;- **サムネイルの位置をロック**は、すべての移動とリサイズを止めます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.history.Title">元に戻す・リセット</sys:String> <!-- draft -->
@@ -1899,4 +1899,10 @@
     <sys:String x:Key="L.S.alerts.events.repeatBySeverity">重大度ごとに専用の静止時間があります：アラート › 外観 &amp; 重大度。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.repeats.Title">重大度ごとの静止時間</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.repeats.Body">キャラクターに出たばかりのアラートはしばらく静かになるので、戦闘中に同じアラートが大量に出ることはありません。&#x0A;- **重大度ごとの静止時間**がオフのとき、すべてのアラートはイベントページの静止時間（変更していなければ 5 秒）だけ待ちます。&#x0A;- オンにすると、重大、警告、情報のアラートがそれぞれ自分の時間だけ待ちます。たとえば重大は 2 秒、情報は 60 秒です。どれも 5 秒から始まるので、数値を変えるまでオンにしても何も変わりません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minSizeOn">サムネイルの最小サイズを制限</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minSizeOn.Desc">オフ：手動でリサイズすると 80 × 50 で止まります。オン：下のサイズで止まります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minWidth">最小の幅</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.minHeight">最小の高さ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.gap">サムネイルの間隔</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.gap.Desc">MultiPreview が自分で配置するサムネイルの間にあける間隔です。保存された位置のないクライアントと、すべての位置をリセットが対象です。</sys:String> <!-- draft -->
 </ResourceDictionary>
