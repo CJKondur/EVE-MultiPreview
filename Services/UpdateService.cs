@@ -185,12 +185,13 @@ public sealed class UpdateService
     public static IReadOnlyList<(string Name, string Value)> UpdaterEnvironment(string appDir, string settingsFile, string backupDir,
         string downloadedExePath) => new[]
     {
-        ("EMP_APPDIR", appDir), ("EMP_CONFIG", settingsFile), ("EMP_BACKUPS", backupDir), ("EMP_NEWEXE", downloadedExePath),
+        ("EMP_APPDIR", Path.TrimEndingDirectorySeparator(appDir)), ("EMP_CONFIG", settingsFile), ("EMP_BACKUPS", backupDir), ("EMP_NEWEXE", downloadedExePath),
     };
 
     /// <summary>The updater: waits for MultiPreview to exit, copies the settings file into the Backups folder of the
     /// settings folder (refusing a Backups folder that is a link), replaces the exe in $env:EMP_APPDIR and starts it again.
-    /// A constant, ASCII only, holding no path (see UpdaterEnvironment). Only cmdlet forms that Windows PowerShell 5.1 has.</summary>
+    /// A constant, ASCII only, holding no path (see UpdaterEnvironment). Cmdlets and property access only, no .NET calls,
+    /// so it also runs in Constrained Language mode (AppLocker/WDAC); only forms that Windows PowerShell 5.1 has.</summary>
     public const string UpdaterScript = @"
 # EVE MultiPreview Auto-Updater (paths come from the EMP_* environment variables)
 $appDir = $env:EMP_APPDIR
@@ -212,20 +213,20 @@ try {
         $isLink = $false
         if (Test-Path -LiteralPath $backupDir) {
             $item = Get-Item -LiteralPath $backupDir -Force
-            if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) { $isLink = $true }
+            if ($item.LinkType) { $isLink = $true }   # a junction or symbolic link; a OneDrive folder has no LinkType
         }
         if (-not $isLink) {
-            [void][System.IO.Directory]::CreateDirectory($backupDir)
+            New-Item -ItemType Directory -Force -Path $backupDir | Out-Null
             $timestamp = Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'
-            $backupFile = [System.IO.Path]::Combine($backupDir, 'EVE MultiPreview_pre-update_' + $timestamp + '.json')
-            [System.IO.File]::Copy($configFile, $backupFile, $false)
+            $backupFile = Join-Path $backupDir ('EVE MultiPreview_pre-update_' + $timestamp + '.json')
+            Copy-Item -LiteralPath $configFile -Destination $backupFile
         }
     }
 } catch { }
 
 # Replace the executable
-$oldExe = [System.IO.Path]::Combine($appDir, 'EVE MultiPreview.exe')
-try { [System.IO.File]::Copy($newExe, $oldExe, $true) } catch { }
+$oldExe = Join-Path $appDir 'EVE MultiPreview.exe'
+Copy-Item -LiteralPath $newExe -Destination $oldExe -Force
 
 # Clean up any stale dot-named exe / pdb left over from earlier installs
 # that pre-date the AssemblyName rename. The GitHub release ships the file
@@ -233,11 +234,11 @@ try { [System.IO.File]::Copy($newExe, $oldExe, $true) } catch { }
 # install is 'EVE MultiPreview.exe' (with a space). Old dot-named files
 # from previous versions sit alongside the space-named live exe and show
 # up as confusing duplicates in the install folder (issue #42, bug #3).
-$dotExe = [System.IO.Path]::Combine($appDir, 'EVE.MultiPreview.exe')
+$dotExe = Join-Path $appDir 'EVE.MultiPreview.exe'
 if (Test-Path -LiteralPath $dotExe) {
     Remove-Item -LiteralPath $dotExe -Force -ErrorAction SilentlyContinue
 }
-$dotPdb = [System.IO.Path]::Combine($appDir, 'EVE.MultiPreview.pdb')
+$dotPdb = Join-Path $appDir 'EVE.MultiPreview.pdb'
 if (Test-Path -LiteralPath $dotPdb) {
     Remove-Item -LiteralPath $dotPdb -Force -ErrorAction SilentlyContinue
 }
@@ -247,8 +248,9 @@ Start-Process -FilePath $oldExe -WorkingDirectory $env:TEMP
 
 # Clean up temp download
 Start-Sleep -Seconds 3
-$downloadDir = [System.IO.Path]::GetDirectoryName($newExe)
-if ($downloadDir -and ($downloadDir.TrimEnd('') -ne $appDir.TrimEnd(''))) {
+# (never the exe folder itself, whatever trailing separators either path has)
+$downloadDir = Split-Path -LiteralPath $newExe
+if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '/'))) {
     Remove-Item -LiteralPath $downloadDir -Recurse -Force -ErrorAction SilentlyContinue
 }
 ";

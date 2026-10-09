@@ -58,7 +58,10 @@ public sealed class VersionPickerEditor : System.Windows.Controls.UserControl
         bool older = Version.Parse(release.Version) < Version.Parse(AboutActions.VersionText);
         // A downgrade turns off the startup update check, or the older version would offer to
         // update straight back on every launch. Saved synchronously: the app exits next.
+        bool checkWas = _ctx.S.CheckForUpdatesOnStartup;
         Action? beforeApply = older ? () => { _ctx.S.CheckForUpdatesOnStartup = false; _ctx.Service.Save(); } : null;
-        new UpdateDialog(service, specificVersion: true, beforeApply) { Owner = _ctx.Host.DialogOwner }.ShowDialog();
+        // A downgrade that is cancelled or fails leaves the check as the player had it.
+        Action? undo = older ? () => { _ctx.S.CheckForUpdatesOnStartup = checkWas; _ctx.Service.Save(); } : null;
+        new UpdateDialog(service, specificVersion: true, beforeApply, undo) { Owner = _ctx.Host.DialogOwner }.ShowDialog();
     }
 }

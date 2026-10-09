@@ -18,6 +18,9 @@ public partial class UpdateDialog : Window
 {
     private readonly UpdateService _updateService;
     private readonly Action? _beforeApply;
+    private readonly Action? _undoBeforeApply;
+    private bool _beforeApplyRan;
+    private bool _applied;
     private bool _downloading = false;
     private string? _downloadedPath;
     private bool _installAnyway;
@@ -25,12 +28,14 @@ public partial class UpdateDialog : Window
     /// <param name="specificVersion">Opened from About → "Install a specific version" (an
     /// upgrade or a downgrade the user picked) rather than by an update check.</param>
     /// <param name="beforeApply">Runs after the download, right before the app exits to swap the exe.</param>
-    public UpdateDialog(UpdateService updateService, bool specificVersion = false, Action? beforeApply = null)
+    /// <param name="undoBeforeApply">Puts back what <paramref name="beforeApply"/> changed when the dialog closes without installing.</param>
+    public UpdateDialog(UpdateService updateService, bool specificVersion = false, Action? beforeApply = null, Action? undoBeforeApply = null)
     {
         InitializeComponent();
         FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
         _updateService = updateService;
         _beforeApply = beforeApply;
+        _undoBeforeApply = undoBeforeApply;
 
         TxtVersionInfo.Text = string.Format(Str("L.Upd.ReadyFmt", "Version {1} is ready. You have {0}."),
             _updateService.CurrentVersion, _updateService.LatestVersion);
@@ -141,6 +146,23 @@ public partial class UpdateDialog : Window
         TxtStatus.Visibility = Visibility.Visible;
     }
 
+    /// <summary>Runs <c>beforeApply</c> (a downgrade turns the startup update check off) and remembers it ran, so closing the
+    /// dialog without installing can undo it.</summary>
+    public void BeginApply()
+    {
+        _beforeApply?.Invoke();
+        _beforeApplyRan = true;
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        if (_beforeApplyRan && !_applied)
+        {
+            try { _undoBeforeApply?.Invoke(); } catch (Exception ex) { Debug.WriteLine($"[Update] undo failed: {ex.Message}"); }
+        }
+    }
+
     /// <summary>True after a failed hand-back: the next click installs anyway.</summary>
     public bool InstallsAnyway => _installAnyway;
 
@@ -177,13 +199,17 @@ public partial class UpdateDialog : Window
             // Brief pause so user sees the message
             await System.Threading.Tasks.Task.Delay(800);
 
-            _beforeApply?.Invoke();
+            BeginApply();
+            bool wasInstallAnyway = _installAnyway;
             var handBack = _updateService.ApplyUpdate(downloadedPath, _installAnyway);
-            if (handBack.State == HandBackState.Failed)
-            {
-                App.LogError(new System.IO.IOException("Settings hand-back to the older version failed: " + handBack.Reason));
-                ShowHandBackFailed(buttonLabel);
-            }
+            if (handBack.Reason != null)
+                App.LogError(new System.IO.IOException(handBack.State == HandBackState.Failed
+                    ? "Settings hand-back to the older version failed: " + handBack.Reason
+                    : "Settings were handed back, but: " + handBack.Reason));
+            if (handBack.State == HandBackState.Failed && !wasInstallAnyway)
+                ShowHandBackFailed(buttonLabel);   // the second click installs anyway, and the app shuts down: no second warning
+            else
+                _applied = true;
         }
         catch (Exception ex)
         {

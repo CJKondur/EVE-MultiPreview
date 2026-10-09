@@ -2141,9 +2141,14 @@ public partial class SettingsWindow
 
         // A downgrade turns off the startup update check, or the older version would offer
         // to update straight back on every launch. Saved synchronously: the app exits next.
+        bool checkWas = _svc.Settings.CheckForUpdatesOnStartup;
         Action? beforeApply = older
             ? () => { _svc.Settings.CheckForUpdatesOnStartup = false; _svc.Save(); }
             : null;
-        new UpdateDialog(updateService, specificVersion: true, beforeApply) { Owner = this }.ShowDialog();
+        // A downgrade that is cancelled or fails leaves the check as the player had it.
+        Action? undo = older
+            ? () => { _svc.Settings.CheckForUpdatesOnStartup = checkWas; _svc.Save(); }
+            : null;
+        new UpdateDialog(updateService, specificVersion: true, beforeApply, undo) { Owner = this }.ShowDialog();
     }
 }

@@ -20,7 +20,8 @@ public sealed record SettingsHomeResult(string ConfigDir, bool Portable, bool Mo
 /// <summary>How a hand-back to an older version went.</summary>
 public enum HandBackState { NothingToDo, Done, Failed }
 
-/// <summary>The outcome of SettingsHome.HandBack; <paramref name="Reason"/> is set when it failed. default = nothing to do.</summary>
+/// <summary>The outcome of SettingsHome.HandBack; <paramref name="Reason"/> is set when it failed, or when only the layout
+/// presets couldn't go along (then the state is not Failed). default = nothing to do.</summary>
 public readonly record struct HandBackResult(HandBackState State, string? Reason = null);
 
 /// <summary>IDEAS #57: the settings live in %APPDATA%\EVE MultiPreview, not beside the exe. The first start copies the
@@ -280,7 +281,8 @@ public static class SettingsHome
     /// presets beside the exe, so the current ones are copied there first (the settings checked), and the file that was
     /// there is kept in Backups as EVE MultiPreview_exe-folder_… (layout_presets_exe-folder_… for the presets). Nothing to
     /// do when portable (one file) or when the two are already the same. The current settings must load before anything
-    /// is written, so a doomed hand-back leaves no spare backup. Failed carries the reason.</summary>
+    /// is written, so a doomed hand-back leaves no spare backup. Failed carries the reason. Presets that can't be handed back
+    /// are not a failure: the result is still Done (or NothingToDo) and carries the reason.</summary>
     public static HandBackResult HandBack(string activeFile, string exeDir, DateTime now)
     {
         try
@@ -293,9 +295,16 @@ public static class SettingsHome
 
             var activeDir = Path.GetDirectoryName(activeFile)!;
             bool settings = HandBackFile(activeFile, exeFile, activeDir, "EVE MultiPreview", now, verifySettings: true);
-            bool presets = HandBackFile(Path.Combine(activeDir, "layout_presets.json"), Path.Combine(exeDir, "layout_presets.json"),
-                activeDir, "layout_presets", now, verifySettings: false);
-            return settings || presets ? new(HandBackState.Done) : default;
+            // The settings are what matter: presets that can't go along are reported, but don't fail the hand-back.
+            bool presets = false;
+            string? presetsReason = null;
+            try
+            {
+                presets = HandBackFile(Path.Combine(activeDir, "layout_presets.json"), Path.Combine(exeDir, "layout_presets.json"),
+                    activeDir, "layout_presets", now, verifySettings: false);
+            }
+            catch (Exception ex) { presetsReason = $"layout_presets.json was not handed back ({ex.GetType().Name}: {ex.Message})"; }
+            return settings || presets ? new(HandBackState.Done, presetsReason) : new(HandBackState.NothingToDo, presetsReason);
         }
         catch (Exception ex) { return Failed($"{ex.GetType().Name}: {ex.Message}"); }
 
