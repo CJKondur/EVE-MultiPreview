@@ -166,6 +166,12 @@ public partial class UpdateDialog : Window
     /// <summary>True after a failed hand-back: the next click installs anyway.</summary>
     public bool InstallsAnyway => _installAnyway;
 
+    /// <summary>The error-log line for a hand-back that carries a reason: the settings couldn't be handed back, or they
+    /// are in place (or were already the same) and only the layout presets couldn't go along.</summary>
+    public static string HandBackLogLine(HandBackResult handBack) => handBack.State == HandBackState.Failed
+        ? "Settings hand-back to the older version failed: " + handBack.Reason
+        : "Settings hand-back to the older version: only the layout presets were not handed back. " + handBack.Reason;
+
     private async void OnUpdateNow(object s, RoutedEventArgs e)
     {
         if (_downloading) return;
@@ -201,18 +207,20 @@ public partial class UpdateDialog : Window
 
             BeginApply();
             bool wasInstallAnyway = _installAnyway;
+            // Before the call: an install shuts the app down from inside ApplyUpdate, and this dialog closes (OnClosed)
+            // before the call returns. It must not take that for a cancel and undo beforeApply.
+            _applied = true;
             var handBack = _updateService.ApplyUpdate(downloadedPath, _installAnyway);
-            if (handBack.Reason != null)
-                App.LogError(new System.IO.IOException(handBack.State == HandBackState.Failed
-                    ? "Settings hand-back to the older version failed: " + handBack.Reason
-                    : "Settings were handed back, but: " + handBack.Reason));
+            if (handBack.Reason != null) App.LogError(new System.IO.IOException(HandBackLogLine(handBack)));
             if (handBack.State == HandBackState.Failed && !wasInstallAnyway)
+            {
+                _applied = false;                  // nothing was installed: closing the dialog now undoes beforeApply
                 ShowHandBackFailed(buttonLabel);   // the second click installs anyway, and the app shuts down: no second warning
-            else
-                _applied = true;
+            }
         }
         catch (Exception ex)
         {
+            _applied = false;
             _downloading = false;
             BtnUpdateNow.IsEnabled = true;
             BtnUpdateNow.Content = buttonLabel;

@@ -137,13 +137,14 @@ public sealed class UpdateService
 
     /// <summary>
     /// Spawn the PowerShell updater script that waits for exit, backs up the settings file, replaces the exe, and
-    /// relaunches. Then shuts down the current app. Before an older version it hands the current settings to the exe
-    /// folder (IDEAS #57); when that fails nothing is installed and the result says why, so the dialog can warn the player.
+    /// relaunches. Then shuts down the current app. Before a version that reads its settings beside the exe (up to
+    /// 2.3.42) it hands the current settings to the exe folder (IDEAS #57); when that fails nothing is installed and the
+    /// result says why, so the dialog can warn the player.
     /// Calling it again with <paramref name="installAnyway"/> installs regardless.
     /// </summary>
     public HandBackResult ApplyUpdate(string downloadedExePath, bool installAnyway = false)
     {
-        var handBack = HandBackIfOlder(AppPaths.SettingsPath, AppPaths.ExeDir, DateTime.Now);
+        var handBack = HandBackIfNeeded(AppPaths.SettingsPath, AppPaths.ExeDir, DateTime.Now);
         if (handBack.State == HandBackState.Failed && !installAnyway) return handBack;
 
         var appDir = AppPaths.ExeDir;
@@ -176,9 +177,10 @@ public sealed class UpdateService
     public static bool IsOlder(string? target, string current) =>
         Version.TryParse(target, out var t) && Version.TryParse(current, out var c) && t < c;
 
-    /// <summary>The hand-back, when the chosen release is older than this one; nothing to do otherwise.</summary>
-    public HandBackResult HandBackIfOlder(string settingsFile, string exeDir, DateTime now) =>
-        IsOlder(LatestVersion, CurrentVersion) ? SettingsHome.HandBack(settingsFile, exeDir, now) : default;
+    /// <summary>The hand-back, when the chosen release reads its settings beside the exe (SettingsHome.ReadsExeFolder:
+    /// every version up to 2.3.42, whatever version this one is); nothing to do otherwise.</summary>
+    public HandBackResult HandBackIfNeeded(string settingsFile, string exeDir, DateTime now) =>
+        SettingsHome.ReadsExeFolder(LatestVersion) ? SettingsHome.HandBack(settingsFile, exeDir, now) : default;
 
     /// <summary>The paths the updater script reads (as $env:EMP_…). Environment variables are Unicode and never parsed
     /// as code, so any folder name works and none can inject a command.</summary>

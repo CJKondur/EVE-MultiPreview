@@ -81,8 +81,8 @@ public sealed class SettingsService : IDisposable
         return JsonSerializer.Deserialize<AppSettings>(json, _jsonOptions) ?? new AppSettings();
     }
 
-    /// <summary>The text Save writes for these settings. Two files hold the same settings when their Canonical texts
-    /// are equal (the settings move checks its copy this way, IDEAS #57).</summary>
+    /// <summary>The text Save writes for these settings. The tests build their settings files with it; the settings
+    /// move checks its copy by bytes and a parse instead (SettingsHome.IsSameSettingsFile).</summary>
     public static string Canonical(AppSettings settings) =>
         JsonSerializer.Serialize(AhkConfigRoot.FromAppSettings(settings), _jsonOptions);
 
@@ -111,9 +111,10 @@ public sealed class SettingsService : IDisposable
         {
             if (File.Exists(_settingsPath))
             {
-                // The AHK nested format (has "global_Settings") or the flat C# format. Text that is not valid JSON, or an
+                // The AHK nested format (has "global_Settings") or the flat C# format. Text that is not JSON, or an
                 // AHK-format file that deserializes to null, throws here and is handled like any other unreadable file
-                // below (.bak, error log, restore prompt). Flat-format text that is valid JSON but empty loads as defaults.
+                // below (.bak, error log, restore prompt). JSON without "global_Settings" is read as the flat format:
+                // "{}", "null" or any object that holds none of its settings loads as defaults.
                 _settings = ParseForLoad(File.ReadAllText(_settingsPath));
                 _loadedSuccessfully = true;
                 LastLoadError = null;

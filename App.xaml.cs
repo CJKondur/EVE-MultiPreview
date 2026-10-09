@@ -125,7 +125,7 @@ public partial class App : Application
         DispatcherUnhandledException += OnDispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
         ErrorLog.Shared.Changed += QueueTrayText;   // IDEAS #55: the tray tooltip counts handled errors
-        foreach (var line in _home.Notes) ErrorLog.Shared.Note(line, DateTime.Now);
+        SettingsHome.Report(_home, ErrorLog.Shared, DateTime.Now);   // what moved, or why the settings stay beside the exe
 
         // ── JSON Migration ──
         CheckJsonMigration(AppPaths.ExeDir, AppPaths.SettingsPath);

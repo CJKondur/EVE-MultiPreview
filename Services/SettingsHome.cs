@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace EveMultiPreview.Services;
 
@@ -14,8 +17,10 @@ namespace EveMultiPreview.Services;
 /// from this one and was changed after it, so App asks which to use; null otherwise.</param>
 /// <param name="NoteNeeded">The exe folder holds a settings file MultiPreview no longer reads, and no note yet.</param>
 /// <param name="Notes">Lines for the error log: what moved, or why it didn't.</param>
+/// <param name="Errors">Why the settings stay beside the exe although they belong in AppData (an AppData path that is a
+/// link or can't be used). Recorded as errors, so they are counted and the tray shows them (SettingsHome.Report).</param>
 public sealed record SettingsHomeResult(string ConfigDir, bool Portable, bool Moved, string? OtherCopy, bool NoteNeeded,
-    IReadOnlyList<string> Notes);
+    IReadOnlyList<string> Notes, IReadOnlyList<string> Errors);
 
 /// <summary>How a hand-back to an older version went.</summary>
 public enum HandBackState { NothingToDo, Done, Failed }
@@ -36,41 +41,46 @@ public static class SettingsHome
     public static SettingsHomeResult Resolve(string exeDir, string appDataDir)
     {
         var notes = new List<string>();
+        var errors = new List<string>();
         string exeFile = Path.Combine(exeDir, AppPaths.SettingsFileName);
         string appFile = Path.Combine(appDataDir, AppPaths.SettingsFileName);
         try
         {
             // GetFolderPath(ApplicationData) is "" when Windows can't verify the folder, and a relative path would depend
-            // on how the app was started: either way the settings stay where they have always been.
-            if (!Path.IsPathFullyQualified(appDataDir))
-            {
-                notes.Add($"Settings stay next to the exe: the AppData folder \"{appDataDir}\" is not a full path.");
-                return StayNextToExe(exeDir, notes);
-            }
+            // on how the app was started.
+            bool fullPath = Path.IsPathFullyQualified(appDataDir);
 
+            // portable.txt first: a portable install doesn't use AppData, so an AppData path it can't use is no error,
+            // and no file in such a place is offered.
             if (IsPortable(exeDir))
-                return new(exeDir, true, false, NewerOther(exeFile, appFile), false, notes);
+                return new(exeDir, true, false, fullPath ? NewerOther(exeFile, appFile) : null, false, notes, errors);
+
+            if (!fullPath)
+            {
+                errors.Add($"Settings stay next to the exe: the AppData folder \"{appDataDir}\" is not a full path.");
+                return StayNextToExe(exeDir, notes, errors);
+            }
 
             // The exe sits inside the AppData folder itself: there is nothing to move, and no note to leave.
             if (string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(exeDir)),
                     Path.TrimEndingDirectorySeparator(Path.GetFullPath(appDataDir)), StringComparison.OrdinalIgnoreCase))
-                return StayNextToExe(exeDir, notes);
+                return StayNextToExe(exeDir, notes, errors);
 
             if (IsLink(appDataDir) || IsLink(appFile))
             {
-                notes.Add($"Settings stay next to the exe: {appDataDir} or its settings file is a link, and MultiPreview never writes through one.");
-                return StayNextToExe(exeDir, notes);
+                errors.Add($"Settings stay next to the exe: {appDataDir} or its settings file is a link, and MultiPreview never writes through one.");
+                return StayNextToExe(exeDir, notes, errors);
             }
 
             bool exeHasFile = File.Exists(exeFile);
             bool noNote = !File.Exists(Path.Combine(exeDir, AppPaths.MovedNoteName));
             if (File.Exists(appFile))
-                return new(appDataDir, false, false, NewerOther(appFile, exeFile), exeHasFile && noNote, notes);
+                return new(appDataDir, false, false, NewerOther(appFile, exeFile), exeHasFile && noNote, notes, errors);
 
             if (exeHasFile && IsLink(exeFile))
             {
                 notes.Add($"Settings stay next to the exe: {exeFile} is a link to another place, which a move would break.");
-                return StayNextToExe(exeDir, notes);
+                return StayNextToExe(exeDir, notes, errors);
             }
             if (exeHasFile)
             {
@@ -78,22 +88,24 @@ public static class SettingsHome
                 catch (Exception ex)
                 {
                     notes.Add($"Settings stay next to the exe this time: {exeFile} can't be read ({ex.GetType().Name}: {ex.Message}). They move once it loads.");
-                    return StayNextToExe(exeDir, notes);
+                    return StayNextToExe(exeDir, notes, errors);
                 }
             }
 
             Directory.CreateDirectory(appDataDir);   // the user's default permissions, inherited from %APPDATA%
-            if (!exeHasFile) return new(appDataDir, false, false, null, false, notes);   // a new player: Load creates the file here
+            if (!exeHasFile) return new(appDataDir, false, false, null, false, notes, errors);   // a new player: Load creates the file here
 
-            CopyNoFollow(exeFile, appFile, overwrite: false, verifySettings: true);   // copied and checked; the original stays
+            // The presets and backups first. They never overwrite anything, so a move that stops before the settings
+            // file is copied starts over on the next start: that file's arrival is what ends the move.
             CopyExtras(exeDir, appDataDir, notes);
+            CopyNoFollow(exeFile, appFile, overwrite: false, verifySettings: true);   // copied and checked; the original stays
             notes.Add($"Settings moved: {exeFile} was copied to {appFile} and checked. The original stays where it was.");
-            return new(appDataDir, false, true, null, noNote, notes);
+            return new(appDataDir, false, true, null, noNote, notes, errors);
         }
         catch (Exception ex)
         {
             notes.Add($"Settings stay next to the exe this time: {ex.GetType().Name}: {ex.Message}");
-            return StayNextToExe(exeDir, notes);
+            return StayNextToExe(exeDir, notes, errors);
         }
     }
 
@@ -103,7 +115,27 @@ public static class SettingsHome
         File.Exists(Path.Combine(exeDir, AppPaths.PortableMarkerName))
         || File.Exists(Path.Combine(exeDir, AppPaths.PortableMarkerName + ".txt"));
 
-    private static SettingsHomeResult StayNextToExe(string exeDir, List<string> notes) => new(exeDir, false, false, null, false, notes);
+    private static SettingsHomeResult StayNextToExe(string exeDir, List<string> notes, List<string> errors) =>
+        new(exeDir, false, false, null, false, notes, errors);
+
+    /// <summary>Writes what Resolve decided to the error log: its notes as notes, and a fallback to the exe folder as an
+    /// error, so it is counted and the tray shows it. App calls it once per start.</summary>
+    public static void Report(SettingsHomeResult home, ErrorLog log, DateTime now)
+    {
+        foreach (var line in home.Notes) log.Note(line, now);
+        foreach (var line in home.Errors) log.Record(new IOException(line), "Settings", now);
+    }
+
+    /// <summary>The last version that reads its settings beside the exe. Every later version reads the settings folder.</summary>
+    public const string LastExeFolderVersion = "2.3.42";
+
+    /// <summary>True when that version reads the settings file beside the exe, so the current settings are handed back
+    /// before it is installed (HandBack): every version up to <see cref="LastExeFolderVersion"/>, whatever version is
+    /// running. A version that can't be read counts as one too: a hand-back destroys nothing, while a missing one
+    /// starts the older version on the settings from before the move.</summary>
+    public static bool ReadsExeFolder(string? version) =>
+        !Version.TryParse(version, out var v)
+        || new Version(v.Major, v.Minor, Math.Max(v.Build, 0)) <= Version.Parse(LastExeFolderVersion);
 
     /// <summary>The layout presets and the Backups folder's *.json files go along with the move, when the new folder
     /// doesn't have them yet. Linked files and folders are skipped. A file that can't be copied is noted, never fatal.</summary>
@@ -130,8 +162,10 @@ public static class SettingsHome
         catch (Exception ex) { notes.Add($"Not copied: {from} ({ex.GetType().Name}: {ex.Message})"); }
     }
 
-    /// <summary>The other settings file when it differs from the active one, was changed after it and loads; null otherwise
-    /// (also when either is missing, or the other is a link or in a linked folder).</summary>
+    /// <summary>The other settings file when it holds other settings than the active one, was changed after it and
+    /// loads; null otherwise (also when either is missing, or the other is a link or in a linked folder). A file that
+    /// only lacks settings an older version doesn't know holds the same settings (OnlyLacksNewerSettings): an older
+    /// version saves when it exits, so its file is newer and different although nothing was changed in it.</summary>
     public static string? NewerOther(string activeFile, string otherFile)
     {
         try
@@ -140,10 +174,116 @@ public static class SettingsHome
             if (IsLink(otherFile) || IsLink(Path.GetDirectoryName(otherFile)!)) return null;
             if (File.GetLastWriteTimeUtc(otherFile) <= File.GetLastWriteTimeUtc(activeFile)) return null;
             if (File.ReadAllBytes(otherFile).AsSpan().SequenceEqual(File.ReadAllBytes(activeFile))) return null;
-            SettingsService.ParseForLoad(File.ReadAllText(otherFile));   // a file that doesn't load is never offered
-            return otherFile;
+            var other = File.ReadAllText(otherFile);
+            SettingsService.ParseForLoad(other);   // a file that doesn't load is never offered
+            return OnlyLacksNewerSettings(File.ReadAllText(activeFile), other) ? null : otherFile;
         }
         catch { return null; }
+    }
+
+    // The two places in a settings file whose keys are a fixed set of settings, never names a player chose.
+    private const string GlobalScope = "global_Settings", ProfilesScope = "_Profiles", ThumbnailScope = "Thumbnail Settings";
+
+    /// <summary>Load reads past comments and trailing commas, so the compare does too.</summary>
+    private static readonly JsonDocumentOptions AsLoadReads = new() { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true };
+
+    private static readonly JsonSerializerOptions Indented = new() { WriteIndented = true };
+
+    private static JsonObject? ParseObject(string json) => JsonNode.Parse(json, null, AsLoadReads) as JsonObject;
+
+    /// <summary>True when the other file holds the active file's settings and nothing else, except that it may lack
+    /// settings in global_Settings and in a profile's "Thumbnail Settings". That is what an older version writes when
+    /// nothing was changed in it: it drops the settings it doesn't know when it saves. Those two objects hold a fixed
+    /// set of settings, so a key missing there is a setting the older version doesn't have; a key missing anywhere else
+    /// (a character, a hotkey, a group, a profile) is a change, and so is any key the active file lacks. Compared by
+    /// value: spacing, key order and how a number or a character is written don't count. False when either text is
+    /// not a JSON object.</summary>
+    public static bool OnlyLacksNewerSettings(string activeJson, string otherJson)
+    {
+        try
+        {
+            return ParseObject(activeJson) is { } active && ParseObject(otherJson) is { } other
+                && SameKeys(active, other, (key, mine, theirs) => key switch
+                {
+                    GlobalScope => SameOrLacking(mine, theirs),
+                    ProfilesScope when mine is JsonObject myProfiles && theirs is JsonObject theirProfiles =>
+                        SameKeys(myProfiles, theirProfiles, (_, myProfile, theirProfile) =>
+                            myProfile is JsonObject a && theirProfile is JsonObject b
+                                ? SameKeys(a, b, (section, x, y) => section == ThumbnailScope ? SameOrLacking(x, y) : JsonNode.DeepEquals(x, y))
+                                : JsonNode.DeepEquals(myProfile, theirProfile)),
+                    _ => JsonNode.DeepEquals(mine, theirs),
+                });
+        }
+        catch { return false; }
+    }
+
+    /// <summary>The same keys on both sides, each pair passing <paramref name="same"/>.</summary>
+    private static bool SameKeys(JsonObject mine, JsonObject theirs, Func<string, JsonNode?, JsonNode?, bool> same) =>
+        mine.Count == theirs.Count
+        && mine.All(p => theirs.TryGetPropertyValue(p.Key, out var value) && same(p.Key, p.Value, value));
+
+    /// <summary>Everything the other object has, the active one has with the same value; the other may have less.</summary>
+    private static bool SameOrLacking(JsonNode? mine, JsonNode? theirs) =>
+        mine is JsonObject a && theirs is JsonObject b
+            ? b.All(p => a.TryGetPropertyValue(p.Key, out var value) && JsonNode.DeepEquals(value, p.Value))
+            : JsonNode.DeepEquals(mine, theirs);
+
+    /// <summary>The other file's text with the settings it lacks in global_Settings and in each profile's "Thumbnail
+    /// Settings" taken from the active file; null when it lacks none there.</summary>
+    private static string? WithNewerSettings(string activeJson, string otherJson)
+    {
+        if (ParseObject(activeJson) is not { } active || ParseObject(otherJson) is not { } other) return null;
+        bool carried = Carry(active[GlobalScope], other[GlobalScope]);
+        if (active[ProfilesScope] is JsonObject mine && other[ProfilesScope] is JsonObject theirs)
+            foreach (var (name, profile) in theirs)
+                if (profile is JsonObject theirProfile && mine[name] is JsonObject myProfile)
+                    carried |= Carry(myProfile[ThumbnailScope], theirProfile[ThumbnailScope]);
+        return carried ? other.ToJsonString(Indented) : null;
+    }
+
+    private static bool Carry(JsonNode? from, JsonNode? to)
+    {
+        if (from is not JsonObject mine || to is not JsonObject theirs) return false;
+        bool carried = false;
+        foreach (var (key, value) in mine)
+        {
+            if (theirs.ContainsKey(key)) continue;
+            theirs[key] = value?.DeepClone();
+            carried = true;
+        }
+        return carried;
+    }
+
+    /// <summary>"Use the newer file" for a file an older version wrote: the other file's settings, plus the settings it
+    /// lacks (OnlyLacksNewerSettings says where) with the values the active file has, so nothing the older version
+    /// doesn't know is reset. Written to a new temporary file, read back (it must load, and hold everything the other
+    /// file has), dated as the other file and only then moved onto the active file. False, with the active file as it
+    /// was, when the other file lacks nothing or anything fails: the caller then copies the file as it is.</summary>
+    private static bool TakeWithNewerSettings(string activeFile, string otherFile)
+    {
+        var tmp = activeFile + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            var other = File.ReadAllText(otherFile);
+            var merged = WithNewerSettings(File.ReadAllText(activeFile), other);
+            if (merged == null) return false;
+            using (var stream = new FileStream(tmp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                stream.Write(new UTF8Encoding(encoderShouldEmitUTF8Identifier: false).GetBytes(merged));
+                stream.Flush(flushToDisk: true);   // on disk before it takes the target's name
+            }
+            var written = File.ReadAllText(tmp);
+            SettingsService.ParseForLoad(written);
+            if (!OnlyLacksNewerSettings(written, other)) return false;
+            File.SetLastWriteTimeUtc(tmp, File.GetLastWriteTimeUtc(otherFile));
+            File.Move(tmp, activeFile, overwrite: true);
+            return true;
+        }
+        catch { return false; }
+        finally
+        {
+            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { }
+        }
     }
 
     /// <summary>A symbolic link or a junction, also one whose target is gone. A path that doesn't exist is not one, and
@@ -167,9 +307,9 @@ public static class SettingsHome
 
     /// <summary>Copies a file without following links: the bytes go to a new temporary file beside the target (CreateNew
     /// refuses any existing name, link or not), keep the original's last-write time (the newer-copy check compares it),
-    /// are checked when <paramref name="verifySettings"/> (same bytes, and they load to the same settings), and only then
-    /// are moved onto the target name, which replaces a link there instead of writing through it. Throws on failure, and
-    /// the target is then as it was.</summary>
+    /// are checked when <paramref name="verifySettings"/> (IsSameSettingsFile: the same bytes, and Load's parser reads
+    /// them), and only then are moved onto the target name, which replaces a link there instead of writing through it.
+    /// Throws on failure, and the target is then as it was.</summary>
     public static void CopyNoFollow(string from, string to, bool overwrite, bool verifySettings = false)
     {
         var bytes = File.ReadAllBytes(from);
@@ -216,8 +356,10 @@ public static class SettingsHome
         return dir;
     }
 
-    /// <summary>"Use the newer file": the current file is kept in Backups as EVE MultiPreview_replaced_…, then the other
-    /// file is copied over it and checked. False, with the current file as it was, when anything fails.</summary>
+    /// <summary>"Use the newer file": the current file is kept in Backups as EVE MultiPreview_replaced_… (checked byte
+    /// for byte), then the other file replaces it. Settings the other file lacks because an older version wrote it keep
+    /// their current values (TakeWithNewerSettings); when it lacks none, or that can't be done, the file is copied as it
+    /// is and checked. False, with the current file as it was, when anything fails.</summary>
     public static bool UseOtherCopy(string activeFile, string otherFile, DateTime now)
     {
         try
@@ -225,7 +367,8 @@ public static class SettingsHome
             if (IsLink(otherFile)) return false;
             var backups = BackupsFolder(Path.GetDirectoryName(activeFile)!);
             BackUp(activeFile, BackupFile(backups, "replaced", now));
-            CopyNoFollow(otherFile, activeFile, overwrite: true, verifySettings: true);
+            if (!TakeWithNewerSettings(activeFile, otherFile))
+                CopyNoFollow(otherFile, activeFile, overwrite: true, verifySettings: true);
             return true;
         }
         catch { return false; }
@@ -277,12 +420,13 @@ public static class SettingsHome
         }
     }
 
-    /// <summary>Before an older version is installed (IDEAS #57). Older versions read the settings file and the layout
-    /// presets beside the exe, so the current ones are copied there first (the settings checked), and the file that was
-    /// there is kept in Backups as EVE MultiPreview_exe-folder_… (layout_presets_exe-folder_… for the presets). Nothing to
-    /// do when portable (one file) or when the two are already the same. The current settings must load before anything
-    /// is written, so a doomed hand-back leaves no spare backup. Failed carries the reason. Presets that can't be handed back
-    /// are not a failure: the result is still Done (or NothingToDo) and carries the reason.</summary>
+    /// <summary>Before a version that reads the exe folder is installed (IDEAS #57, ReadsExeFolder). Those versions read
+    /// the settings file and the layout presets beside the exe, so the current ones are copied there first (the settings
+    /// checked), and the file that was there is kept in Backups as EVE MultiPreview_exe-folder_…
+    /// (layout_presets_exe-folder_… for the presets). Nothing to do when portable (one file) or when the two are already
+    /// the same. The current settings must load before anything is written, so a doomed hand-back leaves no spare
+    /// backup. Failed carries the reason. Presets that can't be handed back are not a failure: the result is still Done
+    /// (or NothingToDo) and carries the reason.</summary>
     public static HandBackResult HandBack(string activeFile, string exeDir, DateTime now)
     {
         try
