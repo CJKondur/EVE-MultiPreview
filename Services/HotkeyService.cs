@@ -132,6 +132,21 @@ public sealed class HotkeyService : IDisposable
     private System.Threading.Thread? _keyHookThread;
     private uint _keyHookThreadId;
     private readonly System.Threading.ManualResetEventSlim _keyHookReady = new(false);
+
+    // -- Hook watchdog (IDEAS #41) --
+    // Windows silently removes a low-level hook whose callback runs past LowLevelHooksTimeout. Each callback stamps the
+    // time, its only extra work; HookWatchdog compares the stamps with input Windows saw, and a missing hook is put back
+    // through the same path pause and resume use. Everything but the stamps runs on the UI thread.
+    private volatile int _mouseHookTick;      // Environment.TickCount at the mouse hook's last call, or its install
+    private volatile int _keyHookTick;        // the same for the keyboard hook
+    private int _keyHookInstalledTick;
+    private int _mouseHookGeneration;         // bumps whenever this service installs or removes the mouse hook
+    private readonly HookWatchdog _mouseWatchdog = new(), _keyWatchdog = new();
+    private System.Windows.Threading.DispatcherTimer? _watchdogTimer;
+    private bool _disposed;
+    private bool _watchdogLimitNoted;         // the "limit reached" note is written once
+    private IntPtr _hooksSeeHwnd;             // the last foreground window asked about, and the answer
+    private bool _hooksSeeInput;
     private IntPtr _hotkeyHwnd;
     private const uint LLKHF_INJECTED = 0x10;
     private const uint LLKHF_UP = 0x80;
@@ -205,6 +220,11 @@ public sealed class HotkeyService : IDisposable
         _hotkeyHwnd = _hwndSource.Handle;
 
         RegisterActivationHotkey();
+
+        // IDEAS #41: the mouse hook is looked at every 2 s; the keyboard hook is judged when a hotkey arrives (WndProc).
+        _watchdogTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(HookWatchdog.MouseLookMs) };
+        _watchdogTimer.Tick += (_, _) => CheckMouseHook();
+        _watchdogTimer.Start();
     }
 
     /// <summary>
@@ -1147,6 +1167,8 @@ public sealed class HotkeyService : IDisposable
         if (msg == User32.WM_HOTKEY)
         {
             int id = wParam.ToInt32();
+            // IDEAS #41: a hotkey whose keystroke the keyboard hook should have hidden arrived the ordinary way.
+            if ((lParam.ToInt64() & HiddenKeystrokeMark) == 0) CheckKeyHook(id);
             // The internal vk0xE8 activation hotkey is a foreground-rights bridge
             // synthesized by our own ActivateWindow path. It must always fire
             // regardless of EVE-only scope, the Settings-window block, or the
@@ -1253,6 +1275,9 @@ public sealed class HotkeyService : IDisposable
 
     public void Dispose()
     {
+        _disposed = true;
+        _watchdogTimer?.Stop();
+        _watchdogTimer = null;
         if (_scopeWinEvents != null)
         {
             _scopeWinEvents.ForegroundChanged -= OnForegroundChangedForScope;
@@ -1357,6 +1382,8 @@ public sealed class HotkeyService : IDisposable
     {
         if (_mouseHookThread != null || _captureDepth > 0 || _mouseBindings.Count == 0 || _hwndSource == null) return;
 
+        _mouseHookTick = Environment.TickCount;   // the watchdog's clock starts at install (IDEAS #41)
+        _mouseHookGeneration++;
         _mouseHookReady.Reset();
         _mouseHookThread = new System.Threading.Thread(MouseHookThreadProc)
         {
@@ -1408,6 +1435,7 @@ public sealed class HotkeyService : IDisposable
         StopMouseRepeat();
         if (_mouseHookThread != null)
         {
+            _mouseHookGeneration++;   // the watchdog starts over (IDEAS #41)
             // Wake the hook thread's GetMessage loop so it unhooks and exits.
             if (_mouseHookThreadId != 0)
                 User32.PostThreadMessage(_mouseHookThreadId, User32.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
@@ -1421,6 +1449,7 @@ public sealed class HotkeyService : IDisposable
     private void EnsureKeyHook()
     {
         if (_keyHookThread != null) return;
+        _keyHookTick = _keyHookInstalledTick = Environment.TickCount;   // the watchdog's clock starts at install (IDEAS #41)
         _keyHookReady.Reset();
         _keyHookThread = new System.Threading.Thread(KeyHookThreadProc)
         {
@@ -1440,6 +1469,92 @@ public sealed class HotkeyService : IDisposable
             User32.PostThreadMessage(_keyHookThreadId, User32.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
         _keyHookThread = null;
         _keyHookThreadId = 0;
+    }
+
+    /// <summary>IDEAS #41, every 2 s on the UI thread: puts the mouse hook back when Windows dropped it, through
+    /// ReinstallMouseBindings, the path pause and resume use (so a paused service keeps only its pause button). It only
+    /// acts on a hook this service has installed and not removed: a removed one (pause without a pause button, a hotkey
+    /// capture, shutdown) is not "installed" in the look, and the state is read again right before acting. Never throws.</summary>
+    private void CheckMouseHook()
+    {
+        try
+        {
+            if (_disposed) return;
+            var foreground = User32.GetForegroundWindow();
+            var look = new HookWatchdog.MouseLook(Environment.TickCount, _mouseHookThread != null, _mouseHookGeneration,
+                _mouseHookTick, User32.LastInputTick(),
+                User32.GetCursorPos(out var cursor) ? (cursor.X, cursor.Y) : null,
+                ForegroundHooksSeeInput(foreground));
+            if (!_mouseWatchdog.MouseLooksDead(look)) return;
+            // Same UI-thread turn as the look, but nothing may have been removed or reinstalled since: ask again.
+            if (_disposed || _captureDepth > 0 || _mouseHookThread == null || _mouseHookGeneration != look.Generation) return;
+            if (!_mouseWatchdog.MayReinstall(look.Now)) { NoteLimitOnce(_mouseWatchdog); return; }
+            ReinstallMouseBindings();
+            if (_mouseHookThread == null) return;
+            ErrorLog.Shared.Note($"[Hotkey:Watchdog] Windows stopped calling the mouse hook (the cursor moved, the hook was "
+                + $"silent for {unchecked(look.Now - look.LastCallback)} ms); put it back ({_mouseWatchdog.Reinstalls} this session).", DateTime.Now);
+        }
+        catch (Exception ex) { Debug.WriteLine($"[Hotkey:Watchdog] Mouse check failed: {ex.Message}"); }
+    }
+
+    /// <summary>IDEAS #41, when a hotkey arrives without the hook's mark: if its keystroke was one the keyboard hook hides
+    /// and the hook has been silent for 2 s, Windows dropped it, and it is put back with the same keys to hide. Cheap
+    /// reads first (this runs for every unmarked hotkey, including a held key's repeats). Never throws.</summary>
+    private void CheckKeyHook(int id)
+    {
+        try
+        {
+            var map = _keyHookMap;
+            if (_disposed || _suspended || _captureDepth > 0 || _keyHookThread == null || map == null) return;
+            int now = Environment.TickCount;
+            int lastCall = _keyHookTick;
+            if (!HookWatchdog.KeyHookMissedPress(now, lastCall, _keyHookInstalledTick)) return;
+            bool hidden = false;
+            foreach (var slot in map.Values)
+                if (slot.Id == id) { hidden = true; break; }
+            if (!hidden) return;
+            // An elevated window (or none: lock screen) in front: the hook is expected to be silent there.
+            if (!ForegroundHooksSeeInput(User32.GetForegroundWindow())) return;
+            // A key hidden after a switch is still down: removing the hook now would strand it.
+            if (User32.HasHiddenHeldKeys) return;
+            if (!_keyWatchdog.MayReinstall(now)) { NoteLimitOnce(_keyWatchdog); return; }
+            ReinstallKeyHook();
+            ErrorLog.Shared.Note($"[Hotkey:Watchdog] Windows stopped calling the keyboard hook (a hotkey came without it, the hook "
+                + $"was silent for {unchecked(now - lastCall)} ms); put it back ({_keyWatchdog.Reinstalls} this session).", DateTime.Now);
+        }
+        catch (Exception ex) { Debug.WriteLine($"[Hotkey:Watchdog] Key check failed: {ex.Message}"); }
+    }
+
+    /// <summary>A new keyboard hook thread with the same keys to hide and the same held-key hiding. A press the old hook
+    /// missed is left alone: the new hook doesn't own it, so hiding only its release can't strand the key down.</summary>
+    private void ReinstallKeyHook()
+    {
+        var map = _keyHookMap;
+        bool held = User32.HeldKeyHidingReady;
+        RemoveKeyHook();
+        EnsureKeyHook();
+        _keyHookMap = map;
+        User32.HeldKeyHidingReady = held;
+    }
+
+    /// <summary>Whether the window in front is one this process's hooks can see input for (not elevated over a normal
+    /// process). The answer for the last window asked about is kept, so the process lookup runs on a change of window.</summary>
+    private bool ForegroundHooksSeeInput(IntPtr foreground)
+    {
+        if (foreground != _hooksSeeHwnd)
+        {
+            _hooksSeeHwnd = foreground;
+            _hooksSeeInput = User32.HooksSeeInputFor(foreground);
+        }
+        return _hooksSeeInput;
+    }
+
+    /// <summary>The session's reinstall allowance is used up: one note says so, then nothing more is written.</summary>
+    private void NoteLimitOnce(HookWatchdog watchdog)
+    {
+        if (!watchdog.LimitReached || _watchdogLimitNoted) return;
+        _watchdogLimitNoted = true;
+        ErrorLog.Shared.Note($"[Hotkey:Watchdog] {HookWatchdog.MaxReinstallsPerSession} hook reinstalls this session; no more will be tried.", DateTime.Now);
     }
 
     /// <summary>Dedicated-thread body, same shape as the mouse hook's: a low-level hook
@@ -1471,6 +1586,7 @@ public sealed class HotkeyService : IDisposable
     private IntPtr KeyHookCallback(Dictionary<uint, KeySlot> hiddenDown, IntPtr handle,
         int nCode, IntPtr wParam, IntPtr lParam)
     {
+        _keyHookTick = Environment.TickCount;   // IDEAS #41: the stamp the hook check reads, this hook's only extra work
         if (nCode >= 0)
         {
             var kb = Marshal.PtrToStructure<User32.KBDLLHOOKSTRUCT>(lParam);
@@ -1532,6 +1648,7 @@ public sealed class HotkeyService : IDisposable
 
     private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
     {
+        _mouseHookTick = Environment.TickCount;   // IDEAS #41: the stamp the hook check reads, this hook's only extra work
         var bindings = _mouseBindings;   // one snapshot per event
         if (nCode >= 0 && bindings.Count > 0)
         {

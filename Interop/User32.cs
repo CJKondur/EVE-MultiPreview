@@ -85,6 +85,78 @@ public static class User32
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool GetCursorPos(out POINT lpPoint);
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct LASTINPUTINFO
+    {
+        public uint cbSize;
+        public uint dwTime;
+    }
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+    /// <summary>When Windows last saw keyboard or mouse input, on Environment.TickCount's clock (both are the low 32 bits
+    /// of the same millisecond counter), or null when it won't say (IDEAS #41).</summary>
+    public static int? LastInputTick()
+    {
+        var info = new LASTINPUTINFO { cbSize = (uint)Marshal.SizeOf<LASTINPUTINFO>() };
+        return GetLastInputInfo(ref info) ? unchecked((int)info.dwTime) : null;
+    }
+
+    // -- Can this process's low-level hooks see input aimed at a window? (IDEAS #41) --
+    // Windows doesn't call a normal process's hook for input aimed at an elevated window, so a silent hook there is
+    // expected, not dropped. The hook watchdog asks before it judges anything.
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr OpenProcess(uint desiredAccess, [MarshalAs(UnmanagedType.Bool)] bool inheritHandle, uint processId);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool CloseHandle(IntPtr handle);
+
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GetCurrentProcess();
+
+    [DllImport("advapi32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool OpenProcessToken(IntPtr process, uint desiredAccess, out IntPtr token);
+
+    [DllImport("advapi32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetTokenInformation(IntPtr token, int infoClass, out int info, int infoLength, out int returned);
+
+    private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+    private const uint TOKEN_QUERY = 0x0008;
+    private const int TokenElevation = 20;
+
+    private static bool? ProcessIsElevated(IntPtr process)
+    {
+        if (!OpenProcessToken(process, TOKEN_QUERY, out var token)) return null;
+        try { return GetTokenInformation(token, TokenElevation, out int elevated, sizeof(int), out _) ? elevated != 0 : null; }
+        finally { CloseHandle(token); }
+    }
+
+    private static readonly Lazy<bool> SelfElevated = new(() => ProcessIsElevated(GetCurrentProcess()) == true);
+
+    /// <summary>True when this process's low-level hooks can see input aimed at the window: it exists, and it is not an
+    /// elevated window while this process is not. When Windows won't say (no access to the owner), false: the caller
+    /// must not read a silent hook as a dropped one.</summary>
+    public static bool HooksSeeInputFor(IntPtr hwnd)
+    {
+        if (hwnd == IntPtr.Zero) return false;
+        if (SelfElevated.Value) return true;
+        GetWindowThreadProcessId(hwnd, out uint pid);
+        if (pid == 0) return false;
+        var process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+        if (process == IntPtr.Zero) return false;
+        try { return ProcessIsElevated(process) == false; }
+        finally { CloseHandle(process); }
+    }
+
+    /// <summary>A key is being hidden after a switch right now (its release is still to be swallowed). The hook
+    /// watchdog never removes the keyboard hook then: that would strand the key down in the client (IDEAS #41).</summary>
+    public static bool HasHiddenHeldKeys => !_hiddenHeldKeys.IsEmpty;
+
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
