@@ -761,7 +761,7 @@
     <sys:String x:Key="L.S.Nav.Alerts">알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Performance">성능</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Tools">도구</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Nav.App">앱</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">앱 설정</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general">일반</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">언어, 창 크기, MultiPreview 시작 시 동작.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">언어 및 크기</sys:String> <!-- draft -->

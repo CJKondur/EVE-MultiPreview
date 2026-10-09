@@ -760,7 +760,7 @@
     <sys:String x:Key="L.S.Nav.Alerts">Warnungen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Performance">Leistung</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Tools">Werkzeuge</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Nav.App">App</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">App-Einstellungen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general">Allgemein</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">Sprache, Fenstergröße und was beim Start von MultiPreview passiert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">Sprache und Größe</sys:String> <!-- draft -->

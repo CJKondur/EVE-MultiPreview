@@ -754,7 +754,7 @@
     <sys:String x:Key="L.S.Nav.Alerts">Alerts</sys:String>
     <sys:String x:Key="L.S.Nav.Performance">Performance</sys:String>
     <sys:String x:Key="L.S.Nav.Tools">Tools</sys:String>
-    <sys:String x:Key="L.S.Nav.App">App</sys:String>
+    <sys:String x:Key="L.S.Nav.App">App settings</sys:String>
     <sys:String x:Key="L.S.Page.app.general">General</sys:String>
     <sys:String x:Key="L.S.Page.app.general.Desc">Language, window size and what happens when MultiPreview starts.</sys:String>
     <sys:String x:Key="L.S.Sec.app.general.display">Language and size</sys:String>

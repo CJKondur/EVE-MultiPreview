@@ -780,7 +780,7 @@
     <sys:String x:Key="L.S.Nav.Alerts">Оповещения</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Performance">Производительность</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Tools">Инструменты</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Nav.App">Приложение</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">Настройки приложения</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general">Общие</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">Язык, размер окна и что происходит при запуске MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">Язык и размер</sys:String> <!-- draft -->

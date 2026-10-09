@@ -778,7 +778,7 @@
     <sys:String x:Key="L.S.Nav.Alerts">警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Performance">性能</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Tools">工具</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Nav.App">应用</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">应用设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general">常规</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">语言、窗口大小，以及 MultiPreview 启动时的行为。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">语言和大小</sys:String> <!-- draft -->

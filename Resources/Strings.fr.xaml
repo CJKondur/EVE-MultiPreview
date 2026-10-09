@@ -763,7 +763,7 @@
     <sys:String x:Key="L.S.Nav.Alerts">Alertes</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Performance">Performances</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Tools">Outils</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Nav.App">Application</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">Paramètres de l'application</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general">Général</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">Langue, taille de la fenêtre et ce qui se passe au démarrage de MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">Langue et taille</sys:String> <!-- draft -->

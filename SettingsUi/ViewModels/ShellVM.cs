@@ -120,8 +120,13 @@ public sealed class ShellVM : ObservableObject, IDisposable
     /// diagnostics stay one click away. Every other page is Advanced.</summary>
     public static bool InSimpleMode(PageDef page) => page.Group is NavGroup.Home or NavGroup.App;
 
-    /// <summary>The sidebar's groups: only App in Simple mode, every group in Advanced.</summary>
-    public IReadOnlyList<NavGroupVM> VisibleGroups => IsSimple ? Groups.Where(g => g.Group == NavGroup.App).ToList() : Groups;
+    /// <summary>App settings: shown apart at the bottom left, above the Simple/Advanced switch, in both modes
+    /// (owner, 2026-10-09).</summary>
+    public NavGroupVM? AppGroup => Groups.FirstOrDefault(g => g.Group == NavGroup.App);
+
+    /// <summary>The scrolling list's groups: none in Simple mode, every group but App in Advanced.</summary>
+    public IReadOnlyList<NavGroupVM> VisibleGroups =>
+        IsSimple ? new List<NavGroupVM>() : Groups.Where(g => g.Group != NavGroup.App).ToList();
 
     public bool HelpOpen
     {

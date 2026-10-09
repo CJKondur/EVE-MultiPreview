@@ -761,7 +761,7 @@
     <sys:String x:Key="L.S.Nav.Alerts">アラート</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Performance">パフォーマンス</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Nav.Tools">ツール</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Nav.App">アプリ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Nav.App">アプリの設定</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general">一般</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">言語、ウィンドウのサイズ、MultiPreview 起動時の動作。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">言語とサイズ</sys:String> <!-- draft -->

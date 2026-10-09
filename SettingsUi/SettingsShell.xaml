@@ -21,6 +21,39 @@
                 <Setter Property="Margin" Value="0,1"/>
                 <Setter Property="Cursor" Value="Hand"/>
             </Style>
+
+            <!-- A navigation group: its header, and its pages while it is expanded. Used by the scrolling list and by
+                 App settings at the bottom left. -->
+            <DataTemplate x:Key="NavGroupTemplate">
+                <StackPanel>
+                    <Button Style="{StaticResource Fx.NavButton}" Command="{Binding OpenCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource Fx.IconFont}"
+                                       Foreground="{StaticResource Fx.TextBrush}" VerticalAlignment="Center"/>
+                            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
+                        </StackPanel>
+                    </Button>
+                    <ItemsControl ItemsSource="{Binding Pages}" Focusable="False"
+                                  Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource Fx.NavButton}" Command="{Binding OpenCommand}" Padding="40,6,12,6">
+                                    <Grid>
+                                        <Border x:Name="Bar" Width="3" Height="16" CornerRadius="2" HorizontalAlignment="Left"
+                                                Margin="-14,0,0,0" Background="{StaticResource Fx.AccentBrush}" Visibility="Collapsed"/>
+                                        <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{StaticResource Fx.Label}"/>
+                                    </Grid>
+                                </Button>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                        <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </DataTemplate>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -56,6 +89,10 @@
                 </DockPanel>
             </Border>
 
+            <!-- App settings: apart at the bottom left, just above the switch, in both modes (owner, 2026-10-09). -->
+            <ContentControl DockPanel.Dock="Bottom" Margin="0,8,0,0" Focusable="False"
+                            Content="{Binding AppGroup}" ContentTemplate="{StaticResource NavGroupTemplate}"/>
+
             <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
                 <StackPanel>
                     <Button Style="{StaticResource Fx.NavButton}" Command="{Binding HomeCommand}"
@@ -72,40 +109,7 @@
                             <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
                         </StackPanel>
                     </Button>
-                    <ItemsControl ItemsSource="{Binding VisibleGroups}" Focusable="False">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel>
-                                    <Button Style="{StaticResource Fx.NavButton}" Command="{Binding OpenCommand}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource Fx.IconFont}"
-                                                       Foreground="{StaticResource Fx.TextBrush}" VerticalAlignment="Center"/>
-                                            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <ItemsControl ItemsSource="{Binding Pages}" Focusable="False"
-                                                  Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Button Style="{StaticResource Fx.NavButton}" Command="{Binding OpenCommand}" Padding="40,6,12,6">
-                                                    <Grid>
-                                                        <Border x:Name="Bar" Width="3" Height="16" CornerRadius="2" HorizontalAlignment="Left"
-                                                                Margin="-14,0,0,0" Background="{StaticResource Fx.AccentBrush}" Visibility="Collapsed"/>
-                                                        <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{StaticResource Fx.Label}"/>
-                                                    </Grid>
-                                                </Button>
-                                                <DataTemplate.Triggers>
-                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                        <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </DataTemplate.Triggers>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{StaticResource NavGroupTemplate}" Focusable="False"/>
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
