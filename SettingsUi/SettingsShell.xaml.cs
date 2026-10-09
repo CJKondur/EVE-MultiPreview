@@ -69,6 +69,7 @@ public partial class SettingsShell : Window, ISettingsHost
         _help.CloseRequested += () => Vm.HelpOpen = false;
         Vm.PropertyChanged += (_, e) =>
         {
+            if (e.PropertyName is "" or nameof(ShellVM.Current)) ScrollToTopOnNewPage();
             if (e.PropertyName is "" or nameof(ShellVM.HelpOpen) or nameof(ShellVM.Current)) UpdateHelp();
         };
         Sections.MouseMove += (_, e) => FollowHelp(e.OriginalSource);
@@ -90,6 +91,18 @@ public partial class SettingsShell : Window, ISettingsHost
 
     public ShellVM Vm { get; }
     internal SettingsContext Context => _ctx;
+
+    private string? _scrolledPageId;
+
+    /// <summary>A page always opens at its top (owner, 2026-10-09), however it was opened: sidebar, Home, the mode
+    /// switch, search or a link. Re-reading the page it's on (a profile switch) keeps its place.</summary>
+    private void ScrollToTopOnNewPage()
+    {
+        var id = Vm.Current?.Page.Id;
+        if (id == _scrolledPageId) return;
+        _scrolledPageId = id;
+        ContentScroll.ScrollToTop();
+    }
 
     // ── ISettingsHost ────────────────────────────────────────────────
 
