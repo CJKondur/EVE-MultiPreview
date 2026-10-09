@@ -1941,5 +1941,6 @@
     <sys:String x:Key="L.Start.Restore.Startup">MultiPreview 启动时生成的副本</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Update">更新前生成的副本</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe 旁边的设置文件</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Start.Restore.Backup">你创建的备份</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">Backups 文件夹中保存的副本</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Failed">无法恢复该副本。请选择另一个。</sys:String> <!-- draft -->
 </ResourceDictionary>

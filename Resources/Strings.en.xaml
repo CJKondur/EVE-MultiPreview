@@ -1923,5 +1923,6 @@
     <sys:String x:Key="L.Start.Restore.Startup">copy taken when MultiPreview started</sys:String>
     <sys:String x:Key="L.Start.Restore.Update">copy taken before an update</sys:String>
     <sys:String x:Key="L.Start.Restore.BesideExe">the settings file beside MultiPreview.exe</sys:String>
-    <sys:String x:Key="L.Start.Restore.Backup">a backup you made</sys:String>
+    <sys:String x:Key="L.Start.Restore.Backup">a saved copy in the Backups folder</sys:String>
+    <sys:String x:Key="L.Start.Restore.Failed">That copy couldn't be restored. Pick another.</sys:String>
 </ResourceDictionary>

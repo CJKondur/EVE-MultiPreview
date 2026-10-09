@@ -1924,5 +1924,6 @@
     <sys:String x:Key="L.Start.Restore.Startup">MultiPreview를 시작할 때 만든 사본</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Update">업데이트 전에 만든 사본</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe 옆의 설정 파일</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Start.Restore.Backup">직접 만든 백업</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">Backups 폴더에 저장된 사본</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Failed">그 사본은 복원하지 못했어요. 다른 것을 선택하세요.</sys:String> <!-- draft -->
 </ResourceDictionary>

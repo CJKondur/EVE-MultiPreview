@@ -1924,5 +1924,6 @@
     <sys:String x:Key="L.Start.Restore.Startup">MultiPreview の起動時に作成されたコピー</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Update">更新の前に作成されたコピー</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe と同じ場所にある設定ファイル</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Start.Restore.Backup">自分で作成したバックアップ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">Backups フォルダーに保存されたコピー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Failed">そのコピーは復元できませんでした。別のものを選んでください。</sys:String> <!-- draft -->
 </ResourceDictionary>

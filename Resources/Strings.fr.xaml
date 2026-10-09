@@ -1926,5 +1926,6 @@
     <sys:String x:Key="L.Start.Restore.Startup">copie faite au démarrage de MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Update">copie faite avant une mise à jour</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.BesideExe">le fichier de paramètres à côté de MultiPreview.exe</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Start.Restore.Backup">une sauvegarde que vous avez faite</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">une copie enregistrée dans le dossier Backups</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Failed">Cette copie n'a pas pu être restaurée. Choisissez-en une autre.</sys:String> <!-- draft -->
 </ResourceDictionary>

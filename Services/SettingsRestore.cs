@@ -76,8 +76,13 @@ public static class SettingsRestore
         try
         {
             if (File.Exists(svc.SettingsPath))
-                SettingsHome.CopyNoFollow(svc.SettingsPath,
-                    SettingsHome.BackupFile(SettingsHome.BackupsFolder(svc.ConfigDirectory), "unreadable", now), overwrite: false);
+            {
+                // A retry in the same second finds its own earlier copy: same bytes, nothing to write. A different file
+                // under that name still refuses (CopyNoFollow won't overwrite).
+                var keep = SettingsHome.BackupFile(SettingsHome.BackupsFolder(svc.ConfigDirectory), "unreadable", now);
+                if (!(File.Exists(keep) && File.ReadAllBytes(keep).AsSpan().SequenceEqual(File.ReadAllBytes(svc.SettingsPath))))
+                    SettingsHome.CopyNoFollow(svc.SettingsPath, keep, overwrite: false);
+            }
             SettingsHome.CopyNoFollow(choice.Path, svc.SettingsPath, overwrite: true, verifySettings: true);
         }
         catch { return false; }
@@ -91,16 +96,19 @@ public static class SettingsRestore
     public static bool Offer(SettingsService svc, string? besideExe, Func<string, string, IReadOnlyList<string>, int?> ask,
         Func<string, string, string> str, DateTime now)
     {
+        bool failed = false;
         while (true)
         {
             var choices = Choices(Path.Combine(svc.ConfigDirectory, "Backups"), besideExe);
             var body = string.Format(choices.Count > 0 ? str("L.Start.Restore.Body", BodyEnglish) : str("L.Start.Restore.None", NoneEnglish),
                 svc.SettingsPath);
+            if (failed) body = str("L.Start.Restore.Failed", "That copy couldn't be restored. Pick another.") + "\n\n" + body;
             var buttons = choices.Select(c => Label(c, str))
                 .Append(str("L.Start.Restore.Defaults", "Start with defaults (your file is kept)")).ToList();
             var picked = ask(str("L.Start.Restore.Title", "Your settings couldn't be read"), body, buttons);
             if (picked is not int i || i < 0 || i >= choices.Count) return false;
             if (Restore(svc, choices[i], now)) return true;
+            failed = true;
         }
     }
 

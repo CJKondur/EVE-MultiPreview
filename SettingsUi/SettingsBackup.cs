@@ -29,7 +29,7 @@ public static class SettingsBackup
     public const int StartupCopiesKept = 10;
 
     /// <summary>Exactly the names KeepStartupCopy writes (SettingsHome.BackupFile with kind "auto"), nothing that merely starts alike.</summary>
-    private static readonly Regex StartupCopyName = new(@"^EVE MultiPreview_auto_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json$", RegexOptions.CultureInvariant);
+    private static readonly Regex StartupCopyName = new(@"^EVE MultiPreview_auto_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}\.json$", RegexOptions.CultureInvariant);
 
     /// <summary>IDEAS #49, at each start whose settings loaded: copies the file as it loaded into Backups as
     /// EVE MultiPreview_auto_‹time›.json, unless the newest startup copy already holds the same bytes (ten restarts
@@ -39,9 +39,11 @@ public static class SettingsBackup
     {
         try
         {
-            if (!File.Exists(svc.SettingsPath)) return null;
-            var dir = SettingsHome.BackupsFolder(svc.ConfigDirectory);
+            if (!svc.LoadedSuccessfully || !File.Exists(svc.SettingsPath)) return null;
             var bytes = File.ReadAllBytes(svc.SettingsPath);
+            // A copy the restore list would never offer must not take a slot and push good ones out.
+            SettingsService.ParseJson(File.ReadAllText(svc.SettingsPath));
+            var dir = SettingsHome.BackupsFolder(svc.ConfigDirectory);
             // The names' timestamps sort as text: newest first.
             var copies = Directory.EnumerateFiles(dir, "EVE MultiPreview_auto_*.json", SearchOption.TopDirectoryOnly)
                 .Where(f => StartupCopyName.IsMatch(Path.GetFileName(f)))
@@ -49,6 +51,8 @@ public static class SettingsBackup
             string? made = null;
             if (copies.Count == 0 || !File.ReadAllBytes(copies[0]).AsSpan().SequenceEqual(bytes))
             {
+                // A clock set back must not give the new copy an older name than the newest one: it would sort oldest and be pruned.
+                if (copies.Count > 0 && TimeOf(copies[0]) is DateTime newest && now <= newest) now = newest.AddSeconds(1);
                 made = SettingsHome.BackupFile(dir, "auto", now);
                 SettingsHome.CopyNoFollow(svc.SettingsPath, made, overwrite: false);
                 copies.Insert(0, made);
@@ -59,6 +63,9 @@ public static class SettingsBackup
         catch { return null; }
     }
 
+    private static DateTime? TimeOf(string startupCopy) =>
+        DateTime.TryParseExact(Path.GetFileNameWithoutExtension(startupCopy)["EVE MultiPreview_auto_".Length..], "yyyy-MM-dd_HH-mm-ss",
+            System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var t) ? t : null;
 
     public static void Export(SettingsService svc, string destination)
     {

@@ -1943,5 +1943,6 @@
     <sys:String x:Key="L.Start.Restore.Startup">копия, сделанная при запуске MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Update">копия, сделанная перед обновлением</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.BesideExe">файл настроек рядом с MultiPreview.exe</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Start.Restore.Backup">резервная копия, которую вы сделали</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">сохранённая копия в папке Backups</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Failed">Эту копию не удалось восстановить. Выберите другую.</sys:String> <!-- draft -->
 </ResourceDictionary>
