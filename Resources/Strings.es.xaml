@@ -1937,4 +1937,13 @@
     <sys:String x:Key="L.Start.Newer.Use">Usar el archivo más reciente</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">Mantener mis ajustes actuales</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.HandBackFailed">No se pudieron pasar tus ajustes actuales a la versión anterior. Se iniciará con los ajustes guardados por última vez junto al exe. Haz clic otra vez en {0} para instalar de todos modos.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Title">No se pudieron leer tus ajustes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Body">MultiPreview no pudo leer tu archivo de ajustes:&#x0A;{0}&#x0A;&#x0A;Elige una copia para restaurar. El archivo que no se pudo leer se conserva en la carpeta Backups.&#x0A;&#x0A;Si empiezas con los valores por defecto, tu archivo se queda como está y nada de lo que cambies en esta sesión se guarda.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.None">MultiPreview no pudo leer tu archivo de ajustes:&#x0A;{0}&#x0A;&#x0A;No hay ninguna copia de seguridad que restaurar. MultiPreview empieza con los ajustes por defecto, deja tu archivo como está y no guarda nada de lo que cambies en esta sesión.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Item">Restaurar desde {0} ({1})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Defaults">Empezar con los valores por defecto (se conserva tu archivo)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Startup">copia hecha al iniciar MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Update">copia hecha antes de una actualización</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.BesideExe">el archivo de ajustes junto a MultiPreview.exe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">una copia de seguridad que hiciste</sys:String> <!-- draft -->
 </ResourceDictionary>

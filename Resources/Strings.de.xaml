@@ -1915,4 +1915,13 @@
     <sys:String x:Key="L.Start.Newer.Use">Neuere Datei verwenden</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">Meine aktuellen Einstellungen behalten</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.HandBackFailed">Deine aktuellen Einstellungen konnten nicht an die ältere Version übergeben werden. Sie startet mit den Einstellungen, die zuletzt neben der exe gespeichert wurden. Klicke noch einmal auf {0}, um trotzdem zu installieren.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Title">Deine Einstellungen konnten nicht gelesen werden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Body">MultiPreview konnte deine Einstellungsdatei nicht lesen:&#x0A;{0}&#x0A;&#x0A;Wähle eine Kopie zum Wiederherstellen. Die Datei, die nicht gelesen werden konnte, bleibt im Ordner Backups erhalten.&#x0A;&#x0A;Wenn du mit den Standardeinstellungen startest, bleibt deine Datei unverändert und nichts, was du in dieser Sitzung änderst, wird gespeichert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.None">MultiPreview konnte deine Einstellungsdatei nicht lesen:&#x0A;{0}&#x0A;&#x0A;Es gibt kein Backup zum Wiederherstellen. MultiPreview startet mit den Standardeinstellungen, lässt deine Datei unverändert und speichert nichts, was du in dieser Sitzung änderst.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Item">Wiederherstellen von {0} ({1})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Defaults">Mit Standardeinstellungen starten (deine Datei bleibt erhalten)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Startup">Kopie, die beim Start von MultiPreview erstellt wurde</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Update">Kopie, die vor einem Update erstellt wurde</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.BesideExe">die Einstellungsdatei neben MultiPreview.exe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">ein Backup, das du erstellt hast</sys:String> <!-- draft -->
 </ResourceDictionary>

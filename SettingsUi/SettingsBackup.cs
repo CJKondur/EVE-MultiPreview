@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
 
@@ -15,12 +17,48 @@ public static class SettingsBackup
     public static string BackupNow(SettingsService svc, DateTime now)
     {
         svc.Save();
-        var dir = Path.Combine(svc.ConfigDirectory, "Backups");
-        Directory.CreateDirectory(dir);
+        var dir = SettingsHome.BackupsFolder(svc.ConfigDirectory);   // refuses a linked Backups folder (IDEAS #57)
         var path = Path.Combine(dir, $"EVE MultiPreview_{now:yyyy-MM-dd_HH-mm-ss}.json");
         File.Copy(svc.SettingsPath, path, overwrite: true);
         return path;
     }
+
+    /// <summary>Startup copies kept (IDEAS #49). Older ones are deleted. Only files this feature wrote are ever pruned
+    /// (<see cref="StartupCopyName"/>): backups you make, the copies taken before an update, and the safety copies the
+    /// settings move and hand-back keep (replaced, exe-folder, unreadable) are never deleted.</summary>
+    public const int StartupCopiesKept = 10;
+
+    /// <summary>Exactly the names KeepStartupCopy writes (SettingsHome.BackupFile with kind "auto"), nothing that merely starts alike.</summary>
+    private static readonly Regex StartupCopyName = new(@"^EVE MultiPreview_auto_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.json$", RegexOptions.CultureInvariant);
+
+    /// <summary>IDEAS #49, at each start whose settings loaded: copies the file as it loaded into Backups as
+    /// EVE MultiPreview_auto_‹time›.json, unless the newest startup copy already holds the same bytes (ten restarts
+    /// without a change don't push older settings out), then deletes startup copies beyond the newest ten. Returns the
+    /// new copy, or null when none was needed or it failed. Never throws.</summary>
+    public static string? KeepStartupCopy(SettingsService svc, DateTime now)
+    {
+        try
+        {
+            if (!File.Exists(svc.SettingsPath)) return null;
+            var dir = SettingsHome.BackupsFolder(svc.ConfigDirectory);
+            var bytes = File.ReadAllBytes(svc.SettingsPath);
+            // The names' timestamps sort as text: newest first.
+            var copies = Directory.EnumerateFiles(dir, "EVE MultiPreview_auto_*.json", SearchOption.TopDirectoryOnly)
+                .Where(f => StartupCopyName.IsMatch(Path.GetFileName(f)))
+                .OrderByDescending(Path.GetFileName, StringComparer.Ordinal).ToList();
+            string? made = null;
+            if (copies.Count == 0 || !File.ReadAllBytes(copies[0]).AsSpan().SequenceEqual(bytes))
+            {
+                made = SettingsHome.BackupFile(dir, "auto", now);
+                SettingsHome.CopyNoFollow(svc.SettingsPath, made, overwrite: false);
+                copies.Insert(0, made);
+            }
+            foreach (var old in copies.Skip(StartupCopiesKept)) File.Delete(old);
+            return made;
+        }
+        catch { return null; }
+    }
+
 
     public static void Export(SettingsService svc, string destination)
     {

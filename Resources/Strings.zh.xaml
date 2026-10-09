@@ -1933,4 +1933,13 @@
     <sys:String x:Key="L.Start.Newer.Use">使用较新的文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">保留我当前的设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.HandBackFailed">无法把你当前的设置交给旧版本。它将使用上次保存在 exe 旁边的设置启动。再次点击“{0}”即可继续安装。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Title">无法读取你的设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Body">MultiPreview 无法读取你的设置文件：&#x0A;{0}&#x0A;&#x0A;请选择一个副本来恢复。无法读取的文件会保留在 Backups 文件夹中。&#x0A;&#x0A;如果使用默认设置启动，你的文件将保持原样，本次运行中你所做的更改都不会保存。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.None">MultiPreview 无法读取你的设置文件：&#x0A;{0}&#x0A;&#x0A;没有可恢复的备份。MultiPreview 将以默认设置启动，保持你的文件原样，本次运行中你所做的更改都不会保存。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Item">从 {0} 恢复（{1}）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Defaults">使用默认设置启动（保留你的文件）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Startup">MultiPreview 启动时生成的副本</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Update">更新前生成的副本</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe 旁边的设置文件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">你创建的备份</sys:String> <!-- draft -->
 </ResourceDictionary>

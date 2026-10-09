@@ -1915,4 +1915,13 @@
     <sys:String x:Key="L.Start.Newer.Use">Use the newer file</sys:String>
     <sys:String x:Key="L.Start.Newer.Keep">Keep my current settings</sys:String>
     <sys:String x:Key="L.Upd.HandBackFailed">Your current settings couldn't be given to the older version. It will start with the settings last saved beside the exe. Click {0} again to install anyway.</sys:String>
+    <sys:String x:Key="L.Start.Restore.Title">Your settings couldn't be read</sys:String>
+    <sys:String x:Key="L.Start.Restore.Body">MultiPreview couldn't read your settings file:&#x0A;{0}&#x0A;&#x0A;Pick a copy to restore. The file that couldn't be read is kept in the Backups folder.&#x0A;&#x0A;If you start with defaults, your file is left as it is and nothing you change this session is saved.</sys:String>
+    <sys:String x:Key="L.Start.Restore.None">MultiPreview couldn't read your settings file:&#x0A;{0}&#x0A;&#x0A;There is no backup to restore. MultiPreview starts with default settings, leaves your file as it is, and saves nothing you change this session.</sys:String>
+    <sys:String x:Key="L.Start.Restore.Item">Restore from {0} ({1})</sys:String>
+    <sys:String x:Key="L.Start.Restore.Defaults">Start with defaults (your file is kept)</sys:String>
+    <sys:String x:Key="L.Start.Restore.Startup">copy taken when MultiPreview started</sys:String>
+    <sys:String x:Key="L.Start.Restore.Update">copy taken before an update</sys:String>
+    <sys:String x:Key="L.Start.Restore.BesideExe">the settings file beside MultiPreview.exe</sys:String>
+    <sys:String x:Key="L.Start.Restore.Backup">a backup you made</sys:String>
 </ResourceDictionary>

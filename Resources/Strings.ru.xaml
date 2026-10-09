@@ -1935,4 +1935,13 @@
     <sys:String x:Key="L.Start.Newer.Use">Использовать более новый файл</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">Оставить мои текущие настройки</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.HandBackFailed">Не удалось передать ваши текущие настройки старой версии. Она запустится с настройками, сохранёнными ранее рядом с exe. Нажмите «{0}» ещё раз, чтобы всё равно установить.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Title">Не удалось прочитать ваши настройки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Body">MultiPreview не смог прочитать файл настроек:&#x0A;{0}&#x0A;&#x0A;Выберите копию для восстановления. Файл, который не удалось прочитать, сохранится в папке Backups.&#x0A;&#x0A;Если запустить с настройками по умолчанию, ваш файл останется как есть, а изменения, сделанные в этом сеансе, не сохранятся.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.None">MultiPreview не смог прочитать файл настроек:&#x0A;{0}&#x0A;&#x0A;Нет резервной копии для восстановления. MultiPreview запустится с настройками по умолчанию, оставит ваш файл как есть и не сохранит изменения, сделанные в этом сеансе.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Item">Восстановить из {0} ({1})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Defaults">Запустить с настройками по умолчанию (ваш файл сохранится)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Startup">копия, сделанная при запуске MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Update">копия, сделанная перед обновлением</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.BesideExe">файл настроек рядом с MultiPreview.exe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">резервная копия, которую вы сделали</sys:String> <!-- draft -->
 </ResourceDictionary>

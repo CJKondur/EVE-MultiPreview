@@ -1918,4 +1918,13 @@
     <sys:String x:Key="L.Start.Newer.Use">Utiliser le fichier plus récent</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">Garder mes paramètres actuels</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.HandBackFailed">Vos paramètres actuels n'ont pas pu être transmis à la version plus ancienne. Elle démarrera avec les paramètres enregistrés en dernier à côté de l'exe. Cliquez de nouveau sur {0} pour installer quand même.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Title">Vos paramètres n'ont pas pu être lus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Body">MultiPreview n'a pas pu lire votre fichier de paramètres :&#x0A;{0}&#x0A;&#x0A;Choisissez une copie à restaurer. Le fichier illisible est conservé dans le dossier Backups.&#x0A;&#x0A;Si vous démarrez avec les paramètres par défaut, votre fichier reste tel quel et rien de ce que vous modifiez pendant cette session n'est enregistré.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.None">MultiPreview n'a pas pu lire votre fichier de paramètres :&#x0A;{0}&#x0A;&#x0A;Il n'y a aucune sauvegarde à restaurer. MultiPreview démarre avec les paramètres par défaut, laisse votre fichier tel quel et n'enregistre rien de ce que vous modifiez pendant cette session.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Item">Restaurer depuis {0} ({1})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Defaults">Démarrer avec les paramètres par défaut (votre fichier est conservé)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Startup">copie faite au démarrage de MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Update">copie faite avant une mise à jour</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.BesideExe">le fichier de paramètres à côté de MultiPreview.exe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">une sauvegarde que vous avez faite</sys:String> <!-- draft -->
 </ResourceDictionary>

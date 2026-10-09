@@ -1916,4 +1916,13 @@
     <sys:String x:Key="L.Start.Newer.Use">新しいファイルを使用する</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">現在の設定を維持する</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.HandBackFailed">現在の設定を古いバージョンに引き継げませんでした。exe の隣に最後に保存された設定で起動します。それでもインストールするには、もう一度「{0}」を押してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Title">設定を読み込めませんでした</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Body">MultiPreview が設定ファイルを読み込めませんでした：&#x0A;{0}&#x0A;&#x0A;復元するコピーを選んでください。読み込めなかったファイルは Backups フォルダーに残ります。&#x0A;&#x0A;初期設定で開始すると、ファイルはそのまま残り、このセッションで変更した内容は保存されません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.None">MultiPreview が設定ファイルを読み込めませんでした：&#x0A;{0}&#x0A;&#x0A;復元できるバックアップがありません。MultiPreview は初期設定で開始し、ファイルはそのまま残します。このセッションで変更した内容は保存されません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Item">{0} から復元（{1}）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Defaults">初期設定で開始（ファイルは残ります）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Startup">MultiPreview の起動時に作成されたコピー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Update">更新の前に作成されたコピー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe と同じ場所にある設定ファイル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">自分で作成したバックアップ</sys:String> <!-- draft -->
 </ResourceDictionary>

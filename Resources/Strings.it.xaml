@@ -1933,4 +1933,13 @@
     <sys:String x:Key="L.Start.Newer.Use">Usa il file più recente</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">Mantieni le mie impostazioni attuali</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.HandBackFailed">Non è stato possibile passare le tue impostazioni attuali alla versione precedente. Si avvierà con le impostazioni salvate per ultime accanto all'exe. Fai di nuovo clic su {0} per installare comunque.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Title">Non è stato possibile leggere le tue impostazioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Body">MultiPreview non è riuscito a leggere il tuo file delle impostazioni:&#x0A;{0}&#x0A;&#x0A;Scegli una copia da ripristinare. Il file che non è stato possibile leggere resta nella cartella Backups.&#x0A;&#x0A;Se avvii con le impostazioni predefinite, il tuo file resta com'è e nulla di ciò che cambi in questa sessione viene salvato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.None">MultiPreview non è riuscito a leggere il tuo file delle impostazioni:&#x0A;{0}&#x0A;&#x0A;Non c'è nessun backup da ripristinare. MultiPreview si avvia con le impostazioni predefinite, lascia il tuo file com'è e non salva nulla di ciò che cambi in questa sessione.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Item">Ripristina da {0} ({1})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Defaults">Avvia con le impostazioni predefinite (il tuo file resta)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Startup">copia fatta all'avvio di MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Update">copia fatta prima di un aggiornamento</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.BesideExe">il file delle impostazioni accanto a MultiPreview.exe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">un backup che hai fatto</sys:String> <!-- draft -->
 </ResourceDictionary>

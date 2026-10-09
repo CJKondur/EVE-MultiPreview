@@ -1916,4 +1916,13 @@
     <sys:String x:Key="L.Start.Newer.Use">최신 파일 사용</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">내 현재 설정 유지</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.HandBackFailed">현재 설정을 이전 버전에 넘기지 못했어요. 이전 버전은 exe 옆에 마지막으로 저장된 설정으로 시작해요. 그래도 설치하려면 {0}를 다시 눌러 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Title">설정을 읽을 수 없어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Body">MultiPreview가 설정 파일을 읽지 못했어요:&#x0A;{0}&#x0A;&#x0A;복원할 사본을 선택하세요. 읽지 못한 파일은 Backups 폴더에 보관돼요.&#x0A;&#x0A;기본 설정으로 시작하면 파일은 그대로 두고, 이번 세션에서 바꾼 내용은 저장되지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.None">MultiPreview가 설정 파일을 읽지 못했어요:&#x0A;{0}&#x0A;&#x0A;복원할 백업이 없어요. MultiPreview는 기본 설정으로 시작하고, 파일은 그대로 두며, 이번 세션에서 바꾼 내용은 저장하지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Item">{0}에서 복원 ({1})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Defaults">기본 설정으로 시작 (파일은 보관돼요)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Startup">MultiPreview를 시작할 때 만든 사본</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Update">업데이트 전에 만든 사본</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.BesideExe">MultiPreview.exe 옆의 설정 파일</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Backup">직접 만든 백업</sys:String> <!-- draft -->
 </ResourceDictionary>
