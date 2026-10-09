@@ -1915,4 +1915,5 @@
     <sys:String x:Key="L.Start.Newer.Body">현재 설정 파일:&#x0A;{0}&#x0A;마지막 변경: {1}&#x0A;&#x0A;다른 설정 파일이 그 뒤에 변경되었어요({3}):&#x0A;{2}&#x0A;&#x0A;이전 버전의 MultiPreview를 그 폴더에서 실행했거나 설정 파일을 그곳에 복사했을 때 이런 일이 생겨요. 더 최신 파일을 사용할까요? 현재 설정은 먼저 Backups 폴더에 보관돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Use">최신 파일 사용</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">내 현재 설정 유지</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.HandBackFailed">현재 설정을 이전 버전에 넘기지 못했어요. 이전 버전은 exe 옆에 마지막으로 저장된 설정으로 시작해요. 그래도 설치하려면 {0}를 다시 눌러 주세요.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -136,27 +137,31 @@ public sealed class UpdateService
 
     /// <summary>
     /// Spawn the PowerShell updater script that waits for exit, backs up the settings file, replaces the exe, and
-    /// relaunches. Then shuts down the current app.
+    /// relaunches. Then shuts down the current app. Before an older version it hands the current settings to the exe
+    /// folder (IDEAS #57); when that fails nothing is installed and the result says why, so the dialog can warn the player.
+    /// Calling it again with <paramref name="installAnyway"/> installs regardless.
     /// </summary>
-    public void ApplyUpdate(string downloadedExePath)
+    public HandBackResult ApplyUpdate(string downloadedExePath, bool installAnyway = false)
     {
-        var appDir = AppDomain.CurrentDomain.BaseDirectory;
+        var handBack = HandBackIfOlder(AppPaths.SettingsPath, AppPaths.ExeDir, DateTime.Now);
+        if (handBack.State == HandBackState.Failed && !installAnyway) return handBack;
+
+        var appDir = AppPaths.ExeDir;
         var scriptPath = Path.Combine(Path.GetTempPath(), "EVEMultiPreview_update", "update.ps1");
+        Directory.CreateDirectory(Path.GetDirectoryName(scriptPath)!);
+        // A BOM, so Windows PowerShell 5.1 never reads the script in the ANSI code page (it is ASCII anyway).
+        File.WriteAllText(scriptPath, UpdaterScript, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));
 
-        // An older version reads the settings file beside the exe (IDEAS #57): it gets the current settings first.
-        if (IsOlder(LatestVersion, CurrentVersion))
-            SettingsHome.HandBack(AppPaths.SettingsPath, AppPaths.ExeDir, DateTime.Now);
-
-        File.WriteAllText(scriptPath, UpdaterScript(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath));
-
-        // Launch PowerShell hidden
+        // Launch PowerShell hidden. The paths travel in the environment, never in the script text.
         var psi = new ProcessStartInfo
         {
             FileName = "powershell.exe",
-            Arguments = $"-ExecutionPolicy Bypass -WindowStyle Hidden -File \"{scriptPath}\"",
+            Arguments = $"-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"{scriptPath}\"",
             UseShellExecute = false,
             CreateNoWindow = true
         };
+        foreach (var (name, value) in UpdaterEnvironment(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath))
+            psi.Environment[name] = value;
         Process.Start(psi);
 
         Debug.WriteLine("[Update] Updater script launched — shutting down app");
@@ -164,37 +169,63 @@ public sealed class UpdateService
         {
             System.Windows.Application.Current.Shutdown();
         });
+        return handBack;
     }
 
     /// <summary>True when <paramref name="target"/> is an older version than <paramref name="current"/> (a downgrade).</summary>
     public static bool IsOlder(string? target, string current) =>
         Version.TryParse(target, out var t) && Version.TryParse(current, out var c) && t < c;
 
-    /// <summary>The updater: waits for MultiPreview to exit, copies the settings file into the Backups folder beside it
-    /// (the settings folder, IDEAS #57), replaces the exe in <paramref name="appDir"/> and starts it again.</summary>
-    public static string UpdaterScript(string appDir, string settingsFile, string backupDir, string downloadedExePath) => $@"
-# EVE MultiPreview Auto-Updater
+    /// <summary>The hand-back, when the chosen release is older than this one; nothing to do otherwise.</summary>
+    public HandBackResult HandBackIfOlder(string settingsFile, string exeDir, DateTime now) =>
+        IsOlder(LatestVersion, CurrentVersion) ? SettingsHome.HandBack(settingsFile, exeDir, now) : default;
+
+    /// <summary>The paths the updater script reads (as $env:EMP_…). Environment variables are Unicode and never parsed
+    /// as code, so any folder name works and none can inject a command.</summary>
+    public static IReadOnlyList<(string Name, string Value)> UpdaterEnvironment(string appDir, string settingsFile, string backupDir,
+        string downloadedExePath) => new[]
+    {
+        ("EMP_APPDIR", appDir), ("EMP_CONFIG", settingsFile), ("EMP_BACKUPS", backupDir), ("EMP_NEWEXE", downloadedExePath),
+    };
+
+    /// <summary>The updater: waits for MultiPreview to exit, copies the settings file into the Backups folder of the
+    /// settings folder (refusing a Backups folder that is a link), replaces the exe in $env:EMP_APPDIR and starts it again.
+    /// A constant, ASCII only, holding no path (see UpdaterEnvironment). Only cmdlet forms that Windows PowerShell 5.1 has.</summary>
+    public const string UpdaterScript = @"
+# EVE MultiPreview Auto-Updater (paths come from the EMP_* environment variables)
+$appDir = $env:EMP_APPDIR
+$configFile = $env:EMP_CONFIG
+$backupDir = $env:EMP_BACKUPS
+$newExe = $env:EMP_NEWEXE
+if (-not $appDir -or -not $newExe) { exit 1 }
+
 # Wait for the main process to exit
 Start-Sleep -Seconds 2
 $maxWait = 30; $waited = 0
-while ((Get-Process -Name 'EVE MultiPreview' -ErrorAction SilentlyContinue) -and $waited -lt $maxWait) {{
+while ((Get-Process -Name 'EVE MultiPreview' -ErrorAction SilentlyContinue) -and $waited -lt $maxWait) {
     Start-Sleep -Seconds 1; $waited++
-}}
+}
 
 # Back up the settings file (in the settings folder: AppData, or beside the exe when portable)
-$appDir = '{EscapePs(appDir)}'
-$configFile = '{EscapePs(settingsFile)}'
-if (Test-Path -LiteralPath $configFile) {{
-    $backupDir = '{EscapePs(backupDir)}'
-    New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
-    $timestamp = Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'
-    Copy-Item -LiteralPath $configFile -Destination (Join-Path $backupDir ""EVE MultiPreview_pre-update_$timestamp.json"")
-}}
+try {
+    if ($configFile -and $backupDir -and (Test-Path -LiteralPath $configFile)) {
+        $isLink = $false
+        if (Test-Path -LiteralPath $backupDir) {
+            $item = Get-Item -LiteralPath $backupDir -Force
+            if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) { $isLink = $true }
+        }
+        if (-not $isLink) {
+            [void][System.IO.Directory]::CreateDirectory($backupDir)
+            $timestamp = Get-Date -Format 'yyyy-MM-dd_HH-mm-ss'
+            $backupFile = [System.IO.Path]::Combine($backupDir, 'EVE MultiPreview_pre-update_' + $timestamp + '.json')
+            [System.IO.File]::Copy($configFile, $backupFile, $false)
+        }
+    }
+} catch { }
 
 # Replace the executable
-$newExe = '{EscapePs(downloadedExePath)}'
-$oldExe = Join-Path $appDir 'EVE MultiPreview.exe'
-Copy-Item -LiteralPath $newExe -Destination $oldExe -Force
+$oldExe = [System.IO.Path]::Combine($appDir, 'EVE MultiPreview.exe')
+try { [System.IO.File]::Copy($newExe, $oldExe, $true) } catch { }
 
 # Clean up any stale dot-named exe / pdb left over from earlier installs
 # that pre-date the AssemblyName rename. The GitHub release ships the file
@@ -202,24 +233,25 @@ Copy-Item -LiteralPath $newExe -Destination $oldExe -Force
 # install is 'EVE MultiPreview.exe' (with a space). Old dot-named files
 # from previous versions sit alongside the space-named live exe and show
 # up as confusing duplicates in the install folder (issue #42, bug #3).
-$dotExe = Join-Path $appDir 'EVE.MultiPreview.exe'
-if (Test-Path -LiteralPath $dotExe) {{
+$dotExe = [System.IO.Path]::Combine($appDir, 'EVE.MultiPreview.exe')
+if (Test-Path -LiteralPath $dotExe) {
     Remove-Item -LiteralPath $dotExe -Force -ErrorAction SilentlyContinue
-}}
-$dotPdb = Join-Path $appDir 'EVE.MultiPreview.pdb'
-if (Test-Path -LiteralPath $dotPdb) {{
+}
+$dotPdb = [System.IO.Path]::Combine($appDir, 'EVE.MultiPreview.pdb')
+if (Test-Path -LiteralPath $dotPdb) {
     Remove-Item -LiteralPath $dotPdb -Force -ErrorAction SilentlyContinue
-}}
+}
 
-# Restart the app
-Start-Process -FilePath $oldExe
+# Restart the app (a bracketed current folder breaks Start-Process on 5.1, so start from TEMP)
+Start-Process -FilePath $oldExe -WorkingDirectory $env:TEMP
 
 # Clean up temp download
 Start-Sleep -Seconds 3
-Remove-Item -LiteralPath (Split-Path -LiteralPath $newExe -Parent) -Recurse -Force -ErrorAction SilentlyContinue
+$downloadDir = [System.IO.Path]::GetDirectoryName($newExe)
+if ($downloadDir -and ($downloadDir.TrimEnd('') -ne $appDir.TrimEnd(''))) {
+    Remove-Item -LiteralPath $downloadDir -Recurse -Force -ErrorAction SilentlyContinue
+}
 ";
-
-    private static string EscapePs(string path) => path.Replace("'", "''");
 
     // ── Install a specific version (upgrade or downgrade) ───────────
 

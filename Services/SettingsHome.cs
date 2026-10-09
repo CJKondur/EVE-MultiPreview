@@ -17,6 +17,12 @@ namespace EveMultiPreview.Services;
 public sealed record SettingsHomeResult(string ConfigDir, bool Portable, bool Moved, string? OtherCopy, bool NoteNeeded,
     IReadOnlyList<string> Notes);
 
+/// <summary>How a hand-back to an older version went.</summary>
+public enum HandBackState { NothingToDo, Done, Failed }
+
+/// <summary>The outcome of SettingsHome.HandBack; <paramref name="Reason"/> is set when it failed. default = nothing to do.</summary>
+public readonly record struct HandBackResult(HandBackState State, string? Reason = null);
+
 /// <summary>IDEAS #57: the settings live in %APPDATA%\EVE MultiPreview, not beside the exe. The first start copies the
 /// old file (and its layout presets and backups), checks the copy, and never deletes or changes the original.
 /// portable.txt beside the exe keeps everything there. Nothing here writes through a symbolic link or a junction:
@@ -197,8 +203,8 @@ public static class SettingsHome
 
     /// <summary>Backups\EVE MultiPreview_‹kind›_yyyy-MM-dd_HH-mm-ss.json. Kinds: auto (a startup copy), pre-update (the
     /// updater's), replaced, exe-folder and unreadable. A backup made with Back up now has no kind.</summary>
-    public static string BackupFile(string backupsDir, string kind, DateTime now) =>
-        Path.Combine(backupsDir, $"EVE MultiPreview_{kind}_{now.ToString("yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture)}.json");
+    public static string BackupFile(string backupsDir, string kind, DateTime now, string prefix = "EVE MultiPreview") =>
+        Path.Combine(backupsDir, $"{prefix}_{kind}_{now.ToString("yyyy-MM-dd_HH-mm-ss", CultureInfo.InvariantCulture)}.json");
 
     /// <summary>The Backups folder in a settings folder, created when missing. Throws when it is a link.</summary>
     public static string BackupsFolder(string configDir)
@@ -217,7 +223,7 @@ public static class SettingsHome
         {
             if (IsLink(otherFile)) return false;
             var backups = BackupsFolder(Path.GetDirectoryName(activeFile)!);
-            CopyNoFollow(activeFile, BackupFile(backups, "replaced", now), overwrite: false);
+            BackUp(activeFile, BackupFile(backups, "replaced", now));
             CopyNoFollow(otherFile, activeFile, overwrite: true, verifySettings: true);
             return true;
         }
@@ -258,26 +264,56 @@ public static class SettingsHome
         + "This happens when an older version of MultiPreview ran from that folder, or a settings file was copied there. "
         + "Use the newer file? Your current settings are kept in the Backups folder first.";
 
-    /// <summary>Before an older version is installed (IDEAS #57). Older versions read the settings file beside the exe,
-    /// so the current settings are copied there first (checked), and the file that was there is kept in Backups as
-    /// EVE MultiPreview_exe-folder_…. Nothing to do when portable (one file) or when the two are already the same.
-    /// False when nothing was copied.</summary>
-    public static bool HandBack(string activeFile, string exeDir, DateTime now)
+    /// <summary>Copies <paramref name="from"/> into Backups and checks the copy byte for byte (no parse: the file may be
+    /// one that doesn't load). A copy that differs is deleted and the call throws, so the caller overwrites nothing.</summary>
+    private static void BackUp(string from, string to)
+    {
+        CopyNoFollow(from, to, overwrite: false);
+        if (!File.ReadAllBytes(to).AsSpan().SequenceEqual(File.ReadAllBytes(from)))
+        {
+            try { File.Delete(to); } catch { }
+            throw new InvalidDataException($"The backup of {from} didn't match the original.");
+        }
+    }
+
+    /// <summary>Before an older version is installed (IDEAS #57). Older versions read the settings file and the layout
+    /// presets beside the exe, so the current ones are copied there first (the settings checked), and the file that was
+    /// there is kept in Backups as EVE MultiPreview_exe-folder_… (layout_presets_exe-folder_… for the presets). Nothing to
+    /// do when portable (one file) or when the two are already the same. The current settings must load before anything
+    /// is written, so a doomed hand-back leaves no spare backup. Failed carries the reason.</summary>
+    public static HandBackResult HandBack(string activeFile, string exeDir, DateTime now)
     {
         try
         {
             var exeFile = Path.Combine(exeDir, AppPaths.SettingsFileName);
-            if (string.Equals(Path.GetFullPath(activeFile), Path.GetFullPath(exeFile), StringComparison.OrdinalIgnoreCase)) return false;
-            if (!File.Exists(activeFile) || IsLink(exeFile)) return false;
-            if (File.Exists(exeFile))
-            {
-                if (File.ReadAllBytes(exeFile).AsSpan().SequenceEqual(File.ReadAllBytes(activeFile))) return false;
-                CopyNoFollow(exeFile, BackupFile(BackupsFolder(Path.GetDirectoryName(activeFile)!), "exe-folder", now), overwrite: false);
-            }
-            CopyNoFollow(activeFile, exeFile, overwrite: true, verifySettings: true);
-            return true;
+            if (string.Equals(Path.GetFullPath(activeFile), Path.GetFullPath(exeFile), StringComparison.OrdinalIgnoreCase)) return default;
+            if (!File.Exists(activeFile)) return default;
+            try { SettingsService.ParseForLoad(File.ReadAllText(activeFile)); }
+            catch (Exception ex) { return Failed($"the current settings file doesn't load ({ex.GetType().Name}: {ex.Message})"); }
+
+            var activeDir = Path.GetDirectoryName(activeFile)!;
+            bool settings = HandBackFile(activeFile, exeFile, activeDir, "EVE MultiPreview", now, verifySettings: true);
+            bool presets = HandBackFile(Path.Combine(activeDir, "layout_presets.json"), Path.Combine(exeDir, "layout_presets.json"),
+                activeDir, "layout_presets", now, verifySettings: false);
+            return settings || presets ? new(HandBackState.Done) : default;
         }
-        catch { return false; }
+        catch (Exception ex) { return Failed($"{ex.GetType().Name}: {ex.Message}"); }
+
+        static HandBackResult Failed(string reason) => new(HandBackState.Failed, reason);
+    }
+
+    /// <summary>One file of the hand-back. False when there is nothing to copy; throws when it can't be done safely.</summary>
+    private static bool HandBackFile(string from, string to, string activeDir, string prefix, DateTime now, bool verifySettings)
+    {
+        if (!File.Exists(from)) return false;
+        if (IsLink(to)) throw new IOException($"{to} is a link, and MultiPreview never writes through one.");
+        if (File.Exists(to))
+        {
+            if (File.ReadAllBytes(to).AsSpan().SequenceEqual(File.ReadAllBytes(from))) return false;
+            BackUp(to, BackupFile(BackupsFolder(activeDir), "exe-folder", now, prefix));
+        }
+        CopyNoFollow(from, to, overwrite: true, verifySettings: verifySettings);
+        return true;
     }
 
     /// <summary>Writes the note beside the exe (best effort: a folder MultiPreview can't write to just gets no note).

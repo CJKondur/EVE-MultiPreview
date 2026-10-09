@@ -1932,4 +1932,5 @@
     <sys:String x:Key="L.Start.Newer.Body">Il tuo file di impostazioni è:&#x0A;{0}&#x0A;ultima modifica: {1}.&#x0A;&#x0A;Un altro file di impostazioni è stato modificato dopo, il {3}:&#x0A;{2}&#x0A;&#x0A;Succede quando una versione precedente di MultiPreview è stata eseguita da quella cartella o un file di impostazioni è stato copiato lì. Usare il file più recente? Le tue impostazioni attuali vengono prima conservate nella cartella Backups.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Use">Usa il file più recente</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">Mantieni le mie impostazioni attuali</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.HandBackFailed">Non è stato possibile passare le tue impostazioni attuali alla versione precedente. Si avvierà con le impostazioni salvate per ultime accanto all'exe. Fai di nuovo clic su {0} per installare comunque.</sys:String> <!-- draft -->
 </ResourceDictionary>

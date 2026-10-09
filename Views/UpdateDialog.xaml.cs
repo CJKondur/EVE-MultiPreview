@@ -19,6 +19,8 @@ public partial class UpdateDialog : Window
     private readonly UpdateService _updateService;
     private readonly Action? _beforeApply;
     private bool _downloading = false;
+    private string? _downloadedPath;
+    private bool _installAnyway;
 
     /// <param name="specificVersion">Opened from About → "Install a specific version" (an
     /// upgrade or a downgrade the user picked) rather than by an update check.</param>
@@ -122,6 +124,26 @@ public partial class UpdateDialog : Window
         if (!_downloading) Close();
     }
 
+    /// <summary>The settings couldn't be given to the older version (IDEAS #57; the caller logs why): warn in the status line, and
+    /// let the next click on Update now install anyway. Never blocks the downgrade outright.</summary>
+    public void ShowHandBackFailed(object? buttonLabel = null)
+    {
+        _installAnyway = true;
+        _downloading = false;
+        BtnUpdateNow.IsEnabled = true;
+        if (buttonLabel != null) BtnUpdateNow.Content = buttonLabel;
+        BtnLater.IsEnabled = true;
+        BtnReleaseNotes.IsEnabled = true;
+        ProgressPanel.Visibility = Visibility.Collapsed;
+        TxtStatus.Text = string.Format(Str("L.Upd.HandBackFailed",
+            "Your current settings couldn't be given to the older version. It will start with the settings last saved beside the exe. Click {0} again to install anyway."),
+            BtnUpdateNow.Content);   // "Update now", or "Install" when a version was picked
+        TxtStatus.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>True after a failed hand-back: the next click installs anyway.</summary>
+    public bool InstallsAnyway => _installAnyway;
+
     private async void OnUpdateNow(object s, RoutedEventArgs e)
     {
         if (_downloading) return;
@@ -145,7 +167,7 @@ public partial class UpdateDialog : Window
                 TxtProgressStatus.Text = string.Format(Str("L.Upd.ProgressFmt", "Downloading… {0}"), p.ToString("P0", CultureInfo.CurrentCulture));
             });
 
-            var downloadedPath = await _updateService.DownloadUpdateAsync(progress);
+            var downloadedPath = _downloadedPath ??= await _updateService.DownloadUpdateAsync(progress);   // a second click keeps the download
 
             // Download complete — apply update
             TxtProgressStatus.Text = Str("L.Upd.Applying", "Download complete. Applying the update…");
@@ -156,7 +178,12 @@ public partial class UpdateDialog : Window
             await System.Threading.Tasks.Task.Delay(800);
 
             _beforeApply?.Invoke();
-            _updateService.ApplyUpdate(downloadedPath);
+            var handBack = _updateService.ApplyUpdate(downloadedPath, _installAnyway);
+            if (handBack.State == HandBackState.Failed)
+            {
+                App.LogError(new System.IO.IOException("Settings hand-back to the older version failed: " + handBack.Reason));
+                ShowHandBackFailed(buttonLabel);
+            }
         }
         catch (Exception ex)
         {

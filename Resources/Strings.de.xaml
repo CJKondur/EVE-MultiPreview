@@ -1914,4 +1914,5 @@
     <sys:String x:Key="L.Start.Newer.Body">Deine Einstellungsdatei ist:&#x0A;{0}&#x0A;zuletzt geändert {1}.&#x0A;&#x0A;Eine andere Einstellungsdatei wurde danach geändert, am {3}:&#x0A;{2}&#x0A;&#x0A;Das passiert, wenn eine ältere Version von MultiPreview aus diesem Ordner gestartet wurde oder eine Einstellungsdatei dorthin kopiert wurde. Die neuere Datei verwenden? Deine aktuellen Einstellungen werden vorher im Ordner Backups gesichert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Use">Neuere Datei verwenden</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">Meine aktuellen Einstellungen behalten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.HandBackFailed">Deine aktuellen Einstellungen konnten nicht an die ältere Version übergeben werden. Sie startet mit den Einstellungen, die zuletzt neben der exe gespeichert wurden. Klicke noch einmal auf {0}, um trotzdem zu installieren.</sys:String> <!-- draft -->
 </ResourceDictionary>

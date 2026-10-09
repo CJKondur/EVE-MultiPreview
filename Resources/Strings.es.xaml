@@ -1936,4 +1936,5 @@
     <sys:String x:Key="L.Start.Newer.Body">Tu archivo de ajustes es:&#x0A;{0}&#x0A;última modificación: {1}.&#x0A;&#x0A;Otro archivo de ajustes se modificó después, el {3}:&#x0A;{2}&#x0A;&#x0A;Esto pasa cuando una versión anterior de MultiPreview se ejecutó desde esa carpeta o se copió allí un archivo de ajustes. ¿Usar el archivo más reciente? Tus ajustes actuales se guardan antes en la carpeta Backups.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Use">Usar el archivo más reciente</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">Mantener mis ajustes actuales</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.HandBackFailed">No se pudieron pasar tus ajustes actuales a la versión anterior. Se iniciará con los ajustes guardados por última vez junto al exe. Haz clic otra vez en {0} para instalar de todos modos.</sys:String> <!-- draft -->
 </ResourceDictionary>

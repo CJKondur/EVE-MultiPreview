@@ -1917,4 +1917,5 @@
     <sys:String x:Key="L.Start.Newer.Body">Votre fichier de paramètres est :&#x0A;{0}&#x0A;dernière modification : {1}.&#x0A;&#x0A;Un autre fichier de paramètres a été modifié après lui, le {3} :&#x0A;{2}&#x0A;&#x0A;Cela arrive quand une version plus ancienne de MultiPreview a été lancée depuis ce dossier, ou qu'un fichier de paramètres y a été copié. Utiliser le fichier plus récent ? Vos paramètres actuels sont d'abord conservés dans le dossier Backups.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Use">Utiliser le fichier plus récent</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">Garder mes paramètres actuels</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.HandBackFailed">Vos paramètres actuels n'ont pas pu être transmis à la version plus ancienne. Elle démarrera avec les paramètres enregistrés en dernier à côté de l'exe. Cliquez de nouveau sur {0} pour installer quand même.</sys:String> <!-- draft -->
 </ResourceDictionary>

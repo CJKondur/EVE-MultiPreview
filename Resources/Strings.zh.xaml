@@ -1932,4 +1932,5 @@
     <sys:String x:Key="L.Start.Newer.Body">你的设置文件是：&#x0A;{0}&#x0A;最后修改于 {1}。&#x0A;&#x0A;另一个设置文件在它之后被修改，时间为 {3}：&#x0A;{2}&#x0A;&#x0A;当旧版 MultiPreview 从那个文件夹运行，或者有设置文件被复制到那里时，就会出现这种情况。要使用较新的文件吗？你当前的设置会先保存在 Backups 文件夹中。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Use">使用较新的文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">保留我当前的设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.HandBackFailed">无法把你当前的设置交给旧版本。它将使用上次保存在 exe 旁边的设置启动。再次点击“{0}”即可继续安装。</sys:String> <!-- draft -->
 </ResourceDictionary>

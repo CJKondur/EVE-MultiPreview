@@ -1915,4 +1915,5 @@
     <sys:String x:Key="L.Start.Newer.Body">現在の設定ファイル：&#x0A;{0}&#x0A;最終更新：{1}&#x0A;&#x0A;別の設定ファイルがその後に更新されています（{3}）：&#x0A;{2}&#x0A;&#x0A;これは、古いバージョンの MultiPreview がそのフォルダーから実行された場合や、設定ファイルがそこにコピーされた場合に起こります。新しいファイルを使用しますか？ 現在の設定は先に Backups フォルダーに保存されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Use">新しいファイルを使用する</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Newer.Keep">現在の設定を維持する</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.HandBackFailed">現在の設定を古いバージョンに引き継げませんでした。exe の隣に最後に保存された設定で起動します。それでもインストールするには、もう一度「{0}」を押してください。</sys:String> <!-- draft -->
 </ResourceDictionary>
