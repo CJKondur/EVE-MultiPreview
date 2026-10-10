@@ -40,7 +40,8 @@ public sealed record AlertHistoryPage(IReadOnlyList<AlertHistoryEntry> Entries, 
 ///
 /// <see cref="Record"/> is called on the log monitor's reading thread: it adds to the memory list and to a queue and
 /// returns. One background thread does every file write and delete. Nothing here throws into the caller, and a
-/// failure is reported once per kind through the error log, without a path or any alert's content.</summary>
+/// failure is reported once per kind through the error log, without a path or any alert's content. What Record itself
+/// has to report is handed to the thread pool: the error log is a file, and the reading thread writes none.</summary>
 public sealed class AlertHistory : IDisposable
 {
     public const int RingSize = 2000;
@@ -50,8 +51,12 @@ public sealed class AlertHistory : IDisposable
     /// <summary>Alerts waiting to be written. More than this at once are kept in memory only.</summary>
     public const int QueueLimit = 10000;
     public const int MaxName = 100, MaxKey = 64, MaxText = 160;
-    /// <summary>A longer line in a day file was not written by MultiPreview: it is skipped.</summary>
-    public const int MaxLineChars = 2048;
+    /// <summary>A longer line in a day file was not written by MultiPreview: it is skipped. The longest line it writes
+    /// has every field at its limit in letters JSON spells out as six characters each: about 3,600.</summary>
+    public const int MaxLineChars = 4096;
+    /// <summary>A write that failed because the file could not be opened or written (a backup or a sync tool had it
+    /// for a moment) is tried this many more times, <see cref="WriteRetryMs"/> apart, before it is given up.</summary>
+    public const int WriteRetries = 3, WriteRetryMs = 100;
     public const string FilePrefix = "alerts-", FileExtension = ".jsonl";
 
     private static readonly UTF8Encoding Utf8 = new(encoderShouldEmitUTF8Identifier: false);
@@ -66,6 +71,8 @@ public sealed class AlertHistory : IDisposable
     private readonly HashSet<long> _unwritten = new();          // in the ring, not (yet) in a day file
     private readonly HashSet<string> _reported = new();
     private readonly BlockingCollection<object> _queue = new(QueueLimit);
+    private readonly ManualResetEventSlim _closing = new();     // set by Dispose; never disposed (the worker may still wait on it)
+    private readonly Func<int, bool> _pause;
     private Thread? _worker;
     private long _seq;
     private volatile bool _enabled = true;
@@ -75,11 +82,15 @@ public sealed class AlertHistory : IDisposable
     /// <param name="folder">The History folder (AppPaths.ConfigDir\History). Created at the first write.</param>
     /// <param name="errors">Where a failure is reported, once per kind.</param>
     /// <param name="utcNow">The clock (tests).</param>
-    public AlertHistory(string folder, ErrorLog errors, Func<DateTime>? utcNow = null)
+    /// <param name="pause">The wait between two tries of a write, in milliseconds, on the background thread: true
+    /// when the time passed, false when the wait was cut short and the write is to be given up. Null: a real wait,
+    /// which ends at once when the history is closed. Tests hand one in, so none of them sleeps.</param>
+    public AlertHistory(string folder, ErrorLog errors, Func<DateTime>? utcNow = null, Func<int, bool>? pause = null)
     {
         _folder = folder;
         _errors = errors;
         _utcNow = utcNow ?? (() => DateTime.UtcNow);
+        _pause = pause ?? (ms => !_closing.Wait(ms));
     }
 
     public string Folder => _folder;
@@ -101,37 +112,19 @@ public sealed class AlertHistory : IDisposable
     /// <summary>Raised after <see cref="Clear"/> emptied the history, on the background thread.</summary>
     public event Action? Cleared;
 
-    /// <summary>An entry with every field held to its limit: names and keys cut, the matched text made one line and
-    /// cut to <see cref="MaxText"/>, the time taken as UTC.</summary>
+    /// <summary>An entry with every field held to its limit, the time taken as UTC. Every text field goes through
+    /// <see cref="PlainText.OneLine"/>: one line, no control or format characters (so none that turn the reading
+    /// direction round or hide in a name), no half characters, cut to its limit. A character's name, a system and a
+    /// rule's name come from logs and files as much as the matched text does.</summary>
     public static AlertHistoryEntry Entry(DateTime time, string? character, string? eventKey, string? severity, string? system,
         AlertOutcome outcome, string? source = null, string? text = null) =>
         new(time.Kind == DateTimeKind.Local ? time.ToUniversalTime() : DateTime.SpecifyKind(time, DateTimeKind.Utc),
-            Cut(character, MaxName), Cut(eventKey, MaxKey), Cut(severity, MaxKey), Cut(system, MaxName), outcome,
-            Cut(source, MaxName), Cut(OneLine(text), MaxText));
+            PlainText.OneLine(character, MaxName), PlainText.OneLine(eventKey, MaxKey), PlainText.OneLine(severity, MaxKey),
+            PlainText.OneLine(system, MaxName), outcome, PlainText.OneLine(source, MaxName), PlainText.OneLine(text, MaxText));
 
-    private static string Cut(string? text, int max)
-    {
-        text = text?.Trim() ?? "";
-        if (text.Length <= max) return text;
-        // Not through the middle of a surrogate pair: half of one is not valid text.
-        return text[..(char.IsHighSurrogate(text[max - 1]) ? max - 1 : max)];
-    }
-
-    /// <summary>Line breaks, tabs and other control characters become spaces, and so do Unicode's line and paragraph
-    /// separators (U+2028, U+2029) and the characters that turn the reading direction round (U+202A to U+202E and
-    /// U+2066 to U+2069): text another player typed could use those to show a row as something it isn't.</summary>
-    private static string? OneLine(string? text) =>
-        text == null ? null : string.Create(text.Length, text, (span, source) =>
-        {
-            for (int i = 0; i < span.Length; i++)
-            {
-                char c = source[i];
-                bool layout = c == 0x2028 || c == 0x2029 || (c >= 0x202A && c <= 0x202E) || (c >= 0x2066 && c <= 0x2069);
-                span[i] = char.IsControl(c) || layout ? ' ' : c;
-            }
-        });
-
-    /// <summary>Records an alert. Any thread; returns at once; never throws.</summary>
+    /// <summary>Records an alert. Any thread; returns at once; never throws. On the calling thread (the log monitor's)
+    /// it takes one lock, adds to the memory list and adds to the queue: no file is touched there, the error log
+    /// included, and a busy or stuck background thread costs it nothing.</summary>
     public void Record(AlertHistoryEntry entry)
     {
         try
@@ -144,11 +137,13 @@ public sealed class AlertHistory : IDisposable
                 _unwritten.Add(entry.Seq);
                 while (_ring.Count > RingSize) _unwritten.Remove(_ring.Dequeue().Seq);
             }
-            if (!Enqueue(entry)) Report("QueueFull", "more alerts at once than could be written; some are kept only until MultiPreview closes", null);
+            // Closed between the look above and here (MultiPreview is exiting) is not a full queue.
+            if (!Enqueue(entry) && !_disposed)
+                Report("QueueFull", "more alerts at once than could be written; some are kept only until MultiPreview closes", null, later: true);
         }
-        catch (Exception ex) { Report("Record", "an alert could not be recorded", ex); }
+        catch (Exception ex) { Report("Record", "an alert could not be recorded", ex, later: true); }
         try { Added?.Invoke(entry); }
-        catch (Exception ex) { Report("Listener", "a listener failed", ex); }
+        catch (Exception ex) { Report("Listener", "a listener failed", ex, later: true); }
     }
 
     /// <summary>The alerts held in memory, newest first.</summary>
@@ -157,18 +152,21 @@ public sealed class AlertHistory : IDisposable
         lock (_lock) return _ring.Reverse().ToList();
     }
 
-    /// <summary>The alerts kept since <paramref name="sinceUtc"/>, newest first, at most <paramref name="max"/>: what
-    /// the day files hold, and what is in memory but in no file (a write that failed). It waits for waiting writes
-    /// first and reads files, so call it off the UI thread. Never throws.</summary>
+    /// <summary>The alerts kept since <paramref name="sinceUtc"/>, newest first, at most <paramref name="max"/> (none
+    /// for a <paramref name="max"/> of 0 or less): what the day files hold, and what is in memory but in no file (a
+    /// write that failed). It waits for waiting writes first and reads files, so call it off the UI thread. Never
+    /// throws.</summary>
     public AlertHistoryPage Read(DateTime sinceUtc, int max)
     {
+        max = Math.Max(0, max);
         var entries = new List<AlertHistoryEntry>();
+        var waiting = new List<AlertHistoryEntry>();
         int bad = 0;
         bool more = false;
         try
         {
             Flush(TimeSpan.FromSeconds(2));
-            lock (_lock) entries.AddRange(_ring.Where(e => _unwritten.Contains(e.Seq) && e.TimeUtc >= sinceUtc));
+            lock (_lock) waiting.AddRange(_ring.Where(e => _unwritten.Contains(e.Seq) && e.TimeUtc >= sinceUtc));
             int fromFiles = 0;
             foreach (var (path, day) in DayFiles().OrderByDescending(f => f.Day))
             {
@@ -185,6 +183,13 @@ public sealed class AlertHistory : IDisposable
             }
         }
         catch (Exception ex) { Report("Read", "the history could not be read", ex); }
+        if (waiting.Count > 0)
+        {
+            // The memory list was looked at before the files were read. An alert the background thread got into its
+            // file between the two is in both: it is listed once. (A file's alert has no place in this session's order.)
+            var inFiles = new HashSet<AlertHistoryEntry>(entries);
+            entries.AddRange(waiting.Where(e => !inFiles.Contains(e with { Seq = 0 })));
+        }
         var newestFirst = entries.OrderByDescending(e => e.TimeUtc).ToList();
         if (newestFirst.Count > max)
         {
@@ -203,29 +208,62 @@ public sealed class AlertHistory : IDisposable
     public void DeleteOldDays() => Enqueue(new Job(() =>
     {
         var cutoff = _utcNow().Date.AddDays(-KeepDays);
-        foreach (var (path, day) in DayFiles())
-            if (day < cutoff) File.Delete(path);
+        DeleteDays(day => day < cutoff);
     }, null));
 
-    /// <summary>Deletes every day file and empties the memory list. False when it didn't finish within
-    /// <paramref name="timeout"/>. Call it off the UI thread.</summary>
-    public bool Clear(TimeSpan timeout) => RunOnWorker(() =>
+    /// <summary>Deletes every day file and empties the memory list. False when a day file could not be deleted (it is
+    /// open in another program, or read-only): the others are gone, that one stays and is still listed. False too
+    /// when it didn't finish within <paramref name="timeout"/>. Call it off the UI thread.</summary>
+    public bool Clear(TimeSpan timeout)
     {
-        lock (_lock)
+        bool allGone = false;
+        bool finished = RunOnWorker(() =>
         {
-            _ring.Clear();
-            _unwritten.Clear();
+            lock (_lock)
+            {
+                _ring.Clear();
+                _unwritten.Clear();
+            }
+            allGone = DeleteDays(_ => true);
+            // Whatever could be deleted: the list changed.
+            try { Cleared?.Invoke(); }
+            catch (Exception ex) { Report("Listener", "a listener failed", ex); }
+        }, timeout);
+        return finished && allGone;
+    }
+
+    /// <summary>Deletes the day files <paramref name="which"/> picks, on the background thread. One that can't be
+    /// deleted doesn't keep the others: it is reported (once per session) and left. False when any stayed.</summary>
+    private bool DeleteDays(Func<DateTime, bool> which)
+    {
+        bool allGone = true;
+        try
+        {
+            foreach (var (path, day) in DayFiles().ToList())
+            {
+                if (!which(day)) continue;
+                try { File.Delete(path); }
+                catch (Exception ex)
+                {
+                    allGone = false;
+                    Report("Job", "a history file could not be deleted", ex);
+                }
+            }
         }
-        foreach (var (path, _) in DayFiles()) File.Delete(path);
-        try { Cleared?.Invoke(); }
-        catch (Exception ex) { Report("Listener", "a listener failed", ex); }
-    }, timeout);
+        catch (Exception ex)                                    // the folder itself could not be listed
+        {
+            allGone = false;
+            Report("Job", "a history file could not be deleted", ex);
+        }
+        return allGone;
+    }
 
     /// <summary>Writes what is waiting (for at most two seconds) and stops the background thread.</summary>
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
+        _closing.Set();                                         // a wait between two tries of a write ends now
         try { _queue.CompleteAdding(); } catch (ObjectDisposedException) { }
         _worker?.Join(TimeSpan.FromSeconds(2));
     }
@@ -255,7 +293,9 @@ public sealed class AlertHistory : IDisposable
                 {
                     if (_worker == null)
                     {
-                        var thread = new Thread(Work) { IsBackground = true, Name = "AlertHistory", Priority = ThreadPriority.BelowNormal };
+                        // Normal priority: it takes the lock Record takes, and a thread held back while it has
+                        // that lock would hold the log monitor back with it.
+                        var thread = new Thread(Work) { IsBackground = true, Name = "AlertHistory" };
                         _worker = thread;
                         thread.Start();
                     }
@@ -300,7 +340,7 @@ public sealed class AlertHistory : IDisposable
         {
             try
             {
-                Append(DayFile(day.Key), string.Concat(day.Select(e => Line(e) + "\n")));
+                AppendPatiently(DayFile(day.Key), string.Concat(day.Select(e => Line(e) + "\n")));
                 lock (_lock) foreach (var e in day) _unwritten.Remove(e.Seq);
             }
             catch (DayFullException) { Report("DayFull", "today's history file is full; further alerts of today are kept only until MultiPreview closes", null); }
@@ -309,7 +349,30 @@ public sealed class AlertHistory : IDisposable
         batch.Clear();
     }
 
+    /// <summary>Appends, and on an IOException (the file is open in another program for a moment: a backup, a sync
+    /// tool, a virus scanner) waits and tries again, <see cref="WriteRetries"/> more times at most. Only that kind of
+    /// failure passes by itself: a full day file, a link or a refused access is not tried again. On the background
+    /// thread only, so a wait here costs the log monitor nothing. The last failure goes to the caller, which reports it.</summary>
+    private void AppendPatiently(string path, string lines)
+    {
+        for (int triesLeft = WriteRetries; ; triesLeft--)
+        {
+            try
+            {
+                Append(path, lines);
+                return;
+            }
+            catch (IOException) when (triesLeft > 0) { }
+            // Waited here, behind the catch, so the file is closed again while it waits. A wait that was cut short
+            // (MultiPreview is closing) leaves one last try, at once.
+            if (!_pause(WriteRetryMs)) triesLeft = 1;
+        }
+    }
+
     private sealed class DayFullException : Exception { }
+
+    /// <summary>The History folder or the day file is a link. Not an IOException: waiting does not make it a file.</summary>
+    private sealed class LinkException : Exception { }
 
     private string DayFile(DateTime day) =>
         Path.Combine(_folder, FilePrefix + day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) + FileExtension);
@@ -317,7 +380,7 @@ public sealed class AlertHistory : IDisposable
     private void Append(string path, string lines)
     {
         // MultiPreview never writes through a link (IDEAS #57).
-        if (SettingsHome.IsLink(_folder) || SettingsHome.IsLink(path)) throw new IOException("link");
+        if (SettingsHome.IsLink(_folder) || SettingsHome.IsLink(path)) throw new LinkException();
         Directory.CreateDirectory(_folder);
         using var file = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
         if (file.Length >= MaxDayBytes) throw new DayFullException();
@@ -391,7 +454,8 @@ public sealed class AlertHistory : IDisposable
     }, Json);
 
     /// <summary>The alert a line holds, or null when the line is not one MultiPreview wrote: not JSON, no time,
-    /// character or event, or a field longer than MultiPreview writes it.</summary>
+    /// character or event (a name of nothing but characters that don't show is none), or a field longer than
+    /// MultiPreview writes it.</summary>
     public static AlertHistoryEntry? Parse(string line)
     {
         if (line.Length > MaxLineChars) return null;
@@ -401,7 +465,8 @@ public sealed class AlertHistory : IDisposable
             if (s == null || s.T == default || string.IsNullOrWhiteSpace(s.C) || string.IsNullOrWhiteSpace(s.E)) return null;
             if (s.C.Length > MaxName || s.E.Length > MaxKey || (s.S?.Length ?? 0) > MaxKey || (s.Y?.Length ?? 0) > MaxName
                 || (s.R?.Length ?? 0) > MaxName || (s.X?.Length ?? 0) > MaxText) return null;
-            return Entry(s.T, s.C, s.E, s.S, s.Y, OutcomeOf(s.O), s.R, s.X);
+            var entry = Entry(s.T, s.C, s.E, s.S, s.Y, OutcomeOf(s.O), s.R, s.X);
+            return entry.Character.Length == 0 || entry.EventKey.Length == 0 ? null : entry;
         }
         catch (Exception) { return null; }
     }
@@ -423,14 +488,23 @@ public sealed class AlertHistory : IDisposable
     };
 
     /// <summary>Once per kind and session: a fixed sentence and the exception's type. Never its message (it can hold a
-    /// path) and never an alert's content.</summary>
-    private void Report(string kind, string what, Exception? ex)
+    /// path) and never an alert's content. <paramref name="later"/> is for <see cref="Record"/>, which runs on the
+    /// log monitor's thread: the error log is a file, so its entry is written from the thread pool instead.</summary>
+    private void Report(string kind, string what, Exception? ex, bool later = false)
     {
         try
         {
             lock (_reported) if (!_reported.Add(kind)) return;
-            _errors.Record(new IOException($"Alert history: {what}" + (ex == null ? "" : $" ({ex.GetType().Name})")), "AlertHistory", DateTime.Now);
+            var error = new IOException($"Alert history: {what}" + (ex == null ? "" : $" ({ex.GetType().Name})"));
+            if (later) ThreadPool.QueueUserWorkItem(_ => WriteReport(error));
+            else WriteReport(error);
         }
         catch { /* reporting must never throw into the alert path */ }
+    }
+
+    private void WriteReport(Exception error)
+    {
+        try { _errors.Record(error, "AlertHistory", DateTime.Now); }
+        catch { /* reporting must never throw */ }
     }
 }

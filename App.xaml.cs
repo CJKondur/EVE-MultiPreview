@@ -359,12 +359,17 @@ public partial class App : Application
             };
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
             // history writes on a thread of its own; old days are deleted here, at startup, and never while running.
+            // A session whose settings could not be read runs on default values and saves nothing: its keep time is
+            // not the player's, so it deletes no old day, and it records nothing.
             _alertHistory = new AlertHistory(AppPaths.HistoryDir, ErrorLog.Shared)
             {
-                Enabled = _settings.Settings.AlertHistoryEnabled,
+                Enabled = _settings.LoadedSuccessfully && _settings.Settings.AlertHistoryEnabled,
                 KeepDays = _settings.Settings.AlertHistoryDays,
             };
-            _alertHistory.DeleteOldDays();
+            if (_settings.LoadedSuccessfully) _alertHistory.DeleteOldDays();
+            // Windows signing out or shutting down: WPF only queues its shutdown then, and OnExit (which closes the
+            // history) may not get to run before the process is ended. What is waiting is written now.
+            SessionEnding += (_, _) => _alertHistory?.Flush(TimeSpan.FromSeconds(2));
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
                 // What a custom rule matched is there only while its alert is being raised: taken first (IDEAS #8).
@@ -970,10 +975,10 @@ public partial class App : Application
             }
 
             // The alert history follows its switch at once (IDEAS #1). A changed keep time deletes nothing until the
-            // next start.
+            // next start. Nothing is recorded in a session whose settings could not be read (see where it is made).
             if (_alertHistory != null && _settings != null)
             {
-                _alertHistory.Enabled = _settings.Settings.AlertHistoryEnabled;
+                _alertHistory.Enabled = _settings.LoadedSuccessfully && _settings.Settings.AlertHistoryEnabled;
                 _alertHistory.KeepDays = _settings.Settings.AlertHistoryDays;
             }
 
@@ -1139,7 +1144,13 @@ public partial class App : Application
     /// alert hub's menu, the tray menu, and Alerts › Alert hub in the settings window.</summary>
     private void OpenAlertHistory()
     {
-        if (_isShuttingDown || _alertHistory == null || _settings == null) return;
+        if (_isShuttingDown) return;
+        if (_alertHistory == null || _settings == null)
+        {
+            // The tray menu is there before the deferred startup made the history. A moment later it opens.
+            Debug.WriteLine("[App:History] the alert history was asked for before startup had made it: not opened");
+            return;
+        }
         if (_historyWindow != null)
         {
             if (_historyWindow.WindowState == WindowState.Minimized) _historyWindow.WindowState = WindowState.Normal;
