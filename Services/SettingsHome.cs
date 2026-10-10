@@ -162,7 +162,10 @@ public static class SettingsHome
         CopyIfNew(Path.Combine(exeDir, "layout_presets.json"), Path.Combine(appDataDir, "layout_presets.json"), notes);
         // The custom alert rules (IDEAS #8). Versions up to 2.3.42 have none, so this is for a copy that ran beside
         // its exe (portable.txt) and is now moved. The hand-back to an older version leaves them where they are.
-        CopyIfNew(Path.Combine(exeDir, CustomAlertStore.FileName), Path.Combine(appDataDir, CustomAlertStore.FileName), notes);
+        // A rules file is 256 KB at most (CustomAlertStore.MaxFileBytes): a larger file of that name is none, and stays.
+        var rules = Path.Combine(exeDir, CustomAlertStore.FileName);
+        if (FitsARulesFile(rules)) CopyIfNew(rules, Path.Combine(appDataDir, CustomAlertStore.FileName), notes);
+        else notes.Add("Custom rules not copied: the file is larger than a rules file can be.");
         var from = Path.Combine(exeDir, "Backups");
         if (!Directory.Exists(from) || IsLink(from)) return;
         try
@@ -172,6 +175,17 @@ public static class SettingsHome
                 CopyIfNew(file, Path.Combine(to, Path.GetFileName(file)), notes);
         }
         catch (Exception ex) { notes.Add($"Backups not copied: {ErrorLog.Describe(ex)}"); }
+    }
+
+    /// <summary>False only for a file that is there and larger than a rules file can be (or whose size can't be read).</summary>
+    private static bool FitsARulesFile(string file)
+    {
+        try
+        {
+            var info = new FileInfo(file);
+            return !info.Exists || info.Length <= CustomAlertStore.MaxFileBytes;
+        }
+        catch { return false; }
     }
 
     private static void CopyIfNew(string from, string to, List<string> notes)

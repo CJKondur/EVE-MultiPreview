@@ -110,7 +110,8 @@ public static class CustomRuleCheck
     /// for itself.</summary>
     internal static CustomRuleProblem Shape(CustomAlertRule rule, IReadOnlyList<CustomAlertRule>? all)
     {
-        if (string.IsNullOrWhiteSpace(rule.Name)) return CustomRuleProblem.NameEmpty;
+        // A name as the store keeps it (PlainText.OneLine): one of nothing that shows is no name.
+        if (PlainText.OneLine(rule.Name, CustomRules.MaxName).Length == 0) return CustomRuleProblem.NameEmpty;
         if (rule.Kind != CustomRules.KindText && rule.Kind != CustomRules.KindRegex) return CustomRuleProblem.KindUnknown;
         if (string.IsNullOrEmpty(rule.Pattern)) return CustomRuleProblem.PatternEmpty;
         if (rule.Pattern.Length > CustomRules.MaxPattern) return CustomRuleProblem.PatternTooLong;
@@ -134,17 +135,41 @@ public static class CustomRuleCheck
             : CustomRuleProblem.None;
     }
 
-    /// <summary>A rule's sound as it may be kept: a file on a drive of this PC ("C:\Sounds\ping.wav"), else "". A rules
-    /// file can come from another player. A path to another computer ("\\server\share\ping.wav", or the same behind
-    /// "\\?\") would make Windows log in to that computer when the alert plays, and a web address is no file: none of
-    /// them is ever kept, played or looked at.</summary>
+    private static readonly char[] NotInASound = Path.GetInvalidPathChars().Concat(new[] { '*', '?' }).Distinct().ToArray();
+    private static readonly string[] Devices = { "CON", "PRN", "AUX", "NUL" };
+
+    /// <summary>A rule's sound as it may be kept: a path that starts with a drive letter ("C:\Sounds\ping.wav"), else
+    /// "". A rules file can come from another player. A path to another computer ("\\server\share\ping.wav", or the
+    /// same behind "\\?\") would make Windows log in to that computer when the alert plays, and a web address is no
+    /// file: none of them is ever kept, played or looked at. Nor is a path that is no plain file name under its drive
+    /// letter: one with a wildcard, with a second colon (a stream of a file), with a "." or ".." part, with a part that
+    /// ends in a dot or a space (Windows reads another name than is written), or with a device's name for a part
+    /// (CON, PRN, AUX, NUL, COM1, LPT1 ..., with or without an extension). Only the text is looked at, never the
+    /// disk: a drive letter can still be a drive of another computer, as it can for every other sound setting.</summary>
     public static string LocalSound(string? sound)
     {
         var path = (sound ?? "").Trim();
         bool local = path.Length >= 4 && path.Length <= CustomRules.MaxSound
             && char.IsAsciiLetter(path[0]) && path[1] == ':' && (path[2] == '\\' || path[2] == '/')
-            && path.IndexOfAny(Path.GetInvalidPathChars()) < 0;
+            && path.IndexOfAny(NotInASound) < 0
+            && path.IndexOf(':', 2) < 0
+            && path[3..].Split('\\', '/').All(IsAFileName);
         return local ? path : "";
+    }
+
+    /// <summary>Whether one part of a path between two separators is a name Windows takes as written. An empty part
+    /// (two separators in a row) is none at all and passes, as it always did.</summary>
+    private static bool IsAFileName(string part)
+    {
+        if (part.Length == 0) return true;
+        if (part[^1] == '.' || part[^1] == ' ') return false;                // also "." and ".."
+        int dot = part.IndexOf('.');
+        var name = (dot < 0 ? part : part[..dot]).TrimEnd(' ');
+        if (Devices.Contains(name, StringComparer.OrdinalIgnoreCase)) return false;
+        // COM1 to COM9 and LPT1 to LPT9; Windows also reserves the digit 0 and the superscript digits 1, 2 and 3.
+        return !(name.Length == 4
+            && (name.StartsWith("COM", StringComparison.OrdinalIgnoreCase) || name.StartsWith("LPT", StringComparison.OrdinalIgnoreCase))
+            && (char.IsAsciiDigit(name[3]) || name[3] == (char)0xB9 || name[3] == (char)0xB2 || name[3] == (char)0xB3));
     }
 
     /// <summary>The chat channels the rules name, each once, in the rules' order: the first ten are read. A rule
