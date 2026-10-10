@@ -68,6 +68,9 @@ public class AlertHub : IDisposable
     // Event for requesting settings save (direction change, position change)
     public event Action? SaveRequested;
 
+    /// <summary>The player asked for the alert history from the hub's menu (IDEAS #1). App opens the window.</summary>
+    public event Action? HistoryRequested;
+
     /// <summary>The system a character was last seen in, for the toast (App sets ThumbnailManager.GetCharacterSystem).</summary>
     public Func<string, string?>? SystemLookup { get; set; }
 
@@ -155,14 +158,7 @@ public class AlertHub : IDisposable
             }
 
             // Was a click — dismiss all toasts + clear badge
-            _unreadCount = 0;
-            UpdateBadge();
-            foreach (var toast in _activeToasts.ToList())
-            {
-                try { toast.Window.Close(); } catch { }
-            }
-            _activeToasts.Clear();
-            Debug.WriteLine("[AlertHub:Dismiss] ✅ All toasts dismissed via hub click");
+            DismissAll();
         };
         hubContainer.MouseMove += (_, e) =>
         {
@@ -198,6 +194,23 @@ public class AlertHub : IDisposable
 
         Debug.WriteLine($"[AlertHub:Focus] 🔧 AlertHub created, direction={ToastDirection}, duration={ToastDurationSeconds}s");
     }
+
+    /// <summary>Closes every toast and clears the count: what a click on the bell does, and Dismiss all in the hub's
+    /// menu (IDEAS P35). Nothing about the hub window changes, so its saved place and the toast stack stay put.</summary>
+    public void DismissAll()
+    {
+        _unreadCount = 0;
+        UpdateBadge();
+        foreach (var toast in _activeToasts.ToList())
+        {
+            try { toast.Window.Close(); } catch { }
+        }
+        _activeToasts.Clear();
+        Debug.WriteLine("[AlertHub:Dismiss] ✅ All toasts dismissed via hub click");
+    }
+
+    /// <summary>The unread count on the bell (tests).</summary>
+    public int UnreadCount => _unreadCount;
 
     public void Show()
     {
@@ -490,6 +503,20 @@ public class AlertHub : IDisposable
         };
         canvas.Children.Add(closeBtn);
 
+        // The hub's menu (IDEAS #1 and P35): the alert history, and Dismiss all. They sit in the picker's two lower
+        // corners. The picker is a window of its own, so neither widens the hub window, moves its saved place or
+        // moves where toasts stack.
+        foreach (var (action, left) in new (Border, double)[]
+                 {
+                     (PickerAction(popup, AlertHubVisuals.Glyphs.DismissAll, "L.Hub.DismissAll", "Dismiss all toasts", DismissAll), 2),
+                     (PickerAction(popup, AlertHubVisuals.Glyphs.History, "L.Hub.History", "Alert history", () => HistoryRequested?.Invoke()), 100 - 2 - AlertHubVisuals.PickerActionSize),
+                 })
+        {
+            Canvas.SetLeft(action, left);
+            Canvas.SetTop(action, 100 - 2 - AlertHubVisuals.PickerActionSize);
+            canvas.Children.Add(action);
+        }
+
         popup.Content = canvas;
         // Center the 100x100 popup over the hub window
         double hubCenterX = _hubWindow.Left + (_hubWindow.Width / 2);
@@ -507,6 +534,20 @@ public class AlertHub : IDisposable
         RefreshIcon();   // ✕ while the picker is open
         popup.Show();
         Debug.WriteLine($"[AlertHub:Direction] 🔧 Direction picker opened (current={ToastDirection})");
+    }
+
+    /// <summary>A corner button of the picker: it closes the picker, then does its one thing.</summary>
+    private Border PickerAction(Window popup, string glyph, string key, string english, Action run)
+    {
+        var button = AlertHubVisuals.BuildPickerAction(glyph, Services.LocalizationService.Str(key, english));
+        button.MouseLeftButtonDown += (_, _) =>
+        {
+            popup.Close();
+            _directionPicker = null;
+            RefreshIcon();
+            run();
+        };
+        return button;
     }
 
     private void UpdateBadge()
@@ -549,6 +590,8 @@ internal class AlertToast : IDisposable
     public Window Window { get; }
     public event Action? Clicked;
     private readonly DispatcherTimer _dismissTimer;
+    /// <summary>Only on a toast that stays up longer than its alert reads "now" (IDEAS P34): it rewrites the second line.</summary>
+    private readonly DispatcherTimer? _ageTimer;
 
     /// <param name="topmost">The hub's focus-aware state when the toast is made (IDEAS P38); the hub's timer flips it
     /// with the hub's own afterwards.</param>
@@ -569,7 +612,14 @@ internal class AlertToast : IDisposable
             FontFamily = AlertHubVisuals.TextFont,
         };
 
-        var border = AlertHubVisuals.BuildToast(characterName, alertType, severityColor, system);
+        var border = AlertHubVisuals.BuildToast(characterName, alertType, severityColor, system, out var secondLine);
+        if (AlertHubVisuals.ToastShowsAge(durationSeconds))
+        {
+            var raised = DateTime.UtcNow;
+            _ageTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+            _ageTimer.Tick += (_, _) =>
+                secondLine.Text = AlertHubVisuals.ToastText(characterName, alertType, system, DateTime.UtcNow - raised).Subtitle;
+        }
 
         // Click to focus character
         border.MouseLeftButtonDown += (_, _) =>
@@ -590,12 +640,14 @@ internal class AlertToast : IDisposable
             _dismissTimer.Stop();
             try { Window.Close(); } catch { }
         };
+        Window.Closed += (_, _) => _ageTimer?.Stop();   // closed by a click, by its own timer or by Dismiss all
     }
 
     public void Show()
     {
         Window.Show();
         _dismissTimer.Start();
+        _ageTimer?.Start();
 
         // Fade-in animation
         Window.Opacity = 0;

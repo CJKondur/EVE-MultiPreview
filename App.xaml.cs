@@ -36,6 +36,7 @@ public partial class App : Application
     private StatTrackerService? _statTracker;
     private AlertHub? _alertHub;
     private AlertHistory? _alertHistory;
+    private AlertHistoryWindow? _historyWindow;
     private BroadcastHudWindow? _broadcastHud;
     private ProcessMonitorService? _processMonitor;
     private CropManager? _cropManager;
@@ -270,6 +271,8 @@ public partial class App : Application
             _alertHub.SystemLookup = _thumbnailManager.GetCharacterSystem;   // "Jita · click to switch" on toasts (Plan 4)
             // Toasts pause with the hotkeys on every path: the pause hotkey, Home and the tray (IDEAS P37).
             _alertHub.FollowPauseOf(_hotkeyService);
+            // Deferred, as the tray's items are: the hub's menu has closed before the window shows.
+            _alertHub.HistoryRequested += () => Application.Current?.Dispatcher.BeginInvoke(new Action(OpenAlertHistory));
             PerfLog($"[Deferred] AlertHub created: {deferSw.ElapsedMilliseconds}ms");
 
             // Broadcast-key HUD — self-gates on ShowBroadcastKeyHud each tick.
@@ -783,6 +786,7 @@ public partial class App : Application
             },
             OpenSettingsPage = page =>
                 Application.Current?.Dispatcher.BeginInvoke(new Action(() => OpenSettings(startMinimized: false, pageId: page))),
+            OpenAlertHistory = () => Application.Current?.Dispatcher.BeginInvoke(new Action(OpenAlertHistory)),
             SwitchProfile = name => _settings?.SwitchProfile(name),   // ProfileSwitched applies it (#101)
             IsSuspended = () => _hotkeyService?.IsSuspended ?? false,
             ToggleSuspend = () => _hotkeyService?.ToggleSuspend(),
@@ -991,6 +995,7 @@ public partial class App : Application
                     Crops = _cropManager,
                     Hotkeys = _hotkeyService,
                     AlertHub = _alertHub,
+                    OpenAlertHistory = OpenAlertHistory,
                 });
                 shell.SettingsApplied += applyLiveSettings;
                 opened = shell;
@@ -1108,6 +1113,49 @@ public partial class App : Application
         _thumbnailManager?.SetSettingsClickSuppression(true);
         _thumbnailManager?.SetSettingsOpen(true);
         SettingsDiag("OpenSettings finished");
+    }
+
+    /// <summary>Opens the alert history (IDEAS #1), or brings it forward when it is already open. The ways in: the
+    /// alert hub's menu, the tray menu, and Alerts › Alert hub in the settings window.</summary>
+    private void OpenAlertHistory()
+    {
+        if (_isShuttingDown || _alertHistory == null || _settings == null) return;
+        if (_historyWindow != null)
+        {
+            if (_historyWindow.WindowState == WindowState.Minimized) _historyWindow.WindowState = WindowState.Normal;
+            _historyWindow.Activate();
+            return;
+        }
+        try
+        {
+            _historyWindow = new AlertHistoryWindow(_alertHistory, _settings.Settings, new AlertHistoryActions
+            {
+                SwitchTo = SwitchToCharacter,
+                PickSaveFile = suggested =>
+                {
+                    var dialog = new Microsoft.Win32.SaveFileDialog { FileName = suggested, DefaultExt = ".csv", Filter = "CSV (*.csv)|*.csv" };
+                    return dialog.ShowDialog(_historyWindow) == true ? dialog.FileName : null;
+                },
+                Confirm = (title, body) =>
+                    MessageBox.Show(_historyWindow!, body, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes,
+            });
+            _historyWindow.Closed += (_, _) => _historyWindow = null;
+            _historyWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            _historyWindow = null;
+            LogError(ex);
+        }
+    }
+
+    /// <summary>Brings a character's client to the front the way a click on its toast does
+    /// (ThumbnailManager.ActivateEveWindow). False when no client of that character is running.</summary>
+    private bool SwitchToCharacter(string name)
+    {
+        if (_thumbnailManager == null || _thumbnailManager.GetHwndForCharacter(name) == IntPtr.Zero) return false;
+        _thumbnailManager.ActivateEveWindow(IntPtr.Zero, name);
+        return true;
     }
 
     private static readonly string SettingsDiagLogPath = System.IO.Path.Combine(

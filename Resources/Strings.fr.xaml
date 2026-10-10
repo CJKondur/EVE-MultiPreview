@@ -2003,4 +2003,14 @@
     <sys:String x:Key="L.Age.Min">min</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Hour">h</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Day">j</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.History">Historique des alertes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.DismissAll">Fermer toutes les notifications</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemAgeClickFmt">{0} · {1} · cliquez pour changer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.AgeClickFmt">{0} · cliquez pour changer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.AlertHistory">Historique des alertes…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow">Historique des alertes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">Toutes les alertes conservées, les plus récentes d'abord. Double-cliquez sur l'une d'elles pour passer à son client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.alerts.hub.openHistory">Ouvrir l'historique…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">La fenêtre de l'historique</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**Ouvrir l'historique…** liste les alertes conservées, les plus récentes d'abord, avec l'ancienneté de chacune. La même fenêtre s'ouvre avec **Historique des alertes…** dans le menu de la zone de notification, et depuis le centre d'alertes : cliquez sur la cloche avec le bouton droit, puis sur l'horloge dans le coin.&#x0A;&#x0A;- Choisissez une période, un personnage, une alerte ou une gravité, ou saisissez du texte dans la zone de recherche. Les répétitions d'une même alerte pour un même personnage s'affichent sur une seule ligne avec un compteur.&#x0A;- **Passer au client** met au premier plan le client de cette ligne. Entrée et un double-clic font la même chose.&#x0A;- **Exporter en CSV…** écrit les alertes affichées dans un fichier qu'un tableur peut ouvrir.&#x0A;- **Effacer l'historique…** supprime tout ce qui était conservé.&#x0A;&#x0A;L'autre bouton de coin du menu du centre ferme toutes les notifications, comme un clic sur la cloche.</sys:String> <!-- draft -->
 </ResourceDictionary>

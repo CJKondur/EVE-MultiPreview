@@ -2020,4 +2020,14 @@
     <sys:String x:Key="L.Age.Min">мин</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Hour">ч</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Day">д</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.History">История оповещений</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.DismissAll">Закрыть все уведомления</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemAgeClickFmt">{0} · {1} · нажмите, чтобы переключиться</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.AgeClickFmt">{0} · нажмите, чтобы переключиться</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.AlertHistory">История оповещений…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow">История оповещений</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">Все сохранённые оповещения, сначала новые. Дважды щёлкните оповещение, чтобы переключиться на его клиент.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.alerts.hub.openHistory">Открыть историю…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">Окно истории</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**Открыть историю…** показывает сохранённые оповещения, сначала новые, и то, как давно было каждое. То же окно открывается пунктом **История оповещений…** в меню значка в трее и из центра оповещений: щёлкните колокольчик правой кнопкой, затем часы в углу.&#x0A;&#x0A;- Выберите период, персонажа, оповещение или важность либо введите текст в поле поиска. Повторы одного оповещения для одного персонажа показаны одной строкой со счётчиком.&#x0A;- **Переключиться на клиент** выводит клиент этой строки на передний план. Enter и двойной щелчок делают то же самое.&#x0A;- **Экспорт в CSV…** записывает показанные оповещения в файл, который открывается в электронной таблице.&#x0A;- **Очистить историю…** удаляет всё сохранённое.&#x0A;&#x0A;Вторая угловая кнопка в меню центра закрывает все уведомления, как щелчок по колокольчику.</sys:String> <!-- draft -->
 </ResourceDictionary>

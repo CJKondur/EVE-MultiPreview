@@ -16,6 +16,8 @@ public static class TrayCommands
     /// <summary>One per profile, inside Profiles.</summary>
     public const string Profile = "tray.profile";
     public const string ManageProfiles = "tray.manageProfiles";
+    /// <summary>Opens the alert history window (IDEAS #1).</summary>
+    public const string AlertHistory = "tray.alertHistory";
     public const string Suspend = "tray.suspend";
     public const string Lock = "tray.lock";
     public const string HideThumbnails = "tray.hideThumbnails";
@@ -40,6 +42,8 @@ public sealed class TrayMenuActions
     public Action OpenSettings { get; init; } = () => { };
     /// <summary>Opens settings on a page (the new window; the old one just opens).</summary>
     public Action<string> OpenSettingsPage { get; init; } = _ => { };
+    /// <summary>Opens the alert history window (IDEAS #1).</summary>
+    public Action OpenAlertHistory { get; init; } = () => { };
     public Action<string> SwitchProfile { get; init; } = _ => { };
     public Func<bool> IsSuspended { get; init; } = () => false;
     public Action ToggleSuspend { get; init; } = () => { };
@@ -83,6 +87,7 @@ public sealed class TrayMenu : IDisposable
         _profiles = Item(TrayCommands.Profiles, null, "", FluentMenu.Glyphs.Profile, null);
         FluentMenu.Style(_profiles.DropDown, showIcons: false);
         Strip.Items.Add(_profiles);
+        Strip.Items.Add(Item(TrayCommands.AlertHistory, "L.Tray.AlertHistory", "Alert history…", FluentMenu.Glyphs.History, _a.OpenAlertHistory));
         Strip.Items.Add(new ToolStripSeparator());
 
         // The alert hub follows the pause by itself (AlertHub.FollowPauseOf, IDEAS P37), whichever way it was paused.

@@ -2001,4 +2001,14 @@
     <sys:String x:Key="L.Age.Min">분</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Hour">시간</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Day">일</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.History">알림 기록</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.DismissAll">모든 토스트 닫기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemAgeClickFmt">{0} · {1} · 클릭하여 전환</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.AgeClickFmt">{0} · 클릭하여 전환</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.AlertHistory">알림 기록…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow">알림 기록</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">남아 있는 모든 알림을 최신순으로 보여 줘요. 두 번 클릭하면 그 클라이언트로 전환해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.alerts.hub.openHistory">기록 열기…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">기록 창</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**기록 열기…**를 누르면 남아 있는 알림을 최신순으로, 각각 얼마나 전인지와 함께 보여 줘요. 같은 창은 트레이 메뉴의 **알림 기록…**에서도, 알림 허브에서도 열 수 있어요: 종을 마우스 오른쪽 버튼으로 클릭한 다음 구석의 시계를 클릭하세요.&#x0A;&#x0A;- 기간, 캐릭터, 알림, 심각도를 고르거나 검색 상자에 입력하세요. 같은 캐릭터의 같은 알림이 이어지면 횟수와 함께 한 줄로 보여 줘요.&#x0A;- **클라이언트로 전환**을 누르면 그 줄의 클라이언트가 앞으로 나와요. Enter 키와 두 번 클릭도 같아요.&#x0A;- **CSV로 내보내기…**는 표시된 알림을 스프레드시트에서 열 수 있는 파일로 써요.&#x0A;- **기록 지우기…**는 남아 있는 것을 모두 삭제해요.&#x0A;&#x0A;허브 메뉴의 다른 구석 버튼은 종을 클릭할 때처럼 모든 토스트를 닫아요.</sys:String> <!-- draft -->
 </ResourceDictionary>

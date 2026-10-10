@@ -2000,4 +2000,14 @@
     <sys:String x:Key="L.Age.Min">min</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Hour">h</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Day">T</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.History">Alarmverlauf</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.DismissAll">Alle Hinweise schließen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemAgeClickFmt">{0} · {1} · zum Wechseln klicken</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.AgeClickFmt">{0} · zum Wechseln klicken</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.AlertHistory">Alarmverlauf…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow">Alarmverlauf</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">Jeder aufbewahrte Alarm, der neueste zuerst. Ein Doppelklick wechselt zu seinem Client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.alerts.hub.openHistory">Verlauf öffnen…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">Das Verlaufsfenster</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**Verlauf öffnen…** zeigt die aufbewahrten Alarme, den neuesten zuerst, und wie lange jeder her ist. Dasselbe Fenster öffnet sich über **Alarmverlauf…** im Tray-Menü und über die Alarmzentrale: Rechtsklick auf die Glocke, dann auf die Uhr in der Ecke.&#x0A;&#x0A;- Wähle einen Zeitraum, einen Charakter, einen Alarm oder einen Schweregrad, oder tippe ins Suchfeld. Wiederholungen desselben Alarms für denselben Charakter stehen als eine Zeile mit Zähler da.&#x0A;- **Zum Client wechseln** holt den Client dieser Zeile nach vorn. Enter und ein Doppelklick tun dasselbe.&#x0A;- **CSV exportieren…** schreibt die gezeigten Alarme in eine Datei, die eine Tabellenkalkulation öffnen kann.&#x0A;- **Verlauf leeren…** löscht alles Aufbewahrte.&#x0A;&#x0A;Die andere Eckschaltfläche im Menü der Alarmzentrale schließt alle Hinweise, wie ein Klick auf die Glocke.</sys:String> <!-- draft -->
 </ResourceDictionary>

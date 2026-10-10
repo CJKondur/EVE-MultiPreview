@@ -2018,4 +2018,14 @@
     <sys:String x:Key="L.Age.Min">分钟</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Hour">小时</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Day">天</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.History">警报历史记录</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.DismissAll">关闭所有提示条</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemAgeClickFmt">{0} · {1} · 点击切换</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.AgeClickFmt">{0} · 点击切换</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.AlertHistory">警报历史记录…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow">警报历史记录</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">保留下来的每条警报，最新的在前。双击一条即可切换到它的客户端。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.alerts.hub.openHistory">打开历史记录…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">历史记录窗口</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**打开历史记录…** 会列出保留下来的警报，最新的在前，并显示每条是多久以前的。同一个窗口也可以从托盘菜单的 **警报历史记录…** 打开，或者从警报中心打开：右键单击铃铛，再单击角上的时钟。&#x0A;&#x0A;- 选择时间范围、角色、警报或严重程度，或者在搜索框里输入文字。同一角色的同一警报连续重复时，只显示一行并带上次数。&#x0A;- **切换到该客户端** 会把这一行的客户端切到前台。按 Enter 或双击效果相同。&#x0A;- **导出 CSV…** 会把显示的警报写入一个电子表格可以打开的文件。&#x0A;- **清空历史记录…** 会删除保留的所有内容。&#x0A;&#x0A;警报中心菜单里的另一个角按钮会关闭所有提示条，和单击铃铛一样。</sys:String> <!-- draft -->
 </ResourceDictionary>

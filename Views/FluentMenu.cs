@@ -22,7 +22,7 @@ public static class FluentMenu
     {
         public const char Settings = (char)0xE713, Profile = (char)0xE77B, Pause = (char)0xE769, Lock = (char)0xE72E, Eye = (char)0xE890,
             Pointer = (char)0xE8B0, SecondThumbnails = (char)0xE7C4, Window = (char)0xE737, Monitor = (char)0xE7F4, Close = (char)0xE711,
-            ChevronRight = (char)0xE76C;
+            ChevronRight = (char)0xE76C, History = (char)0xE81C;
     }
 
     /// <summary>The reference's row height and icon size, and the icon column: 12 px from the row's edge to a 16 px icon,

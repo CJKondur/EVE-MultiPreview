@@ -46,6 +46,8 @@ public sealed class AppServices
     public HotkeyService? Hotkeys { get; init; }
     /// <summary>The alert hub, for Alerts › Alert hub › Reset position (Plan 3c).</summary>
     public Views.AlertHub? AlertHub { get; init; }
+    /// <summary>Opens the alert history window, for Alerts › Alert hub › Open history… (IDEAS #1).</summary>
+    public Action? OpenAlertHistory { get; init; }
 }
 
 public sealed class SettingsContext

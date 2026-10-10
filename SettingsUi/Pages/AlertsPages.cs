@@ -42,6 +42,7 @@ public static class AlertsPages
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
+        new HelpTopic(HubId, "historyWindow", new[] { "alerts.hub.historyRow" }),
     };
 
     private static SettingItem Toggle(string id, Expression<Func<AppSettings, bool>> prop, params string[] replaces) =>
@@ -255,6 +256,11 @@ public static class AlertsPages
         // history on Applied. New keys: a file without them loads on, 30 days.
         new SectionDef("alerts.hub.history", new PageItem[]
         {
+            // The window is App's (one at a time); a settings window opened without the app (tests) has none to open.
+            new ActionRow("alerts.hub.historyRow", new[]
+            {
+                new ActionDef("alerts.hub.openHistory", ctx => ctx.Services.OpenAlertHistory?.Invoke()),
+            }),
             new SettingItem(Setting.Toggle("alerts.hub.keepHistory", s => s.AlertHistoryEnabled)),
             new SettingItem(Setting.Number("alerts.hub.historyDays", s => s.AlertHistoryDays,
                 AlertHistory.MinKeepDays, AlertHistory.MaxKeepDays, "L.S.Unit.Days") with

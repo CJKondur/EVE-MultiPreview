@@ -2000,4 +2000,14 @@
     <sys:String x:Key="L.Age.Min">min</sys:String>
     <sys:String x:Key="L.Age.Hour">h</sys:String>
     <sys:String x:Key="L.Age.Day">d</sys:String>
+    <sys:String x:Key="L.Hub.History">Alert history</sys:String>
+    <sys:String x:Key="L.Hub.DismissAll">Dismiss all toasts</sys:String>
+    <sys:String x:Key="L.Hub.SystemAgeClickFmt">{0} · {1} · click to switch</sys:String>
+    <sys:String x:Key="L.Hub.AgeClickFmt">{0} · click to switch</sys:String>
+    <sys:String x:Key="L.Tray.AlertHistory">Alert history…</sys:String>
+    <sys:String x:Key="L.S.alerts.hub.historyRow">Alert history</sys:String>
+    <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">Every alert that was kept, newest first. Double-click one to switch to its client.</sys:String>
+    <sys:String x:Key="L.S.Act.alerts.hub.openHistory">Open history…</sys:String>
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">The history window</sys:String>
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**Open history…** lists the alerts that were kept, newest first, with how long ago each one was. The same window opens from **Alert history…** in the tray menu, and from the hub: right-click the bell, then click the clock in the corner.&#x0A;&#x0A;- Pick a time range, a character, an alert or a severity, or type in the search box. Repeats of one alert for one character show as a single row with a count.&#x0A;- **Switch to client** brings that row's client to the front. Enter and a double-click do the same.&#x0A;- **Export CSV…** writes the alerts shown to a file a spreadsheet can open.&#x0A;- **Clear history…** deletes everything that was kept.&#x0A;&#x0A;The other corner button of the hub's menu closes every toast, as a click on the bell does.</sys:String>
 </ResourceDictionary>

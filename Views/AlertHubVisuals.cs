@@ -42,7 +42,8 @@ public static class AlertHubVisuals
     public static class Glyphs
     {
         public const string Bell = "\U0000EA8F", Pause = "\U0000E769", Close = "\U0000E711",
-            Up = "\U0000E70E", Right = "\U0000E76C", Down = "\U0000E70D", Left = "\U0000E76B";
+            Up = "\U0000E70E", Right = "\U0000E76C", Down = "\U0000E70D", Left = "\U0000E76B",
+            History = "\U0000E81C", DismissAll = "\U0000EA99";
     }
 
     /// <summary>One rule for the hub's icon: ✕ while the direction picker is open, the pause sign while hotkeys are paused,
@@ -119,16 +120,32 @@ public static class AlertHubVisuals
         hub.Badge.Visibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    /// <summary>"Logi · Under attack" over "Jita · click to switch" (or "Click to switch" when the system isn't known).</summary>
-    public static (string Title, string Subtitle) ToastText(string character, string alertType, string? system) =>
-        ($"{character} · {AlertHub.EventDisplayName(alertType)}",
-         string.IsNullOrWhiteSpace(system)
-             ? LocalizationService.Str("L.Hub.ClickToSwitch", "Click to switch")
-             : string.Format(LocalizationService.Str("L.Hub.SystemClickFmt", "{0} · click to switch"), system));
+    /// <summary>A toast says how old its alert is only when it stays up longer than an alert reads "now" (IDEAS P34).
+    /// Toasts last 6 seconds unless the player changed it, and those never show an age.</summary>
+    public static bool ToastShowsAge(int toastSeconds) => toastSeconds > AlertAge.NowSeconds;
+
+    /// <summary>"Logi · Under attack" over "Jita · click to switch" (or "Click to switch" when the system isn't known).
+    /// With an <paramref name="age"/> that no longer reads "now": "Jita · 40 s · click to switch".</summary>
+    public static (string Title, string Subtitle) ToastText(string character, string alertType, string? system, TimeSpan? age = null)
+    {
+        string title = $"{character} · {AlertHub.EventDisplayName(alertType)}";
+        bool noSystem = string.IsNullOrWhiteSpace(system);
+        if (age is { } old && old.TotalSeconds >= AlertAge.NowSeconds)
+            return (title, noSystem
+                ? string.Format(LocalizationService.Str("L.Hub.AgeClickFmt", "{0} · click to switch"), AlertAge.Text(old))
+                : string.Format(LocalizationService.Str("L.Hub.SystemAgeClickFmt", "{0} · {1} · click to switch"), system, AlertAge.Text(old)));
+        return (title, noSystem
+            ? LocalizationService.Str("L.Hub.ClickToSwitch", "Click to switch")
+            : string.Format(LocalizationService.Str("L.Hub.SystemClickFmt", "{0} · click to switch"), system));
+    }
 
     /// <summary>A toast: the flyout surface with a bar in the severity's colour (the player's colours, Alerts › Look &amp;
     /// severity), the character and event, and where it happened. Long names end in "…"; the toast never grows.</summary>
-    public static Border BuildToast(string character, string alertType, Color severityColor, string? system)
+    public static Border BuildToast(string character, string alertType, Color severityColor, string? system) =>
+        BuildToast(character, alertType, severityColor, system, out _);
+
+    /// <summary>The same toast, and its second line, so a toast that shows an age can change it.</summary>
+    public static Border BuildToast(string character, string alertType, Color severityColor, string? system, out TextBlock secondLine)
     {
         var (title, subtitle) = ToastText(character, alertType, system);
         var bar = new Border
@@ -147,14 +164,15 @@ public static class AlertHubVisuals
             Foreground = FluentPalette.Brush("Fx.Text"),
             TextTrimming = TextTrimming.CharacterEllipsis,
         });
-        text.Children.Add(new TextBlock
+        secondLine = new TextBlock
         {
             Text = subtitle,
             FontSize = 12,
             Foreground = FluentPalette.Brush("Fx.TextSecondary"),
             TextTrimming = TextTrimming.CharacterEllipsis,
             Margin = new Thickness(0, 3, 0, 0),
-        });
+        };
+        text.Children.Add(secondLine);
         var row = new DockPanel { LastChildFill = true };
         DockPanel.SetDock(bar, Dock.Left);
         row.Children.Add(bar);
@@ -194,6 +212,18 @@ public static class AlertHubVisuals
             VerticalAlignment = VerticalAlignment.Center,
         },
     };
+
+    /// <summary>A round button of the hub's menu (the picker's corners): a glyph, with what it does as its tooltip and
+    /// its screen-reader name.</summary>
+    public static Border BuildPickerAction(string glyph, string what)
+    {
+        var button = BuildPickerButton(glyph, current: false, size: PickerActionSize, round: true);
+        button.ToolTip = what;
+        System.Windows.Automation.AutomationProperties.SetName(button, what);
+        return button;
+    }
+
+    public const double PickerActionSize = 26;
 
     /// <summary>The CJK font for the current language (spec §7), for the hub's windows.</summary>
     public static FontFamily TextFont => UiFont.For(LocalizationService.CurrentLanguage);

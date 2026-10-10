@@ -2018,4 +2018,14 @@
     <sys:String x:Key="L.Age.Min">min</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Hour">h</sys:String> <!-- draft -->
     <sys:String x:Key="L.Age.Day">g</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.History">Cronologia degli avvisi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.DismissAll">Chiudi tutte le notifiche</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.SystemAgeClickFmt">{0} · {1} · clicca per passare</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.AgeClickFmt">{0} · clicca per passare</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.AlertHistory">Cronologia degli avvisi…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow">Cronologia degli avvisi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">Tutti gli avvisi conservati, dal più recente. Fai doppio clic su uno per passare al suo client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.alerts.hub.openHistory">Apri cronologia…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">La finestra della cronologia</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**Apri cronologia…** elenca gli avvisi conservati, dal più recente, con quanto tempo fa è arrivato ciascuno. La stessa finestra si apre con **Cronologia degli avvisi…** nel menu dell'area di notifica, e dall'hub avvisi: fai clic destro sulla campana, poi sull'orologio nell'angolo.&#x0A;&#x0A;- Scegli un periodo, un personaggio, un avviso o una gravità, oppure scrivi nella casella di ricerca. Le ripetizioni dello stesso avviso per lo stesso personaggio compaiono come una sola riga con un contatore.&#x0A;- **Passa al client** porta in primo piano il client di quella riga. Invio e un doppio clic fanno lo stesso.&#x0A;- **Esporta CSV…** scrive gli avvisi mostrati in un file che un foglio di calcolo può aprire.&#x0A;- **Cancella cronologia…** elimina tutto ciò che era conservato.&#x0A;&#x0A;L'altro pulsante d'angolo del menu dell'hub chiude tutte le notifiche, come un clic sulla campana.</sys:String> <!-- draft -->
 </ResourceDictionary>
