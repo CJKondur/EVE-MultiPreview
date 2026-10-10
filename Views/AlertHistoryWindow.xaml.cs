@@ -31,6 +31,9 @@ public sealed class AlertHistoryActions
     /// <summary>A yes/no question (title, body). True for yes.</summary>
     public Func<string, string, bool> Confirm { get; init; } = (_, _) => false;
     public Func<DateTime> UtcNow { get; init; } = () => DateTime.UtcNow;
+    /// <summary>This PC's list separator: where it is ";" the CSV export puts semicolons between its fields, else
+    /// commas (AlertHistoryCsv.SeparatorFor). App leaves it as it is; tests hand one in.</summary>
+    public Func<string> ListSeparator { get; init; } = () => CultureInfo.CurrentCulture.TextInfo.ListSeparator;
     /// <summary>Tests: file work runs at once, on the calling thread, instead of on a background thread.</summary>
     public bool Synchronous { get; init; }
 }
@@ -376,8 +379,10 @@ public partial class AlertHistoryWindow : Window
             Str("L.Hist.Csv.Outcome", AlertHistoryCsv.Columns[6]), Str("L.Hist.Col.Text", AlertHistoryCsv.Columns[7]),
             Str("L.Hist.Csv.Key", AlertHistoryCsv.Columns[8]),
         };
-        // The names are worked out here, on the UI thread; only the file is written in the background.
-        var text = AlertHistoryCsv.Text(header, entries, AlertHistoryView.EventName, SeverityName, OutcomeName, TimeZoneInfo.Local);
+        // The names are worked out here, on the UI thread; only the file is written in the background. Semicolons
+        // between the fields where this PC lists with one: Excel there opens a comma file as a single column.
+        var text = AlertHistoryCsv.Text(header, entries, AlertHistoryView.EventName, SeverityName, OutcomeName, TimeZoneInfo.Local,
+            AlertHistoryCsv.SeparatorFor(_do.ListSeparator()));
         InBackground(() =>
         {
             try { AlertHistoryCsv.Write(path, text); return true; }
