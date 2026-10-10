@@ -54,21 +54,26 @@ Alerts come from EVE's chat and game log files. English logs are tested against 
 
 - **Settings window:** a Home page with the essentials, and every setting grouped into Clients, Thumbnails, Alerts, Performance, Tools and App settings, with a search box and a help column (the **?** button) for every page. Changes save as you make them.
 - **Nine languages:** English, 中文 (简体), Русский, Deutsch, Français, Español, 日本語, 한국어 and Italiano. MultiPreview follows your Windows language unless you choose one. The eight translations are machine drafts, and corrections are welcome.
-- **Settings safety:** a copy of your settings is kept whenever they changed (the last 10), with **Back up now**, **Export** and **Import**. If the settings file can't be read, MultiPreview offers those copies instead of starting on defaults.
+- **Settings safety:** each time MultiPreview starts, it keeps a copy of your settings if they changed since the last copy (the last 10 are kept), with **Back up now**, **Export** and **Import**. If the settings file can't be read, MultiPreview offers those copies instead of starting on defaults.
 - **Updates:** MultiPreview asks GitHub for a newer version when it starts (you can turn that off) and installs it with one click. Any earlier version can be installed again from App settings › About & updates.
 - A first-run setup, **Start with Windows**, and a guard against running two copies.
 
 ## What It Doesn't Do
 
-- It does not send your keys or clicks to several clients at once. One key press does one thing in one client.
-- With its default settings it sends no input to EVE at all: switching only changes which window is in front.
+- It does not broadcast input. A key press or a click is never copied to several clients at the same moment.
 - It does not read or change the game's memory.
+- With its default settings it sends EVE no key or click that does anything. There is one thing it may send: to bring a client to the front, Windows sometimes has to see a key press first, and MultiPreview then presses and releases a key that has no function (virtual key 0xE8). That press goes to whichever window is in front at that moment, which can be an EVE client.
 
-Two options under Clients › Hotkeys & switching do send input, to one client at a time, and both are off unless you turn them on. With **Carry held Ctrl, Shift and Alt to the next client** or **Carry other held keys to the next client**, a key you are physically holding while you switch is pressed in the client you switch to, and released there when you let go. Whether to use them is your decision.
+Three options under Clients › Hotkeys & switching send real keys to clients. All three are off unless you turn them on:
 
-What it does touch: it moves, resizes, minimizes and closes client windows; it can set a client's CPU priority, CPU core and audio volume; it reads EVE's chat and game log files; and Tools › EVE settings copies EVE's settings files when you ask it to.
+- **Carry held Ctrl, Shift and Alt to the next client** and **Carry other held keys to the next client:** a key you are physically holding while you switch is also pressed in the client you switch to. If you keep holding it and switch again, it is pressed in that client too, and when you let go it is released in every client that got it. So one held key can end up pressed in several clients, one more with each switch.
+- **Hide still-held keys from the next client:** a key you are still holding when you switch is released in the client you leave, and kept from the client you land on until you let go.
 
-It has no telemetry and no account. It goes online for two things: the update check at GitHub (when it starts, unless you turn that off, and when you click **Check for updates**), and a lookup of character names at CCP's public API when you click **Fetch missing names** under Tools › EVE settings.
+Whether to use them is your decision.
+
+What it does touch: it moves, resizes, minimizes and closes client windows; it can set a client's CPU priority, CPU core and audio volume; it reads EVE's chat and game log files; for frozen frames it takes a picture of a client's window; and Tools › EVE settings copies EVE's settings files when you ask it to. It installs a keyboard hook so that a hotkey press doesn't also reach EVE (**Hide hotkeys from EVE**, on by default), and a mouse hook while a mouse button is bound to a hotkey. **Start with Windows** adds MultiPreview to your Windows startup list.
+
+It has no telemetry and no account. It goes online only for these: the update check at GitHub (when it starts, unless you turn that off, and when you click **Check for updates**); the list of versions and the download itself, when you install an update or pick an earlier version; and a lookup of character names at CCP's public API when you click **Fetch missing names** under Tools › EVE settings.
 
 EVE MultiPreview is a community tool. Use it at your own risk.
 
