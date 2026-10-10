@@ -36,6 +36,10 @@ jobs:
         with:
           global-json-file: global.json
 
+      # For the record of a release: the SDK that built it.
+      - name: Say which .NET SDK builds the release
+        run: dotnet --version
+
       - name: The tag must be the version in EveMultiPreview.csproj
         shell: pwsh
         run: |
@@ -57,14 +61,18 @@ jobs:
       - name: Restore
         run: dotnet restore EveMultiPreview.sln
 
+      # A warning fails the build and the publish, except NuGet's four "this package has a known
+      # vulnerability" warnings (NU1901 to NU1904): an advisory published after the tagged commit must not
+      # turn the tag's build red. They still show as warnings. The quotes are needed: PowerShell reads a
+      # bare ';' as the end of the command.
       - name: Build (a warning fails it)
-        run: dotnet build EveMultiPreview.sln -c Debug --no-restore -warnaserror
+        run: dotnet build EveMultiPreview.sln -c Debug --no-restore -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
 
       - name: Test
         run: dotnet test EveMultiPreview.sln -c Debug --no-build --blame-hang-timeout 10m
 
-      - name: Publish the single-file exe
-        run: dotnet publish EveMultiPreview.csproj -c Release -o publish
+      - name: Publish the single-file exe (a warning fails it)
+        run: dotnet publish EveMultiPreview.csproj -c Release -o publish -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
 
       - name: Name the files as the releases name them
         shell: pwsh

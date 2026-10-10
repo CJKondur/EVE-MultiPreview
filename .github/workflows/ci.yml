@@ -68,11 +68,23 @@ jobs:
           }
           dotnet --info
 
+      # ── THE WORKFLOW CHECK GOES HERE (not a step yet) ───────────────────────────────────────────────
+      # tools/ci/check_workflows.py checks this file and release.yml: the triggers, every permission, every
+      # action pinned to a commit, no secret, nothing interpolated into a script, and the one job that may
+      # write. It needs PyYAML, which a runner doesn't have until a step installs it, so it becomes a step
+      # only after the first green run of this workflow. Until then it is run on a PC after every change
+      # to a workflow, together with tools/ci/test_check_workflows.py.
+      # ────────────────────────────────────────────────────────────────────────────────────────────────
+
       - name: Restore
         run: dotnet restore EveMultiPreview.sln
 
+      # A warning fails the build, except NuGet's four "this package has a known vulnerability" warnings
+      # (NU1901 to NU1904): an advisory published after a commit must not turn that commit's build red.
+      # They still show as warnings. The quotes are needed: PowerShell reads a bare ';' as the end of
+      # the command.
       - name: Build (a warning fails it)
-        run: dotnet build EveMultiPreview.sln -c Debug --no-restore -warnaserror
+        run: dotnet build EveMultiPreview.sln -c Debug --no-restore -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
 
       - name: Test
         run: dotnet test EveMultiPreview.sln -c Debug --no-build --logger "trx;LogFileName=tests.trx" --results-directory TestResults --blame-hang-timeout 10m
