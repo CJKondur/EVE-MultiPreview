@@ -1,0 +1,89 @@
+# EVE MultiPreview: build and test every push and every pull request.
+#
+# NOT YET RUN ON GITHUB. This file was written on 2026-10-09 and checked on a PC only (it parses as YAML, and
+# actionlint finds nothing). The branch that adds it had not been pushed, so no run has happened: the first run
+# is the real test of this file. What can differ on a GitHub runner, and what this workflow does about it, is
+# listed in docs/superpowers/plans/2026-10-09-ideas-batch3-release-pipeline.md (Task 5).
+#
+# Every action is pinned to a commit; the comment after it is the release that commit is.
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the .NET SDK that global.json names
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # The window tests open real (off-screen) WPF windows, and Windows caps a window at the desktop's size:
+      # on a runner's default 1024x768 desktop the tests that ask for a 1240 px window (1560 px with the help
+      # column open) can't get it.
+      - name: Make the desktop 1920x1080
+        shell: powershell
+        run: |
+          Set-DisplayResolution -Width 1920 -Height 1080 -Force
+          Add-Type -AssemblyName System.Windows.Forms
+          $screen = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          Write-Host "Desktop: $($screen.Width)x$($screen.Height)"
+          if ($screen.Width -lt 1920 -or $screen.Height -lt 1080) {
+            throw "The desktop is $($screen.Width)x$($screen.Height). The window tests need 1920x1080."
+          }
+
+      # Nothing here can fail the job: it only records what the tests ran on, for reading a red run.
+      - name: Say what this runner is
+        if: always()
+        continue-on-error: true
+        shell: powershell
+        run: |
+          Write-Host "Windows: $((Get-CimInstance Win32_OperatingSystem).Caption) $([Environment]::OSVersion.Version)"
+          Write-Host "Culture: $((Get-Culture).Name)   Time zone: $((Get-TimeZone).Id)"
+          $admin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+          Write-Host "Administrator: $admin   Processors: $([Environment]::ProcessorCount)"
+          Add-Type -AssemblyName System.Drawing
+          $installed = (New-Object System.Drawing.Text.InstalledFontCollection).Families | ForEach-Object { $_.Name }
+          foreach ($font in 'Segoe UI Variable Text', 'Segoe UI', 'Segoe Fluent Icons', 'Segoe MDL2 Assets', 'Yu Gothic UI', 'Malgun Gothic', 'Microsoft YaHei UI', 'Cascadia Mono', 'Consolas', 'Gill Sans MT') {
+            Write-Host ("Font {0,-24} {1}" -f $font, $(if ($installed -contains $font) { 'installed' } else { 'MISSING' }))
+          }
+          dotnet --info
+
+      - name: Restore
+        run: dotnet restore EveMultiPreview.sln
+
+      - name: Build (a warning fails it)
+        run: dotnet build EveMultiPreview.sln -c Debug --no-restore -warnaserror
+
+      - name: Test
+        run: dotnet test EveMultiPreview.sln -c Debug --no-build --logger "trx;LogFileName=tests.trx" --results-directory TestResults --blame-hang-timeout 10m
+
+      - name: Keep the test results and the page snapshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-results
+          path: |
+            TestResults/
+            tests/EveMultiPreview.Tests/bin/Debug/**/snapshots/
+          if-no-files-found: ignore
+          retention-days: 7
