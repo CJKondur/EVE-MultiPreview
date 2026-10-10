@@ -192,19 +192,40 @@ public sealed class CustomRulesModel
 
     private static readonly Regex LogName = new(@"^(.+)_\d{8}_\d{6}(?:_\d+)?\.txt$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-    /// <summary>The chat channels a folder holds logs of, by name: what the Channel box offers. Only file names are
-    /// read, never a file, and at most <paramref name="maxFiles"/> of them (a chat log folder can hold every log
-    /// since the account was made). Never throws: a folder that isn't there or can't be listed has no channels.</summary>
-    public static IReadOnlyList<string> ChannelsIn(string? folder, int maxFiles = 20000, int maxNames = 200)
+    /// <summary>The most file names of a chat log folder that are looked at for the Channel box, and the most
+    /// channels it offers. A folder can hold every log since the account was made, tens of thousands of them, and a
+    /// listing gives them by name: a bound of a few thousand never got past the channels early in the alphabet.</summary>
+    public const int MaxLogNames = 200_000, MaxChannelsOffered = 200;
+
+    /// <summary>The chat channels a folder holds logs of, by name: what the Channel box offers. Only the names of
+    /// the folder's files are read, one after the other, never a file. Never throws: a folder that isn't there or
+    /// can't be listed has no channels. It can take a while on a large folder: the page runs it off its own thread.</summary>
+    public static IReadOnlyList<string> ChannelsIn(string? folder, int maxFiles = MaxLogNames, int maxNames = MaxChannelsOffered)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder)) return Array.Empty<string>();
+            return ChannelsOf(Directory.EnumerateFiles(folder, "*_*.txt"), maxFiles, maxNames);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+        {
+            return Array.Empty<string>();
+        }
+    }
+
+    /// <summary>The channels among the names of a folder's files, in the order of the alphabet. The names are taken
+    /// one at a time and never held: the walk ends with the folder, after <paramref name="maxFiles"/> names, or as
+    /// soon as <paramref name="maxNames"/> different channels are kept (nothing a later name says could be kept
+    /// then). A listing that fails half-way gives what it found until then.</summary>
+    public static IReadOnlyList<string> ChannelsOf(IEnumerable<string> files, int maxFiles = MaxLogNames, int maxNames = MaxChannelsOffered)
     {
         var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         try
         {
-            if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder)) return Array.Empty<string>();
-            foreach (var file in Directory.EnumerateFiles(folder, "*_*.txt").Take(maxFiles))
+            foreach (var file in files.Take(maxFiles))
             {
                 var name = LogName.Match(Path.GetFileName(file));
-                if (name.Success && name.Groups[1].Length <= CustomRules.MaxChannel) names.Add(name.Groups[1].Value);
+                if (name.Success && name.Groups[1].Length <= CustomRules.MaxChannel && names.Add(name.Groups[1].Value) && names.Count >= maxNames) break;
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException) { }

@@ -2096,4 +2096,5 @@
     <sys:String x:Key="L.S.Rules.Off.timeout">MultiPreview がこのルールをオフにしました：このパターンは一部の行で時間がかかりすぎ、ほかのアラートが待たされていました。よくある原因は、繰り返しの中の繰り返しです。ルールのどれかを変更するか MultiPreview を再起動すると、このルールはもう一度試されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.average">MultiPreview がこのルールをオフにしました：正規表現のルールがログの読み取りを遅くしており、このルールがいちばん遅いか、遅いルールの 1 つでした。もっと簡単なパターンか、ふつうのテキストにすると速くなります。ルールのどれかを変更するか MultiPreview を再起動すると、このルールはもう一度試されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview がこのルールをオフにしました：ときどき 1 行に長い時間がかかり、ほかのルールと合わせてログの読み取りを遅らせていました。PC がとても忙しいときにも起こることがあります。ルールのどれかを変更するか MultiPreview を再起動すると、このルールはもう一度試されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.NoChatLogs">チャットログのフォルダーにチャットログが見つかりません。EVE でチャットの記録をオンにするか、チャンネルの名前を入力してください。</sys:String> <!-- draft -->
 </ResourceDictionary>

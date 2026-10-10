@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using EveMultiPreview.Services;
+using EveMultiPreview.Views;
 using Button = System.Windows.Controls.Button;
 using CheckBox = System.Windows.Controls.CheckBox;
 using ComboBox = System.Windows.Controls.ComboBox;
@@ -52,6 +54,15 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         ChannelNames = () => CustomRulesModel.ChannelsIn(
             LogMonitorService.ResolveFolders("", ctx.S.ChatLogDirectory, null, chatEnabled: true, gameEnabled: false).Chat);
         SwitchedOff = ctx.Services.CustomRulesSwitchedOff ?? (() => CustomAlertEngine.NoneSwitchedOff);
+        // A thread of the pool lists, and the window's thread is told. Whatever a listing throws, the box gets an
+        // answer (the page's own, ChannelsIn, never throws): no channels.
+        RunListing = (list, done) => Task.Run(() =>
+        {
+            IReadOnlyList<string> names;
+            try { names = list(); }
+            catch (Exception) { names = Array.Empty<string>(); }
+            Dispatcher.BeginInvoke(() => done(names));
+        });
 
         var examples = new WrapPanel();
         var lead = EditorCard.Note("L.S.Rules.Examples");
@@ -84,8 +95,20 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     /// <summary>The rule whose fields are shown, or null.</summary>
     public string? OpenId { get; private set; }
 
-    /// <summary>What the Channel box offers when it is opened. Never asked before that: it lists a folder.</summary>
+    /// <summary>What the Channel box offers when it is opened: the channels the chat log folder has logs of. Never
+    /// asked before that, and never on the window's thread: it lists a folder that can hold every log since the
+    /// account was made.</summary>
     public Func<IReadOnlyList<string>> ChannelNames { get; set; }
+
+    /// <summary>Runs a listing (the first argument) somewhere it may take its time, and hands what it found to the
+    /// second argument on the window's thread. The page's own takes a thread of the pool. A test puts its own here
+    /// and decides when the answer comes, so no test waits for a thread.</summary>
+    public Action<Func<IReadOnlyList<string>>, Action<IReadOnlyList<string>>> RunListing { get; set; }
+
+    /// <summary>What opening the open rule's Channel list does: the chat log folder is listed, off the window's
+    /// thread, and the list is filled when the answer comes. One listing at a time: opening the list again before
+    /// the answer starts no second one. Does nothing while no rule is open.</summary>
+    public void ListChannels() => _listChannels?.Invoke();
 
     /// <summary>Asks the log monitor which rules it has switched off for what they cost: alert type ("custom:" + id)
     /// and the word of the bound (CustomAlertEngine.OffByTimeout, OffByAverage, OffByPeaks). In the app it is the
@@ -124,6 +147,8 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
 
     private void Rebuild()
     {
+        _built++;
+        _listChannels = null;
         AskWhatIsOff();
         if (Model.Find(OpenId) == null) OpenId = null;
         _heads.Clear();
@@ -344,6 +369,10 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     private Grid _form = new();
     private FrameworkElement[] _chatOnly = Array.Empty<FrameworkElement>();
     private TextBlock _logOff = new();
+    private TextBlock _noLogs = new();
+    private bool _noChatLogs;                                 // the last listing of the chat log folder found no chat log
+    private Action? _listChannels;                            // what opening the open rule's Channel list does
+    private int _built;                                       // how often the cards were built: an answer for cards that are gone is dropped
     private WrapPanel _characters = new();
     private WrapPanel _sound = new();
     private TextBlock _quietError = new();
@@ -374,7 +403,16 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
 
         var channel = ChannelBox(rule);
         var ignoreOwn = Switch("ignoreOwn", "L.S.Rules.IgnoreOwn", rule.IgnoreOwn, on => Store(id, r => r.IgnoreOwn = on));
-        _chatOnly = Row("L.S.Rules.Channel", channel).Concat(Row("L.S.Rules.IgnoreOwn", ignoreOwn)).ToArray();
+        var channelRow = Row("L.S.Rules.Channel", channel);
+        // Under the Channel box, once a listing found no chat log: why the list is empty, and what to do.
+        _noLogs = EditorCard.Note("L.S.Rules.NoChatLogs");
+        _noLogs.Tag = "noLogs";
+        _noLogs.Margin = new Thickness(0, 0, 0, 8);
+        _noLogs.Visibility = Visibility.Collapsed;
+        AutomationProperties.SetLiveSetting(_noLogs, AutomationLiveSetting.Polite);   // a screen reader says it when it appears
+        _noChatLogs = false;
+        Wide(_noLogs);
+        _chatOnly = channelRow.Concat(Row("L.S.Rules.IgnoreOwn", ignoreOwn)).ToArray();
 
         _logOff = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 0, 0, 8) };
         _logOff.SetResourceReference(TextBlock.ForegroundProperty, "Fx.WarningBrush");
@@ -489,12 +527,36 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     }
 
     /// <summary>The channel: typed, or picked from the channels the chat log folder has logs of. The folder is listed
-    /// when the list is first opened, never before.</summary>
+    /// when the list is opened, never before, and never on the window's thread (RunListing): the box can be typed in
+    /// while the listing runs. An answer that comes after the card was closed or built anew is dropped.</summary>
     private ComboBox ChannelBox(CustomAlertRule rule)
     {
         string id = rule.Id;
         var combo = new ComboBox { IsEditable = true, MinWidth = 240, Text = rule.Channel, Tag = "channel" };
-        bool listed = false;
+        int built = _built;
+        bool listing = false;
+        void StartListing()
+        {
+            if (listing) return;
+            listing = true;
+            RunListing(ChannelNames, names =>
+            {
+                listing = false;
+                if (built != _built) return;
+                // The list becomes what the folder holds now; what the box holds (typed, or picked before) stays.
+                if (!names.SequenceEqual(combo.Items.Cast<string>()))
+                {
+                    string typed = combo.Text;
+                    combo.Items.Clear();
+                    foreach (var name in names) combo.Items.Add(name);
+                    combo.Text = typed;
+                }
+                _noChatLogs = names.Count == 0;
+                ShowSource(id);
+                if (_noLogs.Visibility == Visibility.Visible) Announce.Changed(_noLogs);
+            });
+        }
+        _listChannels = StartListing;
         string given = rule.Channel;
         void Commit(string? typed)
         {
@@ -503,12 +565,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
             Store(id, r => r.Channel = typed);
             combo.Text = given = Model.Find(id)?.Channel ?? typed;
         }
-        combo.DropDownOpened += (_, _) =>
-        {
-            if (listed) return;
-            listed = true;
-            foreach (var name in ChannelNames()) combo.Items.Add(name);
-        };
+        combo.DropDownOpened += (_, _) => StartListing();
         combo.DropDownClosed += (_, _) => Commit(combo.SelectedItem as string ?? combo.Text);   // picked from the list, or typed
         combo.LostKeyboardFocus += (_, _) => { if (!combo.IsKeyboardFocusWithin) Commit(combo.Text); };
         combo.KeyDown += (_, k) => { if (k.Key == Key.Enter) { Commit(combo.Text); k.Handled = true; } };
@@ -524,6 +581,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         bool off = rule.IsChat ? !_ctx.S.EnableChatLogMonitoring : !_ctx.S.EnableGameLogMonitoring;
         _logOff.Text = off ? Str(rule.IsChat ? "L.S.Rules.ChatOff" : "L.S.Rules.GameOff") : "";
         _logOff.Visibility = off ? Visibility.Visible : Visibility.Collapsed;
+        _noLogs.Visibility = rule.IsChat && _noChatLogs ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void FillCharacters(string id)
