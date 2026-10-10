@@ -160,6 +160,9 @@ public static class SettingsHome
     private static void CopyExtras(string exeDir, string appDataDir, List<string> notes)
     {
         CopyIfNew(Path.Combine(exeDir, "layout_presets.json"), Path.Combine(appDataDir, "layout_presets.json"), notes);
+        // The custom alert rules (IDEAS #8). Versions up to 2.3.42 have none, so this is for a copy that ran beside
+        // its exe (portable.txt) and is now moved. The hand-back to an older version leaves them where they are.
+        CopyIfNew(Path.Combine(exeDir, CustomAlertStore.FileName), Path.Combine(appDataDir, CustomAlertStore.FileName), notes);
         var from = Path.Combine(exeDir, "Backups");
         if (!Directory.Exists(from) || IsLink(from)) return;
         try
