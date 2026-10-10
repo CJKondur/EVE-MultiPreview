@@ -2093,4 +2093,7 @@
     <sys:String x:Key="L.Help.alerts.custom.file.Body">규칙은 설정 폴더의 custom_alerts.json에 있어요. 프로필에 들어 있지 않고, 어디로도 전송되지 않아요.&#x0A;&#x0A;- MultiPreview가 읽을 수 없는 규칙 파일은 같은 폴더에 새 이름으로 따로 두고, MultiPreview는 규칙 없이 시작해요.&#x0A;- 규칙 전용 소리는 이 PC의 드라이브에 있는 파일이어야 해요.&#x0A;- 채팅 규칙이 찾은 내용은 알림과 함께 알림 기록에 남아요. 원하지 않으면 기록을 지우거나 꺼 주세요(알림 › 알림 허브).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Off">알림 기록이 꺼져 있어서 새 알림은 남지 않아요. 알림 › 알림 허브에서 켤 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.CountRows">알림: {0}개 ({1}줄)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Off.timeout">MultiPreview가 이 규칙을 껐어요: 이 규칙의 패턴이 일부 줄에서 너무 오래 걸려서 다른 알림이 기다려야 했어요. 흔한 원인은 반복 안에 든 반복이에요. 규칙 중 하나를 바꾸거나 MultiPreview를 다시 시작하면 이 규칙을 다시 시도해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Off.average">MultiPreview가 이 규칙을 껐어요: 정규식 규칙들이 로그 읽기를 느리게 했고, 이 규칙이 가장 느리거나 느린 규칙 가운데 하나였어요. 더 단순한 패턴이나 일반 텍스트가 더 빨라요. 규칙 중 하나를 바꾸거나 MultiPreview를 다시 시작하면 이 규칙을 다시 시도해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview가 이 규칙을 껐어요: 가끔 한 줄에 오래 걸렸고, 다른 규칙과 합쳐져 로그 읽기가 늦어졌어요. PC가 매우 바쁠 때에도 생길 수 있어요. 규칙 중 하나를 바꾸거나 MultiPreview를 다시 시작하면 이 규칙을 다시 시도해요.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -51,6 +51,11 @@ public sealed class AppServices
     /// <summary>The player's own alert rules, for Alerts › Custom rules (IDEAS #8). Saving through it reaches the log
     /// monitor at once. Null in tests.</summary>
     public CustomAlertStore? CustomAlerts { get; init; }
+    /// <summary>Asks the log monitor which custom rules it has switched off for what they cost: alert type
+    /// ("custom:" + id) and the word of the bound (CustomAlertEngine.OffByTimeout, OffByAverage, OffByPeaks). The
+    /// answer is a snapshot that never changes, and asking costs the monitor nothing, so the window's thread may
+    /// ask. Alerts › Custom rules says it on the rule's card. Null in tests: nobody to ask, and no rule is off.</summary>
+    public Func<IReadOnlyDictionary<string, string>>? CustomRulesSwitchedOff { get; init; }
 }
 
 public sealed class SettingsContext

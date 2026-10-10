@@ -30,7 +30,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
 {
     public const string ItemId = "alerts.custom.editor";
 
-    private sealed record Head(CheckBox Toggle, TextBlock Name, TextBlock Summary, TextBlock Error, Button Edit, Button Duplicate, Button Delete);
+    private sealed record Head(CheckBox Toggle, TextBlock Name, TextBlock Summary, TextBlock Error, TextBlock Off, Button Edit, Button Duplicate, Button Delete);
 
     private readonly SettingsContext _ctx;
     private readonly StackPanel _cards = new();
@@ -38,6 +38,11 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     private readonly List<Button> _adders = new();
     private readonly Dictionary<string, Head> _heads = new();
     private bool _showing;                                    // a switch is being set to what was saved: not a click
+    // Which rules the log monitor has switched off, as it said when it was last asked; what it answered for the rules
+    // before this page's last written change (not shown again); and Model.Saves when the page last looked.
+    private IReadOnlyDictionary<string, string> _off = CustomAlertEngine.NoneSwitchedOff;
+    private IReadOnlyDictionary<string, string>? _answerBeforeTheChange;
+    private int _saves;
 
     public CustomRulesEditor(SettingsContext ctx)
     {
@@ -46,6 +51,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         // The chat log folder the log monitor reads, whether chat reading is on or not (the player may be setting up).
         ChannelNames = () => CustomRulesModel.ChannelsIn(
             LogMonitorService.ResolveFolders("", ctx.S.ChatLogDirectory, null, chatEnabled: true, gameEnabled: false).Chat);
+        SwitchedOff = ctx.Services.CustomRulesSwitchedOff ?? (() => CustomAlertEngine.NoneSwitchedOff);
 
         var examples = new WrapPanel();
         var lead = EditorCard.Note("L.S.Rules.Examples");
@@ -81,6 +87,12 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     /// <summary>What the Channel box offers when it is opened. Never asked before that: it lists a folder.</summary>
     public Func<IReadOnlyList<string>> ChannelNames { get; set; }
 
+    /// <summary>Asks the log monitor which rules it has switched off for what they cost: alert type ("custom:" + id)
+    /// and the word of the bound (CustomAlertEngine.OffByTimeout, OffByAverage, OffByPeaks). In the app it is the
+    /// monitor's own snapshot (AppServices.CustomRulesSwitchedOff); a window made without the app has nobody to ask,
+    /// and no rule is off. Asked when the page is shown and when its cards are built, never while the player types.</summary>
+    public Func<IReadOnlyDictionary<string, string>> SwitchedOff { get; set; }
+
     /// <summary>Plays a file at a volume (AlertSoundPreview.Play). Tests put a recorder here: no test plays a sound.</summary>
     public Func<string?, int, bool> PlaySound { get; set; } = AlertSoundPreview.Play;
 
@@ -112,6 +124,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
 
     private void Rebuild()
     {
+        AskWhatIsOff();
         if (Model.Find(OpenId) == null) OpenId = null;
         _heads.Clear();
         _cards.Children.Clear();
@@ -128,12 +141,42 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     /// changed would go on showing a change that was never made. The keyboard stays on the control it was on.</summary>
     private void AfterSave()
     {
+        if (Model.Saves != _saves) EveryRuleIsTriedAgain();
         if (!Model.SaveFailed) return;
         _ctx.Host.Toast(Str("L.S.Rules.SaveFailed"));
         string? tag = FocusedTag();
         Rebuild();
         if (tag != null) FocusField(tag);
     }
+
+    /// <summary>Asks the log monitor which rules it has switched off (when the page is shown, and when its cards
+    /// are built). An answer it already gave for the rules before this page's last change is not shown again.</summary>
+    private void AskWhatIsOff()
+    {
+        var answer = SwitchedOff() ?? CustomAlertEngine.NoneSwitchedOff;
+        if (ReferenceEquals(answer, _answerBeforeTheChange)) answer = CustomAlertEngine.NoneSwitchedOff;
+        else _answerBeforeTheChange = null;
+        _off = answer;
+    }
+
+    /// <summary>A change of this page was written. With it the log monitor takes every rule anew, so a rule it had
+    /// switched off is tried again, and no card says "switched off" any more. The monitor takes the new rules on its
+    /// next pass, a moment from now: what it answers until then is for the rules as they were. That answer is a
+    /// snapshot that never changes, so it is known when it comes again, and is not shown.</summary>
+    private void EveryRuleIsTriedAgain()
+    {
+        _saves = Model.Saves;
+        _answerBeforeTheChange = SwitchedOff();
+        if (_off.Count == 0) return;
+        _off = CustomAlertEngine.NoneSwitchedOff;
+        foreach (var id in _heads.Keys.ToList()) UpdateHead(id);
+    }
+
+    /// <summary>The words for a rule the log monitor switched off, by the bound that did it. A bound this version
+    /// doesn't know reads like the average: the rule cost too much.</summary>
+    public static string OffKey(string bound) => bound is CustomAlertEngine.OffByTimeout or CustomAlertEngine.OffByPeaks
+        ? "L.S.Rules.Off." + bound
+        : "L.S.Rules.Off." + CustomAlertEngine.OffByAverage;
 
     public CustomAlertRule? Add()
     {
@@ -229,6 +272,9 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         text.Children.Add(name);
         text.Children.Add(summary);
         text.Children.Add(error);
+        var off = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 4, 0, 0), Tag = "off:" + id, Visibility = Visibility.Collapsed };
+        off.SetResourceReference(TextBlock.ForegroundProperty, "Fx.WarningBrush");
+        text.Children.Add(off);
 
         var edit = EditorCard.Button(open ? "L.S.Rules.Done" : "L.S.Rules.Edit", () => { if (id == OpenId) Close(); else Open(id); });
         var duplicate = EditorCard.Button("L.S.Rules.Duplicate", () => Duplicate(id));
@@ -242,7 +288,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         head.Children.Add(toggle);
         head.Children.Add(text);
 
-        _heads[id] = new Head(toggle, name, summary, error, edit, duplicate, delete);
+        _heads[id] = new Head(toggle, name, summary, error, off, edit, duplicate, delete);
         UpdateHead(id);
 
         var stack = new StackPanel();
@@ -261,6 +307,12 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         head.Summary.Text = Summary(rule);
         head.Error.Text = problem == CustomRuleProblem.None ? "" : ProblemText(problem);
         head.Error.Visibility = problem == CustomRuleProblem.None ? Visibility.Collapsed : Visibility.Visible;
+        // Switched off by the log monitor for what it cost. The rule's own switch stays as the player left it (on):
+        // the notice beside it says what happened and how the rule comes back, and a screen reader reads it with the switch.
+        string off = rule.Enabled && _off.TryGetValue(rule.AlertType, out var bound) ? Str(OffKey(bound)) : "";
+        head.Off.Text = off;
+        head.Off.Visibility = off.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        AutomationProperties.SetHelpText(head.Toggle, off);
         _showing = true;
         head.Toggle.IsChecked = rule.Enabled;
         _showing = false;

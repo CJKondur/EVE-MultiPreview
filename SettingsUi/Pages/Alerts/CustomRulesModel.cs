@@ -35,6 +35,9 @@ public sealed class CustomRulesModel
     /// <summary>The last change asked for could not be written: the page says so, and shows what the file holds. Every
     /// changing method clears it first, so it never speaks of an earlier change.</summary>
     public bool SaveFailed { get; private set; }
+    /// <summary>How many changes of this page were written. With each of them the log monitor takes every rule anew
+    /// (App hands it the rules after every save), so a rule it had switched off for what it cost is tried again.</summary>
+    public int Saves { get; private set; }
     public CustomAlertRule? Find(string? id) => id == null ? null : _rules.FirstOrDefault(r => r.Id == id);
 
     /// <summary>Takes what the store holds now.</summary>
@@ -164,6 +167,7 @@ public sealed class CustomRulesModel
     {
         bool saved = _store.Save(_rules);
         SaveFailed = !saved;
+        if (saved) Saves++;
         Reload();
         return saved;
     }

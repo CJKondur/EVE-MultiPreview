@@ -2110,4 +2110,7 @@
     <sys:String x:Key="L.Help.alerts.custom.file.Body">规则保存在设置文件夹里的 custom_alerts.json 中。它们不属于任何配置，也不会被发送到任何地方。&#x0A;&#x0A;- MultiPreview 读不了的规则文件会在同一个文件夹里改名另存，MultiPreview 会在没有规则的情况下启动。&#x0A;- 规则自己的声音必须是这台电脑磁盘上的文件。&#x0A;- 聊天规则匹配到的内容会和警报一起保存在警报历史记录里。如果你不想这样，可以清空历史记录，或者把它关掉（警报 › 警报中心）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Off">警报历史记录已关闭，所以不会保留新的警报。可以在“警报 › 警报中心”里打开它。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.CountRows">警报：{0}，共 {1} 行</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Off.timeout">MultiPreview 关闭了这条规则：它的模式在某些行上花的时间太长，其他警报只能等它。常见的原因是重复里面套着重复。你修改任意一条规则或重新启动 MultiPreview 后，这条规则会再次试用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Off.average">MultiPreview 关闭了这条规则：你的正则表达式规则拖慢了日志的读取，而这条是最慢的，或者是较慢的几条之一。更简单的模式，或者改用纯文字，会更快。你修改任意一条规则或重新启动 MultiPreview 后，这条规则会再次试用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview 关闭了这条规则：它偶尔会在某一行上花很长时间，加上你的其他规则，就耽误了日志的读取。电脑非常繁忙时也可能出现这种情况。你修改任意一条规则或重新启动 MultiPreview 后，这条规则会再次试用。</sys:String> <!-- draft -->
 </ResourceDictionary>
