@@ -1715,7 +1715,7 @@ public sealed class LogMonitorService : IDisposable
                     // suppressed real player tackle for everyone running PvE mode.
                     bool ownsShip = attacker.Contains("'s ") || attacker.Contains("’s ");
                     // IsNpc can't be asked here: it calls every name without a ticker an NPC, and a
-                    // ship's name ("Bob's Sabre") has none, so it dropped every bubble in PvE mode.
+                    // ship's name ("Bob's Onyx", a heavy interdictor) has none, so it dropped every bubble in PvE mode.
                     if (!ownsShip)
                         return;
                 }
@@ -1839,20 +1839,33 @@ public sealed class LogMonitorService : IDisposable
     /// It must END in "to you!": EVE writes the same line for every tackle it shows on grid, and a pilot's name can
     /// begin with "You", so "to You Know Who [TICK] Sabre" is someone else's tackle.</summary>
     private static readonly Regex TackleOnYou =
-        new(@"\bfrom\s+(.+?)\s+to\s+you\s*!?\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        new(@"\bfrom\s+(.+?)\s+to\s+you\s*!\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     /// <summary>
     /// Being pointed or scrammed by a ship's module (#97). EVE writes it as a (combat) line,
     ///     Warp scramble attempt from ATTACKER to you!
     /// (or "Warp disruption attempt"), and writes the same line for every tackle it shows on grid, also between two
     /// other pilots: only a line that ends in "to you!" is ours. This check used to sit below the combat branch of
-    /// ParseGameLogLine, which returns for every (combat) line, so it never ran. The wording is not in EVE's
-    /// localization tables; it is matched in English (warp_scramble_combat in alert_patterns.json).
+    /// ParseGameLogLine, which returns for every (combat) line, so it never ran. What is known: the English wording
+    /// is matched (warp_scramble_combat in alert_patterns.json); other client languages are not, apart from the one
+    /// Chinese anchor kept in ParseGameLogLine.
     /// </summary>
     private void TackleFromCombatLine(string line, string character)
     {
         // The cheap test first: of the (combat) lines without a damage number, nearly all stop here.
         if (line.IndexOf("attempt", StringComparison.OrdinalIgnoreCase) < 0) return;
+
+        // The gate, on the raw line, before any regex or allocation: once trailing whitespace and closing tags are
+        // taken off, EVE's own plain "you!" must be the last thing in it. A pilot's name sits inside tags and can't
+        // hold "!", so a target named "... To You", or a line cut right after "<b>You", stops here.
+        var tail = line.AsSpan().TrimEnd();
+        while (tail.Length > 0 && tail[^1] == '>')
+        {
+            int open = tail.LastIndexOf('<');
+            if (open < 0 || open + 1 >= tail.Length || tail[open + 1] != '/') break;
+            tail = tail[..open].TrimEnd();
+        }
+        if (!tail.EndsWith("you!", StringComparison.OrdinalIgnoreCase)) return;
 
         // The line is wrapped in colour and bold markup: the phrase and the direction are read from its plain text.
         string plain = Regex.Replace(line, "<[^>]*>", " ");
@@ -1991,6 +2004,10 @@ public sealed class LogMonitorService : IDisposable
             });
             return;
         }
+
+        // No colour branch took the line. A pilot named only with digits ("<b>0451</b>") makes a tackle line look like
+        // a damage line; the branches above all return, so only such a line gets here.
+        TackleFromCombatLine(line, character);
     }
 
     private void ParseMiningLine(string line, string character)
