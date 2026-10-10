@@ -1312,11 +1312,15 @@ public sealed class LogMonitorService : IDisposable
             .ToList();
     }
 
-    /// <summary>The Local chat logs a scan takes on (for the system each character is in): the folder's Local_*.txt
-    /// files, newest first, at most 12, as full paths.</summary>
+    /// <summary>The Local chat logs a scan takes on (for the system each character is in): the folder's files named
+    /// Local_‹yyyymmdd›_‹hhmmss›.txt, with or without _‹character id› before the ".txt", newest first, at most 12, as
+    /// full paths. The log of another channel whose name merely begins with "Local_" (a player-made "Local_Intel") is
+    /// not one: read as Local, a "Channel changed to Local" line in it moved the character's system. The names are
+    /// looked at newest first and only until twelve are found.</summary>
     public static IReadOnlyList<string> NewestLocalLogs(string folder, DateTime now) =>
         LogTimes(folder, "Local_*.txt", now)
             .OrderByDescending(x => x.Written)
+            .Where(x => ChannelLogOwner(Path.GetFileName(x.Path), LocalChannel) != null)
             .Take(LocalLogsTaken)
             .Select(x => x.Path)
             .ToList();
