@@ -1964,6 +1964,6 @@
     <sys:String x:Key="L.Start.Missing.Fresh">重新开始</sys:String> <!-- draft -->
     <!-- Ideas batch 3 (Plan 7) -->
     <sys:String x:Key="L.Upd.NoDigest">GitHub 没有给出此版本的校验和，因此 MultiPreview 无法检查下载的文件。如果仍要安装（风险自负），请再次点击“{0}”；或点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Upd.DigestMismatch">下载的文件与 GitHub 为此版本公布的校验和不一致，因此不会安装。点击“{0}”重试，或点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Upd.DigestUnreadable">GitHub 为此版本给出的校验和格式无法被 MultiPreview 读取，因此已拒绝下载，未安装任何内容。点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestMismatch">无法确认下载的文件就是 GitHub 发布的那个文件，因此不会安装。点击“{0}”重试，或点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestUnreadable">GitHub 为此版本给出的校验和格式无法被 MultiPreview 读取，因此 MultiPreview 不会下载或安装此版本。点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -1160,8 +1160,10 @@ public partial class App : Application
 
         // IDEAS #55: a clean exit. First, so a Dispose that throws below can't leave a marker that reports a crash that
         // didn't happen. Only the instance that began the marker deletes it; the second instance never did. An update
-        // exits through here too (ApplyUpdate calls Shutdown), and its script waits for this process to be gone before it
-        // starts the new one.
+        // exits through here too (ApplyUpdate calls Shutdown). Its script waits for this process by its id, at most
+        // 30 seconds, before it starts the new exe. It used to wait for a process NAMED "EVE MultiPreview", which a
+        // freshly downloaded copy (EVE.MultiPreview.exe) is not: for that copy it went on after two seconds, whether
+        // this process was gone or not (IDEAS P52).
         _runMarker?.End();
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this

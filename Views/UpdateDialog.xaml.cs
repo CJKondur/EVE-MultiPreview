@@ -27,6 +27,16 @@ public partial class UpdateDialog : Window
     private bool _installUnverified;
     private System.Windows.Threading.DispatcherTimer? _pauseTimer;
 
+    /// <summary>The install step: UpdateService.ApplyUpdate unless something else is given. That call writes the
+    /// updater script, starts it and ends the app, so every test gives a recorder instead: whatever guard in front
+    /// of it regressed, a test can never start the real updater.</summary>
+    public Func<string, bool, bool, HandBackResult>? ApplyStep { get; init; }
+
+    /// <summary>Where the dialog reports an error it handled: the app's error log unless something else is given.</summary>
+    public Action<Exception>? ErrorSink { get; init; }
+
+    private void Log(Exception ex) => (ErrorSink ?? App.LogError)(ex);
+
     /// <param name="specificVersion">Opened from About → "Install a specific version" (an
     /// upgrade or a downgrade the user picked) rather than by an update check.</param>
     /// <param name="beforeApply">Runs after the download, right before the app exits to swap the exe.</param>
@@ -113,7 +123,7 @@ public partial class UpdateDialog : Window
         var url = _updateService.ReleasePageUrl;
         if (!IsSafeReleaseUrl(url))
         {
-            if (!string.IsNullOrEmpty(url)) App.LogError(new InvalidOperationException("Release page URL refused (not https://github.com): " + url));
+            if (!string.IsNullOrEmpty(url)) Log(new InvalidOperationException("Release page URL refused (not https://github.com): " + url));
             return;
         }
         try { Process.Start(new ProcessStartInfo(url!) { UseShellExecute = true }); }
@@ -177,23 +187,38 @@ public partial class UpdateDialog : Window
     /// <summary>The download isn't the file GitHub published, or it can't be read, or it changed after the download
     /// (IDEAS #53). Nothing was installed and the file will not be (the line says no more than that: removing it is
     /// best effort); the next click downloads again. A refusal found while downloading has already removed the file; one
-    /// found at the install has not, so it is removed here.</summary>
+    /// found at the install has not, so it is removed here.
+    /// One line stands for three causes: the file's hash differs from the checksum GitHub publishes; GitHub published
+    /// none and the file changed after the download; the file is locked or gone. So it says what all three have in
+    /// common, that the file could not be confirmed as GitHub's. Which one it was is in the error log.</summary>
     public void ShowDigestMismatch(object? buttonLabel = null)
     {
         DropDownload();
         ShowStatus(buttonLabel, "L.Upd.DigestMismatch",
-            "The download doesn't match the checksum GitHub publishes for this release, so it will not be installed. Click {0} to try again, or {1} to download it from GitHub yourself.");
+            "The downloaded file could not be confirmed as the one GitHub published, so it will not be installed. Click {0} to try again, or {1} to download it from GitHub yourself.");
     }
 
-    /// <summary>GitHub's checksum for this release is in a form this code can't read: refused before anything was
-    /// downloaded. Trying again can't change that for this release, so the install button stays off and the line
-    /// points to the release page only.</summary>
+    /// <summary>GitHub's checksum for this release is in a form this code can't read: nothing is downloaded for it.
+    /// Trying can't change that for this release, so the install button is off and the line points to the release
+    /// page only. Shown when the dialog opens (OnSourceInitialized), so the line speaks of what will not happen, not
+    /// of something that was tried.</summary>
     public void ShowDigestUnreadable(object? buttonLabel = null)
     {
         DropDownload();
         ShowStatus(buttonLabel, "L.Upd.DigestUnreadable",
-            "GitHub's checksum for this release is in a form MultiPreview can't read, so the download was refused and nothing was installed. Click {1} to download it from GitHub yourself.");
+            "GitHub's checksum for this release is in a form MultiPreview can't read, so MultiPreview will not download or install this release. Click {1} to download it from GitHub yourself.");
         BtnUpdateNow.IsEnabled = false;
+    }
+
+    /// <summary>When the window is created: a release whose checksum can't be read can never be installed from here,
+    /// so the dialog says so at once and its install button is off from the start, instead of after a click that
+    /// could not have worked. The error log gets what GitHub sent (once a session: it keeps one line per message).</summary>
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        if (_updateService.UnreadableDigestRefusal() is not { } refusal) return;
+        Log(refusal);
+        ShowDigestUnreadable();
     }
 
     /// <summary>Forgets the downloaded file and removes it, best effort; the next click downloads again unconfirmed.</summary>
@@ -238,7 +263,12 @@ public partial class UpdateDialog : Window
         base.OnClosed(e);
         _pauseTimer?.Stop();
         // The download waited for a confirmation that never came: don't leave an unchecked exe in %TEMP% (best effort).
-        if (!_applied && _installUnverified && _downloadedPath != null) DropDownload();
+        // Only while the file is still this dialog's own download, though. Every dialog downloads to the same path,
+        // and the app closes every window when an install begins: by then the file can be another dialog's verified
+        // download, which its updater script is about to copy (IDEAS P13). Verify answers NoDigest only when the file
+        // still hashes to what this dialog's service downloaded.
+        if (!_applied && _installUnverified && _downloadedPath != null
+            && _updateService.Verify(_downloadedPath) == UpdateService.DownloadCheck.NoDigest) DropDownload();
         if (_beforeApplyRan && !_applied)
         {
             try { _undoBeforeApply?.Invoke(); } catch (Exception ex) { Debug.WriteLine($"[Update] undo failed: {ex.Message}"); }
@@ -300,8 +330,8 @@ public partial class UpdateDialog : Window
             // Before the call: an install shuts the app down from inside ApplyUpdate, and this dialog closes (OnClosed)
             // before the call returns. It must not take that for a cancel and undo beforeApply.
             _applied = true;
-            var handBack = _updateService.ApplyUpdate(downloadedPath, _installAnyway, _installUnverified);
-            if (handBack.Reason != null) App.LogError(new System.IO.IOException(HandBackLogLine(handBack)));
+            var handBack = (ApplyStep ?? _updateService.ApplyUpdate)(downloadedPath, _installAnyway, _installUnverified);
+            if (handBack.Reason != null) Log(new System.IO.IOException(HandBackLogLine(handBack)));
             if (handBack.State == HandBackState.Failed && !wasInstallAnyway)
             {
                 _applied = false;                  // nothing was installed: closing the dialog now undoes beforeApply
@@ -315,7 +345,7 @@ public partial class UpdateDialog : Window
             {
                 // The download isn't GitHub's file, or can't be shown to be (IDEAS #53): nothing was installed, and the
                 // line under the notes says so in the player's language. The log gets the cause and the values (once).
-                App.LogError(refusal);
+                Log(refusal);
                 if (refusal.Cause == IntegrityCause.UnreadableDigest) ShowDigestUnreadable(buttonLabel);
                 else ShowDigestMismatch(buttonLabel);
                 return;

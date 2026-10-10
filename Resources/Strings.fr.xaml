@@ -1949,6 +1949,6 @@
     <sys:String x:Key="L.Start.Missing.Fresh">Repartir de zéro</sys:String> <!-- draft -->
     <!-- Ideas batch 3 (Plan 7) -->
     <sys:String x:Key="L.Upd.NoDigest">GitHub n'a fourni aucune somme de contrôle pour cette version : MultiPreview ne peut donc pas vérifier le téléchargement. Cliquez de nouveau sur {0} pour l'installer quand même, ou sur {1} pour le télécharger vous-même depuis GitHub.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Upd.DigestMismatch">Le téléchargement ne correspond pas à la somme de contrôle que GitHub publie pour cette version ; il ne sera donc pas installé. Cliquez sur {0} pour réessayer, ou sur {1} pour le télécharger vous-même depuis GitHub.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Upd.DigestUnreadable">La somme de contrôle que GitHub donne pour cette version a un format que MultiPreview ne peut pas lire : le téléchargement a été refusé et rien n'a été installé. Cliquez sur {1} pour le télécharger vous-même depuis GitHub.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestMismatch">Impossible de confirmer que le fichier téléchargé est bien celui que GitHub a publié ; il ne sera donc pas installé. Cliquez sur {0} pour réessayer, ou sur {1} pour le télécharger vous-même depuis GitHub.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestUnreadable">La somme de contrôle que GitHub donne pour cette version a un format que MultiPreview ne peut pas lire : MultiPreview ne téléchargera donc pas cette version et ne l'installera pas. Cliquez sur {1} pour la télécharger vous-même depuis GitHub.</sys:String> <!-- draft -->
 </ResourceDictionary>

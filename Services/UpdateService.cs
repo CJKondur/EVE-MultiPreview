@@ -38,6 +38,10 @@ public sealed class UpdateService
     /// A new download (and a new Select) replaces it; null means nothing was downloaded here.</summary>
     private string? _downloadedSha256;
 
+    /// <summary>The selected release's "digest" as GitHub sent it, kept only when it can't be read (ExpectedSha256 is
+    /// then UnreadableDigest), for the log line of the refusal.</summary>
+    private string? _digestAsSent;
+
     /// <summary>Latest version tag from GitHub (set after CheckForUpdateAsync).</summary>
     public string? LatestVersion { get; private set; }
 
@@ -115,8 +119,7 @@ public sealed class UpdateService
         if (OwnAssetUrl(DownloadUrl) == null)
             throw new InvalidOperationException("The download is not one of this repository's release assets.");
         // A digest GitHub sent but this code can't read: refused here, before 70-odd MB are fetched for nothing.
-        if (ExpectedSha256 == UnreadableDigest)
-            throw Refuse(IntegrityCause.UnreadableDigest, Hashed.None);
+        if (UnreadableDigestRefusal() is { } unreadable) throw unreadable;
         _downloadedSha256 = null;
 
         Directory.CreateDirectory(DownloadFolder);
@@ -196,15 +199,6 @@ public sealed class UpdateService
     /// updater script's copy: an updater that runs as the player can't stop that, and it is no worse than before.</summary>
     public DownloadCheck Verify(string downloadedExePath) => Judge(HashFile(downloadedExePath), out _);
 
-    /// <summary>The comparison of a file with a given checksum, nothing else: NoDigest when none is given.</summary>
-    public static DownloadCheck VerifyFile(string path, string? expectedSha256)
-    {
-        if (string.IsNullOrEmpty(expectedSha256)) return DownloadCheck.NoDigest;
-        var hashed = HashFile(path);
-        return hashed.Hash != null && hashed.Hash.Equals(expectedSha256, StringComparison.OrdinalIgnoreCase)
-            ? DownloadCheck.Verified : DownloadCheck.Mismatch;
-    }
-
     /// <summary>What reading a file for its hash gave: the hash and length, or the TYPE name of the exception that
     /// stopped it (never its message, which holds the path).</summary>
     private readonly record struct Hashed(string? Hash, long Length, string? IoType)
@@ -257,9 +251,29 @@ public sealed class UpdateService
         var text = $"Update refused ({cause}): version={LatestVersion ?? "?"}; expected={expected}; computed={hashed.Hash ?? "none"}; "
                    + $"length={(hashed.Length >= 0 ? hashed.Length.ToString() : "unknown")}"
                    + (cause == IntegrityCause.FileChanged ? $"; downloaded={_downloadedSha256}" : "")
-                   + (hashed.IoType != null ? $"; io={hashed.IoType}" : "");
+                   + (hashed.IoType != null ? $"; io={hashed.IoType}" : "")
+                   // What GitHub sent, so a format this code doesn't know yet can be seen in a bug report.
+                   + (cause == IntegrityCause.UnreadableDigest ? $"; digest={ForLog(_digestAsSent)}" : "");
         return new UpdateIntegrityException(text, cause);
     }
+
+    /// <summary>Text from outside for a log line: its first 80 characters, with everything that isn't printable ASCII
+    /// (a line break, a control character, any other script) as "?". The error log is a file players attach to bug
+    /// reports, and this text is whatever an API answer held.</summary>
+    public static string ForLog(string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        var shown = text.Length > 80 ? text[..80] : text;
+        return string.Create(shown.Length, shown, static (span, source) =>
+        {
+            for (int i = 0; i < span.Length; i++) span[i] = source[i] is >= ' ' and <= '~' ? source[i] : '?';
+        });
+    }
+
+    /// <summary>The refusal of the selected release when the checksum GitHub sent for it can't be read; null otherwise.
+    /// No download of such a release can ever be checked, so the dialog asks this when it opens.</summary>
+    public UpdateIntegrityException? UnreadableDigestRefusal() =>
+        ExpectedSha256 == UnreadableDigest ? Refuse(IntegrityCause.UnreadableDigest, Hashed.None) : null;
 
     /// <summary>The checksum in GitHub's "digest" field ("sha256:" and 64 hex digits) as lower-case hex; null for
     /// anything else (the caller then refuses the release, see ReadRelease).</summary>
@@ -312,7 +326,7 @@ public sealed class UpdateService
             UseShellExecute = false,
             CreateNoWindow = true
         };
-        foreach (var (name, value) in UpdaterEnvironment(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath))
+        foreach (var (name, value) in UpdaterEnvironment(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath, Environment.ProcessId))
             psi.Environment[name] = value;
         Process.Start(psi);
 
@@ -333,16 +347,21 @@ public sealed class UpdateService
     public HandBackResult HandBackIfNeeded(string settingsFile, string exeDir, DateTime now) =>
         SettingsHome.ReadsExeFolder(LatestVersion) ? SettingsHome.HandBack(settingsFile, exeDir, now) : default;
 
-    /// <summary>The paths the updater script reads (as $env:EMP_…). Environment variables are Unicode and never parsed
-    /// as code, so any folder name works and none can inject a command.</summary>
+    /// <summary>What the updater script reads (as $env:EMP_…): the four paths, and the id of the process it must wait
+    /// for (this one). Environment variables are Unicode and never parsed as code, so any folder name works and none
+    /// can inject a command.</summary>
     public static IReadOnlyList<(string Name, string Value)> UpdaterEnvironment(string appDir, string settingsFile, string backupDir,
-        string downloadedExePath) => new[]
+        string downloadedExePath, int processId) => new[]
     {
         ("EMP_APPDIR", Path.TrimEndingDirectorySeparator(appDir)), ("EMP_CONFIG", settingsFile), ("EMP_BACKUPS", backupDir), ("EMP_NEWEXE", downloadedExePath),
+        ("EMP_PID", processId.ToString(System.Globalization.CultureInfo.InvariantCulture)),
     };
 
     /// <summary>The updater: waits for MultiPreview to exit, copies the settings file into the Backups folder of the
     /// settings folder (refusing a Backups folder that is a link), replaces the exe in $env:EMP_APPDIR and starts it again.
+    /// It waits for the process that started it by that process's id (IDEAS P52): the name is no use for that, because
+    /// a freshly downloaded copy runs as EVE.MultiPreview and a renamed copy as anything, and a new exe started while
+    /// the old one is still closing finds it running, says so and quits. The wait by name stays behind it, as before.
     /// A constant, ASCII only, holding no path (see UpdaterEnvironment). Cmdlets and property access only, no .NET calls,
     /// so it also runs in Constrained Language mode (AppLocker/WDAC); only forms that Windows PowerShell 5.1 has.</summary>
     public const string UpdaterScript = @"
@@ -353,7 +372,9 @@ $backupDir = $env:EMP_BACKUPS
 $newExe = $env:EMP_NEWEXE
 if (-not $appDir -or -not $newExe) { exit 1 }
 
-# Wait for the main process to exit
+# Wait for the main process to exit: the one that started this script, whatever its exe is named.
+# It goes on at once when that process is already gone, and after 30 seconds whatever happens.
+Wait-Process -Id $env:EMP_PID -Timeout 30 -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 2
 $maxWait = 30; $waited = 0
 while ((Get-Process -Name 'EVE MultiPreview' -ErrorAction SilentlyContinue) -and $waited -lt $maxWait) {
@@ -411,8 +432,10 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
     // ── Install a specific version (upgrade or downgrade) ───────────
 
     /// <summary>One installable GitHub release. Sha256 is the checksum GitHub publishes for its exe (lower-case hex),
-    /// or null when GitHub's answer had none.</summary>
-    public sealed record ReleaseInfo(string Version, string DownloadUrl, string? Notes, string? PageUrl, bool PreRelease, string? Sha256 = null);
+    /// or null when GitHub's answer had none. RawDigest is what GitHub sent when that can't be read (Sha256 is then
+    /// UnreadableDigest); it is only ever written to the log.</summary>
+    public sealed record ReleaseInfo(string Version, string DownloadUrl, string? Notes, string? PageUrl, bool PreRelease, string? Sha256 = null,
+        string? RawDigest = null);
 
     private const string RELEASES_URL = "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases?per_page=100";
     // Only ever this repository's own release assets, whatever the API returns.
@@ -439,18 +462,18 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
         var tag = Text(release, "tag_name")?.TrimStart('v', 'V');
         if (!System.Version.TryParse(tag, out _)) return null;
 
-        string? url = null, sha256 = null;
+        string? url = null, sha256 = null, asSent = null;
         if (release.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
             foreach (var asset in assets.EnumerateArray())
                 if (Text(asset, "name") == EXE_ASSET_NAME)
                 {
                     url = OwnAssetUrl(Text(asset, "browser_download_url"));
-                    sha256 = DigestOf(asset);      // the exe's own checksum, never another file's
+                    (sha256, asSent) = DigestOf(asset);      // the exe's own checksum, never another file's
                 }
         if (url == null) return null;
 
         bool pre = release.TryGetProperty("prerelease", out var p) && p.ValueKind == JsonValueKind.True;
-        return new ReleaseInfo(tag!, url, Text(release, "body"), Text(release, "html_url"), pre, sha256);
+        return new ReleaseInfo(tag!, url, Text(release, "body"), Text(release, "html_url"), pre, sha256, asSent);
     }
 
     /// <summary>The normalised form of an address when it is one of this repository's own release downloads, else
@@ -467,11 +490,14 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
 
     /// <summary>The checksum of one asset (lower-case hex): null only when the asset has no "digest" (absent or JSON
     /// null). A digest that is there but isn't "sha256:" and 64 hex digits, or isn't a string, is UnreadableDigest,
-    /// which no file matches and which is refused before the download.</summary>
-    private static string? DigestOf(JsonElement asset)
+    /// which no file matches and which is refused before the download; with it comes what GitHub sent (the string, or
+    /// the JSON text of anything else), for the log.</summary>
+    private static (string? Sha256, string? AsSent) DigestOf(JsonElement asset)
     {
-        if (!asset.TryGetProperty("digest", out var digest) || digest.ValueKind == JsonValueKind.Null) return null;
-        return (digest.ValueKind == JsonValueKind.String ? ParseDigest(digest.GetString()) : null) ?? UnreadableDigest;
+        if (!asset.TryGetProperty("digest", out var digest) || digest.ValueKind == JsonValueKind.Null) return (null, null);
+        var read = digest.ValueKind == JsonValueKind.String ? ParseDigest(digest.GetString()) : null;
+        if (read != null) return (read, null);
+        return (UnreadableDigest, digest.ValueKind == JsonValueKind.String ? digest.GetString() : digest.GetRawText());
     }
 
     private static string? Text(JsonElement of, string property) =>
@@ -497,6 +523,7 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
         ReleaseNotes = release.Notes;
         ReleasePageUrl = release.PageUrl;
         ExpectedSha256 = release.Sha256;
+        _digestAsSent = release.RawDigest;
         _downloadedSha256 = null;      // a hash taken of another release's download says nothing about this one
     }
 }

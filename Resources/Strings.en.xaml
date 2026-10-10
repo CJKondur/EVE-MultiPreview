@@ -1946,6 +1946,6 @@
     <sys:String x:Key="L.Start.Missing.Fresh">Start fresh</sys:String>
     <!-- Ideas batch 3 (Plan 7) -->
     <sys:String x:Key="L.Upd.NoDigest">GitHub gave no checksum for this release, so MultiPreview can't check the download. Click {0} again to install it anyway, or {1} to download it from GitHub yourself.</sys:String>
-    <sys:String x:Key="L.Upd.DigestMismatch">The download doesn't match the checksum GitHub publishes for this release, so it will not be installed. Click {0} to try again, or {1} to download it from GitHub yourself.</sys:String>
-    <sys:String x:Key="L.Upd.DigestUnreadable">GitHub's checksum for this release is in a form MultiPreview can't read, so the download was refused and nothing was installed. Click {1} to download it from GitHub yourself.</sys:String>
+    <sys:String x:Key="L.Upd.DigestMismatch">The downloaded file could not be confirmed as the one GitHub published, so it will not be installed. Click {0} to try again, or {1} to download it from GitHub yourself.</sys:String>
+    <sys:String x:Key="L.Upd.DigestUnreadable">GitHub's checksum for this release is in a form MultiPreview can't read, so MultiPreview will not download or install this release. Click {1} to download it from GitHub yourself.</sys:String>
 </ResourceDictionary>
