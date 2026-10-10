@@ -1963,6 +1963,7 @@
     <sys:String x:Key="L.Start.Missing.Body">MultiPreview 找不到你的设置文件：&#x0A;{0}&#x0A;&#x0A;该文件已丢失，但找到了你的设置的副本。请选择一个来恢复。&#x0A;&#x0A;“重新开始”会像首次启动一样，使用默认设置重新开始。你的备份仍保留在 Backups 文件夹中。&#x0A;&#x0A;如果关闭此窗口，MultiPreview 本次运行将使用默认设置，不保存任何内容，并在下次启动时再次询问。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Missing.Fresh">重新开始</sys:String> <!-- draft -->
     <!-- Ideas batch 3 (Plan 7) -->
-    <sys:String x:Key="L.Upd.NoDigest">GitHub 没有给出此版本的校验和，因此 MultiPreview 无法检查下载的文件。再次点击“{0}”即可继续安装，或点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Upd.DigestMismatch">下载的文件与 GitHub 为此版本公布的校验和不一致。文件已删除，未安装任何内容。点击“{0}”重试，或点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NoDigest">GitHub 没有给出此版本的校验和，因此 MultiPreview 无法检查下载的文件。如果仍要安装（风险自负），请再次点击“{0}”；或点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestMismatch">下载的文件与 GitHub 为此版本公布的校验和不一致，因此不会安装。点击“{0}”重试，或点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestUnreadable">GitHub 为此版本给出的校验和格式无法被 MultiPreview 读取，因此已拒绝下载，未安装任何内容。点击“{1}”自行从 GitHub 下载。</sys:String> <!-- draft -->
 </ResourceDictionary>

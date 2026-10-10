@@ -25,6 +25,7 @@ public partial class UpdateDialog : Window
     private string? _downloadedPath;
     private bool _installAnyway;
     private bool _installUnverified;
+    private System.Windows.Threading.DispatcherTimer? _pauseTimer;
 
     /// <param name="specificVersion">Opened from About → "Install a specific version" (an
     /// upgrade or a downgrade the user picked) rather than by an update check.</param>
@@ -154,21 +155,57 @@ public partial class UpdateDialog : Window
         _installUnverified = true;
         ShowStatus(buttonLabel, "L.Upd.NoDigest",
             "GitHub gave no checksum for this release, so MultiPreview can't check the download. Click {0} again to install it anyway, or {1} to download it from GitHub yourself.");
+        // The button stays off for a moment, so a player who kept clicking during the download can't confirm the
+        // install without having read the warning.
+        BtnUpdateNow.IsEnabled = false;
+        _pauseTimer?.Stop();
+        _pauseTimer = new System.Windows.Threading.DispatcherTimer { Interval = WarningPause };
+        _pauseTimer.Tick += (_, _) => EndWarningPause();
+        _pauseTimer.Start();
     }
 
-    /// <summary>The download isn't the file GitHub published (IDEAS #53). It is deleted and nothing was installed;
-    /// the next click downloads again. A mismatch found while downloading has already deleted the file; one found
-    /// at the install (the file changed in between) has not, so it is deleted here and the line shown stays true.</summary>
+    /// <summary>How long the install button stays disabled after the no-checksum warning appears.</summary>
+    public TimeSpan WarningPause { get; init; } = TimeSpan.FromSeconds(2);
+
+    /// <summary>Ends the pause: the install button works again. The timer calls it; so may a test.</summary>
+    public void EndWarningPause()
+    {
+        _pauseTimer?.Stop();
+        BtnUpdateNow.IsEnabled = true;
+    }
+
+    /// <summary>The download isn't the file GitHub published, or it can't be read, or it changed after the download
+    /// (IDEAS #53). Nothing was installed and the file will not be (the line says no more than that: removing it is
+    /// best effort); the next click downloads again. A refusal found while downloading has already removed the file; one
+    /// found at the install has not, so it is removed here.</summary>
     public void ShowDigestMismatch(object? buttonLabel = null)
     {
+        DropDownload();
+        ShowStatus(buttonLabel, "L.Upd.DigestMismatch",
+            "The download doesn't match the checksum GitHub publishes for this release, so it will not be installed. Click {0} to try again, or {1} to download it from GitHub yourself.");
+    }
+
+    /// <summary>GitHub's checksum for this release is in a form this code can't read: refused before anything was
+    /// downloaded. Trying again can't change that for this release, so the install button stays off and the line
+    /// points to the release page only.</summary>
+    public void ShowDigestUnreadable(object? buttonLabel = null)
+    {
+        DropDownload();
+        ShowStatus(buttonLabel, "L.Upd.DigestUnreadable",
+            "GitHub's checksum for this release is in a form MultiPreview can't read, so the download was refused and nothing was installed. Click {1} to download it from GitHub yourself.");
+        BtnUpdateNow.IsEnabled = false;
+    }
+
+    /// <summary>Forgets the downloaded file and removes it, best effort; the next click downloads again unconfirmed.</summary>
+    private void DropDownload()
+    {
+        _pauseTimer?.Stop();
         if (_downloadedPath != null)
         {
             try { System.IO.File.Delete(_downloadedPath); } catch { }
         }
         _downloadedPath = null;
         _installUnverified = false;
-        ShowStatus(buttonLabel, "L.Upd.DigestMismatch",
-            "The download doesn't match the checksum GitHub publishes for this release. It was deleted and nothing was installed. Click {0} to try again, or {1} to download it from GitHub yourself.");
     }
 
     /// <summary>Back to the state before the click, with a line under the notes: {0} is the install button's label,
@@ -199,6 +236,9 @@ public partial class UpdateDialog : Window
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
+        _pauseTimer?.Stop();
+        // The download waited for a confirmation that never came: don't leave an unchecked exe in %TEMP% (best effort).
+        if (!_applied && _installUnverified && _downloadedPath != null) DropDownload();
         if (_beforeApplyRan && !_applied)
         {
             try { _undoBeforeApply?.Invoke(); } catch (Exception ex) { Debug.WriteLine($"[Update] undo failed: {ex.Message}"); }
@@ -271,12 +311,13 @@ public partial class UpdateDialog : Window
         catch (Exception ex)
         {
             _applied = false;
-            if (ex is UpdateIntegrityException)
+            if (ex is UpdateIntegrityException refusal)
             {
-                // The download isn't GitHub's file (IDEAS #53): it is deleted, nothing was installed, and the line
-                // under the notes says so in the player's language.
-                App.LogError(ex);
-                ShowDigestMismatch(buttonLabel);
+                // The download isn't GitHub's file, or can't be shown to be (IDEAS #53): nothing was installed, and the
+                // line under the notes says so in the player's language. The log gets the cause and the values (once).
+                App.LogError(refusal);
+                if (refusal.Cause == IntegrityCause.UnreadableDigest) ShowDigestUnreadable(buttonLabel);
+                else ShowDigestMismatch(buttonLabel);
                 return;
             }
             _downloading = false;

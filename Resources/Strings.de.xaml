@@ -1946,5 +1946,6 @@
     <sys:String x:Key="L.Start.Missing.Fresh">Neu anfangen</sys:String> <!-- draft -->
     <!-- Ideas batch 3 (Plan 7) -->
     <sys:String x:Key="L.Upd.NoDigest">GitHub hat für dieses Release keine Prüfsumme geliefert, deshalb kann MultiPreview den Download nicht prüfen. Klicke noch einmal auf {0}, um trotzdem zu installieren, oder auf {1}, um die Datei selbst von GitHub zu laden.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Upd.DigestMismatch">Der Download stimmt nicht mit der Prüfsumme überein, die GitHub für dieses Release veröffentlicht. Er wurde gelöscht, und nichts wurde installiert. Klicke auf {0}, um es noch einmal zu versuchen, oder auf {1}, um die Datei selbst von GitHub zu laden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestMismatch">Der Download stimmt nicht mit der Prüfsumme überein, die GitHub für dieses Release veröffentlicht, und wird deshalb nicht installiert. Klicke auf {0}, um es noch einmal zu versuchen, oder auf {1}, um die Datei selbst von GitHub zu laden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestUnreadable">Die Prüfsumme, die GitHub für dieses Release angibt, hat ein Format, das MultiPreview nicht lesen kann. Deshalb wurde der Download abgelehnt, und nichts wurde installiert. Klicke auf {1}, um die Datei selbst von GitHub zu laden.</sys:String> <!-- draft -->
 </ResourceDictionary>

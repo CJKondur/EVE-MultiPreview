@@ -33,6 +33,11 @@ public sealed class UpdateService
     /// null when GitHub's answer had none. Set by CheckForUpdateAsync and Select.</summary>
     public string? ExpectedSha256 { get; private set; }
 
+    /// <summary>The SHA-256 of the file this service last finished downloading, whether or not GitHub published a
+    /// digest. When it did not, this is what the player's second click is held to: the file must still hash to it.
+    /// A new download (and a new Select) replaces it; null means nothing was downloaded here.</summary>
+    private string? _downloadedSha256;
+
     /// <summary>Latest version tag from GitHub (set after CheckForUpdateAsync).</summary>
     public string? LatestVersion { get; private set; }
 
@@ -107,6 +112,12 @@ public sealed class UpdateService
     {
         if (string.IsNullOrEmpty(DownloadUrl))
             throw new InvalidOperationException("No download URL available. Call CheckForUpdateAsync first.");
+        if (OwnAssetUrl(DownloadUrl) == null)
+            throw new InvalidOperationException("The download is not one of this repository's release assets.");
+        // A digest GitHub sent but this code can't read: refused here, before 70-odd MB are fetched for nothing.
+        if (ExpectedSha256 == UnreadableDigest)
+            throw Refuse(IntegrityCause.UnreadableDigest, Hashed.None);
+        _downloadedSha256 = null;
 
         Directory.CreateDirectory(DownloadFolder);
         var destPath = Path.Combine(DownloadFolder, EXE_ASSET_NAME);
@@ -140,12 +151,16 @@ public sealed class UpdateService
         progress?.Report(1.0);
         Debug.WriteLine($"[Update] Downloaded {downloadedBytes:N0} bytes to {destPath}");
 
-        // IDEAS #53: a download that is not the file GitHub published is never kept, so nothing can install it.
+        // IDEAS #53: the finished download is always hashed, and the hash is remembered (it is what a second click
+        // without a published digest is held to). A download that is not the file GitHub published is removed at once
+        // (best effort: a failed delete is not reported, and nothing can install it anyway).
         // The file is read through off the calling (UI) thread: it is some 75 MB.
-        if (await Task.Run(() => Verify(destPath)) == DownloadCheck.Mismatch)
+        var hashed = await Task.Run(() => HashFile(destPath));
+        _downloadedSha256 = hashed.Hash;
+        if (Judge(hashed, out var refusal) == DownloadCheck.Mismatch)
         {
             try { File.Delete(destPath); } catch { }
-            throw new UpdateIntegrityException("The download doesn't match the checksum GitHub publishes for this release. It was deleted.");
+            throw refusal!;
         }
         return destPath;
     }
@@ -157,40 +172,97 @@ public sealed class UpdateService
     {
         /// <summary>The file's SHA-256 is the one GitHub publishes for it.</summary>
         Verified,
-        /// <summary>GitHub's answer held no checksum for the file at all: it can't be checked.</summary>
+        /// <summary>GitHub's answer held no checksum for the file at all, and the file is exactly the one this service
+        /// downloaded (same hash). It installs only after the player's second click.</summary>
         NoDigest,
-        /// <summary>The file is not the one GitHub published (cut short, damaged, another file), it can't be read, or
-        /// GitHub's checksum is in a form this code doesn't understand. Never installed.</summary>
+        /// <summary>Anything else: not the file GitHub published (cut short, damaged, another file), a file that can't
+        /// be read, a file that changed after the download, a checksum this code can't read, or nothing downloaded.
+        /// Never installed.</summary>
         Mismatch,
     }
 
-    /// <summary>Stands in for a "digest" that GitHub sent but this code can't read. It is not a SHA-256, so no file
-    /// ever matches it: such a release fails closed instead of counting as "no checksum".</summary>
+    /// <summary>Stands in for a "digest" that GitHub sent but this code can't read (not "sha256:" and 64 hex digits, or
+    /// not a string). It is not a SHA-256, so no file ever matches it: such a release is refused before the download
+    /// (DownloadUpdateAsync), instead of counting as "no checksum".</summary>
     public const string UnreadableDigest = "unreadable-digest";
 
-    /// <summary>Compares a downloaded file with the checksum of the selected release.
+    /// <summary>Compares a downloaded file with the checksum of the selected release; with none published, with the
+    /// hash this service took of its own download. Every path hashes the file: a missing, locked or changed file is a
+    /// Mismatch, never a NoDigest.
     /// What this catches: a download that was cut short, damaged on the way or on disk, or swapped for another file
     /// after GitHub's answer was read. What it can't catch: a release that was replaced at GitHub itself (a taken-over
-    /// account), because the checksum comes from the same place as the file. Only a signature on the exe covers that.</summary>
-    public DownloadCheck Verify(string downloadedExePath) => VerifyFile(downloadedExePath, ExpectedSha256);
+    /// account), because the checksum comes from the same place as the file; only a signature on the exe covers that.
+    /// Nor a program already running as the player that replaces the file in the seconds between the last hash and the
+    /// updater script's copy: an updater that runs as the player can't stop that, and it is no worse than before.</summary>
+    public DownloadCheck Verify(string downloadedExePath) => Judge(HashFile(downloadedExePath), out _);
 
+    /// <summary>The comparison of a file with a given checksum, nothing else: NoDigest when none is given.</summary>
     public static DownloadCheck VerifyFile(string path, string? expectedSha256)
     {
         if (string.IsNullOrEmpty(expectedSha256)) return DownloadCheck.NoDigest;
+        var hashed = HashFile(path);
+        return hashed.Hash != null && hashed.Hash.Equals(expectedSha256, StringComparison.OrdinalIgnoreCase)
+            ? DownloadCheck.Verified : DownloadCheck.Mismatch;
+    }
+
+    /// <summary>What reading a file for its hash gave: the hash and length, or the TYPE name of the exception that
+    /// stopped it (never its message, which holds the path).</summary>
+    private readonly record struct Hashed(string? Hash, long Length, string? IoType)
+    {
+        public static readonly Hashed None = new(null, -1, null);
+    }
+
+    private static Hashed HashFile(string path)
+    {
         try
         {
             using var file = File.OpenRead(path);
-            return Convert.ToHexString(SHA256.HashData(file)).Equals(expectedSha256, StringComparison.OrdinalIgnoreCase)
-                ? DownloadCheck.Verified : DownloadCheck.Mismatch;
+            var length = file.Length;
+            return new Hashed(Convert.ToHexString(SHA256.HashData(file)).ToLowerInvariant(), length, null);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            return DownloadCheck.Mismatch;      // a file that can't be read can't be shown to be GitHub's
+            return new Hashed(null, -1, ex.GetType().Name);      // a file that can't be read can't be shown to be GitHub's
         }
     }
 
+    private DownloadCheck Judge(Hashed hashed, out UpdateIntegrityException? refusal)
+    {
+        refusal = null;
+        var expected = ExpectedSha256;
+        if (expected == UnreadableDigest) return Refused(IntegrityCause.UnreadableDigest, hashed, out refusal);
+        if (hashed.Hash == null) return Refused(IntegrityCause.FileUnreadable, hashed, out refusal);
+        if (expected != null)
+            return hashed.Hash.Equals(expected, StringComparison.OrdinalIgnoreCase)
+                ? DownloadCheck.Verified : Refused(IntegrityCause.Mismatch, hashed, out refusal);
+        // No digest published: the only thing to hold the file to is the hash taken when it finished downloading.
+        if (_downloadedSha256 == null) return Refused(IntegrityCause.NothingDownloaded, hashed, out refusal);
+        return hashed.Hash.Equals(_downloadedSha256, StringComparison.Ordinal)
+            ? DownloadCheck.NoDigest : Refused(IntegrityCause.FileChanged, hashed, out refusal);
+    }
+
+    private DownloadCheck Refused(IntegrityCause cause, Hashed hashed, out UpdateIntegrityException? refusal)
+    {
+        refusal = Refuse(cause, hashed);
+        return DownloadCheck.Mismatch;
+    }
+
+    /// <summary>The refusal, with the facts a bug report needs and nothing private: the cause, the version, the digest
+    /// GitHub gave (or that it gave none / an unreadable one), the hash and length of what was found, and the TYPE of an
+    /// IO exception. Hashes and lengths are public values; no exception message and no path (a temp path holds the
+    /// Windows user name). The message is what the error log records.</summary>
+    private UpdateIntegrityException Refuse(IntegrityCause cause, Hashed hashed)
+    {
+        var expected = ExpectedSha256 switch { null => "none published", UnreadableDigest => "unreadable", var hex => hex };
+        var text = $"Update refused ({cause}): version={LatestVersion ?? "?"}; expected={expected}; computed={hashed.Hash ?? "none"}; "
+                   + $"length={(hashed.Length >= 0 ? hashed.Length.ToString() : "unknown")}"
+                   + (cause == IntegrityCause.FileChanged ? $"; downloaded={_downloadedSha256}" : "")
+                   + (hashed.IoType != null ? $"; io={hashed.IoType}" : "");
+        return new UpdateIntegrityException(text, cause);
+    }
+
     /// <summary>The checksum in GitHub's "digest" field ("sha256:" and 64 hex digits) as lower-case hex; null for
-    /// anything else.</summary>
+    /// anything else (the caller then refuses the release, see ReadRelease).</summary>
     public static string? ParseDigest(string? digest)
     {
         const string prefix = "sha256:";
@@ -199,15 +271,16 @@ public sealed class UpdateService
         return hex.Length == 64 && hex.All(Uri.IsHexDigit) ? hex.ToLowerInvariant() : null;
     }
 
-    /// <summary>ApplyUpdate's first step: throws unless the file is the one GitHub published, or it can't be checked
-    /// because GitHub gave no checksum and the player has agreed (the dialog's second click) to install it unchecked.</summary>
+    /// <summary>ApplyUpdate's first step: throws unless the file is the one GitHub published, or GitHub published no
+    /// checksum, the file is exactly the one downloaded here, and the player has agreed (the dialog's second click) to
+    /// install it unchecked. The file is hashed again every time.</summary>
     public void RequireVerified(string downloadedExePath, bool allowUnverified)
     {
-        var check = Verify(downloadedExePath);
-        if (check == DownloadCheck.Mismatch)
-            throw new UpdateIntegrityException("The downloaded file doesn't match the checksum GitHub publishes for this release. Nothing was installed.");
+        var check = Judge(HashFile(downloadedExePath), out var refusal);
+        if (check == DownloadCheck.Mismatch) throw refusal!;
         if (check == DownloadCheck.NoDigest && !allowUnverified)
-            throw new UpdateIntegrityException("GitHub gave no checksum for this release, and installing without one was not confirmed. Nothing was installed.");
+            throw new UpdateIntegrityException(
+                $"Update refused ({IntegrityCause.NotConfirmed}): version={LatestVersion ?? "?"}; expected=none published", IntegrityCause.NotConfirmed);
     }
 
     /// <summary>
@@ -371,17 +444,30 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
             foreach (var asset in assets.EnumerateArray())
                 if (Text(asset, "name") == EXE_ASSET_NAME)
                 {
-                    url = Text(asset, "browser_download_url");
+                    url = OwnAssetUrl(Text(asset, "browser_download_url"));
                     sha256 = DigestOf(asset);      // the exe's own checksum, never another file's
                 }
-        if (url == null || !url.StartsWith(ASSET_URL_PREFIX, StringComparison.Ordinal)) return null;
+        if (url == null) return null;
 
         bool pre = release.TryGetProperty("prerelease", out var p) && p.ValueKind == JsonValueKind.True;
         return new ReleaseInfo(tag!, url, Text(release, "body"), Text(release, "html_url"), pre, sha256);
     }
 
-    /// <summary>The checksum of one asset: null only when the asset has no "digest" (absent or JSON null). A digest that
-    /// is there but isn't "sha256:" and 64 hex digits is UnreadableDigest, which no file matches.</summary>
+    /// <summary>The normalised form of an address when it is one of this repository's own release downloads, else
+    /// null: https, host github.com, default port, and the normalised AbsoluteUri (dot segments and percent-encoded
+    /// dots resolved) still starts with ASSET_URL_PREFIX. The raw string is never trusted: "…/download/../../x" starts
+    /// with the prefix but resolves elsewhere. The address that is checked is the one that is fetched.</summary>
+    public static string? OwnAssetUrl(string? url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return null;
+        if (uri.Scheme != Uri.UriSchemeHttps || !uri.IsDefaultPort || uri.UserInfo.Length != 0) return null;
+        if (!string.Equals(uri.Host, "github.com", StringComparison.OrdinalIgnoreCase)) return null;
+        return uri.AbsoluteUri.StartsWith(ASSET_URL_PREFIX, StringComparison.Ordinal) ? uri.AbsoluteUri : null;
+    }
+
+    /// <summary>The checksum of one asset (lower-case hex): null only when the asset has no "digest" (absent or JSON
+    /// null). A digest that is there but isn't "sha256:" and 64 hex digits, or isn't a string, is UnreadableDigest,
+    /// which no file matches and which is refused before the download.</summary>
     private static string? DigestOf(JsonElement asset)
     {
         if (!asset.TryGetProperty("digest", out var digest) || digest.ValueKind == JsonValueKind.Null) return null;
@@ -411,12 +497,33 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
         ReleaseNotes = release.Notes;
         ReleasePageUrl = release.PageUrl;
         ExpectedSha256 = release.Sha256;
+        _downloadedSha256 = null;      // a hash taken of another release's download says nothing about this one
     }
 }
 
-/// <summary>An update that must not be installed: the download isn't the file GitHub published for the release, or it
-/// can't be checked and installing it unchecked was not confirmed (IDEAS #53).</summary>
+/// <summary>Why an update was refused (IDEAS #53).</summary>
+public enum IntegrityCause
+{
+    /// <summary>The file's hash differs from the digest GitHub published.</summary>
+    Mismatch,
+    /// <summary>GitHub sent a digest this code can't read.</summary>
+    UnreadableDigest,
+    /// <summary>The file is missing, locked or otherwise can't be read.</summary>
+    FileUnreadable,
+    /// <summary>No digest was published and the file no longer hashes to what was downloaded.</summary>
+    FileChanged,
+    /// <summary>No digest was published and this service has no download to hold the file to.</summary>
+    NothingDownloaded,
+    /// <summary>No digest was published and the player has not confirmed installing unchecked.</summary>
+    NotConfirmed,
+}
+
+/// <summary>An update that must not be installed: the download isn't the file GitHub published for the release, it
+/// can't be read or changed after the download, or it can't be checked and installing it unchecked was not confirmed
+/// (IDEAS #53). The Message is a diagnostic line for the error log: facts only, no exception message, no path.</summary>
 public sealed class UpdateIntegrityException : Exception
 {
-    public UpdateIntegrityException(string message) : base(message) { }
+    public IntegrityCause Cause { get; }
+
+    public UpdateIntegrityException(string message, IntegrityCause cause) : base(message) => Cause = cause;
 }

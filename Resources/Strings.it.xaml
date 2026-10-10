@@ -1964,5 +1964,6 @@
     <sys:String x:Key="L.Start.Missing.Fresh">Ricomincia da zero</sys:String> <!-- draft -->
     <!-- Ideas batch 3 (Plan 7) -->
     <sys:String x:Key="L.Upd.NoDigest">GitHub non ha fornito alcun checksum per questa versione, quindi MultiPreview non può verificare il download. Fai di nuovo clic su {0} per installarlo comunque, oppure su {1} per scaricarlo tu stesso da GitHub.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Upd.DigestMismatch">Il download non corrisponde al checksum che GitHub pubblica per questa versione. È stato eliminato e non è stato installato nulla. Fai clic su {0} per riprovare, oppure su {1} per scaricarlo tu stesso da GitHub.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestMismatch">Il download non corrisponde al checksum che GitHub pubblica per questa versione, quindi non verrà installato. Fai clic su {0} per riprovare, oppure su {1} per scaricarlo tu stesso da GitHub.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestUnreadable">Il checksum che GitHub indica per questa versione ha un formato che MultiPreview non riesce a leggere, quindi il download è stato rifiutato e non è stato installato nulla. Fai clic su {1} per scaricarlo tu stesso da GitHub.</sys:String> <!-- draft -->
 </ResourceDictionary>
