@@ -1957,7 +1957,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">それより古い日の分は MultiPreview の起動時に削除されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.historyFolder">履歴はこの PC の中だけに保存されます：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.history.Title">アラート履歴</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview は、出したアラートをリストに残します：時刻、キャラクター、アラート、重大度、星系、そして表示されたか、キャラクターがミュート中だったか。オフにしたアラートと、静止時間内の繰り返しは載りません。&#x0A;&#x0A;- リストは、設定フォルダーの History フォルダーに 1 日 1 ファイルで保存されます。どこにも送信されません。&#x0A;- 自分で作ったルールのアラートでは、ルールの名前と、ルールが見つけた行（160 文字まで）もリストに残ります。チャットチャンネルでは、その行はほかのプレイヤーが書いたものです。&#x0A;- **アラートを残す期間** で何日分残すかを決めます。それより古い日の分は、次に MultiPreview を起動したときに削除されます。&#x0A;- **アラート履歴を残す** をオフにすると、新しい内容は書き込まれません。すでに残っている分は、期間が過ぎるまで残ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview は、発生したすべてのアラートをリストに残します：時刻、キャラクター、アラート、重大度、星系、そして表示されたか、キャラクターがミュート中だったか。オフにしたアラートと、静止時間内の繰り返しは載りません。&#x0A;&#x0A;- リストは、設定フォルダーの History フォルダーに 1 日 1 ファイルで保存されます。この PC の中だけに残り、MultiPreview がどこかに送信することはありません。履歴ウィンドウから書き出した CSV ファイルは保存した場所に置かれ、同じ文字が入ります。&#x0A;- 自分で作ったルールのアラートでは、ルールの名前と、ルールが見つけた行（160 文字まで）もリストに残ります。ゲームログの行にはほかのプレイヤーの名前が含まれることがあり、チャットチャンネルでは、その行はほかのプレイヤーが書いたものです。&#x0A;- **アラートを残す期間** で何日分残すかを決めます。変更しなければ 30 日です。それより古い日の分は、次に MultiPreview を起動したときに削除されます。&#x0A;- **アラート履歴を残す** をオフにすると、新しい内容は書き込まれません。すでに残っている分は、期間が過ぎるか、履歴を消去するまで残ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Title">アラート履歴</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Close">閉じる</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Switch">クライアントに切り替え</sys:String> <!-- draft -->
@@ -2055,7 +2055,7 @@
     <sys:String x:Key="L.S.Rules.Severity">重大度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Sound">音</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.DefaultSound">既定のアラート音</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.SoundNotLocal">そのファイルは別のコンピューターにあります。この PC のドライブにある音声ファイルを選んでください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.SoundNotLocal">そのファイルは使えません。この PC のドライブにある音声ファイルを選んでください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Quiet">静止時間</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.QuietNote">空欄：すべてのアラートに共通の静止時間を使います。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.QuietError">{0} から {1} までの整数を入力するか、空欄のままにしてください。</sys:String> <!-- draft -->
@@ -2068,7 +2068,7 @@
     <sys:String x:Key="L.S.Rules.Test.NoMatch">一致しません（{0} ミリ秒）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Empty">先に 1 行を貼り付けてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.NotChat">チャットの行は「名前 &gt; メッセージ」の形です。この文字には「&gt;」の前に名前がありません。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Test.TimedOut">遅すぎます：このパターンはこの行に {0} ミリ秒より長くかかりました。3 行でこうなったルールは、MultiPreview を再起動するまでオフになります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Test.TimedOut">遅すぎます：このパターンはこの行に {0} ミリ秒より長くかかりました。これが何度も続くルールは、ルールを変更するか MultiPreview を再起動するまでオフになります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Seen">ルールが見る文字：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Err.NameEmpty">ルールに名前を付けてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Err.PatternEmpty">探すテキストまたはパターンを入力してください。</sys:String> <!-- draft -->
@@ -2084,18 +2084,18 @@
     <sys:String x:Key="L.Help.alerts.custom.rules.Title">ルール</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.rules.Body">**ルールを追加** は空のルールを作ります。3 つの例は、あとで変更できるルールを作ります。&#x0A;&#x0A;- ルールは、スイッチがオンの間だけ働きます。動かせないルールは理由を表示し、オンにできません。&#x0A;- アラートにはルールの名前が付き、色とトーストは重大度に従います。&#x0A;- **静止時間** は、ルールが働いたあと同じキャラクターに対して黙っている時間です。空欄なら、すべてのアラートに共通の静止時間を使います。&#x0A;- ルールは 50 個まで作れます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.match.Title">ルールが見るもの</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.match.Body">**テキスト** は、行のどこにあっても、大文字でも小文字でもその言葉を見つけます。**正規表現** は .NET のパターンです。&#x0A;&#x0A;- ゲームログの行では、時刻と色やフォントのコードを除いた文字をルールが見ます。例：(combat) 123 from Guristas Despoiler - Hits&#x0A;- チャットの行では、次の形で見ます：名前 &gt; メッセージ&#x0A;- パターンが MultiPreview を止めることはありません。1 行に 50 ミリ秒より長くかかることが 3 回あったパターンは、ルールが変わるか MultiPreview を再起動するまでオフになり、error_log.txt に記録されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.match.Body">**テキスト** は、行のどこにあっても、大文字でも小文字でもその言葉を見つけます。**正規表現** は .NET のパターンです。&#x0A;&#x0A;- ゲームログの行では、時刻と色やフォントのコードを除いた文字をルールが見ます。例：(combat) 123 from Guristas Despoiler - Hits&#x0A;- チャットの行では、次の形で見ます：名前 &gt; メッセージ&#x0A;- 正規表現が 1 行に使える時間には限りがあります。時間がかかりすぎた照合は打ち切られ、正規表現がその行の時間を使い切ると、残りの正規表現はその行を飛ばします。&#x0A;- コストが大きすぎるルールは MultiPreview がオフにします：パターンが一部の行で時間がかかりすぎるか、正規表現のルール全体でログの読み取りが遅くなっていて（毎行、またはときどき）、このルールがとくに遅い場合です。そのことはルールのカードと error_log.txt に表示されます。ルールのどれかを変更するか MultiPreview を再起動すると、もう一度試されます。ふつうのテキストを探すルールは、オフになることも飛ばされることもありません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.chat.Title">チャットチャンネル</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.chat.Body">チャットのルールは、EVE がチャンネルごとに書くログを読みます。**チャンネル** は、そのログファイル名の先頭部分です：Fleet、Corp、Local、または参加したチャンネルの名前。リストを開くと、チャットログのフォルダーにログがあるチャンネルが表示されます。&#x0A;&#x0A;- EVE でチャットの記録がオンで、MultiPreview で **チャットログを読む** がオンである必要があります（アラート › イベント）。&#x0A;- アラートは、そのログを書いたクライアントのキャラクターに出ます。**キャラクター** で、ルールを一部のキャラクターに絞れます。&#x0A;- **自分の発言は無視する** は、そのキャラクター自身が書いた内容を飛ばします。&#x0A;- ルールが読むチャンネルは、Local のほかに 10 個までです。&#x0A;- チャンネルは、ルールがその名前を指定した時点から読まれます。それより前の発言は見ません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.chat.Body">チャットのルールは、EVE がチャンネルごとに書くログを読みます。**チャンネル** は、そのログファイル名の先頭部分です：Fleet、Corp、Local、または参加したチャンネルの名前。リストを開くと、チャットログのフォルダーにログがあるチャンネルが表示されます。&#x0A;&#x0A;- EVE でチャットの記録がオンで、MultiPreview で **チャットログを読む** がオンである必要があります（アラート › イベント）。&#x0A;- アラートは、そのログを書いたクライアントのキャラクターに出ます。**キャラクター** で、ルールを一部のキャラクターに絞れます。&#x0A;- **自分の発言は無視する** は、そのキャラクター自身が書いた内容を飛ばします。&#x0A;- ルールが読むチャンネルは、Local のほかに 10 個までです。&#x0A;- チャンネルは、オンになっているルールがその名前を指定している間だけ読まれ、見るのはその時点以降、MultiPreview の実行中に書かれた発言だけです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.test.Title">1 行で試す</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.test.Body">1 行を貼り付けて **テスト** を押します。結果はログを読むのと同じコードが出すので、ここで一致したルールはゲームでも一致します。&#x0A;&#x0A;- ログファイルから 1 行をコピーするか、ゲームに表示された文字を入力します。&#x0A;- 結果の下に、パターンが実際に調べた文字が表示されます。&#x0A;- 時間は、照合にかかった時間です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.test.Body">1 行を貼り付けて **テスト** を押します。結果はログを読むのと同じコードが出すので、ここで一致したルールはゲームでも一致します。&#x0A;&#x0A;- ログファイルから 1 行をコピーするか、ゲームに表示された文字を入力します。&#x0A;- 結果の下に、パターンが実際に調べた文字が表示されます。&#x0A;- 時間は、照合にかかった時間です。正規表現に時間がかかり、そのルールがオフになるほどだった場合は、結果の下の行でそのことを知らせます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Title">ルールの保存場所</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.file.Body">ルールは、設定フォルダーの custom_alerts.json にあります。プロファイルには含まれず、どこにも送信されません。&#x0A;&#x0A;- MultiPreview が読めないルールファイルは、同じフォルダーに別の名前で退避され、MultiPreview はルールなしで起動します。&#x0A;- ルール専用の音は、この PC のドライブにあるファイルでなければなりません。&#x0A;- チャットのルールが見つけた内容は、アラートと一緒にアラート履歴に残ります。それを望まない場合は、履歴を消去するか、オフにしてください（アラート › アラートハブ）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.file.Body">ルールは、設定フォルダーの custom_alerts.json にあります。プロファイルには含まれず、どこにも送信されません。&#x0A;&#x0A;- MultiPreview が読めないルールファイルは、同じフォルダーに別の名前で退避され、MultiPreview はルールなしで起動します。&#x0A;- ルール専用の音は、この PC のドライブにあるファイルでなければなりません。そのファイルがなくなっている場合、アラートは既定の音を鳴らします。&#x0A;- ルールが見つけた内容は、アラートと一緒にアラート履歴に残ります（160 文字まで）。ゲームログの行（ほかのプレイヤーの名前が含まれることがあります）か、ほかのプレイヤーがチャットチャンネルに書いた内容です。それを望まない場合は、履歴を消去するか、オフにしてください（アラート › アラートハブ）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Off">アラート履歴はオフになっているため、新しいアラートは残りません。「アラート › アラートハブ」でオンにできます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.CountRows">アラート：{0} 件（{1} 行）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.timeout">MultiPreview がこのルールをオフにしました：このパターンは一部の行で時間がかかりすぎ、ほかのアラートが待たされていました。よくある原因は、繰り返しの中の繰り返しです。ルールのどれかを変更するか MultiPreview を再起動すると、このルールはもう一度試されます。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Off.average">MultiPreview がこのルールをオフにしました：正規表現のルールがログの読み取りを遅くしており、このルールがいちばん遅いか、遅いルールの 1 つでした。もっと簡単なパターンか、ふつうのテキストにすると速くなります。ルールのどれかを変更するか MultiPreview を再起動すると、このルールはもう一度試されます。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview がこのルールをオフにしました：ときどき 1 行に長い時間がかかり、ほかのルールと合わせてログの読み取りを遅らせていました。PC がとても忙しいときにも起こることがあります。ルールのどれかを変更するか MultiPreview を再起動すると、このルールはもう一度試されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Off.average">MultiPreview がこのルールをオフにしました：正規表現のルールがログの読み取りを遅くしており、このルールがいちばん遅いか、とくに遅いルールの中に入っていました。もっと簡単なパターンか、ふつうのテキストにすると速くなります。ルールのどれかを変更するか MultiPreview を再起動すると、このルールはもう一度試されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview がこのルールをオフにしました：ときどき、ある行に長い時間がかかり、ほかのルールと合わせてログの読み取りを遅らせていました。PC がとても忙しいときにも起こることがあります。ルールのどれかを変更するか MultiPreview を再起動すると、このルールはもう一度試されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">チャットログのフォルダーにチャットログが見つかりません。EVE でチャットの記録をオンにするか、チャンネルの名前を入力してください。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Test.Slow">遅めです。正規表現がほとんどの行で {0} ミリ秒より長くかかるルールは、MultiPreview の実行中はオフになります。ほかの行でも同じくらいかかる場合は、パターンを簡単にしてください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Test.Slow">遅めです。正規表現がほとんどの行で {0} ミリ秒より長くかかるルールは、オフにされます。ほかの行でも同じくらいかかる場合は、パターンを簡単にしてください。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -1974,7 +1974,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">更早的日期会在 MultiPreview 启动时删除。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.historyFolder">历史记录只保存在这台电脑上：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.history.Title">警报历史记录</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview 会把它发出的警报记成一份列表：时间、角色、警报、严重程度、星系，以及警报是已显示还是角色被静音。你关闭的警报不会列出，静默时间内的重复也不会。&#x0A;&#x0A;- 列表在设置文件夹的 History 文件夹里，每天一个文件，不会发送到任何地方。&#x0A;- 对于你自己的规则发出的警报，列表里还会保存规则的名称和规则匹配到的那一行，最多 160 个字符。在聊天频道里，那一行是别的玩家写的内容。&#x0A;- **警报保留时间** 决定保留多少天。更早的日期会在 MultiPreview 下次启动时删除。&#x0A;- 关闭 **保留警报历史记录** 后不再写入新内容。已保留的内容会留到期限结束。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview 会把每一条触发的警报记成一份列表：时间、角色、警报、严重程度、星系，以及警报是已显示还是角色被静音。你关闭的警报不会列出，静默时间内的重复也不会。&#x0A;&#x0A;- 列表在设置文件夹的 History 文件夹里，每天一个文件。它只留在这台电脑上，MultiPreview 不会把它发送到任何地方。你从历史记录窗口导出的 CSV 文件会保存在你选的位置，里面是同样的文字。&#x0A;- 对于你自己的规则发出的警报，列表里还会保存规则的名称和规则匹配到的那一行，最多 160 个字符。游戏日志的一行可能提到别的玩家，而在聊天频道里，那一行是别的玩家写的内容。&#x0A;- **警报保留时间** 决定保留多少天，不改的话是 30 天。更早的日期会在 MultiPreview 下次启动时删除。&#x0A;- 关闭 **保留警报历史记录** 后不再写入新内容。已保留的内容会留到期限结束，或者直到你清空它。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Title">警报历史记录</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Close">关闭</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Switch">切换到该客户端</sys:String> <!-- draft -->
@@ -2072,7 +2072,7 @@
     <sys:String x:Key="L.S.Rules.Severity">严重程度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Sound">声音</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.DefaultSound">默认警报声音</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.SoundNotLocal">那个文件在另一台电脑上。请选择这台电脑磁盘上的声音文件。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.SoundNotLocal">那个文件不能用。请选择这台电脑磁盘上的声音文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Quiet">静默时间</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.QuietNote">留空：使用所有警报共用的静默时间。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.QuietError">请输入 {0} 到 {1} 之间的整数，或者留空。</sys:String> <!-- draft -->
@@ -2085,7 +2085,7 @@
     <sys:String x:Key="L.S.Rules.Test.NoMatch">不匹配（{0} 毫秒）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Empty">请先粘贴一行。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.NotChat">聊天行的格式是“名字 &gt; 消息”。这段文字在“&gt;”前面没有名字。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Test.TimedOut">太慢：这个模式处理这一行用了超过 {0} 毫秒。如果一条规则在三行上都这样，它会被关闭，直到 MultiPreview 重新启动。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Test.TimedOut">太慢：这个模式处理这一行用了超过 {0} 毫秒。如果一条规则一再这样，它会被关闭，直到你修改某条规则或 MultiPreview 重新启动。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Seen">规则看到的是：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Err.NameEmpty">请给规则起个名称。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Err.PatternEmpty">请输入要查找的文字或模式。</sys:String> <!-- draft -->
@@ -2101,18 +2101,18 @@
     <sys:String x:Key="L.Help.alerts.custom.rules.Title">规则</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.rules.Body">**添加规则** 会创建一条空规则。三个示例各会创建一条可以修改的规则。&#x0A;&#x0A;- 规则的开关打开时才会生效。不能运行的规则会说明原因，并且无法打开。&#x0A;- 它的警报使用规则的名称，以及其严重程度的颜色和提示条。&#x0A;- **静默时间** 是规则触发后对同一个角色保持安静的时间。留空表示使用所有警报共用的静默时间。&#x0A;- 最多可以有 50 条规则。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.match.Title">规则看到的内容</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.match.Body">**文字** 会在一行的任何位置查找这些字，不区分大小写。**正则表达式** 是 .NET 的模式。&#x0A;&#x0A;- 对于游戏日志的一行，规则看到的是去掉时间以及颜色和字体代码后的文字，例如：(combat) 123 from Guristas Despoiler - Hits&#x0A;- 对于聊天的一行，它看到的是：名字 &gt; 消息&#x0A;- 模式不会让 MultiPreview 卡住。一个模式如果有三次处理一行超过 50 毫秒，就会被关闭，直到规则有改动或 MultiPreview 重新启动，error_log.txt 里会有记录。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.match.Body">**文字** 会在一行的任何位置查找这些字，不区分大小写。**正则表达式** 是 .NET 的模式。&#x0A;&#x0A;- 对于游戏日志的一行，规则看到的是去掉时间以及颜色和字体代码后的文字，例如：(combat) 123 from Guristas Despoiler - Hits&#x0A;- 对于聊天的一行，它看到的是：名字 &gt; 消息&#x0A;- 正则表达式处理每一行的时间是有限的。一次匹配如果花的时间太长，就会被放弃；一旦正则表达式用完了这一行的时间，其余的正则表达式会跳过这一行。&#x0A;- 开销太大的规则会被 MultiPreview 关闭：要么它的模式在某些行上花的时间太长，要么你的正则表达式规则合起来拖慢了日志的读取（每一行都慢，或者只是偶尔慢），而这条规则是其中最慢的之一。它的卡片和 error_log.txt 都会说明。你修改任意一条规则或重新启动 MultiPreview 后，它会再次试用。查找普通文字的规则从不会被关闭或跳过。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.chat.Title">聊天频道</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.chat.Body">聊天规则读取的是 EVE 为某个频道写的日志。**频道** 是该日志文件名的开头部分：Fleet、Corp、Local，或者你加入的某个频道的名称。打开列表可以看到你的聊天日志文件夹里有哪些频道的日志。&#x0A;&#x0A;- 必须在 EVE 里开启聊天记录，并在 MultiPreview 里开启 **读取聊天日志**（警报 › 事件）。&#x0A;- 警报属于写下该日志的客户端的角色。**角色** 可以把规则限定在其中几个角色上。&#x0A;- **忽略我自己的消息** 会跳过该角色自己写的内容。&#x0A;- 除 Local 之外，规则最多读取十个频道。&#x0A;- 频道从有规则指定它的那一刻开始读取。之前说过的话不会被查看。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.chat.Body">聊天规则读取的是 EVE 为某个频道写的日志。**频道** 是该日志文件名的开头部分：Fleet、Corp、Local，或者你加入的某个频道的名称。打开列表可以看到你的聊天日志文件夹里有哪些频道的日志。&#x0A;&#x0A;- 必须在 EVE 里开启聊天记录，并在 MultiPreview 里开启 **读取聊天日志**（警报 › 事件）。&#x0A;- 警报属于写下该日志的客户端的角色。**角色** 可以把规则限定在其中几个角色上。&#x0A;- **忽略我自己的消息** 会跳过该角色自己写的内容。&#x0A;- 除 Local 之外，规则最多读取十个频道。&#x0A;- 只有在某条已开启的规则指定了一个频道时，才会读取这个频道，而且只查看从那一刻起、MultiPreview 运行期间说的话。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.test.Title">试一行</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.test.Body">粘贴一行，然后按 **测试**。结果来自读取日志的同一段代码，所以在这里匹配的规则在游戏里也会匹配。&#x0A;&#x0A;- 可以从日志文件里复制一行，也可以输入游戏里显示的文字。&#x0A;- 结果下面是模式实际检查的文字。&#x0A;- 时间是这次匹配花费的时间。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.test.Body">粘贴一行，然后按 **测试**。结果来自读取日志的同一段代码，所以在这里匹配的规则在游戏里也会匹配。&#x0A;&#x0A;- 可以从日志文件里复制一行，也可以输入游戏里显示的文字。&#x0A;- 结果下面是模式实际检查的文字。&#x0A;- 时间是这次匹配花费的时间。如果正则表达式花的时间长到它的规则会被关闭，结果下面会有一行说明。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Title">规则保存在哪里</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.file.Body">规则保存在设置文件夹里的 custom_alerts.json 中。它们不属于任何配置，也不会被发送到任何地方。&#x0A;&#x0A;- MultiPreview 读不了的规则文件会在同一个文件夹里改名另存，MultiPreview 会在没有规则的情况下启动。&#x0A;- 规则自己的声音必须是这台电脑磁盘上的文件。&#x0A;- 聊天规则匹配到的内容会和警报一起保存在警报历史记录里。如果你不想这样，可以清空历史记录，或者把它关掉（警报 › 警报中心）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.file.Body">规则保存在设置文件夹里的 custom_alerts.json 中。它们不属于任何配置，也不会被发送到任何地方。&#x0A;&#x0A;- MultiPreview 读不了的规则文件会在同一个文件夹里改名另存，MultiPreview 会在没有规则的情况下启动。&#x0A;- 规则自己的声音必须是这台电脑磁盘上的文件。如果那个文件已经不在了，警报会播放默认声音。&#x0A;- 规则匹配到的内容会和警报一起保存在警报历史记录里，最多 160 个字符：可能是游戏日志的一行（其中可能提到别的玩家），也可能是别的玩家在聊天频道里写的内容。如果你不想这样，可以清空历史记录，或者把它关掉（警报 › 警报中心）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Off">警报历史记录已关闭，所以不会保留新的警报。可以在“警报 › 警报中心”里打开它。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.CountRows">警报：{0}，共 {1} 行</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.timeout">MultiPreview 关闭了这条规则：它的模式在某些行上花的时间太长，其他警报只能等它。常见的原因是重复里面套着重复。你修改任意一条规则或重新启动 MultiPreview 后，这条规则会再次试用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.average">MultiPreview 关闭了这条规则：你的正则表达式规则拖慢了日志的读取，而这条是最慢的，或者是较慢的几条之一。更简单的模式，或者改用纯文字，会更快。你修改任意一条规则或重新启动 MultiPreview 后，这条规则会再次试用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview 关闭了这条规则：它偶尔会在某一行上花很长时间，加上你的其他规则，就耽误了日志的读取。电脑非常繁忙时也可能出现这种情况。你修改任意一条规则或重新启动 MultiPreview 后，这条规则会再次试用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">在你的聊天日志文件夹里没有找到聊天日志。请在 EVE 里开启聊天记录，或者直接输入频道名称。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Test.Slow">偏慢。如果一条规则的正则表达式在大多数行上都超过 {0} 毫秒，它会在 MultiPreview 运行期间被关闭。要是别的行也这么慢，请把模式改简单些。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Test.Slow">偏慢。如果一条规则的正则表达式在大多数行上都超过 {0} 毫秒，这条规则会被关闭。要是别的行也这么慢，请把模式改简单些。</sys:String> <!-- draft -->
 </ResourceDictionary>

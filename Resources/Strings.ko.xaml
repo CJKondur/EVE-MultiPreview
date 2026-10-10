@@ -1957,7 +1957,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">더 오래된 날짜는 MultiPreview가 시작할 때 삭제돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.historyFolder">기록은 이 PC에만 남아요: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.history.Title">알림 기록</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview는 울린 알림을 목록으로 남겨요: 시각, 캐릭터, 알림, 심각도, 항성계, 그리고 표시됐는지 캐릭터가 음소거 상태였는지. 꺼 둔 알림과 대기 시간 안의 반복은 목록에 없어요.&#x0A;&#x0A;- 목록은 설정 폴더의 History 폴더에 하루에 파일 하나씩 저장돼요. 어디로도 전송되지 않아요.&#x0A;- 직접 만든 규칙의 알림은 규칙의 이름과 규칙이 찾은 줄(160자까지)도 목록에 남아요. 채팅 채널에서는 그 줄이 다른 플레이어가 쓴 글이에요.&#x0A;- **알림 보관 기간**에서 며칠 치를 남길지 정해요. 더 오래된 날짜는 MultiPreview를 다음에 시작할 때 삭제돼요.&#x0A;- **알림 기록 남기기**를 끄면 새로 기록하지 않아요. 이미 남은 기록은 기간이 지날 때까지 남아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview는 울린 모든 알림을 목록으로 남겨요: 시각, 캐릭터, 알림, 심각도, 항성계, 그리고 표시됐는지 캐릭터가 음소거 상태였는지. 꺼 둔 알림과 대기 시간 안의 반복은 목록에 없어요.&#x0A;&#x0A;- 목록은 설정 폴더의 History 폴더에 하루에 파일 하나씩 저장돼요. 이 PC에만 남고, MultiPreview는 어디로도 보내지 않아요. 기록 창에서 내보낸 CSV 파일은 저장한 곳에 놓이고, 같은 글이 들어 있어요.&#x0A;- 직접 만든 규칙의 알림은 규칙의 이름과 규칙이 찾은 줄(160자까지)도 목록에 남아요. 게임 로그의 줄에는 다른 플레이어의 이름이 들어 있을 수 있고, 채팅 채널에서는 그 줄이 다른 플레이어가 쓴 글이에요.&#x0A;- **알림 보관 기간**에서 며칠 치를 남길지 정해요. 바꾸지 않으면 30일이에요. 더 오래된 날짜는 MultiPreview를 다음에 시작할 때 삭제돼요.&#x0A;- **알림 기록 남기기**를 끄면 새로 기록하지 않아요. 이미 남은 기록은 기간이 지나거나 기록을 지울 때까지 남아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Title">알림 기록</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Close">닫기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Switch">클라이언트로 전환</sys:String> <!-- draft -->
@@ -2055,7 +2055,7 @@
     <sys:String x:Key="L.S.Rules.Severity">심각도</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Sound">소리</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.DefaultSound">기본 알림 소리</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.SoundNotLocal">그 파일은 다른 컴퓨터에 있어요. 이 PC의 드라이브에 있는 소리 파일을 골라 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.SoundNotLocal">그 파일은 쓸 수 없어요. 이 PC의 드라이브에 있는 소리 파일을 골라 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Quiet">대기 시간</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.QuietNote">비워 두면 모든 알림에 쓰는 대기 시간을 써요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.QuietError">{0}부터 {1}까지의 정수를 입력하거나 비워 두세요.</sys:String> <!-- draft -->
@@ -2068,7 +2068,7 @@
     <sys:String x:Key="L.S.Rules.Test.NoMatch">일치하지 않아요 ({0}ms)</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Empty">먼저 한 줄을 붙여 넣으세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.NotChat">채팅 줄은 “이름 &gt; 메시지” 꼴이에요. 이 글자에는 “&gt;” 앞에 이름이 없어요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Test.TimedOut">너무 느려요: 이 패턴은 이 줄에 {0}ms보다 오래 걸렸어요. 세 줄에서 이런 일이 생긴 규칙은 MultiPreview를 다시 시작할 때까지 꺼져요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Test.TimedOut">너무 느려요: 이 패턴은 이 줄에 {0}ms보다 오래 걸렸어요. 이런 일이 거듭되는 규칙은 규칙을 바꾸거나 MultiPreview를 다시 시작할 때까지 꺼져요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Seen">규칙이 보는 글자: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Err.NameEmpty">규칙에 이름을 지어 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Err.PatternEmpty">찾을 텍스트나 패턴을 입력하세요.</sys:String> <!-- draft -->
@@ -2084,18 +2084,18 @@
     <sys:String x:Key="L.Help.alerts.custom.rules.Title">규칙</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.rules.Body">**규칙 추가**는 빈 규칙을 만들어요. 세 가지 예시는 나중에 바꿀 수 있는 규칙을 만들어요.&#x0A;&#x0A;- 규칙은 스위치가 켜져 있는 동안 작동해요. 작동할 수 없는 규칙은 이유를 알려 주고, 켤 수 없어요.&#x0A;- 알림에는 규칙의 이름이 붙고, 색과 토스트는 심각도를 따라요.&#x0A;- **대기 시간**은 규칙이 울린 뒤 같은 캐릭터에게 조용히 있는 시간이에요. 비워 두면 모든 알림에 쓰는 대기 시간을 써요.&#x0A;- 규칙은 50개까지 만들 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.match.Title">규칙이 보는 것</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.match.Body">**텍스트**는 줄의 어디에 있든, 대문자든 소문자든 그 낱말을 찾아요. **정규식**은 .NET 패턴이에요.&#x0A;&#x0A;- 게임 로그의 줄에서는 시각과 색·글꼴 코드를 뺀 글자를 규칙이 봐요. 예: (combat) 123 from Guristas Despoiler - Hits&#x0A;- 채팅 줄에서는 이렇게 봐요: 이름 &gt; 메시지&#x0A;- 패턴이 MultiPreview를 멈추게 할 수는 없어요. 한 줄에 50ms보다 오래 걸린 일이 세 번 있은 패턴은 규칙이 바뀌거나 MultiPreview를 다시 시작할 때까지 꺼지고, error_log.txt에 기록돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.match.Body">**텍스트**는 줄의 어디에 있든, 대문자든 소문자든 그 낱말을 찾아요. **정규식**은 .NET 패턴이에요.&#x0A;&#x0A;- 게임 로그의 줄에서는 시각과 색·글꼴 코드를 뺀 글자를 규칙이 봐요. 예: (combat) 123 from Guristas Despoiler - Hits&#x0A;- 채팅 줄에서는 이렇게 봐요: 이름 &gt; 메시지&#x0A;- 정규식이 한 줄에 쓸 수 있는 시간은 정해져 있어요. 너무 오래 걸리는 대조는 중단되고, 정규식들이 그 줄의 시간을 다 쓰면 나머지 정규식은 그 줄을 건너뛰어요.&#x0A;- 비용이 너무 큰 규칙은 MultiPreview가 꺼요: 패턴이 일부 줄에서 너무 오래 걸리거나, 정규식 규칙들이 함께 로그 읽기를 느리게 하는데(매 줄마다, 또는 가끔) 이 규칙이 가장 느린 축에 들 때예요. 규칙의 카드와 error_log.txt에 그렇게 나와요. 규칙 중 하나를 바꾸거나 MultiPreview를 다시 시작하면 다시 시도해요. 일반 텍스트를 찾는 규칙은 꺼지거나 건너뛰어지지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.chat.Title">채팅 채널</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.chat.Body">채팅 규칙은 EVE가 채널마다 쓰는 로그를 읽어요. **채널**은 그 로그 파일 이름의 앞부분이에요: Fleet, Corp, Local, 또는 들어간 채널의 이름. 목록을 열면 채팅 로그 폴더에 로그가 있는 채널이 보여요.&#x0A;&#x0A;- EVE에서 채팅 기록이 켜져 있어야 하고, MultiPreview에서 **채팅 로그 읽기**가 켜져 있어야 해요(알림 › 이벤트).&#x0A;- 알림은 그 로그를 쓴 클라이언트의 캐릭터에게 울려요. **캐릭터**로 규칙을 일부 캐릭터로 좁힐 수 있어요.&#x0A;- **내가 쓴 메시지는 무시**는 그 캐릭터가 직접 쓴 내용을 건너뛰어요.&#x0A;- 규칙이 읽는 채널은 Local 말고 열 개까지예요.&#x0A;- 채널은 규칙이 그 이름을 지정한 때부터 읽어요. 그 전에 한 말은 보지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.chat.Body">채팅 규칙은 EVE가 채널마다 쓰는 로그를 읽어요. **채널**은 그 로그 파일 이름의 앞부분이에요: Fleet, Corp, Local, 또는 들어간 채널의 이름. 목록을 열면 채팅 로그 폴더에 로그가 있는 채널이 보여요.&#x0A;&#x0A;- EVE에서 채팅 기록이 켜져 있어야 하고, MultiPreview에서 **채팅 로그 읽기**가 켜져 있어야 해요(알림 › 이벤트).&#x0A;- 알림은 그 로그를 쓴 클라이언트의 캐릭터에게 울려요. **캐릭터**로 규칙을 일부 캐릭터로 좁힐 수 있어요.&#x0A;- **내가 쓴 메시지는 무시**는 그 캐릭터가 직접 쓴 내용을 건너뛰어요.&#x0A;- 규칙이 읽는 채널은 Local 말고 열 개까지예요.&#x0A;- 채널은 켜져 있는 규칙이 그 이름을 지정하고 있는 동안에만 읽고, 그때부터 MultiPreview가 실행되는 동안 나온 말만 살펴봐요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.test.Title">한 줄로 시험</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.test.Body">한 줄을 붙여 넣고 **시험**을 누르세요. 결과는 로그를 읽는 바로 그 코드가 내므로, 여기서 일치한 규칙은 게임에서도 일치해요.&#x0A;&#x0A;- 로그 파일에서 한 줄을 복사하거나, 게임에 나온 글자를 입력하세요.&#x0A;- 결과 아래에는 패턴이 실제로 살펴본 글자가 나와요.&#x0A;- 시간은 대조하는 데 걸린 시간이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.test.Body">한 줄을 붙여 넣고 **시험**을 누르세요. 결과는 로그를 읽는 바로 그 코드가 내므로, 여기서 일치한 규칙은 게임에서도 일치해요.&#x0A;&#x0A;- 로그 파일에서 한 줄을 복사하거나, 게임에 나온 글자를 입력하세요.&#x0A;- 결과 아래에는 패턴이 실제로 살펴본 글자가 나와요.&#x0A;- 시간은 대조하는 데 걸린 시간이에요. 정규식이 너무 오래 걸려서 그 규칙이 꺼질 정도였다면, 결과 아래의 한 줄이 그렇게 알려 줘요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Title">규칙이 있는 곳</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.file.Body">규칙은 설정 폴더의 custom_alerts.json에 있어요. 프로필에 들어 있지 않고, 어디로도 전송되지 않아요.&#x0A;&#x0A;- MultiPreview가 읽을 수 없는 규칙 파일은 같은 폴더에 새 이름으로 따로 두고, MultiPreview는 규칙 없이 시작해요.&#x0A;- 규칙 전용 소리는 이 PC의 드라이브에 있는 파일이어야 해요.&#x0A;- 채팅 규칙이 찾은 내용은 알림과 함께 알림 기록에 남아요. 원하지 않으면 기록을 지우거나 꺼 주세요(알림 › 알림 허브).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.file.Body">규칙은 설정 폴더의 custom_alerts.json에 있어요. 프로필에 들어 있지 않고, 어디로도 전송되지 않아요.&#x0A;&#x0A;- MultiPreview가 읽을 수 없는 규칙 파일은 같은 폴더에 새 이름으로 따로 두고, MultiPreview는 규칙 없이 시작해요.&#x0A;- 규칙 전용 소리는 이 PC의 드라이브에 있는 파일이어야 해요. 그 파일이 더 없으면 알림은 기본 소리를 재생해요.&#x0A;- 규칙이 찾은 내용은 알림과 함께 알림 기록에 160자까지 남아요. 게임 로그의 한 줄(다른 플레이어의 이름이 들어 있을 수 있어요)이거나, 다른 플레이어가 채팅 채널에 쓴 글이에요. 원하지 않으면 기록을 지우거나 꺼 주세요(알림 › 알림 허브).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Off">알림 기록이 꺼져 있어서 새 알림은 남지 않아요. 알림 › 알림 허브에서 켤 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.CountRows">알림: {0}개 ({1}줄)</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.timeout">MultiPreview가 이 규칙을 껐어요: 이 규칙의 패턴이 일부 줄에서 너무 오래 걸려서 다른 알림이 기다려야 했어요. 흔한 원인은 반복 안에 든 반복이에요. 규칙 중 하나를 바꾸거나 MultiPreview를 다시 시작하면 이 규칙을 다시 시도해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.average">MultiPreview가 이 규칙을 껐어요: 정규식 규칙들이 로그 읽기를 느리게 했고, 이 규칙이 가장 느리거나 느린 규칙 가운데 하나였어요. 더 단순한 패턴이나 일반 텍스트가 더 빨라요. 규칙 중 하나를 바꾸거나 MultiPreview를 다시 시작하면 이 규칙을 다시 시도해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview가 이 규칙을 껐어요: 가끔 한 줄에 오래 걸렸고, 다른 규칙과 합쳐져 로그 읽기가 늦어졌어요. PC가 매우 바쁠 때에도 생길 수 있어요. 규칙 중 하나를 바꾸거나 MultiPreview를 다시 시작하면 이 규칙을 다시 시도해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">채팅 로그 폴더에서 채팅 로그를 찾지 못했어요. EVE에서 채팅 기록을 켜거나 채널 이름을 직접 입력하세요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Test.Slow">느려요. 정규식이 대부분의 줄에서 {0}ms보다 오래 걸리는 규칙은 MultiPreview가 실행되는 동안 꺼져요. 다른 줄도 이만큼 걸리면 패턴을 더 단순하게 바꿔 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Test.Slow">느려요. 정규식이 대부분의 줄에서 {0}ms보다 오래 걸리는 규칙은 꺼지게 돼요. 다른 줄도 이만큼 걸리면 패턴을 더 단순하게 바꿔 주세요.</sys:String> <!-- draft -->
 </ResourceDictionary>
