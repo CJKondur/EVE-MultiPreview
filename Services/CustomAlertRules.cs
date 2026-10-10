@@ -68,21 +68,25 @@ public static class CustomRules
     /// <summary>The most text the editor's Test box takes: a log line, with room to spare.</summary>
     public const int MaxPasted = 16384;
     // What regular-expression rules may cost the thread that reads every client's logs (CustomAlertEngine has the
-    // three bounds). Plain-text rules are a search for a word: they are never counted and never skipped.
+    // bounds). Plain-text rules are a search for a word: they are never counted and never skipped.
     /// <summary>The longest one regular expression may take on one line: .NET gives the match up after it. A healthy
     /// pattern needs microseconds, so 50 ms is a pattern gone wrong, and still short enough for the lines behind.</summary>
     public static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(50);
-    /// <summary>A rule that slow on this many lines is switched off. Three, so one or two stalls of the PC cost no rule.</summary>
+    /// <summary>A rule that slow on this many lines of one hundred (WindowLines) is switched off. Three, so one or
+    /// two stalls of the PC cost no rule; and in one hundred lines, because the 50 ms are counted by the wall clock:
+    /// on a PC that is short of CPU a healthy rule is held up now and then, and over a session that adds up to three.</summary>
     public const int TimeoutsBeforeOff = 3;
     /// <summary>What all regular expressions together may take on one line; the rest of them skip that line. One time
     /// limit, so no line waits for more than two: this one, and the match that was running when it ran out.</summary>
     public static readonly TimeSpan LineBudget = TimeSpan.FromMilliseconds(50);
-    /// <summary>The lines an average is taken over: enough that one slow line is no verdict, few enough that a costly
-    /// rule is gone within a second of a fight.</summary>
+    /// <summary>The lines an average is taken over, and within which strikes count: enough that one slow line is no
+    /// verdict, few enough that a costly rule is gone within a second of a fight. Only lines on which a regular
+    /// expression ran are counted.</summary>
     public const int WindowLines = 100;
-    /// <summary>What the regular expressions may cost a line on average. Fifty healthy ones cost a sixtieth of it, and
-    /// at this cost the reader still reads a thousand lines a second.</summary>
-    public static readonly TimeSpan AverageBudget = TimeSpan.FromMilliseconds(1);
+    /// <summary>What the regular expressions may cost a line on average. Fifty plausible ones cost a tenth of it on
+    /// short lines and under half of it on lines of 2,000 characters on a fast PC, so a PC several times slower still
+    /// keeps them; and at this cost the reader still reads five hundred lines a second.</summary>
+    public static readonly TimeSpan AverageBudget = TimeSpan.FromMilliseconds(2);
 }
 
 /// <summary>Why a rule can't be switched on. The editor shows "L.S.Rules.Err." + the name.</summary>
@@ -333,9 +337,10 @@ public sealed class CustomRuleMatcher
     private readonly StringComparison _comparison;
     private int _strikes;
 
-    // The engine's, on the reading thread: what this rule's matches took in the current window without the slowest
-    // of them, the slowest, and how many there were.
-    internal long WindowTicks, WindowSlowest;
+    // The engine's, on the reading thread, for the current window: what this rule's matches took without the slowest
+    // of them, the slowest, how many there were, and what the window counts for the rule (WindowTicks, and their
+    // average once more: the slowest match counted as an ordinary one).
+    internal long WindowTicks, WindowSlowest, WindowCounted;
     internal int WindowMatches;
 
     private CustomRuleMatcher(CustomAlertRule rule, Regex? regex)
@@ -377,8 +382,11 @@ public sealed class CustomRuleMatcher
         }
     }
 
-    /// <summary>One line on which the rule took the whole time limit. True when it was one too many.</summary>
+    /// <summary>One line on which the rule took the whole time limit. True when it was one too many in this window.</summary>
     internal bool Strike() => ++_strikes >= CustomRules.TimeoutsBeforeOff;
+
+    /// <summary>A window starts anew: the strikes of the one before are forgotten.</summary>
+    internal void ForgetStrikes() => _strikes = 0;
 
     internal void SwitchOff() => Off = true;
 }
@@ -396,24 +404,36 @@ public sealed record CustomRuleTestResult(CustomRuleTestOutcome Outcome, TimeSpa
 ///
 /// The monitor's one thread reads every client's logs, and "under attack" waits behind whatever a rule costs. A
 /// plain-text rule is a search for a word and costs nothing worth counting. A regular expression is a player's
-/// program, so three bounds hold what all of them together can cost (the numbers are in CustomRules):
+/// program, so these bounds hold what all of them together can cost (the numbers are in CustomRules). Three of the
+/// four are counted over a window: a hundred lines on which a regular expression ran.
 ///
 /// 1. A rule and a line: a match that was given up after 50 ms, or that came back after as long, is a strike. Three
-///    strikes switch the rule off.
+///    strikes in one window switch the rule off. The strikes are forgotten when a window starts anew: they are
+///    counted by the wall clock, and a reader that is kept off the CPU in the middle of a match earns one for a rule
+///    that did nothing wrong.
 /// 2. A line: when the regular expressions have used 50 ms on it, the rest of them skip that line.
-/// 3. A hundred lines: when the regular expressions cost more than 1 ms a line on average, every rule that by itself
-///    took more than 1 ms a match on average is switched off, or the costliest rule when none did. Each rule's
-///    slowest match of the hundred is left out, so one stall of the PC costs no rule. The verdict is given as soon
-///    as it is certain: once the hundred lines' allowance is used up, the lines still to come can't bring the
-///    average back down.
+/// 3. The average: when the regular expressions cost more than 2 ms a line over a window, every rule that by itself
+///    took more than 2 ms a match on average is switched off, or the costliest rule when none did. What a window
+///    counts for a rule is its ordinary cost: the average of its matches without the slowest, for every match it
+///    made. So one stall of the PC costs no rule, and a rule is counted in full however few of the window's lines
+///    are its own (a rule for one of fifty characters makes two matches in a hundred lines).
+/// 4. The left-out matches: what the average leaves out (each rule's slowest match, beyond an ordinary one) may take
+///    another 2 ms a line over a window, not counting the largest left-out match of the window: that one is the
+///    hiccup, and always forgiven. Beyond that, the rule with the largest of the rest is switched off, one rule at
+///    a verdict. Without this bound, rules that are each slow on rare lines of their own would never answer for them.
+///
+/// A verdict of the third or the fourth bound is given as soon as it is certain, and not only on the hundredth
+/// line: once a window's allowance is used up, the lines still to come can't give it back. A window ends with a
+/// verdict or after a hundred lines, and every count starts anew.
 ///
 /// A rule that is off stays off until the rules change or MultiPreview restarts, and the error log says so once, by
 /// the rule's id and the bound. The counts are the reading thread's alone: there is no lock on this path, and with
 /// only plain-text rules no clock is read.</summary>
 public sealed class CustomAlertEngine
 {
-    /// <summary>The word the error log names the bound by that switched a rule off: the first one, or the third.</summary>
-    public const string OffByTimeout = "timeout", OffByAverage = "average";
+    /// <summary>The word the error log names the bound by that switched a rule off: the first one (three matches of
+    /// 50 ms or more in a hundred lines), the third (the average), or the fourth (the left-out matches).</summary>
+    public const string OffByTimeout = "timeout", OffByAverage = "average", OffByPeaks = "peaks";
 
     private static readonly long MatchLimit = InTicks(CustomRules.MatchTimeout);
     private static readonly long LineLimit = InTicks(CustomRules.LineBudget);
@@ -428,7 +448,8 @@ public sealed class CustomAlertEngine
     private readonly ErrorLog _errors;
     private readonly Func<long> _clock;
     private int _windowLines;                         // lines of the current window on which a regular expression ran
-    private long _windowTicks;                        // what they took, without each rule's slowest match
+    private long _windowTicks;                        // what the window counts: each rule's ordinary cost (WindowCounted)
+    private long _windowAll;                          // everything the regular expressions took in it
 
     private CustomAlertEngine(CustomRuleMatcher[] game, Dictionary<string, CustomRuleMatcher[]> chat, CustomRuleMatcher[] regex,
         ErrorLog errors, Func<long> clock)
@@ -494,47 +515,82 @@ public sealed class CustomAlertEngine
     {
         long used = 0;        // what the regular expressions took on this line
         bool timed = false;   // one of them ran
-        foreach (var matcher in rules)
+        try
         {
-            if (matcher.Off || (own && matcher.Rule.IgnoreOwn)) continue;
-            if (matcher.Characters.Count != 0 && !matcher.Characters.Contains(character)) continue;
-            bool matched;
-            if (!matcher.IsRegex) matched = matcher.Matches(text, out _);
-            else
+            foreach (var matcher in rules)
             {
-                if (used >= LineLimit) continue;                              // the second bound: this line has had its time
-                long before = _clock();
-                matched = matcher.Matches(text, out bool timedOut);
-                long took = Math.Max(0, _clock() - before);
-                used += took;
-                timed = true;
-                AddToWindow(matcher, took);
-                if ((timedOut || took >= MatchLimit) && matcher.Strike()) SwitchOff(matcher, OffByTimeout);   // the first bound
+                if (matcher.Off || (own && matcher.Rule.IgnoreOwn)) continue;
+                if (matcher.Characters.Count != 0 && !matcher.Characters.Contains(character)) continue;
+                bool matched;
+                if (!matcher.IsRegex) matched = matcher.Matches(text, out _);
+                else
+                {
+                    if (used >= LineLimit) continue;                          // the second bound: this line has had its time
+                    long before = _clock();
+                    matched = matcher.Matches(text, out bool timedOut);
+                    long took = Math.Max(0, _clock() - before);
+                    used += took;
+                    timed = true;
+                    AddToWindow(matcher, took);
+                    if ((timedOut || took >= MatchLimit) && matcher.Strike()) SwitchOff(matcher, OffByTimeout);   // the first bound
+                }
+                if (matched) raise(matcher.Rule, text);
             }
-            if (matched) raise(matcher.Rule, text);
         }
-        if (timed) EndLine();
+        finally
+        {
+            // Also when raising an alert threw: what the line cost is in the window, so the line is too.
+            if (timed) EndLine();
+        }
     }
 
-    /// <summary>Adds a match to the window. The rule's slowest match stays out: when a slower one comes, the one that
-    /// was the slowest until now is counted in its place.</summary>
+    /// <summary>Adds a match to the window. A rule's slowest match stays out of its ordinary ones: when a slower one
+    /// comes, the one that was the slowest until now joins them in its place. What the window counts for the rule is
+    /// its ordinary matches and their average once more, for the slowest: so the slowest counts as an ordinary match,
+    /// and a rule that made only two matches in the window is counted for both.</summary>
     private void AddToWindow(CustomRuleMatcher matcher, long took)
     {
         matcher.WindowMatches++;
-        long counted = took;
+        _windowAll += took;
+        long ordinary = took;
         if (took > matcher.WindowSlowest)
         {
-            counted = matcher.WindowSlowest;
+            ordinary = matcher.WindowSlowest;
             matcher.WindowSlowest = took;
         }
-        matcher.WindowTicks += counted;
-        _windowTicks += counted;
+        matcher.WindowTicks += ordinary;
+        // One match is the slowest one: nothing ordinary to go by yet, and all of it is left out.
+        long counted = matcher.WindowMatches < 2 ? 0 : matcher.WindowTicks + matcher.WindowTicks / (matcher.WindowMatches - 1);
+        _windowTicks += counted - matcher.WindowCounted;
+        matcher.WindowCounted = counted;
     }
 
-    /// <summary>The third bound, asked after every line on which a regular expression ran.</summary>
+    /// <summary>What the average leaves out of a rule in this window: its slowest match, beyond an ordinary one.</summary>
+    private static long LeftOut(CustomRuleMatcher matcher) => matcher.WindowSlowest + matcher.WindowTicks - matcher.WindowCounted;
+
+    /// <summary>Asked after every line on which a regular expression ran: a verdict of the third or the fourth bound
+    /// ends the window, and so does its hundredth line.</summary>
     private void EndLine()
     {
         _windowLines++;
+        if (!Verdict() && _windowLines < CustomRules.WindowLines) return;
+
+        _windowLines = 0;
+        _windowTicks = 0;
+        _windowAll = 0;
+        foreach (var matcher in _regex)
+        {
+            matcher.WindowTicks = 0;
+            matcher.WindowSlowest = 0;
+            matcher.WindowCounted = 0;
+            matcher.WindowMatches = 0;
+            matcher.ForgetStrikes();
+        }
+    }
+
+    /// <summary>Switches off what the third or the fourth bound says must go. False when neither says so.</summary>
+    private bool Verdict()
+    {
         if (_windowTicks > WindowLimit)
         {
             // Certain already: a hundred lines' allowance is used, however little the rest of them would take.
@@ -549,17 +605,26 @@ public sealed class CustomAlertEngine
                 found = true;
             }
             if (!found && costliest != null) SwitchOff(costliest, OffByAverage);
+            return true;
         }
-        else if (_windowLines < CustomRules.WindowLines) return;
 
-        _windowLines = 0;
-        _windowTicks = 0;
+        // The fourth bound. What the average left out is everything the rules took less what it counted; while that
+        // is within the allowance (nearly always), this is all a line costs.
+        long leftOut = _windowAll - _windowTicks;
+        if (leftOut <= WindowLimit) return false;
+        CustomRuleMatcher? forgiven = null;                                  // the rule that made the slowest match of the window
+        foreach (var matcher in _regex)
+            if (!matcher.Off && (forgiven == null || matcher.WindowSlowest > forgiven.WindowSlowest)) forgiven = matcher;
+        if (forgiven == null || leftOut - LeftOut(forgiven) <= WindowLimit) return false;
+        CustomRuleMatcher? largest = null;                                   // of the rest
         foreach (var matcher in _regex)
         {
-            matcher.WindowTicks = 0;
-            matcher.WindowSlowest = 0;
-            matcher.WindowMatches = 0;
+            if (matcher.Off || matcher == forgiven) continue;
+            if (largest == null || LeftOut(matcher) > LeftOut(largest)) largest = matcher;
         }
+        if (largest == null) return false;
+        SwitchOff(largest, OffByPeaks);                                      // one rule at a verdict
+        return true;
     }
 
     /// <summary>Switches a rule off and says so, once (a rule that is off is never matched again, so it can't come
@@ -568,11 +633,17 @@ public sealed class CustomAlertEngine
     private void SwitchOff(CustomRuleMatcher matcher, string bound)
     {
         matcher.SwitchOff();
-        _windowTicks -= matcher.WindowTicks;
+        _windowTicks -= matcher.WindowCounted;
+        _windowAll -= matcher.WindowTicks + matcher.WindowSlowest;
         matcher.WindowTicks = 0;
+        matcher.WindowSlowest = 0;
+        matcher.WindowCounted = 0;
+        matcher.WindowMatches = 0;
         string why = bound == OffByTimeout
-            ? $"it took {CustomRules.MatchTimeout.TotalMilliseconds:0} ms or more to match a line, {CustomRules.TimeoutsBeforeOff} times"
-            : $"the regular-expression rules took more than {CustomRules.AverageBudget.TotalMilliseconds:0} ms a line on average, and this rule was the slowest or one of the slow ones";
+            ? $"it took {CustomRules.MatchTimeout.TotalMilliseconds:0} ms or more to match a line, {CustomRules.TimeoutsBeforeOff} times in {CustomRules.WindowLines} lines"
+            : bound == OffByAverage
+            ? $"the regular-expression rules took more than {CustomRules.AverageBudget.TotalMilliseconds:0} ms a line on average, and this rule was the slowest or one of the slow ones"
+            : $"the slowest matches of the regular-expression rules, one for each rule and the longest of them left out, took more than {CustomRules.AverageBudget.TotalMilliseconds * CustomRules.WindowLines:0} ms in {CustomRules.WindowLines} lines, and this rule's was the longest of those";
         _errors.Record(new TimeoutException($"Custom alert rule {matcher.Rule.AlertType} was switched off ({bound}): {why}. It stays off until the rules change or MultiPreview restarts."),
             "CustomAlert", DateTime.Now);
     }
