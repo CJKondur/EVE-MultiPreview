@@ -296,6 +296,14 @@ public static class CustomRulePatterns
     /// reads it before and after a step to see that the step built none.</summary>
     public static int Built => Volatile.Read(ref _built);
 
+    /// <summary>Forgets every pattern; each is built again when it is next asked for. The patterns are kept for the
+    /// whole process, so a test that counts builds starts here: with nothing kept, the 256 can't run out, and empty
+    /// the cache, in the middle of it.</summary>
+    public static void Clear()
+    {
+        lock (Gate) Kept.Clear();
+    }
+
     /// <summary>The regular expression of a pattern, or null when .NET can't read it. Asked by the settings window's
     /// thread and by whoever builds the engine: one lock, never taken while a line is matched.</summary>
     public static Regex? Get(string pattern, bool caseSensitive)
