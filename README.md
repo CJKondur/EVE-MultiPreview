@@ -34,8 +34,10 @@ Alerts come from EVE's chat and game log files. The English log lines are tested
 
 - **Twelve events:** Under attack, Warp scrambled, Decloaked, Fleet invite, Convo request, Fleet warp, Regrouping, System changed, Cargo full, Asteroid depleted, Crystal broken and Miner stopped. The four mining events are off until you turn them on.
 - An alert shows on the client's thumbnail as a coloured border, a count badge and a line of text, and can play a sound file of your choice.
-- **Alert hub:** an optional bell on screen with toasts that name the character, the event and the solar system. Click a toast to switch to that client.
+- **Alert hub:** an optional bell on screen with toasts that name the character, the event and the solar system. Click a toast to switch to that client. Right-click the bell for its menu: the side the toasts stack on, a button that dismisses all toasts, and one that opens the alert history.
 - **Three severities** (critical, warning, info), each with its own colour and flash speed.
+- **Alert history:** every alert MultiPreview raises is kept in a list on this PC, for 30 days unless you choose another time or turn the list off. The history window opens from the hub's menu, the tray menu and Alerts › Alert hub. It filters by character, alert and severity, switches to an alert's client, and exports what it shows to a CSV file.
+- **Custom rules:** alerts of your own. A rule looks for a text or a regular expression in the game log or in a chat channel you name, for every character or for the ones you pick, with its own severity, sound and quiet time. Alerts › Custom rules has a box to try a line against a rule before you rely on it.
 - **PVE mode:** an NPC that hits, misses or tackles you raises no alert. It tells a player from an NPC by what the log line shows, so while it is on some things players do are silent too: a player who only misses you; a warp disruption probe or an anchored bubble; a bubble from a ship renamed to something without the "'s " of the default name ("Pilot's Shiptype"), which is what the rule looks for; a tackle from a player whose name shows in your overview without a [ticker]; and a hit from one whose name shows with neither a [ticker] nor a (ship type). If you fight other players, turn PVE mode off. It is also built on the English log wording: with an EVE client in another language it can't tell an NPC from a player (a miss or a bubble raises its alert whoever it is from, and a hit raises none unless the line has the English word "from" before the attacker's name), so leave it off there.
 
 ### Client windows
@@ -73,7 +75,9 @@ Three options under Clients › Hotkeys & switching send keys to clients, and on
 
 Whether to use them is your decision.
 
-What it does touch: it moves, resizes, minimizes and closes client windows; it can set a client's CPU priority, CPU core and audio volume; it reads EVE's chat and game log files; for frozen frames it takes a picture of a client's window; and Tools › EVE settings copies EVE's settings files when you ask it to. It installs a keyboard hook so that a hotkey press doesn't also reach EVE (**Hide hotkeys from EVE**, on by default), and a mouse hook while a mouse button is bound to a hotkey. It listens to Windows' window events for all programs (a window being created, destroyed, renamed, minimized, restored or brought to the front) to notice EVE clients opening and closing and to know which window is in front. To bring a client to the front when Windows refuses, it may attach to the input queue of the window that is in front, for the moment of the switch. **Start with Windows** adds MultiPreview to your Windows startup list.
+What it does touch: it moves, resizes, minimizes and closes client windows; it can set a client's CPU priority, CPU core and audio volume; it reads EVE's game log files and the chat log of the Local channel, and the chat logs of the channels your own alert rules name (none, until you make such a rule); for frozen frames it takes a picture of a client's window; and Tools › EVE settings copies EVE's settings files when you ask it to. It installs a keyboard hook so that a hotkey press doesn't also reach EVE (**Hide hotkeys from EVE**, on by default), and a mouse hook while a mouse button is bound to a hotkey. It listens to Windows' window events for all programs (a window being created, destroyed, renamed, minimized, restored or brought to the front) to notice EVE clients opening and closing and to know which window is in front. To bring a client to the front when Windows refuses, it may attach to the input queue of the window that is in front, for the moment of the switch. **Start with Windows** adds MultiPreview to your Windows startup list.
+
+What it keeps: the alert history is a list of the alerts it raised, in files in the `History` folder of your settings folder: the time, the character, the alert, its severity, the solar system and what became of it. For an alert of one of your own rules it also holds the rule's name and the line the rule matched, cut to 160 characters; in a chat channel that line is something another player wrote. The list stays on this PC and is sent nowhere. Alerts › Alert hub turns it off and sets how many days are kept, and the history window clears it.
 
 It has no telemetry and no account. It goes online only for these: the update check at GitHub (when it starts, unless you turn that off, and when you click **Check for updates**); the list of versions and the download itself, when you install an update or pick an earlier version; and a lookup of character names at CCP's public API when you click **Fetch missing names** under Tools › EVE settings.
 
@@ -93,9 +97,9 @@ After its first update the file is named `EVE MultiPreview.exe`: the updater sav
 
 ### Where your settings are
 
-Your settings are in `%APPDATA%\EVE MultiPreview` (paste that into the address bar of a File Explorer window). The folder holds the settings file `EVE MultiPreview.json`, your saved layouts (`layout_presets.json`), a `Backups` folder and a `Logs` folder. App settings › Profiles & backups shows the folder and opens it.
+Your settings are in `%APPDATA%\EVE MultiPreview` (paste that into the address bar of a File Explorer window). The folder holds the settings file `EVE MultiPreview.json`, your saved layouts (`layout_presets.json`), your own alert rules (`custom_alerts.json`, once you make one), a `History` folder with the alert history, a `Backups` folder and a `Logs` folder. App settings › Profiles & backups shows the folder and opens it.
 
-**Portable:** to keep everything next to the exe instead, for example on a USB stick, put an empty file named `portable.txt` beside the exe before you start it for the first time. If you have already started it, also copy `EVE MultiPreview.json` (and `layout_presets.json`, if you use saved layouts) from the folder above to beside the exe.
+**Portable:** to keep everything next to the exe instead, for example on a USB stick, put an empty file named `portable.txt` beside the exe before you start it for the first time. If you have already started it, also copy `EVE MultiPreview.json` (and `layout_presets.json` and `custom_alerts.json`, if you use saved layouts or your own alert rules) from the folder above to beside the exe.
 
 **Coming from version 2.3.42 or older:** those versions kept the settings beside the exe. The first start of a newer version copies your settings, saved layouts and backups to the folder above, checks the copy, and leaves the old files where they were, with a note named `Where are my settings.txt` beside them.
 
@@ -111,7 +115,7 @@ MultiPreview has no installer, so there is nothing to uninstall. To remove it:
 
 1. If **Start with Windows** is on (App settings › General), turn it off first, or Windows keeps an entry for a program that is gone.
 2. Exit MultiPreview from its tray icon and delete the exe.
-3. Delete `%APPDATA%\EVE MultiPreview` to remove your settings, backups and logs. A portable copy keeps them beside the exe instead.
+3. Delete `%APPDATA%\EVE MultiPreview` to remove your settings, your alert rules, the alert history, backups and logs. A portable copy keeps them beside the exe instead.
 
 If you used the FPS limiter, RTSS keeps the profile MultiPreview made for `exefile.exe` until you remove it in RTSS. If you used Tools › EVE settings, its backups of EVE's files are in `%LOCALAPPDATA%\CCP\EVE\EVEMPBackups`.
 
