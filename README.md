@@ -30,13 +30,13 @@ This project is a ground-up rewrite inspired by [EVE-O Preview](https://github.c
 
 ### Alerts
 
-Alerts come from EVE's chat and game log files. English logs are tested against real ones; the other seven languages the EVE client has are matched from EVE's own translated text, so tell us if an alert doesn't fire in yours.
+Alerts come from EVE's chat and game log files. The English log lines are tested in the wording real logs have, with invented names in them; the other seven languages the EVE client has are matched from EVE's own translated text, so tell us if an alert doesn't fire in yours.
 
 - **Twelve events:** Under attack, Warp scrambled, Decloaked, Fleet invite, Convo request, Fleet warp, Regrouping, System changed, Cargo full, Asteroid depleted, Crystal broken and Miner stopped. The four mining events are off until you turn them on.
 - An alert shows on the client's thumbnail as a coloured border, a count badge and a line of text, and can play a sound file of your choice.
 - **Alert hub:** an optional bell on screen with toasts that name the character, the event and the solar system. Click a toast to switch to that client.
 - **Three severities** (critical, warning, info), each with its own colour and flash speed.
-- **PVE mode:** NPCs shooting or scrambling you raise no alert; players still do.
+- **PVE mode:** an NPC that hits, misses or tackles you raises no alert. It tells a player from an NPC by what the log line shows, so while it is on some things players do are silent too: a player who only misses you; a warp disruption probe or an anchored bubble; a bubble from a ship renamed to something without the "'s " of the default name ("Pilot's Shiptype"), which is what the rule looks for; a tackle from a player whose name shows in your overview without a [ticker]; and a hit from one whose name shows with neither a [ticker] nor a (ship type). If you fight other players, turn PVE mode off. It is also built on the English log wording: with an EVE client in another language it can't tell an NPC from a player (a miss or a bubble raises its alert whoever it is from, and a hit raises none unless the line has the English word "from" before the attacker's name), so leave it off there.
 
 ### Client windows
 
@@ -60,18 +60,20 @@ Alerts come from EVE's chat and game log files. English logs are tested against 
 
 ## What It Doesn't Do
 
-- It does not broadcast input. A key press or a click is never copied to several clients at the same moment.
+- It does not broadcast input. With its default settings MultiPreview passes none of your key presses or clicks on to a client: switching only changes which window is in front. A key you keep holding while you switch goes on reaching the window in front, as it does after Alt+Tab; that is Windows, not MultiPreview.
 - It does not read or change the game's memory.
 - With its default settings it sends EVE no key or click that does anything. There is one thing it may send: to bring a client to the front, Windows sometimes has to see a key press first, and MultiPreview then presses and releases a key that has no function (virtual key 0xE8). That press goes to whichever window is in front at that moment, which can be an EVE client.
 
-Three options under Clients › Hotkeys & switching send real keys to clients. All three are off unless you turn them on:
+Three options under Clients › Hotkeys & switching send keys to clients, and one of them mouse buttons too. All three are off unless you turn them on:
 
-- **Carry held Ctrl, Shift and Alt to the next client** and **Carry other held keys to the next client:** a key you are physically holding while you switch is also pressed in the client you switch to. If you keep holding it and switch again, it is pressed in that client too, and when you let go it is released in every client that got it. So one held key can end up pressed in several clients, one more with each switch.
+- **Carry held Ctrl, Shift and Alt to the next client:** a Ctrl, Shift or Alt you are physically holding while you switch is also pressed in the client you switch to, and stays pressed there.
+- **Carry other held keys to the next client:** a letter key (A to Z) you are physically holding while you switch is also pressed in the client you switch to, and stays pressed there. A held number-row key (0 to 9), F-key (F1 to F24), Enter or Space is pressed and released there instead. So is a held middle, 4th or 5th mouse button, at the place of the mouse pointer: a click in that client.
+- With either of these two, a key that stays pressed is pressed in one more client with every switch for as long as you hold it, so one held key can be down in several clients at once. When you let go, its release is sent at the same moment to every client it was carried to (and to the client the carried key before it was last pressed in, if that is a different one). Each time one of the two carries anything, the client you switch to is also sent a release for each of Ctrl, Shift, Alt and the left Windows key that you are not holding.
 - **Hide still-held keys from the next client:** a key you are still holding when you switch is released in the client you leave, and kept from the client you land on until you let go.
 
 Whether to use them is your decision.
 
-What it does touch: it moves, resizes, minimizes and closes client windows; it can set a client's CPU priority, CPU core and audio volume; it reads EVE's chat and game log files; for frozen frames it takes a picture of a client's window; and Tools › EVE settings copies EVE's settings files when you ask it to. It installs a keyboard hook so that a hotkey press doesn't also reach EVE (**Hide hotkeys from EVE**, on by default), and a mouse hook while a mouse button is bound to a hotkey. **Start with Windows** adds MultiPreview to your Windows startup list.
+What it does touch: it moves, resizes, minimizes and closes client windows; it can set a client's CPU priority, CPU core and audio volume; it reads EVE's chat and game log files; for frozen frames it takes a picture of a client's window; and Tools › EVE settings copies EVE's settings files when you ask it to. It installs a keyboard hook so that a hotkey press doesn't also reach EVE (**Hide hotkeys from EVE**, on by default), and a mouse hook while a mouse button is bound to a hotkey. It listens to Windows' window events for all programs (a window being created, destroyed, renamed, minimized, restored or brought to the front) to notice EVE clients opening and closing and to know which window is in front. To bring a client to the front when Windows refuses, it may attach to the input queue of the window that is in front, for the moment of the switch. **Start with Windows** adds MultiPreview to your Windows startup list.
 
 It has no telemetry and no account. It goes online only for these: the update check at GitHub (when it starts, unless you turn that off, and when you click **Check for updates**); the list of versions and the download itself, when you install an update or pick an earlier version; and a lookup of character names at CCP's public API when you click **Fetch missing names** under Tools › EVE settings.
 

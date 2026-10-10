@@ -822,7 +822,7 @@ public partial class SettingsWindow : Window
             "────────────────────────────\n" +
             "Prevents thumbnails from being\n" +
             "accidentally dragged.\n\n" +
-            "Broadcast-Key HUD\n" +
+            "Carried-Keys HUD\n" +
             "────────────────────────────\n" +
             "A small on-screen pill showing which\n" +
             "held key is being carried into your\n" +

@@ -91,7 +91,7 @@
     <sys:String x:Key="L.General.HkCloseAll">Close all clients:</sys:String>
     <sys:String x:Key="L.General.Toggles">Toggles</sys:String>
     <sys:String x:Key="L.General.LockPositions">Lock Thumbnail Positions</sys:String>
-    <sys:String x:Key="L.General.BroadcastHud">Show Broadcast-Key HUD</sys:String>
+    <sys:String x:Key="L.General.BroadcastHud">Show Carried-Keys HUD</sys:String>
     <sys:String x:Key="L.General.AutoSolo">Auto-solo active client audio</sys:String>
     <sys:String x:Key="L.General.MuteAllWhenNoneActive">Mute all clients when no EVE client is active</sys:String>
     <sys:String x:Key="L.General.IndividualResize">Resize Thumbnails Individually</sys:String>
