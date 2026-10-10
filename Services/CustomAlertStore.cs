@@ -185,9 +185,16 @@ public sealed class CustomAlertStore
                 rule.Id = NewId();
                 ids.Add(rule.Id);
             }
+            // Half a character is no text, and the file has no way to hold one (it would write another character in
+            // its place, and the store would hold what the file doesn't). None is kept anywhere; a pattern and the
+            // three words are otherwise left exactly as they are.
+            rule.Kind = WithoutHalves(rule.Kind);
+            rule.Source = WithoutHalves(rule.Source);
+            rule.Severity = WithoutHalves(rule.Severity);
+            rule.Pattern = WithoutHalves(rule.Pattern);
             rule.Name = PlainText.OneLine(rule.Name, CustomRules.MaxName);     // only ever shown
             rule.Channel = Compared(rule.Channel, CustomRules.MaxChannel + 2);  // too long stays too long, however it is cut: the check says so
-            rule.Sound = CustomRuleCheck.LocalSound(rule.Sound);                // a file on this PC, or none
+            rule.Sound = CustomRuleCheck.LocalSound(WithoutHalves(rule.Sound)); // a file on this PC, or none
             rule.Characters = rule.Characters.Select(c => Compared(c, AlertHistory.MaxName)).Where(c => c.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase).Take(CustomRules.MaxCharacters).ToList();
             if (rule.QuietSeconds is int quiet) rule.QuietSeconds = Math.Clamp(quiet, 0, CustomRules.MaxQuietSeconds);
@@ -206,16 +213,29 @@ public sealed class CustomAlertStore
     private static string Compared(string? text, int max)
     {
         if (string.IsNullOrEmpty(text)) return "";
-        var units = text.Where(c => !char.IsControl(c)).ToArray();
-        var kept = new StringBuilder(units.Length);
-        for (int i = 0; i < units.Length; i++)
-        {
-            if (!char.IsSurrogate(units[i])) kept.Append(units[i]);
-            else if (char.IsHighSurrogate(units[i]) && i + 1 < units.Length && char.IsLowSurrogate(units[i + 1])) kept.Append(units[i]).Append(units[++i]);
-        }
-        var line = kept.ToString().Trim();
+        var line = WithoutHalves(new string(text.Where(c => !char.IsControl(c)).ToArray())).Trim();
         if (line.Length > max) line = line[..(char.IsHighSurrogate(line[max - 1]) ? max - 1 : max)].TrimEnd();
         return line;
+    }
+
+    /// <summary>The text without half characters: a first half (a high surrogate) with no second half directly behind
+    /// it, or a second half alone. Nothing else is changed, and a text that holds none is returned as it is.</summary>
+    private static string WithoutHalves(string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return "";
+        StringBuilder? kept = null;                       // made at the first half character: most texts hold none
+        for (int i = 0; i < text.Length; i++)
+        {
+            char c = text[i];
+            if (char.IsHighSurrogate(c) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
+            {
+                kept?.Append(c).Append(text[i + 1]);
+                i++;
+            }
+            else if (char.IsSurrogate(c)) kept ??= new StringBuilder(text, 0, i, text.Length);
+            else kept?.Append(c);
+        }
+        return kept?.ToString() ?? text;
     }
 
     /// <summary>Moves a file MultiPreview can't use out of the way, under a name that says so. It is never deleted.</summary>
