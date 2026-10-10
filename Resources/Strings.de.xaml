@@ -1944,4 +1944,7 @@
     <sys:String x:Key="L.Start.Missing.Title">Deine Einstellungsdatei fehlt</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Missing.Body">MultiPreview kann deine Einstellungsdatei nicht finden:&#x0A;{0}&#x0A;&#x0A;Die Datei fehlt, aber es wurden Kopien deiner Einstellungen gefunden. Wähle eine zum Wiederherstellen.&#x0A;&#x0A;„Neu anfangen“ startet wieder mit den Standardeinstellungen, wie beim ersten Start. Deine Backups bleiben im Ordner Backups.&#x0A;&#x0A;Wenn du dieses Fenster schließt, verwendet MultiPreview in dieser Sitzung die Standardeinstellungen, speichert nichts und fragt beim nächsten Start erneut.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Missing.Fresh">Neu anfangen</sys:String> <!-- draft -->
+    <!-- Ideas batch 3 (Plan 7) -->
+    <sys:String x:Key="L.Upd.NoDigest">GitHub hat für dieses Release keine Prüfsumme geliefert, deshalb kann MultiPreview den Download nicht prüfen. Klicke noch einmal auf {0}, um trotzdem zu installieren, oder auf {1}, um die Datei selbst von GitHub zu laden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestMismatch">Der Download stimmt nicht mit der Prüfsumme überein, die GitHub für dieses Release veröffentlicht. Er wurde gelöscht, und nichts wurde installiert. Klicke auf {0}, um es noch einmal zu versuchen, oder auf {1}, um die Datei selbst von GitHub zu laden.</sys:String> <!-- draft -->
 </ResourceDictionary>

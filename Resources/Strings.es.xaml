@@ -1966,4 +1966,7 @@
     <sys:String x:Key="L.Start.Missing.Title">Falta tu archivo de ajustes</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Missing.Body">MultiPreview no encuentra tu archivo de ajustes:&#x0A;{0}&#x0A;&#x0A;Falta, pero se han encontrado copias de tus ajustes. Elige una para restaurarla.&#x0A;&#x0A;«Empezar de cero» vuelve a empezar con los ajustes por defecto, como en el primer inicio. Tus copias de seguridad siguen en la carpeta Backups.&#x0A;&#x0A;Si cierras esta ventana, MultiPreview usa los ajustes por defecto en esta sesión, no guarda nada y vuelve a preguntar la próxima vez que se inicie.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Missing.Fresh">Empezar de cero</sys:String> <!-- draft -->
+    <!-- Ideas batch 3 (Plan 7) -->
+    <sys:String x:Key="L.Upd.NoDigest">GitHub no ha dado ninguna suma de comprobación para esta versión, así que MultiPreview no puede comprobar la descarga. Haz clic otra vez en {0} para instalarla de todos modos, o en {1} para descargarla tú mismo desde GitHub.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestMismatch">La descarga no coincide con la suma de comprobación que GitHub publica para esta versión. Se ha borrado y no se ha instalado nada. Haz clic en {0} para intentarlo de nuevo, o en {1} para descargarla tú mismo desde GitHub.</sys:String> <!-- draft -->
 </ResourceDictionary>

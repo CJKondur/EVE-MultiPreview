@@ -1962,4 +1962,7 @@
     <sys:String x:Key="L.Start.Missing.Title">Manca il tuo file delle impostazioni</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Missing.Body">MultiPreview non trova il tuo file delle impostazioni:&#x0A;{0}&#x0A;&#x0A;Il file manca, ma sono state trovate copie delle tue impostazioni. Scegline una da ripristinare.&#x0A;&#x0A;«Ricomincia da zero» riparte con le impostazioni predefinite, come al primo avvio. I tuoi backup restano nella cartella Backups.&#x0A;&#x0A;Se chiudi questa finestra, MultiPreview usa le impostazioni predefinite per questa sessione, non salva nulla e lo chiede di nuovo al prossimo avvio.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Missing.Fresh">Ricomincia da zero</sys:String> <!-- draft -->
+    <!-- Ideas batch 3 (Plan 7) -->
+    <sys:String x:Key="L.Upd.NoDigest">GitHub non ha fornito alcun checksum per questa versione, quindi MultiPreview non può verificare il download. Fai di nuovo clic su {0} per installarlo comunque, oppure su {1} per scaricarlo tu stesso da GitHub.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestMismatch">Il download non corrisponde al checksum che GitHub pubblica per questa versione. È stato eliminato e non è stato installato nulla. Fai clic su {0} per riprovare, oppure su {1} per scaricarlo tu stesso da GitHub.</sys:String> <!-- draft -->
 </ResourceDictionary>

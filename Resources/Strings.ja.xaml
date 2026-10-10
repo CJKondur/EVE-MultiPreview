@@ -1945,4 +1945,7 @@
     <sys:String x:Key="L.Start.Missing.Title">設定ファイルが見つかりません</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Missing.Body">MultiPreview が設定ファイルを見つけられません：&#x0A;{0}&#x0A;&#x0A;ファイルはなくなっていますが、設定のコピーが見つかりました。復元するコピーを選んでください。&#x0A;&#x0A;「最初からやり直す」は、初回起動時と同じように初期設定で始め直します。バックアップは Backups フォルダーに残ります。&#x0A;&#x0A;このウィンドウを閉じると、MultiPreview はこのセッションを初期設定で動かし、何も保存せず、次回の起動時にもう一度確認します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Missing.Fresh">最初からやり直す</sys:String> <!-- draft -->
+    <!-- Ideas batch 3 (Plan 7) -->
+    <sys:String x:Key="L.Upd.NoDigest">GitHub からこのリリースのチェックサムが届かなかったため、MultiPreview はダウンロードを確認できません。それでもインストールするには、もう一度「{0}」を押してください。自分で GitHub からダウンロードする場合は「{1}」を押してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.DigestMismatch">ダウンロードしたファイルが、GitHub がこのリリースに公開しているチェックサムと一致しません。ファイルは削除され、何もインストールされていません。やり直すには「{0}」を、自分で GitHub からダウンロードするには「{1}」を押してください。</sys:String> <!-- draft -->
 </ResourceDictionary>

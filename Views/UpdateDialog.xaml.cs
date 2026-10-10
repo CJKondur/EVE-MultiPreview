@@ -24,6 +24,7 @@ public partial class UpdateDialog : Window
     private bool _downloading = false;
     private string? _downloadedPath;
     private bool _installAnyway;
+    private bool _installUnverified;
 
     /// <param name="specificVersion">Opened from About → "Install a specific version" (an
     /// upgrade or a downgrade the user picked) rather than by an update check.</param>
@@ -146,6 +147,47 @@ public partial class UpdateDialog : Window
         TxtStatus.Visibility = Visibility.Visible;
     }
 
+    /// <summary>GitHub's answer held no checksum for this release, so the download can't be checked (IDEAS #53): say so
+    /// in the status line, and let the next click on the button install it anyway. Nothing was installed.</summary>
+    public void ShowNoDigest(object? buttonLabel = null)
+    {
+        _installUnverified = true;
+        ShowStatus(buttonLabel, "L.Upd.NoDigest",
+            "GitHub gave no checksum for this release, so MultiPreview can't check the download. Click {0} again to install it anyway, or {1} to download it from GitHub yourself.");
+    }
+
+    /// <summary>The download isn't the file GitHub published (IDEAS #53). It is deleted and nothing was installed;
+    /// the next click downloads again. A mismatch found while downloading has already deleted the file; one found
+    /// at the install (the file changed in between) has not, so it is deleted here and the line shown stays true.</summary>
+    public void ShowDigestMismatch(object? buttonLabel = null)
+    {
+        if (_downloadedPath != null)
+        {
+            try { System.IO.File.Delete(_downloadedPath); } catch { }
+        }
+        _downloadedPath = null;
+        _installUnverified = false;
+        ShowStatus(buttonLabel, "L.Upd.DigestMismatch",
+            "The download doesn't match the checksum GitHub publishes for this release. It was deleted and nothing was installed. Click {0} to try again, or {1} to download it from GitHub yourself.");
+    }
+
+    /// <summary>Back to the state before the click, with a line under the notes: {0} is the install button's label,
+    /// {1} the release page button's.</summary>
+    private void ShowStatus(object? buttonLabel, string key, string english)
+    {
+        _downloading = false;
+        BtnUpdateNow.IsEnabled = true;
+        if (buttonLabel != null) BtnUpdateNow.Content = buttonLabel;
+        BtnLater.IsEnabled = true;
+        BtnReleaseNotes.IsEnabled = true;
+        ProgressPanel.Visibility = Visibility.Collapsed;
+        TxtStatus.Text = string.Format(Str(key, english), BtnUpdateNow.Content, BtnReleaseNotes.Content);
+        TxtStatus.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>True after the no-checksum warning: the next click installs the unchecked download.</summary>
+    public bool InstallsUnverified => _installUnverified;
+
     /// <summary>Runs <c>beforeApply</c> (a downgrade turns the startup update check off) and remembers it ran, so closing the
     /// dialog without installing can undo it.</summary>
     public void BeginApply()
@@ -197,6 +239,14 @@ public partial class UpdateDialog : Window
 
             var downloadedPath = _downloadedPath ??= await _updateService.DownloadUpdateAsync(progress);   // a second click keeps the download
 
+            // IDEAS #53: a download that doesn't match GitHub's checksum never gets here (DownloadUpdateAsync deleted it
+            // and threw). One that can't be checked, because GitHub gave no checksum, waits for a second click.
+            if (_updateService.ExpectedSha256 == null && !_installUnverified)
+            {
+                ShowNoDigest(buttonLabel);
+                return;
+            }
+
             // Download complete — apply update
             TxtProgressStatus.Text = Str("L.Upd.Applying", "Download complete. Applying the update…");
             TxtStatus.Text = Str("L.Upd.Restarting", "Restarting with the new version…");
@@ -210,7 +260,7 @@ public partial class UpdateDialog : Window
             // Before the call: an install shuts the app down from inside ApplyUpdate, and this dialog closes (OnClosed)
             // before the call returns. It must not take that for a cancel and undo beforeApply.
             _applied = true;
-            var handBack = _updateService.ApplyUpdate(downloadedPath, _installAnyway);
+            var handBack = _updateService.ApplyUpdate(downloadedPath, _installAnyway, _installUnverified);
             if (handBack.Reason != null) App.LogError(new System.IO.IOException(HandBackLogLine(handBack)));
             if (handBack.State == HandBackState.Failed && !wasInstallAnyway)
             {
@@ -221,6 +271,14 @@ public partial class UpdateDialog : Window
         catch (Exception ex)
         {
             _applied = false;
+            if (ex is UpdateIntegrityException)
+            {
+                // The download isn't GitHub's file (IDEAS #53): it is deleted, nothing was installed, and the line
+                // under the notes says so in the player's language.
+                App.LogError(ex);
+                ShowDigestMismatch(buttonLabel);
+                return;
+            }
             _downloading = false;
             BtnUpdateNow.IsEnabled = true;
             BtnUpdateNow.Content = buttonLabel;

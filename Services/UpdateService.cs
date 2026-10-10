@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace EveMultiPreview.Services;
@@ -20,10 +20,18 @@ public sealed class UpdateService
     private const string GITHUB_API_URL = "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest";
     private const string EXE_ASSET_NAME = "EVE.MultiPreview.exe";
 
-    private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
+    private static readonly HttpClient SharedClient = new() { Timeout = TimeSpan.FromSeconds(30) };
+    private readonly HttpClient _httpClient;
 
     /// <summary>Current app version from assembly metadata.</summary>
     public string CurrentVersion { get; }
+
+    /// <summary>Where a download is kept until it is installed. Tests give a temp folder of their own.</summary>
+    public string DownloadFolder { get; init; } = Path.Combine(Path.GetTempPath(), "EVEMultiPreview_update");
+
+    /// <summary>The SHA-256 GitHub publishes for the exe of the release this service is aimed at (lower-case hex), or
+    /// null when GitHub's answer had none. Set by CheckForUpdateAsync and Select.</summary>
+    public string? ExpectedSha256 { get; private set; }
 
     /// <summary>Latest version tag from GitHub (set after CheckForUpdateAsync).</summary>
     public string? LatestVersion { get; private set; }
@@ -40,9 +48,23 @@ public sealed class UpdateService
     /// <summary>Whether an update is available (set after CheckForUpdateAsync).</summary>
     public bool UpdateAvailable { get; private set; }
 
-    public UpdateService()
+    public UpdateService() : this(null) { }
+
+    /// <summary>With a handler, every request goes to it and none to the network: the tests' way in.</summary>
+    public UpdateService(HttpMessageHandler? handler)
     {
+        _httpClient = handler == null ? SharedClient : new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(30) };
         CurrentVersion = typeof(UpdateService).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
+    }
+
+    /// <summary>GitHub's answer for a URL, as text. GitHub's API refuses a request without a User-Agent.</summary>
+    private async Task<string> GetTextAsync(string url)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.UserAgent.ParseAdd("EVE-MultiPreview/" + CurrentVersion);
+        using var response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
     }
 
     /// <summary>
@@ -53,37 +75,19 @@ public sealed class UpdateService
     {
         try
         {
-            _httpClient.DefaultRequestHeaders.UserAgent.Clear();
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("EVE-MultiPreview/" + CurrentVersion);
-
-            string apiUrl = allowPreRelease 
-                ? "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases" 
+            string apiUrl = allowPreRelease
+                ? "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases"
                 : "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest";
 
-            var json = await _httpClient.GetStringAsync(apiUrl);
+            // The newest release that ships the exe from this repository's own downloads, with the checksum GitHub
+            // publishes for that file (IDEAS #53). The answer is read as JSON, so the version, the link and the
+            // checksum always belong to the same release.
+            var latest = LatestIn(await GetTextAsync(apiUrl));
+            if (latest == null) return false;
+            Select(latest);
 
-            // Parse tag_name
-            var tagMatch = Regex.Match(json, "\"tag_name\"\\s*:\\s*\"([^\"]+)\"");
-            var urlMatch = Regex.Match(json, "\"html_url\"\\s*:\\s*\"([^\"]+)\"");
-            var bodyMatch = Regex.Match(json, "\"body\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
-
-            if (!tagMatch.Success) return false;
-
-            var latestTag = tagMatch.Groups[1].Value.TrimStart('v', 'V');
-            LatestVersion = latestTag;
-            ReleasePageUrl = urlMatch.Success ? urlMatch.Groups[1].Value : null;
-            ReleaseNotes = bodyMatch.Success ? Regex.Unescape(bodyMatch.Groups[1].Value) : null;
-
-            // Find the exe asset download URL
-            // Pattern: "browser_download_url":"https://...EVE.MultiPreview.exe"
-            var assetPattern = $"\"browser_download_url\"\\s*:\\s*\"([^\"]*{Regex.Escape(EXE_ASSET_NAME)})\"";
-            var assetMatch = Regex.Match(json, assetPattern);
-            DownloadUrl = assetMatch.Success ? assetMatch.Groups[1].Value : null;
-
-            if (Version.TryParse(latestTag, out var latest) && Version.TryParse(CurrentVersion, out var current))
-            {
-                UpdateAvailable = latest > current && DownloadUrl != null;
-            }
+            UpdateAvailable = Version.TryParse(latest.Version, out var newest)
+                              && Version.TryParse(CurrentVersion, out var current) && newest > current;
 
             Debug.WriteLine($"[Update] Current={CurrentVersion}, Latest={LatestVersion}, Available={UpdateAvailable}");
             return UpdateAvailable;
@@ -104,35 +108,106 @@ public sealed class UpdateService
         if (string.IsNullOrEmpty(DownloadUrl))
             throw new InvalidOperationException("No download URL available. Call CheckForUpdateAsync first.");
 
-        var tempDir = Path.Combine(Path.GetTempPath(), "EVEMultiPreview_update");
-        Directory.CreateDirectory(tempDir);
-        var destPath = Path.Combine(tempDir, EXE_ASSET_NAME);
+        Directory.CreateDirectory(DownloadFolder);
+        var destPath = Path.Combine(DownloadFolder, EXE_ASSET_NAME);
 
         // Delete any old download
         if (File.Exists(destPath)) File.Delete(destPath);
 
-        using var response = await _httpClient.GetAsync(DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
+        using var request = new HttpRequestMessage(HttpMethod.Get, DownloadUrl);
+        request.Headers.UserAgent.ParseAdd("EVE-MultiPreview/" + CurrentVersion);
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
 
         var totalBytes = response.Content.Headers.ContentLength ?? -1;
         long downloadedBytes = 0;
 
-        await using var contentStream = await response.Content.ReadAsStreamAsync();
-        await using var fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920);
-
-        var buffer = new byte[81920];
-        int bytesRead;
-        while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+        // The file is closed before it is checked: the braces end both streams.
+        await using (var contentStream = await response.Content.ReadAsStreamAsync())
+        await using (var fileStream = new FileStream(destPath, FileMode.Create, FileAccess.Write, FileShare.None, 81920))
         {
-            await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-            downloadedBytes += bytesRead;
-            if (totalBytes > 0)
-                progress?.Report((double)downloadedBytes / totalBytes);
+            var buffer = new byte[81920];
+            int bytesRead;
+            while ((bytesRead = await contentStream.ReadAsync(buffer)) > 0)
+            {
+                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                downloadedBytes += bytesRead;
+                if (totalBytes > 0)
+                    progress?.Report((double)downloadedBytes / totalBytes);
+            }
         }
 
         progress?.Report(1.0);
         Debug.WriteLine($"[Update] Downloaded {downloadedBytes:N0} bytes to {destPath}");
+
+        // IDEAS #53: a download that is not the file GitHub published is never kept, so nothing can install it.
+        // The file is read through off the calling (UI) thread: it is some 75 MB.
+        if (await Task.Run(() => Verify(destPath)) == DownloadCheck.Mismatch)
+        {
+            try { File.Delete(destPath); } catch { }
+            throw new UpdateIntegrityException("The download doesn't match the checksum GitHub publishes for this release. It was deleted.");
+        }
         return destPath;
+    }
+
+    // ── Checking the download (IDEAS #53) ────────────────────────────
+
+    /// <summary>What comparing a download with GitHub's checksum found.</summary>
+    public enum DownloadCheck
+    {
+        /// <summary>The file's SHA-256 is the one GitHub publishes for it.</summary>
+        Verified,
+        /// <summary>GitHub's answer held no checksum for the file at all: it can't be checked.</summary>
+        NoDigest,
+        /// <summary>The file is not the one GitHub published (cut short, damaged, another file), it can't be read, or
+        /// GitHub's checksum is in a form this code doesn't understand. Never installed.</summary>
+        Mismatch,
+    }
+
+    /// <summary>Stands in for a "digest" that GitHub sent but this code can't read. It is not a SHA-256, so no file
+    /// ever matches it: such a release fails closed instead of counting as "no checksum".</summary>
+    public const string UnreadableDigest = "unreadable-digest";
+
+    /// <summary>Compares a downloaded file with the checksum of the selected release.
+    /// What this catches: a download that was cut short, damaged on the way or on disk, or swapped for another file
+    /// after GitHub's answer was read. What it can't catch: a release that was replaced at GitHub itself (a taken-over
+    /// account), because the checksum comes from the same place as the file. Only a signature on the exe covers that.</summary>
+    public DownloadCheck Verify(string downloadedExePath) => VerifyFile(downloadedExePath, ExpectedSha256);
+
+    public static DownloadCheck VerifyFile(string path, string? expectedSha256)
+    {
+        if (string.IsNullOrEmpty(expectedSha256)) return DownloadCheck.NoDigest;
+        try
+        {
+            using var file = File.OpenRead(path);
+            return Convert.ToHexString(SHA256.HashData(file)).Equals(expectedSha256, StringComparison.OrdinalIgnoreCase)
+                ? DownloadCheck.Verified : DownloadCheck.Mismatch;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return DownloadCheck.Mismatch;      // a file that can't be read can't be shown to be GitHub's
+        }
+    }
+
+    /// <summary>The checksum in GitHub's "digest" field ("sha256:" and 64 hex digits) as lower-case hex; null for
+    /// anything else.</summary>
+    public static string? ParseDigest(string? digest)
+    {
+        const string prefix = "sha256:";
+        if (digest == null || !digest.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) return null;
+        var hex = digest[prefix.Length..];
+        return hex.Length == 64 && hex.All(Uri.IsHexDigit) ? hex.ToLowerInvariant() : null;
+    }
+
+    /// <summary>ApplyUpdate's first step: throws unless the file is the one GitHub published, or it can't be checked
+    /// because GitHub gave no checksum and the player has agreed (the dialog's second click) to install it unchecked.</summary>
+    public void RequireVerified(string downloadedExePath, bool allowUnverified)
+    {
+        var check = Verify(downloadedExePath);
+        if (check == DownloadCheck.Mismatch)
+            throw new UpdateIntegrityException("The downloaded file doesn't match the checksum GitHub publishes for this release. Nothing was installed.");
+        if (check == DownloadCheck.NoDigest && !allowUnverified)
+            throw new UpdateIntegrityException("GitHub gave no checksum for this release, and installing without one was not confirmed. Nothing was installed.");
     }
 
     /// <summary>
@@ -141,9 +216,12 @@ public sealed class UpdateService
     /// 2.3.42) it hands the current settings to the exe folder (IDEAS #57); when that fails nothing is installed and the
     /// result says why, so the dialog can warn the player.
     /// Calling it again with <paramref name="installAnyway"/> installs regardless.
+    /// The file is checked against GitHub's checksum first (RequireVerified, IDEAS #53): a file that doesn't match is
+    /// never installed, and one that can't be checked only with <paramref name="allowUnverified"/>.
     /// </summary>
-    public HandBackResult ApplyUpdate(string downloadedExePath, bool installAnyway = false)
+    public HandBackResult ApplyUpdate(string downloadedExePath, bool installAnyway = false, bool allowUnverified = false)
     {
+        RequireVerified(downloadedExePath, allowUnverified);
         var handBack = HandBackIfNeeded(AppPaths.SettingsPath, AppPaths.ExeDir, DateTime.Now);
         if (handBack.State == HandBackState.Failed && !installAnyway) return handBack;
 
@@ -259,8 +337,9 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
 
     // ── Install a specific version (upgrade or downgrade) ───────────
 
-    /// <summary>One installable GitHub release.</summary>
-    public sealed record ReleaseInfo(string Version, string DownloadUrl, string? Notes, string? PageUrl, bool PreRelease);
+    /// <summary>One installable GitHub release. Sha256 is the checksum GitHub publishes for its exe (lower-case hex),
+    /// or null when GitHub's answer had none.</summary>
+    public sealed record ReleaseInfo(string Version, string DownloadUrl, string? Notes, string? PageUrl, bool PreRelease, string? Sha256 = null);
 
     private const string RELEASES_URL = "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases?per_page=100";
     // Only ever this repository's own release assets, whatever the API returns.
@@ -270,31 +349,57 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
     /// <paramref name="includePreReleases"/> (the About tab's pre-release opt-in).</summary>
     public async Task<List<ReleaseInfo>> ListReleasesAsync(bool includePreReleases)
     {
-        using var req = new HttpRequestMessage(HttpMethod.Get, RELEASES_URL);
-        req.Headers.UserAgent.ParseAdd("EVE-MultiPreview/" + CurrentVersion);
-        using var resp = await _httpClient.SendAsync(req);
-        resp.EnsureSuccessStatusCode();
-        using var doc = JsonDocument.Parse(await resp.Content.ReadAsStringAsync());
+        using var doc = JsonDocument.Parse(await GetTextAsync(RELEASES_URL));
+        return doc.RootElement.EnumerateArray()
+            .Select(ReadRelease)
+            .Where(r => r != null && (includePreReleases || !r.PreRelease))
+            .OrderByDescending(r => System.Version.Parse(r!.Version))
+            .ToList()!;
+    }
 
-        var list = new List<(Version V, ReleaseInfo R)>();
-        foreach (var r in doc.RootElement.EnumerateArray())
-        {
-            bool pre = r.TryGetProperty("prerelease", out var p) && p.GetBoolean();
-            if ((r.TryGetProperty("draft", out var d) && d.GetBoolean()) || (pre && !includePreReleases)) continue;
-            var tag = r.GetProperty("tag_name").GetString()?.TrimStart('v', 'V');
-            if (!System.Version.TryParse(tag, out var version)) continue;
+    /// <summary>One release of GitHub's API answer, or null when it is a draft, has no version for a tag, or doesn't
+    /// ship the exe from this repository's own download path (whatever the API returns, nothing else is installable).</summary>
+    public static ReleaseInfo? ReadRelease(JsonElement release)
+    {
+        if (release.ValueKind != JsonValueKind.Object) return null;
+        if (release.TryGetProperty("draft", out var draft) && draft.ValueKind == JsonValueKind.True) return null;
+        var tag = Text(release, "tag_name")?.TrimStart('v', 'V');
+        if (!System.Version.TryParse(tag, out _)) return null;
 
-            string? url = null;
-            foreach (var a in r.GetProperty("assets").EnumerateArray())
-                if (a.GetProperty("name").GetString() == EXE_ASSET_NAME)
-                    url = a.GetProperty("browser_download_url").GetString();
-            if (url == null || !url.StartsWith(ASSET_URL_PREFIX, StringComparison.Ordinal)) continue;
+        string? url = null, sha256 = null;
+        if (release.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
+            foreach (var asset in assets.EnumerateArray())
+                if (Text(asset, "name") == EXE_ASSET_NAME)
+                {
+                    url = Text(asset, "browser_download_url");
+                    sha256 = DigestOf(asset);      // the exe's own checksum, never another file's
+                }
+        if (url == null || !url.StartsWith(ASSET_URL_PREFIX, StringComparison.Ordinal)) return null;
 
-            list.Add((version, new ReleaseInfo(tag!, url,
-                r.TryGetProperty("body", out var b) ? b.GetString() : null,
-                r.TryGetProperty("html_url", out var h) ? h.GetString() : null, pre)));
-        }
-        return list.OrderByDescending(x => x.V).Select(x => x.R).ToList();
+        bool pre = release.TryGetProperty("prerelease", out var p) && p.ValueKind == JsonValueKind.True;
+        return new ReleaseInfo(tag!, url, Text(release, "body"), Text(release, "html_url"), pre, sha256);
+    }
+
+    /// <summary>The checksum of one asset: null only when the asset has no "digest" (absent or JSON null). A digest that
+    /// is there but isn't "sha256:" and 64 hex digits is UnreadableDigest, which no file matches.</summary>
+    private static string? DigestOf(JsonElement asset)
+    {
+        if (!asset.TryGetProperty("digest", out var digest) || digest.ValueKind == JsonValueKind.Null) return null;
+        return (digest.ValueKind == JsonValueKind.String ? ParseDigest(digest.GetString()) : null) ?? UnreadableDigest;
+    }
+
+    private static string? Text(JsonElement of, string property) =>
+        of.ValueKind == JsonValueKind.Object && of.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.String
+            ? value.GetString() : null;
+
+    /// <summary>The newest installable release in GitHub's answer: the answer of releases/latest (one release) or of
+    /// releases (a list, when pre-releases are wanted). Null when there is none.</summary>
+    public static ReleaseInfo? LatestIn(string json)
+    {
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.ValueKind != JsonValueKind.Array) return ReadRelease(doc.RootElement);
+        return doc.RootElement.EnumerateArray().Select(ReadRelease).Where(r => r != null)
+            .OrderByDescending(r => System.Version.Parse(r!.Version)).FirstOrDefault();
     }
 
     /// <summary>Aim this service at a chosen release, so the normal DownloadUpdateAsync →
@@ -305,5 +410,13 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
         DownloadUrl = release.DownloadUrl;
         ReleaseNotes = release.Notes;
         ReleasePageUrl = release.PageUrl;
+        ExpectedSha256 = release.Sha256;
     }
+}
+
+/// <summary>An update that must not be installed: the download isn't the file GitHub published for the release, or it
+/// can't be checked and installing it unchecked was not confirmed (IDEAS #53).</summary>
+public sealed class UpdateIntegrityException : Exception
+{
+    public UpdateIntegrityException(string message) : base(message) { }
 }

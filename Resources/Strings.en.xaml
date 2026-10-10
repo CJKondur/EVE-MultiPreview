@@ -1944,4 +1944,7 @@
     <sys:String x:Key="L.Start.Missing.Title">Your settings file is missing</sys:String>
     <sys:String x:Key="L.Start.Missing.Body">MultiPreview can't find your settings file:&#x0A;{0}&#x0A;&#x0A;It is missing, but copies of your settings were found. Pick one to restore.&#x0A;&#x0A;"Start fresh" starts again with default settings, as on a first start. Your backups stay in the Backups folder.&#x0A;&#x0A;If you close this window, MultiPreview uses default settings for this session, saves nothing, and asks again the next time it starts.</sys:String>
     <sys:String x:Key="L.Start.Missing.Fresh">Start fresh</sys:String>
+    <!-- Ideas batch 3 (Plan 7) -->
+    <sys:String x:Key="L.Upd.NoDigest">GitHub gave no checksum for this release, so MultiPreview can't check the download. Click {0} again to install it anyway, or {1} to download it from GitHub yourself.</sys:String>
+    <sys:String x:Key="L.Upd.DigestMismatch">The download doesn't match the checksum GitHub publishes for this release. It was deleted and nothing was installed. Click {0} to try again, or {1} to download it from GitHub yourself.</sys:String>
 </ResourceDictionary>
