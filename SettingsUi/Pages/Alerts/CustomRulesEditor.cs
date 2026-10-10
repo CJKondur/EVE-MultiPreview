@@ -631,7 +631,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     {
         var rule = Model.Find(id);
         if (rule == null) return null;
-        var result = CustomAlertEngine.Test(rule, pasted ?? "");
+        var result = CustomAlertEngine.Test(rule, pasted ?? "", Model.Rules);
         string took = CustomRulesModel.TookText(result.Took);
         _result.Text = result.Outcome switch
         {

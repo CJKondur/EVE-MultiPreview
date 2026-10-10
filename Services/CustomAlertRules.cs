@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace EveMultiPreview.Services;
 
@@ -66,10 +67,22 @@ public static class CustomRules
     public const int MaxRawLine = 8192, MaxText = 2000;
     /// <summary>The most text the editor's Test box takes: a log line, with room to spare.</summary>
     public const int MaxPasted = 16384;
-    /// <summary>How long a regular expression that can't be matched in linear time may take on one line.</summary>
+    // What regular-expression rules may cost the thread that reads every client's logs (CustomAlertEngine has the
+    // three bounds). Plain-text rules are a search for a word: they are never counted and never skipped.
+    /// <summary>The longest one regular expression may take on one line: .NET gives the match up after it. A healthy
+    /// pattern needs microseconds, so 50 ms is a pattern gone wrong, and still short enough for the lines behind.</summary>
     public static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(50);
-    /// <summary>A rule that runs out of time this often is switched off until the rules change or MultiPreview restarts.</summary>
+    /// <summary>A rule that slow on this many lines is switched off. Three, so one or two stalls of the PC cost no rule.</summary>
     public const int TimeoutsBeforeOff = 3;
+    /// <summary>What all regular expressions together may take on one line; the rest of them skip that line. One time
+    /// limit, so no line waits for more than two: this one, and the match that was running when it ran out.</summary>
+    public static readonly TimeSpan LineBudget = TimeSpan.FromMilliseconds(50);
+    /// <summary>The lines an average is taken over: enough that one slow line is no verdict, few enough that a costly
+    /// rule is gone within a second of a fight.</summary>
+    public const int WindowLines = 100;
+    /// <summary>What the regular expressions may cost a line on average. Fifty healthy ones cost a sixtieth of it, and
+    /// at this cost the reader still reads a thousand lines a second.</summary>
+    public static readonly TimeSpan AverageBudget = TimeSpan.FromMilliseconds(1);
 }
 
 /// <summary>Why a rule can't be switched on. The editor shows "L.S.Rules.Err." + the name.</summary>
@@ -90,7 +103,7 @@ public static class CustomRuleCheck
     {
         var problem = Shape(rule, all);
         if (problem != CustomRuleProblem.None) return problem;
-        return rule.IsRegex && CustomRuleMatcher.Create(rule) == null ? CustomRuleProblem.PatternInvalid : CustomRuleProblem.None;
+        return rule.IsRegex && CustomRulePatterns.Get(rule.Pattern, rule.CaseSensitive) == null ? CustomRuleProblem.PatternInvalid : CustomRuleProblem.None;
     }
 
     /// <summary>Everything but whether a regular expression reads: the engine builds each pattern once and sees that
@@ -194,39 +207,103 @@ public static class CustomRuleText
         return pasted ? line[start..] : null;
     }
 
-    /// <summary>Markup out (a "&lt;" with no "&gt;" behind it is text and stays), white space runs to one space, ends
-    /// trimmed, cut to MaxText. Null when nothing is left.</summary>
+    /// <summary>Markup out, white space runs to one space, ends trimmed, and never longer than MaxText (the cut never
+    /// leaves a space at the end). Null when nothing is left. One pass: no character is looked at more than twice.</summary>
     private static string? Tidy(string text, bool stripMarkup)
     {
         var tidy = new StringBuilder(Math.Min(text.Length, CustomRules.MaxText));
         bool space = false;
-        for (int i = 0; i < text.Length && tidy.Length < CustomRules.MaxText; i++)
+        for (int i = 0; i < text.Length; i++)
         {
             char c = text[i];
             if (stripMarkup && c == '<')
             {
-                int close = text.IndexOf('>', i + 1);
+                int close = TagEnd(text, i);
                 if (close > 0) { i = close; continue; }
             }
             if (char.IsWhiteSpace(c) || c == (char)0xFEFF) { space = tidy.Length > 0; continue; }
+            if (tidy.Length + (space ? 2 : 1) > CustomRules.MaxText) break;
             if (space) { tidy.Append(' '); space = false; }
             tidy.Append(c);
         }
         return tidy.Length == 0 ? null : tidy.ToString();
     }
+
+    /// <summary>Where the tag that opens at <paramref name="open"/> (a "&lt;") closes, or -1 when none opens there.
+    /// EVE's markup is "&lt;", an optional "/", a letter, then anything but "&lt;" up to the next "&gt;":
+    /// &lt;color=0xffcc0000&gt;, &lt;b&gt;, &lt;/font&gt;. Any other "&lt;" is text and stays as it was typed, with
+    /// what follows it: "5 &lt; 7 and 9 &gt; 3". The search ends at the next "&lt;", so a line of them is still read
+    /// once.</summary>
+    private static int TagEnd(string text, int open)
+    {
+        int i = open + 1;
+        if (i < text.Length && text[i] == '/') i++;
+        if (i >= text.Length || !char.IsAsciiLetter(text[i])) return -1;
+        for (i++; i < text.Length; i++)
+        {
+            if (text[i] == '>') return i;
+            if (text[i] == '<') return -1;
+        }
+        return -1;
+    }
 }
 
-/// <summary>One rule made ready to match. Plain text is an ordinal search. A regular expression is built once, with
-/// RegexOptions.NonBacktracking where .NET accepts the pattern: such a match takes time in proportion to the line,
-/// whatever the pattern, so it can't hold the reading thread. A pattern NonBacktracking refuses (a lookahead, a
-/// lookbehind, a backreference ...) is built as an ordinary regular expression with a time limit of 50 ms a line; after
-/// three lines that ran out of time the rule is off until the rules change.</summary>
+/// <summary>The regular expression each pattern becomes, built once and kept. A pattern is asked for whenever the
+/// rules load or are saved, whenever the settings page draws its cards, at every test and whenever the engine is
+/// built; building one is by far the costliest step of each. What is kept is the Regex, which never changes and may be
+/// used by any thread at once, or the fact that .NET can't read the pattern. Only a rule of the regex kind has one:
+/// plain text is searched as it stands.
+///
+/// Every one is an ordinary regular expression with the time limit of CustomRules.MatchTimeout. Never
+/// RegexOptions.NonBacktracking: measured on .NET 10, that engine was bounded in neither time nor memory (one
+/// 33-character pattern held gigabytes, and single lines took half a second without being given up).</summary>
+public static class CustomRulePatterns
+{
+    /// <summary>The most patterns kept. A rules file holds 50, and the editor asks for a few more while a player
+    /// changes one; when this many are kept, all are dropped and built again as they are asked for.</summary>
+    public const int MaxKept = 256;
+
+    private static readonly object Gate = new();
+    private static readonly Dictionary<(string Pattern, bool CaseSensitive), Regex?> Kept = new();
+    private static int _built;
+
+    /// <summary>How many patterns were built since MultiPreview started; one that .NET can't read counts too. A test
+    /// reads it before and after a step to see that the step built none.</summary>
+    public static int Built => Volatile.Read(ref _built);
+
+    /// <summary>The regular expression of a pattern, or null when .NET can't read it. Asked by the settings window's
+    /// thread and by whoever builds the engine: one lock, never taken while a line is matched.</summary>
+    public static Regex? Get(string pattern, bool caseSensitive)
+    {
+        lock (Gate)
+        {
+            if (Kept.TryGetValue((pattern, caseSensitive), out var known)) return known;
+            Regex? regex;
+            try { regex = new Regex(pattern, RegexOptions.CultureInvariant | (caseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase), CustomRules.MatchTimeout); }
+            catch (ArgumentException) { regex = null; }   // not a regular expression
+            _built++;
+            if (Kept.Count >= MaxKept) Kept.Clear();
+            Kept[(pattern, caseSensitive)] = regex;
+            return regex;
+        }
+    }
+}
+
+/// <summary>One rule made ready to match. Plain text is an ordinal search. A regular expression is the one
+/// CustomRulePatterns keeps for its pattern: .NET gives a match up after 50 ms. The matcher itself only matches; what
+/// a rule may cost is the engine's to count (it has the clock), and the matcher carries the counts of its rule: its
+/// strikes, and what it took in the engine's current window.</summary>
 public sealed class CustomRuleMatcher
 {
     private readonly Regex? _regex;
     private readonly string _text;
     private readonly StringComparison _comparison;
-    private int _timeouts;
+    private int _strikes;
+
+    // The engine's, on the reading thread: what this rule's matches took in the current window without the slowest
+    // of them, the slowest, and how many there were.
+    internal long WindowTicks, WindowSlowest;
+    internal int WindowMatches;
 
     private CustomRuleMatcher(CustomAlertRule rule, Regex? regex)
     {
@@ -239,27 +316,21 @@ public sealed class CustomRuleMatcher
 
     public CustomAlertRule Rule { get; }
     public HashSet<string> Characters { get; }
-    /// <summary>True for a regular expression that matches in linear time (NonBacktracking); false for one that
-    /// runs under the time limit, and for plain text.</summary>
-    public bool Linear { get; private init; }
-    /// <summary>The rule ran out of time too often and matches nothing any more.</summary>
+    /// <summary>A regular expression: its matches are timed and counted. False for plain text.</summary>
+    public bool IsRegex => _regex != null;
+    /// <summary>The rule cost too much and matches nothing any more.</summary>
     public bool Off { get; private set; }
 
     /// <summary>The matcher of a rule, or null when its pattern is not a regular expression .NET can read.</summary>
     public static CustomRuleMatcher? Create(CustomAlertRule rule)
     {
         if (!rule.IsRegex) return new CustomRuleMatcher(rule, null);
-        var options = RegexOptions.CultureInvariant | (rule.CaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase);
-        try
-        {
-            try { return new CustomRuleMatcher(rule, new Regex(rule.Pattern, options | RegexOptions.NonBacktracking, CustomRules.MatchTimeout)) { Linear = true }; }
-            catch (NotSupportedException) { return new CustomRuleMatcher(rule, new Regex(rule.Pattern, options, CustomRules.MatchTimeout)); }
-        }
-        catch (ArgumentException) { return null; }   // not a regular expression
+        var regex = CustomRulePatterns.Get(rule.Pattern, rule.CaseSensitive);
+        return regex == null ? null : new CustomRuleMatcher(rule, regex);
     }
 
     /// <summary>Whether the rule's pattern is in <paramref name="text"/>. <paramref name="timedOut"/>: the match was
-    /// given up after 50 ms and counts as no match.</summary>
+    /// given up after 50 ms and counts as no match. Nothing is counted here.</summary>
     public bool Matches(string text, out bool timedOut)
     {
         timedOut = false;
@@ -269,10 +340,14 @@ public sealed class CustomRuleMatcher
         catch (RegexMatchTimeoutException)
         {
             timedOut = true;
-            if (++_timeouts >= CustomRules.TimeoutsBeforeOff) Off = true;
             return false;
         }
     }
+
+    /// <summary>One line on which the rule took the whole time limit. True when it was one too many.</summary>
+    internal bool Strike() => ++_strikes >= CustomRules.TimeoutsBeforeOff;
+
+    internal void SwitchOff() => Off = true;
 }
 
 /// <summary>What the editor's Test box says.</summary>
@@ -284,19 +359,53 @@ public sealed record CustomRuleTestResult(CustomRuleTestOutcome Outcome, TimeSpa
 
 /// <summary>The rules that are switched on and can run, made ready once (IDEAS #8). The log monitor asks it about
 /// every line while it has one; with no rule on there is no engine at all (Build returns null), and the monitor
-/// does nothing more per line than see that it has none.</summary>
+/// does nothing more per line than see that it has none.
+///
+/// The monitor's one thread reads every client's logs, and "under attack" waits behind whatever a rule costs. A
+/// plain-text rule is a search for a word and costs nothing worth counting. A regular expression is a player's
+/// program, so three bounds hold what all of them together can cost (the numbers are in CustomRules):
+///
+/// 1. A rule and a line: a match that was given up after 50 ms, or that came back after as long, is a strike. Three
+///    strikes switch the rule off.
+/// 2. A line: when the regular expressions have used 50 ms on it, the rest of them skip that line.
+/// 3. A hundred lines: when the regular expressions cost more than 1 ms a line on average, every rule that by itself
+///    took more than 1 ms a match on average is switched off, or the costliest rule when none did. Each rule's
+///    slowest match of the hundred is left out, so one stall of the PC costs no rule. The verdict is given as soon
+///    as it is certain: once the hundred lines' allowance is used up, the lines still to come can't bring the
+///    average back down.
+///
+/// A rule that is off stays off until the rules change or MultiPreview restarts, and the error log says so once, by
+/// the rule's id and the bound. The counts are the reading thread's alone: there is no lock on this path, and with
+/// only plain-text rules no clock is read.</summary>
 public sealed class CustomAlertEngine
 {
+    /// <summary>The word the error log names the bound by that switched a rule off: the first one, or the third.</summary>
+    public const string OffByTimeout = "timeout", OffByAverage = "average";
+
+    private static readonly long MatchLimit = InTicks(CustomRules.MatchTimeout);
+    private static readonly long LineLimit = InTicks(CustomRules.LineBudget);
+    private static readonly long AverageLimit = InTicks(CustomRules.AverageBudget);
+    private static readonly long WindowLimit = AverageLimit * CustomRules.WindowLines;
+
+    private static long InTicks(TimeSpan time) => time.Ticks * Stopwatch.Frequency / TimeSpan.TicksPerSecond;
+
     private readonly CustomRuleMatcher[] _game;
     private readonly Dictionary<string, CustomRuleMatcher[]> _chat;
+    private readonly CustomRuleMatcher[] _regex;      // every regular expression, game and chat: what the window counts
     private readonly ErrorLog _errors;
+    private readonly Func<long> _clock;
+    private int _windowLines;                         // lines of the current window on which a regular expression ran
+    private long _windowTicks;                        // what they took, without each rule's slowest match
 
-    private CustomAlertEngine(CustomRuleMatcher[] game, Dictionary<string, CustomRuleMatcher[]> chat, IReadOnlyList<string> channels, ErrorLog errors)
+    private CustomAlertEngine(CustomRuleMatcher[] game, Dictionary<string, CustomRuleMatcher[]> chat, CustomRuleMatcher[] regex,
+        ErrorLog errors, Func<long> clock)
     {
         _game = game;
         _chat = chat;
-        Channels = channels;
+        _regex = regex;
+        Channels = chat.Keys.ToList();
         _errors = errors;
+        _clock = clock;
     }
 
     /// <summary>The chat channels to read beyond what the monitor reads anyway, as the rules name them.</summary>
@@ -305,8 +414,13 @@ public sealed class CustomAlertEngine
     /// <summary>How many rules are ready.</summary>
     public int Count => _game.Length + _chat.Values.Sum(m => m.Length);
 
-    /// <summary>The engine for these rules, or null when none of them is on and able to run.</summary>
-    public static CustomAlertEngine? Build(IReadOnlyList<CustomAlertRule> rules, ErrorLog errors)
+    /// <summary>The ids of the rules that were switched off for what they cost, in the rules' order.</summary>
+    public IReadOnlyList<string> SwitchedOff => _regex.Where(m => m.Off).Select(m => m.Rule.Id).ToList();
+
+    /// <summary>The engine for these rules, or null when none of them is on and able to run.
+    /// <paramref name="clock"/> counts Stopwatch ticks (Stopwatch.GetTimestamp unless a test hands in its own): it
+    /// is read directly before and directly after each match of a regular expression, and at no other time.</summary>
+    public static CustomAlertEngine? Build(IReadOnlyList<CustomAlertRule> rules, ErrorLog errors, Func<long>? clock = null)
     {
         var ready = rules.Take(CustomRules.MaxRules)
             .Where(r => r.Enabled && CustomRuleCheck.Shape(r, rules) == CustomRuleProblem.None)
@@ -316,7 +430,8 @@ public sealed class CustomAlertEngine
         var chat = ready.Where(m => m.Rule.IsChat)
             .GroupBy(m => m.Rule.Channel.Trim(), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.OrdinalIgnoreCase);
-        return new CustomAlertEngine(ready.Where(m => !m.Rule.IsChat).ToArray(), chat, chat.Keys.ToList(), errors);
+        return new CustomAlertEngine(ready.Where(m => !m.Rule.IsChat).ToArray(), chat, ready.Where(m => m.IsRegex).ToArray(),
+            errors, clock ?? Stopwatch.GetTimestamp);
     }
 
     /// <summary>Whether a rule reads this chat channel.</summary>
@@ -329,8 +444,7 @@ public sealed class CustomAlertEngine
         if (_game.Length == 0) return;
         var text = CustomRuleText.Game(line);
         if (text == null) return;
-        foreach (var matcher in _game)
-            if (AppliesTo(matcher, character) && Matches(matcher, text)) raise(matcher.Rule, text);
+        Run(_game, text, character, own: false, raise);
     }
 
     /// <summary>A line of a chat channel that <paramref name="listener"/> hears.</summary>
@@ -339,35 +453,105 @@ public sealed class CustomAlertEngine
         if (!_chat.TryGetValue(channel, out var rules)) return;
         var text = CustomRuleText.Chat(line, out var speaker);
         if (text == null) return;
-        bool own = string.Equals(speaker, listener, StringComparison.OrdinalIgnoreCase);
-        foreach (var matcher in rules)
-            if (!(own && matcher.Rule.IgnoreOwn) && AppliesTo(matcher, listener) && Matches(matcher, text)) raise(matcher.Rule, text);
+        Run(rules, text, listener, string.Equals(speaker, listener, StringComparison.OrdinalIgnoreCase), raise);
     }
 
-    private static bool AppliesTo(CustomRuleMatcher matcher, string character) =>
-        matcher.Characters.Count == 0 || matcher.Characters.Contains(character);
-
-    private bool Matches(CustomRuleMatcher matcher, string text)
+    /// <summary>One line through its rules, in their order. <paramref name="own"/>: the listener wrote it.</summary>
+    private void Run(CustomRuleMatcher[] rules, string text, string character, bool own, Action<CustomAlertRule, string> raise)
     {
-        bool matched = matcher.Matches(text, out _);
-        if (matcher.Off && !_reported.Contains(matcher.Rule.Id))
+        long used = 0;        // what the regular expressions took on this line
+        bool timed = false;   // one of them ran
+        foreach (var matcher in rules)
         {
-            // Once per rule, and never the rule's name, its pattern or the line: the id is MultiPreview's own.
-            _reported.Add(matcher.Rule.Id);
-            _errors.Record(new TimeoutException($"Custom alert rule {matcher.Rule.AlertType} took too long to match {CustomRules.TimeoutsBeforeOff} lines and is off until the rules change or MultiPreview restarts."),
-                "CustomAlert", DateTime.Now);
+            if (matcher.Off || (own && matcher.Rule.IgnoreOwn)) continue;
+            if (matcher.Characters.Count != 0 && !matcher.Characters.Contains(character)) continue;
+            bool matched;
+            if (!matcher.IsRegex) matched = matcher.Matches(text, out _);
+            else
+            {
+                if (used >= LineLimit) continue;                              // the second bound: this line has had its time
+                long before = _clock();
+                matched = matcher.Matches(text, out bool timedOut);
+                long took = Math.Max(0, _clock() - before);
+                used += took;
+                timed = true;
+                AddToWindow(matcher, took);
+                if ((timedOut || took >= MatchLimit) && matcher.Strike()) SwitchOff(matcher, OffByTimeout);   // the first bound
+            }
+            if (matched) raise(matcher.Rule, text);
         }
-        return matched;
+        if (timed) EndLine();
     }
 
-    private readonly HashSet<string> _reported = new();
+    /// <summary>Adds a match to the window. The rule's slowest match stays out: when a slower one comes, the one that
+    /// was the slowest until now is counted in its place.</summary>
+    private void AddToWindow(CustomRuleMatcher matcher, long took)
+    {
+        matcher.WindowMatches++;
+        long counted = took;
+        if (took > matcher.WindowSlowest)
+        {
+            counted = matcher.WindowSlowest;
+            matcher.WindowSlowest = took;
+        }
+        matcher.WindowTicks += counted;
+        _windowTicks += counted;
+    }
+
+    /// <summary>The third bound, asked after every line on which a regular expression ran.</summary>
+    private void EndLine()
+    {
+        _windowLines++;
+        if (_windowTicks > WindowLimit)
+        {
+            // Certain already: a hundred lines' allowance is used, however little the rest of them would take.
+            CustomRuleMatcher? costliest = null;
+            bool found = false;
+            foreach (var matcher in _regex)
+            {
+                if (matcher.Off || matcher.WindowMatches < 2) continue;      // one match is the slowest one: left out
+                if (costliest == null || matcher.WindowTicks > costliest.WindowTicks) costliest = matcher;
+                if (matcher.WindowTicks <= AverageLimit * (matcher.WindowMatches - 1)) continue;
+                SwitchOff(matcher, OffByAverage);
+                found = true;
+            }
+            if (!found && costliest != null) SwitchOff(costliest, OffByAverage);
+        }
+        else if (_windowLines < CustomRules.WindowLines) return;
+
+        _windowLines = 0;
+        _windowTicks = 0;
+        foreach (var matcher in _regex)
+        {
+            matcher.WindowTicks = 0;
+            matcher.WindowSlowest = 0;
+            matcher.WindowMatches = 0;
+        }
+    }
+
+    /// <summary>Switches a rule off and says so, once (a rule that is off is never matched again, so it can't come
+    /// here twice). The record holds the rule's id, which is MultiPreview's own, and the bound: never the rule's name,
+    /// its pattern or a line. What the rule took leaves the window with it, so the rules that stay don't answer for it.</summary>
+    private void SwitchOff(CustomRuleMatcher matcher, string bound)
+    {
+        matcher.SwitchOff();
+        _windowTicks -= matcher.WindowTicks;
+        matcher.WindowTicks = 0;
+        string why = bound == OffByTimeout
+            ? $"it took {CustomRules.MatchTimeout.TotalMilliseconds:0} ms or more to match a line, {CustomRules.TimeoutsBeforeOff} times"
+            : $"the regular-expression rules took more than {CustomRules.AverageBudget.TotalMilliseconds:0} ms a line on average, and this rule was the slowest or one of the slow ones";
+        _errors.Record(new TimeoutException($"Custom alert rule {matcher.Rule.AlertType} was switched off ({bound}): {why}. It stays off until the rules change or MultiPreview restarts."),
+            "CustomAlert", DateTime.Now);
+    }
 
     /// <summary>The editor's Test box: what this rule does with a pasted line, through the functions the reader
     /// uses (ResolveLocalizedNames, then CustomRuleText and CustomRuleMatcher). The rule needn't be on, and its
-    /// character list isn't asked: the test is about the pattern.</summary>
-    public static CustomRuleTestResult Test(CustomAlertRule rule, string pasted)
+    /// character list isn't asked: the test is about the pattern. With <paramref name="all"/> (the rules it is one
+    /// of) the answer is also "broken" for a rule that can't run for a reason outside itself: its channel is not one
+    /// of the ten that are read.</summary>
+    public static CustomRuleTestResult Test(CustomAlertRule rule, string pasted, IReadOnlyList<CustomAlertRule>? all = null)
     {
-        var problem = CustomRuleCheck.Problem(rule);
+        var problem = CustomRuleCheck.Problem(rule, all);
         var matcher = problem == CustomRuleProblem.None ? CustomRuleMatcher.Create(rule) : null;
         if (matcher == null) return new CustomRuleTestResult(CustomRuleTestOutcome.Broken, TimeSpan.Zero, "", problem == CustomRuleProblem.None ? CustomRuleProblem.PatternInvalid : problem);
         // What the log monitor does to every line it reads, before anything looks at it (ProcessLine).
