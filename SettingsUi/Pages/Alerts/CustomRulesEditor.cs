@@ -24,7 +24,8 @@ namespace EveMultiPreview.SettingsUi;
 ///
 /// A rule's name, its pattern and the pasted line are the player's text and are only ever shown as text. A field is
 /// stored when it loses the focus or on Enter, and the card is then brought up to date in place: a rebuild would
-/// eat the click that moved the focus.</summary>
+/// eat the click that moved the focus. Only a change that could not be written rebuilds the cards: the player is
+/// told, and every control must then show what the rules file holds.</summary>
 public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRefreshable
 {
     public const string ItemId = "alerts.custom.editor";
@@ -122,10 +123,16 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         _note.Visibility = _note.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    /// <summary>Says so when the last change could not be written; the page then shows what the file holds.</summary>
+    /// <summary>Says so when the last change could not be written, and builds the cards again from what the rules
+    /// file holds. Bringing the card up to date in place is not enough then: a list or a switch the player just
+    /// changed would go on showing a change that was never made. The keyboard stays on the control it was on.</summary>
     private void AfterSave()
     {
-        if (Model.SaveFailed) _ctx.Host.Toast(Str("L.S.Rules.SaveFailed"));
+        if (!Model.SaveFailed) return;
+        _ctx.Host.Toast(Str("L.S.Rules.SaveFailed"));
+        string? tag = FocusedTag();
+        Rebuild();
+        if (tag != null) FocusField(tag);
     }
 
     public CustomAlertRule? Add()
@@ -650,10 +657,33 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         return result;
     }
 
-    /// <summary>Puts the keyboard focus on a field of the open rule once the rebuilt cards are loaded.</summary>
-    private void FocusField(string tag) => Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
+    // ── the keyboard ──
+
+    /// <summary>Everything in the cards, a card's parts before the next card's.</summary>
+    private static IEnumerable<FrameworkElement> Under(DependencyObject root)
     {
-        foreach (var child in _form.Children)
-            if (child is FrameworkElement { Tag: string t } field && t == tag && field.IsVisible) { field.Focus(); return; }
-    });
+        foreach (var child in LogicalTreeHelper.GetChildren(root).OfType<FrameworkElement>())
+        {
+            yield return child;
+            foreach (var deeper in Under(child)) yield return deeper;
+        }
+    }
+
+    /// <summary>The tag of the control of this page that has the keyboard (a field of the open rule, a rule's
+    /// switch), or null. The box inside a list that can be typed in is found by the list's tag.</summary>
+    private string? FocusedTag()
+    {
+        string? tag = null;
+        for (var at = Keyboard.FocusedElement as DependencyObject; at != null;
+             at = LogicalTreeHelper.GetParent(at) ?? (at is System.Windows.Media.Visual ? System.Windows.Media.VisualTreeHelper.GetParent(at) : null))
+        {
+            if (ReferenceEquals(at, this)) return tag;
+            if (tag == null && at is FrameworkElement { Tag: string own }) tag = own;
+        }
+        return null;
+    }
+
+    /// <summary>Puts the keyboard focus on a tagged control of the cards once the rebuilt cards are loaded.</summary>
+    private void FocusField(string tag) => Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
+        Under(_cards).FirstOrDefault(e => e.Tag as string == tag && e.IsVisible)?.Focus());
 }
