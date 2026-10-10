@@ -1714,7 +1714,9 @@ public sealed class LogMonitorService : IDisposable
                     // Testing only the ASCII one made "Bob’s Rifter" look NPC-owned, which
                     // suppressed real player tackle for everyone running PvE mode.
                     bool ownsShip = attacker.Contains("'s ") || attacker.Contains("’s ");
-                    if (!ownsShip || IsNpc(attacker))
+                    // IsNpc can't be asked here: it calls every name without a ticker an NPC, and a
+                    // ship's name ("Bob's Sabre") has none, so it dropped every bubble in PvE mode.
+                    if (!ownsShip)
                         return;
                 }
             }
@@ -1723,50 +1725,8 @@ public sealed class LogMonitorService : IDisposable
             return;
         }
 
-        // ── Warp scramble/disruption from the COMBAT log (#97) ──
-        // The (notify) block above only covers warp disruption BUBBLES ("You are
-        // within a warp disruption zone"). Being pointed or scrammed by a ship
-        // MODULE is a different message on a (combat) line —
-        //     "Warp scramble attempt from <Pilot>'s <Ship> to you!"
-        // — which nothing matched, so module tackle raised no alert, badge or sound
-        // at all. That is the case users actually care about most.
-        //
-        // Note: unlike every other alert phrase, this text is NOT present in EVE's
-        // localization tables (checked localization_fsd_<lang> and _main), so it is
-        // matched in English. Combat-log verbs appear to stay English like the
-        // "(combat)" tag itself; if a non-English client is found to translate it,
-        // add that wording to warp_scramble_combat in alert_patterns.json.
-        if (line.Contains("(combat)"))
-        {
-            // Combat lines are wrapped in colour/bold markup; strip tags so the
-            // phrase and the "to you" direction test see plain text.
-            string plain = Regex.Replace(line, "<[^>]*>", " ");
-            if (AlertPatterns.Matches(plain.ToLowerInvariant(), "warp_scramble_combat"))
-            {
-                // Only alert on INCOMING tackle. Scrambling someone else logs as
-                // "... from you to <target>", which must never raise a critical alert.
-                bool outgoing = Regex.IsMatch(plain, @"from\s+you\b", RegexOptions.IgnoreCase);
-                bool incoming = Regex.IsMatch(plain, @"to\s+you\b", RegexOptions.IgnoreCase);
-                if (incoming && !outgoing)
-                {
-                    // PvE mode: same NPC filter as the bubble path — player sources
-                    // carry the possessive ("Pilot's Ship"), NPC sources don't.
-                    if (PveMode)
-                    {
-                        var m = Regex.Match(plain, @"from\s+(.+?)\s+to\s+you", RegexOptions.IgnoreCase);
-                        if (m.Success)
-                        {
-                            string attacker = m.Groups[1].Value.Trim();
-                            bool ownsShip = attacker.Contains("'s ") || attacker.Contains("’s ");
-                            if (!ownsShip || IsNpc(attacker)) return;
-                        }
-                    }
-                    _lastEventTime = DateTime.Now;
-                    TriggerAlert(character, "warp_scramble", "critical");
-                    return;
-                }
-            }
-        }
+        // Tackle from a ship's module (#97) is a (combat) line: see TackleFromCombatLine,
+        // which the combat branch above reaches through ParseCombatLine.
 
         // ── Decloak detection ((notify) tag + localized "cloak deactivates") ──
         if (line.Contains("(notify)") && AlertPatterns.Matches(line, "decloak"))
@@ -1875,11 +1835,50 @@ public sealed class LogMonitorService : IDisposable
 
     }
 
+    /// <summary>The plain text of a tackle line whose target is this client: "... attempt from ATTACKER to you!".
+    /// It must END in "to you!": EVE writes the same line for every tackle it shows on grid, and a pilot's name can
+    /// begin with "You", so "to You Know Who [TICK] Sabre" is someone else's tackle.</summary>
+    private static readonly Regex TackleOnYou =
+        new(@"\bfrom\s+(.+?)\s+to\s+you\s*!?\s*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    /// <summary>
+    /// Being pointed or scrammed by a ship's module (#97). EVE writes it as a (combat) line,
+    ///     Warp scramble attempt from ATTACKER to you!
+    /// (or "Warp disruption attempt"), and writes the same line for every tackle it shows on grid, also between two
+    /// other pilots: only a line that ends in "to you!" is ours. This check used to sit below the combat branch of
+    /// ParseGameLogLine, which returns for every (combat) line, so it never ran. The wording is not in EVE's
+    /// localization tables; it is matched in English (warp_scramble_combat in alert_patterns.json).
+    /// </summary>
+    private void TackleFromCombatLine(string line, string character)
+    {
+        // The cheap test first: of the (combat) lines without a damage number, nearly all stop here.
+        if (line.IndexOf("attempt", StringComparison.OrdinalIgnoreCase) < 0) return;
+
+        // The line is wrapped in colour and bold markup: the phrase and the direction are read from its plain text.
+        string plain = Regex.Replace(line, "<[^>]*>", " ");
+        if (!AlertPatterns.Matches(plain.ToLowerInvariant(), "warp_scramble_combat")) return;
+
+        // A tackle between two other pilots, or your own on someone ("... from you to TARGET"), doesn't end in "to you!".
+        var onYou = TackleOnYou.Match(plain);
+        if (!onYou.Success) return;
+
+        // As for hits: a player is named with a corporation ticker in brackets, an NPC is not.
+        if (PveMode && IsNpc(onYou.Groups[1].Value.Trim())) return;
+
+        _lastEventTime = DateTime.Now;
+        TriggerAlert(character, "warp_scramble", "critical");
+    }
+
     private void ParseCombatLine(string line, string character)
     {
         // Extract amount and color code — EVE format: <color=0xXXXXXXXX><b>NUM</b>
         var damageMatch = Regex.Match(line, @"<color=(0x[0-9a-fA-F]+)><b>(\d+)</b>");
-        if (!damageMatch.Success) return;
+        if (!damageMatch.Success)
+        {
+            // No damage number: a miss (the caller raised it), e-war, or tackle from a ship's module.
+            TackleFromCombatLine(line, character);
+            return;
+        }
 
         string colorCode = damageMatch.Groups[1].Value.ToLowerInvariant();
         int amount = int.Parse(damageMatch.Groups[2].Value);
@@ -2157,9 +2156,12 @@ public sealed class LogMonitorService : IDisposable
     private static readonly Regex LogLinePrefix =
         new(@"^\s*\[[^\]]*\]\s*\([^)]*\)\s*", RegexOptions.Compiled);
 
-    /// <summary>The speaker of a chat line: "[ ts ] SPEAKER > message".</summary>
+    /// <summary>The speaker of a chat line: "[ ts ] SPEAKER > message". EVE starts every message line of a chat log
+    /// with U+FEFF, which \s does not match: without it here, only the first line of each read was understood (the
+    /// reader takes a leading U+FEFF for a byte order mark and drops it), so a Local change behind another line in
+    /// the same read was missed, and the system was never found when a chat log was first read through.</summary>
     private static readonly Regex ChatSpeaker =
-        new(@"^\s*\[[^\]]*\]\s*([^>]+?)\s*>", RegexOptions.Compiled);
+        new(@"^[\s\uFEFF]*\[[^\]]*\]\s*([^>]+?)\s*>", RegexOptions.Compiled);
 
     /// <summary>
     /// True only when a chat line was written by EVE's own "EVE System" speaker.
