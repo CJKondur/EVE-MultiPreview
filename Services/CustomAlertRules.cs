@@ -148,9 +148,10 @@ public static class CustomRuleCheck
     /// same behind "\\?\") would make Windows log in to that computer when the alert plays, and a web address is no
     /// file: none of them is ever kept, played or looked at. Nor is a path that is no plain file name under its drive
     /// letter: one with a wildcard, with a second colon (a stream of a file), with a "." or ".." part, with a part that
-    /// ends in a dot or a space (Windows reads another name than is written), or with a device's name for a part
-    /// (CON, PRN, AUX, NUL, COM1, LPT1 ..., with or without an extension). Only the text is looked at, never the
-    /// disk: a drive letter can still be a drive of another computer, as it can for every other sound setting.</summary>
+    /// ends in a dot or a space (Windows reads another name than is written), or with a part that is a device's name
+    /// (CON, PRN, AUX, NUL, COM0 to COM9, LPT0 to LPT9). A name with more to it is a file or a folder like any other:
+    /// "con.wav", "Con.Air (1997)". Only the text is looked at, never the disk: a drive letter can still be a drive
+    /// of another computer, as it can for every other sound setting.</summary>
     public static string LocalSound(string? sound)
     {
         var path = (sound ?? "").Trim();
@@ -168,13 +169,12 @@ public static class CustomRuleCheck
     {
         if (part.Length == 0) return true;
         if (part[^1] == '.' || part[^1] == ' ') return false;                // also "." and ".."
-        int dot = part.IndexOf('.');
-        var name = (dot < 0 ? part : part[..dot]).TrimEnd(' ');
-        if (Devices.Contains(name, StringComparer.OrdinalIgnoreCase)) return false;
-        // COM1 to COM9 and LPT1 to LPT9; Windows also reserves the digit 0 and the superscript digits 1, 2 and 3.
-        return !(name.Length == 4
-            && (name.StartsWith("COM", StringComparison.OrdinalIgnoreCase) || name.StartsWith("LPT", StringComparison.OrdinalIgnoreCase))
-            && (char.IsAsciiDigit(name[3]) || name[3] == (char)0xB9 || name[3] == (char)0xB2 || name[3] == (char)0xB3));
+        // A device's name, and nothing behind it: "con.wav" and "Con.Air (1997)" are names like any other.
+        if (Devices.Contains(part, StringComparer.OrdinalIgnoreCase)) return false;
+        // COM0 to COM9 and LPT0 to LPT9; Windows also keeps them with the superscript digits 1, 2 and 3.
+        return !(part.Length == 4
+            && (part.StartsWith("COM", StringComparison.OrdinalIgnoreCase) || part.StartsWith("LPT", StringComparison.OrdinalIgnoreCase))
+            && (char.IsAsciiDigit(part[3]) || part[3] == (char)0xB9 || part[3] == (char)0xB2 || part[3] == (char)0xB3));
     }
 
     /// <summary>The chat channels the rules name, each once, in the rules' order: the first ten are read. A rule

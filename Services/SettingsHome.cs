@@ -177,15 +177,23 @@ public static class SettingsHome
         catch (Exception ex) { notes.Add($"Backups not copied: {ErrorLog.Describe(ex)}"); }
     }
 
-    /// <summary>False only for a file that is there and larger than a rules file can be (or whose size can't be read).</summary>
-    private static bool FitsARulesFile(string file)
+    /// <summary>False only for a file that is there and larger than a rules file can be, or whose size can't be read:
+    /// that is no size that fits. <paramref name="sizeOf"/> reads a file's size in bytes, null for a file that isn't
+    /// there (FileInfo, unless a test hands in its own: Windows gives no file a size that can't be read).</summary>
+    public static bool FitsARulesFile(string file, Func<string, long?>? sizeOf = null)
     {
         try
         {
-            var info = new FileInfo(file);
-            return !info.Exists || info.Length <= CustomAlertStore.MaxFileBytes;
+            long? size = (sizeOf ?? SizeOf)(file);
+            return size == null || size <= CustomAlertStore.MaxFileBytes;
         }
         catch { return false; }
+    }
+
+    private static long? SizeOf(string file)
+    {
+        var info = new FileInfo(file);
+        return info.Exists ? info.Length : null;
     }
 
     private static void CopyIfNew(string from, string to, List<string> notes)
