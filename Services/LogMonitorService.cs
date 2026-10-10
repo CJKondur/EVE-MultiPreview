@@ -1448,7 +1448,8 @@ public sealed class LogMonitorService : IDisposable
 
                         line = lineBuffer + rawLine;
                         lineBuffer = "";
-                        ProcessLine(line, state);
+                        try { ProcessLine(line, state); }
+                        catch (Exception ex) { RecordBadLine(path, ex); }
                     }
                 }
 
@@ -1471,6 +1472,17 @@ public sealed class LogMonitorService : IDisposable
                     $"[Read] ❌ Exception on {Path.GetFileName(path)} at pos={state.LastPosition}: {ex.GetType().Name}: {ex.Message}");
             }
         }
+    }
+
+    /// <summary>One line made a parser throw. It is skipped, so the lines behind it are still read and the ones before it
+    /// are not raised again. Only the exception's TYPE and the log file's NAME are recorded: another player chooses the
+    /// names in a log line, and a message (a FormatException quotes its input) can hold them. The record is a new
+    /// exception with a fixed message, because ErrorLog writes the message of what it is given.</summary>
+    private static void RecordBadLine(string path, Exception ex)
+    {
+        string type = ex.GetType().Name;
+        ErrorLog.Shared.Record(new InvalidOperationException("A log line made a parser throw: " + type), "LogMonitor:Line", DateTime.Now);
+        DiagnosticsService.LogAlerts($"[Read] ❌ A line in {Path.GetFileName(path)} made a parser throw {type}; it was skipped");
     }
 
     /// <summary>
@@ -1867,6 +1879,12 @@ public sealed class LogMonitorService : IDisposable
         }
         if (!tail.EndsWith("you!", StringComparison.OrdinalIgnoreCase)) return;
 
+        // "you!" is a text of its own, after a tag, not the end of a name inside a label (a ship may be named
+        // "Nice to you!"). A label that is only <b>you!</b> still passes: accepted. A line with no tag at all has no
+        // label to hold a name, so it needs no tag before "you!".
+        var before = tail[..^4].TrimEnd();
+        if (before.Length == 0 || (before[^1] != '>' && line.Contains('<'))) return;
+
         // The line is wrapped in colour and bold markup: the phrase and the direction are read from its plain text.
         string plain = Regex.Replace(line, "<[^>]*>", " ");
         if (!AlertPatterns.Matches(plain.ToLowerInvariant(), "warp_scramble_combat")) return;
@@ -1886,15 +1904,16 @@ public sealed class LogMonitorService : IDisposable
     {
         // Extract amount and color code — EVE format: <color=0xXXXXXXXX><b>NUM</b>
         var damageMatch = Regex.Match(line, @"<color=(0x[0-9a-fA-F]+)><b>(\d+)</b>");
-        if (!damageMatch.Success)
+        // No damage number: a miss (the caller raised it), e-war, or tackle from a ship's module. A number too long for
+        // an int is no damage number either (a pilot named with digits only, in a tackle line): int.Parse threw on it,
+        // and the reader then never got past the line.
+        if (!damageMatch.Success || !int.TryParse(damageMatch.Groups[2].Value, out int amount))
         {
-            // No damage number: a miss (the caller raised it), e-war, or tackle from a ship's module.
             TackleFromCombatLine(line, character);
             return;
         }
 
         string colorCode = damageMatch.Groups[1].Value.ToLowerInvariant();
-        int amount = int.Parse(damageMatch.Groups[2].Value);
 
         // === Outgoing damage: cyan 0xff00ffff ===
         if (colorCode == "0xff00ffff")
@@ -2005,8 +2024,8 @@ public sealed class LogMonitorService : IDisposable
             return;
         }
 
-        // No colour branch took the line. A pilot named only with digits ("<b>0451</b>") makes a tackle line look like
-        // a damage line; the branches above all return, so only such a line gets here.
+        // No colour branch took the line: a damage number in another colour, or a pilot named only with digits
+        // ("<b>0451</b>") that makes a tackle line look like a damage line. The branches above all return.
         TackleFromCombatLine(line, character);
     }
 
@@ -2076,7 +2095,9 @@ public sealed class LogMonitorService : IDisposable
         var bountyMatch = Regex.Match(line, @"([\d,]+(?:\.\d+)?)\s*ISK");
         if (!bountyMatch.Success) return;
 
-        double amount = double.Parse(bountyMatch.Groups[1].Value.Replace(",", ""), CultureInfo.InvariantCulture);
+        // Not a number (an amount of commas only): no bounty. double.Parse threw on it.
+        if (!double.TryParse(bountyMatch.Groups[1].Value.Replace(",", ""), NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out double amount))
+            return;
 
         BountyReceived?.Invoke(new BountyEvent
         {
