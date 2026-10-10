@@ -1185,6 +1185,14 @@ public sealed class LogMonitorService : IDisposable
     /// it there and then; that is how the alert history gets the text without AlertTriggered changing.</summary>
     public string? RaisingCustomText { get; private set; }
 
+    /// <summary>The custom rules that are switched off right now for what they cost, by alert type ("custom:" + id),
+    /// each with the word of the bound that did it (CustomAlertEngine.OffByTimeout, OffByAverage or OffByPeaks);
+    /// empty while no rule is on. A snapshot that never changes, for any thread: the settings page shows it. It is
+    /// the engine's own, and this reads the engine the way a thread other than the reader may, so no line, read or
+    /// scan does anything for it.</summary>
+    public IReadOnlyDictionary<string, string> CustomRulesSwitchedOff =>
+        Volatile.Read(ref _customRules)?.SwitchedOff ?? CustomAlertEngine.NoneSwitchedOff;
+
     private async Task MonitorLoop(CancellationToken ct)
     {
         while (!ct.IsCancellationRequested)

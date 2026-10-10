@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -435,6 +436,9 @@ public sealed class CustomAlertEngine
     /// 50 ms or more in a hundred lines), the third (the average), or the fourth (the left-out matches).</summary>
     public const string OffByTimeout = "timeout", OffByAverage = "average", OffByPeaks = "peaks";
 
+    /// <summary>The snapshot that holds no rule: of an engine in which none is switched off, and of no engine at all.</summary>
+    public static readonly IReadOnlyDictionary<string, string> NoneSwitchedOff = ImmutableDictionary<string, string>.Empty;
+
     private static readonly long MatchLimit = InTicks(CustomRules.MatchTimeout);
     private static readonly long LineLimit = InTicks(CustomRules.LineBudget);
     private static readonly long AverageLimit = InTicks(CustomRules.AverageBudget);
@@ -450,6 +454,9 @@ public sealed class CustomAlertEngine
     private int _windowLines;                         // lines of the current window on which a regular expression ran
     private long _windowTicks;                        // what the window counts: each rule's ordinary cost (WindowCounted)
     private long _windowAll;                          // everything the regular expressions took in it
+    // The rules that are switched off. Never changed: the reading thread puts a new one in its place when a rule
+    // goes off, and any thread may read the one that is there.
+    private volatile ImmutableDictionary<string, string> _switchedOff = ImmutableDictionary<string, string>.Empty;
 
     private CustomAlertEngine(CustomRuleMatcher[] game, Dictionary<string, CustomRuleMatcher[]> chat, CustomRuleMatcher[] regex,
         ErrorLog errors, Func<long> clock)
@@ -468,8 +475,11 @@ public sealed class CustomAlertEngine
     /// <summary>How many rules are ready.</summary>
     public int Count => _game.Length + _chat.Values.Sum(m => m.Length);
 
-    /// <summary>The ids of the rules that were switched off for what they cost, in the rules' order.</summary>
-    public IReadOnlyList<string> SwitchedOff => _regex.Where(m => m.Off).Select(m => m.Rule.Id).ToList();
+    /// <summary>The rules that are switched off for what they cost, by alert type ("custom:" + id), each with the
+    /// word of the bound that did it: OffByTimeout, OffByAverage or OffByPeaks. A snapshot: it never changes, so any
+    /// thread may read it while the reading thread works (the settings page shows it), and reading it makes nothing.
+    /// When another rule goes off, the engine holds a new one.</summary>
+    public IReadOnlyDictionary<string, string> SwitchedOff => _switchedOff;
 
     /// <summary>The engine for these rules, or null when none of them is on and able to run.
     /// <paramref name="clock"/> counts Stopwatch ticks (Stopwatch.GetTimestamp unless a test hands in its own): it
@@ -639,6 +649,7 @@ public sealed class CustomAlertEngine
         matcher.WindowSlowest = 0;
         matcher.WindowCounted = 0;
         matcher.WindowMatches = 0;
+        _switchedOff = _switchedOff.SetItem(matcher.Rule.AlertType, bound);   // a new snapshot: the one handed out stays as it is
         string why = bound == OffByTimeout
             ? $"it took {CustomRules.MatchTimeout.TotalMilliseconds:0} ms or more to match a line, {CustomRules.TimeoutsBeforeOff} times in {CustomRules.WindowLines} lines"
             : bound == OffByAverage
