@@ -1,8 +1,9 @@
+using System;
 using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>Which sound file an alert plays. App.PlayAlertSound asks here and then plays the file if it exists.</summary>
+/// <summary>Which sound file an alert plays. App.PlayAlertSound asks FileToPlay and then plays the file if it exists.</summary>
 public static class AlertSoundChoice
 {
     /// <summary>The file for an alert type, or null for none.
@@ -21,6 +22,17 @@ public static class AlertSoundChoice
     /// (CustomRuleCheck.LocalSound), else the default alert sound. A null rule is one deleted since.</summary>
     public static string? FileFor(AppSettings s, CustomAlertRule? rule) =>
         rule != null && CustomRuleCheck.LocalSound(rule.Sound) is { Length: > 0 } own ? own : Default(s);
+
+    /// <summary>The file an alert plays, once the disk was asked: FileFor's choice, except that a custom rule whose
+    /// own sound file is no longer there (moved or deleted since it was picked) plays the default alert sound
+    /// instead of nothing. <paramref name="exists"/> is how the disk is asked (File.Exists in the app); FileFor
+    /// itself never looks at it. A built-in event's choice is not touched and the disk is not asked for it: its own
+    /// file that is gone stays silent, as it was before custom rules.</summary>
+    public static string? FileToPlay(AppSettings s, string alertType, Func<string, bool> exists)
+    {
+        var file = FileFor(s, alertType);
+        return CustomAlertTypes.IsCustom(alertType) && !string.IsNullOrEmpty(file) && !exists(file) ? Default(s) : file;
+    }
 
     private static string? Default(AppSettings s) => string.IsNullOrEmpty(s.AlertSoundFile) ? null : s.AlertSoundFile;
 }

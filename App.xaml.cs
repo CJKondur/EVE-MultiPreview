@@ -373,11 +373,14 @@ public partial class App : Application
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
                 // What a custom rule matched is there only while its alert is being raised: taken first (IDEAS #8).
-                // For a built-in alert it is null, and so is the rule.
+                // The rule's name is taken with it: Dispatch waits for the window's thread (the toast, the sound),
+                // and the player may rename or delete the rule meanwhile. The history keeps the name the alert was
+                // raised under. For a built-in alert both are null.
                 var matched = _logMonitor.RaisingCustomText;
+                var rule = CustomAlertTypes.Find(alertType)?.Name;
                 var outcome = AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity);
                 _alertHistory.Record(AlertHistory.Entry(DateTime.UtcNow, charName, alertType, severity,
-                    _logMonitor.GetCharacterSystem(charName), outcome, CustomAlertTypes.Find(alertType)?.Name, matched));
+                    _logMonitor.GetCharacterSystem(charName), outcome, rule, matched));
             };
 
             // IDEAS #8: the player's own alert rules, from custom_alerts.json in the settings folder. A file that can't
@@ -734,8 +737,9 @@ public partial class App : Application
             }
         }
 
-        // The event's own sound file, else the default one; a custom rule's own before both (IDEAS #8).
-        string? soundFile = AlertSoundChoice.FileFor(s, alertType);
+        // The event's own sound file, else the default one; a custom rule's own before both (IDEAS #8), and the
+        // default one when the rule's own file is no longer there.
+        string? soundFile = AlertSoundChoice.FileToPlay(s, alertType, System.IO.File.Exists);
 
         if (string.IsNullOrEmpty(soundFile) || !System.IO.File.Exists(soundFile))
         {

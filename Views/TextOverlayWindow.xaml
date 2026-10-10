@@ -127,7 +127,11 @@
         </TextBlock>
 
         <!-- What the current alert is ("Warp scrambled", "Fleet warp"), in the alert's
-             colour, for as long as it lasts (#115). Anchor set by SetAlertTextPosition. -->
+             colour, for as long as it lasts (#115). Anchor set by SetAlertTextPosition.
+             A custom rule's name can be 40 characters: a text wider than the thumbnail
+             ends in "…" inside it. The grid hands the text the thumbnail's width less its
+             inset, so the trimming needs no width of its own; a text that fits is drawn
+             exactly as without it. -->
         <TextBlock x:Name="AlertTextOverlay"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Bottom"
@@ -135,6 +139,7 @@
                    FontSize="14"
                    FontFamily="Gill Sans MT"
                    FontWeight="Bold"
+                   TextTrimming="CharacterEllipsis"
                    Visibility="Collapsed">
             <TextBlock.Effect>
                 <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="1" Color="Black"/>
