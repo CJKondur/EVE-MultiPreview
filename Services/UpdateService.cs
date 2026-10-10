@@ -326,7 +326,7 @@ public sealed class UpdateService
             UseShellExecute = false,
             CreateNoWindow = true
         };
-        foreach (var (name, value) in UpdaterEnvironment(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath, Environment.ProcessId))
+        foreach (var (name, value) in UpdaterEnvironment(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath, Environment.ProcessId, Environment.ProcessPath))
             psi.Environment[name] = value;
         Process.Start(psi);
 
@@ -347,14 +347,16 @@ public sealed class UpdateService
     public HandBackResult HandBackIfNeeded(string settingsFile, string exeDir, DateTime now) =>
         SettingsHome.ReadsExeFolder(LatestVersion) ? SettingsHome.HandBack(settingsFile, exeDir, now) : default;
 
-    /// <summary>What the updater script reads (as $env:EMP_…): the four paths, and the id of the process it must wait
-    /// for (this one). Environment variables are Unicode and never parsed as code, so any folder name works and none
-    /// can inject a command.</summary>
+    /// <summary>What the updater script reads (as $env:EMP_…): the four paths, the id of the process it must wait for
+    /// (this one) and the path of the exe that is running (this one's; "" when not known), which it starts again when
+    /// the new exe could not be put in place. Environment variables are Unicode and never parsed as code, so any
+    /// folder name works and none can inject a command.</summary>
     public static IReadOnlyList<(string Name, string Value)> UpdaterEnvironment(string appDir, string settingsFile, string backupDir,
-        string downloadedExePath, int processId) => new[]
+        string downloadedExePath, int processId, string? runningExe) => new[]
     {
         ("EMP_APPDIR", Path.TrimEndingDirectorySeparator(appDir)), ("EMP_CONFIG", settingsFile), ("EMP_BACKUPS", backupDir), ("EMP_NEWEXE", downloadedExePath),
         ("EMP_PID", processId.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+        ("EMP_EXE", runningExe ?? ""),
     };
 
     /// <summary>The updater: waits for MultiPreview to exit, copies the settings file into the Backups folder of the
@@ -362,6 +364,10 @@ public sealed class UpdateService
     /// It waits for the process that started it by that process's id (IDEAS P52): the name is no use for that, because
     /// a freshly downloaded copy runs as EVE.MultiPreview and a renamed copy as anything, and a new exe started while
     /// the old one is still closing finds it running, says so and quits. The wait by name stays behind it, as before.
+    /// The copy of the new exe can fail (the download quarantined or cleaned away after it was checked, the exe in the
+    /// app folder locked), so its answer is kept: the dot-named exe and pdb of a freshly downloaded install are removed
+    /// only behind a copy that succeeded, and after one that failed nothing is removed and the exe that was running is
+    /// started again. It used to remove them whatever the copy answered, which left such an install with no exe at all.
     /// A constant, ASCII only, holding no path (see UpdaterEnvironment). Cmdlets and property access only, no .NET calls,
     /// so it also runs in Constrained Language mode (AppLocker/WDAC); only forms that Windows PowerShell 5.1 has.</summary>
     public const string UpdaterScript = @"
@@ -398,27 +404,39 @@ try {
     }
 } catch { }
 
-# Replace the executable
+# Replace the executable. The copy can fail: the download was quarantined or cleaned away after it
+# was checked, or the exe in the app folder is still locked. What the copy answers decides the rest.
 $oldExe = Join-Path $appDir 'EVE MultiPreview.exe'
-Copy-Item -LiteralPath $newExe -Destination $oldExe -Force
-
-# Clean up any stale dot-named exe / pdb left over from earlier installs
-# that pre-date the AssemblyName rename. The GitHub release ships the file
-# as 'EVE.MultiPreview.exe' (with a dot, GitHub-friendly), but the local
-# install is 'EVE MultiPreview.exe' (with a space). Old dot-named files
-# from previous versions sit alongside the space-named live exe and show
-# up as confusing duplicates in the install folder (issue #42, bug #3).
 $dotExe = Join-Path $appDir 'EVE.MultiPreview.exe'
-if (Test-Path -LiteralPath $dotExe) {
-    Remove-Item -LiteralPath $dotExe -Force -ErrorAction SilentlyContinue
-}
 $dotPdb = Join-Path $appDir 'EVE.MultiPreview.pdb'
-if (Test-Path -LiteralPath $dotPdb) {
-    Remove-Item -LiteralPath $dotPdb -Force -ErrorAction SilentlyContinue
+Copy-Item -LiteralPath $newExe -Destination $oldExe -Force
+$copied = $?
+
+if ($copied) {
+    # The new exe is in place, under the name with a space. The GitHub release ships the file as
+    # 'EVE.MultiPreview.exe' (with a dot, GitHub-friendly), so a freshly downloaded install runs under
+    # that name: its exe and pdb are the old version now, and beside the new exe they show up as
+    # confusing duplicates in the install folder (issue #42, bug #3). They are removed only here.
+    if (Test-Path -LiteralPath $dotExe) {
+        Remove-Item -LiteralPath $dotExe -Force -ErrorAction SilentlyContinue
+    }
+    if (Test-Path -LiteralPath $dotPdb) {
+        Remove-Item -LiteralPath $dotPdb -Force -ErrorAction SilentlyContinue
+    }
+    $startExe = $oldExe
+} else {
+    # Nothing was replaced, so nothing is removed: on a freshly downloaded install the dot-named exe
+    # is the only exe there is. The exe that was running is started again: it is known to work and it
+    # is the version the player had. When it isn't known, whichever of the two names is there.
+    $startExe = $env:EMP_EXE
+    if (-not $startExe -or -not (Test-Path -LiteralPath $startExe)) { $startExe = $oldExe }
+    if (-not (Test-Path -LiteralPath $startExe)) { $startExe = $dotExe }
 }
 
 # Restart the app (a bracketed current folder breaks Start-Process on 5.1, so start from TEMP)
-Start-Process -FilePath $oldExe -WorkingDirectory $env:TEMP
+if (Test-Path -LiteralPath $startExe) {
+    Start-Process -FilePath $startExe -WorkingDirectory $env:TEMP
+}
 
 # Clean up temp download
 Start-Sleep -Seconds 3
