@@ -1,0 +1,82 @@
+<Window x:Class="EveMultiPreview.Views.AlertHistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:EveMultiPreview.SettingsUi"
+        ThemeMode="Dark"
+        Title="{DynamicResource L.Hist.Title}"
+        Width="1040" Height="640" MinWidth="760" MinHeight="420" WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Fx.BgBrush}">
+
+    <!-- IDEAS #1: every alert that was kept, newest first. The look follows the update dialog (Plan 4). -->
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:SettingsTheme/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="Hist.FilterLabel" TargetType="TextBlock" BasedOn="{StaticResource Fx.Desc}">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="0,0,8,0"/>
+            </Style>
+            <Style x:Key="Hist.Filter" TargetType="StackPanel">
+                <Setter Property="Orientation" Value="Horizontal"/>
+                <Setter Property="Margin" Value="0,0,20,8"/>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <!-- The Fluent theme leaves the window's own background to the system backdrop, so the content paints the surface. -->
+    <DockPanel Background="{StaticResource Fx.BgBrush}">
+        <!-- Footer: what was done last and the count on the left; the buttons on the right -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource Fx.CardBrush}" BorderBrush="{StaticResource Fx.BorderBrush}"
+                BorderThickness="0,1,0,0" Padding="20,12">
+            <DockPanel LastChildFill="True">
+                <Button x:Name="BtnClose" DockPanel.Dock="Right" Content="{DynamicResource L.Hist.Close}" Padding="16,6" Margin="8,0,0,0"
+                        IsCancel="True" Click="OnClose"/>
+                <Button x:Name="BtnSwitch" DockPanel.Dock="Right" Content="{DynamicResource L.Hist.Switch}" Style="{StaticResource Fx.PrimaryButton}"
+                        Margin="8,0,0,0" IsDefault="True" IsEnabled="False" Click="OnSwitch"/>
+                <Button x:Name="BtnClear" DockPanel.Dock="Right" Content="{DynamicResource L.Hist.Clear}" Padding="16,6" Margin="8,0,0,0" Click="OnClear"/>
+                <Button x:Name="BtnExport" DockPanel.Dock="Right" Content="{DynamicResource L.Hist.Export}" Padding="16,6" Margin="8,0,0,0" Click="OnExport"/>
+                <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
+                    <TextBlock x:Name="TxtMessage" Style="{StaticResource Fx.Label}" FontSize="13" Visibility="Collapsed"
+                               AutomationProperties.LiveSetting="Polite"/>
+                    <TextBlock x:Name="TxtStatus" Style="{StaticResource Fx.Desc}"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Filters: they wrap onto a second line in a narrow window or a long language -->
+        <WrapPanel DockPanel.Dock="Top" Margin="20,16,20,4">
+            <StackPanel Style="{StaticResource Hist.Filter}">
+                <TextBlock Style="{StaticResource Hist.FilterLabel}" Text="{DynamicResource L.Hist.Range}"/>
+                <ComboBox x:Name="CmbRange" MinWidth="150" DisplayMemberPath="Text" ui:Loc.NameKey="L.Hist.Range" SelectionChanged="OnRangeChanged"/>
+            </StackPanel>
+            <StackPanel Style="{StaticResource Hist.Filter}">
+                <TextBlock Style="{StaticResource Hist.FilterLabel}" Text="{DynamicResource L.Hist.Col.Character}"/>
+                <ComboBox x:Name="CmbCharacter" MinWidth="170" DisplayMemberPath="Text" ui:Loc.NameKey="L.Hist.Col.Character" SelectionChanged="OnFilterChanged"/>
+            </StackPanel>
+            <StackPanel Style="{StaticResource Hist.Filter}">
+                <TextBlock Style="{StaticResource Hist.FilterLabel}" Text="{DynamicResource L.Hist.Col.Event}"/>
+                <ComboBox x:Name="CmbEvent" MinWidth="170" DisplayMemberPath="Text" ui:Loc.NameKey="L.Hist.Col.Event" SelectionChanged="OnFilterChanged"/>
+            </StackPanel>
+            <StackPanel Style="{StaticResource Hist.Filter}">
+                <TextBlock Style="{StaticResource Hist.FilterLabel}" Text="{DynamicResource L.S.Events.ColSeverity}"/>
+                <ComboBox x:Name="CmbSeverity" MinWidth="130" DisplayMemberPath="Text" ui:Loc.NameKey="L.S.Events.ColSeverity" SelectionChanged="OnFilterChanged"/>
+            </StackPanel>
+            <StackPanel Style="{StaticResource Hist.Filter}">
+                <TextBlock Style="{StaticResource Hist.FilterLabel}" Text="{DynamicResource L.Hist.Search}"/>
+                <TextBox x:Name="TxtSearch" Width="190" VerticalContentAlignment="Center" ui:Loc.NameKey="L.Hist.Search" TextChanged="OnSearchChanged"/>
+            </StackPanel>
+        </WrapPanel>
+
+        <Grid Margin="20,4,20,16">
+            <ListView x:Name="AlertList" SelectionMode="Single" ui:Loc.NameKey="L.Hist.Title"
+                      Background="{StaticResource Fx.CardBrush}" BorderBrush="{StaticResource Fx.BorderBrush}" BorderThickness="1"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                      SelectionChanged="OnSelectionChanged" MouseDoubleClick="OnRowDoubleClick"/>
+            <!-- Shown over the empty list -->
+            <TextBlock x:Name="TxtEmpty" Style="{StaticResource Fx.Desc}" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Text="{DynamicResource L.Hist.Empty}" Visibility="Collapsed" IsHitTestVisible="False"/>
+        </Grid>
+    </DockPanel>
+</Window>
