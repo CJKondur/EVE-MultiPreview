@@ -1957,7 +1957,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">それより古い日の分は MultiPreview の起動時に削除されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.historyFolder">履歴はこの PC の中だけに保存されます：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.history.Title">アラート履歴</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview は、出したアラートをリストに残します：時刻、キャラクター、アラート、重大度、星系、そして表示されたか、キャラクターがミュート中だったか。オフにしたアラートと、静止時間内の繰り返しは載りません。&#x0A;&#x0A;- リストは、設定フォルダーの History フォルダーに 1 日 1 ファイルで保存されます。どこにも送信されません。&#x0A;- **アラートを残す期間** で何日分残すかを決めます。それより古い日の分は、次に MultiPreview を起動したときに削除されます。&#x0A;- **アラート履歴を残す** をオフにすると、新しい内容は書き込まれません。すでに残っている分は、期間が過ぎるまで残ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview は、出したアラートをリストに残します：時刻、キャラクター、アラート、重大度、星系、そして表示されたか、キャラクターがミュート中だったか。オフにしたアラートと、静止時間内の繰り返しは載りません。&#x0A;&#x0A;- リストは、設定フォルダーの History フォルダーに 1 日 1 ファイルで保存されます。どこにも送信されません。&#x0A;- 自分で作ったルールのアラートでは、ルールの名前と、ルールが見つけた行（160 文字まで）もリストに残ります。チャットチャンネルでは、その行はほかのプレイヤーが書いたものです。&#x0A;- **アラートを残す期間** で何日分残すかを決めます。それより古い日の分は、次に MultiPreview を起動したときに削除されます。&#x0A;- **アラート履歴を残す** をオフにすると、新しい内容は書き込まれません。すでに残っている分は、期間が過ぎるまで残ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Title">アラート履歴</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Close">閉じる</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Switch">クライアントに切り替え</sys:String> <!-- draft -->
@@ -2011,4 +2011,5 @@
     <sys:String x:Key="L.S.Act.alerts.hub.openHistory">履歴を開く…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">履歴ウィンドウ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**履歴を開く…** は、残っているアラートを新しい順に、それぞれどれくらい前のものかと一緒に表示します。同じウィンドウは、トレイメニューの **アラート履歴…** からも、アラートハブからも開けます：ベルを右クリックし、隅の時計をクリックしてください。&#x0A;&#x0A;- 期間、キャラクター、アラート、重大度を選ぶか、検索ボックスに入力します。同じキャラクターの同じアラートが続いた場合は、回数付きの 1 行にまとめられます。&#x0A;- **クライアントに切り替え** で、その行のクライアントが前面に出ます。Enter キーやダブルクリックでも同じです。&#x0A;- **CSV に書き出す…** で、表示中のアラートを表計算ソフトで開けるファイルに書き出します。&#x0A;- **履歴を消去…** で、残っているものをすべて削除します。&#x0A;&#x0A;ハブのメニューにあるもう一つの隅のボタンは、ベルをクリックしたときと同じく、すべてのトーストを閉じます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.custom">カスタムアラート</sys:String> <!-- draft -->
 </ResourceDictionary>

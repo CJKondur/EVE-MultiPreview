@@ -1974,7 +1974,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">更早的日期会在 MultiPreview 启动时删除。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.historyFolder">历史记录只保存在这台电脑上：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.history.Title">警报历史记录</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview 会把它发出的警报记成一份列表：时间、角色、警报、严重程度、星系，以及警报是已显示还是角色被静音。你关闭的警报不会列出，静默时间内的重复也不会。&#x0A;&#x0A;- 列表在设置文件夹的 History 文件夹里，每天一个文件，不会发送到任何地方。&#x0A;- **警报保留时间** 决定保留多少天。更早的日期会在 MultiPreview 下次启动时删除。&#x0A;- 关闭 **保留警报历史记录** 后不再写入新内容。已保留的内容会留到期限结束。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview 会把它发出的警报记成一份列表：时间、角色、警报、严重程度、星系，以及警报是已显示还是角色被静音。你关闭的警报不会列出，静默时间内的重复也不会。&#x0A;&#x0A;- 列表在设置文件夹的 History 文件夹里，每天一个文件，不会发送到任何地方。&#x0A;- 对于你自己的规则发出的警报，列表里还会保存规则的名称和规则匹配到的那一行，最多 160 个字符。在聊天频道里，那一行是别的玩家写的内容。&#x0A;- **警报保留时间** 决定保留多少天。更早的日期会在 MultiPreview 下次启动时删除。&#x0A;- 关闭 **保留警报历史记录** 后不再写入新内容。已保留的内容会留到期限结束。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Title">警报历史记录</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Close">关闭</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Switch">切换到该客户端</sys:String> <!-- draft -->
@@ -2028,4 +2028,5 @@
     <sys:String x:Key="L.S.Act.alerts.hub.openHistory">打开历史记录…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">历史记录窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**打开历史记录…** 会列出保留下来的警报，最新的在前，并显示每条是多久以前的。同一个窗口也可以从托盘菜单的 **警报历史记录…** 打开，或者从警报中心打开：右键单击铃铛，再单击角上的时钟。&#x0A;&#x0A;- 选择时间范围、角色、警报或严重程度，或者在搜索框里输入文字。同一角色的同一警报连续重复时，只显示一行并带上次数。&#x0A;- **切换到该客户端** 会把这一行的客户端切到前台。按 Enter 或双击效果相同。&#x0A;- **导出 CSV…** 会把显示的警报写入一个电子表格可以打开的文件。&#x0A;- **清空历史记录…** 会删除保留的所有内容。&#x0A;&#x0A;警报中心菜单里的另一个角按钮会关闭所有提示条，和单击铃铛一样。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.custom">自定义警报</sys:String> <!-- draft -->
 </ResourceDictionary>

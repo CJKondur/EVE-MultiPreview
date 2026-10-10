@@ -28,6 +28,7 @@ public class AlertHub : IDisposable
     /// <summary>Translated name of an alert event, shared by the hub toast and the
     /// text written on the alerting thumbnail (#115).</summary>
     public static string EventDisplayName(string alertType) =>
+        Services.CustomAlertTypes.IsCustom(alertType) ? CustomRuleName(alertType) :
         Services.LocalizationService.Str("L.AlertEvt." + alertType, alertType switch
         {
             "attack" => "Under attack",
@@ -44,6 +45,13 @@ public class AlertHub : IDisposable
             "regroup" => "Regrouping",
             _ => alertType
         });
+
+    /// <summary>The name of a custom rule's alert (IDEAS #8): the rule's name, as plain text. A rule deleted since
+    /// has none left, and its last toast or thumbnail text says "Custom alert": never the alert type itself.</summary>
+    private static string CustomRuleName(string alertType) =>
+        Services.CustomAlertTypes.Find(alertType)?.Name is { Length: > 0 } name
+            ? name
+            : Services.LocalizationService.Str("L.AlertEvt.custom", "Custom alert");
 
     private readonly Window _hubWindow;
     private readonly AlertHubVisuals.HubParts _hub;

@@ -37,6 +37,7 @@ public partial class App : Application
     private AlertHub? _alertHub;
     private AlertHistory? _alertHistory;
     private AlertHistoryWindow? _historyWindow;
+    private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
     private ProcessMonitorService? _processMonitor;
     private CropManager? _cropManager;
@@ -366,10 +367,21 @@ public partial class App : Application
             _alertHistory.DeleteOldDays();
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
+                // What a custom rule matched is there only while its alert is being raised: taken first (IDEAS #8).
+                // For a built-in alert it is null, and so is the rule.
+                var matched = _logMonitor.RaisingCustomText;
                 var outcome = AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity);
                 _alertHistory.Record(AlertHistory.Entry(DateTime.UtcNow, charName, alertType, severity,
-                    _logMonitor.GetCharacterSystem(charName), outcome));
+                    _logMonitor.GetCharacterSystem(charName), outcome, CustomAlertTypes.Find(alertType)?.Name, matched));
             };
+
+            // IDEAS #8: the player's own alert rules, from custom_alerts.json in the settings folder. A file that can't
+            // be used is set aside and reported, and MultiPreview runs without rules. The log monitor gets the rules
+            // that are on before it starts reading, and again whenever the rules are saved.
+            _customAlerts = new CustomAlertStore(AppPaths.ConfigDir, ErrorLog.Shared);
+            _customAlerts.Load();
+            _customAlerts.Changed += ApplyCustomRules;
+            ApplyCustomRules();
 
             _discovery.WindowTitleChanged += (window, oldTitle) =>
             {
@@ -670,6 +682,17 @@ public partial class App : Application
         "The last session, started {0}, ended without MultiPreview closing: it crashed, or was stopped by Task Manager "
         + "or a power cut. If something went wrong, error_log.txt in the logs folder may say what. Attach it to a bug report.";
 
+    /// <summary>Hands the custom rules (IDEAS #8) to everything that uses them: their names and sounds by alert type
+    /// (CustomAlertTypes), and the rules that are on, made ready, to the log monitor. With none on the monitor gets
+    /// null, and its reader does nothing more per line than see that.</summary>
+    private void ApplyCustomRules()
+    {
+        if (_isShuttingDown || _customAlerts == null || _logMonitor == null) return;
+        var rules = _customAlerts.Rules;
+        CustomAlertTypes.Publish(rules);
+        _logMonitor.SetCustomRules(CustomAlertEngine.Build(rules, ErrorLog.Shared));
+    }
+
     // ── Alert Sound System (per-event sounds, WAV/MP3 via MediaPlayer) ──
 
     private void PlayAlertSound(string character, string alertType, string severity)
@@ -706,12 +729,8 @@ public partial class App : Application
             }
         }
 
-        // Look up per-event sound file, fall back to global
-        string? soundFile = null;
-        if (s.AlertSounds?.TryGetValue(alertType, out var eventSoundFile) == true && !string.IsNullOrEmpty(eventSoundFile))
-            soundFile = eventSoundFile;
-        else if (!string.IsNullOrEmpty(s.AlertSoundFile))
-            soundFile = s.AlertSoundFile;
+        // The event's own sound file, else the default one; a custom rule's own before both (IDEAS #8).
+        string? soundFile = AlertSoundChoice.FileFor(s, alertType);
 
         if (string.IsNullOrEmpty(soundFile) || !System.IO.File.Exists(soundFile))
         {
@@ -996,6 +1015,7 @@ public partial class App : Application
                     Hotkeys = _hotkeyService,
                     AlertHub = _alertHub,
                     OpenAlertHistory = OpenAlertHistory,
+                    CustomAlerts = _customAlerts,
                 });
                 shell.SettingsApplied += applyLiveSettings;
                 opened = shell;
