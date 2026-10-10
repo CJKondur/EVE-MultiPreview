@@ -70,6 +70,23 @@ public sealed class SettingsContext
     public AppServices Services { get; }
     public ISettingsHost Host { get; }
 
+    private CustomAlertStore? _customAlerts;
+
+    /// <summary>The player's own alert rules (IDEAS #8). In the app it is App's store, so a save reaches the log
+    /// monitor at once. A window made without the app (tests) gets a store of its own on the settings folder it was
+    /// given, read on first use: never another folder.</summary>
+    public CustomAlertStore CustomAlerts
+    {
+        get
+        {
+            if (_customAlerts != null) return _customAlerts;
+            if (Services.CustomAlerts != null) return _customAlerts = Services.CustomAlerts;
+            _customAlerts = new CustomAlertStore(Service.ConfigDirectory);
+            _customAlerts.Load();
+            return _customAlerts;
+        }
+    }
+
     /// <summary>Localized string for code-built text; falls back to the key itself so a missing
     /// key is visible in testing rather than blank.</summary>
     public static string Str(string key) => LocalizationService.Str(key, key);
