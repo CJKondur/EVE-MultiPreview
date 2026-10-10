@@ -1173,11 +1173,20 @@ public static class User32
         return procName.Equals("exefile", StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>This process's own name. The exe is EVE.MultiPreview.exe as downloaded from a release,
+    /// EVE MultiPreview.exe once the in-app updater has saved it, and whatever a player renames it to.</summary>
+    private static readonly string OwnProcessName = ProcessNameFromPath(Environment.ProcessPath ?? "");
+
+    /// <summary>Whether a process name is MultiPreview's: this process's own name, or one of the names its exe has
+    /// had. Until it knew the download's name, a freshly downloaded copy took its own settings window and menus for
+    /// another program (hotkeys set to work only while EVE is in front, thumbnails that hide when EVE loses focus).</summary>
     public static bool IsAppProcessName(string? procName)
     {
         if (string.IsNullOrEmpty(procName)) return false;
         return procName.Equals("EveMultiPreview", StringComparison.OrdinalIgnoreCase) ||
-               procName.Equals("EVE MultiPreview", StringComparison.OrdinalIgnoreCase);
+               procName.Equals("EVE MultiPreview", StringComparison.OrdinalIgnoreCase) ||
+               procName.Equals("EVE.MultiPreview", StringComparison.OrdinalIgnoreCase) ||
+               (OwnProcessName.Length > 0 && procName.Equals(OwnProcessName, StringComparison.OrdinalIgnoreCase));
     }
 
     public static bool IsEveOrAppProcess(string? procName)

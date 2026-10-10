@@ -1,8 +1,8 @@
 # EVE MultiPreview
 
-A Windows tool for EVE Online multiboxers. Shows live thumbnails of all your running EVE clients so you can keep an eye on everything and quickly switch between characters with a click or a hotkey.
+A Windows tool for EVE Online players who run several clients. It shows a live thumbnail of every running EVE client, brings a client to the front with a click or a hotkey, and raises alerts read from EVE's own log files.
 
-Built in C# / WPF using the DWM Thumbnail API for efficient, native live previews.
+Written in C# on .NET 10 (WPF and WinForms) for 64-bit Windows 10 version 2004 or later. The thumbnails use the Windows DWM Thumbnail API.
 
 This project is a ground-up rewrite inspired by [EVE-O Preview](https://github.com/Phrynohyas/eve-o-preview) and [EVE-X-Preview](https://github.com/g0nzo83/EVE-X-Preview). Thanks to both projects for paving the way.
 
@@ -10,56 +10,103 @@ This project is a ground-up rewrite inspired by [EVE-O Preview](https://github.c
 
 ## What It Does
 
-- **Live thumbnails** of every running EVE client
-- **Click a thumbnail** to bring that client to the front
-- **Hotkeys** to switch clients without touching the mouse (keyboard and mouse buttons both work)
-- **Multiple profiles** so you can swap between setups quickly
-- **Profile cycling hotkeys** — assign hotkeys to cycle forward/backward through profiles
-- **Thumbnail grouping** — organize characters into named groups with custom border colors
-- **Attack alerts** — thumbnail flashes red when a character takes incoming fire
-- **Alert events panel** — per-event toggles for attack, warp scramble, decloak, fleet invite, convo request, system change
-- **Severity tier system** — Critical/Warning/Info tiers with custom colors, cooldowns, and tray notifications
-- **PVE Mode** — filter NPC/rat damage to only alert on player attacks
-- **Not logged in indicator** — visual marker (text overlay, border color, dim, or none) for clients at character select
-- **Character select cycling** — hotkey to cycle focus through clients at the character select screen
-- **Per-event alert sounds** — assign custom WAV/MP3 files with master volume control
-- **Session timer** — shows how long each character has been logged in
-- **System name overlay** — displays the current solar system on each thumbnail
-- **Stats overlay** — real-time DPS, Logi, Mining, and Ratting stat tracking per character in standalone overlay windows
-- **Click-through mode** — make thumbnails transparent to mouse clicks with a hotkey
-- **Hide/Show thumbnails toggle** — hotkey or tray menu toggle to instantly hide/show all thumbnails
-- **Secondary thumbnails (PiP)** — add a second independent live preview for any character with separate size, position, and opacity
-- **Click-to-capture hotkeys** — click a hotkey field and press a key combo to assign it
-- **Auto-save positions** — thumbnail positions persist automatically after dragging
-- **Client position save/restore** — save and restore EVE client window positions
-- **FPS limiter** — built-in RTSS profile integration for capping background client FPS
-- **Multi-monitor support** — choose which monitor thumbnails appear on
-- **First-run setup wizard** — quick guided setup for new users
-- **Context-sensitive help** — built-in help panel in settings that updates based on active tab
-- **Live clocks** — local time and EVE time (UTC) in the settings header
-- **Single-instance enforcement** — prevents running multiple copies
-- **Customizable everything** — colors, borders, text, fonts, sizes, opacity, positions
+### Thumbnails
+
+- **Live thumbnails** of every running EVE client. Click one to switch to that client.
+- **Second thumbnails (PiP):** a second live preview of a character, with its own size, place and opacity.
+- **Crop windows:** a small window that shows one rectangle of a client, live. Several per character.
+- **Text on thumbnails:** the character's name, a label of your own, the solar system, a session timer, and each client's CPU, memory and graphics-memory use.
+- **Borders:** a highlight on the active client, a colour per group or per character, and a mark for clients that are not logged in.
+- **Frozen frames:** a minimized client's thumbnail keeps its last picture. To save graphics power, thumbnails can show a still picture about once a second, or freeze while neither EVE nor MultiPreview is in front.
+- **Layout:** drag thumbnails with the right mouse button, snap them to edges, lock them, save and re-apply whole layouts (and export them to a file), undo and redo, and choose the monitor new thumbnails appear on.
+
+### Switching
+
+- **Hotkeys** for a character, for the next and previous client of a group, and for all running clients. Keyboard keys and the middle, 4th and 5th mouse buttons work.
+- **Quick-switch wheel:** one hotkey opens a ring of cards, one per logged-in character, each with its number key and solar system. Click a card or press 1 to 9.
+- **Profiles:** several complete setups, with hotkeys to step through them.
+- **Character-select cycling:** keys that step through the clients waiting at the character selection screen.
+- Hotkeys to hide or show all thumbnails, make them click-through, lock their positions, pause all hotkeys, and close every client (after one confirmation).
+
+### Alerts
+
+Alerts come from EVE's chat and game log files. English logs are tested against real ones; the other seven languages the EVE client has are matched from EVE's own translated text, so tell us if an alert doesn't fire in yours.
+
+- **Twelve events:** Under attack, Warp scrambled, Decloaked, Fleet invite, Convo request, Fleet warp, Regrouping, System changed, Cargo full, Asteroid depleted, Crystal broken and Miner stopped. The four mining events are off until you turn them on.
+- An alert shows on the client's thumbnail as a coloured border, a count badge and a line of text, and can play a sound file of your choice.
+- **Alert hub:** an optional bell on screen with toasts that name the character, the event and the solar system. Click a toast to switch to that client.
+- **Three severities** (critical, warning, info), each with its own colour and flash speed.
+- **PVE mode:** NPCs shooting or scrambling you raise no alert; players still do.
+
+### Client windows
+
+- **Where client windows go:** where EVE puts them, where each one was, centred on a monitor, at a fixed place, or in fixed slots (named rectangles on a monitor that you assign characters to).
+- Minimize the clients you are not using, always maximize, or let the active client cover the taskbar.
+- **Game audio per client:** a volume for each character, **Only hear the active client**, and **Mute everything when no EVE client is in front**.
+- **CPU and frame rate:** run background clients at low priority, give each character its own CPU core, and limit background frame rates through RivaTuner Statistics Server (RTSS) if you have it installed.
+
+### Tools
+
+- **Stats overlay:** damage, logistics, mining and ratting numbers for each character in small overlay windows, with an optional CSV log.
+- **EVE settings:** copy EVE's own settings files from one character or account to others. Every file it replaces is backed up first.
+
+### The app
+
+- **Settings window:** a Home page with the essentials, and every setting grouped into Clients, Thumbnails, Alerts, Performance, Tools and App settings, with a search box and a help column (the **?** button) for every page. Changes save as you make them.
+- **Nine languages:** English, 中文 (简体), Русский, Deutsch, Français, Español, 日本語, 한국어 and Italiano. MultiPreview follows your Windows language unless you choose one. The eight translations are machine drafts, and corrections are welcome.
+- **Settings safety:** a copy of your settings is kept whenever they changed (the last 10), with **Back up now**, **Export** and **Import**. If the settings file can't be read, MultiPreview offers those copies instead of starting on defaults.
+- **Updates:** MultiPreview asks GitHub for a newer version when it starts (you can turn that off) and installs it with one click. Any earlier version can be installed again from App settings › About & updates.
+- A first-run setup, **Start with Windows**, and a guard against running two copies.
 
 ## What It Doesn't Do
 
-- No input broadcasting (sending keys to multiple clients at once)
-- No sending individual inputs to background clients
-- No game memory reading or client manipulation of any kind
+- It does not send your keys or clicks to several clients at once. One key press does one thing in one client.
+- With its default settings it sends no input to EVE at all: switching only changes which window is in front.
+- It does not read or change the game's memory.
 
-EVE MultiPreview doesn't interact with the game directly. It manages windows using the standard Windows DWM Thumbnail API. Use at your own risk, but it follows the same approach that's been around for years.
+Two options under Clients › Hotkeys & switching do send input, to one client at a time, and both are off unless you turn them on. With **Carry held Ctrl, Shift and Alt to the next client** or **Carry other held keys to the next client**, a key you are physically holding while you switch is pressed in the client you switch to, and released there when you let go. Whether to use them is your decision.
+
+What it does touch: it moves, resizes, minimizes and closes client windows; it can set a client's CPU priority, CPU core and audio volume; it reads EVE's chat and game log files; and Tools › EVE settings copies EVE's settings files when you ask it to.
+
+It has no telemetry and no account. It goes online for two things: the update check at GitHub (when it starts, unless you turn that off, and when you click **Check for updates**), and a lookup of character names at CCP's public API when you click **Fetch missing names** under Tools › EVE settings.
+
+EVE MultiPreview is a community tool. Use it at your own risk.
 
 ---
 
 ## Getting Started
 
-1. Download `EVE MultiPreview.exe`
-2. Run it — a config file will be created automatically
-3. Right-click the tray icon to open settings
-4. Set up a profile and configure your hotkeys
-
-If you're migrating from the AHK version or EVE-X-Preview, drop the exe in the same folder as your old config and it'll offer to migrate your settings.
+1. Download `EVE.MultiPreview.exe` from the [latest release](https://github.com/CJKondur/EVE-MultiPreview/releases/latest) and put it in a folder of its own.
+2. Run it. The first start shows a short setup: your language, a thumbnail size and a few hotkeys.
+3. MultiPreview sits in the notification area beside the clock. Double-click its icon, or right-click it and choose **Settings**.
 
 **Windows SmartScreen:** On first run, Windows may show a "Windows protected your PC" warning since the exe isn't code-signed. Click **"More info"** → **"Run anyway"**. This is normal for community-built tools.
+
+After its first update the file is named `EVE MultiPreview.exe`: the updater saves it under that name.
+
+### Where your settings are
+
+Your settings are in `%APPDATA%\EVE MultiPreview` (paste that into the address bar of a File Explorer window). The folder holds the settings file `EVE MultiPreview.json`, your saved layouts (`layout_presets.json`), a `Backups` folder and a `Logs` folder. App settings › Profiles & backups shows the folder and opens it.
+
+**Portable:** to keep everything next to the exe instead, for example on a USB stick, put an empty file named `portable.txt` beside the exe before you start it for the first time. If you have already started it, also copy `EVE MultiPreview.json` (and `layout_presets.json`, if you use saved layouts) from the folder above to beside the exe.
+
+**Coming from version 2.3.42 or older:** those versions kept the settings beside the exe. The first start of a newer version copies your settings, saved layouts and backups to the folder above, checks the copy, and leaves the old files where they were, with a note named `Where are my settings.txt` beside them.
+
+### Coming from another preview tool
+
+- **EVE-X-Preview:** put the exe in the folder that holds `EVE-X-Preview.json`. On the first start MultiPreview asks whether to bring those settings over.
+- **EVE-O Preview:** an `EVE-O Preview.json` beside the exe, or in `%APPDATA%\EVE-O Preview`, is brought over on the first start.
+- **The AutoHotkey version of EVE MultiPreview:** its `EVE MultiPreview.json` beside the exe is read as it is.
+
+### Uninstalling
+
+MultiPreview has no installer, so there is nothing to uninstall. To remove it:
+
+1. If **Start with Windows** is on (App settings › General), turn it off first, or Windows keeps an entry for a program that is gone.
+2. Exit MultiPreview from its tray icon and delete the exe.
+3. Delete `%APPDATA%\EVE MultiPreview` to remove your settings, backups and logs. A portable copy keeps them beside the exe instead.
+
+If you used the FPS limiter, RTSS keeps the profile MultiPreview made for `exefile.exe` until you remove it in RTSS. If you used Tools › EVE settings, its backups of EVE's files are in `%LOCALAPPDATA%\CCP\EVE\EVEMPBackups`.
 
 ---
 
@@ -68,22 +115,21 @@ If you're migrating from the AHK version or EVE-X-Preview, drop the exe in the s
 **Prerequisites:**
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (10.0.100 or later)
 
-**Clone and build:**
+**Clone, build and test:**
 ```bash
-git clone https://github.com/your-repo/EveMultiPreview.git
-cd EveMultiPreview
+git clone https://github.com/CJKondur/EVE-MultiPreview.git
+cd EVE-MultiPreview
+dotnet build EveMultiPreview.sln
+dotnet test EveMultiPreview.sln
 ```
 
-**Self-contained single-file** (recommended — no runtime install needed for end users):
+**The release exe** (one self-contained file, no runtime to install):
 ```bash
-dotnet publish EveMultiPreview.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true -o ./bin/Publish
+dotnet publish EveMultiPreview.csproj -c Release
 ```
-Output: `bin/Publish/EVE MultiPreview.exe` — one file, runs anywhere, no dependencies.
+Output: `EVE MultiPreview.exe` in `..\EVE-MultiPreview-Release\`, a folder beside the repository. The project file sets that folder so the exe (over 70 MB) can never be committed by accident; add `-o <folder>` to publish somewhere else.
 
-**Framework-dependent** (smaller output, requires .NET 10 Desktop Runtime on the target machine):
-```bash
-dotnet publish EveMultiPreview.csproj -c Release -r win-x64 --self-contained false /p:PublishSingleFile=false /p:EnableCompressionInSingleFile=false -o ./bin/Publish
-```
+A copy you build and run uses the same `%APPDATA%\EVE MultiPreview` folder as your everyday copy. Put a `portable.txt` beside a test build first if it should keep its settings to itself.
 
 ---
 
@@ -92,13 +138,15 @@ dotnet publish EveMultiPreview.csproj -c Release -r win-x64 --self-contained fal
 | Action | How |
 | --- | --- |
 | Switch to a client | Left-click its thumbnail |
-| Minimize a client | Ctrl + click its thumbnail (changeable in Settings → Thumbnails) |
-| Exclude a client from cycling | Shift + click its thumbnail (changeable in Settings → Thumbnails) |
-| Close (end) a client | Right-click its thumbnail → Close client |
+| Minimize a client | Left Ctrl + click its thumbnail (changeable under Clients › Characters › Clicking thumbnails) |
+| Leave a client out of cycling | Shift + click its thumbnail (changeable in the same place) |
+| Open a thumbnail's menu | Right-click it: Edit label, Mute alerts, Game volume, Open the character's settings, Close client |
 | Move a thumbnail | Right-click drag |
 | Move all thumbnails | Ctrl + right-click drag |
 | Resize all thumbnails | Hold both mouse buttons and drag |
 | Resize one thumbnail | Ctrl + both mouse buttons and drag |
+
+**Close client** ends that client at once, without asking. **Lock thumbnail positions** stops moving and resizing; clicks and the menu still work. With **Resize thumbnails one at a time** on, both resize gestures change only the thumbnail under the mouse.
 
 ---
 
