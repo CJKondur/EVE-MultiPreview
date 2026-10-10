@@ -110,14 +110,17 @@ public sealed class LogMonitorService : IDisposable
     private Action<CustomAlertRule, string>? _raiseCustom;       // made once, on the first line a rule looks at
     private string _customCharacter = "";                        // whose line the rules are looking at (reading thread)
     // The rules' chat channels (reading thread): when their logs may be listed again, and for each channel that is
-    // read the latest moment one of its logs was created, as the listings so far have seen. A log created after
-    // that began after its channel was taken on.
+    // read the moment it was taken on, told by its logs alone: the latest moment one of them was created, as the
+    // first listing saw them. A log created after that began after its channel was taken on, whichever listing
+    // takes it on.
     private long _nextChannelListing = long.MinValue;
     private readonly ConcurrentDictionary<string, DateTime> _channelLogsSeen = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Milliseconds that only ever go forward (Environment.TickCount64, unless a test gives a clock of its
-    /// own): what "the rules' chat channels are listed at most once in five seconds" is counted by.</summary>
-    public Func<long> Clock { get; set; } = () => Environment.TickCount64;
+    /// own): what "the rules' chat channels are listed at most once in five seconds" is counted by. Setting it to
+    /// null changes nothing: with no clock, every scan of a player with a rule on a chat channel would throw.</summary>
+    public Func<long> Clock { get => _clock; set => _clock = value ?? _clock; }
+    private Func<long> _clock = () => Environment.TickCount64;
 
     // Settings reference for configurable alert colors and sounds
     private AppSettings? _appSettings;
@@ -1771,9 +1774,9 @@ public sealed class LogMonitorService : IDisposable
     /// <summary>Takes on the logs of the chat channels that rules name, at most once in five seconds by Clock. A new
     /// log is first read like any other: its header, for the listener. A log that was there when its channel was
     /// taken on is then read on from its end, so only lines written from now on are matched. A log that began later
-    /// (a client that logged in, or joined the channel) is read from behind its header, so what was said before this
-    /// listing found it is matched too. A newer log of a character takes the place of the one tracked for it. Returns
-    /// how many logs were new.</summary>
+    /// (a client that logged in, or joined the channel) is read from behind its header, so what was said before a
+    /// listing took it on is matched too: once, and not when the file is a copy of an older log. A newer log of a
+    /// character takes the place of the one tracked for it. Returns how many logs were new.</summary>
     private int TrackRuleChannels(CustomAlertEngine rules)
     {
         long ms = Clock();
@@ -1786,30 +1789,42 @@ public sealed class LogMonitorService : IDisposable
             // Local's logs are read anyway, for the system: a rule on Local reads those (ProcessLineWithRules).
             if (string.Equals(channel, LocalChannel, StringComparison.OrdinalIgnoreCase)) continue;
             var logs = ChannelLogs(_chatLogPath, channel, DateTime.Now).ToList();
-            // What the folder held when the channel was taken on is history. A log created after everything the
-            // listings before this one saw is a session that began since.
-            bool takenOn = _channelLogsSeen.TryGetValue(channel, out var latestSeen);
+            // What the folder held when the channel was taken on is history: the latest creation time among those
+            // logs stands for that moment (no clock of ours is held against a file's time), and it stays. A log
+            // created after it is a session that began since, whichever listing takes it on: with more than twelve
+            // characters in a channel that can be many listings after the first one that saw it.
+            if (!_channelLogsSeen.TryGetValue(channel, out var takenOnAt))
+            {
+                foreach (var log in logs)
+                    if (log.Created > takenOnAt) takenOnAt = log.Created;
+                _channelLogsSeen[channel] = takenOnAt;
+            }
             foreach (var log in NewestOfEachOwner(logs))
             {
                 if (_trackedFiles.ContainsKey(log.Path)) continue;
                 // The character's log of an earlier session is never written again. It is let go, so the logs tracked
-                // for a channel don't grow with every relog (each of them is asked its length at every pass).
+                // for a channel don't grow with every relog (each of them is asked its length at every pass). What
+                // it knew of the character's sessions goes on to the log that takes its place.
+                var newest = takenOnAt;
                 foreach (var (path, state) in _trackedFiles)
                 {
                     if (state.Owner != log.Owner || !string.Equals(state.Channel, channel, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (state.Newest > newest) newest = state.Newest;
                     _trackedFiles.TryRemove(path, out _);
                     _fileCharacterMap.TryRemove(path, out _);
                 }
                 _trackedFiles[log.Path] = new LogFileState
                 {
                     Path = log.Path, Type = LogType.ChatLog, LastPosition = 0, Channel = channel, Owner = log.Owner,
-                    FromItsStart = takenOn && log.Created > latestSeen,
+                    // A session that began since: created after the channel was taken on and after every log of
+                    // its character that was read before it (so no log is read from behind its header twice, when
+                    // two logs of one character are written by turns), and written since it was created (a copy
+                    // keeps the last write of its original, which is before the copy's creation).
+                    FromItsStart = log.Created > newest && log.Written >= log.Created,
+                    Newest = log.Created > newest ? log.Created : newest,
                 };
                 added++;
             }
-            foreach (var log in logs)
-                if (log.Created > latestSeen) latestSeen = log.Created;
-            _channelLogsSeen[channel] = latestSeen;
         }
         return added;
     }
@@ -1835,10 +1850,11 @@ public sealed class LogMonitorService : IDisposable
             .OrderByDescending(x => x.Written)
             .Take(ChannelLogsTaken);
 
-    private static readonly Regex ChannelLogDate = new(@"^\d{8}_\d{6}(?:_(\d+))?\.txt$", RegexOptions.CultureInvariant);
+    private static readonly Regex ChannelLogDate = new(@"^\d{8}_\d{6}(?:_(\d+))?\.txt$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     /// <summary>The character id at the end of a channel log's name ("" when it has none), or null when the file is
-    /// not that channel's: "Fleet_Ops_20260101_000000_1.txt" is the channel "Fleet_Ops", not "Fleet".</summary>
+    /// not that channel's: "Fleet_Ops_20260101_000000_1.txt" is the channel "Fleet_Ops", not "Fleet". The channel's
+    /// name and the ".txt" are taken without regard to case, as Windows lists files.</summary>
     public static string? ChannelLogOwner(string fileName, string channel)
     {
         if (fileName.Length <= channel.Length + 1 || fileName[channel.Length] != '_'
@@ -2694,6 +2710,10 @@ public sealed class LogMonitorService : IDisposable
         /// <summary>For a rule channel's log that began after its channel was taken on: after the first read it is
         /// read from its first line, not from its end.</summary>
         public bool FromItsStart { get; set; }
+        /// <summary>For a rule channel's log: the latest moment a log was created among this one and the logs of its
+        /// character that it took the place of, and never before its channel was taken on. Only a log created
+        /// after that is a session that began since.</summary>
+        public DateTime Newest { get; set; }
     }
 
     /// <summary>
