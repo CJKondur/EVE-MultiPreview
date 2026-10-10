@@ -15,10 +15,11 @@ public static class AlertsPages
     public const string LookId = "alerts.look";
     public const string SoundsId = "alerts.sounds";
     public const string HubId = "alerts.hub";
+    public const string CustomId = "alerts.custom";
     /// <summary>The event table: where event search results land.</summary>
     public const string EventTableId = "alerts.events.table";
 
-    public static IReadOnlyList<PageDef> All => new[] { Events(), Look(), Sounds(), Hub() };
+    public static IReadOnlyList<PageDef> All => new[] { Events(), Look(), Sounds(), Hub(), Custom() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
@@ -43,6 +44,11 @@ public static class AlertsPages
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
         new HelpTopic(HubId, "historyWindow", new[] { "alerts.hub.historyRow" }),
+        new HelpTopic(CustomId, "rules", new[] { CustomRulesEditor.ItemId }),
+        new HelpTopic(CustomId, "match", Array.Empty<string>()),
+        new HelpTopic(CustomId, "chat", Array.Empty<string>()),
+        new HelpTopic(CustomId, "test", Array.Empty<string>()),
+        new HelpTopic(CustomId, "file", new[] { "alerts.custom.file" }),
     };
 
     private static SettingItem Toggle(string id, Expression<Func<AppSettings, bool>> prop, params string[] replaces) =>
@@ -268,6 +274,17 @@ public static class AlertsPages
                 ShowIf = s => s.AlertHistoryEnabled,
             }),
             new InfoItem("alerts.hub.historyFolder", InfoSeverity.Info) { Args = _ => new object[] { AppPaths.HistoryDir } },
+        }),
+    });
+
+    /// <summary>IDEAS #8. The rules are in custom_alerts.json, not in the settings file: nothing on this page binds a
+    /// setting, and nothing on it asks the settings file to be saved.</summary>
+    private static PageDef Custom() => new(CustomId, NavGroup.Alerts, new[]
+    {
+        new SectionDef("alerts.custom.rules", new PageItem[]
+        {
+            new EditorItem(CustomRulesEditor.ItemId, ctx => new CustomRulesEditor(ctx)),
+            new InfoItem("alerts.custom.file", InfoSeverity.Info) { Args = ctx => new object[] { ctx.CustomAlerts.FilePath } },
         }),
     });
 }

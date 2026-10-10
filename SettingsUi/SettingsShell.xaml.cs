@@ -220,7 +220,8 @@ public partial class SettingsShell : Window, ISettingsHost
     private IReadOnlyList<SearchEntry> SearchEntries()
     {
         var names = CharacterDirectory.Known(_ctx.S, CharacterDirectory.Running(_ctx));
-        var key = string.Join("\n", names);
+        var rules = _ctx.CustomAlerts.Rules;   // IDEAS #8: a rule is found by its name or its pattern
+        var key = string.Join("\n", names) + "\n\n" + string.Join("\n", rules.Select(r => r.Id + " " + r.Name + " " + r.Pattern));
         if (_searchIndex == null || key != _searchCharacters)
         {
             _searchCharacters = key;
@@ -228,7 +229,8 @@ public partial class SettingsShell : Window, ISettingsHost
                 k => LocalizationService.Str(k, ""),
                 k => EnglishText(k),
                 extra: CharacterStores.SearchEntries(names, k => LocalizationService.Str(k, ""))
-                    .Concat(AlertEvents.SearchEntries(k => LocalizationService.Str(k, ""), EnglishText)));
+                    .Concat(AlertEvents.SearchEntries(k => LocalizationService.Str(k, ""), EnglishText))
+                    .Concat(CustomRulesEditor.SearchEntries(rules, k => LocalizationService.Str(k, ""))));
         }
         return _searchIndex;
     }
