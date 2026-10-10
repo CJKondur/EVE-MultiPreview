@@ -100,6 +100,16 @@ public sealed class LogMonitorService : IDisposable
     // Per-event enable/disable from settings
     private Dictionary<string, bool> _enabledAlertTypes = new();
 
+    // ── Custom alert rules (IDEAS #8) ──
+    // The rules that are on, made ready, or null while there are none: then a line costs one read of this field and
+    // one branch more than it did before custom rules existed. Only the reading thread writes it (ApplyPendingRules).
+    private CustomAlertEngine? _customRules;
+    // A change from SetCustomRules, taken by the reading thread before its next read, as a folder change is.
+    private CustomAlertEngine? _pendingRules;
+    private bool _rulesPending;                                  // under _foldersLock
+    private Action<CustomAlertRule, string>? _raiseCustom;       // made once, on the first line a rule looks at
+    private string _customCharacter = "";                        // whose line the rules are looking at (reading thread)
+
     // Settings reference for configurable alert colors and sounds
     private AppSettings? _appSettings;
 
@@ -1021,6 +1031,7 @@ public sealed class LogMonitorService : IDisposable
     /// <summary>Takes a folder change from Reconfigure. Runs on the reading thread (or before Start), never beside a read.</summary>
     private void ApplyPendingFolders()
     {
+        ApplyPendingRules();   // custom rules change at the same point as the folders: between two reads (IDEAS #8)
         (string? Chat, string? Game, bool ChatOn, bool GameOn) pending;
         lock (_foldersLock)
         {
@@ -1122,6 +1133,25 @@ public sealed class LogMonitorService : IDisposable
 
     /// <summary>Set settings reference for alert colors and other config.</summary>
     public void SetSettings(AppSettings settings) => _appSettings = settings;
+
+    /// <summary>The custom rules to match from now on (IDEAS #8); null for none. Like a folder change (Reconfigure),
+    /// the reading thread takes it before its next read, so the rules never change in the middle of a line, and the
+    /// chat channels that only the old rules read are let go in the same step.</summary>
+    public void SetCustomRules(CustomAlertEngine? engine)
+    {
+        lock (_foldersLock)
+        {
+            _pendingRules = engine;
+            _rulesPending = true;
+        }
+        if (_cts == null) { ApplyPendingRules(); return; }   // not reading (before Start, tests): at once
+        WakeReader();
+    }
+
+    /// <summary>What a custom rule matched: set while AlertTriggered is being raised for that rule's alert, on the
+    /// reading thread, and null at every other time and for every built-in alert. A handler of AlertTriggered reads
+    /// it there and then; that is how the alert history gets the text without AlertTriggered changing.</summary>
+    public string? RaisingCustomText { get; private set; }
 
     private async Task MonitorLoop(CancellationToken ct)
     {
@@ -1338,6 +1368,9 @@ public sealed class LogMonitorService : IDisposable
             }
         }
 
+        // Chat channels a custom rule names (IDEAS #8). With no such rule nothing more is listed or opened.
+        if (_customRules is { Channels.Count: > 0 } channelRules) newFiles += TrackRuleChannels(channelRules);
+
         if (newFiles > 0)
             Debug.WriteLine($"[LogMonitor:Scan] 📂 Found {newFiles} new log file(s), total tracked: {_trackedFiles.Count}");
     }
@@ -1388,7 +1421,9 @@ public sealed class LogMonitorService : IDisposable
                     // ── System name extraction (matches AHK _ReadInitialSystem_Chat / _Game) ──
                     if (!string.IsNullOrEmpty(firstReadChar))
                     {
-                        if (state.Type == LogType.ChatLog)
+                        // Only a Local log names the system. A channel that custom rules read (IDEAS #8) is other
+                        // players' text from its first line to its last: it is never searched for one.
+                        if (state.Type == LogType.ChatLog && state.Channel == null)
                         {
                             // AHK: reads the ENTIRE chat log, collects last system only
                             string? lastSystem = null;
@@ -1440,6 +1475,7 @@ public sealed class LogMonitorService : IDisposable
 
                     // Set position to EOF so live monitoring starts from current end
                     state.LastPosition = fi.Length;
+                    state.Listener = firstReadChar;   // for custom rules (IDEAS #8): the header's name, kept
 
                     Debug.WriteLine($"[LogMonitor:Scan] ⏩ First read of {Path.GetFileName(path)} — char='{firstReadChar}', type={state.Type}, lines={lineCount}, fileLen={fi.Length}");
                 }
@@ -1582,6 +1618,9 @@ public sealed class LogMonitorService : IDisposable
 
         string character = _fileCharacterMap.GetValueOrDefault(state.Path, "Unknown");
 
+        // Custom rules (IDEAS #8). While none is on, this line is all they cost: one field read and one branch.
+        if (_customRules is { } rules) { ProcessLineWithRules(line, state, character, rules); return; }
+
         if (state.Type == LogType.ChatLog)
         {
             ParseChatLogLine(line, character);
@@ -1590,6 +1629,127 @@ public sealed class LogMonitorService : IDisposable
         {
             ParseGameLogLine(line, character);
         }
+    }
+
+    // ── Custom alert rules (IDEAS #8) ─────────────────────────────────
+
+    /// <summary>The name of the chat channel whose logs are read for the system (Local_*.txt).</summary>
+    public const string LocalChannel = "Local";
+
+    /// <summary>The most logs of one rule channel a scan takes on.</summary>
+    public const int ChannelLogsTaken = 12;
+
+    /// <summary>ProcessLine's last step while custom rules are on. A line of a game log or of a Local log goes to the
+    /// parser it always went to, first, and to the rules after it: a rule can add an alert to a line, and can never
+    /// take a built-in alert away or come before it. A line of a channel that only rules read goes to the rules and
+    /// to nothing else: it is other players' text, and no built-in parser may ever see it.</summary>
+    private void ProcessLineWithRules(string line, LogFileState state, string character, CustomAlertEngine rules)
+    {
+        if (state.Channel != null)
+        {
+            MatchRules(rules, line, state, character, state.Channel);
+            return;
+        }
+        if (state.Type == LogType.ChatLog)
+        {
+            ParseChatLogLine(line, character);
+            MatchRules(rules, line, state, character, LocalChannel);
+        }
+        else
+        {
+            ParseGameLogLine(line, character);
+            MatchRules(rules, line, state, character, null);
+        }
+    }
+
+    /// <summary>Asks the rules about one line. <paramref name="channel"/> is null for a game log.</summary>
+    private void MatchRules(CustomAlertEngine rules, string line, LogFileState state, string character, string? channel)
+    {
+        // A log belongs to the character its header named when it was first read (ReadNewLines keeps that name in
+        // state.Listener). ProcessLine also takes a later line that starts like a header for one, and in a chat
+        // channel other players write the lines: for the rules, the first name stays.
+        if (string.IsNullOrEmpty(state.Listener) && character != "Unknown") state.Listener = character;
+        _customCharacter = string.IsNullOrEmpty(state.Listener) ? character : state.Listener;
+        _raiseCustom ??= RaiseCustom;
+        if (channel == null) rules.MatchGame(line, _customCharacter, _raiseCustom);
+        else rules.MatchChat(line, channel, _customCharacter, _raiseCustom);
+    }
+
+    /// <summary>A rule matched: its alert goes through the gate every alert goes through.</summary>
+    private void RaiseCustom(CustomAlertRule rule, string text)
+    {
+        _lastEventTime = DateTime.Now;
+        TriggerAlert(_customCharacter, rule.AlertType, rule.Severity, rule.QuietSeconds, text);
+    }
+
+    /// <summary>Takes a rules change from SetCustomRules. Runs on the reading thread (or before Start), never beside
+    /// a read. The logs of a channel that no rule reads any more are let go here, in the same step: a channel's log is
+    /// tracked only while a rule reads it, so its lines can never reach anything but rules.</summary>
+    private void ApplyPendingRules()
+    {
+        CustomAlertEngine? engine;
+        lock (_foldersLock)
+        {
+            if (!_rulesPending) return;
+            _rulesPending = false;
+            engine = _pendingRules;
+            _pendingRules = null;
+        }
+        _customRules = engine;
+        foreach (var (path, state) in _trackedFiles)
+        {
+            if (state.Channel == null || (engine != null && engine.Reads(state.Channel))) continue;
+            _trackedFiles.TryRemove(path, out _);
+            _fileCharacterMap.TryRemove(path, out _);
+        }
+        _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1;   // look for the new rules' channels on this pass
+    }
+
+    /// <summary>Takes on the logs of the chat channels that rules name. A new log is first read like any other: its
+    /// header for the listener, then on from its end, so only lines written from now on are matched. Returns how many
+    /// logs were new.</summary>
+    private int TrackRuleChannels(CustomAlertEngine rules)
+    {
+        if (!Directory.Exists(_chatLogPath)) return 0;
+        int added = 0;
+        foreach (var channel in rules.Channels)
+        {
+            // Local's logs are read anyway, for the system: a rule on Local reads those (ProcessLineWithRules).
+            if (string.Equals(channel, LocalChannel, StringComparison.OrdinalIgnoreCase)) continue;
+            foreach (var file in NewestChannelLogs(_chatLogPath, channel, DateTime.Now))
+            {
+                if (_trackedFiles.ContainsKey(file)) continue;
+                _trackedFiles[file] = new LogFileState { Path = file, Type = LogType.ChatLog, LastPosition = 0, Channel = channel };
+                added++;
+            }
+        }
+        return added;
+    }
+
+    /// <summary>The logs of one chat channel a scan takes on for custom rules: the files named
+    /// ‹channel›_‹yyyymmdd›_‹hhmmss›_‹character id›.txt, the newest of each character id, newest first, at most 12, as
+    /// full paths. A log without a character id (EVE wrote those until 2021) counts as one character's.</summary>
+    public static IReadOnlyList<string> NewestChannelLogs(string folder, string channel, DateTime now) =>
+        LogTimes(folder, channel + "_*.txt", now)
+            .Select(x => (x.Path, x.Written, Owner: ChannelLogOwner(Path.GetFileName(x.Path), channel)))
+            .Where(x => x.Owner != null)
+            .GroupBy(x => x.Owner!, StringComparer.Ordinal)
+            .Select(g => g.OrderByDescending(x => x.Written).First())
+            .OrderByDescending(x => x.Written)
+            .Take(ChannelLogsTaken)
+            .Select(x => x.Path)
+            .ToList();
+
+    private static readonly Regex ChannelLogDate = new(@"^\d{8}_\d{6}(?:_(\d+))?\.txt$", RegexOptions.CultureInvariant);
+
+    /// <summary>The character id at the end of a channel log's name ("" when it has none), or null when the file is
+    /// not that channel's: "Fleet_Ops_20260101_000000_1.txt" is the channel "Fleet_Ops", not "Fleet".</summary>
+    public static string? ChannelLogOwner(string fileName, string channel)
+    {
+        if (fileName.Length <= channel.Length + 1 || fileName[channel.Length] != '_'
+            || !fileName.StartsWith(channel, StringComparison.OrdinalIgnoreCase)) return null;
+        var date = ChannelLogDate.Match(fileName, channel.Length + 1, fileName.Length - channel.Length - 1);
+        return date.Success ? date.Groups[1].Value : null;
     }
 
     private void ParseChatLogLine(string line, string character)
@@ -2172,7 +2332,9 @@ public sealed class LogMonitorService : IDisposable
         Debug.WriteLine($"[LogMonitor:Event] 💰 Bounty: {amount:N0} ISK for '{character}'");
     }
 
-    private void TriggerAlert(string character, string alertType, string severity)
+    /// <param name="ownQuietTime">A custom rule's own quiet time in seconds, when it has one (IDEAS #8).</param>
+    /// <param name="customText">What a custom rule matched; see RaisingCustomText.</param>
+    private void TriggerAlert(string character, string alertType, string severity, int? ownQuietTime = null, string? customText = null)
     {
         DiagnosticsService.LogAlerts($"[Trigger] entered: type={alertType} severity={severity} char='{character}' enabledTypesCount={_enabledAlertTypes.Count}");
 
@@ -2186,7 +2348,7 @@ public sealed class LogMonitorService : IDisposable
 
         // ── Per-event cooldown check ──
         string key = $"{character}_{alertType}";
-        int cooldownSec = CooldownFor(alertType, severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds);
+        int cooldownSec = ownQuietTime ?? CooldownFor(alertType, severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds);
 
         if (_alertCooldowns.TryGetValue(key, out var lastTime))
         {
@@ -2202,7 +2364,9 @@ public sealed class LogMonitorService : IDisposable
 
         Debug.WriteLine($"[LogMonitor:Event] ⚡ Alert fired: {alertType} [{severity}] for '{character}'");
         DiagnosticsService.LogAlerts($"[Trigger] FIRED — invoking AlertTriggered: type={alertType} severity={severity} char='{character}'");
-        AlertTriggered?.Invoke(character, alertType, severity);
+        RaisingCustomText = customText;
+        try { AlertTriggered?.Invoke(character, alertType, severity); }
+        finally { RaisingCustomText = null; }
     }
 
     /// <summary>Apply any deferred game-log system change whose grace period expired
@@ -2420,6 +2584,11 @@ public sealed class LogMonitorService : IDisposable
         public LogType Type { get; set; }
         public long LastPosition { get; set; }
         public string? PartialLine { get; set; } // Buffer for incomplete lines
+        /// <summary>Set for the log of a chat channel that a custom rule names (IDEAS #8): only rules read it. Null for
+        /// a game log and for a Local log.</summary>
+        public string? Channel { get; set; }
+        /// <summary>For custom rules: the character the log's header named, once it is known.</summary>
+        public string? Listener { get; set; }
     }
 
     /// <summary>
