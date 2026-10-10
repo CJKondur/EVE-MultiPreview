@@ -339,53 +339,22 @@ public partial class App : Application
                     Debug.WriteLine($"[CycleWrap:Sound] ❌ {ex.Message}");
                 }
             };
+            // What an alert is shown with. AlertDispatcher makes the decision this handler used to make inline (the same
+            // checks in the same order, the same calls) and says what became of the alert (IDEAS #1).
+            var alertTargets = new AlertTargets
+            {
+                ActiveCharacters = () => _thumbnailManager.GetActiveCharacterNames(),
+                IsMuted = charName => _thumbnailManager.IsCharacterAlertMuted(charName),
+                Flash = (charName, severity, alertType) => _thumbnailManager.SetAlertFlash(charName, severity, alertType),
+                Badge = (charName, severity, alertType) => _thumbnailManager.IncrementAlertBadge(charName, severity, alertType),
+                WindowOf = charName => _thumbnailManager.GetHwndForCharacter(charName),
+                ForegroundWindow = () => EveMultiPreview.Interop.User32.GetForegroundWindow(),
+                Toast = (charName, alertType, severity) => _alertHub.ShowToast(charName, alertType, severity),
+                Sound = PlayAlertSound,
+            };
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
-                Debug.WriteLine($"[App:Alert] ⚡ Alert: {alertType} [{severity}] for '{charName}'");
-                var activeChars = _thumbnailManager.GetActiveCharacterNames();
-                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                    $"[App] AlertTriggered received: type={alertType} severity={severity} char='{charName}' " +
-                    $"activeChars=[{string.Join(", ", activeChars.Select(c => $"'{c}'"))}]");
-                if (!activeChars.Any(n => string.Equals(n, charName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    Debug.WriteLine($"[App:Alert] ⏭ Skipped — '{charName}' not in active windows");
-                    EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                        $"[App] DROPPED — '{charName}' not in active-windows list. Alert will not flash/badge/toast.");
-                    return;
-                }
-                if (_thumbnailManager.IsCharacterAlertMuted(charName))
-                {
-                    Debug.WriteLine($"[App:Alert] 🔇 Skipped — alerts muted/snoozed for '{charName}'");
-                    EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                        $"[App] MUTED — alerts snoozed for '{charName}'. No flash/badge/toast/sound.");
-                    return;
-                }
-                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                    $"[App] '{charName}' found in active windows, dispatching to flash/badge/toast/sound");
-                _thumbnailManager.SetAlertFlash(charName, severity, alertType);
-                _thumbnailManager.IncrementAlertBadge(charName, severity, alertType);
-                bool trayEnabled = _settings.Settings.SeverityTrayNotify.TryGetValue(severity, out var tn) && tn;
-
-                // Hub toast gate. Shown when the hub is enabled AND the
-                // severity is configured to surface there. Optionally (issue
-                // #47) suppressed for the foreground EVE client — you're
-                // already looking at that client, so the toast is noise.
-                // The suppression is per-character: only the alerting char's
-                // own toast is dropped, never a background client's, so the
-                // old simultaneous-alert bug can't recur.
-                bool suppressForActive = false;
-                if (_settings.Settings.SuppressAlertHubToastForActiveClient)
-                {
-                    var alertHwnd = _thumbnailManager.GetHwndForCharacter(charName);
-                    suppressForActive = alertHwnd != IntPtr.Zero
-                        && alertHwnd == EveMultiPreview.Interop.User32.GetForegroundWindow();
-                }
-                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                    $"[App] toast decision for '{charName}': hubEnabled={_settings.Settings.AlertHubEnabled} trayNotify[{severity}]={trayEnabled} suppressForActive={suppressForActive}");
-                if (_settings.Settings.AlertHubEnabled && trayEnabled && !suppressForActive)
-                    _alertHub.ShowToast(charName, alertType, severity);
-
-                PlayAlertSound(charName, alertType, severity);
+                AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity);
             };
 
             _discovery.WindowTitleChanged += (window, oldTitle) =>
