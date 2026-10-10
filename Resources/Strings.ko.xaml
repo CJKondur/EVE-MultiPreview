@@ -2097,4 +2097,5 @@
     <sys:String x:Key="L.S.Rules.Off.average">MultiPreview가 이 규칙을 껐어요: 정규식 규칙들이 로그 읽기를 느리게 했고, 이 규칙이 가장 느리거나 느린 규칙 가운데 하나였어요. 더 단순한 패턴이나 일반 텍스트가 더 빨라요. 규칙 중 하나를 바꾸거나 MultiPreview를 다시 시작하면 이 규칙을 다시 시도해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview가 이 규칙을 껐어요: 가끔 한 줄에 오래 걸렸고, 다른 규칙과 합쳐져 로그 읽기가 늦어졌어요. PC가 매우 바쁠 때에도 생길 수 있어요. 규칙 중 하나를 바꾸거나 MultiPreview를 다시 시작하면 이 규칙을 다시 시도해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">채팅 로그 폴더에서 채팅 로그를 찾지 못했어요. EVE에서 채팅 기록을 켜거나 채널 이름을 직접 입력하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Test.Slow">느려요. 정규식이 대부분의 줄에서 {0}ms보다 오래 걸리는 규칙은 MultiPreview가 실행되는 동안 꺼져요. 다른 줄도 이만큼 걸리면 패턴을 더 단순하게 바꿔 주세요.</sys:String> <!-- draft -->
 </ResourceDictionary>

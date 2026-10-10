@@ -2114,4 +2114,5 @@
     <sys:String x:Key="L.S.Rules.Off.average">MultiPreview 关闭了这条规则：你的正则表达式规则拖慢了日志的读取，而这条是最慢的，或者是较慢的几条之一。更简单的模式，或者改用纯文字，会更快。你修改任意一条规则或重新启动 MultiPreview 后，这条规则会再次试用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview 关闭了这条规则：它偶尔会在某一行上花很长时间，加上你的其他规则，就耽误了日志的读取。电脑非常繁忙时也可能出现这种情况。你修改任意一条规则或重新启动 MultiPreview 后，这条规则会再次试用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">在你的聊天日志文件夹里没有找到聊天日志。请在 EVE 里开启聊天记录，或者直接输入频道名称。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Test.Slow">偏慢。如果一条规则的正则表达式在大多数行上都超过 {0} 毫秒，它会在 MultiPreview 运行期间被关闭。要是别的行也这么慢，请把模式改简单些。</sys:String> <!-- draft -->
 </ResourceDictionary>

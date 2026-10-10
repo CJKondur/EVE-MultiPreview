@@ -126,13 +126,22 @@ public sealed class CustomRulesModel
     }
 
     /// <summary>Changes one rule and saves. A rule that can't run after the change is switched off by the store.
-    /// False when there is no such rule or the file could not be written (the change is then gone).</summary>
+    /// False when there is no such rule or the file could not be written (the change is then gone). The rule keeps
+    /// its id whatever <paramref name="edit"/> does to it: the id is MultiPreview's own, and the page knows its
+    /// cards by it. When <paramref name="edit"/> throws, what it had changed until then is dropped (the model holds
+    /// what the file holds again) and the exception goes on to the caller.</summary>
     public bool Change(string id, Action<CustomAlertRule> edit)
     {
         SaveFailed = false;
         var rule = Find(id);
         if (rule == null) return false;
-        edit(rule);
+        try { edit(rule); }
+        catch
+        {
+            Reload();
+            throw;
+        }
+        rule.Id = id;
         return Save();
     }
 
@@ -182,6 +191,20 @@ public sealed class CustomRulesModel
         if (ThumbnailFields.TryWhole(t, out var v) && v >= 0 && v <= CustomRules.MaxQuietSeconds) { seconds = v; return null; }
         return "L.S.Rules.QuietError";
     }
+
+    /// <summary>The name of a rule's copy: <paramref name="format"/> ("{0} (copy)", in the player's language) around
+    /// the rule's name, with the name shortened until the whole is no longer than a rule's name can be. The cut never
+    /// falls inside a character and leaves no space behind (PlainText.OneLine). Left to the store, the end would be
+    /// cut off instead, and the copy of a rule with a long name would be named exactly like its original.</summary>
+    public static string CopyName(string format, string name)
+    {
+        int room = CustomRules.MaxName - string.Format(format, "").Length;
+        return string.Format(format, PlainText.OneLine(name, Math.Max(room, 0)));
+    }
+
+    /// <summary>Whether a test's match took so long that the rule would not last: as long as the regular expressions
+    /// may cost a line on average, or longer. A rule that slow on most lines is switched off by the reader.</summary>
+    public static bool IsSlow(TimeSpan took) => took >= CustomRules.AverageBudget;
 
     /// <summary>How long a test match took, in milliseconds as the page shows it: "0.02", "1.5", "50".</summary>
     public static string TookText(TimeSpan took)

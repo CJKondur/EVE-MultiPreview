@@ -38,6 +38,9 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     private readonly StackPanel _cards = new();
     private readonly TextBlock _note = EditorCard.Value("", secondary: true);
     private readonly List<Button> _adders = new();
+    private readonly Button _add;                             // Add rule: where the keyboard goes when the last card is deleted
+    private readonly List<Action> _commits = new();           // each stores one text box of the open rule, if it was changed
+    private Window? _window;                                  // the window whose closing stores what was typed
     private readonly Dictionary<string, Head> _heads = new();
     private bool _showing;                                    // a switch is being set to what was saved: not a click
     // Which rules the log monitor has switched off, as it said when it was last asked; what it answered for the rules
@@ -84,9 +87,20 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         below.Children.Add(_note);
 
         var root = new StackPanel();
-        root.Children.Add(EditorCard.Build(ItemId, Adder("L.S.Rules.Add", () => Add()), below));
+        _add = Adder("L.S.Rules.Add", () => Add());
+        root.Children.Add(EditorCard.Build(ItemId, _add, below));
         root.Children.Add(_cards);
         Content = root;
+        // A text box is stored when the keyboard leaves it. When another page is opened, or the window is closed,
+        // with the keyboard still in a box, nothing tells the box: what was typed is stored here instead.
+        Unloaded += (_, _) => StoreWhatWasTyped();
+        Loaded += (_, _) =>
+        {
+            var window = Window.GetWindow(this);
+            if (window == null || ReferenceEquals(window, _window)) return;
+            _window = window;
+            window.Closing += (_, _) => StoreWhatWasTyped();
+        };
         Refresh();
     }
 
@@ -149,6 +163,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     {
         _built++;
         _listChannels = null;
+        _commits.Clear();
         AskWhatIsOff();
         if (Model.Find(OpenId) == null) OpenId = null;
         _heads.Clear();
@@ -209,7 +224,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         AfterSave();
         OpenId = rule?.Id ?? OpenId;
         Rebuild();
-        FocusField("name");
+        FocusField("name", select: rule != null);                // "New rule" is there to be typed over
         return rule;
     }
 
@@ -236,11 +251,11 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     {
         var from = Model.Find(id);
         if (from == null) return null;
-        var rule = Model.Duplicate(id, string.Format(Str("L.S.Rules.CopyName"), from.Name));
+        var rule = Model.Duplicate(id, CustomRulesModel.CopyName(Str("L.S.Rules.CopyName"), from.Name));
         AfterSave();
         OpenId = rule?.Id ?? OpenId;
         Rebuild();
-        FocusField("name");
+        FocusField("name", select: rule != null);                // and so is a copy's name
         return rule;
     }
 
@@ -249,9 +264,14 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         var rule = Model.Find(id);
         if (rule == null) return;
         if (!_ctx.Host.Confirm(Str("L.S.Rules.DeleteTitle"), string.Format(Str("L.S.Rules.DeleteConfirm"), rule.Name))) return;
+        int at = Model.Rules.TakeWhile(r => r.Id != id).Count();
         Model.Delete(id);
         AfterSave();
         Rebuild();
+        // The button that was pressed is gone with its card. The keyboard goes to Edit of the card that took its
+        // place (the rule's own card when it could not be deleted), or to Add rule when no card did.
+        var next = at < Model.Rules.Count ? _heads[Model.Rules[at].Id].Edit : _add;
+        Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => next.Focus());
     }
 
     public void Open(string id)
@@ -306,11 +326,13 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         var delete = EditorCard.Button("L.S.Rules.Delete", () => Delete(id), destructive: true);
         var buttons = EditorCard.Row(edit, duplicate, delete);
 
+        // The switch first: Tab goes through the children in their order, and a card reads switch, text, buttons.
+        // The two are docked to opposite sides, so their order changes nothing of where they stand.
         var head = new DockPanel();
         DockPanel.SetDock(buttons, Dock.Right);
         DockPanel.SetDock(toggle, Dock.Left);
-        head.Children.Add(buttons);
         head.Children.Add(toggle);
+        head.Children.Add(buttons);
         head.Children.Add(text);
 
         _heads[id] = new Head(toggle, name, summary, error, off, edit, duplicate, delete);
@@ -377,6 +399,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     private WrapPanel _sound = new();
     private TextBlock _quietError = new();
     private TextBlock _result = new();
+    private TextBlock _slow = new();
     private TextBlock _seen = new();
 
     private FrameworkElement BuildForm(CustomAlertRule rule)
@@ -499,6 +522,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         }
         box.LostFocus += (_, _) => Commit();
         box.KeyDown += (_, k) => { if (k.Key == Key.Enter) { Commit(); k.Handled = true; } };
+        _commits.Add(Commit);
         return box;
     }
 
@@ -569,6 +593,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         combo.DropDownClosed += (_, _) => Commit(combo.SelectedItem as string ?? combo.Text);   // picked from the list, or typed
         combo.LostKeyboardFocus += (_, _) => { if (!combo.IsKeyboardFocusWithin) Commit(combo.Text); };
         combo.KeyDown += (_, k) => { if (k.Key == Key.Enter) { Commit(combo.Text); k.Handled = true; } };
+        _commits.Add(() => Commit(combo.Text));
         return combo;
     }
 
@@ -661,7 +686,9 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         FillSound(id);
     }
 
-    /// <summary>Play: what the rule's alert would play, at the alert volume. Says so when there is nothing to play.</summary>
+    /// <summary>Play: the rule's own sound, or the default alert sound when it has none, at the alert volume. Says so
+    /// when there is nothing to play, and also when the rule's own file is no longer there: its alert plays the
+    /// default sound then (AlertSoundChoice.FileToPlay), and here the player learns that the file is missing.</summary>
     public bool Play(string id)
     {
         var rule = Model.Find(id);
@@ -688,6 +715,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         }
         box.LostFocus += (_, _) => Commit();
         box.KeyDown += (_, k) => { if (k.Key == Key.Enter) { Commit(); k.Handled = true; } };
+        _commits.Add(Commit);
         var unit = EditorCard.Note("L.S.Unit.Sec");
         var note = EditorCard.Note("L.S.Rules.QuietNote");
         note.TextWrapping = TextWrapping.Wrap;
@@ -723,21 +751,30 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         run.Tag = "testRun";
         run.Margin = new Thickness(8, 0, 0, 0);
         box.KeyDown += (_, k) => { if (k.Key == Key.Enter) { RunTest(id, box.Text); k.Handled = true; } };
+        // The button is docked first so that the box takes the room that is left. Tab still reaches the box first:
+        // inside this row the order is the two tab indexes, and outside it nothing changes.
         var line = new DockPanel { LastChildFill = true };
         DockPanel.SetDock(run, Dock.Right);
         line.Children.Add(run);
         line.Children.Add(box);
+        KeyboardNavigation.SetTabNavigation(line, KeyboardNavigationMode.Local);
+        box.TabIndex = 0;
+        run.TabIndex = 1;
 
         var hint = EditorCard.Note("L.S.Rules.TestBox");
         hint.TextWrapping = TextWrapping.Wrap;
         _result = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 14, Margin = new Thickness(0, 6, 0, 0), Visibility = Visibility.Collapsed, Tag = "result" };
         AutomationProperties.SetLiveSetting(_result, AutomationLiveSetting.Polite);   // a screen reader says the answer
+        _slow = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 2, 0, 0), Visibility = Visibility.Collapsed, Tag = "slow" };
+        _slow.SetResourceReference(TextBlock.ForegroundProperty, "Fx.WarningBrush");
+        AutomationProperties.SetLiveSetting(_slow, AutomationLiveSetting.Polite);
         _seen = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 2, 0, 0), Visibility = Visibility.Collapsed, Tag = "seen" };
         _seen.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
         var stack = new StackPanel();
         stack.Children.Add(line);
         stack.Children.Add(hint);
         stack.Children.Add(_result);
+        stack.Children.Add(_slow);
         stack.Children.Add(_seen);
         return stack;
     }
@@ -749,6 +786,18 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         var rule = Model.Find(id);
         if (rule == null) return null;
         var result = CustomAlertEngine.Test(rule, pasted ?? "", Model.Rules);
+        ShowTest(id, pasted ?? "", result);
+        return result;
+    }
+
+    /// <summary>Shows what a test answered: the answer; when a regular expression took as long as the reader allows
+    /// a line on average (CustomRulesModel.IsSlow), one more line that says a rule this slow is switched off; and
+    /// the text the rule looked at. A screen reader is told after every test, also when the answer reads as the
+    /// one before did. A test hands in an answer with a time of its choosing: no test waits for a slow match.</summary>
+    public void ShowTest(string id, string pasted, CustomRuleTestResult result)
+    {
+        var rule = Model.Find(id);
+        if (rule == null) return;
         string took = CustomRulesModel.TookText(result.Took);
         _result.Text = result.Outcome switch
         {
@@ -762,9 +811,14 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         _result.FontWeight = result.Outcome == CustomRuleTestOutcome.Matches ? FontWeights.SemiBold : FontWeights.Normal;
         _result.SetResourceReference(TextBlock.ForegroundProperty, bad ? "Fx.CriticalBrush" : "Fx.TextBrush");
         _result.Visibility = Visibility.Visible;
+        // Only a regular expression is timed and counted by the reader; a match that was given up says so above.
+        bool slow = rule.IsRegex && result.Outcome is CustomRuleTestOutcome.Matches or CustomRuleTestOutcome.NoMatch && CustomRulesModel.IsSlow(result.Took);
+        _slow.Text = slow ? string.Format(CultureInfo.CurrentCulture, Str("L.S.Rules.Test.Slow"), CustomRules.AverageBudget.TotalMilliseconds) : "";
+        _slow.Visibility = slow ? Visibility.Visible : Visibility.Collapsed;
         _seen.Text = result.Seen.Length == 0 ? "" : string.Format(Str("L.S.Rules.Test.Seen"), result.Seen);
         _seen.Visibility = result.Seen.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
-        return result;
+        Announce.Changed(_result);
+        if (slow) Announce.Changed(_slow);
     }
 
     // ── the keyboard ──
@@ -793,7 +847,30 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         return null;
     }
 
-    /// <summary>Puts the keyboard focus on a tagged control of the cards once the rebuilt cards are loaded.</summary>
-    private void FocusField(string tag) => Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
-        Under(_cards).FirstOrDefault(e => e.Tag as string == tag && e.IsVisible)?.Focus());
+    /// <summary>Puts the keyboard focus on a tagged control of the cards once the rebuilt cards are loaded. With
+    /// <paramref name="select"/>, a text box's text is selected, ready to be typed over. It is asked for the cards
+    /// as they are now: when they were built again before it gets its turn, it does nothing.</summary>
+    private void FocusField(string tag, bool select = false)
+    {
+        int built = _built;
+        Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () =>
+        {
+            if (built != _built) return;
+            var field = Under(_cards).FirstOrDefault(e => e.Tag as string == tag && e.IsVisible);
+            field?.Focus();
+            if (select && field is TextBox box) box.SelectAll();
+        });
+    }
+
+    /// <summary>Stores every text box of the open rule that holds something else than was saved (a box that was not
+    /// changed stores nothing). When one can't be stored the player is told once, and the rest is left: the cards
+    /// were built anew from what the file holds, and the boxes that are left are gone.</summary>
+    private void StoreWhatWasTyped()
+    {
+        foreach (var commit in _commits.ToList())
+        {
+            commit();
+            if (Model.SaveFailed) break;
+        }
+    }
 }

@@ -2096,4 +2096,5 @@
     <sys:String x:Key="L.S.Rules.Off.average">MultiPreview switched this rule off: your regular-expression rules were slowing down the reading of the logs, and this one was the slowest or one of the slow ones. A simpler pattern, or plain text, is faster. The rule is tried again when you change any of your rules or restart MultiPreview.</sys:String>
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview switched this rule off: now and then it took long on a line, and together with your other rules that held up the reading of the logs. A very busy PC can cause this too. The rule is tried again when you change any of your rules or restart MultiPreview.</sys:String>
     <sys:String x:Key="L.S.Rules.NoChatLogs">No chat logs found in your chat log folder. Switch on chat logging in EVE, or type the channel's name.</sys:String>
+    <sys:String x:Key="L.S.Rules.Test.Slow">Slow. A rule whose regular expression takes more than {0} ms on most lines is switched off while MultiPreview runs. If other lines take this long too, make the pattern simpler.</sys:String>
 </ResourceDictionary>
