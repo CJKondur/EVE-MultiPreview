@@ -25,15 +25,27 @@
     </Window.Resources>
 
     <!-- The Fluent theme leaves the window's own background to the system backdrop, so the content paints the surface. -->
-    <DockPanel Background="{StaticResource Fx.BgBrush}">
-        <!-- Footer: what was done last and the count on the left; the buttons on the right -->
-        <Border DockPanel.Dock="Bottom" Background="{StaticResource Fx.CardBrush}" BorderBrush="{StaticResource Fx.BorderBrush}"
+    <Grid Background="{StaticResource Fx.BgBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <!-- The list keeps room for its header and three rows (120 px, and its margins), whatever the rows around it
+                 need. KeepRoomForTheList makes the window's smallest height follow them, so nothing is pushed out. -->
+            <RowDefinition x:Name="ListRow" Height="*" MinHeight="140"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Footer: what was done last and the count on the left; the buttons on the right. First in the file, as it
+             always was: the Tab key goes through the window in this order. -->
+        <Border x:Name="Footer" Grid.Row="3" Background="{StaticResource Fx.CardBrush}" BorderBrush="{StaticResource Fx.BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="20,12">
             <DockPanel LastChildFill="True">
                 <Button x:Name="BtnClose" DockPanel.Dock="Right" Content="{DynamicResource L.Hist.Close}" Padding="16,6" Margin="8,0,0,0"
                         IsCancel="True" Click="OnClose"/>
+                <!-- No default button: Enter switches from the list only (OnListKeyDown), not from the search box or a
+                     filter list. Centered, as the theme's own buttons are: it must not stretch when the status wraps. -->
                 <Button x:Name="BtnSwitch" DockPanel.Dock="Right" Content="{DynamicResource L.Hist.Switch}" Style="{StaticResource Fx.PrimaryButton}"
-                        Margin="8,0,0,0" IsDefault="True" IsEnabled="False" Click="OnSwitch"/>
+                        Margin="8,0,0,0" VerticalAlignment="Center" IsEnabled="False" Click="OnSwitch"/>
                 <Button x:Name="BtnClear" DockPanel.Dock="Right" Content="{DynamicResource L.Hist.Clear}" Padding="16,6" Margin="8,0,0,0" Click="OnClear"/>
                 <Button x:Name="BtnExport" DockPanel.Dock="Right" Content="{DynamicResource L.Hist.Export}" Padding="16,6" Margin="8,0,0,0" Click="OnExport"/>
                 <StackPanel VerticalAlignment="Center" Margin="0,0,12,0">
@@ -45,7 +57,7 @@
         </Border>
 
         <!-- Filters: they wrap onto a second line in a narrow window or a long language -->
-        <WrapPanel DockPanel.Dock="Top" Margin="20,16,20,4">
+        <WrapPanel x:Name="Filters" Grid.Row="0" Margin="20,16,20,4">
             <StackPanel Style="{StaticResource Hist.Filter}">
                 <TextBlock Style="{StaticResource Hist.FilterLabel}" Text="{DynamicResource L.Hist.Range}"/>
                 <ComboBox x:Name="CmbRange" MinWidth="150" DisplayMemberPath="Text" ui:Loc.NameKey="L.Hist.Range" SelectionChanged="OnRangeChanged"/>
@@ -68,15 +80,24 @@
             </StackPanel>
         </WrapPanel>
 
-        <Grid Margin="20,4,20,16">
+        <!-- Shown only while "Keep an alert history" is off: what is listed below is then what was kept before, and
+             nothing new arrives. Looks like a settings page's note with the warning bar. -->
+        <Border x:Name="OffNotice" Grid.Row="1" Margin="20,0,20,8" Padding="12,8" Visibility="Collapsed"
+                BorderThickness="3,0,0,0" BorderBrush="{StaticResource Fx.WarningBrush}"
+                Background="{StaticResource Fx.CardBrush}" CornerRadius="{StaticResource Fx.Radius}">
+            <TextBlock x:Name="TxtOff" Style="{StaticResource Fx.Label}" FontSize="13" Text="{DynamicResource L.Hist.Off}"
+                       AutomationProperties.LiveSetting="Polite"/>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="20,4,20,16">
             <ListView x:Name="AlertList" SelectionMode="Single" ui:Loc.NameKey="L.Hist.Title"
                       Background="{StaticResource Fx.CardBrush}" BorderBrush="{StaticResource Fx.BorderBrush}" BorderThickness="1"
                       ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
-                      SelectionChanged="OnSelectionChanged" MouseDoubleClick="OnRowDoubleClick"/>
+                      SelectionChanged="OnSelectionChanged" MouseDoubleClick="OnRowDoubleClick" KeyDown="OnListKeyDown"/>
             <!-- Shown over the empty list -->
             <TextBlock x:Name="TxtEmpty" Style="{StaticResource Fx.Desc}" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"
                        Text="{DynamicResource L.Hist.Empty}" Visibility="Collapsed" IsHitTestVisible="False"/>
         </Grid>
-    </DockPanel>
+    </Grid>
 </Window>

@@ -12,9 +12,9 @@ public enum HistoryRange { Today, Week, All }
 /// <summary>What the history window's filters ask for. An empty value means "all".</summary>
 public sealed record HistoryFilter(string Character = "", string EventKey = "", string Severity = "", string Search = "");
 
-/// <summary>One row of the history window: an alert, or a run of the same alert for the same character shown as one.
-/// <paramref name="Newest"/> is the run's last alert, <paramref name="Count"/> how many it holds and
-/// <paramref name="OldestUtc"/> when it began.</summary>
+/// <summary>One row of the history window: an alert, or a run of the same alert shown as one (see
+/// <see cref="AlertHistoryView.Collapse"/> for what "the same" is). <paramref name="Newest"/> is the run's last alert,
+/// <paramref name="Count"/> how many it holds and <paramref name="OldestUtc"/> when it began.</summary>
 public sealed record HistoryRow(AlertHistoryEntry Newest, int Count, DateTime OldestUtc);
 
 /// <summary>What the history window shows, worked out without any window (IDEAS #1): the time a range starts, the
@@ -53,8 +53,13 @@ public static class AlertHistoryView
     public static IReadOnlyList<AlertHistoryEntry> Filter(IEnumerable<AlertHistoryEntry> entries, HistoryFilter filter,
         Func<AlertHistoryEntry, string> eventName) => entries.Where(e => Matches(e, filter, eventName)).ToList();
 
-    /// <summary>Folds each run of the same alert for the same character into one row. The list is newest first, and
-    /// stays so.</summary>
+    /// <summary>Two neighbours further apart than this are not one run, however alike they are.</summary>
+    public static readonly TimeSpan RunGap = TimeSpan.FromMinutes(10);
+
+    /// <summary>Folds each run of the same alert into one row. Two neighbours are the same alert when they have the
+    /// same alert type, character, matched text, solar system and outcome (everything a row shows but the time), and
+    /// are at most <see cref="RunGap"/> apart: three matches of one rule with three different lines are three rows.
+    /// The list is newest first, and stays so.</summary>
     public static IReadOnlyList<HistoryRow> Collapse(IReadOnlyList<AlertHistoryEntry> newestFirst)
     {
         var rows = new List<HistoryRow>();
@@ -62,7 +67,8 @@ public static class AlertHistoryView
         {
             var newest = newestFirst[i];
             int end = i + 1;
-            while (end < newestFirst.Count && SameAlert(newestFirst[end], newest)) end++;
+            while (end < newestFirst.Count && SameAlert(newestFirst[end], newest)
+                   && (newestFirst[end - 1].TimeUtc - newestFirst[end].TimeUtc).Duration() <= RunGap) end++;
             rows.Add(new HistoryRow(newest, end - i, newestFirst[end - 1].TimeUtc));
             i = end;
         }
@@ -71,7 +77,16 @@ public static class AlertHistoryView
 
     private static bool SameAlert(AlertHistoryEntry a, AlertHistoryEntry b) =>
         string.Equals(a.EventKey, b.EventKey, StringComparison.Ordinal)
-        && string.Equals(a.Character, b.Character, StringComparison.OrdinalIgnoreCase);
+        && string.Equals(a.Character, b.Character, StringComparison.OrdinalIgnoreCase)
+        && string.Equals(a.Text, b.Text, StringComparison.Ordinal)
+        && string.Equals(a.SolarSystem, b.SolarSystem, StringComparison.Ordinal)
+        && a.Outcome == b.Outcome;
+
+    /// <summary>Whether <paramref name="alert"/> belongs to the run a row shows: the same alert, no older than the run's
+    /// first and no newer than its last. The window keeps its selection by this: a re-read makes new objects, and the
+    /// selected run may have grown by then.</summary>
+    public static bool Holds(HistoryRow row, AlertHistoryEntry alert) =>
+        SameAlert(row.Newest, alert) && row.OldestUtc <= alert.TimeUtc && alert.TimeUtc <= row.Newest.TimeUtc;
 
     /// <summary>The time as the row shows it, on this PC's clock: the time alone for today, the date with it otherwise.</summary>
     public static string TimeText(DateTime utc, DateTime nowLocal)

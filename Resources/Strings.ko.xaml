@@ -2010,7 +2010,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">남아 있는 모든 알림을 최신순으로 보여 줘요. 두 번 클릭하면 그 클라이언트로 전환해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.alerts.hub.openHistory">기록 열기…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">기록 창</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**기록 열기…**를 누르면 남아 있는 알림을 최신순으로, 각각 얼마나 전인지와 함께 보여 줘요. 같은 창은 트레이 메뉴의 **알림 기록…**에서도, 알림 허브에서도 열 수 있어요: 종을 마우스 오른쪽 버튼으로 클릭한 다음 구석의 시계를 클릭하세요.&#x0A;&#x0A;- 기간, 캐릭터, 알림, 심각도를 고르거나 검색 상자에 입력하세요. 같은 캐릭터의 같은 알림이 이어지면 횟수와 함께 한 줄로 보여 줘요.&#x0A;- **클라이언트로 전환**을 누르면 그 줄의 클라이언트가 앞으로 나와요. Enter 키와 두 번 클릭도 같아요.&#x0A;- **CSV로 내보내기…**는 표시된 알림을 스프레드시트에서 열 수 있는 파일로 써요.&#x0A;- **기록 지우기…**는 남아 있는 것을 모두 삭제해요.&#x0A;&#x0A;허브 메뉴의 다른 구석 버튼은 종을 클릭할 때처럼 모든 토스트를 닫아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**기록 열기…**를 누르면 남아 있는 알림을 최신순으로, 각각 얼마나 전인지와 함께 보여 줘요. 같은 창은 트레이 메뉴의 **알림 기록…**에서도, 알림 허브에서도 열 수 있어요: 종을 마우스 오른쪽 버튼으로 클릭한 다음 구석의 시계를 클릭하세요.&#x0A;&#x0A;- 기간, 캐릭터, 알림, 심각도를 고르거나 검색 상자에 입력하세요. 같은 캐릭터의 같은 알림이 10분 안에 이어지고 텍스트, 항성계, 결과도 같으면 횟수와 함께 한 줄로 보여 줘요.&#x0A;- **클라이언트로 전환**을 누르면 그 줄의 클라이언트가 앞으로 나와요. 줄에서 Enter 키를 누르거나 두 번 클릭해도 같아요.&#x0A;- **CSV로 내보내기…**는 표시된 알림을 스프레드시트에서 열 수 있는 파일로 써요.&#x0A;- **기록 지우기…**는 남아 있는 것을 모두 삭제해요.&#x0A;&#x0A;허브 메뉴의 다른 구석 버튼은 종을 클릭할 때처럼 모든 토스트를 닫아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.custom">사용자 지정 알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom">사용자 지정 규칙</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom.Desc">직접 만드는 알림이에요. 게임 로그나 채팅 채널에서 글자나 패턴을 찾아요.</sys:String> <!-- draft -->
@@ -2091,4 +2091,6 @@
     <sys:String x:Key="L.Help.alerts.custom.test.Body">한 줄을 붙여 넣고 **시험**을 누르세요. 결과는 로그를 읽는 바로 그 코드가 내므로, 여기서 일치한 규칙은 게임에서도 일치해요.&#x0A;&#x0A;- 로그 파일에서 한 줄을 복사하거나, 게임에 나온 글자를 입력하세요.&#x0A;- 결과 아래에는 패턴이 실제로 살펴본 글자가 나와요.&#x0A;- 시간은 대조하는 데 걸린 시간이에요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Title">규칙이 있는 곳</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Body">규칙은 설정 폴더의 custom_alerts.json에 있어요. 프로필에 들어 있지 않고, 어디로도 전송되지 않아요.&#x0A;&#x0A;- MultiPreview가 읽을 수 없는 규칙 파일은 같은 폴더에 새 이름으로 따로 두고, MultiPreview는 규칙 없이 시작해요.&#x0A;- 규칙 전용 소리는 이 PC의 드라이브에 있는 파일이어야 해요.&#x0A;- 채팅 규칙이 찾은 내용은 알림과 함께 알림 기록에 남아요. 원하지 않으면 기록을 지우거나 꺼 주세요(알림 › 알림 허브).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Off">알림 기록이 꺼져 있어서 새 알림은 남지 않아요. 알림 › 알림 허브에서 켤 수 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.CountRows">알림: {0}개 ({1}줄)</sys:String> <!-- draft -->
 </ResourceDictionary>

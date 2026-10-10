@@ -2010,7 +2010,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">残っているすべてのアラートを新しい順に表示します。ダブルクリックでそのクライアントに切り替わります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.alerts.hub.openHistory">履歴を開く…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">履歴ウィンドウ</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**履歴を開く…** は、残っているアラートを新しい順に、それぞれどれくらい前のものかと一緒に表示します。同じウィンドウは、トレイメニューの **アラート履歴…** からも、アラートハブからも開けます：ベルを右クリックし、隅の時計をクリックしてください。&#x0A;&#x0A;- 期間、キャラクター、アラート、重大度を選ぶか、検索ボックスに入力します。同じキャラクターの同じアラートが続いた場合は、回数付きの 1 行にまとめられます。&#x0A;- **クライアントに切り替え** で、その行のクライアントが前面に出ます。Enter キーやダブルクリックでも同じです。&#x0A;- **CSV に書き出す…** で、表示中のアラートを表計算ソフトで開けるファイルに書き出します。&#x0A;- **履歴を消去…** で、残っているものをすべて削除します。&#x0A;&#x0A;ハブのメニューにあるもう一つの隅のボタンは、ベルをクリックしたときと同じく、すべてのトーストを閉じます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**履歴を開く…** は、残っているアラートを新しい順に、それぞれどれくらい前のものかと一緒に表示します。同じウィンドウは、トレイメニューの **アラート履歴…** からも、アラートハブからも開けます：ベルを右クリックし、隅の時計をクリックしてください。&#x0A;&#x0A;- 期間、キャラクター、アラート、重大度を選ぶか、検索ボックスに入力します。同じキャラクターの同じアラートが 10 分以内に続き、テキスト、星系、結果も同じ場合は、回数付きの 1 行にまとめられます。&#x0A;- **クライアントに切り替え** で、その行のクライアントが前面に出ます。行の上での Enter キーやダブルクリックでも同じです。&#x0A;- **CSV に書き出す…** で、表示中のアラートを表計算ソフトで開けるファイルに書き出します。&#x0A;- **履歴を消去…** で、残っているものをすべて削除します。&#x0A;&#x0A;ハブのメニューにあるもう一つの隅のボタンは、ベルをクリックしたときと同じく、すべてのトーストを閉じます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.custom">カスタムアラート</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom">カスタムルール</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom.Desc">自分で作るアラートです。ゲームログやチャットチャンネルの文字やパターンを探します。</sys:String> <!-- draft -->
@@ -2091,4 +2091,6 @@
     <sys:String x:Key="L.Help.alerts.custom.test.Body">1 行を貼り付けて **テスト** を押します。結果はログを読むのと同じコードが出すので、ここで一致したルールはゲームでも一致します。&#x0A;&#x0A;- ログファイルから 1 行をコピーするか、ゲームに表示された文字を入力します。&#x0A;- 結果の下に、パターンが実際に調べた文字が表示されます。&#x0A;- 時間は、照合にかかった時間です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Title">ルールの保存場所</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Body">ルールは、設定フォルダーの custom_alerts.json にあります。プロファイルには含まれず、どこにも送信されません。&#x0A;&#x0A;- MultiPreview が読めないルールファイルは、同じフォルダーに別の名前で退避され、MultiPreview はルールなしで起動します。&#x0A;- ルール専用の音は、この PC のドライブにあるファイルでなければなりません。&#x0A;- チャットのルールが見つけた内容は、アラートと一緒にアラート履歴に残ります。それを望まない場合は、履歴を消去するか、オフにしてください（アラート › アラートハブ）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Off">アラート履歴はオフになっているため、新しいアラートは残りません。「アラート › アラートハブ」でオンにできます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.CountRows">アラート：{0} 件（{1} 行）</sys:String> <!-- draft -->
 </ResourceDictionary>

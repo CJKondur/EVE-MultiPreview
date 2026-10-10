@@ -1169,6 +1169,8 @@ public partial class App : Application
                 },
                 Confirm = (title, body) =>
                     MessageBox.Show(_historyWindow!, body, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes,
+                // Asked at every refresh: while the setting is off, the window says so above its list.
+                HistoryOn = () => _settings.Settings.AlertHistoryEnabled,
             });
             _historyWindow.Closed += (_, _) => _historyWindow = null;
             _historyWindow.Show();

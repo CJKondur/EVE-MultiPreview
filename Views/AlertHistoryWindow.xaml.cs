@@ -34,6 +34,9 @@ public sealed class AlertHistoryActions
     /// <summary>This PC's list separator: where it is ";" the CSV export puts semicolons between its fields, else
     /// commas (AlertHistoryCsv.SeparatorFor). App leaves it as it is; tests hand one in.</summary>
     public Func<string> ListSeparator { get; init; } = () => CultureInfo.CurrentCulture.TextInfo.ListSeparator;
+    /// <summary>Whether the "Keep an alert history" setting is on. While it is off the window says so above the
+    /// list: what is listed is then what was kept before, and nothing new arrives. Asked at every refresh.</summary>
+    public Func<bool> HistoryOn { get; init; } = () => true;
     /// <summary>Tests: file work runs at once, on the calling thread, instead of on a background thread.</summary>
     public bool Synchronous { get; init; }
 }
@@ -43,10 +46,12 @@ public sealed class HistoryRowVM : INotifyPropertyChanged
 {
     private string _age = "";
 
-    public HistoryRowVM(HistoryRow row, string time, string eventName, string note, Brush bar, string severityName)
+    /// <param name="since">For a run of several alerts: when its first one was, as the Time column would show it.</param>
+    public HistoryRowVM(HistoryRow row, string time, string eventName, string note, Brush bar, string severityName, string? since = null)
     {
         Row = row;
         Time = time;
+        TimeTip = string.IsNullOrEmpty(since) ? time : since + " – " + time;
         Event = eventName;
         Note = note;
         Bar = bar;
@@ -54,7 +59,10 @@ public sealed class HistoryRowVM : INotifyPropertyChanged
     }
 
     public HistoryRow Row { get; }
+    /// <summary>When the alert was; for a run, when its newest alert was.</summary>
     public string Time { get; }
+    /// <summary>The time cell's tooltip: the time, or for a run the time of its first alert and of its last.</summary>
+    public string TimeTip { get; }
     public string Character => Row.Newest.Character;
     public string Event { get; }
     /// <summary>"×3" for a run of three, "" for one alert.</summary>
@@ -100,7 +108,10 @@ public partial class AlertHistoryWindow : Window
     private List<HistoryRowVM> _rows = new();
     private bool _more, _loading, _again, _closed;
     private bool _filling = true;      // until the lists are filled: a choice set by code is not the player's
+    private bool _applying;            // while Apply puts the selection back: that is not the player choosing a row
     private int _badLines;
+    private int _changeWaiting;        // 1 while a message from the log monitor's thread is on its way to this one
+    private readonly double _smallestByDesign;   // the window's MinHeight as the XAML has it
 
     public AlertHistoryWindow(AlertHistory store, AppSettings settings, AlertHistoryActions actions)
     {
@@ -123,6 +134,9 @@ public partial class AlertHistoryWindow : Window
         CmbSeverity.SelectedIndex = 0;
         FillFilters();
 
+        _smallestByDesign = MinHeight;
+        LayoutUpdated += (_, _) => KeepRoomForTheList();
+
         // A new alert shows within two seconds, however many arrive: one re-read, never one per alert.
         _store.Added += OnStoreChanged;
         _store.Cleared += OnStoreCleared;
@@ -141,6 +155,23 @@ public partial class AlertHistoryWindow : Window
     }
 
     private static string Str(string key, string english) => LocalizationService.Str(key, english);
+
+    /// <summary>Makes the window's smallest height follow what the filters, the line above the list and the footer need
+    /// at the window's width, so the list keeps its own smallest height (its row's MinHeight) and none of them is
+    /// pushed out of the window. On an everyday day that is the XAML's MinHeight in every language. In Russian, with a
+    /// message, a status of three sentences and the line for a history that is off, they need about 150 px more, and
+    /// at the fixed minimum the list had 13 px left, or none. Each of the three is in a row of its own height, so what
+    /// it asks for (DesiredSize) doesn't depend on the window's height: this settles in one pass.</summary>
+    private void KeepRoomForTheList()
+    {
+        if (WindowState != WindowState.Normal || Content is not FrameworkElement content || content.ActualHeight <= 0) return;
+        // The title bar and the borders: the window's height less the room it gives its content. (Not the content's own
+        // height: content that asks for more than there is gets laid out at what it asks for, and cut off.)
+        double frame = Math.Max(0, ActualHeight - System.Windows.Controls.Primitives.LayoutInformation.GetLayoutSlot(content).Height);
+        double needed = Filters.DesiredSize.Height + OffNotice.DesiredSize.Height + Footer.DesiredSize.Height + ListRow.MinHeight + frame;
+        double smallest = Math.Max(_smallestByDesign, Math.Ceiling(needed));
+        if (Math.Abs(MinHeight - smallest) >= 1) MinHeight = smallest;           // a window smaller than that grows to it (WPF does that)
+    }
 
     /// <summary>The rows shown now, newest first (tests).</summary>
     public IReadOnlyList<HistoryRowVM> Rows => _rows;
@@ -185,10 +216,18 @@ public partial class AlertHistoryWindow : Window
         })));
     }
 
-    private void OnStoreChanged(AlertHistoryEntry _) => Dispatcher.BeginInvoke(new Action(() =>
+    /// <summary>On the log monitor's thread, once per alert. However many alerts arrive before this window's thread gets
+    /// to look, one message is on its way to it, not one per alert: the first alert sends it, and the others see that
+    /// it is waiting. The flag is taken down before the timer is looked at, so an alert that arrives later sends again.</summary>
+    private void OnStoreChanged(AlertHistoryEntry _)
     {
-        if (!_closed && !_reloadTimer.IsEnabled) _reloadTimer.Start();
-    }));
+        if (System.Threading.Interlocked.Exchange(ref _changeWaiting, 1) == 1) return;
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            System.Threading.Volatile.Write(ref _changeWaiting, 0);
+            if (!_closed && !_reloadTimer.IsEnabled) _reloadTimer.Start();
+        }));
+    }
 
     private void OnStoreCleared() => Dispatcher.BeginInvoke(new Action(Reload));
 
@@ -220,49 +259,89 @@ public partial class AlertHistoryWindow : Window
 
     private HistoryFilter Filter => new(Chosen(CmbCharacter), Chosen(CmbEvent), Chosen(CmbSeverity), TxtSearch.Text ?? "");
 
-    /// <summary>Filters what is loaded, folds repeats, and shows the rows. The selected row stays selected when it is
-    /// still there.</summary>
+    /// <summary>Filters what is loaded, folds repeats, and shows the rows. The rows are new objects each time, so what
+    /// the player had is put back: the selection stays on its run when the run is still there (also when it grew,
+    /// which it does during a fight), the keyboard stays on that row when it was in the list, and the message stays.</summary>
     private void Apply()
     {
         var selected = (AlertList.SelectedItem as HistoryRowVM)?.Row.Newest;
+        bool hadKeyboard = AlertList.IsKeyboardFocusWithin;
         var nowUtc = _do.UtcNow();
         var nowLocal = nowUtc.ToLocalTime();
         _shown = AlertHistoryView.Filter(_loaded, Filter, AlertHistoryView.EventName);
         _rows = AlertHistoryView.Collapse(_shown).Select(row =>
         {
             var vm = new HistoryRowVM(row, AlertHistoryView.TimeText(row.Newest.TimeUtc, nowLocal), AlertHistoryView.EventName(row.Newest),
-                OutcomeNote(row.Newest.Outcome), Bar(row.Newest), SeverityName(row.Newest.Severity));
+                OutcomeNote(row.Newest.Outcome), Bar(row.Newest), SeverityName(row.Newest.Severity),
+                row.Count > 1 ? AlertHistoryView.TimeText(row.OldestUtc, nowLocal) : null);
             vm.Tick(nowUtc);
             return vm;
         }).ToList();
-        AlertList.ItemsSource = _rows;
-        if (selected != null) AlertList.SelectedItem = _rows.FirstOrDefault(r => SameAlert(r.Row.Newest, selected));
+        _applying = true;
+        try
+        {
+            AlertList.ItemsSource = _rows;
+            var again = selected == null ? null : _rows.FirstOrDefault(r => AlertHistoryView.Holds(r.Row, selected));
+            if (again != null)
+            {
+                AlertList.SelectedItem = again;
+                if (hadKeyboard) FocusRow(again);
+            }
+        }
+        finally { _applying = false; }
         TxtEmpty.Visibility = _rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         ShowStatus();
+        ShowWhetherTheHistoryIsOn();
+    }
+
+    /// <summary>Puts the keyboard on a row. Replacing the rows leaves it on a row that is gone, and the arrow keys would
+    /// then start from the top of the list after every re-read. Only called when the list had the keyboard, so this
+    /// never takes it from another control or another program.</summary>
+    private void FocusRow(HistoryRowVM row)
+    {
+        AlertList.UpdateLayout();                               // the new rows have no containers until the list is laid out
+        AlertList.ScrollIntoView(row);
+        (AlertList.ItemContainerGenerator.ContainerFromItem(row) as ListViewItem)?.Focus();
     }
 
     private void ShowStatus()
     {
-        var parts = new List<string> { string.Format(CultureInfo.CurrentCulture, Str("L.Hist.Count", "Alerts: {0}"), _shown.Count) };
+        // The alerts are counted. Where runs are folded there are fewer rows than alerts, and the count says both.
+        var parts = new List<string>
+        {
+            _rows.Count == _shown.Count
+                ? string.Format(CultureInfo.CurrentCulture, Str("L.Hist.Count", "Alerts: {0}"), _shown.Count)
+                : string.Format(CultureInfo.CurrentCulture, Str("L.Hist.CountRows", "Alerts: {0} in {1} rows"), _shown.Count, _rows.Count),
+        };
         if (_more) parts.Add(string.Format(CultureInfo.CurrentCulture, Str("L.Hist.More", "Only the newest {0} of this range are loaded."), AlertHistoryView.MaxEntries));
         if (_badLines > 0) parts.Add(string.Format(CultureInfo.CurrentCulture, Str("L.Hist.BadLines", "{0} lines of the history files could not be read."), _badLines));
         TxtStatus.Text = string.Join("  ", parts);
     }
 
-    /// <summary>The same alert before and after a re-read (a re-read makes new objects).</summary>
-    private static bool SameAlert(AlertHistoryEntry a, AlertHistoryEntry b) =>
-        a.TimeUtc == b.TimeUtc && a.Character == b.Character && a.EventKey == b.EventKey;
+    /// <summary>The line above the list that says the history is switched off. Looked at with every refresh and with
+    /// the ten-second tick, so it follows the setting while the window is open.</summary>
+    private void ShowWhetherTheHistoryIsOn()
+    {
+        bool off = !_do.HistoryOn();
+        if (off == (OffNotice.Visibility == Visibility.Visible)) return;
+        OffNotice.Visibility = off ? Visibility.Visible : Visibility.Collapsed;
+        if (off) Announce.Changed(TxtOff);
+    }
 
     private void TickAges()
     {
         var now = _do.UtcNow();
         foreach (var row in _rows) row.Tick(now);
+        ShowWhetherTheHistoryIsOn();
     }
 
     private void Say(string? message)
     {
         TxtMessage.Text = message ?? "";
         TxtMessage.Visibility = string.IsNullOrEmpty(message) ? Visibility.Collapsed : Visibility.Visible;
+        // The line is a live region (LiveSetting in the XAML), which by itself announces nothing: a screen reader is
+        // told that the text changed, each time something is said.
+        if (!string.IsNullOrEmpty(message)) Announce.Changed(TxtMessage);
     }
 
     /// <summary>The message under the list (tests).</summary>
@@ -304,11 +383,12 @@ public partial class AlertHistoryWindow : Window
 
     /// <summary>The seven columns. Built here because a column's header and cell can't take a resource key in XAML the
     /// way a control can. Every cell is plain text (TextBlock.Text): a rule's name and matched text are shown as they
-    /// are, never read as markup. A cell that doesn't fit ends in "…" and shows the whole text as its tooltip.</summary>
+    /// are, never read as markup. A cell that doesn't fit ends in "…" and shows the whole text as its tooltip; the
+    /// time of a run of several alerts shows from when to when the run was.</summary>
     private GridView Columns()
     {
         var view = new GridView { AllowsColumnReorder = false };
-        view.Columns.Add(TextColumn("L.Hist.Col.Time", "Time", nameof(HistoryRowVM.Time), 132));
+        view.Columns.Add(TextColumn("L.Hist.Col.Time", "Time", nameof(HistoryRowVM.Time), 132, nameof(HistoryRowVM.TimeTip)));
         view.Columns.Add(TextColumn("L.Hist.Col.Age", "Age", nameof(HistoryRowVM.Age), 76));
         view.Columns.Add(TextColumn("L.Hist.Col.Character", "Character", nameof(HistoryRowVM.Character), 156));
         view.Columns.Add(new GridViewColumn { Header = Str("L.Hist.Col.Event", "Alert"), Width = 200, CellTemplate = EventCell() });
@@ -325,13 +405,24 @@ public partial class AlertHistoryWindow : Window
         return view;
     }
 
-    private static GridViewColumn TextColumn(string key, string english, string property, double width)
+    private static GridViewColumn TextColumn(string key, string english, string property, double width, string? tooltip = null)
     {
         var text = new FrameworkElementFactory(typeof(TextBlock));
         text.SetBinding(TextBlock.TextProperty, new Binding(property));
-        text.SetBinding(ToolTipProperty, new Binding(property));
+        text.SetBinding(ToolTipProperty, Tip(tooltip ?? property));
         text.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
         return new GridViewColumn { Header = Str(key, english), Width = width, CellTemplate = new DataTemplate { VisualTree = text } };
+    }
+
+    /// <summary>A cell's tooltip: the text, and none at all for an empty cell.</summary>
+    private static Binding Tip(string property) => new(property) { Converter = NoEmptyTip.Instance };
+
+    /// <summary>An empty text is no tooltip. Left as "" it still opens one: an empty box at the mouse.</summary>
+    private sealed class NoEmptyTip : IValueConverter
+    {
+        public static readonly NoEmptyTip Instance = new();
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value is string { Length: > 0 } ? value : null;
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => System.Windows.Data.Binding.DoNothing;
     }
 
     /// <summary>A bar in the alert's colour, then its name with "×3" behind it for a run.</summary>
@@ -345,7 +436,7 @@ public partial class AlertHistoryWindow : Window
         bar.SetBinding(ToolTipProperty, new Binding(nameof(HistoryRowVM.SeverityName)));
         var name = new FrameworkElementFactory(typeof(TextBlock));
         name.SetBinding(TextBlock.TextProperty, new Binding(nameof(HistoryRowVM.EventText)));
-        name.SetBinding(ToolTipProperty, new Binding(nameof(HistoryRowVM.EventText)));
+        name.SetBinding(ToolTipProperty, Tip(nameof(HistoryRowVM.EventText)));
         name.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
         var row = new FrameworkElementFactory(typeof(DockPanel));
         row.AppendChild(bar);
@@ -416,14 +507,24 @@ public partial class AlertHistoryWindow : Window
     private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         BtnSwitch.IsEnabled = AlertList.SelectedItem != null;
-        if (e.AddedItems.Count > 0) Say(null);
+        // The player chose another row: what was said about the last one goes. Not when a refresh puts the selection back.
+        if (!_applying && e.AddedItems.Count > 0) Say(null);
     }
 
-    /// <summary>A double-click on a row switches; one on a column header, the scroll bar or the empty part of the
-    /// list does nothing.</summary>
+    /// <summary>A double-click with the left button on a row switches; one with another button, or on a column header,
+    /// the scroll bar or the empty part of the list, does nothing.</summary>
     private void OnRowDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        if (IsInsideARow(e.OriginalSource as DependencyObject, AlertList)) SwitchSelected();
+        if (e.ChangedButton == MouseButton.Left && IsInsideARow(e.OriginalSource as DependencyObject, AlertList)) SwitchSelected();
+    }
+
+    /// <summary>Enter in the list switches to the selected row's client, as a double-click does. Only in the list: the
+    /// Switch button is no default button, so Enter in the search box or on a filter list changes no client.</summary>
+    private void OnListKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key != Key.Enter) return;
+        SwitchSelected();
+        e.Handled = true;
     }
 
     /// <summary>Whether an element sits inside one of the list's rows.</summary>

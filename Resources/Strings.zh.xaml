@@ -2027,7 +2027,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">保留下来的每条警报，最新的在前。双击一条即可切换到它的客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.alerts.hub.openHistory">打开历史记录…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">历史记录窗口</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**打开历史记录…** 会列出保留下来的警报，最新的在前，并显示每条是多久以前的。同一个窗口也可以从托盘菜单的 **警报历史记录…** 打开，或者从警报中心打开：右键单击铃铛，再单击角上的时钟。&#x0A;&#x0A;- 选择时间范围、角色、警报或严重程度，或者在搜索框里输入文字。同一角色的同一警报连续重复时，只显示一行并带上次数。&#x0A;- **切换到该客户端** 会把这一行的客户端切到前台。按 Enter 或双击效果相同。&#x0A;- **导出 CSV…** 会把显示的警报写入一个电子表格可以打开的文件。&#x0A;- **清空历史记录…** 会删除保留的所有内容。&#x0A;&#x0A;警报中心菜单里的另一个角按钮会关闭所有提示条，和单击铃铛一样。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**打开历史记录…** 会列出保留下来的警报，最新的在前，并显示每条是多久以前的。同一个窗口也可以从托盘菜单的 **警报历史记录…** 打开，或者从警报中心打开：右键单击铃铛，再单击角上的时钟。&#x0A;&#x0A;- 选择时间范围、角色、警报或严重程度，或者在搜索框里输入文字。同一角色的同一警报在十分钟内重复，而且文本、星系和结果都相同时，只显示一行并带上次数。&#x0A;- **切换到该客户端** 会把这一行的客户端切到前台。在某一行上按 Enter 或双击效果相同。&#x0A;- **导出 CSV…** 会把显示的警报写入一个电子表格可以打开的文件。&#x0A;- **清空历史记录…** 会删除保留的所有内容。&#x0A;&#x0A;警报中心菜单里的另一个角按钮会关闭所有提示条，和单击铃铛一样。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.custom">自定义警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom">自定义规则</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom.Desc">你自己的警报：游戏日志或聊天频道里的一段文字或一个模式。</sys:String> <!-- draft -->
@@ -2108,4 +2108,6 @@
     <sys:String x:Key="L.Help.alerts.custom.test.Body">粘贴一行，然后按 **测试**。结果来自读取日志的同一段代码，所以在这里匹配的规则在游戏里也会匹配。&#x0A;&#x0A;- 可以从日志文件里复制一行，也可以输入游戏里显示的文字。&#x0A;- 结果下面是模式实际检查的文字。&#x0A;- 时间是这次匹配花费的时间。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Title">规则保存在哪里</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Body">规则保存在设置文件夹里的 custom_alerts.json 中。它们不属于任何配置，也不会被发送到任何地方。&#x0A;&#x0A;- MultiPreview 读不了的规则文件会在同一个文件夹里改名另存，MultiPreview 会在没有规则的情况下启动。&#x0A;- 规则自己的声音必须是这台电脑磁盘上的文件。&#x0A;- 聊天规则匹配到的内容会和警报一起保存在警报历史记录里。如果你不想这样，可以清空历史记录，或者把它关掉（警报 › 警报中心）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Off">警报历史记录已关闭，所以不会保留新的警报。可以在“警报 › 警报中心”里打开它。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.CountRows">警报：{0}，共 {1} 行</sys:String> <!-- draft -->
 </ResourceDictionary>
