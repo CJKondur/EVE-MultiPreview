@@ -102,13 +102,22 @@ public sealed class LogMonitorService : IDisposable
 
     // ── Custom alert rules (IDEAS #8) ──
     // The rules that are on, made ready, or null while there are none: then a line costs one read of this field and
-    // one branch more than it did before custom rules existed. Only the reading thread writes it (ApplyPendingRules).
+    // one branch more than it did before custom rules existed. Only the reading thread writes it (ApplyRules).
     private CustomAlertEngine? _customRules;
     // A change from SetCustomRules, taken by the reading thread before its next read, as a folder change is.
     private CustomAlertEngine? _pendingRules;
     private bool _rulesPending;                                  // under _foldersLock
     private Action<CustomAlertRule, string>? _raiseCustom;       // made once, on the first line a rule looks at
     private string _customCharacter = "";                        // whose line the rules are looking at (reading thread)
+    // The rules' chat channels (reading thread): when their logs may be listed again, and for each channel that is
+    // read the latest moment one of its logs was created, as the listings so far have seen. A log created after
+    // that began after its channel was taken on.
+    private long _nextChannelListing = long.MinValue;
+    private readonly ConcurrentDictionary<string, DateTime> _channelLogsSeen = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Milliseconds that only ever go forward (Environment.TickCount64, unless a test gives a clock of its
+    /// own): what "the rules' chat channels are listed at most once in five seconds" is counted by.</summary>
+    public Func<long> Clock { get; set; } = () => Environment.TickCount64;
 
     // Settings reference for configurable alert colors and sounds
     private AppSettings? _appSettings;
@@ -1028,17 +1037,28 @@ public sealed class LogMonitorService : IDisposable
         catch (SemaphoreFullException) { }
     }
 
-    /// <summary>Takes a folder change from Reconfigure. Runs on the reading thread (or before Start), never beside a read.</summary>
+    /// <summary>Takes a folder change from Reconfigure and a rules change from SetCustomRules: one look under one
+    /// lock at every pass, as for the folders alone before custom rules existed. Runs on the reading thread (or
+    /// before Start), never beside a read.</summary>
     private void ApplyPendingFolders()
     {
-        ApplyPendingRules();   // custom rules change at the same point as the folders: between two reads (IDEAS #8)
-        (string? Chat, string? Game, bool ChatOn, bool GameOn) pending;
+        (string? Chat, string? Game, bool ChatOn, bool GameOn)? folders;
+        CustomAlertEngine? engine = null;
+        bool rulesChanged;
         lock (_foldersLock)
         {
-            if (_pendingFolders is not { } p) return;
-            _pendingFolders = null;
-            pending = p;
+            rulesChanged = _rulesPending;
+            if (rulesChanged)
+            {
+                engine = _pendingRules;
+                _pendingRules = null;
+                _rulesPending = false;
+            }
+            folders = _pendingFolders;
+            if (folders != null) _pendingFolders = null;
         }
+        if (rulesChanged) ApplyRules(engine);   // custom rules change at the same point as the folders: between two reads (IDEAS #8)
+        if (folders is not { } pending) return;
         var next = ResolveFolders("", pending.Chat, pending.Game, pending.ChatOn, pending.GameOn);
         bool chatSame = SameFolder(next.Chat, _chatLogPath), gameSame = SameFolder(next.Game, _gameLogPath);
         if (chatSame && gameSame) return;   // the same folders, however typed: keep the old strings and every position
@@ -1047,7 +1067,12 @@ public sealed class LogMonitorService : IDisposable
         {
             if (_cts is { IsCancellationRequested: true }) return;   // Stop is running: start no new watchers
             StopFileWatchers();
-            if (!chatSame) _chatLogPath = next.Chat;
+            if (!chatSame)
+            {
+                _chatLogPath = next.Chat;
+                _channelLogsSeen.Clear();                // another folder: what it holds is history, as at startup
+                _nextChannelListing = long.MinValue;     // and its channels are listed on this pass
+            }
             if (!gameSame) _gameLogPath = next.Game;
             foreach (var (path, state) in _trackedFiles)
             {
@@ -1136,15 +1161,19 @@ public sealed class LogMonitorService : IDisposable
 
     /// <summary>The custom rules to match from now on (IDEAS #8); null for none. Like a folder change (Reconfigure),
     /// the reading thread takes it before its next read, so the rules never change in the middle of a line, and the
-    /// chat channels that only the old rules read are let go in the same step.</summary>
+    /// chat channels that only the old rules read are let go in the same step. After Stop a change is dropped: Stop
+    /// doesn't wait for the reading thread, which may still be in its last pass, and no pass follows that one, so
+    /// applying it here would be changing the rules beside a read, for nobody.</summary>
     public void SetCustomRules(CustomAlertEngine? engine)
     {
+        bool reading = _cts != null;   // read first: Stop sets _stopped before anything else and clears _cts last
+        if (_stopped) return;
         lock (_foldersLock)
         {
             _pendingRules = engine;
             _rulesPending = true;
         }
-        if (_cts == null) { ApplyPendingRules(); return; }   // not reading (before Start, tests): at once
+        if (!reading) { ApplyPendingFolders(); return; }   // not reading (before Start, tests): at once
         WakeReader();
     }
 
@@ -1307,14 +1336,15 @@ public sealed class LogMonitorService : IDisposable
     /// listing, which carries every file's times; only the few files that may still be open in a client
     /// (<see cref="MayStillBeOpen"/>) are asked themselves, as every file was before. On a folder of 10,000 old logs
     /// that separate question per file, at every scan, cost most of a processor core.</summary>
-    private static IEnumerable<(string Path, DateTime Written)> LogTimes(string folder, string pattern, DateTime now)
+    private static IEnumerable<(string Path, DateTime Written, DateTime Created)> LogTimes(string folder, string pattern, DateTime now)
     {
         foreach (var file in new DirectoryInfo(folder).EnumerateFiles(pattern))
         {
             var path = Path.GetFullPath(file.FullName);
             var written = file.LastWriteTime;
-            if (MayStillBeOpen(file.CreationTime, written, now)) written = File.GetLastWriteTime(path);
-            yield return (path, written);
+            var created = file.CreationTime;
+            if (MayStillBeOpen(created, written, now)) written = File.GetLastWriteTime(path);
+            yield return (path, written, created);
         }
     }
 
@@ -1473,8 +1503,11 @@ public sealed class LogMonitorService : IDisposable
                         }
                     }
 
-                    // Set position to EOF so live monitoring starts from current end
-                    state.LastPosition = fi.Length;
+                    // Set position to EOF so live monitoring starts from current end. A log that began after
+                    // its chat channel was taken on (FromItsStart) is read once more from its first line instead,
+                    // behind the mark the file starts with: its header lines are no messages, and the lines behind
+                    // them were said since the session began.
+                    state.LastPosition = state.FromItsStart ? encoding.GetPreamble().Length : fi.Length;
                     state.Listener = firstReadChar;   // for custom rules (IDEAS #8): the header's name, kept
 
                     Debug.WriteLine($"[LogMonitor:Scan] ⏩ First read of {Path.GetFileName(path)} — char='{firstReadChar}', type={state.Type}, lines={lineCount}, fileLen={fi.Length}");
@@ -1666,9 +1699,15 @@ public sealed class LogMonitorService : IDisposable
     private void MatchRules(CustomAlertEngine rules, string line, LogFileState state, string character, string? channel)
     {
         // A log belongs to the character its header named when it was first read (ReadNewLines keeps that name in
-        // state.Listener). ProcessLine also takes a later line that starts like a header for one, and in a chat
-        // channel other players write the lines: for the rules, the first name stays.
-        if (string.IsNullOrEmpty(state.Listener) && character != "Unknown") state.Listener = character;
+        // state.Listener): for the rules, the first name stays.
+        if (state.Channel != null)
+        {
+            // A rule channel's log is other players' text from its first line to its last. It is the log of the
+            // character its header named, or of nobody: then no rule alert is raised from it, neither for "Unknown"
+            // nor for a name that a later line gives.
+            if (string.IsNullOrEmpty(state.Listener)) return;
+        }
+        else if (string.IsNullOrEmpty(state.Listener) && character != "Unknown") state.Listener = character;
         _customCharacter = string.IsNullOrEmpty(state.Listener) ? character : state.Listener;
         _raiseCustom ??= RaiseCustom;
         if (channel == null) rules.MatchGame(line, _customCharacter, _raiseCustom);
@@ -1682,19 +1721,12 @@ public sealed class LogMonitorService : IDisposable
         TriggerAlert(_customCharacter, rule.AlertType, rule.Severity, rule.QuietSeconds, text);
     }
 
-    /// <summary>Takes a rules change from SetCustomRules. Runs on the reading thread (or before Start), never beside
-    /// a read. The logs of a channel that no rule reads any more are let go here, in the same step: a channel's log is
-    /// tracked only while a rule reads it, so its lines can never reach anything but rules.</summary>
-    private void ApplyPendingRules()
+    /// <summary>Takes a rules change from SetCustomRules: ApplyPendingFolders calls it on the reading thread (or
+    /// before Start), never beside a read. The logs of a channel that no rule reads any more are let go here, in the
+    /// same step: a channel's log is tracked only while a rule reads it, so its lines can never reach anything but
+    /// rules.</summary>
+    private void ApplyRules(CustomAlertEngine? engine)
     {
-        CustomAlertEngine? engine;
-        lock (_foldersLock)
-        {
-            if (!_rulesPending) return;
-            _rulesPending = false;
-            engine = _pendingRules;
-            _pendingRules = null;
-        }
         _customRules = engine;
         foreach (var (path, state) in _trackedFiles)
         {
@@ -1702,26 +1734,58 @@ public sealed class LogMonitorService : IDisposable
             _trackedFiles.TryRemove(path, out _);
             _fileCharacterMap.TryRemove(path, out _);
         }
+        foreach (var channel in _channelLogsSeen.Keys)
+            if (engine == null || !engine.Reads(channel)) _channelLogsSeen.TryRemove(channel, out _);
+        _nextChannelListing = long.MinValue;             // list the new rules' channels on this pass
         _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1;   // look for the new rules' channels on this pass
     }
 
-    /// <summary>Takes on the logs of the chat channels that rules name. A new log is first read like any other: its
-    /// header for the listener, then on from its end, so only lines written from now on are matched. Returns how many
-    /// logs were new.</summary>
+    /// <summary>How long the logs of the rules' chat channels are not listed again. Each channel is a listing of the
+    /// chat log folder, and the reader passes here far more often than a new log appears.</summary>
+    public const int ChannelListingMs = 5000;
+
+    /// <summary>Takes on the logs of the chat channels that rules name, at most once in five seconds by Clock. A new
+    /// log is first read like any other: its header, for the listener. A log that was there when its channel was
+    /// taken on is then read on from its end, so only lines written from now on are matched. A log that began later
+    /// (a client that logged in, or joined the channel) is read from behind its header, so what was said before this
+    /// listing found it is matched too. A newer log of a character takes the place of the one tracked for it. Returns
+    /// how many logs were new.</summary>
     private int TrackRuleChannels(CustomAlertEngine rules)
     {
+        long ms = Clock();
+        if (ms < _nextChannelListing) return 0;
+        _nextChannelListing = ms + ChannelListingMs;
         if (!Directory.Exists(_chatLogPath)) return 0;
         int added = 0;
         foreach (var channel in rules.Channels)
         {
             // Local's logs are read anyway, for the system: a rule on Local reads those (ProcessLineWithRules).
             if (string.Equals(channel, LocalChannel, StringComparison.OrdinalIgnoreCase)) continue;
-            foreach (var file in NewestChannelLogs(_chatLogPath, channel, DateTime.Now))
+            var logs = ChannelLogs(_chatLogPath, channel, DateTime.Now).ToList();
+            // What the folder held when the channel was taken on is history. A log created after everything the
+            // listings before this one saw is a session that began since.
+            bool takenOn = _channelLogsSeen.TryGetValue(channel, out var latestSeen);
+            foreach (var log in NewestOfEachOwner(logs))
             {
-                if (_trackedFiles.ContainsKey(file)) continue;
-                _trackedFiles[file] = new LogFileState { Path = file, Type = LogType.ChatLog, LastPosition = 0, Channel = channel };
+                if (_trackedFiles.ContainsKey(log.Path)) continue;
+                // The character's log of an earlier session is never written again. It is let go, so the logs tracked
+                // for a channel don't grow with every relog (each of them is asked its length at every pass).
+                foreach (var (path, state) in _trackedFiles)
+                {
+                    if (state.Owner != log.Owner || !string.Equals(state.Channel, channel, StringComparison.OrdinalIgnoreCase)) continue;
+                    _trackedFiles.TryRemove(path, out _);
+                    _fileCharacterMap.TryRemove(path, out _);
+                }
+                _trackedFiles[log.Path] = new LogFileState
+                {
+                    Path = log.Path, Type = LogType.ChatLog, LastPosition = 0, Channel = channel, Owner = log.Owner,
+                    FromItsStart = takenOn && log.Created > latestSeen,
+                };
                 added++;
             }
+            foreach (var log in logs)
+                if (log.Created > latestSeen) latestSeen = log.Created;
+            _channelLogsSeen[channel] = latestSeen;
         }
         return added;
     }
@@ -1730,15 +1794,22 @@ public sealed class LogMonitorService : IDisposable
     /// ‹channel›_‹yyyymmdd›_‹hhmmss›_‹character id›.txt, the newest of each character id, newest first, at most 12, as
     /// full paths. A log without a character id (EVE wrote those until 2021) counts as one character's.</summary>
     public static IReadOnlyList<string> NewestChannelLogs(string folder, string channel, DateTime now) =>
-        LogTimes(folder, channel + "_*.txt", now)
-            .Select(x => (x.Path, x.Written, Owner: ChannelLogOwner(Path.GetFileName(x.Path), channel)))
-            .Where(x => x.Owner != null)
-            .GroupBy(x => x.Owner!, StringComparer.Ordinal)
+        NewestOfEachOwner(ChannelLogs(folder, channel, now)).Select(x => x.Path).ToList();
+
+    /// <summary>Every log of one chat channel in a folder: when it was last written, when it was created, and the
+    /// character id in its name.</summary>
+    private static IEnumerable<(string Path, DateTime Written, DateTime Created, string Owner)> ChannelLogs(string folder, string channel, DateTime now)
+    {
+        foreach (var log in LogTimes(folder, channel + "_*.txt", now))
+            if (ChannelLogOwner(Path.GetFileName(log.Path), channel) is { } owner) yield return (log.Path, log.Written, log.Created, owner);
+    }
+
+    private static IEnumerable<(string Path, DateTime Written, DateTime Created, string Owner)> NewestOfEachOwner(
+        IEnumerable<(string Path, DateTime Written, DateTime Created, string Owner)> logs) =>
+        logs.GroupBy(x => x.Owner, StringComparer.Ordinal)
             .Select(g => g.OrderByDescending(x => x.Written).First())
             .OrderByDescending(x => x.Written)
-            .Take(ChannelLogsTaken)
-            .Select(x => x.Path)
-            .ToList();
+            .Take(ChannelLogsTaken);
 
     private static readonly Regex ChannelLogDate = new(@"^\d{8}_\d{6}(?:_(\d+))?\.txt$", RegexOptions.CultureInvariant);
 
@@ -2589,6 +2660,12 @@ public sealed class LogMonitorService : IDisposable
         public string? Channel { get; set; }
         /// <summary>For custom rules: the character the log's header named, once it is known.</summary>
         public string? Listener { get; set; }
+        /// <summary>For a rule channel's log: the character id in its name ("" when it has none). A newer log of
+        /// the same id takes this one's place.</summary>
+        public string? Owner { get; set; }
+        /// <summary>For a rule channel's log that began after its channel was taken on: after the first read it is
+        /// read from its first line, not from its end.</summary>
+        public bool FromItsStart { get; set; }
     }
 
     /// <summary>
