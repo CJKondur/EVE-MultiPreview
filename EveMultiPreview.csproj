@@ -32,6 +32,20 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
+  <!-- A Release build doesn't carry the path of the folder it was built in. Without this the dll inside the exe
+       holds the full path of its .pdb, and the .pdb (a release asset) the full path of every source file: on a PC
+       that is the user-profile folder, so the Windows user name. The build folder is written as /_ instead, so a
+       source file is /_/Services/X.cs, and that is also what a stack trace in error_log.txt shows.
+       PathMap does that for the compiler, in a git checkout or not. DeterministicSourcePaths makes the SDK do the
+       same for the one place the compiler doesn't write: the Source Link note in the .pdb, which says where on
+       GitHub the sources of this commit are, and named the build folder too. Debug builds keep the real paths, so
+       a debugger finds the sources by itself. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Deterministic>true</Deterministic>
+    <PathMap>$(MSBuildProjectDirectory)=/_</PathMap>
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+  </PropertyGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
     <EmbeddedResource Include="Icon-Suspend.ico" />
