@@ -1646,9 +1646,11 @@ public sealed class LogMonitorService : IDisposable
         var headerName = TryParseHeaderCharacter(trimmed);
         if (!string.IsNullOrEmpty(headerName))
         {
-            var oldName = _fileCharacterMap.GetValueOrDefault(state.Path, "");
-            _fileCharacterMap[state.Path] = headerName;
-            if (oldName != headerName)
+            // A log's character is the one its header named when the log was first read (ProcessHeaderOnly). A line
+            // that starts like a header further down is text: in a chat log another player's (the second line of a
+            // long message), and it used to change whose log the file was. Only a game log that has no character yet
+            // (its header was not written to its end at the first read) still takes one from here, once.
+            if (state.Type == LogType.GameLog && _fileCharacterMap.TryAdd(state.Path, headerName))
                 Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified: '{headerName}' from {Path.GetFileName(state.Path)}");
             return;
         }
