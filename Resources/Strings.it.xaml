@@ -1966,4 +1966,13 @@
     <sys:String x:Key="L.Upd.NoDigest">GitHub non ha fornito alcun checksum per questa versione, quindi MultiPreview non può verificare il download. Fai di nuovo clic su {0} per installarlo comunque, oppure su {1} per scaricarlo tu stesso da GitHub.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestMismatch">Non è stato possibile confermare che il file scaricato sia quello pubblicato da GitHub, quindi non verrà installato. Fai clic su {0} per riprovare, oppure su {1} per scaricarlo tu stesso da GitHub.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestUnreadable">Il checksum che GitHub indica per questa versione ha un formato che MultiPreview non riesce a leggere, quindi MultiPreview non scaricherà né installerà questa versione. Fai clic su {1} per scaricarla tu stesso da GitHub.</sys:String> <!-- draft -->
+    <!-- Ideas batch 4 (Plan 8) -->
+    <sys:String x:Key="L.S.Sec.alerts.hub.history">Cronologia</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory">Tieni una cronologia degli avvisi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory.Desc">Ogni avviso viene aggiunto a un elenco su questo PC: quando, quale personaggio, quale avviso e dove. Disattivato: non si aggiunge nulla di nuovo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays">Conserva gli avvisi per</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">I giorni più vecchi vengono eliminati all'avvio di MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyFolder">La cronologia resta su questo PC, in {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Title">Cronologia degli avvisi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview tiene un elenco degli avvisi che ha dato: l'ora, il personaggio, l'avviso, la sua gravità, il sistema solare e se è stato mostrato o il personaggio era silenziato. Un avviso che hai disattivato non compare, e nemmeno una ripetizione entro il tempo di quiete.&#x0A;&#x0A;- L'elenco è un file al giorno nella cartella History della tua cartella delle impostazioni. Non viene mai inviato da nessuna parte.&#x0A;- **Conserva gli avvisi per** stabilisce quanti giorni restano. I giorni più vecchi vengono eliminati al prossimo avvio di MultiPreview.&#x0A;- Con **Tieni una cronologia degli avvisi** disattivato non viene scritto nulla di nuovo. Quello che c'è già resta finché non scadono i suoi giorni.</sys:String> <!-- draft -->
 </ResourceDictionary>

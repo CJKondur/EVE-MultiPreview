@@ -1968,4 +1968,13 @@
     <sys:String x:Key="L.Upd.NoDigest">GitHub не сообщил контрольную сумму для этого выпуска, поэтому MultiPreview не может проверить загрузку. Нажмите «{0}» ещё раз, чтобы всё равно установить её, или «{1}», чтобы скачать файл с GitHub самостоятельно.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestMismatch">Не удалось подтвердить, что загруженный файл — тот самый, который опубликовал GitHub, поэтому он не будет установлен. Нажмите «{0}», чтобы попробовать ещё раз, или «{1}», чтобы скачать файл с GitHub самостоятельно.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestUnreadable">Контрольная сумма, которую GitHub указывает для этого выпуска, имеет формат, который MultiPreview не может прочитать, поэтому MultiPreview не будет ни загружать, ни устанавливать этот выпуск. Нажмите «{1}», чтобы скачать файл с GitHub самостоятельно.</sys:String> <!-- draft -->
+    <!-- Ideas batch 4 (Plan 8) -->
+    <sys:String x:Key="L.S.Sec.alerts.hub.history">История</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory">Вести историю оповещений</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory.Desc">Каждое оповещение попадает в список на этом компьютере: когда, какой персонаж, какое оповещение и где. Если выключить, новое не добавляется.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays">Хранить оповещения</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">Более старые дни удаляются при запуске MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyFolder">История хранится только на этом компьютере, в {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Title">История оповещений</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview ведёт список оповещений, которые он выдал: время, персонаж, оповещение, его важность, звёздная система и то, было ли оно показано или персонаж был заглушён. Отключённое оповещение в список не попадает, повтор во время паузы тоже.&#x0A;&#x0A;- Список — это один файл на каждый день в папке History внутри папки настроек. Он никуда не отправляется.&#x0A;- **Хранить оповещения** задаёт, сколько дней остаётся. Более старые дни удаляются при следующем запуске MultiPreview.&#x0A;- Если выключить **Вести историю оповещений**, новое не записывается. Уже сохранённое остаётся, пока не истекут его дни.</sys:String> <!-- draft -->
 </ResourceDictionary>

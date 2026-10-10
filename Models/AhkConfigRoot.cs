@@ -119,6 +119,8 @@ public class AhkConfigRoot
         s.AlertHubAutoHide = g.AlertHubAutoHide != 0;
         s.AlertHubAutoHideSeconds = g.AlertHubAutoHideSeconds > 0 ? g.AlertHubAutoHideSeconds : 5;
         s.SuppressAlertHubToastForActiveClient = g.SuppressAlertHubToastForActiveClient != 0;
+        s.AlertHistoryEnabled = g.AlertHistoryEnabled != 0;
+        s.AlertHistoryDays = g.AlertHistoryDays > 0 ? g.AlertHistoryDays : 30;   // 0 or less never means "keep nothing"
 
         // Dicts
         s.AlertColors = g.AlertColors ?? new();
@@ -415,6 +417,8 @@ public class AhkConfigRoot
         g.AlertHubAutoHide = s.AlertHubAutoHide ? 1 : 0;
         g.AlertHubAutoHideSeconds = s.AlertHubAutoHideSeconds;
         g.SuppressAlertHubToastForActiveClient = s.SuppressAlertHubToastForActiveClient ? 1 : 0;
+        g.AlertHistoryEnabled = s.AlertHistoryEnabled ? 1 : 0;
+        g.AlertHistoryDays = s.AlertHistoryDays;
 
         g.AlertColors = s.AlertColors;
         g.AlertSounds = s.AlertSounds;
@@ -1181,6 +1185,13 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("SuppressAlertHubToastForActiveClient")]
     public int SuppressAlertHubToastForActiveClient { get; set; }
+
+    // The alert history (IDEAS #1), new after 2.3.42: a file without them loads on, kept 30 days.
+    [JsonPropertyName("AlertHistoryEnabled")]
+    public int AlertHistoryEnabled { get; set; } = 1;
+
+    [JsonPropertyName("AlertHistoryDays")]
+    public int AlertHistoryDays { get; set; } = 30;
 
     [JsonPropertyName("AlertColors")]
     public Dictionary<string, string>? AlertColors { get; set; }

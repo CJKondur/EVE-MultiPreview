@@ -253,6 +253,12 @@ public class AppSettings
     /// @CatsLiKeDogs in issue #47. Default off.</summary>
     public bool SuppressAlertHubToastForActiveClient { get; set; } = false;
 
+    /// <summary>The alert history (IDEAS #1): every alert is written to the settings folder's History folder, one file
+    /// per day, and kept AlertHistoryDays days (1 to 365). Off records nothing; what is already kept stays until its
+    /// days run out or the player clears it. New keys: a file without them loads on, 30 days.</summary>
+    public bool AlertHistoryEnabled { get; set; } = true;
+    public int AlertHistoryDays { get; set; } = 30;
+
     // ── Log Monitoring ──────────────────────────────────────────────
     public bool EnableChatLogMonitoring { get; set; } = true;
     public bool EnableGameLogMonitoring { get; set; } = true;

@@ -1970,4 +1970,13 @@
     <sys:String x:Key="L.Upd.NoDigest">GitHub no ha dado ninguna suma de comprobación para esta versión, así que MultiPreview no puede comprobar la descarga. Haz clic otra vez en {0} para instalarla de todos modos, o en {1} para descargarla tú mismo desde GitHub.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestMismatch">No se ha podido confirmar que el archivo descargado sea el que GitHub publicó, así que no se instalará. Haz clic en {0} para intentarlo de nuevo, o en {1} para descargarlo tú mismo desde GitHub.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestUnreadable">La suma de comprobación que GitHub da para esta versión tiene un formato que MultiPreview no puede leer, así que MultiPreview no descargará ni instalará esta versión. Haz clic en {1} para descargarla tú mismo desde GitHub.</sys:String> <!-- draft -->
+    <!-- Ideas batch 4 (Plan 8) -->
+    <sys:String x:Key="L.S.Sec.alerts.hub.history">Historial</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory">Guardar un historial de alertas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory.Desc">Cada alerta se añade a una lista en este PC: cuándo, qué personaje, qué alerta y dónde. Desactivado: no se añade nada nuevo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays">Guardar las alertas durante</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">Los días más antiguos se borran cuando MultiPreview se inicia.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyFolder">El historial se queda en este PC, en {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Title">Historial de alertas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview lleva una lista de las alertas que ha lanzado: la hora, el personaje, la alerta, su gravedad, el sistema solar y si se mostró o el personaje estaba silenciado. Una alerta que has desactivado no aparece, y una repetición dentro del tiempo de silencio tampoco.&#x0A;&#x0A;- La lista es un archivo por día en la carpeta History de tu carpeta de ajustes. Nunca se envía a ningún sitio.&#x0A;- **Guardar las alertas durante** fija cuántos días se quedan. Los días más antiguos se borran la próxima vez que MultiPreview se inicia.&#x0A;- Con **Guardar un historial de alertas** desactivado no se escribe nada nuevo. Lo que ya está guardado se queda hasta que se acaben sus días.</sys:String> <!-- draft -->
 </ResourceDictionary>

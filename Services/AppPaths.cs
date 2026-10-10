@@ -33,6 +33,8 @@ public static class AppPaths
     public static string BackupsDir => Path.Combine(ConfigDir, "Backups");
     public static string LogsDir => Path.Combine(ConfigDir, "Logs");
     public static string ErrorLogPath => Path.Combine(LogsDir, "error_log.txt");
+    /// <summary>The alert history's day files (IDEAS #1).</summary>
+    public static string HistoryDir => Path.Combine(ConfigDir, "History");
 
     /// <summary>False while the Logs folder is a link (a junction or a symbolic link): MultiPreview never writes through
     /// one, so this run writes no log files (the error log, the debug logs, the trace file). Checked once, when the

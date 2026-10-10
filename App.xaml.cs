@@ -35,6 +35,7 @@ public partial class App : Application
     private LogMonitorService? _logMonitor;
     private StatTrackerService? _statTracker;
     private AlertHub? _alertHub;
+    private AlertHistory? _alertHistory;
     private BroadcastHudWindow? _broadcastHud;
     private ProcessMonitorService? _processMonitor;
     private CropManager? _cropManager;
@@ -352,9 +353,19 @@ public partial class App : Application
                 Toast = (charName, alertType, severity) => _alertHub.ShowToast(charName, alertType, severity),
                 Sound = PlayAlertSound,
             };
+            // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
+            // history writes on a thread of its own; old days are deleted here, at startup, and never while running.
+            _alertHistory = new AlertHistory(AppPaths.HistoryDir, ErrorLog.Shared)
+            {
+                Enabled = _settings.Settings.AlertHistoryEnabled,
+                KeepDays = _settings.Settings.AlertHistoryDays,
+            };
+            _alertHistory.DeleteOldDays();
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
-                AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity);
+                var outcome = AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity);
+                _alertHistory.Record(AlertHistory.Entry(DateTime.UtcNow, charName, alertType, severity,
+                    _logMonitor.GetCharacterSystem(charName), outcome));
             };
 
             _discovery.WindowTitleChanged += (window, oldTitle) =>
@@ -935,6 +946,14 @@ public partial class App : Application
                     _settings.Settings.EnableChatLogMonitoring, _settings.Settings.EnableGameLogMonitoring);
             }
 
+            // The alert history follows its switch at once (IDEAS #1). A changed keep time deletes nothing until the
+            // next start.
+            if (_alertHistory != null && _settings != null)
+            {
+                _alertHistory.Enabled = _settings.Settings.AlertHistoryEnabled;
+                _alertHistory.KeepDays = _settings.Settings.AlertHistoryDays;
+            }
+
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)
             {
@@ -1139,6 +1158,7 @@ public partial class App : Application
         _alertHub?.Dispose();
         _broadcastHud?.Dispose();
         _logMonitor?.Dispose();
+        _alertHistory?.Dispose();   // writes what is waiting (at most two seconds)
         _hotkeyService?.Dispose();
         _processMonitor?.Dispose();
         _cropManager?.Dispose();

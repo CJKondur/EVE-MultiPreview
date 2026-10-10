@@ -1949,4 +1949,13 @@
     <sys:String x:Key="L.Upd.NoDigest">GitHub가 이 릴리스의 체크섬을 주지 않아서 MultiPreview가 다운로드를 확인할 수 없어요. 그래도 설치하려면 {0}을(를) 다시 눌러 주세요. GitHub에서 직접 내려받으려면 {1}을(를) 눌러 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestMismatch">다운로드한 파일이 GitHub가 공개한 파일인지 확인할 수 없어서 설치하지 않아요. 다시 시도하려면 {0}을(를), GitHub에서 직접 내려받으려면 {1}을(를) 눌러 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestUnreadable">GitHub가 이 릴리스에 알려 준 체크섬이 MultiPreview가 읽을 수 없는 형식이라서 MultiPreview는 이 릴리스를 내려받지도 설치하지도 않아요. GitHub에서 직접 내려받으려면 {1}을(를) 눌러 주세요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 4 (Plan 8) -->
+    <sys:String x:Key="L.S.Sec.alerts.hub.history">기록</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory">알림 기록 남기기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory.Desc">모든 알림이 이 PC의 목록에 추가돼요: 언제, 어느 캐릭터, 어떤 알림, 어디서. 끄면 새로 추가되지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays">알림 보관 기간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">더 오래된 날짜는 MultiPreview가 시작할 때 삭제돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyFolder">기록은 이 PC에만 남아요: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Title">알림 기록</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview는 울린 알림을 목록으로 남겨요: 시각, 캐릭터, 알림, 심각도, 항성계, 그리고 표시됐는지 캐릭터가 음소거 상태였는지. 꺼 둔 알림과 대기 시간 안의 반복은 목록에 없어요.&#x0A;&#x0A;- 목록은 설정 폴더의 History 폴더에 하루에 파일 하나씩 저장돼요. 어디로도 전송되지 않아요.&#x0A;- **알림 보관 기간**에서 며칠 치를 남길지 정해요. 더 오래된 날짜는 MultiPreview를 다음에 시작할 때 삭제돼요.&#x0A;- **알림 기록 남기기**를 끄면 새로 기록하지 않아요. 이미 남은 기록은 기간이 지날 때까지 남아요.</sys:String> <!-- draft -->
 </ResourceDictionary>

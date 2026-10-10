@@ -41,6 +41,7 @@ public static class AlertsPages
         new HelpTopic(SoundsId, "sounds", new[] { "alerts.sounds.enabled", "alerts.sounds.volume", "alerts.sounds.table" }),
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
+        new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
     };
 
     private static SettingItem Toggle(string id, Expression<Func<AppSettings, bool>> prop, params string[] replaces) =>
@@ -249,6 +250,18 @@ public static class AlertsPages
             {
                 new ActionDef("alerts.hub.resetPosition", ResetHubPosition) { Replaces = new[] { "OnResetHubPosition" } },
             }) { ShowIf = HubOn },
+        }),
+        // IDEAS #1. Shown whether the hub is on or not: an alert is kept either way. App passes both settings to the
+        // history on Applied. New keys: a file without them loads on, 30 days.
+        new SectionDef("alerts.hub.history", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("alerts.hub.keepHistory", s => s.AlertHistoryEnabled)),
+            new SettingItem(Setting.Number("alerts.hub.historyDays", s => s.AlertHistoryDays,
+                AlertHistory.MinKeepDays, AlertHistory.MaxKeepDays, "L.S.Unit.Days") with
+            {
+                ShowIf = s => s.AlertHistoryEnabled,
+            }),
+            new InfoItem("alerts.hub.historyFolder", InfoSeverity.Info) { Args = _ => new object[] { AppPaths.HistoryDir } },
         }),
     });
 }

@@ -1949,4 +1949,13 @@
     <sys:String x:Key="L.Upd.NoDigest">GitHub からこのリリースのチェックサムが届かなかったため、MultiPreview はダウンロードを確認できません。それでもインストールするには、もう一度「{0}」を押してください。自分で GitHub からダウンロードする場合は「{1}」を押してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestMismatch">ダウンロードしたファイルが GitHub の公開したものだと確認できなかったため、インストールされません。やり直すには「{0}」を、自分で GitHub からダウンロードするには「{1}」を押してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestUnreadable">GitHub がこのリリースに示しているチェックサムは MultiPreview が読めない形式のため、MultiPreview はこのリリースをダウンロードもインストールもしません。自分で GitHub からダウンロードするには「{1}」を押してください。</sys:String> <!-- draft -->
+    <!-- Ideas batch 4 (Plan 8) -->
+    <sys:String x:Key="L.S.Sec.alerts.hub.history">履歴</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory">アラート履歴を残す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory.Desc">すべてのアラートがこの PC 上のリストに追加されます：時刻、キャラクター、アラート、場所。オフにすると新しく追加されません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays">アラートを残す期間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">それより古い日の分は MultiPreview の起動時に削除されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyFolder">履歴はこの PC の中だけに保存されます：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Title">アラート履歴</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview は、出したアラートをリストに残します：時刻、キャラクター、アラート、重大度、星系、そして表示されたか、キャラクターがミュート中だったか。オフにしたアラートと、静止時間内の繰り返しは載りません。&#x0A;&#x0A;- リストは、設定フォルダーの History フォルダーに 1 日 1 ファイルで保存されます。どこにも送信されません。&#x0A;- **アラートを残す期間** で何日分残すかを決めます。それより古い日の分は、次に MultiPreview を起動したときに削除されます。&#x0A;- **アラート履歴を残す** をオフにすると、新しい内容は書き込まれません。すでに残っている分は、期間が過ぎるまで残ります。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -1948,4 +1948,13 @@
     <sys:String x:Key="L.Upd.NoDigest">GitHub hat für dieses Release keine Prüfsumme geliefert, deshalb kann MultiPreview den Download nicht prüfen. Klicke noch einmal auf {0}, um trotzdem zu installieren, oder auf {1}, um die Datei selbst von GitHub zu laden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestMismatch">Es ließ sich nicht bestätigen, dass die heruntergeladene Datei die ist, die GitHub veröffentlicht hat. Sie wird deshalb nicht installiert. Klicke auf {0}, um es noch einmal zu versuchen, oder auf {1}, um die Datei selbst von GitHub zu laden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.DigestUnreadable">Die Prüfsumme, die GitHub für dieses Release angibt, hat ein Format, das MultiPreview nicht lesen kann. Deshalb lädt und installiert MultiPreview dieses Release nicht. Klicke auf {1}, um die Datei selbst von GitHub zu laden.</sys:String> <!-- draft -->
+    <!-- Ideas batch 4 (Plan 8) -->
+    <sys:String x:Key="L.S.Sec.alerts.hub.history">Verlauf</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory">Alarmverlauf führen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.keepHistory.Desc">Jeder Alarm kommt in eine Liste auf diesem PC: wann, welcher Charakter, welcher Alarm und wo. Aus: Es kommt nichts Neues dazu.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays">Alarme aufbewahren für</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">Ältere Tage werden gelöscht, wenn MultiPreview startet.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyFolder">Der Verlauf bleibt auf diesem PC, in {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Title">Alarmverlauf</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview führt eine Liste der Alarme, die es ausgelöst hat: Zeit, Charakter, Alarm, Schweregrad, Sonnensystem und ob der Alarm gezeigt wurde oder der Charakter stummgeschaltet war. Ein Alarm, den du abgeschaltet hast, steht nicht darin, eine Wiederholung innerhalb der Ruhezeit auch nicht.&#x0A;&#x0A;- Die Liste ist eine Datei pro Tag im Ordner History in deinem Einstellungsordner. Sie wird nirgendwohin gesendet.&#x0A;- **Alarme aufbewahren für** legt fest, wie viele Tage bleiben. Ältere Tage werden beim nächsten Start von MultiPreview gelöscht.&#x0A;- Ist **Alarmverlauf führen** aus, wird nichts Neues geschrieben. Was schon da ist, bleibt, bis seine Tage abgelaufen sind.</sys:String> <!-- draft -->
 </ResourceDictionary>
