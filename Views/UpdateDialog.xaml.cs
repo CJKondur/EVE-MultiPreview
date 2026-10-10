@@ -69,8 +69,11 @@ public partial class UpdateDialog : Window
     }
 
     /// <summary>The dialog the startup update check opens (App). It appears without taking focus, so a player in a fight
-    /// keeps typing into EVE (spec §6, §11.7); the About page's dialogs open in front as before.</summary>
-    public static UpdateDialog ForStartupCheck(UpdateService updateService) => new(updateService) { ShowActivated = false };
+    /// keeps typing into EVE (spec §6, §11.7); the About page's dialogs open in front as before. The two optional
+    /// arguments are ApplyStep and ErrorSink: App leaves them out, a test gives recorders.</summary>
+    public static UpdateDialog ForStartupCheck(UpdateService updateService, Func<string, bool, bool, HandBackResult>? applyStep = null,
+        Action<Exception>? errorSink = null) =>
+        new(updateService) { ShowActivated = false, ApplyStep = applyStep, ErrorSink = errorSink };
 
     /// <summary>"What's new", then the release notes formatted: headings and **labels** bold, bullets as bullets.</summary>
     private void ShowNotes(string? markdown)
