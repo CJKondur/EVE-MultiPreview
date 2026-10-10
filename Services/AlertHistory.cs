@@ -155,7 +155,8 @@ public sealed class AlertHistory : IDisposable
     /// <summary>The alerts kept since <paramref name="sinceUtc"/>, newest first, at most <paramref name="max"/> (none
     /// for a <paramref name="max"/> of 0 or less): what the day files hold, and what is in memory but in no file (a
     /// write that failed). It waits for waiting writes first and reads files, so call it off the UI thread. Never
-    /// throws.</summary>
+    /// throws. A day file that can't be read is left out and the other days are still listed; the error log says so
+    /// once per session.</summary>
     public AlertHistoryPage Read(DateTime sinceUtc, int max)
     {
         max = Math.Max(0, max);
@@ -171,7 +172,15 @@ public sealed class AlertHistory : IDisposable
             foreach (var (path, day) in DayFiles().OrderByDescending(f => f.Day))
             {
                 if (day < sinceUtc.Date) break;
-                var lines = ReadDay(path, ref bad);                      // oldest first
+                List<AlertHistoryEntry> lines;
+                try { lines = ReadDay(path, ref bad); }                  // oldest first
+                catch (Exception ex)
+                {
+                    // A day file that can't be read (another program has it and shares nothing, or access is
+                    // refused) costs its own day only: the older days are read all the same.
+                    Report("Read", "the history could not be read", ex);
+                    continue;
+                }
                 for (int i = lines.Count - 1; i >= 0; i--)
                 {
                     if (lines[i].TimeUtc < sinceUtc) continue;

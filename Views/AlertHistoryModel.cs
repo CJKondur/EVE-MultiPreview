@@ -57,9 +57,10 @@ public static class AlertHistoryView
     public static readonly TimeSpan RunGap = TimeSpan.FromMinutes(10);
 
     /// <summary>Folds each run of the same alert into one row. Two neighbours are the same alert when they have the
-    /// same alert type, character, matched text, solar system and outcome (everything a row shows but the time), and
-    /// are at most <see cref="RunGap"/> apart: three matches of one rule with three different lines are three rows.
-    /// The list is newest first, and stays so.</summary>
+    /// same alert type, character, matched text and solar system, when a row says the same of what became of them
+    /// (<see cref="HasNote"/>), and when they are at most <see cref="RunGap"/> apart. That is everything a row shows
+    /// but the time: three matches of one rule with three different lines are three rows. The list is newest first,
+    /// and stays so.</summary>
     public static IReadOnlyList<HistoryRow> Collapse(IReadOnlyList<AlertHistoryEntry> newestFirst)
     {
         var rows = new List<HistoryRow>();
@@ -80,7 +81,14 @@ public static class AlertHistoryView
         && string.Equals(a.Character, b.Character, StringComparison.OrdinalIgnoreCase)
         && string.Equals(a.Text, b.Text, StringComparison.Ordinal)
         && string.Equals(a.SolarSystem, b.SolarSystem, StringComparison.Ordinal)
-        && a.Outcome == b.Outcome;
+        && (HasNote(a.Outcome) ? a.Outcome == b.Outcome : !HasNote(b.Outcome));
+
+    /// <summary>Whether a row says what became of an alert with this outcome. It does only when nothing of the alert
+    /// reached the player: it was muted, or the character had no client window. An alert that was shown needs no
+    /// note, and "no toast" would stand in every row of a player who doesn't use the hub. So an alert with its toast
+    /// and one without look the same in the list, and are the same alert to a run: a run is folded by what its row
+    /// shows, not by the outcome as the history keeps it.</summary>
+    internal static bool HasNote(AlertOutcome outcome) => outcome is AlertOutcome.Muted or AlertOutcome.NoWindow;
 
     /// <summary>Whether <paramref name="alert"/> belongs to the run a row shows: the same alert, no older than the run's
     /// first and no newer than its last. The window keeps its selection by this: a re-read makes new objects, and the

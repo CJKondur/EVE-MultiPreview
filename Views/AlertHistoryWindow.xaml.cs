@@ -32,7 +32,8 @@ public sealed class AlertHistoryActions
     public Func<string, string, bool> Confirm { get; init; } = (_, _) => false;
     public Func<DateTime> UtcNow { get; init; } = () => DateTime.UtcNow;
     /// <summary>This PC's list separator: where it is ";" the CSV export puts semicolons between its fields, else
-    /// commas (AlertHistoryCsv.SeparatorFor). App leaves it as it is; tests hand one in.</summary>
+    /// commas (AlertHistoryCsv.SeparatorFor). The writer is told it as well: where it is neither of the two, a
+    /// spreadsheet on this PC could begin a cell behind it. App leaves it as it is; tests hand one in.</summary>
     public Func<string> ListSeparator { get; init; } = () => CultureInfo.CurrentCulture.TextInfo.ListSeparator;
     /// <summary>Whether the "Keep an alert history" setting is on. While it is off the window says so above the
     /// list: what is listed is then what was kept before, and nothing new arrives. Asked at every refresh.</summary>
@@ -261,7 +262,8 @@ public partial class AlertHistoryWindow : Window
 
     /// <summary>Filters what is loaded, folds repeats, and shows the rows. The rows are new objects each time, so what
     /// the player had is put back: the selection stays on its run when the run is still there (also when it grew,
-    /// which it does during a fight), the keyboard stays on that row when it was in the list, and the message stays.</summary>
+    /// which it does during a fight), the keyboard goes back to that row when it was in the list and the row is in
+    /// view, and the message stays. The list is left where the player scrolled it (FocusRow).</summary>
     private void Apply()
     {
         var selected = (AlertList.SelectedItem as HistoryRowVM)?.Row.Newest;
@@ -294,14 +296,25 @@ public partial class AlertHistoryWindow : Window
         ShowWhetherTheHistoryIsOn();
     }
 
-    /// <summary>Puts the keyboard on a row. Replacing the rows leaves it on a row that is gone, and the arrow keys would
-    /// then start from the top of the list after every re-read. Only called when the list had the keyboard, so this
-    /// never takes it from another control or another program.</summary>
+    /// <summary>Puts the keyboard back on a row after a re-read. Replacing the rows takes it off the row that had it
+    /// (WPF leaves it on the list itself), and the arrow keys would then start from the top of what the list shows
+    /// after every re-read. Only called when the list had the keyboard, so this never takes it from another control or
+    /// another program.
+    ///
+    /// It never scrolls the list. A re-read comes every two seconds while alerts arrive, and a list that went back to
+    /// the selected row each time could not be read anywhere else. So a row that isn't in view is left alone (it has
+    /// no container): the keyboard stays on the list, and goes to the row at the first re-read that finds it in view.
+    /// And a row in view takes the keyboard without being brought into view, which WPF does for whatever takes the
+    /// keyboard: a row cut off at the list's lower edge would otherwise pull the list down with it, a row for every
+    /// alert that arrives, and the newest alerts would leave at the top.</summary>
     private void FocusRow(HistoryRowVM row)
     {
         AlertList.UpdateLayout();                               // the new rows have no containers until the list is laid out
-        AlertList.ScrollIntoView(row);
-        (AlertList.ItemContainerGenerator.ContainerFromItem(row) as ListViewItem)?.Focus();
+        if (AlertList.ItemContainerGenerator.ContainerFromItem(row) is not ListViewItem item) return;
+        RequestBringIntoViewEventHandler stay = (_, e) => e.Handled = true;
+        item.RequestBringIntoView += stay;
+        try { item.Focus(); }
+        finally { item.RequestBringIntoView -= stay; }
     }
 
     private void ShowStatus()
@@ -360,10 +373,9 @@ public partial class AlertHistoryWindow : Window
         _ => Str("L.Hist.Outcome.Shown", "Shown"),
     };
 
-    /// <summary>Said in the row only when nothing of the alert reached the player. An alert that was shown needs no
-    /// note, and "no toast" would stand in every row of a player who doesn't use the hub.</summary>
-    private static string OutcomeNote(AlertOutcome outcome) =>
-        outcome is AlertOutcome.Muted or AlertOutcome.NoWindow ? OutcomeName(outcome) : "";
+    /// <summary>Said in the row only when nothing of the alert reached the player (AlertHistoryView.HasNote, which the
+    /// rows are folded by as well: two alerts with the same note here are one run).</summary>
+    private static string OutcomeNote(AlertOutcome outcome) => AlertHistoryView.HasNote(outcome) ? OutcomeName(outcome) : "";
 
     /// <summary>The colour the alert flashed its thumbnail in (AlertColours.Resolve): the event's own, else its severity's.</summary>
     private Brush Bar(AlertHistoryEntry e)
@@ -471,9 +483,11 @@ public partial class AlertHistoryWindow : Window
             Str("L.Hist.Csv.Key", AlertHistoryCsv.Columns[8]),
         };
         // The names are worked out here, on the UI thread; only the file is written in the background. Semicolons
-        // between the fields where this PC lists with one: Excel there opens a comma file as a single column.
+        // between the fields where this PC lists with one: Excel there opens a comma file as a single column. A PC
+        // that lists with something else gets commas, and the writer looks out for that something inside the fields.
+        string listSeparator = _do.ListSeparator();
         var text = AlertHistoryCsv.Text(header, entries, AlertHistoryView.EventName, SeverityName, OutcomeName, TimeZoneInfo.Local,
-            AlertHistoryCsv.SeparatorFor(_do.ListSeparator()));
+            AlertHistoryCsv.SeparatorFor(listSeparator), listSeparator);
         InBackground(() =>
         {
             try { AlertHistoryCsv.Write(path, text); return true; }

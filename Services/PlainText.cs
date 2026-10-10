@@ -20,8 +20,10 @@ public static class PlainText
     ///    the soft hyphen, the tag characters. Text another player typed could use those to show a row as something it
     ///    isn't, or to make a name that looks empty. An emoji made of several joined by U+200D therefore shows as its
     ///    parts (a family as its people), which is accepted.
-    /// 4. Half of a character that takes two UTF-16 units (a lone surrogate) is dropped: it is not text, and the JSON
-    ///    writer refuses it. Two halves are a character only when they stand next to each other in the text as given.
+    /// 4. Half of a character that takes two UTF-16 units (a lone surrogate) is dropped: it is not text. The JSON
+    ///    writer does not refuse it: it writes U+FFFD (the replacement character) in its place, so what is read back
+    ///    from a file would not be what was kept. Two halves are a character only when they stand next to each other
+    ///    in the text as given.
     /// 5. A run of spaces is one space, and there is none at the start or the end.
     /// 6. The result is cut to <paramref name="max"/> units, one less when the cut would fall between the two halves of
     ///    a character, and a space the cut left at the end is removed. A <paramref name="max"/> of 0 or less gives "".
