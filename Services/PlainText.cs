@@ -31,7 +31,7 @@ public static class PlainText
     public static string OneLine(string? text, int max)
     {
         if (string.IsNullOrEmpty(text) || max <= 0) return "";
-        var clean = new StringBuilder(Math.Min(text.Length, max + 1));
+        var clean = new StringBuilder(Math.Min(text.Length, max));
         // One unit past the limit is enough to know where the cut falls.
         for (int i = 0; i < text.Length && clean.Length <= max; i++)
         {
