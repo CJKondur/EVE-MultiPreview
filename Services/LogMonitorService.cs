@@ -1446,7 +1446,10 @@ public sealed class LogMonitorService : IDisposable
                         if (firstReadChar == null)
                             firstReadChar = _fileCharacterMap.GetValueOrDefault(path);
 
-                        if (lineCount >= 15) break;
+                        // The header ends at the first line with a timestamp (ProcessHeaderOnly says when), and a
+                        // file that shows none in its first 15 lines has no header left to wait for.
+                        if (lineCount >= 15) state.HeaderPassed = true;
+                        if (state.HeaderPassed) break;
                     }
 
                     if (firstReadChar == null)
@@ -1608,15 +1611,26 @@ public sealed class LogMonitorService : IDisposable
     /// parsers can skip it).</summary>
     private static bool IsHeaderLine(string trimmed) => TryParseHeaderCharacter(trimmed) != null;
 
-    /// <summary>Only extract character name from header lines — used on first read to avoid processing old events.</summary>
+    /// <summary>True when a line, the white space in front of it taken off, starts with the bracket of its
+    /// "[ timestamp ]": it is an entry of the log, and the log's header lies before it. The same sign the parsers
+    /// go by: ReadOwnTag asks for the bracket first, and ChatSpeaker lets U+FEFF stand in front of it, which EVE
+    /// writes before every message line of a chat log. No header word begins with either character. Character
+    /// tests only, on every line of every log: no allocation and no regex.</summary>
+    private static bool StartsWithTimestamp(string trimmed) =>
+        trimmed.StartsWith('[') || (trimmed.Length > 1 && trimmed[0] == (char)0xFEFF && trimmed[1] == '[');
+
+    /// <summary>Only extract character name from header lines — used on first read to avoid processing old events.
+    /// The header ends at the first line with a timestamp, and the first name it gives stays: the first read used
+    /// to take the last line among a file's first 15 that started like a header line.</summary>
     private void ProcessHeaderOnly(string line, LogFileState state)
     {
         if (string.IsNullOrWhiteSpace(line)) return;
 
-        var charName = TryParseHeaderCharacter(line.TrimStart());
-        if (!string.IsNullOrEmpty(charName))
+        var trimmed = line.TrimStart();
+        if (StartsWithTimestamp(trimmed)) { state.HeaderPassed = true; return; }
+        var charName = TryParseHeaderCharacter(trimmed);
+        if (!string.IsNullOrEmpty(charName) && _fileCharacterMap.TryAdd(state.Path, charName))
         {
-            _fileCharacterMap[state.Path] = charName;
             Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified (header): '{charName}' from {Path.GetFileName(state.Path)}");
         }
     }
@@ -1643,15 +1657,19 @@ public sealed class LogMonitorService : IDisposable
 
         // Extract character name from the log header — any EVE client language (#86).
         var trimmed = line.TrimStart();
-        var headerName = TryParseHeaderCharacter(trimmed);
-        if (!string.IsNullOrEmpty(headerName))
+        // A log's character is the first one its header names, and the header ends at the first line with a
+        // timestamp, in every kind of log. Until then the header may still be on its way: a client can write it in
+        // two writes, with the first read between them, and the name is taken here, once. From then on a line that
+        // starts like a header line is text, in a chat log another player's (the second line of a long message): it
+        // is skipped as it always was and names nobody, where it used to change whose log the file was.
+        if (StartsWithTimestamp(trimmed)) state.HeaderPassed = true;
+        else if (TryParseHeaderCharacter(trimmed) is { } headerName)
         {
-            // A log's character is the one its header named when the log was first read (ProcessHeaderOnly). A line
-            // that starts like a header further down is text: in a chat log another player's (the second line of a
-            // long message), and it used to change whose log the file was. Only a game log that has no character yet
-            // (its header was not written to its end at the first read) still takes one from here, once.
-            if (state.Type == LogType.GameLog && _fileCharacterMap.TryAdd(state.Path, headerName))
+            if (!state.HeaderPassed && _fileCharacterMap.TryAdd(state.Path, headerName))
+            {
+                state.Listener ??= headerName;   // a rule channel's log raises for nobody until its header names one
                 Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified: '{headerName}' from {Path.GetFileName(state.Path)}");
+            }
             return;
         }
 
@@ -1704,13 +1722,13 @@ public sealed class LogMonitorService : IDisposable
     /// <summary>Asks the rules about one line. <paramref name="channel"/> is null for a game log.</summary>
     private void MatchRules(CustomAlertEngine rules, string line, LogFileState state, string character, string? channel)
     {
-        // A log belongs to the character its header named when it was first read (ReadNewLines keeps that name in
-        // state.Listener): for the rules, the first name stays.
+        // A log belongs to the first character its header named (state.Listener: ReadNewLines keeps the name the
+        // first read found, ProcessLine one that the header gives behind it): for the rules, the first name stays.
         if (state.Channel != null)
         {
             // A rule channel's log is other players' text from its first line to its last. It is the log of the
             // character its header named, or of nobody: then no rule alert is raised from it, neither for "Unknown"
-            // nor for a name that a later line gives.
+            // nor for a name that a line behind the header gives.
             if (string.IsNullOrEmpty(state.Listener)) return;
         }
         else if (string.IsNullOrEmpty(state.Listener) && character != "Unknown") state.Listener = character;
@@ -2661,6 +2679,10 @@ public sealed class LogMonitorService : IDisposable
         public LogType Type { get; set; }
         public long LastPosition { get; set; }
         public string? PartialLine { get; set; } // Buffer for incomplete lines
+        /// <summary>The log's header lies behind the reader: a line with a timestamp was seen, or the first read
+        /// found none among the file's first 15 lines. Until then a header line may name the log's character, if it
+        /// has none; from then on a line that starts like a header line is text and names nobody.</summary>
+        public bool HeaderPassed { get; set; }
         /// <summary>Set for the log of a chat channel that a custom rule names (IDEAS #8): only rules read it. Null for
         /// a game log and for a Local log.</summary>
         public string? Channel { get; set; }
