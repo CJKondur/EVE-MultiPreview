@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -26,6 +27,15 @@ public sealed class LogMonitorService : IDisposable
     // Keyed by full path, compared ignoring case: one file is one entry however its folder was typed (IDEAS P30).
     private readonly ConcurrentDictionary<string, LogFileState> _trackedFiles = new(StringComparer.OrdinalIgnoreCase);
     private bool _initialScanComplete = false;
+
+    /// <summary>Where a line that made a parser or a listener throw is recorded: the app's error log, unless a test
+    /// gives one of its own.</summary>
+    public ErrorLog Errors { get; set; } = ErrorLog.Shared;
+
+    // True from Stop until the next Start. RecordBadLine asks it instead of the cancellation token: Stop disposes and
+    // clears _cts without waiting for the reading thread, so when a listener's cancelled Dispatcher.Invoke reaches the
+    // reader at exit the token is already gone.
+    private volatile bool _stopped;
 
     // EVE log paths (configurable via settings)
     private string _chatLogPath = "";
@@ -939,6 +949,7 @@ public sealed class LogMonitorService : IDisposable
                       bool chatEnabled = true, bool gameEnabled = true)
     {
         if (_monitorTask != null) return;
+        _stopped = false;
 
         (_chatLogPath, _gameLogPath) = ResolveFolders(eveLogsBasePath, chatLogOverride, gameLogOverride, chatEnabled, gameEnabled);
 
@@ -961,6 +972,7 @@ public sealed class LogMonitorService : IDisposable
 
     public void Stop()
     {
+        _stopped = true;
         _cts?.Cancel();
         StopFileWatchers();
         _monitorTask?.Wait(TimeSpan.FromSeconds(2));
@@ -1474,15 +1486,23 @@ public sealed class LogMonitorService : IDisposable
         }
     }
 
-    /// <summary>One line made a parser throw. It is skipped, so the lines behind it are still read and the ones before it
-    /// are not raised again. Only the exception's TYPE and the log file's NAME are recorded: another player chooses the
-    /// names in a log line, and a message (a FormatException quotes its input) can hold them. The record is a new
-    /// exception with a fixed message, because ErrorLog writes the message of what it is given.</summary>
-    private static void RecordBadLine(string path, Exception ex)
+    /// <summary>One line made a parser throw, or a listener: events are raised on the reading thread, so what a
+    /// subscriber throws lands here too. The line is skipped, so the lines behind it are still read and the ones before
+    /// it are not raised again. Recorded are the exception's TYPE, the stack it was thrown with (method names, and
+    /// source lines beside a pdb: it says which parser or listener it was) and, in the alerts debug log, the log file's
+    /// NAME. Never its message and never the line: another player chooses the names in a log line, and a message (a
+    /// FormatException quotes its input) can hold them. The record is a new exception with a fixed message, because
+    /// ErrorLog writes the message of what it is given. While the monitor stops nothing is recorded: a listener's
+    /// Dispatcher.Invoke is cancelled when the app exits, and that is no error.</summary>
+    private void RecordBadLine(string path, Exception ex)
     {
+        if (_stopped) return;
         string type = ex.GetType().Name;
-        ErrorLog.Shared.Record(new InvalidOperationException("A log line made a parser throw: " + type), "LogMonitor:Line", DateTime.Now);
-        DiagnosticsService.LogAlerts($"[Read] ❌ A line in {Path.GetFileName(path)} made a parser throw {type}; it was skipped");
+        var record = new InvalidOperationException("A log line made a parser or a listener throw: " + type);
+        try { ExceptionDispatchInfo.SetRemoteStackTrace(record, ex.StackTrace ?? ""); }
+        catch (Exception) { /* the record is then written without a stack, as it was before */ }
+        Errors.Record(record, "LogMonitor:Line", DateTime.Now);
+        DiagnosticsService.LogAlerts($"[Read] ❌ A line in {Path.GetFileName(path)} made a parser or a listener throw {type}; it was skipped");
     }
 
     /// <summary>
@@ -1601,6 +1621,12 @@ public sealed class LogMonitorService : IDisposable
         if (IsHeaderLine(trimmedLine))
             return;
 
+        // The line's own tag, read once, decides which parser below takes the line. Everything behind the tag can
+        // hold a name another player chose (a ship's name stands in the bubble line of whoever flies into its
+        // bubble), so a tag is never looked for there: a ship named "x (combat) x" once took the bubble line away
+        // from the Warp scrambled check, and one named like an undock line moved the character to another system.
+        var own = ReadOwnTag(line);
+
         // ── System change from game logs (jump / undock) ──
         // Localized in every client, so the destination system is extracted with a
         // regex built from EVE's OWN message template per language. In all languages
@@ -1608,7 +1634,7 @@ public sealed class LogMonitorService : IDisposable
         // it without us knowing each language's word order (issue #86):
         //   en: "Jumping from {gate} to {system}"      zh: "从{gate}跳到{system}"
         //   en: "Undocking from {stn} to {sys} solar system."  ja: "{stn} から {sys} へ出港"
-        var destSystem = ExtractSystemFromLine(line, LogType.GameLog);
+        var destSystem = ExtractSystemFromLine(line, LogType.GameLog, own);
         if (!string.IsNullOrEmpty(destSystem))
         {
             // If this character's chat log reports systems, let chat settle it on
@@ -1623,7 +1649,7 @@ public sealed class LogMonitorService : IDisposable
 
 
         // ── Combat events ──
-        if (line.Contains("(combat)"))
+        if (HasTag(own, OwnTag.Combat, line, "(combat)"))
         {
             // AHK L678: attack alert fires on BOTH damage hits (0xffcc0000) AND misses.
             // ParseCombatLine handles damage lines. Miss lines have no damage number,
@@ -1669,7 +1695,7 @@ public sealed class LogMonitorService : IDisposable
         }
 
         // ── Mining events ──
-        if (line.Contains("(mining)"))
+        if (HasTag(own, OwnTag.Mining, line, "(mining)"))
         {
             ParseMiningLine(line, character);
             return;
@@ -1680,11 +1706,14 @@ public sealed class LogMonitorService : IDisposable
         // They are handled inside ParseCombatLine — no separate trigger needed.
 
         // ── Bounty events — AHK uses (bounty) tag ──
-        if (line.Contains("(bounty)"))
+        if (HasTag(own, OwnTag.Bounty, line, "(bounty)"))
         {
             ParseBountyLine(line, character);
             return;
         }
+
+        // The (notify) checks below all ask this one answer.
+        bool notify = HasTag(own, OwnTag.Notify, line, "(notify)");
 
         // ── Warp scramble detection ──
         // EVE writes this as a (notify) line, not (combat):
@@ -1700,7 +1729,7 @@ public sealed class LogMonitorService : IDisposable
         // stays English in every client. The reported Chinese line (a separate,
         // untagged message) is kept as an ungated anchor so it never regresses.
         bool zhScramble = line.Contains("试图跃迁扰频");
-        if ((line.Contains("(notify)") && AlertPatterns.Matches(line, "warp_scramble")) || zhScramble)
+        if ((notify && AlertPatterns.Matches(line, "warp_scramble")) || zhScramble)
         {
             // PVE mode filters NPC scramblers (sleeper towers, drone probes,
             // gate sentries, mission rats with infinipoints, etc.). The notify
@@ -1741,7 +1770,7 @@ public sealed class LogMonitorService : IDisposable
         // which the combat branch above reaches through ParseCombatLine.
 
         // ── Decloak detection ((notify) tag + localized "cloak deactivates") ──
-        if (line.Contains("(notify)") && AlertPatterns.Matches(line, "decloak"))
+        if (notify && AlertPatterns.Matches(line, "decloak"))
         {
             _lastEventTime = DateTime.Now;
             TriggerAlert(character, "decloak", "critical");
@@ -1751,7 +1780,7 @@ public sealed class LogMonitorService : IDisposable
         // ── Fleet warp / regroup ((notify) tag + localized template, #115) ──
         // Fires on each client that actually took the FC's warp, so a pack with mixed
         // skills shows at a glance which clients went and which were left behind.
-        if (line.Contains("(notify)"))
+        if (notify)
         {
             if (AlertPatterns.CaptureLast(line, "follow_warp_regex") != null)
             {
@@ -1767,7 +1796,7 @@ public sealed class LogMonitorService : IDisposable
 
         // ── Fleet Invite from game log ((question) tag + localized body) ──
         // The reported Chinese line is kept as an ungated anchor (issue #86).
-        if ((line.Contains("(question)") && AlertPatterns.Matches(line, "fleet_invite"))
+        if ((HasTag(own, OwnTag.Question, line, "(question)") && AlertPatterns.Matches(line, "fleet_invite"))
             || line.Contains("邀请你加入舰队"))
         {
             TriggerAlert(character, "fleet_invite", "warning");
@@ -1775,14 +1804,14 @@ public sealed class LogMonitorService : IDisposable
         }
 
         // ── Convo Request from game log ((None) tag + localized body) ──
-        if (line.Contains("(None)") && AlertPatterns.Matches(line, "convo_request"))
+        if (HasTag(own, OwnTag.None, line, "(None)") && AlertPatterns.Matches(line, "convo_request"))
         {
             TriggerAlert(character, "convo_request", "warning");
             return;
         }
 
         // ── Mining alerts from (notify) lines (AHK: _ParseMiningLine checks (notify) tag) ──
-        if (line.Contains("(notify)"))
+        if (notify)
         {
             // These three messages are self-identifying (they only ever describe a
             // mining module), so they need no module-name gate and localize directly
@@ -1846,6 +1875,40 @@ public sealed class LogMonitorService : IDisposable
 
 
     }
+
+    /// <summary>What a game-log line's own tag is. Missing: the line has no tag in its place.</summary>
+    private enum OwnTag { Missing, Combat, Mining, Bounty, Notify, Question, None, Other }
+
+    /// <summary>Reads a game-log line's own tag: the text between the "] (" that closes the timestamp and the next
+    /// ")", as in "[ 2026.01.01 00:00:00 ] (combat) ...". EVE writes it; everything behind it can hold a name another
+    /// player chose. Missing when the line doesn't start with a bracketed timestamp followed by " (tag)": a header, or
+    /// the second line of a message that runs over several lines. Spans only, on every line of every game log: no
+    /// allocation and no regex.</summary>
+    private static OwnTag ReadOwnTag(string line)
+    {
+        var text = line.AsSpan().TrimStart();
+        if (text.Length == 0 || text[0] != '[') return OwnTag.Missing;
+        int close = text.IndexOf(']');
+        if (close < 0 || close + 2 >= text.Length || text[close + 1] != ' ' || text[close + 2] != '(') return OwnTag.Missing;
+        var tag = text[(close + 3)..];
+        int end = tag.IndexOf(')');
+        if (end < 0) return OwnTag.Missing;
+        return tag[..end] switch
+        {
+            "combat" => OwnTag.Combat,
+            "mining" => OwnTag.Mining,
+            "bounty" => OwnTag.Bounty,
+            "notify" => OwnTag.Notify,
+            "question" => OwnTag.Question,
+            "None" => OwnTag.None,
+            _ => OwnTag.Other,
+        };
+    }
+
+    /// <summary>Whether the parser for <paramref name="tag"/> takes the line: its own tag says so. A line with no tag
+    /// in its place is read as it always was, by the tag's text anywhere in it.</summary>
+    private static bool HasTag(OwnTag own, OwnTag tag, string line, string text) =>
+        own == OwnTag.Missing ? line.Contains(text) : own == tag;
 
     /// <summary>The plain text of a tackle line whose target is this client: "... attempt from ATTACKER to you!".
     /// It must END in "to you!": EVE writes the same line for every tackle it shows on grid, and a pilot's name can
@@ -2197,9 +2260,11 @@ public sealed class LogMonitorService : IDisposable
     /// <summary>The speaker of a chat line: "[ ts ] SPEAKER > message". EVE starts every message line of a chat log
     /// with U+FEFF, which \s does not match: without it here, only the first line of each read was understood (the
     /// reader takes a leading U+FEFF for a byte order mark and drops it), so a Local change behind another line in
-    /// the same read was missed, and the system was never found when a chat log was first read through.</summary>
+    /// the same read was missed, and the system was never found when a chat log was first read through.
+    /// The group is everything up to the first "&gt;", white space included (the caller trims it): a lazy group between
+    /// two runs of white space took time with the cube of a run of spaces, on the one reading thread.</summary>
     private static readonly Regex ChatSpeaker =
-        new(@"^[\s\uFEFF]*\[[^\]]*\]\s*([^>]+?)\s*>", RegexOptions.Compiled);
+        new(@"^[\s\uFEFF]*\[[^\]]*\]([^>]*)>", RegexOptions.Compiled);
 
     /// <summary>
     /// True only when a chat line was written by EVE's own "EVE System" speaker.
@@ -2275,7 +2340,7 @@ public sealed class LogMonitorService : IDisposable
     /// serves all three. Expects <see cref="ResolveLocalizedNames"/> to have run, so
     /// the captured name is already the canonical English one (issue #86).
     /// </summary>
-    private static string? ExtractSystemFromLine(string line, LogType type)
+    private static string? ExtractSystemFromLine(string line, LogType type, OwnTag? ownTag = null)
     {
         // Chat logs carry ONLY the local-channel change. The jump/undock patterns must
         // NEVER be run over chat: a chat line is other players' text, so anyone typing
@@ -2284,10 +2349,14 @@ public sealed class LogMonitorService : IDisposable
         if (type == LogType.ChatLog)
             return Clean(AlertPatterns.CaptureLast(line, "local_regex"));
 
-        // Game log. EVE tags the jump line (None) — keep that gate (as the original
-        // parser had) so a line that merely mentions the phrasing can't move the
-        // system. Undock is game-log-only and stays ungated, matching the original.
-        if (line.Contains("(None)"))
+        // Game log. EVE writes the jump line and the undock line with the tag (None), so only a line whose OWN tag is
+        // (None) may move the system: "Undocking from A to Jita solar system." as a ship's name in a bubble line once
+        // did, and "(None) Jumping from A to Amarr" too. The caller passes the tag when it has read it already (the
+        // live reader); the startup scans read it here. A line with no tag in its place is read as before: a jump
+        // needs "(None)" somewhere in it, an undock needs nothing.
+        var own = ownTag ?? ReadOwnTag(line);
+        if (own != OwnTag.Missing && own != OwnTag.None) return null;
+        if (own == OwnTag.None || line.Contains("(None)"))
         {
             var jump = Clean(AlertPatterns.CaptureLast(line, "jump_regex"));
             if (jump != null) return jump;
