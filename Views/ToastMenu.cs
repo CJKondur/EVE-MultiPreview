@@ -46,11 +46,17 @@ public static class SnoozeText
 /// three ways to snooze this toast's event for this toast's character. Built for one toast and shown once.</summary>
 public sealed class ToastMenu : IDisposable
 {
+    private Action? _closed;
+
     /// <param name="eventName">The event's name as the toast shows it (AlertHub.EventDisplayName).</param>
     /// <param name="snooze">How long: 15 minutes, 1 hour, or null for "until MultiPreview restarts".</param>
-    public ToastMenu(string characterName, string eventName, Action dismiss, Action<TimeSpan?> snooze)
+    /// <param name="closed">What follows the menu closing (its toast's time runs again). Run once, whichever way the
+    /// menu goes: an item, a click away, or Dispose while it is still open or was never shown.</param>
+    public ToastMenu(string characterName, string eventName, Action dismiss, Action<TimeSpan?> snooze, Action? closed = null)
     {
+        _closed = closed;
         Strip = new ContextMenuStrip();
+        Strip.Closed += (_, _) => RunClosed();
         FluentMenu.Style(Strip, showIcons: false);
         Strip.Items.Add(Item(ToastCommands.Dismiss, "L.Toast.Dismiss", "Dismiss", dismiss));
         Strip.Items.Add(new ToolStripSeparator());
@@ -73,7 +79,25 @@ public sealed class ToastMenu : IDisposable
     public IReadOnlySet<string> CommandNames() =>
         Strip.Items.Cast<ToolStripItem>().Where(i => !string.IsNullOrEmpty(i.Name)).Select(i => i.Name!).ToHashSet();
 
-    public void Dispose() => Strip.Dispose();
+    /// <summary>A menu that is still open is closed first. A strip that is disposed while open raises no Closed, so
+    /// what follows the closing is run here if it has not run yet.</summary>
+    public void Dispose()
+    {
+        try
+        {
+            try { Strip.Close(); } catch { /* it is disposed all the same */ }
+            RunClosed();
+        }
+        finally { Strip.Dispose(); }
+    }
+
+    /// <summary>Runs what follows the menu closing, the first time it is asked and never again.</summary>
+    private void RunClosed()
+    {
+        var run = _closed;
+        _closed = null;
+        run?.Invoke();
+    }
 
     private static ToolStripMenuItem Item(string name, string key, string english, Action click)
     {

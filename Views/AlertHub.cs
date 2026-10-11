@@ -351,49 +351,89 @@ public class AlertHub : IDisposable
                 try { oldest.Dispose(); } catch { }   // stops its dismiss timer too
             }
 
-            toast.Window.Closed += (_, _) =>
-            {
-                _activeToasts.RemoveAll(t => t == toast);
-                ReflowToasts();
-            };
-            toast.Clicked += () =>
-            {
-                Debug.WriteLine($"[AlertHub:Toast] 🎯 Toast clicked — focusing '{characterName}'");
-                FocusCharacterRequested?.Invoke(characterName);
-            };
-            toast.MenuRequested += () => ShowToastMenu(toast, characterName, alertType);
-
-            _activeToasts.Add(toast);
-            PositionToast(toast, _activeToasts.Count - 1);
+            Take(toast);
             toast.Show();
 
             Debug.WriteLine($"[AlertHub:Toast] 📢 Toast shown: {alertType} [{severity}] for '{characterName}' (active={_activeToasts.Count})");
         });
     }
 
-    /// <summary>A right-click on a toast (IDEAS #30): Dismiss, and three ways to snooze this toast's event for its
-    /// character. The toast stays up while its menu is open. A failure here costs the menu, never the toast.</summary>
-    private void ShowToastMenu(AlertToast toast, string characterName, string alertType)
+    /// <summary>Takes a toast into the stack and says what its clicks do; ShowToast shows it afterwards. (A test hands
+    /// in a toast that is never shown.)</summary>
+    public void Take(AlertToast toast)
     {
-        try
+        toast.Window.Closed += (_, _) =>
         {
-            _toastMenu?.Dispose();
-            var menu = _toastMenu = new ToastMenu(characterName, EventDisplayName(alertType),
-                dismiss: () => { try { toast.Window.Close(); } catch { } },
-                snooze: length =>
-                {
-                    SnoozeRequested?.Invoke(characterName, alertType, length);
-                    try { toast.Window.Close(); } catch { }
-                });
-            toast.Hold();
-            menu.Strip.Closed += (_, _) => toast.Resume();
-            menu.Strip.Show(System.Windows.Forms.Cursor.Position);
-        }
+            _activeToasts.RemoveAll(t => t == toast);
+            ReflowToasts();
+        };
+        toast.Clicked += () =>
+        {
+            Debug.WriteLine($"[AlertHub:Toast] 🎯 Toast clicked — focusing '{toast.CharacterName}'");
+            FocusCharacterRequested?.Invoke(toast.CharacterName);
+        };
+        toast.MenuRequested += () => ShowToastMenu(toast);
+
+        _activeToasts.Add(toast);
+        PositionToast(toast, _activeToasts.Count - 1);
+    }
+
+    /// <summary>How a toast's menu is put on the screen: at the pointer, as a thumbnail shows its menu. A toast is a
+    /// no-activate window and this menu shows without activating, so neither becomes the foreground window: the keys
+    /// stay with the EVE client. (A test puts a recorder here, so that no menu opens on the screen.)</summary>
+    public Action<ToastMenu> ShowMenu { get; set; } = menu => menu.Strip.Show(System.Windows.Forms.Cursor.Position);
+
+    /// <summary>A right-click on a toast (IDEAS #30): its menu. A failure here costs the menu, never the toast.</summary>
+    private void ShowToastMenu(AlertToast toast)
+    {
+        try { ShowMenu(MenuFor(toast)); }
         catch (Exception ex)
         {
             App.LogError(ex);
-            toast.Resume();
+            CloseToastMenu();   // a menu that could not be shown holds no toast
         }
+    }
+
+    /// <summary>The menu of one toast, not shown yet: Dismiss, and three ways to snooze this toast's event for its
+    /// character (IDEAS #30). The toast stays up while its menu is open, and its time runs again when the menu has
+    /// closed, whichever way: an item, a click away, another toast's menu opening, or the hub going away. One menu
+    /// at a time.</summary>
+    private ToastMenu MenuFor(AlertToast toast)
+    {
+        CloseToastMenu();
+        var menu = new ToastMenu(toast.CharacterName, EventDisplayName(toast.AlertType),
+            dismiss: () => CloseToast(toast),
+            snooze: length =>
+            {
+                SnoozeRequested?.Invoke(toast.CharacterName, toast.AlertType, length);
+                // Snoozed because it is noise: the other toasts of this event for this character go with it.
+                foreach (var same in ToastsOf(toast.CharacterName, toast.AlertType)) CloseToast(same);
+                CloseToast(toast);
+            },
+            closed: toast.Resume);
+        toast.Hold();
+        return _toastMenu = menu;
+    }
+
+    /// <summary>The toasts in the stack for one event of one character. The character is found whatever its case and
+    /// the event exactly, as a snooze finds them.</summary>
+    private List<AlertToast> ToastsOf(string characterName, string alertType) =>
+        _activeToasts.Where(t => string.Equals(t.CharacterName, characterName, StringComparison.OrdinalIgnoreCase)
+                                 && string.Equals(t.AlertType, alertType, StringComparison.Ordinal)).ToList();
+
+    private static void CloseToast(AlertToast toast)
+    {
+        try { toast.Window.Close(); } catch { }
+    }
+
+    /// <summary>Closes the toast menu that may still be open (another one opens, or the hub goes away). Its toast's
+    /// time runs again: the menu sees to that itself, once.</summary>
+    private void CloseToastMenu()
+    {
+        var open = _toastMenu;
+        _toastMenu = null;
+        try { open?.Dispose(); }
+        catch (Exception ex) { App.LogError(ex); }
     }
 
     /// <summary>A toast for an alert, not shown yet. It starts with the hub's focus-aware Topmost (IDEAS P38): it used to
@@ -620,7 +660,7 @@ public class AlertHub : IDisposable
     public void Dispose()
     {
         _focusTimer?.Stop();
-        _toastMenu?.Dispose();
+        CloseToastMenu();
         foreach (var toast in _activeToasts.ToList())
             toast.Dispose();
         _activeToasts.Clear();
@@ -630,10 +670,15 @@ public class AlertHub : IDisposable
 }
 
 /// <summary>One toast window (Plan 4: the reference's toast, built by AlertHubVisuals). Left-click switches to the
-/// character, right-click asks the hub for its menu (IDEAS #30), and it closes by itself after the toast length.</summary>
-internal class AlertToast : IDisposable
+/// character, right-click asks the hub for its menu (IDEAS #30), and it closes by itself after the toast length.
+/// A click never makes it the foreground window: the keys stay with the EVE client.</summary>
+public class AlertToast : IDisposable
 {
     public Window Window { get; }
+    /// <summary>Whose alert it is.</summary>
+    public string CharacterName { get; }
+    /// <summary>Which event it is of: the hub's menu snoozes this event for this character.</summary>
+    public string AlertType { get; }
     public event Action? Clicked;
     /// <summary>A right-click (IDEAS #30). The hub shows this toast's menu.</summary>
     public event Action? MenuRequested;
@@ -642,11 +687,19 @@ internal class AlertToast : IDisposable
     /// <summary>Only on a toast that stays up longer than its alert reads "now" (IDEAS P34): it rewrites the second line.</summary>
     private readonly DispatcherTimer? _ageTimer;
 
+    /// <summary>The toast has closed: by a click, by its own time or by the hub.</summary>
+    public bool IsClosed => _closed;
+
+    /// <summary>Its time is running: when that is over it closes by itself (tests).</summary>
+    public bool TimeRunning => _dismissTimer.IsEnabled;
+
     /// <param name="topmost">The hub's focus-aware state when the toast is made (IDEAS P38); the hub's timer flips it
     /// with the hub's own afterwards.</param>
     public AlertToast(string characterName, string alertType, Color severityColor, int durationSeconds, string? system = null,
         bool topmost = true)
     {
+        CharacterName = characterName;
+        AlertType = alertType;
         Window = new Window
         {
             WindowStyle = WindowStyle.None,
@@ -670,6 +723,17 @@ internal class AlertToast : IDisposable
                 secondLine.Text = AlertHubVisuals.ToastText(characterName, alertType, system, DateTime.UtcNow - raised).Subtitle;
         }
 
+        // A click on a toast must not make it the foreground window: the keys would stop reaching the EVE client for as
+        // long as the toast is up, and a toast is clicked in a fight. ShowActivated above covers only the moment it is
+        // shown. The same style as the carried-keys HUD, the crops and the stats windows have; it adds two bits to the
+        // style the window has and leaves the rest, the topmost bit with it, as WPF set it.
+        Window.SourceInitialized += (_, _) =>
+        {
+            var hwnd = new System.Windows.Interop.WindowInteropHelper(Window).Handle;
+            int ex = Interop.User32.GetWindowLong(hwnd, Interop.User32.GWL_EXSTYLE);
+            Interop.User32.SetWindowLong(hwnd, Interop.User32.GWL_EXSTYLE, ex | Interop.User32.WS_EX_NOACTIVATE | Interop.User32.WS_EX_TOOLWINDOW);
+        };
+
         // Click to focus character
         border.MouseLeftButtonDown += (_, _) =>
         {
@@ -678,9 +742,17 @@ internal class AlertToast : IDisposable
         };
 
         // Right-click: the hub's menu for this toast (Dismiss, and snooze this event for this character, IDEAS #30).
-        // With nobody to show a menu, it dismisses as it always did.
-        border.MouseRightButtonDown += (_, e) =>
+        // It opens when the button is let go, as a thumbnail's menu does: opened on the press, the release would land
+        // on the menu, whose first item is Dismiss. Only a press that began on this toast counts: a button that was
+        // already down when the toast came up under the pointer is no click on it. With nobody to show a menu, the
+        // click dismisses as it always did.
+        bool pressed = false;
+        border.MouseRightButtonDown += (_, _) => pressed = true;
+        border.MouseLeave += (_, _) => pressed = false;
+        border.MouseRightButtonUp += (_, e) =>
         {
+            if (!pressed) return;
+            pressed = false;
             if (MenuRequested == null) { Window.Close(); return; }
             e.Handled = true;
             MenuRequested();
