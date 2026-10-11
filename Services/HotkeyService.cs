@@ -66,7 +66,7 @@ public sealed class HotkeyService : IDisposable
     // cycle (registered first) won the slot and the group-forward key ran client-order
     // cycling instead of group-order (issue #75). Default 0 = ordinary binding.
     private const int SPECIFIC_PRIORITY = 10;
-    private record HotkeySpec(uint Modifiers, uint VirtualKey, Action Action, bool AllowRepeat, uint BaseModifiers, int Priority = 0);
+    private record HotkeySpec(uint Modifiers, uint VirtualKey, Action Action, bool AllowRepeat, uint BaseModifiers, int Priority = 0, string Hotkey = "");
 
     // Track repeatable hotkey IDs
     private readonly HashSet<int> _repeatableIds = new();
@@ -298,6 +298,7 @@ public sealed class HotkeyService : IDisposable
         }
 
         int err = System.Runtime.InteropServices.Marshal.GetLastWin32Error();
+        _lastRegisterError = err;   // IDEAS #42: the pause key is registered here, and its refusal is told
         Debug.WriteLine($"[Hotkey:Register] ❌ Failed Mod=0x{modifiers:X}, Key=0x{key:X} (err={err})");
         return -1;
     }
@@ -349,6 +350,7 @@ public sealed class HotkeyService : IDisposable
         _keyHookMap = null;
         _suspendHotkeyId = -1;
         _hotkeysActive = false;
+        Refused.Forget();   // IDEAS #42: said by the registration that follows, not here
         // NB: don't reset _nextId — the preserved activation-hotkey IDs would
         // collide with the next Register() call. Letting it grow monotonically
         // costs nothing (int32 has plenty of room) and keeps IDs unique.
@@ -442,6 +444,7 @@ public sealed class HotkeyService : IDisposable
         }
 
         int ok = 0, fail = 0;
+        var refusedNow = new List<RefusedHotkey>();   // IDEAS #42
         // Only slots that actually registered - a key another app owns is not ours to hide.
         var hiddenSlots = new Dictionary<(uint Mods, uint Vk), KeySlot>();
         foreach (var spec in winners.Values)
@@ -477,7 +480,12 @@ public sealed class HotkeyService : IDisposable
             }
             else
             {
+                int error = System.Runtime.InteropServices.Marshal.GetLastWin32Error();   // first: the next call to Windows replaces it
                 fail++;
+                // IDEAS #42: only the combination the player bound is told. The slots around it (the same key with
+                // other modifiers held as well) are refused routinely: Windows keeps many of them for itself.
+                if (HotkeyRefusals.IsThePlayersOwn(spec.Modifiers, spec.BaseModifiers))
+                    refusedNow.Add(new RefusedHotkey(spec.Hotkey, error));
             }
         }
         // One keyboard hook serves both kinds of hiding: hotkey keystrokes, and keys still
@@ -495,6 +503,7 @@ public sealed class HotkeyService : IDisposable
             RemoveKeyHook();
         }
         _hotkeysActive = true;
+        Refused.Registered(refusedNow);   // IDEAS #42: raises Changed only when the list is not what it was
         App.PerfLog($"[Hotkey:Activate] Registered {ok}/{_storedSpecs.Count} specs ({fail} failed, {_hotkeyActions.Count} total actions)");
     }
 
@@ -608,6 +617,7 @@ public sealed class HotkeyService : IDisposable
         if (_suspendHotkeyId > 0 || string.IsNullOrWhiteSpace(_suspendAhk)) return;
         if (IsMouseButton(ExtractModsAndKey(_suspendAhk).KeyPart)) return;
         _suspendHotkeyId = RegisterAhkHotkey(_suspendAhk, () => ToggleSuspend());
+        NoteSuspendKey();
     }
 
     /// <summary>
@@ -672,6 +682,7 @@ public sealed class HotkeyService : IDisposable
         _suspendHotkeyId = IsCapturing && !IsMouseButton(ExtractModsAndKey(_suspendAhk).KeyPart)
             ? -1
             : RegisterSuspendKey(settings.SuspendHotkey);
+        NoteSuspendKey();
 
         // Non-suspend hotkeys are stored and initially deactivated
         // They'll be activated when EVE windows are detected
@@ -901,6 +912,23 @@ public sealed class HotkeyService : IDisposable
     /// <summary>The do-not-disturb hotkey was pressed (IDEAS #32). App flips it and says so.</summary>
     public event Action? DoNotDisturbToggled;
 
+    // ── Hotkeys Windows refused (IDEAS #42) ──
+    /// <summary>The hotkeys Windows refused the last time they were registered, and whether they have been registered
+    /// at all. Settings › Clients › Hotkeys lists them; App says so once in the tray.</summary>
+    public RefusedHotkeyList Refused { get; } = new();
+
+    private int _lastRegisterError;
+
+    /// <summary>Whether Windows refused the pause key just now. A mouse button is never refused (its id is -2), an
+    /// empty or unreadable key was never asked for, capture mode leaves it unregistered on purpose, and without a
+    /// window (tests) nothing was asked.</summary>
+    private void NoteSuspendKey()
+    {
+        bool refused = _suspendHotkeyId == -1 && _hwndSource != null && !IsCapturing
+                       && ParseAhkHotkeyString(_suspendAhk ?? "").VirtualKey != 0;
+        Refused.PauseKey(refused ? new RefusedHotkey(_suspendAhk ?? "", _lastRegisterError) : null);
+    }
+
     /// <summary>
     /// Register a hotkey from an AHK-format string (e.g., "NumpadDiv", "^a", "ctrl & 1").
     /// Returns the hotkey ID, or -1 on failure.
@@ -970,7 +998,7 @@ public sealed class HotkeyService : IDisposable
         uint combos = _appSettings?.HotkeyWildcardModifiers == false ? 1u : 16u;
         for (uint m = 0; m < combos; m++)
         {
-            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, false, parsedMods, priority));
+            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, false, parsedMods, priority, ahkKeyString));
         }
     }
 
@@ -1001,7 +1029,7 @@ public sealed class HotkeyService : IDisposable
         uint combos = _appSettings?.HotkeyWildcardModifiers == false ? 1u : 16u;
         for (uint m = 0; m < combos; m++)
         {
-            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, true, parsedMods, priority));
+            _storedSpecs.Add(new HotkeySpec(parsedMods | m, vk, action, true, parsedMods, priority, ahkKeyString));
         }
     }
 

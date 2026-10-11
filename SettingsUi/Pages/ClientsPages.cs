@@ -39,6 +39,7 @@ public static class ClientsPages
             "clients.hotkeys.undo", "clients.hotkeys.redo", "clients.hotkeys.profileNext", "clients.hotkeys.profilePrevious", "clients.hotkeys.closeAll",
         }),
         new HelpTopic(HotkeysId, "conflicts", new[] { "clients.hotkeys.conflicts" }),
+        new HelpTopic(HotkeysId, "refused", new[] { RefusedHotkeysEditor.ItemId }),
         new HelpTopic(GroupsId, "keys", new[] { "clients.groups.editor" }),
         new HelpTopic(GroupsId, "scope", new[] { "clients.groups.showBorders" }),
         new HelpTopic(WindowsId, "minimize", new[] { "clients.windows.minimizeInactive", "clients.windows.minimizeDelay", "clients.windows.neverMinimize" }),
@@ -165,6 +166,8 @@ public static class ClientsPages
         new SectionDef("clients.hotkeys.check", new PageItem[]
         {
             new EditorItem("clients.hotkeys.conflicts", ctx => new HotkeyConflictsEditor(ctx)) { Replaces = new[] { "OnRefreshHotkeyAudit" } },
+            // IDEAS #42: the hotkeys Windows refused at the last registration (HotkeyService.Refused). App state, not a setting.
+            new EditorItem(RefusedHotkeysEditor.ItemId, ctx => new RefusedHotkeysEditor(ctx)),
         }),
     });
 

@@ -2174,4 +2174,16 @@
     <sys:String x:Key="L.S.alerts.events.stragglerWait.Desc">グループの大半が別の星系へジャンプし、この時間だれも動かなかったとき、ジャンプしなかったメンバーにアラートが出ます。読み込みが遅いだけのクライアントに出る場合は、長くしてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.straggler.Title">置き去り：ジャンプしそこねたグループのメンバー</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.straggler.Body">MultiPreview は各キャラクターがどの星系にいるかを把握しています。イベント表で **置き去り** をオンにすると、グループ（クライアント › グループ）の中でジャンプしそこねたメンバーを見つけます。&#x0A;&#x0A;- グループのうち、ある星系から別の星系へジャンプしたメンバーが残ったメンバーより多いとき、ジャンプしなかったメンバーそれぞれにアラートが出ます。元の星系に残っているメンバーも、別のゲートを通ったメンバーも対象です。&#x0A;- トーストには、ほかのメンバーの行き先と人数が表示されます。例：Jita → Perimeter 3/4。&#x0A;- ジャンプがまだ続いている間は何も通知しません。**置き去り：最後のジャンプからの待ち時間** は、通知の前に動きが止まっている必要のある時間です。時間の遅延などで読み込みが遅いだけのクライアントにアラートが出る場合は、長くしてください。&#x0A;- 先行する偵察役 1 人だけ、あるいはグループの半分だけでは、ジャンプの波とはみなしません。2 人のグループでは発生しません。&#x0A;- 自分でオンにするまではオフです。わざと残しているキャラクターは、トーストからスヌーズできます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.refused">Windows に拒否されたキー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.refused.Desc">Windows は、1 つのキーの組み合わせを同時に 1 つのプログラムにしか割り当てません。ほかのプログラムが先に取ったホットキーは、ここでは何も起こりません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.NotYet">まだ確認していません。ホットキーは EVE クライアントの実行中に登録されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.None">すべてのホットキーが Windows に受け付けられました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Count">{0} 個のホットキーが拒否されました。ほかのプログラムでそのキーを解放するか、ここで別のキーを選んでください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Taken">ほかのプログラムが使用しています。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Error">Windows エラー {0}。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Running">現在実行中で、ホットキーを取ることで知られているプログラム：{0}。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Usual">ホットキーをよく取るプログラム：Discord、NVIDIA と AMD のオーバーレイ、OBS、Steam、Xbox Game Bar。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.KeysRefused">Windows が次のホットキーを拒否しました：{0}。ほかのプログラムが使っている可能性があります。クリックで詳細を表示します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows に拒否されたキー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows は、キーの組み合わせを同時に 1 つのプログラムにしか割り当てません。ほかのプログラムが先にホットキーを取っていると、押しても MultiPreview では何も起こらず、理由もわかりません。&#x0A;&#x0A;- **Windows に拒否されたキー** には、そのようなキーと割り当て先が一覧表示されます。クリックすると変更できます。&#x0A;- 多くの場合、原因はオーバーレイやボイスチャットのプログラムです。Discord、NVIDIA と AMD のオーバーレイ、OBS、Steam、Xbox Game Bar などです。カードには実行中のものが表示されます。&#x0A;- MultiPreview はトレイの通知でも知らせます。キーごとに 1 回だけです。&#x0A;- キーは登録のたびに確認されます。EVE クライアントの実行中と、設定を変更したあとです。マウスボタンが拒否されることはありません。&#x0A;- **Ctrl、Shift、Alt を押している間もホットキーを有効にする** がオンのときは、各キーを Ctrl、Alt、Shift、Win のあらゆる組み合わせでも登録しようとします。その多くは Windows 自身が使っています。一覧に出るのは、あなたが選んだ組み合わせだけです。</sys:String> <!-- draft -->
 </ResourceDictionary>

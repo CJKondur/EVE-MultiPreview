@@ -51,6 +51,10 @@ public partial class App : Application
     private readonly StragglerWatch _stragglers = new();
     /// <summary>What an alert is shown with (set at startup), for the alerts App raises itself.</summary>
     private AlertTargets? _alertTargets;
+    /// <summary>IDEAS #42: each hotkey Windows refused is told once a session in a tray note; a click on that note opens
+    /// the hotkeys page.</summary>
+    private readonly RefusalAnnouncer _refusalAnnouncer = new();
+    private bool _refusedNoteUp;
     private AlertHistoryWindow? _historyWindow;
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
@@ -481,6 +485,10 @@ public partial class App : Application
             _hotkeyService.ProfileCycleForward += () => CycleProfile(forward: true);
             _hotkeyService.ProfileCycleBackward += () => CycleProfile(forward: false);
             _hotkeyService.DoNotDisturbToggled += ToggleDoNotDisturb;   // IDEAS #32
+            // IDEAS #42: said after the registration is done, not from inside it. The pause key was registered before
+            // the tray icon existed, so what is refused already is told now.
+            _hotkeyService.Refused.Changed += () => Dispatcher.BeginInvoke(new Action(TellRefusedHotkeys));
+            TellRefusedHotkeys();
 
             // Initialize sound player
             _soundPlayer = new MediaPlayer();
@@ -766,6 +774,26 @@ public partial class App : Application
         if (result != SoundResult.Later) _escalation.Played(due, now);
     }
 
+    /// <summary>IDEAS #42: the hotkeys Windows refused for the first time this session, in one tray note. The card on
+    /// Settings › Clients › Hotkeys lists all of them, and a click on the note opens that page.</summary>
+    private void TellRefusedHotkeys()
+    {
+        if (_isShuttingDown || _hotkeyService == null || _trayIcon == null) return;
+        var fresh = _refusalAnnouncer.New(_hotkeyService.Refused.Current);
+        if (fresh.Count == 0) return;
+        _refusedNoteUp = true;
+        _trayIcon.ShowBalloonTip(8000, "EVE MultiPreview", HotkeyRefusals.Note(fresh, ActionOfHotkey), ToolTipIcon.Warning);
+    }
+
+    /// <summary>What a hotkey is bound to, as its card names it (the first, when several things share the key), or null.</summary>
+    private string? ActionOfHotkey(string hotkey)
+    {
+        if (_settings == null) return null;
+        foreach (var use in SettingsUi.HotkeyUses.All(_settings.Settings, SettingsUi.SettingsRegistry.Settings))
+            if (string.Equals(use.Hotkey.Trim(), hotkey.Trim(), StringComparison.OrdinalIgnoreCase)) return use.Label;
+        return null;
+    }
+
     /// <summary>IDEAS #5, once a second while the event is on: the groups as the Groups page has them, the characters
     /// that have a client, and where the log monitor has each. A failure costs this look, never the timer.</summary>
     private void LookForStragglers(DateTime now)
@@ -1025,12 +1053,22 @@ public partial class App : Application
         // M3: Balloon click → focus attacked character (matches AHK NIN_BALLOONUSERCLICK)
         _trayIcon.BalloonTipClicked += (_, _) =>
         {
+            if (_refusedNoteUp)
+            {
+                // IDEAS #42: deferred, as the tray menu's Settings item is, so the note has gone before the window shows.
+                _refusedNoteUp = false;
+                Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+                    OpenSettings(startMinimized: false, pageId: SettingsUi.ClientsPages.HotkeysId)));
+                return;
+            }
             if (!string.IsNullOrEmpty(_trayAlertChar))
             {
                 _thumbnailManager?.ActivateEveWindow(IntPtr.Zero, _trayAlertChar);
                 Debug.WriteLine($"[Tray:BalloonClick] 🔧 Focused '{_trayAlertChar}' via balloon click");
             }
         };
+
+        _trayIcon.BalloonTipClosed += (_, _) => _refusedNoteUp = false;
 
         var menu = _trayMenu.Strip;
 

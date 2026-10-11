@@ -2174,4 +2174,16 @@
     <sys:String x:Key="L.S.alerts.events.stragglerWait.Desc">그룹의 대부분이 다른 성계로 점프하고 이 시간 동안 아무도 움직이지 않으면, 점프하지 않은 멤버에게 알림이 떠요. 로딩이 느릴 뿐인 클라이언트에 알림이 뜨면 값을 늘리세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.straggler.Title">뒤처짐: 점프를 놓친 그룹 멤버</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.straggler.Body">MultiPreview는 각 캐릭터가 어느 성계에 있는지 알고 있어요. 이벤트 표에서 **뒤처짐** 이벤트를 켜면, 그룹(클라이언트 › 그룹)에서 점프를 놓친 멤버를 찾아요.&#x0A;&#x0A;- 한 그룹에서 한 성계에서 다른 성계로 점프한 멤버가 남은 멤버보다 많으면, 점프하지 않은 멤버마다 알림이 떠요. 원래 성계에 남은 멤버도, 다른 게이트로 간 멤버도 해당돼요.&#x0A;- 토스트에는 다른 멤버들이 어디로 갔고 몇 명인지 나와요. 예: Jita → Perimeter 3/4.&#x0A;- 점프가 아직 이어지는 동안에는 알리지 않아요. **뒤처짐: 마지막 점프 후 대기 시간** 값은 알리기 전에 움직임이 멈춰 있어야 하는 시간이에요. 시간 지연처럼 로딩이 느릴 뿐인 클라이언트에 알림이 뜨면 값을 늘리세요.&#x0A;- 먼저 가는 정찰 캐릭터 한 명이나 그룹의 절반은 점프 웨이브로 보지 않아요. 두 명짜리 그룹에서는 알림이 뜨지 않아요.&#x0A;- 직접 켜기 전에는 꺼져 있어요. 일부러 남겨 둔 캐릭터는 토스트에서 일시 중지할 수 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.refused">Windows가 거부한 키</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.refused.Desc">Windows는 키 조합 하나를 한 번에 한 프로그램에만 줘요. 다른 프로그램이 먼저 가져간 단축키는 여기서 아무 일도 하지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.NotYet">아직 확인하지 않았어요. 단축키는 EVE 클라이언트가 실행 중일 때 등록돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.None">Windows가 모든 단축키를 MultiPreview에 줬어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Count">단축키 {0}개가 거부됐어요. 다른 프로그램에서 그 키를 풀거나 여기서 다른 키를 고르세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Taken">다른 프로그램이 쓰고 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Error">Windows 오류 {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Running">지금 실행 중이고 단축키를 가져가는 것으로 알려진 프로그램: {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Usual">단축키를 자주 가져가는 프로그램: Discord, NVIDIA와 AMD 오버레이, OBS, Steam, Xbox Game Bar.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.KeysRefused">Windows가 다음 단축키를 거부했어요: {0}. 다른 프로그램이 쓰고 있을 수 있어요. 클릭하면 자세히 볼 수 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows가 거부한 키</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows는 키 조합 하나를 한 번에 한 프로그램에만 줘요. 다른 프로그램이 단축키를 먼저 가져가면, 눌러도 MultiPreview에서는 아무 일도 일어나지 않고 이유도 알려 주지 않아요.&#x0A;&#x0A;- **Windows가 거부한 키** 카드에 그런 키와 연결된 기능이 나와요. 클릭하면 바꿀 수 있어요.&#x0A;- 보통 오버레이나 음성 프로그램이 원인이에요. Discord, NVIDIA와 AMD 오버레이, OBS, Steam, Xbox Game Bar 같은 것들이에요. 카드에는 실행 중인 프로그램이 나와요.&#x0A;- MultiPreview는 트레이 알림으로도 알려요. 키마다 한 번만요.&#x0A;- 키는 등록할 때마다 확인해요. EVE 클라이언트가 실행 중일 때와 설정을 바꾼 뒤예요. 마우스 버튼은 거부되지 않아요.&#x0A;- **Ctrl, Shift, Alt를 누르고 있어도 단축키 작동** 스위치가 켜져 있으면 각 키를 Ctrl, Alt, Shift, Win의 모든 조합으로도 등록하려고 해요. 그중 많은 조합은 Windows가 직접 써요. 목록에는 직접 고른 조합만 나와요.</sys:String> <!-- draft -->
 </ResourceDictionary>
