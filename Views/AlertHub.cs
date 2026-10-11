@@ -79,6 +79,12 @@ public class AlertHub : IDisposable
     /// <summary>The player asked for the alert history from the hub's menu (IDEAS #1). App opens the window.</summary>
     public event Action? HistoryRequested;
 
+    /// <summary>The player snoozed one event for one character from a toast's menu (IDEAS #30): the character, the
+    /// alert type, and how long (null: until MultiPreview restarts). App snoozes it.</summary>
+    public event Action<string, string, TimeSpan?>? SnoozeRequested;
+
+    private ToastMenu? _toastMenu;
+
     /// <summary>The system a character was last seen in, for the toast (App sets ThumbnailManager.GetCharacterSystem).</summary>
     public Func<string, string?>? SystemLookup { get; set; }
 
@@ -350,6 +356,7 @@ public class AlertHub : IDisposable
                 Debug.WriteLine($"[AlertHub:Toast] 🎯 Toast clicked — focusing '{characterName}'");
                 FocusCharacterRequested?.Invoke(characterName);
             };
+            toast.MenuRequested += () => ShowToastMenu(toast, characterName, alertType);
 
             _activeToasts.Add(toast);
             PositionToast(toast, _activeToasts.Count - 1);
@@ -357,6 +364,31 @@ public class AlertHub : IDisposable
 
             Debug.WriteLine($"[AlertHub:Toast] 📢 Toast shown: {alertType} [{severity}] for '{characterName}' (active={_activeToasts.Count})");
         });
+    }
+
+    /// <summary>A right-click on a toast (IDEAS #30): Dismiss, and three ways to snooze this toast's event for its
+    /// character. The toast stays up while its menu is open. A failure here costs the menu, never the toast.</summary>
+    private void ShowToastMenu(AlertToast toast, string characterName, string alertType)
+    {
+        try
+        {
+            _toastMenu?.Dispose();
+            var menu = _toastMenu = new ToastMenu(characterName, EventDisplayName(alertType),
+                dismiss: () => { try { toast.Window.Close(); } catch { } },
+                snooze: length =>
+                {
+                    SnoozeRequested?.Invoke(characterName, alertType, length);
+                    try { toast.Window.Close(); } catch { }
+                });
+            toast.Hold();
+            menu.Strip.Closed += (_, _) => toast.Resume();
+            menu.Strip.Show(System.Windows.Forms.Cursor.Position);
+        }
+        catch (Exception ex)
+        {
+            App.LogError(ex);
+            toast.Resume();
+        }
     }
 
     /// <summary>A toast for an alert, not shown yet. It starts with the hub's focus-aware Topmost (IDEAS P38): it used to
@@ -583,6 +615,7 @@ public class AlertHub : IDisposable
     public void Dispose()
     {
         _focusTimer?.Stop();
+        _toastMenu?.Dispose();
         foreach (var toast in _activeToasts.ToList())
             toast.Dispose();
         _activeToasts.Clear();
@@ -592,12 +625,15 @@ public class AlertHub : IDisposable
 }
 
 /// <summary>One toast window (Plan 4: the reference's toast, built by AlertHubVisuals). Left-click switches to the
-/// character, right-click dismisses, and it closes by itself after the toast length.</summary>
+/// character, right-click asks the hub for its menu (IDEAS #30), and it closes by itself after the toast length.</summary>
 internal class AlertToast : IDisposable
 {
     public Window Window { get; }
     public event Action? Clicked;
+    /// <summary>A right-click (IDEAS #30). The hub shows this toast's menu.</summary>
+    public event Action? MenuRequested;
     private readonly DispatcherTimer _dismissTimer;
+    private bool _closed;
     /// <summary>Only on a toast that stays up longer than its alert reads "now" (IDEAS P34): it rewrites the second line.</summary>
     private readonly DispatcherTimer? _ageTimer;
 
@@ -636,8 +672,14 @@ internal class AlertToast : IDisposable
             Window.Close();
         };
 
-        // Right-click to dismiss
-        border.MouseRightButtonDown += (_, _) => Window.Close();
+        // Right-click: the hub's menu for this toast (Dismiss, and snooze this event for this character, IDEAS #30).
+        // With nobody to show a menu, it dismisses as it always did.
+        border.MouseRightButtonDown += (_, e) =>
+        {
+            if (MenuRequested == null) { Window.Close(); return; }
+            e.Handled = true;
+            MenuRequested();
+        };
 
         Window.Content = border;
 
@@ -648,6 +690,7 @@ internal class AlertToast : IDisposable
             _dismissTimer.Stop();
             try { Window.Close(); } catch { }
         };
+        Window.Closed += (_, _) => _closed = true;
         Window.Closed += (_, _) => _ageTimer?.Stop();   // closed by a click, by its own timer or by Dismiss all
     }
 
@@ -661,6 +704,15 @@ internal class AlertToast : IDisposable
         Window.Opacity = 0;
         var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200));
         Window.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+    }
+
+    /// <summary>The toast's menu is open: it stays until the menu closes.</summary>
+    public void Hold() => _dismissTimer.Stop();
+
+    /// <summary>The menu closed: the toast's time starts again, unless an item closed the toast.</summary>
+    public void Resume()
+    {
+        if (!_closed) _dismissTimer.Start();
     }
 
     public void Dispose()

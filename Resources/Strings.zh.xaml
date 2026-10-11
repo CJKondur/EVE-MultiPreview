@@ -2138,4 +2138,26 @@
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Title">循环筛选</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Body">三个开关可以缩小循环键的切换范围：用于所有运行中客户端的两个键、每个分组的键，以及多个角色共用的键。在你打开其中一个之前，三个都是关闭的。&#x0A;&#x0A;- **只在当前星系内循环** 让按键只在与前台客户端同一星系的客户端之间切换。MultiPreview 还不知道所在星系的客户端不会被跳过。&#x0A;- **只在有警报的客户端之间循环** 只切换到有你还没看过的警报的客户端。战斗中，这些就是需要你的客户端。&#x0A;- **跳过警报已静音的客户端** 会跳过你已静音警报的角色（右键点击缩略图）。&#x0A;- 打开多个开关时，客户端必须同时满足全部条件。&#x0A;- 循环键永远不会失灵：没有其他客户端符合条件时，按键会像开关都关闭一样在全部客户端之间切换，并在光标旁提示一次。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Outcome.Snoozed">已暂停</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Dismiss">关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.SnoozeFor">为 {1} 暂停“{0}”：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Snooze15">15 分钟</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Snooze60">1 小时</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.SnoozeRestart">直到 MultiPreview 重新启动</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.Done">已为 {1} 暂停“{0}”</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.MinsLeftFmt">{0} · 还剩 {1} 分钟</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.UntilRestartFmt">{0} · 直到 MultiPreview 重新启动</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozedFmt">已暂停的警报（{0}）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozeEndHint">点击即可结束暂停：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozeEndAll">全部结束</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.events.snoozes">已暂停的警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed">当前已暂停</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">你从提示里为某个角色暂停的警报。结束后会再次收到。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.None">没有已暂停的警报。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.End">结束</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.EndFor">结束 {1} 的 {0} 暂停</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.EndAll">全部结束</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes">MultiPreview 重新启动后保留暂停</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">关闭：MultiPreview 关闭时所有暂停都会结束。打开：15 分钟或 1 小时的暂停会持续到时间用完。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Title">为一个角色暂停一种警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">右键点击提示，可以为该角色暂停这种警报：15 分钟、1 小时，或直到 MultiPreview 重新启动。同样的警报仍会发给你的其他角色，这个角色的其他警报也照常发出。&#x0A;&#x0A;- 已暂停的警报不显示边框、角标或提示，也不播放声音。警报历史记录里仍会列出它，并标为 已暂停。&#x0A;- **当前已暂停** 列出当前暂停的警报，缩略图的右键菜单列出该角色的。两处都可以结束暂停。&#x0A;- 要让一个角色的所有警报都安静，请改用缩略图菜单里的 静音警报。&#x0A;- **MultiPreview 重新启动后保留暂停** 是关闭的：关闭 MultiPreview 会结束所有暂停。打开后，有时限的暂停会保存在设置文件夹的 alert_snoozes.json 里，并持续到时间用完。</sys:String> <!-- draft -->
 </ResourceDictionary>

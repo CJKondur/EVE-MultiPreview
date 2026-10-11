@@ -2140,4 +2140,26 @@
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Title">Фильтры переключения</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Body">Три переключателя сужают, куда ведут клавиши переключения: две клавиши для всех запущенных клиентов, клавиши каждой группы и клавиша, общая для нескольких персонажей. Все три выключены, пока вы не включите один из них.&#x0A;&#x0A;- **Переключать только в этой системе** оставляет клавиши среди клиентов в той же звёздной системе, что и клиент на переднем плане. Клиент, систему которого MultiPreview ещё не знает, не пропускается.&#x0A;- **Переключать только клиенты с оповещением** ведёт только к клиентам с оповещением, которое вы не посмотрели. В бою это клиенты, которым вы нужны.&#x0A;- **Пропускать клиенты с заглушёнными оповещениями** проходит мимо персонажей, оповещения которых вы заглушили (правый щелчок по миниатюре).&#x0A;- Если включено несколько переключателей, клиент должен пройти все.&#x0A;- Клавиша переключения никогда не бывает мёртвой: если не проходит ни один другой клиент, клавиши переключают все клиенты, как будто переключатели выключены, и заметка рядом с курсором сообщает об этом один раз.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Outcome.Snoozed">Отложено</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Dismiss">Закрыть</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.SnoozeFor">Отложить «{0}» для {1}:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Snooze15">На 15 минут</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Snooze60">На 1 час</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.SnoozeRestart">До перезапуска MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.Done">«{0}» отложено для {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.MinsLeftFmt">{0} · осталось {1} мин</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.UntilRestartFmt">{0} · до перезапуска MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozedFmt">Отложенные оповещения ({0})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozeEndHint">Щёлкните, чтобы завершить отсрочку:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozeEndAll">Завершить все</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.events.snoozes">Отложенные оповещения</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed">Отложено сейчас</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">Оповещения, которые вы отложили для одного персонажа из всплывающего уведомления. Завершите одно, чтобы снова получать его.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.None">Ничего не отложено.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.End">Завершить</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.EndFor">Завершить отсрочку «{0}» для {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.EndAll">Завершить все</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes">Сохранять отсрочки при перезапуске MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">Выключено: все отсрочки заканчиваются при закрытии MultiPreview. Включено: отсрочка на 15 минут или 1 час действует до конца своего времени.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Title">Отложить одно оповещение для одного персонажа</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">Щёлкните по всплывающему уведомлению правой кнопкой, чтобы отложить это оповещение для этого персонажа: на 15 минут, на 1 час или до перезапуска MultiPreview. Для других ваших персонажей это же оповещение по-прежнему приходит, как и остальные оповещения этого персонажа.&#x0A;&#x0A;- Отложенное оповещение не показывает рамку, счётчик и всплывающее уведомление и не воспроизводит звук. В истории оповещений оно всё равно есть, с пометкой Отложено.&#x0A;- **Отложено сейчас** показывает, что отложено, а меню миниатюры по правому щелчку показывает отложенное для этого персонажа. В обоих местах отсрочку можно завершить.&#x0A;- Чтобы заглушить все оповещения персонажа, используйте Отключить оповещения в меню миниатюры.&#x0A;- **Сохранять отсрочки при перезапуске MultiPreview** выключено: закрытие MultiPreview завершает все отсрочки. Если включить, отсрочки на время сохраняются в alert_snoozes.json в вашей папке настроек и действуют до конца своего времени.</sys:String> <!-- draft -->
 </ResourceDictionary>

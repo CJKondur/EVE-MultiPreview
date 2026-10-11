@@ -2142,4 +2142,26 @@
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Title">Filtros de ciclo</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Body">Tres interruptores acotan adónde van las teclas de ciclo: las dos teclas para todos los clientes en ejecución, las teclas de cada grupo y una tecla compartida por varios personajes. Los tres están desactivados hasta que actives uno.&#x0A;&#x0A;- **Ciclar solo dentro de este sistema solar** mantiene las teclas entre los clientes del mismo sistema solar que el cliente en primer plano. Un cliente cuyo sistema MultiPreview aún no conoce no se salta.&#x0A;- **Ciclar solo por clientes con una alerta** va solo a los clientes con una alerta que no has mirado. En un combate, son los clientes que te necesitan.&#x0A;- **Saltar clientes con las alertas silenciadas** pasa de largo los personajes cuyas alertas silenciaste (clic derecho en una miniatura).&#x0A;- Con más de un interruptor activado, un cliente tiene que pasarlos todos.&#x0A;- Una tecla de ciclo nunca queda muerta: cuando ningún otro cliente pasa, las teclas recorren todos los clientes como si los interruptores estuvieran desactivados, y una nota junto al cursor lo dice una vez.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Outcome.Snoozed">Pospuesta</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Dismiss">Descartar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.SnoozeFor">Posponer «{0}» para {1}:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Snooze15">Durante 15 minutos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Snooze60">Durante 1 hora</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.SnoozeRestart">Hasta que MultiPreview se reinicie</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.Done">«{0}» pospuesta para {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.MinsLeftFmt">{0} · quedan {1} min</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.UntilRestartFmt">{0} · hasta que MultiPreview se reinicie</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozedFmt">Alertas pospuestas ({0})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozeEndHint">Haz clic en una para terminar su pausa:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozeEndAll">Terminar todas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.events.snoozes">Alertas pospuestas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed">Pospuestas ahora mismo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">Alertas que pospusiste para un personaje desde una notificación. Termina una para volver a recibirla.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.None">No hay nada pospuesto.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.End">Terminar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.EndFor">Terminar la pausa de {0} para {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.EndAll">Terminar todas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes">Conservar las pausas al reiniciar MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">Desactivado: todas las pausas terminan al cerrar MultiPreview. Activado: una pausa de 15 minutos o de 1 hora agota su tiempo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Title">Posponer una alerta para un personaje</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">Haz clic derecho en una notificación para posponer esa alerta para ese personaje: durante 15 minutos, durante 1 hora o hasta que MultiPreview se reinicie. La misma alerta sigue llegando para tus otros personajes, y las demás alertas de ese personaje también.&#x0A;&#x0A;- Una alerta pospuesta no muestra borde, contador ni notificación y no reproduce sonido. El historial de alertas la sigue listando, marcada como Pospuesta.&#x0A;- **Pospuestas ahora mismo** muestra lo que está pospuesto, y el menú del clic derecho de una miniatura muestra lo de ese personaje. Desde cualquiera de los dos sitios se termina una pausa.&#x0A;- Para silenciar todas las alertas de un personaje, usa Silenciar alertas en el menú de la miniatura.&#x0A;- **Conservar las pausas al reiniciar MultiPreview** está desactivado: cerrar MultiPreview termina todas las pausas. Activado, las pausas con tiempo se guardan en alert_snoozes.json en tu carpeta de ajustes y agotan su tiempo.</sys:String> <!-- draft -->
 </ResourceDictionary>

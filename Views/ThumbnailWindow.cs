@@ -122,6 +122,13 @@ public class ThumbnailWindow : Form
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public DateTime? AlertMutedUntil { get; set; }
 
+    /// <summary>The events snoozed for a character alone (IDEAS #30), for the right-click menu. Set by ThumbnailManager.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public Func<string, System.Collections.Generic.IReadOnlyList<EveMultiPreview.Services.EventSnooze>>? SnoozeLookup { get; set; }
+
+    /// <summary>Raised by the menu's Snoozed alerts items: the event's key, or null for all of this character's.</summary>
+    public event Action<ThumbnailWindow, string?>? SnoozeEndRequested;
+
     /// <summary>When true, a drag is clamped to the monitor it started on (Ctrl is
     /// already taken by drag-all, so this is a setting, not a modifier). Set by
     /// ThumbnailManager from ConfineDragsToMonitor.</summary>
@@ -157,8 +164,12 @@ public class ThumbnailWindow : Form
                 mute: minutes => AlertMuteRequested?.Invoke(this, minutes),
                 audio: code => { if (code >= 0) AudioVolume = code; AudioRequested?.Invoke(this, code); },
                 openSettings: () => SettingsRequested?.Invoke(this),
-                closeClient: () => CloseClientRequested?.Invoke(this));
-            _menu.Refresh(new ThumbnailMenuState(CharacterName, SystemLookup?.Invoke(CharacterName), AlertMutedUntil, AudioVolume, DateTime.Now));
+                closeClient: () => CloseClientRequested?.Invoke(this),
+                endSnooze: key => SnoozeEndRequested?.Invoke(this, key));
+            _menu.Refresh(new ThumbnailMenuState(CharacterName, SystemLookup?.Invoke(CharacterName), AlertMutedUntil, AudioVolume, DateTime.Now)
+            {
+                Snoozes = SnoozeLookup?.Invoke(CharacterName) ?? Array.Empty<EveMultiPreview.Services.EventSnooze>(),
+            });
             _menu.Strip.Show(Cursor.Position);
         }
         catch (Exception ex)

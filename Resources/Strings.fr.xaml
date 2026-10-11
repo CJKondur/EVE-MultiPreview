@@ -2123,4 +2123,26 @@
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Title">Filtres de cycle</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Body">Trois interrupteurs limitent où vont les touches de cycle : les deux touches pour tous les clients ouverts, les touches de chaque groupe et une touche partagée par plusieurs personnages. Les trois sont désactivés tant que vous n'en activez pas un.&#x0A;&#x0A;- **Parcourir seulement ce système solaire** garde les touches parmi les clients du même système solaire que le client au premier plan. Un client dont MultiPreview ne connaît pas encore le système n'est pas sauté.&#x0A;- **Parcourir seulement les clients avec une alerte** ne va qu'aux clients dont une alerte n'a pas été regardée. En combat, ce sont les clients qui ont besoin de vous.&#x0A;- **Sauter les clients aux alertes en sourdine** passe les personnages dont vous avez mis les alertes en sourdine (clic droit sur une miniature).&#x0A;- Avec plusieurs interrupteurs activés, un client doit les passer tous.&#x0A;- Une touche de cycle n'est jamais morte : quand aucun autre client ne passe, les touches parcourent tous les clients comme si les interrupteurs étaient désactivés, et une note près du curseur le dit une fois.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Outcome.Snoozed">En pause</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Dismiss">Fermer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.SnoozeFor">Mettre « {0} » en pause pour {1} :</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Snooze15">Pendant 15 minutes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.Snooze60">Pendant 1 heure</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Toast.SnoozeRestart">Jusqu'au redémarrage de MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.Done">« {0} » en pause pour {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.MinsLeftFmt">{0} · encore {1} min</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Snooze.UntilRestartFmt">{0} · jusqu'au redémarrage de MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozedFmt">Alertes en pause ({0})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozeEndHint">Cliquez pour arrêter la pause :</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.SnoozeEndAll">Tout arrêter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.events.snoozes">Alertes en pause</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed">En pause en ce moment</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">Alertes que vous avez mises en pause pour un personnage depuis une notification. Arrêtez-en une pour la recevoir de nouveau.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.None">Rien n'est en pause.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.End">Arrêter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.EndFor">Arrêter la pause de {0} pour {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.EndAll">Tout arrêter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes">Conserver les pauses au redémarrage de MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">Désactivé : toutes les pauses se terminent à la fermeture de MultiPreview. Activé : une pause de 15 minutes ou d'1 heure va au bout de son temps.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Title">Mettre une alerte en pause pour un personnage</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">Faites un clic droit sur une notification pour mettre cette alerte en pause pour ce personnage : pendant 15 minutes, pendant 1 heure ou jusqu'au redémarrage de MultiPreview. La même alerte arrive toujours pour vos autres personnages, et les autres alertes de ce personnage aussi.&#x0A;&#x0A;- Une alerte en pause n'affiche ni bordure, ni compteur, ni notification, et ne joue aucun son. L'historique des alertes la liste quand même, avec la mention En pause.&#x0A;- **En pause en ce moment** liste ce qui est en pause, et le menu du clic droit d'une miniature liste ce qui l'est pour ce personnage. Les deux endroits permettent d'arrêter une pause.&#x0A;- Pour faire taire toutes les alertes d'un personnage, utilisez plutôt Couper les alertes dans le menu de la miniature.&#x0A;- **Conserver les pauses au redémarrage de MultiPreview** est désactivé : fermer MultiPreview arrête toutes les pauses. Activé, les pauses à durée limitée sont conservées dans alert_snoozes.json, dans votre dossier de paramètres, et vont au bout de leur temps.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -38,6 +38,7 @@ public partial class App : Application
     private AlertHistory? _alertHistory;
     /// <summary>Alert events snoozed for one character (IDEAS #30). Empty until the player snoozes one.</summary>
     private readonly EventSnoozes _snoozes = new();
+    private EventSnoozeFile? _snoozeFile;
     private AlertHistoryWindow? _historyWindow;
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
@@ -276,6 +277,18 @@ public partial class App : Application
             _alertHub.FollowPauseOf(_hotkeyService);
             // Deferred, as the tray's items are: the hub's menu has closed before the window shows.
             _alertHub.HistoryRequested += () => Application.Current?.Dispatcher.BeginInvoke(new Action(OpenAlertHistory));
+            // IDEAS #30: a toast's menu snoozes its event for its character, and says so near the cursor. The thumbnails
+            // and the settings window list what is snoozed and end it. The timed snoozes are read from their own file
+            // only when the player turned "Keep snoozes" on, and never in a session whose settings could not be read.
+            _alertHub.SnoozeRequested += (charName, alertType, length) =>
+            {
+                _snoozes.Snooze(charName, alertType, length);
+                _thumbnailManager.ShowTooltipFeedback(SnoozeText.Done(charName, alertType));
+            };
+            _thumbnailManager.Snoozes = _snoozes;
+            _snoozeFile = new EventSnoozeFile(AppPaths.ConfigDir, ErrorLog.Shared);
+            if (_settings.LoadedSuccessfully && _settings.Settings.KeepAlertSnoozes) _snoozeFile.Load(_snoozes);
+            _snoozes.Changed += FollowSnoozeSwitch;
             PerfLog($"[Deferred] AlertHub created: {deferSw.ElapsedMilliseconds}ms");
 
             // Broadcast-key HUD — self-gates on ShowBroadcastKeyHud each tick.
@@ -700,6 +713,15 @@ public partial class App : Application
         "The last session, started {0}, ended without MultiPreview closing: it crashed, or was stopped by Task Manager "
         + "or a power cut. If something went wrong, error_log.txt in the logs folder may say what. Attach it to a bug report.";
 
+    /// <summary>IDEAS #30: the snooze file follows "Keep snoozes when MultiPreview restarts". Called after every change
+    /// to the snoozes and after every settings change: on, the file holds the timed snoozes that are on now; off,
+    /// there is no file. A session whose settings could not be read writes nothing here either.</summary>
+    private void FollowSnoozeSwitch()
+    {
+        if (_isShuttingDown || _snoozeFile == null || _settings == null || !_settings.LoadedSuccessfully) return;
+        _snoozeFile.Follow(_settings.Settings.KeepAlertSnoozes, _snoozes);
+    }
+
     /// <summary>Hands the custom rules (IDEAS #8) to everything that uses them: their names and sounds by alert type
     /// (CustomAlertTypes), and the rules that are on, made ready, to the log monitor. With none on the monitor gets
     /// null, and its reader does nothing more per line than see that.</summary>
@@ -996,6 +1018,8 @@ public partial class App : Application
                 _alertHistory.KeepDays = _settings.Settings.AlertHistoryDays;
             }
 
+            FollowSnoozeSwitch();   // IDEAS #30: the snooze file is written or removed as its switch says
+
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)
             {
@@ -1034,6 +1058,7 @@ public partial class App : Application
                     Hotkeys = _hotkeyService,
                     AlertHub = _alertHub,
                     OpenAlertHistory = OpenAlertHistory,
+                    Snoozes = _snoozes,
                     CustomAlerts = _customAlerts,
                     // Which custom rules the log monitor has switched off for what they cost: the page says it on their cards.
                     CustomRulesSwitchedOff = () => _logMonitor?.CustomRulesSwitchedOff ?? CustomAlertEngine.NoneSwitchedOff,

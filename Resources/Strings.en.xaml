@@ -2120,4 +2120,26 @@
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Title">Cycle filters</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Body">Three switches narrow where the cycle keys go: the two keys for all running clients, every group's keys, and a key shared by several characters. All three are off until you turn one on.&#x0A;&#x0A;- **Cycle only within this solar system** keeps the keys among the clients in the same solar system as the client in front. A client whose system MultiPreview doesn't know yet is not skipped.&#x0A;- **Cycle only through clients with an alert** goes only to clients with an alert you have not looked at. In a fight, that is the clients that need you.&#x0A;- **Skip clients whose alerts are muted** passes over characters whose alerts you muted (right-click a thumbnail).&#x0A;- With more than one switch on, a client must pass all of them.&#x0A;- A cycle key is never dead: when no other client passes, the keys switch through all clients as if the switches were off, and a note near the cursor says so once.</sys:String>
     <sys:String x:Key="L.Hist.Outcome.Snoozed">Snoozed</sys:String>
+    <sys:String x:Key="L.Toast.Dismiss">Dismiss</sys:String>
+    <sys:String x:Key="L.Toast.SnoozeFor">Snooze “{0}” for {1}:</sys:String>
+    <sys:String x:Key="L.Toast.Snooze15">For 15 minutes</sys:String>
+    <sys:String x:Key="L.Toast.Snooze60">For 1 hour</sys:String>
+    <sys:String x:Key="L.Toast.SnoozeRestart">Until MultiPreview restarts</sys:String>
+    <sys:String x:Key="L.Snooze.Done">Snoozed “{0}” for {1}</sys:String>
+    <sys:String x:Key="L.Snooze.MinsLeftFmt">{0} · {1} min left</sys:String>
+    <sys:String x:Key="L.Snooze.UntilRestartFmt">{0} · until MultiPreview restarts</sys:String>
+    <sys:String x:Key="L.Ctx.SnoozedFmt">Snoozed alerts ({0})</sys:String>
+    <sys:String x:Key="L.Ctx.SnoozeEndHint">Click one to end its snooze:</sys:String>
+    <sys:String x:Key="L.Ctx.SnoozeEndAll">End all</sys:String>
+    <sys:String x:Key="L.S.Sec.alerts.events.snoozes">Snoozed alerts</sys:String>
+    <sys:String x:Key="L.S.alerts.events.snoozed">Snoozed right now</sys:String>
+    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">Alerts you snoozed for one character from a toast. End one to get it again.</sys:String>
+    <sys:String x:Key="L.S.Snoozes.None">Nothing is snoozed.</sys:String>
+    <sys:String x:Key="L.S.Snoozes.End">End</sys:String>
+    <sys:String x:Key="L.S.Snoozes.EndFor">End the snooze of {0} for {1}</sys:String>
+    <sys:String x:Key="L.S.Snoozes.EndAll">End all</sys:String>
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes">Keep snoozes when MultiPreview restarts</sys:String>
+    <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">Off: every snooze ends when MultiPreview closes. On: a snooze for 15 minutes or 1 hour runs out its time.</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Title">Snoozing one alert for one character</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">Right-click a toast to snooze that alert for that character: for 15 minutes, for 1 hour, or until MultiPreview restarts. The same alert still comes for your other characters, and that character's other alerts still come.&#x0A;&#x0A;- A snoozed alert shows no border, badge or toast and plays no sound. The alert history still lists it, marked Snoozed.&#x0A;- **Snoozed right now** lists what is snoozed, and a thumbnail's right-click menu lists that character's. Either place ends a snooze.&#x0A;- To silence every alert of a character, use Mute alerts in the thumbnail's menu instead.&#x0A;- **Keep snoozes when MultiPreview restarts** is off: closing MultiPreview ends every snooze. Turned on, the timed snoozes are kept in alert_snoozes.json in your settings folder and run out their time.</sys:String>
 </ResourceDictionary>

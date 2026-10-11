@@ -29,6 +29,7 @@ public static class AlertsPages
         }),
         new HelpTopic(EventsId, "combat", new[] { "alerts.events.pve", "alerts.events.underFire", "alerts.events.underFireTime" }),
         new HelpTopic(EventsId, "table", new[] { EventTableId, "alerts.events.repeatWait", "alerts.events.repeatBySeverity" }),
+        new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
         new HelpTopic(LookId, "thumbnail", new[]
         {
             "alerts.look.pulse", "alerts.look.borderWidth", "alerts.look.badge", "alerts.look.text", "alerts.look.textPosition",
@@ -104,6 +105,13 @@ public static class AlertsPages
                     "AppSettings.AlertSolidBorder", "AppSettings.EnabledAlertTypes",
                 },
             },
+        }),
+        // IDEAS #30: what is snoozed for one character right now, with a way to end it, and whether the timed snoozes
+        // outlive a restart. App follows the switch on Applied (the snooze file is written or removed).
+        new SectionDef("alerts.events.snoozes", new PageItem[]
+        {
+            new EditorItem(SnoozesEditor.ItemId, ctx => new SnoozesEditor(ctx)),
+            new SettingItem(Setting.Toggle("alerts.events.keepSnoozes", s => s.KeepAlertSnoozes)),
         }),
     });
 

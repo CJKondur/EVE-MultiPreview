@@ -131,6 +131,20 @@ public sealed class ThumbnailManager : IDisposable
     /// as the badge does.</summary>
     public AlertAttention Attention { get; } = new();
 
+    /// <summary>The events snoozed for one character alone (IDEAS #30; App sets it). A thumbnail's menu lists its
+    /// character's and ends them.</summary>
+    public EventSnoozes? Snoozes { get; set; }
+
+    private IReadOnlyList<EventSnooze> SnoozesOf(string characterName) =>
+        Snoozes?.Of(characterName) ?? (IReadOnlyList<EventSnooze>)Array.Empty<EventSnooze>();
+
+    private void OnSnoozeEndRequested(ThumbnailWindow thumb, string? eventKey)
+    {
+        if (Snoozes == null || string.IsNullOrEmpty(thumb.CharacterName)) return;
+        if (eventKey == null) Snoozes.EndAll(thumb.CharacterName);
+        else Snoozes.End(thumb.CharacterName, eventKey);
+    }
+
     /// <summary>An alert was shown for a character (AlertTargets.Unseen; the log monitor's reading thread). An alert on
     /// the client in front is seen as it arrives: the badge's rule (IncrementAlertBadge).</summary>
     public void NoteUnseenAlert(string characterName, string alertType, string severity)
@@ -4276,6 +4290,8 @@ public sealed class ThumbnailManager : IDisposable
         thumb.AudioRequested += OnAudioRequested;
         thumb.CloseClientRequested += OnCloseClientRequested;
         thumb.SettingsRequested += OnSettingsRequested;
+        thumb.SnoozeEndRequested += OnSnoozeEndRequested;
+        thumb.SnoozeLookup = SnoozesOf;
         thumb.SystemLookup = GetCharacterSystem;
         thumb.AudioVolume = GetClientVolume(thumb.CharacterName);
         // A new thumbnail picks up any active mute for its character (e.g. relaunch).
@@ -4292,6 +4308,8 @@ public sealed class ThumbnailManager : IDisposable
         thumb.AudioRequested -= OnAudioRequested;
         thumb.CloseClientRequested -= OnCloseClientRequested;
         thumb.SettingsRequested -= OnSettingsRequested;
+        thumb.SnoozeEndRequested -= OnSnoozeEndRequested;
+        thumb.SnoozeLookup = null;
         thumb.SystemLookup = null;
     }
 

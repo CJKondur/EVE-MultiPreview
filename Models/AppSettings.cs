@@ -269,6 +269,10 @@ public class AppSettings
     public bool AlertHistoryEnabled { get; set; } = true;
     public int AlertHistoryDays { get; set; } = 30;
 
+    /// <summary>Keep the timed snoozes of single events (IDEAS #30) when MultiPreview restarts, in alert_snoozes.json
+    /// in the settings folder. A new key, off: a file without it ends every snooze when MultiPreview closes.</summary>
+    public bool KeepAlertSnoozes { get; set; } = false;
+
     // ── Log Monitoring ──────────────────────────────────────────────
     public bool EnableChatLogMonitoring { get; set; } = true;
     public bool EnableGameLogMonitoring { get; set; } = true;

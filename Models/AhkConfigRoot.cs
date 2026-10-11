@@ -126,6 +126,7 @@ public class AhkConfigRoot
         s.SuppressAlertHubToastForActiveClient = g.SuppressAlertHubToastForActiveClient != 0;
         s.AlertHistoryEnabled = g.AlertHistoryEnabled != 0;
         s.AlertHistoryDays = g.AlertHistoryDays > 0 ? g.AlertHistoryDays : 30;   // 0 or less never means "keep nothing"
+        s.KeepAlertSnoozes = g.KeepAlertSnoozes != 0;
 
         // Dicts
         s.AlertColors = g.AlertColors ?? new();
@@ -429,6 +430,7 @@ public class AhkConfigRoot
         g.SuppressAlertHubToastForActiveClient = s.SuppressAlertHubToastForActiveClient ? 1 : 0;
         g.AlertHistoryEnabled = s.AlertHistoryEnabled ? 1 : 0;
         g.AlertHistoryDays = s.AlertHistoryDays;
+        g.KeepAlertSnoozes = s.KeepAlertSnoozes ? 1 : 0;
 
         g.AlertColors = s.AlertColors;
         g.AlertSounds = s.AlertSounds;
@@ -1219,6 +1221,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("AlertHistoryDays")]
     public int AlertHistoryDays { get; set; } = 30;
+
+    // IDEAS #30, new after 2.3.42: a file without it loads off.
+    [JsonPropertyName("KeepAlertSnoozes")]
+    public int KeepAlertSnoozes { get; set; }
 
     [JsonPropertyName("AlertColors")]
     public Dictionary<string, string>? AlertColors { get; set; }

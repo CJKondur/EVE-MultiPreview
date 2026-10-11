@@ -18,6 +18,12 @@ public static class ThumbnailCommands
     public const string Mute60 = "thumb.mute60";
     public const string MuteUntil = "thumb.muteUntil";
     public const string Unmute = "thumb.unmute";
+    /// <summary>The events snoozed for this character alone (IDEAS #30): the submenu, its one line of help, one item
+    /// per event, and End all.</summary>
+    public const string Snoozed = "thumb.snoozed";
+    public const string SnoozedHint = "thumb.snoozedHint";
+    public const string SnoozedEvent = "thumb.snoozedEvent";
+    public const string SnoozedEndAll = "thumb.snoozedEndAll";
     public const string Audio = "thumb.audio";
     public const string AudioSlider = "thumb.audioSlider";
     public const string AudioMute = "thumb.audioMute";
@@ -28,7 +34,13 @@ public static class ThumbnailCommands
 
 /// <summary>What the menu shows when it opens: whose thumbnail it is, the system it was last seen in, the alert mute and
 /// the client's volume. <paramref name="Now"/> is passed in so the minutes left can be tested.</summary>
-public sealed record ThumbnailMenuState(string CharacterName, string? SystemName, DateTime? MutedUntil, int Volume, DateTime Now);
+public sealed record ThumbnailMenuState(string CharacterName, string? SystemName, DateTime? MutedUntil, int Volume, DateTime Now)
+{
+    /// <summary>The events snoozed for this character alone (IDEAS #30).</summary>
+    public IReadOnlyList<EventSnooze> Snoozes { get; init; } = Array.Empty<EventSnooze>();
+    /// <summary>The time their minutes left are counted from.</summary>
+    public DateTime UtcNow { get; init; } = DateTime.UtcNow;
+}
 
 /// <summary>A thumbnail's right-click menu (Plan 4, the F2 reference): the character and system as a caption, Edit
 /// label…, Mute alerts ›, Game volume ›, Open ‹character›'s settings (spec D6) and, below a line, Close client. Every item
@@ -38,7 +50,8 @@ public sealed class ThumbnailMenu : IDisposable
     private readonly Action<int> _audio;
     private readonly List<(ToolStripItem Item, string Key, string English)> _labels = new();
     private readonly ToolStripLabel _header;
-    private readonly ToolStripMenuItem _mute, _volume, _openSettings;
+    private readonly ToolStripMenuItem _mute, _volume, _openSettings, _snoozed;
+    private readonly Action<string?> _endSnooze;
     private readonly TrackBar _slider;
     private bool _settingSlider;
 
@@ -47,8 +60,11 @@ public sealed class ThumbnailMenu : IDisposable
     /// <param name="audio">-1 mutes the client; 0–100 sets its volume.</param>
     /// <param name="openSettings">Open ‹character›'s settings (D6).</param>
     /// <param name="closeClient">Close client.</param>
-    public ThumbnailMenu(Action editLabel, Action<int> mute, Action<int> audio, Action openSettings, Action closeClient)
+    /// <param name="endSnooze">Ends one snoozed event of this character (its key), or all of them (null) (IDEAS #30).</param>
+    public ThumbnailMenu(Action editLabel, Action<int> mute, Action<int> audio, Action openSettings, Action closeClient,
+        Action<string?>? endSnooze = null)
     {
+        _endSnooze = endSnooze ?? (_ => { });
         _audio = audio;
         Strip = new ContextMenuStrip();
         FluentMenu.Style(Strip, showIcons: false);
@@ -67,6 +83,12 @@ public sealed class ThumbnailMenu : IDisposable
         _mute.DropDownItems.Add(new ToolStripSeparator());
         _mute.DropDownItems.Add(Item(ThumbnailCommands.Unmute, "L.Ctx.Unmute", "Unmute", () => mute(0)));
         Strip.Items.Add(_mute);
+
+        // The events snoozed for this character alone (IDEAS #30): shown only while there are some, rebuilt on every open.
+        _snoozed = Item(ThumbnailCommands.Snoozed, null, "", null);
+        FluentMenu.Style(_snoozed.DropDown, showIcons: false);
+        _snoozed.Available = false;
+        Strip.Items.Add(_snoozed);
 
         // Per-client audio (Windows per-process volume, matched by process): a real slider in the submenu.
         _volume = Item(ThumbnailCommands.Audio, null, "", null);
@@ -130,6 +152,8 @@ public sealed class ThumbnailMenu : IDisposable
             : string.Format(LocalizationService.Str("L.Ctx.MutedMinsLeft", "Alerts muted ({0} min left)"),
                 Math.Max(1, (int)Math.Ceiling((state.MutedUntil.Value - state.Now).TotalMinutes)));
 
+        RebuildSnoozed(character ? state.Snoozes : Array.Empty<EventSnooze>(), state.UtcNow);
+
         int volume = Math.Clamp(state.Volume, 0, 100);
         _settingSlider = true;
         _slider.Value = volume;
@@ -138,6 +162,35 @@ public sealed class ThumbnailMenu : IDisposable
 
         _openSettings.Available = character;
         _openSettings.Text = string.Format(LocalizationService.Str("L.Ctx.OpenSettingsFmt", "Open {0}'s settings"), state.CharacterName);
+    }
+
+    /// <summary>The Snoozed alerts submenu: a line of help, one item per snoozed event (a click ends it) and End all.
+    /// Old items are disposed; with nothing snoozed the submenu is hidden.</summary>
+    private void RebuildSnoozed(IReadOnlyList<EventSnooze> snoozes, DateTime utcNow)
+    {
+        var old = _snoozed.DropDownItems.Cast<ToolStripItem>().ToList();
+        _snoozed.DropDownItems.Clear();
+        foreach (var item in old) item.Dispose();
+        _snoozed.Available = snoozes.Count > 0;
+        if (snoozes.Count == 0) return;
+
+        _snoozed.Text = string.Format(LocalizationService.Str("L.Ctx.SnoozedFmt", "Snoozed alerts ({0})"), snoozes.Count);
+        _snoozed.DropDownItems.Add(new ToolStripLabel
+        {
+            Name = ThumbnailCommands.SnoozedHint,
+            Text = LocalizationService.Str("L.Ctx.SnoozeEndHint", "Click one to end its snooze:"),
+        });
+        foreach (var snooze in snoozes)
+        {
+            var key = snooze.EventKey;
+            var item = new ToolStripMenuItem(SnoozeText.Menu(SnoozeText.Line(snooze, utcNow))) { Name = ThumbnailCommands.SnoozedEvent };
+            item.Click += (_, _) => _endSnooze(key);
+            _snoozed.DropDownItems.Add(item);
+        }
+        _snoozed.DropDownItems.Add(new ToolStripSeparator());
+        var all = new ToolStripMenuItem(LocalizationService.Str("L.Ctx.SnoozeEndAll", "End all")) { Name = ThumbnailCommands.SnoozedEndAll };
+        all.Click += (_, _) => _endSnooze(null);
+        _snoozed.DropDownItems.Add(all);
     }
 
     /// <summary>The item with this command name, searched through every submenu (tests).</summary>
