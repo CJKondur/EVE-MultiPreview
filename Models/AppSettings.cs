@@ -116,6 +116,11 @@ public class AppSettings
     public string GoToLastAlertHotkey { get; set; } = "";
     public bool HideStatsOnLostFocus { get; set; } = false;
     public bool IncludeLoginScreensInCycle { get; set; } = false;
+    /// <summary>Cycle filters (IDEAS #40), read by ThumbnailManager at each cycle press. New keys, all off: a file
+    /// without them cycles as it always did.</summary>
+    public bool CycleOnlySameSystem { get; set; } = false;
+    public bool CycleOnlyAlerting { get; set; } = false;
+    public bool CycleSkipMuted { get; set; } = false;
     public bool ShowSessionTimer { get; set; } = false;
     public bool ShowSystemName { get; set; } = true;
     public bool SimpleMode { get; set; } = false;

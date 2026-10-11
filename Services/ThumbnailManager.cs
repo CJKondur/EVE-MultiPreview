@@ -3742,6 +3742,54 @@ public sealed class ThumbnailManager : IDisposable
         ActivateEveWindow(IntPtr.Zero, step.Character);
     }
 
+    // ── Cycle filters (IDEAS #40) ───────────────────────────────────
+
+    /// <summary>Whether any cycle filter is switched on: all a cycle press pays when none is.</summary>
+    private bool CycleFiltersOn
+    {
+        get
+        {
+            var s = _settings.Settings;
+            return s.CycleOnlySameSystem || s.CycleOnlyAlerting || s.CycleSkipMuted;
+        }
+    }
+
+    private bool _cycleFellBackSaid;
+
+    /// <summary>Narrows a group cycle's characters to those that pass the filters that are on.</summary>
+    private void FilterCycle(List<string> names, string? activeChar)
+    {
+        var options = CycleFilterOptions.From(_settings.Settings);
+        string? activeSystem = string.IsNullOrEmpty(activeChar) ? null : GetCharacterSystem(activeChar);
+        var result = CycleFilter.Apply(names, options,
+            name => !string.IsNullOrEmpty(activeChar) && string.Equals(name, activeChar, StringComparison.OrdinalIgnoreCase),
+            name => CycleFilter.Passes(options, activeSystem, GetCharacterSystem(name), Attention.Has(name), IsCharacterAlertMuted(name)));
+        NoteCycleFilter(result);
+    }
+
+    /// <summary>The same for the cycle through all running clients, which is a list of windows.</summary>
+    private void FilterCycle(List<IntPtr> hwnds, IntPtr active)
+    {
+        var options = CycleFilterOptions.From(_settings.Settings);
+        string NameOf(IntPtr hwnd) => _thumbnails.TryGetValue(hwnd, out var thumb) ? thumb.CharacterName ?? "" : "";
+        string? activeSystem = GetCharacterSystem(NameOf(active));
+        var result = CycleFilter.Apply(hwnds, options, hwnd => hwnd == active, hwnd =>
+        {
+            var name = NameOf(hwnd);
+            return CycleFilter.Passes(options, activeSystem, GetCharacterSystem(name), Attention.Has(name), IsCharacterAlertMuted(name));
+        });
+        NoteCycleFilter(result);
+    }
+
+    /// <summary>A filter that left no other client is said once, near the cursor: the key then cycles through all
+    /// clients, and the player should know why it went where it went.</summary>
+    private void NoteCycleFilter(CycleFilter.Result result)
+    {
+        if (CycleFilter.SayFellBack(result, ref _cycleFellBackSaid))
+            ShowTooltipFeedback(LocalizationService.Str("L.Switch.CycleFilterEmpty",
+                "No other client matches the cycle filter: switching through all of them"));
+    }
+
     private DateTime _lastCycleTime = DateTime.MinValue;
 
     /// <summary>Fired by CycleGroup / CycleAll whenever a cycle hotkey wraps
@@ -3789,6 +3837,9 @@ public sealed class ThumbnailManager : IDisposable
         // O(1) lookup instead of iterating all thumbnails
         if (_thumbnails.TryGetValue(fgHwnd, out var activeThumbnail))
             activeChar = activeThumbnail.CharacterName;
+
+        // IDEAS #40: the one filter step. With no filter switched on this is three reads and nothing else.
+        if (CycleFiltersOn) FilterCycle(onlineMembers, activeChar);
 
         if (activeChar != null)
         {
@@ -3866,6 +3917,9 @@ public sealed class ThumbnailManager : IDisposable
         var fgHwnd = _lastActiveEveHwnd != IntPtr.Zero && _thumbnails.ContainsKey(_lastActiveEveHwnd)
                      ? _lastActiveEveHwnd
                      : Interop.User32.GetForegroundWindow();
+
+        // IDEAS #40: the one filter step. With no filter switched on this is three reads and nothing else.
+        if (CycleFiltersOn) FilterCycle(hwnds, fgHwnd);
 
         int currentIdx = hwnds.IndexOf(fgHwnd);
         int nextIdx = forward

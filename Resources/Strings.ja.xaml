@@ -2111,4 +2111,13 @@
     <sys:String x:Key="L.Switch.NoEarlierAlert">これより前のアラートはありません</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Title">最新のアラートへ移動</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**最新のアラートへ移動** は、点滅しているサムネイルを探さなくても、対応が必要なクライアントに切り替えます。&#x0A;&#x0A;- まだ見ていないアラートがある間は、最も重大なものから順に移動します。重大、警告、情報の順で、同じ重大度なら新しいものが先です。クライアントを見るとそのアラートは確認済みになるので、次に押すと次のクライアントへ進みます。&#x0A;- 残りがなくなると、このセッションのアラートを新しい順にさかのぼります。1 回押すごとに 1 クライアントです。30 秒間押さないと、また最新から始まります。&#x0A;- クライアントを閉じたキャラクターは飛ばします。ミュートしていたキャラクターのアラートも飛ばします。&#x0A;- 移動先がないときは、カーソルの近くに短いメッセージが出ます。音は鳴りません。アラートと間違えるおそれがあるためです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem">この星系の中だけでサイクルする</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem.Desc">サイクルキーは、前面のクライアントと別の星系にいるクライアントを飛ばします。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleAlerting">アラートのあるクライアントだけをサイクルする</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleAlerting.Desc">サイクルキーは、まだ見ていないアラートがあるクライアントにだけ移動します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleSkipMuted">アラートをミュートしたクライアントを飛ばす</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.cycleSkipMuted.Desc">サイクルキーは、サムネイルのメニューでミュートしたキャラクターを飛ばします。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.CycleFilterEmpty">ほかにサイクルフィルターに合うクライアントがないため、すべてのクライアントを切り替えます</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Title">サイクルフィルター</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Body">3 つのスイッチで、サイクルキーの移動先を絞り込めます。実行中の全クライアント用の 2 つのキー、各グループのキー、複数のキャラクターで共有しているキーが対象です。どれかをオンにするまで、3 つともオフです。&#x0A;&#x0A;- **この星系の中だけでサイクルする** は、前面のクライアントと同じ星系にいるクライアントの中だけで切り替えます。MultiPreview がまだ星系を把握していないクライアントは飛ばしません。&#x0A;- **アラートのあるクライアントだけをサイクルする** は、まだ見ていないアラートがあるクライアントにだけ移動します。戦闘中なら、対応が必要なクライアントです。&#x0A;- **アラートをミュートしたクライアントを飛ばす** は、アラートをミュートしたキャラクターを飛ばします（サムネイルを右クリック）。&#x0A;- 複数のスイッチがオンのときは、すべてを満たすクライアントだけが対象です。&#x0A;- サイクルキーが効かなくなることはありません。ほかに条件を満たすクライアントがないときは、スイッチがオフのときと同じようにすべてのクライアントを切り替え、カーソルの近くに一度だけその旨を表示します。</sys:String> <!-- draft -->
 </ResourceDictionary>

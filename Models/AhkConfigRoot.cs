@@ -66,6 +66,9 @@ public class AhkConfigRoot
         s.GoToLastAlertHotkey = g.GoToLastAlertHotkey ?? "";
         s.HideStatsOnLostFocus = g.HideStatsOnLostFocus != 0;
         s.IncludeLoginScreensInCycle = g.IncludeLoginScreensInCycle != 0;
+        s.CycleOnlySameSystem = g.CycleOnlySameSystem != 0;
+        s.CycleOnlyAlerting = g.CycleOnlyAlerting != 0;
+        s.CycleSkipMuted = g.CycleSkipMuted != 0;
         s.ShowSessionTimer = g.ShowSessionTimer != 0;
         s.ShowSystemName = g.ShowSystemName != 0;
         s.PreferredMonitor = g.PreferredMonitor;
@@ -372,6 +375,9 @@ public class AhkConfigRoot
         g.GoToLastAlertHotkey = s.GoToLastAlertHotkey;
         g.HideStatsOnLostFocus = s.HideStatsOnLostFocus ? 1 : 0;
         g.IncludeLoginScreensInCycle = s.IncludeLoginScreensInCycle ? 1 : 0;
+        g.CycleOnlySameSystem = s.CycleOnlySameSystem ? 1 : 0;
+        g.CycleOnlyAlerting = s.CycleOnlyAlerting ? 1 : 0;
+        g.CycleSkipMuted = s.CycleSkipMuted ? 1 : 0;
         g.ShowSessionTimer = s.ShowSessionTimer ? 1 : 0;
         g.ShowSystemName = s.ShowSystemName ? 1 : 0;
         g.PreferredMonitor = s.PreferredMonitor;
@@ -1057,6 +1063,16 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("IncludeLoginScreensInCycle")]
     public int IncludeLoginScreensInCycle { get; set; } = 0;
+
+    // Cycle filters (IDEAS #40), new after 2.3.42: a file without them loads all three off.
+    [JsonPropertyName("CycleOnlySameSystem")]
+    public int CycleOnlySameSystem { get; set; }
+
+    [JsonPropertyName("CycleOnlyAlerting")]
+    public int CycleOnlyAlerting { get; set; }
+
+    [JsonPropertyName("CycleSkipMuted")]
+    public int CycleSkipMuted { get; set; }
 
     [JsonPropertyName("ShowSessionTimer")]
     public int ShowSessionTimer { get; set; }
