@@ -248,17 +248,21 @@ public static class AlertsPages
             TimeOfDay("alerts.sounds.quietTo", s => s.QuietHoursTo),
         }),
         // IDEAS #29: App's one-second look reads all three (AlertEscalation.Due), and starts or stops on Applied.
+        // The two numbers are used held to their ranges, and each card shows the number that is used, as the wait
+        // card of "Left behind" does: a stored number outside the range is not rewritten.
         new SectionDef("alerts.sounds.escalation", new PageItem[]
         {
             new SettingItem(Setting.Toggle("alerts.sounds.escalate", s => s.EscalationEnabled)),
             new SettingItem(Setting.Number("alerts.sounds.escalateAfter", s => s.EscalationAfterSeconds,
                 AlertEscalation.MinAfterSeconds, AlertEscalation.MaxAfterSeconds, "L.S.Unit.Sec") with
             {
+                Get = s => Math.Clamp(s.EscalationAfterSeconds, AlertEscalation.MinAfterSeconds, AlertEscalation.MaxAfterSeconds),
                 ShowIf = s => s.EscalationEnabled,
             }),
             new SettingItem(Setting.Number("alerts.sounds.escalateRepeats", s => s.EscalationRepeats,
                 AlertEscalation.MinRepeats, AlertEscalation.MaxRepeats) with
             {
+                Get = s => Math.Clamp(s.EscalationRepeats, AlertEscalation.MinRepeats, AlertEscalation.MaxRepeats),
                 ShowIf = s => s.EscalationEnabled,
             }),
         }),

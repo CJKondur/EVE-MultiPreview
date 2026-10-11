@@ -2818,10 +2818,9 @@ public sealed class ThumbnailManager : IDisposable
                 $"Tracked thumbs: [{string.Join(", ", _thumbnails.Values.Select(t => $"'{t.CharacterName}'"))}]");
         }
 
-        var info = _alertBadges.AddOrUpdate(
-            characterName,
-            _ => new AlertBadgeInfo { Count = 1, TopSeverity = severity },
-            (_, existing) => { existing.Count++; return existing; });
+        // Alerts come from two threads (the log reader, and the window's thread for "Left behind"): the count goes
+        // up by the table's own update, and no stored value is changed in place.
+        var info = AlertBadgeInfo.CountOne(_alertBadges, characterName, severity);
 
         DiagnosticsService.LogAlerts($"[Badge] INCREMENTED — '{characterName}' count={info.Count} severity={severity}");
         ApplyBadgeToThumbnail(characterName, info.Count);
@@ -4767,9 +4766,21 @@ public class AlertFlashInfo
 
 /// <summary>Per-character unread-alert badge state — count of alerts fired
 /// since the user last activated this character, plus the strongest severity
-/// seen so the rendered badge can pick its colour. Cleared on activation.</summary>
+/// seen so the rendered badge can pick its colour. Cleared on activation. A value is never changed once it is
+/// made: a new one takes its place in the table (<see cref="CountOne"/>).</summary>
 public class AlertBadgeInfo
 {
-    public int Count { get; set; }
-    public string TopSeverity { get; set; } = "info";
+    public int Count { get; init; }
+    public string TopSeverity { get; init; } = "info";
+
+    /// <summary>One more alert for a character's badge: the value the table holds for it afterwards, with the count
+    /// the badge shows now. Alerts are dispatched from two threads (the log reader, and the window's thread for
+    /// "Left behind"). Counting up inside the stored value could lose one of two alerts that arrive in the same
+    /// instant; here each update puts a new value in the place of the one it started from, and the table makes an
+    /// update again whose starting value another update has replaced meanwhile. The severity stays the one the count
+    /// began with, as it always did.</summary>
+    public static AlertBadgeInfo CountOne(ConcurrentDictionary<string, AlertBadgeInfo> badges, string character, string severity) =>
+        badges.AddOrUpdate(character,
+            _ => new AlertBadgeInfo { Count = 1, TopSeverity = severity },
+            (_, existing) => new AlertBadgeInfo { Count = existing.Count + 1, TopSeverity = existing.TopSeverity });
 }
