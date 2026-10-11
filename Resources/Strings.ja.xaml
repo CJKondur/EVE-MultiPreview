@@ -2105,4 +2105,10 @@
     <sys:String x:Key="L.Switch.NoPrevious">戻れる別のクライアントがありません</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.back.Title">ひとつ前のクライアントに戻る</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**ひとつ前のクライアントに戻る** は、前面のクライアントの前に使っていたクライアントに切り替えます。もう一度押すと元に戻ります。メインと偵察、あるいはメインとさっき確認したロジ、といった使い方です。&#x0A;&#x0A;- クライアントは、前面に 0.5 秒いた時点で「使った」と数えます。サイクルキーを押し続けて通り過ぎたクライアントは数えません。&#x0A;- 閉じたクライアントは飛ばします。&#x0A;- 別のプログラムにいるときは、最後に使ったクライアントに切り替えます。&#x0A;- キーは、設定するまで未設定です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.lastAlert">最新のアラートへ移動</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.lastAlert.Desc">まだ見ていないアラートのうち、最も重大なもののクライアントに切り替えます。もう一度押すと次へ進みます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.NoAlert">移動先のアラートがありません</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.NoEarlierAlert">これより前のアラートはありません</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Title">最新のアラートへ移動</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**最新のアラートへ移動** は、点滅しているサムネイルを探さなくても、対応が必要なクライアントに切り替えます。&#x0A;&#x0A;- まだ見ていないアラートがある間は、最も重大なものから順に移動します。重大、警告、情報の順で、同じ重大度なら新しいものが先です。クライアントを見るとそのアラートは確認済みになるので、次に押すと次のクライアントへ進みます。&#x0A;- 残りがなくなると、このセッションのアラートを新しい順にさかのぼります。1 回押すごとに 1 クライアントです。30 秒間押さないと、また最新から始まります。&#x0A;- クライアントを閉じたキャラクターは飛ばします。ミュートしていたキャラクターのアラートも飛ばします。&#x0A;- 移動先がないときは、カーソルの近くに短いメッセージが出ます。音は鳴りません。アラートと間違えるおそれがあるためです。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -368,6 +368,8 @@ public partial class App : Application
                 KeepDays = _settings.Settings.AlertHistoryDays,
             };
             if (_settings.LoadedSuccessfully) _alertHistory.DeleteOldDays();
+            // IDEAS #17: "Go to the last alert" walks back through the history's memory list once nothing is unseen.
+            _thumbnailManager.RecentAlerts = () => _alertHistory.Recent();
             // Windows signing out or shutting down: WPF only queues its shutdown then, and OnExit (which closes the
             // history) may not get to run before the process is ended. What is waiting is written now.
             SessionEnding += (_, _) => _alertHistory?.Flush(TimeSpan.FromSeconds(2));

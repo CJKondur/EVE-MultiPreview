@@ -2104,4 +2104,10 @@
     <sys:String x:Key="L.Switch.NoPrevious">No other client to go back to</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.back.Title">Back to the client before</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**Back to the client before this one** takes you to the client you used before the one in front, and a second press brings you back: main and scout, or main and the logi you just checked.&#x0A;&#x0A;- A client counts as used once it has been in front for half a second, so the clients a held cycle key passes over don't count.&#x0A;- A client that has closed is skipped.&#x0A;- From another program, the key goes to the client you used last.&#x0A;- The key is not set until you set one.</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.lastAlert">Go to the last alert</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.lastAlert.Desc">Switches to the client with the most severe alert you have not looked at yet. Press it again for the next one.</sys:String>
+    <sys:String x:Key="L.Switch.NoAlert">No alert to go to</sys:String>
+    <sys:String x:Key="L.Switch.NoEarlierAlert">No earlier alert</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Title">Go to the last alert</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**Go to the last alert** takes you to the client that needs you, without looking for the thumbnail that flashes.&#x0A;&#x0A;- While there are alerts you have not looked at, it goes to the most severe one first: critical before warning before info, and the newest first among equals. Looking at a client clears its alerts, so the next press goes to the next client.&#x0A;- With nothing left, it walks back through the alerts of this session, newest first, one client per press. After 30 seconds without a press it starts at the newest again.&#x0A;- A character whose client has closed is skipped, and so is an alert of a character you had muted.&#x0A;- With nothing to go to, a short note appears near the cursor. No sound: it could be taken for an alert.</sys:String>
 </ResourceDictionary>

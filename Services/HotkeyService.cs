@@ -662,6 +662,7 @@ public sealed class HotkeyService : IDisposable
         RegisterCycleKeyIgnore(settings.GlobalCycleForwardHotkey);
         RegisterCycleKeyIgnore(settings.GlobalCycleBackwardHotkey);
         RegisterCycleKeyIgnore(settings.PreviousClientHotkey);
+        RegisterCycleKeyIgnore(settings.GoToLastAlertHotkey);
         foreach (var binding in profile.Hotkeys.Values)
             RegisterCycleKeyIgnore(binding.Key);
 
@@ -753,6 +754,13 @@ public sealed class HotkeyService : IDisposable
         {
             if (_suspended) return;
             thumbnailManager.SwitchToPreviousClient();
+        });
+
+        // To the client behind the alert that needs the player (IDEAS #17). One press, one client: not repeatable.
+        StoreAhkHotkey(settings.GoToLastAlertHotkey, () =>
+        {
+            if (_suspended) return;
+            thumbnailManager.GoToLastAlert();
         });
 
         // ── Char-select cycling hotkeys (AHK CharSelectCycling) ──

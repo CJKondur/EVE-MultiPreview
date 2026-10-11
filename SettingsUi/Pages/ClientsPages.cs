@@ -30,6 +30,7 @@ public static class ClientsPages
             "clients.hotkeys.wrapSound", "clients.hotkeys.wrapSoundFile", "clients.hotkeys.includeLogins",
         }),
         new HelpTopic(HotkeysId, "back", new[] { "clients.hotkeys.backToPrevious" }),
+        new HelpTopic(HotkeysId, "lastAlert", new[] { "clients.hotkeys.lastAlert" }),
         new HelpTopic(HotkeysId, "app", new[]
         {
             "clients.hotkeys.suspend", "clients.hotkeys.clickThrough", "clients.hotkeys.hideAll", "clients.hotkeys.hidePrimary",
@@ -139,6 +140,7 @@ public static class ClientsPages
         new SectionDef("clients.hotkeys.jump", new PageItem[]
         {
             Hotkey("clients.hotkeys.backToPrevious", s => s.PreviousClientHotkey),
+            Hotkey("clients.hotkeys.lastAlert", s => s.GoToLastAlertHotkey),
         }),
         new SectionDef("clients.hotkeys.app", new PageItem[]
         {

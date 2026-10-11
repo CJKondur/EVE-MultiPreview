@@ -2105,4 +2105,10 @@
     <sys:String x:Key="L.Switch.NoPrevious">돌아갈 다른 클라이언트가 없어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.back.Title">바로 전 클라이언트로 돌아가기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**바로 전 클라이언트로 돌아가기**는 앞에 있는 클라이언트 전에 쓰던 클라이언트로 데려가고, 한 번 더 누르면 돌아와요. 메인과 정찰, 또는 메인과 방금 확인한 로지처럼요.&#x0A;&#x0A;- 클라이언트는 앞에 0.5초 있으면 쓴 것으로 쳐요. 순환 키를 누르고 있는 동안 지나간 클라이언트는 치지 않아요.&#x0A;- 닫힌 클라이언트는 건너뛰어요.&#x0A;- 다른 프로그램에서는 마지막으로 쓴 클라이언트로 가요.&#x0A;- 키는 직접 정하기 전까지 정해져 있지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.lastAlert">마지막 알림으로 이동</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.lastAlert.Desc">아직 보지 않은 알림 중 가장 심각한 알림의 클라이언트로 전환해요. 다시 누르면 다음으로 가요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.NoAlert">이동할 알림이 없어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.NoEarlierAlert">더 이전 알림이 없어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Title">마지막 알림으로 이동</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**마지막 알림으로 이동**은 깜빡이는 썸네일을 찾지 않아도 내가 필요한 클라이언트로 데려가요.&#x0A;&#x0A;- 아직 보지 않은 알림이 있는 동안에는 가장 심각한 것부터 가요. 치명, 경고, 정보 순이고, 같은 심각도에서는 최신 것이 먼저예요. 클라이언트를 보면 그 알림은 확인된 것이 되므로, 다음에 누르면 다음 클라이언트로 가요.&#x0A;- 남은 것이 없으면 이번 세션의 알림을 최신순으로 거슬러 올라가요. 한 번 누를 때마다 클라이언트 하나예요. 30초 동안 누르지 않으면 다시 최신부터 시작해요.&#x0A;- 클라이언트가 닫힌 캐릭터는 건너뛰고, 음소거해 둔 캐릭터의 알림도 건너뛰어요.&#x0A;- 갈 곳이 없으면 커서 근처에 짧은 안내가 나와요. 소리는 나지 않아요. 알림으로 착각할 수 있어서예요.</sys:String> <!-- draft -->
 </ResourceDictionary>

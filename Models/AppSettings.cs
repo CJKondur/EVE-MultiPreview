@@ -111,6 +111,9 @@ public class AppSettings
     public string CloseAllClientsHotkey { get; set; } = "";
     /// <summary>Back to the client used before this one (IDEAS #56). A new key: unbound in a file without it.</summary>
     public string PreviousClientHotkey { get; set; } = "";
+    /// <summary>To the client behind the most severe alert not looked at yet (IDEAS #17). A new key: unbound in a
+    /// file without it.</summary>
+    public string GoToLastAlertHotkey { get; set; } = "";
     public bool HideStatsOnLostFocus { get; set; } = false;
     public bool IncludeLoginScreensInCycle { get; set; } = false;
     public bool ShowSessionTimer { get; set; } = false;

@@ -3712,6 +3712,36 @@ public sealed class ThumbnailManager : IDisposable
         ActivateEveWindow(target, _thumbnails.TryGetValue(target, out var thumb) ? thumb.CharacterName : null);
     }
 
+    // ── Go to the last alert (IDEAS #17) ────────────────────────────
+
+    private readonly AlertWalk _alertWalk = new();
+
+    /// <summary>This session's alerts, newest first (App sets it to AlertHistory.Recent). The "Go to the last alert"
+    /// hotkey walks back through them once nothing is unseen.</summary>
+    public Func<IReadOnlyList<AlertHistoryEntry>>? RecentAlerts { get; set; }
+
+    /// <summary>The "Go to the last alert" hotkey (IDEAS #17): the client of the most severe alert the player has
+    /// not looked at; pressed again, the next; with none left, back through this session's alerts (AlertWalk). Never
+    /// a client that is gone or closing. With nothing to go to it says so near the cursor and switches nothing.</summary>
+    public void GoToLastAlert()
+    {
+        string? inFront = _thumbnails.TryGetValue(ActiveClient(), out var front) ? front.CharacterName : null;
+        var step = _alertWalk.Next(Attention.Unseen(),
+            () => RecentAlerts?.Invoke() ?? Array.Empty<AlertHistoryEntry>(),
+            name => ClientAlive(GetHwndForCharacter(name)), inFront, DateTime.UtcNow);
+        if (!step.Goes)
+        {
+            ShowTooltipFeedback(step.Kind == AlertWalk.Kind.NoEarlier
+                ? LocalizationService.Str("L.Switch.NoEarlierAlert", "No earlier alert")
+                : LocalizationService.Str("L.Switch.NoAlert", "No alert to go to"));
+            return;
+        }
+        // The player asked for this alert: it is looked at, also when its client is in front already (then
+        // ActivateEveWindow returns before it clears anything).
+        Attention.Seen(step.Character);
+        ActivateEveWindow(IntPtr.Zero, step.Character);
+    }
+
     private DateTime _lastCycleTime = DateTime.MinValue;
 
     /// <summary>Fired by CycleGroup / CycleAll whenever a cycle hotkey wraps
