@@ -32,6 +32,9 @@ public sealed class AlertTargets
     public Action<string, string, string> Flash { get; init; } = (_, _, _) => { };
     /// <summary>(character, severity, alert type): ThumbnailManager.IncrementAlertBadge.</summary>
     public Action<string, string, string> Badge { get; init; } = (_, _, _) => { };
+    /// <summary>(character, alert type, severity): ThumbnailManager.NoteUnseenAlert. Called for every alert that was
+    /// shown, directly after the badge: the alert is one the player has not looked at yet (IDEAS batch 5).</summary>
+    public Action<string, string, string> Unseen { get; init; } = (_, _, _) => { };
     /// <summary>The character's client window, or zero (ThumbnailManager.GetHwndForCharacter).</summary>
     public Func<string, IntPtr> WindowOf { get; init; } = _ => IntPtr.Zero;
     /// <summary>The window in front (User32.GetForegroundWindow).</summary>
@@ -72,6 +75,7 @@ public static class AlertDispatcher
             $"[App] '{charName}' found in active windows, dispatching to flash/badge/toast/sound");
         to.Flash(charName, severity, alertType);
         to.Badge(charName, severity, alertType);
+        to.Unseen(charName, alertType, severity);
         bool trayEnabled = settings.SeverityTrayNotify.TryGetValue(severity, out var tn) && tn;
 
         // Hub toast gate. Shown when the hub is enabled AND the

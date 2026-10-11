@@ -126,6 +126,20 @@ public sealed class ThumbnailManager : IDisposable
     // Per-character alert mute/snooze — runtime only, clears on app restart.
     private readonly ConcurrentDictionary<string, DateTime> _alertMutedChars = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Which clients need the player: per character, the alerts shown and not looked at yet (IDEAS batch 5).
+    /// Fed where the badge is fed and cleared, and where a client goes away. It doesn't depend on a display setting,
+    /// as the badge does.</summary>
+    public AlertAttention Attention { get; } = new();
+
+    /// <summary>An alert was shown for a character (AlertTargets.Unseen; the log monitor's reading thread). An alert on
+    /// the client in front is seen as it arrives: the badge's rule (IncrementAlertBadge).</summary>
+    public void NoteUnseenAlert(string characterName, string alertType, string severity)
+    {
+        var hwnd = GetHwndForCharacter(characterName);
+        Attention.Raised(characterName, alertType, severity,
+            clientInFront: hwnd != IntPtr.Zero && hwnd == Interop.User32.GetForegroundWindow());
+    }
+
     // Per-process audio (auto-solo + per-client mute/volume), matched by PID.
     private readonly AudioSessionService _audio = new();
 
@@ -768,6 +782,9 @@ public sealed class ThumbnailManager : IDisposable
 
                     // Destroy stat windows
                     DestroyStatWindowsForCharacter(thumbWindow.CharacterName);
+
+                    // Its unseen alerts go with it (IDEAS batch 5): nothing there needs the player any more.
+                    Attention.Gone(thumbWindow.CharacterName);
                 }
 
                 UnwireEvents(thumbWindow);
@@ -790,6 +807,10 @@ public sealed class ThumbnailManager : IDisposable
                     _settings.SaveThumbnailPosition(oldChar,
                         (int)thumbWindow.Left, (int)thumbWindow.Top,
                         (int)thumbWindow.Width, (int)thumbWindow.Height);
+                    // The character logged out of this window (or another one logged in): its unseen alerts are
+                    // not this client's any more (IDEAS batch 5).
+                    if (!string.Equals(oldChar, window.CharacterName, StringComparison.OrdinalIgnoreCase))
+                        Attention.Gone(oldChar);
                 }
 
                 thumbWindow.UpdateCharacterName(window.CharacterName);
@@ -1472,6 +1493,7 @@ public sealed class ThumbnailManager : IDisposable
                 if (_alertFlashChars.TryRemove(activatedChar, out _))
                     ClearAlertBorderFor(activatedChar); // clear the nested inner border now (#77)
                 ClearAlertBadge(activatedChar);
+                Attention.Seen(activatedChar);
             }
 
             // Fixed slots own the client's rect: Always-maximize and Track positions
@@ -1890,7 +1912,10 @@ public sealed class ThumbnailManager : IDisposable
             if (eveHwnd != fgHwnd) continue;
             var charName = thumb.CharacterName;
             if (!string.IsNullOrEmpty(charName))
+            {
                 ClearAlertBadge(charName);
+                Attention.Seen(charName);
+            }
         }
 
         // ── Hide Active Thumbnail (issues #43 / #44) ──

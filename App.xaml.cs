@@ -352,6 +352,7 @@ public partial class App : Application
                 IsMuted = charName => _thumbnailManager.IsCharacterAlertMuted(charName),
                 Flash = (charName, severity, alertType) => _thumbnailManager.SetAlertFlash(charName, severity, alertType),
                 Badge = (charName, severity, alertType) => _thumbnailManager.IncrementAlertBadge(charName, severity, alertType),
+                Unseen = (charName, alertType, severity) => _thumbnailManager.NoteUnseenAlert(charName, alertType, severity),
                 WindowOf = charName => _thumbnailManager.GetHwndForCharacter(charName),
                 ForegroundWindow = () => EveMultiPreview.Interop.User32.GetForegroundWindow(),
                 Toast = (charName, alertType, severity) => _alertHub.ShowToast(charName, alertType, severity),
