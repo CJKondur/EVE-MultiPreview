@@ -41,6 +41,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     private readonly Button _add;                             // Add rule: where the keyboard goes when the last card is deleted
     private readonly List<Action> _commits = new();           // each stores one text box of the open rule, if it was changed
     private Window? _window;                                  // the window whose closing stores what was typed
+    private bool _leaving;                                    // the page is going or its window is closing (StoreWhatWasTyped)
     private readonly Dictionary<string, Head> _heads = new();
     private bool _showing;                                    // a switch is being set to what was saved: not a click
     // Which rules the log monitor has switched off, as it said when it was last asked; what it answered for the rules
@@ -496,13 +497,30 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         _form.Children.Add(element);
     }
 
-    /// <summary>Changes the open rule and brings its card up to date. The store may have changed what was typed
-    /// (ends trimmed, a rule that can't run switched off): what was saved is what the card shows.</summary>
+    /// <summary>Changes the open rule and brings the cards up to date. The store may have changed what was typed
+    /// (ends trimmed, a rule that can't run switched off): what was saved is what the cards show. Every card, not
+    /// only the changed rule's: a rule that moves to another channel can push another rule's channel out of the ten
+    /// that are read (the store switches that rule off), or make room for one that had none.
+    ///
+    /// While the page is going (StoreWhatWasTyped) a change that would switch a running rule off is not made.</summary>
     private void Store(string id, Action<CustomAlertRule> edit)
     {
+        if (_leaving && WouldSwitchARuleOff(id, edit)) return;
         Model.Change(id, edit);
         AfterSave();
-        UpdateHead(id);
+        foreach (var card in _heads.Keys.ToList()) UpdateHead(card);
+    }
+
+    /// <summary>Whether a change would leave a rule that is switched on unable to run, so that the store would
+    /// switch it off: the changed rule itself (a pattern .NET can't read, a name or a channel that is empty), or
+    /// another rule whose channel the change pushes out of the ten. Asked of copies: nothing is changed.</summary>
+    private bool WouldSwitchARuleOff(string id, Action<CustomAlertRule> edit)
+    {
+        var rules = Model.Rules.Select(r => r.Clone()).ToList();
+        var changed = rules.FirstOrDefault(r => r.Id == id);
+        if (changed == null) return false;
+        edit(changed);
+        return rules.Any(r => r.Enabled && CustomRuleCheck.Problem(r, rules) != CustomRuleProblem.None);
     }
 
     /// <summary>A text box that stores on Enter or when it loses the focus, and then shows what was saved.</summary>
@@ -864,13 +882,25 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
 
     /// <summary>Stores every text box of the open rule that holds something else than was saved (a box that was not
     /// changed stores nothing). When one can't be stored the player is told once, and the rest is left: the cards
-    /// were built anew from what the file holds, and the boxes that are left are gone.</summary>
+    /// were built anew from what the file holds, and the boxes that are left are gone.
+    ///
+    /// The page is going, or its window is closing: the player is not looking at the card any more. A text that is
+    /// only half typed (a pattern .NET can't read yet, a name or a channel that was emptied to be typed anew) would
+    /// make the store switch a running rule off with nobody there to be told, and a rule that was switched off
+    /// stays off also after it is mended. So a box whose text would leave a rule that is switched on unable to run
+    /// is not stored here (Store): its text is dropped, and the rule keeps what was saved. Everything else that
+    /// was typed is stored.</summary>
     private void StoreWhatWasTyped()
     {
-        foreach (var commit in _commits.ToList())
+        _leaving = true;
+        try
         {
-            commit();
-            if (Model.SaveFailed) break;
+            foreach (var commit in _commits.ToList())
+            {
+                commit();
+                if (Model.SaveFailed) break;
+            }
         }
+        finally { _leaving = false; }
     }
 }
