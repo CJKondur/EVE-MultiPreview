@@ -768,6 +768,7 @@ public sealed class ThumbnailManager : IDisposable
         Application.Current?.Dispatcher.Invoke(() =>
         {
             _slotInsets.TryRemove(window.Hwnd, out _);
+            _clientHistory.Closed(window.Hwnd);   // IDEAS #56: "back" never goes to a client that closed
             if (_thumbnails.TryRemove(window.Hwnd, out var thumbWindow))
             {
                 if (!string.IsNullOrEmpty(thumbWindow.CharacterName))
@@ -1546,6 +1547,7 @@ public sealed class ThumbnailManager : IDisposable
             // (correcting the highlight if the switch was refused, and applying CPU
             // affinity, which follows the settled client rather than every cycle step).
             _lastActiveEveHwnd = hwnd;
+            NoteClientInFront(hwnd);
             _lastCycleTime = DateTime.UtcNow;
             _lastSweptHwnd = IntPtr.Zero;
             ApplyActiveBorders(hwnd);
@@ -2044,6 +2046,7 @@ public sealed class ThumbnailManager : IDisposable
         if (fgHwnd == _lastSweptHwnd) return;
         _lastSweptHwnd = fgHwnd;
         _lastActiveEveHwnd = fgHwnd;
+        NoteClientInFront(fgHwnd);
 
         // Raise the newly-focused client over the taskbar / drop the previous one (#99).
         // Runs only on an actual focus CHANGE, so this is not a per-tick SetWindowPos storm.
@@ -3670,6 +3673,43 @@ public sealed class ThumbnailManager : IDisposable
         });
         Debug.WriteLine($"[Thumbnail:Visibility] 🔧 ToggleSecondaryVisibility: hidden={_secondaryHidden}, count={_secondaryThumbnails.Count}");
         ShowTooltipFeedback(_secondaryHidden ? "PiP: Hidden" : "PiP: Visible");
+    }
+
+    // ── Back to the client before this one (IDEAS #56) ──────────────
+
+    private readonly ClientHistory _clientHistory = new();
+
+    /// <summary>A window that came to the front is noted when it is a client. A browser in front is not: from
+    /// another program, "back" is the client the player was in last.</summary>
+    private void NoteClientInFront(IntPtr hwnd)
+    {
+        if (_thumbnails.ContainsKey(hwnd)) _clientHistory.Front(hwnd, Environment.TickCount64);
+    }
+
+    /// <summary>The client MultiPreview counts as active: the one it last switched to while that is still a client
+    /// (the cycle order reads the same, so a switch still in flight is not asked of Windows), else the window in front.</summary>
+    private IntPtr ActiveClient() =>
+        _lastActiveEveHwnd != IntPtr.Zero && _thumbnails.ContainsKey(_lastActiveEveHwnd)
+            ? _lastActiveEveHwnd
+            : Interop.User32.GetForegroundWindow();
+
+    /// <summary>A client MultiPreview may bring to the front: it has a thumbnail and its window still exists. A client
+    /// that is closing keeps its thumbnail until the next poll notices; its window is gone before that.</summary>
+    private bool ClientAlive(IntPtr hwnd) =>
+        hwnd != IntPtr.Zero && _thumbnails.ContainsKey(hwnd) && Interop.User32.IsWindow(hwnd);
+
+    /// <summary>The "Back to the client before this one" hotkey (IDEAS #56): the client used before the active one,
+    /// or, from another program, the client used last. With nothing to go back to it says so near the cursor, as the
+    /// other hotkeys' feedback does, and switches nothing.</summary>
+    public void SwitchToPreviousClient()
+    {
+        var target = _clientHistory.Target(ActiveClient(), Environment.TickCount64, ClientAlive);
+        if (target == IntPtr.Zero)
+        {
+            ShowTooltipFeedback(LocalizationService.Str("L.Switch.NoPrevious", "No other client to go back to"));
+            return;
+        }
+        ActivateEveWindow(target, _thumbnails.TryGetValue(target, out var thumb) ? thumb.CharacterName : null);
     }
 
     private DateTime _lastCycleTime = DateTime.MinValue;

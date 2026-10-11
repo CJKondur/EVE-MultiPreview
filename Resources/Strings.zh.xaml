@@ -2115,4 +2115,11 @@
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview 关闭了这条规则：它偶尔会在某一行上花很长时间，加上你的其他规则，就耽误了日志的读取。电脑非常繁忙时也可能出现这种情况。你修改任意一条规则或重新启动 MultiPreview 后，这条规则会重新启用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">在你的聊天日志文件夹里没有找到聊天日志。请在 EVE 里开启聊天记录，或者直接输入频道名称。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Slow">偏慢。如果一条规则的正则表达式在大多数行上都超过 {0} 毫秒，这条规则会被关闭。要是别的行也这么慢，请把模式改简单些。</sys:String> <!-- draft -->
+    <!-- Ideas batch 5 (Plan 9) -->
+    <sys:String x:Key="L.S.Sec.clients.hotkeys.jump">跳转到客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious">回到上一个客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious.Desc">切换到你在这个客户端之前用的那个客户端。再按一次就回来。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.NoPrevious">没有可以返回的其他客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Title">回到上一个客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**回到上一个客户端** 会带你回到前台客户端之前用过的那个客户端，再按一次就回来：比如主号和侦察号，或者主号和你刚看过的后勤号。&#x0A;&#x0A;- 客户端在前台停留满半秒才算用过，所以按住循环键时一路经过的客户端不算。&#x0A;- 已关闭的客户端会被跳过。&#x0A;- 在其他程序里按下时，会切换到你最后用过的客户端。&#x0A;- 在你设置之前，这个键是未设置的。</sys:String> <!-- draft -->
 </ResourceDictionary>

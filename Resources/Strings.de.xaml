@@ -2097,4 +2097,11 @@
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview hat diese Regel abgeschaltet: Ab und zu brauchte sie für eine Zeile lange, und zusammen mit deinen anderen Regeln hat das das Lesen der Logs aufgehalten. Auch ein stark ausgelasteter PC kann das verursachen. Die Regel wird wieder versucht, wenn du eine deiner Regeln änderst oder MultiPreview neu startest.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">In deinem Chat-Log-Ordner wurden keine Chat-Logs gefunden. Schalte die Chat-Aufzeichnung in EVE ein oder tippe den Namen des Kanals ein.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Slow">Langsam. Eine Regel, deren regulärer Ausdruck für die meisten Zeilen mehr als {0} ms braucht, wird abgeschaltet. Wenn andere Zeilen genauso lange dauern, vereinfache das Muster.</sys:String> <!-- draft -->
+    <!-- Ideas batch 5 (Plan 9) -->
+    <sys:String x:Key="L.S.Sec.clients.hotkeys.jump">Zu einem Client springen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious">Zurück zum Client davor</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious.Desc">Wechselt zu dem Client, den du vor diesem benutzt hast. Noch einmal drücken bringt dich zurück.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.NoPrevious">Kein anderer Client, zu dem es zurückgeht</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Title">Zurück zum Client davor</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**Zurück zum Client davor** bringt dich zu dem Client, den du vor dem Client im Vordergrund benutzt hast, und ein zweiter Druck bringt dich zurück: Main und Scout, oder Main und der Logi, nach dem du gerade gesehen hast.&#x0A;&#x0A;- Ein Client zählt als benutzt, sobald er eine halbe Sekunde im Vordergrund war. Die Clients, über die eine gehaltene Wechseltaste hinweggeht, zählen also nicht.&#x0A;- Ein geschlossener Client wird übersprungen.&#x0A;- Aus einem anderen Programm heraus führt die Taste zu dem Client, den du zuletzt benutzt hast.&#x0A;- Die Taste ist nicht belegt, bis du eine festlegst.</sys:String> <!-- draft -->
 </ResourceDictionary>

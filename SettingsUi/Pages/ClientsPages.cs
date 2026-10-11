@@ -29,6 +29,7 @@ public static class ClientsPages
             "clients.hotkeys.cycleNext", "clients.hotkeys.cyclePrevious", "clients.hotkeys.cycleWhileHeld", "clients.hotkeys.cycleDelay",
             "clients.hotkeys.wrapSound", "clients.hotkeys.wrapSoundFile", "clients.hotkeys.includeLogins",
         }),
+        new HelpTopic(HotkeysId, "back", new[] { "clients.hotkeys.backToPrevious" }),
         new HelpTopic(HotkeysId, "app", new[]
         {
             "clients.hotkeys.suspend", "clients.hotkeys.clickThrough", "clients.hotkeys.hideAll", "clients.hotkeys.hidePrimary",
@@ -133,6 +134,11 @@ public static class ClientsPages
                 FileFilter = SoundFilter,
             }),
             Toggle("clients.hotkeys.includeLogins", s => s.IncludeLoginScreensInCycle),
+        }),
+        // IDEAS batch 5: keys that go to one client. Unbound until the player sets them; App re-registers on Applied.
+        new SectionDef("clients.hotkeys.jump", new PageItem[]
+        {
+            Hotkey("clients.hotkeys.backToPrevious", s => s.PreviousClientHotkey),
         }),
         new SectionDef("clients.hotkeys.app", new PageItem[]
         {

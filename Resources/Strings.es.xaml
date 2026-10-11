@@ -2119,4 +2119,11 @@
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview ha desactivado esta regla: de vez en cuando tardaba mucho en una línea, y junto con tus otras reglas eso retrasaba la lectura de los registros. Un PC muy ocupado también puede causarlo. La regla se vuelve a probar cuando cambias alguna de tus reglas o reinicias MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">No se encontraron registros de chat en tu carpeta de registros de chat. Activa el registro del chat en EVE, o escribe el nombre del canal.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Slow">Lento. Una regla cuya expresión regular tarda más de {0} ms en la mayoría de las líneas acaba desactivada. Si otras líneas tardan lo mismo, simplifica el patrón.</sys:String> <!-- draft -->
+    <!-- Ideas batch 5 (Plan 9) -->
+    <sys:String x:Key="L.S.Sec.clients.hotkeys.jump">Saltar a un cliente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious">Volver al cliente anterior a este</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious.Desc">Cambia al cliente que usaste antes de este. Púlsala otra vez para volver.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.NoPrevious">No hay otro cliente al que volver</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Title">Volver al cliente anterior</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**Volver al cliente anterior a este** te lleva al cliente que usaste antes del que está en primer plano, y una segunda pulsación te trae de vuelta: el principal y el explorador, o el principal y el logi que acabas de mirar.&#x0A;&#x0A;- Un cliente cuenta como usado cuando ha estado medio segundo en primer plano, así que los clientes por los que pasa una tecla de ciclo mantenida no cuentan.&#x0A;- Un cliente cerrado se salta.&#x0A;- Desde otro programa, la tecla va al cliente que usaste por último.&#x0A;- La tecla no está asignada hasta que asignes una.</sys:String> <!-- draft -->
 </ResourceDictionary>

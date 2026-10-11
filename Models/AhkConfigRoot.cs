@@ -62,6 +62,7 @@ public class AhkConfigRoot
         s.UndoLayoutHotkey = g.UndoLayoutHotkey ?? "";
         s.RedoLayoutHotkey = g.RedoLayoutHotkey ?? "";
         s.CloseAllClientsHotkey = g.CloseAllClientsHotkey ?? "";
+        s.PreviousClientHotkey = g.PreviousClientHotkey ?? "";
         s.HideStatsOnLostFocus = g.HideStatsOnLostFocus != 0;
         s.IncludeLoginScreensInCycle = g.IncludeLoginScreensInCycle != 0;
         s.ShowSessionTimer = g.ShowSessionTimer != 0;
@@ -366,6 +367,7 @@ public class AhkConfigRoot
         g.UndoLayoutHotkey = s.UndoLayoutHotkey;
         g.RedoLayoutHotkey = s.RedoLayoutHotkey;
         g.CloseAllClientsHotkey = s.CloseAllClientsHotkey;
+        g.PreviousClientHotkey = s.PreviousClientHotkey;
         g.HideStatsOnLostFocus = s.HideStatsOnLostFocus ? 1 : 0;
         g.IncludeLoginScreensInCycle = s.IncludeLoginScreensInCycle ? 1 : 0;
         g.ShowSessionTimer = s.ShowSessionTimer ? 1 : 0;
@@ -1040,6 +1042,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("CloseAllClientsHotkey")]
     public string? CloseAllClientsHotkey { get; set; } = "";
+
+    // IDEAS batch 5 (Plan 9), new after 2.3.42: a file without it loads the key unbound.
+    [JsonPropertyName("PreviousClientHotkey")]
+    public string? PreviousClientHotkey { get; set; } = "";
 
     [JsonPropertyName("HideStatsOnLostFocus")]
     public int HideStatsOnLostFocus { get; set; } = 0;

@@ -2100,4 +2100,11 @@
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview a désactivé cette règle : de temps en temps, elle mettait longtemps sur une ligne, et avec vos autres règles cela retardait la lecture des journaux. Un PC très occupé peut aussi en être la cause. La règle est réessayée quand vous modifiez l'une de vos règles ou redémarrez MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">Aucun journal de chat trouvé dans votre dossier de journaux de chat. Activez la journalisation du chat dans EVE, ou saisissez le nom du canal.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Slow">Lent. Une règle dont l'expression régulière met plus de {0} ms sur la plupart des lignes finit par être désactivée. Si d'autres lignes prennent autant de temps, simplifiez le motif.</sys:String> <!-- draft -->
+    <!-- Ideas batch 5 (Plan 9) -->
+    <sys:String x:Key="L.S.Sec.clients.hotkeys.jump">Aller à un client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious">Revenir au client d'avant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious.Desc">Passe au client que vous utilisiez avant celui-ci. Appuyez de nouveau pour revenir.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.NoPrevious">Aucun autre client auquel revenir</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Title">Revenir au client d'avant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**Revenir au client d'avant** vous amène au client que vous utilisiez avant celui qui est au premier plan, et un second appui vous ramène : le principal et l'éclaireur, ou le principal et le logi que vous venez de vérifier.&#x0A;&#x0A;- Un client compte comme utilisé dès qu'il est resté une demi-seconde au premier plan : les clients sur lesquels passe une touche de cycle maintenue ne comptent donc pas.&#x0A;- Un client fermé est ignoré.&#x0A;- Depuis un autre programme, la touche mène au client utilisé en dernier.&#x0A;- La touche n'est pas définie tant que vous n'en choisissez pas une.</sys:String> <!-- draft -->
 </ResourceDictionary>

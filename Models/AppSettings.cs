@@ -109,6 +109,8 @@ public class AppSettings
     public string RedoLayoutHotkey { get; set; } = "";
     // Ends every tracked EVE client process after one confirmation (#115).
     public string CloseAllClientsHotkey { get; set; } = "";
+    /// <summary>Back to the client used before this one (IDEAS #56). A new key: unbound in a file without it.</summary>
+    public string PreviousClientHotkey { get; set; } = "";
     public bool HideStatsOnLostFocus { get; set; } = false;
     public bool IncludeLoginScreensInCycle { get; set; } = false;
     public bool ShowSessionTimer { get; set; } = false;

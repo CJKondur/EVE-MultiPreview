@@ -2098,4 +2098,11 @@
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview がこのルールをオフにしました：ときどき、ある行に長い時間がかかり、ほかのルールと合わせてログの読み取りを遅らせていました。PC がとても忙しいときにも起こることがあります。ルールのどれかを変更するか MultiPreview を再起動すると、このルールはもう一度試されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.NoChatLogs">チャットログのフォルダーにチャットログが見つかりません。EVE でチャットの記録をオンにするか、チャンネルの名前を入力してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Test.Slow">遅めです。正規表現がほとんどの行で {0} ミリ秒より長くかかるルールは、オフにされます。ほかの行でも同じくらいかかる場合は、パターンを簡単にしてください。</sys:String> <!-- draft -->
+    <!-- Ideas batch 5 (Plan 9) -->
+    <sys:String x:Key="L.S.Sec.clients.hotkeys.jump">クライアントへ移動</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious">ひとつ前のクライアントに戻る</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious.Desc">このクライアントの前に使っていたクライアントに切り替えます。もう一度押すと戻ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.NoPrevious">戻れる別のクライアントがありません</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Title">ひとつ前のクライアントに戻る</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**ひとつ前のクライアントに戻る** は、前面のクライアントの前に使っていたクライアントに切り替えます。もう一度押すと元に戻ります。メインと偵察、あるいはメインとさっき確認したロジ、といった使い方です。&#x0A;&#x0A;- クライアントは、前面に 0.5 秒いた時点で「使った」と数えます。サイクルキーを押し続けて通り過ぎたクライアントは数えません。&#x0A;- 閉じたクライアントは飛ばします。&#x0A;- 別のプログラムにいるときは、最後に使ったクライアントに切り替えます。&#x0A;- キーは、設定するまで未設定です。</sys:String> <!-- draft -->
 </ResourceDictionary>

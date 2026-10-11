@@ -2097,4 +2097,11 @@
     <sys:String x:Key="L.S.Rules.Off.peaks">MultiPreview switched this rule off: now and then it took long on a line, and together with your other rules that held up the reading of the logs. A very busy PC can cause this too. The rule is tried again when you change any of your rules or restart MultiPreview.</sys:String>
     <sys:String x:Key="L.S.Rules.NoChatLogs">No chat logs found in your chat log folder. Switch on chat logging in EVE, or type the channel's name.</sys:String>
     <sys:String x:Key="L.S.Rules.Test.Slow">Slow. A rule whose regular expression takes more than {0} ms on most lines gets switched off. If other lines take this long too, make the pattern simpler.</sys:String>
+    <!-- Ideas batch 5 (Plan 9) -->
+    <sys:String x:Key="L.S.Sec.clients.hotkeys.jump">Jumping to a client</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious">Back to the client before this one</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.backToPrevious.Desc">Switches to the client you used before this one. Press it again to come back.</sys:String>
+    <sys:String x:Key="L.Switch.NoPrevious">No other client to go back to</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Title">Back to the client before</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**Back to the client before this one** takes you to the client you used before the one in front, and a second press brings you back: main and scout, or main and the logi you just checked.&#x0A;&#x0A;- A client counts as used once it has been in front for half a second, so the clients a held cycle key passes over don't count.&#x0A;- A client that has closed is skipped.&#x0A;- From another program, the key goes to the client you used last.&#x0A;- The key is not set until you set one.</sys:String>
 </ResourceDictionary>

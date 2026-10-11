@@ -661,6 +661,7 @@ public sealed class HotkeyService : IDisposable
         // software, which the hook deliberately leaves alone.
         RegisterCycleKeyIgnore(settings.GlobalCycleForwardHotkey);
         RegisterCycleKeyIgnore(settings.GlobalCycleBackwardHotkey);
+        RegisterCycleKeyIgnore(settings.PreviousClientHotkey);
         foreach (var binding in profile.Hotkeys.Values)
             RegisterCycleKeyIgnore(binding.Key);
 
@@ -745,6 +746,13 @@ public sealed class HotkeyService : IDisposable
         {
             if (_suspended) return;
             thumbnailManager.CycleAll(forward: false);
+        });
+
+        // Back to the client used before this one (IDEAS #56). One press, one switch: not repeatable.
+        StoreAhkHotkey(settings.PreviousClientHotkey, () =>
+        {
+            if (_suspended) return;
+            thumbnailManager.SwitchToPreviousClient();
         });
 
         // ── Char-select cycling hotkeys (AHK CharSelectCycling) ──
