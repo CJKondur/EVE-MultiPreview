@@ -378,8 +378,12 @@ public partial class App : Application
                 // raised under. For a built-in alert both are null.
                 var matched = _logMonitor.RaisingCustomText;
                 var rule = CustomAlertTypes.Find(alertType)?.Name;
+                // So is the time: the entry says when the alert was raised, not when the window's thread got to it.
+                var raised = DateTime.UtcNow;
                 var outcome = AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity);
-                _alertHistory.Record(AlertHistory.Entry(DateTime.UtcNow, charName, alertType, severity,
+                // With the history switched off no entry is made at all. (Record asks for itself as well.)
+                if (!_alertHistory.Enabled) return;
+                _alertHistory.Record(AlertHistory.Entry(raised, charName, alertType, severity,
                     _logMonitor.GetCharacterSystem(charName), outcome, rule, matched));
             };
 

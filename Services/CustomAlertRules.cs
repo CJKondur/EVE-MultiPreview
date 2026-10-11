@@ -177,13 +177,22 @@ public static class CustomRuleCheck
             && (char.IsAsciiDigit(part[3]) || part[3] == (char)0xB9 || part[3] == (char)0xB2 || part[3] == (char)0xB3));
     }
 
-    /// <summary>The chat channels the rules name, each once, in the rules' order: the first ten are read. A rule
-    /// counts whether it is on or off, so switching one on never takes a channel away from another.</summary>
-    public static IReadOnlyList<string> ChannelsRead(IReadOnlyList<CustomAlertRule> rules) =>
-        rules.Where(r => r.IsChat && ChannelProblem(r) == CustomRuleProblem.None)
-             .Select(r => r.Channel.Trim())
-             .Distinct(StringComparer.OrdinalIgnoreCase)
-             .Take(CustomRules.MaxChannels).ToList();
+    /// <summary>The chat channels the rules name, each once, in the rules' order: the first ten are read, and Local
+    /// beside them when a rule names it. Local is none of the ten: the log monitor reads its logs anyway, for the
+    /// system, so a rule there costs no listing of the folder. A rule counts whether it is on or off, so switching
+    /// one on never takes a channel away from another.</summary>
+    public static IReadOnlyList<string> ChannelsRead(IReadOnlyList<CustomAlertRule> rules)
+    {
+        var read = new List<string>();
+        int beyondLocal = 0;
+        foreach (var channel in rules.Where(r => r.IsChat && ChannelProblem(r) == CustomRuleProblem.None)
+                     .Select(r => r.Channel.Trim()).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            bool local = string.Equals(channel, LogMonitorService.LocalChannel, StringComparison.OrdinalIgnoreCase);
+            if (local || beyondLocal++ < CustomRules.MaxChannels) read.Add(channel);
+        }
+        return read;
+    }
 }
 
 /// <summary>What a rule looks at. The log monitor and the editor's Test box both go through here, so a rule that
@@ -343,6 +352,10 @@ public sealed class CustomRuleMatcher
     // average once more: the slowest match counted as an ordinary one).
     internal long WindowTicks, WindowSlowest, WindowCounted;
     internal int WindowMatches;
+    /// <summary>The engine's fourth bound has named this rule once (CustomAlertEngine.Verdict): the next time it
+    /// goes. Remembered for as long as the matcher lives, which is until the rules change: the engine and every
+    /// matcher are made anew then.</summary>
+    internal bool NamedOnce;
 
     private CustomRuleMatcher(CustomAlertRule rule, Regex? regex)
     {
@@ -420,8 +433,11 @@ public sealed record CustomRuleTestResult(CustomRuleTestOutcome Outcome, TimeSpa
 ///    are its own (a rule for one of fifty characters makes two matches in a hundred lines).
 /// 4. The left-out matches: what the average leaves out (each rule's slowest match, beyond an ordinary one) may take
 ///    another 2 ms a line over a window, not counting the largest left-out match of the window: that one is the
-///    hiccup, and always forgiven. Beyond that, the rule with the largest of the rest is switched off, one rule at
-///    a verdict. Without this bound, rules that are each slow on rare lines of their own would never answer for them.
+///    hiccup, and always forgiven. Beyond that, the rule with the largest of the rest answers for it, one rule at a
+///    verdict, and a rule only the second time: its first such verdict ends the window and is remembered, its second
+///    switches it off. (Two long waits in a hundred lines are what a PC that is short of CPU does to a healthy rule
+///    now and then: the smaller of the two is the rule's.) Without this bound, rules that are each slow on rare
+///    lines of their own would never answer for them.
 ///
 /// A verdict of the third or the fourth bound is given as soon as it is certain, and not only on the hundredth
 /// line: once a window's allowance is used up, the lines still to come can't give it back. A window ends with a
@@ -598,7 +614,8 @@ public sealed class CustomAlertEngine
         }
     }
 
-    /// <summary>Switches off what the third or the fourth bound says must go. False when neither says so.</summary>
+    /// <summary>Switches off what the third or the fourth bound says must go. False when neither speaks. (The first
+    /// verdict of the fourth bound on a rule switches nothing off, and is a verdict all the same: it ends the window.)</summary>
     private bool Verdict()
     {
         if (_windowTicks > WindowLimit)
@@ -633,7 +650,11 @@ public sealed class CustomAlertEngine
             if (largest == null || LeftOut(matcher) > LeftOut(largest)) largest = matcher;
         }
         if (largest == null) return false;
-        SwitchOff(largest, OffByPeaks);                                      // one rule at a verdict
+        // One rule at a verdict, and a rule only at its second. A reader that is kept off the CPU twice in a hundred
+        // lines brings this verdict on a rule that did nothing wrong, so the first one only ends the window. It is
+        // remembered until the rules change, however many windows lie between, and the second switches the rule off.
+        if (largest.NamedOnce) SwitchOff(largest, OffByPeaks);
+        else largest.NamedOnce = true;
         return true;
     }
 
