@@ -88,7 +88,7 @@ public static class AlertHistoryView
     /// note, and "no toast" would stand in every row of a player who doesn't use the hub. So an alert with its toast
     /// and one without look the same in the list, and are the same alert to a run: a run is folded by what its row
     /// shows, not by the outcome as the history keeps it.</summary>
-    internal static bool HasNote(AlertOutcome outcome) => outcome is AlertOutcome.Muted or AlertOutcome.NoWindow;
+    internal static bool HasNote(AlertOutcome outcome) => outcome is AlertOutcome.Muted or AlertOutcome.NoWindow or AlertOutcome.Snoozed;
 
     /// <summary>Whether <paramref name="alert"/> belongs to the run a row shows: the same alert, no older than the run's
     /// first and no newer than its last. The window keeps its selection by this: a re-read makes new objects, and the

@@ -485,6 +485,7 @@ public sealed class AlertHistory : IDisposable
         AlertOutcome.NoToast => "notoast",
         AlertOutcome.Muted => "muted",
         AlertOutcome.NoWindow => "nowindow",
+        AlertOutcome.Snoozed => "snoozed",
         _ => "shown",
     };
 
@@ -493,6 +494,7 @@ public sealed class AlertHistory : IDisposable
         "notoast" => AlertOutcome.NoToast,
         "muted" => AlertOutcome.Muted,
         "nowindow" => AlertOutcome.NoWindow,
+        "snoozed" => AlertOutcome.Snoozed,
         _ => AlertOutcome.Shown,
     };
 

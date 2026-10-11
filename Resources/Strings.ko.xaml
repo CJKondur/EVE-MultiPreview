@@ -2120,4 +2120,5 @@
     <sys:String x:Key="L.Switch.CycleFilterEmpty">순환 필터에 맞는 다른 클라이언트가 없어서 전체를 순환해요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Title">순환 필터</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Body">스위치 세 개로 순환 키가 가는 곳을 좁힐 수 있어요. 실행 중인 모든 클라이언트용 키 두 개, 각 그룹의 키, 여러 캐릭터가 함께 쓰는 키에 적용돼요. 하나를 켜기 전까지는 셋 다 꺼져 있어요.&#x0A;&#x0A;- **이 항성계 안에서만 순환** 스위치는 앞에 있는 클라이언트와 같은 항성계에 있는 클라이언트 사이에서만 전환해요. MultiPreview가 아직 항성계를 모르는 클라이언트는 건너뛰지 않아요.&#x0A;- **알림이 있는 클라이언트만 순환** 스위치는 아직 보지 않은 알림이 있는 클라이언트로만 가요. 전투 중에는 내가 필요한 클라이언트예요.&#x0A;- **알림을 음소거한 클라이언트 건너뛰기** 스위치는 알림을 음소거한 캐릭터를 건너뛰어요(썸네일을 오른쪽 클릭).&#x0A;- 스위치를 여러 개 켜면 클라이언트가 모두를 통과해야 해요.&#x0A;- 순환 키가 먹통이 되는 일은 없어요. 통과하는 다른 클라이언트가 없으면 스위치가 꺼진 것처럼 모든 클라이언트를 순환하고, 커서 근처에 한 번 알려 줘요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Outcome.Snoozed">일시 중지됨</sys:String> <!-- draft -->
 </ResourceDictionary>

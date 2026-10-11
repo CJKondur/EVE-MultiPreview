@@ -36,6 +36,8 @@ public partial class App : Application
     private StatTrackerService? _statTracker;
     private AlertHub? _alertHub;
     private AlertHistory? _alertHistory;
+    /// <summary>Alert events snoozed for one character (IDEAS #30). Empty until the player snoozes one.</summary>
+    private readonly EventSnoozes _snoozes = new();
     private AlertHistoryWindow? _historyWindow;
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
@@ -350,6 +352,7 @@ public partial class App : Application
             {
                 ActiveCharacters = () => _thumbnailManager.GetActiveCharacterNames(),
                 IsMuted = charName => _thumbnailManager.IsCharacterAlertMuted(charName),
+                IsSnoozed = (charName, alertType) => _snoozes.IsSnoozed(charName, alertType),
                 Flash = (charName, severity, alertType) => _thumbnailManager.SetAlertFlash(charName, severity, alertType),
                 Badge = (charName, severity, alertType) => _thumbnailManager.IncrementAlertBadge(charName, severity, alertType),
                 Unseen = (charName, alertType, severity) => _thumbnailManager.NoteUnseenAlert(charName, alertType, severity),

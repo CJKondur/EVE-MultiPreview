@@ -371,6 +371,7 @@ public partial class AlertHistoryWindow : Window
         AlertOutcome.NoToast => Str("L.Hist.Outcome.NoToast", "No toast"),
         AlertOutcome.Muted => Str("L.Hist.Outcome.Muted", "Muted"),
         AlertOutcome.NoWindow => Str("L.Hist.Outcome.NoWindow", "No client window"),
+        AlertOutcome.Snoozed => Str("L.Hist.Outcome.Snoozed", "Snoozed"),
         _ => Str("L.Hist.Outcome.Shown", "Shown"),
     };
 

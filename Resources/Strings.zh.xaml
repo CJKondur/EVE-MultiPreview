@@ -2137,4 +2137,5 @@
     <sys:String x:Key="L.Switch.CycleFilterEmpty">没有其他客户端符合循环筛选条件：改为在全部客户端之间切换</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Title">循环筛选</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycleFilters.Body">三个开关可以缩小循环键的切换范围：用于所有运行中客户端的两个键、每个分组的键，以及多个角色共用的键。在你打开其中一个之前，三个都是关闭的。&#x0A;&#x0A;- **只在当前星系内循环** 让按键只在与前台客户端同一星系的客户端之间切换。MultiPreview 还不知道所在星系的客户端不会被跳过。&#x0A;- **只在有警报的客户端之间循环** 只切换到有你还没看过的警报的客户端。战斗中，这些就是需要你的客户端。&#x0A;- **跳过警报已静音的客户端** 会跳过你已静音警报的角色（右键点击缩略图）。&#x0A;- 打开多个开关时，客户端必须同时满足全部条件。&#x0A;- 循环键永远不会失灵：没有其他客户端符合条件时，按键会像开关都关闭一样在全部客户端之间切换，并在光标旁提示一次。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Outcome.Snoozed">已暂停</sys:String> <!-- draft -->
 </ResourceDictionary>

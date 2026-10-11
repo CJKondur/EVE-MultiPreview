@@ -58,7 +58,7 @@ public sealed class AlertWalk
         for (int i = from; i < list.Count; i++)
         {
             var entry = list[i];
-            if (entry.Outcome == AlertOutcome.Muted) continue;
+            if (entry.Outcome is AlertOutcome.Muted or AlertOutcome.Snoozed) continue;
             if (inFront != null && string.Equals(entry.Character, inFront, StringComparison.OrdinalIgnoreCase)) continue;
             if (!running(entry.Character)) continue;
             _last = entry;

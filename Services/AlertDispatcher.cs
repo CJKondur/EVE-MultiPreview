@@ -18,6 +18,8 @@ public enum AlertOutcome
     Muted,
     /// <summary>The character has no client window MultiPreview knows: nothing was shown or played.</summary>
     NoWindow,
+    /// <summary>The player snoozed this event for this character (IDEAS #30): nothing was shown or played.</summary>
+    Snoozed,
 }
 
 /// <summary>What an alert is shown with: the thumbnails, the hub and the sound. App wires each to the call its alert
@@ -28,6 +30,9 @@ public sealed class AlertTargets
     public Func<IEnumerable<string>> ActiveCharacters { get; init; } = () => Array.Empty<string>();
     /// <summary>ThumbnailManager.IsCharacterAlertMuted.</summary>
     public Func<string, bool> IsMuted { get; init; } = _ => false;
+    /// <summary>(character, alert type): EventSnoozes.IsSnoozed. The player snoozed this one event for this one
+    /// character (IDEAS #30).</summary>
+    public Func<string, string, bool> IsSnoozed { get; init; } = (_, _) => false;
     /// <summary>(character, severity, alert type): ThumbnailManager.SetAlertFlash.</summary>
     public Action<string, string, string> Flash { get; init; } = (_, _, _) => { };
     /// <summary>(character, severity, alert type): ThumbnailManager.IncrementAlertBadge.</summary>
@@ -70,6 +75,12 @@ public static class AlertDispatcher
             DiagnosticsService.LogAlerts(
                 $"[App] MUTED — alerts snoozed for '{charName}'. No flash/badge/toast/sound.");
             return AlertOutcome.Muted;
+        }
+        if (to.IsSnoozed(charName, alertType))
+        {
+            DiagnosticsService.LogAlerts(
+                $"[App] SNOOZED — '{alertType}' is snoozed for '{charName}'. No flash/badge/toast/sound.");
+            return AlertOutcome.Snoozed;
         }
         DiagnosticsService.LogAlerts(
             $"[App] '{charName}' found in active windows, dispatching to flash/badge/toast/sound");
