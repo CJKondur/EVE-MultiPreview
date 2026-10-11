@@ -147,12 +147,32 @@ public sealed class ThumbnailManager : IDisposable
 
     /// <summary>An alert was shown for a character (AlertTargets.Unseen; the log monitor's reading thread). An alert on
     /// the client in front is seen as it arrives: the badge's rule (IncrementAlertBadge).</summary>
-    public void NoteUnseenAlert(string characterName, string alertType, string severity)
+    public void NoteUnseenAlert(string characterName, string alertType, string severity) =>
+        NoteUnseen(Attention, characterName, alertType, severity, GetHwndForCharacter, Interop.User32.GetForegroundWindow);
+
+    /// <summary>Whether a client is the window in front. No client (a zero handle) is never in front, whatever
+    /// Windows names as the window in front: with no window in front at all it names zero too.</summary>
+    public static bool InFront(IntPtr client, IntPtr foreground) => client != IntPtr.Zero && client == foreground;
+
+    /// <summary>What <see cref="NoteUnseenAlert"/> does, with its two questions handed in (tests): which window is
+    /// a character's client, and which window is in front. A character without a client gets no entry: there is
+    /// nothing to go to, and nothing would ever take the entry off again. The client is asked for a second time
+    /// after the entry is made, because this runs on the log monitor's thread while the window's thread may be
+    /// closing that client: if its "gone" came first, the entry is taken off here.</summary>
+    public static void NoteUnseen(AlertAttention attention, string characterName, string alertType, string severity,
+        Func<string, IntPtr> clientOf, Func<IntPtr> foreground)
     {
-        var hwnd = GetHwndForCharacter(characterName);
-        Attention.Raised(characterName, alertType, severity,
-            clientInFront: hwnd != IntPtr.Zero && hwnd == Interop.User32.GetForegroundWindow());
+        var client = clientOf(characterName);
+        if (client == IntPtr.Zero) return;
+        if (!attention.Raised(characterName, alertType, severity, clientInFront: InFront(client, foreground()))) return;
+        if (clientOf(characterName) == IntPtr.Zero) attention.Gone(characterName);
     }
+
+    /// <summary>Whether a client's change of title means that the character it had has left it: it logged out, or
+    /// another one logged in. The same name in another spelling is the same character, and a client that had no
+    /// character had none to lose.</summary>
+    public static bool CharacterLeft(string? before, string? now) =>
+        !string.IsNullOrEmpty(before) && !string.Equals(before, now, StringComparison.OrdinalIgnoreCase);
 
     // Per-process audio (auto-solo + per-client mute/volume), matched by PID.
     private readonly AudioSessionService _audio = new();
@@ -822,13 +842,15 @@ public sealed class ThumbnailManager : IDisposable
                     _settings.SaveThumbnailPosition(oldChar,
                         (int)thumbWindow.Left, (int)thumbWindow.Top,
                         (int)thumbWindow.Width, (int)thumbWindow.Height);
-                    // The character logged out of this window (or another one logged in): its unseen alerts are
-                    // not this client's any more (IDEAS batch 5).
-                    if (!string.Equals(oldChar, window.CharacterName, StringComparison.OrdinalIgnoreCase))
-                        Attention.Gone(oldChar);
                 }
 
                 thumbWindow.UpdateCharacterName(window.CharacterName);
+
+                // The character logged out of this window (or another one logged in): its unseen alerts are
+                // not this client's any more (IDEAS batch 5). Below the new name: an alert raised for the old
+                // one from here on finds no client for it (NoteUnseen asks twice), and one raised before is
+                // taken off here.
+                if (CharacterLeft(oldChar, window.CharacterName)) Attention.Gone(oldChar);
 
                 // UpdateCharacterName force-shows the name overlay; re-assert the
                 // user's "show character name" preference so a disabled overlay
