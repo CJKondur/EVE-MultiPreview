@@ -45,6 +45,7 @@ public static class AlertsPages
         new HelpTopic(SoundsId, "dnd", new[]
         {
             "alerts.sounds.dndHotkey", "alerts.sounds.dndCritical", "alerts.sounds.quietHours", "alerts.sounds.quietFrom", "alerts.sounds.quietTo",
+            DoNotDisturbStateEditor.ItemId,
         }),
         new HelpTopic(SoundsId, "escalation", new[] { "alerts.sounds.escalate", "alerts.sounds.escalateAfter", "alerts.sounds.escalateRepeats" }),
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
@@ -232,6 +233,9 @@ public static class AlertsPages
         new SectionDef("alerts.sounds.dnd", new PageItem[]
         {
             new SettingItem(Setting.Hotkey("alerts.sounds.dndHotkey", s => s.DoNotDisturbHotkey)),
+            // A line that says so while do-not-disturb is on right now (App's answer, AppServices.DoNotDisturbOn), and
+            // nothing while it is off. Not the section's first item: a search for the section lands on the card above.
+            new EditorItem(DoNotDisturbStateEditor.ItemId, ctx => new DoNotDisturbStateEditor(ctx)),
             new SettingItem(Setting.Toggle("alerts.sounds.dndCritical", s => s.DoNotDisturbCriticalPlays)),
             new SettingItem(Setting.Toggle("alerts.sounds.quietHours", s => s.QuietHoursEnabled)),
             TimeOfDay("alerts.sounds.quietFrom", s => s.QuietHoursFrom),

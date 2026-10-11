@@ -1218,6 +1218,7 @@ public partial class App : Application
                     AlertHub = _alertHub,
                     OpenAlertHistory = OpenAlertHistory,
                     Snoozes = _snoozes,
+                    DoNotDisturbOn = () => DoNotDisturbOn,
                     CustomAlerts = _customAlerts,
                     // Which custom rules the log monitor has switched off for what they cost: the page says it on their cards.
                     CustomRulesSwitchedOff = () => _logMonitor?.CustomRulesSwitchedOff ?? CustomAlertEngine.NoneSwitchedOff,

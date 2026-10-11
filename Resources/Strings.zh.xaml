@@ -2176,7 +2176,7 @@
     <sys:String x:Key="L.Tray.Dnd">勿扰模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.DndOn">勿扰模式：开</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.dnd.Title">勿扰模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">勿扰模式只静音警报声音，其他不变：边框、角标和提示照常显示。适合语音通话或直播时使用。&#x0A;&#x0A;- **勿扰模式开关** 用来开关它，托盘菜单也可以。光标旁会提示当前状态，开启期间托盘图标的提示里也会显示。&#x0A;- **严重警报仍然发声** 一开始是打开的：严重警报仍会发声。想要完全安静就关掉它。&#x0A;- **每天的安静时段** 每天按时钟自动开关。**开始时间** 23:00、**结束时间** 07:00 就是一整夜。&#x0A;- 在安静时段内按下快捷键，声音会恢复到该时段结束。在时段外按下，会一直静音到你再按一次，或到下一个安静时段结束。&#x0A;- 重新启动 MultiPreview 会忘记快捷键的状态。安静时段是一项设置，会保留。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">勿扰模式只静音警报声音，其他不变：边框、角标和提示照常显示。适合语音通话或直播时使用。&#x0A;&#x0A;- **勿扰模式开关** 用来开关它，托盘菜单也可以。光标旁会提示当前状态。开启期间，托盘图标的提示和本页上的一行文字都会显示。&#x0A;- **严重警报仍然发声** 一开始是打开的：严重警报仍会发声。想要完全安静就关掉它。&#x0A;- **每天的安静时段** 每天按时钟自动开关。**开始时间** 23:00、**结束时间** 07:00 就是一整夜。**开始时间** 和 **结束时间** 相同时，就没有安静时段。&#x0A;- 在安静时段内按下快捷键，声音会恢复到该时段结束。在时段外按下，会一直静音到你再按一次，或到下一个安静时段结束。&#x0A;- 重新启动 MultiPreview 会忘记快捷键的状态。安静时段是一项设置，会保留。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.escalation">重复严重警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate">重复你还没看过的严重警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate.Desc">在那个客户端来到前台之前，它的声音会再次播放，一次比一次响。</sys:String> <!-- draft -->
@@ -2204,4 +2204,7 @@
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows 拒绝的按键</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows 同一时间只会把每个按键组合交给一个程序。如果其他程序先占用了某个热键，按下它在 MultiPreview 中不会有任何反应，也不会告诉你原因。&#x0A;&#x0A;- **Windows 拒绝的按键** 会列出每个这样的按键及其绑定的功能。点击其中一个即可更改。&#x0A;- 常见的占用者是悬浮层和语音程序：Discord、NVIDIA 和 AMD 的悬浮层、OBS、Steam、Xbox Game Bar。卡片会列出正在运行的程序。&#x0A;- MultiPreview 还会通过托盘通知提示，每个按键只提示一次。&#x0A;- 每次注册按键时都会检查：EVE 客户端运行期间，以及你更改设置之后。鼠标按键永远不会被拒绝。&#x0A;- 开启 **按住 Ctrl、Shift 或 Alt 时热键仍然有效** 后，每个按键还会与 Ctrl、Alt、Shift、Win 的各种组合一起注册。其中许多组合被 Windows 自己保留。列表中只显示你选择的组合。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.LastAlertHere">最新的警报就在这个客户端上</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">24 小时制，例如 23:00。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.On">勿扰模式现在是开启的。警报声音已静音。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.OnCritical">勿扰模式现在是开启的。警报声音已静音，但严重警报仍然发声。</sys:String> <!-- draft -->
 </ResourceDictionary>

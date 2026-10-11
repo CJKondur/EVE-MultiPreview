@@ -51,6 +51,9 @@ public sealed class AppServices
     /// <summary>The alert events snoozed for one character (IDEAS #30), for Alerts › Events › Snoozed right now.
     /// Null in tests and in a window opened without the app.</summary>
     public EventSnoozes? Snoozes { get; init; }
+    /// <summary>Whether do-not-disturb is on right now, by the hotkey, the tray or the quiet hours (IDEAS #32), for the
+    /// line on Alerts › Sounds that says so. Null in tests and in a window opened without the app.</summary>
+    public Func<bool>? DoNotDisturbOn { get; init; }
     /// <summary>The player's own alert rules, for Alerts › Custom rules (IDEAS #8). Saving through it reaches the log
     /// monitor at once. Null in tests.</summary>
     public CustomAlertStore? CustomAlerts { get; init; }
