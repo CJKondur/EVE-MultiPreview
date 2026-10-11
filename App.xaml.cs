@@ -497,7 +497,7 @@ public partial class App : Application
             // pause key's note would be replaced by the note about the others: one second from now, one note names
             // every key that is refused by then.
             _hotkeyService.Refused.Changed += () => Dispatcher.BeginInvoke(new Action(TellRefusedHotkeys));
-            var refusedAtStartup = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            var refusedAtStartup = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000) };
             refusedAtStartup.Tick += (_, _) =>
             {
                 refusedAtStartup.Stop();
