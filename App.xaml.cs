@@ -497,7 +497,7 @@ public partial class App : Application
             // pause key's note would be replaced by the note about the others: one second from now, one note names
             // every key that is refused by then.
             _hotkeyService.Refused.Changed += () => Dispatcher.BeginInvoke(new Action(TellRefusedHotkeys));
-            var refusedAtStartup = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000) };
+            var refusedAtStartup = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             refusedAtStartup.Tick += (_, _) =>
             {
                 refusedAtStartup.Stop();
@@ -761,10 +761,12 @@ public partial class App : Application
         + "or a power cut. If something went wrong, error_log.txt in the logs folder may say what. Attach it to a bug report.";
 
     /// <summary>The one-second timer runs only while something needs it: escalation switched on (IDEAS #29), or the
-    /// "Left behind" event (IDEAS #5).</summary>
+    /// "Left behind" event (IDEAS #5). With the repeats switched off, the chains that were being followed are
+    /// forgotten here and now: the timer may stop with this very change, and then no tick comes to forget them.</summary>
     private void FollowAlertTimer()
     {
         if (_alertTimer == null || _settings == null) return;
+        if (!AlertEscalation.Needed(_settings.Settings)) _escalation.Forget();
         bool needed = !_isShuttingDown && (AlertEscalation.Needed(_settings.Settings) || StragglerWatch.IsOn(_settings.Settings));
         switch (AlertEscalation.TimerChange(needed, _alertTimer.IsEnabled))
         {
@@ -903,7 +905,8 @@ public partial class App : Application
         // so the master toggle did nothing. Read the UI-backed field.
         if (s == null || !s.EnableAlertSounds)
         {
-            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+            // A repeat with "Play a sound" off is counted as done without a sound (IDEAS #29): it says nothing here.
+            if (repeat == 0) EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                 $"[Sound] GATED off: EnableAlertSounds={s?.EnableAlertSounds} for {alertType} on '{character}'");
             return SoundResult.Never;
         }
@@ -950,10 +953,14 @@ public partial class App : Application
 
         if (string.IsNullOrEmpty(soundFile) || !System.IO.File.Exists(soundFile))
         {
-            Debug.WriteLine($"[AlertSound:Play] ⚠ No sound file for {alertType} (file='{soundFile ?? "null"}')");
-            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                $"[Sound] GATED no-file: {alertType} on '{character}' resolved='{soundFile ?? "null"}' " +
-                $"(exists={(!string.IsNullOrEmpty(soundFile) && System.IO.File.Exists(soundFile))})");
+            // Said for the alert itself. Its repeats find the same and say nothing more.
+            if (repeat == 0)
+            {
+                Debug.WriteLine($"[AlertSound:Play] ⚠ No sound file for {alertType} (file='{soundFile ?? "null"}')");
+                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                    $"[Sound] GATED no-file: {alertType} on '{character}' resolved='{soundFile ?? "null"}' " +
+                    $"(exists={(!string.IsNullOrEmpty(soundFile) && System.IO.File.Exists(soundFile))})");
+            }
             return SoundResult.Never;
         }
 

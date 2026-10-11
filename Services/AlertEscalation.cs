@@ -39,6 +39,7 @@ public sealed class AlertEscalation
         public DateTime? AskedUtc;  // when a repeat of it was last asked for, played or put off; null: never yet
         public int Done;
         public bool Over;           // every repeat is played and handed off, or the player muted or snoozed it
+        public bool Quieted;        // it is over because of a mute, a snooze, its event switched off or its client gone
     }
 
     private sealed class Pair : IEqualityComparer<(string Character, string EventKey)>
@@ -60,6 +61,11 @@ public sealed class AlertEscalation
 
     /// <summary>How many alerts are being followed (tests).</summary>
     public int Chains => _chains.Count;
+
+    /// <summary>Lets every chain go. App asks for it the moment the repeats are switched off: the tick does the same,
+    /// but the timer may stop with that very change, and then no tick comes. Kept, a chain would play for the past
+    /// in the second the repeats are switched on again.</summary>
+    public void Forget() => _chains.Clear();
 
     /// <summary>Whether App's one-second look is needed at all.</summary>
     public static bool Needed(AppSettings s) => s.EscalationEnabled;
@@ -126,7 +132,8 @@ public sealed class AlertEscalation
     /// <summary>One look. Returns the one repeat to play now, or null.</summary>
     /// <param name="unseen">AlertAttention.Unseen(), as it is at this moment.</param>
     /// <param name="quieted">(character, alert type): the player has dealt with it, or nothing is left to go to. The
-    /// character is muted, the event is snoozed for it or switched off, or the character has no client. Ends the chain.</param>
+    /// character is muted, the event is snoozed for it or switched off, or the character has no client. Ends the chain
+    /// for the alerts it knows; an alert of that kind that is newer than all of them is followed afresh.</param>
     /// <param name="soundsHeld">No repeat may sound right now (do-not-disturb without "Critical alerts still play").
     /// The chains wait.</param>
     public Repeat? Due(IReadOnlyList<UnseenAlert> unseen, AppSettings s, DateTime utcNow, Func<string, string, bool> quieted, bool soundsHeld)
@@ -164,13 +171,18 @@ public sealed class AlertEscalation
             // only let go (a character keeps twenty at most) changes nothing: the chain goes on where it was.
             // A chain first found later than one wait after its alert (escalation was switched on just now, or the
             // PC slept) is timed from this look, so nothing is played for the past at once.
-            if (!_chains.TryGetValue(key, out var chain) || alert.TimeUtc > chain.NewestUtc)
-                _chains[key] = chain = new Chain { LastUtc = utcNow - alert.TimeUtc > after ? utcNow : alert.TimeUtc };
+            // A chain that a mute, a snooze or its event switched off has ended knew its alerts too. An alert of
+            // that kind that is newer than all of them came after the player dealt with those: it is followed
+            // afresh, and counted from itself, not from the old alert that is still unseen beside it. (A chain that
+            // played all its repeats stays over until the player has looked: under fire they do not start again.)
+            Chain Fresh(DateTime from) => _chains[key] = new Chain { LastUtc = utcNow - from > after ? utcNow : from };
+            if (!_chains.TryGetValue(key, out var chain) || alert.TimeUtc > chain.NewestUtc) chain = Fresh(alert.TimeUtc);
+            else if (chain.Quieted && newestUtc > chain.NewestUtc) chain = Fresh(newestUtc);
             chain.NewestUtc = newestUtc;
             if (chain.Over) continue;
             if (quieted(alert.Character, alert.EventKey))
             {
-                chain.Over = true;      // muted or snoozed since: the player has dealt with it
+                chain.Over = chain.Quieted = true;      // muted or snoozed since: the player has dealt with it
                 continue;
             }
             if (utcNow - chain.LastUtc < after) continue;
