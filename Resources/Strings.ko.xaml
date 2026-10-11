@@ -2104,7 +2104,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.backToPrevious.Desc">이 클라이언트 전에 쓰던 클라이언트로 전환해요. 다시 누르면 돌아와요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.NoPrevious">돌아갈 다른 클라이언트가 없어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.back.Title">바로 전 클라이언트로 돌아가기</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**바로 전 클라이언트로 돌아가기**는 앞에 있는 클라이언트 전에 쓰던 클라이언트로 데려가고, 한 번 더 누르면 돌아와요. 메인과 정찰, 또는 메인과 방금 확인한 로지처럼요.&#x0A;&#x0A;- 클라이언트는 앞에 0.5초 있으면 쓴 것으로 쳐요. 순환 키를 누르고 있는 동안 지나간 클라이언트는 치지 않아요.&#x0A;- 닫힌 클라이언트는 건너뛰어요.&#x0A;- 다른 프로그램에서는 마지막으로 쓴 클라이언트로 가요.&#x0A;- 키는 직접 정하기 전까지 정해져 있지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**바로 전 클라이언트로 돌아가기**는 앞에 있는 클라이언트 전에 쓰던 클라이언트로 데려가고, 한 번 더 누르면 돌아와요. 메인과 정찰, 또는 메인과 방금 확인한 로지처럼요.&#x0A;&#x0A;- 클라이언트에 0.5초 머물면 쓴 것으로 쳐요. 순환 키를 누르고 있을 때처럼 그보다 빨리 지나간 클라이언트는 치지 않아요.&#x0A;- 닫힌 클라이언트는 건너뛰어요.&#x0A;- 다른 프로그램에서는 마지막으로 쓴 클라이언트로 가요. 키보드 키는 **단축키 작동 범위**가 **어디서나**일 때만 거기서 작동해요.&#x0A;- 키는 직접 정하기 전까지 정해져 있지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.lastAlert">마지막 알림으로 이동</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.lastAlert.Desc">아직 보지 않은 알림 중 가장 심각한 알림의 클라이언트로 전환해요. 다시 누르면 다음으로 가요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.NoAlert">이동할 알림이 없어요</sys:String> <!-- draft -->

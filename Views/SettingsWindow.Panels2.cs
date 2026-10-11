@@ -645,6 +645,10 @@ public partial class SettingsWindow
         Add("Layout undo", S.UndoLayoutHotkey);
         Add("Layout redo", S.RedoLayoutHotkey);
         Add("Close all clients", S.CloseAllClientsHotkey);
+        // The hotkeys of IDEAS batch 5, under the names their cards have in the new window.
+        Add(EveMultiPreview.Services.LocalizationService.Str("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), S.PreviousClientHotkey);
+        Add(EveMultiPreview.Services.LocalizationService.Str("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), S.GoToLastAlertHotkey);
+        Add(EveMultiPreview.Services.LocalizationService.Str("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), S.DoNotDisturbHotkey);
 
         // Per-character switch hotkeys
         foreach (var (chr, hk) in _svc.CurrentProfile.Hotkeys)

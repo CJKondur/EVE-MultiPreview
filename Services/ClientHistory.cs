@@ -5,7 +5,8 @@ namespace EveMultiPreview.Services;
 
 /// <summary>The clients the player used last, newest first, for the "Back to the client before this one" hotkey
 /// (IDEAS #56). A client counts as used once it has been in front for <see cref="SettleMs"/>, so the clients a held
-/// cycle key passes over don't count; the key itself counts the client it leaves, so two quick presses toggle.
+/// cycle key passes over faster than that don't count (with a cycle delay of half a second or more each stop does);
+/// the key itself counts the client it leaves, so two quick presses toggle.
 /// The window's thread only; the time is handed in.</summary>
 public sealed class ClientHistory
 {
@@ -48,6 +49,16 @@ public sealed class ClientHistory
         foreach (var client in _used)
             if (client != foreground && alive(client)) return client;
         return IntPtr.Zero;
+    }
+
+    /// <summary>The key was pressed: where it goes (see <see cref="Target"/>). <paramref name="active"/> is the
+    /// client MultiPreview counts as active, or else whatever window is in front. When it is a client it is noted
+    /// first. A client that came to the front before MultiPreview knew it as one (just started, or logged in again)
+    /// was never noted, and it is still the client the key leaves: the next press comes back to it.</summary>
+    public IntPtr Back(IntPtr active, bool activeIsClient, long nowMs, Func<IntPtr, bool> alive)
+    {
+        if (activeIsClient) Front(active, nowMs);
+        return Target(active, nowMs, alive);
     }
 
     private void Settle(long nowMs)

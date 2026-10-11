@@ -2121,7 +2121,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.backToPrevious.Desc">切换到你在这个客户端之前用的那个客户端。再按一次就回来。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.NoPrevious">没有可以返回的其他客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.back.Title">回到上一个客户端</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**回到上一个客户端** 会带你回到前台客户端之前用过的那个客户端，再按一次就回来：比如主号和侦察号，或者主号和你刚看过的后勤号。&#x0A;&#x0A;- 客户端在前台停留满半秒才算用过，所以按住循环键时一路经过的客户端不算。&#x0A;- 已关闭的客户端会被跳过。&#x0A;- 在其他程序里按下时，会切换到你最后用过的客户端。&#x0A;- 在你设置之前，这个键是未设置的。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.back.Body">**回到上一个客户端** 会带你回到前台客户端之前用过的那个客户端，再按一次就回来：比如主号和侦察号，或者主号和你刚看过的后勤号。&#x0A;&#x0A;- 你在一个客户端上停留满半秒，它才算用过。比这更快经过的客户端（比如按住循环键时）不算。&#x0A;- 已关闭的客户端会被跳过。&#x0A;- 在其他程序里按下时，会切换到你最后用过的客户端；键盘按键只有在 **热键生效范围** 设为 **任何位置** 时才会在那里起作用。&#x0A;- 在你设置之前，这个键是未设置的。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.lastAlert">跳到最新的警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.lastAlert.Desc">切换到你还没看过的最严重警报所在的客户端。再按一次就到下一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.NoAlert">没有可以跳转的警报</sys:String> <!-- draft -->

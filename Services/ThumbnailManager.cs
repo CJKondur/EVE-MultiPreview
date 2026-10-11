@@ -737,6 +737,7 @@ public sealed class ThumbnailManager : IDisposable
         thumbWindow.Show();
         PerfLog($"Show: {sw.ElapsedMilliseconds}ms");
         _thumbnails[window.Hwnd] = thumbWindow;
+        if (InFront(window.Hwnd, Interop.User32.GetForegroundWindow())) NoteClientInFront(window.Hwnd);   // IDEAS #56: see NoteClientInFront
 
         // Honor a per-character "Hidden" choice (Visibility tab, 1 = hidden) and the
         // global hide-all toggles on a freshly created thumbnail. Without this, a
@@ -3716,7 +3717,9 @@ public sealed class ThumbnailManager : IDisposable
     private readonly ClientHistory _clientHistory = new();
 
     /// <summary>A window that came to the front is noted when it is a client. A browser in front is not: from
-    /// another program, "back" is the client the player was in last.</summary>
+    /// another program, "back" is the client the player was in last. A client that takes the front before it has a
+    /// thumbnail (just started, or logged in again) is no client yet when the focus sweep sees it, and the sweep
+    /// does not look again until the window in front changes: it is noted where its thumbnail is made.</summary>
     private void NoteClientInFront(IntPtr hwnd)
     {
         if (_thumbnails.ContainsKey(hwnd)) _clientHistory.Front(hwnd, Environment.TickCount64);
@@ -3739,7 +3742,8 @@ public sealed class ThumbnailManager : IDisposable
     /// other hotkeys' feedback does, and switches nothing.</summary>
     public void SwitchToPreviousClient()
     {
-        var target = _clientHistory.Target(ActiveClient(), Environment.TickCount64, ClientAlive);
+        var active = ActiveClient();
+        var target = _clientHistory.Back(active, _thumbnails.ContainsKey(active), Environment.TickCount64, ClientAlive);
         if (target == IntPtr.Zero)
         {
             ShowTooltipFeedback(LocalizationService.Str("L.Switch.NoPrevious", "No other client to go back to"));
