@@ -358,8 +358,10 @@ public class AlertHub : IDisposable
         });
     }
 
-    /// <summary>Takes a toast into the stack and says what its clicks do; ShowToast shows it afterwards. (A test hands
-    /// in a toast that is never shown.)</summary>
+    /// <summary>Takes a toast into the stack and says what its clicks do; ShowToast shows it afterwards. Public for the
+    /// tests alone, which hand in a toast that is never shown. It is no second way to show an alert: it does not ask
+    /// whether toasts are paused, does not hold the stack to what fits on the screen, and does not count the alert on
+    /// the bell. ShowToast does all three before it calls this.</summary>
     public void Take(AlertToast toast)
     {
         toast.Window.Closed += (_, _) =>
@@ -380,7 +382,9 @@ public class AlertHub : IDisposable
 
     /// <summary>How a toast's menu is put on the screen: at the pointer, as a thumbnail shows its menu. A toast is a
     /// no-activate window and this menu shows without activating, so neither becomes the foreground window: the keys
-    /// stay with the EVE client. (A test puts a recorder here, so that no menu opens on the screen.)</summary>
+    /// stay with the EVE client. For the same reason a click into the game does not close the menu: it closes itself
+    /// when the pointer has left it (ToastMenu.ClosesNow). (A test puts a recorder here, so that no menu opens on
+    /// the screen.)</summary>
     public Action<ToastMenu> ShowMenu { get; set; } = menu => menu.Strip.Show(System.Windows.Forms.Cursor.Position);
 
     /// <summary>A right-click on a toast (IDEAS #30): its menu. A failure here costs the menu, never the toast.</summary>
@@ -396,8 +400,8 @@ public class AlertHub : IDisposable
 
     /// <summary>The menu of one toast, not shown yet: Dismiss, and three ways to snooze this toast's event for its
     /// character (IDEAS #30). The toast stays up while its menu is open, and its time runs again when the menu has
-    /// closed, whichever way: an item, a click away, another toast's menu opening, or the hub going away. One menu
-    /// at a time.</summary>
+    /// closed, whichever way: an item, the pointer leaving the menu, another toast's menu opening, or the hub going
+    /// away. One menu at a time.</summary>
     private ToastMenu MenuFor(AlertToast toast)
     {
         CloseToastMenu();

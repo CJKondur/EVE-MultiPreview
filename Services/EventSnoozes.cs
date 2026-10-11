@@ -32,10 +32,17 @@ public sealed class EventSnoozes
 
     /// <summary>The longest a timed snooze runs: the longest MultiPreview's own menu makes. Snooze holds what it is
     /// asked for to it. A file can come from anywhere, and a snooze silences an alert: an entry of a file that ends
-    /// later than this from now is not MultiPreview's and is left out whole. (Cut to this length instead, it would run
-    /// a fresh hour after every start, for ever.) And a timed snooze that has more than this left was made before the
-    /// clock was set back: it is over.</summary>
+    /// later than this from now (and <see cref="ClockSlack"/>) is not MultiPreview's, and neither is its file:
+    /// nothing of that file is taken. (Cut to this length instead, the entry would run a fresh hour after every
+    /// start, for ever; left out by itself, a ladder of entries an hour apart would do the same.) And a timed snooze
+    /// that has more than this left was made before the clock was set back: it is over.</summary>
     public static readonly TimeSpan LongestKept = TimeSpan.FromHours(1);
+
+    /// <summary>What a PC's clock may be corrected by between the making of a snooze and a look at it, or between
+    /// the write of the file and its read, without the snooze counting as longer than MultiPreview makes one. A
+    /// one-hour snooze has exactly <see cref="LongestKept"/> left when it is made: without this, a clock that reads
+    /// a moment earlier at the next look would end it for good.</summary>
+    public static readonly TimeSpan ClockSlack = TimeSpan.FromMinutes(1);
 
     private sealed class Key : IEqualityComparer<(string Character, string EventKey)>
     {
@@ -92,10 +99,10 @@ public sealed class EventSnoozes
     }
 
     /// <summary>Whether a snooze is on at this time. A timed one is over when its time has come, and also while more
-    /// than <see cref="LongestKept"/> is left of it: nothing here runs that long, so the clock was set back, and a
-    /// snooze must not grow by what the clock lost.</summary>
+    /// than <see cref="LongestKept"/> (and <see cref="ClockSlack"/>) is left of it: nothing here runs that long, so
+    /// the clock was set back, and a snooze must not grow by what the clock lost.</summary>
     private static bool On(EventSnooze snooze, DateTime utcNow) =>
-        snooze.UntilRestart || (snooze.UntilUtc > utcNow && snooze.UntilUtc - utcNow <= LongestKept);
+        snooze.UntilRestart || (snooze.UntilUtc > utcNow && snooze.UntilUtc - utcNow <= LongestKept + ClockSlack);
 
     /// <summary>Tells the followers of <see cref="Changed"/>, each on its own.</summary>
     private void Tell()
@@ -195,11 +202,14 @@ public sealed class EventSnoozes
                 .Select(s => (Item?)new Item { C = s.Character, E = s.EventKey, U = DateTime.SpecifyKind(s.UntilUtc, DateTimeKind.Utc) }).ToList(),
         }, Json);
 
-    /// <summary>Takes on the snoozes of a file's text. An entry is taken only within its limits: a character and an
-    /// event of a sane length and written as MultiPreview writes them (<see cref="Plain"/>), and a time that is still
-    /// ahead and at most <see cref="LongestKept"/> from now. An entry outside them is left out, never cut to fit.
-    /// Returns how many snoozes there are that were not there before: an entry that is in the file twice is one.
-    /// Never throws, and raises nothing.</summary>
+    /// <summary>Takes on the snoozes of a file's text. The file is taken only when NO entry of it ends later than
+    /// <see cref="LongestKept"/> and <see cref="ClockSlack"/> from now: a file MultiPreview wrote never holds such an
+    /// entry, so one that does came from somewhere else, and nothing of it is taken. (Left out one by one, a ladder
+    /// of entries an hour apart would silence an alert at every start. So what a file can silence is an hour in
+    /// all.) Of a file that is taken, an entry is taken only within its limits: a character and an event of a sane
+    /// length and written as MultiPreview writes them (<see cref="Plain"/>), and a time that is still ahead. An
+    /// entry outside them is left out, never cut to fit. Returns how many snoozes there are that were not there
+    /// before: an entry that is in the file twice is one. Never throws, and raises nothing.</summary>
     public int Restore(string? json)
     {
         if (string.IsNullOrWhiteSpace(json)) return 0;
@@ -208,6 +218,9 @@ public sealed class EventSnoozes
         catch (Exception) { return 0; }
         if (stored?.Snoozes == null) return 0;
         var now = _utcNow();
+        // Before any entry is taken, and whatever else is wrong with the entry that says so.
+        foreach (var item in stored.Snoozes)
+            if (item?.U is DateTime far && Utc(far) - now > LongestKept + ClockSlack) return 0;
         int taken = 0;
         lock (_lock)
         {
@@ -217,9 +230,8 @@ public sealed class EventSnoozes
                 if (item?.U is not DateTime given) continue;
                 if (string.IsNullOrEmpty(item.C) || item.C.Length > MaxName || string.IsNullOrEmpty(item.E) || item.E.Length > MaxKey) continue;
                 if (!Plain(item.C) || !Plain(item.E)) continue;
-                var until = given.Kind == DateTimeKind.Local ? given.ToUniversalTime() : DateTime.SpecifyKind(given, DateTimeKind.Utc);
+                var until = Utc(given);
                 if (until <= now) continue;
-                if (until - now > LongestKept) continue;
                 bool isNew = !_snoozes.ContainsKey((item.C, item.E));
                 Put(new EventSnooze(item.C, item.E, until));
                 if (isNew) taken++;
@@ -227,6 +239,11 @@ public sealed class EventSnoozes
         }
         return taken;
     }
+
+    /// <summary>A file's time as UTC: the same moment when it carries a zone, and UTC when it carries none, as
+    /// MultiPreview writes it.</summary>
+    private static DateTime Utc(DateTime given) =>
+        given.Kind == DateTimeKind.Local ? given.ToUniversalTime() : DateTime.SpecifyKind(given, DateTimeKind.Utc);
 
     /// <summary>A name as MultiPreview itself writes one: no space at either end, no control character, and no
     /// character that only steers the text (a mark that turns it around, a space of no width, a line or paragraph
