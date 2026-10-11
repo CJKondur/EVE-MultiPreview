@@ -19,6 +19,8 @@ public static class TrayCommands
     /// <summary>Opens the alert history window (IDEAS #1).</summary>
     public const string AlertHistory = "tray.alertHistory";
     public const string Suspend = "tray.suspend";
+    /// <summary>Do-not-disturb on or off (IDEAS #32).</summary>
+    public const string DoNotDisturb = "tray.doNotDisturb";
     public const string Lock = "tray.lock";
     public const string HideThumbnails = "tray.hideThumbnails";
     public const string ClickThrough = "tray.clickThrough";
@@ -47,6 +49,9 @@ public sealed class TrayMenuActions
     public Action<string> SwitchProfile { get; init; } = _ => { };
     public Func<bool> IsSuspended { get; init; } = () => false;
     public Action ToggleSuspend { get; init; } = () => { };
+    /// <summary>Whether do-not-disturb is on right now, by the hotkey, this item or the quiet hours (IDEAS #32).</summary>
+    public Func<bool> DoNotDisturbOn { get; init; } = () => false;
+    public Action ToggleDoNotDisturb { get; init; } = () => { };
     public Action ToggleLock { get; init; } = () => { };
     public Func<bool> ThumbnailsHidden { get; init; } = () => false;
     public Action ToggleThumbnails { get; init; } = () => { };
@@ -75,7 +80,7 @@ public sealed class TrayMenu : IDisposable
 
     private readonly TrayMenuActions _a;
     private readonly List<(ToolStripItem Item, string Key, string English)> _labels = new();
-    private readonly ToolStripMenuItem _profiles, _suspend, _lock, _hide, _clickThrough, _hideSecondary, _secondary, _restore, _snap;
+    private readonly ToolStripMenuItem _profiles, _suspend, _doNotDisturb, _lock, _hide, _clickThrough, _hideSecondary, _secondary, _restore, _snap;
 
     public TrayMenu(TrayMenuActions actions)
     {
@@ -92,13 +97,15 @@ public sealed class TrayMenu : IDisposable
 
         // The alert hub follows the pause by itself (AlertHub.FollowPauseOf, IDEAS P37), whichever way it was paused.
         _suspend = Item(TrayCommands.Suspend, "L.Tray.Suspend", "Pause hotkeys", FluentMenu.Glyphs.Pause, _a.ToggleSuspend);
+        // IDEAS #32: alert sounds off, everything else as it is. The mark follows the live state, quiet hours included.
+        _doNotDisturb = Item(TrayCommands.DoNotDisturb, "L.Tray.Dnd", "Do not disturb", null, _a.ToggleDoNotDisturb);
         _lock = Item(TrayCommands.Lock, "L.Tray.Lock", "Lock positions", FluentMenu.Glyphs.Lock, _a.ToggleLock);
         _hide = Item(TrayCommands.HideThumbnails, "L.Tray.Toggle", "Hide thumbnails", FluentMenu.Glyphs.Eye, _a.ToggleThumbnails);
         _clickThrough = Item(TrayCommands.ClickThrough, "L.Tray.ClickThrough", "Click-through", FluentMenu.Glyphs.Pointer, _a.ToggleClickThrough);
         _hideSecondary = Item(TrayCommands.HideSecondary, "L.Tray.HideSecondary", "Hide second thumbnails", FluentMenu.Glyphs.SecondThumbnails, _a.ToggleSecondary);
         _secondary = Item(TrayCommands.Secondary, "L.Tray.PiP", "Second thumbnails", FluentMenu.Glyphs.Window, null);
         FluentMenu.Style(_secondary.DropDown, showIcons: false);
-        Strip.Items.AddRange(new ToolStripItem[] { _suspend, _lock, _hide, _clickThrough, _hideSecondary, _secondary, new ToolStripSeparator() });
+        Strip.Items.AddRange(new ToolStripItem[] { _suspend, _doNotDisturb, _lock, _hide, _clickThrough, _hideSecondary, _secondary, new ToolStripSeparator() });
 
         var windows = Item(TrayCommands.ClientWindows, "L.Tray.ClientPositions", "Client windows", FluentMenu.Glyphs.Monitor, null);
         FluentMenu.Style(windows.DropDown, showIcons: false);
@@ -127,21 +134,32 @@ public sealed class TrayMenu : IDisposable
     /// <summary>Windows' limit for a tray tooltip. NotifyIcon.Text throws on anything longer.</summary>
     public const int TooltipMax = 127;
 
+    /// <summary>A crossed bell: do-not-disturb, where the tip has no room for the words (IDEAS #32).</summary>
+    public static readonly string DoNotDisturbMark = char.ConvertFromUtf32(0x1F515);
+
     /// <summary>The tray icon's tooltip: the name and the pause state, as before, then (once MultiPreview has handled an
     /// error) how many and where to look (IDEAS #55). Cut to Windows' 127 characters.</summary>
-    public static string TooltipText(bool suspended, int errors)
+    public static string TooltipText(bool suspended, int errors, bool doNotDisturb = false)
     {
-        var text = UncutTooltipText(suspended, errors);
+        var text = UncutTooltipText(suspended, errors, doNotDisturb);
         return text.Length <= TooltipMax ? text : text[..TooltipMax];
     }
 
     /// <summary>The tooltip before it is cut to Windows' limit; a test checks the translations fit without the cut.</summary>
-    public static string UncutTooltipText(bool suspended, int errors)
+    public static string UncutTooltipText(bool suspended, int errors, bool doNotDisturb = false)
     {
         var text = suspended ? "⏸ EVE MultiPreview (SUSPENDED)" : "EVE MultiPreview";
-        if (errors > 0)
-            text += "\n" + string.Format(LocalizationService.Str("L.Tray.Errors", "Errors handled: {0}. See App settings › Diagnostics."), errors);
-        return text;
+        var errorLine = errors > 0
+            ? "\n" + string.Format(LocalizationService.Str("L.Tray.Errors", "Errors handled: {0}. See App settings › Diagnostics."), errors)
+            : "";
+        if (doNotDisturb)
+        {
+            // IDEAS #32: in words, on a line of its own. Paused, with a long error line, in a long language, the words
+            // would push the tip past Windows' limit: then a crossed bell behind the name says it instead.
+            var words = "\n" + LocalizationService.Str("L.Tray.DndOn", "Do not disturb: on");
+            text += text.Length + words.Length + errorLine.Length <= TooltipMax ? words : " " + DoNotDisturbMark;
+        }
+        return text + errorLine;
     }
 
     /// <summary>Re-reads labels, check marks, hotkey hints and the two lists. Runs every time the menu opens.</summary>
@@ -161,12 +179,14 @@ public sealed class TrayMenu : IDisposable
         RebuildProfiles(s);
 
         _suspend.Checked = _a.IsSuspended();
+        _doNotDisturb.Checked = _a.DoNotDisturbOn();
         _lock.Checked = s?.LockPositions ?? false;
         _hide.Checked = _a.ThumbnailsHidden();
         _clickThrough.Checked = _a.ClickThroughOn();
         _hideSecondary.Checked = _a.SecondaryHidden();
 
         _suspend.ShortcutKeyDisplayString = Hint(s?.SuspendHotkey);
+        _doNotDisturb.ShortcutKeyDisplayString = Hint(s?.DoNotDisturbHotkey);
         _lock.ShortcutKeyDisplayString = Hint(s?.LockPositionsHotkey);
         _hide.ShortcutKeyDisplayString = Hint(s?.HideShowThumbnailsHotkey);
         _clickThrough.ShortcutKeyDisplayString = Hint(s?.ClickThroughHotkey);

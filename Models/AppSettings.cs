@@ -149,6 +149,16 @@ public class AppSettings
     public bool EnableAlertSounds { get; set; } = false;
     public int AlertSoundVolume { get; set; } = 100;
 
+    /// <summary>Do-not-disturb (IDEAS #32): alert sounds are muted while it is on; borders, badges and toasts go on.
+    /// The hotkey flips it, the quiet hours turn it on by the PC's clock every day (a span over midnight works), and
+    /// a critical alert still plays unless DoNotDisturbCriticalPlays is off. New keys: a file without them has no
+    /// hotkey and no quiet hours.</summary>
+    public string DoNotDisturbHotkey { get; set; } = "";
+    public bool QuietHoursEnabled { get; set; } = false;
+    public string QuietHoursFrom { get; set; } = "23:00";
+    public string QuietHoursTo { get; set; } = "07:00";
+    public bool DoNotDisturbCriticalPlays { get; set; } = true;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

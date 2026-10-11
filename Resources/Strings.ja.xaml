@@ -2143,4 +2143,21 @@
     <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">オフ：MultiPreview を閉じるとスヌーズはすべて終わります。オン：15 分または 1 時間のスヌーズは、残り時間が過ぎるまで続きます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.snoozes.Title">1 人のキャラクターの 1 つのアラートをスヌーズする</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.snoozes.Body">トーストを右クリックすると、そのキャラクターのそのアラートをスヌーズできます。15 分間、1 時間、または MultiPreview を再起動するまでです。同じアラートはほかのキャラクターには引き続き届き、そのキャラクターのほかのアラートも届きます。&#x0A;&#x0A;- スヌーズ中のアラートは、枠もバッジもトーストも表示せず、音も鳴らしません。アラート履歴には スヌーズ中 と付いて残ります。&#x0A;- **現在スヌーズ中** にスヌーズ中のものが一覧表示されます。サムネイルの右クリックメニューには、そのキャラクターの分が表示されます。どちらからでもスヌーズを終了できます。&#x0A;- キャラクターのすべてのアラートを止めたいときは、代わりにサムネイルのメニューの アラートをミュート を使ってください。&#x0A;- **MultiPreview を再起動してもスヌーズを保つ** はオフです。MultiPreview を閉じるとスヌーズはすべて終わります。オンにすると、時間指定のスヌーズは設定フォルダーの alert_snoozes.json に保存され、残り時間が過ぎるまで続きます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.dnd">おやすみモード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.dndHotkey">おやすみモードのオン／オフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">もう一度押すまでアラート音を消します。枠、バッジ、トーストはそのまま表示されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.dndCritical">重大なアラートは鳴らす</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.dndCritical.Desc">おやすみモード中でも、攻撃、ワープ妨害、遮蔽解除の音は鳴ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.quietHours">毎日の静かな時間帯</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.quietHours.Desc">おやすみモードが、この PC の時計に合わせて自動でオン／オフになります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.quietFrom">開始時刻</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.quietTo">終了時刻</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.quietTo.Desc">07:00 のような時刻です。日付をまたぐ時間帯も使えます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Err.Time">23:00 や 7:30 のような時刻を入力してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Dnd.On">おやすみモード：オン。アラート音は鳴りません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Dnd.Off">おやすみモード：オフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.Dnd">おやすみモード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DndOn">おやすみモード：オン</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.dnd.Title">おやすみモード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">おやすみモードはアラート音だけを消します。枠、バッジ、トーストはそのまま表示されます。ボイスチャット中や配信中に便利です。&#x0A;&#x0A;- **おやすみモードのオン／オフ** でオン／オフを切り替えます。トレイメニューからも切り替えられます。カーソルの近くにどちらになったかが表示され、オンの間はトレイアイコンのヒントにも表示されます。&#x0A;- **重大なアラートは鳴らす** は最初はオンで、重大なアラートは鳴ります。完全に静かにしたいときはオフにしてください。&#x0A;- **毎日の静かな時間帯** は、毎日時計に合わせてオン／オフを切り替えます。**開始時刻** 23:00、**終了時刻** 07:00 で一晩です。&#x0A;- 静かな時間帯の間にホットキーを押すと、その時間帯が終わるまで音が戻ります。時間帯の外で押すと、もう一度押すか、次の静かな時間帯が終わるまで音が消えます。&#x0A;- MultiPreview を再起動すると、ホットキーの状態は忘れられます。静かな時間帯は設定なので残ります。</sys:String> <!-- draft -->
 </ResourceDictionary>

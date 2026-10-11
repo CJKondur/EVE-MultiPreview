@@ -105,6 +105,11 @@ public class AhkConfigRoot
         s.PveMode = g.PVEMode != 0;
         s.EnableAlertSounds = g.EnableAlertSounds != 0;
         s.AlertSoundVolume = g.AlertSoundVolume;
+        s.DoNotDisturbHotkey = g.DoNotDisturbHotkey ?? "";
+        s.QuietHoursEnabled = g.QuietHoursEnabled != 0;
+        s.QuietHoursFrom = g.QuietHoursFrom ?? "23:00";
+        s.QuietHoursTo = g.QuietHoursTo ?? "07:00";
+        s.DoNotDisturbCriticalPlays = g.DoNotDisturbCriticalPlays != 0;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -409,6 +414,11 @@ public class AhkConfigRoot
         g.PVEMode = s.PveMode ? 1 : 0;
         g.EnableAlertSounds = s.EnableAlertSounds ? 1 : 0;
         g.AlertSoundVolume = s.AlertSoundVolume;
+        g.DoNotDisturbHotkey = s.DoNotDisturbHotkey;
+        g.QuietHoursEnabled = s.QuietHoursEnabled ? 1 : 0;
+        g.QuietHoursFrom = s.QuietHoursFrom;
+        g.QuietHoursTo = s.QuietHoursTo;
+        g.DoNotDisturbCriticalPlays = s.DoNotDisturbCriticalPlays ? 1 : 0;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1160,6 +1170,23 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("AlertSoundVolume")]
     public int AlertSoundVolume { get; set; } = 100;
+
+    // Do-not-disturb (IDEAS #32), new after 2.3.42: a file without them has no hotkey, no quiet hours, and lets a
+    // critical alert play.
+    [JsonPropertyName("DoNotDisturbHotkey")]
+    public string? DoNotDisturbHotkey { get; set; } = "";
+
+    [JsonPropertyName("QuietHoursEnabled")]
+    public int QuietHoursEnabled { get; set; }
+
+    [JsonPropertyName("QuietHoursFrom")]
+    public string? QuietHoursFrom { get; set; } = "23:00";
+
+    [JsonPropertyName("QuietHoursTo")]
+    public string? QuietHoursTo { get; set; } = "07:00";
+
+    [JsonPropertyName("DoNotDisturbCriticalPlays")]
+    public int DoNotDisturbCriticalPlays { get; set; } = 1;
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

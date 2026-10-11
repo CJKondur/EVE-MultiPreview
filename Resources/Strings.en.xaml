@@ -2142,4 +2142,21 @@
     <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">Off: every snooze ends when MultiPreview closes. On: a snooze for 15 minutes or 1 hour runs out its time.</sys:String>
     <sys:String x:Key="L.Help.alerts.events.snoozes.Title">Snoozing one alert for one character</sys:String>
     <sys:String x:Key="L.Help.alerts.events.snoozes.Body">Right-click a toast to snooze that alert for that character: for 15 minutes, for 1 hour, or until MultiPreview restarts. The same alert still comes for your other characters, and that character's other alerts still come.&#x0A;&#x0A;- A snoozed alert shows no border, badge or toast and plays no sound. The alert history still lists it, marked Snoozed.&#x0A;- **Snoozed right now** lists what is snoozed, and a thumbnail's right-click menu lists that character's. Either place ends a snooze.&#x0A;- To silence every alert of a character, use Mute alerts in the thumbnail's menu instead.&#x0A;- **Keep snoozes when MultiPreview restarts** is off: closing MultiPreview ends every snooze. Turned on, the timed snoozes are kept in alert_snoozes.json in your settings folder and run out their time.</sys:String>
+    <sys:String x:Key="L.S.Sec.alerts.sounds.dnd">Do not disturb</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.dndHotkey">Do not disturb on or off</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">Mutes alert sounds until you press it again. Borders, badges and toasts go on.</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.dndCritical">Critical alerts still play</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.dndCritical.Desc">With do not disturb on, an attack, a warp scramble or a decloak still plays its sound.</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.quietHours">Quiet hours every day</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.quietHours.Desc">Do not disturb turns itself on and off by this PC's clock.</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.quietFrom">Quiet from</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.quietTo">Quiet until</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.quietTo.Desc">A time such as 07:00. A span over midnight works.</sys:String>
+    <sys:String x:Key="L.S.Err.Time">Enter a time of day such as 23:00 or 7:30.</sys:String>
+    <sys:String x:Key="L.Dnd.On">Do not disturb: on. Alert sounds are muted.</sys:String>
+    <sys:String x:Key="L.Dnd.Off">Do not disturb: off</sys:String>
+    <sys:String x:Key="L.Tray.Dnd">Do not disturb</sys:String>
+    <sys:String x:Key="L.Tray.DndOn">Do not disturb: on</sys:String>
+    <sys:String x:Key="L.Help.alerts.sounds.dnd.Title">Do not disturb</sys:String>
+    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">Do not disturb mutes alert sounds and nothing else: borders, badges and toasts still show. Use it on voice comms or while you stream.&#x0A;&#x0A;- **Do not disturb on or off** switches it on and off, and so does the tray menu. A note near the cursor says which, and the tray icon's tip says so while it is on.&#x0A;- **Critical alerts still play** is on at first: a critical alert still plays. Turn it off for complete silence.&#x0A;- **Quiet hours every day** turns it on and off by the clock every day. **Quiet from** 23:00 and **Quiet until** 07:00 is one night.&#x0A;- Pressing the hotkey during quiet hours gives the sounds back until the quiet hours end. Pressing it outside them mutes until you press again, or until the next quiet hours end.&#x0A;- Restarting MultiPreview forgets the hotkey's state. The quiet hours are a setting and stay.</sys:String>
 </ResourceDictionary>

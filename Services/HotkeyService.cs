@@ -804,6 +804,13 @@ public sealed class HotkeyService : IDisposable
             ProfileCycleBackward?.Invoke();
         });
 
+        // Do-not-disturb (IDEAS #32): alert sounds off or on again. It switches no client.
+        StoreAhkHotkey(settings.DoNotDisturbHotkey, () =>
+        {
+            if (_suspended) return;
+            DoNotDisturbToggled?.Invoke();
+        });
+
         // ── Per-character hotkeys from profile ───────────────────────
 
         var sharedHotkeys = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -890,6 +897,9 @@ public sealed class HotkeyService : IDisposable
     // Events for profile cycling
     public event Action? ProfileCycleForward;
     public event Action? ProfileCycleBackward;
+
+    /// <summary>The do-not-disturb hotkey was pressed (IDEAS #32). App flips it and says so.</summary>
+    public event Action? DoNotDisturbToggled;
 
     /// <summary>
     /// Register a hotkey from an AHK-format string (e.g., "NumpadDiv", "^a", "ctrl & 1").

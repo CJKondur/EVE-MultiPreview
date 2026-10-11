@@ -41,6 +41,10 @@ public static class AlertsPages
         }),
         new HelpTopic(LookId, "colorBlind", new[] { "alerts.look.colorBlind" }),
         new HelpTopic(SoundsId, "sounds", new[] { "alerts.sounds.enabled", "alerts.sounds.volume", "alerts.sounds.table" }),
+        new HelpTopic(SoundsId, "dnd", new[]
+        {
+            "alerts.sounds.dndHotkey", "alerts.sounds.dndCritical", "alerts.sounds.quietHours", "alerts.sounds.quietFrom", "alerts.sounds.quietTo",
+        }),
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
@@ -193,6 +197,15 @@ public static class AlertsPages
         ctx.Host.Toast(SettingsContext.Str("L.S.AlertHub.ResetDone"));
     }
 
+    /// <summary>A time of day on the PC's clock ("23:00"), shown while the quiet hours are on. What can't be read as a
+    /// time is not stored.</summary>
+    private static SettingItem TimeOfDay(string id, Expression<Func<AppSettings, string>> prop) =>
+        new(Setting.Text(id, prop) with
+        {
+            ShowIf = s => s.QuietHoursEnabled,
+            Validate = v => DoNotDisturb.TryParseTime(v as string, out _) ? null : "L.S.Err.Time",
+        });
+
     private static PageDef Sounds() => new(SoundsId, NavGroup.Alerts, new[]
     {
         new SectionDef("alerts.sounds.main", new PageItem[]
@@ -207,6 +220,16 @@ public static class AlertsPages
                 Min = 0, Max = 100, Step = 1, UnitKey = "L.S.Unit.Percent",
                 Replaces = new[] { "TxtMasterVolume" },
             }),
+        }),
+        // IDEAS #32: do-not-disturb mutes the sounds and nothing else. App.PlayAlertSound asks at every alert, and App
+        // registers the hotkey again on Applied.
+        new SectionDef("alerts.sounds.dnd", new PageItem[]
+        {
+            new SettingItem(Setting.Hotkey("alerts.sounds.dndHotkey", s => s.DoNotDisturbHotkey)),
+            new SettingItem(Setting.Toggle("alerts.sounds.dndCritical", s => s.DoNotDisturbCriticalPlays)),
+            new SettingItem(Setting.Toggle("alerts.sounds.quietHours", s => s.QuietHoursEnabled)),
+            TimeOfDay("alerts.sounds.quietFrom", s => s.QuietHoursFrom),
+            TimeOfDay("alerts.sounds.quietTo", s => s.QuietHoursTo),
         }),
         new SectionDef("alerts.sounds.list", new PageItem[]
         {

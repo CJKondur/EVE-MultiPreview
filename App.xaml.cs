@@ -39,6 +39,11 @@ public partial class App : Application
     /// <summary>Alert events snoozed for one character (IDEAS #30). Empty until the player snoozes one.</summary>
     private readonly EventSnoozes _snoozes = new();
     private EventSnoozeFile? _snoozeFile;
+    /// <summary>Do-not-disturb (IDEAS #32): alert sounds are muted while it is on. What the hotkey or the tray chose is
+    /// forgotten when MultiPreview closes; the quiet hours are settings.</summary>
+    private readonly DoNotDisturb _doNotDisturb = new();
+    private bool _trayShowsDoNotDisturb;
+    private bool DoNotDisturbOn => _doNotDisturb.IsOn(_settings?.Settings, DateTime.Now);
     private AlertHistoryWindow? _historyWindow;
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
@@ -447,7 +452,7 @@ public partial class App : Application
             {
                 if (_trayIcon != null)
                 {
-                    _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService.IsSuspended, ErrorLog.Shared.Count);
+                    _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService.IsSuspended, ErrorLog.Shared.Count, DoNotDisturbOn);
                     var asm = System.Reflection.Assembly.GetExecutingAssembly();
                     var icoName = _hotkeyService.IsSuspended ? "EveMultiPreview.Icon-Suspend.ico" : "EveMultiPreview.Icon.ico";
                     var icoStream = asm.GetManifestResourceStream(icoName);
@@ -458,6 +463,7 @@ public partial class App : Application
             };
             _hotkeyService.ProfileCycleForward += () => CycleProfile(forward: true);
             _hotkeyService.ProfileCycleBackward += () => CycleProfile(forward: false);
+            _hotkeyService.DoNotDisturbToggled += ToggleDoNotDisturb;   // IDEAS #32
 
             // Initialize sound player
             _soundPlayer = new MediaPlayer();
@@ -482,6 +488,7 @@ public partial class App : Application
                 // scope + current foreground (issue #68); foreground-change events
                 // drive the responsive path, this catches anything they miss.
                 _hotkeyService?.EvaluateRegistration();
+                FollowDoNotDisturb();
             };
             hotkeyToggleTimer.Start();
 
@@ -679,7 +686,7 @@ public partial class App : Application
                 try
                 {
                     if (_trayIcon != null)
-                        _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count);
+                        _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count, DoNotDisturbOn);
                 }
                 catch { /* a tooltip must never raise another error */ }
             }));
@@ -713,6 +720,28 @@ public partial class App : Application
         "The last session, started {0}, ended without MultiPreview closing: it crashed, or was stopped by Task Manager "
         + "or a power cut. If something went wrong, error_log.txt in the logs folder may say what. Attach it to a bug report.";
 
+    /// <summary>IDEAS #32: the hotkey or the tray item flips do-not-disturb, and says near the cursor what it is now:
+    /// once per press, as the other hotkeys' feedback is given.</summary>
+    private void ToggleDoNotDisturb()
+    {
+        if (_isShuttingDown || _settings == null) return;
+        bool on = _doNotDisturb.Toggle(_settings.Settings, DateTime.Now);
+        _thumbnailManager?.ShowTooltipFeedback(on
+            ? LocalizationService.Str("L.Dnd.On", "Do not disturb: on. Alert sounds are muted.")
+            : LocalizationService.Str("L.Dnd.Off", "Do not disturb: off"));
+        FollowDoNotDisturb();
+    }
+
+    /// <summary>The tray's tip says while do-not-disturb is on. It can change without anybody pressing anything (the
+    /// quiet hours begin or end), so this is asked twice a second and refreshes the tip only when the answer changed.</summary>
+    private void FollowDoNotDisturb()
+    {
+        bool on = DoNotDisturbOn;
+        if (on == _trayShowsDoNotDisturb) return;
+        _trayShowsDoNotDisturb = on;
+        QueueTrayText();
+    }
+
     /// <summary>IDEAS #30: the snooze file follows "Keep snoozes when MultiPreview restarts". Called after every change
     /// to the snoozes and after every settings change: on, the file holds the timed snoozes that are on now; off,
     /// there is no file. A session whose settings could not be read writes nothing here either.</summary>
@@ -745,6 +774,14 @@ public partial class App : Application
         {
             EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                 $"[Sound] GATED off: EnableAlertSounds={s?.EnableAlertSounds} for {alertType} on '{character}'");
+            return;
+        }
+        // Do-not-disturb (IDEAS #32) mutes the sound and nothing else: the border, the badge and the toast were shown
+        // before this is asked. A critical alert still plays unless the player turned that off.
+        if (_doNotDisturb.Silences(s, severity, DateTime.Now))
+        {
+            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                $"[Sound] GATED do-not-disturb: {alertType} [{severity}] on '{character}'");
             return;
         }
         EveMultiPreview.Services.DiagnosticsService.LogAlerts(
@@ -850,6 +887,8 @@ public partial class App : Application
             SwitchProfile = name => _settings?.SwitchProfile(name),   // ProfileSwitched applies it (#101)
             IsSuspended = () => _hotkeyService?.IsSuspended ?? false,
             ToggleSuspend = () => _hotkeyService?.ToggleSuspend(),
+            DoNotDisturbOn = () => DoNotDisturbOn,
+            ToggleDoNotDisturb = ToggleDoNotDisturb,
             ToggleLock = () => _thumbnailManager?.ToggleLockPositions(),
             ThumbnailsHidden = () => _thumbnailManager?.AllThumbnailsHidden ?? false,
             ToggleThumbnails = () => _thumbnailManager?.ToggleThumbnailVisibility(),
@@ -890,7 +929,7 @@ public partial class App : Application
 
         _trayIcon = new NotifyIcon
         {
-            Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count),
+            Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count, DoNotDisturbOn),
             Icon = trayIco,
             Visible = true,
             ContextMenuStrip = _trayMenu.Strip
