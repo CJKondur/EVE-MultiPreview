@@ -159,6 +159,13 @@ public class AppSettings
     public string QuietHoursTo { get; set; } = "07:00";
     public bool DoNotDisturbCriticalPlays { get; set; } = true;
 
+    /// <summary>Escalation (IDEAS #29): a critical alert whose client has not come to the front has its sound played
+    /// again after EscalationAfterSeconds (5 to 600), louder each time, EscalationRepeats times (1 to 10). New keys:
+    /// off in a file without them.</summary>
+    public bool EscalationEnabled { get; set; } = false;
+    public int EscalationAfterSeconds { get; set; } = 20;
+    public int EscalationRepeats { get; set; } = 3;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

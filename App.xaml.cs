@@ -44,6 +44,9 @@ public partial class App : Application
     private readonly DoNotDisturb _doNotDisturb = new();
     private bool _trayShowsDoNotDisturb;
     private bool DoNotDisturbOn => _doNotDisturb.IsOn(_settings?.Settings, DateTime.Now);
+    /// <summary>Escalation (IDEAS #29), and the one timer that asks it once a second while it is switched on.</summary>
+    private readonly AlertEscalation _escalation = new();
+    private DispatcherTimer? _alertTimer;
     private AlertHistoryWindow? _historyWindow;
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
@@ -419,6 +422,11 @@ public partial class App : Application
             _customAlerts.Changed += ApplyCustomRules;
             ApplyCustomRules();
 
+            // IDEAS #29: one timer for everything that has to look once a second. It runs only while something needs it.
+            _alertTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _alertTimer.Tick += (_, _) => AlertTick();
+            FollowAlertTimer();
+
             _discovery.WindowTitleChanged += (window, oldTitle) =>
             {
                 if (!string.IsNullOrEmpty(window.CharacterName))
@@ -720,6 +728,32 @@ public partial class App : Application
         "The last session, started {0}, ended without MultiPreview closing: it crashed, or was stopped by Task Manager "
         + "or a power cut. If something went wrong, error_log.txt in the logs folder may say what. Attach it to a bug report.";
 
+    /// <summary>The one-second timer runs only while something needs it: escalation switched on (IDEAS #29).</summary>
+    private void FollowAlertTimer()
+    {
+        if (_alertTimer == null || _settings == null) return;
+        bool needed = !_isShuttingDown && AlertEscalation.Needed(_settings.Settings);
+        if (needed && !_alertTimer.IsEnabled) _alertTimer.Start();
+        else if (!needed && _alertTimer.IsEnabled) _alertTimer.Stop();
+    }
+
+    /// <summary>Once a second, on the window's thread, while the timer runs. Escalation (IDEAS #29): is a repeat due
+    /// for an alert that is still unseen? The repeat is played the way an alert's own sound is, so the master switch,
+    /// the event's sound quiet time and do-not-disturb all apply; a repeat that was put off is asked for again at the
+    /// next look.</summary>
+    private void AlertTick()
+    {
+        if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
+        var s = _settings.Settings;
+        var now = DateTime.UtcNow;
+        bool held = !s.EnableAlertSounds || _doNotDisturb.Silences(s, "critical", DateTime.Now);
+        var due = _escalation.Due(_thumbnailManager.Attention.Unseen(), s, now,
+            (who, type) => _thumbnailManager.IsCharacterAlertMuted(who) || _snoozes.IsSnoozed(who, type), held);
+        if (due == null) return;
+        var result = PlayAlertSound(due.Alert.Character, due.Alert.EventKey, due.Alert.Severity, due.Number);
+        if (result != SoundResult.Later) _escalation.Played(due, now);
+    }
+
     /// <summary>IDEAS #32: the hotkey or the tray item flips do-not-disturb, and says near the cursor what it is now:
     /// once per press, as the other hotkeys' feedback is given.</summary>
     private void ToggleDoNotDisturb()
@@ -764,7 +798,13 @@ public partial class App : Application
 
     // ── Alert Sound System (per-event sounds, WAV/MP3 via MediaPlayer) ──
 
-    private void PlayAlertSound(string character, string alertType, string severity)
+    private void PlayAlertSound(string character, string alertType, string severity) =>
+        PlayAlertSound(character, alertType, severity, repeat: 0);
+
+    /// <param name="repeat">0 for the alert itself; 1, 2, … for a repeat of escalation (IDEAS #29), each louder.</param>
+    /// <returns>Whether the sound was started, was put off (do-not-disturb, the event's sound quiet time), or has
+    /// nothing to play.</returns>
+    private SoundResult PlayAlertSound(string character, string alertType, string severity, int repeat)
     {
         var s = _settings?.Settings;
         // EnableAlertSounds is the field the "Enable Sounds" master checkbox writes
@@ -774,7 +814,7 @@ public partial class App : Application
         {
             EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                 $"[Sound] GATED off: EnableAlertSounds={s?.EnableAlertSounds} for {alertType} on '{character}'");
-            return;
+            return SoundResult.Never;
         }
         // Do-not-disturb (IDEAS #32) mutes the sound and nothing else: the border, the badge and the toast were shown
         // before this is asked. A critical alert still plays unless the player turned that off.
@@ -782,7 +822,7 @@ public partial class App : Application
         {
             EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                 $"[Sound] GATED do-not-disturb: {alertType} [{severity}] on '{character}'");
-            return;
+            return SoundResult.Later;
         }
         EveMultiPreview.Services.DiagnosticsService.LogAlerts(
             $"[Sound] enter: {alertType} on '{character}' | EnableAlertSounds={s.EnableAlertSounds} " +
@@ -802,7 +842,7 @@ public partial class App : Application
                 Debug.WriteLine($"[AlertSound:Cooldown] ⏳ Sound cooldown active: {alertType} for '{character}' ({soundCooldown}s)");
                 EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                     $"[Sound] GATED cooldown: {alertType} on '{character}' within {soundCooldown}s of last play");
-                return;
+                return SoundResult.Later;
             }
         }
 
@@ -816,7 +856,7 @@ public partial class App : Application
             EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                 $"[Sound] GATED no-file: {alertType} on '{character}' resolved='{soundFile ?? "null"}' " +
                 $"(exists={(!string.IsNullOrEmpty(soundFile) && System.IO.File.Exists(soundFile))})");
-            return;
+            return SoundResult.Never;
         }
 
         try
@@ -827,7 +867,7 @@ public partial class App : Application
             // _activeSoundPlayers until MediaEnded fires, then disposed.
             Dispatcher.Invoke(() =>
             {
-                var player = new MediaPlayer { Volume = s.AlertSoundVolume / 100.0 };
+                var player = new MediaPlayer { Volume = AlertEscalation.Volume(s.AlertSoundVolume, repeat, DoNotDisturbOn) / 100.0 };
                 player.MediaEnded += (_, _) =>
                 {
                     player.Close();
@@ -850,12 +890,14 @@ public partial class App : Application
             EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                 $"[Sound] PLAYING '{System.IO.Path.GetFileName(soundFile)}' for {alertType} on '{character}' at vol={s.AlertSoundVolume}%"
                 + (s.AlertSoundVolume == 0 ? " ⚠ VOLUME IS 0 — will be inaudible" : ""));
+            return SoundResult.Played;
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[AlertSound:Play] ❌ Error playing sound: {ex.Message}");
             EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                 $"[Sound] ERROR playing {alertType} on '{character}': {ex.GetType().Name}: {ex.Message}");
+            return SoundResult.Never;
         }
     }
 
@@ -1058,6 +1100,7 @@ public partial class App : Application
             }
 
             FollowSnoozeSwitch();   // IDEAS #30: the snooze file is written or removed as its switch says
+            FollowAlertTimer();     // IDEAS #29: the one-second look starts or stops with what needs it
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)
@@ -1316,6 +1359,7 @@ public partial class App : Application
         _runMarker?.End();
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
+        _alertTimer?.Stop();
         _alertHub?.Dispose();
         _broadcastHud?.Dispose();
         _logMonitor?.Dispose();

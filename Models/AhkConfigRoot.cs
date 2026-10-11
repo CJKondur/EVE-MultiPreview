@@ -110,6 +110,9 @@ public class AhkConfigRoot
         s.QuietHoursFrom = g.QuietHoursFrom ?? "23:00";
         s.QuietHoursTo = g.QuietHoursTo ?? "07:00";
         s.DoNotDisturbCriticalPlays = g.DoNotDisturbCriticalPlays != 0;
+        s.EscalationEnabled = g.EscalationEnabled != 0;
+        s.EscalationAfterSeconds = g.EscalationAfterSeconds;
+        s.EscalationRepeats = g.EscalationRepeats;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -419,6 +422,9 @@ public class AhkConfigRoot
         g.QuietHoursFrom = s.QuietHoursFrom;
         g.QuietHoursTo = s.QuietHoursTo;
         g.DoNotDisturbCriticalPlays = s.DoNotDisturbCriticalPlays ? 1 : 0;
+        g.EscalationEnabled = s.EscalationEnabled ? 1 : 0;
+        g.EscalationAfterSeconds = s.EscalationAfterSeconds;
+        g.EscalationRepeats = s.EscalationRepeats;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1187,6 +1193,16 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("DoNotDisturbCriticalPlays")]
     public int DoNotDisturbCriticalPlays { get; set; } = 1;
+
+    // Escalation (IDEAS #29), new after 2.3.42: a file without them loads off, 20 seconds, 3 repeats.
+    [JsonPropertyName("EscalationEnabled")]
+    public int EscalationEnabled { get; set; }
+
+    [JsonPropertyName("EscalationAfterSeconds")]
+    public int EscalationAfterSeconds { get; set; } = 20;
+
+    [JsonPropertyName("EscalationRepeats")]
+    public int EscalationRepeats { get; set; } = 3;
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

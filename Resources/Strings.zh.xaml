@@ -2177,4 +2177,13 @@
     <sys:String x:Key="L.Tray.DndOn">勿扰模式：开</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.dnd.Title">勿扰模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">勿扰模式只静音警报声音，其他不变：边框、角标和提示照常显示。适合语音通话或直播时使用。&#x0A;&#x0A;- **勿扰模式开关** 用来开关它，托盘菜单也可以。光标旁会提示当前状态，开启期间托盘图标的提示里也会显示。&#x0A;- **严重警报仍然发声** 一开始是打开的：严重警报仍会发声。想要完全安静就关掉它。&#x0A;- **每天的安静时段** 每天按时钟自动开关。**开始时间** 23:00、**结束时间** 07:00 就是一整夜。&#x0A;- 在安静时段内按下快捷键，声音会恢复到该时段结束。在时段外按下，会一直静音到你再按一次，或到下一个安静时段结束。&#x0A;- 重新启动 MultiPreview 会忘记快捷键的状态。安静时段是一项设置，会保留。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.escalation">重复严重警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.escalate">重复你还没看过的严重警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.escalate.Desc">在那个客户端来到前台之前，它的声音会再次播放，一次比一次响。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.escalateAfter">重复间隔</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.escalateAfter.Desc">从警报开始的秒数，以及两次重复之间的秒数。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.escalateRepeats">重复次数</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.escalateRepeats.Desc">最后一次重复之后，在你查看之前 MultiPreview 保持安静。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.escalation.Title">重复严重警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.escalation.Body">语音通话时，只响一次的声音很容易漏掉。打开 **重复你还没看过的严重警报** 后，如果你没有把发出严重警报的客户端切到前台，它的声音会在 **重复间隔** 之后再响一次，之后还会重复，最多 **重复次数** 次。每次重复音量提高刻度的四分之一，直到最大音量。&#x0A;&#x0A;- 查看该客户端会立刻停止重复。关闭客户端、静音该角色或暂停这种警报也一样。&#x0A;- 同一客户端上同一种的多条警报会合并成一条来重复。&#x0A;- 多个客户端同时到点时，它们的重复每秒播放一个。&#x0A;- 本页为事件设置的声音静默时间依然有效：重复会等它过去。&#x0A;- 勿扰模式开启且 **严重警报仍然发声** 也开启时，重复照常但不会更响。那个开关关闭时，在勿扰模式结束前不会重复。&#x0A;- 警告和信息级别的警报从不重复。</sys:String> <!-- draft -->
 </ResourceDictionary>

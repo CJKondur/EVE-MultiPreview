@@ -45,6 +45,7 @@ public static class AlertsPages
         {
             "alerts.sounds.dndHotkey", "alerts.sounds.dndCritical", "alerts.sounds.quietHours", "alerts.sounds.quietFrom", "alerts.sounds.quietTo",
         }),
+        new HelpTopic(SoundsId, "escalation", new[] { "alerts.sounds.escalate", "alerts.sounds.escalateAfter", "alerts.sounds.escalateRepeats" }),
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
@@ -230,6 +231,21 @@ public static class AlertsPages
             new SettingItem(Setting.Toggle("alerts.sounds.quietHours", s => s.QuietHoursEnabled)),
             TimeOfDay("alerts.sounds.quietFrom", s => s.QuietHoursFrom),
             TimeOfDay("alerts.sounds.quietTo", s => s.QuietHoursTo),
+        }),
+        // IDEAS #29: App's one-second look reads all three (AlertEscalation.Due), and starts or stops on Applied.
+        new SectionDef("alerts.sounds.escalation", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("alerts.sounds.escalate", s => s.EscalationEnabled)),
+            new SettingItem(Setting.Number("alerts.sounds.escalateAfter", s => s.EscalationAfterSeconds,
+                AlertEscalation.MinAfterSeconds, AlertEscalation.MaxAfterSeconds, "L.S.Unit.Sec") with
+            {
+                ShowIf = s => s.EscalationEnabled,
+            }),
+            new SettingItem(Setting.Number("alerts.sounds.escalateRepeats", s => s.EscalationRepeats,
+                AlertEscalation.MinRepeats, AlertEscalation.MaxRepeats) with
+            {
+                ShowIf = s => s.EscalationEnabled,
+            }),
         }),
         new SectionDef("alerts.sounds.list", new PageItem[]
         {
