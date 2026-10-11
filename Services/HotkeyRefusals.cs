@@ -62,15 +62,28 @@ public static class HotkeyRefusals
     /// are paused or no EVE client is running, what was refused says nothing about the keys as they are now.</summary>
     public static bool ForgottenAtASettingsChange(bool paused, bool anyClient) => paused || !anyClient;
 
+    /// <summary>Whether two hotkeys, as the settings hold them, are one combination: the same key with the same
+    /// modifiers, in whatever order and case the two are written ("^!F5" and "!^F5"). It is the conflict check's
+    /// rule (HotkeyText.Clashes, without the wildcard), which the card's rows go by as well; two texts that are the
+    /// same but for case and the space around them are one in any case.</summary>
+    public static bool SameKey(string a, string b) =>
+        string.Equals(a.Trim(), b.Trim(), StringComparison.OrdinalIgnoreCase) || HotkeyText.Clashes(a, b, wildcard: false);
+
+    /// <summary>Whether a hotkey is bound with the Win key. Windows keeps many Win combinations for itself (Win + L,
+    /// Win + G …): when it refuses one the player bound, the owner is most likely Windows and no program on
+    /// <see cref="Known"/>. A "#" is the Win key only in front of a key: alone, or last, it is the key of that name.</summary>
+    public static bool BoundWithWin(string hotkey) => HotkeyText.Split(hotkey).Mods.Contains('#');
+
     /// <summary>Programs known to take keys with RegisterHotKey, the one way a program can be the reason for a 1409:
     /// the process name (without ".exe") and the name to show, in the order shown. A program that reads keys by a
     /// keyboard hook or by asking for a key's state (Discord, OBS, Steam, TeamSpeak, Mumble: by what is known of
-    /// them, not measured) cannot be the owner and is not in it. EVE's own client is never in it.</summary>
+    /// them, not measured) cannot be the owner and is not in it. Xbox Game Bar is not in it either: its keys are
+    /// combinations with the Win key, and for one of those the card names Windows itself
+    /// (<see cref="BoundWithWin"/>). EVE's own client is never in it.</summary>
     public static IReadOnlyList<(string Process, string Name)> Known { get; } = new[]
     {
         ("NVIDIA Share", "NVIDIA overlay"), ("NVIDIA Overlay", "NVIDIA overlay"),
         ("RadeonSoftware", "AMD Software"), ("AMDRSServ", "AMD Software"),
-        ("GameBar", "Xbox Game Bar"),
         ("ShareX", "ShareX"),
         ("Greenshot", "Greenshot"),
         ("AutoHotkey", "AutoHotkey"), ("AutoHotkey64", "AutoHotkey"), ("AutoHotkey32", "AutoHotkey"),
@@ -152,8 +165,8 @@ public sealed class RefusedHotkeyList
     private RefusedHotkey? _pauseKey;
     private string _signature = "";
 
-    /// <summary>The refused hotkeys, each once (ignoring case): the pause key first, then the others in the order
-    /// they were asked for.</summary>
+    /// <summary>The refused hotkeys, each combination once however it is written (<see cref="HotkeyRefusals.SameKey"/>),
+    /// by the spelling met first: the pause key first, then the others in the order they were asked for.</summary>
     public IReadOnlyList<RefusedHotkey> Current { get; private set; } = Array.Empty<RefusedHotkey>();
 
     /// <summary>Whether the hotkeys have been registered since the list was last forgotten. Until then an empty list
@@ -198,7 +211,7 @@ public sealed class RefusedHotkeyList
         var all = new List<RefusedHotkey>();
         if (_pauseKey != null) all.Add(_pauseKey);
         foreach (var key in _keys)
-            if (!all.Any(known => string.Equals(known.Hotkey.Trim(), key.Hotkey.Trim(), StringComparison.OrdinalIgnoreCase))) all.Add(key);
+            if (!all.Any(known => HotkeyRefusals.SameKey(known.Hotkey, key.Hotkey))) all.Add(key);
         var signature = string.Join("|", all.Select(r => r.Hotkey.Trim().ToUpperInvariant() + ":" + r.Error));
         if (signature == _signature) return;
         _signature = signature;
@@ -235,9 +248,19 @@ public sealed class RefusalNote
 /// change, and one that comes and goes with another program is not told twice. The card always shows what is so.</summary>
 public sealed class RefusalAnnouncer
 {
-    private readonly HashSet<string> _told = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<string> _told = new();
 
-    /// <summary>The refused hotkeys that were not told before. They count as told from now on.</summary>
-    public IReadOnlyList<RefusedHotkey> New(IReadOnlyList<RefusedHotkey> refused) =>
-        refused.Where(r => _told.Add(r.Hotkey.Trim())).ToList();
+    /// <summary>The refused hotkeys that were not told before. They count as told from now on. A combination is
+    /// told once however it is written (<see cref="HotkeyRefusals.SameKey"/>): "^!F5" and "!^F5" are one key.</summary>
+    public IReadOnlyList<RefusedHotkey> New(IReadOnlyList<RefusedHotkey> refused)
+    {
+        var fresh = new List<RefusedHotkey>();
+        foreach (var key in refused)
+        {
+            if (_told.Any(told => HotkeyRefusals.SameKey(told, key.Hotkey))) continue;
+            _told.Add(key.Hotkey);
+            fresh.Add(key);
+        }
+        return fresh;
+    }
 }
