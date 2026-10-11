@@ -42,7 +42,6 @@ public partial class App : Application
     /// <summary>Do-not-disturb (IDEAS #32): alert sounds are muted while it is on. What the hotkey or the tray chose is
     /// forgotten when MultiPreview closes; the quiet hours are settings.</summary>
     private readonly DoNotDisturb _doNotDisturb = new();
-    private bool _trayShowsDoNotDisturb;
     private bool DoNotDisturbOn => _doNotDisturb.IsOn(_settings?.Settings, DateTime.Now);
     /// <summary>Escalation (IDEAS #29), and the one timer that asks it once a second while it is switched on.</summary>
     private readonly AlertEscalation _escalation = new();
@@ -832,10 +831,8 @@ public partial class App : Application
     private void ToggleDoNotDisturb()
     {
         if (_isShuttingDown || _settings == null) return;
-        bool on = _doNotDisturb.Toggle(_settings.Settings, DateTime.Now);
-        _thumbnailManager?.ShowTooltipFeedback(on
-            ? LocalizationService.Str("L.Dnd.On", "Do not disturb: on. Alert sounds are muted.")
-            : LocalizationService.Str("L.Dnd.Off", "Do not disturb: off"));
+        var (key, english) = _doNotDisturb.Press(_settings.Settings, DateTime.Now);
+        _thumbnailManager?.ShowTooltipFeedback(LocalizationService.Str(key, english));
         FollowDoNotDisturb();
     }
 
@@ -843,10 +840,7 @@ public partial class App : Application
     /// quiet hours begin or end), so this is asked twice a second and refreshes the tip only when the answer changed.</summary>
     private void FollowDoNotDisturb()
     {
-        bool on = DoNotDisturbOn;
-        if (on == _trayShowsDoNotDisturb) return;
-        _trayShowsDoNotDisturb = on;
-        QueueTrayText();
+        if (_doNotDisturb.ChangedSinceShown(_settings?.Settings, DateTime.Now)) QueueTrayText();
     }
 
     /// <summary>IDEAS #30: the snooze file follows "Keep snoozes when MultiPreview restarts". Called after every change
@@ -894,7 +888,7 @@ public partial class App : Application
         if (_doNotDisturb.Silences(s, severity, DateTime.Now))
         {
             EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                $"[Sound] GATED do-not-disturb: {alertType} [{severity}] on '{character}'");
+                $"[Sound] GATED do-not-disturb: {alertType} [{severity}]");
             return SoundResult.Later;
         }
         EveMultiPreview.Services.DiagnosticsService.LogAlerts(
