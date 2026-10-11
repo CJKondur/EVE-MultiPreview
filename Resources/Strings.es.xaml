@@ -1993,7 +1993,7 @@
     <sys:String x:Key="L.Hist.Col.Character">Personaje</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.Event">Alerta</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.System">Sistema</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Hist.Col.Text">Texto encontrado</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Col.Text">Texto</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Search">Buscar</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllCharacters">Todos los personajes</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllEvents">Todas las alertas</sys:String> <!-- draft -->

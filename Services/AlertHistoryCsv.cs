@@ -132,7 +132,7 @@ public static class AlertHistoryCsv
     /// <summary>The English column names; the window passes them translated.</summary>
     public static IReadOnlyList<string> Columns { get; } = new[]
     {
-        "Time (UTC)", "Local time", "Character", "Alert", "Severity", "System", "Outcome", "Matched text", "Alert key",
+        "Time (UTC)", "Local time", "Character", "Alert", "Severity", "System", "Outcome", "Text", "Alert key",
     };
 
     /// <summary>The whole file's text: the header record, then one record per alert in the order given, with

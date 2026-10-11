@@ -1972,7 +1972,7 @@
     <sys:String x:Key="L.Hist.Col.Character">キャラクター</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.Event">アラート</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.System">星系</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Hist.Col.Text">一致したテキスト</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Col.Text">テキスト</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Search">検索</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllCharacters">すべてのキャラクター</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllEvents">すべてのアラート</sys:String> <!-- draft -->

@@ -408,9 +408,9 @@ public partial class AlertHistoryWindow : Window
         view.Columns.Add(new GridViewColumn { Header = Str("L.Hist.Col.Event", "Alert"), Width = 200, CellTemplate = EventCell() });
         view.Columns.Add(TextColumn("L.Hist.Col.System", "System", nameof(HistoryRowVM.SystemName), 110));
         view.Columns.Add(TextColumn("L.Hist.Csv.Outcome", "Outcome", nameof(HistoryRowVM.Note), 112));
-        var text = TextColumn("L.Hist.Col.Text", "Matched text", nameof(HistoryRowVM.Text), TextColumnMin);
+        var text = TextColumn("L.Hist.Col.Text", "Text", nameof(HistoryRowVM.Text), TextColumnMin);
         view.Columns.Add(text);
-        // The matched text gets the room a wider window gives (the other columns keep the width the player set).
+        // The text column gets the room a wider window gives (the other columns keep the width the player set).
         AlertList.SizeChanged += (_, _) =>
         {
             double others = view.Columns.Where(c => c != text).Sum(c => c.ActualWidth);

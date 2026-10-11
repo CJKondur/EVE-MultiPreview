@@ -1971,7 +1971,7 @@
     <sys:String x:Key="L.Hist.Col.Character">Character</sys:String>
     <sys:String x:Key="L.Hist.Col.Event">Alert</sys:String>
     <sys:String x:Key="L.Hist.Col.System">System</sys:String>
-    <sys:String x:Key="L.Hist.Col.Text">Matched text</sys:String>
+    <sys:String x:Key="L.Hist.Col.Text">Text</sys:String>
     <sys:String x:Key="L.Hist.Search">Search</sys:String>
     <sys:String x:Key="L.Hist.AllCharacters">All characters</sys:String>
     <sys:String x:Key="L.Hist.AllEvents">All alerts</sys:String>

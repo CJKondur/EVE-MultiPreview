@@ -1971,7 +1971,7 @@
     <sys:String x:Key="L.Hist.Col.Character">Charakter</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.Event">Alarm</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.System">System</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Hist.Col.Text">Gefundener Text</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Col.Text">Text</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Search">Suchen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllCharacters">Alle Charaktere</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllEvents">Alle Alarme</sys:String> <!-- draft -->

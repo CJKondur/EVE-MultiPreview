@@ -1989,7 +1989,7 @@
     <sys:String x:Key="L.Hist.Col.Character">角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.Event">警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.System">星系</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Hist.Col.Text">匹配的文本</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Col.Text">文本</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Search">搜索</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllCharacters">所有角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllEvents">所有警报</sys:String> <!-- draft -->

@@ -1972,7 +1972,7 @@
     <sys:String x:Key="L.Hist.Col.Character">캐릭터</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.Event">알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.System">항성계</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Hist.Col.Text">일치한 텍스트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Col.Text">텍스트</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Search">검색</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllCharacters">모든 캐릭터</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllEvents">모든 알림</sys:String> <!-- draft -->

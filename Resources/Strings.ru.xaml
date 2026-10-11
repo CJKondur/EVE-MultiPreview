@@ -1991,7 +1991,7 @@
     <sys:String x:Key="L.Hist.Col.Character">Персонаж</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.Event">Оповещение</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Col.System">Система</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Hist.Col.Text">Найденный текст</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Col.Text">Текст</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Search">Поиск</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllCharacters">Все персонажи</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.AllEvents">Все оповещения</sys:String> <!-- draft -->
