@@ -76,6 +76,10 @@ public partial class App : Application
     // alerts on different characters each get their own sound (the cooldown
     // semantics still hold per-character).
     private readonly Dictionary<string, DateTime> _soundCooldowns = new();
+    // The table above is read and written on the log reader's thread (an alert's sound) and on the window's thread
+    // (a repeat of escalation, the "Left behind" alert). This lock is held round the table alone, one statement at a
+    // time: never while a sound is started, never round a call into another class.
+    private readonly object _soundCooldownLock = new();
 
     // Sound player for cycle-wrap chime (single instance is fine here — wraps
     // can't overlap meaningfully).
@@ -760,20 +764,33 @@ public partial class App : Application
     /// <summary>Once a second, on the window's thread, while the timer runs. Escalation (IDEAS #29): is a repeat due
     /// for an alert that is still unseen? AlertEscalation.Tick decides that, and what becomes of the repeat; it is
     /// handed what it needs to ask, and asks nothing while escalation is switched off. The repeat is played the way
-    /// an alert's own sound is, so the master switch, the event's sound quiet time and do-not-disturb all apply.</summary>
+    /// an alert's own sound is, so the master switch, the event's sound quiet time and do-not-disturb all apply.
+    /// Nothing leaves this method as an exception: a DispatcherTimer whose tick threw ticks no more, and the repeats
+    /// and "Left behind" would be off for the rest of the session.</summary>
     private void AlertTick()
     {
-        if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
-        var s = _settings.Settings;
-        var now = DateTime.UtcNow;
-        // IDEAS #5: has a jump wave left a member of a group behind? Asked before escalation, whatever that is set to.
-        if (StragglerWatch.IsOn(s)) LookForStragglers(now);
-        _escalation.Tick(s, now,
-            unseen: () => _thumbnailManager.Attention.Unseen(),
-            quieted: (who, type) => _thumbnailManager.IsCharacterAlertMuted(who) || _snoozes.IsSnoozed(who, type),
-            soundsHeld: () => _doNotDisturb.Silences(s, "critical", DateTime.Now),
-            doNotDisturb: () => DoNotDisturbOn,
-            play: (due, volume) => PlayAlertSound(due.Alert.Character, due.Alert.EventKey, due.Alert.Severity, due.Number, volume));
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
+            var s = _settings.Settings;
+            var now = DateTime.UtcNow;
+            // IDEAS #5: has a jump wave left a member of a group behind? Asked before escalation, whatever that is set to.
+            if (StragglerWatch.IsOn(s)) LookForStragglers(now);
+            _escalation.Tick(s, now,
+                unseen: () => _thumbnailManager.Attention.Unseen(),
+                // What ends a chain for good: the character is muted, the event is snoozed for it, the character has
+                // no client left to go to, or the event was switched off (a rule of the player's own: off or deleted).
+                quieted: (who, type) => _thumbnailManager.IsCharacterAlertMuted(who) || _snoozes.IsSnoozed(who, type)
+                    || _thumbnailManager.GetHwndForCharacter(who) == IntPtr.Zero || !AlertEscalation.EventOn(s, type),
+                soundsHeld: () => _doNotDisturb.Silences(s, "critical", DateTime.Now),
+                doNotDisturb: () => DoNotDisturbOn,
+                play: (due, volume) => PlayAlertSound(due.Alert.Character, due.Alert.EventKey, due.Alert.Severity, due.Number, volume),
+                failed: LogError);
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+        }
     }
 
     /// <summary>IDEAS #42: the hotkeys Windows refused for the first time this session, in one tray note. The card on
@@ -892,11 +909,12 @@ public partial class App : Application
         // before this is asked. A critical alert still plays unless the player turned that off.
         if (_doNotDisturb.Silences(s, severity, DateTime.Now))
         {
-            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+            // A repeat that has to wait is asked for again every second: it writes nothing each time (IDEAS #29).
+            if (repeat == 0) EveMultiPreview.Services.DiagnosticsService.LogAlerts(
                 $"[Sound] GATED do-not-disturb: {alertType} [{severity}]");
             return SoundResult.Later;
         }
-        EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+        if (repeat == 0) EveMultiPreview.Services.DiagnosticsService.LogAlerts(
             $"[Sound] enter: {alertType} on '{character}' | EnableAlertSounds={s.EnableAlertSounds} " +
             $"volume={s.AlertSoundVolume} eventFile='{(s.AlertSounds != null && s.AlertSounds.TryGetValue(alertType, out var ef) ? ef : "")}' " +
             $"globalFile='{s.AlertSoundFile}'");
@@ -907,13 +925,19 @@ public partial class App : Application
         // the *same* event are coalesced.
         string cooldownKey = $"sound_{character}_{alertType}";
         int soundCooldown = s.SoundCooldowns?.GetValueOrDefault(alertType, 0) ?? 0;
-        if (soundCooldown > 0 && _soundCooldowns.TryGetValue(cooldownKey, out var lastPlay))
+        bool played;
+        DateTime lastPlay;
+        lock (_soundCooldownLock) played = _soundCooldowns.TryGetValue(cooldownKey, out lastPlay);
+        if (soundCooldown > 0 && played)
         {
             if ((DateTime.Now - lastPlay).TotalSeconds < soundCooldown)
             {
-                Debug.WriteLine($"[AlertSound:Cooldown] ⏳ Sound cooldown active: {alertType} for '{character}' ({soundCooldown}s)");
-                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                    $"[Sound] GATED cooldown: {alertType} on '{character}' within {soundCooldown}s of last play");
+                if (repeat == 0)
+                {
+                    Debug.WriteLine($"[AlertSound:Cooldown] ⏳ Sound cooldown active: {alertType} for '{character}' ({soundCooldown}s)");
+                    EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                        $"[Sound] GATED cooldown: {alertType} on '{character}' within {soundCooldown}s of last play");
+                }
                 return SoundResult.Later;
             }
         }
@@ -958,11 +982,21 @@ public partial class App : Application
                 player.Play();
             });
 
-            _soundCooldowns[cooldownKey] = DateTime.Now;
-            Debug.WriteLine($"[AlertSound:Play] 🔊 Playing '{System.IO.Path.GetFileName(soundFile)}' for {alertType} on '{character}' (vol={s.AlertSoundVolume}%)");
-            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                $"[Sound] PLAYING '{System.IO.Path.GetFileName(soundFile)}' for {alertType} on '{character}' at vol={s.AlertSoundVolume}%"
-                + (s.AlertSoundVolume == 0 ? " ⚠ VOLUME IS 0 — will be inaudible" : ""));
+            var playedAt = DateTime.Now;
+            lock (_soundCooldownLock) _soundCooldowns[cooldownKey] = playedAt;
+            if (repeat == 0)
+            {
+                Debug.WriteLine($"[AlertSound:Play] 🔊 Playing '{System.IO.Path.GetFileName(soundFile)}' for {alertType} on '{character}' (vol={s.AlertSoundVolume}%)");
+                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                    $"[Sound] PLAYING '{System.IO.Path.GetFileName(soundFile)}' for {alertType} on '{character}' at vol={s.AlertSoundVolume}%"
+                    + (s.AlertSoundVolume == 0 ? " ⚠ VOLUME IS 0 — will be inaudible" : ""));
+            }
+            else
+            {
+                // A repeat says which one it is and how loud it really was. It names the event and nobody.
+                EveMultiPreview.Services.DiagnosticsService.LogAlerts(
+                    $"[Sound] PLAYING repeat {repeat} of {alertType} at vol={loud}%");
+            }
             return SoundResult.Played;
         }
         catch (Exception ex)

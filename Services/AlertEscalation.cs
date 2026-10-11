@@ -64,6 +64,14 @@ public sealed class AlertEscalation
     /// <summary>Whether App's one-second look is needed at all.</summary>
     public static bool Needed(AppSettings s) => s.EscalationEnabled;
 
+    /// <summary>Whether the event behind an alert type is still switched on. A built-in event: its switch on
+    /// Alerts › Events, by the answer the settings window shows (AlertFields.IsOn). A rule of the player's own: it is
+    /// still there, and on. App ends a chain whose event is off.</summary>
+    public static bool EventOn(AppSettings s, string alertType) =>
+        CustomAlertTypes.IsCustom(alertType)
+            ? CustomAlertTypes.Find(alertType) is { Enabled: true }
+            : SettingsUi.AlertFields.IsOn(s, alertType);
+
     /// <summary>What App does with its one-second timer: true to start it, false to stop it, null to leave it as it
     /// is. It runs only while something needs the look.</summary>
     public static bool? TimerChange(bool needed, bool running) => needed == running ? null : needed;
@@ -89,24 +97,36 @@ public sealed class AlertEscalation
     /// <param name="play">Plays the repeat at this volume (0–100), the way an alert's own sound is played, and says
     /// what became of it. Played: it is counted. Never (no sound to play at all, or "Play a sound" off): it counts as
     /// done without a sound. Later (the event's sound quiet time): it is put off and asked for again.</param>
+    /// <param name="failed">Is told what a step of this tick threw (App logs it). A tick never throws: a timer whose
+    /// tick threw would tick no more. The repeat it was about is put off, and the next tick runs as ever.</param>
     public void Tick(AppSettings s, DateTime utcNow, Func<IReadOnlyList<UnseenAlert>> unseen, Func<string, string, bool> quieted,
-        Func<bool> soundsHeld, Func<bool> doNotDisturb, Func<Repeat, int, SoundResult> play)
+        Func<bool> soundsHeld, Func<bool> doNotDisturb, Func<Repeat, int, SoundResult> play, Action<Exception> failed)
     {
         if (!Needed(s))
         {
             _chains.Clear();
             return;
         }
-        var due = Due(unseen(), s, utcNow, quieted, soundsHeld());
-        if (due == null) return;
-        var result = play(due, Volume(s.AlertSoundVolume, due.Number, doNotDisturb()));
-        if (result == SoundResult.Later) PutOff(due, utcNow);
-        else Played(due, utcNow);
+        Repeat? due = null;
+        try
+        {
+            due = Due(unseen(), s, utcNow, quieted, soundsHeld());
+            if (due == null) return;
+            var result = play(due, Volume(s.AlertSoundVolume, due.Number, doNotDisturb()));
+            if (result == SoundResult.Later) PutOff(due, utcNow);
+            else Played(due, utcNow);
+        }
+        catch (Exception ex)
+        {
+            if (due != null) PutOff(due, utcNow);
+            failed(ex);
+        }
     }
 
     /// <summary>One look. Returns the one repeat to play now, or null.</summary>
     /// <param name="unseen">AlertAttention.Unseen(), as it is at this moment.</param>
-    /// <param name="quieted">(character, alert type): the character is muted or the event is snoozed for it. Ends the chain.</param>
+    /// <param name="quieted">(character, alert type): the player has dealt with it, or nothing is left to go to. The
+    /// character is muted, the event is snoozed for it or switched off, or the character has no client. Ends the chain.</param>
     /// <param name="soundsHeld">No repeat may sound right now (do-not-disturb without "Critical alerts still play").
     /// The chains wait.</param>
     public Repeat? Due(IReadOnlyList<UnseenAlert> unseen, AppSettings s, DateTime utcNow, Func<string, string, bool> quieted, bool soundsHeld)

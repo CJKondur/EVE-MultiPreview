@@ -2185,7 +2185,7 @@
     <sys:String x:Key="L.S.alerts.sounds.escalateRepeats">重复次数</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalateRepeats.Desc">最后一次重复之后，在你查看之前 MultiPreview 保持安静。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.escalation.Title">重复严重警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.escalation.Body">语音通话时，只响一次的声音很容易漏掉。打开 **重复你还没看过的严重警报** 后，如果你没有把发出严重警报的客户端切到前台，它的声音会在 **重复间隔** 之后再响一次，之后还会重复，最多 **重复次数** 次。每次重复音量提高刻度的四分之一，直到最大音量。&#x0A;&#x0A;- 查看该客户端会立刻停止重复。关闭客户端、静音该角色或暂停这种警报也一样。&#x0A;- 同一客户端上同一种的多条警报会合并成一条来重复。&#x0A;- 多个客户端同时到点时，它们的重复每秒播放一个。&#x0A;- 本页为事件设置的声音静默时间依然有效：重复会等它过去。&#x0A;- 勿扰模式开启且 **严重警报仍然发声** 也开启时，重复照常但不会更响。那个开关关闭时，在勿扰模式结束前不会重复。&#x0A;- 警告和信息级别的警报从不重复。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.escalation.Body">语音通话时，只响一次的声音很容易漏掉。打开 **重复你还没看过的严重警报** 后，如果你没有把发出严重警报的客户端切到前台，它的声音会在 **重复间隔** 之后再响一次，之后还会重复，最多 **重复次数** 次。每次重复音量提高刻度的四分之一，直到最大音量。&#x0A;&#x0A;- 查看该客户端会立刻停止重复。关闭客户端、静音该角色、暂停这种警报或关闭该事件也一样。&#x0A;- 同一客户端上同一种的多条警报会合并成一条来重复。&#x0A;- 多个客户端同时到点时，它们的重复每秒播放一个。&#x0A;- 本页为事件设置的声音静默时间依然有效：重复会等它过去。&#x0A;- 勿扰模式开启且 **严重警报仍然发声** 也开启时，重复照常但不会更响。那个开关关闭时，在勿扰模式结束前不会重复。&#x0A;- 警告和信息级别的警报从不重复。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.straggler">掉队</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.stragglerWait">掉队：最后一次跳跃后的等待时间</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.stragglerWait.Desc">当一个分组的大多数成员已跳到另一个星系，并且在这段时间内没有人再移动时，没有跳过去的成员会收到警报。如果只是加载较慢的客户端被标记，请把它调大。</sys:String> <!-- draft -->
