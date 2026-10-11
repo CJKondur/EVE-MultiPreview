@@ -13,6 +13,14 @@ public sealed record RefusedHotkey(string Hotkey, int Error)
     public bool Taken => Error == HotkeyRefusals.AlreadyRegistered;
 }
 
+/// <summary>One slot HotkeyService asked Windows for and was refused (IDEAS #42).</summary>
+/// <param name="Hotkey">The hotkey the slot belongs to, as the settings hold it.</param>
+/// <param name="Modifiers">The slot's modifiers: the hotkey's own, or those with more held as well.</param>
+/// <param name="BoundModifiers">The modifiers the player bound.</param>
+/// <param name="VirtualKey">The slot's key.</param>
+/// <param name="Error">What Windows said (Marshal.GetLastWin32Error).</param>
+public readonly record struct RefusedSlot(string Hotkey, uint Modifiers, uint BoundModifiers, uint VirtualKey, int Error);
+
 /// <summary>The rules of the refused-hotkey report (IDEAS #42), kept apart from HotkeyService so they can be tested:
 /// which refusal is worth telling, which programs are the usual owners, and what the tray says.</summary>
 public static class HotkeyRefusals
@@ -29,20 +37,38 @@ public static class HotkeyRefusals
     /// the player asked for. Only the exact combination is told.</summary>
     public static bool IsThePlayersOwn(uint slotModifiers, uint boundModifiers) => (slotModifiers & 0xF) == (boundModifiers & 0xF);
 
-    /// <summary>Programs known to register global hotkeys: the process name (without ".exe") and the name to show,
-    /// in the order shown. EVE's own client is never in it.</summary>
+    /// <summary>From the slots Windows refused at one registration to the hotkeys worth telling, each with what
+    /// Windows said: only the combination the player bound (<see cref="IsThePlayersOwn"/>), and not the slot the
+    /// pause key itself holds. The pause key is registered first and apart from the others, so a second binding of
+    /// its combination is refused (1409) by MultiPreview's own doing: no other program has it, and the conflict
+    /// check on the same page is where two bindings of one key are told.</summary>
+    /// <param name="pauseSlot">The modifiers and the key the pause key is registered with right now, or null (no
+    /// pause key, one on a mouse button, or one that is not registered).</param>
+    public static IReadOnlyList<RefusedHotkey> Told(IEnumerable<RefusedSlot> refused, (uint Modifiers, uint VirtualKey)? pauseSlot)
+    {
+        var told = new List<RefusedHotkey>();
+        foreach (var slot in refused)
+        {
+            if (!IsThePlayersOwn(slot.Modifiers, slot.BoundModifiers)) continue;
+            if (pauseSlot is { } pause && slot.VirtualKey == pause.VirtualKey && IsThePlayersOwn(slot.Modifiers, pause.Modifiers)) continue;
+            told.Add(new RefusedHotkey(slot.Hotkey, slot.Error));
+        }
+        return told;
+    }
+
+    /// <summary>Programs known to take keys with RegisterHotKey, the one way a program can be the reason for a 1409:
+    /// the process name (without ".exe") and the name to show, in the order shown. A program that reads keys by a
+    /// keyboard hook or by asking for a key's state (Discord, OBS, Steam, TeamSpeak, Mumble: by what is known of
+    /// them, not measured) cannot be the owner and is not in it. EVE's own client is never in it.</summary>
     public static IReadOnlyList<(string Process, string Name)> Known { get; } = new[]
     {
-        ("Discord", "Discord"), ("DiscordPTB", "Discord"), ("DiscordCanary", "Discord"),
         ("NVIDIA Share", "NVIDIA overlay"), ("NVIDIA Overlay", "NVIDIA overlay"),
         ("RadeonSoftware", "AMD Software"), ("AMDRSServ", "AMD Software"),
-        ("obs64", "OBS Studio"), ("obs32", "OBS Studio"),
-        ("steam", "Steam"), ("GameOverlayUI", "Steam"),
         ("GameBar", "Xbox Game Bar"),
-        ("ts3client_win64", "TeamSpeak"), ("TeamSpeak", "TeamSpeak"),
-        ("mumble", "Mumble"),
+        ("ShareX", "ShareX"),
+        ("Greenshot", "Greenshot"),
         ("AutoHotkey", "AutoHotkey"), ("AutoHotkey64", "AutoHotkey"), ("AutoHotkey32", "AutoHotkey"),
-        ("AutoHotkeyU64", "AutoHotkey"), ("AutoHotkeyU32", "AutoHotkey"),
+        ("AutoHotkeyU64", "AutoHotkey"), ("AutoHotkeyU32", "AutoHotkey"), ("AutoHotkeyA32", "AutoHotkey"),
         ("PowerToys", "PowerToys"),
         ("EVE-O Preview", "EVE-O Preview"), ("EVE-X-Preview", "EVE-X-Preview"),
     };
@@ -85,25 +111,30 @@ public static class HotkeyRefusals
 
     /// <summary>What the tray's note says about hotkeys refused for the first time: the first three as the settings
     /// show them, each with what it is bound to ("Ctrl + F5 (Next client)"). Where that is too long for a balloon,
-    /// the keys alone.</summary>
+    /// the names of what they are bound to are given up one at a time, from the last key, until it fits: the keys
+    /// themselves are always named.</summary>
     /// <param name="actionOf">The name of what a hotkey is bound to, or null. A character's or a group's name can be
     /// among them: it is only ever an argument of the format.</param>
-    public static string Note(IReadOnlyList<RefusedHotkey> fresh, Func<string, string?>? actionOf = null)
+    public static string Note(IReadOnlyList<RefusedHotkey> fresh, Func<string, string?>? actionOf = null) =>
+        NoteIn(LocalizationService.Str("L.Tray.KeysRefused",
+            "Windows refused these hotkeys: {0}. Another program may have them. Click for details."), fresh, actionOf);
+
+    /// <summary><see cref="Note"/> in the wording of one language: <paramref name="format"/> is that catalog's
+    /// L.Tray.KeysRefused.</summary>
+    public static string NoteIn(string format, IReadOnlyList<RefusedHotkey> fresh, Func<string, string?>? actionOf = null)
     {
-        string Keys(bool withActions)
+        var named = fresh.Take(MaxNamed).ToList();
+        var actions = named.Select(r => actionOf?.Invoke(r.Hotkey)).ToList();
+        for (int withActions = named.Count; ; withActions--)
         {
-            var names = fresh.Take(MaxNamed).Select(r =>
+            var names = named.Select((r, i) =>
             {
                 var key = HotkeyText.ToDisplay(r.Hotkey);
-                var action = withActions ? actionOf?.Invoke(r.Hotkey) : null;
-                return string.IsNullOrWhiteSpace(action) ? key : key + " (" + action + ")";
+                return i < withActions && !string.IsNullOrWhiteSpace(actions[i]) ? key + " (" + actions[i] + ")" : key;
             });
-            return string.Join(", ", names) + (fresh.Count > MaxNamed ? ", …" : "");
+            var note = string.Format(format, string.Join(", ", names) + (fresh.Count > MaxNamed ? ", …" : ""));
+            if (note.Length <= MaxNoteLength || withActions == 0) return note;
         }
-        var format = LocalizationService.Str("L.Tray.KeysRefused",
-            "Windows refused these hotkeys: {0}. Another program may have them. Click for details.");
-        var note = string.Format(format, Keys(withActions: true));
-        return note.Length <= MaxNoteLength ? note : string.Format(format, Keys(withActions: false));
     }
 }
 

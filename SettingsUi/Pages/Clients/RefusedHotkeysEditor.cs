@@ -53,9 +53,18 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
     /// <summary>The line above the rows.</summary>
     public string Summary => _summary.Text;
 
-    /// <summary>The known programs found running (empty: none, and the usual ones are named). Null while nothing is
-    /// refused: then nobody is asked.</summary>
+    /// <summary>The known programs found running (empty: none, and the usual ones are named). Null while no key is
+    /// refused because another program has it: then nobody is asked.</summary>
     public IReadOnlyList<string>? Running { get; private set; }
+
+    /// <summary>The line that names the likely owners as it is shown, or "" while it is hidden.</summary>
+    public string Owners => _owners.Visibility == Visibility.Visible ? _owners.Text : "";
+
+    /// <summary>The uses that are a refused key: the same key with the same modifiers, in whatever order and case the
+    /// two are written ("^!F5" and "!^F5" are one key). A bare key is not that key with a modifier held: Windows
+    /// refused the one combination. The card's rows and the tray's note both ask here.</summary>
+    public static IReadOnlyList<HotkeyUse> UsesOf(string hotkey, IEnumerable<HotkeyUse> uses) =>
+        uses.Where(u => HotkeyText.Clashes(u.Hotkey, hotkey, wildcard: false)).ToList();
 
     private static string Str(string key) => SettingsContext.Str(key);
 
@@ -81,7 +90,7 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
         {
             var row = new RefusedRow(HotkeyText.ToDisplay(hotkey.Hotkey),
                 hotkey.Taken ? Str("L.S.Refused.Taken") : string.Format(Str("L.S.Refused.Error"), hotkey.Error),
-                uses.Where(u => string.Equals(u.Hotkey.Trim(), hotkey.Hotkey.Trim(), StringComparison.OrdinalIgnoreCase)).ToList());
+                UsesOf(hotkey.Hotkey, uses));
             rows.Add(row);
             var line = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
             var key = EditorCard.Value(row.KeyText);
@@ -93,7 +102,7 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
             _rows.Children.Add(line);
         }
         Rows = rows;
-        FindOwners(refused.Count > 0);
+        FindOwners(refused.Any(hotkey => hotkey.Taken));   // "who has it" is a question only for a key another program took
     }
 
     /// <summary>Opens the card that sets this use of the key.</summary>
@@ -118,12 +127,13 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
         return button;
     }
 
-    /// <summary>Who is likely to have the keys: asked only while something is refused. The usual programs are named
-    /// at once; the ones found running replace them when the answer is in. An answer to an older look is dropped.</summary>
-    private void FindOwners(bool anyRefused)
+    /// <summary>Who is likely to have the keys: asked only while a key is refused because another program has it
+    /// (1409). The usual programs are named at once; the ones found running replace them when the answer is in. An
+    /// answer to an older look is dropped.</summary>
+    private void FindOwners(bool anyTaken)
     {
         int look = ++_look;
-        if (!anyRefused)
+        if (!anyTaken)
         {
             Running = null;
             _owners.Visibility = Visibility.Collapsed;

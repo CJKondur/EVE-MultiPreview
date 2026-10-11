@@ -809,13 +809,9 @@ public partial class App : Application
     }
 
     /// <summary>What a hotkey is bound to, as its card names it (the first, when several things share the key), or null.</summary>
-    private string? ActionOfHotkey(string hotkey)
-    {
-        if (_settings == null) return null;
-        foreach (var use in SettingsUi.HotkeyUses.All(_settings.Settings, SettingsUi.SettingsRegistry.Settings))
-            if (string.Equals(use.Hotkey.Trim(), hotkey.Trim(), StringComparison.OrdinalIgnoreCase)) return use.Label;
-        return null;
-    }
+    private string? ActionOfHotkey(string hotkey) => _settings == null ? null
+        : SettingsUi.RefusedHotkeysEditor.UsesOf(hotkey,
+            SettingsUi.HotkeyUses.All(_settings.Settings, SettingsUi.SettingsRegistry.Settings)).FirstOrDefault()?.Label;
 
     /// <summary>IDEAS #5, once a second while the event is on: has a jump wave left a member of a group behind?
     /// StragglerAlerts looks (the groups as the Groups page has them, the characters that have a client, where the

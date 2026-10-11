@@ -2182,10 +2182,10 @@
     <sys:String x:Key="L.S.Refused.Taken">ほかのプログラムが使用しています。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Error">Windows エラー {0}。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Running">現在実行中で、ホットキーを取ることで知られているプログラム：{0}。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Refused.Usual">ホットキーをよく取るプログラム：Discord、NVIDIA と AMD のオーバーレイ、OBS、Steam、Xbox Game Bar。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Usual">ホットキーをよく取るプログラム：NVIDIA と AMD のオーバーレイ、Xbox Game Bar、ShareX、Greenshot、AutoHotkey、PowerToys。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.KeysRefused">Windows が次のホットキーを拒否しました：{0}。ほかのプログラムが使っている可能性があります。クリックで詳細を表示します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows に拒否されたキー</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows は、キーの組み合わせを同時に 1 つのプログラムにしか割り当てません。ほかのプログラムが先にホットキーを取っていると、押しても MultiPreview では何も起こらず、理由もわかりません。&#x0A;&#x0A;- **Windows に拒否されたキー** には、そのようなキーと割り当て先が一覧表示されます。クリックすると変更できます。&#x0A;- 多くの場合、原因はオーバーレイやボイスチャットのプログラムです。Discord、NVIDIA と AMD のオーバーレイ、OBS、Steam、Xbox Game Bar などです。カードには実行中のものが表示されます。&#x0A;- MultiPreview はトレイの通知でも知らせます。キーごとに 1 回だけです。&#x0A;- キーは登録のたびに確認されます。EVE クライアントの実行中と、設定を変更したあとです。マウスボタンが拒否されることはありません。&#x0A;- **Ctrl、Shift、Alt を押している間もホットキーを有効にする** がオンのときは、各キーを Ctrl、Alt、Shift、Win のあらゆる組み合わせでも登録しようとします。その多くは Windows 自身が使っています。一覧に出るのは、あなたが選んだ組み合わせだけです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows は、キーの組み合わせを同時に 1 つのプログラムにしか割り当てません。ほかのプログラムが先にホットキーを取っていると、押しても MultiPreview では何も起こらず、理由もわかりません。&#x0A;&#x0A;- **Windows に拒否されたキー** には、そのようなキーと割り当て先が一覧表示されます。クリックすると変更できます。&#x0A;- 多くの場合、原因はオーバーレイ、スクリーンショットツール、キーの割り当てを変えるツールです。NVIDIA と AMD のオーバーレイ、Xbox Game Bar、ShareX、Greenshot、AutoHotkey、PowerToys などです。カードには実行中のものが表示されます。&#x0A;- MultiPreview はトレイの通知でも知らせます。キーごとに 1 回だけです。&#x0A;- キーは登録のたびに確認されます。EVE クライアントの実行中と、設定を変更したあとです。マウスボタンが拒否されることはありません。&#x0A;- **Ctrl、Shift、Alt を押している間もホットキーを有効にする** がオンのときは、各キーを Ctrl、Alt、Shift、Win のあらゆる組み合わせでも登録しようとします。その多くは Windows 自身が使っています。一覧に出るのは、あなたが選んだ組み合わせだけです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.LastAlertHere">最新のアラートはこのクライアントにあります</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">23:00 のような 24 時間制の時刻です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.DndState.On">おやすみモードは現在オンです。アラート音は鳴りません。</sys:String> <!-- draft -->

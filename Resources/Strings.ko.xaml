@@ -2182,10 +2182,10 @@
     <sys:String x:Key="L.S.Refused.Taken">다른 프로그램이 쓰고 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Error">Windows 오류 {0}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Running">지금 실행 중이고 단축키를 가져가는 것으로 알려진 프로그램: {0}.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Refused.Usual">단축키를 자주 가져가는 프로그램: Discord, NVIDIA와 AMD 오버레이, OBS, Steam, Xbox Game Bar.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Usual">단축키를 자주 가져가는 프로그램: NVIDIA와 AMD 오버레이, Xbox Game Bar, ShareX, Greenshot, AutoHotkey, PowerToys.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.KeysRefused">Windows가 다음 단축키를 거부했어요: {0}. 다른 프로그램이 쓰고 있을 수 있어요. 클릭하면 자세히 볼 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows가 거부한 키</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows는 키 조합 하나를 한 번에 한 프로그램에만 줘요. 다른 프로그램이 단축키를 먼저 가져가면, 눌러도 MultiPreview에서는 아무 일도 일어나지 않고 이유도 알려 주지 않아요.&#x0A;&#x0A;- **Windows가 거부한 키** 카드에 그런 키와 연결된 기능이 나와요. 클릭하면 바꿀 수 있어요.&#x0A;- 보통 오버레이나 음성 프로그램이 원인이에요. Discord, NVIDIA와 AMD 오버레이, OBS, Steam, Xbox Game Bar 같은 것들이에요. 카드에는 실행 중인 프로그램이 나와요.&#x0A;- MultiPreview는 트레이 알림으로도 알려요. 키마다 한 번만요.&#x0A;- 키는 등록할 때마다 확인해요. EVE 클라이언트가 실행 중일 때와 설정을 바꾼 뒤예요. 마우스 버튼은 거부되지 않아요.&#x0A;- **Ctrl, Shift, Alt를 누르고 있어도 단축키 작동** 스위치가 켜져 있으면 각 키를 Ctrl, Alt, Shift, Win의 모든 조합으로도 등록하려고 해요. 그중 많은 조합은 Windows가 직접 써요. 목록에는 직접 고른 조합만 나와요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows는 키 조합 하나를 한 번에 한 프로그램에만 줘요. 다른 프로그램이 단축키를 먼저 가져가면, 눌러도 MultiPreview에서는 아무 일도 일어나지 않고 이유도 알려 주지 않아요.&#x0A;&#x0A;- **Windows가 거부한 키** 카드에 그런 키와 연결된 기능이 나와요. 클릭하면 바꿀 수 있어요.&#x0A;- 보통 오버레이, 스크린샷 도구, 키를 다시 지정하는 도구가 원인이에요. NVIDIA와 AMD 오버레이, Xbox Game Bar, ShareX, Greenshot, AutoHotkey, PowerToys 같은 것들이에요. 카드에는 실행 중인 프로그램이 나와요.&#x0A;- MultiPreview는 트레이 알림으로도 알려요. 키마다 한 번만요.&#x0A;- 키는 등록할 때마다 확인해요. EVE 클라이언트가 실행 중일 때와 설정을 바꾼 뒤예요. 마우스 버튼은 거부되지 않아요.&#x0A;- **Ctrl, Shift, Alt를 누르고 있어도 단축키 작동** 스위치가 켜져 있으면 각 키를 Ctrl, Alt, Shift, Win의 모든 조합으로도 등록하려고 해요. 그중 많은 조합은 Windows가 직접 써요. 목록에는 직접 고른 조합만 나와요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.LastAlertHere">마지막 알림은 이 클라이언트에 있어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">23:00 같은 24시간제 시각이에요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.DndState.On">방해 금지가 지금 켜져 있어요. 알림 소리가 꺼져 있어요.</sys:String> <!-- draft -->

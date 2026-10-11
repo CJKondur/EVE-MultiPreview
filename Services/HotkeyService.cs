@@ -444,7 +444,7 @@ public sealed class HotkeyService : IDisposable
         }
 
         int ok = 0, fail = 0;
-        var refusedNow = new List<RefusedHotkey>();   // IDEAS #42
+        var refusedNow = new List<RefusedSlot>();   // IDEAS #42
         // Only slots that actually registered - a key another app owns is not ours to hide.
         var hiddenSlots = new Dictionary<(uint Mods, uint Vk), KeySlot>();
         foreach (var spec in winners.Values)
@@ -482,10 +482,9 @@ public sealed class HotkeyService : IDisposable
             {
                 int error = System.Runtime.InteropServices.Marshal.GetLastWin32Error();   // first: the next call to Windows replaces it
                 fail++;
-                // IDEAS #42: only the combination the player bound is told. The slots around it (the same key with
-                // other modifiers held as well) are refused routinely: Windows keeps many of them for itself.
-                if (HotkeyRefusals.IsThePlayersOwn(spec.Modifiers, spec.BaseModifiers))
-                    refusedNow.Add(new RefusedHotkey(spec.Hotkey, error));
+                // IDEAS #42: every refused slot with what Windows said. HotkeyRefusals.Told picks the ones worth
+                // telling: the combination the player bound, and not the slot the pause key itself holds.
+                refusedNow.Add(new RefusedSlot(spec.Hotkey, spec.Modifiers, spec.BaseModifiers, spec.VirtualKey, error));
             }
         }
         // One keyboard hook serves both kinds of hiding: hotkey keystrokes, and keys still
@@ -503,7 +502,8 @@ public sealed class HotkeyService : IDisposable
             RemoveKeyHook();
         }
         _hotkeysActive = true;
-        Refused.Registered(refusedNow);   // IDEAS #42: raises Changed only when the list is not what it was
+        // IDEAS #42: raises Changed only when the list is not what it was
+        Refused.Registered(HotkeyRefusals.Told(refusedNow, _suspendHotkeyId > 0 ? _suspendSlot : null));
         App.PerfLog($"[Hotkey:Activate] Registered {ok}/{_storedSpecs.Count} specs ({fail} failed, {_hotkeyActions.Count} total actions)");
     }
 
@@ -919,13 +919,20 @@ public sealed class HotkeyService : IDisposable
 
     private int _lastRegisterError;
 
+    // The combination the pause key was registered with (its modifiers and its key), or null: no pause key, one on
+    // a mouse button, or one Windows refused. It counts only while _suspendHotkeyId > 0. A second binding of that
+    // combination is refused by MultiPreview's own doing, not by another program (HotkeyRefusals.Told).
+    private (uint Modifiers, uint VirtualKey)? _suspendSlot;
+
     /// <summary>Whether Windows refused the pause key just now. A mouse button is never refused (its id is -2), an
     /// empty or unreadable key was never asked for, capture mode leaves it unregistered on purpose, and without a
-    /// window (tests) nothing was asked.</summary>
+    /// window (tests) nothing was asked. It also keeps the slot a registered pause key holds.</summary>
     private void NoteSuspendKey()
     {
+        var pause = ParseAhkHotkeyString(_suspendAhk ?? "");
+        _suspendSlot = _suspendHotkeyId > 0 ? pause : null;
         bool refused = _suspendHotkeyId == -1 && _hwndSource != null && !IsCapturing
-                       && ParseAhkHotkeyString(_suspendAhk ?? "").VirtualKey != 0;
+                       && pause.VirtualKey != 0;
         Refused.PauseKey(refused ? new RefusedHotkey(_suspendAhk ?? "", _lastRegisterError) : null);
     }
 
