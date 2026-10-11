@@ -16,8 +16,9 @@ namespace EveMultiPreview.Services;
 /// <paramref name="EventKey"/> is the alert type ("attack", or "custom:‹id›" for a rule of the player's own).
 /// <paramref name="SolarSystem"/> is where the character was at that moment, "" when not known. <paramref name="Source"/>
 /// is "" for a built-in alert and the rule's name for a custom one. <paramref name="Text"/> is what a custom rule
-/// matched, cut to <see cref="AlertHistory.MaxText"/> characters; it is always "" for a built-in alert, so the history
-/// holds no log text of those.</summary>
+/// matched, cut to <see cref="AlertHistory.MaxText"/> characters; it is always "" for a built-in alert read from a
+/// log line, so the history holds no log text of those. For "Left behind", which MultiPreview works out itself, it
+/// is where the others went ("Jita → Perimeter 3/4").</summary>
 public sealed record AlertHistoryEntry(DateTime TimeUtc, string Character, string EventKey, string Severity, string SolarSystem,
     AlertOutcome Outcome, string Source, string Text)
 {

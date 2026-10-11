@@ -94,6 +94,7 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
 
     private readonly SettingsContext _ctx;
     private readonly Grid _table = new();
+    private readonly List<string> _keys = new();
     private readonly TextBlock _error = new() { Visibility = Visibility.Collapsed, TextWrapping = TextWrapping.Wrap };
 
     public SoundTableEditor(SettingsContext ctx)
@@ -111,10 +112,14 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
         Refresh();
     }
 
+    /// <summary>The event keys in the order shown: one for each row but the default sound's.</summary>
+    public IReadOnlyList<string> Keys => _keys;
+
     private static string Str(string key) => SettingsContext.Str(key);
 
     public void Refresh()
     {
+        _keys.Clear();
         _table.Children.Clear();
         _table.RowDefinitions.Clear();
         _table.ColumnDefinitions.Clear();
@@ -140,6 +145,7 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
             label.SetResourceReference(StyleProperty, "Fx.Label");
             Loc.SetKey(label, "L.AlertEvt." + key);
             Place(label, r, 0);
+            _keys.Add(key);
         }
         // The file's name; an event without one plays the default sound, and a blank path plays nothing.
         Place(own.Length > 0 ? EditorCard.Value(System.IO.Path.GetFileName(own), secondary: true)

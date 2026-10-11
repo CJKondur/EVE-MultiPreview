@@ -112,10 +112,16 @@ public static class AlertsPages
                     "AppSettings.AlertSolidBorder", "AppSettings.EnabledAlertTypes",
                 },
             },
-            // IDEAS #5: App's one-second look reads it (StragglerWatch.Wait). The event's own switch is its row in the
-            // table above: "Left behind", under Travel.
+            // IDEAS #5: the one-second look reads it (StragglerAlerts.Look, held to its range by StragglerWatch.Wait).
+            // The event's own switch is its row in the table above: "Left behind", under Travel. The card is shown
+            // whether that switch is on or not: a card can't follow a switch inside the table (only a card's own
+            // change makes the page ask every ShowIf again), so its text says when the wait is used. It shows the
+            // wait that is used, which is the stored number held to the range; a number outside it is not rewritten.
             new SettingItem(Setting.Number("alerts.events.stragglerWait", s => s.StragglerWaitSeconds,
-                StragglerWatch.MinWaitSeconds, StragglerWatch.MaxWaitSeconds, "L.S.Unit.Sec")),
+                StragglerWatch.MinWaitSeconds, StragglerWatch.MaxWaitSeconds, "L.S.Unit.Sec") with
+            {
+                Get = s => Math.Clamp(s.StragglerWaitSeconds, StragglerWatch.MinWaitSeconds, StragglerWatch.MaxWaitSeconds),
+            }),
         }),
         // IDEAS #30: what is snoozed for one character right now, with a way to end it, and whether the timed snoozes
         // outlive a restart. App follows the switch on Applied (the snooze file is written or removed).

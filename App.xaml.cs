@@ -48,8 +48,8 @@ public partial class App : Application
     private DispatcherTimer? _alertTimer;
     /// <summary>"Left behind" (IDEAS #5): told every system change, asked on the one-second timer while the event is on.</summary>
     private readonly StragglerWatch _stragglers = new();
-    /// <summary>What an alert is shown with (set at startup), for the alerts App raises itself.</summary>
-    private AlertTargets? _alertTargets;
+    /// <summary>The look for it and the alert it raises, with what App has for both (set at startup).</summary>
+    private StragglerAlerts? _stragglerAlerts;
     /// <summary>IDEAS #42: each hotkey Windows refused is told once a session in a tray note; a click on that note opens
     /// the hotkeys page.</summary>
     private readonly RefusalAnnouncer _refusalAnnouncer = new();
@@ -292,8 +292,6 @@ public partial class App : Application
             };
             _alertHub.SaveRequested += () => _settings.SaveDelayed();
             _alertHub.SystemLookup = _thumbnailManager.GetCharacterSystem;   // "Jita · click to switch" on toasts (Plan 4)
-            // IDEAS #5: the toast of "Left behind" says where the others went ("Jita → Perimeter 3/4") in the system's place.
-            _alertHub.PlaceLookup = (who, type) => type == StragglerWatch.EventKey ? _stragglers.WaveOf(who) : null;
             // Toasts pause with the hotkeys on every path: the pause hotkey, Home and the tray (IDEAS P37).
             _alertHub.FollowPauseOf(_hotkeyService);
             // Deferred, as the tray's items are: the hub's menu has closed before the window shows.
@@ -397,7 +395,6 @@ public partial class App : Application
                 Toast = (charName, alertType, severity) => _alertHub.ShowToast(charName, alertType, severity),
                 Sound = PlayAlertSound,
             };
-            _alertTargets = alertTargets;   // for the alerts App raises itself (IDEAS #5)
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
             // history writes on a thread of its own; old days are deleted here, at startup, and never while running.
             // A session whose settings could not be read runs on default values and saves nothing: its keep time is
@@ -408,6 +405,13 @@ public partial class App : Application
                 KeepDays = _settings.Settings.AlertHistoryDays,
             };
             if (_settings.LoadedSuccessfully) _alertHistory.DeleteOldDays();
+            // IDEAS #5: "Left behind" is looked for and raised by a class of its own, which is handed App's parts: the
+            // watch, the settings, the characters that have a client, where the log monitor has each, what an alert
+            // is shown with, and the history. Its toast says where the others went ("Jita → Perimeter 3/4") in the
+            // system's place: the hub asks that class.
+            _stragglerAlerts = new StragglerAlerts(_stragglers, () => _settings.Settings, () => _thumbnailManager.GetActiveCharacterNames(),
+                _logMonitor.GetCharacterSystem, alertTargets, _alertHistory, LogError);
+            _alertHub.PlaceLookup = _stragglerAlerts.PlaceOf;
             // IDEAS #17: "Go to the last alert" walks back through the history's memory list once nothing is unseen.
             _thumbnailManager.RecentAlerts = () => _alertHistory.Recent();
             // Windows signing out or shutting down: WPF only queues its shutdown then, and OnExit (which closes the
@@ -813,38 +817,11 @@ public partial class App : Application
         return null;
     }
 
-    /// <summary>IDEAS #5, once a second while the event is on: the groups as the Groups page has them, the characters
-    /// that have a client, and where the log monitor has each. A failure costs this look, never the timer.</summary>
-    private void LookForStragglers(DateTime now)
-    {
-        if (_settings == null || _thumbnailManager == null || _logMonitor == null) return;
-        try
-        {
-            var s = _settings.Settings;
-            var groups = new List<(string Name, IReadOnlyList<string> Members)>();
-            foreach (var group in SettingsUi.MergedGroups.Build(s)) groups.Add((group.Name, group.Members));
-            foreach (var left in _stragglers.Check(now, groups, _thumbnailManager.GetActiveCharacterNames(),
-                         _logMonitor.GetCharacterSystem, StragglerWatch.Wait(s.StragglerWaitSeconds)))
-                RaiseOwnAlert(left.Character, StragglerWatch.EventKey, StragglerWatch.Severity);
-        }
-        catch (Exception ex)
-        {
-            LogError(ex);
-        }
-    }
-
-    /// <summary>An alert MultiPreview works out itself instead of reading it from a log line. It is shown and kept the
-    /// way the log monitor's are: the same dispatcher (mute, snooze, border, badge, toast, sound), the same history.
-    /// It has no rule and no text. The window's thread.</summary>
-    private void RaiseOwnAlert(string charName, string alertType, string severity)
-    {
-        if (_settings == null || _alertTargets == null || _logMonitor == null) return;
-        var raised = DateTime.UtcNow;
-        var outcome = AlertDispatcher.Dispatch(_settings.Settings, _alertTargets, charName, alertType, severity);
-        if (_alertHistory == null || !_alertHistory.Enabled) return;
-        _alertHistory.Record(AlertHistory.Entry(raised, charName, alertType, severity,
-            _logMonitor.GetCharacterSystem(charName), outcome));
-    }
+    /// <summary>IDEAS #5, once a second while the event is on: has a jump wave left a member of a group behind?
+    /// StragglerAlerts looks (the groups as the Groups page has them, the characters that have a client, where the
+    /// log monitor has each) and raises the alert the way every alert is raised. A failure there costs that look or
+    /// that one alert, never the timer.</summary>
+    private void LookForStragglers(DateTime now) => _stragglerAlerts?.Look(now);
 
     /// <summary>IDEAS #32: the hotkey or the tray item flips do-not-disturb, and says near the cursor what it is now:
     /// once per press, as the other hotkeys' feedback is given.</summary>
