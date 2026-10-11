@@ -3762,18 +3762,26 @@ public sealed class ThumbnailManager : IDisposable
 
     /// <summary>The "Go to the last alert" hotkey (IDEAS #17): the client of the most severe alert the player has
     /// not looked at; pressed again, the next; with none left, back through this session's alerts (AlertWalk). Never
-    /// a client that is gone or closing. With nothing to go to it says so near the cursor and switches nothing.</summary>
+    /// a client that is gone or closing. With nothing to go to it says so near the cursor and switches nothing; and
+    /// when the last alert is on the client in front, moments ago, it says that and stays (AlertWalk.Kind.Here).</summary>
     public void GoToLastAlert()
     {
         string? inFront = _thumbnails.TryGetValue(ActiveClient(), out var front) ? front.CharacterName : null;
+        // An alert of the client in front that is still unseen (it arrived while a switch was in flight, or while
+        // the focus sweep stood still for a drag or the tray menu) is looked at now: the player is on that client.
+        // Left unseen, the walk would name this client, and the press would switch nothing and say nothing.
+        if (inFront != null) Attention.Seen(inFront);
         var step = _alertWalk.Next(Attention.Unseen(),
             () => RecentAlerts?.Invoke() ?? Array.Empty<AlertHistoryEntry>(),
             name => ClientAlive(GetHwndForCharacter(name)), inFront, DateTime.UtcNow);
         if (!step.Goes)
         {
-            ShowTooltipFeedback(step.Kind == AlertWalk.Kind.NoEarlier
-                ? LocalizationService.Str("L.Switch.NoEarlierAlert", "No earlier alert")
-                : LocalizationService.Str("L.Switch.NoAlert", "No alert to go to"));
+            ShowTooltipFeedback(step.Kind switch
+            {
+                AlertWalk.Kind.Here => LocalizationService.Str("L.Switch.LastAlertHere", "The last alert is on this client"),
+                AlertWalk.Kind.NoEarlier => LocalizationService.Str("L.Switch.NoEarlierAlert", "No earlier alert"),
+                _ => LocalizationService.Str("L.Switch.NoAlert", "No alert to go to"),
+            });
             return;
         }
         // The player asked for this alert: it is looked at, also when its client is in front already (then

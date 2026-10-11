@@ -2110,7 +2110,7 @@
     <sys:String x:Key="L.Switch.NoAlert">移動先のアラートがありません</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.NoEarlierAlert">これより前のアラートはありません</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Title">最新のアラートへ移動</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**最新のアラートへ移動** は、点滅しているサムネイルを探さなくても、対応が必要なクライアントに切り替えます。&#x0A;&#x0A;- まだ見ていないアラートがある間は、最も重大なものから順に移動します。重大、警告、情報の順で、同じ重大度なら新しいものが先です。クライアントを見るとそのアラートは確認済みになるので、次に押すと次のクライアントへ進みます。&#x0A;- 残りがなくなると、このセッションのアラートを新しい順にさかのぼります。1 回押すごとに 1 クライアントです。30 秒間押さないと、また最新から始まります。&#x0A;- クライアントを閉じたキャラクターは飛ばします。ミュートしていたキャラクターのアラートも飛ばします。&#x0A;- 移動先がないときは、カーソルの近くに短いメッセージが出ます。音は鳴りません。アラートと間違えるおそれがあるためです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**最新のアラートへ移動** は、点滅しているサムネイルを探さなくても、対応が必要なクライアントに切り替えます。&#x0A;&#x0A;- まだ見ていないアラートがある間は、最も重大なものから順に移動します。重大、警告、情報の順で、同じ重大度なら新しいものが先です。クライアントを見るとそのアラートは確認済みになるので、次に押すと次のクライアントへ進みます。&#x0A;- 残りがなくなると、このセッションのアラートを新しい順にさかのぼります。1 回押すごとに 1 クライアントです。30 秒間押さないと、また最新から始まります。さかのぼるにはアラート履歴を使うため、**アラート履歴を残す** をオンにしておく必要があります。&#x0A;- 最新のアラートが前面のクライアントのもので、30 秒以内のものなら、キーはそのクライアントにとどまり、カーソルの近くにその旨を表示します。対応が必要なのはそのクライアントだからです。もう一度押すと、さかのぼりを続けます。&#x0A;- クライアントを閉じたキャラクターは飛ばします。発生時にミュートまたはスヌーズされていたアラートも飛ばします。&#x0A;- 移動先がないときは、カーソルの近くに短いメッセージが出ます。音は鳴りません。アラートと間違えるおそれがあるためです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem">この星系の中だけでサイクルする</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem.Desc">サイクルキーは、前面のクライアントと別の星系にいるクライアントを飛ばします。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleAlerting">アラートのあるクライアントだけをサイクルする</sys:String> <!-- draft -->
@@ -2186,4 +2186,5 @@
     <sys:String x:Key="L.Tray.KeysRefused">Windows が次のホットキーを拒否しました：{0}。ほかのプログラムが使っている可能性があります。クリックで詳細を表示します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows に拒否されたキー</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows は、キーの組み合わせを同時に 1 つのプログラムにしか割り当てません。ほかのプログラムが先にホットキーを取っていると、押しても MultiPreview では何も起こらず、理由もわかりません。&#x0A;&#x0A;- **Windows に拒否されたキー** には、そのようなキーと割り当て先が一覧表示されます。クリックすると変更できます。&#x0A;- 多くの場合、原因はオーバーレイやボイスチャットのプログラムです。Discord、NVIDIA と AMD のオーバーレイ、OBS、Steam、Xbox Game Bar などです。カードには実行中のものが表示されます。&#x0A;- MultiPreview はトレイの通知でも知らせます。キーごとに 1 回だけです。&#x0A;- キーは登録のたびに確認されます。EVE クライアントの実行中と、設定を変更したあとです。マウスボタンが拒否されることはありません。&#x0A;- **Ctrl、Shift、Alt を押している間もホットキーを有効にする** がオンのときは、各キーを Ctrl、Alt、Shift、Win のあらゆる組み合わせでも登録しようとします。その多くは Windows 自身が使っています。一覧に出るのは、あなたが選んだ組み合わせだけです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.LastAlertHere">最新のアラートはこのクライアントにあります</sys:String> <!-- draft -->
 </ResourceDictionary>

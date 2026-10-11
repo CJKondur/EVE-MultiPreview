@@ -2110,7 +2110,7 @@
     <sys:String x:Key="L.Switch.NoAlert">이동할 알림이 없어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.NoEarlierAlert">더 이전 알림이 없어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Title">마지막 알림으로 이동</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**마지막 알림으로 이동**은 깜빡이는 썸네일을 찾지 않아도 내가 필요한 클라이언트로 데려가요.&#x0A;&#x0A;- 아직 보지 않은 알림이 있는 동안에는 가장 심각한 것부터 가요. 치명, 경고, 정보 순이고, 같은 심각도에서는 최신 것이 먼저예요. 클라이언트를 보면 그 알림은 확인된 것이 되므로, 다음에 누르면 다음 클라이언트로 가요.&#x0A;- 남은 것이 없으면 이번 세션의 알림을 최신순으로 거슬러 올라가요. 한 번 누를 때마다 클라이언트 하나예요. 30초 동안 누르지 않으면 다시 최신부터 시작해요.&#x0A;- 클라이언트가 닫힌 캐릭터는 건너뛰고, 음소거해 둔 캐릭터의 알림도 건너뛰어요.&#x0A;- 갈 곳이 없으면 커서 근처에 짧은 안내가 나와요. 소리는 나지 않아요. 알림으로 착각할 수 있어서예요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**마지막 알림으로 이동**은 깜빡이는 썸네일을 찾지 않아도 내가 필요한 클라이언트로 데려가요.&#x0A;&#x0A;- 아직 보지 않은 알림이 있는 동안에는 가장 심각한 것부터 가요. 치명, 경고, 정보 순이고, 같은 심각도에서는 최신 것이 먼저예요. 클라이언트를 보면 그 알림은 확인된 것이 되므로, 다음에 누르면 다음 클라이언트로 가요.&#x0A;- 남은 것이 없으면 이번 세션의 알림을 최신순으로 거슬러 올라가요. 한 번 누를 때마다 클라이언트 하나예요. 30초 동안 누르지 않으면 다시 최신부터 시작해요. 거슬러 올라갈 때는 알림 기록을 읽으므로 **알림 기록 남기기**가 켜져 있어야 해요.&#x0A;- 가장 최근 알림이 앞에 있는 클라이언트의 것이고 30초가 지나지 않았으면, 키는 그 클라이언트에 머물고 커서 근처에 그렇다고 알려 줘요. 내가 필요한 클라이언트가 바로 거기니까요. 다시 누르면 계속 거슬러 올라가요.&#x0A;- 클라이언트가 닫힌 캐릭터는 건너뛰고, 발생했을 때 음소거되었거나 일시 중지되어 있던 알림도 건너뛰어요.&#x0A;- 갈 곳이 없으면 커서 근처에 짧은 안내가 나와요. 소리는 나지 않아요. 알림으로 착각할 수 있어서예요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem">이 항성계 안에서만 순환</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem.Desc">순환 키가 앞에 있는 클라이언트와 다른 항성계에 있는 클라이언트를 건너뛰어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleAlerting">알림이 있는 클라이언트만 순환</sys:String> <!-- draft -->
@@ -2186,4 +2186,5 @@
     <sys:String x:Key="L.Tray.KeysRefused">Windows가 다음 단축키를 거부했어요: {0}. 다른 프로그램이 쓰고 있을 수 있어요. 클릭하면 자세히 볼 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows가 거부한 키</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows는 키 조합 하나를 한 번에 한 프로그램에만 줘요. 다른 프로그램이 단축키를 먼저 가져가면, 눌러도 MultiPreview에서는 아무 일도 일어나지 않고 이유도 알려 주지 않아요.&#x0A;&#x0A;- **Windows가 거부한 키** 카드에 그런 키와 연결된 기능이 나와요. 클릭하면 바꿀 수 있어요.&#x0A;- 보통 오버레이나 음성 프로그램이 원인이에요. Discord, NVIDIA와 AMD 오버레이, OBS, Steam, Xbox Game Bar 같은 것들이에요. 카드에는 실행 중인 프로그램이 나와요.&#x0A;- MultiPreview는 트레이 알림으로도 알려요. 키마다 한 번만요.&#x0A;- 키는 등록할 때마다 확인해요. EVE 클라이언트가 실행 중일 때와 설정을 바꾼 뒤예요. 마우스 버튼은 거부되지 않아요.&#x0A;- **Ctrl, Shift, Alt를 누르고 있어도 단축키 작동** 스위치가 켜져 있으면 각 키를 Ctrl, Alt, Shift, Win의 모든 조합으로도 등록하려고 해요. 그중 많은 조합은 Windows가 직접 써요. 목록에는 직접 고른 조합만 나와요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.LastAlertHere">마지막 알림은 이 클라이언트에 있어요</sys:String> <!-- draft -->
 </ResourceDictionary>

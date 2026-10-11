@@ -2127,7 +2127,7 @@
     <sys:String x:Key="L.Switch.NoAlert">没有可以跳转的警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.NoEarlierAlert">没有更早的警报了</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Title">跳到最新的警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**跳到最新的警报** 会带你去需要你的客户端，不用再找哪个缩略图在闪。&#x0A;&#x0A;- 只要还有你没看过的警报，就先去最严重的：严重先于警告，警告先于信息，同一级别里最新的在前。看过一个客户端，它的警报就算已读，所以下一次按键会去下一个客户端。&#x0A;- 没有未读警报时，按键会按从新到旧的顺序回溯本次运行的警报，每按一次去一个客户端。30 秒没有按键后，又从最新的开始。&#x0A;- 客户端已关闭的角色会被跳过，你静音过的角色的警报也会被跳过。&#x0A;- 没有可去的地方时，光标旁会出现一条简短提示。不会有声音：它可能被误当成警报。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**跳到最新的警报** 会带你去需要你的客户端，不用再找哪个缩略图在闪。&#x0A;&#x0A;- 只要还有你没看过的警报，就先去最严重的：严重先于警告，警告先于信息，同一级别里最新的在前。看过一个客户端，它的警报就算已读，所以下一次按键会去下一个客户端。&#x0A;- 没有未读警报时，按键会按从新到旧的顺序回溯本次运行的警报，每按一次去一个客户端。30 秒没有按键后，又从最新的开始。回溯读取的是警报历史，所以需要打开 **保留警报历史记录**。&#x0A;- 如果最新的警报就在前台客户端上，而且不到 30 秒，按键会留在这个客户端，并在光标旁提示：需要你的正是它。再按一次才继续回溯。&#x0A;- 客户端已关闭的角色会被跳过，出现时已被静音或暂停的警报也会被跳过。&#x0A;- 没有可去的地方时，光标旁会出现一条简短提示。不会有声音：它可能被误当成警报。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem">只在当前星系内循环</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem.Desc">循环键会跳过与前台客户端不在同一星系的客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleAlerting">只在有警报的客户端之间循环</sys:String> <!-- draft -->
@@ -2203,4 +2203,5 @@
     <sys:String x:Key="L.Tray.KeysRefused">Windows 拒绝了这些热键：{0}。它们可能已被其他程序占用。点击查看详情。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows 拒绝的按键</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows 同一时间只会把每个按键组合交给一个程序。如果其他程序先占用了某个热键，按下它在 MultiPreview 中不会有任何反应，也不会告诉你原因。&#x0A;&#x0A;- **Windows 拒绝的按键** 会列出每个这样的按键及其绑定的功能。点击其中一个即可更改。&#x0A;- 常见的占用者是悬浮层和语音程序：Discord、NVIDIA 和 AMD 的悬浮层、OBS、Steam、Xbox Game Bar。卡片会列出正在运行的程序。&#x0A;- MultiPreview 还会通过托盘通知提示，每个按键只提示一次。&#x0A;- 每次注册按键时都会检查：EVE 客户端运行期间，以及你更改设置之后。鼠标按键永远不会被拒绝。&#x0A;- 开启 **按住 Ctrl、Shift 或 Alt 时热键仍然有效** 后，每个按键还会与 Ctrl、Alt、Shift、Win 的各种组合一起注册。其中许多组合被 Windows 自己保留。列表中只显示你选择的组合。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Switch.LastAlertHere">最新的警报就在这个客户端上</sys:String> <!-- draft -->
 </ResourceDictionary>
