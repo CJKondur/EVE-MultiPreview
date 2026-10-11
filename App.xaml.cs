@@ -51,9 +51,9 @@ public partial class App : Application
     /// <summary>The look for it and the alert it raises, with what App has for both (set at startup).</summary>
     private StragglerAlerts? _stragglerAlerts;
     /// <summary>IDEAS #42: each hotkey Windows refused is told once a session in a tray note; a click on that note opens
-    /// the hotkeys page.</summary>
+    /// the hotkeys page. A click on any other balloon does not: ShowBalloon says which one is up.</summary>
     private readonly RefusalAnnouncer _refusalAnnouncer = new();
-    private bool _refusedNoteUp;
+    private readonly RefusalNote _refusalNote = new();
     private AlertHistoryWindow? _historyWindow;
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
@@ -493,9 +493,17 @@ public partial class App : Application
             _hotkeyService.ProfileCycleBackward += () => CycleProfile(forward: false);
             _hotkeyService.DoNotDisturbToggled += ToggleDoNotDisturb;   // IDEAS #32
             // IDEAS #42: said after the registration is done, not from inside it. The pause key was registered before
-            // the tray icon existed, so what is refused already is told now.
+            // the tray icon existed, and the other keys are asked for within the next half second. Told at once, the
+            // pause key's note would be replaced by the note about the others: one second from now, one note names
+            // every key that is refused by then.
             _hotkeyService.Refused.Changed += () => Dispatcher.BeginInvoke(new Action(TellRefusedHotkeys));
-            TellRefusedHotkeys();
+            var refusedAtStartup = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            refusedAtStartup.Tick += (_, _) =>
+            {
+                refusedAtStartup.Stop();
+                TellRefusedHotkeys();
+            };
+            refusedAtStartup.Start();
 
             // Initialize sound player
             _soundPlayer = new MediaPlayer();
@@ -804,8 +812,29 @@ public partial class App : Application
         if (_isShuttingDown || _hotkeyService == null || _trayIcon == null) return;
         var fresh = _refusalAnnouncer.New(_hotkeyService.Refused.Current);
         if (fresh.Count == 0) return;
-        _refusedNoteUp = true;
-        _trayIcon.ShowBalloonTip(8000, "EVE MultiPreview", HotkeyRefusals.Note(fresh, ActionOfHotkey), ToolTipIcon.Warning);
+        ShowBalloon(8000, HotkeyRefusals.Note(fresh, ActionOfHotkey), ToolTipIcon.Warning, refusalNote: true);
+    }
+
+    /// <summary>Every tray balloon is shown here. Windows shows one balloon at a time, so the one shown last is the
+    /// one a click is on: it is said first which balloon that is (IDEAS #42), and a click on "Client positions
+    /// saved" never opens the hotkeys page because the note about refused hotkeys stood there before it.</summary>
+    private void ShowBalloon(int milliseconds, string text, ToolTipIcon icon, bool refusalNote = false)
+    {
+        if (_trayIcon == null) return;
+        _refusalNote.Shown(refusalNote);
+        _trayIcon.ShowBalloonTip(milliseconds, "EVE MultiPreview", text, icon);
+    }
+
+    /// <summary>IDEAS #42, "Check again" on Settings › Clients › Hotkeys › Keys Windows refused: Windows is asked for
+    /// every hotkey once more, the way a settings change asks (all released, the pause key registered, the others
+    /// stored), and then at once what the half-second poll would do next (registered where clients are running and
+    /// hotkeys are not paused), so the card has the answer when this returns. Nothing is saved, and nothing but the
+    /// hotkeys and the mouse hook is touched.</summary>
+    private void CheckHotkeysAgain()
+    {
+        if (_isShuttingDown || _hotkeyService == null || _settings == null || _thumbnailManager == null) return;
+        _hotkeyService.RegisterFromSettings(_settings.Settings, _settings.CurrentProfile, _thumbnailManager, OpenSettings);
+        _hotkeyService.EvaluateRegistration();
     }
 
     /// <summary>What a hotkey is bound to, as its card names it (the first, when several things share the key), or null.</summary>
@@ -1031,14 +1060,14 @@ public partial class App : Application
             SavePositions = () =>
             {
                 _thumbnailManager?.SaveClientPositions();
-                _trayIcon?.ShowBalloonTip(2000, "EVE MultiPreview", LocalizationService.Str("L.Tray.PosSaved", "Client positions saved"), ToolTipIcon.Info);
+                ShowBalloon(2000, LocalizationService.Str("L.Tray.PosSaved", "Client positions saved"), ToolTipIcon.Info);
             },
             RestorePositions = () =>
             {
                 // Used to only show this balloon: restore ran solely for newly detected
                 // clients, so already-open clients never moved.
                 _thumbnailManager?.RestoreAllClientPositions();
-                _trayIcon?.ShowBalloonTip(2000, "EVE MultiPreview", LocalizationService.Str("L.Tray.PosRestored", "Client positions restored"), ToolTipIcon.Info);
+                ShowBalloon(2000, LocalizationService.Str("L.Tray.PosRestored", "Client positions restored"), ToolTipIcon.Info);
             },
             SnapToSlots = () => _thumbnailManager?.ApplyAllClientSlots(),
             ConfirmCloseAll = () => System.Windows.MessageBox.Show(
@@ -1060,10 +1089,9 @@ public partial class App : Application
         // M3: Balloon click → focus attacked character (matches AHK NIN_BALLOONUSERCLICK)
         _trayIcon.BalloonTipClicked += (_, _) =>
         {
-            if (_refusedNoteUp)
+            if (_refusalNote.Clicked())
             {
                 // IDEAS #42: deferred, as the tray menu's Settings item is, so the note has gone before the window shows.
-                _refusedNoteUp = false;
                 Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     OpenSettings(startMinimized: false, pageId: SettingsUi.ClientsPages.HotkeysId)));
                 return;
@@ -1075,7 +1103,7 @@ public partial class App : Application
             }
         };
 
-        _trayIcon.BalloonTipClosed += (_, _) => _refusedNoteUp = false;
+        _trayIcon.BalloonTipClosed += (_, _) => _refusalNote.Closed();
 
         var menu = _trayMenu.Strip;
 
@@ -1228,6 +1256,7 @@ public partial class App : Application
                     Thumbnails = _thumbnailManager,
                     Crops = _cropManager,
                     Hotkeys = _hotkeyService,
+                    CheckHotkeysAgain = CheckHotkeysAgain,
                     AlertHub = _alertHub,
                     OpenAlertHistory = OpenAlertHistory,
                     Snoozes = _snoozes,

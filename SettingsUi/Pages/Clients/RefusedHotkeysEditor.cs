@@ -13,11 +13,13 @@ namespace EveMultiPreview.SettingsUi;
 public sealed record RefusedRow(string KeyText, string Reason, IReadOnlyList<HotkeyUse> Uses);
 
 /// <summary>Clients › Hotkeys &amp; switching › Keys Windows refused (IDEAS #42): each hotkey Windows would not
-/// register, with what it is bound to (a click opens that card), and the programs that are likely to have it. It
-/// shows the app's state, not a setting: nothing here is saved. Looked at again every two seconds while shown.</summary>
+/// register, with what it is bound to (a click opens that card), and the programs that are likely to have it. While
+/// a key is refused, "Check again" asks Windows for the hotkeys once more. It shows the app's state, not a setting:
+/// nothing here is saved. Looked at again every two seconds while shown.</summary>
 public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, IRefreshable
 {
     public const string ItemId = "clients.hotkeys.refused";
+    private const string AgainKey = "L.S.Refused.Again";
 
     private readonly SettingsContext _ctx;
     private readonly RefusedHotkeyList? _list;
@@ -25,6 +27,7 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
     private readonly TextBlock _summary = new() { TextWrapping = TextWrapping.Wrap };
     private readonly StackPanel _rows = new();
     private readonly TextBlock _owners = EditorCard.Value("", secondary: true);
+    private readonly Button _again;
     private string _signature = "";
     private int _look;
 
@@ -38,13 +41,26 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
         _summary.SetResourceReference(StyleProperty, "Fx.Label");
         _owners.Margin = new Thickness(0, 8, 0, 0);
         _owners.Visibility = Visibility.Collapsed;
+        _again = EditorCard.Button(AgainKey, CheckAgain);
+        Loc.SetNameKey(_again, AgainKey);       // its name for a screen reader, in the window's language
+        _again.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+        _again.Margin = new Thickness(0, 12, 0, 0);
+        _again.Visibility = Visibility.Collapsed;
         var below = new StackPanel();
         below.Children.Add(_summary);
         below.Children.Add(_rows);
         below.Children.Add(_owners);
+        below.Children.Add(_again);
         Content = EditorCard.Build(ItemId, null, below);
-        LiveRefresh.Attach(this, () => { if (Signature() != _signature) Refresh(); }, seconds: 2);
+        LiveRefresh.Attach(this, Look, seconds: 2);
         Refresh();
+    }
+
+    /// <summary>What the card does every two seconds while it is shown: it is built again only when what it shows is
+    /// not what it was (what Windows refused, whether that was asked at all, or what a key is bound to).</summary>
+    public void Look()
+    {
+        if (Signature() != _signature) Refresh();
     }
 
     /// <summary>The refused hotkeys as shown, the pause key first.</summary>
@@ -97,12 +113,24 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
             key.SetResourceReference(TextBlock.FontFamilyProperty, "Fx.MonoFont");
             key.Margin = new Thickness(0, 0, 12, 0);
             line.Children.Add(key);
-            foreach (var use in row.Uses) line.Children.Add(Link(use));
+            foreach (var use in row.Uses) line.Children.Add(Link(row.KeyText, use));
             line.Children.Add(EditorCard.Value(row.Reason, secondary: true));
             _rows.Children.Add(line);
         }
         Rows = rows;
+        // Offered while a key is refused, and only where there is an app to ask.
+        _again.Visibility = refused.Count > 0 && _ctx.Services.CheckHotkeysAgain != null ? Visibility.Visible : Visibility.Collapsed;
         FindOwners(refused.Any(hotkey => hotkey.Taken));   // "who has it" is a question only for a key another program took
+    }
+
+    /// <summary>"Check again": the app asks Windows for every hotkey once more, the way a settings change does, and
+    /// the card shows the answer at once. It is for a key the player has just freed in the other program: with
+    /// hotkeys that work everywhere a key is asked for once and stays as it was answered, so the freed key would
+    /// stay listed, and dead, until some setting changed. Nothing is saved.</summary>
+    private void CheckAgain()
+    {
+        _ctx.Services.CheckHotkeysAgain?.Invoke();
+        Refresh();
     }
 
     /// <summary>Opens the card that sets this use of the key.</summary>
@@ -112,8 +140,9 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
     }
 
     /// <summary>A use of the key, as a button that opens its card. The label is a card's name, or a character's or a
-    /// group's: it is shown as text, never read as markup or as an access key.</summary>
-    private UIElement Link(HotkeyUse use)
+    /// group's: it is shown as text, never read as markup or as an access key. A screen reader hears the key first
+    /// ("Ctrl + F5: Next client"): two rows can show the same label.</summary>
+    private UIElement Link(string keyText, HotkeyUse use)
     {
         var button = new Button
         {
@@ -122,7 +151,7 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
             Margin = new Thickness(0, 0, 8, 0),
             IsEnabled = HotkeyConflicts.Locate(use.Id, SettingsRegistry.Pages) != null,
         };
-        System.Windows.Automation.AutomationProperties.SetName(button, use.Label);
+        System.Windows.Automation.AutomationProperties.SetName(button, string.Format(Str("L.S.A11y.ForName"), keyText, use.Label));
         button.Click += (_, _) => Open(use);
         return button;
     }

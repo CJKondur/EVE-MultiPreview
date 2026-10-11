@@ -56,6 +56,12 @@ public static class HotkeyRefusals
         return told;
     }
 
+    /// <summary>Whether a settings change leaves nothing known of the hotkeys. It releases every hotkey and asks for
+    /// them again. Where that registration follows (within half a second), the list of the one before stays until
+    /// it is replaced, so the card does not say "not checked yet" in between. Where none follows, because hotkeys
+    /// are paused or no EVE client is running, what was refused says nothing about the keys as they are now.</summary>
+    public static bool ForgottenAtASettingsChange(bool paused, bool anyClient) => paused || !anyClient;
+
     /// <summary>Programs known to take keys with RegisterHotKey, the one way a program can be the reason for a 1409:
     /// the process name (without ".exe") and the name to show, in the order shown. A program that reads keys by a
     /// keyboard hook or by asking for a key's state (Discord, OBS, Steam, TeamSpeak, Mumble: by what is known of
@@ -150,11 +156,14 @@ public sealed class RefusedHotkeyList
     /// they were asked for.</summary>
     public IReadOnlyList<RefusedHotkey> Current { get; private set; } = Array.Empty<RefusedHotkey>();
 
-    /// <summary>Whether the hotkeys have been registered since they were last all released. Until then an empty list
-    /// means "not asked", not "all accepted": they are registered only while an EVE client is running.</summary>
+    /// <summary>Whether the hotkeys have been registered since the list was last forgotten. Until then an empty list
+    /// means "not asked", not "all accepted": they are registered only while an EVE client is running and hotkeys
+    /// are not paused.</summary>
     public bool Asked { get; private set; }
 
-    /// <summary>Raised when <see cref="Current"/> is not what it was.</summary>
+    /// <summary>Raised when a registration, or the pause key's, leaves <see cref="Current"/> other than it was.
+    /// <see cref="Forget"/> empties the list without raising it: nothing is refused then that could be told, and
+    /// the card looks again by itself.</summary>
     public event Action? Changed;
 
     /// <summary>The hotkeys were registered, and these were refused (none: all accepted).</summary>
@@ -172,8 +181,9 @@ public sealed class RefusedHotkeyList
         Publish();
     }
 
-    /// <summary>Every hotkey was released (a settings change, closing): nothing is known until they are registered
-    /// again. It raises nothing: the registration that follows says what is so.</summary>
+    /// <summary>The hotkeys were released and no registration follows (a settings change while hotkeys are paused or
+    /// while no EVE client runs: <see cref="HotkeyRefusals.ForgottenAtASettingsChange"/>): nothing is known of the
+    /// keys as they are now, until they are registered again. It raises nothing.</summary>
     public void Forget()
     {
         _keys = Array.Empty<RefusedHotkey>();
@@ -194,6 +204,30 @@ public sealed class RefusedHotkeyList
         _signature = signature;
         Current = all;
         Changed?.Invoke();
+    }
+}
+
+/// <summary>Which tray balloon a click belongs to (IDEAS #42). A click on the note about refused hotkeys opens the
+/// hotkeys page; a click on any other balloon must not. Windows shows one balloon at a time and a newer one takes
+/// the place of the one before it, so the balloon shown last is the one a click is on. App's thread only.</summary>
+public sealed class RefusalNote
+{
+    /// <summary>Whether the balloon that is up is the note about refused hotkeys.</summary>
+    public bool Up { get; private set; }
+
+    /// <summary>A balloon is shown now: the note about refused hotkeys, or any other one.</summary>
+    public void Shown(bool refusalNote) => Up = refusalNote;
+
+    /// <summary>The balloon went away without a click.</summary>
+    public void Closed() => Up = false;
+
+    /// <summary>The balloon was clicked: whether it was the note about refused hotkeys. Either way no note is up
+    /// any more.</summary>
+    public bool Clicked()
+    {
+        bool was = Up;
+        Up = false;
+        return was;
     }
 }
 

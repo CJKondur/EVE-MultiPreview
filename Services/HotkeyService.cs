@@ -350,7 +350,6 @@ public sealed class HotkeyService : IDisposable
         _keyHookMap = null;
         _suspendHotkeyId = -1;
         _hotkeysActive = false;
-        Refused.Forget();   // IDEAS #42: said by the registration that follows, not here
         // NB: don't reset _nextId — the preserved activation-hotkey IDs would
         // collide with the next Register() call. Letting it grow monotonically
         // costs nothing (int32 has plenty of room) and keeps IDs unique.
@@ -627,6 +626,9 @@ public sealed class HotkeyService : IDisposable
         ThumbnailManager thumbnailManager, Action openSettings)
     {
         UnregisterAll();
+        // IDEAS #42: what Windows refused stays listed until the registration that follows replaces it. Only where
+        // none follows (paused, or no EVE client) is it forgotten: before the pause key is noted again, below.
+        if (HotkeyRefusals.ForgottenAtASettingsChange(_suspended, _hasWindowsProvider?.Invoke() ?? true)) Refused.Forget();
 
         Debug.WriteLine($"[Hotkey:Settings] Profile hotkeys: {profile.Hotkeys.Count}, Groups: {profile.HotkeyGroups.Count}");
         foreach (var (name, binding) in profile.Hotkeys)

@@ -2193,7 +2193,7 @@
     <sys:String x:Key="L.Help.alerts.events.straggler.Body">MultiPreview 知道每个角色所在的星系。在事件表中开启 **掉队** 后，它会留意你的分组（客户端 › 分组），找出没有跟上跳跃的成员。&#x0A;&#x0A;- 当一个分组中从一个星系跳到另一个星系的成员多于留下的成员时，每个没有完成这次跳跃的成员都会收到警报：仍在原星系的成员，以及走了另一个星门的成员。其他成员离开之后才进入该星系的成员不算掉队；跳过去后在等待时间结束前已经回来的成员，也不算已经离开。&#x0A;- 提示会显示其他成员去了哪里以及人数：Jita → Perimeter 3/4。要看到这一行，需要为 **警告** 级别的警报开启提示（警报 › 外观 &amp; 严重程度）；警报历史记录里也有这一行。&#x0A;- 跳跃仍在陆续发生时不会发出警报。**掉队：最后一次跳跃后的等待时间** 是发出警报前需要保持静止的时间。如果只是加载较慢的客户端收到警报（例如时间膨胀时），请把它调大。&#x0A;- 只有一个侦察角色先走不算跳跃波次，半个分组也不算。两人分组永远不会触发。&#x0A;- 在你开启之前它是关闭的。故意留在某处的角色，可以从它的提示中暂停这个警报。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.refused">Windows 拒绝的按键</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.refused.Desc">Windows 同一时间只会把一个按键组合交给一个程序。被其他程序先占用的热键在这里不起作用。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Refused.NotYet">尚未检查。热键会在 EVE 客户端运行时注册。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.NotYet">尚未检查。热键会在 EVE 客户端运行且热键未暂停时注册。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.None">Windows 已把所有热键交给 MultiPreview。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Count">有 {0} 个热键被拒绝。请在其他程序中释放该按键，或在这里换一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Taken">已被其他程序占用。</sys:String> <!-- draft -->
@@ -2202,9 +2202,10 @@
     <sys:String x:Key="L.S.Refused.Usual">经常占用热键的程序：NVIDIA 和 AMD 的悬浮层、Xbox Game Bar、ShareX、Greenshot、AutoHotkey、PowerToys。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.KeysRefused">Windows 拒绝了这些热键：{0}。它们可能已被其他程序占用。点击查看详情。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows 拒绝的按键</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows 同一时间只会把每个按键组合交给一个程序。如果其他程序先占用了某个热键，按下它在 MultiPreview 中不会有任何反应，也不会告诉你原因。&#x0A;&#x0A;- **Windows 拒绝的按键** 会列出每个这样的按键及其绑定的功能。点击其中一个即可更改。&#x0A;- 常见的占用者是悬浮层、截图工具和按键映射工具：NVIDIA 和 AMD 的悬浮层、Xbox Game Bar、ShareX、Greenshot、AutoHotkey、PowerToys。卡片会列出正在运行的程序。&#x0A;- MultiPreview 还会通过托盘通知提示，每个按键只提示一次。&#x0A;- 每次注册按键时都会检查：EVE 客户端运行期间，以及你更改设置之后。鼠标按键永远不会被拒绝。&#x0A;- 开启 **按住 Ctrl、Shift 或 Alt 时热键仍然有效** 后，每个按键还会与 Ctrl、Alt、Shift、Win 的各种组合一起注册。其中许多组合被 Windows 自己保留。列表中只显示你选择的组合。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows 同一时间只会把每个按键组合交给一个程序。如果其他程序先占用了某个热键，按下它在 MultiPreview 中不会有任何反应，也不会告诉你原因。&#x0A;&#x0A;- **Windows 拒绝的按键** 会列出每个这样的按键及其绑定的功能。点击其中一个即可更改。&#x0A;- 常见的占用者是悬浮层、截图工具和按键映射工具：NVIDIA 和 AMD 的悬浮层、Xbox Game Bar、ShareX、Greenshot、AutoHotkey、PowerToys。卡片会列出正在运行的程序。&#x0A;- MultiPreview 还会通过托盘通知提示，每个按键只提示一次。&#x0A;- 每次注册按键时都会检查：EVE 客户端运行且热键未暂停期间，以及你更改设置之后。在其他程序中释放按键后，点击 **重新检查** 可以让 MultiPreview 再向 Windows 请求一次。鼠标按键永远不会被拒绝。&#x0A;- 开启 **按住 Ctrl、Shift 或 Alt 时热键仍然有效** 后，每个按键还会与 Ctrl、Alt、Shift、Win 的各种组合一起注册。其中许多组合被 Windows 自己保留。列表中只显示你选择的组合。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.LastAlertHere">最新的警报就在这个客户端上</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">24 小时制，例如 23:00。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.DndState.On">勿扰模式现在是开启的。警报声音已静音。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.DndState.OnCritical">勿扰模式现在是开启的。警报声音已静音，但严重警报仍然发声。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Refused.Again">重新检查</sys:String> <!-- draft -->
 </ResourceDictionary>
