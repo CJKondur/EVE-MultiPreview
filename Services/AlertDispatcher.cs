@@ -78,8 +78,9 @@ public static class AlertDispatcher
         }
         if (to.IsSnoozed(charName, alertType))
         {
+            // No name in this line: the alert's own line above says whose it is.
             DiagnosticsService.LogAlerts(
-                $"[App] SNOOZED — '{alertType}' is snoozed for '{charName}'. No flash/badge/toast/sound.");
+                $"[App] SNOOZED — '{alertType}' is snoozed for this character. No flash/badge/toast/sound.");
             return AlertOutcome.Snoozed;
         }
         DiagnosticsService.LogAlerts(

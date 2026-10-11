@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,8 +30,11 @@ public sealed class EventSnoozes
     /// <summary>The longest a character's name and an event's key can be (AlertHistory's limits).</summary>
     public const int MaxName = 100, MaxKey = 64;
 
-    /// <summary>The longest a snooze read from a file may still run: the longest MultiPreview itself makes. A file
-    /// can come from anywhere, and a snooze silences an alert.</summary>
+    /// <summary>The longest a timed snooze runs: the longest MultiPreview's own menu makes. Snooze holds what it is
+    /// asked for to it. A file can come from anywhere, and a snooze silences an alert: an entry of a file that ends
+    /// later than this from now is not MultiPreview's and is left out whole. (Cut to this length instead, it would run
+    /// a fresh hour after every start, for ever.) And a timed snooze that has more than this left was made before the
+    /// clock was set back: it is over.</summary>
     public static readonly TimeSpan LongestKept = TimeSpan.FromHours(1);
 
     private sealed class Key : IEqualityComparer<(string Character, string EventKey)>
@@ -51,19 +55,26 @@ public sealed class EventSnoozes
     public EventSnoozes(Func<DateTime>? utcNow = null) => _utcNow = utcNow ?? (() => DateTime.UtcNow);
 
     /// <summary>Raised after the player's own change (Snooze, End, EndAll), on the thread that made it. A snooze that
-    /// runs out raises nothing.</summary>
+    /// runs out raises nothing. Each follower is told on its own: one that throws stops neither the others nor the
+    /// one who made the change, and its failure goes to the error log.</summary>
     public event Action? Changed;
 
     /// <summary>Something is snoozed (it may have run out since nobody asked).</summary>
     public bool Any => Volatile.Read(ref _count) > 0;
 
-    /// <summary>Snoozes one event for one character. <paramref name="length"/> null: until MultiPreview restarts.</summary>
+    /// <summary>Snoozes one event for one character. <paramref name="length"/> null: until MultiPreview restarts.
+    /// A length is held to <see cref="LongestKept"/>; one that is no time at all snoozes nothing.</summary>
     public void Snooze(string character, string eventKey, TimeSpan? length)
     {
         if (string.IsNullOrEmpty(character) || string.IsNullOrEmpty(eventKey)) return;
-        var until = length is TimeSpan span ? _utcNow() + span : DateTime.MaxValue;
+        var until = DateTime.MaxValue;
+        if (length is TimeSpan span)
+        {
+            if (span <= TimeSpan.Zero) return;
+            until = _utcNow() + (span > LongestKept ? LongestKept : span);
+        }
         lock (_lock) Put(new EventSnooze(character, eventKey, until));
-        Changed?.Invoke();
+        Tell();
     }
 
     /// <summary>Whether an alert of this event for this character is snoozed right now.</summary>
@@ -73,10 +84,33 @@ public sealed class EventSnoozes
         lock (_lock)
         {
             if (!_snoozes.TryGetValue((character, eventKey), out var snooze)) return false;
-            if (snooze.UntilUtc > _utcNow()) return true;
+            if (On(snooze, _utcNow())) return true;
             _snoozes.Remove((character, eventKey));   // it ran out
             Volatile.Write(ref _count, _snoozes.Count);
             return false;
+        }
+    }
+
+    /// <summary>Whether a snooze is on at this time. A timed one is over when its time has come, and also while more
+    /// than <see cref="LongestKept"/> is left of it: nothing here runs that long, so the clock was set back, and a
+    /// snooze must not grow by what the clock lost.</summary>
+    private static bool On(EventSnooze snooze, DateTime utcNow) =>
+        snooze.UntilRestart || (snooze.UntilUtc > utcNow && snooze.UntilUtc - utcNow <= LongestKept);
+
+    /// <summary>Tells the followers of <see cref="Changed"/>, each on its own.</summary>
+    private void Tell()
+    {
+        var followers = Changed;
+        if (followers == null) return;
+        foreach (var follower in followers.GetInvocationList())
+        {
+            try { ((Action)follower)(); }
+            catch (Exception ex)
+            {
+                // A fixed sentence and the exception's type. Never its message, never a name.
+                try { ErrorLog.Shared.Record(new InvalidOperationException($"Alert snoozes: what follows a change failed ({ex.GetType().Name})"), "AlertSnoozes", DateTime.Now); }
+                catch { /* reporting never stops the app */ }
+            }
         }
     }
 
@@ -89,7 +123,7 @@ public sealed class EventSnoozes
             if (!_snoozes.Remove((character, eventKey))) return false;
             Volatile.Write(ref _count, _snoozes.Count);
         }
-        Changed?.Invoke();
+        Tell();
         return true;
     }
 
@@ -104,7 +138,7 @@ public sealed class EventSnoozes
             ended = keys.Count;
             Volatile.Write(ref _count, _snoozes.Count);
         }
-        if (ended > 0) Changed?.Invoke();
+        if (ended > 0) Tell();
         return ended;
     }
 
@@ -115,7 +149,7 @@ public sealed class EventSnoozes
         var now = _utcNow();
         lock (_lock)
         {
-            foreach (var over in _snoozes.Where(kv => kv.Value.UntilUtc <= now).Select(kv => kv.Key).ToList()) _snoozes.Remove(over);
+            foreach (var over in _snoozes.Where(kv => !On(kv.Value, now)).Select(kv => kv.Key).ToList()) _snoozes.Remove(over);
             Volatile.Write(ref _count, _snoozes.Count);
             return _snoozes.Values.OrderBy(s => s.Character, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(s => s.EventKey, StringComparer.Ordinal).ToList();
@@ -161,9 +195,11 @@ public sealed class EventSnoozes
                 .Select(s => (Item?)new Item { C = s.Character, E = s.EventKey, U = DateTime.SpecifyKind(s.UntilUtc, DateTimeKind.Utc) }).ToList(),
         }, Json);
 
-    /// <summary>Takes on the snoozes of a file's text, each held to its limits: a character and an event of a sane
-    /// length, a time that is still ahead, and at most <see cref="LongestKept"/> from now however far ahead the file
-    /// says. Returns how many were taken on. Never throws, and raises nothing.</summary>
+    /// <summary>Takes on the snoozes of a file's text. An entry is taken only within its limits: a character and an
+    /// event of a sane length and written as MultiPreview writes them (<see cref="Plain"/>), and a time that is still
+    /// ahead and at most <see cref="LongestKept"/> from now. An entry outside them is left out, never cut to fit.
+    /// Returns how many snoozes there are that were not there before: an entry that is in the file twice is one.
+    /// Never throws, and raises nothing.</summary>
     public int Restore(string? json)
     {
         if (string.IsNullOrWhiteSpace(json)) return 0;
@@ -180,14 +216,31 @@ public sealed class EventSnoozes
                 if (taken >= Max) break;
                 if (item?.U is not DateTime given) continue;
                 if (string.IsNullOrEmpty(item.C) || item.C.Length > MaxName || string.IsNullOrEmpty(item.E) || item.E.Length > MaxKey) continue;
+                if (!Plain(item.C) || !Plain(item.E)) continue;
                 var until = given.Kind == DateTimeKind.Local ? given.ToUniversalTime() : DateTime.SpecifyKind(given, DateTimeKind.Utc);
                 if (until <= now) continue;
-                if (until - now > LongestKept) until = now + LongestKept;
+                if (until - now > LongestKept) continue;
+                bool isNew = !_snoozes.ContainsKey((item.C, item.E));
                 Put(new EventSnooze(item.C, item.E, until));
-                taken++;
+                if (isNew) taken++;
             }
         }
         return taken;
+    }
+
+    /// <summary>A name as MultiPreview itself writes one: no space at either end, no control character, and no
+    /// character that only steers the text (a mark that turns it around, a space of no width, a line or paragraph
+    /// separator). These names are listed in the settings window and in a thumbnail's menu.</summary>
+    private static bool Plain(string text)
+    {
+        if (text.Length != text.Trim().Length) return false;
+        foreach (char c in text)
+        {
+            if (char.IsControl(c)) return false;
+            if (char.GetUnicodeCategory(c) is UnicodeCategory.Format or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
+                return false;
+        }
+        return true;
     }
 }
 
@@ -205,6 +258,10 @@ public sealed class EventSnoozeFile
     private readonly string _folder;
     private readonly ErrorLog _errors;
     private readonly Func<string, bool> _isLink;
+    private readonly object _gate = new();
+    /// <summary>The text Save last put into the file, under _gate. Null when that is not known: nothing written yet,
+    /// the file removed, or a write or a removal that failed.</summary>
+    private string? _written;
 
     /// <param name="folder">The settings folder (AppPaths.ConfigDir).</param>
     /// <param name="isLink">Whether a path is a link (SettingsHome.IsLink, unless a test says).</param>
@@ -217,14 +274,15 @@ public sealed class EventSnoozeFile
 
     public string FilePath => Path.Combine(_folder, FileName);
 
-    /// <summary>Reads the file into the snoozes. Returns how many were taken on.</summary>
+    /// <summary>Reads the file into the snoozes. Returns how many were taken on. Nothing is read through a link, be
+    /// it the file or the settings folder itself.</summary>
     public int Load(EventSnoozes into)
     {
         try
         {
             var path = FilePath;
             if (!File.Exists(path)) return 0;
-            if (_isLink(path)) { Report("the snooze file is a link, and MultiPreview doesn't read snoozes through one", null); return 0; }
+            if (_isLink(_folder) || _isLink(path)) { Report("the snooze file or its folder is a link, and MultiPreview doesn't read snoozes through one", null); return 0; }
             if (new FileInfo(path).Length > MaxFileBytes) { Report("the snooze file is larger than a snooze file can be; it was not read", null); return 0; }
             return into.Restore(File.ReadAllText(path, Utf8));
         }
@@ -236,37 +294,46 @@ public sealed class EventSnoozeFile
     }
 
     /// <summary>Writes the timed snoozes that are on, or deletes the file when there are none. False when that failed;
-    /// the old file is then as it was.</summary>
+    /// the old file is then as it was. The text written last is remembered: while the file is there, the same text is
+    /// not written a second time (App asks after every settings change), so nothing is replaced and nothing flushed.</summary>
     public bool Save(EventSnoozes from)
     {
         var path = FilePath;
         var tmp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-        try
+        lock (_gate)
         {
-            if (_isLink(_folder) || _isLink(path)) throw new IOException("link");
-            var timed = from.Active().Where(s => !s.UntilRestart).ToList();
-            if (timed.Count == 0)
+            try
             {
-                if (File.Exists(path)) File.Delete(path);
+                if (_isLink(_folder) || _isLink(path)) throw new IOException("link");
+                var timed = from.Active().Where(s => !s.UntilRestart).ToList();
+                if (timed.Count == 0)
+                {
+                    _written = null;
+                    if (File.Exists(path)) File.Delete(path);
+                    return true;
+                }
+                var text = EventSnoozes.ToJson(timed, DateTime.MinValue);
+                if (text == _written && File.Exists(path)) return true;
+                Directory.CreateDirectory(_folder);
+                using (var stream = new FileStream(tmp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    stream.Write(Utf8.GetBytes(text));
+                    stream.Flush(flushToDisk: true);
+                }
+                File.Move(tmp, path, overwrite: true);
+                _written = text;
                 return true;
             }
-            Directory.CreateDirectory(_folder);
-            using (var stream = new FileStream(tmp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            catch (Exception ex)
             {
-                stream.Write(Utf8.GetBytes(EventSnoozes.ToJson(timed, DateTime.MinValue)));
-                stream.Flush(flushToDisk: true);
+                _written = null;
+                Report("the snoozes could not be saved", ex);
+                return false;
             }
-            File.Move(tmp, path, overwrite: true);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Report("the snoozes could not be saved", ex);
-            return false;
-        }
-        finally
-        {
-            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { }
+            finally
+            {
+                try { if (File.Exists(tmp)) File.Delete(tmp); } catch { }
+            }
         }
     }
 
@@ -278,15 +345,20 @@ public sealed class EventSnoozeFile
         else Delete();
     }
 
-    /// <summary>Removes the file: the player turned keeping off. A link is left alone.</summary>
+    /// <summary>Removes the file: the player turned keeping off. A link is left alone, and so is a file in a settings
+    /// folder that is one.</summary>
     public void Delete()
     {
-        try
+        lock (_gate)
         {
-            var path = FilePath;
-            if (File.Exists(path) && !_isLink(path)) File.Delete(path);
+            _written = null;
+            try
+            {
+                var path = FilePath;
+                if (File.Exists(path) && !(_isLink(_folder) || _isLink(path))) File.Delete(path);
+            }
+            catch (Exception ex) { Report("the snooze file could not be removed", ex); }
         }
-        catch (Exception ex) { Report("the snooze file could not be removed", ex); }
     }
 
     /// <summary>A fixed sentence and the exception's type. Never its message (it can hold a path), never a name.</summary>
