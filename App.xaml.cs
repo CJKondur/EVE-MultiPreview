@@ -750,27 +750,30 @@ public partial class App : Application
     {
         if (_alertTimer == null || _settings == null) return;
         bool needed = !_isShuttingDown && (AlertEscalation.Needed(_settings.Settings) || StragglerWatch.IsOn(_settings.Settings));
-        if (needed && !_alertTimer.IsEnabled) _alertTimer.Start();
-        else if (!needed && _alertTimer.IsEnabled) _alertTimer.Stop();
+        switch (AlertEscalation.TimerChange(needed, _alertTimer.IsEnabled))
+        {
+            case true: _alertTimer.Start(); break;
+            case false: _alertTimer.Stop(); break;
+        }
     }
 
     /// <summary>Once a second, on the window's thread, while the timer runs. Escalation (IDEAS #29): is a repeat due
-    /// for an alert that is still unseen? The repeat is played the way an alert's own sound is, so the master switch,
-    /// the event's sound quiet time and do-not-disturb all apply; a repeat that was put off is asked for again at the
-    /// next look.</summary>
+    /// for an alert that is still unseen? AlertEscalation.Tick decides that, and what becomes of the repeat; it is
+    /// handed what it needs to ask, and asks nothing while escalation is switched off. The repeat is played the way
+    /// an alert's own sound is, so the master switch, the event's sound quiet time and do-not-disturb all apply.</summary>
     private void AlertTick()
     {
         if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
         var s = _settings.Settings;
         var now = DateTime.UtcNow;
-        // IDEAS #5: has a jump wave left a member of a group behind? Asked before escalation, which may return early.
+        // IDEAS #5: has a jump wave left a member of a group behind? Asked before escalation, whatever that is set to.
         if (StragglerWatch.IsOn(s)) LookForStragglers(now);
-        bool held = !s.EnableAlertSounds || _doNotDisturb.Silences(s, "critical", DateTime.Now);
-        var due = _escalation.Due(_thumbnailManager.Attention.Unseen(), s, now,
-            (who, type) => _thumbnailManager.IsCharacterAlertMuted(who) || _snoozes.IsSnoozed(who, type), held);
-        if (due == null) return;
-        var result = PlayAlertSound(due.Alert.Character, due.Alert.EventKey, due.Alert.Severity, due.Number);
-        if (result != SoundResult.Later) _escalation.Played(due, now);
+        _escalation.Tick(s, now,
+            unseen: () => _thumbnailManager.Attention.Unseen(),
+            quieted: (who, type) => _thumbnailManager.IsCharacterAlertMuted(who) || _snoozes.IsSnoozed(who, type),
+            soundsHeld: () => _doNotDisturb.Silences(s, "critical", DateTime.Now),
+            doNotDisturb: () => DoNotDisturbOn,
+            play: (due, volume) => PlayAlertSound(due.Alert.Character, due.Alert.EventKey, due.Alert.Severity, due.Number, volume));
     }
 
     /// <summary>IDEAS #42: the hotkeys Windows refused for the first time this session, in one tray note. The card on
@@ -866,12 +869,14 @@ public partial class App : Application
     // ── Alert Sound System (per-event sounds, WAV/MP3 via MediaPlayer) ──
 
     private void PlayAlertSound(string character, string alertType, string severity) =>
-        PlayAlertSound(character, alertType, severity, repeat: 0);
+        PlayAlertSound(character, alertType, severity, repeat: 0, volume: null);
 
-    /// <param name="repeat">0 for the alert itself; 1, 2, … for a repeat of escalation (IDEAS #29), each louder.</param>
+    /// <param name="repeat">0 for the alert itself; 1, 2, … for a repeat of escalation (IDEAS #29).</param>
+    /// <param name="volume">The volume of a repeat (0–100) as escalation worked it out, each one louder. Null for the
+    /// alert itself: the set volume.</param>
     /// <returns>Whether the sound was started, was put off (do-not-disturb, the event's sound quiet time), or has
     /// nothing to play.</returns>
-    private SoundResult PlayAlertSound(string character, string alertType, string severity, int repeat)
+    private SoundResult PlayAlertSound(string character, string alertType, string severity, int repeat, int? volume)
     {
         var s = _settings?.Settings;
         // EnableAlertSounds is the field the "Enable Sounds" master checkbox writes
@@ -926,6 +931,7 @@ public partial class App : Application
             return SoundResult.Never;
         }
 
+        int loud = volume ?? AlertEscalation.Volume(s.AlertSoundVolume, 0, false);
         try
         {
             // Each invocation gets its own MediaPlayer so concurrent alerts don't
@@ -934,7 +940,7 @@ public partial class App : Application
             // _activeSoundPlayers until MediaEnded fires, then disposed.
             Dispatcher.Invoke(() =>
             {
-                var player = new MediaPlayer { Volume = AlertEscalation.Volume(s.AlertSoundVolume, repeat, DoNotDisturbOn) / 100.0 };
+                var player = new MediaPlayer { Volume = loud / 100.0 };
                 player.MediaEnded += (_, _) =>
                 {
                     player.Close();
