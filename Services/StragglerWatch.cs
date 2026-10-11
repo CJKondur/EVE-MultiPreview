@@ -41,6 +41,10 @@ public sealed class StragglerWatch
     /// told (or the wait, where that is longer): a follower that keeps moving is in each system for less.</summary>
     public static readonly TimeSpan LateStay = TimeSpan.FromSeconds(60);
 
+    /// <summary>How long after the others had left a system a member may come into it and still be following them:
+    /// the longest wait a player can set. One that comes later is on a trip of its own.</summary>
+    public static readonly TimeSpan LateAfter = TimeSpan.FromMinutes(5);
+
     /// <summary>How many jumps of one character are remembered: the oldest is let go for the next one. A jump is
     /// looked at once, the wait after it, and with the longest wait a pack goes through many gates in that time:
     /// sixteen gates in five minutes are all still judged.</summary>
@@ -63,7 +67,7 @@ public sealed class StragglerWatch
         public readonly List<Jump> Jumps = new();   // the newest last
         public Straggler? Flagged;                  // set while it has been told: once, until it moves or the pack comes back
         // How new what it was last told is: the last jump of the wave it was told about, or, for one that stayed
-        // after following, the moment that stay was long enough. Only an arrival after it ends what it was told,
+        // after following, the time of the look that told it. Only an arrival after it ends what it was told,
         // only a wave after it is news for it again, and a stay that began before it is not told a second time.
         public DateTime ToldUtc;
     }
@@ -209,9 +213,10 @@ public sealed class StragglerWatch
                 }
 
                 // Stayed after following. A member that came into a system by a jump after the group's wave out of it
-                // had left was never there with them: no wave above tells it. If it then stays put for the longer of
-                // the wait and LateStay while most of that wave are away, it did not make it either, and is told
-                // now: once for that stay, with that wave's line.
+                // had left, and no more than LateAfter after it, was never there with them: no wave above tells it.
+                // If it then stays put for the longer of the wait and LateStay while most of that wave are away, it
+                // did not make it either, and is told: once for that stay, with that wave's line, and not while
+                // members are still leaving that system.
                 var length = wait > LateStay ? wait : LateStay;
                 foreach (var (name, at) in counted)
                 {
@@ -220,9 +225,9 @@ public sealed class StragglerWatch
                     if (stay < length || stay > length + TooLate) continue;
                     // Told already, now or earlier in this stay; or first seen or learned here, which is no following.
                     if (at.Flagged != null || at.ToldUtc >= at.Since || at.Jumps.Count == 0) continue;
-                    if (CameAfter(counted, name, at, groupName, wait) is not { } left) continue;
+                    if (CameAfter(counted, name, at, groupName, wait, utcNow) is not { } left) continue;
                     at.Flagged = left;
-                    at.ToldUtc = at.Since + length;
+                    at.ToldUtc = utcNow;        // this look: who is there with it now is counted in what it is told
                     found.Add(left);
                 }
             }
@@ -239,23 +244,41 @@ public sealed class StragglerWatch
         _judged.TryGetValue((group, origin.ToUpperInvariant()), out var time) ? time : DateTime.MinValue;
 
     /// <summary>What a member that came into its system by a jump is told for staying there, or null: the line of the
-    /// group's wave out of that system that had left before it came, while most of that wave are away. Asked only
-    /// for a member whose stay is long enough, so a look does nothing here for anybody else. Under the lock.</summary>
-    private static Straggler? CameAfter(List<(string Name, Place At)> counted, string name, Place at, string group, TimeSpan wait)
+    /// group's wave out of that system that had left before it came (no more than <see cref="LateAfter"/> before),
+    /// while most of that wave are away and nobody is leaving that system. Asked only for a member whose stay is
+    /// long enough, so a look does nothing here for anybody else. Under the lock.</summary>
+    private static Straggler? CameAfter(List<(string Name, Place At)> counted, string name, Place at, string group, TimeSpan wait,
+        DateTime utcNow)
     {
-        // The group's jumps out of this system, the newest first, and of their waves the newest one whose last jump
-        // is older than its arrival. A wave is cut as above: each jump less than the wait before the one after it.
+        // Half of them or more are in this system: there cannot be more away than here, whatever the wave (the test
+        // at the end, answered before anything is built for it).
+        int here = 0;
+        foreach (var c in counted)
+            if (Same(c.At.System, at.System)) here++;
+        if (here * 2 >= counted.Count) return null;
+
+        // The group's jumps out of this system, the newest first.
         var outs = new List<(Place At, Jump Jump)>();
         foreach (var c in counted)
             foreach (var jump in c.At.Jumps)
                 if (Same(jump.From, at.System)) outs.Add((c.At, jump));
         outs = outs.OrderByDescending(o => o.Jump.Utc).ToList();
+        // Members may still be leaving this system, as above: nothing is said until the newest jump out of it is as
+        // old as the wait. The one asked about may be going with them, its own line not read yet; and if it is left
+        // there by those that came back for it, that wave is the first rule's to tell.
+        if (outs.Count > 0 && utcNow - outs[0].Jump.Utc < wait) return null;
+        // What it came after starts at the newest jump that is older than its arrival and no part of a wave that was
+        // still going when it came (a wave as above: each jump less than the wait before the one after it).
         int first = 0;
         while (first < outs.Count && (outs[first].Jump.Utc >= at.Since
                    || (first > 0 && outs[first - 1].Jump.Utc - outs[first].Jump.Utc < wait))) first++;
         if (first == outs.Count) return null;
+        if (at.Since - outs[first].Jump.Utc > LateAfter) return null;       // too long after them: it is not following them
+        // With it, every jump out of this system in the LateAfter before it came. They are not cut by the wait, as a
+        // wave is above: one member that left a little after the others would be a wave of its own and hide them.
+        // A member that left twice in that time counts once, by its newest jump.
         int end = first + 1;
-        while (end < outs.Count && outs[end - 1].Jump.Utc - outs[end].Jump.Utc < wait) end++;
+        while (end < outs.Count && at.Since - outs[end].Jump.Utc <= LateAfter) end++;
         var wave = new Dictionary<Place, Jump>();
         for (int i = first; i < end; i++) wave.TryAdd(outs[i].At, outs[i].Jump);
         if (wave.ContainsKey(at)) return null;      // it left with them and came back: no follower of its own wave
