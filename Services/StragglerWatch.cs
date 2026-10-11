@@ -57,6 +57,7 @@ public sealed class StragglerWatch
         public DateTime Since;                      // when it was first seen in this system, or arrived in it
         public readonly List<Jump> Jumps = new();   // the newest last
         public Straggler? Flagged;                  // set while it has been told: once, until it moves or the pack comes back
+        public DateTime ToldUtc;                    // the last jump of the wave it was told about
     }
 
     private readonly object _gate = new();
@@ -146,7 +147,10 @@ public sealed class StragglerWatch
                     foreach (var jump in c.At.Jumps)
                         if (jump.Utc > JudgedTo(groupName, jump.From)) open.Add((c.At, jump));
 
-                foreach (var origin in open.GroupBy(o => o.Jump.From, StringComparer.OrdinalIgnoreCase).ToList())
+                // The systems in the order their waves ended, the oldest first: what an older wave ends (below) is
+                // ended before a newer wave of the same look is judged.
+                foreach (var origin in open.GroupBy(o => o.Jump.From, StringComparer.OrdinalIgnoreCase)
+                             .OrderBy(g => g.Max(o => o.Jump.Utc)).ToList())
                 {
                     var newestFirst = origin.OrderByDescending(o => o.Jump.Utc).ToList();
                     var last = newestFirst[0].Jump.Utc;
@@ -163,10 +167,12 @@ public sealed class StragglerWatch
 
                     var destinations = jumped.Values.GroupBy(j => j.To, StringComparer.OrdinalIgnoreCase)
                         .OrderByDescending(g => g.Count()).ToList();
-                    // The pack arrived where somebody was waiting: whatever that one was told about is over.
+                    // The pack arrived where somebody was waiting: whatever that one was told about before is over.
+                    // Before: a wave can be judged a second time (what was judged long ago is let go, and a group
+                    // under a new name is judged afresh), and an arrival from before what was told ends none of it.
                     foreach (var arrival in destinations)
                         foreach (var waiting in counted.Where(c => Same(c.At.System, arrival.Key) && !jumped.ContainsKey(c.At)))
-                            waiting.At.Flagged = null;
+                            if (last > waiting.At.ToldUtc) waiting.At.Flagged = null;
                     if (late) continue;     // too old to tell anybody about; what its arrival ended is ended all the same
                     // Two destinations with the same number: each half is the other's "others", and the rule below
                     // (most of them must have gone) says nothing. No telling who is wrong.
@@ -186,6 +192,7 @@ public sealed class StragglerWatch
                     {
                         if (other.At.Flagged != null) continue;     // told already, and nothing has changed for it
                         other.At.Flagged = new Straggler(other.Name, groupName, origin.Key, destination, arrived, arrived + others.Count);
+                        other.At.ToldUtc = last;
                         found.Add(other.At.Flagged);
                     }
                 }
