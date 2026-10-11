@@ -14,7 +14,7 @@ public sealed record RefusedRow(string KeyText, string Reason, IReadOnlyList<Hot
 
 /// <summary>Clients › Hotkeys &amp; switching › Keys Windows refused (IDEAS #42): each hotkey Windows would not
 /// register, with what it is bound to (a click opens that card), and the programs that are likely to have it (for a
-/// key bound with the Win key: Windows itself). While a key is refused, "Check again" asks Windows for the hotkeys
+/// key bound with the Win key: Windows itself first). While a key is refused, "Check again" asks Windows for the hotkeys
 /// once more. It shows the app's state, not a setting: nothing here is saved. Looked at again every two seconds
 /// while shown.</summary>
 public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, IRefreshable
@@ -83,13 +83,13 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
     /// <summary>The line above the rows.</summary>
     public string Summary => _summary.Text;
 
-    /// <summary>The known programs found running (empty: none, and the usual ones are named). Null while no key is
-    /// refused because another program may have it (none is taken, or each taken one is bound with the Win key):
-    /// then nobody is asked.</summary>
+    /// <summary>The known programs found running (empty: none; the usual ones are named then, where a key without
+    /// the Win key is taken). Null while no key is refused because it is taken: then nobody is asked.</summary>
     public IReadOnlyList<string>? Running { get; private set; }
 
     /// <summary>What is shown about the likely owners, or "" while it is hidden: Windows itself for a key bound with
-    /// the Win key, the programs for another key; each on its own line where both are said.</summary>
+    /// the Win key, then the known programs that are running (or, for a key without Win, the usual ones while none of
+    /// them runs); each on its own line where both are said.</summary>
     public string Owners => _owners.Visibility == Visibility.Visible ? _owners.Text : "";
 
     /// <summary>The uses that are a refused key: the same key with the same modifiers, in whatever order and case the
@@ -144,7 +144,8 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
             System.Windows.Input.FocusManager.SetFocusedElement(System.Windows.Input.FocusManager.GetFocusScope(_summary), _summary);
         _again.Visibility = offered ? Visibility.Visible : Visibility.Collapsed;
         // "Who has it" is a question only for a key that is taken (1409): Windows itself, most likely, where the
-        // player bound it with the Win key, and another program for any other key.
+        // player bound it with the Win key, and another program for any other key; a known program that is running
+        // is named for either.
         var taken = refused.Where(hotkey => hotkey.Taken).ToList();
         FindOwners(windowsItself: taken.Any(hotkey => HotkeyRefusals.BoundWithWin(hotkey.Hotkey)),
             anotherProgram: taken.Any(hotkey => !HotkeyRefusals.BoundWithWin(hotkey.Hotkey)));
@@ -189,42 +190,43 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
     }
 
     /// <summary>Who is likely to have the keys: asked only while a key is refused because it is taken (1409). For
-    /// a key bound with the Win key the line says that Windows keeps many of those for itself. For any other key
-    /// the usual programs are named at once, and the ones found running replace them when the answer is in; the
-    /// running programs are read only for such a key. An answer to an older look is dropped.</summary>
+    /// a key bound with the Win key the line says that Windows keeps many of those for itself, and the known
+    /// programs found running are named under it: PowerToys and AutoHotkey hold Win combinations mostly. For any
+    /// other key the usual programs are named at once, and the ones found running replace them when the answer is
+    /// in. The running programs are read only while a key is taken. An answer to an older look is dropped.</summary>
     private void FindOwners(bool windowsItself, bool anotherProgram)
     {
         int look = ++_look;
-        if (!anotherProgram)
+        if (!windowsItself && !anotherProgram)
         {
-            Say(null, windowsItself);
+            Say(null, windowsItself, anotherProgram);
             return;
         }
         if (_runningProcesses != null)
         {
-            Say(HotkeyRefusals.Suspects(_runningProcesses()), windowsItself);
+            Say(HotkeyRefusals.Suspects(_runningProcesses()), windowsItself, anotherProgram);
             return;
         }
-        Say(Array.Empty<string>(), windowsItself);
+        Say(Array.Empty<string>(), windowsItself, anotherProgram);
         Task.Run(() =>
         {
             try { return HotkeyRefusals.Suspects(HotkeyRefusals.RunningProcessNames()); }
             catch { return (IReadOnlyList<string>)Array.Empty<string>(); }
-        }).ContinueWith(found => Dispatcher.BeginInvoke(new Action(() => { if (look == _look) Say(found.Result, windowsItself); })),
+        }).ContinueWith(found => Dispatcher.BeginInvoke(new Action(() => { if (look == _look) Say(found.Result, windowsItself, anotherProgram); })),
             TaskScheduler.Default);
     }
 
     /// <param name="running">The known programs found running, or null where nobody was asked.</param>
     /// <param name="windowsItself">Whether a taken key is bound with the Win key: said first, on a line of its own.</param>
-    private void Say(IReadOnlyList<string>? running, bool windowsItself)
+    /// <param name="anotherProgram">Whether a taken key is bound without it: only then are the usual programs named
+    /// while none of the known ones is found running. Under the line about Windows they would be a second guess.</param>
+    private void Say(IReadOnlyList<string>? running, bool windowsItself, bool anotherProgram)
     {
         Running = running;
         var lines = new List<string>();
         if (windowsItself) lines.Add(Str("L.S.Refused.WinKey"));
-        if (running != null)
-            lines.Add(running.Count > 0
-                ? string.Format(Str("L.S.Refused.Running"), string.Join(", ", running))
-                : Str("L.S.Refused.Usual"));
+        if (running is { Count: > 0 }) lines.Add(string.Format(Str("L.S.Refused.Running"), string.Join(", ", running)));
+        else if (running != null && anotherProgram) lines.Add(Str("L.S.Refused.Usual"));
         _owners.Text = string.Join("\n", lines);
         _owners.Visibility = lines.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
     }

@@ -2823,7 +2823,7 @@ public sealed class ThumbnailManager : IDisposable
         var info = AlertBadgeInfo.CountOne(_alertBadges, characterName, severity);
 
         DiagnosticsService.LogAlerts($"[Badge] INCREMENTED — '{characterName}' count={info.Count} severity={severity}");
-        ApplyBadgeToThumbnail(characterName, info.Count);
+        ApplyBadgeToThumbnail(characterName);
     }
 
     /// <summary>Clear the per-character unread-alert badge. Called when the
@@ -2834,16 +2834,21 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (string.IsNullOrEmpty(characterName)) return;
         if (_alertBadges.TryRemove(characterName, out _))
-            ApplyBadgeToThumbnail(characterName, 0);
+            ApplyBadgeToThumbnail(characterName);
     }
 
     /// <summary>Push the badge count to the thumbnail's text overlay. The
     /// badge is always painted red — the user explicitly wants it loud, not
-    /// severity-coded, so it stands out on the thumbnail at a glance.</summary>
-    private void ApplyBadgeToThumbnail(string characterName, int count)
+    /// severity-coded, so it stands out on the thumbnail at a glance. The count is not handed over by the caller: it
+    /// is read from the table when the posted action runs, on the window's thread. Alerts come from two threads, and
+    /// their posted actions can run in the other order than the alerts were counted; each paints what the table holds
+    /// then, so the one that runs last paints the newest count, and a clear paints nothing only while nothing came
+    /// after it.</summary>
+    private void ApplyBadgeToThumbnail(string characterName)
     {
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
+            int count = AlertBadgeInfo.CountOf(_alertBadges, characterName);
             int matched = 0;
             foreach (var (_, thumb) in _thumbnails)
             {
@@ -4783,4 +4788,9 @@ public class AlertBadgeInfo
         badges.AddOrUpdate(character,
             _ => new AlertBadgeInfo { Count = 1, TopSeverity = severity },
             (_, existing) => new AlertBadgeInfo { Count = existing.Count + 1, TopSeverity = existing.TopSeverity });
+
+    /// <summary>The count the table holds for a character now, which is what its badge shows: 0 when it holds none
+    /// (nothing came since the character was looked at).</summary>
+    public static int CountOf(ConcurrentDictionary<string, AlertBadgeInfo> badges, string character) =>
+        badges.TryGetValue(character, out var held) ? held.Count : 0;
 }
