@@ -3802,41 +3802,38 @@ public sealed class ThumbnailManager : IDisposable
         }
     }
 
-    private bool _cycleFellBackSaid;
+    /// <summary>What the cycle keys remember between presses (CycleFilter.Walk): one for the keys of groups, which go
+    /// by character, and one for the two keys that go through all running clients, which go by window. A forward
+    /// key and its backward key share one, so the two mirror each other in a walk through all clients as well.</summary>
+    private readonly CycleFilter.Walk<string> _groupCycleWalk = new(StringComparer.OrdinalIgnoreCase);
+    private readonly CycleFilter.Walk<IntPtr> _allCycleWalk = new();
 
-    /// <summary>Narrows a group cycle's characters to those that pass the filters that are on.</summary>
+    /// <summary>Narrows a group cycle's characters to those that pass the filters that are on (CycleFilter.Press).</summary>
     private void FilterCycle(List<string> names, string? activeChar)
     {
-        var options = CycleFilterOptions.From(_settings.Settings);
-        string? activeSystem = string.IsNullOrEmpty(activeChar) ? null : GetCharacterSystem(activeChar);
-        var result = CycleFilter.Apply(names, options,
-            name => !string.IsNullOrEmpty(activeChar) && string.Equals(name, activeChar, StringComparison.OrdinalIgnoreCase),
-            name => CycleFilter.Passes(options, activeSystem, GetCharacterSystem(name), Attention.Has(name), IsCharacterAlertMuted(name)));
-        NoteCycleFilter(result);
+        if (CycleFilter.Press(names, CycleFilterOptions.From(_settings.Settings),
+                isActive: name => !string.IsNullOrEmpty(activeChar) && string.Equals(name, activeChar, StringComparison.OrdinalIgnoreCase),
+                activeName: activeChar, nameOf: name => name,
+                systemOf: GetCharacterSystem, alerting: Attention.Has, muted: IsCharacterAlertMuted, walk: _groupCycleWalk))
+            SayCycleFellBack();
     }
 
     /// <summary>The same for the cycle through all running clients, which is a list of windows.</summary>
     private void FilterCycle(List<IntPtr> hwnds, IntPtr active)
     {
-        var options = CycleFilterOptions.From(_settings.Settings);
         string NameOf(IntPtr hwnd) => _thumbnails.TryGetValue(hwnd, out var thumb) ? thumb.CharacterName ?? "" : "";
-        string? activeSystem = GetCharacterSystem(NameOf(active));
-        var result = CycleFilter.Apply(hwnds, options, hwnd => hwnd == active, hwnd =>
-        {
-            var name = NameOf(hwnd);
-            return CycleFilter.Passes(options, activeSystem, GetCharacterSystem(name), Attention.Has(name), IsCharacterAlertMuted(name));
-        });
-        NoteCycleFilter(result);
+        if (CycleFilter.Press(hwnds, CycleFilterOptions.From(_settings.Settings),
+                isActive: hwnd => hwnd == active, activeName: NameOf(active), nameOf: NameOf,
+                systemOf: GetCharacterSystem, alerting: Attention.Has, muted: IsCharacterAlertMuted, walk: _allCycleWalk))
+            SayCycleFellBack();
     }
 
     /// <summary>A filter that left no other client is said once, near the cursor: the key then cycles through all
-    /// clients, and the player should know why it went where it went.</summary>
-    private void NoteCycleFilter(CycleFilter.Result result)
-    {
-        if (CycleFilter.SayFellBack(result, ref _cycleFellBackSaid))
-            ShowTooltipFeedback(LocalizationService.Str("L.Switch.CycleFilterEmpty",
-                "No other client matches the cycle filter: switching through all of them"));
-    }
+    /// clients, and the player should know why it went where it went. Posted: the note is a window of its own, and
+    /// the switch this press makes must not wait for it to be built.</summary>
+    private void SayCycleFellBack() =>
+        Application.Current?.Dispatcher.BeginInvoke(new Action(() => ShowTooltipFeedback(
+            LocalizationService.Str("L.Switch.CycleFilterEmpty", "No other client matches the cycle filter: switching through all of them"))));
 
     private DateTime _lastCycleTime = DateTime.MinValue;
 
