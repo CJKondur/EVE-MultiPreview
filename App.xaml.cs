@@ -47,6 +47,10 @@ public partial class App : Application
     /// <summary>Escalation (IDEAS #29), and the one timer that asks it once a second while it is switched on.</summary>
     private readonly AlertEscalation _escalation = new();
     private DispatcherTimer? _alertTimer;
+    /// <summary>"Left behind" (IDEAS #5): told every system change, asked on the one-second timer while the event is on.</summary>
+    private readonly StragglerWatch _stragglers = new();
+    /// <summary>What an alert is shown with (set at startup), for the alerts App raises itself.</summary>
+    private AlertTargets? _alertTargets;
     private AlertHistoryWindow? _historyWindow;
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
@@ -281,6 +285,8 @@ public partial class App : Application
             };
             _alertHub.SaveRequested += () => _settings.SaveDelayed();
             _alertHub.SystemLookup = _thumbnailManager.GetCharacterSystem;   // "Jita · click to switch" on toasts (Plan 4)
+            // IDEAS #5: the toast of "Left behind" says where the others went ("Jita → Perimeter 3/4") in the system's place.
+            _alertHub.PlaceLookup = (who, type) => type == StragglerWatch.EventKey ? _stragglers.WaveOf(who) : null;
             // Toasts pause with the hotkeys on every path: the pause hotkey, Home and the tray (IDEAS P37).
             _alertHub.FollowPauseOf(_hotkeyService);
             // Deferred, as the tray's items are: the hub's menu has closed before the window shows.
@@ -341,6 +347,8 @@ public partial class App : Application
             _logMonitor.SystemChanged += (charName, systemName) =>
             {
                 Debug.WriteLine($"[App:Alert] 🌍 System change: '{charName}' → '{systemName}'");
+                // IDEAS #5: every move, whether the event is on or not. First: the line below waits for the window's thread.
+                _stragglers.Moved(charName, systemName, DateTime.UtcNow);
                 _thumbnailManager.UpdateCharacterSystem(charName, systemName);
             };
 
@@ -382,6 +390,7 @@ public partial class App : Application
                 Toast = (charName, alertType, severity) => _alertHub.ShowToast(charName, alertType, severity),
                 Sound = PlayAlertSound,
             };
+            _alertTargets = alertTargets;   // for the alerts App raises itself (IDEAS #5)
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
             // history writes on a thread of its own; old days are deleted here, at startup, and never while running.
             // A session whose settings could not be read runs on default values and saves nothing: its keep time is
@@ -728,11 +737,12 @@ public partial class App : Application
         "The last session, started {0}, ended without MultiPreview closing: it crashed, or was stopped by Task Manager "
         + "or a power cut. If something went wrong, error_log.txt in the logs folder may say what. Attach it to a bug report.";
 
-    /// <summary>The one-second timer runs only while something needs it: escalation switched on (IDEAS #29).</summary>
+    /// <summary>The one-second timer runs only while something needs it: escalation switched on (IDEAS #29), or the
+    /// "Left behind" event (IDEAS #5).</summary>
     private void FollowAlertTimer()
     {
         if (_alertTimer == null || _settings == null) return;
-        bool needed = !_isShuttingDown && AlertEscalation.Needed(_settings.Settings);
+        bool needed = !_isShuttingDown && (AlertEscalation.Needed(_settings.Settings) || StragglerWatch.IsOn(_settings.Settings));
         if (needed && !_alertTimer.IsEnabled) _alertTimer.Start();
         else if (!needed && _alertTimer.IsEnabled) _alertTimer.Stop();
     }
@@ -746,12 +756,47 @@ public partial class App : Application
         if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
         var s = _settings.Settings;
         var now = DateTime.UtcNow;
+        // IDEAS #5: has a jump wave left a member of a group behind? Asked before escalation, which may return early.
+        if (StragglerWatch.IsOn(s)) LookForStragglers(now);
         bool held = !s.EnableAlertSounds || _doNotDisturb.Silences(s, "critical", DateTime.Now);
         var due = _escalation.Due(_thumbnailManager.Attention.Unseen(), s, now,
             (who, type) => _thumbnailManager.IsCharacterAlertMuted(who) || _snoozes.IsSnoozed(who, type), held);
         if (due == null) return;
         var result = PlayAlertSound(due.Alert.Character, due.Alert.EventKey, due.Alert.Severity, due.Number);
         if (result != SoundResult.Later) _escalation.Played(due, now);
+    }
+
+    /// <summary>IDEAS #5, once a second while the event is on: the groups as the Groups page has them, the characters
+    /// that have a client, and where the log monitor has each. A failure costs this look, never the timer.</summary>
+    private void LookForStragglers(DateTime now)
+    {
+        if (_settings == null || _thumbnailManager == null || _logMonitor == null) return;
+        try
+        {
+            var s = _settings.Settings;
+            var groups = new List<(string Name, IReadOnlyList<string> Members)>();
+            foreach (var group in SettingsUi.MergedGroups.Build(s)) groups.Add((group.Name, group.Members));
+            foreach (var left in _stragglers.Check(now, groups, _thumbnailManager.GetActiveCharacterNames(),
+                         _logMonitor.GetCharacterSystem, StragglerWatch.Wait(s.StragglerWaitSeconds)))
+                RaiseOwnAlert(left.Character, StragglerWatch.EventKey, StragglerWatch.Severity);
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+        }
+    }
+
+    /// <summary>An alert MultiPreview works out itself instead of reading it from a log line. It is shown and kept the
+    /// way the log monitor's are: the same dispatcher (mute, snooze, border, badge, toast, sound), the same history.
+    /// It has no rule and no text. The window's thread.</summary>
+    private void RaiseOwnAlert(string charName, string alertType, string severity)
+    {
+        if (_settings == null || _alertTargets == null || _logMonitor == null) return;
+        var raised = DateTime.UtcNow;
+        var outcome = AlertDispatcher.Dispatch(_settings.Settings, _alertTargets, charName, alertType, severity);
+        if (_alertHistory == null || !_alertHistory.Enabled) return;
+        _alertHistory.Record(AlertHistory.Entry(raised, charName, alertType, severity,
+            _logMonitor.GetCharacterSystem(charName), outcome));
     }
 
     /// <summary>IDEAS #32: the hotkey or the tray item flips do-not-disturb, and says near the cursor what it is now:

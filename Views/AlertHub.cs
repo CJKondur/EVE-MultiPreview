@@ -43,6 +43,7 @@ public class AlertHub : IDisposable
             "mine_module_stopped" => "Miner stopped",
             "follow_warp" => "Fleet warp",
             "regroup" => "Regrouping",
+            "straggler" => "Left behind",
             _ => alertType
         });
 
@@ -87,6 +88,10 @@ public class AlertHub : IDisposable
 
     /// <summary>The system a character was last seen in, for the toast (App sets ThumbnailManager.GetCharacterSystem).</summary>
     public Func<string, string?>? SystemLookup { get; set; }
+
+    /// <summary>For an alert that has more to say than where it happened: (character, alert type) → the text the toast
+    /// shows in the system's place, or null for the system. "Left behind" says where the others went (IDEAS #5).</summary>
+    public Func<string, string, string?>? PlaceLookup { get; set; }
 
     /// <summary>The bell, its badge and the icon (tests render them; the window itself is never shown in a test).</summary>
     public AlertHubVisuals.HubParts Parts => _hub;
@@ -395,7 +400,7 @@ public class AlertHub : IDisposable
     /// start topmost and stay over a browser in front until it closed.</summary>
     private AlertToast NewToast(string characterName, string alertType, string severity) =>
         new(characterName, alertType, ToastColor(alertType, severity), ToastDurationSeconds,
-            SystemLookup?.Invoke(characterName), topmost: _hubWindow.Topmost);
+            PlaceLookup?.Invoke(characterName, alertType) ?? SystemLookup?.Invoke(characterName), topmost: _hubWindow.Topmost);
 
     /// <summary>The hub window's place and size, in WPF units.</summary>
     private Rect HubBounds => new(_hubWindow.Left, _hubWindow.Top, AlertHubVisuals.HubWindowSize, AlertHubVisuals.HubWindowSize);

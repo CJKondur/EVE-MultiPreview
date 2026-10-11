@@ -125,7 +125,7 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
         for (int c = 0; c < Columns.Length; c++)
             if (Columns[c].Length > 0) Place(EditorCard.Note(Columns[c], strong: true), header, c);
         AddRow(null, Str("L.S.Sounds.Default"), _ctx.S.AlertSoundFile?.Trim() ?? "");
-        foreach (var e in AlertEvents.All) AddRow(e.Key, AlertEvents.Name(e.Key), AlertSoundFields.OwnFile(_ctx.S, e.Key), AlertSoundFields.IsBlankOwn(_ctx.S, e.Key));
+        foreach (var e in AlertEvents.Listed) AddRow(e.Key, AlertEvents.Name(e.Key), AlertSoundFields.OwnFile(_ctx.S, e.Key), AlertSoundFields.IsBlankOwn(_ctx.S, e.Key));
         ShowError(null);
     }
 

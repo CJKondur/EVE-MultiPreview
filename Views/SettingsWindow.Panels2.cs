@@ -213,6 +213,7 @@ public partial class SettingsWindow
         ("attack","Under Attack","critical","\ud83d\udd34"), ("warp_scramble","Warp Scrambled","critical","\ud83d\udd34"),
         ("decloak","Decloaked","critical","\ud83d\udd34"), ("fleet_invite","Fleet Invite","warning","\ud83d\udfe0"),
         ("convo_request","Convo Request","warning","\ud83d\udfe0"), ("system_change","System Change","info","\ud83d\udd35"),
+        ("straggler","Left Behind","warning",char.ConvertFromUtf32(0x1F7E0)),
         ("mine_cargo_full","Mining: Cargo Full","warning","\ud83d\udfe0"), ("mine_asteroid_depleted","Mining: Depleted","info","\ud83d\udd35"),
         ("mine_crystal_broken","Mining: Crystal Broken","warning","\ud83d\udfe0"), ("mine_module_stopped","Mining: Miner Stopped","info","\ud83d\udd35"),
         ("follow_warp","Fleet Warp","warning","\ud83d\udfe0"), ("regroup","Fleet Regroup","warning","\ud83d\udfe0")
@@ -251,7 +252,7 @@ public partial class SettingsWindow
             var sevLabel = new TextBlock { Text = evt.sevEmoji, Width = 24, VerticalAlignment = VerticalAlignment.Center, FontSize = 12, TextAlignment = TextAlignment.Center };
             try { sevLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(sevColor.Replace("0x", "#"))); } catch { }
             row.Children.Add(sevLabel);
-            var isEnabled = !S.EnabledAlertTypes.TryGetValue(evt.id, out var en) || en;
+            var isEnabled = SettingsUi.AlertFields.IsOn(S, evt.id);   // one rule for both windows: "Left behind" is off until switched on (IDEAS #5)
             var cb = new CheckBox { Content = evt.label, IsChecked = isEnabled, Tag = evt.id, Margin = new Thickness(0, 0, 8, 0), Width = 200 };
             cb.Foreground = (Brush)FindResource("TextPrimaryBrush");
             cb.Checked += (_, _) => { S.EnabledAlertTypes[evt.id] = true; SaveDelayed(); };

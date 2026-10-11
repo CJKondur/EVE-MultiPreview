@@ -64,7 +64,7 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
             Place(title, AddRow(), 0);
             Grid.SetColumnSpan(title, Columns.Length);
             title.Margin = new Thickness(0, 12, 0, 2);
-            foreach (var e in AlertEvents.All.Where(x => x.Group == group))
+            foreach (var e in AlertEvents.Listed.Where(x => x.Group == group))
             {
                 AddEvent(e);
                 keys.Add(e.Key);

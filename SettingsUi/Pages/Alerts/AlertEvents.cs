@@ -25,6 +25,8 @@ public static class AlertEvents
     /// <summary>Table groups in order; the mining names ("Cargo full") need their heading.</summary>
     public static IReadOnlyList<string> Groups { get; } = new[] { "combat", "fleet", "travel", "mining" };
 
+    /// <summary>The events the log monitor raises from a log line. GoldenLogTests holds each of them to a line from a
+    /// real log, so an event that no log line raises is not added here: it goes in <see cref="Derived"/>.</summary>
     public static IReadOnlyList<AlertEventDef> All { get; } = new[]
     {
         new AlertEventDef("attack", Critical, "combat"),
@@ -41,7 +43,18 @@ public static class AlertEvents
         new AlertEventDef("mine_module_stopped", Info, "mining"),
     };
 
-    public static AlertEventDef Find(string key) => All.First(e => e.Key == key);
+    /// <summary>The event MultiPreview works out from what it knows instead of reading it from one log line: a group
+    /// member a jump wave left behind (IDEAS #5, StragglerWatch). App raises it, through the same dispatcher.</summary>
+    public static IReadOnlyList<AlertEventDef> Derived { get; } = new[]
+    {
+        new AlertEventDef(Services.StragglerWatch.EventKey, Services.StragglerWatch.Severity, "travel"),
+    };
+
+    /// <summary>Every built-in event as the settings window lists them: by table group, the log monitor's first.</summary>
+    public static IReadOnlyList<AlertEventDef> Listed { get; } =
+        Groups.SelectMany(group => All.Concat(Derived).Where(e => e.Group == group)).ToList();
+
+    public static AlertEventDef Find(string key) => Listed.First(e => e.Key == key);
 
     /// <summary>The event's name in the current language (English fallback), for accessible names and messages.</summary>
     public static string Name(string key) => Views.AlertHub.EventDisplayName(key);
@@ -63,7 +76,7 @@ public static class AlertEvents
     public static IReadOnlyList<SearchEntry> SearchEntries(Func<string, string> resolve, Func<string, string> english)
     {
         var path = resolve("L.S.Nav.Alerts") + " › " + resolve("L.S.Page." + AlertsPages.EventsId);
-        return All.Select(e => new SearchEntry(SearchKind.Event,
+        return Listed.Select(e => new SearchEntry(SearchKind.Event,
             resolve(e.LabelKey) is { Length: > 0 } text ? text : e.Key, english(e.LabelKey),
             path, AlertsPages.EventsId, AlertsPages.EventTableId)).ToList();
     }
@@ -75,8 +88,12 @@ public static class AlertFields
 {
     // ── Event table (EnabledAlertTypes, BadgeOnThumbnailAlertTypes, AlertSolidBorder, AlertDurations, AlertColors) ──
 
-    /// <summary>LogMonitorService: a missing key is on (follow_warp and regroup have no default key).</summary>
-    public static bool IsOn(AppSettings s, string key) => !s.EnabledAlertTypes.TryGetValue(key, out var on) || on;
+    /// <summary>LogMonitorService: a missing key is on (follow_warp and regroup have no default key). "Left behind" is
+    /// the other way round (StragglerWatch.IsOn): MultiPreview raises it itself, and it is off until switched on.</summary>
+    public static bool IsOn(AppSettings s, string key) =>
+        key == Services.StragglerWatch.EventKey
+            ? Services.StragglerWatch.IsOn(s)
+            : !s.EnabledAlertTypes.TryGetValue(key, out var on) || on;
     public static void SetOn(AppSettings s, string key, bool on) => s.EnabledAlertTypes[key] = on;
 
     /// <summary>ThumbnailManager.IncrementAlertBadge: a missing key is on.</summary>

@@ -166,6 +166,11 @@ public class AppSettings
     public int EscalationAfterSeconds { get; set; } = 20;
     public int EscalationRepeats { get; set; } = 3;
 
+    /// <summary>"Left behind" (IDEAS #5): how many seconds a group's jump wave must have been still before the members
+    /// that did not jump are flagged (5 to 300). The event itself is switched on in EnabledAlertTypes under the key
+    /// "straggler", and a file without that key has it off. New key: 10 in a file without it.</summary>
+    public int StragglerWaitSeconds { get; set; } = 10;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

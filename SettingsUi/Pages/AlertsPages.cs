@@ -29,6 +29,7 @@ public static class AlertsPages
         }),
         new HelpTopic(EventsId, "combat", new[] { "alerts.events.pve", "alerts.events.underFire", "alerts.events.underFireTime" }),
         new HelpTopic(EventsId, "table", new[] { EventTableId, "alerts.events.repeatWait", "alerts.events.repeatBySeverity" }),
+        new HelpTopic(EventsId, "straggler", new[] { "alerts.events.stragglerWait" }),
         new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
         new HelpTopic(LookId, "thumbnail", new[]
         {
@@ -110,6 +111,10 @@ public static class AlertsPages
                     "AppSettings.AlertSolidBorder", "AppSettings.EnabledAlertTypes",
                 },
             },
+            // IDEAS #5: App's one-second look reads it (StragglerWatch.Wait). The event's own switch is its row in the
+            // table above: "Left behind", under Travel.
+            new SettingItem(Setting.Number("alerts.events.stragglerWait", s => s.StragglerWaitSeconds,
+                StragglerWatch.MinWaitSeconds, StragglerWatch.MaxWaitSeconds, "L.S.Unit.Sec")),
         }),
         // IDEAS #30: what is snoozed for one character right now, with a way to end it, and whether the timed snoozes
         // outlive a restart. App follows the switch on Applied (the snooze file is written or removed).

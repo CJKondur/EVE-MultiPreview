@@ -113,6 +113,7 @@ public class AhkConfigRoot
         s.EscalationEnabled = g.EscalationEnabled != 0;
         s.EscalationAfterSeconds = g.EscalationAfterSeconds;
         s.EscalationRepeats = g.EscalationRepeats;
+        s.StragglerWaitSeconds = g.StragglerWaitSeconds;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -425,6 +426,7 @@ public class AhkConfigRoot
         g.EscalationEnabled = s.EscalationEnabled ? 1 : 0;
         g.EscalationAfterSeconds = s.EscalationAfterSeconds;
         g.EscalationRepeats = s.EscalationRepeats;
+        g.StragglerWaitSeconds = s.StragglerWaitSeconds;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1203,6 +1205,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("EscalationRepeats")]
     public int EscalationRepeats { get; set; } = 3;
+
+    // "Left behind" (IDEAS #5), new after 2.3.42: a file without it loads 10 seconds.
+    [JsonPropertyName("StragglerWaitSeconds")]
+    public int StragglerWaitSeconds { get; set; } = 10;
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;
