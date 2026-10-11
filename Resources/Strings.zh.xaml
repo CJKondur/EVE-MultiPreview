@@ -2127,7 +2127,7 @@
     <sys:String x:Key="L.Switch.NoAlert">没有可以跳转的警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.NoEarlierAlert">没有更早的警报了</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Title">跳到最新的警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**跳到最新的警报** 会带你去需要你的客户端，不用再找哪个缩略图在闪。&#x0A;&#x0A;- 只要还有你没看过的警报，就先去最严重的：严重先于警告，警告先于信息，同一级别里最新的在前。看过一个客户端，它的警报就算已读，所以下一次按键会去下一个客户端。&#x0A;- 没有未读警报时，按键会按从新到旧的顺序回溯本次运行的警报，每按一次去一个客户端。30 秒没有按键后，又从最新的开始。回溯读取的是警报历史，所以需要打开 **保留警报历史记录**。&#x0A;- 如果最新的警报就在前台客户端上，而且不到 30 秒，按键会留在这个客户端，并在光标旁提示：需要你的正是它。再按一次才继续回溯。&#x0A;- 客户端已关闭的角色会被跳过，出现时已被静音或暂停的警报也会被跳过。&#x0A;- 没有可去的地方时，光标旁会出现一条简短提示。不会有声音：它可能被误当成警报。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.lastAlert.Body">**跳到最新的警报** 会带你去需要你的客户端，不用再找哪个缩略图在闪。&#x0A;&#x0A;- 只要还有你没看过的警报，就先去最严重的：严重先于警告，警告先于信息，同一级别里最新的在前。看过一个客户端，它的警报就算已读，所以下一次按键会去下一个客户端。&#x0A;- 没有未读警报时，按键会按从新到旧的顺序回溯本次运行的警报，每按一次去一个客户端。30 秒没有按键后，又从最新的开始。回溯读取的是警报历史，所以需要打开 **保留警报历史记录**。&#x0A;- 如果最新的警报就在前台客户端上，而且不到 30 秒，按键会留在这个客户端，并在光标旁提示：需要你的正是它。再按一次才继续回溯；如果这期间这个客户端又来了新的警报，按键会再次留下。这一点同样读取警报历史，所以也需要打开 **保留警报历史记录**。&#x0A;- 客户端已关闭的角色会被跳过，出现时已被静音或暂停的警报也会被跳过。&#x0A;- 没有可去的地方时，光标旁会出现一条简短提示。不会有声音：它可能被误当成警报。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem">只在当前星系内循环</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleSameSystem.Desc">循环键会跳过与前台客户端不在同一星系的客户端。没有其他客户端符合时，循环键会在全部客户端之间切换，并给出提示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleAlerting">只在有警报的客户端之间循环</sys:String> <!-- draft -->

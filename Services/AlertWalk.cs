@@ -9,7 +9,9 @@ namespace EveMultiPreview.Services;
 /// The walk back reads the alert history's memory list: with the history switched off there is nothing to walk.
 /// On a new start, when the newest alert the key could go to is on the client in front and younger than
 /// <see cref="Pause"/>, the key stays there (<see cref="Kind.Here"/>): an alert on the client in front is seen as it
-/// arrives, so that client is where the last alert is, and switching away from it is the one wrong answer.
+/// arrives, so that client is where the last alert is, and switching away from it is the one wrong answer. The same
+/// holds in a walk, and after the key stayed: a NEW alert on the client in front since the last press is a new start,
+/// and the key stays there (again).
 /// A character whose client isn't running is passed over, and so is a history entry of an alert that was muted or
 /// snoozed when it was raised. No window in it; the window's thread only; the time is handed in.</summary>
 public sealed class AlertWalk
@@ -61,7 +63,9 @@ public sealed class AlertWalk
         int from = 0;
         // The place is kept for Pause after the last press. A clock that was set back since tells nothing about
         // how long ago that was: a new start, not a place kept until the clock has caught up.
-        if (_last != null && utcNow >= _pressedUtc && utcNow - _pressedUtc <= Pause)
+        // A new alert on the client in front since that press lets the place go all the same: that client is where
+        // the last alert is once more, and the new start below answers Here.
+        if (_last != null && utcNow >= _pressedUtc && utcNow - _pressedUtc <= Pause && !NewInFront(list, running, inFront, utcNow))
         {
             int at = IndexOf(list, _last);
             if (at >= 0) from = at + 1;
@@ -91,6 +95,24 @@ public sealed class AlertWalk
         }
         _last = null;
         return new Step(walking ? Kind.NoEarlier : Kind.Nothing, "");
+    }
+
+    /// <summary>Whether the newest alert the key could go to came in after the last press and is on the client in
+    /// front. Asked while a place is kept, so that alert is younger than <see cref="Pause"/>. The list is newest
+    /// first: nothing behind the first entry that is no newer than the press is looked at. An alert that was muted
+    /// or snoozed, or whose client is gone, is not one the key could go to; an entry dated after "now" (the clock
+    /// was set back) tells nothing.</summary>
+    private bool NewInFront(IReadOnlyList<AlertHistoryEntry> list, Func<string, bool> running, string? inFront, DateTime utcNow)
+    {
+        if (inFront == null) return false;
+        foreach (var entry in list)
+        {
+            if (entry.TimeUtc <= _pressedUtc) break;
+            if (entry.Outcome is AlertOutcome.Muted or AlertOutcome.Snoozed) continue;
+            if (!running(entry.Character)) continue;
+            return Same(entry.Character, inFront) && utcNow >= entry.TimeUtc;
+        }
+        return false;
     }
 
     private Step Keep(AlertHistoryEntry entry, Kind kind, DateTime utcNow)

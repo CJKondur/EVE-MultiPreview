@@ -66,7 +66,7 @@ public static class CycleFilter
     /// was said, and the client a walk through all clients started from. When exactly ONE client passes, a press in
     /// it falls back to all clients; from the next client that one would be "another client that passes", and the
     /// key would go straight back, for ever, never reaching the others. So it is remembered and not counted, until a
-    /// press finds some other client that passes, or the switches change.</summary>
+    /// press finds some other client that passes, or the switches change (<see cref="Forget"/>).</summary>
     public sealed class Walk<T>
     {
         private readonly IEqualityComparer<T> _same;
@@ -94,6 +94,23 @@ public static class CycleFilter
             _started = false;
             _from = default!;
         }
+
+        /// <summary>Starts afresh: nothing is remembered of a walk, and the note is said again the next time a key
+        /// has to go through all clients. ThumbnailManager forgets its walks when the switches have changed.</summary>
+        public void Forget()
+        {
+            End();
+            Said = false;
+        }
+    }
+
+    /// <summary>Whether the switches are other ones than the last press of a cycle key found, all off included (at
+    /// the start they count as off). Remembers them for the next press.</summary>
+    public static bool Changed(ref CycleFilterOptions last, CycleFilterOptions now)
+    {
+        if (last == now) return false;
+        last = now;
+        return true;
     }
 
     /// <summary>One press of a cycle key with a switch on: narrows <paramref name="candidates"/> as Apply does, with
@@ -116,10 +133,14 @@ public static class CycleFilter
         if (!candidates.Exists(candidate => !isActive(candidate))) return false;
 
         string? activeSystem = string.IsNullOrEmpty(activeName) ? null : systemOf(activeName);
+        // An alert of the active client's own is not what "only clients with an alert" looks for: the player is
+        // counted as being there. (It can be unseen all the same: the client is not really in front while the tray
+        // menu is open, during a drag, or after a switch Windows refused.) Counted, it would make the active client
+        // "the one client that passes", and the key would visit the clients without an alert first.
         bool Pass(T candidate)
         {
             var name = nameOf(candidate);
-            return Passes(options, activeSystem, systemOf(name), alerting(name), muted(name));
+            return Passes(options, activeSystem, systemOf(name), alerting(name) && !isActive(candidate), muted(name));
         }
 
         int active = candidates.FindIndex(candidate => isActive(candidate));

@@ -168,6 +168,17 @@ public sealed class ThumbnailManager : IDisposable
         if (clientOf(characterName) == IntPtr.Zero) attention.Gone(characterName);
     }
 
+    /// <summary>What GoToLastAlert does before it asks the walk, with the two windows handed in (tests): the alerts of
+    /// the client MultiPreview counts as active are looked at, but only when that client really is the window in
+    /// front. While the tray menu is open, during a drag, and for a moment after a switch Windows refused, it is
+    /// not: an alert raised for it then is unseen and badged, and stays so, so that the walk names that client and
+    /// the key goes to it.</summary>
+    /// <param name="character">The active client's character, or null when it has none (or there is no client).</param>
+    public static void SeeClientInFront(AlertAttention attention, string? character, IntPtr client, IntPtr foreground)
+    {
+        if (character != null && InFront(client, foreground)) attention.Seen(character);
+    }
+
     /// <summary>Whether a client's change of title means that the character it had has left it: it logged out, or
     /// another one logged in. The same name in another spelling is the same character, and a client that had no
     /// character had none to lose.</summary>
@@ -3766,11 +3777,14 @@ public sealed class ThumbnailManager : IDisposable
     /// when the last alert is on the client in front, moments ago, it says that and stays (AlertWalk.Kind.Here).</summary>
     public void GoToLastAlert()
     {
-        string? inFront = _thumbnails.TryGetValue(ActiveClient(), out var front) ? front.CharacterName : null;
-        // An alert of the client in front that is still unseen (it arrived while a switch was in flight, or while
-        // the focus sweep stood still for a drag or the tray menu) is looked at now: the player is on that client.
-        // Left unseen, the walk would name this client, and the press would switch nothing and say nothing.
-        if (inFront != null) Attention.Seen(inFront);
+        var active = ActiveClient();
+        string? inFront = _thumbnails.TryGetValue(active, out var front) ? front.CharacterName : null;
+        // An alert of the active client that is still unseen although that client is the window in front (it
+        // arrived while a switch was in flight) is looked at now: the player is on that client. Left unseen, the
+        // walk would name this client, and the press would switch nothing and say nothing. When the active client
+        // is not in front (the tray menu, a drag, a switch Windows refused), its alert stays unseen: the walk names
+        // it, and the key goes there.
+        SeeClientInFront(Attention, inFront, active, Interop.User32.GetForegroundWindow());
         var step = _alertWalk.Next(Attention.Unseen(),
             () => RecentAlerts?.Invoke() ?? Array.Empty<AlertHistoryEntry>(),
             name => ClientAlive(GetHwndForCharacter(name)), inFront, DateTime.UtcNow);
@@ -3792,13 +3806,24 @@ public sealed class ThumbnailManager : IDisposable
 
     // ── Cycle filters (IDEAS #40) ───────────────────────────────────
 
-    /// <summary>Whether any cycle filter is switched on: all a cycle press pays when none is.</summary>
+    /// <summary>The switches as the last press of a cycle key found them.</summary>
+    private CycleFilterOptions _cycleSwitches;
+
+    /// <summary>Whether any cycle filter is switched on: all a cycle press pays when none is (the three switches read
+    /// once, and compared with what the last press found). When they have changed, all off included, what the keys
+    /// remember starts afresh: both walks are forgotten, and the note is said again when it next has to be. With
+    /// the filters off the filter step is not run, so this is the one place that sees them go off.</summary>
     private bool CycleFiltersOn
     {
         get
         {
-            var s = _settings.Settings;
-            return s.CycleOnlySameSystem || s.CycleOnlyAlerting || s.CycleSkipMuted;
+            var now = CycleFilterOptions.From(_settings.Settings);
+            if (CycleFilter.Changed(ref _cycleSwitches, now))
+            {
+                _groupCycleWalk.Forget();
+                _allCycleWalk.Forget();
+            }
+            return now.Any;
         }
     }
 
@@ -3883,7 +3908,8 @@ public sealed class ThumbnailManager : IDisposable
         if (_thumbnails.TryGetValue(fgHwnd, out var activeThumbnail))
             activeChar = activeThumbnail.CharacterName;
 
-        // IDEAS #40: the one filter step. With no filter switched on this is three reads and nothing else.
+        // IDEAS #40: the one filter step. With no filter switched on this is three reads, one comparison with what the
+        // last press found, and nothing else.
         if (CycleFiltersOn) FilterCycle(onlineMembers, activeChar);
 
         if (activeChar != null)
@@ -3963,7 +3989,8 @@ public sealed class ThumbnailManager : IDisposable
                      ? _lastActiveEveHwnd
                      : Interop.User32.GetForegroundWindow();
 
-        // IDEAS #40: the one filter step. With no filter switched on this is three reads and nothing else.
+        // IDEAS #40: the one filter step. With no filter switched on this is three reads, one comparison with what the
+        // last press found, and nothing else.
         if (CycleFiltersOn) FilterCycle(hwnds, fgHwnd);
 
         int currentIdx = hwnds.IndexOf(fgHwnd);
