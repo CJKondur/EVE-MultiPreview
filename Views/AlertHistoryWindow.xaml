@@ -94,7 +94,8 @@
                       Background="{StaticResource Fx.CardBrush}" BorderBrush="{StaticResource Fx.BorderBrush}" BorderThickness="1"
                       ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
-                      SelectionChanged="OnSelectionChanged" MouseDoubleClick="OnRowDoubleClick" KeyDown="OnListKeyDown"/>
+                      SelectionChanged="OnSelectionChanged" MouseDoubleClick="OnRowDoubleClick" KeyDown="OnListKeyDown"
+                      PreviewKeyDown="OnListPreviewKeyDown"/>
             <!-- Shown over the empty list -->
             <TextBlock x:Name="TxtEmpty" Style="{StaticResource Fx.Desc}" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"
                        Text="{DynamicResource L.Hist.Empty}" Visibility="Collapsed" IsHitTestVisible="False"/>

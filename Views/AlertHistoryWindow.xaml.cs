@@ -303,7 +303,8 @@ public partial class AlertHistoryWindow : Window
     ///
     /// It never scrolls the list. A re-read comes every two seconds while alerts arrive, and a list that went back to
     /// the selected row each time could not be read anywhere else. So a row that isn't in view is left alone (it has
-    /// no container): the keyboard stays on the list, and goes to the row at the first re-read that finds it in view.
+    /// no container): the keyboard stays on the list, and goes to the row at the first re-read that finds it in view,
+    /// or when the player presses an arrow or page key (OnListPreviewKeyDown).
     /// And a row in view takes the keyboard without being brought into view, which WPF does for whatever takes the
     /// keyboard: a row cut off at the list's lower edge would otherwise pull the list down with it, a row for every
     /// alert that arrives, and the newest alerts would leave at the top.</summary>
@@ -539,6 +540,21 @@ public partial class AlertHistoryWindow : Window
         if (e.Key != Key.Enter) return;
         SwitchSelected();
         e.Handled = true;
+    }
+
+    /// <summary>An arrow key or a page key while the list itself has the keyboard and a row is chosen. That is how a
+    /// re-read leaves things when the chosen row is out of view (FocusRow), and from there WPF would start the key at
+    /// the top: the first row would be chosen, and the list would jump to it. So the chosen row is brought into view
+    /// and takes the keyboard first, and the key then does its work from that row (it is not marked as handled).
+    /// This is the player's own key: it may scroll the list, where a re-read never does. A row that is out of view
+    /// has no container until the list has gone to it and is laid out.</summary>
+    private void OnListPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key is not (Key.Up or Key.Down or Key.PageUp or Key.PageDown)) return;
+        if (!AlertList.IsKeyboardFocused || AlertList.SelectedItem is not { } chosen) return;
+        AlertList.ScrollIntoView(chosen);
+        AlertList.UpdateLayout();
+        (AlertList.ItemContainerGenerator.ContainerFromItem(chosen) as ListViewItem)?.Focus();
     }
 
     /// <summary>Whether an element sits inside one of the list's rows.</summary>
