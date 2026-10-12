@@ -170,14 +170,23 @@ public class ThumbnailWindow : Form
             {
                 Snoozes = SnoozeLookup?.Invoke(CharacterName) ?? Array.Empty<EveMultiPreview.Services.EventSnooze>(),
             });
+            // IDEAS #13 (T6-I1): counted before it is shown, so that no thumbnail grows over it; taken away again when
+            // it has closed (OnMenuClosed), when it did not open, and when showing it failed.
+            _menu.Strip.Closed -= OnMenuClosed;
+            _menu.Strip.Closed += OnMenuClosed;
+            NoteMenu(true);
             _menu.Strip.Show(Cursor.Position);
+            if (!_menu.Strip.Visible) NoteMenu(false);
         }
         catch (Exception ex)
         {
             App.LogError(ex);   // Debug.WriteLine is compiled out in Release
             Debug.WriteLine($"[Thumb:ContextMenu] ⚠ Show failed: {ex.Message}");
+            NoteMenu(false);
         }
     }
+
+    private void OnMenuClosed(object? sender, ToolStripDropDownClosedEventArgs e) => NoteMenu(false);
 
     // Session-only cycle-exclusion visual state (issue #16, drawing fixed in
     // #27). The strikeout itself is rendered in the WPF TextOverlayWindow —
@@ -198,29 +207,47 @@ public class ThumbnailWindow : Form
     // Topmost/IsVisible spelling). Keep the contract bit-identical so callers
     // don't need to change when we swap the backing framework.
 
+    // IDEAS #13: while the thumbnail is enlarged for an alert, all four are its OWN place and size, read and written.
+    // A written place moves the enlarged window with it (StandAround); a written size is the thumbnail's own (Resize).
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Left
     {
         get => base.Left + (_alertGrown ? _alertDx : 0);
-        set => base.Left = (int)value - (_alertGrown ? _alertDx : 0);
+        set
+        {
+            if (_alertGrown) StandAround(new System.Drawing.Rectangle((int)value, base.Top + _alertDy, _baseWidth, _baseHeight));
+            else base.Left = (int)value;
+        }
     }
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Top
     {
         get => base.Top + (_alertGrown ? _alertDy : 0);
-        set => base.Top = (int)value - (_alertGrown ? _alertDy : 0);
+        set
+        {
+            if (_alertGrown) StandAround(new System.Drawing.Rectangle(base.Left + _alertDx, (int)value, _baseWidth, _baseHeight));
+            else base.Top = (int)value;
+        }
     }
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Width
     {
         get => _alertGrown ? _baseWidth : base.Width;
-        set => base.Width = (int)value;
+        set
+        {
+            if (_alertGrown) Resize((int)value, _baseHeight);
+            else base.Width = (int)value;
+        }
     }
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Height
     {
         get => _alertGrown ? _baseHeight : base.Height;
-        set => base.Height = (int)value;
+        set
+        {
+            if (_alertGrown) Resize(_baseWidth, (int)value);
+            else base.Height = (int)value;
+        }
     }
     // Tracks the intended topmost state. We cannot use the WinForms TopMost
     // property as the source of truth because its setter calls SetWindowPos
@@ -488,30 +515,85 @@ public class ThumbnailWindow : Form
     /// <summary>The thumbnail's own place on the screen while it is enlarged.</summary>
     private System.Drawing.Rectangle OwnPlace() => new(base.Left + _alertDx, base.Top + _alertDy, _baseWidth, _baseHeight);
 
+    private static int _openMenus;      // how many thumbnails have their right-click menu open; the window's thread only
+    private bool _menuOpen;             // this one has
+
+    /// <summary>Some thumbnail's right-click menu is open (T6-I1). No thumbnail grows meanwhile: an enlarged
+    /// picture over a menu hides its items, and the part that grew lets a click fall through to them. What is over
+    /// still goes back.</summary>
+    public static bool MenuOpen => _openMenus > 0;
+
+    /// <summary>This thumbnail's right-click menu opens (said before it is shown), or has closed. Said twice it
+    /// counts once. When it has closed, this thumbnail is looked at again: it was put back by the right-click and
+    /// may still be asked to be enlarged. The window says this around its own menu; a test says it in the menu's
+    /// place, because no test shows a menu.</summary>
+    public void NoteMenu(bool open)
+    {
+        if (_menuOpen == open) return;
+        _menuOpen = open;
+        _openMenus += open ? 1 : -1;
+        if (!open) FollowAlertScale();
+    }
+
+    /// <summary>Whether raising the thumbnails is held off right now. Set by ThumbnailManager: while the settings
+    /// window is in front it raises no thumbnail (SetSuppressTopmost), and an enlarged one is not raised either.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public Func<bool>? RaiseSuppressed { get; set; }
+
+    /// <summary>Puts this thumbnail above its neighbours if it is enlarged for an alert: when it grows, and on the
+    /// manager's word behind every loop in which the manager raised all thumbnails (the neighbours raised behind
+    /// this one in such a loop cover most of what the enlargement added). Only while the thumbnails are in the
+    /// topmost band, which is "always on top", or "keep thumbnails above clients" while a client is in front: with
+    /// both off an enlarged thumbnail is never raised and stands where it stood among the other windows. And not
+    /// while raising is held off. One read while it is not enlarged.</summary>
+    public void RaiseWhileEnlarged()
+    {
+        if (_alertGrown && _isTopmost && RaiseSuppressed?.Invoke() != true) RaiseAboveNeighbours();
+    }
+
+    /// <summary>The raise itself: the window's own BringToFront, which is raw SetWindowPos without activation, as
+    /// every z-order change of a thumbnail is. A test counts it here: a window without a handle has nothing to raise.</summary>
+    protected virtual void RaiseAboveNeighbours() => BringToFront();
+
     private void FollowAlertScale()
     {
         bool wanted = AlertEnlarge.Wanted(_alertScale, _dragMode != DragMode.None, _isHovered, _isMouseOver, _alertGrown);
         if (wanted == _alertGrown) return;
-        if (wanted) GrowForAlert();
-        else ShrinkFromAlert();
+        if (wanted)
+        {
+            if (!MenuOpen) GrowForAlert();   // T6-I1: never over an open menu; NoteMenu and the manager's tick ask again
+            return;
+        }
+        ShrinkFromAlert();
+        // T6-m13: asked back with the pointer on it. The hover zoom was held off while the thumbnail was enlarged,
+        // and no "the pointer came" follows by itself: it is said once more, and the hover zoom begins as it does
+        // when the pointer comes.
+        if (_isMouseOver) OnMouseEnter(EventArgs.Empty);
     }
 
     private void GrowForAlert()
     {
-        var own = new System.Drawing.Rectangle(base.Left, base.Top, _baseWidth, _baseHeight);
+        if (StandAround(new System.Drawing.Rectangle(base.Left, base.Top, _baseWidth, _baseHeight))) RaiseWhileEnlarged();
+    }
+
+    /// <summary>Stands the window, enlarged, around a place of the thumbnail's own: where AlertEnlarge.Place puts it
+    /// on the monitor that place is on. So a thumbnail that is moved while it is enlarged (T6-m6) is fitted to the
+    /// monitor again, as it was when it grew. False when there is no room to grow at that place: the window then
+    /// stands at the place itself, at its own size. The window first, the note of it behind: if Windows refuses
+    /// the move, what the manager reads (and saves) stays true of the window.</summary>
+    private bool StandAround(System.Drawing.Rectangle own)
+    {
         var grown = AlertEnlarge.Place(own, _alertScale, WorkAreaFor(own));
-        if (grown == own) return;   // no room to grow on this monitor
-        // The window first, the note of it behind: if Windows refuses the move, the window is not enlarged and
-        // does not count as enlarged, and what the manager reads (and saves) stays true of it.
+        bool enlarged = grown != own;
+        if (!enlarged && !_alertGrown) return false;   // no room to grow on this monitor, and nothing to undo
+        bool resized = grown.Size != base.Size;
         base.SetBounds(grown.Left, grown.Top, grown.Width, grown.Height);
         _alertDx = own.Left - grown.Left;
         _alertDy = own.Top - grown.Top;
-        _alertGrown = true;
-        UpdateThumbnailSize();
+        _alertGrown = enlarged;
+        if (resized) UpdateThumbnailSize();   // a move alone leaves the picture as it is
         _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
-        // Above its neighbours, within the band the thumbnails are in: by raw SetWindowPos, as every z-order change
-        // of a thumbnail is. Not while the thumbnails are kept below another window (settings is in front).
-        if (_isTopmost) BringToFront();
+        return enlarged;
     }
 
     private void ShrinkFromAlert()
@@ -617,7 +699,9 @@ public class ThumbnailWindow : Form
             // stray message (stuck mouse capture, stale hit-test), attributing a
             // click to a window the cursor isn't over is always wrong.
             // Resize keeps its early-return above: dragging outside is legitimate.
-            if (!base.Bounds.Contains(Cursor.Position))
+            // While the thumbnail is enlarged for an alert (IDEAS #13, T6-m8) "inside" is its OWN place: the part
+            // that grew takes no click (WM_NCHITTEST), so a click there is as stray as one beside the window.
+            if (!(_alertGrown ? OwnPlace() : base.Bounds).Contains(Cursor.Position))
             {
                 // A stray click means this window is receiving mouse input it should
                 // not be — the known cause is stuck mouse capture (#95). Drop it, so
@@ -627,7 +711,8 @@ public class ThumbnailWindow : Form
                 Services.DiagnosticsService.LogWindowHook(
                     $"[Thumb:Click] IGNORED stray click for '{CharacterName}' " +
                     $"cursor={Cursor.Position.X},{Cursor.Position.Y} " +
-                    $"rect={base.Left},{base.Top},{base.Width}x{base.Height}");
+                    $"rect={base.Left},{base.Top},{base.Width}x{base.Height}" +
+                    (_alertGrown ? " (enlarged for an alert)" : ""));
                 return;
             }
 
@@ -1121,9 +1206,15 @@ public class ThumbnailWindow : Form
 
     public void MoveTo(int x, int y)
     {
-        // IDEAS #13: x and y are the thumbnail's own place; an enlarged window goes with it.
-        base.Left = x - (_alertGrown ? _alertDx : 0);
-        base.Top = y - (_alertGrown ? _alertDy : 0);
+        // IDEAS #13: x and y are the thumbnail's own place. An enlarged window goes with it, and is fitted again to
+        // the monitor that place is on (T6-m6): Reset positions or a preset must not leave it off the screen.
+        if (_alertGrown)
+        {
+            StandAround(new System.Drawing.Rectangle(x, y, _baseWidth, _baseHeight));
+            return;
+        }
+        base.Left = x;
+        base.Top = y;
         _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
     }
 
@@ -1395,6 +1486,9 @@ public class ThumbnailWindow : Form
         _underFirePulseTimer?.Dispose();
         _underFirePulseTimer = null;
 
+        // IDEAS #13 (T6-I1): a window that goes while its menu is open takes its count with it, or no thumbnail
+        // would grow again.
+        NoteMenu(false);
         _menu?.Dispose();
         _menu = null;
 

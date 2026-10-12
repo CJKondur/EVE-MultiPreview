@@ -139,14 +139,14 @@ public sealed class ThumbnailManager : IDisposable
     /// answers (<see cref="TellEnlarged"/>). Only a character's main thumbnail is ever told: second thumbnails and
     /// crop windows are not enlarged. While nothing is enlarged this is one read. While the tray menu is open
     /// nothing is moved or raised (a thumbnail raised then would bury the menu): what is due is done when it has
-    /// closed.</summary>
+    /// closed. While a thumbnail's own right-click menu is open nothing grows, and what is over still goes back.</summary>
     private void EnlargeTick()
     {
         if (!Enlarge.Any || _trayMenuOpen) return;
         try
         {
             TellEnlarged(Enlarge, DateTime.UtcNow, _settings.Settings, GetHwndForCharacter, Interop.User32.GetForegroundWindow,
-                GetThumbnailForCharacter, ReportEnlarge);
+                GetThumbnailForCharacter, ThumbnailWindow.MenuOpen, ReportEnlarge);
         }
         catch (Exception ex)
         {
@@ -170,17 +170,23 @@ public sealed class ThumbnailManager : IDisposable
     /// AlertEnlarge what is due at this moment and tells each thumbnail its scale. Each thumbnail is told in a try
     /// of its own: AlertEnlarge has forgotten an enlargement by the time its thumbnail is told to go back, so one
     /// thumbnail that throws would otherwise cost every thumbnail behind it its going back, for ever. What was
-    /// thrown is reported by its type, and the others are still told.</summary>
+    /// thrown is reported by its type, and the others are still told. While a thumbnail's right-click menu is open
+    /// nothing is told to grow (T6-I1): it is told when the menu has closed. What is over goes back meanwhile: a
+    /// thumbnail's menu can stay open for a long time, because the window that shows it never becomes the window in
+    /// front and a click into the game does not close it, and a thumbnail must not stay enlarged for that long.</summary>
     /// <param name="utcNow">Now, in UTC, as an alert's time is (AlertNotice.TimeUtc).</param>
-    /// <param name="clientOf">A character's client window, or zero.</param>
+    /// <param name="clientOf">A character's client window, or zero. Asked under AlertEnlarge's lock: it must only
+    /// look the window up.</param>
     /// <param name="foreground">The window in front. Asked once.</param>
     /// <param name="thumbnailOf">A character's main thumbnail, or null. It is asked under AlertEnlarge's lock too,
     /// so it must not throw, wait or ask AlertEnlarge anything.</param>
+    /// <param name="menuOpen">A thumbnail's right-click menu is open (ThumbnailWindow.MenuOpen).</param>
     public static void TellEnlarged(AlertEnlarge enlarge, DateTime utcNow, AppSettings settings, Func<string, IntPtr> clientOf,
-        Func<IntPtr> foreground, Func<string, ThumbnailWindow?> thumbnailOf, Action<Exception> report)
+        Func<IntPtr> foreground, Func<string, ThumbnailWindow?> thumbnailOf, bool menuOpen, Action<Exception> report)
     {
         var front = foreground();
-        foreach (var change in enlarge.Tick(utcNow, settings, name => InFront(clientOf(name), front), name => thumbnailOf(name) != null))
+        foreach (var change in enlarge.Tick(utcNow, settings, name => InFront(clientOf(name), front), name => thumbnailOf(name) != null,
+                     holdGrowth: menuOpen))
         {
             try { thumbnailOf(change.Character)?.SetAlertScale(change.Scale); }
             catch (Exception ex) { ReportEnlargeFailure(report, "telling a thumbnail", ex); }
@@ -806,6 +812,8 @@ public sealed class ThumbnailManager : IDisposable
         thumbWindow.ResizeAll += OnResizeAll;
         thumbWindow.CycleExclusionRequested += OnCycleExclusionRequested;
         WireMenu(thumbWindow);
+        // IDEAS #13 (T6-m10): an enlarged thumbnail raises itself; not while the settings window is in front.
+        thumbWindow.RaiseSuppressed = () => _suppressTopmost;
 
         // Restore any prior session-exclusion visual state
         if (!string.IsNullOrEmpty(thumbWindow.CharacterName)
@@ -1451,8 +1459,20 @@ public sealed class ThumbnailManager : IDisposable
             // different cursor positions but all land on the SAME thumbnail, that window
             // is covering its neighbours (a stuck hover-zoom enlarges it by HoverScale).
             $"cursor={System.Windows.Forms.Cursor.Position.X},{System.Windows.Forms.Cursor.Position.Y} " +
-            $"rect={thumb.Left},{thumb.Top},{thumb.Width}x{thumb.Height}");
+            $"rect={ClickRect(thumb)}");
         ActivateEveWindow(thumb.EveHwnd, thumb.CharacterName);
+    }
+
+    /// <summary>The rectangle the click diagnostic of issue #95 writes: where the thumbnail's window stands. The line
+    /// exists to show a window that covers its neighbours, and while a thumbnail is enlarged for an alert it does
+    /// (T6-m12): so then it is the enlarged window's rectangle, said to be that, with the thumbnail's own place
+    /// behind it. Left, Top, Width and Height alone answer with the own place while it is enlarged.</summary>
+    public static string ClickRect(ThumbnailWindow thumb)
+    {
+        var own = FormattableString.Invariant($"{thumb.Left},{thumb.Top},{thumb.Width}x{thumb.Height}");
+        if (!thumb.IsAlertEnlarged) return own;
+        var real = thumb.Bounds;
+        return FormattableString.Invariant($"{real.Left},{real.Top},{real.Width}x{real.Height} (enlarged for an alert; own {own})");
     }
 
     private void OnMinimizeRequested(ThumbnailWindow thumb)
@@ -1691,6 +1711,7 @@ public sealed class ThumbnailManager : IDisposable
                     p.BringToFront();
                 foreach (var (_, sw) in _statWindows)
                     sw.BringToFront();
+                RaiseEnlargedAgain();
             }, System.Windows.Threading.DispatcherPriority.Background);
 
             if (_settings.Settings.AlwaysMaximize && !slotsMode && !Interop.User32.IsZoomed(hwnd))
@@ -2029,6 +2050,7 @@ public sealed class ThumbnailManager : IDisposable
             // is insufficient against EVE's DirectX surface
             foreach (var (_, sw) in _statWindows)
                 sw.BringToFront();
+            RaiseEnlargedAgain();
         }
         _lastEveFocused = eveFocused;
 
@@ -2141,6 +2163,7 @@ public sealed class ThumbnailManager : IDisposable
                 pip.BringToFront();
             foreach (var (_, sw) in _statWindows)
                 sw.BringToFront();
+            RaiseEnlargedAgain();
         }
         else if (!fgIsTrackedClient)
         {
@@ -3256,6 +3279,7 @@ public sealed class ThumbnailManager : IDisposable
                 foreach (var (_, t) in _thumbnails) t.BringToFront();
                 foreach (var (_, p) in _secondaryThumbnails) p.BringToFront();
                 foreach (var (_, sw) in _statWindows) sw.BringToFront();
+                RaiseEnlargedAgain();
             }, System.Windows.Threading.DispatcherPriority.Background);
 
             Debug.WriteLine($"[CharCycle:Select] 🔄 Cycled to char-select window idx={_charSelectIndex}/{charSelectWindows.Count} (hwnd=0x{targetHwnd:X})");
@@ -3721,6 +3745,18 @@ public sealed class ThumbnailManager : IDisposable
         foreach (var (_, thumb) in _thumbnails) thumb.BringToFront();
         foreach (var (_, pip) in _secondaryThumbnails) pip.BringToFront();
         foreach (var (_, sw) in _statWindows) sw.BringToFront();
+        RaiseEnlargedAgain();
+    }
+
+    /// <summary>Behind every loop that raises all thumbnails (IDEAS #13, T6-I2): the thumbnails that are enlarged for
+    /// an alert are raised once more. A loop raises them one by one, so every neighbour raised behind an enlarged
+    /// thumbnail stood above it again, and "above its neighbours" lasted only until the next client switch (or a
+    /// quarter of a second with "keep thumbnails above clients"). The raise is the window's own (raw SetWindowPos,
+    /// no activation), and the window decides: only while it is enlarged, in the topmost band, and while raising
+    /// is not held off for the settings window. One read per thumbnail while none is enlarged.</summary>
+    private void RaiseEnlargedAgain()
+    {
+        foreach (var (_, thumb) in _thumbnails) thumb.RaiseWhileEnlarged();
     }
 
     public void ToggleThumbnailVisibility()

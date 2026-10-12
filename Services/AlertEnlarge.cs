@@ -88,10 +88,18 @@ public sealed class AlertEnlarge : IAlertWay
     /// to say it to. That does not mean that no window is left enlarged: a character that logs off keeps its
     /// client's window, which only changes its name. So the caller must put that window back itself, and does
     /// (ThumbnailManager: at the title change, and by a watchdog that asks <see cref="Holds"/>). Each thumbnail is
-    /// told to grow once and to go back once.</summary>
-    /// <param name="clientInFront">Whether a character's client is the window in front.</param>
-    /// <param name="hasThumbnail">Whether a character has a thumbnail (its client is running).</param>
-    public IReadOnlyList<Change> Tick(DateTime utcNow, AppSettings s, Func<string, bool> clientInFront, Func<string, bool> hasThumbnail)
+    /// told to grow once and to go back once.
+    /// <para>The two questions are asked while this object's lock is held (T6-m14), so that an alert noted on
+    /// another thread meanwhile waits for the answer. They must therefore only look something up: they must not
+    /// call back into this object, wait for anything, or throw (a question that throws ends the look before it has
+    /// forgotten or told anything it had decided).</para></summary>
+    /// <param name="clientInFront">Whether a character's client is the window in front. Asked under the lock.</param>
+    /// <param name="hasThumbnail">Whether a character has a thumbnail (its client is running). Asked under the lock.</param>
+    /// <param name="holdGrowth">Nothing is told to grow at this look (a thumbnail's right-click menu is open, and a
+    /// thumbnail must not grow over it): what waits is told at the first look without it, if its time is not over
+    /// by then. What is over is put back all the same.</param>
+    public IReadOnlyList<Change> Tick(DateTime utcNow, AppSettings s, Func<string, bool> clientInFront, Func<string, bool> hasThumbnail,
+        bool holdGrowth = false)
     {
         if (!Any) return Nothing;
         bool on = s.EnlargeOnAlert;
@@ -110,7 +118,7 @@ public sealed class AlertEnlarge : IAlertWay
                     if (held.Told && !gone) (changes ??= new List<Change>()).Add(new Change(character, 1.0));
                     (over ??= new List<string>()).Add(character);
                 }
-                else if (!held.Told)
+                else if (!held.Told && !holdGrowth)
                 {
                     held.Told = true;
                     (changes ??= new List<Change>()).Add(new Change(character, held.Scale));
