@@ -93,6 +93,8 @@ public partial class SettingsWindow : Window
         // Only the Loaded event guarantees all deferred work is complete.
         _loadingDepth++;
         InitializeComponent();
+        // The wheel over a closed dropdown list is not "the next choice": the page scrolls, as in the new window.
+        PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
         Loaded += (_, _) =>
         {
             var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;

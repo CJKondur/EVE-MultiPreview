@@ -16,6 +16,9 @@ public partial class CopyLayoutDialog : Window
     public CopyLayoutDialog(IEnumerable<string> profileNames, string currentProfile)
     {
         InitializeComponent();
+        // The wheel over a closed dropdown list (which profile is copied from, and which is written over) is not
+        // "the next choice": it goes past the list.
+        PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
 
         var names = profileNames.ToList();
 

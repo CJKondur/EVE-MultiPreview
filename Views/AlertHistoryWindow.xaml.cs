@@ -117,6 +117,8 @@ public partial class AlertHistoryWindow : Window
     public AlertHistoryWindow(AlertHistory store, AppSettings settings, AlertHistoryActions actions)
     {
         InitializeComponent();
+        // The wheel over a closed dropdown list (the four filters) is not "the next choice": it goes past the list.
+        PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
         FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
         _store = store;
         _settings = settings;

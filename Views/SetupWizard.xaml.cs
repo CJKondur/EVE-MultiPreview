@@ -42,6 +42,8 @@ public partial class SetupWizard : Window
         _selectedWidth = (int)_svc.Settings.ThumbnailStartLocation.Width;
         _selectedHeight = (int)_svc.Settings.ThumbnailStartLocation.Height;
         InitializeComponent();
+        // The wheel over a closed dropdown list (the language) is not "the next choice": it goes past the list.
+        PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
         FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
         Loaded += (_, _) =>
         {
