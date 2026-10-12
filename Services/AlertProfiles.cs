@@ -183,31 +183,45 @@ public static class GroupAlertChoices
     /// A rename has three cases. The new name was free: the choices move to it, and whatever was left under it is
     /// dropped. A group still goes by the old name (the old window renames a colour group and leaves the keys of the
     /// same name where they are): that group keeps the choices too, so the rename changes nobody's alerts. The new
-    /// name was another group's already (the old window allows that): the two are one group now, and where their
-    /// choices contradict each other the alert happens: "on" where either said "on", "off" only where both said
-    /// "off", and no choice where one said "off" and the other nothing.
+    /// name was another group's already (the old window allows that): the two are one group now, and what the
+    /// player wants of it is not known, so the alert happens: "on" where either said "on", "off" only where both
+    /// said "off", and no choice where one said "off" and the other nothing (also when that other had no choices
+    /// at all: nobody is silenced by a rename).
     /// The same text comes back when there is nothing to do, and when the new one would not read back whole.</summary>
     public static string Follow(string? json, IReadOnlySet<string> before, IReadOnlySet<string> now, string? from = null, string? to = null)
     {
         var groups = Parse(json);
         if (groups.Count == 0 || before == null || now == null) return json ?? "";
         bool changed = false;
+        bool renamed = from != null && to != null && from != to && before.Contains(from) && now.Contains(to) && to.Length <= MaxName;
         Dictionary<string, bool>? moved = null;
-        if (from != null && to != null && from != to) groups.TryGetValue(from, out moved);
+        if (renamed) groups.TryGetValue(from!, out moved);
         // A name no group goes by holds no choices, and a name that has just come into being starts with none.
         foreach (var name in groups.Keys.ToList())
             if (!now.Contains(name) || !before.Contains(name)) changed |= groups.Remove(name);
-        if (moved != null && now.Contains(to!) && to!.Length <= MaxName)
+        if (renamed && !before.Contains(to!))
         {
-            var theirs = before.Contains(to) && groups.TryGetValue(to, out var had) ? had : null;
+            // The group's new name, which was free: its choices, as they are.
+            if (moved != null)
+            {
+                groups[to!] = new Dictionary<string, bool>(moved, StringComparer.Ordinal);
+                changed = true;
+            }
+        }
+        else if (renamed && (moved != null || groups.ContainsKey(to!)))
+        {
+            // The name was another group's: one group now. An "off" stays only where both said "off".
+            groups.TryGetValue(to!, out var theirs);
             var one = new Dictionary<string, bool>(StringComparer.Ordinal);
-            foreach (var (key, on) in moved)
-                if (on || !before.Contains(to) || (theirs != null && theirs.TryGetValue(key, out var also) && !also)) one[key] = on;
-            if (theirs != null)
-                foreach (var (key, on) in theirs)
-                    if (on) one[key] = true;
-            if (one.Count > 0) groups[to] = one;
-            else groups.Remove(to);
+            foreach (var chosen in new[] { moved, theirs })
+                if (chosen != null)
+                    foreach (var (key, on) in chosen)
+                        if (on) one[key] = true;
+            if (moved != null && theirs != null)
+                foreach (var (key, on) in moved)
+                    if (!on && theirs.TryGetValue(key, out var also) && !also) one[key] = false;
+            if (one.Count > 0) groups[to!] = one;
+            else groups.Remove(to!);
             changed = true;
         }
         return changed ? Written(groups, json) : json ?? "";
