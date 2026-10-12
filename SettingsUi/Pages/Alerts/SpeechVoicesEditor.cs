@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using EveMultiPreview.Services;
+using EveMultiPreview.Views;
 using ComboBox = System.Windows.Controls.ComboBox;
 
 namespace EveMultiPreview.SettingsUi;
@@ -14,29 +15,47 @@ namespace EveMultiPreview.SettingsUi;
 /// <summary>Alerts › Sounds › Spoken alerts › Voices (IDEAS #26): for each severity a voice, "Automatic" or one of
 /// the voices Windows has, and a button that tries it. Automatic is a voice of MultiPreview's language
 /// (SpeechVoiceChoice.Automatic says which); the card says so when Windows has none. SpokenWay reads the choice at
-/// the next alert, so a change only saves.</summary>
+/// the next alert, so a change only saves. Windows is asked for its voices only while "Speak alerts" is on: the
+/// page builds this card while it is hidden too, and every player has spoken alerts off until they switch them on.</summary>
 public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IRefreshable
 {
     public const string ItemId = "alerts.sounds.voices";
 
     private readonly SettingsContext _ctx;
     private readonly Func<string> _language;
+    private readonly Action<Exception> _failed;
     private readonly Grid _table = new();
     private readonly TextBlock _note = EditorCard.Value("", secondary: true);
+    private readonly TextBlock _tried = EditorCard.Value("", secondary: true);
     private bool _building;
+    private bool _listed;                       // the voices were read with "Speak alerts" on
     private SpeechVoice? _windowsDefault;
+    private CancellationTokenSource? _trying;   // the stop of the sentence that is being tried
 
     /// <param name="language">The app's language (tests hand one in).</param>
-    public SpeechVoicesEditor(SettingsContext ctx, Func<string>? language = null)
+    /// <param name="failed">Is told that trying a voice failed: the type of what was thrown, never its message
+    /// (App writes it to error_log.txt; tests hand one in).</param>
+    public SpeechVoicesEditor(SettingsContext ctx, Func<string>? language = null, Action<Exception>? failed = null)
     {
         _ctx = ctx;
         _language = language ?? (() => LocalizationService.CurrentLanguage);
+        _failed = failed ?? App.LogError;
         _note.TextWrapping = TextWrapping.Wrap;
         _note.Margin = new Thickness(0, 8, 0, 0);
+        _tried.Margin = new Thickness(0, 8, 0, 0);
+        _tried.Visibility = Visibility.Collapsed;
+        AutomationProperties.SetLiveSetting(_tried, AutomationLiveSetting.Polite);   // a screen reader says it when it appears
         var stack = new StackPanel();
         stack.Children.Add(_table);
         stack.Children.Add(_note);
+        stack.Children.Add(_tried);
         Content = EditorCard.Build(ItemId, null, stack);
+        // The card comes into view: the switch went on. The voices are read now, unless they were read already.
+        IsVisibleChanged += (_, _) =>
+        {
+            if (IsVisible && !_listed) Refresh();
+        };
+        Unloaded += (_, _) => StopTrying();     // the page was left: nothing goes on speaking behind another page
         Refresh();
     }
 
@@ -54,6 +73,9 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     /// <summary>The card's line says that Windows has no voice at all.</summary>
     public bool SaysNoVoiceAtAll { get; private set; }
 
+    /// <summary>The card's line says that the voice that was tried last could not speak.</summary>
+    public bool SaysTryFailed { get; private set; }
+
     /// <summary>The voice the player chose for a severity, or null for Automatic.</summary>
     public string? Chosen(string severity) =>
         SpeechVoiceChoice.Read(_ctx.S.SpeechVoices).TryGetValue(severity, out var id) ? id : null;
@@ -63,7 +85,9 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
         _building = true;
         try
         {
-            var speaker = _ctx.Services.Speaker;
+            // While spoken alerts are off the card is hidden and Windows is not asked for anything.
+            _listed = _ctx.S.SpeakAlerts;
+            var speaker = _listed ? _ctx.Services.Speaker : null;
             Installed = speaker?.Voices() ?? Array.Empty<SpeechVoice>();
             _windowsDefault = speaker?.DefaultVoice();
             AutomaticVoice = SpeechVoiceChoice.Automatic(Installed, _language(), _windowsDefault);
@@ -120,14 +144,66 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     }
 
     /// <summary>Says a fixed sentence with the voice an alert of this severity would be said with, at the voice
-    /// volume. What the voice throws is seen by nobody: the card stays as it is.</summary>
+    /// volume. One sentence at a time: a new try stops the one before, and so does leaving the page. A voice that
+    /// fails shows one line on the card and is reported by the type of what it threw.</summary>
     public void Try(string severity)
     {
         var speaker = _ctx.Services.Speaker;
         if (speaker == null) return;
+        StopTrying();
+        Tried(failed: false);
+        var stop = _trying = new CancellationTokenSource();
         string voice = SpeechVoiceChoice.For(severity, _ctx.S.SpeechVoices, Installed, _language(), _windowsDefault);
-        var said = speaker.SayAsync(Str("L.S.Speech.Example"), voice, SpeechOptions.Of(_ctx.S).Volume, CancellationToken.None);
-        _ = said.ContinueWith(t => _ = t.Exception, TaskScheduler.Default);
+        Task said;
+        try { said = speaker.SayAsync(Str("L.S.Speech.Example"), voice, SpeechOptions.Of(_ctx.S).Volume, stop.Token); }
+        catch (Exception ex) { said = Task.FromException(ex); }
+        // The voice finishes on a thread of its own; what it came to is looked at on the window's thread.
+        _ = said.ContinueWith(done =>
+        {
+            if (Dispatcher.CheckAccess()) Over(done, stop);
+            else Dispatcher.BeginInvoke(() => Over(done, stop));
+        }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+    }
+
+    /// <summary>A try is over. Only the last one counts: one that a later try or leaving the page stopped is over
+    /// because it was stopped, whatever it says.</summary>
+    private void Over(Task said, CancellationTokenSource stop)
+    {
+        var thrown = said.Exception;     // looked at, so that nothing is left unobserved
+        if (!ReferenceEquals(_trying, stop)) return;
+        _trying = null;
+        if (thrown == null) return;
+        Tried(failed: true);
+        Report(thrown);
+    }
+
+    private void Tried(bool failed)
+    {
+        SaysTryFailed = failed;
+        _tried.Text = failed ? Str("L.S.Speech.TryFailed") : "";
+        _tried.Visibility = failed ? Visibility.Visible : Visibility.Collapsed;
+        if (failed) Announce.Changed(_tried);
+    }
+
+    /// <summary>Stops the sentence that is being tried, if there is one. What the voice does when it is told to
+    /// stop runs in here: it must not leave a button's click or the page's unloading as an exception.</summary>
+    private void StopTrying()
+    {
+        var stop = _trying;
+        _trying = null;
+        if (stop == null) return;
+        try { stop.Cancel(); }
+        catch (Exception ex) { Report(ex); }
+    }
+
+    /// <summary>Reports the type of what was thrown (for several at once the type of each), never its message.</summary>
+    private void Report(Exception ex)
+    {
+        string type = ex is AggregateException several
+            ? string.Join(", ", several.Flatten().InnerExceptions.Select(inner => inner.GetType().Name))
+            : ex.GetType().Name;
+        try { _failed(new InvalidOperationException("Spoken alerts: trying a voice failed (" + type + ")")); }
+        catch (Exception) { /* reporting must never break the card */ }
     }
 
     private void Place(FrameworkElement element, int row, int column)
