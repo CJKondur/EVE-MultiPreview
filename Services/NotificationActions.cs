@@ -79,10 +79,12 @@ public sealed class NotificationActions
 
     /// <summary>The card's "Show a test notification", on the window's thread. The switch is followed first: the
     /// card appears the moment the switch goes on, a second before the settings change is applied, and Windows
-    /// shows nothing for a program whose key is not there yet. False: nothing was asked of Windows.</summary>
+    /// shows nothing for a program whose key is not there yet. False: no test notification is out and Windows was
+    /// not asked for one, and the card says so: MultiPreview is closing, the switch is off, the registry key could
+    /// not be written, or the settings could not be read (such a session follows no switch, so it writes no key).</summary>
     public bool ShowTest(NotificationsWay way, NotificationRegistration registration, DateTime utcNow)
     {
-        if (_shuttingDown() || !_on()) return false;
+        if (_shuttingDown() || !_on() || !_settingsLoaded()) return false;
         Follow(way, registration);
         return way.ShowTest(NotificationsWay.TestTexts(_str), utcNow);
     }

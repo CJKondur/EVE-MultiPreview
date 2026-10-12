@@ -17,8 +17,9 @@ namespace EveMultiPreview.Services;
 public sealed class NotificationsWay : IAlertWay
 {
     /// <summary>The longest one call into Windows may take (show, take one away, take all away, "are notifications
-    /// on"). A call that has not come back by then is given up: it is reported once, with a fixed text, and the way
-    /// goes on with the next thing. (Speech allows a sentence twenty seconds: SpokenWay.Longest.)</summary>
+    /// on"). A call that has not come back by then is given up, and the way goes on with the next thing. That
+    /// Windows does not answer is reported once in a session, with a fixed text. (Speech allows a sentence twenty
+    /// seconds: SpokenWay.Longest.)</summary>
     public static readonly TimeSpan CallLimit = TimeSpan.FromSeconds(5);
 
     /// <summary>How long a clean-up (the feature switched off, MultiPreview closing) waits for the pump to finish
@@ -27,8 +28,17 @@ public sealed class NotificationsWay : IAlertWay
     public static readonly TimeSpan IdleLimit = TimeSpan.FromSeconds(2);
 
     /// <summary>The tag of the card's test notification. Not a tag the ledger makes (those begin with "n"), so a
-    /// click on the test or on one of its buttons says words that mean nothing (NotificationXml.Read).</summary>
+    /// click on the test says words that mean nothing (NotificationXml.Read). It has no buttons.</summary>
     public const string TestTag = "test";
+
+    /// <summary>How long the test notification stays before Windows removes it by itself.</summary>
+    public static readonly TimeSpan TestKeep = TimeSpan.FromMinutes(1);
+
+    /// <summary>After so many calls in a row that Windows did not answer, Windows is asked nothing more until the
+    /// switch is followed again with the feature on (<see cref="Follow"/>: a settings change, and the card's
+    /// button and question follow it first). Behind every call that is given up may be a thread that Windows
+    /// holds, and a Windows that has no answer three times running will have none for the fourth alert.</summary>
+    public const int MostGivenUp = 3;
 
     /// <summary>So many different error codes of Windows are reported in a session, each once; further ones are not.</summary>
     private const int MaxFailedCodes = 16;
@@ -45,6 +55,9 @@ public sealed class NotificationsWay : IAlertWay
     private int _used;          // something this session showed may still be in the Notification Center
     private int _clearFirst;    // take away what an earlier session left, before anything else
     private int _questionFailed;            // "are notifications on" could not be asked, and that was reported
+    private int _givenUp;                   // calls in a row that Windows did not answer in time
+    private int _toldGivenUp;               // "Windows did not answer" was reported (once a session)
+    private long _testOutUntil;             // a test notification is out until then (UTC ticks); 0: none is
     private bool _takenAwayAtOff;           // this "off" has had its clean-up (the window's thread only)
     private volatile bool _keyRefused;      // the registry key could not be written: Windows does not know MultiPreview
     private volatile bool _stopped;
@@ -74,8 +87,12 @@ public sealed class NotificationsWay : IAlertWay
         Pump = new WorkPump(Drain, _failed);
         _notifier.Clicked += OnClicked;
         // Closed by hand: the notification is gone, the pair's banner time is kept (the banner that was just closed
-        // does not come back at the next alert).
-        _notifier.Dismissed += tag => Ledger.Dismissed(tag);
+        // does not come back at the next alert). The test notification is no entry: it is only out no more.
+        _notifier.Dismissed += tag =>
+        {
+            if (tag == TestTag) ForgetTest();
+            else Ledger.Dismissed(tag);
+        };
         _notifier.Failed += OnFailed;
     }
 
@@ -115,12 +132,15 @@ public sealed class NotificationsWay : IAlertWay
     /// the pump is asking Windows this moment is let finish before that (at most <see cref="IdleLimit"/>); then the
     /// key is removed. That clean-up is asked once for each switching off, whatever Windows answers: a Windows that
     /// refuses it is not asked again at every settings change. In a session that never had the feature on,
-    /// Windows' notifications are not asked anything.</summary>
+    /// Windows' notifications are not asked anything.
+    /// On also starts the count of calls Windows did not answer afresh (<see cref="MostGivenUp"/>): a Windows that
+    /// was asked nothing more is asked again.</summary>
     public void Follow(bool on, NotificationRegistration registration, bool starting = false)
     {
         if (_stopped) return;
         if (on)
         {
+            Interlocked.Exchange(ref _givenUp, 0);
             _takenAwayAtOff = false;
             bool known = registration.Registered;
             bool registered = registration.Follow(true);
@@ -139,19 +159,28 @@ public sealed class NotificationsWay : IAlertWay
     }
 
     /// <summary>The card's "Show a test notification": one notification, shown by the pump under the same limit as
-    /// an alert's. It is no entry of the ledger: a click on it or on one of its buttons means nothing, and a look
-    /// at a client does not take it away. It goes with everything else when the feature is switched off or
-    /// MultiPreview closes, and by itself when its time in the Notification Center is over. False: Windows is not
-    /// asked (MultiPreview is closing, or the registry key could not be written).</summary>
-    /// <param name="utcNow">Now: the test stays in the Notification Center as long from now as an alert's does.</param>
+    /// an alert's. It is no entry of the ledger, so a button on it could do nothing: it has none, a click on it
+    /// means nothing, and a look at a client does not take it away. It goes by itself after <see cref="TestKeep"/>,
+    /// and with everything else when the feature is switched off, MultiPreview closes or Windows ends the session.
+    /// One at a time: while one is out (shown less than that time ago, and not closed, clicked or taken away
+    /// since) a further press asks Windows for no second one. False: no test is out and Windows is not asked for
+    /// one (MultiPreview is closing, or the registry key could not be written).</summary>
+    /// <param name="utcNow">Now: the test ends by itself <see cref="TestKeep"/> from now.</param>
     public bool ShowTest(NotificationTexts texts, DateTime utcNow)
     {
         if (_stopped || _keyRefused) return false;
-        var content = new NotificationContent(TestTag, NotificationXml.Build(texts, TestTag), true, utcNow + AlertNotifications.Keep);
+        // Out: its end is ahead, and no further ahead than a test lasts (a clock set back does not hold the button).
+        long until = Interlocked.Read(ref _testOutUntil), now = utcNow.Ticks;
+        if (until > now && until - now <= TestKeep.Ticks) return true;
+        var content = new NotificationContent(TestTag, NotificationXml.Build(texts, TestTag, buttons: false), true, utcNow + TestKeep);
+        Interlocked.Exchange(ref _testOutUntil, content.ExpiresUtc.Ticks);
         Interlocked.Exchange(ref _test, content);
         Pump.Wake();
         return true;
     }
+
+    /// <summary>No test notification is out any more, as far as this way knows: the next press shows one.</summary>
+    private void ForgetTest() => Interlocked.Exchange(ref _testOutUntil, 0);
 
     /// <summary>Asks Windows whether it is NOT showing MultiPreview's notifications (they are switched off in
     /// Windows' own settings, or by a policy): on another thread, under the limit of every call. False as well
@@ -192,7 +221,11 @@ public sealed class NotificationsWay : IAlertWay
             case NotifierWork.Kind.Show:
                 var content = work.Content!;
                 Interlocked.Exchange(ref _used, 1);   // before the call: one that throws or is given up may have shown it all the same
-                if (!await Ask("showing a notification", () => _notifier.Show(content)).ConfigureAwait(false)) break;
+                if (!await Ask("showing a notification", () => _notifier.Show(content)).ConfigureAwait(false))
+                {
+                    if (content.Tag == TestTag) ForgetTest();   // not known to be out: the next press asks again
+                    break;
+                }
                 // A click, a look or a closing that came while Windows was being asked has taken the entry away.
                 // What has just arrived would be a notification no click and no look could reach: it goes again.
                 if (content.Tag != TestTag && !Ledger.Holds(content.Tag))
@@ -209,11 +242,13 @@ public sealed class NotificationsWay : IAlertWay
     }
 
     /// <summary>One call into Windows: on another thread, and waited for at most <see cref="CallLimit"/>. True:
-    /// Windows did it. False: it threw (reported by type and error code), or it did not come back in time (reported
-    /// once, with a fixed text; whatever the call does later is seen by nobody). Nothing leaves here as an
-    /// exception, so whoever asked goes on with the next thing.</summary>
+    /// Windows did it. False: it threw (reported by type and error code); or it did not come back in time (whatever
+    /// the call does later is seen by nobody; said once in a session, with a fixed text); or Windows was not asked
+    /// at all, because <see cref="MostGivenUp"/> calls in a row were given up. Nothing leaves here as an exception,
+    /// so whoever asked goes on with the next thing.</summary>
     private async Task<bool> Ask(string what, Action call)
     {
+        if (Volatile.Read(ref _givenUp) >= MostGivenUp) return false;
         try
         {
             using var limit = new CancellationTokenSource();
@@ -223,9 +258,13 @@ public sealed class NotificationsWay : IAlertWay
             if (first != asked)
             {
                 _ = asked.ContinueWith(late => _ = late.Exception, TaskScheduler.Default);
-                Tell(new TimeoutException("Windows notifications: Windows did not answer within " + (int)CallLimit.TotalSeconds + " seconds, and the call was given up."));
+                Interlocked.Increment(ref _givenUp);
+                if (Interlocked.Exchange(ref _toldGivenUp, 1) == 0)
+                    Tell(new TimeoutException("Windows notifications: Windows did not answer within " + (int)CallLimit.TotalSeconds + " seconds, and the call was given up. This is said once. After "
+                        + MostGivenUp + " such calls in a row Windows is asked nothing more until the next settings change or test notification."));
                 return false;
             }
+            Interlocked.Exchange(ref _givenUp, 0);      // Windows answered, whatever it answered
             await asked.ConfigureAwait(false);   // hands on what Windows threw
             return true;
         }
@@ -253,6 +292,7 @@ public sealed class NotificationsWay : IAlertWay
         while (Ledger.NextWork() != null) { }
         Interlocked.Exchange(ref _clearFirst, 0);
         Interlocked.Exchange(ref _test, null);
+        ForgetTest();       // what follows takes everything away, a test notification too
     }
 
     /// <summary>Waits until the pump is not running, at most <see cref="IdleLimit"/>. Nothing the pump does needs
@@ -271,18 +311,30 @@ public sealed class NotificationsWay : IAlertWay
     }
 
     /// <summary>A click, on a thread of Windows'. Only words and a tag of this session mean anything; what they
-    /// mean is done on the window's thread.</summary>
+    /// mean is done on the window's thread. That work is handed on and runs later, with nothing of this method
+    /// around it: so it catches for itself. What it throws (App's own tables are keyed by characters, and say which
+    /// key they missed) must not reach the app's line for errors nobody handled, which writes the message.</summary>
     private void OnClicked(string arguments)
     {
         try
         {
-            if (_stopped || NotificationXml.Read(arguments) is not { } click) return;
+            if (_stopped) return;
+            if (arguments == NotificationXml.Go + TestTag)
+            {
+                ForgetTest();       // a click on the test notification: Windows has taken it away, and it means nothing else
+                return;
+            }
+            if (NotificationXml.Read(arguments) is not { } click) return;
             var entry = Ledger.Clicked(click.Tag);
             if (entry == null) return;
             _onWindowThread(() =>
             {
-                if (click.Verb == "nap") _snooze(entry.Character, entry.EventKey, AlertNotifications.SnoozeFor);
-                else _switchTo(entry.Character);
+                try
+                {
+                    if (click.Verb == "nap") _snooze(entry.Character, entry.EventKey, AlertNotifications.SnoozeFor);
+                    else _switchTo(entry.Character);
+                }
+                catch (Exception ex) { Report("what a click on a notification does", ex); }
             });
         }
         catch (Exception ex) { Report("a click on a notification", ex); }
@@ -293,6 +345,7 @@ public sealed class NotificationsWay : IAlertWay
     /// every alert would fail the same way.</summary>
     private void OnFailed(int code)
     {
+        ForgetTest();       // Windows does not say which one it could not show: a test is not known to be out
         lock (_failedCodes)
         {
             if (_failedCodes.Count >= MaxFailedCodes || !_failedCodes.Add(code)) return;
@@ -310,11 +363,11 @@ public sealed class NotificationsWay : IAlertWay
         catch (Exception) { /* reporting must never cost the alert */ }
     }
 
-    /// <summary>MultiPreview is closing, or Windows is ending the session: nothing more is shown, a click means
-    /// nothing any more, and what this session showed is taken away (a button of a closed MultiPreview can do
-    /// nothing). What the pump is asking Windows this moment is let finish first, at most <see cref="IdleLimit"/>,
-    /// so that it does not land behind the clean-up. A session that showed nothing, or took everything away since,
-    /// does not ask Windows again. Never throws: App calls it at exit, and everything below it there must still run.</summary>
+    /// <summary>MultiPreview is closing: nothing more is shown, a click means nothing any more, and what this
+    /// session showed is taken away (a button of a closed MultiPreview can do nothing). What the pump is asking
+    /// Windows this moment is let finish first, at most <see cref="IdleLimit"/>, so that it does not land behind
+    /// the clean-up. A session that showed nothing, or took everything away since, does not ask Windows again.
+    /// Never throws: App calls it at exit, and everything below it there must still run.</summary>
     public void Stop()
     {
         if (_stopped) return;
@@ -322,11 +375,31 @@ public sealed class NotificationsWay : IAlertWay
         try
         {
             Pump.Stop();
-            DropWhatWaits();
-            WaitForThePump();
-            if (Used) Do(new NotifierWork(NotifierWork.Kind.Clear)).GetAwaiter().GetResult();
+            TakeAwayWhatWasShown();
         }
         catch (Exception ex) { Report("stopping", ex); }
+    }
+
+    /// <summary>Windows is ending the session (signing out, shutting down), or is asking whether it may. What this
+    /// session showed is taken away as at exit, because the exit itself may never get to run: what waits is
+    /// dropped, the pump is let finish (at most <see cref="IdleLimit"/>), and Windows is asked once if anything may
+    /// be there. But the way is NOT stopped. WPF tells of a session's end when Windows ASKS, and the shutdown may
+    /// then be cancelled (another program has unsaved work): MultiPreview runs on, and so must this way. The next
+    /// alert is a notification again, a click and the card's button and question work, and switching the feature
+    /// off still removes the key. Never throws.</summary>
+    public void SessionEnding()
+    {
+        if (_stopped) return;
+        try { TakeAwayWhatWasShown(); }
+        catch (Exception ex) { Report("clearing up at the end of the session", ex); }
+    }
+
+    /// <summary>The clean-up of an exit and of a session's end, from this thread (the window's).</summary>
+    private void TakeAwayWhatWasShown()
+    {
+        DropWhatWaits();
+        WaitForThePump();
+        if (Used) Do(new NotifierWork(NotifierWork.Kind.Clear)).GetAwaiter().GetResult();
     }
 
     /// <summary>The texts of an entry: the character, the event (and how often, from the second alert on), where
@@ -346,11 +419,9 @@ public sealed class NotificationsWay : IAlertWay
             str("L.Notify.Snooze", "Snooze for 15 minutes"));
     }
 
-    /// <summary>The texts of the test notification: MultiPreview's name, a line that says it is a test, and the two
-    /// buttons a real one has (the first names no character: an ellipsis stands where the name would be).</summary>
+    /// <summary>The texts of the test notification: MultiPreview's name, and a line that says it is a test and goes
+    /// by itself. It has no buttons (ShowTest), so the two labels are empty.</summary>
     /// <param name="str">LocalizationService.Str.</param>
     public static NotificationTexts TestTexts(Func<string, string, string> str) =>
-        new(NotificationRegistration.DisplayName, str("L.Notify.TestLine", "This is a test. Its buttons do nothing."), null,
-            string.Format(CultureInfo.CurrentCulture, str("L.Notify.Switch", "Switch to {0}"), ((char)0x2026).ToString()),
-            str("L.Notify.Snooze", "Snooze for 15 minutes"));
+        new(NotificationRegistration.DisplayName, str("L.Notify.TestLine", "This is a test. It goes away by itself after a minute."), null, "", "");
 }

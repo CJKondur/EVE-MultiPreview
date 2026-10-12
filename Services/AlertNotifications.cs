@@ -33,19 +33,21 @@ public static class NotificationXml
     /// client), or "nap:" and a tag (its second button: snooze). The tag is one MultiPreview made.</summary>
     public const string Go = "go:", Nap = "nap:";
 
-    public static string Build(NotificationTexts texts, string tag)
+    /// <param name="buttons">False: no buttons, and the two labels are not used (the card's test notification: it is
+    /// no entry, so a button on it could do nothing).</param>
+    public static string Build(NotificationTexts texts, string tag, bool buttons = true)
     {
         var binding = new XElement("binding", new XAttribute("template", "ToastGeneric"),
             new XElement("text", Clean(texts.Title)), new XElement("text", Clean(texts.Line)));
         // Asked after cleaning: a detail made only of characters that are not shown would be an empty line.
         if (Clean(texts.Detail) is { Length: > 0 } detail) binding.Add(new XElement("text", detail));
-        var toast = new XElement("toast", new XAttribute("launch", Go + tag),
-            new XElement("visual", binding),
-            new XElement("actions",
+        var toast = new XElement("toast", new XAttribute("launch", Go + tag), new XElement("visual", binding));
+        if (buttons)
+            toast.Add(new XElement("actions",
                 new XElement("action", new XAttribute("content", Clean(texts.SwitchLabel)), new XAttribute("arguments", Go + tag)),
-                new XElement("action", new XAttribute("content", Clean(texts.SnoozeLabel)), new XAttribute("arguments", Nap + tag))),
-            // MultiPreview plays its own sound for an alert (or none, as the player set it): the notification is silent.
-            new XElement("audio", new XAttribute("silent", "true")));
+                new XElement("action", new XAttribute("content", Clean(texts.SnoozeLabel)), new XAttribute("arguments", Nap + tag))));
+        // MultiPreview plays its own sound for an alert (or none, as the player set it): the notification is silent.
+        toast.Add(new XElement("audio", new XAttribute("silent", "true")));
         return toast.ToString(SaveOptions.DisableFormatting);
     }
 
@@ -91,9 +93,9 @@ public static class NotificationXml
 
 /// <summary>Windows notifications for alerts (IDEAS #33): which alerts get one, which entry a newer alert replaces,
 /// when the banner pops up again, and when an entry is taken away. It keeps what it showed (at most twenty entries),
-/// what it remembers of entries that left without their client being looked at (so that the banner rule holds for
-/// them too), and a list of what Windows is still to be asked: at most one picture for each entry, and one removal
-/// for each entry that was looked at or made room. Whoever talks to Windows takes that list with
+/// what it remembers of entries that left without their client being looked at (so that the banner rule and the
+/// count hold for them too), and a list of what Windows is still to be asked: at most one picture for each entry,
+/// and one removal for each entry that was looked at or made room. Whoever talks to Windows takes that list with
 /// <see cref="NextWork"/>. No window, no Windows and no clock in it: the time is the alert's own. Any thread.</summary>
 public sealed class AlertNotifications
 {
@@ -103,8 +105,8 @@ public sealed class AlertNotifications
 
     /// <summary>Of this many entries that left without their client being looked at (they made room, or the player
     /// closed them by hand) the count and the banner time are remembered; beyond it the oldest are forgotten. It
-    /// is ten times what can be shown: a pair that comes again within the banner's quiet time finds itself here
-    /// unless more than this many other pairs came in between.</summary>
+    /// is ten times what can be shown: a pair that comes again finds itself here unless more than this many other
+    /// pairs left in between (then it starts afresh: a banner, and the count at one).</summary>
     private const int MaxRemembered = 200;
 
     /// <summary>The banner of one character and event pops up again at most this often. In between, a newer alert
@@ -117,7 +119,9 @@ public sealed class AlertNotifications
     /// <summary>How long the notification's second button snoozes its event for its character.</summary>
     public static readonly TimeSpan SnoozeFor = TimeSpan.FromMinutes(15);
 
-    /// <summary>One entry: the alerts of one event for one character since the player last looked.</summary>
+    /// <summary>One entry: the alerts of one event for one character since the player last looked. That holds also
+    /// across a banner, and for an entry that left without a look (it made room, or was closed by hand) and came
+    /// back: its count is carried on, until its client is looked at or everything is taken away.</summary>
     public sealed record Entry(string Tag, string Character, string EventKey, string Severity, int Count, DateTime LastUtc, DateTime BannerUtc);
 
     private readonly object _lock = new();
@@ -156,13 +160,16 @@ public sealed class AlertNotifications
                 banner = since < TimeSpan.Zero || since >= BannerQuiet;
                 entry = old with { Severity = notice.Severity, Count = old.Count + 1, LastUtc = now, BannerUtc = banner ? now : old.BannerUtc };
             }
-            else if (Remembered(notice.Character, notice.EventKey, now) is { } back)
+            else if (_remembered.Find(e => Same(e, notice.Character, notice.EventKey)) is { } back)
             {
-                // It made room for another, or the player closed it, and its banner is not half a minute old: it comes
-                // back as another notification that counts on, and without a banner. Above twenty pairs every alert
-                // would otherwise be a banner, and so would the next alert after a banner was closed by hand.
-                entry = back with { Tag = NextTag(), Severity = notice.Severity, Count = back.Count + 1, LastUtc = now };
-                banner = false;
+                // It made room for another, or the player closed it, and nobody has looked at its client since: it
+                // comes back as another notification that counts on, as an entry that stayed does. The banner rule
+                // is an entry's own too: no banner while the last one is not half a minute old (above twenty pairs
+                // every alert would otherwise be a banner, and so would the next alert after a banner was closed by
+                // hand), and a banner again once it is, or when the clock was set back.
+                var since = now - back.BannerUtc;
+                banner = since < TimeSpan.Zero || since >= BannerQuiet;
+                entry = back with { Tag = NextTag(), Severity = notice.Severity, Count = back.Count + 1, LastUtc = now, BannerUtc = banner ? now : back.BannerUtc };
             }
             else
             {
@@ -180,7 +187,7 @@ public sealed class AlertNotifications
             else
             {
                 _tags++;
-                _remembered.RemoveAll(e => Same(e, notice.Character, notice.EventKey));    // taken back, or too old to be
+                _remembered.RemoveAll(e => Same(e, notice.Character, notice.EventKey));    // taken back
                 if (_entries.Count >= MaxEntries) RemoveOldest();
                 _entries.Add(entry);
             }
@@ -192,17 +199,6 @@ public sealed class AlertNotifications
 
     /// <summary>The tag the next new entry gets. Under the lock; the number is used up when the entry is kept.</summary>
     private string NextTag() => "n" + ToBase36(_tags + 1);
-
-    /// <summary>What is remembered of a pair whose entry left without its client being looked at, while that still
-    /// counts: its banner is less than the quiet time old. Null: nothing is remembered, the banner is older, or the
-    /// clock was set back (then the pair starts afresh, with its banner). Under the lock; changes nothing.</summary>
-    private Entry? Remembered(string character, string eventKey, DateTime now)
-    {
-        var entry = _remembered.Find(e => Same(e, character, eventKey));
-        if (entry == null) return null;
-        var since = now - entry.BannerUtc;
-        return since >= TimeSpan.Zero && since < BannerQuiet ? entry : null;
-    }
 
     /// <summary>An entry leaves without its client having been looked at: its count and its banner time are
     /// remembered. Under the lock.</summary>

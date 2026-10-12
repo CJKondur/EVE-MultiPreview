@@ -13,6 +13,9 @@ namespace EveMultiPreview.SettingsUi;
 /// notification as a test, and one line that says so when Windows itself is not showing MultiPreview's notifications
 /// (they are switched off in Windows' own settings, or by a policy). Without the two, the switch would be on, nothing
 /// would appear, and nothing here would say why. Shown only while "Show alerts as Windows notifications" is on.
+/// A second line says so when the test could not be shown at all, because Windows was not even asked for it (the
+/// registry key could not be written, the settings could not be read): a button that does nothing and says nothing
+/// would leave the player to guess.
 ///
 /// Windows is asked through the app, and never on the window's thread: the question goes out when the card comes
 /// into view (the page was opened, or the switch went on) and after a test, and the line appears when the answer
@@ -25,10 +28,17 @@ public sealed class NotificationCheckEditor : System.Windows.Controls.UserContro
     /// <summary>The button's text, and the line that says Windows is not showing MultiPreview's notifications.</summary>
     public const string ButtonKey = "L.S.Notify.TestButton", BlockedKey = "L.S.Notify.Blocked";
 
+    /// <summary>The line that says the test notification could not be shown.</summary>
+    public const string TestFailedKey = "L.S.Notify.TestFailed";
+
+    /// <summary>The card's line says that the test notification could not be shown.</summary>
+    public bool SaysTestFailed { get; private set; }
+
     private readonly SettingsContext _ctx;
     private readonly Action<Exception> _failed;
     private readonly TextBlock _text = new() { TextWrapping = TextWrapping.Wrap };
     private readonly Border _line;
+    private readonly TextBlock _testFailed = EditorCard.Note(TestFailedKey);
     private int _asks;      // only the answer to the last question counts
 
     /// <param name="failed">Is told that asking failed: the type of what was thrown, never its message (App writes
@@ -54,7 +64,14 @@ public sealed class NotificationCheckEditor : System.Windows.Controls.UserContro
         _line.SetResourceReference(Border.BorderBrushProperty, "Fx.WarningBrush");
         _line.SetResourceReference(Border.CornerRadiusProperty, "Fx.Radius");
 
-        Content = EditorCard.Build(ItemId, EditorCard.Button(ButtonKey, Test), _line);
+        _testFailed.TextWrapping = TextWrapping.Wrap;
+        _testFailed.Margin = new Thickness(0, 8, 0, 0);
+        _testFailed.Visibility = Visibility.Collapsed;
+        AutomationProperties.SetLiveSetting(_testFailed, AutomationLiveSetting.Polite);
+        var below = new StackPanel();
+        below.Children.Add(_line);
+        below.Children.Add(_testFailed);
+        Content = EditorCard.Build(ItemId, EditorCard.Button(ButtonKey, Test), below);
         // The card comes into view: the page was opened with the switch on, or the switch went on.
         IsVisibleChanged += (_, _) =>
         {
@@ -105,11 +122,23 @@ public sealed class NotificationCheckEditor : System.Windows.Controls.UserContro
     }
 
     /// <summary>The button: the app shows one notification as a test, and Windows is asked again whether it shows
-    /// MultiPreview's notifications at all: a player who presses this and sees nothing wants to know why.</summary>
+    /// MultiPreview's notifications at all: a player who presses this and sees nothing wants to know why. When the
+    /// app answers that Windows was not asked for the test, or the asking threw, one line says that the test could
+    /// not be shown; it goes with the next press that works. A window opened without the app has nobody to ask:
+    /// then the button does nothing, and no line says it failed.</summary>
     public void Test()
     {
-        try { _ctx.Services.TestNotification?.Invoke(); }
-        catch (Exception ex) { Report("showing a test notification", ex); }
+        bool shown = true;
+        try { shown = _ctx.Services.TestNotification?.Invoke() ?? true; }
+        catch (Exception ex)
+        {
+            shown = false;
+            Report("showing a test notification", ex);
+        }
+        bool appeared = !shown && !SaysTestFailed;
+        SaysTestFailed = !shown;
+        _testFailed.Visibility = shown ? Visibility.Collapsed : Visibility.Visible;
+        if (appeared) Announce.Changed(_testFailed);       // a live region announces nothing by itself
         Ask();
     }
 

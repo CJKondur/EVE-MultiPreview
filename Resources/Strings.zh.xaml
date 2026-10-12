@@ -2241,7 +2241,7 @@
     <sys:String x:Key="L.Notify.Switch">切换到 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Notify.Snooze">暂停 15 分钟</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.windows.Title">Windows 通知</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.windows.Body">打开 **把警报显示为 Windows 通知** 后，警报也会作为 Windows 自己的通知出现，带有角色的名字和事件。它会留在 Windows 的通知中心里，所以你能看到离开电脑期间发生了什么。&#x0A;&#x0A;- 第一个按钮会把那个客户端切换到前台，点击通知本身也一样。第二个按钮会把那个角色的那条警报暂停 15 分钟。&#x0A;- 每个角色和事件只有一条通知。更新的警报会更新它并增加次数，它最多每 30 秒再弹出一次。&#x0A;- 前台客户端的警报不会产生通知；当你查看某个客户端时，它的通知会消失。已静音的角色和已暂停的警报也不会产生通知。&#x0A;- 通知是无声的：警报声音由 MultiPreview 自己播放。MultiPreview 的勿扰模式会拦住警报声音和语音；通知仍然会出现。&#x0A;- Windows 有自己的通知开关：在 Windows 的设置里，“系统”下的“通知”中，可以对所有程序关闭，也可以只对 EVE MultiPreview 关闭。它关闭时什么都不会出现，**测试通知** 卡片上会有一行文字告诉你。**显示一条测试通知** 会立刻显示一条通知，让你自己确认；它的按钮什么都不做。&#x0A;- 通知是否弹出由 Windows 决定：当 Windows 自己的勿扰模式打开，或者有游戏在全屏运行时，通知只会进入通知中心。Windows 保留最新的 20 条，每条在最后一次警报后最多保留 12 小时。&#x0A;- Windows 可以在锁屏上显示通知的文字。如果不想让别人在那里看到哪个角色遭到了攻击，请在 Windows 的通知设置里关掉它。&#x0A;- 这个功能打开期间，MultiPreview 会在 Windows 注册表里保留一个条目，并在设置文件夹里保留一个图片文件，让 Windows 知道要显示的名称和图标。关闭它会删除这个条目和 MultiPreview 的通知。MultiPreview 关闭时也会清除这些通知。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.windows.Body">打开 **把警报显示为 Windows 通知** 后，警报也会作为 Windows 自己的通知出现，带有角色的名字和事件；“掉队”警报还会显示其他人去了哪里。它会留在 Windows 的通知中心里，所以你能看到离开电脑期间发生了什么。&#x0A;&#x0A;- 第一个按钮会把那个客户端切换到前台，点击通知本身也一样。第二个按钮会把那个角色的那条警报暂停 15 分钟。&#x0A;- 每个角色和事件只有一条通知。更新的警报会更新它并增加次数，它最多每 30 秒再弹出一次。&#x0A;- 前台客户端的警报不会产生通知；当你查看某个客户端时，它的通知会消失。已静音的角色和已暂停的警报也不会产生通知。&#x0A;- 通知是无声的：警报声音由 MultiPreview 自己播放。MultiPreview 的勿扰模式会拦住警报声音和语音；通知仍然会出现。&#x0A;- Windows 有自己的通知开关：在 Windows 的设置里，“系统”下的“通知”中，可以对所有程序关闭，也可以只对 EVE MultiPreview 关闭。它关闭时什么都不会出现，**测试通知** 卡片上会有一行文字告诉你。**显示一条测试通知** 会立刻显示一条通知，让你自己确认；它没有按钮，一分钟后会自行消失。&#x0A;- 通知是否弹出由 Windows 决定：当 Windows 自己的勿扰模式打开，或者有游戏在全屏运行时，通知只会进入通知中心。Windows 保留最新的 20 条，每条在最后一次警报后最多保留 12 小时。&#x0A;- Windows 可以在锁屏上显示通知的文字。如果不想让别人在那里看到哪个角色遭到了攻击，或者其他人去了哪里，请在 Windows 的通知设置里关掉它。&#x0A;- 这个功能打开期间，MultiPreview 会在 Windows 注册表里保留一个条目，并在设置文件夹里保留一个图片文件，让 Windows 知道要显示的名称和图标。关闭它会删除这个条目和 MultiPreview 的通知。MultiPreview 关闭时也会清除这些通知。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.enlarge">警报时放大缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.enlarge.Desc">缩略图会放大几秒钟，让你不用切换就能看到那里发生了什么。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.enlargeFrom">哪些警报会放大</sys:String> <!-- draft -->
@@ -2275,10 +2275,10 @@
     <sys:String x:Key="L.Help.alerts.events.ewar.Body">两个常常出现在受到伤害之前的事件： **电容被中和** ，即能量中和器夺走你舰船的电容； **被干扰** ，即你的舰船受到干扰并失去锁定。&#x0A;&#x0A;- 两者在你于上面的表格中开启之前都是关闭的。&#x0A;- 每个事件在开始时触发一次警报，持续期间对该角色最多每 30 秒再触发一次。&#x0A;- 它们根据英文游戏客户端的文字读取。游戏使用其他语言时，它们不会触发任何警报。&#x0A;- 开启 **PVE 模式** 时，中和或干扰你的 NPC 不会触发任何警报；日志行中名字既不带军团代号也不带舰船类型的玩家也不会。&#x0A;- 抽取你电容的掠能器不包括在内，只包括中和器。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.TryFailed">Windows 没能读出这句话。请检查是否安装了语音，以及是否连接了声音设备。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest">测试通知</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">立刻显示一条通知，让你看到 Windows 是否放行。它的按钮什么都不做。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">立刻显示一条通知，让你看到 Windows 是否放行。它没有按钮，一分钟后会自行消失。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.TestButton">显示一条测试通知</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Notify.Blocked">Windows 没有显示 MultiPreview 的通知：它们在 Windows 自己的设置里被关闭了，可能是对所有程序，也可能只对 EVE MultiPreview。请在那里打开（“系统”，然后“通知”）。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Notify.TestLine">这是一条测试。它的按钮什么都不做。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Notify.Blocked">Windows 没有显示 MultiPreview 的通知：它们在 Windows 自己的设置里被关闭了，可能是对所有程序，也可能只对 EVE MultiPreview；也可能是你所在组织的设置禁止了它们。如果可以，请在那里打开（“系统”，然后“通知”）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Notify.TestLine">这是一条测试。它会在一分钟后自行消失。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.GetsOn">{0}：{1} 为开启（{2} 选择了开启）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.GetsOff">{0}：{1} 为关闭（{2} 选择了关闭）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Join">{0}、{1}</sys:String> <!-- draft -->
@@ -2289,4 +2289,5 @@
     <sys:String x:Key="L.S.GroupAlerts.OpenGroups">打开“分组”页面</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.NotKept">这个选择没有保存：已经放不下更多的分组选择。请清除不再需要的分组选择，或者给这个分组起一个短一些的名称。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Note">{0} 有自己的警报选择：见 警报 › 事件 里的“某个分组的警报”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Notify.TestFailed">无法显示测试通知。日志文件夹里的 error_log.txt 可能说明了原因。</sys:String> <!-- draft -->
 </ResourceDictionary>

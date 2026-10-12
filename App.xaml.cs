@@ -456,8 +456,10 @@ public partial class App : Application
             _thumbnailManager.Attention.Looked += _notificationsWay.Looked;
             FollowNotifications(starting: true);
             // Windows signing out or shutting down: OnExit may not get to run (see the history, below), and what
-            // this session showed would stay in the Notification Center with buttons that can do nothing.
-            SessionEnding += (_, _) => _notificationsWay?.Stop();
+            // this session showed would stay in the Notification Center with buttons that can do nothing. It is
+            // taken away, but the way is not stopped: Windows tells of a session's end when it ASKS, and a shutdown
+            // that is then cancelled leaves MultiPreview running.
+            SessionEnding += (_, _) => _notificationsWay?.SessionEnding();
             // IDEAS #13: a thumbnail grows for a few seconds on an alert. The manager owns the decision and its tick.
             _alertWays.Add(_thumbnailManager.Enlarge);
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
@@ -982,11 +984,11 @@ public partial class App : Application
     }
 
     /// <summary>IDEAS #33, the card's "Show a test notification": one notification through the way, so the player
-    /// sees whether Windows lets MultiPreview's notifications through.</summary>
-    private void ShowTestNotification()
+    /// sees whether Windows lets MultiPreview's notifications through. False: Windows was not asked for one.</summary>
+    private bool ShowTestNotification()
     {
-        if (_notificationsWay == null || _notificationRegistration == null) return;
-        _notificationActions?.ShowTest(_notificationsWay, _notificationRegistration, DateTime.UtcNow);
+        if (_notificationsWay == null || _notificationRegistration == null) return false;
+        return _notificationActions?.ShowTest(_notificationsWay, _notificationRegistration, DateTime.UtcNow) ?? false;
     }
 
     /// <summary>IDEAS #33, the card's question: is Windows itself not showing MultiPreview's notifications? Asked

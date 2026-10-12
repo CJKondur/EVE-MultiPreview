@@ -2224,7 +2224,7 @@
     <sys:String x:Key="L.Notify.Switch">{0} に切り替え</sys:String> <!-- draft -->
     <sys:String x:Key="L.Notify.Snooze">15 分間スヌーズ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.windows.Title">Windows の通知</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.windows.Body">**アラートを Windows の通知として表示** をオンにすると、アラートは Windows 自身の通知としても表示されます。キャラクターの名前とイベントが表示されます。Windows の通知センターに残るので、PC から離れていた間に何があったかを確認できます。&#x0A;&#x0A;- 1 つ目のボタンはそのクライアントを前面に出します。通知をクリックしても同じです。2 つ目のボタンは、そのキャラクターのそのアラートを 15 分間スヌーズします。&#x0A;- 通知はキャラクターとイベントごとに 1 つです。新しいアラートは通知を更新して回数を増やし、ポップアップは多くても 30 秒に 1 回です。&#x0A;- 前面のクライアントのアラートには通知を出しません。クライアントを見ると、そのクライアントの通知は消えます。ミュートしたキャラクターとスヌーズしたアラートにも通知を出しません。&#x0A;- 通知は無音です。アラート音は MultiPreview が自分で鳴らします。MultiPreview のおやすみモードはアラート音と音声を止めますが、通知は届きます。&#x0A;- Windows には通知のスイッチが別にあります。Windows の設定の「システム」、「通知」の順に開くと、すべてのプログラムについて、また EVE MultiPreview だけについて切り替えられます。それがオフの間は何も表示されず、**テスト通知** カードの 1 行がそのことを知らせます。**テスト通知を表示** を押すとすぐに通知が 1 つ表示されるので、自分で確かめられます。そのボタンは何もしません。&#x0A;- 通知がポップアップするかどうかは Windows が決めます。Windows 自身の応答不可がオンのときや、ゲームが全画面で動いているときは、通知センターにだけ入ります。Windows は新しい 20 件を保持し、それぞれ最後のアラートから最長 12 時間で消えます。&#x0A;- Windows は通知の文をロック画面に表示することがあります。どのキャラクターが攻撃されたかをそこで読まれたくないときは、Windows の通知設定でオフにしてください。&#x0A;- これがオンの間、MultiPreview は Windows のレジストリにエントリを 1 つ、設定フォルダーに画像ファイルを 1 つ置き、Windows が表示する名前とアイコンを知らせます。オフにすると、そのエントリと MultiPreview の通知は削除されます。MultiPreview を終了したときにも通知は削除されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.windows.Body">**アラートを Windows の通知として表示** をオンにすると、アラートは Windows 自身の通知としても表示されます。キャラクターの名前とイベントが表示されます。「置き去り」のアラートでは、ほかのメンバーがどこへ行ったかも表示されます。Windows の通知センターに残るので、PC から離れていた間に何があったかを確認できます。&#x0A;&#x0A;- 1 つ目のボタンはそのクライアントを前面に出します。通知をクリックしても同じです。2 つ目のボタンは、そのキャラクターのそのアラートを 15 分間スヌーズします。&#x0A;- 通知はキャラクターとイベントごとに 1 つです。新しいアラートは通知を更新して回数を増やし、ポップアップは多くても 30 秒に 1 回です。&#x0A;- 前面のクライアントのアラートには通知を出しません。クライアントを見ると、そのクライアントの通知は消えます。ミュートしたキャラクターとスヌーズしたアラートにも通知を出しません。&#x0A;- 通知は無音です。アラート音は MultiPreview が自分で鳴らします。MultiPreview のおやすみモードはアラート音と音声を止めますが、通知は届きます。&#x0A;- Windows には通知のスイッチが別にあります。Windows の設定の「システム」、「通知」の順に開くと、すべてのプログラムについて、また EVE MultiPreview だけについて切り替えられます。それがオフの間は何も表示されず、**テスト通知** カードの 1 行がそのことを知らせます。**テスト通知を表示** を押すとすぐに通知が 1 つ表示されるので、自分で確かめられます。ボタンはなく、1 分後に自動で消えます。&#x0A;- 通知がポップアップするかどうかは Windows が決めます。Windows 自身の応答不可がオンのときや、ゲームが全画面で動いているときは、通知センターにだけ入ります。Windows は新しい 20 件を保持し、それぞれ最後のアラートから最長 12 時間で消えます。&#x0A;- Windows は通知の文をロック画面に表示することがあります。どのキャラクターが攻撃されたか、ほかのメンバーがどこへ行ったかをそこで読まれたくないときは、Windows の通知設定でオフにしてください。&#x0A;- これがオンの間、MultiPreview は Windows のレジストリにエントリを 1 つ、設定フォルダーに画像ファイルを 1 つ置き、Windows が表示する名前とアイコンを知らせます。オフにすると、そのエントリと MultiPreview の通知は削除されます。MultiPreview を終了したときにも通知は削除されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.enlarge">アラート時にサムネイルを拡大</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.enlarge.Desc">サムネイルが数秒間大きくなり、切り替えなくてもそこで何が起きているかがわかります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.enlargeFrom">拡大するアラート</sys:String> <!-- draft -->
@@ -2258,10 +2258,10 @@
     <sys:String x:Key="L.Help.alerts.events.ewar.Body">ダメージの前によく起きる二つのイベントです。 **キャパシタ中和** は、エネルギーニュートラライザーが艦のキャパシタを奪ったとき、 **ジャミング** は、艦がジャミングを受けてロックを失ったときに発生します。&#x0A;&#x0A;- どちらも、上の表でオンにするまでオフです。&#x0A;- どちらも、始まったときに一度発生し、続いている間はそのキャラクターについて最大で 30 秒に一度だけ発生します。&#x0A;- 英語版のゲームクライアントの文言から読み取ります。ほかの言語のゲームでは何も発生しません。&#x0A;- **PVE モード** がオンのとき、NPC による中和やジャミングでは何も発生しません。ログの行で名前にコーポレーションのティッカーも艦種も付いていないプレイヤーによるものも発生しません。&#x0A;- キャパシタを吸い取るノスフェラトゥは対象外で、ニュートラライザーだけが対象です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.TryFailed">Windows はこの文を読み上げられませんでした。音声がインストールされていること、サウンド デバイスが接続されていることを確認してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest">テスト通知</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">通知をすぐに 1 つ表示し、Windows が通知を通すかどうかを確かめられます。そのボタンは何もしません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">通知をすぐに 1 つ表示し、Windows が通知を通すかどうかを確かめられます。ボタンはなく、1 分後に自動で消えます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.TestButton">テスト通知を表示</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Notify.Blocked">Windows が MultiPreview の通知を表示していません。Windows 自身の設定で、すべてのプログラムまたは EVE MultiPreview の通知がオフになっています。そこでオンにしてください（「システム」、「通知」の順）。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Notify.TestLine">これはテストです。ボタンは何もしません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Notify.Blocked">Windows が MultiPreview の通知を表示していません。Windows 自身の設定で、すべてのプログラムまたは EVE MultiPreview の通知がオフになっているか、組織の設定で禁止されています。可能な場合は、そこでオンにしてください（「システム」、「通知」の順）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Notify.TestLine">これはテストです。1 分後に自動で消えます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.GetsOn">{0}：{1} はオンです（{2} がオンにしています）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.GetsOff">{0}：{1} はオフです（{2} がオフにしています）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Join">{0}、{1}</sys:String> <!-- draft -->
@@ -2272,4 +2272,5 @@
     <sys:String x:Key="L.S.GroupAlerts.OpenGroups">グループのページを開く</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.NotKept">この選択は保存されませんでした。グループの選択をこれ以上保存できません。不要になったグループの選択を消去するか、このグループの名前を短くしてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Note">{0} には独自のアラートの選択があります。アラート › イベント の「グループのアラート」をご覧ください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Notify.TestFailed">テスト通知を表示できませんでした。ログフォルダーの error_log.txt に理由が書かれている場合があります。</sys:String> <!-- draft -->
 </ResourceDictionary>
