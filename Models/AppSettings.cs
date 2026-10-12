@@ -186,6 +186,15 @@ public class AppSettings
     public bool WindowsNotifications { get; set; } = false;
     public int WindowsNotificationsFrom { get; set; } = 0;
 
+    /// <summary>Enlarging a thumbnail on an alert (IDEAS #13), read by AlertEnlarge at every alert that was shown and
+    /// at its tick: on or off; from which severity (0 critical only, 1 critical and warning, 2 all); the size in
+    /// percent of the thumbnail's own (110 to 400); and for how many seconds (1 to 60). New keys: off in a file
+    /// without them.</summary>
+    public bool EnlargeOnAlert { get; set; } = false;
+    public int EnlargeOnAlertFrom { get; set; } = 0;
+    public int EnlargeOnAlertPercent { get; set; } = 200;
+    public int EnlargeOnAlertSeconds { get; set; } = 5;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

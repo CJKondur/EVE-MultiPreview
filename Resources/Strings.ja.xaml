@@ -2225,4 +2225,14 @@
     <sys:String x:Key="L.Notify.Snooze">15 分間スヌーズ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.windows.Title">Windows の通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.windows.Body">**アラートを Windows の通知として表示** をオンにすると、アラートは Windows 自身の通知としても表示されます。キャラクターの名前、イベント、星系が表示されます。Windows の通知センターに残るので、PC から離れていた間に何があったかを確認できます。&#x0A;&#x0A;- 1 つ目のボタンはそのクライアントを前面に出します。通知をクリックしても同じです。2 つ目のボタンは、そのキャラクターのそのアラートを 15 分間スヌーズします。&#x0A;- 通知はキャラクターとイベントごとに 1 つです。新しいアラートは通知を更新して回数を増やし、ポップアップは多くても 30 秒に 1 回です。&#x0A;- 前面のクライアントのアラートには通知を出しません。クライアントを見ると、そのクライアントの通知は消えます。ミュートしたキャラクターとスヌーズしたアラートにも通知を出しません。&#x0A;- 通知は無音です。アラート音は MultiPreview が自分で鳴らします。&#x0A;- 通知がポップアップするかどうかは Windows が決めます。Windows 自身の応答不可がオンのときや、ゲームが全画面で動いているときは、通知センターにだけ入ります。Windows は新しい 20 件を保持します。&#x0A;- これがオンの間、MultiPreview は Windows のレジストリにエントリを 1 つ、設定フォルダーに画像ファイルを 1 つ置き、Windows が表示する名前とアイコンを知らせます。オフにすると、そのエントリと MultiPreview の通知は削除されます。MultiPreview を終了したときにも通知は削除されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlarge">アラート時にサムネイルを拡大</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlarge.Desc">サムネイルが数秒間大きくなり、切り替えなくてもそこで何が起きているかがわかります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeFrom">拡大するアラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeFrom.Desc">重大度で選びます。イベントはすべて重大、警告、情報のいずれかです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargePercent">拡大時の大きさ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargePercent.Desc">サムネイル本来の大きさに対するパーセントです。モニターより大きくなることはありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeSeconds">拡大したままの時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeSeconds.Desc">アラートからの秒数です。そのクライアントに切り替えると、すぐに元に戻ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.enlarge.Title">アラート時の拡大</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.enlarge.Body">**アラート時にサムネイルを拡大** をオンにすると、アラートを出したクライアントのサムネイルが数秒間大きくなり、切り替えなくてもそこで何が起きているかを確認できます。&#x0A;&#x0A;- **拡大するアラート** は重大度で選びます。**拡大時の大きさ** と **拡大したままの時間** で大きさと長さを決めます。そのクライアントに新しいアラートが来ると、拡大が長く続きます。&#x0A;- 時間が過ぎると自動的に元に戻り、そのクライアントが前面に来るとすぐに戻ります。&#x0A;- サムネイルは自分の中心を基準に大きくなります。モニターより大きくなることはなく、はみ出す場合は画面の中に戻されます。レイアウトは変わらず、拡大した状態は保存されません。&#x0A;- 拡大している間は、サムネイル本来の場所だけがクリックを受け付けます。大きくなった部分のクリックはそのサムネイルのクリックにはなりません。そのため、ポインターの下で大きくなったサムネイルが誤ってクライアントを切り替えることはありません。&#x0A;- ポインターの下にあるサムネイル、ドラッグ中のサムネイル、前面のクライアントは拡大しません。2 つ目のサムネイルとクロップウィンドウは常に拡大しません。</sys:String> <!-- draft -->
 </ResourceDictionary>

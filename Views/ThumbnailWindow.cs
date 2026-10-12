@@ -201,25 +201,25 @@ public class ThumbnailWindow : Form
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Left
     {
-        get => base.Left;
-        set => base.Left = (int)value;
+        get => base.Left + (_alertGrown ? _alertDx : 0);
+        set => base.Left = (int)value - (_alertGrown ? _alertDx : 0);
     }
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Top
     {
-        get => base.Top;
-        set => base.Top = (int)value;
+        get => base.Top + (_alertGrown ? _alertDy : 0);
+        set => base.Top = (int)value - (_alertGrown ? _alertDy : 0);
     }
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Width
     {
-        get => base.Width;
+        get => _alertGrown ? _baseWidth : base.Width;
         set => base.Width = (int)value;
     }
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Height
     {
-        get => base.Height;
+        get => _alertGrown ? _baseHeight : base.Height;
         set => base.Height = (int)value;
     }
     // Tracks the intended topmost state. We cannot use the WinForms TopMost
@@ -357,6 +357,8 @@ public class ThumbnailWindow : Form
     private const int WM_RBUTTONDBLCLK = 0x0206;
     private const int WM_SIZE = 0x0005;
     private const int WM_GETMINMAXINFO = 0x0024;
+    private const int WM_NCHITTEST = 0x0084;
+    private const int HTTRANSPARENT = -1;
 
     /// <summary>Layout of the MINMAXINFO Windows passes with WM_GETMINMAXINFO.
     /// ptMinTrackSize is the floor Windows enforces on a top-level window's size.</summary>
@@ -393,6 +395,17 @@ public class ThumbnailWindow : Form
                 }
                 catch { }
                 return;
+            // IDEAS #13: while the thumbnail is enlarged for an alert, only its own place takes the mouse. A point on
+            // the part that grew answers "not me": Windows then asks the window under it if that is one of ours (a
+            // neighbouring thumbnail), and otherwise the click is nobody's. So a thumbnail that grows under the
+            // pointer can't switch clients by accident. Not enlarged: one read, and the window answers as it always did.
+            case WM_NCHITTEST:
+                if (_alertGrown && !AlertEnlarge.InOwnPlace(OwnPlace(), (short)(m.LParam.ToInt64() & 0xFFFF), (short)((m.LParam.ToInt64() >> 16) & 0xFFFF)))
+                {
+                    m.Result = (IntPtr)HTTRANSPARENT;
+                    return;
+                }
+                break;
             case WM_RBUTTONDOWN:
             case WM_RBUTTONDBLCLK:
                 OnRightButtonDown();
@@ -446,6 +459,65 @@ public class ThumbnailWindow : Form
         _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
     }
 
+    // ── Enlarged for an alert (IDEAS #13) ─────────────────────────
+
+    private double _alertScale = 1.0;   // what the manager asked for; 1.0 = its own size
+    private bool _alertGrown;           // the window is enlarged for an alert right now
+    private int _alertDx, _alertDy;     // how far the enlarged window stands left of and above the thumbnail's own place
+
+    /// <summary>The thumbnail is enlarged for an alert right now.</summary>
+    public bool IsAlertEnlarged => _alertGrown;
+
+    /// <summary>The work area of the monitor a rectangle is on. A test hands in a monitor of its own.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public Func<System.Drawing.Rectangle, System.Drawing.Rectangle> WorkAreaFor { get; set; } =
+        own => System.Windows.Forms.Screen.FromRectangle(own).WorkingArea;
+
+    /// <summary>The manager's word (AlertEnlarge.Tick): enlarge to this scale, or 1.0 to go back. It is done now if
+    /// nothing else has the thumbnail, and otherwise when the drag ends or the pointer leaves.</summary>
+    public void SetAlertScale(double scale)
+    {
+        _alertScale = scale > 1.0 ? scale : 1.0;
+        FollowAlertScale();
+    }
+
+    /// <summary>The thumbnail's own place on the screen while it is enlarged.</summary>
+    private System.Drawing.Rectangle OwnPlace() => new(base.Left + _alertDx, base.Top + _alertDy, _baseWidth, _baseHeight);
+
+    private void FollowAlertScale()
+    {
+        bool wanted = AlertEnlarge.Wanted(_alertScale, _dragMode != DragMode.None, _isHovered, _isMouseOver, _alertGrown);
+        if (wanted == _alertGrown) return;
+        if (wanted) GrowForAlert();
+        else ShrinkFromAlert();
+    }
+
+    private void GrowForAlert()
+    {
+        var own = new System.Drawing.Rectangle(base.Left, base.Top, _baseWidth, _baseHeight);
+        var grown = AlertEnlarge.Place(own, _alertScale, WorkAreaFor(own));
+        if (grown == own) return;   // no room to grow on this monitor
+        _alertDx = own.Left - grown.Left;
+        _alertDy = own.Top - grown.Top;
+        _alertGrown = true;
+        base.SetBounds(grown.Left, grown.Top, grown.Width, grown.Height);
+        UpdateThumbnailSize();
+        _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
+        // Above its neighbours, within the band the thumbnails are in: by raw SetWindowPos, as every z-order change
+        // of a thumbnail is. Not while the thumbnails are kept below another window (settings is in front).
+        if (_isTopmost) BringToFront();
+    }
+
+    private void ShrinkFromAlert()
+    {
+        if (!_alertGrown) return;
+        var own = OwnPlace();
+        _alertGrown = false;
+        base.SetBounds(own.Left, own.Top, own.Width, own.Height);
+        UpdateThumbnailSize();
+        _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
+    }
+
     private void OnRightButtonDown()
     {
         // Record press time in all cases so a locked thumbnail's plain right-click
@@ -460,6 +532,7 @@ public class ThumbnailWindow : Form
         if (_dragMode != DragMode.None) return;
 
         UnHover();
+        ShrinkFromAlert();   // IDEAS #13: a drag starts from the thumbnail's own size and place
 
         var screenPos = Cursor.Position;
         _dragStartScreen = screenPos;
@@ -664,11 +737,12 @@ public class ThumbnailWindow : Form
             base.Top = rect.Top;
             _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
         }
+        FollowAlertScale();   // IDEAS #13: the drag is over
     }
 
     private void SavePosition()
     {
-        PositionChanged?.Invoke(this, base.Left, base.Top, base.Width, base.Height);
+        PositionChanged?.Invoke(this, (int)Left, (int)Top, (int)Width, (int)Height);
     }
 
     private void SwitchToEveClient()
@@ -707,7 +781,7 @@ public class ThumbnailWindow : Form
             _textOverlay?.SetWindowOpacity(1.0);
         }
 
-        if (_hoverScale <= 1.0 || _dragMode != DragMode.None) return;
+        if (_hoverScale <= 1.0 || _dragMode != DragMode.None || _alertGrown) return;
 
         _hoverTimer?.Stop();
         _hoverTimer?.Dispose();
@@ -715,7 +789,7 @@ public class ThumbnailWindow : Form
         _hoverTimer.Tick += (_, _) =>
         {
             _hoverTimer?.Stop();
-            if (!_isMouseOver) return;
+            if (!_isMouseOver || _alertGrown) return;
 
             _isHovered = true;
 
@@ -749,6 +823,7 @@ public class ThumbnailWindow : Form
         }
 
         UnHover();
+        FollowAlertScale();   // IDEAS #13
     }
 
     // ── DWM thumbnail ────────────────────────────────────────────
@@ -1020,6 +1095,9 @@ public class ThumbnailWindow : Form
     // 'Resize' hides Control.Resize event — ThumbnailManager invokes this as a method.
     public new void Resize(int width, int height)
     {
+        // IDEAS #13: a new size is the thumbnail's own. An enlarged one goes back, takes it, and is enlarged again.
+        bool enlarged = _alertGrown;
+        if (enlarged) ShrinkFromAlert();
         _baseWidth = width;
         _baseHeight = height;
         if (!_isHovered)
@@ -1029,12 +1107,14 @@ public class ThumbnailWindow : Form
             UpdateThumbnailSize();
             _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
         }
+        if (enlarged) FollowAlertScale();
     }
 
     public void MoveTo(int x, int y)
     {
-        base.Left = x;
-        base.Top = y;
+        // IDEAS #13: x and y are the thumbnail's own place; an enlarged window goes with it.
+        base.Left = x - (_alertGrown ? _alertDx : 0);
+        base.Top = y - (_alertGrown ? _alertDy : 0);
         _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
     }
 

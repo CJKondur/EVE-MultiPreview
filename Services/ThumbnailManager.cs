@@ -131,6 +131,30 @@ public sealed class ThumbnailManager : IDisposable
     /// as the badge does.</summary>
     public AlertAttention Attention { get; } = new();
 
+    /// <summary>Enlarging a thumbnail on an alert (IDEAS #13): which thumbnails are enlarged, and until when. App adds
+    /// it to the ways an alert reaches the player; <see cref="EnlargeTick"/> tells the windows.</summary>
+    public AlertEnlarge Enlarge { get; } = new();
+
+    /// <summary>Every 50 ms, on the timer the border flash runs on: tells each thumbnail the scale AlertEnlarge
+    /// answers. Only a character's main thumbnail is ever told: second thumbnails and crop windows are not
+    /// enlarged. While nothing is enlarged this is one read. While the tray menu is open nothing is moved or
+    /// raised (a thumbnail raised then would bury the menu): what is due is done when it has closed.</summary>
+    private void EnlargeTick()
+    {
+        if (!Enlarge.Any || _trayMenuOpen) return;
+        try
+        {
+            var front = Interop.User32.GetForegroundWindow();
+            foreach (var change in Enlarge.Tick(DateTime.UtcNow, _settings.Settings,
+                         name => InFront(GetHwndForCharacter(name), front), name => FindThumbnailByCharacter(name) != null))
+                FindThumbnailByCharacter(change.Character)?.SetAlertScale(change.Scale);
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Shared.Record(ex, "Thumbnails (enlarge on alert)", DateTime.Now);
+        }
+    }
+
     /// <summary>The events snoozed for one character alone (IDEAS #30; App sets it). A thumbnail's menu lists its
     /// character's and ends them.</summary>
     public EventSnoozes? Snoozes { get; set; }
@@ -291,7 +315,7 @@ public sealed class ThumbnailManager : IDisposable
 
         // Flash timer — 100ms for urgent, responsive alert flashing (10Hz)
         _flashTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
-        _flashTimer.Tick += (_, _) => FlashAlertTick();
+        _flashTimer.Tick += (_, _) => { FlashAlertTick(); EnlargeTick(); };
         _flashTimer.Start();
 
         // Stat overlay update timer — 1s interval for DPS/Logi/Mining/Ratting

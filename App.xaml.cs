@@ -434,6 +434,8 @@ public partial class App : Application
             _alertWays.Add(_notificationsWay);
             _thumbnailManager.Attention.Looked += _notificationsWay.Looked;
             FollowNotifications(starting: true);
+            // IDEAS #13: a thumbnail grows for a few seconds on an alert. The manager owns the decision and its tick.
+            _alertWays.Add(_thumbnailManager.Enlarge);
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
             // history writes on a thread of its own; old days are deleted here, at startup, and never while running.
             // A session whose settings could not be read runs on default values and saves nothing: its keep time is

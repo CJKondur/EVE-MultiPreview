@@ -2225,4 +2225,14 @@
     <sys:String x:Key="L.Notify.Snooze">15분 동안 일시 중지</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.windows.Title">Windows 알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.windows.Body">**알림을 Windows 알림으로도 표시** 스위치를 켜면 알림이 Windows 자체의 알림으로도 나타나요. 캐릭터 이름, 이벤트, 항성계가 표시돼요. Windows 알림 센터에 남아 있어서 PC 앞에 없던 동안 무슨 일이 있었는지 볼 수 있어요.&#x0A;&#x0A;- 첫 번째 버튼은 그 클라이언트를 앞으로 가져와요. 알림을 클릭해도 같아요. 두 번째 버튼은 그 캐릭터의 그 알림을 15분 동안 일시 중지해요.&#x0A;- 캐릭터와 이벤트마다 알림이 하나씩 있어요. 더 새로운 알림은 그 알림을 갱신하고 횟수를 올리며, 팝업은 많아야 30초에 한 번 다시 떠요.&#x0A;- 앞에 있는 클라이언트의 알림은 Windows 알림을 만들지 않고, 클라이언트를 보면 그 클라이언트의 Windows 알림은 사라져요. 음소거한 캐릭터와 일시 중지한 알림도 만들지 않아요.&#x0A;- Windows 알림은 소리가 없어요. 알림 소리는 MultiPreview가 직접 내요.&#x0A;- 알림이 팝업으로 뜰지는 Windows가 정해요. Windows 자체의 방해 금지가 켜져 있거나 게임이 전체 화면으로 실행 중이면 알림 센터로만 가요. Windows는 최신 20개를 보관해요.&#x0A;- 이 기능이 켜져 있는 동안 MultiPreview는 Windows 레지스트리에 항목 하나와 설정 폴더에 그림 파일 하나를 두어, Windows가 표시할 이름과 아이콘을 알게 해요. 끄면 그 항목과 MultiPreview의 Windows 알림이 제거돼요. MultiPreview를 닫을 때도 Windows 알림은 제거돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlarge">알림이 오면 썸네일 확대</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlarge.Desc">썸네일이 몇 초 동안 커져서, 전환하지 않아도 거기서 무슨 일이 일어나는지 볼 수 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeFrom">확대할 알림</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeFrom.Desc">심각도로 골라요. 모든 이벤트는 치명, 경고, 정보 중 하나예요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargePercent">확대 크기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargePercent.Desc">썸네일 원래 크기의 퍼센트예요. 모니터보다 커지지는 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeSeconds">확대 유지 시간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeSeconds.Desc">알림부터의 초예요. 그 클라이언트로 전환하면 바로 원래대로 돌아가요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.enlarge.Title">알림이 오면 확대</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.enlarge.Body">**알림이 오면 썸네일 확대** 스위치를 켜면 알림을 낸 클라이언트의 썸네일이 몇 초 동안 커져요. 그 클라이언트로 전환하지 않아도 거기서 무슨 일이 일어나는지 볼 수 있어요.&#x0A;&#x0A;- **확대할 알림** 카드는 심각도로 골라요. **확대 크기** 카드와 **확대 유지 시간** 카드로 얼마나 크게, 얼마나 오래 확대할지 정해요. 그 클라이언트에 더 새로운 알림이 오면 더 오래 확대된 채로 있어요.&#x0A;- 시간이 지나면 저절로 돌아가고, 그 클라이언트가 앞으로 오면 바로 돌아가요.&#x0A;- 썸네일은 자기 가운데를 기준으로 커져요. 모니터보다 커지지 않고, 화면 밖으로 나가게 되면 화면 안으로 옮겨져요. 레이아웃은 바뀌지 않고, 확대된 상태는 저장되지 않아요.&#x0A;- 확대되어 있는 동안에는 썸네일의 원래 자리만 클릭을 받아요. 커진 부분을 클릭해도 그 썸네일을 클릭한 것이 아니에요. 그래서 포인터 아래에서 커진 썸네일이 실수로 클라이언트를 전환하는 일은 없어요.&#x0A;- 포인터 아래의 썸네일, 끌고 있는 썸네일, 앞에 있는 클라이언트는 확대하지 않아요. 두 번째 썸네일과 크롭 창은 확대하지 않아요.</sys:String> <!-- draft -->
 </ResourceDictionary>

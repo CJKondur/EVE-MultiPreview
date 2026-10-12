@@ -35,6 +35,10 @@ public static class AlertsPages
         {
             "alerts.look.pulse", "alerts.look.borderWidth", "alerts.look.badge", "alerts.look.text", "alerts.look.textPosition",
         }),
+        new HelpTopic(LookId, "enlarge", new[]
+        {
+            "alerts.look.enlarge", "alerts.look.enlargeFrom", "alerts.look.enlargePercent", "alerts.look.enlargeSeconds",
+        }),
         new HelpTopic(LookId, "severity", new[] { "alerts.look.severityTable" }),
         new HelpTopic(LookId, "repeats", new[]
         {
@@ -163,6 +167,23 @@ public static class AlertsPages
                 Options = ThumbnailFields.AnchorOptions,
                 ShowIf = s => s.ShowAlertTextOnThumbnails,
                 Replaces = new[] { "CmbAlertTextPos" },
+            }),
+            // IDEAS #13: AlertEnlarge reads all four at every alert that was shown and at its tick (EnlargeOptions.Of),
+            // so a change only saves. The two numbers are used held to their ranges, and each card shows the number
+            // that is used: a stored number outside the range is not rewritten.
+            new SettingItem(Setting.Toggle("alerts.look.enlarge", s => s.EnlargeOnAlert)),
+            From("alerts.look.enlargeFrom", s => s.EnlargeOnAlertFrom, (s, v) => s.EnlargeOnAlertFrom = v, "AppSettings.EnlargeOnAlertFrom", s => s.EnlargeOnAlert),
+            new SettingItem(Setting.Number("alerts.look.enlargePercent", s => s.EnlargeOnAlertPercent,
+                EnlargeOptions.MinPercent, EnlargeOptions.MaxPercent, "L.S.Unit.Percent") with
+            {
+                Get = s => Math.Clamp(s.EnlargeOnAlertPercent, EnlargeOptions.MinPercent, EnlargeOptions.MaxPercent),
+                ShowIf = s => s.EnlargeOnAlert,
+            }),
+            new SettingItem(Setting.Number("alerts.look.enlargeSeconds", s => s.EnlargeOnAlertSeconds,
+                EnlargeOptions.MinSeconds, EnlargeOptions.MaxSeconds, "L.S.Unit.Sec") with
+            {
+                Get = s => Math.Clamp(s.EnlargeOnAlertSeconds, EnlargeOptions.MinSeconds, EnlargeOptions.MaxSeconds),
+                ShowIf = s => s.EnlargeOnAlert,
             }),
         }),
         new SectionDef("alerts.look.severity", new PageItem[]

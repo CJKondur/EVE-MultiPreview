@@ -120,6 +120,10 @@ public class AhkConfigRoot
         s.SpeechVoices = g.SpeechVoices ?? "";
         s.WindowsNotifications = g.WindowsNotifications != 0;
         s.WindowsNotificationsFrom = g.WindowsNotificationsFrom;
+        s.EnlargeOnAlert = g.EnlargeOnAlert != 0;
+        s.EnlargeOnAlertFrom = g.EnlargeOnAlertFrom;
+        s.EnlargeOnAlertPercent = g.EnlargeOnAlertPercent;
+        s.EnlargeOnAlertSeconds = g.EnlargeOnAlertSeconds;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -439,6 +443,10 @@ public class AhkConfigRoot
         g.SpeechVoices = s.SpeechVoices;
         g.WindowsNotifications = s.WindowsNotifications ? 1 : 0;
         g.WindowsNotificationsFrom = s.WindowsNotificationsFrom;
+        g.EnlargeOnAlert = s.EnlargeOnAlert ? 1 : 0;
+        g.EnlargeOnAlertFrom = s.EnlargeOnAlertFrom;
+        g.EnlargeOnAlertPercent = s.EnlargeOnAlertPercent;
+        g.EnlargeOnAlertSeconds = s.EnlargeOnAlertSeconds;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1241,6 +1249,19 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("WindowsNotificationsFrom")]
     public int WindowsNotificationsFrom { get; set; }
+
+    // Enlarging a thumbnail on an alert (IDEAS #13), new after 2.3.42: a file without them loads off, critical only, 200 %, 5 seconds.
+    [JsonPropertyName("EnlargeOnAlert")]
+    public int EnlargeOnAlert { get; set; }
+
+    [JsonPropertyName("EnlargeOnAlertFrom")]
+    public int EnlargeOnAlertFrom { get; set; }
+
+    [JsonPropertyName("EnlargeOnAlertPercent")]
+    public int EnlargeOnAlertPercent { get; set; } = 200;
+
+    [JsonPropertyName("EnlargeOnAlertSeconds")]
+    public int EnlargeOnAlertSeconds { get; set; } = 5;
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

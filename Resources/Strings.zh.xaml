@@ -2242,4 +2242,14 @@
     <sys:String x:Key="L.Notify.Snooze">暂停 15 分钟</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.windows.Title">Windows 通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.windows.Body">打开 **把警报显示为 Windows 通知** 后，警报也会作为 Windows 自己的通知出现，带有角色的名字、事件和星系。它会留在 Windows 的通知中心里，所以你能看到离开电脑期间发生了什么。&#x0A;&#x0A;- 第一个按钮会把那个客户端切换到前台，点击通知本身也一样。第二个按钮会把那个角色的那条警报暂停 15 分钟。&#x0A;- 每个角色和事件只有一条通知。更新的警报会更新它并增加次数，它最多每 30 秒再弹出一次。&#x0A;- 前台客户端的警报不会产生通知；当你查看某个客户端时，它的通知会消失。已静音的角色和已暂停的警报也不会产生通知。&#x0A;- 通知是无声的：警报声音由 MultiPreview 自己播放。&#x0A;- 通知是否弹出由 Windows 决定：当 Windows 自己的勿扰模式打开，或者有游戏在全屏运行时，通知只会进入通知中心。Windows 保留最新的 20 条。&#x0A;- 这个功能打开期间，MultiPreview 会在 Windows 注册表里保留一个条目，并在设置文件夹里保留一个图片文件，让 Windows 知道要显示的名称和图标。关闭它会删除这个条目和 MultiPreview 的通知。MultiPreview 关闭时也会清除这些通知。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlarge">警报时放大缩略图</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlarge.Desc">缩略图会放大几秒钟，让你不用切换就能看到那里发生了什么。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeFrom">哪些警报会放大</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeFrom.Desc">按严重程度选择：每个事件都是严重、警告或信息。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargePercent">放大后的大小</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargePercent.Desc">相对缩略图自身大小的百分比。它不会比显示器更大。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeSeconds">保持放大的时间</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.look.enlargeSeconds.Desc">从警报开始计算的秒数。你切换到那个客户端时，它会立刻恢复。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.enlarge.Title">警报时放大</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.enlarge.Body">打开 **警报时放大缩略图** 后，发出警报的客户端的缩略图会放大几秒钟，让你不用切换过去就能看到那里发生了什么。&#x0A;&#x0A;- **哪些警报会放大** 按严重程度选择。**放大后的大小** 和 **保持放大的时间** 决定放多大、放多久。那个客户端上更新的警报会让它保持放大更久。&#x0A;- 时间到了它会自己恢复；那个客户端切换到前台时，它会立刻恢复。&#x0A;- 它以自己的中心为基准放大，不会比显示器更大；如果会超出屏幕，就会被移回屏幕内。你的布局不会改变，放大的状态也不会被保存。&#x0A;- 放大期间，只有缩略图原本的位置接受点击。点击放大出来的部分不算点击这个缩略图，所以在指针下方放大的缩略图不会意外切换客户端。&#x0A;- 指针下方的缩略图、正在拖动的缩略图和前台客户端不会放大。第二缩略图和裁剪窗口从不放大。</sys:String> <!-- draft -->
 </ResourceDictionary>
