@@ -20,6 +20,11 @@ public sealed class SpokenWay : IAlertWay
     /// sentence and not the rest of the session.</summary>
     public static readonly TimeSpan Longest = TimeSpan.FromSeconds(20);
 
+    /// <summary>So many asks of the voice may be out at once: given up after <see cref="Longest"/>, and not come
+    /// back since. Each of them may be a thread that Windows holds. While that many are out the voice is not asked
+    /// again: a sentence whose turn comes is given up at once.</summary>
+    public const int MostAsksOut = 3;
+
     private readonly ISpeaker _speaker;
     private readonly Func<AppSettings> _settings;
     private readonly Func<AppSettings, string, bool> _soundsHeld;
@@ -31,6 +36,8 @@ public sealed class SpokenWay : IAlertWay
     private readonly Func<TimeSpan, CancellationToken, Task> _wait;
     private readonly Func<AlertNotice, bool>? _stillWanted;
     private readonly CancellationTokenSource _stop = new();
+    private int _asksOut;           // asks of the voice that were given up and have not come back
+    private int _toldAsksOut;       // "the voice is not asked while three asks are out" was reported
 
     /// <param name="settings">The settings as they are now.</param>
     /// <param name="soundsHeld">(settings, severity): do-not-disturb holds that alert's sound right now (DoNotDisturb.Silences).</param>
@@ -162,9 +169,18 @@ public sealed class SpokenWay : IAlertWay
     }
 
     /// <summary>Says a sentence. False: the voice had not finished after the longest time and was given up, which
-    /// is reported here. What the voice threw leaves as it is; the loop reports it by its type.</summary>
+    /// is reported here; or it was not asked at all, because <see cref="MostAsksOut"/> asks that were given up have
+    /// not come back (a voice that hangs for good: every further ask could be one more thread that Windows holds).
+    /// That is reported once in a session, with a fixed text. What the voice threw leaves as it is; the loop
+    /// reports it by its type.</summary>
     private async Task<bool> Say(Utterance utterance, AppSettings s)
     {
+        if (Volatile.Read(ref _asksOut) >= MostAsksOut)
+        {
+            if (Interlocked.Exchange(ref _toldAsksOut, 1) == 0)
+                Report(new TimeoutException(MostAsksOut + " spoken alerts were given up and the voice has not come back from any of them. It is not asked again until it comes back from one."));
+            return false;
+        }
         string text = SpokenAlerts.Text(utterance, _eventName, _str);
         string language = _language();
         int volume = SpeechOptions.Of(s).Volume;
@@ -184,7 +200,14 @@ public sealed class SpokenWay : IAlertWay
         limit.Cancel();   // ends the wait when the voice finished, and tells the voice to stop when the wait did
         if (first != said)
         {
-            _ = said.ContinueWith(t => _ = t.Exception, TaskScheduler.Default);   // whatever it does later is seen by nobody
+            // Whatever it does later is seen by nobody, but that it came back at all is counted: the count is taken
+            // down on the thread that brings the ask back, in the same breath.
+            Interlocked.Increment(ref _asksOut);
+            _ = said.ContinueWith(late =>
+            {
+                _ = late.Exception;
+                Interlocked.Decrement(ref _asksOut);
+            }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
             _stop.Token.ThrowIfCancellationRequested();
             Report(new TimeoutException("A spoken alert was not finished after " + (int)Longest.TotalSeconds + " seconds and was given up."));
             return false;

@@ -122,8 +122,11 @@ public sealed class AlertWays
     }
 
     /// <summary>Asks "is that client in front" in a try of its own. When the question throws, it is reported and
-    /// the answer is "no", so that every way is still told: speech never uses the answer, and an alert told once
-    /// too often is better than one that reaches nobody.</summary>
+    /// the answer is "no", so that every way is still told: an alert told once too often is better than one that
+    /// reaches nobody. Every way reads the answer. With this "no" a notification is shown, and a larger thumbnail
+    /// asked for, although the client may be in front. The voice reads the answer when a sentence's turn comes (App
+    /// asks: was the alert on the client in front, or is it still unseen?), so with this "no" an alert on a client
+    /// that really is in front, which nobody holds as unseen, is not spoken.</summary>
     private bool InFront(Func<bool> clientInFront)
     {
         try { return clientInFront(); }

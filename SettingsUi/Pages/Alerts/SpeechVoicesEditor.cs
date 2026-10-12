@@ -51,9 +51,12 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
         stack.Children.Add(_tried);
         Content = EditorCard.Build(ItemId, null, stack);
         // The card comes into view: the switch went on. The voices are read now, unless they were read already.
+        // It goes out of view: the switch went off (or the page was left, or the window hidden), and nothing goes
+        // on speaking for a card that is not there.
         IsVisibleChanged += (_, _) =>
         {
-            if (IsVisible && !_listed) Refresh();
+            if (!IsVisible) StopTrying();
+            else if (!_listed) Refresh();
         };
         Unloaded += (_, _) => StopTrying();     // the page was left: nothing goes on speaking behind another page
         Refresh();
@@ -144,8 +147,9 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     }
 
     /// <summary>Says a fixed sentence with the voice an alert of this severity would be said with, at the voice
-    /// volume. One sentence at a time: a new try stops the one before, and so does leaving the page. A voice that
-    /// fails shows one line on the card and is reported by the type of what it threw.</summary>
+    /// volume. One sentence at a time: a new try stops the one before, and so do leaving the page and switching
+    /// "Speak alerts" off. A voice that fails shows one line on the card and is reported by the type of what it
+    /// threw.</summary>
     public void Try(string severity)
     {
         var speaker = _ctx.Services.Speaker;

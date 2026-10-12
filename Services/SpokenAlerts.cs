@@ -56,6 +56,11 @@ public sealed class SpokenAlerts
     /// <summary>See <see cref="MaxNameLength"/>.</summary>
     public const int MaxEventLength = 48;
 
+    /// <summary>The longest sentence that names its clients: one name, a comma and the event's name at their full
+    /// lengths (about seven seconds of speech). A sentence for two clients that would be longer is said as the
+    /// sentence that counts them.</summary>
+    public const int MaxSentenceLength = MaxNameLength + 2 + MaxEventLength;
+
     /// <summary>What became of an alert handed to <see cref="Raised"/>.</summary>
     public enum Taken
     {
@@ -63,9 +68,11 @@ public sealed class SpokenAlerts
         Queued,
         /// <summary>It joined the waiting sentence of its event.</summary>
         Merged,
-        /// <summary>Its character is in that waiting sentence already.</summary>
+        /// <summary>Its character is in that waiting sentence already (asked of an alert that insists). The sentence
+        /// now tells of this, the newer alert.</summary>
         Again,
-        /// <summary>The same event was said for this character too short a while ago.</summary>
+        /// <summary>The same event was said for this character too short a while ago, or waits to be said for it: then
+        /// the waiting sentence now tells of this, the newer alert.</summary>
         Quiet,
         /// <summary>Spoken alerts are switched off.</summary>
         Off,
@@ -75,6 +82,9 @@ public sealed class SpokenAlerts
         Held,
         /// <summary>Six utterances wait and none of them is less severe than this one.</summary>
         Full,
+        /// <summary>It was raised more than ten seconds before the ways were told of it: it could no longer be said
+        /// when its turn came, so it is not taken at all (and can push nothing out).</summary>
+        TooOld,
     }
 
     private sealed class Pending
@@ -123,8 +133,21 @@ public sealed class SpokenAlerts
         var now = notice.TimeUtc;
         // The clock stepped back between the raise and the tell: the alert is no younger than "told just now".
         if (notice.RaisedUtc > now) notice = notice with { RaisedUtc = now };
+        // Told so late that it could not be said when its turn came. Taken, it would wait all the same: it could
+        // push a fresh sentence out, or take the place of a fresher alert of its own client, and then be let go.
+        if (now - notice.RaisedUtc > MaxAge) return Taken.TooOld;
         lock (_lock)
         {
+            // The same alert on the same client again while its sentence still waits: the sentence tells of this,
+            // the newer one, under the spelling the name had first. Its age is then the last hit's, not the first's,
+            // which may be ten seconds old by the time the voice is free. The mark goes with the alert that is
+            // held, so that what is not said after all still finds its own mark to take away.
+            if (_waiting.Find(p => p.EventKey == notice.EventKey) is { } held
+                && held.Alerts.FindIndex(a => string.Equals(a.Character, notice.Character, StringComparison.OrdinalIgnoreCase)) is >= 0 and var at)
+            {
+                held.Alerts[at] = notice with { Character = held.Alerts[at].Character };
+                Mark(pair, now);
+            }
             if (!insist && _takenAt.TryGetValue(pair, out var last))
             {
                 // A clock set back gives a negative time since: then the alert is said, not held for an hour.
@@ -295,7 +318,8 @@ public sealed class SpokenAlerts
 
     /// <summary>The sentence: "Fixture Alpha, Under attack" for one character (the name, a comma, the event: the
     /// same in every language), "Fixture Alpha, Fixture Bravo, Under attack" for two, "3 clients: Under attack" for
-    /// more. A character's name and a custom rule's name are never a format, only ever a part or an argument of the
+    /// more, and for two whose sentence would be longer than <see cref="MaxSentenceLength"/> ("2 clients: ..."). A
+    /// character's name and a custom rule's name are never a format, only ever a part or an argument of the
     /// sentence, and are cleaned for speaking (one line, no control characters) and held to a length
     /// (<see cref="MaxNameLength"/>).</summary>
     /// <param name="eventName">The event's name as the player reads it (AlertHub.EventDisplayName).</param>
@@ -303,12 +327,14 @@ public sealed class SpokenAlerts
     public static string Text(Utterance u, Func<string, string> eventName, Func<string, string, string> str)
     {
         string name = Spoken(eventName(u.EventKey), MaxEventLength);
-        return u.Characters.Count switch
+        if (u.Characters.Count == 1) return Spoken(u.Characters[0], MaxNameLength) + ", " + name;
+        if (u.Characters.Count == 2)
         {
-            1 => Spoken(u.Characters[0], MaxNameLength) + ", " + name,
-            2 => Spoken(u.Characters[0], MaxNameLength) + ", " + Spoken(u.Characters[1], MaxNameLength) + ", " + name,
-            _ => string.Format(CultureInfo.CurrentCulture, str("L.Speech.Many", "{0} clients: {1}"), u.Characters.Count, name),
-        };
+            // Two long names with a long rule name are 132 characters, which is more speech than an alert may wait.
+            string both = Spoken(u.Characters[0], MaxNameLength) + ", " + Spoken(u.Characters[1], MaxNameLength) + ", " + name;
+            if (both.Length <= MaxSentenceLength) return both;
+        }
+        return string.Format(CultureInfo.CurrentCulture, str("L.Speech.Many", "{0} clients: {1}"), u.Characters.Count, name);
     }
 
     /// <summary>A name as it is spoken: one line, at most <paramref name="max"/> characters. A longer one is cut at
