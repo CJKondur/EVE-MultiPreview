@@ -2213,4 +2213,6 @@
     <sys:String x:Key="L.S.DndState.OnCritical">No molestar está activado ahora. Los sonidos de alerta están silenciados, pero las alertas críticas siguen sonando.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">Comprobar de nuevo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows se queda con muchas combinaciones con la tecla Win. Un atajo rechazado que lleva Win es muy probablemente una de ellas: elige otra combinación.</sys:String> <!-- draft -->
+    <!-- Ideas batch 6 (Plan 10) -->
+    <sys:String x:Key="L.Speech.Many">{0} clientes: {1}</sys:String> <!-- draft -->
 </ResourceDictionary>

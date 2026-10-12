@@ -2192,4 +2192,6 @@
     <sys:String x:Key="L.S.DndState.OnCritical">おやすみモードは現在オンです。アラート音は鳴りませんが、重大なアラートは鳴ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">もう一度確認</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows は Win キーを含む組み合わせの多くを自分で使っています。拒否されたホットキーに Win が含まれている場合は、そのひとつである可能性が高いです。別の組み合わせを選んでください。</sys:String> <!-- draft -->
+    <!-- Ideas batch 6 (Plan 10) -->
+    <sys:String x:Key="L.Speech.Many">{0}クライアント：{1}</sys:String> <!-- draft -->
 </ResourceDictionary>

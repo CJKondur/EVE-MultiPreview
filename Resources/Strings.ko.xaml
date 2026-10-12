@@ -2192,4 +2192,6 @@
     <sys:String x:Key="L.S.DndState.OnCritical">방해 금지가 지금 켜져 있어요. 알림 소리는 꺼져 있지만 치명 알림은 계속 울려요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">다시 확인</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows는 Win 키가 들어간 조합을 많이 직접 써요. 거부된 단축키에 Win이 들어 있다면 그중 하나일 가능성이 커요. 다른 조합을 고르세요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 6 (Plan 10) -->
+    <sys:String x:Key="L.Speech.Many">클라이언트 {0}개: {1}</sys:String> <!-- draft -->
 </ResourceDictionary>

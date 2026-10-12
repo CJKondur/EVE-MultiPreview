@@ -2191,4 +2191,6 @@
     <sys:String x:Key="L.S.DndState.OnCritical">Do not disturb is on now. Alert sounds are muted, but critical alerts still play.</sys:String>
     <sys:String x:Key="L.S.Refused.Again">Check again</sys:String>
     <sys:String x:Key="L.S.Refused.WinKey">Windows keeps many combinations with the Win key for itself. A refused hotkey with Win in it is most likely one of them: pick a different combination.</sys:String>
+    <!-- Ideas batch 6 (Plan 10) -->
+    <sys:String x:Key="L.Speech.Many">{0} clients: {1}</sys:String>
 </ResourceDictionary>

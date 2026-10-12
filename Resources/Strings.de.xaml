@@ -2191,4 +2191,6 @@
     <sys:String x:Key="L.S.DndState.OnCritical">Nicht stören ist gerade an. Alarmtöne sind stumm, aber kritische Alarme sind weiter zu hören.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">Erneut prüfen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows behält viele Kombinationen mit der Win-Taste für sich. Ein abgelehnter Hotkey mit Win ist sehr wahrscheinlich eine davon: Wähle eine andere Kombination.</sys:String> <!-- draft -->
+    <!-- Ideas batch 6 (Plan 10) -->
+    <sys:String x:Key="L.Speech.Many">{0} Clients: {1}</sys:String> <!-- draft -->
 </ResourceDictionary>

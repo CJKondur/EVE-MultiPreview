@@ -2194,4 +2194,6 @@
     <sys:String x:Key="L.S.DndState.OnCritical">Ne pas déranger est activé en ce moment. Les sons d'alerte sont coupés, mais les alertes critiques sonnent quand même.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">Vérifier à nouveau</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows garde pour lui beaucoup de combinaisons avec la touche Win. Un raccourci refusé qui contient Win est très probablement l'une d'elles : choisissez une autre combinaison.</sys:String> <!-- draft -->
+    <!-- Ideas batch 6 (Plan 10) -->
+    <sys:String x:Key="L.Speech.Many">{0} clients : {1}</sys:String> <!-- draft -->
 </ResourceDictionary>

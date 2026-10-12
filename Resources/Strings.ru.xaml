@@ -2211,4 +2211,6 @@
     <sys:String x:Key="L.S.DndState.OnCritical">Режим «Не беспокоить» сейчас включён. Звуки оповещений отключены, но критические оповещения всё равно звучат.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">Проверить снова</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows оставляет себе многие сочетания с клавишей Win. Отклонённая горячая клавиша с Win, скорее всего, одно из них: выберите другое сочетание.</sys:String> <!-- draft -->
+    <!-- Ideas batch 6 (Plan 10) -->
+    <sys:String x:Key="L.Speech.Many">Клиентов: {0}. {1}</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2209,4 +2209,6 @@
     <sys:String x:Key="L.S.DndState.OnCritical">Non disturbare è attivo ora. I suoni degli avvisi sono silenziati, ma gli avvisi critici suonano comunque.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">Controlla di nuovo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows tiene per sé molte combinazioni con il tasto Win. Una scorciatoia rifiutata che contiene Win è molto probabilmente una di queste: scegli un'altra combinazione.</sys:String> <!-- draft -->
+    <!-- Ideas batch 6 (Plan 10) -->
+    <sys:String x:Key="L.Speech.Many">{0} client: {1}</sys:String> <!-- draft -->
 </ResourceDictionary>
