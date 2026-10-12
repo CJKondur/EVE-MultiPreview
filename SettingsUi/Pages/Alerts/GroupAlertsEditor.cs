@@ -375,12 +375,12 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     /// listed. With nothing to clear nothing is asked.</summary>
     public void ClearGroup()
     {
-        if (Selected == null) return;
-        var text = GroupAlertChoices.Forget(_ctx.S.GroupAlertProfiles, Selected);
-        if (text == _ctx.S.GroupAlertProfiles) return;
-        if (_ctx.Host.ConfirmChoice(Str("L.S.GroupAlerts.Clear"), string.Format(Str("L.S.GroupAlerts.ClearAsk"), Selected),
+        var group = Selected;
+        if (group == null || !GroupAlertChoices.Read(_ctx.S.GroupAlertProfiles).ContainsKey(group)) return;
+        if (_ctx.Host.ConfirmChoice(Str("L.S.GroupAlerts.Clear"), string.Format(Str("L.S.GroupAlerts.ClearAsk"), group),
                 Str("L.S.GroupAlerts.ClearYes"), Str("L.S.GroupAlerts.ClearNo")) != true) return;
-        _ctx.S.GroupAlertProfiles = text;
+        // The group that was asked about, in the choices as they are now: the question was open for a while.
+        _ctx.S.GroupAlertProfiles = GroupAlertChoices.Forget(_ctx.S.GroupAlertProfiles, group);
         _ctx.Applier.Request(ApplyScope.Save);
         ShowGroup();
     }
