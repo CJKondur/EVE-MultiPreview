@@ -61,6 +61,9 @@ public partial class App : Application
     /// shows nothing and the key is not there.</summary>
     private NotificationsWay? _notificationsWay;
     private NotificationRegistration? _notificationRegistration;
+    /// <summary>What a click on a notification does, and how the switch is followed: App's parts as functions, in a
+    /// class a test can run (NotificationActions).</summary>
+    private NotificationActions? _notificationActions;
     /// <summary>"Left behind" (IDEAS #5): told every system change, asked on the one-second timer while the event is on.</summary>
     private readonly StragglerWatch _stragglers = new();
     /// <summary>The look for it and the alert it raises, with what App has for both (set at startup).</summary>
@@ -409,9 +412,13 @@ public partial class App : Application
                 Toast = (charName, alertType, severity) => _alertHub.ShowToast(charName, alertType, severity),
                 Sound = PlayAlertSound,
                 // IDEAS batch 6: after every gate. Which window is in front is asked there once, and only while a
-                // further way is switched on.
+                // further way is switched on. It is asked a moment after Unseen asked it (the toast and the sound wait
+                // for the window's thread in between), and the player may have switched away in that moment: an alert
+                // that was seen as it arrived is held by nobody as unseen, so no look would ever take its Windows
+                // notification away again. "In front" is therefore also: the attention table holds nothing for it.
                 Ways = (charName, alertType, severity, raisedUtc) => _alertWays.Raised(_settings.Settings, charName, alertType, severity,
-                    () => ThumbnailManager.InFront(_thumbnailManager.GetHwndForCharacter(charName), EveMultiPreview.Interop.User32.GetForegroundWindow()), raisedUtc),
+                    () => ThumbnailManager.InFront(_thumbnailManager.GetHwndForCharacter(charName), EveMultiPreview.Interop.User32.GetForegroundWindow())
+                        || !_thumbnailManager.Attention.Has(charName), raisedUtc),
             };
             // IDEAS #26: spoken alerts. The way is told of every alert that was shown, decides what is said, and
             // says it on a thread of its own. Speech is a sound: do-not-disturb is asked for it as for the sound.
@@ -428,24 +435,26 @@ public partial class App : Application
                     && (alert.ClientInFront || _thumbnailManager.Attention.Has(alert.Character)));
             _alertWays.Add(_spokenWay);
             _escalation.HandOff = _spokenWay.HandedOff;
-            // IDEAS #33: Windows notifications. The way is told of every alert that was shown and of every client
-            // that was looked at; a click on a notification comes back on a thread of Windows' and is done on the
-            // window's: "Switch to" as a toast's click does it, "Snooze" as a toast's menu does it. The registry
-            // key follows the switch, now and after every settings change.
+            // IDEAS #33: Windows notifications. The way is told of every alert that got past the gates and of every
+            // client that was looked at; a click on a notification comes back on a thread of Windows' and is done on
+            // the window's: "Switch to" as a toast's click does it, "Snooze" as a toast's menu does it
+            // (NotificationActions has both, and the hop). The registry key follows the switch, now and after every
+            // settings change. A notification names where a character is only when that is the alert itself ("Left
+            // behind": where the others went): it is seen over any program and on the lock screen.
+            _notificationActions = new NotificationActions(() => _isShuttingDown, () => _settings.LoadedSuccessfully,
+                () => _settings.Settings.WindowsNotifications, SwitchToCharacter,
+                (who, type, length) => _snoozes.Snooze(who, type, length), _thumbnailManager.ShowTooltipFeedback,
+                action => Dispatcher.BeginInvoke(action), LocalizationService.Str);
             _notificationRegistration = new NotificationRegistration(new UserRegistry(), () => NotificationIcon.Ensure(AppPaths.ConfigDir), LogError);
             _notificationsWay = new NotificationsWay(new WindowsToastNotifier(NotificationRegistration.AppId),
-                entry => NotificationsWay.Texts(entry, AlertHub.EventDisplayName,
-                    (who, type) => _stragglerAlerts?.PlaceOf(who, type) ?? _thumbnailManager.GetCharacterSystem(who), LocalizationService.Str),
-                who => SwitchToCharacter(who),
-                (who, type, length) =>
-                {
-                    _snoozes.Snooze(who, type, length);
-                    _thumbnailManager.ShowTooltipFeedback(SnoozeText.Done(who, type));
-                },
-                action => Dispatcher.BeginInvoke(action), LogError);
+                entry => NotificationsWay.Texts(entry, AlertHub.EventDisplayName, (who, type) => _stragglerAlerts?.PlaceOf(who, type), LocalizationService.Str),
+                _notificationActions.SwitchTo, _notificationActions.Snooze, _notificationActions.OnWindowThread, LogError);
             _alertWays.Add(_notificationsWay);
             _thumbnailManager.Attention.Looked += _notificationsWay.Looked;
             FollowNotifications(starting: true);
+            // Windows signing out or shutting down: OnExit may not get to run (see the history, below), and what
+            // this session showed would stay in the Notification Center with buttons that can do nothing.
+            SessionEnding += (_, _) => _notificationsWay?.Stop();
             // IDEAS #13: a thumbnail grows for a few seconds on an alert. The manager owns the decision and its tick.
             _alertWays.Add(_thumbnailManager.Enlarge);
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
@@ -952,12 +961,29 @@ public partial class App : Application
 
     /// <summary>IDEAS #33: the registry key Windows needs, and what MultiPreview has in the Notification Center, follow
     /// "Show alerts as Windows notifications". Called at startup and after every settings change, on the window's
-    /// thread. NotificationsWay.Follow has the order: switched off, the notifications go first and then the key.</summary>
+    /// thread. NotificationsWay.Follow has the order: switched off, the notifications go first and then the key.
+    /// NotificationActions has the two reasons not to: MultiPreview is closing, or the settings could not be read
+    /// (such a session runs on default values and must not remove the player's key).</summary>
     private void FollowNotifications(bool starting = false)
     {
-        if (_isShuttingDown || _settings == null || _notificationsWay == null || _notificationRegistration == null) return;
-        _notificationsWay.Follow(_settings.Settings.WindowsNotifications, _notificationRegistration, starting);
+        if (_notificationsWay == null || _notificationRegistration == null) return;
+        _notificationActions?.Follow(_notificationsWay, _notificationRegistration, starting);
     }
+
+    /// <summary>IDEAS #33, the card's "Show a test notification": one notification through the way, so the player
+    /// sees whether Windows lets MultiPreview's notifications through.</summary>
+    private void ShowTestNotification()
+    {
+        if (_notificationsWay == null || _notificationRegistration == null) return;
+        _notificationActions?.ShowTest(_notificationsWay, _notificationRegistration, DateTime.UtcNow);
+    }
+
+    /// <summary>IDEAS #33, the card's question: is Windows itself not showing MultiPreview's notifications? Asked
+    /// from the window's thread, answered on another one.</summary>
+    private System.Threading.Tasks.Task<bool> NotificationsBlocked() =>
+        _notificationActions != null && _notificationsWay != null && _notificationRegistration != null
+            ? _notificationActions.Blocked(_notificationsWay, _notificationRegistration)
+            : System.Threading.Tasks.Task.FromResult(false);
 
     /// <summary>Hands the custom rules (IDEAS #8) to everything that uses them: their names and sounds by alert type
     /// (CustomAlertTypes), and the rules that are on, made ready, to the log monitor. With none on the monitor gets
@@ -1348,6 +1374,8 @@ public partial class App : Application
                     Snoozes = _snoozes,
                     DoNotDisturbOn = () => DoNotDisturbOn,
                     Speaker = _speaker,
+                    NotificationsBlocked = NotificationsBlocked,
+                    TestNotification = ShowTestNotification,
                     CustomAlerts = _customAlerts,
                     // Which custom rules the log monitor has switched off for what they cost: the page says it on their cards.
                     CustomRulesSwitchedOff = () => _logMonitor?.CustomRulesSwitchedOff ?? CustomAlertEngine.NoneSwitchedOff,
