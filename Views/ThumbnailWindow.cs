@@ -468,6 +468,10 @@ public class ThumbnailWindow : Form
     /// <summary>The thumbnail is enlarged for an alert right now.</summary>
     public bool IsAlertEnlarged => _alertGrown;
 
+    /// <summary>The thumbnail was asked to be enlarged and has not been asked back. It need not be enlarged right
+    /// now: a drag, the pointer on it, the hover zoom or an open menu makes it wait.</summary>
+    public bool IsAlertEnlargementAsked => _alertScale > 1.0;
+
     /// <summary>The work area of the monitor a rectangle is on. A test hands in a monitor of its own.</summary>
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public Func<System.Drawing.Rectangle, System.Drawing.Rectangle> WorkAreaFor { get; set; } =
@@ -497,10 +501,12 @@ public class ThumbnailWindow : Form
         var own = new System.Drawing.Rectangle(base.Left, base.Top, _baseWidth, _baseHeight);
         var grown = AlertEnlarge.Place(own, _alertScale, WorkAreaFor(own));
         if (grown == own) return;   // no room to grow on this monitor
+        // The window first, the note of it behind: if Windows refuses the move, the window is not enlarged and
+        // does not count as enlarged, and what the manager reads (and saves) stays true of it.
+        base.SetBounds(grown.Left, grown.Top, grown.Width, grown.Height);
         _alertDx = own.Left - grown.Left;
         _alertDy = own.Top - grown.Top;
         _alertGrown = true;
-        base.SetBounds(grown.Left, grown.Top, grown.Width, grown.Height);
         UpdateThumbnailSize();
         _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
         // Above its neighbours, within the band the thumbnails are in: by raw SetWindowPos, as every z-order change
@@ -512,8 +518,11 @@ public class ThumbnailWindow : Form
     {
         if (!_alertGrown) return;
         var own = OwnPlace();
-        _alertGrown = false;
+        // The window first, the note of it behind (T6-m1): a window Windows refuses to move still stands enlarged,
+        // so it still counts as enlarged. It then still answers with its own place, and the manager's watchdog
+        // asks it back again.
         base.SetBounds(own.Left, own.Top, own.Width, own.Height);
+        _alertGrown = false;
         UpdateThumbnailSize();
         _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
     }
@@ -1373,6 +1382,9 @@ public class ThumbnailWindow : Form
     {
         if (_cleanedUp) return;
         _cleanedUp = true;
+        // IDEAS #13 (T6-m2): a window that is closing is asked back first. StopDrag below asks "enlarge now?", and a
+        // thumbnail that was told to grow during a drag would grow, and be raised, on its way out.
+        _alertScale = 1.0;
         StopDrag();
 
         _hoverTimer?.Stop();

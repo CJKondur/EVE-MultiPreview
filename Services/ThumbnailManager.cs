@@ -136,23 +136,69 @@ public sealed class ThumbnailManager : IDisposable
     public AlertEnlarge Enlarge { get; } = new();
 
     /// <summary>Every 50 ms, on the timer the border flash runs on: tells each thumbnail the scale AlertEnlarge
-    /// answers. Only a character's main thumbnail is ever told: second thumbnails and crop windows are not
-    /// enlarged. While nothing is enlarged this is one read. While the tray menu is open nothing is moved or
-    /// raised (a thumbnail raised then would bury the menu): what is due is done when it has closed.</summary>
+    /// answers (<see cref="TellEnlarged"/>). Only a character's main thumbnail is ever told: second thumbnails and
+    /// crop windows are not enlarged. While nothing is enlarged this is one read. While the tray menu is open
+    /// nothing is moved or raised (a thumbnail raised then would bury the menu): what is due is done when it has
+    /// closed.</summary>
     private void EnlargeTick()
     {
         if (!Enlarge.Any || _trayMenuOpen) return;
         try
         {
-            var front = Interop.User32.GetForegroundWindow();
-            foreach (var change in Enlarge.Tick(DateTime.UtcNow, _settings.Settings,
-                         name => InFront(GetHwndForCharacter(name), front), name => FindThumbnailByCharacter(name) != null))
-                FindThumbnailByCharacter(change.Character)?.SetAlertScale(change.Scale);
+            TellEnlarged(Enlarge, DateTime.UtcNow, _settings.Settings, GetHwndForCharacter, Interop.User32.GetForegroundWindow,
+                GetThumbnailForCharacter, ReportEnlarge);
         }
         catch (Exception ex)
         {
-            ErrorLog.Shared.Record(ex, "Thumbnails (enlarge on alert)", DateTime.Now);
+            ReportEnlarge(AlertWays.Failure("Enlarge on alert: the tick", ex));
         }
+    }
+
+    /// <summary>Where a failure of the enlargement goes: the error log, as a type and a stack (AlertWays.Failure),
+    /// never as the message of what was thrown.</summary>
+    private static void ReportEnlarge(Exception ex) => ErrorLog.Shared.Record(ex, "Thumbnails (enlarge on alert)", DateTime.Now);
+
+    /// <summary>Tells a reporter what failed and the type of what was thrown. Reporting never costs the thumbnails
+    /// that are still to be told.</summary>
+    private static void ReportEnlargeFailure(Action<Exception> report, string what, Exception ex)
+    {
+        try { report(AlertWays.Failure("Enlarge on alert: " + what, ex)); }
+        catch (Exception) { /* a reporter that fails must not stop the others' going back */ }
+    }
+
+    /// <summary>What <see cref="EnlargeTick"/> does, with its clock and its lookups handed in (tests): asks
+    /// AlertEnlarge what is due at this moment and tells each thumbnail its scale. Each thumbnail is told in a try
+    /// of its own: AlertEnlarge has forgotten an enlargement by the time its thumbnail is told to go back, so one
+    /// thumbnail that throws would otherwise cost every thumbnail behind it its going back, for ever. What was
+    /// thrown is reported by its type, and the others are still told.</summary>
+    /// <param name="utcNow">Now, in UTC, as an alert's time is (AlertNotice.TimeUtc).</param>
+    /// <param name="clientOf">A character's client window, or zero.</param>
+    /// <param name="foreground">The window in front. Asked once.</param>
+    /// <param name="thumbnailOf">A character's main thumbnail, or null. It is asked under AlertEnlarge's lock too,
+    /// so it must not throw, wait or ask AlertEnlarge anything.</param>
+    public static void TellEnlarged(AlertEnlarge enlarge, DateTime utcNow, AppSettings settings, Func<string, IntPtr> clientOf,
+        Func<IntPtr> foreground, Func<string, ThumbnailWindow?> thumbnailOf, Action<Exception> report)
+    {
+        var front = foreground();
+        foreach (var change in enlarge.Tick(utcNow, settings, name => InFront(clientOf(name), front), name => thumbnailOf(name) != null))
+        {
+            try { thumbnailOf(change.Character)?.SetAlertScale(change.Scale); }
+            catch (Exception ex) { ReportEnlargeFailure(report, "telling a thumbnail", ex); }
+        }
+    }
+
+    /// <summary>The watchdog of the enlargement (T6-C1), run for every thumbnail at each focus sweep, beside the
+    /// hover zoom's: a thumbnail that is enlarged for an alert, or was asked to be, while AlertEnlarge holds
+    /// nothing for its character is put back. Nothing else would ever tell such a thumbnail to go back: its
+    /// character left the window (a logoff keeps the window and changes its name, and AlertEnlarge then forgets
+    /// the name without a word), or its "go back" failed. One read per thumbnail while none is enlarged. A
+    /// thumbnail that throws is reported by the type of what it threw, and is asked again at the next sweep.</summary>
+    public static void PutBackUnheld(AlertEnlarge enlarge, ThumbnailWindow thumb, Action<Exception> report)
+    {
+        if (!thumb.IsAlertEnlarged && !thumb.IsAlertEnlargementAsked) return;
+        if (enlarge.Holds(thumb.CharacterName)) return;
+        try { thumb.SetAlertScale(1.0); }
+        catch (Exception ex) { ReportEnlargeFailure(report, "putting a thumbnail back", ex); }
     }
 
     /// <summary>The events snoozed for one character alone (IDEAS #30; App sets it). A thumbnail's menu lists its
@@ -887,6 +933,12 @@ public sealed class ThumbnailManager : IDisposable
                 // one from here on finds no client for it (NoteUnseen asks twice), and one raised before is
                 // taken off here.
                 if (CharacterLeft(oldChar, window.CharacterName)) Attention.Gone(oldChar);
+
+                // And an enlargement for an alert was that character's too (IDEAS #13, T6-C1). The window stays and
+                // only its name changes, so AlertEnlarge finds no thumbnail by the old name and forgets it without
+                // telling anybody: this window is put back here, at once, or it would pass enlarged to whoever
+                // logs in on it next. (The watchdog in UpdateActiveBorders would do it at the next sweep.)
+                if (CharacterLeft(oldChar, window.CharacterName)) thumbWindow.SetAlertScale(1.0);
 
                 // UpdateCharacterName force-shows the name overlay; re-assert the
                 // user's "show character name" preference so a disabled overlay
@@ -1738,6 +1790,10 @@ public sealed class ThumbnailManager : IDisposable
         // #95 watchdog: a thumbnail left stuck in its enlarged hover state covers its
         // neighbours and eats their clicks. Cheap per-tick correction.
         foreach (var (_, t) in _thumbnails) t.EnsureHoverStateValid();
+
+        // IDEAS #13 watchdog (T6-C1): a thumbnail left enlarged for an alert that nothing will ever tell to go back
+        // (its character logged off the window, or its "go back" failed) is put back here.
+        foreach (var (_, t) in _thumbnails) PutBackUnheld(Enlarge, t, ReportEnlarge);
 
         var fgHwnd = Interop.User32.GetForegroundWindow();
         var s = _settings.Settings;
@@ -2648,6 +2704,8 @@ public sealed class ThumbnailManager : IDisposable
 
         // Clearing an in-progress flash on mute so a currently-flashing alt goes quiet now.
         if (until != null) ClearAlertFlash(charName);
+        // Its thumbnail, enlarged for an alert, goes back now too (IDEAS #13, T6-m3), not when its seconds are over.
+        if (until != null) GetThumbnailForCharacter(charName)?.SetAlertScale(1.0);
 
         ShowTooltipFeedback($"{charName}: {label}");
     }

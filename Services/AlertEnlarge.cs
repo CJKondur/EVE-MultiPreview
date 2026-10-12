@@ -32,6 +32,7 @@ public sealed class AlertEnlarge : IAlertWay
     private sealed class Held
     {
         public DateTime UntilUtc;
+        public int Seconds;   // the seconds of the alert that set UntilUtc: how long this enlargement can last
         public double Scale;
         public bool Told;   // its thumbnail was told to grow
     }
@@ -56,10 +57,14 @@ public sealed class AlertEnlarge : IAlertWay
         {
             if (_held.TryGetValue(notice.Character, out var held))
             {
-                if (until > held.UntilUtc) held.UntilUtc = until;
+                if (until > held.UntilUtc)
+                {
+                    held.UntilUtc = until;
+                    held.Seconds = options.Seconds;
+                }
                 return;
             }
-            _held[notice.Character] = new Held { UntilUtc = until, Scale = options.Scale };
+            _held[notice.Character] = new Held { UntilUtc = until, Seconds = options.Seconds, Scale = options.Scale };
             Volatile.Write(ref _count, _held.Count);
         }
     }
@@ -67,10 +72,23 @@ public sealed class AlertEnlarge : IAlertWay
     /// <summary>Some thumbnail is enlarged or about to be. While this is false a tick has nothing to do.</summary>
     public bool Any => Volatile.Read(ref _count) > 0;
 
+    /// <summary>Whether a character is held: its thumbnail is enlarged or about to be, and a tick will tell it to
+    /// go back. A thumbnail that is enlarged for a character that is NOT held has nobody left to tell it so (its
+    /// character left the window, or its "go back" failed): the thumbnail manager's watchdog asks this and puts
+    /// such a thumbnail back. The name is found whatever its case. Any thread.</summary>
+    public bool Holds(string? character)
+    {
+        if (string.IsNullOrEmpty(character) || !Any) return false;
+        lock (_lock) return _held.ContainsKey(character);
+    }
+
     /// <summary>One look, on the window's thread: which thumbnails to enlarge now, and which to put back. A
     /// thumbnail is put back when its time is over, when its client is in front, and when the feature was switched
-    /// off; one whose thumbnail is gone is forgotten without a word. Each thumbnail is told to grow once and to go
-    /// back once.</summary>
+    /// off. A character no thumbnail carries any more is forgotten without a word: there is no window by that name
+    /// to say it to. That does not mean that no window is left enlarged: a character that logs off keeps its
+    /// client's window, which only changes its name. So the caller must put that window back itself, and does
+    /// (ThumbnailManager: at the title change, and by a watchdog that asks <see cref="Holds"/>). Each thumbnail is
+    /// told to grow once and to go back once.</summary>
     /// <param name="clientInFront">Whether a character's client is the window in front.</param>
     /// <param name="hasThumbnail">Whether a character has a thumbnail (its client is running).</param>
     public IReadOnlyList<Change> Tick(DateTime utcNow, AppSettings s, Func<string, bool> clientInFront, Func<string, bool> hasThumbnail)
@@ -84,8 +102,9 @@ public sealed class AlertEnlarge : IAlertWay
             foreach (var (character, held) in _held)
             {
                 bool gone = !hasThumbnail(character);
-                // The time is over. Or the clock was set back: an end further ahead than an enlargement can last is no end.
-                bool ended = !on || utcNow >= held.UntilUtc || held.UntilUtc - utcNow > TimeSpan.FromSeconds(EnlargeOptions.MaxSeconds + 1);
+                // The time is over. Or the clock was set back: an end further ahead than this enlargement can last
+                // (the seconds of the alert that set the end, and one to spare) is no end.
+                bool ended = !on || utcNow >= held.UntilUtc || held.UntilUtc - utcNow > TimeSpan.FromSeconds(held.Seconds + 1);
                 if (gone || ended || clientInFront(character))
                 {
                     if (held.Told && !gone) (changes ??= new List<Change>()).Add(new Change(character, 1.0));
