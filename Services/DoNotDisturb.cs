@@ -3,10 +3,11 @@ using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>Do-not-disturb (IDEAS #32): alert sounds are muted while it is on, and nothing else changes. It is on by
-/// the clock inside the daily quiet hours, and the hotkey (or the tray) flips whatever is in effect; that choice
-/// lasts until the quiet hours next begin or end, and is forgotten when MultiPreview closes. No window in it; any
-/// thread; the time is handed in, on the PC's clock.</summary>
+/// <summary>Do-not-disturb (IDEAS #32): the alert sounds and the voice of spoken alerts are held while it is on, and
+/// nothing else changes: borders, badges and toasts go on, a Windows notification still comes and a thumbnail still
+/// grows. It is on by the clock inside the daily quiet hours, and the hotkey (or the tray) flips whatever is in
+/// effect; that choice lasts until the quiet hours next begin or end, and is forgotten when MultiPreview closes. No
+/// window in it; any thread; the time is handed in, on the PC's clock.</summary>
 public sealed class DoNotDisturb
 {
     /// <summary>The digit zero, the colon and the space as an input method for Japanese or Chinese types them
@@ -132,8 +133,9 @@ public sealed class DoNotDisturb
         }
     }
 
-    /// <summary>Whether an alert of this severity makes no sound now: do-not-disturb is on, and the alert is not a
-    /// critical one that the player lets through ("Critical alerts still play", on unless they turned it off).</summary>
+    /// <summary>Whether an alert of this severity makes no sound now, and is not spoken: do-not-disturb is on, and
+    /// the alert is not a critical one that the player lets through ("Critical alerts still play", on unless they
+    /// turned it off).</summary>
     public bool Silences(AppSettings s, string severity, DateTime localNow) =>
         IsOn(s, localNow) && !(s.DoNotDisturbCriticalPlays && string.Equals(severity, "critical", StringComparison.OrdinalIgnoreCase));
 }

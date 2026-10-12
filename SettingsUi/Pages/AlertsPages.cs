@@ -286,8 +286,8 @@ public static class AlertsPages
                 Replaces = new[] { "TxtMasterVolume" },
             }),
         }),
-        // IDEAS #32: do-not-disturb mutes the sounds and nothing else. App.PlayAlertSound asks at every alert, and App
-        // registers the hotkey again on Applied.
+        // IDEAS #32: do-not-disturb holds the alert sounds and the voice, and nothing else. App.PlayAlertSound asks at
+        // every alert, the voice asks for every sentence (SpokenWay), and App registers the hotkey again on Applied.
         new SectionDef("alerts.sounds.dnd", new PageItem[]
         {
             new SettingItem(Setting.Hotkey("alerts.sounds.dndHotkey", s => s.DoNotDisturbHotkey)),
