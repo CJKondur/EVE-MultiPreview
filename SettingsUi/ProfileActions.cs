@@ -42,7 +42,7 @@ public static class ProfileActions
         var activeHit = false;
         foreach (var dst in targets)
         {
-            if (full) ProfileCopy.CopyFull(src, dst);
+            if (full) ProfileCopy.CopyFull(ctx.S, src, dst);
             else dst.ThumbnailPositions = new Dictionary<string, ThumbnailRect>(src.ThumbnailPositions);
             if (ctx.S.Profiles.TryGetValue(ctx.S.LastUsedProfile, out var active) && ReferenceEquals(active, dst)) activeHit = true;
         }
@@ -72,7 +72,7 @@ public static class ProfileActions
             var name = ctx.Host.AskText(Str("L.S.Profile.Copy"), Str("L.S.Profile.OnlyOne"), "");
             if (name == null) return;
             if (!New(ctx, name)) { ctx.Host.Toast(string.Format(Str("L.S.Profile.NameTaken"), name.Trim())); return; }
-            ProfileCopy.CopyFull(ctx.S.Profiles[source], ctx.S.Profiles[name.Trim()]);
+            ProfileCopy.CopyFull(ctx.S, ctx.S.Profiles[source], ctx.S.Profiles[name.Trim()]);
             ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
             ctx.Host.Reload();
             ctx.Host.Toast(string.Format(Str("L.S.Profile.Copied"), 1));

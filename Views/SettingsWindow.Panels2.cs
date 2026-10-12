@@ -163,16 +163,28 @@ public partial class SettingsWindow
         if (string.IsNullOrEmpty(name)) { MessageBox.Show("Enter a group name."); return; }
         var chars = TxtGroupChars.Text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim()).Where(c => c.Length > 0).ToList();
         var idx = CmbGroupSelect.SelectedIndex;
+        // IDEAS #31: a renamed group takes its alert choices along (an "on" as an "off") and never inherits what was
+        // left under its new name; a group made under a name that was free in every profile starts with none.
+        var before = EveMultiPreview.Services.GroupAlertChoices.GroupNames(S);
+        string? was = null;
         if (idx >= 0 && idx < S.ThumbnailGroups.Count)
-        { S.ThumbnailGroups[idx].Name = name; S.ThumbnailGroups[idx].Color = TxtGroupColor.Text; S.ThumbnailGroups[idx].Members = chars; }
+        { was = S.ThumbnailGroups[idx].Name; S.ThumbnailGroups[idx].Name = name; S.ThumbnailGroups[idx].Color = TxtGroupColor.Text; S.ThumbnailGroups[idx].Members = chars; }
         else S.ThumbnailGroups.Add(new ThumbnailGroup { Name = name, Color = TxtGroupColor.Text, Members = chars });
+        EveMultiPreview.Services.GroupAlertChoices.Follow(S, before, was, name);
         LoadGroupDropdown(); SaveDelayed();
     }
 
     private void OnGroupDelete(object s, RoutedEventArgs e)
     {
         var idx = CmbGroupSelect.SelectedIndex;
-        if (idx >= 0 && idx < S.ThumbnailGroups.Count) { S.ThumbnailGroups.RemoveAt(idx); LoadGroupDropdown(); SaveDelayed(); }
+        if (idx >= 0 && idx < S.ThumbnailGroups.Count)
+        {
+            // IDEAS #31: once no group of any profile goes by the name, its alert choices are forgotten.
+            var before = EveMultiPreview.Services.GroupAlertChoices.GroupNames(S);
+            S.ThumbnailGroups.RemoveAt(idx);
+            EveMultiPreview.Services.GroupAlertChoices.Follow(S, before);
+            LoadGroupDropdown(); SaveDelayed();
+        }
     }
 
     private void OnGroupAddChar(object s, RoutedEventArgs e)
@@ -1957,7 +1969,7 @@ public partial class SettingsWindow
     /// dictionaries/lists are independent, then assigns each property in place
     /// (the target Profile reference is kept so live bindings stay valid).
     /// </summary>
-    private static void CopyProfileFull(Profile src, Profile dst) => ProfileCopy.CopyFull(src, dst);
+    private void CopyProfileFull(Profile src, Profile dst) => ProfileCopy.CopyFull(S, src, dst);
 
     private void OnBackupConfig(object s, RoutedEventArgs e)
     {

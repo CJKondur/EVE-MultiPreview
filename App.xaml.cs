@@ -259,6 +259,9 @@ public partial class App : Application
                 _thumbnailManager?.RestoreAllClientPositions();
             // IDEAS #31: a group's members can differ per profile, so for whom an event is on is worked out again.
             ApplyAlertSwitches();
+            // And so is whether anything has to look once a second: "Left behind" may be on only for a group that
+            // has members in the profile now in use. After the switches: the timer asks what they handed out.
+            FollowAlertTimer();
             // Recovery net (issue #81): never carry a stuck crops-hidden state across a switch.
             _cropManager?.ShowCrops();
             _cropManager?.Refresh();
@@ -911,15 +914,23 @@ public partial class App : Application
 
     /// <summary>IDEAS #31: which events are on. The gate is handed its picture of the groups' choices, and the log
     /// monitor what it may raise: the settings' own table while no group has a choice (as it always was), otherwise
-    /// what is on for everyone or for some group. Called on the window's thread: at startup, after every settings
-    /// change, and at a profile switch.</summary>
+    /// what is on for everyone or for some group. AlertProfiles.Apply does both, in the order that lets nothing
+    /// through in between, and without settings or without a log monitor (a profile switch in the first moments
+    /// of a start) it does what it can. Called on the window's thread: at startup, after every settings change,
+    /// and at a profile switch. Nothing leaves this method as an exception: startup goes on to the alert handler,
+    /// the log monitor's start, the tray and the hub, a profile switch to the new profile's hotkeys, and a
+    /// settings change to what follows it. The gate and the log monitor then keep what they had.</summary>
     private void ApplyAlertSwitches()
     {
-        if (_settings == null) return;
-        var s = _settings.Settings;
-        _alertProfiles.Publish(s);
-        if (_logMonitor != null && s.EnabledAlertTypes != null)
-            _logMonitor.SetEnabledAlertTypes(AlertProfiles.MonitorSet(s) ?? s.EnabledAlertTypes);
+        try
+        {
+            _alertProfiles.Apply(_settings?.Settings, _logMonitor == null ? null : _logMonitor.SetEnabledAlertTypes);
+        }
+        catch (Exception ex)
+        {
+            // Reported by its type alone: the message may quote a name a player wrote.
+            LogError(new InvalidOperationException("Alerts per group: the switches could not be handed out (" + ex.GetType().Name + ")"));
+        }
     }
 
     /// <summary>Whether "Left behind" is looked for: it is on for everyone, or (IDEAS #31) some group switched it on.

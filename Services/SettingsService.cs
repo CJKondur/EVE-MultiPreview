@@ -304,8 +304,11 @@ public sealed class SettingsService : IDisposable
     {
         if (!_settings.Profiles.ContainsKey(name))
         {
+            var before = GroupAlertChoices.GroupNames(_settings);
             _settings.Profiles[name] = new Profile();
             _settings.LastUsedProfile = name;
+            // IDEAS #31: the groups of every profile keep their alert choices; what no group has is forgotten.
+            GroupAlertChoices.Follow(_settings, before);
             Save();
         }
     }
@@ -315,9 +318,13 @@ public sealed class SettingsService : IDisposable
         if (_settings.Profiles.Count <= 1) return false;
         if (!_settings.Profiles.ContainsKey(name)) return false;
 
+        var before = GroupAlertChoices.GroupNames(_settings);
         _settings.Profiles.Remove(name);
         if (_settings.LastUsedProfile == name)
             _settings.LastUsedProfile = _settings.Profiles.Keys.First();
+        // IDEAS #31: the alert choices of the groups only this profile had go with it, so that a later group of
+        // such a name starts with none.
+        GroupAlertChoices.Follow(_settings, before);
         Save();
         return true;
     }

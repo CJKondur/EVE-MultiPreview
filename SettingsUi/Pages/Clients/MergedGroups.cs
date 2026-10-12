@@ -71,8 +71,12 @@ public static class MergedGroups
     {
         name = name.Trim();
         if (name.Length == 0 || !IsNameFree(s, name)) return null;
+        var before = Services.GroupAlertChoices.GroupNames(s);
         var keys = new HotkeyGroup();
         s.HotkeyGroups[name] = keys;
+        // IDEAS #31: a group that comes into being under a free name starts with no alert choices, whatever an
+        // earlier group left under that name.
+        Services.GroupAlertChoices.Follow(s, before);
         return new MergedGroup(name, null, keys);
     }
 

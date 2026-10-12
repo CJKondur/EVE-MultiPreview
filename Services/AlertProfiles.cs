@@ -147,6 +147,71 @@ public static class GroupAlertChoices
         foreach (var events in groups.Values) any |= events.Remove(eventKey ?? "");
         return any ? Write(groups) : json ?? "";
     }
+
+    /// <summary>The names groups go by, in every profile: every colour group, and every profile's groups with keys.
+    /// A name in it is in use; every other name is free (MergedGroups.IsNameFree asks the same of one name).</summary>
+    public static HashSet<string> GroupNames(AppSettings s)
+    {
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        if (s == null) return names;
+        if (s.ThumbnailGroups != null)
+            foreach (var colour in s.ThumbnailGroups)
+                if (!string.IsNullOrEmpty(colour?.Name)) names.Add(colour.Name);
+        if (s.HotkeyGroups != null) names.UnionWith(s.HotkeyGroups.Keys);
+        if (s.Profiles != null)
+            foreach (var profile in s.Profiles.Values)
+                if (profile?.HotkeyGroups != null) names.UnionWith(profile.HotkeyGroups.Keys);
+        return names;
+    }
+
+    /// <summary>THE helper of every path that makes, renames or deletes a group or a settings profile: the choices
+    /// stay with their group, and what a group that is gone left behind never comes back to life under a new group
+    /// of its name. Take <see cref="GroupNames"/> before the change and call this after it:
+    /// a group that came into being under a name that was free in every profile starts with no choices;
+    /// the choices of every name that is now free in every profile are forgotten (a deleted group, a deleted profile's
+    /// own groups, a profile copied over);
+    /// and a group renamed from <paramref name="from"/> to <paramref name="to"/> takes its choices along, an "on" as
+    /// an "off", and never inherits (the cases are told at the text's own Follow, below).
+    /// It changes the settings' text and nothing else: saving and applying are the caller's, as for the change itself.</summary>
+    public static void Follow(AppSettings s, IReadOnlySet<string> before, string? from = null, string? to = null)
+    {
+        if (s == null || string.IsNullOrEmpty(s.GroupAlertProfiles)) return;
+        s.GroupAlertProfiles = Follow(s.GroupAlertProfiles, before, GroupNames(s), from, to);
+    }
+
+    /// <summary>The choices text after such a change, from the names in use before and now.
+    /// A rename has three cases. The new name was free: the choices move to it, and whatever was left under it is
+    /// dropped. A group still goes by the old name (the old window renames a colour group and leaves the keys of the
+    /// same name where they are): that group keeps the choices too, so the rename changes nobody's alerts. The new
+    /// name was another group's already (the old window allows that): the two are one group now, and where their
+    /// choices contradict each other the alert happens: "on" where either said "on", "off" only where both said
+    /// "off", and no choice where one said "off" and the other nothing.
+    /// The same text comes back when there is nothing to do, and when the new one would not read back whole.</summary>
+    public static string Follow(string? json, IReadOnlySet<string> before, IReadOnlySet<string> now, string? from = null, string? to = null)
+    {
+        var groups = Parse(json);
+        if (groups.Count == 0 || before == null || now == null) return json ?? "";
+        bool changed = false;
+        Dictionary<string, bool>? moved = null;
+        if (from != null && to != null && from != to) groups.TryGetValue(from, out moved);
+        // A name no group goes by holds no choices, and a name that has just come into being starts with none.
+        foreach (var name in groups.Keys.ToList())
+            if (!now.Contains(name) || !before.Contains(name)) changed |= groups.Remove(name);
+        if (moved != null && now.Contains(to!) && to!.Length <= MaxName)
+        {
+            var theirs = before.Contains(to) && groups.TryGetValue(to, out var had) ? had : null;
+            var one = new Dictionary<string, bool>(StringComparer.Ordinal);
+            foreach (var (key, on) in moved)
+                if (on || !before.Contains(to) || (theirs != null && theirs.TryGetValue(key, out var also) && !also)) one[key] = on;
+            if (theirs != null)
+                foreach (var (key, on) in theirs)
+                    if (on) one[key] = true;
+            if (one.Count > 0) groups[to] = one;
+            else groups.Remove(to);
+            changed = true;
+        }
+        return changed ? Written(groups, json) : json ?? "";
+    }
 }
 
 /// <summary>Alerts per group (IDEAS #31): for which characters an event is on. A group of Clients › Groups can
@@ -219,6 +284,26 @@ public sealed class AlertProfiles
 
     /// <summary>Takes the settings as they are now, with the choices they hold.</summary>
     public void Publish(AppSettings s) => Publish(s, s.GroupAlertProfiles);
+
+    /// <summary>Hands out the settings as they are now, to the gate (its picture) and to the log monitor (what it
+    /// may raise: MonitorSet's table, or the settings' own table while no group choice counts),
+    /// in the order that lets nothing through in between. While a choice counts, the gate is first: it holds what is
+    /// off for a character before the log monitor starts to raise what only a group wants. When none counts (the last
+    /// choice was cleared, the group or its profile is gone), the log monitor is first: it stops raising what only a
+    /// group wanted before the gate opens for everybody. The window's thread.</summary>
+    /// <param name="s">Nothing happens without settings.</param>
+    /// <param name="tellMonitor">LogMonitorService.SetEnabledAlertTypes; null while there is no log monitor yet
+    /// (a profile switch in the first moments of a start): the gate is handed its picture all the same. It is not
+    /// called while the settings hold no table.</param>
+    public void Apply(AppSettings? s, Action<Dictionary<string, bool>>? tellMonitor)
+    {
+        if (s == null) return;
+        var wanted = MonitorSet(s);
+        if (wanted != null) Publish(s);
+        var table = wanted ?? s.EnabledAlertTypes;
+        if (tellMonitor != null && table != null) tellMonitor(table);
+        if (wanted == null) Publish(s);
+    }
 
     /// <summary>What the log monitor may raise, with the choices the settings hold; null while none counts.</summary>
     public static Dictionary<string, bool>? MonitorSet(AppSettings s) => MonitorSet(s, s.GroupAlertProfiles);

@@ -922,7 +922,11 @@ public partial class SettingsWindow
     {
         var name = Microsoft.VisualBasic.Interaction.InputBox("Group name:", "New Hotkey Group");
         if (string.IsNullOrWhiteSpace(name)) return;
+        // IDEAS #31: a group that comes into being under a name that was free in every profile starts with no
+        // alert choices, whatever an earlier group left under that name.
+        var before = EveMultiPreview.Services.GroupAlertChoices.GroupNames(S);
         S.HotkeyGroups[name] = new HotkeyGroup();
+        EveMultiPreview.Services.GroupAlertChoices.Follow(S, before);
         LoadHotkeyGroups();
         CmbHotkeyGroup.SelectedItem = name;
         SaveDelayed();
@@ -931,7 +935,10 @@ public partial class SettingsWindow
     private void OnHotkeyGroupDelete(object s, RoutedEventArgs e)
     {
         if (CmbHotkeyGroup.SelectedItem is not string name) return;
+        // IDEAS #31: once no group of any profile goes by the name, its alert choices are forgotten.
+        var before = EveMultiPreview.Services.GroupAlertChoices.GroupNames(S);
         S.HotkeyGroups.Remove(name);
+        EveMultiPreview.Services.GroupAlertChoices.Follow(S, before);
         LoadHotkeyGroups();
         TxtHotkeyGroupChars.Text = "";
         TxtGroupFwd.Text = "";
