@@ -20,12 +20,19 @@ public enum AlertOutcome
     NoWindow,
     /// <summary>The player snoozed this event for this character (IDEAS #30): nothing was shown or played.</summary>
     Snoozed,
+    /// <summary>The event is switched off for this character (its group's choice, IDEAS #31): it is no alert for
+    /// that character. Nothing was shown or played, and nothing is written to the history, as for an event that is
+    /// off for everyone.</summary>
+    Off,
 }
 
 /// <summary>What an alert is shown with: the thumbnails, the hub and the sound. App wires each to the call its alert
 /// handler always made; tests use recorders.</summary>
 public sealed class AlertTargets
 {
+    /// <summary>(character, alert type): AlertProfiles.IsOn. Whether the event is on for that character (IDEAS #31:
+    /// a group can have its own choice). Asked first; off means the alert is no alert for that character.</summary>
+    public Func<string, string, bool> IsOn { get; init; } = (_, _) => true;
     /// <summary>The characters that have a thumbnail (ThumbnailManager.GetActiveCharacterNames).</summary>
     public Func<IEnumerable<string>> ActiveCharacters { get; init; } = () => Array.Empty<string>();
     /// <summary>ThumbnailManager.IsCharacterAlertMuted.</summary>
@@ -61,6 +68,13 @@ public static class AlertDispatcher
 {
     public static AlertOutcome Dispatch(AppSettings settings, AlertTargets to, string charName, string alertType, string severity)
     {
+        // IDEAS #31: an event that is switched off for this character is no alert for it. Before anything else, and
+        // before any line that names the character.
+        if (!to.IsOn(charName, alertType))
+        {
+            DiagnosticsService.LogAlerts($"[App] OFF: '{alertType}' is switched off for this character. Nothing shown, nothing kept.");
+            return AlertOutcome.Off;
+        }
         Debug.WriteLine($"[App:Alert] ⚡ Alert: {alertType} [{severity}] for '{charName}'");
         var activeChars = to.ActiveCharacters();
         DiagnosticsService.LogAlerts(

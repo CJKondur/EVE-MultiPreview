@@ -88,7 +88,7 @@ public sealed class StragglerAlerts
     public AlertOutcome Raise(DateTime utcNow, string character, string alertType, string severity, string? text = null)
     {
         var outcome = AlertDispatcher.Dispatch(_settings(), _targets, character, alertType, severity);
-        if (_history is { Enabled: true })
+        if (outcome != AlertOutcome.Off && _history is { Enabled: true })
             _history.Record(AlertHistory.Entry(utcNow, character, alertType, severity, _systemOf(character), outcome, text: text));
         return outcome;
     }

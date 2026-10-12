@@ -470,6 +470,8 @@ public partial class App : Application
                 var raised = DateTime.UtcNow;
                 var outcome = AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity);
                 // With the history switched off no entry is made at all. (Record asks for itself as well.)
+                // Neither is one for an event that is off for this character (IDEAS #31): it was no alert for it.
+                if (outcome == AlertOutcome.Off) return;
                 if (!_alertHistory.Enabled) return;
                 _alertHistory.Record(AlertHistory.Entry(raised, charName, alertType, severity,
                     _logMonitor.GetCharacterSystem(charName), outcome, rule, matched));
