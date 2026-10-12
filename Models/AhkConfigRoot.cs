@@ -114,6 +114,10 @@ public class AhkConfigRoot
         s.EscalationAfterSeconds = g.EscalationAfterSeconds;
         s.EscalationRepeats = g.EscalationRepeats;
         s.StragglerWaitSeconds = g.StragglerWaitSeconds;
+        s.SpeakAlerts = g.SpeakAlerts != 0;
+        s.SpeakAlertsFrom = g.SpeakAlertsFrom;
+        s.SpeechVolume = g.SpeechVolume;
+        s.SpeechVoices = g.SpeechVoices ?? "";
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -427,6 +431,10 @@ public class AhkConfigRoot
         g.EscalationAfterSeconds = s.EscalationAfterSeconds;
         g.EscalationRepeats = s.EscalationRepeats;
         g.StragglerWaitSeconds = s.StragglerWaitSeconds;
+        g.SpeakAlerts = s.SpeakAlerts ? 1 : 0;
+        g.SpeakAlertsFrom = s.SpeakAlertsFrom;
+        g.SpeechVolume = s.SpeechVolume;
+        g.SpeechVoices = s.SpeechVoices;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1209,6 +1217,19 @@ public class AhkGlobalSettings
     // "Left behind" (IDEAS #5), new after 2.3.42: a file without it loads 10 seconds.
     [JsonPropertyName("StragglerWaitSeconds")]
     public int StragglerWaitSeconds { get; set; } = 10;
+
+    // Spoken alerts (IDEAS #26), new after 2.3.42: a file without them loads off, critical only, full volume, no voice chosen.
+    [JsonPropertyName("SpeakAlerts")]
+    public int SpeakAlerts { get; set; }
+
+    [JsonPropertyName("SpeakAlertsFrom")]
+    public int SpeakAlertsFrom { get; set; }
+
+    [JsonPropertyName("SpeechVolume")]
+    public int SpeechVolume { get; set; } = 100;
+
+    [JsonPropertyName("SpeechVoices")]
+    public string? SpeechVoices { get; set; } = "";
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

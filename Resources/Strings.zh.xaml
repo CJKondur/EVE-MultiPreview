@@ -2211,4 +2211,26 @@
     <sys:String x:Key="L.S.Refused.WinKey">Windows 自己保留了许多带 Win 键的组合。被拒绝的热键如果带 Win，很可能就是其中之一：请换一个组合。</sys:String> <!-- draft -->
     <!-- Ideas batch 6 (Plan 10) -->
     <sys:String x:Key="L.Speech.Many">{0} 个客户端：{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.speech">语音警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speak">朗读警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speak.Desc">Windows 语音会说出是谁的警报以及发生了什么。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom">朗读哪些警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom.Desc">按严重程度选择：每个事件都是严重、警告或信息。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromCritical">仅严重</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromWarning">严重和警告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromInfo">全部警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume">语音音量</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume.Desc">语音的响度。警报声音有自己的音量。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.voices">语音种类</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.voices.Desc">每个严重程度使用的语音。自动会在 Windows 有 MultiPreview 语言的语音时使用它。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Automatic">自动：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.DefaultVoice">Windows 默认语音</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Try">试听</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.TryFor">试听“{0}”警报的语音</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.VoiceFor">“{0}”警报的语音</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Example">警报听起来就是这样。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.NoVoice">Windows 没有 MultiPreview 语言的语音。警报会用另一种语音朗读，可能读不好。你可以在 Windows 的语音设置里添加语音，或者在这里选一个。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.NoVoices">Windows 没有安装任何语音，所以无法朗读。请在 Windows 的语音设置里添加一个。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Title">语音警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">打开 **朗读警报** 后，Windows 语音会说出是谁的警报以及发生了什么：角色的名字和事件的名字，使用 MultiPreview 的语言。你不用看就知道谁需要你，在很多客户端共用一个警报声音时最有用。&#x0A;&#x0A;- **朗读哪些警报** 按严重程度选择：仅严重、严重和警告，或者全部。&#x0A;- 同一事件的警报一起到达时会合成一句话，例如“3 个客户端：遭到攻击”。最严重的警报最先朗读。&#x0A;- 等待超过 10 秒的警报不再朗读。同一客户端的同一警报在 30 秒内不会再次朗读；如果该事件的声音静默时间更长，则以它为准。&#x0A;- 语音也是声音：勿扰会把它静音，已静音的角色和已暂停的警报不会朗读。它不需要 **播放警报声音**：没有提示音时语音照样工作。&#x0A;- **语音种类** 为每个严重程度设定语音。自动会在 Windows 有 MultiPreview 语言的语音时使用它，否则使用 Windows 默认语音。语音在 Windows 的语音设置里添加。&#x0A;- 当一条严重警报已按设定的次数重复而你仍然没有查看时，它会再朗读一次。</sys:String> <!-- draft -->
 </ResourceDictionary>

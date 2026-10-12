@@ -2193,4 +2193,26 @@
     <sys:String x:Key="L.S.Refused.WinKey">Windows behält viele Kombinationen mit der Win-Taste für sich. Ein abgelehnter Hotkey mit Win ist sehr wahrscheinlich eine davon: Wähle eine andere Kombination.</sys:String> <!-- draft -->
     <!-- Ideas batch 6 (Plan 10) -->
     <sys:String x:Key="L.Speech.Many">{0} Clients: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.speech">Gesprochene Alarme</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speak">Alarme vorlesen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speak.Desc">Eine Windows-Stimme sagt, wessen Alarm es ist und was passiert ist.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom">Welche Alarme vorgelesen werden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom.Desc">Nach Schweregrad: Jedes Ereignis ist kritisch, eine Warnung oder eine Info.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromCritical">Nur kritische</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromWarning">Kritische und Warnungen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromInfo">Alle Alarme</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume">Lautstärke der Stimme</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume.Desc">Wie laut die Stimme ist. Die Alarmtöne haben ihre eigene Lautstärke.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.voices">Stimmen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.voices.Desc">Die Stimme für jeden Schweregrad. Automatisch nimmt eine Stimme in der Sprache von MultiPreview, wenn Windows eine hat.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Automatic">Automatisch: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.DefaultVoice">Standardstimme von Windows</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Try">Testen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.TryFor">Die Stimme für Alarme der Stufe {0} testen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.VoiceFor">Stimme für Alarme der Stufe {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Example">So klingt ein Alarm.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.NoVoice">Windows hat keine Stimme für die Sprache von MultiPreview. Alarme werden mit einer anderen Stimme gesprochen, die sie vielleicht schlecht vorliest. Füge in den Spracheinstellungen von Windows eine Stimme hinzu oder wähle hier eine.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.NoVoices">In Windows ist keine Stimme installiert, deshalb kann nichts gesprochen werden. Füge in den Spracheinstellungen von Windows eine hinzu.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Title">Gesprochene Alarme</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">Ist **Alarme vorlesen** an, sagt eine Windows-Stimme, wessen Alarm es ist und was passiert ist: den Namen des Charakters und den Namen des Ereignisses, in der Sprache von MultiPreview. Du weißt ohne hinzusehen, wer dich braucht. Das zählt vor allem, wenn sich viele Clients einen Alarmton teilen.&#x0A;&#x0A;- **Welche Alarme vorgelesen werden** wählt nach Schweregrad: nur kritische, kritische und Warnungen oder alle.&#x0A;- Alarme eines Ereignisses, die zusammen eintreffen, sind ein Satz, etwa „3 Clients: Unter Beschuss“. Der schwerste Alarm wird zuerst gesagt.&#x0A;- Ein Alarm, der länger als 10 Sekunden gewartet hat, wird gar nicht mehr gesagt. Derselbe Alarm auf demselben Client wird innerhalb von 30 Sekunden nicht noch einmal gesagt, oder innerhalb der Ton-Ruhezeit des Ereignisses, wenn die länger ist.&#x0A;- Sprache ist ein Ton: „Nicht stören“ schaltet sie stumm, und ein stummgeschalteter Charakter oder ein zurückgestellter Alarm wird nicht gesprochen. **Alarmtöne abspielen** braucht sie nicht: Die Stimme funktioniert auch ohne die Töne.&#x0A;- **Stimmen** legt für jeden Schweregrad eine Stimme fest. Automatisch nimmt eine Stimme in der Sprache von MultiPreview, wenn Windows eine hat, sonst die Standardstimme von Windows. Stimmen fügst du in den Spracheinstellungen von Windows hinzu.&#x0A;- Wurde ein kritischer Alarm so oft wiederholt wie eingestellt und du hast immer noch nicht hingesehen, wird er noch einmal gesprochen.</sys:String> <!-- draft -->
 </ResourceDictionary>

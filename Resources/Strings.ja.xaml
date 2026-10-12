@@ -2194,4 +2194,26 @@
     <sys:String x:Key="L.S.Refused.WinKey">Windows は Win キーを含む組み合わせの多くを自分で使っています。拒否されたホットキーに Win が含まれている場合は、そのひとつである可能性が高いです。別の組み合わせを選んでください。</sys:String> <!-- draft -->
     <!-- Ideas batch 6 (Plan 10) -->
     <sys:String x:Key="L.Speech.Many">{0}クライアント：{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.speech">音声アラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speak">アラートを読み上げる</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speak.Desc">Windows の音声が、だれのアラートか、何が起きたかを読み上げます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom">読み上げるアラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom.Desc">重大度で選びます。イベントはすべて重大、警告、情報のいずれかです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromCritical">重大のみ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromWarning">重大と警告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromInfo">すべてのアラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume">音声の音量</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume.Desc">音声の大きさです。アラート音には別の音量があります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.voices">音声の種類</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.voices.Desc">重大度ごとの音声です。自動は、Windows に MultiPreview の言語の音声があればそれを使います。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Automatic">自動：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.DefaultVoice">Windows の既定の音声</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Try">試す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.TryFor">{0}アラートの音声を試す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.VoiceFor">{0}アラートの音声</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Example">アラートはこのように読み上げられます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.NoVoice">Windows に MultiPreview の言語の音声がありません。アラートは別の音声で読み上げられ、うまく読めないことがあります。Windows の音声設定で音声を追加するか、ここで選んでください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.NoVoices">Windows に音声がインストールされていないため、何も読み上げられません。Windows の音声設定で追加してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Title">音声アラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">**アラートを読み上げる** をオンにすると、Windows の音声が、だれのアラートか、何が起きたかを読み上げます。キャラクターの名前とイベントの名前を、MultiPreview の言語で読み上げます。画面を見なくても、だれが対応を必要としているかがわかります。多くのクライアントが同じアラート音を使っているときに特に役立ちます。&#x0A;&#x0A;- **読み上げるアラート** は重大度で選びます。重大のみ、重大と警告、またはすべてです。&#x0A;- 同じイベントのアラートが同時に届いたときは、「3クライアント：攻撃を受けています」のように 1 つの文になります。最も重大なアラートを最初に読み上げます。&#x0A;- 10 秒より長く待ったアラートは読み上げません。同じクライアントの同じアラートは 30 秒以内にはもう一度読み上げません。そのイベントのサウンドの静止時間のほうが長い場合は、その時間内は読み上げません。&#x0A;- 読み上げも音です。おやすみモードではミュートされ、ミュートしたキャラクターやスヌーズしたアラートは読み上げません。**アラート音を再生** は必要ありません。音がなくても音声は使えます。&#x0A;- **音声の種類** では重大度ごとに音声を決めます。自動は、Windows に MultiPreview の言語の音声があればそれを、なければ Windows の既定の音声を使います。音声は Windows の音声設定で追加します。&#x0A;- 重大なアラートを設定した回数だけ繰り返してもまだ見ていないときは、もう一度だけ読み上げます。</sys:String> <!-- draft -->
 </ResourceDictionary>

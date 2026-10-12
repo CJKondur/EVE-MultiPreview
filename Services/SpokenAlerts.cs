@@ -6,7 +6,12 @@ namespace EveMultiPreview.Services;
 
 /// <summary>What the player chose for spoken alerts (IDEAS #26): whether they are on, from which severity
 /// (<see cref="AlertWays.Reaches"/>), and how loud (0 to 100).</summary>
-public readonly record struct SpeechOptions(bool On, int From, int Volume);
+public readonly record struct SpeechOptions(bool On, int From, int Volume)
+{
+    /// <summary>What the settings say right now. A volume outside 0 to 100 is held to it.</summary>
+    public static SpeechOptions Of(EveMultiPreview.Models.AppSettings s) =>
+        new(s.SpeakAlerts, s.SpeakAlertsFrom, Math.Clamp(s.SpeechVolume, 0, 100));
+}
 
 /// <summary>One thing to say: an alert of one event, for one character or for several whose alerts came close
 /// together. <paramref name="FirstUtc"/> is the first of them.</summary>

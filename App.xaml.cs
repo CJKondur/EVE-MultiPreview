@@ -49,6 +49,10 @@ public partial class App : Application
     /// <summary>The further ways an alert reaches the player (IDEAS batch 6): spoken, as a Windows notification, by an
     /// enlarged thumbnail. Empty until one of them is added at startup; told of every alert that was shown.</summary>
     private readonly AlertWays _alertWays = new(LogError);
+    /// <summary>Spoken alerts (IDEAS #26): the voice of Windows, and the way that tells it what to say. Made at startup;
+    /// the way says nothing while "Speak alerts" is off.</summary>
+    private WindowsSpeaker? _speaker;
+    private SpokenWay? _spokenWay;
     /// <summary>"Left behind" (IDEAS #5): told every system change, asked on the one-second timer while the event is on.</summary>
     private readonly StragglerWatch _stragglers = new();
     /// <summary>The look for it and the alert it raises, with what App has for both (set at startup).</summary>
@@ -402,6 +406,15 @@ public partial class App : Application
                 Ways = (charName, alertType, severity) => _alertWays.Raised(_settings.Settings, charName, alertType, severity,
                     () => ThumbnailManager.InFront(_thumbnailManager.GetHwndForCharacter(charName), EveMultiPreview.Interop.User32.GetForegroundWindow())),
             };
+            // IDEAS #26: spoken alerts. The way is told of every alert that was shown, decides what is said, and
+            // says it on a thread of its own. Speech is a sound: do-not-disturb is asked for it as for the sound.
+            // The last word of a chain of repeats (IDEAS #29) is spoken once more.
+            _speaker = new WindowsSpeaker();
+            _spokenWay = new SpokenWay(_speaker, () => _settings.Settings,
+                (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
+                AlertHub.EventDisplayName, LocalizationService.Str, () => LocalizationService.CurrentLanguage, LogError);
+            _alertWays.Add(_spokenWay);
+            _escalation.HandOff = _spokenWay.HandedOff;
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
             // history writes on a thread of its own; old days are deleted here, at startup, and never while running.
             // A session whose settings could not be read runs on default values and saves nothing: its keep time is
@@ -1275,6 +1288,7 @@ public partial class App : Application
                     OpenAlertHistory = OpenAlertHistory,
                     Snoozes = _snoozes,
                     DoNotDisturbOn = () => DoNotDisturbOn,
+                    Speaker = _speaker,
                     CustomAlerts = _customAlerts,
                     // Which custom rules the log monitor has switched off for what they cost: the page says it on their cards.
                     CustomRulesSwitchedOff = () => _logMonitor?.CustomRulesSwitchedOff ?? CustomAlertEngine.NoneSwitchedOff,
@@ -1493,6 +1507,7 @@ public partial class App : Application
         _runMarker?.End();
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
+        _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
         _alertTimer?.Stop();
         _alertHub?.Dispose();
         _broadcastHud?.Dispose();

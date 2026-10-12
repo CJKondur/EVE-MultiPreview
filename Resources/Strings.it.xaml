@@ -2211,4 +2211,26 @@
     <sys:String x:Key="L.S.Refused.WinKey">Windows tiene per sé molte combinazioni con il tasto Win. Una scorciatoia rifiutata che contiene Win è molto probabilmente una di queste: scegli un'altra combinazione.</sys:String> <!-- draft -->
     <!-- Ideas batch 6 (Plan 10) -->
     <sys:String x:Key="L.Speech.Many">{0} client: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.speech">Avvisi vocali</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speak">Leggi gli avvisi ad alta voce</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speak.Desc">Una voce di Windows dice di chi è l'avviso e che cosa è successo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom">Quali avvisi leggere</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom.Desc">Per gravità: ogni evento è critico, di avviso o informativo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromCritical">Solo critici</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromWarning">Critici e di avviso</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FromInfo">Tutti gli avvisi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume">Volume della voce</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume.Desc">Quanto è alta la voce. I suoni degli avvisi hanno un volume proprio.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.voices">Voci</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.voices.Desc">La voce di ogni gravità. Automatica prende una voce nella lingua di MultiPreview quando Windows ne ha una.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Automatic">Automatica: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.DefaultVoice">la voce predefinita di Windows</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Try">Prova</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.TryFor">Prova la voce degli avvisi di gravità {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.VoiceFor">Voce degli avvisi di gravità {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.Example">Ecco come suona un avviso.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.NoVoice">Windows non ha una voce per la lingua di MultiPreview. Gli avvisi vengono detti con un'altra voce, che può leggerli male. Aggiungi una voce nelle impostazioni vocali di Windows, oppure scegline una qui.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Speech.NoVoices">Windows non ha nessuna voce installata, quindi non si può dire nulla. Aggiungine una nelle impostazioni vocali di Windows.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Title">Avvisi vocali</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">Con **Leggi gli avvisi ad alta voce** attivo, una voce di Windows dice di chi è l'avviso e che cosa è successo: il nome del personaggio e il nome dell'evento, nella lingua di MultiPreview. Sai chi ha bisogno di te senza guardare, e questo conta soprattutto quando molti client condividono lo stesso suono di avviso.&#x0A;&#x0A;- **Quali avvisi leggere** sceglie per gravità: solo critici, critici e di avviso, oppure tutti.&#x0A;- Gli avvisi di uno stesso evento che arrivano insieme sono una sola frase, come «3 client: Sotto attacco». L'avviso più grave viene detto per primo.&#x0A;- Un avviso che ha aspettato più di 10 secondi non viene più detto. Lo stesso avviso sullo stesso client non viene ripetuto entro 30 secondi, o entro il tempo di silenzio del suono di quell'evento se è più lungo.&#x0A;- La voce è un suono: non disturbare la silenzia, e un personaggio silenziato o un avviso posticipato non vengono detti. Non ha bisogno di **Riproduci i suoni degli avvisi**: la voce funziona senza i toni.&#x0A;- **Voci** imposta una voce per ogni gravità. Automatica prende una voce nella lingua di MultiPreview quando Windows ne ha una, altrimenti la voce predefinita di Windows. Le voci si aggiungono nelle impostazioni vocali di Windows.&#x0A;- Quando un avviso critico è stato ripetuto le volte impostate e non hai ancora guardato, viene detto ancora una volta.</sys:String> <!-- draft -->
 </ResourceDictionary>

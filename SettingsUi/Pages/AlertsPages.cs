@@ -48,6 +48,7 @@ public static class AlertsPages
             DoNotDisturbStateEditor.ItemId,
         }),
         new HelpTopic(SoundsId, "escalation", new[] { "alerts.sounds.escalate", "alerts.sounds.escalateAfter", "alerts.sounds.escalateRepeats" }),
+        new HelpTopic(SoundsId, "speech", new[] { "alerts.sounds.speak", "alerts.sounds.speakFrom", "alerts.sounds.speechVolume", SpeechVoicesEditor.ItemId }),
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
@@ -193,6 +194,23 @@ public static class AlertsPages
     private static SettingItem Wait(string id, Expression<Func<AppSettings, int>> prop) =>
         new(Setting.Number(id, prop, 0, 600, "L.S.Unit.Sec") with { ShowIf = s => s.AlertCooldownBySeverity });
 
+    /// <summary>From which severity a further way tells of an alert (IDEAS batch 6; AlertWays.Reaches): spoken
+    /// alerts, Windows notifications and the enlarged thumbnail each have a card with these three.</summary>
+    public static IReadOnlyList<ChoiceOption> FromOptions { get; } = new[]
+    {
+        new ChoiceOption(0, "L.S.Opt.FromCritical"), new ChoiceOption(1, "L.S.Opt.FromWarning"), new ChoiceOption(2, "L.S.Opt.FromInfo"),
+    };
+
+    /// <summary>A "from which severity" card. It shows the choice that is used: a stored number outside 0 to 2 is
+    /// held to it, and not rewritten.</summary>
+    private static SettingItem From(string id, Func<AppSettings, int> get, Action<AppSettings, int> set, string bind, Func<AppSettings, bool> showIf) =>
+        new(Setting.Custom(id, SettingKind.Choice, s => Math.Clamp(get(s), 0, 2),
+            (s, v) => set(s, Convert.ToInt32(v, CultureInfo.InvariantCulture)), binds: new[] { bind }) with
+        {
+            Options = FromOptions,
+            ShowIf = showIf,
+        });
+
     /// <summary>Sound files MediaPlayer plays (as Clients › Hotkeys' wrap-around sound).</summary>
     public static string SoundFilter =>
         LocalizationService.Str("L.S.Filter.Sounds", "Sound files") + " (*.wav, *.mp3)|*.wav;*.mp3|*.*|*.*";
@@ -265,6 +283,26 @@ public static class AlertsPages
                 Get = s => Math.Clamp(s.EscalationRepeats, AlertEscalation.MinRepeats, AlertEscalation.MaxRepeats),
                 ShowIf = s => s.EscalationEnabled,
             }),
+        }),
+        // IDEAS #26: SpokenWay reads all four for every alert that was shown (SpeechOptions.Of, SpeechVoiceChoice.For),
+        // so a change only saves.
+        new SectionDef("alerts.sounds.speech", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("alerts.sounds.speak", s => s.SpeakAlerts)),
+            From("alerts.sounds.speakFrom", s => s.SpeakAlertsFrom, (s, v) => s.SpeakAlertsFrom = v, "AppSettings.SpeakAlertsFrom", s => s.SpeakAlerts),
+            new SettingItem(Setting.Custom("alerts.sounds.speechVolume", SettingKind.Slider,
+                s => Math.Clamp(s.SpeechVolume, 0, 100),
+                (s, v) => s.SpeechVolume = (int)Math.Round(Convert.ToDouble(v, CultureInfo.InvariantCulture)),
+                binds: new[] { "AppSettings.SpeechVolume" }) with
+            {
+                Min = 0, Max = 100, Step = 1, UnitKey = "L.S.Unit.Percent",
+                ShowIf = s => s.SpeakAlerts,
+            }),
+            new EditorItem(SpeechVoicesEditor.ItemId, ctx => new SpeechVoicesEditor(ctx))
+            {
+                Binds = new[] { "AppSettings.SpeechVoices" },
+                ShowIf = s => s.SpeakAlerts,
+            },
         }),
         new SectionDef("alerts.sounds.list", new PageItem[]
         {

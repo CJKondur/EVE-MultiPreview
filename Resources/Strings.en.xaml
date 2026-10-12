@@ -2193,4 +2193,26 @@
     <sys:String x:Key="L.S.Refused.WinKey">Windows keeps many combinations with the Win key for itself. A refused hotkey with Win in it is most likely one of them: pick a different combination.</sys:String>
     <!-- Ideas batch 6 (Plan 10) -->
     <sys:String x:Key="L.Speech.Many">{0} clients: {1}</sys:String>
+    <sys:String x:Key="L.S.Sec.alerts.sounds.speech">Spoken alerts</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.speak">Speak alerts</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.speak.Desc">A Windows voice says whose alert it is and what happened.</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom">Speak which alerts</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.speakFrom.Desc">By severity: every event is critical, warning or info.</sys:String>
+    <sys:String x:Key="L.S.Opt.FromCritical">Critical only</sys:String>
+    <sys:String x:Key="L.S.Opt.FromWarning">Critical and warning</sys:String>
+    <sys:String x:Key="L.S.Opt.FromInfo">All alerts</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume">Voice volume</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.speechVolume.Desc">How loud the voice is. Alert sounds have a volume of their own.</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.voices">Voices</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.voices.Desc">The voice for each severity. Automatic takes a voice of MultiPreview's language when Windows has one.</sys:String>
+    <sys:String x:Key="L.S.Speech.Automatic">Automatic: {0}</sys:String>
+    <sys:String x:Key="L.S.Speech.DefaultVoice">Windows' default voice</sys:String>
+    <sys:String x:Key="L.S.Speech.Try">Try</sys:String>
+    <sys:String x:Key="L.S.Speech.TryFor">Try the voice for {0} alerts</sys:String>
+    <sys:String x:Key="L.S.Speech.VoiceFor">Voice for {0} alerts</sys:String>
+    <sys:String x:Key="L.S.Speech.Example">This is how an alert sounds.</sys:String>
+    <sys:String x:Key="L.S.Speech.NoVoice">Windows has no voice for MultiPreview's language. Alerts are spoken with another voice, which may read them badly. Add a voice in Windows' speech settings, or choose one here.</sys:String>
+    <sys:String x:Key="L.S.Speech.NoVoices">Windows has no voice installed, so nothing can be spoken. Add one in Windows' speech settings.</sys:String>
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Title">Spoken alerts</sys:String>
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">With **Speak alerts** on, a Windows voice says whose alert it is and what happened: the character's name and the event's name, in MultiPreview's language. You know who needs you without looking, which matters most when many clients share one alert sound.&#x0A;&#x0A;- **Speak which alerts** chooses by severity: critical only, critical and warning, or all.&#x0A;- Alerts of one event that arrive together are one sentence, such as "3 clients: Under attack". The most severe alert is said first.&#x0A;- An alert that has waited more than 10 seconds is not said at all. The same alert on the same client is not said again within 30 seconds, or within that event's sound quiet time if that is longer.&#x0A;- Speech is a sound: do not disturb mutes it, and a muted character or a snoozed alert is not spoken. It does not need **Play alert sounds**: the voice works without the tones.&#x0A;- **Voices** sets a voice for each severity. Automatic takes a voice of MultiPreview's language when Windows has one, and Windows' default voice otherwise. Voices are added in Windows' own speech settings.&#x0A;- When a critical alert has been repeated as often as set and you still have not looked, it is spoken once more.</sys:String>
 </ResourceDictionary>
