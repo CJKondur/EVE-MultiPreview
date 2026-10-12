@@ -48,6 +48,10 @@ public sealed class AlertTargets
     public Action<string, string, string> Toast { get; init; } = (_, _, _) => { };
     /// <summary>(character, alert type, severity): App.PlayAlertSound.</summary>
     public Action<string, string, string> Sound { get; init; } = (_, _, _) => { };
+    /// <summary>(character, alert type, severity): AlertWays.Raised. The further ways an alert reaches the player
+    /// (IDEAS batch 6): spoken, as a Windows notification, by an enlarged thumbnail. Called last, for an alert that
+    /// was shown and for no other.</summary>
+    public Action<string, string, string> Ways { get; init; } = (_, _, _) => { };
 }
 
 /// <summary>Decides what happens to an alert the log monitor raised, and does it. This is the body App's AlertTriggered
@@ -111,6 +115,7 @@ public static class AlertDispatcher
             to.Toast(charName, alertType, severity);
 
         to.Sound(charName, alertType, severity);
+        to.Ways(charName, alertType, severity);
         return toast ? AlertOutcome.Shown : AlertOutcome.NoToast;
     }
 }
