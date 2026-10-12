@@ -82,22 +82,38 @@ public sealed class AlertEnlarge : IAlertWay
         lock (_lock) return _held.ContainsKey(character);
     }
 
+    /// <summary>A character is forgotten: nothing is held for it any more, and no tick will speak of it. For the
+    /// caller that has put its thumbnail back itself (the player muted that character's alerts): the next alert
+    /// then finds nothing held and enlarges the thumbnail anew, where it would otherwise only have made an
+    /// enlargement longer that is not on the screen any more. The name is found whatever its case. Any thread.</summary>
+    public void Forget(string? character)
+    {
+        if (string.IsNullOrEmpty(character) || !Any) return;
+        lock (_lock)
+        {
+            if (_held.Remove(character)) Volatile.Write(ref _count, _held.Count);
+        }
+    }
+
     /// <summary>One look, on the window's thread: which thumbnails to enlarge now, and which to put back. A
     /// thumbnail is put back when its time is over, when its client is in front, and when the feature was switched
     /// off. A character no thumbnail carries any more is forgotten without a word: there is no window by that name
     /// to say it to. That does not mean that no window is left enlarged: a character that logs off keeps its
     /// client's window, which only changes its name. So the caller must put that window back itself, and does
     /// (ThumbnailManager: at the title change, and by a watchdog that asks <see cref="Holds"/>). Each thumbnail is
-    /// told to grow once and to go back once.
+    /// told to grow once and to go back once, except around a hold (<paramref name="holdGrowth"/>): there it is
+    /// told to go back for the hold and to grow again after it.
     /// <para>The two questions are asked while this object's lock is held (T6-m14), so that an alert noted on
     /// another thread meanwhile waits for the answer. They must therefore only look something up: they must not
     /// call back into this object, wait for anything, or throw (a question that throws ends the look before it has
     /// forgotten or told anything it had decided).</para></summary>
     /// <param name="clientInFront">Whether a character's client is the window in front. Asked under the lock.</param>
     /// <param name="hasThumbnail">Whether a character has a thumbnail (its client is running). Asked under the lock.</param>
-    /// <param name="holdGrowth">Nothing is told to grow at this look (a thumbnail's right-click menu is open, and a
-    /// thumbnail must not grow over it): what waits is told at the first look without it, if its time is not over
-    /// by then. What is over is put back all the same.</param>
+    /// <param name="holdGrowth">No thumbnail is to be enlarged at this look (a thumbnail's right-click menu is open:
+    /// an enlarged picture over a menu hides its items, and a click on the part that grew falls through to them).
+    /// Nothing is told to grow, and what WAS told to grow is told to go back and counts as not told again (RD-I1).
+    /// It stays held: everything that waits is told at the first look without the hold, if its time is not over by
+    /// then. What is over is put back all the same.</param>
     public IReadOnlyList<Change> Tick(DateTime utcNow, AppSettings s, Func<string, bool> clientInFront, Func<string, bool> hasThumbnail,
         bool holdGrowth = false)
     {
@@ -118,7 +134,16 @@ public sealed class AlertEnlarge : IAlertWay
                     if (held.Told && !gone) (changes ??= new List<Change>()).Add(new Change(character, 1.0));
                     (over ??= new List<string>()).Add(character);
                 }
-                else if (!held.Told && !holdGrowth)
+                else if (holdGrowth)
+                {
+                    // RD-I1: a menu is open. What was told to grow goes back, and is told again when the menu has closed.
+                    if (held.Told)
+                    {
+                        held.Told = false;
+                        (changes ??= new List<Change>()).Add(new Change(character, 1.0));
+                    }
+                }
+                else if (!held.Told)
                 {
                     held.Told = true;
                     (changes ??= new List<Change>()).Add(new Change(character, held.Scale));

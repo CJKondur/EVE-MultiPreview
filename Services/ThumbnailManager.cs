@@ -139,7 +139,8 @@ public sealed class ThumbnailManager : IDisposable
     /// answers (<see cref="TellEnlarged"/>). Only a character's main thumbnail is ever told: second thumbnails and
     /// crop windows are not enlarged. While nothing is enlarged this is one read. While the tray menu is open
     /// nothing is moved or raised (a thumbnail raised then would bury the menu): what is due is done when it has
-    /// closed. While a thumbnail's own right-click menu is open nothing grows, and what is over still goes back.</summary>
+    /// closed. While a thumbnail's own right-click menu is open no thumbnail is enlarged: nothing grows, what was
+    /// enlarged is told to go back (and to grow again when the menu has closed), and what is over still goes back.</summary>
     private void EnlargeTick()
     {
         if (!Enlarge.Any || _trayMenuOpen) return;
@@ -171,7 +172,8 @@ public sealed class ThumbnailManager : IDisposable
     /// of its own: AlertEnlarge has forgotten an enlargement by the time its thumbnail is told to go back, so one
     /// thumbnail that throws would otherwise cost every thumbnail behind it its going back, for ever. What was
     /// thrown is reported by its type, and the others are still told. While a thumbnail's right-click menu is open
-    /// nothing is told to grow (T6-I1): it is told when the menu has closed. What is over goes back meanwhile: a
+    /// nothing is told to grow (T6-I1), and what was told to grow is told to go back (RD-I1): each is told to grow
+    /// when the menu has closed, if its time is not over by then. What is over goes back meanwhile: a
     /// thumbnail's menu can stay open for a long time, because the window that shows it never becomes the window in
     /// front and a click into the game does not close it, and a thumbnail must not stay enlarged for that long.</summary>
     /// <param name="utcNow">Now, in UTC, as an alert's time is (AlertNotice.TimeUtc).</param>
@@ -1812,6 +1814,10 @@ public sealed class ThumbnailManager : IDisposable
         // neighbours and eats their clicks. Cheap per-tick correction.
         foreach (var (_, t) in _thumbnails) t.EnsureHoverStateValid();
 
+        // IDEAS #13 (RD-m4): a thumbnail's menu that is counted as open while it is not on the screen is counted
+        // closed. While the count is up no thumbnail is enlarged, so it must not stay up for a "closed" that was lost.
+        foreach (var (_, t) in _thumbnails) t.EnsureMenuStateValid();
+
         // IDEAS #13 watchdog (T6-C1): a thumbnail left enlarged for an alert that nothing will ever tell to go back
         // (its character logged off the window, or its "go back" failed) is put back here.
         foreach (var (_, t) in _thumbnails) PutBackUnheld(Enlarge, t, ReportEnlarge);
@@ -2728,7 +2734,13 @@ public sealed class ThumbnailManager : IDisposable
         // Clearing an in-progress flash on mute so a currently-flashing alt goes quiet now.
         if (until != null) ClearAlertFlash(charName);
         // Its thumbnail, enlarged for an alert, goes back now too (IDEAS #13, T6-m3), not when its seconds are over.
-        if (until != null) GetThumbnailForCharacter(charName)?.SetAlertScale(1.0);
+        // And the enlargement is forgotten (RD-m2): held on, it would swallow every alert that follows an unmute
+        // within its seconds (each would only make it longer, and enlarge nothing).
+        if (until != null)
+        {
+            GetThumbnailForCharacter(charName)?.SetAlertScale(1.0);
+            Enlarge.Forget(charName);
+        }
 
         ShowTooltipFeedback($"{charName}: {label}");
     }

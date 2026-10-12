@@ -517,22 +517,69 @@ public class ThumbnailWindow : Form
 
     private static int _openMenus;      // how many thumbnails have their right-click menu open; the window's thread only
     private bool _menuOpen;             // this one has
+    // The thumbnails that are enlarged for an alert right now: what an opening menu puts back (RD-I1). The window's
+    // thread only. A thumbnail is listed exactly while _alertGrown is true, and never after its Cleanup.
+    private static readonly System.Collections.Generic.List<ThumbnailWindow> _enlargedNow = new();
 
-    /// <summary>Some thumbnail's right-click menu is open (T6-I1). No thumbnail grows meanwhile: an enlarged
-    /// picture over a menu hides its items, and the part that grew lets a click fall through to them. What is over
-    /// still goes back.</summary>
+    /// <summary>Some thumbnail's right-click menu is open (T6-I1, RD-I1). No thumbnail is enlarged meanwhile: an
+    /// enlarged picture over a menu hides its items, and the part that grew lets a click fall through to them
+    /// ("Close client" ends the game client without asking). None grows, those that were enlarged are put back as
+    /// the menu opens, and none is raised as an enlarged one.</summary>
     public static bool MenuOpen => _openMenus > 0;
 
     /// <summary>This thumbnail's right-click menu opens (said before it is shown), or has closed. Said twice it
-    /// counts once. When it has closed, this thumbnail is looked at again: it was put back by the right-click and
-    /// may still be asked to be enlarged. The window says this around its own menu; a test says it in the menu's
-    /// place, because no test shows a menu.</summary>
+    /// counts once. When it opens, EVERY thumbnail that is enlarged for an alert goes back to its own size and
+    /// place, at once (RD-I1): this one also where the press did not put it back (with "Lock positions" a
+    /// right-click starts no drag), and a neighbour that was enlarged before. The manager's tick then tells them
+    /// to go back and, when no menu is open any more, to grow again. When it has closed, this thumbnail is looked
+    /// at again: it may still be asked to be enlarged. The window says this around its own menu; a test says it in
+    /// the menu's place, because no test shows a menu.</summary>
     public void NoteMenu(bool open)
     {
-        if (_menuOpen == open) return;
+        if (!CountMenu(open)) return;
+        if (open) PutEnlargedBackForAMenu();
+        else FollowAlertScale();
+    }
+
+    /// <summary>Counts this thumbnail's menu as open or closed, once however often it is said. False when it was
+    /// counted so already.</summary>
+    private bool CountMenu(bool open)
+    {
+        if (_menuOpen == open) return false;
         _menuOpen = open;
         _openMenus += open ? 1 : -1;
-        if (!open) FollowAlertScale();
+        return true;
+    }
+
+    /// <summary>Every thumbnail that is enlarged for an alert goes back, now. Each in a try of its own: one that
+    /// Windows refuses to move must not cost the others their going back, nor the menu its opening. Such a
+    /// thumbnail still counts as enlarged (it is not raised while a menu is open), and the manager's tick asks it
+    /// back again within its 50 ms and reports the refusal by its type.</summary>
+    private static void PutEnlargedBackForAMenu()
+    {
+        foreach (var thumb in _enlargedNow.ToArray())
+        {
+            if (thumb.IsDisposed)
+            {
+                _enlargedNow.Remove(thumb);
+                continue;
+            }
+            try { thumb.ShrinkFromAlert(); }
+            catch (Exception) { /* still enlarged, and it says so: the tick asks it back again and reports */ }
+        }
+    }
+
+    /// <summary>Whether this thumbnail's right-click menu is on the screen. A test answers in the menu's place,
+    /// because no test shows one.</summary>
+    protected virtual bool MenuShown => _menu?.Strip.Visible == true;
+
+    /// <summary>Safety net for the count of open menus (RD-m4), run for every thumbnail at each focus sweep, beside
+    /// the hover zoom's: a menu that is counted as open while it is not on the screen is counted closed. If the
+    /// menu's "closed" were ever lost, the count would stay up and no thumbnail would be enlarged until that
+    /// thumbnail's next menu or until its client went. One read while its menu is not counted.</summary>
+    public void EnsureMenuStateValid()
+    {
+        if (_menuOpen && !MenuShown) NoteMenu(false);
     }
 
     /// <summary>Whether raising the thumbnails is held off right now. Set by ThumbnailManager: while the settings
@@ -545,10 +592,12 @@ public class ThumbnailWindow : Form
     /// this one in such a loop cover most of what the enlargement added). Only while the thumbnails are in the
     /// topmost band, which is "always on top", or "keep thumbnails above clients" while a client is in front: with
     /// both off an enlarged thumbnail is never raised and stands where it stood among the other windows. And not
-    /// while raising is held off. One read while it is not enlarged.</summary>
+    /// while raising is held off, and not while a thumbnail's right-click menu is open (RD-I1): no thumbnail is
+    /// enlarged then, and one that Windows refused to put back must not be lifted over the menu. One read while it
+    /// is not enlarged.</summary>
     public void RaiseWhileEnlarged()
     {
-        if (_alertGrown && _isTopmost && RaiseSuppressed?.Invoke() != true) RaiseAboveNeighbours();
+        if (_alertGrown && _isTopmost && !MenuOpen && RaiseSuppressed?.Invoke() != true) RaiseAboveNeighbours();
     }
 
     /// <summary>The raise itself: the window's own BringToFront, which is raw SetWindowPos without activation, as
@@ -580,17 +629,23 @@ public class ThumbnailWindow : Form
     /// on the monitor that place is on. So a thumbnail that is moved while it is enlarged (T6-m6) is fitted to the
     /// monitor again, as it was when it grew. False when there is no room to grow at that place: the window then
     /// stands at the place itself, at its own size. The window first, the note of it behind: if Windows refuses
-    /// the move, what the manager reads (and saves) stays true of the window.</summary>
+    /// the move, what the manager reads (and saves) stays true of the window. That holds for a refusal that throws
+    /// and for a move Windows ignores without a word (RD-m3): a window that stands exactly where it stood has not
+    /// moved, so nothing is noted, and it is still what it was (not enlarged, or enlarged around its old place).</summary>
     private bool StandAround(System.Drawing.Rectangle own)
     {
         var grown = AlertEnlarge.Place(own, _alertScale, WorkAreaFor(own));
         bool enlarged = grown != own;
         if (!enlarged && !_alertGrown) return false;   // no room to grow on this monitor, and nothing to undo
+        var before = base.Bounds;
         bool resized = grown.Size != base.Size;
         base.SetBounds(grown.Left, grown.Top, grown.Width, grown.Height);
+        if (grown != before && base.Bounds == before) return _alertGrown;   // RD-m3: ignored without a word
         _alertDx = own.Left - grown.Left;
         _alertDy = own.Top - grown.Top;
         _alertGrown = enlarged;
+        _enlargedNow.Remove(this);
+        if (enlarged) _enlargedNow.Add(this);
         if (resized) UpdateThumbnailSize();   // a move alone leaves the picture as it is
         _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
         return enlarged;
@@ -602,9 +657,13 @@ public class ThumbnailWindow : Form
         var own = OwnPlace();
         // The window first, the note of it behind (T6-m1): a window Windows refuses to move still stands enlarged,
         // so it still counts as enlarged. It then still answers with its own place, and the manager's watchdog
-        // asks it back again.
+        // asks it back again. The same when Windows ignores the move without a word (RD-m3): the window stands
+        // where it stood, enlarged.
+        var before = base.Bounds;
         base.SetBounds(own.Left, own.Top, own.Width, own.Height);
+        if (own != before && base.Bounds == before) return;
         _alertGrown = false;
+        _enlargedNow.Remove(this);
         UpdateThumbnailSize();
         _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
     }
@@ -1476,7 +1535,17 @@ public class ThumbnailWindow : Form
         // IDEAS #13 (T6-m2): a window that is closing is asked back first. StopDrag below asks "enlarge now?", and a
         // thumbnail that was told to grow during a drag would grow, and be raised, on its way out.
         _alertScale = 1.0;
-        StopDrag();
+        // RD-m7: the end of the drag is also the go-back of a window that closes enlarged, and Windows can refuse
+        // that. A refusal must not skip what follows: the timers, the menu's count and the DWM thumbnail.
+        try
+        {
+            StopDrag();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Thumb:Cleanup] the way back from an alert's enlargement failed: {ex.GetType().Name}");
+        }
+        _enlargedNow.Remove(this);   // a window that is gone is not asked back by the next menu
 
         _hoverTimer?.Stop();
         _hoverTimer?.Dispose();
@@ -1487,8 +1556,8 @@ public class ThumbnailWindow : Form
         _underFirePulseTimer = null;
 
         // IDEAS #13 (T6-I1): a window that goes while its menu is open takes its count with it, or no thumbnail
-        // would grow again.
-        NoteMenu(false);
+        // would grow again. Only the count (RD-m7): a window that goes is not looked at again for an enlargement.
+        CountMenu(false);
         _menu?.Dispose();
         _menu = null;
 
