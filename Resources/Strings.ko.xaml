@@ -2246,11 +2246,11 @@
     <sys:String x:Key="L.S.GroupAlerts.ChoiceFor">{1} 그룹의 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Members">구성원: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.NoMembers">이 그룹은 이 프로필에 구성원이 없어서, 선택한 내용이 아무 일도 하지 않아요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.GroupAlerts.Overridden">앞에 있는 그룹에도 속해 있어요. 두 그룹이 모두 선택한 이벤트는 그 그룹이 정해요: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Overridden">다른 그룹에도 속한 구성원은 위 행에 나온 대로 받지 않을 수 있어요. 한 캐릭터의 그룹들이 이벤트에 대해 서로 다르게 선택하면 켜짐이 우선해서, 그 캐릭터에게는 이벤트가 켜져요. 이벤트를 모두와 같게 둔 그룹은 결정에 관여하지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.NoGroups">아직 그룹이 없어요. 그룹 페이지에서 하나 만들어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Clear">이 그룹의 선택 지우기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.groups.Title">그룹별 알림</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.groups.Body">그룹(클라이언트 › 그룹)마다 어떤 이벤트를 켤지 따로 고를 수 있어요. 그러면 채굴 캐릭터는 화물칸이 가득 찼다는 알림을 받고, 전투 캐릭터는 받지 않아요.&#x0A;&#x0A;- 그룹을 고른 다음, 이벤트를 그 그룹에서 켜거나 꺼요. 모두와 같게 둔 이벤트는 위의 **알림 이벤트** 카드에 있는 스위치를 따라요.&#x0A;- 그룹은 모두에게 꺼져 있는 이벤트를 켤 수 있고, 켜져 있는 이벤트를 끌 수 있어요.&#x0A;- 어떤 그룹에도 없는 캐릭터는 항상 모두의 스위치를 따라요.&#x0A;- 여러 그룹에 속한 캐릭터는 그룹 페이지에서 앞에 있는 그룹 가운데 그 이벤트를 선택한 첫 번째 그룹이 정해요. 한 그룹의 선택이 구성원에게 먼저 닿지 않으면 카드가 알려 줘요.&#x0A;- 캐릭터에게 꺼져 있는 이벤트는 그 캐릭터의 알림이 아니에요. 아무것도 표시되거나 재생되거나 읽히지 않고, 알림 기록에도 남지 않아요.&#x0A;- 사용자 지정 규칙은 그룹에서 끌 수 있어요. 규칙 자체 페이지에서 꺼 둔 규칙은 모두에게 꺼져 있어요.&#x0A;- 그룹의 이름을 바꿔도 선택은 그대로 따라가고, 구성원이 없는 동안에는 아무 일도 하지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.groups.Body">그룹(클라이언트 › 그룹)마다 어떤 이벤트를 켤지 따로 고를 수 있어요. 그러면 채굴 캐릭터는 화물칸이 가득 찼다는 알림을 받고, 전투 캐릭터는 받지 않아요.&#x0A;&#x0A;- 그룹을 고른 다음, 이벤트를 그 그룹에서 켜거나 꺼요. 모두와 같게 둔 이벤트는 위의 **알림 이벤트** 카드에 있는 스위치를 따라요.&#x0A;- 그룹은 모두에게 꺼져 있는 이벤트를 켤 수 있고, 켜져 있는 이벤트를 끌 수 있어요.&#x0A;- 어떤 그룹에도 없는 캐릭터는 항상 모두의 스위치를 따라요.&#x0A;- 여러 그룹에 속한 캐릭터는 켜짐이 우선해요. 그 캐릭터의 그룹들이 이벤트에 대해 서로 다르게 선택하면 그 이벤트는 켜져요. 이벤트를 모두와 같게 둔 그룹은 결정에 관여하지 않아요. 카드는 행 아래에, 행에 나온 것과 다르게 받는 구성원과 그것을 정하는 그룹을 알려 줘요.&#x0A;- 캐릭터에게 꺼져 있는 이벤트는 그 캐릭터의 알림이 아니에요. 아무것도 표시되거나 재생되거나 읽히지 않고, 알림 기록에도 남지 않아요.&#x0A;- 사용자 지정 규칙은 그룹에서 끌 수 있어요. 규칙 자체 페이지에서 꺼 둔 규칙은 모두에게 꺼져 있어요.&#x0A;- 그룹의 이름을 바꿔도 선택은 그대로 따라가고, 구성원이 없는 동안에는 아무 일도 하지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.neutralized">캐패시터 중화</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.jammed">재밍</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">캐패시터 중화와 재밍은 켜기 전까지 꺼져 있고, 영어 게임 클라이언트에서만 읽어요.</sys:String> <!-- draft -->
@@ -2262,4 +2262,13 @@
     <sys:String x:Key="L.S.Notify.TestButton">테스트 알림 표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.Blocked">Windows가 MultiPreview의 알림을 표시하지 않고 있어요. Windows 자체 설정에서 모든 프로그램 또는 EVE MultiPreview의 알림이 꺼져 있어요. 거기서 켜요("시스템", 그다음 "알림").</sys:String> <!-- draft -->
     <sys:String x:Key="L.Notify.TestLine">테스트예요. 버튼은 아무 일도 하지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.GetsOn">{0}: {1} 켜짐({2} 그룹이 켬)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.GetsOff">{0}: {1} 꺼짐({2} 그룹이 끔)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Join">{0}, {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.SharedName">이 이름을 쓰는 그룹이 둘 이상이에요. 선택을 함께 쓰고, 구성원도 함께 표시돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ClearAsk">“{0}” 그룹의 알림 선택을 지울까요? 모든 이벤트가 다시 모두의 스위치를 따라요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ClearYes">선택 지우기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ClearNo">선택 유지</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.OpenGroups">그룹 페이지 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.NotKept">이 선택은 저장되지 않았어요. 그룹 선택을 더 저장할 자리가 없어요. 더는 필요 없는 그룹의 선택을 지우거나, 이 그룹의 이름을 더 짧게 바꿔요.</sys:String> <!-- draft -->
 </ResourceDictionary>

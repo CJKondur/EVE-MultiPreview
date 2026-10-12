@@ -2263,11 +2263,11 @@
     <sys:String x:Key="L.S.GroupAlerts.ChoiceFor">分组 {1} 的 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Members">成员：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.NoMembers">这个分组在当前配置里没有成员，所以它的选择不起作用。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.GroupAlerts.Overridden">同时也在排在前面的分组里；两个分组都做了选择的事件由前面的分组决定：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Overridden">同时在其他分组里的成员，不一定都按上面各行所示收到警报。同一个角色的分组对某个事件意见不一致时，以“开启”为准：这个事件对该角色是开启的。把事件保持“与所有人相同”的分组不参与决定。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.NoGroups">还没有分组。请在“分组”页面创建一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Clear">清除这个分组的选择</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.groups.Title">按分组设置警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.groups.Body">每个分组（客户端 › 分组）可以自己选择开启哪些事件，这样矿工会收到货舱已满的警报，而战斗角色不会。&#x0A;&#x0A;- 先选择分组，再把某个事件设为对它开启或关闭。保持“与所有人相同”的事件遵循上面 **警报事件** 里的开关。&#x0A;- 分组可以开启一个对所有人关闭的事件，也可以关闭一个已开启的事件。&#x0A;- 不在任何分组里的角色始终使用所有人的开关。&#x0A;- 对于同时在多个分组里的角色，每个事件由“分组”页面上排在最前面、并且对该事件做了选择的分组决定。当某个分组的选择不能最先作用于它的某个成员时，卡片会说明。&#x0A;- 对某个角色关闭的事件，对它来说就不是警报：不会显示、播放或朗读任何内容，也不会进入警报历史。&#x0A;- 自定义规则可以对某个分组关闭。在规则自己的页面里关闭的规则对所有人都关闭。&#x0A;- 重命名分组时，它的选择会跟着走；分组没有成员时，这些选择不起作用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.groups.Body">每个分组（客户端 › 分组）可以自己选择开启哪些事件，这样矿工会收到货舱已满的警报，而战斗角色不会。&#x0A;&#x0A;- 先选择分组，再把某个事件设为对它开启或关闭。保持“与所有人相同”的事件遵循上面 **警报事件** 里的开关。&#x0A;- 分组可以开启一个对所有人关闭的事件，也可以关闭一个已开启的事件。&#x0A;- 不在任何分组里的角色始终使用所有人的开关。&#x0A;- 对于同时在多个分组里的角色，以“开启”为准：它的分组对某个事件意见不一致时，这个事件就是开启的。把事件保持“与所有人相同”的分组不参与决定。卡片会在各行下面列出每个与各行所示不同的成员，以及做出决定的分组。&#x0A;- 对某个角色关闭的事件，对它来说就不是警报：不会显示、播放或朗读任何内容，也不会进入警报历史。&#x0A;- 自定义规则可以对某个分组关闭。在规则自己的页面里关闭的规则对所有人都关闭。&#x0A;- 重命名分组时，它的选择会跟着走；分组没有成员时，这些选择不起作用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.neutralized">电容被中和</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.jammed">被干扰</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">“电容被中和”和“被干扰”在你开启之前是关闭的，并且只从英文游戏客户端读取。</sys:String> <!-- draft -->
@@ -2279,4 +2279,13 @@
     <sys:String x:Key="L.S.Notify.TestButton">显示一条测试通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.Blocked">Windows 没有显示 MultiPreview 的通知：它们在 Windows 自己的设置里被关闭了，可能是对所有程序，也可能只对 EVE MultiPreview。请在那里打开（“系统”，然后“通知”）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Notify.TestLine">这是一条测试。它的按钮什么都不做。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.GetsOn">{0}：{1} 为开启（{2} 选择了开启）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.GetsOff">{0}：{1} 为关闭（{2} 选择了关闭）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Join">{0}、{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.SharedName">有不止一个分组使用这个名称。它们共用这些选择，成员也合并列出。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ClearAsk">要清除分组“{0}”的警报选择吗？每个事件都会重新遵循所有人的开关。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ClearYes">清除选择</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ClearNo">保留选择</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.OpenGroups">打开“分组”页面</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.NotKept">这个选择没有保存：已经放不下更多的分组选择。请清除不再需要的分组选择，或者给这个分组起一个短一些的名称。</sys:String> <!-- draft -->
 </ResourceDictionary>

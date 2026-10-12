@@ -2246,11 +2246,11 @@
     <sys:String x:Key="L.S.GroupAlerts.ChoiceFor">グループ {1} の {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Members">メンバー：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.NoMembers">このグループには、このプロファイルでメンバーがいないため、選択は何もしません。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.GroupAlerts.Overridden">先にあるグループにも入っていて、両方のグループが選んだイベントではそちらが決めます：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Overridden">ほかのグループにも入っているメンバーは、上の行のとおりになるとは限りません。キャラクターのグループの間でイベントの設定が食い違うときは、オンが優先され、そのキャラクターではイベントがオンになります。イベントを「全員と同じ」のままにしたグループは、決定に関わりません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.NoGroups">グループはまだありません。グループのページで作成してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Clear">このグループの選択を消去</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.groups.Title">グループごとのアラート</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.groups.Body">グループ（クライアント › グループ）ごとに、どのイベントをオンにするかを選べます。採掘担当には積荷がいっぱいになったことを知らせ、戦闘担当には知らせない、といった使い方ができます。&#x0A;&#x0A;- グループを選び、イベントをそのグループでオンまたはオフに設定します。「全員と同じ」のままのイベントは、上の **アラートイベント** のスイッチに従います。&#x0A;- グループは、全員ではオフのイベントをオンにでき、オンのイベントをオフにできます。&#x0A;- どのグループにも入っていないキャラクターには、常に全員用のスイッチが使われます。&#x0A;- 複数のグループに入っているキャラクターでは、グループのページで先にあるグループのうち、そのイベントについて選択をした最初のグループが決めます。グループの選択が先にメンバーに届かない場合は、カードにそのことが表示されます。&#x0A;- キャラクターにとってオフのイベントは、そのキャラクターのアラートではありません。何も表示されず、再生も読み上げもされず、アラート履歴にも残りません。&#x0A;- カスタムルールはグループごとにオフにできます。ルール自身のページでオフにしたルールは、全員でオフです。&#x0A;- グループの選択は、グループの名前を変えても引き継がれます。メンバーがいない間は何もしません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.groups.Body">グループ（クライアント › グループ）ごとに、どのイベントをオンにするかを選べます。採掘担当には積荷がいっぱいになったことを知らせ、戦闘担当には知らせない、といった使い方ができます。&#x0A;&#x0A;- グループを選び、イベントをそのグループでオンまたはオフに設定します。「全員と同じ」のままのイベントは、上の **アラートイベント** のスイッチに従います。&#x0A;- グループは、全員ではオフのイベントをオンにでき、オンのイベントをオフにできます。&#x0A;- どのグループにも入っていないキャラクターには、常に全員用のスイッチが使われます。&#x0A;- 複数のグループに入っているキャラクターでは、オンが優先されます。グループの間でイベントの設定が食い違うときは、そのイベントはオンです。イベントを「全員と同じ」のままにしたグループは、決定に関わりません。カードは行の下に、行の表示と違う結果になるメンバーと、それを決めるグループを表示します。&#x0A;- キャラクターにとってオフのイベントは、そのキャラクターのアラートではありません。何も表示されず、再生も読み上げもされず、アラート履歴にも残りません。&#x0A;- カスタムルールはグループごとにオフにできます。ルール自身のページでオフにしたルールは、全員でオフです。&#x0A;- グループの選択は、グループの名前を変えても引き継がれます。メンバーがいない間は何もしません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.neutralized">キャパシタ中和</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.jammed">ジャミング</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">キャパシタ中和とジャミングは、オンにするまでオフです。英語版のゲームクライアントからのみ読み取ります。</sys:String> <!-- draft -->
@@ -2262,4 +2262,13 @@
     <sys:String x:Key="L.S.Notify.TestButton">テスト通知を表示</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.Blocked">Windows が MultiPreview の通知を表示していません。Windows 自身の設定で、すべてのプログラムまたは EVE MultiPreview の通知がオフになっています。そこでオンにしてください（「システム」、「通知」の順）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Notify.TestLine">これはテストです。ボタンは何もしません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.GetsOn">{0}：{1} はオンです（{2} がオンにしています）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.GetsOff">{0}：{1} はオフです（{2} がオフにしています）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Join">{0}、{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.SharedName">この名前のグループが複数あります。選択は共有され、メンバーはまとめて表示されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ClearAsk">グループ「{0}」のアラートの選択を消去しますか？すべてのイベントが、再び全員用のスイッチに従います。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ClearYes">選択を消去</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ClearNo">選択を残す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.OpenGroups">グループのページを開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.NotKept">この選択は保存されませんでした。グループの選択をこれ以上保存できません。不要になったグループの選択を消去するか、このグループの名前を短くしてください。</sys:String> <!-- draft -->
 </ResourceDictionary>

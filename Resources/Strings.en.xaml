@@ -2245,11 +2245,11 @@
     <sys:String x:Key="L.S.GroupAlerts.ChoiceFor">{0} for the group {1}</sys:String>
     <sys:String x:Key="L.S.GroupAlerts.Members">Members: {0}</sys:String>
     <sys:String x:Key="L.S.GroupAlerts.NoMembers">This group has no members in this profile, so its choices do nothing.</sys:String>
-    <sys:String x:Key="L.S.GroupAlerts.Overridden">Also in a group that comes first, which decides where both groups chose: {0}</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.Overridden">Members who are in another group as well do not all get what the rows above say. When a character's groups disagree about an event, on wins: the event is on for that character. A group that left the event as everyone has no say.</sys:String>
     <sys:String x:Key="L.S.GroupAlerts.NoGroups">There are no groups yet. Make one on the Groups page.</sys:String>
     <sys:String x:Key="L.S.GroupAlerts.Clear">Clear this group's choices</sys:String>
     <sys:String x:Key="L.Help.alerts.events.groups.Title">Alerts per group</sys:String>
-    <sys:String x:Key="L.Help.alerts.events.groups.Body">A group (Clients › Groups) can have its own choice of which events are on, so that the miners are told of a full cargo hold and the combat pilots are not.&#x0A;&#x0A;- Pick the group, then set an event to on or off for it. An event left as everyone follows its switch in **Alert events** above.&#x0A;- A group can switch on an event that is off for everyone, and switch off one that is on.&#x0A;- A character in no group always has the switches for everyone.&#x0A;- For a character in several groups, the first of them on the Groups page that chose about an event decides for that event. The card says so when a group's choices do not reach one of its members first.&#x0A;- An event that is off for a character is no alert for it: nothing is shown, played or spoken, and it is not in the alert history.&#x0A;- A custom rule can be switched off for a group. A rule that is switched off on its own page is off for everybody.&#x0A;- A group's choices go with it when you rename it, and do nothing while it has no members.</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.groups.Body">A group (Clients › Groups) can have its own choice of which events are on, so that the miners are told of a full cargo hold and the combat pilots are not.&#x0A;&#x0A;- Pick the group, then set an event to on or off for it. An event left as everyone follows its switch in **Alert events** above.&#x0A;- A group can switch on an event that is off for everyone, and switch off one that is on.&#x0A;- A character in no group always has the switches for everyone.&#x0A;- For a character in several groups, on wins: when its groups disagree about an event, the event is on. A group that left the event as everyone has no say. Under its rows, the card lists each member who gets something other than the rows say, with the group that decides.&#x0A;- An event that is off for a character is no alert for it: nothing is shown, played or spoken, and it is not in the alert history.&#x0A;- A custom rule can be switched off for a group. A rule that is switched off on its own page is off for everybody.&#x0A;- A group's choices go with it when you rename it, and do nothing while it has no members.</sys:String>
     <sys:String x:Key="L.AlertEvt.neutralized">Capacitor neutralized</sys:String>
     <sys:String x:Key="L.AlertEvt.jammed">Jammed</sys:String>
     <sys:String x:Key="L.S.alerts.events.ewarNote">Capacitor neutralized and Jammed are off until you switch them on, and are read from an English game client only.</sys:String>
@@ -2261,4 +2261,13 @@
     <sys:String x:Key="L.S.Notify.TestButton">Show a test notification</sys:String>
     <sys:String x:Key="L.S.Notify.Blocked">Windows is not showing MultiPreview's notifications: they are turned off in Windows' own settings, for all programs or for EVE MultiPreview. Turn them on there (System, then Notifications).</sys:String>
     <sys:String x:Key="L.Notify.TestLine">This is a test. Its buttons do nothing.</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.GetsOn">{0}: {1} is on ({2} says on)</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.GetsOff">{0}: {1} is off ({2} says off)</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.Join">{0}, {1}</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.SharedName">More than one group has this name. They share these choices, and their members are listed together.</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.ClearAsk">Clear the alert choices of the group “{0}”? Every event follows the switch for everyone again.</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.ClearYes">Clear the choices</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.ClearNo">Keep the choices</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.OpenGroups">Open the Groups page</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.NotKept">That choice was not kept: there is no room for more group choices. Clear choices another group no longer needs, or give this group a shorter name.</sys:String>
 </ResourceDictionary>
