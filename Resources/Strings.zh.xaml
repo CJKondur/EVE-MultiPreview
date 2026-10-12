@@ -2252,4 +2252,20 @@
     <sys:String x:Key="L.S.alerts.look.enlargeSeconds.Desc">从警报开始计算的秒数。你切换到那个客户端时，它会立刻恢复。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.enlarge.Title">警报时放大</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.enlarge.Body">打开 **警报时放大缩略图** 后，发出警报的客户端的缩略图会放大几秒钟，让你不用切换过去就能看到那里发生了什么。&#x0A;&#x0A;- **哪些警报会放大** 按严重程度选择。**放大后的大小** 和 **保持放大的时间** 决定放多大、放多久。那个客户端上更新的警报会让它保持放大更久。&#x0A;- 时间到了它会自己恢复；那个客户端切换到前台时，它会立刻恢复。&#x0A;- 它以自己的中心为基准放大，不会比显示器更大；如果会超出屏幕，就会被移回屏幕内。你的布局不会改变，放大的状态也不会被保存。&#x0A;- 放大期间，只有缩略图原本的位置接受点击。点击放大出来的部分不算点击这个缩略图，所以在指针下方放大的缩略图不会意外切换客户端。&#x0A;- 指针下方的缩略图、正在拖动的缩略图和前台客户端不会放大。第二缩略图和裁剪窗口从不放大。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.events.groups">按分组设置警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.groups">某个分组的警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.groups.Desc">每个分组可以自己选择开启哪些事件。保持“与所有人相同”的事件遵循上面的表格。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Group">分组</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.AsEveryoneOn">与所有人相同（开启）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.AsEveryoneOff">与所有人相同（关闭）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.On">对这个分组开启</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Off">对这个分组关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ChoiceFor">分组 {1} 的 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Members">成员：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.NoMembers">这个分组在当前配置里没有成员，所以它的选择不起作用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Overridden">同时也在排在前面的分组里；两个分组都做了选择的事件由前面的分组决定：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.NoGroups">还没有分组。请在“分组”页面创建一个。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Clear">清除这个分组的选择</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.groups.Title">按分组设置警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.groups.Body">每个分组（客户端 › 分组）可以自己选择开启哪些事件，这样矿工会收到货舱已满的警报，而战斗角色不会。&#x0A;&#x0A;- 先选择分组，再把某个事件设为对它开启或关闭。保持“与所有人相同”的事件遵循上面 **警报事件** 里的开关。&#x0A;- 分组可以开启一个对所有人关闭的事件，也可以关闭一个已开启的事件。&#x0A;- 不在任何分组里的角色始终使用所有人的开关。&#x0A;- 对于同时在多个分组里的角色，每个事件由“分组”页面上排在最前面、并且对该事件做了选择的分组决定。当某个分组的选择不能最先作用于它的某个成员时，卡片会说明。&#x0A;- 对某个角色关闭的事件，对它来说就不是警报：不会显示、播放或朗读任何内容，也不会进入警报历史。&#x0A;- 自定义规则可以对某个分组关闭。在规则自己的页面里关闭的规则对所有人都关闭。&#x0A;- 重命名分组时，它的选择会跟着走；分组没有成员时，这些选择不起作用。</sys:String> <!-- draft -->
 </ResourceDictionary>

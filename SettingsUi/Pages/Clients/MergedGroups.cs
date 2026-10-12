@@ -147,6 +147,8 @@ public static class MergedGroups
         foreach (var profile in s.Profiles.Values)
             if (profile.HotkeyGroups.Remove(g.Name, out var half)) profile.HotkeyGroups[newName] = half;
         if (g.Colour != null) g.Colour.Name = newName;
+        // IDEAS #31: the group's alert choices are kept under its name, and go with it.
+        s.GroupAlertProfiles = Services.GroupAlertChoices.Rename(s.GroupAlertProfiles, g.Name, newName);
         g.Name = newName;
         return true;
     }
@@ -163,5 +165,8 @@ public static class MergedGroups
             s.ThumbnailGroups.Remove(g.Colour);   // reference equality: ThumbnailGroup has no Equals
             g.Colour = null;
         }
+        // IDEAS #31: while a group of that name is left (its colour half, or its keys in another profile), so are
+        // its alert choices.
+        if (IsNameFree(s, g.Name)) s.GroupAlertProfiles = Services.GroupAlertChoices.Forget(s.GroupAlertProfiles, g.Name);
     }
 }

@@ -162,6 +162,15 @@ public sealed class AlertProfiles
         Volatile.Write(ref _now, picture);
     }
 
+    /// <summary>Takes the settings as they are now, with the choices they hold.</summary>
+    public void Publish(AppSettings s) => Publish(s, s.GroupAlertProfiles);
+
+    /// <summary>What the log monitor may raise, with the choices the settings hold; null while none counts.</summary>
+    public static Dictionary<string, bool>? MonitorSet(AppSettings s) => MonitorSet(s, s.GroupAlertProfiles);
+
+    /// <summary>The members of a group that an earlier group's choices reach first, with the choices the settings hold.</summary>
+    public static IReadOnlyList<(string Character, string Group)> Overridden(AppSettings s, string group) => Overridden(s, s.GroupAlertProfiles, group);
+
     /// <summary>Some group that exists and has a member has a choice of its own.</summary>
     public bool Any => Volatile.Read(ref _now).Any;
 

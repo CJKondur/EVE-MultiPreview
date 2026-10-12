@@ -2235,4 +2235,20 @@
     <sys:String x:Key="L.S.alerts.look.enlargeSeconds.Desc">アラートからの秒数です。そのクライアントに切り替えると、すぐに元に戻ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.enlarge.Title">アラート時の拡大</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.enlarge.Body">**アラート時にサムネイルを拡大** をオンにすると、アラートを出したクライアントのサムネイルが数秒間大きくなり、切り替えなくてもそこで何が起きているかを確認できます。&#x0A;&#x0A;- **拡大するアラート** は重大度で選びます。**拡大時の大きさ** と **拡大したままの時間** で大きさと長さを決めます。そのクライアントに新しいアラートが来ると、拡大が長く続きます。&#x0A;- 時間が過ぎると自動的に元に戻り、そのクライアントが前面に来るとすぐに戻ります。&#x0A;- サムネイルは自分の中心を基準に大きくなります。モニターより大きくなることはなく、はみ出す場合は画面の中に戻されます。レイアウトは変わらず、拡大した状態は保存されません。&#x0A;- 拡大している間は、サムネイル本来の場所だけがクリックを受け付けます。大きくなった部分のクリックはそのサムネイルのクリックにはなりません。そのため、ポインターの下で大きくなったサムネイルが誤ってクライアントを切り替えることはありません。&#x0A;- ポインターの下にあるサムネイル、ドラッグ中のサムネイル、前面のクライアントは拡大しません。2 つ目のサムネイルとクロップウィンドウは常に拡大しません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.events.groups">グループごとのアラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.groups">グループのアラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.groups.Desc">グループごとに、どのイベントをオンにするかを選べます。「全員と同じ」のままのイベントは上の表に従います。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Group">グループ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.AsEveryoneOn">全員と同じ（オン）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.AsEveryoneOff">全員と同じ（オフ）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.On">このグループではオン</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Off">このグループではオフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.ChoiceFor">グループ {1} の {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Members">メンバー：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.NoMembers">このグループには、このプロファイルでメンバーがいないため、選択は何もしません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Overridden">先にあるグループにも入っていて、両方のグループが選んだイベントではそちらが決めます：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.NoGroups">グループはまだありません。グループのページで作成してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.Clear">このグループの選択を消去</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.groups.Title">グループごとのアラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.groups.Body">グループ（クライアント › グループ）ごとに、どのイベントをオンにするかを選べます。採掘担当には積荷がいっぱいになったことを知らせ、戦闘担当には知らせない、といった使い方ができます。&#x0A;&#x0A;- グループを選び、イベントをそのグループでオンまたはオフに設定します。「全員と同じ」のままのイベントは、上の **アラートイベント** のスイッチに従います。&#x0A;- グループは、全員ではオフのイベントをオンにでき、オンのイベントをオフにできます。&#x0A;- どのグループにも入っていないキャラクターには、常に全員用のスイッチが使われます。&#x0A;- 複数のグループに入っているキャラクターでは、グループのページで先にあるグループのうち、そのイベントについて選択をした最初のグループが決めます。グループの選択が先にメンバーに届かない場合は、カードにそのことが表示されます。&#x0A;- キャラクターにとってオフのイベントは、そのキャラクターのアラートではありません。何も表示されず、再生も読み上げもされず、アラート履歴にも残りません。&#x0A;- カスタムルールはグループごとにオフにできます。ルール自身のページでオフにしたルールは、全員でオフです。&#x0A;- グループの選択は、グループの名前を変えても引き継がれます。メンバーがいない間は何もしません。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -49,6 +49,9 @@ public partial class App : Application
     /// <summary>The further ways an alert reaches the player (IDEAS batch 6): spoken, as a Windows notification, by an
     /// enlarged thumbnail. Empty until one of them is added at startup; told of every alert that was shown.</summary>
     private readonly AlertWays _alertWays = new(LogError);
+    /// <summary>Alerts per group (IDEAS #31): for which characters an event is on. ApplyAlertSwitches hands it the
+    /// settings; the dispatcher asks it first, for every alert. While no group has a choice it answers "on" at once.</summary>
+    private readonly AlertProfiles _alertProfiles = new();
     /// <summary>Spoken alerts (IDEAS #26): the voice of Windows, and the way that tells it what to say. Made at startup;
     /// the way says nothing while "Speak alerts" is off.</summary>
     private WindowsSpeaker? _speaker;
@@ -251,6 +254,8 @@ public partial class App : Application
                 _thumbnailManager?.ApplyAllClientSlots();
             else if (_settings.Settings.TrackClientPositions)
                 _thumbnailManager?.RestoreAllClientPositions();
+            // IDEAS #31: a group's members can differ per profile, so for whom an event is on is worked out again.
+            ApplyAlertSwitches();
             // Recovery net (issue #81): never carry a stuck crops-hidden state across a switch.
             _cropManager?.ShowCrops();
             _cropManager?.Refresh();
@@ -328,8 +333,7 @@ public partial class App : Application
             _logMonitor.SetCooldown(_settings.Settings.AlertCooldown);
             _logMonitor.SetSettings(_settings.Settings);
 
-            if (_settings.Settings.EnabledAlertTypes != null)
-                _logMonitor.SetEnabledAlertTypes(_settings.Settings.EnabledAlertTypes);
+            ApplyAlertSwitches();   // IDEAS #31: which events are on, for the log monitor and for the gate
             if (_settings.Settings.SeverityCooldowns != null)
                 _logMonitor.SetEventCooldowns(_settings.Settings.SeverityCooldowns);
             _logMonitor.SetSeverityCooldowns(LogMonitorService.SeverityWaits(_settings.Settings));   // IDEAS P28
@@ -392,6 +396,8 @@ public partial class App : Application
             // checks in the same order, the same calls) and says what became of the alert (IDEAS #1).
             var alertTargets = new AlertTargets
             {
+                // IDEAS #31: asked first. An event that is off for this character (its group's choice) is no alert for it.
+                IsOn = (charName, alertType) => _alertProfiles.IsOn(charName, alertType),
                 ActiveCharacters = () => _thumbnailManager.GetActiveCharacterNames(),
                 IsMuted = charName => _thumbnailManager.IsCharacterAlertMuted(charName),
                 IsSnoozed = (charName, alertType) => _snoozes.IsSnoozed(charName, alertType),
@@ -451,7 +457,7 @@ public partial class App : Application
             // is shown with, and the history. Its toast says where the others went ("Jita → Perimeter 3/4") in the
             // system's place: the hub asks that class.
             _stragglerAlerts = new StragglerAlerts(_stragglers, () => _settings.Settings, () => _thumbnailManager.GetActiveCharacterNames(),
-                _logMonitor.GetCharacterSystem, alertTargets, _alertHistory, LogError);
+                _logMonitor.GetCharacterSystem, alertTargets, _alertHistory, LogError, LeftBehindOn);
             _alertHub.PlaceLookup = _stragglerAlerts.PlaceOf;
             // IDEAS #17: "Go to the last alert" walks back through the history's memory list once nothing is unseen.
             _thumbnailManager.RecentAlerts = () => _alertHistory.Recent();
@@ -810,7 +816,7 @@ public partial class App : Application
     {
         if (_alertTimer == null || _settings == null) return;
         if (!AlertEscalation.Needed(_settings.Settings)) _escalation.Forget();
-        bool needed = !_isShuttingDown && (AlertEscalation.Needed(_settings.Settings) || StragglerWatch.IsOn(_settings.Settings));
+        bool needed = !_isShuttingDown && (AlertEscalation.Needed(_settings.Settings) || LeftBehindOn(_settings.Settings));
         switch (AlertEscalation.TimerChange(needed, _alertTimer.IsEnabled))
         {
             case true: _alertTimer.Start(); break;
@@ -832,13 +838,13 @@ public partial class App : Application
             var s = _settings.Settings;
             var now = DateTime.UtcNow;
             // IDEAS #5: has a jump wave left a member of a group behind? Asked before escalation, whatever that is set to.
-            if (StragglerWatch.IsOn(s)) LookForStragglers(now);
+            if (LeftBehindOn(s)) LookForStragglers(now);
             _escalation.Tick(s, now,
                 unseen: () => _thumbnailManager.Attention.Unseen(),
                 // What ends a chain for good: the character is muted, the event is snoozed for it, the character has
                 // no client left to go to, or the event was switched off (a rule of the player's own: off or deleted).
                 quieted: (who, type) => _thumbnailManager.IsCharacterAlertMuted(who) || _snoozes.IsSnoozed(who, type)
-                    || _thumbnailManager.GetHwndForCharacter(who) == IntPtr.Zero || !AlertEscalation.EventOn(s, type),
+                    || _thumbnailManager.GetHwndForCharacter(who) == IntPtr.Zero || !_alertProfiles.StillOn(s, who, type),
                 soundsHeld: () => _doNotDisturb.Silences(s, "critical", DateTime.Now),
                 doNotDisturb: () => DoNotDisturbOn,
                 play: (due, volume) => PlayAlertSound(due.Alert.Character, due.Alert.EventKey, due.Alert.Severity, due.Number, volume),
@@ -886,6 +892,24 @@ public partial class App : Application
     private string? ActionOfHotkey(string hotkey) => _settings == null ? null
         : SettingsUi.RefusedHotkeysEditor.UsesOf(hotkey,
             SettingsUi.HotkeyUses.All(_settings.Settings, SettingsUi.SettingsRegistry.Settings)).FirstOrDefault()?.Label;
+
+    /// <summary>IDEAS #31: which events are on. The gate is handed its picture of the groups' choices, and the log
+    /// monitor what it may raise: the settings' own table while no group has a choice (as it always was), otherwise
+    /// what is on for everyone or for some group. Called on the window's thread: at startup, after every settings
+    /// change, and at a profile switch.</summary>
+    private void ApplyAlertSwitches()
+    {
+        if (_settings == null) return;
+        var s = _settings.Settings;
+        _alertProfiles.Publish(s);
+        if (_logMonitor != null && s.EnabledAlertTypes != null)
+            _logMonitor.SetEnabledAlertTypes(AlertProfiles.MonitorSet(s) ?? s.EnabledAlertTypes);
+    }
+
+    /// <summary>Whether "Left behind" is looked for: it is on for everyone, or (IDEAS #31) some group switched it on.
+    /// Each alert a look raises still passes the gate for its own character.</summary>
+    private bool LeftBehindOn(EveMultiPreview.Models.AppSettings s) =>
+        StragglerWatch.IsOn(s) || _alertProfiles.OnForSomeone(StragglerWatch.EventKey);
 
     /// <summary>IDEAS #5, once a second while the event is on: has a jump wave left a member of a group behind?
     /// StragglerAlerts looks (the groups as the Groups page has them, the characters that have a client, where the
@@ -1253,8 +1277,7 @@ public partial class App : Application
             {
                 _logMonitor.PveMode = _settings.Settings.PveMode;
                 _logMonitor.SetCooldown(_settings.Settings.AlertCooldown);
-                if (_settings.Settings.EnabledAlertTypes != null)
-                    _logMonitor.SetEnabledAlertTypes(_settings.Settings.EnabledAlertTypes);
+                ApplyAlertSwitches();   // IDEAS #31: which events are on, for the log monitor and for the gate
                 if (_settings.Settings.SeverityCooldowns != null)
                     _logMonitor.SetEventCooldowns(_settings.Settings.SeverityCooldowns);
                 _logMonitor.SetSeverityCooldowns(LogMonitorService.SeverityWaits(_settings.Settings));   // IDEAS P28

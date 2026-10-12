@@ -195,6 +195,13 @@ public class AppSettings
     public int EnlargeOnAlertPercent { get; set; } = 200;
     public int EnlargeOnAlertSeconds { get; set; } = 5;
 
+    /// <summary>Alerts per group (IDEAS #31): which events a group of Clients › Groups switches on or off for its
+    /// members, as one line of JSON text ({"Miners":{"attack":false}}; GroupAlertChoices reads it). An event a group
+    /// says nothing about, and a character in no group, has the switch for everyone (EnabledAlertTypes). Read by App,
+    /// which hands AlertProfiles its picture and the log monitor its table. New key: "" in a file without it, which
+    /// is "no group has a choice".</summary>
+    public string GroupAlertProfiles { get; set; } = "";
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

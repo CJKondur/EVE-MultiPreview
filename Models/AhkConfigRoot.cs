@@ -124,6 +124,7 @@ public class AhkConfigRoot
         s.EnlargeOnAlertFrom = g.EnlargeOnAlertFrom;
         s.EnlargeOnAlertPercent = g.EnlargeOnAlertPercent;
         s.EnlargeOnAlertSeconds = g.EnlargeOnAlertSeconds;
+        s.GroupAlertProfiles = g.GroupAlertProfiles ?? "";
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -447,6 +448,7 @@ public class AhkConfigRoot
         g.EnlargeOnAlertFrom = s.EnlargeOnAlertFrom;
         g.EnlargeOnAlertPercent = s.EnlargeOnAlertPercent;
         g.EnlargeOnAlertSeconds = s.EnlargeOnAlertSeconds;
+        g.GroupAlertProfiles = s.GroupAlertProfiles;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1262,6 +1264,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("EnlargeOnAlertSeconds")]
     public int EnlargeOnAlertSeconds { get; set; } = 5;
+
+    // Alerts per group (IDEAS #31), new after 2.3.42: one line of JSON text. A file without it loads "": no group has a choice.
+    [JsonPropertyName("GroupAlertProfiles")]
+    public string? GroupAlertProfiles { get; set; } = "";
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

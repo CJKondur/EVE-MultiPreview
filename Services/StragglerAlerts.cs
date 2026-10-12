@@ -18,6 +18,7 @@ public sealed class StragglerAlerts
     private readonly AlertTargets _targets;
     private readonly AlertHistory? _history;
     private readonly Action<Exception> _failed;
+    private readonly Func<AppSettings, bool> _isOn;
 
     /// <param name="watch">The rule. App tells it every system change itself (StragglerWatch.Moved).</param>
     /// <param name="settings">The settings as they are now.</param>
@@ -27,9 +28,14 @@ public sealed class StragglerAlerts
     /// <param name="history">The alert history, or null where there is none.</param>
     /// <param name="failed">Is told what a look or one alert threw (App logs it). Nothing leaves <see cref="Look"/> as
     /// an exception: a timer whose tick threw would tick no more.</param>
+    /// <param name="isOn">Whether to look at all: the event is on for everyone, or (IDEAS #31) for some group. Each
+    /// alert a look raises still passes the dispatcher's gate for its own character. Without it: the switch for
+    /// everyone (StragglerWatch.IsOn).</param>
     public StragglerAlerts(StragglerWatch watch, Func<AppSettings> settings, Func<IEnumerable<string>> running,
-        Func<string, string?> systemOf, AlertTargets targets, AlertHistory? history, Action<Exception> failed)
+        Func<string, string?> systemOf, AlertTargets targets, AlertHistory? history, Action<Exception> failed,
+        Func<AppSettings, bool>? isOn = null)
     {
+        _isOn = isOn ?? StragglerWatch.IsOn;
         _watch = watch;
         _settings = settings;
         _running = running;
@@ -60,7 +66,7 @@ public sealed class StragglerAlerts
         try
         {
             var s = _settings();
-            if (!StragglerWatch.IsOn(s)) return;
+            if (!_isOn(s)) return;
             left = _watch.Check(utcNow, Groups(s), _running(), _systemOf, StragglerWatch.Wait(s.StragglerWaitSeconds));
         }
         catch (Exception ex)

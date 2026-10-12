@@ -30,6 +30,7 @@ public static class AlertsPages
         new HelpTopic(EventsId, "combat", new[] { "alerts.events.pve", "alerts.events.underFire", "alerts.events.underFireTime" }),
         new HelpTopic(EventsId, "table", new[] { EventTableId, "alerts.events.repeatWait", "alerts.events.repeatBySeverity" }),
         new HelpTopic(EventsId, "straggler", new[] { "alerts.events.stragglerWait" }),
+        new HelpTopic(EventsId, "groups", new[] { GroupAlertsEditor.ItemId }),
         new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
         new HelpTopic(LookId, "thumbnail", new[]
         {
@@ -128,6 +129,12 @@ public static class AlertsPages
             {
                 Get = s => Math.Clamp(s.StragglerWaitSeconds, StragglerWatch.MinWaitSeconds, StragglerWatch.MaxWaitSeconds),
             }),
+        }),
+        // IDEAS #31: a group's own choice of which events are on. App hands it to the gate (AlertProfiles) and to the
+        // log monitor on Applied.
+        new SectionDef("alerts.events.groups", new PageItem[]
+        {
+            new EditorItem(GroupAlertsEditor.ItemId, ctx => new GroupAlertsEditor(ctx)) { Binds = new[] { "AppSettings.GroupAlertProfiles" } },
         }),
         // IDEAS #30: what is snoozed for one character right now, with a way to end it, and whether the timed snoozes
         // outlive a restart. App follows the switch on Applied (the snooze file is written or removed).

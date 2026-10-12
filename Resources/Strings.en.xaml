@@ -2234,4 +2234,20 @@
     <sys:String x:Key="L.S.alerts.look.enlargeSeconds.Desc">Seconds from the alert. It goes back at once when you switch to that client.</sys:String>
     <sys:String x:Key="L.Help.alerts.look.enlarge.Title">Enlarging on an alert</sys:String>
     <sys:String x:Key="L.Help.alerts.look.enlarge.Body">With **Enlarge the thumbnail on an alert** on, the thumbnail of a client that raises an alert grows for a few seconds, so you can see what is happening there without switching to it.&#x0A;&#x0A;- **Enlarge for which alerts** chooses by severity. **Enlarged size** and **Stays enlarged for** set how large and how long. A newer alert on that client keeps it enlarged longer.&#x0A;- It goes back by itself when the time is over, and at once when that client comes to the front.&#x0A;- It grows around its own middle, never larger than the monitor, and is moved back onto the screen where it would stick out. Your layout is not changed, and nothing of the enlargement is saved.&#x0A;- While it is enlarged, only the thumbnail's own place takes a click. A click on the part that grew is not a click on that thumbnail, so a thumbnail that grows under the pointer never switches clients by accident.&#x0A;- The thumbnail under the pointer, one you are dragging and the client in front are not enlarged. Second thumbnails and crop windows never are.</sys:String>
+    <sys:String x:Key="L.S.Sec.alerts.events.groups">Alerts per group</sys:String>
+    <sys:String x:Key="L.S.alerts.events.groups">Alerts for one group</sys:String>
+    <sys:String x:Key="L.S.alerts.events.groups.Desc">A group can have its own choice of which events are on. An event left as everyone follows the table above.</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.Group">Group</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.AsEveryoneOn">As everyone (on)</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.AsEveryoneOff">As everyone (off)</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.On">On for this group</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.Off">Off for this group</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.ChoiceFor">{0} for the group {1}</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.Members">Members: {0}</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.NoMembers">This group has no members in this profile, so its choices do nothing.</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.Overridden">Also in a group that comes first, which decides where both groups chose: {0}</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.NoGroups">There are no groups yet. Make one on the Groups page.</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.Clear">Clear this group's choices</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.groups.Title">Alerts per group</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.groups.Body">A group (Clients › Groups) can have its own choice of which events are on, so that the miners are told of a full cargo hold and the combat pilots are not.&#x0A;&#x0A;- Pick the group, then set an event to on or off for it. An event left as everyone follows its switch in **Alert events** above.&#x0A;- A group can switch on an event that is off for everyone, and switch off one that is on.&#x0A;- A character in no group always has the switches for everyone.&#x0A;- For a character in several groups, the first of them on the Groups page that chose about an event decides for that event. The card says so when a group's choices do not reach one of its members first.&#x0A;- An event that is off for a character is no alert for it: nothing is shown, played or spoken, and it is not in the alert history.&#x0A;- A custom rule can be switched off for a group. A rule that is switched off on its own page is off for everybody.&#x0A;- A group's choices go with it when you rename it, and do nothing while it has no members.</sys:String>
 </ResourceDictionary>
