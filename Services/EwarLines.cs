@@ -24,6 +24,12 @@ public static class EwarLines
     public const string NeutralizedSeverity = "critical", JammedSeverity = "warning";
     public const int NeutralizedBit = 1, JammedBit = 2;
 
+    /// <summary>A neutralizer and a jam are states, not hits: the log has a line for every cycle of the module, and
+    /// the player is told once when it starts and then not again for this many seconds, for that character and that
+    /// event. The reader hands it to its raise as the event's own quiet time; the quiet time of Settings counts
+    /// where it is the longer of the two.</summary>
+    public const int QuietSeconds = 30;
+
     /// <summary>The most characters an amount may have ("1,234.5").</summary>
     public const int MaxAmountLength = 12;
 

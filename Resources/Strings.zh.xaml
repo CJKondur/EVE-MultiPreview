@@ -2272,7 +2272,7 @@
     <sys:String x:Key="L.AlertEvt.jammed">被干扰</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">“电容被中和”和“被干扰”在你开启之前是关闭的，并且只从英文游戏客户端读取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.ewar.Title">“电容被中和”和“被干扰”</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.ewar.Body">两个常常出现在受到伤害之前的事件： **电容被中和** ，即能量中和器夺走你舰船的电容； **被干扰** ，即你的舰船受到干扰并失去锁定。&#x0A;&#x0A;- 两者在你于上面的表格中开启之前都是关闭的。&#x0A;- 它们根据英文游戏客户端的文字读取。游戏使用其他语言时，它们不会触发任何警报。&#x0A;- 开启 **PVE 模式** 时，中和或干扰你的 NPC 不会触发任何警报；玩家仍然会。&#x0A;- 抽取你电容的掠能器不包括在内，只包括中和器。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Body">两个常常出现在受到伤害之前的事件： **电容被中和** ，即能量中和器夺走你舰船的电容； **被干扰** ，即你的舰船受到干扰并失去锁定。&#x0A;&#x0A;- 两者在你于上面的表格中开启之前都是关闭的。&#x0A;- 每个事件在开始时触发一次警报，持续期间对该角色最多每 30 秒再触发一次。&#x0A;- 它们根据英文游戏客户端的文字读取。游戏使用其他语言时，它们不会触发任何警报。&#x0A;- 开启 **PVE 模式** 时，中和或干扰你的 NPC 不会触发任何警报；玩家仍然会。&#x0A;- 抽取你电容的掠能器不包括在内，只包括中和器。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.TryFailed">Windows 没能读出这句话。请检查是否安装了语音，以及是否连接了声音设备。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest">测试通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">立刻显示一条通知，让你看到 Windows 是否放行。它的按钮什么都不做。</sys:String> <!-- draft -->

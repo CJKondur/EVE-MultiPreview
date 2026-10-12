@@ -2267,8 +2267,11 @@ public sealed class LogMonitorService : IDisposable
         if (!EwarLines.TryRead(line, _ewarOn, out var type, out var severity, out var source)) return;
         if (PveMode && IsNpc(EwarLines.SourceName(source))) return;
 
+        // A neutralizer and a jam are states, with a line for every cycle of the module: told when one starts, and
+        // then not before the events' own quiet time is over, or the quiet time of Settings where that is longer.
+        int quiet = Math.Max(EwarLines.QuietSeconds, CooldownFor(type, severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds));
         _lastEventTime = DateTime.Now;
-        TriggerAlert(character, type, severity);
+        TriggerAlert(character, type, severity, quiet);
     }
 
     private void ParseCombatLine(string line, string character)

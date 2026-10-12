@@ -2255,7 +2255,7 @@
     <sys:String x:Key="L.AlertEvt.jammed">ジャミング</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">キャパシタ中和とジャミングは、オンにするまでオフです。英語版のゲームクライアントからのみ読み取ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.ewar.Title">キャパシタ中和とジャミング</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.ewar.Body">ダメージの前によく起きる二つのイベントです。 **キャパシタ中和** は、エネルギーニュートラライザーが艦のキャパシタを奪ったとき、 **ジャミング** は、艦がジャミングを受けてロックを失ったときに発生します。&#x0A;&#x0A;- どちらも、上の表でオンにするまでオフです。&#x0A;- 英語版のゲームクライアントの文言から読み取ります。ほかの言語のゲームでは何も発生しません。&#x0A;- **PVE モード** がオンのとき、NPC による中和やジャミングでは何も発生しません。プレイヤーによるものは発生します。&#x0A;- キャパシタを吸い取るノスフェラトゥは対象外で、ニュートラライザーだけが対象です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Body">ダメージの前によく起きる二つのイベントです。 **キャパシタ中和** は、エネルギーニュートラライザーが艦のキャパシタを奪ったとき、 **ジャミング** は、艦がジャミングを受けてロックを失ったときに発生します。&#x0A;&#x0A;- どちらも、上の表でオンにするまでオフです。&#x0A;- どちらも、始まったときに一度発生し、続いている間はそのキャラクターについて最大で 30 秒に一度だけ発生します。&#x0A;- 英語版のゲームクライアントの文言から読み取ります。ほかの言語のゲームでは何も発生しません。&#x0A;- **PVE モード** がオンのとき、NPC による中和やジャミングでは何も発生しません。プレイヤーによるものは発生します。&#x0A;- キャパシタを吸い取るノスフェラトゥは対象外で、ニュートラライザーだけが対象です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.TryFailed">Windows はこの文を読み上げられませんでした。音声がインストールされていること、サウンド デバイスが接続されていることを確認してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest">テスト通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">通知をすぐに 1 つ表示し、Windows が通知を通すかどうかを確かめられます。そのボタンは何もしません。</sys:String> <!-- draft -->
