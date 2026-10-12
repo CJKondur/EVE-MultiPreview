@@ -56,8 +56,9 @@ public sealed class AlertTargets
     /// <summary>(character, alert type, severity): App.PlayAlertSound.</summary>
     public Action<string, string, string> Sound { get; init; } = (_, _, _) => { };
     /// <summary>(character, alert type, severity): AlertWays.Raised. The further ways an alert reaches the player
-    /// (IDEAS batch 6): spoken, as a Windows notification, by an enlarged thumbnail. Called last, for an alert that
-    /// was shown and for no other.</summary>
+    /// (IDEAS batch 6): spoken, as a Windows notification, by an enlarged thumbnail. Called last, for every alert
+    /// that got past the gates (border, badge and sound), with a hub toast or without one: the outcomes
+    /// <see cref="AlertOutcome.Shown"/> and <see cref="AlertOutcome.NoToast"/>. For no other outcome.</summary>
     public Action<string, string, string> Ways { get; init; } = (_, _, _) => { };
 }
 

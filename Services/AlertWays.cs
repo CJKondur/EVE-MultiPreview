@@ -36,7 +36,10 @@ public sealed class AlertWays
     private readonly Action<Exception> _failed;
     private readonly Func<DateTime> _utcNow;
 
-    /// <param name="failed">Is told what a way threw (App logs it). It may throw itself: that is swallowed.</param>
+    /// <param name="failed">Is told that a way threw, or the question "is that client in front": what failed and the
+    /// TYPE of what was thrown, never its message. A message can hold a character's name (a table keyed by one says
+    /// which key it missed), App writes what it is told to error_log.txt, and players post that file. It may throw
+    /// itself: that is swallowed.</param>
     public AlertWays(Action<Exception>? failed = null, Func<DateTime>? utcNow = null)
     {
         _failed = failed ?? (_ => { });
@@ -55,11 +58,21 @@ public sealed class AlertWays
 
     public int Count => Volatile.Read(ref _ways).Length;
 
-    /// <summary>Whether any way is switched on.</summary>
+    /// <summary>Whether any way is switched on. A way whose answer throws counts as off, as in <see cref="Raised"/>:
+    /// it is reported, and the ways behind it are still asked.</summary>
     public bool AnyOn(AppSettings s)
     {
         foreach (var way in Volatile.Read(ref _ways))
-            if (way.IsOn(s)) return true;
+        {
+            try
+            {
+                if (way.IsOn(s)) return true;
+            }
+            catch (Exception ex)
+            {
+                Report(way.GetType().Name, ex);
+            }
+        }
         return false;
     }
 
@@ -76,14 +89,35 @@ public sealed class AlertWays
             try
             {
                 if (!way.IsOn(s)) continue;
-                notice ??= new AlertNotice(_utcNow(), character, eventKey, severity, clientInFront());
+                notice ??= new AlertNotice(_utcNow(), character, eventKey, severity, InFront(clientInFront));
                 way.Raised(notice, s);
             }
             catch (Exception ex)
             {
-                try { _failed(ex); } catch { /* reporting must never cost the alert */ }
+                Report(way.GetType().Name, ex);
             }
         }
+    }
+
+    /// <summary>Asks "is that client in front" in a try of its own. When the question throws, it is reported and
+    /// the answer is "no", so that every way is still told: speech never uses the answer, and an alert told once
+    /// too often is better than one that reaches nobody.</summary>
+    private bool InFront(Func<bool> clientInFront)
+    {
+        try { return clientInFront(); }
+        catch (Exception ex)
+        {
+            Report("asking whether the client is in front", ex);
+            return false;
+        }
+    }
+
+    /// <summary>Tells the reporter what failed and the type of what was thrown. Never the exception itself: its
+    /// message is not for the error log (see the constructor).</summary>
+    private void Report(string what, Exception ex)
+    {
+        try { _failed(new InvalidOperationException("Alert ways: " + what + " failed (" + ex.GetType().Name + ")")); }
+        catch { /* reporting must never cost the alert */ }
     }
 
     /// <summary>Whether a way set to tell "from this severity" tells of an alert of <paramref name="severity"/>.

@@ -3,11 +3,13 @@ using System.Threading.Tasks;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>Runs one piece of work at a time on the thread pool, never on the thread that asks for it (IDEAS batch
-/// 6). The work is a "drain": it takes what is waiting somewhere else (the utterances to speak, the notifications
-/// to show) until nothing is left. <see cref="Wake"/> starts it unless it is running; a wake that comes while it
-/// runs makes it run once more afterwards, so nothing that arrived during a run is left waiting. The pump holds no
-/// queue of its own, so nothing can pile up in it.</summary>
+/// <summary>Runs one piece of work at a time on the thread pool, never inside <see cref="Wake"/> (IDEAS batch 6):
+/// Wake asks for a run and returns, so whoever wakes the pump never waits for the work. (Not "on another thread":
+/// the log reader's thread is a pool thread itself, and a run may land on it once it is back in the pool.) The work
+/// is a "drain": it takes what is waiting somewhere else (the utterances to speak, the notifications to show) until
+/// nothing is left. <see cref="Wake"/> starts it unless it is running; a wake that comes while it runs makes it run
+/// once more afterwards, so nothing that arrived during a run is left waiting. The pump holds no queue of its own,
+/// so nothing can pile up in it.</summary>
 public sealed class WorkPump
 {
     private readonly Func<Task> _drain;
@@ -17,7 +19,9 @@ public sealed class WorkPump
     private TaskCompletionSource _idle = Done();
 
     /// <param name="drain">The work. What it throws is reported and costs that run; the next wake runs it again.</param>
-    /// <param name="failed">Is told what the work threw (App logs it).</param>
+    /// <param name="failed">Is told that the work threw, and the TYPE of what it threw, never its message: the work
+    /// speaks and shows characters' names, so a message can hold one, App writes what it is told to error_log.txt,
+    /// and players post that file.</param>
     public WorkPump(Func<Task> drain, Action<Exception>? failed = null)
     {
         _drain = drain;
@@ -56,7 +60,8 @@ public sealed class WorkPump
             try { await _drain().ConfigureAwait(false); }
             catch (Exception ex)
             {
-                try { _failed(ex); } catch { /* reporting must never stop the pump */ }
+                try { _failed(new InvalidOperationException("Alert ways: the work of a way failed (" + ex.GetType().Name + ")")); }
+                catch { /* reporting must never stop the pump */ }
             }
             TaskCompletionSource idle;
             lock (_lock)
