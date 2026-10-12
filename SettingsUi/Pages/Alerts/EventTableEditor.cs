@@ -56,7 +56,8 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
     public string GroupsNote => _groupsNote.Text;
 
     /// <summary>Puts the line under the table on what the settings hold now. Looked at every two seconds while the
-    /// table is shown: the choices are made on another card of the page.</summary>
+    /// table is shown: the choices are made on another card of the page. That card calls this at once when it has
+    /// cleared a group's choices (RE2-m7), so that the line does not name the group for two seconds more.</summary>
     public void ShowGroupsNote()
     {
         _groupsNote.Text = GroupAlertsEditor.Note(_ctx.S);

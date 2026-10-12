@@ -63,9 +63,10 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         _groups.SelectionChanged += (_, _) =>
         {
             if (_building) return;
+            string warned = _warning.Text;
             Selected = _groups.SelectedItem as string;
             ShowGroup();
-            SayLines();
+            SayLines(warned);
         };
         _clear = EditorCard.Button("L.S.GroupAlerts.Clear", ClearGroup);
         foreach (var part in new FrameworkElement[] { EditorCard.Note("L.S.GroupAlerts.Group", strong: true), _groups, _clear })
@@ -176,11 +177,18 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
 
     /// <summary>What the card does every two seconds while it is shown: it is built again only when what it shows
     /// is not what it was (a switch for everyone, the rules that are on, the groups and their members, the choices),
-    /// and never while one of its lists is open: a list would close under the player's pointer.</summary>
+    /// and never while one of its lists is open: a list would close under the player's pointer. Building makes new
+    /// lists for the rows, so the keyboard, if it was on a row's list, is put on that row's new one (RE2-m1); and a
+    /// warning the look brought is told to a screen reader (RE2-m6).</summary>
     public void Look()
     {
         if (_groups.IsDropDownOpen || _lists.Values.Any(row => row.List.IsDropDownOpen)) return;
-        if (Signature() != _signature) Refresh();
+        if (Signature() == _signature) return;
+        string? keyboardOn = _lists.FirstOrDefault(row => row.Value.List.IsKeyboardFocusWithin).Key;
+        string warned = _warning.Text;
+        Refresh();
+        if (keyboardOn != null && _lists.TryGetValue(keyboardOn, out var again)) again.List.Focus();
+        SayWarning(warned);
     }
 
     /// <summary>Everything the card shows that can change without the card's doing, as one text to compare.</summary>
@@ -200,20 +208,37 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     public void Select(string group)
     {
         if (!Groups.Contains(group)) return;
+        string warned = _warning.Text;
         Selected = group;
         _building = true;
         try { _groups.SelectedItem = group; }
         finally { _building = false; }
         ShowGroup();
-        SayLines();
+        SayLines(warned);
     }
 
-    /// <summary>A group was picked: a screen reader is told who is in it, and what the warning says (a live region
-    /// announces nothing by itself).</summary>
-    private void SayLines()
+    /// <summary>How often the warning was told to a screen reader. The announcement itself can't be seen from inside
+    /// the process, so a test counts it here.</summary>
+    public int WarningsSaid { get; private set; }
+
+    /// <summary>A group was picked: a screen reader is told who is in it (a live region announces nothing by itself),
+    /// and the warning, if it is not what it was.</summary>
+    /// <param name="warnedBefore">The warning's text before the pick.</param>
+    private void SayLines(string warnedBefore)
     {
         if (_members.Text.Length > 0) Announce.Changed(_members);
-        if (_warning.Text.Length > 0) Announce.Changed(_warning);
+        SayWarning(warnedBefore);
+    }
+
+    /// <summary>Tells a screen reader the warning when its TEXT is not what it was (RE2-m6): after a group was
+    /// picked, after a choice, and after a look that built the card again. It is the rule in three sentences and a
+    /// line for each case: told again at every pick, it was noise; told never when the card's own look brought it,
+    /// it was missed. A warning that went away is not told.</summary>
+    private void SayWarning(string before)
+    {
+        if (_warning.Text.Length == 0 || _warning.Text == before) return;
+        WarningsSaid++;
+        Announce.Changed(_warning);
     }
 
     private void ShowGroup()
@@ -262,13 +287,15 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     /// <summary>The note that a group has alert choices of its own, with the place where they are made. It stands
     /// on the group's card on Clients › Groups (where a character is put into the group, and so under its choices),
     /// and, without <paramref name="group"/>, under the event table for every group that has choices: the groups of
-    /// the Groups page, in its order. "" when there is nothing to note.</summary>
+    /// the Groups page, in its order. "" when there is nothing to note. Only a group whose choices COUNT is noted
+    /// (RE2-m7): one of the Groups page that has a member with a name. The choices of a group without members are
+    /// nobody's, and a note about them would send a player looking for an alert that is not switched off for anyone.</summary>
     public static string Note(AppSettings s, string? group = null)
     {
         var chosen = GroupAlertChoices.Read(s.GroupAlertProfiles);
         if (chosen.Count == 0) return "";
-        var names = (group != null ? new[] { group } : MergedGroups.Build(s).Select(g => g.Name).Distinct(StringComparer.Ordinal))
-            .Where(chosen.ContainsKey).ToList();
+        var names = MergedGroups.Build(s).Where(g => chosen.ContainsKey(g.Name) && g.Members.Any(member => !string.IsNullOrEmpty(member)))
+            .Select(g => g.Name).Distinct(StringComparer.Ordinal).Where(name => group == null || name == group).ToList();
         return names.Count == 0 ? "" : string.Format(Str("L.S.GroupAlerts.Note"), Listed(names));
     }
 
@@ -277,7 +304,8 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     private void ShowLines()
     {
         var named = Selected == null ? new List<MergedGroup>() : MergedGroups.Build(_ctx.S).Where(g => g.Name == Selected).ToList();
-        Members = named.SelectMany(g => g.Members).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        // RE2-m8: a member without a name (a file edited by hand) is nobody: not listed, not counted.
+        Members = named.SelectMany(g => g.Members).Where(member => !string.IsNullOrEmpty(member)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         string members = Selected == null ? "" : Members.Count == 0 ? Str("L.S.GroupAlerts.NoMembers") : string.Format(Str("L.S.GroupAlerts.Members"), Listed(Members));
         // Two colour groups can go by one name: they are one entry here, with one set of choices.
         if (named.Count > 1) members += "\n" + Str("L.S.GroupAlerts.SharedName");
@@ -349,6 +377,10 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     {
         if (Selected == null) return;
         if (on == true && (_rules.Contains(eventKey) || CustomAlertTypes.IsCustom(eventKey))) on = null;
+        // RE2-I1: whether the card is BEHIND what the settings hold (a switch for everyone was flipped in the table
+        // above since the card last looked) is noted before the choice is stored. ShowLines below notes "what I
+        // show is what the settings hold", and that must not be said by a card that shows a row that is out of date.
+        bool behind = Signature() != _signature;
         var text = GroupAlertChoices.Set(_ctx.S.GroupAlertProfiles, Selected, eventKey, on);
         if (text != _ctx.S.GroupAlertProfiles)
         {
@@ -367,7 +399,8 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         if (!kept) Announce.Changed(_notKept);
         string warned = _warning.Text;
         ShowLines();
-        if (_warning.Text.Length > 0 && _warning.Text != warned) Announce.Changed(_warning);
+        if (behind) _signature = "";   // still behind: the next look builds the card again
+        SayWarning(warned);
     }
 
     /// <summary>Every event of the shown group is "as everyone" again. Asks first, in the app's own dialog, by the
@@ -383,6 +416,29 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         _ctx.S.GroupAlertProfiles = GroupAlertChoices.Forget(_ctx.S.GroupAlertProfiles, group);
         _ctx.Applier.Request(ApplyScope.Save);
         ShowGroup();
+        TellTheEventTable();
+    }
+
+    /// <summary>The line under the event table, on this same page, names the groups whose choices count. It looks
+    /// every two seconds; after Clear it is told at once (RE2-m7), so that it does not name for two seconds a group
+    /// that has no choices left. The table is found in the window the card stands in; a card in no window tells
+    /// nobody.</summary>
+    private void TellTheEventTable()
+    {
+        DependencyObject top = this;
+        while (System.Windows.Media.VisualTreeHelper.GetParent(top) is { } parent) top = parent;
+        var look = new Queue<DependencyObject>();
+        look.Enqueue(top);
+        while (look.Count > 0)
+        {
+            var node = look.Dequeue();
+            if (node is EventTableEditor table)
+            {
+                table.ShowGroupsNote();
+                continue;
+            }
+            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(node); i++) look.Enqueue(System.Windows.Media.VisualTreeHelper.GetChild(node, i));
+        }
     }
 
     private int AddRow()

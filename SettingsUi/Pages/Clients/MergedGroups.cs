@@ -148,11 +148,15 @@ public static class MergedGroups
         newName = newName.Trim();
         if (newName == g.Name) return true;
         if (newName.Length == 0 || !IsNameFree(s, newName)) return false;
+        var before = Services.GroupAlertChoices.GroupNames(s);
+        string oldName = g.Name;
         foreach (var profile in s.Profiles.Values)
             if (profile.HotkeyGroups.Remove(g.Name, out var half)) profile.HotkeyGroups[newName] = half;
         if (g.Colour != null) g.Colour.Name = newName;
-        // IDEAS #31: the group's alert choices are kept under its name, and go with it.
-        s.GroupAlertProfiles = Services.GroupAlertChoices.Rename(s.GroupAlertProfiles, g.Name, newName);
+        // IDEAS #31: the group's alert choices are kept under its name, and go with it. Through the helper every
+        // path uses (RE1-m4): where another group still goes by the old name (a second colour group of that name),
+        // that group keeps the choices too, so the rename changes nobody's alerts.
+        Services.GroupAlertChoices.Follow(s, before, oldName, newName);
         g.Name = newName;
         return true;
     }
