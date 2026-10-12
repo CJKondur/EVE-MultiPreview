@@ -1470,14 +1470,14 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">空欄なら EVE の通常のフォルダ（Documents\EVE\logs\Gamelogs）を使います。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.combat">戦闘</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.pve">PVE モード</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC に撃たれたりスクランブルされてもアラートは出ません。プレイヤーなら出ます。NPC のダメージは、オフにしない限り統計オーバーレイに引き続き加算されます（ツール › 統計オーバーレイ）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC に撃たれたりスクランブルされてもアラートは出ません。プレイヤーなら出ます。ただし PVE モードでは、ログの行にコーポレーションやアライアンスのティッカーが付いていないプレイヤーの場合もアラートは出ません。そのような行は NPC の行と見分けがつかないためです。NPC のダメージは、オフにしない限り統計オーバーレイに引き続き加算されます（ツール › 統計オーバーレイ）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire">被弾の枠</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">そのクライアントがプレイヤーまたは NPC からダメージを受けている間、サムネイルが赤く点滅します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime">被弾の枠の表示時間</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime.Desc">最後の被弾から枠が消えるまでの秒数。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.repeats">繰り返し</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.repeatWait">アラートが再び鳴るまでの静止時間</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.repeatWait.Desc">キャラクターにアラートが出たあと、同じアラートはこの秒数のあいだ静かになります。0 = 静止なし。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repeatWait.Desc">キャラクターにアラートが出たあと、同じアラートはこの秒数のあいだ静かになります。0 = 静止なし。「キャパシタ中和」と「ジャミング」は、ここの値にかかわらず少なくとも 30 秒は静かになります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.list">イベント</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.table">アラートイベント</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.table.Desc">各イベントのオン/オフと、サムネイルでのアラートの見せ方を選びます。</sys:String> <!-- draft -->
@@ -2255,7 +2255,7 @@
     <sys:String x:Key="L.AlertEvt.jammed">ジャミング</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">キャパシタ中和とジャミングは、オンにするまでオフです。英語版のゲームクライアントからのみ読み取ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.ewar.Title">キャパシタ中和とジャミング</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.ewar.Body">ダメージの前によく起きる二つのイベントです。 **キャパシタ中和** は、エネルギーニュートラライザーが艦のキャパシタを奪ったとき、 **ジャミング** は、艦がジャミングを受けてロックを失ったときに発生します。&#x0A;&#x0A;- どちらも、上の表でオンにするまでオフです。&#x0A;- どちらも、始まったときに一度発生し、続いている間はそのキャラクターについて最大で 30 秒に一度だけ発生します。&#x0A;- 英語版のゲームクライアントの文言から読み取ります。ほかの言語のゲームでは何も発生しません。&#x0A;- **PVE モード** がオンのとき、NPC による中和やジャミングでは何も発生しません。ログの行で名前にコーポレーションのティッカーも艦種も付いていないプレイヤーによるものも発生しません。&#x0A;- キャパシタを吸い取るノスフェラトゥは対象外で、ニュートラライザーだけが対象です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Body">ダメージの前によく起きる二つのイベントです。 **キャパシタ中和** は、エネルギーニュートラライザーが艦のキャパシタを奪ったとき、 **ジャミング** は、艦がジャミングを受けてロックを失ったときに発生します。&#x0A;&#x0A;- どちらも、上の表でオンにするまでオフです。&#x0A;- どちらも、始まったときに一度発生し、続いている間はそのキャラクターについて最大で 30 秒に一度だけ発生します。&#x0A;- 英語版のゲームクライアントの文言から読み取ります。ほかの言語のゲームでは何も発生しません。&#x0A;- **PVE モード** がオンのとき、NPC による中和やジャミングでは何も発生しません。ログの行にコーポレーションやアライアンスのティッカーが付いていないプレイヤーによるものも発生しません。&#x0A;- キャパシタを吸い取るノスフェラトゥは対象外で、ニュートラライザーだけが対象です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.TryFailed">Windows はこの文を読み上げられませんでした。音声がインストールされていること、サウンド デバイスが接続されていることを確認してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest">テスト通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">通知をすぐに 1 つ表示し、Windows が通知を通すかどうかを確かめられます。ボタンはなく、1 分後に自動で消えます。</sys:String> <!-- draft -->

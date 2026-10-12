@@ -1470,14 +1470,14 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">비워 두면 EVE의 기본 폴더(Documents\EVE\logs\Gamelogs)를 사용합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.combat">전투</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.pve">PVE 모드</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC가 나를 공격하거나 스크램해도 알림이 울리지 않으며, 플레이어는 울립니다. NPC 피해는 끄지 않는 한 통계 오버레이에 계속 포함돼요(도구 › 통계 오버레이).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC가 나를 공격하거나 스크램해도 알림이 울리지 않아요. 플레이어는 울려요. 다만 PVE 모드에서는 로그 줄에 코퍼레이션이나 얼라이언스 티커가 나오지 않는 플레이어도 알림이 울리지 않아요. 그런 줄은 NPC의 줄처럼 보이기 때문이에요. NPC 피해는 끄지 않는 한 통계 오버레이에 계속 포함돼요(도구 › 통계 오버레이).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire">피격 테두리</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">해당 클라이언트가 플레이어나 NPC에게 피해를 받는 동안 썸네일이 붉게 깜빡입니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime">피격 테두리 지속</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime.Desc">마지막 피격 후 테두리가 사라지기까지의 초.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.repeats">반복</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.repeatWait">알림이 다시 울리기 전 대기 시간</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.repeatWait.Desc">캐릭터에게 알림이 울린 뒤, 같은 알림은 이 초 동안 조용해집니다. 0 = 대기 없음.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repeatWait.Desc">캐릭터에게 알림이 울린 뒤, 같은 알림은 이 초 동안 조용해져요. 0 = 대기 없음. ‘캐패시터 중화’와 ‘재밍’은 여기 값과 상관없이 적어도 30초 동안 조용해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.list">이벤트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.table">알림 이벤트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.table.Desc">각 이벤트를 켜거나 끄고, 썸네일에서 알림이 어떻게 보일지 선택합니다.</sys:String> <!-- draft -->
@@ -2255,7 +2255,7 @@
     <sys:String x:Key="L.AlertEvt.jammed">재밍</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">캐패시터 중화와 재밍은 켜기 전까지 꺼져 있고, 영어 게임 클라이언트에서만 읽어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.ewar.Title">캐패시터 중화와 재밍</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.ewar.Body">피해보다 먼저 오는 일이 많은 두 가지 이벤트예요. **캐패시터 중화** 는 에너지 뉴트럴라이저가 함선의 캐패시터를 빼앗을 때, **재밍** 은 함선이 재밍을 당해 대상 고정을 잃을 때 생겨요.&#x0A;&#x0A;- 둘 다 위의 표에서 켜기 전까지 꺼져 있어요.&#x0A;- 둘 다 시작될 때 한 번 생기고, 계속되는 동안에는 그 캐릭터에 대해 최대 30초에 한 번만 생겨요.&#x0A;- 영어 게임 클라이언트의 문구에서 읽어요. 다른 언어의 게임에서는 아무것도 생기지 않아요.&#x0A;- **PVE 모드** 가 켜져 있으면 NPC가 중화하거나 재밍해도 아무것도 생기지 않아요. 로그 줄에 이름이 코퍼레이션 티커도 함선 종류도 없이 나오는 플레이어가 해도 생기지 않아요.&#x0A;- 캐패시터를 빨아들이는 노스페라투는 포함되지 않고, 뉴트럴라이저만 해당돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Body">피해보다 먼저 오는 일이 많은 두 가지 이벤트예요. **캐패시터 중화** 는 에너지 뉴트럴라이저가 함선의 캐패시터를 빼앗을 때, **재밍** 은 함선이 재밍을 당해 대상 고정을 잃을 때 생겨요.&#x0A;&#x0A;- 둘 다 위의 표에서 켜기 전까지 꺼져 있어요.&#x0A;- 둘 다 시작될 때 한 번 생기고, 계속되는 동안에는 그 캐릭터에 대해 최대 30초에 한 번만 생겨요.&#x0A;- 영어 게임 클라이언트의 문구에서 읽어요. 다른 언어의 게임에서는 아무것도 생기지 않아요.&#x0A;- **PVE 모드** 가 켜져 있으면 NPC가 중화하거나 재밍해도 아무것도 생기지 않아요. 로그 줄에 코퍼레이션이나 얼라이언스 티커가 나오지 않는 플레이어가 해도 생기지 않아요.&#x0A;- 캐패시터를 빨아들이는 노스페라투는 포함되지 않고, 뉴트럴라이저만 해당돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.TryFailed">Windows가 이 문장을 말하지 못했어요. 음성이 설치되어 있고 소리 장치가 연결되어 있는지 확인해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest">테스트 알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">Windows 알림 하나를 바로 표시해서, Windows가 알림을 통과시키는지 볼 수 있어요. 버튼이 없고 1분 뒤에 저절로 사라져요.</sys:String> <!-- draft -->

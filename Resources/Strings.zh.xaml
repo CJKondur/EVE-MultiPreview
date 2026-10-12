@@ -1487,14 +1487,14 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">留空则使用 EVE 的默认文件夹 Documents\EVE\logs\Gamelogs。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.combat">战斗</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.pve">PVE 模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC 攻击或扰断你时不会触发警报；玩家仍会触发。除非你关闭它（工具 › 统计叠加层），NPC 伤害仍计入统计叠加层。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPC 攻击或扰断你时不会触发警报；玩家仍会触发。但在 PVE 模式下，如果日志行里某个玩家的名字不带军团或联盟代号，该玩家也不会触发警报：这样的行看起来和 NPC 的一样。除非你关闭它（工具 › 统计叠加层），NPC 伤害仍计入统计叠加层。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire">受攻击边框</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">该客户端受到玩家或 NPC 伤害时，缩略图会闪烁红色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime">受攻击边框持续</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.underFireTime.Desc">最后一次受击后边框消失前的秒数。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.repeats">重复</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.repeatWait">警报重复前的静默时间</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.repeatWait.Desc">某个角色触发警报后，相同警报会在这么多秒内保持静默。0 = 不静默。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repeatWait.Desc">某个角色触发警报后，相同警报会在这么多秒内保持静默。0 = 不静默。“电容被中和”和“被干扰”至少静默 30 秒，不论这里填多少。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.list">事件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.table">警报事件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.table.Desc">开启或关闭每个事件，并选择其警报在缩略图上的显示方式。</sys:String> <!-- draft -->
@@ -2272,7 +2272,7 @@
     <sys:String x:Key="L.AlertEvt.jammed">被干扰</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">“电容被中和”和“被干扰”在你开启之前是关闭的，并且只从英文游戏客户端读取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.ewar.Title">“电容被中和”和“被干扰”</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.ewar.Body">两个常常出现在受到伤害之前的事件： **电容被中和** ，即能量中和器夺走你舰船的电容； **被干扰** ，即你的舰船受到干扰并失去锁定。&#x0A;&#x0A;- 两者在你于上面的表格中开启之前都是关闭的。&#x0A;- 每个事件在开始时触发一次警报，持续期间对该角色最多每 30 秒再触发一次。&#x0A;- 它们根据英文游戏客户端的文字读取。游戏使用其他语言时，它们不会触发任何警报。&#x0A;- 开启 **PVE 模式** 时，中和或干扰你的 NPC 不会触发任何警报；日志行中名字既不带军团代号也不带舰船类型的玩家也不会。&#x0A;- 抽取你电容的掠能器不包括在内，只包括中和器。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Body">两个常常出现在受到伤害之前的事件： **电容被中和** ，即能量中和器夺走你舰船的电容； **被干扰** ，即你的舰船受到干扰并失去锁定。&#x0A;&#x0A;- 两者在你于上面的表格中开启之前都是关闭的。&#x0A;- 每个事件在开始时触发一次警报，持续期间对该角色最多每 30 秒再触发一次。&#x0A;- 它们根据英文游戏客户端的文字读取。游戏使用其他语言时，它们不会触发任何警报。&#x0A;- 开启 **PVE 模式** 时，中和或干扰你的 NPC 不会触发任何警报；日志行中名字不带军团或联盟代号的玩家也不会。&#x0A;- 抽取你电容的掠能器不包括在内，只包括中和器。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.TryFailed">Windows 没能读出这句话。请检查是否安装了语音，以及是否连接了声音设备。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest">测试通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">立刻显示一条通知，让你看到 Windows 是否放行。它没有按钮，一分钟后会自行消失。</sys:String> <!-- draft -->

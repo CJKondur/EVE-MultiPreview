@@ -1469,14 +1469,14 @@
     <sys:String x:Key="L.S.alerts.events.gameFolder.Desc">Leave empty for EVE's usual folder, Documents\EVE\logs\Gamelogs.</sys:String>
     <sys:String x:Key="L.S.Sec.alerts.events.combat">Combat</sys:String>
     <sys:String x:Key="L.S.alerts.events.pve">PVE mode</sys:String>
-    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPCs shooting or scrambling you don't raise an alert; players still do. NPC damage still counts in the stats overlay unless you turn that off (Tools › Stats overlay).</sys:String>
+    <sys:String x:Key="L.S.alerts.events.pve.Desc">NPCs shooting or scrambling you don't raise an alert; players still do. In PVE mode you are not told of a player whose log line shows no corporation or alliance ticker either: that line reads like an NPC's. NPC damage still counts in the stats overlay unless you turn that off (Tools › Stats overlay).</sys:String>
     <sys:String x:Key="L.S.alerts.events.underFire">Under-fire border</sys:String>
     <sys:String x:Key="L.S.alerts.events.underFire.Desc">A thumbnail pulses red while that client takes damage, from players or NPCs.</sys:String>
     <sys:String x:Key="L.S.alerts.events.underFireTime">Under-fire border lasts</sys:String>
     <sys:String x:Key="L.S.alerts.events.underFireTime.Desc">Seconds after the last hit before the border goes.</sys:String>
     <sys:String x:Key="L.S.Sec.alerts.events.repeats">Repeats</sys:String>
     <sys:String x:Key="L.S.alerts.events.repeatWait">Quiet time before an alert repeats</sys:String>
-    <sys:String x:Key="L.S.alerts.events.repeatWait.Desc">After an alert fires for a character, the same alert stays quiet for this many seconds. 0 = never quiet.</sys:String>
+    <sys:String x:Key="L.S.alerts.events.repeatWait.Desc">After an alert fires for a character, the same alert stays quiet for this many seconds. 0 = never quiet. Capacitor neutralized and Jammed stay quiet for at least 30 seconds, whatever stands here.</sys:String>
     <sys:String x:Key="L.S.Sec.alerts.events.list">Events</sys:String>
     <sys:String x:Key="L.S.alerts.events.table">Alert events</sys:String>
     <sys:String x:Key="L.S.alerts.events.table.Desc">Turn each event on or off and choose how its alert shows on the thumbnail.</sys:String>
@@ -2254,7 +2254,7 @@
     <sys:String x:Key="L.AlertEvt.jammed">Jammed</sys:String>
     <sys:String x:Key="L.S.alerts.events.ewarNote">Capacitor neutralized and Jammed are off until you switch them on, and are read from an English game client only.</sys:String>
     <sys:String x:Key="L.Help.alerts.events.ewar.Title">Capacitor neutralized and Jammed</sys:String>
-    <sys:String x:Key="L.Help.alerts.events.ewar.Body">Two events for what often comes before the damage: **Capacitor neutralized**, when an energy neutralizer takes capacitor from your ship, and **Jammed**, when your ship is jammed and loses its target locks.&#x0A;&#x0A;- Both are off until you switch them on in the table above.&#x0A;- Each is raised once when it starts, then at most every 30 seconds for that character while it goes on.&#x0A;- They are read from the wording of an English game client. With the game in another language they raise nothing.&#x0A;- With **PVE mode** on, an NPC that neutralizes or jams you raises nothing, and neither does a player whose name the log line shows without a corporation ticker and without a ship type.&#x0A;- A nosferatu that drains your capacitor is not covered, only a neutralizer.</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.ewar.Body">Two events for what often comes before the damage: **Capacitor neutralized**, when an energy neutralizer takes capacitor from your ship, and **Jammed**, when your ship is jammed and loses its target locks.&#x0A;&#x0A;- Both are off until you switch them on in the table above.&#x0A;- Each is raised once when it starts, then at most every 30 seconds for that character while it goes on.&#x0A;- They are read from the wording of an English game client. With the game in another language they raise nothing.&#x0A;- With **PVE mode** on, an NPC that neutralizes or jams you raises nothing, and neither does a player whose log line shows no corporation or alliance ticker.&#x0A;- A nosferatu that drains your capacitor is not covered, only a neutralizer.</sys:String>
     <sys:String x:Key="L.S.Speech.TryFailed">Windows could not say that. Check that a voice is installed and that a sound device is connected.</sys:String>
     <sys:String x:Key="L.S.alerts.hub.notifyTest">Test notification</sys:String>
     <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">Shows one notification right away, so you can see whether Windows lets them through. It has no buttons and goes away by itself after a minute.</sys:String>
