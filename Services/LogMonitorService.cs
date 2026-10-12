@@ -2483,7 +2483,14 @@ public sealed class LogMonitorService : IDisposable
         Debug.WriteLine($"[LogMonitor:Event] 💰 Bounty: {amount:N0} ISK for '{character}'");
     }
 
-    /// <param name="ownQuietTime">A custom rule's own quiet time in seconds, when it has one (IDEAS #8).</param>
+    /// <summary>Now, in UTC, for the quiet time between two alerts of one character and event (RF-I1). TriggerAlert
+    /// asks it, once for an alert that is not switched off, and nothing else does. UTC, because the local wall clock
+    /// steps back an hour when daylight saving time ends. A test hands in a clock of its own; setting it to null
+    /// changes nothing.</summary>
+    public Func<DateTime> AlertClock { get => _alertClock; set => _alertClock = value ?? _alertClock; }
+    private Func<DateTime> _alertClock = () => DateTime.UtcNow;
+
+    /// <param name="ownQuietTime">The alert's own quiet time in seconds: a custom rule's, when it has one (IDEAS #8), and for Capacitor neutralized and Jammed the longer of their own and the quiet time of Settings (IDEAS #4).</param>
     /// <param name="customText">What a custom rule matched; see RaisingCustomText.</param>
     private void TriggerAlert(string character, string alertType, string severity, int? ownQuietTime = null, string? customText = null)
     {
@@ -2501,17 +2508,22 @@ public sealed class LogMonitorService : IDisposable
         string key = $"{character}_{alertType}";
         int cooldownSec = ownQuietTime ?? CooldownFor(alertType, severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds);
 
+        // RF-I1: the moment is noted and compared in UTC. The local wall clock steps back an hour when daylight saving
+        // time ends, and the moment noted for an alert then lay ahead of "now": that character's alert of that event
+        // stayed silent until the clock had caught up, "Under attack" for up to an hour. A moment that still lies
+        // ahead of now (the clock itself was set back) counts as past: when in doubt, the alert happens.
+        var now = _alertClock();
         if (_alertCooldowns.TryGetValue(key, out var lastTime))
         {
-            double elapsed = (DateTime.Now - lastTime).TotalSeconds;
-            if (elapsed < cooldownSec)
+            double elapsed = (now - lastTime).TotalSeconds;
+            if (elapsed >= 0 && elapsed < cooldownSec)
             {
                 Debug.WriteLine($"[LogMonitor:Cooldown] ⏳ Cooldown active: {alertType} for '{character}' ({elapsed:F1}s / {cooldownSec}s)");
                 DiagnosticsService.LogAlerts($"[Trigger] SUPPRESSED — cooldown active: type={alertType} char='{character}' elapsed={elapsed:F1}s/{cooldownSec}s");
                 return;
             }
         }
-        _alertCooldowns[key] = DateTime.Now;
+        _alertCooldowns[key] = now;
 
         Debug.WriteLine($"[LogMonitor:Event] ⚡ Alert fired: {alertType} [{severity}] for '{character}'");
         DiagnosticsService.LogAlerts($"[Trigger] FIRED — invoking AlertTriggered: type={alertType} severity={severity} char='{character}'");
