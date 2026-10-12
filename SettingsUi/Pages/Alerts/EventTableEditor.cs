@@ -27,6 +27,7 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
     private readonly SettingsContext _ctx;
     private readonly Grid _table = new();
     private readonly TextBlock _error = new() { Visibility = Visibility.Collapsed, TextWrapping = TextWrapping.Wrap };
+    private readonly TextBlock _groupsNote = EditorCard.Value("", secondary: true);
 
     public EventTableEditor(SettingsContext ctx)
     {
@@ -35,16 +36,32 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
         var note = EditorCard.Note("L.S.Events.Note");
         note.TextWrapping = TextWrapping.Wrap;
         note.Margin = new Thickness(0, 8, 0, 0);
+        _groupsNote.Margin = new Thickness(0, 8, 0, 0);
         var stack = new StackPanel();
         stack.Children.Add(_table);
         stack.Children.Add(_error);
         stack.Children.Add(note);
+        stack.Children.Add(_groupsNote);
         Content = EditorCard.Build(AlertsPages.EventTableId, null, stack);
+        // IDEAS #31: the switches of this table are for everyone. A group can have choices of its own, made on a card
+        // further down this same page; while one has, a line under the table names it.
+        LiveRefresh.Attach(this, ShowGroupsNote);
         Refresh();
     }
 
     /// <summary>The event keys in the order shown.</summary>
     public IReadOnlyList<string> Keys { get; private set; } = Array.Empty<string>();
+
+    /// <summary>The line under the table that names the groups with alert choices of their own; "" while none has any.</summary>
+    public string GroupsNote => _groupsNote.Text;
+
+    /// <summary>Puts the line under the table on what the settings hold now. Looked at every two seconds while the
+    /// table is shown: the choices are made on another card of the page.</summary>
+    public void ShowGroupsNote()
+    {
+        _groupsNote.Text = GroupAlertsEditor.Note(_ctx.S);
+        _groupsNote.Visibility = _groupsNote.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+    }
 
     private static string Str(string key) => SettingsContext.Str(key);
 
@@ -72,6 +89,7 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
         }
         Keys = keys;
         ShowError(null);
+        ShowGroupsNote();
     }
 
     private void AddEvent(AlertEventDef e)

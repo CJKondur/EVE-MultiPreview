@@ -10,6 +10,7 @@ using System.Windows.Threading;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
 using Color = System.Windows.Media.Color;
+using ComboBox = System.Windows.Controls.ComboBox;
 using ContextMenu = System.Windows.Controls.ContextMenu;
 using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
@@ -81,6 +82,9 @@ public partial class SettingsShell : Window, ISettingsHost
         SearchHost.Content = _search;
         InputBindings.Add(new KeyBinding(new RelayCommand(_ => _search.FocusBox()), Key.F, ModifierKeys.Control));
 
+        // The wheel over a closed dropdown list scrolls the page: one handler for every list of the window.
+        PreviewMouseWheel += WheelPastClosedLists;
+
         // The constructor ran before there was a handle, so it measured the primary monitor.
         SourceInitialized += (_, _) => UpdateMinWidth();
         DpiChanged += (_, _) => UpdateMinWidth();
@@ -91,6 +95,28 @@ public partial class SettingsShell : Window, ISettingsHost
 
     public ShellVM Vm { get; }
     internal SettingsContext Context => _ctx;
+
+    /// <summary>The wheel over a CLOSED dropdown list is not the list's: it goes to what is around the list, so the
+    /// page scrolls. WPF's list takes one notch as "next choice" while it is closed and has the keyboard, so a player
+    /// who had just used a list and then turned the wheel to read on changed the setting under the pointer without
+    /// seeing it. An open list is left alone (it scrolls its own items), and so is everything that is no list; the
+    /// arrow keys on a focused list change its choice as before. The window sees the wheel on its way down
+    /// (PreviewMouseWheel), takes it, and raises the wheel message WPF would have raised, on what the list stands in.</summary>
+    public static void WheelPastClosedLists(object sender, MouseWheelEventArgs e)
+    {
+        if (e.Handled) return;
+        ComboBox? list = null;
+        for (var at = e.OriginalSource as DependencyObject; at != null && list == null; at = ParentOf(at)) list = at as ComboBox;
+        if (list == null || list.IsDropDownOpen) return;
+        e.Handled = true;
+        if (ParentOf(list) is UIElement around)
+            around.RaiseEvent(new MouseWheelEventArgs(e.MouseDevice, e.Timestamp, e.Delta) { RoutedEvent = MouseWheelEvent });
+    }
+
+    /// <summary>What an element stands in: its visual parent, or where it has none (the window of an open drop-down,
+    /// a run of text) its logical parent, which for a drop-down leads on to its list.</summary>
+    private static DependencyObject? ParentOf(DependencyObject at) =>
+        (at is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetParent(at) : null) ?? LogicalTreeHelper.GetParent(at);
 
     private string? _scrolledPageId;
 

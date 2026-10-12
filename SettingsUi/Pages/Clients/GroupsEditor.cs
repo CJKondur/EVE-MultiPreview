@@ -86,6 +86,16 @@ public sealed class GroupsEditor : System.Windows.Controls.UserControl, IRefresh
     {
         var stack = new StackPanel();
 
+        // IDEAS #31: a group that has alert choices of its own says so here, where a character is put into it (and
+        // so under its choices), with the place where they are made. By the group's name: it follows a rename.
+        var alerts = EditorCard.Value("", secondary: true);
+        alerts.Margin = new Thickness(0, 4, 0, 0);
+        void ShowAlertsNote()
+        {
+            alerts.Text = GroupAlertsEditor.Note(_ctx.S, g.Name);
+            alerts.Visibility = alerts.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        }
+
         // Name and Delete.
         var name = new TextBox { Text = g.Name, MinWidth = 220, VerticalContentAlignment = VerticalAlignment.Center };
         Loc.SetNameKey(name, "L.S.Groups.NameBox");
@@ -99,6 +109,7 @@ public sealed class GroupsEditor : System.Windows.Controls.UserControl, IRefresh
                 return;
             }
             name.Text = g.Name;   // in place: a rebuild would eat the click that moved focus
+            ShowAlertsNote();
             _ctx.Applier.Request(ApplyScope.Thumbnails);
         }
         name.LostFocus += (_, _) => CommitName();
@@ -165,6 +176,8 @@ public sealed class GroupsEditor : System.Windows.Controls.UserControl, IRefresh
         var scope = EditorCard.Note("L.S.Groups.Scope");
         scope.Margin = new Thickness(0, 4, 0, 0);
         stack.Children.Add(scope);
+        ShowAlertsNote();
+        stack.Children.Add(alerts);
         return EditorCard.Frame(stack);
     }
 

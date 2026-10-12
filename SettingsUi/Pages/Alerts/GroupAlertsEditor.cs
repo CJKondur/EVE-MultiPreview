@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using EveMultiPreview.Models;
 using EveMultiPreview.Services;
 using EveMultiPreview.Views;
 using Button = System.Windows.Controls.Button;
@@ -19,7 +20,7 @@ namespace EveMultiPreview.SettingsUi;
 ///
 /// A player reads the card to find out why a character was, or was not, told. So it says who the group's members
 /// are, and under the rows it lists each member who gets something other than this group's rows say, with the event
-/// and the group that decides. The rule is AlertProfiles' (when a character's groups disagree about an event, the
+/// and a group that says so. The rule is AlertProfiles' (when a character's groups disagree about an event, the
 /// event is on), and the card asks the rule: it works out no answer of its own.</summary>
 public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRefreshable
 {
@@ -134,8 +135,11 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     public IReadOnlyList<string> Members { get; private set; } = Array.Empty<string>();
 
     /// <summary>Where a member of the shown group gets, for an event the card lists, something other than this
-    /// group's row says: the member, the event, what the member gets, and the group that decides. It is the rule's
-    /// own answer (AlertProfiles.Overridden), for the rows the card shows.</summary>
+    /// group's row says: the member, the event, what the member gets, and a group that says so (of several, the
+    /// first on the Groups page: which one is named can change with their order there, what the member gets does
+    /// not). It is the rule's own answer (AlertProfiles.Overridden), for the events the card has a row for: the rule
+    /// also answers for a rule of the player's own that is switched off and for a key nobody knows, and the card
+    /// never names a member for something the player can't see on it.</summary>
     public IReadOnlyList<(string Member, string Event, bool On, string Group)> Overridden { get; private set; } =
         Array.Empty<(string, string, bool, string)>();
 
@@ -255,6 +259,19 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         return list ?? "";
     }
 
+    /// <summary>The note that a group has alert choices of its own, with the place where they are made. It stands
+    /// on the group's card on Clients › Groups (where a character is put into the group, and so under its choices),
+    /// and, without <paramref name="group"/>, under the event table for every group that has choices: the groups of
+    /// the Groups page, in its order. "" when there is nothing to note.</summary>
+    public static string Note(AppSettings s, string? group = null)
+    {
+        var chosen = GroupAlertChoices.Read(s.GroupAlertProfiles);
+        if (chosen.Count == 0) return "";
+        var names = (group != null ? new[] { group } : MergedGroups.Build(s).Select(g => g.Name).Distinct(StringComparer.Ordinal))
+            .Where(chosen.ContainsKey).ToList();
+        return names.Count == 0 ? "" : string.Format(Str("L.S.GroupAlerts.Note"), Listed(names));
+    }
+
     /// <summary>The lines around the rows: who is in the group, where a member gets something other than the rows
     /// say, and whether there is anything to clear.</summary>
     private void ShowLines()
@@ -267,7 +284,7 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         _members.Text = members;
         _members.Visibility = members.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
 
-        // The rule's own answer, for the rows that are shown (the rule also answers for a rule that is switched off).
+        // The rule's own answer, for the rows the card has built: never a member named for an event without a row.
         Overridden = Selected == null ? Array.Empty<(string, string, bool, string)>()
             : AlertProfiles.Overridden(_ctx.S, Selected).Where(o => _names.ContainsKey(o.Event)).ToList();
         var lines = Overridden.GroupBy(o => (o.Event, o.On, o.Group)).Select(same => string.Format(
