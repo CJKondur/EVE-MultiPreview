@@ -266,7 +266,17 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         if (rule == null) return;
         if (!_ctx.Host.Confirm(Str("L.S.Rules.DeleteTitle"), string.Format(Str("L.S.Rules.DeleteConfirm"), rule.Name))) return;
         int at = Model.Rules.TakeWhile(r => r.Id != id).Count();
-        Model.Delete(id);
+        // IDEAS #31: the rule's id never comes back, so what the groups chose about it goes with it. (A rule that
+        // is only switched off keeps them.)
+        if (Model.Delete(id))
+        {
+            var choices = GroupAlertChoices.ForgetEvent(_ctx.S.GroupAlertProfiles, rule.AlertType);
+            if (choices != _ctx.S.GroupAlertProfiles)
+            {
+                _ctx.S.GroupAlertProfiles = choices;
+                _ctx.Applier.Request(ApplyScope.Save);
+            }
+        }
         AfterSave();
         Rebuild();
         // The button that was pressed is gone with its card. The keyboard goes to Edit of the card that took its

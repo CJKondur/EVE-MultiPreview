@@ -11,7 +11,9 @@ namespace EveMultiPreview.Services;
 /// <summary>The choices groups made about alerts (IDEAS #31), as one line of JSON text in one settings key
 /// (AppSettings.GroupAlertProfiles): a group's name, and under it the events it switches on (true) or off (false).
 /// An event a group says nothing about is "as everyone". One line, because the settings file holds one line per
-/// key, as it does for the saved colours of colour-blind mode. Whatever the key holds, reading it never throws.</summary>
+/// key, as it does for the saved colours of colour-blind mode. Whatever the key holds, reading it never throws.
+/// The text has limits, and reading stops at them; a change that would cross one is not made (the old text comes
+/// back), so that what was chosen can always be read back whole.</summary>
 public static class GroupAlertChoices
 {
     public const int MaxText = 64 * 1024, MaxGroups = 100, MaxEvents = 200, MaxName = 200;
@@ -43,19 +45,31 @@ public static class GroupAlertChoices
                 {
                     if (events.Count >= MaxEvents) break;
                     if (choice.Name.Length is 0 or > MaxName) continue;
-                    if (choice.Value.ValueKind == JsonValueKind.True) events[choice.Name] = true;
-                    else if (choice.Value.ValueKind == JsonValueKind.False) events[choice.Name] = false;
+                    if (Choice(choice.Value) is bool on) events[choice.Name] = on;
                 }
                 if (events.Count > 0) groups[group.Name] = events;
             }
         }
-        catch (JsonException)
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException or ArgumentException)
         {
-            // Not JSON: no choice at all. JsonDocument reads the whole text before the first group is taken, so
-            // nothing of a broken text was added.
+            // Not the choices text: no choice at all. A text that is not JSON fails before the first group is taken.
+            // A name that can't be read (half a character written as an escape: InvalidOperationException) fails
+            // while the groups are taken, and a text .NET can't take at all (half a character as it is:
+            // ArgumentException) before that; whatever was taken until then goes too.
+            groups.Clear();
         }
         return groups;
     }
+
+    /// <summary>A choice: true or false, or 1 or 0 as the rest of the settings file writes a switch. Anything else
+    /// (another number, a text, null) is no choice.</summary>
+    private static bool? Choice(JsonElement value) => value.ValueKind switch
+    {
+        JsonValueKind.True => true,
+        JsonValueKind.False => false,
+        JsonValueKind.Number when value.TryGetInt32(out int number) && number is 0 or 1 => number == 1,
+        _ => null,
+    };
 
     private static string Write(Dictionary<string, Dictionary<string, bool>> groups)
     {
@@ -65,43 +79,82 @@ public static class GroupAlertChoices
         return ordered.Count == 0 ? "" : JsonSerializer.Serialize(ordered, Json);
     }
 
-    /// <summary>The key's new text once a group's choice for an event is set, or cleared with null ("as everyone").</summary>
+    /// <summary>The text for these choices, or <paramref name="old"/> where that text would not read back whole: it
+    /// would be longer than a text may be, hold more groups or more events than are read, or a name that is empty,
+    /// too long or can't be written as it is. The limits are <see cref="Parse"/>'s, asked of it and stated nowhere
+    /// else. A table that is full never reads as empty, to be written over by the next choice.</summary>
+    private static string Written(Dictionary<string, Dictionary<string, bool>> groups, string? old)
+    {
+        var text = Write(groups);
+        var back = Parse(text);
+        int kept = 0;
+        foreach (var (name, events) in groups)
+        {
+            if (events.Count == 0) continue;
+            kept++;
+            if (!back.TryGetValue(name, out var read) || read.Count != events.Count) return old ?? "";
+            foreach (var (key, on) in events)
+                if (!read.TryGetValue(key, out var was) || was != on) return old ?? "";
+        }
+        return back.Count == kept ? text : old ?? "";
+    }
+
+    /// <summary>The key's new text once a group's choice for an event is set, or cleared with null ("as everyone").
+    /// The old text when the choice can't be kept (see <see cref="Written"/>).</summary>
     public static string Set(string? json, string group, string eventKey, bool? on)
     {
         var groups = Parse(json);
-        if (string.IsNullOrEmpty(group) || group.Length > MaxName || string.IsNullOrEmpty(eventKey) || eventKey.Length > MaxName) return Write(groups);
+        group ??= "";
+        eventKey ??= "";
         if (!groups.TryGetValue(group, out var events))
         {
-            if (on == null) return Write(groups);
+            if (on == null) return Written(groups, json);
             groups[group] = events = new Dictionary<string, bool>(StringComparer.Ordinal);
         }
         if (on == null) events.Remove(eventKey);
         else events[eventKey] = on.Value;
-        return Write(groups);
+        return Written(groups, json);
     }
 
-    /// <summary>A group was renamed: its choices go with it. Choices an earlier group left under the new name are
-    /// dropped, not inherited. A group without choices changes nothing.</summary>
+    /// <summary>A group was renamed: its choices go with it, an "on" as an "off". Whatever an earlier group left
+    /// under the new name is dropped, never inherited, also when the renamed group has no choices of its own. A new
+    /// name that can hold no choices (empty, or too long) takes none, and none stays behind under the old one. The
+    /// old text when the new one would not read back whole (see <see cref="Written"/>).</summary>
     public static string Rename(string? json, string from, string to)
     {
+        if (from == to) return json ?? "";
         var groups = Parse(json);
-        if (from == to || !groups.Remove(from, out var events)) return json ?? "";
-        if (!string.IsNullOrEmpty(to) && to.Length <= MaxName) groups[to] = events;
-        return Write(groups);
+        bool had = groups.Remove(from ?? "", out var events);
+        bool left = groups.Remove(to ?? "");
+        if (!had && !left) return json ?? "";
+        if (had && !string.IsNullOrEmpty(to) && to.Length <= MaxName) groups[to] = events!;
+        return Written(groups, json);
     }
 
     /// <summary>A group is gone: so are its choices.</summary>
     public static string Forget(string? json, string group)
     {
         var groups = Parse(json);
-        return groups.Remove(group) ? Write(groups) : json ?? "";
+        return groups.Remove(group ?? "") ? Write(groups) : json ?? "";
+    }
+
+    /// <summary>An event is gone for good (a rule of the player's own was deleted, and its id never comes back): so
+    /// is what every group chose about it.</summary>
+    public static string ForgetEvent(string? json, string eventKey)
+    {
+        var groups = Parse(json);
+        bool any = false;
+        foreach (var events in groups.Values) any |= events.Remove(eventKey ?? "");
+        return any ? Write(groups) : json ?? "";
     }
 }
 
 /// <summary>Alerts per group (IDEAS #31): for which characters an event is on. A group of Clients › Groups can
 /// switch an event on or off for its members; an event it says nothing about, and every character in no group, has
-/// the switch for everyone (Alerts › Events). For a character in several groups, the first of them on the Groups
-/// page that has a choice for that event decides.
+/// the switch for everyone (Alerts › Events). For a character in several groups ON WINS: where its groups disagree
+/// about an event, the event is on. One "on" among them is enough; an "off" holds only while none of them says "on";
+/// a group that says nothing about the event counts for nothing. The order of the groups on the Groups page (which
+/// a player does not choose: giving a group a colour moves it) changes no answer. When in doubt an alert happens.
 /// <see cref="Publish"/> builds an unchanging picture of all that on the window's thread; <see cref="IsOn"/>, the
 /// gate AlertDispatcher asks first, reads only the picture, on whatever thread an alert is raised. While no group
 /// has a choice there is no picture, and the gate answers "on" without looking anything up.</summary>
@@ -112,8 +165,9 @@ public sealed class AlertProfiles
         public static readonly Picture None = new();
         /// <summary>The switch for everyone, for each built-in event.</summary>
         public Dictionary<string, bool> Everyone = new(StringComparer.Ordinal);
-        /// <summary>For each character in a group that has choices: those groups' choices, in the Groups page's order.</summary>
-        public Dictionary<string, List<IReadOnlyDictionary<string, bool>>> ByCharacter = new(StringComparer.OrdinalIgnoreCase);
+        /// <summary>For each character in a group that has choices: what its groups chose, one answer for each event
+        /// one of them chose about ("on" where one of them says "on").</summary>
+        public Dictionary<string, Dictionary<string, bool>> ByCharacter = new(StringComparer.OrdinalIgnoreCase);
         /// <summary>The events some group switches on.</summary>
         public HashSet<string> OnSomewhere = new(StringComparer.Ordinal);
         public bool Any;
@@ -155,8 +209,9 @@ public sealed class AlertProfiles
             foreach (var member in members)
             {
                 if (string.IsNullOrEmpty(member)) continue;
-                if (!picture.ByCharacter.TryGetValue(member, out var theirs)) picture.ByCharacter[member] = theirs = new List<IReadOnlyDictionary<string, bool>>();
-                theirs.Add(chosen);
+                if (!picture.ByCharacter.TryGetValue(member, out var theirs)) picture.ByCharacter[member] = theirs = new Dictionary<string, bool>(StringComparer.Ordinal);
+                // ON WINS: one "on" among the character's groups is enough, whichever of them comes first.
+                foreach (var (key, on) in chosen) theirs[key] = on || (theirs.TryGetValue(key, out var was) && was);
             }
         }
         Volatile.Write(ref _now, picture);
@@ -168,20 +223,20 @@ public sealed class AlertProfiles
     /// <summary>What the log monitor may raise, with the choices the settings hold; null while none counts.</summary>
     public static Dictionary<string, bool>? MonitorSet(AppSettings s) => MonitorSet(s, s.GroupAlertProfiles);
 
-    /// <summary>The members of a group that an earlier group's choices reach first, with the choices the settings hold.</summary>
-    public static IReadOnlyList<(string Character, string Group)> Overridden(AppSettings s, string group) => Overridden(s, s.GroupAlertProfiles, group);
+    /// <summary>Where a member of a group gets something other than the group's own row says, with the choices the
+    /// settings hold.</summary>
+    public static IReadOnlyList<(string Member, string Event, bool On, string Group)> Overridden(AppSettings s, string group) => Overridden(s, s.GroupAlertProfiles, group);
 
     /// <summary>Some group that exists and has a member has a choice of its own.</summary>
     public bool Any => Volatile.Read(ref _now).Any;
 
-    /// <summary>The gate: whether an event is on for a character. Any thread.</summary>
+    /// <summary>The gate: whether an event is on for a character. Any thread. Never throws: a character without a
+    /// name is in no group (the switch for everyone decides), and an event without a key is on.</summary>
     public bool IsOn(string character, string eventKey)
     {
         var now = Volatile.Read(ref _now);
-        if (!now.Any) return true;   // no group has a choice: what is off for everyone is not raised in the first place
-        if (!string.IsNullOrEmpty(character) && now.ByCharacter.TryGetValue(character, out var theirs))
-            foreach (var chosen in theirs)
-                if (chosen.TryGetValue(eventKey, out var on)) return on;
+        if (!now.Any || eventKey == null) return true;   // no group has a choice: what is off for everyone is not raised in the first place
+        if (!string.IsNullOrEmpty(character) && now.ByCharacter.TryGetValue(character, out var theirs) && theirs.TryGetValue(eventKey, out var on)) return on;
         return !now.Everyone.TryGetValue(eventKey, out var everyone) || everyone;
     }
 
@@ -213,20 +268,45 @@ public sealed class AlertProfiles
         return set;
     }
 
-    /// <summary>The members of a group that are also in a group which comes before it on the Groups page and has
-    /// choices: for an event both groups chose about, the earlier group's choice is theirs. The editor says so, so
-    /// that nobody thinks a character is covered by a choice that does not reach it. The window's thread.</summary>
-    public static IReadOnlyList<(string Character, string Group)> Overridden(AppSettings s, string? choices, string group)
+    /// <summary>For the editor: where a member of a group gets, for an event, something other than the group's own
+    /// row says, and which group decides that. The row says "on" or "off" where the group chose, and otherwise what
+    /// everyone has. So this lists a member whose "off" does not hold because another of its groups says "on", and a
+    /// member whose "as everyone" is decided by another group's choice; never an event the two decide alike. What
+    /// the member gets (<c>On</c>) is the gate's own answer, asked of a picture of these very settings.
+    /// One entry per member and event: the members in the group's order and as the group spells them; the events as
+    /// Alerts › Events lists them, then the player's own rules; of several groups that decide alike, the first on the
+    /// Groups page. Empty for a group nobody else's choices reach, and for a name no group has. The window's thread.</summary>
+    public static IReadOnlyList<(string Member, string Event, bool On, string Group)> Overridden(AppSettings s, string? choices, string group)
     {
-        var overridden = new List<(string, string)>();
-        var counting = Counting(s, choices);
-        int at = counting.FindIndex(g => g.Name == group);
-        if (at <= 0) return overridden;
-        foreach (var member in counting[at].Members)
+        var differ = new List<(string, string, bool, string)>();
+        var others = Counting(s, choices).Where(g => g.Name != group).ToList();
+        if (others.Count == 0) return differ;
+
+        var events = new List<string>();
+        var chosen = new HashSet<string>(others.SelectMany(g => g.Choices.Keys), StringComparer.Ordinal);
+        foreach (var e in SettingsUi.AlertEvents.Listed)
+            if (chosen.Remove(e.Key)) events.Add(e.Key);
+        events.AddRange(chosen.OrderBy(key => key, StringComparer.Ordinal));
+
+        var gate = new AlertProfiles();
+        gate.Publish(s, choices);
+        var everyone = gate._now.Everyone;
+        GroupAlertChoices.Read(choices).TryGetValue(group ?? "", out var own);
+        var members = SettingsUi.MergedGroups.Build(s).Where(g => g.Name == group).SelectMany(g => g.Members)
+            .Where(member => !string.IsNullOrEmpty(member)).Distinct(StringComparer.OrdinalIgnoreCase);
+        foreach (var member in members)
         {
-            var earlier = counting.Take(at).FirstOrDefault(g => g.Members.Contains(member, StringComparer.OrdinalIgnoreCase));
-            if (earlier.Name != null) overridden.Add((member, earlier.Name));
+            var theirs = others.Where(g => g.Members.Contains(member, StringComparer.OrdinalIgnoreCase)).ToList();
+            if (theirs.Count == 0) continue;
+            foreach (var key in events)
+            {
+                bool gets = gate.IsOn(member, key);
+                bool says = own != null && own.TryGetValue(key, out var stance) ? stance : !everyone.TryGetValue(key, out var all) || all;
+                if (gets == says) continue;
+                var decides = theirs.FirstOrDefault(g => g.Choices.TryGetValue(key, out var on) && on == gets);
+                if (decides.Name != null) differ.Add((member, key, gets, decides.Name));
+            }
         }
-        return overridden;
+        return differ;
     }
 }

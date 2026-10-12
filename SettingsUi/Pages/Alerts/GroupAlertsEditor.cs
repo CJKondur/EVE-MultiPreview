@@ -155,7 +155,8 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
             : MergedGroups.Build(_ctx.S).Where(g => g.Name == Selected).SelectMany(g => g.Members).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         _members.Text = Selected == null ? "" : Members.Count == 0 ? Str("L.S.GroupAlerts.NoMembers") : string.Format(Str("L.S.GroupAlerts.Members"), string.Join(", ", Members));
         _members.Visibility = _members.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
-        ReachedFirst = Selected == null ? Array.Empty<(string, string)>() : AlertProfiles.Overridden(_ctx.S, Selected);
+        ReachedFirst = Selected == null ? Array.Empty<(string, string)>()
+            : AlertProfiles.Overridden(_ctx.S, Selected).Select(o => (o.Member, o.Group)).Distinct().ToList();
         _warning.Text = ReachedFirst.Count == 0 ? ""
             : string.Format(Str("L.S.GroupAlerts.Overridden"), string.Join(", ", ReachedFirst.Select(r => r.Character + " (" + r.Group + ")")));
         _warning.Visibility = _warning.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;

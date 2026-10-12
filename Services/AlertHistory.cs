@@ -130,7 +130,8 @@ public sealed class AlertHistory : IDisposable
     {
         try
         {
-            if (!_enabled || _disposed) return;
+            // An event that is off for its character was no alert (IDEAS #31): never kept, whoever hands it in.
+            if (!_enabled || _disposed || entry.Outcome == AlertOutcome.Off) return;
             entry = entry with { Seq = Interlocked.Increment(ref _seq) };
             lock (_lock)
             {
