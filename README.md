@@ -36,7 +36,7 @@ This project is a ground-up rewrite inspired by [EVE-O Preview](https://github.c
 
 Alerts come from EVE's chat and game log files. The English log lines are tested in the wording real logs have, with invented names in them; the other seven languages the EVE client has are matched from EVE's own translated text, so tell us if an alert doesn't fire in yours.
 
-- **Thirteen events:** Under attack, Warp scrambled, Decloaked, Fleet invite, Convo request, Fleet warp, Regrouping, System changed, Left behind, Cargo full, Asteroid depleted, Crystal broken and Miner stopped. Left behind and the four mining events are off until you turn them on.
+- **Fifteen events:** Under attack, Warp scrambled, Decloaked, Capacitor neutralized, Jammed, Fleet invite, Convo request, Fleet warp, Regrouping, System changed, Left behind, Cargo full, Asteroid depleted, Crystal broken and Miner stopped. Capacitor neutralized, Jammed, Left behind and the four mining events are off until you turn them on.
 - An alert shows on the client's thumbnail as a coloured border, a count badge and a line of text, and can play a sound file of your choice.
 - **Alert hub:** an optional bell on screen with toasts that name the character, the event and the solar system. Click a toast to switch to that client; right-click it to dismiss it or to snooze its alert. A click on a toast never takes the keyboard away from the game. Right-click the bell for its menu: the side the toasts stack on, a button that dismisses all toasts, and one that opens the alert history.
 - **Three severities** (critical, warning, info), each with its own colour and flash speed.

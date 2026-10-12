@@ -2268,4 +2268,9 @@
     <sys:String x:Key="L.S.GroupAlerts.Clear">清除这个分组的选择</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.groups.Title">按分组设置警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.groups.Body">每个分组（客户端 › 分组）可以自己选择开启哪些事件，这样矿工会收到货舱已满的警报，而战斗角色不会。&#x0A;&#x0A;- 先选择分组，再把某个事件设为对它开启或关闭。保持“与所有人相同”的事件遵循上面 **警报事件** 里的开关。&#x0A;- 分组可以开启一个对所有人关闭的事件，也可以关闭一个已开启的事件。&#x0A;- 不在任何分组里的角色始终使用所有人的开关。&#x0A;- 对于同时在多个分组里的角色，每个事件由“分组”页面上排在最前面、并且对该事件做了选择的分组决定。当某个分组的选择不能最先作用于它的某个成员时，卡片会说明。&#x0A;- 对某个角色关闭的事件，对它来说就不是警报：不会显示、播放或朗读任何内容，也不会进入警报历史。&#x0A;- 自定义规则可以对某个分组关闭。在规则自己的页面里关闭的规则对所有人都关闭。&#x0A;- 重命名分组时，它的选择会跟着走；分组没有成员时，这些选择不起作用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.neutralized">电容被中和</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.jammed">被干扰</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.ewarNote">“电容被中和”和“被干扰”在你开启之前是关闭的，并且只从英文游戏客户端读取。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Title">“电容被中和”和“被干扰”</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Body">两个常常出现在受到伤害之前的事件： **电容被中和** ，即能量中和器夺走你舰船的电容； **被干扰** ，即你的舰船受到干扰并失去锁定。&#x0A;&#x0A;- 两者在你于上面的表格中开启之前都是关闭的。&#x0A;- 它们根据英文游戏客户端的文字读取。游戏使用其他语言时，它们不会触发任何警报。&#x0A;- 开启 **PVE 模式** 时，中和或干扰你的 NPC 不会触发任何警报；玩家仍然会。&#x0A;- 抽取你电容的掠能器不包括在内，只包括中和器。</sys:String> <!-- draft -->
 </ResourceDictionary>

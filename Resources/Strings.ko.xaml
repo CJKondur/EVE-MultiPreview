@@ -2251,4 +2251,9 @@
     <sys:String x:Key="L.S.GroupAlerts.Clear">이 그룹의 선택 지우기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.groups.Title">그룹별 알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.groups.Body">그룹(클라이언트 › 그룹)마다 어떤 이벤트를 켤지 따로 고를 수 있어요. 그러면 채굴 캐릭터는 화물칸이 가득 찼다는 알림을 받고, 전투 캐릭터는 받지 않아요.&#x0A;&#x0A;- 그룹을 고른 다음, 이벤트를 그 그룹에서 켜거나 꺼요. 모두와 같게 둔 이벤트는 위의 **알림 이벤트** 카드에 있는 스위치를 따라요.&#x0A;- 그룹은 모두에게 꺼져 있는 이벤트를 켤 수 있고, 켜져 있는 이벤트를 끌 수 있어요.&#x0A;- 어떤 그룹에도 없는 캐릭터는 항상 모두의 스위치를 따라요.&#x0A;- 여러 그룹에 속한 캐릭터는 그룹 페이지에서 앞에 있는 그룹 가운데 그 이벤트를 선택한 첫 번째 그룹이 정해요. 한 그룹의 선택이 구성원에게 먼저 닿지 않으면 카드가 알려 줘요.&#x0A;- 캐릭터에게 꺼져 있는 이벤트는 그 캐릭터의 알림이 아니에요. 아무것도 표시되거나 재생되거나 읽히지 않고, 알림 기록에도 남지 않아요.&#x0A;- 사용자 지정 규칙은 그룹에서 끌 수 있어요. 규칙 자체 페이지에서 꺼 둔 규칙은 모두에게 꺼져 있어요.&#x0A;- 그룹의 이름을 바꿔도 선택은 그대로 따라가고, 구성원이 없는 동안에는 아무 일도 하지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.neutralized">캐패시터 중화</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.jammed">재밍</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.ewarNote">캐패시터 중화와 재밍은 켜기 전까지 꺼져 있고, 영어 게임 클라이언트에서만 읽어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Title">캐패시터 중화와 재밍</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Body">피해보다 먼저 오는 일이 많은 두 가지 이벤트예요. **캐패시터 중화** 는 에너지 뉴트럴라이저가 함선의 캐패시터를 빼앗을 때, **재밍** 은 함선이 재밍을 당해 대상 고정을 잃을 때 생겨요.&#x0A;&#x0A;- 둘 다 위의 표에서 켜기 전까지 꺼져 있어요.&#x0A;- 영어 게임 클라이언트의 문구에서 읽어요. 다른 언어의 게임에서는 아무것도 생기지 않아요.&#x0A;- **PVE 모드** 가 켜져 있으면 NPC가 중화하거나 재밍해도 아무것도 생기지 않아요. 플레이어가 하면 생겨요.&#x0A;- 캐패시터를 빨아들이는 노스페라투는 포함되지 않고, 뉴트럴라이저만 해당돼요.</sys:String> <!-- draft -->
 </ResourceDictionary>

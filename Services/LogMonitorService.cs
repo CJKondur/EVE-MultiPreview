@@ -100,6 +100,11 @@ public sealed class LogMonitorService : IDisposable
     // Per-event enable/disable from settings
     private Dictionary<string, bool> _enabledAlertTypes = new();
 
+    // IDEAS #4: which of the two events that are off until switched on (neutralized, jammed) are on, as bits
+    // (EwarLines.Bits). While both are off, a combat line costs one read of this field and nothing more of them.
+    // SetEnabledAlertTypes writes it on the window's thread; the reading thread reads it.
+    private volatile int _ewarOn;
+
     // ── Custom alert rules (IDEAS #8) ──
     // The rules that are on, made ready, or null while there are none: then a line costs one read of this field and
     // one branch more than it did before custom rules existed. Only the reading thread writes it (ApplyRules).
@@ -1156,8 +1161,14 @@ public sealed class LogMonitorService : IDisposable
         : byEvent.TryGetValue(alertType, out var old) ? old
         : quietTime;
 
-    /// <summary>Configure per-event enable/disable from settings.</summary>
-    public void SetEnabledAlertTypes(Dictionary<string, bool> enabled) => _enabledAlertTypes = enabled ?? new();
+    /// <summary>Configure per-event enable/disable from settings. The two events that are off until switched on
+    /// (IDEAS #4) are worked out here, once: for them a missing key is off. App calls this again after every
+    /// settings change, so a switch in the event table is followed.</summary>
+    public void SetEnabledAlertTypes(Dictionary<string, bool> enabled)
+    {
+        _enabledAlertTypes = enabled ?? new();
+        _ewarOn = EwarLines.Bits(_enabledAlertTypes);
+    }
 
     /// <summary>Set settings reference for alert colors and other config.</summary>
     public void SetSettings(AppSettings settings) => _appSettings = settings;
@@ -1969,6 +1980,7 @@ public sealed class LogMonitorService : IDisposable
                 TriggerAlert(character, "attack", "critical");
             }
             SkipCombat:
+            if (_ewarOn != 0 && own == OwnTag.Combat) EwarFromCombatLine(line, character);
             ParseCombatLine(line, character);
             return;
         }
@@ -2240,6 +2252,23 @@ public sealed class LogMonitorService : IDisposable
 
         _lastEventTime = DateTime.Now;
         TriggerAlert(character, "warp_scramble", "critical");
+    }
+
+    /// <summary>
+    /// Being neutralized or jammed (IDEAS #4): two events that are off until the player switches them on, and this
+    /// is only called while one of them is on. EwarLines reads the line: the English wording and markup of a real
+    /// log, directly behind the line's own (combat) tag, which is why a line without a tag in its place is not
+    /// looked at. In PvE mode an NPC's raises nothing, told from a player's as for hits: a player is named with a
+    /// corporation ticker in brackets or a ship type in parentheses, an NPC is not. A source that can't be read
+    /// counts as a player's, so the alert is raised.
+    /// </summary>
+    private void EwarFromCombatLine(string line, string character)
+    {
+        if (!EwarLines.TryRead(line, _ewarOn, out var type, out var severity, out var source)) return;
+        if (PveMode && IsNpc(EwarLines.SourceName(source))) return;
+
+        _lastEventTime = DateTime.Now;
+        TriggerAlert(character, type, severity);
     }
 
     private void ParseCombatLine(string line, string character)

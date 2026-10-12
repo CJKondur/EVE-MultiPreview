@@ -214,6 +214,7 @@ public partial class SettingsWindow
         ("decloak","Decloaked","critical","\ud83d\udd34"), ("fleet_invite","Fleet Invite","warning","\ud83d\udfe0"),
         ("convo_request","Convo Request","warning","\ud83d\udfe0"), ("system_change","System Change","info","\ud83d\udd35"),
         ("straggler","Left Behind","warning",char.ConvertFromUtf32(0x1F7E0)),
+        ("neutralized","Capacitor Neutralized","critical",char.ConvertFromUtf32(0x1F534)), ("jammed","Jammed","warning",char.ConvertFromUtf32(0x1F7E0)),
         ("mine_cargo_full","Mining: Cargo Full","warning","\ud83d\udfe0"), ("mine_asteroid_depleted","Mining: Depleted","info","\ud83d\udd35"),
         ("mine_crystal_broken","Mining: Crystal Broken","warning","\ud83d\udfe0"), ("mine_module_stopped","Mining: Miner Stopped","info","\ud83d\udd35"),
         ("follow_warp","Fleet Warp","warning","\ud83d\udfe0"), ("regroup","Fleet Regroup","warning","\ud83d\udfe0")

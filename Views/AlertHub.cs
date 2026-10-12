@@ -44,6 +44,8 @@ public class AlertHub : IDisposable
             "follow_warp" => "Fleet warp",
             "regroup" => "Regrouping",
             "straggler" => "Left behind",
+            "neutralized" => "Capacitor neutralized",
+            "jammed" => "Jammed",
             _ => alertType
         });
 

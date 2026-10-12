@@ -29,6 +29,7 @@ public static class AlertsPages
         }),
         new HelpTopic(EventsId, "combat", new[] { "alerts.events.pve", "alerts.events.underFire", "alerts.events.underFireTime" }),
         new HelpTopic(EventsId, "table", new[] { EventTableId, "alerts.events.repeatWait", "alerts.events.repeatBySeverity" }),
+        new HelpTopic(EventsId, "ewar", new[] { "alerts.events.ewarNote" }),
         new HelpTopic(EventsId, "straggler", new[] { "alerts.events.stragglerWait" }),
         new HelpTopic(EventsId, "groups", new[] { GroupAlertsEditor.ItemId }),
         new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
@@ -119,6 +120,10 @@ public static class AlertsPages
                     "AppSettings.AlertSolidBorder", "AppSettings.EnabledAlertTypes",
                 },
             },
+            // IDEAS #4: what a player must know before relying on "Capacitor neutralized" and "Jammed": off until
+            // switched on, and read from an English game client only. Always shown: like the card below, a line
+            // can't follow a switch inside the table.
+            new InfoItem("alerts.events.ewarNote", InfoSeverity.Info),
             // IDEAS #5: the one-second look reads it (StragglerAlerts.Look, held to its range by StragglerWatch.Wait).
             // The event's own switch is its row in the table above: "Left behind", under Travel. The card is shown
             // whether that switch is on or not: a card can't follow a switch inside the table (only a card's own

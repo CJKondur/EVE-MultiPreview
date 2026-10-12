@@ -50,9 +50,22 @@ public static class AlertEvents
         new AlertEventDef(Services.StragglerWatch.EventKey, Services.StragglerWatch.Severity, "travel"),
     };
 
+    /// <summary>The events the log monitor reads from a log line only once the player has switched them on
+    /// (IDEAS #4): for these a missing key is off (AlertFields.IsOn, EwarLines.Bits). Each is read from a line of a
+    /// real English log, and the fixtures hold that line; but what the pinned fixture expects of it is "nothing",
+    /// which is what a player who has not switched the event on gets. So they are not in <see cref="All"/>, whose
+    /// every event that fixture must expect.</summary>
+    public static IReadOnlyList<AlertEventDef> OptIn { get; } = new[]
+    {
+        new AlertEventDef(Services.EwarLines.Neutralized, Services.EwarLines.NeutralizedSeverity, "combat"),
+        new AlertEventDef(Services.EwarLines.Jammed, Services.EwarLines.JammedSeverity, "combat"),
+    };
+
+    public static bool IsOptIn(string key) => key == Services.EwarLines.Neutralized || key == Services.EwarLines.Jammed;
+
     /// <summary>Every built-in event as the settings window lists them: by table group, the log monitor's first.</summary>
     public static IReadOnlyList<AlertEventDef> Listed { get; } =
-        Groups.SelectMany(group => All.Concat(Derived).Where(e => e.Group == group)).ToList();
+        Groups.SelectMany(group => All.Concat(OptIn).Concat(Derived).Where(e => e.Group == group)).ToList();
 
     public static AlertEventDef Find(string key) => Listed.First(e => e.Key == key);
 
@@ -88,12 +101,13 @@ public static class AlertFields
 {
     // ── Event table (EnabledAlertTypes, BadgeOnThumbnailAlertTypes, AlertSolidBorder, AlertDurations, AlertColors) ──
 
-    /// <summary>LogMonitorService: a missing key is on (follow_warp and regroup have no default key). "Left behind" is
-    /// the other way round (StragglerWatch.IsOn): MultiPreview raises it itself, and it is off until switched on.</summary>
+    /// <summary>LogMonitorService: a missing key is on (follow_warp and regroup have no default key). Three events are
+    /// the other way round, off until switched on: "Left behind" (StragglerWatch.IsOn), which MultiPreview raises
+    /// itself, and the two of IDEAS #4 (AlertEvents.OptIn), for which the log monitor has the same rule (EwarLines.Bits).</summary>
     public static bool IsOn(AppSettings s, string key) =>
-        key == Services.StragglerWatch.EventKey
-            ? Services.StragglerWatch.IsOn(s)
-            : !s.EnabledAlertTypes.TryGetValue(key, out var on) || on;
+        key == Services.StragglerWatch.EventKey ? Services.StragglerWatch.IsOn(s)
+        : AlertEvents.IsOptIn(key) ? s.EnabledAlertTypes.TryGetValue(key, out var chosen) && chosen
+        : !s.EnabledAlertTypes.TryGetValue(key, out var on) || on;
     public static void SetOn(AppSettings s, string key, bool on) => s.EnabledAlertTypes[key] = on;
 
     /// <summary>ThumbnailManager.IncrementAlertBadge: a missing key is on.</summary>
