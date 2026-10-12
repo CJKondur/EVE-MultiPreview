@@ -12,7 +12,7 @@ namespace EveMultiPreview.Services;
 /// ship, a module or a pilot named like the phrase is never taken for the line.
 ///
 /// What is NOT read, because no real line was at hand: a nosferatu's line ("energy drained"), a neutralizer of the
-/// player's own on somebody else (another colour, by IDEAS #4), and the wording of the eight other client languages.
+/// player's own on somebody else (another colour, by IDEAS #4), and the wording of the seven other client languages.
 /// A line whose source is a player was not at hand either; the two lines are told by how they begin, which does not
 /// depend on the source.
 ///
