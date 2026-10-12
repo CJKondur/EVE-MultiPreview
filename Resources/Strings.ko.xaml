@@ -2216,4 +2216,13 @@
     <sys:String x:Key="L.S.Speech.NoVoices">Windows에 설치된 음성이 없어서 아무것도 말할 수 없어요. Windows 음성 설정에서 추가해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.speech.Title">음성 알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.speech.Body">**알림 읽어 주기** 스위치를 켜면 Windows 음성이 누구의 알림인지, 무슨 일이 있었는지 말해 줘요. 캐릭터 이름과 이벤트 이름을 MultiPreview의 언어로 말해요. 보지 않아도 누가 나를 필요로 하는지 알 수 있어요. 여러 클라이언트가 같은 알림 소리를 쓸 때 특히 쓸모가 있어요.&#x0A;&#x0A;- **읽어 줄 알림** 카드는 심각도로 골라요. 치명만, 치명과 경고, 또는 전부예요.&#x0A;- 같은 이벤트의 알림이 함께 오면 "클라이언트 3개: 공격받는 중"처럼 한 문장이 돼요. 가장 심각한 알림을 먼저 말해요.&#x0A;- 10초 넘게 기다린 알림은 말하지 않아요. 같은 클라이언트의 같은 알림은 30초 안에는 다시 말하지 않아요. 그 이벤트의 소리 대기 시간이 더 길면 그 시간 동안 말하지 않아요.&#x0A;- 음성도 소리예요. 방해 금지가 음소거하고, 음소거한 캐릭터나 일시 중지한 알림은 말하지 않아요. **알림 소리 재생** 스위치는 필요 없어요. 소리 없이도 음성은 작동해요.&#x0A;- **음성 종류** 카드에서 심각도마다 음성을 정해요. 자동은 Windows에 MultiPreview 언어의 음성이 있으면 그 음성을, 없으면 Windows 기본 음성을 써요. 음성은 Windows 음성 설정에서 추가해요.&#x0A;- 치명 알림을 설정한 횟수만큼 반복했는데도 아직 보지 않았으면 한 번 더 말해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.hub.windows">Windows 알림</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notify">알림을 Windows 알림으로도 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notify.Desc">알림이 Windows 알림으로도 나타나고, 그 클라이언트를 볼 때까지 알림 센터에 남아 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notifyFrom">Windows에 알릴 알림</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notifyFrom.Desc">심각도로 골라요. 모든 이벤트는 치명, 경고, 정보 중 하나예요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Notify.Switch">{0}(으)로 전환</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Notify.Snooze">15분 동안 일시 중지</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.windows.Title">Windows 알림</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.windows.Body">**알림을 Windows 알림으로도 표시** 스위치를 켜면 알림이 Windows 자체의 알림으로도 나타나요. 캐릭터 이름, 이벤트, 항성계가 표시돼요. Windows 알림 센터에 남아 있어서 PC 앞에 없던 동안 무슨 일이 있었는지 볼 수 있어요.&#x0A;&#x0A;- 첫 번째 버튼은 그 클라이언트를 앞으로 가져와요. 알림을 클릭해도 같아요. 두 번째 버튼은 그 캐릭터의 그 알림을 15분 동안 일시 중지해요.&#x0A;- 캐릭터와 이벤트마다 알림이 하나씩 있어요. 더 새로운 알림은 그 알림을 갱신하고 횟수를 올리며, 팝업은 많아야 30초에 한 번 다시 떠요.&#x0A;- 앞에 있는 클라이언트의 알림은 Windows 알림을 만들지 않고, 클라이언트를 보면 그 클라이언트의 Windows 알림은 사라져요. 음소거한 캐릭터와 일시 중지한 알림도 만들지 않아요.&#x0A;- Windows 알림은 소리가 없어요. 알림 소리는 MultiPreview가 직접 내요.&#x0A;- 알림이 팝업으로 뜰지는 Windows가 정해요. Windows 자체의 방해 금지가 켜져 있거나 게임이 전체 화면으로 실행 중이면 알림 센터로만 가요. Windows는 최신 20개를 보관해요.&#x0A;- 이 기능이 켜져 있는 동안 MultiPreview는 Windows 레지스트리에 항목 하나와 설정 폴더에 그림 파일 하나를 두어, Windows가 표시할 이름과 아이콘을 알게 해요. 끄면 그 항목과 MultiPreview의 Windows 알림이 제거돼요. MultiPreview를 닫을 때도 Windows 알림은 제거돼요.</sys:String> <!-- draft -->
 </ResourceDictionary>

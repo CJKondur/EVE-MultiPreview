@@ -53,6 +53,11 @@ public partial class App : Application
     /// the way says nothing while "Speak alerts" is off.</summary>
     private WindowsSpeaker? _speaker;
     private SpokenWay? _spokenWay;
+    /// <summary>Windows notifications (IDEAS #33): the way that shows them, and the one registry key Windows needs for
+    /// a program without an installer. Made at startup; while "Show alerts as Windows notifications" is off the way
+    /// shows nothing and the key is not there.</summary>
+    private NotificationsWay? _notificationsWay;
+    private NotificationRegistration? _notificationRegistration;
     /// <summary>"Left behind" (IDEAS #5): told every system change, asked on the one-second timer while the event is on.</summary>
     private readonly StragglerWatch _stragglers = new();
     /// <summary>The look for it and the alert it raises, with what App has for both (set at startup).</summary>
@@ -74,10 +79,6 @@ public partial class App : Application
     private RunMarker? _runMarker;
     private DateTime? _previousRunStart;
     private int _trayTextQueued;
-
-    // Tray balloon click-to-focus (matches AHK _trayAlertChar/_trayAlertHwnd)
-    private string _trayAlertChar = "";
-    private IntPtr _trayAlertHwnd = IntPtr.Zero;
 
     // Per-event sound cooldowns — keyed `{character}_{alertType}` so simultaneous
     // alerts on different characters each get their own sound (the cooldown
@@ -415,6 +416,24 @@ public partial class App : Application
                 AlertHub.EventDisplayName, LocalizationService.Str, () => LocalizationService.CurrentLanguage, LogError);
             _alertWays.Add(_spokenWay);
             _escalation.HandOff = _spokenWay.HandedOff;
+            // IDEAS #33: Windows notifications. The way is told of every alert that was shown and of every client
+            // that was looked at; a click on a notification comes back on a thread of Windows' and is done on the
+            // window's: "Switch to" as a toast's click does it, "Snooze" as a toast's menu does it. The registry
+            // key follows the switch, now and after every settings change.
+            _notificationRegistration = new NotificationRegistration(new UserRegistry(), () => NotificationIcon.Ensure(AppPaths.ConfigDir), LogError);
+            _notificationsWay = new NotificationsWay(new WindowsToastNotifier(NotificationRegistration.AppId),
+                entry => NotificationsWay.Texts(entry, AlertHub.EventDisplayName,
+                    (who, type) => _stragglerAlerts?.PlaceOf(who, type) ?? _thumbnailManager.GetCharacterSystem(who), LocalizationService.Str),
+                who => SwitchToCharacter(who),
+                (who, type, length) =>
+                {
+                    _snoozes.Snooze(who, type, length);
+                    _thumbnailManager.ShowTooltipFeedback(SnoozeText.Done(who, type));
+                },
+                action => Dispatcher.BeginInvoke(action), LogError);
+            _alertWays.Add(_notificationsWay);
+            _thumbnailManager.Attention.Looked += _notificationsWay.Looked;
+            FollowNotifications(starting: true);
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
             // history writes on a thread of its own; old days are deleted here, at startup, and never while running.
             // A session whose settings could not be read runs on default values and saves nothing: its keep time is
@@ -896,6 +915,15 @@ public partial class App : Application
         _snoozeFile.Follow(_settings.Settings.KeepAlertSnoozes, _snoozes);
     }
 
+    /// <summary>IDEAS #33: the registry key Windows needs, and what MultiPreview has in the Notification Center, follow
+    /// "Show alerts as Windows notifications". Called at startup and after every settings change, on the window's
+    /// thread. NotificationsWay.Follow has the order: switched off, the notifications go first and then the key.</summary>
+    private void FollowNotifications(bool starting = false)
+    {
+        if (_isShuttingDown || _settings == null || _notificationsWay == null || _notificationRegistration == null) return;
+        _notificationsWay.Follow(_settings.Settings.WindowsNotifications, _notificationRegistration, starting);
+    }
+
     /// <summary>Hands the custom rules (IDEAS #8) to everything that uses them: their names and sounds by alert type
     /// (CustomAlertTypes), and the rules that are on, made ready, to the log monitor. With none on the monitor gets
     /// null, and its reader does nothing more per line than see that.</summary>
@@ -1113,7 +1141,9 @@ public partial class App : Application
             ContextMenuStrip = _trayMenu.Strip
         };
 
-        // M3: Balloon click → focus attacked character (matches AHK NIN_BALLOONUSERCLICK)
+        // A click on a tray balloon. The one balloon a click means something on is the note about refused hotkeys
+        // (IDEAS #42). No alert shows a balloon any more: an alert's own notification is a toast of the alert hub,
+        // or a Windows notification (IDEAS #33), and each has its own click.
         _trayIcon.BalloonTipClicked += (_, _) =>
         {
             if (_refusalNote.Clicked())
@@ -1121,12 +1151,6 @@ public partial class App : Application
                 // IDEAS #42: deferred, as the tray menu's Settings item is, so the note has gone before the window shows.
                 Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     OpenSettings(startMinimized: false, pageId: SettingsUi.ClientsPages.HotkeysId)));
-                return;
-            }
-            if (!string.IsNullOrEmpty(_trayAlertChar))
-            {
-                _thumbnailManager?.ActivateEveWindow(IntPtr.Zero, _trayAlertChar);
-                Debug.WriteLine($"[Tray:BalloonClick] 🔧 Focused '{_trayAlertChar}' via balloon click");
             }
         };
 
@@ -1246,6 +1270,7 @@ public partial class App : Application
 
             FollowSnoozeSwitch();   // IDEAS #30: the snooze file is written or removed as its switch says
             FollowAlertTimer();     // IDEAS #29: the one-second look starts or stops with what needs it
+            FollowNotifications();  // IDEAS #33: the registry key is written or removed as its switch says
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)
@@ -1508,6 +1533,7 @@ public partial class App : Application
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
+        _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center
         _alertTimer?.Stop();
         _alertHub?.Dispose();
         _broadcastHud?.Dispose();

@@ -180,6 +180,12 @@ public class AppSettings
     public int SpeechVolume { get; set; } = 100;
     public string SpeechVoices { get; set; } = "";
 
+    /// <summary>Windows notifications (IDEAS #33), read by NotificationsWay for every alert that was shown, and by App
+    /// at startup and after every settings change (the registry key follows the switch): on or off, and from which
+    /// severity (0 critical only, 1 critical and warning, 2 all). New keys: off in a file without them.</summary>
+    public bool WindowsNotifications { get; set; } = false;
+    public int WindowsNotificationsFrom { get; set; } = 0;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

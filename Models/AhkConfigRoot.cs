@@ -118,6 +118,8 @@ public class AhkConfigRoot
         s.SpeakAlertsFrom = g.SpeakAlertsFrom;
         s.SpeechVolume = g.SpeechVolume;
         s.SpeechVoices = g.SpeechVoices ?? "";
+        s.WindowsNotifications = g.WindowsNotifications != 0;
+        s.WindowsNotificationsFrom = g.WindowsNotificationsFrom;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -435,6 +437,8 @@ public class AhkConfigRoot
         g.SpeakAlertsFrom = s.SpeakAlertsFrom;
         g.SpeechVolume = s.SpeechVolume;
         g.SpeechVoices = s.SpeechVoices;
+        g.WindowsNotifications = s.WindowsNotifications ? 1 : 0;
+        g.WindowsNotificationsFrom = s.WindowsNotificationsFrom;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1230,6 +1234,13 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("SpeechVoices")]
     public string? SpeechVoices { get; set; } = "";
+
+    // Windows notifications (IDEAS #33), new after 2.3.42: a file without them loads off, critical only.
+    [JsonPropertyName("WindowsNotifications")]
+    public int WindowsNotifications { get; set; }
+
+    [JsonPropertyName("WindowsNotificationsFrom")]
+    public int WindowsNotificationsFrom { get; set; }
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

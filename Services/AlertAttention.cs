@@ -73,6 +73,11 @@ public sealed class AlertAttention
         return at;
     }
 
+    /// <summary>A character's unseen alerts were taken off: its client came to the front, or is gone. Raised only
+    /// when there were any, on the thread that called <see cref="Seen"/> or <see cref="Gone"/>, outside the lock
+    /// (IDEAS #33: its Windows notifications go with them).</summary>
+    public event Action<string>? Looked;
+
     /// <summary>That character's client came to the front: its alerts are seen. True when there were any.</summary>
     public bool Seen(string character)
     {
@@ -81,8 +86,9 @@ public sealed class AlertAttention
         {
             if (!_byCharacter.Remove(character)) return false;
             Volatile.Write(ref _characters, _byCharacter.Count);
-            return true;
         }
+        Looked?.Invoke(character);
+        return true;
     }
 
     /// <summary>That character's client closed, or the character logged out of it: nothing there needs the player any

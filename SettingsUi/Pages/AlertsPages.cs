@@ -51,6 +51,7 @@ public static class AlertsPages
         new HelpTopic(SoundsId, "speech", new[] { "alerts.sounds.speak", "alerts.sounds.speakFrom", "alerts.sounds.speechVolume", SpeechVoicesEditor.ItemId }),
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
+        new HelpTopic(HubId, "windows", new[] { "alerts.hub.notify", "alerts.hub.notifyFrom" }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
         new HelpTopic(HubId, "historyWindow", new[] { "alerts.hub.historyRow" }),
         new HelpTopic(CustomId, "rules", new[] { CustomRulesEditor.ItemId }),
@@ -361,6 +362,14 @@ public static class AlertsPages
             {
                 new ActionDef("alerts.hub.resetPosition", ResetHubPosition) { Replaces = new[] { "OnResetHubPosition" } },
             }) { ShowIf = HubOn },
+        }),
+        // IDEAS #33. NotificationsWay reads both for every alert that was shown. App follows the switch on Applied:
+        // the registry key Windows needs is written when it goes on and removed when it goes off.
+        new SectionDef("alerts.hub.windows", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("alerts.hub.notify", s => s.WindowsNotifications)),
+            From("alerts.hub.notifyFrom", s => s.WindowsNotificationsFrom, (s, v) => s.WindowsNotificationsFrom = v,
+                "AppSettings.WindowsNotificationsFrom", s => s.WindowsNotifications),
         }),
         // IDEAS #1. Shown whether the hub is on or not: an alert is kept either way. App passes both settings to the
         // history on Applied. New keys: a file without them loads on, 30 days.

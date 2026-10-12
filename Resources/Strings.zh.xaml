@@ -2233,4 +2233,13 @@
     <sys:String x:Key="L.S.Speech.NoVoices">Windows 没有安装任何语音，所以无法朗读。请在 Windows 的语音设置里添加一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.speech.Title">语音警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.speech.Body">打开 **朗读警报** 后，Windows 语音会说出是谁的警报以及发生了什么：角色的名字和事件的名字，使用 MultiPreview 的语言。你不用看就知道谁需要你，在很多客户端共用一个警报声音时最有用。&#x0A;&#x0A;- **朗读哪些警报** 按严重程度选择：仅严重、严重和警告，或者全部。&#x0A;- 同一事件的警报一起到达时会合成一句话，例如“3 个客户端：遭到攻击”。最严重的警报最先朗读。&#x0A;- 等待超过 10 秒的警报不再朗读。同一客户端的同一警报在 30 秒内不会再次朗读；如果该事件的声音静默时间更长，则以它为准。&#x0A;- 语音也是声音：勿扰会把它静音，已静音的角色和已暂停的警报不会朗读。它不需要 **播放警报声音**：没有提示音时语音照样工作。&#x0A;- **语音种类** 为每个严重程度设定语音。自动会在 Windows 有 MultiPreview 语言的语音时使用它，否则使用 Windows 默认语音。语音在 Windows 的语音设置里添加。&#x0A;- 当一条严重警报已按设定的次数重复而你仍然没有查看时，它会再朗读一次。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.alerts.hub.windows">Windows 通知</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notify">把警报显示为 Windows 通知</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notify.Desc">警报也会作为 Windows 的通知出现，并留在通知中心里，直到你查看了那个客户端。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notifyFrom">为哪些警报显示通知</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.notifyFrom.Desc">按严重程度选择：每个事件都是严重、警告或信息。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Notify.Switch">切换到 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Notify.Snooze">暂停 15 分钟</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.windows.Title">Windows 通知</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.windows.Body">打开 **把警报显示为 Windows 通知** 后，警报也会作为 Windows 自己的通知出现，带有角色的名字、事件和星系。它会留在 Windows 的通知中心里，所以你能看到离开电脑期间发生了什么。&#x0A;&#x0A;- 第一个按钮会把那个客户端切换到前台，点击通知本身也一样。第二个按钮会把那个角色的那条警报暂停 15 分钟。&#x0A;- 每个角色和事件只有一条通知。更新的警报会更新它并增加次数，它最多每 30 秒再弹出一次。&#x0A;- 前台客户端的警报不会产生通知；当你查看某个客户端时，它的通知会消失。已静音的角色和已暂停的警报也不会产生通知。&#x0A;- 通知是无声的：警报声音由 MultiPreview 自己播放。&#x0A;- 通知是否弹出由 Windows 决定：当 Windows 自己的勿扰模式打开，或者有游戏在全屏运行时，通知只会进入通知中心。Windows 保留最新的 20 条。&#x0A;- 这个功能打开期间，MultiPreview 会在 Windows 注册表里保留一个条目，并在设置文件夹里保留一个图片文件，让 Windows 知道要显示的名称和图标。关闭它会删除这个条目和 MultiPreview 的通知。MultiPreview 关闭时也会清除这些通知。</sys:String> <!-- draft -->
 </ResourceDictionary>
