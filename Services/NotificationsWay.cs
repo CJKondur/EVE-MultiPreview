@@ -41,7 +41,9 @@ public sealed class NotificationsWay : IAlertWay
         _failed = failed ?? (_ => { });
         Pump = new WorkPump(Drain, _failed);
         _notifier.Clicked += OnClicked;
-        _notifier.Dismissed += tag => Ledger.Clicked(tag);   // closed by hand: forgotten; a later alert makes a new entry
+        // Closed by hand: the notification is gone, the pair's banner time is kept (the banner that was just closed
+        // does not come back at the next alert).
+        _notifier.Dismissed += tag => Ledger.Dismissed(tag);
     }
 
     /// <summary>What was shown and what Windows is still to be asked (tests look at it).</summary>

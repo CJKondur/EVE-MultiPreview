@@ -60,9 +60,11 @@ public sealed class NotificationRegistration
         {
             if (on)
             {
+                // Before the first write, not behind the last: a write that is refused half-way leaves a key with
+                // one value, and "known to be gone" would then keep the next "off" from removing it.
+                _knownGone = false;
                 if (_registry.Read(Key, "DisplayName") != DisplayName) _registry.Write(Key, "DisplayName", DisplayName);
                 if (_icon() is { Length: > 0 } icon && _registry.Read(Key, "IconUri") != icon) _registry.Write(Key, "IconUri", icon);
-                _knownGone = false;
                 return Registered = true;
             }
             if (!_knownGone)

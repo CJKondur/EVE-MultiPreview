@@ -37,7 +37,8 @@ public static class NotificationXml
     {
         var binding = new XElement("binding", new XAttribute("template", "ToastGeneric"),
             new XElement("text", Clean(texts.Title)), new XElement("text", Clean(texts.Line)));
-        if (!string.IsNullOrWhiteSpace(texts.Detail)) binding.Add(new XElement("text", Clean(texts.Detail)));
+        // Asked after cleaning: a detail made only of characters that are not shown would be an empty line.
+        if (Clean(texts.Detail) is { Length: > 0 } detail) binding.Add(new XElement("text", detail));
         var toast = new XElement("toast", new XAttribute("launch", Go + tag),
             new XElement("visual", binding),
             new XElement("actions",
@@ -48,7 +49,9 @@ public static class NotificationXml
         return toast.ToString(SaveOptions.DisableFormatting);
     }
 
-    /// <summary>A text as a notification shows it: one line, cut, and without the characters XML can't hold.</summary>
+    /// <summary>A text as a notification shows it: one line, cut, and without the characters XML can't hold. Where
+    /// such a character is taken out no gap is left: not two spaces where it stood between two words, and no space
+    /// at an end.</summary>
     private static string Clean(string? text)
     {
         var line = PlainText.OneLine(text, MaxText);
@@ -62,8 +65,10 @@ public static class NotificationXml
                 continue;
             }
             if (c < ' ' || c == '\uFFFE' || c == '\uFFFF' || char.IsSurrogate(c)) continue;
+            if (c == ' ' && (kept.Length == 0 || kept[^1] == ' ')) continue;
             kept.Append(c);
         }
+        if (kept.Length > 0 && kept[^1] == ' ') kept.Length--;
         return kept.ToString();
     }
 
@@ -85,14 +90,22 @@ public static class NotificationXml
 }
 
 /// <summary>Windows notifications for alerts (IDEAS #33): which alerts get one, which entry a newer alert replaces,
-/// when the banner pops up again, and when an entry is taken away. It keeps what it showed (at most twenty entries)
-/// and a short list of what Windows is still to be asked; whoever talks to Windows takes that list with
+/// when the banner pops up again, and when an entry is taken away. It keeps what it showed (at most twenty entries),
+/// what it remembers of entries that left without their client being looked at (so that the banner rule holds for
+/// them too), and a list of what Windows is still to be asked: at most one picture for each entry, and one removal
+/// for each entry that was looked at or made room. Whoever talks to Windows takes that list with
 /// <see cref="NextWork"/>. No window, no Windows and no clock in it: the time is the alert's own. Any thread.</summary>
 public sealed class AlertNotifications
 {
     /// <summary>Windows keeps this many entries per program. A further one takes the place of the entry that was
     /// updated longest ago.</summary>
     public const int MaxEntries = 20;
+
+    /// <summary>Of this many entries that left without their client being looked at (they made room, or the player
+    /// closed them by hand) the count and the banner time are remembered; beyond it the oldest are forgotten. It
+    /// is ten times what can be shown: a pair that comes again within the banner's quiet time finds itself here
+    /// unless more than this many other pairs came in between.</summary>
+    private const int MaxRemembered = 200;
 
     /// <summary>The banner of one character and event pops up again at most this often. In between, a newer alert
     /// only replaces the entry.</summary>
@@ -109,6 +122,8 @@ public sealed class AlertNotifications
 
     private readonly object _lock = new();
     private readonly List<Entry> _entries = new();
+    // Entries that left without their client being looked at, oldest first: at most one for a character and event.
+    private readonly List<Entry> _remembered = new();
     private readonly List<NotifierWork> _work = new();
     private long _tags;
 
@@ -118,13 +133,18 @@ public sealed class AlertNotifications
     /// <summary>An alert was shown. True when Windows is to be asked something for it.</summary>
     /// <param name="on">Windows notifications are switched on.</param>
     /// <param name="from">From which severity (AlertWays.Reaches).</param>
-    /// <param name="texts">The texts of an entry, in the player's language. Called here, on the alert's thread.</param>
+    /// <param name="texts">The texts of an entry, in the player's language. Called here, on the alert's thread, and
+    /// UNDER THE LEDGER'S LOCK: it must not call back into the ledger or into whoever owns it, and it must not wait
+    /// for another thread (one that is waiting for this lock would never come). It may throw: then this alert has
+    /// no notification, and nothing of it is kept.</param>
     public bool Raised(AlertNotice notice, bool on, int from, Func<Entry, NotificationTexts> texts)
     {
         if (!on || notice.ClientInFront || string.IsNullOrEmpty(notice.Character) || !AlertWays.Reaches(from, notice.Severity)) return false;
         var now = notice.TimeUtc;
         lock (_lock)
         {
+            // First what the entry and its picture would be, and nothing is kept: the texts are the caller's function
+            // and may throw. Kept before that, a failed alert would have used up the pair's banner for half a minute.
             int at = _entries.FindIndex(e => Same(e, notice.Character, notice.EventKey));
             Entry entry;
             bool banner;
@@ -135,13 +155,18 @@ public sealed class AlertNotifications
                 var since = now - old.BannerUtc;
                 banner = since < TimeSpan.Zero || since >= BannerQuiet;
                 entry = old with { Severity = notice.Severity, Count = old.Count + 1, LastUtc = now, BannerUtc = banner ? now : old.BannerUtc };
-                _entries[at] = entry;
+            }
+            else if (Remembered(notice.Character, notice.EventKey, now) is { } back)
+            {
+                // It made room for another, or the player closed it, and its banner is not half a minute old: it comes
+                // back as another notification that counts on, and without a banner. Above twenty pairs every alert
+                // would otherwise be a banner, and so would the next alert after a banner was closed by hand.
+                entry = back with { Tag = NextTag(), Severity = notice.Severity, Count = back.Count + 1, LastUtc = now };
+                banner = false;
             }
             else
             {
-                if (_entries.Count >= MaxEntries) RemoveOldest();
-                entry = new Entry("n" + ToBase36(++_tags), notice.Character, notice.EventKey, notice.Severity, 1, now, now);
-                _entries.Add(entry);
+                entry = new Entry(NextTag(), notice.Character, notice.EventKey, notice.Severity, 1, now, now);
                 banner = true;
             }
             // A picture of this entry that still waits is replaced where it stands; a banner it carried is not lost with it.
@@ -149,10 +174,42 @@ public sealed class AlertNotifications
             if (waiting >= 0) banner |= _work[waiting].Content!.Banner;
             var show = new NotifierWork(NotifierWork.Kind.Show,
                 new NotificationContent(entry.Tag, NotificationXml.Build(texts(entry), entry.Tag), banner, now + Keep));
+
+            // Now it is kept.
+            if (at >= 0) _entries[at] = entry;
+            else
+            {
+                _tags++;
+                _remembered.RemoveAll(e => Same(e, notice.Character, notice.EventKey));    // taken back, or too old to be
+                if (_entries.Count >= MaxEntries) RemoveOldest();
+                _entries.Add(entry);
+            }
             if (waiting >= 0) _work[waiting] = show;
             else _work.Add(show);
             return true;
         }
+    }
+
+    /// <summary>The tag the next new entry gets. Under the lock; the number is used up when the entry is kept.</summary>
+    private string NextTag() => "n" + ToBase36(_tags + 1);
+
+    /// <summary>What is remembered of a pair whose entry left without its client being looked at, while that still
+    /// counts: its banner is less than the quiet time old. Null: nothing is remembered, the banner is older, or the
+    /// clock was set back (then the pair starts afresh, with its banner). Under the lock; changes nothing.</summary>
+    private Entry? Remembered(string character, string eventKey, DateTime now)
+    {
+        var entry = _remembered.Find(e => Same(e, character, eventKey));
+        if (entry == null) return null;
+        var since = now - entry.BannerUtc;
+        return since >= TimeSpan.Zero && since < BannerQuiet ? entry : null;
+    }
+
+    /// <summary>An entry leaves without its client having been looked at: its count and its banner time are
+    /// remembered. Under the lock.</summary>
+    private void Remember(Entry entry)
+    {
+        _remembered.Add(entry);
+        if (_remembered.Count > MaxRemembered) _remembered.RemoveAt(0);
     }
 
     /// <summary>Under the lock.</summary>
@@ -161,6 +218,7 @@ public sealed class AlertNotifications
         int oldest = 0;
         for (int i = 1; i < _entries.Count; i++)
             if (_entries[i].LastUtc < _entries[oldest].LastUtc) oldest = i;
+        Remember(_entries[oldest]);
         TakeAway(_entries[oldest].Tag);
         _entries.RemoveAt(oldest);
     }
@@ -175,7 +233,15 @@ public sealed class AlertNotifications
     /// <summary>A click on a notification or one of its buttons: the entry it was about, once. Windows takes a
     /// clicked notification away itself, so nothing is asked of it. Null: not one of this session's, or clicked
     /// before.</summary>
-    public Entry? Clicked(string tag)
+    public Entry? Clicked(string tag) => Leave(tag, remember: false);
+
+    /// <summary>The player closed a notification by hand: the entry it was about, once. Windows has taken it away
+    /// itself, so nothing is asked of it. The notification is gone, but the pair's count and banner time are
+    /// remembered as they are for an entry that made room: the banner that was just closed does not come back at
+    /// the next alert, only when the quiet time since it is over. Null: not one of this session's, or gone already.</summary>
+    public Entry? Dismissed(string tag) => Leave(tag, remember: true);
+
+    private Entry? Leave(string tag, bool remember)
     {
         lock (_lock)
         {
@@ -184,17 +250,28 @@ public sealed class AlertNotifications
             var entry = _entries[at];
             _entries.RemoveAt(at);
             _work.RemoveAll(w => w.What == NotifierWork.Kind.Show && w.Content!.Tag == tag);
+            if (remember) Remember(entry);
             return entry;
         }
     }
 
-    /// <summary>A character's client came to the front, or is gone: its entries are taken away. True when Windows is
-    /// to be asked something.</summary>
+    /// <summary>Whether a notification of this tag is one the ledger still has an entry for. Whoever has just shown
+    /// one asks: a click, a look or a closing that came while Windows was being asked has taken the entry away, and
+    /// the notification that arrived behind it would be one no click and no look could reach.</summary>
+    public bool Holds(string tag)
+    {
+        lock (_lock) return _entries.Exists(e => e.Tag == tag);
+    }
+
+    /// <summary>A character's client came to the front, or is gone: its entries are taken away, and what is
+    /// remembered of entries of its that left earlier is forgotten (its next alert starts afresh). True when Windows
+    /// is to be asked something.</summary>
     public bool Looked(string character)
     {
         if (string.IsNullOrEmpty(character)) return false;
         lock (_lock)
         {
+            _remembered.RemoveAll(e => string.Equals(e.Character, character, StringComparison.OrdinalIgnoreCase));
             var theirs = _entries.Where(e => string.Equals(e.Character, character, StringComparison.OrdinalIgnoreCase)).ToList();
             if (theirs.Count == 0) return false;
             foreach (var entry in theirs)
@@ -212,6 +289,7 @@ public sealed class AlertNotifications
     {
         lock (_lock)
         {
+            _remembered.Clear();
             if (_entries.Count == 0 && _work.Count == 0) return false;
             _entries.Clear();
             _work.Clear();
