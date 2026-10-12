@@ -19,9 +19,9 @@ public sealed class WorkPump
     private TaskCompletionSource _idle = Done();
 
     /// <param name="drain">The work. What it throws is reported and costs that run; the next wake runs it again.</param>
-    /// <param name="failed">Is told that the work threw, and the TYPE of what it threw, never its message: the work
-    /// speaks and shows characters' names, so a message can hold one, App writes what it is told to error_log.txt,
-    /// and players post that file.</param>
+    /// <param name="failed">Is told that the work threw, and the TYPE of what it threw (with the type at its root,
+    /// its error code and its stack: AlertWays.Failure), never its message: the work speaks and shows characters'
+    /// names, so a message can hold one, App writes what it is told to error_log.txt, and players post that file.</param>
     public WorkPump(Func<Task> drain, Action<Exception>? failed = null)
     {
         _drain = drain;
@@ -60,7 +60,7 @@ public sealed class WorkPump
             try { await _drain().ConfigureAwait(false); }
             catch (Exception ex)
             {
-                try { _failed(new InvalidOperationException("Alert ways: the work of a way failed (" + ex.GetType().Name + ")")); }
+                try { _failed(AlertWays.Failure("Alert ways: the work of a way", ex)); }
                 catch { /* reporting must never stop the pump */ }
             }
             TaskCompletionSource idle;

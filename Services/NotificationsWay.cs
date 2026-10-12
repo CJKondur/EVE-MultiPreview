@@ -27,7 +27,9 @@ public sealed class NotificationsWay : IAlertWay
     /// <param name="switchTo">Brings a character's client to the front (App.SwitchToCharacter).</param>
     /// <param name="snooze">(character, event, length): snoozes that event for that character (EventSnoozes.Snooze).</param>
     /// <param name="onWindowThread">Runs an action on the window's thread without waiting (Dispatcher.BeginInvoke).</param>
-    /// <param name="failed">Is told what Windows threw (App logs it).</param>
+    /// <param name="failed">Is told that Windows refused something, or that a click's work threw: what failed and
+    /// the TYPE of what was thrown with its error code (AlertWays.Failure), never its message. App writes what it
+    /// is told to error_log.txt, players post that file, and this way's work is made of characters' names.</param>
     public NotificationsWay(IToastNotifier notifier, Func<AlertNotifications.Entry, NotificationTexts> texts, Action<string> switchTo,
         Action<string, string, TimeSpan> snooze, Action<Action> onWindowThread, Action<Exception>? failed = null)
     {
@@ -118,7 +120,7 @@ public sealed class NotificationsWay : IAlertWay
                     break;
             }
         }
-        catch (Exception ex) { Report(ex); }
+        catch (Exception ex) { Report("asking Windows for a notification", ex); }
     }
 
     /// <summary>Everything of MultiPreview's is taken out of the Notification Center now, on this thread, and
@@ -146,12 +148,14 @@ public sealed class NotificationsWay : IAlertWay
                 else _switchTo(entry.Character);
             });
         }
-        catch (Exception ex) { Report(ex); }
+        catch (Exception ex) { Report("a click on a notification", ex); }
     }
 
-    private void Report(Exception ex)
+    /// <summary>Tells the reporter what failed and the type of what was thrown, never the exception itself.</summary>
+    private void Report(string what, Exception ex)
     {
-        try { _failed(ex); } catch (Exception) { /* reporting must never cost the alert */ }
+        try { _failed(AlertWays.Failure("Windows notifications: " + what, ex)); }
+        catch (Exception) { /* reporting must never cost the alert */ }
     }
 
     /// <summary>MultiPreview is closing: nothing more is shown, a click means nothing any more, and what this
