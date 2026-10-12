@@ -1266,7 +1266,9 @@ public class AhkGlobalSettings
     public int EnlargeOnAlertSeconds { get; set; } = 5;
 
     // Alerts per group (IDEAS #31), new after 2.3.42: one line of JSON text. A file without it loads "": no group has a choice.
+    // Its own converter (T8-I7): an object written by hand is read as its text; a number, true, an array or null is no choices.
     [JsonPropertyName("GroupAlertProfiles")]
+    [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
     public string? GroupAlertProfiles { get; set; } = "";
 
     [JsonPropertyName("AlertOpacityPercent")]

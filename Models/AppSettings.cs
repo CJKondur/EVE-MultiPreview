@@ -199,7 +199,15 @@ public class AppSettings
     /// members, as one line of JSON text ({"Miners":{"attack":false}}; GroupAlertChoices reads it). An event a group
     /// says nothing about, and a character in no group, has the switch for everyone (EnabledAlertTypes). Read by App,
     /// which hands AlertProfiles its picture and the log monitor its table. New key: "" in a file without it, which
-    /// is "no group has a choice".</summary>
+    /// is "no group has a choice".
+    /// <para>In the settings file the key holds that text as ONE JSON STRING, with the text's own quotes escaped, as
+    /// every key of the file is one line. A player who writes the choices by hand as what they are, a JSON object
+    /// ("GroupAlertProfiles": {"Miners":{"attack":false}}), is accepted: the object is read as its text, and the
+    /// next save writes the string again. A number, true, an array or null behind the key is "no choices" and does
+    /// not fail the file; an object that is never closed fails the whole file, as any broken JSON does. This key
+    /// alone reads so (GroupAlertChoicesTextConverter): for every other key a value of the wrong kind still fails
+    /// the whole file.</para></summary>
+    [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
     public string GroupAlertProfiles { get; set; } = "";
 
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
