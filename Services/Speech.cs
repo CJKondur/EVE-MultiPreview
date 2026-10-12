@@ -18,6 +18,10 @@ public interface ISpeaker
     /// <summary>The voices Windows has installed; empty when it has none or can't say.</summary>
     IReadOnlyList<SpeechVoice> Voices();
 
+    /// <summary>Windows' default voice, the one "" speaks with: the voice the player set Windows to. Null when
+    /// Windows has none or can't say.</summary>
+    SpeechVoice? DefaultVoice();
+
     /// <summary>Says a text and finishes when it has been said. The text is plain text and is never read as markup.
     /// May be called on any thread and never makes that thread wait for the voice.</summary>
     /// <param name="voiceId">A voice's id, or "" for Windows' default voice. An id Windows no longer has is the default voice.</param>
@@ -73,16 +77,33 @@ public static class SpeechVoiceChoice
         && voiceLanguage.StartsWith(appLanguage, StringComparison.OrdinalIgnoreCase)
         && (voiceLanguage.Length == appLanguage.Length || voiceLanguage[appLanguage.Length] == '-');
 
-    /// <summary>What "Automatic" means right now: the first installed voice of the app's language, or null when
-    /// Windows has none (then Windows' default voice speaks).</summary>
-    public static SpeechVoice? Automatic(IReadOnlyList<SpeechVoice> installed, string? appLanguage) =>
-        installed.FirstOrDefault(v => Speaks(v.Language, appLanguage));
+    /// <summary>The region a language is usually spoken with, for each language MultiPreview has: the voice
+    /// Automatic takes before any other of that language. Windows lists voices in no order that means anything, and
+    /// the first "zh" voice may be a Cantonese one, which reads Simplified Chinese badly.</summary>
+    private static readonly Dictionary<string, string> UsualRegion = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["zh"] = "zh-CN", ["en"] = "en-US", ["es"] = "es-ES", ["fr"] = "fr-FR", ["de"] = "de-DE",
+        ["it"] = "it-IT", ["ja"] = "ja-JP", ["ko"] = "ko-KR", ["ru"] = "ru-RU",
+    };
+
+    /// <summary>What "Automatic" means right now. Windows' own default voice when that speaks the app's language:
+    /// it is the voice the player set Windows to. Else the installed voice of the language's usual region, else the
+    /// first installed voice of the language. Null when Windows has none (then Windows' default voice speaks).</summary>
+    /// <param name="windowsDefault">ISpeaker.DefaultVoice, or null when Windows can't say.</param>
+    public static SpeechVoice? Automatic(IReadOnlyList<SpeechVoice> installed, string? appLanguage, SpeechVoice? windowsDefault = null)
+    {
+        if (windowsDefault != null && Speaks(windowsDefault.Language, appLanguage)) return windowsDefault;
+        if (appLanguage != null && UsualRegion.TryGetValue(appLanguage, out var region)
+            && installed.FirstOrDefault(v => string.Equals(v.Language, region, StringComparison.OrdinalIgnoreCase)) is { } usual) return usual;
+        return installed.FirstOrDefault(v => Speaks(v.Language, appLanguage));
+    }
 
     /// <summary>The id of the voice an alert of this severity is said with: the player's choice while Windows still
     /// has that voice, else Automatic; "" is Windows' default voice.</summary>
-    public static string For(string severity, string? json, IReadOnlyList<SpeechVoice> installed, string? appLanguage)
+    /// <param name="windowsDefault">ISpeaker.DefaultVoice, or null when Windows can't say.</param>
+    public static string For(string severity, string? json, IReadOnlyList<SpeechVoice> installed, string? appLanguage, SpeechVoice? windowsDefault = null)
     {
         if (Read(json).TryGetValue(severity, out var chosen) && installed.Any(v => v.Id == chosen)) return chosen;
-        return Automatic(installed, appLanguage)?.Id ?? "";
+        return Automatic(installed, appLanguage, windowsDefault)?.Id ?? "";
     }
 }

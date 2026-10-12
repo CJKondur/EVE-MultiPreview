@@ -27,6 +27,19 @@ public sealed class WindowsSpeaker : ISpeaker
         }
     }
 
+    public SpeechVoice? DefaultVoice()
+    {
+        try
+        {
+            var voice = SpeechSynthesizer.DefaultVoice;
+            return new SpeechVoice(voice.Id, voice.DisplayName, voice.Language);
+        }
+        catch (Exception)
+        {
+            return null;   // a Windows without speech, or one that can't say which voice is its default
+        }
+    }
+
     public Task SayAsync(string text, string voiceId, int volume, CancellationToken stop)
     {
         if (string.IsNullOrWhiteSpace(text) || volume <= 0) return Task.CompletedTask;
@@ -50,6 +63,9 @@ public sealed class WindowsSpeaker : ISpeaker
         using var player = new System.Media.SoundPlayer(wave);
         // Told to stop while it plays: PlaySync returns at once.
         using var told = stop.Register(() => { try { player.Stop(); } catch (Exception) { } });
+        // Told to stop since the look above: the line before this one has stopped a player that was not playing
+        // yet, and the whole sentence would be played now. So the stop is looked at once more.
+        stop.ThrowIfCancellationRequested();
         player.PlaySync();
     }
 }

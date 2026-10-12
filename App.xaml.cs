@@ -416,10 +416,16 @@ public partial class App : Application
             // IDEAS #26: spoken alerts. The way is told of every alert that was shown, decides what is said, and
             // says it on a thread of its own. Speech is a sound: do-not-disturb is asked for it as for the sound.
             // The last word of a chain of repeats (IDEAS #29) is spoken once more.
+            // A sentence may wait ten seconds for its turn, and then the way asks whether each of its alerts is
+            // still wanted: not when the character is muted or the event snoozed for it meanwhile, and not when
+            // the player has looked at that client since. (An alert on the client in front was never unseen, and
+            // is spoken as its sound is played.) Asked on the voice's thread: all three answers may be asked there.
             _speaker = new WindowsSpeaker();
             _spokenWay = new SpokenWay(_speaker, () => _settings.Settings,
                 (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
-                AlertHub.EventDisplayName, LocalizationService.Str, () => LocalizationService.CurrentLanguage, LogError);
+                AlertHub.EventDisplayName, LocalizationService.Str, () => LocalizationService.CurrentLanguage, LogError,
+                stillWanted: alert => !_thumbnailManager.IsCharacterAlertMuted(alert.Character) && !_snoozes.IsSnoozed(alert.Character, alert.EventKey)
+                    && (alert.ClientInFront || _thumbnailManager.Attention.Has(alert.Character)));
             _alertWays.Add(_spokenWay);
             _escalation.HandOff = _spokenWay.HandedOff;
             // IDEAS #33: Windows notifications. The way is told of every alert that was shown and of every client

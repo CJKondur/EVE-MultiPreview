@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EveMultiPreview.Models;
@@ -8,12 +9,15 @@ namespace EveMultiPreview.Services;
 /// <summary>Spoken alerts as a way an alert reaches the player (IDEAS #26): every alert that was shown is handed to
 /// <see cref="SpokenAlerts"/>, which decides what is said, and a <see cref="WorkPump"/> says it through an
 /// <see cref="ISpeaker"/>, one utterance at a time. Raised and HandedOff return at once on any thread; the voice
-/// runs on the pump's. It is handed everything it asks (the settings, do-not-disturb, the names, the clock), so a
-/// test hands it recorders.</summary>
+/// runs on the pump's. A sentence may wait ten seconds for its turn, so what was asked when its alert was raised is
+/// asked again when its turn comes: do-not-disturb, the severities the player chose, and whether the player has
+/// dealt with the alert meanwhile. It is handed everything it asks (the settings, do-not-disturb, the names, the
+/// clock), so a test hands it recorders.</summary>
 public sealed class SpokenWay : IAlertWay
 {
-    /// <summary>The longest one utterance may take. A voice that has not finished by then is given up, so a voice
-    /// that hangs costs one sentence and not the rest of the session.</summary>
+    /// <summary>The longest one utterance may take, from the moment its turn has come: asking Windows which voices
+    /// it has is part of it. A voice that has not finished by then is given up, so a voice that hangs costs one
+    /// sentence and not the rest of the session.</summary>
     public static readonly TimeSpan Longest = TimeSpan.FromSeconds(20);
 
     private readonly ISpeaker _speaker;
@@ -25,6 +29,7 @@ public sealed class SpokenWay : IAlertWay
     private readonly Action<Exception> _failed;
     private readonly Func<DateTime> _utcNow;
     private readonly Func<TimeSpan, CancellationToken, Task> _wait;
+    private readonly Func<AlertNotice, bool>? _stillWanted;
     private readonly CancellationTokenSource _stop = new();
 
     /// <param name="settings">The settings as they are now.</param>
@@ -32,11 +37,17 @@ public sealed class SpokenWay : IAlertWay
     /// <param name="eventName">An event's name as the player reads it (AlertHub.EventDisplayName).</param>
     /// <param name="str">LocalizationService.Str.</param>
     /// <param name="language">The app's language, as "en" or "de" (LocalizationService.CurrentLanguage).</param>
-    /// <param name="failed">Is told what the voice threw, and when it was given up (App logs it). Never a name.</param>
+    /// <param name="failed">Is told that the voice threw (what failed and the TYPE of what was thrown, never its
+    /// message), and when the voice was given up (a fixed text). App writes what it is told to error_log.txt, and
+    /// players post that file: a message can repeat the sentence the voice was handed, and with it a character's
+    /// name. It may throw itself: that is swallowed.</param>
     /// <param name="wait">Waits a time, or until told to stop (Task.Delay; a test's passes at once).</param>
+    /// <param name="stillWanted">Asked for each alert of a sentence when the sentence's turn comes: false when the
+    /// player has dealt with the alert since it was raised (looked at its client, muted the character, snoozed the
+    /// event). Such an alert leaves the sentence. Asked on the pump's thread. Null: every alert is still wanted.</param>
     public SpokenWay(ISpeaker speaker, Func<AppSettings> settings, Func<AppSettings, string, bool> soundsHeld, Func<string, string> eventName,
         Func<string, string, string> str, Func<string> language, Action<Exception> failed, Func<DateTime>? utcNow = null,
-        Func<TimeSpan, CancellationToken, Task>? wait = null)
+        Func<TimeSpan, CancellationToken, Task>? wait = null, Func<AlertNotice, bool>? stillWanted = null)
     {
         _speaker = speaker;
         _settings = settings;
@@ -47,6 +58,7 @@ public sealed class SpokenWay : IAlertWay
         _failed = failed;
         _utcNow = utcNow ?? (() => DateTime.UtcNow);
         _wait = wait ?? Task.Delay;
+        _stillWanted = stillWanted;
         Pump = new WorkPump(Drain, failed);
     }
 
@@ -62,7 +74,8 @@ public sealed class SpokenWay : IAlertWay
 
     /// <summary>The last word of a chain of repeats (AlertEscalation.HandOff): a critical alert was repeated as often
     /// as set and is still unseen. It is said once more, also within the half minute, while spoken alerts are on and
-    /// do-not-disturb lets it.</summary>
+    /// do-not-disturb lets it. It waits for its turn like any sentence, and is asked about again then: once the
+    /// player has looked at that client it is not said.</summary>
     public void HandedOff(UnseenAlert alert)
     {
         var s = _settings();
@@ -103,28 +116,81 @@ public sealed class SpokenWay : IAlertWay
                 catch (OperationCanceledException) { return; }
                 continue;
             }
-            try { await Say(next, s).ConfigureAwait(false); }
+            // Until it has been said, none of it was. What is not said (let go below, or the voice threw or was given
+            // up) was never heard: its "said at" marks go, so the same alert is said the next time it comes.
+            var unsaid = next.Alerts;
+            try
+            {
+                var left = StillToSay(next, s);
+                if (left != null && await Say(left, s).ConfigureAwait(false))
+                    unsaid = next.Alerts.Where(alert => !left.Alerts.Contains(alert)).ToArray();
+            }
             catch (OperationCanceledException) when (_stop.IsCancellationRequested) { /* stopping is no failure */ }
-            catch (Exception ex) { Report(ex); }
-            finally { Spoken.Finished(); }
+            catch (Exception ex) { Report(Failure("saying a sentence", ex)); }
+            finally
+            {
+                Spoken.NotSaid(unsaid);
+                Spoken.Finished();
+            }
         }
     }
 
-    private async Task Say(Utterance utterance, AppSettings s)
+    /// <summary>What is still said of a sentence whose turn has come, or null: nothing of it. Its alerts were raised
+    /// up to ten seconds ago, and the player may have switched do-not-disturb on since, chosen fewer severities, or
+    /// dealt with an alert. Do-not-disturb is asked with the sentence's own severity, as the alert sound asks it, so
+    /// "Critical alerts still play" keeps a critical sentence.</summary>
+    private Utterance? StillToSay(Utterance next, AppSettings s)
+    {
+        if (_soundsHeld(s, next.Severity) || !AlertWays.Reaches(s.SpeakAlertsFrom, next.Severity)) return null;
+        if (_stillWanted == null) return next;
+        var wanted = next.Alerts.Where(Wanted).ToArray();
+        if (wanted.Length == next.Alerts.Count) return next;
+        return wanted.Length == 0 ? null : next with { Characters = wanted.Select(alert => alert.Character).ToArray(), Alerts = wanted };
+    }
+
+    /// <summary>Asks whether an alert is still wanted. A question that throws must not cost the alert its voice: it
+    /// counts as wanted, and the failure is reported (a table keyed by a character names the key it missed, which
+    /// is why a report never carries a message).</summary>
+    private bool Wanted(AlertNotice alert)
+    {
+        try { return _stillWanted!(alert); }
+        catch (Exception ex)
+        {
+            Report(Failure("asking whether an alert is still wanted", ex));
+            return true;
+        }
+    }
+
+    /// <summary>Says a sentence. False: the voice had not finished after the longest time and was given up, which
+    /// is reported here. What the voice threw leaves as it is; the loop reports it by its type.</summary>
+    private async Task<bool> Say(Utterance utterance, AppSettings s)
     {
         string text = SpokenAlerts.Text(utterance, _eventName, _str);
-        string voice = SpeechVoiceChoice.For(utterance.Severity, s.SpeechVoices, _speaker.Voices(), _language());
+        string language = _language();
+        int volume = SpeechOptions.Of(s).Volume;
         using var limit = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token);
-        var said = _speaker.SayAsync(text, voice, SpeechOptions.Of(s).Volume, limit.Token);
-        var first = await Task.WhenAny(said, GiveUp(limit.Token)).ConfigureAwait(false);
+        var told = limit.Token;     // read now: the voice may still hold it when the limit is over and disposed
+        // The limit runs before the voice is asked anything, and the voice is asked on another thread: which voices
+        // Windows has is asked for every sentence, and a Windows that does not answer that must cost this sentence
+        // and not the pump.
+        var giveUp = GiveUp(told);
+        var said = Task.Run(() =>
+        {
+            string voice = SpeechVoiceChoice.For(utterance.Severity, s.SpeechVoices, _speaker.Voices(), language, _speaker.DefaultVoice());
+            told.ThrowIfCancellationRequested();    // given up while Windows was asked: nothing is said late
+            return _speaker.SayAsync(text, voice, volume, told);
+        }, told);
+        var first = await Task.WhenAny(said, giveUp).ConfigureAwait(false);
         limit.Cancel();   // ends the wait when the voice finished, and tells the voice to stop when the wait did
         if (first != said)
         {
             _ = said.ContinueWith(t => _ = t.Exception, TaskScheduler.Default);   // whatever it does later is seen by nobody
             _stop.Token.ThrowIfCancellationRequested();
-            throw new TimeoutException("A spoken alert was not finished after " + (int)Longest.TotalSeconds + " seconds and was given up.");
+            Report(new TimeoutException("A spoken alert was not finished after " + (int)Longest.TotalSeconds + " seconds and was given up."));
+            return false;
         }
         await said.ConfigureAwait(false);   // hands on what the voice threw
+        return true;
     }
 
     /// <summary>Finishes when the longest time for one utterance is over, or when told to stop.</summary>
@@ -139,10 +205,22 @@ public sealed class SpokenWay : IAlertWay
         try { _failed(ex); } catch (Exception) { /* reporting must never stop the voice */ }
     }
 
-    /// <summary>MultiPreview is closing: nothing more is said, and what is being said is cut off.</summary>
+    /// <summary>What is reported of something that was thrown: what failed, and the TYPE of what was thrown (for
+    /// several at once the type of each). Never the exception itself: neither its message nor what it carries may
+    /// reach the error log (see the constructor).</summary>
+    private static Exception Failure(string what, Exception ex) =>
+        new InvalidOperationException("Spoken alerts: " + what + " failed (" + (ex is AggregateException several
+            ? string.Join(", ", several.Flatten().InnerExceptions.Select(inner => inner.GetType().Name))
+            : ex.GetType().Name) + ")");
+
+    /// <summary>MultiPreview is closing: nothing more is said, and what is being said is cut off. Never throws: App
+    /// calls it first of all at exit, and what the voice does when it is told to stop runs in here, on this thread.
+    /// If that left as an exception, the alert history would not be written and the settings and the tray icon
+    /// would not be closed. It is reported by its type, and the rest is done.</summary>
     public void Stop()
     {
-        _stop.Cancel();
+        try { _stop.Cancel(); }
+        catch (Exception ex) { Report(Failure("telling the voice to stop", ex)); }
         Pump.Stop();
         Spoken.Clear();
     }

@@ -12,9 +12,9 @@ using ComboBox = System.Windows.Controls.ComboBox;
 namespace EveMultiPreview.SettingsUi;
 
 /// <summary>Alerts › Sounds › Spoken alerts › Voices (IDEAS #26): for each severity a voice, "Automatic" or one of
-/// the voices Windows has, and a button that tries it. Automatic is the first installed voice of MultiPreview's
-/// language; the card says so when Windows has none. SpokenWay reads the choice at the next alert, so a change only
-/// saves.</summary>
+/// the voices Windows has, and a button that tries it. Automatic is a voice of MultiPreview's language
+/// (SpeechVoiceChoice.Automatic says which); the card says so when Windows has none. SpokenWay reads the choice at
+/// the next alert, so a change only saves.</summary>
 public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IRefreshable
 {
     public const string ItemId = "alerts.sounds.voices";
@@ -24,6 +24,7 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     private readonly Grid _table = new();
     private readonly TextBlock _note = EditorCard.Value("", secondary: true);
     private bool _building;
+    private SpeechVoice? _windowsDefault;
 
     /// <param name="language">The app's language (tests hand one in).</param>
     public SpeechVoicesEditor(SettingsContext ctx, Func<string>? language = null)
@@ -64,7 +65,8 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
         {
             var speaker = _ctx.Services.Speaker;
             Installed = speaker?.Voices() ?? Array.Empty<SpeechVoice>();
-            AutomaticVoice = SpeechVoiceChoice.Automatic(Installed, _language());
+            _windowsDefault = speaker?.DefaultVoice();
+            AutomaticVoice = SpeechVoiceChoice.Automatic(Installed, _language(), _windowsDefault);
             SaysNoVoiceAtAll = speaker != null && Installed.Count == 0;
             SaysNoVoiceForTheLanguage = speaker != null && Installed.Count > 0 && AutomaticVoice == null;
             _note.Text = SaysNoVoiceAtAll ? Str("L.S.Speech.NoVoices") : SaysNoVoiceForTheLanguage ? Str("L.S.Speech.NoVoice") : "";
@@ -123,7 +125,7 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     {
         var speaker = _ctx.Services.Speaker;
         if (speaker == null) return;
-        string voice = SpeechVoiceChoice.For(severity, _ctx.S.SpeechVoices, Installed, _language());
+        string voice = SpeechVoiceChoice.For(severity, _ctx.S.SpeechVoices, Installed, _language(), _windowsDefault);
         var said = speaker.SayAsync(Str("L.S.Speech.Example"), voice, SpeechOptions.Of(_ctx.S).Volume, CancellationToken.None);
         _ = said.ContinueWith(t => _ = t.Exception, TaskScheduler.Default);
     }

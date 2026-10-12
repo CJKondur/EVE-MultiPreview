@@ -121,6 +121,8 @@ public sealed class SpokenAlerts
         // is now. How old the alert is when its turn comes counts from when it was raised (notice.RaisedUtc), which
         // is earlier by as long as the alert waited for the window's thread on its way here.
         var now = notice.TimeUtc;
+        // The clock stepped back between the raise and the tell: the alert is no younger than "told just now".
+        if (notice.RaisedUtc > now) notice = notice with { RaisedUtc = now };
         lock (_lock)
         {
             if (!insist && _takenAt.TryGetValue(pair, out var last))
