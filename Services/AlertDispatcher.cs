@@ -55,11 +55,13 @@ public sealed class AlertTargets
     public Action<string, string, string> Toast { get; init; } = (_, _, _) => { };
     /// <summary>(character, alert type, severity): App.PlayAlertSound.</summary>
     public Action<string, string, string> Sound { get; init; } = (_, _, _) => { };
-    /// <summary>(character, alert type, severity): AlertWays.Raised. The further ways an alert reaches the player
-    /// (IDEAS batch 6): spoken, as a Windows notification, by an enlarged thumbnail. Called last, for every alert
-    /// that got past the gates (border, badge and sound), with a hub toast or without one: the outcomes
-    /// <see cref="AlertOutcome.Shown"/> and <see cref="AlertOutcome.NoToast"/>. For no other outcome.</summary>
-    public Action<string, string, string> Ways { get; init; } = (_, _, _) => { };
+    /// <summary>(character, alert type, severity, when the alert was raised): AlertWays.Raised. The further ways an
+    /// alert reaches the player (IDEAS batch 6): spoken, as a Windows notification, by an enlarged thumbnail. Called
+    /// last, for every alert that got past the gates (border, badge and sound), with a hub toast or without one: the
+    /// outcomes <see cref="AlertOutcome.Shown"/> and <see cref="AlertOutcome.NoToast"/>. For no other outcome. The
+    /// time is the one Dispatch was handed, or null: by now the toast and the sound have waited for the window's
+    /// thread, so the alert may be seconds old.</summary>
+    public Action<string, string, string, DateTime?> Ways { get; init; } = (_, _, _, _) => { };
 }
 
 /// <summary>Decides what happens to an alert the log monitor raised, and does it. This is the body App's AlertTriggered
@@ -67,7 +69,10 @@ public sealed class AlertTargets
 /// checks in the same order, and the same calls. It runs on the log monitor's reading thread.</summary>
 public static class AlertDispatcher
 {
-    public static AlertOutcome Dispatch(AppSettings settings, AlertTargets to, string charName, string alertType, string severity)
+    /// <param name="raisedUtc">When the alert was raised, where the caller knows it (the time the history entry
+    /// keeps). It is handed on to the further ways and used for nothing else.</param>
+    public static AlertOutcome Dispatch(AppSettings settings, AlertTargets to, string charName, string alertType, string severity,
+        DateTime? raisedUtc = null)
     {
         // IDEAS #31: an event that is switched off for this character is no alert for it. Before anything else, and
         // before any line that names the character.
@@ -130,7 +135,7 @@ public static class AlertDispatcher
             to.Toast(charName, alertType, severity);
 
         to.Sound(charName, alertType, severity);
-        to.Ways(charName, alertType, severity);
+        to.Ways(charName, alertType, severity, raisedUtc);
         return toast ? AlertOutcome.Shown : AlertOutcome.NoToast;
     }
 }

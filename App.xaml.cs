@@ -410,8 +410,8 @@ public partial class App : Application
                 Sound = PlayAlertSound,
                 // IDEAS batch 6: after every gate. Which window is in front is asked there once, and only while a
                 // further way is switched on.
-                Ways = (charName, alertType, severity) => _alertWays.Raised(_settings.Settings, charName, alertType, severity,
-                    () => ThumbnailManager.InFront(_thumbnailManager.GetHwndForCharacter(charName), EveMultiPreview.Interop.User32.GetForegroundWindow())),
+                Ways = (charName, alertType, severity, raisedUtc) => _alertWays.Raised(_settings.Settings, charName, alertType, severity,
+                    () => ThumbnailManager.InFront(_thumbnailManager.GetHwndForCharacter(charName), EveMultiPreview.Interop.User32.GetForegroundWindow()), raisedUtc),
             };
             // IDEAS #26: spoken alerts. The way is told of every alert that was shown, decides what is said, and
             // says it on a thread of its own. Speech is a sound: do-not-disturb is asked for it as for the sound.
@@ -473,8 +473,9 @@ public partial class App : Application
                 var matched = _logMonitor.RaisingCustomText;
                 var rule = CustomAlertTypes.Find(alertType)?.Name;
                 // So is the time: the entry says when the alert was raised, not when the window's thread got to it.
+                // The dispatcher hands the same time on to the further ways (AlertNotice.RaisedUtc, IDEAS batch 6).
                 var raised = DateTime.UtcNow;
-                var outcome = AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity);
+                var outcome = AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity, raised);
                 // With the history switched off no entry is made at all. (Record asks for itself as well.)
                 // Neither is one for an event that is off for this character (IDEAS #31): it was no alert for it.
                 if (outcome == AlertOutcome.Off) return;

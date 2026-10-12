@@ -7,9 +7,16 @@ namespace EveMultiPreview.Services;
 /// <summary>One alert that was shown, as a further way of telling the player gets it (IDEAS batch 6): spoken, as a
 /// Windows notification, by an enlarged thumbnail. It has passed every gate an alert passes (the event's switch, the
 /// character's client, the mute, the snooze), and nothing in it changes afterwards.</summary>
-/// <param name="TimeUtc">When the alert was shown.</param>
+/// <param name="TimeUtc">When the ways were told of the alert: after the border, the badge, the toast and the sound,
+/// and the toast and the sound wait for the window's thread. It is "now" for a way, not the alert's own time.</param>
 /// <param name="ClientInFront">The character's client was the window in front at that moment.</param>
-public sealed record AlertNotice(DateTime TimeUtc, string Character, string EventKey, string Severity, bool ClientInFront);
+public sealed record AlertNotice(DateTime TimeUtc, string Character, string EventKey, string Severity, bool ClientInFront)
+{
+    /// <summary>When the alert was raised: the time its history entry keeps. Earlier than <see cref="TimeUtc"/> by
+    /// as long as the alert waited for the window's thread on its way here. Where the raiser handed no time on, it
+    /// is TimeUtc.</summary>
+    public DateTime RaisedUtc { get; init; } = TimeUtc;
+}
 
 /// <summary>A further way an alert reaches the player. Both members are called on the thread that raised the alert:
 /// the log reader's, or the window's for "Left behind". Neither may wait for anything: a way that drives a device
@@ -80,7 +87,9 @@ public sealed class AlertWays
     /// once for all of them, and only when a way is on. What a way throws costs that way this alert, and nothing
     /// leaves here as an exception.</summary>
     /// <param name="clientInFront">Whether the character's client is the window in front (ThumbnailManager.InFront).</param>
-    public void Raised(AppSettings s, string character, string eventKey, string severity, Func<bool> clientInFront)
+    /// <param name="raisedUtc">When the alert was raised, where the raiser knows it: the notice's RaisedUtc. Without
+    /// it that is the time the ways are told, as TimeUtc is.</param>
+    public void Raised(AppSettings s, string character, string eventKey, string severity, Func<bool> clientInFront, DateTime? raisedUtc = null)
     {
         var ways = Volatile.Read(ref _ways);
         AlertNotice? notice = null;
@@ -89,7 +98,11 @@ public sealed class AlertWays
             try
             {
                 if (!way.IsOn(s)) continue;
-                notice ??= new AlertNotice(_utcNow(), character, eventKey, severity, InFront(clientInFront));
+                if (notice == null)
+                {
+                    var told = _utcNow();
+                    notice = new AlertNotice(told, character, eventKey, severity, InFront(clientInFront)) { RaisedUtc = raisedUtc ?? told };
+                }
                 way.Raised(notice, s);
             }
             catch (Exception ex)
