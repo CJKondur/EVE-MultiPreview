@@ -39,13 +39,14 @@ public partial class SetupWizard : Window
     [DllImport("dwmapi.dll", PreserveSig = true)]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int val, int sz);
 
-    public SetupWizard(SettingsService svc)
+    public SetupWizard(SettingsService svc, double? workAreaHeight = null)
     {
         _svc = svc;
         _selectedWidth = (int)_svc.Settings.ThumbnailStartLocation.Width;
         _selectedHeight = (int)_svc.Settings.ThumbnailStartLocation.Height;
         UiStyles.Attach(this);
         InitializeComponent();
+        FitTo(workAreaHeight ?? SystemParameters.WorkArea.Height);
         // The wheel over a closed dropdown list (the language) is not "the next choice": it goes past the list.
         PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
         UiFont.Apply(this, LocalizationService.CurrentLanguage);
@@ -60,6 +61,17 @@ public partial class SetupWizard : Window
         _look = UiStyles.Find(_svc.Settings.UiStyle);
         LookHost.Content = new LookGallery(() => _look.Id, PickLook, 152);   // four to a row in 720
         ShowStep(1);
+    }
+
+    /// <summary>Never taller than the work area (DIP) of the screen it opens on: NoResize and CenterScreen would leave
+    /// Back, Next and Done below the edge. The footer is docked first, so it stays; the gallery scrolls in what is left
+    /// (the 260 is the chrome around it: bars, title, sub-line, margins, footer, title bar). A work area of 580 is a
+    /// 1366x768 screen at 125 %.</summary>
+    private void FitTo(double workArea)
+    {
+        MaxHeight = workArea;
+        MinHeight = Math.Min(MinHeight, workArea);
+        LookScroll.MaxHeight = Math.Clamp(workArea - 260, 120, LookScroll.MaxHeight);
     }
 
     /// <summary>The step showing, 1–6.</summary>
@@ -304,11 +316,11 @@ public partial class SetupWizard : Window
 
         // Look (spec §9.3)
         s.UiStyle = _look.Id;
-        _applied = true;
 
         // Mark setup as completed
         s.SetupCompleted = true;
         _svc.Save();
+        _applied = true;   // the look is kept only once it is saved: a Save that throws leaves it to come back on close
 
         Debug.WriteLine("[SetupWizard] ✅ Setup completed, settings saved");
     }

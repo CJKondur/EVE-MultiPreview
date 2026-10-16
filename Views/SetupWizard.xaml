@@ -135,7 +135,7 @@
             <StackPanel x:Name="StepLook" Visibility="Collapsed">
                 <TextBlock Text="{DynamicResource L.Wiz.LookTitle}" Style="{StaticResource Wiz.Title}"/>
                 <TextBlock Text="{DynamicResource L.Wiz.LookSub}" Style="{StaticResource Wiz.Sub}"/>
-                <ScrollViewer Margin="0,16,-8,0" MaxHeight="460" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                <ScrollViewer x:Name="LookScroll" Margin="0,16,-8,0" MaxHeight="460" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                               Focusable="False">
                     <ContentControl x:Name="LookHost" Focusable="False"/>
                 </ScrollViewer>
