@@ -2,12 +2,11 @@
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Slot 0 of a Windows 11 window (plan S1, ruling 5): WPF's Fluent dictionary, and the keyed controls that are Fluent's
-         button with other metrics. A keyed style replaces the implicit one, so these must be based on it, and only a
-         dictionary that merges Fluent can name it while it is read. -->
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.Dark.xaml"/>
-    </ResourceDictionary.MergedDictionaries>
+    <!-- The keyed controls of a Windows 11 window (plan S1, ruling 5), merged after slot 0: Fluent's button with other
+         metrics. A keyed style replaces the implicit one, so these must be based on it, and only a dictionary that merges
+         Fluent can name it while it is read: the code-behind merges slot 0's Fluent dictionary while the three are read,
+         then lets it go. Slot 0 itself stays Fluent's own dictionary: WPF finds Fluent only by the Source of a top-level
+         merged dictionary, and only then gives the window its dark caption and backdrop. -->
 
     <!-- The "›" that opens a page (EditorCard.Open). -->
     <Style x:Key="Fx.IconButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">

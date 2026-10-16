@@ -11,17 +11,20 @@ public sealed class UiStyle
 {
     private readonly Func<ResourceDictionary> _load;
     private readonly Func<ResourceDictionary>? _controls;
+    private readonly Func<ResourceDictionary>? _keyed;
 
     // One per thread: each test runs on its own STA thread and the app has one window thread. A dictionary holding
     // styles and templates belongs to the thread that made it (plan S1, ruling 17).
     [ThreadStatic] private static Dictionary<string, ResourceDictionary>? _loaded;
 
-    public UiStyle(string id, bool usesFluent, Func<ResourceDictionary> load, Func<ResourceDictionary>? controls = null)
+    public UiStyle(string id, bool usesFluent, Func<ResourceDictionary> load, Func<ResourceDictionary>? controls = null,
+        Func<ResourceDictionary>? keyed = null)
     {
         Id = id;
         UsesFluent = usesFluent;
         _load = load;
         _controls = controls;
+        _keyed = keyed;
     }
 
     public string Id { get; }
@@ -37,6 +40,11 @@ public sealed class UiStyle
     /// look's keyed controls (plan S1, ruling 5). Null for a look without Fluent, whose windows take the kit. Not frozen:
     /// Fluent's dictionary is WPF's own, used as WPF uses it.</summary>
     public ResourceDictionary? Controls => _controls == null ? null : Loaded(Id + "#controls", _controls, freeze: false);
+
+    /// <summary>The look's keyed controls that are Fluent's with other metrics, merged after slot 0 of a window. Kept out of
+    /// slot 0 so that slot 0 stays a top-level dictionary whose Source is Fluent's: WPF finds Fluent only that way, and
+    /// only then gives the window its dark caption and backdrop. Null when the look has none.</summary>
+    public ResourceDictionary? Keyed => _keyed == null ? null : Loaded(Id + "#keyed", _keyed, freeze: false);
 
     private static ResourceDictionary Loaded(string key, Func<ResourceDictionary> make, bool freeze)
     {
@@ -58,7 +66,10 @@ public static class UiStyles
     public const string FluentSource = "pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.Dark.xaml";
 
 
-    public static UiStyle Windows11 { get; } = new("windows11", usesFluent: true, () => new Windows11Style(), () => new Windows11Controls());
+    private static ResourceDictionary FluentDark() => new() { Source = new Uri(FluentSource, UriKind.Absolute) };
+
+    public static UiStyle Windows11 { get; } = new("windows11", usesFluent: true, () => new Windows11Style(), FluentDark,
+        () => new Windows11Controls(Windows11!.Controls!));
 
     /// <summary>Every look, in the order the picker shows them (S2 adds the others).</summary>
     public static IReadOnlyList<UiStyle> All { get; } = new[] { Windows11 };
@@ -110,12 +121,17 @@ public static class UiStyles
     public static IReadOnlyList<ResourceDictionary> SlotsOf(Window window) =>
         (ResourceDictionary[]?)window.GetValue(SlotsProperty) ?? Array.Empty<ResourceDictionary>();
 
-    private static ResourceDictionary[] SlotsFor(UiStyle style, StyledAs kind) => new[]
+    private static ResourceDictionary[] SlotsFor(UiStyle style, StyledAs kind)
     {
-        style.UsesFluent ? (kind == StyledAs.Window ? style.Controls ?? Empty : Empty) : Kit,
-        Base,
-        style.Dictionary,
-    };
+        var fluentWindow = style.UsesFluent && kind == StyledAs.Window;
+        var slots = new[]
+        {
+            style.UsesFluent ? (fluentWindow ? style.Controls ?? Empty : Empty) : Kit,
+            Base,
+            style.Dictionary,
+        };
+        return fluentWindow && style.Keyed is { } keyed ? slots.Append(keyed).ToArray() : slots;
+    }
 
     /// <summary>Makes a style dictionary whole (spec §5.2, rule 2): a frozen brush of each colour of the contract it holds,
     /// under the colour's brush key, then every freezable frozen.</summary>

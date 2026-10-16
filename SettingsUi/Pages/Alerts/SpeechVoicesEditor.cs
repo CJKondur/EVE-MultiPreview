@@ -44,7 +44,6 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
         _ctx = ctx;
         _language = language ?? (() => LocalizationService.CurrentLanguage);
         _failed = failed ?? App.LogError;
-        _note.TextWrapping = TextWrapping.Wrap;
         _note.Margin = new Thickness(0, 8, 0, 0);
         _tried.Margin = new Thickness(0, 8, 0, 0);
         _tried.Visibility = Visibility.Collapsed;
