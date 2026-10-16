@@ -120,7 +120,7 @@
 
         <!-- Toast: inside the window, never a separate window, never takes focus (spec §4). -->
         <Border x:Name="ToastHost" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="24"
-                Padding="16,10" CornerRadius="{DynamicResource Fx.Radius}" BorderThickness="1"
+                Padding="16,10" CornerRadius="{DynamicResource Fx.Radius}" BorderThickness="{DynamicResource Fx.Line.Card}"
                 BorderBrush="{DynamicResource Fx.BorderBrush}" Background="{DynamicResource Fx.CardBrush}"
                 IsHitTestVisible="False" Visibility="Collapsed">
             <TextBlock x:Name="ToastText" Style="{DynamicResource Fx.Label}" MaxWidth="420"/>

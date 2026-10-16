@@ -74,7 +74,8 @@ public sealed class SlotsEditor : System.Windows.Controls.UserControl, IRefresha
     private UIElement SlotCard(ClientSlot slot)
     {
         var stack = new StackPanel();
-        var status = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 6, 0, 0) };
+        var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0) };
+        status.SetResourceReference(TextBlock.FontSizeProperty, "Fx.Size.Desc");
         void UpdateStatus()
         {
             var (text, warn) = Status(slot);

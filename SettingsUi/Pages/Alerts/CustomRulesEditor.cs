@@ -318,9 +318,11 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         toggle.Margin = new Thickness(0, 0, 12, 0);
         toggle.Tag = "on:" + id;
 
-        var name = new TextBlock { FontSize = 14, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis };
+        var name = new TextBlock { FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis };
+        name.SetResourceReference(TextBlock.FontSizeProperty, "Fx.Size.Body");
         name.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextBrush");
-        var summary = new TextBlock { FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 2, 0, 0) };
+        var summary = new TextBlock { TextTrimming = TextTrimming.CharacterEllipsis, Margin = new Thickness(0, 2, 0, 0) };
+        summary.SetResourceReference(TextBlock.FontSizeProperty, "Fx.Size.Desc");
         summary.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
         var error = new TextBlock();
         error.SetResourceReference(StyleProperty, "Fx.Error");
@@ -328,7 +330,8 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         text.Children.Add(name);
         text.Children.Add(summary);
         text.Children.Add(error);
-        var off = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 4, 0, 0), Tag = "off:" + id, Visibility = Visibility.Collapsed };
+        var off = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4, 0, 0), Tag = "off:" + id, Visibility = Visibility.Collapsed };
+        off.SetResourceReference(TextBlock.FontSizeProperty, "Fx.Size.Desc");
         off.SetResourceReference(TextBlock.ForegroundProperty, "Fx.WarningBrush");
         text.Children.Add(off);
 
@@ -447,7 +450,8 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         Wide(_noLogs);
         _chatOnly = channelRow.Concat(Row("L.S.Rules.IgnoreOwn", ignoreOwn)).ToArray();
 
-        _logOff = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 0, 0, 8) };
+        _logOff = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) };
+        _logOff.SetResourceReference(TextBlock.FontSizeProperty, "Fx.Size.Desc");
         _logOff.SetResourceReference(TextBlock.ForegroundProperty, "Fx.WarningBrush");
         Wide(_logOff);
 
@@ -782,12 +786,15 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
 
         var hint = EditorCard.Note("L.S.Rules.TestBox");
         hint.TextWrapping = TextWrapping.Wrap;
-        _result = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 14, Margin = new Thickness(0, 6, 0, 0), Visibility = Visibility.Collapsed, Tag = "result" };
+        _result = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0), Visibility = Visibility.Collapsed, Tag = "result" };
+        _result.SetResourceReference(TextBlock.FontSizeProperty, "Fx.Size.Body");
         AutomationProperties.SetLiveSetting(_result, AutomationLiveSetting.Polite);   // a screen reader says the answer
-        _slow = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 2, 0, 0), Visibility = Visibility.Collapsed, Tag = "slow" };
+        _slow = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0), Visibility = Visibility.Collapsed, Tag = "slow" };
+        _slow.SetResourceReference(TextBlock.FontSizeProperty, "Fx.Size.Desc");
         _slow.SetResourceReference(TextBlock.ForegroundProperty, "Fx.WarningBrush");
         AutomationProperties.SetLiveSetting(_slow, AutomationLiveSetting.Polite);
-        _seen = new TextBlock { TextWrapping = TextWrapping.Wrap, FontSize = 12, Margin = new Thickness(0, 2, 0, 0), Visibility = Visibility.Collapsed, Tag = "seen" };
+        _seen = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0), Visibility = Visibility.Collapsed, Tag = "seen" };
+        _seen.SetResourceReference(TextBlock.FontSizeProperty, "Fx.Size.Desc");
         _seen.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
         var stack = new StackPanel();
         stack.Children.Add(line);

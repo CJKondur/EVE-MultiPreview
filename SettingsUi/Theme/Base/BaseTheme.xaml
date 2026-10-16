@@ -23,7 +23,7 @@
         <Setter Property="Foreground" Value="{DynamicResource Fx.OnAccentBrush}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="16,6"/>
-        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Control.Height}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -50,21 +50,22 @@
     <!-- A plain button for windows without the Fluent theme (the quick-switch wheel draws itself on a transparent
          window, which never takes Fluent's dictionary). -->
     <Style x:Key="Fx.QuietButton" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource Fx.ControlBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.ButtonBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.ButtonTextBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.ButtonBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
         <Setter Property="Padding" Value="12,4"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="1,1,1,1" CornerRadius="5" Padding="{TemplateBinding Padding}">
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5" Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.FlyoutBorderBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
@@ -79,11 +80,11 @@
     <Style x:Key="Fx.Card" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Fx.CardBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Card}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Fx.Radius}"/>
-        <Setter Property="Padding" Value="16,12"/>
-        <Setter Property="Margin" Value="0,0,0,4"/>
-        <Setter Property="MinHeight" Value="64"/>
+        <Setter Property="Padding" Value="{DynamicResource Fx.Row.Padding}"/>
+        <Setter Property="Margin" Value="{DynamicResource Fx.Row.Gap}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Row.MinHeight}"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource Fx.CardHoverBrush}"/>
@@ -92,36 +93,37 @@
     </Style>
 
     <Style x:Key="Fx.PageTitle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="28"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
+        <Setter Property="FontStyle" Value="{DynamicResource Fx.Style.Title}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     <Style x:Key="Fx.Breadcrumb" TargetType="TextBlock" BasedOn="{StaticResource Fx.PageTitle}">
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
     </Style>
     <Style x:Key="Fx.PageDesc" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Body}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="0,4,0,0"/>
     </Style>
     <!-- 20 px before each section title (spec §7). -->
     <Style x:Key="Fx.SectionTitle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
-        <Setter Property="Margin" Value="0,20,0,8"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Section}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Section}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.SectionTextBrush}"/>
+        <Setter Property="Margin" Value="{DynamicResource Fx.Section.Gap}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     <Style x:Key="Fx.Label" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Body}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     <!-- A missing description key leaves Text empty: collapse instead of leaving a blank line. -->
     <Style x:Key="Fx.Desc" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Desc}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="0,2,0,0"/>
@@ -132,7 +134,7 @@
         </Style.Triggers>
     </Style>
     <Style x:Key="Fx.Error" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Desc}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.CriticalBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="0,4,0,0"/>
@@ -175,22 +177,22 @@
                     <StackPanel Orientation="Horizontal" Background="Transparent">
                         <TextBlock x:Name="State" local:Loc.Key="L.S.Off" Foreground="{DynamicResource Fx.TextBrush}"
                                    VerticalAlignment="Center" Margin="0,0,12,0"/>
-                        <Border x:Name="Track" Width="40" Height="20" CornerRadius="10" BorderThickness="1"
-                                BorderBrush="{DynamicResource Fx.TextSecondaryBrush}" Background="Transparent">
+                        <Border x:Name="Track" Width="40" Height="20" CornerRadius="10" BorderThickness="{DynamicResource Fx.Line.Control}"
+                                BorderBrush="{DynamicResource Fx.CheckBorderBrush}" Background="Transparent">
                             <Ellipse x:Name="Knob" Width="12" Height="12" Margin="4,0" HorizontalAlignment="Left"
-                                     Fill="{DynamicResource Fx.TextSecondaryBrush}"/>
+                                     Fill="{DynamicResource Fx.CheckBorderBrush}"/>
                         </Border>
                     </StackPanel>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="State" Property="local:Loc.Key" Value="L.S.On"/>
-                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource Fx.AccentBrush}"/>
-                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
-                            <Setter TargetName="Knob" Property="Fill" Value="#FF000000"/>
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource Fx.CheckFillBrush}"/>
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource Fx.CheckFillBrush}"/>
+                            <Setter TargetName="Knob" Property="Fill" Value="{DynamicResource Fx.CheckMarkBrush}"/>
                             <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.4"/>
@@ -214,7 +216,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                            <StackPanel VerticalAlignment="Center" Margin="0,0,16,0" MinWidth="{DynamicResource Fx.Label.Width}">
                                 <TextBlock local:Loc.Key="{Binding LabelKey}" Style="{DynamicResource Fx.Label}"/>
                                 <TextBlock local:Loc.Key="{Binding DescKey}" Style="{DynamicResource Fx.Desc}"/>
                                 <TextBlock Text="{Binding Error}" Style="{DynamicResource Fx.Error}"
@@ -265,7 +267,7 @@
     <DataTemplate x:Key="Fx.Card.Segmented">
         <ContentControl Style="{DynamicResource Fx.CardHost}">
             <ListBox local:Loc.NameKey="{Binding LabelKey}" ItemsSource="{Binding Options}" SelectedItem="{Binding Selected}"
-                     ItemTemplate="{DynamicResource Fx.OptionText}" BorderThickness="1"
+                     ItemTemplate="{DynamicResource Fx.OptionText}" BorderThickness="{DynamicResource Fx.Line.Control}"
                      BorderBrush="{DynamicResource Fx.BorderBrush}" Background="{DynamicResource Fx.ControlBrush}">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
@@ -277,7 +279,7 @@
     <DataTemplate x:Key="Fx.Card.Slider">
         <ContentControl Style="{DynamicResource Fx.CardHost}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Number, StringFormat=N0}" Foreground="{DynamicResource Fx.TextBrush}"
+                <TextBlock Text="{Binding Number, StringFormat=N0}" Foreground="{DynamicResource Fx.ValueTextBrush}"
                            VerticalAlignment="Center" MinWidth="32" TextAlignment="Right"/>
                 <TextBlock local:Loc.Key="{Binding UnitKey}" Foreground="{DynamicResource Fx.TextSecondaryBrush}"
                            VerticalAlignment="Center" Margin="4,0,12,0"/>
@@ -326,7 +328,7 @@
         <ContentControl Style="{DynamicResource Fx.CardHost}">
             <StackPanel Orientation="Horizontal">
                 <Button local:Loc.NameKey="{Binding LabelKey}" Command="{Binding PickColorCommand}" Width="32" Height="32" Padding="0" Margin="0,0,8,0">
-                    <Border Width="22" Height="22" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource Fx.BorderBrush}"
+                    <Border Width="22" Height="22" CornerRadius="{DynamicResource Fx.Radius.Control}" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.BorderBrush}"
                             Background="{Binding Text, Converter={StaticResource Fx.ColorBrush}}"/>
                 </Button>
                 <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="96" FontFamily="{DynamicResource Fx.MonoFont}"
@@ -383,7 +385,7 @@
                     <TextBlock Text="{Binding Text}" Style="{DynamicResource Fx.Label}"/>
                 </DockPanel>
             </Border>
-            <Border x:Name="Highlight" BorderThickness="1" BorderBrush="{DynamicResource Fx.AccentBrush}"
+            <Border x:Name="Highlight" BorderThickness="{DynamicResource Fx.Line.Card}" BorderBrush="{DynamicResource Fx.AccentBrush}"
                     CornerRadius="{DynamicResource Fx.Radius}" IsHitTestVisible="False" Visibility="Collapsed"/>
         </Grid>
         <DataTemplate.Triggers>
@@ -409,7 +411,7 @@
     <DataTemplate x:Key="Fx.Editor">
         <Grid Margin="0,0,0,4" Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
             <ContentPresenter Content="{Binding Element}"/>
-            <Border x:Name="Highlight" BorderThickness="1" BorderBrush="{DynamicResource Fx.AccentBrush}" Margin="0,0,0,4"
+            <Border x:Name="Highlight" BorderThickness="{DynamicResource Fx.Line.Card}" BorderBrush="{DynamicResource Fx.AccentBrush}" Margin="0,0,0,4"
                     CornerRadius="{DynamicResource Fx.Radius}" IsHitTestVisible="False" Visibility="Collapsed"/>
         </Grid>
         <DataTemplate.Triggers>

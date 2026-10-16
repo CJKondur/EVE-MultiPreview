@@ -8,7 +8,7 @@
                    Foreground="{DynamicResource Fx.TextSecondaryBrush}" Margin="12,0,0,0" VerticalAlignment="Center"/>
         <Popup x:Name="ResultsPopup" PlacementTarget="{Binding ElementName=Box}" Placement="Bottom" StaysOpen="False"
                Width="{Binding ActualWidth, ElementName=Box}" AllowsTransparency="True">
-            <Border Background="{DynamicResource Fx.CardBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="1"
+            <Border Background="{DynamicResource Fx.CardBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{DynamicResource Fx.Line.Card}"
                     CornerRadius="{DynamicResource Fx.Radius}" MaxHeight="420" MinWidth="360">
                 <ListBox x:Name="Results" BorderThickness="0" Background="Transparent" PreviewKeyDown="OnListKeyDown"
                          MouseLeftButtonUp="OnResultClicked">
