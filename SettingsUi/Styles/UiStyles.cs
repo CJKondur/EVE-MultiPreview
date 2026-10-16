@@ -181,7 +181,9 @@ public static class UiStyles
         window.SetValue(SlotsProperty, slots);
         window.SetValue(KindProperty, kind);
         var remembered = new WeakReference<Window>(window);
-        (_attached ??= new List<WeakReference<Window>>()).Add(remembered);
+        _attached ??= new List<WeakReference<Window>>();
+        _attached.RemoveAll(r => !r.TryGetTarget(out _));   // windows the collector took (one is added per toast)
+        _attached.Add(remembered);
         window.Closed += (_, _) => _attached?.Remove(remembered);   // a closed window is never restyled
         if (kind == StyledAs.Window) window.SourceInitialized += (_, _) => TitleBar.Apply(window);   // a surface has no title bar
     }

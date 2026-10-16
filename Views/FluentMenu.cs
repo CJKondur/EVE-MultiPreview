@@ -41,7 +41,11 @@ public static class FluentMenu
 
     private static Font MenuFont => MenuFonts.GetOrAdd(SettingsUi.UiPalette.Current.MenuFont, family => new Font(family, 9.75f));
 
-    private static readonly ConditionalWeakTable<ToolStrip, object> Styled = new();
+    /// <summary>Every styled menu and the thread that made it: WinForms' InvokeRequired cannot tell before the menu has a
+    /// handle, so a change of look asks this instead.</summary>
+    private static readonly ConditionalWeakTable<ToolStripDropDown, Owner> Styled = new();
+
+    private sealed record Owner(int ThreadId, System.Windows.Threading.Dispatcher? Dispatcher);
 
     static FluentMenu() => SettingsUi.UiStyles.Changed += Restyle;   // a change of look gives every styled menu its font and corners
 
@@ -67,7 +71,8 @@ public static class FluentMenu
     /// the icon column, and rows sized as items arrive, so items rebuilt on every open are sized too.</summary>
     public static void Style(ToolStripDropDown menu, bool showIcons)
     {
-        if (!Styled.TryAdd(menu, Styled)) return;   // already styled: handlers and renderer must not stack
+        var owner = new Owner(Environment.CurrentManagedThreadId, System.Windows.Threading.Dispatcher.FromThread(System.Threading.Thread.CurrentThread));
+        if (!Styled.TryAdd(menu, owner)) return;   // already styled: handlers and renderer must not stack
         menu.Renderer = new FluentMenuRenderer();
         menu.Font = MenuFont;
         if (menu is ToolStripDropDownMenu dropDown)
@@ -84,6 +89,7 @@ public static class FluentMenu
     private static void Prepare(ToolStripDropDown menu, ToolStripItem? item)
     {
         if (item == null) return;
+        if (item is ToolStripControlHost host) host.Control.BackColor = FluentPalette.Drawing("Fx.Flyout");   // the volume slider
         if (item is ToolStripMenuItem or ToolStripLabel)
         {
             int pad = menu.LogicalToDeviceUnits((RowHeight - 20) / 2);   // a 20 px text line with 6 px above and below
@@ -111,16 +117,28 @@ public static class FluentMenu
         return bmp;
     }
 
-    /// <summary>Gives every styled menu the current look's font and corners again (a change of look, Task 17). A menu of
-    /// another thread, or one that is gone, is left alone.</summary>
+    /// <summary>Gives every styled menu the current look's font, rows, icons and corners again, and repaints it (a change
+    /// of look, Task 17). A menu of another thread is restyled on that thread, through its dispatcher (the app's menus
+    /// live on its window thread); one whose thread has none or has ended, or that is gone, is left alone.</summary>
     public static void Restyle()
     {
-        foreach (var (menu, _) in Styled)
+        foreach (var (menu, owner) in Styled)
         {
-            if (menu.IsDisposed || menu.InvokeRequired) continue;
-            menu.Font = MenuFont;
-            if (menu.IsHandleCreated) RoundCorners(menu.Handle);
+            if (menu.IsDisposed) continue;
+            if (owner.ThreadId == Environment.CurrentManagedThreadId) Restyle(menu);
+            else if (owner.Dispatcher is { HasShutdownStarted: false } dispatcher && dispatcher.Thread.IsAlive)
+                dispatcher.BeginInvoke(new Action(() => Restyle(menu)));
         }
+    }
+
+    private static void Restyle(ToolStripDropDown menu)
+    {
+        if (menu.IsDisposed) return;
+        menu.Font = MenuFont;
+        foreach (ToolStripItem item in menu.Items) Prepare(menu, item);
+        if (!menu.IsHandleCreated) return;
+        RoundCorners(menu.Handle);
+        menu.Invalidate();
     }
 
     [DllImport("dwmapi.dll", PreserveSig = true)]

@@ -681,11 +681,13 @@ public class AlertHub : IDisposable
     public Color ToastColor(string alertType, string severity) =>
         ThumbnailManager.ParseColor(AlertColours.Resolve(_settings, alertType, severity));
 
-    /// <summary>A change of look: the bell is round or square (Fx.Hub.Round); its colours follow by themselves.</summary>
+    /// <summary>A change of look: the bell is round or square (Fx.Hub.Round); its colours follow by themselves, and the
+    /// badge, which pulses on a brush of its own after an alert, takes its look's brush again.</summary>
     private void OnLookChanged()
     {
         if (!_hubWindow.Dispatcher.CheckAccess()) return;
         _hub.Bell.CornerRadius = AlertHubVisuals.BellCorners;
+        _hub.Badge.SetResourceReference(Border.BackgroundProperty, "Fx.AlertBadgeBrush");
     }
 
     public void Dispose()
