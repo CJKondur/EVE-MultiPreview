@@ -56,16 +56,13 @@ public sealed class VolumeEditor : System.Windows.Controls.UserControl, IRefresh
             else { CharacterFields.SetVolume(_ctx.S, name, v); _ctx.Applier.Request(ApplyScope.Save); }
             _signature = Signature(Names);   // our own write must not trigger a redraw mid-drag
         };
-        var grid = new Grid { Margin = new Thickness(0, 4, 0, 4) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var label = EditorCard.Value(name);
-        grid.Children.Add(label);
-        Grid.SetColumn(slider, 1);
-        grid.Children.Add(slider);
-        Grid.SetColumn(readout, 2);
-        grid.Children.Add(readout);
-        return grid;
+        // One row of three cells: the name, the slider, the read-out.
+        var table = new EditorTable { Margin = new Thickness(0, 4, 0, 4) };
+        table.Reset(new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto);
+        int row = table.AddRow();
+        table.Place(EditorCard.Value(name), row, 0);
+        table.Place(slider, row, 1);
+        table.Place(readout, row, 2);
+        return table;
     }
 }

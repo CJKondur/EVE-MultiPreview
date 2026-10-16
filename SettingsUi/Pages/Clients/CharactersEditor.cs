@@ -20,7 +20,7 @@ public sealed class CharactersEditor : System.Windows.Controls.UserControl, IRef
     };
 
     private readonly SettingsContext _ctx;
-    private readonly Grid _table = new();
+    private readonly EditorTable _table = new();
     private string _signature = "";
 
     public CharactersEditor(SettingsContext ctx)
@@ -74,24 +74,16 @@ public sealed class CharactersEditor : System.Windows.Controls.UserControl, IRef
 
     private void Build(IReadOnlyList<string> running)
     {
-        _table.Children.Clear();
-        _table.RowDefinitions.Clear();
-        _table.ColumnDefinitions.Clear();
-        foreach (var width in new[]
-                 {
-                     new GridLength(2, GridUnitType.Star), new GridLength(1.4, GridUnitType.Star), GridLength.Auto,
-                     new GridLength(1.4, GridUnitType.Star), GridLength.Auto, GridLength.Auto, GridLength.Auto,
-                 })
-            _table.ColumnDefinitions.Add(new ColumnDefinition { Width = width });
+        _table.Reset(
+            new GridLength(2, GridUnitType.Star), new GridLength(1.4, GridUnitType.Star), GridLength.Auto,
+            new GridLength(1.4, GridUnitType.Star), GridLength.Auto, GridLength.Auto, GridLength.Auto);
 
-        var header = AddRow();
-        for (int c = 0; c < Headers.Length; c++) Place(EditorCard.Note(Headers[c], strong: true), header, c);
+        var header = AddRow(header: true);
+        for (int c = 0; c < Headers.Length; c++) Place(EditorTable.Head(Headers[c]), header, c);
 
         if (Names.Count == 0)
         {
-            var empty = EditorCard.Note("L.S.Characters.Empty");
-            Place(empty, AddRow(), 0);
-            Grid.SetColumnSpan(empty, 7);
+            Place(EditorCard.Note("L.S.Characters.Empty"), AddRow(), 0, span: 7);
             return;
         }
 
@@ -119,20 +111,14 @@ public sealed class CharactersEditor : System.Windows.Controls.UserControl, IRef
         }
     }
 
-    private int AddRow()
-    {
-        _table.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        return _table.RowDefinitions.Count - 1;
-    }
+    private int AddRow(bool header = false) => _table.AddRow(header);
 
-    private void Place(FrameworkElement element, int row, int column)
+    private void Place(FrameworkElement element, int row, int column, int span = 1)
     {
         element.Margin = new Thickness(0, 4, 12, 4);
         element.VerticalAlignment = VerticalAlignment.Center;
         element.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-        Grid.SetRow(element, row);
-        Grid.SetColumn(element, column);
-        _table.Children.Add(element);
+        _table.Place(element, row, column, span);
     }
 
     private void AddRunning()

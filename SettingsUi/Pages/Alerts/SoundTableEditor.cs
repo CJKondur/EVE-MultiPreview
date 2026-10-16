@@ -93,7 +93,7 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
     private static readonly string[] Columns = { "L.S.Sounds.ColEvent", "L.S.Sounds.ColSound", "", "", "", "L.S.Sounds.ColWait" };
 
     private readonly SettingsContext _ctx;
-    private readonly Grid _table = new();
+    private readonly EditorTable _table = new();
     private readonly List<string> _keys = new();
     private readonly TextBlock _error = new() { Visibility = Visibility.Collapsed, TextWrapping = TextWrapping.Wrap };
 
@@ -120,15 +120,10 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
     public void Refresh()
     {
         _keys.Clear();
-        _table.Children.Clear();
-        _table.RowDefinitions.Clear();
-        _table.ColumnDefinitions.Clear();
-        _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _table.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        for (int i = 2; i < Columns.Length; i++) _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        int header = AddRow();
+        _table.Reset(Columns.Select((_, c) => c == 1 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto).ToArray());
+        int header = AddRow(header: true);
         for (int c = 0; c < Columns.Length; c++)
-            if (Columns[c].Length > 0) Place(EditorCard.Note(Columns[c], strong: true), header, c);
+            if (Columns[c].Length > 0) Place(EditorTable.Head(Columns[c]), header, c);
         AddRow(null, Str("L.S.Sounds.Default"), _ctx.S.AlertSoundFile?.Trim() ?? "");
         foreach (var e in AlertEvents.Listed) AddRow(e.Key, AlertEvents.Name(e.Key), AlertSoundFields.OwnFile(_ctx.S, e.Key), AlertSoundFields.IsBlankOwn(_ctx.S, e.Key));
         ShowError(null);
@@ -233,19 +228,13 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
         _error.Visibility = text == null ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    private int AddRow()
-    {
-        _table.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        return _table.RowDefinitions.Count - 1;
-    }
+    private int AddRow(bool header = false) => _table.AddRow(header);
 
     private void Place(FrameworkElement element, int row, int column)
     {
         element.Margin = new Thickness(0, 4, 12, 4);
         element.VerticalAlignment = VerticalAlignment.Center;
         element.HorizontalAlignment = HorizontalAlignment.Left;
-        Grid.SetRow(element, row);
-        Grid.SetColumn(element, column);
-        _table.Children.Add(element);
+        _table.Place(element, row, column);
     }
 }

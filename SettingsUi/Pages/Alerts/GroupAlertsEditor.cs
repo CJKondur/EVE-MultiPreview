@@ -34,7 +34,7 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     private readonly TextBlock _notKept = new() { Visibility = Visibility.Collapsed };
     private readonly TextBlock _warning = new();
     private readonly Border _warningLine;
-    private readonly Grid _table = new();
+    private readonly EditorTable _table = new();
     private readonly Button _clear;
     private readonly List<string> _keys = new();
     private readonly HashSet<string> _rules = new(StringComparer.Ordinal);
@@ -249,12 +249,7 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         _building = true;
         try
         {
-            _table.Children.Clear();
-            _table.RowDefinitions.Clear();
-            _table.ColumnDefinitions.Clear();
-            _table.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            _table.Reset(new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto);
             _keys.Clear();
             _rules.Clear();
             _names.Clear();
@@ -335,8 +330,7 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     {
         var title = EditorCard.Note(key, strong: true);
         title.Margin = new Thickness(0, 12, 0, 2);
-        Place(title, AddRow(), 0);
-        Grid.SetColumnSpan(title, 3);
+        Place(title, AddRow(), 0, span: 3);
     }
 
     /// <summary>The place in a row's list of what is stored for its event.</summary>
@@ -447,18 +441,12 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         }
     }
 
-    private int AddRow()
-    {
-        _table.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        return _table.RowDefinitions.Count - 1;
-    }
+    private int AddRow() => _table.AddRow();
 
-    private void Place(FrameworkElement element, int row, int column)
+    private void Place(FrameworkElement element, int row, int column, int span = 1)
     {
         if (element.Margin == default) element.Margin = new Thickness(0, 4, 16, 4);
         element.VerticalAlignment = VerticalAlignment.Center;
-        Grid.SetRow(element, row);
-        Grid.SetColumn(element, column);
-        _table.Children.Add(element);
+        _table.Place(element, row, column, span);
     }
 }

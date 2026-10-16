@@ -399,7 +399,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
 
     // ── the open rule's fields ──
 
-    private Grid _form = new();
+    private EditorTable _form = new();
     private FrameworkElement[] _chatOnly = Array.Empty<FrameworkElement>();
     private TextBlock _logOff = new();
     private TextBlock _noLogs = new();
@@ -416,9 +416,8 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     private FrameworkElement BuildForm(CustomAlertRule rule)
     {
         string id = rule.Id;
-        _form = new Grid { Margin = new Thickness(0, 14, 0, 0) };
-        _form.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        _form.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _form = new EditorTable { Margin = new Thickness(0, 14, 0, 0) };
+        _form.Reset(GridLength.Auto, new GridLength(1, GridUnitType.Star));
 
         Row("L.S.Rules.Name", TextField("name", rule.Name, CustomRules.MaxName, 280, (r, t) => r.Name = t, r => r.Name));
 
@@ -479,32 +478,24 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     /// (<paramref name="top"/>). Returns both, for rows that come and go.</summary>
     private FrameworkElement[] Row(string labelKey, FrameworkElement control, bool stretch = false, bool top = false)
     {
-        int r = _form.RowDefinitions.Count;
-        _form.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        int r = _form.AddRow();
         // A long label wraps inside its column instead of taking the controls' room.
         var label = new TextBlock { VerticalAlignment = top ? VerticalAlignment.Top : VerticalAlignment.Center, Margin = new Thickness(0, top ? 6 : 0, 16, 8), MaxWidth = 220 };
         label.SetResourceReference(StyleProperty, "Fx.Label");
         Loc.SetKey(label, labelKey);
-        Grid.SetRow(label, r);
-        _form.Children.Add(label);
+        _form.Place(label, r, 0);
         EditorCard.NameFrom(control, labelKey);
         control.Margin = new Thickness(0, 0, 0, 8);
         control.VerticalAlignment = VerticalAlignment.Center;
         control.HorizontalAlignment = stretch ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
-        Grid.SetRow(control, r);
-        Grid.SetColumn(control, 1);
-        _form.Children.Add(control);
+        _form.Place(control, r, 1);
         return new[] { label, control };
     }
 
     /// <summary>A line across both columns: a warning or an error of the field above it.</summary>
     private void Wide(FrameworkElement element)
     {
-        int r = _form.RowDefinitions.Count;
-        _form.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        Grid.SetRow(element, r);
-        Grid.SetColumn(element, 1);
-        _form.Children.Add(element);
+        _form.Place(element, _form.AddRow(), 1);
     }
 
     /// <summary>Changes the open rule and brings the cards up to date. The store may have changed what was typed

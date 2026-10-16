@@ -25,7 +25,7 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
     };
 
     private readonly SettingsContext _ctx;
-    private readonly Grid _table = new();
+    private readonly EditorTable _table = new();
     private readonly TextBlock _error = new() { Visibility = Visibility.Collapsed, TextWrapping = TextWrapping.Wrap };
     private readonly TextBlock _groupsNote = EditorCard.Value("", secondary: true);
 
@@ -68,19 +68,14 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
 
     public void Refresh()
     {
-        _table.Children.Clear();
-        _table.RowDefinitions.Clear();
-        _table.ColumnDefinitions.Clear();
-        _table.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        for (int i = 1; i < Columns.Length; i++) _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        int header = AddRow();
-        for (int c = 0; c < Columns.Length; c++) Place(EditorCard.Note(Columns[c], strong: true), header, c);
+        _table.Reset(Columns.Select((_, c) => c == 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto).ToArray());
+        int header = AddRow(header: true);
+        for (int c = 0; c < Columns.Length; c++) Place(EditorTable.Head(Columns[c]), header, c);
         var keys = new List<string>();
         foreach (var group in AlertEvents.Groups)
         {
             var title = EditorCard.Note("L.S.Events.Group." + group, strong: true);
-            Place(title, AddRow(), 0);
-            Grid.SetColumnSpan(title, Columns.Length);
+            Place(title, AddRow(), 0, span: Columns.Length);
             title.Margin = new Thickness(0, 12, 0, 2);
             foreach (var e in AlertEvents.Listed.Where(x => x.Group == group))
             {
@@ -202,23 +197,17 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
         _error.Visibility = text == null ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    private int AddRow()
-    {
-        _table.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        return _table.RowDefinitions.Count - 1;
-    }
+    private int AddRow(bool header = false) => _table.AddRow(header);
 
     /// <summary>Badge, Steady and On (columns 4–6) are switches: their headers and switches are centred in the column, so
     /// each header sits over its switch (left-aligned, a header lined up with the switch's On/Off text instead).</summary>
     private const int FirstSwitchColumn = 4;
 
-    private void Place(FrameworkElement element, int row, int column)
+    private void Place(FrameworkElement element, int row, int column, int span = 1)
     {
         element.Margin = new Thickness(0, 4, 16, 4);
         element.VerticalAlignment = VerticalAlignment.Center;
         element.HorizontalAlignment = column >= FirstSwitchColumn ? HorizontalAlignment.Center : HorizontalAlignment.Left;
-        Grid.SetRow(element, row);
-        Grid.SetColumn(element, column);
-        _table.Children.Add(element);
+        _table.Place(element, row, column, span);
     }
 }
