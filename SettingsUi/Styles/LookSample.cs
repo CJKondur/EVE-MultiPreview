@@ -15,8 +15,9 @@ public sealed class LookSample
     {
         // A file path only because SettingsService wants one: nothing loads or saves it.
         var service = new SettingsService(System.IO.Path.Combine(System.IO.Path.GetTempPath(), "EVE MultiPreview look sample.json"));
-        // Off: a template whose trigger is already true as it loads, inside a scoped miniature, throws in WPF
-        // (NullReferenceException in StyleHelper.GetInstanceValue; measured while writing plan S2).
+        // Off (owner decision S2-15). On, Windows 11's switch has a ControlTemplate trigger that is true when the template
+        // is made and sets DynamicResources; inside a scoped miniature WPF then throws a NullReferenceException in
+        // StyleHelper.GetInstanceValue during a layout pass, where nothing can catch it (measured in plans S2 and S3).
         service.Settings.EnableAlertSounds = false;
         service.Settings.AlertSoundVolume = 70;
         var ctx = new SettingsContext(service, new SettingsApplier(() => { }, () => { }, () => { }, () => { }, new Never()),

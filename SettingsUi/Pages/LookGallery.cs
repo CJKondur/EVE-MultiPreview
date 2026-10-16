@@ -120,19 +120,32 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
         return new Border { Height = 120, Background = (Brush)look["Fx.BgBrush"], Child = text, IsHitTestVisible = false };
     }
 
-    /// <summary>A look's miniature (spec §9.2): Fx.Preview over the gallery's sample, in that look (UiStyles.Scope), scaled
-    /// to the card, inert. Its template is the look's own Fx.Preview or the base's, taken once: a card shows one look for
-    /// its life, whatever the window shows. (Taken by a resource reference instead, a gallery made inside a page's
-    /// template sets it while that template is being made, which WPF does not survive: measured while writing plan S2.)</summary>
-    private FrameworkElement Preview(UiStyle style)
+    /// <summary>A look's miniature (spec §9.2): Fx.Preview over <paramref name="sample"/>, in that look (UiStyles.Scope),
+    /// scaled to the card, inert. Its template is the look's own Fx.Preview or the base's, taken once: a card shows one look
+    /// for its life, whatever the window shows. (Taken by a resource reference instead, a gallery made inside a page's
+    /// template sets it while that template is being made, which WPF does not survive: measured while writing plan S2.)
+    /// Its templates are made and measured here, before it is in a window, inside a try: a template WPF cannot make throws
+    /// here, where it is written to the error log and the look's placeholder is shown instead. A trigger that is true when
+    /// its template is made and sets a DynamicResource can still make WPF throw in a later layout pass (measured while
+    /// writing plan S3); the kit and the looks set none (the plan's rule), and LookMiniatureTests makes every miniature.</summary>
+    public static FrameworkElement Miniature(UiStyle style, LookSample sample)
     {
-        var miniature = new ContentPresenter { Content = _sample };
-        UiStyles.Scope(miniature, style);
-        miniature.ContentTemplate = (DataTemplate)(style.Dictionary.Contains("Fx.Preview") ? style.Dictionary["Fx.Preview"] : UiStyles.Base["Fx.Preview"]);
-        return new PreviewHost { Child = new Viewbox { Child = miniature, Stretch = System.Windows.Media.Stretch.Uniform, StretchDirection = StretchDirection.DownOnly } };
+        try
+        {
+            var miniature = new ContentPresenter { Content = sample };
+            UiStyles.Scope(miniature, style);
+            miniature.ContentTemplate = (DataTemplate)(style.Dictionary.Contains("Fx.Preview") ? style.Dictionary["Fx.Preview"] : UiStyles.Base["Fx.Preview"]);
+            miniature.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            return new PreviewHost { Child = new Viewbox { Child = miniature, Stretch = System.Windows.Media.Stretch.Uniform, StretchDirection = StretchDirection.DownOnly } };
+        }
+        catch (Exception e)
+        {
+            ErrorLog.Shared.Record(e, "UI styles", DateTime.Now);
+            return Placeholder(style);
+        }
     }
 
-    private void Build(UiStyle style) => _pictures[style].Child = Preview(style);
+    private void Build(UiStyle style) => _pictures[style].Child = Miniature(style, _sample);
 
     /// <summary>The next card not yet built, at the dispatcher's next idle moment, one per moment, while the gallery is
     /// shown: a gallery taken off the screen stops, and goes on when it shows again. What is built stays built.</summary>
