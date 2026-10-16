@@ -13,7 +13,6 @@
     <local:NotNullToVisibilityConverter x:Key="Fx.NotNullToVis"/>
     <local:ColorTextToBrushConverter x:Key="Fx.ColorBrush"/>
 
-
     <!-- ═══ Keyed controls and text ═══ -->
 
     <!-- The one filled button of a dialog (Next, Update now): accent with dark text (Plan 4). Hover and press dim it;

@@ -20,6 +20,7 @@ public sealed class UiStyle
     public UiStyle(string id, bool usesFluent, Func<ResourceDictionary> load, Func<ResourceDictionary>? controls = null,
         Func<ResourceDictionary>? keyed = null)
     {
+        if (usesFluent && controls == null) throw new ArgumentException("A look with Fluent needs the Fluent dictionary (controls)", nameof(controls));
         Id = id;
         UsesFluent = usesFluent;
         _load = load;
@@ -65,7 +66,6 @@ public static class UiStyles
     /// <summary>WPF's Fluent dictionary, dark (spec §14).</summary>
     public const string FluentSource = "pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.Dark.xaml";
 
-
     private static ResourceDictionary FluentDark() => new() { Source = new Uri(FluentSource, UriKind.Absolute) };
 
     public static UiStyle Windows11 { get; } = new("windows11", usesFluent: true, () => new Windows11Style(), FluentDark,
@@ -93,14 +93,24 @@ public static class UiStyles
 
     /// <summary>Makes <paramref name="style"/> the look of the app at once (spec §5.3): the palette of the surfaces drawn in
     /// code, slot 0 and the style dictionary of every window this thread attached (the base is the same for every look),
-    /// the title bars; then Changed. Nothing closes, nothing is rebuilt.</summary>
+    /// the title bars; then Changed. Nothing closes, nothing is rebuilt. A window that fails to take the look does not stop
+    /// the others, nor Changed; the first failure is thrown at the end.</summary>
     public static void Set(UiStyle style)
     {
         if (style == Current) return;
         Current = style;
         UiPalette.Use(UiPalette.From(style.Dictionary));
-        foreach (var window in AttachedWindows()) Restyle(window);
-        Changed?.Invoke();
+        System.Runtime.ExceptionServices.ExceptionDispatchInfo? failure = null;
+        try
+        {
+            foreach (var window in AttachedWindows())
+            {
+                try { Restyle(window); }
+                catch (Exception e) { failure ??= System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e); }
+            }
+        }
+        finally { Changed?.Invoke(); }
+        failure?.Throw();
     }
 
     /// <summary>How many live windows this thread has attached (tests).</summary>
@@ -190,7 +200,7 @@ public static class UiStyles
 
     public static bool IsAttached(Window window) => window.GetValue(SlotsProperty) != null;
 
-    /// <summary>The three dictionaries the applier merged into the window, or none.</summary>
+    /// <summary>The three or four dictionaries the applier merged into the window, or none.</summary>
     public static IReadOnlyList<ResourceDictionary> SlotsOf(Window window) =>
         (ResourceDictionary[]?)window.GetValue(SlotsProperty) ?? Array.Empty<ResourceDictionary>();
 

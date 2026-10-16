@@ -7,9 +7,9 @@ using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 
 namespace EveMultiPreview.Views;
 
-/// <summary>The settings window's colour tokens (SettingsUi/Theme/SettingsTheme.xaml) for the surfaces around it (Plan 4):
-/// the WinForms menus read them as System.Drawing colours, the code-built hub, toasts and wheel cards as frozen WPF
-/// brushes. Read once, as colour values, so any thread may use them; a token changes in SettingsTheme.xaml only.</summary>
+/// <summary>The current look's palette (UiPalette) for the surfaces around the settings window (Plan 4): the WinForms
+/// menus read it as System.Drawing colours, the code-built hub, toasts and wheel cards as frozen WPF brushes. Read as
+/// colour values, so any thread may use them; every UiStyles.Set replaces the palette.</summary>
 public static class FluentPalette
 {
     /// <summary>A colour token ("Fx.Flyout") or a brush token's colour ("Fx.FlyoutBrush") of the current look's palette

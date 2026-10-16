@@ -45,7 +45,7 @@ public static class FluentMenu
     /// handle, so a change of look asks this instead.</summary>
     private static readonly ConditionalWeakTable<ToolStripDropDown, Owner> Styled = new();
 
-    private sealed record Owner(int ThreadId, System.Windows.Threading.Dispatcher? Dispatcher);
+    private sealed record Owner(System.Threading.Thread Thread, System.Windows.Threading.Dispatcher? Dispatcher);
 
     static FluentMenu() => SettingsUi.UiStyles.Changed += Restyle;   // a change of look gives every styled menu its font and corners
 
@@ -71,7 +71,7 @@ public static class FluentMenu
     /// the icon column, and rows sized as items arrive, so items rebuilt on every open are sized too.</summary>
     public static void Style(ToolStripDropDown menu, bool showIcons)
     {
-        var owner = new Owner(Environment.CurrentManagedThreadId, System.Windows.Threading.Dispatcher.FromThread(System.Threading.Thread.CurrentThread));
+        var owner = new Owner(System.Threading.Thread.CurrentThread, System.Windows.Threading.Dispatcher.FromThread(System.Threading.Thread.CurrentThread));
         if (!Styled.TryAdd(menu, owner)) return;   // already styled: handlers and renderer must not stack
         menu.Renderer = new FluentMenuRenderer();
         menu.Font = MenuFont;
@@ -89,7 +89,7 @@ public static class FluentMenu
     private static void Prepare(ToolStripDropDown menu, ToolStripItem? item)
     {
         if (item == null) return;
-        if (item is ToolStripControlHost host) host.Control.BackColor = FluentPalette.Drawing("Fx.Flyout");   // the volume slider
+        if (item is ToolStripControlHost { Control: TrackBar slider }) slider.BackColor = FluentPalette.Drawing("Fx.Flyout");   // the volume slider
         if (item is ToolStripMenuItem or ToolStripLabel)
         {
             int pad = menu.LogicalToDeviceUnits((RowHeight - 20) / 2);   // a 20 px text line with 6 px above and below
@@ -125,10 +125,18 @@ public static class FluentMenu
         foreach (var (menu, owner) in Styled)
         {
             if (menu.IsDisposed) continue;
-            if (owner.ThreadId == Environment.CurrentManagedThreadId) Restyle(menu);
-            else if (owner.Dispatcher is { HasShutdownStarted: false } dispatcher && dispatcher.Thread.IsAlive)
+            if (!IsAlive(owner.Thread)) continue;   // a thread that ended owns nothing (a thread id may be handed to a new thread)
+            if (owner.Thread == System.Threading.Thread.CurrentThread) Restyle(menu);
+            else if (owner.Dispatcher is { HasShutdownStarted: false } dispatcher && IsAlive(dispatcher.Thread))
                 dispatcher.BeginInvoke(new Action(() => Restyle(menu)));
         }
+    }
+
+    /// <summary>Thread.IsAlive throws for a thread whose handle is gone (measured: it ended and was released).</summary>
+    private static bool IsAlive(System.Threading.Thread thread)
+    {
+        try { return thread.IsAlive; }
+        catch (System.Threading.ThreadStateException) { return false; }
     }
 
     private static void Restyle(ToolStripDropDown menu)

@@ -1,7 +1,6 @@
 <Window x:Class="EveMultiPreview.Views.QuickSwitchWheel"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:ui="clr-namespace:EveMultiPreview.SettingsUi"
         WindowStyle="None"
         ShowInTaskbar="False"
         Topmost="True"
@@ -11,7 +10,6 @@
         Title="{DynamicResource L.Qs.Title}"
         SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen">
-
 
     <!-- Plan 4, the F2 reference: the clients' cards around a centre disc. The root's almost-transparent fill keeps the
          whole wheel clickable, as the old opaque panel was, so a click between two cards never reaches the game. -->

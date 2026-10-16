@@ -20,7 +20,7 @@
             <TextBox x:Name="TxtColor" Width="120" TextChanged="OnColorTextChanged"/>
             <Border x:Name="ColorSwatch" Width="24" Height="24" Margin="6,0,0,0"
                     BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{DynamicResource Fx.Line.Control}"/>
-            <Button Content="🎨" Width="32" Height="26" Margin="6,0,0,0" Click="OnPickColor"/>
+            <Button Content="🎨" Width="32" Height="32" Padding="0" Margin="6,0,0,0" Click="OnPickColor"/>
             <Button Content="{DynamicResource L.Lbl.Default}" Margin="6,0,0,0" Padding="8,2" Click="OnClearColor"
                     ToolTip="{DynamicResource L.Lbl.DefaultTt}"/>
         </StackPanel>

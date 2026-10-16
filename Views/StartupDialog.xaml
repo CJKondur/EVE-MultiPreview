@@ -1,7 +1,6 @@
 <Window x:Class="EveMultiPreview.Views.StartupDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:ui="clr-namespace:EveMultiPreview.SettingsUi"
         Title="EVE MultiPreview"
         Background="{DynamicResource Fx.BgBrush}"
         SizeToContent="WidthAndHeight" MinWidth="420" MaxWidth="600"
