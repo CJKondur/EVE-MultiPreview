@@ -59,10 +59,11 @@
     <Color x:Key="Fx.InfoColor">#FF60CDFF</Color>
     <Color x:Key="Fx.AlertBadge">#FFFF6B57</Color>
     <Color x:Key="Fx.OnAlertBadge">#FF2A0A05</Color>
-    <!-- Title bar (3). This colour and ValueText above are the spec's colours "Caption" and "Value" (ruling 19). -->
-    <Color x:Key="Fx.CaptionColor">#FF202020</Color>
-    <Color x:Key="Fx.CaptionText">#FFFFFFFF</Color>
-    <Color x:Key="Fx.WindowBorder">#FF454545</Color>
+    <!-- Title bar (3). This colour and ValueText above are the spec's colours "Caption" and "Value" (ruling 19). Alpha 0
+         means "the system's own": Windows 11 draws its caption, text and edge itself, as today. -->
+    <Color x:Key="Fx.CaptionColor">#00000000</Color>
+    <Color x:Key="Fx.CaptionText">#00000000</Color>
+    <Color x:Key="Fx.WindowBorder">#00000000</Color>
 
     <!-- Fonts (3): today's (UiFont gives the window its family; ruling 8) -->
     <FontFamily x:Key="Fx.Font">Segoe UI Variable Text, Segoe UI</FontFamily>

@@ -19,10 +19,13 @@ public partial class ChoiceDialog : Window
     }
 
     /// <summary>A question with OK and Cancel (the settings window's confirmation, plan S1 ruling 13): the second
-    /// button is not shown, so the answer is true for OK and null for Cancel, Esc or closing.</summary>
+    /// button is not shown, so the answer is true for OK and null for Cancel, Esc or closing. OK is the default button and
+    /// has the focus, so Enter confirms, as the system message box did.</summary>
     public ChoiceDialog(string title, string body, string okLabel) : this(title, body, okLabel, "")
     {
         NoButton.Visibility = Visibility.Collapsed;
+        YesButton.IsDefault = true;
+        System.Windows.Input.FocusManager.SetFocusedElement(this, YesButton);
     }
 
     /// <summary>True for the first button, false for the second, null for Cancel, Esc or closing.</summary>

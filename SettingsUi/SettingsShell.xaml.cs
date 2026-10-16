@@ -13,7 +13,6 @@ using Color = System.Windows.Media.Color;
 using ComboBox = System.Windows.Controls.ComboBox;
 using ContextMenu = System.Windows.Controls.ContextMenu;
 using MenuItem = System.Windows.Controls.MenuItem;
-
 using WinForms = System.Windows.Forms;
 
 namespace EveMultiPreview.SettingsUi;

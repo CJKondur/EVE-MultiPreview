@@ -13,18 +13,25 @@ public static class TitleBar
 {
     public const int DarkMode = 20, CornerPreference = 33, BorderColour = 34, CaptionColour = 35, TextColour = 36;
 
+    /// <summary>DWMWA_COLOR_DEFAULT: Windows draws that part itself (its own caption, with Mica, its own text and edge).</summary>
+    public const int SystemColour = unchecked((int)0xFFFFFFFF);
+
     /// <summary>The attributes for a palette, in the order they are set: dark caption buttons for a dark caption, the
-    /// corners, the edge, the caption and its text (COLORREF: 0x00BBGGRR).</summary>
+    /// corners, the edge, the caption and its text (COLORREF: 0x00BBGGRR). A title bar colour of the look whose alpha is 0
+    /// means "the system's own" and is set as <see cref="SystemColour"/>; Windows 11 says so for all three, so its title
+    /// bar is exactly Windows'. The corners of a round look are left to the system (DWMWCP_DEFAULT), which rounds a
+    /// window like these; the menus, which the system leaves square, ask for the round corners themselves.</summary>
     public static IReadOnlyList<(int Attribute, int Value)> Attributes(UiPalette palette)
     {
         var caption = palette.Colour("Fx.CaptionColor");
+        var dark = caption.A == 0 ? palette.Colour("Fx.Bg") : caption;
         return new[]
         {
-            (DarkMode, Luminance(caption) < 0.5 ? 1 : 0),
-            (CornerPreference, Views.FluentMenu.CornerPreference(palette.Corners)),
-            (BorderColour, ColorRef(palette.Colour("Fx.WindowBorder"))),
-            (CaptionColour, ColorRef(caption)),
-            (TextColour, ColorRef(palette.Colour("Fx.CaptionText"))),
+            (DarkMode, Luminance(dark) < 0.5 ? 1 : 0),
+            (CornerPreference, palette.Corners == WindowCorners.Round ? 0 : Views.FluentMenu.CornerPreference(palette.Corners)),
+            (BorderColour, Value(palette.Colour("Fx.WindowBorder"))),
+            (CaptionColour, Value(caption)),
+            (TextColour, Value(palette.Colour("Fx.CaptionText"))),
         };
     }
 
@@ -44,6 +51,8 @@ public static class TitleBar
         }
         Applied?.Invoke(window);
     }
+
+    private static int Value(Color c) => c.A == 0 ? SystemColour : ColorRef(c);
 
     private static int ColorRef(Color c) => c.R | (c.G << 8) | (c.B << 16);
 
