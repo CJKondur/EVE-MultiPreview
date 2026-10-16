@@ -1,0 +1,126 @@
+<ResourceDictionary x:Class="EveMultiPreview.SettingsUi.ClassicStyle"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:local="clr-namespace:EveMultiPreview.SettingsUi">
+
+    <!-- Classic (UI styles spec §7.1): the old MultiPreview navy, drawn on the new window's pages. Source: Classic.dc.html
+         and the old window (App.xaml, Views/SettingsWindow.xaml). The 95 tokens of the contract (StyleContract); a colour
+         is written once, as a Color, and the loader makes its frozen brush. A value the mock-up does not show is derived
+         from the old window's palette (spec: marked *). -->
+
+    <!-- Surfaces (10) -->
+    <Color x:Key="Fx.Bg">#FF1A1A2E</Color>
+    <Color x:Key="Fx.Nav">#FF0F3460</Color>
+    <Color x:Key="Fx.CardColor">#FF252540</Color>
+    <Color x:Key="Fx.CardHover">#FF3A3A5E</Color>
+    <Color x:Key="Fx.Header">#FF252540</Color>
+    <Color x:Key="Fx.Control">#FF252540</Color>
+    <Color x:Key="Fx.Flyout">#FF252540</Color>
+    <Color x:Key="Fx.AccentSoft">#FF3A3A5E</Color>
+    <!-- 20 % and 31 % white over the navy (the old window's #33FFFFFF and the mock-up's .31), written opaque. -->
+    <Color x:Key="Fx.NavHover">#FF3F5D80</Color>
+    <Color x:Key="Fx.NavSelected">#FF597391</Color>
+    <!-- Lines (5) -->
+    <Color x:Key="Fx.Border">#FF3A3A50</Color>
+    <Color x:Key="Fx.ControlEdge">#FF3A3A50</Color>
+    <Color x:Key="Fx.FlyoutBorder">#FF3A3A50</Color>
+    <Color x:Key="Fx.Divider">#FF3A3A50</Color>
+    <Color x:Key="Fx.Focus">#FF00AAFF</Color>
+    <!-- Text (11). The notes are #9A9AA8, not the old #888888 (owner decision O11): that reached 4.18 to 1 on a panel. -->
+    <Color x:Key="Fx.Text">#FFFFFFFF</Color>
+    <Color x:Key="Fx.TextSecondary">#FF9A9AA8</Color>
+    <Color x:Key="Fx.TextDisabled">#FF6E6E80</Color>
+    <Color x:Key="Fx.NavText">#FFFFFFFF</Color>
+    <Color x:Key="Fx.NavTextSecondary">#FFA8A8B8</Color>
+    <Color x:Key="Fx.NavSelectedText">#FFFFFFFF</Color>
+    <Color x:Key="Fx.Title">#FF00AAFF</Color>
+    <Color x:Key="Fx.SectionText">#FFFFFFFF</Color>
+    <Color x:Key="Fx.Link">#FF00AAFF</Color>
+    <Color x:Key="Fx.ValueText">#FFFFFFFF</Color>
+    <Color x:Key="Fx.Icon">#FFFFFFFF</Color>
+    <!-- Accent (3) -->
+    <Color x:Key="Fx.Accent">#FF00AAFF</Color>
+    <Color x:Key="Fx.OnAccent">#FF1A1A2E</Color>
+    <Color x:Key="Fx.NavMark">#FF597391</Color>
+    <!-- Buttons (4): the old window's light grey buttons -->
+    <Color x:Key="Fx.Button">#FFE0E0E0</Color>
+    <Color x:Key="Fx.ButtonHover">#FFF0F0F0</Color>
+    <Color x:Key="Fx.ButtonBorder">#FFAAAAAA</Color>
+    <Color x:Key="Fx.ButtonText">#FF222222</Color>
+    <!-- Check and switch (3): the white check box -->
+    <Color x:Key="Fx.CheckFill">#FFFFFFFF</Color>
+    <Color x:Key="Fx.CheckMark">#FF212121</Color>
+    <Color x:Key="Fx.CheckBorder">#FF707070</Color>
+    <!-- Slider (3): the light track and thumb -->
+    <Color x:Key="Fx.Track">#FFE7EAEA</Color>
+    <Color x:Key="Fx.TrackFill">#FFE7EAEA</Color>
+    <Color x:Key="Fx.Thumb">#FFF0F0F0</Color>
+    <!-- Status (5) -->
+    <Color x:Key="Fx.Critical">#FFFF5555</Color>
+    <Color x:Key="Fx.Warning">#FFFFAA33</Color>
+    <Color x:Key="Fx.InfoColor">#FF4FC3F7</Color>
+    <Color x:Key="Fx.AlertBadge">#FFFF5555</Color>
+    <Color x:Key="Fx.OnAlertBadge">#FF1A1A2E</Color>
+    <!-- Title bar (3): the old window's dark caption, opaque, so the look colours it (alpha 0 would be Windows' own). -->
+    <Color x:Key="Fx.CaptionColor">#FF202020</Color>
+    <Color x:Key="Fx.CaptionText">#FFFFFFFF</Color>
+    <Color x:Key="Fx.WindowBorder">#FF4A4A5E</Color>
+
+    <!-- Fonts (3): Segoe UI, nothing bundled -->
+    <FontFamily x:Key="Fx.Font">Segoe UI</FontFamily>
+    <FontFamily x:Key="Fx.MonoFont">Segoe UI</FontFamily>
+    <FontFamily x:Key="Fx.TitleFont">Segoe UI</FontFamily>
+    <!-- Sizes (8) -->
+    <sys:Double x:Key="Fx.Size.Title">18</sys:Double>
+    <sys:Double x:Key="Fx.Size.Section">12</sys:Double>
+    <sys:Double x:Key="Fx.Size.Body">12</sys:Double>
+    <sys:Double x:Key="Fx.Size.Desc">11</sys:Double>
+    <sys:Double x:Key="Fx.Size.Nav">12</sys:Double>
+    <sys:Double x:Key="Fx.Size.NavSub">12</sys:Double>
+    <sys:Double x:Key="Fx.Size.Caption">12</sys:Double>
+    <sys:Double x:Key="Fx.Size.Control">12</sys:Double>
+    <!-- Weights (4), slant (1), case (4): nothing upper-case -->
+    <FontWeight x:Key="Fx.Weight.Title">Bold</FontWeight>
+    <FontWeight x:Key="Fx.Weight.Section">Normal</FontWeight>
+    <FontWeight x:Key="Fx.Weight.Nav">Normal</FontWeight>
+    <FontWeight x:Key="Fx.Weight.NavSelected">Normal</FontWeight>
+    <FontStyle x:Key="Fx.Style.Title">Normal</FontStyle>
+    <local:TextCase x:Key="Fx.Case.Title">Normal</local:TextCase>
+    <local:TextCase x:Key="Fx.Case.Section">Normal</local:TextCase>
+    <local:TextCase x:Key="Fx.Case.Nav">Normal</local:TextCase>
+    <local:TextCase x:Key="Fx.Case.Caption">Normal</local:TextCase>
+    <!-- Radii (5): the group box 4, the boxes 2, the navigation and the check square -->
+    <CornerRadius x:Key="Fx.Radius">4</CornerRadius>
+    <CornerRadius x:Key="Fx.Radius.Control">2</CornerRadius>
+    <CornerRadius x:Key="Fx.Radius.Nav">0</CornerRadius>
+    <CornerRadius x:Key="Fx.FlyoutRadius">2</CornerRadius>
+    <CornerRadius x:Key="Fx.Radius.Check">0</CornerRadius>
+    <!-- Lines (3) -->
+    <Thickness x:Key="Fx.Line.Card">1</Thickness>
+    <Thickness x:Key="Fx.Line.Control">1</Thickness>
+    <Thickness x:Key="Fx.Line.Row">0</Thickness>
+    <!-- Metrics (11) -->
+    <sys:Double x:Key="Fx.Nav.Width">190</sys:Double>
+    <sys:Double x:Key="Fx.Nav.ItemHeight">30</sys:Double>
+    <sys:Double x:Key="Fx.Nav.SubItemHeight">30</sys:Double>
+    <sys:Double x:Key="Fx.Nav.SubIndent">30</sys:Double>
+    <sys:Double x:Key="Fx.Row.MinHeight">24</sys:Double>
+    <Thickness x:Key="Fx.Row.Padding">0,3</Thickness>
+    <Thickness x:Key="Fx.Row.Gap">0</Thickness>
+    <sys:Double x:Key="Fx.Control.Height">22</sys:Double>
+    <Thickness x:Key="Fx.Section.Gap">0,6</Thickness>
+    <Thickness x:Key="Fx.Page.Padding">16</Thickness>
+    <sys:Double x:Key="Fx.Label.Width">150</sys:Double>
+    <!-- Presence (4): no navigation icons, no breadcrumb, a scroll bar in its own column, round window corners -->
+    <Visibility x:Key="Fx.Nav.Icons">Collapsed</Visibility>
+    <Visibility x:Key="Fx.Show.Breadcrumb">Collapsed</Visibility>
+    <sys:Boolean x:Key="Fx.Scroll.Overlay">False</sys:Boolean>
+    <local:WindowCorners x:Key="Fx.Window.Corners">Round</local:WindowCorners>
+    <!-- Around (5): menus with 24 px rows, a square highlight and a tick; a round bell -->
+    <sys:Double x:Key="Fx.Menu.RowHeight">24</sys:Double>
+    <sys:Double x:Key="Fx.Menu.Radius">0</sys:Double>
+    <local:MenuCheck x:Key="Fx.Menu.Check">Tick</local:MenuCheck>
+    <sys:String x:Key="Fx.Menu.Font">Segoe UI</sys:String>
+    <sys:Boolean x:Key="Fx.Hub.Round">True</sys:Boolean>
+</ResourceDictionary>

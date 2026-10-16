@@ -71,8 +71,11 @@ public static class UiStyles
     public static UiStyle Windows11 { get; } = new("windows11", usesFluent: true, () => new Windows11Style(), FluentDark,
         () => new Windows11Controls(Windows11!.Controls!));
 
-    /// <summary>Every look, in the order the picker shows them (S2 adds the others).</summary>
-    public static IReadOnlyList<UiStyle> All { get; } = new[] { Windows11 };
+    /// <summary>The old window's navy look (spec §7.1). Its windows take the kit in slot 0, never Fluent.</summary>
+    public static UiStyle Classic { get; } = new("classic", usesFluent: false, () => new ClassicStyle());
+
+    /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2). S3 and S4 add the others.</summary>
+    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11 };
 
     /// <summary>The look with this id; a missing or unknown id gives Windows 11, the only look of S1.</summary>
     public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Windows11;
