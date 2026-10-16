@@ -166,7 +166,7 @@ public class ThumbnailWindow : Form
                 openSettings: () => SettingsRequested?.Invoke(this),
                 closeClient: () => CloseClientRequested?.Invoke(this),
                 endSnooze: key => SnoozeEndRequested?.Invoke(this, key));
-            _menu.Refresh(new ThumbnailMenuState(CharacterName, SystemLookup?.Invoke(CharacterName), AlertMutedUntil, AudioVolume, DateTime.Now)
+            _menu.Refresh(new ThumbnailMenuState(CharacterName, SystemLookup?.Invoke(CharacterName), AlertMutedUntil, AudioVolume, DateTime.UtcNow)
             {
                 Snoozes = SnoozeLookup?.Invoke(CharacterName) ?? Array.Empty<EveMultiPreview.Services.EventSnooze>(),
             });

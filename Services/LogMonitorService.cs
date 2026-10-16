@@ -1932,7 +1932,7 @@ public sealed class LogMonitorService : IDisposable
             // Held only briefly — FlushPendingGameSystems applies it if chat stays
             // silent, so a stalled chat log degrades to the old behaviour, not to none.
             if (_chatSystemWorks.ContainsKey(character))
-                _pendingGameSystem[character] = (destSystem, DateTime.Now);
+                _pendingGameSystem[character] = (destSystem, _alertClock());
             else
                 UpdateSystem(character, destSystem, "game-move");
         }
@@ -2484,7 +2484,8 @@ public sealed class LogMonitorService : IDisposable
     }
 
     /// <summary>Now, in UTC, for the quiet time between two alerts of one character and event (RF-I1). TriggerAlert
-    /// asks it, once for an alert that is not switched off, and nothing else does. UTC, because the local wall clock
+    /// asks it, once for an alert that is not switched off; and the wait of a jump for Local's word (FX-m10) is noted
+    /// and counted by it, because the system change it waits for raises an alert. UTC, because the local wall clock
     /// steps back an hour when daylight saving time ends. A test hands in a clock of its own; setting it to null
     /// changes nothing.</summary>
     public Func<DateTime> AlertClock { get => _alertClock; set => _alertClock = value ?? _alertClock; }
@@ -2537,10 +2538,13 @@ public sealed class LogMonitorService : IDisposable
     private void FlushPendingGameSystems()
     {
         if (_pendingGameSystem.IsEmpty) return;
-        var now = DateTime.Now;
+        // FX-m10: on the alert clock (UTC), and a jump noted ahead of now (the clock was set back) has waited enough:
+        // the system change and its alert would otherwise wait for the clock to catch up, up to an hour.
+        var now = _alertClock();
         foreach (var kv in _pendingGameSystem)
         {
-            if ((now - kv.Value.At).TotalSeconds < GameSystemDeferSeconds) continue;
+            var waited = (now - kv.Value.At).TotalSeconds;
+            if (waited >= 0 && waited < GameSystemDeferSeconds) continue;
             if (_pendingGameSystem.TryRemove(kv.Key, out var pending))
                 UpdateSystem(kv.Key, pending.System, "game-move(deferred)");
         }

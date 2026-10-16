@@ -122,9 +122,14 @@ public sealed class ThumbnailManager : IDisposable
     // Key = CharacterName (case-insensitive), Value = SystemName
     private readonly ConcurrentDictionary<string, string> _charSystems = new(StringComparer.OrdinalIgnoreCase);
 
-    // Key = CharacterName, Value = mute-until time (DateTime.MaxValue = until cleared).
+    // Key = CharacterName, Value = mute-until time in UTC (DateTime.MaxValue = until cleared) and the mute's length.
     // Per-character alert mute/snooze — runtime only, clears on app restart.
-    private readonly ConcurrentDictionary<string, DateTime> _alertMutedChars = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, (DateTime Until, TimeSpan Length)> _alertMutedChars = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>Now, in UTC, for a timed mute (FY-I1): the local wall clock steps back an hour when daylight saving
+    /// time ends, and a mute then lasted an hour longer. A test hands in a clock of its own; null changes nothing.</summary>
+    public Func<DateTime> MuteClock { get => _muteClock; set => _muteClock = value ?? _muteClock; }
+    private Func<DateTime> _muteClock = () => DateTime.UtcNow;
 
     /// <summary>Which clients need the player: per character, the alerts shown and not looked at yet (IDEAS batch 5).
     /// Fed where the badge is fed and cleared, and where a client goes away. It doesn't depend on a display setting,
@@ -2689,8 +2694,11 @@ public sealed class ThumbnailManager : IDisposable
     public bool IsCharacterAlertMuted(string characterName)
     {
         if (string.IsNullOrEmpty(characterName)) return false;
-        if (!_alertMutedChars.TryGetValue(characterName, out var until)) return false;
-        if (until == DateTime.MaxValue || DateTime.Now < until) return true;
+        if (!_alertMutedChars.TryGetValue(characterName, out var mute)) return false;
+        if (mute.Until == DateTime.MaxValue) return true;
+        // FY-I1: an end further ahead than the mute is long can't be its own (the clock was set back): it is over.
+        var left = mute.Until - _muteClock();
+        if (left > TimeSpan.Zero && left <= mute.Length) return true;
         _alertMutedChars.TryRemove(characterName, out _); // snooze expired
         return false;
     }
@@ -2713,13 +2721,13 @@ public sealed class ThumbnailManager : IDisposable
         else if (minutes == int.MaxValue)
         {
             until = DateTime.MaxValue;
-            _alertMutedChars[charName] = until.Value;
+            _alertMutedChars[charName] = (until.Value, TimeSpan.MaxValue);
             label = "🔇 Alerts muted";
         }
         else
         {
-            until = DateTime.Now.AddMinutes(minutes);
-            _alertMutedChars[charName] = until.Value;
+            until = _muteClock().AddMinutes(minutes);
+            _alertMutedChars[charName] = (until.Value, TimeSpan.FromMinutes(minutes));
             label = $"🔇 Alerts muted {minutes}m";
         }
 
@@ -4496,8 +4504,8 @@ public sealed class ThumbnailManager : IDisposable
         thumb.AudioVolume = GetClientVolume(thumb.CharacterName);
         // A new thumbnail picks up any active mute for its character (e.g. relaunch).
         if (!string.IsNullOrEmpty(thumb.CharacterName)
-            && _alertMutedChars.TryGetValue(thumb.CharacterName, out var muteUntil))
-            thumb.AlertMutedUntil = muteUntil;
+            && _alertMutedChars.TryGetValue(thumb.CharacterName, out var mute))
+            thumb.AlertMutedUntil = mute.Until;
     }
 
     /// <summary>Undoes <see cref="WireMenu"/>, so a destroyed second thumbnail leaves nothing subscribed to the manager.</summary>

@@ -1057,7 +1057,7 @@ public partial class App : Application
         lock (_soundCooldownLock) played = _soundCooldowns.TryGetValue(cooldownKey, out lastPlay);
         if (soundCooldown > 0 && played)
         {
-            if ((DateTime.Now - lastPlay).TotalSeconds < soundCooldown)
+            if (AlertSoundChoice.StillWaits(lastPlay, DateTime.UtcNow, soundCooldown))
             {
                 if (repeat == 0)
                 {
@@ -1113,7 +1113,7 @@ public partial class App : Application
                 player.Play();
             });
 
-            var playedAt = DateTime.Now;
+            var playedAt = DateTime.UtcNow;
             lock (_soundCooldownLock) _soundCooldowns[cooldownKey] = playedAt;
             if (repeat == 0)
             {

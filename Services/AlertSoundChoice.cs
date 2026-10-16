@@ -34,5 +34,15 @@ public static class AlertSoundChoice
         return CustomAlertTypes.IsCustom(alertType) && !string.IsNullOrEmpty(file) && !exists(file) ? Default(s) : file;
     }
 
+    /// <summary>Whether an event's sound still waits (its sound quiet time, in seconds) after it played at
+    /// <paramref name="lastPlayUtc"/>. Both moments are UTC (FY-I1: the local wall clock steps back an hour when
+    /// daylight saving time ends). A last play that lies ahead of now (the clock itself was set back) is no reason to
+    /// wait: the sound plays.</summary>
+    public static bool StillWaits(DateTime lastPlayUtc, DateTime nowUtc, int seconds)
+    {
+        var since = nowUtc - lastPlayUtc;
+        return seconds > 0 && since >= TimeSpan.Zero && since.TotalSeconds < seconds;
+    }
+
     private static string? Default(AppSettings s) => string.IsNullOrEmpty(s.AlertSoundFile) ? null : s.AlertSoundFile;
 }
