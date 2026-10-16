@@ -26,22 +26,22 @@
                  App settings at the bottom left. -->
             <DataTemplate x:Key="NavGroupTemplate">
                 <StackPanel>
-                    <Button Style="{StaticResource Fx.NavButton}" Command="{Binding OpenCommand}">
+                    <Button Style="{DynamicResource Fx.NavButton}" Command="{Binding OpenCommand}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Icon}" FontFamily="{StaticResource Fx.IconFont}"
-                                       Foreground="{StaticResource Fx.TextBrush}" VerticalAlignment="Center"/>
-                            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
+                            <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource Fx.IconFont}"
+                                       Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
+                            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" Margin="12,0,0,0"/>
                         </StackPanel>
                     </Button>
                     <ItemsControl ItemsSource="{Binding Pages}" Focusable="False"
                                   Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Style="{StaticResource Fx.NavButton}" Command="{Binding OpenCommand}" Padding="40,6,12,6">
+                                <Button Style="{DynamicResource Fx.NavButton}" Command="{Binding OpenCommand}" Padding="40,6,12,6">
                                     <Grid>
                                         <Border x:Name="Bar" Width="3" Height="16" CornerRadius="2" HorizontalAlignment="Left"
-                                                Margin="-14,0,0,0" Background="{StaticResource Fx.AccentBrush}" Visibility="Collapsed"/>
-                                        <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{StaticResource Fx.Label}"/>
+                                                Margin="-14,0,0,0" Background="{DynamicResource Fx.AccentBrush}" Visibility="Collapsed"/>
+                                        <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}"/>
                                     </Grid>
                                 </Button>
                                 <DataTemplate.Triggers>
@@ -66,15 +66,15 @@
 
         <!-- ═══ Navigation pane (spec §4) ═══ -->
         <DockPanel Grid.Column="0" Margin="8,8,4,8">
-            <Button x:Name="ProfileButton" DockPanel.Dock="Top" Style="{StaticResource Fx.NavButton}" Click="OnProfileMenu">
+            <Button x:Name="ProfileButton" DockPanel.Dock="Top" Style="{DynamicResource Fx.NavButton}" Click="OnProfileMenu">
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="32" Height="32" CornerRadius="16" Background="{StaticResource Fx.AccentBrush}">
+                    <Border Width="32" Height="32" CornerRadius="16" Background="{DynamicResource Fx.AccentBrush}">
                         <TextBlock Text="{Binding ProfileInitial}" Foreground="#FF000000" FontWeight="SemiBold"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding ProfileName}" Style="{StaticResource Fx.Label}" FontWeight="SemiBold"/>
-                        <TextBlock local:Loc.Key="L.S.Shell.Profile" Style="{StaticResource Fx.Desc}"/>
+                        <TextBlock Text="{Binding ProfileName}" Style="{DynamicResource Fx.Label}" FontWeight="SemiBold"/>
+                        <TextBlock local:Loc.Key="L.S.Shell.Profile" Style="{DynamicResource Fx.Desc}"/>
                     </StackPanel>
                 </StackPanel>
             </Button>
@@ -84,8 +84,8 @@
 
             <Border DockPanel.Dock="Bottom" Padding="12,8" Margin="0,8,0,0">
                 <DockPanel>
-                    <CheckBox DockPanel.Dock="Right" Style="{StaticResource Fx.ToggleSwitch}" IsChecked="{Binding IsAdvanced}"/>
-                    <TextBlock local:Loc.Key="L.S.Shell.Advanced" Style="{StaticResource Fx.Label}" VerticalAlignment="Center"/>
+                    <CheckBox DockPanel.Dock="Right" Style="{DynamicResource Fx.ToggleSwitch}" IsChecked="{Binding IsAdvanced}"/>
+                    <TextBlock local:Loc.Key="L.S.Shell.Advanced" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"/>
                 </DockPanel>
             </Border>
 
@@ -95,18 +95,18 @@
 
             <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
                 <StackPanel>
-                    <Button Style="{StaticResource Fx.NavButton}" Command="{Binding HomeCommand}"
+                    <Button Style="{DynamicResource Fx.NavButton}" Command="{Binding HomeCommand}"
                             Visibility="{Binding HasHome, Converter={StaticResource Fx.BoolToVis}}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE80F;" FontFamily="{StaticResource Fx.IconFont}" Foreground="{StaticResource Fx.TextBrush}" VerticalAlignment="Center"/>
-                            <TextBlock local:Loc.Key="L.S.Nav.Home" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
+                            <TextBlock Text="&#xE80F;" FontFamily="{DynamicResource Fx.IconFont}" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
+                            <TextBlock local:Loc.Key="L.S.Nav.Home" Style="{DynamicResource Fx.Label}" Margin="12,0,0,0"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{StaticResource Fx.NavButton}" Command="{Binding AllSettingsCommand}"
+                    <Button Style="{DynamicResource Fx.NavButton}" Command="{Binding AllSettingsCommand}"
                             Visibility="{Binding IsSimple, Converter={StaticResource Fx.BoolToVis}}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE713;" FontFamily="{StaticResource Fx.IconFont}" Foreground="{StaticResource Fx.TextBrush}" VerticalAlignment="Center"/>
-                            <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{StaticResource Fx.Label}" Margin="12,0,0,0"/>
+                            <TextBlock Text="&#xE713;" FontFamily="{DynamicResource Fx.IconFont}" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
+                            <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{DynamicResource Fx.Label}" Margin="12,0,0,0"/>
                         </StackPanel>
                     </Button>
                     <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{StaticResource NavGroupTemplate}" Focusable="False"/>
@@ -124,11 +124,11 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <WrapPanel>
-                        <Button Style="{StaticResource Fx.NavButton}" Padding="0" Margin="0" Click="OnBreadcrumbGroup"
+                        <Button Style="{DynamicResource Fx.NavButton}" Padding="0" Margin="0" Click="OnBreadcrumbGroup"
                                 Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
-                            <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{StaticResource Fx.Breadcrumb}"/>
+                            <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{DynamicResource Fx.Breadcrumb}"/>
                         </Button>
-                        <TextBlock Text="  ›  " Style="{StaticResource Fx.Breadcrumb}"
+                        <TextBlock Text="  ›  " Style="{DynamicResource Fx.Breadcrumb}"
                                    Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
                         <TextBlock>
                             <TextBlock.Style>
@@ -143,7 +143,7 @@
                             </TextBlock.Style>
                         </TextBlock>
                     </WrapPanel>
-                    <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{StaticResource Fx.PageDesc}"/>
+                    <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{DynamicResource Fx.PageDesc}"/>
                 </StackPanel>
                 <ToggleButton Grid.Column="1" IsChecked="{Binding HelpOpen}" Content="?" FontWeight="SemiBold"
                               Width="36" Height="36" VerticalAlignment="Top" Margin="16,4,0,0"
@@ -151,13 +151,13 @@
             </Grid>
 
             <!-- Save error bar (spec §8.5): stays until a save succeeds. -->
-            <Border DockPanel.Dock="Top" Margin="0,12,0,0" Padding="12,8" CornerRadius="{StaticResource Fx.Radius}"
-                    BorderThickness="3,0,0,0" BorderBrush="{StaticResource Fx.CriticalBrush}" Background="{StaticResource Fx.CardBrush}"
+            <Border DockPanel.Dock="Top" Margin="0,12,0,0" Padding="12,8" CornerRadius="{DynamicResource Fx.Radius}"
+                    BorderThickness="3,0,0,0" BorderBrush="{DynamicResource Fx.CriticalBrush}" Background="{DynamicResource Fx.CardBrush}"
                     Visibility="{Binding HasSaveError, Converter={StaticResource Fx.BoolToVis}}">
                 <DockPanel>
                     <Button DockPanel.Dock="Right" local:Loc.Key="L.S.Shell.Retry" Click="OnRetrySave" Padding="12,4" Margin="12,0,0,0"
                             Visibility="{Binding CanRetrySave, Converter={StaticResource Fx.BoolToVis}}"/>
-                    <TextBlock local:Loc.Key="{Binding SaveErrorKey}" Style="{StaticResource Fx.Label}" VerticalAlignment="Center"/>
+                    <TextBlock local:Loc.Key="{Binding SaveErrorKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"/>
                 </DockPanel>
             </Border>
 
@@ -166,16 +166,16 @@
                  cards still end where the page header ends. -->
             <ScrollViewer x:Name="ContentScroll" VerticalScrollBarVisibility="Auto" Focusable="False" Margin="0,8,-20,0">
                 <ItemsControl x:Name="Sections" ItemsSource="{Binding Current.Sections}"
-                              ItemTemplate="{StaticResource Fx.Section}" Margin="0,0,20,24" Focusable="False"/>
+                              ItemTemplate="{DynamicResource Fx.Section}" Margin="0,0,20,24" Focusable="False"/>
             </ScrollViewer>
         </DockPanel>
 
         <!-- Toast: inside the window, never a separate window, never takes focus (spec §4). -->
         <Border x:Name="ToastHost" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="24"
-                Padding="16,10" CornerRadius="{StaticResource Fx.Radius}" BorderThickness="1"
-                BorderBrush="{StaticResource Fx.BorderBrush}" Background="{StaticResource Fx.CardBrush}"
+                Padding="16,10" CornerRadius="{DynamicResource Fx.Radius}" BorderThickness="1"
+                BorderBrush="{DynamicResource Fx.BorderBrush}" Background="{DynamicResource Fx.CardBrush}"
                 IsHitTestVisible="False" Visibility="Collapsed">
-            <TextBlock x:Name="ToastText" Style="{StaticResource Fx.Label}" MaxWidth="420"/>
+            <TextBlock x:Name="ToastText" Style="{DynamicResource Fx.Label}" MaxWidth="420"/>
         </Border>
 
         <!-- Help pane (Task 9). -->

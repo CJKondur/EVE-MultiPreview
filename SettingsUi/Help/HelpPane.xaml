@@ -9,12 +9,12 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Border BorderThickness="1,0,0,0" BorderBrush="{StaticResource Fx.BorderBrush}" Background="{StaticResource Fx.BgBrush}">
+    <Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource Fx.BorderBrush}" Background="{DynamicResource Fx.BgBrush}">
         <DockPanel Margin="16,16,8,0">
             <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                <Button DockPanel.Dock="Right" Content="&#xE711;" FontFamily="{StaticResource Fx.IconFont}"
+                <Button DockPanel.Dock="Right" Content="&#xE711;" FontFamily="{DynamicResource Fx.IconFont}"
                         Click="OnClose" Width="32" Height="32" Padding="0" ToolTip="{DynamicResource L.S.Help.Close}"/>
-                <TextBlock local:Loc.Key="L.S.Help.Title" Style="{StaticResource Fx.Label}" FontSize="20" FontWeight="SemiBold"/>
+                <TextBlock local:Loc.Key="L.S.Help.Title" Style="{DynamicResource Fx.Label}" FontSize="20" FontWeight="SemiBold"/>
             </DockPanel>
             <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto" Focusable="False">
                 <StackPanel x:Name="Body" Margin="0,0,8,24"/>

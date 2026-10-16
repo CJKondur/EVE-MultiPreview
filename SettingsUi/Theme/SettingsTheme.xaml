@@ -14,8 +14,8 @@
     <!-- The one filled button of a dialog (Next, Update now): accent with dark text (Plan 4). Hover and press dim it;
          keyboard focus keeps WPF's own focus rectangle. -->
     <Style x:Key="Fx.PrimaryButton" TargetType="Button">
-        <Setter Property="Background" Value="{StaticResource Fx.AccentBrush}"/>
-        <Setter Property="Foreground" Value="{StaticResource Fx.OnAccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.AccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.OnAccentBrush}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="16,6"/>
         <Setter Property="MinHeight" Value="32"/>
@@ -45,9 +45,9 @@
     <!-- A plain button for windows without the Fluent theme (the quick-switch wheel draws itself on a transparent
          window, where ThemeMode can't be used). -->
     <Style x:Key="Fx.QuietButton" TargetType="Button">
-        <Setter Property="Background" Value="{StaticResource Fx.ControlBrush}"/>
-        <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Fx.BorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.ControlBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
         <Setter Property="Padding" Value="12,4"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
@@ -59,7 +59,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource Fx.FlyoutBorderBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.FlyoutBorderBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
@@ -72,16 +72,16 @@
 
     <!-- A setting card: 4 px gap below each card (spec §7). -->
     <Style x:Key="Fx.Card" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource Fx.CardBrush}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource Fx.BorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{StaticResource Fx.Radius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Fx.Radius}"/>
         <Setter Property="Padding" Value="16,12"/>
         <Setter Property="Margin" Value="0,0,0,4"/>
         <Setter Property="MinHeight" Value="64"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{StaticResource Fx.CardHoverBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource Fx.CardHoverBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -89,15 +89,15 @@
     <Style x:Key="Fx.PageTitle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="28"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     <Style x:Key="Fx.Breadcrumb" TargetType="TextBlock" BasedOn="{StaticResource Fx.PageTitle}">
-        <Setter Property="Foreground" Value="{StaticResource Fx.TextSecondaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
     </Style>
     <Style x:Key="Fx.PageDesc" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Foreground" Value="{StaticResource Fx.TextSecondaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="0,4,0,0"/>
     </Style>
@@ -105,19 +105,19 @@
     <Style x:Key="Fx.SectionTitle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
         <Setter Property="Margin" Value="0,20,0,8"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     <Style x:Key="Fx.Label" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     <!-- A missing description key leaves Text empty: collapse instead of leaving a blank line. -->
     <Style x:Key="Fx.Desc" TargetType="TextBlock">
         <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Foreground" Value="{StaticResource Fx.TextSecondaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="0,2,0,0"/>
         <Style.Triggers>
@@ -128,7 +128,7 @@
     </Style>
     <Style x:Key="Fx.Error" TargetType="TextBlock">
         <Setter Property="FontSize" Value="12"/>
-        <Setter Property="Foreground" Value="{StaticResource Fx.CriticalBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.CriticalBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin" Value="0,4,0,0"/>
     </Style>

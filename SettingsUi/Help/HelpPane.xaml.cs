@@ -46,7 +46,9 @@ public partial class HelpPane : System.Windows.Controls.UserControl
             var body = _resolve(topic.BodyKey);
             if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(body)) continue;   // spec §8.5: hide, don't show blank
             var panel = new StackPanel { Margin = new Thickness(0, 16, 0, 0) };
-            panel.Children.Add(new TextBlock { Text = title, Style = (Style)FindResource("Fx.Label"), FontWeight = FontWeights.SemiBold });
+            var heading = new TextBlock { Text = title, FontWeight = FontWeights.SemiBold };
+            heading.SetResourceReference(StyleProperty, "Fx.Label");
+            panel.Children.Add(heading);
             AddBlocks(body, panel);
             Body.Children.Add(panel);
             TopicCount++;
@@ -76,7 +78,8 @@ public partial class HelpPane : System.Windows.Controls.UserControl
         if (string.IsNullOrWhiteSpace(text)) return;
         foreach (var block in HelpMarkup.Parse(text))
         {
-            var tb = new TextBlock { Style = (Style)FindResource("Fx.Label"), Margin = new Thickness(block is HelpBullet ? 12 : 0, 6, 0, 0) };
+            var tb = new TextBlock { Margin = new Thickness(block is HelpBullet ? 12 : 0, 6, 0, 0) };
+            tb.SetResourceReference(StyleProperty, "Fx.Label");
             if (block is HelpBullet) tb.Inlines.Add(new Run("•  "));
             foreach (var run in block.Runs)
                 tb.Inlines.Add(run.Bold ? new Bold(new Run(run.Text)) : new Run(run.Text));

@@ -15,24 +15,24 @@
         </ResourceDictionary>
     </Window.Resources>
     <StackPanel Margin="24">
-        <TextBlock x:Name="TitleText" Style="{StaticResource Fx.Label}" FontSize="20" FontWeight="SemiBold"/>
-        <TextBlock local:Loc.Key="L.S.Hotkey.Prompt" Style="{StaticResource Fx.Desc}" Margin="0,8,0,0"/>
-        <Border Style="{StaticResource Fx.Card}" Margin="0,16,0,0" MinHeight="56">
-            <TextBlock Text="{Binding Display}" FontFamily="{StaticResource Fx.MonoFont}" FontSize="20"
-                       Foreground="{StaticResource Fx.TextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock x:Name="TitleText" Style="{DynamicResource Fx.Label}" FontSize="20" FontWeight="SemiBold"/>
+        <TextBlock local:Loc.Key="L.S.Hotkey.Prompt" Style="{DynamicResource Fx.Desc}" Margin="0,8,0,0"/>
+        <Border Style="{DynamicResource Fx.Card}" Margin="0,16,0,0" MinHeight="56">
+            <TextBlock Text="{Binding Display}" FontFamily="{DynamicResource Fx.MonoFont}" FontSize="20"
+                       Foreground="{DynamicResource Fx.TextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
-        <TextBlock local:Loc.Key="L.S.Hotkey.Unusable" Foreground="{StaticResource Fx.CriticalBrush}" TextWrapping="Wrap"
+        <TextBlock local:Loc.Key="L.S.Hotkey.Unusable" Foreground="{DynamicResource Fx.CriticalBrush}" TextWrapping="Wrap"
                    Margin="0,12,0,0" Visibility="{Binding Unusable, Converter={StaticResource BoolToVis}}"/>
         <StackPanel Visibility="{Binding HasClashes, Converter={StaticResource BoolToVis}}" Margin="0,12,0,0">
-            <TextBlock local:Loc.Key="L.S.Hotkey.UsedBy" Foreground="{StaticResource Fx.WarningBrush}" FontWeight="SemiBold"/>
+            <TextBlock local:Loc.Key="L.S.Hotkey.UsedBy" Foreground="{DynamicResource Fx.WarningBrush}" FontWeight="SemiBold"/>
             <ItemsControl ItemsSource="{Binding Clashes}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Label}" Style="{StaticResource Fx.Label}" Margin="12,2,0,0"/>
+                        <TextBlock Text="{Binding Label}" Style="{DynamicResource Fx.Label}" Margin="12,2,0,0"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <TextBlock local:Loc.Key="L.S.Hotkey.UsedByNote" Style="{StaticResource Fx.Desc}"/>
+            <TextBlock local:Loc.Key="L.S.Hotkey.UsedByNote" Style="{DynamicResource Fx.Desc}"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
             <Button local:Loc.Key="L.S.Hotkey.Clear" Click="OnClear" Margin="0,0,8,0" Padding="16,6"/>
