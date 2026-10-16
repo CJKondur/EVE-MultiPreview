@@ -109,8 +109,11 @@ public partial class SettingsShell : Window, ISettingsHost
         SourceInitialized += (_, _) => UpdateMinWidth();
         DpiChanged += (_, _) => UpdateMinWidth();
 
+        // A change of look (UiStyles.Set) may move the scroll bar into a column of its own or over the page.
+        Action lookChanged = () => { if (Dispatcher.CheckAccess()) PlaceThePage(); };
+        UiStyles.Changed += lookChanged;
         Closing += (_, _) => { SaveSize(); Vm.OnClosing(); };
-        Closed += (_, _) => { _clock.Stop(); _toastTimer.Stop(); _highlightTimer.Stop(); Vm.Dispose(); };
+        Closed += (_, _) => { _clock.Stop(); _toastTimer.Stop(); _highlightTimer.Stop(); Vm.Dispose(); UiStyles.Changed -= lookChanged; };
     }
 
     public ShellVM Vm { get; }

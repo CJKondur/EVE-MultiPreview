@@ -81,6 +81,74 @@ public static class UiStyles
     /// setting for it until S2.</summary>
     public static UiStyle Current { get; private set; } = Windows11;
 
+    /// <summary>The look shown (spec §5.3): the current one. S4 makes it High contrast while a Windows contrast theme is
+    /// on and the player wants that.</summary>
+    public static UiStyle Effective => Current;
+
+    /// <summary>Raised after a change of look, on the thread that made it. A handler that owns something of another
+    /// thread leaves it alone (the menus, the hub and the settings window check).</summary>
+    public static event Action? Changed;
+
+    public static void Set(string? id) => Set(Find(id));
+
+    /// <summary>Makes <paramref name="style"/> the look of the app at once (spec §5.3): the palette of the surfaces drawn in
+    /// code, slot 0 and the style dictionary of every window this thread attached (the base is the same for every look),
+    /// the title bars; then Changed. Nothing closes, nothing is rebuilt.</summary>
+    public static void Set(UiStyle style)
+    {
+        if (style == Current) return;
+        Current = style;
+        UiPalette.Use(UiPalette.From(style.Dictionary));
+        foreach (var window in AttachedWindows()) Restyle(window);
+        Changed?.Invoke();
+    }
+
+    /// <summary>How many live windows this thread has attached (tests).</summary>
+    public static int AttachedHere => AttachedWindows().Count();
+
+    private static IEnumerable<Window> AttachedWindows()
+    {
+        if (_attached == null) return Array.Empty<Window>();
+        _attached.RemoveAll(r => !r.TryGetTarget(out _));
+        return _attached.Select(r => r.TryGetTarget(out var w) ? w : null).OfType<Window>().ToList();
+    }
+
+    /// <summary>Puts the current look's slots where the old ones are. Only a slot that changes is touched: a switch between
+    /// two looks that share slot 0 swaps the style dictionary alone, so the page's lists keep their cards. A Fluent window
+    /// has four slots (the keyed buttons after the style), a window of a look without Fluent three: the fourth comes and
+    /// goes with Fluent.</summary>
+    private static void Restyle(Window window)
+    {
+        var old = (ResourceDictionary[])window.GetValue(SlotsProperty);
+        var kind = (StyledAs)window.GetValue(KindProperty);
+        var slots = SlotsFor(Current, kind);
+        var merged = window.Resources.MergedDictionaries;
+        for (int i = 0; i < Math.Max(old.Length, slots.Length); i++)
+        {
+            var was = i < old.Length ? old[i] : null;
+            var now = i < slots.Length ? slots[i] : null;
+            if (ReferenceEquals(was, now)) continue;
+            int at = was == null ? -1 : IndexOfSlot(merged, was);
+            if (now == null) { if (at >= 0) merged.RemoveAt(at); }
+            else if (at >= 0) merged[at] = now;
+            else merged.Insert(Math.Min(i, merged.Count), now);
+        }
+        window.SetValue(SlotsProperty, slots);
+        if (kind == StyledAs.Window) TitleBar.Apply(window);
+    }
+
+    /// <summary>Where a slot is merged: the dictionary itself, or for slot 0 of a Fluent look the dictionary with Fluent's
+    /// Source. WPF replaces the applier's Fluent dictionary with a copy of its own in a shown window (measured, Task 8), so
+    /// the applier's is no longer there to be found by reference.</summary>
+    private static int IndexOfSlot(IList<ResourceDictionary> merged, ResourceDictionary slot)
+    {
+        int at = merged.IndexOf(slot);
+        if (at >= 0 || slot.Source == null) return at;
+        for (int i = 0; i < merged.Count; i++)
+            if (merged[i].Source?.OriginalString == slot.Source.OriginalString) return i;
+        return -1;
+    }
+
     [ThreadStatic] private static ResourceDictionary? _base, _kit, _empty;
 
     /// <summary>The base, one per thread, shared by every window of the thread.</summary>
@@ -112,7 +180,9 @@ public static class UiStyles
         for (int i = 0; i < slots.Length; i++) merged.Insert(i, slots[i]);
         window.SetValue(SlotsProperty, slots);
         window.SetValue(KindProperty, kind);
-        (_attached ??= new List<WeakReference<Window>>()).Add(new WeakReference<Window>(window));
+        var remembered = new WeakReference<Window>(window);
+        (_attached ??= new List<WeakReference<Window>>()).Add(remembered);
+        window.Closed += (_, _) => _attached?.Remove(remembered);   // a closed window is never restyled
         if (kind == StyledAs.Window) window.SourceInitialized += (_, _) => TitleBar.Apply(window);   // a surface has no title bar
     }
 

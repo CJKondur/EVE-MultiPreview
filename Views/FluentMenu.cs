@@ -43,6 +43,8 @@ public static class FluentMenu
 
     private static readonly ConditionalWeakTable<ToolStrip, object> Styled = new();
 
+    static FluentMenu() => SettingsUi.UiStyles.Changed += Restyle;   // a change of look gives every styled menu its font and corners
+
     /// <summary>Glyph bitmaps shared by every item that draws the same glyph, colour and size. Menus are rebuilt on each
     /// open and ToolStripItemCollection.Clear() doesn't dispose images, so per-item bitmaps would pile up. Never disposed.</summary>
     private static readonly ConcurrentDictionary<(char, int, int, int), Bitmap> GlyphCache = new();

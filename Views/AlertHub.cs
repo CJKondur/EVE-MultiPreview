@@ -128,6 +128,7 @@ public class AlertHub : IDisposable
         };
         SettingsUi.UiStyles.Attach(_hubWindow, SettingsUi.StyledAs.Surface);   // the look, never Fluent (plan S1, ruling 7)
         _hub = AlertHubVisuals.BuildHub();
+        SettingsUi.UiStyles.Changed += OnLookChanged;
         var hubContainer = _hub.Bell;
         _hubWindow.Content = _hub.Root;
 
@@ -680,8 +681,16 @@ public class AlertHub : IDisposable
     public Color ToastColor(string alertType, string severity) =>
         ThumbnailManager.ParseColor(AlertColours.Resolve(_settings, alertType, severity));
 
+    /// <summary>A change of look: the bell is round or square (Fx.Hub.Round); its colours follow by themselves.</summary>
+    private void OnLookChanged()
+    {
+        if (!_hubWindow.Dispatcher.CheckAccess()) return;
+        _hub.Bell.CornerRadius = AlertHubVisuals.BellCorners;
+    }
+
     public void Dispose()
     {
+        SettingsUi.UiStyles.Changed -= OnLookChanged;
         _focusTimer?.Stop();
         CloseToastMenu();
         foreach (var toast in _activeToasts.ToList())
