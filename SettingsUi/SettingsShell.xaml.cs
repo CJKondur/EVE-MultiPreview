@@ -41,6 +41,7 @@ public partial class SettingsShell : Window, ISettingsHost
     public SettingsShell(SettingsService service, AppServices services, IDebounceTimer timer, IReadOnlyList<PageDef> pages,
         Func<string, PageDef?>? resolve = null)
     {
+        UiStyles.Attach(this);   // before the XAML is read: it names the base's converters (plan S1, ruling 3)
         InitializeComponent();
         _pages = pages;
         _svc = service;

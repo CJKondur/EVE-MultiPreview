@@ -2,62 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:EveMultiPreview.SettingsUi"
-        ThemeMode="Dark"
         Background="{DynamicResource Fx.BgBrush}"
         Width="1240" Height="800" MinWidth="960" MinHeight="480"
         WindowStartupLocation="CenterScreen" ShowInTaskbar="True">
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <local:SettingsTheme/>
-                <local:SettingCards/>
-            </ResourceDictionary.MergedDictionaries>
-
-            <!-- Navigation entry: icon + text, accent bar when current. -->
-            <Style x:Key="Fx.NavButton" TargetType="Button">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                <Setter Property="Padding" Value="12,8"/>
-                <Setter Property="Margin" Value="0,1"/>
-                <Setter Property="Cursor" Value="Hand"/>
-            </Style>
-
-            <!-- A navigation group: its header, and its pages while it is expanded. Used by the scrolling list and by
-                 App settings at the bottom left. -->
-            <DataTemplate x:Key="NavGroupTemplate">
-                <StackPanel>
-                    <Button Style="{DynamicResource Fx.NavButton}" Command="{Binding OpenCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource Fx.IconFont}"
-                                       Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
-                            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" Margin="12,0,0,0"/>
-                        </StackPanel>
-                    </Button>
-                    <ItemsControl ItemsSource="{Binding Pages}" Focusable="False"
-                                  Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Style="{DynamicResource Fx.NavButton}" Command="{Binding OpenCommand}" Padding="40,6,12,6">
-                                    <Grid>
-                                        <Border x:Name="Bar" Width="3" Height="16" CornerRadius="2" HorizontalAlignment="Left"
-                                                Margin="-14,0,0,0" Background="{DynamicResource Fx.AccentBrush}" Visibility="Collapsed"/>
-                                        <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}"/>
-                                    </Grid>
-                                </Button>
-                                <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                        <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </DataTemplate.Triggers>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </DataTemplate>
-        </ResourceDictionary>
-    </Window.Resources>
-
     <Grid x:Name="Root" Background="{DynamicResource Fx.BgBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="264"/>
@@ -67,7 +14,7 @@
 
         <!-- ═══ Navigation pane (spec §4) ═══ -->
         <DockPanel Grid.Column="0" Margin="8,8,4,8">
-            <Button x:Name="ProfileButton" DockPanel.Dock="Top" Style="{DynamicResource Fx.NavButton}" Click="OnProfileMenu">
+            <Button x:Name="ProfileButton" DockPanel.Dock="Top" Style="{DynamicResource Fx.Nav.Entry}" Click="OnProfileMenu">
                 <StackPanel Orientation="Horizontal">
                     <Border Width="32" Height="32" CornerRadius="16" Background="{DynamicResource Fx.AccentBrush}">
                         <TextBlock Text="{Binding ProfileInitial}" Foreground="#FF000000" FontWeight="SemiBold"
@@ -92,25 +39,25 @@
 
             <!-- App settings: apart at the bottom left, just above the switch, in both modes (owner, 2026-10-09). -->
             <ContentControl DockPanel.Dock="Bottom" Margin="0,8,0,0" Focusable="False"
-                            Content="{Binding AppGroup}" ContentTemplate="{StaticResource NavGroupTemplate}"/>
+                            Content="{Binding AppGroup}" ContentTemplate="{DynamicResource Fx.Nav.Group}"/>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
                 <StackPanel>
-                    <Button Style="{DynamicResource Fx.NavButton}" Command="{Binding HomeCommand}"
+                    <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding HomeCommand}"
                             Visibility="{Binding HasHome, Converter={StaticResource Fx.BoolToVis}}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE80F;" FontFamily="{DynamicResource Fx.IconFont}" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
                             <TextBlock local:Loc.Key="L.S.Nav.Home" Style="{DynamicResource Fx.Label}" Margin="12,0,0,0"/>
                         </StackPanel>
                     </Button>
-                    <Button Style="{DynamicResource Fx.NavButton}" Command="{Binding AllSettingsCommand}"
+                    <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding AllSettingsCommand}"
                             Visibility="{Binding IsSimple, Converter={StaticResource Fx.BoolToVis}}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE713;" FontFamily="{DynamicResource Fx.IconFont}" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
                             <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{DynamicResource Fx.Label}" Margin="12,0,0,0"/>
                         </StackPanel>
                     </Button>
-                    <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{StaticResource NavGroupTemplate}" Focusable="False"/>
+                    <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False"/>
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
@@ -125,7 +72,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <WrapPanel>
-                        <Button Style="{DynamicResource Fx.NavButton}" Padding="0" Margin="0" Click="OnBreadcrumbGroup"
+                        <Button Style="{DynamicResource Fx.Nav.Entry}" Padding="0" Margin="0" Click="OnBreadcrumbGroup"
                                 Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
                             <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{DynamicResource Fx.Breadcrumb}"/>
                         </Button>

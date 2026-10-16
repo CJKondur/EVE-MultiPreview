@@ -1,0 +1,7 @@
+<ResourceDictionary x:Class="EveMultiPreview.SettingsUi.KitTheme"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- The kit (UI styles spec §5.1, §6.3): the 22 standard controls in the shapes the looks without Fluent pick, each
+         against tokens. Slot 0 of a window of such a look. S1 has no such look: the kit is empty until S2. -->
+</ResourceDictionary>
