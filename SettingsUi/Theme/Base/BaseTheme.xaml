@@ -691,6 +691,28 @@
 
     <!-- ═══ The look gallery (UI styles spec §9.2) ═══ -->
 
+    <!-- A look's miniature: the look's own templates over a LookSample, on a gallery card's subtree in that look
+         (UiStyles.Scope), at about 60 % on the page. 420 wide: at 320 Windows 11's slider card had no room left for its label (measured). Two navigation entries (the open one first), a section heading, a setting with
+         its on/off control, a slider, a dropdown, a number box and a button. Inert (PreviewHost). -->
+    <DataTemplate x:Key="Fx.Preview">
+        <StackPanel Width="420" Background="{DynamicResource Fx.BgBrush}">
+            <Border Background="{DynamicResource Fx.NavBrush}" Padding="4">
+                <ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{DynamicResource Fx.Nav.Page}" Focusable="False"/>
+            </Border>
+            <StackPanel Margin="10,0,10,10">
+                <TextBlock local:Loc.Key="{Binding SectionTitleKey}" Style="{DynamicResource Fx.SectionTitle}"/>
+                <ContentPresenter Content="{Binding Toggle}" ContentTemplate="{DynamicResource Fx.Card.Toggle}"/>
+                <ContentPresenter Content="{Binding Slider}" ContentTemplate="{DynamicResource Fx.Card.Slider}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                    <ComboBox MinWidth="130" ItemsSource="{Binding Choice.Options}" SelectedItem="{Binding Choice.Selected}"
+                              ItemTemplate="{DynamicResource Fx.OptionText}"/>
+                    <TextBox Width="44" Margin="8,0,0,0" Text="{Binding Number.Text, Mode=OneWay}"/>
+                    <Button local:Loc.Key="L.S.Shell.Browse" Margin="8,0,0,0" Padding="10,2"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+
     <!-- A card of the gallery: a radio button of the group "Look", drawn in the window's own look (what it holds shows its
          look). The current look's card has three cues, none of them colour alone: an accent outline (two lines), a check
          mark and the word Current. Not a contract name: the page's own part, the same in every look. -->

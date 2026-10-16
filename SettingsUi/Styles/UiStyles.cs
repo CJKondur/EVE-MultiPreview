@@ -195,6 +195,40 @@ public static class UiStyles
     /// <summary>Slot 0 of a surface of a Fluent look: nothing (a surface never takes Fluent, ruling 7).</summary>
     private static ResourceDictionary Empty => _empty ??= new ResourceDictionary();
 
+    [ThreadStatic] private static ResourceDictionary? _blank;
+
+    /// <summary>An empty implicit style for every type Fluent's dictionary styles and the kit does not (a TextBlock, a
+    /// Label, a Window …): merged first into a scope of a look without Fluent, it keeps the window's Fluent from reaching
+    /// in (spec §5.3; measured in the prototype: without it, it leaks). One per thread.</summary>
+    private static ResourceDictionary Blank
+    {
+        get
+        {
+            if (_blank != null) return _blank;
+            var blank = new ResourceDictionary();
+            foreach (var type in Windows11.Controls!.Keys.OfType<Type>())
+                if (!Kit.Contains(type)) blank[type] = new Style(type);
+            return _blank = blank;
+        }
+    }
+
+    /// <summary>Gives one subtree the look of <paramref name="style"/>, whatever its window shows (spec §5.3: a gallery
+    /// card's miniature): a look with Fluent takes Fluent's dictionary, a look without it the blank styles and the kit;
+    /// then the base, the look's own dictionary, and a Fluent look's keyed buttons: the base again, so a template the
+    /// window's look overrides (Classic's cards, its navigation entry) is the base's again here, unless this look overrides
+    /// it too. The subtree's text takes the look's colour and font.</summary>
+    public static void Scope(FrameworkElement element, UiStyle style)
+    {
+        var merged = element.Resources.MergedDictionaries;
+        if (style.UsesFluent) merged.Add(style.Controls!);
+        else { merged.Add(Blank); merged.Add(Kit); }
+        merged.Add(Base);
+        merged.Add(style.Dictionary);
+        if (style.UsesFluent && style.Keyed is { } keyed) merged.Add(keyed);
+        element.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "Fx.TextBrush");
+        UiFont.Apply(element, Services.LocalizationService.CurrentLanguage);
+    }
+
     private static readonly DependencyProperty SlotsProperty = DependencyProperty.RegisterAttached(
         "Slots", typeof(ResourceDictionary[]), typeof(UiStyles), new PropertyMetadata(null));
 

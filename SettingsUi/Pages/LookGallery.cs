@@ -25,6 +25,7 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
     private readonly Action<UiStyle> _pick;
     private readonly WrapPanel _panel = new();
     private readonly List<RadioButton> _cards = new();
+    private readonly LookSample _sample = new();
     private bool _marking, _listening;
 
     /// <summary>App settings › Look: the saved look is the settings file's; a pick saves it, switches the app and says so.</summary>
@@ -66,7 +67,7 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
         desc.SetResourceReference(StyleProperty, "Fx.Desc");
         Loc.SetKey(desc, "L.S.Style." + style.Id + ".Desc");
         var body = new StackPanel();
-        body.Children.Add(Placeholder(style));
+        body.Children.Add(Preview(style));
         body.Children.Add(name);
         body.Children.Add(desc);
         var card = new RadioButton { GroupName = "Look", Content = body, Tag = style, Width = width };
@@ -97,6 +98,18 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
         };
         Loc.SetKey(text, "L.S.Style." + style.Id);
         return new Border { Height = 120, Background = (Brush)look["Fx.BgBrush"], Child = text, IsHitTestVisible = false };
+    }
+
+    /// <summary>A look's miniature (spec §9.2): Fx.Preview over the gallery's sample, in that look (UiStyles.Scope), scaled
+    /// to the card, inert. Its template is the look's own Fx.Preview or the base's, taken once: a card shows one look for
+    /// its life, whatever the window shows. (Taken by a resource reference instead, a gallery made inside a page's
+    /// template sets it while that template is being made, which WPF does not survive: measured while writing plan S2.)</summary>
+    private FrameworkElement Preview(UiStyle style)
+    {
+        var miniature = new ContentPresenter { Content = _sample };
+        UiStyles.Scope(miniature, style);
+        miniature.ContentTemplate = (DataTemplate)(style.Dictionary.Contains("Fx.Preview") ? style.Dictionary["Fx.Preview"] : UiStyles.Base["Fx.Preview"]);
+        return new PreviewHost { Child = new Viewbox { Child = miniature, Stretch = System.Windows.Media.Stretch.Uniform, StretchDirection = StretchDirection.DownOnly } };
     }
 
     /// <summary>Checks the card of the saved look (an unknown id: the default look's), without picking it again.</summary>
