@@ -97,6 +97,7 @@
         <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
         <Setter Property="FontStyle" Value="{DynamicResource Fx.Style.Title}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+        <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Title}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     <Style x:Key="Fx.Breadcrumb" TargetType="TextBlock" BasedOn="{StaticResource Fx.PageTitle}">
@@ -114,6 +115,7 @@
         <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Section}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.SectionTextBrush}"/>
         <Setter Property="Margin" Value="{DynamicResource Fx.Section.Gap}"/>
+        <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Section}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
     <Style x:Key="Fx.Label" TargetType="TextBlock">
@@ -441,6 +443,7 @@
          semibold. -->
     <Style x:Key="Fx.Caption" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Caption}"/>
+        <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Caption}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Section}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>

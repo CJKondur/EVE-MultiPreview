@@ -9,12 +9,17 @@ namespace EveMultiPreview.SettingsUi;
 public sealed class NavPageVM : ObservableObject
 {
     private bool _selected;
-    public NavPageVM(PageDef page, Action<string> navigate)
+    public NavPageVM(PageDef page, Action<string> navigate, int ordinal = 0)
     {
         Page = page;
+        Ordinal = ordinal;
         OpenCommand = new RelayCommand(_ => navigate(page.Id));
     }
     public PageDef Page { get; }
+    /// <summary>The page's place in its group, from 1 (spec §5.4: a look may number its index).</summary>
+    public int Ordinal { get; }
+    /// <summary>Its group's place in the navigation.</summary>
+    public int GroupOrdinal { get; internal set; }
     public string TitleKey => Page.TitleKey;
     public bool IsSelected { get => _selected; set { _selected = value; Raise(); } }
     public ICommand OpenCommand { get; }
@@ -23,13 +28,17 @@ public sealed class NavPageVM : ObservableObject
 public sealed class NavGroupVM : ObservableObject
 {
     private bool _expanded;
-    public NavGroupVM(NavGroup group, IReadOnlyList<NavPageVM> pages, Action<string> navigate)
+    public NavGroupVM(NavGroup group, IReadOnlyList<NavPageVM> pages, Action<string> navigate, int ordinal = 0)
     {
         Group = group;
         Pages = pages;
+        Ordinal = ordinal;
+        foreach (var page in pages) page.GroupOrdinal = ordinal;
         OpenCommand = new RelayCommand(_ => navigate(pages[0].Page.Id));
     }
     public NavGroup Group { get; }
+    /// <summary>The group's place in the navigation, Home being 1 when there is one (spec §5.4).</summary>
+    public int Ordinal { get; }
     public string TitleKey => "L.S.Nav." + Group;
     /// <summary>Segoe Fluent Icons glyph (falls back to Segoe MDL2 Assets on Windows 10).</summary>
     public string Icon => Group switch
@@ -65,9 +74,11 @@ public sealed class ShellVM : ObservableObject, IDisposable
         _resolve = resolve;
         Pages = pages;
         Home = pages.FirstOrDefault(p => p.Group == NavGroup.Home);
+        int firstGroup = Home != null ? 2 : 1;   // Home is entry 1 of the navigation when there is one
         Groups = pages.Where(p => p.Group != NavGroup.Home)
                       .GroupBy(p => p.Group).OrderBy(g => g.Key)
-                      .Select(g => new NavGroupVM(g.Key, g.Select(p => new NavPageVM(p, id => Navigate(id))).ToList(), id => Navigate(id)))
+                      .Select((g, i) => new NavGroupVM(g.Key, g.Select((p, j) => new NavPageVM(p, id => Navigate(id), j + 1)).ToList(),
+                          id => Navigate(id), firstGroup + i))
                       .ToList();
         HomeCommand = new RelayCommand(_ => { if (Home != null) Navigate(Home.Id); });
         AllSettingsCommand = new RelayCommand(_ => AllSettings());
@@ -82,6 +93,8 @@ public sealed class ShellVM : ObservableObject, IDisposable
     public IReadOnlyList<NavGroupVM> Groups { get; }
     public PageDef? Home { get; }
     public bool HasHome => Home != null;
+    /// <summary>Home's place in the navigation: 1, or 0 without Home.</summary>
+    public int HomeOrdinal => HasHome ? 1 : 0;
     public PageVM? Current { get; private set; }
     /// <summary>The breadcrumb's first part: a dynamic page's parent ("Characters"), else the group.</summary>
     public string? GroupTitleKey =>
