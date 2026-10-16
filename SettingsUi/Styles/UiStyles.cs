@@ -105,12 +105,14 @@ public static class UiStyles
     public static void Set(UiStyle style)
     {
         if (style == Current) return;
-        Changing?.Invoke();
-        Current = style;
-        UiPalette.Use(UiPalette.From(style.Dictionary));
         System.Runtime.ExceptionServices.ExceptionDispatchInfo? failure = null;
         try
         {
+            // Inside the try: a Changing handler (or the palette) that throws still gets Changed raised, so a window that
+            // kept its place gives it back (Task 7 review, Minor 5).
+            Changing?.Invoke();
+            Current = style;
+            UiPalette.Use(UiPalette.From(style.Dictionary));
             foreach (var window in AttachedWindows())
             {
                 try { Restyle(window); }

@@ -149,32 +149,116 @@ public partial class SettingsShell : Window, ISettingsHost
         _sections.Margin = overlay ? new Thickness(0, 0, 20, 24) : new Thickness(0, 0, 0, 24);
     }
 
+    private bool _kept;
     private double _keptOffset;
+    private ItemVM? _keptTopItem;
+    private double _keptTopDistance;
     private IInputElement? _keptFocus;
+    private ItemVM? _keptFocusItem;
     private bool _keptKeyboard;
+    private bool _keptFocusInView;
+    private double _placedOffset = double.NaN;
+    private PageVM? _placedPage;
 
-    /// <summary>Before a change of look: the page's scroll and the element with the keyboard's focus (spec §9.2: "the
-    /// gallery stays where it was scrolled"; Review Focus 2).</summary>
+    /// <summary>Before a change of look: the setting at the top of the page and how far it is from the top (spec §9.2:
+    /// "stays where it was scrolled" is the content: Classic's rows are not the height of Windows 11's cards), and the
+    /// element with the keyboard's focus and its setting (Review Focus 2).</summary>
     private void KeepThePlace()
     {
+        _kept = true;
         _keptOffset = _page.VerticalOffset;
+        // Not scrolled since the last change of look put the page in place: the same setting stays the anchor, so a
+        // switch there and back comes back to the very offset (another look may show an earlier card first).
+        bool unmoved = _keptTopItem != null && Vm.Current == _placedPage && Math.Abs(_page.VerticalOffset - _placedOffset) < 0.5
+            && CardOf(_keptTopItem) != null;
+        if (!unmoved)
+        {
+            _keptTopItem = null;
+            foreach (var (item, card) in VisibleCards())
+            {
+                var distance = TopInContent(card) - _page.VerticalOffset;
+                if (distance < -0.5) continue;
+                _keptTopItem = item;
+                _keptTopDistance = distance;
+                break;
+            }
+        }
         _keptFocus = FocusManager.GetFocusedElement(this);
+        _keptFocusItem = ItemOf(_keptFocus as DependencyObject);
         _keptKeyboard = IsKeyboardFocusWithin;
+        _keptFocusInView = _keptFocus is FrameworkElement shown && IsInView(shown);
     }
 
-    /// <summary>After a change of look: lays the window out in the new look, scrolls the page back, and gives the focus
-    /// back to the element that had it if it is still in the window (a card the new look draws anew is not).</summary>
+    /// <summary>After a change of look: lays the window out in the new look, scrolls the setting that was at the top back
+    /// to where it was (or, with none, the page back to its offset), and gives the focus back: to the element that had it
+    /// if it is still in the window, else to the new control of the same setting (a card the new look draws anew), else
+    /// to nothing. A focused element that was in view and is not now is brought into it.</summary>
     private void GiveThePlaceBack()
     {
+        if (!_kept) return;   // a Changing handler before this window's threw: nothing was kept
+        _kept = false;
         UpdateLayout();
-        _page.ScrollToVerticalOffset(_keptOffset);
+        var anchor = _keptTopItem == null ? null : CardOf(_keptTopItem);
+        var offset = anchor != null ? TopInContent(anchor) - _keptTopDistance : _keptOffset;
+        _page.ScrollToVerticalOffset(Math.Clamp(offset, 0, Math.Max(0, _page.ScrollableHeight)));
         UpdateLayout();
+        _placedOffset = _page.VerticalOffset;
+        _placedPage = Vm.Current;
+        IInputElement? focus = null;
         if (_keptFocus is DependencyObject kept && PresentationSource.FromDependencyObject(kept) != null && Window.GetWindow(kept) == this)
+            focus = _keptFocus;
+        else if (_keptFocusItem != null && CardOf(_keptFocusItem) is { } card)
+            focus = FirstFocusable(card);
+        if (_keptFocus != null)
         {
-            FocusManager.SetFocusedElement(this, _keptFocus);
-            if (_keptKeyboard) Keyboard.Focus(_keptFocus);
+            FocusManager.SetFocusedElement(this, focus);
+            if (focus != null && _keptKeyboard) Keyboard.Focus(focus);
+            if (_keptFocusInView && focus is FrameworkElement shown && !IsInView(shown)) { shown.BringIntoView(); UpdateLayout(); }
         }
         _keptFocus = null;
+        _keptFocusItem = null;
+    }
+
+    /// <summary>The page's cards that are shown, top to bottom.</summary>
+    private IEnumerable<(ItemVM Item, FrameworkElement Card)> VisibleCards()
+    {
+        foreach (var section in Vm.Current?.Sections ?? (IReadOnlyList<SectionVM>)Array.Empty<SectionVM>())
+            foreach (var item in section.Items)
+                if (section.Cards.ItemContainerGenerator.ContainerFromItem(item) is FrameworkElement { IsVisible: true } card
+                    && card.ActualHeight > 0 && card.IsDescendantOf(_sections))
+                    yield return (item, card);
+    }
+
+    private FrameworkElement? CardOf(ItemVM item) => VisibleCards().FirstOrDefault(c => c.Item == item).Card;
+
+    /// <summary>The top of an element in the page's content (the section list), whatever the page is scrolled to.</summary>
+    private double TopInContent(FrameworkElement element) => element.TransformToAncestor(_sections).Transform(new System.Windows.Point()).Y;
+
+    private bool IsInView(FrameworkElement element)
+    {
+        if (!element.IsDescendantOf(_sections)) return true;
+        var top = TopInContent(element) - _page.VerticalOffset;
+        return top >= -0.5 && top + element.ActualHeight <= _page.ViewportHeight + 0.5;
+    }
+
+    /// <summary>The setting (or other item) a card's element belongs to.</summary>
+    private static ItemVM? ItemOf(DependencyObject? element)
+    {
+        for (var node = element; node != null; node = node is Visual ? VisualTreeHelper.GetParent(node) : null)
+            if (node is FrameworkElement { DataContext: ItemVM item }) return item;
+        return null;
+    }
+
+    private static IInputElement? FirstFocusable(DependencyObject root)
+    {
+        var queue = new Queue<DependencyObject>(new[] { root });
+        while (queue.Count > 0)
+        {
+            var node = queue.Dequeue();
+            if (node is System.Windows.Controls.Control { Focusable: true, IsTabStop: true, IsVisible: true, IsEnabled: true } control) return control;
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(node); i++) queue.Enqueue(VisualTreeHelper.GetChild(node, i));
+        }
+        return null;
     }
 
     /// <summary>The wheel over a CLOSED dropdown list is not the list's: it goes to what is around the list, so the
