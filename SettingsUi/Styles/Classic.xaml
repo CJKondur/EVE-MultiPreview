@@ -142,7 +142,7 @@
             <GroupBox.Header>
                 <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}" Margin="0"/>
             </GroupBox.Header>
-            <local:CardList ItemsSource="{Binding Items}" Focusable="False"/>
+            <ContentPresenter Content="{Binding Cards}"/>
         </GroupBox>
     </DataTemplate>
 

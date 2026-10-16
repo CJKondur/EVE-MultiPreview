@@ -12,6 +12,14 @@ public sealed class SectionVM : ObservableObject
     public int Ordinal { get; }
     public string TitleKey => Def.TitleKey;
     public IReadOnlyList<ItemVM> Items { get; }
+
+    private CardList? _cards;
+
+    /// <summary>The section's cards, one list for the section's life (made the first time a page shows it, on the
+    /// window's thread). A look's Fx.Section hosts it as content (spec §8.1: a kept element in a swappable template), so
+    /// a change of look that draws the section anew re-hosts the same cards and keeps what is in them.</summary>
+    public CardList Cards => _cards ??= new CardList { ItemsSource = Items, Focusable = false };
+
     /// <summary>A section whose every card is hidden disappears with its title.</summary>
     public bool IsVisible => Items.Any(i => i.IsVisible);
     public void RaiseVisibility() { foreach (var i in Items) i.RaiseVisibility(); Raise(nameof(IsVisible)); }

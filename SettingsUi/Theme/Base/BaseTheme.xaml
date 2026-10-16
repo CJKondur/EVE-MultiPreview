@@ -425,7 +425,7 @@
     <DataTemplate x:Key="Fx.Section">
         <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
             <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}"/>
-            <local:CardList ItemsSource="{Binding Items}" Focusable="False"/>
+            <ContentPresenter Content="{Binding Cards}"/>
         </StackPanel>
     </DataTemplate>
 

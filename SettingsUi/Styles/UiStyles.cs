@@ -92,6 +92,10 @@ public static class UiStyles
     /// thread leaves it alone (the menus, the hub and the settings window check).</summary>
     public static event Action? Changed;
 
+    /// <summary>Raised before a change of look is applied, on the thread that makes it: a window keeps what a new template
+    /// would lose (the settings window: the page's scroll and the keyboard's place) and gives it back on Changed.</summary>
+    public static event Action? Changing;
+
     public static void Set(string? id) => Set(Find(id));
 
     /// <summary>Makes <paramref name="style"/> the look of the app at once (spec §5.3): the palette of the surfaces drawn in
@@ -101,6 +105,7 @@ public static class UiStyles
     public static void Set(UiStyle style)
     {
         if (style == Current) return;
+        Changing?.Invoke();
         Current = style;
         UiPalette.Use(UiPalette.From(style.Dictionary));
         System.Runtime.ExceptionServices.ExceptionDispatchInfo? failure = null;

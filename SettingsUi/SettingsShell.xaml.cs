@@ -62,6 +62,10 @@ public partial class SettingsShell : Window, ISettingsHost
         // The three live parts: the page (the section list in its scroller; it keeps the editors and the scroll) and the
         // help pane here, the search box below. The frame hands them to the look's layout.
         _sections = new ItemsControl { Focusable = false };
+        // The section list's template is the app's, not slot 0's: a look without Fluent has none for an ItemsControl and
+        // Fluent has one, so a change of look would re-template the list and make every card anew, losing what was typed
+        // (measured, plan S2 Task 7). It draws nothing of its own in either: an ItemsPresenter.
+        _sections.Template = new ControlTemplate(typeof(ItemsControl)) { VisualTree = new FrameworkElementFactory(typeof(ItemsPresenter)) };
         _sections.SetBinding(ItemsControl.ItemsSourceProperty, new System.Windows.Data.Binding("Current.Sections"));
         _sections.SetResourceReference(ItemsControl.ItemTemplateProperty, "Fx.Section");
         _page = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Focusable = false, Content = _sections };
@@ -108,11 +112,19 @@ public partial class SettingsShell : Window, ISettingsHost
         SourceInitialized += (_, _) => UpdateMinWidth();
         DpiChanged += (_, _) => UpdateMinWidth();
 
-        // A change of look (UiStyles.Set) may move the scroll bar into a column of its own or over the page.
-        Action lookChanged = () => { if (Dispatcher.CheckAccess()) PlaceThePage(); };
+        // A change of look (UiStyles.Set) may move the scroll bar into a column of its own or over the page, and a look
+        // with another scroll viewer re-hosts the page in a new one: the scroll and the keyboard's place are kept.
+        Action lookChanging = () => { if (Dispatcher.CheckAccess()) KeepThePlace(); };
+        Action lookChanged = () => { if (Dispatcher.CheckAccess()) { PlaceThePage(); GiveThePlaceBack(); } };
+        UiStyles.Changing += lookChanging;
         UiStyles.Changed += lookChanged;
         Closing += (_, _) => { SaveSize(); Vm.OnClosing(); };
-        Closed += (_, _) => { _clock.Stop(); _toastTimer.Stop(); _highlightTimer.Stop(); Vm.Dispose(); UiStyles.Changed -= lookChanged; };
+        Closed += (_, _) =>
+        {
+            _clock.Stop(); _toastTimer.Stop(); _highlightTimer.Stop(); Vm.Dispose();
+            UiStyles.Changing -= lookChanging;
+            UiStyles.Changed -= lookChanged;
+        };
     }
 
     public ShellVM Vm { get; }
@@ -135,6 +147,34 @@ public partial class SettingsShell : Window, ISettingsHost
         bool overlay = UiStyles.Current.Dictionary["Fx.Scroll.Overlay"] is true;
         _page.Margin = overlay ? new Thickness(0, 8, -20, 0) : new Thickness(0, 8, 0, 0);
         _sections.Margin = overlay ? new Thickness(0, 0, 20, 24) : new Thickness(0, 0, 0, 24);
+    }
+
+    private double _keptOffset;
+    private IInputElement? _keptFocus;
+    private bool _keptKeyboard;
+
+    /// <summary>Before a change of look: the page's scroll and the element with the keyboard's focus (spec §9.2: "the
+    /// gallery stays where it was scrolled"; Review Focus 2).</summary>
+    private void KeepThePlace()
+    {
+        _keptOffset = _page.VerticalOffset;
+        _keptFocus = FocusManager.GetFocusedElement(this);
+        _keptKeyboard = IsKeyboardFocusWithin;
+    }
+
+    /// <summary>After a change of look: lays the window out in the new look, scrolls the page back, and gives the focus
+    /// back to the element that had it if it is still in the window (a card the new look draws anew is not).</summary>
+    private void GiveThePlaceBack()
+    {
+        UpdateLayout();
+        _page.ScrollToVerticalOffset(_keptOffset);
+        UpdateLayout();
+        if (_keptFocus is DependencyObject kept && PresentationSource.FromDependencyObject(kept) != null && Window.GetWindow(kept) == this)
+        {
+            FocusManager.SetFocusedElement(this, _keptFocus);
+            if (_keptKeyboard) Keyboard.Focus(_keptFocus);
+        }
+        _keptFocus = null;
     }
 
     /// <summary>The wheel over a CLOSED dropdown list is not the list's: it goes to what is around the list, so the
