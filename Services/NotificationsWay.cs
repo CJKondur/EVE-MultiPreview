@@ -57,7 +57,6 @@ public sealed class NotificationsWay : IAlertWay
     private int _questionFailed;            // "are notifications on" could not be asked, and that was reported
     private int _givenUp;                   // calls in a row that Windows did not answer in time
     private int _toldGivenUp;               // "Windows did not answer" was reported (once a session)
-    private long _testOutUntil;             // a test notification is out until then (UTC ticks); 0: none is
     private bool _takenAwayAtOff;           // this "off" has had its clean-up (the window's thread only)
     private volatile bool _keyRefused;      // the registry key could not be written: Windows does not know MultiPreview
     private volatile bool _stopped;
@@ -87,11 +86,10 @@ public sealed class NotificationsWay : IAlertWay
         Pump = new WorkPump(Drain, _failed);
         _notifier.Clicked += OnClicked;
         // Closed by hand: the notification is gone, the pair's banner time is kept (the banner that was just closed
-        // does not come back at the next alert). The test notification is no entry: it is only out no more.
+        // does not come back at the next alert). The test notification is no entry.
         _notifier.Dismissed += tag =>
         {
-            if (tag == TestTag) ForgetTest();
-            else Ledger.Dismissed(tag);
+            if (tag != TestTag) Ledger.Dismissed(tag);
         };
         _notifier.Failed += OnFailed;
     }
@@ -162,25 +160,19 @@ public sealed class NotificationsWay : IAlertWay
     /// an alert's. It is no entry of the ledger, so a button on it could do nothing: it has none, a click on it
     /// means nothing, and a look at a client does not take it away. It goes by itself after <see cref="TestKeep"/>,
     /// and with everything else when the feature is switched off, MultiPreview closes or Windows ends the session.
-    /// One at a time: while one is out (shown less than that time ago, and not closed, clicked or taken away
-    /// since) a further press asks Windows for no second one. False: no test is out and Windows is not asked for
-    /// one (MultiPreview is closing, or the registry key could not be written).</summary>
+    /// Every press does something (FX-m3): one that comes while a test notification is out REPLACES it (the same
+    /// tag, which Windows replaces), so there is one at most, and its minute counts anew. Presses that come faster
+    /// than the pump asks Windows are one call: the pump asks for the last. False: Windows is not asked for one
+    /// (MultiPreview is closing, or the registry key could not be written).</summary>
     /// <param name="utcNow">Now: the test ends by itself <see cref="TestKeep"/> from now.</param>
     public bool ShowTest(NotificationTexts texts, DateTime utcNow)
     {
         if (_stopped || _keyRefused) return false;
-        // Out: its end is ahead, and no further ahead than a test lasts (a clock set back does not hold the button).
-        long until = Interlocked.Read(ref _testOutUntil), now = utcNow.Ticks;
-        if (until > now && until - now <= TestKeep.Ticks) return true;
         var content = new NotificationContent(TestTag, NotificationXml.Build(texts, TestTag, buttons: false), true, utcNow + TestKeep);
-        Interlocked.Exchange(ref _testOutUntil, content.ExpiresUtc.Ticks);
         Interlocked.Exchange(ref _test, content);
         Pump.Wake();
         return true;
     }
-
-    /// <summary>No test notification is out any more, as far as this way knows: the next press shows one.</summary>
-    private void ForgetTest() => Interlocked.Exchange(ref _testOutUntil, 0);
 
     /// <summary>Asks Windows whether it is NOT showing MultiPreview's notifications (they are switched off in
     /// Windows' own settings, or by a policy): on another thread, under the limit of every call. False as well
@@ -221,11 +213,7 @@ public sealed class NotificationsWay : IAlertWay
             case NotifierWork.Kind.Show:
                 var content = work.Content!;
                 Interlocked.Exchange(ref _used, 1);   // before the call: one that throws or is given up may have shown it all the same
-                if (!await Ask("showing a notification", () => _notifier.Show(content)).ConfigureAwait(false))
-                {
-                    if (content.Tag == TestTag) ForgetTest();   // not known to be out: the next press asks again
-                    break;
-                }
+                if (!await Ask("showing a notification", () => _notifier.Show(content)).ConfigureAwait(false)) break;
                 // A click, a look or a closing that came while Windows was being asked has taken the entry away.
                 // What has just arrived would be a notification no click and no look could reach: it goes again.
                 if (content.Tag != TestTag && !Ledger.Holds(content.Tag))
@@ -292,7 +280,6 @@ public sealed class NotificationsWay : IAlertWay
         while (Ledger.NextWork() != null) { }
         Interlocked.Exchange(ref _clearFirst, 0);
         Interlocked.Exchange(ref _test, null);
-        ForgetTest();       // what follows takes everything away, a test notification too
     }
 
     /// <summary>Waits until the pump is not running, at most <see cref="IdleLimit"/>. Nothing the pump does needs
@@ -319,11 +306,7 @@ public sealed class NotificationsWay : IAlertWay
         try
         {
             if (_stopped) return;
-            if (arguments == NotificationXml.Go + TestTag)
-            {
-                ForgetTest();       // a click on the test notification: Windows has taken it away, and it means nothing else
-                return;
-            }
+            if (arguments == NotificationXml.Go + TestTag) return;   // a click on the test notification means nothing
             if (NotificationXml.Read(arguments) is not { } click) return;
             var entry = Ledger.Clicked(click.Tag);
             if (entry == null) return;
@@ -345,7 +328,6 @@ public sealed class NotificationsWay : IAlertWay
     /// every alert would fail the same way.</summary>
     private void OnFailed(int code)
     {
-        ForgetTest();       // Windows does not say which one it could not show: a test is not known to be out
         lock (_failedCodes)
         {
             if (_failedCodes.Count >= MaxFailedCodes || !_failedCodes.Add(code)) return;

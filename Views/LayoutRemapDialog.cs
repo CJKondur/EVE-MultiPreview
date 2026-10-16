@@ -27,6 +27,8 @@ public sealed class LayoutRemapDialog : System.Windows.Window
         ResizeMode = System.Windows.ResizeMode.NoResize;
         ShowInTaskbar = false;
         Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1a, 0x1a, 0x2e));
+        // FX-m6: closed lists in a scroll viewer: the wheel scrolls the list of slots, not a slot's choice (RE2-m4).
+        PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
 
         var dock = new System.Windows.Controls.DockPanel { Margin = new System.Windows.Thickness(12) };
 

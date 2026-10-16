@@ -527,6 +527,10 @@ public class ThumbnailWindow : Form
     /// the menu opens, and none is raised as an enlarged one.</summary>
     public static bool MenuOpen => _openMenus > 0;
 
+    /// <summary>Some thumbnail is enlarged for an alert right now (FY-m4: the manager's raise loops ask it first).
+    /// The window's thread only.</summary>
+    public static bool AnyEnlarged => _enlargedNow.Count > 0;
+
     /// <summary>This thumbnail's right-click menu opens (said before it is shown), or has closed. Said twice it
     /// counts once. When it opens, EVERY thumbnail that is enlarged for an alert goes back to its own size and
     /// place, at once (RD-I1): this one also where the press did not put it back (with "Lock positions" a

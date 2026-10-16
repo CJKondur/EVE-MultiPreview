@@ -76,7 +76,8 @@ public sealed class NotificationRegistration
         }
         catch (Exception ex)
         {
-            try { _failed(ex); } catch (Exception) { /* reporting must never cost the settings change */ }
+            // By its type and code, never the exception itself (FY-m6): its message names the key's path.
+            try { _failed(AlertWays.Failure("Windows notifications: the registry key", ex)); } catch (Exception) { /* reporting must never cost the settings change */ }
             return Registered = false;
         }
     }

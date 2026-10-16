@@ -320,7 +320,7 @@ public partial class App : Application
             // only when the player turned "Keep snoozes" on, and never in a session whose settings could not be read.
             _alertHub.SnoozeRequested += (charName, alertType, length) =>
             {
-                _snoozes.Snooze(charName, alertType, length);
+                SnoozeEvent(charName, alertType, length);
                 _thumbnailManager.ShowTooltipFeedback(SnoozeText.Done(charName, alertType));
             };
             _thumbnailManager.Snoozes = _snoozes;
@@ -453,7 +453,7 @@ public partial class App : Application
             // behind": where the others went): it is seen over any program and on the lock screen.
             _notificationActions = new NotificationActions(() => _isShuttingDown, () => _settings.LoadedSuccessfully,
                 () => _settings.Settings.WindowsNotifications, SwitchToCharacter,
-                (who, type, length) => _snoozes.Snooze(who, type, length), _thumbnailManager.ShowTooltipFeedback,
+                (who, type, length) => SnoozeEvent(who, type, length), _thumbnailManager.ShowTooltipFeedback,
                 action => Dispatcher.BeginInvoke(action), LocalizationService.Str);
             _notificationRegistration = new NotificationRegistration(new UserRegistry(), () => NotificationIcon.Ensure(AppPaths.ConfigDir), LogError);
             _notificationsWay = new NotificationsWay(new WindowsToastNotifier(NotificationRegistration.AppId),
@@ -1593,6 +1593,14 @@ public partial class App : Application
             Debug.WriteLine(line.TrimEnd());
         }
         catch { /* logging must never throw */ }
+    }
+
+    /// <summary>Snoozes an event for a character, from a toast's menu or a notification's button (IDEAS #30, #33):
+    /// and its thumbnail, enlarged for an alert, goes back now, as for a mute (FY-n3).</summary>
+    private void SnoozeEvent(string character, string alertType, TimeSpan? length)
+    {
+        _snoozes.Snooze(character, alertType, length);
+        _thumbnailManager?.PutBackForASnooze(character);
     }
 
     private void ExitApplication()

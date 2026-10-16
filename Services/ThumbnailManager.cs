@@ -221,6 +221,15 @@ public sealed class ThumbnailManager : IDisposable
     private IReadOnlyList<EventSnooze> SnoozesOf(string characterName) =>
         Snoozes?.Of(characterName) ?? (IReadOnlyList<EventSnooze>)Array.Empty<EventSnooze>();
 
+    /// <summary>An event was snoozed for a character, from a toast's menu or a notification's button (FY-n3): its
+    /// thumbnail, enlarged for an alert, goes back now, and the enlargement is forgotten, as a mute does it.</summary>
+    public void PutBackForASnooze(string characterName)
+    {
+        if (string.IsNullOrEmpty(characterName)) return;
+        GetThumbnailForCharacter(characterName)?.SetAlertScale(1.0);
+        Enlarge.Forget(characterName);
+    }
+
     private void OnSnoozeEndRequested(ThumbnailWindow thumb, string? eventKey)
     {
         if (Snoozes == null || string.IsNullOrEmpty(thumb.CharacterName)) return;
@@ -1821,15 +1830,17 @@ public sealed class ThumbnailManager : IDisposable
 
         // #95 watchdog: a thumbnail left stuck in its enlarged hover state covers its
         // neighbours and eats their clicks. Cheap per-tick correction.
-        foreach (var (_, t) in _thumbnails) t.EnsureHoverStateValid();
-
         // IDEAS #13 (RD-m4): a thumbnail's menu that is counted as open while it is not on the screen is counted
         // closed. While the count is up no thumbnail is enlarged, so it must not stay up for a "closed" that was lost.
-        foreach (var (_, t) in _thumbnails) t.EnsureMenuStateValid();
-
         // IDEAS #13 watchdog (T6-C1): a thumbnail left enlarged for an alert that nothing will ever tell to go back
         // (its character logged off the window, or its "go back" failed) is put back here.
-        foreach (var (_, t) in _thumbnails) PutBackUnheld(Enlarge, t, ReportEnlarge);
+        // One walk over the thumbnails for all three (FY-m4): nothing here grows with the clients beyond that walk.
+        foreach (var (_, t) in _thumbnails)
+        {
+            t.EnsureHoverStateValid();
+            t.EnsureMenuStateValid();
+            PutBackUnheld(Enlarge, t, ReportEnlarge);
+        }
 
         var fgHwnd = Interop.User32.GetForegroundWindow();
         var s = _settings.Settings;
@@ -3788,6 +3799,7 @@ public sealed class ThumbnailManager : IDisposable
     /// is not held off for the settings window. One read per thumbnail while none is enlarged.</summary>
     private void RaiseEnlargedAgain()
     {
+        if (!ThumbnailWindow.AnyEnlarged) return;   // FY-m4: one read while none is enlarged
         foreach (var (_, thumb) in _thumbnails) thumb.RaiseWhileEnlarged();
     }
 

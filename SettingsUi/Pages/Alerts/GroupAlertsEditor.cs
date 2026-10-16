@@ -208,12 +208,15 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     public void Select(string group)
     {
         if (!Groups.Contains(group)) return;
+        // FX-m5, as in Choose (RE2-I1): a card that is behind (a group made elsewhere) is still behind after this.
+        bool behind = Signature() != _signature;
         string warned = _warning.Text;
         Selected = group;
         _building = true;
         try { _groups.SelectedItem = group; }
         finally { _building = false; }
         ShowGroup();
+        if (behind) _signature = "";   // still behind: the next look builds the card again
         SayLines(warned);
     }
 
@@ -412,10 +415,13 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         if (group == null || !GroupAlertChoices.Read(_ctx.S.GroupAlertProfiles).ContainsKey(group)) return;
         if (_ctx.Host.ConfirmChoice(Str("L.S.GroupAlerts.Clear"), string.Format(Str("L.S.GroupAlerts.ClearAsk"), group),
                 Str("L.S.GroupAlerts.ClearYes"), Str("L.S.GroupAlerts.ClearNo")) != true) return;
+        // FX-m5, as in Choose (RE2-I1): a card that is behind (a group made elsewhere) is still behind after this.
+        bool behind = Signature() != _signature;
         // The group that was asked about, in the choices as they are now: the question was open for a while.
         _ctx.S.GroupAlertProfiles = GroupAlertChoices.Forget(_ctx.S.GroupAlertProfiles, group);
         _ctx.Applier.Request(ApplyScope.Save);
         ShowGroup();
+        if (behind) _signature = "";   // still behind: the next look builds the card again
         TellTheEventTable();
     }
 

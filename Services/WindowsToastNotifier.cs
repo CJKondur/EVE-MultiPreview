@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Microsoft.Win32;
 using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
@@ -80,10 +81,14 @@ public sealed class WindowsToastNotifier : IToastNotifier
 
     public bool Blocked() => Notifier().Setting != NotificationSetting.Enabled;
 
-    /// <summary>Windows' notifier for MultiPreview's identity, made when it is first needed.</summary>
+    /// <summary>Windows' notifier for MultiPreview's identity, made when it is first needed. Made OUTSIDE the lock
+    /// (FY-m7): Windows may be slow to answer, and the lock guards the table of what was shown, which an event of a
+    /// notification takes on a thread of Windows'. Two that are made at once: the first one published is kept.</summary>
     private ToastNotifier Notifier()
     {
-        lock (_lock) return (ToastNotifier)(_notifier ??= ToastNotificationManager.CreateToastNotifier(_appId));
+        if (Volatile.Read(ref _notifier) is ToastNotifier made) return made;
+        var mine = ToastNotificationManager.CreateToastNotifier(_appId);
+        return (ToastNotifier)(Interlocked.CompareExchange(ref _notifier, mine, null) ?? mine);
     }
 
     /// <summary>Lets go of a notification object when an event of its says it is over, but only if it is still the
