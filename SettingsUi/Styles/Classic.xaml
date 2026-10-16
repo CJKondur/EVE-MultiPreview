@@ -302,9 +302,11 @@
          (the profiles and their commands) under it, as Windows 11's avatar does (owner decision S2-9). -->
     <DataTemplate x:Key="Fx.Shell.Profile">
         <DockPanel>
-            <TextBlock DockPanel.Dock="Left" local:Loc.Key="L.Eve.ProfileLabel" Style="{DynamicResource Fx.Label}" FontWeight="SemiBold"
+            <TextBlock x:Name="ProfileLabel" DockPanel.Dock="Left" local:Loc.Key="L.Eve.ProfileLabel" Style="{DynamicResource Fx.Label}" FontWeight="SemiBold"
                        Foreground="{DynamicResource Fx.NavTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-            <Button local:Loc.NameKey="L.S.Shell.Profile" HorizontalContentAlignment="Left" Cursor="Hand"
+            <!-- Its name is the profile's (as Windows 11's, which names the button from its content), labelled "Profile:". -->
+            <Button AutomationProperties.Name="{Binding ProfileName}" AutomationProperties.LabeledBy="{Binding ElementName=ProfileLabel}"
+                    HorizontalContentAlignment="Left" Cursor="Hand"
                     Command="{Binding ProfileMenuCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
                     CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
                 <Button.Template>
@@ -337,14 +339,19 @@
 
     <!-- Simple or All settings: two radio buttons at the bottom of the pane. -->
     <DataTemplate x:Key="Fx.Shell.Mode">
-        <StackPanel>
+        <GroupBox local:Loc.NameKey="L.S.Shell.Advanced" Focusable="False" IsTabStop="False">
+            <GroupBox.Template>
+                <ControlTemplate TargetType="GroupBox"><ContentPresenter/></ControlTemplate>
+            </GroupBox.Template>
+            <StackPanel>
             <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsSimple}" Margin="0,0,0,6" Foreground="{DynamicResource Fx.NavTextBrush}">
                 <TextBlock local:Loc.Key="L.S.Shell.Simple" Style="{DynamicResource Fx.Label}" Foreground="{DynamicResource Fx.NavTextBrush}"/>
             </RadioButton>
             <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsAdvanced}" Foreground="{DynamicResource Fx.NavTextBrush}">
                 <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{DynamicResource Fx.Label}" Foreground="{DynamicResource Fx.NavTextBrush}"/>
             </RadioButton>
-        </StackPanel>
+            </StackPanel>
+        </GroupBox>
     </DataTemplate>
 
     <!-- The page's name alone, in the accent, its description under it, and a small "?" for the help pane. -->
@@ -378,11 +385,13 @@
                 <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{DynamicResource Fx.PageDesc}"/>
             </StackPanel>
             <ToggleButton Grid.Column="1" IsChecked="{Binding HelpOpen}" Content="?" Width="28" Height="24" Padding="0"
-                          VerticalAlignment="Top" Margin="16,0,0,0" ToolTip="{DynamicResource L.S.Shell.Help}"/>
+                          VerticalAlignment="Top" Margin="16,0,0,0" ToolTip="{DynamicResource L.S.Shell.Help}" local:Loc.NameKey="L.S.Shell.Help"/>
         </Grid>
     </DataTemplate>
 
-    <!-- A navigation entry: the old window's side-bar button, a line Fx.Nav.ItemHeight high, lighter when hovered. -->
+    <!-- A navigation entry: the old window's side-bar button, a line Fx.Nav.ItemHeight high, lighter when hovered. The
+         hover shade is a layer UNDER the entry's own background, so the open page's shade (set on the button) is never
+         replaced by it; keyboard focus adds an edge in the focus colour. -->
     <Style x:Key="Fx.Nav.Entry" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextBrush}"/>
@@ -391,19 +400,27 @@
         <Setter Property="Margin" Value="0,1"/>
         <Setter Property="MinHeight" Value="{DynamicResource Fx.Nav.ItemHeight}"/>
         <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
-                            CornerRadius="{DynamicResource Fx.Radius.Nav}" SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
-                    </Border>
+                    <Grid SnapsToDevicePixels="True">
+                        <Border x:Name="Hover" Visibility="Collapsed" Background="{DynamicResource Fx.NavHoverBrush}"
+                                CornerRadius="{DynamicResource Fx.Radius.Nav}"/>
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
+                                CornerRadius="{DynamicResource Fx.Radius.Nav}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="Edge" Visibility="Collapsed" IsHitTestVisible="False" BorderBrush="{DynamicResource Fx.FocusBrush}"
+                                BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.Radius.Nav}"/>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.NavHoverBrush}"/>
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.NavHoverBrush}"/>
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
