@@ -10,7 +10,9 @@ namespace EveMultiPreview.Services;
 
 /// <summary>The voice of Windows (IDEAS #26): Windows.Media.SpeechSynthesis turns a text into a wave in memory, and
 /// System.Media.SoundPlayer plays it. Both are part of what the app is built on; nothing is installed for it.
-/// Everything runs on a thread-pool thread, whoever calls: the window and the log reader never wait for a voice.
+/// A sentence is synthesized and played on a thread-pool thread, whoever calls. The voices (Voices, DefaultVoice) are
+/// read on the caller's thread: so their callers ask from a thread of their own (the voice's pump, and the voices
+/// card from a thread of the pool, FY-m2), and the window and the log reader never wait for Windows' speech.
 /// The text is handed to Windows as plain text and is never read as markup. No test calls the device: tests hand in
 /// an <see cref="ISpeaker"/> of their own.</summary>
 public sealed class WindowsSpeaker : ISpeaker

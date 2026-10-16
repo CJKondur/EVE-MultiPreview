@@ -142,8 +142,11 @@ public sealed class SpokenAlerts
             // the newer one, under the spelling the name had first. Its age is then the last hit's, not the first's,
             // which may be ten seconds old by the time the voice is free. The mark goes with the alert that is
             // held, so that what is not said after all still finds its own mark to take away.
+            // Only by an alert raised LATER (FX-m8): one raised earlier (the clock was set back) would make the
+            // sentence older than it is, and it could then be let go as too old, unsaid.
             if (_waiting.Find(p => p.EventKey == notice.EventKey) is { } held
-                && held.Alerts.FindIndex(a => string.Equals(a.Character, notice.Character, StringComparison.OrdinalIgnoreCase)) is >= 0 and var at)
+                && held.Alerts.FindIndex(a => string.Equals(a.Character, notice.Character, StringComparison.OrdinalIgnoreCase)) is >= 0 and var at
+                && notice.RaisedUtc > held.Alerts[at].RaisedUtc)
             {
                 held.Alerts[at] = notice with { Character = held.Alerts[at].Character };
                 Mark(pair, now);
@@ -274,6 +277,19 @@ public sealed class SpokenAlerts
                 };
             }
             return null;
+        }
+    }
+
+    /// <summary>The player looked at this character's client (AlertAttention.Looked): its "not again within half a
+    /// minute" marks are forgotten (FY-n2), so that its next alert is spoken as its notification is shown and its
+    /// thumbnail grows. What waits for it is asked about again when its turn comes.</summary>
+    public void Looked(string character)
+    {
+        if (string.IsNullOrEmpty(character)) return;
+        lock (_lock)
+        {
+            var marks = _takenAt.Keys.Where(k => string.Equals(k.Character, character, StringComparison.OrdinalIgnoreCase)).ToList();
+            foreach (var mark in marks) _takenAt.Remove(mark);
         }
     }
 

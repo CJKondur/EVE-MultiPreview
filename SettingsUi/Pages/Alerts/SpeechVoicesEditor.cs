@@ -16,7 +16,10 @@ namespace EveMultiPreview.SettingsUi;
 /// the voices Windows has, and a button that tries it. Automatic is a voice of MultiPreview's language
 /// (SpeechVoiceChoice.Automatic says which); the card says so when Windows has none. SpokenWay reads the choice at
 /// the next alert, so a change only saves. Windows is asked for its voices only while "Speak alerts" is on: the
-/// page builds this card while it is hidden too, and every player has spoken alerts off until they switch them on.</summary>
+/// page builds this card while it is hidden too, and every player has spoken alerts off until they switch them on.
+/// And it is asked on a thread of the pool (FY-m2), as the notifications card asks its question: the first ask also
+/// loads Windows' speech, and a Windows that does not answer must not hold the settings window. The lists show
+/// "Automatic" until the answer has come.</summary>
 public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IRefreshable
 {
     public const string ItemId = "alerts.sounds.voices";
@@ -31,6 +34,7 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     private bool _listed;                       // the voices were read with "Speak alerts" on
     private SpeechVoice? _windowsDefault;
     private CancellationTokenSource? _trying;   // the stop of the sentence that is being tried
+    private int _asks;                          // the last ask for Windows' voices: an earlier answer may come late
 
     /// <param name="language">The app's language (tests hand one in).</param>
     /// <param name="failed">Is told that trying a voice failed: the type of what was thrown, never its message
@@ -83,19 +87,61 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     public string? Chosen(string severity) =>
         SpeechVoiceChoice.Read(_ctx.S.SpeechVoices).TryGetValue(severity, out var id) ? id : null;
 
+    /// <summary>Builds the card with what is known, and asks Windows for its voices again on a thread of the pool
+    /// while "Speak alerts" is on. The answer is looked at on the window's thread, and only the last one counts.</summary>
     public void Refresh()
+    {
+        int mine = ++_asks;
+        // While spoken alerts are off the card is hidden and Windows is not asked for anything.
+        _listed = _ctx.S.SpeakAlerts;
+        var speaker = _listed ? _ctx.Services.Speaker : null;
+        if (speaker == null)
+        {
+            Show(Array.Empty<SpeechVoice>(), null, answered: false);
+            return;
+        }
+        Show(Installed, _windowsDefault, answered: SaysNoVoiceAtAll || SaysNoVoiceForTheLanguage || Installed.Count > 0);
+        IReadOnlyList<SpeechVoice> installed = Array.Empty<SpeechVoice>();
+        SpeechVoice? windowsDefault = null;
+        Task asked;
+        try
+        {
+            asked = (_ctx.Services.OffTheWindowsThread ?? Task.Run)(() =>
+            {
+                installed = speaker.Voices();
+                windowsDefault = speaker.DefaultVoice();
+            });
+        }
+        catch (Exception ex) { asked = Task.FromException(ex); }
+        _ = asked.ContinueWith(done =>
+        {
+            if (Dispatcher.CheckAccess()) Answered(done, mine, installed, windowsDefault);
+            else Dispatcher.BeginInvoke(() => Answered(done, mine, installed, windowsDefault));
+        }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+    }
+
+    /// <summary>Windows has answered, or failed to. A failure shows the card's line for a Windows without voices
+    /// and is reported by its type.</summary>
+    private void Answered(Task asked, int mine, IReadOnlyList<SpeechVoice> installed, SpeechVoice? windowsDefault)
+    {
+        var thrown = asked.Exception;       // looked at, so that nothing is left unobserved
+        if (mine != _asks || !_listed) return;
+        if (thrown != null) Show(Array.Empty<SpeechVoice>(), null, answered: true);
+        else Show(installed ?? Array.Empty<SpeechVoice>(), windowsDefault, answered: true);
+        if (thrown != null) Report(thrown, "asking Windows for its voices");
+    }
+
+    /// <summary>The card with these voices. Before Windows has answered no line is shown.</summary>
+    private void Show(IReadOnlyList<SpeechVoice> installed, SpeechVoice? windowsDefault, bool answered)
     {
         _building = true;
         try
         {
-            // While spoken alerts are off the card is hidden and Windows is not asked for anything.
-            _listed = _ctx.S.SpeakAlerts;
-            var speaker = _listed ? _ctx.Services.Speaker : null;
-            Installed = speaker?.Voices() ?? Array.Empty<SpeechVoice>();
-            _windowsDefault = speaker?.DefaultVoice();
+            Installed = installed;
+            _windowsDefault = windowsDefault;
             AutomaticVoice = SpeechVoiceChoice.Automatic(Installed, _language(), _windowsDefault);
-            SaysNoVoiceAtAll = speaker != null && Installed.Count == 0;
-            SaysNoVoiceForTheLanguage = speaker != null && Installed.Count > 0 && AutomaticVoice == null;
+            SaysNoVoiceAtAll = answered && Installed.Count == 0;
+            SaysNoVoiceForTheLanguage = answered && Installed.Count > 0 && AutomaticVoice == null;
             _note.Text = SaysNoVoiceAtAll ? Str("L.S.Speech.NoVoices") : SaysNoVoiceForTheLanguage ? Str("L.S.Speech.NoVoice") : "";
             _note.Visibility = _note.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
 
@@ -201,12 +247,12 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     }
 
     /// <summary>Reports the type of what was thrown (for several at once the type of each), never its message.</summary>
-    private void Report(Exception ex)
+    private void Report(Exception ex, string what = "trying a voice")
     {
         string type = ex is AggregateException several
             ? string.Join(", ", several.Flatten().InnerExceptions.Select(inner => inner.GetType().Name))
             : ex.GetType().Name;
-        try { _failed(new InvalidOperationException("Spoken alerts: trying a voice failed (" + type + ")")); }
+        try { _failed(new InvalidOperationException("Spoken alerts: " + what + " failed (" + type + ")")); }
         catch (Exception) { /* reporting must never break the card */ }
     }
 

@@ -38,6 +38,9 @@ public sealed class SpokenWay : IAlertWay
     private readonly CancellationTokenSource _stop = new();
     private int _asksOut;           // asks of the voice that were given up and have not come back
     private int _toldAsksOut;       // "the voice is not asked while three asks are out" was reported
+    private readonly object _asksLock = new();
+    private int _asksEra;           // counted anew from here: asks of an earlier era no longer count when they come back
+    private bool _switchedOff;      // "Speak alerts" was off at the last Follow
 
     /// <param name="settings">The settings as they are now.</param>
     /// <param name="soundsHeld">(settings, severity): do-not-disturb holds that alert's sound right now (DoNotDisturb.Silences).</param>
@@ -77,7 +80,37 @@ public sealed class SpokenWay : IAlertWay
 
     public bool IsOn(AppSettings s) => s.SpeakAlerts;
 
-    public void Raised(AlertNotice notice, AppSettings s) => Take(notice, s, insist: false);
+    /// <summary>An alert was shown. Not for the client in front when it was told (FY-n1): as the notification and the
+    /// growing thumbnail, the voice is for the clients the player is NOT looking at. Its sound plays all the same.</summary>
+    public void Raised(AlertNotice notice, AppSettings s)
+    {
+        if (notice.ClientInFront) return;
+        Take(notice, s, insist: false);
+    }
+
+    /// <summary>The player looked at a client (AlertAttention.Looked): what the voice holds against saying its
+    /// alerts again is forgotten (FY-n2).</summary>
+    public void Looked(string character) => Spoken.Looked(character);
+
+    /// <summary>Follows "Speak alerts" (on the window's thread, after every settings change). Switched off and on
+    /// again, the asks that never came back are counted anew (FX-m4): a voice that hung three times is asked again,
+    /// and is not silent for the rest of the session.</summary>
+    public void Follow(bool on)
+    {
+        if (!on)
+        {
+            _switchedOff = true;
+            return;
+        }
+        if (!_switchedOff) return;
+        _switchedOff = false;
+        lock (_asksLock)
+        {
+            _asksEra++;
+            Volatile.Write(ref _asksOut, 0);
+        }
+        Interlocked.Exchange(ref _toldAsksOut, 0);
+    }
 
     /// <summary>The last word of a chain of repeats (AlertEscalation.HandOff): a critical alert was repeated as often
     /// as set and is still unseen. It is said once more, also within the half minute, while spoken alerts are on and
@@ -201,12 +234,19 @@ public sealed class SpokenWay : IAlertWay
         if (first != said)
         {
             // Whatever it does later is seen by nobody, but that it came back at all is counted: the count is taken
-            // down on the thread that brings the ask back, in the same breath.
-            Interlocked.Increment(ref _asksOut);
+            // down on the thread that brings the ask back, in the same breath. Not when the count was begun anew
+            // since (Follow): this ask is no longer in it.
+            int era;
+            lock (_asksLock)
+            {
+                era = _asksEra;
+                _asksOut++;
+            }
             _ = said.ContinueWith(late =>
             {
                 _ = late.Exception;
-                Interlocked.Decrement(ref _asksOut);
+                lock (_asksLock)
+                    if (era == _asksEra) _asksOut--;
             }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
             _stop.Token.ThrowIfCancellationRequested();
             Report(new TimeoutException("A spoken alert was not finished after " + (int)Longest.TotalSeconds + " seconds and was given up."));

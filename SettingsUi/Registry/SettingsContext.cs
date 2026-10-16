@@ -62,6 +62,10 @@ public sealed class AppServices
     /// <summary>The voice of spoken alerts (IDEAS #26): the voices card lists what it has and tries one. Null in a
     /// settings window opened without the app: the card then offers Automatic only.</summary>
     public ISpeaker? Speaker { get; init; }
+    /// <summary>Runs a piece of work away from the window's thread, and finishes when it has: the voices card asks
+    /// Windows for its voices so (FY-m2), and the window's thread never waits for Windows. Null: a thread of the
+    /// pool (Task.Run). A test hands one that runs the work at once, or holds it until the test lets it run.</summary>
+    public Func<Action, System.Threading.Tasks.Task>? OffTheWindowsThread { get; init; }
     /// <summary>Asks Windows whether it is NOT showing MultiPreview's notifications (IDEAS #33): switched off in
     /// Windows' own settings, or by a policy. Asked from the window's thread and answered on another one, for the
     /// line on Alerts › Alert hub that says so. Null in tests and in a window opened without the app: no line.</summary>

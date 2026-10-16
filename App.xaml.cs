@@ -428,8 +428,9 @@ public partial class App : Application
             // The last word of a chain of repeats (IDEAS #29) is spoken once more.
             // A sentence may wait ten seconds for its turn, and then the way asks whether each of its alerts is
             // still wanted: not when the character is muted or the event snoozed for it meanwhile, and not when
-            // the player has looked at that client since. (An alert on the client in front was never unseen, and
-            // is spoken as its sound is played.) Asked on the voice's thread: all three answers may be asked there.
+            // the player has looked at that client since. An alert on the client in front is not spoken at all
+            // (FY-n1; its sound plays). Asked on the voice's thread: all three answers may be asked there.
+            // A look at a client forgets what the voice holds against saying its alerts again (FY-n2).
             // FY-m3: the three ways are made in one try. A failure is reported by its type, and the start-up goes on to
             // the alert handler, the monitor, the tray and the hub: a way that could not be made is simply not there.
             try
@@ -439,8 +440,10 @@ public partial class App : Application
                 (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
                 AlertHub.EventDisplayName, LocalizationService.Str, () => LocalizationService.CurrentLanguage, LogError,
                 stillWanted: alert => !_thumbnailManager.IsCharacterAlertMuted(alert.Character) && !_snoozes.IsSnoozed(alert.Character, alert.EventKey)
-                    && (alert.ClientInFront || _thumbnailManager.Attention.Has(alert.Character)));
+                    && _thumbnailManager.Attention.Has(alert.Character));
             _alertWays.Add(_spokenWay);
+            _thumbnailManager.Attention.Looked += _spokenWay.Looked;
+            _spokenWay.Follow(_settings.Settings.SpeakAlerts);
             _escalation.HandOff = _spokenWay.HandedOff;
             // IDEAS #33: Windows notifications. The way is told of every alert that got past the gates and of every
             // client that was looked at; a click on a notification comes back on a thread of Windows' and is done on
@@ -1359,6 +1362,7 @@ public partial class App : Application
             FollowSnoozeSwitch();   // IDEAS #30: the snooze file is written or removed as its switch says
             FollowAlertTimer();     // IDEAS #29: the one-second look starts or stops with what needs it
             FollowNotifications();  // IDEAS #33: the registry key is written or removed as its switch says
+            _spokenWay?.Follow(_settings!.Settings.SpeakAlerts);   // FX-m4: off and on again counts the voice's asks anew
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)
