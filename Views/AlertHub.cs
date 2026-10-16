@@ -126,6 +126,7 @@ public class AlertHub : IDisposable
             ResizeMode = ResizeMode.NoResize,
             FontFamily = AlertHubVisuals.TextFont,
         };
+        SettingsUi.UiStyles.Attach(_hubWindow, SettingsUi.StyledAs.Surface);   // the look, never Fluent (plan S1, ruling 7)
         _hub = AlertHubVisuals.BuildHub();
         var hubContainer = _hub.Bell;
         _hubWindow.Content = _hub.Root;
@@ -564,6 +565,7 @@ public class AlertHub : IDisposable
             ResizeMode = ResizeMode.NoResize
         };
 
+        SettingsUi.UiStyles.Attach(popup, SettingsUi.StyledAs.Surface);
         var canvas = new Canvas
         {
             Width = 100,
@@ -735,6 +737,7 @@ public class AlertToast : IDisposable
             FontFamily = AlertHubVisuals.TextFont,
         };
 
+        SettingsUi.UiStyles.Attach(Window, SettingsUi.StyledAs.Surface);
         var border = AlertHubVisuals.BuildToast(characterName, alertType, severityColor, system, out var secondLine);
         if (AlertHubVisuals.ToastShowsAge(durationSeconds))
         {

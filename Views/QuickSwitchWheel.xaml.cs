@@ -173,39 +173,36 @@ public partial class QuickSwitchWheel : Window
 
     private void CreateCard(string name, int index, string? system)
     {
-        var numberText = new TextBlock
-        {
-            FontSize = 11,
-            Foreground = FluentPalette.Brush("Fx.Text"),
-        };
+        var numberText = new TextBlock { FontSize = 11 };
         numberText.SetResourceReference(TextBlock.FontFamilyProperty, "Fx.MonoFont");
+        numberText.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextBrush");
         var number = new Border
         {
-            Background = FluentPalette.Brush("Fx.Control"),
-            BorderBrush = FluentPalette.Brush("Fx.Border"),
             BorderThickness = new Thickness(1),
             CornerRadius = new CornerRadius(4),
             Padding = new Thickness(6, 0, 6, 1),
             HorizontalAlignment = HorizontalAlignment.Left,
             Child = numberText,
         };
+        number.SetResourceReference(Border.BackgroundProperty, "Fx.ControlBrush");
+        number.SetResourceReference(Border.BorderBrushProperty, "Fx.BorderBrush");
         var nameText = new TextBlock
         {
             Text = name,
             FontSize = 13,
             FontWeight = FontWeights.SemiBold,
-            Foreground = FluentPalette.Brush("Fx.Text"),
             TextTrimming = TextTrimming.CharacterEllipsis,
             Margin = new Thickness(0, 6, 0, 0),
         };
+        nameText.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextBrush");
         var systemText = new TextBlock
         {
             Text = system ?? "",
             FontSize = 12,
-            Foreground = FluentPalette.Brush("Fx.TextSecondary"),
             TextTrimming = TextTrimming.CharacterEllipsis,
             Visibility = string.IsNullOrWhiteSpace(system) ? Visibility.Collapsed : Visibility.Visible,
         };
+        systemText.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
         var card = new Border
         {
             Width = QuickSwitchLayout.CardWidth,
@@ -241,8 +238,8 @@ public partial class QuickSwitchWheel : Window
     private static void SetLook(CardEntry e, CardLook look)
     {
         bool lit = look is CardLook.Hover or CardLook.Drag;
-        e.Card.Background = FluentPalette.Brush(lit ? "Fx.AccentSoft" : "Fx.CardColor");
-        e.Card.BorderBrush = FluentPalette.Brush(look == CardLook.Normal ? "Fx.FlyoutBorder" : "Fx.Accent");
+        e.Card.SetResourceReference(Border.BackgroundProperty, lit ? "Fx.AccentSoftBrush" : "Fx.CardBrush");
+        e.Card.SetResourceReference(Border.BorderBrushProperty, look == CardLook.Normal ? "Fx.FlyoutBorderBrush" : "Fx.AccentBrush");
         e.Card.Opacity = look == CardLook.Drag ? 0.85 : 1.0;
         e.Card.Cursor = look is CardLook.Edit or CardLook.Drag ? Cursors.SizeAll : Cursors.Hand;
     }

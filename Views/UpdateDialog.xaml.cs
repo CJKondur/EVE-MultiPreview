@@ -80,14 +80,15 @@ public partial class UpdateDialog : Window
     private void ShowNotes(string? markdown)
     {
         NotesPanel.Children.Clear();
-        NotesPanel.Children.Add(new TextBlock
+        var heading = new TextBlock
         {
             Text = Str("L.Upd.WhatsNew", "What's new"),
             FontWeight = FontWeights.SemiBold,
             FontSize = 13,
-            Foreground = FluentPalette.Brush("Fx.Text"),
             Margin = new Thickness(0, 0, 0, 6),
-        });
+        };
+        heading.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextBrush");
+        NotesPanel.Children.Add(heading);
         var blocks = ReleaseNotesMarkup.Parse(markdown);
         if (blocks.Count == 0)
         {
@@ -103,22 +104,33 @@ public partial class UpdateDialog : Window
                 text.Inlines.Add(new Run("•  "));
             }
             foreach (var run in block.Runs)
-                text.Inlines.Add(run.Bold
-                    ? new Bold(new Run(run.Text)) { Foreground = FluentPalette.Brush("Fx.Text") }
-                    : new Run(run.Text));
+            {
+                if (!run.Bold)
+                {
+                    text.Inlines.Add(new Run(run.Text));
+                    continue;
+                }
+                var bold = new Bold(new Run(run.Text));
+                bold.SetResourceReference(System.Windows.Documents.TextElement.ForegroundProperty, "Fx.TextBrush");
+                text.Inlines.Add(bold);
+            }
             NotesPanel.Children.Add(text);
         }
     }
 
-    private static TextBlock Line(string? text) => new()
+    private static TextBlock Line(string? text)
     {
-        Text = text ?? "",
-        FontSize = 13,
-        LineHeight = 20,
-        TextWrapping = TextWrapping.Wrap,
-        Foreground = FluentPalette.Brush("Fx.TextSecondary"),
-        Margin = new Thickness(0, 4, 0, 4),
-    };
+        var line = new TextBlock
+        {
+            Text = text ?? "",
+            FontSize = 13,
+            LineHeight = 20,
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 4, 0, 4),
+        };
+        line.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
+        return line;
+    }
 
     private static string Str(string key, string english) => LocalizationService.Str(key, english);
 

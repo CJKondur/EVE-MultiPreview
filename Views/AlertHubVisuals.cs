@@ -59,6 +59,9 @@ public static class AlertHubVisuals
 
     private static FontFamily IconFont => new("Segoe Fluent Icons, Segoe MDL2 Assets");
 
+    /// <summary>The bell's corners for the current look: a circle, or square (Fx.Hub.Round).</summary>
+    public static CornerRadius BellCorners => new(UiPalette.Current.HubRound ? BellSize / 2 : 0);
+
     public static HubParts BuildHub()
     {
         var icon = new TextBlock
@@ -66,31 +69,31 @@ public static class AlertHubVisuals
             Text = Glyphs.Bell,
             FontFamily = IconFont,
             FontSize = 18,
-            Foreground = FluentPalette.Brush("Fx.Text"),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        icon.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextBrush");
         var bell = new Border
         {
             Width = BellSize,
             Height = BellSize,
-            CornerRadius = new CornerRadius(BellSize / 2),
-            Background = FluentPalette.Brush("Fx.Flyout"),
-            BorderBrush = FluentPalette.Brush("Fx.FlyoutBorder"),
+            CornerRadius = BellCorners,
             BorderThickness = new Thickness(1),
             Cursor = System.Windows.Input.Cursors.Hand,
             Child = icon,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        bell.SetResourceReference(Border.BackgroundProperty, "Fx.FlyoutBrush");
+        bell.SetResourceReference(Border.BorderBrushProperty, "Fx.FlyoutBorderBrush");
         var badgeLabel = new TextBlock
         {
             FontSize = 11,
             FontWeight = FontWeights.Bold,
-            Foreground = FluentPalette.Brush("Fx.OnAlertBadge"),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
+        badgeLabel.SetResourceReference(TextBlock.ForegroundProperty, "Fx.OnAlertBadgeBrush");
         // Over the bell's top-right edge, 4 px outside it, as the reference.
         double inset = (HubWindowSize - BellSize) / 2 - 4;
         var badge = new Border
@@ -99,7 +102,6 @@ public static class AlertHubVisuals
             Height = 18,
             Padding = new Thickness(4, 0, 4, 0),
             CornerRadius = new CornerRadius(9),
-            Background = FluentPalette.Brush("Fx.AlertBadge"),
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(0, inset, inset, 0),
@@ -107,6 +109,7 @@ public static class AlertHubVisuals
             Visibility = Visibility.Collapsed,
             Child = badgeLabel,
         };
+        badge.SetResourceReference(Border.BackgroundProperty, "Fx.AlertBadgeBrush");
         var root = new Grid { Width = HubWindowSize, Height = HubWindowSize };
         root.Children.Add(bell);
         root.Children.Add(badge);
@@ -156,62 +159,69 @@ public static class AlertHubVisuals
             Margin = new Thickness(0, 0, 12, 0),
         };
         var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        text.Children.Add(new TextBlock
+        var firstLine = new TextBlock
         {
             Text = title,
             FontSize = 13,
             FontWeight = FontWeights.SemiBold,
-            Foreground = FluentPalette.Brush("Fx.Text"),
             TextTrimming = TextTrimming.CharacterEllipsis,
-        });
+        };
+        firstLine.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextBrush");
+        text.Children.Add(firstLine);
         secondLine = new TextBlock
         {
             Text = subtitle,
             FontSize = 12,
-            Foreground = FluentPalette.Brush("Fx.TextSecondary"),
             TextTrimming = TextTrimming.CharacterEllipsis,
             Margin = new Thickness(0, 3, 0, 0),
         };
+        secondLine.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
         text.Children.Add(secondLine);
         var row = new DockPanel { LastChildFill = true };
         DockPanel.SetDock(bar, Dock.Left);
         row.Children.Add(bar);
         row.Children.Add(text);
-        return new Border
+        var toast = new Border
         {
             Width = ToastWidth,
             Height = ToastHeight,
-            Background = FluentPalette.Brush("Fx.Flyout"),
-            BorderBrush = FluentPalette.Brush("Fx.FlyoutBorder"),
             BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(8),
             Padding = new Thickness(14, 10, 14, 10),
             Cursor = System.Windows.Input.Cursors.Hand,
             Child = row,
         };
+        toast.SetResourceReference(Border.BackgroundProperty, "Fx.FlyoutBrush");
+        toast.SetResourceReference(Border.BorderBrushProperty, "Fx.FlyoutBorderBrush");
+        toast.SetResourceReference(Border.CornerRadiusProperty, "Fx.FlyoutRadius");
+        return toast;
     }
 
     /// <summary>One button of the direction picker (28 × 28): the current direction in accent, the others on the flyout
     /// surface. <paramref name="round"/> makes the centre close button.</summary>
-    public static Border BuildPickerButton(string glyph, bool current, double size = 28, bool round = false) => new()
+    public static Border BuildPickerButton(string glyph, bool current, double size = 28, bool round = false)
     {
-        Width = size,
-        Height = size,
-        CornerRadius = new CornerRadius(round ? size / 2 : 4),
-        Background = FluentPalette.Brush(current ? "Fx.Accent" : round ? "Fx.Control" : "Fx.Flyout"),
-        BorderBrush = FluentPalette.Brush(current ? "Fx.Accent" : "Fx.FlyoutBorder"),
-        BorderThickness = new Thickness(1),
-        Cursor = System.Windows.Input.Cursors.Hand,
-        Child = new TextBlock
+        var mark = new TextBlock
         {
             Text = glyph,
             FontFamily = IconFont,
             FontSize = 12,
-            Foreground = FluentPalette.Brush(current ? "Fx.OnAccent" : "Fx.Text"),
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-        },
-    };
+        };
+        mark.SetResourceReference(TextBlock.ForegroundProperty, current ? "Fx.OnAccentBrush" : "Fx.TextBrush");
+        var button = new Border
+        {
+            Width = size,
+            Height = size,
+            CornerRadius = new CornerRadius(round ? size / 2 : 4),
+            BorderThickness = new Thickness(1),
+            Cursor = System.Windows.Input.Cursors.Hand,
+            Child = mark,
+        };
+        button.SetResourceReference(Border.BackgroundProperty, current ? "Fx.AccentBrush" : round ? "Fx.ControlBrush" : "Fx.FlyoutBrush");
+        button.SetResourceReference(Border.BorderBrushProperty, current ? "Fx.AccentBrush" : "Fx.FlyoutBorderBrush");
+        return button;
+    }
 
     /// <summary>A round button of the hub's menu (the picker's corners): a glyph, with what it does as its tooltip and
     /// its screen-reader name.</summary>
