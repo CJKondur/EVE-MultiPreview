@@ -385,4 +385,268 @@
         </Setter>
     </Style>
     <Style TargetType="GroupBox" BasedOn="{StaticResource Kit.GroupBox.Line}"/>
+
+    <!-- ═══ Toggle button: the kit's button, held in while it is on (Box) ═══ -->
+    <Style x:Key="Kit.Toggle.Box" TargetType="ToggleButton">
+        <Setter Property="Background" Value="{DynamicResource Fx.ButtonBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.ButtonBorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.ButtonTextBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
+        <Setter Property="Padding" Value="10,3"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="bd" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Box}"/>
+
+    <!-- ═══ WPF's own shapes, as the old window had them: the scroll bar takes its own column ═══ -->
+    <Style TargetType="RepeatButton"/>
+    <Style TargetType="ScrollBar"/>
+    <Style TargetType="ScrollViewer"/>
+    <Style TargetType="ProgressBar">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.AccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.ControlBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.ControlEdgeBrush}"/>
+    </Style>
+
+    <!-- ═══ A list box: a box on the input colour; the picked item on the soft accent (Box) ═══ -->
+    <Style x:Key="Kit.List.Box" TargetType="ListBox">
+        <Setter Property="Background" Value="{DynamicResource Fx.ControlBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.ControlEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" Padding="1" SnapsToDevicePixels="True">
+                        <ScrollViewer Focusable="False" Padding="{TemplateBinding Padding}">
+                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </ScrollViewer>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ListBox" BasedOn="{StaticResource Kit.List.Box}"/>
+    <Style x:Key="Kit.List.Item" TargetType="ListBoxItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="Padding" Value="8,3"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.CardHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.AccentSoftBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ListBoxItem" BasedOn="{StaticResource Kit.List.Item}"/>
+
+    <!-- ═══ A list view (the alert history's table): WPF's own GridView shape, with the look's rows and headers ═══ -->
+    <Style TargetType="ListView">
+        <Setter Property="Background" Value="{DynamicResource Fx.CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+    </Style>
+    <Style x:Key="Kit.Row.Item" TargetType="ListViewItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="Padding" Value="2,3"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListViewItem">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <GridViewRowPresenter Columns="{TemplateBinding GridView.ColumnCollection}" Content="{TemplateBinding Content}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.CardHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.AccentSoftBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ListViewItem" BasedOn="{StaticResource Kit.Row.Item}"/>
+    <Style x:Key="Kit.Header.Box" TargetType="GridViewColumnHeader">
+        <Setter Property="Background" Value="{DynamicResource Fx.HeaderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Padding" Value="6,3"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="GridViewColumnHeader">
+                    <Grid SnapsToDevicePixels="True">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{DynamicResource Fx.Line.Control}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                        </Border>
+                        <Thumb x:Name="PART_HeaderGripper" HorizontalAlignment="Right" Width="8" Margin="0,0,-4,0" Cursor="SizeWE">
+                            <Thumb.Template>
+                                <ControlTemplate TargetType="Thumb">
+                                    <Border Background="Transparent"/>
+                                </ControlTemplate>
+                            </Thumb.Template>
+                        </Thumb>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource Kit.Header.Box}"/>
+
+    <!-- ═══ Menus and tool tips: on the flyout colour, with its edge and corner. A row is Fx.Menu.RowHeight high; a
+         checked item has a tick; the pointed one is on the soft accent. ═══ -->
+    <Style x:Key="Kit.Menu.Box" TargetType="ContextMenu">
+        <Setter Property="Background" Value="{DynamicResource Fx.FlyoutBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.FlyoutBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Body}"/>
+        <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Fx.FlyoutRadius}" Padding="2">
+                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ContextMenu" BasedOn="{StaticResource Kit.Menu.Box}"/>
+    <Style x:Key="Kit.Menu.Row" TargetType="MenuItem">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Menu.RowHeight}"/>
+        <Setter Property="Padding" Value="4,0,8,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="Gesture"/>
+                                <ColumnDefinition Width="12"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="Tick" Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}" Visibility="Hidden"
+                                       VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}"/>
+                            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="16,0,0,0" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource Fx.TextSecondaryBrush}"/>
+                            <Path x:Name="Arrow" Grid.Column="3" Data="M 0 0 L 4 4 L 0 8 Z" Fill="{TemplateBinding Foreground}" Visibility="Collapsed"
+                                  HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <Popup x:Name="PART_Popup" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="{DynamicResource Fx.FlyoutBrush}" BorderBrush="{DynamicResource Fx.FlyoutBorderBrush}"
+                                        BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.FlyoutRadius}" Padding="2">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.AccentSoftBrush}"/>
+                        </Trigger>
+                        <Trigger Property="Role" Value="SubmenuHeader">
+                            <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="MenuItem" BasedOn="{StaticResource Kit.Menu.Row}"/>
+    <!-- A separator in a menu is styled by MenuItem.SeparatorStyleKey, anywhere else by its type. -->
+    <Style x:Key="Kit.Menu.Separator" TargetType="Separator">
+        <Setter Property="Background" Value="{DynamicResource Fx.DividerBrush}"/>
+        <Setter Property="Margin" Value="4,3"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Border Height="1" Background="{TemplateBinding Background}" SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator" BasedOn="{StaticResource Kit.Menu.Separator}"/>
+    <Style TargetType="Separator" BasedOn="{StaticResource Kit.Menu.Separator}"/>
+    <Style x:Key="Kit.ToolTip.Box" TargetType="ToolTip">
+        <Setter Property="Background" Value="{DynamicResource Fx.FlyoutBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.FlyoutBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Body}"/>
+        <Setter Property="Padding" Value="6,3"/>
+        <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Fx.FlyoutRadius}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ToolTip" BasedOn="{StaticResource Kit.ToolTip.Box}"/>
 </ResourceDictionary>
