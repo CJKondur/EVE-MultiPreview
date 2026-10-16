@@ -230,7 +230,7 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="20"/>
             </Grid.ColumnDefinitions>
-            <Border x:Name="Border" Grid.ColumnSpan="2" Background="{DynamicResource Fx.ControlBrush}" BorderBrush="{DynamicResource Fx.ControlEdgeBrush}"
+            <Border x:Name="Border" Grid.ColumnSpan="2" Background="{DynamicResource Fx.ControlBrush}" BorderBrush="{TemplateBinding BorderBrush}"
                     BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.Radius.Control}"/>
             <Path x:Name="Arrow" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M 0 0 L 4 4 L 8 0 Z"
                   Fill="{DynamicResource Fx.TextBrush}"/>
@@ -248,6 +248,7 @@
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
                         <ToggleButton x:Name="Toggle" Template="{StaticResource Kit.Dropdown.Toggle}" Focusable="False" ClickMode="Press"
+                                      BorderBrush="{DynamicResource Fx.ControlEdgeBrush}"
                                       IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
                         <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}"
                                           ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
@@ -272,6 +273,9 @@
                         <Trigger Property="IsEditable" Value="True">
                             <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
                             <Setter TargetName="ContentSite" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Toggle" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.56"/>
