@@ -3263,9 +3263,15 @@ public sealed class ThumbnailManager : IDisposable
                 // Still activate it so the hotkey at least feels responsive
                 var solo = charSelectWindows[0];
                 if (Interop.User32.IsIconic(solo)) Interop.User32.ShowWindowAsync(solo, Interop.User32.SW_RESTORE);
-                Interop.User32.SetForegroundWindow(solo);
+                Interop.User32.ActivateWindow(solo);
                 return;
             }
+
+            // Step from the client that is actually in front (#116). The stored index
+            // alone went stale as soon as you clicked a client, so the next press could
+            // "switch" to the one you were already in.
+            int fgIdx = charSelectWindows.IndexOf(Interop.User32.GetForegroundWindow());
+            if (fgIdx >= 0) _charSelectIndex = fgIdx;
 
             if (forward)
                 _charSelectIndex = (_charSelectIndex + 1) % charSelectWindows.Count;
@@ -3278,9 +3284,11 @@ public sealed class ThumbnailManager : IDisposable
             if (Interop.User32.IsIconic(targetHwnd))
                 Interop.User32.ShowWindowAsync(targetHwnd, Interop.User32.SW_RESTORE);
 
-            // Raw window activation
-            Interop.User32.SetForegroundWindow(targetHwnd);
-            Interop.User32.SetFocus(targetHwnd);
+            // The same tiered activation every other switch uses (#116). A bare
+            // SetForegroundWindow is refused when the hotkey's keystroke was hidden from
+            // the clients (2.3.38+): the press never reaches Windows as our input, so we
+            // hold no right to take the foreground - unless a thumbnail was just clicked.
+            Interop.User32.ActivateWindow(targetHwnd);
             
             // Explicitly pass held login actions (like Enter) to Chromium message pump
             Interop.User32.FixTargetHeldKeys(targetHwnd);
