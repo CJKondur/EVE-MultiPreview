@@ -1526,9 +1526,9 @@
     <sys:String x:Key="L.Help.alerts.events.logs.Title">警报从哪里来</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.logs.Body">- **聊天日志**让 MultiPreview 知道每个客户端所在的星系。&#x0A;- **游戏日志**包含战斗、舰队、对话和采矿的记录，并为统计叠加层提供数据。&#x0A;&#x0A;两者默认开启，并从 EVE 的默认文件夹读取。只有移动过 EVE 日志时才需要更改文件夹。更改会立即生效，读取会从原位置继续，因此不会重复提示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE 模式与受攻击边框</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 模式**适用于刷怪和任务：NPC 攻击或扰断你时不再触发警报，玩家仍会触发。&#x0A;&#x0A;**受攻击边框**在该客户端受到伤害时于缩略图上闪烁红色，并在最后一次受击几秒后消失。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 模式**适用于刷怪和任务：NPC 攻击或扰断你时不再触发警报，玩家仍会触发，但日志行中名字不带军团或联盟代号的玩家不会。&#x0A;&#x0A;**受攻击边框**在该客户端受到伤害时于缩略图上闪烁红色，并在最后一次受击几秒后消失。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">事件表</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">每一行是一种警报。&#x0A;- **严重程度**对每个事件是固定的。它决定事件的颜色、闪烁速度和通知选择（外观 &amp; 严重程度）。&#x0A;- **颜色**为单个事件指定专属颜色；↺ 恢复为严重程度的颜色。&#x0A;- **持续**是警报停留在缩略图上的时间。&#x0A;- **角标**在缩略图上统计该事件；**常亮**保持边框常亮而不闪烁。&#x0A;- **开启**可完全关闭该事件。&#x0A;&#x0A;**静默时间**可在几秒内阻止同一警报为某个角色重复触发。**按严重程度设置静默时间**（外观 &amp; 严重程度）可为每种严重程度单独设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">每一行是一种警报。&#x0A;- **严重程度**对每个事件是固定的。它决定事件的颜色、闪烁速度和通知选择（外观 &amp; 严重程度）。&#x0A;- **颜色**为单个事件指定专属颜色；↺ 恢复为严重程度的颜色。&#x0A;- **持续**是警报停留在缩略图上的时间。&#x0A;- **角标**在缩略图上统计该事件；**常亮**保持边框常亮而不闪烁。&#x0A;- **开启**可对所有人关闭该事件；分组仍可为其成员开启它（下方的按分组设置警报）。&#x0A;&#x0A;**静默时间**可在几秒内阻止同一警报为某个角色重复触发。**按严重程度设置静默时间**（外观 &amp; 严重程度）可为每种严重程度单独设置。</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">外观 &amp; 严重程度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">警报在缩略图上的外观、三种严重程度，以及色盲模式。</sys:String> <!-- draft -->
@@ -2162,9 +2162,9 @@
     <sys:String x:Key="L.Help.alerts.events.snoozes.Body">右键点击提示，可以为该角色暂停这种警报：15 分钟、1 小时，或直到 MultiPreview 重新启动。指针离开菜单后，菜单会自行关闭。同样的警报仍会发给你的其他角色，这个角色的其他警报也照常发出。&#x0A;&#x0A;- 已暂停的警报不显示边框、角标或提示，也不播放声音。警报历史记录里仍会列出它，并标为 已暂停。&#x0A;- **当前已暂停** 列出当前暂停的警报，缩略图的右键菜单列出该角色的。两处都可以结束暂停。&#x0A;- 要让一个角色的所有警报都安静，请改用缩略图菜单里的 静音警报。&#x0A;- **MultiPreview 重新启动后保留暂停** 是关闭的：关闭 MultiPreview 会结束所有暂停。打开后，有时限的暂停会保存在设置文件夹的 alert_snoozes.json 里，并持续到时间用完。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.dnd">勿扰模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey">勿扰模式开关</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">在你再次按下之前静音警报声音。边框、角标和提示照常显示。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">在你再次按下之前静音警报声音和语音警报。边框、角标和提示照常显示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndCritical">严重警报仍然发声</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.sounds.dndCritical.Desc">即使开启勿扰模式，遭到攻击、跃迁干扰或隐形解除仍会播放声音。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.dndCritical.Desc">即使开启勿扰模式，严重警报仍会播放声音，也仍会朗读。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietHours">每天的安静时段</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietHours.Desc">勿扰模式会按这台电脑的时钟自动开关。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietFrom">开始时间</sys:String> <!-- draft -->
@@ -2183,7 +2183,7 @@
     <sys:String x:Key="L.S.alerts.sounds.escalateAfter">重复间隔</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalateAfter.Desc">从警报开始的秒数，以及两次重复之间的秒数。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalateRepeats">重复次数</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.sounds.escalateRepeats.Desc">最后一次重复之后，在你查看之前 MultiPreview 保持安静。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.escalateRepeats.Desc">最后一次重复之后，在你查看之前 MultiPreview 不再播放声音。开启语音警报时，这条警报会再朗读一次。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.escalation.Title">重复严重警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.escalation.Body">语音通话时，只响一次的声音很容易漏掉。打开 **重复你还没看过的严重警报** 后，如果你没有把发出严重警报的客户端切到前台，它的声音会在 **重复间隔** 之后再响一次，之后还会重复，最多 **重复次数** 次。每次重复音量提高刻度的四分之一，直到最大音量。&#x0A;&#x0A;- 重复就是把警报的声音再放一遍：本页的 **播放警报声音** 必须打开，而新安装时它是关闭的。它关闭时不会重复。&#x0A;- 查看该客户端会立刻停止重复。关闭客户端、静音该角色、暂停这种警报或关闭该事件也一样。&#x0A;- 同一客户端上同一种的多条警报会合并成一条来重复。&#x0A;- 多个客户端同时到点时，它们的重复每秒播放一个。&#x0A;- 本页为事件设置的声音静默时间依然有效：重复会等它过去。&#x0A;- 勿扰模式开启且 **严重警报仍然发声** 也开启时，重复照常但不会更响。那个开关关闭时，在勿扰模式结束前不会重复。&#x0A;- 警告和信息级别的警报从不重复。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.straggler">掉队</sys:String> <!-- draft -->
@@ -2205,8 +2205,8 @@
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows 同一时间只会把每个按键组合交给一个程序。如果其他程序先占用了某个热键，按下它在 MultiPreview 中不会有任何反应，也不会告诉你原因。&#x0A;&#x0A;- **Windows 拒绝的按键** 会列出每个这样的按键及其绑定的功能。点击其中一个即可更改。&#x0A;- 常见的占用者是悬浮层、截图工具和按键映射工具：NVIDIA 悬浮层、AMD Software、ShareX、Greenshot、AutoHotkey、PowerToys。卡片会列出正在运行的程序。对于带 Win 键的热键，卡片还会说明 Windows 自己保留了许多 Win 组合。&#x0A;- MultiPreview 还会通过托盘通知提示，每个按键只提示一次。&#x0A;- 每次注册按键时都会检查：EVE 客户端运行且热键未暂停期间，以及你更改设置之后。在其他程序中释放按键后，点击 **重新检查** 可以让 MultiPreview 再向 Windows 请求一次。鼠标按键永远不会被拒绝。&#x0A;- 开启 **按住 Ctrl、Shift 或 Alt 时热键仍然有效** 后，每个按键还会与 Ctrl、Alt、Shift、Win 的各种组合一起注册。其中许多组合被 Windows 自己保留。列表中只显示你选择的组合。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.LastAlertHere">最新的警报就在这个客户端上</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">24 小时制，例如 23:00。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.On">勿扰模式现在是开启的。警报声音已静音。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.OnCritical">勿扰模式现在是开启的。警报声音已静音，但严重警报仍然发声。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.On">勿扰模式现在是开启的。警报声音和语音警报已静音。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.OnCritical">勿扰模式现在是开启的。警报声音和语音警报已静音，但严重警报仍然发声并会朗读。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">重新检查</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows 自己保留了许多带 Win 键的组合。被拒绝的热键如果带 Win，很可能就是其中之一：请换一个组合。</sys:String> <!-- draft -->
     <!-- Ideas batch 6 (Plan 10) -->
@@ -2232,7 +2232,7 @@
     <sys:String x:Key="L.S.Speech.NoVoice">Windows 没有 MultiPreview 语言的语音。警报会用另一种语音朗读，可能读不好。你可以在 Windows 的语音设置里添加语音，或者在这里选一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.NoVoices">Windows 没有安装任何语音，所以无法朗读。请在 Windows 的语音设置里添加一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.speech.Title">语音警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">打开 **朗读警报** 后，Windows 语音会说出是谁的警报以及发生了什么：角色的名字和事件的名字，使用 MultiPreview 的语言。你不用看就知道谁需要你，在很多客户端共用一个警报声音时最有用。&#x0A;&#x0A;- **朗读哪些警报** 按严重程度选择：仅严重、严重和警告，或者全部。&#x0A;- 同一事件的警报一起到达时会合成一句话。两个客户端时会说出两个名字，例如“Alpha, Bravo, 遭受攻击”；三个或更多时只报数量，例如“3 个客户端：遭受攻击”；两个名字会让句子太长时也只报数量。最严重的警报最先朗读。&#x0A;- 等待超过 10 秒的警报不再朗读。同一客户端的同一警报在 30 秒内不会再次朗读；如果该事件的声音静默时间更长，则以它为准。&#x0A;- 语音也是声音：勿扰模式会像拦住警报声音一样拦住语音。**严重警报仍然发声** 打开时（一开始就是打开的），严重警报仍会朗读；想要完全安静就关掉它。已静音的角色和已暂停的警报不会朗读，轮到它之前你已经查看过客户端的警报也不会朗读。它不需要 **播放警报声音**：没有提示音时语音照样工作。&#x0A;- **语音种类** 为每个严重程度设定语音。自动会在 Windows 有 MultiPreview 语言的语音时使用它，否则使用 Windows 默认语音。语音在 Windows 的语音设置里添加。&#x0A;- 当一条严重警报已按设定的次数重复而你仍然没有查看时，它会再朗读一次。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">打开 **朗读警报** 后，Windows 语音会说出是谁的警报以及发生了什么：角色的名字和事件的名字，使用 MultiPreview 的语言。你不用看就知道谁需要你，在很多客户端共用一个警报声音时最有用。&#x0A;&#x0A;- **朗读哪些警报** 按严重程度选择：仅严重、严重和警告，或者全部。&#x0A;- 同一事件的警报一起到达时会合成一句话。两个客户端时会说出两个名字，例如“Alpha, Bravo, 遭受攻击”；三个或更多时只报数量，例如“3 个客户端：遭受攻击”；两个名字会让句子太长时也只报数量。最严重的警报最先朗读。&#x0A;- 等待超过 10 秒的警报不再朗读。同一客户端的同一警报在 30 秒内不会再次朗读；如果该事件的声音静默时间更长，则以它为准。你查看过该客户端之后，它的下一条警报会再次朗读。&#x0A;- 语音也是声音：勿扰模式会像拦住警报声音一样拦住语音。**严重警报仍然发声** 打开时（一开始就是打开的），严重警报仍会朗读；想要完全安静就关掉它。已静音的角色和已暂停的警报不会朗读，轮到它之前你已经查看过客户端的警报也不会朗读。你正在查看的客户端上的警报不会朗读，它的声音照常播放。它不需要 **播放警报声音**：没有提示音时语音照样工作。&#x0A;- **语音种类** 为每个严重程度设定语音。自动会在 Windows 有 MultiPreview 语言的语音时使用它，否则使用 Windows 默认语音。语音在 Windows 的语音设置里添加。&#x0A;- 当一条严重警报已按设定的次数重复而你仍然没有查看时，它会再朗读一次。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.hub.windows">Windows 通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notify">把警报显示为 Windows 通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notify.Desc">警报也会作为 Windows 的通知出现，并留在通知中心里，直到你查看了那个客户端。</sys:String> <!-- draft -->
@@ -2251,7 +2251,7 @@
     <sys:String x:Key="L.S.alerts.look.enlargeSeconds">保持放大的时间</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.look.enlargeSeconds.Desc">从警报开始计算的秒数。你切换到那个客户端时，它会立刻恢复。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.look.enlarge.Title">警报时放大</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.look.enlarge.Body">打开 **警报时放大缩略图** 后，发出警报的客户端的缩略图会放大几秒钟，让你不用切换过去就能看到那里发生了什么。&#x0A;&#x0A;- **哪些警报会放大** 按严重程度选择。**放大后的大小** 和 **保持放大的时间** 决定放多大、放多久。那个客户端上更新的警报会让它保持放大更久。&#x0A;- 时间到了它会自己恢复；那个客户端切换到前台时、你在缩略图的菜单里把那个角色的警报静音时，或者那个角色下线时，它会立刻恢复。&#x0A;- 它以自己的中心为基准放大，不会比显示器更大；如果会超出屏幕，就会被移回屏幕内。你的布局不会改变，放大的状态也不会被保存。&#x0A;- 放大出来的部分不接受点击：要切换到那个客户端，请点击缩略图平时所在的位置。点击放大出来的部分时，点击会落到它下面的 MultiPreview 窗口上（另一个缩略图、第二缩略图、统计叠加层窗口或裁剪窗口），下面没有这样的窗口就什么也不会发生，所以在指针下方放大的缩略图不会意外切换客户端。&#x0A;- 只有在缩略图保持置顶时，它才会位于旁边的缩略图之上：打开 **始终置顶**，或者打开 **保持在 EVE 客户端之上** 并且有 EVE 客户端位于前台。否则它就在其他窗口之间原来的层次上放大。&#x0A;- 它显示的是缩略图的画面，只是更大。对于最小化的客户端，以及打开 **静态缩略图** 时，那是最后一张快照，而不是此刻正在发生的事。&#x0A;- 指针停在缩略图上时，它不会开始放大；已经放大的缩略图在指针移上来时保持放大。正在拖动的缩略图和前台客户端不会放大。有缩略图的右键菜单打开时，没有任何缩略图处于放大状态：已经放大的会恢复，菜单关闭后再次放大。第二缩略图和裁剪窗口从不放大。&#x0A;- 勿扰模式会拦住警报声音和语音；缩略图仍然会放大。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.look.enlarge.Body">打开 **警报时放大缩略图** 后，发出警报的客户端的缩略图会放大几秒钟，让你不用切换过去就能看到那里发生了什么。&#x0A;&#x0A;- **哪些警报会放大** 按严重程度选择。**放大后的大小** 和 **保持放大的时间** 决定放多大、放多久。那个客户端上更新的警报会让它保持放大更久。&#x0A;- 时间到了它会自己恢复；那个客户端切换到前台时、你在缩略图的菜单里把那个角色的警报静音或暂停它的某个警报时，或者那个角色下线时，它会立刻恢复。&#x0A;- 它以自己的中心为基准放大，不会比显示器更大；如果会超出屏幕，就会被移回屏幕内。你的布局不会改变，放大的状态也不会被保存。&#x0A;- 放大出来的部分不接受点击：要切换到那个客户端，请点击缩略图平时所在的位置。点击放大出来的部分时，点击会落到它下面的 MultiPreview 窗口上（另一个缩略图、第二缩略图、统计叠加层窗口或裁剪窗口），下面没有这样的窗口就什么也不会发生，所以在指针下方放大的缩略图不会意外切换客户端。&#x0A;- 只有在缩略图保持置顶时，它才会位于旁边的缩略图之上：打开 **始终置顶**，或者打开 **保持在 EVE 客户端之上** 并且有 EVE 客户端位于前台。否则它就在其他窗口之间原来的层次上放大。&#x0A;- 它显示的是缩略图的画面，只是更大。对于最小化的客户端，以及打开 **静态缩略图** 时，那是最后一张快照，而不是此刻正在发生的事。&#x0A;- 指针停在缩略图上时，它不会开始放大；已经放大的缩略图在指针移上来时保持放大。正在拖动的缩略图和前台客户端不会放大。程序的任一菜单打开时（缩略图的右键菜单、托盘菜单或提示的菜单），没有任何缩略图处于放大状态：已经放大的会恢复，菜单关闭后再次放大。第二缩略图和裁剪窗口从不放大。&#x0A;- 勿扰模式会拦住警报声音和语音；缩略图仍然会放大。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.groups">按分组设置警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.groups">某个分组的警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.groups.Desc">每个分组可以自己选择开启哪些事件。保持“与所有人相同”的事件遵循上面的表格。</sys:String> <!-- draft -->
@@ -2267,7 +2267,7 @@
     <sys:String x:Key="L.S.GroupAlerts.NoGroups">还没有分组。请在“分组”页面创建一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Clear">清除这个分组的选择</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.groups.Title">按分组设置警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.groups.Body">每个分组（客户端 › 分组）可以自己选择开启哪些事件，这样矿工会收到货舱已满的警报，而战斗角色不会。&#x0A;&#x0A;- 先选择分组，再把某个事件设为对它开启或关闭。保持“与所有人相同”的事件遵循上面 **警报事件** 里的开关。&#x0A;- 分组可以开启一个对所有人关闭的事件，也可以关闭一个已开启的事件。&#x0A;- 不在任何分组里的角色始终使用所有人的开关。&#x0A;- 对于同时在多个分组里的角色，以“开启”为准：它的分组对某个事件意见不一致时，这个事件就是开启的。把事件保持“与所有人相同”的分组不参与决定。卡片会在各行下面列出每个与各行所示不同的成员，以及一个做出该选择的分组。&#x0A;- 对某个角色关闭的事件，对它来说就不是警报：不会显示、播放或朗读任何内容，也不会进入警报历史。&#x0A;- 自定义规则可以对某个分组关闭。在规则自己的页面里关闭的规则对所有人都关闭。&#x0A;- 重命名分组时，它的选择会跟着走；分组没有成员时，这些选择不起作用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.groups.Body">每个分组（客户端 › 分组）可以自己选择开启哪些事件，这样矿工会收到货舱已满的警报，而战斗角色不会。&#x0A;&#x0A;- 先选择分组，再把某个事件设为对它开启或关闭。保持“与所有人相同”的事件遵循上面 **警报事件** 里的开关。&#x0A;- 分组可以开启一个对所有人关闭的事件，也可以关闭一个已开启的事件。&#x0A;- 不在任何分组里的角色始终使用所有人的开关。对于 **掉队** ，由掉队成员自己的分组决定。&#x0A;- 对于同时在多个分组里的角色，以“开启”为准：它的分组对某个事件意见不一致时，这个事件就是开启的。把事件保持“与所有人相同”的分组不参与决定。卡片会在各行下面列出每个与各行所示不同的成员，以及一个做出该选择的分组。&#x0A;- 对某个角色关闭的事件，对它来说就不是警报：不会显示、播放或朗读任何内容，也不会进入警报历史。&#x0A;- 自定义规则可以对某个分组关闭。在规则自己的页面里关闭的规则对所有人都关闭。&#x0A;- 重命名分组时，它的选择会跟着走；分组没有成员时，这些选择不起作用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.neutralized">电容被中和</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.jammed">被干扰</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">“电容被中和”和“被干扰”在你开启之前是关闭的，并且只从英文游戏客户端读取。</sys:String> <!-- draft -->

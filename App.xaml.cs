@@ -1043,8 +1043,9 @@ public partial class App : Application
                 $"[Sound] GATED off: EnableAlertSounds={s?.EnableAlertSounds} for {alertType} on '{character}'");
             return SoundResult.Never;
         }
-        // Do-not-disturb (IDEAS #32) mutes the sound and nothing else: the border, the badge and the toast were shown
-        // before this is asked. A critical alert still plays unless the player turned that off.
+        // Do-not-disturb (IDEAS #32) mutes the sound and the voice (SpokenWay asks it as this does), nothing else: the
+        // border, the badge and the toast were shown before this is asked. A critical alert still plays, and is still
+        // spoken, unless the player turned that off.
         if (_doNotDisturb.Silences(s, severity, DateTime.Now))
         {
             // A repeat that has to wait is asked for again every second: it writes nothing each time (IDEAS #29).
