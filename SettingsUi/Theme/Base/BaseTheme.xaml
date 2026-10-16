@@ -12,7 +12,7 @@
     <BooleanToVisibilityConverter x:Key="Fx.BoolToVis"/>
     <local:NotNullToVisibilityConverter x:Key="Fx.NotNullToVis"/>
     <local:ColorTextToBrushConverter x:Key="Fx.ColorBrush"/>
-    <local:SettingTemplateSelector x:Key="Fx.Selector"/>
+
 
     <!-- ═══ Keyed controls and text ═══ -->
 
@@ -397,7 +397,7 @@
     <DataTemplate x:Key="Fx.Section">
         <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
             <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}"/>
-            <ItemsControl ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource Fx.Selector}" Focusable="False"/>
+            <local:CardList ItemsSource="{Binding Items}" Focusable="False"/>
         </StackPanel>
     </DataTemplate>
 
