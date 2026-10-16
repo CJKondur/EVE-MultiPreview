@@ -129,4 +129,98 @@
     <Style x:Key="Fx.ToggleSwitch" TargetType="CheckBox" BasedOn="{StaticResource Kit.Check.BoxTick}">
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
+
+    <!-- ═══ The page (spec §7.1, "Sections and rows") ═══ -->
+
+    <!-- A binding's converter is named statically, and a template of this dictionary finds it only here (measured while
+         writing plan S2: one named from the base is null when the template is made, and the binding fails, Visible). -->
+    <BooleanToVisibilityConverter x:Key="Fx.BoolToVis"/>
+
+    <!-- A section is a group box: its title set into the top line, its rows inside. -->
+    <DataTemplate x:Key="Fx.Section">
+        <GroupBox Margin="{DynamicResource Fx.Section.Gap}" Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <GroupBox.Header>
+                <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}" Margin="0"/>
+            </GroupBox.Header>
+            <local:CardList ItemsSource="{Binding Items}" Focusable="False"/>
+        </GroupBox>
+    </DataTemplate>
+
+    <!-- A row has no card: no surface, no edge, no hover. Hand-built editors frame themselves with it. -->
+    <Style x:Key="Fx.Card" TargetType="Border">
+        <Setter Property="Background" Value="{x:Null}"/>
+        <Setter Property="BorderBrush" Value="{x:Null}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Row}"/>
+        <Setter Property="Padding" Value="{DynamicResource Fx.Row.Padding}"/>
+        <Setter Property="Margin" Value="{DynamicResource Fx.Row.Gap}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Row.MinHeight}"/>
+    </Style>
+
+    <!-- A row: the label in its column (Fx.Label.Width, wider for a long label up to 420), the control after it, left;
+         the note and an error under them. A search hit lights the label. -->
+    <Style x:Key="Fx.CardHost" TargetType="ContentControl">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border x:Name="Card" Style="{DynamicResource Fx.Card}">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" MinWidth="{DynamicResource Fx.Label.Width}"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="Label" local:Loc.Key="{Binding LabelKey}" Style="{DynamicResource Fx.Label}"
+                                           VerticalAlignment="Center" Margin="0,0,6,0" MaxWidth="420"/>
+                                <ContentPresenter Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            </Grid>
+                            <TextBlock local:Loc.Key="{Binding DescKey}" Style="{DynamicResource Fx.Desc}"/>
+                            <TextBlock Text="{Binding Error}" Style="{DynamicResource Fx.Error}"
+                                       Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource Fx.AccentBrush}"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A switch is the check box before its label; the note sits under the label, 19 px in. -->
+    <DataTemplate x:Key="Fx.Card.Toggle">
+        <Border Style="{DynamicResource Fx.Card}" Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <StackPanel>
+                <CheckBox IsChecked="{Binding IsOn}" local:Loc.NameKey="{Binding LabelKey}" VerticalContentAlignment="Center"
+                          HorizontalAlignment="Left">
+                    <TextBlock x:Name="Label" local:Loc.Key="{Binding LabelKey}" Style="{DynamicResource Fx.Label}"/>
+                </CheckBox>
+                <TextBlock local:Loc.Key="{Binding DescKey}" Style="{DynamicResource Fx.Desc}" Margin="19,0,0,0"/>
+                <TextBlock Text="{Binding Error}" Style="{DynamicResource Fx.Error}" Margin="19,0,0,0"
+                           Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
+            </StackPanel>
+        </Border>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource Fx.AccentBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- The slider, then its value, as the old window had it. -->
+    <DataTemplate x:Key="Fx.Card.Slider">
+        <ContentControl Style="{DynamicResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <Slider local:Loc.NameKey="{Binding LabelKey}" Width="180" VerticalAlignment="Center" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                        SmallChange="{Binding Step}" LargeChange="{Binding Step}" TickFrequency="{Binding Step}"
+                        IsSnapToTickEnabled="True" Value="{Binding Number, Delay=150}"/>
+                <TextBlock Text="{Binding Number, StringFormat=N0}" Foreground="{DynamicResource Fx.ValueTextBrush}"
+                           VerticalAlignment="Center" Margin="6,0,0,0"/>
+                <TextBlock local:Loc.Key="{Binding UnitKey}" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
 </ResourceDictionary>
