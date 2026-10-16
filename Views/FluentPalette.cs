@@ -14,12 +14,13 @@ public static class FluentPalette
 {
     private static readonly Lazy<IReadOnlyDictionary<string, Color>> Tokens = new(() =>
     {
-        var theme = new SettingsTheme();
+        var style = new Windows11Style();
         var colours = new Dictionary<string, Color>(StringComparer.Ordinal);
-        foreach (var key in theme.Keys.OfType<string>())
+        foreach (var name in StyleContract.Colours)
         {
-            if (theme[key] is Color c) colours[key] = c;
-            else if (theme[key] is SolidColorBrush b) colours[key] = b.Color;
+            var c = (Color)style[name];
+            colours[name] = c;
+            colours[StyleContract.BrushKey(name)] = c;
         }
         return colours;
     });

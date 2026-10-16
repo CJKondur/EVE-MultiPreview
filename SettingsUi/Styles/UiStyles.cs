@@ -48,7 +48,7 @@ public sealed class UiStyle
 /// <summary>The registry of the app's looks, and (from Task 5 on) the applier.</summary>
 public static class UiStyles
 {
-    public static UiStyle Windows11 { get; } = new("windows11", usesFluent: true, () => new SettingsTheme());
+    public static UiStyle Windows11 { get; } = new("windows11", usesFluent: true, () => new Windows11Style());
 
     /// <summary>Every look, in the order the picker shows them (S2 adds the others).</summary>
     public static IReadOnlyList<UiStyle> All { get; } = new[] { Windows11 };
@@ -58,6 +58,20 @@ public static class UiStyles
 
     /// <summary>WPF's Fluent dictionary, dark (spec §14).</summary>
     public const string FluentSource = "pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.Dark.xaml";
+
+    /// <summary>Makes a style dictionary whole (spec §5.2, rule 2): a frozen brush of each colour of the contract it holds,
+    /// under the colour's brush key, then every freezable frozen.</summary>
+    public static void Prepare(ResourceDictionary dictionary)
+    {
+        foreach (var colour in StyleContract.Colours)
+        {
+            if (!dictionary.Contains(colour) || dictionary[colour] is not System.Windows.Media.Color c) continue;
+            var brush = new System.Windows.Media.SolidColorBrush(c);
+            brush.Freeze();
+            dictionary[StyleContract.BrushKey(colour)] = brush;
+        }
+        Freeze(dictionary);
+    }
 
     /// <summary>Freezes every brush (and every other freezable) of a dictionary, and of its merged dictionaries. A frozen
     /// brush may be shared across threads, and a dynamic reference to it does not listen to it for changes.</summary>
