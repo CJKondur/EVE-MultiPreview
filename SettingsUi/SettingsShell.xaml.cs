@@ -13,7 +13,7 @@ using Color = System.Windows.Media.Color;
 using ComboBox = System.Windows.Controls.ComboBox;
 using ContextMenu = System.Windows.Controls.ContextMenu;
 using MenuItem = System.Windows.Controls.MenuItem;
-using MessageBox = System.Windows.MessageBox;
+
 using WinForms = System.Windows.Forms;
 
 namespace EveMultiPreview.SettingsUi;
@@ -188,8 +188,13 @@ public partial class SettingsShell : Window, ISettingsHost
         _toastTimer.Start();
     }
 
-    public bool Confirm(string title, string body) =>
-        MessageBox.Show(this, body, title, MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+    /// <summary>The app's own dialog, in the app's language and look (spec §8.1, O16): OK and Cancel.</summary>
+    public bool Confirm(string title, string body)
+    {
+        var dialog = new ChoiceDialog(title, body, SettingsContext.Str("L.S.Shell.Ok")) { Owner = this };
+        dialog.ShowDialog();
+        return dialog.Result == true;
+    }
 
     public string? PickFolder(string? initial)
     {

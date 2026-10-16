@@ -5,6 +5,7 @@
         Background="{DynamicResource Fx.BgBrush}"
         SizeToContent="WidthAndHeight" MinWidth="380" MaxWidth="560"
         ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
+    <Border Style="{DynamicResource Fx.Dialog}">
     <StackPanel Margin="24">
         <TextBlock x:Name="TitleText" Style="{DynamicResource Fx.Label}" FontSize="20" FontWeight="SemiBold"/>
         <TextBlock x:Name="BodyText" Style="{DynamicResource Fx.Label}" Margin="0,12,0,0"/>
@@ -14,4 +15,5 @@
             <Button local:Loc.Key="L.S.Shell.Cancel" Click="OnCancel" IsCancel="True" Margin="0,0,8,8" Padding="16,6"/>
         </WrapPanel>
     </StackPanel>
+    </Border>
 </Window>

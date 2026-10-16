@@ -7,6 +7,7 @@
         SizeToContent="WidthAndHeight" MinWidth="420" MaxWidth="600"
         ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <!-- IDEAS #49, #55, #57: what MultiPreview asks or says before or beside its main windows. Same look as ChoiceDialog. -->
+    <Border Style="{DynamicResource Fx.Dialog}">
     <StackPanel Margin="24">
         <TextBlock x:Name="TitleText" Style="{DynamicResource Fx.Label}" FontSize="20" FontWeight="SemiBold"/>
         <TextBlock x:Name="BodyText" Style="{DynamicResource Fx.Label}" Margin="0,12,0,0"/>
@@ -14,4 +15,5 @@
             <StackPanel x:Name="ChoicePanel"/>
         </ScrollViewer>
     </StackPanel>
+    </Border>
 </Window>

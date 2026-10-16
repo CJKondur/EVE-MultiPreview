@@ -8,6 +8,7 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </Window.Resources>
+    <Border Style="{DynamicResource Fx.Dialog}">
     <StackPanel Margin="24">
         <TextBlock x:Name="TitleText" Style="{DynamicResource Fx.Label}" FontSize="20" FontWeight="SemiBold"/>
         <TextBlock local:Loc.Key="L.S.Hotkey.Prompt" Style="{DynamicResource Fx.Desc}" Margin="0,8,0,0"/>
@@ -34,4 +35,5 @@
             <Button local:Loc.Key="L.S.Shell.Ok" Click="OnOk" Padding="16,6" IsEnabled="{Binding CanAccept}"/>
         </StackPanel>
     </StackPanel>
+    </Border>
 </Window>

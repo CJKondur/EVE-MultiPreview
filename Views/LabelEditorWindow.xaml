@@ -5,46 +5,35 @@
         Width="380" SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Background="{StaticResource BgBaseBrush}"
-        Foreground="{StaticResource TextPrimaryBrush}"
+        Background="{DynamicResource Fx.BgBrush}"
         ShowInTaskbar="False">
+    <!-- In the look of the settings window (UI styles spec §8.1, O17); before plan S1 it had the old window's navy. -->
+    <Border Style="{DynamicResource Fx.Dialog}">
     <StackPanel Margin="14">
-        <TextBlock x:Name="HeaderText" FontSize="15" FontWeight="Bold"
-                   Foreground="{StaticResource AccentBrush}" Margin="0,0,0,10"/>
+        <TextBlock x:Name="HeaderText" Style="{DynamicResource Fx.Label}" FontWeight="SemiBold" Margin="0,0,0,10"/>
 
-        <TextBlock Text="{DynamicResource L.Lbl.LabelText}" Margin="0,0,0,3"
-                   Foreground="{StaticResource TextSecondaryBrush}"/>
-        <TextBox x:Name="TxtLabel" FontSize="13" Margin="0,0,0,10"
-                 Background="{StaticResource BgPanelBrush}"
-                 Foreground="{StaticResource TextPrimaryBrush}"
-                 BorderBrush="{StaticResource BorderBrush}" Padding="4,2"/>
+        <TextBlock Text="{DynamicResource L.Lbl.LabelText}" Style="{DynamicResource Fx.Desc}" Margin="0,0,0,3"/>
+        <TextBox x:Name="TxtLabel" Margin="0,0,0,10"/>
 
-        <TextBlock Text="{DynamicResource L.Lbl.TextColor}" Margin="0,0,0,3"
-                   Foreground="{StaticResource TextSecondaryBrush}"/>
+        <TextBlock Text="{DynamicResource L.Lbl.TextColor}" Style="{DynamicResource Fx.Desc}" Margin="0,0,0,3"/>
         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-            <TextBox x:Name="TxtColor" Width="120" FontSize="13" TextChanged="OnColorTextChanged"
-                     Background="{StaticResource BgPanelBrush}"
-                     Foreground="{StaticResource TextPrimaryBrush}"
-                     BorderBrush="{StaticResource BorderBrush}" Padding="4,2"/>
+            <TextBox x:Name="TxtColor" Width="120" TextChanged="OnColorTextChanged"/>
             <Border x:Name="ColorSwatch" Width="24" Height="24" Margin="6,0,0,0"
-                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
+                    BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{DynamicResource Fx.Line.Control}"/>
             <Button Content="🎨" Width="32" Height="26" Margin="6,0,0,0" Click="OnPickColor"/>
             <Button Content="{DynamicResource L.Lbl.Default}" Margin="6,0,0,0" Padding="8,2" Click="OnClearColor"
                     ToolTip="{DynamicResource L.Lbl.DefaultTt}"/>
         </StackPanel>
 
-        <TextBlock Text="{DynamicResource L.Lbl.TextSize}" Margin="0,0,0,3"
-                   Foreground="{StaticResource TextSecondaryBrush}"/>
-        <TextBox x:Name="TxtSize" Width="80" HorizontalAlignment="Left" FontSize="13" Margin="0,0,0,14"
-                 Background="{StaticResource BgPanelBrush}"
-                 Foreground="{StaticResource TextPrimaryBrush}"
-                 BorderBrush="{StaticResource BorderBrush}" Padding="4,2"/>
+        <TextBlock Text="{DynamicResource L.Lbl.TextSize}" Style="{DynamicResource Fx.Desc}" Margin="0,0,0,3"/>
+        <TextBox x:Name="TxtSize" Width="80" HorizontalAlignment="Left" Margin="0,0,0,14"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="{DynamicResource L.Lbl.Remove}" Padding="10,4" Click="OnRemove" Margin="0,0,8,0"
                     ToolTip="{DynamicResource L.Lbl.RemoveTt}"/>
             <Button Content="{DynamicResource L.Common.Cancel}" Padding="14,4" Click="OnCancel" Margin="0,0,8,0" IsCancel="True"/>
-            <Button Content="{DynamicResource L.Common.Ok}" Padding="14,4" Click="OnOk" IsDefault="True"/>
+            <Button Content="{DynamicResource L.Common.Ok}" Style="{DynamicResource Fx.PrimaryButton}" Click="OnOk" IsDefault="True"/>
         </StackPanel>
     </StackPanel>
+    </Border>
 </Window>

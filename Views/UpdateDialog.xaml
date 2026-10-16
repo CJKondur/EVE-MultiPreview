@@ -9,6 +9,7 @@
     <!-- Plan 4, the F2 reference's update dialog. The buttons and what they do are unchanged. -->
 
     <!-- The Fluent theme leaves the window's own background to the system backdrop, so the content paints the surface. -->
+    <Border Style="{DynamicResource Fx.Dialog}">
     <DockPanel Background="{DynamicResource Fx.CardBrush}">
         <!-- ═══ Footer: Release page on the left; Later and Update now on the right ═══ -->
         <Border DockPanel.Dock="Bottom" Background="{DynamicResource Fx.BgBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}"
@@ -55,4 +56,5 @@
                        Margin="0,8,0,0" Visibility="Collapsed" TextWrapping="Wrap"/>
         </Grid>
     </DockPanel>
+    </Border>
 </Window>

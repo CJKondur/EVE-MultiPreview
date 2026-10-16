@@ -430,6 +430,10 @@
         </StackPanel>
     </DataTemplate>
 
+    <!-- The frame around a dialog's content (Fx.Dialog). In Windows 11 the window's own background is the frame: it draws
+         nothing. -->
+    <Style x:Key="Fx.Dialog" TargetType="Border"/>
+
     <!-- ═══ Tables of the hand-built editors (EditorTable) ═══ -->
 
     <!-- The table, a row and the header row behind their cells, and a cell. In Windows 11 none draws anything: a look

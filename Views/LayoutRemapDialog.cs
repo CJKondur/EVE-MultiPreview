@@ -19,6 +19,7 @@ public sealed class LayoutRemapDialog : System.Windows.Window
 
     public LayoutRemapDialog(System.Windows.Window owner, IReadOnlyList<LayoutSlot> slots, IReadOnlyList<string> availableChars)
     {
+        EveMultiPreview.SettingsUi.UiStyles.Attach(this);
         Owner = owner;
         Title = "Map Preset Slots → Your Characters";
         Width = 480;
@@ -26,7 +27,7 @@ public sealed class LayoutRemapDialog : System.Windows.Window
         WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
         ResizeMode = System.Windows.ResizeMode.NoResize;
         ShowInTaskbar = false;
-        Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0x1a, 0x1a, 0x2e));
+        SetResourceReference(BackgroundProperty, "Fx.BgBrush");
         // FX-m6: closed lists in a scroll viewer: the wheel scrolls the list of slots, not a slot's choice (RE2-m4).
         PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
 
@@ -36,9 +37,9 @@ public sealed class LayoutRemapDialog : System.Windows.Window
         {
             Text = "Assign each preset slot to one of your running characters. Exact name matches are pre-selected; choose “(skip)” to leave a slot unused.",
             TextWrapping = System.Windows.TextWrapping.Wrap,
-            Foreground = System.Windows.Media.Brushes.White,
             Margin = new System.Windows.Thickness(0, 0, 0, 10),
         };
+        header.SetResourceReference(System.Windows.FrameworkElement.StyleProperty, "Fx.Label");
         System.Windows.Controls.DockPanel.SetDock(header, System.Windows.Controls.Dock.Top);
         dock.Children.Add(header);
 
@@ -54,6 +55,7 @@ public sealed class LayoutRemapDialog : System.Windows.Window
             Content = "Apply", Padding = new System.Windows.Thickness(14, 4, 14, 4),
             Margin = new System.Windows.Thickness(0, 0, 6, 0), IsDefault = true,
         };
+        ok.SetResourceReference(System.Windows.FrameworkElement.StyleProperty, "Fx.PrimaryButton");
         ok.Click += (_, _) => Commit();
         var cancel = new System.Windows.Controls.Button
         {
@@ -80,13 +82,14 @@ public sealed class LayoutRemapDialog : System.Windows.Window
                 Orientation = System.Windows.Controls.Orientation.Horizontal,
                 Margin = new System.Windows.Thickness(0, 2, 0, 2),
             };
-            row.Children.Add(new System.Windows.Controls.TextBlock
+            var slotName = new System.Windows.Controls.TextBlock
             {
                 Text = $"{i + 1}.  {(string.IsNullOrWhiteSpace(slot.Character) ? "(slot)" : slot.Character)}",
                 Width = 200,
-                Foreground = System.Windows.Media.Brushes.White,
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
-            });
+            };
+            slotName.SetResourceReference(System.Windows.FrameworkElement.StyleProperty, "Fx.Label");
+            row.Children.Add(slotName);
 
             var combo = new System.Windows.Controls.ComboBox { Width = 220 };
             combo.Items.Add("(skip)");
@@ -104,7 +107,9 @@ public sealed class LayoutRemapDialog : System.Windows.Window
             _combos.Add(combo);
         }
 
-        Content = dock;
+        var frame = new System.Windows.Controls.Border { Child = dock };
+        frame.SetResourceReference(System.Windows.FrameworkElement.StyleProperty, "Fx.Dialog");
+        Content = frame;
     }
 
     private void Commit()

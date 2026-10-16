@@ -31,6 +31,7 @@ public partial class LabelEditorWindow : Window
     public LabelEditorWindow(string characterName, AppSettings settings,
         ThumbnailManager? manager, Action? onSaved = null)
     {
+        EveMultiPreview.SettingsUi.UiStyles.Attach(this);
         InitializeComponent();
         _characterName = characterName;
         _settings = settings;
@@ -62,7 +63,7 @@ public partial class LabelEditorWindow : Window
             string hex = TxtColor.Text.Trim();
             if (string.IsNullOrEmpty(hex))
             {
-                ColorSwatch.Background = (Brush)FindResource("BgPanelBrush");
+                ColorSwatch.SetResourceReference(System.Windows.Controls.Border.BackgroundProperty, "Fx.ControlBrush");
                 return;
             }
             if (hex.StartsWith("0x", StringComparison.OrdinalIgnoreCase))

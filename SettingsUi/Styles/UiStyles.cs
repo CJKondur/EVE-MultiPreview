@@ -113,6 +113,7 @@ public static class UiStyles
         window.SetValue(SlotsProperty, slots);
         window.SetValue(KindProperty, kind);
         (_attached ??= new List<WeakReference<Window>>()).Add(new WeakReference<Window>(window));
+        if (kind == StyledAs.Window) window.SourceInitialized += (_, _) => TitleBar.Apply(window);   // a surface has no title bar
     }
 
     public static bool IsAttached(Window window) => window.GetValue(SlotsProperty) != null;

@@ -20,6 +20,7 @@ public partial class CharacterPickerDialog : Window
 
     public CharacterPickerDialog(string title, IEnumerable<string> knownNames)
     {
+        EveMultiPreview.SettingsUi.UiStyles.Attach(this);
         InitializeComponent();
         TxtTitle.Text = title;
         _allNames = knownNames.Distinct(StringComparer.OrdinalIgnoreCase)
