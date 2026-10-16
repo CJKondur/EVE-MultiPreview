@@ -223,4 +223,233 @@
             </StackPanel>
         </ContentControl>
     </DataTemplate>
+
+    <!-- ═══ The window (spec §7.1, "Navigation", "Page header", "Shell parts") ═══ -->
+    <!-- The toast's converter, found here for the same reason as Fx.BoolToVis (Task 5). -->
+    <local:NotNullToVisibilityConverter x:Key="Fx.NotNullToVis"/>
+
+    <!-- The layout: the navy pane (profile, search, the list with App settings last, Simple and All settings), a 4 px
+         strip in the old window's splitter colour, the page, the help column; the toast over the page. The window's code
+         hands in the three live parts. Each wrapper is neither focusable nor a tab stop. -->
+    <ControlTemplate x:Key="Fx.Shell" TargetType="local:ShellFrame">
+        <Grid Background="{DynamicResource Fx.BgBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{Binding HelpWidth, RelativeSource={RelativeSource TemplatedParent}}"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Width="{DynamicResource Fx.Nav.Width}" Background="{DynamicResource Fx.NavBrush}" Padding="4,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <ContentControl Grid.Row="0" Margin="2,0,2,8" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Profile}"
+                                    Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                    <ContentControl Grid.Row="1" Margin="2,0,2,8" Focusable="False" IsTabStop="False" Content="{TemplateBinding Search}"
+                                    Visibility="{Binding ShowGroups, Converter={StaticResource Fx.BoolToVis}}"/>
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Focusable="False">
+                        <StackPanel>
+                            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding HomeCommand}"
+                                    Visibility="{Binding HasHome, Converter={StaticResource Fx.BoolToVis}}">
+                                <TextBlock local:Loc.Key="L.S.Nav.Home" Style="{DynamicResource Fx.Label}" Margin="14,0,0,0"
+                                           FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                                           Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                            </Button>
+                            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding AllSettingsCommand}"
+                                    Visibility="{Binding IsSimple, Converter={StaticResource Fx.BoolToVis}}">
+                                <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{DynamicResource Fx.Label}" Margin="14,0,0,0"
+                                           FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                                           Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                            </Button>
+                            <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False"/>
+                            <ContentControl Content="{Binding AppGroup}" ContentTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False" IsTabStop="False"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <ContentControl Grid.Row="3" Margin="6,8,6,4" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Mode}"
+                                    Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                </Grid>
+            </Border>
+
+            <!-- The old window's splitter: a strip, not a handle (owner decision S2-10). Its colour has no token. -->
+            <Border Grid.Column="1" Width="4" Background="#FF1A1A3E"/>
+
+            <DockPanel Grid.Column="2" Margin="{DynamicResource Fx.Page.Padding}">
+                <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Header}"
+                                Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{DynamicResource Fx.SaveError}"
+                                Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ContentControl DockPanel.Dock="Bottom" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Status}"
+                                Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ContentPresenter Content="{TemplateBinding Page}"/>
+            </DockPanel>
+
+            <ContentControl Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="24"
+                            IsHitTestVisible="False" Focusable="False" IsTabStop="False"
+                            Content="{TemplateBinding ToastText}" ContentTemplate="{DynamicResource Fx.Toast}"
+                            Visibility="{Binding ToastText, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource Fx.NotNullToVis}}"/>
+
+            <ContentControl Grid.Column="3" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Help}"
+                            Focusable="False" IsTabStop="False"/>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- The profile: "Profile:" and a box in the dropdown's look with the profile's name. It opens the profile menu
+         (the profiles and their commands) under it, as Windows 11's avatar does (owner decision S2-9). -->
+    <DataTemplate x:Key="Fx.Shell.Profile">
+        <DockPanel>
+            <TextBlock DockPanel.Dock="Left" local:Loc.Key="L.Eve.ProfileLabel" Style="{DynamicResource Fx.Label}" FontWeight="SemiBold"
+                       Foreground="{DynamicResource Fx.NavTextBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+            <Button local:Loc.NameKey="L.S.Shell.Profile" HorizontalContentAlignment="Left" Cursor="Hand"
+                    Command="{Binding ProfileMenuCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid MinHeight="24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="Box" Grid.ColumnSpan="2" Background="{DynamicResource Fx.ControlBrush}" BorderBrush="{DynamicResource Fx.ControlEdgeBrush}"
+                                    BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.Radius.Control}"/>
+                            <ContentPresenter Margin="6,3,0,3" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <Path Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M 0 0 L 4 4 L 8 0 Z"
+                                  Fill="{DynamicResource Fx.TextBrush}"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+                <TextBlock Text="{Binding ProfileName}" Foreground="{DynamicResource Fx.TextBrush}" TextTrimming="CharacterEllipsis"/>
+            </Button>
+        </DockPanel>
+    </DataTemplate>
+
+    <!-- Simple or All settings: two radio buttons at the bottom of the pane. -->
+    <DataTemplate x:Key="Fx.Shell.Mode">
+        <StackPanel>
+            <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsSimple}" Margin="0,0,0,6" Foreground="{DynamicResource Fx.NavTextBrush}">
+                <TextBlock local:Loc.Key="L.S.Shell.Simple" Style="{DynamicResource Fx.Label}" Foreground="{DynamicResource Fx.NavTextBrush}"/>
+            </RadioButton>
+            <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsAdvanced}" Foreground="{DynamicResource Fx.NavTextBrush}">
+                <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{DynamicResource Fx.Label}" Foreground="{DynamicResource Fx.NavTextBrush}"/>
+            </RadioButton>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- The page's name alone, in the accent, its description under it, and a small "?" for the help pane. -->
+    <DataTemplate x:Key="Fx.Shell.Header">
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <!-- The title's own style from the tokens Fx.PageTitle reads: a look never redefines Fx.PageTitle, and a
+                     style based on the base's statically is not found from a look's template (plan S1, Task 17). -->
+                <TextBlock>
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
+                            <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
+                            <Setter Property="FontStyle" Value="{DynamicResource Fx.Style.Title}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+                            <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Title}"/>
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Text" Value="{Binding Current.Page.Title}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
+                                    <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{DynamicResource Fx.PageDesc}"/>
+            </StackPanel>
+            <ToggleButton Grid.Column="1" IsChecked="{Binding HelpOpen}" Content="?" Width="28" Height="24" Padding="0"
+                          VerticalAlignment="Top" Margin="16,0,0,0" ToolTip="{DynamicResource L.S.Shell.Help}"/>
+        </Grid>
+    </DataTemplate>
+
+    <!-- A navigation entry: the old window's side-bar button, a line Fx.Nav.ItemHeight high, lighter when hovered. -->
+    <Style x:Key="Fx.Nav.Entry" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextBrush}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="Margin" Value="0,1"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Nav.ItemHeight}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
+                            CornerRadius="{DynamicResource Fx.Radius.Nav}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.NavHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.NavHoverBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A group: a triangle that turns down while it is open, its name; its pages under it. -->
+    <DataTemplate x:Key="Fx.Nav.Group">
+        <StackPanel>
+            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <Path x:Name="Twisty" Width="8" Height="8" Margin="0,0,6,0" VerticalAlignment="Center" Stretch="None"
+                          Fill="{DynamicResource Fx.NavTextBrush}" Data="M 2 0 L 7 4 L 2 8 Z"/>
+                    <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}"
+                               FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                               Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                </StackPanel>
+            </Button>
+            <ItemsControl ItemsSource="{Binding Pages}" Focusable="False" ItemTemplate="{DynamicResource Fx.Nav.Page}"
+                          Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}"/>
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                <Setter TargetName="Twisty" Property="Data" Value="M 0 2 L 8 2 L 4 7 Z"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- A page of a group: indented by Fx.Nav.SubIndent, Fx.Nav.SubItemHeight high; the open page's line is lit. -->
+    <DataTemplate x:Key="Fx.Nav.Page">
+        <Button x:Name="Line" Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="0,0,8,0"
+                MinHeight="{DynamicResource Fx.Nav.SubItemHeight}">
+            <DockPanel>
+                <Border DockPanel.Dock="Left" Width="{DynamicResource Fx.Nav.SubIndent}"/>
+                <TextBlock x:Name="Text" local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}"
+                           FontSize="{DynamicResource Fx.Size.NavSub}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                           Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+            </DockPanel>
+        </Button>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <Setter TargetName="Line" Property="Background" Value="{DynamicResource Fx.NavSelectedBrush}"/>
+                <Setter TargetName="Text" Property="Foreground" Value="{DynamicResource Fx.NavSelectedTextBrush}"/>
+                <Setter TargetName="Text" Property="FontWeight" Value="{DynamicResource Fx.Weight.NavSelected}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
 </ResourceDictionary>

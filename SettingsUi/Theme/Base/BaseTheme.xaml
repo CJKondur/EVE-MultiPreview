@@ -627,13 +627,15 @@
             </Grid.ColumnDefinitions>
             <StackPanel>
                 <WrapPanel>
-                    <Button Style="{DynamicResource Fx.Nav.Entry}" Padding="0" Margin="0"
-                            Command="{Binding BreadcrumbCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
-                            Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
-                        <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{DynamicResource Fx.Breadcrumb}"/>
-                    </Button>
-                    <TextBlock Text="  ›  " Style="{DynamicResource Fx.Breadcrumb}"
-                               Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
+                    <StackPanel Orientation="Horizontal" Visibility="{DynamicResource Fx.Show.Breadcrumb}">
+                        <Button Style="{DynamicResource Fx.Nav.Entry}" Padding="0" Margin="0"
+                                Command="{Binding BreadcrumbCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
+                                Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
+                            <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{DynamicResource Fx.Breadcrumb}"/>
+                        </Button>
+                        <TextBlock Text="  ›  " Style="{DynamicResource Fx.Breadcrumb}"
+                                   Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
+                    </StackPanel>
                     <TextBlock>
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource Fx.PageTitle}">

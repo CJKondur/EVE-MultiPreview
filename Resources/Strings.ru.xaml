@@ -770,6 +770,7 @@
     <sys:String x:Key="L.S.Shell.Profile">Профиль</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Справка по этой странице</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Показать все настройки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Simple">Простой</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Retry">Повторить</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SaveFailed">Не удалось сохранить настройки. Проверьте, что папка MultiPreview не защищена от записи и на диске есть свободное место, затем повторите.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SaveBlocked">Файл настроек не удалось прочитать при запуске MultiPreview, или его не было, поэтому изменения не сохраняются. При следующем запуске MultiPreview спросит об этом снова.</sys:String> <!-- draft -->

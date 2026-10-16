@@ -753,6 +753,7 @@
     <sys:String x:Key="L.S.Shell.Profile">Profil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Aide pour cette page</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Afficher tous les paramètres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Simple">Simple</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Retry">Réessayer</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SaveFailed">Impossible d'enregistrer vos paramètres. Vérifiez que le dossier MultiPreview n'est pas en lecture seule et qu'il reste de l'espace libre, puis réessayez.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SaveBlocked">Votre fichier de paramètres n'a pas pu être lu au démarrage de MultiPreview, ou il était introuvable, donc les modifications ne sont pas enregistrées. MultiPreview reposera la question au prochain démarrage.</sys:String> <!-- draft -->

@@ -751,6 +751,7 @@
     <sys:String x:Key="L.S.Shell.Profile">プロファイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">このページのヘルプ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">すべての設定を表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Simple">シンプル</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Retry">再試行</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SaveFailed">設定を保存できませんでした。MultiPreview フォルダーが読み取り専用でないこと、空き容量があることを確認してから再試行してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SaveBlocked">MultiPreview の起動時に設定ファイルを読み込めなかったか、見つからなかったため、変更は保存されません。次回の起動時に MultiPreview がもう一度確認します。</sys:String> <!-- draft -->

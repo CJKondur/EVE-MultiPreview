@@ -768,6 +768,7 @@
     <sys:String x:Key="L.S.Shell.Profile">Profilo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Guida per questa pagina</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Mostra tutte le impostazioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Simple">Semplice</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Retry">Riprova</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SaveFailed">Non è stato possibile salvare le tue impostazioni. Controlla che la cartella di MultiPreview non sia di sola lettura e abbia spazio libero, poi riprova.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SaveBlocked">Non è stato possibile leggere il file delle impostazioni all'avvio di MultiPreview, oppure mancava, quindi le modifiche non vengono salvate. MultiPreview lo chiederà di nuovo al prossimo avvio.</sys:String> <!-- draft -->

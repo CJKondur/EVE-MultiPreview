@@ -744,6 +744,7 @@
     <sys:String x:Key="L.S.Shell.Profile">Profile</sys:String>
     <sys:String x:Key="L.S.Shell.Help">Help for this page</sys:String>
     <sys:String x:Key="L.S.Shell.Advanced">Show all settings</sys:String>
+    <sys:String x:Key="L.S.Shell.Simple">Simple</sys:String>
     <sys:String x:Key="L.S.Shell.Retry">Retry</sys:String>
     <sys:String x:Key="L.S.Shell.SaveFailed">Your settings couldn't be saved. Check that the MultiPreview folder isn't read-only and has free space, then retry.</sys:String>
     <sys:String x:Key="L.S.Shell.SaveBlocked">Your settings file couldn't be read, or was missing, when MultiPreview started, so changes aren't being saved. MultiPreview asks about it again the next time it starts.</sys:String>
