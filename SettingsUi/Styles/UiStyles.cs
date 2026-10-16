@@ -77,11 +77,12 @@ public static class UiStyles
     /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2). S3 and S4 add the others.</summary>
     public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11 };
 
-    /// <summary>The look with this id; a missing or unknown id gives Windows 11, the only look of S1.</summary>
-    public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Windows11;
+    /// <summary>The look with this id; a missing, empty or unknown id gives Classic, the default (spec §10).</summary>
+    public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Classic;
 
-    /// <summary>The look the app shows. Plan S1 never changes it outside tests (ruling 1): nothing reads or writes a
-    /// setting for it until S2.</summary>
+    /// <summary>The look the app shows. App sets it from the settings at start, before it opens a window, and after every
+    /// settings change (App.ApplySavedLook). Before that it is Windows 11: the look the test suite runs in unless a test
+    /// sets another (spec §16: the harnesses default to windows11), whatever a settings file's default is.</summary>
     public static UiStyle Current { get; private set; } = Windows11;
 
     /// <summary>The look shown (spec §5.3): the current one. S4 makes it High contrast while a Windows contrast theme is

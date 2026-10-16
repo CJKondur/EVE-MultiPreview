@@ -190,7 +190,7 @@ public partial class App : Application
             DateTime.Now, LogError, Thread.Sleep,
             // Apply UI language before any window is shown (issue #86). "" auto-detects from the OS; falls back to
             // English for unsupported languages.
-            () => Services.LocalizationService.SetLanguage(_settings.Settings.Language), MovedNoteText);
+            () => { Services.LocalizationService.SetLanguage(_settings.Settings.Language); ApplySavedLook(); }, MovedNoteText);
 
         DiagnosticsService.Initialize();
         DiagnosticsService.GlobalSettings = _settings.Settings;

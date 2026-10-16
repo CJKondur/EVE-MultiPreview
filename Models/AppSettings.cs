@@ -137,8 +137,8 @@ public class AppSettings
     /// default look (UiStyles.Find), and an unknown one is kept in the file until the player picks (owner decision O24).</summary>
     public string UiStyle { get; set; } = DefaultUiStyle;
 
-    /// <summary>The look of a new file and of a file without the key (plan S2: Windows 11 until Task 13 makes it Classic).</summary>
-    public const string DefaultUiStyle = "windows11";
+    /// <summary>The look of a new file and of a file without the key: Classic, the old window's navy (spec §10).</summary>
+    public const string DefaultUiStyle = "classic";
 
     /// <summary>High contrast while a Windows contrast theme is on (UI styles spec §12). Its switch and its rule come in
     /// plan S4; the key is in the file from S2, on.</summary>
