@@ -189,14 +189,12 @@ public partial class App : Application
         StartupSettings.Open(_settings, _home, AppPaths.ExeDir, CopyBesideExe(), AskAtStartup, LocalizationService.Str,
             DateTime.Now, LogError, Thread.Sleep,
             // Apply UI language before any window is shown (issue #86). "" auto-detects from the OS; falls back to
-            // English for unsupported languages.
-            () => { Services.LocalizationService.SetLanguage(_settings.Settings.Language); ApplySavedLook(); }, MovedNoteText);
+            // English for unsupported languages. The look the settings file names (UI styles spec §10) first: it never
+            // throws, so a language that fails to apply can't keep the startup questions and the setup wizard from it.
+            () => { ApplySavedLook(); Services.LocalizationService.SetLanguage(_settings.Settings.Language); }, MovedNoteText);
 
         DiagnosticsService.Initialize();
         DiagnosticsService.GlobalSettings = _settings.Settings;
-
-        // The look the settings file names (UI styles spec §10), before the first window that has one: the setup wizard.
-        ApplySavedLook();
 
         PerfLog($"Settings loaded: {startupSw.ElapsedMilliseconds}ms");
 
