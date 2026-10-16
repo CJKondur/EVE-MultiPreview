@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using EveMultiPreview.Services;
 using Brush = System.Windows.Media.Brush;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
@@ -26,7 +27,9 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
     private readonly WrapPanel _panel = new();
     private readonly List<RadioButton> _cards = new();
     private readonly LookSample _sample = new();
-    private bool _marking, _listening;
+    private readonly Dictionary<UiStyle, Border> _pictures = new();
+    private readonly Queue<UiStyle> _toBuild = new();
+    private bool _marking, _listening, _scheduled;
 
     /// <summary>App settings › Look: the saved look is the settings file's; a pick saves it, switches the app and says so.</summary>
     public LookGallery(SettingsContext ctx) : this(() => ctx.S.UiStyle, style => Pick(ctx, style), 268, framed: true) { }
@@ -42,10 +45,22 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
         _saved = saved;
         _pick = pick;
         foreach (var style in UiStyles.All) _panel.Children.Add(Card(style, cardWidth));
+        // The cards are one radio group for the keyboard too (spec §9.2): the arrow keys move from card to card and stay
+        // in the gallery, and the gallery is one tab stop, not one per look (Tab comes back to the card it left).
+        KeyboardNavigation.SetDirectionalNavigation(_panel, KeyboardNavigationMode.Cycle);
+        KeyboardNavigation.SetTabNavigation(_panel, KeyboardNavigationMode.Once);
+        // The saved look's card is built with the page, the others one per idle moment once it shows (spec §9.2, cost).
+        var first = UiStyles.Find(saved());
+        Build(first);
+        foreach (var style in UiStyles.All) if (style != first) _toBuild.Enqueue(style);
         Content = framed ? EditorCard.Build(ItemId, null, _panel) : _panel;
         Mark();
         Action changed = () => { if (Dispatcher.CheckAccess()) Mark(); };
-        Loaded += (_, _) => { if (!_listening) { _listening = true; UiStyles.Changed += changed; } };
+        Loaded += (_, _) =>
+        {
+            if (!_listening) { _listening = true; UiStyles.Changed += changed; }
+            BuildLater();
+        };
         Unloaded += (_, _) => { if (_listening) { _listening = false; UiStyles.Changed -= changed; } };
     }
 
@@ -54,6 +69,9 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
 
     /// <summary>The card of a look.</summary>
     public RadioButton CardOf(UiStyle style) => _cards.Single(c => c.Tag == style);
+
+    /// <summary>Whether a look's card shows its miniature yet (until then, its placeholder).</summary>
+    public bool IsBuilt(UiStyle style) => _pictures[style].Child is PreviewHost;
 
     /// <summary>After an import or a reload the file may name another look.</summary>
     public void Refresh() => Mark();
@@ -67,7 +85,9 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
         desc.SetResourceReference(StyleProperty, "Fx.Desc");
         Loc.SetKey(desc, "L.S.Style." + style.Id + ".Desc");
         var body = new StackPanel();
-        body.Children.Add(Preview(style));
+        var picture = new Border { Child = Placeholder(style) };
+        _pictures[style] = picture;
+        body.Children.Add(picture);
         body.Children.Add(name);
         body.Children.Add(desc);
         var card = new RadioButton { GroupName = "Look", Content = body, Tag = style, Width = width };
@@ -110,6 +130,23 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
         UiStyles.Scope(miniature, style);
         miniature.ContentTemplate = (DataTemplate)(style.Dictionary.Contains("Fx.Preview") ? style.Dictionary["Fx.Preview"] : UiStyles.Base["Fx.Preview"]);
         return new PreviewHost { Child = new Viewbox { Child = miniature, Stretch = System.Windows.Media.Stretch.Uniform, StretchDirection = StretchDirection.DownOnly } };
+    }
+
+    private void Build(UiStyle style) => _pictures[style].Child = Preview(style);
+
+    /// <summary>The next card not yet built, at the dispatcher's next idle moment, one per moment, while the gallery is
+    /// shown: a gallery taken off the screen stops, and goes on when it shows again. What is built stays built.</summary>
+    private void BuildLater()
+    {
+        if (_scheduled || _toBuild.Count == 0) return;
+        _scheduled = true;
+        Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(() =>
+        {
+            _scheduled = false;
+            if (!IsLoaded) return;
+            Build(_toBuild.Dequeue());
+            BuildLater();
+        }));
     }
 
     /// <summary>Checks the card of the saved look (an unknown id: the default look's), without picking it again.</summary>
