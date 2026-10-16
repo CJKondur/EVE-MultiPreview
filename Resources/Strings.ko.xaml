@@ -766,6 +766,17 @@
     <sys:String x:Key="L.S.Page.app.general">일반</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">언어, 창 크기, MultiPreview 시작 시 동작.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">언어 및 크기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look">모양</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look.Desc">MultiPreview 창의 모양이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.look">모양</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery">앱 모양</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery.Desc">한 번 클릭하면 앱의 모든 창이 한꺼번에 바뀌어요. 미리보기는 그대로예요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.Toast">모양: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Look.Current">현재</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic">클래식</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic.Desc">예전 MultiPreview의 남색이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11.Desc">Windows 11 설정처럼 어두운 카드예요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language">언어</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language.Desc">'자동'은 Windows 언어를 따릅니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.LanguageAuto">자동 (Windows 언어)</sys:String> <!-- draft -->
@@ -784,6 +795,9 @@
     <sys:String x:Key="L.Help.app.general.language.Body">**자동**은 MultiPreview가 지원하면 Windows 표시 언어를 사용하고, 아니면 영어를 사용합니다.&#x0A;&#x0A;영어 이외의 번역은 기계로 초안을 작성했습니다. 어색한 부분이 있으면 GitHub에 알려 주세요. 다음 릴리스에서 고치겠습니다.&#x0A;&#x0A;**설정 창 크기**는 이 창만 바꾸며 썸네일에는 영향이 없습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Title">Windows와 함께 시작</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Body">**Windows와 함께 시작**은 로그인할 때 MultiPreview를 트레이로 실행합니다.&#x0A;&#x0A;**MultiPreview 시작 시**는 이 창도 함께 열지 결정합니다. 최소화를 선택하면 EVE를 가리지 않고 작업 표시줄에 준비해 둡니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.Intro">MultiPreview 창의 모양을 골라요. 모양은 모든 프로필에서 같아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Title">모양</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Body">각 카드에는 모양의 작은 미리 보기가 있어요. 한 번 클릭하면 선택돼요. **클래식**은 예전 설정 창의 남색이에요. **Windows 11**은 Windows 11 설정의 어두운 모양이에요.&#x0A;&#x0A;설정 창과 대화 상자, 메뉴, 알림이 바로 바뀌고 다시 시작할 필요가 없어요. 미리보기와 그 글자는 그대로예요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics">진단</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">문제를 추적하기 위한 디버그 로그.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">디버그 로그</sys:String> <!-- draft -->

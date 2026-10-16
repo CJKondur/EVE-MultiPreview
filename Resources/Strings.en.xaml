@@ -759,6 +759,17 @@
     <sys:String x:Key="L.S.Page.app.general">General</sys:String>
     <sys:String x:Key="L.S.Page.app.general.Desc">Language, window size and what happens when MultiPreview starts.</sys:String>
     <sys:String x:Key="L.S.Sec.app.general.display">Language and size</sys:String>
+    <sys:String x:Key="L.S.Page.app.look">Look</sys:String>
+    <sys:String x:Key="L.S.Page.app.look.Desc">How MultiPreview's windows look.</sys:String>
+    <sys:String x:Key="L.S.Sec.app.look.look">Look</sys:String>
+    <sys:String x:Key="L.S.app.look.gallery">Look of the app</sys:String>
+    <sys:String x:Key="L.S.app.look.gallery.Desc">One click changes every window of the app at once. The thumbnails stay as they are.</sys:String>
+    <sys:String x:Key="L.S.app.look.Toast">Look: {0}</sys:String>
+    <sys:String x:Key="L.S.Look.Current">Current</sys:String>
+    <sys:String x:Key="L.S.Style.classic">Classic</sys:String>
+    <sys:String x:Key="L.S.Style.classic.Desc">The old MultiPreview navy.</sys:String>
+    <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String>
+    <sys:String x:Key="L.S.Style.windows11.Desc">Dark cards, as in Windows 11 Settings.</sys:String>
     <sys:String x:Key="L.S.app.general.language">Language</sys:String>
     <sys:String x:Key="L.S.app.general.language.Desc">Automatic follows your Windows language.</sys:String>
     <sys:String x:Key="L.S.Opt.LanguageAuto">Automatic (Windows language)</sys:String>
@@ -777,6 +788,9 @@
     <sys:String x:Key="L.Help.app.general.language.Body">**Automatic** uses your Windows display language when MultiPreview has it, and English otherwise.&#x0A;&#x0A;Translations other than English were drafted by machine. If something reads wrong, say so on GitHub and it gets fixed in the next release.&#x0A;&#x0A;**Settings window size** only changes this window, not the thumbnails.</sys:String>
     <sys:String x:Key="L.Help.app.general.startup.Title">Starting with Windows</sys:String>
     <sys:String x:Key="L.Help.app.general.startup.Body">**Start with Windows** launches MultiPreview to the tray when you sign in.&#x0A;&#x0A;**When MultiPreview starts** decides whether this window opens too. Choose minimized to have it ready on the taskbar without covering EVE.</sys:String>
+    <sys:String x:Key="L.Help.app.look.Intro">Pick how MultiPreview's windows look. The look is the same in every profile.</sys:String>
+    <sys:String x:Key="L.Help.app.look.look.Title">Looks</sys:String>
+    <sys:String x:Key="L.Help.app.look.look.Body">Each card shows a small preview of a look; one click picks it. **Classic** is the navy of the old settings window. **Windows 11** is the dark look of Windows 11's own Settings.&#x0A;&#x0A;The settings window, its dialogs, the menus and the alerts change at once; nothing has to restart. The thumbnails and their text stay as they are.</sys:String>
     <sys:String x:Key="L.S.Page.app.diagnostics">Diagnostics</sys:String>
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">Debug logs for tracking down a problem.</sys:String>
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">Debug logs</sys:String>

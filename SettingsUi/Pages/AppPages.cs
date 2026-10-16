@@ -10,12 +10,16 @@ namespace EveMultiPreview.SettingsUi;
 /// <summary>Spec §5 App group: General, Profiles &amp; backups, About &amp; updates, Diagnostics.</summary>
 public static class AppPages
 {
-    public static IReadOnlyList<PageDef> All => new[] { General(), Profiles(), About(), Diagnostics() };
+    /// <summary>App settings › Look (UI styles spec §9.1).</summary>
+    public const string LookId = "app.look";
+
+    public static IReadOnlyList<PageDef> All => new[] { General(), Look(), Profiles(), About(), Diagnostics() };
 
     public static IReadOnlyList<HelpTopic> Help => new[]
     {
         new HelpTopic("app.general", "language", new[] { "app.general.language", "app.general.scale" }),
         new HelpTopic("app.general", "startup", new[] { "app.general.startupSettings", "app.general.startWithWindows" }),
+        new HelpTopic(LookId, "look", new[] { LookGallery.ItemId }),
         new HelpTopic("app.diagnostics", "logs", new[]
         {
             "app.diagnostics.injection", "app.diagnostics.cycling", "app.diagnostics.windowHooks",
@@ -59,6 +63,16 @@ public static class AppPages
                 _ => StartWithWindows.IsEnabled(),
                 (_, v) => StartWithWindows.Set(v is true),
                 binds: Array.Empty<string>()) with { External = true, Replaces = new[] { "ChkStartWithWindows" } }),
+        }),
+    });
+
+    /// <summary>UI styles spec §9.1: the look of the app, a gallery of the looks. An App page, so Simple mode has it too.
+    /// Its second section, Windows contrast themes, comes with its rule in plan S4.</summary>
+    private static PageDef Look() => new(LookId, NavGroup.App, new[]
+    {
+        new SectionDef("app.look.look", new PageItem[]
+        {
+            new EditorItem(LookGallery.ItemId, ctx => new LookGallery(ctx)) { Binds = new[] { "AppSettings.UiStyle" } },
         }),
     });
 

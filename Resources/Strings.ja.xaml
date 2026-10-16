@@ -766,6 +766,17 @@
     <sys:String x:Key="L.S.Page.app.general">一般</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">言語、ウィンドウのサイズ、MultiPreview 起動時の動作。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">言語とサイズ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look">外観</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look.Desc">MultiPreview のウィンドウの見た目です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.look">外観</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery">アプリの外観</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery.Desc">1 回のクリックで、アプリのすべてのウィンドウが一度に変わります。サムネイルはそのままです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.Toast">外観: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Look.Current">現在</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic">クラシック</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic.Desc">以前の MultiPreview の紺色です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11.Desc">Windows 11 の設定のような暗いカードです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language">言語</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language.Desc">「自動」は Windows の言語に従います。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.LanguageAuto">自動（Windows の言語）</sys:String> <!-- draft -->
@@ -784,6 +795,9 @@
     <sys:String x:Key="L.Help.app.general.language.Body">**自動**は MultiPreview が対応していれば Windows の表示言語を使い、なければ英語を使います。&#x0A;&#x0A;英語以外の翻訳は機械で下書きしたものです。不自然な箇所があれば GitHub でお知らせください。次のリリースで修正します。&#x0A;&#x0A;**設定ウィンドウのサイズ**はこのウィンドウだけを変え、サムネイルは変わりません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Title">Windows と同時に起動</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Body">**Windows と同時に起動**は、サインイン時に MultiPreview をトレイに起動します。&#x0A;&#x0A;**MultiPreview の起動時**は、このウィンドウも開くかどうかを決めます。最小化を選ぶと、EVE を隠さずタスクバーに待機させられます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.Intro">MultiPreview のウィンドウの外観を選びます。外観はすべてのプロファイルで同じです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Title">外観</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Body">各カードには外観の小さなプレビューが表示されます。1 回のクリックで選べます。**クラシック**は以前の設定ウィンドウの紺色です。**Windows 11** は Windows 11 の設定の暗い外観です。&#x0A;&#x0A;設定ウィンドウ、そのダイアログ、メニュー、アラートはすぐに変わり、再起動は不要です。サムネイルとその文字はそのままです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics">診断</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">問題を調べるためのデバッグログ。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">デバッグログ</sys:String> <!-- draft -->

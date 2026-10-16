@@ -785,6 +785,17 @@
     <sys:String x:Key="L.S.Page.app.general">Общие</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">Язык, размер окна и что происходит при запуске MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">Язык и размер</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look">Оформление</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look.Desc">Как выглядят окна MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.look">Оформление</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery">Оформление приложения</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery.Desc">Один щелчок меняет сразу все окна приложения. Миниатюры остаются как есть.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.Toast">Оформление: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Look.Current">Текущее</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic">Классическое</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic.Desc">Прежний тёмно-синий MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11.Desc">Тёмные карточки, как в параметрах Windows 11.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language">Язык</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language.Desc">Автоматически — язык Windows.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.LanguageAuto">Автоматически (язык Windows)</sys:String> <!-- draft -->
@@ -803,6 +814,9 @@
     <sys:String x:Key="L.Help.app.general.language.Body">**Автоматически** использует язык интерфейса Windows, если он есть в MultiPreview, иначе английский.&#x0A;&#x0A;Переводы, кроме английского, составлены машиной. Если что-то звучит неверно, напишите на GitHub, и это исправят в следующем выпуске.&#x0A;&#x0A;**Размер окна настроек** меняет только это окно, а не миниатюры.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Title">Запуск вместе с Windows</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Body">**Запускать с Windows** запускает MultiPreview в трее при входе в систему.&#x0A;&#x0A;**При запуске MultiPreview** решает, откроется ли и это окно. Выберите «свёрнутыми», чтобы оно ждало на панели задач и не закрывало EVE.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.Intro">Выберите, как выглядят окна MultiPreview. Оформление одно для всех профилей.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Title">Оформления</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Body">Каждая карточка показывает небольшое превью оформления; один щелчок выбирает его. **Классическое** — тёмно-синий цвет старого окна настроек. **Windows 11** — тёмное оформление параметров Windows 11.&#x0A;&#x0A;Окно настроек, его диалоги, меню и оповещения меняются сразу; ничего не перезапускается. Миниатюры и их текст остаются как есть.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics">Диагностика</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">Журналы отладки для поиска проблемы.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">Журналы отладки</sys:String> <!-- draft -->

@@ -783,6 +783,17 @@
     <sys:String x:Key="L.S.Page.app.general">常规</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">语言、窗口大小，以及 MultiPreview 启动时的行为。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">语言和大小</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look">外观</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look.Desc">MultiPreview 窗口的外观。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.look">外观</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery">应用外观</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery.Desc">点击一次即可同时更改应用的所有窗口。缩略图保持不变。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.Toast">外观：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Look.Current">当前</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic">经典</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic.Desc">MultiPreview 原来的深蓝色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11.Desc">深色卡片，与 Windows 11 设置相同。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language">语言</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language.Desc">“自动”跟随 Windows 语言。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.LanguageAuto">自动（Windows 语言）</sys:String> <!-- draft -->
@@ -801,6 +812,9 @@
     <sys:String x:Key="L.Help.app.general.language.Body">**自动**在 MultiPreview 支持时使用 Windows 显示语言，否则使用英语。&#x0A;&#x0A;除英语外的翻译由机器起草。如有不通顺之处，请在 GitHub 上反馈，将在下个版本修正。&#x0A;&#x0A;**设置窗口大小**只改变此窗口，不影响缩略图。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Title">随 Windows 启动</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Body">**随 Windows 启动**会在你登录时将 MultiPreview 启动到托盘。&#x0A;&#x0A;**MultiPreview 启动时**决定此窗口是否一并打开。选择最小化，可让它停在任务栏而不遮挡 EVE。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.Intro">选择 MultiPreview 窗口的外观。外观在所有配置文件中相同。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Title">外观</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Body">每张卡片显示一种外观的小预览，点击一次即可选择。**经典**是旧设置窗口的深蓝色。**Windows 11** 是 Windows 11 设置的深色外观。&#x0A;&#x0A;设置窗口、它的对话框、菜单和提醒会立即改变，无需重启。缩略图及其文字保持不变。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics">诊断</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">用于排查问题的调试日志。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">调试日志</sys:String> <!-- draft -->

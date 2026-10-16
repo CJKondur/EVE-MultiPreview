@@ -768,6 +768,17 @@
     <sys:String x:Key="L.S.Page.app.general">Général</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.general.Desc">Langue, taille de la fenêtre et ce qui se passe au démarrage de MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.display">Langue et taille</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look">Apparence</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Page.app.look.Desc">L'apparence des fenêtres de MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.look">Apparence</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery">Apparence de l'application</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.gallery.Desc">Un clic change toutes les fenêtres de l'application à la fois. Les miniatures restent telles quelles.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.Toast">Apparence : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Look.Current">Actuelle</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic">Classique</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.classic.Desc">Le bleu marine d'origine de MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.windows11.Desc">Des cartes sombres, comme dans les Paramètres de Windows 11.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language">Langue</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language.Desc">Automatique suit la langue de Windows.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.LanguageAuto">Automatique (langue de Windows)</sys:String> <!-- draft -->
@@ -786,6 +797,9 @@
     <sys:String x:Key="L.Help.app.general.language.Body">**Automatique** utilise la langue d'affichage de Windows si MultiPreview la propose, sinon l'anglais.&#x0A;&#x0A;Les traductions autres que l'anglais ont été rédigées par machine. Si quelque chose sonne faux, signalez-le sur GitHub et ce sera corrigé à la prochaine version.&#x0A;&#x0A;**Taille de la fenêtre des paramètres** ne change que cette fenêtre, pas les vignettes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Title">Démarrer avec Windows</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.startup.Body">**Démarrer avec Windows** lance MultiPreview dans la zone de notification à l'ouverture de session.&#x0A;&#x0A;**Au démarrage de MultiPreview** décide si cette fenêtre s'ouvre aussi. Choisissez réduite pour l'avoir prête dans la barre des tâches sans couvrir EVE.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.Intro">Choisissez l'apparence des fenêtres de MultiPreview. Elle est la même dans chaque profil.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Title">Apparences</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Body">Chaque carte montre un petit aperçu d'une apparence ; un clic la choisit. **Classique** est le bleu marine de l'ancienne fenêtre de paramètres. **Windows 11** est l'apparence sombre des Paramètres de Windows 11.&#x0A;&#x0A;La fenêtre de paramètres, ses dialogues, les menus et les alertes changent aussitôt ; rien ne redémarre. Les miniatures et leur texte restent tels quels.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics">Diagnostic</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">Journaux de débogage pour traquer un problème.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">Journaux de débogage</sys:String> <!-- draft -->
