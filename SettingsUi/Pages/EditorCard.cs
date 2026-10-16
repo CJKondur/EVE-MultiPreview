@@ -101,9 +101,9 @@ public static class EditorCard
     /// <summary>Literal text (a character or group name, a system, a key): never translated.</summary>
     public static TextBlock Value(string text, bool strong = false, bool secondary = false)
     {
-        // The Fx.Label / Fx.Desc sizes, without their styles (Fx.Desc collapses empty text).
-        var t = new TextBlock { Text = text, FontSize = secondary ? 12 : 14, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap };
-        t.SetResourceReference(TextBlock.ForegroundProperty, secondary ? "Fx.TextSecondaryBrush" : "Fx.TextBrush");
+        // Fx.Value and Fx.ValueSecondary: the sizes of Fx.Label and Fx.Desc, without collapsing empty text as Fx.Desc does.
+        var t = new TextBlock { Text = text };
+        t.SetResourceReference(FrameworkElement.StyleProperty, secondary ? "Fx.ValueSecondary" : "Fx.Value");
         if (strong) t.FontWeight = FontWeights.SemiBold;
         return t;
     }
@@ -172,7 +172,8 @@ public static class EditorCard
         var display = HotkeyText.ToDisplay(ahk);
         if (display.Length > 0) text.Text = display;
         else Loc.SetKey(text, "L.S.Hotkey.None");
-        var button = new Button { Content = text, MinWidth = 120, Padding = new Thickness(12, 4, 12, 4) };
+        var button = new Button { Content = text };
+        button.SetResourceReference(FrameworkElement.StyleProperty, "Fx.KeyCap");
         button.Click += (_, _) => click();
         return button;
     }
@@ -182,11 +183,14 @@ public static class EditorCard
     {
         var swatch = new Border
         {
-            Width = 22, Height = 22, CornerRadius = new CornerRadius(4), BorderThickness = new Thickness(1),
+            Width = 22, Height = 22,
             Background = Setting.IsColor(color) ? new SolidColorBrush(AppSettings.ParseColor(color!)) : Brushes.Transparent,
         };
+        swatch.SetResourceReference(Border.CornerRadiusProperty, "Fx.Radius.Control");
+        swatch.SetResourceReference(Border.BorderThicknessProperty, "Fx.Line.Control");
         swatch.SetResourceReference(Border.BorderBrushProperty, "Fx.BorderBrush");
-        var button = new Button { Content = swatch, Width = 32, Height = 32, Padding = new Thickness(0) };
+        var button = new Button { Content = swatch };
+        button.SetResourceReference(FrameworkElement.StyleProperty, "Fx.Swatch");
         button.Click += (_, _) => click();
         return button;
     }
@@ -208,20 +212,16 @@ public static class EditorCard
             x.Click += (_, _) => remove();
             row.Children.Add(x);
         }
-        var chip = new Border
-        {
-            Child = row, Padding = new Thickness(10, 4, 4, 4), Margin = new Thickness(0, 0, 6, 6),
-            CornerRadius = new CornerRadius(12), BorderThickness = new Thickness(1),
-        };
-        chip.SetResourceReference(Border.BackgroundProperty, "Fx.ControlBrush");
-        chip.SetResourceReference(Border.BorderBrushProperty, "Fx.BorderBrush");
+        var chip = new Border { Child = row };
+        chip.SetResourceReference(FrameworkElement.StyleProperty, "Fx.Chip");
         return chip;
     }
 
     /// <summary>The "›" button that opens a page (a character's). Screen readers read the name.</summary>
     public static Button Open(string accessibleName, Action click)
     {
-        var button = new Button { Content = "›", Padding = new Thickness(10, 2, 10, 2), ToolTip = accessibleName };
+        var button = new Button { Content = "›", ToolTip = accessibleName };
+        button.SetResourceReference(FrameworkElement.StyleProperty, "Fx.IconButton");
         AutomationProperties.SetName(button, accessibleName);
         button.Click += (_, _) => click();
         return button;

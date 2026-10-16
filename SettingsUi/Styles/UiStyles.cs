@@ -57,9 +57,8 @@ public static class UiStyles
     /// <summary>WPF's Fluent dictionary, dark (spec §14).</summary>
     public const string FluentSource = "pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.Dark.xaml";
 
-    private static ResourceDictionary FluentDark() => new() { Source = new Uri(FluentSource, UriKind.Absolute) };
 
-    public static UiStyle Windows11 { get; } = new("windows11", usesFluent: true, () => new Windows11Style(), FluentDark);
+    public static UiStyle Windows11 { get; } = new("windows11", usesFluent: true, () => new Windows11Style(), () => new Windows11Controls());
 
     /// <summary>Every look, in the order the picker shows them (S2 adds the others).</summary>
     public static IReadOnlyList<UiStyle> All { get; } = new[] { Windows11 };

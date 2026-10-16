@@ -138,6 +138,31 @@
         <Setter Property="Margin" Value="0,4,0,0"/>
     </Style>
 
+    <!-- Literal text of an editor (a character or group name, a system, a read-out): never translated (EditorCard.Value).
+         In the text colour; the colour token Fx.ValueText colours a slider card's number (plan S1, ruling 15). -->
+    <Style x:Key="Fx.Value" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Body}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+    <Style x:Key="Fx.ValueSecondary" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Desc}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- A name chip ("Logi ✕", EditorCard.Chip). -->
+    <Style x:Key="Fx.Chip" TargetType="Border">
+        <Setter Property="Padding" Value="10,4,4,4"/>
+        <Setter Property="Margin" Value="0,0,6,6"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.ControlBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+    </Style>
+
     <!-- ═══ The page: cards, info lines, editors, sections ═══ -->
 
     <!-- Toggle switch with On/Off text (spec §6). Motion: none beyond the instant state change. -->
