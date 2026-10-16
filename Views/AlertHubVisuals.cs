@@ -235,8 +235,9 @@ public static class AlertHubVisuals
 
     public const double PickerActionSize = 26;
 
-    /// <summary>The CJK font for the current language (spec §7), for the hub's windows.</summary>
-    public static FontFamily TextFont => UiFont.For(LocalizationService.CurrentLanguage);
+    /// <summary>The font of the current language and look (spec §7; UI styles plan S2), for the hub's windows: read when
+    /// a toast or the picker is made.</summary>
+    public static FontFamily TextFont => UiFont.Of(LocalizationService.CurrentLanguage);
 
     private static Brush Frozen(Color c)
     {

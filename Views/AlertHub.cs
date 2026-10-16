@@ -687,6 +687,7 @@ public class AlertHub : IDisposable
     {
         if (!_hubWindow.Dispatcher.CheckAccess()) return;
         _hub.Bell.CornerRadius = AlertHubVisuals.BellCorners;
+        _hubWindow.FontFamily = AlertHubVisuals.TextFont;
         _hub.Badge.SetResourceReference(Border.BackgroundProperty, "Fx.AlertBadgeBrush");
     }
 

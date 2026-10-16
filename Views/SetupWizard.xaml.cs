@@ -45,7 +45,7 @@ public partial class SetupWizard : Window
         InitializeComponent();
         // The wheel over a closed dropdown list (the language) is not "the next choice": it goes past the list.
         PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
-        FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
+        UiFont.Apply(this, LocalizationService.CurrentLanguage);
         Loaded += (_, _) =>
         {
             var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
@@ -132,7 +132,7 @@ public partial class SetupWizard : Window
         if (CmbLanguage.SelectedItem is not ComboBoxItem { Tag: string code }) return;
         _svc.Settings.Language = code;
         LocalizationService.SetLanguage(code);
-        FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
+        UiFont.Apply(this, LocalizationService.CurrentLanguage);
         UpdateNavigation();
     }
 

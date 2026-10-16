@@ -418,7 +418,7 @@ public partial class SettingsShell : Window, ISettingsHost
     /// <summary>CJK font per language (spec §7) and the window scale (SettingsUiFontSize / 12, as the old window).</summary>
     private void ApplyLanguageAndScale()
     {
-        FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
+        UiFont.Apply(this, LocalizationService.CurrentLanguage);
         var scale = _scale = Math.Clamp(_ctx.S.SettingsUiFontSize, 9, 20) / 12.0;
         _frame.LayoutTransform = Math.Abs(scale - 1.0) < 0.001 ? Transform.Identity : new ScaleTransform(scale, scale);
         UpdateMinWidth();

@@ -45,7 +45,7 @@ public partial class UpdateDialog : Window
     {
         UiStyles.Attach(this);
         InitializeComponent();
-        FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
+        UiFont.Apply(this, LocalizationService.CurrentLanguage);
         _updateService = updateService;
         _beforeApply = beforeApply;
         _undoBeforeApply = undoBeforeApply;

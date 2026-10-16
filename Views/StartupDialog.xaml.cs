@@ -17,7 +17,7 @@ public partial class StartupDialog : Window
     {
         UiStyles.Attach(this);
         InitializeComponent();
-        FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
+        UiFont.Apply(this, LocalizationService.CurrentLanguage);
         TitleText.Text = title;
         BodyText.Text = body;
         for (int i = 0; i < choices.Count; i++)

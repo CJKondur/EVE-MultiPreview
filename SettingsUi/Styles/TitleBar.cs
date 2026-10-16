@@ -13,6 +13,10 @@ public static class TitleBar
 {
     public const int DarkMode = 20, CornerPreference = 33, BorderColour = 34, CaptionColour = 35, TextColour = 36;
 
+    /// <summary>DWMWA_SYSTEMBACKDROP_TYPE, and its value "no backdrop" (DWMSBT_NONE). WPF gives a window of a Fluent look
+    /// Mica (2) and does not take it away when Fluent leaves (measured in plan S1): a look without Fluent sets none.</summary>
+    public const int Backdrop = 38, NoBackdrop = 1;
+
     /// <summary>DWMWA_COLOR_DEFAULT: Windows draws that part itself (its own caption, with Mica, its own text and edge).</summary>
     public const int SystemColour = unchecked((int)0xFFFFFFFF);
 
@@ -48,6 +52,11 @@ public static class TitleBar
         {
             int v = value;
             DwmSetWindowAttribute(hwnd, attribute, ref v, sizeof(int));
+        }
+        if (!UiStyles.Effective.UsesFluent)
+        {
+            int none = NoBackdrop;   // a Fluent look's is WPF's, set again when Fluent comes back
+            DwmSetWindowAttribute(hwnd, Backdrop, ref none, sizeof(int));
         }
         Applied?.Invoke(window);
     }
