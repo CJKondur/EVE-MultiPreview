@@ -15,6 +15,7 @@ public partial class StartupDialog : Window
 {
     public StartupDialog(string title, string body, IReadOnlyList<string> choices)
     {
+        UiStyles.Attach(this);
         InitializeComponent();
         FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
         TitleText.Text = title;

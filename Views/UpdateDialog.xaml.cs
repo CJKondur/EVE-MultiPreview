@@ -43,6 +43,7 @@ public partial class UpdateDialog : Window
     /// <param name="undoBeforeApply">Puts back what <paramref name="beforeApply"/> changed when the dialog closes without installing.</param>
     public UpdateDialog(UpdateService updateService, bool specificVersion = false, Action? beforeApply = null, Action? undoBeforeApply = null)
     {
+        UiStyles.Attach(this);
         InitializeComponent();
         FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
         _updateService = updateService;

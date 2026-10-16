@@ -6,13 +6,3 @@ public partial class BaseTheme : System.Windows.ResourceDictionary
     public BaseTheme() => InitializeComponent();
 }
 
-/// <summary>Until Task 6 of plan S1: what the seven windows that are not attached yet merge in their XAML (the base and
-/// the current look). Task 6 attaches them and removes this.</summary>
-public sealed class SettingsTheme : System.Windows.ResourceDictionary
-{
-    public SettingsTheme()
-    {
-        MergedDictionaries.Add(UiStyles.Base);
-        MergedDictionaries.Add(UiStyles.Current.Dictionary);
-    }
-}

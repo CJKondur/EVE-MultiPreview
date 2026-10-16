@@ -41,6 +41,7 @@ public partial class SetupWizard : Window
         _svc = svc;
         _selectedWidth = (int)_svc.Settings.ThumbnailStartLocation.Width;
         _selectedHeight = (int)_svc.Settings.ThumbnailStartLocation.Height;
+        UiStyles.Attach(this);
         InitializeComponent();
         // The wheel over a closed dropdown list (the language) is not "the next choice": it goes past the list.
         PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;

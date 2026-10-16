@@ -9,6 +9,7 @@ public partial class ChoiceDialog : Window
 {
     public ChoiceDialog(string title, string body, string yesLabel, string noLabel)
     {
+        UiStyles.Attach(this);
         InitializeComponent();
         Title = title;
         TitleText.Text = title;

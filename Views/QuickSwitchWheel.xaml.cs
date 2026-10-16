@@ -56,6 +56,7 @@ public partial class QuickSwitchWheel : Window
 
     public QuickSwitchWheel()
     {
+        UiStyles.Attach(this, StyledAs.Surface);
         InitializeComponent();
         FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
         KeyDown += OnKeyDown;

@@ -12,13 +12,6 @@
         SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen">
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ui:SettingsTheme/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
 
     <!-- Plan 4, the F2 reference: the clients' cards around a centre disc. The root's almost-transparent fill keeps the
          whole wheel clickable, as the old opaque panel was, so a click between two cards never reaches the game. -->

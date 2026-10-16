@@ -15,6 +15,7 @@ public partial class HotkeyCaptureDialog : Window
 
     public HotkeyCaptureDialog(string title, string? current, Func<string, IReadOnlyList<HotkeyUse>> findClashes)
     {
+        UiStyles.Attach(this);
         InitializeComponent();
         _model = new HotkeyCaptureModel(current, findClashes);
         DataContext = _model;
