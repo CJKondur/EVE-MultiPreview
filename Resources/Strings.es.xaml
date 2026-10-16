@@ -568,6 +568,8 @@
     <sys:String x:Key="L.Wiz.WelcomeFooter">¡Vamos a configurarte en menos de un minuto!</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">Elige el tamaño de las miniaturas</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">Elige el mejor preajuste para tu configuración. Puedes cambiarlo más tarde.</sys:String>
+    <sys:String x:Key="L.Wiz.LookTitle">Elige un aspecto</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.LookSub">El aspecto de las ventanas de MultiPreview. Puedes cambiarlo cuando quieras en Ajustes de la aplicación › Aspecto.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SizeDual">Doble monitor</sys:String>
     <sys:String x:Key="L.Wiz.SizeMulti">Multi-Box</sys:String>
     <sys:String x:Key="L.Wiz.SizeFleet">Flota</sys:String>

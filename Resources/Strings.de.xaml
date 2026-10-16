@@ -568,6 +568,8 @@
     <sys:String x:Key="L.Wiz.WelcomeFooter">Richten wir dich in unter einer Minute ein!</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">Vorschaugröße wählen</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">Wähle die beste Voreinstellung für dein Setup. Du kannst dies später ändern.</sys:String>
+    <sys:String x:Key="L.Wiz.LookTitle">Aussehen wählen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.LookSub">So sehen die Fenster von MultiPreview aus. Du kannst es jederzeit unter App-Einstellungen › Aussehen ändern.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SizeDual">Dual-Monitor</sys:String>
     <sys:String x:Key="L.Wiz.SizeMulti">Multi-Box</sys:String>
     <sys:String x:Key="L.Wiz.SizeFleet">Flotte</sys:String>

@@ -568,6 +568,8 @@
     <sys:String x:Key="L.Wiz.WelcomeFooter">让我们在一分钟内完成设置！</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">选择缩略图大小</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">为你的配置选择最合适的预设。稍后可以更改。</sys:String>
+    <sys:String x:Key="L.Wiz.LookTitle">选择外观</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.LookSub">MultiPreview 窗口的外观。随时可以在 应用设置 › 外观 中更改。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SizeDual">双显示器</sys:String>
     <sys:String x:Key="L.Wiz.SizeMulti">多开</sys:String>
     <sys:String x:Key="L.Wiz.SizeFleet">舰队</sys:String>

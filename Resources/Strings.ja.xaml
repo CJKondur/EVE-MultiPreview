@@ -568,6 +568,8 @@
     <sys:String x:Key="L.Wiz.WelcomeFooter">1 分もかからずにセットアップしましょう！</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">サムネイルサイズを選択</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">環境に最適なプリセットを選んでください。後で変更できます。</sys:String>
+    <sys:String x:Key="L.Wiz.LookTitle">外観を選ぶ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.LookSub">MultiPreview のウィンドウの外観です。アプリの設定 › 外観 でいつでも変更できます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Wiz.SizeDual">デュアルモニター</sys:String>
     <sys:String x:Key="L.Wiz.SizeMulti">マルチボックス</sys:String>
     <sys:String x:Key="L.Wiz.SizeFleet">艦隊</sys:String>

@@ -18,19 +18,22 @@ using Control = System.Windows.Controls.Control;
 namespace EveMultiPreview.Views;
 
 /// <summary>
-/// 5-step first-run setup wizard (AHK: SetupWizard.ahk).
-/// Steps: Welcome → Size Picker → Hotkeys → Char Select → Summary.
+/// 6-step first-run setup wizard (AHK: SetupWizard.ahk).
+/// Steps: Welcome → Look → Size Picker → Hotkeys → Char Select → Summary.
 /// Sets SetupCompleted=true on finish. Plan 4 restyled it after the F2 reference; the steps, choices and what Done saves
-/// are unchanged, plus the language picker spec §10 puts in step 1.
+/// are unchanged, plus the language picker spec §10 puts in step 1 and the look UI styles spec §9.3 puts in step 2.
 /// </summary>
 public partial class SetupWizard : Window
 {
-    public const int StepCount = 5;
+    public const int StepCount = 6;
 
     private readonly SettingsService _svc;
     private int _currentStep = 1;
     private int _selectedWidth, _selectedHeight;
     private bool _sizePicked;
+    private readonly UiStyle _opened = UiStyles.Current;   // the look the wizard opened with, back if it closes without Done
+    private UiStyle _look;                                 // the look step 2 shows picked, saved at Done
+    private bool _applied;
 
     // Dark title bar
     [DllImport("dwmapi.dll", PreserveSig = true)]
@@ -54,24 +57,26 @@ public partial class SetupWizard : Window
         };
         BuildLanguageList();
         SelectMatchingSizeCard();
+        _look = UiStyles.Find(_svc.Settings.UiStyle);
+        LookHost.Content = new LookGallery(() => _look.Id, PickLook, 152);   // four to a row in 720
         ShowStep(1);
     }
 
-    /// <summary>The step showing, 1–5.</summary>
+    /// <summary>The step showing, 1–6.</summary>
     public int CurrentStep => _currentStep;
 
-    /// <summary>Shows step 1–5: the step's panel, the progress bars and the buttons. Next, Back and Skip call it; tests
+    /// <summary>Shows step 1–6: the step's panel, the progress bars and the buttons. Next, Back and Skip call it; tests
     /// use it to render each step.</summary>
     public void ShowStep(int step)
     {
         _currentStep = Math.Clamp(step, 1, StepCount);
 
-        var steps = new UIElement[] { Step1, Step2, Step3, Step4, Step5 };
+        var steps = new UIElement[] { Step1, StepLook, Step2, Step3, Step4, Step5 };   // the old steps keep their names
         for (int i = 0; i < steps.Length; i++)
             steps[i].Visibility = i == _currentStep - 1 ? Visibility.Visible : Visibility.Collapsed;
 
         // Done and current steps in accent, the ones to come in the flyout border colour (the reference's step bars).
-        var bars = new[] { Bar1, Bar2, Bar3, Bar4, Bar5 };
+        var bars = new[] { Bar1, Bar2, Bar3, Bar4, Bar5, Bar6 };
         for (int i = 0; i < bars.Length; i++)
             bars[i].SetResourceReference(Border.BackgroundProperty, i < _currentStep ? "Fx.AccentBrush" : "Fx.FlyoutBorderBrush");
 
@@ -134,6 +139,31 @@ public partial class SetupWizard : Window
         LocalizationService.SetLanguage(code);
         UiFont.Apply(this, LocalizationService.CurrentLanguage);
         UpdateNavigation();
+    }
+
+    // ── Look (UI styles spec §9.3: the gallery of App settings › Look) ──
+
+    /// <summary>A pick restyles the wizard (every window: at a first run, the wizard is the one) at once; Done saves it.</summary>
+    private void PickLook(UiStyle style)
+    {
+        _look = style;
+        SetLook(style);
+    }
+
+    /// <summary>A window that failed to take the look is logged: UiStyles.Set finishes the switch before it throws (the
+    /// S1 carry), so every other window has it.</summary>
+    private static void SetLook(UiStyle style)
+    {
+        try { UiStyles.Set(style); }
+        catch (Exception e) { ErrorLog.Shared.Record(e, "UI styles", DateTime.Now); }
+    }
+
+    /// <summary>Closed without Done (the title bar's ×), the wizard saves nothing, so the look it opened with comes back:
+    /// a look the settings do not hold would otherwise stay until the next start.</summary>
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        if (!_applied && UiStyles.Current != _opened) SetLook(_opened);
     }
 
     // ── Size Card Selection ──
@@ -271,6 +301,10 @@ public partial class SetupWizard : Window
         s.CharSelectCyclingEnabled = ChkWizCharCycle.IsChecked == true;
         s.CharSelectForwardHotkey = TxtWizCycleFwd.Text;
         s.CharSelectBackwardHotkey = TxtWizCycleBwd.Text;
+
+        // Look (spec §9.3)
+        s.UiStyle = _look.Id;
+        _applied = true;
 
         // Mark setup as completed
         s.SetupCompleted = true;

@@ -561,6 +561,8 @@
     <sys:String x:Key="L.Wiz.WelcomeFooter">Let's get you set up in under a minute!</sys:String>
     <sys:String x:Key="L.Wiz.SizeTitle">Choose Thumbnail Size</sys:String>
     <sys:String x:Key="L.Wiz.SizeSub">Pick the best preset for your setup. You can change this later.</sys:String>
+    <sys:String x:Key="L.Wiz.LookTitle">Pick a look</sys:String>
+    <sys:String x:Key="L.Wiz.LookSub">How MultiPreview's windows look. You can change it any time in App settings › Look.</sys:String>
     <sys:String x:Key="L.Wiz.SizeDual">Dual Monitor</sys:String>
     <sys:String x:Key="L.Wiz.SizeMulti">Multi-Box</sys:String>
     <sys:String x:Key="L.Wiz.SizeFleet">Fleet</sys:String>
