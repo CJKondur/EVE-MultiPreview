@@ -195,6 +195,9 @@ public partial class App : Application
         DiagnosticsService.Initialize();
         DiagnosticsService.GlobalSettings = _settings.Settings;
 
+        // The look the settings file names (UI styles spec §10), before the first window that has one: the setup wizard.
+        ApplySavedLook();
+
         PerfLog($"Settings loaded: {startupSw.ElapsedMilliseconds}ms");
 
         // ── Setup Wizard gate ──
@@ -723,6 +726,15 @@ public partial class App : Application
 
     /// <summary>An error MultiPreview handled and kept running after: counted, and written to Logs\error_log.txt in the
     /// settings folder (IDEAS #55). Never throws.</summary>
+    /// <summary>Shows the look the settings file names (UI styles spec §10). The same look again changes nothing. A window
+    /// that failed to take it is logged; every other window, the menus and the hub have it (UiStyles.Set finishes the
+    /// switch before it throws).</summary>
+    private void ApplySavedLook()
+    {
+        try { SettingsUi.UiStyles.Set(_settings!.Settings.UiStyle); }
+        catch (Exception ex) { LogError(ex); }
+    }
+
     internal static void LogError(Exception ex)
     {
         ErrorLog.Shared.Record(ex, "App", DateTime.Now);
@@ -1362,6 +1374,7 @@ public partial class App : Application
 
             FollowSnoozeSwitch();   // IDEAS #30: the snooze file is written or removed as its switch says
             FollowAlertTimer();     // IDEAS #29: the one-second look starts or stops with what needs it
+            ApplySavedLook();       // UI styles: an import, or the setup wizard, may have picked another look
             FollowNotifications();  // IDEAS #33: the registry key is written or removed as its switch says
             _spokenWay?.Follow(_settings!.Settings.SpeakAlerts);   // FX-m4: off and on again counts the voice's asks anew
 

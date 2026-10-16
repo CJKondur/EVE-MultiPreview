@@ -83,6 +83,8 @@ public class AhkConfigRoot
         s.SimpleMode = g.SimpleMode != 0;
         s.UseLegacySettingsWindow = g.UseLegacySettingsWindow != 0;
         s.SettingsHelpOpen = g.SettingsHelpOpen != 0;
+        s.UiStyle = g.UiStyle ?? AppSettings.DefaultUiStyle;   // a written null is a missing key; "" and unknown ids are kept
+        s.UiStyleFollowContrast = g.UiStyleFollowContrast != 0;
         s.SetupCompleted = true; // Always bypass the First-Run wizard for migrated AHK users
         // StartupSettings: clamp to known values; unknown/missing → Off
         s.StartupSettings = g.StartupSettings switch
@@ -413,6 +415,8 @@ public class AhkConfigRoot
         g.SimpleMode = s.SimpleMode ? 1 : 0;
         g.UseLegacySettingsWindow = s.UseLegacySettingsWindow ? 1 : 0;
         g.SettingsHelpOpen = s.SettingsHelpOpen ? 1 : 0;
+        g.UiStyle = s.UiStyle;
+        g.UiStyleFollowContrast = s.UiStyleFollowContrast ? 1 : 0;
         g.SetupCompleted = s.SetupCompleted ? 1 : 0;
         g.StartupSettings = (int)s.StartupSettings;
         g.LastUsedProfile = s.LastUsedProfile;
@@ -1156,6 +1160,13 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("SettingsHelpOpen")]
     public int SettingsHelpOpen { get; set; } = 0;
+
+    /// <summary>UI styles spec §10: the look's id. A file without the key loads the default look.</summary>
+    [JsonPropertyName("UiStyle")]
+    public string? UiStyle { get; set; } = AppSettings.DefaultUiStyle;
+
+    [JsonPropertyName("UiStyleFollowContrast")]
+    public int UiStyleFollowContrast { get; set; } = 1;
 
     [JsonPropertyName("SetupCompleted")]
     public int SetupCompleted { get; set; }
