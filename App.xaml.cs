@@ -430,6 +430,10 @@ public partial class App : Application
             // still wanted: not when the character is muted or the event snoozed for it meanwhile, and not when
             // the player has looked at that client since. (An alert on the client in front was never unseen, and
             // is spoken as its sound is played.) Asked on the voice's thread: all three answers may be asked there.
+            // FY-m3: the three ways are made in one try. A failure is reported by its type, and the start-up goes on to
+            // the alert handler, the monitor, the tray and the hub: a way that could not be made is simply not there.
+            try
+            {
             _speaker = new WindowsSpeaker();
             _spokenWay = new SpokenWay(_speaker, () => _settings.Settings,
                 (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
@@ -455,13 +459,13 @@ public partial class App : Application
             _alertWays.Add(_notificationsWay);
             _thumbnailManager.Attention.Looked += _notificationsWay.Looked;
             FollowNotifications(starting: true);
-            // Windows signing out or shutting down: OnExit may not get to run (see the history, below), and what
-            // this session showed would stay in the Notification Center with buttons that can do nothing. It is
-            // taken away, but the way is not stopped: Windows tells of a session's end when it ASKS, and a shutdown
-            // that is then cancelled leaves MultiPreview running.
-            SessionEnding += (_, _) => _notificationsWay?.SessionEnding();
             // IDEAS #13: a thumbnail grows for a few seconds on an alert. The manager owns the decision and its tick.
             _alertWays.Add(_thumbnailManager.Enlarge);
+            }
+            catch (Exception ex)
+            {
+                LogError(AlertWays.Failure("Alert ways: making them at start-up", ex));
+            }
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
             // history writes on a thread of its own; old days are deleted here, at startup, and never while running.
             // A session whose settings could not be read runs on default values and saves nothing: its keep time is
@@ -484,6 +488,10 @@ public partial class App : Application
             // Windows signing out or shutting down: WPF only queues its shutdown then, and OnExit (which closes the
             // history) may not get to run before the process is ended. What is waiting is written now.
             SessionEnding += (_, _) => _alertHistory?.Flush(TimeSpan.FromSeconds(2));
+            // And what this session showed would stay in the Notification Center with buttons that can do nothing: it
+            // is taken away before the app closes (WPF closes it, as nothing here cancels the session's end). Behind
+            // the history (FY-m1): the player's data first, because Windows may take seconds to answer.
+            SessionEnding += (_, _) => _notificationsWay?.SessionEnding();
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
                 // What a custom rule matched is there only while its alert is being raised: taken first (IDEAS #8).
@@ -1585,6 +1593,9 @@ public partial class App : Application
 
     private void ExitApplication()
     {
+        // FY-m9: the switch is followed first, while that is still allowed: notifications switched off within the
+        // second before Exit (before the settings change was applied) leave no registry key behind.
+        FollowNotifications();
         _isShuttingDown = true;
         // Save stat window positions before exit (AHK _OnAppExit pattern)
         _thumbnailManager?.SaveStatWindowPositions();
@@ -1612,6 +1623,10 @@ public partial class App : Application
         // freshly downloaded copy (EVE.MultiPreview.exe) is not: for that copy it went on after two seconds, whether
         // this process was gone or not (IDEAS P52).
         _runMarker?.End();
+
+        // FY-m1: the player's data first. What the history holds is written now (at most two seconds), before the
+        // voice and the notifications are stopped, which can take seconds when Windows does not answer.
+        _alertHistory?.Flush(TimeSpan.FromSeconds(2));
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off

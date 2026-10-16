@@ -380,13 +380,11 @@ public sealed class NotificationsWay : IAlertWay
         catch (Exception ex) { Report("stopping", ex); }
     }
 
-    /// <summary>Windows is ending the session (signing out, shutting down), or is asking whether it may. What this
-    /// session showed is taken away as at exit, because the exit itself may never get to run: what waits is
-    /// dropped, the pump is let finish (at most <see cref="IdleLimit"/>), and Windows is asked once if anything may
-    /// be there. But the way is NOT stopped. WPF tells of a session's end when Windows ASKS, and the shutdown may
-    /// then be cancelled (another program has unsaved work): MultiPreview runs on, and so must this way. The next
-    /// alert is a notification again, a click and the card's button and question work, and switching the feature
-    /// off still removes the key. Never throws.</summary>
+    /// <summary>Windows is ending the session (signing out, shutting down). What this session showed is taken away
+    /// before the app closes, because the exit itself may never get to run: what waits is dropped, the pump is let
+    /// finish (at most <see cref="IdleLimit"/>), and Windows is asked once if anything may be there. (WPF then closes
+    /// MultiPreview: nothing in it cancels the session's end, and so a shutdown that is cancelled afterwards finds it
+    /// closed, as it always did.) Never throws.</summary>
     public void SessionEnding()
     {
         if (_stopped) return;
