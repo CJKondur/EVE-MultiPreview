@@ -147,7 +147,16 @@ public static class UiStyles
             else merged.Insert(Math.Min(i, merged.Count), now);
         }
         window.SetValue(SlotsProperty, slots);
-        if (kind == StyledAs.Window) TitleBar.Apply(window);
+        if (kind == StyledAs.Window) { TextColour(window); TitleBar.Apply(window); }
+    }
+
+    /// <summary>The text colour of a window of a look without Fluent: the look's (Fluent's window style gives a Windows 11
+    /// window its own, and a look without Fluent has nothing to give it, so text without a style of its own would be
+    /// black). A window of a Fluent look keeps Fluent's: the local value goes.</summary>
+    private static void TextColour(Window window)
+    {
+        if (Current.UsesFluent) window.ClearValue(System.Windows.Controls.Control.ForegroundProperty);
+        else window.SetResourceReference(System.Windows.Controls.Control.ForegroundProperty, "Fx.TextBrush");
     }
 
     /// <summary>Where a slot is merged: the dictionary itself, or for slot 0 of a Fluent look the dictionary with Fluent's
@@ -193,6 +202,7 @@ public static class UiStyles
         for (int i = 0; i < slots.Length; i++) merged.Insert(i, slots[i]);
         window.SetValue(SlotsProperty, slots);
         window.SetValue(KindProperty, kind);
+        if (kind == StyledAs.Window && !Current.UsesFluent) TextColour(window);   // a Fluent window is left exactly as before
         var remembered = new WeakReference<Window>(window);
         _attached ??= new List<WeakReference<Window>>();
         _attached.RemoveAll(r => !r.TryGetTarget(out _));   // windows the collector took (one is added per toast)

@@ -123,4 +123,10 @@
     <local:MenuCheck x:Key="Fx.Menu.Check">Tick</local:MenuCheck>
     <sys:String x:Key="Fx.Menu.Font">Segoe UI</sys:String>
     <sys:Boolean x:Key="Fx.Hub.Round">True</sys:Boolean>
+
+    <!-- ═══ Picks from the kit (spec §6.3) ═══ -->
+    <!-- The on/off control of a setting is the old window's check box, not a switch. -->
+    <Style x:Key="Fx.ToggleSwitch" TargetType="CheckBox" BasedOn="{StaticResource Kit.Check.BoxTick}">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
 </ResourceDictionary>
