@@ -27,7 +27,7 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     private readonly SettingsContext _ctx;
     private readonly Func<string> _language;
     private readonly Action<Exception> _failed;
-    private readonly Grid _table = new();
+    private readonly EditorTable _table = new();
     private readonly TextBlock _note = EditorCard.Value("", secondary: true);
     private readonly TextBlock _tried = EditorCard.Value("", secondary: true);
     private bool _building;
@@ -145,10 +145,7 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
             _note.Text = SaysNoVoiceAtAll ? Str("L.S.Speech.NoVoices") : SaysNoVoiceForTheLanguage ? Str("L.S.Speech.NoVoice") : "";
             _note.Visibility = _note.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
 
-            _table.Children.Clear();
-            _table.RowDefinitions.Clear();
-            _table.ColumnDefinitions.Clear();
-            for (int c = 0; c < 3; c++) _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            _table.Reset(GridLength.Auto, GridLength.Auto, GridLength.Auto);
             foreach (var severity in AlertEvents.Severities) AddRow(severity);
         }
         finally { _building = false; }
@@ -156,8 +153,7 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
 
     private void AddRow(string severity)
     {
-        _table.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        int row = _table.RowDefinitions.Count - 1;
+        int row = _table.AddRow();
         string name = Str(AlertEvents.SeverityKey(severity));
         Place(AlertEvents.SeverityText(severity), row, 0);
 
@@ -260,8 +256,6 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     {
         element.Margin = new Thickness(0, 4, 16, 4);
         element.VerticalAlignment = VerticalAlignment.Center;
-        Grid.SetRow(element, row);
-        Grid.SetColumn(element, column);
-        _table.Children.Add(element);
+        _table.Place(element, row, column);
     }
 }

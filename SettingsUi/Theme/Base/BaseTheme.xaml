@@ -426,6 +426,24 @@
         </StackPanel>
     </DataTemplate>
 
+    <!-- ═══ Tables of the hand-built editors (EditorTable) ═══ -->
+
+    <!-- The table, a row and the header row behind their cells, and a cell. In Windows 11 none draws anything: a look
+         with lines, a header bar or a grid overrides them. -->
+    <Style x:Key="Fx.Table" TargetType="Border"/>
+    <Style x:Key="Fx.Table.Header" TargetType="Border"/>
+    <Style x:Key="Fx.Table.Row" TargetType="Border"/>
+    <Style x:Key="Fx.Table.Cell" TargetType="Border"/>
+
+    <!-- A column's heading. In Windows 11 what EditorCard.Note(key, strong: true) drew: the description's size and colour,
+         semibold. -->
+    <Style x:Key="Fx.Caption" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Caption}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Section}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
     <!-- ═══ Navigation ═══ -->
 
     <!-- Navigation entry: icon + text, accent bar when current. -->

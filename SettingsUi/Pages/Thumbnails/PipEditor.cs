@@ -47,7 +47,7 @@ public sealed class PipEditor : System.Windows.Controls.UserControl, IRefreshabl
     private const double MinPercent = 8, MaxPercent = 100;   // the old slider's 20–255 bytes
 
     private readonly SettingsContext _ctx;
-    private readonly Grid _table = new();
+    private readonly EditorTable _table = new();
 
     public PipEditor(SettingsContext ctx)
     {
@@ -70,20 +70,14 @@ public sealed class PipEditor : System.Windows.Controls.UserControl, IRefreshabl
     public void Refresh()
     {
         Names = SecondThumbnails.Names(_ctx.S);
-        _table.Children.Clear();
-        _table.RowDefinitions.Clear();
-        _table.ColumnDefinitions.Clear();
-        foreach (var width in new[] { new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto })
-            _table.ColumnDefinitions.Add(new ColumnDefinition { Width = width });
-        int header = AddRow();
-        Place(EditorCard.Note("L.S.Characters.ColCharacter", strong: true), header, 0);
-        Place(EditorCard.Note("L.S.Pip.ColOn", strong: true), header, 1);
-        Place(EditorCard.Note("L.S.Pip.ColOpacity", strong: true), header, 2);
+        _table.Reset(new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto);
+        int header = AddRow(header: true);
+        Place(EditorTable.Head("L.S.Characters.ColCharacter"), header, 0);
+        Place(EditorTable.Head("L.S.Pip.ColOn"), header, 1);
+        Place(EditorTable.Head("L.S.Pip.ColOpacity"), header, 2);
         if (Names.Count == 0)
         {
-            var empty = EditorCard.Note("L.S.Pip.Empty");
-            Place(empty, AddRow(), 0);
-            Grid.SetColumnSpan(empty, 6);
+            Place(EditorCard.Note("L.S.Pip.Empty"), AddRow(), 0, span: 6);
             return;
         }
         foreach (var name in Names) AddCharacter(name);
@@ -116,20 +110,14 @@ public sealed class PipEditor : System.Windows.Controls.UserControl, IRefreshabl
         Place(remove, r, 5);
     }
 
-    private int AddRow()
-    {
-        _table.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        return _table.RowDefinitions.Count - 1;
-    }
+    private int AddRow(bool header = false) => _table.AddRow(header);
 
-    private void Place(FrameworkElement element, int row, int column)
+    private void Place(FrameworkElement element, int row, int column, int span = 1)
     {
         element.Margin = new Thickness(0, 4, 12, 4);
         element.VerticalAlignment = VerticalAlignment.Center;
         element.HorizontalAlignment = HorizontalAlignment.Left;
-        Grid.SetRow(element, row);
-        Grid.SetColumn(element, column);
-        _table.Children.Add(element);
+        _table.Place(element, row, column, span);
     }
 
     /// <summary>As the character page: on creates or re-enables the entry and opens the second thumbnail

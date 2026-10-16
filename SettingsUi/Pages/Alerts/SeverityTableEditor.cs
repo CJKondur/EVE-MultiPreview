@@ -17,7 +17,7 @@ public sealed class SeverityTableEditor : System.Windows.Controls.UserControl, I
     private static readonly string[] Columns = { "L.S.Severity.ColSeverity", "L.S.Severity.ColColour", "L.S.Severity.ColFlash", "L.S.Severity.ColHub" };
 
     private readonly SettingsContext _ctx;
-    private readonly Grid _table = new();
+    private readonly EditorTable _table = new();
 
     public SeverityTableEditor(SettingsContext ctx)
     {
@@ -36,15 +36,12 @@ public sealed class SeverityTableEditor : System.Windows.Controls.UserControl, I
 
     public void Refresh()
     {
-        _table.Children.Clear();
-        _table.RowDefinitions.Clear();
-        _table.ColumnDefinitions.Clear();
-        foreach (var _ in Columns) _table.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        int header = AddRow();
+        _table.Reset(GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto);   // the four columns
+        int header = AddRow(header: true);
         for (int c = 0; c < Columns.Length; c++)
         {
-            // A long header wraps instead of widening the table past the card (Fx.Desc wraps; the cap makes it).
-            var head = EditorCard.Note(Columns[c], strong: true);
+            // A long header wraps instead of widening the table past the card (Fx.Caption wraps; the cap makes it).
+            var head = EditorTable.Head(Columns[c]);
             head.MaxWidth = 140;
             if (c == SwitchColumn) head.TextAlignment = TextAlignment.Center;
             Place(head, header, c);
@@ -109,11 +106,7 @@ public sealed class SeverityTableEditor : System.Windows.Controls.UserControl, I
         _ctx.Applier.Request(ApplyScope.Save);
     }
 
-    private int AddRow()
-    {
-        _table.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        return _table.RowDefinitions.Count - 1;
-    }
+    private int AddRow(bool header = false) => _table.AddRow(header);
 
     /// <summary>Column 3 ("Toast in the alert hub") holds switches: header and switch are centred over each other.</summary>
     private const int SwitchColumn = 3;
@@ -123,8 +116,6 @@ public sealed class SeverityTableEditor : System.Windows.Controls.UserControl, I
         element.Margin = new Thickness(0, 4, 20, 4);
         element.VerticalAlignment = VerticalAlignment.Center;
         element.HorizontalAlignment = column == SwitchColumn ? HorizontalAlignment.Center : HorizontalAlignment.Left;
-        Grid.SetRow(element, row);
-        Grid.SetColumn(element, column);
-        _table.Children.Add(element);
+        _table.Place(element, row, column);
     }
 }
