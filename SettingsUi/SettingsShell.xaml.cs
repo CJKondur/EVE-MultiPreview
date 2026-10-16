@@ -27,6 +27,9 @@ public partial class SettingsShell : Window, ISettingsHost
     private readonly DispatcherTimer _toastTimer = new() { Interval = TimeSpan.FromSeconds(3) };
     private readonly DispatcherTimer _highlightTimer = new() { Interval = TimeSpan.FromSeconds(2) };
     private readonly HelpPane _help = new();
+    private readonly ShellFrame _frame;
+    private readonly ScrollViewer _page;
+    private readonly ItemsControl _sections;
     private readonly IReadOnlyList<PageDef> _pages;
     private IReadOnlyList<SearchEntry>? _searchIndex;
     private SearchBox? _search;
@@ -57,6 +60,23 @@ public partial class SettingsShell : Window, ISettingsHost
         Vm.Reloaded += () => { ApplyLanguageAndScale(); SettingsApplied?.Invoke(); };
         DataContext = Vm;
 
+        // The three live parts: the page (the section list in its scroller; it keeps the editors and the scroll) and the
+        // help pane here, the search box below. The frame hands them to the look's layout.
+        _sections = new ItemsControl { Focusable = false };
+        _sections.SetBinding(ItemsControl.ItemsSourceProperty, new System.Windows.Data.Binding("Current.Sections"));
+        _sections.SetResourceReference(ItemsControl.ItemTemplateProperty, "Fx.Section");
+        _page = new ScrollViewer { VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Focusable = false, Content = _sections };
+        PlaceThePage();
+        _frame = new ShellFrame
+        {
+            Page = _page,
+            Help = _help,
+            ProfileMenuCommand = new RelayCommand(target => OpenProfileMenu(target as UIElement)),
+            BreadcrumbCommand = new RelayCommand(_ => OpenBreadcrumbTarget()),
+            RetrySaveCommand = new RelayCommand(_ => Vm.RetrySave()),
+        };
+        Content = _frame;
+
         services.Crops?.ShowCrops();   // issue #81 recovery net: opening settings always un-hides crops (as the old window did)
         ApplyLanguageAndScale();
         RestoreSize();
@@ -64,23 +84,22 @@ public partial class SettingsShell : Window, ISettingsHost
         _clock.Tick += (_, _) => UpdateTitle();
         _clock.Start();
         UpdateTitle();
-        _toastTimer.Tick += (_, _) => { _toastTimer.Stop(); ToastHost.Visibility = Visibility.Collapsed; };
+        _toastTimer.Tick += (_, _) => { _toastTimer.Stop(); _frame.ToastText = null; };
         _highlightTimer.Tick += (_, _) => { _highlightTimer.Stop(); Vm.ClearHighlight(); };
 
-        HelpHost.Content = _help;
         _help.CloseRequested += () => Vm.HelpOpen = false;
         Vm.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is "" or nameof(ShellVM.Current)) ScrollToTopOnNewPage();
             if (e.PropertyName is "" or nameof(ShellVM.HelpOpen) or nameof(ShellVM.Current)) UpdateHelp();
         };
-        Sections.MouseMove += (_, e) => FollowHelp(e.OriginalSource);
-        Sections.GotKeyboardFocus += (_, e) => FollowHelp(e.OriginalSource);
+        _sections.MouseMove += (_, e) => FollowHelp(e.OriginalSource);
+        _sections.GotKeyboardFocus += (_, e) => FollowHelp(e.OriginalSource);
         _helpShown = Vm.HelpOpen;   // remembered open: the saved width already holds the column
         UpdateHelp();
 
         _search = new SearchBox(SearchEntries, entry => Navigate(entry.PageId, entry.ItemId));
-        SearchHost.Content = _search;
+        _frame.Search = _search;
         InputBindings.Add(new KeyBinding(new RelayCommand(_ => _search.FocusBox()), Key.F, ModifierKeys.Control));
 
         // The wheel over a closed dropdown list scrolls the page: one handler for every list of the window.
@@ -96,6 +115,25 @@ public partial class SettingsShell : Window, ISettingsHost
 
     public ShellVM Vm { get; }
     internal SettingsContext Context => _ctx;
+
+    /// <summary>The window's frame (its content), the page's scroller and its section list (tests, and Task 17).</summary>
+    public ShellFrame Frame => _frame;
+    public ScrollViewer PageScroller => _page;
+    public ItemsControl SectionList => _sections;
+
+    /// <summary>Whether the toast shows now.</summary>
+    public bool ToastShown => _frame.ToastText != null;
+
+    /// <summary>The page beside its scroll bar (Fx.Scroll.Overlay). A bar that floats is drawn over the right edge of what
+    /// scrolls: the viewer reaches 20 px into the column's right margin and the cards stay 20 px short of it, so the bar
+    /// sits beside the cards and the cards still end where the page header ends. A bar that takes its own column needs
+    /// neither.</summary>
+    public void PlaceThePage()
+    {
+        bool overlay = UiStyles.Current.Dictionary["Fx.Scroll.Overlay"] is true;
+        _page.Margin = overlay ? new Thickness(0, 8, -20, 0) : new Thickness(0, 8, 0, 0);
+        _sections.Margin = overlay ? new Thickness(0, 0, 20, 24) : new Thickness(0, 0, 0, 24);
+    }
 
     /// <summary>The wheel over a CLOSED dropdown list is not the list's: it goes to what is around the list, so the
     /// page scrolls. WPF's list takes one notch as "next choice" while it is closed and has the keyboard, so a player
@@ -128,7 +166,7 @@ public partial class SettingsShell : Window, ISettingsHost
         var id = Vm.Current?.Page.Id;
         if (id == _scrolledPageId) return;
         _scrolledPageId = id;
-        ContentScroll.ScrollToTop();
+        _page.ScrollToTop();
     }
 
     // ── ISettingsHost ────────────────────────────────────────────────
@@ -136,7 +174,7 @@ public partial class SettingsShell : Window, ISettingsHost
     public void Navigate(string pageId, string? itemId = null)
     {
         Vm.Navigate(pageId, itemId);
-        ContentScroll.ScrollToTop();
+        _page.ScrollToTop();
         if (itemId == null) return;
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => FindItemElement(itemId)?.BringIntoView());
         _highlightTimer.Stop();
@@ -145,8 +183,7 @@ public partial class SettingsShell : Window, ISettingsHost
 
     public void Toast(string text)
     {
-        ToastText.Text = text;
-        ToastHost.Visibility = Visibility.Visible;
+        _frame.ToastText = text;
         _toastTimer.Stop();
         _toastTimer.Start();
     }
@@ -294,9 +331,10 @@ public partial class SettingsShell : Window, ISettingsHost
 
     // ── Chrome ───────────────────────────────────────────────────────
 
-    private void OnProfileMenu(object sender, RoutedEventArgs e)
+    /// <summary>The profile part's command (Fx.Shell.Profile): the menu opens under the part that asked.</summary>
+    private void OpenProfileMenu(UIElement? target)
     {
-        var menu = new ContextMenu { PlacementTarget = ProfileButton, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        var menu = new ContextMenu { PlacementTarget = target, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
         foreach (var name in _svc.GetProfileNames())
         {
             var item = new MenuItem { Header = name, IsCheckable = true, IsChecked = name == _ctx.S.LastUsedProfile };
@@ -319,12 +357,10 @@ public partial class SettingsShell : Window, ISettingsHost
         return item;
     }
 
-    private void OnBreadcrumbGroup(object sender, RoutedEventArgs e)
+    private void OpenBreadcrumbTarget()
     {
         if (Vm.BreadcrumbTargetId is { } target) Navigate(target);
     }
-
-    private void OnRetrySave(object sender, RoutedEventArgs e) => Vm.RetrySave();
 
     private void UpdateTitle()
     {
@@ -337,7 +373,7 @@ public partial class SettingsShell : Window, ISettingsHost
     {
         FontFamily = UiFont.For(LocalizationService.CurrentLanguage);
         var scale = _scale = Math.Clamp(_ctx.S.SettingsUiFontSize, 9, 20) / 12.0;
-        Root.LayoutTransform = Math.Abs(scale - 1.0) < 0.001 ? Transform.Identity : new ScaleTransform(scale, scale);
+        _frame.LayoutTransform = Math.Abs(scale - 1.0) < 0.001 ? Transform.Identity : new ScaleTransform(scale, scale);
         UpdateMinWidth();
     }
 
@@ -380,8 +416,8 @@ public partial class SettingsShell : Window, ISettingsHost
     {
         bool toggled = Vm.HelpOpen != _helpShown;
         _helpShown = Vm.HelpOpen;
-        HelpColumn.Width = new GridLength(Vm.HelpOpen ? HelpWidth : 0);
-        HelpHost.Visibility = Vm.HelpOpen ? Visibility.Visible : Visibility.Collapsed;
+        _frame.HelpWidth = new GridLength(Vm.HelpOpen ? HelpWidth : 0);
+        _help.Visibility = Vm.HelpOpen ? Visibility.Visible : Visibility.Collapsed;
         if (toggled) ResizeForHelp();
         else KeepRoomForThePage();
         var page = Vm.Current?.Page.HelpId;
@@ -462,7 +498,7 @@ public partial class SettingsShell : Window, ISettingsHost
 
     private FrameworkElement? FindItemElement(string itemId)
     {
-        var queue = new Queue<DependencyObject>(new[] { (DependencyObject)Sections });
+        var queue = new Queue<DependencyObject>(new[] { (DependencyObject)_sections });
         while (queue.Count > 0)
         {
             var node = queue.Dequeue();
