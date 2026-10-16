@@ -142,13 +142,13 @@ public sealed class ThumbnailManager : IDisposable
 
     /// <summary>Every 50 ms, on the timer the border flash runs on: tells each thumbnail the scale AlertEnlarge
     /// answers (<see cref="TellEnlarged"/>). Only a character's main thumbnail is ever told: second thumbnails and
-    /// crop windows are not enlarged. While nothing is enlarged this is one read. While the tray menu is open
-    /// nothing is moved or raised (a thumbnail raised then would bury the menu): what is due is done when it has
-    /// closed. While a thumbnail's own right-click menu is open no thumbnail is enlarged: nothing grows, what was
-    /// enlarged is told to go back (and to grow again when the menu has closed), and what is over still goes back.</summary>
+    /// crop windows are not enlarged. While nothing is enlarged this is one read. While any menu of the app is open
+    /// (a thumbnail's, the tray's, a toast's: ThumbnailWindow.MenuOpen, FX-m1, FX-m2) no thumbnail is enlarged:
+    /// nothing grows, what was enlarged is told to go back (and to grow again when the menu has closed), and what is
+    /// over still goes back. Nothing is raised meanwhile (a thumbnail raised then would bury the menu).</summary>
     private void EnlargeTick()
     {
-        if (!Enlarge.Any || _trayMenuOpen) return;
+        if (!Enlarge.Any) return;
         try
         {
             TellEnlarged(Enlarge, DateTime.UtcNow, _settings.Settings, GetHwndForCharacter, Interop.User32.GetForegroundWindow,
@@ -1810,6 +1810,10 @@ public sealed class ThumbnailManager : IDisposable
         // Skip all heavy Win32/DWM work during drag — prevents contention
         if (_thumbnails.Values.Any(t => t.IsDragging))
             return;
+
+        // IDEAS #13 (FX-m1, FX-m2): the tray's or a toast's menu that is counted as open while it is not on the screen
+        // is counted closed, as a thumbnail's is below. Before the tray's pause, which a lost "closed" would hold too.
+        ThumbnailWindow.AppMenu.EnsureStatesValid();
 
         // Tray menu open: leave visibility and z-order alone (see SetTrayMenuOpen).
         if (_trayMenuOpen)

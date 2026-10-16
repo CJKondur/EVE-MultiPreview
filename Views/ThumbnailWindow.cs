@@ -582,6 +582,49 @@ public class ThumbnailWindow : Form
         if (_menuOpen && !MenuShown) NoteMenu(false);
     }
 
+    /// <summary>A menu of MultiPreview's that is not a thumbnail's: the tray's (FX-m2) and a toast's (FX-m1). It is
+    /// counted as a thumbnail's menu is (<see cref="MenuOpen"/>): while one is open no thumbnail is enlarged, those
+    /// that were are put back as it opens, none grows and none is raised; when it has closed the manager's tick lets
+    /// them grow again. Its owner says when it opens (before it is shown) and when it has closed; said twice it counts
+    /// once. The window's thread only.</summary>
+    public sealed class AppMenu
+    {
+        private static readonly System.Collections.Generic.List<AppMenu> _counted = new();
+        private readonly Func<bool> _shown;
+        private bool _open;
+
+        /// <param name="shown">Whether the menu is on the screen: asked by <see cref="EnsureStatesValid"/> only.</param>
+        public AppMenu(Func<bool> shown) => _shown = shown;
+
+        public void Note(bool open)
+        {
+            if (_open == open) return;
+            _open = open;
+            _openMenus += open ? 1 : -1;
+            if (open)
+            {
+                _counted.Add(this);
+                PutEnlargedBackForAMenu();
+            }
+            else _counted.Remove(this);
+        }
+
+        /// <summary>The safety net of <see cref="EnsureMenuStateValid"/> for these menus, run at each focus sweep: a
+        /// menu counted as open while it is not on the screen is counted closed, so that a lost "closed" does not keep
+        /// every thumbnail from being enlarged. One read while none is counted.</summary>
+        public static void EnsureStatesValid()
+        {
+            if (_counted.Count == 0) return;
+            foreach (var menu in _counted.ToArray())
+            {
+                bool shown;
+                try { shown = menu._shown(); }
+                catch (Exception) { shown = false; }
+                if (!shown) menu.Note(false);
+            }
+        }
+    }
+
     /// <summary>Whether raising the thumbnails is held off right now. Set by ThumbnailManager: while the settings
     /// window is in front it raises no thumbnail (SetSuppressTopmost), and an enlarged one is not raised either.</summary>
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]

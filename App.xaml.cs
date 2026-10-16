@@ -1235,14 +1235,21 @@ public partial class App : Application
         // Pause the thumbnail focus sweep while the menu is up. Opening the menu
         // makes this app foreground, and the sweep would otherwise re-show and
         // re-raise thumbnails over it — closing or burying the menu.
+        // And no thumbnail stands enlarged for an alert under it (FX-m2): counted as a thumbnail's menu is.
+        var counted = new ThumbnailWindow.AppMenu(() => menu.Visible);
         menu.Opening += (_, _) =>
         {
             _thumbnailManager?.SetTrayMenuOpen(true);
+            counted.Note(true);
             SettingsDiag("Tray menu opening");
         };
         menu.Opened += (_, _) => SettingsDiag("Tray menu opened");
         menu.Closing += (_, e) => SettingsDiag($"Tray menu closing, reason={e.CloseReason}");
-        menu.Closed += (_, _) => _thumbnailManager?.SetTrayMenuOpen(false);
+        menu.Closed += (_, _) =>
+        {
+            _thumbnailManager?.SetTrayMenuOpen(false);
+            counted.Note(false);
+        };
 
         // Double-click to open settings (deferred — see the Settings item above)
         _trayIcon.DoubleClick += (_, _) =>

@@ -87,6 +87,7 @@ public class AlertHub : IDisposable
     public event Action<string, string, TimeSpan?>? SnoozeRequested;
 
     private ToastMenu? _toastMenu;
+    private ThumbnailWindow.AppMenu? _toastMenuCounted;   // the open toast menu's count among the app's menus (FX-m1)
 
     /// <summary>The system a character was last seen in, for the toast (App sets ThumbnailManager.GetCharacterSystem).</summary>
     public Func<string, string?>? SystemLookup { get; set; }
@@ -392,7 +393,12 @@ public class AlertHub : IDisposable
     /// <summary>A right-click on a toast (IDEAS #30): its menu. A failure here costs the menu, never the toast.</summary>
     private void ShowToastMenu(AlertToast toast)
     {
-        try { ShowMenu(MenuFor(toast)); }
+        try
+        {
+            var menu = MenuFor(toast);
+            _toastMenuCounted?.Note(true);   // FX-m1: counted before it is shown, as a thumbnail's menu is
+            ShowMenu(menu);
+        }
         catch (Exception ex)
         {
             App.LogError(ex);
@@ -407,6 +413,9 @@ public class AlertHub : IDisposable
     private ToastMenu MenuFor(AlertToast toast)
     {
         CloseToastMenu();
+        // While it is open no thumbnail stands enlarged for an alert (FX-m1): a click on a grown part would reach
+        // Dismiss or a snooze. Counted closed when it closes, whichever way (the menu's "closed" runs once).
+        ThumbnailWindow.AppMenu? counted = null;
         var menu = new ToastMenu(toast.CharacterName, EventDisplayName(toast.AlertType),
             dismiss: () => CloseToast(toast),
             snooze: length =>
@@ -416,7 +425,13 @@ public class AlertHub : IDisposable
                 foreach (var same in ToastsOf(toast.CharacterName, toast.AlertType)) CloseToast(same);
                 CloseToast(toast);
             },
-            closed: toast.Resume);
+            closed: () =>
+            {
+                counted?.Note(false);
+                toast.Resume();
+            });
+        counted = new ThumbnailWindow.AppMenu(() => !menu.Strip.IsDisposed && menu.Strip.Visible);
+        _toastMenuCounted = counted;
         toast.Hold();
         return _toastMenu = menu;
     }
