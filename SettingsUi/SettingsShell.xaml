@@ -9,6 +9,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <local:SettingsTheme/>
                 <local:SettingCards/>
             </ResourceDictionary.MergedDictionaries>
 

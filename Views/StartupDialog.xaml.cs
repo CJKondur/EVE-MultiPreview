@@ -30,7 +30,7 @@ public partial class StartupDialog : Window
                 Margin = new Thickness(0, i == 0 ? 0 : 8, 0, 0),
                 Padding = new Thickness(16, 6, 16, 6),
             };
-            if (i == 0) button.Style = (Style)FindResource("Fx.PrimaryButton");
+            if (i == 0) button.SetResourceReference(StyleProperty, "Fx.PrimaryButton");
             button.Click += (_, _) => { Choice = index; Close(); };
             ChoicePanel.Children.Add(button);
         }

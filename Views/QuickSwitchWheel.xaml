@@ -32,13 +32,13 @@
 
         <!-- In a ring, the disc sits in the middle of the cards; in rows, it is the header above them. -->
         <Border x:Name="Disc" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top"
-                Background="{StaticResource Fx.BgBrush}" BorderBrush="{StaticResource Fx.FlyoutBorderBrush}" BorderThickness="1">
+                Background="{DynamicResource Fx.BgBrush}" BorderBrush="{DynamicResource Fx.FlyoutBorderBrush}" BorderThickness="1">
             <StackPanel x:Name="DiscContent" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="12,8">
                 <TextBlock Text="{DynamicResource L.Qs.SwitchChar}" FontSize="13" FontWeight="SemiBold"
-                           Foreground="{StaticResource Fx.TextBrush}" TextAlignment="Center" TextWrapping="Wrap"/>
-                <TextBlock x:Name="TxtCount" FontSize="12" Foreground="{StaticResource Fx.TextSecondaryBrush}"
+                           Foreground="{DynamicResource Fx.TextBrush}" TextAlignment="Center" TextWrapping="Wrap"/>
+                <TextBlock x:Name="TxtCount" FontSize="12" Foreground="{DynamicResource Fx.TextSecondaryBrush}"
                            TextAlignment="Center" TextWrapping="Wrap" Margin="0,2,0,0"/>
-                <Button x:Name="BtnEdit" Style="{StaticResource Fx.QuietButton}" FontSize="12" Padding="10,2"
+                <Button x:Name="BtnEdit" Style="{DynamicResource Fx.QuietButton}" FontSize="12" Padding="10,2"
                         HorizontalAlignment="Center" Margin="0,8,0,0" Click="BtnEdit_Click"/>
             </StackPanel>
         </Border>

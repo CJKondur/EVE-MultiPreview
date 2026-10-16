@@ -161,7 +161,7 @@ public partial class QuickSwitchWheel : Window
             Grid.SetRow(Disc, 0);
             Disc.Width = l.Canvas.Width;
             Disc.Height = double.NaN;
-            Disc.CornerRadius = (CornerRadius)FindResource("Fx.FlyoutRadius");
+            Disc.SetResourceReference(Border.CornerRadiusProperty, "Fx.FlyoutRadius");
             Disc.Margin = new Thickness(0, 0, 0, QuickSwitchLayout.Gap);
         }
     }
@@ -174,10 +174,10 @@ public partial class QuickSwitchWheel : Window
     {
         var numberText = new TextBlock
         {
-            FontFamily = TryFindResource("Fx.MonoFont") as FontFamily ?? new FontFamily("Consolas"),
             FontSize = 11,
             Foreground = FluentPalette.Brush("Fx.Text"),
         };
+        numberText.SetResourceReference(TextBlock.FontFamilyProperty, "Fx.MonoFont");
         var number = new Border
         {
             Background = FluentPalette.Brush("Fx.Control"),

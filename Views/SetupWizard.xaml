@@ -19,18 +19,18 @@
             <Style x:Key="Wiz.Title" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="22"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
             </Style>
             <Style x:Key="Wiz.Sub" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="13"/>
-                <Setter Property="Foreground" Value="{StaticResource Fx.TextSecondaryBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="0,8,0,0"/>
             </Style>
             <Style x:Key="Wiz.Text" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="13"/>
-                <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
@@ -39,35 +39,35 @@
                 <Setter Property="Height" Value="4"/>
                 <Setter Property="CornerRadius" Value="2"/>
                 <Setter Property="Margin" Value="0,0,8,0"/>
-                <Setter Property="Background" Value="{StaticResource Fx.FlyoutBorderBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource Fx.FlyoutBorderBrush}"/>
             </Style>
 
             <!-- A thumbnail-size choice: a card with a preview; the picked one has an accent edge (the reference's .opt.on).
                  Radio buttons, so arrow keys move between them. -->
             <Style x:Key="Wiz.SizeCard" TargetType="RadioButton">
                 <Setter Property="GroupName" Value="Size"/>
-                <Setter Property="Foreground" Value="{StaticResource Fx.TextBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="Margin" Value="0,0,10,0"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="RadioButton">
-                            <Border x:Name="Bd" Background="{StaticResource Fx.CardBrush}" BorderBrush="{StaticResource Fx.BorderBrush}"
-                                    BorderThickness="1" CornerRadius="{StaticResource Fx.Radius}" Padding="10,16">
+                            <Border x:Name="Bd" Background="{DynamicResource Fx.CardBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}"
+                                    BorderThickness="1" CornerRadius="{DynamicResource Fx.Radius}" Padding="10,16">
                                 <ContentPresenter HorizontalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource Fx.CardHoverBrush}"/>
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.CardHoverBrush}"/>
                                 </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="{StaticResource Fx.AccentSoftBrush}"/>
-                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Fx.AccentBrush}"/>
+                                    <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.AccentSoftBrush}"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
                                     <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
                                     <Setter TargetName="Bd" Property="Padding" Value="9,15"/>
                                 </Trigger>
                                 <Trigger Property="IsKeyboardFocused" Value="True">
-                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource Fx.AccentBrush}"/>
+                                    <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -75,8 +75,8 @@
                 </Setter>
             </Style>
             <Style x:Key="Wiz.Preview" TargetType="Border">
-                <Setter Property="Background" Value="{StaticResource Fx.BgBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource Fx.ControlEdgeBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.ControlEdgeBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="4"/>
                 <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -84,8 +84,8 @@
             </Style>
             <Style x:Key="Wiz.Check" TargetType="TextBlock">
                 <Setter Property="Text" Value="&#xE73E;"/>
-                <Setter Property="FontFamily" Value="{StaticResource Fx.IconFont}"/>
-                <Setter Property="Foreground" Value="{StaticResource Fx.AccentBrush}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource Fx.IconFont}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Fx.AccentBrush}"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Margin" Value="0,0,10,0"/>
             </Style>
@@ -93,13 +93,13 @@
     </Window.Resources>
 
     <!-- The Fluent theme leaves the window's own background to the system backdrop, so the content paints the surface. -->
-    <DockPanel Background="{StaticResource Fx.CardBrush}">
+    <DockPanel Background="{DynamicResource Fx.CardBrush}">
         <!-- ═══ Footer: Skip on the left; Back and Next/Done on the right ═══ -->
-        <Border DockPanel.Dock="Bottom" Background="{StaticResource Fx.BgBrush}" BorderBrush="{StaticResource Fx.BorderBrush}"
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource Fx.BgBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}"
                 BorderThickness="0,1,0,0" Padding="26,16">
             <DockPanel LastChildFill="False">
                 <Button x:Name="BtnSkip" DockPanel.Dock="Left" Content="{DynamicResource L.Wiz.Skip}" Padding="16,6" Click="OnSkip"/>
-                <Button x:Name="BtnNext" DockPanel.Dock="Right" Style="{StaticResource Fx.PrimaryButton}" Click="OnNext" Margin="8,0,0,0"/>
+                <Button x:Name="BtnNext" DockPanel.Dock="Right" Style="{DynamicResource Fx.PrimaryButton}" Click="OnNext" Margin="8,0,0,0"/>
                 <Button x:Name="BtnBack" DockPanel.Dock="Right" Content="{DynamicResource L.Wiz.Back}" Padding="16,6" Click="OnBack"
                         Visibility="Collapsed"/>
             </DockPanel>
@@ -113,7 +113,7 @@
                 <Border x:Name="Bar3" Style="{StaticResource Wiz.StepBar}"/>
                 <Border x:Name="Bar4" Style="{StaticResource Wiz.StepBar}"/>
                 <Border x:Name="Bar5" Style="{StaticResource Wiz.StepBar}"/>
-                <TextBlock x:Name="TxtStep" FontSize="12" Foreground="{StaticResource Fx.TextSecondaryBrush}" VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtStep" FontSize="12" Foreground="{DynamicResource Fx.TextSecondaryBrush}" VerticalAlignment="Center"/>
             </StackPanel>
 
             <!-- Step 1: Welcome (and the language, spec §10) -->
@@ -144,25 +144,25 @@
                         <StackPanel>
                             <Border Style="{StaticResource Wiz.Preview}" Width="90" Height="60"/>
                             <TextBlock Text="{DynamicResource L.Wiz.SizeDual}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
-                            <TextBlock Text="300 × 200" FontSize="12" Foreground="{StaticResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
+                            <TextBlock Text="300 × 200" FontSize="12" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="CardMulti" Style="{StaticResource Wiz.SizeCard}" Tag="200,150" Checked="OnSizeCard">
                         <StackPanel>
                             <Border Style="{StaticResource Wiz.Preview}" Width="66" Height="50" Margin="0,5,0,15"/>
                             <TextBlock Text="{DynamicResource L.Wiz.SizeMulti}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
-                            <TextBlock Text="200 × 150" FontSize="12" Foreground="{StaticResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
+                            <TextBlock Text="200 × 150" FontSize="12" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="CardFleet" Style="{StaticResource Wiz.SizeCard}" Tag="150,100" Checked="OnSizeCard">
                         <StackPanel>
                             <Border Style="{StaticResource Wiz.Preview}" Width="50" Height="34" Margin="0,13,0,23"/>
                             <TextBlock Text="{DynamicResource L.Wiz.SizeFleet}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
-                            <TextBlock Text="150 × 100" FontSize="12" Foreground="{StaticResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
+                            <TextBlock Text="150 × 100" FontSize="12" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                 </UniformGrid>
-                <TextBlock x:Name="TxtSelectedSize" Foreground="{StaticResource Fx.AccentBrush}" FontWeight="SemiBold" Margin="0,12,0,0"/>
+                <TextBlock x:Name="TxtSelectedSize" Foreground="{DynamicResource Fx.AccentBrush}" FontWeight="SemiBold" Margin="0,12,0,0"/>
             </StackPanel>
 
             <!-- Step 3: Hotkeys -->
@@ -179,8 +179,8 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="{DynamicResource L.Common.Character}" Foreground="{StaticResource Fx.TextSecondaryBrush}" Margin="0,0,0,4"/>
-                    <TextBlock Grid.Column="2" Text="{DynamicResource L.Common.Hotkey}" Foreground="{StaticResource Fx.TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Text="{DynamicResource L.Common.Character}" Foreground="{DynamicResource Fx.TextSecondaryBrush}" Margin="0,0,0,4"/>
+                    <TextBlock Grid.Column="2" Text="{DynamicResource L.Common.Hotkey}" Foreground="{DynamicResource Fx.TextSecondaryBrush}" Margin="0,0,0,4"/>
 
                     <TextBox x:Name="TxtWizChar1" Grid.Row="1" Margin="0,3"/>
                     <TextBox x:Name="TxtWizKey1" Grid.Row="1" Grid.Column="2" Margin="0,3"/>
@@ -222,8 +222,8 @@
             <!-- Step 5: Summary -->
             <StackPanel x:Name="Step5" Visibility="Collapsed">
                 <TextBlock Text="{DynamicResource L.Wiz.DoneTitle}" Style="{StaticResource Wiz.Title}"/>
-                <Border Background="{StaticResource Fx.BgBrush}" BorderBrush="{StaticResource Fx.BorderBrush}" BorderThickness="1"
-                        CornerRadius="{StaticResource Fx.Radius}" Padding="16,12" Margin="0,16,0,0">
+                <Border Background="{DynamicResource Fx.BgBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="1"
+                        CornerRadius="{DynamicResource Fx.Radius}" Padding="16,12" Margin="0,16,0,0">
                     <TextBlock x:Name="TxtSummary" Style="{StaticResource Wiz.Text}" LineHeight="22"/>
                 </Border>
                 <TextBlock Text="{DynamicResource L.Wiz.DoneNote}" Style="{StaticResource Wiz.Sub}" Margin="0,16,0,0"/>

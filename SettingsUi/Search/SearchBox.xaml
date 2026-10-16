@@ -2,13 +2,6 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:EveMultiPreview.SettingsUi">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <local:SettingsTheme/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
     <Grid>
         <TextBox x:Name="Box" TextChanged="OnTextChanged" PreviewKeyDown="OnBoxKeyDown" Padding="8,6"/>
         <TextBlock x:Name="Placeholder" local:Loc.Key="L.S.Search.Placeholder" IsHitTestVisible="False"

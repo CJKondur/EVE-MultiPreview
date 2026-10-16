@@ -2,10 +2,6 @@
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:EveMultiPreview.SettingsUi">
-    <ResourceDictionary.MergedDictionaries>
-        <local:SettingsTheme/>
-    </ResourceDictionary.MergedDictionaries>
-
     <BooleanToVisibilityConverter x:Key="Fx.BoolToVis"/>
     <local:NotNullToVisibilityConverter x:Key="Fx.NotNullToVis"/>
     <local:ColorTextToBrushConverter x:Key="Fx.ColorBrush"/>
