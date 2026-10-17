@@ -97,12 +97,16 @@ public static class UiStyles
     /// <summary>Black and red, racing type (spec §7.10).</summary>
     public static UiStyle Carbon { get; } = new("carbon", usesFluent: false, () => new CarbonStyle());
 
+    /// <summary>Black and white, with larger text (spec §7.7). While Windows has a contrast theme on it is drawn in Windows'
+    /// colours instead (Task 6, SystemContrast).</summary>
+    public static UiStyle Contrast { get; } = new("contrast", usesFluent: false, () => new ContrastStyle());
+
     /// <summary>Dark and sharp, like the game (spec §7.3).</summary>
     public static UiStyle Capsule { get; } = new("capsule", usesFluent: false, () => new CapsuleStyle());
 
     /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2); the looks of S3 and S4 in the
     /// order they landed.</summary>
-    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon, Carbon, Capsule };
+    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon, Carbon, Capsule, Contrast };
 
     /// <summary>The look with this id; a missing, empty or unknown id gives Classic, the default (spec §10).</summary>
     public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Classic;

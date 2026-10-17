@@ -1610,4 +1610,66 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- Slider with a ring thumb (High contrast): a 4 px round track in Fx.Track, filled in Fx.TrackFill up to a 20 px
+         thumb drawn as three rings: 1 px in the input edge's colour, 4 px in the page's colour, the thumb's colour inside. -->
+    <Style x:Key="Kit.Slider.RingFill" TargetType="RepeatButton">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Border Height="4" Margin="10,0,0,0" VerticalAlignment="Center" CornerRadius="2" Background="{DynamicResource Fx.TrackFillBrush}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Kit.Slider.Ring" TargetType="Slider">
+        <Setter Property="MinHeight" Value="22"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid x:Name="root" Background="Transparent" SnapsToDevicePixels="True">
+                        <Border Height="4" Margin="10,0" VerticalAlignment="Center" CornerRadius="2" Background="{DynamicResource Fx.TrackBrush}"/>
+                        <Track x:Name="PART_Track">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Style="{StaticResource Kit.Slider.RingFill}"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource Kit.Slider.Repeat}"/>
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Width="20" Height="20" Focusable="False" OverridesDefaultStyle="True">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Grid>
+                                                <Ellipse x:Name="Ring" Margin="-3" Stroke="{DynamicResource Fx.FocusBrush}" StrokeThickness="1" Visibility="Hidden"/>
+                                                <Ellipse Fill="{DynamicResource Fx.ControlEdgeBrush}"/>
+                                                <Ellipse Margin="1" Fill="{DynamicResource Fx.BgBrush}"/>
+                                                <Ellipse Margin="5" Fill="{DynamicResource Fx.ThumbBrush}"/>
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding IsKeyboardFocused, RelativeSource={RelativeSource AncestorType=Slider}}" Value="True">
+                                                    <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

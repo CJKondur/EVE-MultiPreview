@@ -1,0 +1,313 @@
+<ResourceDictionary x:Class="EveMultiPreview.SettingsUi.ContrastStyle"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:local="clr-namespace:EveMultiPreview.SettingsUi">
+
+    <!-- High contrast (UI styles spec §7.7): black and white, with larger text. Source: Contrast.dc.html. The 95 tokens of
+         the contract; a value the mock-up does not show is derived from its palette (spec: marked *). While Windows has a
+         contrast theme on, its colours are Windows' own (spec §12, UiStyles.SystemContrast). -->
+
+    <!-- Surfaces (10): black; the open page cyan -->
+    <Color x:Key="Fx.Bg">#FF000000</Color>
+    <Color x:Key="Fx.Nav">#FF000000</Color>
+    <Color x:Key="Fx.CardColor">#FF000000</Color>
+    <Color x:Key="Fx.CardHover">#FF000000</Color>
+    <Color x:Key="Fx.Header">#FF000000</Color>
+    <Color x:Key="Fx.Control">#FF000000</Color>
+    <Color x:Key="Fx.Flyout">#FF000000</Color>
+    <Color x:Key="Fx.AccentSoft">#FF000000</Color>
+    <Color x:Key="Fx.NavHover">#FF000000</Color>
+    <Color x:Key="Fx.NavSelected">#FF1AEBFF</Color>
+    <!-- Lines (5): white -->
+    <Color x:Key="Fx.Border">#FFFFFFFF</Color>
+    <Color x:Key="Fx.ControlEdge">#FFFFFFFF</Color>
+    <Color x:Key="Fx.FlyoutBorder">#FFFFFFFF</Color>
+    <Color x:Key="Fx.Divider">#FFFFFFFF</Color>
+    <Color x:Key="Fx.Focus">#FFFFFFFF</Color>
+    <!-- Text (11): white; links yellow; switched-off green, as Windows' contrast themes draw it -->
+    <Color x:Key="Fx.Text">#FFFFFFFF</Color>
+    <Color x:Key="Fx.TextSecondary">#FFFFFFFF</Color>
+    <Color x:Key="Fx.TextDisabled">#FF3FF23F</Color>
+    <Color x:Key="Fx.NavText">#FFFFFFFF</Color>
+    <Color x:Key="Fx.NavTextSecondary">#FFFFFFFF</Color>
+    <Color x:Key="Fx.NavSelectedText">#FF000000</Color>
+    <Color x:Key="Fx.Title">#FFFFFFFF</Color>
+    <Color x:Key="Fx.SectionText">#FFFFFFFF</Color>
+    <Color x:Key="Fx.Link">#FFFFFF00</Color>
+    <Color x:Key="Fx.ValueText">#FFFFFFFF</Color>
+    <Color x:Key="Fx.Icon">#FFFFFFFF</Color>
+    <!-- Accent (3) -->
+    <Color x:Key="Fx.Accent">#FF1AEBFF</Color>
+    <Color x:Key="Fx.OnAccent">#FF000000</Color>
+    <Color x:Key="Fx.NavMark">#FF1AEBFF</Color>
+    <!-- Buttons (4): black with a white edge -->
+    <Color x:Key="Fx.Button">#FF000000</Color>
+    <Color x:Key="Fx.ButtonHover">#FF000000</Color>
+    <Color x:Key="Fx.ButtonBorder">#FFFFFFFF</Color>
+    <Color x:Key="Fx.ButtonText">#FFFFFFFF</Color>
+    <!-- Check and switch (3): cyan with a black knob when on, a white outline and knob when off -->
+    <Color x:Key="Fx.CheckFill">#FF1AEBFF</Color>
+    <Color x:Key="Fx.CheckMark">#FF000000</Color>
+    <Color x:Key="Fx.CheckBorder">#FFFFFFFF</Color>
+    <!-- Slider (3) -->
+    <Color x:Key="Fx.Track">#FFFFFFFF</Color>
+    <Color x:Key="Fx.TrackFill">#FF1AEBFF</Color>
+    <Color x:Key="Fx.Thumb">#FF1AEBFF</Color>
+    <!-- Status (5): white; severity is told by shape and word (Task 5), no colour carries meaning -->
+    <Color x:Key="Fx.Critical">#FFFFFFFF</Color>
+    <Color x:Key="Fx.Warning">#FFFFFFFF</Color>
+    <Color x:Key="Fx.InfoColor">#FFFFFFFF</Color>
+    <Color x:Key="Fx.AlertBadge">#FFFFFF00</Color>
+    <Color x:Key="Fx.OnAlertBadge">#FF000000</Color>
+    <!-- Title bar (3) -->
+    <Color x:Key="Fx.CaptionColor">#FF000000</Color>
+    <Color x:Key="Fx.CaptionText">#FFFFFFFF</Color>
+    <Color x:Key="Fx.WindowBorder">#FFFFFFFF</Color>
+
+    <!-- Fonts (3): Windows' own, nothing carried -->
+    <FontFamily x:Key="Fx.Font">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="Fx.MonoFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="Fx.TitleFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <!-- Sizes (8): larger, base 15 -->
+    <sys:Double x:Key="Fx.Size.Title">26</sys:Double>
+    <sys:Double x:Key="Fx.Size.Section">15</sys:Double>
+    <sys:Double x:Key="Fx.Size.Body">15</sys:Double>
+    <sys:Double x:Key="Fx.Size.Desc">13</sys:Double>
+    <sys:Double x:Key="Fx.Size.Nav">15</sys:Double>
+    <sys:Double x:Key="Fx.Size.NavSub">15</sys:Double>
+    <sys:Double x:Key="Fx.Size.Caption">13</sys:Double>
+    <sys:Double x:Key="Fx.Size.Control">15</sys:Double>
+    <!-- Weights (4), slant (1), case (4) -->
+    <FontWeight x:Key="Fx.Weight.Title">SemiBold</FontWeight>
+    <FontWeight x:Key="Fx.Weight.Section">SemiBold</FontWeight>
+    <FontWeight x:Key="Fx.Weight.Nav">Normal</FontWeight>
+    <FontWeight x:Key="Fx.Weight.NavSelected">SemiBold</FontWeight>
+    <FontStyle x:Key="Fx.Style.Title">Normal</FontStyle>
+    <local:TextCase x:Key="Fx.Case.Title">Normal</local:TextCase>
+    <local:TextCase x:Key="Fx.Case.Section">Normal</local:TextCase>
+    <local:TextCase x:Key="Fx.Case.Nav">Normal</local:TextCase>
+    <local:TextCase x:Key="Fx.Case.Caption">Normal</local:TextCase>
+    <!-- Radii (5): 4; the switch's pill 10 -->
+    <CornerRadius x:Key="Fx.Radius">4</CornerRadius>
+    <CornerRadius x:Key="Fx.Radius.Control">4</CornerRadius>
+    <CornerRadius x:Key="Fx.Radius.Nav">4</CornerRadius>
+    <CornerRadius x:Key="Fx.FlyoutRadius">4</CornerRadius>
+    <CornerRadius x:Key="Fx.Radius.Check">10</CornerRadius>
+    <!-- Lines (3): every line white, 1 px: the box, the control, between rows -->
+    <Thickness x:Key="Fx.Line.Card">1</Thickness>
+    <Thickness x:Key="Fx.Line.Control">1</Thickness>
+    <Thickness x:Key="Fx.Line.Row">0,0,0,1</Thickness>
+    <!-- Metrics (11) -->
+    <sys:Double x:Key="Fx.Nav.Width">262</sys:Double>
+    <sys:Double x:Key="Fx.Nav.ItemHeight">34</sys:Double>
+    <sys:Double x:Key="Fx.Nav.SubItemHeight">32</sys:Double>
+    <sys:Double x:Key="Fx.Nav.SubIndent">40</sys:Double>
+    <sys:Double x:Key="Fx.Row.MinHeight">40</sys:Double>
+    <Thickness x:Key="Fx.Row.Padding">14,5</Thickness>
+    <Thickness x:Key="Fx.Row.Gap">0</Thickness>
+    <sys:Double x:Key="Fx.Control.Height">30</sys:Double>
+    <Thickness x:Key="Fx.Section.Gap">0,12,0,6</Thickness>
+    <Thickness x:Key="Fx.Page.Padding">16,6,28,0</Thickness>
+    <sys:Double x:Key="Fx.Label.Width">0</sys:Double>
+    <!-- Presence (4): icons; the group is part of the title (Task 5), no breadcrumb; the scroll bar in its own column -->
+    <Visibility x:Key="Fx.Nav.Icons">Visible</Visibility>
+    <Visibility x:Key="Fx.Show.Breadcrumb">Collapsed</Visibility>
+    <sys:Boolean x:Key="Fx.Scroll.Overlay">False</sys:Boolean>
+    <local:WindowCorners x:Key="Fx.Window.Corners">Round</local:WindowCorners>
+    <!-- Around (5): menus with 34 px rows, a white edge, the pointed item inverted; a round bell -->
+    <sys:Double x:Key="Fx.Menu.RowHeight">34</sys:Double>
+    <sys:Double x:Key="Fx.Menu.Radius">4</sys:Double>
+    <local:MenuCheck x:Key="Fx.Menu.Check">Invert</local:MenuCheck>
+    <sys:String x:Key="Fx.Menu.Font">Segoe UI</sys:String>
+    <sys:Boolean x:Key="Fx.Hub.Round">True</sys:Boolean>
+
+    <!-- ═══ Focus: a 2 px outline in the focus colour, 2 px away from the control (spec §7.7). Every control the look
+         styles takes it as its FocusVisualStyle; WPF draws it while the control has the keyboard's focus. ═══ -->
+    <Style x:Key="Contrast.Focus">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="-4" Stroke="{DynamicResource Fx.FocusBrush}" StrokeThickness="2" RadiusX="6" RadiusY="6" SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══ The values the shared parts read ═══ -->
+    <Visibility x:Key="Look.PaneLine">Collapsed</Visibility>
+    <Visibility x:Key="Look.TopLine">Collapsed</Visibility>
+    <!-- Until Task 5's link: a square "?" with a white edge. -->
+    <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Help.Box}">
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+
+    <!-- ═══ Picks from the kit (spec §6.3), each with the focus outline ═══ -->
+    <Style TargetType="CheckBox" BasedOn="{StaticResource Kit.Check.Tick}">
+        <Setter Property="local:Kit.Size" Value="18"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+    <Style TargetType="RadioButton" BasedOn="{StaticResource Kit.Radio.Fill}">
+        <Setter Property="local:Kit.Size" Value="18"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+    <Style TargetType="Slider" BasedOn="{StaticResource Kit.Slider.Ring}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+    <Style TargetType="ComboBox" BasedOn="{StaticResource Kit.Dropdown.Box}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+    <!-- A text box: black with a white edge; switched off, its text and edge in the switched-off green. -->
+    <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Round}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+    <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Round}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+    <Style TargetType="ScrollBar" BasedOn="{StaticResource Kit.Scroll.Thin}"/>
+    <!-- Icon buttons: 30 px, black with a white edge, a white glyph. -->
+    <Style x:Key="Fx.IconButton" TargetType="Button" BasedOn="{StaticResource Kit.Icon.Box}">
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.ButtonTextBrush}"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+    <Style x:Key="Fx.KeyCap" TargetType="Button" BasedOn="{StaticResource Kit.KeyCap.Box}">
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+    <Style x:Key="Fx.Swatch" TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+    </Style>
+
+    <!-- The on/off control: the base's switch with On and Off (it reads these tokens: a white outline and knob when off,
+         cyan with a black knob when on), with the focus outline. -->
+    <Style x:Key="Fx.ToggleSwitch" TargetType="CheckBox">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Focusable" Value="True"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <TextBlock x:Name="State" local:Loc.Key="L.S.Off" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Border x:Name="Track" Width="40" Height="20" CornerRadius="{DynamicResource Fx.Radius.Check}" BorderThickness="{DynamicResource Fx.Line.Control}"
+                                BorderBrush="{DynamicResource Fx.CheckBorderBrush}" Background="{DynamicResource Fx.ControlBrush}">
+                            <Ellipse x:Name="Knob" Width="12" Height="12" Margin="3,0" HorizontalAlignment="Left" Fill="{DynamicResource Fx.CheckBorderBrush}"/>
+                        </Border>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="State" Property="local:Loc.Key" Value="L.S.On"/>
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource Fx.CheckFillBrush}"/>
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource Fx.CheckFillBrush}"/>
+                            <Setter TargetName="Knob" Property="Fill" Value="{DynamicResource Fx.CheckMarkBrush}"/>
+                            <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Track" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══ Its own parts. The shared parts it takes (BaseTheme's Base.*) are named in Contrast.xaml.cs. ═══ -->
+
+    <!-- A binding's converter is named statically, and a template of this dictionary finds it only here (S2's measurement). -->
+    <BooleanToVisibilityConverter x:Key="Fx.BoolToVis"/>
+    <local:NotNullToVisibilityConverter x:Key="Fx.NotNullToVis"/>
+
+    <!-- A navigation entry: a line Fx.Nav.ItemHeight high; under the mouse a cyan outline (the hover is an outline, not a
+         shade: on black a shade cannot be seen); the focus outline for the keyboard. The open page's fill is set on the
+         button (Base.Nav.Page). -->
+    <Style x:Key="Fx.Nav.Entry" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource Fx.NavBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextBrush}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="Margin" Value="0,1"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Nav.ItemHeight}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid SnapsToDevicePixels="True">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
+                                CornerRadius="{DynamicResource Fx.Radius.Nav}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="Hover" Visibility="Collapsed" IsHitTestVisible="False" BorderBrush="{DynamicResource Fx.AccentBrush}"
+                                BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.Radius.Nav}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A section: its heading; then its rows in one box with a white edge, a white line between two rows (each row's line
+         is under it, and the box's last pixel line is clipped). -->
+    <DataTemplate x:Key="Fx.Section">
+        <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}"/>
+            <Grid>
+                <Border Background="{DynamicResource Fx.CardBrush}" CornerRadius="{DynamicResource Fx.Radius}"/>
+                <Border Margin="1" ClipToBounds="True">
+                    <ContentPresenter Content="{Binding Cards}" Margin="0,0,0,-1"/>
+                </Border>
+                <Border BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{DynamicResource Fx.Line.Card}"
+                        CornerRadius="{DynamicResource Fx.Radius}" IsHitTestVisible="False"/>
+            </Grid>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- Simple or All settings: two joined buttons in a box with the white edge; the picked one cyan with black text. They
+         share the pane's width, and a long word in a translation wraps inside its button. -->
+    <DataTemplate x:Key="Fx.Shell.Mode">
+        <GroupBox local:Loc.NameKey="L.S.Shell.Advanced" Focusable="False" IsTabStop="False" Margin="0,8,0,0">
+            <GroupBox.Template>
+                <ControlTemplate TargetType="GroupBox"><ContentPresenter/></ControlTemplate>
+            </GroupBox.Template>
+            <Border BorderBrush="{DynamicResource Fx.ControlEdgeBrush}" BorderThickness="{DynamicResource Fx.Line.Control}"
+                    CornerRadius="{DynamicResource Fx.Radius.Control}" Padding="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <RadioButton Grid.Column="0" GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsSimple}"
+                                 FontSize="{DynamicResource Fx.Size.Body}" FocusVisualStyle="{StaticResource Contrast.Focus}" Padding="6,5">
+                        <TextBlock local:Loc.Key="L.S.Shell.Simple" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </RadioButton>
+                    <RadioButton Grid.Column="1" GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsAdvanced}"
+                                 FontSize="{DynamicResource Fx.Size.Body}" FocusVisualStyle="{StaticResource Contrast.Focus}" Padding="6,5">
+                        <TextBlock local:Loc.Key="L.S.Nav.AllSettings" TextWrapping="Wrap" TextAlignment="Center"/>
+                    </RadioButton>
+                </Grid>
+            </Border>
+        </GroupBox>
+    </DataTemplate>
+</ResourceDictionary>
