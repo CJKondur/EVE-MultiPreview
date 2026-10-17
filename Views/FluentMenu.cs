@@ -210,6 +210,14 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
         var row = new Rectangle(inset, 0, Math.Max(1, e.Item.Width - 2 * inset), e.Item.Height);
         var palette = SettingsUi.UiPalette.Current;
         int radius = Px(e.ToolStrip, (int)Math.Round(palette.MenuRadius));
+        if (IsPointedInverted(e.Item))
+        {
+            // High contrast (spec §7.7): the pointed item inverted, filled in the text colour, its text in the page colour.
+            using var path = Rounded(row, radius);
+            using var brush = new SolidBrush(C("Fx.Text"));
+            g.FillPath(brush, path);
+            return;
+        }
         if (e.Item is ToolStripMenuItem { Checked: true } && palette.MenuCheck == SettingsUi.MenuCheck.Invert)
         {
             using var path = Rounded(row, radius);
@@ -242,11 +250,17 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
 
     protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e) { }   // the bar, the tick or the inverted row shows it
 
+    /// <summary>A look whose checked item is inverted (Fx.Menu.Check = Invert: High contrast) inverts the pointed item too:
+    /// on its black menu the pointed item's usual fill (Fx.Control) is black, and could not be seen.</summary>
+    private static bool IsPointedInverted(ToolStripItem? item) =>
+        item is { Selected: true, Enabled: true } && SettingsUi.UiPalette.Current.MenuCheck == SettingsUi.MenuCheck.Invert;
+
     protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
     {
         bool hint = e.Item is ToolStripMenuItem { ShortcutKeyDisplayString: { } keys } && e.Text == keys;
         bool inverted = e.Item is ToolStripMenuItem { Checked: true } && SettingsUi.UiPalette.Current.MenuCheck == SettingsUi.MenuCheck.Invert;
         e.TextColor = !e.Item.Enabled ? C("Fx.TextDisabled")
+            : IsPointedInverted(e.Item) ? C("Fx.Bg")
             : inverted ? C("Fx.OnAccent")
             : hint || e.Item is ToolStripLabel ? C("Fx.TextSecondary")
             : FluentMenu.IsDestructive(e.Item) ? C("Fx.Critical")
@@ -258,7 +272,7 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
     {
         using var font = new Font(FluentMenu.IconFontName, Px(e.Item?.Owner, 10), GraphicsUnit.Pixel);
         TextRenderer.DrawText(e.Graphics, FluentMenu.Glyphs.ChevronRight.ToString(), font, e.ArrowRectangle,
-            C(e.Item?.Enabled == false ? "Fx.TextDisabled" : "Fx.TextSecondary"),
+            C(e.Item?.Enabled == false ? "Fx.TextDisabled" : IsPointedInverted(e.Item) ? "Fx.Bg" : "Fx.TextSecondary"),
             TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
     }
 

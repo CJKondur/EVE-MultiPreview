@@ -134,12 +134,86 @@
         </Setter>
     </Style>
 
+    <!-- The width of a mark drawn on a hover or a pick (a button's edge under the mouse, a gallery card's, a list item's
+         focus ring): as wide as the focus outline. Not a contract name. -->
+    <Thickness x:Key="Contrast.Line.Mark">2</Thickness>
+
     <!-- ═══ The values the shared parts read ═══ -->
     <Visibility x:Key="Look.PaneLine">Collapsed</Visibility>
     <Visibility x:Key="Look.TopLine">Collapsed</Visibility>
-    <!-- The help: a yellow underlined link (its header gives the words), with the focus outline. -->
+    <!-- The help: a yellow underlined link (its header gives the words), with the focus outline as its only ring (no edge of
+         its own, so a click shows none); under the mouse a cyan outline. Enter and Space open and close it (ButtonBase's own). -->
     <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Help.Link}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                        </Border>
+                        <Border x:Name="Hover" Margin="-2" BorderBrush="{DynamicResource Fx.AccentBrush}" BorderThickness="{DynamicResource Fx.Line.Control}"
+                                CornerRadius="{DynamicResource Fx.Radius.Control}" Visibility="Hidden" IsHitTestVisible="False"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A gallery card (the base's Look.Card, the page's own part): the focus outline for the keyboard (the base's focus
+         is its edge in the focus colour, here the edge's own white), and under the mouse a 2 px white edge (a shade on black
+         cannot be seen). The current look's card keeps its three cues: the cyan inner line, the tick and the word. -->
+    <Style x:Key="Look.Card" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Card}"/>
+        <Setter Property="Padding" Value="8"/>
+        <Setter Property="Margin" Value="0,0,8,8"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid>
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource Fx.Radius}" Padding="{TemplateBinding Padding}">
+                            <StackPanel>
+                                <ContentPresenter/>
+                                <StackPanel x:Name="Current" Orientation="Horizontal" Margin="0,6,0,0" Visibility="Hidden">
+                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}" Foreground="{DynamicResource Fx.LinkBrush}"
+                                               VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <TextBlock local:Loc.Key="L.S.Look.Current" Style="{DynamicResource Fx.Label}" Foreground="{DynamicResource Fx.LinkBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <Border x:Name="Hover" BorderThickness="{DynamicResource Contrast.Line.Mark}" BorderBrush="{DynamicResource Fx.TextBrush}"
+                                CornerRadius="{DynamicResource Fx.Radius}" Visibility="Hidden" IsHitTestVisible="False"/>
+                        <Border x:Name="Outline" Margin="1" BorderThickness="{DynamicResource Fx.Line.Card}" BorderBrush="{DynamicResource Fx.AccentBrush}"
+                                CornerRadius="{DynamicResource Fx.Radius}" Visibility="Collapsed" IsHitTestVisible="False"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+                            <Setter TargetName="Outline" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Current" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ═══ Picks from the kit (spec §6.3), each with the focus outline ═══ -->
@@ -167,11 +241,49 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+    <!-- A button (and an icon button, a key box, a colour box): under the mouse its white edge is 2 px (on black a hover
+         shade cannot be seen; the content stays centred). -->
     <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
+    <!-- A toggle button: under the mouse a 2 px edge; held in (on), filled cyan with black semibold text, as the open page
+         and the picked mode button are (not an edge of another colour alone). -->
     <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Round}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource Fx.Radius.Control}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource Fx.AccentBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.OnAccentBrush}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="bd" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="bd" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style TargetType="ScrollBar" BasedOn="{StaticResource Kit.Scroll.Thin}"/>
     <!-- Icon buttons: 30 px, black with a white edge, a white glyph. -->
@@ -180,11 +292,21 @@
         <Setter Property="Height" Value="30"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.ButtonTextBrush}"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="Fx.KeyCap" TargetType="Button" BasedOn="{StaticResource Kit.KeyCap.Box}">
         <Setter Property="MinWidth" Value="0"/>
         <Setter Property="Padding" Value="12,0"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="Fx.Swatch" TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
         <Setter Property="Width" Value="32"/>
@@ -192,6 +314,158 @@
         <Setter Property="MinHeight" Value="0"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- A dropdown's item: the pointed one (mouse or arrow keys) inverted, white with black text (spec §7.7); the picked one
+         with a tick and semibold. -->
+    <Style TargetType="ComboBoxItem" BasedOn="{StaticResource Kit.Dropdown.Item}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <DockPanel>
+                            <TextBlock x:Name="Tick" DockPanel.Dock="Left" Width="20" Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}"
+                                       Visibility="Hidden" VerticalAlignment="Center"/>
+                            <ContentPresenter/>
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A menu's item: 34 px; the pointed one inverted, white with black text (spec §7.7, "Around"); a checked one ticked. -->
+    <Style TargetType="MenuItem" BasedOn="{StaticResource Kit.Menu.Row}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="Bd" Background="{DynamicResource Fx.FlyoutBrush}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="Gesture"/>
+                                <ColumnDefinition Width="12"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="Tick" Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}" Visibility="Hidden"
+                                       VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}"/>
+                            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="16,0,0,0" VerticalAlignment="Center"
+                                       Foreground="{TemplateBinding Foreground}"/>
+                            <Path x:Name="Arrow" Grid.Column="3" Data="M 0 0 L 4 4 L 0 8 Z" Fill="{TemplateBinding Foreground}" Visibility="Collapsed"
+                                  HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <Popup x:Name="PART_Popup" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="{DynamicResource Fx.FlyoutBrush}" BorderBrush="{DynamicResource Fx.FlyoutBorderBrush}"
+                                        BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.FlyoutRadius}" Padding="2">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="Role" Value="SubmenuHeader">
+                            <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A list's item (a row of choices: Fx.Card.Segmented) and a table's row: the keyboard's focus a 2 px white ring inside
+         the item (a list scrolls, and its scroller would cut an outline outside the item); under the mouse a 1 px white
+         ring; the picked one marked by a cyan bar (under a choice, left of a row) and semibold, so a picked row with the
+         focus differs from a row with the focus only. -->
+    <Style TargetType="ListBoxItem" BasedOn="{StaticResource Kit.List.Item}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Padding" Value="10,4,10,7"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Grid Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        <Border x:Name="Bar" Height="3" Margin="4,0,4,3" VerticalAlignment="Bottom" Background="{DynamicResource Fx.AccentBrush}" Visibility="Hidden"/>
+                        <Border x:Name="Hover" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.TextBrush}" Visibility="Hidden"/>
+                        <Border x:Name="Ring" BorderThickness="{DynamicResource Contrast.Line.Mark}" BorderBrush="{DynamicResource Fx.FocusBrush}" Visibility="Hidden"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="ListViewItem" BasedOn="{StaticResource Kit.Row.Item}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Padding" Value="4,3"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListViewItem">
+                    <Grid Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                        <GridViewRowPresenter Margin="{TemplateBinding Padding}" Columns="{TemplateBinding GridView.ColumnCollection}" Content="{TemplateBinding Content}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        <Border x:Name="Bar" Width="3" Margin="3,4,0,4" HorizontalAlignment="Left" Background="{DynamicResource Fx.AccentBrush}" Visibility="Hidden"/>
+                        <Border x:Name="Hover" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.TextBrush}" Visibility="Hidden"/>
+                        <Border x:Name="Ring" BorderThickness="{DynamicResource Contrast.Line.Mark}" BorderBrush="{DynamicResource Fx.FocusBrush}" Visibility="Hidden"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bar" Property="Visibility" Value="Visible"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- The on/off control: the base's switch with On and Off (it reads these tokens: a white outline and knob when off,
@@ -235,13 +509,14 @@
 
     <!-- A navigation entry: a line Fx.Nav.ItemHeight high; under the mouse a cyan outline (the hover is an outline, not a
          shade: on black a shade cannot be seen); the focus outline for the keyboard. The open page's fill is set on the
-         button (Base.Nav.Page). -->
+         button (Base.Nav.Page). 4 px free left, right and above each entry: the outline reaches 4 px out, and the
+         navigation's scroller would cut it at its edges (the first entry's top, every entry's sides). -->
     <Style x:Key="Fx.Nav.Entry" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource Fx.NavBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextBrush}"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="Padding" Value="10,0"/>
-        <Setter Property="Margin" Value="0,1"/>
+        <Setter Property="Margin" Value="4,4,4,0"/>
         <Setter Property="MinHeight" Value="{DynamicResource Fx.Nav.ItemHeight}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
@@ -282,6 +557,38 @@
         </StackPanel>
     </DataTemplate>
 
+    <!-- One of the two mode buttons (the kit's segment): under the mouse a 1 px white ring inside it (on black a hover
+         shade cannot be seen); picked, cyan with black semibold text. Not a contract name. -->
+    <Style x:Key="Contrast.Segment" TargetType="RadioButton" BasedOn="{StaticResource Kit.Segment}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid>
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="{DynamicResource Fx.Radius.Control}"
+                                BorderThickness="{DynamicResource Fx.Line.Control}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                        </Border>
+                        <Border x:Name="Hover" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.TextBrush}"
+                                CornerRadius="{DynamicResource Fx.Radius.Control}" Visibility="Hidden" IsHitTestVisible="False"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.AccentBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.OnAccentBrush}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Simple or All settings: two joined buttons in a box with the white edge; the picked one cyan with black text. They
          share the pane's width, and a long word in a translation wraps inside its button. -->
     <DataTemplate x:Key="Fx.Shell.Mode">
@@ -296,11 +603,11 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <RadioButton Grid.Column="0" GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsSimple}"
+                    <RadioButton Grid.Column="0" GroupName="Fx.Shell.Mode" Style="{StaticResource Contrast.Segment}" IsChecked="{Binding IsSimple}"
                                  FontSize="{DynamicResource Fx.Size.Body}" FocusVisualStyle="{StaticResource Contrast.Focus}" Padding="6,5">
                         <TextBlock local:Loc.Key="L.S.Shell.Simple" TextWrapping="Wrap" TextAlignment="Center"/>
                     </RadioButton>
-                    <RadioButton Grid.Column="1" GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsAdvanced}"
+                    <RadioButton Grid.Column="1" GroupName="Fx.Shell.Mode" Style="{StaticResource Contrast.Segment}" IsChecked="{Binding IsAdvanced}"
                                  FontSize="{DynamicResource Fx.Size.Body}" FocusVisualStyle="{StaticResource Contrast.Focus}" Padding="6,5">
                         <TextBlock local:Loc.Key="L.S.Nav.AllSettings" TextWrapping="Wrap" TextAlignment="Center"/>
                     </RadioButton>
@@ -333,12 +640,16 @@
         </DataTemplate.Triggers>
     </DataTemplate>
 
-    <!-- The title's tokens, for the group, the separator and the page's name of the header. Not a contract name. -->
+    <!-- The title's tokens, for the group, the separator and the page's name of the header (the ones the base's title
+         reads): a long title (a translation, Windows' larger text) wraps, it is not cut off. Not a contract name. -->
     <Style x:Key="Contrast.Title" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{DynamicResource Fx.TitleFont}"/>
         <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
+        <Setter Property="FontStyle" Value="{DynamicResource Fx.Style.Title}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+        <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Title}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
@@ -360,10 +671,22 @@
                                 <ContentPresenter/>
                             </ControlTemplate>
                         </Button.Template>
-                        <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{StaticResource Contrast.Title}" FontWeight="Normal"/>
+                        <!-- Under the mouse the group is underlined: it is a link back to the group's first page. -->
+                        <TextBlock local:Loc.Key="{Binding GroupTitleKey}" FontWeight="Normal">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource Contrast.Title}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                            <Setter Property="TextDecorations" Value="Underline"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </Button>
-                    <TextBlock Text="  ›  " Style="{StaticResource Contrast.Title}" FontWeight="Normal"
-                               Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
+                    <!-- Drawn, not read: a screen reader says "Alerts, Sounds", not the arrow between them. -->
+                    <local:DecorativeText Text="  ›  " Style="{StaticResource Contrast.Title}" FontWeight="Normal"
+                                          Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
                     <TextBlock>
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource Contrast.Title}">
@@ -398,6 +721,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+                            <Setter TargetName="Box" Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
