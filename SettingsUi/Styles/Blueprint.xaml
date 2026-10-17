@@ -381,4 +381,102 @@
             </StackPanel>
         </GroupBox>
     </DataTemplate>
+
+    <!-- The table: a drawn grid. A line around it; a line above every row (the head's against the table's own); a line on
+         every cell's left (the first over the table's own line); the head row 24 high. Inside it a dropdown has no outline
+         and a text box only an underline: implicit styles of the table's own, which reach its controls only. -->
+    <Style x:Key="Fx.Table" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+        <Setter Property="Margin" Value="32,8,0,0"/>
+        <Style.Resources>
+            <Style TargetType="ComboBox" BasedOn="{StaticResource Kit.Dropdown.Box}">
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="local:Kit.DashedOff" Value="True"/>
+            </Style>
+            <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Round}">
+                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
+                <Setter Property="local:Kit.DashedOff" Value="True"/>
+            </Style>
+        </Style.Resources>
+    </Style>
+    <Style x:Key="Fx.Table.Header" TargetType="Border">
+        <Setter Property="MinHeight" Value="24"/>
+    </Style>
+    <Style x:Key="Fx.Table.Row" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="MinHeight" Value="36"/>
+    </Style>
+    <Style x:Key="Fx.Table.Cell" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1,0,0,0"/>
+        <Setter Property="Margin" Value="-1,0,0,0"/>
+    </Style>
+    <Style x:Key="Look.Table.HeadCell" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1,0,0,0"/>
+        <Setter Property="Margin" Value="-1,0,0,0"/>
+    </Style>
+
+    <!-- A severity: ▲ filled for critical, △ outlined for warning, and the word in mono capitals; info the word alone. -->
+    <DataTemplate x:Key="Look.Severity">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Path x:Name="Shape" Width="11" Height="11" Margin="0,0,7,0" VerticalAlignment="Center" Stretch="Uniform" StrokeThickness="2"
+                  Data="M 12,3 L 22,21 L 2,21 Z" Visibility="Collapsed"/>
+            <TextBlock x:Name="Word" local:Loc.Key="L.S.Sev.info" FontFamily="{DynamicResource Fx.MonoFont}" FontSize="{DynamicResource Fx.Size.Caption}"
+                       FontWeight="SemiBold" local:Loc.Case="{DynamicResource Fx.Case.Caption}" Foreground="{DynamicResource Fx.InfoBrush}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding}" Value="critical">
+                <Setter TargetName="Shape" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="Shape" Property="Fill" Value="{DynamicResource Fx.CriticalBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.critical"/>
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.CriticalBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="warning">
+                <Setter TargetName="Shape" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="Shape" Property="Data" Value="M 12,5 L 20,20 L 4,20 Z"/>
+                <Setter TargetName="Shape" Property="Stroke" Value="{DynamicResource Fx.WarningBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.warning"/>
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.WarningBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- The page's header: the page's name alone in capitals; "HELP" in an outlined box at its right; the description. -->
+    <DataTemplate x:Key="Fx.Shell.Header">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock>
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="{DynamicResource Fx.TitleFont}"/>
+                            <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
+                            <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+                            <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Title}"/>
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Text" Value="{Binding Current.Page.Title}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
+                                    <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{DynamicResource Fx.PageDesc}" Margin="0,2,0,0"/>
+            </StackPanel>
+            <ToggleButton Grid.Column="1" Style="{DynamicResource Look.Help}" IsChecked="{Binding HelpOpen}" VerticalAlignment="Top"
+                          Margin="16,2,0,0" local:Loc.NameKey="L.S.Shell.Help">
+                <TextBlock local:Loc.Key="L.S.Shell.HelpShort" local:Loc.Case="{DynamicResource Fx.Case.Caption}"/>
+            </ToggleButton>
+        </Grid>
+    </DataTemplate>
 </ResourceDictionary>
