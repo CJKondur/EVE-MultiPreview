@@ -1096,4 +1096,27 @@
                           VerticalAlignment="Center" Margin="16,0,0,0" ToolTip="{DynamicResource L.S.Shell.Help}" local:Loc.NameKey="L.S.Shell.Help"/>
         </Grid>
     </DataTemplate>
+
+    <!-- ═══ Parts every look reads that are not contract names (plan S4). Each default here is what Windows 11 and Classic
+         draw; a look that draws the part otherwise defines the same key in its own dictionary. ═══ -->
+
+    <!-- A severity in an editor's table (AlertEvents.SeverityText): its word in its status colour. The content is the
+         severity's id: critical, warning, or anything else (info). -->
+    <DataTemplate x:Key="Look.Severity">
+        <TextBlock x:Name="Word" local:Loc.Key="L.S.Sev.info" Foreground="{DynamicResource Fx.InfoBrush}" VerticalAlignment="Center"/>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding}" Value="critical">
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.critical"/>
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.CriticalBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="warning">
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.warning"/>
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.WarningBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- The border behind a cell of a table's header row (EditorTable): as any row's cell, nothing. A look with lines
+         between the header's columns only draws them here. -->
+    <Style x:Key="Look.Table.HeadCell" TargetType="Border"/>
 </ResourceDictionary>

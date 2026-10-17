@@ -74,15 +74,14 @@ public static class AlertEvents
 
     public static string SeverityKey(string severity) => "L.S.Sev." + severity;
 
-    /// <summary>The severity's name in its colour token. The text carries the meaning, so colour never stands
-    /// alone (spec §7).</summary>
-    public static TextBlock SeverityText(string severity)
+    /// <summary>The severity as the look draws it (Look.Severity, UI styles plan S4): by default its name in its colour
+    /// token; a look may add a shape or a tag. The words carry the meaning in every look, so colour never stands alone
+    /// (spec §7). The content is the severity's id; one the template does not know is drawn as info.</summary>
+    public static FrameworkElement SeverityText(string severity)
     {
-        var t = new TextBlock { VerticalAlignment = VerticalAlignment.Center };
-        Loc.SetKey(t, SeverityKey(severity));
-        t.SetResourceReference(TextBlock.ForegroundProperty,
-            severity == Critical ? "Fx.CriticalBrush" : severity == Warning ? "Fx.WarningBrush" : "Fx.InfoBrush");
-        return t;
+        var shown = new ContentPresenter { Content = severity, VerticalAlignment = VerticalAlignment.Center };
+        shown.SetResourceReference(ContentPresenter.ContentTemplateProperty, "Look.Severity");
+        return shown;
     }
 
     /// <summary>Spec §6: search covers events. Each entry opens Alerts › Events at the table.</summary>

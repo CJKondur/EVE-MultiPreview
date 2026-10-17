@@ -27,6 +27,7 @@ public sealed class EditorTable : Border
         _backs.Clear();
         _backsOf.Clear();
         _cellsOf.Clear();
+        _headRows.Clear();
         Body.Children.Clear();
         Body.RowDefinitions.Clear();
         Body.ColumnDefinitions.Clear();
@@ -35,6 +36,9 @@ public sealed class EditorTable : Border
 
     // Every border behind a row or a cell; and per row, its borders and the elements placed in it (S3F-m10: a row is
     // followed from its own lists, not from a scan of the whole table on every add).
+    // Which rows are headers: their cells' borders are Look.Table.HeadCell (a look may draw lines between the header's
+    // columns only).
+    private readonly HashSet<int> _headRows = new();
     private readonly List<Border> _backs = new();
     private readonly Dictionary<int, List<Border>> _backsOf = new();
     private readonly Dictionary<int, List<FrameworkElement>> _cellsOf = new();
@@ -44,6 +48,7 @@ public sealed class EditorTable : Border
     {
         Body.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         int row = Body.RowDefinitions.Count - 1;
+        if (header) _headRows.Add(row);
         var back = new Border { IsHitTestVisible = false };
         back.SetResourceReference(StyleProperty, header ? "Fx.Table.Header" : "Fx.Table.Row");
         Grid.SetRow(back, row);
@@ -57,7 +62,7 @@ public sealed class EditorTable : Border
     public void Place(FrameworkElement element, int row, int column, int span = 1)
     {
         var cell = new Border { IsHitTestVisible = false };
-        cell.SetResourceReference(StyleProperty, "Fx.Table.Cell");
+        cell.SetResourceReference(StyleProperty, _headRows.Contains(row) ? "Look.Table.HeadCell" : "Fx.Table.Cell");
         Grid.SetRow(cell, row);
         Grid.SetColumn(cell, column);
         Grid.SetColumnSpan(cell, span);
