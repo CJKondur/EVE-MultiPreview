@@ -64,10 +64,10 @@
     <Color x:Key="Fx.CaptionText">#FFA2A6AD</Color>
     <Color x:Key="Fx.WindowBorder">#FF3F4147</Color>
 
-    <!-- Fonts (3): Windows' own until plan S3 Task 10 gives Compact IBM Plex Sans and IBM Plex Mono -->
-    <FontFamily x:Key="Fx.Font">Segoe UI</FontFamily>
-    <FontFamily x:Key="Fx.MonoFont">Cascadia Mono, Consolas</FontFamily>
-    <FontFamily x:Key="Fx.TitleFont">Segoe UI</FontFamily>
+    <!-- Fonts (3): IBM Plex Sans, and IBM Plex Mono for key labels and numbers, carried (spec §11.1) -->
+    <FontFamily x:Key="Fx.Font">/EVE MultiPreview;component/Resources/Fonts/IBMPlexSans/#IBM Plex Sans</FontFamily>
+    <FontFamily x:Key="Fx.MonoFont">/EVE MultiPreview;component/Resources/Fonts/IBMPlexMono/#IBM Plex Mono</FontFamily>
+    <FontFamily x:Key="Fx.TitleFont">/EVE MultiPreview;component/Resources/Fonts/IBMPlexSans/#IBM Plex Sans</FontFamily>
     <!-- Sizes (8) -->
     <sys:Double x:Key="Fx.Size.Title">16</sys:Double>
     <sys:Double x:Key="Fx.Size.Section">11</sys:Double>
@@ -118,7 +118,7 @@
     <sys:Double x:Key="Fx.Menu.RowHeight">24</sys:Double>
     <sys:Double x:Key="Fx.Menu.Radius">3</sys:Double>
     <local:MenuCheck x:Key="Fx.Menu.Check">Tick</local:MenuCheck>
-    <sys:String x:Key="Fx.Menu.Font">Segoe UI</sys:String>
+    <sys:String x:Key="Fx.Menu.Font">IBM Plex Sans</sys:String>
     <sys:Boolean x:Key="Fx.Hub.Round">True</sys:Boolean>
 
     <!-- ═══ The values the shared parts read ═══ -->

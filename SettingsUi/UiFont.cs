@@ -47,7 +47,8 @@ public static class UiFont
             (FontFamily)d["Fx.MonoFont"], (FontStyle)d["Fx.Style.Title"]));
         Set(look, "Fx.Font", Chain(written.Font, lang));
         Set(look, "Fx.TitleFont", Chain(written.Title, lang));
-        Set(look, "Fx.MonoFont", Chain(written.Mono, lang));
+        // A key-label font of Windows' own stays as the look wrote it in every language, as before S3.
+        Set(look, "Fx.MonoFont", IsBundled(written.Mono) ? Chain(written.Mono, lang) : written.Mono);
         Set(look, "Fx.Style.Title", Cjk(lang) != null ? FontStyles.Normal : written.TitleStyle);
     }
 

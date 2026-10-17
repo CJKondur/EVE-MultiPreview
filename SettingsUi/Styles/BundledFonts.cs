@@ -65,6 +65,54 @@ public static class BundledFonts
         return resources.GetStream(path.Replace('\\', '/').ToLowerInvariant()) ?? throw new FileNotFoundException("not compiled in: " + path);
     }
 
+    private static readonly object MenuGate = new();
+    /// <summary>One collection a family: GDI+ reads a collection's families once, so a family added to a collection already
+    /// read is not seen (measured while writing plan S3: the second family came back missing).</summary>
+    private static readonly Dictionary<string, System.Drawing.Text.PrivateFontCollection> MenuFonts = new();
+
+    /// <summary>A GDI+ font of a carried family for the WinForms menus (spec §11.1, "the menus"), or null when the family is
+    /// not carried or Windows refused its files (the menu then draws in Segoe UI, O18). WinForms cannot see a WPF resource
+    /// font: the family's files are added to this process alone, from the bytes compiled in, for GDI+ (the menu's Font) and
+    /// for GDI (which draws its text). Nothing is installed or written. Their memory stays for the process's life, as GDI+
+    /// and GDI read the fonts there.</summary>
+    public static System.Drawing.Font? MenuFont(string family, float size)
+    {
+        if (Find(family) is not { } carried) return null;
+        try
+        {
+            lock (MenuGate)
+            {
+                if (!MenuFonts.TryGetValue(family, out var collection))
+                {
+                    collection = new System.Drawing.Text.PrivateFontCollection();
+                    foreach (var file in carried.Files) AddToProcess(collection, "resources/fonts/" + carried.Folder + "/" + file);
+                    MenuFonts[family] = collection;
+                }
+                var loaded = collection.Families.FirstOrDefault(f => f.Name == family);
+                return loaded == null ? null : new System.Drawing.Font(loaded, size);
+            }
+        }
+        catch (Exception e) when (e is IOException or ArgumentException or System.Runtime.InteropServices.ExternalException or OutOfMemoryException)
+        {
+            return null;
+        }
+    }
+
+    private static void AddToProcess(System.Drawing.Text.PrivateFontCollection collection, string path)
+    {
+        using var stream = Open(path);
+        var bytes = new byte[stream.Length];
+        stream.ReadExactly(bytes);
+        var memory = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(bytes.Length);
+        System.Runtime.InteropServices.Marshal.Copy(bytes, 0, memory, bytes.Length);
+        collection.AddMemoryFont(memory, bytes.Length);
+        uint fonts = 0;
+        AddFontMemResourceEx(memory, (uint)bytes.Length, IntPtr.Zero, ref fonts);
+    }
+
+    [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+    private static extern IntPtr AddFontMemResourceEx(IntPtr font, uint size, IntPtr reserved, ref uint fonts);
+
     /// <summary>The family's licence, as its project published it.</summary>
     public static string Licence(Family family)
     {

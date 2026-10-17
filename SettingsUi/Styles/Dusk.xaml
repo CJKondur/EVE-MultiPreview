@@ -64,10 +64,10 @@
     <Color x:Key="Fx.CaptionText">#FFB6B5D4</Color>
     <Color x:Key="Fx.WindowBorder">#FF3D4060</Color>
 
-    <!-- Fonts (3): Windows' own until plan S3 Task 10 gives Dusk DM Sans; key labels "Cascadia Mono, Consolas" (O13) -->
-    <FontFamily x:Key="Fx.Font">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <!-- Fonts (3): DM Sans, carried (spec §11.1); key labels "Cascadia Mono, Consolas" (O13) -->
+    <FontFamily x:Key="Fx.Font">/EVE MultiPreview;component/Resources/Fonts/DMSans/#DM Sans</FontFamily>
     <FontFamily x:Key="Fx.MonoFont">Cascadia Mono, Consolas</FontFamily>
-    <FontFamily x:Key="Fx.TitleFont">Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="Fx.TitleFont">/EVE MultiPreview;component/Resources/Fonts/DMSans/#DM Sans</FontFamily>
     <!-- Sizes (8) -->
     <sys:Double x:Key="Fx.Size.Title">27</sys:Double>
     <sys:Double x:Key="Fx.Size.Section">14</sys:Double>
@@ -118,7 +118,7 @@
     <sys:Double x:Key="Fx.Menu.RowHeight">32</sys:Double>
     <sys:Double x:Key="Fx.Menu.Radius">8</sys:Double>
     <local:MenuCheck x:Key="Fx.Menu.Check">Tick</local:MenuCheck>
-    <sys:String x:Key="Fx.Menu.Font">Segoe UI</sys:String>
+    <sys:String x:Key="Fx.Menu.Font">DM Sans</sys:String>
     <sys:Boolean x:Key="Fx.Hub.Round">True</sys:Boolean>
 
     <!-- ═══ The values the shared parts read ═══ -->

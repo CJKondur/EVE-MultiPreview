@@ -64,10 +64,10 @@
     <Color x:Key="Fx.CaptionText">#FFA39DC9</Color>
     <Color x:Key="Fx.WindowBorder">#FF3B3454</Color>
 
-    <!-- Fonts (3): Windows' own until plan S3 Task 10 gives Neon Rubik (text, title and key labels) -->
-    <FontFamily x:Key="Fx.Font">Segoe UI</FontFamily>
-    <FontFamily x:Key="Fx.MonoFont">Segoe UI</FontFamily>
-    <FontFamily x:Key="Fx.TitleFont">Segoe UI</FontFamily>
+    <!-- Fonts (3): Rubik, carried, for text, titles and key labels (spec §11.1) -->
+    <FontFamily x:Key="Fx.Font">/EVE MultiPreview;component/Resources/Fonts/Rubik/#Rubik</FontFamily>
+    <FontFamily x:Key="Fx.MonoFont">/EVE MultiPreview;component/Resources/Fonts/Rubik/#Rubik</FontFamily>
+    <FontFamily x:Key="Fx.TitleFont">/EVE MultiPreview;component/Resources/Fonts/Rubik/#Rubik</FontFamily>
     <!-- Sizes (8) -->
     <sys:Double x:Key="Fx.Size.Title">26</sys:Double>
     <sys:Double x:Key="Fx.Size.Section">14</sys:Double>
@@ -118,7 +118,7 @@
     <sys:Double x:Key="Fx.Menu.RowHeight">32</sys:Double>
     <sys:Double x:Key="Fx.Menu.Radius">6</sys:Double>
     <local:MenuCheck x:Key="Fx.Menu.Check">Tick</local:MenuCheck>
-    <sys:String x:Key="Fx.Menu.Font">Segoe UI</sys:String>
+    <sys:String x:Key="Fx.Menu.Font">Rubik</sys:String>
     <sys:Boolean x:Key="Fx.Hub.Round">True</sys:Boolean>
 
     <!-- ═══ The values the shared parts read ═══ -->

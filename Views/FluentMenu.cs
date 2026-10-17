@@ -39,7 +39,10 @@ public static class FluentMenu
     /// <summary>One font per family, shared (13 px at 96 DPI, as the reference). Never disposed, as the glyph bitmaps.</summary>
     private static readonly ConcurrentDictionary<string, Font> MenuFonts = new(StringComparer.Ordinal);
 
-    private static Font MenuFont => MenuFonts.GetOrAdd(SettingsUi.UiPalette.Current.MenuFont, family => new Font(family, 9.75f));
+    /// <summary>A look's carried family is loaded into the process for the menus (UI styles spec §11.1); if that fails the
+    /// menu draws in Segoe UI (O18), never in GDI+'s own substitute.</summary>
+    private static Font MenuFont => MenuFonts.GetOrAdd(SettingsUi.UiPalette.Current.MenuFont, family =>
+        SettingsUi.BundledFonts.MenuFont(family, 9.75f) ?? new Font(SettingsUi.BundledFonts.Find(family) != null ? "Segoe UI" : family, 9.75f));
 
     /// <summary>Every styled menu and the thread that made it: WinForms' InvokeRequired cannot tell before the menu has a
     /// handle, so a change of look asks this instead.</summary>
