@@ -112,7 +112,7 @@
                 <Border x:Name="Bar4" Style="{StaticResource Wiz.StepBar}"/>
                 <Border x:Name="Bar5" Style="{StaticResource Wiz.StepBar}"/>
                 <Border x:Name="Bar6" Style="{StaticResource Wiz.StepBar}"/>
-                <TextBlock x:Name="TxtStep" FontSize="12" Foreground="{DynamicResource Fx.TextSecondaryBrush}" VerticalAlignment="Center"/>
+                <TextBlock x:Name="TxtStep" FontSize="{DynamicResource Fx.Size.Caption}" Foreground="{DynamicResource Fx.TextSecondaryBrush}" VerticalAlignment="Center"/>
             </StackPanel>
 
             <!-- Step 1: Welcome (and the language, spec §10) -->
@@ -161,21 +161,21 @@
                         <StackPanel>
                             <Border Style="{StaticResource Wiz.Preview}" Width="90" Height="60"/>
                             <TextBlock Text="{DynamicResource L.Wiz.SizeDual}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
-                            <TextBlock Text="300 × 200" FontSize="12" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
+                            <TextBlock Text="300 × 200" FontSize="{DynamicResource Fx.Size.Caption}" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="CardMulti" Style="{StaticResource Wiz.SizeCard}" Tag="200,150" Checked="OnSizeCard">
                         <StackPanel>
                             <Border Style="{StaticResource Wiz.Preview}" Width="66" Height="50" Margin="0,5,0,15"/>
                             <TextBlock Text="{DynamicResource L.Wiz.SizeMulti}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
-                            <TextBlock Text="200 × 150" FontSize="12" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
+                            <TextBlock Text="200 × 150" FontSize="{DynamicResource Fx.Size.Caption}" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="CardFleet" Style="{StaticResource Wiz.SizeCard}" Tag="150,100" Checked="OnSizeCard">
                         <StackPanel>
                             <Border Style="{StaticResource Wiz.Preview}" Width="50" Height="34" Margin="0,13,0,23"/>
                             <TextBlock Text="{DynamicResource L.Wiz.SizeFleet}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
-                            <TextBlock Text="150 × 100" FontSize="12" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
+                            <TextBlock Text="150 × 100" FontSize="{DynamicResource Fx.Size.Caption}" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
                 </UniformGrid>
