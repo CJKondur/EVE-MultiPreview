@@ -780,6 +780,38 @@
         </Setter>
     </Style>
 
+    <!-- Switch without words (Switch, Neon): a 36 by 20 pill in the line colour with a knob in the note colour when off;
+         the check colour with a knob in the mark colour, on the right, when on. -->
+    <Style x:Key="Kit.Check.Switch" TargetType="CheckBox">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid x:Name="root" Width="36" Height="20" Background="Transparent">
+                        <Rectangle x:Name="Ring" Margin="-3" RadiusX="13" RadiusY="13" Stroke="{DynamicResource Fx.FocusBrush}" StrokeThickness="1" Visibility="Hidden"/>
+                        <Rectangle x:Name="Track" RadiusX="10" RadiusY="10" Fill="{DynamicResource Fx.BorderBrush}"/>
+                        <Ellipse x:Name="Knob" Width="14" Height="14" Margin="3,0" HorizontalAlignment="Left" Fill="{DynamicResource Fx.TextSecondaryBrush}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Fill" Value="{DynamicResource Fx.CheckFillBrush}"/>
+                            <Setter TargetName="Knob" Property="Fill" Value="{DynamicResource Fx.CheckMarkBrush}"/>
+                            <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Radio button: a circle Kit.Size wide; empty with the check border when off, filled with the check colour and a dot
          in the mark colour when on. -->
     <Style x:Key="Kit.Radio.Fill" TargetType="RadioButton">

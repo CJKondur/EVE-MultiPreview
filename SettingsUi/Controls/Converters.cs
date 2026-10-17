@@ -25,6 +25,15 @@ public sealed class NotNullToVisibilityConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => System.Windows.Data.Binding.DoNothing;
 }
 
+/// <summary>A key combination as its keys ("Ctrl + Alt + D" → Ctrl, Alt, D; HotkeyText.ToDisplay joins them with " + "):
+/// Neon draws one key cap per key. Text without " + " is one key; no text, one empty key, so the button keeps a size.</summary>
+public sealed class KeyCapsConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        (value as string ?? "").Split(" + ");
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => System.Windows.Data.Binding.DoNothing;
+}
+
 /// <summary>Visible when the value is null (the stacked header's page name: a key, unless the page has a name of its own).</summary>
 public sealed class NullToVisibilityConverter : IValueConverter
 {
