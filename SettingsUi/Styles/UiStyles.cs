@@ -74,8 +74,11 @@ public static class UiStyles
     /// <summary>The old window's navy look (spec §7.1). Its windows take the kit in slot 0, never Fluent.</summary>
     public static UiStyle Classic { get; } = new("classic", usesFluent: false, () => new ClassicStyle());
 
+    /// <summary>Light and flat (spec §7.6). Its windows take the kit in slot 0.</summary>
+    public static UiStyle Daylight { get; } = new("daylight", usesFluent: false, () => new DaylightStyle());
+
     /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2). S3 and S4 add the others.</summary>
-    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11 };
+    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight };
 
     /// <summary>The look with this id; a missing, empty or unknown id gives Classic, the default (spec §10).</summary>
     public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Classic;
@@ -275,6 +278,31 @@ public static class UiStyles
             style.Dictionary,
         };
         return fluentWindow && style.Keyed is { } keyed ? slots.Append(keyed).ToArray() : slots;
+    }
+
+    /// <summary>The parts of the base every flat look takes (plan S3): its navigation, its window and page header, its
+    /// tables and its slider card. A look adds its own section, row and on/off card to these.</summary>
+    public static readonly (string Key, string Part)[] FlatParts =
+    {
+        ("Fx.Nav.Entry", "Base.Nav.Entry"), ("Fx.Nav.Group", "Base.Nav.Group"), ("Fx.Nav.Page", "Base.Nav.Page"),
+        ("Fx.Shell", "Base.Shell.Pane"), ("Fx.Shell.Header", "Base.Header.Stacked"),
+        ("Fx.Table.Row", "Base.Table.Ruled"), ("Fx.Table.Header", "Base.Table.Head"), ("Fx.Card.Slider", "Base.Card.SliderThenValue"),
+    };
+
+    /// <summary>Reads the dictionary of a flat look (plan S3). The kit is merged while it is read, so its picks from the kit
+    /// (BasedOn) resolve then; every entry is read; the kit is let go again (a window holds it as its slot 0, as Classic's
+    /// dictionary does). Then each shared part of the base goes under its contract key, unless the look's XAML defines that
+    /// key itself (an alias in XAML, a StaticResource element, is read under the wrong key by WPF: measured while writing
+    /// plan S3), and each colour gets its frozen brush.</summary>
+    public static void ReadLook(ResourceDictionary look, Action initializeComponent, params (string Key, string Part)[] parts)
+    {
+        look.MergedDictionaries.Add(Kit);
+        initializeComponent();
+        foreach (var key in look.Keys.Cast<object>().ToList()) _ = look[key];
+        look.MergedDictionaries.Remove(Kit);
+        foreach (var (key, part) in parts)
+            if (!look.Contains(key)) look[key] = Base[part];
+        Prepare(look);
     }
 
     /// <summary>Makes a style dictionary whole (spec §5.2, rule 2): a frozen brush of each colour of the contract it holds,

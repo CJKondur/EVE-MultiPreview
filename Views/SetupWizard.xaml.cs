@@ -35,10 +35,6 @@ public partial class SetupWizard : Window
     private UiStyle _look;                                 // the look step 2 shows picked, saved at Done
     private bool _applied;
 
-    // Dark title bar
-    [DllImport("dwmapi.dll", PreserveSig = true)]
-    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int val, int sz);
-
     public SetupWizard(SettingsService svc, double? workAreaHeight = null)
     {
         _svc = svc;
@@ -50,12 +46,6 @@ public partial class SetupWizard : Window
         // The wheel over a closed dropdown list (the language) is not "the next choice": it goes past the list.
         PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
         UiFont.Apply(this, LocalizationService.CurrentLanguage);
-        Loaded += (_, _) =>
-        {
-            var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            int dark = 1;
-            DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int));
-        };
         BuildLanguageList();
         SelectMatchingSizeCard();
         _look = UiStyles.Find(_svc.Settings.UiStyle);
