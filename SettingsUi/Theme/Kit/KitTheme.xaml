@@ -1672,4 +1672,37 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- The page's help as a link (Link: High contrast, Ink): its content in the link colour on the page, no box; picked
+         (the help pane open), semibold; keyboard focus draws an edge in the focus colour. The header gives it an underlined
+         text. -->
+    <Style x:Key="Kit.Help.Link" TargetType="ToggleButton">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.LinkBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Body}"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                        </Border>
+                        <Border x:Name="Edge" Margin="-3" BorderBrush="{DynamicResource Fx.FocusBrush}" BorderThickness="{DynamicResource Fx.Line.Control}"
+                                Visibility="Hidden" IsHitTestVisible="False"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

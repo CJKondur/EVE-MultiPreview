@@ -137,10 +137,8 @@
     <!-- ═══ The values the shared parts read ═══ -->
     <Visibility x:Key="Look.PaneLine">Collapsed</Visibility>
     <Visibility x:Key="Look.TopLine">Collapsed</Visibility>
-    <!-- Until Task 5's link: a square "?" with a white edge. -->
-    <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Help.Box}">
-        <Setter Property="Width" Value="30"/>
-        <Setter Property="Height" Value="30"/>
+    <!-- The help: a yellow underlined link (its header gives the words), with the focus outline. -->
+    <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Help.Link}">
         <Setter Property="FocusVisualStyle" Value="{StaticResource Contrast.Focus}"/>
     </Style>
 
@@ -310,4 +308,109 @@
             </Border>
         </GroupBox>
     </DataTemplate>
+    <!-- A severity: a shape and the word, in the status colours (white here; Windows' text colour in a contrast theme):
+         ▲ filled for critical, △ outlined for warning, the word alone for info. No colour carries the meaning. -->
+    <DataTemplate x:Key="Look.Severity">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Path x:Name="Shape" Width="14" Height="14" Margin="0,0,8,0" VerticalAlignment="Center" Stretch="Uniform" StrokeThickness="2"
+                  Data="M 12,3 L 22,21 L 2,21 Z" Visibility="Collapsed"/>
+            <TextBlock x:Name="Word" local:Loc.Key="L.S.Sev.info" Foreground="{DynamicResource Fx.InfoBrush}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding}" Value="critical">
+                <Setter TargetName="Shape" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="Shape" Property="Fill" Value="{DynamicResource Fx.CriticalBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.critical"/>
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.CriticalBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="warning">
+                <Setter TargetName="Shape" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="Shape" Property="Data" Value="M 12,4.5 L 20.5,20 L 3.5,20 Z"/>
+                <Setter TargetName="Shape" Property="Stroke" Value="{DynamicResource Fx.WarningBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.warning"/>
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.WarningBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- The title's tokens, for the group, the separator and the page's name of the header. Not a contract name. -->
+    <Style x:Key="Contrast.Title" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Fx.TitleFont}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- The page's header: "Alerts › Sounds" is the title, the group in regular weight (it goes back to the group's first
+         page); "Help for this page" as a link on the right; the description under them. Home's title is its name alone. -->
+    <DataTemplate x:Key="Fx.Shell.Header">
+        <StackPanel Margin="0,0,0,2">
+            <DockPanel>
+                <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource Look.Help}" IsChecked="{Binding HelpOpen}" VerticalAlignment="Center"
+                              Margin="16,0,0,0" local:Loc.NameKey="L.S.Shell.Help">
+                    <TextBlock local:Loc.Key="L.S.Shell.Help" TextDecorations="Underline"/>
+                </ToggleButton>
+                <WrapPanel VerticalAlignment="Center">
+                    <Button Cursor="Hand" FocusVisualStyle="{StaticResource Contrast.Focus}"
+                            Command="{Binding BreadcrumbCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
+                            Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <ContentPresenter/>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{StaticResource Contrast.Title}" FontWeight="Normal"/>
+                    </Button>
+                    <TextBlock Text="  ›  " Style="{StaticResource Contrast.Title}" FontWeight="Normal"
+                               Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
+                    <TextBlock>
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Contrast.Title}">
+                                <Setter Property="Text" Value="{Binding Current.Page.Title}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
+                                        <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </WrapPanel>
+            </DockPanel>
+            <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{DynamicResource Fx.PageDesc}" Margin="0"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- The profile: an outlined button, 44 high, with the name, "Profile" under it and a chevron; it opens the profile
+         menu under it. -->
+    <DataTemplate x:Key="Fx.Shell.Profile">
+        <Button AutomationProperties.Name="{Binding ProfileName}" Cursor="Hand" HorizontalContentAlignment="Stretch" Margin="0,0,0,6"
+                FocusVisualStyle="{StaticResource Contrast.Focus}"
+                Command="{Binding ProfileMenuCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
+                CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Box" MinHeight="44" Padding="12,0" Background="{DynamicResource Fx.ControlBrush}" BorderBrush="{DynamicResource Fx.ControlEdgeBrush}"
+                            BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.Radius.Control}">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+            <DockPanel>
+                <Path DockPanel.Dock="Right" VerticalAlignment="Center" Margin="8,0,0,0" Data="M 0 0 L 5 5 L 10 0"
+                      Stroke="{DynamicResource Fx.TextBrush}" StrokeThickness="1.5"/>
+                <StackPanel>
+                    <TextBlock Text="{Binding ProfileName}" Style="{DynamicResource Fx.Label}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                    <TextBlock local:Loc.Key="L.S.Shell.Profile" Style="{DynamicResource Fx.Desc}" Foreground="{DynamicResource Fx.TextBrush}" Margin="0"/>
+                </StackPanel>
+            </DockPanel>
+        </Button>
+    </DataTemplate>
+
 </ResourceDictionary>
