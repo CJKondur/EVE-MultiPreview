@@ -728,6 +728,58 @@
         </Setter>
     </Style>
 
+    <!-- Check box as a circle (RoundTick, Dusk): Kit.Size wide, a 2 px check border when off; filled with the check colour
+         and a tick when on. -->
+    <Style x:Key="Kit.Check.RoundTick" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.CheckBorderBrush}"/>
+        <Setter Property="Padding" Value="10,0,0,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid x:Name="root" Background="Transparent" SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Width="{TemplateBinding local:Kit.Size}" Height="{TemplateBinding local:Kit.Size}">
+                            <Ellipse x:Name="Ring" Margin="-3" Stroke="{DynamicResource Fx.FocusBrush}" StrokeThickness="1" Visibility="Hidden"/>
+                            <Ellipse x:Name="Box" Fill="Transparent" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="2"/>
+                            <Path x:Name="Tick" Margin="5" Stretch="Uniform" Visibility="Hidden" Data="M 0,5 L 4,9 L 12,0"
+                                  Stroke="{DynamicResource Fx.CheckMarkBrush}" StrokeThickness="2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                        </Grid>
+                        <ContentPresenter x:Name="Content" Grid.Column="1" Focusable="False" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasContent" Value="False">
+                            <Setter TargetName="Content" Property="Margin" Value="0"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="Stroke" Value="{DynamicResource Fx.AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Fill" Value="{DynamicResource Fx.CheckFillBrush}"/>
+                            <Setter TargetName="Box" Property="Stroke" Value="{DynamicResource Fx.CheckFillBrush}"/>
+                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Radio button: a circle Kit.Size wide; empty with the check border when off, filled with the check colour and a dot
          in the mark colour when on. -->
     <Style x:Key="Kit.Radio.Fill" TargetType="RadioButton">

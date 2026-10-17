@@ -77,8 +77,11 @@ public static class UiStyles
     /// <summary>Light and flat (spec §7.6). Its windows take the kit in slot 0.</summary>
     public static UiStyle Daylight { get; } = new("daylight", usesFluent: false, () => new DaylightStyle());
 
+    /// <summary>Soft slate-violet, rounded (spec §7.11).</summary>
+    public static UiStyle Dusk { get; } = new("dusk", usesFluent: false, () => new DuskStyle());
+
     /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2). S3 and S4 add the others.</summary>
-    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight };
+    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk };
 
     /// <summary>The look with this id; a missing, empty or unknown id gives Classic, the default (spec §10).</summary>
     public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Classic;
