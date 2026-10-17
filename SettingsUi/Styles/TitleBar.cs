@@ -25,11 +25,19 @@ public static class TitleBar
     /// means "the system's own" and is set as <see cref="SystemColour"/>; Windows 11 says so for all three, so its title
     /// bar is exactly Windows'. The corners of a round look are left to the system (DWMWCP_DEFAULT), which rounds a
     /// window like these; the menus, which the system leaves square, ask for the round corners themselves.</summary>
-    public static IReadOnlyList<(int Attribute, int Value)> Attributes(UiPalette palette)
+    public static IReadOnlyList<(int Attribute, int Value)> Attributes(UiPalette palette) =>
+        Attributes(palette, Environment.OSVersion.Version.Build);
+
+    /// <summary>The first Windows 11 build (attributes 33 to 36) and the first with a system backdrop (38).</summary>
+    public const int Windows11Build = 22000, BackdropBuild = 22621;
+
+    /// <summary>The attributes for <paramref name="build"/> of Windows: below Windows 11 only the dark or light caption, the
+    /// one Windows 10 has (spec O26, plan S5); from Windows 11 all five.</summary>
+    public static IReadOnlyList<(int Attribute, int Value)> Attributes(UiPalette palette, int build)
     {
         var caption = palette.Colour("Fx.CaptionColor");
         var dark = caption.A == 0 ? palette.Colour("Fx.Bg") : caption;
-        return new[]
+        var all = new[]
         {
             (DarkMode, Luminance(dark) < 0.5 ? 1 : 0),
             (CornerPreference, palette.Corners == WindowCorners.Round ? 0 : Views.FluentMenu.CornerPreference(palette.Corners)),
@@ -37,7 +45,11 @@ public static class TitleBar
             (CaptionColour, Value(caption)),
             (TextColour, Value(palette.Colour("Fx.CaptionText"))),
         };
+        return build >= Windows11Build ? all : new[] { all[0] };
     }
+
+    /// <summary>Whether Windows of <paramref name="build"/> has the system backdrop attribute (38).</summary>
+    public static bool SetsBackdrop(int build) => build >= BackdropBuild;
 
     /// <summary>Raised for each window whose title bar was coloured (tests).</summary>
     public static event Action<Window>? Applied;
@@ -53,7 +65,7 @@ public static class TitleBar
             int v = value;
             DwmSetWindowAttribute(hwnd, attribute, ref v, sizeof(int));
         }
-        if (!UiStyles.Effective.UsesFluent)
+        if (!UiStyles.Effective.UsesFluent && SetsBackdrop(Environment.OSVersion.Version.Build))
         {
             int none = NoBackdrop;   // a Fluent look's is WPF's, set again when Fluent comes back
             DwmSetWindowAttribute(hwnd, Backdrop, ref none, sizeof(int));

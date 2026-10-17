@@ -33,8 +33,12 @@ public static class FluentMenu
     public static int RowHeight => (int)Math.Round(SettingsUi.UiPalette.Current.MenuRowHeight);
 
     /// <summary>Segoe Fluent Icons on Windows 11, else Segoe MDL2 Assets (Windows 10).</summary>
-    public static string IconFontName { get; } =
-        FontFamily.Families.Any(f => f.Name == "Segoe Fluent Icons") ? "Segoe Fluent Icons" : "Segoe MDL2 Assets";
+    public static string IconFontName { get; } = IconFontFor(name => FontFamily.Families.Any(f => f.Name == name));
+
+    /// <summary>The menus' icon font where Windows has the families <paramref name="windowsHas"/> says (Windows 10 has no
+    /// Segoe Fluent Icons; Segoe MDL2 Assets has the same code points, plan S5).</summary>
+    public static string IconFontFor(Func<string, bool> windowsHas) =>
+        windowsHas("Segoe Fluent Icons") ? "Segoe Fluent Icons" : "Segoe MDL2 Assets";
 
     /// <summary>One font per family, shared (13 px at 96 DPI, as the reference). Never disposed, as the glyph bitmaps.</summary>
     private static readonly ConcurrentDictionary<string, Font> MenuFonts = new(StringComparer.Ordinal);
