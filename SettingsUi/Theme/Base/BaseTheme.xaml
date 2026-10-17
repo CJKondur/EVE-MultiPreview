@@ -354,24 +354,24 @@
         </ContentControl>
     </DataTemplate>
 
+    <!-- One action button of a row (plan S5): a look that draws a destructive button its own way redefines this part only,
+         never the card (Neon does: owner's decision of 2026-10-17). A destructive action's label is in the critical colour. -->
+    <DataTemplate x:Key="Look.Action">
+        <Button Command="{Binding Command}" Margin="8,0,0,0" Padding="12,4">
+            <TextBlock x:Name="Label" local:Loc.Key="{Binding LabelKey}"/>
+        </Button>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsDestructive}" Value="True">
+                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource Fx.CriticalBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
     <DataTemplate x:Key="Fx.Card.Actions">
         <ContentControl Style="{DynamicResource Fx.CardHost}">
-            <ItemsControl ItemsSource="{Binding Buttons}">
+            <ItemsControl ItemsSource="{Binding Buttons}" ItemTemplate="{DynamicResource Look.Action}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Command="{Binding Command}" Margin="8,0,0,0" Padding="12,4">
-                            <TextBlock x:Name="Label" local:Loc.Key="{Binding LabelKey}"/>
-                        </Button>
-                        <DataTemplate.Triggers>
-                            <DataTrigger Binding="{Binding IsDestructive}" Value="True">
-                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource Fx.CriticalBrush}"/>
-                            </DataTrigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ContentControl>
     </DataTemplate>

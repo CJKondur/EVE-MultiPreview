@@ -245,28 +245,20 @@
         <Setter Property="BorderThickness" Value="2"/>
     </Style>
 
-    <!-- The action buttons of a row. A destructive one takes the style above (a static reference: a trigger that is true when
-         the template is made may not set a {DynamicResource}). -->
-    <DataTemplate x:Key="Fx.Card.Actions">
-        <ContentControl Style="{DynamicResource Fx.CardHost}">
-            <ItemsControl ItemsSource="{Binding Buttons}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button x:Name="Act" Command="{Binding Command}" Margin="8,0,0,0" Padding="12,4">
-                            <TextBlock local:Loc.Key="{Binding LabelKey}"/>
-                        </Button>
-                        <DataTemplate.Triggers>
-                            <DataTrigger Binding="{Binding IsDestructive}" Value="True">
-                                <Setter TargetName="Act" Property="Style" Value="{StaticResource Neon.Destructive}"/>
-                            </DataTrigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ContentControl>
+    <!-- One action button (the base's Look.Action, plan S5): a destructive one takes the style above (a static reference: a
+         trigger that is true when the template is made may not set a {DynamicResource}) and 1 px less padding all round,
+         so its 2 px edge leaves it the size of a plain button (1 px edge). A template trigger beats the template's own
+         Padding, a style setter would not. -->
+    <DataTemplate x:Key="Look.Action">
+        <Button x:Name="Act" Command="{Binding Command}" Margin="8,0,0,0" Padding="12,4">
+            <TextBlock local:Loc.Key="{Binding LabelKey}"/>
+        </Button>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsDestructive}" Value="True">
+                <Setter TargetName="Act" Property="Style" Value="{StaticResource Neon.Destructive}"/>
+                <Setter TargetName="Act" Property="Padding" Value="11,3"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
     </DataTemplate>
 
     <!-- A hotkey setting: its combination as key caps, the Clear button beside it. -->
