@@ -1,0 +1,384 @@
+<ResourceDictionary x:Class="EveMultiPreview.SettingsUi.BlueprintStyle"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:local="clr-namespace:EveMultiPreview.SettingsUi">
+
+    <!-- Blueprint (UI styles spec §7.9): a technical drawing on blue. Source: Blueprint.dc.html. The 95 tokens of the
+         contract; a value the mock-up does not show is derived from its palette (spec: marked *). -->
+
+    <!-- Surfaces (10): the drawing's blue; the open page white -->
+    <Color x:Key="Fx.Bg">#FF143C78</Color>
+    <Color x:Key="Fx.Nav">#FF143C78</Color>
+    <Color x:Key="Fx.CardColor">#FF143C78</Color>
+    <Color x:Key="Fx.CardHover">#FF0F3168</Color>
+    <Color x:Key="Fx.Header">#FF143C78</Color>
+    <Color x:Key="Fx.Control">#FF143C78</Color>
+    <Color x:Key="Fx.Flyout">#FF0F3168</Color>
+    <Color x:Key="Fx.AccentSoft">#FF0F3168</Color>
+    <Color x:Key="Fx.NavHover">#FF143C78</Color>
+    <Color x:Key="Fx.NavSelected">#FFF2F7FF</Color>
+    <!-- Lines (5) -->
+    <Color x:Key="Fx.Border">#FF8FB4EA</Color>
+    <Color x:Key="Fx.ControlEdge">#FF8FB4EA</Color>
+    <Color x:Key="Fx.FlyoutBorder">#FF8FB4EA</Color>
+    <Color x:Key="Fx.Divider">#FF3E67A8</Color>
+    <Color x:Key="Fx.Focus">#FFF2F7FF</Color>
+    <!-- Text (11) -->
+    <Color x:Key="Fx.Text">#FFF2F7FF</Color>
+    <Color x:Key="Fx.TextSecondary">#FFB5CDF3</Color>
+    <Color x:Key="Fx.TextDisabled">#FF8EAEE0</Color>
+    <Color x:Key="Fx.NavText">#FFF2F7FF</Color>
+    <Color x:Key="Fx.NavTextSecondary">#FFB5CDF3</Color>
+    <Color x:Key="Fx.NavSelectedText">#FF143C78</Color>
+    <Color x:Key="Fx.Title">#FFF2F7FF</Color>
+    <Color x:Key="Fx.SectionText">#FFF2F7FF</Color>
+    <Color x:Key="Fx.Link">#FFF2F7FF</Color>
+    <Color x:Key="Fx.ValueText">#FFF2F7FF</Color>
+    <Color x:Key="Fx.Icon">#FFF2F7FF</Color>
+    <!-- Accent (3): white -->
+    <Color x:Key="Fx.Accent">#FFF2F7FF</Color>
+    <Color x:Key="Fx.OnAccent">#FF143C78</Color>
+    <Color x:Key="Fx.NavMark">#FFF2F7FF</Color>
+    <!-- Buttons (4): outlines on the blue -->
+    <Color x:Key="Fx.Button">#FF143C78</Color>
+    <Color x:Key="Fx.ButtonHover">#FF0F3168</Color>
+    <Color x:Key="Fx.ButtonBorder">#FF8FB4EA</Color>
+    <Color x:Key="Fx.ButtonText">#FFF2F7FF</Color>
+    <!-- Check and switch (3): a white outlined box, a white cross -->
+    <Color x:Key="Fx.CheckFill">#FF143C78</Color>
+    <Color x:Key="Fx.CheckMark">#FFF2F7FF</Color>
+    <Color x:Key="Fx.CheckBorder">#FFF2F7FF</Color>
+    <!-- Slider (3): the ticks in the line colour, the base line and the thumb white -->
+    <Color x:Key="Fx.Track">#FF8FB4EA</Color>
+    <Color x:Key="Fx.TrackFill">#FFF2F7FF</Color>
+    <Color x:Key="Fx.Thumb">#FFF2F7FF</Color>
+    <!-- Status (5): white; severity is told by shape and word (Task 8) -->
+    <Color x:Key="Fx.Critical">#FFF2F7FF</Color>
+    <Color x:Key="Fx.Warning">#FFF2F7FF</Color>
+    <Color x:Key="Fx.InfoColor">#FFB5CDF3</Color>
+    <Color x:Key="Fx.AlertBadge">#FFF2F7FF</Color>
+    <Color x:Key="Fx.OnAlertBadge">#FF143C78</Color>
+    <!-- Title bar (3) -->
+    <Color x:Key="Fx.CaptionColor">#FF0F3168</Color>
+    <Color x:Key="Fx.CaptionText">#FFF2F7FF</Color>
+    <Color x:Key="Fx.WindowBorder">#FF8FB4EA</Color>
+
+    <!-- Fonts (3): Overpass for text and titles, Overpass Mono for captions, numbers and key labels, carried (spec §11.1) -->
+    <FontFamily x:Key="Fx.Font">/EVE MultiPreview;component/Resources/Fonts/Overpass/#Overpass</FontFamily>
+    <FontFamily x:Key="Fx.MonoFont">/EVE MultiPreview;component/Resources/Fonts/OverpassMono/#Overpass Mono</FontFamily>
+    <FontFamily x:Key="Fx.TitleFont">/EVE MultiPreview;component/Resources/Fonts/Overpass/#Overpass</FontFamily>
+    <!-- Sizes (8) -->
+    <sys:Double x:Key="Fx.Size.Title">24</sys:Double>
+    <sys:Double x:Key="Fx.Size.Section">13</sys:Double>
+    <sys:Double x:Key="Fx.Size.Body">14</sys:Double>
+    <sys:Double x:Key="Fx.Size.Desc">12.5</sys:Double>
+    <sys:Double x:Key="Fx.Size.Nav">13</sys:Double>
+    <sys:Double x:Key="Fx.Size.NavSub">13</sys:Double>
+    <sys:Double x:Key="Fx.Size.Caption">10.5</sys:Double>
+    <sys:Double x:Key="Fx.Size.Control">13</sys:Double>
+    <!-- Weights (4), slant (1), case (4): the title and the headings bold, the index semibold (its pages regular), all in
+         capitals -->
+    <FontWeight x:Key="Fx.Weight.Title">Bold</FontWeight>
+    <FontWeight x:Key="Fx.Weight.Section">Bold</FontWeight>
+    <FontWeight x:Key="Fx.Weight.Nav">SemiBold</FontWeight>
+    <FontWeight x:Key="Fx.Weight.NavSelected">Bold</FontWeight>
+    <FontStyle x:Key="Fx.Style.Title">Normal</FontStyle>
+    <local:TextCase x:Key="Fx.Case.Title">Upper</local:TextCase>
+    <local:TextCase x:Key="Fx.Case.Section">Upper</local:TextCase>
+    <local:TextCase x:Key="Fx.Case.Nav">Upper</local:TextCase>
+    <local:TextCase x:Key="Fx.Case.Caption">Upper</local:TextCase>
+    <!-- Radii (5): square everywhere -->
+    <CornerRadius x:Key="Fx.Radius">0</CornerRadius>
+    <CornerRadius x:Key="Fx.Radius.Control">0</CornerRadius>
+    <CornerRadius x:Key="Fx.Radius.Nav">0</CornerRadius>
+    <CornerRadius x:Key="Fx.FlyoutRadius">0</CornerRadius>
+    <CornerRadius x:Key="Fx.Radius.Check">0</CornerRadius>
+    <!-- Lines (3): no card; the outline; a hairline under each row -->
+    <Thickness x:Key="Fx.Line.Card">0</Thickness>
+    <Thickness x:Key="Fx.Line.Control">1</Thickness>
+    <Thickness x:Key="Fx.Line.Row">0,0,0,1</Thickness>
+    <!-- Metrics (11): rows start 32 px in from the section's number (Fx.Row.Gap) -->
+    <sys:Double x:Key="Fx.Nav.Width">236</sys:Double>
+    <sys:Double x:Key="Fx.Nav.ItemHeight">28</sys:Double>
+    <sys:Double x:Key="Fx.Nav.SubItemHeight">26</sys:Double>
+    <sys:Double x:Key="Fx.Nav.SubIndent">30</sys:Double>
+    <sys:Double x:Key="Fx.Row.MinHeight">40</sys:Double>
+    <Thickness x:Key="Fx.Row.Padding">0,3</Thickness>
+    <Thickness x:Key="Fx.Row.Gap">32,0,0,0</Thickness>
+    <sys:Double x:Key="Fx.Control.Height">26</sys:Double>
+    <Thickness x:Key="Fx.Section.Gap">0,14,0,2</Thickness>
+    <Thickness x:Key="Fx.Page.Padding">22,14,22,0</Thickness>
+    <sys:Double x:Key="Fx.Label.Width">0</sys:Double>
+    <!-- Presence (4): numbers instead of icons, no breadcrumb, the scroll bar in its own column, square corners -->
+    <Visibility x:Key="Fx.Nav.Icons">Collapsed</Visibility>
+    <Visibility x:Key="Fx.Show.Breadcrumb">Collapsed</Visibility>
+    <sys:Boolean x:Key="Fx.Scroll.Overlay">False</sys:Boolean>
+    <local:WindowCorners x:Key="Fx.Window.Corners">Square</local:WindowCorners>
+    <!-- Around (5): menus with 28 px rows, square, the pointed item inverted; a square bell -->
+    <sys:Double x:Key="Fx.Menu.RowHeight">28</sys:Double>
+    <sys:Double x:Key="Fx.Menu.Radius">0</sys:Double>
+    <local:MenuCheck x:Key="Fx.Menu.Check">Invert</local:MenuCheck>
+    <sys:String x:Key="Fx.Menu.Font">Overpass</sys:String>
+    <sys:Boolean x:Key="Fx.Hub.Round">False</sys:Boolean>
+
+    <!-- ═══ The values the shared parts read ═══ -->
+    <Visibility x:Key="Look.PaneLine">Visible</Visibility>
+    <Visibility x:Key="Look.TopLine">Collapsed</Visibility>
+    <!-- Its help: an outlined box with mono capitals (its own header gives the word, Task 8). -->
+    <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Help.Box}">
+        <Setter Property="MinWidth" Value="24"/>
+        <Setter Property="Height" Value="24"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Caption}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <!-- ═══ Picks from the kit (spec §6.3): outlines; a switched-off box dashed ═══ -->
+    <Style TargetType="CheckBox" BasedOn="{StaticResource Kit.Check.Cross}">
+        <Setter Property="local:Kit.Size" Value="16"/>
+        <Setter Property="local:Kit.DashedOff" Value="True"/>
+    </Style>
+    <Style TargetType="RadioButton" BasedOn="{StaticResource Kit.Radio.Cross}">
+        <Setter Property="local:Kit.Size" Value="13"/>
+    </Style>
+    <Style TargetType="Slider" BasedOn="{StaticResource Kit.Slider.Ruler}"/>
+    <Style TargetType="ComboBox" BasedOn="{StaticResource Kit.Dropdown.Box}">
+        <Setter Property="local:Kit.DashedOff" Value="True"/>
+    </Style>
+    <!-- A text box: the outline, mono figures. -->
+    <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Round}">
+        <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
+        <Setter Property="local:Kit.DashedOff" Value="True"/>
+    </Style>
+    <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}"/>
+    <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Round}"/>
+    <Style TargetType="ScrollBar" BasedOn="{StaticResource Kit.Scroll.Thin}"/>
+    <!-- The on/off control of a setting is the 16 px crossed box, at the row's right end (the base's toggle card). -->
+    <Style x:Key="Fx.ToggleSwitch" TargetType="CheckBox" BasedOn="{StaticResource Kit.Check.Cross}">
+        <Setter Property="local:Kit.Size" Value="16"/>
+        <Setter Property="local:Kit.DashedOff" Value="True"/>
+    </Style>
+    <!-- Icon buttons: bare, a white glyph on the blue. -->
+    <Style x:Key="Fx.IconButton" TargetType="Button" BasedOn="{StaticResource Kit.Icon.Box}">
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+        <Setter Property="BorderBrush" Value="{x:Null}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+    </Style>
+    <!-- A key: the outline, mono. -->
+    <Style x:Key="Fx.KeyCap" TargetType="Button" BasedOn="{StaticResource Kit.KeyCap.Box}">
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
+    </Style>
+    <Style x:Key="Fx.Swatch" TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="MinHeight" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <!-- ═══ Its own parts. The shared parts it takes (BaseTheme's Base.*) are named in Blueprint.xaml.cs. ═══ -->
+
+    <!-- A binding's converter is named statically, and a template of this dictionary finds it only here (S2's measurement). -->
+    <BooleanToVisibilityConverter x:Key="Fx.BoolToVis"/>
+
+    <!-- A drawing's numbers and captions: mono, small, in the second text colour; a caption in capitals. Not contract names. -->
+    <Style x:Key="Blueprint.Number" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Caption}"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextSecondaryBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style x:Key="Blueprint.Caption" TargetType="TextBlock" BasedOn="{StaticResource Blueprint.Number}">
+        <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Caption}"/>
+    </Style>
+
+    <!-- A navigation entry: a line Fx.Nav.ItemHeight high; under the mouse a thin outline 3 px inside it; keyboard focus an
+         edge in the focus colour. The open page's fill is set on the button (Fx.Nav.Page). -->
+    <Style x:Key="Fx.Nav.Entry" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource Fx.NavBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextBrush}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="6,0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Nav.ItemHeight}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid SnapsToDevicePixels="True">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="Hover" Margin="3" Visibility="Collapsed" IsHitTestVisible="False" BorderBrush="{DynamicResource Fx.BorderBrush}"
+                                BorderThickness="{DynamicResource Fx.Line.Control}"/>
+                        <Border x:Name="Edge" Visibility="Collapsed" IsHitTestVisible="False" BorderBrush="{DynamicResource Fx.FocusBrush}"
+                                BorderThickness="{DynamicResource Fx.Line.Control}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A group: its number ("04"), its name in capitals; its pages under it while it is open. -->
+    <DataTemplate x:Key="Fx.Nav.Group">
+        <StackPanel>
+            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <local:DecorativeText Text="{Binding Ordinal, StringFormat={}{0:00}}" Style="{StaticResource Blueprint.Number}" Width="30"/>
+                    <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                               FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                               Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                </StackPanel>
+            </Button>
+            <ItemsControl ItemsSource="{Binding Pages}" Focusable="False" ItemTemplate="{DynamicResource Fx.Nav.Page}"
+                          Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- A page of a group: its number ("04.3"), its name in capitals, regular; the open page inverted, blue on white, bold. -->
+    <DataTemplate x:Key="Fx.Nav.Page">
+        <Button x:Name="Line" Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="0,0,10,0"
+                MinHeight="{DynamicResource Fx.Nav.SubItemHeight}">
+            <StackPanel Orientation="Horizontal">
+                <Border Width="{DynamicResource Fx.Nav.SubIndent}"/>
+                <local:DecorativeText x:Name="Number" Style="{StaticResource Blueprint.Number}" Width="40">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0:00}.{1}">
+                            <Binding Path="GroupOrdinal"/>
+                            <Binding Path="Ordinal"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </local:DecorativeText>
+                <TextBlock x:Name="Text" local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                           FontSize="{DynamicResource Fx.Size.NavSub}" FontWeight="Normal"
+                           Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+            </StackPanel>
+        </Button>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <Setter TargetName="Line" Property="Background" Value="{DynamicResource Fx.NavSelectedBrush}"/>
+                <Setter TargetName="Text" Property="Foreground" Value="{DynamicResource Fx.NavSelectedTextBrush}"/>
+                <Setter TargetName="Text" Property="FontWeight" Value="{DynamicResource Fx.Weight.NavSelected}"/>
+                <Setter TargetName="Number" Property="Foreground" Value="{DynamicResource Fx.NavSelectedTextBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- A section: its number in a 22 px circle, its title in capitals, a line running to the right edge; then its rows,
+         indented by Fx.Row.Gap, a hairline under each (Base.Card.OnPage). -->
+    <DataTemplate x:Key="Fx.Section">
+        <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <DockPanel Margin="{DynamicResource Fx.Section.Gap}">
+                <Grid DockPanel.Dock="Left" Width="22" Height="22" Margin="0,0,10,0" VerticalAlignment="Center">
+                    <Ellipse Stroke="{DynamicResource Fx.TextBrush}" StrokeThickness="1"/>
+                    <local:DecorativeText Text="{Binding Ordinal}" FontFamily="{DynamicResource Fx.MonoFont}" FontSize="{DynamicResource Fx.Size.Caption}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource Fx.TextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+                <TextBlock DockPanel.Dock="Left" local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}" Margin="0,0,10,0"
+                           VerticalAlignment="Center" TextWrapping="NoWrap"/>
+                <Border Height="1" VerticalAlignment="Center" Background="{DynamicResource Fx.BorderBrush}"/>
+            </DockPanel>
+            <ContentPresenter Content="{Binding Cards}"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- A slider: "0", the ruler, "100" (the slider's ends), its value in mono, the unit. -->
+    <DataTemplate x:Key="Fx.Card.Slider">
+        <ContentControl Style="{DynamicResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding Min}" Style="{StaticResource Blueprint.Number}" Margin="0,0,8,0"/>
+                <Slider local:Loc.NameKey="{Binding LabelKey}" Width="241" VerticalAlignment="Center" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                        SmallChange="{Binding Step}" LargeChange="{Binding Step}" TickFrequency="{Binding Step}"
+                        IsSnapToTickEnabled="True" Value="{Binding Number, Delay=150}"/>
+                <TextBlock Text="{Binding Max}" Style="{StaticResource Blueprint.Number}" Margin="8,0,0,0"/>
+                <TextBlock Text="{Binding Number, StringFormat=N0}" FontFamily="{DynamicResource Fx.MonoFont}" FontSize="{DynamicResource Fx.Size.Body}"
+                           FontWeight="SemiBold" Foreground="{DynamicResource Fx.ValueTextBrush}" MinWidth="32" TextAlignment="Right"
+                           VerticalAlignment="Center" Margin="12,0,0,0"/>
+                <TextBlock local:Loc.Key="{Binding UnitKey}" Style="{StaticResource Blueprint.Caption}" Margin="4,0,0,0"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
+
+    <!-- A number: centred in its outline, the unit after it in mono capitals. -->
+    <DataTemplate x:Key="Fx.Card.Number">
+        <ContentControl Style="{DynamicResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="58" TextAlignment="Center" Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                         local:CommitOnEnter.Enabled="True"/>
+                <TextBlock local:Loc.Key="{Binding UnitKey}" Style="{StaticResource Blueprint.Caption}" Margin="8,0,0,0"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
+
+    <!-- The profile as a drawing's cell: "PROFILE" in mono capitals over the name in capitals and a chevron; it opens the
+         profile menu under it. -->
+    <DataTemplate x:Key="Fx.Shell.Profile">
+        <StackPanel Margin="4,0,4,6">
+            <TextBlock x:Name="ProfileLabel" local:Loc.Key="L.S.Shell.Profile" Style="{StaticResource Blueprint.Caption}" Margin="0,0,0,3"/>
+            <Button AutomationProperties.Name="{Binding ProfileName}" AutomationProperties.LabeledBy="{Binding ElementName=ProfileLabel}" Cursor="Hand"
+                    FocusVisualStyle="{x:Null}"
+                    Command="{Binding ProfileMenuCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border Background="{DynamicResource Fx.NavBrush}" Padding="0,2">
+                                <DockPanel>
+                                    <Path DockPanel.Dock="Right" VerticalAlignment="Center" Data="M 0 0 L 4 4 L 8 0" Stroke="{DynamicResource Fx.TextBrush}"
+                                          StrokeThickness="1.5"/>
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </Border>
+                            <Border x:Name="Edge" Margin="-2" BorderBrush="{DynamicResource Fx.FocusBrush}" BorderThickness="{DynamicResource Fx.Line.Control}" Visibility="Hidden"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+                <TextBlock Text="{Binding ProfileName}" FontWeight="SemiBold" Foreground="{DynamicResource Fx.NavTextBrush}" TextTrimming="CharacterEllipsis"/>
+            </Button>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- Simple or All settings as a drawing's cell: "SHOWING" in mono capitals over two crossed boxes in capitals. -->
+    <DataTemplate x:Key="Fx.Shell.Mode">
+        <GroupBox local:Loc.NameKey="L.S.Shell.Advanced" Focusable="False" IsTabStop="False" Margin="4,8,4,0">
+            <GroupBox.Template>
+                <ControlTemplate TargetType="GroupBox"><ContentPresenter/></ControlTemplate>
+            </GroupBox.Template>
+            <StackPanel>
+                <TextBlock local:Loc.Key="L.S.Shell.Showing" Style="{StaticResource Blueprint.Caption}" Margin="0,0,0,4"/>
+                <WrapPanel>
+                    <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsSimple}" Margin="0,0,16,0">
+                        <TextBlock local:Loc.Key="L.S.Shell.Simple" FontSize="{DynamicResource Fx.Size.Desc}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                    </RadioButton>
+                    <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsAdvanced}">
+                        <TextBlock local:Loc.Key="L.S.Nav.AllSettings" FontSize="{DynamicResource Fx.Size.Desc}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                    </RadioButton>
+                </WrapPanel>
+            </StackPanel>
+        </GroupBox>
+    </DataTemplate>
+</ResourceDictionary>

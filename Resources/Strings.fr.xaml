@@ -754,6 +754,7 @@
     <sys:String x:Key="L.S.Search.Placeholder">Rechercher un paramètre</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Profil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Aide pour cette page</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Showing">Affichage</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Afficher tous les paramètres</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Simple">Simple</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Retry">Réessayer</sys:String> <!-- draft -->

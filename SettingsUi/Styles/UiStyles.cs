@@ -101,12 +101,15 @@ public static class UiStyles
     /// colours instead (Task 6, SystemContrast).</summary>
     public static UiStyle Contrast { get; } = new("contrast", usesFluent: false, () => new ContrastStyle());
 
+    /// <summary>A technical drawing on blue (spec §7.9).</summary>
+    public static UiStyle Blueprint { get; } = new("blueprint", usesFluent: false, () => new BlueprintStyle());
+
     /// <summary>Dark and sharp, like the game (spec §7.3).</summary>
     public static UiStyle Capsule { get; } = new("capsule", usesFluent: false, () => new CapsuleStyle());
 
     /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2); the looks of S3 and S4 in the
     /// order they landed.</summary>
-    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon, Carbon, Capsule, Contrast };
+    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon, Carbon, Capsule, Contrast, Blueprint };
 
     /// <summary>The look with this id; a missing, empty or unknown id gives Classic, the default (spec §10).</summary>
     public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Classic;

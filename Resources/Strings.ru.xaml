@@ -771,6 +771,7 @@
     <sys:String x:Key="L.S.Search.Placeholder">Найти настройку</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Профиль</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Справка по этой странице</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Showing">Показ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Показать все настройки</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Simple">Простой</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Retry">Повторить</sys:String> <!-- draft -->

@@ -769,6 +769,7 @@
     <sys:String x:Key="L.S.Search.Placeholder">查找设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">配置文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">本页帮助</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Showing">显示</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">显示所有设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Simple">简单</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Retry">重试</sys:String> <!-- draft -->
