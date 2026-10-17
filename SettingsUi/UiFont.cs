@@ -26,11 +26,13 @@ public static class UiFont
     /// <summary>A family the app carries: its source names where its files are ("…/#Figtree").</summary>
     public static bool IsBundled(FontFamily family) => family.Source.Contains('#');
 
-    /// <summary>The chain of a look's family for a language (spec §13).</summary>
-    public static FontFamily Chain(FontFamily family, string lang)
+    /// <summary>The chain of a look's family for a language (spec §13). <paramref name="own"/>: a family of Windows the look
+    /// takes as its own typeface (Look.OwnFamily: Terminal's Cascadia Mono) is chained as a carried one, so its Latin, digits
+    /// and the grid's characters stay in it and only the language's characters come from the language's family.</summary>
+    public static FontFamily Chain(FontFamily family, string lang, bool own = false)
     {
         if (Cjk(lang) is not { } cjk) return family;
-        return IsBundled(family) ? new FontFamily(family.BaseUri, family.Source + ", " + cjk + ", Segoe UI") : new FontFamily(cjk);
+        return IsBundled(family) || own ? new FontFamily(family.BaseUri, family.Source + ", " + cjk + ", Segoe UI") : new FontFamily(cjk);
     }
 
     private sealed record Written(FontFamily Font, FontFamily Title, FontFamily Mono, FontStyle TitleStyle);
@@ -45,10 +47,12 @@ public static class UiFont
     {
         var written = Originals.GetValue(look, d => new Written((FontFamily)d["Fx.Font"], (FontFamily)d["Fx.TitleFont"],
             (FontFamily)d["Fx.MonoFont"], (FontStyle)d["Fx.Style.Title"]));
-        Set(look, "Fx.Font", Chain(written.Font, lang));
-        Set(look, "Fx.TitleFont", Chain(written.Title, lang));
-        // A key-label font of Windows' own stays as the look wrote it in every language, as before S3.
-        Set(look, "Fx.MonoFont", IsBundled(written.Mono) ? Chain(written.Mono, lang) : written.Mono);
+        bool own = look.Contains("Look.OwnFamily") && look["Look.OwnFamily"] is true;
+        Set(look, "Fx.Font", Chain(written.Font, lang, own));
+        Set(look, "Fx.TitleFont", Chain(written.Title, lang, own));
+        // A key-label font of Windows' own stays as the look wrote it in every language, as before S3, unless the look
+        // takes it as its own typeface (Terminal).
+        Set(look, "Fx.MonoFont", IsBundled(written.Mono) || own ? Chain(written.Mono, lang, own) : written.Mono);
         Set(look, "Fx.Style.Title", Cjk(lang) != null ? FontStyles.Normal : written.TitleStyle);
     }
 

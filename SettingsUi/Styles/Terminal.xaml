@@ -128,6 +128,8 @@
     <Visibility x:Key="Look.TopLine">Collapsed</Visibility>
     <sys:Double x:Key="Look.BoxColumn">38.4</sys:Double>
     <sys:Double x:Key="Terminal.Cell">9.6</sys:Double>
+    <!-- Its family of Windows is its own typeface: in Chinese, Japanese and Korean it stays first (UiFont.Chain). -->
+    <sys:Boolean x:Key="Look.OwnFamily">True</sys:Boolean>
     <sys:Double x:Key="Terminal.SliderWidth">192</sys:Double>
     <Thickness x:Key="Terminal.BoxPad">9.6,0,0,0</Thickness>
     <Thickness x:Key="Terminal.TagPad">4.8,0,4.8,0</Thickness>
