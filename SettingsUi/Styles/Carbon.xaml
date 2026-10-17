@@ -175,8 +175,8 @@
         <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
             <Border BorderBrush="{DynamicResource Fx.ControlEdgeBrush}" BorderThickness="{DynamicResource Fx.Line.Row}" Padding="0,0,0,3">
                 <DockPanel>
-                    <TextBlock DockPanel.Dock="Left" Text="// " Style="{DynamicResource Fx.SectionTitle}" Foreground="{DynamicResource Fx.LinkBrush}"
-                               FontStyle="{DynamicResource Fx.Style.Title}"/>
+                    <local:DecorativeText DockPanel.Dock="Left" Text="// " Style="{DynamicResource Fx.SectionTitle}" Foreground="{DynamicResource Fx.LinkBrush}"
+                                          FontStyle="{DynamicResource Fx.Style.Title}"/>
                     <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}" FontStyle="{DynamicResource Fx.Style.Title}"/>
                 </DockPanel>
             </Border>
@@ -240,20 +240,27 @@
         </Button>
     </DataTemplate>
 
-    <!-- Simple or All settings: two slanted tabs in capitals, the picked one red. -->
+    <!-- Simple or All settings: two slanted tabs in capitals, the picked one red; they share the pane's width and a long word
+         in a translation wraps inside its tab (the pane is 216 px wide; "ALLE EINSTELLUNGEN" and "ВСЕ НАСТРОЙКИ" do not fit on a line). -->
     <DataTemplate x:Key="Fx.Shell.Mode">
-        <GroupBox local:Loc.NameKey="L.S.Shell.Advanced" Focusable="False" IsTabStop="False" HorizontalAlignment="Left" Margin="2,6,0,0">
+        <GroupBox local:Loc.NameKey="L.S.Shell.Advanced" Focusable="False" IsTabStop="False" Margin="2,6,0,0">
             <GroupBox.Template>
                 <ControlTemplate TargetType="GroupBox"><ContentPresenter/></ControlTemplate>
             </GroupBox.Template>
-            <StackPanel Orientation="Horizontal">
-                <RadioButton GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment.Slant}" IsChecked="{Binding IsSimple}" Margin="0,0,2,0">
-                    <TextBlock local:Loc.Key="L.S.Shell.Simple" local:Loc.Case="{DynamicResource Fx.Case.Title}" FontStyle="{DynamicResource Fx.Style.Title}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <RadioButton Grid.Column="0" GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment.Slant}" IsChecked="{Binding IsSimple}" Margin="0,0,2,0">
+                    <TextBlock local:Loc.Key="L.S.Shell.Simple" local:Loc.Case="{DynamicResource Fx.Case.Title}" FontStyle="{DynamicResource Fx.Style.Title}"
+                               TextWrapping="Wrap" TextAlignment="Center"/>
                 </RadioButton>
-                <RadioButton GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment.Slant}" IsChecked="{Binding IsAdvanced}">
-                    <TextBlock local:Loc.Key="L.S.Nav.AllSettings" local:Loc.Case="{DynamicResource Fx.Case.Title}" FontStyle="{DynamicResource Fx.Style.Title}"/>
+                <RadioButton Grid.Column="1" GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment.Slant}" IsChecked="{Binding IsAdvanced}">
+                    <TextBlock local:Loc.Key="L.S.Nav.AllSettings" local:Loc.Case="{DynamicResource Fx.Case.Title}" FontStyle="{DynamicResource Fx.Style.Title}"
+                               TextWrapping="Wrap" TextAlignment="Center"/>
                 </RadioButton>
-            </StackPanel>
+            </Grid>
         </GroupBox>
     </DataTemplate>
 </ResourceDictionary>
