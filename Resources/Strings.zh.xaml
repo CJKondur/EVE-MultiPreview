@@ -890,6 +890,11 @@
     <sys:String x:Key="L.S.app.about.useOldWindow">使用旧版设置窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.about.useOldWindow.Desc">回到之前的设置窗口。它将在以后的版本中移除。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.about.useOldWindow.Toast">完成。下次打开设置时将使用你选择的设置窗口。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.about.fonts">字体</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts">外观的字体</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Desc">MultiPreview 为它的外观自带这些字体。每种字体都依据 SIL Open Font License 1.1 免费使用，许可证文本随字体附带。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Show">显示许可证</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Hide">隐藏许可证</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.Checking">正在检查更新…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.UpToDate">已是最新版本（{0}）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.CheckFailed">无法检查更新：{0}</sys:String> <!-- draft -->
@@ -898,6 +903,8 @@
     <sys:String x:Key="L.Help.app.about.updates.Body">除非你关闭，MultiPreview 启动时会到 GitHub 检查是否有新版本。**检查更新**会立即检查。&#x0A;&#x0A;**安装指定版本**会列出所有版本。安装旧版本会关闭启动时的检查，以免它马上又提示更新回去。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Title">旧版设置窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">旧版设置窗口暂时仍然可用。打开**使用旧版设置窗口**，然后重新打开设置即可使用。在旧窗口中，点击**使用新的设置窗口**即可回来。旧窗口将在以后的版本中移除。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.fonts.Title">字体</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.fonts.Body">有些外观使用自己的字体显示文字。MultiPreview 自带这些字体，不会在你的电脑上安装任何东西。每种字体都依据 SIL Open Font License 1.1 免费使用：**显示许可证**会在这里显示它的文本。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">使用新的设置窗口。下次打开设置时生效。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview 无法使用此按键，请换一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Use.Character">切换到 {0}</sys:String> <!-- draft -->

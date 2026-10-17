@@ -872,6 +872,11 @@
     <sys:String x:Key="L.S.app.about.useOldWindow">Altes Einstellungsfenster verwenden</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.about.useOldWindow.Desc">Zurück zum früheren Einstellungsfenster. Es wird in einer späteren Version entfernt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.about.useOldWindow.Toast">Erledigt. Das gewählte Einstellungsfenster öffnet sich beim nächsten Öffnen der Einstellungen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.about.fonts">Schriftarten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts">Schriftarten des Aussehens</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Desc">MultiPreview bringt diese Schriftarten für sein Aussehen mit. Jede ist frei unter der SIL Open Font License 1.1, deren Text ihr beiliegt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Show">Lizenz anzeigen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Hide">Lizenz ausblenden</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.Checking">Suche nach Updates…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.UpToDate">Du bist auf dem neuesten Stand ({0}).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.CheckFailed">Updates konnten nicht geprüft werden: {0}</sys:String> <!-- draft -->
@@ -880,6 +885,8 @@
     <sys:String x:Key="L.Help.app.about.updates.Body">MultiPreview prüft beim Start auf GitHub, ob es eine neue Version gibt, außer du schaltest das aus. **Nach Updates suchen** prüft sofort.&#x0A;&#x0A;**Bestimmte Version installieren** listet alle Versionen. Beim Installieren einer älteren wird die Prüfung beim Start ausgeschaltet, damit nicht gleich wieder ein Update angeboten wird.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Title">Das alte Einstellungsfenster</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">Das frühere Einstellungsfenster bleibt vorerst verfügbar. Schalte **Altes Einstellungsfenster verwenden** ein und öffne die Einstellungen neu. Im alten Fenster bringt dich **Neues Einstellungsfenster verwenden** zurück. Das alte Fenster wird in einer späteren Version entfernt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.fonts.Title">Schriftarten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.fonts.Body">Manches Aussehen zeigt seinen Text in einer eigenen Schriftart. MultiPreview bringt diese Schriftarten selbst mit, auf deinem PC wird nichts installiert. Jede ist frei unter der SIL Open Font License 1.1: **Lizenz anzeigen** zeigt hier ihren Text.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">Neues Einstellungsfenster verwenden. Wirkt beim nächsten Öffnen der Einstellungen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview kann diese Taste nicht verwenden. Wähle eine andere.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Use.Character">Zu {0} wechseln</sys:String> <!-- draft -->

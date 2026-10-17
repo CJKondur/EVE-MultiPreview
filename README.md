@@ -189,6 +189,8 @@ A copy you build and run uses the same `%APPDATA%\EVE MultiPreview` folder as yo
 
 EVE MultiPreview builds on their work with a full C#/WPF rewrite and additional features.
 
+**The looks' typefaces:** Barlow, IBM Plex Sans, IBM Plex Mono, Figtree, Rubik, Overpass, Overpass Mono, Saira, Saira Condensed, DM Sans and Archivo, each free under the SIL Open Font License 1.1 and carried unchanged. App settings › About › Fonts shows each one's licence.
+
 ---
 
 ## License

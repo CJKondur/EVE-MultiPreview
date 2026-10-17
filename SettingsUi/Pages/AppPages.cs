@@ -30,6 +30,7 @@ public static class AppPages
         new HelpTopic("app.profiles", "backups", new[] { "app.profiles.backup" }),
         new HelpTopic("app.about", "updates", new[] { "app.about.links", "app.about.checkOnStartup", "app.about.preRelease", "app.about.installVersion" }),
         new HelpTopic("app.about", "window", new[] { "app.about.useOldWindow" }),
+        new HelpTopic("app.about", "fonts", new[] { FontLicencesEditor.ItemId }),
     };
 
     private static PageDef General() => new("app.general", NavGroup.App, new[]
@@ -124,6 +125,11 @@ public static class AppPages
             {
                 OnChanged = ctx => ctx.Host.Toast(SettingsContext.Str("L.S.app.about.useOldWindow.Toast")),
             }),
+        }),
+        // UI styles spec §11.1: the typefaces the looks carry, and their licences.
+        new SectionDef("app.about.fonts", new PageItem[]
+        {
+            new EditorItem(FontLicencesEditor.ItemId, _ => new FontLicencesEditor()),
         }),
     });
 

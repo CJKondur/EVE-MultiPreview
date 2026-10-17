@@ -866,6 +866,11 @@
     <sys:String x:Key="L.S.app.about.useOldWindow">Use the old settings window</sys:String>
     <sys:String x:Key="L.S.app.about.useOldWindow.Desc">Go back to the previous settings window. It will be removed in a later release.</sys:String>
     <sys:String x:Key="L.S.app.about.useOldWindow.Toast">Done. The settings window you picked opens the next time you open settings.</sys:String>
+    <sys:String x:Key="L.S.Sec.app.about.fonts">Fonts</sys:String>
+    <sys:String x:Key="L.S.app.about.fonts">Typefaces of the looks</sys:String>
+    <sys:String x:Key="L.S.app.about.fonts.Desc">MultiPreview carries these typefaces for its looks. Each is free under the SIL Open Font License 1.1, whose text comes with it.</sys:String>
+    <sys:String x:Key="L.S.app.about.fonts.Show">Show the licence</sys:String>
+    <sys:String x:Key="L.S.app.about.fonts.Hide">Hide the licence</sys:String>
     <sys:String x:Key="L.S.About.Checking">Checking for updates…</sys:String>
     <sys:String x:Key="L.S.About.UpToDate">You're up to date ({0}).</sys:String>
     <sys:String x:Key="L.S.About.CheckFailed">Couldn't check for updates: {0}</sys:String>
@@ -874,6 +879,8 @@
     <sys:String x:Key="L.Help.app.about.updates.Body">MultiPreview checks GitHub for a new release when it starts, unless you turn that off. **Check for updates** checks right now.&#x0A;&#x0A;**Install a specific version** lists every release. Installing an older one turns off the startup check, so it doesn't offer to update straight back.</sys:String>
     <sys:String x:Key="L.Help.app.about.window.Title">The old settings window</sys:String>
     <sys:String x:Key="L.Help.app.about.window.Body">The previous settings window stays available for now. Turn on **Use the old settings window**, then reopen settings to use it. In the old window, **Use the new settings window** brings you back. The old window will be removed in a later release.</sys:String>
+    <sys:String x:Key="L.Help.app.about.fonts.Title">Fonts</sys:String>
+    <sys:String x:Key="L.Help.app.about.fonts.Body">Some looks draw their text in a typeface of their own. MultiPreview carries these typefaces itself, so nothing is installed on your PC. Each is free under the SIL Open Font License 1.1: **Show the licence** shows its text here.</sys:String>
     <sys:String x:Key="L.S.Old.TryNewWindow">Use the new settings window. Takes effect the next time you open settings.</sys:String>
     <!-- Hotkey capture (Plan 3a): keys MultiPreview can't use; labels for keys that aren't cards -->
     <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview can't use this key. Pick another one.</sys:String>

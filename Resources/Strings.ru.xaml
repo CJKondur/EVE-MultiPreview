@@ -892,6 +892,11 @@
     <sys:String x:Key="L.S.app.about.useOldWindow">Использовать старое окно настроек</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.about.useOldWindow.Desc">Вернуться к прежнему окну настроек. В одном из следующих выпусков оно будет удалено.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.about.useOldWindow.Toast">Готово. Выбранное окно настроек откроется при следующем открытии настроек.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.about.fonts">Шрифты</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts">Шрифты оформлений</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Desc">MultiPreview содержит эти шрифты для своих оформлений. Каждый свободен по лицензии SIL Open Font License 1.1, текст которой прилагается к нему.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Show">Показать лицензию</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Hide">Скрыть лицензию</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.Checking">Проверка обновлений…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.UpToDate">У вас последняя версия ({0}).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.CheckFailed">Не удалось проверить обновления: {0}</sys:String> <!-- draft -->
@@ -900,6 +905,8 @@
     <sys:String x:Key="L.Help.app.about.updates.Body">При запуске MultiPreview проверяет на GitHub, есть ли новая версия, если вы это не отключили. **Проверить обновления** проверяет прямо сейчас.&#x0A;&#x0A;**Установить конкретную версию** показывает все релизы. Установка старой версии отключает проверку при запуске, чтобы она сразу не предлагала обновиться обратно.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Title">Старое окно настроек</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">Прежнее окно настроек пока остаётся доступным. Включите **Использовать старое окно настроек** и откройте настройки заново. В старом окне вернуться сюда можно флажком **Использовать новое окно настроек**. Старое окно будет удалено в одной из следующих версий.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.fonts.Title">Шрифты</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.fonts.Body">Некоторые оформления показывают текст своим шрифтом. MultiPreview содержит эти шрифты сам, поэтому на ваш компьютер ничего не устанавливается. Каждый свободен по лицензии SIL Open Font License 1.1: **Показать лицензию** показывает её текст здесь.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">Использовать новое окно настроек. Вступит в силу при следующем открытии настроек.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview не может использовать эту клавишу. Выберите другую.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Use.Character">Переключиться на {0}</sys:String> <!-- draft -->

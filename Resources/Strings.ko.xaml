@@ -873,6 +873,11 @@
     <sys:String x:Key="L.S.app.about.useOldWindow">이전 설정 창 사용</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.about.useOldWindow.Desc">이전 설정 창으로 돌아갑니다. 이후 릴리스에서 제거될 예정입니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.about.useOldWindow.Toast">완료되었습니다. 선택한 설정 창은 다음에 설정을 열 때 표시됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.about.fonts">글꼴</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts">모양의 글꼴</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Desc">MultiPreview는 모양을 위해 이 글꼴들을 함께 담고 있어요. 각 글꼴은 SIL Open Font License 1.1에 따라 자유롭게 쓸 수 있고, 그 전문이 함께 들어 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Show">라이선스 보기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.fonts.Hide">라이선스 숨기기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.Checking">업데이트 확인 중…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.UpToDate">최신 버전입니다({0}).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.About.CheckFailed">업데이트를 확인하지 못했습니다: {0}</sys:String> <!-- draft -->
@@ -881,6 +886,8 @@
     <sys:String x:Key="L.Help.app.about.updates.Body">끄지 않으면 MultiPreview는 시작할 때 GitHub에서 새 릴리스를 확인합니다. **업데이트 확인**은 바로 확인합니다.&#x0A;&#x0A;**특정 버전 설치**는 모든 릴리스를 보여 줍니다. 이전 버전을 설치하면 시작 시 확인이 꺼져서, 곧바로 다시 업데이트하라는 안내가 뜨지 않습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Title">이전 설정 창</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">이전 설정 창은 당분간 계속 쓸 수 있습니다. **이전 설정 창 사용**을 켜고 설정을 다시 여세요. 이전 창에서는 **새 설정 창 사용**으로 돌아올 수 있습니다. 이전 창은 이후 버전에서 제거됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.fonts.Title">글꼴</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.fonts.Body">어떤 모양은 자기만의 글꼴로 글자를 보여 줘요. MultiPreview가 이 글꼴들을 직접 담고 있어서 PC에는 아무것도 설치되지 않아요. 각 글꼴은 SIL Open Font License 1.1에 따라 자유롭게 쓸 수 있어요. **라이선스 보기**를 누르면 그 전문이 여기에 나와요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Old.TryNewWindow">새 설정 창 사용. 다음에 설정을 열 때부터 적용됩니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Hotkey.Unusable">MultiPreview에서 이 키를 사용할 수 없습니다. 다른 키를 선택하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Use.Character">{0}(으)로 전환</sys:String> <!-- draft -->
