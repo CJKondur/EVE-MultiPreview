@@ -80,8 +80,11 @@ public static class UiStyles
     /// <summary>Soft slate-violet, rounded (spec §7.11).</summary>
     public static UiStyle Dusk { get; } = new("dusk", usesFluent: false, () => new DuskStyle());
 
+    /// <summary>Dense rows, no cards (spec §7.4).</summary>
+    public static UiStyle Compact { get; } = new("compact", usesFluent: false, () => new CompactStyle());
+
     /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2). S3 and S4 add the others.</summary>
-    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk };
+    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact };
 
     /// <summary>The look with this id; a missing, empty or unknown id gives Classic, the default (spec §10).</summary>
     public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Classic;

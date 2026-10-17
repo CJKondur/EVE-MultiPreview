@@ -38,9 +38,15 @@ public static class Loc
     private static readonly DependencyProperty RawTextProperty = DependencyProperty.RegisterAttached(
         "RawText", typeof(string), typeof(Loc), new PropertyMetadata(null, OnRawTextChanged));
 
+    /// <summary>Set while the case put the words as written into AutomationProperties.Name (a screen reader would spell a
+    /// word in capitals), so the case takes back only a name it gave.</summary>
+    private static readonly DependencyProperty NamedByCaseProperty = DependencyProperty.RegisterAttached(
+        "NamedByCase", typeof(bool), typeof(Loc), new PropertyMetadata(false));
+
     private static void OnNameKeyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is not FrameworkElement fe) return;
+        fe.ClearValue(NamedByCaseProperty);
         if (e.NewValue is string key && key.Length > 0) fe.SetResourceReference(AutomationProperties.NameProperty, key);
         else fe.ClearValue(AutomationProperties.NameProperty);
     }
@@ -66,6 +72,11 @@ public static class Loc
             return;
         }
         d.ClearValue(RawTextProperty);
+        if (d.GetValue(NamedByCaseProperty) is true)
+        {
+            d.ClearValue(AutomationProperties.NameProperty);
+            d.ClearValue(NamedByCaseProperty);
+        }
         var target = d switch
         {
             TextBlock => TextBlock.TextProperty,
@@ -81,15 +92,23 @@ public static class Loc
 
     private static void OnRawTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is TextBlock text && GetCase(text) == TextCase.Upper) text.Text = Upper(e.NewValue as string);
+        if (d is not TextBlock text || GetCase(text) != TextCase.Upper) return;
+        text.Text = Upper(e.NewValue as string);
+        // A screen reader reads the words as written. A name of the text's own (NameKey) stays.
+        if (text.GetValue(NamedByCaseProperty) is true || DependencyPropertyHelper.GetValueSource(text, AutomationProperties.NameProperty).BaseValueSource == BaseValueSource.Default)
+        {
+            text.SetValue(AutomationProperties.NameProperty, e.NewValue as string ?? "");
+            text.SetValue(NamedByCaseProperty, true);
+        }
     }
 
-    /// <summary>Capitals by the rules of the UI language (Turkish "i" is "İ"); Chinese, Japanese and Korean have none.</summary>
+    /// <summary>Capitals by the rules of the UI language (Turkish "i" is "İ"); Chinese, Japanese and Korean have none.
+    /// German "ß" has no capital in the language's own rules (.NET leaves it as it is): it is written "SS".</summary>
     public static string Upper(string? text)
     {
         CultureInfo culture;
         try { culture = CultureInfo.GetCultureInfo(LocalizationService.CurrentLanguage); }
         catch (CultureNotFoundException) { culture = CultureInfo.InvariantCulture; }
-        return (text ?? "").ToUpper(culture);
+        return (text ?? "").ToUpper(culture).Replace("ß", "SS");
     }
 }
