@@ -123,7 +123,11 @@
 
     <!-- ═══ The values the shared parts read ═══ -->
     <Visibility x:Key="Look.PaneLine">Visible</Visibility>
-    <Visibility x:Key="Look.TopLine">Collapsed</Visibility>
+    <!-- A 1 px line along the window's top in the accent at 78 % over the pane (#6E93A6 in the mock-up), and a grip. -->
+    <Visibility x:Key="Look.TopLine">Visible</Visibility>
+    <sys:Double x:Key="Look.TopLine.Height">1</sys:Double>
+    <sys:Double x:Key="Look.TopLine.Opacity">0.78</sys:Double>
+    <Visibility x:Key="Look.Grip">Visible</Visibility>
     <sys:Double x:Key="Look.BoxColumn">24</sys:Double>
     <!-- A round "?" 22 px, outline only, its glyph in the note colour. -->
     <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Help.Round}">
@@ -190,8 +194,8 @@
     </Style>
 
     <!-- A panel's header bar: 28 high on the header colour, a triangle that points down while the panel is open and right
-         while it is folded, the title. It folds the panel (owner decision O19). Keyboard focus draws its edge in the focus
-         colour. -->
+         while it is folded, the title, and a critical-colour square at the right while a row of the panel shows an error. It
+         folds the panel (owner decision O19; Space or Enter). Keyboard focus draws its edge in the focus colour. -->
     <Style x:Key="Capsule.Fold" TargetType="ToggleButton">
         <Setter Property="Foreground" Value="{DynamicResource Fx.SectionTextBrush}"/>
         <Setter Property="Background" Value="{DynamicResource Fx.HeaderBrush}"/>
@@ -200,12 +204,15 @@
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="KeyboardNavigation.AcceptsReturn" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
                     <Grid>
                         <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                             <DockPanel>
+                                <Rectangle x:Name="ErrorMark" DockPanel.Dock="Right" Width="8" Height="8" Margin="8,0,0,0" VerticalAlignment="Center"
+                                           Fill="{DynamicResource Fx.CriticalBrush}" Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
                                 <Path x:Name="Twisty" DockPanel.Dock="Left" Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center" Stretch="None"
                                       Fill="{DynamicResource Fx.TextSecondaryBrush}" Data="M 2 0 L 7 4 L 2 8 Z"/>
                                 <ContentPresenter VerticalAlignment="Center"/>
@@ -232,9 +239,9 @@
         <Border Margin="{DynamicResource Fx.Section.Gap}" Background="{DynamicResource Fx.CardBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}"
                 BorderThickness="{DynamicResource Fx.Line.Card}" Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
             <StackPanel>
-                <ToggleButton x:Name="Fold" Style="{StaticResource Capsule.Fold}" IsChecked="{Binding IsOpen}" local:Loc.NameKey="{Binding TitleKey}">
+                <local:FoldToggle x:Name="Fold" Style="{StaticResource Capsule.Fold}" IsChecked="{Binding IsOpen}" local:Loc.NameKey="{Binding TitleKey}">
                     <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}" Margin="0"/>
-                </ToggleButton>
+                </local:FoldToggle>
                 <ContentPresenter Content="{Binding Cards}" Margin="10,6,10,8"
                                   Visibility="{Binding IsOpen, Converter={StaticResource Fx.BoolToVis}}"/>
             </StackPanel>
@@ -313,4 +320,129 @@
             </Border>
         </GroupBox>
     </DataTemplate>
+
+    <!-- The table: in a darker inset with a line around it; its head row 24 high on the header colour with a line between
+         its columns (Look.Table.HeadCell: a line on each head cell's left, over the table's own line for the first); each
+         other row 28 high with a line above it. The inset's colour is not a token (spec §7.3). -->
+    <Style x:Key="Fx.Table" TargetType="Border">
+        <Setter Property="Background" Value="#FF12161A"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Card}"/>
+        <Setter Property="Margin" Value="0,6,0,2"/>
+    </Style>
+    <Style x:Key="Fx.Table.Header" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Fx.HeaderBrush}"/>
+        <Setter Property="MinHeight" Value="24"/>
+    </Style>
+    <Style x:Key="Fx.Table.Row" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="MinHeight" Value="28"/>
+    </Style>
+    <Style x:Key="Look.Table.HeadCell" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.ControlEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="1,0,0,0"/>
+        <Setter Property="Margin" Value="-1,0,0,0"/>
+    </Style>
+
+    <!-- A severity: an 8 px square in its colour, and the word in the text colour. -->
+    <DataTemplate x:Key="Look.Severity">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Rectangle x:Name="Mark" Width="8" Height="8" Margin="0,0,7,0" VerticalAlignment="Center" Fill="{DynamicResource Fx.InfoBrush}"/>
+            <TextBlock x:Name="Word" local:Loc.Key="L.S.Sev.info" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding}" Value="critical">
+                <Setter TargetName="Mark" Property="Fill" Value="{DynamicResource Fx.CriticalBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.critical"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="warning">
+                <Setter TargetName="Mark" Property="Fill" Value="{DynamicResource Fx.WarningBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.warning"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- A group: a triangle twisty that turns down while it is open, its icon in the note colour, its name; its pages under it. -->
+    <DataTemplate x:Key="Fx.Nav.Group">
+        <StackPanel>
+            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="8,0,10,0">
+                <StackPanel Orientation="Horizontal">
+                    <Path x:Name="Twisty" Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center" Stretch="None"
+                          Fill="{DynamicResource Fx.NavTextSecondaryBrush}" Data="M 2 0 L 7 4 L 2 8 Z"/>
+                    <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource Fx.IconFont}" Visibility="{DynamicResource Fx.Nav.Icons}"
+                               Foreground="{DynamicResource Fx.IconBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                               FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                               Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                </StackPanel>
+            </Button>
+            <ItemsControl ItemsSource="{Binding Pages}" Focusable="False" ItemTemplate="{DynamicResource Fx.Nav.Page}"
+                          Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}"/>
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                <Setter TargetName="Twisty" Property="Data" Value="M 0 2 L 8 2 L 4 7 Z"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- A page of a group: indented by Fx.Nav.SubIndent, in the note colour; the open page on the lighter surface with a
+         2 px accent edge on its left and white text. -->
+    <DataTemplate x:Key="Fx.Nav.Page">
+        <Grid>
+            <Button x:Name="Line" Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="0,0,10,0" Margin="0"
+                    MinHeight="{DynamicResource Fx.Nav.SubItemHeight}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Left" Width="{DynamicResource Fx.Nav.SubIndent}"/>
+                    <TextBlock x:Name="Text" local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                               FontSize="{DynamicResource Fx.Size.NavSub}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                               Foreground="{DynamicResource Fx.NavTextSecondaryBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                </DockPanel>
+            </Button>
+            <Border x:Name="OpenEdge" Width="2" HorizontalAlignment="Left" Background="{DynamicResource Fx.NavMarkBrush}" Visibility="Collapsed"
+                    IsHitTestVisible="False"/>
+        </Grid>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <Setter TargetName="OpenEdge" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="Line" Property="Background" Value="{DynamicResource Fx.NavSelectedBrush}"/>
+                <Setter TargetName="Text" Property="Foreground" Value="{DynamicResource Fx.NavSelectedTextBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- The profile: the label "Profile" over a dropdown box with the profile's name; it opens the profile menu under it. -->
+    <DataTemplate x:Key="Fx.Shell.Profile">
+        <StackPanel>
+            <TextBlock x:Name="ProfileLabel" local:Loc.Key="L.S.Shell.Profile" Style="{DynamicResource Fx.Desc}" Margin="0,0,0,3"
+                       Foreground="{DynamicResource Fx.NavTextSecondaryBrush}"/>
+            <Button AutomationProperties.Name="{Binding ProfileName}" AutomationProperties.LabeledBy="{Binding ElementName=ProfileLabel}" Cursor="Hand"
+                    FocusVisualStyle="{x:Null}"
+                    Command="{Binding ProfileMenuCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid MinHeight="26">
+                            <Border x:Name="Box" Background="{DynamicResource Fx.ControlBrush}" BorderBrush="{DynamicResource Fx.ControlEdgeBrush}"
+                                    BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.Radius.Control}"/>
+                            <ContentPresenter Margin="8,0,24,0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <Path HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,9,0" Data="M 0 0 L 4 4 L 8 0"
+                                  Stroke="{DynamicResource Fx.TextSecondaryBrush}" StrokeThickness="1.5"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+                <TextBlock Text="{Binding ProfileName}" Foreground="{DynamicResource Fx.TextBrush}" TextTrimming="CharacterEllipsis"/>
+            </Button>
+        </StackPanel>
+    </DataTemplate>
+
 </ResourceDictionary>

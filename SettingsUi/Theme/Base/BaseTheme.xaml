@@ -1,6 +1,7 @@
 <ResourceDictionary x:Class="EveMultiPreview.SettingsUi.BaseTheme"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
                     xmlns:local="clr-namespace:EveMultiPreview.SettingsUi">
 
     <!-- The base of every look (UI styles spec §5.1): each template and style once, written against the tokens of the
@@ -979,7 +980,8 @@
                 <ColumnDefinition Width="{Binding HelpWidth, RelativeSource={RelativeSource TemplatedParent}}"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.ColumnSpan="4" Height="3" Background="{DynamicResource Fx.AccentBrush}" Visibility="{DynamicResource Look.TopLine}"/>
+            <Border Grid.ColumnSpan="4" Height="{DynamicResource Look.TopLine.Height}" Opacity="{DynamicResource Look.TopLine.Opacity}"
+                    Background="{DynamicResource Fx.AccentBrush}" Visibility="{DynamicResource Look.TopLine}"/>
 
             <Border Grid.Row="1" Grid.Column="0" Width="{DynamicResource Fx.Nav.Width}" Background="{DynamicResource Fx.NavBrush}">
                 <DockPanel Margin="10,12">
@@ -1039,6 +1041,11 @@
 
             <ContentControl Grid.Row="1" Grid.Column="3" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Help}"
                             Focusable="False" IsTabStop="False"/>
+
+            <!-- A resize grip, drawn (Look.Grip): the window's own edge resizes it. -->
+            <Path x:Name="Grip" Grid.Row="1" Grid.ColumnSpan="4" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,2,2"
+                  Data="M 9,3 L 3,9 M 9,6 L 6,9" Stroke="{DynamicResource Fx.TextDisabledBrush}" StrokeThickness="1"
+                  IsHitTestVisible="False" Visibility="{DynamicResource Look.Grip}"/>
         </Grid>
     </ControlTemplate>
 
@@ -1188,4 +1195,10 @@
     <!-- The border behind a cell of a table's header row (EditorTable): as any row's cell, nothing. A look with lines
          between the header's columns only draws them here. -->
     <Style x:Key="Look.Table.HeadCell" TargetType="Border"/>
+
+    <!-- The flat looks' pane shell (Base.Shell.Pane): its accent line along the window's top is 3 px and opaque, and it
+         has no grip, unless a look says otherwise (Capsule). -->
+    <sys:Double x:Key="Look.TopLine.Height">3</sys:Double>
+    <sys:Double x:Key="Look.TopLine.Opacity">1</sys:Double>
+    <Visibility x:Key="Look.Grip">Collapsed</Visibility>
 </ResourceDictionary>

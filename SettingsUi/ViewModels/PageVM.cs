@@ -6,7 +6,11 @@ namespace EveMultiPreview.SettingsUi;
 
 public sealed class SectionVM : ObservableObject
 {
-    public SectionVM(SectionDef def, IReadOnlyList<ItemVM> items, int ordinal = 0) { Def = def; Items = items; Ordinal = ordinal; }
+    public SectionVM(SectionDef def, IReadOnlyList<ItemVM> items, int ordinal = 0)
+    {
+        Def = def; Items = items; Ordinal = ordinal;
+        foreach (var item in items) item.PropertyChanged += (_, _) => CheckErrors();
+    }
     public SectionDef Def { get; }
     /// <summary>The section's place on its page, from 1 (spec §5.4).</summary>
     public int Ordinal { get; }
@@ -28,6 +32,21 @@ public sealed class SectionVM : ObservableObject
     /// <summary>Open, or folded by a look whose sections fold (Capsule, UI styles plan S4). Not saved (spec O19): the
     /// window opens a page with its sections open, and a search hit opens its section.</summary>
     public bool IsOpen { get => _open; set { if (_open == value) return; _open = value; Raise(); } }
+    private bool _hasError;
+
+    /// <summary>A row of the section shows an error. A section that folds never hides it: the section opens itself when a
+    /// row gains an error, and a look marks a folded header while this is true.</summary>
+    public bool HasError => _hasError;
+
+    private void CheckErrors()
+    {
+        var has = Items.Any(i => i.HasError);
+        if (has == _hasError) return;
+        _hasError = has;
+        Raise(nameof(HasError));
+        if (has) IsOpen = true;
+    }
+
     public void RaiseVisibility() { foreach (var i in Items) i.RaiseVisibility(); Raise(nameof(IsVisible)); }
 }
 
