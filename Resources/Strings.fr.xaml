@@ -754,6 +754,16 @@
     <sys:String x:Key="L.S.Search.Placeholder">Rechercher un paramètre</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Profil</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Aide pour cette page</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show">Afficher :</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Find">Chercher :</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Next">Suivant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Space">Espace</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Switch">Activer ou désactiver</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Change">Changer une valeur</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Pages">Pages</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Open">Ouvrir une liste</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.Simple">Afficher : Simple</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.All">Afficher : Tous les paramètres</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SheetIndex">Index des planches</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Sheet">Planche</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.InGroup">Dans {0}</sys:String> <!-- draft -->

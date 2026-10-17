@@ -132,7 +132,7 @@
     <Thickness x:Key="Terminal.BoxPad">9.6,0,0,0</Thickness>
     <Thickness x:Key="Terminal.TagPad">4.8,0,4.8,0</Thickness>
     <sys:Double x:Key="Terminal.FindWidth">249.6</sys:Double>
-    <!-- Its help: "<Help>" (Task 13's header gives the word; until then the stacked header's "?"). -->
+    <!-- Its help: "<Help>" (the header's button; its word is L.S.Shell.HelpShort). -->
     <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Text}"/>
 
     <!-- ═══ Picks from the kit (spec §6.3): the text shapes ═══ -->
@@ -178,6 +178,13 @@
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.6"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -418,17 +425,18 @@
         </ContentControl>
     </DataTemplate>
 
-    <!-- A group: "+ " closed or "- " open, then its name; its pages under it while it is open. -->
+    <!-- A group: "+ " closed or "- " open, then its name; its pages under it while it is open. A screen reader is told
+         whether it is open (NavGroupButton: expanded / collapsed, read-only), since the sign is decoration. -->
     <DataTemplate x:Key="Fx.Nav.Group">
         <StackPanel>
-            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="{DynamicResource Terminal.BoxPad}" local:Loc.NameKey="{Binding TitleKey}">
+            <local:NavGroupButton Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="{DynamicResource Terminal.BoxPad}" local:Loc.NameKey="{Binding TitleKey}">
                 <StackPanel Orientation="Horizontal">
                     <local:DecorativeText x:Name="Sign" Text="+ " Foreground="{DynamicResource Fx.NavTextBrush}" VerticalAlignment="Center"/>
                     <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
                                FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
                                Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
                 </StackPanel>
-            </Button>
+            </local:NavGroupButton>
             <ItemsControl ItemsSource="{Binding Pages}" Focusable="False" ItemTemplate="{DynamicResource Fx.Nav.Page}"
                           Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}"/>
         </StackPanel>
@@ -491,5 +499,259 @@
                 <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.warning"/>
             </DataTrigger>
         </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <local:NotNullToVisibilityConverter x:Key="Fx.NotNullToVis"/>
+
+    <!-- A list's item (the search results): under the mouse the hover shade; the picked one marked "> "; the one with the
+         keyboard a line in the focus colour all round it (the kit's item has none here: the controls' line is 0). -->
+    <Style TargetType="ListBoxItem" BasedOn="{StaticResource Kit.List.Item}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Grid SnapsToDevicePixels="True">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <DockPanel>
+                                <local:DecorativeText x:Name="Mark" DockPanel.Dock="Left" Text="  " Foreground="{TemplateBinding Foreground}"/>
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </Border>
+                        <Border x:Name="Edge" BorderBrush="{DynamicResource Fx.FocusBrush}" BorderThickness="{DynamicResource Fx.Line.Card}"
+                                Visibility="Collapsed" IsHitTestVisible="False"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Mark" Property="Text" Value="&gt; "/>
+                            <Setter TargetName="Mark" Property="Foreground" Value="{DynamicResource Fx.CheckMarkBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A menu bar's button: on the amber bar in the page's colour; under the mouse or with the keyboard, inverted. -->
+    <Style x:Key="Terminal.MenuButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.OnAccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.AccentBrush}"/>
+        <Setter Property="Padding" Value="{DynamicResource Terminal.TagPad}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A key of the key bar: its name in the bright colour, then its label inverted on the dim colour. Not a contract name. -->
+    <Style x:Key="Terminal.KeyLabel" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
+        <Setter Property="Padding" Value="{DynamicResource Terminal.TagPad}"/>
+        <Setter Property="Margin" Value="0,0,18,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- The window: the menu bar (the app's name, Profile: and Show: menus, Find: and the search); the navigation in a box
+         titled Pages (App settings docked at its bottom, in every look's place); the page; the help column; the key bar along
+         the bottom (O20: four fixed hints). The window's code hands in the three live parts. -->
+    <ControlTemplate x:Key="Fx.Shell" TargetType="local:ShellFrame">
+        <Grid Background="{DynamicResource Fx.BgBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{Binding HelpWidth, RelativeSource={RelativeSource TemplatedParent}}"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="MenuBar" Grid.ColumnSpan="3" MinHeight="24" Background="{DynamicResource Fx.AccentBrush}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Left" Text="EVE MultiPreview" FontWeight="Bold" Foreground="{DynamicResource Fx.OnAccentBrush}"
+                               VerticalAlignment="Center" Margin="{DynamicResource Terminal.BoxPad}"/>
+                    <Button DockPanel.Dock="Left" Style="{StaticResource Terminal.MenuButton}" Margin="{DynamicResource Terminal.BoxPad}"
+                            AutomationProperties.Name="{Binding ProfileName}"
+                            Command="{Binding ProfileMenuCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock local:Loc.Key="L.Eve.ProfileLabel"/>
+                            <TextBlock Text="{Binding ProfileName}" Margin="{DynamicResource Terminal.BoxPad}"/>
+                            <local:DecorativeText Text=" ▼"/>
+                        </StackPanel>
+                    </Button>
+                    <!-- Its name for a screen reader says which is shown ("Show: Simple"); the words drawn are decoration of it. -->
+                    <Button DockPanel.Dock="Left" Margin="{DynamicResource Terminal.BoxPad}"
+                            Command="{Binding ModeMenuCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource Terminal.MenuButton}">
+                                <Setter Property="local:Loc.NameKey" Value="L.S.Shell.Show.All"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSimple}" Value="True">
+                                        <Setter Property="local:Loc.NameKey" Value="L.S.Shell.Show.Simple"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock local:Loc.Key="L.S.Shell.Show"/>
+                            <TextBlock Margin="{DynamicResource Terminal.BoxPad}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="local:Loc.Key" Value="L.S.Nav.AllSettings"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSimple}" Value="True">
+                                                <Setter Property="local:Loc.Key" Value="L.S.Shell.Simple"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <local:DecorativeText Text=" ▼"/>
+                        </StackPanel>
+                    </Button>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Visibility="{Binding ShowGroups, Converter={StaticResource Fx.BoolToVis}}">
+                        <TextBlock local:Loc.Key="L.S.Shell.Find" Foreground="{DynamicResource Fx.OnAccentBrush}" VerticalAlignment="Center"
+                                   Margin="{DynamicResource Terminal.TagPad}"/>
+                        <Border Background="{DynamicResource Fx.BgBrush}" Width="{DynamicResource Terminal.FindWidth}">
+                            <ContentControl Content="{TemplateBinding Search}" Focusable="False" IsTabStop="False"/>
+                        </Border>
+                    </StackPanel>
+                    <Border/>
+                </DockPanel>
+            </Border>
+
+            <GroupBox Grid.Row="1" Grid.Column="0" Width="{DynamicResource Fx.Nav.Width}" Margin="4,6,4,12" Padding="0,4,0,8">
+                <GroupBox.Header>
+                    <TextBlock local:Loc.Key="L.S.Shell.Pages" Style="{DynamicResource Fx.SectionTitle}" Margin="0"/>
+                </GroupBox.Header>
+                <DockPanel>
+                    <!-- App settings: apart at the bottom left of the pane, in both modes (owner, 2026-10-09). -->
+                    <ContentControl DockPanel.Dock="Bottom" Margin="0,8,0,0" Focusable="False" IsTabStop="False"
+                                    Content="{Binding AppGroup}" ContentTemplate="{DynamicResource Fx.Nav.Group}"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+                        <StackPanel>
+                            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding HomeCommand}" Padding="{DynamicResource Terminal.BoxPad}"
+                                    Visibility="{Binding HasHome, Converter={StaticResource Fx.BoolToVis}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <local:DecorativeText Text="  " Foreground="{DynamicResource Fx.NavTextBrush}"/>
+                                    <TextBlock local:Loc.Key="L.S.Nav.Home" Style="{DynamicResource Fx.Label}" FontSize="{DynamicResource Fx.Size.Nav}"
+                                               FontWeight="{DynamicResource Fx.Weight.Nav}" Foreground="{DynamicResource Fx.NavTextBrush}"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding AllSettingsCommand}" Padding="{DynamicResource Terminal.BoxPad}"
+                                    Visibility="{Binding IsSimple, Converter={StaticResource Fx.BoolToVis}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <local:DecorativeText Text="  " Foreground="{DynamicResource Fx.NavTextBrush}"/>
+                                    <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{DynamicResource Fx.Label}" FontSize="{DynamicResource Fx.Size.Nav}"
+                                               FontWeight="{DynamicResource Fx.Weight.Nav}" Foreground="{DynamicResource Fx.NavTextBrush}"/>
+                                </StackPanel>
+                            </Button>
+                            <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </GroupBox>
+
+            <DockPanel Grid.Row="1" Grid.Column="1" Margin="{DynamicResource Fx.Page.Padding}">
+                <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Header}"
+                                Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{DynamicResource Fx.SaveError}"
+                                Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ContentControl DockPanel.Dock="Bottom" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Status}"
+                                Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ContentPresenter Content="{TemplateBinding Page}"/>
+            </DockPanel>
+
+            <ContentControl Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="24"
+                            IsHitTestVisible="False" Focusable="False" IsTabStop="False"
+                            Content="{TemplateBinding ToastText}" ContentTemplate="{DynamicResource Fx.Toast}"
+                            Visibility="{Binding ToastText, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource Fx.NotNullToVis}}"/>
+
+            <ContentControl Grid.Row="1" Grid.Column="2" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Help}"
+                            Focusable="False" IsTabStop="False"/>
+
+            <StackPanel x:Name="KeyBar" Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" MinHeight="24" Margin="{DynamicResource Terminal.BoxPad}"
+                        IsHitTestVisible="False">
+                <TextBlock Text="Tab" Foreground="{DynamicResource Fx.TitleBrush}" VerticalAlignment="Center"/>
+                <Border Style="{StaticResource Terminal.KeyLabel}">
+                    <TextBlock local:Loc.Key="L.S.Shell.Keys.Next" Foreground="{DynamicResource Fx.BgBrush}"/>
+                </Border>
+                <TextBlock local:Loc.Key="L.S.Shell.Keys.Space" Foreground="{DynamicResource Fx.TitleBrush}" VerticalAlignment="Center"/>
+                <Border Style="{StaticResource Terminal.KeyLabel}">
+                    <TextBlock local:Loc.Key="L.S.Shell.Keys.Switch" Foreground="{DynamicResource Fx.BgBrush}"/>
+                </Border>
+                <TextBlock Text="←→" Foreground="{DynamicResource Fx.TitleBrush}" VerticalAlignment="Center"/>
+                <Border Style="{StaticResource Terminal.KeyLabel}">
+                    <TextBlock local:Loc.Key="L.S.Shell.Keys.Change" Foreground="{DynamicResource Fx.BgBrush}"/>
+                </Border>
+                <TextBlock Text="F4" Foreground="{DynamicResource Fx.TitleBrush}" VerticalAlignment="Center"/>
+                <Border Style="{StaticResource Terminal.KeyLabel}">
+                    <TextBlock local:Loc.Key="L.S.Shell.Keys.Open" Foreground="{DynamicResource Fx.BgBrush}"/>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- The page's header, one line: the group and a slash, dim, then the page's name, bright and bold; "<Help>" at the
+         right; the description on the next line. -->
+    <DataTemplate x:Key="Fx.Shell.Header">
+        <StackPanel Margin="0,0,0,12">
+            <DockPanel>
+                <ToggleButton DockPanel.Dock="Right" Style="{DynamicResource Look.Help}" IsChecked="{Binding HelpOpen}" VerticalAlignment="Center"
+                              local:Loc.NameKey="L.S.Shell.Help">
+                    <TextBlock local:Loc.Key="L.S.Shell.HelpShort"/>
+                </ToggleButton>
+                <WrapPanel VerticalAlignment="Center">
+                    <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Foreground="{DynamicResource Fx.TextSecondaryBrush}"
+                               Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
+                    <local:DecorativeText Text=" / " Foreground="{DynamicResource Fx.TextSecondaryBrush}"
+                                          Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
+                    <TextBlock>
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+                                <Setter Property="Text" Value="{Binding Current.Page.Title}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
+                                        <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </WrapPanel>
+            </DockPanel>
+            <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{DynamicResource Fx.PageDesc}" Margin="0"/>
+        </StackPanel>
     </DataTemplate>
 </ResourceDictionary>

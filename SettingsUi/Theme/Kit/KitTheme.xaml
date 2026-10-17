@@ -2303,6 +2303,13 @@
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
                             <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
                         </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.6"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

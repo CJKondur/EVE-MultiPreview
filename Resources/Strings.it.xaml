@@ -769,6 +769,16 @@
     <sys:String x:Key="L.S.Search.Placeholder">Cerca un'impostazione</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Profilo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Guida per questa pagina</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show">Mostra:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Find">Cerca:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Next">Avanti</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Space">Spazio</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Switch">Attiva o disattiva</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Change">Cambia un valore</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Pages">Pagine</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Open">Apri un elenco</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.Simple">Mostra: Semplice</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.All">Mostra: Tutte le impostazioni</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SheetIndex">Indice delle tavole</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Sheet">Tavola</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.InGroup">In {0}</sys:String> <!-- draft -->

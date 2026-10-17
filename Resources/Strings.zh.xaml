@@ -769,6 +769,16 @@
     <sys:String x:Key="L.S.Search.Placeholder">查找设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">配置文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">本页帮助</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show">显示：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Find">查找：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Next">下一个</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Space">空格</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Switch">打开或关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Change">更改数值</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Pages">页面</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Open">打开列表</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.Simple">显示：简单</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.All">显示：所有设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SheetIndex">图纸索引</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Sheet">图纸</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.InGroup">位于 {0}</sys:String> <!-- draft -->

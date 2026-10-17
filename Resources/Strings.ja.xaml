@@ -752,6 +752,16 @@
     <sys:String x:Key="L.S.Search.Placeholder">設定を検索</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">プロファイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">このページのヘルプ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show">表示:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Find">検索:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Next">次へ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Space">スペース</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Switch">オン/オフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Change">値を変更</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Pages">ページ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Open">リストを開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.Simple">表示: シンプル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.All">表示: すべての設定</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SheetIndex">図面索引</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Sheet">図面</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.InGroup">{0} 内</sys:String> <!-- draft -->

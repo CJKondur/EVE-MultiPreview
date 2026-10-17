@@ -745,6 +745,16 @@
     <sys:String x:Key="L.S.Search.Placeholder">Find a setting</sys:String>
     <sys:String x:Key="L.S.Shell.Profile">Profile</sys:String>
     <sys:String x:Key="L.S.Shell.Help">Help for this page</sys:String>
+    <sys:String x:Key="L.S.Shell.Show">Show:</sys:String>
+    <sys:String x:Key="L.S.Shell.Find">Find:</sys:String>
+    <sys:String x:Key="L.S.Shell.Keys.Next">Next</sys:String>
+    <sys:String x:Key="L.S.Shell.Keys.Space">Space</sys:String>
+    <sys:String x:Key="L.S.Shell.Keys.Switch">Switch on or off</sys:String>
+    <sys:String x:Key="L.S.Shell.Keys.Change">Change a value</sys:String>
+    <sys:String x:Key="L.S.Shell.Pages">Pages</sys:String>
+    <sys:String x:Key="L.S.Shell.Keys.Open">Open a list</sys:String>
+    <sys:String x:Key="L.S.Shell.Show.Simple">Show: Simple</sys:String>
+    <sys:String x:Key="L.S.Shell.Show.All">Show: All settings</sys:String>
     <sys:String x:Key="L.S.Shell.SheetIndex">Sheet index</sys:String>
     <sys:String x:Key="L.S.Shell.Sheet">Sheet</sys:String>
     <sys:String x:Key="L.S.Shell.InGroup">In {0}</sys:String>

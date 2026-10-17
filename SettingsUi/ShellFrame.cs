@@ -19,6 +19,7 @@ public sealed class ShellFrame : System.Windows.Controls.Control
     public static readonly DependencyProperty ProfileMenuCommandProperty = DependencyProperty.Register(nameof(ProfileMenuCommand), typeof(ICommand), typeof(ShellFrame));
     public static readonly DependencyProperty BreadcrumbCommandProperty = DependencyProperty.Register(nameof(BreadcrumbCommand), typeof(ICommand), typeof(ShellFrame));
     public static readonly DependencyProperty RetrySaveCommandProperty = DependencyProperty.Register(nameof(RetrySaveCommand), typeof(ICommand), typeof(ShellFrame));
+    public static readonly DependencyProperty ModeMenuCommandProperty = DependencyProperty.Register(nameof(ModeMenuCommand), typeof(ICommand), typeof(ShellFrame));
 
     public ShellFrame()
     {
@@ -40,4 +41,8 @@ public sealed class ShellFrame : System.Windows.Controls.Control
     public ICommand? ProfileMenuCommand { get => (ICommand?)GetValue(ProfileMenuCommandProperty); set => SetValue(ProfileMenuCommandProperty, value); }
     public ICommand? BreadcrumbCommand { get => (ICommand?)GetValue(BreadcrumbCommandProperty); set => SetValue(BreadcrumbCommandProperty, value); }
     public ICommand? RetrySaveCommand { get => (ICommand?)GetValue(RetrySaveCommandProperty); set => SetValue(RetrySaveCommandProperty, value); }
+
+    /// <summary>For a look that draws Simple and All settings as a menu (Terminal's "Show:"): the menu opens under the element
+    /// passed as the parameter.</summary>
+    public ICommand? ModeMenuCommand { get => (ICommand?)GetValue(ModeMenuCommandProperty); set => SetValue(ModeMenuCommandProperty, value); }
 }

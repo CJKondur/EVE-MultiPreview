@@ -77,6 +77,7 @@ public partial class SettingsShell : Window, ISettingsHost
             ProfileMenuCommand = new RelayCommand(target => OpenProfileMenu(target as UIElement)),
             BreadcrumbCommand = new RelayCommand(_ => OpenBreadcrumbTarget()),
             RetrySaveCommand = new RelayCommand(_ => Vm.RetrySave()),
+            ModeMenuCommand = new RelayCommand(target => OpenModeMenu(target as UIElement)),
         };
         Content = _frame;
 
@@ -478,6 +479,29 @@ public partial class SettingsShell : Window, ISettingsHost
         menu.Items.Add(MenuEntry("L.S.Profile.BackUp", () => SettingsBackup.BackupInteractive(_ctx)));
         menu.Items.Add(MenuEntry("L.S.Profile.Manage", () => Navigate("app.profiles")));
         menu.IsOpen = true;
+    }
+
+    /// <summary>The mode part's command where a look draws Simple and All settings as a menu (Terminal's "Show:"): the menu
+    /// of <see cref="BuildModeMenu"/>, opened under the part that asked.</summary>
+    private void OpenModeMenu(UIElement? target) => BuildModeMenu(target).IsOpen = true;
+
+    /// <summary>Simple and All settings as a menu (spec 7.5, owner decision S4-14): the two, the one shown checked; a pick
+    /// sets ShellVM.IsSimple (which saves it, as the pill's buttons do) and the checks follow, so exactly one is checked
+    /// whichever is picked and however often.</summary>
+    public ContextMenu BuildModeMenu(UIElement? target)
+    {
+        var menu = new ContextMenu { PlacementTarget = target, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        var entries = new List<(MenuItem Item, bool Simple)>();
+        void Follow() { foreach (var (item, simple) in entries) item.IsChecked = Vm.IsSimple == simple; }
+        foreach (var (key, simple) in new[] { ("L.S.Shell.Simple", true), ("L.S.Nav.AllSettings", false) })
+        {
+            var item = MenuEntry(key, () => { Vm.IsSimple = simple; Follow(); });
+            item.IsCheckable = true;
+            entries.Add((item, simple));
+            menu.Items.Add(item);
+        }
+        Follow();
+        return menu;
     }
 
     private static MenuItem MenuEntry(string key, Action run)

@@ -771,6 +771,16 @@
     <sys:String x:Key="L.S.Search.Placeholder">Найти настройку</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Профиль</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Справка по этой странице</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show">Показ:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Find">Найти:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Next">Далее</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Space">Пробел</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Switch">Включить или выключить</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Change">Изменить значение</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Pages">Страницы</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Open">Открыть список</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.Simple">Показ: Простой</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.All">Показ: Все настройки</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SheetIndex">Указатель листов</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Sheet">Лист</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.InGroup">В разделе {0}</sys:String> <!-- draft -->

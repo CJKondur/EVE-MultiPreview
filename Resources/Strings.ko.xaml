@@ -752,6 +752,16 @@
     <sys:String x:Key="L.S.Search.Placeholder">설정 찾기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">프로필</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">이 페이지 도움말</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show">표시:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Find">찾기:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Next">다음</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Space">스페이스</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Switch">켜기 또는 끄기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Change">값 바꾸기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Pages">페이지</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Keys.Open">목록 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.Simple">표시: 간단히</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Show.All">표시: 모든 설정</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.SheetIndex">도면 목록</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Sheet">도면</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.InGroup">{0} 안</sys:String> <!-- draft -->
