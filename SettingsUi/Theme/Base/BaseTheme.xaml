@@ -1097,6 +1097,75 @@
         </Grid>
     </DataTemplate>
 
+    <!-- ═══ Parts of plan S4's looks. Keyed Base.*, put under a contract key by a look's code (UiStyles.ReadLook). ═══ -->
+
+    <!-- A row on a grid of columns (Capsule, Terminal): a column for a check box, Look.BoxColumn wide (a Double the look
+         defines); the label, its note and an error in a column at most Fx.Label.Width wide (a star column with that most:
+         where the page has no room it is narrower and the label wraps, so the control is never pushed off the page); then
+         the control, left; the rest of the row empty. A search hit lights the label. -->
+    <Style x:Key="Base.Card.Columns" TargetType="ContentControl">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border x:Name="Card" Style="{DynamicResource Fx.Card}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="1000*" MaxWidth="{DynamicResource Fx.Label.Width}"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Width="{DynamicResource Look.BoxColumn}"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
+                                <TextBlock x:Name="Label" local:Loc.Key="{Binding LabelKey}" Style="{DynamicResource Fx.Label}"/>
+                                <TextBlock local:Loc.Key="{Binding DescKey}" Style="{DynamicResource Fx.Desc}"/>
+                                <TextBlock Text="{Binding Error}" Style="{DynamicResource Fx.Error}"
+                                           Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
+                            </StackPanel>
+                            <ContentPresenter Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource Fx.LinkBrush}"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- An on/off setting on the same grid: the look's on/off box in the box column, its label and note from the label
+         column on (the box's own padding reaches it), the error under them. A click anywhere on the label switches it. -->
+    <DataTemplate x:Key="Base.Card.ColumnsToggle">
+        <Border Style="{DynamicResource Fx.Card}" Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="1000*" MaxWidth="{DynamicResource Fx.Label.Width}"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="{DynamicResource Look.BoxColumn}"/>
+                <CheckBox Grid.ColumnSpan="2" Style="{DynamicResource Fx.ToggleSwitch}" IsChecked="{Binding IsOn}" local:Loc.NameKey="{Binding LabelKey}"
+                          HorizontalAlignment="Left" VerticalContentAlignment="Center">
+                    <StackPanel>
+                        <TextBlock x:Name="Label" local:Loc.Key="{Binding LabelKey}" Style="{DynamicResource Fx.Label}"/>
+                        <TextBlock local:Loc.Key="{Binding DescKey}" Style="{DynamicResource Fx.Desc}"/>
+                        <TextBlock Text="{Binding Error}" Style="{DynamicResource Fx.Error}"
+                                   Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
+                    </StackPanel>
+                </CheckBox>
+            </Grid>
+        </Border>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource Fx.LinkBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
     <!-- ═══ Parts every look reads that are not contract names (plan S4). Each default here is what Windows 11 and Classic
          draw; a look that draws the part otherwise defines the same key in its own dictionary. ═══ -->
 

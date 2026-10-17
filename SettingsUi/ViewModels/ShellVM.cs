@@ -216,6 +216,7 @@ public sealed class ShellVM : ObservableObject, IDisposable
     {
         if (!_pages.TryGetValue(page.Id, out var vm)) _pages[page.Id] = vm = new PageVM(page, _ctx);
         else vm.Refresh();   // values may have changed elsewhere (a thumbnail drag, a hotkey, another page)
+        if (vm != Current) foreach (var section in vm.Sections) section.IsOpen = true;   // spec O19: a page opens open
         Current = vm;
         var navId = page.ParentId ?? page.Id;   // a character page keeps "Characters" selected
         foreach (var g in Groups)
@@ -225,7 +226,12 @@ public sealed class ShellVM : ObservableObject, IDisposable
             g.RaiseCurrent();
         }
         ClearHighlight();
-        if (itemId != null && vm.Find(itemId) is { } item) { item.IsHighlighted = true; HighlightedItem = item; }
+        if (itemId != null && vm.Find(itemId) is { } item)
+        {
+            item.IsHighlighted = true;
+            HighlightedItem = item;
+            foreach (var section in vm.Sections) if (section.Items.Contains(item)) section.IsOpen = true;   // a hit is never folded away
+        }
         RaiseAll();
     }
 

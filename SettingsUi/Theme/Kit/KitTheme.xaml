@@ -1489,4 +1489,125 @@
             </Trigger>
         </Style.Triggers>
     </Style>
+
+    <!-- ═══ The shapes of plan S4's looks (Capsule, High contrast, Blueprint, Ink, Terminal). Keyed only, as the flat shapes:
+         a look picks one by basing its implicit style on it. A trigger that is true when its template is made sets plain
+         values only. ═══ -->
+
+    <!-- Check box with a filled square (BoxFill, Capsule): a box Kit.Size wide on the check colour with the check border,
+         an inner square in the mark colour 2 px in from the edge when on, half seen when neither on nor off. -->
+    <Style x:Key="Kit.Check.Fill" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.CheckFillBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.CheckBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+        <Setter Property="Padding" Value="10,0,0,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid x:Name="root" Background="Transparent" SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <Border x:Name="Ring" Margin="-3" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.FocusBrush}"
+                                    CornerRadius="{DynamicResource Fx.Radius.Check}" Visibility="Hidden"/>
+                            <Border x:Name="Box" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource Fx.Radius.Check}"
+                                    Width="{TemplateBinding local:Kit.Size}" Height="{TemplateBinding local:Kit.Size}">
+                                <Rectangle x:Name="Inner" Margin="2" Fill="{DynamicResource Fx.CheckMarkBrush}" Visibility="Hidden"/>
+                            </Border>
+                        </Grid>
+                        <ContentPresenter x:Name="Content" Grid.Column="1" Focusable="False" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasContent" Value="False">
+                            <Setter TargetName="Content" Property="Margin" Value="0"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Inner" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="Inner" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Inner" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Slider as a bar (Bar, Capsule): a 2 px track in Fx.Track, filled in Fx.TrackFill up to an upright 6 by 14 thumb in
+         Fx.Thumb; keyboard focus draws an edge in the focus colour around the thumb. -->
+    <Style x:Key="Kit.Slider.BarFill" TargetType="RepeatButton">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Border Height="2" Margin="3,0,0,0" VerticalAlignment="Center" Background="{DynamicResource Fx.TrackFillBrush}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Kit.Slider.Bar" TargetType="Slider">
+        <Setter Property="MinHeight" Value="16"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid x:Name="root" Background="Transparent" SnapsToDevicePixels="True">
+                        <Border Height="2" Margin="3,0" VerticalAlignment="Center" Background="{DynamicResource Fx.TrackBrush}"/>
+                        <Track x:Name="PART_Track">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Style="{StaticResource Kit.Slider.BarFill}"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource Kit.Slider.Repeat}"/>
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Width="6" Height="14" Focusable="False" OverridesDefaultStyle="True">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Grid>
+                                                <Border x:Name="Ring" Margin="-2" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.FocusBrush}" Visibility="Hidden"/>
+                                                <Rectangle Fill="{DynamicResource Fx.ThumbBrush}"/>
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding IsKeyboardFocused, RelativeSource={RelativeSource AncestorType=Slider}}" Value="True">
+                                                    <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

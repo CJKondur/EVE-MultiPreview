@@ -97,8 +97,12 @@ public static class UiStyles
     /// <summary>Black and red, racing type (spec §7.10).</summary>
     public static UiStyle Carbon { get; } = new("carbon", usesFluent: false, () => new CarbonStyle());
 
-    /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2). S4 adds the other five.</summary>
-    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon, Carbon };
+    /// <summary>Dark and sharp, like the game (spec §7.3).</summary>
+    public static UiStyle Capsule { get; } = new("capsule", usesFluent: false, () => new CapsuleStyle());
+
+    /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2); the looks of S3 and S4 in the
+    /// order they landed.</summary>
+    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon, Carbon, Capsule };
 
     /// <summary>The look with this id; a missing, empty or unknown id gives Classic, the default (spec §10).</summary>
     public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Classic;

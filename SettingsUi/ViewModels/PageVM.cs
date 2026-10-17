@@ -22,6 +22,12 @@ public sealed class SectionVM : ObservableObject
 
     /// <summary>A section whose every card is hidden disappears with its title.</summary>
     public bool IsVisible => Items.Any(i => i.IsVisible);
+
+    private bool _open = true;
+
+    /// <summary>Open, or folded by a look whose sections fold (Capsule, UI styles plan S4). Not saved (spec O19): the
+    /// window opens a page with its sections open, and a search hit opens its section.</summary>
+    public bool IsOpen { get => _open; set { if (_open == value) return; _open = value; Raise(); } }
     public void RaiseVisibility() { foreach (var i in Items) i.RaiseVisibility(); Raise(nameof(IsVisible)); }
 }
 
