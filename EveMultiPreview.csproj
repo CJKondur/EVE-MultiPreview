@@ -53,6 +53,14 @@
     <EmbeddedResource Include="Resources\alert_patterns.json" />
   </ItemGroup>
 
+  <!-- The typefaces of the looks (UI styles spec §11.1) and their licences, compiled in as WPF resources: a look names a
+       family as /EVE MultiPreview;component/Resources/Fonts/<Folder>/#<Family>, and App settings › About shows the
+       licences. -->
+  <ItemGroup>
+    <Resource Include="Resources\Fonts\**\*.ttf" />
+    <Resource Include="Resources\Fonts\**\OFL.txt" />
+  </ItemGroup>
+
   <ItemGroup>
     <!-- The xUnit project lives under tests/ and builds separately. -->
     <Compile Remove="tests\**" />

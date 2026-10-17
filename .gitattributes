@@ -2,3 +2,6 @@
 *.golden.json -text
 # Players' config files (ConfigCompatibilityTests) are compared byte for byte too: CRLF stays CRLF.
 tests/EveMultiPreview.Tests/Fixtures/configs/*.json -text
+# The looks' typefaces are binary, and their licences keep the bytes their projects published (BundledFontsTests hashes both).
+*.ttf binary
+Resources/Fonts/**/OFL.txt -text
