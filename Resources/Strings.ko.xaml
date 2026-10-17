@@ -804,13 +804,13 @@
     <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.windows11.Desc">Windows 11 설정처럼 어두운 카드예요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.capsule">캡슐</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Style.capsule.Desc">게임처럼 어둡고 날카롭게.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.capsule.Desc">게임처럼 어둡고 날카로워요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.compact">컴팩트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.compact.Desc">촘촘한 행, 카드 없음.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.terminal">터미널</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.terminal.Desc">고정폭 글꼴, 검정 위의 호박색.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.daylight">주광</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Style.daylight.Desc">밝고 평평하게.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.daylight.Desc">밝고 평평해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.contrast">고대비</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.contrast.Desc">흑백, 더 큰 글자.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.neon">네온</sys:String> <!-- draft -->
@@ -843,7 +843,7 @@
     <sys:String x:Key="L.Help.app.general.startup.Body">**Windows와 함께 시작**은 로그인할 때 MultiPreview를 트레이로 실행합니다.&#x0A;&#x0A;**MultiPreview 시작 시**는 이 창도 함께 열지 결정합니다. 최소화를 선택하면 EVE를 가리지 않고 작업 표시줄에 준비해 둡니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.Intro">MultiPreview 창의 모양을 골라요. 모양은 모든 프로필에서 같아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.look.Title">모양</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.look.look.Body">각 카드에는 모양의 작은 미리 보기가 있어요. 한 번 클릭하면 선택돼요. **클래식**은 예전 설정 창의 남색이에요. **Windows 11**은 Windows 11 설정의 어두운 모양이에요.&#x0A;&#x0A;설정 창과 대화 상자, 메뉴, 알림이 바로 바뀌고 다시 시작할 필요가 없어요. 미리보기와 그 글자는 그대로예요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Body">각 카드에는 모양의 작은 미리 보기가 있어요. 한 번 클릭하면 선택돼요. 설정 창과 대화 상자, 메뉴, 알림이 바로 바뀌고 다시 시작할 필요가 없어요. 미리보기와 그 글자는 그대로예요.&#x0A;&#x0A;**클래식**은 예전 설정 창의 남색이에요. **Windows 11**은 Windows 11 설정의 어두운 모양이에요. **고대비**는 흑백이고 글자가 더 커요. 나머지 아홉 가지는 저마다 색과 글꼴이 있고, **캡슐**, **청사진**, **잉크**, **터미널**은 페이지 배치도 달라요.&#x0A;&#x0A;키보드로는 Tab을 누르면 지금 쓰는 모양의 카드로 가고, 화살표 키로 카드 사이를 옮기며, Space 또는 Enter로 골라요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics">진단</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">문제를 추적하기 위한 디버그 로그.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">디버그 로그</sys:String> <!-- draft -->

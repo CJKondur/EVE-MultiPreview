@@ -843,7 +843,7 @@
     <sys:String x:Key="L.Help.app.general.startup.Body">**Windows と同時に起動**は、サインイン時に MultiPreview をトレイに起動します。&#x0A;&#x0A;**MultiPreview の起動時**は、このウィンドウも開くかどうかを決めます。最小化を選ぶと、EVE を隠さずタスクバーに待機させられます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.Intro">MultiPreview のウィンドウの外観を選びます。外観はすべてのプロファイルで同じです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.look.Title">外観</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.look.look.Body">各カードには外観の小さなプレビューが表示されます。1 回のクリックで選べます。**クラシック**は以前の設定ウィンドウの紺色です。**Windows 11** は Windows 11 の設定の暗い外観です。&#x0A;&#x0A;設定ウィンドウ、そのダイアログ、メニュー、アラートはすぐに変わり、再起動は不要です。サムネイルとその文字はそのままです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Body">各カードには外観の小さなプレビューが表示されます。1 回のクリックで選べます。設定ウィンドウ、そのダイアログ、メニュー、アラートはすぐに変わり、再起動は不要です。サムネイルとその文字はそのままです。&#x0A;&#x0A;**クラシック**は以前の設定ウィンドウの紺色です。**Windows 11** は Windows 11 の設定の暗い外観です。**ハイコントラスト**は白と黒で、文字が大きめです。ほかの 9 つにはそれぞれ独自の色と書体があり、**カプセル**、**設計図**、**インク**、**ターミナル**はページの配置も独自です。&#x0A;&#x0A;キーボードでは、Tab で使用中の外観のカードに移動し、矢印キーでカード間を移動し、Space または Enter で選びます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics">診断</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">問題を調べるためのデバッグログ。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">デバッグログ</sys:String> <!-- draft -->

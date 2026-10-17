@@ -860,7 +860,7 @@
     <sys:String x:Key="L.Help.app.general.startup.Body">**随 Windows 启动**会在你登录时将 MultiPreview 启动到托盘。&#x0A;&#x0A;**MultiPreview 启动时**决定此窗口是否一并打开。选择最小化，可让它停在任务栏而不遮挡 EVE。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.Intro">选择 MultiPreview 窗口的外观。外观在所有配置文件中相同。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.look.Title">外观</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.look.look.Body">每张卡片显示一种外观的小预览，点击一次即可选择。**经典**是旧设置窗口的深蓝色。**Windows 11** 是 Windows 11 设置的深色外观。&#x0A;&#x0A;设置窗口、它的对话框、菜单和提醒会立即改变，无需重启。缩略图及其文字保持不变。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Body">每张卡片显示一种外观的小预览，点击一次即可选择。设置窗口、它的对话框、菜单和提醒会立即改变，无需重启。缩略图及其文字保持不变。&#x0A;&#x0A;**经典**是旧设置窗口的深蓝色。**Windows 11** 是 Windows 11 设置的深色外观。**高对比度**为黑白配色，字体更大。其余九种各有自己的颜色和字体，其中**胶囊**、**蓝图**、**墨水**和**终端**还会以自己的方式排布页面。&#x0A;&#x0A;使用键盘时，按 Tab 会来到你正在使用的外观的卡片，方向键在卡片之间移动，按空格键或 Enter 选择。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics">诊断</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">用于排查问题的调试日志。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">调试日志</sys:String> <!-- draft -->

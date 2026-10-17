@@ -806,13 +806,13 @@
     <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.windows11.Desc">Des cartes sombres, comme dans les Paramètres de Windows 11.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.capsule">Capsule</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Style.capsule.Desc">Sombre et net, comme le jeu.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.capsule.Desc">Sombre et nette, comme dans le jeu.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.compact">Compact</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.compact.Desc">Lignes serrées, sans cartes.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.terminal">Terminal</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.terminal.Desc">Chasse fixe, ambre sur noir.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.daylight">Plein jour</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Style.daylight.Desc">Clair et plat.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.daylight.Desc">Claire et plate.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.contrast">Contraste élevé</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.contrast.Desc">Noir et blanc, avec un texte plus grand.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.neon">Néon</sys:String> <!-- draft -->
@@ -822,7 +822,7 @@
     <sys:String x:Key="L.S.Style.carbon">Carbone</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.carbon.Desc">Noir et rouge, caractères de course.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.dusk">Crépuscule</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Style.dusk.Desc">Ardoise violette douce, arrondi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Style.dusk.Desc">Ardoise violette douce, arrondie.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.ink">Encre</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.ink.Desc">Blanc, filets noirs, un seul rouge.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.language">Langue</sys:String> <!-- draft -->
@@ -845,7 +845,7 @@
     <sys:String x:Key="L.Help.app.general.startup.Body">**Démarrer avec Windows** lance MultiPreview dans la zone de notification à l'ouverture de session.&#x0A;&#x0A;**Au démarrage de MultiPreview** décide si cette fenêtre s'ouvre aussi. Choisissez réduite pour l'avoir prête dans la barre des tâches sans couvrir EVE.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.Intro">Choisissez l'apparence des fenêtres de MultiPreview. Elle est la même dans chaque profil.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.look.Title">Apparences</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.look.look.Body">Chaque carte montre un petit aperçu d'une apparence ; un clic la choisit. **Classique** est le bleu marine de l'ancienne fenêtre de paramètres. **Windows 11** est l'apparence sombre des Paramètres de Windows 11.&#x0A;&#x0A;La fenêtre de paramètres, ses dialogues, les menus et les alertes changent aussitôt ; rien ne redémarre. Les miniatures et leur texte restent tels quels.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.look.Body">Chaque carte montre un petit aperçu d'une apparence ; un clic la choisit. La fenêtre de paramètres, ses dialogues, les menus et les alertes changent aussitôt ; rien ne redémarre. Les miniatures et leur texte restent tels quels.&#x0A;&#x0A;**Classique** est le bleu marine de l'ancienne fenêtre de paramètres. **Windows 11** est l'apparence sombre des Paramètres de Windows 11. **Contraste élevé** est en noir et blanc, avec un texte plus grand. Les neuf autres ont leurs propres couleurs et caractères ; **Capsule**, **Plan**, **Encre** et **Terminal** disposent aussi la page à leur façon.&#x0A;&#x0A;Au clavier, Tab mène à la carte de l'apparence utilisée, les flèches passent d'une carte à l'autre, et Espace ou Entrée en choisit une.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics">Diagnostic</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">Journaux de débogage pour traquer un problème.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">Journaux de débogage</sys:String> <!-- draft -->
