@@ -1872,4 +1872,271 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- Check box with an inset (BoxInset, Ink): a box Kit.Size wide with a 1.5 px edge in the check border's colour, the
+         mark colour inside; when on, the check colour fills it inside a 2 px ring of the mark colour (half seen when
+         neither). Switched off with Kit.DashedOff: a dashed edge. -->
+    <Style x:Key="Kit.Check.Inset" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.CheckMarkBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.CheckBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="Padding" Value="8,0,0,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid x:Name="root" Background="Transparent" SnapsToDevicePixels="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Width="{TemplateBinding local:Kit.Size}" Height="{TemplateBinding local:Kit.Size}">
+                            <Border x:Name="Ring" Margin="-3" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{DynamicResource Fx.FocusBrush}" Visibility="Hidden"/>
+                            <Border x:Name="Box" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                                <Rectangle x:Name="Inset" Margin="2" Fill="{DynamicResource Fx.CheckFillBrush}" Visibility="Hidden"/>
+                            </Border>
+                            <Rectangle x:Name="Dashed" Stroke="{DynamicResource Fx.TextDisabledBrush}" StrokeThickness="1" StrokeDashArray="3 2" Visibility="Collapsed"/>
+                        </Grid>
+                        <ContentPresenter x:Name="Content" Grid.Column="1" Focusable="False" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasContent" Value="False">
+                            <Setter TargetName="Content" Property="Margin" Value="0"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Inset" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="Inset" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Inset" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsEnabled" Value="False"/>
+                                <Condition Property="local:Kit.DashedOff" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Dashed" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{x:Null}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Slider as a line (Line, Ink): a 1 px line in Fx.Track, 3 px in Fx.TrackFill up to a 12 px dot in Fx.Thumb; keyboard
+         focus draws a ring around the dot. -->
+    <Style x:Key="Kit.Slider.LineFill" TargetType="RepeatButton">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Border Height="3" Margin="6,0,0,0" VerticalAlignment="Center" Background="{DynamicResource Fx.TrackFillBrush}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Kit.Slider.Line" TargetType="Slider">
+        <Setter Property="MinHeight" Value="14"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid x:Name="root" Background="Transparent" SnapsToDevicePixels="True">
+                        <Border Height="1" Margin="6,0" VerticalAlignment="Center" Background="{DynamicResource Fx.TrackBrush}"/>
+                        <Track x:Name="PART_Track">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Style="{StaticResource Kit.Slider.LineFill}"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource Kit.Slider.Repeat}"/>
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Width="12" Height="12" Focusable="False" OverridesDefaultStyle="True">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Grid>
+                                                <Ellipse x:Name="Ring" Margin="-3" Stroke="{DynamicResource Fx.FocusBrush}" StrokeThickness="1" Visibility="Hidden"/>
+                                                <Ellipse Fill="{DynamicResource Fx.ThumbBrush}"/>
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding IsKeyboardFocused, RelativeSource={RelativeSource AncestorType=Slider}}" Value="True">
+                                                    <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Text box as an underline (Underline, Ink): on the input colour, a line in Fx.Line.Control's thickness (a look sets
+         it to an underline) in the input edge's colour; 3 px while focused; switched off with Kit.DashedOff, a dashed
+         underline. -->
+    <Style x:Key="Kit.TextBox.Underline" TargetType="TextBox">
+        <Setter Property="Background" Value="{DynamicResource Fx.ControlBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.ControlEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Control.Height}"/>
+        <Setter Property="Padding" Value="2,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <Border x:Name="border" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}"
+                                Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <Line x:Name="Dashed" X1="0" X2="1" Stretch="Fill" VerticalAlignment="Bottom" Stroke="{DynamicResource Fx.TextDisabledBrush}"
+                              StrokeThickness="1" StrokeDashArray="3 2" Visibility="Collapsed" SnapsToDevicePixels="True"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="border" Property="BorderThickness" Value="0,0,0,3"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsEnabled" Value="False"/>
+                                <Condition Property="local:Kit.DashedOff" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Dashed" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="{x:Null}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Dropdown as an underline (Underline, Ink): the same underline, 3 px while it has the keyboard; a chevron. -->
+    <Style x:Key="Kit.Dropdown.Underline" TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.ControlBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.ControlEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Control.Height}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid x:Name="root">
+                        <Border x:Name="Box" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"/>
+                        <ToggleButton x:Name="Toggle" Style="{x:Null}" Template="{StaticResource Kit.Dropdown.Hit}" Focusable="False" ClickMode="Press"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          Margin="2,0,22,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                        <TextBox x:Name="PART_EditableTextBox" Style="{x:Null}" Visibility="Collapsed" Focusable="True"
+                                 Background="{DynamicResource Fx.ControlBrush}" Foreground="{DynamicResource Fx.TextBrush}" CaretBrush="{DynamicResource Fx.TextBrush}"
+                                 BorderThickness="0" Padding="0" Margin="2,0,22,0" VerticalAlignment="Center"
+                                 IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                        <Path x:Name="Chevron" IsHitTestVisible="False" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,6,0"
+                              Data="M 0 0 L 4 4 L 8 0" Stroke="{DynamicResource Fx.TextBrush}" StrokeThickness="1.5"/>
+                        <Line x:Name="Dashed" X1="0" X2="1" Stretch="Fill" VerticalAlignment="Bottom" Stroke="{DynamicResource Fx.TextDisabledBrush}"
+                              StrokeThickness="1" StrokeDashArray="3 2" Visibility="Collapsed" IsHitTestVisible="False" SnapsToDevicePixels="True"/>
+                        <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" Focusable="False"
+                               AllowsTransparency="True" PopupAnimation="Slide">
+                            <Grid MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}" SnapsToDevicePixels="True">
+                                <Border Background="{DynamicResource Fx.FlyoutBrush}" BorderBrush="{DynamicResource Fx.FlyoutBorderBrush}"
+                                        BorderThickness="{DynamicResource Fx.Line.Card}" CornerRadius="{DynamicResource Fx.FlyoutRadius}"/>
+                                <ScrollViewer Margin="2" SnapsToDevicePixels="True">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                </ScrollViewer>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEditable" Value="True">
+                            <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ContentSite" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Box" Property="BorderThickness" Value="0,0,0,3"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.56"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsEnabled" Value="False"/>
+                                <Condition Property="local:Kit.DashedOff" Value="True"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Dashed" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{x:Null}"/>
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Icon button as an outlined circle (Ring, Ink): an edge in the button border's colour on the button colour, the glyph
+         in the button text's colour; keyboard focus a ring in the focus colour. -->
+    <Style x:Key="Kit.Icon.Ring" TargetType="Button">
+        <Setter Property="Background" Value="{DynamicResource Fx.ButtonBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.ButtonBorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.ButtonTextBrush}"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="root">
+                        <Ellipse x:Name="Ring" Margin="-3" Stroke="{DynamicResource Fx.FocusBrush}" StrokeThickness="1" Visibility="Hidden"/>
+                        <Ellipse x:Name="Disc" Fill="{TemplateBinding Background}" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="1"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Disc" Property="Fill" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
