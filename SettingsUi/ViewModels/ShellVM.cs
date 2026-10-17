@@ -108,6 +108,26 @@ public sealed class ShellVM : ObservableObject, IDisposable
 
     public ICommand HomeCommand { get; }
     public ICommand AllSettingsCommand { get; }
+
+    /// <summary>The open page's entry in the navigation (a character page's is its parent's), or null on Home.</summary>
+    private NavPageVM? OpenEntry => Groups.SelectMany(g => g.Pages).FirstOrDefault(p => p.IsSelected);
+
+    /// <summary>The open page's number in the navigation (UI styles plan S4, Blueprint's sheet): "01" on Home, "04.3" for the
+    /// third page of the fourth entry; empty for a page outside the navigation's numbers.</summary>
+    public string SheetNumber => Current != null && Current.Page == Home ? HomeOrdinal.ToString("00", System.Globalization.CultureInfo.InvariantCulture)
+        : OpenEntry is { } e ? e.GroupOrdinal.ToString("00", System.Globalization.CultureInfo.InvariantCulture) + "." + e.Ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture)
+        : "";
+
+    /// <summary>"In Alerts": the open page's group (Blueprint's title block); empty on Home.</summary>
+    public string InGroupText => OpenEntry != null && GroupTitleKey is { } group
+        ? string.Format(SettingsContext.Str("L.S.Shell.InGroup"), SettingsContext.Str(group)) : "";
+
+    /// <summary>"3 of 5": the open page's place in its group; empty on Home.</summary>
+    public string PlaceInGroup => OpenEntry is { } e
+        ? string.Format(SettingsContext.Str("L.S.Shell.PlaceOf"), e.Ordinal, Groups.First(g => g.Pages.Contains(e)).Pages.Count) : "";
+
+    /// <summary>The app's version (Blueprint's title block).</summary>
+    public string Version => AboutActions.VersionText;
     public ItemVM? HighlightedItem { get; private set; }
 
     /// <summary>Raised after a profile switch re-read every card. The shell forwards it as SettingsApplied.</summary>

@@ -34,6 +34,14 @@ public sealed class KeyCapsConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => System.Windows.Data.Binding.DoNothing;
 }
 
+/// <summary>A bound text in capitals by the UI language's rules (Loc.Upper): for a text a look writes in capitals that is not
+/// the text of a key (Loc.Case reaches only those). Anything that is not a string passes as it is.</summary>
+public sealed class UpperCaseConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value is string s ? Loc.Upper(s) : value;
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => System.Windows.Data.Binding.DoNothing;
+}
+
 /// <summary>Visible when the value is null (the stacked header's page name: a key, unless the page has a name of its own).</summary>
 public sealed class NullToVisibilityConverter : IValueConverter
 {

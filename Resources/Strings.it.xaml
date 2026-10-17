@@ -769,6 +769,11 @@
     <sys:String x:Key="L.S.Search.Placeholder">Cerca un'impostazione</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Profilo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Guida per questa pagina</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SheetIndex">Indice delle tavole</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Sheet">Tavola</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.InGroup">In {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.PlaceOf">{0} di {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Version">Versione</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.HelpShort">Guida</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Showing">Mostra</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Mostra tutte le impostazioni</sys:String> <!-- draft -->

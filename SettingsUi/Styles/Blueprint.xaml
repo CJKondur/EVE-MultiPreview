@@ -577,4 +577,167 @@
             </ToggleButton>
         </Grid>
     </DataTemplate>
+
+    <!-- ═══ The sheet (spec §7.9): a frame, the pane's index and cells, the title block ═══ -->
+    <!-- The drawing's lines: 2 px around the sheet; 1 px on the pane's right, above the pane's cells and around the title
+         block's. Keyed thicknesses, not contract names. -->
+    <Thickness x:Key="Blueprint.Frame">2</Thickness>
+    <Thickness x:Key="Blueprint.Right">0,0,1,0</Thickness>
+    <Thickness x:Key="Blueprint.Top">0,1,0,0</Thickness>
+    <Thickness x:Key="Blueprint.TopLeft">1,1,0,0</Thickness>
+    <Thickness x:Key="Blueprint.Left">1,0,0,0</Thickness>
+    <local:UpperCaseConverter x:Key="Blueprint.Upper"/>
+    <local:NotNullToVisibilityConverter x:Key="Fx.NotNullToVis"/>
+
+    <!-- A title block's value: mono, semibold, white. -->
+    <Style x:Key="Blueprint.Cell" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Desc}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+    </Style>
+
+    <!-- The sheet: a centre mark on each side in the 10 px between the window's edge and the frame; the frame, a 2 px white
+         line; inside it the pane (the caption "SHEET INDEX", the search, the numbered list from 01 HOME with App settings in
+         it, the profile and SHOWING cells at its foot), a line, the page with its title block at the bottom right, the help
+         column. The window's code hands in the three live parts. -->
+    <ControlTemplate x:Key="Fx.Shell" TargetType="local:ShellFrame">
+        <Grid Background="{DynamicResource Fx.BgBrush}">
+            <Border Width="1" Height="8" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,1,0,0" Background="{DynamicResource Fx.TextBrush}"/>
+            <Border Width="1" Height="8" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,1" Background="{DynamicResource Fx.TextBrush}"/>
+            <Border Width="8" Height="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="1,0,0,0" Background="{DynamicResource Fx.TextBrush}"/>
+            <Border Width="8" Height="1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,1,0" Background="{DynamicResource Fx.TextBrush}"/>
+            <Border x:Name="Frame" Margin="10" BorderBrush="{DynamicResource Fx.TextBrush}" BorderThickness="{StaticResource Blueprint.Frame}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="{Binding HelpWidth, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="{DynamicResource Fx.Nav.Width}" Background="{DynamicResource Fx.NavBrush}"
+                            BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{StaticResource Blueprint.Right}">
+                        <!-- The search an underlined field (the outline, as the look's other text boxes, with the keyboard's focus). -->
+                        <Border.Resources>
+                            <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Round}">
+                                <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Row}"/>
+                                <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
+                                <Setter Property="local:Kit.DashedOff" Value="True"/>
+                                <!-- Written again here: a style in a template's resources left the kit's own Background
+                                     setter white (replayed while writing). -->
+                                <Setter Property="Background" Value="{DynamicResource Fx.ControlBrush}"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Resources>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" local:Loc.Key="L.S.Shell.SheetIndex" Style="{StaticResource Blueprint.Caption}" Margin="14,12,14,8"/>
+                            <ContentControl DockPanel.Dock="Top" Margin="14,0,14,10" Focusable="False" IsTabStop="False" Content="{TemplateBinding Search}"
+                                            Visibility="{Binding ShowGroups, Converter={StaticResource Fx.BoolToVis}}"/>
+                            <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{StaticResource Blueprint.Top}" Padding="10,7,10,8">
+                                <ContentControl Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Mode}" Focusable="False" IsTabStop="False"
+                                                HorizontalContentAlignment="Stretch"/>
+                            </Border>
+                            <Border DockPanel.Dock="Bottom" BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{StaticResource Blueprint.Top}" Padding="10,7,10,0">
+                                <ContentControl Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Profile}" Focusable="False" IsTabStop="False"
+                                                HorizontalContentAlignment="Stretch"/>
+                            </Border>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" Margin="2,0">
+                                <StackPanel>
+                                    <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding HomeCommand}"
+                                            Visibility="{Binding HasHome, Converter={StaticResource Fx.BoolToVis}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <local:DecorativeText Text="{Binding HomeOrdinal, StringFormat={}{0:00}}" Style="{StaticResource Blueprint.Number}" Width="30"/>
+                                            <TextBlock local:Loc.Key="L.S.Nav.Home" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                                                       FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                                                       Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding AllSettingsCommand}"
+                                            Visibility="{Binding IsSimple, Converter={StaticResource Fx.BoolToVis}}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="30"/>
+                                            <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                                                       FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                                                       Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False"/>
+                                    <ContentControl Content="{Binding AppGroup}" ContentTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False" IsTabStop="False"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </Border>
+
+                    <DockPanel Grid.Column="1" Margin="{DynamicResource Fx.Page.Padding}">
+                        <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Header}"
+                                        Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                        <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{DynamicResource Fx.SaveError}"
+                                        Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                        <ContentControl DockPanel.Dock="Bottom" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Status}"
+                                        Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                        <ContentPresenter Content="{TemplateBinding Page}"/>
+                    </DockPanel>
+
+                    <ContentControl Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="24,24,24,72"
+                                    IsHitTestVisible="False" Focusable="False" IsTabStop="False"
+                                    Content="{TemplateBinding ToastText}" ContentTemplate="{DynamicResource Fx.Toast}"
+                                    Visibility="{Binding ToastText, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource Fx.NotNullToVis}}"/>
+
+                    <ContentControl Grid.Column="2" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Help}"
+                                    Focusable="False" IsTabStop="False"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- The title block at the page's bottom right, against the frame: PROFILE and its name · SHEET, the page's number and
+         name · IN <GROUP>, its place "3 OF 5" (not on Home) · VERSION. In mono capitals (O21). -->
+    <DataTemplate x:Key="Fx.Shell.Status">
+        <Border HorizontalAlignment="Right" Margin="0,8,-22,0" BorderBrush="{DynamicResource Fx.TextBrush}" BorderThickness="{StaticResource Blueprint.TopLeft}">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Margin="14,6,14,7">
+                    <TextBlock local:Loc.Key="L.S.Shell.Profile" Style="{StaticResource Blueprint.Caption}"/>
+                    <TextBlock Text="{Binding ProfileName, Converter={StaticResource Blueprint.Upper}}" Style="{StaticResource Blueprint.Cell}"/>
+                </StackPanel>
+                <Border BorderBrush="{DynamicResource Fx.TextBrush}" BorderThickness="{StaticResource Blueprint.Left}" Padding="14,6,14,7">
+                    <StackPanel>
+                        <TextBlock local:Loc.Key="L.S.Shell.Sheet" Style="{StaticResource Blueprint.Caption}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="SheetNumber" Text="{Binding SheetNumber}" Style="{StaticResource Blueprint.Cell}" Margin="0,0,6,0"/>
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource Blueprint.Cell}">
+                                        <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Caption}"/>
+                                        <Setter Property="Text" Value="{Binding Current.Page.Title, Converter={StaticResource Blueprint.Upper}}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
+                                                <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+                <Border BorderBrush="{DynamicResource Fx.TextBrush}" BorderThickness="{StaticResource Blueprint.Left}" Padding="14,6,14,7"
+                        Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding InGroupText, Converter={StaticResource Blueprint.Upper}}" Style="{StaticResource Blueprint.Number}"/>
+                        <TextBlock Text="{Binding PlaceInGroup, Converter={StaticResource Blueprint.Upper}}" Style="{StaticResource Blueprint.Cell}"/>
+                    </StackPanel>
+                </Border>
+                <Border BorderBrush="{DynamicResource Fx.TextBrush}" BorderThickness="{StaticResource Blueprint.Left}" Padding="14,6,14,7">
+                    <StackPanel>
+                        <TextBlock local:Loc.Key="L.S.Shell.Version" Style="{StaticResource Blueprint.Caption}"/>
+                        <TextBlock Text="{Binding Version}" Style="{StaticResource Blueprint.Cell}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
 </ResourceDictionary>

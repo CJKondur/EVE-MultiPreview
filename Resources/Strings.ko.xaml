@@ -752,6 +752,11 @@
     <sys:String x:Key="L.S.Search.Placeholder">설정 찾기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">프로필</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">이 페이지 도움말</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SheetIndex">도면 목록</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Sheet">도면</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.InGroup">{0} 안</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.PlaceOf">{1}개 중 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Version">버전</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.HelpShort">도움말</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Showing">표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">모든 설정 표시</sys:String> <!-- draft -->

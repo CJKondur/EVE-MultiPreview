@@ -771,6 +771,11 @@
     <sys:String x:Key="L.S.Search.Placeholder">Найти настройку</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Profile">Профиль</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Help">Справка по этой странице</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.SheetIndex">Указатель листов</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Sheet">Лист</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.InGroup">В разделе {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.PlaceOf">{0} из {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Shell.Version">Версия</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.HelpShort">Справка</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Showing">Показ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Advanced">Показать все настройки</sys:String> <!-- draft -->
