@@ -815,6 +815,7 @@
     <sys:String x:Key="L.Help.app.look.contrast.Title">Windows 对比度主题</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.contrast.Body">Windows 对比度主题开启时（Windows 设置、辅助功能、对比度主题），无论你选择了哪种外观，MultiPreview 都会以该主题的颜色显示**高对比度**。你的选择会保留，主题关闭后会恢复。&#x0A;&#x0A;如果想在对比度主题开启时仍使用自己的外观，请关闭**Windows 对比度主题开启时使用高对比度**。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">当前</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Section.HasError">此部分中有一项设置出错</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">经典</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">MultiPreview 原来的深蓝色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->

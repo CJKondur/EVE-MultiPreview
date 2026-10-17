@@ -797,6 +797,7 @@
     <sys:String x:Key="L.Help.app.look.contrast.Title">Windows-Kontrastdesigns</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.contrast.Body">Ist ein Windows-Kontrastdesign aktiv (Windows-Einstellungen, Barrierefreiheit, Kontrastdesigns), zeigt MultiPreview **Hoher Kontrast** in den Farben dieses Designs, egal welches Aussehen du gewählt hast. Deine Wahl bleibt erhalten und erscheint wieder, wenn das Design ausgeschaltet wird.&#x0A;&#x0A;Um dein eigenes Aussehen auch mit einem Kontrastdesign zu behalten, schalte **Hohen Kontrast verwenden, solange ein Windows-Kontrastdesign aktiv ist** aus.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">Aktuell</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Section.HasError">Eine Einstellung in diesem Abschnitt hat einen Fehler</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">Klassisch</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">Das alte Marineblau von MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->

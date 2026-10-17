@@ -791,6 +791,7 @@
     <sys:String x:Key="L.Help.app.look.contrast.Title">Windows contrast themes</sys:String>
     <sys:String x:Key="L.Help.app.look.contrast.Body">When a Windows contrast theme is on (Windows Settings, Accessibility, Contrast themes), MultiPreview shows **High contrast** in that theme's colours, whatever look you picked. Your pick is kept, and it shows again when the theme is turned off.&#x0A;&#x0A;To keep your own look while a contrast theme is on, turn off **Use High contrast while a Windows contrast theme is on**.</sys:String>
     <sys:String x:Key="L.S.Look.Current">Current</sys:String>
+    <sys:String x:Key="L.S.Section.HasError">A setting in this section has an error</sys:String>
     <sys:String x:Key="L.S.Style.classic">Classic</sys:String>
     <sys:String x:Key="L.S.Style.classic.Desc">The old MultiPreview navy.</sys:String>
     <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String>

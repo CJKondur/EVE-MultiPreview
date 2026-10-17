@@ -800,6 +800,7 @@
     <sys:String x:Key="L.Help.app.look.contrast.Title">Thèmes de contraste de Windows</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.contrast.Body">Quand un thème de contraste de Windows est actif (Paramètres Windows, Accessibilité, Thèmes de contraste), MultiPreview affiche **Contraste élevé** dans les couleurs de ce thème, quelle que soit l'apparence choisie. Votre choix est conservé et revient quand le thème est désactivé.&#x0A;&#x0A;Pour garder votre apparence avec un thème de contraste, désactivez **Utiliser Contraste élevé quand un thème de contraste de Windows est actif**.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">Actuelle</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Section.HasError">Un paramètre de cette section contient une erreur</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">Classique</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">Le bleu marine d'origine de MultiPreview.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->

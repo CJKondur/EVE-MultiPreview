@@ -798,6 +798,7 @@
     <sys:String x:Key="L.Help.app.look.contrast.Title">Windows 대비 테마</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.contrast.Body">Windows 대비 테마가 켜져 있으면(Windows 설정, 접근성, 대비 테마) MultiPreview는 어떤 모양을 골랐든 그 테마의 색으로 **고대비**를 표시해요. 고른 모양은 유지되고 테마를 끄면 다시 표시돼요.&#x0A;&#x0A;대비 테마가 켜져 있어도 내 모양을 쓰려면 **Windows 대비 테마가 켜져 있는 동안 고대비 사용**을 끄세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">현재</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Section.HasError">이 섹션의 설정에 오류가 있어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">클래식</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">예전 MultiPreview의 남색이에요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.windows11">Windows 11</sys:String> <!-- draft -->

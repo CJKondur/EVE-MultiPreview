@@ -214,7 +214,7 @@
     </Style>
 
     <!-- A panel's header bar: 28 high on the header colour, a triangle that points down while the panel is open and right
-         while it is folded, the title, and a critical-colour square at the right while a row of the panel shows an error. It
+         while it is folded, the title, and a warning sign in the critical colour at the right, its words as a tool tip, while a row of the panel shows an error. It
          folds the panel (owner decision O19; Space or Enter). Under the pointer the bar takes the hover colour and the
          triangle the accent (Task 2 review: it had no hover); keyboard focus draws its edge in the focus colour. -->
     <Style x:Key="Capsule.Fold" TargetType="ToggleButton">
@@ -232,8 +232,9 @@
                     <Grid>
                         <Border x:Name="Bar" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                             <DockPanel>
-                                <Rectangle x:Name="ErrorMark" DockPanel.Dock="Right" Width="8" Height="8" Margin="8,0,0,0" VerticalAlignment="Center"
-                                           Fill="{DynamicResource Fx.CriticalBrush}" Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
+                                <local:DecorativeText x:Name="ErrorMark" DockPanel.Dock="Right" Margin="8,0,0,0" VerticalAlignment="Center" Text="&#xE7BA;" FontFamily="{DynamicResource Fx.IconFont}"
+                                           Foreground="{DynamicResource Fx.CriticalBrush}" FontSize="{DynamicResource Fx.Size.Caption}" ToolTip="{DynamicResource L.S.Section.HasError}"
+                                           Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
                                 <Path x:Name="Twisty" DockPanel.Dock="Left" Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center" Stretch="None"
                                       Fill="{DynamicResource Fx.TextSecondaryBrush}" Data="M 2 0 L 7 4 L 2 8 Z"/>
                                 <ContentPresenter VerticalAlignment="Center"/>
@@ -264,7 +265,7 @@
         <Border Margin="{DynamicResource Fx.Section.Gap}" Background="{DynamicResource Fx.CardBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}"
                 BorderThickness="{DynamicResource Fx.Line.Card}" Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
             <StackPanel>
-                <local:FoldToggle x:Name="Fold" Style="{StaticResource Capsule.Fold}" IsChecked="{Binding IsOpen}" local:Loc.NameKey="{Binding TitleKey}">
+                <local:FoldToggle x:Name="Fold" Style="{StaticResource Capsule.Fold}" IsChecked="{Binding IsOpen}" HasError="{Binding HasError}" local:Loc.NameKey="{Binding TitleKey}">
                     <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}" Margin="0"/>
                 </local:FoldToggle>
                 <ContentPresenter Content="{Binding Cards}" Margin="10,6,10,8"
