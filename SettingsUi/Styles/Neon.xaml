@@ -237,6 +237,38 @@
         </Setter>
     </Style>
 
+    <!-- A destructive button (owner's decision, 2026-10-17): the label stays in the button's own text colour (red on the lit
+         purple was 2.4 to 1) and a 2 px critical edge marks it, the same at rest, under the pointer and pressed, so nothing
+         shifts. No hover edge of the accent here; the keyboard-focus ring of the kit's template still wins. -->
+    <Style x:Key="Neon.Destructive" TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.CriticalBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+
+    <!-- The action buttons of a row. A destructive one takes the style above (a static reference: a trigger that is true when
+         the template is made may not set a {DynamicResource}). -->
+    <DataTemplate x:Key="Fx.Card.Actions">
+        <ContentControl Style="{DynamicResource Fx.CardHost}">
+            <ItemsControl ItemsSource="{Binding Buttons}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button x:Name="Act" Command="{Binding Command}" Margin="8,0,0,0" Padding="12,4">
+                            <TextBlock local:Loc.Key="{Binding LabelKey}"/>
+                        </Button>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsDestructive}" Value="True">
+                                <Setter TargetName="Act" Property="Style" Value="{StaticResource Neon.Destructive}"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ContentControl>
+    </DataTemplate>
+
     <!-- A hotkey setting: its combination as key caps, the Clear button beside it. -->
     <DataTemplate x:Key="Fx.Card.Hotkey">
         <ContentControl Style="{DynamicResource Fx.CardHost}">
