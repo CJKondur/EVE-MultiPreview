@@ -110,9 +110,12 @@ public static class UiStyles
     /// <summary>Dark and sharp, like the game (spec §7.3).</summary>
     public static UiStyle Capsule { get; } = new("capsule", usesFluent: false, () => new CapsuleStyle());
 
-    /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2); the looks of S3 and S4 in the
-    /// order they landed.</summary>
-    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon, Carbon, Capsule, Contrast, Blueprint, Ink };
+    /// <summary>Monospace, amber on black (spec §7.5).</summary>
+    public static UiStyle Terminal { get; } = new("terminal", usesFluent: false, () => new TerminalStyle());
+
+    /// <summary>The twelve looks, in the order the picker shows them, Classic first (spec §9.2); the looks of S3 and S4 in
+    /// the order they landed (owner decision S4-4).</summary>
+    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon, Carbon, Capsule, Contrast, Blueprint, Ink, Terminal };
 
     /// <summary>The look with this id; a missing, empty or unknown id gives Classic, the default (spec §10).</summary>
     public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Classic;

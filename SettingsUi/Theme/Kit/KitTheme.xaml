@@ -2141,4 +2141,325 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- ═══ Text shapes (Text, Terminal): controls drawn as characters in the look's own font; keyboard focus inverts them
+         (the text colour behind, the page's colour as the text). ═══ -->
+
+    <!-- Check box as text: "[ ]" off, "[x]" on in the mark colour, "[-]" neither on nor off; its content after it. -->
+    <Style x:Key="Kit.Check.Text" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+        <Setter Property="Padding" Value="10,0,0,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid x:Name="root" Background="{TemplateBinding Background}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="Box" VerticalAlignment="Top">
+                            <local:DecorativeText x:Name="Mark" Text="[ ]" Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ContentPresenter x:Name="Content" Grid.Column="1" Focusable="False" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasContent" Value="False">
+                            <Setter TargetName="Content" Property="Margin" Value="0"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Mark" Property="Text" Value="[x]"/>
+                            <Setter TargetName="Mark" Property="Foreground" Value="{DynamicResource Fx.CheckMarkBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="Mark" Property="Text" Value="[-]"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter TargetName="Mark" Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Radio button as text: "( )" off, "(•)" on in the mark colour. -->
+    <Style x:Key="Kit.Radio.Text" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+        <Setter Property="Padding" Value="10,0,0,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid x:Name="root" Background="{TemplateBinding Background}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="Box" VerticalAlignment="Top">
+                            <local:DecorativeText x:Name="Mark" Text="( )" Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ContentPresenter x:Name="Content" Grid.Column="1" Focusable="False" RecognizesAccessKey="True" Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasContent" Value="False">
+                            <Setter TargetName="Content" Property="Margin" Value="0"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Mark" Property="Text" Value="(•)"/>
+                            <Setter TargetName="Mark" Property="Foreground" Value="{DynamicResource Fx.CheckMarkBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter TargetName="Mark" Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Button as text: "<" its content ">"; under the mouse on the hover colour; pressed or focused inverted. -->
+    <Style x:Key="Kit.Button.Text" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.ButtonTextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.ButtonBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <StackPanel Orientation="Horizontal">
+                            <local:DecorativeText Text="&lt;" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
+                            <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                            <local:DecorativeText Text="&gt;" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <!-- A toggle button as text: the same, bold while it is on. -->
+    <Style x:Key="Kit.Toggle.Text" TargetType="ToggleButton">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.ButtonTextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.ButtonBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <StackPanel Orientation="Horizontal">
+                            <local:DecorativeText Text="&lt;" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
+                            <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                            <local:DecorativeText Text="&gt;" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Text box as text: "[" the field "]", the field on the input colour, its text in the value colour; the brackets in the
+         title colour while it has the keyboard; switched off, the field has no colour and the box is faded. -->
+    <Style x:Key="Kit.TextBox.Text" TargetType="TextBox">
+        <Setter Property="Background" Value="{DynamicResource Fx.ControlBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.ValueTextBrush}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Control.Height}"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <DockPanel x:Name="root">
+                        <local:DecorativeText x:Name="Open" DockPanel.Dock="Left" Text="[" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
+                        <local:DecorativeText x:Name="Close" DockPanel.Dock="Right" Text="]" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
+                        <Border x:Name="Field" Background="{TemplateBinding Background}" VerticalAlignment="Center">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" Margin="{TemplateBinding Padding}"
+                                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                    </DockPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Open" Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+                            <Setter TargetName="Close" Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Field" Property="Background" Value="{x:Null}"/>
+                            <Setter TargetName="root" Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Dropdown as text: "[" the choice "▼]"; inverted while it has the keyboard; the list in a pop-up. -->
+    <Style x:Key="Kit.Dropdown.Text" TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Control.Height}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid x:Name="root">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}">
+                            <DockPanel>
+                                <local:DecorativeText DockPanel.Dock="Left" Text="[" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
+                                <local:DecorativeText DockPanel.Dock="Right" Text="▼]" Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center"/>
+                                <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}"
+                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            </DockPanel>
+                        </Border>
+                        <ToggleButton x:Name="Toggle" Style="{x:Null}" Template="{StaticResource Kit.Dropdown.Hit}" Focusable="False" ClickMode="Press"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <TextBox x:Name="PART_EditableTextBox" Style="{x:Null}" Visibility="Collapsed" Focusable="True"
+                                 Background="{DynamicResource Fx.ControlBrush}" Foreground="{DynamicResource Fx.TextBrush}" CaretBrush="{DynamicResource Fx.TextBrush}"
+                                 BorderThickness="0" Padding="0" Margin="10,0,20,0" VerticalAlignment="Center" IsReadOnly="{TemplateBinding IsReadOnly}"/>
+                        <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" Focusable="False"
+                               AllowsTransparency="True" PopupAnimation="Slide">
+                            <Grid MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}" SnapsToDevicePixels="True">
+                                <Border Background="{DynamicResource Fx.FlyoutBrush}" BorderBrush="{DynamicResource Fx.FlyoutBorderBrush}"
+                                        BorderThickness="{DynamicResource Fx.Line.Card}" CornerRadius="{DynamicResource Fx.FlyoutRadius}"/>
+                                <ScrollViewer Margin="2" SnapsToDevicePixels="True">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                </ScrollViewer>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEditable" Value="True">
+                            <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="ContentSite" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Slider as character blocks (Blocks, Terminal): the filled part a solid bar in Fx.TrackFill, the rest hatched in
+         Fx.Track (the track's colour through a mask of diagonal lines: the mask's black is an alpha, not a colour); a thumb
+         of the fill's colour; keyboard focus a line under the whole track. -->
+    <Style x:Key="Kit.Slider.BlocksFill" TargetType="RepeatButton">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Rectangle Height="16" VerticalAlignment="Center" Fill="{DynamicResource Fx.TrackFillBrush}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="Kit.Slider.Blocks" TargetType="Slider">
+        <Setter Property="MinHeight" Value="20"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid x:Name="root" Background="Transparent" SnapsToDevicePixels="True">
+                        <Rectangle x:Name="Hatch" Height="16" VerticalAlignment="Center" Fill="{DynamicResource Fx.TrackBrush}">
+                            <Rectangle.OpacityMask>
+                                <DrawingBrush TileMode="Tile" Viewport="0,0,4,4" ViewportUnits="Absolute" Viewbox="0,0,4,4" ViewboxUnits="Absolute">
+                                    <DrawingBrush.Drawing>
+                                        <GeometryDrawing Brush="Black" Geometry="M 0,3 L 3,0 L 4,0 L 4,1 L 1,4 L 0,4 Z"/>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                        <Rectangle x:Name="Ring" Height="2" VerticalAlignment="Bottom" Fill="{DynamicResource Fx.FocusBrush}" Visibility="Hidden"/>
+                        <Track x:Name="PART_Track">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Style="{StaticResource Kit.Slider.BlocksFill}"/>
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Style="{StaticResource Kit.Slider.Repeat}"/>
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Width="4" Height="20" Focusable="False" OverridesDefaultStyle="True">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Rectangle Height="16" VerticalAlignment="Center" Fill="{DynamicResource Fx.TrackFillBrush}"/>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>
