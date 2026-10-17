@@ -108,6 +108,14 @@ public static class FluentMenu
         menu.ItemAdded += (_, e) => Prepare(menu, e.Item);
         foreach (ToolStripItem item in menu.Items) Prepare(menu, item);
         menu.HandleCreated += (_, _) => RoundCorners(menu.Handle);
+        // Each time it opens, the font again (IDEAS P103): a menu styled while Windows refused the look's carried family at
+        // start-up took Segoe UI, and BundledFonts loads the family on a later call. The same family gives the same Font
+        // object, so a menu already in it is not touched.
+        menu.Opening += (_, _) =>
+        {
+            var font = MenuFont;
+            if (!ReferenceEquals(menu.Font, font)) menu.Font = font;
+        };
     }
 
     private static void Prepare(ToolStripDropDown menu, ToolStripItem? item)
@@ -239,7 +247,7 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
             using var path = Rounded(row, radius);
             using var brush = new SolidBrush(C("Fx.Text"));
             g.FillPath(brush, path);
-            if (isChecked) Tick(g, e.ToolStrip, row, C("Fx.Bg"));
+            if (isChecked) Tick(g, e.ToolStrip, row, C("Fx.Bg"), BesideAnIcon(e.Item));
             return;
         }
         if (isChecked && palette.MenuCheck == SettingsUi.MenuCheck.Invert)
@@ -248,7 +256,7 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
             {
                 // Blueprint, Ink, Terminal: the accent is the text colour, so an accent-filled checked row would be the
                 // pointed row's twin (final review I-1). A tick marks it, as these looks' WPF menus do.
-                Tick(g, e.ToolStrip, row, C("Fx.Accent"));
+                Tick(g, e.ToolStrip, row, C("Fx.Accent"), BesideAnIcon(e.Item));
                 return;
             }
             using var path = Rounded(row, radius);
@@ -273,11 +281,17 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
             Tick(g, e.ToolStrip, row, C("Fx.Accent"));
     }
 
-    /// <summary>A tick in the icon font (Segoe Fluent Icons' CheckMark), where the bar would be.</summary>
-    private static void Tick(Graphics g, ToolStrip? strip, Rectangle row, Color colour)
+    /// <summary>Whether a row's tick sits beside an icon: the menu shows icons and the row has one.</summary>
+    private static bool BesideAnIcon(ToolStripItem item) =>
+        item.Image != null && item.Owner is ToolStripDropDownMenu { ShowImageMargin: true };
+
+    /// <summary>A tick in the icon font (Segoe Fluent Icons' CheckMark), where the bar would be. Beside an icon it is small,
+    /// in the 8 px left of the icon column's icon (plan S5, from S4's re-review: on a pointed checked row of an inverting
+    /// look the 16 px tick and the icon were both in the page colour and merged).</summary>
+    private static void Tick(Graphics g, ToolStrip? strip, Rectangle row, Color colour, bool small = false)
     {
-        using var font = new Font(FluentMenu.IconFontName, Px(strip, 12), GraphicsUnit.Pixel);
-        var mark = new Rectangle(row.X, row.Y, Px(strip, 16), row.Height);
+        using var font = new Font(FluentMenu.IconFontName, Px(strip, small ? 8 : 12), GraphicsUnit.Pixel);
+        var mark = new Rectangle(row.X, row.Y, Px(strip, small ? 8 : 16), row.Height);
         TextRenderer.DrawText(g, ((char)0xE73E).ToString(), font, mark, colour,
             TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
     }
