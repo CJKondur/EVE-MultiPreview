@@ -51,18 +51,35 @@ public sealed class UiStyle
     internal static IEnumerable<ResourceDictionary> LooksHere =>
         _loaded?.Where(kv => !kv.Key.Contains('#')).Select(kv => kv.Value).ToList() ?? new List<ResourceDictionary>();
 
-    /// <summary>Drops this look's dictionaries from this thread's cache (final review M-3: a look made again for Windows'
-    /// new contrast colours replaces the one before, which would otherwise stay, and be re-localized, for the run). A
-    /// window that holds one keeps it until it is restyled.</summary>
-    internal void Forget()
+    /// <summary>The cache keys of looks forgotten on any thread (S4's re-review of M-3: each thread's cache is its own, so
+    /// each thread drops them when it next reads a look). Guarded by itself. A few a run: one look per change of Windows'
+    /// contrast colours.</summary>
+    private static readonly HashSet<string> Forgotten = new(StringComparer.Ordinal);
+    private static int _forgets;
+    [ThreadStatic] private static int _swept;
+
+    private static string[] KeysOf(string id) => new[] { id, id + "#controls", id + "#keyed" };
+
+    /// <summary>Drops this look's dictionaries from every thread's cache (final review M-3: a look made again for Windows'
+    /// new contrast colours replaces the one before, which would otherwise stay, and be re-localized, for the run): this
+    /// thread's at once, another thread's when it next reads a look. A read of a forgotten look makes its dictionary anew
+    /// and does not keep it. A window that holds one keeps it until it is restyled.</summary>
+    public void Forget()
     {
-        if (_loaded == null) return;
-        foreach (var key in new[] { Id, Id + "#controls", Id + "#keyed" }) _loaded.Remove(key);
+        lock (Forgotten) foreach (var key in KeysOf(Id)) Forgotten.Add(key);
+        System.Threading.Interlocked.Increment(ref _forgets);
+        if (_loaded != null) foreach (var key in KeysOf(Id)) _loaded.Remove(key);
     }
 
     private static ResourceDictionary Loaded(string key, Func<ResourceDictionary> make, bool freeze)
     {
         var loaded = _loaded ??= new Dictionary<string, ResourceDictionary>(StringComparer.Ordinal);
+        int forgets = System.Threading.Volatile.Read(ref _forgets);
+        if (_swept != forgets)
+        {
+            lock (Forgotten) foreach (var gone in Forgotten) loaded.Remove(gone);
+            _swept = forgets;
+        }
         if (!loaded.TryGetValue(key, out var dictionary))
         {
             dictionary = make();
@@ -71,7 +88,9 @@ public sealed class UiStyle
                 UiStyles.Freeze(dictionary);
                 UiFont.Localize(dictionary, UiStyles.Language);   // the font tokens hold the chains of this thread's language
             }
-            loaded[key] = dictionary;
+            bool forgotten;
+            lock (Forgotten) forgotten = Forgotten.Contains(key);
+            if (!forgotten) loaded[key] = dictionary;
         }
         return dictionary;
     }
