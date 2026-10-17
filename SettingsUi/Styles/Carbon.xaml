@@ -281,4 +281,22 @@
             </Grid>
         </GroupBox>
     </DataTemplate>
+
+    <!-- A severity: the word in the condensed slanted title face, bold, in capitals, in the status colour (spec §7.10;
+         upright in Chinese, Japanese and Korean: Fx.Style.Title, O28). -->
+    <DataTemplate x:Key="Look.Severity">
+        <TextBlock x:Name="Word" local:Loc.Key="L.S.Sev.info" Foreground="{DynamicResource Fx.InfoBrush}" VerticalAlignment="Center"
+                   FontFamily="{DynamicResource Fx.TitleFont}" FontStyle="{DynamicResource Fx.Style.Title}" FontWeight="Bold"
+                   local:Loc.Case="{DynamicResource Fx.Case.Section}"/>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding}" Value="critical">
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.CriticalBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.critical"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="warning">
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.WarningBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.warning"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
 </ResourceDictionary>

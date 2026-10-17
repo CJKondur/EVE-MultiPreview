@@ -348,4 +348,24 @@
             </Border>
         </GroupBox>
     </DataTemplate>
+
+    <!-- A severity: a dot and the word, both in the status colour (spec §7.8). -->
+    <DataTemplate x:Key="Look.Severity">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Ellipse x:Name="Dot" Width="8" Height="8" Margin="0,0,7,0" VerticalAlignment="Center" Fill="{DynamicResource Fx.InfoBrush}"/>
+            <TextBlock x:Name="Word" local:Loc.Key="L.S.Sev.info" Foreground="{DynamicResource Fx.InfoBrush}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding}" Value="critical">
+                <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource Fx.CriticalBrush}"/>
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.CriticalBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.critical"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="warning">
+                <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource Fx.WarningBrush}"/>
+                <Setter TargetName="Word" Property="Foreground" Value="{DynamicResource Fx.WarningBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.warning"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
 </ResourceDictionary>
