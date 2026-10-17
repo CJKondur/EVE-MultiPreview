@@ -269,6 +269,28 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
     private static bool IsPointedInverted(ToolStripItem? item) =>
         item is { Selected: true, Enabled: true } && SettingsUi.UiPalette.Current.MenuCheck == SettingsUi.MenuCheck.Invert;
 
+    /// <summary>An item's icon on a row High contrast inverts (the pointed row, filled in the text colour; the checked row,
+    /// filled in the accent) is drawn in that row's text colour, alpha kept: the tray's white bitmaps and the glyph icons
+    /// would vanish on the inverted fill.</summary>
+    protected override void OnRenderItemImage(ToolStripItemImageRenderEventArgs e)
+    {
+        bool invert = SettingsUi.UiPalette.Current.MenuCheck == SettingsUi.MenuCheck.Invert;
+        string? key = !invert || e.Image == null || !e.Item.Enabled ? null
+            : e.Item.Selected ? "Fx.Bg"
+            : e.Item is ToolStripMenuItem { Checked: true } ? "Fx.OnAccent"
+            : null;
+        if (key == null) { base.OnRenderItemImage(e); return; }
+        var tint = C(key);
+        var matrix = new ColorMatrix(new[]
+        {
+            new float[] { 0, 0, 0, 0, 0 }, new float[] { 0, 0, 0, 0, 0 }, new float[] { 0, 0, 0, 0, 0 }, new float[] { 0, 0, 0, 1, 0 },
+            new float[] { tint.R / 255f, tint.G / 255f, tint.B / 255f, 0, 1 },
+        });
+        using var attributes = new ImageAttributes();
+        attributes.SetColorMatrix(matrix);
+        e.Graphics.DrawImage(e.Image!, e.ImageRectangle, 0, 0, e.Image!.Width, e.Image.Height, GraphicsUnit.Pixel, attributes);
+    }
+
     protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
     {
         bool hint = e.Item is ToolStripMenuItem { ShortcutKeyDisplayString: { } keys } && e.Text == keys;
