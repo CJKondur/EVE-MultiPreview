@@ -310,6 +310,37 @@
         </Setter>
     </Style>
     <Style TargetType="ComboBoxItem" BasedOn="{StaticResource Kit.Dropdown.Item}"/>
+    <!-- Inverted (High contrast, Blueprint, Ink; final wave I-2): the pointed item (mouse or arrow keys) filled in the text
+         colour, its text in the page colour (spec §7.7, §7.9, §7.12); the picked one ticked and semibold. -->
+    <Style x:Key="Kit.Dropdown.Item.Invert" TargetType="ComboBoxItem" BasedOn="{StaticResource Kit.Dropdown.Item}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <DockPanel>
+                            <TextBlock x:Name="Tick" DockPanel.Dock="Left" Width="20" Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}"
+                                       Visibility="Hidden" VerticalAlignment="Center"/>
+                            <ContentPresenter/>
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- ═══ Button: light grey with a grey edge (Box); hovered lighter with an accent edge. The corner is the old
          window's 3 (its boxes had 2): no token is a button's corner. ═══ -->
@@ -628,6 +659,55 @@
         </Setter>
     </Style>
     <Style TargetType="MenuItem" BasedOn="{StaticResource Kit.Menu.Row}"/>
+    <!-- Inverted (High contrast, Blueprint, Ink; final wave I-2): the pointed item filled in the text colour, its text in
+         the page colour; a checked one ticked. -->
+    <Style x:Key="Kit.Menu.Row.Invert" TargetType="MenuItem" BasedOn="{StaticResource Kit.Menu.Row}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="Bd" Background="{DynamicResource Fx.FlyoutBrush}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="Gesture"/>
+                                <ColumnDefinition Width="12"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="Tick" Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}" Visibility="Hidden"
+                                       VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}"/>
+                            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="16,0,0,0" VerticalAlignment="Center"
+                                       Foreground="{TemplateBinding Foreground}"/>
+                            <Path x:Name="Arrow" Grid.Column="3" Data="M 0 0 L 4 4 L 0 8 Z" Fill="{TemplateBinding Foreground}" Visibility="Collapsed"
+                                  HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <Popup x:Name="PART_Popup" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="{DynamicResource Fx.FlyoutBrush}" BorderBrush="{DynamicResource Fx.FlyoutBorderBrush}"
+                                        BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.FlyoutRadius}" Padding="2">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="Role" Value="SubmenuHeader">
+                            <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <!-- A separator in a menu is styled by MenuItem.SeparatorStyleKey, anywhere else by its type. -->
     <Style x:Key="Kit.Menu.Separator" TargetType="Separator">
         <Setter Property="Background" Value="{DynamicResource Fx.DividerBrush}"/>

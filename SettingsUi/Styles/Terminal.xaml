@@ -116,11 +116,12 @@
     <Visibility x:Key="Fx.Show.Breadcrumb">Collapsed</Visibility>
     <sys:Boolean x:Key="Fx.Scroll.Overlay">False</sys:Boolean>
     <local:WindowCorners x:Key="Fx.Window.Corners">Square</local:WindowCorners>
-    <!-- Around (5): menus with 24 px rows, square, the pointed item inverted, in Cascadia Mono; a square bell -->
+    <!-- Around (5): menus with 24 px rows, square, the pointed item inverted, in Cascadia Mono (else Cascadia Code, else
+         Consolas: FluentMenu takes the first Windows has); a square bell -->
     <sys:Double x:Key="Fx.Menu.RowHeight">24</sys:Double>
     <sys:Double x:Key="Fx.Menu.Radius">0</sys:Double>
     <local:MenuCheck x:Key="Fx.Menu.Check">Invert</local:MenuCheck>
-    <sys:String x:Key="Fx.Menu.Font">Cascadia Mono</sys:String>
+    <sys:String x:Key="Fx.Menu.Font">Cascadia Mono, Cascadia Code, Consolas</sys:String>
     <sys:Boolean x:Key="Fx.Hub.Round">False</sys:Boolean>
 
     <!-- ═══ The values the shared parts read; its cells (Terminal.xaml.cs lays them) ═══ -->

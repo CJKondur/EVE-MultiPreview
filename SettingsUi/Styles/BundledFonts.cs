@@ -87,17 +87,17 @@ public static class BundledFonts
             {
                 if (!MenuFonts.TryGetValue(family, out var collection))
                 {
-                    // Kept before its files are added: a file Windows refuses is tried once, not again on every menu.
-                    collection = new System.Drawing.Text.PrivateFontCollection();
+                    // Kept only once its family is in it (final review M-1: an empty collection kept after one transient
+                    // GDI+ failure made the menus Segoe UI for the rest of the run). A refused load is tried again on a
+                    // later call, up to Tries times a run, not on every menu for ever.
+                    if (Failures.GetValueOrDefault(family) >= Tries) return null;
+                    collection = Load(carried);
+                    if (collection == null)
+                    {
+                        Failures[family] = Failures.GetValueOrDefault(family) + 1;
+                        return null;
+                    }
                     MenuFonts[family] = collection;
-                    try
-                    {
-                        foreach (var file in carried.Files) AddToProcess(collection, "resources/fonts/" + carried.Folder + "/" + file);
-                    }
-                    catch (Exception e) when (e is IOException or ArgumentException or System.Runtime.InteropServices.ExternalException or OutOfMemoryException)
-                    {
-                        Refused(e);
-                    }
                 }
                 var loaded = collection.Families.FirstOrDefault(f => f.Name == family);
                 return loaded == null ? null : new System.Drawing.Font(loaded, size);
@@ -110,12 +110,50 @@ public static class BundledFonts
         }
     }
 
+    /// <summary>How many times a run a family's files are tried for the menus before it is given up (M-1).</summary>
+    public const int Tries = 3;
+
+    /// <summary>Refused loads a family, while it has no collection kept.</summary>
+    private static readonly Dictionary<string, int> Failures = new();
+
+    /// <summary>Tests only: runs before a family's files are added to the process; an exception it throws is a refusal.</summary>
+    public static Action<string>? Loading { get; set; }
+
+    /// <summary>Tests only: forgets a family's kept collection and its refusals, so the next call loads it again.</summary>
+    public static void Forget(string family)
+    {
+        lock (MenuGate) { MenuFonts.Remove(family); Failures.Remove(family); }
+    }
+
+    /// <summary>The latest refusal, "Type: message", for a test's failure message (the error log has the first only).</summary>
+    public static string? LastRefusal { get; private set; }
+
+    /// <summary>A new collection holding the family's files, or null when Windows refused one or the family is not in it.</summary>
+    private static System.Drawing.Text.PrivateFontCollection? Load(Family carried)
+    {
+        var collection = new System.Drawing.Text.PrivateFontCollection();
+        try
+        {
+            Loading?.Invoke(carried.Name);
+            foreach (var file in carried.Files) AddToProcess(collection, "resources/fonts/" + carried.Folder + "/" + file);
+            if (collection.Families.Any(f => f.Name == carried.Name)) return collection;
+            Refused(new System.Runtime.InteropServices.ExternalException(carried.Name + " is not in its own files' collection"));
+        }
+        catch (Exception e) when (e is IOException or ArgumentException or System.Runtime.InteropServices.ExternalException or OutOfMemoryException)
+        {
+            Refused(e);
+        }
+        collection.Dispose();   // no font was made from it
+        return null;
+    }
+
     private static bool _refusalLogged;
 
     /// <summary>Windows refused a carried font for the menus: written to the error log once a run (the menus then draw in
     /// Segoe UI), not once a menu.</summary>
     private static void Refused(Exception e)
     {
+        LastRefusal = e.GetType().Name + ": " + e.Message;
         if (_refusalLogged) return;
         _refusalLogged = true;
         ErrorLog.Shared.Record(e, "UI styles", DateTime.Now);

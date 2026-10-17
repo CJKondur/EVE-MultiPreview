@@ -327,84 +327,10 @@
 
     <!-- A dropdown's item: the pointed one (mouse or arrow keys) inverted, white with black text (spec §7.7); the picked one
          with a tick and semibold. -->
-    <Style TargetType="ComboBoxItem" BasedOn="{StaticResource Kit.Dropdown.Item}">
-        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ComboBoxItem">
-                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-                        <DockPanel>
-                            <TextBlock x:Name="Tick" DockPanel.Dock="Left" Width="20" Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}"
-                                       Visibility="Hidden" VerticalAlignment="Center"/>
-                            <ContentPresenter/>
-                        </DockPanel>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
-                            <Setter Property="FontWeight" Value="SemiBold"/>
-                        </Trigger>
-                        <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <Style TargetType="ComboBoxItem" BasedOn="{StaticResource Kit.Dropdown.Item.Invert}"/>
 
     <!-- A menu's item: 34 px; the pointed one inverted, white with black text (spec §7.7, "Around"); a checked one ticked. -->
-    <Style TargetType="MenuItem" BasedOn="{StaticResource Kit.Menu.Row}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="MenuItem">
-                    <Border x:Name="Bd" Background="{DynamicResource Fx.FlyoutBrush}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="20"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto" SharedSizeGroup="Gesture"/>
-                                <ColumnDefinition Width="12"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock x:Name="Tick" Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}" Visibility="Hidden"
-                                       VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}"/>
-                            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="16,0,0,0" VerticalAlignment="Center"
-                                       Foreground="{TemplateBinding Foreground}"/>
-                            <Path x:Name="Arrow" Grid.Column="3" Data="M 0 0 L 4 4 L 0 8 Z" Fill="{TemplateBinding Foreground}" Visibility="Collapsed"
-                                  HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                            <Popup x:Name="PART_Popup" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right"
-                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
-                                <Border Background="{DynamicResource Fx.FlyoutBrush}" BorderBrush="{DynamicResource Fx.FlyoutBorderBrush}"
-                                        BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.FlyoutRadius}" Padding="2">
-                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True"/>
-                                </Border>
-                            </Popup>
-                        </Grid>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
-                        </Trigger>
-                        <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
-                        </Trigger>
-                        <Trigger Property="Role" Value="SubmenuHeader">
-                            <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    <Style TargetType="MenuItem" BasedOn="{StaticResource Kit.Menu.Row.Invert}"/>
 
     <!-- A list's item (a row of choices: Fx.Card.Segmented) and a table's row: the keyboard's focus a 2 px white ring inside
          the item (a list scrolls, and its scroller would cut an outline outside the item); under the mouse a 1 px white

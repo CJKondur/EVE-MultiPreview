@@ -151,6 +151,10 @@
     <Style TargetType="ComboBox" BasedOn="{StaticResource Kit.Dropdown.Underline}">
         <Setter Property="local:Kit.DashedOff" Value="True"/>
     </Style>
+    <!-- The item a dropdown or a menu points at: inverted, white on black (spec §7.12; final wave I-2: the kit's AccentSoft
+         grey was 1.14:1 on the white list). -->
+    <Style TargetType="ComboBoxItem" BasedOn="{StaticResource Kit.Dropdown.Item.Invert}"/>
+    <Style TargetType="MenuItem" BasedOn="{StaticResource Kit.Menu.Row.Invert}"/>
     <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Underline}">
         <Setter Property="local:Kit.DashedOff" Value="True"/>
     </Style>

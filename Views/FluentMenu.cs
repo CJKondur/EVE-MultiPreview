@@ -39,10 +39,31 @@ public static class FluentMenu
     /// <summary>One font per family, shared (13 px at 96 DPI, as the reference). Never disposed, as the glyph bitmaps.</summary>
     private static readonly ConcurrentDictionary<string, Font> MenuFonts = new(StringComparer.Ordinal);
 
-    /// <summary>A look's carried family is loaded into the process for the menus (UI styles spec §11.1); if that fails the
-    /// menu draws in Segoe UI (O18), never in GDI+'s own substitute.</summary>
-    private static Font MenuFont => MenuFonts.GetOrAdd(SettingsUi.UiPalette.Current.MenuFont, family =>
-        SettingsUi.BundledFonts.MenuFont(family, 9.75f) ?? new Font(SettingsUi.BundledFonts.Find(family) != null ? "Segoe UI" : family, 9.75f));
+    /// <summary>The families Windows has, read once.</summary>
+    private static readonly Lazy<HashSet<string>> Installed = new(() =>
+        FontFamily.Families.Select(f => f.Name).ToHashSet(StringComparer.OrdinalIgnoreCase));
+
+    /// <summary>The menu font of a look's Fx.Menu.Font, a family or a chain of them ("Cascadia Mono, Consolas"): the first
+    /// that is carried (loaded into the process for the menus, UI styles spec §11.1) or that Windows has; if none is, Segoe
+    /// UI (O18), never GDI+'s own substitute (M-7: Cascadia Mono missing became Microsoft Sans Serif). A carried family that
+    /// Windows refused this time is not kept: a later call tries it again (BundledFonts bounds the tries, M-1).</summary>
+    private static Font MenuFont
+    {
+        get
+        {
+            foreach (var name in SettingsUi.UiPalette.Current.MenuFont.Split(',').Select(n => n.Trim()).Where(n => n.Length > 0))
+            {
+                if (SettingsUi.BundledFonts.Find(name) != null)
+                {
+                    if (MenuFonts.TryGetValue(name, out var kept)) return kept;
+                    if (SettingsUi.BundledFonts.MenuFont(name, 9.75f) is { } carried) return MenuFonts.GetOrAdd(name, carried);
+                    continue;
+                }
+                if (Installed.Value.Contains(name)) return MenuFonts.GetOrAdd(name, n => new Font(n, 9.75f));
+            }
+            return MenuFonts.GetOrAdd("Segoe UI", n => new Font(n, 9.75f));
+        }
+    }
 
     /// <summary>Every styled menu and the thread that made it: WinForms' InvokeRequired cannot tell before the menu has a
     /// handle, so a change of look asks this instead.</summary>
@@ -210,16 +231,26 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
         var row = new Rectangle(inset, 0, Math.Max(1, e.Item.Width - 2 * inset), e.Item.Height);
         var palette = SettingsUi.UiPalette.Current;
         int radius = Px(e.ToolStrip, (int)Math.Round(palette.MenuRadius));
+        bool isChecked = e.Item is ToolStripMenuItem { Checked: true };
         if (IsPointedInverted(e.Item))
         {
-            // High contrast (spec §7.7): the pointed item inverted, filled in the text colour, its text in the page colour.
+            // High contrast (spec §7.7): the pointed item inverted, filled in the text colour, its text in the page colour;
+            // checked, it keeps a tick, in the page colour (final review I-1, ledger N2: the check was lost here).
             using var path = Rounded(row, radius);
             using var brush = new SolidBrush(C("Fx.Text"));
             g.FillPath(brush, path);
+            if (isChecked) Tick(g, e.ToolStrip, row, C("Fx.Bg"));
             return;
         }
-        if (e.Item is ToolStripMenuItem { Checked: true } && palette.MenuCheck == SettingsUi.MenuCheck.Invert)
+        if (isChecked && palette.MenuCheck == SettingsUi.MenuCheck.Invert)
         {
+            if (CheckedAsTick(palette))
+            {
+                // Blueprint, Ink, Terminal: the accent is the text colour, so an accent-filled checked row would be the
+                // pointed row's twin (final review I-1). A tick marks it, as these looks' WPF menus do.
+                Tick(g, e.ToolStrip, row, C("Fx.Accent"));
+                return;
+            }
             using var path = Rounded(row, radius);
             using var brush = new SolidBrush(C("Fx.Accent"));
             g.FillPath(brush, path);
@@ -239,62 +270,90 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
             g.FillPath(brush, path);
         }
         if (e.Item is ToolStripMenuItem { Checked: true } && palette.MenuCheck == SettingsUi.MenuCheck.Tick)
-        {
-            // A tick in the icon font (Segoe Fluent Icons' CheckMark), where the bar would be.
-            using var font = new Font(FluentMenu.IconFontName, Px(e.ToolStrip, 12), GraphicsUnit.Pixel);
-            var mark = new Rectangle(row.X, row.Y, Px(e.ToolStrip, 16), row.Height);
-            TextRenderer.DrawText(g, ((char)0xE73E).ToString(), font, mark, C("Fx.Accent"),
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
-        }
+            Tick(g, e.ToolStrip, row, C("Fx.Accent"));
     }
+
+    /// <summary>A tick in the icon font (Segoe Fluent Icons' CheckMark), where the bar would be.</summary>
+    private static void Tick(Graphics g, ToolStrip? strip, Rectangle row, Color colour)
+    {
+        using var font = new Font(FluentMenu.IconFontName, Px(strip, 12), GraphicsUnit.Pixel);
+        var mark = new Rectangle(row.X, row.Y, Px(strip, 16), row.Height);
+        TextRenderer.DrawText(g, ((char)0xE73E).ToString(), font, mark, colour,
+            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+    }
+
+    /// <summary>An Invert look whose accent is (within 1.1:1) its text colour marks a checked row with a tick instead of an
+    /// accent fill, which would be the inverted pointed row's twin (final review I-1: Blueprint, Ink, Terminal). High
+    /// contrast's cyan accent against its white text keeps the fill.</summary>
+    public static bool CheckedAsTick(SettingsUi.UiPalette palette) =>
+        palette.MenuCheck == SettingsUi.MenuCheck.Invert && Ratio(palette.Colour("Fx.Accent"), palette.Colour("Fx.Text")) < 1.1;
+
+    private static double Luminance(System.Windows.Media.Color c)
+    {
+        static double Lin(byte v) { double s = v / 255.0; return s <= 0.03928 ? s / 12.92 : Math.Pow((s + 0.055) / 1.055, 2.4); }
+        return 0.2126 * Lin(c.R) + 0.7152 * Lin(c.G) + 0.0722 * Lin(c.B);
+    }
+
+    private static double Ratio(System.Windows.Media.Color x, System.Windows.Media.Color y)
+    {
+        double a = Luminance(x), b = Luminance(y);
+        return (Math.Max(a, b) + 0.05) / (Math.Min(a, b) + 0.05);
+    }
+
+    /// <summary>Whether a checked row is filled with the accent (an Invert look whose accent is not its text colour).</summary>
+    private static bool CheckedFilled(ToolStripItem item) =>
+        item is ToolStripMenuItem { Checked: true } && SettingsUi.UiPalette.Current is { MenuCheck: SettingsUi.MenuCheck.Invert } palette && !CheckedAsTick(palette);
 
     protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e) { }   // the bar, the tick or the inverted row shows it
 
     /// <summary>The pointed row's fill: Fx.Control, or where that is within 1.1:1 of the menu's own Fx.Flyout (Classic,
     /// Daylight and Compact draw their controls in the flyout's colour, Neon nearly) Fx.AccentSoft, the WPF menus' pointed
     /// fill (Kit.Menu.Row). Fix round C: the pointed row could not be seen there.</summary>
-    internal static string PointedFill(SettingsUi.UiPalette palette)
-    {
-        static double Luminance(System.Windows.Media.Color c)
-        {
-            static double Lin(byte v) { double s = v / 255.0; return s <= 0.03928 ? s / 12.92 : Math.Pow((s + 0.055) / 1.055, 2.4); }
-            return 0.2126 * Lin(c.R) + 0.7152 * Lin(c.G) + 0.0722 * Lin(c.B);
-        }
-        double a = Luminance(palette.Colour("Fx.Control")), b = Luminance(palette.Colour("Fx.Flyout"));
-        return (Math.Max(a, b) + 0.05) / (Math.Min(a, b) + 0.05) < 1.1 ? "Fx.AccentSoft" : "Fx.Control";
-    }
+    internal static string PointedFill(SettingsUi.UiPalette palette) =>
+        Ratio(palette.Colour("Fx.Control"), palette.Colour("Fx.Flyout")) < 1.1 ? "Fx.AccentSoft" : "Fx.Control";
 
     /// <summary>A look whose checked item is inverted (Fx.Menu.Check = Invert: High contrast) inverts the pointed item too:
     /// on its black menu the pointed item's usual fill (Fx.Control) is black, and could not be seen.</summary>
     private static bool IsPointedInverted(ToolStripItem? item) =>
         item is { Selected: true, Enabled: true } && SettingsUi.UiPalette.Current.MenuCheck == SettingsUi.MenuCheck.Invert;
 
-    /// <summary>An item's icon on a row High contrast inverts (the pointed row, filled in the text colour; the checked row,
-    /// filled in the accent) is drawn in that row's text colour, alpha kept: the tray's white bitmaps and the glyph icons
-    /// would vanish on the inverted fill.</summary>
+    /// <summary>The colour an item's icon is drawn in on a row an Invert look inverts (the pointed row, filled in the text
+    /// colour: Fx.Bg; the accent-filled checked row: Fx.OnAccent), or null where the icon keeps its own colours (any other
+    /// row, a disabled one, a look that does not invert).</summary>
+    public static string? IconTint(ToolStripItem item, bool hasImage) =>
+        SettingsUi.UiPalette.Current.MenuCheck != SettingsUi.MenuCheck.Invert || !hasImage || !item.Enabled ? null
+            : item.Selected ? "Fx.Bg"
+            : CheckedFilled(item) ? "Fx.OnAccent"
+            : null;
+
+    /// <summary>One set of image attributes per tint, shared and never disposed (a few colours a run).</summary>
+    private static readonly ConcurrentDictionary<int, ImageAttributes> Tints = new();
+
+    /// <summary>An item's icon on a row an Invert look inverts is drawn in that row's text colour, alpha kept: the tray's
+    /// white bitmaps and the glyph icons would vanish on the inverted fill.</summary>
     protected override void OnRenderItemImage(ToolStripItemImageRenderEventArgs e)
     {
-        bool invert = SettingsUi.UiPalette.Current.MenuCheck == SettingsUi.MenuCheck.Invert;
-        string? key = !invert || e.Image == null || !e.Item.Enabled ? null
-            : e.Item.Selected ? "Fx.Bg"
-            : e.Item is ToolStripMenuItem { Checked: true } ? "Fx.OnAccent"
-            : null;
+        string? key = IconTint(e.Item, e.Image != null);
         if (key == null) { base.OnRenderItemImage(e); return; }
-        var tint = C(key);
-        var matrix = new ColorMatrix(new[]
+        var attributes = Tints.GetOrAdd(C(key).ToArgb(), argb =>
         {
-            new float[] { 0, 0, 0, 0, 0 }, new float[] { 0, 0, 0, 0, 0 }, new float[] { 0, 0, 0, 0, 0 }, new float[] { 0, 0, 0, 1, 0 },
-            new float[] { tint.R / 255f, tint.G / 255f, tint.B / 255f, 0, 1 },
+            var tint = Color.FromArgb(argb);
+            var a = new ImageAttributes();
+            a.SetColorMatrix(new ColorMatrix(new[]
+            {
+                new float[] { 0, 0, 0, 0, 0 }, new float[] { 0, 0, 0, 0, 0 }, new float[] { 0, 0, 0, 0, 0 }, new float[] { 0, 0, 0, 1, 0 },
+                new float[] { tint.R / 255f, tint.G / 255f, tint.B / 255f, 0, 1 },
+            }));
+            return a;
         });
-        using var attributes = new ImageAttributes();
-        attributes.SetColorMatrix(matrix);
-        e.Graphics.DrawImage(e.Image!, e.ImageRectangle, 0, 0, e.Image!.Width, e.Image.Height, GraphicsUnit.Pixel, attributes);
+        lock (attributes)   // GDI+ objects are not safe to share between threads at once
+            e.Graphics.DrawImage(e.Image!, e.ImageRectangle, 0, 0, e.Image!.Width, e.Image.Height, GraphicsUnit.Pixel, attributes);
     }
 
     protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
     {
         bool hint = e.Item is ToolStripMenuItem { ShortcutKeyDisplayString: { } keys } && e.Text == keys;
-        bool inverted = e.Item is ToolStripMenuItem { Checked: true } && SettingsUi.UiPalette.Current.MenuCheck == SettingsUi.MenuCheck.Invert;
+        bool inverted = CheckedFilled(e.Item);
         e.TextColor = !e.Item.Enabled ? C("Fx.TextDisabled")
             : IsPointedInverted(e.Item) ? C("Fx.Bg")
             : inverted ? C("Fx.OnAccent")
