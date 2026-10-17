@@ -47,13 +47,21 @@ public sealed class UiStyle
     /// only then gives the window its dark caption and backdrop. Null when the look has none.</summary>
     public ResourceDictionary? Keyed => _keyed == null ? null : Loaded(Id + "#keyed", _keyed, freeze: false);
 
+    /// <summary>The look dictionaries this thread has read (not the Fluent dictionaries a look's windows take).</summary>
+    internal static IEnumerable<ResourceDictionary> LooksHere =>
+        _loaded?.Where(kv => !kv.Key.Contains('#')).Select(kv => kv.Value).ToList() ?? new List<ResourceDictionary>();
+
     private static ResourceDictionary Loaded(string key, Func<ResourceDictionary> make, bool freeze)
     {
         var loaded = _loaded ??= new Dictionary<string, ResourceDictionary>(StringComparer.Ordinal);
         if (!loaded.TryGetValue(key, out var dictionary))
         {
             dictionary = make();
-            if (freeze) UiStyles.Freeze(dictionary);
+            if (freeze)
+            {
+                UiStyles.Freeze(dictionary);
+                UiFont.Localize(dictionary, UiStyles.Language);   // the font tokens hold the chains of this thread's language
+            }
             loaded[key] = dictionary;
         }
         return dictionary;
@@ -111,6 +119,21 @@ public static class UiStyles
     /// <summary>Raised before a change of look is applied, on the thread that makes it: a window keeps what a new template
     /// would lose (the settings window: the page's scroll and the keyboard's place) and gives it back on Changed.</summary>
     public static event Action? Changing;
+
+    [ThreadStatic] private static string? _language;
+
+    /// <summary>The UI language whose font chains the look dictionaries of this thread hold (spec §13): "en" until a window
+    /// says (UiFont.Apply).</summary>
+    public static string Language => _language ?? "en";
+
+    /// <summary>Puts the font chains of <paramref name="lang"/> into every look dictionary this thread has read: a window's
+    /// text, titles and key labels follow by their references, as they follow a change of look.</summary>
+    public static void UseLanguage(string lang)
+    {
+        if (lang == Language) return;
+        _language = lang;
+        foreach (var look in UiStyle.LooksHere) UiFont.Localize(look, lang);
+    }
 
     public static void Set(string? id) => Set(Find(id));
 

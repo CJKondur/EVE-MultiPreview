@@ -234,6 +234,7 @@
 
     <!-- The title's tokens, for the group, the separator and the page's name of the header. Not a contract name. -->
     <Style x:Key="Compact.Title" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Fx.TitleFont}"/>
         <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
         <Setter Property="FontStyle" Value="{DynamicResource Fx.Style.Title}"/>

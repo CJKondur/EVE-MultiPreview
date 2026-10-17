@@ -92,6 +92,7 @@
     </Style>
 
     <Style x:Key="Fx.PageTitle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Fx.TitleFont}"/>
         <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
         <Setter Property="FontStyle" Value="{DynamicResource Fx.Style.Title}"/>
@@ -110,6 +111,7 @@
     </Style>
     <!-- 20 px before each section title (spec §7). -->
     <Style x:Key="Fx.SectionTitle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource Fx.TitleFont}"/>
         <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Section}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Section}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.SectionTextBrush}"/>
@@ -1072,6 +1074,7 @@
                 <TextBlock>
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="{DynamicResource Fx.TitleFont}"/>
                             <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
                             <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
                             <Setter Property="FontStyle" Value="{DynamicResource Fx.Style.Title}"/>
