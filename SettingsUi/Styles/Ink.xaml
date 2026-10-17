@@ -128,8 +128,15 @@
     <!-- No pane colour: a 1 px black rule between the pane and the page. -->
     <Visibility x:Key="Look.PaneLine">Visible</Visibility>
     <Visibility x:Key="Look.TopLine">Collapsed</Visibility>
-    <!-- Help is an underlined word (the header gives it; until Task 11 the stacked header's "?"). -->
-    <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Help.Link}"/>
+    <!-- Help is an underlined word (the header gives the underline): the kit's link, its one focus edge, Enter and Space
+         (ButtonBase's own); under the mouse a pale box behind the word. -->
+    <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Help.Link}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Fx.AccentSoftBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 
     <!-- ═══ Picks from the kit (spec §6.3) ═══ -->
     <Style TargetType="CheckBox" BasedOn="{StaticResource Kit.Check.Inset}">
@@ -249,21 +256,201 @@
         </ContentControl>
     </DataTemplate>
 
-    <!-- Simple or All settings: two words over a rule; the active one bold and underlined (Task 11 draws the words). Until
-         then the kit's radio buttons. -->
+    <!-- One of the two words: in the second text colour; the active one bold, in the text colour, with a 2 px line under
+         it; keyboard focus an edge. -->
+    <Style x:Key="Ink.Word" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextSecondaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Fx.NavBrush}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Desc}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid Background="{TemplateBinding Background}">
+                        <StackPanel>
+                            <ContentPresenter Margin="0,0,0,3" RecognizesAccessKey="True"/>
+                            <Border x:Name="Under" Height="2" Background="{DynamicResource Fx.TextBrush}" Visibility="Hidden"/>
+                        </StackPanel>
+                        <Border x:Name="Edge" Margin="-2" BorderBrush="{DynamicResource Fx.FocusBrush}" BorderThickness="{DynamicResource Ink.Line.Box}" Visibility="Hidden"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Under" Property="Visibility" Value="Visible"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Simple or All settings: two words over a rule; the active one bold and underlined. -->
     <DataTemplate x:Key="Fx.Shell.Mode">
         <GroupBox local:Loc.NameKey="L.S.Shell.Advanced" Focusable="False" IsTabStop="False" Margin="0,8,0,0">
             <GroupBox.Template>
                 <ControlTemplate TargetType="GroupBox"><ContentPresenter/></ControlTemplate>
             </GroupBox.Template>
-            <WrapPanel>
-                <RadioButton IsChecked="{Binding IsSimple}" Margin="0,0,16,0">
-                    <TextBlock local:Loc.Key="L.S.Shell.Simple"/>
-                </RadioButton>
-                <RadioButton IsChecked="{Binding IsAdvanced}">
-                    <TextBlock local:Loc.Key="L.S.Nav.AllSettings"/>
-                </RadioButton>
-            </WrapPanel>
+            <Border BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+                <WrapPanel>
+                    <RadioButton Style="{StaticResource Ink.Word}" IsChecked="{Binding IsSimple}" Margin="0,0,16,0">
+                        <TextBlock local:Loc.Key="L.S.Shell.Simple"/>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource Ink.Word}" IsChecked="{Binding IsAdvanced}">
+                        <TextBlock local:Loc.Key="L.S.Nav.AllSettings"/>
+                    </RadioButton>
+                </WrapPanel>
+            </Border>
         </GroupBox>
+    </DataTemplate>
+    <local:NotNullToVisibilityConverter x:Key="Fx.NotNullToVis"/>
+
+    <!-- The page's header: the group, small, on its own line; then the page's name at 44 bold, the description beside it,
+         and "Help" (an underlined word) at the right; a 2 px black rule under them. -->
+    <DataTemplate x:Key="Fx.Shell.Header">
+        <Border BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="0,0,0,2" Padding="0,0,0,10" Margin="0,0,0,4">
+            <StackPanel>
+                <TextBlock local:Loc.Key="{Binding GroupTitleKey}" FontSize="{DynamicResource Fx.Size.Caption}" Foreground="{DynamicResource Fx.TextSecondaryBrush}"
+                           Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock VerticalAlignment="Bottom" Margin="0,0,28,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontFamily" Value="{DynamicResource Fx.TitleFont}"/>
+                                <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
+                                <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+                                <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Title}"/>
+                                <Setter Property="Text" Value="{Binding Current.Page.Title}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
+                                        <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Grid.Column="1" local:Loc.Key="{Binding Current.Page.DescKey}" Style="{DynamicResource Fx.PageDesc}" VerticalAlignment="Bottom" Margin="0,0,0,6"/>
+                    <ToggleButton Grid.Column="2" Style="{DynamicResource Look.Help}" IsChecked="{Binding HelpOpen}" VerticalAlignment="Bottom"
+                                  Margin="16,0,0,6" local:Loc.NameKey="L.S.Shell.Help">
+                        <TextBlock local:Loc.Key="L.S.Shell.HelpShort" TextDecorations="Underline"/>
+                    </ToggleButton>
+                </Grid>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <!-- A group: its name in bold, "+" (closed) or "−" (open) at the right in the second text colour; its name underlined
+         under the mouse; its pages under it while it is open. -->
+    <DataTemplate x:Key="Fx.Nav.Group">
+        <StackPanel>
+            <Button x:Name="Line" Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="0,0,4,0">
+                <DockPanel>
+                    <TextBlock x:Name="Sign" DockPanel.Dock="Right" Text="+" Foreground="{DynamicResource Fx.NavTextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="Name" local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                               FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                               Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                </DockPanel>
+            </Button>
+            <ItemsControl ItemsSource="{Binding Pages}" Focusable="False" ItemTemplate="{DynamicResource Fx.Nav.Page}"
+                          Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}"/>
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                <Setter TargetName="Sign" Property="Text" Value="−"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsMouseOver, ElementName=Line}" Value="True">
+                <Setter TargetName="Name" Property="TextDecorations" Value="Underline"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- A page of a group: indented by Fx.Nav.SubIndent, regular; the open page bold with an 8 px red square before it; its
+         name underlined under the mouse. -->
+    <DataTemplate x:Key="Fx.Nav.Page">
+        <Button x:Name="Line" Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="0,0,4,0"
+                MinHeight="{DynamicResource Fx.Nav.SubItemHeight}">
+            <DockPanel>
+                <Grid DockPanel.Dock="Left" Width="{DynamicResource Fx.Nav.SubIndent}">
+                    <Rectangle x:Name="Mark" Width="8" Height="8" HorizontalAlignment="Left" VerticalAlignment="Center"
+                               Fill="{DynamicResource Fx.NavMarkBrush}" Visibility="Hidden"/>
+                </Grid>
+                <TextBlock x:Name="Name" local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                           FontSize="{DynamicResource Fx.Size.NavSub}" FontWeight="Normal"
+                           Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+            </DockPanel>
+        </Button>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <Setter TargetName="Mark" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="Name" Property="FontWeight" Value="{DynamicResource Fx.Weight.NavSelected}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsMouseOver, ElementName=Line}" Value="True">
+                <Setter TargetName="Name" Property="TextDecorations" Value="Underline"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- The profile: the caption "Profile" over the name in bold with a chevron, on an underline; it opens the profile menu
+         under it. -->
+    <DataTemplate x:Key="Fx.Shell.Profile">
+        <StackPanel Margin="0,0,0,6">
+            <TextBlock x:Name="ProfileLabel" local:Loc.Key="L.S.Shell.Profile" FontSize="{DynamicResource Fx.Size.Caption}"
+                       Foreground="{DynamicResource Fx.NavTextSecondaryBrush}"/>
+            <Button AutomationProperties.Name="{Binding ProfileName}" AutomationProperties.LabeledBy="{Binding ElementName=ProfileLabel}" Cursor="Hand"
+                    FocusVisualStyle="{x:Null}"
+                    Command="{Binding ProfileMenuCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border Background="{DynamicResource Fx.NavBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}"
+                                    BorderThickness="{DynamicResource Fx.Line.Control}" Padding="0,0,0,4">
+                                <DockPanel>
+                                    <Path DockPanel.Dock="Right" VerticalAlignment="Center" Data="M 0 0 L 4 4 L 8 0" Stroke="{DynamicResource Fx.TextBrush}"
+                                          StrokeThickness="1.5"/>
+                                    <ContentPresenter VerticalAlignment="Center"/>
+                                </DockPanel>
+                            </Border>
+                            <Border x:Name="Edge" Margin="-2" BorderBrush="{DynamicResource Fx.FocusBrush}" BorderThickness="{DynamicResource Ink.Line.Box}" Visibility="Hidden"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+                <TextBlock Text="{Binding ProfileName}" FontSize="{DynamicResource Fx.Size.Section}" FontWeight="Bold"
+                           Foreground="{DynamicResource Fx.NavTextBrush}" TextTrimming="CharacterEllipsis"/>
+            </Button>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- A severity: ● filled for critical, its word bold; ○ for warning and info. No colour carries the meaning. -->
+    <DataTemplate x:Key="Look.Severity">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <Ellipse x:Name="Dot" Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center" StrokeThickness="1.5" Stroke="{DynamicResource Fx.TextBrush}"/>
+            <TextBlock x:Name="Word" local:Loc.Key="L.S.Sev.info" Foreground="{DynamicResource Fx.TextBrush}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding}" Value="critical">
+                <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource Fx.TextBrush}"/>
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.critical"/>
+                <Setter TargetName="Word" Property="FontWeight" Value="Bold"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding}" Value="warning">
+                <Setter TargetName="Word" Property="local:Loc.Key" Value="L.S.Sev.warning"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
     </DataTemplate>
 </ResourceDictionary>
