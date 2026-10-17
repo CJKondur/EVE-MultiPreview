@@ -142,7 +142,15 @@
     <Style TargetType="Slider" BasedOn="{StaticResource Kit.Slider.Round}"/>
     <Style TargetType="ComboBox" BasedOn="{StaticResource Kit.Dropdown.Box}"/>
     <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Round}"/>
-    <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}"/>
+    <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
+        <!-- Under the pointer the edge turns the accent colour, as the kit's boxed button (Classic's) does: the hover colour
+             alone is within 1.25:1 of the button's (fix round C, LookUsabilityTests). -->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
     <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Round}"/>
     <Style TargetType="ScrollBar" BasedOn="{StaticResource Kit.Scroll.Thin}"/>
     <!-- The on/off control of a setting is the round check (before its label: Base.Card.CheckFirst). -->
@@ -206,10 +214,10 @@
             </GroupBox.Template>
             <Border Background="{DynamicResource Fx.BgBrush}" CornerRadius="{DynamicResource Fx.Radius}" Padding="3">
                 <StackPanel Orientation="Horizontal">
-                    <RadioButton GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsSimple}" Margin="0,0,2,0">
+                    <RadioButton Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsSimple}" Margin="0,0,2,0">
                         <TextBlock local:Loc.Key="L.S.Shell.Simple"/>
                     </RadioButton>
-                    <RadioButton GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsAdvanced}">
+                    <RadioButton Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsAdvanced}">
                         <TextBlock local:Loc.Key="L.S.Nav.AllSettings"/>
                     </RadioButton>
                 </StackPanel>

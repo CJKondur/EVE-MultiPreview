@@ -208,6 +208,8 @@ public static class EditorCard
                 BorderThickness = new Thickness(0), Background = Brushes.Transparent,
             };
             x.SetResourceReference(Control.ForegroundProperty, "Fx.TextSecondaryBrush");
+            // Without a border a look's focus (a border colour) cannot show: WPF's focus adorner draws a ring (fix round C).
+            x.SetResourceReference(FrameworkElement.FocusVisualStyleProperty, "Base.FocusRing");
             AutomationProperties.SetName(x, SettingsContext.Str("L.S.Chip.Remove") + " " + text);
             x.Click += (_, _) => remove();
             row.Children.Add(x);

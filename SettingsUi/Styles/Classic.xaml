@@ -344,10 +344,10 @@
                 <ControlTemplate TargetType="GroupBox"><ContentPresenter/></ControlTemplate>
             </GroupBox.Template>
             <StackPanel>
-            <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsSimple}" Margin="0,0,0,6" Foreground="{DynamicResource Fx.NavTextBrush}">
+            <RadioButton IsChecked="{Binding IsSimple}" Margin="0,0,0,6" Foreground="{DynamicResource Fx.NavTextBrush}">
                 <TextBlock local:Loc.Key="L.S.Shell.Simple" Style="{DynamicResource Fx.Label}" Foreground="{DynamicResource Fx.NavTextBrush}"/>
             </RadioButton>
-            <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsAdvanced}" Foreground="{DynamicResource Fx.NavTextBrush}">
+            <RadioButton IsChecked="{Binding IsAdvanced}" Foreground="{DynamicResource Fx.NavTextBrush}">
                 <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{DynamicResource Fx.Label}" Foreground="{DynamicResource Fx.NavTextBrush}"/>
             </RadioButton>
             </StackPanel>

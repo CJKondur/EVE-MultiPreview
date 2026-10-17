@@ -749,6 +749,11 @@
                         </Border>
                         <Border x:Name="Outline" Margin="1" BorderThickness="{DynamicResource Fx.Line.Card}" BorderBrush="{DynamicResource Fx.AccentBrush}"
                                 CornerRadius="{DynamicResource Fx.Radius}" Visibility="Collapsed" IsHitTestVisible="False"/>
+                        <!-- The keyboard's focus: a ring in the focus colour 3 px inside the card (fix round C). The border's
+                             colour alone showed nothing on a card without a border (the flat looks' Fx.Line.Card is 0) nor on the
+                             picked card where the focus colour is the accent's. -->
+                        <Border x:Name="FocusRing" Margin="3" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.FocusBrush}"
+                                CornerRadius="{DynamicResource Fx.Radius}" Visibility="Collapsed" IsHitTestVisible="False"/>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -761,8 +766,22 @@
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
+                            <Setter TargetName="FocusRing" Property="Visibility" Value="Visible"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A focus visual (WPF's focus adorner) for a control built in code whose look draws its focus on a border it does not
+         have (a chip's ✕, EditorCard.Chip): a ring in the focus colour 2 px around it (fix round C). -->
+    <Style x:Key="Base.FocusRing">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Margin="-2" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.FocusBrush}"
+                            CornerRadius="{DynamicResource Fx.Radius.Control}" SnapsToDevicePixels="True"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -1062,9 +1081,19 @@
                 <WrapPanel Visibility="{DynamicResource Fx.Show.Breadcrumb}">
                     <WrapPanel Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
                         <Button Cursor="Hand" Command="{Binding BreadcrumbCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}">
+                            <!-- The group's name: with the keyboard's focus an edge in the focus colour around it (fix round C). -->
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <ContentPresenter/>
+                                    <Grid>
+                                        <ContentPresenter/>
+                                        <Border x:Name="Edge" Margin="-2" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.FocusBrush}"
+                                                CornerRadius="{DynamicResource Fx.Radius.Control}" Visibility="Hidden" IsHitTestVisible="False"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                            <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                             <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{DynamicResource Fx.Breadcrumb}"/>

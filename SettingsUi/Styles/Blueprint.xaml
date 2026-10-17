@@ -154,9 +154,96 @@
         <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
         <Setter Property="local:Kit.DashedOff" Value="True"/>
     </Style>
-    <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}"/>
+    <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
+        <!-- Under the pointer the edge turns the accent colour, as the kit's boxed button (Classic's) does: the hover colour
+             alone is within 1.25:1 of the button's (fix round C, LookUsabilityTests). -->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
     <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Round}"/>
     <Style TargetType="ScrollBar" BasedOn="{StaticResource Kit.Scroll.Thin}"/>
+    <!-- The item a dropdown or a menu points at (mouse or arrow keys): inverted, the drawing's blue on white (fix round C:
+         the kit fills it with AccentSoft, which is this look's Flyout, so it could not be seen); the picked one ticked and
+         semibold. High contrast's two styles, as the mock-up's inverted pointed item. -->
+    <Style TargetType="ComboBoxItem" BasedOn="{StaticResource Kit.Dropdown.Item}">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <DockPanel>
+                            <TextBlock x:Name="Tick" DockPanel.Dock="Left" Width="20" Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}"
+                                       Visibility="Hidden" VerticalAlignment="Center"/>
+                            <ContentPresenter/>
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="MenuItem" BasedOn="{StaticResource Kit.Menu.Row}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="Bd" Background="{DynamicResource Fx.FlyoutBrush}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="Gesture"/>
+                                <ColumnDefinition Width="12"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="Tick" Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}" Visibility="Hidden"
+                                       VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}"/>
+                            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="16,0,0,0" VerticalAlignment="Center"
+                                       Foreground="{TemplateBinding Foreground}"/>
+                            <Path x:Name="Arrow" Grid.Column="3" Data="M 0 0 L 4 4 L 0 8 Z" Fill="{TemplateBinding Foreground}" Visibility="Collapsed"
+                                  HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                            <Popup x:Name="PART_Popup" IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}" Placement="Right"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border Background="{DynamicResource Fx.FlyoutBrush}" BorderBrush="{DynamicResource Fx.FlyoutBorderBrush}"
+                                        BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.FlyoutRadius}" Padding="2">
+                                    <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" Grid.IsSharedSizeScope="True"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.TextBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+                        </Trigger>
+                        <Trigger Property="Role" Value="SubmenuHeader">
+                            <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TextDisabledBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <!-- The on/off control of a setting is the 16 px crossed box, at the row's right end (the base's toggle card). -->
     <Style x:Key="Fx.ToggleSwitch" TargetType="CheckBox" BasedOn="{StaticResource Kit.Check.Cross}">
         <Setter Property="local:Kit.Size" Value="16"/>
@@ -201,7 +288,8 @@
     </Style>
 
     <!-- A navigation entry: a line Fx.Nav.ItemHeight high; under the mouse a thin outline 3 px inside it; keyboard focus an
-         edge in the focus colour. The open page's fill is set on the button (Fx.Nav.Page). -->
+         edge in the focus colour with a line of the drawing's blue 1 px inside it: the open page is filled in the focus
+         colour, and only the blue line shows on it (fix round C). The open page's fill is set on the button (Fx.Nav.Page). -->
     <Style x:Key="Fx.Nav.Entry" TargetType="Button">
         <Setter Property="Background" Value="{DynamicResource Fx.NavBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextBrush}"/>
@@ -221,7 +309,9 @@
                         <Border x:Name="Hover" Margin="3" Visibility="Collapsed" IsHitTestVisible="False" BorderBrush="{DynamicResource Fx.BorderBrush}"
                                 BorderThickness="{DynamicResource Fx.Line.Control}"/>
                         <Border x:Name="Edge" Visibility="Collapsed" IsHitTestVisible="False" BorderBrush="{DynamicResource Fx.FocusBrush}"
-                                BorderThickness="{DynamicResource Fx.Line.Control}"/>
+                                BorderThickness="{DynamicResource Fx.Line.Control}">
+                            <Border Margin="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.BgBrush}" BorderThickness="{DynamicResource Fx.Line.Control}"/>
+                        </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -369,11 +459,11 @@
             <StackPanel>
                 <TextBlock local:Loc.Key="L.S.Shell.Showing" Style="{StaticResource Blueprint.Caption}" Margin="0,0,0,4"/>
                 <WrapPanel>
-                    <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsSimple}" Margin="0,0,16,0">
+                    <RadioButton IsChecked="{Binding IsSimple}" Margin="0,0,16,0">
                         <TextBlock local:Loc.Key="L.S.Shell.Simple" FontSize="{DynamicResource Fx.Size.Desc}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
                     </RadioButton>
-                    <RadioButton GroupName="Fx.Shell.Mode" IsChecked="{Binding IsAdvanced}">
+                    <RadioButton IsChecked="{Binding IsAdvanced}">
                         <TextBlock local:Loc.Key="L.S.Nav.AllSettings" FontSize="{DynamicResource Fx.Size.Desc}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
                     </RadioButton>
@@ -388,16 +478,24 @@
     <Style x:Key="Fx.Table" TargetType="Border">
         <Setter Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
-        <Setter Property="Margin" Value="32,8,0,0"/>
+        <Setter Property="Margin" Value="0,8,0,0"/>
         <Style.Resources>
+            <!-- At rest no outline (its line is the cell's colour); under the mouse and with the keyboard's focus the kit's
+                 white box (fix round C). -->
             <Style TargetType="ComboBox" BasedOn="{StaticResource Kit.Dropdown.Box}">
-                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.BgBrush}"/>
                 <Setter Property="local:Kit.DashedOff" Value="True"/>
             </Style>
+            <!-- An underline; with the keyboard's focus a whole white box. -->
             <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Round}">
                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
                 <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
                 <Setter Property="local:Kit.DashedOff" Value="True"/>
+                <Style.Triggers>
+                    <Trigger Property="IsKeyboardFocused" Value="True">
+                        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+                    </Trigger>
+                </Style.Triggers>
             </Style>
         </Style.Resources>
     </Style>
@@ -475,7 +573,7 @@
             </StackPanel>
             <ToggleButton Grid.Column="1" Style="{DynamicResource Look.Help}" IsChecked="{Binding HelpOpen}" VerticalAlignment="Top"
                           Margin="16,2,0,0" local:Loc.NameKey="L.S.Shell.Help">
-                <TextBlock local:Loc.Key="L.S.Shell.HelpShort" local:Loc.Case="{DynamicResource Fx.Case.Caption}"/>
+                <TextBlock local:Loc.Key="L.S.Shell.HelpShort" local:Loc.Case="{DynamicResource Fx.Case.Caption}" Margin="10,0"/>
             </ToggleButton>
         </Grid>
     </DataTemplate>

@@ -134,6 +134,10 @@
         </Setter>
     </Style>
 
+    <!-- The ring a control built in code takes as its focus visual (a chip's ✕, EditorCard.Chip; the base's Base.FocusRing):
+         here the 2 px outline every control has (fix round C). -->
+    <Style x:Key="Base.FocusRing" BasedOn="{StaticResource Contrast.Focus}"/>
+
     <!-- The width of a mark drawn on a hover or a pick (a button's edge under the mouse, a gallery card's, a list item's
          focus ring): as wide as the focus outline. Not a contract name. -->
     <Thickness x:Key="Contrast.Line.Mark">2</Thickness>
@@ -603,11 +607,11 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <RadioButton Grid.Column="0" GroupName="Fx.Shell.Mode" Style="{StaticResource Contrast.Segment}" IsChecked="{Binding IsSimple}"
+                    <RadioButton Grid.Column="0" Style="{StaticResource Contrast.Segment}" IsChecked="{Binding IsSimple}"
                                  FontSize="{DynamicResource Fx.Size.Body}" FocusVisualStyle="{StaticResource Contrast.Focus}" Padding="6,5">
                         <TextBlock local:Loc.Key="L.S.Shell.Simple" TextWrapping="Wrap" TextAlignment="Center"/>
                     </RadioButton>
-                    <RadioButton Grid.Column="1" GroupName="Fx.Shell.Mode" Style="{StaticResource Contrast.Segment}" IsChecked="{Binding IsAdvanced}"
+                    <RadioButton Grid.Column="1" Style="{StaticResource Contrast.Segment}" IsChecked="{Binding IsAdvanced}"
                                  FontSize="{DynamicResource Fx.Size.Body}" FocusVisualStyle="{StaticResource Contrast.Focus}" Padding="6,5">
                         <TextBlock local:Loc.Key="L.S.Nav.AllSettings" TextWrapping="Wrap" TextAlignment="Center"/>
                     </RadioButton>

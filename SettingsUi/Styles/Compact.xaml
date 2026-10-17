@@ -144,6 +144,13 @@
     <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Round}"/>
     <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
         <Setter Property="Padding" Value="8,0"/>
+        <!-- Under the pointer the edge turns the accent colour, as the kit's boxed button (Classic's) does: the hover colour
+             alone is within 1.25:1 of the button's (fix round C, LookUsabilityTests). -->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Round}"/>
     <Style TargetType="ScrollBar" BasedOn="{StaticResource Kit.Scroll.Thin}"/>
@@ -254,9 +261,19 @@
                     <WrapPanel VerticalAlignment="Center">
                         <Button Cursor="Hand" Command="{Binding BreadcrumbCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
                                 Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
+                            <!-- With the keyboard's focus an edge in the focus colour around the group's name (fix round C). -->
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <ContentPresenter/>
+                                    <Grid>
+                                        <ContentPresenter/>
+                                        <Border x:Name="Edge" Margin="-2" BorderThickness="{DynamicResource Fx.Line.Control}" BorderBrush="{DynamicResource Fx.FocusBrush}"
+                                                CornerRadius="{DynamicResource Fx.Radius.Control}" Visibility="Hidden" IsHitTestVisible="False"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                            <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                             <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{StaticResource Compact.Title}"/>
@@ -309,10 +326,10 @@
             <Border BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{DynamicResource Fx.Line.Control}"
                     CornerRadius="{DynamicResource Fx.Radius.Control}">
                 <StackPanel Orientation="Horizontal">
-                    <RadioButton GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsSimple}" Padding="10,3">
+                    <RadioButton Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsSimple}" Padding="10,3">
                         <TextBlock local:Loc.Key="L.S.Shell.Simple"/>
                     </RadioButton>
-                    <RadioButton GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsAdvanced}" Padding="10,3">
+                    <RadioButton Style="{DynamicResource Kit.Segment}" IsChecked="{Binding IsAdvanced}" Padding="10,3">
                         <TextBlock local:Loc.Key="L.S.Nav.AllSettings"/>
                     </RadioButton>
                 </StackPanel>

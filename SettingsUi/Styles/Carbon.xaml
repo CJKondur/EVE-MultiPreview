@@ -141,7 +141,15 @@
     <Style TargetType="Slider" BasedOn="{StaticResource Kit.Slider.Round}"/>
     <Style TargetType="ComboBox" BasedOn="{StaticResource Kit.Dropdown.Box}"/>
     <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Round}"/>
-    <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}"/>
+    <Style TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
+        <!-- Under the pointer the edge turns the accent colour, as the kit's boxed button (Classic's) does: the hover colour
+             alone is within 1.25:1 of the button's (fix round C, LookUsabilityTests). -->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
     <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Round}"/>
     <Style TargetType="ScrollBar" BasedOn="{StaticResource Kit.Scroll.Thin}"/>
     <!-- The on/off control of a setting is the 16 px box before its label (Base.Card.CheckFirst). -->
@@ -157,6 +165,14 @@
     <Style x:Key="Fx.KeyCap" TargetType="Button" BasedOn="{StaticResource Kit.KeyCap.Box}">
         <Setter Property="BorderBrush" Value="{DynamicResource Fx.LinkBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.LinkBrush}"/>
+        <!-- Its edge is already the focus colour, so the kit's focus (the edge in Fx.Focus) showed nothing: with the
+             keyboard's focus the key is filled red with its text in the page's colour (fix round C). -->
+        <Style.Triggers>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Fx.LinkBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Fx.BgBrush}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <Style x:Key="Fx.Swatch" TargetType="Button" BasedOn="{StaticResource Kit.Button.Round}">
         <Setter Property="Width" Value="30"/>
@@ -252,12 +268,12 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <RadioButton Grid.Column="0" GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment.Slant}" IsChecked="{Binding IsSimple}" Margin="0,0,2,0">
+                <RadioButton Grid.Column="0" Style="{DynamicResource Kit.Segment.Slant}" IsChecked="{Binding IsSimple}" Margin="0,0,2,0">
                     <TextBlock local:Loc.Key="L.S.Shell.Simple" local:Loc.Case="{DynamicResource Fx.Case.Title}" FontStyle="{DynamicResource Fx.Style.Title}"
                                FontFamily="{DynamicResource Fx.TitleFont}"
                                TextWrapping="Wrap" TextAlignment="Center"/>
                 </RadioButton>
-                <RadioButton Grid.Column="1" GroupName="Fx.Shell.Mode" Style="{DynamicResource Kit.Segment.Slant}" IsChecked="{Binding IsAdvanced}">
+                <RadioButton Grid.Column="1" Style="{DynamicResource Kit.Segment.Slant}" IsChecked="{Binding IsAdvanced}">
                     <TextBlock local:Loc.Key="L.S.Nav.AllSettings" local:Loc.Case="{DynamicResource Fx.Case.Title}" FontStyle="{DynamicResource Fx.Style.Title}"
                                FontFamily="{DynamicResource Fx.TitleFont}"
                                TextWrapping="Wrap" TextAlignment="Center"/>

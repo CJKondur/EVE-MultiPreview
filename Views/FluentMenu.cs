@@ -228,7 +228,7 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
         if (e.Item.Selected && e.Item.Enabled)
         {
             using var path = Rounded(row, radius);
-            using var brush = new SolidBrush(C("Fx.Control"));
+            using var brush = new SolidBrush(C(PointedFill(palette)));
             g.FillPath(brush, path);
         }
         if (e.Item is ToolStripMenuItem { Checked: true } && palette.MenuCheck == SettingsUi.MenuCheck.Bar)
@@ -249,6 +249,20 @@ public sealed class FluentMenuRenderer : ToolStripRenderer
     }
 
     protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e) { }   // the bar, the tick or the inverted row shows it
+
+    /// <summary>The pointed row's fill: Fx.Control, or where that is within 1.1:1 of the menu's own Fx.Flyout (Classic,
+    /// Daylight and Compact draw their controls in the flyout's colour, Neon nearly) Fx.AccentSoft, the WPF menus' pointed
+    /// fill (Kit.Menu.Row). Fix round C: the pointed row could not be seen there.</summary>
+    internal static string PointedFill(SettingsUi.UiPalette palette)
+    {
+        static double Luminance(System.Windows.Media.Color c)
+        {
+            static double Lin(byte v) { double s = v / 255.0; return s <= 0.03928 ? s / 12.92 : Math.Pow((s + 0.055) / 1.055, 2.4); }
+            return 0.2126 * Lin(c.R) + 0.7152 * Lin(c.G) + 0.0722 * Lin(c.B);
+        }
+        double a = Luminance(palette.Colour("Fx.Control")), b = Luminance(palette.Colour("Fx.Flyout"));
+        return (Math.Max(a, b) + 0.05) / (Math.Min(a, b) + 0.05) < 1.1 ? "Fx.AccentSoft" : "Fx.Control";
+    }
 
     /// <summary>A look whose checked item is inverted (Fx.Menu.Check = Invert: High contrast) inverts the pointed item too:
     /// on its black menu the pointed item's usual fill (Fx.Control) is black, and could not be seen.</summary>
