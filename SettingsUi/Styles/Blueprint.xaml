@@ -185,6 +185,12 @@
         <Setter Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
         <Setter Property="BorderBrush" Value="{x:Null}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <!-- Under the pointer its edge in the accent (the lighter fill alone was about 1.1:1; final wave). -->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <!-- A key: the outline, mono. -->
     <Style x:Key="Fx.KeyCap" TargetType="Button" BasedOn="{StaticResource Kit.KeyCap.Box}">
@@ -368,8 +374,15 @@
                             <Border x:Name="Edge" Margin="-2" BorderBrush="{DynamicResource Fx.FocusBrush}" BorderThickness="{DynamicResource Fx.Line.Control}" Visibility="Hidden"/>
                         </Grid>
                         <ControlTemplate.Triggers>
+                            <!-- Under the pointer the edge in the drawing's line blue (it had no hover; fix round C re-review); the
+                                 keyboard's focus in the focus colour. -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource Fx.BorderBrush}"/>
+                            </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
                                 <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -447,10 +460,11 @@
         <Setter Property="Margin" Value="-1,0,0,0"/>
     </Style>
 
-    <!-- A severity: ▲ filled for critical, △ outlined for warning, and the word in mono capitals; info the word alone. -->
+    <!-- A severity: ▲ filled for critical, △ outlined (1.5 px, nearer the drawing's hairline; Task 8 review) for warning, and
+         the word in mono capitals; info the word alone. -->
     <DataTemplate x:Key="Look.Severity">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <Path x:Name="Shape" Width="11" Height="11" Margin="0,0,7,0" VerticalAlignment="Center" Stretch="Uniform" StrokeThickness="2"
+            <Path x:Name="Shape" Width="11" Height="11" Margin="0,0,7,0" VerticalAlignment="Center" Stretch="Uniform" StrokeThickness="1.5"
                   Data="M 12,3 L 22,21 L 2,21 Z" Visibility="Collapsed"/>
             <TextBlock x:Name="Word" local:Loc.Key="L.S.Sev.info" FontFamily="{DynamicResource Fx.MonoFont}" FontSize="{DynamicResource Fx.Size.Caption}"
                        FontWeight="SemiBold" local:Loc.Case="{DynamicResource Fx.Case.Caption}" Foreground="{DynamicResource Fx.InfoBrush}" VerticalAlignment="Center"/>
@@ -626,13 +640,16 @@
     </ControlTemplate>
 
     <!-- The title block at the page's bottom right, against the frame: PROFILE and its name · SHEET, the page's number and
-         name · IN <GROUP>, its place "3 OF 5" (not on Home) · VERSION. In mono capitals (O21). -->
+         name · IN <GROUP>, its place "3 OF 5" (not on Home) · VERSION. In mono capitals (O21). A long profile name, page title
+         or group (a player's own name, Russian, German) ends in "…" so VERSION stays inside the frame (Task 9 review). -->
+    <sys:Double x:Key="Blueprint.CellMax">180</sys:Double>
     <DataTemplate x:Key="Fx.Shell.Status">
         <Border HorizontalAlignment="Right" Margin="0,8,-22,0" BorderBrush="{DynamicResource Fx.TextBrush}" BorderThickness="{StaticResource Blueprint.TopLeft}">
             <StackPanel Orientation="Horizontal">
                 <StackPanel Margin="14,6,14,7">
                     <TextBlock local:Loc.Key="L.S.Shell.Profile" Style="{StaticResource Blueprint.Caption}"/>
-                    <TextBlock Text="{Binding ProfileName, Converter={StaticResource Blueprint.Upper}}" Style="{StaticResource Blueprint.Cell}"/>
+                    <TextBlock Text="{Binding ProfileName, Converter={StaticResource Blueprint.Upper}}" Style="{StaticResource Blueprint.Cell}"
+                               MaxWidth="{StaticResource Blueprint.CellMax}" TextTrimming="CharacterEllipsis"/>
                 </StackPanel>
                 <Border BorderBrush="{DynamicResource Fx.TextBrush}" BorderThickness="{StaticResource Blueprint.Left}" Padding="14,6,14,7">
                     <StackPanel>
@@ -642,6 +659,8 @@
                             <TextBlock>
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource Blueprint.Cell}">
+                                        <Setter Property="MaxWidth" Value="{StaticResource Blueprint.CellMax}"/>
+                                        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                                         <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Caption}"/>
                                         <Setter Property="Text" Value="{Binding Current.Page.Title, Converter={StaticResource Blueprint.Upper}}"/>
                                         <Style.Triggers>
@@ -658,8 +677,10 @@
                 <Border BorderBrush="{DynamicResource Fx.TextBrush}" BorderThickness="{StaticResource Blueprint.Left}" Padding="14,6,14,7"
                         Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
                     <StackPanel>
-                        <TextBlock Text="{Binding InGroupText, Converter={StaticResource Blueprint.Upper}}" Style="{StaticResource Blueprint.Number}"/>
-                        <TextBlock Text="{Binding PlaceInGroup, Converter={StaticResource Blueprint.Upper}}" Style="{StaticResource Blueprint.Cell}"/>
+                        <TextBlock Text="{Binding InGroupText, Converter={StaticResource Blueprint.Upper}}" Style="{StaticResource Blueprint.Number}"
+                                   MaxWidth="{StaticResource Blueprint.CellMax}" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding PlaceInGroup, Converter={StaticResource Blueprint.Upper}}" Style="{StaticResource Blueprint.Cell}"
+                                   MaxWidth="{StaticResource Blueprint.CellMax}" TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Border>
                 <Border BorderBrush="{DynamicResource Fx.TextBrush}" BorderThickness="{StaticResource Blueprint.Left}" Padding="14,6,14,7">

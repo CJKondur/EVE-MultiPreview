@@ -164,6 +164,12 @@
         <Setter Property="Width" Value="22"/>
         <Setter Property="Height" Value="20"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
+        <!-- Under the pointer its edge in the accent (the lighter fill alone was about 1.1:1; final wave). -->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <!-- A key: the box with a slightly lighter edge. -->
     <Style x:Key="Fx.KeyCap" TargetType="Button" BasedOn="{StaticResource Kit.KeyCap.Box}">

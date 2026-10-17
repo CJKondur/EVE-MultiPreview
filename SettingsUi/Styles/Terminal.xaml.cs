@@ -26,8 +26,13 @@ public partial class TerminalStyle : ResourceDictionary
     public const double TextSize = 16;
 
     /// <summary>The width of one character cell (spec §7.5, "measured when the style loads"): the advance of "0" at 16 in the
-    /// first family of the chain that Windows has (Cascadia Mono, else Cascadia Code, else Consolas); 0.6 em if it has none.</summary>
-    public static double CellOf(FontFamily chain)
+    /// first family of the chain that Windows has (Cascadia Mono, else Cascadia Code, else Consolas); 0.6 em if it has none.
+    /// Measured once a chain a run (Task 12 review: Windows' families were listed again for every gallery miniature).</summary>
+    public static double CellOf(FontFamily chain) => Measured.GetOrAdd(chain.Source, _ => Measure(chain));
+
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, double> Measured = new(StringComparer.Ordinal);
+
+    private static double Measure(FontFamily chain)
     {
         var installed = Fonts.SystemFontFamilies.Select(f => f.Source).ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var name in chain.Source.Split(',').Select(n => n.Trim()).Where(installed.Contains))
@@ -41,7 +46,7 @@ public partial class TerminalStyle : ResourceDictionary
 
     /// <summary>Lays the look's metrics on a grid of cells <paramref name="cell"/> wide (spec §7.5): the pane 28 cells, a
     /// page's indent 4, the label column 50 with 4 for the box before it, the page one cell in from its edges; and the look's
-    /// own: the slider 20 cells, the box's padding, a tag's padding, the find field 26 cells.</summary>
+    /// own: the slider 20 cells, the box's padding, a tag's padding, the find field 26 cells, a number field 4 cells.</summary>
     public static void Cells(ResourceDictionary look, double cell)
     {
         look["Fx.Nav.Width"] = 28 * cell;
@@ -54,5 +59,6 @@ public partial class TerminalStyle : ResourceDictionary
         look["Terminal.BoxPad"] = new Thickness(cell, 0, 0, 0);
         look["Terminal.TagPad"] = new Thickness(cell / 2, 0, cell / 2, 0);
         look["Terminal.FindWidth"] = 26 * cell;
+        look["Terminal.NumberWidth"] = 4 * cell;
     }
 }

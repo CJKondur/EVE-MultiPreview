@@ -178,22 +178,37 @@ public static class UiStyles
         Show();
     }
 
-    private static bool _listening;
+    private static System.ComponentModel.PropertyChangedEventHandler? _contrastWatch;
+    private static Microsoft.Win32.UserPreferenceChangedEventHandler? _colourWatch;
+
+    /// <summary>Whether the app listens to Windows' contrast and colour events (between ListenToWindows and StopListening).</summary>
+    public static bool IsListening => _colourWatch != null;
 
     /// <summary>Listens to Windows on this thread's dispatcher (App, at start): a contrast theme turned on or off, or its
     /// colours changed, draws the look that should be drawn, the same path as a pick. Events only; nothing polls. A second
     /// call does nothing.</summary>
     public static void ListenToWindows()
     {
-        if (_listening) return;
-        _listening = true;
+        if (IsListening) return;
         var dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
         void Later() => dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(Refresh));
-        SystemParameters.StaticPropertyChanged += (_, e) => { if (e.PropertyName == nameof(SystemParameters.HighContrast)) Later(); };
-        Microsoft.Win32.SystemEvents.UserPreferenceChanged += (_, e) =>
+        _contrastWatch = (_, e) => { if (e.PropertyName == nameof(SystemParameters.HighContrast)) Later(); };
+        _colourWatch = (_, e) =>
         {
             if (e.Category is Microsoft.Win32.UserPreferenceCategory.Color or Microsoft.Win32.UserPreferenceCategory.Accessibility) Later();
         };
+        SystemParameters.StaticPropertyChanged += _contrastWatch;
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged += _colourWatch;
+    }
+
+    /// <summary>Lets Windows' events go (App, at exit; Task 6 review): SystemEvents holds its handlers for the process's
+    /// life, and one left on a dispatcher that has shut down has nothing to run on. A call while not listening does nothing.</summary>
+    public static void StopListening()
+    {
+        if (_contrastWatch != null) SystemParameters.StaticPropertyChanged -= _contrastWatch;
+        if (_colourWatch != null) Microsoft.Win32.SystemEvents.UserPreferenceChanged -= _colourWatch;
+        _contrastWatch = null;
+        _colourWatch = null;
     }
 
     /// <summary>Raised after a change of look, on the thread that made it. A handler that owns something of another
@@ -232,7 +247,11 @@ public static class UiStyles
         {
             // A switch that did not happen at all (a Changing handler threw, so the look drawn is still the old one) is no
             // pick: the saved look stays the pick (S3F-m6). A window that failed after the switch keeps it.
-            if (Effective != Wanted()) Current = before;
+            // Asking Windows again may fail too (Task 6 review): then the pick goes back and the first failure is thrown.
+            bool happened;
+            try { happened = Effective == Wanted(); }
+            catch { happened = false; }
+            if (!happened) Current = before;
             throw;
         }
     }

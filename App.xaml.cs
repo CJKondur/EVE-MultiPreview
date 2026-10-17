@@ -1672,6 +1672,7 @@ public partial class App : Application
         _thumbnailManager?.Dispose();
         _discovery?.Dispose();
         _winEvents?.Dispose();
+        SettingsUi.UiStyles.StopListening();   // Windows' contrast and colour events let go (UI styles S4, Task 6 review)
         _settings?.Dispose();
 
         if (_trayIcon != null)

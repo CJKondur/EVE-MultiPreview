@@ -7,7 +7,7 @@ using Button = System.Windows.Controls.Button;
 
 namespace EveMultiPreview.SettingsUi;
 
-/// <summary>A navigation group's button where the look draws the group as "+ Name" / "- Name" (Terminal): the sign shows
+/// <summary>A navigation group's button where the look draws the group as "+ Name" / "- Name" (Terminal, Ink): the sign shows
 /// whether the group is open, so a screen reader is told too (UI Automation's expanded / collapsed, read from the group the
 /// button stands for). Read-only: the button opens the group's first page, as it always did, and a group closes when
 /// another opens.</summary>
@@ -17,15 +17,21 @@ public sealed class NavGroupButton : Button
 
     public NavGroupButton()
     {
-        Loaded += (_, _) => Watch(true);
-        Unloaded += (_, _) => Watch(false);
+        Loaded += (_, _) => Watch(Group, true);
+        Unloaded += (_, _) => Watch(Group, false);
+        // A new group while loaded (Task 13 review): the old one is let go and the new one watched.
+        DataContextChanged += (_, e) =>
+        {
+            Watch(e.OldValue as NavGroupVM, false);
+            if (IsLoaded) Watch(e.NewValue as NavGroupVM, true);
+        };
     }
 
     private NavGroupVM? Group => DataContext as NavGroupVM;
 
-    private void Watch(bool on)
+    private void Watch(NavGroupVM? group, bool on)
     {
-        if (Group is not { } group) return;
+        if (group == null) return;
         group.PropertyChanged -= OnGroupChanged;
         if (!on) return;
         _announced = group.IsExpanded;
@@ -56,6 +62,8 @@ public sealed class NavGroupButton : Button
 
         public void Expand() { if (ExpandCollapseState == ExpandCollapseState.Collapsed) ((IInvokeProvider)this).Invoke(); }
 
-        public void Collapse() => throw new ElementNotEnabledException();
+        /// <summary>A group closes when another opens; it cannot be closed by itself. Said as UI Automation says "this cannot
+        /// be done" (not ElementNotEnabled: the button is enabled; Task 13 review), never as a silent success.</summary>
+        public void Collapse() => throw new InvalidOperationException("A navigation group closes when another one opens.");
     }
 }

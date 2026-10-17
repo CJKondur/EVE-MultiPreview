@@ -1185,8 +1185,10 @@
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <!-- Under the pointer the edge takes the accent too: the lighter fill alone was about 1.1:1 (final wave). -->
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource Fx.AccentSoftBrush}"/>
@@ -1263,6 +1265,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource Fx.AccentSoftBrush}"/>
@@ -1357,12 +1360,16 @@
                 <ControlTemplate TargetType="Button">
                     <Grid x:Name="root">
                         <Ellipse x:Name="Ring" Margin="-3" Stroke="{DynamicResource Fx.FocusBrush}" StrokeThickness="1" Visibility="Hidden"/>
+                        <Ellipse x:Name="HoverEdge" Margin="-2" Stroke="{DynamicResource Fx.AccentBrush}" StrokeThickness="1" Visibility="Hidden"/>
                         <Ellipse x:Name="Disc" Fill="{TemplateBinding Background}"/>
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <!-- Under the pointer a ring in the accent just outside the disc (the dimmed disc alone was about 1.1:1;
+                             a disc filled with the accent cannot show an edge of its own). -->
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Disc" Property="Opacity" Value="0.85"/>
+                            <Setter TargetName="HoverEdge" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Disc" Property="Opacity" Value="0.7"/>
@@ -1399,8 +1406,10 @@
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <!-- Under the pointer its edge in the text colour (it is filled with the accent). -->
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Fx.TextBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
@@ -1438,6 +1447,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Fx.AccentBrush}"/>
@@ -1770,15 +1780,27 @@
                         <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                             <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="True"/>
                         </Border>
-                        <Border x:Name="Edge" Margin="-3" BorderBrush="{DynamicResource Fx.FocusBrush}" BorderThickness="{DynamicResource Fx.Line.Control}"
+                        <!-- The keyboard's focus a 1 px ring all round (its looks' control line is an underline, which read as a
+                             second underline under the link; Task 11 review). -->
+                        <Border x:Name="Edge" Margin="-3" BorderBrush="{DynamicResource Fx.FocusBrush}" BorderThickness="1"
+                                Visibility="Hidden" IsHitTestVisible="False"/>
+                        <Border x:Name="HoverEdge" Margin="-2" BorderBrush="{DynamicResource Fx.AccentBrush}" BorderThickness="1"
                                 Visibility="Hidden" IsHitTestVisible="False"/>
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <!-- Under the pointer an edge in the accent all round it, as High contrast's own link (final wave). -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="HoverEdge" Property="Visibility" Value="Visible"/>
+                        </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter Property="FontWeight" Value="SemiBold"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <!-- Switched off: faded, as the kit's other help shapes (it was drawn live; final wave). -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.56"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -2207,8 +2229,10 @@
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                     </Grid>
                     <ControlTemplate.Triggers>
+                        <!-- Under the pointer its ring twice as thick (the lighter fill alone was about 1.1:1; final wave). -->
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Disc" Property="Fill" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                            <Setter TargetName="Disc" Property="StrokeThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>

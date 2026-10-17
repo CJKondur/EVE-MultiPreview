@@ -139,6 +139,12 @@
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextSecondaryBrush}"/>
         <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Desc}"/>
         <Setter Property="FontWeight" Value="Normal"/>
+        <!-- Under the pointer its edge in the accent (the lighter fill alone was about 1.1:1; final wave). -->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <!-- ═══ Picks from the kit (spec §6.3) ═══ -->
@@ -173,6 +179,12 @@
         <Setter Property="Height" Value="22"/>
         <Setter Property="Background" Value="{DynamicResource Fx.CardBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
+        <!-- Under the pointer its edge in the accent (the lighter fill alone was about 1.1:1; final wave). -->
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     <!-- A key: the box on the input colour, as wide as its keys. -->
     <Style x:Key="Fx.KeyCap" TargetType="Button" BasedOn="{StaticResource Kit.KeyCap.Box}">
@@ -203,7 +215,8 @@
 
     <!-- A panel's header bar: 28 high on the header colour, a triangle that points down while the panel is open and right
          while it is folded, the title, and a critical-colour square at the right while a row of the panel shows an error. It
-         folds the panel (owner decision O19; Space or Enter). Keyboard focus draws its edge in the focus colour. -->
+         folds the panel (owner decision O19; Space or Enter). Under the pointer the bar takes the hover colour and the
+         triangle the accent (Task 2 review: it had no hover); keyboard focus draws its edge in the focus colour. -->
     <Style x:Key="Capsule.Fold" TargetType="ToggleButton">
         <Setter Property="Foreground" Value="{DynamicResource Fx.SectionTextBrush}"/>
         <Setter Property="Background" Value="{DynamicResource Fx.HeaderBrush}"/>
@@ -217,7 +230,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
                     <Grid>
-                        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <Border x:Name="Bar" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                             <DockPanel>
                                 <Rectangle x:Name="ErrorMark" DockPanel.Dock="Right" Width="8" Height="8" Margin="8,0,0,0" VerticalAlignment="Center"
                                            Fill="{DynamicResource Fx.CriticalBrush}" Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
@@ -231,6 +244,10 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Twisty" Property="Data" Value="M 0 2 L 8 2 L 4 7 Z"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bar" Property="Background" Value="{DynamicResource Fx.NavHoverBrush}"/>
+                            <Setter TargetName="Twisty" Property="Fill" Value="{DynamicResource Fx.AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>

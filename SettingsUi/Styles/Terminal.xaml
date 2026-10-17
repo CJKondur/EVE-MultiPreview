@@ -8,15 +8,16 @@
          value the mock-up does not show is derived from its palette (spec: marked *). The metrics marked "cells" are laid on
          the grid by Terminal.xaml.cs when the look loads (the values here are those of a 9.6 px cell). -->
 
-    <!-- Surfaces (10): black; the open page amber -->
+    <!-- Surfaces (10): black; the open page amber; a card or a list row under the pointer the hover amber-brown, as the
+         buttons' (Task 12 review: #231A08 was 1.1:1 on the page, the gallery card's hover could not be seen) -->
     <Color x:Key="Fx.Bg">#FF0D0A04</Color>
     <Color x:Key="Fx.Nav">#FF0D0A04</Color>
     <Color x:Key="Fx.CardColor">#FF0D0A04</Color>
-    <Color x:Key="Fx.CardHover">#FF231A08</Color>
+    <Color x:Key="Fx.CardHover">#FF33260A</Color>
     <Color x:Key="Fx.Header">#FF0D0A04</Color>
     <Color x:Key="Fx.Control">#FF231A08</Color>
     <Color x:Key="Fx.Flyout">#FF171206</Color>
-    <Color x:Key="Fx.AccentSoft">#FF231A08</Color>
+    <Color x:Key="Fx.AccentSoft">#FF33260A</Color>
     <Color x:Key="Fx.NavHover">#FF33260A</Color>
     <Color x:Key="Fx.NavSelected">#FFF0A800</Color>
     <!-- Lines (5) -->
@@ -135,6 +136,7 @@
     <Thickness x:Key="Terminal.BoxPad">9.6,0,0,0</Thickness>
     <Thickness x:Key="Terminal.TagPad">4.8,0,4.8,0</Thickness>
     <sys:Double x:Key="Terminal.FindWidth">249.6</sys:Double>
+    <sys:Double x:Key="Terminal.NumberWidth">38.4</sys:Double>
     <!-- Its help: "<Help>" (the header's button; its word is L.S.Shell.HelpShort). -->
     <Style x:Key="Look.Help" TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Text}"/>
 
@@ -478,7 +480,7 @@
     <DataTemplate x:Key="Fx.Card.Number">
         <ContentControl Style="{DynamicResource Fx.CardHost}">
             <StackPanel Orientation="Horizontal">
-                <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="40" TextAlignment="Right" Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
+                <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="{DynamicResource Terminal.NumberWidth}" TextAlignment="Right" Text="{Binding Text, UpdateSourceTrigger=LostFocus}"
                          local:CommitOnEnter.Enabled="True"/>
                 <TextBlock local:Loc.Key="{Binding UnitKey}" Foreground="{DynamicResource Fx.TextBrush}" FontSize="{DynamicResource Fx.Size.Control}" VerticalAlignment="Center" Margin="{DynamicResource Terminal.BoxPad}"/>
             </StackPanel>
@@ -601,11 +603,17 @@
                     <TextBlock DockPanel.Dock="Left" Text="EVE MultiPreview" FontWeight="Bold" Foreground="{DynamicResource Fx.OnAccentBrush}"
                                VerticalAlignment="Center" Margin="{DynamicResource Terminal.BoxPad}"/>
                     <Button DockPanel.Dock="Left" Style="{StaticResource Terminal.MenuButton}" Margin="{DynamicResource Terminal.BoxPad}"
-                            AutomationProperties.Name="{Binding ProfileName}"
                             Command="{Binding ProfileMenuCommand, RelativeSource={RelativeSource TemplatedParent}}"
                             CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
+                        <!-- Heard as drawn, "Profile: Default" (the name alone did not say what it is; Task 13 review). -->
+                        <AutomationProperties.Name>
+                            <MultiBinding StringFormat="{}{0} {1}">
+                                <Binding ElementName="ProfileWord" Path="Text"/>
+                                <Binding Path="ProfileName"/>
+                            </MultiBinding>
+                        </AutomationProperties.Name>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock local:Loc.Key="L.Eve.ProfileLabel"/>
+                            <TextBlock x:Name="ProfileWord" local:Loc.Key="L.Eve.ProfileLabel"/>
                             <TextBlock Text="{Binding ProfileName}" Margin="{DynamicResource Terminal.BoxPad}"/>
                             <local:DecorativeText Text=" ▼"/>
                         </StackPanel>

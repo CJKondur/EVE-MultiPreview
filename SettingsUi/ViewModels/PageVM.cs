@@ -9,6 +9,9 @@ public sealed class SectionVM : ObservableObject
     public SectionVM(SectionDef def, IReadOnlyList<ItemVM> items, int ordinal = 0)
     {
         Def = def; Items = items; _ordinal = ordinal;
+        // A row already in error when the section is made (a profile switched in with a bad value) marks a folded header at
+        // once (Task 3 review: the mark waited for the next change). The section is not opened for it here.
+        _hasError = items.Any(i => i.HasError);
         foreach (var item in items) item.PropertyChanged += (_, _) => CheckErrors();
     }
     public SectionDef Def { get; }

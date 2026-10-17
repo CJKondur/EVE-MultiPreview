@@ -194,7 +194,16 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Fx.ButtonBorderBrush}"/>
         <Setter Property="Template" Value="{StaticResource Ink.Button.Template}"/>
     </Style>
-    <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Round}"/>
+    <!-- A toggle button: an underline at rest (the controls' line); under the pointer the full 1 px box, the padding one
+         less so the text stays put (its accent edge is its own black; final wave). -->
+    <Style TargetType="ToggleButton" BasedOn="{StaticResource Kit.Toggle.Round}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderThickness" Value="{DynamicResource Ink.Line.Box}"/>
+                <Setter Property="Padding" Value="11,0"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
     <Style TargetType="ScrollBar" BasedOn="{StaticResource Kit.Scroll.Thin}"/>
     <!-- The on/off control of a setting is the 15 px inset box at the row's right end (the base's toggle card). -->
     <Style x:Key="Fx.ToggleSwitch" TargetType="CheckBox" BasedOn="{StaticResource Kit.Check.Inset}">
@@ -361,17 +370,19 @@
     </DataTemplate>
 
     <!-- A group: its name in bold, "+" (closed) or "−" (open) at the right in the second text colour; its name underlined
-         under the mouse; its pages under it while it is open. -->
+         under the mouse; its pages under it while it is open. A screen reader hears its name and whether it is open
+         (NavGroupButton: expanded / collapsed), not the sign (Task 11 review). -->
     <DataTemplate x:Key="Fx.Nav.Group">
         <StackPanel>
-            <Button x:Name="Line" Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="0,0,4,0">
+            <local:NavGroupButton x:Name="Line" Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="0,0,4,0"
+                                  local:Loc.NameKey="{Binding TitleKey}">
                 <DockPanel>
-                    <TextBlock x:Name="Sign" DockPanel.Dock="Right" Text="+" Foreground="{DynamicResource Fx.NavTextSecondaryBrush}" VerticalAlignment="Center"/>
+                    <local:DecorativeText x:Name="Sign" DockPanel.Dock="Right" Text="+" Foreground="{DynamicResource Fx.NavTextSecondaryBrush}" VerticalAlignment="Center"/>
                     <TextBlock x:Name="Name" local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
                                FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
                                Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
                 </DockPanel>
-            </Button>
+            </local:NavGroupButton>
             <ItemsControl ItemsSource="{Binding Pages}" Focusable="False" ItemTemplate="{DynamicResource Fx.Nav.Page}"
                           Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}"/>
         </StackPanel>

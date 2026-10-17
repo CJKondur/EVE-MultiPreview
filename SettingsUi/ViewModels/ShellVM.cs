@@ -118,9 +118,11 @@ public sealed class ShellVM : ObservableObject, IDisposable
         : OpenEntry is { } e ? e.GroupOrdinal.ToString("00", System.Globalization.CultureInfo.InvariantCulture) + "." + e.Ordinal.ToString(System.Globalization.CultureInfo.InvariantCulture)
         : "";
 
-    /// <summary>"In Alerts": the open page's group (Blueprint's title block); empty on Home.</summary>
-    public string InGroupText => OpenEntry != null && GroupTitleKey is { } group
-        ? string.Format(SettingsContext.Str("L.S.Shell.InGroup"), SettingsContext.Str(group)) : "";
+    /// <summary>"In Alerts": the group of the open page's entry (Blueprint's title block), the same group PlaceInGroup
+    /// counts in (a character page's is its parent's entry, in Clients; Task 9 review: it said "In Characters"); empty on
+    /// Home.</summary>
+    public string InGroupText => OpenEntry is { } e && Groups.FirstOrDefault(g => g.Pages.Contains(e)) is { } group
+        ? string.Format(SettingsContext.Str("L.S.Shell.InGroup"), SettingsContext.Str(group.TitleKey)) : "";
 
     /// <summary>"3 of 5": the open page's place in its group; empty on Home.</summary>
     public string PlaceInGroup => OpenEntry is { } e

@@ -166,6 +166,10 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
                         </Trigger>
+                        <!-- Switched off: faded, as the kit's (it was drawn live; final wave). -->
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.56"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -252,6 +256,7 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
+                <Setter Property="Padding" Value="11,0"/>   <!-- the edge 1 px thicker, the padding 1 px less: the text stays put (fix B re-review N1) -->
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -286,6 +291,7 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
+                <Setter Property="Padding" Value="11,0"/>   <!-- the edge 1 px thicker, the padding 1 px less: the text stays put (fix B re-review N1) -->
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -309,6 +315,7 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
+                <Setter Property="Padding" Value="11,0"/>   <!-- the edge 1 px thicker, the padding 1 px less: the text stays put (fix B re-review N1) -->
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -636,9 +643,9 @@
     </DataTemplate>
 
     <!-- The profile: an outlined button, 44 high, with the name, "Profile" under it and a chevron; it opens the profile
-         menu under it. -->
+         menu under it. A screen reader hears both words, "Default, Profile" (the name alone did not say what it is). -->
     <DataTemplate x:Key="Fx.Shell.Profile">
-        <Button AutomationProperties.Name="{Binding ProfileName}" Cursor="Hand" HorizontalContentAlignment="Stretch" Margin="0,0,0,6"
+        <Button Cursor="Hand" HorizontalContentAlignment="Stretch" Margin="0,0,0,6"
                 FocusVisualStyle="{StaticResource Contrast.Focus}"
                 Command="{Binding ProfileMenuCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
                 CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
@@ -652,6 +659,7 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Fx.AccentBrush}"/>
                             <Setter TargetName="Box" Property="BorderThickness" Value="{DynamicResource Contrast.Line.Mark}"/>
+                            <Setter TargetName="Box" Property="Padding" Value="11,0"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -661,9 +669,15 @@
                       Stroke="{DynamicResource Fx.TextBrush}" StrokeThickness="1.5"/>
                 <StackPanel>
                     <TextBlock Text="{Binding ProfileName}" Style="{DynamicResource Fx.Label}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
-                    <TextBlock local:Loc.Key="L.S.Shell.Profile" Style="{DynamicResource Fx.Desc}" Foreground="{DynamicResource Fx.TextBrush}" Margin="0"/>
+                    <TextBlock x:Name="ProfileWord" local:Loc.Key="L.S.Shell.Profile" Style="{DynamicResource Fx.Desc}" Foreground="{DynamicResource Fx.TextBrush}" Margin="0"/>
                 </StackPanel>
             </DockPanel>
+            <AutomationProperties.Name>
+                <MultiBinding StringFormat="{}{0}, {1}">
+                    <Binding Path="ProfileName"/>
+                    <Binding ElementName="ProfileWord" Path="Text"/>
+                </MultiBinding>
+            </AutomationProperties.Name>
         </Button>
     </DataTemplate>
 
