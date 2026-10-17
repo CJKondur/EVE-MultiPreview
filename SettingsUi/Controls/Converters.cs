@@ -24,3 +24,11 @@ public sealed class NotNullToVisibilityConverter : IValueConverter
         value != null ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => System.Windows.Data.Binding.DoNothing;
 }
+
+/// <summary>Visible when the value is null (the stacked header's page name: a key, unless the page has a name of its own).</summary>
+public sealed class NullToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value == null ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => System.Windows.Data.Binding.DoNothing;
+}

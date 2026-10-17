@@ -762,4 +762,333 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- ═══ The parts the flat looks share (plan S3: Daylight, Dusk, Compact, Neon, Carbon). Keyed Base.*: Windows 11 and
+         Classic never name them. A look's code puts one under the contract's key (UiStyles.ReadLook; an alias in XAML,
+         a StaticResource element, is read under the wrong key by WPF: measured). Each reads tokens, and three values every
+         flat look defines: Look.Help (the "?"'s style), Look.PaneLine and Look.TopLine (Visibility). ═══ -->
+
+    <local:NullToVisibilityConverter x:Key="Base.NullToVis"/>
+
+    <!-- A row in a section's card: on the card's colour, Fx.Line.Row under it in Fx.Divider, the hover colour under the
+         mouse. The card hides the last row's line (Base.Section.InCard). -->
+    <Style x:Key="Base.Card.InCard" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Fx.CardBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.DividerBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Row}"/>
+        <Setter Property="Padding" Value="{DynamicResource Fx.Row.Padding}"/>
+        <Setter Property="Margin" Value="{DynamicResource Fx.Row.Gap}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Row.MinHeight}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Fx.CardHoverBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <!-- A row straight on the page: the same, on the page's colour. -->
+    <Style x:Key="Base.Card.OnPage" TargetType="Border" BasedOn="{StaticResource Base.Card.InCard}">
+        <Setter Property="Background" Value="{DynamicResource Fx.BgBrush}"/>
+    </Style>
+
+    <!-- A section as one card (Daylight, Dusk): its heading, then all its rows in one card with the card's corner and edge.
+         Each row's line is drawn under it; the card's last pixel line is clipped, so a line runs only between two rows. -->
+    <DataTemplate x:Key="Base.Section.InCard">
+        <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}"/>
+            <Grid>
+                <Border Background="{DynamicResource Fx.CardBrush}" CornerRadius="{DynamicResource Fx.Radius}"/>
+                <Border Padding="14,0">
+                    <Border ClipToBounds="True">
+                        <ContentPresenter Content="{Binding Cards}" Margin="0,0,0,-1"/>
+                    </Border>
+                </Border>
+                <Border BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{DynamicResource Fx.Line.Card}"
+                        CornerRadius="{DynamicResource Fx.Radius}" IsHitTestVisible="False"/>
+            </Grid>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- A section straight on the page (Compact): its heading, then its rows. -->
+    <DataTemplate x:Key="Base.Section.OnPage">
+        <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}"/>
+            <ContentPresenter Content="{Binding Cards}"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- A section with a rule under its heading (Neon): Fx.Line.Row in the card line's colour, then the rows. -->
+    <DataTemplate x:Key="Base.Section.Ruled">
+        <StackPanel Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <Border BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{DynamicResource Fx.Line.Row}" Padding="0,0,0,6">
+                <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}"/>
+            </Border>
+            <ContentPresenter Content="{Binding Cards}"/>
+        </StackPanel>
+    </DataTemplate>
+
+    <!-- An on/off setting with its check before the label (Daylight, Dusk, Compact, Carbon): the check box holds the label
+         and the note, so a click on either switches it; the error under it. A search hit lights the label. -->
+    <DataTemplate x:Key="Base.Card.CheckFirst">
+        <Border Style="{DynamicResource Fx.Card}" Visibility="{Binding IsVisible, Converter={StaticResource Fx.BoolToVis}}">
+            <StackPanel VerticalAlignment="Center">
+                <CheckBox Style="{DynamicResource Fx.ToggleSwitch}" IsChecked="{Binding IsOn}" local:Loc.NameKey="{Binding LabelKey}"
+                          HorizontalAlignment="Left" VerticalContentAlignment="Center">
+                    <StackPanel>
+                        <TextBlock x:Name="Label" local:Loc.Key="{Binding LabelKey}" Style="{DynamicResource Fx.Label}"/>
+                        <TextBlock local:Loc.Key="{Binding DescKey}" Style="{DynamicResource Fx.Desc}"/>
+                    </StackPanel>
+                </CheckBox>
+                <TextBlock Text="{Binding Error}" Style="{DynamicResource Fx.Error}"
+                           Visibility="{Binding HasError, Converter={StaticResource Fx.BoolToVis}}"/>
+            </StackPanel>
+        </Border>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
+                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource Fx.LinkBrush}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- A slider setting as the flat mock-ups draw it: the slider, then its value in the value colour, then the unit. -->
+    <DataTemplate x:Key="Base.Card.SliderThenValue">
+        <ContentControl Style="{DynamicResource Fx.CardHost}">
+            <StackPanel Orientation="Horizontal">
+                <Slider local:Loc.NameKey="{Binding LabelKey}" Width="220" VerticalAlignment="Center" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                        SmallChange="{Binding Step}" LargeChange="{Binding Step}" TickFrequency="{Binding Step}"
+                        IsSnapToTickEnabled="True" Value="{Binding Number, Delay=150}"/>
+                <TextBlock Text="{Binding Number, StringFormat=N0}" Foreground="{DynamicResource Fx.ValueTextBrush}" FontWeight="SemiBold"
+                           VerticalAlignment="Center" MinWidth="32" TextAlignment="Right" Margin="8,0,0,0"/>
+                <TextBlock local:Loc.Key="{Binding UnitKey}" Foreground="{DynamicResource Fx.TextSecondaryBrush}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+            </StackPanel>
+        </ContentControl>
+    </DataTemplate>
+
+    <!-- A table's row and its header row: Fx.Line.Row under each in Fx.Divider; a row Fx.Row.MinHeight high, the header
+         Fx.Control.Height. -->
+    <Style x:Key="Base.Table.Ruled" TargetType="Border">
+        <Setter Property="BorderBrush" Value="{DynamicResource Fx.DividerBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Row}"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Row.MinHeight}"/>
+    </Style>
+    <Style x:Key="Base.Table.Head" TargetType="Border" BasedOn="{StaticResource Base.Table.Ruled}">
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Control.Height}"/>
+    </Style>
+
+    <!-- A navigation entry of a flat look: a line Fx.Nav.ItemHeight high with the navigation corner. The hover shade is a
+         layer UNDER the entry's own background, so the open page's fill (set on the button) is never replaced by it;
+         keyboard focus adds an edge in the focus colour. -->
+    <Style x:Key="Base.Nav.Entry" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource Fx.NavTextBrush}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="Margin" Value="0,1"/>
+        <Setter Property="MinHeight" Value="{DynamicResource Fx.Nav.ItemHeight}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid SnapsToDevicePixels="True">
+                        <Border x:Name="Hover" Visibility="Collapsed" Background="{DynamicResource Fx.NavHoverBrush}"
+                                CornerRadius="{DynamicResource Fx.Radius.Nav}"/>
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
+                                CornerRadius="{DynamicResource Fx.Radius.Nav}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="Edge" Visibility="Collapsed" IsHitTestVisible="False" BorderBrush="{DynamicResource Fx.FocusBrush}"
+                                BorderThickness="{DynamicResource Fx.Line.Control}" CornerRadius="{DynamicResource Fx.Radius.Nav}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Hover" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Edge" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A group: its icon (Fx.Nav.Icons), its name, and a chevron on the right that turns down while it is open; its pages
+         under it. -->
+    <DataTemplate x:Key="Base.Nav.Group">
+        <StackPanel>
+            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}">
+                <DockPanel>
+                    <Path x:Name="Chevron" DockPanel.Dock="Right" Width="8" Height="8" VerticalAlignment="Center" Stretch="None"
+                          Stroke="{DynamicResource Fx.NavTextSecondaryBrush}" StrokeThickness="1.2" Data="M 2 0 L 6 4 L 2 8"/>
+                    <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource Fx.IconFont}" Visibility="{DynamicResource Fx.Nav.Icons}"
+                               Foreground="{DynamicResource Fx.IconBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                               FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                               Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                </DockPanel>
+            </Button>
+            <ItemsControl ItemsSource="{Binding Pages}" Focusable="False" ItemTemplate="{DynamicResource Fx.Nav.Page}"
+                          Visibility="{Binding IsExpanded, Converter={StaticResource Fx.BoolToVis}}"/>
+        </StackPanel>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                <Setter TargetName="Chevron" Property="Data" Value="M 0 2 L 4 6 L 8 2"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- A page of a group: indented by Fx.Nav.SubIndent, Fx.Nav.SubItemHeight high, in the pane's second text colour; the
+         open page filled with Fx.NavSelected, its text in Fx.NavSelectedText and Fx.Weight.NavSelected. -->
+    <DataTemplate x:Key="Base.Nav.Page">
+        <Button x:Name="Line" Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding OpenCommand}" Padding="0,0,10,0"
+                MinHeight="{DynamicResource Fx.Nav.SubItemHeight}">
+            <DockPanel>
+                <Border DockPanel.Dock="Left" Width="{DynamicResource Fx.Nav.SubIndent}"/>
+                <TextBlock x:Name="Text" local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                           FontSize="{DynamicResource Fx.Size.NavSub}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                           Foreground="{DynamicResource Fx.NavTextSecondaryBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+            </DockPanel>
+        </Button>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                <Setter TargetName="Line" Property="Background" Value="{DynamicResource Fx.NavSelectedBrush}"/>
+                <Setter TargetName="Text" Property="Foreground" Value="{DynamicResource Fx.NavSelectedTextBrush}"/>
+                <Setter TargetName="Text" Property="FontWeight" Value="{DynamicResource Fx.Weight.NavSelected}"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <!-- The settings window of a flat look: the pane on its own colour (profile, search, the list with App settings last,
+         Simple and All settings), Look.PaneLine's 1 px line, the page, the help column; Look.TopLine's 3 px accent line
+         along the window's top; the toast over the page. The window's code hands in the three live parts, as in Fx.Shell. -->
+    <ControlTemplate x:Key="Base.Shell.Pane" TargetType="local:ShellFrame">
+        <Grid Background="{DynamicResource Fx.BgBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="{Binding HelpWidth, RelativeSource={RelativeSource TemplatedParent}}"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.ColumnSpan="4" Height="3" Background="{DynamicResource Fx.AccentBrush}" Visibility="{DynamicResource Look.TopLine}"/>
+
+            <Border Grid.Row="1" Grid.Column="0" Width="{DynamicResource Fx.Nav.Width}" Background="{DynamicResource Fx.NavBrush}">
+                <DockPanel Margin="10,12">
+                    <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Profile}"
+                                    Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                    <ContentControl DockPanel.Dock="Top" Margin="0,8,0,8" Focusable="False" IsTabStop="False"
+                                    Content="{TemplateBinding Search}"
+                                    Visibility="{Binding ShowGroups, Converter={StaticResource Fx.BoolToVis}}"/>
+                    <ContentControl DockPanel.Dock="Bottom" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Mode}"
+                                    Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                    <ContentControl DockPanel.Dock="Bottom" Margin="0,8,0,0" Focusable="False" IsTabStop="False"
+                                    Content="{Binding AppGroup}" ContentTemplate="{DynamicResource Fx.Nav.Group}"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+                        <StackPanel>
+                            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding HomeCommand}"
+                                    Visibility="{Binding HasHome, Converter={StaticResource Fx.BoolToVis}}">
+                                <DockPanel>
+                                    <TextBlock Text="&#xE80F;" FontFamily="{DynamicResource Fx.IconFont}" Visibility="{DynamicResource Fx.Nav.Icons}"
+                                               Foreground="{DynamicResource Fx.IconBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock local:Loc.Key="L.S.Nav.Home" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                                               FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                                               Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                                </DockPanel>
+                            </Button>
+                            <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding AllSettingsCommand}"
+                                    Visibility="{Binding IsSimple, Converter={StaticResource Fx.BoolToVis}}">
+                                <DockPanel>
+                                    <TextBlock Text="&#xE713;" FontFamily="{DynamicResource Fx.IconFont}" Visibility="{DynamicResource Fx.Nav.Icons}"
+                                               Foreground="{DynamicResource Fx.IconBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBlock local:Loc.Key="L.S.Nav.AllSettings" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"
+                                               FontSize="{DynamicResource Fx.Size.Nav}" FontWeight="{DynamicResource Fx.Weight.Nav}"
+                                               Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
+                                </DockPanel>
+                            </Button>
+                            <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <Border Grid.Row="1" Grid.Column="1" Width="1" Background="{DynamicResource Fx.BorderBrush}" Visibility="{DynamicResource Look.PaneLine}"/>
+
+            <DockPanel Grid.Row="1" Grid.Column="2" Margin="{DynamicResource Fx.Page.Padding}">
+                <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Header}"
+                                Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ContentControl DockPanel.Dock="Top" Content="{Binding}" ContentTemplate="{DynamicResource Fx.SaveError}"
+                                Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ContentControl DockPanel.Dock="Bottom" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Status}"
+                                Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                <ContentPresenter Content="{TemplateBinding Page}"/>
+            </DockPanel>
+
+            <ContentControl Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="24"
+                            IsHitTestVisible="False" Focusable="False" IsTabStop="False"
+                            Content="{TemplateBinding ToastText}" ContentTemplate="{DynamicResource Fx.Toast}"
+                            Visibility="{Binding ToastText, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource Fx.NotNullToVis}}"/>
+
+            <ContentControl Grid.Row="1" Grid.Column="3" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Help}"
+                            Focusable="False" IsTabStop="False"/>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- The page's header of a flat look: the breadcrumb on a line of its own (Fx.Show.Breadcrumb; the group goes back to
+         its first page), the page's name in the title's tokens under it, the description, and Look.Help's "?" on the right.
+         Home has no breadcrumb. -->
+    <DataTemplate x:Key="Base.Header.Stacked">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <WrapPanel Visibility="{DynamicResource Fx.Show.Breadcrumb}">
+                    <WrapPanel Visibility="{Binding GroupTitleKey, Converter={StaticResource Fx.NotNullToVis}}">
+                        <Button Cursor="Hand" Command="{Binding BreadcrumbCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <TextBlock local:Loc.Key="{Binding GroupTitleKey}" Style="{DynamicResource Fx.Breadcrumb}"/>
+                        </Button>
+                        <TextBlock Text=" › " Style="{DynamicResource Fx.Breadcrumb}"/>
+                        <TextBlock Text="{Binding Current.Page.Title}" Style="{DynamicResource Fx.Breadcrumb}"
+                                   Visibility="{Binding Current.Page.Title, Converter={StaticResource Fx.NotNullToVis}}"/>
+                        <TextBlock local:Loc.Key="{Binding Current.Page.TitleKey}" Style="{DynamicResource Fx.Breadcrumb}"
+                                   Visibility="{Binding Current.Page.Title, Converter={StaticResource Base.NullToVis}}"/>
+                    </WrapPanel>
+                </WrapPanel>
+                <!-- The title's own style from the tokens Fx.PageTitle reads: no style here is based on a contract style, so a look
+                     may define Fx.Breadcrumb (StyleSwitchTests: no look redefines a style the app's XAML derives from). -->
+                <TextBlock>
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Title}"/>
+                            <Setter Property="FontWeight" Value="{DynamicResource Fx.Weight.Title}"/>
+                            <Setter Property="FontStyle" Value="{DynamicResource Fx.Style.Title}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
+                            <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Title}"/>
+                            <Setter Property="TextWrapping" Value="Wrap"/>
+                            <Setter Property="Text" Value="{Binding Current.Page.Title}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
+                                    <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock local:Loc.Key="{Binding Current.Page.DescKey}" Style="{DynamicResource Fx.PageDesc}"/>
+            </StackPanel>
+            <ToggleButton Grid.Column="1" Style="{DynamicResource Look.Help}" IsChecked="{Binding HelpOpen}" Content="?"
+                          VerticalAlignment="Center" Margin="16,0,0,0" ToolTip="{DynamicResource L.S.Shell.Help}" local:Loc.NameKey="L.S.Shell.Help"/>
+        </Grid>
+    </DataTemplate>
 </ResourceDictionary>
