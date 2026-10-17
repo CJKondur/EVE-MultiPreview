@@ -773,6 +773,12 @@
     <sys:String x:Key="L.S.app.look.gallery">Aussehen der App</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.gallery.Desc">Ein Klick ändert alle Fenster der App auf einmal. Die Vorschaubilder bleiben, wie sie sind.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.Toast">Aussehen: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.contrast">Windows-Kontrastdesigns</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast">Hohen Kontrast verwenden, solange ein Windows-Kontrastdesign aktiv ist</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast.Desc">In den Farben des Designs. Das Aussehen, das du wählst, bleibt gespeichert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.contrastOn">Ein Windows-Kontrastdesign ist aktiv, deshalb wird Hoher Kontrast angezeigt. Das Aussehen, das du wählst, bleibt erhalten und erscheint, sobald das Design ausgeschaltet ist, oder sofort, wenn du diesen Schalter ausschaltest.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Title">Windows-Kontrastdesigns</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Body">Ist ein Windows-Kontrastdesign aktiv (Windows-Einstellungen, Barrierefreiheit, Kontrastdesigns), zeigt MultiPreview **Hoher Kontrast** in den Farben dieses Designs, egal welches Aussehen du gewählt hast. Deine Wahl bleibt erhalten und erscheint wieder, wenn das Design ausgeschaltet wird.&#x0A;&#x0A;Um dein eigenes Aussehen auch mit einem Kontrastdesign zu behalten, schalte **Hohen Kontrast verwenden, solange ein Windows-Kontrastdesign aktiv ist** aus.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">Aktuell</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">Klassisch</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">Das alte Marineblau von MultiPreview.</sys:String> <!-- draft -->

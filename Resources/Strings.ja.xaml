@@ -774,6 +774,12 @@
     <sys:String x:Key="L.S.app.look.gallery">アプリの外観</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.gallery.Desc">1 回のクリックで、アプリのすべてのウィンドウが一度に変わります。サムネイルはそのままです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.Toast">外観: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.contrast">Windows のコントラスト テーマ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast">Windows のコントラスト テーマがオンの間はハイコントラストを使う</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast.Desc">テーマ自身の色で表示します。選んだ外観は保存されたままです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.contrastOn">Windows のコントラスト テーマがオンのため、ハイコントラストを表示しています。選んだ外観は保持され、テーマをオフにすると表示されます。このスイッチをオフにするとすぐに表示されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Title">Windows のコントラスト テーマ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Body">Windows のコントラスト テーマがオンのとき（Windows の設定、アクセシビリティ、コントラスト テーマ）、MultiPreview は選んだ外観にかかわらず、そのテーマの色で**ハイコントラスト**を表示します。選んだ外観は保持され、テーマをオフにすると戻ります。&#x0A;&#x0A;コントラスト テーマがオンでも自分の外観を使うには、**Windows のコントラスト テーマがオンの間はハイコントラストを使う**をオフにします。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">現在</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">クラシック</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">以前の MultiPreview の紺色です。</sys:String> <!-- draft -->

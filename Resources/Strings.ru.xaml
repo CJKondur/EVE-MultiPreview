@@ -793,6 +793,12 @@
     <sys:String x:Key="L.S.app.look.gallery">Оформление приложения</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.gallery.Desc">Один щелчок меняет сразу все окна приложения. Миниатюры остаются как есть.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.Toast">Оформление: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.contrast">Контрастные темы Windows</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast">Использовать высокую контрастность, пока включена контрастная тема Windows</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast.Desc">В цветах темы. Выбранное вами оформление сохраняется.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.contrastOn">Включена контрастная тема Windows, поэтому показано оформление «Высокая контрастность». Выбранное вами оформление сохранено и появится, когда тема будет выключена, или сразу, если вы выключите этот переключатель.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Title">Контрастные темы Windows</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Body">Когда включена контрастная тема Windows (Параметры Windows, Специальные возможности, Контрастные темы), MultiPreview показывает оформление **Высокая контрастность** в цветах этой темы, какое бы оформление вы ни выбрали. Ваш выбор сохраняется и вернётся, когда тема будет выключена.&#x0A;&#x0A;Чтобы оставить своё оформление при контрастной теме, выключите **Использовать высокую контрастность, пока включена контрастная тема Windows**.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">Текущее</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">Классическое</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">Прежний тёмно-синий MultiPreview.</sys:String> <!-- draft -->

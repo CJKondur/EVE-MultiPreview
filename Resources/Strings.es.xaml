@@ -795,6 +795,12 @@
     <sys:String x:Key="L.S.app.look.gallery">Aspecto de la aplicación</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.gallery.Desc">Un clic cambia todas las ventanas de la aplicación a la vez. Las miniaturas no cambian.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.Toast">Aspecto: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.contrast">Temas de contraste de Windows</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast">Usar Contraste alto mientras haya un tema de contraste de Windows activo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast.Desc">Con los colores del tema. El aspecto que elijas queda guardado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.contrastOn">Hay un tema de contraste de Windows activo, así que se muestra Contraste alto. El aspecto que elijas se conserva y se muestra al desactivar el tema, o ahora si desactivas este interruptor.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Title">Temas de contraste de Windows</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Body">Cuando hay un tema de contraste de Windows activo (Configuración de Windows, Accesibilidad, Temas de contraste), MultiPreview muestra **Contraste alto** con los colores de ese tema, sea cual sea el aspecto que elegiste. Tu elección se conserva y vuelve al desactivar el tema.&#x0A;&#x0A;Para mantener tu propio aspecto con un tema de contraste, desactiva **Usar Contraste alto mientras haya un tema de contraste de Windows activo**.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">Actual</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">Clásico</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">El azul marino de siempre de MultiPreview.</sys:String> <!-- draft -->

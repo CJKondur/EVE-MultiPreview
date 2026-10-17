@@ -69,6 +69,6 @@ public static class UiFont
     public static FontFamily Of(string lang)
     {
         UiStyles.UseLanguage(lang);
-        return (FontFamily)UiStyles.Current.Dictionary["Fx.Font"];
+        return (FontFamily)UiStyles.Effective.Dictionary["Fx.Font"];
     }
 }

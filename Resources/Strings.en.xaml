@@ -767,6 +767,12 @@
     <sys:String x:Key="L.S.app.look.gallery">Look of the app</sys:String>
     <sys:String x:Key="L.S.app.look.gallery.Desc">One click changes every window of the app at once. The thumbnails stay as they are.</sys:String>
     <sys:String x:Key="L.S.app.look.Toast">Look: {0}</sys:String>
+    <sys:String x:Key="L.S.Sec.app.look.contrast">Windows contrast themes</sys:String>
+    <sys:String x:Key="L.S.app.look.followContrast">Use High contrast while a Windows contrast theme is on</sys:String>
+    <sys:String x:Key="L.S.app.look.followContrast.Desc">In the theme's own colours. The look you pick stays saved.</sys:String>
+    <sys:String x:Key="L.S.app.look.contrastOn">A Windows contrast theme is on, so High contrast is shown. The look you pick is kept and shows when the theme is turned off, or now if you turn the switch off.</sys:String>
+    <sys:String x:Key="L.Help.app.look.contrast.Title">Windows contrast themes</sys:String>
+    <sys:String x:Key="L.Help.app.look.contrast.Body">When a Windows contrast theme is on (Windows Settings, Accessibility, Contrast themes), MultiPreview shows **High contrast** in that theme's colours, whatever look you picked. Your pick is kept, and it shows again when the theme is turned off.&#x0A;&#x0A;To keep your own look while a contrast theme is on, turn off **Use High contrast while a Windows contrast theme is on**.</sys:String>
     <sys:String x:Key="L.S.Look.Current">Current</sys:String>
     <sys:String x:Key="L.S.Style.classic">Classic</sys:String>
     <sys:String x:Key="L.S.Style.classic.Desc">The old MultiPreview navy.</sys:String>

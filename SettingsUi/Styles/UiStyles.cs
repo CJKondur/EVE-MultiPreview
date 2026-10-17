@@ -116,9 +116,66 @@ public static class UiStyles
     /// sets another (spec §16: the harnesses default to windows11), whatever a settings file's default is.</summary>
     public static UiStyle Current { get; private set; } = Windows11;
 
-    /// <summary>The look shown (spec §5.3): the current one. S4 makes it High contrast while a Windows contrast theme is
-    /// on and the player wants that.</summary>
-    public static UiStyle Effective => Current;
+    /// <summary>The look drawn (spec §5.3, §12): the current one, or High contrast in Windows' own colours while Windows has
+    /// a contrast theme on and the player follows it (FollowsContrast). The applier, the palette and the title bars draw it;
+    /// Current stays the player's pick.</summary>
+    public static UiStyle Effective { get; private set; } = Windows11;
+
+    /// <summary>Whether the app draws High contrast while Windows has a contrast theme on (AppSettings.UiStyleFollowContrast,
+    /// on by default). App sets it from the settings before it shows the saved look; the Look page's switch calls
+    /// FollowWindowsContrast.</summary>
+    public static bool FollowsContrast { get; set; } = true;
+
+    /// <summary>Whether the look drawn is High contrast in Windows' colours (App settings › Look says why).</summary>
+    public static bool ShowsWindowsContrast => _system != null && Effective == _system;
+
+    /// <summary>The look that should be drawn now.</summary>
+    private static UiStyle Wanted() => FollowsContrast && WindowsContrast.IsOn() ? SystemContrast() : Current;
+
+    private static UiStyle? _system;
+    private static string? _systemColours;
+    private static int _systemMade;
+
+    /// <summary>High contrast in the colours of Windows' contrast theme (spec §12): High contrast's dictionary with each of
+    /// the 47 colours of the contract taken from Windows' (WindowsContrast.Map). Made again when Windows' colours change.
+    /// Not a registered look: it has no card and is never saved.</summary>
+    public static UiStyle SystemContrast()
+    {
+        var colours = WindowsContrast.Colours();
+        var key = string.Join(";", WindowsContrast.Names.Select(n => n + "=" + colours[n]));
+        if (_system == null || key != _systemColours)
+        {
+            _systemColours = key;
+            var these = new Dictionary<string, System.Windows.Media.Color>(colours, StringComparer.Ordinal);
+            _system = new UiStyle("contrast-windows-" + ++_systemMade, usesFluent: false, () => WindowsContrast.Apply(new ContrastStyle(), these));
+        }
+        return _system;
+    }
+
+    /// <summary>The Look page's switch (spec §12): follow Windows' contrast theme or not; the look drawn changes at once.</summary>
+    public static void FollowWindowsContrast(bool follow)
+    {
+        FollowsContrast = follow;
+        Show();
+    }
+
+    private static bool _listening;
+
+    /// <summary>Listens to Windows on this thread's dispatcher (App, at start): a contrast theme turned on or off, or its
+    /// colours changed, draws the look that should be drawn, the same path as a pick. Events only; nothing polls. A second
+    /// call does nothing.</summary>
+    public static void ListenToWindows()
+    {
+        if (_listening) return;
+        _listening = true;
+        var dispatcher = System.Windows.Threading.Dispatcher.CurrentDispatcher;
+        void Later() => dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, new Action(Refresh));
+        SystemParameters.StaticPropertyChanged += (_, e) => { if (e.PropertyName == nameof(SystemParameters.HighContrast)) Later(); };
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged += (_, e) =>
+        {
+            if (e.Category is Microsoft.Win32.UserPreferenceCategory.Color or Microsoft.Win32.UserPreferenceCategory.Accessibility) Later();
+        };
+    }
 
     /// <summary>Raised after a change of look, on the thread that made it. A handler that owns something of another
     /// thread leaves it alone (the menus, the hub and the settings window check).</summary>
@@ -145,21 +202,42 @@ public static class UiStyles
 
     public static void Set(string? id) => Set(Find(id));
 
-    /// <summary>Makes <paramref name="style"/> the look of the app at once (spec §5.3): the palette of the surfaces drawn in
-    /// code, slot 0 and the style dictionary of every window this thread attached (the base is the same for every look),
-    /// the title bars; then Changed. Nothing closes, nothing is rebuilt. A window that fails to take the look does not stop
-    /// the others, nor Changed; the first failure is thrown at the end.</summary>
+    /// <summary>Makes <paramref name="style"/> the look of the app (spec §5.3): the player's pick, Current. It is drawn at
+    /// once, unless Windows has a contrast theme on that the player follows: then it is drawn when the theme goes off.</summary>
     public static void Set(UiStyle style)
     {
-        if (style == Current) return;
+        var before = Current;
+        Current = style;
+        try { Show(); }
+        catch
+        {
+            // A switch that did not happen at all (a Changing handler threw, so the look drawn is still the old one) is no
+            // pick: the saved look stays the pick (S3F-m6). A window that failed after the switch keeps it.
+            if (Effective != Wanted()) Current = before;
+            throw;
+        }
+    }
+
+    /// <summary>Draws the look that should be drawn if it is not the one drawn (spec §12: Windows' contrast theme or its
+    /// colours changed). The same path as a pick.</summary>
+    public static void Refresh() => Show();
+
+    /// <summary>Makes the look that should be drawn the one drawn, at once: the palette of the surfaces drawn in code, slot
+    /// 0 and the style dictionary of every window this thread attached (the base is the same for every look), the title
+    /// bars; then Changed. Nothing closes, nothing is rebuilt. A window that fails to take the look does not stop the
+    /// others, nor Changed; the first failure is thrown at the end.</summary>
+    private static void Show()
+    {
+        var next = Wanted();
+        if (next == Effective) return;
         System.Runtime.ExceptionServices.ExceptionDispatchInfo? failure = null;
         try
         {
             // Inside the try: a Changing handler (or the palette) that throws still gets Changed raised, so a window that
             // kept its place gives it back (Task 7 review, Minor 5).
             Changing?.Invoke();
-            Current = style;
-            UiPalette.Use(UiPalette.From(style.Dictionary));
+            Effective = next;
+            UiPalette.Use(UiPalette.From(next.Dictionary));
             foreach (var window in AttachedWindows())
             {
                 try { Restyle(window); }
@@ -188,7 +266,7 @@ public static class UiStyles
     {
         var old = (ResourceDictionary[])window.GetValue(SlotsProperty);
         var kind = (StyledAs)window.GetValue(KindProperty);
-        var slots = SlotsFor(Current, kind);
+        var slots = SlotsFor(Effective, kind);
         var merged = window.Resources.MergedDictionaries;
         for (int i = 0; i < Math.Max(old.Length, slots.Length); i++)
         {
@@ -211,7 +289,7 @@ public static class UiStyles
     /// surface of a Fluent look never had one: only the look's own reference is taken away, not a colour the surface set.</summary>
     private static void TextColour(Window window)
     {
-        if (Current.UsesFluent)
+        if (Effective.UsesFluent)
         {
             // A resource reference only (the look's): a binding is an expression too, and is the surface's own (S3F-m7).
             if (window.ReadLocalValue(System.Windows.Controls.Control.ForegroundProperty)?.GetType().Name == "ResourceReferenceExpression")
@@ -292,12 +370,12 @@ public static class UiStyles
     public static void Attach(Window window, StyledAs kind = StyledAs.Window)
     {
         if (IsAttached(window)) return;
-        var slots = SlotsFor(Current, kind);
+        var slots = SlotsFor(Effective, kind);
         var merged = window.Resources.MergedDictionaries;
         for (int i = 0; i < slots.Length; i++) merged.Insert(i, slots[i]);
         window.SetValue(SlotsProperty, slots);
         window.SetValue(KindProperty, kind);
-        if (!Current.UsesFluent) TextColour(window);   // a window or surface of a Fluent look is left exactly as before
+        if (!Effective.UsesFluent) TextColour(window);   // a window or surface of a Fluent look is left exactly as before
         var remembered = new WeakReference<Window>(window);
         _attached ??= new List<WeakReference<Window>>();
         _attached.RemoveAll(r => !r.TryGetTarget(out _));   // windows the collector took (one is added per toast)

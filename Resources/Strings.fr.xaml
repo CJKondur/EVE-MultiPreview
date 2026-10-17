@@ -776,6 +776,12 @@
     <sys:String x:Key="L.S.app.look.gallery">Apparence de l'application</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.gallery.Desc">Un clic change toutes les fenêtres de l'application à la fois. Les miniatures restent telles quelles.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.Toast">Apparence : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.contrast">Thèmes de contraste de Windows</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast">Utiliser Contraste élevé quand un thème de contraste de Windows est actif</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast.Desc">Dans les couleurs du thème. L'apparence que vous choisissez reste enregistrée.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.contrastOn">Un thème de contraste de Windows est actif : Contraste élevé est donc affiché. L'apparence que vous choisissez est conservée et s'affiche quand le thème est désactivé, ou tout de suite si vous désactivez cet interrupteur.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Title">Thèmes de contraste de Windows</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Body">Quand un thème de contraste de Windows est actif (Paramètres Windows, Accessibilité, Thèmes de contraste), MultiPreview affiche **Contraste élevé** dans les couleurs de ce thème, quelle que soit l'apparence choisie. Votre choix est conservé et revient quand le thème est désactivé.&#x0A;&#x0A;Pour garder votre apparence avec un thème de contraste, désactivez **Utiliser Contraste élevé quand un thème de contraste de Windows est actif**.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">Actuelle</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">Classique</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">Le bleu marine d'origine de MultiPreview.</sys:String> <!-- draft -->

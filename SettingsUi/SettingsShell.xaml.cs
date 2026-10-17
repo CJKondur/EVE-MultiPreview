@@ -144,7 +144,7 @@ public partial class SettingsShell : Window, ISettingsHost
     /// neither.</summary>
     public void PlaceThePage()
     {
-        bool overlay = UiStyles.Current.Dictionary["Fx.Scroll.Overlay"] is true;
+        bool overlay = UiStyles.Effective.Dictionary["Fx.Scroll.Overlay"] is true;
         _page.Margin = overlay ? new Thickness(0, 8, -20, 0) : new Thickness(0, 8, 0, 0);
         _sections.Margin = overlay ? new Thickness(0, 0, 20, 24) : new Thickness(0, 0, 0, 24);
     }

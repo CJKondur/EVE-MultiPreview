@@ -20,6 +20,7 @@ public static class AppPages
         new HelpTopic("app.general", "language", new[] { "app.general.language", "app.general.scale" }),
         new HelpTopic("app.general", "startup", new[] { "app.general.startupSettings", "app.general.startWithWindows" }),
         new HelpTopic(LookId, "look", new[] { LookGallery.ItemId }),
+        new HelpTopic(LookId, "contrast", new[] { "app.look.followContrast" }),
         new HelpTopic("app.diagnostics", "logs", new[]
         {
             "app.diagnostics.injection", "app.diagnostics.cycling", "app.diagnostics.windowHooks",
@@ -68,12 +69,21 @@ public static class AppPages
     });
 
     /// <summary>UI styles spec §9.1: the look of the app, a gallery of the looks. An App page, so Simple mode has it too.
-    /// Its second section, Windows contrast themes, comes with its rule in plan S4.</summary>
+    /// Its second section, Windows contrast themes (spec §12): the switch, and while High contrast is drawn in Windows'
+    /// colours a line that says why the pick does not show (O25).</summary>
     private static PageDef Look() => new(LookId, NavGroup.App, new[]
     {
         new SectionDef("app.look.look", new PageItem[]
         {
             new EditorItem(LookGallery.ItemId, ctx => new LookGallery(ctx)) { Binds = new[] { "AppSettings.UiStyle" } },
+        }),
+        new SectionDef("app.look.contrast", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("app.look.followContrast", s => s.UiStyleFollowContrast) with
+            {
+                OnChanged = ctx => { UiStyles.FollowWindowsContrast(ctx.S.UiStyleFollowContrast); ctx.Host.Reload(); },
+            }),
+            new InfoItem("app.look.contrastOn", InfoSeverity.Info) { ShowIf = _ => UiStyles.ShowsWindowsContrast },
         }),
     });
 

@@ -774,6 +774,12 @@
     <sys:String x:Key="L.S.app.look.gallery">앱 모양</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.gallery.Desc">한 번 클릭하면 앱의 모든 창이 한꺼번에 바뀌어요. 미리보기는 그대로예요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.look.Toast">모양: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.contrast">Windows 대비 테마</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast">Windows 대비 테마가 켜져 있는 동안 고대비 사용</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followContrast.Desc">테마의 색으로 표시해요. 고른 모양은 저장된 채로 남아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.contrastOn">Windows 대비 테마가 켜져 있어서 고대비가 표시돼요. 고른 모양은 그대로 유지되고, 테마를 끄면 표시돼요. 이 스위치를 끄면 바로 표시돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Title">Windows 대비 테마</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.contrast.Body">Windows 대비 테마가 켜져 있으면(Windows 설정, 접근성, 대비 테마) MultiPreview는 어떤 모양을 골랐든 그 테마의 색으로 **고대비**를 표시해요. 고른 모양은 유지되고 테마를 끄면 다시 표시돼요.&#x0A;&#x0A;대비 테마가 켜져 있어도 내 모양을 쓰려면 **Windows 대비 테마가 켜져 있는 동안 고대비 사용**을 끄세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Look.Current">현재</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic">클래식</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Style.classic.Desc">예전 MultiPreview의 남색이에요.</sys:String> <!-- draft -->
