@@ -44,7 +44,7 @@
     <Color x:Key="Fx.NavMark">#FFD8261C</Color>
     <!-- Buttons (4) -->
     <Color x:Key="Fx.Button">#FFFFFFFF</Color>
-    <Color x:Key="Fx.ButtonHover">#FFDEDEDE</Color>
+    <Color x:Key="Fx.ButtonHover">#FFF4F4F4</Color>
     <Color x:Key="Fx.ButtonBorder">#FF111111</Color>
     <Color x:Key="Fx.ButtonText">#FF111111</Color>
     <!-- Check and switch (3): a black box with a white inset when on -->
@@ -56,7 +56,8 @@
     <Color x:Key="Fx.TrackFill">#FF111111</Color>
     <Color x:Key="Fx.Thumb">#FF111111</Color>
     <!-- Status (5): the one red for critical and the badge -->
-    <Color x:Key="Fx.Critical">#FFD8261C</Color>
+    <!-- #D2241B, a shade under the mock's #D8261C: 4.6 to 1 on a pointed item (Fx.AccentSoft), fix round D of plan S4. -->
+    <Color x:Key="Fx.Critical">#FFD2241B</Color>
     <Color x:Key="Fx.Warning">#FF111111</Color>
     <Color x:Key="Fx.InfoColor">#FF5C5C5C</Color>
     <Color x:Key="Fx.AlertBadge">#FFD8261C</Color>
@@ -155,7 +156,8 @@
     </Style>
     <!-- A button: outlined (a 1 px edge all round, not the controls' underline: Fx.Line.Card is 0 here). The edge and the keyboard's
          focus ring are both black, so the kit's edge-colour focus mark would show nothing: its focus is a ring 3 px out
-         (Ink.Button.Template), and the pointer darkens its fill (Fx.ButtonHover). -->
+         (Ink.Button.Template). Under the pointer a second line inside the edge: a darker fill put a destructive button's red
+         label at 3.70 to 1 (fix round D of plan S4), so the fill stays near-white (Fx.ButtonHover). -->
     <Thickness x:Key="Ink.Line.Box">1</Thickness>
     <ControlTemplate x:Key="Ink.Button.Template" TargetType="Button">
         <Grid>
@@ -164,10 +166,13 @@
                     BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
             </Border>
+            <Border x:Name="HoverEdge" Margin="{TemplateBinding BorderThickness}" BorderThickness="{DynamicResource Ink.Line.Box}"
+                    BorderBrush="{TemplateBinding BorderBrush}" Visibility="Hidden" IsHitTestVisible="False"/>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter TargetName="bd" Property="Background" Value="{DynamicResource Fx.ButtonHoverBrush}"/>
+                <Setter TargetName="HoverEdge" Property="Visibility" Value="Visible"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
                 <Setter TargetName="bd" Property="Opacity" Value="0.8"/>
@@ -235,8 +240,10 @@
                     <TextBlock Text="{Binding Ordinal}" FontSize="{DynamicResource Fx.Size.Caption}" Foreground="{DynamicResource Fx.TextSecondaryBrush}"/>
                     <TextBlock local:Loc.Key="{Binding TitleKey}" Style="{DynamicResource Fx.SectionTitle}" Margin="0"/>
                 </StackPanel>
-                <Border Grid.Column="1" ClipToBounds="True">
-                    <ContentPresenter Content="{Binding Cards}" Margin="0,0,0,-1"/>
+                <!-- The clip trims the last row's hairline; it reaches 4 px past the rows on the right, where a control at a
+                     row's end draws its keyboard focus ring 3 px out (fix round D of plan S4). -->
+                <Border Grid.Column="1" ClipToBounds="True" Margin="0,0,-4,0">
+                    <ContentPresenter Content="{Binding Cards}" Margin="0,0,4,-1"/>
                 </Border>
             </Grid>
         </Border>

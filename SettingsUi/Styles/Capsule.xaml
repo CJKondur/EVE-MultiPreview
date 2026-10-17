@@ -54,7 +54,8 @@
     <Color x:Key="Fx.TrackFill">#FF86B7CE</Color>
     <Color x:Key="Fx.Thumb">#FFFFFFFF</Color>
     <!-- Status (5) -->
-    <Color x:Key="Fx.Critical">#FFE0655C</Color>
+    <!-- #E26A61, a shade over the mock's #E0655C: 4.65 to 1 on a pointed item (Fx.AccentSoft), fix round D of plan S4. -->
+    <Color x:Key="Fx.Critical">#FFE26A61</Color>
     <Color x:Key="Fx.Warning">#FFDDAA4C</Color>
     <Color x:Key="Fx.InfoColor">#FF86B7CE</Color>
     <Color x:Key="Fx.AlertBadge">#FFE0655C</Color>

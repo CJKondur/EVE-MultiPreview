@@ -2073,9 +2073,11 @@
                               StrokeThickness="1" StrokeDashArray="3 2" Visibility="Collapsed" IsHitTestVisible="False" SnapsToDevicePixels="True"/>
                         <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" Focusable="False"
                                AllowsTransparency="True" PopupAnimation="Slide">
+                            <!-- The list's edge all round, 1 px: this dropdown's looks draw their control line as an underline and
+                                 their card line as 0 (Ink), which left a white list on the white page with no edge. -->
                             <Grid MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}" SnapsToDevicePixels="True">
                                 <Border Background="{DynamicResource Fx.FlyoutBrush}" BorderBrush="{DynamicResource Fx.FlyoutBorderBrush}"
-                                        BorderThickness="{DynamicResource Fx.Line.Card}" CornerRadius="{DynamicResource Fx.FlyoutRadius}"/>
+                                        BorderThickness="1" CornerRadius="{DynamicResource Fx.FlyoutRadius}"/>
                                 <ScrollViewer Margin="2" SnapsToDevicePixels="True">
                                     <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Contained"/>
                                 </ScrollViewer>
