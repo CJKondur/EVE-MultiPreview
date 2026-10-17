@@ -110,6 +110,9 @@
     <Thickness x:Key="Fx.Section.Gap">0,14,0,2</Thickness>
     <Thickness x:Key="Fx.Page.Padding">22,14,22,0</Thickness>
     <sys:Double x:Key="Fx.Label.Width">0</sys:Double>
+    <!-- The gallery's miniature (Fx.Preview) is wider here: the slider's row ("0", the ruler, "100", the value) and the
+         32 px indent left a 420 px miniature no room for the setting's name (fix round D of plan S4). -->
+    <sys:Double x:Key="Look.Preview.Width">560</sys:Double>
     <!-- Presence (4): numbers instead of icons, no breadcrumb, the scroll bar in its own column, square corners -->
     <Visibility x:Key="Fx.Nav.Icons">Collapsed</Visibility>
     <Visibility x:Key="Fx.Show.Breadcrumb">Collapsed</Visibility>
@@ -645,6 +648,9 @@
                                 <ContentControl Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Profile}" Focusable="False" IsTabStop="False"
                                                 HorizontalContentAlignment="Stretch"/>
                             </Border>
+                            <!-- App settings: docked at the bottom, over the profile's cell, as in every look (the owner, 2026-10-17). -->
+                            <ContentControl DockPanel.Dock="Bottom" Margin="2,0" Content="{Binding AppGroup}" ContentTemplate="{DynamicResource Fx.Nav.Group}"
+                                            Focusable="False" IsTabStop="False"/>
                             <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" Margin="2,0">
                                 <StackPanel>
                                     <Button Style="{DynamicResource Fx.Nav.Entry}" Command="{Binding HomeCommand}"
@@ -666,7 +672,6 @@
                                         </StackPanel>
                                     </Button>
                                     <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False"/>
-                                    <ContentControl Content="{Binding AppGroup}" ContentTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False" IsTabStop="False"/>
                                 </StackPanel>
                             </ScrollViewer>
                         </DockPanel>

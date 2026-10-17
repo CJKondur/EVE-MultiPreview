@@ -228,7 +228,8 @@
     <!-- The toast's converter, found here for the same reason as Fx.BoolToVis (Task 5). -->
     <local:NotNullToVisibilityConverter x:Key="Fx.NotNullToVis"/>
 
-    <!-- The layout: the navy pane (profile, search, the list with App settings last, Simple and All settings), a 4 px
+    <!-- The layout: the navy pane (profile, search, the list, App settings docked at the bottom over Simple and All settings
+         as in every look (the owner, 2026-10-17)), a 4 px
          strip in the old window's splitter colour, the page, the help column; the toast over the page. The window's code
          hands in the three live parts. Each wrapper is neither focusable nor a tab stop. -->
     <ControlTemplate x:Key="Fx.Shell" TargetType="local:ShellFrame">
@@ -246,6 +247,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <ContentControl Grid.Row="0" Margin="2,0,2,8" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Profile}"
@@ -267,10 +269,10 @@
                                            Foreground="{DynamicResource Fx.NavTextBrush}" local:Loc.Case="{DynamicResource Fx.Case.Nav}"/>
                             </Button>
                             <ItemsControl ItemsSource="{Binding VisibleGroups}" ItemTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False"/>
-                            <ContentControl Content="{Binding AppGroup}" ContentTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False" IsTabStop="False"/>
                         </StackPanel>
                     </ScrollViewer>
-                    <ContentControl Grid.Row="3" Margin="6,8,6,4" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Mode}"
+                    <ContentControl Grid.Row="3" Content="{Binding AppGroup}" ContentTemplate="{DynamicResource Fx.Nav.Group}" Focusable="False" IsTabStop="False"/>
+                    <ContentControl Grid.Row="4" Margin="6,8,6,4" Content="{Binding}" ContentTemplate="{DynamicResource Fx.Shell.Mode}"
                                     Focusable="False" IsTabStop="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
                 </Grid>
             </Border>

@@ -17,7 +17,9 @@ namespace EveMultiPreview.SettingsUi;
 /// radio button of the group "Look" with the look's preview, name and description. One click picks a look, and the whole
 /// app takes it at once. The current card has an accent outline, a check mark and the word "Current". The gallery knows
 /// the looks only through UiStyles.All: a look added later gets its card without a change here. App settings › Look shows
-/// it, and so does the setup wizard.</summary>
+/// it, and so does the setup wizard. Every card is the same size (the owner, 2026-10-17: "all the same just to make it
+/// look more uniform"): one preview box, the miniature scaled into it; the name on one line and the description on two,
+/// trimmed beyond; the "Current" row kept on every card, shown on one.</summary>
 public sealed class LookGallery : System.Windows.Controls.UserControl, IRefreshable
 {
     public const string ItemId = "app.look.gallery";
@@ -76,16 +78,35 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
     /// <summary>After an import or a reload the file may name another look.</summary>
     public void Refresh() => Mark();
 
+    /// <summary>A preview box's height for its card's width: the box is about 0.7 as high as it is wide, a little less
+    /// than the tallest miniatures (Windows 11's, 420 x 336) and more than the shortest (Classic's, 420 x 216).</summary>
+    public static double PreviewHeight(double cardWidth) => Math.Round((cardWidth - 16) * 0.7);
+
     private RadioButton Card(UiStyle style, double width)
     {
-        var name = new TextBlock { FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 6, 0, 0) };
+        var name = new TextBlock { FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 6, 0, 0), TextWrapping = TextWrapping.NoWrap, TextTrimming = TextTrimming.CharacterEllipsis };
         name.SetResourceReference(StyleProperty, "Fx.Label");
         Loc.SetKey(name, "L.S.Style." + style.Id);
-        var desc = new TextBlock();
+        var desc = new TextBlock { TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.CharacterEllipsis };
+        desc.SetBinding(HeightProperty, new System.Windows.Data.MultiBinding
+        {
+            Converter = new LinesHigh(2),
+            Bindings =
+            {
+                new System.Windows.Data.Binding(nameof(TextBlock.FontSize)) { RelativeSource = System.Windows.Data.RelativeSource.Self },
+                new System.Windows.Data.Binding(nameof(TextBlock.FontFamily)) { RelativeSource = System.Windows.Data.RelativeSource.Self },
+            },
+        });
         desc.SetResourceReference(StyleProperty, "Fx.Desc");
         Loc.SetKey(desc, "L.S.Style." + style.Id + ".Desc");
+        desc.SetResourceReference(ToolTipProperty, "L.S.Style." + style.Id + ".Desc");   // the whole of a trimmed description
         var body = new StackPanel();
-        var picture = new Border { Child = Placeholder(style) };
+        // The box: the same for every look, in the look's page colour where its miniature leaves room (spec §9.2).
+        var picture = new Border
+        {
+            Child = Placeholder(style), Height = PreviewHeight(width), ClipToBounds = true,
+            Background = (Brush)style.Dictionary["Fx.BgBrush"],
+        };
         _pictures[style] = picture;
         body.Children.Add(picture);
         body.Children.Add(name);
@@ -118,11 +139,12 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
             VerticalAlignment = VerticalAlignment.Center,
         };
         Loc.SetKey(text, "L.S.Style." + style.Id);
-        return new Border { Height = 120, Background = (Brush)look["Fx.BgBrush"], Child = text, IsHitTestVisible = false };
+        return new Border { Background = (Brush)look["Fx.BgBrush"], Child = text, IsHitTestVisible = false };
     }
 
     /// <summary>A look's miniature (spec §9.2): Fx.Preview over <paramref name="sample"/>, in that look (UiStyles.Scope),
-    /// scaled to the card, inert. Its template is the look's own Fx.Preview or the base's, taken once: a card shows one look
+    /// scaled down whole into its card's preview box (top and centre: a tall miniature leaves the box's sides, a short one
+    /// its foot, in the look's page colour), inert. Its template is the look's own Fx.Preview or the base's, taken once: a card shows one look
     /// for its life, whatever the window shows. (Taken by a resource reference instead, a gallery made inside a page's
     /// template sets it while that template is being made, which WPF does not survive: measured while writing plan S2.)
     /// Its templates are made and measured here, before it is in a window, inside a try: a template WPF cannot make throws
@@ -138,7 +160,14 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
             UiStyles.Scope(miniature, style);
             miniature.ContentTemplate = (DataTemplate)(style.Dictionary.Contains("Fx.Preview") ? style.Dictionary["Fx.Preview"] : UiStyles.Base["Fx.Preview"]);
             miniature.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
-            return new PreviewHost { Child = new Viewbox { Child = miniature, Stretch = System.Windows.Media.Stretch.Uniform, StretchDirection = StretchDirection.DownOnly } };
+            return new PreviewHost
+            {
+                Child = new Viewbox
+                {
+                    Child = miniature, Stretch = System.Windows.Media.Stretch.Uniform, StretchDirection = StretchDirection.DownOnly,
+                    VerticalAlignment = VerticalAlignment.Top, HorizontalAlignment = HorizontalAlignment.Center,
+                },
+            };
         }
         catch (Exception e)
         {
@@ -171,6 +200,20 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
         _marking = true;
         try { foreach (var card in _cards) card.IsChecked = card.Tag == saved; }
         finally { _marking = false; }
+    }
+
+    /// <summary>A text's height for a number of its lines, from its font (which a look sets, Fx.Desc): a card's
+    /// description is two lines high whatever it holds, trimmed with an ellipsis beyond them.</summary>
+    private sealed class LinesHigh : System.Windows.Data.IMultiValueConverter
+    {
+        private readonly int _lines;
+        public LinesHigh(int lines) => _lines = lines;
+
+        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture) =>
+            values is [double size, System.Windows.Media.FontFamily family] ? Math.Ceiling(_lines * family.LineSpacing * size) : DependencyProperty.UnsetValue;
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture) =>
+            throw new NotSupportedException();
     }
 
     /// <summary>A pick on App settings › Look: saved through the usual debounced save, the whole app switched at once, and

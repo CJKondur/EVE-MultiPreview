@@ -695,10 +695,12 @@
     <!-- ═══ The look gallery (UI styles spec §9.2) ═══ -->
 
     <!-- A look's miniature: the look's own templates over a LookSample, on a gallery card's subtree in that look
-         (UiStyles.Scope), at about 60 % on the page. 420 wide: at 320 Windows 11's slider card had no room left for its label (measured). Two navigation entries (the open one first), a section heading, a setting with
+         (UiStyles.Scope), scaled down into its card's preview box. Look.Preview.Width wide, 420 here: at 320 Windows 11's slider card had no room left for its label (measured); a look whose slider row is wider sets
+         its own (Blueprint). Two navigation entries (the open one first), a section heading, a setting with
          its on/off control, a slider, a dropdown, a number box and a button. Inert (PreviewHost). -->
+    <sys:Double x:Key="Look.Preview.Width">420</sys:Double>
     <DataTemplate x:Key="Fx.Preview">
-        <StackPanel Width="420" Background="{DynamicResource Fx.BgBrush}">
+        <StackPanel Width="{DynamicResource Look.Preview.Width}" Background="{DynamicResource Fx.BgBrush}">
             <Border Background="{DynamicResource Fx.NavBrush}" Padding="4">
                 <ItemsControl ItemsSource="{Binding Entries}" ItemTemplate="{DynamicResource Fx.Nav.Page}" Focusable="False"/>
             </Border>
