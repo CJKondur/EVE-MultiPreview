@@ -311,7 +311,7 @@
                 CommandParameter="{Binding RelativeSource={RelativeSource Self}}">
             <StackPanel Orientation="Horizontal">
                 <Border Width="30" Height="30" CornerRadius="{DynamicResource Fx.Radius}" Background="{DynamicResource Fx.ButtonBrush}">
-                    <TextBlock Text="{Binding ProfileInitial}" Foreground="{DynamicResource Fx.ButtonTextBrush}" FontWeight="SemiBold"
+                    <local:DecorativeText Text="{Binding ProfileInitial}" Foreground="{DynamicResource Fx.ButtonTextBrush}" FontWeight="SemiBold"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">

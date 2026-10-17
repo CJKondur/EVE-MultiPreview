@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 
 namespace EveMultiPreview.SettingsUi;
@@ -112,12 +113,26 @@ public sealed class EditorTable : Border
             throw new NotSupportedException();
     }
 
-    /// <summary>A column's heading, in Fx.Caption.</summary>
+    /// <summary>A column's heading, in Fx.Caption. A screen reader is given it as a column header (a header item named by
+    /// its text), not as text before the rows (IDEAS P104, plan S5).</summary>
     public static TextBlock Head(string key)
     {
-        var text = new TextBlock { VerticalAlignment = VerticalAlignment.Center };
+        var text = new ColumnHead { VerticalAlignment = VerticalAlignment.Center };
         text.SetResourceReference(StyleProperty, "Fx.Caption");
         Loc.SetKey(text, key);
         return text;
+    }
+
+    /// <summary>A heading of a column: drawn as any TextBlock, heard as a header.</summary>
+    private sealed class ColumnHead : TextBlock
+    {
+        protected override AutomationPeer OnCreateAutomationPeer() => new Peer(this);
+
+        private sealed class Peer : TextBlockAutomationPeer
+        {
+            public Peer(TextBlock owner) : base(owner) { }
+            protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.HeaderItem;
+            protected override bool IsControlElementCore() => true;
+        }
     }
 }

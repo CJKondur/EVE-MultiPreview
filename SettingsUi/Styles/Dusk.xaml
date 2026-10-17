@@ -199,7 +199,7 @@
             <StackPanel Orientation="Horizontal">
                 <Grid Width="38" Height="38">
                     <Ellipse Fill="{DynamicResource Fx.AccentBrush}"/>
-                    <TextBlock Text="{Binding ProfileInitial}" Foreground="{DynamicResource Fx.OnAccentBrush}" FontWeight="Bold"
+                    <local:DecorativeText Text="{Binding ProfileInitial}" Foreground="{DynamicResource Fx.OnAccentBrush}" FontWeight="Bold"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">

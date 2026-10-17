@@ -243,7 +243,7 @@
                             <SkewTransform AngleX="-12"/>
                         </Border.RenderTransform>
                     </Border>
-                    <TextBlock Text="{Binding ProfileInitial}" Foreground="{DynamicResource Fx.OnAccentBrush}" FontWeight="Bold"
+                    <local:DecorativeText Text="{Binding ProfileInitial}" Foreground="{DynamicResource Fx.OnAccentBrush}" FontWeight="Bold"
                                FontStyle="{DynamicResource Fx.Style.Title}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
