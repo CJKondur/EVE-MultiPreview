@@ -86,8 +86,11 @@ public static class UiStyles
     /// <summary>Violet, with pink, cyan and yellow (spec §7.8).</summary>
     public static UiStyle Neon { get; } = new("neon", usesFluent: false, () => new NeonStyle());
 
-    /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2). S3 and S4 add the others.</summary>
-    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon };
+    /// <summary>Black and red, racing type (spec §7.10).</summary>
+    public static UiStyle Carbon { get; } = new("carbon", usesFluent: false, () => new CarbonStyle());
+
+    /// <summary>Every look, in the order the picker shows them, Classic first (spec §9.2). S4 adds the other five.</summary>
+    public static IReadOnlyList<UiStyle> All { get; } = new[] { Classic, Windows11, Daylight, Dusk, Compact, Neon, Carbon };
 
     /// <summary>The look with this id; a missing, empty or unknown id gives Classic, the default (spec §10).</summary>
     public static UiStyle Find(string? id) => All.FirstOrDefault(s => s.Id == id) ?? Classic;

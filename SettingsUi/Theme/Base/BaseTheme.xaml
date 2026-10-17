@@ -736,9 +736,11 @@
                             <StackPanel>
                                 <ContentPresenter/>
                                 <StackPanel x:Name="Current" Orientation="Horizontal" Margin="0,6,0,0" Visibility="Hidden">
-                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}" Foreground="{DynamicResource Fx.AccentBrush}"
+                                    <!-- In the link colour: text on the card (Carbon's accent on its card reaches only 3.57 to 1;
+                                         the link colour is the accent's in Windows 11 and Classic). -->
+                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource Fx.IconFont}" Foreground="{DynamicResource Fx.LinkBrush}"
                                                VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBlock local:Loc.Key="L.S.Look.Current" Style="{DynamicResource Fx.Label}" Foreground="{DynamicResource Fx.AccentBrush}"/>
+                                    <TextBlock local:Loc.Key="L.S.Look.Current" Style="{DynamicResource Fx.Label}" Foreground="{DynamicResource Fx.LinkBrush}"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
