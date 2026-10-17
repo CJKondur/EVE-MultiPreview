@@ -20,18 +20,35 @@ public static class WindowsContrast
     public static IReadOnlyList<string> Names { get; } =
         new[] { "Window", "WindowText", "Highlight", "HighlightText", "HotTrack", "GrayText", "ButtonFace", "ButtonText" };
 
-    /// <summary>Windows' colours now (they are the theme's while a contrast theme is on).</summary>
+    /// <summary>Windows' colours now (they are the theme's while a contrast theme is on), read from Windows itself
+    /// (GetSysColor), not from WPF's SystemColors: WPF refreshes its copy on its own window's WM_SYSCOLORCHANGE, which may
+    /// come after the change event that asked for them, so a switch from one contrast theme to another could keep the old
+    /// colours (final review M-2).</summary>
     public static IReadOnlyDictionary<string, Color> SystemColours() => new Dictionary<string, Color>(StringComparer.Ordinal)
     {
-        ["Window"] = System.Windows.SystemColors.WindowColor,
-        ["WindowText"] = System.Windows.SystemColors.WindowTextColor,
-        ["Highlight"] = System.Windows.SystemColors.HighlightColor,
-        ["HighlightText"] = System.Windows.SystemColors.HighlightTextColor,
-        ["HotTrack"] = System.Windows.SystemColors.HotTrackColor,
-        ["GrayText"] = System.Windows.SystemColors.GrayTextColor,
-        ["ButtonFace"] = System.Windows.SystemColors.ControlColor,
-        ["ButtonText"] = System.Windows.SystemColors.ControlTextColor,
+        ["Window"] = Sys(ColorWindow),
+        ["WindowText"] = Sys(ColorWindowText),
+        ["Highlight"] = Sys(ColorHighlight),
+        ["HighlightText"] = Sys(ColorHighlightText),
+        ["HotTrack"] = Sys(ColorHotLight),
+        ["GrayText"] = Sys(ColorGrayText),
+        ["ButtonFace"] = Sys(ColorBtnFace),
+        ["ButtonText"] = Sys(ColorBtnText),
     };
+
+    // The indices of GetSysColor (winuser.h) behind WPF's SystemColors of the same names.
+    private const int ColorWindow = 5, ColorWindowText = 8, ColorHighlight = 13, ColorHighlightText = 14, ColorBtnFace = 15,
+        ColorGrayText = 17, ColorBtnText = 18, ColorHotLight = 26;
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern uint GetSysColor(int index);
+
+    /// <summary>A system colour, opaque (GetSysColor gives 0x00BBGGRR).</summary>
+    private static Color Sys(int index)
+    {
+        uint c = GetSysColor(index);
+        return Color.FromRgb((byte)(c & 0xFF), (byte)((c >> 8) & 0xFF), (byte)((c >> 16) & 0xFF));
+    }
 
     /// <summary>Which of the theme's colours each of the 47 colours of the contract takes: spec §12's list, and for the
     /// colours it does not name the colour of their role (a surface the window's, a line or a status the text's, the open

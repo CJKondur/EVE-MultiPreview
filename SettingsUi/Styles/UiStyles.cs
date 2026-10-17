@@ -51,6 +51,15 @@ public sealed class UiStyle
     internal static IEnumerable<ResourceDictionary> LooksHere =>
         _loaded?.Where(kv => !kv.Key.Contains('#')).Select(kv => kv.Value).ToList() ?? new List<ResourceDictionary>();
 
+    /// <summary>Drops this look's dictionaries from this thread's cache (final review M-3: a look made again for Windows'
+    /// new contrast colours replaces the one before, which would otherwise stay, and be re-localized, for the run). A
+    /// window that holds one keeps it until it is restyled.</summary>
+    internal void Forget()
+    {
+        if (_loaded == null) return;
+        foreach (var key in new[] { Id, Id + "#controls", Id + "#keyed" }) _loaded.Remove(key);
+    }
+
     private static ResourceDictionary Loaded(string key, Func<ResourceDictionary> make, bool freeze)
     {
         var loaded = _loaded ??= new Dictionary<string, ResourceDictionary>(StringComparer.Ordinal);
@@ -156,6 +165,7 @@ public static class UiStyles
         {
             _systemColours = key;
             var these = new Dictionary<string, System.Windows.Media.Color>(colours, StringComparer.Ordinal);
+            _system?.Forget();   // one contrast-windows-N at a time (M-3)
             _system = new UiStyle("contrast-windows-" + ++_systemMade, usesFluent: false, () => WindowsContrast.Apply(new ContrastStyle(), these));
         }
         return _system;
