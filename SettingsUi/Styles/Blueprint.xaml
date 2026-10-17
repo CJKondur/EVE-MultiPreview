@@ -431,11 +431,15 @@
             <!-- An underline; with the keyboard's focus a whole white box. -->
             <Style TargetType="TextBox" BasedOn="{StaticResource Kit.TextBox.Round}">
                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                <!-- The focused box adds a 1 px edge on the left and top: the padding gives it back (the host's bottom padding
+                     counts double, so the half pixel the top edge adds is a 0.5 px bottom padding below): the text stays put (plan S5). -->
+                <Setter Property="Padding" Value="7,0"/>
                 <Setter Property="FontFamily" Value="{DynamicResource Fx.MonoFont}"/>
                 <Setter Property="local:Kit.DashedOff" Value="True"/>
                 <Style.Triggers>
                     <Trigger Property="IsKeyboardFocused" Value="True">
                         <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+                        <Setter Property="Padding" Value="6,0,6,0.5"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -573,6 +577,10 @@
                                 <Style.Triggers>
                                     <Trigger Property="IsKeyboardFocused" Value="True">
                                         <Setter Property="BorderThickness" Value="{DynamicResource Fx.Line.Control}"/>
+                                        <!-- The search box keeps its own 8,6 padding (SearchBox.xaml sets it locally, which a style cannot
+                                             change): its edge grows outward by 1 px instead, the box taking the space of its extra edge
+                                             from its margin, so the text stays put and nothing around it moves (plan S5). -->
+                                        <Setter Property="Margin" Value="-1,-1,-1,0"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
