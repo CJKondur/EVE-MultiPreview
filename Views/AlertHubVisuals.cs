@@ -116,6 +116,20 @@ public static class AlertHubVisuals
         return new HubParts(root, bell, icon, badge, badgeLabel);
     }
 
+    /// <summary>The colour the badge pulses to after an alert (AHK: badge colour to white and back, 4 x 200 ms): white where
+    /// white shows against the look's badge (2.5:1 or more), else the badge's own text colour (Fx.OnAlertBadge), which the
+    /// look makes readable on it. White on a pale badge (Dusk, Compact) was no pulse at all (S3F-m16).</summary>
+    public static Color PulseTo(Color badge, Color onBadge) => Contrast(badge, Colors.White) >= 2.5 ? Colors.White : onBadge;
+
+    /// <summary>WCAG's contrast ratio of two colours, 1 to 21.</summary>
+    private static double Contrast(Color a, Color b)
+    {
+        static double Channel(byte v) { double c = v / 255.0; return c <= 0.03928 ? c / 12.92 : Math.Pow((c + 0.055) / 1.055, 2.4); }
+        static double Luminance(Color c) => 0.2126 * Channel(c.R) + 0.7152 * Channel(c.G) + 0.0722 * Channel(c.B);
+        double la = Luminance(a), lb = Luminance(b);
+        return (Math.Max(la, lb) + 0.05) / (Math.Min(la, lb) + 0.05);
+    }
+
     /// <summary>Shows the unread count on the badge, or hides it at 0.</summary>
     public static void SetBadge(HubParts hub, int count)
     {

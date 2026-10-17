@@ -2,10 +2,10 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
 using EveMultiPreview.SettingsUi;
@@ -34,6 +34,7 @@ public partial class SetupWizard : Window
     private readonly UiStyle _opened = UiStyles.Current;   // the look the wizard opened with, back if it closes without Done
     private UiStyle _look;                                 // the look step 2 shows picked, saved at Done
     private bool _applied;
+    private readonly double _minHeight;                           // the XAML's, before a work area lowers it
 
     public SetupWizard(SettingsService svc, double? workAreaHeight = null)
     {
@@ -42,7 +43,15 @@ public partial class SetupWizard : Window
         _selectedHeight = (int)_svc.Settings.ThumbnailStartLocation.Height;
         UiStyles.Attach(this);
         InitializeComponent();
+        _minHeight = MinHeight;
         FitTo(workAreaHeight ?? SystemParameters.WorkArea.Height);
+        if (workAreaHeight == null)
+        {
+            // The screen it is on, once it has one, and again when it moves to another (S3F-I3).
+            Loaded += (_, _) => FitToItsScreen();
+            LocationChanged += (_, _) => FitToItsScreen();
+            DpiChanged += (_, _) => FitToItsScreen();
+        }
         // The wheel over a closed dropdown list (the language) is not "the next choice": it goes past the list.
         PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
         UiFont.Apply(this, LocalizationService.CurrentLanguage);
@@ -53,15 +62,23 @@ public partial class SetupWizard : Window
         ShowStep(1);
     }
 
-    /// <summary>Never taller than the work area (DIP) of the screen it opens on: NoResize and CenterScreen would leave
-    /// Back, Next and Done below the edge. The footer is docked first, so it stays; the gallery scrolls in what is left
-    /// (the 260 is the chrome around it: bars, title, sub-line, margins, footer, title bar). A work area of 580 is a
-    /// 1366x768 screen at 125 %.</summary>
+    /// <summary>Never taller than the work area (DIP) of its screen: NoResize and CenterScreen would leave Back, Next and
+    /// Done below the edge. The footer is docked first, so it stays; the gallery is the step's star row and scrolls in
+    /// whatever height is left, with no estimate of the chrome around it. A work area of 580 is a 1366x768 screen at
+    /// 125 %.</summary>
     private void FitTo(double workArea)
     {
         MaxHeight = workArea;
-        MinHeight = Math.Min(MinHeight, workArea);
-        LookScroll.MaxHeight = Math.Clamp(workArea - 260, 120, LookScroll.MaxHeight);
+        MinHeight = Math.Min(_minHeight, workArea);
+    }
+
+    /// <summary>The work area of the screen the wizard is on (mostly), not the primary's: a smaller or higher-scaled second
+    /// screen would cut the gallery off. In this process's pixels, so divided by the window's own scale.</summary>
+    private void FitToItsScreen()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        if (handle == IntPtr.Zero) return;
+        FitTo(MonitorInfo.WorkAreaOf(handle).Height / System.Windows.Media.VisualTreeHelper.GetDpi(this).DpiScaleY);
     }
 
     /// <summary>The step showing, 1–6.</summary>

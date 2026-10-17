@@ -94,7 +94,8 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
         card.SetResourceReference(StyleProperty, "Look.Card");
         Loc.SetNameKey(card, "L.S.Style." + style.Id);
         card.SetResourceReference(AutomationProperties.HelpTextProperty, "L.S.Style." + style.Id + ".Desc");
-        card.Checked += (_, _) => { if (!_marking) _pick(style); };
+        // Marked again after the pick: a pick that did not take (S3F-m6) leaves the card of the look still shown checked.
+        card.Checked += (_, _) => { if (_marking) return; _pick(style); Mark(); };
         card.KeyDown += (_, e) =>
         {
             if (e.Key != Key.Enter) return;
@@ -127,7 +128,8 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
     /// Its templates are made and measured here, before it is in a window, inside a try: a template WPF cannot make throws
     /// here, where it is written to the error log and the look's placeholder is shown instead. A trigger that is true when
     /// its template is made and sets a DynamicResource can still make WPF throw in a later layout pass (measured while
-    /// writing plan S3); the kit and the looks set none (the plan's rule), and LookMiniatureTests makes every miniature.</summary>
+    /// writing plan S3); the kit and the looks set none in what the miniature makes (the plan's rule; LookTriggerRuleTests
+    /// lists the templates that do, all outside it), and LookMiniatureTests makes every miniature.</summary>
     public static FrameworkElement Miniature(UiStyle style, LookSample sample)
     {
         try
@@ -173,13 +175,21 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
 
     /// <summary>A pick on App settings › Look: saved through the usual debounced save, the whole app switched at once, and
     /// a toast. A window that failed to take the look is logged: UiStyles.Set finishes the switch before it throws (the S1
-    /// carry), so every other window has it.</summary>
+    /// carry), so every other window has it. A switch that did not happen at all (a Changing handler threw, so the look
+    /// shown is still the old one) is logged too, and the file keeps naming the look shown: no toast (S3F-m6).</summary>
     private static void Pick(SettingsContext ctx, UiStyle style)
     {
+        var before = ctx.S.UiStyle;
         ctx.S.UiStyle = style.Id;
         ctx.Applier.Request(ApplyScope.Save);
         try { UiStyles.Set(style); }
         catch (Exception e) { ErrorLog.Shared.Record(e, "UI styles", DateTime.Now); }
+        if (UiStyles.Current != style)
+        {
+            ctx.S.UiStyle = before;
+            ctx.Applier.Request(ApplyScope.Save);
+            return;
+        }
         ctx.Host.Toast(string.Format(SettingsContext.Str("L.S.app.look.Toast"), SettingsContext.Str("L.S.Style." + style.Id)));
     }
 }

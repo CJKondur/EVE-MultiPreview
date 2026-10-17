@@ -722,8 +722,6 @@ public partial class App : Application
             ErrorLog.Shared.RecordCrash(ex, DateTime.Now);   // always written, whatever the session logged before
     }
 
-    /// <summary>An error MultiPreview handled and kept running after: counted, and written to Logs\error_log.txt in the
-    /// settings folder (IDEAS #55). Never throws.</summary>
     /// <summary>Shows the look the settings file names (UI styles spec §10). The same look again changes nothing. A window
     /// that failed to take it is logged; every other window, the menus and the hub have it (UiStyles.Set finishes the
     /// switch before it throws).</summary>
@@ -733,6 +731,8 @@ public partial class App : Application
         catch (Exception ex) { LogError(ex); }
     }
 
+    /// <summary>An error MultiPreview handled and kept running after: counted, and written to Logs\error_log.txt in the
+    /// settings folder (IDEAS #55). Never throws.</summary>
     internal static void LogError(Exception ex)
     {
         ErrorLog.Shared.Record(ex, "App", DateTime.Now);

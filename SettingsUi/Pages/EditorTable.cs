@@ -25,20 +25,19 @@ public sealed class EditorTable : Border
     {
         foreach (var back in _backs) System.Windows.Data.BindingOperations.ClearBinding(back, VisibilityProperty);
         _backs.Clear();
-        _backRows.Clear();
-        _cells.Clear();
-        _cellRows.Clear();
+        _backsOf.Clear();
+        _cellsOf.Clear();
         Body.Children.Clear();
         Body.RowDefinitions.Clear();
         Body.ColumnDefinitions.Clear();
         foreach (var width in columns) Body.ColumnDefinitions.Add(new ColumnDefinition { Width = width });
     }
 
-    // Per row: the borders behind it (the row's and its cells'), and the elements placed in it.
+    // Every border behind a row or a cell; and per row, its borders and the elements placed in it (S3F-m10: a row is
+    // followed from its own lists, not from a scan of the whole table on every add).
     private readonly List<Border> _backs = new();
-    private readonly List<int> _backRows = new();
-    private readonly List<FrameworkElement> _cells = new();
-    private readonly List<int> _cellRows = new();
+    private readonly Dictionary<int, List<Border>> _backsOf = new();
+    private readonly Dictionary<int, List<FrameworkElement>> _cellsOf = new();
 
     /// <summary>A new row with its border behind the cells, across every column. Returns the row's index.</summary>
     public int AddRow(bool header = false)
@@ -68,16 +67,21 @@ public sealed class EditorTable : Border
         Grid.SetColumn(element, column);
         if (span > 1) Grid.SetColumnSpan(element, span);
         Body.Children.Add(element);
-        _cells.Add(element);
-        _cellRows.Add(row);
+        Of(_cellsOf, row).Add(element);
         Follow(row);
     }
 
+    /// <summary>A border behind a row or a cell. A row without an element yet has nothing to follow: its borders show.</summary>
     private void Behind(Border back, int row)
     {
         _backs.Add(back);
-        _backRows.Add(row);
-        Follow(row);
+        Of(_backsOf, row).Add(back);
+    }
+
+    private static List<T> Of<T>(Dictionary<int, List<T>> rows, int row)
+    {
+        if (!rows.TryGetValue(row, out var list)) rows[row] = list = new List<T>();
+        return list;
     }
 
     /// <summary>The borders of a row are shown while one element in it is (spec §5.4; the S1 carry): a row whose cells are
@@ -86,14 +90,12 @@ public sealed class EditorTable : Border
     private void Follow(int row)
     {
         var shown = new System.Windows.Data.MultiBinding { Converter = AnyShown.One };
-        for (int i = 0; i < _cells.Count; i++)
-            if (_cellRows[i] == row) shown.Bindings.Add(new System.Windows.Data.Binding(nameof(Visibility)) { Source = _cells[i] });
-        for (int i = 0; i < _backs.Count; i++)
-            if (_backRows[i] == row)
-            {
-                if (shown.Bindings.Count == 0) _backs[i].ClearValue(VisibilityProperty);
-                else _backs[i].SetBinding(VisibilityProperty, shown);
-            }
+        foreach (var cell in Of(_cellsOf, row)) shown.Bindings.Add(new System.Windows.Data.Binding(nameof(Visibility)) { Source = cell });
+        foreach (var back in Of(_backsOf, row))
+        {
+            if (shown.Bindings.Count == 0) back.ClearValue(VisibilityProperty);
+            else back.SetBinding(VisibilityProperty, shown);
+        }
     }
 
     private sealed class AnyShown : System.Windows.Data.IMultiValueConverter

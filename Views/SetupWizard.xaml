@@ -98,7 +98,12 @@
             </DockPanel>
         </Border>
 
-        <StackPanel Margin="26,24,26,20">
+        <!-- The bars on top, the step below them in what is left (the look gallery of step 2 scrolls there). -->
+        <Grid Margin="26,24,26,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <!-- ═══ Progress: one bar per step, then "Step 2 of 5" ═══ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                 <Border x:Name="Bar1" Style="{StaticResource Wiz.StepBar}"/>
@@ -111,7 +116,7 @@
             </StackPanel>
 
             <!-- Step 1: Welcome (and the language, spec §10) -->
-            <StackPanel x:Name="Step1" Visibility="Visible">
+            <StackPanel x:Name="Step1" Grid.Row="1" Visibility="Visible">
                 <TextBlock Text="{DynamicResource L.Wiz.WelcomeTitle}" Style="{StaticResource Wiz.Title}"/>
                 <TextBlock Text="{DynamicResource L.Wiz.WelcomeSub}" Style="{StaticResource Wiz.Sub}"/>
                 <StackPanel Margin="0,16,0,0">
@@ -131,18 +136,24 @@
 
             <!-- Step 2: Pick a look (UI styles spec §9.3): the gallery of App settings › Look, four cards to a row (the code
                  puts it in LookHost). A pick restyles the wizard at once; Done saves it. At most 460 high: twelve looks
-                 are three rows, and the wizard still fits a screen 768 high. -->
-            <StackPanel x:Name="StepLook" Visibility="Collapsed">
+                 are three rows, and the wizard still fits a screen 768 high. The gallery is the star row: on a smaller
+                 work area it scrolls in whatever height the title, the sub-line and the footer leave. -->
+            <Grid x:Name="StepLook" Grid.Row="1" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
                 <TextBlock Text="{DynamicResource L.Wiz.LookTitle}" Style="{StaticResource Wiz.Title}"/>
-                <TextBlock Text="{DynamicResource L.Wiz.LookSub}" Style="{StaticResource Wiz.Sub}"/>
-                <ScrollViewer x:Name="LookScroll" Margin="0,16,-8,0" MaxHeight="460" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                <TextBlock Grid.Row="1" Text="{DynamicResource L.Wiz.LookSub}" Style="{StaticResource Wiz.Sub}"/>
+                <ScrollViewer x:Name="LookScroll" Grid.Row="2" VerticalAlignment="Top" Margin="0,16,-8,0" MaxHeight="460" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                               Focusable="False">
                     <ContentControl x:Name="LookHost" Focusable="False"/>
                 </ScrollViewer>
-            </StackPanel>
+            </Grid>
 
             <!-- Step 3: Thumbnail size (the presets are the app's own, not the reference's sample numbers) -->
-            <StackPanel x:Name="Step2" Visibility="Collapsed">
+            <StackPanel x:Name="Step2" Grid.Row="1" Visibility="Collapsed">
                 <TextBlock Text="{DynamicResource L.Wiz.SizeTitle}" Style="{StaticResource Wiz.Title}"/>
                 <TextBlock Text="{DynamicResource L.Wiz.SizeSub}" Style="{StaticResource Wiz.Sub}"/>
                 <UniformGrid Columns="3" Margin="0,16,-10,0">
@@ -172,7 +183,7 @@
             </StackPanel>
 
             <!-- Step 4: Hotkeys -->
-            <StackPanel x:Name="Step3" Visibility="Collapsed">
+            <StackPanel x:Name="Step3" Grid.Row="1" Visibility="Collapsed">
                 <TextBlock Text="{DynamicResource L.Wiz.HkTitle}" Style="{StaticResource Wiz.Title}"/>
                 <TextBlock Text="{DynamicResource L.Wiz.HkSub}" Style="{StaticResource Wiz.Sub}"/>
                 <Grid Margin="0,16,0,0">
@@ -203,7 +214,7 @@
             </StackPanel>
 
             <!-- Step 5: Character select cycling -->
-            <StackPanel x:Name="Step4" Visibility="Collapsed">
+            <StackPanel x:Name="Step4" Grid.Row="1" Visibility="Collapsed">
                 <TextBlock Text="{DynamicResource L.Client.CharSelectCycling}" Style="{StaticResource Wiz.Title}"/>
                 <TextBlock Text="{DynamicResource L.Wiz.CycleSub}" Style="{StaticResource Wiz.Sub}"/>
                 <CheckBox x:Name="ChkWizCharCycle" Content="{DynamicResource L.Client.EnableCharSelect}" IsChecked="True" Margin="0,16,0,8"/>
@@ -226,7 +237,7 @@
             </StackPanel>
 
             <!-- Step 6: Summary -->
-            <StackPanel x:Name="Step5" Visibility="Collapsed">
+            <StackPanel x:Name="Step5" Grid.Row="1" Visibility="Collapsed">
                 <TextBlock Text="{DynamicResource L.Wiz.DoneTitle}" Style="{StaticResource Wiz.Title}"/>
                 <Border Background="{DynamicResource Fx.BgBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="1"
                         CornerRadius="{DynamicResource Fx.Radius}" Padding="16,12" Margin="0,16,0,0">
@@ -234,6 +245,6 @@
                 </Border>
                 <TextBlock Text="{DynamicResource L.Wiz.DoneNote}" Style="{StaticResource Wiz.Sub}" Margin="0,16,0,0"/>
             </StackPanel>
-        </StackPanel>
+        </Grid>
     </DockPanel>
 </Window>

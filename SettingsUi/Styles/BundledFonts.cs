@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Resources;
+using EveMultiPreview.Services;
 using FontFamily = System.Windows.Media.FontFamily;
+
+// The app's own resources are its neutral ones: no satellite assembly is looked for on a resource read.
+[assembly: NeutralResourcesLanguage("en")]
 
 namespace EveMultiPreview.SettingsUi;
 
@@ -58,12 +62,11 @@ public static class BundledFonts
 
     /// <summary>A file compiled into the app (WPF's resources, "resources/fonts/&lt;folder&gt;/&lt;file&gt;"), read without an
     /// Application object (tests, and the menus' fonts before any window).</summary>
-    public static Stream Open(string path)
-    {
-        var assembly = typeof(BundledFonts).Assembly;
-        var resources = new ResourceManager(assembly.GetName().Name + ".g", assembly);
-        return resources.GetStream(path.Replace('\\', '/').ToLowerInvariant()) ?? throw new FileNotFoundException("not compiled in: " + path);
-    }
+    public static Stream Open(string path) =>
+        Compiled.GetStream(path.Replace('\\', '/').ToLowerInvariant()) ?? throw new FileNotFoundException("not compiled in: " + path);
+
+    /// <summary>The app's compiled-in files, read through one manager (S3F-m4: a new one on every read).</summary>
+    private static readonly ResourceManager Compiled = new(typeof(BundledFonts).Assembly.GetName().Name + ".g", typeof(BundledFonts).Assembly);
 
     private static readonly object MenuGate = new();
     /// <summary>One collection a family: GDI+ reads a collection's families once, so a family added to a collection already
@@ -84,9 +87,17 @@ public static class BundledFonts
             {
                 if (!MenuFonts.TryGetValue(family, out var collection))
                 {
+                    // Kept before its files are added: a file Windows refuses is tried once, not again on every menu.
                     collection = new System.Drawing.Text.PrivateFontCollection();
-                    foreach (var file in carried.Files) AddToProcess(collection, "resources/fonts/" + carried.Folder + "/" + file);
                     MenuFonts[family] = collection;
+                    try
+                    {
+                        foreach (var file in carried.Files) AddToProcess(collection, "resources/fonts/" + carried.Folder + "/" + file);
+                    }
+                    catch (Exception e) when (e is IOException or ArgumentException or System.Runtime.InteropServices.ExternalException or OutOfMemoryException)
+                    {
+                        Refused(e);
+                    }
                 }
                 var loaded = collection.Families.FirstOrDefault(f => f.Name == family);
                 return loaded == null ? null : new System.Drawing.Font(loaded, size);
@@ -94,8 +105,20 @@ public static class BundledFonts
         }
         catch (Exception e) when (e is IOException or ArgumentException or System.Runtime.InteropServices.ExternalException or OutOfMemoryException)
         {
+            Refused(e);
             return null;
         }
+    }
+
+    private static bool _refusalLogged;
+
+    /// <summary>Windows refused a carried font for the menus: written to the error log once a run (the menus then draw in
+    /// Segoe UI), not once a menu.</summary>
+    private static void Refused(Exception e)
+    {
+        if (_refusalLogged) return;
+        _refusalLogged = true;
+        ErrorLog.Shared.Record(e, "UI styles", DateTime.Now);
     }
 
     private static void AddToProcess(System.Drawing.Text.PrivateFontCollection collection, string path)
@@ -104,10 +127,19 @@ public static class BundledFonts
         var bytes = new byte[stream.Length];
         stream.ReadExactly(bytes);
         var memory = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(bytes.Length);
-        System.Runtime.InteropServices.Marshal.Copy(bytes, 0, memory, bytes.Length);
-        collection.AddMemoryFont(memory, bytes.Length);
+        try
+        {
+            System.Runtime.InteropServices.Marshal.Copy(bytes, 0, memory, bytes.Length);
+            collection.AddMemoryFont(memory, bytes.Length);
+        }
+        catch
+        {
+            System.Runtime.InteropServices.Marshal.FreeCoTaskMem(memory);   // GDI+ did not take it: nothing reads it
+            throw;
+        }
         uint fonts = 0;
-        AddFontMemResourceEx(memory, (uint)bytes.Length, IntPtr.Zero, ref fonts);
+        if (AddFontMemResourceEx(memory, (uint)bytes.Length, IntPtr.Zero, ref fonts) == IntPtr.Zero)
+            Refused(new System.ComponentModel.Win32Exception("Windows refused " + path + " for GDI (AddFontMemResourceEx)"));
     }
 
     [System.Runtime.InteropServices.DllImport("gdi32.dll")]

@@ -665,9 +665,9 @@ public class AlertHub : IDisposable
         RefreshIcon();
         if (_unreadCount == 0) return;
 
-        // Badge pulse (AHK: 4×200ms badge colour ↔ white)
+        // Badge pulse (AHK: 4×200ms badge colour ↔ white; to the badge's text colour on a pale badge)
         var badgeColour = FluentPalette.Color("Fx.AlertBadge");
-        var pulse = new ColorAnimation(badgeColour, Colors.White, TimeSpan.FromMilliseconds(200))
+        var pulse = new ColorAnimation(badgeColour, AlertHubVisuals.PulseTo(badgeColour, FluentPalette.Color("Fx.OnAlertBadge")), TimeSpan.FromMilliseconds(200))
         {
             AutoReverse = true,
             RepeatBehavior = new RepeatBehavior(4)

@@ -205,7 +205,8 @@ public static class UiStyles
     {
         if (Current.UsesFluent)
         {
-            if (DependencyPropertyHelper.GetValueSource(window, System.Windows.Controls.Control.ForegroundProperty).IsExpression)
+            // A resource reference only (the look's): a binding is an expression too, and is the surface's own (S3F-m7).
+            if (window.ReadLocalValue(System.Windows.Controls.Control.ForegroundProperty)?.GetType().Name == "ResourceReferenceExpression")
                 window.ClearValue(System.Windows.Controls.Control.ForegroundProperty);
         }
         else window.SetResourceReference(System.Windows.Controls.Control.ForegroundProperty, "Fx.TextBrush");

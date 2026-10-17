@@ -729,7 +729,7 @@
     </Style>
 
     <!-- Check box as a circle (RoundTick, Dusk): Kit.Size wide, a 2 px check border when off; filled with the check colour
-         and a tick when on. -->
+         and a tick when on; a dash in the border colour when neither (a three-state box). -->
     <Style x:Key="Kit.Check.RoundTick" TargetType="CheckBox">
         <Setter Property="Foreground" Value="{DynamicResource Fx.TextBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Fx.CheckBorderBrush}"/>
@@ -749,6 +749,7 @@
                               Width="{TemplateBinding local:Kit.Size}" Height="{TemplateBinding local:Kit.Size}">
                             <Ellipse x:Name="Ring" Margin="-3" Stroke="{DynamicResource Fx.FocusBrush}" StrokeThickness="1" Visibility="Hidden"/>
                             <Ellipse x:Name="Box" Fill="Transparent" Stroke="{TemplateBinding BorderBrush}" StrokeThickness="2"/>
+                            <Rectangle x:Name="Dash" Margin="5,0" Height="2" Fill="{TemplateBinding BorderBrush}" Visibility="Hidden"/>
                             <Path x:Name="Tick" Margin="5" Stretch="Uniform" Visibility="Hidden" Data="M 0,5 L 4,9 L 12,0"
                                   Stroke="{DynamicResource Fx.CheckMarkBrush}" StrokeThickness="2"
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
@@ -767,6 +768,9 @@
                             <Setter TargetName="Box" Property="Fill" Value="{DynamicResource Fx.CheckFillBrush}"/>
                             <Setter TargetName="Box" Property="Stroke" Value="{DynamicResource Fx.CheckFillBrush}"/>
                             <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="Dash" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
@@ -1148,6 +1152,9 @@
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.56"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -1183,6 +1190,9 @@
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.56"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -1214,6 +1224,9 @@
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Ring" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.56"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -1353,6 +1366,9 @@
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
                         </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.56"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -1387,6 +1403,9 @@
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Fx.FocusBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.56"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -1440,6 +1459,9 @@
             </Setter.Value>
         </Setter>
         <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.56"/>
+            </Trigger>
             <Trigger Property="Orientation" Value="Horizontal">
                 <Setter Property="Width" Value="Auto"/>
                 <Setter Property="MinWidth" Value="0"/>
