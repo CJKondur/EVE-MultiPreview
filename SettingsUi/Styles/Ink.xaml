@@ -351,6 +351,7 @@
                                 <Setter Property="Foreground" Value="{DynamicResource Fx.TitleBrush}"/>
                                 <Setter Property="local:Loc.Case" Value="{DynamicResource Fx.Case.Title}"/>
                                 <Setter Property="Text" Value="{Binding Current.Page.Title}"/>
+                                <Setter Property="AutomationProperties.HeadingLevel" Value="Level1"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
                                         <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>

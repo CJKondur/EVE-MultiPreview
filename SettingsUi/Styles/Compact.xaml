@@ -290,6 +290,7 @@
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource Compact.Title}">
                                     <Setter Property="Text" Value="{Binding Current.Page.Title}"/>
+                                    <Setter Property="AutomationProperties.HeadingLevel" Value="Level1"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Current.Page.Title}" Value="{x:Null}">
                                             <Setter Property="local:Loc.Key" Value="{Binding Current.Page.TitleKey}"/>
