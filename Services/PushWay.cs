@@ -183,7 +183,7 @@ public sealed class PushWay : IAlertWay
             {
                 _link = _webhookOf(stored);
                 _linkFor = stored;
-                _linkRead = true;
+                _linkRead = _link != null;     // a link that could not be read (a transient failure) is tried again by the next drain
             }
             if (_link is not { } link)
             {

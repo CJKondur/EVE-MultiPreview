@@ -17,11 +17,11 @@ public static class DiscordWebhook
     private static readonly string[] PasteHosts = { "discord.com", "ptb.discord.com", "canary.discord.com", "discordapp.com" };
 
     // As pasted: /api, optionally /api/v<n>, then /webhooks/<id>/<token>, optionally a closing slash.
-    private static readonly Regex PastedPath = new(@"^/api(/v\d{1,2})?/webhooks/(\d{17,20})/([A-Za-z0-9_-]{30,100})/?$",
+    private static readonly Regex PastedPath = new(@"^/api(/v[0-9]{1,2})?/webhooks/([0-9]{17,20})/([A-Za-z0-9_-]{30,100})/?\z",
         RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
     // As sent: exactly the rewritten shape.
-    private static readonly Regex SendPath = new(@"^/api/webhooks/(\d{17,20})/([A-Za-z0-9_-]{30,100})$",
+    private static readonly Regex SendPath = new(@"^/api/webhooks/([0-9]{17,20})/([A-Za-z0-9_-]{30,100})\z",
         RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
     /// <summary>True when <paramref name="text"/> is a Discord webhook link; <paramref name="webhook"/> is then the

@@ -26,6 +26,8 @@ public sealed class DiscordSender : IPushSender, IDisposable
     public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
     /// <summary>The name Discord shows for the message.</summary>
     public const string UserName = "EVE MultiPreview";
+    /// <summary>Discord's SUPPRESS_EMBEDS message flag.</summary>
+    private const int SuppressEmbeds = 4;
     private static readonly TimeSpan DefaultRetry = TimeSpan.FromSeconds(5);
 
     private readonly HttpClient _client;
@@ -54,6 +56,7 @@ public sealed class DiscordSender : IPushSender, IDisposable
                 content,
                 username = UserName,
                 allowed_mentions = new { parse = Array.Empty<string>() },
+                flags = SuppressEmbeds,     // a name holding a discord.gg/... link shows no invite embed
             });
             using var request = new HttpRequestMessage(HttpMethod.Post, webhook)
             {
@@ -63,8 +66,9 @@ public sealed class DiscordSender : IPushSender, IDisposable
             using var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancel).ConfigureAwait(false);
             return Map(response);
         }
-        catch (Exception e) when (e is HttpRequestException || e is IOException || e is OperationCanceledException)
+        catch (Exception)
         {
+            // Any failure (network, timeout, or anything unforeseen) is out of reach; nothing of it is kept, as its text can hold the link.
             return new PushResult(PushOutcome.Unreachable);
         }
     }
