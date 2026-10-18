@@ -43,6 +43,10 @@ public sealed class PushWay : IAlertWay
     private string? _linkFor;
     private Uri? _link;
     private bool _linkRead;
+    // Bumped (under _followLock) each time Follow starts the sending again for another link. An answer to a message
+    // sent under an older generation was about the old link: it must not mark the new one gone, nor put its lines
+    // back to go to the new one.
+    private int _generation;
     // Each kind of failure is reported once a session.
     private int _toldGone, _toldUnreachable, _toldRefused, _toldThrew;
 
@@ -104,7 +108,11 @@ public sealed class PushWay : IAlertWay
         var stored = s.PushDiscordWebhook ?? "";
         lock (_followLock)
         {
-            if (stored != _followed) Ledger.Reset();
+            if (stored != _followed)
+            {
+                _generation++;
+                Ledger.Reset();
+            }
             _followed = stored;
         }
         if (!IsOn(s)) Ledger.Clear();
@@ -168,6 +176,7 @@ public sealed class PushWay : IAlertWay
         var token = _cancel.Token;
         while (!_stopped)
         {
+            int generation = Volatile.Read(ref _generation);     // before the link is read: an answer is about this link
             if (_settings is not { } s) return;
             var stored = s.PushDiscordWebhook ?? "";
             if (!_linkRead || stored != _linkFor)
@@ -194,6 +203,7 @@ public sealed class PushWay : IAlertWay
             // Next took the lines out: whatever happens, the ledger is told how it went (Sent or Failed).
             var result = new PushResult(PushOutcome.Unreachable);
             Exception? thrown = null;
+            bool stale = false;
             try
             {
                 result = await _sender.SendAsync(link, PushMessage.Build(batch, _eventName, _str), token).ConfigureAwait(false)
@@ -207,10 +217,19 @@ public sealed class PushWay : IAlertWay
             finally
             {
                 var now = _utcNow();
-                if (result.Outcome == PushOutcome.Sent) Ledger.Sent(batch, now);
-                else Ledger.Failed(batch, result, now);
+                // Under Follow's lock, so a new link can't be saved between the check and the answer being applied.
+                lock (_followLock)
+                {
+                    stale = generation != _generation;
+                    if (result.Outcome == PushOutcome.Sent) Ledger.Sent(batch, now);
+                    // Another link was saved while this one was on its way: the answer was about the old link. Its
+                    // lines are dropped (as a refused message's are), and the new link is neither gone nor held back.
+                    else if (stale) Ledger.Failed(batch, new PushResult(PushOutcome.Refused), now);
+                    else Ledger.Failed(batch, result, now);
+                }
             }
             if (_stopped) return;
+            if (stale) continue;        // its status and report were about the old link
             if (thrown != null)
             {
                 _status = new PushStatus(result.Outcome, result.Status, _utcNow());
