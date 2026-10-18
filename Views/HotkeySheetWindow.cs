@@ -14,7 +14,8 @@ namespace EveMultiPreview.Views;
 
 /// <summary>
 /// IDEAS #16: the hotkeys of the current profile on a window over the thumbnails. It never takes the focus from the game
-/// (not activated, no-activate and tool-window styles, topmost by WPF's Topmost only), and a click on it or its 30 seconds
+/// (not activated, no-activate and tool-window styles; born topmost by WS_EX_TOPMOST, never by WPF's Topmost, and re-raised
+/// every 250 ms while shown because the thumbnails re-raise themselves above everything on a client switch), and a click on it or its 30 seconds
 /// close it. Built in code, in the shape of the quick-switch wheel's surface, so a look restyles it and the literal scan
 /// reads it. The rows' texts are a person's and a card's words: they are shown, never a format.
 /// </summary>
@@ -24,41 +25,80 @@ public sealed class HotkeySheetWindow : Window
     public static readonly TimeSpan Lasts = TimeSpan.FromSeconds(30);
 
     private readonly List<string> _texts = new();
+    /// <summary>How often the sheet re-asserts its place above the thumbnails (they re-raise every 250 ms).</summary>
+    public static readonly TimeSpan RaiseEvery = TimeSpan.FromMilliseconds(250);
+
+    /// <summary>The flags of the re-raise: never moves, never resizes, never activates.</summary>
+    public const uint RaiseFlags = User32.SWP_NOMOVE | User32.SWP_NOSIZE | User32.SWP_NOACTIVATE;
+
     private readonly DispatcherTimer _timer = new() { Interval = Lasts };
+    private readonly Func<IntPtr, IntPtr, uint, bool> _setWindowPos;
     private bool _closed;
 
     /// <summary>Every text the window shows, in order (tests).</summary>
     public IReadOnlyList<string> Texts => _texts;
 
-    public HotkeySheetWindow(IReadOnlyList<HotkeySheetRow> rows)
+    /// <summary>The re-raise timer: runs only while the sheet shows (tests invoke <see cref="ReRaise"/> instead of waiting).</summary>
+    public DispatcherTimer RaiseTimer { get; } = new() { Interval = RaiseEvery };
+
+    /// <param name="rows">What it shows.</param>
+    /// <param name="workAreaDips">The work area it is sized and placed in; default is the monitor under the cursor.</param>
+    /// <param name="setWindowPos">The z-order call (tests record it); default is user32's SetWindowPos.</param>
+    public HotkeySheetWindow(IReadOnlyList<HotkeySheetRow> rows, Rect? workAreaDips = null,
+        Func<IntPtr, IntPtr, uint, bool>? setWindowPos = null)
     {
+        _setWindowPos = setWindowPos ?? ((h, after, flags) => User32.SetWindowPos(h, after, 0, 0, 0, 0, flags));
+        var area = workAreaDips ?? CursorMonitorWorkArea();
         UiStyles.Attach(this, StyledAs.Surface);
         WindowStyle = WindowStyle.None;
         ResizeMode = ResizeMode.NoResize;
         ShowInTaskbar = false;
-        Topmost = true;
         ShowActivated = false;
         AllowsTransparency = true;
         Background = null;                                   // the border below is the surface
         SizeToContent = SizeToContent.WidthAndHeight;
-        MaxHeight = SystemParameters.WorkArea.Height * 0.9;   // as the wheel: the title and the foot stay on screen, the rows scroll
-        WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        MaxHeight = area.Height * 0.9;   // as the wheel: the title and the foot stay on screen, the rows scroll
+        MaxWidth = area.Width * 0.9;
         UiFont.Apply(this, LocalizationService.CurrentLanguage);
         Title = Say("L.Sheet.Title", "Hotkeys of this profile", record: false);
 
         Content = Build(rows);
 
+        // Centred in that work area (CenterScreen would pick the primary one), from the content's own size.
+        var card = (UIElement)Content;
+        card.Measure(new System.Windows.Size(MaxWidth, MaxHeight));
+        WindowStartupLocation = WindowStartupLocation.Manual;
+        Left = area.Left + (area.Width - card.DesiredSize.Width) / 2;
+        Top = area.Top + (area.Height - card.DesiredSize.Height) / 2;
+
         SourceInitialized += (_, _) => NeverActivate();
         MouseLeftButtonUp += (_, _) => Dismiss();
         _timer.Tick += (_, _) => Dismiss();
-        Loaded += (_, _) => _timer.Start();
-        Closed += (_, _) => { _closed = true; _timer.Stop(); };
+        RaiseTimer.Tick += (_, _) => ReRaise();
+        Loaded += (_, _) => { _timer.Start(); RaiseTimer.Start(); ReRaise(); };
+        Closed += (_, _) => { _closed = true; _timer.Stop(); RaiseTimer.Stop(); };
+    }
+
+    /// <summary>Puts the sheet back at the top of the topmost band without activating it.</summary>
+    public void ReRaise()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        if (handle != IntPtr.Zero) _setWindowPos(handle, User32.HWND_TOPMOST, RaiseFlags);
+    }
+
+    /// <summary>The work area, in DIPs, of the monitor under the cursor.</summary>
+    private static Rect CursorMonitorWorkArea()
+    {
+        var wa = System.Windows.Forms.Screen.FromPoint(System.Windows.Forms.Control.MousePosition).WorkingArea;
+        double scale = DpiHelper.GetScaleFactorForPoint(wa.Left + wa.Width / 2, wa.Top + wa.Height / 2);
+        return new Rect(wa.Left / scale, wa.Top / scale, wa.Width / scale, wa.Height / scale);
     }
 
     /// <summary>Stops the timer and closes, once.</summary>
     public void Dismiss()
     {
         _timer.Stop();
+        RaiseTimer.Stop();
         if (_closed) return;
         _closed = true;
         Close();
@@ -148,6 +188,6 @@ public sealed class HotkeySheetWindow : Window
     {
         var handle = new WindowInteropHelper(this).Handle;
         int ex = User32.GetWindowLong(handle, User32.GWL_EXSTYLE);
-        User32.SetWindowLong(handle, User32.GWL_EXSTYLE, ex | User32.WS_EX_NOACTIVATE | User32.WS_EX_TOOLWINDOW);
+        User32.SetWindowLong(handle, User32.GWL_EXSTYLE, ex | User32.WS_EX_NOACTIVATE | User32.WS_EX_TOOLWINDOW | User32.WS_EX_TOPMOST);
     }
 }
