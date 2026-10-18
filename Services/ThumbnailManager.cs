@@ -131,6 +131,12 @@ public sealed class ThumbnailManager : IDisposable
     public Func<DateTime> MuteClock { get => _muteClock; set => _muteClock = value ?? _muteClock; }
     private Func<DateTime> _muteClock = () => DateTime.UtcNow;
 
+    /// <summary>Now, in UTC, for the alert flash and the under-fire border (IDEAS P97): they counted on the local wall
+    /// clock, which steps back an hour when daylight saving time ends, and a flash raised just before the step stood as
+    /// a steady border for an hour. A moment that lies ahead of now ends them. A test hands in a clock of its own; null changes nothing.</summary>
+    public Func<DateTime> FlashClock { get => _flashClock; set => _flashClock = value ?? _flashClock; }
+    private Func<DateTime> _flashClock = () => DateTime.UtcNow;
+
     /// <summary>Which clients need the player: per character, the alerts shown and not looked at yet (IDEAS batch 5).
     /// Fed where the badge is fed and cleared, and where a client goes away. It doesn't depend on a display setting,
     /// as the badge does.</summary>
@@ -2867,13 +2873,14 @@ public sealed class ThumbnailManager : IDisposable
 
     public void SetAlertFlash(string characterName, string severity = "critical", string eventType = "attack")
     {
+        var now = _flashClock();
         _alertFlashChars[characterName] = new AlertFlashInfo
         {
-            StartTime = DateTime.Now,
+            StartTime = now,
             Severity = severity,
             EventType = eventType,
             ShowFlash = true,
-            LastToggleTime = DateTime.Now
+            LastToggleTime = now
         };
         Debug.WriteLine($"[AlertFlash:Start] 🚨 Flash started: '{characterName}' severity={severity} event={eventType}");
     }
@@ -3036,7 +3043,7 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (_alertFlashChars.IsEmpty) return;
 
-        var now = DateTime.Now;
+        var now = _flashClock();
         var s = _settings.Settings;
         var toRemove = new List<string>();
 
@@ -3051,7 +3058,7 @@ public sealed class ThumbnailManager : IDisposable
                 : FlashExpiry.GetValueOrDefault(info.Severity, 6);
             bool expired = expirySec == 0
                 ? FindThumbnailByCharacter(charName) is not { } alertThumb || alertThumb.EveHwnd == fgNow   // gone = over
-                : (now - info.StartTime).TotalSeconds >= expirySec;
+                : now < info.StartTime || (now - info.StartTime).TotalSeconds >= expirySec;   // ahead of now = the clock was set back
             if (expired)
             {
                 toRemove.Add(charName);
@@ -3066,7 +3073,7 @@ public sealed class ThumbnailManager : IDisposable
             int rateMs = s.SeverityFlashRates.TryGetValue(info.Severity, out var sr)
                 ? sr
                 : FlashRates.GetValueOrDefault(info.Severity, 500);
-            if ((now - info.LastToggleTime).TotalMilliseconds >= rateMs)
+            if ((now - info.LastToggleTime).TotalMilliseconds >= rateMs || now < info.LastToggleTime)
             {
                 info.ShowFlash = !info.ShowFlash;
                 info.LastToggleTime = now;
@@ -3151,7 +3158,7 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (!_settings.Settings.EnableUnderFireIndicator) return;
 
-        _underFireChars[characterName] = DateTime.Now;
+        _underFireChars[characterName] = _flashClock();
 
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
@@ -3165,13 +3172,13 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (_underFireChars.IsEmpty) return;
 
-        var now = DateTime.Now;
+        var now = _flashClock();
         int timeoutSec = _settings.Settings.UnderFireTimeoutSeconds;
         var expired = new List<string>();
 
         foreach (var (charName, lastDamage) in _underFireChars)
         {
-            if ((now - lastDamage).TotalSeconds >= timeoutSec)
+            if (now < lastDamage || (now - lastDamage).TotalSeconds >= timeoutSec)
                 expired.Add(charName);
         }
 
@@ -4921,7 +4928,7 @@ public sealed class ThumbnailManager : IDisposable
     }
 }
 
-/// <summary>Tracks per-character alert flash state with severity-based timing.</summary>
+/// <summary>Tracks per-character alert flash state with severity-based timing. Both times are UTC (<see cref="ThumbnailManager.FlashClock"/>).</summary>
 public class AlertFlashInfo
 {
     public DateTime StartTime { get; set; }
