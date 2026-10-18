@@ -2239,7 +2239,7 @@
     <sys:String x:Key="L.S.alerts.sounds.quietTo">Silenzio fino alle</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietTo.Desc">Un'ora come 07:00. Un intervallo che supera la mezzanotte funziona.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Time">Inserisci un'ora del giorno, per esempio 23:00 o 7:30.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Dnd.On">Non disturbare: attivo. I suoni degli avvisi e gli avvisi vocali sono silenziati.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Dnd.On">Non disturbare: attivo. I suoni degli avvisi e gli avvisi vocali sono silenziati, e gli avvisi inviati a Discord sono trattenuti.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Dnd.Off">Non disturbare: disattivato</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.Dnd">Non disturbare</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.DndOn">Non disturbare: attivo</sys:String> <!-- draft -->
@@ -2273,8 +2273,8 @@
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows assegna ogni combinazione di tasti a un solo programma alla volta. Se un altro programma ha preso una scorciatoia per primo, premerla non fa nulla in MultiPreview, e niente ti dice perché.&#x0A;&#x0A;- **Tasti rifiutati da Windows** elenca ognuno di questi tasti con ciò a cui è assegnato. Clicca su uno per cambiarlo.&#x0A;- Di solito sono overlay, strumenti per gli screenshot e strumenti per rimappare i tasti: l'overlay di NVIDIA, AMD Software, ShareX, Greenshot, AutoHotkey, PowerToys. La scheda nomina quelli aperti. Per una scorciatoia con il tasto Win, la scheda dice anche che Windows tiene per sé molte combinazioni con Win.&#x0A;- MultiPreview lo segnala anche in una notifica dell'area di notifica, una volta per tasto.&#x0A;- I tasti vengono controllati ogni volta che vengono assegnati: mentre un client EVE è aperto e le scorciatoie non sono in pausa, e dopo che cambi un'impostazione. **Controlla di nuovo** li richiede a Windows, per quando hai liberato un tasto nell'altro programma. I pulsanti del mouse non vengono mai rifiutati.&#x0A;- Con **Le scorciatoie funzionano con Ctrl, Maiusc o Alt premuto** attivo, ogni tasto viene chiesto anche con ogni combinazione di Ctrl, Alt, Maiusc e Win. Windows ne tiene molte per sé. Viene elencata solo la combinazione che hai scelto.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.LastAlertHere">L'ultimo avviso è su questo client</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">Formato 24 ore, per esempio 23:00.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.On">Non disturbare è attivo ora. I suoni degli avvisi e gli avvisi vocali sono silenziati.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.OnCritical">Non disturbare è attivo ora. I suoni degli avvisi e gli avvisi vocali sono silenziati, ma gli avvisi critici suonano comunque e vengono detti.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.On">Non disturbare è attivo ora. I suoni degli avvisi e gli avvisi vocali sono silenziati, e gli avvisi inviati a Discord sono trattenuti.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.OnCritical">Non disturbare è attivo ora. I suoni degli avvisi e gli avvisi vocali sono silenziati e gli avvisi inviati a Discord sono trattenuti, ma gli avvisi critici suonano comunque, vengono detti e vanno a Discord.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">Controlla di nuovo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows tiene per sé molte combinazioni con il tasto Win. Una scorciatoia rifiutata che contiene Win è molto probabilmente una di queste: scegli un'altra combinazione.</sys:String> <!-- draft -->
     <!-- Ideas batch 6 (Plan 10) -->

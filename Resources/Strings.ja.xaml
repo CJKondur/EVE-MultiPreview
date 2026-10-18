@@ -2222,7 +2222,7 @@
     <sys:String x:Key="L.S.alerts.sounds.quietTo">終了時刻</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietTo.Desc">07:00 のような時刻です。日付をまたぐ時間帯も使えます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Time">23:00 や 7:30 のような時刻を入力してください。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Dnd.On">おやすみモード：オン。アラート音と音声アラートは鳴りません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Dnd.On">おやすみモード：オン。アラート音と音声アラートは鳴らず、Discord へのアラート送信も止まります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Dnd.Off">おやすみモード：オフ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.Dnd">おやすみモード</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.DndOn">おやすみモード：オン</sys:String> <!-- draft -->
@@ -2256,8 +2256,8 @@
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows は、キーの組み合わせを同時に 1 つのプログラムにしか割り当てません。ほかのプログラムが先にホットキーを取っていると、押しても MultiPreview では何も起こらず、理由もわかりません。&#x0A;&#x0A;- **Windows に拒否されたキー** には、そのようなキーと割り当て先が一覧表示されます。クリックすると変更できます。&#x0A;- 多くの場合、原因はオーバーレイ、スクリーンショットツール、キーの割り当てを変えるツールです。NVIDIA のオーバーレイ、AMD Software、ShareX、Greenshot、AutoHotkey、PowerToys などです。カードには実行中のものが表示されます。Win キーを含むホットキーの場合、カードにはさらに、Windows が Win キーの組み合わせの多くを自分で使っていることが表示されます。&#x0A;- MultiPreview はトレイの通知でも知らせます。キーごとに 1 回だけです。&#x0A;- キーは登録のたびに確認されます。EVE クライアントの実行中でホットキーが一時停止されていないときと、設定を変更したあとです。ほかのプログラムでキーを解放したら、**もう一度確認** で Windows にもう一度問い合わせできます。マウスボタンが拒否されることはありません。&#x0A;- **Ctrl、Shift、Alt を押している間もホットキーを有効にする** がオンのときは、各キーを Ctrl、Alt、Shift、Win のあらゆる組み合わせでも登録しようとします。その多くは Windows 自身が使っています。一覧に出るのは、あなたが選んだ組み合わせだけです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.LastAlertHere">最新のアラートはこのクライアントにあります</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">23:00 のような 24 時間制の時刻です。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.On">おやすみモードは現在オンです。アラート音と音声アラートは鳴りません。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.OnCritical">おやすみモードは現在オンです。アラート音と音声アラートは鳴りませんが、重大なアラートは鳴り、読み上げられます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.On">おやすみモードは現在オンです。アラート音と音声アラートは鳴らず、Discord へのアラート送信も止まります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.OnCritical">おやすみモードは現在オンです。アラート音と音声アラートは鳴らず、Discord へのアラート送信も止まりますが、重大なアラートは鳴り、読み上げられ、Discord にも送られます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">もう一度確認</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows は Win キーを含む組み合わせの多くを自分で使っています。拒否されたホットキーに Win が含まれている場合は、そのひとつである可能性が高いです。別の組み合わせを選んでください。</sys:String> <!-- draft -->
     <!-- Ideas batch 6 (Plan 10) -->

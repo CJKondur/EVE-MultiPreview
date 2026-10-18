@@ -2221,7 +2221,7 @@
     <sys:String x:Key="L.S.alerts.sounds.quietTo">Quiet until</sys:String>
     <sys:String x:Key="L.S.alerts.sounds.quietTo.Desc">A time such as 07:00. A span over midnight works.</sys:String>
     <sys:String x:Key="L.S.Err.Time">Enter a time of day such as 23:00 or 7:30.</sys:String>
-    <sys:String x:Key="L.Dnd.On">Do not disturb: on. Alert sounds and spoken alerts are muted.</sys:String>
+    <sys:String x:Key="L.Dnd.On">Do not disturb: on. Alert sounds and spoken alerts are muted, and alerts sent to Discord are held.</sys:String>
     <sys:String x:Key="L.Dnd.Off">Do not disturb: off</sys:String>
     <sys:String x:Key="L.Tray.Dnd">Do not disturb</sys:String>
     <sys:String x:Key="L.Tray.DndOn">Do not disturb: on</sys:String>
@@ -2255,8 +2255,8 @@
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows gives each key combination to one program at a time. If another program took a hotkey first, pressing it does nothing in MultiPreview, and nothing tells you why.&#x0A;&#x0A;- **Keys Windows refused** lists each such key with what it is bound to. Click one to change it.&#x0A;- The usual owners are overlays, screenshot tools and key remappers: the NVIDIA overlay, AMD Software, ShareX, Greenshot, AutoHotkey, PowerToys. The card names the ones that are running. For a hotkey with the Win key in it, the card also says that Windows keeps many Win combinations for itself.&#x0A;- MultiPreview also says so in a tray notification, once for each key.&#x0A;- Keys are checked whenever they are set: while an EVE client is running and hotkeys are not paused, and after you change a setting. **Check again** asks Windows once more, for when you have freed a key in the other program. Mouse buttons are never refused.&#x0A;- With **Hotkeys work while Ctrl, Shift or Alt is held** on, each key is also asked for with every mix of Ctrl, Alt, Shift and Win held. Windows keeps many of those for itself. Only the combination you chose is listed.</sys:String>
     <sys:String x:Key="L.Switch.LastAlertHere">The last alert is on this client</sys:String>
     <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">24-hour clock, such as 23:00.</sys:String>
-    <sys:String x:Key="L.S.DndState.On">Do not disturb is on now. Alert sounds and spoken alerts are muted.</sys:String>
-    <sys:String x:Key="L.S.DndState.OnCritical">Do not disturb is on now. Alert sounds and spoken alerts are muted, but critical alerts still play and are spoken.</sys:String>
+    <sys:String x:Key="L.S.DndState.On">Do not disturb is on now. Alert sounds and spoken alerts are muted, and alerts sent to Discord are held.</sys:String>
+    <sys:String x:Key="L.S.DndState.OnCritical">Do not disturb is on now. Alert sounds and spoken alerts are muted and alerts sent to Discord are held, but critical alerts still play, are spoken and go to Discord.</sys:String>
     <sys:String x:Key="L.S.Refused.Again">Check again</sys:String>
     <sys:String x:Key="L.S.Refused.WinKey">Windows keeps many combinations with the Win key for itself. A refused hotkey with Win in it is most likely one of them: pick a different combination.</sys:String>
     <!-- Ideas batch 6 (Plan 10) -->

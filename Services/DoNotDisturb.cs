@@ -114,7 +114,7 @@ public sealed class DoNotDisturb
 
     /// <summary>The note that says what do-not-disturb is now: its string key, and the English of it.</summary>
     public static (string Key, string English) Note(bool on) =>
-        on ? ("L.Dnd.On", "Do not disturb: on. Alert sounds and spoken alerts are muted.") : ("L.Dnd.Off", "Do not disturb: off");
+        on ? ("L.Dnd.On", "Do not disturb: on. Alert sounds and spoken alerts are muted, and alerts sent to Discord are held.") : ("L.Dnd.Off", "Do not disturb: off");
 
     /// <summary>One press of the hotkey or of the tray item: flips do-not-disturb once, and hands back the note that
     /// says what it is now.</summary>

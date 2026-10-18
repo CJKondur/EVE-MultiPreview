@@ -2222,7 +2222,7 @@
     <sys:String x:Key="L.S.alerts.sounds.quietTo">종료 시각</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietTo.Desc">07:00 같은 시각이에요. 자정을 넘기는 구간도 돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Time">23:00이나 7:30 같은 시각을 입력하세요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Dnd.On">방해 금지: 켜짐. 알림 소리와 음성 알림이 꺼져 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Dnd.On">방해 금지: 켜짐. 알림 소리와 음성 알림이 꺼져 있고, Discord로 보내는 알림도 멈춰 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Dnd.Off">방해 금지: 꺼짐</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.Dnd">방해 금지</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.DndOn">방해 금지: 켜짐</sys:String> <!-- draft -->
@@ -2256,8 +2256,8 @@
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows는 키 조합 하나를 한 번에 한 프로그램에만 줘요. 다른 프로그램이 단축키를 먼저 가져가면, 눌러도 MultiPreview에서는 아무 일도 일어나지 않고 이유도 알려 주지 않아요.&#x0A;&#x0A;- **Windows가 거부한 키** 카드에 그런 키와 연결된 기능이 나와요. 클릭하면 바꿀 수 있어요.&#x0A;- 보통 오버레이, 스크린샷 도구, 키를 다시 지정하는 도구가 원인이에요. NVIDIA 오버레이, AMD Software, ShareX, Greenshot, AutoHotkey, PowerToys 같은 것들이에요. 카드에는 실행 중인 프로그램이 나와요. Win 키가 들어간 단축키라면 카드에는 Windows가 Win 조합을 많이 직접 쓴다는 것도 나와요.&#x0A;- MultiPreview는 트레이 알림으로도 알려요. 키마다 한 번만요.&#x0A;- 키는 등록할 때마다 확인해요. EVE 클라이언트가 실행 중이고 단축키가 일시 중지되지 않았을 때와 설정을 바꾼 뒤예요. 다른 프로그램에서 키를 풀었다면 **다시 확인** 버튼으로 Windows에 다시 물어볼 수 있어요. 마우스 버튼은 거부되지 않아요.&#x0A;- **Ctrl, Shift, Alt를 누르고 있어도 단축키 작동** 스위치가 켜져 있으면 각 키를 Ctrl, Alt, Shift, Win의 모든 조합으로도 등록하려고 해요. 그중 많은 조합은 Windows가 직접 써요. 목록에는 직접 고른 조합만 나와요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.LastAlertHere">마지막 알림은 이 클라이언트에 있어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">23:00 같은 24시간제 시각이에요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.On">방해 금지가 지금 켜져 있어요. 알림 소리와 음성 알림이 꺼져 있어요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.OnCritical">방해 금지가 지금 켜져 있어요. 알림 소리와 음성 알림은 꺼져 있지만 치명 알림은 계속 울리고 읽어 줘요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.On">방해 금지가 지금 켜져 있어요. 알림 소리와 음성 알림이 꺼져 있고, Discord로 보내는 알림도 멈춰 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.OnCritical">방해 금지가 지금 켜져 있어요. 알림 소리와 음성 알림은 꺼져 있고 Discord로 보내는 알림도 멈춰 있지만, 치명 알림은 계속 울리고 읽어 주고 Discord로도 보내요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">다시 확인</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows는 Win 키가 들어간 조합을 많이 직접 써요. 거부된 단축키에 Win이 들어 있다면 그중 하나일 가능성이 커요. 다른 조합을 고르세요.</sys:String> <!-- draft -->
     <!-- Ideas batch 6 (Plan 10) -->
