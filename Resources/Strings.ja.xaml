@@ -2419,4 +2419,11 @@
     <sys:String x:Key="L.Tray.HotkeySheet">ホットキー早見表</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">ホットキー早見表</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">プロファイルが複数あり、それぞれにキャラクター別、グループ別、アプリ用のキーがあると、どのキーが何をするのか忘れやすくなります。早見表は、現在のプロファイルのすべてのホットキーを、ここでのカード名のままサムネイルの上に表示します。&#x0A;&#x0A;- **ホットキー早見表を表示** またはトレイメニュー（**ホットキー早見表**）から開きます。&#x0A;- もう一度キーを押すか、クリックするか、30秒後に閉じます。&#x0A;- EVE からフォーカスを奪うことはないので、表示中もキー入力はゲームに届きます。&#x0A;&#x0A;ホットキーを一時停止している間は、このキーも何もしません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.downtime">ダウンタイムのカウントダウンと警告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.downtime.Desc">トレイメニューが毎日 11:00 UTC のダウンタイムまでカウントダウンし、トレイの通知が 15 分前と 5 分前にお知らせします。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DowntimeHours">ダウンタイム（11:00 UTC）まであと {0} 時間 {1} 分</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DowntimeMinutes">ダウンタイム（11:00 UTC）まであと {0} 分</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DowntimeWarning">ダウンタイム（11:00 UTC）まであと {0} 分。ログイン中：{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.downtime.Title">ダウンタイム</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.downtime.Body">EVE のサーバーは毎日 11:00 UTC にダウンします。**ダウンタイムのカウントダウンと警告**をオンにすると、次のようになります。&#x0A;&#x0A;- トレイメニューの先頭行がダウンタイムまでカウントダウンします。&#x0A;- 15 分前と 5 分前に、ログイン中のキャラクターすべてをトレイの通知でお知らせします。ラッティングやマイニングの艦隊が間に合ってドッキングできます。&#x0A;&#x0A;EVE のログにはキャラクターがアンドックした時刻は残りますが、ドックした時刻は残りません。そのため、通知は宇宙にいるキャラクターだけでなく、ログイン中の全員を挙げます。MultiPreview の起動時や最初のキャラクターのログイン時にダウンタイムまで 15 分を切っている場合は、すぐに通知が出ます。</sys:String> <!-- draft -->
 </ResourceDictionary>

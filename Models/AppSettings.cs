@@ -270,6 +270,11 @@ public class AppSettings
     /// HotkeyService.RegisterFromSettings and by the tray menu's hint. New key: unbound in a file without it.</summary>
     public string HotkeySheetHotkey { get; set; } = "";
 
+    /// <summary>The tray menu's countdown line to the daily downtime (11:00 UTC) and App's tray balloons at 15 and 5 minutes
+    /// before it, naming the characters that are logged in (IDEAS #9). Read by TrayMenu and by App. New key: off in a
+    /// file without it.</summary>
+    public bool DowntimeWarnings { get; set; } = false;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

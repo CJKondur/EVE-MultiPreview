@@ -20,6 +20,7 @@ public static class AppPages
         new HelpTopic("app.general", "language", new[] { "app.general.language", "app.general.scale" }),
         new HelpTopic("app.general", "startup", new[] { "app.general.startupSettings", "app.general.startWithWindows" }),
         new HelpTopic("app.general", "keepAwake", new[] { "app.general.keepAwake" }),
+        new HelpTopic("app.general", "downtime", new[] { "app.general.downtime" }),
         new HelpTopic(LookId, "look", new[] { LookGallery.ItemId }),
         new HelpTopic(LookId, "contrast", new[] { "app.look.followContrast" }),
         new HelpTopic("app.diagnostics", "logs", new[]
@@ -71,6 +72,7 @@ public static class AppPages
         new SectionDef("app.general.session", new PageItem[]
         {
             new SettingItem(Setting.Toggle("app.general.keepAwake", s => s.KeepPcAwake)),
+            new SettingItem(Setting.Toggle("app.general.downtime", s => s.DowntimeWarnings)),
         }),
     });
 

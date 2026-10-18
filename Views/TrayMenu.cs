@@ -50,6 +50,8 @@ public sealed class TrayMenuActions
     public Action OpenAlertHistory { get; init; } = () => { };
     /// <summary>Opens, or closes, the hotkey cheat sheet (IDEAS #16).</summary>
     public Action OpenHotkeySheet { get; init; } = () => { };
+    /// <summary>The time now, UTC, for the downtime line (IDEAS #9). A test hands in its own.</summary>
+    public Func<DateTime> UtcNow { get; init; } = () => DateTime.UtcNow;
     public Action<string> SwitchProfile { get; init; } = _ => { };
     public Func<bool> IsSuspended { get; init; } = () => false;
     public Action ToggleSuspend { get; init; } = () => { };
@@ -73,7 +75,8 @@ public sealed class TrayMenuActions
     public Action Exit { get; init; } = () => { };
 }
 
-/// <summary>The tray icon's right-click menu (Plan 4, the F2 reference): Settings and the profile, the four toggles plus
+/// <summary>The tray icon's right-click menu (Plan 4, the F2 reference): the downtime countdown line (IDEAS #9, shown
+/// while the switch is on; a line to read, not a command), Settings and the profile, the four toggles plus
 /// second thumbnails with their hotkeys, client windows, Close all EVE clients… and Exit. Every item calls what the old
 /// menu called. Each time the menu opens it re-reads everything: labels (a language change), check marks (a hotkey or
 /// Home may have changed the state), hotkey hints, the profile list and the second-thumbnail list.</summary>
@@ -84,6 +87,8 @@ public sealed class TrayMenu : IDisposable
 
     private readonly TrayMenuActions _a;
     private readonly List<(ToolStripItem Item, string Key, string English)> _labels = new();
+    private readonly ToolStripMenuItem _downtime = new() { Enabled = false };
+    private readonly ToolStripSeparator _downtimeSeparator = new();
     private readonly ToolStripMenuItem _profiles, _suspend, _doNotDisturb, _hotkeySheet, _lock, _hide, _clickThrough, _hideSecondary, _secondary, _restore, _snap;
 
     public TrayMenu(TrayMenuActions actions)
@@ -92,6 +97,9 @@ public sealed class TrayMenu : IDisposable
         Strip = new ContextMenuStrip();
         FluentMenu.Style(Strip, showIcons: true);
 
+        // IDEAS #9: first in the menu, no command name (it is not one), hidden while the switch is off.
+        Strip.Items.Add(_downtime);
+        Strip.Items.Add(_downtimeSeparator);
         Strip.Items.Add(Item(TrayCommands.Settings, "L.Tray.Settings", "Settings", FluentMenu.Glyphs.Settings, _a.OpenSettings));
         _profiles = Item(TrayCommands.Profiles, null, "", FluentMenu.Glyphs.Profile, null);
         FluentMenu.Style(_profiles.DropDown, showIcons: false);
@@ -138,6 +146,9 @@ public sealed class TrayMenu : IDisposable
 
     public ContextMenuStrip Strip { get; }
 
+    /// <summary>The countdown line at the top of the menu (IDEAS #9), for tests.</summary>
+    public ToolStripMenuItem DowntimeLine => _downtime;
+
     /// <summary>Windows' limit for a tray tooltip. NotifyIcon.Text throws on anything longer.</summary>
     public const int TooltipMax = 127;
 
@@ -182,6 +193,10 @@ public sealed class TrayMenu : IDisposable
     {
         foreach (var (item, key, english) in _labels) item.Text = LocalizationService.Str(key, english);
         var s = _a.Settings();
+        bool downtime = s?.DowntimeWarnings == true;
+        _downtime.Available = downtime;
+        _downtimeSeparator.Available = downtime;
+        if (downtime) _downtime.Text = Downtime.CountdownText(_a.UtcNow());
         _profiles.Text = string.Format(LocalizationService.Str("L.Tray.ProfileFmt", "Profile: {0}"), s?.LastUsedProfile ?? "");
         RebuildProfiles(s);
 

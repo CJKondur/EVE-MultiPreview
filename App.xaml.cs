@@ -42,6 +42,8 @@ public partial class App : Application
     /// window's thread only (the execution state belongs to the calling thread); the real call is passed here, once.</summary>
     private readonly KeepAwake _keepAwake = new KeepAwake(KeepAwake.SetThreadExecutionState, ex => LogError(ex));
     private EventSnoozeFile? _snoozeFile;
+    /// <summary>IDEAS #9: which downtime warnings were told for the next downtime.</summary>
+    private readonly DowntimeWarnings _downtimeWarnings = new();
     /// <summary>Do-not-disturb (IDEAS #32): alert sounds are muted while it is on. What the hotkey or the tray chose is
     /// forgotten when MultiPreview closes; the quiet hours are settings.</summary>
     private readonly DoNotDisturb _doNotDisturb = new();
@@ -636,6 +638,7 @@ public partial class App : Application
                 _hotkeyService?.EvaluateRegistration();
                 FollowDoNotDisturb();
                 FollowKeepAwake();
+                FollowDowntime();
             };
             hotkeyToggleTimer.Start();
 
@@ -1060,6 +1063,22 @@ public partial class App : Application
         try
         {
             _keepAwake.Follow(KeepAwake.Wanted(_settings?.Settings, _thumbnailManager?.GetActiveCharacterNames() ?? Array.Empty<string>()));
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #9: asked twice a second. Nothing while the switch is off, and nothing while no character is logged
+    /// in (so a warning is not used up unseen); then, when one is due, a balloon naming every logged-in character
+    /// (docking is never logged, so who is in space is not known). A failure is logged and the next tick tries again.</summary>
+    private void FollowDowntime()
+    {
+        try
+        {
+            if (_settings?.Settings.DowntimeWarnings != true) return;
+            var names = _thumbnailManager?.GetActiveCharacterNames().ToList() ?? new List<string>();
+            if (names.Count == 0) return;
+            if (_downtimeWarnings.Due(DateTime.UtcNow) is int minutes)
+                ShowBalloon(10000, Downtime.WarningText(minutes, names), ToolTipIcon.Warning);
         }
         catch (Exception ex) { LogError(ex); }
     }

@@ -2419,4 +2419,11 @@
     <sys:String x:Key="L.Tray.HotkeySheet">단축키 요약표</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">단축키 요약표</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">프로필이 여러 개이고 각각 캐릭터별, 그룹별, 앱용 키가 있으면 어떤 키가 무슨 일을 하는지 잊기 쉬워요. 요약표는 현재 프로필의 모든 단축키를 이 화면의 카드 이름 그대로 썸네일 위에 보여 줘요.&#x0A;&#x0A;- **단축키 요약표 표시**로 열거나 트레이 메뉴(**단축키 요약표**)에서 열어요.&#x0A;- 키를 한 번 더 누르거나, 클릭하거나, 30초가 지나면 닫혀요.&#x0A;- EVE에서 포커스를 빼앗지 않아서, 표시되는 동안에도 키 입력이 게임으로 계속 가요.&#x0A;&#x0A;단축키가 일시정지된 동안에는 이 키도 아무 일도 하지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.downtime">다운타임 카운트다운과 경고</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.downtime.Desc">트레이 메뉴가 매일 11:00 UTC의 다운타임까지 카운트다운하고, 트레이 알림이 15분 전과 5분 전에 알려 줘요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DowntimeHours">다운타임(11:00 UTC)까지 {0}시간 {1}분</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DowntimeMinutes">다운타임(11:00 UTC)까지 {0}분</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DowntimeWarning">다운타임(11:00 UTC)까지 {0}분. 로그인 중: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.downtime.Title">다운타임</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.downtime.Body">EVE 서버는 매일 11:00 UTC에 내려가요. **다운타임 카운트다운과 경고**를 켜면 이렇게 돼요.&#x0A;&#x0A;- 트레이 메뉴의 첫 줄이 다운타임까지 카운트다운해요.&#x0A;- 15분 전과 5분 전에 트레이 알림이 로그인 중인 캐릭터를 모두 알려 줘서, 래팅이나 채굴 함대가 제때 도킹할 수 있어요.&#x0A;&#x0A;EVE의 로그에는 캐릭터가 언제 언도킹했는지는 남지만 언제 도킹했는지는 남지 않아요. 그래서 알림은 우주에 있는 캐릭터만이 아니라 로그인 중인 모든 캐릭터를 알려 줘요. MultiPreview가 시작될 때나 첫 캐릭터가 로그인할 때 다운타임까지 15분이 안 남았다면 알림이 바로 나와요.</sys:String> <!-- draft -->
 </ResourceDictionary>

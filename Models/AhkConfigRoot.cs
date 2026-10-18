@@ -140,6 +140,7 @@ public class AhkConfigRoot
         s.MemoryGrowthMb = g.MemoryGrowthMb;
         s.MemoryGrowthMinutes = g.MemoryGrowthMinutes;
         s.HotkeySheetHotkey = g.HotkeySheetHotkey ?? "";
+        s.DowntimeWarnings = g.DowntimeWarnings != 0;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -479,6 +480,7 @@ public class AhkConfigRoot
         g.MemoryGrowthMb = s.MemoryGrowthMb;
         g.MemoryGrowthMinutes = s.MemoryGrowthMinutes;
         g.HotkeySheetHotkey = s.HotkeySheetHotkey;
+        g.DowntimeWarnings = s.DowntimeWarnings ? 1 : 0;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1354,6 +1356,10 @@ public class AhkGlobalSettings
     // The hotkey cheat sheet's key (IDEAS #16), new after 2.3.42: a file without it loads it unbound.
     [JsonPropertyName("HotkeySheetHotkey")]
     public string? HotkeySheetHotkey { get; set; } = "";
+
+    // The downtime countdown and warnings (IDEAS #9), new after 2.3.42: a file without it loads them off.
+    [JsonPropertyName("DowntimeWarnings")]
+    public int DowntimeWarnings { get; set; }
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

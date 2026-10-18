@@ -2418,4 +2418,11 @@
     <sys:String x:Key="L.Tray.HotkeySheet">Hotkey cheat sheet</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">The hotkey cheat sheet</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">With several profiles, each with keys per character, per group and for the app, it is easy to forget which key does what. The cheat sheet shows every hotkey of the current profile, by the name its card has here, over the thumbnails.&#x0A;&#x0A;- Open it with **Show the hotkey cheat sheet** or from the tray menu (**Hotkey cheat sheet**).&#x0A;- It closes when you press the key again, click it, or after 30 seconds.&#x0A;- It never takes the focus from EVE, so your keys keep going to the game while it shows.&#x0A;&#x0A;While hotkeys are paused, its key does nothing either.</sys:String>
+    <sys:String x:Key="L.S.app.general.downtime">Downtime countdown and warnings</sys:String>
+    <sys:String x:Key="L.S.app.general.downtime.Desc">The tray menu counts down to the daily downtime at 11:00 UTC, and a tray note warns you 15 and 5 minutes before it.</sys:String>
+    <sys:String x:Key="L.Tray.DowntimeHours">Downtime (11:00 UTC) in {0} h {1} min</sys:String>
+    <sys:String x:Key="L.Tray.DowntimeMinutes">Downtime (11:00 UTC) in {0} min</sys:String>
+    <sys:String x:Key="L.Tray.DowntimeWarning">Downtime (11:00 UTC) in {0} min. Logged in: {1}</sys:String>
+    <sys:String x:Key="L.Help.app.general.downtime.Title">Downtime</sys:String>
+    <sys:String x:Key="L.Help.app.general.downtime.Body">EVE's server goes down every day at 11:00 UTC. With **Downtime countdown and warnings** on:&#x0A;&#x0A;- the first line of the tray menu counts down to it;&#x0A;- a tray note 15 minutes and again 5 minutes before it names every character that is logged in, so a ratting or mining fleet can dock in time.&#x0A;&#x0A;EVE's logs say when a character undocks but never when it docks, so the note names everyone who is logged in, not only those in space. When MultiPreview starts, or the first character logs in, less than 15 minutes before downtime, the note comes at once.</sys:String>
 </ResourceDictionary>

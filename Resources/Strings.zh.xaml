@@ -2436,4 +2436,11 @@
     <sys:String x:Key="L.Tray.HotkeySheet">热键速查表</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">热键速查表</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">配置文件一多，每个都有按角色、按分组和针对应用的按键，就很容易忘记哪个键做什么。速查表会在缩略图上方显示当前配置文件的所有热键，名称与它们在这里的卡片名称一致。&#x0A;&#x0A;- 用 **显示热键速查表** 打开，或从托盘菜单（**热键速查表**）打开。&#x0A;- 再按一次该键、点击它，或等待 30 秒，它就会关闭。&#x0A;- 它不会从 EVE 抢走焦点，所以显示期间你的按键仍会发送给游戏。&#x0A;&#x0A;热键暂停时，它的按键也不会有任何作用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.downtime">停机倒计时和提醒</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.downtime.Desc">托盘菜单会倒数到每天 11:00 UTC 的停机，托盘通知会在停机前 15 分钟和 5 分钟提醒你。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DowntimeHours">停机（11:00 UTC）还有 {0} 小时 {1} 分钟</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DowntimeMinutes">停机（11:00 UTC）还有 {0} 分钟</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.DowntimeWarning">停机（11:00 UTC）还有 {0} 分钟。已登录：{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.downtime.Title">停机</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.downtime.Body">EVE 服务器每天 11:00 UTC 停机。开启**停机倒计时和提醒**后：&#x0A;&#x0A;- 托盘菜单的第一行会倒数到停机；&#x0A;- 停机前 15 分钟和 5 分钟，托盘通知会列出每个已登录的角色，让刷怪或采矿舰队来得及靠站。&#x0A;&#x0A;EVE 的日志会记录角色何时离站，却从不记录何时靠站，所以通知列出的是所有已登录的角色，而不只是在太空中的角色。如果 MultiPreview 启动时，或第一个角色登录时，离停机不到 15 分钟，通知会立刻出现。</sys:String> <!-- draft -->
 </ResourceDictionary>
