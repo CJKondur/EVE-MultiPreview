@@ -91,7 +91,7 @@ public sealed class MemoryWatch
     /// <summary>Forgets every client (the event was switched off).</summary>
     public void Forget() => _states.Clear();
 
-    /// <summary>Keeps the low of the current minute, drops minutes older than the window, and returns the growth over the
+    /// <summary>Keeps the low of the current minute, drops minutes more than a minute older than the window (so at most Minutes + 2 are kept), and returns the growth over the
     /// lowest kept minute when the oldest kept minute is at least the window old; otherwise 0.</summary>
     private static long Sample(State s, DateTime now, long ram, MemoryOptions o)
     {
@@ -107,7 +107,7 @@ public sealed class MemoryWatch
 
         var window = TimeSpan.FromMinutes(o.Minutes);
         int old = 0;
-        while (old < lows.Count && now - lows[old].Minute > window) old++;
+        while (old < lows.Count && now - lows[old].Minute > window + OneMinute) old++;   // a minute's grace: real timestamps never land on the grid
         if (old > 0) lows.RemoveRange(0, old);
         if (lows.Count == 0 || now - lows[0].Minute < window) return 0;
 
