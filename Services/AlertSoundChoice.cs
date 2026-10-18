@@ -28,8 +28,15 @@ public static class AlertSoundChoice
     /// instead of nothing. <paramref name="exists"/> is how the disk is asked (File.Exists in the app); FileFor
     /// itself never looks at it. A built-in event's choice is not touched and the disk is not asked for it: its own
     /// file that is gone stays silent, as it was before custom rules.</summary>
-    public static string? FileToPlay(AppSettings s, string alertType, Func<string, bool> exists)
+    public static string? FileToPlay(AppSettings s, string alertType, Func<string, bool> exists) =>
+        FileToPlay(s, alertType, exists, null);
+
+    /// <summary>The file an alert plays when the character's groups may have a sound of their own (IDEAS #58,
+    /// rulings 3 and 5): <paramref name="groupFile"/> first, ahead of a rule's own sound and the event's own; where
+    /// that file is gone (<paramref name="exists"/>) or there is none, what played before.</summary>
+    public static string? FileToPlay(AppSettings s, string alertType, Func<string, bool> exists, string? groupFile)
     {
+        if (!string.IsNullOrWhiteSpace(groupFile) && exists(groupFile)) return groupFile;
         var file = FileFor(s, alertType);
         return CustomAlertTypes.IsCustom(alertType) && !string.IsNullOrEmpty(file) && !exists(file) ? Default(s) : file;
     }
