@@ -2415,4 +2415,16 @@
     <sys:String x:Key="L.S.app.general.keepAwake.Desc">Finché un personaggio è connesso, Windows non va in sospensione. Lo schermo può comunque spegnersi.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.keepAwake.Title">Tenere il PC attivo</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.keepAwake.Body">Una sessione di mining o di industria finisce quando Windows mette il PC in sospensione perché nessuno ha toccato il mouse. Con **Tieni il PC attivo mentre EVE è in esecuzione** attivo, MultiPreview chiede a Windows di non andare in sospensione finché almeno un client ha un personaggio connesso.&#x0A;&#x0A;- Lo schermo si spegne comunque con il suo timer.&#x0A;- Un client alla schermata di accesso non conta.&#x0A;- Quando si chiude il client dell'ultimo personaggio, quando lo disattivi o quando MultiPreview si chiude, Windows può tornare in sospensione. Se MultiPreview si ferma in modo imprevisto, Windows rilascia la richiesta da solo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.client_memory">Memoria del client alta</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Events.Group.client">Client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Mb">MB</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Min">min</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryLimit">Memoria del client alta: sopra</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryLimit.Desc">La memoria che un client può usare prima che l'evento venga generato. Usata solo mentre Memoria del client alta è attivo nella tabella qui sopra.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth">Memoria del client alta: cresce di</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth.Desc">Di quanto può crescere la memoria di un client entro il tempo indicato sotto prima che l'evento venga generato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes">Memoria del client alta: entro</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">Il tempo su cui si misura la crescita.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.memory.Title">Memoria del client alta</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.memory.Body">Una lunga sessione di EVE occupa sempre più memoria finché il client scatta o si chiude. **Memoria del client alta** ti avvisa per tempo, così puoi riaccedere quando ti fa comodo. Attivala nella tabella degli eventi (sotto Client); è disattivata finché non lo fai.&#x0A;&#x0A;- **Sopra:** un client che usa tanta memoria viene segnalato una volta, e di nuovo solo dopo che la sua memoria è scesa ben al di sotto o dopo un nuovo accesso.&#x0A;- **Cresce di** ed **entro:** un client la cui memoria è cresciuta di tanto in questo tempo viene segnalato, poi il tempo riparte da capo. I primi dieci minuti di un client non contano: subito dopo l'avvio un client carica molto.&#x0A;&#x0A;MultiPreview legge la memoria di ogni client ogni pochi secondi, come le statistiche di processo sulle miniature. La memoria della scheda grafica non viene contata.</sys:String> <!-- draft -->
 </ResourceDictionary>

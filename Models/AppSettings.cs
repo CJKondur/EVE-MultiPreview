@@ -258,6 +258,14 @@ public class AppSettings
     /// character is logged in; the display may still turn off. New key: off in a file without it.</summary>
     public bool KeepPcAwake { get; set; } = false;
 
+    /// <summary>"Client memory high" (IDEAS #45): the working set in MB at which a client is told once (512 to 65,536),
+    /// how far above its lowest per-minute sample it may grow (128 to 32,768 MB) and the time that is measured over
+    /// (15 to 720 minutes). The event itself is switched on in EnabledAlertTypes under "client_memory", and a file
+    /// without that key has it off. Read by App (MemoryOptions.Of). New keys: 6144, 1024 and 120 in a file without them.</summary>
+    public int MemoryAlertMb { get; set; } = 6144;
+    public int MemoryGrowthMb { get; set; } = 1024;
+    public int MemoryGrowthMinutes { get; set; } = 120;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

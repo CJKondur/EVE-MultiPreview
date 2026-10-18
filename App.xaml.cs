@@ -75,6 +75,9 @@ public partial class App : Application
     private readonly StragglerWatch _stragglers = new();
     /// <summary>The look for it and the alert it raises, with what App has for both (set at startup).</summary>
     private StragglerAlerts? _stragglerAlerts;
+    /// <summary>"Client memory high" (IDEAS #45): fed what the process monitor last read for each client, asked on the
+    /// window's thread (LookAtMemory).</summary>
+    private readonly MemoryWatch _memoryWatch = new();
     /// <summary>IDEAS #42: each hotkey Windows refused is told once a session in a tray note; a click on that note opens
     /// the hotkeys page. A click on any other balloon does not: ShowBalloon says which one is up.</summary>
     private readonly RefusalAnnouncer _refusalAnnouncer = new();
@@ -246,6 +249,9 @@ public partial class App : Application
         _processMonitor = new ProcessMonitorService();
         _thumbnailManager.SetProcessMonitor(_processMonitor);
         _processMonitor.Start();
+        // IDEAS #45: the monitor reports every 3 s from its pool thread; the settings are read on the window's thread
+        // only, so the look is queued there also while the event is off.
+        _processMonitor.StatsUpdated += () => Dispatcher.BeginInvoke(new Action(LookAtMemory), DispatcherPriority.Background);
 
         // 4c. Crop manager (spawns per-character cropped DWM popups)
         _cropManager = new CropManager(_discovery, _settings);
@@ -991,6 +997,42 @@ public partial class App : Application
     /// log monitor has each) and raises the alert the way every alert is raised. A failure there costs that look or
     /// that one alert, never the timer.</summary>
     private void LookForStragglers(DateTime now) => _stragglerAlerts?.Look(now);
+
+    /// <summary>Whether "Client memory high" is looked for: it is on for everyone, or (IDEAS #31) some group switched it
+    /// on. Each alert a look raises still passes the gate for its own character.</summary>
+    private bool MemoryOn(EveMultiPreview.Models.AppSettings s) =>
+        MemoryWatch.IsOn(s) || _alertProfiles.OnForSomeone(MemoryWatch.EventKey);
+
+    /// <summary>IDEAS #45, at each report of the process monitor: is a client's memory high? Raised the way "Left behind"
+    /// is, one try per alert. A failure costs that look or that one alert, never the monitor.</summary>
+    private void LookAtMemory()
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null || _processMonitor == null || _stragglerAlerts == null) return;
+            var s = _settings.Settings;
+            if (!MemoryOn(s)) { _memoryWatch.Forget(); return; }
+            var now = DateTime.UtcNow;
+            foreach (var alert in _memoryWatch.Check(now, MemoryOfClients(), MemoryOptions.Of(s)))
+            {
+                try { _stragglerAlerts.Raise(now, alert.Character, MemoryWatch.EventKey, MemoryWatch.Severity, alert.Text); }
+                catch (Exception ex) { LogError(ex); }
+            }
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>The working set of each client that has a character, by the process of its window.</summary>
+    private IEnumerable<(string Character, int Pid, long RamMb)> MemoryOfClients()
+    {
+        foreach (var name in _thumbnailManager!.GetActiveCharacterNames())
+        {
+            var hwnd = _thumbnailManager.GetHwndForCharacter(name);
+            if (hwnd == IntPtr.Zero) continue;
+            EveMultiPreview.Interop.User32.GetWindowThreadProcessId(hwnd, out uint pid);
+            if (_processMonitor!.GetStats((int)pid) is { } stats) yield return (name, (int)pid, stats.RamMB);
+        }
+    }
 
     /// <summary>IDEAS #32: the hotkey or the tray item flips do-not-disturb, and says near the cursor what it is now:
     /// once per press, as the other hotkeys' feedback is given.</summary>

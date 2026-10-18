@@ -228,6 +228,7 @@ public partial class SettingsWindow
         ("straggler","Left Behind","warning",char.ConvertFromUtf32(0x1F7E0)),
         ("neutralized","Capacitor Neutralized","critical",char.ConvertFromUtf32(0x1F534)), ("jammed","Jammed","warning",char.ConvertFromUtf32(0x1F7E0)),
         ("dps_high","Incoming DPS High","critical",char.ConvertFromUtf32(0x1F534)), ("reps_stopped","Reps Stopped","critical",char.ConvertFromUtf32(0x1F534)),
+        ("client_memory","Client Memory High","warning",char.ConvertFromUtf32(0x1F7E0)),
         ("mine_cargo_full","Mining: Cargo Full","warning","\ud83d\udfe0"), ("mine_asteroid_depleted","Mining: Depleted","info","\ud83d\udd35"),
         ("mine_crystal_broken","Mining: Crystal Broken","warning","\ud83d\udfe0"), ("mine_module_stopped","Mining: Miner Stopped","info","\ud83d\udd35"),
         ("follow_warp","Fleet Warp","warning","\ud83d\udfe0"), ("regroup","Fleet Regroup","warning","\ud83d\udfe0")

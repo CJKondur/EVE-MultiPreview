@@ -18,6 +18,10 @@ public readonly record struct MemoryOptions(int LimitMb, int GrowthMb, int Minut
         Math.Clamp(limitMb, MinLimitMb, MaxLimitMb),
         Math.Clamp(growthMb, MinGrowthMb, MaxGrowthMb),
         Math.Clamp(minutes, MinMinutes, MaxMinutes));
+
+    /// <summary>The numbers a settings file stands for, each held to its range; the defaults when there are no settings yet.</summary>
+    public static MemoryOptions Of(Models.AppSettings? s) =>
+        s == null ? Default : Held(s.MemoryAlertMb, s.MemoryGrowthMb, s.MemoryGrowthMinutes);
 }
 
 /// <summary>One client to tell the player about; <see cref="Text"/> is numbers and units only, no language.</summary>
@@ -26,13 +30,18 @@ public sealed record MemoryAlert(string Character, string Text);
 /// <summary>IDEAS #45: decides which client to tell about its memory. Two rules: the working set at or above the limit (told
 /// once, again only after it came to 90 % of the limit or below, or after a relog), and growth over a window (the working
 /// set now is the growth amount above the lowest per-minute sample, the samples covering the whole window). The time is
-/// handed in, so nothing here reads a clock. Per-minute lows bound the state to <see cref="MemoryOptions.Minutes"/> entries
+/// handed in, so nothing here reads a clock. Per-minute lows bound the state to at most <see cref="MemoryOptions.Minutes"/> + 2 entries
 /// per client; the first <see cref="LoadingMinutes"/> minutes of a client are not sampled because a client loads 1-2 GB
 /// right after it starts, which is no leak. A client no longer handed in is forgotten.</summary>
 public sealed class MemoryWatch
 {
     public const string EventKey = "client_memory", Severity = "warning";
     public const int LoadingMinutes = 10;
+
+    /// <summary>Whether the event is on. Like "Left behind", a missing key means off: nobody gets a new alert they did
+    /// not ask for.</summary>
+    public static bool IsOn(Models.AppSettings s) =>
+        s.EnabledAlertTypes is { } types && types.TryGetValue(EventKey, out var on) && on;
 
     private sealed class State
     {

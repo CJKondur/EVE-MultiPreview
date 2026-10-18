@@ -48,6 +48,7 @@ public class AlertHub : IDisposable
             "jammed" => "Jammed",
             "dps_high" => "Incoming DPS high",
             "reps_stopped" => "Reps stopped",
+            "client_memory" => "Client memory high",
             _ => alertType
         });
 

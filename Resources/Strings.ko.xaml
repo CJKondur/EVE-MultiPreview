@@ -2398,4 +2398,16 @@
     <sys:String x:Key="L.S.app.general.keepAwake.Desc">캐릭터가 로그인해 있는 동안 Windows가 절전 모드로 들어가지 않아요. 화면은 그대로 꺼질 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.keepAwake.Title">PC 깨어 있게 하기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.keepAwake.Body">마우스를 아무도 만지지 않아서 Windows가 PC를 절전 모드로 보내면 채굴이나 산업 세션이 끊겨요. **EVE가 실행되는 동안 PC 깨어 있게 하기**를 켜면, 캐릭터가 로그인한 클라이언트가 하나라도 있는 동안 MultiPreview가 Windows에 절전 모드로 들어가지 말라고 요청해요.&#x0A;&#x0A;- 화면은 자체 타이머에 따라 계속 꺼져요.&#x0A;- 로그인 화면에 있는 클라이언트는 세지 않아요.&#x0A;- 마지막 캐릭터의 클라이언트가 닫히거나, 이 설정을 끄거나, MultiPreview가 종료되면 Windows는 다시 절전 모드로 들어갈 수 있어요. MultiPreview가 예기치 않게 멈추면 Windows가 요청을 스스로 해제해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.client_memory">클라이언트 메모리 높음</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Events.Group.client">클라이언트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Mb">MB</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Min">분</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryLimit">클라이언트 메모리 높음: 한도</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryLimit.Desc">이벤트가 발생하기 전까지 클라이언트가 쓸 수 있는 메모리예요. 위 표에서 ‘클라이언트 메모리 높음’이 켜져 있을 때만 쓰여요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth">클라이언트 메모리 높음: 증가량</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth.Desc">아래 시간 안에 클라이언트의 메모리가 얼마나 늘면 이벤트가 발생하는지 정해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes">클라이언트 메모리 높음: 기간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">증가량을 재는 시간이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.memory.Title">클라이언트 메모리 높음</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.memory.Body">EVE를 오래 하면 메모리가 계속 늘어나서 클라이언트가 버벅이거나 종료돼요. **클라이언트 메모리 높음**은 미리 알려 주니까 편할 때 다시 접속할 수 있어요. 이벤트 표(‘클라이언트’ 아래)에서 켜세요. 켜기 전까지는 꺼져 있어요.&#x0A;&#x0A;- **한도:** 이만큼 메모리를 쓰는 클라이언트는 한 번 알려 주고, 메모리가 한참 내려간 뒤나 다시 접속한 뒤에만 다시 알려 줘요.&#x0A;- **증가량**과 **기간:** 이 기간에 메모리가 이만큼 늘어난 클라이언트를 알려 주고, 그다음에는 기간을 처음부터 다시 세요. 클라이언트의 처음 10분은 세지 않아요. 시작 직후에는 많이 불러오기 때문이에요.&#x0A;&#x0A;MultiPreview는 썸네일의 프로세스 정보처럼 몇 초마다 각 클라이언트의 메모리를 읽어요. 그래픽 카드의 메모리는 세지 않아요.</sys:String> <!-- draft -->
 </ResourceDictionary>

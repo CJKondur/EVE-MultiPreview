@@ -136,6 +136,9 @@ public class AhkConfigRoot
         s.PushOnlyWhenAway = g.PushOnlyWhenAway != 0;
         s.PushDiscordWebhook = g.PushDiscordWebhook ?? "";
         s.KeepPcAwake = g.KeepPcAwake != 0;
+        s.MemoryAlertMb = g.MemoryAlertMb;
+        s.MemoryGrowthMb = g.MemoryGrowthMb;
+        s.MemoryGrowthMinutes = g.MemoryGrowthMinutes;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -471,6 +474,9 @@ public class AhkConfigRoot
         g.PushOnlyWhenAway = s.PushOnlyWhenAway ? 1 : 0;
         g.PushDiscordWebhook = s.PushDiscordWebhook;
         g.KeepPcAwake = s.KeepPcAwake ? 1 : 0;
+        g.MemoryAlertMb = s.MemoryAlertMb;
+        g.MemoryGrowthMb = s.MemoryGrowthMb;
+        g.MemoryGrowthMinutes = s.MemoryGrowthMinutes;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1332,6 +1338,16 @@ public class AhkGlobalSettings
     // Keep the PC awake while EVE runs (IDEAS #46), new after 2.3.42: a file without it loads off.
     [JsonPropertyName("KeepPcAwake")]
     public int KeepPcAwake { get; set; }
+
+    // Client memory high (IDEAS #45), new after 2.3.42: a file without them loads 6144 MB, 1024 MB and 120 minutes.
+    [JsonPropertyName("MemoryAlertMb")]
+    public int MemoryAlertMb { get; set; } = 6144;
+
+    [JsonPropertyName("MemoryGrowthMb")]
+    public int MemoryGrowthMb { get; set; } = 1024;
+
+    [JsonPropertyName("MemoryGrowthMinutes")]
+    public int MemoryGrowthMinutes { get; set; } = 120;
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

@@ -35,6 +35,7 @@ public static class AlertsPages
         {
             "alerts.events.dpsThreshold", "alerts.events.dpsSeconds", "alerts.events.repsSeconds", "alerts.events.combatNote",
         }),
+        new HelpTopic(EventsId, "memory", new[] { "alerts.events.memoryLimit", "alerts.events.memoryGrowth", "alerts.events.memoryMinutes" }),
         new HelpTopic(EventsId, "groups", new[] { GroupAlertsEditor.ItemId }),
         new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
         new HelpTopic(LookId, "thumbnail", new[]
@@ -148,6 +149,11 @@ public static class AlertsPages
             Combat("alerts.events.dpsSeconds", s => s.DpsAlertSeconds, CombatOptions.MinSeconds, CombatOptions.MaxSeconds, "L.S.Unit.Sec"),
             Combat("alerts.events.repsSeconds", s => s.RepsStoppedSeconds, CombatOptions.MinRepsSeconds, CombatOptions.MaxRepsSeconds, "L.S.Unit.Sec"),
             new InfoItem("alerts.events.combatNote", InfoSeverity.Info),
+            // IDEAS #45: App reads the three at each look while the event is on (MemoryOptions.Of), so a change only saves.
+            // Shown whether the event is on or not, as the combat numbers are.
+            Combat("alerts.events.memoryLimit", s => s.MemoryAlertMb, MemoryOptions.MinLimitMb, MemoryOptions.MaxLimitMb, "L.S.Unit.Mb"),
+            Combat("alerts.events.memoryGrowth", s => s.MemoryGrowthMb, MemoryOptions.MinGrowthMb, MemoryOptions.MaxGrowthMb, "L.S.Unit.Mb"),
+            Combat("alerts.events.memoryMinutes", s => s.MemoryGrowthMinutes, MemoryOptions.MinMinutes, MemoryOptions.MaxMinutes, "L.S.Unit.Min"),
         }),
         // IDEAS #31: a group's own choice of which events are on. App hands it to the gate (AlertProfiles) and to the
         // log monitor on Applied.

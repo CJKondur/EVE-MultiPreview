@@ -2397,4 +2397,16 @@
     <sys:String x:Key="L.S.app.general.keepAwake.Desc">While a character is logged in, Windows does not go to sleep. The screen can still turn off.</sys:String>
     <sys:String x:Key="L.Help.app.general.keepAwake.Title">Keeping the PC awake</sys:String>
     <sys:String x:Key="L.Help.app.general.keepAwake.Body">A mining or industry session ends when Windows puts the PC to sleep because nobody touched the mouse. With **Keep the PC awake while EVE runs** on, MultiPreview asks Windows not to sleep while at least one client has a character logged in.&#x0A;&#x0A;- The screen still turns off on its own timer.&#x0A;- A client at the login screen does not count.&#x0A;- When the last character's client closes, when you turn this off, or when MultiPreview closes, Windows may sleep again. If MultiPreview stops unexpectedly, Windows lets go of the request by itself.</sys:String>
+    <sys:String x:Key="L.AlertEvt.client_memory">Client memory high</sys:String>
+    <sys:String x:Key="L.S.Events.Group.client">Clients</sys:String>
+    <sys:String x:Key="L.S.Unit.Mb">MB</sys:String>
+    <sys:String x:Key="L.S.Unit.Min">min</sys:String>
+    <sys:String x:Key="L.S.alerts.events.memoryLimit">Client memory high: above</sys:String>
+    <sys:String x:Key="L.S.alerts.events.memoryLimit.Desc">The memory a client may use before the event is raised. Used while Client memory high is on in the table above.</sys:String>
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth">Client memory high: grows by</sys:String>
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth.Desc">How much a client's memory may grow within the time below before the event is raised.</sys:String>
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes">Client memory high: within</sys:String>
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">The time the growth is measured over.</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.memory.Title">Client memory high</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.memory.Body">A long EVE session grows in memory until the client stutters or closes. **Client memory high** tells you early, so you can relog when it suits you. Turn it on in the event table (under Clients); it is off until you do.&#x0A;&#x0A;- **Above:** a client that uses this much memory is told once, and again only after its memory came well below it or after a relog.&#x0A;- **Grows by** and **within:** a client whose memory grew this much over this time is told, and then the time is counted again. The first ten minutes of a client are not counted: a client loads a lot right after it starts.&#x0A;&#x0A;MultiPreview reads each client's memory every few seconds, as the process stats on the thumbnails do. The memory of the graphics card is not counted.</sys:String>
 </ResourceDictionary>

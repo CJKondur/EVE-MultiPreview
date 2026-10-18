@@ -2417,4 +2417,16 @@
     <sys:String x:Key="L.S.app.general.keepAwake.Desc">Пока в игру вошёл хотя бы один персонаж, Windows не уходит в спящий режим. Экран при этом может выключаться.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.keepAwake.Title">Не давать ПК засыпать</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.keepAwake.Body">Сессия добычи или производства обрывается, когда Windows усыпляет ПК, потому что никто не трогал мышь. Если включено **Не давать ПК засыпать, пока запущена EVE**, MultiPreview просит Windows не засыпать, пока хотя бы в одном клиенте вошёл персонаж.&#x0A;&#x0A;- Экран по-прежнему выключается по собственному таймеру.&#x0A;- Клиент на экране входа не учитывается.&#x0A;- Когда клиент последнего персонажа закрывается, когда вы выключаете эту настройку или когда закрывается MultiPreview, Windows снова может уйти в сон. Если MultiPreview неожиданно остановится, Windows сам снимет запрос.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.client_memory">Высокая память клиента</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Events.Group.client">Клиенты</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Mb">MB</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Min">мин</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryLimit">Высокая память клиента: выше</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryLimit.Desc">Сколько памяти может занимать клиент, прежде чем сработает событие. Используется, только пока событие «Высокая память клиента» включено в таблице выше.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth">Высокая память клиента: растёт на</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth.Desc">На сколько может вырасти память клиента за время, указанное ниже, прежде чем сработает событие.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes">Высокая память клиента: за</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">Время, за которое измеряется рост.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.memory.Title">Высокая память клиента</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.memory.Body">Долгая сессия EVE занимает всё больше памяти, пока клиент не начнёт тормозить или не закроется. **Высокая память клиента** предупреждает заранее, чтобы вы могли перезайти, когда вам удобно. Включите событие в таблице событий (в разделе «Клиенты»); пока вы этого не сделаете, оно выключено.&#x0A;&#x0A;- **Выше:** о клиенте, который занимает столько памяти, сообщается один раз, и снова только после того, как его память заметно снизилась, или после перезахода.&#x0A;- **Растёт на** и **за:** о клиенте, память которого выросла на столько за это время, сообщается, после чего время отсчитывается заново. Первые десять минут клиента не считаются: сразу после запуска клиент много загружает.&#x0A;&#x0A;MultiPreview считывает память каждого клиента раз в несколько секунд, как статистика процессов на миниатюрах. Память видеокарты не учитывается.</sys:String> <!-- draft -->
 </ResourceDictionary>

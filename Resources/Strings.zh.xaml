@@ -2415,4 +2415,16 @@
     <sys:String x:Key="L.S.app.general.keepAwake.Desc">只要有角色登录，Windows 就不会进入睡眠。屏幕仍然可以关闭。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.keepAwake.Title">保持电脑唤醒</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.keepAwake.Body">当 Windows 因为没人动过鼠标而让电脑进入睡眠时，挖矿或工业的会话就会中断。开启**EVE 运行时保持电脑唤醒**后，只要至少有一个客户端登录了角色，MultiPreview 就会请求 Windows 不要睡眠。&#x0A;&#x0A;- 屏幕仍会按自己的计时关闭。&#x0A;- 停在登录界面的客户端不算。&#x0A;- 最后一个角色的客户端关闭、你关掉此选项或 MultiPreview 退出时，Windows 又可以睡眠了。如果 MultiPreview 意外停止，Windows 会自行释放这个请求。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.client_memory">客户端内存过高</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Events.Group.client">客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Mb">MB</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Min">分钟</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryLimit">客户端内存过高：超过</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryLimit.Desc">客户端可以使用多少内存，超过后会触发该事件。仅在上方表格中开启“客户端内存过高”时使用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth">客户端内存过高：增长</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryGrowth.Desc">在下面设定的时间内，客户端的内存增长超过这个数值时会触发该事件。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes">客户端内存过高：时间范围</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">测量增长所用的时间。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.memory.Title">客户端内存过高</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.memory.Body">EVE 玩得久了，内存会不断增长，直到客户端卡顿或关闭。**客户端内存过高**会提早提醒你，让你可以在方便的时候重新登录。请在事件表中开启它（在“客户端”下）；在你开启之前它是关闭的。&#x0A;&#x0A;- **超过：**内存达到这个数值的客户端会被提醒一次；只有在它的内存明显降到下面之后，或重新登录之后，才会再次提醒。&#x0A;- **增长**和**时间范围：**内存在这段时间内增长了这么多的客户端会被提醒，然后重新计时。客户端启动后的前十分钟不计入：刚启动时客户端会加载很多内容。&#x0A;&#x0A;MultiPreview 每隔几秒读取一次每个客户端的内存，和缩略图上的进程统计一样。显卡的内存不计算在内。</sys:String> <!-- draft -->
 </ResourceDictionary>
