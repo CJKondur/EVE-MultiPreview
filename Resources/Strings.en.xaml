@@ -2340,4 +2340,16 @@
     <sys:String x:Key="L.S.GroupAlerts.NotKept">That choice was not kept: there is no room for more group choices. Clear choices another group no longer needs, or give this group a shorter name.</sys:String>
     <sys:String x:Key="L.S.GroupAlerts.Note">Own alert choices for {0}: see Alerts for one group, on Alerts › Events.</sys:String>
     <sys:String x:Key="L.S.Notify.TestFailed">The test notification could not be shown. error_log.txt in the logs folder may say why.</sys:String>
+    <!-- Ideas batch 7 (Plan 11) -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.groups">Sounds per group</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.groups">Sounds for one group</sys:String>
+    <sys:String x:Key="L.S.alerts.sounds.groups.Desc">A group from Clients › Groups can play its own sound: one for every event, or one for a single event. Without one, the event's own sound plays.</sys:String>
+    <sys:String x:Key="L.S.GroupSounds.Group">Group</sys:String>
+    <sys:String x:Key="L.S.GroupSounds.Every">Every event</sys:String>
+    <sys:String x:Key="L.S.GroupSounds.UsesEvent">The event's own sound</sys:String>
+    <sys:String x:Key="L.S.GroupSounds.NoGroups">No groups yet. Make one on Clients › Groups.</sys:String>
+    <sys:String x:Key="L.S.GroupSounds.Members">Members: {0}</sys:String>
+    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} is also in {1}, which comes first on the Groups page. Where both have a sound for the same event, or both for every event, {1}'s plays.</sys:String>
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Title">Sounds per group</sys:String>
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Body">Give a group of clients its own sound, so you hear which crew needs you before you look: one tone for the miners, another for the combat pilots.&#x0A;&#x0A;- **Every event** plays for each alert of the group's members.&#x0A;- A sound for **one event** plays instead of that, for that event.&#x0A;- An event the group has no sound for plays its own sound (the table above), as before.&#x0A;&#x0A;A character in two groups: a sound for that event beats a sound for every event, and otherwise the group that comes first on the Groups page plays. The card names who that is. Alert sounds must be on (**Play alert sounds**), and do not disturb holds a group's sound as any other. A sound file that is no longer there plays the event's own sound instead.</sys:String>
 </ResourceDictionary>

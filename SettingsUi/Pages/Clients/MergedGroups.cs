@@ -174,7 +174,11 @@ public static class MergedGroups
             g.Colour = null;
         }
         // IDEAS #31: while a group of that name is left (its colour half, or its keys in another profile), so are
-        // its alert choices.
-        if (IsNameFree(s, g.Name)) s.GroupAlertProfiles = Services.GroupAlertChoices.Forget(s.GroupAlertProfiles, g.Name);
+        // its alert choices and (IDEAS #58) its sounds.
+        if (IsNameFree(s, g.Name))
+        {
+            s.GroupAlertProfiles = Services.GroupAlertChoices.Forget(s.GroupAlertProfiles, g.Name);
+            s.GroupAlertSounds = Services.GroupSoundChoices.Forget(s.GroupAlertSounds, g.Name);
+        }
     }
 }

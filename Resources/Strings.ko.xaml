@@ -2341,4 +2341,16 @@
     <sys:String x:Key="L.S.GroupAlerts.NotKept">이 선택은 저장되지 않았어요. 그룹 선택을 더 저장할 자리가 없어요. 더는 필요 없는 그룹의 선택을 지우거나, 이 그룹의 이름을 더 짧게 바꿔요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Note">{0}에 따로 정한 알림 선택이 있어요. 알림 › 이벤트의 ‘한 그룹의 알림’에서 볼 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.TestFailed">테스트 알림을 표시하지 못했어요. 로그 폴더의 error_log.txt에 이유가 적혀 있을 수 있어요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 7 (Plan 11) -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.groups">그룹별 소리</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups">한 그룹의 소리</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups.Desc">클라이언트 › 그룹의 그룹은 자기만의 소리를 낼 수 있어요. 모든 이벤트에 하나, 또는 한 이벤트에만 하나를 정할 수 있어요. 정하지 않으면 이벤트 자체의 소리가 나요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Group">그룹</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Every">모든 이벤트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.UsesEvent">이벤트 자체의 소리</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.NoGroups">아직 그룹이 없어요. 클라이언트 › 그룹에서 하나 만들어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Members">멤버: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Overlap">{0}은(는) {1}에도 들어 있어요. {1}은(는) 그룹 페이지에서 먼저 나와요. 두 그룹 모두 같은 이벤트(또는 모두 모든 이벤트)에 소리가 있으면 {1}의 소리가 나요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Title">그룹별 소리</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Body">클라이언트 그룹에 자기만의 소리를 주면, 화면을 보기 전에 어느 팀이 나를 부르는지 들을 수 있어요. 예를 들어 채굴팀은 이 소리, 전투 파일럿은 저 소리로 정해요.&#x0A;&#x0A;- **모든 이벤트** 소리는 그룹 멤버의 알림마다 나요.&#x0A;- **한 이벤트**의 소리는 그 이벤트에서 대신 나요.&#x0A;- 그룹에 소리가 없는 이벤트는 전과 같이 이벤트 자체의 소리(위의 표)가 나요.&#x0A;&#x0A;캐릭터가 두 그룹에 있을 때는 그 이벤트의 소리가 모든 이벤트의 소리보다 앞서고, 그 밖에는 그룹 페이지에서 먼저 나오는 그룹의 소리가 나요. 카드가 어느 그룹인지 알려 줘요. 알림 소리가 켜져 있어야 하고(**알림 소리 재생**), 방해 금지는 다른 소리처럼 그룹의 소리도 막아요. 소리 파일이 없어지면 이벤트 자체의 소리가 나요.</sys:String> <!-- draft -->
 </ResourceDictionary>

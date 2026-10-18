@@ -172,11 +172,15 @@ public static class GroupAlertChoices
     /// own groups, a profile copied over);
     /// and a group renamed from <paramref name="from"/> to <paramref name="to"/> takes its choices along, an "on" as
     /// an "off", and never inherits (the cases are told at the text's own Follow, below).
-    /// It changes the settings' text and nothing else: saving and applying are the caller's, as for the change itself.</summary>
+    /// It changes the settings' texts and nothing else: saving and applying are the caller's, as for the change itself.
+    /// The sounds per group (GroupAlertSounds, IDEAS #58) follow the same way, here and nowhere else, so that no path
+    /// takes one text along and leaves the other.</summary>
     public static void Follow(AppSettings s, IReadOnlySet<string> before, string? from = null, string? to = null)
     {
-        if (s == null || string.IsNullOrEmpty(s.GroupAlertProfiles)) return;
-        s.GroupAlertProfiles = Follow(s.GroupAlertProfiles, before, GroupNames(s), from, to);
+        if (s == null || (string.IsNullOrEmpty(s.GroupAlertProfiles) && string.IsNullOrEmpty(s.GroupAlertSounds))) return;
+        var now = GroupNames(s);
+        if (!string.IsNullOrEmpty(s.GroupAlertProfiles)) s.GroupAlertProfiles = Follow(s.GroupAlertProfiles, before, now, from, to);
+        if (!string.IsNullOrEmpty(s.GroupAlertSounds)) s.GroupAlertSounds = GroupSoundChoices.Follow(s.GroupAlertSounds, before, now, from, to);
     }
 
     /// <summary>The choices text after such a change, from the names in use before and now.

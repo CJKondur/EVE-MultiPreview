@@ -2340,4 +2340,16 @@
     <sys:String x:Key="L.S.GroupAlerts.NotKept">Diese Auswahl wurde nicht behalten: Für weitere Gruppen-Auswahlen ist kein Platz mehr. Lösche die Auswahl einer Gruppe, die sie nicht mehr braucht, oder gib dieser Gruppe einen kürzeren Namen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Note">Eigene Alarm-Auswahl für {0}: siehe Alarme für eine Gruppe unter Warnungen › Ereignisse.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.TestFailed">Die Testbenachrichtigung ließ sich nicht zeigen. error_log.txt im Log-Ordner sagt vielleicht, warum.</sys:String> <!-- draft -->
+    <!-- Ideas batch 7 (Plan 11) -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.groups">Töne pro Gruppe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups">Töne für eine Gruppe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups.Desc">Eine Gruppe aus Clients › Gruppen kann ihren eigenen Ton abspielen: einen für jedes Ereignis oder einen für ein einzelnes Ereignis. Ohne eigenen Ton spielt der Ton des Ereignisses.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Group">Gruppe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Every">Jedes Ereignis</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.UsesEvent">Ton des Ereignisses</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.NoGroups">Es gibt noch keine Gruppen. Lege eine unter Clients › Gruppen an.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Members">Mitglieder: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} ist auch in {1}, das auf der Seite „Gruppen“ zuerst kommt. Haben beide einen Ton für dasselbe Ereignis (oder beide für jedes Ereignis), spielt der von {1}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Title">Töne pro Gruppe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Body">Gib einer Gruppe von Clients einen eigenen Ton, damit du hörst, welche Crew dich braucht, bevor du hinschaust: ein Ton für die Miner, ein anderer für die Kampfpiloten.&#x0A;&#x0A;- **Jedes Ereignis** spielt bei jedem Alarm der Mitglieder der Gruppe.&#x0A;- Ein Ton für **ein Ereignis** spielt stattdessen, für dieses Ereignis.&#x0A;- Ein Ereignis, für das die Gruppe keinen Ton hat, spielt seinen eigenen Ton (die Tabelle oben), wie bisher.&#x0A;&#x0A;Ein Charakter in zwei Gruppen: Ein Ton für dieses Ereignis schlägt einen Ton für jedes Ereignis, und sonst spielt die Gruppe, die auf der Seite „Gruppen“ zuerst kommt. Die Karte nennt, wer das ist. Alarmtöne müssen an sein (**Alarmtöne abspielen**), und „Nicht stören“ hält den Ton einer Gruppe zurück wie jeden anderen. Eine Tondatei, die nicht mehr da ist, wird durch den Ton des Ereignisses ersetzt.</sys:String> <!-- draft -->
 </ResourceDictionary>

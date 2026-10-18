@@ -127,6 +127,7 @@ public class AhkConfigRoot
         s.EnlargeOnAlertPercent = g.EnlargeOnAlertPercent;
         s.EnlargeOnAlertSeconds = g.EnlargeOnAlertSeconds;
         s.GroupAlertProfiles = g.GroupAlertProfiles ?? "";
+        s.GroupAlertSounds = g.GroupAlertSounds ?? "";
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -453,6 +454,7 @@ public class AhkConfigRoot
         g.EnlargeOnAlertPercent = s.EnlargeOnAlertPercent;
         g.EnlargeOnAlertSeconds = s.EnlargeOnAlertSeconds;
         g.GroupAlertProfiles = s.GroupAlertProfiles;
+        g.GroupAlertSounds = s.GroupAlertSounds;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1281,6 +1283,11 @@ public class AhkGlobalSettings
     [JsonPropertyName("GroupAlertProfiles")]
     [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
     public string? GroupAlertProfiles { get; set; } = "";
+
+    // Sounds per group (IDEAS #58), new after 2.3.42: one line of JSON text, read as GroupAlertProfiles is. A file without it loads "": no group has a sound.
+    [JsonPropertyName("GroupAlertSounds")]
+    [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
+    public string? GroupAlertSounds { get; set; } = "";
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

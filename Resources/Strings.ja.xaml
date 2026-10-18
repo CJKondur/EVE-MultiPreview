@@ -2341,4 +2341,16 @@
     <sys:String x:Key="L.S.GroupAlerts.NotKept">この選択は保存されませんでした。グループの選択をこれ以上保存できません。不要になったグループの選択を消去するか、このグループの名前を短くしてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Note">{0} には独自のアラートの選択があります。アラート › イベント の「グループのアラート」をご覧ください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.TestFailed">テスト通知を表示できませんでした。ログフォルダーの error_log.txt に理由が書かれている場合があります。</sys:String> <!-- draft -->
+    <!-- Ideas batch 7 (Plan 11) -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.groups">グループごとのサウンド</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups">グループのサウンド</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups.Desc">クライアント › グループ にあるグループは、専用のサウンドを鳴らせます。すべてのイベント用に1つ、または特定のイベント用に1つ設定できます。設定がないときは、イベント自身のサウンドが鳴ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Group">グループ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Every">すべてのイベント</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.UsesEvent">イベント自身のサウンド</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.NoGroups">グループはまだありません。クライアント › グループ で作成してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Members">メンバー：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} は {1} にも入っています。{1} は「グループ」ページで先に並んでいます。同じイベント（またはどちらもすべてのイベント）にどちらもサウンドがある場合は、{1} のサウンドが鳴ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Title">グループごとのサウンド</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Body">クライアントのグループに専用のサウンドを付けると、画面を見る前に、どのチームがあなたを呼んでいるか分かります。たとえば、採掘チームにはこの音、戦闘パイロットにはあの音、というように使えます。&#x0A;&#x0A;- **すべてのイベント**のサウンドは、グループのメンバーのアラートごとに鳴ります。&#x0A;- **特定のイベント**のサウンドは、そのイベントでは代わりに鳴ります。&#x0A;- グループにサウンドがないイベントは、これまでどおりイベント自身のサウンド（上の表）が鳴ります。&#x0A;&#x0A;キャラクターが2つのグループに入っている場合：そのイベント用のサウンドが、すべてのイベント用のサウンドより優先されます。それ以外は、「グループ」ページで先に並んでいるグループのサウンドが鳴ります。どのグループかはカードに表示されます。アラート音がオンになっている必要があり（**アラート音を再生**）、おやすみモードは他のサウンドと同じようにグループのサウンドも止めます。サウンドファイルが見つからないときは、イベント自身のサウンドが鳴ります。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -46,8 +46,10 @@ public static class GroupSoundChoices
                 {
                     if (events.Count >= MaxEvents) break;
                     if (choice.Name.Length is 0 or > MaxName || choice.Value.ValueKind != JsonValueKind.String) continue;
-                    var path = choice.Value.GetString()?.Trim();
-                    if (!string.IsNullOrEmpty(path) && path.Length <= MaxPath) events[choice.Name] = path;
+                    // Only a file on a drive of this PC (CustomRuleCheck.LocalSound): a settings file can come from another
+                    // player, and a path to another computer would make Windows log in to it when File.Exists asks.
+                    var path = CustomRuleCheck.LocalSound(choice.Value.GetString());
+                    if (path.Length > 0 && path.Length <= MaxPath) events[choice.Name] = path;
                 }
                 if (events.Count > 0) groups[group.Name] = events;
             }
@@ -202,6 +204,9 @@ public sealed class GroupSounds
         Volatile.Write(ref _now, picture);
     }
 
+    /// <summary>Takes the settings' own sounds text (<see cref="AppSettings.GroupAlertSounds"/>). Called on the window's thread.</summary>
+    public void Publish(AppSettings s) => Publish(s, s.GroupAlertSounds);
+
     /// <summary>Some group that exists and has a member has a sound.</summary>
     public bool Any => Volatile.Read(ref _now).Any;
 
@@ -213,6 +218,9 @@ public sealed class GroupSounds
         if (eventKey != null && now.Specific.TryGetValue(character, out var theirs) && theirs.TryGetValue(eventKey, out var own)) return own;
         return now.Every.TryGetValue(character, out var every) ? every : null;
     }
+
+    /// <summary><see cref="Overlaps(AppSettings, string?, string)"/> for the settings' own sounds text.</summary>
+    public static IReadOnlyList<(string Member, string Group)> Overlaps(AppSettings s, string group) => Overlaps(s, s.GroupAlertSounds, group);
 
     /// <summary>For the editor: the members of <paramref name="group"/> that an earlier group on the Groups page
     /// reaches with a sound of its own, and that group: one entry per member, the first such group. The members as

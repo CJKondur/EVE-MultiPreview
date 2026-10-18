@@ -2362,4 +2362,16 @@
     <sys:String x:Key="L.S.GroupAlerts.NotKept">Esa elección no se guardó: no hay sitio para más elecciones de grupo. Borra la elección de un grupo que ya no la necesite, o pon a este grupo un nombre más corto.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Note">Elección de alertas propia de {0}: consulta Alertas de un grupo, en Alertas › Eventos.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.TestFailed">No se pudo mostrar la notificación de prueba. error_log.txt, en la carpeta de registros, puede decir por qué.</sys:String> <!-- draft -->
+    <!-- Ideas batch 7 (Plan 11) -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.groups">Sonidos por grupo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups">Sonidos de un grupo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups.Desc">Un grupo de Clientes › Grupos puede reproducir su propio sonido: uno para todos los eventos o uno para un solo evento. Si no tiene, suena el sonido propio del evento.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Group">Grupo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Every">Todos los eventos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.UsesEvent">El sonido propio del evento</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.NoGroups">Aún no hay grupos. Crea uno en Clientes › Grupos.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Members">Miembros: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} también está en {1}, que va antes en la página Grupos. Si ambos tienen sonido para el mismo evento (o ambos para todos los eventos), suena el de {1}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Title">Sonidos por grupo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Body">Dale a un grupo de clientes su propio sonido para oír qué equipo te necesita antes de mirar: un tono para los mineros y otro para los pilotos de combate.&#x0A;&#x0A;- **Todos los eventos** suena en cada alerta de los miembros del grupo.&#x0A;- Un sonido para **un evento** suena en su lugar, para ese evento.&#x0A;- Un evento para el que el grupo no tiene sonido reproduce su propio sonido (la tabla de arriba), como antes.&#x0A;&#x0A;Un personaje en dos grupos: un sonido para ese evento gana a un sonido para todos los eventos, y si no, suena el del grupo que va antes en la página Grupos. La tarjeta dice cuál es. Los sonidos de alerta deben estar activados (**Reproducir sonidos de alerta**), y No molestar retiene el sonido de un grupo como cualquier otro. Un archivo de sonido que ya no existe se sustituye por el sonido del evento.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -55,6 +55,7 @@ public static class AlertsPages
         }),
         new HelpTopic(SoundsId, "escalation", new[] { "alerts.sounds.escalate", "alerts.sounds.escalateAfter", "alerts.sounds.escalateRepeats" }),
         new HelpTopic(SoundsId, "speech", new[] { "alerts.sounds.speak", "alerts.sounds.speakFrom", "alerts.sounds.speechVolume", SpeechVoicesEditor.ItemId }),
+        new HelpTopic(SoundsId, "groups", new[] { GroupSoundsEditor.ItemId }),
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
         new HelpTopic(HubId, "windows", new[] { "alerts.hub.notify", "alerts.hub.notifyFrom", NotificationCheckEditor.ItemId }),
@@ -344,6 +345,12 @@ public static class AlertsPages
             {
                 Binds = new[] { "AppSettings.AlertSoundFile", "AppSettings.AlertSounds", "AppSettings.SoundCooldowns" },
             },
+        }),
+        // IDEAS #58: a group's own sound. App hands GroupSounds its picture on Applied, and App.PlayAlertSound asks it
+        // at every alert, so a change only saves.
+        new SectionDef("alerts.sounds.groups", new PageItem[]
+        {
+            new EditorItem(GroupSoundsEditor.ItemId, ctx => new GroupSoundsEditor(ctx)) { Binds = new[] { "AppSettings.GroupAlertSounds" } },
         }),
     });
 

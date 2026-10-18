@@ -270,10 +270,13 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         // is only switched off keeps them.)
         if (Model.Delete(id))
         {
+            // IDEAS #58: and what the groups chose as its sound.
             var choices = GroupAlertChoices.ForgetEvent(_ctx.S.GroupAlertProfiles, rule.AlertType);
-            if (choices != _ctx.S.GroupAlertProfiles)
+            var sounds = GroupSoundChoices.ForgetEvent(_ctx.S.GroupAlertSounds, rule.AlertType);
+            if (choices != _ctx.S.GroupAlertProfiles || sounds != _ctx.S.GroupAlertSounds)
             {
                 _ctx.S.GroupAlertProfiles = choices;
+                _ctx.S.GroupAlertSounds = sounds;
                 _ctx.Applier.Request(ApplyScope.Save);
             }
         }

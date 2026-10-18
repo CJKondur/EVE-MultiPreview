@@ -2343,4 +2343,16 @@
     <sys:String x:Key="L.S.GroupAlerts.NotKept">Ce choix n'a pas été conservé : il n'y a plus de place pour d'autres choix de groupe. Effacez les choix d'un groupe qui n'en a plus besoin, ou donnez à ce groupe un nom plus court.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Note">Choix d'alerte propres à {0} : voir Alertes d'un groupe, dans Alertes › Événements.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.TestFailed">La notification de test n'a pas pu être affichée. error_log.txt, dans le dossier des journaux, en indique peut-être la raison.</sys:String> <!-- draft -->
+    <!-- Ideas batch 7 (Plan 11) -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.groups">Sons par groupe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups">Sons d'un groupe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups.Desc">Un groupe de Clients › Groupes peut jouer son propre son : un pour tous les événements, ou un pour un seul événement. Sans son à lui, c'est le son de l'événement qui est joué.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Group">Groupe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Every">Tous les événements</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.UsesEvent">Le son de l'événement</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.NoGroups">Il n'y a pas encore de groupe. Créez-en un dans Clients › Groupes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Members">Membres : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} est aussi dans {1}, qui vient en premier sur la page Groupes. Quand les deux ont un son pour le même événement (ou les deux pour tous les événements), c'est celui de {1} qui est joué.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Title">Sons par groupe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Body">Donnez à un groupe de clients son propre son, pour entendre quelle équipe a besoin de vous avant même de regarder : une tonalité pour les mineurs, une autre pour les pilotes de combat.&#x0A;&#x0A;- **Tous les événements** : le son est joué pour chaque alerte des membres du groupe.&#x0A;- Un son pour **un événement** est joué à la place, pour cet événement.&#x0A;- Un événement pour lequel le groupe n'a pas de son joue son propre son (le tableau ci-dessus), comme avant.&#x0A;&#x0A;Pour un personnage dans deux groupes : un son pour cet événement l'emporte sur un son pour tous les événements, et sinon c'est le groupe qui vient en premier sur la page Groupes qui joue. La carte indique lequel. Les sons d'alerte doivent être activés (**Jouer les sons d'alerte**), et Ne pas déranger retient le son d'un groupe comme tout autre. Un fichier son qui n'existe plus est remplacé par le son de l'événement.</sys:String> <!-- draft -->
 </ResourceDictionary>

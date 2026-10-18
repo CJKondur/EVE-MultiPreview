@@ -222,6 +222,14 @@ public class AppSettings
     [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
     public string GroupAlertProfiles { get; set; } = "";
 
+    /// <summary>Sounds per group (IDEAS #58): the sound file a group of Clients › Groups plays for its members' alerts,
+    /// as one line of JSON text ({"Miners":{"*":"C:\\...\\ding.wav","attack":"C:\\...\\hit.wav"}}; GroupSoundChoices reads it).
+    /// "*" is the group's sound for every event; an event's own key is the sound for that event alone. Read by App,
+    /// which hands GroupSounds its picture. New key: "" in a file without it, which is "no group has a sound". Kept
+    /// as one JSON string in the file, and read from an object written by hand, as GroupAlertProfiles is.</summary>
+    [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
+    public string GroupAlertSounds { get; set; } = "";
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

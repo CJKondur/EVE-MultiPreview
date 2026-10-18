@@ -2358,4 +2358,16 @@
     <sys:String x:Key="L.S.GroupAlerts.NotKept">Questa scelta non è stata mantenuta: non c'è più posto per altre scelte di gruppo. Cancella le scelte di un gruppo che non ne ha più bisogno, o dai a questo gruppo un nome più corto.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Note">Scelte di avviso proprie di {0}: vedi Avvisi di un gruppo, in Avvisi › Eventi.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Notify.TestFailed">Non è stato possibile mostrare la notifica di prova. error_log.txt, nella cartella dei log, può dire perché.</sys:String> <!-- draft -->
+    <!-- Ideas batch 7 (Plan 11) -->
+    <sys:String x:Key="L.S.Sec.alerts.sounds.groups">Suoni per gruppo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups">Suoni di un gruppo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.groups.Desc">Un gruppo di Client › Gruppi può riprodurre un suono tutto suo: uno per ogni evento o uno per un solo evento. Senza suono proprio, suona quello dell'evento.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Group">Gruppo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Every">Ogni evento</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.UsesEvent">Il suono dell'evento</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.NoGroups">Non ci sono ancora gruppi. Creane uno in Client › Gruppi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Members">Membri: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} è anche in {1}, che viene prima nella pagina Gruppi. Se entrambi hanno un suono per lo stesso evento (o entrambi per ogni evento), suona quello di {1}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Title">Suoni per gruppo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Body">Dai a un gruppo di client un suono tutto suo, così senti quale squadra ha bisogno di te prima ancora di guardare: un tono per i minatori, un altro per i piloti da combattimento.&#x0A;&#x0A;- **Ogni evento** suona a ogni avviso dei membri del gruppo.&#x0A;- Un suono per **un evento** suona al suo posto, per quell'evento.&#x0A;- Un evento per cui il gruppo non ha un suono riproduce il proprio suono (la tabella qui sopra), come prima.&#x0A;&#x0A;Un personaggio in due gruppi: un suono per quell'evento batte un suono per ogni evento, e altrimenti suona il gruppo che viene prima nella pagina Gruppi. La scheda dice quale. I suoni degli avvisi devono essere attivi (**Riproduci i suoni degli avvisi**), e Non disturbare trattiene il suono di un gruppo come ogni altro. Un file audio che non c'è più viene sostituito dal suono dell'evento.</sys:String> <!-- draft -->
 </ResourceDictionary>

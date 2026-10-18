@@ -52,6 +52,9 @@ public partial class App : Application
     /// <summary>Alerts per group (IDEAS #31): for which characters an event is on. ApplyAlertSwitches hands it the
     /// settings; the dispatcher asks it first, for every alert. While no group has a choice it answers "on" at once.</summary>
     private readonly AlertProfiles _alertProfiles = new();
+    /// <summary>Sounds per group (IDEAS #58): the sound file a character's groups give an alert. ApplyAlertSwitches
+    /// hands it the settings; PlayAlertSound asks it for every sound. While no group has a sound it answers null at once.</summary>
+    private readonly GroupSounds _groupSounds = new();
     /// <summary>Spoken alerts (IDEAS #26): the voice of Windows, and the way that tells it what to say. Made at startup;
     /// the way says nothing while "Speak alerts" is off.</summary>
     private WindowsSpeaker? _speaker;
@@ -954,6 +957,8 @@ public partial class App : Application
         try
         {
             _alertProfiles.Apply(_settings?.Settings, _logMonitor == null ? null : _logMonitor.SetEnabledAlertTypes);
+            // IDEAS #58: the groups' sounds, at the same three moments as the switches.
+            if (_settings != null) _groupSounds.Publish(_settings.Settings);
         }
         catch (Exception ex)
         {
@@ -1097,9 +1102,10 @@ public partial class App : Application
             }
         }
 
-        // The event's own sound file, else the default one; a custom rule's own before both (IDEAS #8), and the
+        // The sound of the character's group first (IDEAS #58; where its file is gone, what follows); else the
+        // event's own sound file, else the default one; a custom rule's own before both (IDEAS #8), and the
         // default one when the rule's own file is no longer there.
-        string? soundFile = AlertSoundChoice.FileToPlay(s, alertType, System.IO.File.Exists);
+        string? soundFile = AlertSoundChoice.FileToPlay(s, alertType, System.IO.File.Exists, _groupSounds.For(character, alertType));
 
         if (string.IsNullOrEmpty(soundFile) || !System.IO.File.Exists(soundFile))
         {
