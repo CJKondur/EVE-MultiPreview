@@ -57,10 +57,12 @@ public sealed class PushWebhookEditor : System.Windows.Controls.UserControl
 
         var below = new StackPanel();
         below.Children.Add(_shown);
-        var entry = EditorCard.Row(EditorCard.Field("L.S.Push.LinkBox", _box), save);
+        // The box has a label and 320 px of its own: the buttons go on the row below, or in a wide-fonted look
+        // (terminal, ink) the save button leaves the card at 960 px.
+        var entry = EditorCard.Field("L.S.Push.LinkBox", _box);
         entry.Margin = new Thickness(0, 8, 0, 0);
         below.Children.Add(entry);
-        var buttons = EditorCard.Row(_test, _remove);
+        var buttons = EditorCard.Row(save, _test, _remove);
         buttons.Margin = new Thickness(0, 4, 0, 0);
         below.Children.Add(buttons);
         below.Children.Add(_status);
