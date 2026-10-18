@@ -1,3 +1,4 @@
+using System.Windows.Automation;
 using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 
@@ -15,6 +16,6 @@ public sealed class DecorativeText : TextBlock
         public Peer(TextBlock owner) : base(owner) { }
         protected override bool IsControlElementCore() => false;
         protected override bool IsContentElementCore() => false;
-        protected override System.Windows.Automation.AutomationHeadingLevel GetHeadingLevelCore() => System.Windows.Automation.AutomationHeadingLevel.None;
+        protected override AutomationHeadingLevel GetHeadingLevelCore() => AutomationHeadingLevel.None;
     }
 }

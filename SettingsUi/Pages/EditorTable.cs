@@ -132,7 +132,7 @@ public sealed class EditorTable : Border
         {
             public Peer(TextBlock owner) : base(owner) { }
             protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.HeaderItem;
-            protected override bool IsControlElementCore() => true;
+            // IsControlElementCore stays WPF's (shown = given to a reader): a hidden table's headings are not read (S5 M-1).
         }
     }
 }

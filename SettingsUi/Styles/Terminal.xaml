@@ -662,7 +662,10 @@
 
             <GroupBox Grid.Row="1" Grid.Column="0" Width="{DynamicResource Fx.Nav.Width}" Margin="4,6,4,12" Padding="0,4,0,8">
                 <GroupBox.Header>
-                    <TextBlock local:Loc.Key="L.S.Shell.Pages" Style="{DynamicResource Fx.SectionTitle}" Margin="0"/>
+                    <!-- Not a heading (S5 final wave): it labels the pages box, and as a second-level heading it came
+                         before the page's first-level title. -->
+                    <TextBlock local:Loc.Key="L.S.Shell.Pages" Style="{DynamicResource Fx.SectionTitle}" Margin="0"
+                               AutomationProperties.HeadingLevel="None"/>
                 </GroupBox.Header>
                 <DockPanel>
                     <!-- App settings: apart at the bottom left of the pane, in both modes (owner, 2026-10-09). -->

@@ -48,8 +48,15 @@ public sealed class UiStyle
     public ResourceDictionary? Keyed => _keyed == null ? null : Loaded(Id + "#keyed", _keyed, freeze: false);
 
     /// <summary>The look dictionaries this thread has read (not the Fluent dictionaries a look's windows take).</summary>
-    internal static IEnumerable<ResourceDictionary> LooksHere =>
-        _loaded?.Where(kv => !kv.Key.Contains('#')).Select(kv => kv.Value).ToList() ?? new List<ResourceDictionary>();
+    internal static IEnumerable<ResourceDictionary> LooksHere
+    {
+        get
+        {
+            if (_loaded == null) return new List<ResourceDictionary>();
+            Sweep(_loaded);   // a look forgotten on another thread is not re-localized here (Task 3 review)
+            return _loaded.Where(kv => !kv.Key.Contains('#')).Select(kv => kv.Value).ToList();
+        }
+    }
 
     /// <summary>The cache keys of looks forgotten on any thread (S4's re-review of M-3: each thread's cache is its own, so
     /// each thread drops them when it next reads a look). Guarded by itself. A few a run: one look per change of Windows'
@@ -63,7 +70,9 @@ public sealed class UiStyle
     /// <summary>Drops this look's dictionaries from every thread's cache (final review M-3: a look made again for Windows'
     /// new contrast colours replaces the one before, which would otherwise stay, and be re-localized, for the run): this
     /// thread's at once, another thread's when it next reads a look. A read of a forgotten look makes its dictionary anew
-    /// and does not keep it. A window that holds one keeps it until it is restyled.</summary>
+    /// and does not keep it. A window that holds one keeps it until it is restyled.
+    /// Only for a look whose id is never used again (Windows' contrast colours, "contrast-windows-N"): a forgotten id is
+    /// never cached again, so a registered look forgotten would be made anew on every read.</summary>
     public void Forget()
     {
         lock (Forgotten) foreach (var key in KeysOf(Id)) Forgotten.Add(key);
@@ -71,15 +80,19 @@ public sealed class UiStyle
         if (_loaded != null) foreach (var key in KeysOf(Id)) _loaded.Remove(key);
     }
 
+    /// <summary>Drops from this thread's cache the looks forgotten on any thread since it last looked.</summary>
+    private static void Sweep(Dictionary<string, ResourceDictionary> loaded)
+    {
+        int forgets = System.Threading.Volatile.Read(ref _forgets);
+        if (_swept == forgets) return;
+        lock (Forgotten) foreach (var gone in Forgotten) loaded.Remove(gone);
+        _swept = forgets;
+    }
+
     private static ResourceDictionary Loaded(string key, Func<ResourceDictionary> make, bool freeze)
     {
         var loaded = _loaded ??= new Dictionary<string, ResourceDictionary>(StringComparer.Ordinal);
-        int forgets = System.Threading.Volatile.Read(ref _forgets);
-        if (_swept != forgets)
-        {
-            lock (Forgotten) foreach (var gone in Forgotten) loaded.Remove(gone);
-            _swept = forgets;
-        }
+        Sweep(loaded);
         if (!loaded.TryGetValue(key, out var dictionary))
         {
             dictionary = make();
