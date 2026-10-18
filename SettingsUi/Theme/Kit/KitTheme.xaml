@@ -2108,8 +2108,9 @@
         <Setter Property="SelectionBrush" Value="{DynamicResource Fx.AccentBrush}"/>
         <Setter Property="FontSize" Value="{DynamicResource Fx.Size.Control}"/>
         <Setter Property="MinHeight" Value="{DynamicResource Fx.Control.Height}"/>
-        <!-- 1 px under the text at rest, none while focused: the text box centres its host with the bottom padding counted twice
-             (measured), so 1 px of padding makes up the 2 px the focused underline adds and the text never moves (plan S5). -->
+        <!-- 1 px under the text, as at rest since plan S5. The focused underline's 2 extra px grow down out of the box (the
+             edge's -2 bottom margin), so neither the text nor the box's size moves, whatever padding a box sets locally (the
+             search box's 8,6: S5 final wave, FocusShiftTests). -->
         <Setter Property="Padding" Value="2,0,2,1"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -2129,7 +2130,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="border" Property="BorderThickness" Value="0,0,0,3"/>
-                            <Setter Property="Padding" Value="2,0"/>
+                            <Setter TargetName="border" Property="Margin" Value="0,0,0,-2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="border" Property="Opacity" Value="0.56"/>

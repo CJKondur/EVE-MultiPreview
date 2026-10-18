@@ -43,6 +43,10 @@ public static class FluentMenu
     /// <summary>One font per family, shared (13 px at 96 DPI, as the reference). Never disposed, as the glyph bitmaps.</summary>
     private static readonly ConcurrentDictionary<string, Font> MenuFonts = new(StringComparer.Ordinal);
 
+    /// <summary>Tests only: forgets the menus' font of <paramref name="family"/>, so a test that loads it leaves the shared
+    /// cache as it found it (Task 2 review: the cache outlived the test that filled it). A menu that holds it keeps it.</summary>
+    public static void ForgetMenuFont(string family) => MenuFonts.TryRemove(family, out _);
+
     /// <summary>The families Windows has, read once.</summary>
     private static readonly Lazy<HashSet<string>> Installed = new(() =>
         FontFamily.Families.Select(f => f.Name).ToHashSet(StringComparer.OrdinalIgnoreCase));

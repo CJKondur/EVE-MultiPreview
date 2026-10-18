@@ -2,12 +2,14 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:EveMultiPreview.SettingsUi">
-    <Grid>
+    <!-- The results hang under the field, not the box: a look that grows the focused box outward (Blueprint) moves
+         neither their edge nor their width while the keyboard goes into the list (plan S5 final wave). -->
+    <Grid x:Name="Field">
         <TextBox x:Name="Box" TextChanged="OnTextChanged" PreviewKeyDown="OnBoxKeyDown" Padding="8,6"/>
         <TextBlock x:Name="Placeholder" local:Loc.Key="L.S.Search.Placeholder" IsHitTestVisible="False"
                    Foreground="{DynamicResource Fx.TextSecondaryBrush}" Margin="12,0,0,0" VerticalAlignment="Center"/>
-        <Popup x:Name="ResultsPopup" PlacementTarget="{Binding ElementName=Box}" Placement="Bottom" StaysOpen="False"
-               Width="{Binding ActualWidth, ElementName=Box}" AllowsTransparency="True">
+        <Popup x:Name="ResultsPopup" PlacementTarget="{Binding ElementName=Field}" Placement="Bottom" StaysOpen="False"
+               Width="{Binding ActualWidth, ElementName=Field}" AllowsTransparency="True">
             <Border Background="{DynamicResource Fx.CardBrush}" BorderBrush="{DynamicResource Fx.BorderBrush}" BorderThickness="{DynamicResource Fx.Line.Card}"
                     CornerRadius="{DynamicResource Fx.Radius}" MaxHeight="420" MinWidth="360">
                 <ListBox x:Name="Results" BorderThickness="0" Background="Transparent" PreviewKeyDown="OnListKeyDown"

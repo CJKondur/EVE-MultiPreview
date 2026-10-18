@@ -52,7 +52,8 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
         // in the gallery, and the gallery is one tab stop, not one per look (Tab comes back to the card it left).
         KeyboardNavigation.SetDirectionalNavigation(_panel, KeyboardNavigationMode.Cycle);
         KeyboardNavigation.SetTabNavigation(_panel, KeyboardNavigationMode.Once);
-        // Tab comes back to the checked card, not the one last held (IDEAS P101): set when the keyboard leaves the gallery.
+        // Tab comes back to the checked card, not the one last held (IDEAS P101): set when the keyboard leaves the gallery
+        // and whenever the checked card changes (Mark).
         _panel.IsKeyboardFocusWithinChanged += (_, e) => { if (!(bool)e.NewValue) TabBackToTheChecked(); };
         // The saved look's card is built with the page, the others one per idle moment once it shows (spec §9.2, cost).
         var first = UiStyles.Find(saved());
@@ -209,9 +210,19 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
     /// <summary>WPF's note of the element a one-tab-stop group returns to (KeyboardNavigation.TabOnceActiveElementProperty,
     /// a WeakReference, not public; IDEAS P101). Null if a later WPF renamed it or changed its type: Tab then returns to
     /// the card last held, as before.</summary>
-    private static readonly DependencyProperty? TabOnce =
-        typeof(KeyboardNavigation).GetField("TabOnceActiveElementProperty", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null)
-            is DependencyProperty p && p.PropertyType == typeof(WeakReference) ? p : null;
+    private static readonly DependencyProperty? TabOnce = FindTabOnce();
+
+    /// <summary>Never throws (final review M-2): a failure here would be a TypeInitializationException that takes the Look
+    /// page and the wizard down, where null only loses the return to the checked card.</summary>
+    private static DependencyProperty? FindTabOnce()
+    {
+        try
+        {
+            return typeof(KeyboardNavigation).GetField("TabOnceActiveElementProperty", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null)
+                is DependencyProperty p && p.PropertyType == typeof(WeakReference) ? p : null;
+        }
+        catch (Exception) { return null; }
+    }
 
     /// <summary>Whether the gallery can send Tab back to the checked card (LookGalleryTests guards it).</summary>
     public static bool CanSetTabOnce => TabOnce != null;
@@ -220,7 +231,9 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
     private void TabBackToTheChecked()
     {
         if (TabOnce == null || _cards.FirstOrDefault(c => c.IsChecked == true) is not { } card) return;
-        _panel.SetValue(TabOnce, new WeakReference(card));
+        // A WPF that checks the slot's value differently degrades to its own way (the card last held), never to a crash.
+        try { _panel.SetValue(TabOnce, new WeakReference(card)); }
+        catch (Exception) { }
     }
 
     /// <summary>A text's height for a number of its lines, from its font (which a look sets, Fx.Desc): a card's
