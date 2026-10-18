@@ -59,9 +59,13 @@ public static class AlertEvents
     {
         new AlertEventDef(Services.EwarLines.Neutralized, Services.EwarLines.NeutralizedSeverity, "combat"),
         new AlertEventDef(Services.EwarLines.Jammed, Services.EwarLines.JammedSeverity, "combat"),
+        new AlertEventDef(Services.CombatWatch.DpsHigh, Services.CombatWatch.DpsSeverity, "combat"),
+        new AlertEventDef(Services.CombatWatch.RepsStopped, Services.CombatWatch.RepsSeverity, "combat"),
     };
 
-    public static bool IsOptIn(string key) => key == Services.EwarLines.Neutralized || key == Services.EwarLines.Jammed;
+    public static bool IsOptIn(string key) =>
+        key == Services.EwarLines.Neutralized || key == Services.EwarLines.Jammed
+        || key == Services.CombatWatch.DpsHigh || key == Services.CombatWatch.RepsStopped;
 
     /// <summary>Every built-in event as the settings window lists them: by table group, the log monitor's first.</summary>
     public static IReadOnlyList<AlertEventDef> Listed { get; } =
@@ -100,9 +104,10 @@ public static class AlertFields
 {
     // ── Event table (EnabledAlertTypes, BadgeOnThumbnailAlertTypes, AlertSolidBorder, AlertDurations, AlertColors) ──
 
-    /// <summary>LogMonitorService: a missing key is on (follow_warp and regroup have no default key). Three events are
+    /// <summary>LogMonitorService: a missing key is on (follow_warp and regroup have no default key). Five events are
     /// the other way round, off until switched on: "Left behind" (StragglerWatch.IsOn), which MultiPreview raises
-    /// itself, and the two of IDEAS #4 (AlertEvents.OptIn), for which the log monitor has the same rule (EwarLines.Bits).</summary>
+    /// itself, and the four of IDEAS #4, #27 and #28 (AlertEvents.OptIn), for which the log monitor has the same rule
+    /// (EwarLines.Bits, CombatWatch.Bits).</summary>
     public static bool IsOn(AppSettings s, string key) =>
         key == Services.StragglerWatch.EventKey ? Services.StragglerWatch.IsOn(s)
         : AlertEvents.IsOptIn(key) ? s.EnabledAlertTypes.TryGetValue(key, out var chosen) && chosen

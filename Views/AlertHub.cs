@@ -46,6 +46,8 @@ public class AlertHub : IDisposable
             "straggler" => "Left behind",
             "neutralized" => "Capacitor neutralized",
             "jammed" => "Jammed",
+            "dps_high" => "Incoming DPS high",
+            "reps_stopped" => "Reps stopped",
             _ => alertType
         });
 

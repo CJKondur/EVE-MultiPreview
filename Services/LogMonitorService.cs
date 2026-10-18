@@ -105,6 +105,12 @@ public sealed class LogMonitorService : IDisposable
     // SetEnabledAlertTypes writes it on the window's thread; the reading thread reads it.
     private volatile int _ewarOn;
 
+    // IDEAS #27, #28: which of Incoming DPS high and Reps stopped are on, as bits (CombatWatch.Bits), and what the
+    // reading thread (the only one that uses the watch) knows of each character's recent hits and repairs. While
+    // both are off, a combat line costs one read of _combatOn. SetEnabledAlertTypes writes it on the window's thread.
+    private volatile int _combatOn;
+    private readonly CombatWatch _combatWatch = new();
+
     // ── Custom alert rules (IDEAS #8) ──
     // The rules that are on, made ready, or null while there are none: then a line costs one read of this field and
     // one branch more than it did before custom rules existed. Only the reading thread writes it (ApplyRules).
@@ -1168,6 +1174,7 @@ public sealed class LogMonitorService : IDisposable
     {
         _enabledAlertTypes = enabled ?? new();
         _ewarOn = EwarLines.Bits(_enabledAlertTypes);
+        _combatOn = CombatWatch.Bits(_enabledAlertTypes);
     }
 
     /// <summary>Set settings reference for alert colors and other config.</summary>
@@ -2274,6 +2281,26 @@ public sealed class LogMonitorService : IDisposable
         TriggerAlert(character, type, severity, quiet);
     }
 
+    /// <summary>
+    /// Incoming DPS high and Reps stopped (IDEAS #27, #28): two events that are off until the player switches them on,
+    /// and this is only called while one of them is on. CombatWatch decides at every incoming hit, NPC hits included
+    /// (also in PvE mode: these two are for ratting). Each is a state, told once and then not again for its own quiet
+    /// time, or the quiet time of Settings where that is longer.
+    /// </summary>
+    private void CombatFromHit(string character, int amount)
+    {
+        int raise = _combatWatch.Hit(character, amount, _alertClock(), _combatOn, CombatOptions.Of(_appSettings));
+        if (raise == 0) return;
+        _lastEventTime = DateTime.Now;
+        if ((raise & CombatWatch.DpsBit) != 0)
+            TriggerAlert(character, CombatWatch.DpsHigh, CombatWatch.DpsSeverity, Quiet(CombatWatch.DpsHigh, CombatWatch.DpsSeverity));
+        if ((raise & CombatWatch.RepsBit) != 0)
+            TriggerAlert(character, CombatWatch.RepsStopped, CombatWatch.RepsSeverity, Quiet(CombatWatch.RepsStopped, CombatWatch.RepsSeverity));
+
+        int Quiet(string type, string severity) =>
+            Math.Max(CombatWatch.QuietSeconds, CooldownFor(type, severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds));
+    }
+
     private void ParseCombatLine(string line, string character)
     {
         // Extract amount and color code — EVE format: <color=0xXXXXXXXX><b>NUM</b>
@@ -2312,6 +2339,10 @@ public sealed class LogMonitorService : IDisposable
         // === Incoming damage: red 0xffcc0000 ===
         if (colorCode == "0xffcc0000")
         {
+            // Before PvE mode's return below, on purpose: NPC damage counts for Incoming DPS high and Reps stopped, also
+            // in PvE mode (they are for ratting). A miss has no damage number and never gets here.
+            if (_combatOn != 0) CombatFromHit(character, amount);
+
             var nameMatch = Regex.Match(line, @"from</font>.*?<b>(.*?)</b>");
             string entityName = nameMatch.Success
                 ? Regex.Replace(nameMatch.Groups[1].Value, @"<[^>]+>", "").Trim()
@@ -2385,6 +2416,9 @@ public sealed class LogMonitorService : IDisposable
                 // Unknown / ambiguous logi line — skip
                 return;
             }
+
+            // Remote armor and shield reps taken are what Reps stopped waits on; capacitor is no rep, nor is an outgoing one.
+            if (_combatOn != 0 && isIncoming && repairType != "capacitor") _combatWatch.Repaired(character, _alertClock(), _combatOn);
 
             RepairReceived?.Invoke(new RepairEvent
             {
