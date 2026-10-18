@@ -7,7 +7,7 @@ namespace EveMultiPreview.Services;
 /// <param name="Dps">Damage per second, averaged over <paramref name="Seconds"/>, at which "Incoming DPS high" is raised.</param>
 /// <param name="Seconds">How long the character must have been under fire, and the window the damage is averaged over.</param>
 /// <param name="RepsSeconds">How long after the last incoming repair a hit counts as "Reps stopped".</param>
-public sealed record CombatOptions(int Dps, int Seconds, int RepsSeconds)
+public readonly record struct CombatOptions(int Dps, int Seconds, int RepsSeconds)
 {
     public const int MinDps = 1, MaxDps = 100_000, DefaultDps = 400;
     public const int MinSeconds = 3, MaxSeconds = 120, DefaultSeconds = 10;
@@ -20,6 +20,11 @@ public sealed record CombatOptions(int Dps, int Seconds, int RepsSeconds)
         Math.Clamp(dps, MinDps, MaxDps),
         Math.Clamp(seconds, MinSeconds, MaxSeconds),
         Math.Clamp(repsSeconds, MinRepsSeconds, MaxRepsSeconds));
+
+    /// <summary>The options a settings object holds, held to their ranges (<see cref="Default"/> for none). Read by the log
+    /// monitor at every incoming hit while one of the two events is on, so it is a struct and allocates nothing.</summary>
+    public static CombatOptions Of(Models.AppSettings? s) =>
+        s == null ? Default : Held(s.DpsAlertThreshold, s.DpsAlertSeconds, s.RepsStoppedSeconds);
 }
 
 /// <summary>

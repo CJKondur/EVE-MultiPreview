@@ -2353,4 +2353,14 @@
     <sys:String x:Key="L.S.GroupSounds.Overlap">{0}은(는) {1}에도 들어 있어요. {1}은(는) 그룹 페이지에서 먼저 나와요. 두 그룹 모두 같은 이벤트(또는 모두 모든 이벤트)에 소리가 있으면 {1}의 소리가 나요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Title">그룹별 소리</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Body">클라이언트 그룹에 자기만의 소리를 주면, 화면을 보기 전에 어느 팀이 나를 부르는지 들을 수 있어요. 예를 들어 채굴팀은 이 소리, 전투 파일럿은 저 소리로 정해요.&#x0A;&#x0A;- **모든 이벤트** 소리는 그룹 멤버의 알림마다 나요.&#x0A;- **한 이벤트**의 소리는 그 이벤트에서 대신 나요.&#x0A;- 그룹에 소리가 없는 이벤트는 전과 같이 이벤트 자체의 소리(위의 표)가 나요.&#x0A;&#x0A;캐릭터가 두 그룹에 있을 때는 그 이벤트의 소리가 모든 이벤트의 소리보다 앞서고, 그 밖에는 그룹 페이지에서 먼저 나오는 그룹의 소리가 나요. 카드가 어느 그룹인지 알려 줘요. 알림 소리가 켜져 있어야 하고(**알림 소리 재생**), 방해 금지는 다른 소리처럼 그룹의 소리도 막아요. 소리 파일이 없어지면 이벤트 자체의 소리가 나요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Dps">DPS</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsThreshold">받는 DPS 높음: 초과</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsThreshold.Desc">알림이 뜨려면 캐릭터가 평균적으로 초당 받아야 하는 피해량이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsSeconds">받는 DPS 높음: 지속 시간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsSeconds.Desc">알림이 뜨기 전에 피해가 이만큼 높게 유지되어야 하는 시간이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repsSeconds">리페어 중단: 경과 시간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repsSeconds.Desc">마지막 원격 리페어 후 몇 초가 지난 뒤의 피격에 알림이 뜨는지 정해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.combatNote">‘받는 DPS 높음’과 ‘리페어 중단’은 위 표에서 켜기 전까지 꺼져 있어요. 둘 다 NPC 피해도 세고, PVE 모드에서도 마찬가지예요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.combatWatch.Title">받는 DPS 높음과 리페어 중단</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.combatWatch.Body">전황이 불리해지는 전투를 위한 이벤트 두 개예요. 둘 다 이벤트 표에서 켜기 전까지 꺼져 있고, NPC 피해도 세요. **PVE 모드**에서도 마찬가지예요. 평소의 ‘공격받는 중’이 조용한 래팅을 위해 만든 이벤트예요.&#x0A;&#x0A;- **받는 DPS 높음**: 캐릭터가 받는 피해가 **받는 DPS 높음: 초과** 값보다 높은 상태로 **받는 DPS 높음: 지속 시간**에 정한 시간 동안 이어지면 알려요(바꾸지 않으면 400 DPS로 10초). 이 시간보다 긴 사격 공백이 생기면 처음부터 다시 세요.&#x0A;- **리페어 중단**: 다른 함선에게 리페어(장갑 또는 실드, 캐패시터 전송은 해당 없음)를 받던 캐릭터가 마지막 리페어 뒤 **리페어 중단: 경과 시간**에 정한 초가 지나서 피격당할 때예요. 다음 리페어가 올 때까지 한 번만 알려 줘요. 1분보다 더 전에 멈춘 리페어는 다른 전투로 봐요.&#x0A;&#x0A;둘 다 치명이에요. 알림이 뜬 뒤에는 그 캐릭터에 대해 30초, 이벤트의 조용한 시간이 더 길면 그 시간만큼 기다려요. 로지 통계가 읽는 것과 같은 피격 색과 리페어 줄을 읽기 때문에, 게임이 어떤 언어여도 작동해요.</sys:String> <!-- draft -->
 </ResourceDictionary>

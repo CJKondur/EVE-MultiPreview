@@ -128,6 +128,9 @@ public class AhkConfigRoot
         s.EnlargeOnAlertSeconds = g.EnlargeOnAlertSeconds;
         s.GroupAlertProfiles = g.GroupAlertProfiles ?? "";
         s.GroupAlertSounds = g.GroupAlertSounds ?? "";
+        s.DpsAlertThreshold = g.DpsAlertThreshold;
+        s.DpsAlertSeconds = g.DpsAlertSeconds;
+        s.RepsStoppedSeconds = g.RepsStoppedSeconds;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -455,6 +458,9 @@ public class AhkConfigRoot
         g.EnlargeOnAlertSeconds = s.EnlargeOnAlertSeconds;
         g.GroupAlertProfiles = s.GroupAlertProfiles;
         g.GroupAlertSounds = s.GroupAlertSounds;
+        g.DpsAlertThreshold = s.DpsAlertThreshold;
+        g.DpsAlertSeconds = s.DpsAlertSeconds;
+        g.RepsStoppedSeconds = s.RepsStoppedSeconds;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1288,6 +1294,16 @@ public class AhkGlobalSettings
     [JsonPropertyName("GroupAlertSounds")]
     [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
     public string? GroupAlertSounds { get; set; } = "";
+
+    // "Incoming DPS high" and "Reps stopped" (IDEAS #27, #28), new after 2.3.42: a file without them loads 400 DPS, 10 s and 10 s.
+    [JsonPropertyName("DpsAlertThreshold")]
+    public int DpsAlertThreshold { get; set; } = 400;
+
+    [JsonPropertyName("DpsAlertSeconds")]
+    public int DpsAlertSeconds { get; set; } = 10;
+
+    [JsonPropertyName("RepsStoppedSeconds")]
+    public int RepsStoppedSeconds { get; set; } = 10;
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

@@ -2370,4 +2370,14 @@
     <sys:String x:Key="L.S.GroupSounds.Overlap">{0} 也在 {1} 中，{1} 在“分组”页面里排在前面。如果两个分组为同一个事件（或都为所有事件）设置了声音，就播放 {1} 的。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Title">按分组设置声音</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Body">给一组客户端设置专属声音，这样你不用看屏幕就能听出是哪一队需要你：矿工一个音，战斗飞行员另一个音。&#x0A;&#x0A;- **所有事件**：该分组成员的每次警报都会播放。&#x0A;- 为**某一个事件**设置的声音会在该事件上代替它播放。&#x0A;- 分组没有设置声音的事件，照旧播放它自己的声音（上面的表格）。&#x0A;&#x0A;角色同时在两个分组里时：为该事件设置的声音优先于为所有事件设置的声音，其余情况由在“分组”页面里排在前面的分组播放。卡片会告诉你是哪一个。必须开启警报声音（**播放警报声音**），“勿扰模式”会像拦截其他声音一样拦截分组的声音。声音文件不存在时，改为播放事件自己的声音。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Dps">DPS</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsThreshold">承受 DPS 过高：超过</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsThreshold.Desc">角色平均每秒需要承受多少伤害，才会触发警报。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsSeconds">承受 DPS 过高：持续</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsSeconds.Desc">伤害要保持这么高多久，才会触发警报。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repsSeconds">维修停止：之后</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repsSeconds.Desc">最后一次远程维修之后过多久，被命中才会触发警报。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.combatNote">“承受 DPS 过高”和“维修停止”在你于上方表格中开启之前是关闭的。两者都会计入 NPC 的伤害，PVE 模式下也一样。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.combatWatch.Title">承受 DPS 过高与维修停止</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.combatWatch.Body">这是两个针对战局不利的事件。两者在你于事件表中开启之前都是关闭的，并且都会计入 NPC 的伤害，**PVE 模式**下也一样：它们是为刷怪准备的，因为普通的“遭受攻击”在刷怪时不会响。&#x0A;&#x0A;- **承受 DPS 过高**：角色承受的伤害持续高于**承受 DPS 过高：超过**，并且持续时间超过**承受 DPS 过高：持续**所设的值（不改的话就是 400 DPS、10 秒）。火力间断超过这段时间，就重新计时。&#x0A;- **维修停止**：角色原本在被另一艘舰船维修（装甲或护盾；电容传输不算），并在最后一次维修之后经过**维修停止：之后**所设的秒数时被命中。它只提醒一次，直到下一次维修到来。停止超过一分钟的维修会被当作另一场战斗。&#x0A;&#x0A;两者都是严重级别。警报之后，该事件会为这个角色等待 30 秒，如果它自己的静默时间更长，则等待那么久。它们读取命中的颜色和后勤统计所读的维修行，所以无论游戏是什么语言都能用。</sys:String> <!-- draft -->
 </ResourceDictionary>

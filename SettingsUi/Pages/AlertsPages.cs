@@ -31,6 +31,10 @@ public static class AlertsPages
         new HelpTopic(EventsId, "table", new[] { EventTableId, "alerts.events.repeatWait", "alerts.events.repeatBySeverity" }),
         new HelpTopic(EventsId, "ewar", new[] { "alerts.events.ewarNote" }),
         new HelpTopic(EventsId, "straggler", new[] { "alerts.events.stragglerWait" }),
+        new HelpTopic(EventsId, "combatWatch", new[]
+        {
+            "alerts.events.dpsThreshold", "alerts.events.dpsSeconds", "alerts.events.repsSeconds", "alerts.events.combatNote",
+        }),
         new HelpTopic(EventsId, "groups", new[] { GroupAlertsEditor.ItemId }),
         new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
         new HelpTopic(LookId, "thumbnail", new[]
@@ -135,6 +139,14 @@ public static class AlertsPages
             {
                 Get = s => Math.Clamp(s.StragglerWaitSeconds, StragglerWatch.MinWaitSeconds, StragglerWatch.MaxWaitSeconds),
             }),
+            // IDEAS #27, #28: the log monitor reads the three at every hit while one of the two events is on
+            // (CombatOptions.Of), so a change only saves. Shown whether the events are on or not, as the wait of "Left
+            // behind" is: a card can't follow a switch inside the table, so the note under them says so. Each shows the
+            // number that is used; a stored number outside the range is not rewritten.
+            Combat("alerts.events.dpsThreshold", s => s.DpsAlertThreshold, CombatOptions.MinDps, CombatOptions.MaxDps, "L.S.Unit.Dps"),
+            Combat("alerts.events.dpsSeconds", s => s.DpsAlertSeconds, CombatOptions.MinSeconds, CombatOptions.MaxSeconds, "L.S.Unit.Sec"),
+            Combat("alerts.events.repsSeconds", s => s.RepsStoppedSeconds, CombatOptions.MinRepsSeconds, CombatOptions.MaxRepsSeconds, "L.S.Unit.Sec"),
+            new InfoItem("alerts.events.combatNote", InfoSeverity.Info),
         }),
         // IDEAS #31: a group's own choice of which events are on. App hands it to the gate (AlertProfiles) and to the
         // log monitor on Applied.
@@ -224,6 +236,13 @@ public static class AlertsPages
             },
         }),
     });
+
+    /// <summary>One of the three numbers of "Incoming DPS high" and "Reps stopped", shown held to its range.</summary>
+    private static SettingItem Combat(string id, Expression<Func<AppSettings, int>> prop, int min, int max, string unit)
+    {
+        var read = prop.Compile();
+        return new(Setting.Number(id, prop, min, max, unit) with { Get = s => Math.Clamp(read(s), min, max) });
+    }
 
     /// <summary>One severity's quiet time, shown while Quiet time per severity is on.</summary>
     private static SettingItem Wait(string id, Expression<Func<AppSettings, int>> prop) =>

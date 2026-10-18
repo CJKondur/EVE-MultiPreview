@@ -230,6 +230,20 @@ public class AppSettings
     [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
     public string GroupAlertSounds { get; set; } = "";
 
+    /// <summary>"Incoming DPS high" (IDEAS #27): the damage per second, averaged over DpsAlertSeconds, at which the event
+    /// is raised (1 to 100,000). The event itself is switched on in EnabledAlertTypes under "dps_high", and a file
+    /// without that key has it off. Read by the log monitor (CombatOptions.Of). New key: 400 in a file without it.</summary>
+    public int DpsAlertThreshold { get; set; } = 400;
+
+    /// <summary>"Incoming DPS high" (IDEAS #27): how many seconds a character must have been under fire, with no pause
+    /// longer than this, and the window the damage is averaged over (3 to 120). New key: 10 in a file without it.</summary>
+    public int DpsAlertSeconds { get; set; } = 10;
+
+    /// <summary>"Reps stopped" (IDEAS #28): how many seconds after the last remote repair a hit raises the event
+    /// (3 to 120). The event itself is switched on in EnabledAlertTypes under "reps_stopped", and a file without that
+    /// key has it off. New key: 10 in a file without it.</summary>
+    public int RepsStoppedSeconds { get; set; } = 10;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

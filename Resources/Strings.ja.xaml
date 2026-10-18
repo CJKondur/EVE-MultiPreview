@@ -2353,4 +2353,14 @@
     <sys:String x:Key="L.S.GroupSounds.Overlap">{0} は {1} にも入っています。{1} は「グループ」ページで先に並んでいます。同じイベント（またはどちらもすべてのイベント）にどちらもサウンドがある場合は、{1} のサウンドが鳴ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Title">グループごとのサウンド</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Body">クライアントのグループに専用のサウンドを付けると、画面を見る前に、どのチームがあなたを呼んでいるか分かります。たとえば、採掘チームにはこの音、戦闘パイロットにはあの音、というように使えます。&#x0A;&#x0A;- **すべてのイベント**のサウンドは、グループのメンバーのアラートごとに鳴ります。&#x0A;- **特定のイベント**のサウンドは、そのイベントでは代わりに鳴ります。&#x0A;- グループにサウンドがないイベントは、これまでどおりイベント自身のサウンド（上の表）が鳴ります。&#x0A;&#x0A;キャラクターが2つのグループに入っている場合：そのイベント用のサウンドが、すべてのイベント用のサウンドより優先されます。それ以外は、「グループ」ページで先に並んでいるグループのサウンドが鳴ります。どのグループかはカードに表示されます。アラート音がオンになっている必要があり（**アラート音を再生**）、おやすみモードは他のサウンドと同じようにグループのサウンドも止めます。サウンドファイルが見つからないときは、イベント自身のサウンドが鳴ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Unit.Dps">DPS</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsThreshold">受けるDPSが高い：基準値</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsThreshold.Desc">アラートを出すために、キャラクターが平均して 1 秒あたりに受けていなければならないダメージです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsSeconds">受けるDPSが高い：継続時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.dpsSeconds.Desc">アラートを出すまでに、ダメージがこの高さのまま続かなければならない時間です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repsSeconds">リペア停止：経過時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.repsSeconds.Desc">最後のリモートリペアから何秒後の被弾でアラートを出すか、を決めます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.combatNote">「受けるDPSが高い」と「リペア停止」は、上の表でオンにするまでオフです。どちらも NPC のダメージを数え、PVE モードでも同じです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.combatWatch.Title">受けるDPSが高いとリペア停止</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.combatWatch.Body">形勢が悪くなっていく戦闘のための 2 つのイベントです。どちらも、イベントの表でオンにするまでオフで、NPC のダメージも数えます。**PVE モード**でも同じです。通常の「攻撃を受けている」が鳴らないラット狩り向けです。&#x0A;&#x0A;- **受けるDPSが高い**：キャラクターが受けるダメージが、**受けるDPSが高い：基準値**を超えた状態で、**受けるDPSが高い：継続時間**の間続いたときです（変更しなければ 400 DPS を 10 秒）。この時間より長く攻撃が途切れると、数え直しになります。&#x0A;- **リペア停止**：別の艦からリペア（アーマーまたはシールド。キャパシタ転送は含みません）を受けていたキャラクターが、最後のリペアから**リペア停止：経過時間**の秒数がたったあとで被弾したときです。次のリペアが来るまで、通知は 1 回だけです。1 分以上前に止まったリペアは、別の戦闘のものとして扱います。&#x0A;&#x0A;どちらも重大です。アラートのあと、そのキャラクターについては 30 秒、イベントの静止時間のほうが長ければその時間、待ちます。ロジ統計が読むのと同じ被弾の色とリペアの行を読むので、ゲームがどの言語でも動きます。</sys:String> <!-- draft -->
 </ResourceDictionary>
