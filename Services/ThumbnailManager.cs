@@ -3749,6 +3749,17 @@ public sealed class ThumbnailManager : IDisposable
         return IntPtr.Zero;
     }
 
+    /// <summary>Every client window and its character ("" at the login screen), from any thread: a copy. App's probe runs on
+    /// the process monitor's pool thread (IDEAS #22, #47).</summary>
+    public IReadOnlyList<(IntPtr Window, string Character)> ClientWindows() =>
+        _thumbnails.Select(kv => (kv.Key, kv.Value.CharacterName ?? "")).ToList();
+
+    /// <summary>Shows on a client's main thumbnail what ClientWatch said of it. The window's thread.</summary>
+    public void SetClientMark(IntPtr window, ClientMark mark)
+    {
+        if (_thumbnails.TryGetValue(window, out var thumb)) thumb.SetClientMark(mark);
+    }
+
     /// <summary>Get the ThumbnailWindow for a given character name, or null if not present.</summary>
     public ThumbnailWindow? GetThumbnailForCharacter(string characterName)
     {

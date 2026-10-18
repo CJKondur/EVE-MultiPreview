@@ -170,5 +170,26 @@
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"/>
         </Border>
+
+        <!-- IDEAS #22, #47: what the client itself is doing, "Not responding" or "Disconnected", in the middle and over
+             every other overlay. Shown by SetClientMark. Not styled by the looks, as the badges beside it. -->
+        <Border x:Name="ClientMarkBadge"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Padding="8,3"
+                CornerRadius="4"
+                Background="#E0202020"
+                BorderBrush="#FFFFB000"
+                BorderThickness="1"
+                Visibility="Collapsed"
+                IsHitTestVisible="False">
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="1" BlurRadius="3" Opacity="0.9" Color="Black"/>
+            </Border.Effect>
+            <TextBlock x:Name="ClientMarkText"
+                       Foreground="White"
+                       FontSize="13"
+                       FontWeight="Bold"/>
+        </Border>
     </Grid>
 </Window>

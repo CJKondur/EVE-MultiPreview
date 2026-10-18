@@ -2436,4 +2436,6 @@
     <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">サーバーへの接続がない状態が何秒続いたらマークを付けるかを設定します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.clientState.Title">クライアントが止まったとき</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.clientState.Body">固まったクライアントや切断されたクライアントは、切り替えるまでは待機中のクライアントと見分けがつきません。MultiPreviewはそのサムネイルにマークを付けられます。&#x0A;&#x0A;- **応答なし**：クライアントのウィンドウが応答しなくなったとWindowsが報告した状態です（タスクマネージャーと同じ判定で、5秒間応答がない場合）。クライアントが再び応答するとマークは消えます。&#x0A;- **切断**：ログイン中のクライアントが、設定した時間EVEのサーバーに接続していない状態です。MultiPreviewは各クライアントの接続をWindowsに問い合わせるだけで、どこにも何も送信しません。&#x0A;&#x0A;誤ったマークを避けるため、サーバーに一度も接続したことがないクライアントや、このPC上のプロキシ経由で接続しているクライアントは「切断」になりません。そのため、VPNやプロキシの環境によっては何も表示されません。どちらのマークも、オンにするまではオフです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Thumb.NotResponding">応答なし</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Thumb.Disconnected">切断</sys:String> <!-- draft -->
 </ResourceDictionary>

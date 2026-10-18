@@ -2435,4 +2435,6 @@
     <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">How long a client must be without its server connection before it is marked.</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.clientState.Title">When a client stops</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.clientState.Body">A frozen or disconnected client looks like an idle one until you switch to it. MultiPreview can mark its thumbnail:&#x0A;&#x0A;- **Not responding**: Windows says the client's window has stopped answering (the same test Task Manager uses: no answer for five seconds). The mark goes when the client answers again.&#x0A;- **Disconnected**: a logged-in client has had no connection to EVE's server for the time you set. MultiPreview asks Windows which connections each client has; it sends nothing anywhere.&#x0A;&#x0A;To stay clear of false marks, a client that never had a server connection, or whose connections go through a proxy on this PC, is never marked Disconnected, so some VPN and proxy setups show nothing. Both marks are off until you turn them on.</sys:String>
+    <sys:String x:Key="L.Thumb.NotResponding">Not responding</sys:String>
+    <sys:String x:Key="L.Thumb.Disconnected">Disconnected</sys:String>
 </ResourceDictionary>

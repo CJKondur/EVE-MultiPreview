@@ -385,6 +385,19 @@ public partial class TextOverlayWindow : Window
         AlertBadge.Visibility = Visibility.Visible;
     }
 
+    /// <summary>IDEAS #22, #47: shows what the client itself is doing ("Not responding", "Disconnected") in the middle,
+    /// over every other overlay; null or empty hides it.</summary>
+    public void SetClientMark(string? text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            ClientMarkBadge.Visibility = Visibility.Collapsed;
+            return;
+        }
+        if (ClientMarkText.Text != text) ClientMarkText.Text = text;
+        ClientMarkBadge.Visibility = Visibility.Visible;
+    }
+
     public void UpdateFpsStats(double fps, bool visible)
     {
         if (visible)

@@ -10,6 +10,18 @@ namespace EveMultiPreview.Services;
 /// <summary>IDEAS #22, #47: the mark a thumbnail shows for its client.</summary>
 public enum ClientMark { None, NotResponding, Disconnected }
 
+/// <summary>The words a mark shows on the thumbnail, in the language of the moment it changes (ruling 21).</summary>
+public static class ClientMarks
+{
+    /// <summary>The mark's text, or null for no mark.</summary>
+    public static string? Text(ClientMark mark) => mark switch
+    {
+        ClientMark.NotResponding => LocalizationService.Str("L.Thumb.NotResponding", "Not responding"),
+        ClientMark.Disconnected => LocalizationService.Str("L.Thumb.Disconnected", "Disconnected"),
+        _ => null,
+    };
+}
+
 /// <summary>What the process monitor's pool thread has to ask Windows on a look.</summary>
 [Flags]
 public enum ClientProbeWants { None = 0, Hung = 1, Links = 2, Exits = 4 }

@@ -202,6 +202,18 @@ public class ThumbnailWindow : Form
 
     public void SetCycleExclusionPosition(string position) => _textOverlay?.SetCycleExclusionPosition(position);
 
+    /// <summary>IDEAS #22, #47: what ClientWatch last said of this client; the thumbnail's menu reads it to offer ending a
+    /// frozen client.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public ClientMark Mark { get; private set; }
+
+    /// <summary>Keeps the mark and shows its words on the overlay. The window's thread.</summary>
+    public void SetClientMark(ClientMark mark)
+    {
+        Mark = mark;
+        _textOverlay?.SetClientMark(ClientMarks.Text(mark));
+    }
+
     // ── WPF-compat shims ────────────────────────────────────────────
     // ThumbnailManager treats these as WPF-style (double coords, Visibility enum,
     // Topmost/IsVisible spelling). Keep the contract bit-identical so callers

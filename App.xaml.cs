@@ -80,6 +80,11 @@ public partial class App : Application
     /// <summary>"Client memory high" (IDEAS #45): fed what the process monitor last read for each client, asked on the
     /// window's thread (LookAtMemory).</summary>
     private readonly MemoryWatch _memoryWatch = new();
+    /// <summary>IDEAS #22, #47: what ClientWatch judged of each client. The window's thread only.</summary>
+    private readonly ClientWatch _clientWatch = new();
+    /// <summary>What the probe on the process monitor's thread asks Windows: set by LookAtClients on the window's thread
+    /// (the settings are read there only), read by ProbeClients.</summary>
+    private volatile ClientProbeWants _clientProbeWants;
     /// <summary>IDEAS #42: each hotkey Windows refused is told once a session in a tray note; a click on that note opens
     /// the hotkeys page. A click on any other balloon does not: ShowBalloon says which one is up.</summary>
     private readonly RefusalAnnouncer _refusalAnnouncer = new();
@@ -255,6 +260,9 @@ public partial class App : Application
         // IDEAS #45: the monitor reports every 3 s from its pool thread; the settings are read on the window's thread
         // only, so the look is queued there also while the event is off.
         _processMonitor.StatsUpdated += () => Dispatcher.BeginInvoke(new Action(LookAtMemory), DispatcherPriority.Background);
+        // IDEAS #22, #47: the probe asks Windows on the monitor's pool thread (never on the window's thread: the lesson of
+        // P46), and the window's thread judges and marks.
+        _processMonitor.StatsUpdated += ProbeClients;
 
         // 4c. Crop manager (spawns per-character cropped DWM popups)
         _cropManager = new CropManager(_discovery, _settings);
@@ -1037,6 +1045,37 @@ public partial class App : Application
             EveMultiPreview.Interop.User32.GetWindowThreadProcessId(hwnd, out uint pid);
             if (_processMonitor!.GetStats((int)pid) is { } stats) yield return (name, (int)pid, stats.RamMB);
         }
+    }
+
+    /// <summary>IDEAS #22, #47, every 3 s on the process monitor's pool thread: asks Windows what LookAtClients last said is
+    /// wanted (frozen windows, the TCP table) and hands it to the window's thread. It reads no setting.</summary>
+    private void ProbeClients()
+    {
+        try
+        {
+            if (_isShuttingDown || _thumbnailManager == null) return;
+            var wants = _clientProbeWants;
+            IReadOnlyList<ClientSample> samples = wants == ClientProbeWants.None ? Array.Empty<ClientSample>()
+                : ClientProbe.Take(_thumbnailManager.ClientWindows(), wants, ClientProbe.PidOf, ClientProbe.IsHung,
+                    (wants & ClientProbeWants.Links) != 0 ? TcpTable.Read() : null);
+            Dispatcher.BeginInvoke(new Action(() => LookAtClients(samples)), DispatcherPriority.Background);
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #22, #47, on the window's thread after each probe: what is wanted next time, and the marks.</summary>
+    private void LookAtClients(IReadOnlyList<ClientSample> samples)
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
+            var s = _settings.Settings;
+            var options = ClientWatchOptions.Of(s, _ => false);
+            _clientProbeWants = options.Wants(closedOn: false);
+            var look = _clientWatch.Look(DateTime.UtcNow, samples, options);
+            foreach (var change in look.Changes) _thumbnailManager.SetClientMark(change.Window, change.Mark);
+        }
+        catch (Exception ex) { LogError(ex); }
     }
 
     /// <summary>IDEAS #32: the hotkey or the tray item flips do-not-disturb, and says near the cursor what it is now:

@@ -2436,4 +2436,6 @@
     <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">서버 연결 없이 얼마나 지나야 표시할지 정해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.clientState.Title">클라이언트가 멈췄을 때</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.clientState.Body">멈추거나 연결이 끊긴 클라이언트는 전환해 보기 전까지는 가만히 있는 클라이언트와 똑같아 보여요. MultiPreview는 그 썸네일에 표시를 붙일 수 있어요.&#x0A;&#x0A;- **응답 없음**: Windows가 클라이언트 창이 응답하지 않는다고 알려요(작업 관리자와 같은 검사로, 5초 동안 응답이 없을 때). 클라이언트가 다시 응답하면 표시가 사라져요.&#x0A;- **연결 끊김**: 로그인한 클라이언트가 설정한 시간 동안 EVE 서버에 연결되어 있지 않아요. MultiPreview는 각 클라이언트의 연결을 Windows에 물어볼 뿐 어디에도 아무것도 보내지 않아요.&#x0A;&#x0A;잘못된 표시를 피하려고, 서버에 연결된 적이 없는 클라이언트나 이 PC의 프록시를 거쳐 연결하는 클라이언트는 '연결 끊김'으로 표시하지 않아요. 그래서 일부 VPN과 프록시 환경에서는 아무것도 표시되지 않을 수 있어요. 두 표시 모두 직접 켜기 전에는 꺼져 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Thumb.NotResponding">응답 없음</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Thumb.Disconnected">연결 끊김</sys:String> <!-- draft -->
 </ResourceDictionary>
