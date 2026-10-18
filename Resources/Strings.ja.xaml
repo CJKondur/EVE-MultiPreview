@@ -2392,4 +2392,10 @@
     <sys:String x:Key="L.S.Push.Status.Refused">Discord が最後のメッセージを拒否しました（{0}）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Unreachable">Discord に接続できません。MultiPreview はアラートごとに 5 分間再試行します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Limited">Discord から送信を遅くするよう求められました。メッセージは順番を待っています。</sys:String> <!-- draft -->
+    <!-- Ideas batch 8 (Plan 12) -->
+    <sys:String x:Key="L.S.Sec.app.general.session">プレイ中</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake">EVE の実行中は PC をスリープさせない</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake.Desc">キャラクターがログインしている間、Windows はスリープしません。画面は消灯できます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Title">PC をスリープさせない</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Body">マウスを誰も触らないために Windows が PC をスリープさせると、採掘や産業のセッションが途切れます。**EVE の実行中は PC をスリープさせない**をオンにすると、キャラクターがログインしているクライアントが 1 つ以上ある間、MultiPreview は Windows にスリープしないよう依頼します。&#x0A;&#x0A;- 画面は、それ自体のタイマーで消灯します。&#x0A;- ログイン画面のクライアントは数えません。&#x0A;- 最後のキャラクターのクライアントが閉じたとき、この設定をオフにしたとき、MultiPreview を終了したときは、Windows は再びスリープできます。MultiPreview が予期せず停止した場合も、Windows が自動で依頼を解除します。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2392,4 +2392,10 @@
     <sys:String x:Key="L.S.Push.Status.Refused">Discord가 마지막 메시지를 거부했어요({0}).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Unreachable">Discord에 연결할 수 없어요. MultiPreview는 알림마다 5분 동안 다시 시도해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Limited">Discord가 MultiPreview에 천천히 보내 달라고 했어요. 메시지가 차례를 기다려요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 8 (Plan 12) -->
+    <sys:String x:Key="L.S.Sec.app.general.session">플레이하는 동안</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake">EVE가 실행되는 동안 PC 깨어 있게 하기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake.Desc">캐릭터가 로그인해 있는 동안 Windows가 절전 모드로 들어가지 않아요. 화면은 그대로 꺼질 수 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Title">PC 깨어 있게 하기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Body">마우스를 아무도 만지지 않아서 Windows가 PC를 절전 모드로 보내면 채굴이나 산업 세션이 끊겨요. **EVE가 실행되는 동안 PC 깨어 있게 하기**를 켜면, 캐릭터가 로그인한 클라이언트가 하나라도 있는 동안 MultiPreview가 Windows에 절전 모드로 들어가지 말라고 요청해요.&#x0A;&#x0A;- 화면은 자체 타이머에 따라 계속 꺼져요.&#x0A;- 로그인 화면에 있는 클라이언트는 세지 않아요.&#x0A;- 마지막 캐릭터의 클라이언트가 닫히거나, 이 설정을 끄거나, MultiPreview가 종료되면 Windows는 다시 절전 모드로 들어갈 수 있어요. MultiPreview가 예기치 않게 멈추면 Windows가 요청을 스스로 해제해요.</sys:String> <!-- draft -->
 </ResourceDictionary>

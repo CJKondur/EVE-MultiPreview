@@ -19,6 +19,7 @@ public static class AppPages
     {
         new HelpTopic("app.general", "language", new[] { "app.general.language", "app.general.scale" }),
         new HelpTopic("app.general", "startup", new[] { "app.general.startupSettings", "app.general.startWithWindows" }),
+        new HelpTopic("app.general", "keepAwake", new[] { "app.general.keepAwake" }),
         new HelpTopic(LookId, "look", new[] { LookGallery.ItemId }),
         new HelpTopic(LookId, "contrast", new[] { "app.look.followContrast" }),
         new HelpTopic("app.diagnostics", "logs", new[]
@@ -65,6 +66,11 @@ public static class AppPages
                 _ => StartWithWindows.IsEnabled(),
                 (_, v) => StartWithWindows.Set(v is true),
                 binds: Array.Empty<string>()) with { External = true, Replaces = new[] { "ChkStartWithWindows" } }),
+        }),
+        // IDEAS batch 8: App reads both on its half-second timer, so a change only saves.
+        new SectionDef("app.general.session", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("app.general.keepAwake", s => s.KeepPcAwake)),
         }),
     });
 

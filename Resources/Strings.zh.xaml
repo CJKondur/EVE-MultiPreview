@@ -2409,4 +2409,10 @@
     <sys:String x:Key="L.S.Push.Status.Refused">Discord 拒绝了最后一条消息（{0}）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Unreachable">无法连接 Discord。MultiPreview 会对每条警报持续重试 5 分钟。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Limited">Discord 要求 MultiPreview 放慢发送速度。消息正在排队等候。</sys:String> <!-- draft -->
+    <!-- Ideas batch 8 (Plan 12) -->
+    <sys:String x:Key="L.S.Sec.app.general.session">游戏期间</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake">EVE 运行时保持电脑唤醒</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake.Desc">只要有角色登录，Windows 就不会进入睡眠。屏幕仍然可以关闭。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Title">保持电脑唤醒</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Body">当 Windows 因为没人动过鼠标而让电脑进入睡眠时，挖矿或工业的会话就会中断。开启**EVE 运行时保持电脑唤醒**后，只要至少有一个客户端登录了角色，MultiPreview 就会请求 Windows 不要睡眠。&#x0A;&#x0A;- 屏幕仍会按自己的计时关闭。&#x0A;- 停在登录界面的客户端不算。&#x0A;- 最后一个角色的客户端关闭、你关掉此选项或 MultiPreview 退出时，Windows 又可以睡眠了。如果 MultiPreview 意外停止，Windows 会自行释放这个请求。</sys:String> <!-- draft -->
 </ResourceDictionary>

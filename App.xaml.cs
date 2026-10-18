@@ -38,6 +38,9 @@ public partial class App : Application
     private AlertHistory? _alertHistory;
     /// <summary>Alert events snoozed for one character (IDEAS #30). Empty until the player snoozes one.</summary>
     private readonly EventSnoozes _snoozes = new();
+    /// <summary>IDEAS #46: holds Windows from sleeping while a character is logged in and the switch is on. Asked on the
+    /// window's thread only (the execution state belongs to the calling thread); the real call is passed here, once.</summary>
+    private readonly KeepAwake _keepAwake = new KeepAwake(KeepAwake.SetThreadExecutionState, ex => LogError(ex));
     private EventSnoozeFile? _snoozeFile;
     /// <summary>Do-not-disturb (IDEAS #32): alert sounds are muted while it is on. What the hotkey or the tray chose is
     /// forgotten when MultiPreview closes; the quiet hours are settings.</summary>
@@ -624,6 +627,7 @@ public partial class App : Application
                 // drive the responsive path, this catches anything they miss.
                 _hotkeyService?.EvaluateRegistration();
                 FollowDoNotDisturb();
+                FollowKeepAwake();
             };
             hotkeyToggleTimer.Start();
 
@@ -1003,6 +1007,17 @@ public partial class App : Application
     private void FollowDoNotDisturb()
     {
         if (_doNotDisturb.ChangedSinceShown(_settings?.Settings, DateTime.Now)) QueueTrayText();
+    }
+
+    /// <summary>IDEAS #46: asked twice a second with do-not-disturb; KeepAwake asks Windows only when the answer changes.
+    /// A timer whose tick threw would tick no more, so a failure is logged and the next tick tries again.</summary>
+    private void FollowKeepAwake()
+    {
+        try
+        {
+            _keepAwake.Follow(KeepAwake.Wanted(_settings?.Settings, _thumbnailManager?.GetActiveCharacterNames() ?? Array.Empty<string>()));
+        }
+        catch (Exception ex) { LogError(ex); }
     }
 
     /// <summary>IDEAS #30: the snooze file follows "Keep snoozes when MultiPreview restarts". Called after every change
@@ -1678,6 +1693,7 @@ public partial class App : Application
         _alertHistory?.Flush(TimeSpan.FromSeconds(2));
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
+        _keepAwake.Follow(false);   // IDEAS #46: Windows may sleep again
         _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
         _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center
         _pushWay?.Stop();   // IDEAS #2: what waits to be sent is dropped and the one sender is let go

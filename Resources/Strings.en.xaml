@@ -2391,4 +2391,10 @@
     <sys:String x:Key="L.S.Push.Status.Refused">Discord refused the last message ({0}).</sys:String>
     <sys:String x:Key="L.S.Push.Status.Unreachable">Discord could not be reached. MultiPreview keeps trying for 5 minutes per alert.</sys:String>
     <sys:String x:Key="L.S.Push.Status.Limited">Discord asked MultiPreview to slow down. Messages wait their turn.</sys:String>
+    <!-- Ideas batch 8 (Plan 12) -->
+    <sys:String x:Key="L.S.Sec.app.general.session">While you play</sys:String>
+    <sys:String x:Key="L.S.app.general.keepAwake">Keep the PC awake while EVE runs</sys:String>
+    <sys:String x:Key="L.S.app.general.keepAwake.Desc">While a character is logged in, Windows does not go to sleep. The screen can still turn off.</sys:String>
+    <sys:String x:Key="L.Help.app.general.keepAwake.Title">Keeping the PC awake</sys:String>
+    <sys:String x:Key="L.Help.app.general.keepAwake.Body">A mining or industry session ends when Windows puts the PC to sleep because nobody touched the mouse. With **Keep the PC awake while EVE runs** on, MultiPreview asks Windows not to sleep while at least one client has a character logged in.&#x0A;&#x0A;- The screen still turns off on its own timer.&#x0A;- A client at the login screen does not count.&#x0A;- When the last character's client closes, when you turn this off, or when MultiPreview closes, Windows may sleep again. If MultiPreview stops unexpectedly, Windows lets go of the request by itself.</sys:String>
 </ResourceDictionary>

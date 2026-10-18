@@ -135,6 +135,7 @@ public class AhkConfigRoot
         s.PushAlertsFrom = g.PushAlertsFrom;
         s.PushOnlyWhenAway = g.PushOnlyWhenAway != 0;
         s.PushDiscordWebhook = g.PushDiscordWebhook ?? "";
+        s.KeepPcAwake = g.KeepPcAwake != 0;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -469,6 +470,7 @@ public class AhkConfigRoot
         g.PushAlertsFrom = s.PushAlertsFrom;
         g.PushOnlyWhenAway = s.PushOnlyWhenAway ? 1 : 0;
         g.PushDiscordWebhook = s.PushDiscordWebhook;
+        g.KeepPcAwake = s.KeepPcAwake ? 1 : 0;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1326,6 +1328,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("PushDiscordWebhook")]
     public string? PushDiscordWebhook { get; set; } = "";
+
+    // Keep the PC awake while EVE runs (IDEAS #46), new after 2.3.42: a file without it loads off.
+    [JsonPropertyName("KeepPcAwake")]
+    public int KeepPcAwake { get; set; }
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

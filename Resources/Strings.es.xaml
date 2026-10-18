@@ -2413,4 +2413,10 @@
     <sys:String x:Key="L.S.Push.Status.Refused">Discord rechazó el último mensaje ({0}).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Unreachable">No se pudo contactar con Discord. MultiPreview lo sigue intentando 5 minutos por alerta.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Limited">Discord pidió a MultiPreview que vaya más despacio. Los mensajes esperan su turno.</sys:String> <!-- draft -->
+    <!-- Ideas batch 8 (Plan 12) -->
+    <sys:String x:Key="L.S.Sec.app.general.session">Mientras juegas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake">Mantener el PC activo mientras EVE está abierto</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake.Desc">Mientras haya un personaje con la sesión iniciada, Windows no se suspende. La pantalla sí puede apagarse.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Title">Mantener el PC activo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Body">Una sesión de minería o de industria termina cuando Windows suspende el PC porque nadie ha tocado el ratón. Con **Mantener el PC activo mientras EVE está abierto** activado, MultiPreview le pide a Windows que no se suspenda mientras al menos un cliente tenga un personaje con la sesión iniciada.&#x0A;&#x0A;- La pantalla se sigue apagando con su propio temporizador.&#x0A;- Un cliente en la pantalla de inicio de sesión no cuenta.&#x0A;- Cuando se cierra el cliente del último personaje, cuando lo desactivas o cuando se cierra MultiPreview, Windows puede volver a suspenderse. Si MultiPreview se detiene de forma inesperada, Windows libera la petición por sí mismo.</sys:String> <!-- draft -->
 </ResourceDictionary>

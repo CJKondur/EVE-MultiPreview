@@ -2391,4 +2391,10 @@
     <sys:String x:Key="L.S.Push.Status.Refused">Discord hat die letzte Nachricht abgelehnt ({0}).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Unreachable">Discord ist nicht erreichbar. MultiPreview versucht es pro Alarm 5 Minuten lang weiter.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Limited">Discord hat MultiPreview gebeten, langsamer zu senden. Nachrichten warten, bis sie dran sind.</sys:String> <!-- draft -->
+    <!-- Ideas batch 8 (Plan 12) -->
+    <sys:String x:Key="L.S.Sec.app.general.session">Während du spielst</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake">PC wach halten, solange EVE läuft</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake.Desc">Solange ein Charakter eingeloggt ist, geht Windows nicht in den Ruhezustand. Der Bildschirm kann sich trotzdem ausschalten.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Title">PC wach halten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Body">Eine Mining- oder Industrie-Sitzung endet, wenn Windows den PC in den Ruhezustand schickt, weil niemand die Maus bewegt hat. Mit **PC wach halten, solange EVE läuft** bittet MultiPreview Windows, nicht in den Ruhezustand zu gehen, solange mindestens ein Client einen eingeloggten Charakter hat.&#x0A;&#x0A;- Der Bildschirm schaltet sich weiterhin nach seinem eigenen Timer aus.&#x0A;- Ein Client am Anmeldebildschirm zählt nicht.&#x0A;- Wenn der Client des letzten Charakters schließt, du das hier ausschaltest oder MultiPreview beendet wird, darf Windows wieder schlafen. Wenn MultiPreview unerwartet stoppt, gibt Windows die Anfrage von selbst frei.</sys:String> <!-- draft -->
 </ResourceDictionary>

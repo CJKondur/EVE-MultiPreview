@@ -2394,4 +2394,10 @@
     <sys:String x:Key="L.S.Push.Status.Refused">Discord a refusé le dernier message ({0}).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Unreachable">Discord est injoignable. MultiPreview réessaie pendant 5 minutes par alerte.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Limited">Discord a demandé à MultiPreview de ralentir. Les messages attendent leur tour.</sys:String> <!-- draft -->
+    <!-- Ideas batch 8 (Plan 12) -->
+    <sys:String x:Key="L.S.Sec.app.general.session">Pendant que vous jouez</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake">Garder le PC éveillé pendant qu'EVE tourne</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake.Desc">Tant qu'un personnage est connecté, Windows ne se met pas en veille. L'écran peut quand même s'éteindre.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Title">Garder le PC éveillé</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Body">Une session de minage ou d'industrie s'arrête quand Windows met le PC en veille parce que personne n'a touché à la souris. Avec **Garder le PC éveillé pendant qu'EVE tourne** activé, MultiPreview demande à Windows de ne pas se mettre en veille tant qu'au moins un client a un personnage connecté.&#x0A;&#x0A;- L'écran s'éteint toujours selon son propre délai.&#x0A;- Un client sur l'écran de connexion ne compte pas.&#x0A;- Quand le client du dernier personnage se ferme, quand vous désactivez l'option ou quand MultiPreview se ferme, Windows peut de nouveau se mettre en veille. Si MultiPreview s'arrête de façon inattendue, Windows libère la demande de lui-même.</sys:String> <!-- draft -->
 </ResourceDictionary>

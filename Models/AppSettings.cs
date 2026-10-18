@@ -254,6 +254,10 @@ public class AppSettings
     public bool PushOnlyWhenAway { get; set; } = true;
     public string PushDiscordWebhook { get; set; } = "";
 
+    /// <summary>Keep the PC awake while EVE runs (IDEAS #46): App's KeepAwake holds Windows from sleeping while a
+    /// character is logged in; the display may still turn off. New key: off in a file without it.</summary>
+    public bool KeepPcAwake { get; set; } = false;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

@@ -2411,4 +2411,10 @@
     <sys:String x:Key="L.S.Push.Status.Refused">Discord отклонил последнее сообщение ({0}).</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Unreachable">Не удалось связаться с Discord. MultiPreview пытается снова в течение 5 минут для каждого оповещения.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.Status.Limited">Discord попросил MultiPreview отправлять медленнее. Сообщения ждут своей очереди.</sys:String> <!-- draft -->
+    <!-- Ideas batch 8 (Plan 12) -->
+    <sys:String x:Key="L.S.Sec.app.general.session">Пока вы играете</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake">Не давать ПК засыпать, пока запущена EVE</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.keepAwake.Desc">Пока в игру вошёл хотя бы один персонаж, Windows не уходит в спящий режим. Экран при этом может выключаться.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Title">Не давать ПК засыпать</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.keepAwake.Body">Сессия добычи или производства обрывается, когда Windows усыпляет ПК, потому что никто не трогал мышь. Если включено **Не давать ПК засыпать, пока запущена EVE**, MultiPreview просит Windows не засыпать, пока хотя бы в одном клиенте вошёл персонаж.&#x0A;&#x0A;- Экран по-прежнему выключается по собственному таймеру.&#x0A;- Клиент на экране входа не учитывается.&#x0A;- Когда клиент последнего персонажа закрывается, когда вы выключаете эту настройку или когда закрывается MultiPreview, Windows снова может уйти в сон. Если MultiPreview неожиданно остановится, Windows сам снимет запрос.</sys:String> <!-- draft -->
 </ResourceDictionary>
