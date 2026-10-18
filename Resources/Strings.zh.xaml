@@ -2369,7 +2369,7 @@
     <sys:String x:Key="L.S.GroupSounds.UsesEvent">事件自己的声音</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupSounds.NoGroups">还没有分组。请在 客户端 › 分组 里创建一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupSounds.Members">成员：{0}</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} 也在 {1} 中，{1} 在“分组”页面里排在前面。如果两个分组为同一个事件（或都为所有事件）设置了声音，就播放 {1} 的。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} 也在 {1} 中，它在“分组”页面里排在前面。如果两个分组为同一个事件（或都为所有事件）设置了声音，就播放 {1} 的。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Title">按分组设置声音</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Body">给一组客户端设置专属声音，这样你不用看屏幕就能听出是哪一队需要你：矿工一个音，战斗飞行员另一个音。&#x0A;&#x0A;- **所有事件**：该分组成员的每次警报都会播放。&#x0A;- 为**某一个事件**设置的声音会在该事件上代替它播放。&#x0A;- 分组没有设置声音的事件，照旧播放它自己的声音（上面的表格）。&#x0A;&#x0A;角色同时在两个分组里时：为该事件设置的声音优先于为所有事件设置的声音，其余情况由在“分组”页面里排在前面的分组播放。卡片会告诉你是哪一个。必须开启警报声音（**播放警报声音**），“勿扰模式”会像拦截其他声音一样拦截分组的声音。声音文件不存在时，改为播放事件自己的声音。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Dps">DPS</sys:String> <!-- draft -->

@@ -2352,7 +2352,7 @@
     <sys:String x:Key="L.S.GroupSounds.UsesEvent">イベント自身のサウンド</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupSounds.NoGroups">グループはまだありません。クライアント › グループ で作成してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupSounds.Members">メンバー：{0}</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} は {1} にも入っています。{1} は「グループ」ページで先に並んでいます。同じイベント（またはどちらもすべてのイベント）にどちらもサウンドがある場合は、{1} のサウンドが鳴ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupSounds.Overlap">{0} は {1} にも入っていて、「グループ」ページではそちらが先に並んでいます。同じイベント（またはどちらもすべてのイベント）にどちらもサウンドがある場合は、{1} のサウンドが鳴ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Title">グループごとのサウンド</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Body">クライアントのグループに専用のサウンドを付けると、画面を見る前に、どのチームがあなたを呼んでいるか分かります。たとえば、採掘チームにはこの音、戦闘パイロットにはあの音、というように使えます。&#x0A;&#x0A;- **すべてのイベント**のサウンドは、グループのメンバーのアラートごとに鳴ります。&#x0A;- **特定のイベント**のサウンドは、そのイベントでは代わりに鳴ります。&#x0A;- グループにサウンドがないイベントは、これまでどおりイベント自身のサウンド（上の表）が鳴ります。&#x0A;&#x0A;キャラクターが2つのグループに入っている場合：そのイベント用のサウンドが、すべてのイベント用のサウンドより優先されます。それ以外は、「グループ」ページで先に並んでいるグループのサウンドが鳴ります。どのグループかはカードに表示されます。アラート音がオンになっている必要があり（**アラート音を再生**）、おやすみモードは他のサウンドと同じようにグループのサウンドも止めます。サウンドファイルが見つからないときは、イベント自身のサウンドが鳴ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Dps">DPS</sys:String> <!-- draft -->
