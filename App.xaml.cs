@@ -63,6 +63,7 @@ public partial class App : Application
     /// a program without an installer. Made at startup; while "Show alerts as Windows notifications" is off the way
     /// shows nothing and the key is not there.</summary>
     private NotificationsWay? _notificationsWay;
+    private PushWay? _pushWay;
     private NotificationRegistration? _notificationRegistration;
     /// <summary>What a click on a notification does, and how the switch is followed: App's parts as functions, in a
     /// class a test can run (NotificationActions).</summary>
@@ -466,6 +467,15 @@ public partial class App : Application
             _alertWays.Add(_notificationsWay);
             _thumbnailManager.Attention.Looked += _notificationsWay.Looked;
             FollowNotifications(starting: true);
+            // IDEAS #2: alerts to a Discord webhook, which the Discord app on a phone shows. The link is read from the
+            // settings file, encrypted for this Windows user, and goes nowhere but discord.com. The way asks
+            // do-not-disturb as the sound does, and "away from the PC" by when Windows last saw input.
+            _pushWay = new PushWay(new DiscordSender(DiscordSender.RealHandler()), stored => WebhookSecret.Unprotect(stored),
+                (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
+                () => PushWay.Idle(Environment.TickCount, EveMultiPreview.Interop.User32.LastInputTick()),
+                AlertHub.EventDisplayName, LocalizationService.Str, failed: LogError);
+            _pushWay.Follow(_settings.Settings);
+            _alertWays.Add(_pushWay);
             // IDEAS #13: a thumbnail grows for a few seconds on an alert. The manager owns the decision and its tick.
             _alertWays.Add(_thumbnailManager.Enlarge);
             }
@@ -1387,6 +1397,7 @@ public partial class App : Application
             ApplySavedLook();       // UI styles: an import, or the setup wizard, may have picked another look
             FollowNotifications();  // IDEAS #33: the registry key is written or removed as its switch says
             _spokenWay?.Follow(_settings!.Settings.SpeakAlerts);   // FX-m4: off and on again counts the voice's asks anew
+            _pushWay?.Follow(_settings!.Settings);   // IDEAS #2: a newly saved link or a switch takes effect now
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)
@@ -1432,6 +1443,8 @@ public partial class App : Application
                     Speaker = _speaker,
                     NotificationsBlocked = NotificationsBlocked,
                     TestNotification = ShowTestNotification,
+                    TestPush = () => _pushWay?.TestAsync(_settings.Settings) ?? System.Threading.Tasks.Task.FromResult(new PushResult(PushOutcome.Refused)),
+                    PushStatus = () => _pushWay?.Status,
                     CustomAlerts = _customAlerts,
                     // Which custom rules the log monitor has switched off for what they cost: the page says it on their cards.
                     CustomRulesSwitchedOff = () => _logMonitor?.CustomRulesSwitchedOff ?? CustomAlertEngine.NoneSwitchedOff,
@@ -1667,6 +1680,7 @@ public partial class App : Application
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
         _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center
+        _pushWay?.Stop();   // IDEAS #2: what waits to be sent is dropped and the one sender is let go
         _alertTimer?.Stop();
         _alertHub?.Dispose();
         _broadcastHud?.Dispose();
