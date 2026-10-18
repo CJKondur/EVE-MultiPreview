@@ -386,17 +386,17 @@ public partial class App : Application
             {
                 var s = _settings?.Settings;
                 if (s == null || !s.CycleWrapSoundEnabled) return;
-                if (string.IsNullOrEmpty(s.CycleWrapSoundFile)
-                    || !System.IO.File.Exists(s.CycleWrapSoundFile)) return;
+                var wrap = AlertSoundChoice.WrapSound(s);
+                if (wrap.Length == 0 || !System.IO.File.Exists(wrap)) return;
                 try
                 {
                     Dispatcher.Invoke(() =>
                     {
-                        _soundPlayer?.Open(new Uri(s.CycleWrapSoundFile));
+                        _soundPlayer?.Open(new Uri(wrap));
                         _soundPlayer!.Volume = s.AlertSoundVolume / 100.0;
                         _soundPlayer.Play();
                     });
-                    Debug.WriteLine($"[CycleWrap:Sound] 🔊 Playing '{System.IO.Path.GetFileName(s.CycleWrapSoundFile)}'");
+                    Debug.WriteLine($"[CycleWrap:Sound] 🔊 Playing '{System.IO.Path.GetFileName(wrap)}'");
                 }
                 catch (Exception ex)
                 {

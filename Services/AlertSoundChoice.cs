@@ -8,13 +8,16 @@ public static class AlertSoundChoice
 {
     /// <summary>The file for an alert type, or null for none.
     /// A built-in event, as before custom rules: its own file from Settings (a file of spaces only is "play nothing":
-    /// it is handed back and not found), else the default alert sound.
+    /// it is handed back and not found), else the default alert sound. An own file that is not a plain file on a drive
+    /// of this PC (a path to another computer: IDEAS P63, ruling 4) plays nothing: it is handed back as "", as an own
+    /// file that is gone plays nothing, and the disk is never asked for it.
     /// A custom rule's alert (IDEAS #8): what its rule plays. The settings file's list of sounds by event is not
     /// asked for it: no settings window writes a rule's type there.</summary>
     public static string? FileFor(AppSettings s, string alertType)
     {
         if (CustomAlertTypes.IsCustom(alertType)) return FileFor(s, CustomAlertTypes.Find(alertType));
-        if (s.AlertSounds?.TryGetValue(alertType, out var eventSoundFile) == true && !string.IsNullOrEmpty(eventSoundFile)) return eventSoundFile;
+        if (s.AlertSounds?.TryGetValue(alertType, out var eventSoundFile) == true && !string.IsNullOrEmpty(eventSoundFile))
+            return string.IsNullOrWhiteSpace(eventSoundFile) ? eventSoundFile : CustomRuleCheck.LocalSound(eventSoundFile);
         return Default(s);
     }
 
@@ -36,7 +39,7 @@ public static class AlertSoundChoice
     /// that file is gone (<paramref name="exists"/>) or there is none, what played before.</summary>
     public static string? FileToPlay(AppSettings s, string alertType, Func<string, bool> exists, string? groupFile)
     {
-        if (!string.IsNullOrWhiteSpace(groupFile) && exists(groupFile)) return groupFile;
+        if (CustomRuleCheck.LocalSound(groupFile) is { Length: > 0 } group && exists(group)) return group;
         var file = FileFor(s, alertType);
         return CustomAlertTypes.IsCustom(alertType) && !string.IsNullOrEmpty(file) && !exists(file) ? Default(s) : file;
     }
@@ -51,5 +54,11 @@ public static class AlertSoundChoice
         return seconds > 0 && since >= TimeSpan.Zero && since.TotalSeconds < seconds;
     }
 
-    private static string? Default(AppSettings s) => string.IsNullOrEmpty(s.AlertSoundFile) ? null : s.AlertSoundFile;
+    /// <summary>The cycle-wrap sound (App's CycleWrapped), only as a file on a drive of this PC
+    /// (CustomRuleCheck.LocalSound, IDEAS P63): "" when none is set or the path is refused.</summary>
+    public static string WrapSound(AppSettings s) => CustomRuleCheck.LocalSound(s.CycleWrapSoundFile);
+
+    /// <summary>The default alert sound, only as a file on a drive of this PC: a refused path is no default sound.</summary>
+    private static string? Default(AppSettings s) =>
+        CustomRuleCheck.LocalSound(s.AlertSoundFile) is { Length: > 0 } f ? f : null;
 }

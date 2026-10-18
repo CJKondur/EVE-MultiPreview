@@ -333,9 +333,20 @@ public partial class SettingsShell : Window, ISettingsHost
     public string? PickFile(string? initial, string filter)
     {
         var d = new Microsoft.Win32.OpenFileDialog { Filter = filter };
-        var dir = string.IsNullOrEmpty(initial) ? null : Path.GetDirectoryName(initial);
-        if (dir != null && Directory.Exists(dir)) d.InitialDirectory = dir;
+        var dir = StartFolder(initial, Directory.Exists);
+        if (dir != null) d.InitialDirectory = dir;
         return d.ShowDialog(this) == true ? d.FileName : null;
+    }
+
+    /// <summary>The folder a file picker opens in: the folder of <paramref name="initial"/> when that is a plain file
+    /// on a drive of this PC (CustomRuleCheck.LocalSound) and <paramref name="folderExists"/> says it is there, else
+    /// null. A folder on another computer is never asked for: Windows would log in to it (IDEAS P63).</summary>
+    public static string? StartFolder(string? initial, Func<string, bool> folderExists)
+    {
+        var local = EveMultiPreview.Services.CustomRuleCheck.LocalSound(initial);
+        if (local.Length == 0) return null;
+        var dir = Path.GetDirectoryName(local);
+        return dir != null && folderExists(dir) ? dir : null;
     }
 
     public string? PickSaveFile(string defaultName, string filter)

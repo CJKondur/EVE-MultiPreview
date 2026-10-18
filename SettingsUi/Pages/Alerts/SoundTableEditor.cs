@@ -66,11 +66,17 @@ public static class AlertSoundPreview
 {
     private static readonly List<MediaPlayer> Playing = new();
 
+    /// <summary>Whether <paramref name="file"/> may be played: a plain file on a drive of this PC
+    /// (CustomRuleCheck.LocalSound; a path to another computer would make Windows log in to it, IDEAS P63) that
+    /// <paramref name="exists"/> says is there. The disk is not asked for a path the rule refuses.</summary>
+    public static bool Playable([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] string? file, Func<string, bool> exists) =>
+        !string.IsNullOrWhiteSpace(file) && EveMultiPreview.Services.CustomRuleCheck.LocalSound(file).Length > 0 && exists(file);
+
     /// <summary>Plays <paramref name="file"/> at <paramref name="volumePercent"/>, whether or not alert sounds are on.
     /// False when there is no such file. Never call it in a test with a real file.</summary>
     public static bool Play(string? file, int volumePercent)
     {
-        if (string.IsNullOrWhiteSpace(file) || !System.IO.File.Exists(file)) return false;
+        if (!Playable(file, System.IO.File.Exists)) return false;
         try
         {
             var player = new MediaPlayer { Volume = Math.Clamp(volumePercent, 0, 100) / 100.0 };
