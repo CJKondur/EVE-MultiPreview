@@ -41,6 +41,7 @@ public sealed class HotkeySheetWindow : Window
         AllowsTransparency = true;
         Background = null;                                   // the border below is the surface
         SizeToContent = SizeToContent.WidthAndHeight;
+        MaxHeight = SystemParameters.WorkArea.Height * 0.9;   // as the wheel: the title and the foot stay on screen, the rows scroll
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         UiFont.Apply(this, LocalizationService.CurrentLanguage);
         Title = Say("L.Sheet.Title", "Hotkeys of this profile", record: false);
@@ -65,17 +66,29 @@ public sealed class HotkeySheetWindow : Window
 
     private UIElement Build(IReadOnlyList<HotkeySheetRow> rows)
     {
-        var panel = new StackPanel { Margin = new Thickness(16, 12, 16, 12) };
-        panel.Children.Add(Line(Say("L.Sheet.Title", "Hotkeys of this profile"), "Fx.Size.Section", "Fx.TextBrush", bold: true));
+        // A dock panel, so the rows get the height the title and the foot leave and scroll in it.
+        var panel = new DockPanel { Margin = new Thickness(16, 12, 16, 12), LastChildFill = true };
+        void Add(UIElement e, Dock side) { DockPanel.SetDock(e, side); panel.Children.Add(e); }
+        Add(Line(Say("L.Sheet.Title", "Hotkeys of this profile"), "Fx.Size.Section", "Fx.TextBrush", bold: true), System.Windows.Controls.Dock.Top);
+        var close = LocalizationService.Str("L.Sheet.Close", "Click to close");   // shown last, so recorded last
+        Add(Line(close, "Fx.Size.Caption", "Fx.TextSecondaryBrush", top: 10), System.Windows.Controls.Dock.Bottom);
 
         int shown = Math.Min(rows.Count, HotkeySheet.MaxRows);
+        string? moreText = null;
+        if (rows.Count > HotkeySheet.MaxRows)
+        {
+            var more = string.Format(Say("L.Sheet.More", "and {0} more on Clients › Hotkeys & switching", record: false), rows.Count - HotkeySheet.MaxRows);
+            moreText = more;
+            Add(Line(more, "Fx.Size.Body", "Fx.TextSecondaryBrush", top: 8), System.Windows.Controls.Dock.Bottom);
+        }
+
         if (shown == 0)
         {
-            panel.Children.Add(Line(Say("L.Sheet.None", "No hotkeys are set. Set them on Clients › Hotkeys."), "Fx.Size.Body", "Fx.TextSecondaryBrush", top: 8));
+            panel.Children.Add(Line(Say("L.Sheet.None", "No hotkeys are set. Set them on Clients › Hotkeys & switching."), "Fx.Size.Body", "Fx.TextSecondaryBrush", top: 8));
         }
         else
         {
-            var grid = new Grid { Margin = new Thickness(0, 8, 0, 0) };
+            var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             for (int i = 0; i < shown; i++)
@@ -93,14 +106,12 @@ public sealed class HotkeySheetWindow : Window
                 Record(rows[i].Action);
                 Record(rows[i].Keys);
             }
-            panel.Children.Add(grid);
+            // Only the rows scroll (the wheel of the mouse reaches a window that is never active).
+            panel.Children.Add(new ScrollViewer { Content = grid, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled, Margin = new Thickness(0, 8, 0, 0) });
         }
 
-        if (rows.Count > HotkeySheet.MaxRows)
-            panel.Children.Add(Line(string.Format(Say("L.Sheet.More", "and {0} more on Clients › Hotkeys", record: false), rows.Count - HotkeySheet.MaxRows),
-                "Fx.Size.Body", "Fx.TextSecondaryBrush", top: 8, record: true));
-
-        panel.Children.Add(Line(Say("L.Sheet.Close", "Click to close"), "Fx.Size.Caption", "Fx.TextSecondaryBrush", top: 10));
+        if (moreText != null) Record(moreText);
+        Record(close);
 
         var card = new Border { Child = panel };
         card.SetResourceReference(Border.BackgroundProperty, "Fx.BgBrush");
