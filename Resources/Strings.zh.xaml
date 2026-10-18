@@ -763,7 +763,7 @@
     <sys:String x:Key="L.S.Backup.NotSettings">该文件不是 MultiPreview 设置文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.ImportTitle">导入设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.ImportConfirm">要用 {0} 中的设置替换你所有配置文件中的全部设置吗？当前设置会先被备份。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Backup.Imported">设置已导入。请重启 MultiPreview，使应用的各部分都使用这些设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">设置已导入。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">操作失败：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Title">EVE MultiPreview 设置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Search.Placeholder">查找设置</sys:String> <!-- draft -->
@@ -895,7 +895,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">使用配置文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新建**会创建空配置文件并切换到它。&#x0A;- **复制**把一个配置文件复制到另一个：全部内容，或仅缩略图位置。&#x0A;- **删除**会永久删除当前配置文件。始终至少保留一个。&#x0A;&#x0A;你也可以从左上角的配置文件菜单或配置文件热键切换。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">备份与迁移到另一台电脑</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**立即备份**会在 Backups 文件夹中保存一份带日期的副本。如果设置自上一份副本以来有变化，MultiPreview 启动时也会保留一份副本（最近 10 份），每次更新前也会保留一份。如果无法读取你的设置文件或文件丢失，启动时会提供这些副本。&#x0A;&#x0A;**导出**会把你的设置文件保存到你喜欢的位置。**导入**会用导出的文件替换你的全部设置。当前设置会先备份，MultiPreview 需要重启才能在各处使用导入的设置。&#x0A;&#x0A;你的设置通常保存在 %APPDATA%\EVE MultiPreview。若想改为保存在 MultiPreview.exe 旁边（便携安装），请关闭 MultiPreview，把设置文件复制到那里，并在 exe 旁放一个名为 portable.txt 的空文件。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**立即备份**会在 Backups 文件夹中保存一份带日期的副本。如果设置自上一份副本以来有变化，MultiPreview 启动时也会保留一份副本（最近 10 份），每次更新前也会保留一份。如果无法读取你的设置文件或文件丢失，启动时会提供这些副本。&#x0A;&#x0A;**导出**会把你的设置文件保存到你喜欢的位置。**导入**会用导出的文件替换你的全部设置。当前设置会先备份。&#x0A;&#x0A;你的设置通常保存在 %APPDATA%\EVE MultiPreview。若想改为保存在 MultiPreview.exe 旁边（便携安装），请关闭 MultiPreview，把设置文件复制到那里，并在 exe 旁放一个名为 portable.txt 的空文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">关于与更新</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about.Desc">版本、更新以及旧版设置窗口。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String> <!-- draft -->

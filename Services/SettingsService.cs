@@ -337,10 +337,23 @@ public sealed class SettingsService : IDisposable
         return _settings.Profiles.GetValueOrDefault(_settings.LastUsedProfile);
     }
 
-    /// <summary>Replace the entire settings object (used by import).</summary>
+    /// <summary>The AppSettings properties a settings file holds: public, read/write, not [JsonIgnore] (those forward to
+    /// the profile in use, which the copied Profiles already bring).</summary>
+    private static readonly System.Reflection.PropertyInfo[] FileProperties = typeof(AppSettings)
+        .GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
+        .Where(p => p.CanRead && p.CanWrite && p.GetIndexParameters().Length == 0
+                    && !Attribute.IsDefined(p, typeof(JsonIgnoreAttribute)))
+        .ToArray();
+
+    /// <summary>Replaces every setting with <paramref name="newSettings"/>' (import, P112). The values are copied into the
+    /// SAME object: the log monitor, the hotkeys' guard, the alert hub and the windows that were handed it at start see
+    /// the import at once. Each property is assigned, never a collection changed in place, so a reader on another
+    /// thread (the log monitor's) sees the old value or the new one. Runs on the UI thread.</summary>
     public void ReplaceSettings(AppSettings newSettings)
     {
-        _settings = newSettings;
+        if (!ReferenceEquals(newSettings, _settings))
+            foreach (var p in FileProperties)
+                p.SetValue(_settings, p.GetValue(newSettings));
         _loadedSuccessfully = true;
         Save();
     }

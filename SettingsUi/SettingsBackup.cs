@@ -114,9 +114,10 @@ public static class SettingsBackup
         catch (Exception ex) { ctx.Host.Toast(string.Format(Str("L.S.Backup.Failed"), ex.Message)); }
     }
 
-    /// <summary>Validate, ask, back up, replace (spec §6: destructive actions confirm). Services that
-    /// cached the old settings object (alert hub, log monitor) pick up the import after a restart,
-    /// and the message says so.</summary>
+    /// <summary>Validate, ask, back up, replace (spec §6: destructive actions confirm). The import is copied into the
+    /// settings object every part of the app holds (P112), then applied as a settings change is: the applier's full
+    /// pass, whose Applied makes App hand the hotkeys, the log monitor, the alert hub and the rest the settings; the
+    /// language, which only its own card applies otherwise; and the window reloaded. No restart is needed.</summary>
     public static void ImportInteractive(SettingsContext ctx)
     {
         var path = ctx.Host.PickFile(null, "JSON|*.json");
@@ -128,7 +129,9 @@ public static class SettingsBackup
             return;
         try
         {
+            var language = ctx.S.Language;
             Replace(ctx.Service, imported, DateTime.Now);
+            if (ctx.S.Language != language) LocalizationService.SetLanguage(ctx.S.Language);
             ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
             ctx.Host.Reload();
             ctx.Host.Toast(Str("L.S.Backup.Imported"));

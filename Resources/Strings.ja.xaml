@@ -746,7 +746,7 @@
     <sys:String x:Key="L.S.Backup.NotSettings">このファイルは MultiPreview の設定ファイルではありません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.ImportTitle">設定のインポート</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.ImportConfirm">すべてのプロファイルの設定を {0} の内容に置き換えますか？現在の設定は先にバックアップされます。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Backup.Imported">設定をインポートしました。アプリ全体に反映するには MultiPreview を再起動してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">設定をインポートしました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">うまくいきませんでした: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Title">EVE MultiPreview の設定</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Search.Placeholder">設定を検索</sys:String> <!-- draft -->
@@ -878,7 +878,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">プロファイルの使い方</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新規**は空のプロファイルを作成して切り替えます。&#x0A;- **コピー**は、あるプロファイルを別のプロファイルにコピーします。すべて、またはサムネイルの位置だけを選べます。&#x0A;- **削除**は現在のプロファイルを完全に削除します。最低 1 つは必ず残ります。&#x0A;&#x0A;左上のプロファイルメニューや、プロファイル用ホットキーでも切り替えられます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">バックアップと別の PC への移行</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**今すぐバックアップ**は日付付きのコピーを Backups フォルダーに保存します。前回のコピー以降に設定が変わっていれば、MultiPreview は起動時にもコピーを保存し（直近 10 件）、更新の前にも保存します。設定ファイルを読み込めない場合や見つからない場合は、起動時にこれらのコピーを提案します。&#x0A;&#x0A;**エクスポート**は設定ファイルを好きな場所に保存します。**インポート**はすべての設定をエクスポートしたファイルに置き換えます。現在の設定は先にバックアップされ、インポートした設定をすべてに反映するには MultiPreview の再起動が必要です。&#x0A;&#x0A;設定は通常 %APPDATA%\EVE MultiPreview に保存されます。代わりに MultiPreview.exe の隣に置くには（ポータブルインストール）、MultiPreview を閉じ、設定ファイルをそこへコピーして、exe の隣に portable.txt という空のファイルを置いてください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**今すぐバックアップ**は日付付きのコピーを Backups フォルダーに保存します。前回のコピー以降に設定が変わっていれば、MultiPreview は起動時にもコピーを保存し（直近 10 件）、更新の前にも保存します。設定ファイルを読み込めない場合や見つからない場合は、起動時にこれらのコピーを提案します。&#x0A;&#x0A;**エクスポート**は設定ファイルを好きな場所に保存します。**インポート**はすべての設定をエクスポートしたファイルに置き換えます。現在の設定は先にバックアップされます。&#x0A;&#x0A;設定は通常 %APPDATA%\EVE MultiPreview に保存されます。代わりに MultiPreview.exe の隣に置くには（ポータブルインストール）、MultiPreview を閉じ、設定ファイルをそこへコピーして、exe の隣に portable.txt という空のファイルを置いてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">情報とアップデート</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about.Desc">バージョン、アップデート、旧設定ウィンドウ。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String> <!-- draft -->

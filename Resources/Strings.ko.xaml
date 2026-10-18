@@ -746,7 +746,7 @@
     <sys:String x:Key="L.S.Backup.NotSettings">MultiPreview 설정 파일이 아닙니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.ImportTitle">설정 가져오기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.ImportConfirm">모든 프로필의 설정을 {0}의 설정으로 바꿀까요? 현재 설정은 먼저 백업됩니다.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Backup.Imported">설정을 가져왔습니다. 앱의 모든 부분에 적용하려면 MultiPreview를 다시 시작하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Backup.Imported">설정을 가져왔습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Backup.Failed">작동하지 않았습니다: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Shell.Title">EVE MultiPreview 설정</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Search.Placeholder">설정 찾기</sys:String> <!-- draft -->
@@ -878,7 +878,7 @@
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">프로필 사용법</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **새로 만들기**는 빈 프로필을 만들고 그 프로필로 전환합니다.&#x0A;- **복사**는 한 프로필을 다른 프로필로 복사합니다. 전부 또는 썸네일 위치만 복사할 수 있습니다.&#x0A;- **삭제**는 현재 프로필을 영구 삭제합니다. 항상 하나 이상은 남습니다.&#x0A;&#x0A;왼쪽 위의 프로필 메뉴나 프로필 단축키로도 전환할 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">백업 및 다른 PC로 옮기기</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.backups.Body">**지금 백업**은 날짜가 붙은 사본을 Backups 폴더에 저장합니다. MultiPreview는 마지막 사본 이후 설정이 바뀌었으면 시작할 때에도 사본을 보관하고(최근 10개), 업데이트 전에도 보관합니다. 설정 파일을 읽을 수 없거나 파일이 없으면 시작할 때 이 사본들을 제안합니다.&#x0A;&#x0A;**내보내기**는 설정 파일을 원하는 곳에 저장합니다. **가져오기**는 모든 설정을 내보낸 파일로 바꿉니다. 현재 설정은 먼저 백업되며, 가져온 설정을 모든 곳에 적용하려면 MultiPreview를 다시 시작해야 합니다.&#x0A;&#x0A;설정은 보통 %APPDATA%\EVE MultiPreview에 저장됩니다. 대신 MultiPreview.exe 옆에 두려면(포터블 설치) MultiPreview를 닫고, 설정 파일을 그곳에 복사한 뒤, exe 옆에 portable.txt라는 빈 파일을 만드세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.backups.Body">**지금 백업**은 날짜가 붙은 사본을 Backups 폴더에 저장합니다. MultiPreview는 마지막 사본 이후 설정이 바뀌었으면 시작할 때에도 사본을 보관하고(최근 10개), 업데이트 전에도 보관합니다. 설정 파일을 읽을 수 없거나 파일이 없으면 시작할 때 이 사본들을 제안합니다.&#x0A;&#x0A;**내보내기**는 설정 파일을 원하는 곳에 저장합니다. **가져오기**는 모든 설정을 내보낸 파일로 바꿉니다. 현재 설정은 먼저 백업됩니다.&#x0A;&#x0A;설정은 보통 %APPDATA%\EVE MultiPreview에 저장됩니다. 대신 MultiPreview.exe 옆에 두려면(포터블 설치) MultiPreview를 닫고, 설정 파일을 그곳에 복사한 뒤, exe 옆에 portable.txt라는 빈 파일을 만드세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">정보 및 업데이트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about.Desc">버전, 업데이트, 이전 설정 창.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.about.version">MultiPreview</sys:String> <!-- draft -->

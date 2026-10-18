@@ -2029,7 +2029,16 @@ public partial class SettingsWindow
                 // Fall back to C# flat format
                 newSettings ??= System.Text.Json.JsonSerializer.Deserialize<AppSettings>(json);
 
-                if (newSettings != null) { _svc.ReplaceSettings(newSettings); LoadSettings(); MessageBox.Show("Settings imported."); }
+                if (newSettings != null)
+                {
+                    // P112: copied into the object the whole app holds; then applied as a settings change is (after
+                    // LoadSettings, which can queue a debounced apply that ApplyNow clears), language included.
+                    var language = S.Language;
+                    _svc.ReplaceSettings(newSettings);
+                    if (S.Language != language) LocalizationService.SetLanguage(S.Language);
+                    LoadSettings(); _applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
+                    MessageBox.Show("Settings imported.");
+                }
             }
             catch (Exception ex) { MessageBox.Show($"Import error: {ex.Message}"); }
         }
