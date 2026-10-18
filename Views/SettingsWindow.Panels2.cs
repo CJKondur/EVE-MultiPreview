@@ -1998,7 +1998,8 @@ public partial class SettingsWindow
         var dlg = new Microsoft.Win32.SaveFileDialog { Filter = "JSON|*.json", FileName = "EVE MultiPreview.json" };
         if (dlg.ShowDialog() == true)
         {
-            File.Copy(_svc.SettingsPath, dlg.FileName, true);   // the settings folder's file (IDEAS #57)
+            // The settings folder's file (IDEAS #57), with the Discord webhook written empty (IDEAS #2).
+            EveMultiPreview.SettingsUi.SettingsBackup.CopyWithoutWebhook(_svc.SettingsPath, dlg.FileName);
             MessageBox.Show("Settings exported.");
         }
     }

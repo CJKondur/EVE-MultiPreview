@@ -244,6 +244,16 @@ public class AppSettings
     /// key has it off. New key: 10 in a file without it.</summary>
     public int RepsStoppedSeconds { get; set; } = 10;
 
+    /// <summary>Alerts to a Discord webhook, which the Discord app on a phone shows (IDEAS #2), read by PushWay for every
+    /// alert that got past the gates: on or off, from which severity (0 critical only, 1 critical and warning, 2 all),
+    /// and whether only while Windows saw no input for PushWay.AwayAfter. PushDiscordWebhook is WebhookSecret's kept
+    /// text (DPAPI for this Windows user, "dpapi1:" + base64), never a link in plain; an export writes it empty. New
+    /// keys: off, critical only, only while away, no link in a file without them.</summary>
+    public bool PushAlerts { get; set; } = false;
+    public int PushAlertsFrom { get; set; } = 0;
+    public bool PushOnlyWhenAway { get; set; } = true;
+    public string PushDiscordWebhook { get; set; } = "";
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

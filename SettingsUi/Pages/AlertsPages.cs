@@ -63,6 +63,7 @@ public static class AlertsPages
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
         new HelpTopic(HubId, "windows", new[] { "alerts.hub.notify", "alerts.hub.notifyFrom", NotificationCheckEditor.ItemId }),
+        new HelpTopic(HubId, "push", new[] { "alerts.hub.push", "alerts.hub.pushFrom", "alerts.hub.pushAway", PushWebhookEditor.ItemId }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
         new HelpTopic(HubId, "historyWindow", new[] { "alerts.hub.historyRow" }),
         new HelpTopic(CustomId, "rules", new[] { CustomRulesEditor.ItemId }),
@@ -249,7 +250,8 @@ public static class AlertsPages
         new(Setting.Number(id, prop, 0, 600, "L.S.Unit.Sec") with { ShowIf = s => s.AlertCooldownBySeverity });
 
     /// <summary>From which severity a further way tells of an alert (IDEAS batch 6; AlertWays.Reaches): spoken
-    /// alerts, Windows notifications and the enlarged thumbnail each have a card with these three.</summary>
+    /// alerts, Windows notifications, the enlarged thumbnail and push to Discord (IDEAS #2) each have a card with
+    /// these three.</summary>
     public static IReadOnlyList<ChoiceOption> FromOptions { get; } = new[]
     {
         new ChoiceOption(0, "L.S.Opt.FromCritical"), new ChoiceOption(1, "L.S.Opt.FromWarning"), new ChoiceOption(2, "L.S.Opt.FromInfo"),
@@ -432,6 +434,20 @@ public static class AlertsPages
             // The player's way to see that notifications arrive: a button that shows one as a test, and a line that
             // says so when Windows itself is not showing MultiPreview's. It binds no setting: nothing here is saved.
             new EditorItem(NotificationCheckEditor.ItemId, ctx => new NotificationCheckEditor(ctx)) { ShowIf = s => s.WindowsNotifications },
+        }),
+        // IDEAS #2. PushWay reads all four for every alert that got past the gates, so a change only saves; App hands
+        // the way every settings change (PushWay.Follow), which starts the sending again after a new link was saved.
+        new SectionDef("alerts.hub.push", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("alerts.hub.push", s => s.PushAlerts)),
+            From("alerts.hub.pushFrom", s => s.PushAlertsFrom, (s, v) => s.PushAlertsFrom = v, "AppSettings.PushAlertsFrom", s => s.PushAlerts),
+            new SettingItem(Setting.Toggle("alerts.hub.pushAway", s => s.PushOnlyWhenAway) with { ShowIf = s => s.PushAlerts }),
+            // The link is a secret: the card keeps it DPAPI-encrypted, empties its box and shows it masked.
+            new EditorItem(PushWebhookEditor.ItemId, ctx => new PushWebhookEditor(ctx))
+            {
+                Binds = new[] { "AppSettings.PushDiscordWebhook" },
+                ShowIf = s => s.PushAlerts,
+            },
         }),
         // IDEAS #1. Shown whether the hub is on or not: an alert is kept either way. App passes both settings to the
         // history on Applied. New keys: a file without them loads on, 30 days.

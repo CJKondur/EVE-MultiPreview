@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
@@ -70,7 +71,22 @@ public static class SettingsBackup
     public static void Export(SettingsService svc, string destination)
     {
         svc.Save();
-        File.Copy(svc.SettingsPath, destination, overwrite: true);
+        CopyWithoutWebhook(svc.SettingsPath, destination);
+    }
+
+    // The one line the settings file keeps the Discord webhook in (IDEAS #2): "PushDiscordWebhook": "<kept text>".
+    private static readonly Regex WebhookLine = new("(\"PushDiscordWebhook\"\\s*:\\s*)\"[^\"\\r\\n]*\"", RegexOptions.CultureInvariant);
+
+    /// <summary>Copies a settings file for an export, with the Discord webhook (IDEAS #2) written empty: an export is
+    /// shared and posted, and the link is a secret even encrypted. The live settings and the file itself are not
+    /// touched; every other byte is copied as it is. Imported, the export means "no link". Backups keep the link:
+    /// they are this PC's own, and restoring one should not lose it.</summary>
+    public static void CopyWithoutWebhook(string source, string destination)
+    {
+        // Latin1 maps every byte to one char and back, so a BOM and every other byte round-trip unchanged (read as
+        // bytes: File.ReadAllText would take a BOM as the encoding and drop it).
+        var text = Encoding.Latin1.GetString(File.ReadAllBytes(source));
+        File.WriteAllBytes(destination, Encoding.Latin1.GetBytes(WebhookLine.Replace(text, "$1\"\"")));
     }
 
     /// <summary>Reads a settings file. Throws if it is not one.</summary>

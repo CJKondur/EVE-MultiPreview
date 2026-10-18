@@ -74,6 +74,13 @@ public sealed class AppServices
     /// it could not be shown (Windows was not asked), and the card says so. Null in tests and in a window opened
     /// without the app: the button does nothing.</summary>
     public Func<bool>? TestNotification { get; init; }
+    /// <summary>Sends one test message to the saved Discord webhook now (IDEAS #2; PushWay.TestAsync), for the button
+    /// on Alerts › Alert hub › Phone and Discord, and answers with what Discord said. Null in tests and in a window
+    /// opened without the app: the card then says nothing came back.</summary>
+    public Func<System.Threading.Tasks.Task<PushResult>>? TestPush { get; init; }
+    /// <summary>What Discord last answered to the push way (IDEAS #2; PushWay.Status), for the card's last line when
+    /// it comes into view. Null in tests and in a window opened without the app: no line.</summary>
+    public Func<PushStatus?>? PushStatus { get; init; }
     /// <summary>The player's own alert rules, for Alerts › Custom rules (IDEAS #8). Saving through it reaches the log
     /// monitor at once. Null in tests.</summary>
     public CustomAlertStore? CustomAlerts { get; init; }

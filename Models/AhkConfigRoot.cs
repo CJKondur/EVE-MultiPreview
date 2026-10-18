@@ -131,6 +131,10 @@ public class AhkConfigRoot
         s.DpsAlertThreshold = g.DpsAlertThreshold;
         s.DpsAlertSeconds = g.DpsAlertSeconds;
         s.RepsStoppedSeconds = g.RepsStoppedSeconds;
+        s.PushAlerts = g.PushAlerts != 0;
+        s.PushAlertsFrom = g.PushAlertsFrom;
+        s.PushOnlyWhenAway = g.PushOnlyWhenAway != 0;
+        s.PushDiscordWebhook = g.PushDiscordWebhook ?? "";
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -461,6 +465,10 @@ public class AhkConfigRoot
         g.DpsAlertThreshold = s.DpsAlertThreshold;
         g.DpsAlertSeconds = s.DpsAlertSeconds;
         g.RepsStoppedSeconds = s.RepsStoppedSeconds;
+        g.PushAlerts = s.PushAlerts ? 1 : 0;
+        g.PushAlertsFrom = s.PushAlertsFrom;
+        g.PushOnlyWhenAway = s.PushOnlyWhenAway ? 1 : 0;
+        g.PushDiscordWebhook = s.PushDiscordWebhook;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1304,6 +1312,20 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("RepsStoppedSeconds")]
     public int RepsStoppedSeconds { get; set; } = 10;
+
+    // Alerts to a Discord webhook (IDEAS #2), new after 2.3.42: a file without them loads off, critical only, only
+    // while away, no link. The link is kept DPAPI-encrypted for the Windows user (WebhookSecret), never in plain.
+    [JsonPropertyName("PushAlerts")]
+    public int PushAlerts { get; set; }
+
+    [JsonPropertyName("PushAlertsFrom")]
+    public int PushAlertsFrom { get; set; }
+
+    [JsonPropertyName("PushOnlyWhenAway")]
+    public int PushOnlyWhenAway { get; set; } = 1;
+
+    [JsonPropertyName("PushDiscordWebhook")]
+    public string? PushDiscordWebhook { get; set; } = "";
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;
