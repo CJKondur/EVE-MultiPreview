@@ -2409,4 +2409,8 @@
     <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">The time the growth is measured over.</sys:String>
     <sys:String x:Key="L.Help.alerts.events.memory.Title">Client memory high</sys:String>
     <sys:String x:Key="L.Help.alerts.events.memory.Body">A long EVE session grows in memory until the client stutters or closes. **Client memory high** tells you early, so you can relog when it suits you. Turn it on in the event table (under Clients); it is off until you do.&#x0A;&#x0A;- **Above:** a client that uses this much memory is told once, and again only after its memory came well below it or after a relog.&#x0A;- **Grows by** and **within:** a client whose memory grew this much over this time is told, and then the time is counted again. The first ten minutes of a client are not counted: a client loads a lot right after it starts.&#x0A;&#x0A;MultiPreview reads each client's memory every few seconds, as the process stats on the thumbnails do. The memory of the graphics card is not counted.</sys:String>
+    <sys:String x:Key="L.Sheet.Title">Hotkeys of this profile</sys:String>
+    <sys:String x:Key="L.Sheet.None">No hotkeys are set. Set them on Clients › Hotkeys.</sys:String>
+    <sys:String x:Key="L.Sheet.More">and {0} more on Clients › Hotkeys</sys:String>
+    <sys:String x:Key="L.Sheet.Close">Click to close</sys:String>
 </ResourceDictionary>

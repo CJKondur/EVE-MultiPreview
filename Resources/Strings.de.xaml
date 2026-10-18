@@ -2409,4 +2409,8 @@
     <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">Die Zeit, über die das Wachstum gemessen wird.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Title">Client-Speicher hoch</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Body">Eine lange EVE-Sitzung braucht immer mehr Speicher, bis der Client ruckelt oder sich schließt. **Client-Speicher hoch** sagt dir früh Bescheid, damit du dich neu einloggen kannst, wann es dir passt. Schalte es in der Ereignistabelle ein (unter Clients); bis dahin ist es aus.&#x0A;&#x0A;- **Über:** Ein Client, der so viel Speicher belegt, wird einmal gemeldet und erst wieder, wenn sein Speicher deutlich darunter lag oder nach einem erneuten Einloggen.&#x0A;- **Wächst um** und **innerhalb:** Ein Client, dessen Speicher in dieser Zeit um so viel gewachsen ist, wird gemeldet; danach wird die Zeit neu gezählt. Die ersten zehn Minuten eines Clients zählen nicht mit: Direkt nach dem Start lädt ein Client viel.&#x0A;&#x0A;MultiPreview liest den Speicher jedes Clients alle paar Sekunden aus, wie die Prozessangaben auf den Vorschaubildern. Der Speicher der Grafikkarte wird nicht gezählt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Title">Hotkeys dieses Profils</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.None">Es sind keine Hotkeys festgelegt. Lege sie unter Clients › Hotkeys &amp; Wechseln fest.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.More">und {0} weitere unter Clients › Hotkeys &amp; Wechseln</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Close">Zum Schließen klicken</sys:String> <!-- draft -->
 </ResourceDictionary>

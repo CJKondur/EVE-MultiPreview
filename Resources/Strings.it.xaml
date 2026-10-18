@@ -2427,4 +2427,8 @@
     <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">Il tempo su cui si misura la crescita.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Title">Memoria del client alta</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Body">Una lunga sessione di EVE occupa sempre più memoria finché il client scatta o si chiude. **Memoria del client alta** ti avvisa per tempo, così puoi riaccedere quando ti fa comodo. Attivala nella tabella degli eventi (sotto Client); è disattivata finché non lo fai.&#x0A;&#x0A;- **Sopra:** un client che usa tanta memoria viene segnalato una volta, e di nuovo solo dopo che la sua memoria è scesa ben al di sotto o dopo un nuovo accesso.&#x0A;- **Cresce di** ed **entro:** un client la cui memoria è cresciuta di tanto in questo tempo viene segnalato, poi il tempo riparte da capo. I primi dieci minuti di un client non contano: subito dopo l'avvio un client carica molto.&#x0A;&#x0A;MultiPreview legge la memoria di ogni client ogni pochi secondi, come le statistiche di processo sulle miniature. La memoria della scheda grafica non viene contata.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Title">Scorciatoie di questo profilo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.None">Nessuna scorciatoia impostata. Impostale in Client › Scorciatoie e cambio client.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.More">e altre {0} in Client › Scorciatoie e cambio client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Close">Fai clic per chiudere</sys:String> <!-- draft -->
 </ResourceDictionary>

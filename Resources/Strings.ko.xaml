@@ -2410,4 +2410,8 @@
     <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">증가량을 재는 시간이에요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Title">클라이언트 메모리 높음</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Body">EVE를 오래 하면 메모리가 계속 늘어나서 클라이언트가 버벅이거나 종료돼요. **클라이언트 메모리 높음**은 미리 알려 주니까 편할 때 다시 접속할 수 있어요. 이벤트 표(‘클라이언트’ 아래)에서 켜세요. 켜기 전까지는 꺼져 있어요.&#x0A;&#x0A;- **한도:** 이만큼 메모리를 쓰는 클라이언트는 한 번 알려 주고, 메모리가 한참 내려간 뒤나 다시 접속한 뒤에만 다시 알려 줘요.&#x0A;- **증가량**과 **기간:** 이 기간에 메모리가 이만큼 늘어난 클라이언트를 알려 주고, 그다음에는 기간을 처음부터 다시 세요. 클라이언트의 처음 10분은 세지 않아요. 시작 직후에는 많이 불러오기 때문이에요.&#x0A;&#x0A;MultiPreview는 썸네일의 프로세스 정보처럼 몇 초마다 각 클라이언트의 메모리를 읽어요. 그래픽 카드의 메모리는 세지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Title">이 프로필의 단축키</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.None">설정된 단축키가 없어요. 클라이언트 › 단축키 및 전환에서 설정해 보세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.More">외 {0}개는 클라이언트 › 단축키 및 전환에서 볼 수 있어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Close">클릭하면 닫혀요</sys:String> <!-- draft -->
 </ResourceDictionary>

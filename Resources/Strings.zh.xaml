@@ -2427,4 +2427,8 @@
     <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">测量增长所用的时间。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Title">客户端内存过高</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Body">EVE 玩得久了，内存会不断增长，直到客户端卡顿或关闭。**客户端内存过高**会提早提醒你，让你可以在方便的时候重新登录。请在事件表中开启它（在“客户端”下）；在你开启之前它是关闭的。&#x0A;&#x0A;- **超过：**内存达到这个数值的客户端会被提醒一次；只有在它的内存明显降到下面之后，或重新登录之后，才会再次提醒。&#x0A;- **增长**和**时间范围：**内存在这段时间内增长了这么多的客户端会被提醒，然后重新计时。客户端启动后的前十分钟不计入：刚启动时客户端会加载很多内容。&#x0A;&#x0A;MultiPreview 每隔几秒读取一次每个客户端的内存，和缩略图上的进程统计一样。显卡的内存不计算在内。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Title">此配置文件的热键</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.None">尚未设置任何热键。请在“客户端 › 热键与切换”中设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.More">另有 {0} 个，见“客户端 › 热键与切换”</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Close">点击即可关闭</sys:String> <!-- draft -->
 </ResourceDictionary>

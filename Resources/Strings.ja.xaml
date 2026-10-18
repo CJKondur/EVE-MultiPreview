@@ -2410,4 +2410,8 @@
     <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">増加量を測る期間です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Title">クライアントのメモリ使用量が多い</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Body">EVE を長時間遊ぶとメモリが増え続け、やがてクライアントがカクついたり終了したりします。**クライアントのメモリ使用量が多い**は早めに知らせるので、都合のよいときに入り直せます。イベント表（「クライアント」の下）でオンにしてください。オンにするまではオフです。&#x0A;&#x0A;- **上限：**これだけメモリを使っているクライアントには 1 回だけ知らせ、メモリがかなり下がったあとか、入り直したあとにだけ、もう一度知らせます。&#x0A;- **増加量**と**期間：**この期間にメモリがこれだけ増えたクライアントに知らせ、そのあとは期間を数え直します。クライアントの最初の 10 分は数えません。起動直後はたくさん読み込むためです。&#x0A;&#x0A;MultiPreview は、サムネイルのプロセス情報と同じように、数秒ごとに各クライアントのメモリを読み取ります。グラフィックカードのメモリは数えません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Title">このプロファイルのホットキー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.None">ホットキーが設定されていません。「クライアント › ホットキーと切り替え」で設定できます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.More">ほか {0} 件は「クライアント › ホットキーと切り替え」にあります</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Close">クリックすると閉じます</sys:String> <!-- draft -->
 </ResourceDictionary>

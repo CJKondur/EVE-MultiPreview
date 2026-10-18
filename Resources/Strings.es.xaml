@@ -2431,4 +2431,8 @@
     <sys:String x:Key="L.S.alerts.events.memoryMinutes.Desc">El tiempo durante el cual se mide el crecimiento.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Title">Memoria del cliente alta</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.memory.Body">Una sesión larga de EVE va ocupando más memoria hasta que el cliente se entrecorta o se cierra. **Memoria del cliente alta** te avisa pronto, para que vuelvas a iniciar sesión cuando te venga bien. Actívalo en la tabla de eventos (en Clientes); está desactivado hasta que lo hagas.&#x0A;&#x0A;- **Por encima de:** a un cliente que usa tanta memoria se le avisa una vez, y otra vez solo después de que su memoria haya bajado bastante por debajo o de que vuelva a iniciar sesión.&#x0A;- **Crece en** y **dentro de:** a un cliente cuya memoria ha crecido tanto en este tiempo se le avisa, y después el tiempo vuelve a contarse. Los primeros diez minutos de un cliente no cuentan: un cliente carga mucho nada más iniciarse.&#x0A;&#x0A;MultiPreview lee la memoria de cada cliente cada pocos segundos, igual que las estadísticas de proceso de las miniaturas. La memoria de la tarjeta gráfica no se cuenta.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Title">Atajos de este perfil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.None">No hay atajos definidos. Defínelos en Clientes › Atajos y cambio de cliente.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.More">y {0} más en Clientes › Atajos y cambio de cliente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Sheet.Close">Haz clic para cerrar</sys:String> <!-- draft -->
 </ResourceDictionary>
