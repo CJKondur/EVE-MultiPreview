@@ -2414,4 +2414,9 @@
     <sys:String x:Key="L.Sheet.None">ホットキーが設定されていません。「クライアント › ホットキーと切り替え」で設定できます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.More">ほか {0} 件は「クライアント › ホットキーと切り替え」にあります</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.Close">クリックすると閉じます</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet">ホットキー早見表を表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet.Desc">このプロファイルのすべてのホットキーをサムネイルの上に表示します。もう一度キーを押すか、クリックすると閉じます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HotkeySheet">ホットキー早見表</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">ホットキー早見表</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">プロファイルが複数あり、それぞれにキャラクター別、グループ別、アプリ用のキーがあると、どのキーが何をするのか忘れやすくなります。早見表は、現在のプロファイルのすべてのホットキーを、ここでのカード名のままサムネイルの上に表示します。&#x0A;&#x0A;- **ホットキー早見表を表示** またはトレイメニュー（**ホットキー早見表**）から開きます。&#x0A;- もう一度キーを押すか、クリックするか、30秒後に閉じます。&#x0A;- EVE からフォーカスを奪うことはないので、表示中もキー入力はゲームに届きます。&#x0A;&#x0A;ホットキーを一時停止している間は、このキーも何もしません。</sys:String> <!-- draft -->
 </ResourceDictionary>

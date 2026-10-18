@@ -83,6 +83,7 @@ public partial class App : Application
     private readonly RefusalAnnouncer _refusalAnnouncer = new();
     private readonly RefusalNote _refusalNote = new();
     private AlertHistoryWindow? _historyWindow;
+    private Views.HotkeySheetWindow? _hotkeySheet;   // IDEAS #16: the hotkey cheat sheet, while it shows
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
     private ProcessMonitorService? _processMonitor;
@@ -596,6 +597,7 @@ public partial class App : Application
             _hotkeyService.ProfileCycleForward += () => CycleProfile(forward: true);
             _hotkeyService.ProfileCycleBackward += () => CycleProfile(forward: false);
             _hotkeyService.DoNotDisturbToggled += ToggleDoNotDisturb;   // IDEAS #32
+            _hotkeyService.HotkeySheetToggled += ToggleHotkeySheet;   // IDEAS #16
             // IDEAS #42: said after the registration is done, not from inside it. The pause key was registered before
             // the tray icon existed, and the other keys are asked for within the next half second. Told at once, the
             // pause key's note would be replaced by the note about the others: one second from now, one note names
@@ -1265,6 +1267,7 @@ public partial class App : Application
             OpenSettingsPage = page =>
                 Application.Current?.Dispatcher.BeginInvoke(new Action(() => OpenSettings(startMinimized: false, pageId: page))),
             OpenAlertHistory = () => Application.Current?.Dispatcher.BeginInvoke(new Action(OpenAlertHistory)),
+            OpenHotkeySheet = () => Application.Current?.Dispatcher.BeginInvoke(new Action(ToggleHotkeySheet)),
             SwitchProfile = name => _settings?.SwitchProfile(name),   // ProfileSwitched applies it (#101)
             IsSuspended = () => _hotkeyService?.IsSuspended ?? false,
             ToggleSuspend = () => _hotkeyService?.ToggleSuspend(),
@@ -1666,6 +1669,34 @@ public partial class App : Application
         }
     }
 
+    /// <summary>IDEAS #16: opens the hotkey cheat sheet over the thumbnails, or closes it when it is open. The ways in: its
+    /// hotkey and the tray menu. The rows come from the list the conflict check reads (HotkeySheet.Rows), so the sheet,
+    /// the conflict check and the refused-keys card never disagree. A failure is logged: a key press must not throw.</summary>
+    private void ToggleHotkeySheet()
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null) return;
+            if (_hotkeySheet != null)
+            {
+                var open = _hotkeySheet;
+                _hotkeySheet = null;
+                open.Dismiss();
+                return;
+            }
+            var rows = SettingsUi.HotkeySheet.Rows(_settings.Settings, SettingsUi.SettingsRegistry.Settings);
+            var sheet = new Views.HotkeySheetWindow(rows);
+            sheet.Closed += (_, _) => { if (ReferenceEquals(_hotkeySheet, sheet)) _hotkeySheet = null; };
+            _hotkeySheet = sheet;
+            sheet.Show();
+        }
+        catch (Exception ex)
+        {
+            _hotkeySheet = null;
+            LogError(ex);
+        }
+    }
+
     /// <summary>Brings a character's client to the front the way a click on its toast does
     /// (ThumbnailManager.ActivateEveWindow). False when no client of that character is running.</summary>
     private bool SwitchToCharacter(string name)
@@ -1736,6 +1767,7 @@ public partial class App : Application
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _keepAwake.Follow(false);   // IDEAS #46: Windows may sleep again
+        _hotkeySheet?.Dismiss();   // IDEAS #16
         _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
         _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center
         _pushWay?.Stop();   // IDEAS #2: what waits to be sent is dropped and the one sender is let go

@@ -18,6 +18,8 @@ public static class TrayCommands
     public const string ManageProfiles = "tray.manageProfiles";
     /// <summary>Opens the alert history window (IDEAS #1).</summary>
     public const string AlertHistory = "tray.alertHistory";
+    /// <summary>Opens the hotkey cheat sheet without its key (IDEAS #16).</summary>
+    public const string HotkeySheet = "tray.hotkeySheet";
     public const string Suspend = "tray.suspend";
     /// <summary>Do-not-disturb on or off (IDEAS #32).</summary>
     public const string DoNotDisturb = "tray.doNotDisturb";
@@ -46,6 +48,8 @@ public sealed class TrayMenuActions
     public Action<string> OpenSettingsPage { get; init; } = _ => { };
     /// <summary>Opens the alert history window (IDEAS #1).</summary>
     public Action OpenAlertHistory { get; init; } = () => { };
+    /// <summary>Opens, or closes, the hotkey cheat sheet (IDEAS #16).</summary>
+    public Action OpenHotkeySheet { get; init; } = () => { };
     public Action<string> SwitchProfile { get; init; } = _ => { };
     public Func<bool> IsSuspended { get; init; } = () => false;
     public Action ToggleSuspend { get; init; } = () => { };
@@ -80,7 +84,7 @@ public sealed class TrayMenu : IDisposable
 
     private readonly TrayMenuActions _a;
     private readonly List<(ToolStripItem Item, string Key, string English)> _labels = new();
-    private readonly ToolStripMenuItem _profiles, _suspend, _doNotDisturb, _lock, _hide, _clickThrough, _hideSecondary, _secondary, _restore, _snap;
+    private readonly ToolStripMenuItem _profiles, _suspend, _doNotDisturb, _hotkeySheet, _lock, _hide, _clickThrough, _hideSecondary, _secondary, _restore, _snap;
 
     public TrayMenu(TrayMenuActions actions)
     {
@@ -93,6 +97,9 @@ public sealed class TrayMenu : IDisposable
         FluentMenu.Style(_profiles.DropDown, showIcons: false);
         Strip.Items.Add(_profiles);
         Strip.Items.Add(Item(TrayCommands.AlertHistory, "L.Tray.AlertHistory", "Alert history…", FluentMenu.Glyphs.History, _a.OpenAlertHistory));
+        // IDEAS #16: no keyboard glyph in FluentMenu.Glyphs, and none is added.
+        _hotkeySheet = Item(TrayCommands.HotkeySheet, "L.Tray.HotkeySheet", "Hotkey cheat sheet", null, _a.OpenHotkeySheet);
+        Strip.Items.Add(_hotkeySheet);
         Strip.Items.Add(new ToolStripSeparator());
 
         // The alert hub follows the pause by itself (AlertHub.FollowPauseOf, IDEAS P37), whichever way it was paused.
@@ -187,6 +194,7 @@ public sealed class TrayMenu : IDisposable
 
         _suspend.ShortcutKeyDisplayString = Hint(s?.SuspendHotkey);
         _doNotDisturb.ShortcutKeyDisplayString = Hint(s?.DoNotDisturbHotkey);
+        _hotkeySheet.ShortcutKeyDisplayString = Hint(s?.HotkeySheetHotkey);
         _lock.ShortcutKeyDisplayString = Hint(s?.LockPositionsHotkey);
         _hide.ShortcutKeyDisplayString = Hint(s?.HideShowThumbnailsHotkey);
         _clickThrough.ShortcutKeyDisplayString = Hint(s?.ClickThroughHotkey);

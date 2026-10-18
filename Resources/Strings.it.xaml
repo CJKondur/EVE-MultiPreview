@@ -2431,4 +2431,9 @@
     <sys:String x:Key="L.Sheet.None">Nessuna scorciatoia impostata. Impostale in Client › Scorciatoie e cambio client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.More">e altre {0} in Client › Scorciatoie e cambio client</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.Close">Fai clic per chiudere</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet">Mostra il promemoria delle scorciatoie</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet.Desc">Mostra tutte le scorciatoie di questo profilo sopra le miniature. Premi di nuovo o fai clic per chiuderlo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HotkeySheet">Promemoria delle scorciatoie</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">Il promemoria delle scorciatoie</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">Con più profili, ciascuno con tasti per personaggio, per gruppo e per l'app, è facile dimenticare quale tasto fa cosa. Il promemoria mostra tutte le scorciatoie del profilo attuale, con il nome che ha la loro scheda qui, sopra le miniature.&#x0A;&#x0A;- Aprilo con **Mostra il promemoria delle scorciatoie** o dal menu della barra di sistema (**Promemoria delle scorciatoie**).&#x0A;- Si chiude quando premi di nuovo il tasto, ci fai clic sopra o dopo 30 secondi.&#x0A;- Non toglie mai il focus a EVE, quindi i tuoi tasti continuano ad andare al gioco mentre è visibile.&#x0A;&#x0A;Finché le scorciatoie sono in pausa, nemmeno il suo tasto fa nulla.</sys:String> <!-- draft -->
 </ResourceDictionary>

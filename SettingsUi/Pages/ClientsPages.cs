@@ -38,6 +38,7 @@ public static class ClientsPages
             "clients.hotkeys.hidePip", "clients.hotkeys.hideCrops", "clients.hotkeys.quickSwitch", "clients.hotkeys.lockPositions",
             "clients.hotkeys.undo", "clients.hotkeys.redo", "clients.hotkeys.profileNext", "clients.hotkeys.profilePrevious", "clients.hotkeys.closeAll",
         }),
+        new HelpTopic(HotkeysId, "sheet", new[] { "clients.hotkeys.sheet" }),
         new HelpTopic(HotkeysId, "conflicts", new[] { "clients.hotkeys.conflicts" }),
         new HelpTopic(HotkeysId, "refused", new[] { RefusedHotkeysEditor.ItemId }),
         new HelpTopic(GroupsId, "keys", new[] { "clients.groups.editor" }),
@@ -162,6 +163,7 @@ public static class ClientsPages
             Hotkey("clients.hotkeys.profileNext", s => s.ProfileCycleForwardHotkey, "TxtProfileCycleForward"),
             Hotkey("clients.hotkeys.profilePrevious", s => s.ProfileCycleBackwardHotkey, "TxtProfileCycleBackward"),
             Hotkey("clients.hotkeys.closeAll", s => s.CloseAllClientsHotkey, "TxtCloseAllClientsHotkey"),
+            Hotkey("clients.hotkeys.sheet", s => s.HotkeySheetHotkey),
         }),
         new SectionDef("clients.hotkeys.check", new PageItem[]
         {

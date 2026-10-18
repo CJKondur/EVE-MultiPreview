@@ -2431,4 +2431,9 @@
     <sys:String x:Key="L.Sheet.None">尚未设置任何热键。请在“客户端 › 热键与切换”中设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.More">另有 {0} 个，见“客户端 › 热键与切换”</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.Close">点击即可关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet">显示热键速查表</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet.Desc">在缩略图上方显示此配置文件的所有热键。再按一次该键或点击速查表即可关闭。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HotkeySheet">热键速查表</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">热键速查表</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">配置文件一多，每个都有按角色、按分组和针对应用的按键，就很容易忘记哪个键做什么。速查表会在缩略图上方显示当前配置文件的所有热键，名称与它们在这里的卡片名称一致。&#x0A;&#x0A;- 用 **显示热键速查表** 打开，或从托盘菜单（**热键速查表**）打开。&#x0A;- 再按一次该键、点击它，或等待 30 秒，它就会关闭。&#x0A;- 它不会从 EVE 抢走焦点，所以显示期间你的按键仍会发送给游戏。&#x0A;&#x0A;热键暂停时，它的按键也不会有任何作用。</sys:String> <!-- draft -->
 </ResourceDictionary>

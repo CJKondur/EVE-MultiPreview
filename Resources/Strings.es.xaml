@@ -2435,4 +2435,9 @@
     <sys:String x:Key="L.Sheet.None">No hay atajos definidos. Defínelos en Clientes › Atajos y cambio de cliente.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.More">y {0} más en Clientes › Atajos y cambio de cliente</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.Close">Haz clic para cerrar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet">Mostrar la hoja de atajos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet.Desc">Muestra todos los atajos de este perfil sobre las miniaturas. Pulsa de nuevo o haz clic en ella para cerrarla.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HotkeySheet">Hoja de atajos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">La hoja de atajos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">Con varios perfiles, cada uno con teclas por personaje, por grupo y para la aplicación, es fácil olvidar qué hace cada tecla. La hoja de atajos muestra todos los atajos del perfil actual, con el nombre que tiene su tarjeta aquí, sobre las miniaturas.&#x0A;&#x0A;- Ábrela con **Mostrar la hoja de atajos** o desde el menú de la bandeja (**Hoja de atajos**).&#x0A;- Se cierra al pulsar la tecla de nuevo, al hacer clic en ella o tras 30 segundos.&#x0A;- Nunca le quita el foco a EVE, así que tus teclas siguen llegando al juego mientras se muestra.&#x0A;&#x0A;Mientras los atajos están en pausa, su tecla tampoco hace nada.</sys:String> <!-- draft -->
 </ResourceDictionary>

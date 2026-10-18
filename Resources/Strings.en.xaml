@@ -2413,4 +2413,9 @@
     <sys:String x:Key="L.Sheet.None">No hotkeys are set. Set them on Clients › Hotkeys &amp; switching.</sys:String>
     <sys:String x:Key="L.Sheet.More">and {0} more on Clients › Hotkeys &amp; switching</sys:String>
     <sys:String x:Key="L.Sheet.Close">Click to close</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.sheet">Show the hotkey cheat sheet</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.sheet.Desc">Shows every hotkey of this profile over the thumbnails. Press again or click it to close.</sys:String>
+    <sys:String x:Key="L.Tray.HotkeySheet">Hotkey cheat sheet</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">The hotkey cheat sheet</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">With several profiles, each with keys per character, per group and for the app, it is easy to forget which key does what. The cheat sheet shows every hotkey of the current profile, by the name its card has here, over the thumbnails.&#x0A;&#x0A;- Open it with **Show the hotkey cheat sheet** or from the tray menu (**Hotkey cheat sheet**).&#x0A;- It closes when you press the key again, click it, or after 30 seconds.&#x0A;- It never takes the focus from EVE, so your keys keep going to the game while it shows.&#x0A;&#x0A;While hotkeys are paused, its key does nothing either.</sys:String>
 </ResourceDictionary>

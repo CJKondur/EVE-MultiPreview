@@ -824,6 +824,13 @@ public sealed class HotkeyService : IDisposable
             DoNotDisturbToggled?.Invoke();
         });
 
+        // The hotkey cheat sheet (IDEAS #16). It switches no client, so it is no cycle-ignore key.
+        StoreAhkHotkey(settings.HotkeySheetHotkey, () =>
+        {
+            if (_suspended) return;
+            HotkeySheetToggled?.Invoke();
+        });
+
         // ── Per-character hotkeys from profile ───────────────────────
 
         var sharedHotkeys = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -913,6 +920,9 @@ public sealed class HotkeyService : IDisposable
 
     /// <summary>The do-not-disturb hotkey was pressed (IDEAS #32). App flips it and says so.</summary>
     public event Action? DoNotDisturbToggled;
+
+    /// <summary>The hotkey cheat sheet's key was pressed (IDEAS #16). App opens the sheet, or closes it when it is open.</summary>
+    public event Action? HotkeySheetToggled;
 
     // ── Hotkeys Windows refused (IDEAS #42) ──
     /// <summary>The hotkeys Windows refused the last time they were registered, and whether they have been registered

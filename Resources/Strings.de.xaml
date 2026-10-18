@@ -2413,4 +2413,9 @@
     <sys:String x:Key="L.Sheet.None">Es sind keine Hotkeys festgelegt. Lege sie unter Clients › Hotkeys &amp; Wechseln fest.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.More">und {0} weitere unter Clients › Hotkeys &amp; Wechseln</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.Close">Zum Schließen klicken</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet">Hotkey-Spickzettel anzeigen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet.Desc">Zeigt alle Hotkeys dieses Profils über den Vorschaubildern. Drücke die Taste noch einmal oder klicke darauf, um ihn zu schließen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HotkeySheet">Hotkey-Spickzettel</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">Der Hotkey-Spickzettel</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">Bei mehreren Profilen mit Tasten pro Charakter, pro Gruppe und für die App vergisst man leicht, welche Taste was macht. Der Spickzettel zeigt alle Hotkeys des aktuellen Profils unter dem Namen, den ihre Karte hier trägt, über den Vorschaubildern.&#x0A;&#x0A;- Öffne ihn mit **Hotkey-Spickzettel anzeigen** oder im Tray-Menü (**Hotkey-Spickzettel**).&#x0A;- Er schließt sich, wenn du die Taste noch einmal drückst, darauf klickst oder nach 30 Sekunden.&#x0A;- Er nimmt EVE nie den Fokus, deine Tasten gehen also weiter an das Spiel, solange er angezeigt wird.&#x0A;&#x0A;Solange die Hotkeys pausiert sind, tut auch seine Taste nichts.</sys:String> <!-- draft -->
 </ResourceDictionary>

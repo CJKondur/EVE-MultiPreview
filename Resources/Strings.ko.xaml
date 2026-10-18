@@ -2414,4 +2414,9 @@
     <sys:String x:Key="L.Sheet.None">설정된 단축키가 없어요. 클라이언트 › 단축키 및 전환에서 설정해 보세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.More">외 {0}개는 클라이언트 › 단축키 및 전환에서 볼 수 있어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.Close">클릭하면 닫혀요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet">단축키 요약표 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet.Desc">이 프로필의 모든 단축키를 썸네일 위에 표시해요. 키를 한 번 더 누르거나 클릭하면 닫혀요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HotkeySheet">단축키 요약표</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">단축키 요약표</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">프로필이 여러 개이고 각각 캐릭터별, 그룹별, 앱용 키가 있으면 어떤 키가 무슨 일을 하는지 잊기 쉬워요. 요약표는 현재 프로필의 모든 단축키를 이 화면의 카드 이름 그대로 썸네일 위에 보여 줘요.&#x0A;&#x0A;- **단축키 요약표 표시**로 열거나 트레이 메뉴(**단축키 요약표**)에서 열어요.&#x0A;- 키를 한 번 더 누르거나, 클릭하거나, 30초가 지나면 닫혀요.&#x0A;- EVE에서 포커스를 빼앗지 않아서, 표시되는 동안에도 키 입력이 게임으로 계속 가요.&#x0A;&#x0A;단축키가 일시정지된 동안에는 이 키도 아무 일도 하지 않아요.</sys:String> <!-- draft -->
 </ResourceDictionary>

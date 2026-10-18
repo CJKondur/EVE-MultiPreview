@@ -2416,4 +2416,9 @@
     <sys:String x:Key="L.Sheet.None">Aucun raccourci n'est défini. Définissez-les sous Clients › Raccourcis et changement de client.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.More">et {0} de plus sous Clients › Raccourcis et changement de client</sys:String> <!-- draft -->
     <sys:String x:Key="L.Sheet.Close">Cliquez pour fermer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet">Afficher l'aide-mémoire des raccourcis</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.sheet.Desc">Affiche tous les raccourcis de ce profil par-dessus les miniatures. Appuyez à nouveau ou cliquez dessus pour le fermer.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.HotkeySheet">Aide-mémoire des raccourcis</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Title">L'aide-mémoire des raccourcis</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.sheet.Body">Avec plusieurs profils, chacun avec des touches par personnage, par groupe et pour l'application, on oublie facilement quelle touche fait quoi. L'aide-mémoire affiche tous les raccourcis du profil actuel, sous le nom que leur carte porte ici, par-dessus les miniatures.&#x0A;&#x0A;- Ouvrez-le avec **Afficher l'aide-mémoire des raccourcis** ou depuis le menu de la zone de notification (**Aide-mémoire des raccourcis**).&#x0A;- Il se ferme quand vous appuyez à nouveau sur la touche, quand vous cliquez dessus ou au bout de 30 secondes.&#x0A;- Il ne prend jamais le focus à EVE : vos touches continuent d'aller au jeu pendant qu'il s'affiche.&#x0A;&#x0A;Tant que les raccourcis sont en pause, sa touche ne fait rien non plus.</sys:String> <!-- draft -->
 </ResourceDictionary>

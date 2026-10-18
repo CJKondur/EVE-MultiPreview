@@ -139,6 +139,7 @@ public class AhkConfigRoot
         s.MemoryAlertMb = g.MemoryAlertMb;
         s.MemoryGrowthMb = g.MemoryGrowthMb;
         s.MemoryGrowthMinutes = g.MemoryGrowthMinutes;
+        s.HotkeySheetHotkey = g.HotkeySheetHotkey ?? "";
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -477,6 +478,7 @@ public class AhkConfigRoot
         g.MemoryAlertMb = s.MemoryAlertMb;
         g.MemoryGrowthMb = s.MemoryGrowthMb;
         g.MemoryGrowthMinutes = s.MemoryGrowthMinutes;
+        g.HotkeySheetHotkey = s.HotkeySheetHotkey;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1348,6 +1350,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("MemoryGrowthMinutes")]
     public int MemoryGrowthMinutes { get; set; } = 120;
+
+    // The hotkey cheat sheet's key (IDEAS #16), new after 2.3.42: a file without it loads it unbound.
+    [JsonPropertyName("HotkeySheetHotkey")]
+    public string? HotkeySheetHotkey { get; set; } = "";
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

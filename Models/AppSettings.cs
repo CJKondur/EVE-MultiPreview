@@ -266,6 +266,10 @@ public class AppSettings
     public int MemoryGrowthMb { get; set; } = 1024;
     public int MemoryGrowthMinutes { get; set; } = 120;
 
+    /// <summary>The hotkey that opens the hotkey cheat sheet over the thumbnails, and closes it again (IDEAS #16). Read by
+    /// HotkeyService.RegisterFromSettings and by the tray menu's hint. New key: unbound in a file without it.</summary>
+    public string HotkeySheetHotkey { get; set; } = "";
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients
