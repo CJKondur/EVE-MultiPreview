@@ -2425,4 +2425,14 @@
     <sys:String x:Key="L.Tray.DowntimeWarning">Downtime (11:00 UTC) in {0} min. Logged in: {1}</sys:String>
     <sys:String x:Key="L.Help.app.general.downtime.Title">Downtime</sys:String>
     <sys:String x:Key="L.Help.app.general.downtime.Body">EVE's server goes down every day at 11:00 UTC. With **Downtime countdown and warnings** on:&#x0A;&#x0A;- the first line of the tray menu counts down to it;&#x0A;- a tray note 15 minutes and again 5 minutes before it names every character that is logged in, so a ratting or mining fleet can dock in time.&#x0A;&#x0A;EVE's logs say when a character undocks but never when it docks, so the note names everyone who is logged in, not only those in space. When MultiPreview starts, or the first character logs in, less than 15 minutes before downtime, the note comes at once.</sys:String>
+    <!-- Ideas batch 9 (Plan 13) -->
+    <sys:String x:Key="L.S.Sec.thumbs.text.clientState">When a client stops</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.notResponding">Show “Not responding” on a frozen client</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.notResponding.Desc">When Windows reports that a client's window has stopped answering, its thumbnail says so.</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.disconnected">Show “Disconnected” when a client loses the server</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.disconnected.Desc">When a logged-in client has had no connection to EVE's server for the time below, its thumbnail says so.</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.disconnectSeconds">Disconnected after</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">How long a client must be without its server connection before it is marked.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Title">When a client stops</sys:String>
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">A frozen or disconnected client looks like an idle one until you switch to it. MultiPreview can mark its thumbnail:&#x0A;&#x0A;- **Not responding**: Windows says the client's window has stopped answering (the same test Task Manager uses: no answer for five seconds). The mark goes when the client answers again.&#x0A;- **Disconnected**: a logged-in client has had no connection to EVE's server for the time you set. MultiPreview asks Windows which connections each client has; it sends nothing anywhere.&#x0A;&#x0A;To stay clear of false marks, a client that never had a server connection, or whose connections go through a proxy on this PC, is never marked Disconnected, so some VPN and proxy setups show nothing. Both marks are off until you turn them on.</sys:String>
 </ResourceDictionary>

@@ -2443,4 +2443,14 @@
     <sys:String x:Key="L.Tray.DowntimeWarning">停机（11:00 UTC）还有 {0} 分钟。已登录：{1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.downtime.Title">停机</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.downtime.Body">EVE 服务器每天 11:00 UTC 停机。开启**停机倒计时和提醒**后：&#x0A;&#x0A;- 托盘菜单的第一行会倒数到停机；&#x0A;- 停机前 15 分钟和 5 分钟，托盘通知会列出每个已登录的角色，让刷怪或采矿舰队来得及靠站。&#x0A;&#x0A;EVE 的日志会记录角色何时离站，却从不记录何时靠站，所以通知列出的是所有已登录的角色，而不只是在太空中的角色。如果 MultiPreview 启动时，或第一个角色登录时，离停机不到 15 分钟，通知会立刻出现。</sys:String> <!-- draft -->
+    <!-- Ideas batch 9 (Plan 13) -->
+    <sys:String x:Key="L.S.Sec.thumbs.text.clientState">客户端停止时</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.notResponding">客户端卡死时显示“未响应”</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.notResponding.Desc">当 Windows 报告客户端窗口不再响应时，其缩略图会显示提示。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnected">客户端与服务器断开时显示“已断开连接”</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnected.Desc">已登录的客户端与 EVE 服务器断开连接超过下方设定的时间后，其缩略图会显示提示。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnectSeconds">断开判定时间</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">客户端失去服务器连接多久后才会被标记。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Title">客户端停止时</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">卡死或断线的客户端在你切换过去之前，看起来和空闲的没什么两样。MultiPreview 可以在它的缩略图上加标记：&#x0A;&#x0A;- **未响应**：Windows 报告客户端窗口不再响应（与任务管理器使用的检测相同：五秒内没有应答）。客户端恢复响应后，标记随即消失。&#x0A;- **已断开连接**：已登录的客户端在你设定的时间内与 EVE 服务器没有任何连接。MultiPreview 只向 Windows 查询每个客户端的连接，不会向任何地方发送数据。&#x0A;&#x0A;为避免误标，从未建立过服务器连接的客户端，或连接经过本机代理的客户端，永远不会被标为已断开连接，因此某些 VPN 和代理环境下不会显示任何标记。两种标记默认都是关闭的，需要你自己开启。</sys:String> <!-- draft -->
 </ResourceDictionary>

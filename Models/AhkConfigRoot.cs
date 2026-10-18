@@ -141,6 +141,9 @@ public class AhkConfigRoot
         s.MemoryGrowthMinutes = g.MemoryGrowthMinutes;
         s.HotkeySheetHotkey = g.HotkeySheetHotkey ?? "";
         s.DowntimeWarnings = g.DowntimeWarnings != 0;
+        s.ClientNotRespondingBadge = g.ClientNotRespondingBadge != 0;
+        s.ClientDisconnectedBadge = g.ClientDisconnectedBadge != 0;
+        s.DisconnectedSeconds = g.DisconnectedSeconds;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -481,6 +484,9 @@ public class AhkConfigRoot
         g.MemoryGrowthMinutes = s.MemoryGrowthMinutes;
         g.HotkeySheetHotkey = s.HotkeySheetHotkey;
         g.DowntimeWarnings = s.DowntimeWarnings ? 1 : 0;
+        g.ClientNotRespondingBadge = s.ClientNotRespondingBadge ? 1 : 0;
+        g.ClientDisconnectedBadge = s.ClientDisconnectedBadge ? 1 : 0;
+        g.DisconnectedSeconds = s.DisconnectedSeconds;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1360,6 +1366,16 @@ public class AhkGlobalSettings
     // The downtime countdown and warnings (IDEAS #9), new after 2.3.42: a file without it loads them off.
     [JsonPropertyName("DowntimeWarnings")]
     public int DowntimeWarnings { get; set; }
+
+    // The Not responding and Disconnected marks and the disconnect time (IDEAS #22, #47), batch 9: a file without them loads off, off, 60.
+    [JsonPropertyName("ClientNotRespondingBadge")]
+    public int ClientNotRespondingBadge { get; set; }
+
+    [JsonPropertyName("ClientDisconnectedBadge")]
+    public int ClientDisconnectedBadge { get; set; }
+
+    [JsonPropertyName("DisconnectedSeconds")]
+    public int DisconnectedSeconds { get; set; } = 60;
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

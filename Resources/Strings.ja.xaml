@@ -2426,4 +2426,14 @@
     <sys:String x:Key="L.Tray.DowntimeWarning">ダウンタイム（11:00 UTC）まであと {0} 分。ログイン中：{1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.downtime.Title">ダウンタイム</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.downtime.Body">EVE のサーバーは毎日 11:00 UTC にダウンします。**ダウンタイムのカウントダウンと警告**をオンにすると、次のようになります。&#x0A;&#x0A;- トレイメニューの先頭行がダウンタイムまでカウントダウンします。&#x0A;- 15 分前と 5 分前に、ログイン中のキャラクターすべてをトレイの通知でお知らせします。ラッティングやマイニングの艦隊が間に合ってドッキングできます。&#x0A;&#x0A;EVE のログにはキャラクターがアンドックした時刻は残りますが、ドックした時刻は残りません。そのため、通知は宇宙にいるキャラクターだけでなく、ログイン中の全員を挙げます。MultiPreview の起動時や最初のキャラクターのログイン時にダウンタイムまで 15 分を切っている場合は、すぐに通知が出ます。</sys:String> <!-- draft -->
+    <!-- Ideas batch 9 (Plan 13) -->
+    <sys:String x:Key="L.S.Sec.thumbs.text.clientState">クライアントが止まったとき</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.notResponding">固まったクライアントに「応答なし」を表示する</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.notResponding.Desc">クライアントのウィンドウが応答しなくなったとWindowsが報告すると、そのサムネイルに表示されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnected">クライアントがサーバーとの接続を失ったら「切断」を表示する</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnected.Desc">ログイン中のクライアントが、下で設定した時間EVEのサーバーに接続していないと、そのサムネイルに表示されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnectSeconds">切断と判定するまでの時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">サーバーへの接続がない状態が何秒続いたらマークを付けるかを設定します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Title">クライアントが止まったとき</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">固まったクライアントや切断されたクライアントは、切り替えるまでは待機中のクライアントと見分けがつきません。MultiPreviewはそのサムネイルにマークを付けられます。&#x0A;&#x0A;- **応答なし**：クライアントのウィンドウが応答しなくなったとWindowsが報告した状態です（タスクマネージャーと同じ判定で、5秒間応答がない場合）。クライアントが再び応答するとマークは消えます。&#x0A;- **切断**：ログイン中のクライアントが、設定した時間EVEのサーバーに接続していない状態です。MultiPreviewは各クライアントの接続をWindowsに問い合わせるだけで、どこにも何も送信しません。&#x0A;&#x0A;誤ったマークを避けるため、サーバーに一度も接続したことがないクライアントや、このPC上のプロキシ経由で接続しているクライアントは「切断」になりません。そのため、VPNやプロキシの環境によっては何も表示されません。どちらのマークも、オンにするまではオフです。</sys:String> <!-- draft -->
 </ResourceDictionary>

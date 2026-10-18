@@ -43,6 +43,7 @@ public static class ThumbnailsPages
             "thumbs.text.inactiveColor", "thumbs.text.inactiveWidth", "thumbs.text.groupBorders",
         }),
         new HelpTopic(TextId, "marks", new[] { "thumbs.text.badgePosition" }),
+        new HelpTopic(TextId, "clientState", new[] { "thumbs.text.notResponding", "thumbs.text.disconnected", "thumbs.text.disconnectSeconds" }),
         new HelpTopic(LayoutId, "screens", new[]
         {
             "thumbs.layout.monitor", "thumbs.layout.identifyRow", "thumbs.layout.startX", "thumbs.layout.startY",
@@ -248,6 +249,18 @@ public static class ThumbnailsPages
             {
                 Options = ThumbnailFields.AnchorOptions,
                 Replaces = new[] { "CmbExclusionBadgePos" },
+            }),
+        }),
+        // IDEAS #22, #47: App reads all three at each look of the process monitor (every 3 s), so a change only saves.
+        new SectionDef("thumbs.text.clientState", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("thumbs.text.notResponding", s => s.ClientNotRespondingBadge)),
+            new SettingItem(Setting.Toggle("thumbs.text.disconnected", s => s.ClientDisconnectedBadge)),
+            new SettingItem(Setting.Number("thumbs.text.disconnectSeconds", s => s.DisconnectedSeconds,
+                ClientWatchOptions.MinSeconds, ClientWatchOptions.MaxSeconds, "L.S.Unit.Sec") with
+            {
+                Get = s => Math.Clamp(s.DisconnectedSeconds, ClientWatchOptions.MinSeconds, ClientWatchOptions.MaxSeconds),
+                ShowIf = s => s.ClientDisconnectedBadge,
             }),
         }),
     });

@@ -275,6 +275,18 @@ public class AppSettings
     /// file without it.</summary>
     public bool DowntimeWarnings { get; set; } = false;
 
+    /// <summary>Show "Not responding" on the thumbnail of a client whose window Windows reports as hung (IDEAS #22). Read by
+    /// App through ClientWatchOptions.Of at each look of the process monitor. New key: off in a file without it.</summary>
+    public bool ClientNotRespondingBadge { get; set; } = false;
+
+    /// <summary>Show "Disconnected" on the thumbnail of a logged-in client that has had no connection to EVE's server for
+    /// DisconnectedSeconds (IDEAS #47). Read by App through ClientWatchOptions.Of. New key: off in a file without it.</summary>
+    public bool ClientDisconnectedBadge { get; set; } = false;
+
+    /// <summary>Seconds without a server connection before a client is marked Disconnected (IDEAS #47). Read by App through
+    /// ClientWatchOptions.Of, which holds it to 20-600. New key: 60 in a file without it.</summary>
+    public int DisconnectedSeconds { get; set; } = 60;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

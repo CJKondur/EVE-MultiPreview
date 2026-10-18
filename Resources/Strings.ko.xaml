@@ -2426,4 +2426,14 @@
     <sys:String x:Key="L.Tray.DowntimeWarning">다운타임(11:00 UTC)까지 {0}분. 로그인 중: {1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.downtime.Title">다운타임</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.downtime.Body">EVE 서버는 매일 11:00 UTC에 내려가요. **다운타임 카운트다운과 경고**를 켜면 이렇게 돼요.&#x0A;&#x0A;- 트레이 메뉴의 첫 줄이 다운타임까지 카운트다운해요.&#x0A;- 15분 전과 5분 전에 트레이 알림이 로그인 중인 캐릭터를 모두 알려 줘서, 래팅이나 채굴 함대가 제때 도킹할 수 있어요.&#x0A;&#x0A;EVE의 로그에는 캐릭터가 언제 언도킹했는지는 남지만 언제 도킹했는지는 남지 않아요. 그래서 알림은 우주에 있는 캐릭터만이 아니라 로그인 중인 모든 캐릭터를 알려 줘요. MultiPreview가 시작될 때나 첫 캐릭터가 로그인할 때 다운타임까지 15분이 안 남았다면 알림이 바로 나와요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 9 (Plan 13) -->
+    <sys:String x:Key="L.S.Sec.thumbs.text.clientState">클라이언트가 멈췄을 때</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.notResponding">멈춘 클라이언트에 '응답 없음' 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.notResponding.Desc">Windows가 클라이언트 창이 응답하지 않는다고 알리면 썸네일에 표시해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnected">클라이언트가 서버 연결을 잃으면 '연결 끊김' 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnected.Desc">로그인한 클라이언트가 아래 시간 동안 EVE 서버에 연결되어 있지 않으면 썸네일에 표시해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnectSeconds">연결 끊김 판정 시간</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">서버 연결 없이 얼마나 지나야 표시할지 정해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Title">클라이언트가 멈췄을 때</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">멈추거나 연결이 끊긴 클라이언트는 전환해 보기 전까지는 가만히 있는 클라이언트와 똑같아 보여요. MultiPreview는 그 썸네일에 표시를 붙일 수 있어요.&#x0A;&#x0A;- **응답 없음**: Windows가 클라이언트 창이 응답하지 않는다고 알려요(작업 관리자와 같은 검사로, 5초 동안 응답이 없을 때). 클라이언트가 다시 응답하면 표시가 사라져요.&#x0A;- **연결 끊김**: 로그인한 클라이언트가 설정한 시간 동안 EVE 서버에 연결되어 있지 않아요. MultiPreview는 각 클라이언트의 연결을 Windows에 물어볼 뿐 어디에도 아무것도 보내지 않아요.&#x0A;&#x0A;잘못된 표시를 피하려고, 서버에 연결된 적이 없는 클라이언트나 이 PC의 프록시를 거쳐 연결하는 클라이언트는 '연결 끊김'으로 표시하지 않아요. 그래서 일부 VPN과 프록시 환경에서는 아무것도 표시되지 않을 수 있어요. 두 표시 모두 직접 켜기 전에는 꺼져 있어요.</sys:String> <!-- draft -->
 </ResourceDictionary>

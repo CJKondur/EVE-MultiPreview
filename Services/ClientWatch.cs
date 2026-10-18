@@ -23,6 +23,13 @@ public readonly record struct ClientWatchOptions(bool HungBadge, bool HungEvent,
 {
     public const int MinSeconds = 20, MaxSeconds = 600, DefaultSeconds = 60;
 
+    /// <summary>The marks and the frozen alert as the settings have them; nothing at all without settings. The time is held
+    /// to its range; a stored number outside it is not rewritten.</summary>
+    public static ClientWatchOptions Of(Models.AppSettings? s, Func<string, bool> eventOn) => s == null
+        ? new(false, false, false, DefaultSeconds)
+        : new(s.ClientNotRespondingBadge, eventOn(ClientWatch.HungEvent), s.ClientDisconnectedBadge,
+            Math.Clamp(s.DisconnectedSeconds, MinSeconds, MaxSeconds));
+
     /// <summary>What a look has to ask Windows for these switches; nothing is asked that no switch is on for.</summary>
     public ClientProbeWants Wants(bool closedOn) =>
         (HungBadge || HungEvent ? ClientProbeWants.Hung : ClientProbeWants.None)
