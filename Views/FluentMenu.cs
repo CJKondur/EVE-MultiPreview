@@ -203,16 +203,20 @@ public static class FluentMenu
     };
 
     /// <summary>Windows 11 rounds the menu's corners as the look says and draws its edge in the flyout border colour.
-    /// Windows 10 doesn't know these attributes and returns an error, which is ignored: the menu stays square there.</summary>
+    /// Windows 10 doesn't know these attributes: they are not sent there, and the menu stays square (plan S5, as the title
+    /// bar's).</summary>
     public static void RoundCorners(IntPtr hwnd)
     {
-        if (hwnd == IntPtr.Zero) return;
+        if (hwnd == IntPtr.Zero || !RoundsCorners(Environment.OSVersion.Version.Build)) return;
         int round = CornerPreference(SettingsUi.UiPalette.Current.Corners);
         DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref round, sizeof(int));
         var edge = FluentPalette.Drawing("Fx.FlyoutBorder");
         int colorRef = edge.R | (edge.G << 8) | (edge.B << 16);
         DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, ref colorRef, sizeof(int));
     }
+
+    /// <summary>Whether Windows of <paramref name="build"/> has the menu's corner and edge attributes (33, 34): Windows 11.</summary>
+    public static bool RoundsCorners(int build) => build >= SettingsUi.TitleBar.Windows11Build;
 }
 
 /// <summary>Paints <see cref="FluentMenu"/>'s look. Stateless.</summary>

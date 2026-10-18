@@ -51,6 +51,16 @@ public static class TitleBar
     /// <summary>Whether Windows of <paramref name="build"/> has the system backdrop attribute (38).</summary>
     public static bool SetsBackdrop(int build) => build >= BackdropBuild;
 
+    /// <summary>Everything <see cref="Apply"/> sets on a window of Windows <paramref name="build"/>: the palette's attributes,
+    /// then "no backdrop" for a look without Fluent where Windows has the attribute (a Fluent look's Mica is WPF's, set
+    /// again when Fluent comes back).</summary>
+    public static IReadOnlyList<(int Attribute, int Value)> ToApply(UiPalette palette, bool usesFluent, int build)
+    {
+        var all = new List<(int Attribute, int Value)>(Attributes(palette, build));
+        if (!usesFluent && SetsBackdrop(build)) all.Add((Backdrop, NoBackdrop));
+        return all;
+    }
+
     /// <summary>Raised for each window whose title bar was coloured (tests).</summary>
     public static event Action<Window>? Applied;
 
@@ -60,15 +70,10 @@ public static class TitleBar
     {
         var hwnd = new WindowInteropHelper(window).Handle;
         if (hwnd == IntPtr.Zero) return;
-        foreach (var (attribute, value) in Attributes(UiPalette.Current))
+        foreach (var (attribute, value) in ToApply(UiPalette.Current, UiStyles.Effective.UsesFluent, Environment.OSVersion.Version.Build))
         {
             int v = value;
             DwmSetWindowAttribute(hwnd, attribute, ref v, sizeof(int));
-        }
-        if (!UiStyles.Effective.UsesFluent && SetsBackdrop(Environment.OSVersion.Version.Build))
-        {
-            int none = NoBackdrop;   // a Fluent look's is WPF's, set again when Fluent comes back
-            DwmSetWindowAttribute(hwnd, Backdrop, ref none, sizeof(int));
         }
         Applied?.Invoke(window);
     }
