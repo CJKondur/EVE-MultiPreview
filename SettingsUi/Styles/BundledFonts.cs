@@ -119,10 +119,23 @@ public static class BundledFonts
     /// <summary>Tests only: runs before a family's files are added to the process; an exception it throws is a refusal.</summary>
     public static Action<string>? Loading { get; set; }
 
-    /// <summary>Tests only: forgets a family's kept collection and its refusals, so the next call loads it again.</summary>
+    /// <summary>Tests only: forgets a family's kept collection and its refusals, so the next call loads it again. The
+    /// collection is disposed here, at once: left to the finalizer, its GdipDeletePrivateFontCollection ran on the finalizer
+    /// thread at any moment, also while a later load of the same family was under way (IDEAS P107). A menu font made from it
+    /// is the caller's: a test disposes its own first.</summary>
     public static void Forget(string family)
     {
-        lock (MenuGate) { MenuFonts.Remove(family); Failures.Remove(family); }
+        lock (MenuGate)
+        {
+            if (MenuFonts.Remove(family, out var collection)) collection.Dispose();
+            Failures.Remove(family);
+        }
+    }
+
+    /// <summary>Tests only: the collection kept for a family, or null.</summary>
+    public static System.Drawing.Text.PrivateFontCollection? Kept(string family)
+    {
+        lock (MenuGate) return MenuFonts.GetValueOrDefault(family);
     }
 
     /// <summary>The latest refusal, "Type: message", for a test's failure message (the error log has the first only).</summary>
@@ -136,8 +149,10 @@ public static class BundledFonts
         {
             Loading?.Invoke(carried.Name);
             foreach (var file in carried.Files) AddToProcess(collection, "resources/fonts/" + carried.Folder + "/" + file);
-            if (collection.Families.Any(f => f.Name == carried.Name)) return collection;
-            Refused(new System.Runtime.InteropServices.ExternalException(carried.Name + " is not in its own files' collection"));
+            var families = collection.Families;
+            if (families.Any(f => f.Name == carried.Name)) return collection;
+            Refused(new System.Runtime.InteropServices.ExternalException(carried.Name + " is not in its own files' collection (GDI+ listed "
+                + families.Length + ": " + string.Join(", ", families.Select(f => f.Name)) + ")"));
         }
         catch (Exception e) when (e is IOException or ArgumentException or System.Runtime.InteropServices.ExternalException or OutOfMemoryException)
         {
@@ -150,13 +165,15 @@ public static class BundledFonts
     private static bool _refusalLogged;
 
     /// <summary>Windows refused a carried font for the menus: written to the error log once a run (the menus then draw in
-    /// Segoe UI), not once a menu.</summary>
+    /// Segoe UI), not once a menu. System.Drawing keeps no GDI+ status number: what is recorded is the exception's type and
+    /// HResult (font names only, never a player's text).</summary>
     private static void Refused(Exception e)
     {
-        LastRefusal = e.GetType().Name + ": " + e.Message;
+        var what = e.GetType().Name + " 0x" + e.HResult.ToString("X8", System.Globalization.CultureInfo.InvariantCulture) + ": " + e.Message;
+        LastRefusal = what;
         if (_refusalLogged) return;
         _refusalLogged = true;
-        ErrorLog.Shared.Record(e, "UI styles", DateTime.Now);
+        ErrorLog.Shared.Record(new InvalidOperationException(what), "UI styles", DateTime.Now);
     }
 
     private static void AddToProcess(System.Drawing.Text.PrivateFontCollection collection, string path)
