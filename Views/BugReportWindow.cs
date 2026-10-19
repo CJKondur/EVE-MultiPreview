@@ -26,6 +26,7 @@ public sealed class BugReportWindow : Window
     private readonly Func<bool, IReadOnlyList<BugReportFile>> _build;
     private readonly Func<Window, string?> _pickPath;
     private readonly Action<string> _saved;
+    private readonly Func<string, string> _redact;
     private readonly List<string> _texts = new();
     private readonly CheckBox _mask;
     private readonly ListBox _list;
@@ -36,11 +37,15 @@ public sealed class BugReportWindow : Window
     /// <param name="build">The files, names masked or not (BugReportSources.Gather in the app, fixtures in tests).</param>
     /// <param name="pickPath">Asks where the zip goes; null when cancelled.</param>
     /// <param name="saved">Told the path once the zip is written (the app opens its folder).</param>
-    public BugReportWindow(Func<bool, IReadOnlyList<BugReportFile>> build, Func<Window, string?> pickPath, Action<string> saved)
+    /// <param name="redact">What an error's text goes through before it is shown (BugReportSources.Redactor in the
+    /// app); default: shown as it is.</param>
+    public BugReportWindow(Func<bool, IReadOnlyList<BugReportFile>> build, Func<Window, string?> pickPath, Action<string> saved,
+        Func<string, string>? redact = null)
     {
         _build = build;
         _pickPath = pickPath;
         _saved = saved;
+        _redact = redact ?? (text => text);
         UiStyles.Attach(this);
         Title = Say("L.Report.Title", "Bug report", record: false);
         Width = 860;
@@ -122,20 +127,24 @@ public sealed class BugReportWindow : Window
     /// <summary>Shows file <paramref name="index"/>.</summary>
     public void Select(int index) => _list.SelectedIndex = index;
 
-    /// <summary>Asks where, then writes the zip there and only there. False when cancelled, when it could not be
-    /// written, or when there is no report to write.</summary>
+    /// <summary>Asks where, then writes the zip there and only there: first beside it as path.tmp, then moved over
+    /// it, so a write that fails half way leaves neither a cut zip nor a lost earlier file. False when cancelled, when
+    /// it could not be written (whatever the reason: it is said on the status line), or when there is no report.</summary>
     public bool Save()
     {
         if (Files.Count == 0) return false;
         var path = _pickPath(this);
         if (string.IsNullOrEmpty(path)) return false;
+        var temp = path + ".tmp";
         try
         {
-            using (var stream = File.Create(path)) BugReport.WriteZip(stream, Files);
+            using (var stream = File.Create(temp)) BugReport.WriteZip(stream, Files);
+            File.Move(temp, path, overwrite: true);
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        catch (Exception e)
         {
-            _status.Text = string.Format(LocalizationService.Str("L.Report.Failed", "Could not save the zip: {0}"), e.Message);
+            try { File.Delete(temp); } catch (Exception) { /* nothing more to do: the status line says it failed */ }
+            _status.Text = string.Format(LocalizationService.Str("L.Report.Failed", "Could not save the zip: {0}"), _redact(e.Message));
             return false;
         }
         _status.Text = string.Format(LocalizationService.Str("L.Report.Saved", "Saved as {0}"), Path.GetFileName(path));
@@ -155,7 +164,7 @@ public sealed class BugReportWindow : Window
         catch (Exception e)
         {
             Files = Array.Empty<BugReportFile>();
-            _status.Text = string.Format(LocalizationService.Str("L.Report.BuildFailed", "Could not make the report: {0}"), e.Message);
+            _status.Text = string.Format(LocalizationService.Str("L.Report.BuildFailed", "Could not make the report: {0}"), _redact(e.Message));
         }
         _list.Items.Clear();
         foreach (var file in Files) _list.Items.Add(file.Name);

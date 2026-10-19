@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace EveMultiPreview.Services;
@@ -104,6 +105,42 @@ public static class BugReport
         @"https?://(?:(?:canary|ptb|www)\.)?discord(?:app)?\.com/api(?:/v\d+)?/webhooks/[^\s""'<>]*|dpapi1:(?:[A-Za-z0-9+/=]|\\u[0-9A-Fa-f]{4})*",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
+    /// <summary>The placeholder the n-th distinct character id of the settings becomes.</summary>
+    public static string CharacterIdMark(int n) => "character-id-" + n.ToString(CultureInfo.InvariantCulture);
+
+    /// <summary>The settings text with the two stores that hold EVE character ids emptied of them: EveManager's
+    /// CharNameCache (id to name, filled from ESI) written empty, and each id in global_Settings' AccountCharacterMap
+    /// replaced by <see cref="CharacterIdMark"/> (the same id the same mark, so which characters share an account
+    /// stays). A character id is public: anyone can look its name up, so a masked name next to its id is not hidden.
+    /// Text that is not a JSON object throws, so no report is made rather than one that leaks.</summary>
+    public static string WithoutCharacterIds(string settingsJson)
+    {
+        var root = JsonNode.Parse(settingsJson) as JsonObject
+            ?? throw new JsonException("The settings are not a JSON object.");
+        bool changed = false;
+        if (root["EveManager"] is JsonObject manager && manager["CharNameCache"] is JsonObject { Count: > 0 })
+        {
+            manager["CharNameCache"] = new JsonObject();
+            changed = true;
+        }
+        if (root["global_Settings"] is JsonObject global && global["AccountCharacterMap"] is JsonObject map)
+        {
+            var marks = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var (_, ids) in map)
+            {
+                if (ids is not JsonArray list) continue;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var id = list[i]?.ToString() ?? "";
+                    if (!marks.TryGetValue(id, out var mark)) marks[id] = mark = CharacterIdMark(marks.Count + 1);
+                    list[i] = mark;
+                    changed = true;
+                }
+            }
+        }
+        return changed ? root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) : settingsJson;
+    }
+
     /// <summary>Every Discord webhook link, and every kept one, becomes <see cref="WebhookMark"/>: whatever wrote a
     /// file, none leaves in the report.</summary>
     public static string WithoutWebhookLinks(string text) => WebhookAnywhere.Replace(text, WebhookMark);
@@ -160,7 +197,8 @@ public static class BugReport
 
     /// <summary>The report's files, in the order the window shows them: about.txt, monitors.txt, settings.json (its
     /// webhook written empty), then each log under logs/, each log line cut at <see cref="MaxLineLength"/> after it is
-    /// cleaned. In every file each Discord webhook link is taken out, every name of
+    /// cleaned. With <paramref name="maskNames"/> the settings also lose their character ids
+    /// (<see cref="WithoutCharacterIds"/>). In every file each Discord webhook link is taken out, every name of
     /// <see cref="UserFolders"/>(<paramref name="userName"/>, <paramref name="userProfile"/>) and the PC's name too,
     /// and the <paramref name="characters"/> are masked when <paramref name="maskNames"/>. The window passes
     /// <c>Environment.UserName</c>, <c>Environment.GetFolderPath(SpecialFolder.UserProfile)</c> and
@@ -181,7 +219,7 @@ public static class BugReport
         {
             new("about.txt", Clean(string.Join("\n", about))),
             new("monitors.txt", Clean(string.Join("\n", monitors))),
-            new("settings.json", Clean(WithoutWebhook(settingsJson))),
+            new("settings.json", Clean(maskNames ? WithoutCharacterIds(WithoutWebhook(settingsJson)) : WithoutWebhook(settingsJson))),
         };
         foreach (var log in logs)
             files.Add(new("logs/" + Path.GetFileName(log.Name), string.Join("\n", log.Lines.Select(l => Cut(Clean(l))))));

@@ -58,9 +58,20 @@ public static class BugReportSources
         names.AddRange(s.AccountCharacterMap.Values.SelectMany(v => v));
         names.AddRange(s.QuickSwitchCardOrder);
         names.AddRange(s.StatWindowPositions.Keys.Select(k => k.Split(':')[0]));
+        // EVE Manager's names, looked up from ESI: often every character on every account (WithoutCharacterIds empties
+        // the store itself in the report; these masks reach the logs).
+        names.AddRange(s.EveManager?.CharNameCache?.Values.Select(e => e.Name ?? "") ?? Enumerable.Empty<string>());
 
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         return names.Where(n => !string.IsNullOrWhiteSpace(n) && seen.Add(n)).ToArray();
+    }
+
+    /// <summary>What the window does to an error's text before it shows it: the user's folder names and the PC's name
+    /// taken out, as in the report (a screenshot of the window is shared too).</summary>
+    public static Func<string, string> Redactor(string userName, string userProfile, string machineName)
+    {
+        var folders = BugReport.UserFolders(userName, userProfile);
+        return text => BugReport.Redact(text, folders, machineName);
     }
 
     /// <summary>The name the Save dialog offers.</summary>
@@ -128,7 +139,9 @@ public static class BugReportActions
     public static void Show(AppSettings s, IReadOnlyList<string> running, Window? owner, bool modal)
     {
         var window = new Views.BugReportWindow(mask => BugReportSources.Gather(s, running, mask), PickPath,
-            path => DiagnosticsService.OpenFolder(Path.GetDirectoryName(path)!)) { Owner = owner };
+            path => DiagnosticsService.OpenFolder(Path.GetDirectoryName(path)!),
+            BugReportSources.Redactor(Environment.UserName, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), Environment.MachineName))
+        { Owner = owner };
         if (owner != null) window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         if (modal && owner != null) window.ShowDialog();
         else window.Show();
