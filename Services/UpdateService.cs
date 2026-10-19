@@ -84,14 +84,15 @@ public sealed class UpdateService
     {
         try
         {
-            string apiUrl = allowPreRelease
-                ? "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases"
-                : "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest";
-
             // The newest release that ships the exe from this repository's own downloads, with the checksum GitHub
             // publishes for that file (IDEAS #53). The answer is read as JSON, so the version, the link and the
             // checksum always belong to the same release.
-            var latest = LatestIn(await GetTextAsync(apiUrl));
+            // P14: a stable check asks for the list first, so the notes can be those of every version skipped; when the
+            // list can't be had or holds nothing usable, it asks for the one latest release, as it always did.
+            var latest = allowPreRelease
+                ? LatestIn(await GetTextAsync("https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases"))
+                : await StableWithSkippedNotesAsync()
+                  ?? LatestIn(await GetTextAsync("https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases/latest"));
             if (latest == null) return false;
             Select(latest);
 
@@ -530,6 +531,37 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
         if (doc.RootElement.ValueKind != JsonValueKind.Array) return ReadRelease(doc.RootElement);
         return doc.RootElement.EnumerateArray().Select(ReadRelease).Where(r => r != null)
             .OrderByDescending(r => System.Version.Parse(r!.Version)).FirstOrDefault();
+    }
+
+    private const string STABLE_LIST_URL = "https://api.github.com/repos/CJKondur/EVE-MultiPreview/releases?per_page=30";
+
+    /// <summary>The newest stable release, carrying the notes of every stable version newer than the running one; null
+    /// when the list can't be had or holds no installable stable release (the caller then asks for the latest).</summary>
+    private async Task<ReleaseInfo?> StableWithSkippedNotesAsync()
+    {
+        try { return StableWithSkippedNotes(await GetTextAsync(STABLE_LIST_URL), CurrentVersion); }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Update] Release list failed, asking for the latest: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>The newest stable release in GitHub's list answer, its Notes replaced by the combined notes of every
+    /// stable release newer than <paramref name="currentVersion"/> (newest first). The release itself (version,
+    /// download, checksum) is the one the single-release check would give. Null when the answer is no list or holds no
+    /// installable stable release. Notes are text only: nothing in them becomes a link.</summary>
+    public static ReleaseInfo? StableWithSkippedNotes(string json, string currentVersion)
+    {
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.ValueKind != JsonValueKind.Array) return null;
+        var stable = doc.RootElement.EnumerateArray().Select(ReadRelease).Where(r => r != null && !r.PreRelease).Select(r => r!)
+            .OrderByDescending(r => System.Version.Parse(r.Version)).ToList();
+        if (stable.Count == 0) return null;
+        if (!System.Version.TryParse(currentVersion, out var running)) return stable[0];
+        var notes = Services.ReleaseNotes.Combine(
+            stable.Select(r => (System.Version.Parse(r.Version), r.Version, r.Notes, false, false)), running, includePrereleases: false);
+        return notes.Length == 0 ? stable[0] : stable[0] with { Notes = notes };
     }
 
     /// <summary>Aim this service at a chosen release, so the normal DownloadUpdateAsync →
