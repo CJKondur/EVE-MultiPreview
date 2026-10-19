@@ -90,16 +90,23 @@ public sealed class WindowDiscoveryService : IDisposable
         Debug.WriteLine("[Discovery:Poll] 🛑 Window discovery stopped");
     }
 
+    /// <summary>Whether a window event should wake the poll loop. A window already known as an EVE window always does:
+    /// a destroyed window reports process 0, which Windows names "Idle", so its name cannot be trusted. An unknown
+    /// window wakes it only when its process is EVE's (or cannot be read).</summary>
+    public static bool WakesFor(bool knownEveWindow, string? processName)
+        => knownEveWindow || processName == null || User32.IsEveProcessName(processName);
+
     private void OnWindowEvent(IntPtr hwnd)
     {
         // Cheap pre-filter: ignore events from non-EVE processes so we don't
-        // wake up the poll loop for every text-edit caret in the system. Note
-        // that EVENT_OBJECT_DESTROY arrives after the window is gone — the PID
-        // lookup may fail, in which case we fall through and let Poll() check.
+        // wake up the poll loop for every text-edit caret in the system. A
+        // window we already track always wakes it: EVENT_OBJECT_DESTROY arrives
+        // after the window is gone, and a gone window names process 0 ("Idle").
         try
         {
-            var procName = User32.GetProcessName(hwnd);
-            if (procName != null && !User32.IsEveProcessName(procName))
+            bool known = _windows.ContainsKey(hwnd);
+            var procName = known ? null : User32.GetProcessName(hwnd);
+            if (!WakesFor(known, procName))
                 return;
         }
         catch { /* destroyed window — fall through and signal */ }
