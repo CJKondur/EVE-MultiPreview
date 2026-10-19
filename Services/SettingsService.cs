@@ -385,12 +385,15 @@ public sealed class SettingsService : IDisposable
     private static void LogError(Exception ex) => ErrorLog.Shared.Record(ex, "Settings", DateTime.Now);
 
     /// <summary>Stops the debounce timer and writes a change still waiting on it (P96), once. Never throws.
-    /// Save() takes the same lock as a timer tick, so a tick mid-save is waited for (a file write), not repeated.</summary>
+    /// A timer tick already inside Save() is waited for (the empty lock below is a barrier: the tick holds
+    /// _saveLock for its whole write, even though it has already cleared the pending flag), so the process
+    /// never exits mid-write. Waits for one file write at most; Save is not called while holding the lock.</summary>
     public void Dispose()
     {
         _debounceSaveTimer?.Stop();
         _debounceSaveTimer?.Dispose();
         _debounceSaveTimer = null;
+        lock (_saveLock) { }   // barrier: wait for a save in flight; must come before the pending check
         if (!_savePending) return;
         try { Save(); }
         catch (Exception ex) { LogError(ex); }   // e.g. a SaveCompleted subscriber that throws at exit
