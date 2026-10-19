@@ -1456,10 +1456,7 @@ public sealed class LogMonitorService : IDisposable
                 int lineCount = 0;
                 bool isFirstRead = state.LastPosition == 0;
 
-                // Prepend any partial line from previous read
                 string? line;
-                string lineBuffer = state.PartialLine ?? "";
-                state.PartialLine = null;
 
                 if (isFirstRead)
                 {
@@ -1550,28 +1547,37 @@ public sealed class LogMonitorService : IDisposable
                 }
                 else
                 {
-                    while (true)
-                    {
-                        var rawLine = reader.ReadLine();
-                        if (rawLine == null)
-                        {
-                            if (!string.IsNullOrEmpty(lineBuffer))
-                            {
-                                state.PartialLine = lineBuffer;
-                                Debug.WriteLine($"[LogMonitor:Scan] 🔧 Saved partial line ({lineBuffer.Length} chars) for {Path.GetFileName(path)}");
-                            }
-                            break;
-                        }
+                    // P50: work on bytes. Everything from the last position to the end is read in one go, and only
+                    // what ends in a line feed is decoded; a line the game is still writing is read again, whole,
+                    // on the next poll. The position moves by the bytes decoded, never by what the stream has read.
+                    long start = state.LastPosition;
+                    using var tail = new MemoryStream();
+                    fs.CopyTo(tail);
+                    var bytes = tail.GetBuffer();
+                    int length = (int)tail.Length;
 
-                        line = lineBuffer + rawLine;
-                        lineBuffer = "";
+                    int cut = 0;
+                    if (encoding.CodePage == Encoding.Unicode.CodePage)
+                    {
+                        // UTF-16LE: a line feed is the pair 0A 00 at an even offset from where this read began.
+                        for (int i = length - 2; i >= 0; i--)
+                            if ((i & 1) == 0 && bytes[i] == 0x0A && bytes[i + 1] == 0x00) { cut = i + 2; break; }
+                    }
+                    else
+                    {
+                        for (int i = length - 1; i >= 0; i--)
+                            if (bytes[i] == 0x0A) { cut = i + 1; break; }
+                    }
+
+                    using var lines = new StringReader(encoding.GetString(bytes, 0, cut));
+                    while ((line = lines.ReadLine()) != null)
+                    {
                         try { ProcessLine(line, state); }
                         catch (Exception ex) { RecordBadLine(path, ex); }
                     }
-                }
 
-                if (!isFirstRead)
-                    state.LastPosition = fs.Position;
+                    state.LastPosition = start + cut;
+                }
             }
             catch (IOException ioex)
             {
@@ -2784,7 +2790,6 @@ public sealed class LogMonitorService : IDisposable
         public string Path { get; set; } = "";
         public LogType Type { get; set; }
         public long LastPosition { get; set; }
-        public string? PartialLine { get; set; } // Buffer for incomplete lines
         /// <summary>The log's header lies behind the reader: a line with a timestamp was seen, or the first read
         /// found none among the file's first 15 lines. Until then a header line may name the log's character, if it
         /// has none; from then on a line that starts like a header line is text and names nobody.</summary>
