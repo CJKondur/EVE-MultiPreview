@@ -2577,4 +2577,6 @@
     <!-- Ideas batch 13 (Plan 17) -->
     <sys:String x:Key="L.S.clients.hotkeys.openSettings">Ouvrir les paramètres</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Ouvre la fenêtre des paramètres, ou la place au premier plan si elle est déjà ouverte. Fonctionne pendant qu'un client EVE tourne, comme les autres raccourcis.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.client_ready">Client prêt</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Events.clientReady.Desc">Un client est entré dans le jeu et affiche le nom de son personnage.</sys:String> <!-- draft -->
 </ResourceDictionary>

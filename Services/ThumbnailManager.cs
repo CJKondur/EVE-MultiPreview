@@ -970,6 +970,9 @@ public sealed class ThumbnailManager : IDisposable
                 // logs in on it next. (The watchdog in UpdateActiveBorders would do it at the next sweep.)
                 if (CharacterLeft(oldChar, window.CharacterName)) thumbWindow.SetAlertScale(1.0);
 
+                // "Client ready" (batch 13, P12): "EVE" became "EVE - Name" after discovery's first pass.
+                if (ClientReady.ShouldRaise(oldChar, window.CharacterName, _discovery.FirstPassDone)) CharacterReady?.Invoke(window.CharacterName);
+
                 // UpdateCharacterName force-shows the name overlay; re-assert the
                 // user's "show character name" preference so a disabled overlay
                 // doesn't reappear when the character resolves at login (issue #63).
@@ -1505,6 +1508,10 @@ public sealed class ThumbnailManager : IDisposable
     // Right-click → Close client (#115): ends the process at once, no prompt - picking
     // it from a menu is already deliberate, and the point is speed.
     private void OnCloseClientRequested(ThumbnailWindow thumb) => KillClient(thumb.EveHwnd);
+
+    /// <summary>A client's title went from "EVE" to "EVE - Name" (its character reached the game): the name. App raises
+    /// "Client ready" (ClientReady). On the window's thread.</summary>
+    public event Action<string>? CharacterReady;
 
     /// <summary>A thumbnail's "Open ‹character›'s settings" (spec D6). App opens settings on that character's page.</summary>
     public event Action<string>? CharacterSettingsRequested;

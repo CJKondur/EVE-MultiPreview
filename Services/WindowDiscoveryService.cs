@@ -45,6 +45,11 @@ public sealed class WindowDiscoveryService : IDisposable
     /// <summary>Fires when an EVE window title changes (character login/logout).</summary>
     public event Action<EveWindow, string>? WindowTitleChanged;
 
+    private volatile bool _firstPassDone;
+
+    /// <summary>True once the first poll has added the windows that were open when discovery started (ClientReady uses it).</summary>
+    public bool FirstPassDone => _firstPassDone;
+
     /// <summary>All currently tracked EVE windows.</summary>
     public IReadOnlyDictionary<IntPtr, EveWindow> Windows => _windows;
 
@@ -202,6 +207,8 @@ public sealed class WindowDiscoveryService : IDisposable
                 }
             }
         }
+
+        _firstPassDone = true;
     }
 
     /// <summary>

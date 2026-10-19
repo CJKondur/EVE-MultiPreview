@@ -2592,4 +2592,6 @@
     <!-- Ideas batch 13 (Plan 17) -->
     <sys:String x:Key="L.S.clients.hotkeys.openSettings">Apri le impostazioni</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Apre la finestra delle impostazioni, o la porta in primo piano se è già aperta. Funziona mentre è in esecuzione un client EVE, come le altre scorciatoie.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.client_ready">Client pronto</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Events.clientReady.Desc">Un client è arrivato nel gioco e mostra il nome del suo personaggio.</sys:String> <!-- draft -->
 </ResourceDictionary>

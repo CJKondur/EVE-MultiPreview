@@ -302,6 +302,7 @@ public partial class App : Application
         _processMonitor.StatsUpdated += ProbeClients;
         // IDEAS #22: a client MultiPreview ends itself (Close client) raises no "Client closed unexpectedly".
         _thumbnailManager.EndingClient += pid => _clientExits.EndedByMultiPreview(pid);
+        _thumbnailManager.CharacterReady += RaiseClientReady;
         // An end Windows refused (EVE run as administrator) is taken back: a later crash of that client is still told.
         _thumbnailManager.ClientEndRefused += pid => _clientExits.NotEndedByMultiPreview(pid);
         _thumbnailManager.EndFrozenClientRequested += EndFrozenClient;   // IDEAS #22
@@ -1283,6 +1284,14 @@ public partial class App : Application
                 catch (Exception ex) { LogError(ex); }
             }
         }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>"Client ready" (batch 13, P12) for one character, on the window's thread. Like the other derived events it
+    /// goes through the dispatcher, which asks the event's switch for that character: off until ticked. A failure is logged.</summary>
+    private void RaiseClientReady(string character)
+    {
+        try { _stragglerAlerts?.Raise(DateTime.UtcNow, character, ClientReady.EventKey, ClientReady.Severity); }
         catch (Exception ex) { LogError(ex); }
     }
 

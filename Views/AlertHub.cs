@@ -52,6 +52,7 @@ public class AlertHub : IDisposable
             "client_hung" => "Client not responding",
             "client_closed" => "Client closed unexpectedly",
             "char_idle" => "Character idle",
+            "client_ready" => "Client ready",
             _ => alertType
         });
 

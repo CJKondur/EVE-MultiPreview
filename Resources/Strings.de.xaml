@@ -2574,4 +2574,6 @@
     <!-- Ideas batch 13 (Plan 17) -->
     <sys:String x:Key="L.S.clients.hotkeys.openSettings">Einstellungen öffnen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Öffnet das Einstellungsfenster oder holt es nach vorn, wenn es schon offen ist. Funktioniert wie die anderen Hotkeys, während ein EVE-Client läuft.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.client_ready">Client bereit</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Events.clientReady.Desc">Ein Client hat das Spiel erreicht und zeigt den Namen seines Charakters.</sys:String> <!-- draft -->
 </ResourceDictionary>
