@@ -145,6 +145,9 @@ public class AhkConfigRoot
         s.ClientDisconnectedBadge = g.ClientDisconnectedBadge != 0;
         s.DisconnectedSeconds = g.DisconnectedSeconds;
         s.IdleAlertMinutes = g.IdleAlertMinutes;
+        s.FocusModeHotkey = g.FocusModeHotkey ?? "";
+        s.FocusModeGroup = g.FocusModeGroup ?? "";
+        s.FocusModeShowAlerts = g.FocusModeShowAlerts != 0;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -489,6 +492,9 @@ public class AhkConfigRoot
         g.ClientDisconnectedBadge = s.ClientDisconnectedBadge ? 1 : 0;
         g.DisconnectedSeconds = s.DisconnectedSeconds;
         g.IdleAlertMinutes = s.IdleAlertMinutes;
+        g.FocusModeHotkey = s.FocusModeHotkey;
+        g.FocusModeGroup = s.FocusModeGroup;
+        g.FocusModeShowAlerts = s.FocusModeShowAlerts ? 1 : 0;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1382,6 +1388,16 @@ public class AhkGlobalSettings
     // The Character idle minutes (IDEAS #7), batch 9: a file without it loads 5.
     [JsonPropertyName("IdleAlertMinutes")]
     public int IdleAlertMinutes { get; set; } = 5;
+
+    // Focus mode's key, group and alerts switch (IDEAS #35), batch 10: a file without them loads unbound, "" and on.
+    [JsonPropertyName("FocusModeHotkey")]
+    public string? FocusModeHotkey { get; set; } = "";
+
+    [JsonPropertyName("FocusModeGroup")]
+    public string? FocusModeGroup { get; set; } = "";
+
+    [JsonPropertyName("FocusModeShowAlerts")]
+    public int FocusModeShowAlerts { get; set; } = 1;
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

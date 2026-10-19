@@ -43,6 +43,7 @@ public static class ClientsPages
         new HelpTopic(HotkeysId, "refused", new[] { RefusedHotkeysEditor.ItemId }),
         new HelpTopic(GroupsId, "keys", new[] { "clients.groups.editor" }),
         new HelpTopic(GroupsId, "scope", new[] { "clients.groups.showBorders" }),
+        new HelpTopic(GroupsId, "focus", new[] { "clients.groups.focusKey", FocusGroupEditor.ItemId, "clients.groups.focusAlerts" }),
         new HelpTopic(WindowsId, "minimize", new[] { "clients.windows.minimizeInactive", "clients.windows.minimizeDelay", "clients.windows.neverMinimize" }),
         new HelpTopic(WindowsId, "position", new[]
         {
@@ -198,6 +199,13 @@ public static class ClientsPages
                     "OnHotkeyGroupNew", "OnHotkeyGroupDelete", "OnHotkeyGroupAddChar", "OnHotkeyGroupAddAllActive",
                 },
             },
+        }),
+        // IDEAS #35: the key is registered with the others on Applied; App reads the other two on its half-second timer.
+        new SectionDef("clients.groups.focus", new PageItem[]
+        {
+            Hotkey("clients.groups.focusKey", s => s.FocusModeHotkey),
+            new EditorItem(FocusGroupEditor.ItemId, ctx => new FocusGroupEditor(ctx)) { Binds = new[] { "AppSettings.FocusModeGroup" } },
+            Toggle("clients.groups.focusAlerts", s => s.FocusModeShowAlerts),
         }),
     });
 

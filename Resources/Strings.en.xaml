@@ -2470,4 +2470,15 @@
     <sys:String x:Key="L.Start.Crash.Report">Create a bug report</sys:String>
     <sys:String x:Key="L.Help.app.diagnostics.report.Title">Bug reports</sys:String>
     <sys:String x:Key="L.Help.app.diagnostics.report.Body">**Create bug report…** makes a zip you can attach to a bug report. It holds:&#x0A;&#x0A;- MultiPreview's version, the Windows version and build, the language and the look;&#x0A;- each monitor's size, place, work area and scaling;&#x0A;- your settings, with your Discord webhook left out;&#x0A;- the last 500 lines of each of MultiPreview's logs.&#x0A;&#x0A;Your Windows user name is taken out of every folder path, and the PC's name too. **Hide character names** (on until you turn it off) replaces your characters' names with Character 1, Character 2 and so on; names MultiPreview doesn't know, such as other players in a log, stay. You see every file before you save, and MultiPreview never sends the zip anywhere.</sys:String>
+    <!-- Ideas batch 10 (Plan 14) -->
+    <sys:String x:Key="L.S.Sec.clients.groups.focus">Focus mode</sys:String>
+    <sys:String x:Key="L.S.clients.groups.focusKey">Focus mode on or off</sys:String>
+    <sys:String x:Key="L.S.clients.groups.focusKey.Desc">Shows only the thumbnails of one group and hides the others, until you press it again.</sys:String>
+    <sys:String x:Key="L.S.clients.groups.focusGroup">Group to show</sys:String>
+    <sys:String x:Key="L.S.clients.groups.focusGroup.Desc">The group of the client you are in follows you as you switch clients; a group you choose stays the same.</sys:String>
+    <sys:String x:Key="L.S.Opt.FocusActiveGroup">The group of the client you are in</sys:String>
+    <sys:String x:Key="L.S.clients.groups.focusAlerts">Show a hidden thumbnail while its alert is unseen</sys:String>
+    <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">A client outside the group that raises an alert shows until you look at it.</sys:String>
+    <sys:String x:Key="L.Help.clients.groups.focus.Title">Focus mode</sys:String>
+    <sys:String x:Key="L.Help.clients.groups.focus.Body">With many clients split by role, every thumbnail at once is a lot to look at. **Focus mode on or off** shows only the thumbnails of one group and hides the rest; press it again to show them all.&#x0A;&#x0A;- **Group to show**: the group of the client you are in (it follows you as you switch clients), or one group you choose.&#x0A;- A client in no group, at character select, or a chosen group that no longer exists shows everything.&#x0A;- **Show a hidden thumbnail while its alert is unseen** (on until you turn it off) lets a client outside the group show while it has an alert you have not looked at.&#x0A;- Focus mode hides main thumbnails only: second thumbnails, crop windows and stats windows stay. A thumbnail you hid another way stays hidden when focus mode ends.&#x0A;&#x0A;Focus mode is off again each time MultiPreview starts.</sys:String>
 </ResourceDictionary>

@@ -668,6 +668,7 @@ public partial class SettingsWindow
         Add(EveMultiPreview.Services.LocalizationService.Str("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), S.GoToLastAlertHotkey);
         Add(EveMultiPreview.Services.LocalizationService.Str("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), S.DoNotDisturbHotkey);
         Add(EveMultiPreview.Services.LocalizationService.Str("L.S.clients.hotkeys.sheet", "Show the hotkey cheat sheet"), S.HotkeySheetHotkey);
+        Add(EveMultiPreview.Services.LocalizationService.Str("L.S.clients.groups.focusKey", "Focus mode on or off"), S.FocusModeHotkey);
 
         // Per-character switch hotkeys
         foreach (var (chr, hk) in _svc.CurrentProfile.Hotkeys)

@@ -2471,4 +2471,15 @@
     <sys:String x:Key="L.Start.Crash.Report">バグ報告を作成</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.report.Title">バグ報告</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.report.Body">**バグ報告を作成…** は、バグ報告に添付できる zip を作ります。中身は次のとおりです：&#x0A;&#x0A;- MultiPreview のバージョン、Windows のバージョンとビルド、言語、外観；&#x0A;- 各モニターのサイズ、位置、作業領域、拡大率；&#x0A;- 設定（Discord の webhook は除きます）；&#x0A;- MultiPreview の各ログの最後の 500 行。&#x0A;&#x0A;Windows のユーザー名はすべてのフォルダーパスから取り除かれ、PC の名前も同様です。**キャラクター名を隠す**（オフにするまでオン）は、キャラクターの名前を Character 1、Character 2 などに置き換えます。MultiPreview が知らない名前（ログ内の他のプレイヤーなど）は残ります。保存する前にすべてのファイルを確認でき、MultiPreview が zip をどこかへ送ることはありません。</sys:String> <!-- draft -->
+    <!-- Ideas batch 10 (Plan 14) -->
+    <sys:String x:Key="L.S.Sec.clients.groups.focus">フォーカスモード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusKey">フォーカスモードのオン／オフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusKey.Desc">1つのグループのサムネイルだけを表示し、ほかを隠します。もう一度キーを押すまで続きます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusGroup">表示するグループ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusGroup.Desc">今いるクライアントのグループは、クライアントを切り替えるとそれに合わせて変わります。選んだグループは変わりません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FocusActiveGroup">今いるクライアントのグループ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusAlerts">隠れたサムネイルを、アラートが未確認の間は表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">グループ外のクライアントがアラートを出すと、確認するまで表示されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.groups.focus.Title">フォーカスモード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.groups.focus.Body">役割ごとに分けたクライアントが多いと、すべてのサムネイルを一度に見るのは大変です。**フォーカスモードのオン／オフ**は、1つのグループのサムネイルだけを表示してほかを隠します。もう一度押すとすべて表示します。&#x0A;&#x0A;- **表示するグループ**：今いるクライアントのグループ（クライアントを切り替えると追従します）、または選んだ1つのグループです。&#x0A;- グループに入っていないクライアント、キャラクター選択中のクライアント、または選んだグループがなくなった場合は、すべて表示します。&#x0A;- **隠れたサムネイルを、アラートが未確認の間は表示**（オフにするまでオン）にすると、グループ外のクライアントでも、まだ見ていないアラートがある間は表示されます。&#x0A;- フォーカスモードで隠すのはメインのサムネイルだけです。2つ目のサムネイル、切り抜きウィンドウ、統計ウィンドウはそのままです。別の方法で隠したサムネイルは、フォーカスモードが終わっても隠れたままです。&#x0A;&#x0A;フォーカスモードは、MultiPreview を起動するたびにオフに戻ります。</sys:String> <!-- draft -->
 </ResourceDictionary>

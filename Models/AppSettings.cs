@@ -292,6 +292,14 @@ public class AppSettings
     /// it. Read by App through IdleWatch.Minutes, which holds it to 2-120. New key: 5 in a file without it.</summary>
     public int IdleAlertMinutes { get; set; } = 5;
 
+    /// <summary>Focus mode (IDEAS #35): its hotkey (unbound until the player sets one), the group it shows ("" = the group
+    /// of the client you are in, else a group of Clients › Groups by its exact name) and whether a client outside the group
+    /// with an unseen alert still shows. The key is read by HotkeyService.RegisterFromSettings; the other two by App through
+    /// FocusMode.Options while focus mode is on. New keys: unbound, "" and on in a file without them.</summary>
+    public string FocusModeHotkey { get; set; } = "";
+    public string FocusModeGroup { get; set; } = "";
+    public bool FocusModeShowAlerts { get; set; } = true;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

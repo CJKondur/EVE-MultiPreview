@@ -2471,4 +2471,15 @@
     <sys:String x:Key="L.Start.Crash.Report">버그 보고 만들기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.report.Title">버그 보고</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.report.Body">**버그 보고 만들기…**는 버그 보고에 첨부할 수 있는 zip을 만들어요. 들어 있는 것:&#x0A;&#x0A;- MultiPreview 버전, Windows 버전과 빌드, 언어와 모양;&#x0A;- 각 모니터의 크기, 위치, 작업 영역, 배율;&#x0A;- 설정(Discord 웹후크는 빠져요);&#x0A;- MultiPreview 각 로그의 마지막 500줄.&#x0A;&#x0A;Windows 사용자 이름은 모든 폴더 경로에서 빠지고, PC 이름도 마찬가지예요. **캐릭터 이름 숨기기**(끌 때까지 켜져 있어요)는 캐릭터 이름을 Character 1, Character 2 등으로 바꿔요. MultiPreview가 모르는 이름(로그 속 다른 플레이어 등)은 그대로 남아요. 저장하기 전에 모든 파일을 볼 수 있고, MultiPreview는 zip을 어디에도 보내지 않아요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 10 (Plan 14) -->
+    <sys:String x:Key="L.S.Sec.clients.groups.focus">포커스 모드</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusKey">포커스 모드 켜기/끄기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusKey.Desc">한 그룹의 썸네일만 보여 주고 나머지는 숨겨요. 키를 한 번 더 누를 때까지 유지돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusGroup">표시할 그룹</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusGroup.Desc">지금 있는 클라이언트의 그룹은 클라이언트를 바꿀 때마다 따라 바뀌어요. 직접 고른 그룹은 그대로 유지돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FocusActiveGroup">지금 있는 클라이언트의 그룹</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusAlerts">숨겨진 썸네일을 알림을 확인하기 전까지 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">그룹 밖의 클라이언트에서 알림이 울리면 확인할 때까지 표시돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.groups.focus.Title">포커스 모드</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.groups.focus.Body">역할별로 나눈 클라이언트가 많으면 모든 썸네일을 한꺼번에 보기엔 너무 많아요. **포커스 모드 켜기/끄기**는 한 그룹의 썸네일만 보여 주고 나머지는 숨겨요. 다시 누르면 모두 보여요.&#x0A;&#x0A;- **표시할 그룹**: 지금 있는 클라이언트의 그룹(클라이언트를 바꾸면 따라와요) 또는 직접 고른 그룹이에요.&#x0A;- 그룹에 속하지 않은 클라이언트, 캐릭터 선택 화면, 또는 더 이상 없는 그룹을 고른 경우에는 모두 보여요.&#x0A;- **숨겨진 썸네일을 알림을 확인하기 전까지 표시**(끌 때까지 켜져 있어요)를 켜 두면, 그룹 밖의 클라이언트도 아직 확인하지 않은 알림이 있는 동안은 보여요.&#x0A;- 포커스 모드는 메인 썸네일만 숨겨요. 두 번째 썸네일, 자르기 창, 통계 창은 그대로예요. 다른 방법으로 숨긴 썸네일은 포커스 모드가 끝나도 숨겨진 채로 있어요.&#x0A;&#x0A;포커스 모드는 MultiPreview를 시작할 때마다 다시 꺼져요.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2488,4 +2488,15 @@
     <sys:String x:Key="L.Start.Crash.Report">创建错误报告</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.report.Title">错误报告</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.report.Body">**创建错误报告…** 会生成一个可附在错误报告中的 zip。其中包含：&#x0A;&#x0A;- MultiPreview 的版本、Windows 的版本和内部版本号、语言和外观；&#x0A;- 每台显示器的尺寸、位置、工作区和缩放；&#x0A;- 你的设置，不含你的 Discord webhook；&#x0A;- MultiPreview 每个日志的最后 500 行。&#x0A;&#x0A;你的 Windows 用户名会从每个文件夹路径中去掉，电脑名也是。**隐藏角色名**（在你关闭之前一直开启）会把你的角色名替换为 Character 1、Character 2 等；MultiPreview 不认识的名字（例如日志中的其他玩家）会保留。保存之前你能看到每个文件，MultiPreview 从不把 zip 发送到任何地方。</sys:String> <!-- draft -->
+    <!-- Ideas batch 10 (Plan 14) -->
+    <sys:String x:Key="L.S.Sec.clients.groups.focus">专注模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusKey">开启或关闭专注模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusKey.Desc">只显示一个分组的缩略图并隐藏其他缩略图，直到你再次按下该键。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusGroup">要显示的分组</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusGroup.Desc">你所在客户端的分组会随你切换客户端而变化；你选定的分组则保持不变。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.FocusActiveGroup">你所在客户端的分组</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusAlerts">隐藏的缩略图在其警报未查看时显示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">分组之外的客户端发出警报后会保持显示，直到你看过它。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.groups.focus.Title">专注模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.groups.focus.Body">客户端很多且按职责分组时，同时显示所有缩略图会让人眼花缭乱。**开启或关闭专注模式**只显示一个分组的缩略图并隐藏其余的；再按一次即可全部显示。&#x0A;&#x0A;- **要显示的分组**：你所在客户端的分组（会随你切换客户端而变化），或你选定的某个分组。&#x0A;- 客户端不在任何分组中、处于角色选择界面，或选定的分组已不存在时，会显示全部缩略图。&#x0A;- **隐藏的缩略图在其警报未查看时显示**（默认开启，直到你关闭）会让分组之外、带有你尚未查看的警报的客户端保持显示。&#x0A;- 专注模式只隐藏主缩略图：第二缩略图、裁剪窗口和统计窗口都会保留。你用其他方式隐藏的缩略图，在专注模式结束后仍保持隐藏。&#x0A;&#x0A;每次启动 MultiPreview 时，专注模式都会恢复为关闭。</sys:String> <!-- draft -->
 </ResourceDictionary>

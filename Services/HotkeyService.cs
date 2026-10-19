@@ -831,6 +831,13 @@ public sealed class HotkeyService : IDisposable
             HotkeySheetToggled?.Invoke();
         });
 
+        // Focus mode on or off (IDEAS #35). It switches no client, so it is no cycle-ignore key.
+        StoreAhkHotkey(settings.FocusModeHotkey, () =>
+        {
+            if (_suspended) return;
+            FocusModeToggled?.Invoke();
+        });
+
         // ── Per-character hotkeys from profile ───────────────────────
 
         var sharedHotkeys = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -923,6 +930,9 @@ public sealed class HotkeyService : IDisposable
 
     /// <summary>The hotkey cheat sheet's key was pressed (IDEAS #16). App opens the sheet, or closes it when it is open.</summary>
     public event Action? HotkeySheetToggled;
+
+    /// <summary>Focus mode's key was pressed (IDEAS #35). App turns focus mode on or off and says so.</summary>
+    public event Action? FocusModeToggled;
 
     // ── Hotkeys Windows refused (IDEAS #42) ──
     /// <summary>The hotkeys Windows refused the last time they were registered, and whether they have been registered
