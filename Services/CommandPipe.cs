@@ -13,9 +13,10 @@ namespace EveMultiPreview.Services;
 
 /// <summary>IDEAS #39: the named pipe another program's command comes through. Its name holds the Windows session and the
 /// account's SID, so two accounts signed in at once never meet. Only this account can open it: its owner is the token's
-/// default owner (what .NET's CurrentUserOnly check on the client compares with), the account and that owner are allowed,
-/// the NETWORK group is denied, and nothing is inherited. A client opens it with CurrentUserOnly, so a pipe of that name
-/// made by another account is refused. No TCP port, nothing from the network.</summary>
+/// default owner (what .NET's CurrentUserOnly check on the client compares with), only that owner is allowed (the account
+/// itself for a normal run, the Administrators group for an elevated one, so the same account's non-elevated programs are
+/// refused by the pipe's list), the NETWORK group is denied, and nothing is inherited. A client opens it with
+/// CurrentUserOnly, so a pipe of that name made by another account is refused. No TCP port, nothing from the network.</summary>
 public static class CommandPipe
 {
     /// <summary>How long a second start waits for the running MultiPreview, connecting and answering together.</summary>
@@ -40,8 +41,10 @@ public static class CommandPipe
         security.SetOwner(owner);
         security.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
         security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.NetworkSid, null), PipeAccessRights.FullControl, AccessControlType.Deny));
-        security.AddAccessRule(new PipeAccessRule(user, PipeAccessRights.FullControl, AccessControlType.Allow));
-        if (!owner.Equals(user)) security.AddAccessRule(new PipeAccessRule(owner, PipeAccessRights.FullControl, AccessControlType.Allow));
+        // One allow rule: the owner. For an elevated run that is the Administrators group, not the account (user, which is
+        // then left out): a pipe made by an elevated process carries no integrity label that would keep the same account's
+        // non-elevated programs out, so a rule for the account would let them in. MultiPreview's own sender refuses the mismatch.
+        security.AddAccessRule(new PipeAccessRule(owner, PipeAccessRights.FullControl, AccessControlType.Allow));
         return security;
     }
 
