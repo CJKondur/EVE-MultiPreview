@@ -66,10 +66,10 @@ public static class ShareCode
             {
                 Character = CleanName(PlainText.OneLine(s.Character, MaxNameLength).Trim()) ?? "",
                 Monitor = s.Monitor is >= 0 and <= MaxMonitor ? s.Monitor : 0,
-                X = Fraction(s.Fx, -1, 2, 0),
-                Y = Fraction(s.Fy, -1, 2, 0),
-                W = Fraction(s.Fw, 0.0001, 2, 0.1),
-                H = Fraction(s.Fh, 0.0001, 2, 0.1),
+                X = Fraction(s.Fx, MinPosition, MaxPosition, 0),
+                Y = Fraction(s.Fy, MinPosition, MaxPosition, 0),
+                W = Fraction(s.Fw, MinSize, MaxSize, 0.1),
+                H = Fraction(s.Fh, MinSize, MaxSize, 0.1),
             }).ToList(),
         };
         return Pack(LayoutPrefix, JsonSerializer.SerializeToUtf8Bytes(code, Strict));
@@ -147,6 +147,14 @@ public static class ShareCode
     }
 
     private static bool Within(double v, double min, double max) => v >= min && v <= max;
+
+    // The range a code holds a place in; a layout file's places are clamped to the same one.
+    public const double MinPosition = -1, MaxPosition = 2, MinSize = 0.0001, MaxSize = 2;
+
+    /// <summary>A finite position or size held to the code's range (<see cref="MinPosition"/>..<see cref="MaxPosition"/> for a
+    /// position, <see cref="MinSize"/>..<see cref="MaxSize"/> for a size), unrounded.</summary>
+    public static double ClampPosition(double v) => Math.Clamp(v, MinPosition, MaxPosition);
+    public static double ClampSize(double v) => Math.Clamp(v, MinSize, MaxSize);
 
     private static double Fraction(double v, double min, double max, double fallback) =>
         double.IsFinite(v) ? Math.Round(Math.Clamp(v, min, max), 4) : fallback;

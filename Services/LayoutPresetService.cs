@@ -67,8 +67,9 @@ public sealed class LayoutPresetService
         => File.WriteAllText(file, JsonSerializer.Serialize(preset, Json));
 
     /// <summary>Parse a shared preset file without adding it (null on failure / empty preset). P122: a file over
-    /// <see cref="MaxFileBytes"/> is not read, one with more than <see cref="MaxFileSlots"/> places, or a place that fails
-    /// <see cref="ShareCode.ValidSlot"/>, is refused whole. The name keeps its words but never holds a path character
+    /// <see cref="MaxFileBytes"/> is not read, one with more than <see cref="MaxFileSlots"/> places, or a place with a number
+    /// that is not finite, a monitor outside 0..<see cref="ShareCode.MaxMonitor"/> or a character that fails the code's rule
+    /// (<see cref="ShareCode.ValidSlot"/>), is refused whole; a finite fraction outside the code's range is clamped into it. The name keeps its words but never holds a path character
     /// (<see cref="ShareCode.SafeName"/>); one with nothing left takes the file's name, then "Layout".</summary>
     public LayoutPreset? ReadFile(string file)
     {
@@ -78,7 +79,16 @@ public sealed class LayoutPresetService
             var preset = JsonSerializer.Deserialize<LayoutPreset>(File.ReadAllText(file));
             if (preset == null || preset.Slots == null || preset.Slots.Count == 0 || preset.Slots.Count > MaxFileSlots) return null;
             foreach (var slot in preset.Slots)
-                if (slot == null || !ShareCode.ValidSlot(slot.Character, slot.Monitor, slot.Fx, slot.Fy, slot.Fw, slot.Fh)) return null;
+            {
+                // A number that is not a number refuses the file. A finite one outside the code's range is clamped into it: the
+                // app's own export can write one (a thumbnail left far off-screen), and Export then Import must keep working.
+                if (slot == null || !double.IsFinite(slot.Fx) || !double.IsFinite(slot.Fy) || !double.IsFinite(slot.Fw) || !double.IsFinite(slot.Fh)) return null;
+                slot.Fx = ShareCode.ClampPosition(slot.Fx);
+                slot.Fy = ShareCode.ClampPosition(slot.Fy);
+                slot.Fw = ShareCode.ClampSize(slot.Fw);
+                slot.Fh = ShareCode.ClampSize(slot.Fh);
+                if (!ShareCode.ValidSlot(slot.Character, slot.Monitor, slot.Fx, slot.Fy, slot.Fw, slot.Fh)) return null;   // monitor, character
+            }
             var name = ShareCode.SafeName(preset.Name);
             if (name.Length == 0) name = ShareCode.SafeName(Path.GetFileNameWithoutExtension(file));
             preset.Name = name.Length > 0 ? name : "Layout";
