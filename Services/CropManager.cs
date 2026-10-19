@@ -174,7 +174,9 @@ public sealed class CropManager : IDisposable
         {
             _cropsHidden = !_cropsHidden;
             ApplyHiddenToAll();
-            _thumbnailManager?.ShowTooltipFeedback(_cropsHidden ? "Crops: Hidden" : "Crops: Visible");
+            _thumbnailManager?.ShowTooltipFeedback(_cropsHidden
+                ? LocalizationService.Str("L.Msg.CropsHidden", "Crops: Hidden")
+                : LocalizationService.Str("L.Msg.CropsVisible", "Crops: Visible"));
         });
     }
 

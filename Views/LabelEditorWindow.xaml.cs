@@ -38,7 +38,7 @@ public partial class LabelEditorWindow : Window
         _manager = manager;
         _onSaved = onSaved;
 
-        HeaderText.Text = $"Label for “{characterName}”";
+        HeaderText.Text = string.Format(LocalizationService.Str("L.Lbl.Header", "Label for “{0}”"), characterName);
 
         // Pre-fill from existing settings.
         TxtLabel.Text = settings.ThumbnailAnnotations.TryGetValue(characterName, out var text)

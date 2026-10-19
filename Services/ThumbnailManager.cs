@@ -553,24 +553,24 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>Revert the wall to the last snapshot. False if nothing to undo.</summary>
     public bool UndoLayout()
     {
-        if (_layoutUndo.Count == 0) { ShowTooltipFeedback("Nothing to undo"); return false; }
+        if (_layoutUndo.Count == 0) { ShowTooltipFeedback(LocalizationService.Str("L.Msg.NothingToUndo", "Nothing to undo")); return false; }
         _layoutRedo.Add(CaptureLiveLayout());
         var snap = _layoutUndo[^1];
         _layoutUndo.RemoveAt(_layoutUndo.Count - 1);
         RestoreLayout(snap);
-        ShowTooltipFeedback("Layout: undone");
+        ShowTooltipFeedback(LocalizationService.Str("L.Msg.LayoutUndone", "Layout: undone"));
         return true;
     }
 
     /// <summary>Re-apply the last undone layout. False if nothing to redo.</summary>
     public bool RedoLayout()
     {
-        if (_layoutRedo.Count == 0) { ShowTooltipFeedback("Nothing to redo"); return false; }
+        if (_layoutRedo.Count == 0) { ShowTooltipFeedback(LocalizationService.Str("L.Msg.NothingToRedo", "Nothing to redo")); return false; }
         _layoutUndo.Add(CaptureLiveLayout());
         var snap = _layoutRedo[^1];
         _layoutRedo.RemoveAt(_layoutRedo.Count - 1);
         RestoreLayout(snap);
-        ShowTooltipFeedback("Layout: redone");
+        ShowTooltipFeedback(LocalizationService.Str("L.Msg.LayoutRedone", "Layout: redone"));
         return true;
     }
 
@@ -694,8 +694,8 @@ public sealed class ThumbnailManager : IDisposable
             if (applyVis) { _settings.Settings.CropEnabled = preset.CropsEnabled; _settings.Save(); }
 
             ShowTooltipFeedback(preStaged > 0
-                ? $"Layout: applied '{preset.Name}' ({preStaged} saved for characters not logged in)"
-                : $"Layout: applied '{preset.Name}'");
+                ? string.Format(LocalizationService.Str("L.Msg.LayoutAppliedSaved", "Layout: applied '{0}' ({1} saved for characters not logged in)"), preset.Name, preStaged)
+                : string.Format(LocalizationService.Str("L.Msg.LayoutApplied", "Layout: applied '{0}'"), preset.Name));
         });
     }
 
@@ -718,7 +718,7 @@ public sealed class ThumbnailManager : IDisposable
             }
 
             if (applyVis) { _settings.Settings.CropEnabled = preset.CropsEnabled; _settings.Save(); }
-            ShowTooltipFeedback($"Layout: applied '{preset.Name}' (remapped)");
+            ShowTooltipFeedback(string.Format(LocalizationService.Str("L.Msg.LayoutAppliedRemapped", "Layout: applied '{0}' (remapped)"), preset.Name));
         });
     }
 
@@ -2562,7 +2562,9 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>Show tooltip feedback for suspend toggle state (called from App.xaml.cs).</summary>
     public void ShowSuspendTooltip(bool isSuspended)
     {
-        ShowTooltipFeedback(isSuspended ? "Hotkeys: SUSPENDED" : "Hotkeys: ACTIVE");
+        ShowTooltipFeedback(isSuspended
+            ? LocalizationService.Str("L.Msg.HotkeysSuspended", "Hotkeys: SUSPENDED")
+            : LocalizationService.Str("L.Msg.HotkeysActive", "Hotkeys: ACTIVE"));
     }
 
     // ── Snap ─────────────────────────────────────────────────────────
@@ -2747,24 +2749,24 @@ public sealed class ThumbnailManager : IDisposable
         if (string.IsNullOrEmpty(charName)) return;
 
         DateTime? until;
-        string label;
+        string note;
         if (minutes <= 0)
         {
             _alertMutedChars.TryRemove(charName, out _);
             until = null;
-            label = "🔔 Alerts unmuted";
+            note = string.Format(LocalizationService.Str("L.Msg.AlertsUnmuted", "{0}: 🔔 Alerts unmuted"), charName);
         }
         else if (minutes == int.MaxValue)
         {
             until = DateTime.MaxValue;
             _alertMutedChars[charName] = (until.Value, TimeSpan.MaxValue);
-            label = "🔇 Alerts muted";
+            note = string.Format(LocalizationService.Str("L.Msg.AlertsMuted", "{0}: 🔇 Alerts muted"), charName);
         }
         else
         {
             until = _muteClock().AddMinutes(minutes);
             _alertMutedChars[charName] = (until.Value, TimeSpan.FromMinutes(minutes));
-            label = $"🔇 Alerts muted {minutes}m";
+            note = string.Format(LocalizationService.Str("L.Msg.AlertsMutedMins", "{0}: 🔇 Alerts muted {1}m"), charName, minutes);
         }
 
         // Reflect on every thumbnail showing this character (menu header), its second thumbnail too (IDEAS P36).
@@ -2786,7 +2788,7 @@ public sealed class ThumbnailManager : IDisposable
             Enlarge.Forget(charName);
         }
 
-        ShowTooltipFeedback($"{charName}: {label}");
+        ShowTooltipFeedback(note);
     }
 
     // ── Per-process audio (auto-solo + per-client mute/volume) ──────
@@ -2837,7 +2839,7 @@ public sealed class ThumbnailManager : IDisposable
             // Mute is a transient toggle (not persisted), like the auto-solo path.
             Interop.User32.GetWindowThreadProcessId(thumb.EveHwnd, out uint pid);
             if (pid != 0) _audio.SetMute(pid, true);
-            ShowTooltipFeedback($"{thumb.CharacterName}: audio muted");
+            ShowTooltipFeedback(string.Format(LocalizationService.Str("L.Msg.AudioMuted", "{0}: audio muted"), thumb.CharacterName));
         }
         else
         {
@@ -3898,7 +3900,9 @@ public sealed class ThumbnailManager : IDisposable
         });
         // Crops follow the Hide/Show All keybind (issue #66).
         AllVisibilityChanged?.Invoke(_thumbnailsHidden);
-        ShowTooltipFeedback(_thumbnailsHidden ? "Thumbnails: Hidden" : "Thumbnails: Visible");
+        ShowTooltipFeedback(_thumbnailsHidden
+            ? LocalizationService.Str("L.Msg.ThumbsHidden", "Thumbnails: Hidden")
+            : LocalizationService.Str("L.Msg.ThumbsVisible", "Thumbnails: Visible"));
     }
 
     /// <summary>Alias for ToggleThumbnailVisibility — matches AHK HideShowThumbnailsHotkey.</summary>
@@ -3928,7 +3932,9 @@ public sealed class ThumbnailManager : IDisposable
                     : System.Windows.Visibility.Visible;
             }
         });
-        ShowTooltipFeedback(_primaryHidden ? "Primary: Hidden" : "Primary: Visible");
+        ShowTooltipFeedback(_primaryHidden
+            ? LocalizationService.Str("L.Msg.PrimaryHidden", "Primary: Hidden")
+            : LocalizationService.Str("L.Msg.PrimaryVisible", "Primary: Visible"));
     }
 
     private bool _secondaryHidden = false;
@@ -3951,7 +3957,9 @@ public sealed class ThumbnailManager : IDisposable
             }
         });
         Debug.WriteLine($"[Thumbnail:Visibility] 🔧 ToggleSecondaryVisibility: hidden={_secondaryHidden}, count={_secondaryThumbnails.Count}");
-        ShowTooltipFeedback(_secondaryHidden ? "PiP: Hidden" : "PiP: Visible");
+        ShowTooltipFeedback(_secondaryHidden
+            ? LocalizationService.Str("L.Msg.PipHidden", "PiP: Hidden")
+            : LocalizationService.Str("L.Msg.PipVisible", "PiP: Visible"));
     }
 
     // ── Back to the client before this one (IDEAS #56) ──────────────
@@ -4327,8 +4335,8 @@ public sealed class ThumbnailManager : IDisposable
         }));
 
         ShowTooltipFeedback(nowExcluded
-            ? $"'{characterName}' excluded from cycle"
-            : $"'{characterName}' re-included in cycle");
+            ? string.Format(LocalizationService.Str("L.Msg.CycleExcluded", "'{0}' excluded from cycle"), characterName)
+            : string.Format(LocalizationService.Str("L.Msg.CycleIncluded", "'{0}' re-included in cycle"), characterName));
     }
 
     // ── Click-Through Toggle ────────────────────────────────────────
@@ -4337,7 +4345,9 @@ public sealed class ThumbnailManager : IDisposable
     {
         _clickThroughActive = !_clickThroughActive;
         ApplyClickThroughStateToAll();
-        ShowTooltipFeedback(_clickThroughActive ? "Thumbnails: Click-Through ON" : "Thumbnails: Click-Through OFF");
+        ShowTooltipFeedback(_clickThroughActive
+            ? LocalizationService.Str("L.Msg.ClickThroughOn", "Thumbnails: Click-Through ON")
+            : LocalizationService.Str("L.Msg.ClickThroughOff", "Thumbnails: Click-Through OFF"));
     }
 
     /// <summary>
@@ -4395,7 +4405,9 @@ public sealed class ThumbnailManager : IDisposable
                 sw.LockPositions = s.LockPositions;
         });
         // M9: Tooltip feedback matching AHK
-        ShowTooltipFeedback(s.LockPositions ? "Positions: Locked" : "Positions: Unlocked");
+        ShowTooltipFeedback(s.LockPositions
+            ? LocalizationService.Str("L.Msg.PositionsLocked", "Positions: Locked")
+            : LocalizationService.Str("L.Msg.PositionsUnlocked", "Positions: Unlocked"));
     }
 
     // ── Close All EVE Windows ───────────────────────────────────────
@@ -4875,7 +4887,7 @@ public sealed class ThumbnailManager : IDisposable
                 if (!string.IsNullOrEmpty(overlayText))
                     statWin.UpdateOverlayText(overlayText);
                 else
-                    statWin.UpdateOverlayText("Waiting for data...");
+                    statWin.UpdateOverlayText(LocalizationService.Str("L.Stats.Waiting", "Waiting for data..."));
             }
             catch { }
         }

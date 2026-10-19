@@ -1612,7 +1612,7 @@ public class ThumbnailWindow : Form
             using var dim = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
             g.FillRectangle(dim, ClientRectangle);
 
-            const string text = "Not Logged In";
+            var text = LocalizationService.Str("L.Thumb.NotLoggedIn", "Not Logged In");
             using var font = new Font("Segoe UI", 10f);
             var size = g.MeasureString(text, font);
             float tx = (ClientSize.Width - size.Width) / 2f;

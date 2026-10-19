@@ -186,8 +186,7 @@ public partial class App : Application
                 Shutdown((int)outcome);
                 return;
             }
-            MessageBox.Show("EVE MultiPreview is already running.", "EVE MultiPreview",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            TellAlreadyRunning();
             Shutdown();
             return;
         }
@@ -914,9 +913,10 @@ public partial class App : Application
 
         if (File.Exists(oldFile) && !File.Exists(newFile))
         {
+            UseWindowsLanguage();   // no settings are read yet, so no language is chosen yet
             var result = MessageBox.Show(
-                "Found settings from EVE-X-Preview. Migrate to EVE MultiPreview?",
-                "Settings Migration", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                LocalizationService.Str("L.Msg.MigrateEveX", "Found settings from EVE-X-Preview. Migrate to EVE MultiPreview?"),
+                LocalizationService.Str("L.Msg.MigrateEveXTitle", "Settings Migration"), MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result == MessageBoxResult.Yes)
             {
@@ -1594,10 +1594,25 @@ public partial class App : Application
     /// this start reads no settings.</summary>
     private static void TellCommandsOff()
     {
-        try { LocalizationService.SetLanguage(null); }
-        catch { /* the English text then */ }
+        UseWindowsLanguage();
         MessageBox.Show(LocalizationService.Str("L.Msg.CommandsOff", CommandsOffEnglish), "EVE MultiPreview",
             MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    /// <summary>IDEAS P121, a second start with no command: says that MultiPreview already runs, in Windows' language as
+    /// the note above does (this start reads no settings).</summary>
+    private static void TellAlreadyRunning()
+    {
+        UseWindowsLanguage();
+        MessageBox.Show(LocalizationService.Str("L.Msg.AlreadyRunning", "EVE MultiPreview is already running."), "EVE MultiPreview",
+            MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
+    /// <summary>A start that has read no settings yet (a second start, the EVE-X-Preview question) speaks Windows' language.</summary>
+    private static void UseWindowsLanguage()
+    {
+        try { LocalizationService.SetLanguage(null); }
+        catch { /* the English text then */ }
     }
 
     /// <summary>IDEAS #30: the snooze file follows "Keep snoozes when MultiPreview restarts". Called after every change
@@ -1932,7 +1947,7 @@ public partial class App : Application
         _settings.SwitchProfile(newProfile);   // ProfileSwitched applies it (#101)
 
         // Tooltip feedback (AHK L705: ToolTip("Profile: " newProfile))
-        _thumbnailManager?.ShowTooltipFeedback($"Profile: {newProfile}");
+        _thumbnailManager?.ShowTooltipFeedback(string.Format(LocalizationService.Str("L.Tray.ProfileFmt", "Profile: {0}"), newProfile));
 
         Debug.WriteLine($"[App:Profile] 🔄 Cycled {(forward ? "forward" : "backward")} to profile: {newProfile}");
     }

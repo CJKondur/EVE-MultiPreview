@@ -64,7 +64,7 @@ public sealed class BroadcastHudWindow : IDisposable
             Padding = new Thickness(10, 4, 10, 4),
             Child = _text,
             Cursor = System.Windows.Input.Cursors.SizeAll,
-            ToolTip = "Carried keys: the held keys the carry options are passing on to your clients. Drag to move.",
+            ToolTip = EveMultiPreview.Services.LocalizationService.Str("L.Hud.CarriedKeysTip", "Carried keys: the held keys the carry options are passing on to your clients. Drag to move."),
         };
 
         _window = new Window
@@ -77,7 +77,7 @@ public sealed class BroadcastHudWindow : IDisposable
             Topmost = true,
             ResizeMode = ResizeMode.NoResize,
             SizeToContent = SizeToContent.WidthAndHeight,
-            Title = "EVE MultiPreview — Carried keys",
+            Title = EveMultiPreview.Services.LocalizationService.Str("L.Hud.CarriedKeysTitle", "EVE MultiPreview — Carried keys"),
             Content = _pill,
             Left = settings.BroadcastHudX,
             Top = settings.BroadcastHudY,
