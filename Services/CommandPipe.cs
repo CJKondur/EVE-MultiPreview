@@ -118,7 +118,8 @@ public static class CommandPipe
 /// that sends a command and never reads the answer at most the read time, App's run time and the read time again. A run
 /// of App's that hangs holds the server (App only posts the command to the window's thread, so it stays quick). A program
 /// of this same account that connects again and again can keep the one door busy: the same account is inside the trust
-/// boundary.</para></summary>
+/// boundary. If the next instance cannot be made, the server stops and reports. Another account that takes the name
+/// before the server starts only keeps the feature off (reported); it cannot take over the pipe.</para></summary>
 public sealed class CommandServer : IDisposable
 {
     public static readonly TimeSpan ReadTime = TimeSpan.FromSeconds(2);

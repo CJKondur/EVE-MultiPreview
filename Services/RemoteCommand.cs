@@ -61,8 +61,10 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
         return name;
     }
 
-    /// <summary>The message on the pipe: the command's word, a line break, its name (UTF-8, at most 210 bytes).</summary>
-    public byte[] ToMessage() => Strict.GetBytes(Allowed.First(a => a.Verb == Verb).Word + "\n" + Argument);
+    /// <summary>The message on the pipe: the command's word, a line break, its name (UTF-8, at most 210 bytes). A verb
+    /// not on the list gives an empty message, which nobody takes.</summary>
+    public byte[] ToMessage() =>
+        Allowed.FirstOrDefault(a => a.Verb == Verb).Word is { } word ? Strict.GetBytes(word + "\n" + Argument) : Array.Empty<byte>();
 
     /// <summary>A message read from the pipe, checked as strictly as a command line: valid UTF-8, a word of the list
     /// (exact), and a name exactly as Clean would keep it. Null for anything else.</summary>
