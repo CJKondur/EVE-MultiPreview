@@ -53,7 +53,7 @@ public sealed class LogMonitorService : IDisposable
     private FileSystemWatcher? _chatWatcher;
     private FileSystemWatcher? _gameWatcher;
     private int _pollInterval = 250;
-    private DateTime _lastEventTime = DateTime.MinValue;
+    private long _lastEventTime = long.MinValue / 2;   // Environment.TickCount64 of the last event: only "how long ago" is asked, so no wall clock
     private int _momentumCounter = 0;
     private int _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1; // ensures first iteration scans immediately
     private const int FAST_POLL = 50;     // fallback: 50ms (matches AHK) — FSW usually wakes faster
@@ -64,7 +64,7 @@ public sealed class LogMonitorService : IDisposable
     // Character tracking
     private readonly ConcurrentDictionary<string, string> _fileCharacterMap = new(StringComparer.OrdinalIgnoreCase); // filepath → character name
     private readonly ConcurrentDictionary<string, string> _characterSystems = new(); // char → system
-    private readonly ConcurrentDictionary<string, DateTime> _systemTimestamps = new(); // char → last system change time
+    private readonly ConcurrentDictionary<string, DateTime> _systemTimestamps = new(); // char → last system change time (UTC, as the Local log file times it is compared with)
 
     // ── System-change source arbitration (#98) ────────────────────────────
     // Two sources report the current system, and they disagree on TIMING:
@@ -1238,7 +1238,7 @@ public sealed class LogMonitorService : IDisposable
                 }
 
                 // Adaptive fallback — FSW provides the primary near-instant wake
-                if ((DateTime.Now - _lastEventTime).TotalSeconds < 10)
+                if (Environment.TickCount64 - _lastEventTime < 10_000)
                 {
                     _pollInterval = FAST_POLL;
                     _momentumCounter = 0;
@@ -1330,10 +1330,11 @@ public sealed class LogMonitorService : IDisposable
     public const int GameLogsTaken = 50, LocalLogsTaken = 12;
 
     /// <summary>The game logs a scan takes on: the folder's *.txt files written in the last 30 minutes, newest first, at
-    /// most 50, as full paths.</summary>
+    /// most 50, as full paths. File times and "now" are compared in UTC (a "now" that is not UTC is taken as local), so
+    /// the hour the clocks change does not reorder the logs or leave one out.</summary>
     public static IReadOnlyList<string> RecentGameLogs(string folder, DateTime now)
     {
-        var cutoff = now - GameLogWindow;
+        var cutoff = now.ToUniversalTime() - GameLogWindow;
         return LogTimes(folder, "*.txt", now)
             .Where(x => x.Written >= cutoff)
             .OrderByDescending(x => x.Written)
@@ -1346,11 +1347,12 @@ public sealed class LogMonitorService : IDisposable
     /// Local_‹yyyymmdd›_‹hhmmss›.txt, with or without _‹character id› before the ".txt", newest first, as full paths:
     /// the 12 newest however old (a day-old session still has its logs read), plus every other one written in the last
     /// 30 minutes (a client per character: with more than twelve logged in, twelve would leave some unread), at most
-    /// 50 in all. The log of another channel whose name merely begins with "Local_" (a player-made "Local_Intel") is
+    /// 50 in all. Times are compared in UTC, as for <see cref="RecentGameLogs"/>. The log of another channel whose
+    /// name merely begins with "Local_" (a player-made "Local_Intel") is
     /// not one: read as Local, a "Channel changed to Local" line in it moved the character's system.</summary>
     public static IReadOnlyList<string> NewestLocalLogs(string folder, DateTime now)
     {
-        var cutoff = now - GameLogWindow;
+        var cutoff = now.ToUniversalTime() - GameLogWindow;
         return LogTimes(folder, "Local_*.txt", now)
             .OrderByDescending(x => x.Written)
             .Where(x => ChannelLogOwner(Path.GetFileName(x.Path), LocalChannel) != null)
@@ -1367,22 +1369,28 @@ public sealed class LogMonitorService : IDisposable
     /// Windows only updates a file's line in the listing when a handle on it closes, and EVE keeps a session's log open,
     /// so a running client's log can be listed with a time that is hours old. A log created or listed as written in the
     /// last 7 days may be such a file; one older than that on both counts is not being written (a session can't
-    /// outlast the daily downtime by that much), and its listed time is the true one.</summary>
-    public static bool MayStillBeOpen(DateTime created, DateTime listedAsWritten, DateTime now) =>
-        created >= now - OpenLogLookback || listedAsWritten >= now - OpenLogLookback;
+    /// outlast the daily downtime by that much), and its listed time is the true one. The times are compared in UTC; a
+    /// time that is not UTC (or a "now" that is not) is taken as local.</summary>
+    public static bool MayStillBeOpen(DateTime created, DateTime listedAsWritten, DateTime now)
+    {
+        var since = now.ToUniversalTime() - OpenLogLookback;
+        return created.ToUniversalTime() >= since || listedAsWritten.ToUniversalTime() >= since;
+    }
 
-    /// <summary>Every matching file of a folder with the time it was last written. One pass over the folder's own
+    /// <summary>Every matching file of a folder with the time it was last written and created, both in UTC: a local
+    /// reading repeats for an hour when the clocks go back, and an old session's log would outrank the new one's. One pass over the folder's own
     /// listing, which carries every file's times; only the few files that may still be open in a client
     /// (<see cref="MayStillBeOpen"/>) are asked themselves, as every file was before. On a folder of 10,000 old logs
     /// that separate question per file, at every scan, cost most of a processor core.</summary>
     private static IEnumerable<(string Path, DateTime Written, DateTime Created)> LogTimes(string folder, string pattern, DateTime now)
     {
+        now = now.ToUniversalTime();                       // once, not once per file of a 10,000-file folder
         foreach (var file in new DirectoryInfo(folder).EnumerateFiles(pattern))
         {
             var path = Path.GetFullPath(file.FullName);
-            var written = file.LastWriteTime;
-            var created = file.CreationTime;
-            if (MayStillBeOpen(created, written, now)) written = File.GetLastWriteTime(path);
+            var written = file.LastWriteTimeUtc;
+            var created = file.CreationTimeUtc;
+            if (MayStillBeOpen(created, written, now)) written = File.GetLastWriteTimeUtc(path);
             yield return (path, written, created);
         }
     }
@@ -1519,7 +1527,7 @@ public sealed class LogMonitorService : IDisposable
                                 // Local_*.txt exist for the same character (EVE creates one per session).
                                 // ConcurrentDictionary iteration order is random, so without this,
                                 // an older file could overwrite the correct system.
-                                var fileTime = fi.LastWriteTime;
+                                var fileTime = fi.LastWriteTimeUtc;
                                 if (!_systemTimestamps.TryGetValue(firstReadChar, out var existingTime) || fileTime > existingTime)
                                 {
                                     _characterSystems[firstReadChar] = lastSystem;
@@ -1785,7 +1793,7 @@ public sealed class LogMonitorService : IDisposable
     /// <summary>A rule matched: its alert goes through the gate every alert goes through.</summary>
     private void RaiseCustom(CustomAlertRule rule, string text)
     {
-        _lastEventTime = DateTime.Now;
+        _lastEventTime = Environment.TickCount64;
         TriggerAlert(_customCharacter, rule.AlertType, rule.Severity, rule.QuietSeconds, text);
     }
 
@@ -1998,7 +2006,7 @@ public sealed class LogMonitorService : IDisposable
                         }
                     }
                 }
-                _lastEventTime = DateTime.Now;
+                _lastEventTime = Environment.TickCount64;
                 TriggerAlert(character, "attack", "critical");
             }
             SkipCombat:
@@ -2074,7 +2082,7 @@ public sealed class LogMonitorService : IDisposable
                         return;
                 }
             }
-            _lastEventTime = DateTime.Now;
+            _lastEventTime = Environment.TickCount64;
             TriggerAlert(character, "warp_scramble", "critical");
             return;
         }
@@ -2085,7 +2093,7 @@ public sealed class LogMonitorService : IDisposable
         // ── Decloak detection ((notify) tag + localized "cloak deactivates") ──
         if (notify && AlertPatterns.Matches(line, "decloak"))
         {
-            _lastEventTime = DateTime.Now;
+            _lastEventTime = Environment.TickCount64;
             TriggerAlert(character, "decloak", "critical");
             return;
         }
@@ -2272,7 +2280,7 @@ public sealed class LogMonitorService : IDisposable
         // As for hits: a player is named with a corporation ticker in brackets, an NPC is not.
         if (PveMode && IsNpc(onYou.Groups[1].Value.Trim())) return;
 
-        _lastEventTime = DateTime.Now;
+        _lastEventTime = Environment.TickCount64;
         TriggerAlert(character, "warp_scramble", "critical");
     }
 
@@ -2292,7 +2300,7 @@ public sealed class LogMonitorService : IDisposable
         // A neutralizer and a jam are states, with a line for every cycle of the module: told when one starts, and
         // then not before the events' own quiet time is over, or the quiet time of Settings where that is longer.
         int quiet = Math.Max(EwarLines.QuietSeconds, CooldownFor(type, severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds));
-        _lastEventTime = DateTime.Now;
+        _lastEventTime = Environment.TickCount64;
         TriggerAlert(character, type, severity, quiet);
     }
 
@@ -2306,7 +2314,7 @@ public sealed class LogMonitorService : IDisposable
     {
         int raise = _combatWatch.Hit(character, amount, _alertClock(), _combatOn, CombatOptions.Of(_appSettings));
         if (raise == 0) return;
-        _lastEventTime = DateTime.Now;
+        _lastEventTime = Environment.TickCount64;
         if ((raise & CombatWatch.DpsBit) != 0)
             TriggerAlert(character, CombatWatch.DpsHigh, CombatWatch.DpsSeverity, Quiet(CombatWatch.DpsHigh, CombatWatch.DpsSeverity));
         if ((raise & CombatWatch.RepsBit) != 0)
@@ -2387,7 +2395,7 @@ public sealed class LogMonitorService : IDisposable
                 return;
             }
 
-            _lastEventTime = DateTime.Now;
+            _lastEventTime = Environment.TickCount64;
             DamageReceived?.Invoke(new DamageEvent
             {
                 Timestamp = DateTime.UtcNow,
@@ -2609,7 +2617,7 @@ public sealed class LogMonitorService : IDisposable
         if (systemName == existingSystem) return;
 
         _characterSystems[character] = systemName;
-        _systemTimestamps[character] = DateTime.Now;
+        _systemTimestamps[character] = DateTime.UtcNow;
 
         Debug.WriteLine($"[LogMonitor:System] 🌍 System changed: '{character}' → '{systemName}' (source: {source})");
         SystemChanged?.Invoke(character, systemName);

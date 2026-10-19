@@ -64,7 +64,7 @@ public class ThumbnailWindow : Form
     private System.Windows.Forms.Timer? _hoverTimer;
     private System.Windows.Forms.Timer? _underFirePulseTimer;
 
-    private DateTime _sessionStart = DateTime.Now;
+    private DateTime _sessionStart = DateTime.UtcNow;
 
     private TextOverlayWindow? _textOverlay;
 
@@ -349,7 +349,7 @@ public class ThumbnailWindow : Form
         base.Height = height;
         base.Left = x;
         base.Top = y;
-        _sessionStart = DateTime.Now;
+        _sessionStart = DateTime.UtcNow;
 
         // Create overlay immediately so ApplySettings can set text properties,
         // but defer Show() to OnHandleCreated (needs this Form's HWND).
@@ -1356,7 +1356,7 @@ public class ThumbnailWindow : Form
         _textOverlay?.SyncPositionPhysical(base.Left, base.Top, base.Width, base.Height);
     }
 
-    public TimeSpan SessionDuration => DateTime.Now - _sessionStart;
+    public TimeSpan SessionDuration => DateTime.UtcNow - _sessionStart;
 
     // ── Visibility ───────────────────────────────────────────────
 
