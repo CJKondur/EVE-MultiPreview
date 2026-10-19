@@ -178,7 +178,7 @@ public partial class App : Application
             // as its exit code (0 done, 1 refused, 2 not found, 3 nothing took it). No window for 0 to 2: scripts and a
             // Stream Deck start it, and a window would take the front from the game.
             var forwarded = RemoteCommandLine.Forward(e.Args, command =>
-                CommandPipe.Send(CommandPipe.CurrentName(), command, CommandPipe.SendTime, letTakeTheFront: command.Verb == RemoteVerb.Focus));
+                CommandPipe.Send(CommandPipe.CurrentName(), command, CommandPipe.SendTime, letTakeTheFront: command.SwitchesAClient));
             if (forwarded is RemoteOutcome outcome)
             {
                 if (outcome == RemoteOutcome.NotReachable) TellCommandsOff();
