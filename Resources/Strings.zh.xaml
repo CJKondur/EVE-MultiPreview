@@ -2587,4 +2587,6 @@
     <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated.Desc">仅在 MultiPreview 以管理员身份运行时才有意义。这样你的其他程序（Stream Deck、脚本）无需也以管理员身份运行，就能发送命令。此后你的 Windows 账户下任何普通程序都可以切换你的客户端和配置文件，但仍然无法指定文件或运行任何东西。默认关闭。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Title">当 MultiPreview 以管理员身份运行时</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows 会把不以管理员身份运行的程序挡在以管理员身份运行的程序之外，所以用普通方式启动的 Stream Deck 得不到以管理员身份运行的 MultiPreview 的回应（退出代码 3）。&#x0A;&#x0A;你可以让发送方也以管理员身份运行，或者开启**也接受不以管理员身份运行的程序发来的命令**。开启后，你自己的 Windows 账户下不以管理员身份运行的程序可以发送同样的命令；不会监听网络，命令也始终不会指向文件。</sys:String> <!-- draft -->
+    <!-- Ideas batch 12 (Plan 16) -->
+    <sys:String x:Key="L.S.Presets.CodeLong">布局“{0}”已作为 {1} 个字符的代码复制到剪贴板。这超过了 Discord 一条消息能容纳的长度（2000 个字符）。你可以把它拆开，或者用“导出…”以文件形式分享这个布局。</sys:String> <!-- draft -->
 </ResourceDictionary>

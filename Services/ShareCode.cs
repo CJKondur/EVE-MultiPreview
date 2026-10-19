@@ -24,6 +24,8 @@ public static class ShareCode
 {
     public const string LayoutPrefix = "EMP-L1:", LookPrefix = "EMP-P1:";
     public const int MaxCodeLength = 8192, MaxJsonBytes = 16384, MaxSlots = 64, MaxNameLength = 64, MaxMonitor = 15;
+    /// <summary>A message in Discord takes 2,000 characters; a code longer than this is flagged after the copy (leaving room for the words around it).</summary>
+    public const int DiscordSafeLength = 1900;
     public const string NotACode = "L.S.Code.NotACode", IsLayout = "L.S.Code.IsLayout", IsLook = "L.S.Code.IsLook", Damaged = "L.S.Code.Damaged";
 
     internal static readonly JsonSerializerOptions Strict = new()

@@ -2570,4 +2570,6 @@
     <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated.Desc">MultiPreview가 관리자 권한으로 실행 중일 때만 의미가 있어요. 다른 프로그램(Stream Deck, 스크립트)을 관리자 권한으로 실행하지 않아도 명령을 보낼 수 있게 해요. 그러면 내 Windows 계정의 일반 프로그램은 무엇이든 클라이언트와 프로필을 전환할 수 있지만, 파일을 지정하거나 무언가를 실행할 수는 없어요. 기본값은 꺼짐이에요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Title">MultiPreview를 관리자 권한으로 실행할 때</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows는 관리자 권한으로 실행하지 않은 프로그램이 관리자 권한으로 실행 중인 프로그램에 접근하지 못하게 막아요. 그래서 평소처럼 시작한 Stream Deck은 관리자 권한으로 실행 중인 MultiPreview에서 응답(종료 코드 3)을 받지 못해요.&#x0A;&#x0A;보내는 쪽도 관리자 권한으로 실행하거나 **관리자 권한으로 실행하지 않은 프로그램의 명령도 받기**를 켜 주세요. 켜면 내 Windows 계정의 관리자 권한이 아닌 프로그램도 같은 명령을 보낼 수 있어요. 네트워크에서는 아무것도 듣지 않으며, 명령이 파일을 지정하는 일도 없어요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 12 (Plan 16) -->
+    <sys:String x:Key="L.S.Presets.CodeLong">'{0}' 레이아웃을 {1}자 코드로 클립보드에 복사했어요. Discord 메시지 한 개에 들어가는 길이(2,000자)를 넘어요. 나누거나 내보내기…로 파일로 공유해 주세요.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -136,18 +136,22 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     }
 
     /// <summary>Old OnRemapLayoutPreset: choose which running character takes each place.</summary>
-    public void Remap()
+    public void Remap() => RunRemap();
+
+    /// <summary>True only when the dialog was accepted and the layout applied (P129: Paste a code says what to do next when not).</summary>
+    private bool RunRemap()
     {
         var preset = Chosen();
-        if (preset == null) return;
+        if (preset == null) return false;
         var running = CharacterDirectory.Running(_ctx);
-        if (running.Count == 0) { _ctx.Host.Toast(Str("L.S.Presets.NoClients")); return; }
-        if (_ctx.Host.DialogOwner is not { } owner) return;
+        if (running.Count == 0) { _ctx.Host.Toast(Str("L.S.Presets.NoClients")); return false; }
+        if (_ctx.Host.DialogOwner is not { } owner) return false;
         var dialog = new Views.LayoutRemapDialog(owner, preset.Slots, running);
-        if (dialog.ShowDialog() != true) return;
+        if (dialog.ShowDialog() != true) return false;
         _ctx.Services.Thumbnails?.ApplyLayoutPresetMapped(preset, dialog.Mapping);
         if (preset.IncludesVisibility) _ctx.Applier.Request(ApplyScope.Crops);
         _ctx.Host.Toast(string.Format(Str("L.S.Presets.Applied"), preset.Name));
+        return true;
     }
 
     /// <summary>Old OnSaveLayoutPreset, asking before it replaces a layout with the same name.</summary>
@@ -216,9 +220,10 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         if (preset == null) return;
         var code = ShareCode.Layout(preset);
         if (code == null) { _ctx.Host.Toast(Str("L.S.Presets.CodeTooBig")); return; }
-        _ctx.Host.Toast((CopyText ?? ClipboardText.Set)(code)
-            ? string.Format(Str("L.S.Presets.CodeCopied"), preset.Name, code.Length)
-            : Str("L.S.Presets.CodeCopyFailed"));
+        bool ok = (CopyText ?? ClipboardText.Set)(code);
+        // P128: more than one Discord message takes: say so, rather than "Paste it in Discord". A failed copy says so whatever the length.
+        var key = !ok ? "L.S.Presets.CodeCopyFailed" : code.Length > ShareCode.DiscordSafeLength ? "L.S.Presets.CodeLong" : "L.S.Presets.CodeCopied";
+        _ctx.Host.Toast(ok ? string.Format(Str(key), preset.Name, code.Length) : Str(key));
     }
 
     /// <summary>IDEAS #12: a layout from a pasted code, added to the list (asking before it replaces one with its name).
@@ -240,6 +245,8 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
             _ctx.Host.Toast(string.Format(Str("L.S.Presets.CodeAdded"), preset.Name));
             return;
         }
-        Remap();
+        // P129: a cancelled remap (or none possible) leaves the layout in the list: say what to do next, as with no clients running.
+        bool applied = RunRemap();
+        if (!applied) _ctx.Host.Toast(string.Format(Str("L.S.Presets.CodeAdded"), preset.Name));
     }
 }
