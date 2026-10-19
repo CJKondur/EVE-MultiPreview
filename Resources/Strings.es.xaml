@@ -2602,5 +2602,7 @@
     <sys:String x:Key="L.Ctx.OpenZKill">Abrir el personaje en zKillboard</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">Abrir el personaje en EveWho</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">Colores de borde automáticos</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Da a cada personaje su propio color de borde. Un color que elijas para un personaje o un grupo sigue teniendo prioridad.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Da a cada personaje su propio color de borde. Un color que elijas para un personaje o un grupo sigue teniendo prioridad. El color de resaltado del cliente activo se sustituye por el color automático, salvo que «Mantener el resaltado dentro de un grupo de color» esté activado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Title">Cliente listo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Body">**Cliente listo** te avisa de que un cliente ha llegado al juego: su ventana pasa de la pantalla de inicio de sesión a un personaje con la sesión iniciada. Actívalo en la tabla de eventos (en Clientes); está desactivado hasta que lo hagas.&#x0A;&#x0A;- Salta una vez por cada inicio de sesión.&#x0A;- No dice nada de los clientes que ya tenían la sesión iniciada cuando arrancó MultiPreview, de un cambio de personaje dentro de una misma ventana ni de un cierre de sesión.&#x0A;- Es un evento informativo: un borde fijo y la insignia, y un sonido si los sonidos de alerta están activados.</sys:String> <!-- draft -->
 </ResourceDictionary>

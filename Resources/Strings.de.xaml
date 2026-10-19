@@ -2580,5 +2580,7 @@
     <sys:String x:Key="L.Ctx.OpenZKill">Charakter auf zKillboard öffnen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">Charakter auf EveWho öffnen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">Automatische Rahmenfarben</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Gibt jedem Charakter eine eigene Rahmenfarbe. Eine Farbe, die du für einen Charakter oder eine Gruppe wählst, hat weiterhin Vorrang.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Gibt jedem Charakter eine eigene Rahmenfarbe. Eine Farbe, die du für einen Charakter oder eine Gruppe wählst, hat weiterhin Vorrang. Die Hervorhebungsfarbe des aktiven Clients wird durch die automatische Farbe ersetzt, es sei denn, „Hervorhebung in farbiger Gruppe beibehalten“ ist eingeschaltet.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Title">Client bereit</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Body">**Client bereit** sagt dir, dass ein Client im Spiel angekommen ist: Sein Fenster wechselt vom Anmeldebildschirm zu einem angemeldeten Charakter. Schalte es in der Ereignistabelle ein (unter Clients); bis dahin ist es aus.&#x0A;&#x0A;- Es wird bei jeder Anmeldung einmal ausgelöst.&#x0A;- Es meldet nichts für Clients, die schon angemeldet waren, als MultiPreview gestartet wurde, für einen Charakterwechsel innerhalb eines Fensters oder für eine Abmeldung.&#x0A;- Es ist ein Info-Ereignis: ein gleichmäßiger Rahmen und das Abzeichen, dazu ein Ton, wenn Alarmtöne eingeschaltet sind.</sys:String> <!-- draft -->
 </ResourceDictionary>

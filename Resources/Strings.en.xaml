@@ -2580,5 +2580,7 @@
     <sys:String x:Key="L.Ctx.OpenZKill">Open character on zKillboard</sys:String>
     <sys:String x:Key="L.Ctx.OpenEveWho">Open character on EveWho</sys:String>
     <sys:String x:Key="L.S.thumbs.text.autoBorders">Automatic border colours</sys:String>
-    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Gives each character its own border colour. A colour you choose for a character or a group still wins.</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Gives each character its own border colour. A colour you choose for a character or a group still wins. The active client's highlight colour is replaced by the automatic colour unless "Keep the highlight inside a coloured group" is on.</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Title">Client ready</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Body">**Client ready** tells you a client has reached the game: its window goes from the login screen to a logged-in character. Turn it on in the event table (under Clients); it is off until you do.&#x0A;&#x0A;- It is raised once for each login.&#x0A;- It says nothing for clients that were already logged in when MultiPreview started, for a character switch inside one window, or for a logout.&#x0A;- It is an info event: a steady border and the badge, and a sound if alert sounds are on.</sys:String>
 </ResourceDictionary>

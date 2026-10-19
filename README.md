@@ -187,7 +187,7 @@ A copy you build and run uses the same `%APPDATA%\EVE MultiPreview` folder as yo
 | Switch to a client | Left-click its thumbnail |
 | Minimize a client | Left Ctrl + click its thumbnail (changeable under Clients › Characters › Clicking thumbnails) |
 | Leave a client out of cycling | Shift + click its thumbnail (changeable in the same place) |
-| Open a thumbnail's menu | Right-click it: Edit label, Mute alerts, Snoozed alerts (while one is snoozed for that character), Game volume, Open the character's settings, Copy system name, Open the system on Dotlan, Open the character on zKillboard or EveWho, Close client |
+| Open a thumbnail's menu | Right-click it: Edit label, Mute alerts, Snoozed alerts (while one is snoozed for that character), Game volume, Open the character's settings, Copy system name, Open the system on Dotlan, Open the character on zKillboard or EveWho (only when MultiPreview knows the character's ID), Close client |
 | Dismiss a toast, or snooze its alert for that character | Right-click the toast |
 | Move a thumbnail | Right-click drag |
 | Move all thumbnails | Ctrl + right-click drag |

@@ -2598,5 +2598,7 @@
     <sys:String x:Key="L.Ctx.OpenZKill">在 zKillboard 上打开角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">在 EveWho 上打开角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">自动边框颜色</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">为每个角色分配各自的边框颜色。你为某个角色或某个分组选择的颜色仍然优先。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">为每个角色分配各自的边框颜色。你为某个角色或某个分组选择的颜色仍然优先。活动客户端的高亮颜色会被自动颜色替换，除非开启了“在彩色分组内保留高亮”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Title">客户端就绪</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Body">**客户端就绪**会在客户端进入游戏时提醒你：它的窗口从登录界面变为已登录的角色。请在事件表中开启它（在“客户端”下）；在你开启之前它是关闭的。&#x0A;&#x0A;- 每次登录只触发一次。&#x0A;- MultiPreview 启动时已经登录的客户端、同一窗口内切换角色、以及登出，都不会触发。&#x0A;- 它是信息类事件：稳定的边框和徽标，如果开启了警报声音，还会有声音。</sys:String> <!-- draft -->
 </ResourceDictionary>

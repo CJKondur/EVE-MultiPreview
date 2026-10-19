@@ -38,6 +38,7 @@ public static class AlertsPages
         new HelpTopic(EventsId, "memory", new[] { "alerts.events.memoryLimit", "alerts.events.memoryGrowth", "alerts.events.memoryMinutes" }),
         new HelpTopic(EventsId, "clientStops", new[] { "alerts.events.clientNote" }),
         new HelpTopic(EventsId, "idle", new[] { "alerts.events.idleMinutes" }),
+        new HelpTopic(EventsId, "clientReady", Array.Empty<string>()),   // no card of its own: the event is a row of the table
         new HelpTopic(EventsId, "groups", new[] { GroupAlertsEditor.ItemId }),
         new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
         new HelpTopic(LookId, "thumbnail", new[]

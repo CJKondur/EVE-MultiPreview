@@ -2583,5 +2583,7 @@
     <sys:String x:Key="L.Ctx.OpenZKill">Ouvrir le personnage sur zKillboard</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">Ouvrir le personnage sur EveWho</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.autoBorders">Couleurs de bordure automatiques</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Donne à chaque personnage sa propre couleur de bordure. Une couleur que vous choisissez pour un personnage ou un groupe reste prioritaire.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Donne à chaque personnage sa propre couleur de bordure. Une couleur que vous choisissez pour un personnage ou un groupe reste prioritaire. La couleur de surbrillance du client actif est remplacée par la couleur automatique, sauf si « Garder la surbrillance dans un groupe coloré » est activé.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Title">Client prêt</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientReady.Body">**Client prêt** vous prévient qu'un client est arrivé dans le jeu : sa fenêtre passe de l'écran de connexion à un personnage connecté. Activez-le dans le tableau des événements (sous Clients) ; il est désactivé tant que vous ne le faites pas.&#x0A;&#x0A;- Il se déclenche une fois à chaque connexion.&#x0A;- Il ne dit rien pour les clients déjà connectés au démarrage de MultiPreview, pour un changement de personnage dans une même fenêtre ou pour une déconnexion.&#x0A;- C'est un événement d'information : une bordure fixe et le badge, et un son si les sons d'alerte sont activés.</sys:String> <!-- draft -->
 </ResourceDictionary>
