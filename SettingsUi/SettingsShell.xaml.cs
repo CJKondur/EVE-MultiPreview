@@ -398,9 +398,9 @@ public partial class SettingsShell : Window, ISettingsHost
         return dialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(dialog.SelectedName) ? dialog.SelectedName!.Trim() : null;
     }
 
-    public bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel)
+    public bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel, SafeAnswer safe = SafeAnswer.Cancel)
     {
-        var dialog = new ChoiceDialog(title, body, yesLabel, noLabel) { Owner = this };
+        var dialog = new ChoiceDialog(title, body, yesLabel, noLabel, safe) { Owner = this };
         dialog.ShowDialog();
         return dialog.Result;
     }

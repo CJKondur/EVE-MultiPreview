@@ -143,7 +143,7 @@ public static class ProfileActions
             var answer = ctx.Host.ConfirmChoice(
                 string.Format(Str("L.S.Profile.CompareTitle"), name, i + 1, rows.Count),
                 string.Format(Str("L.S.Profile.CompareRow"), name, label, row.TextMine, row.TextOther),
-                Str("L.S.Profile.CompareTake"), Str("L.S.Profile.CompareKeep"));
+                Str("L.S.Profile.CompareTake"), Str("L.S.Profile.CompareKeep"), SafeAnswer.Second);
             // A profile hotkey can switch the profile while the question is open: then nothing more is copied (into the
             // profile that is no longer the active one) and nothing is applied.
             if (ctx.S.LastUsedProfile != active || !ReferenceEquals(ctx.S.Profiles.GetValueOrDefault(active), mine)) { switched = true; break; }

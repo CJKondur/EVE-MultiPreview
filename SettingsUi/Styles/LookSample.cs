@@ -61,7 +61,7 @@ public sealed class LookSample
         public void Reload() { }
         public string? AskText(string title, string prompt, string initial) => null;
         public string? PickCharacter(string title, IReadOnlyList<string> names) => null;
-        public bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel) => null;
+        public bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel, SafeAnswer safe = SafeAnswer.Cancel) => null;
         public System.Windows.Window? DialogOwner => null;
     }
 }

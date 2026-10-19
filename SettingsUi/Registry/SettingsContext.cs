@@ -30,8 +30,9 @@ public interface ISettingsHost
     string? PickCharacter(string title, IReadOnlyList<string> names);
 
     /// <summary>A three-way question with buttons that say what they do, in the settings language: the first button =
-    /// true, the second = false, Cancel (and Esc or closing) = null.</summary>
-    bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel);
+    /// true, the second = false, Cancel (and Esc or closing) = null. <paramref name="safe"/> is the answer that keeps things
+    /// as they are: the default button and the first Tab stop (IDEAS P92). Cancel unless a button says "keep".</summary>
+    bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel, SafeAnswer safe = SafeAnswer.Cancel);
 
     /// <summary>Owner for modal dialogs the window opens (copy profile, update). Null in tests.</summary>
     System.Windows.Window? DialogOwner { get; }

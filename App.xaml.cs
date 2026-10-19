@@ -213,8 +213,8 @@ public partial class App : Application
 
         base.OnStartup(e);
         StartWithWindows.RefreshPath();
-        // Clear perf log on each launch
-        try { System.IO.File.WriteAllText(_perfLogPath, ""); } catch { }
+        // IDEAS P94: the file of the last start goes (an older one carried character names); this start writes counts and timings only.
+        PerfLogFile.Reset(_perfLogPath);
 
         var startupSw = Stopwatch.StartNew();
         PerfLog("🚀 OnStartup entered");
@@ -356,6 +356,17 @@ public partial class App : Application
             deferTimer.Stop();
             var deferSw = Stopwatch.StartNew();
 
+            // IDEAS P93: each section below is a step of its own. One that throws is reported by its type and costs only
+            // itself, not the alert handler, the log monitor, the tray or the hub after it. The order is the old one.
+            // (The sections keep their indentation, so that the text the older plans' tests look for keeps its shape.)
+            void Step(string name, Action run) => StartupSteps.Run(name, run, LogError);
+            AlertTargets alertTargets = null!;   // made by the "Alert ways" step, read by the steps after it
+            // A step reads what an earlier step made (the hub, the log monitor). If that step failed, this one throws
+            // a NullReferenceException of its own and reports it of its own; the compiler can't follow it across steps.
+#pragma warning disable CS8602, CS8604
+
+            Step("Hotkeys", () =>
+            {
             // 5. Initialize hotkey service
             _hotkeyService = new HotkeyService();
             _hotkeyService.Initialize();
@@ -365,14 +376,15 @@ public partial class App : Application
                 _hotkeyService.AttachWinEvents(_winEvents,
                     () => _thumbnailManager?.HasTrackedClients() == true);
             var profile = _settings.CurrentProfile;
-            PerfLog($"[Hotkey] Profile='{_settings.Settings.LastUsedProfile}', CharHotkeys={profile.Hotkeys.Count}, Groups={profile.HotkeyGroups.Count}, Suspend='{_settings.Settings.SuspendHotkey}', Global={_settings.Settings.GlobalHotkeys}");
-            foreach (var (name, binding) in profile.Hotkeys)
-                PerfLog($"[Hotkey]   char='{name}' key='{binding.Key}'");
+            PerfLog(PerfLogFile.HotkeyLine(_settings.Settings, profile));   // IDEAS P94: counts, never whose
             _hotkeyService.RegisterFromSettings(
                 _settings.Settings, profile,
                 _thumbnailManager, OpenSettings);
             PerfLog($"[Deferred] Hotkeys registered: {deferSw.ElapsedMilliseconds}ms");
+            });
 
+            Step("Alert hub", () =>
+            {
             // 6. Create alert hub
             _alertHub = new AlertHub(_settings.Settings);
             _alertHub.FocusCharacterRequested += (charName) =>
@@ -399,11 +411,17 @@ public partial class App : Application
             if (_settings.LoadedSuccessfully && _settings.Settings.KeepAlertSnoozes) _snoozeFile.Load(_snoozes);
             _snoozes.Changed += FollowSnoozeSwitch;
             PerfLog($"[Deferred] AlertHub created: {deferSw.ElapsedMilliseconds}ms");
+            });
 
+            Step("Broadcast key HUD", () =>
+            {
             // Broadcast-key HUD — self-gates on ShowBroadcastKeyHud each tick.
             _broadcastHud = new BroadcastHudWindow(_settings.Settings);
             _broadcastHud.SaveRequested += () => _settings.SaveDelayed();
+            });
 
+            Step("Log monitor", () =>
+            {
             // 7. Start log monitor and wire events
             _logMonitor = new LogMonitorService();
             _logMonitor.PveMode = _settings.Settings.PveMode;
@@ -476,9 +494,13 @@ public partial class App : Application
                     Debug.WriteLine($"[CycleWrap:Sound] ❌ {ex.Message}");
                 }
             };
+            });
+
+            Step("Alert ways", () =>
+            {
             // What an alert is shown with. AlertDispatcher makes the decision this handler used to make inline (the same
             // checks in the same order, the same calls) and says what became of the alert (IDEAS #1).
-            var alertTargets = new AlertTargets
+            alertTargets = new AlertTargets
             {
                 // IDEAS #31: asked first. An event that is off for this character (its group's choice) is no alert for it.
                 IsOn = (charName, alertType) => _alertProfiles.IsOn(charName, alertType),
@@ -557,6 +579,10 @@ public partial class App : Application
             {
                 LogError(AlertWays.Failure("Alert ways: making them at start-up", ex));
             }
+            });
+
+            Step("Alert history", () =>
+            {
             // IDEAS #1: every alert that got past its switch and its quiet time is kept, with what became of it. The
             // history writes on a thread of its own; old days are deleted here, at startup, and never while running.
             // A session whose settings could not be read runs on default values and saves nothing: its keep time is
@@ -583,6 +609,10 @@ public partial class App : Application
             // is taken away before the app closes (WPF closes it, as nothing here cancels the session's end). Behind
             // the history (FY-m1): the player's data first, because Windows may take seconds to answer.
             SessionEnding += (_, _) => _notificationsWay?.SessionEnding();
+            });
+
+            Step("Alert handler", () =>
+            {
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
                 // What a custom rule matched is there only while its alert is being raised: taken first (IDEAS #8).
@@ -603,7 +633,10 @@ public partial class App : Application
                     _logMonitor.GetCharacterSystem(charName), outcome, rule, matched));
             };
             _logMonitor.AlertTriggered += (charName, alertType, _) => { if (_alertProfiles.IsOn(charName, alertType)) _idleWatch.Alerted(charName, alertType, DateTime.UtcNow); };   // IDEAS #7: fleet warps, and stops Miner stopped already told; only an alert this character's group has on
+            });
 
+            Step("Custom alert rules", () =>
+            {
             // IDEAS #8: the player's own alert rules, from custom_alerts.json in the settings folder. A file that can't
             // be used is set aside and reported, and MultiPreview runs without rules. The log monitor gets the rules
             // that are on before it starts reading, and again whenever the rules are saved.
@@ -611,7 +644,10 @@ public partial class App : Application
             _customAlerts.Load();
             _customAlerts.Changed += ApplyCustomRules;
             ApplyCustomRules();
+            });
 
+            Step("Alert timer", () =>
+            {
             // IDEAS #29: one timer for everything that has to look once a second. It runs only while something needs it.
             _alertTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _alertTimer.Tick += (_, _) => AlertTick();
@@ -630,21 +666,33 @@ public partial class App : Application
                     refreshTimer2.Start();
                 }
             };
+            });
 
+            Step("Log monitor start", () =>
+            {
             var chatLogDir = _settings.Settings.ChatLogDirectory;
             var gameLogDir = _settings.Settings.GameLogDirectory;
             _logMonitor.Start("", chatLogDir, gameLogDir,
                 _settings.Settings.EnableChatLogMonitoring,
                 _settings.Settings.EnableGameLogMonitoring);
             PerfLog($"[Deferred] LogMonitor started: {deferSw.ElapsedMilliseconds}ms");
+            });
 
+            Step("Tray icon", () =>
+            {
             // 8. Set up system tray
             SetupTrayIcon();
             PerfLog($"[Deferred] Tray icon: {deferSw.ElapsedMilliseconds}ms");
+            });
 
+            Step("Alert hub show", () =>
+            {
             _alertHub.Show();
             PerfLog($"[Deferred] AlertHub.Show: {deferSw.ElapsedMilliseconds}ms");
+            });
 
+            Step("Hotkey events", () =>
+            {
             // Wire suspend icon toggle
             _hotkeyService.SuspendToggled += () =>
             {
@@ -676,7 +724,10 @@ public partial class App : Application
                 TellRefusedHotkeys();
             };
             refusedAtStartup.Start();
+            });
 
+            Step("Sound player and presence poll", () =>
+            {
             // Initialize sound player
             _soundPlayer = new MediaPlayer();
 
@@ -708,14 +759,23 @@ public partial class App : Application
                 FollowAutoProfile();
             };
             hotkeyToggleTimer.Start();
+            });
 
             PerfLog($"[Deferred] ✅ All deferred startup complete: {deferSw.ElapsedMilliseconds}ms total");
 
-            // IDEAS #55: once, after a session that ended without closing.
+            // IDEAS #55: once, after a session that ended without closing. (Plan 10 guards the call itself; this step guards
+            // the line above it from the one below.)
+            Step("Unclean exit notice", () =>
+            {
             if (_previousRunStart is DateTime previousStart) ShowUncleanExitNotice(previousStart);
+            });
 
             // IDEAS #39: the command this start was given, now that everything runs.
+            Step("Start-up command", () =>
+            {
             if (_startupCommand is RemoteCommand first) { _startupCommand = null; RunCommand(first); }
+            });
+#pragma warning restore CS8602, CS8604
 
             // ── Auto-Update Check (fire-and-forget, non-blocking) ──
             // Gated on CheckForUpdatesOnStartup (About tab toggle). When off, no
@@ -1782,7 +1842,7 @@ public partial class App : Application
             ConfirmCloseAll = () => System.Windows.MessageBox.Show(
                 LocalizationService.Str("L.Tray.CloseConfirm", "Close all EVE Online windows?"),
                 LocalizationService.Str("L.Tray.ConfirmTitle", "Confirm"),
-                MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes,
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes,   // IDEAS P92: Enter keeps the clients
             CloseAll = () => _thumbnailManager?.CloseAllEveWindows(),
             Exit = ExitApplication,
         });
@@ -2132,7 +2192,7 @@ public partial class App : Application
                     return dialog.ShowDialog(_historyWindow) == true ? dialog.FileName : null;
                 },
                 Confirm = (title, body) =>
-                    MessageBox.Show(_historyWindow!, body, title, MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes,
+                    MessageBox.Show(_historyWindow!, body, title, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes,   // IDEAS P92: Enter keeps the history
                 // Asked at every refresh: while the setting is off, the window says so above its list.
                 HistoryOn = () => _settings.Settings.AlertHistoryEnabled,
             });
