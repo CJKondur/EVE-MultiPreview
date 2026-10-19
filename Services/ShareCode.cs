@@ -33,6 +33,7 @@ public static class ShareCode
         NumberHandling = JsonNumberHandling.Strict,
         ReadCommentHandling = JsonCommentHandling.Disallow,
         AllowTrailingCommas = false,
+        AllowDuplicateProperties = false,
         MaxDepth = 4,
     };
 
@@ -110,11 +111,16 @@ public static class ShareCode
         catch (JsonException) { return new(null, Damaged); }
     }
 
+    // A layout's name becomes a file name when it is saved from the Your layouts card: nothing that makes a path.
+    private static readonly char[] PathCharacters = "\\/:*?\"<>|".ToCharArray();
+
     /// <summary>A name a code may hold: 1 to 64 characters, no control, format or line-separator character, no lone
-    /// surrogate, no space at either end. Null otherwise.</summary>
+    /// surrogate, no space at either end, none of <c>\ / : * ? " &lt; &gt; |</c>, no dot at the end (Windows drops it from a
+    /// file name). Null otherwise.</summary>
     internal static string? CleanName(string? text)
     {
         if (string.IsNullOrEmpty(text) || text.Length > MaxNameLength || text.Trim().Length != text.Length) return null;
+        if (text[^1] == '.' || text.IndexOfAny(PathCharacters) >= 0) return null;
         foreach (var rune in text.EnumerateRunes())
         {
             if (rune == Rune.ReplacementChar) return null;
