@@ -465,16 +465,6 @@ public static class User32
     private static Task? _heldKeyPoller;
     private static IntPtr _lastInjectedHwnd;
 
-    /// <summary>P58: once no key is held any more there is no client a release is owed to, so the client a key was last
-    /// pressed in is forgotten (it may have closed or been reused by the time the next key is carried). Caller holds
-    /// <see cref="_heldKeyLock"/>. Not called when a switch starts: while a key is held the previous client must
-    /// survive consecutive switches, because it still needs its key-up.</summary>
-    private static void ForgetLastInjectedWhenIdle()
-    {
-        if (_heldKeyClients.Count == 0)
-            _lastInjectedHwnd = IntPtr.Zero;
-    }
-
     private static void EnsureHeldKeyPoller()
     {
         if (_heldKeyPoller != null && !_heldKeyPoller.IsCompleted) return;
@@ -504,10 +494,7 @@ public static class User32
                         }
                         foreach (var r in released) _heldKeyClients.Remove(r.vk);
                         if (_heldKeyClients.Count == 0)
-                        {
                             exitAfterFinalUps = true;
-                            ForgetLastInjectedWhenIdle();
-                        }
                     }
                     // Send UPs synchronously so the WM_KEYUP messages are
                     // posted before the poller's Task completes. The previous
@@ -758,11 +745,11 @@ public static class User32
             // an UP later too — its native held state from when the user first
             // pressed the key never received a UP because it lost focus first)
             // and the new hwnd. Adds are idempotent within a HashSet.
+            IntPtr previousHwnd = _lastInjectedHwnd;
             if (letterKeys.Count > 0 || heldModifiers.Count > 0)
             {
                 lock (_heldKeyLock)
                 {
-                    IntPtr previousHwnd = _lastInjectedHwnd;
                     foreach (var vk in letterKeys.Concat(heldModifiers))
                     {
                         if (!_heldKeyClients.TryGetValue(vk, out var set))
@@ -774,9 +761,9 @@ public static class User32
                             set.Add(previousHwnd);
                         set.Add(hwnd);
                     }
-                    _lastInjectedHwnd = hwnd;
                     EnsureHeldKeyPoller();
                 }
+                _lastInjectedHwnd = hwnd;
             }
 
             Task.Run(async () =>
