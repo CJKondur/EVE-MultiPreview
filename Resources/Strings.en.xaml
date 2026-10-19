@@ -2481,4 +2481,8 @@
     <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">A client outside the group that raises an alert shows until you look at it.</sys:String>
     <sys:String x:Key="L.Help.clients.groups.focus.Title">Focus mode</sys:String>
     <sys:String x:Key="L.Help.clients.groups.focus.Body">With many clients split by role, every thumbnail at once is a lot to look at. **Focus mode on or off** shows only the thumbnails of one group and hides the rest; press it again to show them all.&#x0A;&#x0A;- **Group to show**: the group of the client you are in (it follows you as you switch clients), or one group you choose.&#x0A;- A client in no group, at character select, or a chosen group that no longer exists shows everything.&#x0A;- **Show a hidden thumbnail while its alert is unseen** (on until you turn it off) lets a client outside the group show while it has an alert you have not looked at.&#x0A;- Focus mode hides main thumbnails only: second thumbnails, crop windows and stats windows stay. A thumbnail you hid another way stays hidden when focus mode ends.&#x0A;&#x0A;Focus mode is off again each time MultiPreview starts.</sys:String>
+    <sys:String x:Key="L.Focus.On">Focus mode: {0}</sys:String>
+    <sys:String x:Key="L.Focus.Off">Focus mode off</sys:String>
+    <sys:String x:Key="L.Focus.NoGroup">Focus mode: this client is in no group, so every thumbnail shows</sys:String>
+    <sys:String x:Key="L.Focus.NoSuchGroup">Focus mode: there is no group called {0}, so every thumbnail shows</sys:String>
 </ResourceDictionary>

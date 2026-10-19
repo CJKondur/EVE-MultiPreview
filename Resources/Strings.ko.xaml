@@ -2482,4 +2482,8 @@
     <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">그룹 밖의 클라이언트에서 알림이 울리면 확인할 때까지 표시돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.focus.Title">포커스 모드</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.focus.Body">역할별로 나눈 클라이언트가 많으면 모든 썸네일을 한꺼번에 보기엔 너무 많아요. **포커스 모드 켜기/끄기**는 한 그룹의 썸네일만 보여 주고 나머지는 숨겨요. 다시 누르면 모두 보여요.&#x0A;&#x0A;- **표시할 그룹**: 지금 있는 클라이언트의 그룹(클라이언트를 바꾸면 따라와요) 또는 직접 고른 그룹이에요.&#x0A;- 그룹에 속하지 않은 클라이언트, 캐릭터 선택 화면, 또는 더 이상 없는 그룹을 고른 경우에는 모두 보여요.&#x0A;- **숨겨진 썸네일을 알림을 확인하기 전까지 표시**(끌 때까지 켜져 있어요)를 켜 두면, 그룹 밖의 클라이언트도 아직 확인하지 않은 알림이 있는 동안은 보여요.&#x0A;- 포커스 모드는 메인 썸네일만 숨겨요. 두 번째 썸네일, 자르기 창, 통계 창은 그대로예요. 다른 방법으로 숨긴 썸네일은 포커스 모드가 끝나도 숨겨진 채로 있어요.&#x0A;&#x0A;포커스 모드는 MultiPreview를 시작할 때마다 다시 꺼져요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.On">포커스 모드: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.Off">포커스 모드 꺼짐</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.NoGroup">포커스 모드: 이 클라이언트는 어느 그룹에도 속해 있지 않아서 모든 썸네일을 보여 줘요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.NoSuchGroup">포커스 모드: {0} 그룹이 없어서 모든 썸네일을 보여 줘요</sys:String> <!-- draft -->
 </ResourceDictionary>

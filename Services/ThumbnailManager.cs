@@ -3778,6 +3778,32 @@ public sealed class ThumbnailManager : IDisposable
         if (_thumbnails.TryGetValue(window, out var thumb)) thumb.SetClientMark(mark);
     }
 
+    /// <summary>The character of the client MultiPreview counts as active (the one it last switched to while that is still a
+    /// client, else the window in front), or "" when that is no client with a character. IDEAS #35. The window's thread.</summary>
+    public string ActiveCharacter() =>
+        _thumbnails.TryGetValue(ActiveClient(), out var thumb) ? thumb.CharacterName ?? "" : "";
+
+    /// <summary>IDEAS #35: holds the main thumbnails of these characters hidden and lets go of every other. A thumbnail let
+    /// go shows only when nothing else hides it. The window's thread; nothing is touched for a thumbnail whose hold stays.</summary>
+    public void HoldForFocus(IReadOnlySet<string> held)
+    {
+        foreach (var (hwnd, thumb) in _thumbnails)
+        {
+            bool hold = !string.IsNullOrEmpty(thumb.CharacterName) && held.Contains(thumb.CharacterName);
+            if (hold == thumb.HeldHidden) continue;
+            thumb.SetHeldHidden(hold);
+            if (!hold && ShowsWhenLetGo(hwnd, thumb)) thumb.ShowWithOverlay();
+        }
+    }
+
+    /// <summary>Whether a thumbnail focus mode lets go of is shown: not while Hide all, Hide primary or hidden-while-alt-tabbed
+    /// hides every thumbnail, not when the player hid this character on Clients › Characters, and not for the client in front
+    /// while Hide the active thumbnail is on.</summary>
+    private bool ShowsWhenLetGo(IntPtr hwnd, ThumbnailWindow thumb) =>
+        !_thumbnailsHidden && !_primaryHidden && !_primaryHiddenByFocus
+        && !IsCharacterUserHidden(thumb.CharacterName ?? "")
+        && !(_settings.Settings.HideActiveThumbnail && hwnd == Interop.User32.GetForegroundWindow());
+
     /// <summary>Get the ThumbnailWindow for a given character name, or null if not present.</summary>
     public ThumbnailWindow? GetThumbnailForCharacter(string characterName)
     {

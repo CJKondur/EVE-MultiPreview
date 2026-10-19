@@ -2482,4 +2482,8 @@
     <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">グループ外のクライアントがアラートを出すと、確認するまで表示されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.focus.Title">フォーカスモード</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.focus.Body">役割ごとに分けたクライアントが多いと、すべてのサムネイルを一度に見るのは大変です。**フォーカスモードのオン／オフ**は、1つのグループのサムネイルだけを表示してほかを隠します。もう一度押すとすべて表示します。&#x0A;&#x0A;- **表示するグループ**：今いるクライアントのグループ（クライアントを切り替えると追従します）、または選んだ1つのグループです。&#x0A;- グループに入っていないクライアント、キャラクター選択中のクライアント、または選んだグループがなくなった場合は、すべて表示します。&#x0A;- **隠れたサムネイルを、アラートが未確認の間は表示**（オフにするまでオン）にすると、グループ外のクライアントでも、まだ見ていないアラートがある間は表示されます。&#x0A;- フォーカスモードで隠すのはメインのサムネイルだけです。2つ目のサムネイル、切り抜きウィンドウ、統計ウィンドウはそのままです。別の方法で隠したサムネイルは、フォーカスモードが終わっても隠れたままです。&#x0A;&#x0A;フォーカスモードは、MultiPreview を起動するたびにオフに戻ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.On">フォーカスモード：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.Off">フォーカスモードをオフにしました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.NoGroup">フォーカスモード：このクライアントはどのグループにも入っていないため、すべてのサムネイルを表示します</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.NoSuchGroup">フォーカスモード：{0} というグループがないため、すべてのサムネイルを表示します</sys:String> <!-- draft -->
 </ResourceDictionary>

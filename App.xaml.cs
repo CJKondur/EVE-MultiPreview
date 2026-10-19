@@ -85,6 +85,9 @@ public partial class App : Application
     /// <summary>"Character idle" (IDEAS #7): noted on the log thread while the event is on, asked on the half-second
     /// timer (FollowIdle).</summary>
     private readonly IdleWatch _idleWatch = new();
+
+    /// <summary>IDEAS #35: focus mode is on. Not saved: off at every start, as Hide all is. The window's thread only.</summary>
+    private bool _focusModeOn;
     /// <summary>What the probe on the process monitor's thread asks Windows: set by LookAtClients on the window's thread
     /// (the settings are read there only), read by ProbeClients.</summary>
     private volatile ClientProbeWants _clientProbeWants;
@@ -630,6 +633,7 @@ public partial class App : Application
             _hotkeyService.ProfileCycleBackward += () => CycleProfile(forward: false);
             _hotkeyService.DoNotDisturbToggled += ToggleDoNotDisturb;   // IDEAS #32
             _hotkeyService.HotkeySheetToggled += ToggleHotkeySheet;   // IDEAS #16
+            _hotkeyService.FocusModeToggled += ToggleFocusMode;   // IDEAS #35
             // IDEAS #42: said after the registration is done, not from inside it. The pause key was registered before
             // the tray icon existed, and the other keys are asked for within the next half second. Told at once, the
             // pause key's note would be replaced by the note about the others: one second from now, one note names
@@ -670,6 +674,7 @@ public partial class App : Application
                 FollowKeepAwake();
                 FollowDowntime();
                 FollowIdle();
+                FollowFocusMode();
             };
             hotkeyToggleTimer.Start();
 
@@ -1243,6 +1248,52 @@ public partial class App : Application
                 try { _stragglerAlerts.Raise(now, alert.Character, IdleWatch.EventKey, IdleWatch.Severity, alert.Text); }
                 catch (Exception ex) { LogError(ex); }
             }
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #35, from its hotkey or a command: focus mode on or off, said near the cursor (which group, or why every
+    /// thumbnail still shows), and applied at once. Never saved. A failure is logged: a key press must not throw.</summary>
+    private void ToggleFocusMode()
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
+            _focusModeOn = !_focusModeOn;
+            if (!_focusModeOn)
+            {
+                _thumbnailManager.HoldForFocus(FocusMode.Nobody);
+                _thumbnailManager.ShowTooltipFeedback(LocalizationService.Str("L.Focus.Off", "Focus mode off"));
+                return;
+            }
+            var (chosen, _) = FocusMode.Options(_settings.Settings);
+            var group = FocusMode.GroupFor(chosen, _thumbnailManager.ActiveCharacter(), FocusMode.Groups(_settings.Settings));
+            _thumbnailManager.ShowTooltipFeedback(group is { } shown
+                ? string.Format(LocalizationService.Str("L.Focus.On", "Focus mode: {0}"), shown.Name)
+                : chosen.Length > 0
+                    ? string.Format(LocalizationService.Str("L.Focus.NoSuchGroup", NoSuchGroupEnglish), chosen)
+                    : LocalizationService.Str("L.Focus.NoGroup", NoGroupEnglish));
+            FollowFocusMode();
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    private const string NoGroupEnglish = "Focus mode: this client is in no group, so every thumbnail shows";
+    private const string NoSuchGroupEnglish = "Focus mode: there is no group called {0}, so every thumbnail shows";
+
+    /// <summary>IDEAS #35, twice a second while focus mode is on: which thumbnails it holds hidden now (the group follows the
+    /// client you are in; an unseen alert shows through). Nothing is read while it is off. A failure is logged and the next
+    /// tick tries again.</summary>
+    private void FollowFocusMode()
+    {
+        try
+        {
+            if (!_focusModeOn || _isShuttingDown || _settings == null || _thumbnailManager == null) return;
+            var s = _settings.Settings;
+            var (chosen, alertsShow) = FocusMode.Options(s);
+            var group = FocusMode.GroupFor(chosen, _thumbnailManager.ActiveCharacter(), FocusMode.Groups(s));
+            _thumbnailManager.HoldForFocus(FocusMode.Held(group, _thumbnailManager.GetActiveCharacterNames(), alertsShow,
+                name => _thumbnailManager.Attention.Has(name)));
         }
         catch (Exception ex) { LogError(ex); }
     }

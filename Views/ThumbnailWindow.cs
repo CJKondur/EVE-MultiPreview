@@ -220,6 +220,20 @@ public class ThumbnailWindow : Form
         _textOverlay?.SetClientMark(ClientMarks.Text(mark));
     }
 
+    /// <summary>IDEAS #35: focus mode holds this thumbnail hidden. While held nothing shows it (ShowWithOverlay and the
+    /// Visibility setter do nothing), so the focus sweep, Hide all and a profile switch can't bring it back; the manager
+    /// lets go and decides whether it shows.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public bool HeldHidden { get; private set; }
+
+    /// <summary>Holds the thumbnail hidden (and hides it with its text), or lets go of it without showing it. The window's thread.</summary>
+    public void SetHeldHidden(bool held)
+    {
+        if (HeldHidden == held) return;
+        HeldHidden = held;
+        if (held) HideWithOverlay();
+    }
+
     // ── WPF-compat shims ────────────────────────────────────────────
     // ThumbnailManager treats these as WPF-style (double coords, Visibility enum,
     // Topmost/IsVisible spelling). Keep the contract bit-identical so callers
@@ -287,7 +301,7 @@ public class ThumbnailWindow : Form
         set
         {
             bool shouldShow = value == WpfVisibility.Visible;
-            if (shouldShow) { if (!Visible) Show(); }
+            if (shouldShow) { if (!Visible && !HeldHidden) Show(); }
             else { if (Visible) Hide(); }
         }
     }
@@ -1477,6 +1491,7 @@ public class ThumbnailWindow : Form
 
     public void ShowWithOverlay()
     {
+        if (HeldHidden) return;   // IDEAS #35: held by focus mode
         Show();
         _textOverlay?.Show();
         // Re-assert z-order: a plain Show() re-inserts the window at a default

@@ -2499,4 +2499,8 @@
     <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">分组之外的客户端发出警报后会保持显示，直到你看过它。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.focus.Title">专注模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.focus.Body">客户端很多且按职责分组时，同时显示所有缩略图会让人眼花缭乱。**开启或关闭专注模式**只显示一个分组的缩略图并隐藏其余的；再按一次即可全部显示。&#x0A;&#x0A;- **要显示的分组**：你所在客户端的分组（会随你切换客户端而变化），或你选定的某个分组。&#x0A;- 客户端不在任何分组中、处于角色选择界面，或选定的分组已不存在时，会显示全部缩略图。&#x0A;- **隐藏的缩略图在其警报未查看时显示**（默认开启，直到你关闭）会让分组之外、带有你尚未查看的警报的客户端保持显示。&#x0A;- 专注模式只隐藏主缩略图：第二缩略图、裁剪窗口和统计窗口都会保留。你用其他方式隐藏的缩略图，在专注模式结束后仍保持隐藏。&#x0A;&#x0A;每次启动 MultiPreview 时，专注模式都会恢复为关闭。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.On">专注模式：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.Off">专注模式已关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.NoGroup">专注模式：此客户端不在任何分组中，因此显示所有缩略图</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Focus.NoSuchGroup">专注模式：没有名为 {0} 的分组，因此显示所有缩略图</sys:String> <!-- draft -->
 </ResourceDictionary>
