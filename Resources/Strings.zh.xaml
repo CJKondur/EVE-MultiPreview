@@ -2624,9 +2624,9 @@
     <sys:String x:Key="L.Msg.LayoutUndone">布局：已撤销</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.NothingToRedo">没有可重做的操作</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.LayoutRedone">布局：已重做</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.LayoutApplied">布局：已应用 '{0}'</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.LayoutAppliedSaved">布局：已应用 '{0}'（已为未登录的角色保存 {1} 项）</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.LayoutAppliedRemapped">布局：已应用 '{0}'（已重新映射）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutApplied">布局：已应用“{0}”</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutAppliedSaved">布局：已应用“{0}”（已为未登录的角色保存 {1} 项）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutAppliedRemapped">布局：已应用“{0}”（已重新映射）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.HotkeysSuspended">热键：已暂停</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.HotkeysActive">热键：已启用</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.ThumbsHidden">缩略图：已隐藏</sys:String> <!-- draft -->
@@ -2641,8 +2641,8 @@
     <sys:String x:Key="L.Msg.ClickThroughOff">缩略图：点击穿透已关闭</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PositionsLocked">位置：已锁定</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PositionsUnlocked">位置：已解锁</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.CycleExcluded">'{0}' 已排除出循环</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.CycleIncluded">'{0}' 已重新加入循环</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CycleExcluded">“{0}”已排除出循环</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CycleIncluded">“{0}”已重新加入循环</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsUnmuted">{0}：🔔 警报已取消静音</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsMuted">{0}：🔇 警报已静音</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsMutedMins">{0}：🔇 警报已静音（{1} 分钟）</sys:String> <!-- draft -->
@@ -2652,4 +2652,6 @@
     <sys:String x:Key="L.Hud.CarriedKeysTip">带过去的按键：携带选项正在传给你的客户端的、当前按住的按键。拖动可移动。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hud.CarriedKeysTitle">EVE MultiPreview — 带过去的按键</sys:String> <!-- draft -->
     <sys:String x:Key="L.Lbl.Header">“{0}”的标签</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.TipSuspended">已暂停</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Copy.AllProfiles">— 所有配置文件 —</sys:String> <!-- draft -->
 </ResourceDictionary>

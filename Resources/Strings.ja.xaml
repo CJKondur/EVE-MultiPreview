@@ -2607,15 +2607,15 @@
     <sys:String x:Key="L.Msg.LayoutUndone">レイアウト：元に戻しました</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.NothingToRedo">やり直す操作はありません</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.LayoutRedone">レイアウト：やり直しました</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.LayoutApplied">レイアウト：'{0}' を適用しました</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.LayoutAppliedSaved">レイアウト：'{0}' を適用しました（ログインしていないキャラクター用に {1} 件を保存）</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.LayoutAppliedRemapped">レイアウト：'{0}' を適用しました（割り当て変更済み）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutApplied">レイアウト：「{0}」を適用しました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutAppliedSaved">レイアウト：「{0}」を適用しました（ログインしていないキャラクター用に {1} 件を保存）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutAppliedRemapped">レイアウト：「{0}」を適用しました（割り当て変更済み）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.HotkeysSuspended">ホットキー：一時停止中</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.HotkeysActive">ホットキー：有効</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.ThumbsHidden">サムネイル：非表示</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.ThumbsVisible">サムネイル：表示</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.PrimaryHidden">メイン：非表示</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.PrimaryVisible">メイン：表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.PrimaryHidden">プライマリサムネイル：非表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.PrimaryVisible">プライマリサムネイル：表示</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PipHidden">セカンドサムネイル：非表示</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PipVisible">セカンドサムネイル：表示</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.CropsHidden">クロップ：非表示</sys:String> <!-- draft -->
@@ -2624,8 +2624,8 @@
     <sys:String x:Key="L.Msg.ClickThroughOff">サムネイル：クリック透過 オフ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PositionsLocked">位置：ロック中</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PositionsUnlocked">位置：ロック解除</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.CycleExcluded">'{0}' を循環から除外しました</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.CycleIncluded">'{0}' を循環に戻しました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CycleExcluded">「{0}」を循環から除外しました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CycleIncluded">「{0}」を循環に戻しました</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsUnmuted">{0}：🔔 アラートのミュートを解除しました</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsMuted">{0}：🔇 アラートをミュートしました</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsMutedMins">{0}：🔇 アラートをミュートしました（{1} 分）</sys:String> <!-- draft -->
@@ -2635,4 +2635,6 @@
     <sys:String x:Key="L.Hud.CarriedKeysTip">引き継ぎキー：引き継ぎオプションがクライアントに渡している、押されたままのキーです。ドラッグで移動できます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hud.CarriedKeysTitle">EVE MultiPreview — 引き継ぎキー</sys:String> <!-- draft -->
     <sys:String x:Key="L.Lbl.Header">「{0}」のラベル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.TipSuspended">一時停止中</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Copy.AllProfiles">— すべてのプロファイル —</sys:String> <!-- draft -->
 </ResourceDictionary>

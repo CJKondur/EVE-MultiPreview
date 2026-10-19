@@ -2614,8 +2614,8 @@
     <sys:String x:Key="L.Msg.HotkeysActive">단축키: 활성</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.ThumbsHidden">썸네일: 숨김</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.ThumbsVisible">썸네일: 표시</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.PrimaryHidden">기본: 숨김</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.PrimaryVisible">기본: 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.PrimaryHidden">기본 썸네일: 숨김</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.PrimaryVisible">기본 썸네일: 표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PipHidden">보조 썸네일: 숨김</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PipVisible">보조 썸네일: 표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.CropsHidden">크롭: 숨김</sys:String> <!-- draft -->
@@ -2631,8 +2631,10 @@
     <sys:String x:Key="L.Msg.AlertsMutedMins">{0}: 🔇 경보를 {1}분 동안 음소거했어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AudioMuted">{0}: 오디오를 음소거했어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Stats.Waiting">데이터를 기다리는 중…</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Thumb.NotLoggedIn">로그인하지 않음</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Thumb.NotLoggedIn">로그인 안 됨</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hud.CarriedKeysTip">넘겨지는 키: 넘기기 옵션이 클라이언트에 전달하고 있는, 누르고 있는 키예요. 끌어서 이동해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hud.CarriedKeysTitle">EVE MultiPreview — 넘겨지는 키</sys:String> <!-- draft -->
     <sys:String x:Key="L.Lbl.Header">“{0}”의 라벨</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.TipSuspended">일시 중지됨</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Copy.AllProfiles">— 모든 프로필 —</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2634,4 +2634,6 @@
     <sys:String x:Key="L.Hud.CarriedKeysTip">Carried keys: the held keys the carry options are passing on to your clients. Drag to move.</sys:String>
     <sys:String x:Key="L.Hud.CarriedKeysTitle">EVE MultiPreview — Carried keys</sys:String>
     <sys:String x:Key="L.Lbl.Header">Label for “{0}”</sys:String>
+    <sys:String x:Key="L.Tray.TipSuspended">SUSPENDED</sys:String>
+    <sys:String x:Key="L.Copy.AllProfiles">— All Profiles —</sys:String>
 </ResourceDictionary>

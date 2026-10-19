@@ -166,7 +166,7 @@ public sealed class TrayMenu : IDisposable
     /// <summary>The tooltip before it is cut to Windows' limit; a test checks the translations fit without the cut.</summary>
     public static string UncutTooltipText(bool suspended, int errors, bool doNotDisturb = false)
     {
-        var text = suspended ? "⏸ EVE MultiPreview (SUSPENDED)" : "EVE MultiPreview";
+        var text = suspended ? "⏸ EVE MultiPreview (" + LocalizationService.Str("L.Tray.TipSuspended", "SUSPENDED") + ")" : "EVE MultiPreview";
         var errorLine = errors > 0
             ? "\n" + string.Format(LocalizationService.Str("L.Tray.Errors", "Errors handled: {0}. See App settings › Diagnostics."), errors)
             : "";

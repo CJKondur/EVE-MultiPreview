@@ -2609,15 +2609,15 @@
     <sys:String x:Key="L.Msg.LayoutUndone">Disposition : annulée</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.NothingToRedo">Rien à rétablir</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.LayoutRedone">Disposition : rétablie</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.LayoutApplied">Disposition : '{0}' appliquée</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.LayoutAppliedSaved">Disposition : '{0}' appliquée ({1} enregistrées pour les personnages non connectés)</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.LayoutAppliedRemapped">Disposition : '{0}' appliquée (réaffectée)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutApplied">Disposition : « {0} » appliquée</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutAppliedSaved">Disposition : « {0} » appliquée ({1} enregistrées pour les personnages non connectés)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutAppliedRemapped">Disposition : « {0} » appliquée (réaffectée)</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.HotkeysSuspended">Raccourcis : SUSPENDUS</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.HotkeysActive">Raccourcis : ACTIFS</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.ThumbsHidden">Vignettes : masquées</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.ThumbsVisible">Vignettes : visibles</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.PrimaryHidden">Principales : masquées</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.PrimaryVisible">Principales : visibles</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.PrimaryHidden">Miniatures principales : masquées</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.PrimaryVisible">Miniatures principales : visibles</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PipHidden">Secondes vignettes : masquées</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PipVisible">Secondes vignettes : visibles</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.CropsHidden">Recadrages : masqués</sys:String> <!-- draft -->
@@ -2626,8 +2626,8 @@
     <sys:String x:Key="L.Msg.ClickThroughOff">Vignettes : clic traversant DÉSACTIVÉ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PositionsLocked">Positions : verrouillées</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.PositionsUnlocked">Positions : déverrouillées</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.CycleExcluded">'{0}' exclu du cycle</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.CycleIncluded">'{0}' de nouveau inclus dans le cycle</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CycleExcluded">« {0} » exclu du cycle</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CycleIncluded">« {0} » de nouveau inclus dans le cycle</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsUnmuted">{0} : 🔔 Alertes réactivées</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsMuted">{0} : 🔇 Alertes coupées</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsMutedMins">{0} : 🔇 Alertes coupées ({1} min)</sys:String> <!-- draft -->
@@ -2637,4 +2637,6 @@
     <sys:String x:Key="L.Hud.CarriedKeysTip">Touches transmises : les touches maintenues que les options de transmission envoient à vos clients. Faites glisser pour déplacer.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hud.CarriedKeysTitle">EVE MultiPreview — Touches transmises</sys:String> <!-- draft -->
     <sys:String x:Key="L.Lbl.Header">Étiquette de « {0} »</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.TipSuspended">SUSPENDU</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Copy.AllProfiles">— Tous les profils —</sys:String> <!-- draft -->
 </ResourceDictionary>
