@@ -2506,7 +2506,7 @@
     <sys:String x:Key="L.S.Sec.app.general.control">다른 프로그램</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands">다른 프로그램의 명령 받기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Stream Deck, AutoHotkey, 바로 가기가 실행 중인 MultiPreview에게 캐릭터를 맨 앞으로 가져오거나, 프로필을 전환하거나, 썸네일이나 포커스 모드를 켜고 끄라고 알릴 수 있게 해요. 내 Windows 계정의 프로그램만 할 수 있어요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview가 이미 실행 중이지만 명령을 받지 않았어요. 앱 설정 › 일반에서 다른 프로그램의 명령 받기를 켜 주세요. 이미 켜져 있다면 이 프로그램을 MultiPreview와 같은 방식으로 실행하거나(둘 다 관리자 권한이거나 둘 다 아니거나), MultiPreview가 시작을 마친 뒤에 다시 시도해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview가 이미 실행 중이지만 명령을 받지 않았어요. 앱 설정 › 일반에서 다른 프로그램의 명령 받기를 켜 주세요. MultiPreview가 관리자 권한으로 실행 중이라면 같은 곳에서 관리자 권한으로 실행하지 않은 프로그램의 명령도 받기도 켜거나, 이 프로그램도 관리자 권한으로 실행해 주세요. 그렇지 않다면 MultiPreview가 시작을 마친 뒤에 다시 시도해 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Title">다른 프로그램의 명령</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Body">**다른 프로그램의 명령 받기**를 켜면, 아래 명령 중 하나로 MultiPreview를 다시 시작할 때 그 명령이 실행 중인 MultiPreview에게 전달되고, 두 번째 시작은 바로 끝나요.&#x0A;&#x0A;- --focus "캐릭터 이름"은 그 캐릭터의 클라이언트를 썸네일을 클릭한 것처럼 맨 앞으로 가져와요.&#x0A;- --cycle "그룹 이름"과 --cycle-back "그룹 이름"은 그 그룹에서 실행 중인 다음 또는 이전 캐릭터로 넘어가요. 그룹의 키와 똑같아요.&#x0A;- --cycle-all과 --cycle-all-back은 모든 클라이언트 중에서 다음 또는 이전 클라이언트로 넘어가요.&#x0A;- --previous-client는 이 클라이언트 전에 쓰던 클라이언트로 돌아가요.&#x0A;- --last-alert는 확인이 필요한 알림의 클라이언트로 가요.&#x0A;- --profile "프로필 이름"은 그 프로필로 전환해요. --next-profile과 --previous-profile은 프로필을 차례로 넘겨요.&#x0A;- --toggle-thumbnails는 모든 썸네일을 숨기거나 보여 줘요.&#x0A;- --focus-mode는 포커스 모드를 켜거나 꺼요(클라이언트 › 그룹).&#x0A;- --do-not-disturb는 방해 금지를 켜거나 꺼요.&#x0A;&#x0A;Stream Deck, Touch Portal, AutoHotkey, Windows 바로 가기로 실행할 수 있어요. 한 번 시작할 때 명령은 하나만 받고, 나머지는 거부해요. 두 번째 시작은 실행했으면 0, 거부했으면 1, 그런 캐릭터, 그룹, 프로필이 없으면 2, 어떤 MultiPreview도 받지 않았으면 3으로 끝나요.&#x0A;&#x0A;내 Windows 계정으로 실행 중인 프로그램만 명령을 보낼 수 있고, 네트워크에서는 아무것도 기다리지 않으며, 명령이 파일을 가리키는 일도 없어요. MultiPreview와 보내는 프로그램은 둘 다 관리자 권한으로 실행하거나 둘 다 아니어야 해요. 명령과 함께 시작한 MultiPreview는 시작이 끝난 뒤에 그 명령을 실행해요. 이 스위치 설정과는 상관없어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.CopyCode">코드로 복사</sys:String> <!-- draft -->
@@ -2549,7 +2549,7 @@
     <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview가 그 명령을 받지 않았어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Result.NotFound">그 이름으로 실행 중이거나 저장된 항목이 없어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Result.NotReachable">응답이 없어요. 다른 프로그램의 명령 받기가 켜져 있는지 확인해 주세요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">응답이 없어요. MultiPreview가 관리자 권한으로 실행 중이에요. 이 카드의 도움말을 확인해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">응답이 없어요. MultiPreview가 관리자 권한으로 실행 중이에요. 다른 프로그램의 명령 도움말을 확인해 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.focus">{0}을(를) 맨 앞으로 가져오기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.cycle">그룹 {0}의 다음 실행 중 캐릭터</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.cycle-back">그룹 {0}의 이전 실행 중 캐릭터</sys:String> <!-- draft -->
@@ -2565,4 +2565,8 @@
     <sys:String x:Key="L.Cmd.do-not-disturb">방해 금지 켜기/끄기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.buttons.Title">Stream Deck 등을 위한 버튼</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.buttons.Body">**버튼용 명령**은 명령마다 명령줄을 써 줘요. 실행 중인 캐릭터, 그룹, 프로필마다 하나씩, 그리고 고정 명령도 있어요.&#x0A;&#x0A;- **명령줄 복사**는 명령줄을 클립보드에 넣어요. Touch Portal의 실행 동작, AutoHotkey의 Run, Windows 바로 가기의 대상에 붙여 넣으세요.&#x0A;- **바로 가기로 저장…**은 Windows 바로 가기를 만들어요. Stream Deck의 열기 동작은 인수를 넘길 수 없으니 이 바로 가기를 가리키게 하세요(또는 Advanced Launcher 플러그인에 명령줄을 쓰세요).&#x0A;- **시험해 보기**는 버튼이 하는 것처럼 명령을 이 MultiPreview에 보내고 결과를 알려 줘요. 숨기기/보이기를 시험하면 전환돼요.&#x0A;&#x0A;따옴표가 있거나 역슬래시로 끝나는 이름에는 명령줄이 없어요. 버튼이 아무것도 하지 않으면 먼저 **시험해 보기**를 실행해 보세요. MultiPreview가 명령을 받았는지 알려 줘요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated">관리자 권한으로 실행하지 않은 프로그램의 명령도 받기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated.Desc">MultiPreview가 관리자 권한으로 실행 중일 때만 의미가 있어요. 다른 프로그램(Stream Deck, 스크립트)을 관리자 권한으로 실행하지 않아도 명령을 보낼 수 있게 해요. 그러면 내 Windows 계정의 일반 프로그램은 무엇이든 클라이언트와 프로필을 전환할 수 있지만, 파일을 지정하거나 무언가를 실행할 수는 없어요. 기본값은 꺼짐이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.commandsAdmin.Title">MultiPreview를 관리자 권한으로 실행할 때</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows는 관리자 권한으로 실행하지 않은 프로그램이 관리자 권한으로 실행 중인 프로그램에 접근하지 못하게 막아요. 그래서 평소처럼 시작한 Stream Deck은 관리자 권한으로 실행 중인 MultiPreview에서 응답(종료 코드 3)을 받지 못해요.&#x0A;&#x0A;보내는 쪽도 관리자 권한으로 실행하거나 **관리자 권한으로 실행하지 않은 프로그램의 명령도 받기**를 켜 주세요. 켜면 내 Windows 계정의 관리자 권한이 아닌 프로그램도 같은 명령을 보낼 수 있어요. 네트워크에서는 아무것도 듣지 않으며, 명령이 파일을 지정하는 일도 없어요.</sys:String> <!-- draft -->
 </ResourceDictionary>

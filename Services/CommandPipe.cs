@@ -16,7 +16,10 @@ namespace EveMultiPreview.Services;
 /// default owner (what .NET's CurrentUserOnly check on the client compares with), only that owner is allowed (the account
 /// itself for a normal run, the Administrators group for an elevated one, so the same account's non-elevated programs are
 /// refused by the pipe's list), the NETWORK group is denied, and nothing is inherited. A client opens it with
-/// CurrentUserOnly, so a pipe of that name made by another account is refused. No TCP port, nothing from the network.</summary>
+/// CurrentUserOnly, so a pipe of that name made by another account is refused. No TCP port, nothing from the network.
+/// IDEAS #15, for an elevated MultiPreview only and only when the owner asks (Security's alsoUser): the account itself is
+/// allowed too, and a sender that is not elevated may connect without CurrentUserOnly, but writes only after the process
+/// that made the pipe proved to be an elevated process of this same account (IsThisAccountsElevatedProcess).</summary>
 public static class CommandPipe
 {
     /// <summary>How long a second start waits for the running MultiPreview, connecting and answering together.</summary>
@@ -43,16 +46,23 @@ public static class CommandPipe
 
     public static string CurrentName() => Name(CurrentAccount().User.Value, SessionOfThisProcess());
 
-    public static PipeSecurity Security(SecurityIdentifier user, SecurityIdentifier owner)
+    /// <summary>The pipe's list. One allow rule: the owner. For an elevated run that is the Administrators group, not the
+    /// account (<paramref name="user"/>, which is then left out): a pipe made by an elevated process carries no integrity
+    /// label that would keep the same account's non-elevated programs out, so a rule for the account would let them in.
+    /// <para><paramref name="alsoUser"/> (IDEAS #15, the owner's second switch) adds that account rule anyway, and only for
+    /// an elevated run (owner != user; for a normal run the owner already is the account, so there is nothing to add). It
+    /// trades the door's strictness for reach: any ordinary program of the account can then switch clients and profiles
+    /// (the allow-list of RemoteCommand still names no file and runs nothing). The NETWORK deny and the protected, empty
+    /// inheritance stay whatever it says.</para></summary>
+    public static PipeSecurity Security(SecurityIdentifier user, SecurityIdentifier owner, bool alsoUser = false)
     {
         var security = new PipeSecurity();
         security.SetOwner(owner);
         security.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
         security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.NetworkSid, null), PipeAccessRights.FullControl, AccessControlType.Deny));
-        // One allow rule: the owner. For an elevated run that is the Administrators group, not the account (user, which is
-        // then left out): a pipe made by an elevated process carries no integrity label that would keep the same account's
-        // non-elevated programs out, so a rule for the account would let them in. MultiPreview's own sender refuses the mismatch.
         security.AddAccessRule(new PipeAccessRule(owner, PipeAccessRights.FullControl, AccessControlType.Allow));
+        if (alsoUser && owner != user)
+            security.AddAccessRule(new PipeAccessRule(user, PipeAccessRights.FullControl, AccessControlType.Allow));
         return security;
     }
 
@@ -72,24 +82,45 @@ public static class CommandPipe
         if (RemoteCommand.FromMessage(message) != command) return RemoteOutcome.Refused;
 
         using var limit = new CancellationTokenSource(timeout);
+        NamedPipeClientStream? pipe = null;
         try
         {
-            using var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut,
+            pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut,
                 PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly, TokenImpersonationLevel.Identification);
-            await pipe.ConnectAsync(limit.Token);
-            if (letTakeTheFront) LetTakeTheFront(pipe.SafePipeHandle);
-            var frame = new byte[message.Length + 1];
-            frame[0] = (byte)message.Length;
-            message.CopyTo(frame, 1);
-            await pipe.WriteAsync(frame, limit.Token);
-            await pipe.FlushAsync(limit.Token);
-            var reply = new byte[1];
-            int read = await pipe.ReadAsync(reply, limit.Token);
-            return read == 1 && reply[0] <= (byte)RemoteOutcome.NotFound ? (RemoteOutcome)reply[0] : RemoteOutcome.NotReachable;
+            try { await pipe.ConnectAsync(limit.Token); }
+            catch (UnauthorizedAccessException) when (!IsElevated())
+            {
+                // IDEAS #15: a sender that is not elevated is refused by an elevated MultiPreview's pipe (its owner is the
+                // Administrators group, which CurrentUserOnly does not accept, and its list may not name the account). ONE
+                // more try without CurrentUserOnly, which trusts nothing the pipe's name says: nothing is written (the command
+                // can hold a profile's or group's name) unless the process that made the pipe is an elevated process of this
+                // very account. A pipe another account, or a program that is not elevated, made under this name fails that
+                // test. Only for a sender that is not elevated itself: an elevated sender gets no second try.
+                pipe.Dispose();
+                pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous, TokenImpersonationLevel.Identification);
+                await pipe.ConnectAsync(limit.Token);   // refused again: the outer catch answers NotReachable
+                if (!GetNamedPipeServerProcessId(pipe.SafePipeHandle, out uint serverProcess) || !IsThisAccountsElevatedProcess(serverProcess))
+                    return RemoteOutcome.NotReachable;
+            }
+            return await Exchange(pipe);
         }
         catch (Exception ex) when (ex is OperationCanceledException or IOException or TimeoutException or UnauthorizedAccessException)
         {
             return RemoteOutcome.NotReachable;
+        }
+        finally { pipe?.Dispose(); }
+
+        async Task<RemoteOutcome> Exchange(NamedPipeClientStream connected)
+        {
+            if (letTakeTheFront) LetTakeTheFront(connected.SafePipeHandle);
+            var frame = new byte[message.Length + 1];
+            frame[0] = (byte)message.Length;
+            message.CopyTo(frame, 1);
+            await connected.WriteAsync(frame, limit.Token);
+            await connected.FlushAsync(limit.Token);
+            var reply = new byte[1];
+            int read = await connected.ReadAsync(reply, limit.Token);
+            return read == 1 && reply[0] <= (byte)RemoteOutcome.NotFound ? (RemoteOutcome)reply[0] : RemoteOutcome.NotReachable;
         }
     }
 
@@ -99,6 +130,55 @@ public static class CommandPipe
     {
         if (GetNamedPipeServerProcessId(pipe, out uint serverProcess)) AllowSetForegroundWindow(serverProcess);
     }
+
+    /// <summary>True only when the process <paramref name="processId"/> runs as this very Windows account (its token's user
+    /// is the current account's user) with an elevated token. A process that cannot be opened or read (gone, another
+    /// account's, protected) is false: every failure is "not trusted". The second try of <see cref="SendAsync"/> asks it of
+    /// the process that made a pipe before it writes anything there.</summary>
+    public static bool IsThisAccountsElevatedProcess(uint processId)
+    {
+        if (processId == 0) return false;
+        IntPtr process = IntPtr.Zero, token = IntPtr.Zero;
+        try
+        {
+            process = OpenProcess(ProcessQueryLimitedInformation, false, processId);
+            if (process == IntPtr.Zero) return false;
+            if (!OpenProcessToken(process, TokenQuery, out token) || token == IntPtr.Zero) return false;
+            return TokenUserIs(token, CurrentAccount().User) && TokenIsElevated(token);
+        }
+        catch (Exception) { return false; }
+        finally
+        {
+            if (token != IntPtr.Zero) CloseHandle(token);
+            if (process != IntPtr.Zero) CloseHandle(process);
+        }
+    }
+
+    /// <summary>The token's TOKEN_USER is read out of a buffer sized by the first call; the SID it points at must lie
+    /// inside that buffer before it is read, and the buffer is freed.</summary>
+    private static bool TokenUserIs(IntPtr token, SecurityIdentifier expected)
+    {
+        GetTokenInformation(token, TokenUser, IntPtr.Zero, 0, out int needed);   // fails by design: it only says how big
+        if (needed < 2 * IntPtr.Size || needed > 4096) return false;
+        IntPtr buffer = Marshal.AllocHGlobal(needed);
+        try
+        {
+            if (!GetTokenInformation(token, TokenUser, buffer, needed, out _)) return false;
+            IntPtr sid = Marshal.ReadIntPtr(buffer);     // TOKEN_USER starts with SID_AND_ATTRIBUTES.Sid
+            long at = sid.ToInt64() - buffer.ToInt64();
+            if (sid == IntPtr.Zero || at < 2 * IntPtr.Size || at >= needed) return false;
+            return new SecurityIdentifier(sid) == expected;
+        }
+        finally { Marshal.FreeHGlobal(buffer); }
+    }
+
+    private static bool TokenIsElevated(IntPtr token) =>
+        GetTokenInformationElevation(token, TokenElevation, out int elevation, sizeof(int), out int returned) && returned == sizeof(int) && elevation != 0;
+
+    private const uint ProcessQueryLimitedInformation = 0x1000;
+    private const uint TokenQuery = 0x0008;
+    private const int TokenUser = 1;
+    private const int TokenElevation = 20;
 
     private static int SessionOfThisProcess() =>
         ProcessIdToSessionId((uint)Environment.ProcessId, out uint session) ? (int)session : 0;
@@ -114,6 +194,25 @@ public static class CommandPipe
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool AllowSetForegroundWindow(uint processId);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr OpenProcess(uint desiredAccess, [MarshalAs(UnmanagedType.Bool)] bool inheritHandle, uint processId);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool CloseHandle(IntPtr handle);
+
+    [DllImport("advapi32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool OpenProcessToken(IntPtr process, uint desiredAccess, out IntPtr token);
+
+    [DllImport("advapi32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetTokenInformation(IntPtr token, int informationClass, IntPtr information, int length, out int returnLength);
+
+    [DllImport("advapi32.dll", SetLastError = true, EntryPoint = "GetTokenInformation")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetTokenInformationElevation(IntPtr token, int informationClass, out int information, int length, out int returnLength);
 }
 
 /// <summary>IDEAS #39: the running MultiPreview's end of the pipe, on a pool thread. One client at a time: it reads one

@@ -97,6 +97,7 @@ public partial class App : Application
     private StartupDialog? _autoProfileQuestion;
     /// <summary>IDEAS #39: the pipe other programs send commands through, while "Take commands from other programs" is on.</summary>
     private CommandServer? _commandServer;
+    private bool _commandServerWide;   // IDEAS #15: the running server was made with the second switch (the account's door) on
     /// <summary>IDEAS #39: the command this start was given (a shortcut with --profile, say), run once the deferred startup is
     /// done; null without one.</summary>
     private RemoteCommand? _startupCommand;
@@ -1418,6 +1419,14 @@ public partial class App : Application
         try
         {
             bool wanted = !_isShuttingDown && _settings?.Settings.AcceptCommands == true;
+            // IDEAS #15: the second switch changes the door's list, so a running server of the other kind is let go and a
+            // new one is made below (the old name is retried by OpenFirst for two seconds while it is still held).
+            bool wide = _settings?.Settings.AcceptCommandsUnelevated == true;
+            if (wanted && _commandServer != null && wide != _commandServerWide)
+            {
+                _commandServer.Dispose();
+                _commandServer = null;
+            }
             if (wanted == (_commandServer != null)) return;
             if (!wanted)
             {
@@ -1427,10 +1436,11 @@ public partial class App : Application
             }
             var (user, owner) = CommandPipe.CurrentAccount();
             CommandServer? made = null;
-            made = new CommandServer(CommandPipe.CurrentName(), CommandPipe.Security(user, owner),
+            made = new CommandServer(CommandPipe.CurrentName(), CommandPipe.Security(user, owner, alsoUser: wide),
                 command => RunOnWindowsThread(command),
                 ex => { LogError(ex); DropFailedCommandServer(made); });   // logged once, without the pipe's name
             _commandServer = made;
+            _commandServerWide = wide;
             made.Start();
         }
         catch (Exception ex) { LogError(ex); }

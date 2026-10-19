@@ -2506,7 +2506,7 @@
     <sys:String x:Key="L.S.Sec.app.general.control">ほかのプログラム</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands">ほかのプログラムからのコマンドを受け付ける</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Stream Deck、AutoHotkey、ショートカットから、実行中の MultiPreview に、キャラクターを最前面に出す、プロファイルを切り替える、サムネイルやフォーカスモードをオン／オフする、のいずれかを伝えられるようにします。できるのは、ご自身の Windows アカウントのプログラムだけです。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview はすでに実行中ですが、コマンドを受け付けませんでした。アプリの設定 › 一般 で「ほかのプログラムからのコマンドを受け付ける」をオンにしてください。すでにオンの場合は、このプログラムを MultiPreview と同じ方法で実行する（どちらも管理者として実行するか、どちらも通常のまま）か、MultiPreview の起動が終わってからもう一度試してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview はすでに実行中ですが、コマンドを受け付けませんでした。アプリの設定 › 一般 で「ほかのプログラムからのコマンドを受け付ける」をオンにしてください。MultiPreview が管理者として実行されている場合は、同じ場所で「管理者として実行されていないプログラムからのコマンドも受け付ける」もオンにするか、このプログラムも管理者として実行してください。そうでない場合は、MultiPreview の起動が終わってからもう一度試してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Title">ほかのプログラムからのコマンド</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Body">**ほかのプログラムからのコマンドを受け付ける**をオンにすると、次のコマンドのどれかを付けて MultiPreview をもう一度起動したとき、そのコマンドが実行中の MultiPreview に渡され、2回目の起動はすぐに終了します。&#x0A;&#x0A;- --focus "キャラクター名" は、そのキャラクターのクライアントを、サムネイルをクリックしたときと同じように最前面に出します。&#x0A;- --cycle "グループ名" と --cycle-back "グループ名" は、そのグループで実行中の次または前のキャラクターに移ります。グループのキーと同じ動きです。&#x0A;- --cycle-all と --cycle-all-back は、すべてのクライアントの中で次または前のクライアントに移ります。&#x0A;- --previous-client は、このクライアントの前に使っていたクライアントに戻ります。&#x0A;- --last-alert は、あなたの対応が必要なアラートのクライアントに移ります。&#x0A;- --profile "プロファイル名" は、そのプロファイルに切り替えます。--next-profile と --previous-profile は、プロファイルを順に切り替えます。&#x0A;- --toggle-thumbnails は、すべてのサムネイルを隠したり表示したりします。&#x0A;- --focus-mode は、フォーカスモードをオン／オフします（クライアント › グループ）。&#x0A;- --do-not-disturb は、おやすみモードをオン／オフします。&#x0A;&#x0A;Stream Deck、Touch Portal、AutoHotkey、Windows のショートカットから実行できます。1回の起動につきコマンドは1つで、それ以外は拒否されます。2回目の起動は、実行できたときは 0、拒否されたときは 1、そのキャラクター、グループ、プロファイルがないときは 2、どの MultiPreview も受け取らなかったときは 3 で終了します。&#x0A;&#x0A;コマンドを送れるのは、ご自身の Windows アカウントで動いているプログラムだけです。ネットワークでは何も待ち受けず、コマンドがファイルを指定することもありません。MultiPreview と送る側のプログラムは、どちらも管理者として実行するか、どちらも管理者にしないかのどちらかにしてください。コマンド付きで起動した MultiPreview は、起動が終わってから実行します。このスイッチの設定は関係ありません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.CopyCode">コードとしてコピー</sys:String> <!-- draft -->
@@ -2549,7 +2549,7 @@
     <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview はそのコマンドを受け付けませんでした。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Result.NotFound">その名前のものは、実行中でも保存済みでもありません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Result.NotReachable">応答がありません。「ほかのプログラムからのコマンドを受け付ける」がオンになっているか確認してください。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">応答がありません。MultiPreview は管理者として実行されています。このカードのヘルプをご覧ください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">応答がありません。MultiPreview は管理者として実行されています。「ほかのプログラムからのコマンド」のヘルプをご覧ください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.focus">{0} を最前面に出す</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.cycle">グループ {0} の次の実行中キャラクター</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.cycle-back">グループ {0} の前の実行中キャラクター</sys:String> <!-- draft -->
@@ -2565,4 +2565,8 @@
     <sys:String x:Key="L.Cmd.do-not-disturb">おやすみモードのオン／オフ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.buttons.Title">Stream Deck などのためのボタン</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.buttons.Body">**ボタン用のコマンド**は、コマンドごとにコマンドラインを書き出します。実行中のキャラクター、グループ、プロファイルごとに1つずつと、固定のコマンドです。&#x0A;&#x0A;- **コマンドラインをコピー**は、コマンドラインをクリップボードに入れます。Touch Portal の実行アクション、AutoHotkey の Run、Windows のショートカットのリンク先に貼り付けてください。&#x0A;- **ショートカットとして保存…**は、Windows のショートカットを作ります。Stream Deck の「開く」アクションは引数を渡せないので、このショートカットを指定してください（または Advanced Launcher プラグインでコマンドラインを使ってください）。&#x0A;- **試す**は、ボタンと同じ方法でコマンドをこの MultiPreview に送り、結果を知らせます。「隠す／表示する」を試すと切り替わります。&#x0A;&#x0A;引用符を含む名前や、末尾がバックスラッシュの名前には、コマンドラインがありません。ボタンが何もしないときは、まず**試す**を実行してください。MultiPreview がコマンドを受け付けたかどうかが分かります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated">管理者として実行されていないプログラムからのコマンドも受け付ける</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated.Desc">MultiPreview が管理者として実行されているときだけ意味があります。ほかのプログラム（Stream Deck やスクリプトなど）も管理者として実行しなくても、コマンドを送れるようになります。その場合、お使いの Windows アカウントの通常のプログラムなら何でも、クライアントやプロファイルを切り替えられるようになりますが、ファイルを指定したり何かを実行したりすることはできません。既定ではオフです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.commandsAdmin.Title">MultiPreview が管理者として実行されているとき</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows は、管理者として実行されていないプログラムを、管理者として実行されているプログラムから遠ざけます。そのため、通常の方法で起動した Stream Deck は、管理者として実行されている MultiPreview から応答（終了コード 3）を受け取れません。&#x0A;&#x0A;送る側も管理者として実行するか、**管理者として実行されていないプログラムからのコマンドも受け付ける**をオンにしてください。オンにすると、お使いの Windows アカウントの、管理者として実行されていないプログラムも同じコマンドを送れます。ネットワークでは何も待ち受けず、コマンドがファイルを指定することも決してありません。</sys:String> <!-- draft -->
 </ResourceDictionary>

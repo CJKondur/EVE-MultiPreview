@@ -310,6 +310,12 @@ public class AppSettings
     /// settings change (FollowCommandServer). New key: off in a file without it.</summary>
     public bool AcceptCommands { get; set; } = false;
 
+    /// <summary>Also take commands from programs of this account that are not run as administrator (IDEAS #15). Only
+    /// matters while MultiPreview itself runs as administrator: its pipe then also lets in this account (CommandPipe.Security
+    /// with alsoUser), which an elevated pipe otherwise keeps out. Read by App's FollowCommandServer, which makes a new
+    /// server when it changes. New key: off in a file without it.</summary>
+    public bool AcceptCommandsUnelevated { get; set; } = false;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

@@ -150,6 +150,7 @@ public class AhkConfigRoot
         s.FocusModeShowAlerts = g.FocusModeShowAlerts != 0;
         s.AutoSelectProfile = g.AutoSelectProfile != 0;
         s.AcceptCommands = g.AcceptCommands != 0;
+        s.AcceptCommandsUnelevated = g.AcceptCommandsUnelevated != 0;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -500,6 +501,7 @@ public class AhkConfigRoot
         g.FocusModeShowAlerts = s.FocusModeShowAlerts ? 1 : 0;
         g.AutoSelectProfile = s.AutoSelectProfile ? 1 : 0;
         g.AcceptCommands = s.AcceptCommands ? 1 : 0;
+        g.AcceptCommandsUnelevated = s.AcceptCommandsUnelevated ? 1 : 0;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1417,6 +1419,10 @@ public class AhkGlobalSettings
     // Take commands from other programs (IDEAS #39), batch 10: a file without it loads off.
     [JsonPropertyName("AcceptCommands")]
     public int AcceptCommands { get; set; }
+
+    // Also take commands from programs that are not run as administrator (IDEAS #15), batch 11: a file without it loads off.
+    [JsonPropertyName("AcceptCommandsUnelevated")]
+    public int AcceptCommandsUnelevated { get; set; }
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;
