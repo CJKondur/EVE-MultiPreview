@@ -107,6 +107,10 @@ public class ThumbnailWindow : Form
     /// <summary>Raised by the right-click "Close client" item (#115).</summary>
     public event Action<ThumbnailWindow>? CloseClientRequested;
 
+    /// <summary>Raised by the right-click "End this frozen client…" item, shown only while the thumbnail says Not
+    /// responding (IDEAS #22). App asks first.</summary>
+    public event Action<ThumbnailWindow>? EndFrozenRequested;
+
     /// <summary>Raised by the right-click "Open ‹character›'s settings" item (spec D6, Plan 4). Not offered on a
     /// login-screen thumbnail.</summary>
     public event Action<ThumbnailWindow>? SettingsRequested;
@@ -165,10 +169,12 @@ public class ThumbnailWindow : Form
                 audio: code => { if (code >= 0) AudioVolume = code; AudioRequested?.Invoke(this, code); },
                 openSettings: () => SettingsRequested?.Invoke(this),
                 closeClient: () => CloseClientRequested?.Invoke(this),
-                endSnooze: key => SnoozeEndRequested?.Invoke(this, key));
+                endSnooze: key => SnoozeEndRequested?.Invoke(this, key),
+                endFrozen: () => EndFrozenRequested?.Invoke(this));
             _menu.Refresh(new ThumbnailMenuState(CharacterName, SystemLookup?.Invoke(CharacterName), AlertMutedUntil, AudioVolume, DateTime.UtcNow)
             {
                 Snoozes = SnoozeLookup?.Invoke(CharacterName) ?? Array.Empty<EveMultiPreview.Services.EventSnooze>(),
+                Frozen = Mark == ClientMark.NotResponding,
             });
             // IDEAS #13 (T6-I1): counted before it is shown, so that no thumbnail grows over it; taken away again when
             // it has closed (OnMenuClosed), when it did not open, and when showing it failed.

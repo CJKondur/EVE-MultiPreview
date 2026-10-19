@@ -135,6 +135,15 @@ public sealed class ClientExits
             finally { if (entry == null) process.Dispose(); }
         }
     }
+
+    /// <summary>What the player is told of an end (near the cursor): the catalog key and its English, {0} the character.</summary>
+    public static (string Key, string English) Feedback(EndResult result) => result switch
+    {
+        EndResult.Ended => ("L.Msg.EndFrozenDone", "Ended {0}'s client."),
+        EndResult.NoLongerFrozen => ("L.Msg.EndFrozenRecovered", "{0}'s client is responding again: nothing was ended."),
+        EndResult.Gone => ("L.Msg.EndFrozenGone", "{0}'s client has already closed."),
+        _ => ("L.Msg.EndFrozenRefused", "Windows did not let MultiPreview end {0}'s client."),
+    };
 }
 
 /// <summary>A client's process through a Windows handle. No Process class (the P46 lesson: it is slow and can freeze a

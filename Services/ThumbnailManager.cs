@@ -1517,6 +1517,12 @@ public sealed class ThumbnailManager : IDisposable
     /// going): its process id. App takes the note back, so a later crash of that client is still told.</summary>
     public event Action<int>? ClientEndRefused;
 
+    /// <summary>A thumbnail's "End this frozen client…" (IDEAS #22): its client window and its character. App asks first
+    /// and ends only that process.</summary>
+    public event Action<IntPtr, string>? EndFrozenClientRequested;
+
+    private void OnEndFrozenRequested(ThumbnailWindow thumb) => EndFrozenClientRequested?.Invoke(thumb.EveHwnd, thumb.CharacterName);
+
     private void OnSettingsRequested(ThumbnailWindow thumb)
     {
         if (ThumbnailMenu.HasCharacter(thumb.CharacterName)) CharacterSettingsRequested?.Invoke(thumb.CharacterName);
@@ -4543,6 +4549,7 @@ public sealed class ThumbnailManager : IDisposable
         thumb.AlertMuteRequested += OnAlertMuteRequested;
         thumb.AudioRequested += OnAudioRequested;
         thumb.CloseClientRequested += OnCloseClientRequested;
+        thumb.EndFrozenRequested += OnEndFrozenRequested;
         thumb.SettingsRequested += OnSettingsRequested;
         thumb.SnoozeEndRequested += OnSnoozeEndRequested;
         thumb.SnoozeLookup = SnoozesOf;
@@ -4561,6 +4568,7 @@ public sealed class ThumbnailManager : IDisposable
         thumb.AlertMuteRequested -= OnAlertMuteRequested;
         thumb.AudioRequested -= OnAudioRequested;
         thumb.CloseClientRequested -= OnCloseClientRequested;
+        thumb.EndFrozenRequested -= OnEndFrozenRequested;
         thumb.SettingsRequested -= OnSettingsRequested;
         thumb.SnoozeEndRequested -= OnSnoozeEndRequested;
         thumb.SnoozeLookup = null;

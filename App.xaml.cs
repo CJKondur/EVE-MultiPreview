@@ -273,6 +273,7 @@ public partial class App : Application
         _thumbnailManager.EndingClient += pid => _clientExits.EndedByMultiPreview(pid);
         // An end Windows refused (EVE run as administrator) is taken back: a later crash of that client is still told.
         _thumbnailManager.ClientEndRefused += pid => _clientExits.NotEndedByMultiPreview(pid);
+        _thumbnailManager.EndFrozenClientRequested += EndFrozenClient;   // IDEAS #22
 
         // 4c. Crop manager (spawns per-character cropped DWM popups)
         _cropManager = new CropManager(_discovery, _settings);
@@ -1120,6 +1121,30 @@ public partial class App : Application
         try { _stragglerAlerts!.Raise(now, exit.Character, ClientWatch.ClosedEvent, ClientWatch.Severity, ClientExits.CodeText(exit.ExitCode)); }
         catch (Exception ex) { LogError(ex); }
         finally { _closingCharacter = null; }
+    }
+
+    private const string EndFrozenEnglish = "{0}'s client is not responding. End it now? Anything it has not saved is lost.";
+
+    /// <summary>IDEAS #22, "End this frozen client…": asks first (No by default, over a full-screen client, as Close all
+    /// clients asks), then ends only the process the freeze was seen on, and only while its window is still that process's
+    /// and still frozen (ClientExits.End asks that while it holds the process). Raised by a menu click, so this runs on the
+    /// window's thread, and the end follows the answer there. Says near the cursor what came of it.</summary>
+    private void EndFrozenClient(IntPtr window, string character)
+    {
+        try
+        {
+            if (_isShuttingDown || _clientWatch.PidOf(window) is not int pid) return;
+            var who = ThumbnailMenu.HasCharacter(character) ? character : LocalizationService.Str("L.Ctx.LoginScreen", "Character select");
+            var answer = System.Windows.MessageBox.Show(
+                string.Format(LocalizationService.Str("L.Msg.EndFrozenConfirm", EndFrozenEnglish), who), "EVE MultiPreview",
+                System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning, System.Windows.MessageBoxResult.No,
+                System.Windows.MessageBoxOptions.DefaultDesktopOnly);
+            if (answer != System.Windows.MessageBoxResult.Yes) return;
+            var result = _clientExits.End(pid, () => ClientProbe.PidOf(window) == pid && ClientProbe.IsHung(window));
+            var (key, english) = ClientExits.Feedback(result);
+            _thumbnailManager?.ShowTooltipFeedback(string.Format(LocalizationService.Str(key, english), who));
+        }
+        catch (Exception ex) { LogError(ex); }
     }
 
     /// <summary>Whether a client event is on for everyone or (IDEAS #31) for some group.</summary>

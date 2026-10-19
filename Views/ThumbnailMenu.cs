@@ -30,6 +30,8 @@ public static class ThumbnailCommands
     public const string Audio100 = "thumb.audio100";
     public const string OpenSettings = "thumb.openSettings";
     public const string CloseClient = "thumb.closeClient";
+    /// <summary>End this frozen client… (IDEAS #22): shown only while the thumbnail says Not responding.</summary>
+    public const string EndFrozen = "thumb.endFrozen";
 }
 
 /// <summary>What the menu shows when it opens: whose thumbnail it is, the system it was last seen in, the alert mute and
@@ -40,17 +42,20 @@ public sealed record ThumbnailMenuState(string CharacterName, string? SystemName
     public IReadOnlyList<EventSnooze> Snoozes { get; init; } = Array.Empty<EventSnooze>();
     /// <summary>The time their minutes left are counted from.</summary>
     public DateTime UtcNow { get; init; } = DateTime.UtcNow;
+    /// <summary>The thumbnail says Not responding (IDEAS #22).</summary>
+    public bool Frozen { get; init; }
 }
 
 /// <summary>A thumbnail's right-click menu (Plan 4, the F2 reference): the character and system as a caption, Edit
-/// label…, Mute alerts ›, Game volume ›, Open ‹character›'s settings (spec D6) and, below a line, Close client. Every item
-/// raises what the old menu raised. Built once per thumbnail and refreshed each time it opens.</summary>
+/// label…, Mute alerts ›, Game volume ›, Open ‹character›'s settings (spec D6) and, below a line, End this frozen client…
+/// (only while the thumbnail says Not responding, IDEAS #22) and Close client. Every item raises what the old menu raised.
+/// Built once per thumbnail and refreshed each time it opens.</summary>
 public sealed class ThumbnailMenu : IDisposable
 {
     private readonly Action<int> _audio;
     private readonly List<(ToolStripItem Item, string Key, string English)> _labels = new();
     private readonly ToolStripLabel _header;
-    private readonly ToolStripMenuItem _mute, _volume, _openSettings, _snoozed;
+    private readonly ToolStripMenuItem _mute, _volume, _openSettings, _snoozed, _endFrozen;
     private readonly Action<string?> _endSnooze;
     private readonly TrackBar _slider;
     private bool _settingSlider;
@@ -61,8 +66,9 @@ public sealed class ThumbnailMenu : IDisposable
     /// <param name="openSettings">Open ‹character›'s settings (D6).</param>
     /// <param name="closeClient">Close client.</param>
     /// <param name="endSnooze">Ends one snoozed event of this character (its key), or all of them (null) (IDEAS #30).</param>
+    /// <param name="endFrozen">End this frozen client… (IDEAS #22); the one who handles it asks before it ends anything.</param>
     public ThumbnailMenu(Action editLabel, Action<int> mute, Action<int> audio, Action openSettings, Action closeClient,
-        Action<string?>? endSnooze = null)
+        Action<string?>? endSnooze = null, Action? endFrozen = null)
     {
         _endSnooze = endSnooze ?? (_ => { });
         _audio = audio;
@@ -121,6 +127,10 @@ public sealed class ThumbnailMenu : IDisposable
 
         // Last and below a line, away from the everyday items: it ends the client.
         Strip.Items.Add(new ToolStripSeparator());
+        _endFrozen = Item(ThumbnailCommands.EndFrozen, "L.Ctx.EndFrozen", "End this frozen client…", endFrozen);
+        FluentMenu.MarkDestructive(_endFrozen);
+        _endFrozen.Available = false;
+        Strip.Items.Add(_endFrozen);
         var close = Item(ThumbnailCommands.CloseClient, "L.Ctx.CloseClient", "Close client", closeClient);
         FluentMenu.MarkDestructive(close);
         Strip.Items.Add(close);
@@ -160,6 +170,7 @@ public sealed class ThumbnailMenu : IDisposable
         _settingSlider = false;
         ShowVolume(volume);
 
+        _endFrozen.Available = state.Frozen;
         _openSettings.Available = character;
         _openSettings.Text = string.Format(LocalizationService.Str("L.Ctx.OpenSettingsFmt", "Open {0}'s settings"), state.CharacterName);
     }
