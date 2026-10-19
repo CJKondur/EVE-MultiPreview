@@ -271,6 +271,8 @@ public partial class App : Application
         _processMonitor.StatsUpdated += ProbeClients;
         // IDEAS #22: a client MultiPreview ends itself (Close client) raises no "Client closed unexpectedly".
         _thumbnailManager.EndingClient += pid => _clientExits.EndedByMultiPreview(pid);
+        // An end Windows refused (EVE run as administrator) is taken back: a later crash of that client is still told.
+        _thumbnailManager.ClientEndRefused += pid => _clientExits.NotEndedByMultiPreview(pid);
 
         // 4c. Crop manager (spawns per-character cropped DWM popups)
         _cropManager = new CropManager(_discovery, _settings);

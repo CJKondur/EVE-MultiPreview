@@ -1513,6 +1513,10 @@ public sealed class ThumbnailManager : IDisposable
     /// ClientExits, so that end raises no "Client closed unexpectedly" (IDEAS #22).</summary>
     public event Action<int>? EndingClient;
 
+    /// <summary>The end announced by <see cref="EndingClient"/> failed (Windows refused it, or the client was already
+    /// going): its process id. App takes the note back, so a later crash of that client is still told.</summary>
+    public event Action<int>? ClientEndRefused;
+
     private void OnSettingsRequested(ThumbnailWindow thumb)
     {
         if (ThumbnailMenu.HasCharacter(thumb.CharacterName)) CharacterSettingsRequested?.Invoke(thumb.CharacterName);
@@ -1537,17 +1541,20 @@ public sealed class ThumbnailManager : IDisposable
         // The PID comes from the live window, and only an EVE client is ever ended.
         Interop.User32.GetWindowThreadProcessId(hwnd, out uint pid);
         if (pid == 0) return;
+        bool ending = false;   // EndingClient was told: a failed end is taken back below (IDEAS #22)
         try
         {
             using var p = Process.GetProcessById((int)pid);
             if (!Interop.User32.IsEveProcessName(p.ProcessName)) return;
             EndingClient?.Invoke((int)pid);
+            ending = true;
             p.Kill();
             DiagnosticsService.LogWindowHook($"[CloseClient] ended EVE client pid={pid}");
         }
         catch (Exception ex)
         {
             // Already gone, or ACCESS_DENIED when EVE runs elevated and we do not.
+            if (ending) ClientEndRefused?.Invoke((int)pid);
             DiagnosticsService.LogWindowHook($"[CloseClient] could not end pid={pid}: {ex.Message}");
         }
     }

@@ -72,6 +72,13 @@ public sealed class ClientExits
         lock (_lock) { if (_held.TryGetValue(pid, out var e)) e.ByUs = true; }
     }
 
+    /// <summary>Takes back <see cref="EndedByMultiPreview"/> when Windows refused that end (EVE run as administrator), as
+    /// <see cref="End"/> does for a refused end: a later crash of this client is a surprise again.</summary>
+    public void NotEndedByMultiPreview(int pid)
+    {
+        lock (_lock) { if (_held.TryGetValue(pid, out var e)) e.ByUs = false; }
+    }
+
     /// <summary>The held processes that ended since the last look; their handles are let go.</summary>
     public IReadOnlyList<ClientExit> Look()
     {
