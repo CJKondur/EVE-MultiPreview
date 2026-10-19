@@ -2535,4 +2535,36 @@
     <sys:String x:Key="L.Remap.Cancel">Annuler</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Skip">(ignorer)</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Slot">(place)</sys:String> <!-- draft -->
+    <!-- Ideas batch 11 (Plan 15) -->
+    <sys:String x:Key="L.S.app.general.buttons">Commandes pour les boutons</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.buttons.Desc">Choisissez une commande, puis copiez sa ligne de commande pour un bouton Stream Deck, Touch Portal ou AutoHotkey, ou enregistrez-la comme raccourci Windows. Essayer envoie la commande à ce MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Pick">Commande</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copy">Copier la ligne de commande</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Shortcut">Enregistrer comme raccourci…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.TryIt">Essayer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copied">Copié.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.CopyFailed">Windows n'a pas laissé MultiPreview utiliser le presse-papiers. Réessayez.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Saved">Raccourci enregistré.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.SaveFailed">Le raccourci n'a pas pu être enregistré à cet endroit.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.NoProgram">MultiPreview ne sait pas où il est installé et ne peut donc pas écrire de lignes de commande.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Done">Fait.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview n'a pas pris cette commande.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotFound">Rien de ce nom n'est en cours d'exécution ni enregistré.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachable">Pas de réponse. Vérifiez que « Accepter les commandes d'autres programmes » est activé.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">Pas de réponse. MultiPreview s'exécute en tant qu'administrateur : voir l'aide de cette carte.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus">Mettre {0} au premier plan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle">Personnage suivant en cours du groupe {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-back">Personnage précédent en cours du groupe {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.profile">Passer au profil {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.toggle-thumbnails">Masquer ou afficher toutes les miniatures</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus-mode">Activer ou désactiver le mode focus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all">Client suivant (tous)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all-back">Client précédent (tous)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-client">Revenir au client précédent</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.last-alert">Aller à la dernière alerte</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.next-profile">Profil suivant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-profile">Profil précédent</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.do-not-disturb">Ne pas déranger : activer ou désactiver</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Title">Boutons pour Stream Deck et autres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**Commandes pour les boutons** écrit la ligne de commande de chaque commande : une par personnage en cours d'exécution, par groupe et par profil, en plus des commandes fixes.&#x0A;&#x0A;- **Copier la ligne de commande** la place dans le presse-papiers : collez-la dans l'action d'exécution de Touch Portal, dans un Run d'AutoHotkey ou dans la Cible d'un raccourci Windows.&#x0A;- **Enregistrer comme raccourci…** crée un raccourci Windows. L'action Ouvrir de Stream Deck ne peut pas passer d'arguments : pointez-la donc vers ce raccourci (ou utilisez le plugin Advanced Launcher avec la ligne de commande).&#x0A;- **Essayer** envoie la commande à ce MultiPreview comme le ferait un bouton, et vous dit ce qu'il en est advenu. Essayer masquer ou afficher bascule l'état.&#x0A;&#x0A;Un nom contenant un guillemet, ou finissant par une barre oblique inverse, n'a pas de ligne de commande. Si un bouton ne fait rien, lancez d'abord **Essayer** : il vous dit si MultiPreview a pris la commande.</sys:String> <!-- draft -->
 </ResourceDictionary>

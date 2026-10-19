@@ -2533,4 +2533,36 @@
     <sys:String x:Key="L.Remap.Cancel">취소</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Skip">(건너뛰기)</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Slot">(자리)</sys:String> <!-- draft -->
+    <!-- Ideas batch 11 (Plan 15) -->
+    <sys:String x:Key="L.S.app.general.buttons">버튼용 명령</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.buttons.Desc">명령을 고른 다음, 그 명령줄을 Stream Deck, Touch Portal, AutoHotkey 버튼용으로 복사하거나 Windows 바로 가기로 저장해요. 시험해 보기를 누르면 이 MultiPreview에 명령을 보내요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Pick">명령</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copy">명령줄 복사</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Shortcut">바로 가기로 저장…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.TryIt">시험해 보기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copied">복사했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.CopyFailed">Windows가 MultiPreview의 클립보드 사용을 허용하지 않았어요. 다시 시도해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Saved">바로 가기를 저장했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.SaveFailed">바로 가기를 그곳에 저장하지 못했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.NoProgram">MultiPreview가 설치된 위치를 알 수 없어서 명령줄을 쓸 수 없어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Done">완료했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview가 그 명령을 받지 않았어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotFound">그 이름으로 실행 중이거나 저장된 항목이 없어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachable">응답이 없어요. 다른 프로그램의 명령 받기가 켜져 있는지 확인해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">응답이 없어요. MultiPreview가 관리자 권한으로 실행 중이에요. 이 카드의 도움말을 확인해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus">{0}을(를) 맨 앞으로 가져오기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle">그룹 {0}의 다음 실행 중 캐릭터</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-back">그룹 {0}의 이전 실행 중 캐릭터</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.profile">프로필 {0}(으)로 전환</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.toggle-thumbnails">모든 썸네일 숨기기/보이기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus-mode">포커스 모드 켜기/끄기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all">다음 클라이언트(전체)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all-back">이전 클라이언트(전체)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-client">이전 클라이언트로 돌아가기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.last-alert">마지막 알림으로 이동</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.next-profile">다음 프로필</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-profile">이전 프로필</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.do-not-disturb">방해 금지 켜기/끄기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Title">Stream Deck 등을 위한 버튼</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**버튼용 명령**은 명령마다 명령줄을 써 줘요. 실행 중인 캐릭터, 그룹, 프로필마다 하나씩, 그리고 고정 명령도 있어요.&#x0A;&#x0A;- **명령줄 복사**는 명령줄을 클립보드에 넣어요. Touch Portal의 실행 동작, AutoHotkey의 Run, Windows 바로 가기의 대상에 붙여 넣으세요.&#x0A;- **바로 가기로 저장…**은 Windows 바로 가기를 만들어요. Stream Deck의 열기 동작은 인수를 넘길 수 없으니 이 바로 가기를 가리키게 하세요(또는 Advanced Launcher 플러그인에 명령줄을 쓰세요).&#x0A;- **시험해 보기**는 버튼이 하는 것처럼 명령을 이 MultiPreview에 보내고 결과를 알려 줘요. 숨기기/보이기를 시험하면 전환돼요.&#x0A;&#x0A;따옴표가 있거나 역슬래시로 끝나는 이름에는 명령줄이 없어요. 버튼이 아무것도 하지 않으면 먼저 **시험해 보기**를 실행해 보세요. MultiPreview가 명령을 받았는지 알려 줘요.</sys:String> <!-- draft -->
 </ResourceDictionary>

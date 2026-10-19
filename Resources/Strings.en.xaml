@@ -2532,4 +2532,36 @@
     <sys:String x:Key="L.Remap.Cancel">Cancel</sys:String>
     <sys:String x:Key="L.Remap.Skip">(skip)</sys:String>
     <sys:String x:Key="L.Remap.Slot">(slot)</sys:String>
+    <!-- Ideas batch 11 (Plan 15) -->
+    <sys:String x:Key="L.S.app.general.buttons">Commands for buttons</sys:String>
+    <sys:String x:Key="L.S.app.general.buttons.Desc">Pick a command, then copy its command line for a Stream Deck, Touch Portal or AutoHotkey button, or save it as a Windows shortcut. Try it sends it to this MultiPreview.</sys:String>
+    <sys:String x:Key="L.S.Cmd.Pick">Command</sys:String>
+    <sys:String x:Key="L.S.Cmd.Copy">Copy command line</sys:String>
+    <sys:String x:Key="L.S.Cmd.Shortcut">Save as shortcut…</sys:String>
+    <sys:String x:Key="L.S.Cmd.TryIt">Try it</sys:String>
+    <sys:String x:Key="L.S.Cmd.Copied">Copied.</sys:String>
+    <sys:String x:Key="L.S.Cmd.CopyFailed">Windows would not let MultiPreview use the clipboard. Try again.</sys:String>
+    <sys:String x:Key="L.S.Cmd.Saved">Shortcut saved.</sys:String>
+    <sys:String x:Key="L.S.Cmd.SaveFailed">The shortcut could not be saved there.</sys:String>
+    <sys:String x:Key="L.S.Cmd.NoProgram">MultiPreview cannot tell where it is installed, so it cannot write command lines.</sys:String>
+    <sys:String x:Key="L.S.Cmd.Result.Done">Done.</sys:String>
+    <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview did not take that command.</sys:String>
+    <sys:String x:Key="L.S.Cmd.Result.NotFound">Nothing by that name is running or saved.</sys:String>
+    <sys:String x:Key="L.S.Cmd.Result.NotReachable">No answer. Check that Take commands from other programs is on.</sys:String>
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">No answer. MultiPreview runs as administrator: see the help for this card.</sys:String>
+    <sys:String x:Key="L.Cmd.focus">Bring {0} to the front</sys:String>
+    <sys:String x:Key="L.Cmd.cycle">Next running character of group {0}</sys:String>
+    <sys:String x:Key="L.Cmd.cycle-back">Previous running character of group {0}</sys:String>
+    <sys:String x:Key="L.Cmd.profile">Switch to profile {0}</sys:String>
+    <sys:String x:Key="L.Cmd.toggle-thumbnails">Hide or show all thumbnails</sys:String>
+    <sys:String x:Key="L.Cmd.focus-mode">Focus mode on or off</sys:String>
+    <sys:String x:Key="L.Cmd.cycle-all">Next client (all of them)</sys:String>
+    <sys:String x:Key="L.Cmd.cycle-all-back">Previous client (all of them)</sys:String>
+    <sys:String x:Key="L.Cmd.previous-client">Back to the previous client</sys:String>
+    <sys:String x:Key="L.Cmd.last-alert">Go to the last alert</sys:String>
+    <sys:String x:Key="L.Cmd.next-profile">Next profile</sys:String>
+    <sys:String x:Key="L.Cmd.previous-profile">Previous profile</sys:String>
+    <sys:String x:Key="L.Cmd.do-not-disturb">Do not disturb on or off</sys:String>
+    <sys:String x:Key="L.Help.app.general.buttons.Title">Buttons for Stream Deck and friends</sys:String>
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**Commands for buttons** writes the command line for each command, one per running character, group and profile as well as the fixed ones.&#x0A;&#x0A;- **Copy command line** puts it on the clipboard: paste it into Touch Portal's run action, an AutoHotkey Run, or a Windows shortcut's Target.&#x0A;- **Save as shortcut…** makes a Windows shortcut. Stream Deck's Open action cannot pass arguments, so point it at that shortcut (or use the Advanced Launcher plugin with the command line).&#x0A;- **Try it** sends the command to this MultiPreview the way a button would, and tells you what came of it. Trying hide or show toggles it.&#x0A;&#x0A;A name with a quotation mark, or ending in a backslash, has no command line. If a button does nothing, run **Try it** first: it tells you whether MultiPreview took the command.</sys:String>
 </ResourceDictionary>

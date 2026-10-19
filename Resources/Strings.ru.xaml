@@ -2552,4 +2552,36 @@
     <sys:String x:Key="L.Remap.Cancel">Отмена</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Skip">(пропустить)</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Slot">(место)</sys:String> <!-- draft -->
+    <!-- Ideas batch 11 (Plan 15) -->
+    <sys:String x:Key="L.S.app.general.buttons">Команды для кнопок</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.buttons.Desc">Выберите команду и скопируйте её командную строку для кнопки Stream Deck, Touch Portal или AutoHotkey либо сохраните её как ярлык Windows. «Попробовать» отправляет её в этот MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Pick">Команда</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copy">Копировать командную строку</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Shortcut">Сохранить как ярлык…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.TryIt">Попробовать</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copied">Скопировано.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.CopyFailed">Windows не позволила MultiPreview использовать буфер обмена. Повторите попытку.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Saved">Ярлык сохранён.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.SaveFailed">Не удалось сохранить ярлык в это место.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.NoProgram">MultiPreview не знает, где он установлен, поэтому не может записывать командные строки.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Done">Готово.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview не принял эту команду.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotFound">Ничего с таким именем не запущено и не сохранено.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachable">Нет ответа. Проверьте, что включено «Принимать команды от других программ».</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">Нет ответа. MultiPreview запущен от имени администратора: см. справку по этой карточке.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus">Вывести {0} на передний план</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle">Следующий запущенный персонаж группы {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-back">Предыдущий запущенный персонаж группы {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.profile">Переключиться на профиль {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.toggle-thumbnails">Скрыть или показать все миниатюры</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus-mode">Включить или выключить режим фокуса</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all">Следующий клиент (из всех)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all-back">Предыдущий клиент (из всех)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-client">Назад к предыдущему клиенту</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.last-alert">Перейти к последнему оповещению</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.next-profile">Следующий профиль</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-profile">Предыдущий профиль</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.do-not-disturb">Не беспокоить: включить или выключить</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Title">Кнопки для Stream Deck и подобных</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**Команды для кнопок** записывают командную строку для каждой команды: по одной для каждого запущенного персонажа, группы и профиля, а также для постоянных команд.&#x0A;&#x0A;- **Копировать командную строку** помещает её в буфер обмена: вставьте её в действие запуска Touch Portal, в Run AutoHotkey или в поле «Объект» ярлыка Windows.&#x0A;- **Сохранить как ярлык…** создаёт ярлык Windows. Действие «Открыть» в Stream Deck не умеет передавать аргументы, поэтому направьте его на этот ярлык (или используйте плагин Advanced Launcher с командной строкой).&#x0A;- **Попробовать** отправляет команду в этот MultiPreview так, как это сделала бы кнопка, и сообщает, что из этого вышло. Если пробовать «скрыть или показать», состояние переключится.&#x0A;&#x0A;У имени с кавычкой или с обратной косой чертой в конце нет командной строки. Если кнопка ничего не делает, сначала нажмите **Попробовать**: так вы узнаете, принял ли MultiPreview команду.</sys:String> <!-- draft -->
 </ResourceDictionary>

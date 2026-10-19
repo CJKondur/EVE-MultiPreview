@@ -2554,4 +2554,36 @@
     <sys:String x:Key="L.Remap.Cancel">Cancelar</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Skip">(omitir)</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Slot">(lugar)</sys:String> <!-- draft -->
+    <!-- Ideas batch 11 (Plan 15) -->
+    <sys:String x:Key="L.S.app.general.buttons">Comandos para botones</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.buttons.Desc">Elige un comando y copia su línea de comandos para un botón de Stream Deck, Touch Portal o AutoHotkey, o guárdalo como acceso directo de Windows. Probar lo envía a este MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Pick">Comando</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copy">Copiar línea de comandos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Shortcut">Guardar como acceso directo…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.TryIt">Probar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copied">Copiado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.CopyFailed">Windows no dejó que MultiPreview usara el portapapeles. Inténtalo de nuevo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Saved">Acceso directo guardado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.SaveFailed">No se pudo guardar el acceso directo ahí.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.NoProgram">MultiPreview no sabe dónde está instalado, así que no puede escribir líneas de comandos.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Done">Hecho.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview no aceptó ese comando.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotFound">No hay nada con ese nombre en ejecución ni guardado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachable">Sin respuesta. Comprueba que Aceptar comandos de otros programas esté activado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">Sin respuesta. MultiPreview se ejecuta como administrador: consulta la ayuda de esta tarjeta.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus">Traer {0} al frente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle">Siguiente personaje en ejecución del grupo {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-back">Personaje anterior en ejecución del grupo {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.profile">Cambiar al perfil {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.toggle-thumbnails">Ocultar o mostrar todas las miniaturas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus-mode">Activar o desactivar el modo enfoque</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all">Siguiente cliente (todos)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all-back">Cliente anterior (todos)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-client">Volver al cliente anterior</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.last-alert">Ir a la última alerta</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.next-profile">Perfil siguiente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-profile">Perfil anterior</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.do-not-disturb">No molestar: activar o desactivar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Title">Botones para Stream Deck y similares</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**Comandos para botones** escribe la línea de comandos de cada comando: una por cada personaje en ejecución, grupo y perfil, además de los fijos.&#x0A;&#x0A;- **Copiar línea de comandos** la pone en el portapapeles: pégala en la acción de ejecutar de Touch Portal, en un Run de AutoHotkey o en el Destino de un acceso directo de Windows.&#x0A;- **Guardar como acceso directo…** crea un acceso directo de Windows. La acción Abrir de Stream Deck no puede pasar argumentos, así que apúntala a ese acceso directo (o usa el plugin Advanced Launcher con la línea de comandos).&#x0A;- **Probar** envía el comando a este MultiPreview como lo haría un botón y te dice qué pasó. Al probar ocultar o mostrar, se alterna.&#x0A;&#x0A;Un nombre con comillas, o que termina en una barra invertida, no tiene línea de comandos. Si un botón no hace nada, usa primero **Probar**: te dice si MultiPreview aceptó el comando.</sys:String> <!-- draft -->
 </ResourceDictionary>

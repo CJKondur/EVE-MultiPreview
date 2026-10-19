@@ -2550,4 +2550,36 @@
     <sys:String x:Key="L.Remap.Cancel">取消</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Skip">（跳过）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Slot">（位置）</sys:String> <!-- draft -->
+    <!-- Ideas batch 11 (Plan 15) -->
+    <sys:String x:Key="L.S.app.general.buttons">按钮命令</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.buttons.Desc">选择一条命令，然后复制它的命令行，用于 Stream Deck、Touch Portal 或 AutoHotkey 按钮，或者保存为 Windows 快捷方式。“试一下”会把它发送到这个 MultiPreview。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Pick">命令</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copy">复制命令行</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Shortcut">另存为快捷方式…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.TryIt">试一下</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copied">已复制。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.CopyFailed">Windows 没有让 MultiPreview 使用剪贴板。请再试一次。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Saved">快捷方式已保存。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.SaveFailed">无法把快捷方式保存到那里。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.NoProgram">MultiPreview 不知道自己安装在哪里，所以无法写出命令行。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Done">完成。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview 没有接受这条命令。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotFound">没有同名的正在运行或已保存的项目。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachable">没有回应。请检查“接受其他程序的命令”是否已开启。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">没有回应。MultiPreview 以管理员身份运行：请参见此卡片的帮助。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus">把 {0} 带到最前面</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle">分组 {0} 中下一个正在运行的角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-back">分组 {0} 中上一个正在运行的角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.profile">切换到配置文件 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.toggle-thumbnails">隐藏或显示所有缩略图</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus-mode">开启或关闭专注模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all">下一个客户端（全部）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all-back">上一个客户端（全部）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-client">回到上一个客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.last-alert">跳到最新的警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.next-profile">下一个配置文件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-profile">上一个配置文件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.do-not-disturb">勿扰模式开关</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Title">用于 Stream Deck 等的按钮</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**按钮命令** 会为每条命令写出命令行：每个正在运行的角色、分组和配置文件各一条，另外还有固定的命令。&#x0A;&#x0A;- **复制命令行** 把它放到剪贴板：粘贴到 Touch Portal 的运行动作、AutoHotkey 的 Run，或 Windows 快捷方式的“目标”里。&#x0A;- **另存为快捷方式…** 会创建一个 Windows 快捷方式。Stream Deck 的“打开”动作不能传递参数，所以请让它指向这个快捷方式（或使用 Advanced Launcher 插件，配合命令行）。&#x0A;- **试一下** 会像按钮那样把命令发送到这个 MultiPreview，并告诉你结果。试“隐藏或显示”会切换一次。&#x0A;&#x0A;名称里带引号，或以反斜杠结尾，就没有命令行。如果某个按钮没有反应，先点 **试一下**：它会告诉你 MultiPreview 有没有接受这条命令。</sys:String> <!-- draft -->
 </ResourceDictionary>

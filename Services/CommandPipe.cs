@@ -33,6 +33,14 @@ public static class CommandPipe
         return (user, identity.Owner ?? user);
     }
 
+    /// <summary>True when this process runs elevated (its token's owner is not the account): the pipe is then closed to the
+    /// account's non-elevated programs, so a button's program may get no answer.</summary>
+    public static bool IsElevated()
+    {
+        var (user, owner) = CurrentAccount();
+        return owner != user;
+    }
+
     public static string CurrentName() => Name(CurrentAccount().User.Value, SessionOfThisProcess());
 
     public static PipeSecurity Security(SecurityIdentifier user, SecurityIdentifier owner)

@@ -2550,4 +2550,36 @@
     <sys:String x:Key="L.Remap.Cancel">Annulla</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Skip">(salta)</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Slot">(posto)</sys:String> <!-- draft -->
+    <!-- Ideas batch 11 (Plan 15) -->
+    <sys:String x:Key="L.S.app.general.buttons">Comandi per i pulsanti</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.buttons.Desc">Scegli un comando, poi copia la sua riga di comando per un pulsante di Stream Deck, Touch Portal o AutoHotkey, oppure salvalo come collegamento di Windows. Prova invia il comando a questo MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Pick">Comando</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copy">Copia riga di comando</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Shortcut">Salva come collegamento…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.TryIt">Prova</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copied">Copiato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.CopyFailed">Windows non ha lasciato usare gli appunti a MultiPreview. Riprova.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Saved">Collegamento salvato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.SaveFailed">Non è stato possibile salvare il collegamento lì.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.NoProgram">MultiPreview non sa dove è installato, quindi non può scrivere righe di comando.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Done">Fatto.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview non ha accettato quel comando.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotFound">Nessun elemento con quel nome è in esecuzione o salvato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachable">Nessuna risposta. Controlla che Accetta comandi da altri programmi sia attivo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">Nessuna risposta. MultiPreview è in esecuzione come amministratore: vedi la guida di questa scheda.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus">Porta {0} in primo piano</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle">Prossimo personaggio in esecuzione del gruppo {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-back">Personaggio precedente in esecuzione del gruppo {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.profile">Passa al profilo {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.toggle-thumbnails">Nascondi o mostra tutte le miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus-mode">Attiva o disattiva la modalità focus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all">Client successivo (tutti)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all-back">Client precedente (tutti)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-client">Torna al client precedente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.last-alert">Vai all'ultimo avviso</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.next-profile">Profilo successivo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-profile">Profilo precedente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.do-not-disturb">Non disturbare: attiva o disattiva</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Title">Pulsanti per Stream Deck e simili</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**Comandi per i pulsanti** scrive la riga di comando di ogni comando: una per ogni personaggio in esecuzione, gruppo e profilo, oltre a quelli fissi.&#x0A;&#x0A;- **Copia riga di comando** la mette negli appunti: incollala nell'azione di esecuzione di Touch Portal, in un Run di AutoHotkey o nella Destinazione di un collegamento di Windows.&#x0A;- **Salva come collegamento…** crea un collegamento di Windows. L'azione Apri di Stream Deck non può passare argomenti, quindi puntala a quel collegamento (oppure usa il plugin Advanced Launcher con la riga di comando).&#x0A;- **Prova** invia il comando a questo MultiPreview come farebbe un pulsante e ti dice com'è andata. Provando nascondi o mostra, lo alterni.&#x0A;&#x0A;Un nome con le virgolette, o che finisce con una barra rovesciata, non ha riga di comando. Se un pulsante non fa nulla, usa prima **Prova**: ti dice se MultiPreview ha accettato il comando.</sys:String> <!-- draft -->
 </ResourceDictionary>

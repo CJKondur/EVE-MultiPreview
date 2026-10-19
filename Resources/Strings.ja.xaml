@@ -2533,4 +2533,36 @@
     <sys:String x:Key="L.Remap.Cancel">キャンセル</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Skip">（スキップ）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.Slot">（場所）</sys:String> <!-- draft -->
+    <!-- Ideas batch 11 (Plan 15) -->
+    <sys:String x:Key="L.S.app.general.buttons">ボタン用のコマンド</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.buttons.Desc">コマンドを選んで、そのコマンドラインを Stream Deck、Touch Portal、AutoHotkey のボタン用にコピーするか、Windows のショートカットとして保存します。「試す」は、この MultiPreview にコマンドを送ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Pick">コマンド</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copy">コマンドラインをコピー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Shortcut">ショートカットとして保存…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.TryIt">試す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Copied">コピーしました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.CopyFailed">Windows が MultiPreview にクリップボードを使わせませんでした。もう一度お試しください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Saved">ショートカットを保存しました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.SaveFailed">ショートカットをその場所に保存できませんでした。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.NoProgram">MultiPreview は自分がどこにインストールされているか分からないため、コマンドラインを書き出せません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Done">完了しました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.Refused">MultiPreview はそのコマンドを受け付けませんでした。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotFound">その名前のものは、実行中でも保存済みでもありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachable">応答がありません。「ほかのプログラムからのコマンドを受け付ける」がオンになっているか確認してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">応答がありません。MultiPreview は管理者として実行されています。このカードのヘルプをご覧ください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus">{0} を最前面に出す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle">グループ {0} の次の実行中キャラクター</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-back">グループ {0} の前の実行中キャラクター</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.profile">プロファイル {0} に切り替える</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.toggle-thumbnails">すべてのサムネイルを隠す／表示する</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.focus-mode">フォーカスモードのオン／オフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all">次のクライアント（すべて）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.cycle-all-back">前のクライアント（すべて）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-client">前のクライアントに戻る</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.last-alert">最新のアラートへ移動</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.next-profile">次のプロファイル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.previous-profile">前のプロファイル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.do-not-disturb">おやすみモードのオン／オフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Title">Stream Deck などのためのボタン</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**ボタン用のコマンド**は、コマンドごとにコマンドラインを書き出します。実行中のキャラクター、グループ、プロファイルごとに1つずつと、固定のコマンドです。&#x0A;&#x0A;- **コマンドラインをコピー**は、コマンドラインをクリップボードに入れます。Touch Portal の実行アクション、AutoHotkey の Run、Windows のショートカットのリンク先に貼り付けてください。&#x0A;- **ショートカットとして保存…**は、Windows のショートカットを作ります。Stream Deck の「開く」アクションは引数を渡せないので、このショートカットを指定してください（または Advanced Launcher プラグインでコマンドラインを使ってください）。&#x0A;- **試す**は、ボタンと同じ方法でコマンドをこの MultiPreview に送り、結果を知らせます。「隠す／表示する」を試すと切り替わります。&#x0A;&#x0A;引用符を含む名前や、末尾がバックスラッシュの名前には、コマンドラインがありません。ボタンが何もしないときは、まず**試す**を実行してください。MultiPreview がコマンドを受け付けたかどうかが分かります。</sys:String> <!-- draft -->
 </ResourceDictionary>

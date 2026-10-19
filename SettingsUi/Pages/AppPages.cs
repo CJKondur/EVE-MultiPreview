@@ -22,6 +22,7 @@ public static class AppPages
         new HelpTopic("app.general", "keepAwake", new[] { "app.general.keepAwake" }),
         new HelpTopic("app.general", "downtime", new[] { "app.general.downtime" }),
         new HelpTopic("app.general", "commands", new[] { "app.general.acceptCommands" }),
+        new HelpTopic("app.general", "buttons", new[] { CommandButtonsEditor.ItemId }),
         new HelpTopic(LookId, "look", new[] { LookGallery.ItemId }),
         new HelpTopic(LookId, "contrast", new[] { "app.look.followContrast" }),
         new HelpTopic("app.diagnostics", "logs", new[]
@@ -81,6 +82,8 @@ public static class AppPages
         new SectionDef("app.general.control", new PageItem[]
         {
             new SettingItem(Setting.Toggle("app.general.acceptCommands", s => s.AcceptCommands)),
+            // IDEAS #15: writes no setting; it lists the commands a button can run and copies, saves or tries one.
+            new EditorItem(CommandButtonsEditor.ItemId, ctx => new CommandButtonsEditor(ctx)) { ShowIf = s => s.AcceptCommands },
         }),
     });
 
