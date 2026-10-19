@@ -1309,7 +1309,7 @@
     <sys:String x:Key="L.S.thumbs.appearance.background.Desc">Fills a thumbnail where there is no picture.</sys:String>
     <sys:String x:Key="L.Help.thumbs.appearance.Intro">How every thumbnail looks: its size, how much of the game shows through it, the zoom under the mouse and the colour behind the picture. A character can also have its own size, set on its page.</sys:String>
     <sys:String x:Key="L.Help.thumbs.appearance.size.Title">Sizing thumbnails</sys:String>
-    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**Resize every thumbnail** gives all of them the same exact size at once, and new thumbnails start at it. Thumbnails stay where they are, and **Undo** (Layout &amp; screens) puts the old sizes back.&#x0A;&#x0A;To size by hand, hold the right mouse button on a thumbnail, press the left button too and drag. With **Resize thumbnails one at a time** off, every thumbnail follows; hold Ctrl to size just one.&#x0A;&#x0A;**Limit how small thumbnails get** sets the smallest size a drag can give. While it is off, that is 80 × 50.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**Resize every thumbnail** gives all of them the same exact size at once, and new thumbnails start at it. Thumbnails stay where they are, and **Undo** (Layout &amp; screens) puts the old sizes back.&#x0A;&#x0A;To size by hand, hold the right mouse button on a thumbnail, press the left button too and drag. With **Resize thumbnails one at a time** off, every thumbnail follows; hold Ctrl to size just one.&#x0A;&#x0A;**Limit how small thumbnails get** sets the smallest size a drag can give. While it is off, that is 80 × 50.&#x0A;&#x0A;**Keep the shape when resizing** applies when you resize with the mouse, and to every thumbnail when they all follow.</sys:String>
     <sys:String x:Key="L.Help.thumbs.appearance.look.Title">Opacity, zoom and background</sys:String>
     <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **Opacity** lets the game behind show through. **Solid under the mouse** makes a thumbnail opaque while you point at it.&#x0A;- **Zoom under the mouse** enlarges a thumbnail while the mouse rests on it, to the **Zoom size** you pick.&#x0A;- **Background colour** fills a thumbnail where there is no picture.</sys:String>
     <!-- Thumbnails Text and borders (Plan 3b) -->
@@ -2595,4 +2595,6 @@
     <sys:String x:Key="L.S.Profile.CompareDone">{0} value(s) taken from {1}.</sys:String>
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} entries</sys:String>
     <sys:String x:Key="L.S.Profile.ComparePositions">Window positions</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.lockAspect">Keep the shape when resizing</sys:String>
+    <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">Resizing a thumbnail with the mouse keeps its width-to-height ratio.</sys:String>
 </ResourceDictionary>

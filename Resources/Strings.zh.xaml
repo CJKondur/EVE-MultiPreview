@@ -1327,7 +1327,7 @@
     <sys:String x:Key="L.S.thumbs.appearance.background.Desc">在没有画面的地方填充缩略图。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.Intro">每个缩略图的外观：大小、透出多少游戏画面、鼠标下的缩放，以及画面后面的颜色。角色也可以有自己的大小，在其页面中设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.size.Title">缩略图大小</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**调整所有缩略图大小**可一次让所有缩略图变为完全相同的大小，新缩略图也以此大小开始。缩略图位置不变，**撤销**（布局 &amp; 屏幕）可恢复原来的大小。&#x0A;&#x0A;手动调整大小：在缩略图上按住鼠标右键，再按下左键并拖动。关闭**逐个调整缩略图大小**时，所有缩略图一起变化；按住 Ctrl 可只调整一个。&#x0A;&#x0A;**限制缩略图的最小尺寸**设定拖动调整时能得到的最小大小。关闭时为 80 × 50。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**调整所有缩略图大小**可一次让所有缩略图变为完全相同的大小，新缩略图也以此大小开始。缩略图位置不变，**撤销**（布局 &amp; 屏幕）可恢复原来的大小。&#x0A;&#x0A;手动调整大小：在缩略图上按住鼠标右键，再按下左键并拖动。关闭**逐个调整缩略图大小**时，所有缩略图一起变化；按住 Ctrl 可只调整一个。&#x0A;&#x0A;**限制缩略图的最小尺寸**设定拖动调整时能得到的最小大小。关闭时为 80 × 50。&#x0A;&#x0A;**调整大小时保持形状**适用于用鼠标调整大小，当所有缩略图一起调整时也适用于每一个缩略图。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Title">不透明度、缩放和背景</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **不透明度**让后面的游戏透出来。**鼠标悬停时不透明**会在你指向缩略图时使其不透明。&#x0A;- **鼠标下缩放**会在鼠标停留时放大缩略图，大小为你选择的**缩放大小**。&#x0A;- **背景颜色**在没有画面的地方填充缩略图。</sys:String> <!-- draft -->
     <!-- Thumbnails Text and borders (Plan 3b) -->
@@ -2613,4 +2613,6 @@
     <sys:String x:Key="L.S.Profile.CompareDone">已从“{1}”采用 {0} 个值。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} 项</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ComparePositions">窗口位置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.lockAspect">调整大小时保持形状</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">用鼠标调整缩略图大小时，保持其宽高比。</sys:String> <!-- draft -->
 </ResourceDictionary>

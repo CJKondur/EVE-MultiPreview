@@ -1310,7 +1310,7 @@
     <sys:String x:Key="L.S.thumbs.appearance.background.Desc">그림이 없는 부분을 썸네일에 채웁니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.Intro">각 썸네일의 모양: 크기, 게임이 얼마나 비치는지, 마우스 아래 확대, 그림 뒤의 색. 캐릭터마다 자체 크기를 가질 수도 있으며, 해당 페이지에서 설정합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.size.Title">썸네일 크기 조정</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**모든 썸네일 크기 조정**은 한 번에 모두 똑같은 크기로 만들고, 새 썸네일도 그 크기로 시작합니다. 썸네일은 제자리에 그대로 있고, **되돌리기**(레이아웃 &amp; 화면)로 이전 크기를 복원할 수 있습니다.&#x0A;&#x0A;직접 크기를 조정하려면 썸네일 위에서 마우스 오른쪽 버튼을 누른 채 왼쪽 버튼도 눌러 드래그하세요. **썸네일을 하나씩 크기 조정**이 꺼져 있으면 모두 따라가며, Ctrl을 누르면 하나만 조정됩니다.&#x0A;&#x0A;**썸네일 최소 크기 제한**은 드래그로 줄일 수 있는 가장 작은 크기를 정해요. 꺼져 있는 동안은 80 × 50이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**모든 썸네일 크기 조정**은 한 번에 모두 똑같은 크기로 만들고, 새 썸네일도 그 크기로 시작합니다. 썸네일은 제자리에 그대로 있고, **되돌리기**(레이아웃 &amp; 화면)로 이전 크기를 복원할 수 있습니다.&#x0A;&#x0A;직접 크기를 조정하려면 썸네일 위에서 마우스 오른쪽 버튼을 누른 채 왼쪽 버튼도 눌러 드래그하세요. **썸네일을 하나씩 크기 조정**이 꺼져 있으면 모두 따라가며, Ctrl을 누르면 하나만 조정됩니다.&#x0A;&#x0A;**썸네일 최소 크기 제한**은 드래그로 줄일 수 있는 가장 작은 크기를 정해요. 꺼져 있는 동안은 80 × 50이에요.&#x0A;&#x0A;**크기를 조정할 때 모양 유지**는 마우스로 크기를 조정할 때 적용되며, 모든 썸네일이 함께 바뀔 때는 모든 썸네일에 적용돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Title">불투명도, 확대, 배경</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **불투명도**는 뒤의 게임이 비쳐 보이게 합니다. **마우스 아래에서는 불투명**은 가리키는 동안 썸네일을 불투명하게 만듭니다.&#x0A;- **마우스 아래에서 확대**는 마우스가 올라가 있는 동안 썸네일을 선택한 **확대 크기**로 키웁니다.&#x0A;- **배경색**은 그림이 없는 부분을 썸네일에 채웁니다.</sys:String> <!-- draft -->
     <!-- Thumbnails Text and borders (Plan 3b) -->
@@ -2596,4 +2596,6 @@
     <sys:String x:Key="L.S.Profile.CompareDone">'{1}'에서 값 {0}개를 가져왔어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0}개 항목</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ComparePositions">창 위치</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.lockAspect">크기를 조정할 때 모양 유지</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">마우스로 썸네일 크기를 조정하면 가로세로 비율이 유지돼요.</sys:String> <!-- draft -->
 </ResourceDictionary>

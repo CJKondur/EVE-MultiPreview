@@ -1160,6 +1160,9 @@ public sealed class ThumbnailManager : IDisposable
         // Confine drags to the starting monitor (edge-snap feature).
         thumb.ConfineDragsToMonitor = s.ConfineDragsToMonitor;
 
+        // Keep a resized thumbnail's own shape (IDEAS P7).
+        thumb.LockResizeAspect = s.LockResizeAspect;
+
         // The smallest size a resize drag gives (IDEAS P26).
         var (floorW, floorH) = ResizeFloor(s);
         thumb.ResizeFloor = new System.Drawing.Size(floorW, floorH);

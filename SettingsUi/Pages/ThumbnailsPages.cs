@@ -23,7 +23,7 @@ public static class ThumbnailsPages
     {
         new HelpTopic(AppearanceId, "size", new[]
         {
-            "thumbs.appearance.resizeAll", "thumbs.appearance.individualResize", "thumbs.appearance.minSizeOn",
+            "thumbs.appearance.resizeAll", "thumbs.appearance.individualResize", "thumbs.appearance.lockAspect", "thumbs.appearance.minSizeOn",
             "thumbs.appearance.minWidth", "thumbs.appearance.minHeight",
         }),
         new HelpTopic(AppearanceId, "look", new[]
@@ -125,6 +125,8 @@ public static class ThumbnailsPages
             },
             // Read at each resize gesture: Save is enough.
             Toggle("thumbs.appearance.individualResize", s => s.IndividualThumbnailResize, ApplyScope.Save, "ChkIndividualResize"),
+            // IDEAS P7: ApplySettings hands every thumbnail the switch, so a re-apply makes it live.
+            Toggle("thumbs.appearance.lockAspect", s => s.LockResizeAspect, ApplyScope.Thumbnails),
             // The drag-resize floor (IDEAS P26). ApplySettings hands every thumbnail its floor, so a re-apply makes it live.
             Toggle("thumbs.appearance.minSizeOn", s => s.ThumbnailMinimumSizeEnabled, ApplyScope.Thumbnails),
             MinSize("thumbs.appearance.minWidth", s => s.ThumbnailMinimumSize.Width, "TxtMinWidth"),

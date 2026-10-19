@@ -144,9 +144,29 @@ public class ThumbnailWindow : Form
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public System.Drawing.Size ResizeFloor { get; set; } = new(80, 50);
 
-    /// <summary>The size a resize drag gives: the start size plus the mouse movement, never below the floor.</summary>
-    public static (int Width, int Height) ResizedTo(int startWidth, int startHeight, int dx, int dy, System.Drawing.Size floor) =>
-        (Math.Max(startWidth + dx, floor.Width), Math.Max(startHeight + dy, floor.Height));
+    /// <summary>Keep the dragged thumbnail's own width-to-height ratio while the mouse resizes it (IDEAS P7). Set by
+    /// ThumbnailManager from LockResizeAspect.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public bool LockResizeAspect { get; set; }
+
+    /// <summary>The size a resize drag gives: the start size plus the mouse movement, never below the floor. With a
+    /// <paramref name="ratio"/> (width / height, IDEAS P7) the width follows the mouse and the height follows the
+    /// ratio; a result under the floor on either side is scaled up, keeping the ratio, until both sides are at or
+    /// above it. A ratio that is not a positive finite number is none.</summary>
+    public static (int Width, int Height) ResizedTo(int startWidth, int startHeight, int dx, int dy, System.Drawing.Size floor, double? ratio = null)
+    {
+        if (ratio is not { } r || !double.IsFinite(r) || r <= 0)
+            return (Math.Max(startWidth + dx, floor.Width), Math.Max(startHeight + dy, floor.Height));
+        double w = Math.Max((double)startWidth + dx, 1), h = w / r;
+        double scale = Math.Max(1, Math.Max(floor.Width / w, floor.Height / Math.Max(h, double.Epsilon)));
+        const int Limit = short.MaxValue;     // Win32's own size limit; also keeps an absurd ratio from overflowing
+        return ((int)Math.Min(Math.Max(Math.Round(w * scale), floor.Width), Limit),
+                (int)Math.Min(Math.Max(Math.Round(h * scale), floor.Height), Limit));
+    }
+
+    /// <summary>The ratio (width / height) of a start size, or null for a size that has none (not positive or not finite).</summary>
+    public static double? RatioOf(double w, double h) =>
+        w > 0 && h > 0 && double.IsFinite(w) && double.IsFinite(h) && double.IsFinite(w / h) && w / h > 0 ? w / h : null;
 
     /// <summary>Current per-client audio volume (0-100) for the right-click slider.
     /// Set by ThumbnailManager from the saved per-client volume.</summary>
@@ -935,7 +955,8 @@ public class ThumbnailWindow : Form
             int dx = mouse.X - _dragStartScreen.X;
             int dy = mouse.Y - _dragStartScreen.Y;
 
-            var (newW, newH) = ResizedTo(_resizeStartWidth, _resizeStartHeight, dx, dy, ResizeFloor);
+            var (newW, newH) = ResizedTo(_resizeStartWidth, _resizeStartHeight, dx, dy, ResizeFloor,
+                LockResizeAspect ? RatioOf(_resizeStartWidth, _resizeStartHeight) : null);
 
             base.Width = newW;
             base.Height = newH;

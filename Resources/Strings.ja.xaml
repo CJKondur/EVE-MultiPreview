@@ -1310,7 +1310,7 @@
     <sys:String x:Key="L.S.thumbs.appearance.background.Desc">画像がない部分をサムネイルで塗りつぶします。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.Intro">各サムネイルの見た目: サイズ、ゲームがどれだけ透けるか、マウスの下でのズーム、画像の後ろの色。キャラクターごとに専用のサイズを持たせることもでき、そのページで設定します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.size.Title">サムネイルのサイズ</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**すべてのサムネイルをリサイズ**は、全部を一度にまったく同じサイズにし、新しいサムネイルもそのサイズで始まります。サムネイルの位置は変わらず、**元に戻す**（レイアウト &amp; 画面）で以前のサイズに戻せます。&#x0A;&#x0A;手動でリサイズするには、サムネイル上で右ボタンを押したまま左ボタンも押してドラッグします。**サムネイルを1つずつリサイズ**がオフなら全部が追従し、Ctrl を押すと1つだけリサイズできます。&#x0A;&#x0A;**サムネイルの最小サイズを制限**は、ドラッグで得られる最小のサイズを決めます。オフの間は 80 × 50 です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.appearance.size.Body">**すべてのサムネイルをリサイズ**は、全部を一度にまったく同じサイズにし、新しいサムネイルもそのサイズで始まります。サムネイルの位置は変わらず、**元に戻す**（レイアウト &amp; 画面）で以前のサイズに戻せます。&#x0A;&#x0A;手動でリサイズするには、サムネイル上で右ボタンを押したまま左ボタンも押してドラッグします。**サムネイルを1つずつリサイズ**がオフなら全部が追従し、Ctrl を押すと1つだけリサイズできます。&#x0A;&#x0A;**サムネイルの最小サイズを制限**は、ドラッグで得られる最小のサイズを決めます。オフの間は 80 × 50 です。&#x0A;&#x0A;**リサイズ時に形を保つ**は、マウスでのリサイズに適用され、すべてが連動するときはすべてのサムネイルにも適用されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Title">不透明度、ズーム、背景</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.appearance.look.Body">- **不透明度**で後ろのゲームを透かせます。**マウスの下では不透明**は、ポイントしている間サムネイルを不透明にします。&#x0A;- **マウスの下でズーム**は、マウスが乗っている間サムネイルを選んだ**ズームサイズ**まで拡大します。&#x0A;- **背景色**は、画像がない部分をサムネイルで塗りつぶします。</sys:String> <!-- draft -->
     <!-- Thumbnails Text and borders (Plan 3b) -->
@@ -2596,4 +2596,6 @@
     <sys:String x:Key="L.S.Profile.CompareDone">「{1}」から {0} 件の値を取り込みました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} 件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ComparePositions">ウィンドウの位置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.lockAspect">リサイズ時に形を保つ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">マウスでサムネイルをリサイズすると、幅と高さの比率が保たれます。</sys:String> <!-- draft -->
 </ResourceDictionary>

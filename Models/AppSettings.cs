@@ -27,6 +27,9 @@ public class AppSettings
     // already taken by drag-all, so this is a setting rather than a modifier).
     public bool ConfineDragsToMonitor { get; set; } = false;
     public bool IndividualThumbnailResize { get; set; } = false;
+    /// <summary>Keep the dragged thumbnail's own width-to-height ratio while the mouse resizes it (IDEAS P7).
+    /// New key: off in a file without it.</summary>
+    public bool LockResizeAspect { get; set; } = false;
     public bool LockPositions { get; set; } = false;
     public int PreferredMonitor { get; set; } = 1;
     public string ThumbnailBackgroundColor { get; set; } = "#57504E";

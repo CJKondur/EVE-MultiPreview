@@ -75,6 +75,7 @@ public class AhkConfigRoot
         s.LockPositions = g.LockPositions != 0;
         s.HideActiveThumbnail = g.HideActiveThumbnail != 0;
         s.IndividualThumbnailResize = g.IndividualThumbnailResize != 0;
+        s.LockResizeAspect = g.LockResizeAspect != 0;
         s.ResizeThumbnailsOnHover = g.ResizeThumbnailsOnHover != 0;
         s.HoverScale = UsableHoverScale(g.HoverScale);
         s.CycleDelayMs = g.CycleDelayMs;
@@ -434,6 +435,7 @@ public class AhkConfigRoot
         g.LockPositions = s.LockPositions ? 1 : 0;
         g.HideActiveThumbnail = s.HideActiveThumbnail ? 1 : 0;
         g.IndividualThumbnailResize = s.IndividualThumbnailResize ? 1 : 0;
+        g.LockResizeAspect = s.LockResizeAspect ? 1 : 0;
         g.ResizeThumbnailsOnHover = s.ResizeThumbnailsOnHover ? 1 : 0;
         g.HoverScale = UsableHoverScale(s.HoverScale);
         g.CycleDelayMs = s.CycleDelayMs;
@@ -1200,6 +1202,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("IndividualThumbnailResize")]
     public int IndividualThumbnailResize { get; set; }
+
+    // Keep a thumbnail's shape while the mouse resizes it (IDEAS P7), new after 2.3.42: a file without it loads off.
+    [JsonPropertyName("LockResizeAspect")]
+    public int LockResizeAspect { get; set; }
 
     // Hover zoom and its size were live-only until the settings rework; a file without them loads off and 1.5.
     [JsonPropertyName("ResizeThumbnailsOnHover")]
