@@ -1501,7 +1501,7 @@ public partial class App : Application
                 CycleGroup = (name, forward) =>
                 {
                     var group = FocusMode.Groups(settings.Settings).FirstOrDefault(g => g.Name == name);
-                    if (group.Members != null) thumbnails.CycleGroup(name, group.Members.ToList(), forward);
+                    if (group.Members != null) thumbnails.CycleGroup(forward ? "remote_fwd" : "remote_bwd", group.Members.ToList(), forward);
                 },
                 CycleAll = forward => thumbnails.CycleAll(forward),
                 PreviousClient = () => thumbnails.SwitchToPreviousClient(),
@@ -1517,7 +1517,7 @@ public partial class App : Application
         }
     }
 
-    private const string CommandsOffEnglish = "EVE MultiPreview is already running but did not take the command. Turn on Take commands from other programs under App settings › General. If it is on, run this program the same way as MultiPreview (both as administrator or neither), or try again once MultiPreview has finished starting.";
+    private const string CommandsOffEnglish = "EVE MultiPreview is already running but did not take the command. Turn on Take commands from other programs under App settings › General. If MultiPreview runs as administrator, turn on Also take commands from programs that are not run as administrator there, or run this program as administrator too. Otherwise try again once MultiPreview has finished starting.";
 
     /// <summary>IDEAS #39, a second start whose command nothing took: the running MultiPreview does not take commands, runs as
     /// another kind of user (one elevated, one not) or is still starting; the text names all three. Said in Windows' language:

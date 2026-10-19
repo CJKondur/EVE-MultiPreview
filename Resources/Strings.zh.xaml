@@ -2567,6 +2567,7 @@
     <sys:String x:Key="L.S.Cmd.Result.NotFound">没有同名的正在运行或已保存的项目。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Result.NotReachable">没有回应。请检查“接受其他程序的命令”是否已开启。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Result.NotReachableElevated">没有回应。MultiPreview 以管理员身份运行：请参见“来自其他程序的命令”的帮助。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.Result.DoneElevated">这里已完成。MultiPreview 以管理员身份运行，所以不以管理员身份运行的程序得不到回应：请参见“来自其他程序的命令”的帮助。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.focus">把 {0} 带到最前面</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.cycle">分组 {0} 中下一个正在运行的角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.cycle-back">分组 {0} 中上一个正在运行的角色</sys:String> <!-- draft -->
@@ -2581,7 +2582,7 @@
     <sys:String x:Key="L.Cmd.previous-profile">上一个配置文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.do-not-disturb">勿扰模式开关</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.buttons.Title">用于 Stream Deck 等的按钮</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.general.buttons.Body">**按钮命令** 会为每条命令写出命令行：每个正在运行的角色、分组和配置文件各一条，另外还有固定的命令。&#x0A;&#x0A;- **复制命令行** 把它放到剪贴板：粘贴到 Touch Portal 的运行动作、AutoHotkey 的 Run，或 Windows 快捷方式的“目标”里。&#x0A;- **另存为快捷方式…** 会创建一个 Windows 快捷方式。Stream Deck 的“打开”动作不能传递参数，所以请让它指向这个快捷方式（或使用 Advanced Launcher 插件，配合命令行）。&#x0A;- **试一下** 会像按钮那样把命令发送到这个 MultiPreview，并告诉你结果。试“隐藏或显示”会切换一次。&#x0A;&#x0A;名称里带引号，或以反斜杠结尾，就没有命令行。如果某个按钮没有反应，先点 **试一下**：它会告诉你 MultiPreview 有没有接受这条命令。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**按钮命令** 会为每条命令写出命令行：每个正在运行的角色、分组和配置文件各一条，另外还有固定的命令。&#x0A;&#x0A;- **复制命令行** 把它放到剪贴板：粘贴到 Touch Portal 的运行动作、AutoHotkey 的 Run，或 Windows 快捷方式的“目标”里。&#x0A;- **另存为快捷方式…** 会创建一个 Windows 快捷方式。Stream Deck 的“打开”动作不能传递参数，所以请让它指向这个快捷方式（或使用 Advanced Launcher 插件，配合命令行）。&#x0A;- **试一下** 会像按钮那样把命令发送到这个 MultiPreview，并告诉你结果。试“隐藏或显示”会切换一次。&#x0A;&#x0A;名称里带引号，或以反斜杠结尾，就没有命令行。如果某个按钮没有反应，先点 **试一下**：它会告诉你 MultiPreview 有没有接受这条命令。当 MultiPreview 以管理员身份运行时，**试一下** 无法显示不以管理员身份运行的程序发来的命令能否送达（参见“来自其他程序的命令”）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated">也接受不以管理员身份运行的程序发来的命令</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated.Desc">仅在 MultiPreview 以管理员身份运行时才有意义。这样你的其他程序（Stream Deck、脚本）无需也以管理员身份运行，就能发送命令。此后你的 Windows 账户下任何普通程序都可以切换你的客户端和配置文件，但仍然无法指定文件或运行任何东西。默认关闭。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Title">当 MultiPreview 以管理员身份运行时</sys:String> <!-- draft -->

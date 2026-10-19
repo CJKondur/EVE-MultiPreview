@@ -22,6 +22,7 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     private readonly Func<string, bool> _copy;
     private readonly Func<string, string, string, bool> _saveShortcut;
     private readonly Func<RemoteCommand, Task<RemoteOutcome>> _send;
+    private readonly Func<bool> _elevated;
     private readonly ComboBox _pick = new() { MinWidth = 360 };
     private readonly TextBox _line = new() { IsReadOnly = true, MinWidth = 360 };
     private readonly UIElement _noProgram = EditorCard.Note("L.S.Cmd.NoProgram");
@@ -34,14 +35,16 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     {
     }
 
+    /// <param name="elevated">Whether this MultiPreview runs as administrator; the real answer unless a test hands one in.</param>
     public CommandButtonsEditor(SettingsContext ctx, Func<string?> exePath, Func<string, bool> copy,
-        Func<string, string, string, bool> saveShortcut, Func<RemoteCommand, Task<RemoteOutcome>> send)
+        Func<string, string, string, bool> saveShortcut, Func<RemoteCommand, Task<RemoteOutcome>> send, Func<bool>? elevated = null)
     {
         _ctx = ctx;
         _exePath = exePath;
         _copy = copy;
         _saveShortcut = saveShortcut;
         _send = send;
+        _elevated = elevated ?? CommandPipe.IsElevated;
         _pick.SelectionChanged += (_, _) => _line.Text = Line;
         EditorCard.NameFrom(_line, "L.S." + ItemId);
         _controls.Children.Add(EditorCard.Field("L.S.Cmd.Pick", _pick));
@@ -101,23 +104,27 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     }
 
     /// <summary>Sends the picked command to this MultiPreview as a button would and says what came of it. Awaits the
-    /// answer, so the window's thread is free meanwhile; a send that throws is "no answer".</summary>
+    /// answer, so the window's thread is free meanwhile; a send that throws is "no answer". This send comes from an
+    /// elevated process when MultiPreview is elevated, which the pipe lets in: so while the pipe is closed to ordinary
+    /// programs (elevated, second switch off) even "Done" says that a button's program may still get no answer.</summary>
     public async Task TryIt()
     {
         if (Selected is not { } choice) return;
         RemoteOutcome outcome;
         try { outcome = await _send(choice.Command); }
         catch (Exception) { outcome = RemoteOutcome.NotReachable; }
-        _ctx.Host.Toast(SettingsContext.Str(ResultKey(outcome, CommandPipe.IsElevated())));
+        bool closedToOrdinary = _elevated() && !_ctx.S.AcceptCommandsUnelevated;
+        _ctx.Host.Toast(SettingsContext.Str(ResultKey(outcome, closedToOrdinary)));
     }
 
-    /// <summary>The sentence key for an outcome. A missing answer from an elevated MultiPreview says why, the only one that does.</summary>
-    public static string ResultKey(RemoteOutcome outcome, bool elevated) => outcome switch
+    /// <summary>The sentence key for an outcome. While the pipe is closed to ordinary programs (MultiPreview elevated and
+    /// the second switch off), "Done" and "no answer" each say so: a button's program is not this process.</summary>
+    public static string ResultKey(RemoteOutcome outcome, bool closedToOrdinary) => outcome switch
     {
-        RemoteOutcome.Done => "L.S.Cmd.Result.Done",
+        RemoteOutcome.Done => closedToOrdinary ? "L.S.Cmd.Result.DoneElevated" : "L.S.Cmd.Result.Done",
         RemoteOutcome.Refused => "L.S.Cmd.Result.Refused",
         RemoteOutcome.NotFound => "L.S.Cmd.Result.NotFound",
-        _ => elevated ? "L.S.Cmd.Result.NotReachableElevated" : "L.S.Cmd.Result.NotReachable",
+        _ => closedToOrdinary ? "L.S.Cmd.Result.NotReachableElevated" : "L.S.Cmd.Result.NotReachable",
     };
 
     /// <summary>The list's text for a command: its label with the name in it, in the window's language.</summary>
