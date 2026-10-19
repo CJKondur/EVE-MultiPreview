@@ -1325,7 +1325,8 @@ public sealed class LogMonitorService : IDisposable
 
     /// <summary>Game logs written within this long count as a running client's.</summary>
     public static readonly TimeSpan GameLogWindow = TimeSpan.FromMinutes(30);
-    /// <summary>The most game logs and Local chat logs one scan takes on.</summary>
+    /// <summary>The most game logs and Local chat logs one scan takes on; the Local figure is a floor (the newest 12 are
+    /// always taken, the window can add more up to the game figure).</summary>
     public const int GameLogsTaken = 50, LocalLogsTaken = 12;
 
     /// <summary>The game logs a scan takes on: the folder's *.txt files written in the last 30 minutes, newest first, at
@@ -1342,17 +1343,22 @@ public sealed class LogMonitorService : IDisposable
     }
 
     /// <summary>The Local chat logs a scan takes on (for the system each character is in): the folder's files named
-    /// Local_‹yyyymmdd›_‹hhmmss›.txt, with or without _‹character id› before the ".txt", newest first, at most 12, as
-    /// full paths. The log of another channel whose name merely begins with "Local_" (a player-made "Local_Intel") is
-    /// not one: read as Local, a "Channel changed to Local" line in it moved the character's system. The names are
-    /// looked at newest first and only until twelve are found.</summary>
-    public static IReadOnlyList<string> NewestLocalLogs(string folder, DateTime now) =>
-        LogTimes(folder, "Local_*.txt", now)
+    /// Local_‹yyyymmdd›_‹hhmmss›.txt, with or without _‹character id› before the ".txt", newest first, as full paths:
+    /// the 12 newest however old (a day-old session still has its logs read), plus every other one written in the last
+    /// 30 minutes (a client per character: with more than twelve logged in, twelve would leave some unread), at most
+    /// 50 in all. The log of another channel whose name merely begins with "Local_" (a player-made "Local_Intel") is
+    /// not one: read as Local, a "Channel changed to Local" line in it moved the character's system.</summary>
+    public static IReadOnlyList<string> NewestLocalLogs(string folder, DateTime now)
+    {
+        var cutoff = now - GameLogWindow;
+        return LogTimes(folder, "Local_*.txt", now)
             .OrderByDescending(x => x.Written)
             .Where(x => ChannelLogOwner(Path.GetFileName(x.Path), LocalChannel) != null)
-            .Take(LocalLogsTaken)
+            .Where((x, rank) => rank < LocalLogsTaken || x.Written >= cutoff)
+            .Take(GameLogsTaken)
             .Select(x => x.Path)
             .ToList();
+    }
 
     /// <summary>A log with a sign of life this recent (created, or listed as written) may still be open in a client.</summary>
     public static readonly TimeSpan OpenLogLookback = TimeSpan.FromDays(7);
