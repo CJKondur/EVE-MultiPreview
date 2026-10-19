@@ -58,10 +58,10 @@ public static class ShareCode
     public static string? Layout(LayoutPreset preset)
     {
         if (preset.Slots.Count is 0 or > MaxSlots) return null;
-        var name = PlainText.OneLine(preset.Name, MaxNameLength).Trim();
+        var name = SafeName(preset.Name);
         var code = new LayoutCode
         {
-            Name = CleanName(name) ?? "Layout",
+            Name = name.Length > 0 ? name : "Layout",
             Slots = preset.Slots.Select(s => new SlotCode
             {
                 Character = CleanName(PlainText.OneLine(s.Character, MaxNameLength).Trim()) ?? "",
@@ -87,14 +87,19 @@ public static class ShareCode
         var preset = new LayoutPreset { Name = code.Name, IncludesVisibility = false, CropsEnabled = false };
         foreach (var slot in code.Slots)
         {
-            if (slot?.Character == null || (slot.Character.Length > 0 && CleanName(slot.Character) != slot.Character)
-                || slot.Monitor is < 0 or > MaxMonitor
-                || !Within(slot.X, -1, 2) || !Within(slot.Y, -1, 2) || !(slot.W > 0 && slot.W <= 2) || !(slot.H > 0 && slot.H <= 2))
-                return new(null, Damaged);
+            if (slot == null || !ValidSlot(slot.Character, slot.Monitor, slot.X, slot.Y, slot.W, slot.H)) return new(null, Damaged);
             preset.Slots.Add(new LayoutSlot { Character = slot.Character, Monitor = slot.Monitor, Fx = slot.X, Fy = slot.Y, Fw = slot.W, Fh = slot.H });
         }
         return new(preset, "");
     }
+
+    /// <summary>The rule a place must pass, in a code or a layout file: a character that is empty or passes
+    /// <see cref="CleanName"/>, a monitor 0 to 15, a position from -1 to 2 and a size above 0 up to 2 (shares of the work
+    /// area; NaN passes none of them).</summary>
+    public static bool ValidSlot(string? character, int monitor, double x, double y, double w, double h) =>
+        character != null && (character.Length == 0 || CleanName(character) == character)
+        && monitor is >= 0 and <= MaxMonitor
+        && Within(x, -1, 2) && Within(y, -1, 2) && w > 0 && w <= 2 && h > 0 && h <= 2;
 
     /// <summary>A profile's look as a code (ProfileLook: no character, position, hotkey or path).</summary>
     public static string Look(Profile profile) => Pack(LookPrefix, JsonSerializer.SerializeToUtf8Bytes(ProfileLook.Of(profile), Strict));
@@ -128,6 +133,17 @@ public static class ShareCode
                 or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator) return null;
         }
         return text;
+    }
+
+    /// <summary>A layout's name made safe to hold in a code or a file name, keeping its words: one line, path characters
+    /// inside it become "-", path characters at its ends and dots at its end are dropped, no more than 64 characters. "" when nothing is
+    /// left; what it returns otherwise always passes <see cref="CleanName"/>.</summary>
+    public static string SafeName(string? name)
+    {
+        var text = PlainText.OneLine(name, MaxNameLength).Trim();
+        text = text.TrimStart(PathCharacters.Append(' ').ToArray()).TrimEnd(PathCharacters.Append(' ').Append('.').ToArray());
+        foreach (var c in PathCharacters) text = text.Replace(c, '-');
+        return CleanName(text) ?? "";
     }
 
     private static bool Within(double v, double min, double max) => v >= min && v <= max;

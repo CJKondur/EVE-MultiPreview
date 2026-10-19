@@ -15,6 +15,9 @@ namespace EveMultiPreview.Services;
 /// </summary>
 public sealed class LayoutPresetService
 {
+    public const long MaxFileBytes = 1_048_576;
+    public const int MaxFileSlots = 256;
+
     private readonly string _path;
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
 
@@ -63,15 +66,22 @@ public sealed class LayoutPresetService
     public void Export(LayoutPreset preset, string file)
         => File.WriteAllText(file, JsonSerializer.Serialize(preset, Json));
 
-    /// <summary>Parse a shared preset file without adding it (null on failure / empty preset).</summary>
+    /// <summary>Parse a shared preset file without adding it (null on failure / empty preset). P122: a file over
+    /// <see cref="MaxFileBytes"/> is not read, one with more than <see cref="MaxFileSlots"/> places, or a place that fails
+    /// <see cref="ShareCode.ValidSlot"/>, is refused whole. The name keeps its words but never holds a path character
+    /// (<see cref="ShareCode.SafeName"/>); one with nothing left takes the file's name, then "Layout".</summary>
     public LayoutPreset? ReadFile(string file)
     {
         try
         {
+            if (new FileInfo(file).Length > MaxFileBytes) return null;
             var preset = JsonSerializer.Deserialize<LayoutPreset>(File.ReadAllText(file));
-            if (preset == null || preset.Slots == null || preset.Slots.Count == 0) return null;
-            if (string.IsNullOrWhiteSpace(preset.Name))
-                preset.Name = Path.GetFileNameWithoutExtension(file);
+            if (preset == null || preset.Slots == null || preset.Slots.Count == 0 || preset.Slots.Count > MaxFileSlots) return null;
+            foreach (var slot in preset.Slots)
+                if (slot == null || !ShareCode.ValidSlot(slot.Character, slot.Monitor, slot.Fx, slot.Fy, slot.Fw, slot.Fh)) return null;
+            var name = ShareCode.SafeName(preset.Name);
+            if (name.Length == 0) name = ShareCode.SafeName(Path.GetFileNameWithoutExtension(file));
+            preset.Name = name.Length > 0 ? name : "Layout";
             return preset;
         }
         catch { return null; }
