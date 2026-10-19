@@ -1147,7 +1147,7 @@ public class ThumbnailWindow : Form
             User32.SetLayeredWindowAttributes(_ownHwnd, 0, opacity, User32.LWA_ALPHA);
 
         if (_textOverlay != null)
-            _textOverlay.Visibility = opacity == 0 ? WpfVisibility.Collapsed : WpfVisibility.Visible;
+            _textOverlay.Visibility = opacity == 0 || HeldHidden ? WpfVisibility.Collapsed : WpfVisibility.Visible;   // IDEAS #35: a held thumbnail's text stays hidden
 
         ApplyThumbnailPresentation();
         if (IsHandleCreated) Invalidate();
