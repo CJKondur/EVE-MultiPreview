@@ -669,6 +669,7 @@ public partial class SettingsWindow
         Add(EveMultiPreview.Services.LocalizationService.Str("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), S.DoNotDisturbHotkey);
         Add(EveMultiPreview.Services.LocalizationService.Str("L.S.clients.hotkeys.sheet", "Show the hotkey cheat sheet"), S.HotkeySheetHotkey);
         Add(EveMultiPreview.Services.LocalizationService.Str("L.S.clients.groups.focusKey", "Focus mode on or off"), S.FocusModeHotkey);
+        Add(EveMultiPreview.Services.LocalizationService.Str("L.S.clients.hotkeys.openSettings", "Open settings"), S.OpenSettingsHotkey);
 
         // Per-character switch hotkeys
         foreach (var (chr, hk) in _svc.CurrentProfile.Hotkeys)

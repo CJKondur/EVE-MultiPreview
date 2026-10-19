@@ -316,6 +316,11 @@ public class AppSettings
     /// server when it changes. New key: off in a file without it.</summary>
     public bool AcceptCommandsUnelevated { get; set; } = false;
 
+    /// <summary>The hotkey that opens the settings window, or brings it forward when it is open (IDEAS P5). Read by
+    /// HotkeyService.RegisterFromSettings, which calls the action it is given (App.OpenSettings). New key: unbound in a
+    /// file without it.</summary>
+    public string OpenSettingsHotkey { get; set; } = "";
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

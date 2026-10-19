@@ -2571,4 +2571,7 @@
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows hält Programme, die nicht als Administrator laufen, von einem Programm fern, das als Administrator läuft. Ein normal gestartetes Stream Deck bekommt deshalb von einem als Administrator laufenden MultiPreview keine Antwort (Exit-Code 3).&#x0A;&#x0A;Du kannst den Sender ebenfalls als Administrator ausführen oder **Auch Befehle von Programmen annehmen, die nicht als Administrator laufen** einschalten. Ist es an, können Programme deines eigenen Windows-Kontos, die nicht als Administrator laufen, dieselben Befehle senden; im Netzwerk wird nichts abgehört, und ein Befehl nennt weiterhin nie eine Datei.</sys:String> <!-- draft -->
     <!-- Ideas batch 12 (Plan 16) -->
     <sys:String x:Key="L.S.Presets.CodeLong">Layout „{0}“ liegt als Code mit {1} Zeichen in der Zwischenablage. Das ist mehr, als eine Discord-Nachricht aufnimmt (2.000). Teile ihn auf oder teile das Layout mit Exportieren… als Datei.</sys:String> <!-- draft -->
+    <!-- Ideas batch 13 (Plan 17) -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings">Einstellungen öffnen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Öffnet das Einstellungsfenster oder holt es nach vorn, wenn es schon offen ist. Funktioniert wie die anderen Hotkeys, während ein EVE-Client läuft.</sys:String> <!-- draft -->
 </ResourceDictionary>

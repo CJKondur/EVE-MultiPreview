@@ -2572,4 +2572,7 @@
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows は、管理者として実行されていないプログラムを、管理者として実行されているプログラムから遠ざけます。そのため、通常の方法で起動した Stream Deck は、管理者として実行されている MultiPreview から応答（終了コード 3）を受け取れません。&#x0A;&#x0A;送る側も管理者として実行するか、**管理者として実行されていないプログラムからのコマンドも受け付ける**をオンにしてください。オンにすると、お使いの Windows アカウントの、管理者として実行されていないプログラムも同じコマンドを送れます。ネットワークでは何も待ち受けず、コマンドがファイルを指定することも決してありません。</sys:String> <!-- draft -->
     <!-- Ideas batch 12 (Plan 16) -->
     <sys:String x:Key="L.S.Presets.CodeLong">レイアウト「{0}」を {1} 文字のコードとしてクリップボードにコピーしました。Discord の 1 通のメッセージに入る長さ（2000 文字）を超えています。分けるか、「エクスポート…」でファイルとして共有してください。</sys:String> <!-- draft -->
+    <!-- Ideas batch 13 (Plan 17) -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings">設定を開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">設定ウィンドウを開きます。すでに開いている場合は手前に表示します。ほかのホットキーと同じように、EVE クライアントの実行中も使えます。</sys:String> <!-- draft -->
 </ResourceDictionary>

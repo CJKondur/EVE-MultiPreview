@@ -2571,4 +2571,7 @@
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows keeps programs that are not run as administrator away from one that is, so a Stream Deck started the ordinary way gets no answer (exit code 3) from a MultiPreview run as administrator.&#x0A;&#x0A;You can run the sender as administrator too, or turn on **Also take commands from programs that are not run as administrator**. With it on, programs of your own Windows account that are not run as administrator can send the same commands; nothing is listened for on the network, and a command still never names a file.</sys:String>
     <!-- Ideas batch 12 (Plan 16) -->
     <sys:String x:Key="L.S.Presets.CodeLong">Layout '{0}' is on the clipboard as a code of {1} characters. That is more than one Discord message takes (2,000). Split it, or share the layout as a file with Export…</sys:String>
+    <!-- Ideas batch 13 (Plan 17) -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings">Open settings</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Opens the settings window, or brings it forward if it is open. Works while an EVE client is running, like the other hotkeys.</sys:String>
 </ResourceDictionary>

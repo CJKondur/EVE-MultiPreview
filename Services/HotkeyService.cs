@@ -838,6 +838,14 @@ public sealed class HotkeyService : IDisposable
             FocusModeToggled?.Invoke();
         });
 
+        // The settings window (IDEAS P5): App.OpenSettings opens it, or raises it when it is open. It switches no client,
+        // so it is no cycle-ignore key.
+        StoreAhkHotkey(settings.OpenSettingsHotkey, () =>
+        {
+            if (_suspended) return;
+            openSettings();
+        });
+
         // ── Per-character hotkeys from profile ───────────────────────
 
         var sharedHotkeys = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);

@@ -2574,4 +2574,7 @@
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows tient les programmes qui ne sont pas exécutés en tant qu'administrateur à l'écart de ceux qui le sont : un Stream Deck lancé normalement ne reçoit donc aucune réponse (code de sortie 3) d'un MultiPreview exécuté en tant qu'administrateur.&#x0A;&#x0A;Vous pouvez exécuter aussi l'expéditeur en tant qu'administrateur, ou activer **Accepter aussi les commandes de programmes qui ne s'exécutent pas en tant qu'administrateur**. Une fois l'option activée, les programmes de votre propre compte Windows qui ne sont pas exécutés en tant qu'administrateur peuvent envoyer les mêmes commandes ; rien n'est écouté sur le réseau, et une commande ne désigne toujours jamais de fichier.</sys:String> <!-- draft -->
     <!-- Ideas batch 12 (Plan 16) -->
     <sys:String x:Key="L.S.Presets.CodeLong">La disposition « {0} » est dans le presse-papiers sous forme de code de {1} caractères. C'est plus qu'un message Discord n'en accepte (2 000). Découpez-le, ou partagez la disposition sous forme de fichier avec Exporter…</sys:String> <!-- draft -->
+    <!-- Ideas batch 13 (Plan 17) -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings">Ouvrir les paramètres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Ouvre la fenêtre des paramètres, ou la place au premier plan si elle est déjà ouverte. Fonctionne pendant qu'un client EVE tourne, comme les autres raccourcis.</sys:String> <!-- draft -->
 </ResourceDictionary>

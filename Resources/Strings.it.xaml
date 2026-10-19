@@ -2589,4 +2589,7 @@
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows tiene i programmi non eseguiti come amministratore lontani da uno che lo è, quindi uno Stream Deck avviato nel modo normale non riceve risposta (codice di uscita 3) da un MultiPreview eseguito come amministratore.&#x0A;&#x0A;Puoi eseguire come amministratore anche il mittente, oppure attivare **Accetta anche comandi da programmi non eseguiti come amministratore**. Con l'opzione attiva, i programmi del tuo account Windows non eseguiti come amministratore possono inviare gli stessi comandi; sulla rete non si ascolta nulla, e un comando continua a non indicare mai un file.</sys:String> <!-- draft -->
     <!-- Ideas batch 12 (Plan 16) -->
     <sys:String x:Key="L.S.Presets.CodeLong">Il layout '{0}' è negli appunti come codice di {1} caratteri. È più di quanto accetti un messaggio di Discord (2000). Dividilo, oppure condividi il layout come file con Esporta…</sys:String> <!-- draft -->
+    <!-- Ideas batch 13 (Plan 17) -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings">Apri le impostazioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Apre la finestra delle impostazioni, o la porta in primo piano se è già aperta. Funziona mentre è in esecuzione un client EVE, come le altre scorciatoie.</sys:String> <!-- draft -->
 </ResourceDictionary>

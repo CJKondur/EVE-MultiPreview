@@ -2593,4 +2593,7 @@
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows mantiene a los programas que no se ejecutan como administrador alejados de uno que sí lo hace, así que un Stream Deck iniciado de la forma normal no recibe respuesta (código de salida 3) de un MultiPreview ejecutado como administrador.&#x0A;&#x0A;Puedes ejecutar también el emisor como administrador, o activar **Aceptar también comandos de programas que no se ejecutan como administrador**. Con eso activado, los programas de tu propia cuenta de Windows que no se ejecutan como administrador pueden enviar los mismos comandos; no se escucha nada en la red, y un comando sigue sin indicar nunca un archivo.</sys:String> <!-- draft -->
     <!-- Ideas batch 12 (Plan 16) -->
     <sys:String x:Key="L.S.Presets.CodeLong">El diseño '{0}' está en el portapapeles como un código de {1} caracteres. Es más de lo que admite un mensaje de Discord (2000). Divídelo, o comparte el diseño como archivo con Exportar…</sys:String> <!-- draft -->
+    <!-- Ideas batch 13 (Plan 17) -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings">Abrir la configuración</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Abre la ventana de configuración, o la trae al frente si ya está abierta. Funciona mientras se ejecuta un cliente de EVE, como los demás atajos.</sys:String> <!-- draft -->
 </ResourceDictionary>

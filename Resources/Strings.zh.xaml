@@ -2589,4 +2589,7 @@
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Body">Windows 会把不以管理员身份运行的程序挡在以管理员身份运行的程序之外，所以用普通方式启动的 Stream Deck 得不到以管理员身份运行的 MultiPreview 的回应（退出代码 3）。&#x0A;&#x0A;你可以让发送方也以管理员身份运行，或者开启**也接受不以管理员身份运行的程序发来的命令**。开启后，你自己的 Windows 账户下不以管理员身份运行的程序可以发送同样的命令；不会监听网络，命令也始终不会指向文件。</sys:String> <!-- draft -->
     <!-- Ideas batch 12 (Plan 16) -->
     <sys:String x:Key="L.S.Presets.CodeLong">布局“{0}”已作为 {1} 个字符的代码复制到剪贴板。这超过了 Discord 一条消息能容纳的长度（2000 个字符）。你可以把它拆开，或者用“导出…”以文件形式分享这个布局。</sys:String> <!-- draft -->
+    <!-- Ideas batch 13 (Plan 17) -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings">打开设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">打开设置窗口；如果窗口已打开，则将其带到最前面。与其他热键一样，在 EVE 客户端运行时可用。</sys:String> <!-- draft -->
 </ResourceDictionary>
