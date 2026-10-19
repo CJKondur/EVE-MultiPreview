@@ -415,6 +415,9 @@ try {
 # decides the rest. The length of the download must be the length that was verified (EMP_LEN); a missing or
 # different one copies nothing. The copy goes to a second name beside the old exe, its length is checked
 # again, and only then does a rename put it over the old exe: a copy that dies half way leaves the old exe whole.
+# The rename is NOT atomic: in Windows PowerShell 5.1 Move-Item -Force over an existing file deletes the old
+# file and then renames. If the old exe is still locked the delete fails: the old exe stays and is restarted.
+# If the delete succeeds and the rename then fails (rare), there is no exe, only 'EVE MultiPreview.exe.new'.
 $oldExe = Join-Path $appDir 'EVE MultiPreview.exe'
 $dotExe = Join-Path $appDir 'EVE.MultiPreview.exe'
 $dotPdb = Join-Path $appDir 'EVE.MultiPreview.pdb'
@@ -579,7 +582,7 @@ if ($downloadDir -and ($downloadDir.TrimEnd('\', '/') -ne $appDir.TrimEnd('\', '
         if (stable.Count == 0) return null;
         if (!System.Version.TryParse(currentVersion, out var running)) return stable[0];
         var notes = Services.ReleaseNotes.Combine(
-            stable.Select(r => (System.Version.Parse(r.Version), r.Version, r.Notes, false, false)), running, includePrereleases: false);
+            stable.Select(r => ((System.Version?)System.Version.Parse(r.Version), r.Version, r.Notes, false, false)), running, includePrereleases: false);
         return notes.Length == 0 ? stable[0] : stable[0] with { Notes = notes };
     }
 

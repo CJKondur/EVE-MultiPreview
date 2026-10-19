@@ -9,14 +9,14 @@ namespace EveMultiPreview.Services;
 /// English on GitHub, so this one line of its own is English too.</summary>
 public static class ReleaseNotes
 {
-    private static string OlderVersions(int count) => $"… and {count} older versions";
+    private static string OlderVersions(int count) => $"… and {count} older version" + (count == 1 ? "" : "s");
 
     /// <summary>The notes of the releases newer than <paramref name="current"/>. Drafts are left out, pre-releases
     /// unless <paramref name="includePrereleases"/>. A release whose Version is null is read from its Tag ("v1.2.3");
     /// a tag that is no version is skipped, never thrown. Over <paramref name="maxChars"/> the text is cut at a block
     /// boundary and ends with "… and N older versions"; the whole text, that line included, stays within the cap.
     /// No release, or none newer: "".</summary>
-    public static string Combine(IEnumerable<(Version Version, string Tag, string? Body, bool Prerelease, bool Draft)> releases,
+    public static string Combine(IEnumerable<(Version? Version, string Tag, string? Body, bool Prerelease, bool Draft)> releases,
         Version current, bool includePrereleases, int maxChars = 16000)
     {
         var blocks = new List<(Version Version, string Text)>();
