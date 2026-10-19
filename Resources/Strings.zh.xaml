@@ -2515,4 +2515,9 @@
     <sys:String x:Key="L.S.AutoProfile.BadName">角色名称不能包含逗号。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.auto.Title">按已登录角色切换配置文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.auto.Body">为每个配置文件指定属于它的角色，例如把你的采矿队伍指定给 Mining，把你的 PvP 小队指定给 PvP，然后开启**按已登录角色切换配置文件**。当已登录的角色属于某个配置文件的数量多于其他任何配置文件时，MultiPreview 会切换到该配置文件。&#x0A;&#x0A;- 它在最后一次登录或登出 10 秒后决定，所以一支逐个登录的队伍只会切换一次。&#x0A;- 如果两个配置文件拥有同样多的已登录角色，或者当前配置文件拥有的数量不少于其他任何配置文件，则不会有任何变化。所有人都登出时，配置文件保持不变。&#x0A;- 如果你在最近 10 分钟内自己切换过配置文件，MultiPreview 会在切换前询问。&#x0A;- 复制配置文件会复制除这些角色以外的所有内容，而**忘记此角色**会把一个角色从每个配置文件的列表中移除。&#x0A;&#x0A;在你开启之前，它是关闭的。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Title">要切换配置文件吗？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Body">当前已登录的角色属于配置文件 {0}。你几分钟前刚自己切换过配置文件，所以 MultiPreview 会先询问，再离开 {1}。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Switch">切换到 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Stay">留在 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Switched">配置文件：{0}，按已登录的角色选择</sys:String> <!-- draft -->
 </ResourceDictionary>

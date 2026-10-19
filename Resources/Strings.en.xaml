@@ -2497,4 +2497,9 @@
     <sys:String x:Key="L.S.AutoProfile.BadName">A character's name can't contain a comma.</sys:String>
     <sys:String x:Key="L.Help.app.profiles.auto.Title">Switching profiles by who is logged in</sys:String>
     <sys:String x:Key="L.Help.app.profiles.auto.Body">Give each profile the characters that belong to it, for example your mining crew to Mining and your PvP pack to PvP, and turn on **Switch profiles by who is logged in**. When the characters logged in belong to one profile more than to any other, MultiPreview switches to that profile.&#x0A;&#x0A;- It decides 10 seconds after the last login or logout, so a crew that logs in one by one is one switch.&#x0A;- When two profiles have as many of the logged-in characters, or the current profile has as many as any other, nothing changes. When everyone logs out, the profile stays.&#x0A;- If you switched profiles yourself in the last 10 minutes, MultiPreview asks before it switches.&#x0A;- Copying a profile copies everything except these characters, and **Forget this character** takes a character out of every profile's list.&#x0A;&#x0A;It is off until you turn it on.</sys:String>
+    <sys:String x:Key="L.AutoProfile.Title">Switch profile?</sys:String>
+    <sys:String x:Key="L.AutoProfile.Body">The characters logged in now belong to the profile {0}. You switched profiles yourself a few minutes ago, so MultiPreview asks before it leaves {1}.</sys:String>
+    <sys:String x:Key="L.AutoProfile.Switch">Switch to {0}</sys:String>
+    <sys:String x:Key="L.AutoProfile.Stay">Stay on {0}</sys:String>
+    <sys:String x:Key="L.AutoProfile.Switched">Profile: {0}, picked by who is logged in</sys:String>
 </ResourceDictionary>

@@ -88,6 +88,13 @@ public partial class App : Application
 
     /// <summary>IDEAS #35: focus mode is on. Not saved: off at every start, as Hide all is. The window's thread only.</summary>
     private bool _focusModeOn;
+    /// <summary>IDEAS #11: which profile the characters logged in point to. Asked twice a second while "Switch profiles by who
+    /// is logged in" is on; it forgets who it saw while the switch is off. The window's thread only.</summary>
+    private readonly AutoProfile _autoProfile = new();
+    /// <summary>True only around a switch AutoProfile asked for, so ProfileSwitched does not count it as the player's own.</summary>
+    private bool _switchingProfileAutomatically;
+    /// <summary>The question shown when the player switched profiles himself a short while ago; a newer one replaces it.</summary>
+    private StartupDialog? _autoProfileQuestion;
     /// <summary>What the probe on the process monitor's thread asks Windows: set by LookAtClients on the window's thread
     /// (the settings are read there only), read by ProbeClients.</summary>
     private volatile ClientProbeWants _clientProbeWants;
@@ -312,6 +319,9 @@ public partial class App : Application
                 _thumbnailManager!, OpenSettings);
             Debug.WriteLine($"[App:Profile] 🔄 Applied profile: {name}");
         };
+        // IDEAS #11: a switch the player made (the tray, a hotkey, the settings window, a command) makes the automatic one
+        // ask first for a while; the automatic one is not such a switch.
+        _settings.ProfileSwitched += _ => { if (!_switchingProfileAutomatically) _autoProfile.ManualSwitch(DateTime.UtcNow); };
 
         PerfLog($"Core services created: {startupSw.ElapsedMilliseconds}ms");
 
@@ -675,6 +685,7 @@ public partial class App : Application
                 FollowDowntime();
                 FollowIdle();
                 FollowFocusMode();
+                FollowAutoProfile();
             };
             hotkeyToggleTimer.Start();
 
@@ -1296,6 +1307,65 @@ public partial class App : Application
                 name => _thumbnailManager.Attention.Has(name)));
         }
         catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #11, twice a second: while "Switch profiles by who is logged in" is on, has the set of logged-in
+    /// characters settled on another profile? Switch to it, or ask when the player switched himself a short while ago.
+    /// While the switch is off nothing is weighed. A failure is logged and the next tick tries again.</summary>
+    private void FollowAutoProfile()
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
+            var s = _settings.Settings;
+            if (!AutoProfile.IsOn(s)) { _autoProfile.Forget(); return; }
+            var choice = _autoProfile.Look(DateTime.UtcNow, _thumbnailManager.GetActiveCharacterNames(), AutoProfile.Candidates(s), s.LastUsedProfile);
+            if (choice == null) return;
+            if (choice.Ask) AskAutoProfile(choice.Profile);
+            else SwitchProfileAutomatically(choice.Profile);
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #11: switches as the tray does (ProfileSwitched applies it, #101), not counted as the player's own
+    /// switch, and says so near the cursor. A profile deleted meanwhile is not switched to.</summary>
+    private void SwitchProfileAutomatically(string profile)
+    {
+        if (_settings == null || !_settings.Settings.Profiles.ContainsKey(profile)) return;
+        _switchingProfileAutomatically = true;
+        try { _settings.SwitchProfile(profile); }
+        finally { _switchingProfileAutomatically = false; }
+        _thumbnailManager?.ShowTooltipFeedback(string.Format(
+            LocalizationService.Str("L.AutoProfile.Switched", "Profile: {0}, picked by who is logged in"), profile));
+    }
+
+    private const string AutoProfileBodyEnglish =
+        "The characters logged in now belong to the profile {0}. You switched profiles yourself a few minutes ago, so MultiPreview asks before it leaves {1}.";
+
+    /// <summary>IDEAS #11: the player switched profiles himself a short while ago, so the switch is a question, in a notice
+    /// that does not take the front from the game. A newer question replaces an older one; Switch is not counted as the
+    /// player's own switch.</summary>
+    private void AskAutoProfile(string profile)
+    {
+        if (_settings == null) return;
+        var current = _settings.Settings.LastUsedProfile;
+        _autoProfileQuestion?.Close();
+        var question = new StartupDialog(
+            LocalizationService.Str("L.AutoProfile.Title", "Switch profile?"),
+            string.Format(LocalizationService.Str("L.AutoProfile.Body", AutoProfileBodyEnglish), profile, current),
+            new[]
+            {
+                string.Format(LocalizationService.Str("L.AutoProfile.Switch", "Switch to {0}"), profile),
+                string.Format(LocalizationService.Str("L.AutoProfile.Stay", "Stay on {0}"), current),
+            })
+        { ShowActivated = false };
+        question.Closed += (_, _) =>
+        {
+            if (ReferenceEquals(_autoProfileQuestion, question)) _autoProfileQuestion = null;
+            if (question.Choice == 0) SwitchProfileAutomatically(profile);
+        };
+        _autoProfileQuestion = question;
+        question.Show();
     }
 
     /// <summary>IDEAS #30: the snooze file follows "Keep snoozes when MultiPreview restarts". Called after every change

@@ -2498,4 +2498,9 @@
     <sys:String x:Key="L.S.AutoProfile.BadName">キャラクター名にカンマは使えません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.auto.Title">ログイン中のキャラクターでプロファイルを切り替える</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.auto.Body">各プロファイルに、それに属するキャラクターを登録します。たとえば採掘チームは Mining、PvP の仲間は PvP に登録し、**ログイン中のキャラクターでプロファイルを切り替える**をオンにします。ログイン中のキャラクターが他のどのプロファイルよりも1つのプロファイルに多く属しているとき、MultiPreview はそのプロファイルへ切り替えます。&#x0A;&#x0A;- 最後のログインまたはログアウトの10秒後に決めるので、1人ずつログインするチームでも切り替えは1回だけです。&#x0A;- 2つのプロファイルのログイン中キャラクターが同数のとき、または現在のプロファイルが他のどれかと同数のときは、何も変わりません。全員がログアウトしても、プロファイルはそのままです。&#x0A;- 直近10分以内に自分でプロファイルを切り替えた場合、MultiPreview は切り替える前に確認します。&#x0A;- プロファイルをコピーすると、これらのキャラクター以外のすべてがコピーされます。**このキャラクターを削除**は、すべてのプロファイルのリストからキャラクターを取り除きます。&#x0A;&#x0A;オンにするまではオフです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Title">プロファイルを切り替えますか？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Body">ログイン中のキャラクターは、いまプロファイル {0} に属しています。数分前に自分でプロファイルを切り替えたため、{1} から移る前に確認します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Switch">{0} に切り替える</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Stay">{0} のままにする</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Switched">プロファイル：{0}（ログイン中のキャラクターから選択）</sys:String> <!-- draft -->
 </ResourceDictionary>

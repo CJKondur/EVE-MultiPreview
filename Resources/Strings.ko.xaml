@@ -2498,4 +2498,9 @@
     <sys:String x:Key="L.S.AutoProfile.BadName">캐릭터 이름에는 쉼표를 쓸 수 없어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.auto.Title">로그인한 캐릭터에 따라 프로필 전환</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.auto.Body">각 프로필에 속하는 캐릭터를 지정해 두세요. 예를 들어 채굴 팀은 Mining에, PvP 팀은 PvP에 지정하고 **로그인한 캐릭터에 따라 프로필 전환**을 켜요. 로그인한 캐릭터가 다른 어느 프로필보다 한 프로필에 더 많이 속하면 MultiPreview가 그 프로필로 전환해요.&#x0A;&#x0A;- 마지막 로그인 또는 로그아웃 10초 후에 결정하기 때문에, 한 명씩 로그인하는 팀도 전환은 한 번만 일어나요.&#x0A;- 두 프로필의 로그인한 캐릭터 수가 같거나 현재 프로필이 다른 어느 프로필과 같으면 아무것도 바뀌지 않아요. 모두 로그아웃해도 프로필은 그대로예요.&#x0A;- 최근 10분 안에 직접 프로필을 전환했다면 MultiPreview가 전환하기 전에 물어봐요.&#x0A;- 프로필을 복사하면 이 캐릭터들을 뺀 모든 것이 복사되고, **이 캐릭터 삭제**는 모든 프로필의 목록에서 캐릭터를 빼요.&#x0A;&#x0A;켜기 전까지는 꺼져 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Title">프로필을 바꿀까요?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Body">지금 로그인한 캐릭터는 {0} 프로필에 속해요. 몇 분 전에 직접 프로필을 바꿨기 때문에 {1}에서 나가기 전에 물어봐요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Switch">{0}(으)로 전환</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Stay">{0}에 머무르기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AutoProfile.Switched">프로필: {0}, 로그인한 캐릭터에 따라 선택</sys:String> <!-- draft -->
 </ResourceDictionary>
