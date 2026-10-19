@@ -109,6 +109,11 @@ public sealed class ClientExits
     /// <summary>An exit code as shown in the alert: <c>0xC0000005</c>.</summary>
     public static string CodeText(uint exitCode) => "0x" + exitCode.ToString("X8", CultureInfo.InvariantCulture);
 
+    /// <summary>Whether <paramref name="character"/> is the character whose crashed client's alert is being raised
+    /// (case aside): its window is gone, and the ways that need one are told so (AlertNotice.ClientGone).</summary>
+    public static bool IsClosing(string? closing, string character) =>
+        !string.IsNullOrEmpty(closing) && string.Equals(closing, character, StringComparison.OrdinalIgnoreCase);
+
     /// <summary>The names with the closing character added once (case aside).</summary>
     public static IEnumerable<string> WithClosing(IEnumerable<string> names, string? closing) =>
         string.IsNullOrEmpty(closing) ? names : names.Append(closing).Distinct(StringComparer.OrdinalIgnoreCase);

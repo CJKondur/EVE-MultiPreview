@@ -2459,7 +2459,7 @@
     <sys:String x:Key="L.AlertEvt.client_closed">客户端意外关闭</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.clientNote">“客户端未响应”和“客户端意外关闭”默认关闭，需要你在上面的表格中打开。前者在客户端卡住 30 秒后触发；后者在客户端因错误结束时触发，你自己退出时不会触发。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.clientStops.Title">停止的客户端</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.clientStops.Body">**客户端未响应**：当 Windows 报告某个客户端的窗口已卡住 30 秒时触发，每次卡住只触发一次。该客户端需要有已登录的角色。&#x0A;&#x0A;**客户端意外关闭**：当客户端进程以错误代码结束时触发，例如崩溃，或被任务管理器结束。你自己退出 EVE 时客户端无错误结束，不会触发；在 MultiPreview 中使用**关闭客户端**也不会。警报会显示该客户端最后登录的角色；错误代码保存在警报历史中。&#x0A;&#x0A;- 如果客户端以管理员身份运行而 MultiPreview 没有，就无法监视它。&#x0A;- 两者都是严重警报，因此除非你改过设置，勿扰模式会放行它们的声音。&#x0A;- 已关闭的客户端没有窗口了：它的警报会弹出、播放声音、通过推送发送并记入历史，但不会朗读、不会显示为 Windows 通知，也不会放大。&#x0A;&#x0A;要在缩略图上看到卡住或断开的客户端，请在 缩略图 › 文字和边框 › 客户端停止时 中打开标记。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientStops.Body">**客户端未响应**：当 Windows 报告某个客户端的窗口已卡住 30 秒时触发，每次卡住只触发一次。该客户端需要有已登录的角色。&#x0A;&#x0A;**客户端意外关闭**：当客户端进程以错误代码结束时触发，例如崩溃，或被任务管理器结束。你自己退出 EVE 时客户端无错误结束，不会触发；在 MultiPreview 中使用**关闭客户端**也不会。警报会显示该客户端最后登录的角色；错误代码保存在警报历史中。&#x0A;&#x0A;- 如果客户端以管理员身份运行而 MultiPreview 没有，就无法监视它。&#x0A;- 两者都是严重警报，因此除非你改过设置，勿扰模式会放行它们的声音。&#x0A;- 已关闭的客户端没有窗口了：所以它的警报不会放大。警报会弹出、播放声音、通过推送发送并记入历史；开启朗读时会朗读，开启 Windows 通知时会显示为 Windows 通知（不带按钮），两者都会带上角色名称。&#x0A;&#x0A;要在缩略图上看到卡住或断开的客户端，请在 缩略图 › 文字和边框 › 客户端停止时 中打开标记。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.EndFrozen">结束这个卡死的客户端…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenConfirm">{0} 的客户端未响应。现在结束它吗？所有未保存的内容都会丢失。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenDone">已结束 {0} 的客户端。</sys:String> <!-- draft -->

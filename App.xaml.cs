@@ -107,6 +107,9 @@ public partial class App : Application
     /// <summary>IDEAS #22: the process of each client, held only while "Client closed unexpectedly" is on, so its end is read
     /// with its exit code. Tracked and looked at on the probe's pool thread; let go when the event is off and at exit.</summary>
     private readonly ClientExits _clientExits = new(WindowsClientProcess.Open);
+    /// <summary>IDEAS Plan 20, P119: a crash seen before the straggler alerts exist (the first seconds after start-up) is held
+    /// here and told once by the first look after they do. The window's thread only (LookAtClients).</summary>
+    private readonly ClientExitBacklog _exitBacklog = new();
     /// <summary>IDEAS #22, ruling 5: the one character a crashed client's alert is raised for, counted as having a window by
     /// the dispatcher's gate. Set and cleared on the window's thread around that one Raise (RaiseClosed).</summary>
     private volatile string? _closingCharacter;
@@ -521,7 +524,7 @@ public partial class App : Application
                 // notification away again. "In front" is therefore also: the attention table holds nothing for it.
                 Ways = (charName, alertType, severity, raisedUtc) => _alertWays.Raised(_settings.Settings, charName, alertType, severity,
                     () => ThumbnailManager.InFront(_thumbnailManager.GetHwndForCharacter(charName), EveMultiPreview.Interop.User32.GetForegroundWindow())
-                        || !_thumbnailManager.Attention.Has(charName), raisedUtc),
+                        || !_thumbnailManager.Attention.Has(charName), raisedUtc, clientGone: ClientExits.IsClosing(_closingCharacter, charName)),
             };
             // IDEAS #26: spoken alerts. The way is told of every alert that was shown, decides what is said, and
             // says it on a thread of its own. Speech is a sound: do-not-disturb is asked for it as for the sound.
@@ -540,7 +543,7 @@ public partial class App : Application
                 (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
                 AlertHub.EventDisplayName, LocalizationService.Str, () => LocalizationService.CurrentLanguage, LogError,
                 stillWanted: alert => !_thumbnailManager.IsCharacterAlertMuted(alert.Character) && !_snoozes.IsSnoozed(alert.Character, alert.EventKey)
-                    && _thumbnailManager.Attention.Has(alert.Character));
+                    && AlertWays.StillUnseen(alert, _thumbnailManager.Attention.Has));
             _alertWays.Add(_spokenWay);
             _thumbnailManager.Attention.Looked += _spokenWay.Looked;
             _spokenWay.Follow(_settings.Settings.SpeakAlerts);
@@ -1221,6 +1224,8 @@ public partial class App : Application
             var now = DateTime.UtcNow;
             var look = _clientWatch.Look(now, samples, options);
             foreach (var change in look.Changes) _thumbnailManager.SetClientMark(change.Window, change.Mark);
+            // IDEAS Plan 20, P119: an end seen before the alerts exist is held, not lost; the first look after they do tells it.
+            var due = _exitBacklog.Take(exits, _stragglerAlerts != null);
             if (_stragglerAlerts == null) return;
             foreach (var alert in look.Alerts)
             {
@@ -1228,7 +1233,7 @@ public partial class App : Application
                 catch (Exception ex) { LogError(ex); }
             }
             if (!closedOn) return;
-            foreach (var exit in exits)
+            foreach (var exit in due)
                 if (exit.Unexpected && exit.Character.Length > 0) RaiseClosed(now, exit);
         }
         catch (Exception ex) { LogError(ex); }
@@ -1237,8 +1242,9 @@ public partial class App : Application
     /// <summary>"Client closed unexpectedly" for one client, its character counted as having a window for this one call
     /// (ruling 5). A log alert for the same character dispatched on the log thread in that instant passes the gate too;
     /// its flash and badge find no thumbnail and do nothing. The crashed client has no window, so this alert reaches the
-    /// toast, the sound, push and the history, but it is not spoken, not a Windows notification and not enlarged (left by
-    /// design, ruling F14).</summary>
+    /// toast, the sound, push and the history, and (IDEAS Plan 20, P118) it is spoken and a Windows notification too, by the
+    /// character's name: the ways are told the client is gone (<c>clientGone</c>, from <c>_closingCharacter</c>), so the
+    /// notification has no "Switch to" and nothing is enlarged (there is no thumbnail to enlarge).</summary>
     private void RaiseClosed(DateTime now, ClientExit exit)
     {
         _closingCharacter = exit.Character;

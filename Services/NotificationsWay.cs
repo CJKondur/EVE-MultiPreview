@@ -309,7 +309,7 @@ public sealed class NotificationsWay : IAlertWay
             if (arguments == NotificationXml.Go + TestTag) return;   // a click on the test notification means nothing
             if (NotificationXml.Read(arguments) is not { } click) return;
             var entry = Ledger.Clicked(click.Tag);
-            if (entry == null) return;
+            if (entry == null || entry.Gone) return;   // a gone client (it crashed) has nothing to switch to or to snooze
             _onWindowThread(() =>
             {
                 try

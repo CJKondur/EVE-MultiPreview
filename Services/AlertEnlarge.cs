@@ -47,11 +47,12 @@ public sealed class AlertEnlarge : IAlertWay
 
     /// <summary>An alert was shown. Its client's thumbnail is to be enlarged until the set seconds after it; a
     /// thumbnail that is being enlarged already stays so until then, at the size it has. Not for the client in
-    /// front: the player is looking at the real thing.</summary>
+    /// front: the player is looking at the real thing. Not for a client that is gone (it crashed): there is no
+    /// thumbnail to enlarge (IDEAS Plan 20 P118; its alert is spoken and notified instead).</summary>
     public void Raised(AlertNotice notice, AppSettings s)
     {
         var options = EnlargeOptions.Of(s);
-        if (!options.On || notice.ClientInFront || string.IsNullOrEmpty(notice.Character) || !AlertWays.Reaches(options.From, notice.Severity)) return;
+        if (!options.On || notice.ClientInFront || notice.ClientGone || string.IsNullOrEmpty(notice.Character) || !AlertWays.Reaches(options.From, notice.Severity)) return;
         var until = notice.TimeUtc.AddSeconds(options.Seconds);
         lock (_lock)
         {

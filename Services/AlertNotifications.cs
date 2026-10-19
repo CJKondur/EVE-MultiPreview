@@ -121,8 +121,10 @@ public sealed class AlertNotifications
 
     /// <summary>One entry: the alerts of one event for one character since the player last looked. That holds also
     /// across a banner, and for an entry that left without a look (it made room, or was closed by hand) and came
-    /// back: its count is carried on, until its client is looked at or everything is taken away.</summary>
-    public sealed record Entry(string Tag, string Character, string EventKey, string Severity, int Count, DateTime LastUtc, DateTime BannerUtc);
+    /// back: its count is carried on, until its client is looked at or everything is taken away.
+    /// <paramref name="Gone"/>: the client is gone (it crashed, IDEAS Plan 20 P118): its notification has no button and
+    /// a click on it switches to nothing.</summary>
+    public sealed record Entry(string Tag, string Character, string EventKey, string Severity, int Count, DateTime LastUtc, DateTime BannerUtc, bool Gone = false);
 
     private readonly object _lock = new();
     private readonly List<Entry> _entries = new();
@@ -158,7 +160,7 @@ public sealed class AlertNotifications
                 // A clock set back gives a negative time since the last banner: then the banner shows.
                 var since = now - old.BannerUtc;
                 banner = since < TimeSpan.Zero || since >= BannerQuiet;
-                entry = old with { Severity = notice.Severity, Count = old.Count + 1, LastUtc = now, BannerUtc = banner ? now : old.BannerUtc };
+                entry = old with { Severity = notice.Severity, Count = old.Count + 1, LastUtc = now, BannerUtc = banner ? now : old.BannerUtc, Gone = notice.ClientGone };
             }
             else if (_remembered.Find(e => Same(e, notice.Character, notice.EventKey)) is { } back)
             {
@@ -169,18 +171,18 @@ public sealed class AlertNotifications
                 // hand), and a banner again once it is, or when the clock was set back.
                 var since = now - back.BannerUtc;
                 banner = since < TimeSpan.Zero || since >= BannerQuiet;
-                entry = back with { Tag = NextTag(), Severity = notice.Severity, Count = back.Count + 1, LastUtc = now, BannerUtc = banner ? now : back.BannerUtc };
+                entry = back with { Tag = NextTag(), Severity = notice.Severity, Count = back.Count + 1, LastUtc = now, BannerUtc = banner ? now : back.BannerUtc, Gone = notice.ClientGone };
             }
             else
             {
-                entry = new Entry(NextTag(), notice.Character, notice.EventKey, notice.Severity, 1, now, now);
+                entry = new Entry(NextTag(), notice.Character, notice.EventKey, notice.Severity, 1, now, now, notice.ClientGone);
                 banner = true;
             }
             // A picture of this entry that still waits is replaced where it stands; a banner it carried is not lost with it.
             int waiting = _work.FindIndex(w => w.What == NotifierWork.Kind.Show && w.Content!.Tag == entry.Tag);
             if (waiting >= 0) banner |= _work[waiting].Content!.Banner;
             var show = new NotifierWork(NotifierWork.Kind.Show,
-                new NotificationContent(entry.Tag, NotificationXml.Build(texts(entry), entry.Tag), banner, now + Keep));
+                new NotificationContent(entry.Tag, NotificationXml.Build(texts(entry), entry.Tag, buttons: !entry.Gone), banner, now + Keep));
 
             // Now it is kept.
             if (at >= 0) _entries[at] = entry;

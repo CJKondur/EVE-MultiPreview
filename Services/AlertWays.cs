@@ -22,6 +22,13 @@ public sealed record AlertNotice(DateTime TimeUtc, string Character, string Even
     /// the window's thread in one go), so there it is not the history entry's time to the tick. Never later than
     /// TimeUtc: AlertWays holds it to that.</summary>
     public DateTime RaisedUtc { get; init; } = TimeUtc;
+
+    /// <summary>The character's client is gone: it crashed ("Client closed unexpectedly", IDEAS Plan 20 P118), so there
+    /// is no window to ask about, to go to or to enlarge. It is then never "in front" (a client with no window is not
+    /// in front, but "nothing unseen" would read as that to the ways). A way that tells the player (the voice, a Windows
+    /// notification) still tells of it, by the character's name; a way that needs a window (enlarging) skips it; a
+    /// notification for it has no button and a click on it goes nowhere.</summary>
+    public bool ClientGone { get; init; }
 }
 
 /// <summary>A further way an alert reaches the player. Both members are called on the thread that raised the alert:
@@ -98,7 +105,10 @@ public sealed class AlertWays
     /// it that is the time the ways are told, as TimeUtc is. A time later than that (the PC's clock stepped back
     /// between the raise and the tell, or a caller handed a local time) is held to it: the earlier of the two is
     /// handed on, so no alert is younger than the moment the ways were told of it.</param>
-    public void Raised(AppSettings s, string character, string eventKey, string severity, Func<bool> clientInFront, DateTime? raisedUtc = null)
+    /// <param name="clientGone">The character's client is gone (it crashed): <see cref="AlertNotice.ClientGone"/>. The
+    /// question "is that client in front" is not asked for it, and every way is told it is not in front.</param>
+    public void Raised(AppSettings s, string character, string eventKey, string severity, Func<bool> clientInFront, DateTime? raisedUtc = null,
+        bool clientGone = false)
     {
         var ways = Volatile.Read(ref _ways);
         AlertNotice? notice = null;
@@ -111,7 +121,7 @@ public sealed class AlertWays
                 {
                     var told = _utcNow();
                     var raised = raisedUtc is { } handed && handed < told ? handed : told;
-                    notice = new AlertNotice(told, character, eventKey, severity, InFront(clientInFront)) { RaisedUtc = raised };
+                    notice = new AlertNotice(told, character, eventKey, severity, !clientGone && InFront(clientInFront)) { RaisedUtc = raised, ClientGone = clientGone };
                 }
                 way.Raised(notice, s);
             }
@@ -179,6 +189,11 @@ public sealed class AlertWays
         catch (Exception) { /* a report without a stack is still a report */ }
         return report;
     }
+
+    /// <summary>Whether an alert is still one the player has not dealt with, as the voice asks when a sentence's turn
+    /// comes: its client has something unseen in the attention table. A client that is gone has no window to be looked
+    /// at, so for it the answer is yes (the table never holds anything for it).</summary>
+    public static bool StillUnseen(AlertNotice alert, Func<string, bool> hasUnseen) => alert.ClientGone || hasUnseen(alert.Character);
 
     /// <summary>Whether a way set to tell "from this severity" tells of an alert of <paramref name="severity"/>.
     /// 0: critical alerts only. 1: critical and warning. 2: every severity. Another number is held to that range. A
