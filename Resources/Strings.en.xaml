@@ -2576,4 +2576,8 @@
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Opens the settings window, or brings it forward if it is open. Works while an EVE client is running, like the other hotkeys.</sys:String>
     <sys:String x:Key="L.AlertEvt.client_ready">Client ready</sys:String>
     <sys:String x:Key="L.S.Events.clientReady.Desc">A client has reached the game and shows its character's name.</sys:String>
+    <sys:String x:Key="L.Ctx.CopySystem">Copy system name</sys:String>
+    <sys:String x:Key="L.Ctx.OpenDotlan">Open system on Dotlan</sys:String>
+    <sys:String x:Key="L.Ctx.OpenZKill">Open character on zKillboard</sys:String>
+    <sys:String x:Key="L.Ctx.OpenEveWho">Open character on EveWho</sys:String>
 </ResourceDictionary>

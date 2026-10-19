@@ -2596,4 +2596,8 @@
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Открывает окно настроек или выводит его на передний план, если оно уже открыто. Работает, пока запущен клиент EVE, как и остальные горячие клавиши.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.client_ready">Клиент готов</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Events.clientReady.Desc">Клиент вошёл в игру и показывает имя своего персонажа.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.CopySystem">Копировать название системы</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlan">Открыть систему на Dotlan</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenZKill">Открыть персонажа на zKillboard</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenEveWho">Открыть персонажа на EveWho</sys:String> <!-- draft -->
 </ResourceDictionary>

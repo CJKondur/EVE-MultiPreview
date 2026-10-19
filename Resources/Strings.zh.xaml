@@ -2594,4 +2594,8 @@
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">打开设置窗口；如果窗口已打开，则将其带到最前面。与其他热键一样，在 EVE 客户端运行时可用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.client_ready">客户端就绪</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Events.clientReady.Desc">客户端已进入游戏，并显示其角色的名称。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.CopySystem">复制星系名称</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlan">在 Dotlan 上打开星系</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenZKill">在 zKillboard 上打开角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenEveWho">在 EveWho 上打开角色</sys:String> <!-- draft -->
 </ResourceDictionary>

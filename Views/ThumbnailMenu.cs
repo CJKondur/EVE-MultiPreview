@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using EveMultiPreview.Services;
+using EveMultiPreview.SettingsUi;
 
 namespace EveMultiPreview.Views;
 
@@ -32,6 +34,11 @@ public static class ThumbnailCommands
     public const string CloseClient = "thumb.closeClient";
     /// <summary>End this frozen client… (IDEAS #22): shown only while the thumbnail says Not responding.</summary>
     public const string EndFrozen = "thumb.endFrozen";
+    /// <summary>Lookup links (Plan 17, P1): copy the system's name, open it on Dotlan, open the character on zKillboard or EveWho.</summary>
+    public const string CopySystem = "thumb.copySystem";
+    public const string Dotlan = "thumb.dotlan";
+    public const string ZKill = "thumb.zkill";
+    public const string EveWho = "thumb.evewho";
 }
 
 /// <summary>What the menu shows when it opens: whose thumbnail it is, the system it was last seen in, the alert mute and
@@ -57,6 +64,12 @@ public sealed class ThumbnailMenu : IDisposable
     private readonly ToolStripLabel _header;
     private readonly ToolStripMenuItem _mute, _volume, _openSettings, _snoozed, _endFrozen;
     private readonly Action<string?> _endSnooze;
+    private readonly Action<string> _openUrl, _copyText;
+    private readonly Func<string, long?> _characterId;
+    private readonly ToolStripMenuItem _copySystem, _dotlan, _zkill, _evewho;
+    private readonly ToolStripSeparator _lookupLine = new();
+    private string? _system;
+    private long? _id;
     private readonly TrackBar _slider;
     private bool _settingSlider;
 
@@ -67,10 +80,17 @@ public sealed class ThumbnailMenu : IDisposable
     /// <param name="closeClient">Close client.</param>
     /// <param name="endSnooze">Ends one snoozed event of this character (its key), or all of them (null) (IDEAS #30).</param>
     /// <param name="endFrozen">End this frozen client… (IDEAS #22); the one who handles it asks before it ends anything.</param>
+    /// <param name="openUrl">Opens a lookup link (Plan 17, P1); default: the browser, for the three allowed hosts only.</param>
+    /// <param name="copyText">Copies the system's name; default: the clipboard.</param>
+    /// <param name="characterId">The character's ID by name, for the zKillboard and EveWho pages; default: the saved name cache.</param>
     public ThumbnailMenu(Action editLabel, Action<int> mute, Action<int> audio, Action openSettings, Action closeClient,
-        Action<string?>? endSnooze = null, Action? endFrozen = null)
+        Action<string?>? endSnooze = null, Action? endFrozen = null,
+        Action<string>? openUrl = null, Action<string>? copyText = null, Func<string, long?>? characterId = null)
     {
         _endSnooze = endSnooze ?? (_ => { });
+        _openUrl = openUrl ?? (url => OpenAllowed(url));
+        _copyText = copyText ?? (text => ClipboardText.Set(text));
+        _characterId = characterId ?? (name => LookupLinks.CharacterId(DiagnosticsService.GlobalSettings?.EveManager?.CharNameCache, name));
         _audio = audio;
         Strip = new ContextMenuStrip();
         FluentMenu.Style(Strip, showIcons: false);
@@ -125,6 +145,19 @@ public sealed class ThumbnailMenu : IDisposable
         _openSettings = Item(ThumbnailCommands.OpenSettings, null, "", openSettings);
         Strip.Items.Add(_openSettings);
 
+        // Lookup links (Plan 17, P1): each shows only when the thumbnail knows what it needs (Refresh decides).
+        Strip.Items.Add(_lookupLine);
+        _copySystem = Item(ThumbnailCommands.CopySystem, "L.Ctx.CopySystem", "Copy system name", () => { if (_system != null) _copyText(_system); });
+        _dotlan = Item(ThumbnailCommands.Dotlan, "L.Ctx.OpenDotlan", "Open system on Dotlan", () => OpenLink(LookupLinks.DotlanSystem(_system)));
+        _zkill = Item(ThumbnailCommands.ZKill, "L.Ctx.OpenZKill", "Open character on zKillboard", () => OpenLink(_id is { } id ? LookupLinks.ZKillboardCharacter(id) : null));
+        _evewho = Item(ThumbnailCommands.EveWho, "L.Ctx.OpenEveWho", "Open character on EveWho", () => OpenLink(_id is { } id ? LookupLinks.EveWhoCharacter(id) : null));
+        foreach (var lookup in new[] { _copySystem, _dotlan, _zkill, _evewho })
+        {
+            lookup.Available = false;
+            Strip.Items.Add(lookup);
+        }
+        _lookupLine.Available = false;
+
         // Last and below a line, away from the everyday items: it ends the client.
         Strip.Items.Add(new ToolStripSeparator());
         _endFrozen = Item(ThumbnailCommands.EndFrozen, "L.Ctx.EndFrozen", "End this frozen client…", endFrozen);
@@ -173,6 +206,27 @@ public sealed class ThumbnailMenu : IDisposable
         _endFrozen.Available = state.Frozen;
         _openSettings.Available = character;
         _openSettings.Text = string.Format(LocalizationService.Str("L.Ctx.OpenSettingsFmt", "Open {0}'s settings"), state.CharacterName);
+
+        // The login screen has no character, so none of the four; the ID is read again each time the menu opens.
+        _system = character && !string.IsNullOrWhiteSpace(state.SystemName) ? state.SystemName!.Trim() : null;
+        _id = character ? _characterId(state.CharacterName) : null;
+        _copySystem.Available = _system != null;
+        _dotlan.Available = LookupLinks.DotlanSystem(_system) != null;
+        _zkill.Available = _evewho.Available = _id != null;
+        _lookupLine.Available = _copySystem.Available || _dotlan.Available || _zkill.Available;
+    }
+
+    private void OpenLink(string? url)
+    {
+        if (url != null) _openUrl(url);
+    }
+
+    /// <summary>The default opener: the browser, and only for a link <see cref="LookupLinks.IsAllowed"/> accepts. A refused
+    /// link does nothing and is not logged (it carries a character's or system's name).</summary>
+    private static void OpenAllowed(string url)
+    {
+        if (!LookupLinks.IsAllowed(url)) return;
+        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); } catch { }
     }
 
     /// <summary>The Snoozed alerts submenu: a line of help, one item per snoozed event (a click ends it) and End all.

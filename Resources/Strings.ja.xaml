@@ -2577,4 +2577,8 @@
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">設定ウィンドウを開きます。すでに開いている場合は手前に表示します。ほかのホットキーと同じように、EVE クライアントの実行中も使えます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.client_ready">クライアント準備完了</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Events.clientReady.Desc">クライアントがゲームに入り、キャラクター名が表示されています。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.CopySystem">星系名をコピー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlan">Dotlan で星系を開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenZKill">zKillboard でキャラクターを開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenEveWho">EveWho でキャラクターを開く</sys:String> <!-- draft -->
 </ResourceDictionary>

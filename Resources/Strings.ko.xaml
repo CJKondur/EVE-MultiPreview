@@ -2577,4 +2577,8 @@
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">설정 창을 열어요. 이미 열려 있으면 앞으로 가져와요. 다른 단축키처럼 EVE 클라이언트가 실행 중일 때도 작동해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.client_ready">클라이언트 준비됨</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Events.clientReady.Desc">클라이언트가 게임에 들어와 캐릭터 이름이 표시돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.CopySystem">항성계 이름 복사</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenDotlan">Dotlan에서 항성계 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenZKill">zKillboard에서 캐릭터 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Ctx.OpenEveWho">EveWho에서 캐릭터 열기</sys:String> <!-- draft -->
 </ResourceDictionary>
