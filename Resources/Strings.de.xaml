@@ -2485,4 +2485,16 @@
     <sys:String x:Key="L.Focus.Off">Fokusmodus aus</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoGroup">Fokusmodus: Dieser Client ist in keiner Gruppe, daher werden alle Vorschaubilder angezeigt</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoSuchGroup">Fokusmodus: Es gibt keine Gruppe namens {0}, daher werden alle Vorschaubilder angezeigt</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.profiles.auto">Profil nach angemeldeten Charakteren wechseln</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect">Profil nach angemeldeten Charakteren wechseln</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect.Desc">Wenn die angemeldeten Charaktere zu einem Profil mehr gehören als zu jedem anderen, wechselt MultiPreview 10 Sekunden nach der letzten An- oder Abmeldung zu diesem Profil.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters">Charaktere, die dieses Profil auswählen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters.Desc">Die Charaktere des aktuellen Profils. Solange mehr davon angemeldet sind als von jedem anderen Profil, wird dieses Profil ausgewählt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.Add">Charakter hinzufügen…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.AddRunning">Angemeldete Charaktere hinzufügen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.None">Noch keine Charaktere: Dieses Profil wird nie von selbst ausgewählt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.PickTitle">Charakter zu diesem Profil hinzufügen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.BadName">Der Name eines Charakters darf kein Komma enthalten.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Title">Profil nach angemeldeten Charakteren wechseln</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Body">Gib jedem Profil die Charaktere, die dazu gehören, zum Beispiel deine Mining-Crew dem Profil Mining und deine PvP-Gruppe dem Profil PvP, und schalte **Profil nach angemeldeten Charakteren wechseln** ein. Wenn die angemeldeten Charaktere zu einem Profil mehr gehören als zu jedem anderen, wechselt MultiPreview zu diesem Profil.&#x0A;&#x0A;- Die Entscheidung fällt 10 Sekunden nach der letzten An- oder Abmeldung, sodass eine Crew, die sich nacheinander anmeldet, nur einen Wechsel auslöst.&#x0A;- Haben zwei Profile gleich viele der angemeldeten Charaktere, oder hat das aktuelle Profil so viele wie jedes andere, ändert sich nichts. Wenn sich alle abmelden, bleibt das Profil.&#x0A;- Wenn du in den letzten 10 Minuten selbst das Profil gewechselt hast, fragt MultiPreview, bevor es wechselt.&#x0A;- Beim Kopieren eines Profils wird alles außer diesen Charakteren kopiert, und **Diesen Charakter vergessen** nimmt einen Charakter aus der Liste jedes Profils.&#x0A;&#x0A;Die Funktion ist aus, bis du sie einschaltest.</sys:String> <!-- draft -->
 </ResourceDictionary>

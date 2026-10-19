@@ -31,6 +31,7 @@ public static class AppPages
         new HelpTopic("app.diagnostics", "errors", new[] { "app.diagnostics.errorLog" }),
         new HelpTopic("app.diagnostics", "report", new[] { "app.diagnostics.bugReport" }),
         new HelpTopic("app.profiles", "profiles", new[] { "app.profiles.current" }),
+        new HelpTopic("app.profiles", "auto", new[] { "app.profiles.autoSelect", AutoProfileEditor.ItemId }),
         new HelpTopic("app.profiles", "backups", new[] { "app.profiles.backup" }),
         new HelpTopic("app.about", "updates", new[] { "app.about.links", "app.about.checkOnStartup", "app.about.preRelease", "app.about.installVersion" }),
         new HelpTopic("app.about", "window", new[] { "app.about.useOldWindow" }),
@@ -104,6 +105,16 @@ public static class AppPages
             {
                 Binds = new[] { "AppSettings.LastUsedProfile", "AppSettings.Profiles" },
                 Replaces = new[] { "OnCopyLayout", "CmbProfiles", "OnProfileChanged", "OnCreateProfile", "OnDeleteProfile" },
+            },
+        }),
+        // IDEAS #11: App reads both on its half-second timer (AutoProfile), so a change only saves.
+        new SectionDef("app.profiles.auto", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("app.profiles.autoSelect", s => s.AutoSelectProfile)),
+            new EditorItem(AutoProfileEditor.ItemId, ctx => new AutoProfileEditor(ctx))
+            {
+                Binds = new[] { "Profile.AutoSelectCharacters" },
+                ShowIf = s => s.AutoSelectProfile,
             },
         }),
         new SectionDef("app.profiles.backups", new PageItem[]

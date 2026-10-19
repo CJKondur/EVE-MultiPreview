@@ -2507,4 +2507,16 @@
     <sys:String x:Key="L.Focus.Off">Modo enfoque desactivado</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoGroup">Modo enfoque: este cliente no está en ningún grupo, así que se muestran todas las miniaturas</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoSuchGroup">Modo enfoque: no hay ningún grupo llamado {0}, así que se muestran todas las miniaturas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.profiles.auto">Cambiar de perfil según quién ha iniciado sesión</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect">Cambiar de perfil según quién ha iniciado sesión</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect.Desc">Cuando los personajes con sesión iniciada pertenecen a un perfil más que a cualquier otro, MultiPreview cambia a ese perfil 10 segundos después del último inicio o cierre de sesión.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters">Personajes que eligen este perfil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters.Desc">Los personajes del perfil actual. Mientras haya más de ellos con sesión iniciada que de cualquier otro perfil, se elige este perfil.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.Add">Añadir un personaje…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.AddRunning">Añadir los personajes con sesión iniciada</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.None">Aún no hay personajes: este perfil nunca se elige por sí solo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.PickTitle">Añadir un personaje a este perfil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.BadName">El nombre de un personaje no puede contener comas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Title">Cambiar de perfil según quién ha iniciado sesión</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Body">Da a cada perfil los personajes que le pertenecen, por ejemplo tu equipo de minería al perfil Mining y tu grupo de PvP al perfil PvP, y activa **Cambiar de perfil según quién ha iniciado sesión**. Cuando los personajes con sesión iniciada pertenecen a un perfil más que a cualquier otro, MultiPreview cambia a ese perfil.&#x0A;&#x0A;- Decide 10 segundos después del último inicio o cierre de sesión, así que un equipo que entra uno a uno provoca un solo cambio.&#x0A;- Si dos perfiles tienen el mismo número de personajes con sesión iniciada, o el perfil actual tiene tantos como cualquier otro, no cambia nada. Cuando todos cierran sesión, el perfil se mantiene.&#x0A;- Si has cambiado de perfil tú mismo en los últimos 10 minutos, MultiPreview pregunta antes de cambiar.&#x0A;- Copiar un perfil copia todo excepto estos personajes, y **Olvidar este personaje** quita un personaje de la lista de cada perfil.&#x0A;&#x0A;Está desactivado hasta que lo actives.</sys:String> <!-- draft -->
 </ResourceDictionary>

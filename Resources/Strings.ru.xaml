@@ -2505,4 +2505,16 @@
     <sys:String x:Key="L.Focus.Off">Режим фокуса выключен</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoGroup">Режим фокуса: этот клиент не входит ни в одну группу, поэтому показаны все миниатюры</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoSuchGroup">Режим фокуса: группы с названием {0} нет, поэтому показаны все миниатюры</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.profiles.auto">Переключать профиль по вошедшим персонажам</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect">Переключать профиль по вошедшим персонажам</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect.Desc">Если вошедшие в игру персонажи относятся к одному профилю больше, чем к любому другому, MultiPreview переключается на него через 10 секунд после последнего входа или выхода.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters">Персонажи, выбирающие этот профиль</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters.Desc">Персонажи текущего профиля. Пока вошедших персонажей из него больше, чем из любого другого профиля, выбирается этот профиль.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.Add">Добавить персонажа…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.AddRunning">Добавить вошедших персонажей</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.None">Персонажей пока нет: этот профиль никогда не выбирается сам.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.PickTitle">Добавить персонажа в этот профиль</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.BadName">Имя персонажа не может содержать запятую.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Title">Переключение профиля по вошедшим персонажам</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Body">Укажите для каждого профиля его персонажей, например добывающую команду для профиля Mining, а PvP-группу для профиля PvP, и включите **Переключать профиль по вошедшим персонажам**. Если вошедшие персонажи относятся к одному профилю больше, чем к любому другому, MultiPreview переключается на этот профиль.&#x0A;&#x0A;- Решение принимается через 10 секунд после последнего входа или выхода, поэтому команда, которая заходит по одному, даёт одно переключение.&#x0A;- Если у двух профилей поровну вошедших персонажей или у текущего профиля их столько же, сколько у любого другого, ничего не меняется. Когда все выходят, профиль остаётся.&#x0A;- Если вы сами переключили профиль за последние 10 минут, MultiPreview спросит, прежде чем переключать.&#x0A;- Копирование профиля копирует всё, кроме этих персонажей, а **Забыть этого персонажа** убирает персонажа из списка каждого профиля.&#x0A;&#x0A;Функция выключена, пока вы её не включите.</sys:String> <!-- draft -->
 </ResourceDictionary>

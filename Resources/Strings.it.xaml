@@ -2503,4 +2503,16 @@
     <sys:String x:Key="L.Focus.Off">Modalità focus disattivata</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoGroup">Modalità focus: questo client non è in nessun gruppo, quindi vengono mostrate tutte le miniature</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoSuchGroup">Modalità focus: non esiste nessun gruppo chiamato {0}, quindi vengono mostrate tutte le miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.profiles.auto">Cambia profilo in base ai personaggi connessi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect">Cambia profilo in base ai personaggi connessi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect.Desc">Quando i personaggi connessi appartengono a un profilo più che a qualsiasi altro, MultiPreview passa a quel profilo 10 secondi dopo l'ultimo accesso o l'ultima uscita.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters">Personaggi che scelgono questo profilo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters.Desc">I personaggi del profilo attuale. Finché ne sono connessi più che di qualsiasi altro profilo, viene scelto questo profilo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.Add">Aggiungi un personaggio…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.AddRunning">Aggiungi i personaggi connessi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.None">Ancora nessun personaggio: questo profilo non viene mai scelto da solo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.PickTitle">Aggiungi un personaggio a questo profilo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.BadName">Il nome di un personaggio non può contenere virgole.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Title">Cambiare profilo in base ai personaggi connessi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Body">Assegna a ogni profilo i personaggi che gli appartengono, per esempio la tua squadra di mining al profilo Mining e il tuo gruppo PvP al profilo PvP, e attiva **Cambia profilo in base ai personaggi connessi**. Quando i personaggi connessi appartengono a un profilo più che a qualsiasi altro, MultiPreview passa a quel profilo.&#x0A;&#x0A;- Decide 10 secondi dopo l'ultimo accesso o l'ultima uscita, quindi una squadra che entra uno alla volta provoca un solo cambio.&#x0A;- Se due profili hanno lo stesso numero di personaggi connessi, o il profilo attuale ne ha quanti qualsiasi altro, non cambia nulla. Quando tutti escono, il profilo resta.&#x0A;- Se hai cambiato profilo tu stesso negli ultimi 10 minuti, MultiPreview chiede prima di cambiare.&#x0A;- Copiare un profilo copia tutto tranne questi personaggi, e **Dimentica questo personaggio** toglie un personaggio dalla lista di ogni profilo.&#x0A;&#x0A;È disattivato finché non lo attivi.</sys:String> <!-- draft -->
 </ResourceDictionary>

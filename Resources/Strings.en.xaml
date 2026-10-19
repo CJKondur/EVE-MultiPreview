@@ -2485,4 +2485,16 @@
     <sys:String x:Key="L.Focus.Off">Focus mode off</sys:String>
     <sys:String x:Key="L.Focus.NoGroup">Focus mode: this client is in no group, so every thumbnail shows</sys:String>
     <sys:String x:Key="L.Focus.NoSuchGroup">Focus mode: there is no group called {0}, so every thumbnail shows</sys:String>
+    <sys:String x:Key="L.S.Sec.app.profiles.auto">Switch profiles by who is logged in</sys:String>
+    <sys:String x:Key="L.S.app.profiles.autoSelect">Switch profiles by who is logged in</sys:String>
+    <sys:String x:Key="L.S.app.profiles.autoSelect.Desc">When the characters logged in belong to one profile more than to any other, MultiPreview switches to it, 10 seconds after the last login or logout.</sys:String>
+    <sys:String x:Key="L.S.app.profiles.autoCharacters">Characters that pick this profile</sys:String>
+    <sys:String x:Key="L.S.app.profiles.autoCharacters.Desc">The characters of the current profile. While more of them are logged in than of any other profile's, this profile is picked.</sys:String>
+    <sys:String x:Key="L.S.AutoProfile.Add">Add a character…</sys:String>
+    <sys:String x:Key="L.S.AutoProfile.AddRunning">Add the logged-in characters</sys:String>
+    <sys:String x:Key="L.S.AutoProfile.None">No characters yet: this profile is never picked by itself.</sys:String>
+    <sys:String x:Key="L.S.AutoProfile.PickTitle">Add a character to this profile</sys:String>
+    <sys:String x:Key="L.S.AutoProfile.BadName">A character's name can't contain a comma.</sys:String>
+    <sys:String x:Key="L.Help.app.profiles.auto.Title">Switching profiles by who is logged in</sys:String>
+    <sys:String x:Key="L.Help.app.profiles.auto.Body">Give each profile the characters that belong to it, for example your mining crew to Mining and your PvP pack to PvP, and turn on **Switch profiles by who is logged in**. When the characters logged in belong to one profile more than to any other, MultiPreview switches to that profile.&#x0A;&#x0A;- It decides 10 seconds after the last login or logout, so a crew that logs in one by one is one switch.&#x0A;- When two profiles have as many of the logged-in characters, or the current profile has as many as any other, nothing changes. When everyone logs out, the profile stays.&#x0A;- If you switched profiles yourself in the last 10 minutes, MultiPreview asks before it switches.&#x0A;- Copying a profile copies everything except these characters, and **Forget this character** takes a character out of every profile's list.&#x0A;&#x0A;It is off until you turn it on.</sys:String>
 </ResourceDictionary>

@@ -2486,4 +2486,16 @@
     <sys:String x:Key="L.Focus.Off">フォーカスモードをオフにしました</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoGroup">フォーカスモード：このクライアントはどのグループにも入っていないため、すべてのサムネイルを表示します</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoSuchGroup">フォーカスモード：{0} というグループがないため、すべてのサムネイルを表示します</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.profiles.auto">ログイン中のキャラクターでプロファイルを切り替える</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect">ログイン中のキャラクターでプロファイルを切り替える</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect.Desc">ログイン中のキャラクターが他のどのプロファイルよりも1つのプロファイルに多く属しているとき、最後のログインまたはログアウトの10秒後にそのプロファイルへ切り替えます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters">このプロファイルを選ぶキャラクター</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters.Desc">現在のプロファイルのキャラクターです。ログイン中の人数が他のどのプロファイルのキャラクターよりも多い間は、このプロファイルが選ばれます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.Add">キャラクターを追加…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.AddRunning">ログイン中のキャラクターを追加</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.None">まだキャラクターがありません。このプロファイルは自動では選ばれません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.PickTitle">このプロファイルにキャラクターを追加</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.BadName">キャラクター名にカンマは使えません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Title">ログイン中のキャラクターでプロファイルを切り替える</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Body">各プロファイルに、それに属するキャラクターを登録します。たとえば採掘チームは Mining、PvP の仲間は PvP に登録し、**ログイン中のキャラクターでプロファイルを切り替える**をオンにします。ログイン中のキャラクターが他のどのプロファイルよりも1つのプロファイルに多く属しているとき、MultiPreview はそのプロファイルへ切り替えます。&#x0A;&#x0A;- 最後のログインまたはログアウトの10秒後に決めるので、1人ずつログインするチームでも切り替えは1回だけです。&#x0A;- 2つのプロファイルのログイン中キャラクターが同数のとき、または現在のプロファイルが他のどれかと同数のときは、何も変わりません。全員がログアウトしても、プロファイルはそのままです。&#x0A;- 直近10分以内に自分でプロファイルを切り替えた場合、MultiPreview は切り替える前に確認します。&#x0A;- プロファイルをコピーすると、これらのキャラクター以外のすべてがコピーされます。**このキャラクターを削除**は、すべてのプロファイルのリストからキャラクターを取り除きます。&#x0A;&#x0A;オンにするまではオフです。</sys:String> <!-- draft -->
 </ResourceDictionary>

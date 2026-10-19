@@ -300,6 +300,11 @@ public class AppSettings
     public string FocusModeGroup { get; set; } = "";
     public bool FocusModeShowAlerts { get; set; } = true;
 
+    /// <summary>Switch profiles by who is logged in (IDEAS #11): the profile whose characters (Profile.AutoSelectCharacters)
+    /// are logged in, 10 s after the last login or logout. Read by App through AutoProfile.IsOn on its half-second timer.
+    /// New key: off in a file without it.</summary>
+    public bool AutoSelectProfile { get; set; } = false;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients
@@ -793,6 +798,11 @@ public class Profile
     /// profiles can show which layout is in effect (#94). Display only — it does not
     /// re-apply the preset by itself.</summary>
     public string AppliedLayoutPreset { get; set; } = "";
+
+    /// <summary>The characters that pick this profile while "Switch profiles by who is logged in" is on (IDEAS #11): names
+    /// joined by commas (EVE names have none), "" = none. Read by AutoProfile.Candidates. Kept in the profile's "Thumbnail
+    /// Settings" in the file. A full copy of another profile keeps this profile's own (ProfileCopy). New key: "".</summary>
+    public string AutoSelectCharacters { get; set; } = "";
 
     // ── Per-profile Thumbnail Settings (from AHK "Thumbnail Settings" sub-object) ──
     public bool ShowAllColoredBorders { get; set; } = false;

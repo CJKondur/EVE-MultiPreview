@@ -148,6 +148,7 @@ public class AhkConfigRoot
         s.FocusModeHotkey = g.FocusModeHotkey ?? "";
         s.FocusModeGroup = g.FocusModeGroup ?? "";
         s.FocusModeShowAlerts = g.FocusModeShowAlerts != 0;
+        s.AutoSelectProfile = g.AutoSelectProfile != 0;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -309,6 +310,7 @@ public class AhkConfigRoot
             if (ts != null)
             {
                 profile.AppliedLayoutPreset = ts.AppliedLayoutPreset ?? "";
+                profile.AutoSelectCharacters = ts.AutoSelectCharacters ?? "";
                 profile.ShowAllColoredBorders = ts.ShowAllColoredBorders != 0;
                 profile.HideThumbnailsOnLostFocus = ts.HideThumbnailsOnLostFocus != 0;
                 profile.ShowThumbnailsAlwaysOnTop = ts.ShowThumbnailsAlwaysOnTop != 0;
@@ -495,6 +497,7 @@ public class AhkConfigRoot
         g.FocusModeHotkey = s.FocusModeHotkey;
         g.FocusModeGroup = s.FocusModeGroup;
         g.FocusModeShowAlerts = s.FocusModeShowAlerts ? 1 : 0;
+        g.AutoSelectProfile = s.AutoSelectProfile ? 1 : 0;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -637,6 +640,7 @@ public class AhkConfigRoot
             ap.ThumbnailSettings = new AhkThumbnailSettings
             {
                 AppliedLayoutPreset = profile.AppliedLayoutPreset,
+                AutoSelectCharacters = profile.AutoSelectCharacters,
                 ShowAllColoredBorders = profile.ShowAllColoredBorders ? 1 : 0,
                 HideThumbnailsOnLostFocus = profile.HideThumbnailsOnLostFocus ? 1 : 0,
                 ShowThumbnailsAlwaysOnTop = profile.ShowThumbnailsAlwaysOnTop ? 1 : 0,
@@ -892,6 +896,11 @@ public class AhkThumbnailSettings
     /// without it loads "".</summary>
     [JsonPropertyName("AppliedLayoutPreset")]
     public string? AppliedLayoutPreset { get; set; } = "";
+
+    /// <summary>The characters that pick this profile (IDEAS #11), batch 10: a file without it loads "" (none). A text, so
+    /// that no odd value in it can make the file unloadable.</summary>
+    [JsonPropertyName("AutoSelectCharacters")]
+    public string? AutoSelectCharacters { get; set; } = "";
 
     [JsonPropertyName("ShowAllColoredBorders")]
     public int ShowAllColoredBorders { get; set; }
@@ -1398,6 +1407,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("FocusModeShowAlerts")]
     public int FocusModeShowAlerts { get; set; } = 1;
+
+    // Switch profiles by who is logged in (IDEAS #11), batch 10: a file without it loads off.
+    [JsonPropertyName("AutoSelectProfile")]
+    public int AutoSelectProfile { get; set; }
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

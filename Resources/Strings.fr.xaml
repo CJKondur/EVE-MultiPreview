@@ -2488,4 +2488,16 @@
     <sys:String x:Key="L.Focus.Off">Mode focus désactivé</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoGroup">Mode focus : ce client n'est dans aucun groupe, donc toutes les miniatures s'affichent</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoSuchGroup">Mode focus : il n'y a aucun groupe nommé {0}, donc toutes les miniatures s'affichent</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.profiles.auto">Changer de profil selon les personnages connectés</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect">Changer de profil selon les personnages connectés</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoSelect.Desc">Lorsque les personnages connectés appartiennent davantage à un profil qu'à tout autre, MultiPreview passe à ce profil 10 secondes après la dernière connexion ou déconnexion.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters">Personnages qui choisissent ce profil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.profiles.autoCharacters.Desc">Les personnages du profil actuel. Tant que plus d'entre eux sont connectés que de ceux de n'importe quel autre profil, ce profil est choisi.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.Add">Ajouter un personnage…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.AddRunning">Ajouter les personnages connectés</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.None">Aucun personnage pour l'instant : ce profil n'est jamais choisi automatiquement.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.PickTitle">Ajouter un personnage à ce profil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.AutoProfile.BadName">Le nom d'un personnage ne peut pas contenir de virgule.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Title">Changer de profil selon les personnages connectés</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.auto.Body">Donnez à chaque profil les personnages qui lui appartiennent, par exemple votre équipe de minage au profil Mining et votre groupe PvP au profil PvP, puis activez **Changer de profil selon les personnages connectés**. Lorsque les personnages connectés appartiennent davantage à un profil qu'à tout autre, MultiPreview passe à ce profil.&#x0A;&#x0A;- La décision est prise 10 secondes après la dernière connexion ou déconnexion : une équipe qui se connecte un à un ne provoque donc qu'un seul changement.&#x0A;- Quand deux profils ont autant de personnages connectés, ou que le profil actuel en a autant que n'importe quel autre, rien ne change. Quand tout le monde se déconnecte, le profil reste.&#x0A;- Si vous avez changé de profil vous-même au cours des 10 dernières minutes, MultiPreview demande avant de changer.&#x0A;- Copier un profil copie tout sauf ces personnages, et **Oublier ce personnage** retire un personnage de la liste de chaque profil.&#x0A;&#x0A;La fonction est désactivée tant que vous ne l'activez pas.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -50,6 +50,7 @@ public static class BugReportSources
             names.AddRange(p.ClientSlots.SelectMany(slot => slot.Characters));
             names.AddRange(p.HotkeyGroups.Values.SelectMany(g => g.Characters));
             names.AddRange(p.Groups.Values.SelectMany(g => g.Members));
+            names.AddRange(AutoProfile.Characters(p.AutoSelectCharacters));   // IDEAS #11
         }
         names.AddRange(s.ThumbnailGroups.SelectMany(g => g.Members));
         names.AddRange(s.ThumbnailAnnotations.Keys);

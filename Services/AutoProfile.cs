@@ -42,6 +42,15 @@ public sealed class AutoProfile
     public static bool IsUsableName(string? name) =>
         !string.IsNullOrWhiteSpace(name) && name.IndexOf(Separator) < 0 && !name.Any(char.IsControl);
 
+    /// <summary>"Switch profiles by who is logged in" (IDEAS #11). Read by App on its half-second timer.</summary>
+    public static bool IsOn(Models.AppSettings? s) => s?.AutoSelectProfile == true;
+
+    /// <summary>Every profile that names at least one character, in the file's order: what Look weighs. The names are
+    /// Characters' output (trimmed, each once), as Look and Best expect.</summary>
+    public static IReadOnlyList<(string Profile, IReadOnlyList<string> Characters)> Candidates(Models.AppSettings s) =>
+        s.Profiles.Select(kv => (Profile: kv.Key, Characters: Characters(kv.Value.AutoSelectCharacters)))
+            .Where(p => p.Characters.Count > 0).ToList();
+
     /// <summary>The profile to switch to, or null: none has a character logged in, two share the most, the current one is
     /// among the most, or it is the current one.</summary>
     public static string? Best(IReadOnlyList<(string Profile, IReadOnlyList<string> Characters)> profiles,
