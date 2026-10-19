@@ -151,13 +151,16 @@ public class ThumbnailWindow : Form
 
     /// <summary>The size a resize drag gives: the start size plus the mouse movement, never below the floor. With a
     /// <paramref name="ratio"/> (width / height, IDEAS P7) the width follows the mouse and the height follows the
-    /// ratio; a result under the floor on either side is scaled up, keeping the ratio, until both sides are at or
-    /// above it. A ratio that is not a positive finite number is none.</summary>
+    /// ratio. Both axes drive the width: dy counts as dy * ratio of width, and the axis whose movement is larger in
+    /// absolute value wins (a tie goes to dx), so a drag left or up shrinks and one right or down grows, and a purely
+    /// vertical drag works too. A result under the floor on either side is scaled up, keeping the ratio, until both
+    /// sides are at or above it. A ratio that is not a positive finite number is none.</summary>
     public static (int Width, int Height) ResizedTo(int startWidth, int startHeight, int dx, int dy, System.Drawing.Size floor, double? ratio = null)
     {
         if (ratio is not { } r || !double.IsFinite(r) || r <= 0)
             return (Math.Max(startWidth + dx, floor.Width), Math.Max(startHeight + dy, floor.Height));
-        double w = Math.Max((double)startWidth + dx, 1), h = w / r;
+        double byY = (double)dy * r, move = Math.Abs(byY) > Math.Abs((double)dx) ? byY : dx;
+        double w = Math.Max(startWidth + move, 1), h = w / r;
         double scale = Math.Max(1, Math.Max(floor.Width / w, floor.Height / Math.Max(h, double.Epsilon)));
         const int Limit = short.MaxValue;     // Win32's own size limit; also keeps an absurd ratio from overflowing
         return ((int)Math.Min(Math.Max(Math.Round(w * scale), floor.Width), Limit),
