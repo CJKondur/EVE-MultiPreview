@@ -52,7 +52,7 @@ public sealed class LookSample
     {
         public void Navigate(string pageId, string? itemId = null) { }
         public void Toast(string text) { }
-        public bool Confirm(string title, string body) => false;
+        public bool Confirm(string title, string body, SafeAnswer safe = SafeAnswer.Cancel) => false;
         public string? PickFolder(string? initial) => null;
         public string? PickFile(string? initial, string filter) => null;
         public string? PickSaveFile(string defaultName, string filter) => null;

@@ -316,9 +316,9 @@ public partial class SettingsShell : Window, ISettingsHost
     }
 
     /// <summary>The app's own dialog, in the app's language and look (spec §8.1, O16): OK and Cancel.</summary>
-    public bool Confirm(string title, string body)
+    public bool Confirm(string title, string body, SafeAnswer safe = SafeAnswer.Cancel)
     {
-        var dialog = new ChoiceDialog(title, body, SettingsContext.Str("L.S.Shell.Ok")) { Owner = this };
+        var dialog = new ChoiceDialog(title, body, SettingsContext.Str("L.S.Shell.Ok"), safe) { Owner = this };
         dialog.ShowDialog();
         return dialog.Result == true;
     }

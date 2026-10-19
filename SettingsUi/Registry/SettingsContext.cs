@@ -12,7 +12,9 @@ public interface ISettingsHost
     void Navigate(string pageId, string? itemId = null);
     /// <summary>A short message in the window's corner. Never a separate window, never takes focus.</summary>
     void Toast(string text);
-    bool Confirm(string title, string body);
+    /// <summary>OK/Cancel question. <paramref name="safe"/>: Cancel (the default) when OK removes or overwrites something; First (OK)
+    /// when OK only means "continue / try again / that is right" (IDEAS P92).</summary>
+    bool Confirm(string title, string body, SafeAnswer safe = SafeAnswer.Cancel);
     string? PickFolder(string? initial);
     string? PickFile(string? initial, string filter);
     string? PickSaveFile(string defaultName, string filter);

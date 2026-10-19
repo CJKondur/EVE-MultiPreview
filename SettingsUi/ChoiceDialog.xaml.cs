@@ -38,7 +38,13 @@ public partial class ChoiceDialog : Window
     /// button is not shown, so the answer is true for OK and null for Cancel, Esc or closing. OK is a change, so Cancel is
     /// the default button and has the focus: Enter on a question that has just opened keeps things as they are (IDEAS
     /// P92). The system message box made OK the default; the app's destructive questions made that unsafe.</summary>
-    public ChoiceDialog(string title, string body, string okLabel) : this(title, body, okLabel, "", SafeAnswer.Cancel)
+    public ChoiceDialog(string title, string body, string okLabel) : this(title, body, okLabel, SafeAnswer.Cancel) { }
+
+    /// <summary>The same question with a safe answer of its own: <see cref="SafeAnswer.First"/> (OK) for a question whose OK
+    /// only means "continue", "try again" or "that is right" and removes or overwrites nothing; Cancel (the other
+    /// overload) otherwise. <see cref="SafeAnswer.Second"/> has no meaning here (there is no second option) and is Cancel.</summary>
+    public ChoiceDialog(string title, string body, string okLabel, SafeAnswer safe)
+        : this(title, body, okLabel, "", safe == SafeAnswer.First ? SafeAnswer.First : SafeAnswer.Cancel)
     {
         NoButton.Visibility = Visibility.Collapsed;
     }

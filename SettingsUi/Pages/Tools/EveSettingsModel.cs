@@ -345,29 +345,29 @@ public sealed class EveSettingsModel
     {
         if (EveDir.Length == 0) { Toast("L.S.Eve.NoFolder"); return; }
         var title = Str("L.S.Eve.DetectTitle");
-        if (!_ctx.Host.Confirm(title, Str("L.S.Eve.DetectStep1"))) return;
+        if (!_ctx.Host.Confirm(title, Str("L.S.Eve.DetectStep1"), SafeAnswer.First)) return;
         while (true)
         {
             var since = DateTime.UtcNow;   // only a character file written after this counts as the new login
-            if (!_ctx.Host.Confirm(title, Str("L.S.Eve.DetectStep2"))) break;
+            if (!_ctx.Host.Confirm(title, Str("L.S.Eve.DetectStep2"), SafeAnswer.First)) break;
             var (charId, userId, fresh) = DetectSince(since);
             if (charId == null || userId == null)
             {
-                if (_ctx.Host.Confirm(title, Str("L.S.Eve.DetectNone"))) continue;
+                if (_ctx.Host.Confirm(title, Str("L.S.Eve.DetectNone"), SafeAnswer.First)) continue;
                 break;
             }
             if (!fresh)
             {
-                if (_ctx.Host.Confirm(title, Str("L.S.Eve.DetectNotFresh"))) continue;
+                if (_ctx.Host.Confirm(title, Str("L.S.Eve.DetectNotFresh"), SafeAnswer.First)) continue;
                 break;
             }
             var name = Names.TryGetValue(charId, out var n) && n.Length > 0 ? n : string.Format(Str("L.S.Eve.CharacterId"), charId);
-            if (_ctx.Host.Confirm(title, string.Format(Str("L.S.Eve.DetectFound"), name, userId)))
+            if (_ctx.Host.Confirm(title, string.Format(Str("L.S.Eve.DetectFound"), name, userId), SafeAnswer.First))
             {
                 Link(charId, userId);
                 _ctx.Host.Toast(string.Format(Str("L.S.Eve.Linked"), name, userId));
             }
-            if (!_ctx.Host.Confirm(title, Str("L.S.Eve.DetectAnother"))) break;
+            if (!_ctx.Host.Confirm(title, Str("L.S.Eve.DetectAnother"), SafeAnswer.First)) break;
         }
         Toast("L.S.Eve.DetectDone");
     }

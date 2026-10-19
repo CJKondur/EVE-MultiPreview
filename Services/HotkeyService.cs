@@ -1354,7 +1354,7 @@ public sealed class HotkeyService : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    App.PerfLog($"[Hotkey:Error] Action exception ID={id}: {ex.Message}");
+                    App.PerfLog($"[Hotkey:Error] Action exception ID={id}: {ex.GetType().Name}");
                 }
                 handled = true;
 

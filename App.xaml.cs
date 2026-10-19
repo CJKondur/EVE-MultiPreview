@@ -807,7 +807,7 @@ public partial class App : Application
                 }
                 catch (Exception ex)
                 {
-                    PerfLog($"[Update] ⚠ Auto-check failed (non-fatal): {ex.Message}");
+                    PerfLog($"[Update] ⚠ Auto-check failed (non-fatal): {ex.GetType().Name}");
                 }
             });
         };
