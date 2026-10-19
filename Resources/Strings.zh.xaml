@@ -893,7 +893,7 @@
     <sys:String x:Key="L.S.Act.app.profiles.import">导入…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.Intro">配置文件是一套完整的设置：缩略图位置、热键、颜色、裁剪和客户端布局。建议每种活动用一个，例如挖矿和 PvP。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">使用配置文件</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新建**会创建空配置文件并切换到它。&#x0A;- **复制**把一个配置文件复制到另一个：全部内容，或仅缩略图位置。&#x0A;- **删除**会永久删除当前配置文件。始终至少保留一个。&#x0A;- **将外观复制为代码**会把当前配置文件的外观（边框、文字、不透明度、缩略图何时隐藏）作为一行文本放到剪贴板；**从代码新建配置文件…**会创建当前配置文件的副本并应用该外观。代码不包含角色名称、位置或热键。&#x0A;&#x0A;你也可以从左上角的配置文件菜单或配置文件热键切换。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新建**会创建空配置文件并切换到它。&#x0A;- **复制**把一个配置文件复制到另一个：全部内容，或仅缩略图位置。&#x0A;- **删除**会永久删除当前配置文件。始终至少保留一个。&#x0A;- **将外观复制为代码**会把当前配置文件的外观（边框、文字、不透明度、缩略图何时隐藏）作为一行文本放到剪贴板；**从代码新建配置文件…**会创建当前配置文件的副本并应用该外观。代码不包含角色名称、位置或热键。&#x0A;- **与其他配置文件比较…**会逐项列出与另一个配置文件不同的设置，让你选择采用它的值或保留自己的；不会向另一个配置文件写入任何内容，启动时的备份就是撤销的办法。&#x0A;&#x0A;你也可以从左上角的配置文件菜单或配置文件热键切换。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">备份与迁移到另一台电脑</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Body">**立即备份**会在 Backups 文件夹中保存一份带日期的副本。如果设置自上一份副本以来有变化，MultiPreview 启动时也会保留一份副本（最近 10 份），每次更新前也会保留一份。如果无法读取你的设置文件或文件丢失，启动时会提供这些副本。&#x0A;&#x0A;**导出**会把你的设置文件保存到你喜欢的位置。**导入**会用导出的文件替换你的全部设置。当前设置会先备份。&#x0A;&#x0A;你的设置通常保存在 %APPDATA%\EVE MultiPreview。若想改为保存在 MultiPreview.exe 旁边（便携安装），请关闭 MultiPreview，把设置文件复制到那里，并在 exe 旁放一个名为 portable.txt 的空文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">关于与更新</sys:String> <!-- draft -->
@@ -2601,4 +2601,16 @@
     <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">为每个角色分配各自的边框颜色。你为某个角色或某个分组选择的颜色仍然优先。活动客户端的高亮颜色会被自动颜色替换，除非开启了“在彩色分组内保留高亮”。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.clientReady.Title">客户端就绪</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.clientReady.Body">**客户端就绪**会在客户端进入游戏时提醒你：它的窗口从登录界面变为已登录的角色。请在事件表中开启它（在“客户端”下）；在你开启之前它是关闭的。&#x0A;&#x0A;- 每次登录只触发一次。&#x0A;- MultiPreview 启动时已经登录的客户端、同一窗口内切换角色、以及登出，都不会触发。&#x0A;- 它是信息类事件：稳定的边框和徽标，如果开启了警报声音，还会有声音。</sys:String> <!-- draft -->
+    <!-- Ideas batch 15 (Plan 19) -->
+    <sys:String x:Key="L.S.Profile.Compare">与其他配置文件比较…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePick">要与哪个配置文件比较？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareTitle">与“{0}”比较（{1}/{2}）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareRow">要采用“{0}”中“{1}”的值吗？&#x0A;&#x0A;你的：{2}&#x0A;“{0}”中的：{3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareNone">与“{0}”没有任何差异。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareNoOther">请选择另一个配置文件来比较。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareTake">采用</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareKeep">保留我的</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareDone">已从“{1}”采用 {0} 个值。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareEntries">{0} 项</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">窗口位置</sys:String> <!-- draft -->
 </ResourceDictionary>

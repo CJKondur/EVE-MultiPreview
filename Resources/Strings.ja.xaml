@@ -876,7 +876,7 @@
     <sys:String x:Key="L.S.Act.app.profiles.import">インポート…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.Intro">プロファイルは完全なセットアップです。サムネイルの位置、ホットキー、色、クロップ、クライアントのレイアウトが含まれます。採掘と PvP のように、用途ごとに 1 つ作っておくと便利です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">プロファイルの使い方</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新規**は空のプロファイルを作成して切り替えます。&#x0A;- **コピー**は、あるプロファイルを別のプロファイルにコピーします。すべて、またはサムネイルの位置だけを選べます。&#x0A;- **削除**は現在のプロファイルを完全に削除します。最低 1 つは必ず残ります。&#x0A;- **外観をコードとしてコピー**は、現在のプロファイルの外観（枠線、文字、不透明度、サムネイルを隠すタイミング）を 1 行のテキストとしてクリップボードに入れます。**コードから新しいプロファイル…**は、現在のプロファイルのコピーをその外観で作ります。コードにキャラクター名、位置、ホットキーは含まれません。&#x0A;&#x0A;左上のプロファイルメニューや、プロファイル用ホットキーでも切り替えられます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新規**は空のプロファイルを作成して切り替えます。&#x0A;- **コピー**は、あるプロファイルを別のプロファイルにコピーします。すべて、またはサムネイルの位置だけを選べます。&#x0A;- **削除**は現在のプロファイルを完全に削除します。最低 1 つは必ず残ります。&#x0A;- **外観をコードとしてコピー**は、現在のプロファイルの外観（枠線、文字、不透明度、サムネイルを隠すタイミング）を 1 行のテキストとしてクリップボードに入れます。**コードから新しいプロファイル…**は、現在のプロファイルのコピーをその外観で作ります。コードにキャラクター名、位置、ホットキーは含まれません。&#x0A;- **他のプロファイルと比較…**は、別のプロファイルと異なる設定を1つずつ確認し、その値を取り込むか今の値のままにするかを選べます。別のプロファイルには何も書き込まれず、起動時のバックアップが元に戻す手段になります。&#x0A;&#x0A;左上のプロファイルメニューや、プロファイル用ホットキーでも切り替えられます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">バックアップと別の PC への移行</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Body">**今すぐバックアップ**は日付付きのコピーを Backups フォルダーに保存します。前回のコピー以降に設定が変わっていれば、MultiPreview は起動時にもコピーを保存し（直近 10 件）、更新の前にも保存します。設定ファイルを読み込めない場合や見つからない場合は、起動時にこれらのコピーを提案します。&#x0A;&#x0A;**エクスポート**は設定ファイルを好きな場所に保存します。**インポート**はすべての設定をエクスポートしたファイルに置き換えます。現在の設定は先にバックアップされます。&#x0A;&#x0A;設定は通常 %APPDATA%\EVE MultiPreview に保存されます。代わりに MultiPreview.exe の隣に置くには（ポータブルインストール）、MultiPreview を閉じ、設定ファイルをそこへコピーして、exe の隣に portable.txt という空のファイルを置いてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">情報とアップデート</sys:String> <!-- draft -->
@@ -2584,4 +2584,16 @@
     <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">キャラクターごとに別々の枠の色を付けます。キャラクターやグループに自分で選んだ色があれば、そちらが優先されます。アクティブなクライアントのハイライトの色は自動の色に置き換えられます。「色付きグループ内でもハイライトを維持」をオンにしている場合は置き換えられません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.clientReady.Title">クライアント準備完了</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.clientReady.Body">**クライアント準備完了**は、クライアントがゲームに入ったことを知らせます。ウィンドウがログイン画面からログイン済みのキャラクターに変わったときです。イベント表（「クライアント」の下）でオンにしてください。オンにするまではオフです。&#x0A;&#x0A;- ログインのたびに一度だけ発生します。&#x0A;- MultiPreview の起動時にすでにログインしていたクライアント、同じウィンドウ内でのキャラクターの切り替え、ログアウトでは発生しません。&#x0A;- 情報イベントです。固定の枠とバッジが出て、アラート音がオンなら音も鳴ります。</sys:String> <!-- draft -->
+    <!-- Ideas batch 15 (Plan 19) -->
+    <sys:String x:Key="L.S.Profile.Compare">他のプロファイルと比較…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePick">どのプロファイルと比較しますか？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareTitle">「{0}」と比較（{1}/{2}）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareRow">「{1}」の値を「{0}」から取り込みますか？&#x0A;&#x0A;今の値：{2}&#x0A;「{0}」の値：{3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareNone">「{0}」との違いはありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareNoOther">比較する別のプロファイルを選んでください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareTake">取り込む</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareKeep">そのままにする</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareDone">「{1}」から {0} 件の値を取り込みました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareEntries">{0} 件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">ウィンドウの位置</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -117,6 +117,47 @@ public static class ProfileActions
         ctx.Host.Toast(string.Format(Str("L.S.Profile.FromCodeDone"), name.Trim()));
     }
 
+    /// <summary>IDEAS #50: the active profile against another one. Asks which (never the active one itself), then goes
+    /// through the settings that differ one by one: take the other profile's value, keep yours, or cancel, which stops the
+    /// walk (values already taken stay taken). Nothing is written to the other profile; the startup backups are the undo.
+    /// Names and values a player wrote only ever go in as string.Format arguments.</summary>
+    public static void CompareInteractive(SettingsContext ctx)
+    {
+        var active = ctx.S.LastUsedProfile;
+        if (!ctx.S.Profiles.TryGetValue(active, out var mine)) return;
+        var others = ctx.Service.GetProfileNames().Where(n => n != active).ToList();
+        if (others.Count == 0) { ctx.Host.Toast(Str("L.S.Profile.CompareNoOther")); return; }
+        var name = ctx.Host.PickCharacter(Str("L.S.Profile.ComparePick"), others);   // the picker also takes a typed name
+        if (name == null) return;
+        if (name == active || !ctx.S.Profiles.TryGetValue(name, out var theirs)) { ctx.Host.Toast(Str("L.S.Profile.CompareNoOther")); return; }
+
+        var rows = ProfileDiff.Compare(mine, theirs);
+        if (rows.Count == 0) { ctx.Host.Toast(string.Format(Str("L.S.Profile.CompareNone"), name)); return; }
+        int taken = 0;
+        for (int i = 0; i < rows.Count; i++)
+        {
+            var row = rows[i];
+            var label = row.LabelKey == null ? row.Property : Str(row.LabelKey);
+            if (label == row.LabelKey) label = row.Property;                          // a title that is missing shows the name
+            var answer = ctx.Host.ConfirmChoice(
+                string.Format(Str("L.S.Profile.CompareTitle"), name, i + 1, rows.Count),
+                string.Format(Str("L.S.Profile.CompareRow"), name, label, row.TextMine, row.TextOther),
+                Str("L.S.Profile.CompareTake"), Str("L.S.Profile.CompareKeep"));
+            if (answer == null) break;
+            if (answer == true)
+            {
+                ProfileDiff.CopyOne(theirs, mine, row.Property, ctx.S);
+                taken++;
+            }
+        }
+        if (taken > 0)
+        {
+            ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
+            ctx.Host.Reload();
+        }
+        ctx.Host.Toast(string.Format(Str("L.S.Profile.CompareDone"), taken, name));
+    }
+
     public static void DeleteInteractive(SettingsContext ctx, string name)
     {
         if (ctx.S.Profiles.Count <= 1) { ctx.Host.Toast(Str("L.S.Profile.LastOne")); return; }

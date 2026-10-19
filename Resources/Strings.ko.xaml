@@ -876,7 +876,7 @@
     <sys:String x:Key="L.S.Act.app.profiles.import">가져오기…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.Intro">프로필은 완전한 구성입니다. 썸네일 위치, 단축키, 색상, 자르기, 클라이언트 레이아웃이 들어 있습니다. 채광과 PvP처럼 활동별로 하나씩 만들어 두세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">프로필 사용법</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **새로 만들기**는 빈 프로필을 만들고 그 프로필로 전환합니다.&#x0A;- **복사**는 한 프로필을 다른 프로필로 복사합니다. 전부 또는 썸네일 위치만 복사할 수 있습니다.&#x0A;- **삭제**는 현재 프로필을 영구 삭제합니다. 항상 하나 이상은 남습니다.&#x0A;- **모양을 코드로 복사**는 현재 프로필의 모양(테두리, 텍스트, 불투명도, 썸네일을 숨기는 때)을 한 줄 텍스트로 클립보드에 넣어요. **코드로 새 프로필…**은 현재 프로필을 복사해 그 모양을 적용한 새 프로필을 만들어요. 코드에는 캐릭터 이름, 위치, 단축키가 들어 있지 않아요.&#x0A;&#x0A;왼쪽 위의 프로필 메뉴나 프로필 단축키로도 전환할 수 있습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **새로 만들기**는 빈 프로필을 만들고 그 프로필로 전환합니다.&#x0A;- **복사**는 한 프로필을 다른 프로필로 복사합니다. 전부 또는 썸네일 위치만 복사할 수 있습니다.&#x0A;- **삭제**는 현재 프로필을 영구 삭제합니다. 항상 하나 이상은 남습니다.&#x0A;- **모양을 코드로 복사**는 현재 프로필의 모양(테두리, 텍스트, 불투명도, 썸네일을 숨기는 때)을 한 줄 텍스트로 클립보드에 넣어요. **코드로 새 프로필…**은 현재 프로필을 복사해 그 모양을 적용한 새 프로필을 만들어요. 코드에는 캐릭터 이름, 위치, 단축키가 들어 있지 않아요.&#x0A;- **다른 프로필과 비교…**는 다른 프로필과 다른 설정을 하나씩 보여 주고, 그 값을 가져올지 내 값을 유지할지 고를 수 있어요. 다른 프로필에는 아무것도 쓰이지 않고, 시작할 때 만든 백업으로 되돌릴 수 있어요.&#x0A;&#x0A;왼쪽 위의 프로필 메뉴나 프로필 단축키로도 전환할 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">백업 및 다른 PC로 옮기기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Body">**지금 백업**은 날짜가 붙은 사본을 Backups 폴더에 저장합니다. MultiPreview는 마지막 사본 이후 설정이 바뀌었으면 시작할 때에도 사본을 보관하고(최근 10개), 업데이트 전에도 보관합니다. 설정 파일을 읽을 수 없거나 파일이 없으면 시작할 때 이 사본들을 제안합니다.&#x0A;&#x0A;**내보내기**는 설정 파일을 원하는 곳에 저장합니다. **가져오기**는 모든 설정을 내보낸 파일로 바꿉니다. 현재 설정은 먼저 백업됩니다.&#x0A;&#x0A;설정은 보통 %APPDATA%\EVE MultiPreview에 저장됩니다. 대신 MultiPreview.exe 옆에 두려면(포터블 설치) MultiPreview를 닫고, 설정 파일을 그곳에 복사한 뒤, exe 옆에 portable.txt라는 빈 파일을 만드세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">정보 및 업데이트</sys:String> <!-- draft -->
@@ -2584,4 +2584,16 @@
     <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">캐릭터마다 저마다 다른 테두리 색상을 줘요. 캐릭터나 그룹에 직접 고른 색상이 있으면 그 색상이 우선해요. 활성 클라이언트의 강조 색상은 자동 색상으로 바뀌어요. "색상 그룹 안에서도 강조 유지"를 켜면 바뀌지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.clientReady.Title">클라이언트 준비됨</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.clientReady.Body">**클라이언트 준비됨**은 클라이언트가 게임에 들어왔을 때 알려 줘요. 창이 로그인 화면에서 로그인된 캐릭터로 바뀔 때예요. 이벤트 표(‘클라이언트’ 아래)에서 켜세요. 켜기 전까지는 꺼져 있어요.&#x0A;&#x0A;- 로그인할 때마다 한 번만 울려요.&#x0A;- MultiPreview를 시작할 때 이미 로그인해 있던 클라이언트, 한 창 안에서의 캐릭터 전환, 로그아웃에서는 울리지 않아요.&#x0A;- 정보 이벤트예요. 고정된 테두리와 배지가 표시되고, 알림음이 켜져 있으면 소리도 나요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 15 (Plan 19) -->
+    <sys:String x:Key="L.S.Profile.Compare">다른 프로필과 비교…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePick">어느 프로필과 비교할까요?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareTitle">'{0}'과(와) 비교 ({1}/{2})</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareRow">'{0}'의 '{1}' 값을 가져올까요?&#x0A;&#x0A;내 값: {2}&#x0A;'{0}'의 값: {3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareNone">'{0}'과(와) 다른 점이 없어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareNoOther">비교할 다른 프로필을 골라 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareTake">가져오기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareKeep">내 값 유지</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareDone">'{1}'에서 값 {0}개를 가져왔어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CompareEntries">{0}개 항목</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">창 위치</sys:String> <!-- draft -->
 </ResourceDictionary>

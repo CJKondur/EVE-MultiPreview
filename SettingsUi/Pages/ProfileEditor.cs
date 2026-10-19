@@ -29,6 +29,7 @@ public sealed class ProfileEditor : System.Windows.Controls.UserControl, IRefres
         below.Children.Add(EditorCard.Row(
             EditorCard.Button("L.S.Profile.New", () => ProfileActions.NewInteractive(_ctx)),
             EditorCard.Button("L.S.Profile.Copy", () => ProfileActions.CopyInteractive(_ctx)),
+            EditorCard.Button("L.S.Profile.Compare", () => ProfileActions.CompareInteractive(_ctx)),
             EditorCard.Button("L.S.Profile.Delete", () => ProfileActions.DeleteInteractive(_ctx, _ctx.S.LastUsedProfile), destructive: true)));
         below.Children.Add(codes);
         Content = EditorCard.Build("app.profiles.current", ProfileList, below);
