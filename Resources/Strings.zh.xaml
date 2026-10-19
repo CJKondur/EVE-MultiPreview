@@ -893,7 +893,7 @@
     <sys:String x:Key="L.S.Act.app.profiles.import">导入…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.Intro">配置文件是一套完整的设置：缩略图位置、热键、颜色、裁剪和客户端布局。建议每种活动用一个，例如挖矿和 PvP。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">使用配置文件</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新建**会创建空配置文件并切换到它。&#x0A;- **复制**把一个配置文件复制到另一个：全部内容，或仅缩略图位置。&#x0A;- **删除**会永久删除当前配置文件。始终至少保留一个。&#x0A;&#x0A;你也可以从左上角的配置文件菜单或配置文件热键切换。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新建**会创建空配置文件并切换到它。&#x0A;- **复制**把一个配置文件复制到另一个：全部内容，或仅缩略图位置。&#x0A;- **删除**会永久删除当前配置文件。始终至少保留一个。&#x0A;- **将外观复制为代码**会把当前配置文件的外观（边框、文字、不透明度、缩略图何时隐藏）作为一行文本放到剪贴板；**从代码新建配置文件…**会创建当前配置文件的副本并应用该外观。代码不包含角色名称、位置或热键。&#x0A;&#x0A;你也可以从左上角的配置文件菜单或配置文件热键切换。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">备份与迁移到另一台电脑</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Body">**立即备份**会在 Backups 文件夹中保存一份带日期的副本。如果设置自上一份副本以来有变化，MultiPreview 启动时也会保留一份副本（最近 10 份），每次更新前也会保留一份。如果无法读取你的设置文件或文件丢失，启动时会提供这些副本。&#x0A;&#x0A;**导出**会把你的设置文件保存到你喜欢的位置。**导入**会用导出的文件替换你的全部设置。当前设置会先备份。&#x0A;&#x0A;你的设置通常保存在 %APPDATA%\EVE MultiPreview。若想改为保存在 MultiPreview.exe 旁边（便携安装），请关闭 MultiPreview，把设置文件复制到那里，并在 exe 旁放一个名为 portable.txt 的空文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">关于与更新</sys:String> <!-- draft -->
@@ -1459,7 +1459,7 @@
     <sys:String x:Key="L.S.Presets.ImportFailed">该文件不是 MultiPreview 布局。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Filter.Layouts">MultiPreview 布局</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.presets.Title">已保存的布局</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**保存当前布局**会记住每个运行中角色的缩略图位置和大小（按其屏幕的比例），因此更改分辨率后布局仍然适用。它还会记住哪些缩略图被隐藏，以及裁剪窗口是否开启。&#x0A;- **应用**会把缩略图放回原位。尚未登录的角色会在登录时获得位置。&#x0A;- **重新分配并应用**让你选择由哪个角色占用每个位置，例如使用其他玩家的布局时。&#x0A;- **导出**和**导入**以文件形式分享布局。 导入与现有布局同名的布局时，会先询问是否替换。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**保存当前布局**会记住每个运行中角色的缩略图位置和大小（按其屏幕的比例），因此更改分辨率后布局仍然适用。它还会记住哪些缩略图被隐藏，以及裁剪窗口是否开启。&#x0A;- **应用**会把缩略图放回原位。尚未登录的角色会在登录时获得位置。&#x0A;- **重新分配并应用**让你选择由哪个角色占用每个位置，例如使用其他玩家的布局时。&#x0A;- **导出**和**导入**以文件形式分享布局。 导入与现有布局同名的布局时，会先询问是否替换。&#x0A;- **复制为代码**会把所选布局作为一行文本放到剪贴板，可以粘贴到 Discord；**粘贴代码…**会根据这样一行文本添加布局，并且在客户端运行时，让你选择由哪个角色占用每个位置。代码只包含位置：它不会隐藏缩略图，也不会开启或关闭裁剪窗口。</sys:String> <!-- draft -->
     <!-- Thumbnails › Visibility (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.visibility">可见性</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.thumbs.visibility.Desc">缩略图何时置顶或隐藏、登录界面标记，以及第二缩略图。</sys:String> <!-- draft -->
@@ -2526,4 +2526,28 @@
     <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview 已在运行，但没有接受该命令。请在 应用设置 › 常规 中开启“接受其他程序的命令”。如果已经开启，请让本程序与 MultiPreview 以相同方式运行（都以管理员身份运行，或都不是），或等 MultiPreview 启动完成后再试一次。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Title">来自其他程序的命令</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Body">开启**接受其他程序的命令**后，用下面任一命令再次启动 MultiPreview，就会把命令交给正在运行的 MultiPreview，第二次启动随即结束：&#x0A;&#x0A;- --focus "角色名" 把该角色的客户端带到最前面，就像点击它的缩略图一样。&#x0A;- --profile "配置文件名" 切换到该配置文件。&#x0A;- --toggle-thumbnails 隐藏或显示所有缩略图。&#x0A;- --focus-mode 开启或关闭专注模式（客户端 › 分组）。&#x0A;&#x0A;Stream Deck、Touch Portal、AutoHotkey 或 Windows 快捷方式都可以运行它们。每次启动只能带一条命令，其他一律拒绝。第二次启动结束时返回 0 表示已执行，1 表示被拒绝，2 表示没有这个角色或配置文件，3 表示没有 MultiPreview 接收它。&#x0A;&#x0A;只有在你自己的 Windows 账户下运行的程序才能发送命令，不会监听网络，命令也从不指向文件。MultiPreview 和发送命令的程序必须都以管理员身份运行，或都不以管理员身份运行。带着命令启动的 MultiPreview 会在启动完成后执行它，不管这个开关怎么设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CopyCode">复制为代码</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PasteCode">粘贴代码…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeCopied">布局“{0}”已作为 {1} 个字符的代码复制到剪贴板。可以把它粘贴到 Discord 或消息里。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeCopyFailed">无法把代码放入剪贴板。请再试一次。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeTooBig">该布局的缩略图数量超出了代码能容纳的范围。请使用“导出…”以文件形式分享。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PasteTitle">粘贴布局代码</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PastePrompt">请粘贴别人给你的代码：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeAdded">已添加布局“{0}”。客户端运行后，请使用“重新分配并应用…”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.NotACode">这不是 MultiPreview 代码。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.IsLook">这是配置文件代码。请在 应用设置 › 配置文件与备份 中用“从代码新建配置文件…”粘贴它。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.IsLayout">这是布局代码。请在 缩略图 › 布局 &amp; 屏幕 中用“粘贴代码…”粘贴它。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.Damaged">该代码已损坏、过长，或由更新版本的 MultiPreview 生成。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CopyLookCode">将外观复制为代码</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCode">从代码新建配置文件…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LookCopied">配置文件“{0}”的外观已作为代码复制到剪贴板。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodeTitle">从代码新建配置文件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodePrompt">请粘贴别人给你的配置文件代码：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodeDone">已用代码中的外观创建配置文件“{0}”并切换到它。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Title">将布局位置分配给你的角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Intro">为布局的每个位置分配一个正在运行的角色。名称完全一致的已预先选中；选择“（跳过）”可让该位置留空。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Apply">应用</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Cancel">取消</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Skip">（跳过）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Slot">（位置）</sys:String> <!-- draft -->
 </ResourceDictionary>

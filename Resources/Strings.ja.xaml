@@ -876,7 +876,7 @@
     <sys:String x:Key="L.S.Act.app.profiles.import">インポート…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.Intro">プロファイルは完全なセットアップです。サムネイルの位置、ホットキー、色、クロップ、クライアントのレイアウトが含まれます。採掘と PvP のように、用途ごとに 1 つ作っておくと便利です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">プロファイルの使い方</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新規**は空のプロファイルを作成して切り替えます。&#x0A;- **コピー**は、あるプロファイルを別のプロファイルにコピーします。すべて、またはサムネイルの位置だけを選べます。&#x0A;- **削除**は現在のプロファイルを完全に削除します。最低 1 つは必ず残ります。&#x0A;&#x0A;左上のプロファイルメニューや、プロファイル用ホットキーでも切り替えられます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新規**は空のプロファイルを作成して切り替えます。&#x0A;- **コピー**は、あるプロファイルを別のプロファイルにコピーします。すべて、またはサムネイルの位置だけを選べます。&#x0A;- **削除**は現在のプロファイルを完全に削除します。最低 1 つは必ず残ります。&#x0A;- **外観をコードとしてコピー**は、現在のプロファイルの外観（枠線、文字、不透明度、サムネイルを隠すタイミング）を 1 行のテキストとしてクリップボードに入れます。**コードから新しいプロファイル…**は、現在のプロファイルのコピーをその外観で作ります。コードにキャラクター名、位置、ホットキーは含まれません。&#x0A;&#x0A;左上のプロファイルメニューや、プロファイル用ホットキーでも切り替えられます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">バックアップと別の PC への移行</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Body">**今すぐバックアップ**は日付付きのコピーを Backups フォルダーに保存します。前回のコピー以降に設定が変わっていれば、MultiPreview は起動時にもコピーを保存し（直近 10 件）、更新の前にも保存します。設定ファイルを読み込めない場合や見つからない場合は、起動時にこれらのコピーを提案します。&#x0A;&#x0A;**エクスポート**は設定ファイルを好きな場所に保存します。**インポート**はすべての設定をエクスポートしたファイルに置き換えます。現在の設定は先にバックアップされます。&#x0A;&#x0A;設定は通常 %APPDATA%\EVE MultiPreview に保存されます。代わりに MultiPreview.exe の隣に置くには（ポータブルインストール）、MultiPreview を閉じ、設定ファイルをそこへコピーして、exe の隣に portable.txt という空のファイルを置いてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">情報とアップデート</sys:String> <!-- draft -->
@@ -1442,7 +1442,7 @@
     <sys:String x:Key="L.S.Presets.ImportFailed">そのファイルは MultiPreview のレイアウトではありません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Filter.Layouts">MultiPreview レイアウト</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.presets.Title">保存したレイアウト</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**現在のレイアウトを保存**は、起動中の各キャラクターのサムネイルの位置とサイズを、画面に対する割合で記憶します。そのため解像度を変えてもレイアウトが合います。非表示のサムネイルと、クロップウィンドウがオンかどうかも記憶します。&#x0A;- **適用**でサムネイルを元の位置に戻します。ログインしていないキャラクターは、ログイン時に場所が割り当てられます。&#x0A;- **割り当て直して適用**では、どのキャラクターがどの場所に入るかを選べます。他のプレイヤーのレイアウトを使うときなどに便利です。&#x0A;- **エクスポート**と**インポート**でレイアウトをファイルとして共有できます。 既存のレイアウトと同じ名前のレイアウトをインポートすると、置き換える前に確認します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**現在のレイアウトを保存**は、起動中の各キャラクターのサムネイルの位置とサイズを、画面に対する割合で記憶します。そのため解像度を変えてもレイアウトが合います。非表示のサムネイルと、クロップウィンドウがオンかどうかも記憶します。&#x0A;- **適用**でサムネイルを元の位置に戻します。ログインしていないキャラクターは、ログイン時に場所が割り当てられます。&#x0A;- **割り当て直して適用**では、どのキャラクターがどの場所に入るかを選べます。他のプレイヤーのレイアウトを使うときなどに便利です。&#x0A;- **エクスポート**と**インポート**でレイアウトをファイルとして共有できます。 既存のレイアウトと同じ名前のレイアウトをインポートすると、置き換える前に確認します。&#x0A;- **コードとしてコピー**は、選んだレイアウトを 1 行のテキストとしてクリップボードに入れます。Discord などに貼り付けられます。**コードを貼り付け…**は、そのような 1 行からレイアウトを追加し、クライアントの実行中は、どのキャラクターがどの場所に入るかを選べます。コードに含まれるのは場所だけで、サムネイルを隠したり、クロップウィンドウをオンやオフにしたりすることはありません。</sys:String> <!-- draft -->
     <!-- Thumbnails › Visibility (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.visibility">表示</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.thumbs.visibility.Desc">サムネイルが最前面に残る・隠れるタイミング、ログイン画面のマーク、セカンドサムネイル。</sys:String> <!-- draft -->
@@ -2509,4 +2509,28 @@
     <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview はすでに実行中ですが、コマンドを受け付けませんでした。アプリの設定 › 一般 で「ほかのプログラムからのコマンドを受け付ける」をオンにしてください。すでにオンの場合は、このプログラムを MultiPreview と同じ方法で実行する（どちらも管理者として実行するか、どちらも通常のまま）か、MultiPreview の起動が終わってからもう一度試してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Title">ほかのプログラムからのコマンド</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Body">**ほかのプログラムからのコマンドを受け付ける**をオンにすると、次のコマンドのどれかを付けて MultiPreview をもう一度起動したとき、そのコマンドが実行中の MultiPreview に渡され、2回目の起動はすぐに終了します。&#x0A;&#x0A;- --focus "キャラクター名" は、そのキャラクターのクライアントを、サムネイルをクリックしたときと同じように最前面に出します。&#x0A;- --profile "プロファイル名" は、そのプロファイルに切り替えます。&#x0A;- --toggle-thumbnails は、すべてのサムネイルを隠したり表示したりします。&#x0A;- --focus-mode は、フォーカスモードをオン／オフします（クライアント › グループ）。&#x0A;&#x0A;Stream Deck、Touch Portal、AutoHotkey、Windows のショートカットから実行できます。1回の起動につきコマンドは1つで、それ以外は拒否されます。2回目の起動は、実行できたときは 0、拒否されたときは 1、そのキャラクターやプロファイルがないときは 2、どの MultiPreview も受け取らなかったときは 3 で終了します。&#x0A;&#x0A;コマンドを送れるのは、ご自身の Windows アカウントで動いているプログラムだけです。ネットワークでは何も待ち受けず、コマンドがファイルを指定することもありません。MultiPreview と送る側のプログラムは、どちらも管理者として実行するか、どちらも管理者にしないかのどちらかにしてください。コマンド付きで起動した MultiPreview は、起動が終わってから実行します。このスイッチの設定は関係ありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CopyCode">コードとしてコピー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PasteCode">コードを貼り付け…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeCopied">レイアウト「{0}」を {1} 文字のコードとしてクリップボードにコピーしました。Discord やメッセージに貼り付けてください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeCopyFailed">コードをクリップボードに入れられませんでした。もう一度お試しください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeTooBig">このレイアウトはサムネイルが多すぎて、コードに収まりません。「エクスポート…」でファイルとして共有してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PasteTitle">レイアウトのコードを貼り付け</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PastePrompt">受け取ったコードを貼り付けてください：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeAdded">レイアウト「{0}」を追加しました。クライアントの実行中に「割り当て直して適用…」を使ってください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.NotACode">これは MultiPreview のコードではありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.IsLook">これはプロファイルのコードです。アプリの設定 › プロファイルとバックアップ の「コードから新しいプロファイル…」で貼り付けてください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.IsLayout">これはレイアウトのコードです。サムネイル › レイアウト &amp; 画面 の「コードを貼り付け…」で貼り付けてください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.Damaged">このコードは壊れているか、長すぎるか、より新しい MultiPreview で作られています。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CopyLookCode">外観をコードとしてコピー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCode">コードから新しいプロファイル…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LookCopied">プロファイル「{0}」の外観をコードとしてクリップボードにコピーしました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodeTitle">コードから新しいプロファイル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodePrompt">受け取ったプロファイルのコードを貼り付けてください：</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodeDone">コードの外観でプロファイル「{0}」を作成し、切り替えました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Title">レイアウトの場所をキャラクターに割り当て</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Intro">レイアウトの各場所に、実行中のキャラクターを割り当ててください。名前が完全に一致するものはあらかじめ選択されています。場所を使わない場合は「（スキップ）」を選んでください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Apply">適用</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Cancel">キャンセル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Skip">（スキップ）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Slot">（場所）</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -40,10 +40,14 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         var second = EditorCard.Row(EditorCard.Button("L.S.Presets.Save", SaveCurrent), NeedsOne("L.S.Presets.Export", Export),
             EditorCard.Button("L.S.Presets.Import", Import));
         second.Margin = new Thickness(0, 8, 0, 0);
+        // IDEAS #12: a layout as one line of text, and back.
+        var third = EditorCard.Row(NeedsOne("L.S.Presets.CopyCode", CopyCode), EditorCard.Button("L.S.Presets.PasteCode", PasteCode));
+        third.Margin = new Thickness(0, 8, 0, 0);
         _note.Margin = new Thickness(0, 8, 0, 0);
         var below = new StackPanel();
         below.Children.Add(first);
         below.Children.Add(second);
+        below.Children.Add(third);
         below.Children.Add(_note);
         Content = EditorCard.Build("thumbs.layout.presets", null, below);
         Refresh();
@@ -54,6 +58,9 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
 
     /// <summary>Test seam: stands in for ThumbnailManager.CaptureCurrentLayoutPreset.</summary>
     public Func<string, LayoutPreset?>? Capture { get; set; }
+
+    /// <summary>Test seam: stands in for ClipboardText.Set.</summary>
+    public Func<string, bool>? CopyText { get; set; }
 
     /// <summary>The layout the buttons act on, or null.</summary>
     public string? Selected { get; private set; }
@@ -200,5 +207,39 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         Selected = preset.Name;
         Refresh();
         _ctx.Host.Toast(string.Format(Str("L.S.Presets.Imported"), preset.Name));
+    }
+
+    /// <summary>IDEAS #12: the selected layout as a code on the clipboard (its places only). Writes nothing.</summary>
+    public void CopyCode()
+    {
+        var preset = Chosen();
+        if (preset == null) return;
+        var code = ShareCode.Layout(preset);
+        if (code == null) { _ctx.Host.Toast(Str("L.S.Presets.CodeTooBig")); return; }
+        _ctx.Host.Toast((CopyText ?? ClipboardText.Set)(code)
+            ? string.Format(Str("L.S.Presets.CodeCopied"), preset.Name, code.Length)
+            : Str("L.S.Presets.CodeCopyFailed"));
+    }
+
+    /// <summary>IDEAS #12: a layout from a pasted code, added to the list (asking before it replaces one with its name).
+    /// With clients running, Remap and apply opens at once: the code's characters are someone else's, and Apply would
+    /// save places for their names.</summary>
+    public void PasteCode()
+    {
+        var text = _ctx.Host.AskText(Str("L.S.Presets.PasteTitle"), Str("L.S.Presets.PastePrompt"), "");
+        if (text == null) return;
+        var read = ShareCode.ReadLayout(text);
+        if (read.Value is not { } preset) { _ctx.Host.Toast(Str(read.ErrorKey)); return; }
+        if (_library.Get(preset.Name) != null
+            && !_ctx.Host.Confirm(Str("L.S.Presets.ReplaceTitle"), string.Format(Str("L.S.Presets.ReplaceConfirm"), preset.Name))) return;
+        _library.AddOrReplace(preset);
+        Selected = preset.Name;
+        Refresh();
+        if (CharacterDirectory.Running(_ctx).Count == 0)
+        {
+            _ctx.Host.Toast(string.Format(Str("L.S.Presets.CodeAdded"), preset.Name));
+            return;
+        }
+        Remap();
     }
 }

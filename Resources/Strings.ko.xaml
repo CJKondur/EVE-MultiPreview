@@ -876,7 +876,7 @@
     <sys:String x:Key="L.S.Act.app.profiles.import">가져오기…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.Intro">프로필은 완전한 구성입니다. 썸네일 위치, 단축키, 색상, 자르기, 클라이언트 레이아웃이 들어 있습니다. 채광과 PvP처럼 활동별로 하나씩 만들어 두세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">프로필 사용법</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **새로 만들기**는 빈 프로필을 만들고 그 프로필로 전환합니다.&#x0A;- **복사**는 한 프로필을 다른 프로필로 복사합니다. 전부 또는 썸네일 위치만 복사할 수 있습니다.&#x0A;- **삭제**는 현재 프로필을 영구 삭제합니다. 항상 하나 이상은 남습니다.&#x0A;&#x0A;왼쪽 위의 프로필 메뉴나 프로필 단축키로도 전환할 수 있습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **새로 만들기**는 빈 프로필을 만들고 그 프로필로 전환합니다.&#x0A;- **복사**는 한 프로필을 다른 프로필로 복사합니다. 전부 또는 썸네일 위치만 복사할 수 있습니다.&#x0A;- **삭제**는 현재 프로필을 영구 삭제합니다. 항상 하나 이상은 남습니다.&#x0A;- **모양을 코드로 복사**는 현재 프로필의 모양(테두리, 텍스트, 불투명도, 썸네일을 숨기는 때)을 한 줄 텍스트로 클립보드에 넣어요. **코드로 새 프로필…**은 현재 프로필을 복사해 그 모양을 적용한 새 프로필을 만들어요. 코드에는 캐릭터 이름, 위치, 단축키가 들어 있지 않아요.&#x0A;&#x0A;왼쪽 위의 프로필 메뉴나 프로필 단축키로도 전환할 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">백업 및 다른 PC로 옮기기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Body">**지금 백업**은 날짜가 붙은 사본을 Backups 폴더에 저장합니다. MultiPreview는 마지막 사본 이후 설정이 바뀌었으면 시작할 때에도 사본을 보관하고(최근 10개), 업데이트 전에도 보관합니다. 설정 파일을 읽을 수 없거나 파일이 없으면 시작할 때 이 사본들을 제안합니다.&#x0A;&#x0A;**내보내기**는 설정 파일을 원하는 곳에 저장합니다. **가져오기**는 모든 설정을 내보낸 파일로 바꿉니다. 현재 설정은 먼저 백업됩니다.&#x0A;&#x0A;설정은 보통 %APPDATA%\EVE MultiPreview에 저장됩니다. 대신 MultiPreview.exe 옆에 두려면(포터블 설치) MultiPreview를 닫고, 설정 파일을 그곳에 복사한 뒤, exe 옆에 portable.txt라는 빈 파일을 만드세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">정보 및 업데이트</sys:String> <!-- draft -->
@@ -1442,7 +1442,7 @@
     <sys:String x:Key="L.S.Presets.ImportFailed">그 파일은 MultiPreview 레이아웃이 아닙니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Filter.Layouts">MultiPreview 레이아웃</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.presets.Title">저장된 레이아웃</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**현재 레이아웃 저장**은 실행 중인 각 캐릭터의 썸네일 위치와 크기를 화면 대비 비율로 기억하므로, 해상도를 바꿔도 레이아웃이 맞습니다. 숨겨진 썸네일과 크롭 창이 켜져 있는지도 기억합니다.&#x0A;- **적용**은 썸네일을 제자리로 되돌립니다. 로그인하지 않은 캐릭터는 로그인할 때 자리를 받습니다.&#x0A;- **다시 지정하고 적용**에서는 어느 캐릭터가 각 자리를 차지할지 고를 수 있습니다. 예를 들어 다른 플레이어의 레이아웃을 쓸 때 유용합니다.&#x0A;- **내보내기**와 **가져오기**로 레이아웃을 파일로 공유합니다. 기존 레이아웃과 이름이 같은 레이아웃을 가져오면 바꾸기 전에 확인합니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**현재 레이아웃 저장**은 실행 중인 각 캐릭터의 썸네일 위치와 크기를 화면 대비 비율로 기억하므로, 해상도를 바꿔도 레이아웃이 맞습니다. 숨겨진 썸네일과 크롭 창이 켜져 있는지도 기억합니다.&#x0A;- **적용**은 썸네일을 제자리로 되돌립니다. 로그인하지 않은 캐릭터는 로그인할 때 자리를 받습니다.&#x0A;- **다시 지정하고 적용**에서는 어느 캐릭터가 각 자리를 차지할지 고를 수 있습니다. 예를 들어 다른 플레이어의 레이아웃을 쓸 때 유용합니다.&#x0A;- **내보내기**와 **가져오기**로 레이아웃을 파일로 공유합니다. 기존 레이아웃과 이름이 같은 레이아웃을 가져오면 바꾸기 전에 확인합니다.&#x0A;- **코드로 복사**는 선택한 레이아웃을 한 줄 텍스트로 클립보드에 넣어요. Discord 등에 붙여넣을 수 있어요. **코드 붙여넣기…**는 그런 한 줄에서 레이아웃을 추가하고, 클라이언트가 실행 중이면 어느 캐릭터가 각 자리를 차지할지 고를 수 있게 해요. 코드에는 자리만 들어 있어요. 썸네일을 숨기거나 크롭 창을 켜거나 끄지 않아요.</sys:String> <!-- draft -->
     <!-- Thumbnails › Visibility (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.visibility">표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.thumbs.visibility.Desc">썸네일이 항상 위에 있거나 숨겨지는 때, 로그인 화면 표시, 보조 썸네일.</sys:String> <!-- draft -->
@@ -2509,4 +2509,28 @@
     <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview가 이미 실행 중이지만 명령을 받지 않았어요. 앱 설정 › 일반에서 다른 프로그램의 명령 받기를 켜 주세요. 이미 켜져 있다면 이 프로그램을 MultiPreview와 같은 방식으로 실행하거나(둘 다 관리자 권한이거나 둘 다 아니거나), MultiPreview가 시작을 마친 뒤에 다시 시도해 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Title">다른 프로그램의 명령</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commands.Body">**다른 프로그램의 명령 받기**를 켜면, 아래 명령 중 하나로 MultiPreview를 다시 시작할 때 그 명령이 실행 중인 MultiPreview에게 전달되고, 두 번째 시작은 바로 끝나요.&#x0A;&#x0A;- --focus "캐릭터 이름"은 그 캐릭터의 클라이언트를 썸네일을 클릭한 것처럼 맨 앞으로 가져와요.&#x0A;- --profile "프로필 이름"은 그 프로필로 전환해요.&#x0A;- --toggle-thumbnails는 모든 썸네일을 숨기거나 보여 줘요.&#x0A;- --focus-mode는 포커스 모드를 켜거나 꺼요(클라이언트 › 그룹).&#x0A;&#x0A;Stream Deck, Touch Portal, AutoHotkey, Windows 바로 가기로 실행할 수 있어요. 한 번 시작할 때 명령은 하나만 받고, 나머지는 거부해요. 두 번째 시작은 실행했으면 0, 거부했으면 1, 그런 캐릭터나 프로필이 없으면 2, 어떤 MultiPreview도 받지 않았으면 3으로 끝나요.&#x0A;&#x0A;내 Windows 계정으로 실행 중인 프로그램만 명령을 보낼 수 있고, 네트워크에서는 아무것도 기다리지 않으며, 명령이 파일을 가리키는 일도 없어요. MultiPreview와 보내는 프로그램은 둘 다 관리자 권한으로 실행하거나 둘 다 아니어야 해요. 명령과 함께 시작한 MultiPreview는 시작이 끝난 뒤에 그 명령을 실행해요. 이 스위치 설정과는 상관없어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CopyCode">코드로 복사</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PasteCode">코드 붙여넣기…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeCopied">'{0}' 레이아웃을 {1}자 코드로 클립보드에 복사했어요. Discord나 메시지에 붙여넣어 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeCopyFailed">코드를 클립보드에 넣지 못했어요. 다시 시도해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeTooBig">이 레이아웃은 썸네일이 너무 많아 코드에 담을 수 없어요. 내보내기…로 파일로 공유해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PasteTitle">레이아웃 코드 붙여넣기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.PastePrompt">다른 사람에게 받은 코드를 붙여넣어 주세요:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.CodeAdded">'{0}' 레이아웃을 추가했어요. 클라이언트가 실행 중일 때 다시 지정하고 적용…을 사용해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.NotACode">MultiPreview 코드가 아니에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.IsLook">이것은 프로필 코드예요. 앱 설정 › 프로필 및 백업에서 코드로 새 프로필…을 사용해 붙여넣어 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.IsLayout">이것은 레이아웃 코드예요. 미리보기 › 레이아웃 &amp; 화면에서 코드 붙여넣기…를 사용해 붙여넣어 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Code.Damaged">코드가 손상되었거나 너무 길거나 더 새로운 MultiPreview에서 만든 거예요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CopyLookCode">모양을 코드로 복사</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCode">코드로 새 프로필…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.LookCopied">'{0}'의 모양을 코드로 클립보드에 복사했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodeTitle">코드로 새 프로필</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodePrompt">다른 사람에게 받은 프로필 코드를 붙여넣어 주세요:</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodeDone">코드의 모양으로 '{0}' 프로필을 만들고 전환했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Title">레이아웃 자리를 내 캐릭터에 지정</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Intro">레이아웃의 각 자리에 실행 중인 캐릭터를 하나씩 지정해 주세요. 이름이 정확히 같은 캐릭터는 미리 선택돼 있어요. 자리를 비워 두려면 “(건너뛰기)”를 선택해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Apply">적용</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Cancel">취소</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Skip">(건너뛰기)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.Slot">(자리)</sys:String> <!-- draft -->
 </ResourceDictionary>

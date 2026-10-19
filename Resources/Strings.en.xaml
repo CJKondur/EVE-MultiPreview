@@ -869,7 +869,7 @@
     <sys:String x:Key="L.S.Act.app.profiles.import">Import…</sys:String>
     <sys:String x:Key="L.Help.app.profiles.Intro">A profile is a complete setup: where thumbnails sit, hotkeys, colours, crops and client layout. Keep one per activity, like mining and PvP.</sys:String>
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">Working with profiles</sys:String>
-    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **New** starts an empty profile and switches to it.&#x0A;- **Copy** copies one profile into another: everything, or only thumbnail positions.&#x0A;- **Delete** removes the current profile for good. You always keep at least one.&#x0A;&#x0A;You can also switch from the profile menu at the top left, or with the profile hotkeys.</sys:String>
+    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **New** starts an empty profile and switches to it.&#x0A;- **Copy** copies one profile into another: everything, or only thumbnail positions.&#x0A;- **Delete** removes the current profile for good. You always keep at least one.&#x0A;- **Copy look as code** puts the look of the current profile (borders, text, opacity, when thumbnails hide) on the clipboard as one line of text; **New profile from a code…** makes a copy of the current profile with that look. A code carries no character names, positions or hotkeys.&#x0A;&#x0A;You can also switch from the profile menu at the top left, or with the profile hotkeys.</sys:String>
     <sys:String x:Key="L.Help.app.profiles.backups.Title">Backups and moving to another PC</sys:String>
     <sys:String x:Key="L.Help.app.profiles.backups.Body">**Back up now** saves a dated copy in the Backups folder. MultiPreview also keeps a copy when it starts, if your settings changed since the last one (the last 10), and one before every update. If your settings file can't be read or is missing, it offers these copies when it starts.&#x0A;&#x0A;**Export** saves your settings file wherever you like. **Import** replaces all your settings with an exported file. Your current settings are backed up first.&#x0A;&#x0A;Your settings are normally kept in %APPDATA%\EVE MultiPreview. To keep them beside MultiPreview.exe instead (a portable install), close MultiPreview, copy your settings file there, and put an empty file named portable.txt beside the exe.</sys:String>
     <sys:String x:Key="L.S.Page.app.about">About &amp; updates</sys:String>
@@ -1441,7 +1441,7 @@
     <sys:String x:Key="L.S.Presets.ImportFailed">That file isn't a MultiPreview layout.</sys:String>
     <sys:String x:Key="L.S.Filter.Layouts">MultiPreview layouts</sys:String>
     <sys:String x:Key="L.Help.thumbs.layout.presets.Title">Saved layouts</sys:String>
-    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**Save current layout** remembers where every running character's thumbnail is and how big, as a share of its screen, so the layout still fits after a resolution change. It also remembers which thumbnails are hidden and whether crop windows are on.&#x0A;- **Apply** puts the thumbnails back. Characters that aren't logged in get their place when they log in.&#x0A;- **Remap and apply** lets you choose which of your characters takes each place, for example in a layout from another player.&#x0A;- **Export** and **Import** share a layout as a file. Importing a layout with the name of one you already have asks before it replaces it.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**Save current layout** remembers where every running character's thumbnail is and how big, as a share of its screen, so the layout still fits after a resolution change. It also remembers which thumbnails are hidden and whether crop windows are on.&#x0A;- **Apply** puts the thumbnails back. Characters that aren't logged in get their place when they log in.&#x0A;- **Remap and apply** lets you choose which of your characters takes each place, for example in a layout from another player.&#x0A;- **Export** and **Import** share a layout as a file. Importing a layout with the name of one you already have asks before it replaces it.&#x0A;- **Copy as code** puts the selected layout on the clipboard as one line of text you can paste in Discord; **Paste a code…** adds a layout from such a line and, with your clients running, lets you choose which of your characters takes each place. A code holds places only: it never hides a thumbnail or turns crop windows on or off.</sys:String>
     <!-- Thumbnails › Visibility (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.visibility">Visibility</sys:String>
     <sys:String x:Key="L.S.Page.thumbs.visibility.Desc">When thumbnails stay on top or get out of the way, the login-screen mark, and second thumbnails.</sys:String>
@@ -2508,4 +2508,28 @@
     <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview is already running but did not take the command. Turn on Take commands from other programs under App settings › General. If it is on, run this program the same way as MultiPreview (both as administrator or neither), or try again once MultiPreview has finished starting.</sys:String>
     <sys:String x:Key="L.Help.app.general.commands.Title">Commands from other programs</sys:String>
     <sys:String x:Key="L.Help.app.general.commands.Body">With **Take commands from other programs** on, starting MultiPreview again with one of these commands hands it to the MultiPreview that is running, and the second start ends at once:&#x0A;&#x0A;- --focus "Character name" brings that character's client to the front, as a click on its thumbnail does.&#x0A;- --profile "Profile name" switches to that profile.&#x0A;- --toggle-thumbnails hides or shows all thumbnails.&#x0A;- --focus-mode turns focus mode on or off (Clients › Groups).&#x0A;&#x0A;A Stream Deck, Touch Portal, AutoHotkey or a Windows shortcut can run them. One command per start; anything else is refused. The second start ends with 0 when it was done, 1 when it was refused, 2 when there is no such character or profile, and 3 when no MultiPreview took it.&#x0A;&#x0A;Only programs running under your own Windows account can send commands, nothing is listened for on the network, and a command never names a file. MultiPreview and the program that sends must both run as administrator, or neither. A MultiPreview started with a command runs it once it has started, whatever this switch says.</sys:String>
+    <sys:String x:Key="L.S.Presets.CopyCode">Copy as code</sys:String>
+    <sys:String x:Key="L.S.Presets.PasteCode">Paste a code…</sys:String>
+    <sys:String x:Key="L.S.Presets.CodeCopied">Layout '{0}' is on the clipboard as a code of {1} characters. Paste it in Discord or a message.</sys:String>
+    <sys:String x:Key="L.S.Presets.CodeCopyFailed">Couldn't put the code on the clipboard. Try again.</sys:String>
+    <sys:String x:Key="L.S.Presets.CodeTooBig">That layout has more thumbnails than a code can hold. Use Export… to share it as a file.</sys:String>
+    <sys:String x:Key="L.S.Presets.PasteTitle">Paste a layout code</sys:String>
+    <sys:String x:Key="L.S.Presets.PastePrompt">Paste the code someone gave you:</sys:String>
+    <sys:String x:Key="L.S.Presets.CodeAdded">Layout '{0}' added. Use Remap and apply… when your clients are running.</sys:String>
+    <sys:String x:Key="L.S.Code.NotACode">That isn't a MultiPreview code.</sys:String>
+    <sys:String x:Key="L.S.Code.IsLook">That is a profile code. Paste it with New profile from a code… under App settings › Profiles &amp; backups.</sys:String>
+    <sys:String x:Key="L.S.Code.IsLayout">That is a layout code. Paste it with Paste a code… under Thumbnails › Layout &amp; screens.</sys:String>
+    <sys:String x:Key="L.S.Code.Damaged">That code is damaged, too long, or made by a newer MultiPreview.</sys:String>
+    <sys:String x:Key="L.S.Profile.CopyLookCode">Copy look as code</sys:String>
+    <sys:String x:Key="L.S.Profile.FromCode">New profile from a code…</sys:String>
+    <sys:String x:Key="L.S.Profile.LookCopied">The look of '{0}' is on the clipboard as a code.</sys:String>
+    <sys:String x:Key="L.S.Profile.FromCodeTitle">New profile from a code</sys:String>
+    <sys:String x:Key="L.S.Profile.FromCodePrompt">Paste the profile code someone gave you:</sys:String>
+    <sys:String x:Key="L.S.Profile.FromCodeDone">Profile '{0}' made with the code's look and switched to.</sys:String>
+    <sys:String x:Key="L.Remap.Title">Map Preset Slots → Your Characters</sys:String>
+    <sys:String x:Key="L.Remap.Intro">Assign each preset slot to one of your running characters. Exact name matches are pre-selected; choose “(skip)” to leave a slot unused.</sys:String>
+    <sys:String x:Key="L.Remap.Apply">Apply</sys:String>
+    <sys:String x:Key="L.Remap.Cancel">Cancel</sys:String>
+    <sys:String x:Key="L.Remap.Skip">(skip)</sys:String>
+    <sys:String x:Key="L.Remap.Slot">(slot)</sys:String>
 </ResourceDictionary>

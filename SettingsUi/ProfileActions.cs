@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using EveMultiPreview.Models;
@@ -83,6 +84,37 @@ public static class ProfileActions
         var count = CopyLayout(ctx, dialog.SelectedFrom, dialog.IsAllProfiles ? null : dialog.SelectedTo, dialog.FullProfileCopy);
         ctx.Host.Reload();
         ctx.Host.Toast(string.Format(Str("L.S.Profile.Copied"), count));
+    }
+
+    /// <summary>IDEAS #12: the look of the current profile as a code on the clipboard (copy is ClipboardText.Set in the app,
+    /// a recorder in tests).</summary>
+    public static void CopyLookCode(SettingsContext ctx, Func<string, bool> copy)
+    {
+        var code = ShareCode.Look(CharacterDirectory.Current(ctx.S));
+        ctx.Host.Toast(copy(code)
+            ? string.Format(Str("L.S.Profile.LookCopied"), ctx.S.LastUsedProfile)
+            : Str("L.S.Presets.CodeCopyFailed"));
+    }
+
+    /// <summary>IDEAS #12: a new profile from a look code: asks for the code, then for a name; the new profile is a copy of
+    /// the current one with the code's look (its own characters for IDEAS #11 stay none), and becomes the one in use.
+    /// Nothing is overwritten.</summary>
+    public static void FromCodeInteractive(SettingsContext ctx)
+    {
+        var text = ctx.Host.AskText(Str("L.S.Profile.FromCodeTitle"), Str("L.S.Profile.FromCodePrompt"), "");
+        if (text == null) return;
+        var read = ShareCode.ReadLook(text);
+        if (read.Value is not { } look) { ctx.Host.Toast(Str(read.ErrorKey)); return; }
+        var name = ctx.Host.AskText(Str("L.S.Profile.FromCodeTitle"), Str("L.S.Profile.NamePrompt"), "");
+        if (name == null) return;
+        var source = ctx.S.LastUsedProfile;
+        if (!New(ctx, name)) { ctx.Host.Toast(string.Format(Str("L.S.Profile.NameTaken"), name.Trim())); return; }
+        var made = ctx.S.Profiles[name.Trim()];
+        if (ctx.S.Profiles.TryGetValue(source, out var from)) ProfileCopy.CopyFull(ctx.S, from, made);
+        look.ApplyTo(made);
+        ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
+        ctx.Host.Reload();
+        ctx.Host.Toast(string.Format(Str("L.S.Profile.FromCodeDone"), name.Trim()));
     }
 
     public static void DeleteInteractive(SettingsContext ctx, string name)

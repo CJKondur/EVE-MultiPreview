@@ -17,11 +17,16 @@ public sealed class LayoutRemapDialog : System.Windows.Window
     /// <summary>slot index → chosen target character (only mapped, non-skipped slots).</summary>
     public Dictionary<int, string> Mapping { get; } = new();
 
+    /// <summary>The slots' lists, in order (tests).</summary>
+    public IReadOnlyList<System.Windows.Controls.ComboBox> Lists => _combos;
+
+    private static string Str(string key, string english) => EveMultiPreview.Services.LocalizationService.Str(key, english);
+
     public LayoutRemapDialog(System.Windows.Window owner, IReadOnlyList<LayoutSlot> slots, IReadOnlyList<string> availableChars)
     {
         EveMultiPreview.SettingsUi.UiStyles.Attach(this);
         Owner = owner;
-        Title = "Map Preset Slots → Your Characters";
+        Title = Str("L.Remap.Title", "Map Preset Slots → Your Characters");
         Width = 480;
         SizeToContent = System.Windows.SizeToContent.Height;
         WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
@@ -35,7 +40,7 @@ public sealed class LayoutRemapDialog : System.Windows.Window
 
         var header = new System.Windows.Controls.TextBlock
         {
-            Text = "Assign each preset slot to one of your running characters. Exact name matches are pre-selected; choose “(skip)” to leave a slot unused.",
+            Text = Str("L.Remap.Intro", "Assign each preset slot to one of your running characters. Exact name matches are pre-selected; choose “(skip)” to leave a slot unused."),
             TextWrapping = System.Windows.TextWrapping.Wrap,
             Margin = new System.Windows.Thickness(0, 0, 0, 10),
         };
@@ -52,14 +57,14 @@ public sealed class LayoutRemapDialog : System.Windows.Window
         System.Windows.Controls.DockPanel.SetDock(buttons, System.Windows.Controls.Dock.Bottom);
         var ok = new System.Windows.Controls.Button
         {
-            Content = "Apply", Padding = new System.Windows.Thickness(14, 4, 14, 4),
+            Content = Str("L.Remap.Apply", "Apply"), Padding = new System.Windows.Thickness(14, 4, 14, 4),
             Margin = new System.Windows.Thickness(0, 0, 6, 0), IsDefault = true,
         };
         ok.SetResourceReference(System.Windows.FrameworkElement.StyleProperty, "Fx.PrimaryButton");
         ok.Click += (_, _) => Commit();
         var cancel = new System.Windows.Controls.Button
         {
-            Content = "Cancel", Padding = new System.Windows.Thickness(14, 4, 14, 4), IsCancel = true,
+            Content = Str("L.Remap.Cancel", "Cancel"), Padding = new System.Windows.Thickness(14, 4, 14, 4), IsCancel = true,
         };
         buttons.Children.Add(ok);
         buttons.Children.Add(cancel);
@@ -84,7 +89,7 @@ public sealed class LayoutRemapDialog : System.Windows.Window
             };
             var slotName = new System.Windows.Controls.TextBlock
             {
-                Text = $"{i + 1}.  {(string.IsNullOrWhiteSpace(slot.Character) ? "(slot)" : slot.Character)}",
+                Text = $"{i + 1}.  {(string.IsNullOrWhiteSpace(slot.Character) ? Str("L.Remap.Slot", "(slot)") : slot.Character)}",
                 Width = 200,
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
             };
@@ -92,7 +97,7 @@ public sealed class LayoutRemapDialog : System.Windows.Window
             row.Children.Add(slotName);
 
             var combo = new System.Windows.Controls.ComboBox { Width = 220 };
-            combo.Items.Add("(skip)");
+            combo.Items.Add(Str("L.Remap.Skip", "(skip)"));
             int sel = 0;
             for (int j = 0; j < availableChars.Count; j++)
             {
@@ -117,7 +122,7 @@ public sealed class LayoutRemapDialog : System.Windows.Window
         Mapping.Clear();
         for (int i = 0; i < _combos.Count; i++)
         {
-            if (_combos[i].SelectedItem is string sel && sel != "(skip)" && !string.IsNullOrWhiteSpace(sel))
+            if (_combos[i].SelectedIndex > 0 && _combos[i].SelectedItem is string sel && !string.IsNullOrWhiteSpace(sel))
                 Mapping[i] = sel;
         }
         DialogResult = true;
