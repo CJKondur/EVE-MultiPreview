@@ -2466,4 +2466,9 @@
     <sys:String x:Key="L.Msg.EndFrozenRecovered">{0} 的客户端已恢复响应：没有结束任何东西。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenGone">{0} 的客户端已经关闭。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenRefused">Windows 不允许 MultiPreview 结束 {0} 的客户端。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.char_idle">角色闲置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.idleMinutes">角色闲置：之后</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.idleMinutes.Desc">正在战斗、采矿或维修的角色可以多久不做这些事，超过后会触发该事件。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.idle.Title">角色闲置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.idle.Body">**角色闲置**会在角色停止工作时提醒你：场地清完了、矿石采完了、无人机回来了。当一个正在战斗、采矿或维修的角色在你设定的时间内没有在游戏日志中写下任何这类内容时触发，直到它重新开始前只触发一次。请在事件表中开启它（在“客户端”下）；在你开启之前它是关闭的。&#x0A;&#x0A;- 登录后从没做过这些事的角色（商人、运输员、诱导小号）永远不会被提醒。&#x0A;- 跳跃、出站或舰队跃迁会重新开始计时，所以前往下一个场地不算闲置。EVE 不记录你自己的跃迁，因此比设定时间更长的跃迁可能会触发它。&#x0A;- 如果**采矿器已停止**、**小行星已采空**或**货柜已满**已经提醒过你这个角色停下了，此事件不会再提醒。&#x0A;- EVE 的日志会记录角色出站，但从不记录进站，因此工作后进站的角色会被提醒一次。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2448,4 +2448,9 @@
     <sys:String x:Key="L.Msg.EndFrozenRecovered">{0}'s client is responding again: nothing was ended.</sys:String>
     <sys:String x:Key="L.Msg.EndFrozenGone">{0}'s client has already closed.</sys:String>
     <sys:String x:Key="L.Msg.EndFrozenRefused">Windows did not let MultiPreview end {0}'s client.</sys:String>
+    <sys:String x:Key="L.AlertEvt.char_idle">Character idle</sys:String>
+    <sys:String x:Key="L.S.alerts.events.idleMinutes">Character idle: after</sys:String>
+    <sys:String x:Key="L.S.alerts.events.idleMinutes.Desc">How long a character that was fighting, mining or repairing may go without it before the event is raised.</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.idle.Title">Character idle</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.idle.Body">**Character idle** tells you a character has stopped working: the site is cleared, the rock is gone, the drones came home. It is raised when a character that was fighting, mining or repairing has written none of that to its game log for the time you set, and once until it starts again. Turn it on in the event table (under Clients); it is off until you do.&#x0A;&#x0A;- A character that has done none of it since it logged in (a trader, a hauler, a cyno alt) is never told.&#x0A;- A jump, an undock or a fleet warp starts the count again, so moving to the next site is not idle. EVE does not log your own warps, so a warp longer than the time you set can raise it.&#x0A;- When **Miner stopped**, **Asteroid depleted** or **Cargo full** already told you of that character's stop, this event says nothing for it.&#x0A;- EVE's logs say when a character undocks but never when it docks, so a character that docks after working is told once.</sys:String>
 </ResourceDictionary>

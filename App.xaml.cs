@@ -82,6 +82,9 @@ public partial class App : Application
     private readonly MemoryWatch _memoryWatch = new();
     /// <summary>IDEAS #22, #47: what ClientWatch judged of each client. The window's thread only.</summary>
     private readonly ClientWatch _clientWatch = new();
+    /// <summary>"Character idle" (IDEAS #7): noted on the log thread while the event is on, asked on the half-second
+    /// timer (FollowIdle).</summary>
+    private readonly IdleWatch _idleWatch = new();
     /// <summary>What the probe on the process monitor's thread asks Windows: set by LookAtClients on the window's thread
     /// (the settings are read there only), read by ProbeClients.</summary>
     private volatile ClientProbeWants _clientProbeWants;
@@ -386,28 +389,34 @@ public partial class App : Application
                 _statTracker.RecordDamage(dmg.CharacterName, dmg.Amount, true, dmg.IsNpc, damageType: dmg.Type);
                 _thumbnailManager?.SignalUnderFire(dmg.CharacterName);
                 Debug.WriteLine($"[App:Alert] 🔴 Damage received: {dmg.Amount} from '{dmg.SourceName}' to '{dmg.CharacterName}' (NPC={dmg.IsNpc})");
+                _idleWatch.Active(dmg.CharacterName, DateTime.UtcNow);   // IDEAS #7
             };
             _logMonitor.DamageDealt += (dmg) =>
             {
                 _statTracker.RecordDamage(dmg.CharacterName, dmg.Amount, false, dmg.IsNpc);
+                _idleWatch.Active(dmg.CharacterName, DateTime.UtcNow);   // IDEAS #7
             };
             _logMonitor.MiningYield += (mining) =>
             {
                 _statTracker.RecordMining(mining.CharacterName, mining.Amount, mining.MineType);
+                _idleWatch.Active(mining.CharacterName, DateTime.UtcNow);   // IDEAS #7
             };
             _logMonitor.RepairReceived += (repair) =>
             {
                 _statTracker.RecordRepair(repair.CharacterName, repair.Amount, repair.IsIncoming, repair.RepairType);
+                _idleWatch.Active(repair.CharacterName, DateTime.UtcNow);   // IDEAS #7
             };
             _logMonitor.BountyReceived += (bounty) =>
             {
                 _statTracker.RecordBounty(bounty.CharacterName, bounty.Amount);
+                _idleWatch.Active(bounty.CharacterName, DateTime.UtcNow);   // IDEAS #7
             };
             _logMonitor.SystemChanged += (charName, systemName) =>
             {
                 Debug.WriteLine($"[App:Alert] 🌍 System change: '{charName}' → '{systemName}'");
                 // IDEAS #5: every move, whether the event is on or not. First: the line below waits for the window's thread.
                 _stragglers.Moved(charName, systemName, DateTime.UtcNow);
+                _idleWatch.Moved(charName, DateTime.UtcNow);   // IDEAS #7: a jump or an undock starts the count again
                 _thumbnailManager.UpdateCharacterSystem(charName, systemName);
             };
 
@@ -560,6 +569,7 @@ public partial class App : Application
                 _alertHistory.Record(AlertHistory.Entry(raised, charName, alertType, severity,
                     _logMonitor.GetCharacterSystem(charName), outcome, rule, matched));
             };
+            _logMonitor.AlertTriggered += (charName, alertType, _) => _idleWatch.Alerted(charName, alertType, DateTime.UtcNow);   // IDEAS #7: fleet warps, and stops Miner stopped already told
 
             // IDEAS #8: the player's own alert rules, from custom_alerts.json in the settings folder. A file that can't
             // be used is set aside and reported, and MultiPreview runs without rules. The log monitor gets the rules
@@ -659,6 +669,7 @@ public partial class App : Application
                 FollowDoNotDisturb();
                 FollowKeepAwake();
                 FollowDowntime();
+                FollowIdle();
             };
             hotkeyToggleTimer.Start();
 
@@ -1191,6 +1202,34 @@ public partial class App : Application
             if (names.Count == 0) return;
             if (_downtimeWarnings.Due(DateTime.UtcNow) is int minutes)
                 ShowBalloon(10000, Downtime.WarningText(minutes, names), ToolTipIcon.Warning);
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>Whether "Character idle" is looked for: on for everyone, or (IDEAS #31) for some group.</summary>
+    private bool IdleOn(EveMultiPreview.Models.AppSettings s) =>
+        IdleWatch.IsOn(s) || _alertProfiles.OnForSomeone(IdleWatch.EventKey);
+
+    /// <summary>IDEAS #7, twice a second: has a character that was working stopped? While the event is off nothing is noted
+    /// and nothing kept. A failure is logged and the next tick tries again.</summary>
+    private void FollowIdle()
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null || _stragglerAlerts == null) return;
+            var s = _settings.Settings;
+            if (!IdleOn(s))
+            {
+                if (_idleWatch.Enabled) { _idleWatch.Enabled = false; _idleWatch.Forget(); }
+                return;
+            }
+            _idleWatch.Enabled = true;
+            var now = DateTime.UtcNow;
+            foreach (var alert in _idleWatch.Check(now, _thumbnailManager.GetActiveCharacterNames(), IdleWatch.Minutes(s)))
+            {
+                try { _stragglerAlerts.Raise(now, alert.Character, IdleWatch.EventKey, IdleWatch.Severity, alert.Text); }
+                catch (Exception ex) { LogError(ex); }
+            }
         }
         catch (Exception ex) { LogError(ex); }
     }

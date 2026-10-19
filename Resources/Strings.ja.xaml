@@ -2449,4 +2449,9 @@
     <sys:String x:Key="L.Msg.EndFrozenRecovered">{0} のクライアントが再び応答しています。何も終了していません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenGone">{0} のクライアントはすでに閉じています。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenRefused">Windows が MultiPreview による {0} のクライアントの終了を許可しませんでした。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.char_idle">キャラクターが放置中</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.idleMinutes">キャラクターが放置中：経過時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.idleMinutes.Desc">戦闘、採掘、リペアをしていたキャラクターが、それをしないままでいられる時間です。過ぎるとイベントが発生します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.idle.Title">キャラクターが放置中</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.idle.Body">**キャラクターが放置中**は、キャラクターの作業が止まったことを知らせます。サイトを片付け終えた、岩を掘り尽くした、ドローンが戻ってきた、といったときです。戦闘、採掘、リペアをしていたキャラクターが、設定した時間のあいだそのどれもゲームログに書かなかったときに発生し、再開するまでは一度だけです。イベント表（「クライアント」の下）でオンにしてください。オンにするまではオフです。&#x0A;&#x0A;- ログインしてからそのどれもしていないキャラクター（トレーダー、輸送役、サイノ用の別キャラ）には知らせません。&#x0A;- ジャンプ、アンドック、フリートワープでカウントはやり直しになるので、次のサイトへの移動は放置になりません。EVE は自分のワープをログに残さないため、設定した時間より長いワープで発生することがあります。&#x0A;- **採掘機停止**、**小惑星枯渇**、**カーゴ満杯**がそのキャラクターの停止をすでに知らせたときは、このイベントは何も言いません。&#x0A;- EVE のログはアンドックを記録しますがドックは記録しないので、作業のあとにドックしたキャラクターには一度知らせます。</sys:String> <!-- draft -->
 </ResourceDictionary>

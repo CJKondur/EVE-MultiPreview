@@ -287,6 +287,11 @@ public class AppSettings
     /// ClientWatchOptions.Of, which holds it to 20-600. New key: 60 in a file without it.</summary>
     public int DisconnectedSeconds { get; set; } = 60;
 
+    /// <summary>Minutes a character that was working may go without fighting, mining or repairing before "Character idle"
+    /// is raised (IDEAS #7). The event itself is switched on in EnabledAlertTypes under "char_idle", off in a file without
+    /// it. Read by App through IdleWatch.Minutes, which holds it to 2-120. New key: 5 in a file without it.</summary>
+    public int IdleAlertMinutes { get; set; } = 5;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

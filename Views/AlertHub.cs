@@ -51,6 +51,7 @@ public class AlertHub : IDisposable
             "client_memory" => "Client memory high",
             "client_hung" => "Client not responding",
             "client_closed" => "Client closed unexpectedly",
+            "char_idle" => "Character idle",
             _ => alertType
         });
 

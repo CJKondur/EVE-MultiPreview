@@ -144,6 +144,7 @@ public class AhkConfigRoot
         s.ClientNotRespondingBadge = g.ClientNotRespondingBadge != 0;
         s.ClientDisconnectedBadge = g.ClientDisconnectedBadge != 0;
         s.DisconnectedSeconds = g.DisconnectedSeconds;
+        s.IdleAlertMinutes = g.IdleAlertMinutes;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -487,6 +488,7 @@ public class AhkConfigRoot
         g.ClientNotRespondingBadge = s.ClientNotRespondingBadge ? 1 : 0;
         g.ClientDisconnectedBadge = s.ClientDisconnectedBadge ? 1 : 0;
         g.DisconnectedSeconds = s.DisconnectedSeconds;
+        g.IdleAlertMinutes = s.IdleAlertMinutes;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1376,6 +1378,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("DisconnectedSeconds")]
     public int DisconnectedSeconds { get; set; } = 60;
+
+    // The Character idle minutes (IDEAS #7), batch 9: a file without it loads 5.
+    [JsonPropertyName("IdleAlertMinutes")]
+    public int IdleAlertMinutes { get; set; } = 5;
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

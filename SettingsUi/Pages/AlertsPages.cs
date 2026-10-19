@@ -37,6 +37,7 @@ public static class AlertsPages
         }),
         new HelpTopic(EventsId, "memory", new[] { "alerts.events.memoryLimit", "alerts.events.memoryGrowth", "alerts.events.memoryMinutes" }),
         new HelpTopic(EventsId, "clientStops", new[] { "alerts.events.clientNote" }),
+        new HelpTopic(EventsId, "idle", new[] { "alerts.events.idleMinutes" }),
         new HelpTopic(EventsId, "groups", new[] { GroupAlertsEditor.ItemId }),
         new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
         new HelpTopic(LookId, "thumbnail", new[]
@@ -159,6 +160,9 @@ public static class AlertsPages
             // unexpectedly": off until switched on in the table above, after 30 s frozen, and only an end with an error
             // code. Always shown, as ewarNote: a card can't follow a switch inside the table.
             new InfoItem("alerts.events.clientNote", InfoSeverity.Info),
+            // IDEAS #7: App reads it on its half-second timer while "Character idle" is on (IdleWatch.Minutes), so a
+            // change only saves. Shown whether the event is on or not, as the memory numbers are.
+            Combat("alerts.events.idleMinutes", s => s.IdleAlertMinutes, IdleWatch.MinMinutes, IdleWatch.MaxMinutes, "L.S.Unit.Min"),
         }),
         // IDEAS #31: a group's own choice of which events are on. App hands it to the gate (AlertProfiles) and to the
         // log monitor on Applied.
