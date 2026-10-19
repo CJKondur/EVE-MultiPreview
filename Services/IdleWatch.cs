@@ -12,8 +12,10 @@ public sealed record IdleAlert(string Character, string Text);
 /// existing handlers, on the log thread, and only while the event is on (<see cref="Enabled"/>).
 /// A character is armed only by activity: one that did none of it since it logged in (a trader, a hauler, a cyno alt)
 /// is never told. It is told once per lull, and its next activity starts a new one; a logout forgets it.
-/// Moving starts the count again: a jump or an undock (<see cref="Moved"/>), a fleet warp or a regroup
-/// (<see cref="MoveEvents"/>). A player's own warp is not in EVE's logs.
+/// Moving starts the count again: a jump into another system (<see cref="Moved"/>, App's SystemChanged), a fleet warp or
+/// a regroup (<see cref="MoveEvents"/>). A player's own warp is not in EVE's logs. Docking is never logged, and the log
+/// monitor raises SystemChanged only for another system, so an undock (into the station's own system) is not seen:
+/// time spent docked counts toward the minutes.
 /// When Miner stopped, Asteroid depleted or Cargo full was raised for the character after its last activity
 /// (<see cref="StopEvents"/>), this lull is already told and nothing more is said.
 /// App asks it on the window's thread, on its half-second timer (<see cref="Check"/>).</summary>
@@ -60,7 +62,7 @@ public sealed class IdleWatch
         }
     }
 
-    /// <summary>A jump or an undock: a character that is armed starts its count again.</summary>
+    /// <summary>A jump into another system: a character that is armed starts its count again.</summary>
     public void Moved(string character, DateTime utc)
     {
         if (!_enabled || string.IsNullOrWhiteSpace(character)) return;
@@ -84,7 +86,8 @@ public sealed class IdleWatch
     }
 
     /// <summary>The characters quiet for the minutes, each once per lull. A character not logged in is forgotten; a
-    /// count that starts ahead of now (the clock set back) starts now.</summary>
+    /// count or a last activity ahead of now (the clock set back) is taken as now, so a mining stop raised after the
+    /// setback still tells this lull.</summary>
     public IReadOnlyList<IdleAlert> Check(DateTime utcNow, IEnumerable<string> loggedIn, int minutes)
     {
         var present = new HashSet<string>(loggedIn, StringComparer.OrdinalIgnoreCase);
@@ -97,6 +100,7 @@ public sealed class IdleWatch
                 if (!present.Contains(name)) { _states.Remove(name); continue; }
                 var st = _states[name];
                 if (st.CountFrom > utcNow) st.CountFrom = utcNow;
+                if (st.LastActive > utcNow) st.LastActive = utcNow;
                 var quiet = utcNow - st.CountFrom;
                 if (st.Told || st.MinerTold || quiet < after) continue;
                 st.Told = true;

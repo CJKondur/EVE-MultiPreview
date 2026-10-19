@@ -416,7 +416,7 @@ public partial class App : Application
                 Debug.WriteLine($"[App:Alert] 🌍 System change: '{charName}' → '{systemName}'");
                 // IDEAS #5: every move, whether the event is on or not. First: the line below waits for the window's thread.
                 _stragglers.Moved(charName, systemName, DateTime.UtcNow);
-                _idleWatch.Moved(charName, DateTime.UtcNow);   // IDEAS #7: a jump or an undock starts the count again
+                _idleWatch.Moved(charName, DateTime.UtcNow);   // IDEAS #7: a jump into another system starts the count again
                 _thumbnailManager.UpdateCharacterSystem(charName, systemName);
             };
 
