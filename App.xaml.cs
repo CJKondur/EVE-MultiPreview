@@ -1487,6 +1487,17 @@ public partial class App : Application
                 SwitchProfile = name => settings.SwitchProfile(name),   // ProfileSwitched applies it (#101)
                 ToggleThumbnails = () => thumbnails.ToggleThumbnailVisibility(),
                 ToggleFocusMode = ToggleFocusMode,
+                Groups = () => FocusMode.Groups(settings.Settings).Select(g => g.Name),
+                CycleGroup = (name, forward) =>
+                {
+                    var group = FocusMode.Groups(settings.Settings).FirstOrDefault(g => g.Name == name);
+                    if (group.Members != null) thumbnails.CycleGroup(name, group.Members.ToList(), forward);
+                },
+                CycleAll = forward => thumbnails.CycleAll(forward),
+                PreviousClient = () => thumbnails.SwitchToPreviousClient(),
+                LastAlert = () => thumbnails.GoToLastAlert(),
+                CycleProfile = forward => CycleProfile(forward),
+                DoNotDisturb = ToggleDoNotDisturb,
             }.Run(command);
         }
         catch (Exception ex)

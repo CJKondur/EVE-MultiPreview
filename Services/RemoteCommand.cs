@@ -6,14 +6,19 @@ using System.Text;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>IDEAS #39: what another program may ask of the running MultiPreview. One of four, nothing else.</summary>
-public enum RemoteVerb { Focus, Profile, ToggleThumbnails, FocusMode }
+/// <summary>IDEAS #39 and #15: what another program may ask of the running MultiPreview. One of thirteen, nothing else:
+/// the four of #39 keep their values, the nine of #15 follow.</summary>
+public enum RemoteVerb
+{
+    Focus, Profile, ToggleThumbnails, FocusMode,
+    CycleGroup, CycleGroupBack, CycleAll, CycleAllBack, PreviousClient, LastAlert, NextProfile, PreviousProfile, DoNotDisturb,
+}
 
 /// <summary>What came of a command. The running MultiPreview answers the first three as one byte on the pipe; a second
 /// start of MultiPreview ends with the number as its exit code, and with NotReachable when no MultiPreview took it.</summary>
 public enum RemoteOutcome : byte { Done = 0, Refused = 1, NotFound = 2, NotReachable = 3 }
 
-/// <summary>IDEAS #39 (and #15 later): one command from a command line or the pipe, on a strict allow-list. Its name is
+/// <summary>IDEAS #39 and #15: one command from a command line or the pipe, on one strict allow-list. Its name is
 /// only ever compared with names that exist (a running character, a profile): it is never a path, a format, shell input
 /// or a key to look anything else up by.</summary>
 public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
@@ -28,7 +33,31 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
         ("--profile", "profile", RemoteVerb.Profile, true),
         ("--toggle-thumbnails", "toggle-thumbnails", RemoteVerb.ToggleThumbnails, false),
         ("--focus-mode", "focus-mode", RemoteVerb.FocusMode, false),
+        ("--cycle", "cycle", RemoteVerb.CycleGroup, true),
+        ("--cycle-back", "cycle-back", RemoteVerb.CycleGroupBack, true),
+        ("--cycle-all", "cycle-all", RemoteVerb.CycleAll, false),
+        ("--cycle-all-back", "cycle-all-back", RemoteVerb.CycleAllBack, false),
+        ("--previous-client", "previous-client", RemoteVerb.PreviousClient, false),
+        ("--last-alert", "last-alert", RemoteVerb.LastAlert, false),
+        ("--next-profile", "next-profile", RemoteVerb.NextProfile, false),
+        ("--previous-profile", "previous-profile", RemoteVerb.PreviousProfile, false),
+        ("--do-not-disturb", "do-not-disturb", RemoteVerb.DoNotDisturb, false),
     };
+
+    /// <summary>The command-line switch of a verb of the list (<c>--cycle-all</c>); empty for any other.</summary>
+    public static string SwitchOf(RemoteVerb verb) => Allowed.FirstOrDefault(a => a.Verb == verb).Switch ?? "";
+
+    /// <summary>The word of a verb on the pipe (<c>cycle-all</c>), also the end of its label key <c>L.Cmd.&lt;word&gt;</c>;
+    /// empty for a verb not on the list.</summary>
+    public static string WordOf(RemoteVerb verb) => Allowed.FirstOrDefault(a => a.Verb == verb).Word ?? "";
+
+    /// <summary>Does the verb carry a name (a character, a profile, a group)? False for the others and for a verb not on the list.</summary>
+    public static bool TakesName(RemoteVerb verb) => Allowed.FirstOrDefault(a => a.Verb == verb).TakesName;
+
+    /// <summary>Does the command bring a client's window forward (a switch the player would otherwise make with a hotkey)?</summary>
+    public bool SwitchesAClient =>
+        Verb is RemoteVerb.Focus or RemoteVerb.CycleGroup or RemoteVerb.CycleGroupBack or RemoteVerb.CycleAll
+            or RemoteVerb.CycleAllBack or RemoteVerb.PreviousClient or RemoteVerb.LastAlert;
 
     private static readonly UTF8Encoding Strict = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
@@ -88,9 +117,9 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
     }
 }
 
-/// <summary>IDEAS #39: does one command on the window's thread with App's parts handed in, and says what came of it. A
-/// character is found among the running ones ignoring case; a profile by its exact name, else the one profile whose name
-/// matches ignoring case.</summary>
+/// <summary>IDEAS #39 and #15: does one command on the window's thread with App's parts handed in, and says what came of
+/// it. A character is found among the running ones ignoring case; a profile or a group by its exact name, else the one
+/// whose name matches ignoring case.</summary>
 public sealed class RemoteCommandRunner
 {
     public required Func<IEnumerable<string>> Running { get; init; }
@@ -99,6 +128,25 @@ public sealed class RemoteCommandRunner
     public required Action<string> SwitchProfile { get; init; }
     public required Action ToggleThumbnails { get; init; }
     public required Action ToggleFocusMode { get; init; }
+    public required Func<IEnumerable<string>> Groups { get; init; }
+    /// <summary>The group's real name, and whether to go forward.</summary>
+    public required Action<string, bool> CycleGroup { get; init; }
+    public required Action<bool> CycleAll { get; init; }
+    public required Action PreviousClient { get; init; }
+    public required Action LastAlert { get; init; }
+    public required Action<bool> CycleProfile { get; init; }
+    public required Action DoNotDisturb { get; init; }
+
+    /// <summary>The name a player typed, as one that exists: the exact one, else the one whose name matches ignoring case
+    /// (two such: none). Null when there is none.</summary>
+    private static string? Resolve(IEnumerable<string> names, string wanted)
+    {
+        var all = names.ToList();
+        var exact = all.FirstOrDefault(n => string.Equals(n, wanted, StringComparison.Ordinal));
+        if (exact != null) return exact;
+        var loose = all.Where(n => string.Equals(n, wanted, StringComparison.OrdinalIgnoreCase)).ToList();
+        return loose.Count == 1 ? loose[0] : null;
+    }
 
     public RemoteOutcome Run(RemoteCommand command)
     {
@@ -110,13 +158,7 @@ public sealed class RemoteCommandRunner
                 Focus(who);
                 return RemoteOutcome.Done;
             case RemoteVerb.Profile:
-                var names = Profiles().ToList();
-                var profile = names.FirstOrDefault(n => string.Equals(n, command.Argument, StringComparison.Ordinal));
-                if (profile == null)
-                {
-                    var loose = names.Where(n => string.Equals(n, command.Argument, StringComparison.OrdinalIgnoreCase)).ToList();
-                    if (loose.Count == 1) profile = loose[0];
-                }
+                var profile = Resolve(Profiles(), command.Argument);
                 if (profile == null) return RemoteOutcome.NotFound;
                 SwitchProfile(profile);
                 return RemoteOutcome.Done;
@@ -125,6 +167,33 @@ public sealed class RemoteCommandRunner
                 return RemoteOutcome.Done;
             case RemoteVerb.FocusMode:
                 ToggleFocusMode();
+                return RemoteOutcome.Done;
+            case RemoteVerb.CycleGroup:
+            case RemoteVerb.CycleGroupBack:
+                var group = Resolve(Groups(), command.Argument);
+                if (group == null) return RemoteOutcome.NotFound;
+                CycleGroup(group, command.Verb == RemoteVerb.CycleGroup);
+                return RemoteOutcome.Done;
+            case RemoteVerb.CycleAll:
+                CycleAll(true);
+                return RemoteOutcome.Done;
+            case RemoteVerb.CycleAllBack:
+                CycleAll(false);
+                return RemoteOutcome.Done;
+            case RemoteVerb.PreviousClient:
+                PreviousClient();
+                return RemoteOutcome.Done;
+            case RemoteVerb.LastAlert:
+                LastAlert();
+                return RemoteOutcome.Done;
+            case RemoteVerb.NextProfile:
+                CycleProfile(true);
+                return RemoteOutcome.Done;
+            case RemoteVerb.PreviousProfile:
+                CycleProfile(false);
+                return RemoteOutcome.Done;
+            case RemoteVerb.DoNotDisturb:
+                DoNotDisturb();
                 return RemoteOutcome.Done;
             default:
                 return RemoteOutcome.Refused;
