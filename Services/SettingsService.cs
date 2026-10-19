@@ -44,6 +44,7 @@ public sealed class SettingsService : IDisposable
     private readonly object _saveLock = new();
     private DateTime _lastSaveTime = DateTime.MinValue;
     private System.Timers.Timer? _debounceSaveTimer;
+    private volatile bool _savePending;   // set by SaveDelayed, cleared by Save: Dispose flushes a change the timer never wrote
     private bool _loadedSuccessfully = false;
 
     public AppSettings Settings => _settings;
@@ -194,6 +195,7 @@ public sealed class SettingsService : IDisposable
     /// Always saves in AHK-compatible format for backwards compatibility.</summary>
     public void Save()
     {
+        _savePending = false;   // P96: whatever SaveDelayed was waiting to write is written now
         SaveStatus status;
         lock (_saveLock)
         {
@@ -230,10 +232,12 @@ public sealed class SettingsService : IDisposable
     /// <summary>Debounced save — waits 200ms before actually saving (matches AHK Save_Settings_Delay_Timer).</summary>
     public void SaveDelayed()
     {
+        _savePending = true;
         _debounceSaveTimer?.Stop();
         _debounceSaveTimer?.Dispose();
         _debounceSaveTimer = new System.Timers.Timer(200) { AutoReset = false };
-        _debounceSaveTimer.Elapsed += (_, _) => Save();
+        // A tick that was already queued when Dispose (or an explicit Save) wrote the change must not write it twice.
+        _debounceSaveTimer.Elapsed += (_, _) => { if (_savePending) Save(); };
         _debounceSaveTimer.Start();
     }
 
@@ -380,10 +384,15 @@ public sealed class SettingsService : IDisposable
     /// Never throws.</summary>
     private static void LogError(Exception ex) => ErrorLog.Shared.Record(ex, "Settings", DateTime.Now);
 
+    /// <summary>Stops the debounce timer and writes a change still waiting on it (P96), once. Never throws.
+    /// Save() takes the same lock as a timer tick, so a tick mid-save is waited for (a file write), not repeated.</summary>
     public void Dispose()
     {
         _debounceSaveTimer?.Stop();
         _debounceSaveTimer?.Dispose();
         _debounceSaveTimer = null;
+        if (!_savePending) return;
+        try { Save(); }
+        catch (Exception ex) { LogError(ex); }   // e.g. a SaveCompleted subscriber that throws at exit
     }
 }
