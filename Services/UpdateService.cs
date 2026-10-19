@@ -288,14 +288,17 @@ public sealed class UpdateService
 
     /// <summary>ApplyUpdate's first step: throws unless the file is the one GitHub published, or GitHub published no
     /// checksum, the file is exactly the one downloaded here, and the player has agreed (the dialog's second click) to
-    /// install it unchecked. The file is hashed again every time.</summary>
-    public void RequireVerified(string downloadedExePath, bool allowUnverified)
+    /// install it unchecked. The file is hashed again every time. Returns the length of the file that was hashed: the
+    /// updater script compares the file's length with it once the old process is gone (IDEAS P60).</summary>
+    public long RequireVerified(string downloadedExePath, bool allowUnverified)
     {
-        var check = Judge(HashFile(downloadedExePath), out var refusal);
+        var hashed = HashFile(downloadedExePath);
+        var check = Judge(hashed, out var refusal);
         if (check == DownloadCheck.Mismatch) throw refusal!;
         if (check == DownloadCheck.NoDigest && !allowUnverified)
             throw new UpdateIntegrityException(
                 $"Update refused ({IntegrityCause.NotConfirmed}): version={LatestVersion ?? "?"}; expected=none published", IntegrityCause.NotConfirmed);
+        return hashed.Length;                                  // Verified and NoDigest have a hash, so a length
     }
 
     /// <summary>
@@ -309,7 +312,7 @@ public sealed class UpdateService
     /// </summary>
     public HandBackResult ApplyUpdate(string downloadedExePath, bool installAnyway = false, bool allowUnverified = false)
     {
-        RequireVerified(downloadedExePath, allowUnverified);
+        long verifiedLength = RequireVerified(downloadedExePath, allowUnverified);
         var handBack = HandBackIfNeeded(AppPaths.SettingsPath, AppPaths.ExeDir, DateTime.Now);
         if (handBack.State == HandBackState.Failed && !installAnyway) return handBack;
 
@@ -327,7 +330,7 @@ public sealed class UpdateService
             UseShellExecute = false,
             CreateNoWindow = true
         };
-        foreach (var (name, value) in UpdaterEnvironment(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath, Environment.ProcessId, Environment.ProcessPath))
+        foreach (var (name, value) in UpdaterEnvironment(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath, Environment.ProcessId, Environment.ProcessPath, verifiedLength))
             psi.Environment[name] = value;
         Process.Start(psi);
 
@@ -350,14 +353,16 @@ public sealed class UpdateService
 
     /// <summary>What the updater script reads (as $env:EMP_…): the four paths, the id of the process it must wait for
     /// (this one) and the path of the exe that is running (this one's; "" when not known), which it starts again when
-    /// the new exe could not be put in place. Environment variables are Unicode and never parsed as code, so any
+    /// the new exe could not be put in place, and the length of the downloaded exe as it was verified (EMP_LEN, a plain
+    /// decimal number), which the script compares with the file's length before it copies anything. Environment variables are Unicode and never parsed as code, so any
     /// folder name works and none can inject a command.</summary>
     public static IReadOnlyList<(string Name, string Value)> UpdaterEnvironment(string appDir, string settingsFile, string backupDir,
-        string downloadedExePath, int processId, string? runningExe) => new[]
+        string downloadedExePath, int processId, string? runningExe, long verifiedLength) => new[]
     {
         ("EMP_APPDIR", Path.TrimEndingDirectorySeparator(appDir)), ("EMP_CONFIG", settingsFile), ("EMP_BACKUPS", backupDir), ("EMP_NEWEXE", downloadedExePath),
         ("EMP_PID", processId.ToString(System.Globalization.CultureInfo.InvariantCulture)),
         ("EMP_EXE", runningExe ?? ""),
+        ("EMP_LEN", verifiedLength.ToString(System.Globalization.CultureInfo.InvariantCulture)),
     };
 
     /// <summary>The updater: waits for MultiPreview to exit, copies the settings file into the Backups folder of the
@@ -406,12 +411,26 @@ try {
 } catch { }
 
 # Replace the executable. The copy can fail: the download was quarantined or cleaned away after it
-# was checked, or the exe in the app folder is still locked. What the copy answers decides the rest.
+# was checked, changed after it was checked, or the exe in the app folder is still locked. What it answers
+# decides the rest. The length of the download must be the length that was verified (EMP_LEN); a missing or
+# different one copies nothing. The copy goes to a second name beside the old exe, its length is checked
+# again, and only then does a rename put it over the old exe: a copy that dies half way leaves the old exe whole.
 $oldExe = Join-Path $appDir 'EVE MultiPreview.exe'
 $dotExe = Join-Path $appDir 'EVE.MultiPreview.exe'
 $dotPdb = Join-Path $appDir 'EVE.MultiPreview.pdb'
-Copy-Item -LiteralPath $newExe -Destination $oldExe -Force
-$copied = $?
+$tmpExe = Join-Path $appDir 'EVE MultiPreview.exe.new'
+$got = (Get-Item -LiteralPath $newExe -ErrorAction SilentlyContinue).Length
+if (-not $env:EMP_LEN -or $got -ne $env:EMP_LEN) {
+    $copied = $false
+} else {
+    Copy-Item -LiteralPath $newExe -Destination $tmpExe -Force
+    if (-not $? -or (Get-Item -LiteralPath $tmpExe -ErrorAction SilentlyContinue).Length -ne $env:EMP_LEN) {
+        $copied = $false
+    } else {
+        Move-Item -LiteralPath $tmpExe -Destination $oldExe -Force
+        $copied = $?
+    }
+}
 
 if ($copied) {
     # The new exe is in place, under the name with a space. The GitHub release ships the file as
@@ -430,12 +449,12 @@ if ($copied) {
     # is the only exe there is. The exe that was running is started again: it is known to work and it
     # is the version the player had. When it isn't known, whichever of the two names is there.
     $startExe = $env:EMP_EXE
-    if (-not $startExe -or -not (Test-Path -LiteralPath $startExe)) { $startExe = $oldExe }
-    if (-not (Test-Path -LiteralPath $startExe)) { $startExe = $dotExe }
+    if (-not $startExe -or -not (Test-Path -LiteralPath $startExe -PathType Leaf)) { $startExe = $oldExe }
+    if (-not (Test-Path -LiteralPath $startExe -PathType Leaf)) { $startExe = $dotExe }
 }
 
 # Restart the app (a bracketed current folder breaks Start-Process on 5.1, so start from TEMP)
-if (Test-Path -LiteralPath $startExe) {
+if (Test-Path -LiteralPath $startExe -PathType Leaf) {
     Start-Process -FilePath $startExe -WorkingDirectory $env:TEMP
 }
 
