@@ -2520,4 +2520,10 @@
     <sys:String x:Key="L.AutoProfile.Switch">切换到 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Stay">留在 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Switched">配置文件：{0}，按已登录的角色选择</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.control">其他程序</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.acceptCommands">接受其他程序的命令</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.acceptCommands.Desc">让 Stream Deck、AutoHotkey 或快捷方式通知正在运行的 MultiPreview 切换到某个角色或配置文件。只有你自己 Windows 账户下的程序才能这样做。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview 已在运行，并且不接受其他程序的命令。要允许，请在 应用设置 › 常规 中开启“接受其他程序的命令”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.commands.Title">来自其他程序的命令</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.commands.Body">开启**接受其他程序的命令**后，用下面任一命令再次启动 MultiPreview，就会把命令交给正在运行的 MultiPreview，第二次启动随即结束：&#x0A;&#x0A;- --focus "角色名" 把该角色的客户端带到最前面，就像点击它的缩略图一样。&#x0A;- --profile "配置文件名" 切换到该配置文件。&#x0A;- --toggle-thumbnails 隐藏或显示所有缩略图。&#x0A;- --focus-mode 开启或关闭专注模式（客户端 › 分组）。&#x0A;&#x0A;Stream Deck、Touch Portal、AutoHotkey 或 Windows 快捷方式都可以运行它们。每次启动只能带一条命令，其他一律拒绝。第二次启动结束时返回 0 表示已执行，1 表示被拒绝，2 表示没有这个角色或配置文件，3 表示没有 MultiPreview 接收它。&#x0A;&#x0A;只有在你自己的 Windows 账户下运行的程序才能发送命令，不会监听网络，命令也从不指向文件。如果 MultiPreview 以管理员身份运行，发送命令的程序也必须如此。带着命令启动的 MultiPreview 会在启动完成后执行它，不管这个开关怎么设置。</sys:String> <!-- draft -->
 </ResourceDictionary>

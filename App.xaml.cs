@@ -95,6 +95,11 @@ public partial class App : Application
     private bool _switchingProfileAutomatically;
     /// <summary>The question shown when the player switched profiles himself a short while ago; a newer one replaces it.</summary>
     private StartupDialog? _autoProfileQuestion;
+    /// <summary>IDEAS #39: the pipe other programs send commands through, while "Take commands from other programs" is on.</summary>
+    private CommandServer? _commandServer;
+    /// <summary>IDEAS #39: the command this start was given (a shortcut with --profile, say), run once the deferred startup is
+    /// done; null without one.</summary>
+    private RemoteCommand? _startupCommand;
     /// <summary>What the probe on the process monitor's thread asks Windows: set by LookAtClients on the window's thread
     /// (the settings are read there only), read by ProbeClients.</summary>
     private volatile ClientProbeWants _clientProbeWants;
@@ -169,11 +174,23 @@ public partial class App : Application
             // by calling ReleaseMutex on an unowned mutex.
             _singleInstanceMutex.Dispose();
             _singleInstanceMutex = null;
+            // IDEAS #39: a second start with a command hands it to the MultiPreview that runs and ends with what came of it
+            // as its exit code (0 done, 1 refused, 2 not found, 3 nothing took it). No window for 0 to 2: scripts and a
+            // Stream Deck start it, and a window would take the front from the game.
+            var forwarded = RemoteCommandLine.Forward(e.Args, command =>
+                CommandPipe.Send(CommandPipe.CurrentName(), command, CommandPipe.SendTime, letTakeTheFront: command.Verb == RemoteVerb.Focus));
+            if (forwarded is RemoteOutcome outcome)
+            {
+                if (outcome == RemoteOutcome.NotReachable) TellCommandsOff();
+                Shutdown((int)outcome);
+                return;
+            }
             MessageBox.Show("EVE MultiPreview is already running.", "EVE MultiPreview",
                 MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
         }
+        _startupCommand = RemoteCommand.FromArgs(e.Args);   // IDEAS #39: run once startup is done, whatever the switch says
 
         // IDEAS #57: where the settings live, decided (and on the first start, moved to AppData) before anything writes
         // a file. Only the instance that holds the single-instance lock gets here.
@@ -694,6 +711,9 @@ public partial class App : Application
             // IDEAS #55: once, after a session that ended without closing.
             if (_previousRunStart is DateTime previousStart) ShowUncleanExitNotice(previousStart);
 
+            // IDEAS #39: the command this start was given, now that everything runs.
+            if (_startupCommand is RemoteCommand first) { _startupCommand = null; RunCommand(first); }
+
             // ── Auto-Update Check (fire-and-forget, non-blocking) ──
             // Gated on CheckForUpdatesOnStartup (About tab toggle). When off, no
             // network call and no popup — users can still check via Settings → About.
@@ -730,6 +750,7 @@ public partial class App : Application
             });
         };
         deferTimer.Start();
+        FollowCommandServer();   // IDEAS #39
 
         PerfLog($"✅ OnStartup complete (discovery running): {startupSw.ElapsedMilliseconds}ms total");
 
@@ -1368,6 +1389,68 @@ public partial class App : Application
         question.Show();
     }
 
+    /// <summary>IDEAS #39: the pipe listens while "Take commands from other programs" is on, and does not exist while it is
+    /// off. Called at startup and after every settings change; the same answer again changes nothing. The pipe's thread only
+    /// posts a command to the window's thread and waits for it at most as long as the sender does (it never blocks that
+    /// thread); a server that stopped on a failure stays stopped until the switch goes off and on again.</summary>
+    private void FollowCommandServer()
+    {
+        try
+        {
+            bool wanted = !_isShuttingDown && _settings?.Settings.AcceptCommands == true;
+            if (wanted == (_commandServer != null)) return;
+            if (!wanted)
+            {
+                _commandServer!.Dispose();
+                _commandServer = null;
+                return;
+            }
+            var (user, owner) = CommandPipe.CurrentAccount();
+            _commandServer = new CommandServer(CommandPipe.CurrentName(), CommandPipe.Security(user, owner),
+                command => Dispatcher.InvokeAsync(() => RunCommand(command)).Task.WaitAsync(CommandPipe.SendTime), LogError);
+            _commandServer.Start();
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #39: one command, on the window's thread, with App's parts (RemoteCommandRunner decides). A profile
+    /// switched so counts as the player's own switch (IDEAS #11). A failure is logged and answered "refused".</summary>
+    private RemoteOutcome RunCommand(RemoteCommand command)
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null) return RemoteOutcome.NotReachable;
+            var thumbnails = _thumbnailManager;
+            var settings = _settings;
+            return new RemoteCommandRunner
+            {
+                Running = () => thumbnails.GetActiveCharacterNames(),
+                Profiles = () => settings.GetProfileNames(),
+                Focus = name => thumbnails.ActivateEveWindow(IntPtr.Zero, name),
+                SwitchProfile = name => settings.SwitchProfile(name),   // ProfileSwitched applies it (#101)
+                ToggleThumbnails = () => thumbnails.ToggleThumbnailVisibility(),
+                ToggleFocusMode = ToggleFocusMode,
+            }.Run(command);
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+            return RemoteOutcome.Refused;
+        }
+    }
+
+    private const string CommandsOffEnglish = "EVE MultiPreview is already running and does not take commands from other programs. To let it, turn on Take commands from other programs under App settings › General.";
+
+    /// <summary>IDEAS #39, a second start whose command nothing took: the running MultiPreview does not take commands (or is
+    /// still starting). Said in Windows' language: this start reads no settings.</summary>
+    private static void TellCommandsOff()
+    {
+        try { LocalizationService.SetLanguage(null); }
+        catch { /* the English text then */ }
+        MessageBox.Show(LocalizationService.Str("L.Msg.CommandsOff", CommandsOffEnglish), "EVE MultiPreview",
+            MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
     /// <summary>IDEAS #30: the snooze file follows "Keep snoozes when MultiPreview restarts". Called after every change
     /// to the snoozes and after every settings change: on, the file holds the timed snoozes that are on now; off,
     /// there is no file. A session whose settings could not be read writes nothing here either.</summary>
@@ -1762,6 +1845,7 @@ public partial class App : Application
             FollowNotifications();  // IDEAS #33: the registry key is written or removed as its switch says
             _spokenWay?.Follow(_settings!.Settings.SpeakAlerts);   // FX-m4: off and on again counts the voice's asks anew
             _pushWay?.Follow(_settings!.Settings);   // IDEAS #2: a newly saved link or a switch takes effect now
+            FollowCommandServer();   // IDEAS #39: the pipe opens or closes with its switch
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)
@@ -2072,6 +2156,8 @@ public partial class App : Application
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _keepAwake.Follow(false);   // IDEAS #46: Windows may sleep again
         _clientExits.Forget();      // IDEAS #22: the clients' process handles are let go
+        _commandServer?.Dispose();   // IDEAS #39: no more commands
+        _commandServer = null;
         _hotkeySheet?.Dismiss();   // IDEAS #16
         _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
         _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center

@@ -2503,4 +2503,10 @@
     <sys:String x:Key="L.AutoProfile.Switch">{0} に切り替える</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Stay">{0} のままにする</sys:String> <!-- draft -->
     <sys:String x:Key="L.AutoProfile.Switched">プロファイル：{0}（ログイン中のキャラクターから選択）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.control">ほかのプログラム</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.acceptCommands">ほかのプログラムからのコマンドを受け付ける</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.acceptCommands.Desc">Stream Deck、AutoHotkey、ショートカットから、実行中の MultiPreview にキャラクターやプロファイルへの切り替えを伝えられるようにします。できるのは、ご自身の Windows アカウントのプログラムだけです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.CommandsOff">EVE MultiPreview はすでに実行中で、ほかのプログラムからのコマンドを受け付けていません。受け付けるには、アプリの設定 › 一般 で「ほかのプログラムからのコマンドを受け付ける」をオンにしてください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.commands.Title">ほかのプログラムからのコマンド</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.commands.Body">**ほかのプログラムからのコマンドを受け付ける**をオンにすると、次のコマンドのどれかを付けて MultiPreview をもう一度起動したとき、そのコマンドが実行中の MultiPreview に渡され、2回目の起動はすぐに終了します。&#x0A;&#x0A;- --focus "キャラクター名" は、そのキャラクターのクライアントを、サムネイルをクリックしたときと同じように最前面に出します。&#x0A;- --profile "プロファイル名" は、そのプロファイルに切り替えます。&#x0A;- --toggle-thumbnails は、すべてのサムネイルを隠したり表示したりします。&#x0A;- --focus-mode は、フォーカスモードをオン／オフします（クライアント › グループ）。&#x0A;&#x0A;Stream Deck、Touch Portal、AutoHotkey、Windows のショートカットから実行できます。1回の起動につきコマンドは1つで、それ以外は拒否されます。2回目の起動は、実行できたときは 0、拒否されたときは 1、そのキャラクターやプロファイルがないときは 2、どの MultiPreview も受け取らなかったときは 3 で終了します。&#x0A;&#x0A;コマンドを送れるのは、ご自身の Windows アカウントで動いているプログラムだけです。ネットワークでは何も待ち受けず、コマンドがファイルを指定することもありません。MultiPreview を管理者として実行している場合は、送る側のプログラムも管理者である必要があります。コマンド付きで起動した MultiPreview は、起動が終わってから実行します。このスイッチの設定は関係ありません。</sys:String> <!-- draft -->
 </ResourceDictionary>

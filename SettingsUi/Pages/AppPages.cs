@@ -21,6 +21,7 @@ public static class AppPages
         new HelpTopic("app.general", "startup", new[] { "app.general.startupSettings", "app.general.startWithWindows" }),
         new HelpTopic("app.general", "keepAwake", new[] { "app.general.keepAwake" }),
         new HelpTopic("app.general", "downtime", new[] { "app.general.downtime" }),
+        new HelpTopic("app.general", "commands", new[] { "app.general.acceptCommands" }),
         new HelpTopic(LookId, "look", new[] { LookGallery.ItemId }),
         new HelpTopic(LookId, "contrast", new[] { "app.look.followContrast" }),
         new HelpTopic("app.diagnostics", "logs", new[]
@@ -75,6 +76,11 @@ public static class AppPages
         {
             new SettingItem(Setting.Toggle("app.general.keepAwake", s => s.KeepPcAwake)),
             new SettingItem(Setting.Toggle("app.general.downtime", s => s.DowntimeWarnings)),
+        }),
+        // IDEAS #39: App opens or closes the pipe after every settings change (FollowCommandServer).
+        new SectionDef("app.general.control", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("app.general.acceptCommands", s => s.AcceptCommands)),
         }),
     });
 

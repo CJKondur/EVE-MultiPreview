@@ -305,6 +305,11 @@ public class AppSettings
     /// New key: off in a file without it.</summary>
     public bool AutoSelectProfile { get; set; } = false;
 
+    /// <summary>Take commands from other programs (IDEAS #39): while on, MultiPreview listens on a named pipe only this
+    /// Windows account can open, for one command of RemoteCommand's allow-list. Read by App at startup and after every
+    /// settings change (FollowCommandServer). New key: off in a file without it.</summary>
+    public bool AcceptCommands { get; set; } = false;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients
