@@ -59,8 +59,8 @@ public sealed class AlertTargets
     /// alert reaches the player (IDEAS batch 6): spoken, as a Windows notification, by an enlarged thumbnail. Called
     /// last, for every alert that got past the gates (border, badge and sound), with a hub toast or without one: the
     /// outcomes <see cref="AlertOutcome.Shown"/> and <see cref="AlertOutcome.NoToast"/>. For no other outcome. The
-    /// time is the one Dispatch was handed, or null: by now the toast and the sound have waited for the window's
-    /// thread, so the alert may be seconds old.</summary>
+    /// time is the one Dispatch was handed, or null: by now the sound has waited for the window's thread (the toast
+    /// is only posted to it), so the alert may be seconds old.</summary>
     public Action<string, string, string, DateTime?> Ways { get; init; } = (_, _, _, _) => { };
 }
 

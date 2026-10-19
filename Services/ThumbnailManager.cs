@@ -2710,17 +2710,28 @@ public sealed class ThumbnailManager : IDisposable
 
         if (!_settings.Settings.ShowSystemName) return;
 
-        Application.Current?.Dispatcher.Invoke(() =>
+        // Posted, not waited for (IDEAS P57): this runs on the log reader's thread, and everything above is already
+        // captured. A throw inside a posted lambda reaches the app's unhandled-exception handler, so it is recorded
+        // here, by type only.
+        Application.Current?.Dispatcher.BeginInvoke(() =>
         {
-            foreach (var (_, thumb) in _thumbnails)
+            try
             {
-                if (!thumb.CharacterName.Equals(characterName, StringComparison.OrdinalIgnoreCase))
-                    continue;
+                foreach (var (_, thumb) in _thumbnails)
+                {
+                    if (!thumb.CharacterName.Equals(characterName, StringComparison.OrdinalIgnoreCase))
+                        continue;
 
-                if (hadPrevious && changed && !string.IsNullOrEmpty(previousSystem))
-                    thumb.AnimateSystemTransition(previousSystem!, systemName);
-                else
-                    thumb.UpdateSystemName(systemName);
+                    if (hadPrevious && changed && !string.IsNullOrEmpty(previousSystem))
+                        thumb.AnimateSystemTransition(previousSystem!, systemName);
+                    else
+                        thumb.UpdateSystemName(systemName);
+                }
+            }
+            catch (Exception ex)
+            {
+                // The exception's type only: its message can quote a character or system name.
+                ErrorLog.Shared.Record(new InvalidOperationException("A system label could not be updated: " + ex.GetType().Name), "Thumbnails:SystemLabel", DateTime.Now);
             }
         });
     }

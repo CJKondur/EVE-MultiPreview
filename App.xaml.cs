@@ -492,8 +492,8 @@ public partial class App : Application
                 Toast = (charName, alertType, severity) => _alertHub.ShowToast(charName, alertType, severity),
                 Sound = PlayAlertSound,
                 // IDEAS batch 6: after every gate. Which window is in front is asked there once, and only while a
-                // further way is switched on. It is asked a moment after Unseen asked it (the toast and the sound wait
-                // for the window's thread in between), and the player may have switched away in that moment: an alert
+                // further way is switched on. It is asked a moment after Unseen asked it (the sound waits for the
+                // window's thread in between; the toast is only posted to it), and the player may have switched away in that moment: an alert
                 // that was seen as it arrived is held by nobody as unseen, so no look would ever take its Windows
                 // notification away again. "In front" is therefore also: the attention table holds nothing for it.
                 Ways = (charName, alertType, severity, raisedUtc) => _alertWays.Raised(_settings.Settings, charName, alertType, severity,

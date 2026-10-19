@@ -335,37 +335,48 @@ public class AlertHub : IDisposable
             return;
         }
 
-        Application.Current?.Dispatcher.Invoke(() =>
+        // Posted, not waited for (IDEAS P57): this runs on the log reader's thread, and a window that is busy must not
+        // make every log behind it wait. Nothing after the post depends on the toast. A throw inside a posted lambda
+        // reaches the app's unhandled-exception handler, so it is recorded here, by type only.
+        Application.Current?.Dispatcher.BeginInvoke(() =>
         {
-            // If auto-hide stashed the hub, bring it back. Show() is a no-op
-            // when already visible. Then reset the auto-hide countdown so
-            // bursts of toasts keep the hub up until things go quiet.
-            if (_settings.AlertHubAutoHide && !_hubWindow.IsVisible)
-                Show();
-            KickAutoHide();
-
-            // Increment badge
-            _unreadCount++;
-            UpdateBadge();
-
-            // The focus-aware state now, then the toast with it: above EVE, never above another program (IDEAS P38).
-            UpdateFocusAwareZOrder();
-            var toast = NewToast(characterName, alertType, severity);
-
-            // No more toasts than fit between the hub and the screen edge (IDEAS P39): the oldest closes early. Its
-            // alert is still on its thumbnail and counted on the bell.
-            int fit = AlertHubVisuals.ToastsThatFit(ToastDirection, HubBounds, HubWorkArea());
-            while (_activeToasts.Count >= fit)
+            try
             {
-                var oldest = _activeToasts[0];
-                _activeToasts.RemoveAt(0);
-                try { oldest.Dispose(); } catch { }   // stops its dismiss timer too
+                // If auto-hide stashed the hub, bring it back. Show() is a no-op
+                // when already visible. Then reset the auto-hide countdown so
+                // bursts of toasts keep the hub up until things go quiet.
+                if (_settings.AlertHubAutoHide && !_hubWindow.IsVisible)
+                    Show();
+                KickAutoHide();
+
+                // Increment badge
+                _unreadCount++;
+                UpdateBadge();
+
+                // The focus-aware state now, then the toast with it: above EVE, never above another program (IDEAS P38).
+                UpdateFocusAwareZOrder();
+                var toast = NewToast(characterName, alertType, severity);
+
+                // No more toasts than fit between the hub and the screen edge (IDEAS P39): the oldest closes early. Its
+                // alert is still on its thumbnail and counted on the bell.
+                int fit = AlertHubVisuals.ToastsThatFit(ToastDirection, HubBounds, HubWorkArea());
+                while (_activeToasts.Count >= fit)
+                {
+                    var oldest = _activeToasts[0];
+                    _activeToasts.RemoveAt(0);
+                    try { oldest.Dispose(); } catch { }   // stops its dismiss timer too
+                }
+
+                Take(toast);
+                toast.Show();
+
+                Debug.WriteLine($"[AlertHub:Toast] 📢 Toast shown: {alertType} [{severity}] for '{characterName}' (active={_activeToasts.Count})");
             }
-
-            Take(toast);
-            toast.Show();
-
-            Debug.WriteLine($"[AlertHub:Toast] 📢 Toast shown: {alertType} [{severity}] for '{characterName}' (active={_activeToasts.Count})");
+            catch (Exception ex)
+            {
+                // The exception's type only: its message can quote a character name another player chose.
+                ErrorLog.Shared.Record(new InvalidOperationException("A toast could not be shown: " + ex.GetType().Name), "AlertHub:Toast", DateTime.Now);
+            }
         });
     }
 

@@ -33,8 +33,8 @@ public sealed class LogMonitorService : IDisposable
     public ErrorLog Errors { get; set; } = ErrorLog.Shared;
 
     // True from Stop until the next Start. RecordBadLine asks it instead of the cancellation token: Stop disposes and
-    // clears _cts without waiting for the reading thread, so when a listener's cancelled Dispatcher.Invoke reaches the
-    // reader at exit the token is already gone.
+    // clears _cts without waiting for the reading thread, so when a listener that waits for the window (the sound; the
+    // toast and the system label are only posted) is cancelled and that reaches the reader at exit, the token is already gone.
     private volatile bool _stopped;
 
     // EVE log paths (configurable via settings)
@@ -1609,8 +1609,8 @@ public sealed class LogMonitorService : IDisposable
     /// source lines beside a pdb: it says which parser or listener it was) and, in the alerts debug log, the log file's
     /// NAME. Never its message and never the line: another player chooses the names in a log line, and a message (a
     /// FormatException quotes its input) can hold them. The record is a new exception with a fixed message, because
-    /// ErrorLog writes the message of what it is given. While the monitor stops nothing is recorded: a listener's
-    /// Dispatcher.Invoke is cancelled when the app exits, and that is no error.</summary>
+    /// ErrorLog writes the message of what it is given. While the monitor stops nothing is recorded: a listener that
+    /// waits for the window (the sound) is cancelled when the app exits, and that is no error.</summary>
     private void RecordBadLine(string path, Exception ex)
     {
         if (_stopped) return;
