@@ -45,12 +45,15 @@ public static class AlertEvents
     };
 
     /// <summary>The events MultiPreview works out from what it knows instead of reading them from one log line: a group
-    /// member a jump wave left behind (IDEAS #5, StragglerWatch) and a client whose memory is high (IDEAS #45,
-    /// MemoryWatch). App raises them, through the same dispatcher.</summary>
+    /// member a jump wave left behind (IDEAS #5, StragglerWatch), a client whose memory is high (IDEAS #45,
+    /// MemoryWatch), and a client frozen for 30 s or ended with an error code (IDEAS #22, ClientWatch and ClientExits).
+    /// App raises them, through the same dispatcher.</summary>
     public static IReadOnlyList<AlertEventDef> Derived { get; } = new[]
     {
         new AlertEventDef(Services.StragglerWatch.EventKey, Services.StragglerWatch.Severity, "travel"),
         new AlertEventDef(Services.MemoryWatch.EventKey, Services.MemoryWatch.Severity, "client"),
+        new AlertEventDef(Services.ClientWatch.HungEvent, Services.ClientWatch.Severity, "client"),
+        new AlertEventDef(Services.ClientWatch.ClosedEvent, Services.ClientWatch.Severity, "client"),
     };
 
     /// <summary>The events the log monitor reads from a log line only once the player has switched them on
@@ -107,13 +110,15 @@ public static class AlertFields
 {
     // ── Event table (EnabledAlertTypes, BadgeOnThumbnailAlertTypes, AlertSolidBorder, AlertDurations, AlertColors) ──
 
-    /// <summary>LogMonitorService: a missing key is on (follow_warp and regroup have no default key). Six events are
-    /// the other way round, off until switched on: "Left behind" (StragglerWatch.IsOn) and "Client memory high"
-    /// (MemoryWatch.IsOn), which MultiPreview raises itself, and the four of IDEAS #4, #27 and #28 (AlertEvents.OptIn),
-    /// for which the log monitor has the same rule (EwarLines.Bits, CombatWatch.Bits).</summary>
+    /// <summary>LogMonitorService: a missing key is on (follow_warp and regroup have no default key). Eight events are
+    /// the other way round, off until switched on: "Left behind" (StragglerWatch.IsOn), "Client memory high"
+    /// (MemoryWatch.IsOn), "Client not responding" and "Client closed unexpectedly" (ClientWatch.IsOn), which
+    /// MultiPreview raises itself, and the four of IDEAS #4, #27 and #28 (AlertEvents.OptIn), for which the log monitor
+    /// has the same rule (EwarLines.Bits, CombatWatch.Bits).</summary>
     public static bool IsOn(AppSettings s, string key) =>
         key == Services.StragglerWatch.EventKey ? Services.StragglerWatch.IsOn(s)
         : key == Services.MemoryWatch.EventKey ? Services.MemoryWatch.IsOn(s)
+        : Services.ClientWatch.Owns(key) ? Services.ClientWatch.IsOn(s, key)
         : AlertEvents.IsOptIn(key) ? s.EnabledAlertTypes.TryGetValue(key, out var chosen) && chosen
         : !s.EnabledAlertTypes.TryGetValue(key, out var on) || on;
     public static void SetOn(AppSettings s, string key, bool on) => s.EnabledAlertTypes[key] = on;

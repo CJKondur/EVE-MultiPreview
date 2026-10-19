@@ -2455,4 +2455,9 @@
     <sys:String x:Key="L.Help.thumbs.text.clientState.Body">卡死或断线的客户端在你切换过去之前，看起来和空闲的没什么两样。MultiPreview 可以在它的缩略图上加标记：&#x0A;&#x0A;- **未响应**：Windows 报告客户端窗口不再响应（与任务管理器使用的检测相同：五秒内没有应答）。客户端恢复响应后，标记随即消失。&#x0A;- **已断开连接**：已登录的客户端在你设定的时间内与 EVE 服务器没有任何连接。MultiPreview 只向 Windows 查询每个客户端的连接，不会向任何地方发送数据。&#x0A;&#x0A;为避免误标，从未建立过服务器连接的客户端，或连接经过本机代理的客户端，永远不会被标为已断开连接，因此某些 VPN 和代理环境下不会显示任何标记。两种标记默认都是关闭的，需要你自己开启。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Thumb.NotResponding">未响应</sys:String> <!-- draft -->
     <sys:String x:Key="L.Thumb.Disconnected">已断开连接</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.client_hung">客户端未响应</sys:String> <!-- draft -->
+    <sys:String x:Key="L.AlertEvt.client_closed">客户端意外关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.clientNote">“客户端未响应”和“客户端意外关闭”默认关闭，需要你在上面的表格中打开。前者在客户端卡住 30 秒后触发；后者在客户端因错误结束时触发，你自己退出时不会触发。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientStops.Title">停止的客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.clientStops.Body">**客户端未响应**：当 Windows 报告某个客户端的窗口已卡住 30 秒时触发，每次卡住只触发一次。该客户端需要有已登录的角色。&#x0A;&#x0A;**客户端意外关闭**：当客户端进程以错误代码结束时触发，例如崩溃，或被任务管理器结束。你自己退出 EVE 时客户端无错误结束，不会触发；在 MultiPreview 中使用**关闭客户端**也不会。警报会显示该客户端最后登录的角色；错误代码保存在警报历史中。&#x0A;&#x0A;- 如果客户端以管理员身份运行而 MultiPreview 没有，就无法监视它。&#x0A;- 两者都是严重警报，因此除非你改过设置，勿扰模式会放行它们的声音。&#x0A;- 已关闭的客户端没有窗口了：它的警报会弹出、播放声音、通过推送发送并记入历史，但不会朗读、不会显示为 Windows 通知，也不会放大。&#x0A;&#x0A;要在缩略图上看到卡住或断开的客户端，请在 缩略图 › 文字和边框 › 客户端停止时 中打开标记。</sys:String> <!-- draft -->
 </ResourceDictionary>

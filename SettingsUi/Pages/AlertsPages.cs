@@ -36,6 +36,7 @@ public static class AlertsPages
             "alerts.events.dpsThreshold", "alerts.events.dpsSeconds", "alerts.events.repsSeconds", "alerts.events.combatNote",
         }),
         new HelpTopic(EventsId, "memory", new[] { "alerts.events.memoryLimit", "alerts.events.memoryGrowth", "alerts.events.memoryMinutes" }),
+        new HelpTopic(EventsId, "clientStops", new[] { "alerts.events.clientNote" }),
         new HelpTopic(EventsId, "groups", new[] { GroupAlertsEditor.ItemId }),
         new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
         new HelpTopic(LookId, "thumbnail", new[]
@@ -154,6 +155,10 @@ public static class AlertsPages
             Combat("alerts.events.memoryLimit", s => s.MemoryAlertMb, MemoryOptions.MinLimitMb, MemoryOptions.MaxLimitMb, "L.S.Unit.Mb"),
             Combat("alerts.events.memoryGrowth", s => s.MemoryGrowthMb, MemoryOptions.MinGrowthMb, MemoryOptions.MaxGrowthMb, "L.S.Unit.Mb"),
             Combat("alerts.events.memoryMinutes", s => s.MemoryGrowthMinutes, MemoryOptions.MinMinutes, MemoryOptions.MaxMinutes, "L.S.Unit.Min"),
+            // IDEAS #22: what a player must know before relying on "Client not responding" and "Client closed
+            // unexpectedly": off until switched on in the table above, after 30 s frozen, and only an end with an error
+            // code. Always shown, as ewarNote: a card can't follow a switch inside the table.
+            new InfoItem("alerts.events.clientNote", InfoSeverity.Info),
         }),
         // IDEAS #31: a group's own choice of which events are on. App hands it to the gate (AlertProfiles) and to the
         // log monitor on Applied.

@@ -85,6 +85,12 @@ public partial class App : Application
     /// <summary>What the probe on the process monitor's thread asks Windows: set by LookAtClients on the window's thread
     /// (the settings are read there only), read by ProbeClients.</summary>
     private volatile ClientProbeWants _clientProbeWants;
+    /// <summary>IDEAS #22: the process of each client, held only while "Client closed unexpectedly" is on, so its end is read
+    /// with its exit code. Tracked and looked at on the probe's pool thread; let go when the event is off and at exit.</summary>
+    private readonly ClientExits _clientExits = new(WindowsClientProcess.Open);
+    /// <summary>IDEAS #22, ruling 5: the one character a crashed client's alert is raised for, counted as having a window by
+    /// the dispatcher's gate. Set and cleared on the window's thread around that one Raise (RaiseClosed).</summary>
+    private volatile string? _closingCharacter;
     /// <summary>IDEAS #42: each hotkey Windows refused is told once a session in a tray note; a click on that note opens
     /// the hotkeys page. A click on any other balloon does not: ShowBalloon says which one is up.</summary>
     private readonly RefusalAnnouncer _refusalAnnouncer = new();
@@ -263,6 +269,8 @@ public partial class App : Application
         // IDEAS #22, #47: the probe asks Windows on the monitor's pool thread (never on the window's thread: the lesson of
         // P46), and the window's thread judges and marks.
         _processMonitor.StatsUpdated += ProbeClients;
+        // IDEAS #22: a client MultiPreview ends itself (Close client) raises no "Client closed unexpectedly".
+        _thumbnailManager.EndingClient += pid => _clientExits.EndedByMultiPreview(pid);
 
         // 4c. Crop manager (spawns per-character cropped DWM popups)
         _cropManager = new CropManager(_discovery, _settings);
@@ -429,7 +437,8 @@ public partial class App : Application
             {
                 // IDEAS #31: asked first. An event that is off for this character (its group's choice) is no alert for it.
                 IsOn = (charName, alertType) => _alertProfiles.IsOn(charName, alertType),
-                ActiveCharacters = () => _thumbnailManager.GetActiveCharacterNames(),
+                // IDEAS #22: the window of a crashed client is gone; while its alert is raised, its character counts.
+                ActiveCharacters = () => ClientExits.WithClosing(_thumbnailManager.GetActiveCharacterNames(), _closingCharacter),
                 IsMuted = charName => _thumbnailManager.IsCharacterAlertMuted(charName),
                 IsSnoozed = (charName, alertType) => _snoozes.IsSnoozed(charName, alertType),
                 Flash = (charName, severity, alertType) => _thumbnailManager.SetAlertFlash(charName, severity, alertType),
@@ -1048,7 +1057,8 @@ public partial class App : Application
     }
 
     /// <summary>IDEAS #22, #47, every 3 s on the process monitor's pool thread: asks Windows what LookAtClients last said is
-    /// wanted (frozen windows, the TCP table) and hands it to the window's thread. It reads no setting.</summary>
+    /// wanted (frozen windows, the TCP table, the clients' ends) and hands it to the window's thread. It reads no setting.
+    /// The processes are held only while "Client closed unexpectedly" is wanted; otherwise every handle is let go.</summary>
     private void ProbeClients()
     {
         try
@@ -1058,25 +1068,61 @@ public partial class App : Application
             IReadOnlyList<ClientSample> samples = wants == ClientProbeWants.None ? Array.Empty<ClientSample>()
                 : ClientProbe.Take(_thumbnailManager.ClientWindows(), wants, ClientProbe.PidOf, ClientProbe.IsHung,
                     (wants & ClientProbeWants.Links) != 0 ? TcpTable.Read() : null);
-            Dispatcher.BeginInvoke(new Action(() => LookAtClients(samples)), DispatcherPriority.Background);
+            IReadOnlyList<ClientExit> exits = Array.Empty<ClientExit>();
+            if ((wants & ClientProbeWants.Exits) != 0)
+            {
+                foreach (var client in samples) _clientExits.Track(client.Pid, client.Character);
+                exits = _clientExits.Look();
+            }
+            else _clientExits.Forget();
+            Dispatcher.BeginInvoke(new Action(() => LookAtClients(samples, exits)), DispatcherPriority.Background);
         }
         catch (Exception ex) { LogError(ex); }
     }
 
-    /// <summary>IDEAS #22, #47, on the window's thread after each probe: what is wanted next time, and the marks.</summary>
-    private void LookAtClients(IReadOnlyList<ClientSample> samples)
+    /// <summary>IDEAS #22, #47, on the window's thread after each probe: what is wanted next time, the marks, "Client not
+    /// responding", and "Client closed unexpectedly" for each client that ended with an error code. One try per alert.</summary>
+    private void LookAtClients(IReadOnlyList<ClientSample> samples, IReadOnlyList<ClientExit> exits)
     {
         try
         {
             if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
             var s = _settings.Settings;
-            var options = ClientWatchOptions.Of(s, _ => false);
-            _clientProbeWants = options.Wants(closedOn: false);
-            var look = _clientWatch.Look(DateTime.UtcNow, samples, options);
+            bool closedOn = ClientEventOn(s, ClientWatch.ClosedEvent);
+            var options = ClientWatchOptions.Of(s, key => ClientEventOn(s, key));
+            _clientProbeWants = options.Wants(closedOn);
+            var now = DateTime.UtcNow;
+            var look = _clientWatch.Look(now, samples, options);
             foreach (var change in look.Changes) _thumbnailManager.SetClientMark(change.Window, change.Mark);
+            if (_stragglerAlerts == null) return;
+            foreach (var alert in look.Alerts)
+            {
+                try { _stragglerAlerts.Raise(now, alert.Character, alert.EventKey, alert.Severity, alert.Text); }
+                catch (Exception ex) { LogError(ex); }
+            }
+            if (!closedOn) return;
+            foreach (var exit in exits)
+                if (exit.Unexpected && exit.Character.Length > 0) RaiseClosed(now, exit);
         }
         catch (Exception ex) { LogError(ex); }
     }
+
+    /// <summary>"Client closed unexpectedly" for one client, its character counted as having a window for this one call
+    /// (ruling 5). A log alert for the same character dispatched on the log thread in that instant passes the gate too;
+    /// its flash and badge find no thumbnail and do nothing. The crashed client has no window, so this alert reaches the
+    /// toast, the sound, push and the history, but it is not spoken, not a Windows notification and not enlarged (left by
+    /// design, ruling F14).</summary>
+    private void RaiseClosed(DateTime now, ClientExit exit)
+    {
+        _closingCharacter = exit.Character;
+        try { _stragglerAlerts!.Raise(now, exit.Character, ClientWatch.ClosedEvent, ClientWatch.Severity, ClientExits.CodeText(exit.ExitCode)); }
+        catch (Exception ex) { LogError(ex); }
+        finally { _closingCharacter = null; }
+    }
+
+    /// <summary>Whether a client event is on for everyone or (IDEAS #31) for some group.</summary>
+    private bool ClientEventOn(EveMultiPreview.Models.AppSettings s, string key) =>
+        ClientWatch.IsOn(s, key) || _alertProfiles.OnForSomeone(key);
 
     /// <summary>IDEAS #32: the hotkey or the tray item flips do-not-disturb, and says near the cursor what it is now:
     /// once per press, as the other hotkeys' feedback is given.</summary>
@@ -1825,6 +1871,7 @@ public partial class App : Application
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _keepAwake.Follow(false);   // IDEAS #46: Windows may sleep again
+        _clientExits.Forget();      // IDEAS #22: the clients' process handles are let go
         _hotkeySheet?.Dismiss();   // IDEAS #16
         _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
         _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center

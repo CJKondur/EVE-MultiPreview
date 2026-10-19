@@ -1509,6 +1509,10 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>A thumbnail's "Open ‹character›'s settings" (spec D6). App opens settings on that character's page.</summary>
     public event Action<string>? CharacterSettingsRequested;
 
+    /// <summary>MultiPreview is about to end a client itself (Close client, Close all clients): its process id. App tells
+    /// ClientExits, so that end raises no "Client closed unexpectedly" (IDEAS #22).</summary>
+    public event Action<int>? EndingClient;
+
     private void OnSettingsRequested(ThumbnailWindow thumb)
     {
         if (ThumbnailMenu.HasCharacter(thumb.CharacterName)) CharacterSettingsRequested?.Invoke(thumb.CharacterName);
@@ -1528,7 +1532,7 @@ public sealed class ThumbnailManager : IDisposable
         foreach (var hwnd in hwnds) KillClient(hwnd);
     }
 
-    private static void KillClient(IntPtr hwnd)
+    private void KillClient(IntPtr hwnd)
     {
         // The PID comes from the live window, and only an EVE client is ever ended.
         Interop.User32.GetWindowThreadProcessId(hwnd, out uint pid);
@@ -1537,6 +1541,7 @@ public sealed class ThumbnailManager : IDisposable
         {
             using var p = Process.GetProcessById((int)pid);
             if (!Interop.User32.IsEveProcessName(p.ProcessName)) return;
+            EndingClient?.Invoke((int)pid);
             p.Kill();
             DiagnosticsService.LogWindowHook($"[CloseClient] ended EVE client pid={pid}");
         }
