@@ -1341,7 +1341,7 @@
     <sys:String x:Key="L.S.thumbs.text.highlightColor">ハイライトの色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightWidth">ハイライトの太さ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightInGroup">色付きグループ内でもハイライトを維持</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">グループ枠がオンのとき、プレイ中のクライアントはグループの色ではなくハイライトの色のままになります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">グループ枠または枠の色の自動割り当てがオンのとき、プレイ中のクライアントはグループの色ではなくハイライトの色のままになります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.thumbs.text.others">その他のクライアント</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor">枠の色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor.Desc">それ以外のすべてのサムネイルの周囲。空にすると枠なしになります。</sys:String> <!-- draft -->
@@ -1368,7 +1368,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">クライアント統計</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">各クライアントが使用している CPU、メモリ（RAM）、グラフィックスメモリ（VRAM）の量を数秒ごとに更新して表示します。動作が重いクライアントを見つけるのに便利です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">枠線</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **ハイライト枠**はプレイ中のクライアントを示します。変更は EVE に戻ると反映されます。&#x0A;- ほかのクライアントには **その他のクライアント** の枠が付きます。色を空にすると枠なしになります。&#x0A;- グループはメンバーをグループの色で描けます（クライアント › グループ）。**色付きグループ内でもハイライトを維持**を使うと、プレイ中のクライアントはハイライトの色のままになります。&#x0A;- キャラクター固有の枠の色はそのページで設定し、**キャラクターごとの色を使う**がオンの間使われます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **ハイライト枠**はプレイ中のクライアントを示します。変更は EVE に戻ると反映されます。&#x0A;- ほかのクライアントには **その他のクライアント** の枠が付きます。色を空にすると枠なしになります。**枠の色を自動で割り当てる**がオンの間は、自分の色もグループの色もないキャラクターにも枠が付きます。&#x0A;- グループはメンバーをグループの色で描けます（クライアント › グループ）。**色付きグループ内でもハイライトを維持**を使うと、プレイ中のクライアントはハイライトの色のままになります。&#x0A;- キャラクター固有の枠の色はそのページで設定し、**キャラクターごとの色を使う**がオンの間使われます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">スキップ中クライアントのマーク</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">巡回から外したクライアント（既定では Shift+クリック）には赤い ✕ が表示されます。サムネイルのどの角または辺に置くかを選べます。</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->

@@ -1358,7 +1358,7 @@
     <sys:String x:Key="L.S.thumbs.text.highlightColor">高亮颜色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightWidth">高亮宽度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightInGroup">在彩色分组内保留高亮</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">开启分组边框后，你正在玩的客户端保留高亮颜色，而不是其分组的颜色。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">开启分组边框或自动边框颜色后，你正在玩的客户端保留高亮颜色，而不是其分组的颜色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.thumbs.text.others">其他客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor">边框颜色</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor.Desc">位于其他每个缩略图周围。留空则无边框。</sys:String> <!-- draft -->
@@ -1385,7 +1385,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">客户端统计</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">显示每个客户端占用的 CPU、内存（RAM）和显存（VRAM），每隔几秒更新一次。便于发现卡顿的客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">边框</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **高亮边框**标出你正在玩的客户端。更改会在你返回 EVE 时显示。&#x0A;- 其他每个客户端使用**其他客户端**下设置的边框。颜色留空则无边框。&#x0A;- 分组可以用分组颜色绘制其成员（客户端 › 分组）。**在彩色分组内保留高亮**会让你正在玩的客户端保留高亮颜色。&#x0A;- 角色自己的边框颜色在其页面中设置，并在开启**使用每个角色的专属颜色**时生效。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **高亮边框**标出你正在玩的客户端。更改会在你返回 EVE 时显示。&#x0A;- 其他每个客户端使用**其他客户端**下设置的边框。颜色留空则无边框。开启**自动边框颜色**后，没有自己的颜色也没有分组颜色的角色仍会得到边框。&#x0A;- 分组可以用分组颜色绘制其成员（客户端 › 分组）。**在彩色分组内保留高亮**会让你正在玩的客户端保留高亮颜色。&#x0A;- 角色自己的边框颜色在其页面中设置，并在开启**使用每个角色的专属颜色**时生效。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">已跳过客户端的标记</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">被你移出循环切换的客户端（默认 Shift+点击）会显示红色 ✕。可选择它位于缩略图的哪个角或哪条边。</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->

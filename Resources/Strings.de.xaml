@@ -1340,7 +1340,7 @@
     <sys:String x:Key="L.S.thumbs.text.highlightColor">Hervorhebungsfarbe</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightWidth">Hervorhebungsbreite</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightInGroup">Hervorhebung in farbiger Gruppe beibehalten</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">Bei aktiven Gruppenrahmen behält der Client, den du spielst, die Hervorhebungsfarbe statt der Farbe seiner Gruppe.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">Bei aktiven Gruppenrahmen oder automatischen Rahmenfarben behält der Client, den du spielst, die Hervorhebungsfarbe statt der Farbe seiner Gruppe.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.thumbs.text.others">Andere Clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor">Rahmenfarbe</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor.Desc">Um jede andere Vorschau. Leer lassen für keinen Rahmen.</sys:String> <!-- draft -->
@@ -1367,7 +1367,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Client-Statistik</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">Zeigt, wie viel CPU, Arbeitsspeicher (RAM) und Grafikspeicher (VRAM) jeder Client nutzt, alle paar Sekunden aktualisiert. Praktisch, um einen Client zu erkennen, der Probleme hat.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Rahmen</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- Der **Hervorhebungsrahmen** markiert den Client, den du spielst. Änderungen zeigen sich, wenn du zu EVE zurückkehrst.&#x0A;- Jeder andere Client erhält den Rahmen unter **Andere Clients**. Lass die Farbe leer für keinen Rahmen.&#x0A;- Gruppen können ihre Mitglieder in der Gruppenfarbe zeichnen (Clients › Gruppen). **Hervorhebung in farbiger Gruppe beibehalten** behält die Hervorhebungsfarbe beim Client, den du spielst.&#x0A;- Die eigenen Rahmenfarben eines Charakters werden auf dessen Seite festgelegt und gelten, solange **Farben pro Charakter verwenden** aktiv ist.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- Der **Hervorhebungsrahmen** markiert den Client, den du spielst. Änderungen zeigen sich, wenn du zu EVE zurückkehrst.&#x0A;- Jeder andere Client erhält den Rahmen unter **Andere Clients**. Lass die Farbe leer für keinen Rahmen. Ist **Automatische Rahmenfarben** aktiviert, bekommt ein Charakter ohne eigene Farbe oder Gruppenfarbe trotzdem einen Rahmen.&#x0A;- Gruppen können ihre Mitglieder in der Gruppenfarbe zeichnen (Clients › Gruppen). **Hervorhebung in farbiger Gruppe beibehalten** behält die Hervorhebungsfarbe beim Client, den du spielst.&#x0A;- Die eigenen Rahmenfarben eines Charakters werden auf dessen Seite festgelegt und gelten, solange **Farben pro Charakter verwenden** aktiv ist.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">Die Markierung für übersprungene Clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">Ein Client, den du aus dem Wechsel nimmst (standardmäßig Shift+Klick), zeigt ein rotes ✕. Wähle, an welcher Ecke oder Kante der Vorschau es sitzt.</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->

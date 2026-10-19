@@ -849,6 +849,7 @@ public sealed class ThumbnailManager : IDisposable
         PerfLog($"Show: {sw.ElapsedMilliseconds}ms");
         _thumbnails[window.Hwnd] = thumbWindow;
         if (InFront(window.Hwnd, Interop.User32.GetForegroundWindow())) NoteClientInFront(window.Hwnd);   // IDEAS #56: see NoteClientInFront
+        NoteRosterChanged();   // IDEAS P19: it was painted before it was counted
 
         // Honor a per-character "Hidden" choice (Visibility tab, 1 = hidden) and the
         // global hide-all toggles on a freshly created thumbnail. Without this, a
@@ -917,6 +918,7 @@ public sealed class ThumbnailManager : IDisposable
             _clientHistory.Closed(window.Hwnd);   // IDEAS #56: "back" never goes to a client that closed
             if (_thumbnails.TryRemove(window.Hwnd, out var thumbWindow))
             {
+                NoteRosterChanged();   // IDEAS P19
                 if (!string.IsNullOrEmpty(thumbWindow.CharacterName))
                 {
                     _settings.SaveThumbnailPosition(
@@ -941,6 +943,15 @@ public sealed class ThumbnailManager : IDisposable
         });
     }
 
+    /// <summary>IDEAS P19: automatic border colours are chosen among the characters that have a thumbnail, so a
+    /// thumbnail added or removed, or a new character name, can change other clients' colours. The border is painted
+    /// by the focus sweep only when the foreground changes, so it is made to run again: the 250 ms timer then
+    /// repaints every border. Nothing is done while the switch is off.</summary>
+    private void NoteRosterChanged()
+    {
+        if (_settings.Settings.AutoCharacterBorders) _lastSweptHwnd = IntPtr.Zero;
+    }
+
     private void OnWindowTitleChanged(EveWindow window, string oldTitle)
     {
         Application.Current?.Dispatcher.Invoke(() =>
@@ -957,6 +968,7 @@ public sealed class ThumbnailManager : IDisposable
                 }
 
                 thumbWindow.UpdateCharacterName(window.CharacterName);
+                NoteRosterChanged();   // IDEAS P19: a new name is a new roster
 
                 // The character logged out of this window (or another one logged in): its unseen alerts are
                 // not this client's any more (IDEAS batch 5). Below the new name: an alert raised for the old

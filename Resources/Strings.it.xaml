@@ -1358,7 +1358,7 @@
     <sys:String x:Key="L.S.thumbs.text.highlightColor">Colore di evidenziazione</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightWidth">Spessore dell'evidenziazione</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightInGroup">Mantieni l'evidenziazione in un gruppo colorato</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">Con i bordi di gruppo attivi, il client con cui stai giocando mantiene il colore di evidenziazione invece di quello del suo gruppo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">Con i bordi di gruppo o i colori del bordo automatici attivi, il client con cui stai giocando mantiene il colore di evidenziazione invece di quello del suo gruppo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.thumbs.text.others">Altri client</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor">Colore del bordo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor.Desc">Attorno a ogni altra miniatura. Lascia vuoto per nessun bordo.</sys:String> <!-- draft -->
@@ -1385,7 +1385,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Statistiche del client</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">Mostra quanta CPU, memoria (RAM) e memoria grafica (VRAM) usa ogni client, aggiornato ogni pochi secondi. Utile per individuare un client in difficoltà.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Bordi</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- Il **bordo di evidenziazione** segna il client con cui stai giocando. Le modifiche appaiono quando torni su EVE.&#x0A;- Ogni altro client riceve il bordo sotto **Altri client**. Lascia vuoto il colore per nessun bordo.&#x0A;- I gruppi possono colorare i membri con il colore del gruppo (Client › Gruppi). **Mantieni l'evidenziazione in un gruppo colorato** mantiene il colore di evidenziazione sul client con cui stai giocando.&#x0A;- I colori di bordo propri di un personaggio si impostano nella sua pagina e valgono finché **Usa colori per personaggio** è attivo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- Il **bordo di evidenziazione** segna il client con cui stai giocando. Le modifiche appaiono quando torni su EVE.&#x0A;- Ogni altro client riceve il bordo sotto **Altri client**. Lascia vuoto il colore per nessun bordo. Se **Colori del bordo automatici** è attivo, un personaggio senza un colore proprio o di gruppo riceve comunque un bordo.&#x0A;- I gruppi possono colorare i membri con il colore del gruppo (Client › Gruppi). **Mantieni l'evidenziazione in un gruppo colorato** mantiene il colore di evidenziazione sul client con cui stai giocando.&#x0A;- I colori di bordo propri di un personaggio si impostano nella sua pagina e valgono finché **Usa colori per personaggio** è attivo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">Il segno del client saltato</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">Un client che togli dalla rotazione (Maiusc+clic per impostazione predefinita) mostra una ✕ rossa. Scegli in quale angolo o bordo della miniatura si trova.</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->

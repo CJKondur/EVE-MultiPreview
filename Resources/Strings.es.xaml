@@ -1362,7 +1362,7 @@
     <sys:String x:Key="L.S.thumbs.text.highlightColor">Color de resaltado</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightWidth">Grosor del resaltado</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.highlightInGroup">Mantener el resaltado dentro de un grupo de color</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">Con los bordes de grupo activados, el cliente con el que juegas conserva el color de resaltado en lugar del de su grupo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.highlightInGroup.Desc">Con los bordes de grupo o los colores de borde automáticos activados, el cliente con el que juegas conserva el color de resaltado en lugar del de su grupo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.thumbs.text.others">Otros clientes</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor">Color del borde</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.inactiveColor.Desc">Alrededor de cada otra miniatura. Déjalo vacío para no tener borde.</sys:String> <!-- draft -->
@@ -1389,7 +1389,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Estadísticas del cliente</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">Muestra cuánta CPU, memoria (RAM) y memoria gráfica (VRAM) usa cada cliente, actualizado cada pocos segundos. Útil para detectar un cliente con problemas.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Bordes</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- El **borde de resaltado** marca el cliente con el que juegas. Los cambios se ven al volver a EVE.&#x0A;- Cada otro cliente recibe el borde de **Otros clientes**. Deja su color vacío para no tener borde.&#x0A;- Los grupos pueden pintar a sus miembros con el color del grupo (Clientes › Grupos). **Mantener el resaltado dentro de un grupo de color** conserva el color de resaltado en el cliente con el que juegas.&#x0A;- Los colores de borde propios de un personaje se ajustan en su página y se usan mientras **Usar colores por personaje** esté activado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- El **borde de resaltado** marca el cliente con el que juegas. Los cambios se ven al volver a EVE.&#x0A;- Cada otro cliente recibe el borde de **Otros clientes**. Deja su color vacío para no tener borde. Si **Colores de borde automáticos** está activado, un personaje sin color propio ni de grupo recibe igualmente un borde.&#x0A;- Los grupos pueden pintar a sus miembros con el color del grupo (Clientes › Grupos). **Mantener el resaltado dentro de un grupo de color** conserva el color de resaltado en el cliente con el que juegas.&#x0A;- Los colores de borde propios de un personaje se ajustan en su página y se usan mientras **Usar colores por personaje** esté activado.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">La marca del cliente omitido</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">Un cliente que sacas del ciclo (Mayús+clic por defecto) muestra una ✕ roja. Elige en qué esquina o borde de la miniatura se coloca.</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
