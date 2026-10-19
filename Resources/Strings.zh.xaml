@@ -2471,4 +2471,21 @@
     <sys:String x:Key="L.S.alerts.events.idleMinutes.Desc">正在战斗、采矿或维修的角色可以多久不做这些事，超过后会触发该事件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.idle.Title">角色闲置</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.idle.Body">**角色闲置**会在角色停止工作时提醒你：场地清完了、矿石采完了、无人机回来了。当一个正在战斗、采矿或维修的角色在你设定的时间内没有在游戏日志中写下任何这类内容时触发，直到它重新开始前只触发一次。请在事件表中开启它（在“客户端”下）；在你开启之前它是关闭的。&#x0A;&#x0A;- 登录后从没做过这些事的角色（商人、运输员、诱导小号）永远不会被提醒。&#x0A;- 跳跃到另一个星系或舰队跃迁会重新开始计时，所以前往下一个场地不算闲置。EVE 不记录你自己的跃迁，因此比设定时间更长的跃迁可能会触发它。&#x0A;- 如果**采矿器已停止**、**小行星已采空**或**货柜已满**已经提醒过你这个角色停下了，此事件不会再提醒。&#x0A;- EVE 的日志从不记录角色进站，出站回到同一星系也看不出来，因此在站内的时间也计入你设定的时间：工作后进站的角色会被提醒一次，进站后不久又出站的角色可能会被提早提醒。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.diagnostics.report">错误报告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.bugReport">创建错误报告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.bugReport.Desc">一个包含错误报告所需内容的 zip：版本、Windows、你的显示器、你的设置以及每个日志的末尾。保存之前你能看到其中的全部内容，MultiPreview 不会发送任何东西。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.createReport">创建错误报告…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Title">错误报告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Intro">这就是 zip 将包含的全部内容。分享之前请先阅读：MultiPreview 不认识的名字（例如日志中的其他玩家）不会被隐藏。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.MaskNames">隐藏角色名</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Note">不会发送任何东西。zip 保存在你选择的位置，由你决定交给谁。你的 Windows 用户名、电脑名和 Discord webhook 始终会被去掉。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Save">另存为 zip…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Close">关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Saved">已另存为 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Failed">无法保存 zip：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.BuildFailed">无法生成报告：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.ZipFilter">Zip 文件（*.zip）|*.zip</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Report">创建错误报告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.report.Title">错误报告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.report.Body">**创建错误报告…** 会生成一个可附在错误报告中的 zip。其中包含：&#x0A;&#x0A;- MultiPreview 的版本、Windows 的版本和内部版本号、语言和外观；&#x0A;- 每台显示器的尺寸、位置、工作区和缩放；&#x0A;- 你的设置，不含你的 Discord webhook；&#x0A;- MultiPreview 每个日志的最后 500 行。&#x0A;&#x0A;你的 Windows 用户名会从每个文件夹路径中去掉，电脑名也是。**隐藏角色名**（在你关闭之前一直开启）会把你的角色名替换为 Character 1、Character 2 等；MultiPreview 不认识的名字（例如日志中的其他玩家）会保留。保存之前你能看到每个文件，MultiPreview 从不把 zip 发送到任何地方。</sys:String> <!-- draft -->
 </ResourceDictionary>

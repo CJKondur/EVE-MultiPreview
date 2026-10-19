@@ -29,6 +29,7 @@ public static class AppPages
             "app.diagnostics.dwm", "app.diagnostics.alerts", "app.diagnostics.folder",
         }),
         new HelpTopic("app.diagnostics", "errors", new[] { "app.diagnostics.errorLog" }),
+        new HelpTopic("app.diagnostics", "report", new[] { "app.diagnostics.bugReport" }),
         new HelpTopic("app.profiles", "profiles", new[] { "app.profiles.current" }),
         new HelpTopic("app.profiles", "backups", new[] { "app.profiles.backup" }),
         new HelpTopic("app.about", "updates", new[] { "app.about.links", "app.about.checkOnStartup", "app.about.preRelease", "app.about.installVersion" }),
@@ -171,6 +172,11 @@ public static class AppPages
             {
                 new ActionDef("app.diagnostics.openErrorLog", _ => DiagnosticsService.OpenErrorLog()),
             }),
+        }),
+        // IDEAS #23: a zip for a bug report, made on this PC and shown before it is saved; nothing is sent.
+        new SectionDef("app.diagnostics.report", new PageItem[]
+        {
+            new ActionRow("app.diagnostics.bugReport", new[] { new ActionDef("app.diagnostics.createReport", BugReportActions.Open) }),
         }),
         new SectionDef("app.diagnostics.logs", new PageItem[]
         {

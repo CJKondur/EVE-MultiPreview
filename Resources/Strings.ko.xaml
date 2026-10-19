@@ -2454,4 +2454,21 @@
     <sys:String x:Key="L.S.alerts.events.idleMinutes.Desc">전투, 채굴, 수리를 하던 캐릭터가 그걸 하지 않고 지낼 수 있는 시간이에요. 지나면 이벤트가 발생해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.idle.Title">캐릭터 유휴</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.idle.Body">**캐릭터 유휴**는 캐릭터가 일을 멈췄을 때 알려 줘요. 사이트를 다 정리했거나, 바위를 다 캤거나, 드론이 돌아왔을 때예요. 전투, 채굴, 수리를 하던 캐릭터가 정한 시간 동안 그중 아무것도 게임 로그에 남기지 않으면 울리고, 다시 시작할 때까지 한 번만 울려요. 이벤트 표(‘클라이언트’ 아래)에서 켜세요. 켜기 전까지는 꺼져 있어요.&#x0A;&#x0A;- 로그인한 뒤로 그중 아무것도 하지 않은 캐릭터(트레이더, 운송 캐릭터, 사이노 부캐)는 알려 주지 않아요.&#x0A;- 다른 성계로 점프하거나 함대 워프를 하면 다시 세기 시작하니까 다음 사이트로 이동하는 건 유휴가 아니에요. EVE는 내 워프를 로그에 남기지 않아서, 정한 시간보다 긴 워프에서 울릴 수 있어요.&#x0A;- **채굴기 정지**, **소행성 고갈**, **화물칸 가득 참**이 그 캐릭터가 멈춘 걸 이미 알려 줬다면 이 이벤트는 아무 말도 하지 않아요.&#x0A;- EVE 로그에는 도킹이 남지 않고 같은 성계로 언독한 것도 알 수 없어서, 도킹해 있는 시간도 정한 시간에 들어가요. 일한 뒤 도킹한 캐릭터는 한 번 알려 주고, 곧 다시 언독한 캐릭터는 일찍 알려 줄 수도 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.diagnostics.report">버그 보고</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.bugReport">버그 보고 만들기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.bugReport.Desc">버그 보고에 필요한 것을 담은 zip이에요: 버전, Windows, 모니터, 설정, 각 로그의 끝부분. 저장하기 전에 안에 든 것을 모두 볼 수 있고, MultiPreview는 아무것도 보내지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.createReport">버그 보고 만들기…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Title">버그 보고</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Intro">zip에 들어갈 내용은 이게 전부예요. 공유하기 전에 읽어 보세요: MultiPreview가 모르는 이름(로그 속 다른 플레이어 등)은 가려지지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.MaskNames">캐릭터 이름 숨기기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Note">아무것도 보내지 않아요. zip은 내가 고른 곳에 저장되고, 누구에게 줄지는 내가 정해요. Windows 사용자 이름, PC 이름, Discord 웹후크는 항상 빠져요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Save">zip으로 저장…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Close">닫기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Saved">{0}(으)로 저장했어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Failed">zip을 저장하지 못했어요: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.BuildFailed">보고서를 만들지 못했어요: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.ZipFilter">Zip 파일 (*.zip)|*.zip</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Report">버그 보고 만들기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.report.Title">버그 보고</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.report.Body">**버그 보고 만들기…**는 버그 보고에 첨부할 수 있는 zip을 만들어요. 들어 있는 것:&#x0A;&#x0A;- MultiPreview 버전, Windows 버전과 빌드, 언어와 모양;&#x0A;- 각 모니터의 크기, 위치, 작업 영역, 배율;&#x0A;- 설정(Discord 웹후크는 빠져요);&#x0A;- MultiPreview 각 로그의 마지막 500줄.&#x0A;&#x0A;Windows 사용자 이름은 모든 폴더 경로에서 빠지고, PC 이름도 마찬가지예요. **캐릭터 이름 숨기기**(끌 때까지 켜져 있어요)는 캐릭터 이름을 Character 1, Character 2 등으로 바꿔요. MultiPreview가 모르는 이름(로그 속 다른 플레이어 등)은 그대로 남아요. 저장하기 전에 모든 파일을 볼 수 있고, MultiPreview는 zip을 어디에도 보내지 않아요.</sys:String> <!-- draft -->
 </ResourceDictionary>

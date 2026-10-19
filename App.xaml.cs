@@ -891,8 +891,8 @@ public partial class App : Application
     }
 
     /// <summary>IDEAS #55: the last session ended without closing (a crash, Task Manager, a power cut). One notice, which
-    /// doesn't take focus from the game, offering the logs folder.</summary>
-    private static void ShowUncleanExitNotice(DateTime started)
+    /// doesn't take focus from the game, offering the logs folder and a bug report (IDEAS #23).</summary>
+    private void ShowUncleanExitNotice(DateTime started)
     {
         try
         {
@@ -903,11 +903,24 @@ public partial class App : Application
                 new[]
                 {
                     LocalizationService.Str("L.Start.Crash.Open", "Open the logs folder"),
+                    LocalizationService.Str("L.Start.Crash.Report", "Create a bug report"),
                     LocalizationService.Str("L.Start.Crash.Close", "Close"),
                 })
             { ShowActivated = false };
-            notice.Closed += (_, _) => { if (notice.Choice == 0) DiagnosticsService.OpenLogsFolder(); };
+            notice.Closed += (_, _) => { if (notice.Choice == 0) DiagnosticsService.OpenLogsFolder(); else if (notice.Choice == 1) OpenBugReport(); };
             notice.Show();
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #23 from the after-a-crash notice (#55): the bug report window, on its own (no settings window is open).</summary>
+    private void OpenBugReport()
+    {
+        try
+        {
+            if (_settings == null) return;
+            SettingsUi.BugReportActions.Show(_settings.Settings,
+                _thumbnailManager?.GetActiveCharacterNames().ToList() ?? new List<string>(), owner: null, modal: false);
         }
         catch (Exception ex) { LogError(ex); }
     }

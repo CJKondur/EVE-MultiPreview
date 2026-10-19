@@ -2454,4 +2454,21 @@
     <sys:String x:Key="L.S.alerts.events.idleMinutes.Desc">戦闘、採掘、リペアをしていたキャラクターが、それをしないままでいられる時間です。過ぎるとイベントが発生します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.idle.Title">キャラクターが放置中</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.idle.Body">**キャラクターが放置中**は、キャラクターの作業が止まったことを知らせます。サイトを片付け終えた、岩を掘り尽くした、ドローンが戻ってきた、といったときです。戦闘、採掘、リペアをしていたキャラクターが、設定した時間のあいだそのどれもゲームログに書かなかったときに発生し、再開するまでは一度だけです。イベント表（「クライアント」の下）でオンにしてください。オンにするまではオフです。&#x0A;&#x0A;- ログインしてからそのどれもしていないキャラクター（トレーダー、輸送役、サイノ用の別キャラ）には知らせません。&#x0A;- 別の星系へのジャンプやフリートワープでカウントはやり直しになるので、次のサイトへの移動は放置になりません。EVE は自分のワープをログに残さないため、設定した時間より長いワープで発生することがあります。&#x0A;- **採掘機停止**、**小惑星枯渇**、**カーゴ満杯**がそのキャラクターの停止をすでに知らせたときは、このイベントは何も言いません。&#x0A;- EVE のログにはドックが記録されず、同じ星系へのアンドックも分からないため、ドックしている時間も設定した時間に数えます。作業のあとにドックしたキャラクターには一度知らせ、すぐにまたアンドックしたキャラクターには早めに知らせることがあります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.diagnostics.report">バグ報告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.bugReport">バグ報告を作成</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.bugReport.Desc">バグ報告に必要なものをまとめた zip です：バージョン、Windows、モニター、設定、各ログの末尾。保存する前に中身をすべて確認でき、MultiPreview は何も送信しません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.createReport">バグ報告を作成…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Title">バグ報告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Intro">これが zip に入るすべての内容です。共有する前に読んでください：MultiPreview が知らない名前（ログ内の他のプレイヤーなど）は隠されません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.MaskNames">キャラクター名を隠す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Note">何も送信されません。zip は選んだ場所に保存され、誰に渡すかはあなたが決めます。Windows のユーザー名、PC の名前、Discord の webhook は常に取り除かれます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Save">zip として保存…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Close">閉じる</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Saved">{0} として保存しました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.Failed">zip を保存できませんでした：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.BuildFailed">レポートを作成できませんでした：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Report.ZipFilter">Zip ファイル（*.zip）|*.zip</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Crash.Report">バグ報告を作成</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.report.Title">バグ報告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.report.Body">**バグ報告を作成…** は、バグ報告に添付できる zip を作ります。中身は次のとおりです：&#x0A;&#x0A;- MultiPreview のバージョン、Windows のバージョンとビルド、言語、外観；&#x0A;- 各モニターのサイズ、位置、作業領域、拡大率；&#x0A;- 設定（Discord の webhook は除きます）；&#x0A;- MultiPreview の各ログの最後の 500 行。&#x0A;&#x0A;Windows のユーザー名はすべてのフォルダーパスから取り除かれ、PC の名前も同様です。**キャラクター名を隠す**（オフにするまでオン）は、キャラクターの名前を Character 1、Character 2 などに置き換えます。MultiPreview が知らない名前（ログ内の他のプレイヤーなど）は残ります。保存する前にすべてのファイルを確認でき、MultiPreview が zip をどこかへ送ることはありません。</sys:String> <!-- draft -->
 </ResourceDictionary>

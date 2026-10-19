@@ -62,19 +62,30 @@ public static class BugReport
     /// (<c>Environment.UserName</c>), the last folder of <paramref name="userProfile"/>
     /// (<c>Environment.GetFolderPath(SpecialFolder.UserProfile)</c>: a renamed account keeps its old folder, a
     /// domain profile is name.DOMAIN) and that folder's 8.3 short form (NAME~1, as %TEMP% often has it) when Windows
-    /// has one. Blank and repeated names left out.</summary>
-    public static IReadOnlyList<string> UserFolders(string userName, string userProfile)
+    /// has one; a profile on a share is never asked about. Blank and repeated names left out.</summary>
+    public static IReadOnlyList<string> UserFolders(string userName, string userProfile) => UserFolders(userName, userProfile, ShortPath);
+
+    /// <summary><see cref="UserFolders(string, string)"/> with the short-form question handed in (tests).</summary>
+    public static IReadOnlyList<string> UserFolders(string userName, string userProfile, Func<string, string?> shortPath)
     {
         var names = new List<string> { userName };
         var profile = (userProfile ?? "").TrimEnd('\\', '/');
         if (profile.Length > 0)
         {
             names.Add(Path.GetFileName(profile));
-            var buffer = new char[32768];
-            uint length = GetShortPathNameW(profile, buffer, (uint)buffer.Length);
-            if (length > 0 && length < buffer.Length) names.Add(Path.GetFileName(new string(buffer, 0, (int)length)));
+            // A profile on a share (\\server\share\…) is not asked about: that question would reach the network.
+            bool unc = profile.StartsWith(@"\\", StringComparison.Ordinal) || profile.StartsWith("//", StringComparison.Ordinal);
+            if (!unc && shortPath(profile) is { } s) names.Add(Path.GetFileName(s));
         }
         return names.Where(n => !string.IsNullOrWhiteSpace(n)).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+    }
+
+    // The 8.3 short form Windows has for a folder, or null.
+    private static string? ShortPath(string path)
+    {
+        var buffer = new char[32768];
+        uint length = GetShortPathNameW(path, buffer, (uint)buffer.Length);
+        return length > 0 && length < buffer.Length ? new string(buffer, 0, (int)length) : null;
     }
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -86,10 +97,11 @@ public static class BugReport
     /// <summary>The settings with the Discord webhook written empty, as an export writes it.</summary>
     public static string WithoutWebhook(string settingsJson) => WebhookLine.Replace(settingsJson, "$1\"\"");
 
-    // A Discord webhook link anywhere (discord.com, discordapp.com, their canary. and ptb. hosts), and a kept,
-    // DPAPI-wrapped one (dpapi1: and its base64, which the settings file writes with + as +).
+    // A Discord webhook link anywhere (discord.com, discordapp.com, their canary. and ptb. hosts, with or without an API
+    // version: /api/v10/webhooks/), and a kept, DPAPI-wrapped one (dpapi1: and its base64, which the settings file
+    // writes with + as +).
     private static readonly Regex WebhookAnywhere = new(
-        @"https?://(?:(?:canary|ptb|www)\.)?discord(?:app)?\.com/api/webhooks/[^\s""'<>]*|dpapi1:(?:[A-Za-z0-9+/=]|\\u[0-9A-Fa-f]{4})*",
+        @"https?://(?:(?:canary|ptb|www)\.)?discord(?:app)?\.com/api(?:/v\d+)?/webhooks/[^\s""'<>]*|dpapi1:(?:[A-Za-z0-9+/=]|\\u[0-9A-Fa-f]{4})*",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>Every Discord webhook link, and every kept one, becomes <see cref="WebhookMark"/>: whatever wrote a
