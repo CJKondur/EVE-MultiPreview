@@ -14,7 +14,7 @@ public static class ReleaseNotes
     /// <summary>The notes of the releases newer than <paramref name="current"/>. Drafts are left out, pre-releases
     /// unless <paramref name="includePrereleases"/>. A release whose Version is null is read from its Tag ("v1.2.3");
     /// a tag that is no version is skipped, never thrown. Over <paramref name="maxChars"/> the text is cut at a block
-    /// boundary and ends with "… and N older versions"; the whole text, that line included, stays within the cap.
+    /// boundary and ends with "… and N older versions" ("… and 1 older version" for one); the whole text, that line included, stays within the cap.
     /// No release, or none newer: "".</summary>
     public static string Combine(IEnumerable<(Version? Version, string Tag, string? Body, bool Prerelease, bool Draft)> releases,
         Version current, bool includePrereleases, int maxChars = 16000)

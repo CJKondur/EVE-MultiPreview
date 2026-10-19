@@ -193,12 +193,19 @@ public sealed class SettingsService : IDisposable
 
     /// <summary>Save settings to disk using atomic write (temp file + rename). Thread-safe.
     /// Always saves in AHK-compatible format for backwards compatibility.</summary>
-    public void Save()
+    public void Save() => SaveCore(onlyIfPending: false);
+
+    /// <summary>The one write path. The pending flag (P96) is checked AND cleared inside _saveLock, so a debounce
+    /// tick and Dispose can never both write one change, and a tick that lost the race to Dispose writes nothing.
+    /// With <paramref name="onlyIfPending"/> it returns without writing (and without SaveCompleted) when no change
+    /// is waiting; an explicit Save() writes regardless. SaveCompleted is raised outside the lock.</summary>
+    private void SaveCore(bool onlyIfPending)
     {
-        _savePending = false;   // P96: whatever SaveDelayed was waiting to write is written now
         SaveStatus status;
         lock (_saveLock)
         {
+            if (onlyIfPending && !_savePending) return;
+            _savePending = false;   // whatever SaveDelayed was waiting to write is written now
             try
             {
                 // Guard: don't overwrite user's real config with defaults after a load failure
@@ -236,8 +243,8 @@ public sealed class SettingsService : IDisposable
         _debounceSaveTimer?.Stop();
         _debounceSaveTimer?.Dispose();
         _debounceSaveTimer = new System.Timers.Timer(200) { AutoReset = false };
-        // A tick that was already queued when Dispose (or an explicit Save) wrote the change must not write it twice.
-        _debounceSaveTimer.Elapsed += (_, _) => { if (_savePending) Save(); };
+        // A tick that was already queued when Dispose (or an explicit Save) wrote the change writes nothing.
+        _debounceSaveTimer.Elapsed += (_, _) => SaveCore(onlyIfPending: true);
         _debounceSaveTimer.Start();
     }
 
@@ -384,18 +391,16 @@ public sealed class SettingsService : IDisposable
     /// Never throws.</summary>
     private static void LogError(Exception ex) => ErrorLog.Shared.Record(ex, "Settings", DateTime.Now);
 
-    /// <summary>Stops the debounce timer and writes a change still waiting on it (P96), once. Never throws.
-    /// A timer tick already inside Save() is waited for (the empty lock below is a barrier: the tick holds
-    /// _saveLock for its whole write, even though it has already cleared the pending flag), so the process
-    /// never exits mid-write. Waits for one file write at most; Save is not called while holding the lock.</summary>
+    /// <summary>Stops the debounce timer and writes a change still waiting on it (P96). Guarantees: a save already
+    /// in flight (a timer tick holding _saveLock) finishes before this returns; a pending change is written exactly
+    /// once, by whichever of the tick or this call takes the lock first (the flag is checked and cleared inside
+    /// the lock); a second call writes nothing. Waits for one file write at most. Never throws.</summary>
     public void Dispose()
     {
         _debounceSaveTimer?.Stop();
         _debounceSaveTimer?.Dispose();
         _debounceSaveTimer = null;
-        lock (_saveLock) { }   // barrier: wait for a save in flight; must come before the pending check
-        if (!_savePending) return;
-        try { Save(); }
+        try { SaveCore(onlyIfPending: true); }
         catch (Exception ex) { LogError(ex); }   // e.g. a SaveCompleted subscriber that throws at exit
     }
 }
