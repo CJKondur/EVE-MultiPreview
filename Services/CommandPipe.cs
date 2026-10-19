@@ -132,6 +132,7 @@ public sealed class CommandServer : IDisposable
     private readonly TimeSpan _readTime;
     private readonly CancellationTokenSource _stop = new();
     private Task? _loop;
+    private volatile bool _gaveUp;
 
     public CommandServer(string name, PipeSecurity security, Func<RemoteCommand, Task<RemoteOutcome>> run, Action<Exception> failed, TimeSpan? readTime = null)
     {
@@ -141,6 +142,11 @@ public sealed class CommandServer : IDisposable
         _failed = failed;
         _readTime = readTime ?? ReadTime;
     }
+
+    /// <summary>True once the server gave up for good: the name stayed taken, or the next instance could not be made
+    /// (set before that is reported). A command App's run threw on is reported too, but the server goes on and this stays
+    /// false. App lets a server that gave up go, so that the next settings change makes a new one.</summary>
+    public bool Failed => _gaveUp;
 
     public void Start() => _loop ??= Task.Run(() => Loop(_stop.Token));
 
@@ -166,7 +172,7 @@ public sealed class CommandServer : IDisposable
                 if (connected) await Answer(current, stop);
             }
         }
-        catch (Exception ex) { Report(ex); }
+        catch (Exception ex) { _gaveUp = true; Report(ex); }
         finally { standing?.Dispose(); }
     }
 
@@ -179,7 +185,7 @@ public sealed class CommandServer : IDisposable
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
                 // Still held for a moment after the switch went off and on again, or made by someone else: a few tries.
-                if (tries > 8) { Report(ex); return null; }
+                if (tries > 8) { _gaveUp = true; Report(ex); return null; }
             }
             try { await Task.Delay(250, stop); } catch (OperationCanceledException) { return null; }
         }

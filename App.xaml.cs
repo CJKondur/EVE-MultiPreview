@@ -1391,8 +1391,9 @@ public partial class App : Application
 
     /// <summary>IDEAS #39: the pipe listens while "Take commands from other programs" is on, and does not exist while it is
     /// off. Called at startup and after every settings change; the same answer again changes nothing. The pipe's thread only
-    /// posts a command to the window's thread and waits for it at most as long as the sender does (it never blocks that
-    /// thread); a server that stopped on a failure stays stopped until the switch goes off and on again.</summary>
+    /// posts a command to the window's thread (RunOnWindowsThread) and never blocks it. A server that gave up (the name
+    /// stayed taken, the next instance could not be made) is let go when it says so, and the next settings change makes a
+    /// new one: driven by Apply, not by a timer, so nothing loops.</summary>
     private void FollowCommandServer()
     {
         try
@@ -1406,11 +1407,48 @@ public partial class App : Application
                 return;
             }
             var (user, owner) = CommandPipe.CurrentAccount();
-            _commandServer = new CommandServer(CommandPipe.CurrentName(), CommandPipe.Security(user, owner),
-                command => Dispatcher.InvokeAsync(() => RunCommand(command)).Task.WaitAsync(CommandPipe.SendTime), LogError);
-            _commandServer.Start();
+            CommandServer? made = null;
+            made = new CommandServer(CommandPipe.CurrentName(), CommandPipe.Security(user, owner),
+                command => RunOnWindowsThread(command),
+                ex => { LogError(ex); DropFailedCommandServer(made); });   // logged once, without the pipe's name
+            _commandServer = made;
+            made.Start();
         }
         catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #39: a server that gave up is let go on the window's thread, but only that very server (a newer one of a
+    /// switch that went off and on is not touched) and only when it gave up: one command that threw does not end a server
+    /// that goes on. The next settings change then makes a new one.</summary>
+    private void DropFailedCommandServer(CommandServer? failed)
+    {
+        try
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                if (failed?.Failed == true && ReferenceEquals(_commandServer, failed))
+                {
+                    failed.Dispose();
+                    _commandServer = null;
+                }
+            });
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #39: has the window's thread run one command, waiting at most as long as the sender does (the sender
+    /// gave up first, so a longer wait only holds the pipe). A command still queued when the wait ends is taken back, so it
+    /// never runs after the sender was told that nothing took it; one that has started is quick and its answer is awaited.
+    /// A stall is not an error and is not logged.</summary>
+    private async Task<RemoteOutcome> RunOnWindowsThread(RemoteCommand command)
+    {
+        var queued = Dispatcher.InvokeAsync(() => RunCommand(command));
+        try { return await queued.Task.WaitAsync(CommandServer.ReadTime); }
+        catch (TimeoutException)
+        {
+            if (queued.Abort()) return RemoteOutcome.NotReachable;   // never ran
+            return await queued.Task;                                // already running on the window's thread: quick
+        }
     }
 
     /// <summary>IDEAS #39: one command, on the window's thread, with App's parts (RemoteCommandRunner decides). A profile
@@ -1439,10 +1477,11 @@ public partial class App : Application
         }
     }
 
-    private const string CommandsOffEnglish = "EVE MultiPreview is already running and does not take commands from other programs. To let it, turn on Take commands from other programs under App settings › General.";
+    private const string CommandsOffEnglish = "EVE MultiPreview is already running but did not take the command. Turn on Take commands from other programs under App settings › General. If it is on, run this program the same way as MultiPreview (both as administrator or neither), or try again once MultiPreview has finished starting.";
 
-    /// <summary>IDEAS #39, a second start whose command nothing took: the running MultiPreview does not take commands (or is
-    /// still starting). Said in Windows' language: this start reads no settings.</summary>
+    /// <summary>IDEAS #39, a second start whose command nothing took: the running MultiPreview does not take commands, runs as
+    /// another kind of user (one elevated, one not) or is still starting; the text names all three. Said in Windows' language:
+    /// this start reads no settings.</summary>
     private static void TellCommandsOff()
     {
         try { LocalizationService.SetLanguage(null); }
