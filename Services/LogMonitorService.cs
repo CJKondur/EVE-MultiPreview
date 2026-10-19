@@ -1354,7 +1354,7 @@ public sealed class LogMonitorService : IDisposable
         return LogTimes(folder, "Local_*.txt", now)
             .OrderByDescending(x => x.Written)
             .Where(x => ChannelLogOwner(Path.GetFileName(x.Path), LocalChannel) != null)
-            .Where((x, rank) => rank < LocalLogsTaken || x.Written >= cutoff)
+            .TakeWhile((x, rank) => rank < LocalLogsTaken || x.Written >= cutoff)   // newest first: the first stale one past the twelve ends the walk
             .Take(GameLogsTaken)
             .Select(x => x.Path)
             .ToList();
@@ -1546,7 +1546,10 @@ public sealed class LogMonitorService : IDisposable
                     // its chat channel was taken on (FromItsStart) is read once more from its first line instead,
                     // behind the mark the file starts with: its header lines are no messages, and the lines behind
                     // them were said since the session began.
-                    state.LastPosition = state.FromItsStart ? encoding.GetPreamble().Length : fi.Length;
+                    // A UTF-16 file the game is writing can be an odd number of bytes long right now: its position is
+                    // rounded down to a whole character, or every later read starts in the middle of one.
+                    long end = encoding.CodePage == Encoding.Unicode.CodePage ? fi.Length & ~1L : fi.Length;
+                    state.LastPosition = state.FromItsStart ? encoding.GetPreamble().Length : end;
                     state.Listener = firstReadChar;   // for custom rules (IDEAS #8): the header's name, kept
 
                     Debug.WriteLine($"[LogMonitor:Scan] ⏩ First read of {Path.GetFileName(path)} — char='{firstReadChar}', type={state.Type}, lines={lineCount}, fileLen={fi.Length}");

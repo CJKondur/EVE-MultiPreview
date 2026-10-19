@@ -340,6 +340,7 @@ public class AlertHub : IDisposable
         // reaches the app's unhandled-exception handler, so it is recorded here, by type only.
         Application.Current?.Dispatcher.BeginInvoke(() =>
         {
+            if (_isSuspended) return;   // paused between the post and now
             try
             {
                 // If auto-hide stashed the hub, bring it back. Show() is a no-op

@@ -129,7 +129,7 @@ public sealed class SpokenAlerts
         var pair = (notice.Character, notice.EventKey);
         // Two clocks. The half minute and the gather time count from when the ways were told of the alert, which
         // is now. How old the alert is when its turn comes counts from when it was raised (notice.RaisedUtc), which
-        // is earlier by as long as the alert waited for the window's thread on its way here.
+        // is earlier by as long as the alert's sound waited for the window's thread on its way here.
         var now = notice.TimeUtc;
         // The clock stepped back between the raise and the tell: the alert is no younger than "told just now".
         if (notice.RaisedUtc > now) notice = notice with { RaisedUtc = now };

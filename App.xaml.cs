@@ -445,7 +445,8 @@ public partial class App : Application
             _logMonitor.SystemChanged += (charName, systemName) =>
             {
                 Debug.WriteLine($"[App:Alert] 🌍 System change: '{charName}' → '{systemName}'");
-                // IDEAS #5: every move, whether the event is on or not. First: the line below waits for the window's thread.
+                // IDEAS #5: every move, whether the event is on or not. First: a line below that throws is recorded by the log
+                // reader and ends this handler, and it must not cost the watch a move.
                 _stragglers.Moved(charName, systemName, DateTime.UtcNow);
                 _idleWatch.Moved(charName, DateTime.UtcNow);   // IDEAS #7: a jump into another system starts the count again
                 _thumbnailManager.UpdateCharacterSystem(charName, systemName);
@@ -584,7 +585,7 @@ public partial class App : Application
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
                 // What a custom rule matched is there only while its alert is being raised: taken first (IDEAS #8).
-                // The rule's name is taken with it: Dispatch waits for the window's thread (the toast, the sound),
+                // The rule's name is taken with it: Dispatch can wait for the window's thread (the sound),
                 // and the player may rename or delete the rule meanwhile. The history keeps the name the alert was
                 // raised under. For a built-in alert both are null.
                 var matched = _logMonitor.RaisingCustomText;
