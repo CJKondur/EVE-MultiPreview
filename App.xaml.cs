@@ -569,7 +569,7 @@ public partial class App : Application
                 _alertHistory.Record(AlertHistory.Entry(raised, charName, alertType, severity,
                     _logMonitor.GetCharacterSystem(charName), outcome, rule, matched));
             };
-            _logMonitor.AlertTriggered += (charName, alertType, _) => _idleWatch.Alerted(charName, alertType, DateTime.UtcNow);   // IDEAS #7: fleet warps, and stops Miner stopped already told
+            _logMonitor.AlertTriggered += (charName, alertType, _) => { if (_alertProfiles.IsOn(charName, alertType)) _idleWatch.Alerted(charName, alertType, DateTime.UtcNow); };   // IDEAS #7: fleet warps, and stops Miner stopped already told; only an alert this character's group has on
 
             // IDEAS #8: the player's own alert rules, from custom_alerts.json in the settings folder. A file that can't
             // be used is set aside and reported, and MultiPreview runs without rules. The log monitor gets the rules
