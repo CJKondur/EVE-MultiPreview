@@ -2599,4 +2599,6 @@
     <sys:String x:Key="L.Ctx.OpenDotlan">Открыть систему на Dotlan</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">Открыть персонажа на zKillboard</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">Открыть персонажа на EveWho</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders">Автоматические цвета рамок</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Даёт каждому персонажу свой цвет рамки. Цвет, который вы выбрали для персонажа или группы, по-прежнему главнее.</sys:String> <!-- draft -->
 </ResourceDictionary>

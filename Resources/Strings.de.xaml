@@ -2579,4 +2579,6 @@
     <sys:String x:Key="L.Ctx.OpenDotlan">System auf Dotlan öffnen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">Charakter auf zKillboard öffnen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">Charakter auf EveWho öffnen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders">Automatische Rahmenfarben</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Gibt jedem Charakter eine eigene Rahmenfarbe. Eine Farbe, die du für einen Charakter oder eine Gruppe wählst, hat weiterhin Vorrang.</sys:String> <!-- draft -->
 </ResourceDictionary>

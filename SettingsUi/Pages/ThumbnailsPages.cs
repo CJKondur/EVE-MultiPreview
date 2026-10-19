@@ -40,7 +40,7 @@ public static class ThumbnailsPages
         new HelpTopic(TextId, "borders", new[]
         {
             "thumbs.text.highlight", "thumbs.text.highlightColor", "thumbs.text.highlightWidth", "thumbs.text.highlightInGroup",
-            "thumbs.text.inactiveColor", "thumbs.text.inactiveWidth", "thumbs.text.groupBorders",
+            "thumbs.text.inactiveColor", "thumbs.text.inactiveWidth", "thumbs.text.autoBorders", "thumbs.text.groupBorders",
         }),
         new HelpTopic(TextId, "marks", new[] { "thumbs.text.badgePosition" }),
         new HelpTopic(TextId, "clientState", new[] { "thumbs.text.notResponding", "thumbs.text.disconnected", "thumbs.text.disconnectSeconds" }),
@@ -219,10 +219,11 @@ public static class ThumbnailsPages
                 ShowIf = s => s.ShowClientHighlightBorder,
                 Replaces = new[] { "TxtActiveBorderThickness" },
             }),
-            // Matters only while group borders are on (the old switch was greyed out otherwise).
+            // Matters only while group borders or automatic colours (IDEAS P19, which act as a group's) are on
+            // (the old switch was greyed out otherwise).
             new SettingItem(Setting.Toggle("thumbs.text.highlightInGroup", s => s.HighlightOverridesGroupColor) with
             {
-                ShowIf = s => s.ShowClientHighlightBorder && s.ShowAllColoredBorders,
+                ShowIf = s => s.ShowClientHighlightBorder && (s.ShowAllColoredBorders || s.AutoCharacterBorders),
                 Replaces = new[] { "ChkHighlightOverridesGroup" },
             }),
         }),
@@ -234,6 +235,8 @@ public static class ThumbnailsPages
                 Replaces = new[] { "TxtInactiveColor" },
             }),
             Number("thumbs.text.inactiveWidth", s => s.InactiveClientBorderThickness, 0, 30, ApplyScope.Thumbnails, "TxtFrameThickness"),
+            // IDEAS P19: a colour of its own for each character without one of its own or a group's; ApplySettings repaints.
+            new SettingItem(Setting.Toggle("thumbs.text.autoBorders", s => s.AutoCharacterBorders, ApplyScope.Thumbnails)),
             // ShowAllColoredBorders has one switch, on Groups (spec §5; Plan 3a claimed ChkShowAllBorders there).
             new ActionRow("thumbs.text.groupBorders", new[]
             {

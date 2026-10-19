@@ -2580,4 +2580,6 @@
     <sys:String x:Key="L.Ctx.OpenDotlan">Dotlan에서 항성계 열기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">zKillboard에서 캐릭터 열기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">EveWho에서 캐릭터 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders">테두리 색상 자동 지정</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">캐릭터마다 저마다 다른 테두리 색상을 줘요. 캐릭터나 그룹에 직접 고른 색상이 있으면 그 색상이 우선해요.</sys:String> <!-- draft -->
 </ResourceDictionary>

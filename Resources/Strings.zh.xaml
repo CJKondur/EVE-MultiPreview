@@ -2597,4 +2597,6 @@
     <sys:String x:Key="L.Ctx.OpenDotlan">在 Dotlan 上打开星系</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">在 zKillboard 上打开角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">在 EveWho 上打开角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders">自动边框颜色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">为每个角色分配各自的边框颜色。你为某个角色或某个分组选择的颜色仍然优先。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2597,4 +2597,6 @@
     <sys:String x:Key="L.Ctx.OpenDotlan">Apri il sistema su Dotlan</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">Apri il personaggio su zKillboard</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">Apri il personaggio su EveWho</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders">Colori del bordo automatici</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Assegna a ogni personaggio un colore del bordo tutto suo. Un colore che scegli per un personaggio o un gruppo ha comunque la precedenza.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -571,6 +571,7 @@ public class AppSettings
 
     // Per-profile Thumbnail Settings proxies
     [JsonIgnore] public bool ShowAllColoredBorders { get => _cp.ShowAllColoredBorders; set => _cp.ShowAllColoredBorders = value; }
+    [JsonIgnore] public bool AutoCharacterBorders { get => _cp.AutoCharacterBorders; set => _cp.AutoCharacterBorders = value; }
     [JsonIgnore] public bool HideThumbnailsOnLostFocus { get => _cp.HideThumbnailsOnLostFocus; set => _cp.HideThumbnailsOnLostFocus = value; }
     [JsonIgnore] public bool ShowThumbnailsAlwaysOnTop { get => _cp.ShowThumbnailsAlwaysOnTop; set => _cp.ShowThumbnailsAlwaysOnTop = value; }
     [JsonIgnore] public bool KeepThumbnailsAboveClients { get => _cp.KeepThumbnailsAboveClients; set => _cp.KeepThumbnailsAboveClients = value; }
@@ -822,6 +823,9 @@ public class Profile
 
     // ── Per-profile Thumbnail Settings (from AHK "Thumbnail Settings" sub-object) ──
     public bool ShowAllColoredBorders { get; set; } = false;
+    /// <summary>IDEAS P19: every character without a colour of its own or from a group gets one from a built-in palette
+    /// (AutoBorderColors). Kept in the profile's "Thumbnail Settings" in the file. New key: false.</summary>
+    public bool AutoCharacterBorders { get; set; } = false;
     public bool HideThumbnailsOnLostFocus { get; set; } = false;
     public bool ShowThumbnailsAlwaysOnTop { get; set; } = true;
     public bool KeepThumbnailsAboveClients { get; set; } = false;

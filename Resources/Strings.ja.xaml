@@ -2580,4 +2580,6 @@
     <sys:String x:Key="L.Ctx.OpenDotlan">Dotlan で星系を開く</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">zKillboard でキャラクターを開く</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenEveWho">EveWho でキャラクターを開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders">枠の色を自動で割り当てる</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">キャラクターごとに別々の枠の色を付けます。キャラクターやグループに自分で選んだ色があれば、そちらが優先されます。</sys:String> <!-- draft -->
 </ResourceDictionary>

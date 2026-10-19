@@ -2446,62 +2446,26 @@ public sealed class ThumbnailManager : IDisposable
     }
 
     /// <summary>Check whether an inactive border should be shown for this character.
-    /// Returns false when InactiveClientBorderColor is empty and no custom/group color applies.</summary>
+    /// Returns false when InactiveClientBorderColor is empty and no custom/group/automatic color applies.
+    /// The rule is BorderColorRule's (pure, tested).</summary>
     private bool ShouldShowInactiveBorder(string charName)
     {
         var s = _settings.Settings;
-
-        // Custom per-character inactive border — always show if configured
-        if (s.CustomColorsActive && s.CustomColors.TryGetValue(charName, out var custom)
-            && !string.IsNullOrEmpty(custom.InactiveBorder))
-            return true;
-
-        // Group color — show if enabled and character is in a group
-        if (s.ShowAllColoredBorders)
-        {
-            foreach (var group in s.ThumbnailGroups)
-            {
-                if (group.Members.Any(m => m.Equals(charName, StringComparison.OrdinalIgnoreCase)))
-                    return true;
-            }
-        }
-
-        // Default — empty means no border
-        return !string.IsNullOrWhiteSpace(s.InactiveClientBorderColor);
+        return BorderColorRule.ShowsInactiveBorder(s, charName);
     }
 
-    /// <summary>Get the correct border color for a character (custom → group → default).</summary>
+    /// <summary>Get the correct border color for a character (custom → group → automatic → default), by
+    /// BorderColorRule. The automatic colour (IDEAS P19) is chosen among the characters that have a thumbnail.</summary>
     private Color GetBorderColor(string charName, bool isActive)
     {
         var s = _settings.Settings;
-
-        // 1. Custom per-character color
-        if (s.CustomColorsActive && s.CustomColors.TryGetValue(charName, out var custom))
-        {
-            if (isActive && !string.IsNullOrEmpty(custom.Border))
-                return ParseColor(custom.Border);
-            if (!isActive && !string.IsNullOrEmpty(custom.InactiveBorder))
-                return ParseColor(custom.InactiveBorder);
-        }
-
-        // 2. Thumbnail group color (only when Show Group Borders is enabled). Optionally
-        //    not for the active client, so it stands out from the rest of its group (#115).
-        if (s.ShowAllColoredBorders && !(isActive && s.HighlightOverridesGroupColor))
-        {
-            foreach (var group in s.ThumbnailGroups)
-            {
-                if (group.Members.Any(m => m.Equals(charName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    return ParseColor(group.Color);
-                }
-            }
-        }
-
-        // 3. Default colors
-        return isActive
-            ? ParseColor(s.ClientHighlightColor)
-            : ParseColor(s.InactiveClientBorderColor);
+        return ParseColor(BorderColorRule.Resolve(s, charName, isActive, RunningCharacters));
     }
+
+    /// <summary>The characters that have a thumbnail now (a client at the login screen has none): the roster the
+    /// automatic border colours are kept apart within.</summary>
+    private IReadOnlyCollection<string> RunningCharacters() =>
+        _thumbnails.Values.Select(t => t.CharacterName).Where(n => !string.IsNullOrWhiteSpace(n)).ToList();
 
     /// <summary>Resolve per-event alert flash color: AlertColors[eventType] → SeverityColors[severity] → default red.
     /// The user's global AlertOpacityPercent (0-100, default 100) is applied to

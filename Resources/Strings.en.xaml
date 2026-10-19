@@ -2579,4 +2579,6 @@
     <sys:String x:Key="L.Ctx.OpenDotlan">Open system on Dotlan</sys:String>
     <sys:String x:Key="L.Ctx.OpenZKill">Open character on zKillboard</sys:String>
     <sys:String x:Key="L.Ctx.OpenEveWho">Open character on EveWho</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.autoBorders">Automatic border colours</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.autoBorders.Desc">Gives each character its own border colour. A colour you choose for a character or a group still wins.</sys:String>
 </ResourceDictionary>
