@@ -1826,6 +1826,10 @@ public sealed class HotkeyService : IDisposable
 
                 if (isDown)
                 {
+                    // P42: read once; LogCycling checks this flag only after its argument is built, and building
+                    // that text (a Count over the bindings, interpolations) is work this hook thread skips when off.
+                    bool logCycling = EveMultiPreview.Services.DiagnosticsService.GlobalSettings?.EnableDebugLogging_Cycling == true;
+
                     // Check modifiers
                     uint currentMods = 0;
                     if (User32.IsKeyDown(0x11)) currentMods |= User32.MOD_CONTROL; // VK_CONTROL
@@ -1840,10 +1844,11 @@ public sealed class HotkeyService : IDisposable
                     // every DOWN we matched to a button, the live modifiers, how many
                     // bindings exist for it, and whether one actually fired — so a
                     // "button is eaten but doesn't cycle" report can be pinpointed.
-                    EveMultiPreview.Services.DiagnosticsService.LogCycling(
-                        $"[Hotkey:Mouse] DOWN {buttonName} mods=0x{currentMods:X} " +
-                        $"bindings-for-button={bindings.Count(b => b.ButtonName == buttonName)} " +
-                        $"matched={(bestBinding != null ? $"yes(repeat={bestBinding.AllowRepeat})" : "NO — no binding for these modifiers")}");
+                    if (logCycling)
+                        EveMultiPreview.Services.DiagnosticsService.LogCycling(
+                            $"[Hotkey:Mouse] DOWN {buttonName} mods=0x{currentMods:X} " +
+                            $"bindings-for-button={bindings.Count(b => b.ButtonName == buttonName)} " +
+                            $"matched={(bestBinding != null ? $"yes(repeat={bestBinding.AllowRepeat})" : "NO — no binding for these modifiers")}");
 
                     if (bestBinding != null)
                     {
@@ -1863,8 +1868,9 @@ public sealed class HotkeyService : IDisposable
                             var fgHwnd = User32.GetForegroundWindow();
                             if (SettingsInFront(fgHwnd))
                             {
-                                EveMultiPreview.Services.DiagnosticsService.LogCycling(
-                                    $"[Hotkey:Mouse] {buttonName} SUPPRESSED — Settings window is foreground, cycle not fired");
+                                if (logCycling)
+                                    EveMultiPreview.Services.DiagnosticsService.LogCycling(
+                                        $"[Hotkey:Mouse] {buttonName} SUPPRESSED — Settings window is foreground, cycle not fired");
                                 return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
                             }
                         }
