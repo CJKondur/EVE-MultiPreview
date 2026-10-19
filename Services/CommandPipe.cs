@@ -52,7 +52,10 @@ public static class CommandPipe
     /// <para><paramref name="alsoUser"/> (IDEAS #15, the owner's second switch) adds that account rule anyway, and only for
     /// an elevated run (owner != user; for a normal run the owner already is the account, so there is nothing to add). It
     /// trades the door's strictness for reach: any ordinary program of the account can then switch clients and profiles
-    /// (the allow-list of RemoteCommand still names no file and runs nothing). The NETWORK deny and the protected, empty
+    /// (the allow-list of RemoteCommand still names no file and runs nothing). The account gets read/write only, never
+    /// FullControl: it can connect and send a command, but cannot change the door (WRITE_DAC), take ownership
+    /// (WRITE_OWNER) or make a pipe instance under the elevated server's name (CreateNewInstance), which would let an
+    /// ordinary program drop the NETWORK deny or stand in for the server. The NETWORK deny and the protected, empty
     /// inheritance stay whatever it says.</para></summary>
     public static PipeSecurity Security(SecurityIdentifier user, SecurityIdentifier owner, bool alsoUser = false)
     {
@@ -62,7 +65,7 @@ public static class CommandPipe
         security.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.NetworkSid, null), PipeAccessRights.FullControl, AccessControlType.Deny));
         security.AddAccessRule(new PipeAccessRule(owner, PipeAccessRights.FullControl, AccessControlType.Allow));
         if (alsoUser && owner != user)
-            security.AddAccessRule(new PipeAccessRule(user, PipeAccessRights.FullControl, AccessControlType.Allow));
+            security.AddAccessRule(new PipeAccessRule(user, PipeAccessRights.ReadWrite, AccessControlType.Allow));
         return security;
     }
 
