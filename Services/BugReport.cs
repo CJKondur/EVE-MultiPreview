@@ -113,7 +113,11 @@ public static class BugReport
     /// replaced by <see cref="CharacterIdMark"/> (the same id the same mark, so which characters share an account
     /// stays). A character id is public: anyone can look its name up, so a masked name next to its id is not hidden.
     /// Text that is not a JSON object throws, so no report is made rather than one that leaks.</summary>
-    public static string WithoutCharacterIds(string settingsJson)
+    public static string WithoutCharacterIds(string settingsJson) => WithoutCharacterIds(settingsJson, new Dictionary<string, string>(StringComparer.Ordinal));
+
+    /// <summary>As <see cref="WithoutCharacterIds(string)"/>, with the id-to-mark table handed in so the log file names
+    /// (<see cref="WithoutLogFileIds"/>) of the same report use the same marks.</summary>
+    public static string WithoutCharacterIds(string settingsJson, Dictionary<string, string> marks)
     {
         var root = JsonNode.Parse(settingsJson) as JsonObject
             ?? throw new JsonException("The settings are not a JSON object.");
@@ -125,7 +129,6 @@ public static class BugReport
         }
         if (root["global_Settings"] is JsonObject global && global["AccountCharacterMap"] is JsonObject map)
         {
-            var marks = new Dictionary<string, string>(StringComparer.Ordinal);
             foreach (var (_, ids) in map)
             {
                 if (ids is not JsonArray list) continue;
@@ -140,6 +143,18 @@ public static class BugReport
         }
         return changed ? root.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) : settingsJson;
     }
+
+    private static readonly Regex LogFileId = new(@"(?<=\d{8}_\d{6}_)\d+(?=\.txt\b)", RegexOptions.CultureInvariant);
+
+    /// <summary>The character id in an EVE log file name (<c>YYYYMMDD_HHMMSS_id.txt</c>, which the log monitor writes
+    /// into debug_alerts.log) becomes <see cref="CharacterIdMark"/>, from the same <paramref name="marks"/> as the settings'
+    /// ids so one id is one mark across the report's files.</summary>
+    public static string WithoutLogFileIds(string text, Dictionary<string, string> marks) =>
+        LogFileId.Replace(text, m =>
+        {
+            if (!marks.TryGetValue(m.Value, out var mark)) marks[m.Value] = mark = CharacterIdMark(marks.Count + 1);
+            return mark;
+        });
 
     /// <summary>Every Discord webhook link, and every kept one, becomes <see cref="WebhookMark"/>: whatever wrote a
     /// file, none leaves in the report.</summary>
@@ -208,10 +223,11 @@ public static class BugReport
         bool maskNames)
     {
         var userNames = UserFolders(userName, userProfile);
+        var idMarks = new Dictionary<string, string>(StringComparer.Ordinal);
         string Clean(string text)
         {
             text = Redact(WithoutWebhookLinks(text), userNames, machineName);
-            return maskNames ? Mask(text, characters) : text;
+            return maskNames ? Mask(WithoutLogFileIds(text, idMarks), characters) : text;
         }
         string Cut(string line) => line.Length > MaxLineLength ? line[..MaxLineLength] : line;
 
@@ -219,7 +235,7 @@ public static class BugReport
         {
             new("about.txt", Clean(string.Join("\n", about))),
             new("monitors.txt", Clean(string.Join("\n", monitors))),
-            new("settings.json", Clean(maskNames ? WithoutCharacterIds(WithoutWebhook(settingsJson)) : WithoutWebhook(settingsJson))),
+            new("settings.json", Clean(maskNames ? WithoutCharacterIds(WithoutWebhook(settingsJson), idMarks) : WithoutWebhook(settingsJson))),
         };
         foreach (var log in logs)
             files.Add(new("logs/" + Path.GetFileName(log.Name), string.Join("\n", log.Lines.Select(l => Cut(Clean(l))))));
