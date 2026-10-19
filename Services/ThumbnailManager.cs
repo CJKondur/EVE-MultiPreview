@@ -3784,13 +3784,19 @@ public sealed class ThumbnailManager : IDisposable
         _thumbnails.TryGetValue(ActiveClient(), out var thumb) ? thumb.CharacterName ?? "" : "";
 
     /// <summary>IDEAS #35: holds the main thumbnails of these characters hidden and lets go of every other. A thumbnail let
-    /// go shows only when nothing else hides it. The window's thread; nothing is touched for a thumbnail whose hold stays.</summary>
+    /// go shows only when nothing else hides it. The window's thread; a thumbnail whose hold stays is hidden again with its
+    /// text: a settings Apply (opacity) or the not-logged-in mark shows the text overlay on its own, and this bounds that to
+    /// one tick. Nothing is touched for a thumbnail that stays let go.</summary>
     public void HoldForFocus(IReadOnlySet<string> held)
     {
         foreach (var (hwnd, thumb) in _thumbnails)
         {
             bool hold = !string.IsNullOrEmpty(thumb.CharacterName) && held.Contains(thumb.CharacterName);
-            if (hold == thumb.HeldHidden) continue;
+            if (hold == thumb.HeldHidden)
+            {
+                if (hold) thumb.HideWithOverlay();
+                continue;
+            }
             thumb.SetHeldHidden(hold);
             if (!hold && ShowsWhenLetGo(hwnd, thumb)) thumb.ShowWithOverlay();
         }
