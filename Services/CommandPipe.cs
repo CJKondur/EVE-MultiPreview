@@ -4,6 +4,7 @@ using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32.SafeHandles;
@@ -49,8 +50,16 @@ public static class CommandPipe
     public static RemoteOutcome Send(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront = false) =>
         Task.Run(() => SendAsync(pipeName, command, timeout, letTakeTheFront)).GetAwaiter().GetResult();
 
+    /// <summary>Only what the running MultiPreview would take goes on the pipe: a command built past the allow-list's
+    /// checks (a name too long for the length byte, a lone surrogate, one Clean refuses) is Refused here, never cut
+    /// short and never sent.</summary>
     public static async Task<RemoteOutcome> SendAsync(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront = false)
     {
+        byte[] message;
+        try { message = command.ToMessage(); }
+        catch (EncoderFallbackException) { return RemoteOutcome.Refused; }
+        if (RemoteCommand.FromMessage(message) != command) return RemoteOutcome.Refused;
+
         using var limit = new CancellationTokenSource(timeout);
         try
         {
@@ -58,7 +67,6 @@ public static class CommandPipe
                 PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly, TokenImpersonationLevel.Identification);
             await pipe.ConnectAsync(limit.Token);
             if (letTakeTheFront) LetTakeTheFront(pipe.SafePipeHandle);
-            var message = command.ToMessage();
             var frame = new byte[message.Length + 1];
             frame[0] = (byte)message.Length;
             message.CopyTo(frame, 1);
@@ -99,11 +107,23 @@ public static class CommandPipe
 
 /// <summary>IDEAS #39: the running MultiPreview's end of the pipe, on a pool thread. One client at a time: it reads one
 /// length byte and at most 255 bytes within the read time, has the command run (App runs it on the window's thread),
-/// answers one byte, waits at most the read time for the client to hang up, and serves the next. A message that is not on
-/// the allow-list is answered "refused"; a client that goes quiet is let go. Dispose stops it.</summary>
+/// answers one byte and waits for the client to hang up (the two together at most the read time), and serves the next. A
+/// message that is not on the allow-list is answered "refused"; a client that goes quiet is let go. Dispose stops it.
+/// <para>The name is never free while it runs: the first instance is made with FirstPipeInstance, so a pipe of that
+/// name another account made first is never joined (that account's door would govern it); and the next instance is made
+/// as soon as a client connects, before the one serving it goes, so nobody can make the name in between. A name already
+/// taken is tried again for two seconds (it is still held for a moment after the switch went off and on), then reported.
+/// What reaches <c>failed</c> never carries the pipe's name: it holds the account's SID.</para>
+/// <para>Known limits: a client that says nothing, or only part of a message, holds the door at most the read time; one
+/// that sends a command and never reads the answer at most the read time, App's run time and the read time again. A run
+/// of App's that hangs holds the server (App only posts the command to the window's thread, so it stays quick). A program
+/// of this same account that connects again and again can keep the one door busy: the same account is inside the trust
+/// boundary.</para></summary>
 public sealed class CommandServer : IDisposable
 {
     public static readonly TimeSpan ReadTime = TimeSpan.FromSeconds(2);
+    /// <summary>Instances of the pipe at once: the one serving a client and the one standing for the next.</summary>
+    public const int Instances = 2;
     private readonly string _name;
     private readonly PipeSecurity _security;
     private readonly Func<RemoteCommand, Task<RemoteOutcome>> _run;
@@ -128,41 +148,78 @@ public sealed class CommandServer : IDisposable
 
     private async Task Loop(CancellationToken stop)
     {
-        int refused = 0;
-        while (!stop.IsCancellationRequested)
+        NamedPipeServerStream? standing = null;
+        try
         {
-            NamedPipeServerStream pipe;
-            try
+            standing = await OpenFirst(stop);
+            while (standing != null && !stop.IsCancellationRequested)
             {
-                pipe = NamedPipeServerStreamAcl.Create(_name, PipeDirection.InOut, 1, PipeTransmissionMode.Byte,
-                    PipeOptions.Asynchronous, 0, 0, _security);
-                refused = 0;
-            }
-            catch (IOException ex)
-            {
-                // The name is still held for a moment after the switch went off and on again: a few tries, then give up.
-                if (++refused > 8) { _failed(ex); return; }
-                try { await Task.Delay(250, stop); } catch (OperationCanceledException) { return; }
-                continue;
-            }
-            catch (Exception ex) { _failed(ex); return; }
-
-            using (pipe)
-            {
-                try
-                {
-                    await pipe.WaitForConnectionAsync(stop);
-                    var outcome = await Serve(pipe, stop);
-                    await pipe.WriteAsync(new[] { (byte)outcome }, stop);
-                    await pipe.FlushAsync(stop);
-                    await HangUp(pipe, stop);
-                }
-                catch (OperationCanceledException) when (stop.IsCancellationRequested) { return; }
-                catch (OperationCanceledException) { }   // a client that said nothing in time
-                catch (IOException) { }                  // the client went away
-                catch (Exception ex) { _failed(ex); }
+                using var current = standing;
+                standing = null;
+                bool connected = true;
+                try { await current.WaitForConnectionAsync(stop); }
+                catch (OperationCanceledException) { return; }      // stopped
+                catch (IOException) { connected = false; }           // a client that came and went at once
+                // The next instance stands before this one goes: the name is never free while the server runs.
+                standing = Create(first: false);
+                if (connected) await Answer(current, stop);
             }
         }
+        catch (Exception ex) { Report(ex); }
+        finally { standing?.Dispose(); }
+    }
+
+    /// <summary>The first instance, or null (reported) when the name stays taken or the server was stopped.</summary>
+    private async Task<NamedPipeServerStream?> OpenFirst(CancellationToken stop)
+    {
+        for (int tries = 1; !stop.IsCancellationRequested; tries++)
+        {
+            try { return Create(first: true); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Still held for a moment after the switch went off and on again, or made by someone else: a few tries.
+                if (tries > 8) { Report(ex); return null; }
+            }
+            try { await Task.Delay(250, stop); } catch (OperationCanceledException) { return null; }
+        }
+        return null;
+    }
+
+    private NamedPipeServerStream Create(bool first) =>
+        NamedPipeServerStreamAcl.Create(_name, PipeDirection.InOut, Instances, PipeTransmissionMode.Byte,
+            first ? PipeOptions.Asynchronous | PipeOptions.FirstPipeInstance : PipeOptions.Asynchronous, 0, 0, _security);
+
+    /// <summary>Reads the command, has it run, answers, and waits for the client to hang up. The answer and the hang-up
+    /// share one read time, so a client that never reads the answer is let go too.</summary>
+    private async Task Answer(NamedPipeServerStream pipe, CancellationToken stop)
+    {
+        try
+        {
+            var outcome = await Serve(pipe, stop);
+            using var reply = CancellationTokenSource.CreateLinkedTokenSource(stop);
+            reply.CancelAfter(_readTime);
+            await pipe.WriteAsync(new[] { (byte)outcome }, reply.Token);
+            await pipe.FlushAsync(reply.Token);
+#pragma warning disable CA2022 // any byte or the end of the pipe is the hang-up: how many bytes came does not matter
+            await pipe.ReadAsync(new byte[1], reply.Token);
+#pragma warning restore CA2022
+        }
+        catch (OperationCanceledException) { }   // stopped, or a client that said or read nothing in time
+        catch (IOException) { }                  // the client went away
+        catch (Exception ex) { Report(ex); }
+    }
+
+    /// <summary>Hands a failure on without the pipe's name (an exception of a pipe can carry its path, and the name holds
+    /// the account's SID); a listener that throws never stops the loop.</summary>
+    private void Report(Exception ex)
+    {
+        try
+        {
+            _failed(ex.ToString().Contains(_name, StringComparison.OrdinalIgnoreCase)
+                ? new IOException($"The command pipe failed: {ex.GetType().Name} (0x{ex.HResult:X8}).")
+                : ex);
+        }
+        catch (Exception) { }
     }
 
     private async Task<RemoteOutcome> Serve(NamedPipeServerStream pipe, CancellationToken stop)
@@ -176,17 +233,5 @@ public sealed class CommandServer : IDisposable
         await pipe.ReadExactlyAsync(message, read.Token);
         var command = RemoteCommand.FromMessage(message);
         return command == null ? RemoteOutcome.Refused : await _run(command);
-    }
-
-    /// <summary>The client hangs up once it has read the answer; the server waits at most the read time for that, so the
-    /// answer is never lost to a closed pipe and a client that stays on costs at most that.</summary>
-    private async Task HangUp(NamedPipeServerStream pipe, CancellationToken stop)
-    {
-        using var wait = CancellationTokenSource.CreateLinkedTokenSource(stop);
-        wait.CancelAfter(_readTime);
-#pragma warning disable CA2022 // any byte or the end of the pipe is the hang-up: how many bytes came does not matter
-        try { await pipe.ReadAsync(new byte[1], wait.Token); }
-#pragma warning restore CA2022
-        catch (OperationCanceledException) when (!stop.IsCancellationRequested) { }
     }
 }
