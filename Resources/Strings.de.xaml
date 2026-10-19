@@ -2594,7 +2594,8 @@
     <sys:String x:Key="L.S.Profile.CompareKeep">Meinen behalten</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareDone">{0} Wert(e) aus „{1}“ übernommen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} Einträge</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.ComparePositions">Fensterpositionen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">{0} Fensterpositionen (beim Übernehmen werden alle deine ersetzt)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositionsTitle">Fensterpositionen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect">Seitenverhältnis beim Skalieren beibehalten</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">Beim Skalieren mit der Maus behält ein Vorschaubild sein Verhältnis von Breite zu Höhe.</sys:String> <!-- draft -->
 </ResourceDictionary>

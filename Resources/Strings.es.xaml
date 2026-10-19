@@ -2616,7 +2616,8 @@
     <sys:String x:Key="L.S.Profile.CompareKeep">Mantener el mío</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareDone">{0} valor(es) tomado(s) de «{1}».</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} entradas</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.ComparePositions">Posiciones de ventanas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">{0} posiciones de ventanas (al tomarlas se reemplazan todas las tuyas)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositionsTitle">Posiciones de ventanas</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect">Mantener la forma al cambiar el tamaño</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">Al cambiar el tamaño de una miniatura con el ratón, se mantiene su proporción entre ancho y alto.</sys:String> <!-- draft -->
 </ResourceDictionary>

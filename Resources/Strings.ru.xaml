@@ -2614,7 +2614,8 @@
     <sys:String x:Key="L.S.Profile.CompareKeep">Оставить моё</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareDone">Значений взято из «{1}»: {0}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} записей</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.ComparePositions">Положения окон</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">Положений окон: {0} (если взять, все ваши будут заменены)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositionsTitle">Положения окон</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect">Сохранять пропорции при изменении размера</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">При изменении размера миниатюры мышью сохраняется соотношение её ширины и высоты.</sys:String> <!-- draft -->
 </ResourceDictionary>

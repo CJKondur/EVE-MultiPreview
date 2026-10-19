@@ -2594,7 +2594,8 @@
     <sys:String x:Key="L.S.Profile.CompareKeep">Keep mine</sys:String>
     <sys:String x:Key="L.S.Profile.CompareDone">{0} value(s) taken from {1}.</sys:String>
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} entries</sys:String>
-    <sys:String x:Key="L.S.Profile.ComparePositions">Window positions</sys:String>
+    <sys:String x:Key="L.S.Profile.ComparePositions">{0} window positions (taking this replaces all of yours)</sys:String>
+    <sys:String x:Key="L.S.Profile.ComparePositionsTitle">Window positions</sys:String>
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect">Keep the shape when resizing</sys:String>
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">Resizing a thumbnail with the mouse keeps its width-to-height ratio.</sys:String>
 </ResourceDictionary>

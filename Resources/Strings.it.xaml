@@ -2612,7 +2612,8 @@
     <sys:String x:Key="L.S.Profile.CompareKeep">Tieni il mio</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareDone">Presi {0} valore/i da «{1}».</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} voci</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.ComparePositions">Posizioni delle finestre</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">{0} posizioni delle finestre (prenderle sostituisce tutte le tue)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositionsTitle">Posizioni delle finestre</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect">Mantieni la forma durante il ridimensionamento</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">Ridimensionare una miniatura con il mouse ne mantiene il rapporto tra larghezza e altezza.</sys:String> <!-- draft -->
 </ResourceDictionary>

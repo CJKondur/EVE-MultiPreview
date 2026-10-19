@@ -2595,7 +2595,8 @@
     <sys:String x:Key="L.S.Profile.CompareKeep">そのままにする</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareDone">「{1}」から {0} 件の値を取り込みました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} 件</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.ComparePositions">ウィンドウの位置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">ウィンドウの位置 {0} 件（取り込むと今の位置がすべて置き換わります）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositionsTitle">ウィンドウの位置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect">リサイズ時に形を保つ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">マウスでサムネイルをリサイズすると、幅と高さの比率が保たれます。</sys:String> <!-- draft -->
 </ResourceDictionary>

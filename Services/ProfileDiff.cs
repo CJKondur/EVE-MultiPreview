@@ -19,7 +19,10 @@ public static class ProfileDiff
 {
     /// <summary>The one row for both per-character position tables, which differ in every pair of profiles.</summary>
     public const string Positions = "Positions";
-    public const string PositionsLabelKey = "L.S.Profile.ComparePositions";
+    /// <summary>The row's title (what the question calls the setting).</summary>
+    public const string PositionsLabelKey = "L.S.Profile.ComparePositionsTitle";
+    /// <summary>The other profile's side of the Positions row: its count, and that taking it replaces all of yours (CopyFull does too).</summary>
+    public const string PositionsKey = "L.S.Profile.ComparePositions";
     public const string EntriesKey = "L.S.Profile.CompareEntries";
     private const int MaxText = 80;
 
@@ -53,16 +56,18 @@ public static class ProfileDiff
         }
         var tables = PositionProperties.Select(n => typeof(Profile).GetProperty(n)!).ToList();
         if (tables.Any(p => Canonical(p.GetValue(mine), p.PropertyType) != Canonical(p.GetValue(other), p.PropertyType)))
-            found.Add((int.MaxValue, new ProfileDiffRow(Positions, PositionsLabelKey, Entries(tables.Sum(p => Count(p.GetValue(mine)))), Entries(tables.Sum(p => Count(p.GetValue(other)))))));
+            found.Add((int.MaxValue, new ProfileDiffRow(Positions, PositionsLabelKey, Entries(tables.Sum(p => Count(p.GetValue(mine)))),
+                string.Format(LocalizationService.Str(PositionsKey, "{0} window positions (taking this replaces all of yours)"), tables.Sum(p => Count(p.GetValue(other)))))));
         return found.OrderBy(f => f.Page).ThenBy(f => f.Row.Property, StringComparer.Ordinal).Select(f => f.Row).ToList();
     }
 
     /// <summary>Takes one value from <paramref name="source"/> into <paramref name="dest"/> as a JSON clone, the way
     /// ProfileCopy.CopyFull clones a whole profile: the two profiles never share an object. <paramref name="property"/> is
-    /// a row's Property; "Positions" copies both position tables. With the settings both profiles belong to, the alert
+    /// a row's Property; "Positions" REPLACES both position tables (as a full copy does). With the settings both profiles belong to, the alert
     /// choices of the groups that go with the copy are forgotten the way a full copy forgets them (GroupAlertChoices.Follow).
+    /// <paramref name="settings"/> is required so that no caller forgets it; null only where there are no settings (a pure test).
     /// An unknown name (or one no row has) throws ArgumentException and changes nothing.</summary>
-    public static void CopyOne(Profile source, Profile dest, string property, AppSettings? settings = null)
+    public static void CopyOne(Profile source, Profile dest, string property, AppSettings? settings)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(dest);

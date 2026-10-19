@@ -134,6 +134,7 @@ public static class ProfileActions
         var rows = ProfileDiff.Compare(mine, theirs);
         if (rows.Count == 0) { ctx.Host.Toast(string.Format(Str("L.S.Profile.CompareNone"), name)); return; }
         int taken = 0;
+        bool switched = false;
         for (int i = 0; i < rows.Count; i++)
         {
             var row = rows[i];
@@ -143,6 +144,9 @@ public static class ProfileActions
                 string.Format(Str("L.S.Profile.CompareTitle"), name, i + 1, rows.Count),
                 string.Format(Str("L.S.Profile.CompareRow"), name, label, row.TextMine, row.TextOther),
                 Str("L.S.Profile.CompareTake"), Str("L.S.Profile.CompareKeep"));
+            // A profile hotkey can switch the profile while the question is open: then nothing more is copied (into the
+            // profile that is no longer the active one) and nothing is applied.
+            if (ctx.S.LastUsedProfile != active || !ReferenceEquals(ctx.S.Profiles.GetValueOrDefault(active), mine)) { switched = true; break; }
             if (answer == null) break;
             if (answer == true)
             {
@@ -150,7 +154,7 @@ public static class ProfileActions
                 taken++;
             }
         }
-        if (taken > 0)
+        if (taken > 0 && !switched)
         {
             ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
             ctx.Host.Reload();

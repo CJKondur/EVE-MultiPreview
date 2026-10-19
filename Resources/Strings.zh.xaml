@@ -2612,7 +2612,8 @@
     <sys:String x:Key="L.S.Profile.CompareKeep">保留我的</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareDone">已从“{1}”采用 {0} 个值。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} 项</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.ComparePositions">窗口位置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">{0} 个窗口位置（采用后会替换你所有的窗口位置）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositionsTitle">窗口位置</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect">调整大小时保持形状</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">用鼠标调整缩略图大小时，保持其宽高比。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2597,7 +2597,8 @@
     <sys:String x:Key="L.S.Profile.CompareKeep">Garder la mienne</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareDone">{0} valeur(s) reprise(s) depuis « {1} ».</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0} entrées</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.ComparePositions">Positions des fenêtres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">{0} positions de fenêtres (les reprendre remplace toutes les vôtres)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositionsTitle">Positions des fenêtres</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect">Conserver la forme lors du redimensionnement</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">Redimensionner une vignette à la souris conserve son rapport largeur/hauteur.</sys:String> <!-- draft -->
 </ResourceDictionary>

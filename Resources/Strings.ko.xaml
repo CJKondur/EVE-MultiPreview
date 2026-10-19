@@ -2595,7 +2595,8 @@
     <sys:String x:Key="L.S.Profile.CompareKeep">내 값 유지</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareDone">'{1}'에서 값 {0}개를 가져왔어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CompareEntries">{0}개 항목</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.ComparePositions">창 위치</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositions">창 위치 {0}개 (가져오면 내 창 위치가 모두 바뀌어요)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ComparePositionsTitle">창 위치</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect">크기를 조정할 때 모양 유지</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.appearance.lockAspect.Desc">마우스로 썸네일 크기를 조정하면 가로세로 비율이 유지돼요.</sys:String> <!-- draft -->
 </ResourceDictionary>
