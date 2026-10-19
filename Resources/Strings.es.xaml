@@ -2597,7 +2597,6 @@
     <sys:String x:Key="L.S.clients.hotkeys.openSettings">Abrir la configuración</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Abre la ventana de configuración, o la trae al frente si ya está abierta. Funciona mientras se ejecuta un cliente de EVE, como los demás atajos.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.client_ready">Cliente listo</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Events.clientReady.Desc">Un cliente ha llegado al juego y muestra el nombre de su personaje.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.CopySystem">Copiar el nombre del sistema</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenDotlan">Abrir el sistema en Dotlan</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">Abrir el personaje en zKillboard</sys:String> <!-- draft -->

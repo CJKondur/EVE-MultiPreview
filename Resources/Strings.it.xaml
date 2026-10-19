@@ -2593,7 +2593,6 @@
     <sys:String x:Key="L.S.clients.hotkeys.openSettings">Apri le impostazioni</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.openSettings.Desc">Apre la finestra delle impostazioni, o la porta in primo piano se è già aperta. Funziona mentre è in esecuzione un client EVE, come le altre scorciatoie.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.client_ready">Client pronto</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Events.clientReady.Desc">Un client è arrivato nel gioco e mostra il nome del suo personaggio.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.CopySystem">Copia il nome del sistema</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenDotlan">Apri il sistema su Dotlan</sys:String> <!-- draft -->
     <sys:String x:Key="L.Ctx.OpenZKill">Apri il personaggio su zKillboard</sys:String> <!-- draft -->
