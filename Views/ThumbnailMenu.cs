@@ -54,7 +54,9 @@ public sealed record ThumbnailMenuState(string CharacterName, string? SystemName
 }
 
 /// <summary>A thumbnail's right-click menu (Plan 4, the F2 reference): the character and system as a caption, Edit
-/// label…, Mute alerts ›, Game volume ›, Open ‹character›'s settings (spec D6) and, below a line, End this frozen client…
+/// label…, Mute alerts ›, Game volume ›, Open ‹character›'s settings (spec D6), the lookup links (Plan 17, P1: Copy system
+/// name and Open system on Dotlan while the system is known, Open character on zKillboard and on EveWho while the
+/// character's ID is in the name cache) and, below a line, End this frozen client…
 /// (only while the thumbnail says Not responding, IDEAS #22) and Close client. Every item raises what the old menu raised.
 /// Built once per thumbnail and refreshed each time it opens.</summary>
 public sealed class ThumbnailMenu : IDisposable
@@ -221,12 +223,14 @@ public sealed class ThumbnailMenu : IDisposable
         if (url != null) _openUrl(url);
     }
 
-    /// <summary>The default opener: the browser, and only for a link <see cref="LookupLinks.IsAllowed"/> accepts. A refused
-    /// link does nothing and is not logged (it carries a character's or system's name).</summary>
+    /// <summary>The default opener: the browser, and only for a link <see cref="LookupLinks.IsAllowed"/> accepts, handed over
+    /// in its canonical absolute form (<see cref="LookupLinks.BrowserTarget"/>). A refused link does nothing and is not
+    /// logged (it carries a character's or system's name).</summary>
     private static void OpenAllowed(string url)
     {
-        if (!LookupLinks.IsAllowed(url)) return;
-        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); } catch { }
+        var target = LookupLinks.BrowserTarget(url);
+        if (target == null) return;
+        try { Process.Start(new ProcessStartInfo(target) { UseShellExecute = true }); } catch { }
     }
 
     /// <summary>The Snoozed alerts submenu: a line of help, one item per snoozed event (a click ends it) and End all.

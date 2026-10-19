@@ -46,6 +46,11 @@ public static class LookupLinks
             || string.Equals(u.Host, ZKillboardHost, StringComparison.OrdinalIgnoreCase)
             || string.Equals(u.Host, EveWhoHost, StringComparison.OrdinalIgnoreCase));
 
+    /// <summary>What the default opener hands the shell: the link in its canonical absolute form (the parsed
+    /// <see cref="Uri.AbsoluteUri"/>, not the original text), or null when <see cref="IsAllowed"/> refuses it.</summary>
+    public static string? BrowserTarget(string? url) =>
+        IsAllowed(url) && Uri.TryCreate(url, UriKind.Absolute, out var u) ? u.AbsoluteUri : null;
+
     /// <summary>The character's ID from the saved name cache (EveManager.CharNameCache, keyed by ID), found by name
     /// (ordinal, ignoring case). Null for a blank name, the login screen ("EVE"), a name the cache does not know, or an entry
     /// whose key is not a positive number.</summary>
