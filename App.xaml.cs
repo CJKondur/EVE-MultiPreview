@@ -1332,14 +1332,15 @@ public partial class App : Application
 
     /// <summary>IDEAS #11, twice a second: while "Switch profiles by who is logged in" is on, has the set of logged-in
     /// characters settled on another profile? Switch to it, or ask when the player switched himself a short while ago.
-    /// While the switch is off nothing is weighed. A failure is logged and the next tick tries again.</summary>
+    /// While the switch is off nothing is weighed and an open question is closed without a switch. A failure is logged;
+    /// the decision for that set of characters is spent (AutoProfile.Look), so it is made again only when the set changes.</summary>
     private void FollowAutoProfile()
     {
         try
         {
             if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
             var s = _settings.Settings;
-            if (!AutoProfile.IsOn(s)) { _autoProfile.Forget(); return; }
+            if (!AutoProfile.IsOn(s)) { _autoProfile.Forget(); CloseAutoProfileQuestion(); return; }
             var choice = _autoProfile.Look(DateTime.UtcNow, _thumbnailManager.GetActiveCharacterNames(), AutoProfile.Candidates(s), s.LastUsedProfile);
             if (choice == null) return;
             if (choice.Ask) AskAutoProfile(choice.Profile);
@@ -1358,6 +1359,16 @@ public partial class App : Application
         finally { _switchingProfileAutomatically = false; }
         _thumbnailManager?.ShowTooltipFeedback(string.Format(
             LocalizationService.Str("L.AutoProfile.Switched", "Profile: {0}, picked by who is logged in"), profile));
+    }
+
+    /// <summary>IDEAS #11: the switch went off, so a question still on the screen is closed with no choice and can switch
+    /// nothing. The field is cleared first, so the question's Closed handler finds no current question.</summary>
+    private void CloseAutoProfileQuestion()
+    {
+        var open = _autoProfileQuestion;
+        if (open == null) return;
+        _autoProfileQuestion = null;
+        open.Close();
     }
 
     private const string AutoProfileBodyEnglish =
@@ -1383,7 +1394,15 @@ public partial class App : Application
         question.Closed += (_, _) =>
         {
             if (ReferenceEquals(_autoProfileQuestion, question)) _autoProfileQuestion = null;
-            if (question.Choice == 0) SwitchProfileAutomatically(profile);
+            // The player may click Switch long after the question came up: the switch must still be on and the profile
+            // still there, and a failure here must not leave the window's event handler.
+            try
+            {
+                if (question.Choice == 0 && _settings != null && AutoProfile.IsOn(_settings.Settings)
+                    && _settings.Settings.Profiles.ContainsKey(profile))
+                    SwitchProfileAutomatically(profile);
+            }
+            catch (Exception ex) { LogError(ex); }
         };
         _autoProfileQuestion = question;
         question.Show();
