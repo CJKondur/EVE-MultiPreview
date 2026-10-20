@@ -50,7 +50,7 @@ public static class ThumbnailsPages
             "thumbs.layout.startWidth", "thumbs.layout.startHeight", "thumbs.layout.gap",
         }),
         new HelpTopic(LayoutId, "lining", new[] { "thumbs.layout.snap", "thumbs.layout.snapDistance", "thumbs.layout.confine", "thumbs.layout.lock" }),
-        new HelpTopic(LayoutId, "presets", new[] { "thumbs.layout.presets" }),
+        new HelpTopic(LayoutId, "presets", new[] { "thumbs.layout.autoOnMonitorChange", "thumbs.layout.presets" }),
         new HelpTopic(LayoutId, "align", new[] { "thumbs.layout.align" }),
         new HelpTopic(LayoutId, "history", new[] { "thumbs.layout.history" }),
         new HelpTopic(VisibilityId, "stacking", new[]
@@ -316,6 +316,8 @@ public static class ThumbnailsPages
         }),
         new SectionDef("thumbs.layout.saved", new PageItem[]
         {
+            // IDEAS #10: ThumbnailManager's MonitorLayoutFollower reads it when the monitors change: Save is enough.
+            Toggle("thumbs.layout.autoOnMonitorChange", s => s.AutoLayoutOnMonitorChange, ApplyScope.Save),
             new EditorItem("thumbs.layout.presets", ctx => new LayoutPresetsEditor(ctx))
             {
                 // Apply records the layout this profile is on; the layouts themselves live in their own file.

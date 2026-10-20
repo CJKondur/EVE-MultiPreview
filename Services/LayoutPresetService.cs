@@ -50,6 +50,14 @@ public sealed class LayoutPresetService
     public LayoutPreset? Get(string name)
         => Presets.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
 
+    /// <summary>IDEAS #10: the layout saved for this monitor arrangement (<see cref="MonitorFingerprint.Of"/>), or null. A
+    /// layout carries no time, so when several were saved for it the first in the file wins. A layout without an
+    /// arrangement, and an arrangement with no monitors or that is not a valid line, match nothing.</summary>
+    public LayoutPreset? FindForFingerprint(string? fingerprint)
+        => MonitorFingerprint.Count(fingerprint) > 0
+            ? Presets.FirstOrDefault(p => string.Equals(p.MonitorFingerprint, fingerprint, StringComparison.Ordinal))
+            : null;
+
     public void AddOrReplace(LayoutPreset preset)
     {
         Presets.RemoveAll(p => string.Equals(p.Name, preset.Name, StringComparison.OrdinalIgnoreCase));
@@ -89,6 +97,8 @@ public sealed class LayoutPresetService
                 slot.Fh = ShareCode.ClampSize(slot.Fh);
                 if (!ShareCode.ValidSlot(slot.Character, slot.Monitor, slot.Fx, slot.Fy, slot.Fw, slot.Fh)) return null;   // monitor, character
             }
+            // A file is read from outside: an arrangement that is not exactly what MonitorFingerprint writes is dropped, the layout kept.
+            if (!MonitorFingerprint.IsValid(preset.MonitorFingerprint)) preset.MonitorFingerprint = null;
             var name = ShareCode.SafeName(preset.Name);
             if (name.Length == 0) name = ShareCode.SafeName(Path.GetFileNameWithoutExtension(file));
             preset.Name = name.Length > 0 ? name : "Layout";

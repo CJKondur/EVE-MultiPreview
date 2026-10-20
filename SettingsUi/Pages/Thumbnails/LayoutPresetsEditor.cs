@@ -21,6 +21,7 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     private readonly LayoutPresetService _library;
     private readonly ComboBox _list = new() { MinWidth = 220, VerticalContentAlignment = VerticalAlignment.Center };
     private readonly TextBlock _note = EditorCard.Value("", secondary: true);
+    private readonly TextBlock _arrangement = EditorCard.Value("", secondary: true);
     private readonly List<Button> _needsOne = new();
     private bool _loading;
 
@@ -44,11 +45,13 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         var third = EditorCard.Row(NeedsOne("L.S.Presets.CopyCode", CopyCode), EditorCard.Button("L.S.Presets.PasteCode", PasteCode));
         third.Margin = new Thickness(0, 8, 0, 0);
         _note.Margin = new Thickness(0, 8, 0, 0);
+        _arrangement.Margin = new Thickness(0, 4, 0, 0);
         var below = new StackPanel();
         below.Children.Add(first);
         below.Children.Add(second);
         below.Children.Add(third);
         below.Children.Add(_note);
+        below.Children.Add(_arrangement);
         Content = EditorCard.Build("thumbs.layout.presets", null, below);
         Refresh();
     }
@@ -61,6 +64,13 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
 
     /// <summary>Test seam: stands in for ClipboardText.Set.</summary>
     public Func<string, bool>? CopyText { get; set; }
+
+    /// <summary>Test seam: stands in for the monitors' bounds (ThumbnailManager.CurrentMonitorBounds).</summary>
+    public Func<IReadOnlyList<System.Drawing.Rectangle>> Screens { get; set; } = ThumbnailManager.CurrentMonitorBounds;
+
+    /// <summary>IDEAS #10: what the selected layout says of the monitors it was saved on (how many, and whether they are the
+    /// ones you have now); empty with no layout selected. Never a device name: the fingerprint holds none.</summary>
+    public string ArrangementText => _arrangement.Text;
 
     /// <summary>The layout the buttons act on, or null.</summary>
     public string? Selected { get; private set; }
@@ -112,6 +122,17 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     private void UpdateButtons()
     {
         foreach (var button in _needsOne) button.IsEnabled = Selected != null;
+        ShowArrangement();
+    }
+
+    private void ShowArrangement()
+    {
+        var preset = Selected == null ? null : _library.Get(Selected);
+        int count = MonitorFingerprint.Count(preset?.MonitorFingerprint);
+        _arrangement.Text = preset == null ? ""
+            : count < 0 ? Str("L.S.Presets.ArrangementNone")
+            : string.Format(Str(preset.MonitorFingerprint == MonitorFingerprint.Of(Screens()) ? "L.S.Presets.ArrangementNow" : "L.S.Presets.Arrangement"), count);
+        _arrangement.Visibility = _arrangement.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
     /// <summary>The selected layout, or a toast and null.</summary>

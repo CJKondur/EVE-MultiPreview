@@ -62,6 +62,11 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>Debounces RaiseThumbnailsAboveOverlays so a client switch never pays for
     /// it inline — see the comment where it is created (#100).</summary>
     private DispatcherTimer? _raiseOverlaysDebounce;
+    /// <summary>IDEAS #10: applies the layout saved for the monitors that come back (<see cref="NewMonitorFollower"/>); started
+    /// with the focus tracking, stopped and unhooked in Dispose.</summary>
+    private MonitorLayoutFollower? _monitorFollower;
+    private DispatcherTimer? _monitorSettleTimer;
+    private EventHandler? _displayChanged;
     private DispatcherTimer? _sessionTimer;
     private DispatcherTimer? _statTimer;
     private DispatcherTimer? _fpsTimer;
@@ -402,7 +407,54 @@ public sealed class ThumbnailManager : IDisposable
         _fpsTimer.Tick += (_, _) => UpdateFpsOverlays();
         _fpsTimer.Start();
 
+        StartMonitorFollowing();
+
         Debug.WriteLine("[AlertFlash:Start] 🔧 Focus (100ms), Session (1s), Flash (200ms), Stat (1s), FPS (500ms) timers started");
+    }
+
+    // ── Monitor changes (IDEAS #10) ─────────────────────────────────
+
+    /// <summary>The bounds of every monitor now, as MonitorFingerprint takes them.</summary>
+    public static IReadOnlyList<System.Drawing.Rectangle> CurrentMonitorBounds() =>
+        System.Windows.Forms.Screen.AllScreens.Select(s => s.Bounds).ToList();
+
+    /// <summary>The follower that applies a layout when the monitors change: it reads the switch AutoLayoutOnMonitorChange
+    /// each time, and looks the layout up in the layouts file as it is then. Tests hand in the monitors, the clock, the
+    /// timer and the apply; nothing is hooked here (<see cref="StartMonitorFollowing"/> does that).</summary>
+    public MonitorLayoutFollower NewMonitorFollower(Func<IReadOnlyList<System.Drawing.Rectangle>>? screens = null,
+        Func<DateTime>? clock = null, Action<TimeSpan>? schedule = null, Action<LayoutPreset>? apply = null) =>
+        new(() => _settings.Settings.AutoLayoutOnMonitorChange,
+            screens ?? CurrentMonitorBounds,
+            clock ?? (() => DateTime.UtcNow),
+            schedule ?? ScheduleMonitorSettle,
+            fingerprint => new LayoutPresetService(_settings.ConfigDirectory).FindForFingerprint(fingerprint),
+            apply ?? (preset => ApplyLayoutPreset(preset, forMonitors: true)));
+
+    private void StartMonitorFollowing()
+    {
+        _monitorFollower = NewMonitorFollower();
+        _monitorFollower.Start();
+        // DisplaySettingsChanged is raised on a thread of its own; the follower works on the UI thread.
+        _displayChanged = (_, _) => Application.Current?.Dispatcher.BeginInvoke(() => _monitorFollower?.Changed());
+        Microsoft.Win32.SystemEvents.DisplaySettingsChanged += _displayChanged;
+    }
+
+    /// <summary>The follower's timer: one tick after the given time, replacing one that was asked for before.</summary>
+    private void ScheduleMonitorSettle(TimeSpan after)
+    {
+        if (_monitorSettleTimer == null)
+        {
+            _monitorSettleTimer = new DispatcherTimer();
+            _monitorSettleTimer.Tick += (_, _) =>
+            {
+                _monitorSettleTimer?.Stop();
+                try { _monitorFollower?.Tick(); }
+                catch (Exception ex) { ErrorLog.Shared.Record(ex, "Thumbnails (layout for the monitors)", DateTime.Now); }
+            };
+        }
+        _monitorSettleTimer.Stop();
+        _monitorSettleTimer.Interval = after;
+        _monitorSettleTimer.Start();
     }
 
     // ── Window Found / Lost ─────────────────────────────────────────
@@ -619,6 +671,7 @@ public sealed class ThumbnailManager : IDisposable
             CropsEnabled = _settings.Settings.CropEnabled,
         };
         var screens = System.Windows.Forms.Screen.AllScreens;
+        preset.MonitorFingerprint = MonitorFingerprint.Of(screens.Select(s => s.Bounds));   // IDEAS #10: the arrangement this layout is for
         foreach (var (_, thumb) in _thumbnails)
         {
             if (string.IsNullOrEmpty(thumb.CharacterName)) continue;
@@ -646,7 +699,8 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>Apply a preset to the live wall. Slots match characters by exact name
     /// first; any leftover slots map positionally to remaining characters (so a
     /// shared preset with different character names still arranges your clients).</summary>
-    public void ApplyLayoutPreset(LayoutPreset preset)
+    /// <param name="forMonitors">IDEAS #10: applied because the monitors changed; the tooltip says so.</param>
+    public void ApplyLayoutPreset(LayoutPreset preset, bool forMonitors = false)
     {
         Application.Current?.Dispatcher.Invoke(() =>
         {
@@ -693,7 +747,9 @@ public sealed class ThumbnailManager : IDisposable
             // when the caller refreshes it after apply).
             if (applyVis) { _settings.Settings.CropEnabled = preset.CropsEnabled; _settings.Save(); }
 
-            ShowTooltipFeedback(preStaged > 0
+            ShowTooltipFeedback(forMonitors
+                ? string.Format(LocalizationService.Str("L.Msg.LayoutAppliedForMonitors", "Monitors changed: applied layout '{0}'"), preset.Name)
+                : preStaged > 0
                 ? string.Format(LocalizationService.Str("L.Msg.LayoutAppliedSaved", "Layout: applied '{0}' ({1} saved for characters not logged in)"), preset.Name, preStaged)
                 : string.Format(LocalizationService.Str("L.Msg.LayoutApplied", "Layout: applied '{0}'"), preset.Name));
         });
@@ -5041,6 +5097,13 @@ public sealed class ThumbnailManager : IDisposable
         _fpsTimer?.Stop();
         _batchTimer?.Stop();
         _raiseOverlaysDebounce?.Stop();   // #100 debounce — same shutdown-unwind risk
+        if (_displayChanged != null)
+        {
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= _displayChanged;   // IDEAS #10
+            _displayChanged = null;
+        }
+        _monitorSettleTimer?.Stop();
+        _monitorFollower = null;
         if (_winEvents != null)
         {
             _winEvents.ForegroundChanged -= OnForegroundOrMinimizeEvent;

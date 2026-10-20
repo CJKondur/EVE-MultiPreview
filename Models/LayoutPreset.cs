@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace EveMultiPreview.Models;
 
@@ -20,6 +21,12 @@ public class LayoutPreset
     /// <summary>Crop master-toggle state captured with the preset (only honored when
     /// IncludesVisibility is true).</summary>
     public bool CropsEnabled { get; set; } = false;
+
+    /// <summary>The monitor arrangement this layout was saved on, as MonitorFingerprint writes it (IDEAS #10); null for a
+    /// layout saved before this key existed, an imported one, or one made from a code. Left out of the file while null, so
+    /// such a layout is written exactly as before. A layout without it is never matched to an arrangement.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? MonitorFingerprint { get; set; }
 }
 
 public class LayoutSlot

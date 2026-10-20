@@ -1442,7 +1442,7 @@
     <sys:String x:Key="L.S.Presets.ImportFailed">그 파일은 MultiPreview 레이아웃이 아닙니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Filter.Layouts">MultiPreview 레이아웃</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.presets.Title">저장된 레이아웃</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**현재 레이아웃 저장**은 실행 중인 각 캐릭터의 썸네일 위치와 크기를 화면 대비 비율로 기억하므로, 해상도를 바꿔도 레이아웃이 맞습니다. 숨겨진 썸네일과 크롭 창이 켜져 있는지도 기억합니다.&#x0A;- **적용**은 썸네일을 제자리로 되돌립니다. 로그인하지 않은 캐릭터는 로그인할 때 자리를 받습니다.&#x0A;- **다시 지정하고 적용**에서는 어느 캐릭터가 각 자리를 차지할지 고를 수 있습니다. 예를 들어 다른 플레이어의 레이아웃을 쓸 때 유용합니다.&#x0A;- **내보내기**와 **가져오기**로 레이아웃을 파일로 공유합니다. 기존 레이아웃과 이름이 같은 레이아웃을 가져오면 바꾸기 전에 확인합니다.&#x0A;- **코드로 복사**는 선택한 레이아웃을 한 줄 텍스트로 클립보드에 넣어요. Discord 등에 붙여넣을 수 있어요. **코드 붙여넣기…**는 그런 한 줄에서 레이아웃을 추가하고, 클라이언트가 실행 중이면 어느 캐릭터가 각 자리를 차지할지 고를 수 있게 해요. 코드에는 자리만 들어 있어요. 썸네일을 숨기거나 크롭 창을 켜거나 끄지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**현재 레이아웃 저장**은 실행 중인 각 캐릭터의 썸네일 위치와 크기를 화면 대비 비율로 기억하므로, 해상도를 바꿔도 레이아웃이 맞습니다. 숨겨진 썸네일과 크롭 창이 켜져 있는지도 기억합니다.&#x0A;- **적용**은 썸네일을 제자리로 되돌립니다. 로그인하지 않은 캐릭터는 로그인할 때 자리를 받습니다.&#x0A;- **다시 지정하고 적용**에서는 어느 캐릭터가 각 자리를 차지할지 고를 수 있습니다. 예를 들어 다른 플레이어의 레이아웃을 쓸 때 유용합니다.&#x0A;- **내보내기**와 **가져오기**로 레이아웃을 파일로 공유합니다. 기존 레이아웃과 이름이 같은 레이아웃을 가져오면 바꾸기 전에 확인합니다.&#x0A;- **코드로 복사**는 선택한 레이아웃을 한 줄 텍스트로 클립보드에 넣어요. Discord 등에 붙여넣을 수 있어요. **코드 붙여넣기…**는 그런 한 줄에서 레이아웃을 추가하고, 클라이언트가 실행 중이면 어느 캐릭터가 각 자리를 차지할지 고를 수 있게 해요. 코드에는 자리만 들어 있어요. 썸네일을 숨기거나 크롭 창을 켜거나 끄지 않아요.&#x0A;- **모니터가 바뀌면 저장한 레이아웃 사용**을 켜면, 모니터가 바뀌고 잠시 뒤에 같은 모니터 구성으로 저장한 레이아웃을 적용해요(독에 연결했을 때, 분리했을 때, TV를 연결했을 때). 쓰는 모니터 구성마다 레이아웃을 한 번씩 저장하세요. 모니터의 위치와 크기를 비교하고 이름은 쓰지 않아요. 목록에는 각 레이아웃을 저장할 때의 모니터 수가 표시돼요. 이전 버전에서 저장한 레이아웃에는 모니터가 기록되어 있지 않아요. 다시 저장하세요.</sys:String> <!-- draft -->
     <!-- Thumbnails › Visibility (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.visibility">표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.thumbs.visibility.Desc">썸네일이 항상 위에 있거나 숨겨지는 때, 로그인 화면 표시, 보조 썸네일.</sys:String> <!-- draft -->
@@ -2669,4 +2669,10 @@
     <sys:String x:Key="L.S.Align.NudgeDown">아래로 {0} px</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.align.Title">정렬, 균등 배치, 미세 이동</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.align.Body">썸네일을 배치할 캐릭터에 체크해요. 목록에는 로그인한 캐릭터가 표시돼요. 그런 다음 버튼을 눌러요.&#x0A;&#x0A;- **왼쪽 정렬**, **오른쪽 정렬**, **위쪽 정렬**, **아래쪽 정렬**은 체크한 썸네일을 그 가장자리에 맞춰요. 가장 바깥쪽 썸네일은 그대로 있어요.&#x0A;- **가로로 균등 배치**와 **세로로 균등 배치**는 3개 이상이 필요해요. 양 끝 두 개는 그대로 있고, 그 사이의 것들은 같은 간격으로 놓여요.&#x0A;- **너비 맞추기**와 **높이 맞추기**는 체크한 각 썸네일을 가장 먼저 체크한 썸네일과 같은 크기로 만들어요. **크기를 조정할 때 모양 유지**가 켜져 있으면 각 썸네일은 자기 모양을 유지하고 다른 쪽 변이 따라가요.&#x0A;- 화살표 버튼은 체크한 썸네일을 1픽셀 또는 10픽셀 옮겨요. 하나만 체크해도 돼요.&#x0A;&#x0A;썸네일은 자기 화면 밖으로 나가지 않아요. 나가게 되면 다시 끌어와요. 모든 동작은 되돌리기 한 단계이고(아래), 위치는 이 프로필에 저장돼요. 썸네일은 키보드를 받지 않아서 화살표 키로 옮길 수는 없어요. 화살표 버튼을 사용하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.autoOnMonitorChange">모니터가 바뀌면 저장한 레이아웃 사용</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.layout.autoOnMonitorChange.Desc">독에 연결하거나 분리하거나 모니터를 연결하면, 그 모니터 구성으로 저장한 레이아웃을 자동으로 적용해요. 기본값은 꺼짐이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.Arrangement">저장 당시 모니터 수: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ArrangementNow">저장 당시 모니터 수: {0} (지금 모니터 구성과 같아요)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ArrangementNone">저장 당시 모니터 수: 기록 없음. 레이아웃을 다시 저장하면 지금 모니터와 연결돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.LayoutAppliedForMonitors">모니터가 바뀌었어요: 레이아웃 '{0}' 적용했어요</sys:String> <!-- draft -->
 </ResourceDictionary>

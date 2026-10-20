@@ -30,6 +30,9 @@ public class AppSettings
     /// <summary>Keep the dragged thumbnail's own width-to-height ratio while the mouse resizes it (IDEAS P7).
     /// New key: off in a file without it.</summary>
     public bool LockResizeAspect { get; set; } = false;
+    /// <summary>When the monitors change, apply the layout saved for the arrangement that is there now (IDEAS #10). Read by
+    /// ThumbnailManager's MonitorLayoutFollower. New key: off in a file without it.</summary>
+    public bool AutoLayoutOnMonitorChange { get; set; } = false;
     public bool LockPositions { get; set; } = false;
     public int PreferredMonitor { get; set; } = 1;
     public string ThumbnailBackgroundColor { get; set; } = "#57504E";
