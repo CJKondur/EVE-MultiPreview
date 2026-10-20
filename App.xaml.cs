@@ -1617,6 +1617,8 @@ public partial class App : Application
                 LastAlert = () => thumbnails.GoToLastAlert(),
                 CycleProfile = forward => CycleProfile(forward),
                 DoNotDisturb = ToggleDoNotDisturb,
+                IsDoNotDisturbOn = () => DoNotDisturbOn,
+                IsFocusModeOn = () => _focusModeOn,
             }.Run(command);
         }
         catch (Exception ex)

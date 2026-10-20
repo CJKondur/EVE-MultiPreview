@@ -6,12 +6,13 @@ using System.Text;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>IDEAS #39 and #15: what another program may ask of the running MultiPreview. One of thirteen, nothing else:
-/// the four of #39 keep their values, the nine of #15 follow.</summary>
+/// <summary>IDEAS #39, #15 and P127: what another program may ask of the running MultiPreview. One of seventeen, nothing
+/// else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs of P127.</summary>
 public enum RemoteVerb
 {
     Focus, Profile, ToggleThumbnails, FocusMode,
     CycleGroup, CycleGroupBack, CycleAll, CycleAllBack, PreviousClient, LastAlert, NextProfile, PreviousProfile, DoNotDisturb,
+    DoNotDisturbOn, DoNotDisturbOff, FocusModeOn, FocusModeOff,
 }
 
 /// <summary>What came of a command. The running MultiPreview answers the first three as one byte on the pipe; a second
@@ -42,6 +43,10 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
         ("--next-profile", "next-profile", RemoteVerb.NextProfile, false),
         ("--previous-profile", "previous-profile", RemoteVerb.PreviousProfile, false),
         ("--do-not-disturb", "do-not-disturb", RemoteVerb.DoNotDisturb, false),
+        ("--do-not-disturb-on", "do-not-disturb-on", RemoteVerb.DoNotDisturbOn, false),
+        ("--do-not-disturb-off", "do-not-disturb-off", RemoteVerb.DoNotDisturbOff, false),
+        ("--focus-mode-on", "focus-mode-on", RemoteVerb.FocusModeOn, false),
+        ("--focus-mode-off", "focus-mode-off", RemoteVerb.FocusModeOff, false),
     };
 
     /// <summary>The command-line switch of a verb of the list (<c>--cycle-all</c>); empty for any other.</summary>
@@ -136,6 +141,11 @@ public sealed class RemoteCommandRunner
     public required Action LastAlert { get; init; }
     public required Action<bool> CycleProfile { get; init; }
     public required Action DoNotDisturb { get; init; }
+    /// <summary>IDEAS P127: whether do-not-disturb is on right now (by the hotkey, the tray or the quiet hours); the four
+    /// explicit verbs press the toggle only when this differs from what they ask for.</summary>
+    public required Func<bool> IsDoNotDisturbOn { get; init; }
+    /// <summary>IDEAS P127: whether focus mode is on right now.</summary>
+    public required Func<bool> IsFocusModeOn { get; init; }
 
     /// <summary>The name a player typed, as one that exists: the exact one, else the one whose name matches ignoring case
     /// (two such: none). Null when there is none.</summary>
@@ -194,6 +204,20 @@ public sealed class RemoteCommandRunner
                 return RemoteOutcome.Done;
             case RemoteVerb.DoNotDisturb:
                 DoNotDisturb();
+                return RemoteOutcome.Done;
+            // IDEAS P127: idempotent. The toggle is pressed only when the state differs; either way the answer is Done. A
+            // focus-mode "on" with no group to show still presses it: the press says why it stays off (P124).
+            case RemoteVerb.DoNotDisturbOn:
+                if (!IsDoNotDisturbOn()) DoNotDisturb();
+                return RemoteOutcome.Done;
+            case RemoteVerb.DoNotDisturbOff:
+                if (IsDoNotDisturbOn()) DoNotDisturb();
+                return RemoteOutcome.Done;
+            case RemoteVerb.FocusModeOn:
+                if (!IsFocusModeOn()) ToggleFocusMode();
+                return RemoteOutcome.Done;
+            case RemoteVerb.FocusModeOff:
+                if (IsFocusModeOn()) ToggleFocusMode();
                 return RemoteOutcome.Done;
             default:
                 return RemoteOutcome.Refused;
