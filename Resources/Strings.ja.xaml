@@ -1366,7 +1366,7 @@
     <sys:String x:Key="L.Help.thumbs.text.text.Title">サムネイル上のテキスト</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.text.Body">キャラクター名、星系（EVE のログから取得）、セッションタイマーを表示できます。**テキストの色**、**フォント**、**テキストサイズ**は、これらすべてとクロップウィンドウの名前に適用されます。&#x0A;&#x0A;キャラクター固有のラベル（独自の色とサイズ）は、そのキャラクターのページで設定します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">クライアント統計</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.stats.Body">各クライアントが使用している CPU、メモリ（RAM）、グラフィックスメモリ（VRAM）の量を数秒ごとに更新して表示します。動作が重いクライアントを見つけるのに便利です。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.stats.Body">各クライアントが使用している CPU、メモリ（RAM）、グラフィックスメモリ（VRAM）の量を数秒ごとに更新して表示します。動作が重いクライアントを見つけるのに便利です。 トレイメニューの **フリートボード** は、すべてのクライアントを 1 つの表にまとめます：星系、セッション時間、アラート、CPU、RAM。このスイッチがオフでも CPU と RAM は表示されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">枠線</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **ハイライト枠**はプレイ中のクライアントを示します。変更は EVE に戻ると反映されます。&#x0A;- ほかのクライアントには **その他のクライアント** の枠が付きます。色を空にすると枠なしになります。**枠の色を自動で割り当てる**がオンの間は、自分の色もグループの色もないキャラクターにも枠が付きます。&#x0A;- グループはメンバーをグループの色で描けます（クライアント › グループ）。**色付きグループ内でもハイライトを維持**を使うと、プレイ中のクライアントはハイライトの色のままになります。&#x0A;- キャラクター固有の枠の色はそのページで設定し、**キャラクターごとの色を使う**がオンの間使われます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">スキップ中クライアントのマーク</sys:String> <!-- draft -->
@@ -2755,4 +2755,20 @@
     <sys:String x:Key="L.SessRpt.Close">閉じる</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Failed">統計ファイルを読み込めませんでした。</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Highest">1日の最大：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FleetBoard">フリートボード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Title">フリートボード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Name">キャラクター</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.System">星系</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Since">星系に入った時刻</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Session">セッション</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.LastAlert">最新アラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Alerts">アラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">MultiPreview がキャラクターのこの星系への到着を検知した時刻です。起動時にすでに分かっていた星系では、そのキャラクターの最新の Local チャットログの時刻になります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Alerts">MultiPreview の起動後に発生したアラートで、アラート履歴に保存されているものです（全キャラクターの最新 2000 件。履歴がオフの間は 0 件）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Stats">サムネイルの統計と同じモニターから数秒ごとに読み取ります。ダッシュは、まだ値がないことを示します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Empty">ログイン済みのキャラクターがいる EVE クライアントは開かれていません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Note">アラートは MultiPreview の起動後の件数です。ドッキングは記録されないため、キャラクターがいつアンドックしたかはこのボードでは分かりません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Close">閉じる</sys:String> <!-- draft -->
 </ResourceDictionary>

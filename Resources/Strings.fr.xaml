@@ -1368,7 +1368,7 @@
     <sys:String x:Key="L.Help.thumbs.text.text.Title">Texte sur les miniatures</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.text.Body">Activez le nom du personnage, le système solaire (lu dans les journaux EVE) et le minuteur de session. **Couleur du texte**, **Police** et **Taille du texte** s'appliquent à tous et aux noms des fenêtres de recadrage.&#x0A;&#x0A;L'étiquette propre à un personnage, avec sa couleur et sa taille, se règle sur la page de ce personnage.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Statistiques du client</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Affiche la quantité de CPU, de mémoire (RAM) et de mémoire graphique (VRAM) utilisée par chaque client, mise à jour toutes les quelques secondes. Pratique pour repérer un client en difficulté.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Affiche la quantité de CPU, de mémoire (RAM) et de mémoire graphique (VRAM) utilisée par chaque client, mise à jour toutes les quelques secondes. Pratique pour repérer un client en difficulté. **Tableau de flotte**, dans le menu de la zone de notification, liste chaque client dans un tableau : système, durée de session, alertes, CPU et RAM. Il affiche le CPU et la RAM même quand cet interrupteur est désactivé.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Bordures</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Body">- La **bordure de surbrillance** repère le client dans lequel vous jouez. Les changements s'affichent quand vous revenez dans EVE.&#x0A;- Chaque autre client reçoit la bordure définie sous **Autres clients**. Laissez sa couleur vide pour aucune bordure. Si **Couleurs de bordure automatiques** est activé, un personnage sans couleur propre ni couleur de groupe reçoit quand même une bordure.&#x0A;- Les groupes peuvent peindre leurs membres à la couleur du groupe (Clients › Groupes). **Garder la surbrillance dans un groupe coloré** garde la couleur de surbrillance sur le client dans lequel vous jouez.&#x0A;- Les couleurs de bordure propres à un personnage se règlent sur sa page et servent tant que **Utiliser des couleurs par personnage** est activé.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">Le repère du client ignoré</sys:String> <!-- draft -->
@@ -2757,4 +2757,20 @@
     <sys:String x:Key="L.SessRpt.Close">Fermer</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Failed">Les fichiers de statistiques n'ont pas pu être lus.</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Highest">Meilleur jour : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FleetBoard">Tableau de flotte</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Title">Tableau de flotte</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Name">Personnage</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.System">Système</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Since">Dans le système depuis</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Session">Session</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.LastAlert">Dernière alerte</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Alerts">Alertes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">Le moment où MultiPreview a vu le personnage arriver dans ce système. Pour le système déjà connu au démarrage : l'heure du dernier journal de chat Local du personnage.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Alerts">Alertes depuis le démarrage de MultiPreview, telles que l'historique les conserve (les 2 000 plus récentes de tous les personnages, et aucune tant que l'historique est désactivé).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Stats">Lu depuis le même moniteur que les statistiques des miniatures, toutes les quelques secondes. Un tiret signifie qu'il n'y a pas encore de mesure.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Empty">Aucun client EVE avec un personnage connecté n'est ouvert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Note">Les alertes sont comptées depuis le démarrage de MultiPreview. Les arrimages ne sont pas consignés, le tableau ne peut donc pas dire quand un personnage s'est désarrimé.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Close">Fermer</sys:String> <!-- draft -->
 </ResourceDictionary>

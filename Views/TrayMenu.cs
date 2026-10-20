@@ -20,6 +20,8 @@ public static class TrayCommands
     public const string AlertHistory = "tray.alertHistory";
     /// <summary>Opens the session reports window (IDEAS #20).</summary>
     public const string StatReport = "tray.statReport";
+    /// <summary>Opens the fleet board (IDEAS #18).</summary>
+    public const string FleetBoard = "tray.fleetBoard";
     /// <summary>Opens the hotkey cheat sheet without its key (IDEAS #16).</summary>
     public const string HotkeySheet = "tray.hotkeySheet";
     public const string Suspend = "tray.suspend";
@@ -56,6 +58,8 @@ public sealed class TrayMenuActions
     public Action OpenAlertHistory { get; init; } = () => { };
     /// <summary>Opens the session reports window (IDEAS #20).</summary>
     public Action OpenStatReport { get; init; } = () => { };
+    /// <summary>Opens the fleet board (IDEAS #18).</summary>
+    public Action OpenFleetBoard { get; init; } = () => { };
     /// <summary>Opens, or closes, the hotkey cheat sheet (IDEAS #16).</summary>
     public Action OpenHotkeySheet { get; init; } = () => { };
     /// <summary>The time now, UTC, for the downtime line (IDEAS #9). A test hands in its own.</summary>
@@ -121,6 +125,8 @@ public sealed class TrayMenu : IDisposable
         Strip.Items.Add(Item(TrayCommands.AlertHistory, "L.Tray.AlertHistory", "Alert history…", FluentMenu.Glyphs.History, _a.OpenAlertHistory));
         // IDEAS #20: no chart glyph in FluentMenu.Glyphs, and none is added.
         Strip.Items.Add(Item(TrayCommands.StatReport, "L.Tray.StatReport", "Session reports", null, _a.OpenStatReport));
+        // IDEAS #18: no table glyph in FluentMenu.Glyphs, and none is added.
+        Strip.Items.Add(Item(TrayCommands.FleetBoard, "L.Tray.FleetBoard", "Fleet board", null, _a.OpenFleetBoard));
         // IDEAS #16: no keyboard glyph in FluentMenu.Glyphs, and none is added.
         _hotkeySheet = Item(TrayCommands.HotkeySheet, "L.Tray.HotkeySheet", "Hotkey cheat sheet", null, _a.OpenHotkeySheet);
         Strip.Items.Add(_hotkeySheet);

@@ -124,6 +124,7 @@ public partial class App : Application
     private readonly RefusalNote _refusalNote = new();
     private AlertHistoryWindow? _historyWindow;
     private StatReportWindow? _statReportWindow;   // IDEAS #20: the session reports window, while it is open
+    private FleetBoardWindow? _fleetBoardWindow;   // IDEAS #18: the fleet board, while it is open
     private bool _streamerMaskDrawn;   // IDEAS #19: the mode the history window was last drawn for; it is redrawn when this flips
     private Views.HotkeySheetWindow? _hotkeySheet;  // IDEAS #16: the hotkey cheat sheet, while it shows
     private Views.CommandPaletteWindow? _commandPalette;  // IDEAS #14: the command palette, while it shows
@@ -1325,6 +1326,7 @@ public partial class App : Application
             _streamerMaskDrawn = StreamerMask.IsOn;
             _historyWindow?.RefreshStreamerMask();
             _statReportWindow?.RefreshStreamerMask();
+            _fleetBoardWindow?.RefreshStreamerMask();
             _trayMenu?.Refresh();
             var (key, english) = StreamerMask.IsOn ? ("L.Streamer.On", "Streamer mode: on") : ("L.Streamer.Off", "Streamer mode: off");
             _thumbnailManager?.ShowTooltipFeedback(LocalizationService.Str(key, english));
@@ -1954,6 +1956,7 @@ public partial class App : Application
                 Application.Current?.Dispatcher.BeginInvoke(new Action(() => OpenSettings(startMinimized: false, pageId: page))),
             OpenAlertHistory = () => Application.Current?.Dispatcher.BeginInvoke(new Action(OpenAlertHistory)),
             OpenStatReport = () => Application.Current?.Dispatcher.BeginInvoke(new Action(OpenStatReport)),
+            OpenFleetBoard = () => Application.Current?.Dispatcher.BeginInvoke(new Action(OpenFleetBoard)),
             OpenHotkeySheet = () => Application.Current?.Dispatcher.BeginInvoke(new Action(ToggleHotkeySheet)),
             SwitchProfile = name => _settings?.SwitchProfile(name),   // ProfileSwitched applies it (#101)
             IsSuspended = () => _hotkeyService?.IsSuspended ?? false,
@@ -2158,6 +2161,7 @@ public partial class App : Application
                 _streamerMaskDrawn = StreamerMask.IsOn;
                 _historyWindow?.RefreshStreamerMask();
                 _statReportWindow?.RefreshStreamerMask();
+                _fleetBoardWindow?.RefreshStreamerMask();
             }
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
@@ -2392,6 +2396,41 @@ public partial class App : Application
         catch (Exception ex)
         {
             _statReportWindow = null;
+            LogError(ex);
+        }
+    }
+
+    /// <summary>Opens the fleet board (IDEAS #18), or brings it forward when it is already open. It reads, once a second while
+    /// it is open, what the app already knows: the thumbnails' characters, the log monitor's system and time in it, the process
+    /// monitor's CPU and RAM, and the alert history. It changes nothing; the way in is the tray menu.</summary>
+    private void OpenFleetBoard()
+    {
+        if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
+        if (_fleetBoardWindow != null)
+        {
+            if (_fleetBoardWindow.WindowState == WindowState.Minimized) _fleetBoardWindow.WindowState = WindowState.Normal;
+            _fleetBoardWindow.Activate();
+            return;
+        }
+        try
+        {
+            _streamerMaskDrawn = StreamerMask.IsOn;   // IDEAS #19: drawn for the mode as it is now, so a later flip redraws it
+            _fleetBoardWindow = new FleetBoardWindow(new FleetBoardActions
+            {
+                Inputs = () => FleetBoardRows.Gather(_thumbnailManager!.SnapshotCharacters(),
+                    _alertHistory?.Recent() ?? Array.Empty<AlertHistoryEntry>(),
+                    name => _logMonitor?.GetCharacterSystem(name),
+                    name => _logMonitor?.GetSystemSinceUtc(name),
+                    pid => _processMonitor?.GetStats(pid)),
+                // The type only: an exception's message may hold a character's name, and the error log writes messages.
+                Failed = type => ErrorLog.Shared.Record(new InvalidOperationException("the fleet board refresh failed: " + type), "FleetBoard", DateTime.Now),
+            });
+            _fleetBoardWindow.Closed += (_, _) => _fleetBoardWindow = null;
+            _fleetBoardWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            _fleetBoardWindow = null;
             LogError(ex);
         }
     }

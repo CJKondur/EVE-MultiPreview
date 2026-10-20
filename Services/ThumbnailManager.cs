@@ -341,6 +341,17 @@ public sealed class ThumbnailManager : IDisposable
         });
     }
 
+    /// <summary>The logged-in characters now (a login screen is nobody): name, when the thumbnail's session began and the process
+    /// that owns the client's window (IDEAS #18, the fleet board). A copy. UI thread: thumbnails are made and closed there.</summary>
+    public IReadOnlyList<CharacterSnapshot> SnapshotCharacters()
+    {
+        var list = new List<CharacterSnapshot>();
+        foreach (var (_, thumb) in _thumbnails)
+            if (ThumbnailMenu.HasCharacter(thumb.CharacterName))
+                list.Add(new CharacterSnapshot(thumb.CharacterName, thumb.SessionStartUtc, thumb.GetProcessId()));
+        return list;
+    }
+
     /// <summary>
     /// Start the focus tracker and session timer. Must be called on UI thread.
     /// </summary>

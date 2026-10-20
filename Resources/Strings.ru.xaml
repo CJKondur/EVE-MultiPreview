@@ -1385,7 +1385,7 @@
     <sys:String x:Key="L.Help.thumbs.text.text.Title">Текст на миниатюрах</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.text.Body">Включите имя персонажа, звёздную систему (по логам EVE) и таймер сессии. **Цвет текста**, **Шрифт** и **Размер текста** действуют для всего этого и для названий окон обрезки.&#x0A;&#x0A;Собственная подпись персонажа со своим цветом и размером задаётся на странице этого персонажа.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Статистика клиентов</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Показывает, сколько CPU, памяти (RAM) и видеопамяти (VRAM) использует каждый клиент; обновляется каждые несколько секунд. Удобно, чтобы заметить клиент, который тормозит.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Показывает, сколько CPU, памяти (RAM) и видеопамяти (VRAM) использует каждый клиент; обновляется каждые несколько секунд. Удобно, чтобы заметить клиент, который тормозит. Пункт **Панель флота** в меню в трее перечисляет все клиенты в одной таблице: система, время сессии, оповещения, CPU и RAM. CPU и RAM он показывает даже при выключенном переключателе.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Рамки</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **Рамка выделения** отмечает клиент, в котором вы играете. Изменения появятся, когда вы вернётесь в EVE.&#x0A;- Каждый остальной клиент получает рамку из раздела **Остальные клиенты**. Оставьте цвет пустым, чтобы убрать рамку. Если включён параметр **Автоматические цвета рамок**, персонаж без собственного цвета и цвета группы всё равно получит рамку.&#x0A;- Группы могут красить своих участников в цвет группы (Клиенты › Группы). **Сохранять выделение внутри цветной группы** оставляет цвет выделения у клиента, в котором вы играете.&#x0A;- Собственные цвета рамок персонажа задаются на его странице и действуют, пока включён параметр **Цвета для каждого персонажа**.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">Метка пропускаемого клиента</sys:String> <!-- draft -->
@@ -2774,4 +2774,20 @@
     <sys:String x:Key="L.SessRpt.Close">Закрыть</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Failed">Не удалось прочитать файлы статистики.</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Highest">Максимум за день: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FleetBoard">Панель флота</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Title">Панель флота</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Name">Персонаж</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.System">Система</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Since">В системе с</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Session">Сессия</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.LastAlert">Последнее оповещение</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Alerts">Оповещения</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">Когда MultiPreview увидел, что персонаж прибыл в эту систему. Для системы, известной уже при запуске: время последнего лога чата Local этого персонажа.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Alerts">Оповещения с запуска MultiPreview в том виде, как их хранит история оповещений (последние 2000 по всем персонажам; пока история выключена — ни одного).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Stats">Берётся из того же монитора, что и статистика на миниатюрах, и обновляется каждые несколько секунд. Прочерк означает, что данных пока нет.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Empty">Нет открытых клиентов EVE с вошедшим персонажем.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Note">Оповещения считаются с запуска MultiPreview. Стыковки не записываются в лог, поэтому панель не может сказать, когда персонаж расстыковался.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Close">Закрыть</sys:String> <!-- draft -->
 </ResourceDictionary>

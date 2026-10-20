@@ -1365,7 +1365,7 @@
     <sys:String x:Key="L.Help.thumbs.text.text.Title">Text auf Vorschauen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.text.Body">Aktiviere den Charakternamen, das Sonnensystem (aus den EVE-Logs gelesen) und den Sitzungstimer. **Textfarbe**, **Schriftart** und **Textgröße** gelten für alle davon und für die Namen der Ausschnittfenster.&#x0A;&#x0A;Das eigene Label eines Charakters mit eigener Farbe und Größe wird auf der Seite dieses Charakters festgelegt.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Client-Statistik</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Zeigt, wie viel CPU, Arbeitsspeicher (RAM) und Grafikspeicher (VRAM) jeder Client nutzt, alle paar Sekunden aktualisiert. Praktisch, um einen Client zu erkennen, der Probleme hat.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Zeigt, wie viel CPU, Arbeitsspeicher (RAM) und Grafikspeicher (VRAM) jeder Client nutzt, alle paar Sekunden aktualisiert. Praktisch, um einen Client zu erkennen, der Probleme hat. **Flottenübersicht** im Tray-Menü listet jeden Client in einer Tabelle: System, Sitzungszeit, Alarme, CPU und RAM. CPU und RAM zeigt sie auch bei ausgeschaltetem Schalter.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Rahmen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Body">- Der **Hervorhebungsrahmen** markiert den Client, den du spielst. Änderungen zeigen sich, wenn du zu EVE zurückkehrst.&#x0A;- Jeder andere Client erhält den Rahmen unter **Andere Clients**. Lass die Farbe leer für keinen Rahmen. Ist **Automatische Rahmenfarben** aktiviert, bekommt ein Charakter ohne eigene Farbe oder Gruppenfarbe trotzdem einen Rahmen.&#x0A;- Gruppen können ihre Mitglieder in der Gruppenfarbe zeichnen (Clients › Gruppen). **Hervorhebung in farbiger Gruppe beibehalten** behält die Hervorhebungsfarbe beim Client, den du spielst.&#x0A;- Die eigenen Rahmenfarben eines Charakters werden auf dessen Seite festgelegt und gelten, solange **Farben pro Charakter verwenden** aktiv ist.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">Die Markierung für übersprungene Clients</sys:String> <!-- draft -->
@@ -2754,4 +2754,20 @@
     <sys:String x:Key="L.SessRpt.Close">Schließen</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Failed">Die Statistikdateien konnten nicht gelesen werden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Highest">Höchster Tag: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FleetBoard">Flottenübersicht</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Title">Flottenübersicht</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Name">Charakter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.System">System</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Since">Im System seit</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Session">Sitzung</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.LastAlert">Letzter Alarm</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Alerts">Alarme</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">Wann MultiPreview gesehen hat, dass der Charakter in dieses System gekommen ist. Beim System, das schon beim Start bekannt war: der Zeitpunkt des letzten Local-Chatlogs des Charakters.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Alerts">Alarme seit dem Start von MultiPreview, so wie der Alarmverlauf sie führt (die neuesten 2.000 aller Charaktere, und keine, solange der Verlauf aus ist).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Stats">Kommt vom selben Monitor wie die Statistik auf den Vorschaubildern und wird alle paar Sekunden aktualisiert. Ein Strich bedeutet: noch kein Messwert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Empty">Es ist kein EVE-Client mit angemeldetem Charakter geöffnet.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Note">Alarme werden seit dem Start von MultiPreview gezählt. Das Docken wird nicht protokolliert, deshalb kann die Übersicht nicht sagen, wann ein Charakter undockte.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Close">Schließen</sys:String> <!-- draft -->
 </ResourceDictionary>

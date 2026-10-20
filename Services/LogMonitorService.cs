@@ -2798,6 +2798,12 @@ public sealed class LogMonitorService : IDisposable
         return _characterSystems.GetValueOrDefault(characterName);
     }
 
+    /// <summary>When the character's system last changed, UTC (IDEAS #18, the fleet board): the moment MultiPreview saw it arrive,
+    /// or, for the system it found at start-up, the time of the Local chat log it read it from. Null when not known. The map is a
+    /// ConcurrentDictionary, so any thread may ask while the log thread writes.</summary>
+    public DateTime? GetSystemSinceUtc(string characterName) =>
+        _systemTimestamps.TryGetValue(characterName, out var since) ? since : null;
+
     public void Dispose() => Stop();
 
     // ── Helper Types ────────────────────────────────────────────────

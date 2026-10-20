@@ -1365,7 +1365,7 @@
     <sys:String x:Key="L.Help.thumbs.text.text.Title">Text on thumbnails</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.text.Body">Turn on the character name, the solar system (read from EVE's logs) and the session timer. **Text colour**, **Font** and **Text size** apply to all of them and to crop window names.&#x0A;&#x0A;A character's own label, with its own colour and size, is set on that character's page.</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Client stats</sys:String>
-    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Shows how much CPU, memory (RAM) and graphics memory (VRAM) each client uses, updated every few seconds. Handy for spotting a client that's struggling.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Shows how much CPU, memory (RAM) and graphics memory (VRAM) each client uses, updated every few seconds. Handy for spotting a client that's struggling. **Fleet board** in the tray menu lists every client in one table: system, session time, alerts, CPU and RAM. It shows CPU and RAM even with this switch off.</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Borders</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.borders.Body">- The **highlight border** marks the client you're playing. Changes show when you go back to EVE.&#x0A;- Every other client gets the border under **Other clients**. Leave its colour empty for no border. With **Automatic border colours** on, a character with no colour of its own or from a group still gets one.&#x0A;- Groups can paint their members in the group colour (Clients › Groups). **Keep the highlight inside a coloured group** keeps the highlight colour on the client you're playing.&#x0A;- A character's own border colours are set on its page and used while **Use per-character colours** is on.</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">The skipped-client mark</sys:String>
@@ -2754,4 +2754,20 @@
     <sys:String x:Key="L.SessRpt.Close">Close</sys:String>
     <sys:String x:Key="L.SessRpt.Failed">The stat files couldn't be read.</sys:String>
     <sys:String x:Key="L.SessRpt.Highest">Highest day: {0}</sys:String>
+    <sys:String x:Key="L.Tray.FleetBoard">Fleet board</sys:String>
+    <sys:String x:Key="L.Fleet.Title">Fleet board</sys:String>
+    <sys:String x:Key="L.Fleet.Col.Name">Character</sys:String>
+    <sys:String x:Key="L.Fleet.Col.System">System</sys:String>
+    <sys:String x:Key="L.Fleet.Col.Since">In system since</sys:String>
+    <sys:String x:Key="L.Fleet.Col.Session">Session</sys:String>
+    <sys:String x:Key="L.Fleet.Col.LastAlert">Last alert</sys:String>
+    <sys:String x:Key="L.Fleet.Col.Alerts">Alerts</sys:String>
+    <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String>
+    <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String>
+    <sys:String x:Key="L.Fleet.Tip.Since">When MultiPreview saw the character arrive in this system. For the system it already knew at start-up, the time of the character's latest Local chat log.</sys:String>
+    <sys:String x:Key="L.Fleet.Tip.Alerts">Alerts since MultiPreview started, as the alert history holds them (the newest 2,000 of all characters, and none while the history is off).</sys:String>
+    <sys:String x:Key="L.Fleet.Tip.Stats">Read from the same monitor as the thumbnails' stats, every few seconds. A dash means no reading yet.</sys:String>
+    <sys:String x:Key="L.Fleet.Empty">No EVE client with a logged-in character is open.</sys:String>
+    <sys:String x:Key="L.Fleet.Note">Alerts are counted since MultiPreview started. Docking isn't logged, so the board can't say when a character undocked.</sys:String>
+    <sys:String x:Key="L.Fleet.Close">Close</sys:String>
 </ResourceDictionary>

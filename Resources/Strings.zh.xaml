@@ -1383,7 +1383,7 @@
     <sys:String x:Key="L.Help.thumbs.text.text.Title">缩略图上的文字</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.text.Body">可开启角色名称、星系（从 EVE 日志读取）和会话计时器。**文字颜色**、**字体**和**文字大小**适用于所有这些内容以及裁剪窗口的名称。&#x0A;&#x0A;角色自己的标签（含独立的颜色和大小）在该角色的页面中设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">客户端统计</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.stats.Body">显示每个客户端占用的 CPU、内存（RAM）和显存（VRAM），每隔几秒更新一次。便于发现卡顿的客户端。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.stats.Body">显示每个客户端占用的 CPU、内存（RAM）和显存（VRAM），每隔几秒更新一次。便于发现卡顿的客户端。 托盘菜单中的 **舰队面板** 把所有客户端列在一张表里：星系、会话时间、警报、CPU 和 RAM。即使此开关关闭，它也会显示 CPU 和 RAM。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">边框</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **高亮边框**标出你正在玩的客户端。更改会在你返回 EVE 时显示。&#x0A;- 其他每个客户端使用**其他客户端**下设置的边框。颜色留空则无边框。开启**自动边框颜色**后，没有自己的颜色也没有分组颜色的角色仍会得到边框。&#x0A;- 分组可以用分组颜色绘制其成员（客户端 › 分组）。**在彩色分组内保留高亮**会让你正在玩的客户端保留高亮颜色。&#x0A;- 角色自己的边框颜色在其页面中设置，并在开启**使用每个角色的专属颜色**时生效。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">已跳过客户端的标记</sys:String> <!-- draft -->
@@ -2772,4 +2772,20 @@
     <sys:String x:Key="L.SessRpt.Close">关闭</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Failed">无法读取统计文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Highest">单日最高：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FleetBoard">舰队面板</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Title">舰队面板</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Name">角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.System">星系</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Since">进入星系时间</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Session">会话</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.LastAlert">最近警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Alerts">警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">MultiPreview 发现角色进入该星系的时间。对于启动时就已知的星系，则是该角色最新的本地频道聊天日志的时间。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Alerts">自 MultiPreview 启动以来的警报，以警报历史记录所保存的为准（所有角色最新的 2000 条；历史记录关闭时没有）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Stats">与缩略图统计使用同一个监视器，每隔几秒更新一次。显示短横线表示暂无读数。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Empty">没有已登录角色的 EVE 客户端处于打开状态。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Note">警报按 MultiPreview 启动以来的数量计算。停靠不会被记录，所以面板无法显示角色何时离站。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Close">关闭</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -1387,7 +1387,7 @@
     <sys:String x:Key="L.Help.thumbs.text.text.Title">Texto en las miniaturas</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.text.Body">Activa el nombre del personaje, el sistema solar (leído de los registros de EVE) y el temporizador de sesión. **Color del texto**, **Fuente** y **Tamaño del texto** se aplican a todos ellos y a los nombres de las ventanas de recorte.&#x0A;&#x0A;La etiqueta propia de un personaje, con su propio color y tamaño, se ajusta en la página de ese personaje.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Estadísticas del cliente</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Muestra cuánta CPU, memoria (RAM) y memoria gráfica (VRAM) usa cada cliente, actualizado cada pocos segundos. Útil para detectar un cliente con problemas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.stats.Body">Muestra cuánta CPU, memoria (RAM) y memoria gráfica (VRAM) usa cada cliente, actualizado cada pocos segundos. Útil para detectar un cliente con problemas. **Panel de flota**, en el menú de la bandeja, lista cada cliente en una tabla: sistema, tiempo de sesión, alertas, CPU y RAM. Muestra la CPU y la RAM incluso con este interruptor desactivado.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Bordes</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Body">- El **borde de resaltado** marca el cliente con el que juegas. Los cambios se ven al volver a EVE.&#x0A;- Cada otro cliente recibe el borde de **Otros clientes**. Deja su color vacío para no tener borde. Si **Colores de borde automáticos** está activado, un personaje sin color propio ni de grupo recibe igualmente un borde.&#x0A;- Los grupos pueden pintar a sus miembros con el color del grupo (Clientes › Grupos). **Mantener el resaltado dentro de un grupo de color** conserva el color de resaltado en el cliente con el que juegas.&#x0A;- Los colores de borde propios de un personaje se ajustan en su página y se usan mientras **Usar colores por personaje** esté activado.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">La marca del cliente omitido</sys:String> <!-- draft -->
@@ -2776,4 +2776,20 @@
     <sys:String x:Key="L.SessRpt.Close">Cerrar</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Failed">No se pudieron leer los archivos de estadísticas.</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Highest">Día más alto: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FleetBoard">Panel de flota</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Title">Panel de flota</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Name">Personaje</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.System">Sistema</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Since">En el sistema desde</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Session">Sesión</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.LastAlert">Última alerta</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Alerts">Alertas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">Cuándo vio MultiPreview que el personaje llegaba a este sistema. Para el sistema que ya conocía al arrancar: la hora del último registro del chat Local del personaje.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Alerts">Alertas desde que se inició MultiPreview, tal como las guarda el historial de alertas (las 2000 más recientes de todos los personajes, y ninguna mientras el historial esté desactivado).</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Stats">Se lee del mismo monitor que las estadísticas de las miniaturas, cada pocos segundos. Un guion significa que aún no hay lectura.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Empty">No hay ningún cliente de EVE abierto con un personaje conectado.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Note">Las alertas se cuentan desde que se inició MultiPreview. El atraque no queda registrado, así que el panel no puede decir cuándo salió un personaje de la estación.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Close">Cerrar</sys:String> <!-- draft -->
 </ResourceDictionary>

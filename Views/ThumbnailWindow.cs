@@ -1392,6 +1392,9 @@ public class ThumbnailWindow : Form
 
     public TimeSpan SessionDuration => DateTime.UtcNow - _sessionStart;
 
+    /// <summary>When this thumbnail's session began, UTC (the fleet board, IDEAS #18).</summary>
+    public DateTime SessionStartUtc => _sessionStart;
+
     // ── Visibility ───────────────────────────────────────────────
 
     public void HideDwmOnly()
