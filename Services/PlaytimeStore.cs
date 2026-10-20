@@ -26,7 +26,6 @@ public sealed class PlaytimeStore
     public const string FileName = "playtime.json";
     /// <summary>500 characters of 14 days are about 400 KB; a larger file is not read at all.</summary>
     public const int MaxFileBytes = 1024 * 1024;
-    private const int MaxNameLength = 64;
     private const string DayFormat = "yyyy-MM-dd";
 
     private static readonly UTF8Encoding Utf8 = new(encoderShouldEmitUTF8Identifier: false);
@@ -85,7 +84,7 @@ public sealed class PlaytimeStore
             {
                 if (result.Count >= PlaytimeLedger.MaxCharacters) break;
                 var name = given?.Trim();
-                if (string.IsNullOrEmpty(name) || name.Length > MaxNameLength || days == null || name.Any(char.IsControl)) continue;
+                if (!PlaytimeLedger.IsKeptName(name) || days == null) continue;
                 var kept = Days(days);
                 if (kept.Count == 0) continue;
                 if (!result.TryGetValue(name, out var held)) result[name] = held = new Dictionary<DateTime, int>();
@@ -146,7 +145,17 @@ public sealed class PlaytimeStore
         }
     }
 
-    /// <summary>Deletes the file and the ones set aside (Clear playtime history). A link is not touched. Never throws.</summary>
+    /// <summary>Takes a name out of the file (Forget this character), whatever the switch says: the file may hold it. Nothing is
+    /// written when the name is not there. False when the name was there and the file could not be written. Never throws.</summary>
+    public bool Forget(string name, Func<DateTime> nowLocal)
+    {
+        var ledger = new PlaytimeLedger(nowLocal);
+        ledger.Import(Load());
+        return !ledger.Forget(name) || Save(ledger.Export());
+    }
+
+    /// <summary>Deletes the file, the ones set aside and the half-written ones a crash left (Clear playtime history). A link is
+    /// not touched. Never throws.</summary>
     public void Delete()
     {
         try
@@ -154,6 +163,7 @@ public sealed class PlaytimeStore
             if (!Directory.Exists(_folder)) return;
             var files = new List<string> { FilePath };
             files.AddRange(Directory.GetFiles(_folder, "playtime_unreadable_*.json"));
+            files.AddRange(Directory.GetFiles(_folder, FileName + ".*.tmp"));
             foreach (var file in files)
             {
                 try { if (File.Exists(file) && !_isLink(file)) File.Delete(file); }

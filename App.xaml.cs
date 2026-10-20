@@ -489,9 +489,11 @@ public partial class App : Application
                 // reader and ends this handler, and it must not cost the watch a move.
                 _stragglers.Moved(charName, systemName, DateTime.UtcNow);
                 _idleWatch.Moved(charName, DateTime.UtcNow);   // IDEAS #7: a jump into another system starts the count again
-                _thumbnailManager.Jumps.Moved(charName, systemName);   // IDEAS P10: the jump count for {jumps}
                 _thumbnailManager.UpdateCharacterSystem(charName, systemName);
             };
+            // IDEAS P10: the jump count for {jumps}. Its own event, raised before SystemChanged, because it needs where the
+            // character was (a late login has no first sighting here) and whether this is only a re-statement (a backfill).
+            _logMonitor.SystemMoved += (charName, from, to, backfill) => _thumbnailManager.Jumps.Moved(charName, to, from, backfill);
 
             // Cycle-wrap sound (issue #24) — plays whenever a cycle hotkey rolls
             // from the last client back to the first (or vice-versa reversing).
@@ -2011,10 +2013,11 @@ public partial class App : Application
             ContextMenuStrip = _trayMenu.Strip
         };
         // IDEAS P4: the icon is chosen in one place, with the icon in before the tray shows it, and again whenever
-        // an alert is taken or looked at.
+        // an alert is taken or looked at. The follower goes on first: an alert raised between the first choice and the
+        // subscription would otherwise never turn the icon.
+        if (_thumbnailManager != null) _thumbnailManager.Attention.Changed += ApplyTrayIcon;
         ApplyTrayIcon();
         _trayIcon.Visible = true;
-        if (_thumbnailManager != null) _thumbnailManager.Attention.Changed += ApplyTrayIcon;
 
         // A click on a tray balloon. The one balloon a click means something on is the note about refused hotkeys
         // (IDEAS #42). No alert shows a balloon any more: an alert's own notification is a toast of the alert hub,
@@ -2569,6 +2572,7 @@ public partial class App : Application
         // FY-m1: the player's data first. What the history holds is written now (at most two seconds), before the
         // voice and the notifications are stopped, which can take seconds when Windows does not answer.
         _alertHistory?.Flush(TimeSpan.FromSeconds(2));
+        _thumbnailManager?.FlushPlaytime();   // IDEAS P11: the counted playtime, before anything below can stop the exit (Dispose flushes again; nothing is left)
 
         // Single disposal path — ExitApplication calls Shutdown() which triggers this
         _keepAwake.Follow(false);   // IDEAS #46: Windows may sleep again

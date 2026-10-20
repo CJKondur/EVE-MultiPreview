@@ -59,6 +59,7 @@ public static class CharacterForget
             tm.ForgetPlaytime(name);   // IDEAS P11: the playtime, in the ledger and in playtime.json
             if (tm.IsExcludedFromCycle(name)) tm.ToggleCycleExclusion(name);
         }
+        else PlaytimeActions.Forget(ctx, name);   // IDEAS P11: no running app, the name still leaves playtime.json
         ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
         ctx.Host.Toast(string.Format(SettingsContext.Str("L.S.Character.Forgotten"), name));
         ctx.Host.Navigate(ClientsPages.CharactersId);

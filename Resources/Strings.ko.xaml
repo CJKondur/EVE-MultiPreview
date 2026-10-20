@@ -2732,7 +2732,7 @@
     <sys:String x:Key="L.S.Act.app.diagnostics.clearPlaytime.Confirm">모든 캐릭터의 집계된 플레이 시간을 삭제할까요? 되돌릴 수 없어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Playtime.Cleared">플레이 시간 내역을 지웠어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">주간 플레이 시간</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**캐릭터별 플레이 시간 집계**는 각 캐릭터의 클라이언트가 열려 있던 시간을 날마다 합산하고, 최근 2주 치를 보관해요. 미리보기의 텍스트 템플릿에 {week}를 넣으면 최근 7일간의 시간(예: 14 h, 2 h 5 m)을 표시해요.&#x0A;&#x0A;캐릭터 이름을 설정 폴더의 playtime.json 파일에 저장하기 때문에 기본값은 꺼짐이에요. 파일은 5분마다, 그리고 MultiPreview를 닫을 때 저장돼요. 버그 보고나 공유하는 코드에는 절대 포함되지 않고, 스위치가 꺼져 있으면 아무것도 읽거나 쓰지 않으며 {week}에는 아무것도 표시되지 않아요.&#x0A;&#x0A;캐릭터는 미리보기가 있는 동안 직접 플레이하는지와 관계없이 집계돼요. **플레이 시간 내역 지우기**는 파일과 합계를 바로 삭제해요. 캐릭터를 삭제하면 파일에서도 사라져요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**캐릭터별 플레이 시간 집계**는 각 캐릭터의 클라이언트가 열려 있던 시간을 날마다 합산하고, 최근 2주 치를 보관해요. 미리보기의 텍스트 템플릿에 {week}를 넣으면 최근 7일간의 시간(예: 14 h, 2 h 5 m)을 표시해요.&#x0A;&#x0A;캐릭터 이름을 설정 폴더의 playtime.json 파일에 저장하기 때문에 기본값은 꺼짐이에요. 파일은 5분마다, 그리고 MultiPreview를 닫을 때 저장돼요. 버그 보고나 공유하는 코드에는 절대 포함되지 않고, 스위치가 꺼져 있으면 아무것도 읽거나 쓰지 않으며 {week}에는 아무것도 표시되지 않아요.&#x0A;&#x0A;캐릭터는 미리보기가 있는 동안 직접 플레이하는지와 관계없이 집계돼요. **플레이 시간 내역 지우기**는 파일과 합계를 바로 삭제해요. 캐릭터를 삭제하면 파일에서도 사라져요.&#x0A;&#x0A;**플레이 시간 내역 지우기**와 캐릭터 삭제는 스위치가 꺼져 있어도 동작해요. 이때는 다른 어떤 기능도 건드리지 않는 파일을 열어요. 설정을 포터블 폴더와 AppData 사이에서 옮기면 예전 playtime.json은 그대로 남고, 지우기는 지금 사용 중인 폴더의 파일만 삭제해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.StatReport">세션 보고서</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Title">세션 보고서</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Characters">캐릭터</sys:String> <!-- draft -->

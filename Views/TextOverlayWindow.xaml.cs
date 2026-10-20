@@ -121,6 +121,9 @@ public partial class TextOverlayWindow : Window
     public void UpdateCharacterName(string name)
     {
         _rawName = name ?? "";
+        // Back at the login screen nobody is logged in: the last character's counts are not this thumbnail's (the manager
+        // sends none to a login screen, so nothing else would clear them). The next character's come with the next tick.
+        if (!ThumbnailMenu.HasCharacter(_rawName)) { _jumps = null; _week = null; }
         if (_template.Length > 0) { Compose(); return; }
         string shown = ShownName();
         if (!string.IsNullOrEmpty(shown))

@@ -2977,6 +2977,9 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>The local time the ledger takes its days from (a test hands in a fixed one).</summary>
     public Func<DateTime> PlaytimeClock { get; set; } = () => DateTime.Now;
 
+    /// <summary>The monotonic timestamp the tick measures time by, in <see cref="Stopwatch.Frequency"/> units (a test hands in a scripted one).</summary>
+    public Func<long> PlaytimeTimestamp { get; set; } = Stopwatch.GetTimestamp;
+
     private const int PlaytimeSaveSeconds = 300;
     private bool _playtimeLoaded, _playtimeDirty;
     private long _playtimeStamp;                 // Stopwatch timestamp of the previous tick, 0 before the first
@@ -2986,7 +2989,7 @@ public sealed class ThumbnailManager : IDisposable
     private void UpdatePlaytime()
     {
         if (!_settings.Settings.TrackPlaytime) { StopPlaytime(); return; }
-        long now = Stopwatch.GetTimestamp();
+        long now = PlaytimeTimestamp();
         double elapsed = _playtimeStamp == 0 ? 0 : Stopwatch.GetElapsedTime(_playtimeStamp, now).TotalSeconds;
         _playtimeStamp = now;
         TickPlaytime(elapsed);
@@ -3056,13 +3059,12 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (_playtimeLoaded)
         {
-            if (Playtime.Forget(name)) SavePlaytime();
+            // The file still holds the name until it is written: dirty, so a save that fails is tried again (the tick, the exit).
+            if (Playtime.Forget(name)) { _playtimeDirty = true; SavePlaytime(); }
             PushPlaytime();
             return;
         }
-        var file = new PlaytimeLedger(PlaytimeClock);
-        file.Import(PlaytimeFiles.Load());
-        if (file.Forget(name)) PlaytimeFiles.Save(file.Export());
+        PlaytimeFiles.Forget(name, PlaytimeClock);
     }
 
     /// <summary>Clear playtime history: the file (and the ones set aside) is deleted and the ledger emptied, whatever the switch says.</summary>

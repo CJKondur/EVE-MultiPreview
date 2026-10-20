@@ -2732,7 +2732,7 @@
     <sys:String x:Key="L.S.Act.app.diagnostics.clearPlaytime.Confirm">各キャラクターの記録済みプレイ時間を削除しますか？ この操作は元に戻せません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Playtime.Cleared">プレイ時間の履歴を消去しました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">週間プレイ時間</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**キャラクターごとのプレイ時間を記録**は、各キャラクターのクライアントが開いている時間を日ごとに合計し、直近 2 週間分を保持します。サムネイルのテキストテンプレートに {week} を入れると、直近 7 日間の合計（例：14 h、2 h 5 m）を表示できます。&#x0A;&#x0A;キャラクター名をファイル（設定フォルダーの playtime.json）に保存するため、既定ではオフです。ファイルは 5 分ごと、および MultiPreview の終了時に保存されます。バグ報告や共有するコードに含まれることはなく、スイッチがオフの間は何も読み書きされず、{week} は何も表示しません。&#x0A;&#x0A;キャラクターは、そのサムネイルがある間は、実際に操作しているかどうかにかかわらず数えられます。**プレイ時間の履歴を消去**は、ファイルと合計をすぐに削除します。キャラクターを削除すると、ファイルからも取り除かれます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**キャラクターごとのプレイ時間を記録**は、各キャラクターのクライアントが開いている時間を日ごとに合計し、直近 2 週間分を保持します。サムネイルのテキストテンプレートに {week} を入れると、直近 7 日間の合計（例：14 h、2 h 5 m）を表示できます。&#x0A;&#x0A;キャラクター名をファイル（設定フォルダーの playtime.json）に保存するため、既定ではオフです。ファイルは 5 分ごと、および MultiPreview の終了時に保存されます。バグ報告や共有するコードに含まれることはなく、スイッチがオフの間は何も読み書きされず、{week} は何も表示しません。&#x0A;&#x0A;キャラクターは、そのサムネイルがある間は、実際に操作しているかどうかにかかわらず数えられます。**プレイ時間の履歴を消去**は、ファイルと合計をすぐに削除します。キャラクターを削除すると、ファイルからも取り除かれます。&#x0A;&#x0A;**プレイ時間の履歴を消去**とキャラクターの削除は、スイッチがオフでも動作し、その場合は他の操作が一切触れないファイルを開きます。設定をポータブルフォルダーと AppData の間で移動すると、古い playtime.json は元の場所に残り、消去は現在使用中のフォルダーのファイルだけを削除します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.StatReport">セッションレポート</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Title">セッションレポート</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Characters">キャラクター</sys:String> <!-- draft -->

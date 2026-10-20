@@ -45,6 +45,7 @@ public sealed class AlertAttention
     {
         if (string.IsNullOrEmpty(character) || clientInFront) return false;
         var alert = new UnseenAlert(_utcNow(), character, eventKey ?? "", severity ?? "");
+        bool kept;
         lock (_lock)
         {
             if (!_byCharacter.TryGetValue(character, out var list))
@@ -52,10 +53,13 @@ public sealed class AlertAttention
                 _byCharacter[character] = list = new List<Held>();
                 Volatile.Write(ref _characters, _byCharacter.Count);
             }
-            list.Add(new Held(alert, ++_arrivals));
+            long arrival = ++_arrivals;
+            list.Add(new Held(alert, arrival));
             while (list.Count > MaxPerCharacter) list.RemoveAt(LeastSevere(list));
+            kept = list.Exists(h => h.Arrival == arrival);
         }
-        RaiseChanged();
+        // A lesser alert let go at once changes nothing the tray or a badge shows.
+        if (kept) RaiseChanged();
         return true;
     }
 

@@ -7,8 +7,11 @@ namespace EveMultiPreview.Services;
 /// character arrive in another system. The text template's {jumps} shows it. Cyno, wormhole and clone jumps are all a change
 /// of system, so they all count; a docking or an undock is no change of system and does not.
 /// Not a jump: the first system seen for a character (that is where it is), a system the character was already in (a second
-/// log file says it again), and any move from or to a blank system (nothing is known of the other end). Characters are
-/// matched ignoring letter case, systems too.
+/// log file says it again), and any move from or to a blank system (nothing is known of the other end). The first
+/// sighting can come with the system the monitor knew the character in before (a character that logs in after start-up has
+/// it set silently), and then the move is a jump from there. A backfill (the monitor stating where everyone is, at
+/// start-up or after a change of log folder) only sets where a character is. Characters are matched ignoring letter case,
+/// systems too.
 /// Per session: nothing here is written anywhere, no name is logged, and the count starts again at zero with the app.
 /// Fed on the log monitor's thread (<see cref="Moved"/>), read on the window's (<see cref="CountOf"/>), so it holds a lock.</summary>
 public sealed class JumpCounter
@@ -22,8 +25,11 @@ public sealed class JumpCounter
     private readonly object _gate = new();
     private readonly Dictionary<string, Place> _places = new(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>The log monitor saw the character in <paramref name="system"/>. Returns whether that counted as a jump.</summary>
-    public bool Moved(string? character, string? system)
+    /// <summary>The log monitor saw the character in <paramref name="system"/>. Returns whether that counted as a jump.
+    /// <paramref name="from"/> is where the monitor knew the character before, used only when the counter knows no place
+    /// for it yet. <paramref name="backfill"/>: the monitor is stating where the character is, not a move; it sets the
+    /// place and counts nothing.</summary>
+    public bool Moved(string? character, string? system, string? from = null, bool backfill = false)
     {
         if (string.IsNullOrWhiteSpace(character)) return false;
         system = string.IsNullOrWhiteSpace(system) ? "" : system;
@@ -31,7 +37,16 @@ public sealed class JumpCounter
         {
             if (!_places.TryGetValue(character, out var place))
             {
-                _places[character] = new Place { System = system };
+                if (backfill || string.IsNullOrWhiteSpace(from))
+                {
+                    _places[character] = new Place { System = system };
+                    return false;
+                }
+                _places[character] = place = new Place { System = from };
+            }
+            else if (backfill)
+            {
+                place.System = system;
                 return false;
             }
             bool jumped = place.System.Length > 0 && system.Length > 0

@@ -116,9 +116,14 @@ public partial class QuickSwitchWheel : Window
     public IReadOnlyList<(string Name, string System)> CardTexts =>
         _cards.OrderBy(c => c.Index).Select(c => (c.NameText.Text, c.SystemText.Visibility == Visibility.Visible ? c.SystemText.Text : "")).ToList();
 
-    /// <summary>The alert badge each card draws in slot order: its text and fill colour, "" and a clear colour where a card has none (tests).</summary>
-    public IReadOnlyList<(string Text, Color Colour)> CardBadges =>
-        _cards.OrderBy(c => c.Index).Select(c => c.BadgeText == null || c.BadgeDisc?.Fill is not SolidColorBrush fill ? ("", default(Color)) : (c.BadgeText.Text, fill.Color)).ToList();
+    /// <summary>The alert badge each card draws in slot order: its text, fill colour and ink, "" and clear colours where a card has none (tests).</summary>
+    public IReadOnlyList<(string Text, Color Colour, Color Ink)> CardBadges =>
+        _cards.OrderBy(c => c.Index).Select(c => c.BadgeText == null || c.BadgeDisc?.Fill is not SolidColorBrush fill || c.BadgeText.Foreground is not SolidColorBrush ink
+            ? ("", default(Color), default(Color)) : (c.BadgeText.Text, fill.Color, ink.Color)).ToList();
+
+    /// <summary>The height each card's content asks for in slot order (tests): it has to fit the card's height inside its padding and edge.</summary>
+    public IReadOnlyList<double> CardContentHeights =>
+        _cards.OrderBy(c => c.Index).Select(c => ((UIElement)c.Card.Child).DesiredSize.Height).ToList();
 
     /// <summary>Where the cards are (tests).</summary>
     public QuickSwitchLayout CardLayout => _layout;
@@ -264,19 +269,20 @@ public partial class QuickSwitchWheel : Window
 
     /// <summary>The badge: the count ("9+" over nine) on a disc in the colour the thumbnail would flash for that severity
     /// (AlertColours.Resolve, the severity's own: only the count and the top severity are known here). It holds a
-    /// number and no name, so streamer mode has nothing to mask in it. The ink is black or white, whichever reads on
-    /// the player's colour. It takes no clicks: a click on it is a click on the card.</summary>
+    /// number and no name, so streamer mode has nothing to mask in it. The ink is black or white, whichever has the
+    /// better contrast on the player's colour. It takes no clicks: a click on it is a click on the card.</summary>
     private static (Grid Badge, TextBlock Text, Ellipse Disc) CreateBadge((int Count, string Severity) alerts, AppSettings settings, double numberSize)
     {
         var fill = ThumbnailManager.ParseColor(AlertColours.Resolve(settings, "", alerts.Severity));
-        bool lightFill = 0.299 * fill.R + 0.587 * fill.G + 0.114 * fill.B > 150;
+        // Black where it reads better than white on the player's colour: by WCAG contrast, black wins above a relative luminance of 0.179.
+        bool lightFill = RelativeLuminance(fill) > 0.179;
         var disc = new Ellipse { Fill = new SolidColorBrush(fill) };
         var text = new TextBlock
         {
             Text = alerts.Count > 9 ? "9+" : alerts.Count.ToString(System.Globalization.CultureInfo.InvariantCulture),
             FontSize = numberSize - 1,
             FontWeight = FontWeights.Bold,
-            Foreground = new SolidColorBrush(ThumbnailManager.ParseColor(lightFill ? "0x101010" : "0xffffff")),
+            Foreground = lightFill ? System.Windows.Media.Brushes.Black : System.Windows.Media.Brushes.White,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
         };
@@ -290,6 +296,13 @@ public partial class QuickSwitchWheel : Window
             Children = { disc, text },
         };
         return (badge, text, disc);
+    }
+
+    /// <summary>WCAG's relative luminance of a colour (0 black, 1 white).</summary>
+    private static double RelativeLuminance(Color c)
+    {
+        static double Lin(byte v) { double x = v / 255.0; return x <= 0.03928 ? x / 12.92 : Math.Pow((x + 0.055) / 1.055, 2.4); }
+        return 0.2126 * Lin(c.R) + 0.7152 * Lin(c.G) + 0.0722 * Lin(c.B);
     }
 
     private static void SetLook(CardEntry e, CardLook look)

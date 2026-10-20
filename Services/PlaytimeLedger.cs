@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 
@@ -12,9 +13,13 @@ namespace EveMultiPreview.Services;
 /// reading earlier a second time in the repeated hour makes no new one. The week is the last seven local days including today;
 /// fourteen days are kept, older ones are dropped as they are met. An <see cref="Add"/> of nothing, of less, or of more than one
 /// tick of the app's timer (<see cref="MaxAddSeconds"/>) is ignored: that is a PC that slept or a clock that was stepped, not
-/// time played. A day that has not come yet (the clock was set back) is kept and left out of the week. At most
-/// <see cref="MaxCharacters"/> characters are kept, a day at most <see cref="MaxDaySeconds"/>. Names are matched ignoring case;
-/// the first spelling is the one kept.</summary>
+/// time played. A day that has not come yet (the clock was set back) is kept and left out of the week. A clock that
+/// jumps more than <see cref="MaxDayJump"/> days ahead of the last day taken as today is not believed: nothing is counted, pruned
+/// or rebased on it, so a tick at a wild date cannot drop the real week; it is believed after <see cref="BelieveAfterAdds"/>
+/// Adds in a row on it (a PC that slept for days, a date that was changed on purpose). At most
+/// <see cref="MaxCharacters"/> characters are kept, a day at most <see cref="MaxDaySeconds"/>. A name is at most
+/// <see cref="MaxNameLength"/> characters with no control character in it (the store would drop any other). Names are matched
+/// ignoring case; the first spelling is the one kept.</summary>
 public sealed class PlaytimeLedger
 {
     public const int MaxCharacters = 500;
@@ -25,8 +30,16 @@ public sealed class PlaytimeLedger
     /// <summary>The most one <see cref="Add"/> takes: the app's tick is one second, so a minute is already a long wait.</summary>
     public const int MaxAddSeconds = 60;
     public const int MaxDaySeconds = 86400;
+    /// <summary>The longest name kept, the store's limit too.</summary>
+    public const int MaxNameLength = 64;
+    /// <summary>A clock reading more than this many days past the last day taken as today is a jump, not a day.</summary>
+    public const int MaxDayJump = 2;
+    /// <summary>A far-ahead date is believed after this many Adds in a row on it (five minutes of play).</summary>
+    public const int BelieveAfterAdds = 300;
 
     private readonly Func<DateTime> _nowLocal;
+    private DateTime? _anchor;      // the last date taken as today
+    private int _farAdds;           // Adds in a row on a date that is far ahead of the anchor
     private readonly Dictionary<string, Day> _days = new(StringComparer.OrdinalIgnoreCase);
 
     private sealed class Day
@@ -40,18 +53,42 @@ public sealed class PlaytimeLedger
     /// <summary>The characters held.</summary>
     public int CharacterCount => _days.Count;
 
+    /// <summary>Whether the ledger and the store can keep this name (already trimmed).</summary>
+    public static bool IsKeptName([NotNullWhen(true)] string? name) =>
+        !string.IsNullOrEmpty(name) && name.Length <= MaxNameLength && !name.Any(char.IsControl);
+
+    /// <summary>The date to count on. A reading more than <see cref="MaxDayJump"/> days past the anchor is not believed: false,
+    /// with the anchor as <paramref name="today"/>, until <see cref="BelieveAfterAdds"/> counting calls in a row have been on it.
+    /// Any other reading is today, and the anchor never goes back (a clock set back keeps its days, and the real date is near
+    /// the anchor again).</summary>
+    private bool TryToday(bool counting, out DateTime today)
+    {
+        var now = _nowLocal().Date;
+        today = now;
+        if (_anchor is { } anchor && now > anchor.AddDays(MaxDayJump))
+        {
+            today = anchor;
+            if (!counting || ++_farAdds < BelieveAfterAdds) return false;
+            today = now;
+        }
+        _farAdds = 0;
+        _anchor = _anchor is { } a && a > now ? a : now;
+        return true;
+    }
+
     /// <summary>Counts <paramref name="seconds"/> for the character on today's local date. False when it was not counted: no
-    /// name, a time of nothing or less or over <see cref="MaxAddSeconds"/>, or a 501st character.</summary>
+    /// name, a name the store would not keep (over <see cref="MaxNameLength"/> characters, or with a control character), a time
+    /// of nothing or less or over <see cref="MaxAddSeconds"/>, a clock that jumped far ahead, or a 501st character.</summary>
     public bool Add(string? name, int seconds)
     {
         name = name?.Trim();
-        if (string.IsNullOrEmpty(name) || seconds <= 0 || seconds > MaxAddSeconds) return false;
+        if (!IsKeptName(name) || seconds <= 0 || seconds > MaxAddSeconds) return false;
+        if (!TryToday(counting: true, out var today)) return false;   // a far date, not believed yet
         if (!_days.TryGetValue(name, out var held))
         {
             if (_days.Count >= MaxCharacters) return false;
             _days[name] = held = new Day { Name = name };
         }
-        var today = _nowLocal().Date;
         Prune(held, today);
         held.Seconds[today] = Math.Min(MaxDaySeconds, held.Seconds.GetValueOrDefault(today) + seconds);
         return true;
@@ -62,7 +99,7 @@ public sealed class PlaytimeLedger
     {
         name = name?.Trim();
         if (string.IsNullOrEmpty(name) || !_days.TryGetValue(name, out var held)) return 0;
-        var today = _nowLocal().Date;
+        var today = _nowLocal().Date;   // a display: it follows the clock, nothing is changed by it
         var first = today.AddDays(1 - WeekDays);
         long sum = 0;
         foreach (var (day, seconds) in held.Seconds)
@@ -82,7 +119,7 @@ public sealed class PlaytimeLedger
     /// <summary>A copy of what is held, older days dropped, a character with no day left left out.</summary>
     public Dictionary<string, Dictionary<DateTime, int>> Export()
     {
-        var today = _nowLocal().Date;
+        TryToday(counting: false, out var today);
         var copy = new Dictionary<string, Dictionary<DateTime, int>>(StringComparer.OrdinalIgnoreCase);
         foreach (var held in _days.Values.ToList())
         {
@@ -97,11 +134,11 @@ public sealed class PlaytimeLedger
     /// nothing or less, a blank name and a 501st character are not taken.</summary>
     public void Import(Dictionary<string, Dictionary<DateTime, int>> data)
     {
-        var today = _nowLocal().Date;
+        TryToday(counting: false, out var today);
         foreach (var (given, days) in data)
         {
             var name = given?.Trim();
-            if (string.IsNullOrEmpty(name) || days == null) continue;
+            if (!IsKeptName(name) || days == null) continue;
             _days.TryGetValue(name, out var held);
             foreach (var (day, seconds) in days)
             {

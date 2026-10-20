@@ -138,6 +138,12 @@ public sealed class LogMonitorService : IDisposable
 
     // Events — matches what App.xaml.cs and ThumbnailManager expect
     public event Action<string, string>? SystemChanged;     // (characterName, systemName)
+    /// <summary>Raised just before <see cref="SystemChanged"/>, with where the character was: (characterName, fromSystem,
+    /// toSystem, backfill). A character that logs in after start-up has its system set silently when its log is first
+    /// read, so its first live move is the first event App sees for it; <c>from</c> is the system the monitor knew before
+    /// ("" when none), which is what a jump count needs as its starting point. <c>backfill</c> is true for the
+    /// re-statement of where every character is (start-up, a changed log folder): that is no move.</summary>
+    public event Action<string, string, string, bool>? SystemMoved;
     public event Action<DamageEvent>? DamageReceived;       // Player took damage
     public event Action<DamageEvent>? DamageDealt;          // Player dealt damage (for stat tracker)
     public event Action<RepairEvent>? RepairReceived;       // Player received remote repairs
@@ -2620,6 +2626,7 @@ public sealed class LogMonitorService : IDisposable
         _systemTimestamps[character] = DateTime.UtcNow;
 
         Debug.WriteLine($"[LogMonitor:System] 🌍 System changed: '{character}' → '{systemName}' (source: {source})");
+        SystemMoved?.Invoke(character, existingSystem, systemName, false);
         SystemChanged?.Invoke(character, systemName);
 
         // Fire system change alert if enabled
@@ -2885,6 +2892,7 @@ public sealed class LogMonitorService : IDisposable
     {
         foreach (var (character, systemName) in _characterSystems)
         {
+            SystemMoved?.Invoke(character, "", systemName, true);
             SystemChanged?.Invoke(character, systemName);
             Debug.WriteLine($"[LogMonitor:Flush] 🚀 Flushed system '{systemName}' for '{character}'");
         }

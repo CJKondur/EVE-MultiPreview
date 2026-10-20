@@ -2749,7 +2749,7 @@
     <sys:String x:Key="L.S.Act.app.diagnostics.clearPlaytime.Confirm">要删除为每个角色统计的游戏时长吗？此操作无法撤销。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Playtime.Cleared">已清除游戏时长记录。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">每周游戏时长</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**按角色统计游戏时长**会按天累计每个角色的客户端打开了多久，并保留最近两周的记录。在缩略图的文字模板中加入 {week}，就能显示最近 7 天的时长，例如 14 h 或 2 h 5 m。&#x0A;&#x0A;它默认关闭，因为它会把角色名称保存在设置文件夹里的 playtime.json 文件中。文件每五分钟保存一次，MultiPreview 关闭时也会保存。它绝不会出现在错误报告或你分享的代码里；开关关闭时不会读取或写入任何内容，{week} 也不显示任何内容。&#x0A;&#x0A;只要角色的缩略图存在就会计时，不管你是否正在玩它。**清除游戏时长记录**会立即删除文件和合计。忘记某个角色时，也会把它从文件中移除。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**按角色统计游戏时长**会按天累计每个角色的客户端打开了多久，并保留最近两周的记录。在缩略图的文字模板中加入 {week}，就能显示最近 7 天的时长，例如 14 h 或 2 h 5 m。&#x0A;&#x0A;它默认关闭，因为它会把角色名称保存在设置文件夹里的 playtime.json 文件中。文件每五分钟保存一次，MultiPreview 关闭时也会保存。它绝不会出现在错误报告或你分享的代码里；开关关闭时不会读取或写入任何内容，{week} 也不显示任何内容。&#x0A;&#x0A;只要角色的缩略图存在就会计时，不管你是否正在玩它。**清除游戏时长记录**会立即删除文件和合计。忘记某个角色时，也会把它从文件中移除。&#x0A;&#x0A;**清除游戏时长记录**和忘记角色在开关关闭时同样有效，此时它们会打开该文件，尽管其他操作都不会碰它。如果你在便携文件夹和 AppData 之间移动设置，旧的 playtime.json 会留在原处，清除只会删除当前使用的文件夹中的那一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.StatReport">会话报告</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Title">会话报告</sys:String> <!-- draft -->
     <sys:String x:Key="L.SessRpt.Characters">角色</sys:String> <!-- draft -->
