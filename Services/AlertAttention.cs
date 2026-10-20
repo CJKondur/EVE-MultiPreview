@@ -105,6 +105,19 @@ public sealed class AlertAttention
         lock (_lock) return _byCharacter.ContainsKey(character);
     }
 
+    /// <summary>One character's unseen alerts in a line (IDEAS P20, the wheel's badge): how many, and the severity of
+    /// the top-ranked one. Null when it has none. The count is what <see cref="MaxPerCharacter"/> let it keep.</summary>
+    public (int Count, string Severity)? For(string character)
+    {
+        if (string.IsNullOrEmpty(character) || Volatile.Read(ref _characters) == 0) return null;
+        lock (_lock)
+        {
+            if (!_byCharacter.TryGetValue(character, out var list) || list.Count == 0) return null;
+            var top = list.OrderByDescending(h => Rank(h.Alert.Severity)).ThenByDescending(h => h.Arrival).First();
+            return (list.Count, top.Alert.Severity);
+        }
+    }
+
     /// <summary>Every unseen alert, as a copy: the most severe first, and the newest first within one severity. Two
     /// alerts of one severity and one time are listed the later arrival first, so the order is the same at every look.</summary>
     public IReadOnlyList<UnseenAlert> Unseen()

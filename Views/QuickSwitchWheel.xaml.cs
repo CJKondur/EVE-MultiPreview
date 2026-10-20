@@ -6,14 +6,18 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using EveMultiPreview.Models;
 using EveMultiPreview.Services;
 using EveMultiPreview.SettingsUi;
 
+using Color          = System.Windows.Media.Color;
 using Cursors        = System.Windows.Input.Cursors;
 using FontFamily     = System.Windows.Media.FontFamily;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
 using KeyEventArgs   = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using Ellipse        = System.Windows.Shapes.Ellipse;
 using Panel          = System.Windows.Controls.Panel;
 using Point          = System.Windows.Point;
 using Size           = System.Windows.Size;
@@ -53,6 +57,8 @@ public partial class QuickSwitchWheel : Window
         public TextBlock NumberText { get; init; } = null!;
         public TextBlock NameText { get; init; } = null!;
         public TextBlock SystemText { get; init; } = null!;
+        public TextBlock? BadgeText { get; init; }   // the alert badge's count, null on a card with none
+        public Ellipse? BadgeDisc { get; init; }
         public int Index { get; set; }   // slot in the layout
     }
 
@@ -69,8 +75,12 @@ public partial class QuickSwitchWheel : Window
     // Public API
     // ─────────────────────────────────────────────────────────────────
 
-    /// <summary>Builds the cards, in this order, without showing the window (ShowWheel shows it; tests call this).</summary>
-    public void Populate(List<string> characters, Func<string, string?>? systemOf = null)
+    /// <summary>Builds the cards, in this order, without showing the window (ShowWheel shows it; tests call this).
+    /// <paramref name="alertOf"/> says how many alerts a character has not looked at and the top severity among them
+    /// (null: none); a card with some shows that as a badge in the severity's colour (<paramref name="settings"/> holds
+    /// the player's colours; the defaults when not handed in).</summary>
+    public void Populate(List<string> characters, Func<string, string?>? systemOf = null,
+        Func<string, (int Count, string Severity)?>? alertOf = null, AppSettings? settings = null)
     {
         _cards.Clear();
         ButtonCanvas.Children.Clear();
@@ -82,13 +92,14 @@ public partial class QuickSwitchWheel : Window
         ApplyLayout();
 
         for (int i = 0; i < characters.Count; i++)
-            CreateCard(characters[i], i, systemOf?.Invoke(characters[i]));
+            CreateCard(characters[i], i, systemOf?.Invoke(characters[i]), alertOf?.Invoke(characters[i]), settings);
         PositionAllCards();
     }
 
-    public void ShowWheel(List<string> characters, Func<string, string?>? systemOf = null)
+    public void ShowWheel(List<string> characters, Func<string, string?>? systemOf = null,
+        Func<string, (int Count, string Severity)?>? alertOf = null, AppSettings? settings = null)
     {
-        Populate(characters, systemOf);
+        Populate(characters, systemOf, alertOf, settings);
         Opacity = 0;
         Show();
         Focus();
@@ -104,6 +115,10 @@ public partial class QuickSwitchWheel : Window
     /// <summary>The name and the system each card draws, in slot order, "" where a card draws none (tests).</summary>
     public IReadOnlyList<(string Name, string System)> CardTexts =>
         _cards.OrderBy(c => c.Index).Select(c => (c.NameText.Text, c.SystemText.Visibility == Visibility.Visible ? c.SystemText.Text : "")).ToList();
+
+    /// <summary>The alert badge each card draws in slot order: its text and fill colour, "" and a clear colour where a card has none (tests).</summary>
+    public IReadOnlyList<(string Text, Color Colour)> CardBadges =>
+        _cards.OrderBy(c => c.Index).Select(c => c.BadgeText == null || c.BadgeDisc?.Fill is not SolidColorBrush fill ? ("", default(Color)) : (c.BadgeText.Text, fill.Color)).ToList();
 
     /// <summary>Where the cards are (tests).</summary>
     public QuickSwitchLayout CardLayout => _layout;
@@ -177,7 +192,7 @@ public partial class QuickSwitchWheel : Window
     // Card factory
     // ─────────────────────────────────────────────────────────────────
 
-    private void CreateCard(string name, int index, string? system)
+    private void CreateCard(string name, int index, string? system, (int Count, string Severity)? alerts, AppSettings? settings)
     {
         var numberText = new TextBlock { FontSize = 11 };
         numberText.SetResourceReference(TextBlock.FontFamilyProperty, "Fx.MonoFont");
@@ -211,6 +226,10 @@ public partial class QuickSwitchWheel : Window
             Visibility = string.IsNullOrWhiteSpace(shownSystem) ? Visibility.Collapsed : Visibility.Visible,
         };
         systemText.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
+        // IDEAS P20: the alert badge sits at the right end of the number's row (the row is there on a card without a number too)
+        var numberRow = new Grid { Children = { number } };
+        var (badge, badgeText, badgeDisc) = alerts is { Count: > 0 } a ? CreateBadge(a, settings ?? new AppSettings(), numberText.FontSize) : (null, null, null);
+        if (badge != null) numberRow.Children.Add(badge);
         var card = new Border
         {
             Width = QuickSwitchLayout.CardWidth,
@@ -218,10 +237,10 @@ public partial class QuickSwitchWheel : Window
             CornerRadius = new CornerRadius(8),
             BorderThickness = new Thickness(1),
             Padding = new Thickness(10, 8, 10, 8),
-            Child = new StackPanel { Children = { number, nameText, systemText } },
+            Child = new StackPanel { Children = { numberRow, nameText, systemText } },
         };
 
-        var entry = new CardEntry { Name = name, Card = card, Number = number, NumberText = numberText, NameText = nameText, SystemText = systemText, Index = index };
+        var entry = new CardEntry { Name = name, Card = card, Number = number, NumberText = numberText, NameText = nameText, SystemText = systemText, BadgeText = badgeText, BadgeDisc = badgeDisc, Index = index };
         SetLook(entry, CardLook.Normal);
         _cards.Add(entry);
 
@@ -241,6 +260,36 @@ public partial class QuickSwitchWheel : Window
         };
 
         ButtonCanvas.Children.Add(card);
+    }
+
+    /// <summary>The badge: the count ("9+" over nine) on a disc in the colour the thumbnail would flash for that severity
+    /// (AlertColours.Resolve, the severity's own: only the count and the top severity are known here). It holds a
+    /// number and no name, so streamer mode has nothing to mask in it. The ink is black or white, whichever reads on
+    /// the player's colour. It takes no clicks: a click on it is a click on the card.</summary>
+    private static (Grid Badge, TextBlock Text, Ellipse Disc) CreateBadge((int Count, string Severity) alerts, AppSettings settings, double numberSize)
+    {
+        var fill = ThumbnailManager.ParseColor(AlertColours.Resolve(settings, "", alerts.Severity));
+        bool lightFill = 0.299 * fill.R + 0.587 * fill.G + 0.114 * fill.B > 150;
+        var disc = new Ellipse { Fill = new SolidColorBrush(fill) };
+        var text = new TextBlock
+        {
+            Text = alerts.Count > 9 ? "9+" : alerts.Count.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            FontSize = numberSize - 1,
+            FontWeight = FontWeights.Bold,
+            Foreground = new SolidColorBrush(ThumbnailManager.ParseColor(lightFill ? "0x101010" : "0xffffff")),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        var badge = new Grid
+        {
+            Width = 16,
+            Height = 16,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Center,
+            IsHitTestVisible = false,
+            Children = { disc, text },
+        };
+        return (badge, text, disc);
     }
 
     private static void SetLook(CardEntry e, CardLook look)
