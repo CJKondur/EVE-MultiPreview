@@ -1368,7 +1368,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">클라이언트 통계</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">각 클라이언트가 사용하는 CPU, 메모리(RAM), 그래픽 메모리(VRAM)를 몇 초마다 갱신해 보여 줍니다. 버벅이는 클라이언트를 찾는 데 유용합니다. 트레이 메뉴의 **함대 현황판**은 모든 클라이언트를 한 표에 보여 줘요: 항성계, 세션 시간, 알림, CPU, RAM. 이 스위치가 꺼져 있어도 CPU와 RAM은 표시돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">테두리</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **강조 테두리**는 플레이 중인 클라이언트를 표시합니다. 변경 사항은 EVE로 돌아가면 나타납니다.&#x0A;- 나머지 클라이언트에는 **다른 클라이언트** 아래의 테두리가 적용됩니다. 색상을 비워 두면 테두리가 없습니다. **테두리 색상 자동 지정**이 켜져 있으면 고유 색상도 그룹 색상도 없는 캐릭터에게도 테두리가 적용됩니다.&#x0A;- 그룹은 구성원을 그룹 색으로 칠할 수 있습니다(클라이언트 › 그룹). **색상 그룹 안에서도 강조 유지**는 플레이 중인 클라이언트에 강조 색을 유지합니다.&#x0A;- 캐릭터 고유의 테두리 색은 해당 페이지에서 설정하며 **캐릭터별 색상 사용**이 켜져 있는 동안 쓰입니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **강조 테두리**는 플레이 중인 클라이언트를 표시합니다. 변경 사항은 EVE로 돌아가면 나타납니다.&#x0A;- 나머지 클라이언트에는 **다른 클라이언트** 아래의 테두리가 적용됩니다. 색상을 비워 두면 테두리가 없습니다. **테두리 색상 자동 지정**이 켜져 있으면 고유 색상도 그룹 색상도 없는 캐릭터에게도 테두리가 적용됩니다.&#x0A;- 그룹은 구성원을 그룹 색으로 칠할 수 있습니다(클라이언트 › 그룹). **색상 그룹 안에서도 강조 유지**는 플레이 중인 클라이언트에 강조 색을 유지합니다.&#x0A;- 캐릭터 고유의 테두리 색은 해당 페이지에서 설정하며 **캐릭터별 색상 사용**이 켜져 있는 동안 쓰입니다.&#x0A;- 포인터가 썸네일 위에 있을 때 **Alt**를 누르고 있으면 왜 그렇게 보이는지 알려줘요: 그룹, 활성 클라이언트인지, 진행 중인 알림과 남은 초, 확인하지 않은 알림, 순환 전환에서 제외됨, 음소거와 일시 중지, 응답 없음 또는 연결 끊김. 설정은 없고, EVE의 포커스를 빼앗지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">건너뛴 클라이언트 표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">순환에서 제외한 클라이언트(기본값은 Shift+클릭)는 빨간 ✕ 를 표시합니다. 미리보기의 어느 모서리나 가장자리에 둘지 고르세요.</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -2765,7 +2765,7 @@
     <sys:String x:Key="L.Fleet.Col.Alerts">알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Fleet.Tip.Since">MultiPreview가 캐릭터의 이 항성계 도착을 확인한 시각이에요. 시작할 때 이미 알던 항성계는 해당 캐릭터의 최신 Local 채팅 로그 시각이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">MultiPreview가 캐릭터의 이 항성계 도착을 확인한 시각이에요. 시작할 때 이미 알던 항성계는 ~ 표시가 붙은 시각이 해당 캐릭터의 Local 채팅 로그가 마지막으로 기록된 시각이고, 채팅 줄마다 뒤로 밀려서 실제 도착보다 늦을 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Alerts">MultiPreview를 시작한 뒤의 알림으로, 알림 기록에 저장된 것만 세요(모든 캐릭터의 최신 2000개이고, 기록이 꺼져 있으면 없어요).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Stats">썸네일 통계와 같은 모니터에서 몇 초마다 읽어요. 줄표(—)는 아직 측정값이 없다는 뜻이에요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Empty">로그인한 캐릭터가 있는 EVE 클라이언트가 열려 있지 않아요.</sys:String> <!-- draft -->
@@ -2789,4 +2789,7 @@
     <sys:String x:Key="L.Legend.HeldHidden">포커스 모드가 숨겨 두었어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.Nothing">특별한 것 없음: 이 썸네일에는 켜진 표시가 없어요</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.CustomEvent">사용자 지정 알림</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reading">통계 파일을 읽는 중이에요…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.SinceApprox">경과 시간: {0}. MultiPreview를 시작할 때 이미 이 항성계에 있었으니, 실제 도착은 표시된 시각보다 빠를 수 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.ActivePlain">활성 클라이언트</sys:String> <!-- draft -->
 </ResourceDictionary>

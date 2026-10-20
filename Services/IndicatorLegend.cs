@@ -39,6 +39,8 @@ public sealed record IndicatorSnapshot
     public string? GroupColour { get; init; }
 
     public bool Active { get; init; }
+    /// <summary>The active client has a highlighted border (the setting is on). The line mentions the border only then.</summary>
+    public bool ActiveBorderShown { get; init; } = true;
     public LegendAlert? Alert { get; init; }
     public int Unseen { get; init; }
     public bool CycleExcluded { get; init; }
@@ -82,7 +84,9 @@ public static class IndicatorLegend
         }
 
         if (s.Active)
-            lines.Add(new LegendLine(LegendKind.Active, LocalizationService.Str("L.Legend.Active", "Active client (highlighted border)")));
+            lines.Add(new LegendLine(LegendKind.Active, s.ActiveBorderShown
+                ? LocalizationService.Str("L.Legend.Active", "Active client (highlighted border)")
+                : LocalizationService.Str("L.Legend.ActivePlain", "Active client")));
 
         if (s.Alert is { } alert)
         {
@@ -143,6 +147,10 @@ public static class IndicatorLegend
     /// down. Alt is asked last, and only when the rest allows it.</summary>
     public static bool Wanted(bool pointerOver, bool dragging, bool menuOpen, Func<bool> altDown) =>
         pointerOver && !dragging && !menuOpen && altDown();
+
+    /// <summary>Whether the keyboard's Alt is the legend's key: Alt is down and Ctrl is not. AltGr reports both (Windows takes it
+    /// for Ctrl+Alt), and so would Ctrl+Alt, neither of which is a request for the legend.</summary>
+    public static bool AltOnly(bool altDown, bool ctrlDown) => altDown && !ctrlDown;
 
     /// <summary>Where the popup's top left corner goes: below and right of the pointer, on the other side of it where that
     /// would leave the work area, and never outside the work area (a popup larger than the area stands at its top left).</summary>

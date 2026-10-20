@@ -65,6 +65,7 @@ public sealed class LogMonitorService : IDisposable
     private readonly ConcurrentDictionary<string, string> _fileCharacterMap = new(StringComparer.OrdinalIgnoreCase); // filepath → character name
     private readonly ConcurrentDictionary<string, string> _characterSystems = new(); // char → system
     private readonly ConcurrentDictionary<string, DateTime> _systemTimestamps = new(); // char → last system change time (UTC, as the Local log file times it is compared with)
+    private readonly ConcurrentDictionary<string, byte> _systemSinceApproximate = new(); // chars whose _systemTimestamps value is a Local log's last-write time, not a jump seen live
 
     // ── System-change source arbitration (#98) ────────────────────────────
     // Two sources report the current system, and they disagree on TIMING:
@@ -1538,6 +1539,7 @@ public sealed class LogMonitorService : IDisposable
                                 {
                                     _characterSystems[firstReadChar] = lastSystem;
                                     _systemTimestamps[firstReadChar] = fileTime;
+                                    _systemSinceApproximate[firstReadChar] = 0;   // the file's last write moves on every chat line: later than the real arrival
                                     Debug.WriteLine($"[LogMonitor:Scan] 🗺️ Backfill system for '{firstReadChar}': '{lastSystem}' (file={Path.GetFileName(path)}, mtime={fileTime:HH:mm:ss})");
                                 }
                                 else
@@ -2624,6 +2626,7 @@ public sealed class LogMonitorService : IDisposable
 
         _characterSystems[character] = systemName;
         _systemTimestamps[character] = DateTime.UtcNow;
+        _systemSinceApproximate.TryRemove(character, out _);   // a jump seen live is exact
 
         Debug.WriteLine($"[LogMonitor:System] 🌍 System changed: '{character}' → '{systemName}' (source: {source})");
         SystemMoved?.Invoke(character, existingSystem, systemName, false);
@@ -2810,6 +2813,11 @@ public sealed class LogMonitorService : IDisposable
     /// ConcurrentDictionary, so any thread may ask while the log thread writes.</summary>
     public DateTime? GetSystemSinceUtc(string characterName) =>
         _systemTimestamps.TryGetValue(characterName, out var since) ? since : null;
+
+    /// <summary>Whether <see cref="GetSystemSinceUtc"/> is only an estimate for this character: it is the last-write time of the
+    /// Local chat log the start-up system was read from, which moves on every chat line, so the real arrival can be earlier. A
+    /// jump the monitor saw itself is exact (false).</summary>
+    public bool IsSystemSinceApproximate(string characterName) => _systemSinceApproximate.ContainsKey(characterName);
 
     public void Dispose() => Stop();
 

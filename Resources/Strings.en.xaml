@@ -1367,7 +1367,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Client stats</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">Shows how much CPU, memory (RAM) and graphics memory (VRAM) each client uses, updated every few seconds. Handy for spotting a client that's struggling. **Fleet board** in the tray menu lists every client in one table: system, session time, alerts, CPU and RAM. It shows CPU and RAM even with this switch off.</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Borders</sys:String>
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- The **highlight border** marks the client you're playing. Changes show when you go back to EVE.&#x0A;- Every other client gets the border under **Other clients**. Leave its colour empty for no border. With **Automatic border colours** on, a character with no colour of its own or from a group still gets one.&#x0A;- Groups can paint their members in the group colour (Clients › Groups). **Keep the highlight inside a coloured group** keeps the highlight colour on the client you're playing.&#x0A;- A character's own border colours are set on its page and used while **Use per-character colours** is on.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- The **highlight border** marks the client you're playing. Changes show when you go back to EVE.&#x0A;- Every other client gets the border under **Other clients**. Leave its colour empty for no border. With **Automatic border colours** on, a character with no colour of its own or from a group still gets one.&#x0A;- Groups can paint their members in the group colour (Clients › Groups). **Keep the highlight inside a coloured group** keeps the highlight colour on the client you're playing.&#x0A;- A character's own border colours are set on its page and used while **Use per-character colours** is on.&#x0A;- Hold **Alt** while the pointer is over a thumbnail to see why it looks the way it does: its group, whether it is the active client, a running alert and the seconds left, unseen alerts, left out of cycling, mute and snoozes, Not responding or Disconnected. No setting; it never takes focus from EVE.</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">The skipped-client mark</sys:String>
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">A client you take out of cycling (Shift+click by default) shows a red ✕. Choose which corner or edge of the thumbnail it sits on.</sys:String>
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -2764,7 +2764,7 @@
     <sys:String x:Key="L.Fleet.Col.Alerts">Alerts</sys:String>
     <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String>
     <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String>
-    <sys:String x:Key="L.Fleet.Tip.Since">When MultiPreview saw the character arrive in this system. For the system it already knew at start-up, the time of the character's latest Local chat log.</sys:String>
+    <sys:String x:Key="L.Fleet.Tip.Since">When MultiPreview saw the character arrive in this system. For the system it already knew at start-up, the time (marked ~) is the last write of the character's Local chat log, which moves on every chat line, so it can be later than the real arrival.</sys:String>
     <sys:String x:Key="L.Fleet.Tip.Alerts">Alerts since MultiPreview started, as the alert history holds them (the newest 2,000 of all characters, and none while the history is off).</sys:String>
     <sys:String x:Key="L.Fleet.Tip.Stats">Read from the same monitor as the thumbnails' stats, every few seconds. A dash means no reading yet.</sys:String>
     <sys:String x:Key="L.Fleet.Empty">No EVE client with a logged-in character is open.</sys:String>
@@ -2788,4 +2788,7 @@
     <sys:String x:Key="L.Legend.HeldHidden">Held hidden by focus mode</sys:String>
     <sys:String x:Key="L.Legend.Nothing">Nothing special: no indicator is on for this thumbnail</sys:String>
     <sys:String x:Key="L.Legend.CustomEvent">a custom alert</sys:String>
+    <sys:String x:Key="L.SessRpt.Reading">Reading the stat files…</sys:String>
+    <sys:String x:Key="L.Fleet.Tip.SinceApprox">Time since: {0}. The character was already here when MultiPreview started, so it may have arrived earlier than the time shown.</sys:String>
+    <sys:String x:Key="L.Legend.ActivePlain">Active client</sys:String>
 </ResourceDictionary>

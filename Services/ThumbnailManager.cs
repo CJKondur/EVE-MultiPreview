@@ -2758,12 +2758,20 @@ public sealed class ThumbnailManager : IDisposable
         var snoozes = who.Length == 0 ? Array.Empty<LegendSnooze>()
             : SnoozesOf(who).Select(n => new LegendSnooze(LegendEventOf(n.EventKey), n.UntilRestart, n.UntilRestart ? TimeSpan.Zero : n.UntilUtc - snoozeNow)).ToArray();
 
+        bool active = thumb.EveHwnd != IntPtr.Zero && thumb.EveHwnd == ActiveClient();
+        // The swatch is the group's colour only where the border really is that colour: a colour of the character's own wins over
+        // the group's, and the highlight can keep the active client out of it (BorderColorRule). Where they disagree, no swatch.
+        string? swatch = group != null && s.ShowAllColoredBorders
+            && string.Equals(BorderColorRule.Resolve(s, who, active, RunningCharacters), group.Color, StringComparison.OrdinalIgnoreCase)
+            ? group.Color : null;
+
         return new IndicatorSnapshot
         {
             Character = who,
             GroupName = group?.Name,
-            GroupColour = group != null && s.ShowAllColoredBorders ? group.Color : null,
-            Active = thumb.EveHwnd != IntPtr.Zero && thumb.EveHwnd == ActiveClient(),
+            GroupColour = swatch,
+            Active = active,
+            ActiveBorderShown = s.ShowClientHighlightBorder,
             Alert = alert,
             Unseen = who.Length == 0 ? 0 : Attention.For(who)?.Count ?? 0,
             CycleExcluded = IsExcludedFromCycle(who),
@@ -2777,11 +2785,84 @@ public sealed class ThumbnailManager : IDisposable
 
     private System.Windows.Window? _legendWindow;
     private ThumbnailWindow? _legendFor;
+    private string? _legendKey;   // what the popup says now (its heading, lines and swatches), to see whether a refresh changes it
+    private (double PointerX, double PointerY, double Left, double Top, double Right, double Bottom)? _legendAnchor;   // where it was placed from (DIPs)
 
     private void OnLegendWanted(ThumbnailWindow thumb, bool wanted)
     {
         if (wanted) ShowIndicatorLegend(thumb);
         else if (ReferenceEquals(_legendFor, thumb)) HideIndicatorLegend();
+    }
+
+    /// <summary>About once a second while the popup shows: its lines are made again from the state as it is now.</summary>
+    private void OnLegendRefresh(ThumbnailWindow thumb)
+    {
+        try { RefreshIndicatorLegend(thumb); }
+        catch (Exception ex)
+        {
+            HideIndicatorLegend();
+            ErrorLog.Shared.Record(new InvalidOperationException("The indicator legend could not be refreshed: " + ex.GetType().Name), "Thumbnails:Legend", DateTime.Now);
+        }
+    }
+
+    /// <summary>Makes the popup's lines again (SnapshotFor and Describe, on the clocks the manager has) and, only when the texts
+    /// differ from what it shows, puts them in the window: a countdown, an alert that began or ran out, a mute that ended. The
+    /// popup is not made again, so it neither flickers nor moves off the pointer. False: nothing changed, or no popup is up
+    /// for <paramref name="thumb"/>.</summary>
+    public bool RefreshIndicatorLegend(ThumbnailWindow thumb)
+    {
+        var window = _legendWindow;
+        if (window == null || !ReferenceEquals(_legendFor, thumb)) return false;
+        var panel = BuildLegendPanel(SnapshotFor(thumb), out var key);
+        if (key == _legendKey) return false;
+        _legendKey = key;
+        window.Content = panel;
+        PlaceLegend(window, panel);
+        return true;
+    }
+
+    /// <summary>The popup's contents, and a key that changes when any of its texts or swatches do.</summary>
+    private static System.Windows.Controls.StackPanel BuildLegendPanel(IndicatorSnapshot snapshot, out string key)
+    {
+        var panel = new System.Windows.Controls.StackPanel { Margin = new Thickness(8, 6, 8, 6) };
+        var keyed = new System.Text.StringBuilder();
+        var title = IndicatorLegend.Title(snapshot);
+        keyed.Append(title).Append('\n');
+        if (title.Length > 0)
+            panel.Children.Add(new System.Windows.Controls.TextBlock
+            {
+                Text = title, Foreground = System.Windows.Media.Brushes.White, FontSize = 12,
+                FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4),
+            });
+        foreach (var line in IndicatorLegend.Describe(snapshot))
+        {
+            keyed.Append(line.Colour).Append('|').Append(line.Text).Append('\n');
+            var row = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1) };
+            if (line.Colour is { } colour)
+                row.Children.Add(new System.Windows.Shapes.Rectangle
+                {
+                    Width = 10, Height = 10, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center,
+                    Fill = new System.Windows.Media.SolidColorBrush(ParseColor(colour)),
+                });
+            row.Children.Add(new System.Windows.Controls.TextBlock
+            {
+                Text = line.Text, Foreground = System.Windows.Media.Brushes.White, FontSize = 12,
+                TextWrapping = TextWrapping.Wrap, MaxWidth = 340,
+            });
+            panel.Children.Add(row);
+        }
+        key = keyed.ToString();
+        return panel;
+    }
+
+    /// <summary>Stands the popup where its pointer was when it came up, for the size its contents have now (no anchor: unchanged).</summary>
+    private void PlaceLegend(System.Windows.Window window, System.Windows.Controls.StackPanel panel)
+    {
+        if (_legendAnchor is not { } a) return;
+        panel.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+        var (x, y) = IndicatorLegend.Place(a.PointerX, a.PointerY, panel.DesiredSize.Width, panel.DesiredSize.Height, a.Left, a.Top, a.Right, a.Bottom);
+        window.Left = x;
+        window.Top = y;
     }
 
     /// <summary>The popup: a borderless, topmost window like the cursor note of <see cref="ShowTooltipFeedback"/>, and like it
@@ -2795,42 +2876,18 @@ public sealed class ThumbnailManager : IDisposable
             HideIndicatorLegend();
             if (ThumbnailWindow.MenuOpen || thumb.IsDragging) return;
 
-            var snapshot = SnapshotFor(thumb);
-            var panel = new System.Windows.Controls.StackPanel { Margin = new Thickness(8, 6, 8, 6) };
-            var title = IndicatorLegend.Title(snapshot);
-            if (title.Length > 0)
-                panel.Children.Add(new System.Windows.Controls.TextBlock
-                {
-                    Text = title, Foreground = System.Windows.Media.Brushes.White, FontSize = 12,
-                    FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4),
-                });
-            foreach (var line in IndicatorLegend.Describe(snapshot))
-            {
-                var row = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1) };
-                if (line.Colour is { } colour)
-                    row.Children.Add(new System.Windows.Shapes.Rectangle
-                    {
-                        Width = 10, Height = 10, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center,
-                        Fill = new System.Windows.Media.SolidColorBrush(ParseColor(colour)),
-                    });
-                row.Children.Add(new System.Windows.Controls.TextBlock
-                {
-                    Text = line.Text, Foreground = System.Windows.Media.Brushes.White, FontSize = 12,
-                    TextWrapping = TextWrapping.Wrap, MaxWidth = 340,
-                });
-                panel.Children.Add(row);
-            }
+            var panel = BuildLegendPanel(SnapshotFor(thumb), out var key);
 
             // Where: the cursor in physical pixels, the work area of its monitor, both in DIPs (as the cursor note does).
             var cursorPos = System.Windows.Forms.Cursor.Position;
             double dpi = Interop.DpiHelper.GetScaleFactorForPoint(cursorPos.X, cursorPos.Y);
             var area = System.Windows.Forms.Screen.FromPoint(cursorPos).WorkingArea;
             panel.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
-            var (x, y) = IndicatorLegend.Place(
-                Interop.DpiHelper.PhysicalToDip(cursorPos.X, dpi), Interop.DpiHelper.PhysicalToDip(cursorPos.Y, dpi),
-                panel.DesiredSize.Width, panel.DesiredSize.Height,
-                Interop.DpiHelper.PhysicalToDip(area.Left, dpi), Interop.DpiHelper.PhysicalToDip(area.Top, dpi),
-                Interop.DpiHelper.PhysicalToDip(area.Right, dpi), Interop.DpiHelper.PhysicalToDip(area.Bottom, dpi));
+            var anchor = (PointerX: Interop.DpiHelper.PhysicalToDip(cursorPos.X, dpi), PointerY: Interop.DpiHelper.PhysicalToDip(cursorPos.Y, dpi),
+                Left: Interop.DpiHelper.PhysicalToDip(area.Left, dpi), Top: Interop.DpiHelper.PhysicalToDip(area.Top, dpi),
+                Right: Interop.DpiHelper.PhysicalToDip(area.Right, dpi), Bottom: Interop.DpiHelper.PhysicalToDip(area.Bottom, dpi));
+            var (x, y) = IndicatorLegend.Place(anchor.PointerX, anchor.PointerY, panel.DesiredSize.Width, panel.DesiredSize.Height,
+                anchor.Left, anchor.Top, anchor.Right, anchor.Bottom);
 
             var window = new System.Windows.Window
             {
@@ -2855,6 +2912,8 @@ public sealed class ThumbnailManager : IDisposable
             };
             _legendWindow = window;
             _legendFor = thumb;
+            _legendKey = key;
+            _legendAnchor = anchor;
             window.Show();
         }
         catch (Exception ex)
@@ -2870,6 +2929,8 @@ public sealed class ThumbnailManager : IDisposable
         var window = _legendWindow;
         _legendWindow = null;
         _legendFor = null;
+        _legendKey = null;
+        _legendAnchor = null;
         try { window?.Close(); }
         catch (InvalidOperationException) { /* already closing */ }
     }
@@ -5080,6 +5141,7 @@ public sealed class ThumbnailManager : IDisposable
     {
         thumb.LabelEditRequested += OnLabelEditRequested;
         thumb.LegendWanted += OnLegendWanted;   // IDEAS #37
+        thumb.LegendRefreshWanted += OnLegendRefresh;
         thumb.AlertMuteRequested += OnAlertMuteRequested;
         thumb.AudioRequested += OnAudioRequested;
         thumb.CloseClientRequested += OnCloseClientRequested;
@@ -5100,6 +5162,7 @@ public sealed class ThumbnailManager : IDisposable
     {
         thumb.LabelEditRequested -= OnLabelEditRequested;
         thumb.LegendWanted -= OnLegendWanted;   // IDEAS #37
+        thumb.LegendRefreshWanted -= OnLegendRefresh;
         if (ReferenceEquals(_legendFor, thumb)) HideIndicatorLegend();   // a thumbnail that goes while its legend shows takes it away
         thumb.AlertMuteRequested -= OnAlertMuteRequested;
         thumb.AudioRequested -= OnAudioRequested;

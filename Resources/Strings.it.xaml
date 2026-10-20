@@ -1385,7 +1385,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Statistiche del client</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">Mostra quanta CPU, memoria (RAM) e memoria grafica (VRAM) usa ogni client, aggiornato ogni pochi secondi. Utile per individuare un client in difficoltà. **Pannello della flotta**, nel menu della barra di sistema, elenca ogni client in una tabella: sistema, tempo di sessione, avvisi, CPU e RAM. Mostra CPU e RAM anche con questo interruttore disattivato.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Bordi</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- Il **bordo di evidenziazione** segna il client con cui stai giocando. Le modifiche appaiono quando torni su EVE.&#x0A;- Ogni altro client riceve il bordo sotto **Altri client**. Lascia vuoto il colore per nessun bordo. Se **Colori del bordo automatici** è attivo, un personaggio senza un colore proprio o di gruppo riceve comunque un bordo.&#x0A;- I gruppi possono colorare i membri con il colore del gruppo (Client › Gruppi). **Mantieni l'evidenziazione in un gruppo colorato** mantiene il colore di evidenziazione sul client con cui stai giocando.&#x0A;- I colori di bordo propri di un personaggio si impostano nella sua pagina e valgono finché **Usa colori per personaggio** è attivo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- Il **bordo di evidenziazione** segna il client con cui stai giocando. Le modifiche appaiono quando torni su EVE.&#x0A;- Ogni altro client riceve il bordo sotto **Altri client**. Lascia vuoto il colore per nessun bordo. Se **Colori del bordo automatici** è attivo, un personaggio senza un colore proprio o di gruppo riceve comunque un bordo.&#x0A;- I gruppi possono colorare i membri con il colore del gruppo (Client › Gruppi). **Mantieni l'evidenziazione in un gruppo colorato** mantiene il colore di evidenziazione sul client con cui stai giocando.&#x0A;- I colori di bordo propri di un personaggio si impostano nella sua pagina e valgono finché **Usa colori per personaggio** è attivo.&#x0A;- Tieni premuto **Alt** mentre il puntatore è sopra una miniatura per vedere perché ha quell'aspetto: il suo gruppo, se è il client attivo, un avviso in corso con i secondi rimasti, gli avvisi non visti, l'esclusione dal ciclo, il silenziamento e gli avvisi posticipati, Non risponde o Disconnesso. Nessuna impostazione; non toglie mai il focus a EVE.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">Il segno del client saltato</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">Un client che togli dalla rotazione (Maiusc+clic per impostazione predefinita) mostra una ✕ rossa. Scegli in quale angolo o bordo della miniatura si trova.</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -2782,7 +2782,7 @@
     <sys:String x:Key="L.Fleet.Col.Alerts">Avvisi</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Fleet.Tip.Since">Quando MultiPreview ha visto il personaggio arrivare in questo sistema. Per il sistema già noto all'avvio: l'ora dell'ultimo log della chat Local del personaggio.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">Quando MultiPreview ha visto il personaggio arrivare in questo sistema. Per il sistema già noto all'avvio, l'ora (contrassegnata da ~) è l'ultima scrittura del log della chat Local del personaggio; avanza a ogni riga di chat, quindi può essere successiva all'arrivo reale.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Alerts">Avvisi dall'avvio di MultiPreview, come li conserva la cronologia degli avvisi (i 2.000 più recenti di tutti i personaggi, e nessuno finché la cronologia è disattivata).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Stats">Letto dallo stesso monitor delle statistiche delle miniature, ogni pochi secondi. Un trattino significa che non c'è ancora una lettura.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Empty">Nessun client EVE con un personaggio connesso è aperto.</sys:String> <!-- draft -->
@@ -2798,12 +2798,15 @@
     <sys:String x:Key="L.Legend.NotLoggedIn">Non connesso (schermata di selezione del personaggio)</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.Muted">Avvisi silenziati, ancora {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.MutedCleared">Avvisi silenziati finché non li riattivi o MultiPreview si riavvia</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Legend.Snoozed">Rimandato: {0}, ancora {1}</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Legend.SnoozedRestart">Rimandato: {0}, fino al riavvio di MultiPreview</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Legend.SnoozedMore">e altri {0} eventi rimandati</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Snoozed">Posticipato: {0}, ancora {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedRestart">Posticipato: {0}, fino al riavvio di MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedMore">e altri {0} eventi posticipati</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.NotResponding">Non risponde: Windows indica che il client non risponde più</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.Disconnected">Disconnesso: il client ha perso il collegamento con il server</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.HeldHidden">Nascosta dalla modalità focus</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.Nothing">Niente di particolare: nessun indicatore è attivo su questa miniatura</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.CustomEvent">un avviso personalizzato</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reading">Lettura dei file di statistiche…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.SinceApprox">Tempo trascorso: {0}. Il personaggio era già qui all'avvio di MultiPreview, quindi potrebbe essere arrivato prima dell'ora mostrata.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.ActivePlain">Client attivo</sys:String> <!-- draft -->
 </ResourceDictionary>

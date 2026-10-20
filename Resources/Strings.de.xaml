@@ -1367,7 +1367,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">Client-Statistik</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">Zeigt, wie viel CPU, Arbeitsspeicher (RAM) und Grafikspeicher (VRAM) jeder Client nutzt, alle paar Sekunden aktualisiert. Praktisch, um einen Client zu erkennen, der Probleme hat. **Flottenübersicht** im Tray-Menü listet jeden Client in einer Tabelle: System, Sitzungszeit, Alarme, CPU und RAM. CPU und RAM zeigt sie auch bei ausgeschaltetem Schalter.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">Rahmen</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- Der **Hervorhebungsrahmen** markiert den Client, den du spielst. Änderungen zeigen sich, wenn du zu EVE zurückkehrst.&#x0A;- Jeder andere Client erhält den Rahmen unter **Andere Clients**. Lass die Farbe leer für keinen Rahmen. Ist **Automatische Rahmenfarben** aktiviert, bekommt ein Charakter ohne eigene Farbe oder Gruppenfarbe trotzdem einen Rahmen.&#x0A;- Gruppen können ihre Mitglieder in der Gruppenfarbe zeichnen (Clients › Gruppen). **Hervorhebung in farbiger Gruppe beibehalten** behält die Hervorhebungsfarbe beim Client, den du spielst.&#x0A;- Die eigenen Rahmenfarben eines Charakters werden auf dessen Seite festgelegt und gelten, solange **Farben pro Charakter verwenden** aktiv ist.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- Der **Hervorhebungsrahmen** markiert den Client, den du spielst. Änderungen zeigen sich, wenn du zu EVE zurückkehrst.&#x0A;- Jeder andere Client erhält den Rahmen unter **Andere Clients**. Lass die Farbe leer für keinen Rahmen. Ist **Automatische Rahmenfarben** aktiviert, bekommt ein Charakter ohne eigene Farbe oder Gruppenfarbe trotzdem einen Rahmen.&#x0A;- Gruppen können ihre Mitglieder in der Gruppenfarbe zeichnen (Clients › Gruppen). **Hervorhebung in farbiger Gruppe beibehalten** behält die Hervorhebungsfarbe beim Client, den du spielst.&#x0A;- Die eigenen Rahmenfarben eines Charakters werden auf dessen Seite festgelegt und gelten, solange **Farben pro Charakter verwenden** aktiv ist.&#x0A;- Halte **Alt** gedrückt, während der Zeiger über einem Vorschaubild steht, um zu sehen, warum es so aussieht: seine Gruppe, ob es der aktive Client ist, ein laufender Alarm mit den verbleibenden Sekunden, ungesehene Alarme, aus dem Durchschalten ausgenommen, Stummschaltung und Zurückstellungen, Reagiert nicht oder Getrennt. Keine Einstellung; EVE verliert dadurch nie den Fokus.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">Die Markierung für übersprungene Clients</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">Ein Client, den du aus dem Wechsel nimmst (standardmäßig Shift+Klick), zeigt ein rotes ✕. Wähle, an welcher Ecke oder Kante der Vorschau es sitzt.</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -2764,7 +2764,7 @@
     <sys:String x:Key="L.Fleet.Col.Alerts">Alarme</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Fleet.Tip.Since">Wann MultiPreview gesehen hat, dass der Charakter in dieses System gekommen ist. Beim System, das schon beim Start bekannt war: der Zeitpunkt des letzten Local-Chatlogs des Charakters.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">Wann MultiPreview gesehen hat, dass der Charakter in dieses System gekommen ist. Beim System, das schon beim Start bekannt war, ist die Zeit (mit ~ markiert) die letzte Änderung des Local-Chatlogs des Charakters. Sie rückt mit jeder Chatzeile weiter und kann deshalb später sein als die tatsächliche Ankunft.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Alerts">Alarme seit dem Start von MultiPreview, so wie der Alarmverlauf sie führt (die neuesten 2.000 aller Charaktere, und keine, solange der Verlauf aus ist).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Stats">Kommt vom selben Monitor wie die Statistik auf den Vorschaubildern und wird alle paar Sekunden aktualisiert. Ein Strich bedeutet: noch kein Messwert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Empty">Es ist kein EVE-Client mit angemeldetem Charakter geöffnet.</sys:String> <!-- draft -->
@@ -2780,12 +2780,15 @@
     <sys:String x:Key="L.Legend.NotLoggedIn">Nicht angemeldet (Charakterauswahl)</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.Muted">Alarme stummgeschaltet, noch {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.MutedCleared">Alarme stummgeschaltet, bis du sie wieder einschaltest oder MultiPreview neu startet</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Legend.Snoozed">Pausiert: {0}, noch {1}</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Legend.SnoozedRestart">Pausiert: {0}, bis MultiPreview neu startet</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Legend.SnoozedMore">und {0} weitere pausierte Ereignisse</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Snoozed">Zurückgestellt: {0}, noch {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedRestart">Zurückgestellt: {0}, bis MultiPreview neu startet</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedMore">und {0} weitere zurückgestellte Ereignisse</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.NotResponding">Reagiert nicht: Windows meldet, dass der Client nicht mehr antwortet</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.Disconnected">Getrennt: Der Client hat die Verbindung zum Server verloren</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.HeldHidden">Vom Fokusmodus ausgeblendet gehalten</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.Nothing">Nichts Besonderes: Für dieses Vorschaubild ist keine Anzeige aktiv</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.CustomEvent">ein eigener Alarm</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reading">Statistikdateien werden gelesen…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.SinceApprox">Zeit seitdem: {0}. Der Charakter war schon hier, als MultiPreview startete, und kann deshalb früher als zur angezeigten Zeit angekommen sein.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.ActivePlain">Aktiver Client</sys:String> <!-- draft -->
 </ResourceDictionary>

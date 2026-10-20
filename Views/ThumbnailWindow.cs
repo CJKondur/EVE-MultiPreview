@@ -1090,11 +1090,23 @@ public class ThumbnailWindow : Form
     /// Raised only when that changes; the manager draws the popup.</summary>
     public event Action<ThumbnailWindow, bool>? LegendWanted;
 
+    /// <summary>Raised about once a second while the legend shows, so the manager can redraw it when what it says has changed (a
+    /// countdown, an alert that began or ended meanwhile). The legend's own timer carries it; there is no second one.</summary>
+    public event Action<ThumbnailWindow>? LegendRefreshWanted;
+
+    /// <summary>Legend timer ticks (120 ms each) between two <see cref="LegendRefreshWanted"/>: about a second.</summary>
+    public const int LegendRefreshTicks = 8;
+
     private System.Windows.Forms.Timer? _legendTimer;   // exists only while the pointer is on this thumbnail
     private bool _legendShown;
+    private int _legendAge;   // ticks since the legend was shown or last refreshed
 
-    /// <summary>Whether Alt (VK_MENU) is down. A test says it in the keyboard's place.</summary>
-    protected virtual bool AltHeld() => User32.IsKeyDown(0x12);
+    /// <summary>Whether Alt (VK_MENU) is down on its own. AltGr is Ctrl+Alt to Windows and types a character on many keyboards, so
+    /// Ctrl+Alt is not the legend's key. A test says it in the keyboard's place.</summary>
+    protected virtual bool AltHeld() => IndicatorLegend.AltOnly(User32.IsKeyDown(0x12), User32.IsKeyDown(0x11));
+
+    /// <summary>Whether this thumbnail is shown (a hidden one has no legend). A test says it in the window's place.</summary>
+    protected virtual bool OnScreen() => Visible;
 
     /// <summary>Whether the pointer is inside this window. A test says it in the mouse's place.</summary>
     protected virtual bool CursorOnMe() => base.Bounds.Contains(Cursor.Position);
@@ -1118,15 +1130,21 @@ public class ThumbnailWindow : Form
     private void LegendTick()
     {
         // The pointer is gone and WinForms never said so (what EnsureHoverStateValid covers for the hover zoom): the watch ends.
-        if (!_isMouseOver || !CursorOnMe()) { StopLegendWatch(); return; }
+        if (!_isMouseOver || !CursorOnMe() || !OnScreen()) { StopLegendWatch(); return; }
         // A drag or an open menu hides the legend, and the keyboard is not read meanwhile; the watch itself stays until the pointer leaves.
         SetLegend(IndicatorLegend.Wanted(_isMouseOver, _dragMode != DragMode.None || _isDragging, MenuOpen, AltHeld));
+        if (_legendShown && ++_legendAge >= LegendRefreshTicks)
+        {
+            _legendAge = 0;
+            LegendRefreshWanted?.Invoke(this);
+        }
     }
 
     private void SetLegend(bool on)
     {
         if (_legendShown == on) return;
         _legendShown = on;
+        _legendAge = 0;
         LegendWanted?.Invoke(this, on);
     }
 

@@ -1385,7 +1385,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">客户端统计</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">显示每个客户端占用的 CPU、内存（RAM）和显存（VRAM），每隔几秒更新一次。便于发现卡顿的客户端。 托盘菜单中的 **舰队面板** 把所有客户端列在一张表里：星系、会话时间、警报、CPU 和 RAM。即使此开关关闭，它也会显示 CPU 和 RAM。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">边框</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **高亮边框**标出你正在玩的客户端。更改会在你返回 EVE 时显示。&#x0A;- 其他每个客户端使用**其他客户端**下设置的边框。颜色留空则无边框。开启**自动边框颜色**后，没有自己的颜色也没有分组颜色的角色仍会得到边框。&#x0A;- 分组可以用分组颜色绘制其成员（客户端 › 分组）。**在彩色分组内保留高亮**会让你正在玩的客户端保留高亮颜色。&#x0A;- 角色自己的边框颜色在其页面中设置，并在开启**使用每个角色的专属颜色**时生效。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **高亮边框**标出你正在玩的客户端。更改会在你返回 EVE 时显示。&#x0A;- 其他每个客户端使用**其他客户端**下设置的边框。颜色留空则无边框。开启**自动边框颜色**后，没有自己的颜色也没有分组颜色的角色仍会得到边框。&#x0A;- 分组可以用分组颜色绘制其成员（客户端 › 分组）。**在彩色分组内保留高亮**会让你正在玩的客户端保留高亮颜色。&#x0A;- 角色自己的边框颜色在其页面中设置，并在开启**使用每个角色的专属颜色**时生效。&#x0A;- 在指针位于缩略图上时按住 **Alt**，即可查看它为何是现在的样子：所属分组、是否为当前客户端、正在进行的警报及剩余秒数、未查看的警报、已排除出循环切换、静音与延后、未响应或已断开连接。这不是设置项，也不会从 EVE 抢走焦点。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">已跳过客户端的标记</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">被你移出循环切换的客户端（默认 Shift+点击）会显示红色 ✕。可选择它位于缩略图的哪个角或哪条边。</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -2782,7 +2782,7 @@
     <sys:String x:Key="L.Fleet.Col.Alerts">警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Fleet.Tip.Since">MultiPreview 发现角色进入该星系的时间。对于启动时就已知的星系，则是该角色最新的本地频道聊天日志的时间。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">MultiPreview 发现角色进入该星系的时间。对于启动时就已知的星系，所示时间（带 ~ 标记）是该角色本地频道聊天日志的最后写入时间，每出现一行聊天都会更新，因此可能晚于实际到达时间。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Alerts">自 MultiPreview 启动以来的警报，以警报历史记录所保存的为准（所有角色最新的 2000 条；历史记录关闭时没有）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Stats">与缩略图统计使用同一个监视器，每隔几秒更新一次。显示短横线表示暂无读数。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Empty">没有已登录角色的 EVE 客户端处于打开状态。</sys:String> <!-- draft -->
@@ -2806,4 +2806,7 @@
     <sys:String x:Key="L.Legend.HeldHidden">被专注模式隐藏</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.Nothing">没有特别之处：这个缩略图上没有任何指示</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.CustomEvent">一个自定义警报</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reading">正在读取统计文件…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.SinceApprox">已过去：{0}。MultiPreview 启动时该角色就已在此，因此实际到达时间可能早于所示时间。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.ActivePlain">当前客户端</sys:String> <!-- draft -->
 </ResourceDictionary>

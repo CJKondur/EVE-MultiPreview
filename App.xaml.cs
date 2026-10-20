@@ -2424,7 +2424,8 @@ public partial class App : Application
                     _alertHistory?.Recent() ?? Array.Empty<AlertHistoryEntry>(),
                     name => _logMonitor?.GetCharacterSystem(name),
                     name => _logMonitor?.GetSystemSinceUtc(name),
-                    pid => _processMonitor?.GetStats(pid)),
+                    pid => _processMonitor?.GetStats(pid),
+                    name => _logMonitor?.IsSystemSinceApproximate(name) ?? false),
                 // The type only: an exception's message may hold a character's name, and the error log writes messages.
                 Failed = type => ErrorLog.Shared.Record(new InvalidOperationException("the fleet board refresh failed: " + type), "FleetBoard", DateTime.Now),
             });

@@ -40,9 +40,37 @@ public sealed class FleetBoardWindow : Window
     /// <summary>The seconds between two refreshes while the window is open.</summary>
     public const int RefreshSeconds = 1;
 
+    /// <summary>One line of the table. It keeps its place in the grid while its row changes (<see cref="Update"/>), so the cells are
+    /// not made again every second: a tooltip that is open stays open, and the scroll position and the chosen line stay.</summary>
+    private sealed class RowView : INotifyPropertyChanged
+    {
+        public FleetBoardRow Row { get; private set; }
+        public RowView(FleetBoardRow row) => Row = row;
+
+        public string Name => Row.Name;
+        public string System => Row.System;
+        public string SinceText => Row.SinceText;
+        public string SinceTip => Row.SinceTip;
+        public string SessionText => Row.SessionText;
+        public string LastAlertText => Row.LastAlertText;
+        public int Alerts => Row.Alerts;
+        public string CpuText => Row.CpuText;
+        public string RamText => Row.RamText;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public void Update(FleetBoardRow row)
+        {
+            if (Row == row) return;
+            Row = row;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(string.Empty));   // empty name: every property
+        }
+    }
+
     private readonly FleetBoardActions _do;
     private readonly DataGrid _grid = new();
-    private readonly ObservableCollection<FleetBoardRow> _rows = new();
+    private readonly ObservableCollection<RowView> _rows = new();
+    private readonly Dictionary<FleetBoardColumn, string> _headNames = new();   // each header without its sort arrow
     private readonly TextBlock _empty;
     private readonly DispatcherTimer _timer;
     private bool _closed;
@@ -119,6 +147,8 @@ public sealed class FleetBoardWindow : Window
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(RefreshSeconds) };
         _timer.Tick += (_, _) => Refresh();
         Closed += (_, _) => { _closed = true; _timer.Stop(); };
+        StateChanged += (_, _) => SyncTimer();
+        IsVisibleChanged += (_, _) => SyncTimer();
         Refresh();
         _timer.Start();
     }
@@ -126,7 +156,7 @@ public sealed class FleetBoardWindow : Window
     // ── What tests read ──
 
     /// <summary>The rows as the table holds them, in the order shown.</summary>
-    public IReadOnlyList<FleetBoardRow> Rows => _rows.ToList();
+    public IReadOnlyList<FleetBoardRow> Rows => _rows.Select(v => v.Row).ToList();
 
     /// <summary>The line about no one to list, or "" while there are rows.</summary>
     public string EmptyText => _empty.Visibility == Visibility.Visible ? _empty.Text : "";
@@ -136,6 +166,19 @@ public sealed class FleetBoardWindow : Window
 
     /// <summary>Whether the one-second timer runs: only while the window is open.</summary>
     public bool TimerRunning => _timer.IsEnabled;
+
+    /// <summary>The column headers as they are drawn: the name, and an arrow after the one the table is sorted by.</summary>
+    public IReadOnlyList<string> HeaderTexts => _grid.Columns.Select(c => ((TextBlock)c.Header).Text).ToList();
+
+    /// <summary>The timer runs only while the window can be seen: not minimised, not hidden. It refreshes at once when it starts
+    /// again, so what the player sees on restoring it is not a second old.</summary>
+    private void SyncTimer()
+    {
+        if (_closed) return;
+        bool seen = IsVisible && WindowState != WindowState.Minimized;
+        if (!seen) _timer.Stop();
+        else if (!_timer.IsEnabled) { Refresh(); _timer.Start(); }
+    }
 
     // ── Sorting ──
 
@@ -148,12 +191,17 @@ public sealed class FleetBoardWindow : Window
         Refresh();
     }
 
+    /// <summary>The sorted column gets WPF's arrow and, in its header text, \u25B2 or \u25BC: the built-in arrow is drawn in a fixed colour
+    /// and can vanish on a dark header.</summary>
     private void MarkSortedColumn()
     {
         foreach (var c in _grid.Columns)
-            c.SortDirection = c.Header is FrameworkElement { Tag: FleetBoardColumn column } && column == SortColumn
-                ? (Descending ? ListSortDirection.Descending : ListSortDirection.Ascending)
-                : null;
+        {
+            bool sorted = c.Header is FrameworkElement { Tag: FleetBoardColumn column } && column == SortColumn;
+            c.SortDirection = sorted ? (Descending ? ListSortDirection.Descending : ListSortDirection.Ascending) : null;
+            if (c.Header is TextBlock { Tag: FleetBoardColumn own } head)
+                head.Text = _headNames[own] + (sorted ? (Descending ? " \u25BC" : " \u25B2") : "");
+        }
     }
 
     // ── Refreshing ──
@@ -179,18 +227,34 @@ public sealed class FleetBoardWindow : Window
     /// <summary>Streamer mode was switched on or off: the table is drawn again now, not at the next second.</summary>
     public void RefreshStreamerMask() => Refresh();
 
-    /// <summary>Puts the new rows in place of the old one by one, so the scroll position and the chosen row stay (a new item
-    /// source would send the table back to the top every second).</summary>
+    /// <summary>Gives each new row to the line that already shows that character (by the name as drawn) and puts the lines in the
+    /// new order, so a cell, its tooltip, the scroll position and the chosen line stay (a new item source, or a new line for a
+    /// changed row, would redo them every second).</summary>
     private void Fill(IReadOnlyList<FleetBoardRow> rows)
     {
-        var chosen = (_grid.SelectedItem as FleetBoardRow)?.Name;
-        for (int i = 0; i < rows.Count; i++)
+        var chosen = (_grid.SelectedItem as RowView)?.Row.Name;
+        var pool = _rows.ToList();
+        var target = new List<RowView>(rows.Count);
+        foreach (var row in rows)
         {
-            if (i >= _rows.Count) _rows.Add(rows[i]);
-            else if (_rows[i] != rows[i]) _rows[i] = rows[i];
+            int at = pool.FindIndex(v => v.Row.Name == row.Name);
+            RowView view;
+            if (at >= 0) { view = pool[at]; pool.RemoveAt(at); view.Update(row); }
+            else view = new RowView(row);
+            target.Add(view);
         }
-        while (_rows.Count > rows.Count) _rows.RemoveAt(_rows.Count - 1);
-        if (chosen != null) _grid.SelectedItem = _rows.FirstOrDefault(r => r.Name == chosen);
+        foreach (var gone in pool) _rows.Remove(gone);
+        for (int i = 0; i < target.Count; i++)
+        {
+            if (i >= _rows.Count) _rows.Add(target[i]);
+            else if (!ReferenceEquals(_rows[i], target[i]))
+            {
+                int from = _rows.IndexOf(target[i]);   // never before i: those places are settled
+                if (from < 0) _rows.Insert(i, target[i]);
+                else _rows.Move(from, i);
+            }
+        }
+        if (chosen != null && _grid.SelectedItem == null) _grid.SelectedItem = _rows.FirstOrDefault(v => v.Row.Name == chosen);
         _empty.Visibility = _rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -217,6 +281,7 @@ public sealed class FleetBoardWindow : Window
     private void Add(FleetBoardColumn column, string key, string english, string property, double width, string? headerTip, string? cellTipProperty)
     {
         var header = new TextBlock { Text = Str(key, english), Tag = column, TextTrimming = TextTrimming.CharacterEllipsis };
+        _headNames[column] = header.Text;
         if (headerTip != null) header.ToolTip = headerTip;
         var cell = new Style(typeof(TextBlock));
         cell.Setters.Add(new Setter(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis));

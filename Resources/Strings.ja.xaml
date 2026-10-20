@@ -1368,7 +1368,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">クライアント統計</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">各クライアントが使用している CPU、メモリ（RAM）、グラフィックスメモリ（VRAM）の量を数秒ごとに更新して表示します。動作が重いクライアントを見つけるのに便利です。 トレイメニューの **フリートボード** は、すべてのクライアントを 1 つの表にまとめます：星系、セッション時間、アラート、CPU、RAM。このスイッチがオフでも CPU と RAM は表示されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">枠線</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **ハイライト枠**はプレイ中のクライアントを示します。変更は EVE に戻ると反映されます。&#x0A;- ほかのクライアントには **その他のクライアント** の枠が付きます。色を空にすると枠なしになります。**枠の色を自動で割り当てる**がオンの間は、自分の色もグループの色もないキャラクターにも枠が付きます。&#x0A;- グループはメンバーをグループの色で描けます（クライアント › グループ）。**色付きグループ内でもハイライトを維持**を使うと、プレイ中のクライアントはハイライトの色のままになります。&#x0A;- キャラクター固有の枠の色はそのページで設定し、**キャラクターごとの色を使う**がオンの間使われます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **ハイライト枠**はプレイ中のクライアントを示します。変更は EVE に戻ると反映されます。&#x0A;- ほかのクライアントには **その他のクライアント** の枠が付きます。色を空にすると枠なしになります。**枠の色を自動で割り当てる**がオンの間は、自分の色もグループの色もないキャラクターにも枠が付きます。&#x0A;- グループはメンバーをグループの色で描けます（クライアント › グループ）。**色付きグループ内でもハイライトを維持**を使うと、プレイ中のクライアントはハイライトの色のままになります。&#x0A;- キャラクター固有の枠の色はそのページで設定し、**キャラクターごとの色を使う**がオンの間使われます。&#x0A;- ポインターがサムネイルの上にあるときに **Alt** を押し続けると、そのサムネイルが今の見た目になっている理由が表示されます。グループ、アクティブなクライアントかどうか、実行中のアラートと残り秒数、未確認のアラート、巡回切り替えの対象外、ミュートとスヌーズ、応答なし、切断が対象です。設定はなく、EVE からフォーカスを奪うこともありません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">スキップ中クライアントのマーク</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">巡回から外したクライアント（既定では Shift+クリック）には赤い ✕ が表示されます。サムネイルのどの角または辺に置くかを選べます。</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -2765,7 +2765,7 @@
     <sys:String x:Key="L.Fleet.Col.Alerts">アラート</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Cpu">CPU</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Col.Ram">RAM</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Fleet.Tip.Since">MultiPreview がキャラクターのこの星系への到着を検知した時刻です。起動時にすでに分かっていた星系では、そのキャラクターの最新の Local チャットログの時刻になります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.Since">MultiPreview がキャラクターのこの星系への到着を検知した時刻です。起動時にすでに分かっていた星系では、~ 付きの時刻はそのキャラクターの Local チャットログの最終書き込み時刻で、チャットの行ごとに進むため、実際の到着より後になることがあります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Alerts">MultiPreview の起動後に発生したアラートで、アラート履歴に保存されているものです（全キャラクターの最新 2000 件。履歴がオフの間は 0 件）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.Stats">サムネイルの統計と同じモニターから数秒ごとに読み取ります。ダッシュは、まだ値がないことを示します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Empty">ログイン済みのキャラクターがいる EVE クライアントは開かれていません。</sys:String> <!-- draft -->
@@ -2789,4 +2789,7 @@
     <sys:String x:Key="L.Legend.HeldHidden">フォーカスモードで非表示になっています</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.Nothing">特になし：このサムネイルに表示中のインジケーターはありません</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.CustomEvent">カスタムアラート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reading">統計ファイルを読み込んでいます…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Fleet.Tip.SinceApprox">経過時間：{0}。MultiPreview の起動時にはすでにこの星系にいたため、実際の到着は表示の時刻より前かもしれません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.ActivePlain">アクティブなクライアント</sys:String> <!-- draft -->
 </ResourceDictionary>

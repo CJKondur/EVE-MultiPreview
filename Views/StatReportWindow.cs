@@ -33,6 +33,13 @@ public sealed class StatReportActions
     public Func<DateOnly> Today { get; init; } = () => DateOnly.FromDateTime(DateTime.Now);
     /// <summary>Tests: the folder is read at once, on the calling thread, instead of on a background thread.</summary>
     public bool Synchronous { get; init; }
+    /// <summary>The read itself (folder, today, days). Tests hand in one that waits, to stand for a share that never answers.</summary>
+    public Func<string, DateOnly, int, IReadOnlyList<CharacterReport>> Read { get; init; } = (folder, today, days) => StatReportFolder.Read(folder, today, days);
+    /// <summary>A task that ends when a read has had long enough (<see cref="ReadSeconds"/>). Tests hand in one that has ended already.</summary>
+    public Func<Task> Timeout { get; init; } = () => Task.Delay(TimeSpan.FromSeconds(ReadSeconds));
+    /// <summary>How long a read may take before the window gives up on it: a folder on a share that hangs would otherwise leave
+    /// the window "reading" for good.</summary>
+    public const int ReadSeconds = 15;
 }
 
 /// <summary>Session reports (IDEAS #20): what the stat logs say, per character and day. The characters on the left, the
@@ -205,7 +212,9 @@ public sealed class StatReportWindow : Window
 
     // ── Loading ──
 
-    /// <summary>Reads the stat log folder again, off the UI thread, then shows it. A read while one is running is ignored.</summary>
+    /// <summary>Reads the stat log folder again, off the UI thread, then shows it. A read while one is running is ignored. While it
+    /// reads, the status says so; a read that has not answered after <see cref="StatReportActions.ReadSeconds"/> is given up (the
+    /// thread may stay stuck in the folder, but the window does not): it says it could not read, and Refresh tries again.</summary>
     public void Reload()
     {
         if (_closed || _loading) return;
@@ -213,14 +222,17 @@ public sealed class StatReportWindow : Window
         var today = _do.Today();
         if (string.IsNullOrWhiteSpace(folder)) { Show(folder, Array.Empty<CharacterReport>(), today); return; }   // nothing to read
         _loading = true;
-        if (_do.Synchronous) { Finish(StatReportFolder.Read(folder, today, StatReportFolder.MaxDays), folder, today); return; }
-        Task.Run(() => StatReportFolder.Read(folder, today, StatReportFolder.MaxDays)).ContinueWith(task => Dispatcher.BeginInvoke(new Action(() =>
+        if (_do.Synchronous) { Finish(_do.Read(folder, today, StatReportFolder.MaxDays), folder, today); return; }
+        _status.Text = Str("L.SessRpt.Reading", "Reading the stat files…");
+        var read = Task.Run(() => _do.Read(folder, today, StatReportFolder.MaxDays));
+        Task.WhenAny(read, _do.Timeout()).ContinueWith(first => Dispatcher.BeginInvoke(new Action(() =>
         {
             if (_closed) return;
-            if (task.IsCompletedSuccessfully) Finish(task.Result, folder, today);
+            if (first.IsCompletedSuccessfully && ReferenceEquals(first.Result, read) && read.IsCompletedSuccessfully) Finish(read.Result, folder, today);
             else
             {
                 _loading = false;
+                _status.Text = "";
                 SayHint(Str("L.SessRpt.Failed", "The stat files couldn't be read."));   // not logged: the exception's text may name a file, and the file a character
             }
         })));
