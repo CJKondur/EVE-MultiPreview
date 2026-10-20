@@ -1148,6 +1148,8 @@ public class ThumbnailWindow : Form
         _textOverlay?.AnimateSystemTransition(from, to, durationMs);
     public void UpdateSessionTimer(TimeSpan elapsed) => _textOverlay?.UpdateSessionTimer(elapsed);
     public void HideSessionTimer() => _textOverlay?.HideSessionTimer();
+    /// <summary>IDEAS P10: the jump count for a text template's {jumps}.</summary>
+    public void SetJumps(int count) => _textOverlay?.SetJumps(count);
     public void UpdateProcessStats(string? text) => _textOverlay?.UpdateProcessStats(text);
     public void UpdateFpsStats(double fps, bool visible) => _textOverlay?.UpdateFpsStats(fps, visible);
     public void SetProcessStatsTextSize(double fontSize) => _textOverlay?.SetProcessStatsTextSize(fontSize);

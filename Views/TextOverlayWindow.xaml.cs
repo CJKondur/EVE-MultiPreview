@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -50,6 +51,7 @@ public partial class TextOverlayWindow : Window
     private string _template = "";
     private bool _nameOn = true;               // "show character name": a template's {name} is empty while it is off
     private string? _timerText;                // the session timer as drawn, null while it is off
+    private int? _jumps;                       // the jump count (IDEAS P10), null until the manager sends one
     private string? _systemTransitionText;     // "from → to" while a system change is on show, else null
 
     /// <summary>The name as drawn. The login screen's thumbnail is named "EVE" (nobody is logged in): that is no player's
@@ -107,6 +109,7 @@ public partial class TextOverlayWindow : Window
             [TextTemplate.LabelToken] = StreamerMask.Name(StreamerKind.Label, _rawAnnotation),
             [TextTemplate.SystemToken] = _systemTransitionText ?? StreamerMask.Name(StreamerKind.System, _rawSystem),
             [TextTemplate.TimerToken] = _timerText,
+            [TextTemplate.JumpsToken] = _jumps?.ToString(CultureInfo.InvariantCulture),
         };
         string text = TextTemplate.Render(_template, values);
         if (NameOverlay.Text != text) NameOverlay.Text = text;
@@ -261,6 +264,16 @@ public partial class TextOverlayWindow : Window
             SystemOverlay.Text = maskedTo;
         };
         _systemTransitionTimer.Start();
+    }
+
+    /// <summary>IDEAS P10: the jumps this character has made this session, for a template's {jumps}. A number, so streamer
+    /// mode has nothing to hide in it. Sent with every tick of the session timer; the text is composed again only when the
+    /// number changed. Without a template it is only kept.</summary>
+    public void SetJumps(int count)
+    {
+        if (_jumps == count) return;
+        _jumps = count;
+        if (_template.Length > 0) Compose();
     }
 
     public void UpdateSessionTimer(TimeSpan elapsed)

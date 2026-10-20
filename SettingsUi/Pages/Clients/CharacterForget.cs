@@ -55,6 +55,7 @@ public static class CharacterForget
             tm.SetCharacterVisibility(name, true);
             tm.UpdateCharacterLabel(name, null, null, 0);
             tm.SetClientVolume(name, 100);
+            tm.ForgetJumps(name);   // IDEAS P10: this session's jump count
             if (tm.IsExcludedFromCycle(name)) tm.ToggleCycleExclusion(name);
         }
         ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);

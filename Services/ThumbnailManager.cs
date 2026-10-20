@@ -389,7 +389,7 @@ public sealed class ThumbnailManager : IDisposable
 
         // Session timer — 1 second intervals
         _sessionTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        _sessionTimer.Tick += (_, _) => { UpdateSessionTimers(); CheckUnderFireExpiry(); };
+        _sessionTimer.Tick += (_, _) => { UpdateSessionTimers(); UpdateJumpCounts(); CheckUnderFireExpiry(); };
         _sessionTimer.Start();
 
         // Flash timer — 100ms for urgent, responsive alert flashing (10Hz)
@@ -2767,6 +2767,25 @@ public sealed class ThumbnailManager : IDisposable
 
 
     // ── Session Timer ────────────────────────────────────────────────
+
+    // ── Jump count (IDEAS P10) ───────────────────────────────────────
+
+    /// <summary>The jumps each character has made this session. App feeds it from the log monitor's SystemChanged; the
+    /// session timer's tick hands each thumbnail its character's count for a text template's {jumps}.</summary>
+    public JumpCounter Jumps { get; } = new();
+
+    /// <summary>Forget this character (Clients › Characters): its count goes, and the number on its thumbnail with it.</summary>
+    public void ForgetJumps(string name)
+    {
+        Jumps.Forget(name);
+        UpdateJumpCounts();
+    }
+
+    private void UpdateJumpCounts()
+    {
+        foreach (var (_, thumb) in _thumbnails)
+            if (ThumbnailMenu.HasCharacter(thumb.CharacterName)) thumb.SetJumps(Jumps.CountOf(thumb.CharacterName));
+    }
 
     private void UpdateSessionTimers()
     {

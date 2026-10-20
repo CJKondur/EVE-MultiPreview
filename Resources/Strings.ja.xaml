@@ -2693,10 +2693,10 @@
     <sys:String x:Key="L.Streamer.On">配信者モード：オン</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Off">配信者モード：オフ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.template">テキストテンプレート</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.template.Desc">{name}、{system}、{timer}、{label} を組み合わせてサムネイルのテキストを作ります。例：{name} · {system}。空にすると、それぞれ別の行で表示されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.template.Desc">{name}、{system}、{timer}、{label}、{jumps} を組み合わせてサムネイルのテキストを作ります。例：{name} · {system}。空にすると、それぞれ別の行で表示されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.TemplateExamples">例を入力</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.template.Title">テキストテンプレート</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.template.Body">**テキストテンプレート**は、4つの部品からサムネイルのテキストを作ります。{name} はキャラクター名、{system} は星系、{timer} はセッションタイマー、{label} はキャラクターに付けたラベルです。間に好きな文字を入れて書けます。例：{name} · {system}、{label} {name} {timer}。リストから例を選ぶこともできます。&#x0A;&#x0A;表示するものがない部品は、隣の区切り文字ごと取り除かれるので、ラベルのないサムネイルが孤立した点で始まることはありません。上のスイッチがオフの部品も同じように省かれます。波括弧で囲んだそれ以外の文字は入力したとおりに残ります。波括弧そのものを表示するには2回続けて入力してください。テンプレートは120文字までで、それより長いと切り詰められます。&#x0A;&#x0A;テキスト全体はキャラクター名の色・フォント・サイズで表示され、配信者モードもその中で働きます。テンプレートはメインのサムネイルで使われ、名前を表示するほかのウィンドウは名前だけを表示し続けます。空にすると、別々の行のままになります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.template.Body">**テキストテンプレート**は、5つの部品からサムネイルのテキストを作ります。{name} はキャラクター名、{system} は星系、{timer} はセッションタイマー、{label} はキャラクターに付けたラベル、{jumps} は MultiPreview の起動後にそのキャラクターが行ったジャンプの回数です。サイノ、ワームホール、クローンのジャンプもジャンプとして数えます。MultiPreview が最初に見た星系は数えません。間に好きな文字を入れて書けます。例：{name} · {system}、{label} {name} {timer}。リストから例を選ぶこともできます。&#x0A;&#x0A;表示するものがない部品は、隣の区切り文字ごと取り除かれるので、ラベルのないサムネイルが孤立した点で始まることはありません。上のスイッチがオフの部品も同じように省かれます。波括弧で囲んだそれ以外の文字は入力したとおりに残ります。波括弧そのものを表示するには2回続けて入力してください。テンプレートは120文字までで、それより長いと切り詰められます。&#x0A;&#x0A;テキスト全体はキャラクター名の色・フォント・サイズで表示され、配信者モードもその中で働きます。テンプレートはメインのサムネイルで使われ、名前を表示するほかのウィンドウは名前だけを表示し続けます。空にすると、別々の行のままになります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CopyProfileCode">キャラクター付きのプロファイルコードをコピー</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopied">プロファイル「{0}」をキャラクターごとコードとしてクリップボードにコピーしました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopiedLong">プロファイル「{0}」をキャラクターごと {1} 文字のコードとしてクリップボードにコピーしました。Discord の 1 通のメッセージに入る長さ（2000 文字）を超えています。代わりにテキストファイルやペーストサイトで共有してください。</sys:String> <!-- draft -->

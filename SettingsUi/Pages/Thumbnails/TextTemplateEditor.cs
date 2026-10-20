@@ -8,7 +8,7 @@ using TextBox = System.Windows.Controls.TextBox;
 namespace EveMultiPreview.SettingsUi;
 
 /// <summary>Thumbnails › Text &amp; borders › Text on thumbnails › Text template (IDEAS P2): a box for the template that builds
-/// the text on a thumbnail ("{name} · {system} · {timer} · {label}"), and a list of three examples that fill it. Empty keeps
+/// the text on a thumbnail ("{name} · {system} · {timer} · {label} · {jumps}"), and a list of four examples that fill it. Empty keeps
 /// the name, label, system and timer as separate lines. Writes only ThumbnailTextTemplate, kept to the length a template may
 /// have (<see cref="TextTemplate.Clean"/>), when the box loses focus or Enter is pressed and when an example is picked.</summary>
 public sealed class TextTemplateEditor : System.Windows.Controls.UserControl, IRefreshable
@@ -16,7 +16,7 @@ public sealed class TextTemplateEditor : System.Windows.Controls.UserControl, IR
     public const string ItemId = "thumbs.text.template";
 
     /// <summary>The examples in the list: template text, not words, so they are the same in every language.</summary>
-    public static readonly string[] ExampleTemplates = { "{name} · {system}", "{label} {name} {timer}", "{name}" };
+    public static readonly string[] ExampleTemplates = { "{name} · {system}", "{label} {name} {timer}", "{name}", "{name} · {system} · {jumps}" };
 
     private readonly SettingsContext _ctx;
     private bool _loading;

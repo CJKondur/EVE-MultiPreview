@@ -5,7 +5,7 @@ using System.Text;
 namespace EveMultiPreview.Services;
 
 /// <summary>Thumbnail text templates (IDEAS P2): the text a thumbnail shows built from a template such as
-/// "{name} · {system} · {timer}". The tokens are {name}, {system}, {timer} and {label}; any other {word} stays as typed,
+/// "{name} · {system} · {timer}". The tokens are {name}, {system}, {timer}, {label} and {jumps} (the jump count, IDEAS P10); any other {word} stays as typed,
 /// "{{" and "}}" are a literal brace. A token whose value is empty takes the separators next to it away, so a thumbnail
 /// with no label or system never shows a dangling " · ". A bracket pair () [] or <> that stands right around an empty
 /// token ("{name} ({system})") goes with it; brackets around anything else, and words typed in the template, stay.
@@ -19,6 +19,7 @@ public static class TextTemplate
     public const string SystemToken = "system";
     public const string TimerToken = "timer";
     public const string LabelToken = "label";
+    public const string JumpsToken = "jumps";
 
     /// <summary>The longest template kept (characters).</summary>
     public const int MaxLength = 120;
@@ -104,7 +105,7 @@ public static class TextTemplate
                 if (close > i + 1)
                 {
                     string word = template.Substring(i + 1, close - i - 1).ToLowerInvariant();
-                    if (word is NameToken or SystemToken or TimerToken or LabelToken)
+                    if (word is NameToken or SystemToken or TimerToken or LabelToken or JumpsToken)
                     {
                         Flush();
                         string text = ++tokens > MaxTokens || !values.TryGetValue(word, out var v) ? "" : v ?? "";

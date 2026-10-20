@@ -487,6 +487,7 @@ public partial class App : Application
                 // reader and ends this handler, and it must not cost the watch a move.
                 _stragglers.Moved(charName, systemName, DateTime.UtcNow);
                 _idleWatch.Moved(charName, DateTime.UtcNow);   // IDEAS #7: a jump into another system starts the count again
+                _thumbnailManager.Jumps.Moved(charName, systemName);   // IDEAS P10: the jump count for {jumps}
                 _thumbnailManager.UpdateCharacterSystem(charName, systemName);
             };
 
