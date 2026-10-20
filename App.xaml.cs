@@ -2246,6 +2246,7 @@ public partial class App : Application
         }
         try
         {
+            _streamerMaskDrawn = StreamerMask.IsOn;   // IDEAS #19: the window is drawn for the mode as it is now, so a later flip redraws it
             _historyWindow = new AlertHistoryWindow(_alertHistory, _settings.Settings, new AlertHistoryActions
             {
                 SwitchTo = SwitchToCharacter,

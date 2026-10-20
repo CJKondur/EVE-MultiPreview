@@ -564,17 +564,19 @@ public static class SettingsHome
     }
 
     /// <summary>The newer-file question at startup, asked through <paramref name="ask"/> (App: a StartupDialog; tests: an
-    /// answer). Closing it without an answer asks again next time. True when the other file was taken and the settings
-    /// loaded again from it.</summary>
+    /// answer). The first button, the suggested one that Enter presses, keeps the current settings (KeepCurrent: the
+    /// question waits until the other file changes again); the second uses the newer file. Closing it without an answer (Esc,
+    /// the X) changes nothing and asks again next time. True when the other file was taken and the settings loaded again
+    /// from it.</summary>
     public static bool OfferOtherCopy(SettingsService svc, string otherFile, Func<string, string, IReadOnlyList<string>, int?> ask,
         Func<string, string, string> str, DateTime now)
     {
         string When(string file) => File.GetLastWriteTime(file).ToString("g", CultureInfo.CurrentCulture);
         var body = string.Format(str("L.Start.Newer.Body", NewerBodyEnglish), svc.SettingsPath, When(svc.SettingsPath), otherFile, When(otherFile));
         var answer = ask(str("L.Start.Newer.Title", "A newer settings file was found"), body,
-            new[] { str("L.Start.Newer.Use", "Use the newer file"), str("L.Start.Newer.Keep", "Keep my current settings") });
-        if (answer == 1) KeepCurrent(svc.SettingsPath, otherFile, now.ToUniversalTime());
-        if (answer != 0 || !UseOtherCopy(svc.SettingsPath, otherFile, now)) return false;
+            new[] { str("L.Start.Newer.Keep", "Keep my current settings"), str("L.Start.Newer.Use", "Use the newer file") });
+        if (answer == 0) KeepCurrent(svc.SettingsPath, otherFile, now.ToUniversalTime());
+        if (answer != 1 || !UseOtherCopy(svc.SettingsPath, otherFile, now)) return false;
         svc.Load();
         return svc.LoadedSuccessfully;
     }
