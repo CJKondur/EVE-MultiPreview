@@ -888,7 +888,7 @@ public sealed class ThumbnailManager : IDisposable
             ApplyFixedClientPosition(window.Hwnd);
 
         PerfLog(
-            $"✅ Created thumbnail for '{window.CharacterName}' @ ({x},{y}) {width}x{height} [{sw.ElapsedMilliseconds}ms]");
+            $"✅ Created thumbnail @ ({x},{y}) {width}x{height} [{sw.ElapsedMilliseconds}ms]");   // IDEAS P94: never whose
     }
 
     private void CreateDeferredWindows(EveWindow window)

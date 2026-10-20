@@ -18,10 +18,13 @@ public sealed class ClientExitBacklog
     public int Held => _held.Count;
 
     /// <summary>The exits to tell now: the ones held from earlier looks, in the order they happened, then the ones this
-    /// look saw. While the alerts do not exist (<paramref name="alertsExist"/> false) nothing is told and these are held.</summary>
+    /// look saw. While the alerts do not exist (<paramref name="alertsExist"/> false) nothing is told and these are held.
+    /// Only an exit that is told as a crash is kept (unexpected, and naming a character): a client the player quit, or
+    /// MultiPreview ended, or one that never had a character, is no part of the cap.</summary>
     public IReadOnlyList<ClientExit> Take(IReadOnlyList<ClientExit> seen, bool alertsExist)
     {
-        _held.AddRange(seen);
+        foreach (var exit in seen)
+            if (exit.Unexpected && exit.Character.Length > 0) _held.Add(exit);
         if (!alertsExist)
         {
             if (_held.Count > Most) _held.RemoveRange(0, _held.Count - Most);

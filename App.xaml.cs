@@ -525,7 +525,8 @@ public partial class App : Application
                 // notification away again. "In front" is therefore also: the attention table holds nothing for it.
                 Ways = (charName, alertType, severity, raisedUtc) => _alertWays.Raised(_settings.Settings, charName, alertType, severity,
                     () => ThumbnailManager.InFront(_thumbnailManager.GetHwndForCharacter(charName), EveMultiPreview.Interop.User32.GetForegroundWindow())
-                        || !_thumbnailManager.Attention.Has(charName), raisedUtc, clientGone: ClientExits.IsClosing(_closingCharacter, charName)),
+                        || !_thumbnailManager.Attention.Has(charName), raisedUtc,
+                        clientGone: alertType == ClientWatch.ClosedEvent && ClientExits.IsClosing(_closingCharacter, charName)),
             };
             // IDEAS #26: spoken alerts. The way is told of every alert that was shown, decides what is said, and
             // says it on a thread of its own. Speech is a sound: do-not-disturb is asked for it as for the sound.

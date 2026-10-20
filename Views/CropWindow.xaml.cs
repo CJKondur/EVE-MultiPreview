@@ -152,6 +152,9 @@ public partial class CropWindow : Window
         _textOverlay.Height = Math.Max(30, Height);
         _textOverlay.Topmost = _isTopmost;   // our tracked band, not WPF's cached view
         _textOverlay.Show();
+        // A crop hidden before its overlay existed (a toggle, or focus mode holding its character) stays hidden whole: the
+        // overlay is shown only to get its window, and goes again at once, so no label or mark shows over nothing.
+        if (IsHiddenByToggle) _textOverlay.Hide();
         if (Mark != ClientMark.None) _textOverlay.SetClientMark(ClientMarks.Text(Mark));
 
         // Parent the overlay's HWND to the crop popup's HWND so z-order follows

@@ -8,7 +8,8 @@ namespace EveMultiPreview.Services;
 /// <summary>What a press of the focus key comes to (IDEAS P124, final review M4 of Plan 14).</summary>
 public enum FocusPress { Off, On, NoGroup, NoSuchGroup }
 
-/// <summary>IDEAS #35, focus mode: which main thumbnails it holds hidden. The group is the one the player chose by its
+/// <summary>IDEAS #35, focus mode: which characters' windows it holds hidden (each one's main thumbnail, second thumbnails,
+/// crop windows and stats windows: they all ask <see cref="Holds"/>). The group is the one the player chose by its
 /// name, or the first group (in the Groups page's order) the character of the client he is in belongs to, so it follows
 /// his switches. A client outside the group with an alert he has not looked at can show through. App asks it on its
 /// half-second timer while focus mode is on, on the window's thread; it asks Windows nothing.</summary>
@@ -80,8 +81,8 @@ public static class FocusMode
     {
         FocusPress.Off => ("L.Focus.Off", "Focus mode off"),
         FocusPress.On => ("L.Focus.On", "Focus mode: {0}"),
-        FocusPress.NoSuchGroup => ("L.Focus.NoSuchGroup", "Focus mode: there is no group called {0}, so every thumbnail shows"),
-        _ => ("L.Focus.NoGroup", "Focus mode: this client is in no group, so every thumbnail shows"),
+        FocusPress.NoSuchGroup => ("L.Focus.NoSuchGroup", "Focus mode stays off: there is no group called {0}"),
+        _ => ("L.Focus.NoGroup", "Focus mode stays off: this client is in no group"),
     };
 
     /// <summary>The note in the player's language; <paramref name="name"/> (the group shown, or the group that is gone) is

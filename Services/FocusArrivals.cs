@@ -27,7 +27,7 @@ public sealed class FocusArrivals
 
     /// <summary>One look: the characters that logged in since the last look, plus those that did within <see cref="Shown"/>.
     /// The first look without a <see cref="Begin"/> is only a baseline. A character that left and is back arrives again; a
-    /// clock set back never keeps an arrival shown.</summary>
+    /// clock set back drops an arrival (it is neither shown nor kept to be shown when the clock catches up).</summary>
     public IReadOnlySet<string> Look(DateTime utcNow, IEnumerable<string> running)
     {
         var now = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -47,11 +47,15 @@ public sealed class FocusArrivals
                 if (!now.Contains(gone)) _arrived.Remove(gone);
         }
         var showing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        List<string>? setBack = null;
         foreach (var (name, since) in _arrived)
         {
             var age = utcNow - since;
-            if (age >= TimeSpan.Zero && age < Shown) showing.Add(name);
+            if (age < TimeSpan.Zero) (setBack ??= new List<string>()).Add(name);      // the clock went back: the arrival is not kept
+            else if (age < Shown) showing.Add(name);
         }
+        if (setBack != null)
+            foreach (var name in setBack) _arrived.Remove(name);
         return showing;
     }
 }
