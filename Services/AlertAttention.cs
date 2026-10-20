@@ -20,8 +20,16 @@ public sealed class AlertAttention
     /// off at once.</summary>
     public const int MaxPerCharacter = 20;
 
-    /// <summary>An alert and the order it arrived in: two alerts of one clock tick still have an order.</summary>
-    private readonly record struct Held(UnseenAlert Alert, long Arrival);
+    /// <summary>An alert nobody looks at expires after this long (IDEAS P78): a client that was never brought to the
+    /// front does not "need the player" for the rest of the session. An expired alert leaves <see cref="Unseen"/>,
+    /// <see cref="Has"/> and <see cref="For"/>, and the badge and the tray's red icon follow (<see cref="Changed"/>,
+    /// <see cref="Expired"/>). It is dropped by whichever look comes first after the time, so the app looks now and then.</summary>
+    public static readonly TimeSpan MaxAge = TimeSpan.FromHours(4);
+
+    /// <summary>An alert, the order it arrived in (two alerts of one clock tick still have an order), and the moment
+    /// its age is counted from. That moment starts as the alert's time; when the clock is found to have been set back
+    /// it is drawn back to now, so an alert dated "ahead of now" neither stays for ever nor is hidden as if it were old.</summary>
+    private readonly record struct Held(UnseenAlert Alert, long Arrival, DateTime Since);
 
     private readonly object _lock = new();
     private readonly Dictionary<string, List<Held>> _byCharacter = new(StringComparer.OrdinalIgnoreCase);
@@ -44,23 +52,90 @@ public sealed class AlertAttention
     public bool Raised(string character, string eventKey, string severity, bool clientInFront)
     {
         if (string.IsNullOrEmpty(character) || clientInFront) return false;
-        var alert = new UnseenAlert(_utcNow(), character, eventKey ?? "", severity ?? "");
         bool kept;
+        bool expired;
+        List<string>? emptied = null;
         lock (_lock)
         {
+            var now = _utcNow();
+            expired = ExpireLocked(now, ref emptied);
+            var alert = new UnseenAlert(now, character, eventKey ?? "", severity ?? "");
             if (!_byCharacter.TryGetValue(character, out var list))
             {
                 _byCharacter[character] = list = new List<Held>();
                 Volatile.Write(ref _characters, _byCharacter.Count);
             }
             long arrival = ++_arrivals;
-            list.Add(new Held(alert, arrival));
+            list.Add(new Held(alert, arrival, now));
             while (list.Count > MaxPerCharacter) list.RemoveAt(LeastSevere(list));
             kept = list.Exists(h => h.Arrival == arrival);
         }
-        // A lesser alert let go at once changes nothing the tray or a badge shows.
-        if (kept) RaiseChanged();
+        // A lesser alert let go at once changes nothing the tray or a badge shows; an expiry on the way in does.
+        if (kept || expired) RaiseChanged();
+        TellExpired(emptied);
         return true;
+    }
+
+    /// <summary>A character's last unseen alert expired (<see cref="MaxAge"/>): nothing there needs the player any
+    /// more, and its badge goes. Raised once per character, after <see cref="Changed"/>, outside the lock, on the
+    /// thread that looked; a follower that throws is skipped. Not raised when only some of a character's alerts
+    /// expired: it still has one. (<see cref="Looked"/> is not raised: nobody looked.)</summary>
+    public event Action<string>? Expired;
+
+    private void TellExpired(List<string>? emptied)
+    {
+        if (emptied == null) return;
+        var handlers = Expired;
+        if (handlers == null) return;
+        foreach (var character in emptied)
+        {
+            foreach (var handler in handlers.GetInvocationList())
+            {
+                try { ((Action<string>)handler)(character); }
+                catch { /* a follower is no reason to lose an alert */ }
+            }
+        }
+    }
+
+    /// <summary>Drops the alerts that are <see cref="MaxAge"/> old, and draws back to now the age of any that the
+    /// clock puts ahead of now (it was set back). Under the lock; true when an alert was dropped. The characters left
+    /// with nothing are added to <paramref name="emptied"/>. A clock set forward cannot be told from time passing.</summary>
+    private bool ExpireLocked(DateTime now, ref List<string>? emptied)
+    {
+        bool any = false;
+        List<string>? none = null;
+        foreach (var (character, list) in _byCharacter)
+        {
+            int before = list.Count;
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                var held = list[i];
+                if (held.Since > now) list[i] = held with { Since = now };
+                else if (now - held.Since >= MaxAge) list.RemoveAt(i);
+            }
+            if (list.Count == before) continue;
+            any = true;
+            if (list.Count == 0) (none ??= new List<string>()).Add(character);
+        }
+        if (none == null) return any;
+        foreach (var character in none) _byCharacter.Remove(character);
+        Volatile.Write(ref _characters, _byCharacter.Count);
+        (emptied ??= new List<string>()).AddRange(none);
+        return any;
+    }
+
+    /// <summary>The look that drops what has expired and says so (<see cref="Changed"/>, <see cref="Expired"/>): every
+    /// way of reading the unseen list starts with it, and the app calls it now and then so that an idle list expires
+    /// too. Free while nothing is held. Nothing is raised unless an alert was dropped.</summary>
+    public void DropExpired()
+    {
+        if (Volatile.Read(ref _characters) == 0) return;
+        bool any;
+        List<string>? emptied = null;
+        lock (_lock) any = ExpireLocked(_utcNow(), ref emptied);
+        if (!any) return;
+        RaiseChanged();
+        TellExpired(emptied);
     }
 
     /// <summary>What is unseen changed: an alert was taken, or a character's alerts were taken off (IDEAS P4: the tray
@@ -118,12 +193,20 @@ public sealed class AlertAttention
     public bool Gone(string character) => Seen(character);
 
     /// <summary>Some client has an alert the player has not looked at.</summary>
-    public bool Any => Volatile.Read(ref _characters) > 0;
+    public bool Any
+    {
+        get
+        {
+            DropExpired();
+            return Volatile.Read(ref _characters) > 0;
+        }
+    }
 
     /// <summary>This character has an alert the player has not looked at.</summary>
     public bool Has(string character)
     {
         if (string.IsNullOrEmpty(character) || Volatile.Read(ref _characters) == 0) return false;
+        DropExpired();
         lock (_lock) return _byCharacter.ContainsKey(character);
     }
 
@@ -132,6 +215,7 @@ public sealed class AlertAttention
     public (int Count, string Severity)? For(string character)
     {
         if (string.IsNullOrEmpty(character) || Volatile.Read(ref _characters) == 0) return null;
+        DropExpired();
         lock (_lock)
         {
             if (!_byCharacter.TryGetValue(character, out var list) || list.Count == 0) return null;
@@ -145,6 +229,7 @@ public sealed class AlertAttention
     public IReadOnlyList<UnseenAlert> Unseen()
     {
         if (Volatile.Read(ref _characters) == 0) return Array.Empty<UnseenAlert>();
+        DropExpired();
         List<Held> all;
         lock (_lock) all = _byCharacter.Values.SelectMany(list => list).ToList();
         return all.OrderByDescending(h => Rank(h.Alert.Severity)).ThenByDescending(h => h.Alert.TimeUtc)

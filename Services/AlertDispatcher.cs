@@ -42,10 +42,11 @@ public sealed class AlertTargets
     public Func<string, string, bool> IsSnoozed { get; init; } = (_, _) => false;
     /// <summary>(character, severity, alert type): ThumbnailManager.SetAlertFlash.</summary>
     public Action<string, string, string> Flash { get; init; } = (_, _, _) => { };
-    /// <summary>(character, severity, alert type): ThumbnailManager.IncrementAlertBadge.</summary>
+    /// <summary>(character, severity, alert type): ThumbnailManager.IncrementAlertBadge. Called after <see cref="Unseen"/>:
+    /// it counts the alert only when the unseen list holds it.</summary>
     public Action<string, string, string> Badge { get; init; } = (_, _, _) => { };
     /// <summary>(character, alert type, severity): ThumbnailManager.NoteUnseenAlert. Called for every alert that was
-    /// shown, directly after the badge: the alert is one the player has not looked at yet (IDEAS batch 5).</summary>
+    /// shown, directly after the border and before the badge: the alert is one the player has not looked at yet (IDEAS batch 5).</summary>
     public Action<string, string, string> Unseen { get; init; } = (_, _, _) => { };
     /// <summary>The character's client window, or zero (ThumbnailManager.GetHwndForCharacter).</summary>
     public Func<string, IntPtr> WindowOf { get; init; } = _ => IntPtr.Zero;
@@ -110,8 +111,10 @@ public static class AlertDispatcher
         DiagnosticsService.LogAlerts(
             $"[App] '{charName}' found in active windows, dispatching to flash/badge/toast/sound");
         to.Flash(charName, severity, alertType);
-        to.Badge(charName, severity, alertType);
+        // Unseen before Badge (IDEAS P75): the badge asks the unseen list whether the player has looked at this client,
+        // so the list has to have taken the alert first.
         to.Unseen(charName, alertType, severity);
+        to.Badge(charName, severity, alertType);
         bool trayEnabled = settings.SeverityTrayNotify.TryGetValue(severity, out var tn) && tn;
 
         // Hub toast gate. Shown when the hub is enabled AND the

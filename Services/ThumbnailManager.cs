@@ -145,7 +145,7 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>Which clients need the player: per character, the alerts shown and not looked at yet (IDEAS batch 5).
     /// Fed where the badge is fed and cleared, and where a client goes away. It doesn't depend on a display setting,
     /// as the badge does.</summary>
-    public AlertAttention Attention { get; } = new();
+    public AlertAttention Attention { get; }
 
     /// <summary>Enlarging a thumbnail on an alert (IDEAS #13): which thumbnails are enlarged, and until when. App adds
     /// it to the ways an alert reaches the player; <see cref="EnlargeTick"/> tells the windows.</summary>
@@ -282,6 +282,13 @@ public sealed class ThumbnailManager : IDisposable
         if (character != null && InFront(client, foreground)) attention.Seen(character);
     }
 
+    /// <summary>The character the walk of "Go to the last alert" is told is in front: the active client's character
+    /// when that client really is the window in front, else nobody (IDEAS P78 (4)). While the tray menu is open,
+    /// during a drag, after a switch Windows refused or with a browser in front, the client MultiPreview counts as
+    /// active is not the one the player is on: the key must go there, not say the last alert is on this client.</summary>
+    public static string? CharacterInFront(string? character, IntPtr client, IntPtr foreground) =>
+        character != null && InFront(client, foreground) ? character : null;
+
     /// <summary>Whether a client's change of title means that the character it had has left it: it logged out, or
     /// another one logged in. The same name in another spelling is the same character, and a client that had no
     /// character had none to lose.</summary>
@@ -304,10 +311,15 @@ public sealed class ThumbnailManager : IDisposable
     private readonly Dictionary<ThumbnailWindow, (double X, double Y)> _dragAllStartPositions = new();
     private double _dragAllBaseX, _dragAllBaseY;
 
-    public ThumbnailManager(WindowDiscoveryService discovery, SettingsService settings)
+    /// <param name="attentionClock">The clock the unseen alerts age by (<see cref="AlertAttention.MaxAge"/>); a test hands
+    /// one in. Null: the PC's clock in UTC.</param>
+    public ThumbnailManager(WindowDiscoveryService discovery, SettingsService settings, Func<DateTime>? attentionClock = null)
     {
         _discovery = discovery;
         _settings = settings;
+        Attention = new AlertAttention(attentionClock);
+        // An alert that expired unseen takes its character's badge with it (IDEAS P78); looking is what clears it otherwise.
+        Attention.Expired += ClearAlertBadge;
         Playtime = new PlaytimeLedger(() => PlaytimeClock());
 
         _discovery.WindowFound += OnWindowFound;
@@ -1823,11 +1835,11 @@ public sealed class ThumbnailManager : IDisposable
             // Resolve the character name regardless of which call path we came in
             // through: hotkey passes `title` directly; thumbnail click resolves
             // `hwnd` first and leaves `title` null. We need the name to clear the
-            // alert flash + badge for the window the user is intentionally moving
-            // focus to. Doing it here (synchronously, on activation) is the only
-            // reliable path — relying on UpdateActiveBorders to clear the badge
-            // after the OS reports a foreground change can lose the clear behind
-            // the post-cycle z-order shield, especially during rapid cycling.
+            // alert flash for the window the user is intentionally moving focus to.
+            // The badge and the unseen alerts are NOT cleared here (IDEAS P75, P78): this
+            // is the ASK, and Windows may refuse the switch. The focus sweep clears them
+            // when the client really is the foreground window; it runs above the
+            // cycle shield, so rapid cycling does not lose the clear.
             string? activatedChar = !string.IsNullOrEmpty(title)
                 ? title
                 : (_thumbnails.TryGetValue(hwnd, out var hwndThumb) ? hwndThumb.CharacterName : null);
@@ -1835,8 +1847,6 @@ public sealed class ThumbnailManager : IDisposable
             {
                 if (_alertFlashChars.TryRemove(activatedChar, out _))
                     ClearAlertBorderFor(activatedChar); // clear the nested inner border now (#77)
-                ClearAlertBadge(activatedChar);
-                Attention.Seen(activatedChar);
             }
 
             // Fixed slots own the client's rect: Always-maximize and Track positions
@@ -2261,6 +2271,10 @@ public sealed class ThumbnailManager : IDisposable
             RaiseEnlargedAgain();
         }
         _lastEveFocused = eveFocused;
+
+        // Unseen alerts that nobody looked at for AlertAttention.MaxAge go now, with their badge and the tray's red
+        // icon, whether or not anything else looks at the list (IDEAS P78). Free while nothing is unseen.
+        Attention.DropExpired();
 
         // Clear the alert badge of whichever EVE window is currently foreground.
         // Hoisted above the cycle-shield / no-change early-returns below because
@@ -3463,9 +3477,10 @@ public sealed class ThumbnailManager : IDisposable
     }
 
     /// <summary>Bump the per-character unread-alert badge counter. Called from
-    /// App's AlertTriggered handler. Skips entirely if the alerting character's
-    /// window is currently the foreground — the user is already looking at it,
-    /// no need to badge them about something they're seeing in real time.</summary>
+    /// App's AlertTriggered handler, after <see cref="NoteUnseenAlert"/> (the dispatcher's order): the badge asks
+    /// the unseen list, and does not read the foreground window itself (IDEAS P75). Skips entirely when the list
+    /// holds nothing for the character: its client was in front as the alert arrived (the user is looking at it, no
+    /// need to badge them about something they're seeing in real time), or it has no client.</summary>
     public void IncrementAlertBadge(string characterName, string severity, string alertType = "")
     {
         if (string.IsNullOrEmpty(characterName))
@@ -3491,28 +3506,13 @@ public sealed class ThumbnailManager : IDisposable
             return;
         }
 
-        // If this character's EVE window is foreground right now, the user is
-        // already focused on it — they don't need a badge for something
-        // happening in their active client.
-        var fgHwnd = Interop.User32.GetForegroundWindow();
-        bool foundThumb = false;
-        foreach (var (eveHwnd, thumb) in _thumbnails)
+        // One answer to "is the player looking at this client": the unseen list's. NoteUnseenAlert has just
+        // taken this alert as unseen, or as seen at once because the client was in front, or not at all because
+        // the character has no client. An alert it did not keep is no alert for a badge.
+        if (!Attention.Has(characterName))
         {
-            if (string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
-                foundThumb = true;
-            if (eveHwnd == fgHwnd
-                && string.Equals(thumb.CharacterName, characterName, StringComparison.OrdinalIgnoreCase))
-            {
-                DiagnosticsService.LogAlerts($"[Badge] SUPPRESSED — '{characterName}' is foreground");
-                return;
-            }
-        }
-
-        if (!foundThumb)
-        {
-            DiagnosticsService.LogAlerts(
-                $"[Badge] WARN — no thumbnail in _thumbnails matches char='{characterName}'. " +
-                $"Tracked thumbs: [{string.Join(", ", _thumbnails.Values.Select(t => $"'{t.CharacterName}'"))}]");
+            DiagnosticsService.LogAlerts($"[Badge] SUPPRESSED — '{characterName}' has nothing unseen (its client is in front, or it has none)");
+            return;
         }
 
         // Alerts come from two threads (the log reader, and the window's thread for "Left behind"): the count goes
@@ -4594,13 +4594,16 @@ public sealed class ThumbnailManager : IDisposable
     public void GoToLastAlert()
     {
         var active = ActiveClient();
-        string? inFront = _thumbnails.TryGetValue(active, out var front) ? front.CharacterName : null;
+        var foreground = Interop.User32.GetForegroundWindow();
+        string? activeChar = _thumbnails.TryGetValue(active, out var front) ? front.CharacterName : null;
         // An alert of the active client that is still unseen although that client is the window in front (it
         // arrived while a switch was in flight) is looked at now: the player is on that client. Left unseen, the
         // walk would name this client, and the press would switch nothing and say nothing. When the active client
         // is not in front (the tray menu, a drag, a switch Windows refused), its alert stays unseen: the walk names
         // it, and the key goes there.
-        SeeClientInFront(Attention, inFront, active, Interop.User32.GetForegroundWindow());
+        SeeClientInFront(Attention, activeChar, active, foreground);
+        // And only a client that really is in front is "this client" for the walk (IDEAS P78 (4)).
+        string? inFront = CharacterInFront(activeChar, active, foreground);
         var step = _alertWalk.Next(Attention.Unseen(),
             () => RecentAlerts?.Invoke() ?? Array.Empty<AlertHistoryEntry>(),
             name => ClientAlive(GetHwndForCharacter(name)), inFront, DateTime.UtcNow);
@@ -4614,9 +4617,10 @@ public sealed class ThumbnailManager : IDisposable
             });
             return;
         }
-        // The player asked for this alert: it is looked at, also when its client is in front already (then
-        // ActivateEveWindow returns before it clears anything).
-        Attention.Seen(step.Character);
+        // A client that is the window in front already is looked at now: ActivateEveWindow returns early for it, and
+        // no change of the foreground window will follow. Any other client's alert stays unseen until that client
+        // really comes to the front (the focus sweep): a switch Windows refuses leaves it as it was (IDEAS P78 (1)).
+        SeeClientInFront(Attention, step.Character, GetHwndForCharacter(step.Character), foreground);
         ActivateEveWindow(IntPtr.Zero, step.Character);
     }
 
