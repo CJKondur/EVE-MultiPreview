@@ -251,3 +251,22 @@ public static class RemoteCommandLine
         return RemoteCommand.FromArgs(args) is { } command ? send(command) : RemoteOutcome.Refused;
     }
 }
+
+/// <summary>IDEAS P130 (b): what a first start does with the command it was given, on each look.</summary>
+public enum StartupCommandStep { Run, Wait, Drop }
+
+/// <summary>IDEAS P130 (b): a first start's <c>--focus</c> names a character whose thumbnail the first discovery pass may not
+/// have made yet. It is asked again on the existing 500 ms tick for <see cref="Limit"/>, and then dropped without a word.
+/// Every other command runs on the first look.</summary>
+public static class StartupCommandWait
+{
+    public static readonly TimeSpan Limit = TimeSpan.FromSeconds(10);
+
+    /// <summary>Run now, look again on the next tick, or give up. A --focus runs as soon as its character is running; one
+    /// whose character is still missing after <see cref="Limit"/> is dropped (nobody is told: a first start has no sender).</summary>
+    public static StartupCommandStep Decide(RemoteCommand command, bool characterRunning, TimeSpan waited)
+    {
+        if (command.Verb != RemoteVerb.Focus || characterRunning) return StartupCommandStep.Run;
+        return waited < Limit ? StartupCommandStep.Wait : StartupCommandStep.Drop;
+    }
+}

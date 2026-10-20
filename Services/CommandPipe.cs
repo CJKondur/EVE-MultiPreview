@@ -22,8 +22,13 @@ namespace EveMultiPreview.Services;
 /// that made the pipe proved to be an elevated process of this same account (IsThisAccountsElevatedProcess).</summary>
 public static class CommandPipe
 {
-    /// <summary>How long a second start waits for the running MultiPreview, connecting and answering together.</summary>
-    public static readonly TimeSpan SendTime = TimeSpan.FromSeconds(3);
+    /// <summary>How long a second start waits for the running MultiPreview, connecting and answering together (IDEAS P130).
+    /// App waits up to <see cref="CommandServer.ReadTime"/> for the window's thread to START a command and then awaits the
+    /// started one, and the server serves one sender at a time: a sender queued behind another also sits out that sender's
+    /// turn. So the clock covers two queue waits and two seconds for a started command to finish; a shorter one let a command
+    /// run while its sender had already ended with exit 3. The cost is that "nothing took it" (exit 3, no pipe) now shows
+    /// after this long too. No protocol change: the sender's deadline is not sent.</summary>
+    public static readonly TimeSpan SendTime = CommandServer.ReadTime + CommandServer.ReadTime + TimeSpan.FromSeconds(2);
 
     public static string Name(string userSid, int sessionId) => $"EveMultiPreview.Commands.{sessionId}.{userSid}";
 

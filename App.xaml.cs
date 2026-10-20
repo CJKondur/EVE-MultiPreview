@@ -102,6 +102,8 @@ public partial class App : Application
     /// <summary>IDEAS #39: the command this start was given (a shortcut with --profile, say), run once the deferred startup is
     /// done; null without one.</summary>
     private RemoteCommand? _startupCommand;
+    /// <summary>IDEAS P130 (b): runs from the first time the start-up command was looked at (a monotonic clock).</summary>
+    private Stopwatch? _startupCommandClock;
     /// <summary>What the probe on the process monitor's thread asks Windows: set by LookAtClients on the window's thread
     /// (the settings are read there only), read by ProbeClients.</summary>
     private volatile ClientProbeWants _clientProbeWants;
@@ -772,6 +774,7 @@ public partial class App : Application
                 FollowIdle();
                 FollowFocusMode();
                 FollowAutoProfile();
+                FollowStartupCommand();   // IDEAS P130 (b)
             };
             hotkeyToggleTimer.Start();
             });
@@ -788,6 +791,7 @@ public partial class App : Application
             // IDEAS #39: the command this start was given, now that everything runs.
             Step("Start-up command", () =>
             {
+            if (StartupCommandWaits()) return;   // IDEAS P130 (b): a --focus waits for discovery; the 500 ms tick below asks again
             if (_startupCommand is RemoteCommand first) { _startupCommand = null; RunCommand(first); }
             });
 #pragma warning restore CS8602, CS8604
@@ -1574,10 +1578,11 @@ public partial class App : Application
         catch (Exception ex) { LogError(ex); }
     }
 
-    /// <summary>IDEAS #39: has the window's thread run one command, waiting at most as long as the sender does (the sender
-    /// gave up first, so a longer wait only holds the pipe). A command still queued when the wait ends is taken back, so it
-    /// never runs after the sender was told that nothing took it; one that has started is quick and its answer is awaited.
-    /// A stall is not an error and is not logged.</summary>
+    /// <summary>IDEAS #39: has the window's thread run one command, waiting at most the pipe's read time to START it (the
+    /// sender's clock, CommandPipe.SendTime, covers this wait twice over, IDEAS P130). A command still queued when the wait ends
+    /// is taken back, so it never runs after the sender was told that nothing took it; one that has started is quick and its
+    /// answer is awaited. Each command has its own wait: nothing is shared between two senders. A stall is not an error and is
+    /// not logged.</summary>
     private async Task<RemoteOutcome> RunOnWindowsThread(RemoteCommand command)
     {
         var queued = Dispatcher.InvokeAsync(() => RunCommand(command));
@@ -1628,6 +1633,29 @@ public partial class App : Application
             LogError(ex);
             return RemoteOutcome.Refused;
         }
+    }
+
+    /// <summary>IDEAS P130 (b): a first start's --focus names a character whose thumbnail the first discovery pass may not have
+    /// made by the time start-up is done. True: leave the command for the next 500 ms tick (<see cref="FollowStartupCommand"/>),
+    /// for at most StartupCommandWait.Limit counted from the first look; after that it is dropped without a word (no sender to
+    /// tell, nothing logged). Every other command, and a --focus whose character is running, answers false.</summary>
+    private bool StartupCommandWaits()
+    {
+        if (_startupCommand is not RemoteCommand pending) return false;
+        _startupCommandClock ??= Stopwatch.StartNew();
+        bool running = _thumbnailManager?.GetActiveCharacterNames()
+            .Any(n => string.Equals(n, pending.Argument, StringComparison.OrdinalIgnoreCase)) == true;
+        var step = StartupCommandWait.Decide(pending, running, _startupCommandClock.Elapsed);
+        if (step == StartupCommandStep.Drop) _startupCommand = null;
+        return step == StartupCommandStep.Wait;
+    }
+
+    /// <summary>IDEAS P130 (b): the existing 500 ms tick asks again for a start-up command that had to wait. Nothing before the
+    /// start-up step has looked at it, and nothing after it has run it.</summary>
+    private void FollowStartupCommand()
+    {
+        if (_startupCommandClock == null || StartupCommandWaits()) return;
+        if (_startupCommand is RemoteCommand first) { _startupCommand = null; RunCommand(first); }
     }
 
     private const string CommandsOffEnglish = "EVE MultiPreview is already running but did not take the command. Turn on Take commands from other programs under App settings › General. If MultiPreview runs as administrator, turn on Also take commands from programs that are not run as administrator there, or run this program as administrator too. Otherwise try again once MultiPreview has finished starting.";
