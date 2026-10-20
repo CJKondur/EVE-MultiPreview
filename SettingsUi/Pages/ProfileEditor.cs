@@ -23,6 +23,7 @@ public sealed class ProfileEditor : System.Windows.Controls.UserControl, IRefres
         // IDEAS #12: the look of a profile as one line of text, and a new profile from one.
         var codes = EditorCard.Row(
             EditorCard.Button("L.S.Profile.CopyLookCode", () => ProfileActions.CopyLookCode(_ctx, CopyText ?? ClipboardText.Set)),
+            EditorCard.Button("L.S.Profile.CopyProfileCode", () => ProfileActions.CopyProfileCode(_ctx, CopyText ?? ClipboardText.Set)),
             EditorCard.Button("L.S.Profile.FromCode", () => ProfileActions.FromCodeInteractive(_ctx)));
         codes.Margin = new Thickness(0, 8, 0, 0);
         var below = new StackPanel();

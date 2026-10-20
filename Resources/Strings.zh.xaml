@@ -893,7 +893,7 @@
     <sys:String x:Key="L.S.Act.app.profiles.import">导入…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.Intro">配置文件是一套完整的设置：缩略图位置、热键、颜色、裁剪和客户端布局。建议每种活动用一个，例如挖矿和 PvP。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.profiles.Title">使用配置文件</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新建**会创建空配置文件并切换到它。&#x0A;- **复制**把一个配置文件复制到另一个：全部内容，或仅缩略图位置。&#x0A;- **删除**会永久删除当前配置文件。始终至少保留一个。&#x0A;- **将外观复制为代码**会把当前配置文件的外观（边框、文字、不透明度、缩略图何时隐藏）作为一行文本放到剪贴板；**从代码新建配置文件…**会创建当前配置文件的副本并应用该外观。代码不包含角色名称、位置或热键。&#x0A;- **与其他配置文件比较…**会逐项列出与另一个配置文件不同的设置，让你选择采用它的值或保留自己的；不会向另一个配置文件写入任何内容，启动时的备份就是撤销的办法。&#x0A;&#x0A;你也可以从左上角的配置文件菜单或配置文件热键切换。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.profiles.profiles.Body">- **新建**会创建空配置文件并切换到它。&#x0A;- **复制**把一个配置文件复制到另一个：全部内容，或仅缩略图位置。&#x0A;- **删除**会永久删除当前配置文件。始终至少保留一个。&#x0A;- **将外观复制为代码**会把当前配置文件的外观（边框、文字、不透明度、缩略图何时隐藏）作为一行文本放到剪贴板；**从代码新建配置文件…**会创建当前配置文件的副本并应用该外观。这种代码不包含角色名称、位置或热键。&#x0A;- **复制含角色的配置文件代码**还会带上配置文件所知角色的名称，以及配置文件为每个角色保存的内容：位置和大小、可见性、颜色、标签、第二缩略图、裁剪、客户端位置、“不最小化”和排除列表、所属的槽位、循环组、颜色组和缩略图组，以及用来选择该配置文件的角色。热键、CPU 核心、音量和统计从不会被带上，代码也绝不会设置热键。**从代码新建配置文件…**会询问代码中的每个角色对应你的哪个角色（同名的已预先选中；选择“（跳过）”则略过该角色），然后创建当前配置文件的副本，让这些角色获得代码中的数据；取消则不会创建任何内容。位置是屏幕像素，在显示器布局相近时效果最好。&#x0A;- **与其他配置文件比较…**会逐项列出与另一个配置文件不同的设置，让你选择采用它的值或保留自己的；不会向另一个配置文件写入任何内容，启动时的备份就是撤销的办法。&#x0A;&#x0A;你也可以从左上角的配置文件菜单或配置文件热键切换。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Title">备份与迁移到另一台电脑</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.profiles.backups.Body">**立即备份**会在 Backups 文件夹中保存一份带日期的副本。如果设置自上一份副本以来有变化，MultiPreview 启动时也会保留一份副本（最近 10 份），每次更新前也会保留一份。如果无法读取你的设置文件或文件丢失，启动时会提供这些副本。&#x0A;&#x0A;**导出**会把你的设置文件保存到你喜欢的位置。**导入**会用导出的文件替换你的全部设置。当前设置会先备份。&#x0A;&#x0A;你的设置通常保存在 %APPDATA%\EVE MultiPreview。若想改为保存在 MultiPreview.exe 旁边（便携安装），请关闭 MultiPreview，把设置文件复制到那里，并在 exe 旁放一个名为 portable.txt 的空文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.about">关于与更新</sys:String> <!-- draft -->
@@ -2714,4 +2714,11 @@
     <sys:String x:Key="L.S.Opt.TemplateExamples">插入示例</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.template.Title">文字模板</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.template.Body">**文字模板**用四个部分拼出缩略图上的文字：{name} 是角色名称，{system} 是星系，{timer} 是会话计时器，{label} 是你给角色起的标签。把它们和任何内容写在一起即可，例如 {name} · {system} 或 {label} {name} {timer}，也可以从列表中选一个示例。&#x0A;&#x0A;没有内容可显示的部分会连同它旁边的分隔符一起去掉，所以没有标签的缩略图不会以孤零零的圆点开头。上方开关已关闭的部分也同样会被省略。花括号里的其他内容保持你输入的样子；要显示花括号本身，请连续输入两次。模板最长 120 个字符，更长的会被截断。&#x0A;&#x0A;整段文字使用角色名称的颜色、字体和大小，主播模式在其中同样生效。模板用于主缩略图；其他显示名称的窗口仍然只显示名称。留空则保持各自独立的几行。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CopyProfileCode">复制含角色的配置文件代码</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ProfileCopied">配置文件“{0}”及其角色已作为代码复制到剪贴板。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.ProfileCopiedLong">配置文件“{0}”及其角色已作为 {1} 个字符的代码复制到剪贴板。这超过了 Discord 一条消息能容纳的长度（2000 个字符）。请改用文本文件或粘贴网站来分享。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CodeTooBig">该配置文件的内容超出了代码能容纳的范围（最多 64 个角色，每个角色最多 8 个裁剪）。请改用“将外观复制为代码”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.FromCodeDoneCharacters">已用代码中的外观和其中 {1} 个角色创建配置文件“{0}”并切换到它。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.ProfileTitle">将代码中的角色分配给你的角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Remap.ProfileIntro">为代码中的每个角色分配一个你的角色。名称完全一致的已预先选中；选择“（跳过）”可略过该角色。代码中的位置是屏幕像素，在显示器布局相近时效果最好。代码绝不会设置热键。</sys:String> <!-- draft -->
 </ResourceDictionary>

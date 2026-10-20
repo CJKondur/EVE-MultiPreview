@@ -96,13 +96,38 @@ public static class ProfileActions
             : Str("L.S.Presets.CodeCopyFailed"));
     }
 
-    /// <summary>IDEAS #12: a new profile from a look code: asks for the code, then for a name; the new profile is a copy of
-    /// the current one with the code's look (its own characters for IDEAS #11 stay none), and becomes the one in use.
-    /// Nothing is overwritten.</summary>
-    public static void FromCodeInteractive(SettingsContext ctx)
+    /// <summary>IDEAS P123: the current profile with its characters as a code on the clipboard (the look, and the per-character
+    /// data of ProfileCode.CarriedStores; never a hotkey, a CPU mask, an audio volume or statistics). A profile that names more
+    /// than 64 characters, or whose code would be longer than a code may be, says so and copies nothing.</summary>
+    public static void CopyProfileCode(SettingsContext ctx, Func<string, bool> copy)
+    {
+        var code = ShareCode.WithCharacters(ctx.S, CharacterDirectory.Current(ctx.S));
+        if (code == null) { ctx.Host.Toast(Str("L.S.Profile.CodeTooBig")); return; }
+        ctx.Host.Toast(!copy(code) ? Str("L.S.Presets.CodeCopyFailed")
+            : code.Length > ShareCode.DiscordSafeLength
+                ? string.Format(Str("L.S.Profile.ProfileCopiedLong"), ctx.S.LastUsedProfile, code.Length)
+                : string.Format(Str("L.S.Profile.ProfileCopied"), ctx.S.LastUsedProfile));
+    }
+
+    /// <summary>The window's mapping dialog for a profile code: the code's characters (in order) against the local ones; the
+    /// chosen local character per code character, or null when the dialog was cancelled, closed or could not be opened.</summary>
+    public static Dictionary<int, string>? AskMapping(SettingsContext ctx, IReadOnlyList<string> codeCharacters, IReadOnlyList<string> local)
+    {
+        if (ctx.Host.DialogOwner is not { } owner) return null;
+        var dialog = new Views.LayoutRemapDialog(owner, codeCharacters, local, profileCode: true);
+        return dialog.ShowDialog() == true ? dialog.Mapping : null;
+    }
+
+    /// <summary>IDEAS #12 and P123: a new profile from a code: asks for the code, then for a name; the new profile is a copy of
+    /// the current one with the code's look (its own characters for IDEAS #11 stay none), and becomes the one in use. A code
+    /// with characters (EMP-P2:) also asks which of the player's characters each of its characters is (<paramref name="map"/>
+    /// stands in for the dialog): cancelling that makes no profile. Nothing is overwritten.</summary>
+    public static void FromCodeInteractive(SettingsContext ctx,
+        Func<IReadOnlyList<string>, IReadOnlyList<string>, Dictionary<int, string>?>? map = null)
     {
         var text = ctx.Host.AskText(Str("L.S.Profile.FromCodeTitle"), Str("L.S.Profile.FromCodePrompt"), "");
         if (text == null) return;
+        if (ShareCode.IsProfileCode(text)) { FromProfileCode(ctx, text, map ?? ((codes, local) => AskMapping(ctx, codes, local))); return; }
         var read = ShareCode.ReadLook(text);
         if (read.Value is not { } look) { ctx.Host.Toast(Str(read.ErrorKey)); return; }
         var name = ctx.Host.AskText(Str("L.S.Profile.FromCodeTitle"), Str("L.S.Profile.NamePrompt"), "");
@@ -115,6 +140,27 @@ public static class ProfileActions
         ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
         ctx.Host.Reload();
         ctx.Host.Toast(string.Format(Str("L.S.Profile.FromCodeDone"), name.Trim()));
+    }
+
+    private static void FromProfileCode(SettingsContext ctx, string text,
+        Func<IReadOnlyList<string>, IReadOnlyList<string>, Dictionary<int, string>?> map)
+    {
+        var read = ShareCode.ReadWithCharacters(text);
+        if (read.Value is not { } code) { ctx.Host.Toast(Str(read.ErrorKey)); return; }
+        var name = ctx.Host.AskText(Str("L.S.Profile.FromCodeTitle"), Str("L.S.Profile.NamePrompt"), "");
+        if (name == null) return;
+        name = name.Trim();
+        if (name.Length == 0 || ctx.S.Profiles.ContainsKey(name)) { ctx.Host.Toast(string.Format(Str("L.S.Profile.NameTaken"), name)); return; }
+        var mapping = map(code.Characters, CharacterDirectory.AllKnown(ctx.S, CharacterDirectory.Running(ctx)));
+        if (mapping == null) return;                                            // cancelled: no profile, nothing changed
+        var source = ctx.S.LastUsedProfile;
+        if (!New(ctx, name)) { ctx.Host.Toast(string.Format(Str("L.S.Profile.NameTaken"), name)); return; }
+        var made = ctx.S.Profiles[name];
+        if (ctx.S.Profiles.TryGetValue(source, out var from)) ProfileCopy.CopyFull(ctx.S, from, made);
+        var applied = code.ApplyTo(ctx.S, made, mapping);
+        ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
+        ctx.Host.Reload();
+        ctx.Host.Toast(string.Format(Str("L.S.Profile.FromCodeDoneCharacters"), name, applied));
     }
 
     /// <summary>IDEAS #50: the active profile against another one. Asks which (never the active one itself), then goes

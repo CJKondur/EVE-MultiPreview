@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Views;
@@ -23,10 +24,16 @@ public sealed class LayoutRemapDialog : System.Windows.Window
     private static string Str(string key, string english) => EveMultiPreview.Services.LocalizationService.Str(key, english);
 
     public LayoutRemapDialog(System.Windows.Window owner, IReadOnlyList<LayoutSlot> slots, IReadOnlyList<string> availableChars)
+        : this(owner, slots.Select(s => s.Character).ToList(), availableChars, profileCode: false) { }
+
+    /// <summary>IDEAS P123: the same mapping for the characters of a profile code. <paramref name="characters"/> are the
+    /// names in the code, in order; Mapping[i] is the local character chosen for the i-th (a skipped one is left out). A name
+    /// that is also in <paramref name="availableChars"/> (ignoring case) is pre-selected.</summary>
+    public LayoutRemapDialog(System.Windows.Window owner, IReadOnlyList<string> characters, IReadOnlyList<string> availableChars, bool profileCode)
     {
         EveMultiPreview.SettingsUi.UiStyles.Attach(this);
         Owner = owner;
-        Title = Str("L.Remap.Title", "Map Preset Slots → Your Characters");
+        Title = profileCode ? Str("L.Remap.ProfileTitle", "Map Code Characters → Your Characters") : Str("L.Remap.Title", "Map Preset Slots → Your Characters");
         Width = 480;
         SizeToContent = System.Windows.SizeToContent.Height;
         WindowStartupLocation = System.Windows.WindowStartupLocation.CenterOwner;
@@ -40,7 +47,9 @@ public sealed class LayoutRemapDialog : System.Windows.Window
 
         var header = new System.Windows.Controls.TextBlock
         {
-            Text = Str("L.Remap.Intro", "Assign each preset slot to one of your running characters. Exact name matches are pre-selected; choose “(skip)” to leave a slot unused."),
+            Text = profileCode
+                ? Str("L.Remap.ProfileIntro", "Assign each character in the code to one of your characters. Exact name matches are pre-selected; choose “(skip)” to leave a character out. Positions in a code are screen pixels, so they fit best on a similar monitor setup. A code never sets a hotkey.")
+                : Str("L.Remap.Intro", "Assign each preset slot to one of your running characters. Exact name matches are pre-selected; choose “(skip)” to leave a slot unused."),
             TextWrapping = System.Windows.TextWrapping.Wrap,
             Margin = new System.Windows.Thickness(0, 0, 0, 10),
         };
@@ -79,9 +88,9 @@ public sealed class LayoutRemapDialog : System.Windows.Window
         scroll.Content = rows;
         dock.Children.Add(scroll);
 
-        for (int i = 0; i < slots.Count; i++)
+        for (int i = 0; i < characters.Count; i++)
         {
-            var slot = slots[i];
+            var character = characters[i];
             var row = new System.Windows.Controls.StackPanel
             {
                 Orientation = System.Windows.Controls.Orientation.Horizontal,
@@ -89,7 +98,7 @@ public sealed class LayoutRemapDialog : System.Windows.Window
             };
             var slotName = new System.Windows.Controls.TextBlock
             {
-                Text = $"{i + 1}.  {(string.IsNullOrWhiteSpace(slot.Character) ? Str("L.Remap.Slot", "(slot)") : slot.Character)}",
+                Text = $"{i + 1}.  {(string.IsNullOrWhiteSpace(character) ? Str("L.Remap.Slot", "(slot)") : character)}",
                 Width = 200,
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
             };
@@ -102,7 +111,7 @@ public sealed class LayoutRemapDialog : System.Windows.Window
             for (int j = 0; j < availableChars.Count; j++)
             {
                 combo.Items.Add(availableChars[j]);
-                if (sel == 0 && string.Equals(availableChars[j], slot.Character, StringComparison.OrdinalIgnoreCase))
+                if (sel == 0 && string.Equals(availableChars[j], character, StringComparison.OrdinalIgnoreCase))
                     sel = j + 1; // +1 for the "(skip)" entry
             }
             combo.SelectedIndex = sel;

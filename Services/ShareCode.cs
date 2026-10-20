@@ -22,8 +22,15 @@ public sealed record ShareCodeRead<T>(T? Value, string ErrorKey) where T : class
 /// code holds the places only: never hidden thumbnails or the crop switch.</summary>
 public static class ShareCode
 {
-    public const string LayoutPrefix = "EMP-L1:", LookPrefix = "EMP-P1:";
+    public const string LayoutPrefix = "EMP-L1:", LookPrefix = "EMP-P1:", ProfilePrefix = "EMP-P2:";
     public const int MaxCodeLength = 8192, MaxJsonBytes = 16384, MaxSlots = 64, MaxNameLength = 64, MaxMonitor = 15;
+    // IDEAS P123: only the profile-with-characters prefix (EMP-P2:) reads and writes these larger caps; EMP-L1: and EMP-P1:
+    // keep the two above. 64 characters (MaxSlots) are budgeted 2 KiB of JSON each: the name (up to 194 bytes), the
+    // places, colours and flags (about 400), a label (up to 400) and the rest for a couple of crops. 64 x 2,048 =
+    // 131,072. A code holds that JSON deflated and as base64 (4/3 of the deflated bytes). 65,536 characters of code is
+    // 48 KiB deflated: room for the profile above with its keys repeating. A profile whose code would be longer is
+    // refused when the code is made (WithCharacters returns null), never cut.
+    public const int MaxProfileJsonBytes = 64 * 2048, MaxProfileCodeLength = 65536;
     /// <summary>A message in Discord takes 2,000 characters; a code longer than this is flagged after the copy (leaving room for the words around it).</summary>
     public const int DiscordSafeLength = 1900;
     public const string NotACode = "L.S.Code.NotACode", IsLayout = "L.S.Code.IsLayout", IsLook = "L.S.Code.IsLook", Damaged = "L.S.Code.Damaged";
@@ -37,6 +44,12 @@ public static class ShareCode
         AllowTrailingCommas = false,
         AllowDuplicateProperties = false,
         MaxDepth = 4,
+    };
+
+    /// <summary>The rules of <see cref="Strict"/> for writing a profile code, with text as typed (not \uXXXX) so a name costs what it is.</summary>
+    internal static readonly JsonSerializerOptions StrictProfile = new(Strict)
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     internal sealed class LayoutCode
@@ -118,6 +131,45 @@ public static class ShareCode
         catch (JsonException) { return new(null, Damaged); }
     }
 
+    /// <summary>IDEAS P123: a profile with its characters as a code (<see cref="ProfilePrefix"/>): the look, and the per-character
+    /// data the profile holds for the characters it names (see <see cref="ProfileCode"/> for what is and is not carried).
+    /// Null when the profile names more than 64 characters or its code would be longer than a code may be.</summary>
+    public static string? WithCharacters(AppSettings settings, Profile profile)
+    {
+        var code = ProfileCode.Of(settings, profile);
+        if (code == null) return null;
+        var json = JsonSerializer.SerializeToUtf8Bytes(code, StrictProfile);
+        if (json.Length > MaxProfileJsonBytes) return null;
+        var text = Pack(ProfilePrefix, json);
+        return text.Length > MaxProfileCodeLength ? null : text;
+    }
+
+    public static ShareCodeRead<ProfileCode> ReadWithCharacters(string? text)
+    {
+        var json = Unpack(text, ProfilePrefix, out var error, MaxProfileCodeLength, MaxProfileJsonBytes);
+        if (json == null) return new(null, error);
+        try
+        {
+            var code = JsonSerializer.Deserialize<ProfileCode>(json, Strict);
+            return code != null && code.IsValid() ? new(code, "") : new(null, Damaged);
+        }
+        catch (JsonException) { return new(null, Damaged); }
+    }
+
+    /// <summary>True when the pasted text is a profile code with characters (its prefix, after the same clean-up a read does).</summary>
+    public static bool IsProfileCode(string? text)
+    {
+        if (text == null) return false;
+        var head = new StringBuilder(ProfilePrefix.Length);
+        foreach (var c in text)
+        {
+            if (char.IsWhiteSpace(c) || c == '`') continue;
+            head.Append(c);
+            if (head.Length == ProfilePrefix.Length) break;
+        }
+        return head.ToString() == ProfilePrefix;
+    }
+
     // A layout's name becomes a file name when it is saved from the Your layouts card: nothing that makes a path.
     private static readonly char[] PathCharacters = "\\/:*?\"<>|".ToCharArray();
 
@@ -170,27 +222,29 @@ public static class ShareCode
 
     /// <summary>The JSON inside a pasted code, or null with the reason: white space and backticks around and inside it are
     /// taken out (Discord's code formatting, line breaks of a message); a code of the other kind says so.</summary>
-    private static byte[]? Unpack(string? text, string prefix, out string error)
+    private static byte[]? Unpack(string? text, string prefix, out string error, int maxCode = MaxCodeLength, int maxJson = MaxJsonBytes)
     {
         error = NotACode;
         if (text == null) return null;
-        var compact = new StringBuilder(Math.Min(text.Length, MaxCodeLength + 1));
+        var compact = new StringBuilder(Math.Min(text.Length, maxCode + 1));
         foreach (var c in text)
         {
             if (char.IsWhiteSpace(c) || c == '`') continue;
             compact.Append(c);
-            if (compact.Length > MaxCodeLength + prefix.Length) break;
+            if (compact.Length > maxCode + prefix.Length) break;
         }
         var t = compact.ToString();
-        var other = prefix == LayoutPrefix ? LookPrefix : LayoutPrefix;
-        if (t.StartsWith(other, StringComparison.Ordinal)) { error = other == LookPrefix ? IsLook : IsLayout; return null; }
+        // A code of another kind says so: a layout code is IsLayout, a look code and a profile code with characters are both
+        // "a profile code" (IsLook), pasted with New profile from a code.
+        foreach (var (other, kind) in new[] { (LayoutPrefix, IsLayout), (LookPrefix, IsLook), (ProfilePrefix, IsLook) })
+            if (other != prefix && t.StartsWith(other, StringComparison.Ordinal)) { error = kind; return null; }
         if (!t.StartsWith(prefix, StringComparison.Ordinal)) return null;
         error = Damaged;
-        if (t.Length > MaxCodeLength) return null;
+        if (t.Length > maxCode) return null;
         var body = t[prefix.Length..];
         var packed = new byte[body.Length];
         if (!Convert.TryFromBase64String(body, packed, out int length)) return null;
-        try { return Inflate(packed.AsSpan(0, length).ToArray(), MaxJsonBytes); }
+        try { return Inflate(packed.AsSpan(0, length).ToArray(), maxJson); }
         catch (InvalidDataException) { return null; }
     }
 
@@ -302,6 +356,10 @@ public sealed class ProfileLook
         && (InactiveClientBorderColor?.Length == 0 || IsColour(InactiveClientBorderColor))
         && IsFont(ThumbnailTextFont) && NotLoggedInMarks.Contains(NotLoggedInIndicator);
 
+    // IDEAS P123: a colour as the per-character stores keep it: the look's rule, with the "#" or "0x" optional (a colour
+    // picked in the colours list is stored bare, "FFFFFF"), or empty (no colour of its own).
+    private static readonly Regex StoredColour = new(@"^(#|0x)?([0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})\z", RegexOptions.CultureInvariant);
+    internal static bool IsStoredColour(string? c) => c != null && (c.Length == 0 || StoredColour.IsMatch(c));
     private static bool IsColour(string? c) => c != null && Colour.IsMatch(c);
     private static bool IsFont(string? f) => f != null && Font.IsMatch(f);
     private static string ColourOr(string? c, string fallback) => IsColour(c) ? c! : fallback;
