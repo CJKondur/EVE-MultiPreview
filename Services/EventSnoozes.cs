@@ -210,7 +210,9 @@ public sealed class EventSnoozes
     /// length and written as MultiPreview writes them (<see cref="Plain"/>), and a time that is still ahead. An
     /// entry outside them is left out, never cut to fit. Returns how many snoozes there are that were not there
     /// before: an entry that is in the file twice is one. Never throws, and raises nothing.</summary>
-    public int Restore(string? json)
+    /// <param name="refused">Called, once, when the file is refused because an entry of it ends too far ahead (IDEAS
+    /// P80 (3)): after the clock was set back that can be the player's own file, and nothing else says so.</param>
+    public int Restore(string? json, Action? refused = null)
     {
         if (string.IsNullOrWhiteSpace(json)) return 0;
         Stored? stored;
@@ -220,7 +222,11 @@ public sealed class EventSnoozes
         var now = _utcNow();
         // Before any entry is taken, and whatever else is wrong with the entry that says so.
         foreach (var item in stored.Snoozes)
-            if (item?.U is DateTime far && Utc(far) - now > LongestKept + ClockSlack) return 0;
+            if (item?.U is DateTime far && Utc(far) - now > LongestKept + ClockSlack)
+            {
+                refused?.Invoke();
+                return 0;
+            }
         int taken = 0;
         lock (_lock)
         {
@@ -279,6 +285,9 @@ public sealed class EventSnoozeFile
     /// <summary>The text Save last put into the file, under _gate. Null when that is not known: nothing written yet,
     /// the file removed, or a write or a removal that failed.</summary>
     private string? _written;
+    /// <summary>What <see cref="Report"/> has said since a save last succeeded (IDEAS P80 (4)): each sentence once, so a
+    /// settings folder that is a link is one entry in the error log and not one at every change.</summary>
+    private readonly HashSet<string> _reported = new();
 
     /// <param name="folder">The settings folder (AppPaths.ConfigDir).</param>
     /// <param name="isLink">Whether a path is a link (SettingsHome.IsLink, unless a test says).</param>
@@ -301,7 +310,8 @@ public sealed class EventSnoozeFile
             if (!File.Exists(path)) return 0;
             if (_isLink(_folder) || _isLink(path)) { Report("the snooze file or its folder is a link, and MultiPreview doesn't read snoozes through one", null); return 0; }
             if (new FileInfo(path).Length > MaxFileBytes) { Report("the snooze file is larger than a snooze file can be; it was not read", null); return 0; }
-            return into.Restore(File.ReadAllText(path, Utf8));
+            return into.Restore(File.ReadAllText(path, Utf8),
+                () => Report("the snooze file holds an entry that ends more than an hour and a minute from now (the clock was set back, or the file is not MultiPreview's); none of it was read", null));
         }
         catch (Exception ex)
         {
@@ -327,6 +337,7 @@ public sealed class EventSnoozeFile
                 {
                     _written = null;
                     if (File.Exists(path)) File.Delete(path);
+                    Saved();
                     return true;
                 }
                 var text = EventSnoozes.ToJson(timed, DateTime.MinValue);
@@ -339,6 +350,7 @@ public sealed class EventSnoozeFile
                 }
                 File.Move(tmp, path, overwrite: true);
                 _written = text;
+                Saved();
                 return true;
             }
             catch (Exception ex)
@@ -372,15 +384,27 @@ public sealed class EventSnoozeFile
             try
             {
                 var path = FilePath;
-                if (File.Exists(path) && !(_isLink(_folder) || _isLink(path))) File.Delete(path);
+                if (File.Exists(path) && !(_isLink(_folder) || _isLink(path)))
+                {
+                    File.Delete(path);
+                    Saved();
+                }
             }
             catch (Exception ex) { Report("the snooze file could not be removed", ex); }
         }
     }
 
+    /// <summary>A save, or the removal of the file, went through: what failed before is told again if it fails again.</summary>
+    private void Saved()
+    {
+        lock (_reported) _reported.Clear();
+    }
+
     /// <summary>A fixed sentence and the exception's type. Never its message (it can hold a path), never a name.</summary>
     private void Report(string what, Exception? ex)
     {
+        lock (_reported)
+            if (!_reported.Add(what)) return;
         try { _errors.Record(new IOException($"Alert snoozes: {what}" + (ex == null ? "" : $" ({ex.GetType().Name})")), "AlertSnoozes", DateTime.Now); }
         catch { /* reporting never stops the app */ }
     }

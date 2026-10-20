@@ -19,6 +19,10 @@ public sealed class StragglerAlerts
     private readonly AlertHistory? _history;
     private readonly Action<Exception> _failed;
     private readonly Func<AppSettings, bool> _isOn;
+    /// <summary>The line of the wave each character was last told with (IDEAS P83), set before its alert is raised. A
+    /// look can tell a character and, in the same look, end what it told (the pack arrives where it waits): the watch has
+    /// let go of the line by the time the toast asks, and the toast would show the system instead.</summary>
+    private readonly Dictionary<string, string> _told = new(StringComparer.OrdinalIgnoreCase);
 
     /// <param name="watch">The rule. App tells it every system change itself (StragglerWatch.Moved).</param>
     /// <param name="settings">The settings as they are now.</param>
@@ -78,6 +82,7 @@ public sealed class StragglerAlerts
         {
             try
             {
+                _told[one.Character] = one.Text;
                 Raise(utcNow, one.Character, StragglerWatch.EventKey, StragglerWatch.Severity, one.Text);
             }
             catch (Exception ex)
@@ -100,7 +105,9 @@ public sealed class StragglerAlerts
     }
 
     /// <summary>What the toast of an alert says where it shows the system otherwise (AlertHub.PlaceLookup): for "Left
-    /// behind", where the others went; null for every other alert, and the toast shows the system.</summary>
+    /// behind", where the others went (also when the look that told it has ended it since); null for every other alert, and
+    /// the toast shows the system.</summary>
     public string? PlaceOf(string character, string alertType) =>
-        alertType == StragglerWatch.EventKey ? _watch.WaveOf(character) : null;
+        alertType != StragglerWatch.EventKey ? null
+        : _watch.WaveOf(character) ?? (!string.IsNullOrEmpty(character) && _told.TryGetValue(character, out var told) ? told : null);
 }

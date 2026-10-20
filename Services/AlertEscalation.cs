@@ -104,7 +104,9 @@ public sealed class AlertEscalation
     /// what became of it. Played: it is counted. Never (no sound to play at all, or "Play a sound" off): it counts as
     /// done without a sound. Later (the event's sound quiet time): it is put off and asked for again.</param>
     /// <param name="failed">Is told what a step of this tick threw (App logs it). A tick never throws: a timer whose
-    /// tick threw would tick no more. The repeat it was about is put off, and the next tick runs as ever.</param>
+    /// tick threw would tick no more. The repeat it was about is put off, and the next tick runs as ever. Told of the
+    /// first failure, and again only after a tick has gone through without one: a step that throws at every look is
+    /// one entry, not one a second.</param>
     /// <param name="flash">Is told of each repeat that is counted, once, after the sound was asked for (IDEAS P82 (1)): the
     /// client's border flashes again. Not told of a repeat that was put off (<see cref="SoundResult.Later"/>), which
     /// is asked for again every look, and not of any repeat while <paramref name="soundsHeld"/> holds them: none is due.</param>
@@ -118,24 +120,33 @@ public sealed class AlertEscalation
             return;
         }
         Repeat? due = null;
+        bool threw = false;
         try
         {
             due = Due(unseen(), s, utcNow, quieted, soundsHeld());
-            if (due == null) return;
-            var result = play(due, Volume(s.AlertSoundVolume, due.Number, doNotDisturb()));
-            if (result == SoundResult.Later) PutOff(due, utcNow);
-            else
+            if (due != null)
             {
-                Played(due, utcNow);
-                flash?.Invoke(due);
+                var result = play(due, Volume(s.AlertSoundVolume, due.Number, doNotDisturb()));
+                if (result == SoundResult.Later) PutOff(due, utcNow);
+                else
+                {
+                    Played(due, utcNow);
+                    flash?.Invoke(due);
+                }
             }
         }
         catch (Exception ex)
         {
+            threw = true;
             if (due != null) PutOff(due, utcNow);
-            failed(ex);
+            if (!_failing) failed(ex);      // a step that keeps throwing is told once, not at every look
         }
+        _failing = threw;
     }
+
+    /// <summary>The last tick threw, and was told: the ones that throw after it are not told again until a tick has
+    /// gone through (IDEAS P82 (9a)): the tray's error count must not rise once a second.</summary>
+    private bool _failing;
 
     /// <summary>One look. Returns the one repeat to play now, or null.</summary>
     /// <param name="unseen">AlertAttention.Unseen(), as it is at this moment.</param>
