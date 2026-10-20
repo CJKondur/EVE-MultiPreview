@@ -6,13 +6,15 @@ using System.Text;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>IDEAS #39, #15 and P127: what another program may ask of the running MultiPreview. One of seventeen, nothing
-/// else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs of P127.</summary>
+/// <summary>IDEAS #39, #15, P127 and P129: what another program may ask of the running MultiPreview. One of nineteen, nothing
+/// else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs of P127 and the
+/// two alert-mute verbs of P129.</summary>
 public enum RemoteVerb
 {
     Focus, Profile, ToggleThumbnails, FocusMode,
     CycleGroup, CycleGroupBack, CycleAll, CycleAllBack, PreviousClient, LastAlert, NextProfile, PreviousProfile, DoNotDisturb,
     DoNotDisturbOn, DoNotDisturbOff, FocusModeOn, FocusModeOff,
+    Mute, Unmute,
 }
 
 /// <summary>What came of a command. The running MultiPreview answers the first three as one byte on the pipe; a second
@@ -47,6 +49,8 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
         ("--do-not-disturb-off", "do-not-disturb-off", RemoteVerb.DoNotDisturbOff, false),
         ("--focus-mode-on", "focus-mode-on", RemoteVerb.FocusModeOn, false),
         ("--focus-mode-off", "focus-mode-off", RemoteVerb.FocusModeOff, false),
+        ("--mute", "mute", RemoteVerb.Mute, true),
+        ("--unmute", "unmute", RemoteVerb.Unmute, true),
     };
 
     /// <summary>The command-line switch of a verb of the list (<c>--cycle-all</c>); empty for any other.</summary>
@@ -146,6 +150,9 @@ public sealed class RemoteCommandRunner
     public required Func<bool> IsDoNotDisturbOn { get; init; }
     /// <summary>IDEAS P127: whether focus mode is on right now.</summary>
     public required Func<bool> IsFocusModeOn { get; init; }
+    /// <summary>IDEAS P129: the running character's real name, and true to mute its alerts (for the longest timed length the
+    /// thumbnail menu offers) or false to end the mute. Same state as the menu's Mute alerts › item.</summary>
+    public required Action<string, bool> SetAlertMute { get; init; }
 
     /// <summary>The name a player typed, as one that exists: the exact one, else the one whose name matches ignoring case
     /// (two such: none). Null when there is none.</summary>
@@ -218,6 +225,14 @@ public sealed class RemoteCommandRunner
                 return RemoteOutcome.Done;
             case RemoteVerb.FocusModeOff:
                 if (IsFocusModeOn()) ToggleFocusMode();
+                return RemoteOutcome.Done;
+            // IDEAS P129: the whole-character alert mute of the thumbnail menu. A character that is not running is NotFound,
+            // never a silent Done; the name handed on is the running character's own, so its case is the thumbnail's.
+            case RemoteVerb.Mute:
+            case RemoteVerb.Unmute:
+                var pilot = Running().FirstOrDefault(n => string.Equals(n, command.Argument, StringComparison.OrdinalIgnoreCase));
+                if (pilot == null) return RemoteOutcome.NotFound;
+                SetAlertMute(pilot, command.Verb == RemoteVerb.Mute);
                 return RemoteOutcome.Done;
             default:
                 return RemoteOutcome.Refused;

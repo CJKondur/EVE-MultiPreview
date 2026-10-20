@@ -1619,6 +1619,8 @@ public partial class App : Application
                 DoNotDisturb = ToggleDoNotDisturb,
                 IsDoNotDisturbOn = () => DoNotDisturbOn,
                 IsFocusModeOn = () => _focusModeOn,
+                // IDEAS P129: the menu's whole-character alert mute, for the longest timed length the menu offers
+                SetAlertMute = (name, mute) => thumbnails.SetCharacterAlertMute(name, mute ? ThumbnailMenu.LongestTimedMuteMinutes : 0),
             }.Run(command);
         }
         catch (Exception ex)

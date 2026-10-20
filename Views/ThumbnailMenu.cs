@@ -61,6 +61,11 @@ public sealed record ThumbnailMenuState(string CharacterName, string? SystemName
 /// Built once per thumbnail and refreshed each time it opens.</summary>
 public sealed class ThumbnailMenu : IDisposable
 {
+    /// <summary>The longest timed length Mute alerts › offers (its "For 1 hour"). The --mute command (IDEAS P129) mutes for
+    /// this long, so a keypress gives the same mute the menu's longest timed item gives. A test clicks every item of the menu
+    /// and fails if a longer timed item is added without this following.</summary>
+    public const int LongestTimedMuteMinutes = 60;
+
     private readonly Action<int> _audio;
     private readonly List<(ToolStripItem Item, string Key, string English)> _labels = new();
     private readonly ToolStripLabel _header;

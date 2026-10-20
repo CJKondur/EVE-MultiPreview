@@ -2870,6 +2870,14 @@ public sealed class ThumbnailManager : IDisposable
     private void OnAlertMuteRequested(ThumbnailWindow thumb, int minutes)
     {
         var charName = thumb.CharacterName;
+        SetCharacterAlertMute(charName, minutes);
+    }
+
+    /// <summary>The alert mute for one character by name, whatever asked for it: the thumbnail's menu (through
+    /// OnAlertMuteRequested) and the --mute / --unmute commands (IDEAS P129) both end here, so both leave the same state.
+    /// Minutes &gt;0 mutes that long, 0 unmutes, int.MaxValue mutes until cleared. Runs on the window's thread.</summary>
+    public void SetCharacterAlertMute(string charName, int minutes)
+    {
         if (string.IsNullOrEmpty(charName)) return;
 
         DateTime? until;

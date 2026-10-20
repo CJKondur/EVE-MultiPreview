@@ -33,7 +33,7 @@ public static class CommandLines
     }
 
     /// <summary>Every command a player can put on a button: the verbs without a name first, then a focus line per running
-    /// character, both cycle lines per group and a profile line per profile. Each in the order given, a name once (ignoring
+    /// character, a mute and an unmute line per running character, both cycle lines per group and a profile line per profile. Each in the order given, a name once (ignoring
     /// case), a name with no line left out. No program path: nothing.</summary>
     public static IReadOnlyList<CommandChoice> Choices(string? exePath, IEnumerable<string> running, IEnumerable<string> profiles, IEnumerable<string> groups)
     {
@@ -48,7 +48,13 @@ public static class CommandLines
 
         foreach (var verb in Enum.GetValues<RemoteVerb>().Where(v => RemoteCommand.SwitchOf(v).Length > 0 && !RemoteCommand.TakesName(v)))
             Add(new RemoteCommand(verb, ""));
-        foreach (var name in running) Add(new RemoteCommand(RemoteVerb.Focus, name));
+        var runningNames = running.ToList();
+        foreach (var name in runningNames) Add(new RemoteCommand(RemoteVerb.Focus, name));
+        foreach (var name in runningNames)   // IDEAS P129: the alert mute of a running character, both ways
+        {
+            Add(new RemoteCommand(RemoteVerb.Mute, name));
+            Add(new RemoteCommand(RemoteVerb.Unmute, name));
+        }
         foreach (var name in groups)
         {
             Add(new RemoteCommand(RemoteVerb.CycleGroup, name));
