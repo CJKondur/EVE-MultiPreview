@@ -14,11 +14,15 @@ namespace EveMultiPreview.Services;
 /// fourteen days are kept, older ones are dropped as they are met. An <see cref="Add"/> of nothing, of less, or of more than one
 /// tick of the app's timer (<see cref="MaxAddSeconds"/>) is ignored: that is a PC that slept or a clock that was stepped, not
 /// time played. A day that has not come yet (the clock was set back) is kept and left out of the week. A clock that
-/// jumps more than <see cref="MaxDayJump"/> days ahead of the last day taken as today is not believed: nothing is counted, pruned
-/// or rebased on it, so a tick at a wild date cannot drop the real week; it is believed after <see cref="BelieveAfterRounds"/>
+/// is more than <see cref="MaxDayJump"/> days from the last day taken as today, ahead OR back, is not believed: nothing is counted,
+/// pruned or rebased on it, so a tick at a wild date cannot drop the real week; it is believed after <see cref="BelieveAfterRounds"/>
 /// rounds (<see cref="BeginRound"/>: one per tick of the app, however many characters it counts) in a row on it (a PC that slept
-/// for days, a date that was changed on purpose). The last day taken as today starts as the newest day <see cref="Import"/> reads,
-/// so a start-up with a clock far ahead is not believed either. At most
+/// for days, a date that was changed on purpose, a clock corrected after a wrong one). The last day taken as today starts as the
+/// newest day <see cref="Import"/> reads, so a start-up with a clock far off is not believed either, and a wrong day that was saved
+/// is left behind the same way. Old days are dropped only against a date that was reached in steps of at most
+/// <see cref="MaxDayJump"/> days: a believed jump moves the day taken as today but never drops a day, ahead or back (the store
+/// keeps the newest <see cref="KeepDays"/> days of a character anyway, and the week only adds up the seven days up to the
+/// clock, so a day that has not come yet never shows in it). At most
 /// <see cref="MaxCharacters"/> characters are kept, a day at most <see cref="MaxDaySeconds"/>. A name is at most
 /// <see cref="MaxNameLength"/> characters with no control character in it (the store would drop any other). Names are matched
 /// ignoring case; the first spelling is the one kept.</summary>
@@ -41,6 +45,7 @@ public sealed class PlaytimeLedger
 
     private readonly Func<DateTime> _nowLocal;
     private DateTime? _anchor;      // the last date taken as today
+    private DateTime? _pruneAnchor; // the last date reached in steps of at most MaxDayJump days: old days are dropped only against a date near it
     private int _farRounds;         // rounds in a row that counted on a date far ahead of the anchor
     private int _round, _farRound = -1;   // the current round, and the last one that was counted as far
     private readonly Dictionary<string, Day> _days = new(StringComparer.OrdinalIgnoreCase);
@@ -64,24 +69,28 @@ public sealed class PlaytimeLedger
     /// run (<see cref="BelieveAfterRounds"/>) counts rounds, not Adds, so ten clients do not make five minutes into thirty seconds.</summary>
     public void BeginRound() => _round++;
 
-    /// <summary>The date to count on. A reading more than <see cref="MaxDayJump"/> days past the anchor is not believed: false,
-    /// with the anchor as <paramref name="today"/>, until <see cref="BelieveAfterRounds"/> rounds in a row have counted on it.
-    /// Any other reading is today, and the anchor never goes back (a clock set back keeps its days, and the real date is near
-    /// the anchor again).</summary>
-    private bool TryToday(bool counting, out DateTime today)
+    /// <summary>The date to count on. A reading more than <see cref="MaxDayJump"/> days from the anchor, ahead or back, is not
+    /// believed: false, until <see cref="BelieveAfterRounds"/> rounds in a row have counted on it; then the anchor moves there.
+    /// Any other reading is today, and the anchor never goes back by a small step (a clock set back a day keeps its days, and
+    /// the real date is near the anchor again). <paramref name="prune"/> says whether days older than the kept ones may be dropped
+    /// against <paramref name="today"/>: only when it is near the date reached in small steps, never after a believed jump.</summary>
+    private bool TryToday(bool counting, out DateTime today, out bool prune)
     {
         var now = _nowLocal().Date;
         today = now;
-        if (_anchor is { } anchor && now > anchor.AddDays(MaxDayJump))
+        prune = false;
+        if (_anchor is { } anchor && Math.Abs((now - anchor).TotalDays) > MaxDayJump)
         {
-            today = anchor;
             if (!counting) return false;
             if (_farRound != _round) { _farRound = _round; _farRounds++; }
             if (_farRounds < BelieveAfterRounds) return false;
-            today = now;
+            _anchor = now;                                  // believed: the day taken as today moves, ahead or back
         }
+        else _anchor = _anchor is { } a && a > now ? a : now;
         _farRounds = 0;
-        _anchor = _anchor is { } a && a > now ? a : now;
+        if (_pruneAnchor is not { } step) _pruneAnchor = now;
+        else if (now > step && (now - step).TotalDays <= MaxDayJump) _pruneAnchor = now;
+        prune = _pruneAnchor is { } near && Math.Abs((now - near).TotalDays) <= MaxDayJump;
         return true;
     }
 
@@ -92,13 +101,13 @@ public sealed class PlaytimeLedger
     {
         name = name?.Trim();
         if (!IsKeptName(name) || seconds <= 0 || seconds > MaxAddSeconds) return false;
-        if (!TryToday(counting: true, out var today)) return false;   // a far date, not believed yet
+        if (!TryToday(counting: true, out var today, out var prune)) return false;   // a far date, not believed yet
         if (!_days.TryGetValue(name, out var held))
         {
             if (_days.Count >= MaxCharacters) return false;
             _days[name] = held = new Day { Name = name };
         }
-        Prune(held, today);
+        if (prune) Prune(held, today);
         held.Seconds[today] = Math.Min(MaxDaySeconds, held.Seconds.GetValueOrDefault(today) + seconds);
         return true;
     }
@@ -128,11 +137,11 @@ public sealed class PlaytimeLedger
     /// <summary>A copy of what is held, older days dropped, a character with no day left left out.</summary>
     public Dictionary<string, Dictionary<DateTime, int>> Export()
     {
-        TryToday(counting: false, out var today);
+        TryToday(counting: false, out var today, out var prune);
         var copy = new Dictionary<string, Dictionary<DateTime, int>>(StringComparer.OrdinalIgnoreCase);
         foreach (var held in _days.Values.ToList())
         {
-            Prune(held, today);
+            if (prune) Prune(held, today);
             if (held.Seconds.Count == 0) { _days.Remove(held.Name); continue; }
             copy[held.Name] = new Dictionary<DateTime, int>(held.Seconds);
         }
@@ -143,13 +152,17 @@ public sealed class PlaytimeLedger
     /// nothing or less, a blank name and a 501st character are not taken.</summary>
     public void Import(Dictionary<string, Dictionary<DateTime, int>> data)
     {
-        // The newest day the file holds is a date the player really played on: the clock is judged against it, so a start-up with
-        // the clock far ahead prunes nothing and counts nothing until the date is believed (the anchor is never moved back).
+        // The newest day the file holds is a date the player played on: the clock is judged against it, so a start-up with the
+        // clock far off prunes nothing and counts nothing until the date is believed (the anchors are never moved back here).
         foreach (var (given, days) in data)
             if (IsKeptName(given?.Trim()) && days != null)
                 foreach (var (day, seconds) in days)
-                    if (seconds > 0 && (_anchor is not { } known || day.Date > known)) _anchor = day.Date;
-        TryToday(counting: false, out var today);
+                    if (seconds > 0)
+                    {
+                        if (_anchor is not { } known || day.Date > known) _anchor = day.Date;
+                        if (_pruneAnchor is not { } step || day.Date > step) _pruneAnchor = day.Date;
+                    }
+        TryToday(counting: false, out var today, out var prune);
         foreach (var (given, days) in data)
         {
             var name = given?.Trim();
@@ -157,7 +170,7 @@ public sealed class PlaytimeLedger
             _days.TryGetValue(name, out var held);
             foreach (var (day, seconds) in days)
             {
-                if (seconds <= 0 || day.Date < OldestKept(today)) continue;
+                if (seconds <= 0 || (prune && day.Date < OldestKept(today))) continue;
                 if (held == null)
                 {
                     if (_days.Count >= MaxCharacters) break;
