@@ -59,7 +59,7 @@ public partial class SettingsWindow
             n => S.CustomColors.ContainsKey(n),
             n => S.CustomColors[n] = new CustomColorEntry
             {
-                Char = n, Border = "0xe36a0d", Text = "0xfac57a", InactiveBorder = "0x505050"
+                Border = "0xe36a0d", Text = "0xfac57a", InactiveBorder = "0x505050"
             });
         if (added > 0) { LoadColorsList(); SaveDelayed(); }
     }
@@ -71,7 +71,7 @@ public partial class SettingsWindow
         var border = PickColor() ?? "0xe36a0d";
         var text = PickColor() ?? "0xfac57a";
         var inactive = PickColor() ?? "0x505050";
-        S.CustomColors[name] = new CustomColorEntry { Char = name, Border = border, Text = text, InactiveBorder = inactive };
+        S.CustomColors[name] = new CustomColorEntry { Border = border, Text = text, InactiveBorder = inactive };
         LoadColorsList(); SaveDelayed();
     }
 
@@ -674,7 +674,7 @@ public partial class SettingsWindow
 
         // Per-character switch hotkeys
         foreach (var (chr, hk) in _svc.CurrentProfile.Hotkeys)
-            Add($"Switch → {chr}", (hk.Modifiers ?? "") + (hk.Key ?? ""));
+            Add($"Switch → {chr}", hk.Key ?? "");
 
         // Group cycle hotkeys
         foreach (var (grp, g) in _svc.CurrentProfile.HotkeyGroups)
@@ -1577,8 +1577,8 @@ public partial class SettingsWindow
 
     /// <summary>Builds a human-recognisable label for an EVE account id.
     /// Priority: user-assigned label → auto-learned character names → raw id.
-    /// The character names come from AccountAssociationService observing
-    /// settings co-writes, resolved through the same name map Char Copy uses.</summary>
+    /// The character names come from the accounts Detect Account linked,
+    /// resolved through the same name map Char Copy uses.</summary>
     private string AccountLabel(string accountId)
     {
         if (S.AccountLabels.TryGetValue(accountId, out var manual) && !string.IsNullOrWhiteSpace(manual))

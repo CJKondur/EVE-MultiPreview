@@ -81,7 +81,7 @@ public static class CharacterFields
             bool textOnly = part == ColorPart.Text;
             s.CustomColors[name] = e = new CustomColorEntry
             {
-                Char = name, Text = DefaultText,
+                Text = DefaultText,
                 Border = textOnly ? "" : DefaultBorder, InactiveBorder = textOnly ? "" : DefaultInactive,
             };
         }

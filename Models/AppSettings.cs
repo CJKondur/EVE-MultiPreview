@@ -544,12 +544,11 @@ public class AppSettings
     public string EveSettingsDir { get; set; } = "";
     public AhkEveManager? EveManager { get; set; }
 
-    /// <summary>Learned account→character associations for the EVE Manager
+    /// <summary>Account→character associations for the EVE Manager
     /// Account Copy panel. Keyed by EVE account (user) ID; value is the set of
-    /// character IDs observed flushing settings alongside that account on
-    /// logout. Populated automatically by AccountAssociationService. Lets the
-    /// Account Copy list label an otherwise-anonymous user id by its
-    /// characters' names. Issue #45 follow-up.</summary>
+    /// character IDs linked to that account by Detect Account (Tools › EVE
+    /// settings). Lets the Account Copy list label an otherwise-anonymous user
+    /// id by its characters' names. Issue #45 follow-up.</summary>
     public Dictionary<string, List<string>> AccountCharacterMap { get; set; } = new();
 
     /// <summary>User-assigned friendly names for EVE accounts, keyed by
@@ -639,25 +638,15 @@ public class AppSettings
     // Properties that were removed but may still be referenced — keep as simple props
     public bool ResizeThumbnailsOnHover { get; set; } = false;
     public double HoverScale { get; set; } = 1.5;
-    public int NotLoggedInDim { get; set; } = 80;
     public string AlertFlashColor { get; set; } = "0xff0000";
-    public int AlertFlashRate { get; set; } = 500;
-    public bool AlertFlashEnabled { get; set; } = true;
     public int AlertCooldown { get; set; } = 5;
-    public bool AlertSoundEnabled { get; set; } = false;
     public string AlertSoundFile { get; set; } = "";
 
     // Cycle-wrap sound (issue #24) — plays when a cycle hotkey rolls from the
     // last client back to the first (or first back to the last when reversing).
     public bool CycleWrapSoundEnabled { get; set; } = false;
     public string CycleWrapSoundFile { get; set; } = "";
-    public int AlertSoundCooldown { get; set; } = 10;
     public bool StatOverlayEnabled { get; set; } = true;
-    public bool ShowDpsOverlay { get; set; } = false;
-    public bool ShowLogiOverlay { get; set; } = false;
-    public bool ShowMiningOverlay { get; set; } = false;
-    public bool ShowRattingOverlay { get; set; } = false;
-    public bool IncludeNpcDamage { get; set; } = false;
 
     // ── Color Parsing Utility ────────────────────────────────────────
     /// <summary>
@@ -756,7 +745,6 @@ public class WindowSize
 
 public class CustomColorEntry
 {
-    public string Char { get; set; } = "";
     public string Border { get; set; } = "FFFFFF";
     public string Text { get; set; } = "FFFFFF";
     public string InactiveBorder { get; set; } = "FFFFFF";
@@ -873,9 +861,6 @@ public class Profile
     /// <summary>Resize clients to their slot (true) or only move them. Hidden fallback.</summary>
     public bool ClientSlotsResize { get; set; } = true;
 
-    // ── Per-profile Stat Overlay (per-character toggle for which stat types to show) ──
-    public Dictionary<string, StatOverlayCharacterConfig> StatOverlayCharacters { get; set; } = new();
-
     // ── Per-profile Custom Colors (from AHK "Custom Colors" sub-object) ──
     public bool CustomColorsActive { get; set; } = false;
     public Dictionary<string, CustomColorEntry> CustomColors { get; set; } = new();
@@ -947,16 +932,6 @@ public class CropDefinition
     public bool ClickThrough { get; set; } = false;
 }
 
-/// <summary>Per-character stat overlay configuration.</summary>
-public class StatOverlayCharacterConfig
-{
-    public bool Dps { get; set; }
-    public bool Logi { get; set; }
-    public bool Mining { get; set; }
-    public bool Ratting { get; set; }
-    public bool Npc { get; set; }
-}
-
 public class ClientPosition
 {
     [JsonPropertyName("x")]
@@ -979,12 +954,6 @@ public class HotkeyBinding
 {
     [JsonPropertyName("key")]
     public string Key { get; set; } = "";
-
-    [JsonPropertyName("modifiers")]
-    public string Modifiers { get; set; } = "";
-
-    [JsonPropertyName("action")]
-    public string Action { get; set; } = "switch";
 }
 
 public class ThumbnailGroup

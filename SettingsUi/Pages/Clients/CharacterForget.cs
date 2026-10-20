@@ -26,7 +26,6 @@ public static class CharacterForget
             Keys(p.PerClientAudioVolume);
             Keys(p.Crops);
             Keys(p.ClientPositions);
-            Keys(p.StatOverlayCharacters);
             p.DontMinimizeClients.RemoveAll(Same);
             p.ClientSlotExcluded.RemoveAll(Same);
             p.AutoSelectCharacters = AutoProfile.Without(p.AutoSelectCharacters, name);   // IDEAS #11

@@ -69,37 +69,6 @@
     "주변 물체로 인해 클로킹이 해제됩니다.",
     "）のパルスにより、クロークが解除されます。"
   ],
-  "local_change": [
-    "Canal changé en",
-    "Channel changed to",
-    "Channel changed to Local",
-    "Chatkanal geändert zu",
-    "El canal ha cambiado a",
-    "Канал изменен на",
-    "に変更されました",
-    "频道更换为",
-    "频道更换为本地",
-    "채널로 변경"
-  ],
-  "jump": [
-    "Jumping from",
-    "Saltando de",
-    "Saute de",
-    "Springe von",
-    "Осуществляется прыжок из",
-    "へジャンプ中",
-    "점프 중 -"
-  ],
-  "undock": [
-    "Undocking from",
-    "en dirección al sistema solar",
-    "pour rejoindre le système solaire",
-    "zum Sonnensystem",
-    "в звездную систему",
-    "へ出港",
-    "离站进入",
-    "항성계로 이동합니다."
-  ],
   "combat_miss": [
     ") falla.",
     ") misses you",

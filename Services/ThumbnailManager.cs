@@ -1482,6 +1482,9 @@ public sealed class ThumbnailManager : IDisposable
             _settings.SaveThumbnailPosition(thumb.CharacterName,
                 (int)thumb.Left, (int)thumb.Top, (int)thumb.Width, (int)thumb.Height);
         }
+
+        // The gesture is over: a drag-all (IDEAS P96) saves the others' places and clears its start table
+        FinishDragAll();
     }
 
     private void OnSwitchRequested(ThumbnailWindow thumb)
@@ -1616,7 +1619,8 @@ public sealed class ThumbnailManager : IDisposable
         }
     }
 
-    /// <summary>Called when drag ends to clear stored positions.</summary>
+    /// <summary>Called when a drag ends (OnThumbnailPositionChanged): a drag-all saves every thumbnail's place and clears its
+    /// start positions, so the next drag-all starts from where they are then. Does nothing when no drag-all ran.</summary>
     public void FinishDragAll()
     {
         if (_dragAllStartPositions.Count > 0)

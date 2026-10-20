@@ -231,13 +231,6 @@ public class AhkConfigRoot
             s.GlobalStatMetrics = m;
         }
 
-        // Keep the legacy AppSettings mirrors in sync for any residual readers.
-        s.ShowDpsOverlay     = (s.GlobalStatMetrics & StatMetrics.DpsMask)  != 0;
-        s.ShowLogiOverlay    = (s.GlobalStatMetrics & StatMetrics.LogiMask) != 0;
-        s.ShowMiningOverlay  = (s.GlobalStatMetrics & StatMetrics.MineMask) != 0;
-        s.ShowRattingOverlay = (s.GlobalStatMetrics & StatMetrics.RatMask)  != 0;
-        s.IncludeNpcDamage   = (s.GlobalStatMetrics & StatMetrics.IncludeNpc) != 0;
-
         // RTSS
         s.RtssEnabled = g.RTSS_Enabled != 0;
         s.RtssFpsLimit = g.RTSS_IdleFPS;
