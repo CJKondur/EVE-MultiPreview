@@ -152,6 +152,40 @@ public sealed class CropManager : IDisposable
         _thumbnailManager = thumbnailManager;
         _thumbnailManager.AllVisibilityChanged += SetCropsHidden;
         _thumbnailManager.CropsVisibilityToggleRequested += ToggleCropsVisibility;
+        _thumbnailManager.FocusHeldChanged += HoldForFocus;       // IDEAS P124
+        _thumbnailManager.ClientMarkChanged += SetClientMark;     // IDEAS P114
+    }
+
+    // Characters whose crops focus mode holds hidden (IDEAS P124), as ThumbnailManager last said.
+    private IReadOnlySet<string> _focusHeld = FocusMode.Nobody;
+
+    /// <summary>Whether a character's crops are hidden now: by the Hide/Show All keybind or the Hide/Show Crops keybind
+    /// (<see cref="_cropsHidden"/>), or because focus mode holds the character (IDEAS P124). One answer for every show or
+    /// hide, so none of them shows a held crop.</summary>
+    private bool HiddenFor(string charName) => _cropsHidden || FocusMode.Holds(_focusHeld, charName);
+
+    /// <summary>IDEAS P124: focus mode holds these characters' crops hidden and lets go of every other. A crop let go shows
+    /// only when crops are not hidden by their own switch. Every look of focus mode comes here (twice a second): a crop whose
+    /// state is already right is not touched. The window's thread.</summary>
+    public void HoldForFocus(IReadOnlySet<string> held)
+    {
+        _focusHeld = held;
+        foreach (var (charName, perChar) in _windows)
+            foreach (var win in perChar.Values)
+            {
+                bool hidden = HiddenFor(charName);
+                if (win.IsHiddenByToggle == hidden) continue;
+                try { win.SetHidden(hidden); }
+                catch (Exception ex) { Debug.WriteLine($"[CropManager] SetHidden failed: {ex.Message}"); }
+            }
+    }
+
+    /// <summary>IDEAS P114: shows what ClientWatch said of a character's client on its crop windows, as on its thumbnail.
+    /// The window's thread.</summary>
+    public void SetClientMark(string charName, ClientMark mark)
+    {
+        if (!_windows.TryGetValue(charName, out var perChar)) return;
+        foreach (var win in perChar.Values) win.SetClientMark(mark);
     }
 
     /// <summary>Show or hide every live crop. Driven by the Hide/Show All keybind
@@ -198,10 +232,10 @@ public sealed class CropManager : IDisposable
 
     private void ApplyHiddenToAll()
     {
-        foreach (var perChar in _windows.Values)
+        foreach (var (charName, perChar) in _windows)
             foreach (var win in perChar.Values)
             {
-                try { win.SetHidden(_cropsHidden); }
+                try { win.SetHidden(HiddenFor(charName)); }
                 catch (Exception ex) { Debug.WriteLine($"[CropManager] SetHidden failed: {ex.Message}"); }
             }
     }
@@ -415,6 +449,8 @@ public sealed class CropManager : IDisposable
         {
             _thumbnailManager.AllVisibilityChanged -= SetCropsHidden;
             _thumbnailManager.CropsVisibilityToggleRequested -= ToggleCropsVisibility;
+            _thumbnailManager.FocusHeldChanged -= HoldForFocus;
+            _thumbnailManager.ClientMarkChanged -= SetClientMark;
         }
         if (_winEvents != null)
         {
@@ -517,7 +553,7 @@ public sealed class CropManager : IDisposable
                 existing.UpdateThumbnailDestination();
                 existing.ApplyClickThrough();
                 ApplyVisualSettings(existing);
-                existing.SetHidden(_cropsHidden);
+                existing.SetHidden(HiddenFor(charName));
                 continue;
             }
 
@@ -533,7 +569,8 @@ public sealed class CropManager : IDisposable
             }
             ApplyVisualSettings(win);
             // A crop spawned while crops are toggled off must start hidden (issue #66).
-            if (_cropsHidden) win.SetHidden(true);
+            if (HiddenFor(charName)) win.SetHidden(true);
+            win.SetClientMark(_thumbnailManager?.MarkOf(charName) ?? ClientMark.None);   // IDEAS P114: the mark it was made under
             perChar[def.Id] = win;
         }
 

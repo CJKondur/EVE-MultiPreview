@@ -51,6 +51,27 @@ public partial class StatOverlayWindow : Window
         Loaded += OnLoaded;
     }
 
+    /// <summary>IDEAS P124: focus mode holds this window hidden. While held, nothing shows it: the Hide all and Hide primary
+    /// switches, the focus sweep and the settings window closing all set <see cref="Visibility"/>, which stays collapsed.
+    /// The manager lets go and decides whether the window shows.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public bool HeldHidden { get; private set; }
+
+    /// <summary>The window's visibility, as before; a request to show it is ignored while focus mode holds it.</summary>
+    public new Visibility Visibility
+    {
+        get => base.Visibility;
+        set => base.Visibility = HeldHidden ? Visibility.Collapsed : value;
+    }
+
+    /// <summary>Holds the window hidden, or lets go of it without showing it. The window's thread.</summary>
+    public void SetHeldHidden(bool held)
+    {
+        if (HeldHidden == held) return;
+        HeldHidden = held;
+        if (held) base.Visibility = Visibility.Collapsed;
+    }
+
     public void Initialize(string characterName, string statType, int x, int y)
     {
         CharacterName = characterName;

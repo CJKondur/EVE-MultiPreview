@@ -2435,7 +2435,7 @@
     <sys:String x:Key="L.S.thumbs.text.disconnectSeconds">切断と判定するまでの時間</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">サーバーへの接続がない状態が何秒続いたらマークを付けるかを設定します。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.clientState.Title">クライアントが止まったとき</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">固まったクライアントや切断されたクライアントは、切り替えるまでは待機中のクライアントと見分けがつきません。MultiPreviewはそのサムネイルにマークを付けられます。&#x0A;&#x0A;- **応答なし**：クライアントのウィンドウが応答しなくなったとWindowsが報告した状態です（タスクマネージャーと同じ判定で、5秒間応答がない場合）。クライアントが再び応答するとマークは消えます。サムネイルを右クリックして**この固まったクライアントを終了…**を選ぶと終了できます。MultiPreviewは先に確認し、その時点でクライアントが再び応答していれば何もしません。&#x0A;- **切断**：ログイン中のクライアントが、設定した時間EVEのサーバーに接続していない状態です。MultiPreviewは各クライアントの接続をWindowsに問い合わせるだけで、どこにも何も送信しません。&#x0A;&#x0A;誤ったマークを避けるため、サーバーに一度も接続したことがないクライアントや、このPC上のプロキシ経由で接続しているクライアントは「切断」になりません。そのため、VPNやプロキシの環境によっては何も表示されません。どちらのマークも、オンにするまではオフです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">固まったクライアントや切断されたクライアントは、切り替えるまでは待機中のクライアントと見分けがつきません。MultiPreviewはそのサムネイルにマークを付けられます。&#x0A;&#x0A;- **応答なし**：クライアントのウィンドウが応答しなくなったとWindowsが報告した状態です（タスクマネージャーと同じ判定で、5秒間応答がない場合）。クライアントが再び応答するとマークは消えます。サムネイルを右クリックして**この固まったクライアントを終了…**を選ぶと終了できます。MultiPreviewは先に確認し、その時点でクライアントが再び応答していれば何もしません。&#x0A;- **切断**：ログイン中のクライアントが、設定した時間EVEのサーバーに接続していない状態です。MultiPreviewは各クライアントの接続をWindowsに問い合わせるだけで、どこにも何も送信しません。&#x0A;&#x0A;誤ったマークを避けるため、サーバーに一度も接続したことがないクライアントや、このPC上のプロキシ経由で接続しているクライアントは「切断」になりません。そのため、VPNやプロキシの環境によっては何も表示されません。どちらのマークも、オンにするまではオフです。同じマークは、そのクライアントの2つ目のサムネイルと切り抜きウィンドウにも表示されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Thumb.NotResponding">応答なし</sys:String> <!-- draft -->
     <sys:String x:Key="L.Thumb.Disconnected">切断</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.client_hung">クライアントが応答なし</sys:String> <!-- draft -->
@@ -2481,7 +2481,7 @@
     <sys:String x:Key="L.S.clients.groups.focusAlerts">隠れたサムネイルを、アラートが未確認の間は表示</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">グループ外のクライアントがアラートを出すと、確認するまで表示されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.focus.Title">フォーカスモード</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.groups.focus.Body">役割ごとに分けたクライアントが多いと、すべてのサムネイルを一度に見るのは大変です。**フォーカスモードのオン／オフ**は、1つのグループのサムネイルだけを表示してほかを隠します。もう一度押すとすべて表示します。&#x0A;&#x0A;- **表示するグループ**：今いるクライアントのグループ（クライアントを切り替えると追従します）、または選んだ1つのグループです。&#x0A;- グループに入っていないクライアント、キャラクター選択中のクライアント、または選んだグループがなくなった場合は、すべて表示します。&#x0A;- **隠れたサムネイルを、アラートが未確認の間は表示**（オフにするまでオン）にすると、グループ外のクライアントでも、まだ見ていないアラートがある間は表示されます。&#x0A;- フォーカスモードで隠すのはメインのサムネイルだけです。2つ目のサムネイル、切り抜きウィンドウ、統計ウィンドウはそのままです。別の方法で隠したサムネイルは、フォーカスモードが終わっても隠れたままです。&#x0A;&#x0A;フォーカスモードは、MultiPreview を起動するたびにオフに戻ります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.groups.focus.Body">役割ごとに分けたクライアントが多いと、すべてのサムネイルを一度に見るのは大変です。**フォーカスモードのオン／オフ**は、1つのグループのサムネイルだけを表示してほかを隠します。もう一度押すとすべて表示します。&#x0A;&#x0A;- **表示するグループ**：今いるクライアントのグループ（クライアントを切り替えると追従します）、または選んだ1つのグループです。&#x0A;- グループに入っていないクライアント、キャラクター選択中のクライアント、または選んだグループがなくなった場合は、すべて表示します。&#x0A;- **隠れたサムネイルを、アラートが未確認の間は表示**（オフにするまでオン）にすると、グループ外のクライアントでも、まだ見ていないアラートがある間は表示されます。&#x0A;- フォーカスモードは、隠すクライアントの2つ目のサムネイル、切り抜きウィンドウ、統計ウィンドウも隠します。オンの間は、トレイのメニューの**フォーカスモード**にチェックが付き、トレイアイコンのツールチップにも表示され、ログインしたクライアントは0.5秒だけ表示されます。別の方法で隠したサムネイルは、フォーカスモードが終わっても隠れたままです。&#x0A;&#x0A;フォーカスモードは、MultiPreview を起動するたびにオフに戻ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.On">フォーカスモード：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.Off">フォーカスモードをオフにしました</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoGroup">フォーカスモード：このクライアントはどのグループにも入っていないため、すべてのサムネイルを表示します</sys:String> <!-- draft -->
@@ -2637,4 +2637,6 @@
     <sys:String x:Key="L.Lbl.Header">「{0}」のラベル</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.TipSuspended">一時停止中</sys:String> <!-- draft -->
     <sys:String x:Key="L.Copy.AllProfiles">— すべてのプロファイル —</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FocusMode">フォーカスモード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FocusOn">フォーカスモード：オン</sys:String> <!-- draft -->
 </ResourceDictionary>

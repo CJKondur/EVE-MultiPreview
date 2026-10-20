@@ -2452,7 +2452,7 @@
     <sys:String x:Key="L.S.thumbs.text.disconnectSeconds">断开判定时间</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">客户端失去服务器连接多久后才会被标记。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.clientState.Title">客户端停止时</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">卡死或断线的客户端在你切换过去之前，看起来和空闲的没什么两样。MultiPreview 可以在它的缩略图上加标记：&#x0A;&#x0A;- **未响应**：Windows 报告客户端窗口不再响应（与任务管理器使用的检测相同：五秒内没有应答）。客户端恢复响应后，标记随即消失。右键点击缩略图并选择**结束这个卡死的客户端…**即可结束它；MultiPreview 会先询问你，如果那时它已恢复响应，就不会动它。&#x0A;- **已断开连接**：已登录的客户端在你设定的时间内与 EVE 服务器没有任何连接。MultiPreview 只向 Windows 查询每个客户端的连接，不会向任何地方发送数据。&#x0A;&#x0A;为避免误标，从未建立过服务器连接的客户端，或连接经过本机代理的客户端，永远不会被标为已断开连接，因此某些 VPN 和代理环境下不会显示任何标记。两种标记默认都是关闭的，需要你自己开启。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">卡死或断线的客户端在你切换过去之前，看起来和空闲的没什么两样。MultiPreview 可以在它的缩略图上加标记：&#x0A;&#x0A;- **未响应**：Windows 报告客户端窗口不再响应（与任务管理器使用的检测相同：五秒内没有应答）。客户端恢复响应后，标记随即消失。右键点击缩略图并选择**结束这个卡死的客户端…**即可结束它；MultiPreview 会先询问你，如果那时它已恢复响应，就不会动它。&#x0A;- **已断开连接**：已登录的客户端在你设定的时间内与 EVE 服务器没有任何连接。MultiPreview 只向 Windows 查询每个客户端的连接，不会向任何地方发送数据。&#x0A;&#x0A;为避免误标，从未建立过服务器连接的客户端，或连接经过本机代理的客户端，永远不会被标为已断开连接，因此某些 VPN 和代理环境下不会显示任何标记。两种标记默认都是关闭的，需要你自己开启。同样的标记也会显示在该客户端的第二缩略图和裁剪窗口上。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Thumb.NotResponding">未响应</sys:String> <!-- draft -->
     <sys:String x:Key="L.Thumb.Disconnected">已断开连接</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.client_hung">客户端未响应</sys:String> <!-- draft -->
@@ -2498,7 +2498,7 @@
     <sys:String x:Key="L.S.clients.groups.focusAlerts">隐藏的缩略图在其警报未查看时显示</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">分组之外的客户端发出警报后会保持显示，直到你看过它。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.focus.Title">专注模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.groups.focus.Body">客户端很多且按职责分组时，同时显示所有缩略图会让人眼花缭乱。**开启或关闭专注模式**只显示一个分组的缩略图并隐藏其余的；再按一次即可全部显示。&#x0A;&#x0A;- **要显示的分组**：你所在客户端的分组（会随你切换客户端而变化），或你选定的某个分组。&#x0A;- 客户端不在任何分组中、处于角色选择界面，或选定的分组已不存在时，会显示全部缩略图。&#x0A;- **隐藏的缩略图在其警报未查看时显示**（默认开启，直到你关闭）会让分组之外、带有你尚未查看的警报的客户端保持显示。&#x0A;- 专注模式只隐藏主缩略图：第二缩略图、裁剪窗口和统计窗口都会保留。你用其他方式隐藏的缩略图，在专注模式结束后仍保持隐藏。&#x0A;&#x0A;每次启动 MultiPreview 时，专注模式都会恢复为关闭。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.groups.focus.Body">客户端很多且按职责分组时，同时显示所有缩略图会让人眼花缭乱。**开启或关闭专注模式**只显示一个分组的缩略图并隐藏其余的；再按一次即可全部显示。&#x0A;&#x0A;- **要显示的分组**：你所在客户端的分组（会随你切换客户端而变化），或你选定的某个分组。&#x0A;- 客户端不在任何分组中、处于角色选择界面，或选定的分组已不存在时，会显示全部缩略图。&#x0A;- **隐藏的缩略图在其警报未查看时显示**（默认开启，直到你关闭）会让分组之外、带有你尚未查看的警报的客户端保持显示。&#x0A;- 专注模式也会隐藏它所隐藏的客户端的第二缩略图、裁剪窗口和统计窗口；开启期间，托盘菜单中的**专注模式**项会被勾选，托盘图标的提示文字也会说明这一点，刚登录的客户端会显示半秒钟。你用其他方式隐藏的缩略图，在专注模式结束后仍保持隐藏。&#x0A;&#x0A;每次启动 MultiPreview 时，专注模式都会恢复为关闭。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.On">专注模式：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.Off">专注模式已关闭</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoGroup">专注模式：此客户端不在任何分组中，因此显示所有缩略图</sys:String> <!-- draft -->
@@ -2654,4 +2654,6 @@
     <sys:String x:Key="L.Lbl.Header">“{0}”的标签</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.TipSuspended">已暂停</sys:String> <!-- draft -->
     <sys:String x:Key="L.Copy.AllProfiles">— 所有配置文件 —</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FocusMode">专注模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FocusOn">专注模式：开</sys:String> <!-- draft -->
 </ResourceDictionary>

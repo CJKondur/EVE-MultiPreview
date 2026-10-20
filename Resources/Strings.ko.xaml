@@ -2435,7 +2435,7 @@
     <sys:String x:Key="L.S.thumbs.text.disconnectSeconds">연결 끊김 판정 시간</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.disconnectSeconds.Desc">서버 연결 없이 얼마나 지나야 표시할지 정해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.clientState.Title">클라이언트가 멈췄을 때</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">멈추거나 연결이 끊긴 클라이언트는 전환해 보기 전까지는 가만히 있는 클라이언트와 똑같아 보여요. MultiPreview는 그 썸네일에 표시를 붙일 수 있어요.&#x0A;&#x0A;- **응답 없음**: Windows가 클라이언트 창이 응답하지 않는다고 알려요(작업 관리자와 같은 검사로, 5초 동안 응답이 없을 때). 클라이언트가 다시 응답하면 표시가 사라져요. 썸네일을 오른쪽 클릭하고 **이 멈춘 클라이언트 종료…**를 고르면 종료할 수 있어요. MultiPreview가 먼저 물어보고, 그때 다시 응답하고 있으면 그대로 둬요.&#x0A;- **연결 끊김**: 로그인한 클라이언트가 설정한 시간 동안 EVE 서버에 연결되어 있지 않아요. MultiPreview는 각 클라이언트의 연결을 Windows에 물어볼 뿐 어디에도 아무것도 보내지 않아요.&#x0A;&#x0A;잘못된 표시를 피하려고, 서버에 연결된 적이 없는 클라이언트나 이 PC의 프록시를 거쳐 연결하는 클라이언트는 '연결 끊김'으로 표시하지 않아요. 그래서 일부 VPN과 프록시 환경에서는 아무것도 표시되지 않을 수 있어요. 두 표시 모두 직접 켜기 전에는 꺼져 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.clientState.Body">멈추거나 연결이 끊긴 클라이언트는 전환해 보기 전까지는 가만히 있는 클라이언트와 똑같아 보여요. MultiPreview는 그 썸네일에 표시를 붙일 수 있어요.&#x0A;&#x0A;- **응답 없음**: Windows가 클라이언트 창이 응답하지 않는다고 알려요(작업 관리자와 같은 검사로, 5초 동안 응답이 없을 때). 클라이언트가 다시 응답하면 표시가 사라져요. 썸네일을 오른쪽 클릭하고 **이 멈춘 클라이언트 종료…**를 고르면 종료할 수 있어요. MultiPreview가 먼저 물어보고, 그때 다시 응답하고 있으면 그대로 둬요.&#x0A;- **연결 끊김**: 로그인한 클라이언트가 설정한 시간 동안 EVE 서버에 연결되어 있지 않아요. MultiPreview는 각 클라이언트의 연결을 Windows에 물어볼 뿐 어디에도 아무것도 보내지 않아요.&#x0A;&#x0A;잘못된 표시를 피하려고, 서버에 연결된 적이 없는 클라이언트나 이 PC의 프록시를 거쳐 연결하는 클라이언트는 '연결 끊김'으로 표시하지 않아요. 그래서 일부 VPN과 프록시 환경에서는 아무것도 표시되지 않을 수 있어요. 두 표시 모두 직접 켜기 전에는 꺼져 있어요. 같은 표시가 그 클라이언트의 두 번째 썸네일과 자르기 창에도 나타나요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Thumb.NotResponding">응답 없음</sys:String> <!-- draft -->
     <sys:String x:Key="L.Thumb.Disconnected">연결 끊김</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.client_hung">클라이언트 응답 없음</sys:String> <!-- draft -->
@@ -2481,7 +2481,7 @@
     <sys:String x:Key="L.S.clients.groups.focusAlerts">숨겨진 썸네일을 알림을 확인하기 전까지 표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.groups.focusAlerts.Desc">그룹 밖의 클라이언트에서 알림이 울리면 확인할 때까지 표시돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.groups.focus.Title">포커스 모드</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.groups.focus.Body">역할별로 나눈 클라이언트가 많으면 모든 썸네일을 한꺼번에 보기엔 너무 많아요. **포커스 모드 켜기/끄기**는 한 그룹의 썸네일만 보여 주고 나머지는 숨겨요. 다시 누르면 모두 보여요.&#x0A;&#x0A;- **표시할 그룹**: 지금 있는 클라이언트의 그룹(클라이언트를 바꾸면 따라와요) 또는 직접 고른 그룹이에요.&#x0A;- 그룹에 속하지 않은 클라이언트, 캐릭터 선택 화면, 또는 더 이상 없는 그룹을 고른 경우에는 모두 보여요.&#x0A;- **숨겨진 썸네일을 알림을 확인하기 전까지 표시**(끌 때까지 켜져 있어요)를 켜 두면, 그룹 밖의 클라이언트도 아직 확인하지 않은 알림이 있는 동안은 보여요.&#x0A;- 포커스 모드는 메인 썸네일만 숨겨요. 두 번째 썸네일, 자르기 창, 통계 창은 그대로예요. 다른 방법으로 숨긴 썸네일은 포커스 모드가 끝나도 숨겨진 채로 있어요.&#x0A;&#x0A;포커스 모드는 MultiPreview를 시작할 때마다 다시 꺼져요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.groups.focus.Body">역할별로 나눈 클라이언트가 많으면 모든 썸네일을 한꺼번에 보기엔 너무 많아요. **포커스 모드 켜기/끄기**는 한 그룹의 썸네일만 보여 주고 나머지는 숨겨요. 다시 누르면 모두 보여요.&#x0A;&#x0A;- **표시할 그룹**: 지금 있는 클라이언트의 그룹(클라이언트를 바꾸면 따라와요) 또는 직접 고른 그룹이에요.&#x0A;- 그룹에 속하지 않은 클라이언트, 캐릭터 선택 화면, 또는 더 이상 없는 그룹을 고른 경우에는 모두 보여요.&#x0A;- **숨겨진 썸네일을 알림을 확인하기 전까지 표시**(끌 때까지 켜져 있어요)를 켜 두면, 그룹 밖의 클라이언트도 아직 확인하지 않은 알림이 있는 동안은 보여요.&#x0A;- 포커스 모드는 숨기는 클라이언트의 두 번째 썸네일, 자르기 창, 통계 창도 함께 숨겨요. 켜져 있는 동안에는 트레이 메뉴의 **포커스 모드** 항목에 체크 표시가 되고 트레이 툴팁에도 표시되며, 로그인한 클라이언트는 0.5초 동안 보여요. 다른 방법으로 숨긴 썸네일은 포커스 모드가 끝나도 숨겨진 채로 있어요.&#x0A;&#x0A;포커스 모드는 MultiPreview를 시작할 때마다 다시 꺼져요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.On">포커스 모드: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.Off">포커스 모드 꺼짐</sys:String> <!-- draft -->
     <sys:String x:Key="L.Focus.NoGroup">포커스 모드: 이 클라이언트는 어느 그룹에도 속해 있지 않아서 모든 썸네일을 보여 줘요</sys:String> <!-- draft -->
@@ -2637,4 +2637,6 @@
     <sys:String x:Key="L.Lbl.Header">“{0}”의 라벨</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.TipSuspended">일시 중지됨</sys:String> <!-- draft -->
     <sys:String x:Key="L.Copy.AllProfiles">— 모든 프로필 —</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FocusMode">포커스 모드</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.FocusOn">포커스 모드: 켜짐</sys:String> <!-- draft -->
 </ResourceDictionary>

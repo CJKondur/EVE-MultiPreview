@@ -88,6 +88,7 @@ public partial class App : Application
 
     /// <summary>IDEAS #35: focus mode is on. Not saved: off at every start, as Hide all is. The window's thread only.</summary>
     private bool _focusModeOn;
+    private readonly FocusArrivals _focusArrivals = new();   // IDEAS P124: a client that logs in while focus mode is on
     /// <summary>IDEAS #11: which profile the characters logged in point to. Asked twice a second while "Switch profiles by who
     /// is logged in" is on; it forgets who it saw while the switch is off. The window's thread only.</summary>
     private readonly AutoProfile _autoProfile = new();
@@ -700,7 +701,7 @@ public partial class App : Application
             {
                 if (_trayIcon != null)
                 {
-                    _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService.IsSuspended, ErrorLog.Shared.Count, DoNotDisturbOn);
+                    _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService.IsSuspended, ErrorLog.Shared.Count, DoNotDisturbOn, _focusModeOn);
                     var asm = System.Reflection.Assembly.GetExecutingAssembly();
                     var icoName = _hotkeyService.IsSuspended ? "EveMultiPreview.Icon-Suspend.ico" : "EveMultiPreview.Icon.ico";
                     var icoStream = asm.GetManifestResourceStream(icoName);
@@ -985,7 +986,7 @@ public partial class App : Application
                 try
                 {
                     if (_trayIcon != null)
-                        _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count, DoNotDisturbOn);
+                        _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count, DoNotDisturbOn, _focusModeOn);
                 }
                 catch { /* a tooltip must never raise another error */ }
             }));
@@ -1361,34 +1362,27 @@ public partial class App : Application
         catch (Exception ex) { LogError(ex); }
     }
 
-    /// <summary>IDEAS #35, from its hotkey or a command: focus mode on or off, said near the cursor (which group, or why every
-    /// thumbnail still shows), and applied at once. Never saved. A failure is logged: a key press must not throw.</summary>
+    /// <summary>IDEAS #35, from its hotkey, the tray item or a command: focus mode on or off, said near the cursor, and
+    /// applied at once. With no group to show (the chosen group is gone, or the client is in no group or at character
+    /// select) a press does not turn it on: it says why (IDEAS P124, final review M4 of Plan 14). The tray's tip follows.
+    /// Never saved. A failure is logged: a key press must not throw.</summary>
     private void ToggleFocusMode()
     {
         try
         {
             if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
-            _focusModeOn = !_focusModeOn;
-            if (!_focusModeOn)
-            {
-                _thumbnailManager.HoldForFocus(FocusMode.Nobody);
-                _thumbnailManager.ShowTooltipFeedback(LocalizationService.Str("L.Focus.Off", "Focus mode off"));
-                return;
-            }
             var (chosen, _) = FocusMode.Options(_settings.Settings);
             var group = FocusMode.GroupFor(chosen, _thumbnailManager.ActiveCharacter(), FocusMode.Groups(_settings.Settings));
-            _thumbnailManager.ShowTooltipFeedback(group is { } shown
-                ? string.Format(LocalizationService.Str("L.Focus.On", "Focus mode: {0}"), shown.Name)
-                : chosen.Length > 0
-                    ? string.Format(LocalizationService.Str("L.Focus.NoSuchGroup", NoSuchGroupEnglish), chosen)
-                    : LocalizationService.Str("L.Focus.NoGroup", NoGroupEnglish));
-            FollowFocusMode();
+            var press = FocusMode.Press(_focusModeOn, chosen, group);
+            _focusModeOn = press == FocusPress.On;
+            if (press == FocusPress.Off) _thumbnailManager.HoldForFocus(FocusMode.Nobody);
+            else if (press == FocusPress.On) _focusArrivals.Begin(_thumbnailManager.GetActiveCharacterNames());
+            _thumbnailManager.ShowTooltipFeedback(FocusMode.Say(press, press == FocusPress.On ? group!.Value.Name : chosen));
+            QueueTrayText();
+            if (_focusModeOn) FollowFocusMode();
         }
         catch (Exception ex) { LogError(ex); }
     }
-
-    private const string NoGroupEnglish = "Focus mode: this client is in no group, so every thumbnail shows";
-    private const string NoSuchGroupEnglish = "Focus mode: there is no group called {0}, so every thumbnail shows";
 
     /// <summary>IDEAS #35, twice a second while focus mode is on: which thumbnails it holds hidden now (the group follows the
     /// client you are in; an unseen alert shows through). Nothing is read while it is off. A failure is logged and the next
@@ -1401,8 +1395,9 @@ public partial class App : Application
             var s = _settings.Settings;
             var (chosen, alertsShow) = FocusMode.Options(s);
             var group = FocusMode.GroupFor(chosen, _thumbnailManager.ActiveCharacter(), FocusMode.Groups(s));
+            var arrived = _focusArrivals.Look(DateTime.UtcNow, _thumbnailManager.GetActiveCharacterNames());   // IDEAS P124
             _thumbnailManager.HoldForFocus(FocusMode.Held(group, _thumbnailManager.GetActiveCharacterNames(), alertsShow,
-                name => _thumbnailManager.Attention.Has(name)));
+                name => _thumbnailManager.Attention.Has(name), arrived.Contains));
         }
         catch (Exception ex) { LogError(ex); }
     }
@@ -1830,6 +1825,8 @@ public partial class App : Application
             ToggleSuspend = () => _hotkeyService?.ToggleSuspend(),
             DoNotDisturbOn = () => DoNotDisturbOn,
             ToggleDoNotDisturb = ToggleDoNotDisturb,
+            FocusModeOn = () => _focusModeOn,
+            ToggleFocusMode = ToggleFocusMode,
             ToggleLock = () => _thumbnailManager?.ToggleLockPositions(),
             ThumbnailsHidden = () => _thumbnailManager?.AllThumbnailsHidden ?? false,
             ToggleThumbnails = () => _thumbnailManager?.ToggleThumbnailVisibility(),
@@ -1870,7 +1867,7 @@ public partial class App : Application
 
         _trayIcon = new NotifyIcon
         {
-            Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count, DoNotDisturbOn),
+            Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count, DoNotDisturbOn, _focusModeOn),
             Icon = trayIco,
             Visible = true,
             ContextMenuStrip = _trayMenu.Strip

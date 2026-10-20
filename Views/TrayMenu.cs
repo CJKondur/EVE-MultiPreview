@@ -23,6 +23,8 @@ public static class TrayCommands
     public const string Suspend = "tray.suspend";
     /// <summary>Do-not-disturb on or off (IDEAS #32).</summary>
     public const string DoNotDisturb = "tray.doNotDisturb";
+    /// <summary>Focus mode on or off, checked while it is on (IDEAS P124).</summary>
+    public const string FocusMode = "tray.focusMode";
     public const string Lock = "tray.lock";
     public const string HideThumbnails = "tray.hideThumbnails";
     public const string ClickThrough = "tray.clickThrough";
@@ -58,6 +60,9 @@ public sealed class TrayMenuActions
     /// <summary>Whether do-not-disturb is on right now, by the hotkey, this item or the quiet hours (IDEAS #32).</summary>
     public Func<bool> DoNotDisturbOn { get; init; } = () => false;
     public Action ToggleDoNotDisturb { get; init; } = () => { };
+    /// <summary>Whether focus mode is on right now (IDEAS P124); the item's check mark.</summary>
+    public Func<bool> FocusModeOn { get; init; } = () => false;
+    public Action ToggleFocusMode { get; init; } = () => { };
     public Action ToggleLock { get; init; } = () => { };
     public Func<bool> ThumbnailsHidden { get; init; } = () => false;
     public Action ToggleThumbnails { get; init; } = () => { };
@@ -89,7 +94,7 @@ public sealed class TrayMenu : IDisposable
     private readonly List<(ToolStripItem Item, string Key, string English)> _labels = new();
     private readonly ToolStripMenuItem _downtime = new() { Enabled = false };
     private readonly ToolStripSeparator _downtimeSeparator = new();
-    private readonly ToolStripMenuItem _profiles, _suspend, _doNotDisturb, _hotkeySheet, _lock, _hide, _clickThrough, _hideSecondary, _secondary, _restore, _snap;
+    private readonly ToolStripMenuItem _profiles, _suspend, _doNotDisturb, _focusMode, _hotkeySheet, _lock, _hide, _clickThrough, _hideSecondary, _secondary, _restore, _snap;
 
     public TrayMenu(TrayMenuActions actions)
     {
@@ -114,13 +119,15 @@ public sealed class TrayMenu : IDisposable
         _suspend = Item(TrayCommands.Suspend, "L.Tray.Suspend", "Pause hotkeys", FluentMenu.Glyphs.Pause, _a.ToggleSuspend);
         // IDEAS #32: alert sounds off, everything else as it is. The mark follows the live state, quiet hours included.
         _doNotDisturb = Item(TrayCommands.DoNotDisturb, "L.Tray.Dnd", "Do not disturb", null, _a.ToggleDoNotDisturb);
+        // IDEAS P124: ticked while focus mode is on, which the tray's tip says too. No glyph, as do-not-disturb has none.
+        _focusMode = Item(TrayCommands.FocusMode, "L.Tray.FocusMode", "Focus mode", null, _a.ToggleFocusMode);
         _lock = Item(TrayCommands.Lock, "L.Tray.Lock", "Lock positions", FluentMenu.Glyphs.Lock, _a.ToggleLock);
         _hide = Item(TrayCommands.HideThumbnails, "L.Tray.Toggle", "Hide thumbnails", FluentMenu.Glyphs.Eye, _a.ToggleThumbnails);
         _clickThrough = Item(TrayCommands.ClickThrough, "L.Tray.ClickThrough", "Click-through", FluentMenu.Glyphs.Pointer, _a.ToggleClickThrough);
         _hideSecondary = Item(TrayCommands.HideSecondary, "L.Tray.HideSecondary", "Hide second thumbnails", FluentMenu.Glyphs.SecondThumbnails, _a.ToggleSecondary);
         _secondary = Item(TrayCommands.Secondary, "L.Tray.PiP", "Second thumbnails", FluentMenu.Glyphs.Window, null);
         FluentMenu.Style(_secondary.DropDown, showIcons: false);
-        Strip.Items.AddRange(new ToolStripItem[] { _suspend, _doNotDisturb, _lock, _hide, _clickThrough, _hideSecondary, _secondary, new ToolStripSeparator() });
+        Strip.Items.AddRange(new ToolStripItem[] { _suspend, _doNotDisturb, _focusMode, _lock, _hide, _clickThrough, _hideSecondary, _secondary, new ToolStripSeparator() });
 
         var windows = Item(TrayCommands.ClientWindows, "L.Tray.ClientPositions", "Client windows", FluentMenu.Glyphs.Monitor, null);
         FluentMenu.Style(windows.DropDown, showIcons: false);
@@ -155,16 +162,19 @@ public sealed class TrayMenu : IDisposable
     /// <summary>A crossed bell: do-not-disturb, where the tip has no room for the words (IDEAS #32).</summary>
     public static readonly string DoNotDisturbMark = char.ConvertFromUtf32(0x1F515);
 
+    /// <summary>A circled dot: focus mode, where the tip has no room for the words (IDEAS P124).</summary>
+    public const string FocusModeMark = "\u25C9";
+
     /// <summary>The tray icon's tooltip: the name and the pause state, as before, then (once MultiPreview has handled an
     /// error) how many and where to look (IDEAS #55). Cut to Windows' 127 characters.</summary>
-    public static string TooltipText(bool suspended, int errors, bool doNotDisturb = false)
+    public static string TooltipText(bool suspended, int errors, bool doNotDisturb = false, bool focusMode = false)
     {
-        var text = UncutTooltipText(suspended, errors, doNotDisturb);
+        var text = UncutTooltipText(suspended, errors, doNotDisturb, focusMode);
         return text.Length <= TooltipMax ? text : text[..TooltipMax];
     }
 
     /// <summary>The tooltip before it is cut to Windows' limit; a test checks the translations fit without the cut.</summary>
-    public static string UncutTooltipText(bool suspended, int errors, bool doNotDisturb = false)
+    public static string UncutTooltipText(bool suspended, int errors, bool doNotDisturb = false, bool focusMode = false)
     {
         var text = suspended ? "⏸ EVE MultiPreview (" + LocalizationService.Str("L.Tray.TipSuspended", "SUSPENDED") + ")" : "EVE MultiPreview";
         var errorLine = errors > 0
@@ -176,6 +186,12 @@ public sealed class TrayMenu : IDisposable
             // would push the tip past Windows' limit: then a crossed bell behind the name says it instead.
             var words = "\n" + LocalizationService.Str("L.Tray.DndOn", "Do not disturb: on");
             text += text.Length + words.Length + errorLine.Length <= TooltipMax ? words : " " + DoNotDisturbMark;
+        }
+        if (focusMode)
+        {
+            // IDEAS P124: the same, a line of its own, or the dot behind the name where the words would pass the limit.
+            var words = "\n" + LocalizationService.Str("L.Tray.FocusOn", "Focus mode: on");
+            text += text.Length + words.Length + errorLine.Length <= TooltipMax ? words : " " + FocusModeMark;
         }
         return text + errorLine;
     }
@@ -202,6 +218,7 @@ public sealed class TrayMenu : IDisposable
 
         _suspend.Checked = _a.IsSuspended();
         _doNotDisturb.Checked = _a.DoNotDisturbOn();
+        _focusMode.Checked = _a.FocusModeOn();
         _lock.Checked = s?.LockPositions ?? false;
         _hide.Checked = _a.ThumbnailsHidden();
         _clickThrough.Checked = _a.ClickThroughOn();
@@ -209,6 +226,7 @@ public sealed class TrayMenu : IDisposable
 
         _suspend.ShortcutKeyDisplayString = Hint(s?.SuspendHotkey);
         _doNotDisturb.ShortcutKeyDisplayString = Hint(s?.DoNotDisturbHotkey);
+        _focusMode.ShortcutKeyDisplayString = Hint(s?.FocusModeHotkey);
         _hotkeySheet.ShortcutKeyDisplayString = Hint(s?.HotkeySheetHotkey);
         _lock.ShortcutKeyDisplayString = Hint(s?.LockPositionsHotkey);
         _hide.ShortcutKeyDisplayString = Hint(s?.HideShowThumbnailsHotkey);

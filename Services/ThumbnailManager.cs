@@ -3771,11 +3771,25 @@ public sealed class ThumbnailManager : IDisposable
     public IReadOnlyList<(IntPtr Window, string Character)> ClientWindows() =>
         _thumbnails.Select(kv => (kv.Key, kv.Value.CharacterName ?? "")).ToList();
 
-    /// <summary>Shows on a client's main thumbnail what ClientWatch said of it. The window's thread.</summary>
+    /// <summary>Shows on a client's main thumbnail what ClientWatch said of it, and (IDEAS P114) the same on its second
+    /// thumbnail; its crop windows hear of it through <see cref="ClientMarkChanged"/>. A client at character select has
+    /// neither. The window's thread.</summary>
     public void SetClientMark(IntPtr window, ClientMark mark)
     {
         if (_thumbnails.TryGetValue(window, out var thumb)) thumb.SetClientMark(mark);
+        else return;
+        var who = thumb.CharacterName ?? "";
+        if (who.Length == 0) return;
+        if (_secondaryThumbnails.TryGetValue(who, out var pip)) pip.SetClientMark(mark);
+        ClientMarkChanged?.Invoke(who, mark);
     }
+
+    /// <summary>IDEAS P114: a logged-in client's mark changed (its character, the mark). CropManager draws it on that
+    /// character's crop windows. The window's thread.</summary>
+    public event Action<string, ClientMark>? ClientMarkChanged;
+
+    /// <summary>The mark a character's client has now, for a window made after it was set (a second thumbnail, a crop window).</summary>
+    public ClientMark MarkOf(string character) => GetThumbnailForCharacter(character)?.Mark ?? ClientMark.None;
 
     /// <summary>The character of the client MultiPreview counts as active (the one it last switched to while that is still a
     /// client, else the window in front), or "" when that is no client with a character. IDEAS #35. The window's thread.</summary>
@@ -3788,6 +3802,7 @@ public sealed class ThumbnailManager : IDisposable
     /// one tick. Nothing is touched for a thumbnail that stays let go.</summary>
     public void HoldForFocus(IReadOnlySet<string> held)
     {
+        _focusHeld = held;
         foreach (var (hwnd, thumb) in _thumbnails)
         {
             bool hold = !string.IsNullOrEmpty(thumb.CharacterName) && held.Contains(thumb.CharacterName);
@@ -3799,7 +3814,36 @@ public sealed class ThumbnailManager : IDisposable
             thumb.SetHeldHidden(hold);
             if (!hold && ShowsWhenLetGo(hwnd, thumb)) thumb.ShowWithOverlay();
         }
+        // IDEAS P124: the second thumbnails and stats windows of the same characters, held the same way (they are keyed by
+        // character); the crop windows hear of it through FocusHeldChanged. Letting go shows one only when its own
+        // switches (Hide all, hide second thumbnails, hide primary) allow.
+        foreach (var (name, pip) in _secondaryThumbnails)
+        {
+            bool hold = FocusMode.Holds(held, name);
+            if (hold == pip.HeldHidden)
+            {
+                if (hold) pip.HideWithOverlay();
+                continue;
+            }
+            pip.SetHeldHidden(hold);
+            if (!hold && !_thumbnailsHidden && !_secondaryHidden) pip.ShowWithOverlay();
+        }
+        foreach (var (name, statWin) in _statWindows)
+        {
+            bool hold = FocusMode.Holds(held, name);
+            if (hold == statWin.HeldHidden) continue;
+            statWin.SetHeldHidden(hold);
+            if (!hold && !_thumbnailsHidden && !_primaryHidden) statWin.Visibility = Visibility.Visible;
+        }
+        FocusHeldChanged?.Invoke(held);
     }
+
+    /// <summary>The characters whose windows focus mode holds hidden now (IDEAS #35, P124); a window made later asks it.</summary>
+    private IReadOnlySet<string> _focusHeld = FocusMode.Nobody;
+
+    /// <summary>IDEAS P124: every look of focus mode, with the characters it holds. CropManager holds and lets go of their
+    /// crop windows. The window's thread.</summary>
+    public event Action<IReadOnlySet<string>>? FocusHeldChanged;
 
     /// <summary>Whether a thumbnail focus mode lets go of is shown: not while Hide all, Hide primary or hidden-while-alt-tabbed
     /// hides every thumbnail, not when the player hid this character on Clients › Characters, and not for the client in front
@@ -4675,6 +4719,9 @@ public sealed class ThumbnailManager : IDisposable
             WireMenu(pip);
 
             pip.Show();
+            pip.SetHeldHidden(FocusMode.Holds(_focusHeld, charName));   // IDEAS P124: made while focus mode holds its character
+            var mark = MarkOf(charName);                                // IDEAS P114: and while its client is marked
+            if (mark != ClientMark.None) pip.SetClientMark(mark);
             _secondaryThumbnails[charName] = pip;
             Debug.WriteLine($"[PiP:Create] ✅ PiP for '{charName}' @ ({x},{y}) {w}x{h} opacity={secSettings.Opacity}");
         }
@@ -4824,6 +4871,7 @@ public sealed class ThumbnailManager : IDisposable
             };
 
             statWin.Show();
+            statWin.SetHeldHidden(FocusMode.Holds(_focusHeld, charName));   // IDEAS P124
             _statWindows[key] = statWin;
             Debug.WriteLine($"[StatWindow:Create] ✅ Stats overlay for '{charName}' @ ({sx},{sy})");
         }

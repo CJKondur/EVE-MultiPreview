@@ -5,6 +5,9 @@ using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
 
+/// <summary>What a press of the focus key comes to (IDEAS P124, final review M4 of Plan 14).</summary>
+public enum FocusPress { Off, On, NoGroup, NoSuchGroup }
+
 /// <summary>IDEAS #35, focus mode: which main thumbnails it holds hidden. The group is the one the player chose by its
 /// name, or the first group (in the Groups page's order) the character of the client he is in belongs to, so it follows
 /// his switches. A client outside the group with an alert he has not looked at can show through. App asks it on its
@@ -40,10 +43,11 @@ public static class FocusMode
         return null;
     }
 
-    /// <summary>The running characters whose main thumbnails are held hidden: every one outside the group, except one with
-    /// an unseen alert while that shows through. A client at character select ("") is never held. No group: nobody.</summary>
+    /// <summary>The running characters whose windows are held hidden: every one outside the group, except one with an unseen
+    /// alert while that shows through, and one that logged in a moment ago (<paramref name="arrived"/>, IDEAS P124: so the
+    /// player sees it arrive). A client at character select ("") is never held. No group: nobody.</summary>
     public static IReadOnlySet<string> Held((string Name, IReadOnlyList<string> Members)? group, IEnumerable<string> running,
-        bool alertsShow, Func<string, bool> alerting)
+        bool alertsShow, Func<string, bool> alerting, Func<string, bool>? arrived = null)
     {
         var held = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (group is not { } shown) return held;
@@ -52,8 +56,40 @@ public static class FocusMode
         {
             if (string.IsNullOrEmpty(name) || members.Contains(name)) continue;
             if (alertsShow && alerting(name)) continue;
+            if (arrived != null && arrived(name)) continue;
             held.Add(name);
         }
         return held;
+    }
+
+    /// <summary>IDEAS P124: whether this character's windows are held, whichever kind they are (main thumbnail, second
+    /// thumbnail, crop window, stats window): they all ask the one answer. A client at character select is never held.</summary>
+    public static bool Holds(IReadOnlySet<string> held, string? character) =>
+        !string.IsNullOrEmpty(character) && held.Contains(character);
+
+    /// <summary>A press: while on it always turns off; while off it turns on only when there is a group to show. With none
+    /// (the chosen group is gone, or the client is in no group or at character select) it stays off and says why.</summary>
+    public static FocusPress Press(bool isOn, string chosen, (string Name, IReadOnlyList<string> Members)? group) =>
+        isOn ? FocusPress.Off
+        : group != null ? FocusPress.On
+        : chosen.Length > 0 ? FocusPress.NoSuchGroup
+        : FocusPress.NoGroup;
+
+    /// <summary>The note a press says near the cursor: its catalog key and the English the code falls back to.</summary>
+    public static (string Key, string English) Note(FocusPress press) => press switch
+    {
+        FocusPress.Off => ("L.Focus.Off", "Focus mode off"),
+        FocusPress.On => ("L.Focus.On", "Focus mode: {0}"),
+        FocusPress.NoSuchGroup => ("L.Focus.NoSuchGroup", "Focus mode: there is no group called {0}, so every thumbnail shows"),
+        _ => ("L.Focus.NoGroup", "Focus mode: this client is in no group, so every thumbnail shows"),
+    };
+
+    /// <summary>The note in the player's language; <paramref name="name"/> (the group shown, or the group that is gone) is
+    /// only ever an argument of the text.</summary>
+    public static string Say(FocusPress press, string name)
+    {
+        var (key, english) = Note(press);
+        var text = LocalizationService.Str(key, english);
+        return press is FocusPress.On or FocusPress.NoSuchGroup ? string.Format(text, name) : text;
     }
 }

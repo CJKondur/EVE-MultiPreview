@@ -78,6 +78,18 @@ public partial class CropWindow : Window
         ApplyLabel();
     }
 
+    /// <summary>IDEAS P114: what ClientWatch last said of this crop's client; the words come from the same mapping the
+    /// thumbnails use (ClientMarks.Text).</summary>
+    public ClientMark Mark { get; private set; }
+
+    /// <summary>Keeps the mark and shows its words on the crop's overlay. The window's thread. A mark set before the overlay
+    /// exists (it is made when the window has loaded) is drawn when it is made.</summary>
+    public void SetClientMark(ClientMark mark)
+    {
+        Mark = mark;
+        _textOverlay?.SetClientMark(ClientMarks.Text(mark));
+    }
+
     public void ApplyLabel()
     {
         if (Definition == null) return;
@@ -140,6 +152,7 @@ public partial class CropWindow : Window
         _textOverlay.Height = Math.Max(30, Height);
         _textOverlay.Topmost = _isTopmost;   // our tracked band, not WPF's cached view
         _textOverlay.Show();
+        if (Mark != ClientMark.None) _textOverlay.SetClientMark(ClientMarks.Text(Mark));
 
         // Parent the overlay's HWND to the crop popup's HWND so z-order follows
         // and the overlay stays above DWM thumbnail content.
