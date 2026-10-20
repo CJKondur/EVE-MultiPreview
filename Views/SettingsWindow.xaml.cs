@@ -2438,9 +2438,11 @@ public partial class SettingsWindow : Window
         _cropManager?.Refresh();   // live target characters get the new crop immediately
         RebuildCropList();         // reflect it if the user is viewing a target character
 
+        // Streamer mode (IDEAS #19): the crop's own name and the target are drawn text; both are character names to the mask.
+        string shownCrop = StreamerMask.Name(StreamerKind.Character, source.Name);
         _thumbnailManager?.ShowTooltipFeedback(targets.Count == 1
-            ? $"Copied crop '{source.Name}' → {targets.First()}"
-            : $"Copied crop '{source.Name}' → {targets.Count} characters");
+            ? $"Copied crop '{shownCrop}' → {StreamerMask.Name(StreamerKind.Character, targets.First())}"
+            : $"Copied crop '{shownCrop}' → {targets.Count} characters");
     }
 
     /// <summary>Deep-copy a crop definition with a fresh unique id. Popup position is

@@ -45,12 +45,12 @@ public static class PushMessage
         _ => "",
     };
 
-    /// <summary>One line: the severity mark, <c>**character**</c>, the event's name, and <c>×count</c> from 2; cut to
+    /// <summary>One line (streamer mode, IDEAS #19, sends "Client N" in place of the name: this leaves the machine as text): the severity mark, <c>**character**</c>, the event's name, and <c>×count</c> from 2; cut to
     /// <see cref="MaxLineChars"/>. <paramref name="eventName"/> turns the event key into the name shown.</summary>
     public static string Line(PushLine line, Func<string, string> eventName)
     {
         var mark = Mark(line.Severity);
-        var text = (mark.Length > 0 ? mark + " " : "") + "**" + Escape(line.Character) + "** " + Escape(eventName(line.EventKey));
+        var text = (mark.Length > 0 ? mark + " " : "") + "**" + Escape(StreamerMask.Name(StreamerKind.Character, line.Character)) + "** " + Escape(eventName(line.EventKey));
         if (line.Count >= 2) text += " " + (char)0xD7 + line.Count;
         if (text.Length <= MaxLineChars) return text;
         int cut = MaxLineChars;

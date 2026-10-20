@@ -2701,9 +2701,12 @@
     <sys:String x:Key="L.S.thumbs.text.streamer">主播模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.streamer.Desc">不让可能暴露你的内容出现在直播或截图里：角色名称显示为“客户端 1”“客户端 2”等，标签和星系名称则不显示。默认关闭。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.streamer.Title">主播模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.streamer.Body">**主播模式**不让可能暴露你的内容出现在直播或截图里。角色名称会显示为“客户端 1”“客户端 2”等，编号按 MultiPreview 启动后第一次看到各名称的顺序排列。标签和星系名称则不显示。&#x0A;&#x0A;它涵盖缩略图上的文字（包括第二缩略图和裁剪窗口）、统计窗口、快速切换轮盘、缩略图的右键菜单、警报历史记录窗口，以及你可以为布局保存的图片（其中的名称此时始终隐藏）。只有绘制出来的内容会变：你的设置、警报和暂停仍然使用真实名称。&#x0A;&#x0A;它无法隐藏缩略图里 EVE 客户端的画面，也无法隐藏此设置窗口里的名称。请不要让设置窗口出现在直播里。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Body">**主播模式**不让可能暴露你的内容出现在直播或截图里。角色名称会显示为“客户端 1”“客户端 2”等，编号按 MultiPreview 启动后第一次看到各名称的顺序排列。标签和星系名称则不显示。&#x0A;&#x0A;它涵盖缩略图上的文字（包括第二缩略图和裁剪窗口）、统计窗口、快速切换轮盘、缩略图的右键菜单、警报历史记录窗口，以及你可以为布局保存的图片（其中的名称此时始终隐藏）。只有绘制出来的内容会变：你的设置、警报和暂停仍然使用真实名称。&#x0A;&#x0A;它还涵盖弹窗及其菜单、Windows 通知、朗读的警报、指针旁边的提示、托盘菜单里的配置文件列表和第二缩略图列表，以及停机提醒气泡。在这些提示里，分组、配置文件或布局的名称会显示为分组 1、配置文件 1 或布局 1。Discord 消息会以文字形式离开你的电脑，所以里面写的是客户端 1，绝不会是真实名称。你可以在托盘菜单里开关这个模式。&#x0A;&#x0A;它无法隐藏缩略图里 EVE 客户端的画面，也无法隐藏此设置窗口里的名称。请不要让设置窗口出现在直播里。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Client">客户端 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Group">分组 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Profile">配置文件 {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Layout">布局 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.StreamerMode">主播模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.On">主播模式：开</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Off">主播模式：关</sys:String> <!-- draft -->
 </ResourceDictionary>

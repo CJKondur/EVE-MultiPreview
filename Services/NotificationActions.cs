@@ -50,7 +50,7 @@ public sealed class NotificationActions
     public void SwitchTo(string character)
     {
         if (_switchTo(character)) return;
-        _note(string.Format(CultureInfo.CurrentCulture, _str("L.Hist.NotRunning", "{0}'s client isn't running."), character));
+        _note(string.Format(CultureInfo.CurrentCulture, _str("L.Hist.NotRunning", "{0}'s client isn't running."), StreamerMask.Name(StreamerKind.Character, character)));
     }
 
     /// <summary>A notification's second button: that event is snoozed for that character, and a note near the

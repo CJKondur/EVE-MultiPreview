@@ -343,11 +343,13 @@ public sealed class SpokenAlerts
     public static string Text(Utterance u, Func<string, string> eventName, Func<string, string, string> str)
     {
         string name = Spoken(eventName(u.EventKey), MaxEventLength);
-        if (u.Characters.Count == 1) return Spoken(u.Characters[0], MaxNameLength) + ", " + name;
+        // Streamer mode (IDEAS #19): said aloud, so masked here; the utterance keeps the real names (the de-dupe and "still wanted" use them).
+        string Who(int i) => Spoken(StreamerMask.Name(StreamerKind.Character, u.Characters[i]), MaxNameLength);
+        if (u.Characters.Count == 1) return Who(0) + ", " + name;
         if (u.Characters.Count == 2)
         {
             // Two long names with a long rule name are 132 characters, which is more speech than an alert may wait.
-            string both = Spoken(u.Characters[0], MaxNameLength) + ", " + Spoken(u.Characters[1], MaxNameLength) + ", " + name;
+            string both = Who(0) + ", " + Who(1) + ", " + name;
             if (both.Length <= MaxSentenceLength) return both;
         }
         return string.Format(CultureInfo.CurrentCulture, str("L.Speech.Many", "{0} clients: {1}"), u.Characters.Count, name);

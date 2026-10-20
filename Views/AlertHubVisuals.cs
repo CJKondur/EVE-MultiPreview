@@ -145,6 +145,9 @@ public static class AlertHubVisuals
     /// With an <paramref name="age"/> that no longer reads "now": "Jita · 40 s · click to switch".</summary>
     public static (string Title, string Subtitle) ToastText(string character, string alertType, string? system, TimeSpan? age = null)
     {
+        // Streamer mode (IDEAS #19): only the drawn text is masked; the toast keeps the real name for its menu and its click.
+        character = StreamerMask.Name(StreamerKind.Character, character);
+        system = StreamerMask.Name(StreamerKind.System, system);
         string title = $"{character} · {AlertHub.EventDisplayName(alertType)}";
         bool noSystem = string.IsNullOrWhiteSpace(system);
         if (age is { } old && old.TotalSeconds >= AlertAge.NowSeconds)

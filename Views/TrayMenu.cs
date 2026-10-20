@@ -25,6 +25,8 @@ public static class TrayCommands
     public const string DoNotDisturb = "tray.doNotDisturb";
     /// <summary>Focus mode on or off, checked while it is on (IDEAS P124).</summary>
     public const string FocusMode = "tray.focusMode";
+    /// <summary>Streamer mode on or off, checked while it is on (IDEAS #19).</summary>
+    public const string StreamerMode = "tray.streamerMode";
     public const string Lock = "tray.lock";
     public const string HideThumbnails = "tray.hideThumbnails";
     public const string ClickThrough = "tray.clickThrough";
@@ -63,6 +65,9 @@ public sealed class TrayMenuActions
     /// <summary>Whether focus mode is on right now (IDEAS P124); the item's check mark.</summary>
     public Func<bool> FocusModeOn { get; init; } = () => false;
     public Action ToggleFocusMode { get; init; } = () => { };
+    /// <summary>Whether streamer mode is on right now (IDEAS #19); the item's check mark.</summary>
+    public Func<bool> StreamerModeOn { get; init; } = () => false;
+    public Action ToggleStreamerMode { get; init; } = () => { };
     public Action ToggleLock { get; init; } = () => { };
     public Func<bool> ThumbnailsHidden { get; init; } = () => false;
     public Action ToggleThumbnails { get; init; } = () => { };
@@ -94,7 +99,7 @@ public sealed class TrayMenu : IDisposable
     private readonly List<(ToolStripItem Item, string Key, string English)> _labels = new();
     private readonly ToolStripMenuItem _downtime = new() { Enabled = false };
     private readonly ToolStripSeparator _downtimeSeparator = new();
-    private readonly ToolStripMenuItem _profiles, _suspend, _doNotDisturb, _focusMode, _hotkeySheet, _lock, _hide, _clickThrough, _hideSecondary, _secondary, _restore, _snap;
+    private readonly ToolStripMenuItem _profiles, _suspend, _doNotDisturb, _focusMode, _streamerMode, _hotkeySheet, _lock, _hide, _clickThrough, _hideSecondary, _secondary, _restore, _snap;
 
     public TrayMenu(TrayMenuActions actions)
     {
@@ -121,13 +126,15 @@ public sealed class TrayMenu : IDisposable
         _doNotDisturb = Item(TrayCommands.DoNotDisturb, "L.Tray.Dnd", "Do not disturb", null, _a.ToggleDoNotDisturb);
         // IDEAS P124: ticked while focus mode is on, which the tray's tip says too. No glyph, as do-not-disturb has none.
         _focusMode = Item(TrayCommands.FocusMode, "L.Tray.FocusMode", "Focus mode", null, _a.ToggleFocusMode);
+        // IDEAS #19: names on screen become "Client 1" ...; ticked while it is on. No glyph, as do-not-disturb has none.
+        _streamerMode = Item(TrayCommands.StreamerMode, "L.Tray.StreamerMode", "Streamer mode", null, _a.ToggleStreamerMode);
         _lock = Item(TrayCommands.Lock, "L.Tray.Lock", "Lock positions", FluentMenu.Glyphs.Lock, _a.ToggleLock);
         _hide = Item(TrayCommands.HideThumbnails, "L.Tray.Toggle", "Hide thumbnails", FluentMenu.Glyphs.Eye, _a.ToggleThumbnails);
         _clickThrough = Item(TrayCommands.ClickThrough, "L.Tray.ClickThrough", "Click-through", FluentMenu.Glyphs.Pointer, _a.ToggleClickThrough);
         _hideSecondary = Item(TrayCommands.HideSecondary, "L.Tray.HideSecondary", "Hide second thumbnails", FluentMenu.Glyphs.SecondThumbnails, _a.ToggleSecondary);
         _secondary = Item(TrayCommands.Secondary, "L.Tray.PiP", "Second thumbnails", FluentMenu.Glyphs.Window, null);
         FluentMenu.Style(_secondary.DropDown, showIcons: false);
-        Strip.Items.AddRange(new ToolStripItem[] { _suspend, _doNotDisturb, _focusMode, _lock, _hide, _clickThrough, _hideSecondary, _secondary, new ToolStripSeparator() });
+        Strip.Items.AddRange(new ToolStripItem[] { _suspend, _doNotDisturb, _focusMode, _streamerMode, _lock, _hide, _clickThrough, _hideSecondary, _secondary, new ToolStripSeparator() });
 
         var windows = Item(TrayCommands.ClientWindows, "L.Tray.ClientPositions", "Client windows", FluentMenu.Glyphs.Monitor, null);
         FluentMenu.Style(windows.DropDown, showIcons: false);
@@ -213,12 +220,13 @@ public sealed class TrayMenu : IDisposable
         _downtime.Available = downtime;
         _downtimeSeparator.Available = downtime;
         if (downtime) _downtime.Text = Downtime.CountdownText(_a.UtcNow());
-        _profiles.Text = string.Format(LocalizationService.Str("L.Tray.ProfileFmt", "Profile: {0}"), s?.LastUsedProfile ?? "");
+        _profiles.Text = string.Format(LocalizationService.Str("L.Tray.ProfileFmt", "Profile: {0}"), StreamerMask.Name(StreamerKind.Profile, s?.LastUsedProfile));   // streamer mode (IDEAS #19): drawn text only
         RebuildProfiles(s);
 
         _suspend.Checked = _a.IsSuspended();
         _doNotDisturb.Checked = _a.DoNotDisturbOn();
         _focusMode.Checked = _a.FocusModeOn();
+        _streamerMode.Checked = _a.StreamerModeOn();
         _lock.Checked = s?.LockPositions ?? false;
         _hide.Checked = _a.ThumbnailsHidden();
         _clickThrough.Checked = _a.ClickThroughOn();
@@ -255,7 +263,7 @@ public sealed class TrayMenu : IDisposable
         ClearAndDispose(_profiles);
         foreach (var name in _a.ProfileNames())
         {
-            var item = new ToolStripMenuItem(name) { Name = TrayCommands.Profile, Checked = name == s?.LastUsedProfile };
+            var item = new ToolStripMenuItem(StreamerMask.Name(StreamerKind.Profile, name)) { Name = TrayCommands.Profile, Checked = name == s?.LastUsedProfile };
             item.Click += (_, _) => _a.SwitchProfile(name);   // ProfileSwitched applies it (#101)
             _profiles.DropDownItems.Add(item);
         }
@@ -272,7 +280,7 @@ public sealed class TrayMenu : IDisposable
         ClearAndDispose(_secondary);
         foreach (var (name, pip) in s?.SecondaryThumbnails ?? new Dictionary<string, SecondaryThumbnailSettings>())
         {
-            var item = new ToolStripMenuItem(name) { Name = TrayCommands.SecondaryCharacter, Checked = pip.IsEnabled };
+            var item = new ToolStripMenuItem(StreamerMask.Name(StreamerKind.Character, name)) { Name = TrayCommands.SecondaryCharacter, Checked = pip.IsEnabled };
             bool on = pip.IsEnabled;
             item.Click += (_, _) => _a.SetSecondary(name, !on);
             _secondary.DropDownItems.Add(item);

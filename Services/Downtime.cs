@@ -43,6 +43,7 @@ public static class Downtime
     public static string WarningText(int minutes, IReadOnlyList<string> characters)
     {
         var format = LocalizationService.Str("L.Tray.DowntimeWarning", "Downtime (11:00 UTC) in {0} min. Logged in: {1}");
+        characters = characters.Select(c => StreamerMask.Name(StreamerKind.Character, c)).ToList();   // streamer mode (IDEAS #19)
         for (int shown = characters.Count; shown >= 1; shown--)
         {
             int rest = characters.Count - shown;

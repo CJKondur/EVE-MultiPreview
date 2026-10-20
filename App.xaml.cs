@@ -1267,7 +1267,8 @@ public partial class App : Application
         try
         {
             if (_isShuttingDown || _clientWatch.PidOf(window) is not int pid) return;
-            var who = ThumbnailMenu.HasCharacter(character) ? character : LocalizationService.Str("L.Ctx.LoginScreen", "Character select");
+            // Streamer mode (IDEAS #19): the box and the note are drawn text; the pid is looked up from the window, not the name.
+            var who = ThumbnailMenu.HasCharacter(character) ? StreamerMask.Name(StreamerKind.Character, character) : LocalizationService.Str("L.Ctx.LoginScreen", "Character select");
             var answer = System.Windows.MessageBox.Show(
                 string.Format(LocalizationService.Str("L.Msg.EndFrozenConfirm", EndFrozenEnglish), who), "EVE MultiPreview",
                 System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning, System.Windows.MessageBoxResult.No,
@@ -1292,6 +1293,26 @@ public partial class App : Application
         var (key, english) = _doNotDisturb.Press(_settings.Settings, DateTime.Now);
         _thumbnailManager?.ShowTooltipFeedback(LocalizationService.Str(key, english));
         FollowDoNotDisturb();
+    }
+
+    /// <summary>IDEAS #19: the tray item flips streamer mode and saves it. Every live overlay (thumbnails, second thumbnails,
+    /// stats windows, crops) and the alert history window are drawn again from the real names, and the near-cursor note says
+    /// what it is now. No hotkey and no pipe verb flips it.</summary>
+    private void ToggleStreamerMode()
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null) return;
+            _settings.Settings.StreamerMode = !_settings.Settings.StreamerMode;
+            _settings.Save();
+            _thumbnailManager?.ReapplySettings();
+            _cropManager?.Refresh();
+            _historyWindow?.RefreshStreamerMask();
+            _trayMenu?.Refresh();
+            var (key, english) = StreamerMask.IsOn ? ("L.Streamer.On", "Streamer mode: on") : ("L.Streamer.Off", "Streamer mode: off");
+            _thumbnailManager?.ShowTooltipFeedback(LocalizationService.Str(key, english));
+        }
+        catch (Exception ex) { LogError(ex); }
     }
 
     /// <summary>The tray's tip says while do-not-disturb is on. It can change without anybody pressing anything (the
@@ -1432,7 +1453,7 @@ public partial class App : Application
         try { _settings.SwitchProfile(profile); }
         finally { _switchingProfileAutomatically = false; }
         _thumbnailManager?.ShowTooltipFeedback(string.Format(
-            LocalizationService.Str("L.AutoProfile.Switched", "Profile: {0}, picked by who is logged in"), profile));
+            LocalizationService.Str("L.AutoProfile.Switched", "Profile: {0}, picked by who is logged in"), StreamerMask.Name(StreamerKind.Profile, profile)));
     }
 
     /// <summary>IDEAS #11: the switch went off, so a question still on the screen is closed with no choice and can switch
@@ -1454,15 +1475,18 @@ public partial class App : Application
     private void AskAutoProfile(string profile)
     {
         if (_settings == null) return;
+        // Streamer mode (IDEAS #19): the question is drawn text; the profile switched to is still the real name.
         var current = _settings.Settings.LastUsedProfile;
+        var shownProfile = StreamerMask.Name(StreamerKind.Profile, profile);
+        var shownCurrent = StreamerMask.Name(StreamerKind.Profile, current);
         _autoProfileQuestion?.Close();
         var question = new StartupDialog(
             LocalizationService.Str("L.AutoProfile.Title", "Switch profile?"),
-            string.Format(LocalizationService.Str("L.AutoProfile.Body", AutoProfileBodyEnglish), profile, current),
+            string.Format(LocalizationService.Str("L.AutoProfile.Body", AutoProfileBodyEnglish), shownProfile, shownCurrent),
             new[]
             {
-                string.Format(LocalizationService.Str("L.AutoProfile.Switch", "Switch to {0}"), profile),
-                string.Format(LocalizationService.Str("L.AutoProfile.Stay", "Stay on {0}"), current),
+                string.Format(LocalizationService.Str("L.AutoProfile.Switch", "Switch to {0}"), shownProfile),
+                string.Format(LocalizationService.Str("L.AutoProfile.Stay", "Stay on {0}"), shownCurrent),
             })
         { ShowActivated = false };
         question.Closed += (_, _) =>
@@ -1829,6 +1853,8 @@ public partial class App : Application
             ToggleDoNotDisturb = ToggleDoNotDisturb,
             FocusModeOn = () => _focusModeOn,
             ToggleFocusMode = ToggleFocusMode,
+            StreamerModeOn = () => StreamerMask.IsOn,
+            ToggleStreamerMode = ToggleStreamerMode,
             ToggleLock = () => _thumbnailManager?.ToggleLockPositions(),
             ThumbnailsHidden = () => _thumbnailManager?.AllThumbnailsHidden ?? false,
             ToggleThumbnails = () => _thumbnailManager?.ToggleThumbnailVisibility(),
@@ -1952,7 +1978,7 @@ public partial class App : Application
         _settings.SwitchProfile(newProfile);   // ProfileSwitched applies it (#101)
 
         // Tooltip feedback (AHK L705: ToolTip("Profile: " newProfile))
-        _thumbnailManager?.ShowTooltipFeedback(string.Format(LocalizationService.Str("L.Tray.ProfileFmt", "Profile: {0}"), newProfile));
+        _thumbnailManager?.ShowTooltipFeedback(string.Format(LocalizationService.Str("L.Tray.ProfileFmt", "Profile: {0}"), StreamerMask.Name(StreamerKind.Profile, newProfile)));
 
         Debug.WriteLine($"[App:Profile] 🔄 Cycled {(forward ? "forward" : "backward")} to profile: {newProfile}");
     }

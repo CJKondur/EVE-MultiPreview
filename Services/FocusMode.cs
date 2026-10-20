@@ -91,6 +91,6 @@ public static class FocusMode
     {
         var (key, english) = Note(press);
         var text = LocalizationService.Str(key, english);
-        return press is FocusPress.On or FocusPress.NoSuchGroup ? string.Format(text, name) : text;
+        return press is FocusPress.On or FocusPress.NoSuchGroup ? string.Format(text, StreamerMask.Name(StreamerKind.Group, name)) : text;   // streamer mode (IDEAS #19)
     }
 }

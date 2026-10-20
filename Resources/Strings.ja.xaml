@@ -2684,9 +2684,12 @@
     <sys:String x:Key="L.S.thumbs.text.streamer">配信者モード</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.streamer.Desc">配信やスクリーンショットから身バレにつながるものを外します。キャラクター名は「クライアント 1」「クライアント 2」のように表示され、ラベルと星系名は表示されません。初期設定ではオフです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.streamer.Title">配信者モード</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.streamer.Body">**配信者モード**は、配信やスクリーンショットから身バレにつながるものを外します。キャラクター名は「クライアント 1」「クライアント 2」のように表示されます。番号は、MultiPreview の起動後に各名前を初めて見た順です。ラベルと星系名は表示されません。&#x0A;&#x0A;対象は、サムネイル上のテキスト（セカンドサムネイルと切り抜きウィンドウも含む）、統計ウィンドウ、クイックスイッチのホイール、サムネイルの右クリックメニュー、アラート履歴ウィンドウ、そしてレイアウトから保存できる画像です（画像の名前はこのとき常に隠れます）。変わるのは描画される内容だけで、設定、アラート、スヌーズは今までどおり本当の名前で動きます。&#x0A;&#x0A;サムネイル内に映る EVE クライアントの画面と、この設定ウィンドウ内の名前は隠せません。設定ウィンドウは配信に映さないでください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Body">**配信者モード**は、配信やスクリーンショットから身バレにつながるものを外します。キャラクター名は「クライアント 1」「クライアント 2」のように表示されます。番号は、MultiPreview の起動後に各名前を初めて見た順です。ラベルと星系名は表示されません。&#x0A;&#x0A;対象は、サムネイル上のテキスト（セカンドサムネイルと切り抜きウィンドウも含む）、統計ウィンドウ、クイックスイッチのホイール、サムネイルの右クリックメニュー、アラート履歴ウィンドウ、そしてレイアウトから保存できる画像です（画像の名前はこのとき常に隠れます）。変わるのは描画される内容だけで、設定、アラート、スヌーズは今までどおり本当の名前で動きます。&#x0A;&#x0A;さらに、トースト（ポップアップ通知）とそのメニュー、Windows の通知、読み上げられるアラート、ポインターの近くに出るメモ、トレイメニューのプロファイルとセカンドサムネイルの一覧、ダウンタイムの吹き出しにも適用されます。これらのメモでは、グループ名、プロファイル名、レイアウト名はグループ 1、プロファイル 1、レイアウト 1 のように表示されます。Discord のメッセージはテキストとして PC の外に出るため、本当の名前ではなくクライアント 1 が入ります。モードの切り替えはトレイメニューからできます。&#x0A;&#x0A;サムネイル内に映る EVE クライアントの画面と、この設定ウィンドウ内の名前は隠せません。設定ウィンドウは配信に映さないでください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Client">クライアント {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Group">グループ {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Profile">プロファイル {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Layout">レイアウト {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.StreamerMode">配信者モード</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.On">配信者モード：オン</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Off">配信者モード：オフ</sys:String> <!-- draft -->
 </ResourceDictionary>

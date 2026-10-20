@@ -747,11 +747,12 @@ public sealed class ThumbnailManager : IDisposable
             // when the caller refreshes it after apply).
             if (applyVis) { _settings.Settings.CropEnabled = preset.CropsEnabled; _settings.Save(); }
 
+            string shownPreset = StreamerMask.Name(StreamerKind.Layout, preset.Name);   // streamer mode (IDEAS #19): drawn text only
             ShowTooltipFeedback(forMonitors
-                ? string.Format(LocalizationService.Str("L.Msg.LayoutAppliedForMonitors", "Monitors changed: applied layout '{0}'"), preset.Name)
+                ? string.Format(LocalizationService.Str("L.Msg.LayoutAppliedForMonitors", "Monitors changed: applied layout '{0}'"), shownPreset)
                 : preStaged > 0
-                ? string.Format(LocalizationService.Str("L.Msg.LayoutAppliedSaved", "Layout: applied '{0}' ({1} saved for characters not logged in)"), preset.Name, preStaged)
-                : string.Format(LocalizationService.Str("L.Msg.LayoutApplied", "Layout: applied '{0}'"), preset.Name));
+                ? string.Format(LocalizationService.Str("L.Msg.LayoutAppliedSaved", "Layout: applied '{0}' ({1} saved for characters not logged in)"), shownPreset, preStaged)
+                : string.Format(LocalizationService.Str("L.Msg.LayoutApplied", "Layout: applied '{0}'"), shownPreset));
         });
     }
 
@@ -774,7 +775,7 @@ public sealed class ThumbnailManager : IDisposable
             }
 
             if (applyVis) { _settings.Settings.CropEnabled = preset.CropsEnabled; _settings.Save(); }
-            ShowTooltipFeedback(string.Format(LocalizationService.Str("L.Msg.LayoutAppliedRemapped", "Layout: applied '{0}' (remapped)"), preset.Name));
+            ShowTooltipFeedback(string.Format(LocalizationService.Str("L.Msg.LayoutAppliedRemapped", "Layout: applied '{0}' (remapped)"), StreamerMask.Name(StreamerKind.Layout, preset.Name)));
         });
     }
 
@@ -2861,23 +2862,24 @@ public sealed class ThumbnailManager : IDisposable
 
         DateTime? until;
         string note;
+        string who = StreamerMask.Name(StreamerKind.Character, charName);   // streamer mode (IDEAS #19): the note only; charName keys the mute
         if (minutes <= 0)
         {
             _alertMutedChars.TryRemove(charName, out _);
             until = null;
-            note = string.Format(LocalizationService.Str("L.Msg.AlertsUnmuted", "{0}: 🔔 Alerts unmuted"), charName);
+            note = string.Format(LocalizationService.Str("L.Msg.AlertsUnmuted", "{0}: 🔔 Alerts unmuted"), who);
         }
         else if (minutes == int.MaxValue)
         {
             until = DateTime.MaxValue;
             _alertMutedChars[charName] = (until.Value, TimeSpan.MaxValue);
-            note = string.Format(LocalizationService.Str("L.Msg.AlertsMuted", "{0}: 🔇 Alerts muted"), charName);
+            note = string.Format(LocalizationService.Str("L.Msg.AlertsMuted", "{0}: 🔇 Alerts muted"), who);
         }
         else
         {
             until = _muteClock().AddMinutes(minutes);
             _alertMutedChars[charName] = (until.Value, TimeSpan.FromMinutes(minutes));
-            note = string.Format(LocalizationService.Str("L.Msg.AlertsMutedMins", "{0}: 🔇 Alerts muted {1}m"), charName, minutes);
+            note = string.Format(LocalizationService.Str("L.Msg.AlertsMutedMins", "{0}: 🔇 Alerts muted {1}m"), who, minutes);
         }
 
         // Reflect on every thumbnail showing this character (menu header), its second thumbnail too (IDEAS P36).
@@ -2950,7 +2952,7 @@ public sealed class ThumbnailManager : IDisposable
             // Mute is a transient toggle (not persisted), like the auto-solo path.
             Interop.User32.GetWindowThreadProcessId(thumb.EveHwnd, out uint pid);
             if (pid != 0) _audio.SetMute(pid, true);
-            ShowTooltipFeedback(string.Format(LocalizationService.Str("L.Msg.AudioMuted", "{0}: audio muted"), thumb.CharacterName));
+            ShowTooltipFeedback(string.Format(LocalizationService.Str("L.Msg.AudioMuted", "{0}: audio muted"), StreamerMask.Name(StreamerKind.Character, thumb.CharacterName)));
         }
         else
         {
@@ -4490,8 +4492,8 @@ public sealed class ThumbnailManager : IDisposable
         }));
 
         ShowTooltipFeedback(nowExcluded
-            ? string.Format(LocalizationService.Str("L.Msg.CycleExcluded", "'{0}' excluded from cycle"), characterName)
-            : string.Format(LocalizationService.Str("L.Msg.CycleIncluded", "'{0}' re-included in cycle"), characterName));
+            ? string.Format(LocalizationService.Str("L.Msg.CycleExcluded", "'{0}' excluded from cycle"), StreamerMask.Name(StreamerKind.Character, characterName))
+            : string.Format(LocalizationService.Str("L.Msg.CycleIncluded", "'{0}' re-included in cycle"), StreamerMask.Name(StreamerKind.Character, characterName)));
     }
 
     // ── Click-Through Toggle ────────────────────────────────────────

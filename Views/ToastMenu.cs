@@ -35,7 +35,7 @@ public static class SnoozeText
 
     /// <summary>The confirmation after a snooze from a toast: which event, for whom.</summary>
     public static string Done(string character, string eventKey) =>
-        string.Format(LocalizationService.Str("L.Snooze.Done", "Snoozed “{0}” for {1}"), AlertHub.EventDisplayName(eventKey), character);
+        string.Format(LocalizationService.Str("L.Snooze.Done", "Snoozed “{0}” for {1}"), AlertHub.EventDisplayName(eventKey), StreamerMask.Name(StreamerKind.Character, character));
 
     /// <summary>Text for a WinForms menu item, which reads an ampersand as "underline the next letter": a rule's
     /// name is the player's own text and is shown as it is.</summary>
@@ -97,7 +97,7 @@ public sealed class ToastMenu : IDisposable
         Strip.Items.Add(new ToolStripLabel
         {
             Name = ToastCommands.Header,
-            Text = SnoozeText.Menu(string.Format(LocalizationService.Str("L.Toast.SnoozeFor", "Snooze “{0}” for {1}:"), eventName, characterName)),
+            Text = SnoozeText.Menu(string.Format(LocalizationService.Str("L.Toast.SnoozeFor", "Snooze “{0}” for {1}:"), eventName, StreamerMask.Name(StreamerKind.Character, characterName))),
         });
         Strip.Items.Add(Item(ToastCommands.Snooze15, "L.Toast.Snooze15", "For 15 minutes", () => snooze(TimeSpan.FromMinutes(15))));
         Strip.Items.Add(Item(ToastCommands.Snooze60, "L.Toast.Snooze60", "For 1 hour", () => snooze(TimeSpan.FromHours(1))));

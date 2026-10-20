@@ -394,8 +394,13 @@ public sealed class NotificationsWay : IAlertWay
     {
         string name = eventName(entry.EventKey);
         string line = entry.Count > 1 ? name + " " + (char)0xD7 + entry.Count.ToString(CultureInfo.CurrentCulture) : name;
-        return new NotificationTexts(entry.Character, line, place(entry.Character, entry.EventKey),
-            string.Format(CultureInfo.CurrentCulture, str("L.Notify.Switch", "Switch to {0}"), entry.Character),
+        // Streamer mode (IDEAS #19): a notification is drawn over any program, so the name and the place are masked here; the
+        // entry (and so the de-dupe and the click) keeps the real name.
+        string who = StreamerMask.Name(StreamerKind.Character, entry.Character);
+        string? where = place(entry.Character, entry.EventKey);
+        if (where != null) where = StreamerMask.Name(StreamerKind.System, where);
+        return new NotificationTexts(who, line, where,
+            string.Format(CultureInfo.CurrentCulture, str("L.Notify.Switch", "Switch to {0}"), who),
             str("L.Notify.Snooze", "Snooze for 15 minutes"));
     }
 
