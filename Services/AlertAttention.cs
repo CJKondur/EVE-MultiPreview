@@ -54,11 +54,18 @@ public sealed class AlertAttention
         if (string.IsNullOrEmpty(character) || clientInFront) return false;
         bool kept;
         bool expired;
-        List<string>? emptied = null;
+        List<string>? lost = null;
+        DateTime now;
         lock (_lock)
         {
-            var now = _utcNow();
-            expired = ExpireLocked(now, ref emptied);
+            now = _utcNow();
+            expired = ExpireLocked(now, ref lost);
+        }
+        // Told before the new alert is kept: a badge that follows Expired settles on what is left of the OLD alerts,
+        // and the new one is counted by its own call (IncrementAlertBadge) after this one.
+        TellExpired(lost);
+        lock (_lock)
+        {
             var alert = new UnseenAlert(now, character, eventKey ?? "", severity ?? "");
             if (!_byCharacter.TryGetValue(character, out var list))
             {
@@ -72,22 +79,23 @@ public sealed class AlertAttention
         }
         // A lesser alert let go at once changes nothing the tray or a badge shows; an expiry on the way in does.
         if (kept || expired) RaiseChanged();
-        TellExpired(emptied);
         return true;
     }
 
-    /// <summary>A character's last unseen alert expired (<see cref="MaxAge"/>): nothing there needs the player any
-    /// more, and its badge goes. Raised once per character, after <see cref="Changed"/>, outside the lock, on the
-    /// thread that looked; a follower that throws is skipped. Not raised when only some of a character's alerts
-    /// expired: it still has one. (<see cref="Looked"/> is not raised: nobody looked.)</summary>
+    /// <summary>A character lost an unseen alert to <see cref="MaxAge"/>, the last one or not: its badge goes, or
+    /// counts what is left (ask <see cref="Has"/> / <see cref="For"/>). Raised once per character a look took an alert
+    /// from, outside the lock, on the thread that looked; a follower that throws is skipped. After
+    /// <see cref="Changed"/> when <see cref="DropExpired"/> or another look took them; when <see cref="Raised"/> found
+    /// them it comes before that alert is kept, so what the character holds then is only what was held before.
+    /// (<see cref="Looked"/> is not raised: nobody looked.)</summary>
     public event Action<string>? Expired;
 
-    private void TellExpired(List<string>? emptied)
+    private void TellExpired(List<string>? lost)
     {
-        if (emptied == null) return;
+        if (lost == null) return;
         var handlers = Expired;
         if (handlers == null) return;
-        foreach (var character in emptied)
+        foreach (var character in lost)
         {
             foreach (var handler in handlers.GetInvocationList())
             {
@@ -98,9 +106,9 @@ public sealed class AlertAttention
     }
 
     /// <summary>Drops the alerts that are <see cref="MaxAge"/> old, and draws back to now the age of any that the
-    /// clock puts ahead of now (it was set back). Under the lock; true when an alert was dropped. The characters left
-    /// with nothing are added to <paramref name="emptied"/>. A clock set forward cannot be told from time passing.</summary>
-    private bool ExpireLocked(DateTime now, ref List<string>? emptied)
+    /// clock puts ahead of now (it was set back). Under the lock; true when an alert was dropped. Every character that
+    /// lost one is added to <paramref name="lost"/>. A clock set forward cannot be told from time passing.</summary>
+    private bool ExpireLocked(DateTime now, ref List<string>? lost)
     {
         bool any = false;
         List<string>? none = null;
@@ -115,12 +123,12 @@ public sealed class AlertAttention
             }
             if (list.Count == before) continue;
             any = true;
+            (lost ??= new List<string>()).Add(character);
             if (list.Count == 0) (none ??= new List<string>()).Add(character);
         }
         if (none == null) return any;
         foreach (var character in none) _byCharacter.Remove(character);
         Volatile.Write(ref _characters, _byCharacter.Count);
-        (emptied ??= new List<string>()).AddRange(none);
         return any;
     }
 
@@ -131,11 +139,11 @@ public sealed class AlertAttention
     {
         if (Volatile.Read(ref _characters) == 0) return;
         bool any;
-        List<string>? emptied = null;
-        lock (_lock) any = ExpireLocked(_utcNow(), ref emptied);
+        List<string>? lost = null;
+        lock (_lock) any = ExpireLocked(_utcNow(), ref lost);
         if (!any) return;
         RaiseChanged();
-        TellExpired(emptied);
+        TellExpired(lost);
     }
 
     /// <summary>What is unseen changed: an alert was taken, or a character's alerts were taken off (IDEAS P4: the tray

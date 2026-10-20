@@ -209,7 +209,8 @@ public sealed class EventSnoozes
     /// all.) Of a file that is taken, an entry is taken only within its limits: a character and an event of a sane
     /// length and written as MultiPreview writes them (<see cref="Plain"/>), and a time that is still ahead. An
     /// entry outside them is left out, never cut to fit. Returns how many snoozes there are that were not there
-    /// before: an entry that is in the file twice is one. Never throws, and raises nothing.</summary>
+    /// before: an entry that is in the file twice is one. Never throws (not even when <paramref name="refused"/> does),
+    /// and raises nothing.</summary>
     /// <param name="refused">Called, once, when the file is refused because an entry of it ends too far ahead (IDEAS
     /// P80 (3)): after the clock was set back that can be the player's own file, and nothing else says so.</param>
     public int Restore(string? json, Action? refused = null)
@@ -224,7 +225,8 @@ public sealed class EventSnoozes
         foreach (var item in stored.Snoozes)
             if (item?.U is DateTime far && Utc(far) - now > LongestKept + ClockSlack)
             {
-                refused?.Invoke();
+                try { refused?.Invoke(); }
+                catch { /* saying so is not worth a start that fails */ }
                 return 0;
             }
         int taken = 0;

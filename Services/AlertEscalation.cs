@@ -65,7 +65,11 @@ public sealed class AlertEscalation
     /// <summary>Lets every chain go. App asks for it the moment the repeats are switched off: the tick does the same,
     /// but the timer may stop with that very change, and then no tick comes. Kept, a chain would play for the past
     /// in the second the repeats are switched on again.</summary>
-    public void Forget() => _chains.Clear();
+    public void Forget()
+    {
+        _chains.Clear();
+        _failing = false;
+    }
 
     /// <summary>Whether App's one-second look is needed at all.</summary>
     public static bool Needed(AppSettings s) => s.EscalationEnabled;
@@ -117,6 +121,7 @@ public sealed class AlertEscalation
         if (!Needed(s))
         {
             _chains.Clear();
+            _failing = false;       // a failure after the repeats are switched on again is a new one
             return;
         }
         Repeat? due = null;

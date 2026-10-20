@@ -33,6 +33,7 @@ public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefres
     private readonly System.Windows.Controls.ComboBox _event = new() { MinWidth = 210 };
     private readonly System.Windows.Controls.ComboBox _length = new() { MinWidth = 210 };
     private readonly WrapPanel _add = new();
+    private readonly TextBlock _refused = EditorCard.Note("L.S.Snoozes.AddRefused");
     private readonly List<string> _eventKeys = new();
     private readonly List<string> _characterNames = new();
     private string _signature = "";
@@ -58,14 +59,23 @@ public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefres
         add.Margin = new Thickness(0, 0, 0, 8);
         _add.Children.Add(add);
         _add.Visibility = _snoozes == null ? Visibility.Collapsed : Visibility.Visible;
+        _refused.Visibility = Visibility.Collapsed;
 
         var below = new StackPanel();
         below.Children.Add(_add);
+        below.Children.Add(_refused);
         below.Children.Add(_none);
         below.Children.Add(_rows);
         Content = EditorCard.Build(ItemId, _endAll, below);
-        LiveRefresh.Attach(this, () => { if (Signature() != _signature) Refresh(); }, seconds: 5);
+        LiveRefresh.Attach(this, Poll, seconds: 5);
         Refresh();
+    }
+
+    /// <summary>What the five-second look does: lists again when the snoozes, the running clients or the rules are not what
+    /// the last full listing was made from (tests call it in place of the timer).</summary>
+    public void Poll()
+    {
+        if (Signature() != _signature) Refresh();
     }
 
     /// <summary>The snoozes the card lists, by character and then by event.</summary>
@@ -115,10 +125,10 @@ public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefres
 
     /// <summary>The Add row's characters and events: the clients that run and the rules that are on change while this
     /// page is open. What is typed, and the event chosen, stay. A list that is open is left alone: it would close under
-    /// the pointer.</summary>
-    private void FillChoices()
+    /// the pointer. False when it was left alone, so that the next look tries again.</summary>
+    private bool FillChoices()
     {
-        if (_character.IsDropDownOpen || _event.IsDropDownOpen) return;
+        if (_character.IsDropDownOpen || _event.IsDropDownOpen) return false;
         var typed = _character.Text;
         var chosen = _event.SelectedIndex >= 0 && _event.SelectedIndex < _eventKeys.Count ? _eventKeys[_event.SelectedIndex] : null;
 
@@ -134,7 +144,11 @@ public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefres
         foreach (var rule in Rules())
             AddEvent(rule.AlertType, string.IsNullOrWhiteSpace(rule.Name) ? AlertHub.EventDisplayName(rule.AlertType) : rule.Name);
         _event.SelectedIndex = chosen == null ? -1 : _eventKeys.IndexOf(chosen);
+        return true;
     }
+
+    /// <summary>The sign that Add made nothing: shown until the next Add, which hides it when it works.</summary>
+    public bool RefusalShown => _refused.Visibility == Visibility.Visible;
 
     private void AddEvent(string key, string name)
     {
@@ -143,13 +157,19 @@ public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefres
     }
 
     /// <summary>Starts the snooze the Add row describes, in the store itself. False when there is nothing to start: no
-    /// store, no character, no event, or a name a snooze cannot have (<see cref="SnoozeAdd.TryBuild"/>).</summary>
+    /// store, no character, no event, or a name a snooze cannot have (<see cref="SnoozeAdd.TryBuild"/>, which refuses
+    /// a name that is too long rather than cutting it). A refusal says so on the card (<see cref="RefusalShown"/>).</summary>
     public bool Add()
     {
         if (_snoozes == null) return false;
         int eventAt = _event.SelectedIndex, lengthAt = _length.SelectedIndex;
-        if (eventAt < 0 || eventAt >= _eventKeys.Count || lengthAt < 0 || lengthAt >= SnoozeAdd.Lengths.Count) return false;
-        if (SnoozeAdd.TryBuild(_character.Text, _eventKeys[eventAt], SnoozeAdd.Lengths[lengthAt].Length) is not { } made) return false;
+        if (eventAt < 0 || eventAt >= _eventKeys.Count || lengthAt < 0 || lengthAt >= SnoozeAdd.Lengths.Count
+            || SnoozeAdd.TryBuild(_character.Text, _eventKeys[eventAt], SnoozeAdd.Lengths[lengthAt].Length) is not { } made)
+        {
+            _refused.Visibility = Visibility.Visible;
+            return false;
+        }
+        _refused.Visibility = Visibility.Collapsed;
         _snoozes.Snooze(made.Character, made.EventKey, made.Length);
         Refresh();
         return true;
@@ -159,8 +179,10 @@ public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefres
     {
         var now = _utcNow();
         Shown = Active();
-        _signature = Signature();
-        FillChoices();
+        // The signature stands for the Add row as well: kept from the last full listing while the row was left alone
+        // (a list was open), the next look sees the difference and lists again.
+        var signature = Signature();
+        if (FillChoices()) _signature = signature;
         _none.Visibility = Shown.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         _endAll.Visibility = Shown.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
         _rows.Children.Clear();

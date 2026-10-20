@@ -269,6 +269,16 @@ public class AlertHub : IDisposable
         _hubWindow.Hide();
         _focusTimer?.Stop();
         _autoHideTimer?.Stop();
+        ClosePicker();   // the timer that closes it is stopped: with the pointer resting on it, it would stay topmost
+    }
+
+    /// <summary>Closes the direction picker if it is open (the hub hides, or goes).</summary>
+    private void ClosePicker()
+    {
+        if (_directionPicker == null) return;
+        try { _directionPicker.Close(); } catch { }
+        _directionPicker = null;
+        RefreshIcon();
     }
 
     /// <summary>Re-reads the toast settings the constructor read once: AlertToastDuration, and
@@ -745,6 +755,7 @@ public class AlertHub : IDisposable
     {
         SettingsUi.UiStyles.Changed -= OnLookChanged;
         _focusTimer?.Stop();
+        ClosePicker();
         CloseToastMenu();
         foreach (var toast in _activeToasts.ToList())
             toast.Dispose();

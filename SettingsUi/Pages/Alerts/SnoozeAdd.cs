@@ -19,26 +19,19 @@ public static class SnoozeAdd
         ("L.Toast.SnoozeRestart", null),
     };
 
-    /// <summary>The snooze to make, or null when there is nothing to make: no character, no event, no time, or a name
-    /// that the snooze file would leave out (a control or format character, half of a character), which would hold until
-    /// the next start and be gone after it. A name has no space at its ends and is cut to <see cref="EventSnoozes.MaxName"/>,
-    /// never in the middle of a character. Its case is kept: a snooze finds a character whatever its case.</summary>
+    /// <summary>The snooze to make, or null when there is nothing to make: no character, no event, no time, or a name or
+    /// an event key that the snooze file would leave out (a control or format character, half of a character, longer than
+    /// <see cref="EventSnoozes.MaxName"/> / <see cref="EventSnoozes.MaxKey"/>), which would hold until the next start and
+    /// be gone after it. A name has no space at its ends. It is never cut to fit: a cut name matches no character, so
+    /// one that is too long is refused. Its case is kept: a snooze finds a character whatever its case.</summary>
     /// <param name="length">Null: until MultiPreview restarts. Zero or less: no time at all.</param>
     public static SnoozeAddition? TryBuild(string? character, string? eventKey, TimeSpan? length)
     {
-        if (string.IsNullOrWhiteSpace(eventKey) || eventKey.Length > EventSnoozes.MaxKey) return null;
+        if (string.IsNullOrWhiteSpace(eventKey) || eventKey.Length > EventSnoozes.MaxKey || !EventSnoozes.Plain(eventKey)) return null;
         if (length is TimeSpan span && span <= TimeSpan.Zero) return null;
-        var name = Cut((character ?? "").Trim(), EventSnoozes.MaxName).TrimEnd();
-        if (name.Length == 0 || !EventSnoozes.Plain(name) || HasHalfCharacter(name)) return null;
+        var name = (character ?? "").Trim();
+        if (name.Length == 0 || name.Length > EventSnoozes.MaxName || !EventSnoozes.Plain(name) || HasHalfCharacter(name)) return null;
         return new SnoozeAddition(name, eventKey, length);
-    }
-
-    /// <summary>At most <paramref name="max"/> UTF-16 units, without the first half of a pair at the end.</summary>
-    private static string Cut(string text, int max)
-    {
-        if (text.Length <= max) return text;
-        int end = char.IsHighSurrogate(text[max - 1]) ? max - 1 : max;
-        return text[..end];
     }
 
     private static bool HasHalfCharacter(string text)

@@ -2227,7 +2227,7 @@
     <sys:String x:Key="L.S.alerts.events.keepSnoozes">MultiPreview 重新启动后保留暂停</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">关闭：MultiPreview 关闭时所有暂停都会结束。打开：15 分钟或 1 小时的暂停在重新启动后继续计时。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.snoozes.Title">为一个角色暂停一种警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">右键点击提示，可以为该角色暂停这种警报：15 分钟、1 小时，或直到 MultiPreview 重新启动。指针离开菜单后，菜单会自行关闭。同样的警报仍会发给你的其他角色，这个角色的其他警报也照常发出。&#x0A;&#x0A;- 已暂停的警报不显示边框、角标或提示，也不播放声音。警报历史记录里仍会列出它，并标为 已暂停。&#x0A;- **当前已暂停** 列出当前暂停的警报，缩略图的右键菜单列出该角色的。两处都可以结束暂停。&#x0A;- 要让一个角色的所有警报都安静，请改用缩略图菜单里的 静音警报。&#x0A;- **MultiPreview 重新启动后保留暂停** 是关闭的：关闭 MultiPreview 会结束所有暂停。打开后，有时限的暂停会保存在设置文件夹的 alert_snoozes.json 里，并持续到时间用完。&#x0A;&#x0A;也可以不用提示，直接在这里开始暂停：在 **当前已暂停** 里选择角色（也可以输入名字）、警报和时长，再点击 **添加暂停**；缩略图菜单里的 静音警报 同样不需要提示。&#x0A;&#x0A;- 暂停是按角色名字记的：角色改名后，这条暂停对不上任何东西，会一直留到时间用完或 MultiPreview 重新启动；可以在 **当前已暂停** 里结束它。最多保留 200 条暂停。&#x0A;- 有时限的暂停按这台电脑的时钟走：时钟拨快会提前结束，拨慢会持续更久，剩余时间超过一小时零一分钟的暂停算作已结束。&#x0A;- 暂停文件里只要有一条比现在晚一小时零一分钟以上，整个文件就完全不读，错误日志会记下这一点（时钟拨慢之后，这可能就是你自己的文件）。设置文件夹是链接时，暂停不会在重启后保留；错误日志只记一次，不会每次改动都记。&#x0A;- 角色名或警报里含控制字符的条目会被舍弃。暂停文件是只读时，你结束的暂停会在重启后回来。&#x0A;- 提示及其菜单只能用鼠标操作；Esc 会交给 EVE，而不是菜单。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">右键点击提示，可以为该角色暂停这种警报：15 分钟、1 小时，或直到 MultiPreview 重新启动。指针离开菜单后，菜单会自行关闭。同样的警报仍会发给你的其他角色，这个角色的其他警报也照常发出。&#x0A;&#x0A;- 已暂停的警报不显示边框、角标或提示，也不播放声音。警报历史记录里仍会列出它，并标为 已暂停。&#x0A;- **当前已暂停** 列出当前暂停的警报，缩略图的右键菜单列出该角色的。两处都可以结束暂停。&#x0A;- 要让一个角色的所有警报都安静，请改用缩略图菜单里的 静音警报。&#x0A;- **MultiPreview 重新启动后保留暂停** 是关闭的：关闭 MultiPreview 会结束所有暂停。打开后，有时限的暂停会保存在设置文件夹的 alert_snoozes.json 里，并持续到时间用完。&#x0A;&#x0A;也可以不用提示，直接在这里开始暂停：在 **当前已暂停** 里选择角色（也可以输入名字）、警报和时长，再点击 **添加暂停**；缩略图菜单里的 静音警报 同样不需要提示。&#x0A;&#x0A;- 暂停是按角色名字记的：角色改名后，这条暂停对不上任何东西，会一直留到时间用完或 MultiPreview 重新启动；可以在 **当前已暂停** 里结束它。最多保留 200 条暂停。&#x0A;- 有时限的暂停按这台电脑的时钟走：时钟拨快会提前结束，拨慢会持续更久，剩余时间超过一小时零一分钟的暂停算作已结束。&#x0A;- 暂停文件里只要有一条比现在晚一小时零一分钟以上，整个文件就完全不读，错误日志会记下这一点（时钟拨慢之后，这可能就是你自己的文件）。设置文件夹是链接时，暂停不会在重启后保留；错误日志只记一次，不会每次改动都记。&#x0A;- 角色名或警报里含控制字符的条目会被舍弃。暂停文件是只读时，你结束的暂停会在重启后回来。&#x0A;- 提示及其菜单只能用鼠标操作；Esc 会交给 EVE，而不是菜单。&#x0A;- 在这里添加暂停不会让因该警报而放大的缩略图恢复；它会在自己的时间结束时恢复。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.dnd">勿扰模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey">勿扰模式开关</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">在你再次按下之前静音警报声音和语音警报，并暂停发往 Discord 的警报。边框、角标和提示照常显示。</sys:String> <!-- draft -->
@@ -2815,4 +2815,5 @@
     <sys:String x:Key="L.S.Snoozes.AddEvent">事件</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.AddLength">时长</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.Add">添加暂停</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.AddRefused">没有添加暂停：请选择一个事件，并输入角色名（不能太长，也不能含换行或特殊字符）。</sys:String> <!-- draft -->
 </ResourceDictionary>

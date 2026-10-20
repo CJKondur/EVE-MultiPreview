@@ -318,8 +318,8 @@ public sealed class ThumbnailManager : IDisposable
         _discovery = discovery;
         _settings = settings;
         Attention = new AlertAttention(attentionClock);
-        // An alert that expired unseen takes its character's badge with it (IDEAS P78); looking is what clears it otherwise.
-        Attention.Expired += ClearAlertBadge;
+        // An alert that expired unseen takes its share of its character's badge with it (IDEAS P78); looking is what clears it otherwise.
+        Attention.Expired += TrimAlertBadge;
         Playtime = new PlaytimeLedger(() => PlaytimeClock());
 
         _discovery.WindowFound += OnWindowFound;
@@ -3473,8 +3473,30 @@ public sealed class ThumbnailManager : IDisposable
     {
         if (string.IsNullOrEmpty(characterName)
             || !RepeatFlashes(_settings.Settings.AlertBorderThickness, GetHwndForCharacter(characterName), foreground)) return false;
-        StartFlash(characterName, severity, eventType, FlashClock());
+        var now = FlashClock();
+        // Another event's flash that is still on is newer than this repeat's alert (an old critical repeating over a
+        // warning raised since): the repeat leaves it be. Its own event's flash is the one a repeat renews.
+        if (_alertFlashChars.TryGetValue(characterName, out var current)
+            && !string.Equals(current.EventType, eventType, StringComparison.Ordinal)
+            && !FlashIsOver(characterName, current, now, foreground, out _)) return false;
+        StartFlash(characterName, severity, eventType, now);
         return true;
+    }
+
+    /// <summary>Whether a character's flash has run its course at <paramref name="now"/>: the event's own duration
+    /// (it overrides the severity's), where 0 means until the player switches to that client - or right away when
+    /// the client is the window in front, which no switch would clear. A moment ahead of now (the clock was set
+    /// back) ends it. <paramref name="seconds"/> is the duration that was used.</summary>
+    private bool FlashIsOver(string characterName, AlertFlashInfo info, DateTime now, IntPtr foreground, out int seconds)
+    {
+        var s = _settings.Settings;
+        int expirySec = s.AlertDurations.TryGetValue(info.EventType, out var dur) && dur >= 0
+            ? dur
+            : FlashExpiry.GetValueOrDefault(info.Severity, 6);
+        seconds = expirySec;
+        return expirySec == 0
+            ? FindThumbnailByCharacter(characterName) is not { } alertThumb || alertThumb.EveHwnd == foreground   // gone = over
+            : now < info.StartTime || (now - info.StartTime).TotalSeconds >= expirySec;   // ahead of now = the clock was set back
     }
 
     public void ClearAlertFlash(string characterName)
@@ -3562,6 +3584,15 @@ public sealed class ThumbnailManager : IDisposable
             ApplyBadgeToThumbnail(characterName);
     }
 
+    /// <summary>A character lost an unseen alert to age (<see cref="AlertAttention.Expired"/>): the badge goes with the
+    /// last one, and otherwise counts no more than what is left. It never grows, and a character with no badge gets none
+    /// (the badge may be off, or off for the event).</summary>
+    private void TrimAlertBadge(string characterName)
+    {
+        if (Attention.For(characterName) is not { } left) ClearAlertBadge(characterName);
+        else if (AlertBadgeInfo.CapAt(_alertBadges, characterName, left.Count)) ApplyBadgeToThumbnail(characterName);
+    }
+
     /// <summary>Push the badge count to the thumbnail's text overlay. The
     /// badge is always painted red — the user explicitly wants it loud, not
     /// severity-coded, so it stands out on the thumbnail at a glance. The count is not handed over by the caller: it
@@ -3631,12 +3662,7 @@ public sealed class ThumbnailManager : IDisposable
             // Check expiry. Per-event duration overrides the severity default (#115);
             // 0 = keep it until you switch to that client - or right away when the
             // alert is on the client you are already in, which no switch would clear.
-            int expirySec = s.AlertDurations.TryGetValue(info.EventType, out var dur) && dur >= 0
-                ? dur
-                : FlashExpiry.GetValueOrDefault(info.Severity, 6);
-            bool expired = expirySec == 0
-                ? FindThumbnailByCharacter(charName) is not { } alertThumb || alertThumb.EveHwnd == fgNow   // gone = over
-                : now < info.StartTime || (now - info.StartTime).TotalSeconds >= expirySec;   // ahead of now = the clock was set back
+            bool expired = FlashIsOver(charName, info, now, fgNow, out int expirySec);
             if (expired)
             {
                 toRemove.Add(charName);
@@ -5661,4 +5687,13 @@ public class AlertBadgeInfo
     /// (nothing came since the character was looked at).</summary>
     public static int CountOf(ConcurrentDictionary<string, AlertBadgeInfo> badges, string character) =>
         badges.TryGetValue(character, out var held) ? held.Count : 0;
+
+    /// <summary>A character's badge shows no more than <paramref name="count"/>: a larger count is replaced by a new
+    /// value (the severity stays), a smaller one or none is left as it is. True when the count was lowered.</summary>
+    public static bool CapAt(ConcurrentDictionary<string, AlertBadgeInfo> badges, string character, int count)
+    {
+        while (badges.TryGetValue(character, out var held) && held.Count > count)
+            if (badges.TryUpdate(character, new AlertBadgeInfo { Count = count, TopSeverity = held.TopSeverity }, held)) return true;
+        return false;
+    }
 }
