@@ -15,7 +15,8 @@ public enum PaletteKind { Character, Label, Group, Profile }
 public sealed record PaletteEntry(PaletteKind Kind, string? Name, RemoteCommand Command);
 
 /// <summary>IDEAS #14: the pure matching of the type-to-switch palette. Case- and accent-insensitive. Every space-separated token
-/// of the query must be the start of a word of the name or appear anywhere in it. A name whose tokens all start a word ranks above
+/// of the query must be the start of a word of the name or appear anywhere in it. A word is a run of letters and digits, or a
+/// blank-separated stretch of the name, so the token <c>o'b</c> starts the word of <c>O'Brien</c>. A name whose tokens all start a word ranks above
 /// one that needs a substring; then the shorter name; then the kind (character, label, group, profile); then ordinal.</summary>
 public static class PaletteMatcher
 {
@@ -37,7 +38,7 @@ public static class PaletteMatcher
         foreach (var entry in named)
         {
             var folded = Fold(entry.Name!);
-            var words = Words(folded).ToList();
+            var words = Words(folded).Concat(folded.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries)).ToList();
             bool allPrefix = true;
             bool matches = true;
             foreach (var token in tokens)
@@ -58,7 +59,8 @@ public static class PaletteMatcher
             .ToList();
     }
 
-    /// <summary>The words of a name: runs of letters and digits; anything else (space, hyphen, apostrophe) breaks a word.</summary>
+    /// <summary>The words of a name: runs of letters and digits; anything else (space, hyphen, apostrophe) breaks a word. The
+    /// blank-separated stretches are words too (see <see cref="Match"/>); they are added by the caller.</summary>
     private static IEnumerable<string> Words(string text)
     {
         int start = -1;

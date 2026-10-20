@@ -22,7 +22,9 @@ namespace EveMultiPreview.Views;
 /// <see cref="PaletteMatcher"/>; Up and Down move; Enter runs the chosen row's command through the runner it was handed (App's
 /// RunCommand, the one the commands from other programs use) and closes; Esc, a click away or the hotkey again closes without
 /// running anything. It takes the keyboard the way the quick-switch wheel does (shown and activated, topmost, closed when it is
-/// deactivated), so what is typed never reaches the game. Built in code in the shape of the wheel's surface, so a look restyles
+/// deactivated), so what is typed never reaches the game. When Windows does not give it the foreground on its own (a hotkey whose
+/// key-down was hidden from the clients, a mouse button) it asks once through the repo's tiered activation helper and, if it is
+/// still not in front, closes: a topmost box that cannot take the keyboard would leave typing and Esc going to the game. Built in code in the shape of the wheel's surface, so a look restyles
 /// it and the literal scan reads it. The rows' texts are a person's names: they are shown, never a format.
 /// </summary>
 public sealed class CommandPaletteWindow : Window
@@ -35,14 +37,19 @@ public sealed class CommandPaletteWindow : Window
     private readonly TextBlock _none = new();
     private IReadOnlyList<PaletteEntry> _shown = Array.Empty<PaletteEntry>();
     private bool _closed;
+    private readonly Func<bool> _tryActivate;
+    private bool _activationAsked;
 
     /// <param name="entries">Every row the palette may show (<see cref="CommandPalette.Entries"/>).</param>
     /// <param name="run">What Enter hands the chosen row's command to; App's RunCommand. Called after the palette has closed.</param>
     /// <param name="workAreaDips">The work area it is placed in; default is the monitor under the cursor.</param>
-    public CommandPaletteWindow(IReadOnlyList<PaletteEntry> entries, Action<RemoteCommand> run, Rect? workAreaDips = null)
+    /// <param name="tryActivate">One attempt to bring the window to the foreground, true when it is in front afterwards; default is
+    /// <c>User32.ActivateWindow</c>, the tiered helper a client switch uses (tests hand one in).</param>
+    public CommandPaletteWindow(IReadOnlyList<PaletteEntry> entries, Action<RemoteCommand> run, Rect? workAreaDips = null, Func<bool>? tryActivate = null)
     {
         _entries = entries;
         _run = run;
+        _tryActivate = tryActivate ?? ActivateWithTheRepoHelper;
         var area = workAreaDips ?? CursorMonitorWorkArea();
         UiStyles.Attach(this, StyledAs.Surface);
         WindowStyle = WindowStyle.None;
@@ -69,7 +76,10 @@ public sealed class CommandPaletteWindow : Window
         Top = area.Top + (area.Height - card.DesiredSize.Height) / 2;
 
         _input.TextChanged += (_, _) => Refresh();
-        Loaded += (_, _) => { _input.Focus(); Keyboard.Focus(_input); };
+        Loaded += (_, _) =>
+        {
+            if (EnsureActive()) { _input.Focus(); Keyboard.Focus(_input); }
+        };
         Deactivated += (_, _) => Dismiss();
         Closed += (_, _) => _closed = true;
     }
@@ -91,6 +101,26 @@ public sealed class CommandPaletteWindow : Window
 
     /// <summary>Whether the hint over the empty text box shows (tests).</summary>
     public bool PlaceholderShown => _placeholder.Visibility == Visibility.Visible;
+
+    /// <summary>Called from Loaded: true when the window is in front. A window that is not gets one attempt through the tiered
+    /// activation helper; if it is still not in front it is closed (and false is returned), never left as an unfocusable topmost box.</summary>
+    public bool EnsureActive()
+    {
+        if (_closed) return false;
+        if (IsActive || _activationAsked) return true;
+        _activationAsked = true;
+        if (_tryActivate()) return true;
+        Dismiss();
+        return false;
+    }
+
+    private bool ActivateWithTheRepoHelper()
+    {
+        var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+        if (hwnd == IntPtr.Zero) return false;
+        User32.ActivateWindow(hwnd);                          // tiers 1 to 4, as for a client; never WPF's Window.Activate
+        return IsActive || User32.GetForegroundWindow() == hwnd;
+    }
 
     /// <summary>Closes, once.</summary>
     public void Dismiss()

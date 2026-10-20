@@ -2396,9 +2396,17 @@ public partial class App : Application
             var entries = CommandPalette.Entries(_thumbnailManager.GetActiveCharacterNames(), settings.Settings.ThumbnailAnnotations,
                 FocusMode.Groups(settings.Settings).Select(g => g.Name), settings.GetProfileNames());
             var palette = new Views.CommandPaletteWindow(entries, command => RunCommand(command));
-            palette.Closed += (_, _) => { if (ReferenceEquals(_commandPalette, palette)) _commandPalette = null; };
+            var paletteHwnd = IntPtr.Zero;   // set below, once the window has a handle; Closed only clears its own
+            palette.Closed += (_, _) =>
+            {
+                if (ReferenceEquals(_commandPalette, palette)) _commandPalette = null;
+                if (_hotkeyService != null && _hotkeyService.CommandPaletteWindowHandle == paletteHwnd) _hotkeyService.CommandPaletteWindowHandle = IntPtr.Zero;
+            };
             _commandPalette = palette;
             palette.Show();
+            // Hotkeys stay quiet while the palette is in front (typed text must not switch a client); it may already have closed.
+            paletteHwnd = new System.Windows.Interop.WindowInteropHelper(palette).Handle;
+            if (_hotkeyService != null && ReferenceEquals(_commandPalette, palette)) _hotkeyService.CommandPaletteWindowHandle = paletteHwnd;
         }
         catch (Exception ex)
         {

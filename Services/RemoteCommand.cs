@@ -299,14 +299,14 @@ public static class QueryPayload
     private static readonly UTF8Encoding Strict = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
     /// <summary>The length and the text of the lines that go out. A line that <see cref="RemoteCommand.Clean"/> would change or
-    /// refuse (empty, over 64 characters, a control or line-break character, a lone surrogate, starting with --) is left out; the text
+    /// refuse (missing, empty, over 64 characters, a control or line-break character, a lone surrogate, starting with --) is left out; the text
     /// is cut at the last line that fits whole, the lines before it kept in order.</summary>
     public static byte[] Frame(IEnumerable<string> lines)
     {
         var text = new List<byte>();
         foreach (var line in lines)
         {
-            if (RemoteCommand.Clean(line) != line) continue;
+            if (line == null || RemoteCommand.Clean(line) != line) continue;
             var bytes = Strict.GetBytes(line + "\n");
             if (text.Count + bytes.Length > MaxBytes) break;
             text.AddRange(bytes);

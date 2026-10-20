@@ -181,6 +181,25 @@ public sealed class HotkeyService : IDisposable
     /// fire while it is in front; its title is translated, so the English-title match alone missed it (IDEAS P23).</summary>
     public IntPtr SettingsWindowHandle { get; set; }
 
+    /// <summary>The open command palette (IDEAS #14): App sets its handle while it shows and clears it when it closes. While it
+    /// is the foreground window the other hotkeys stay quiet, as they do for the settings window, so a letter or a cycle key
+    /// typed into it switches no client; only its own key still gets through, to close it.</summary>
+    public IntPtr CommandPaletteWindowHandle { get; set; }
+
+    /// <summary>The foreground window as the palette check reads it (tests hand in another).</summary>
+    public Func<IntPtr> ForegroundWindow { get; set; } = User32.GetForegroundWindow;
+
+    private Action? _paletteKeyAction;   // the palette key's own action, to tell it from the others
+
+    /// <summary>Whether a hotkey is held back: the palette is in front and the key is not the palette's own.</summary>
+    public static bool PaletteBlocks(bool paletteInFront, bool isPaletteKey) => paletteInFront && !isPaletteKey;
+
+    private bool PaletteInFront()
+    {
+        var palette = CommandPaletteWindowHandle;
+        return palette != IntPtr.Zero && ForegroundWindow() == palette;
+    }
+
     /// <summary>Hotkeys stay quiet while a MultiPreview settings window is in front (matches AHK): the open settings
     /// window by its handle, or a MultiPreview window whose title says "Settings" (the old window's title is English in
     /// every language).</summary>
@@ -848,11 +867,13 @@ public sealed class HotkeyService : IDisposable
 
         // The command palette (IDEAS #14): App shows it, or closes it when it is open. The key itself switches no client (the
         // row chosen in the palette does, through the same runner as a command from another program), so it is no cycle-ignore key.
-        StoreAhkHotkey(settings.CommandPaletteHotkey, () =>
+        Action palette = () =>
         {
             if (_suspended) return;
             CommandPaletteRequested?.Invoke();
-        });
+        };
+        _paletteKeyAction = palette;
+        StoreAhkHotkey(settings.CommandPaletteHotkey, palette);
 
         // ── Per-character hotkeys from profile ───────────────────────
 
@@ -1305,6 +1326,21 @@ public sealed class HotkeyService : IDisposable
                     if (SettingsInFront(fgHwnd2))
                     {
                         Debug.WriteLine($"[Hotkey:Blocked] 🚫 Settings window active, blocked ID={id}");
+                        return IntPtr.Zero;
+                    }
+                }
+                catch { }
+            }
+
+            // The command palette (IDEAS #14) takes typed text like the settings window: no other hotkey while it is in front.
+            if (!isActivationHotkey)
+            {
+                try
+                {
+                    bool paletteKey = _hotkeyActions.TryGetValue(id, out var keyAction) && ReferenceEquals(keyAction, _paletteKeyAction);
+                    if (PaletteBlocks(PaletteInFront(), paletteKey))
+                    {
+                        Debug.WriteLine($"[Hotkey:Blocked] Command palette in front, blocked ID={id}");
                         return IntPtr.Zero;
                     }
                 }
@@ -1890,6 +1926,19 @@ public sealed class HotkeyService : IDisposable
                                 if (logCycling)
                                     EveMultiPreview.Services.DiagnosticsService.LogCycling(
                                         $"[Hotkey:Mouse] {buttonName} SUPPRESSED — Settings window is foreground, cycle not fired");
+                                return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
+                            }
+                        }
+                        catch { }
+
+                        // Command palette block (mouse): the same stand-down as for a key. Only the palette's own button gets through.
+                        try
+                        {
+                            if (PaletteBlocks(PaletteInFront(), ReferenceEquals(binding.Action, _paletteKeyAction)))
+                            {
+                                if (logCycling)
+                                    EveMultiPreview.Services.DiagnosticsService.LogCycling(
+                                        $"[Hotkey:Mouse] {buttonName} SUPPRESSED - command palette is foreground, cycle not fired");
                                 return User32.CallNextHookEx(_mouseHookHandle, nCode, wParam, lParam);
                             }
                         }
