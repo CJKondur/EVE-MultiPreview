@@ -670,13 +670,6 @@ public class AlertHub : IDisposable
         double hubCenterY = _hubWindow.Top + (_hubWindow.Height / 2);
         popup.Left = hubCenterX - 50;
         popup.Top = hubCenterY - 50;
-        popup.Deactivated += (_, _) =>
-        {
-            try { popup.Close(); } catch { }
-            _directionPicker = null;
-            RefreshIcon();
-        };
-
         _directionPicker = popup;
         _pickerAwaySinceMs = null;   // a fresh half second at every opening
         RefreshIcon();   // ✕ while the picker is open

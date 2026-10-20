@@ -320,6 +320,10 @@ public sealed class ThumbnailManager : IDisposable
         Attention = new AlertAttention(attentionClock);
         // An alert that expired unseen takes its share of its character's badge with it (IDEAS P78); looking is what clears it otherwise.
         Attention.Expired += TrimAlertBadge;
+        // And a character whose client closed, or who logged out of it (AlertAttention.Gone), takes its whole badge along:
+        // the next one to log in on that window starts from nothing, not from this one's count. (Said by the sweep too, where
+        // the client really is in front, which clears the badge itself a line before: a second clear finds nothing.)
+        Attention.Looked += ClearAlertBadge;
         Playtime = new PlaytimeLedger(() => PlaytimeClock());
 
         _discovery.WindowFound += OnWindowFound;
@@ -1065,6 +1069,10 @@ public sealed class ThumbnailManager : IDisposable
                 // one from here on finds no client for it (NoteUnseen asks twice), and one raised before is
                 // taken off here.
                 if (CharacterLeft(oldChar, window.CharacterName)) Attention.Gone(oldChar);
+
+                // Gone takes the old character's badge out of the table (Attention.Looked), but the repaint it posts finds
+                // no thumbnail by the old name any more: this window shows nothing for whoever is on it now.
+                if (CharacterLeft(oldChar, window.CharacterName)) thumbWindow.SetAlertBadge(0, "#FF0000");
 
                 // And an enlargement for an alert was that character's too (IDEAS #13, T6-C1). The window stays and
                 // only its name changes, so AlertEnlarge finds no thumbnail by the old name and forgets it without
@@ -3558,18 +3566,15 @@ public sealed class ThumbnailManager : IDisposable
 
         // One answer to "is the player looking at this client": the unseen list's. NoteUnseenAlert has just
         // taken this alert as unseen, or as seen at once because the client was in front, or not at all because
-        // the character has no client. An alert it did not keep is no alert for a badge.
-        if (!Attention.Has(characterName))
+        // the character has no client. AlertBadgeInfo.CountAlert asks it, counts through the table's own update (alerts
+        // come from two threads, and no stored value is changed in place), and keeps the badge to what the list holds.
+        if (AlertBadgeInfo.CountAlert(Attention, _alertBadges, characterName, severity) is not { } shown)
         {
             DiagnosticsService.LogAlerts($"[Badge] SUPPRESSED — '{characterName}' has nothing unseen (its client is in front, or it has none)");
             return;
         }
 
-        // Alerts come from two threads (the log reader, and the window's thread for "Left behind"): the count goes
-        // up by the table's own update, and no stored value is changed in place.
-        var info = AlertBadgeInfo.CountOne(_alertBadges, characterName, severity);
-
-        DiagnosticsService.LogAlerts($"[Badge] INCREMENTED — '{characterName}' count={info.Count} severity={severity}");
+        DiagnosticsService.LogAlerts($"[Badge] INCREMENTED — '{characterName}' count={shown} severity={severity}");
         ApplyBadgeToThumbnail(characterName);
     }
 
@@ -5682,6 +5687,28 @@ public class AlertBadgeInfo
         badges.AddOrUpdate(character,
             _ => new AlertBadgeInfo { Count = 1, TopSeverity = severity },
             (_, existing) => new AlertBadgeInfo { Count = existing.Count + 1, TopSeverity = existing.TopSeverity });
+
+    /// <summary>One more alert for a character's badge, asked of the unseen list (IDEAS P75). Null when the list holds
+    /// nothing for the character: nothing is counted. Otherwise the count the badge holds afterwards, which is never more
+    /// than the list holds: an alert the list let go at once (over <see cref="AlertAttention.MaxPerCharacter"/>, a lesser one
+    /// makes room) is no alert for a badge. The list is asked a second time after the count went up, because the player may
+    /// have looked at that client meanwhile (the focus sweep clears the badge and takes the alerts off on the window's thread,
+    /// while this runs on the log reader's): then the count just made is taken off again and 0 is returned, or it would sit
+    /// on a thumbnail with nothing behind it. <paramref name="afterTheFirstLook"/> runs between the two looks (tests).</summary>
+    public static int? CountAlert(AlertAttention attention, ConcurrentDictionary<string, AlertBadgeInfo> badges, string character,
+        string severity, Action? afterTheFirstLook = null)
+    {
+        if (!attention.Has(character)) return null;
+        afterTheFirstLook?.Invoke();
+        CountOne(badges, character, severity);
+        if (attention.For(character) is not { } held)
+        {
+            badges.TryRemove(character, out _);
+            return 0;
+        }
+        CapAt(badges, character, held.Count);
+        return CountOf(badges, character);
+    }
 
     /// <summary>The count the table holds for a character now, which is what its badge shows: 0 when it holds none
     /// (nothing came since the character was looked at).</summary>

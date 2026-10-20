@@ -123,12 +123,17 @@ public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefres
 
     private List<string> Running() => _running().Where(n => !string.IsNullOrWhiteSpace(n)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
+    /// <summary>The keyboard is in the character box (its text box too). Asked of the property itself, which is what WPF's
+    /// own triggers read, so that a test can set it without taking the foreground.</summary>
+    private bool BeingTypedIn => (bool)_character.GetValue(UIElement.IsKeyboardFocusWithinProperty);
+
     /// <summary>The Add row's characters and events: the clients that run and the rules that are on change while this
     /// page is open. What is typed, and the event chosen, stay. A list that is open is left alone: it would close under
-    /// the pointer. False when it was left alone, so that the next look tries again.</summary>
+    /// the pointer. So is the character box while the player is typing in it: clearing its items resets the text, and the
+    /// caret and the selection with it. False when it was left alone, so that the next look tries again.</summary>
     private bool FillChoices()
     {
-        if (_character.IsDropDownOpen || _event.IsDropDownOpen) return false;
+        if (_character.IsDropDownOpen || _event.IsDropDownOpen || BeingTypedIn) return false;
         var typed = _character.Text;
         var chosen = _event.SelectedIndex >= 0 && _event.SelectedIndex < _eventKeys.Count ? _eventKeys[_event.SelectedIndex] : null;
 
