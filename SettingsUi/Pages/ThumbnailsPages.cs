@@ -51,6 +51,7 @@ public static class ThumbnailsPages
         }),
         new HelpTopic(LayoutId, "lining", new[] { "thumbs.layout.snap", "thumbs.layout.snapDistance", "thumbs.layout.confine", "thumbs.layout.lock" }),
         new HelpTopic(LayoutId, "presets", new[] { "thumbs.layout.presets" }),
+        new HelpTopic(LayoutId, "align", new[] { "thumbs.layout.align" }),
         new HelpTopic(LayoutId, "history", new[] { "thumbs.layout.history" }),
         new HelpTopic(VisibilityId, "stacking", new[]
         {
@@ -325,6 +326,11 @@ public static class ThumbnailsPages
                     "OnDeleteLayoutPreset", "OnExportLayoutPreset", "OnImportLayoutPreset",
                 },
             },
+        }),
+        new SectionDef("thumbs.layout.align", new PageItem[]
+        {
+            // Buttons act on the ticked characters through ThumbnailManager.ApplyAlign (one Undo step); no setting is stored.
+            new EditorItem("thumbs.layout.align", ctx => new LayoutAlignEditor(ctx)),
         }),
         new SectionDef("thumbs.layout.undo", new PageItem[]
         {

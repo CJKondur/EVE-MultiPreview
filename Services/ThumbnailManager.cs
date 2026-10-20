@@ -1287,6 +1287,51 @@ public sealed class ThumbnailManager : IDisposable
         });
     }
 
+    /// <summary>IDEAS #36: align, distribute, match the size of or nudge the named thumbnails (Thumbnails › Layout &amp; screens ›
+    /// Align, distribute and nudge; <see cref="LayoutAlign"/> does the arithmetic). Names with no thumbnail are left out;
+    /// fewer than <see cref="LayoutAlign.MinItems"/> thumbnails change nothing. The result is held inside a work area
+    /// (<paramref name="workAreas"/>, else the screens'), Match keeps each shape while the aspect lock is on, and the first
+    /// name is the one the Match operations copy. One layout-undo step, each moved thumbnail's place saved, one save.
+    /// False, with no undo step, when nothing moved.</summary>
+    public bool ApplyAlign(AlignOp op, IReadOnlyList<string> names, int dx = 0, int dy = 0, IReadOnlyList<System.Drawing.Rectangle>? workAreas = null)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        return dispatcher != null && !dispatcher.CheckAccess()
+            ? dispatcher.Invoke(() => AlignThumbnails(op, names, dx, dy, workAreas))
+            : AlignThumbnails(op, names, dx, dy, workAreas);
+    }
+
+    private bool AlignThumbnails(AlignOp op, IReadOnlyList<string> names, int dx, int dy, IReadOnlyList<System.Drawing.Rectangle>? workAreas)
+    {
+        var picked = new List<ThumbnailWindow>();
+        foreach (var name in names)
+        {
+            var thumb = _thumbnails.Values.FirstOrDefault(t => !string.IsNullOrEmpty(t.CharacterName)
+                && string.Equals(t.CharacterName, name, StringComparison.OrdinalIgnoreCase));
+            if (thumb != null && !picked.Contains(thumb)) picked.Add(thumb);
+        }
+        if (picked.Count < LayoutAlign.MinItems(op)) return false;
+
+        var before = picked.Select(t => (Name: t.CharacterName,
+            Rect: new System.Drawing.Rectangle((int)t.Left, (int)t.Top, (int)t.Width, (int)t.Height))).ToList();
+        var areas = workAreas ?? System.Windows.Forms.Screen.AllScreens.Select(s => s.WorkingArea).ToList();
+        var after = LayoutAlign.Apply(op, before, dx, dy, _settings.Settings.LockResizeAspect, areas);
+        if (after.Select(a => a.Rect).SequenceEqual(before.Select(b => b.Rect))) return false;
+
+        PushLayoutSnapshot();   // one snapshot for the whole operation (layout undo)
+        for (int i = 0; i < picked.Count; i++)
+        {
+            var was = before[i].Rect;
+            var now = after[i].Rect;
+            if (now == was) continue;
+            if (now.Size != was.Size) picked[i].Resize(now.Width, now.Height);
+            picked[i].MoveTo(now.X, now.Y);
+            _settings.SaveThumbnailPosition(picked[i].CharacterName, now.X, now.Y, now.Width, now.Height);
+        }
+        _settings.Save();
+        return true;
+    }
+
     public void ApplySizeToCharacter(string name, int w, int h)
     {
         Application.Current?.Dispatcher.Invoke(() =>
