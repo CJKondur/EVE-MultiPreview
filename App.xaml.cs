@@ -25,6 +25,8 @@ public partial class App : Application
 {
     private static Mutex? _singleInstanceMutex;
     private NotifyIcon? _trayIcon;
+    private TrayIcons? _trayIcons;           // IDEAS P4: the icons the tray shows; made on first use, let go of at exit
+    private TrayAlertKind? _trayIconShown;   // which of them the NotifyIcon has now
     // Built by Views/TrayMenu; it re-reads its labels on every open, so a language change applies at once (issue #86).
     private TrayMenu? _trayMenu;
     private SettingsService? _settings;
@@ -715,14 +717,8 @@ public partial class App : Application
             _hotkeyService.SuspendToggled += () =>
             {
                 if (_trayIcon != null)
-                {
                     _trayIcon.Text = TrayMenu.TooltipText(_hotkeyService.IsSuspended, ErrorLog.Shared.Count, DoNotDisturbOn, _focusModeOn);
-                    var asm = System.Reflection.Assembly.GetExecutingAssembly();
-                    var icoName = _hotkeyService.IsSuspended ? "EveMultiPreview.Icon-Suspend.ico" : "EveMultiPreview.Icon.ico";
-                    var icoStream = asm.GetManifestResourceStream(icoName);
-                    if (icoStream != null)
-                        _trayIcon.Icon = new System.Drawing.Icon(icoStream);
-                }
+                ApplyTrayIcon();
                 _thumbnailManager?.ShowSuspendTooltip(_hotkeyService.IsSuspended);
             };
             _hotkeyService.ProfileCycleForward += () => CycleProfile(forward: true);
@@ -1912,13 +1908,32 @@ public partial class App : Application
 
     // ── Tray Menu (matches AHK TrayMenu.ahk) ────────────────────────
 
+    /// <summary>IDEAS P4: the one place the tray icon is chosen: the pause icon while hotkeys are suspended, else the
+    /// red one while a critical alert is unseen, else the ordinary one (<see cref="TrayAlertState"/>). Called at start-up,
+    /// when suspend toggles and whenever <see cref="AlertAttention.Changed"/> is raised, which can be on any thread, so
+    /// it hops to the UI thread first. It sets the icon only when the choice changed, and never raises an error.</summary>
+    private void ApplyTrayIcon()
+    {
+        try
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(new Action(ApplyTrayIcon));
+                return;
+            }
+            if (_trayIcon == null || _isShuttingDown) return;
+            var kind = TrayAlertState.From(_thumbnailManager?.Attention.Unseen(), _hotkeyService?.IsSuspended ?? false);
+            if (kind == _trayIconShown) return;
+            // Icons come from the embedded resources (works with single-file publish).
+            _trayIcons ??= new TrayIcons(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream);
+            _trayIcon.Icon = _trayIcons.For(kind);
+            _trayIconShown = kind;
+        }
+        catch { /* an icon must never raise another error */ }
+    }
+
     private void SetupTrayIcon()
     {
-        // Load icon from embedded resource (works with single-file publish)
-        var asm = System.Reflection.Assembly.GetExecutingAssembly();
-        var iconStream = asm.GetManifestResourceStream("EveMultiPreview.Icon.ico");
-        var trayIco = iconStream != null ? new System.Drawing.Icon(iconStream) : SystemIcons.Application;
-
         // Views/TrayMenu builds the menu (Plan 4: the Fluent look, check marks that follow the live state, and lists
         // rebuilt on every open). Each action is the call the old menu made.
         _trayMenu = new TrayMenu(new TrayMenuActions
@@ -1986,10 +2001,13 @@ public partial class App : Application
         _trayIcon = new NotifyIcon
         {
             Text = TrayMenu.TooltipText(_hotkeyService?.IsSuspended ?? false, ErrorLog.Shared.Count, DoNotDisturbOn, _focusModeOn),
-            Icon = trayIco,
-            Visible = true,
             ContextMenuStrip = _trayMenu.Strip
         };
+        // IDEAS P4: the icon is chosen in one place, with the icon in before the tray shows it, and again whenever
+        // an alert is taken or looked at.
+        ApplyTrayIcon();
+        _trayIcon.Visible = true;
+        if (_thumbnailManager != null) _thumbnailManager.Attention.Changed += ApplyTrayIcon;
 
         // A click on a tray balloon. The one balloon a click means something on is the note about refused hotkeys
         // (IDEAS #42). No alert shows a balloon any more: an alert's own notification is a toast of the alert hub,
@@ -2512,6 +2530,7 @@ public partial class App : Application
             _trayIcon.Visible = false;
             _trayIcon.Dispose();
         }
+        _trayIcons?.Dispose();
         _trayMenu?.Dispose();
 
         // Release + dispose the single-instance mutex LAST so that if it

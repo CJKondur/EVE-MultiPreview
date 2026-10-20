@@ -55,7 +55,24 @@ public sealed class AlertAttention
             list.Add(new Held(alert, ++_arrivals));
             while (list.Count > MaxPerCharacter) list.RemoveAt(LeastSevere(list));
         }
+        RaiseChanged();
         return true;
+    }
+
+    /// <summary>What is unseen changed: an alert was taken, or a character's alerts were taken off (IDEAS P4: the tray
+    /// icon follows it). Raised outside the lock, on the thread that made the change. Every follower is called on its
+    /// own, and one that throws is skipped: it can never break an alert or keep the followers after it from running.</summary>
+    public event Action? Changed;
+
+    private void RaiseChanged()
+    {
+        var handlers = Changed;
+        if (handlers == null) return;
+        foreach (var handler in handlers.GetInvocationList())
+        {
+            try { ((Action)handler)(); }
+            catch { /* a follower is no reason to lose an alert */ }
+        }
     }
 
     /// <summary>Where the alert to let go stands: the least severe one, and of those the one that arrived first (a
@@ -87,6 +104,7 @@ public sealed class AlertAttention
             if (!_byCharacter.Remove(character)) return false;
             Volatile.Write(ref _characters, _byCharacter.Count);
         }
+        RaiseChanged();
         Looked?.Invoke(character);
         return true;
     }
