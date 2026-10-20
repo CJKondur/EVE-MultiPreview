@@ -105,8 +105,12 @@ public sealed class AlertEscalation
     /// done without a sound. Later (the event's sound quiet time): it is put off and asked for again.</param>
     /// <param name="failed">Is told what a step of this tick threw (App logs it). A tick never throws: a timer whose
     /// tick threw would tick no more. The repeat it was about is put off, and the next tick runs as ever.</param>
+    /// <param name="flash">Is told of each repeat that is counted, once, after the sound was asked for (IDEAS P82 (1)): the
+    /// client's border flashes again. Not told of a repeat that was put off (<see cref="SoundResult.Later"/>), which
+    /// is asked for again every look, and not of any repeat while <paramref name="soundsHeld"/> holds them: none is due.</param>
     public void Tick(AppSettings s, DateTime utcNow, Func<IReadOnlyList<UnseenAlert>> unseen, Func<string, string, bool> quieted,
-        Func<bool> soundsHeld, Func<bool> doNotDisturb, Func<Repeat, int, SoundResult> play, Action<Exception> failed)
+        Func<bool> soundsHeld, Func<bool> doNotDisturb, Func<Repeat, int, SoundResult> play, Action<Exception> failed,
+        Action<Repeat>? flash = null)
     {
         if (!Needed(s))
         {
@@ -120,7 +124,11 @@ public sealed class AlertEscalation
             if (due == null) return;
             var result = play(due, Volume(s.AlertSoundVolume, due.Number, doNotDisturb()));
             if (result == SoundResult.Later) PutOff(due, utcNow);
-            else Played(due, utcNow);
+            else
+            {
+                Played(due, utcNow);
+                flash?.Invoke(due);
+            }
         }
         catch (Exception ex)
         {

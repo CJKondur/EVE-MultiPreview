@@ -1091,7 +1091,9 @@ public partial class App : Application
                 soundsHeld: () => _doNotDisturb.Silences(s, "critical", DateTime.Now),
                 doNotDisturb: () => DoNotDisturbOn,
                 play: (due, volume) => PlayAlertSound(due.Alert.Character, due.Alert.EventKey, due.Alert.Severity, due.Number, volume),
-                failed: LogError);
+                failed: LogError,
+                // IDEAS P82 (1): each repeat that is counted flashes the client's border again.
+                flash: due => _thumbnailManager.FlashAgain(due.Alert.Character, due.Alert.Severity, due.Alert.EventKey));
         }
         catch (Exception ex)
         {
@@ -1878,7 +1880,7 @@ public partial class App : Application
                 player.MediaFailed += (_, args) =>
                 {
                     EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                        $"[Sound] MediaFailed for {alertType} on '{character}' file='{soundFile}': {args.ErrorException?.Message}");
+                        AlertSoundLog.MediaFailedLine(repeat, alertType, character, soundFile, args.ErrorException?.Message));
                     player.Close();
                     lock (_soundPlayerLock) { _activeSoundPlayers.Remove(player); }
                 };
@@ -1907,8 +1909,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             Debug.WriteLine($"[AlertSound:Play] ❌ Error playing sound: {ex.Message}");
-            EveMultiPreview.Services.DiagnosticsService.LogAlerts(
-                $"[Sound] ERROR playing {alertType} on '{character}': {ex.GetType().Name}: {ex.Message}");
+            EveMultiPreview.Services.DiagnosticsService.LogAlerts(AlertSoundLog.PlayErrorLine(repeat, alertType, character, ex));
             return SoundResult.Never;
         }
     }

@@ -3438,6 +3438,13 @@ public sealed class ThumbnailManager : IDisposable
     public void SetAlertFlash(string characterName, string severity = "critical", string eventType = "attack")
     {
         var now = _flashClock();
+        StartFlash(characterName, severity, eventType, now);
+        Debug.WriteLine($"[AlertFlash:Start] 🚨 Flash started: '{characterName}' severity={severity} event={eventType}");
+    }
+
+    /// <summary>The flash of a character's border begins at <paramref name="now"/>. There is one entry per character, and
+    /// the one flash timer walks the table: a flash that begins while another one is on takes its place.</summary>
+    private void StartFlash(string characterName, string severity, string eventType, DateTime now) =>
         _alertFlashChars[characterName] = new AlertFlashInfo
         {
             StartTime = now,
@@ -3446,7 +3453,28 @@ public sealed class ThumbnailManager : IDisposable
             ShowFlash = true,
             LastToggleTime = now
         };
-        Debug.WriteLine($"[AlertFlash:Start] 🚨 Flash started: '{characterName}' severity={severity} event={eventType}");
+
+    /// <summary>Whether a repeat of a critical alert flashes the client's border again (IDEAS P82 (1)): the border flash is
+    /// on (a border width of 0 switches it off), the character has a client, and that client is not the window in front.
+    /// The repeats of a do-not-disturb that holds the sounds never get here (AlertEscalation does not ask for one).</summary>
+    public static bool RepeatFlashes(int alertBorderThickness, IntPtr client, IntPtr foreground) =>
+        alertBorderThickness > 0 && client != IntPtr.Zero && !InFront(client, foreground);
+
+    /// <summary>A repeat of a critical alert flashes the client's border again, with the flash the alert raised: its
+    /// severity, the event's own duration, colour and steadiness (FlashAlertTick reads those from the event). Called by
+    /// App for each repeat that is counted. The table has one entry per character, so a repeat renews the flash that is
+    /// on: it never adds a second one. Writes no line that names the character.</summary>
+    /// <returns>Whether the border flashes again.</returns>
+    public bool FlashAgain(string characterName, string severity, string eventType) =>
+        FlashAgain(characterName, severity, eventType, Interop.User32.GetForegroundWindow());
+
+    /// <summary><see cref="FlashAgain(string, string, string)"/> with the window in front handed in (tests).</summary>
+    public bool FlashAgain(string characterName, string severity, string eventType, IntPtr foreground)
+    {
+        if (string.IsNullOrEmpty(characterName)
+            || !RepeatFlashes(_settings.Settings.AlertBorderThickness, GetHwndForCharacter(characterName), foreground)) return false;
+        StartFlash(characterName, severity, eventType, FlashClock());
+        return true;
     }
 
     public void ClearAlertFlash(string characterName)
@@ -4744,18 +4772,18 @@ public sealed class ThumbnailManager : IDisposable
             }
         }
 
-        int nextIdx;
+        // From outside the list (currentIdx -1) the forward key goes to the first client and the backward key to the
+        // last (IDEAS P79 (4)).
+        int nextIdx = CycleStep.Next(currentIdx, onlineMembers.Count, forward);
         bool wrapped;
         if (forward)
         {
-            nextIdx = (currentIdx + 1) % onlineMembers.Count;
             // Wrap: forward cycle landed on index 0 from the end of the list.
             // Skip if currentIdx was -1 (no prior active) or onlineMembers.Count == 1.
             wrapped = currentIdx > 0 && nextIdx == 0 && onlineMembers.Count > 1;
         }
         else
         {
-            nextIdx = (currentIdx - 1 + onlineMembers.Count) % onlineMembers.Count;
             wrapped = currentIdx >= 0 && currentIdx < onlineMembers.Count - 1
                 && nextIdx == onlineMembers.Count - 1 && onlineMembers.Count > 1;
         }
@@ -4814,9 +4842,7 @@ public sealed class ThumbnailManager : IDisposable
         if (CycleFiltersOn) FilterCycle(hwnds, fgHwnd);
 
         int currentIdx = hwnds.IndexOf(fgHwnd);
-        int nextIdx = forward
-            ? (currentIdx + 1) % hwnds.Count
-            : (currentIdx - 1 + hwnds.Count) % hwnds.Count;
+        int nextIdx = CycleStep.Next(currentIdx, hwnds.Count, forward);
 
         bool wrapped = forward
             ? currentIdx > 0 && nextIdx == 0 && hwnds.Count > 1
