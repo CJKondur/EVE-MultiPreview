@@ -2660,4 +2660,9 @@
     <sys:String x:Key="L.Copy.AllProfiles">— Todos los perfiles —</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusMode">Modo enfoque</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusOn">Modo enfoque: activado</sys:String> <!-- draft -->
+    <!-- Ideas batch 17 (Plan 21) -->
+    <sys:String x:Key="L.Start.Presets.Title">Se encontraron preajustes de disposición más recientes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Body">Tu archivo de preajustes de disposición es:&#x0A;{0}&#x0A;última modificación: {1}.&#x0A;&#x0A;Otro archivo de preajustes de disposición se modificó después, el {3}:&#x0A;{2}&#x0A;&#x0A;Esto pasa cuando editaste tus preajustes de disposición en una versión anterior de MultiPreview. ¿Usar el archivo más reciente? Tus preajustes de disposición actuales se guardan antes en la carpeta Backups.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Use">Usar los preajustes más recientes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Keep">Mantener mis preajustes de disposición actuales</sys:String> <!-- draft -->
 </ResourceDictionary>

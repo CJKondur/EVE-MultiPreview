@@ -2658,4 +2658,9 @@
     <sys:String x:Key="L.Copy.AllProfiles">— Все профили —</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusMode">Режим фокуса</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusOn">Режим фокуса: вкл.</sys:String> <!-- draft -->
+    <!-- Ideas batch 17 (Plan 21) -->
+    <sys:String x:Key="L.Start.Presets.Title">Найдены более новые пресеты компоновки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Body">Ваш файл пресетов компоновки:&#x0A;{0}&#x0A;последнее изменение: {1}.&#x0A;&#x0A;Другой файл пресетов компоновки был изменён позже, {3}:&#x0A;{2}&#x0A;&#x0A;Так бывает, когда вы изменили пресеты компоновки в более старой версии MultiPreview. Использовать более новый файл? Ваши текущие пресеты компоновки сначала сохранятся в папке Backups.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Use">Использовать более новые пресеты</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Keep">Оставить мои текущие пресеты компоновки</sys:String> <!-- draft -->
 </ResourceDictionary>

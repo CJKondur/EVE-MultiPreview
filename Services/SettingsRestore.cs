@@ -23,17 +23,23 @@ public sealed record RestoreChoice(string Path, DateTime Saved, RestoreKind Kind
 public static class SettingsRestore
 {
     /// <summary>Every *.json in Backups that is a settings file, plus the settings file beside the exe when the settings
-    /// folder is elsewhere (the copy from before the move, <paramref name="besideExe"/>), newest first.</summary>
-    public static IReadOnlyList<RestoreChoice> Choices(string backupsDir, string? besideExe)
+    /// folder is elsewhere (the copy from before the move, <paramref name="besideExe"/>), newest first. IDEAS P43:
+    /// <paramref name="moreBackupsDir"/> is a second Backups folder listed the same way: the settings folder's, while the
+    /// settings stay beside the exe because the file there can't be read (SettingsHomeResult.OtherBackups).</summary>
+    public static IReadOnlyList<RestoreChoice> Choices(string backupsDir, string? besideExe, string? moreBackupsDir = null)
     {
         var list = new List<RestoreChoice>();
-        try
+        foreach (var dir in new[] { backupsDir, moreBackupsDir })
         {
-            if (Directory.Exists(backupsDir) && !SettingsHome.IsLink(backupsDir))
-                foreach (var file in Directory.EnumerateFiles(backupsDir, "*.json", SearchOption.TopDirectoryOnly))
-                    if (IsSettingsFile(file)) list.Add(new RestoreChoice(file, File.GetLastWriteTime(file), KindOf(file)));
+            if (dir == null) continue;
+            try
+            {
+                if (Directory.Exists(dir) && !SettingsHome.IsLink(dir))
+                    foreach (var file in Directory.EnumerateFiles(dir, "*.json", SearchOption.TopDirectoryOnly))
+                        if (IsSettingsFile(file)) list.Add(new RestoreChoice(file, File.GetLastWriteTime(file), KindOf(file)));
+            }
+            catch { }
         }
-        catch { }
         if (besideExe != null && IsSettingsFile(besideExe))
             list.Add(new RestoreChoice(besideExe, File.GetLastWriteTime(besideExe), RestoreKind.BesideExe));
         return list.OrderByDescending(c => c.Saved).ToList();
@@ -100,12 +106,12 @@ public static class SettingsRestore
     /// asks again. True when the settings loaded: a backup was restored, or the file itself loaded after all (it was
     /// only held by another program when MultiPreview started, and is free again now that the player has answered).</summary>
     public static bool Offer(SettingsService svc, string? besideExe, Func<string, string, IReadOnlyList<string>, int?> ask,
-        Func<string, string, string> str, DateTime now)
+        Func<string, string, string> str, DateTime now, string? moreBackupsDir = null)
     {
         bool failed = false;
         while (true)
         {
-            var choices = Choices(Path.Combine(svc.ConfigDirectory, "Backups"), besideExe);
+            var choices = Choices(Path.Combine(svc.ConfigDirectory, "Backups"), besideExe, moreBackupsDir);
             var body = string.Format(choices.Count > 0 ? str("L.Start.Restore.Body", BodyEnglish) : str("L.Start.Restore.None", NoneEnglish),
                 svc.SettingsPath);
             if (failed) body = str("L.Start.Restore.Failed", "That copy couldn't be restored. Pick another.") + "\n\n" + body;

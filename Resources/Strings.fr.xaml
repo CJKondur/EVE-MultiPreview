@@ -2641,4 +2641,9 @@
     <sys:String x:Key="L.Copy.AllProfiles">— Tous les profils —</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusMode">Mode focus</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusOn">Mode focus : activé</sys:String> <!-- draft -->
+    <!-- Ideas batch 17 (Plan 21) -->
+    <sys:String x:Key="L.Start.Presets.Title">Des préréglages de disposition plus récents ont été trouvés</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Body">Votre fichier de préréglages de disposition est :&#x0A;{0}&#x0A;dernière modification : {1}.&#x0A;&#x0A;Un autre fichier de préréglages de disposition a été modifié après lui, le {3} :&#x0A;{2}&#x0A;&#x0A;Cela arrive quand vous avez modifié vos préréglages de disposition dans une version plus ancienne de MultiPreview. Utiliser le fichier plus récent ? Vos préréglages de disposition actuels sont d'abord conservés dans le dossier Backups.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Use">Utiliser les préréglages plus récents</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Keep">Garder mes préréglages de disposition actuels</sys:String> <!-- draft -->
 </ResourceDictionary>

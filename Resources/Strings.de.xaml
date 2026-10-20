@@ -2638,4 +2638,9 @@
     <sys:String x:Key="L.Copy.AllProfiles">— Alle Profile —</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusMode">Fokusmodus</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusOn">Fokusmodus: an</sys:String> <!-- draft -->
+    <!-- Ideas batch 17 (Plan 21) -->
+    <sys:String x:Key="L.Start.Presets.Title">Neuere Layout-Voreinstellungen gefunden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Body">Deine Datei mit Layout-Voreinstellungen ist:&#x0A;{0}&#x0A;zuletzt geändert {1}.&#x0A;&#x0A;Eine andere Datei mit Layout-Voreinstellungen wurde danach geändert, am {3}:&#x0A;{2}&#x0A;&#x0A;Das passiert, wenn du deine Layout-Voreinstellungen in einer älteren Version von MultiPreview bearbeitet hast. Die neuere Datei verwenden? Deine aktuellen Layout-Voreinstellungen werden vorher im Ordner Backups gesichert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Use">Neuere Layout-Voreinstellungen verwenden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Keep">Meine aktuellen Layout-Voreinstellungen behalten</sys:String> <!-- draft -->
 </ResourceDictionary>

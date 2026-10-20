@@ -2638,4 +2638,9 @@
     <sys:String x:Key="L.Copy.AllProfiles">— All Profiles —</sys:String>
     <sys:String x:Key="L.Tray.FocusMode">Focus mode</sys:String>
     <sys:String x:Key="L.Tray.FocusOn">Focus mode: on</sys:String>
+    <!-- Ideas batch 17 (Plan 21) -->
+    <sys:String x:Key="L.Start.Presets.Title">Newer layout presets were found</sys:String>
+    <sys:String x:Key="L.Start.Presets.Body">Your layout presets file is:&#x0A;{0}&#x0A;last changed {1}.&#x0A;&#x0A;A different layout presets file was changed after it, on {3}:&#x0A;{2}&#x0A;&#x0A;This happens when you edited your layout presets in an older version of MultiPreview. Use the newer file? Your current layout presets are kept in the Backups folder first.</sys:String>
+    <sys:String x:Key="L.Start.Presets.Use">Use the newer layout presets</sys:String>
+    <sys:String x:Key="L.Start.Presets.Keep">Keep my current layout presets</sys:String>
 </ResourceDictionary>

@@ -71,7 +71,7 @@ public static class StartupSettings
                 if (!svc.LoadedSuccessfully)
                 {
                     // IDEAS #49: offer the backups instead of running the session on defaults.
-                    if (SettingsRestore.Offer(svc, besideExe, ask, str, now)) Language();
+                    if (SettingsRestore.Offer(svc, besideExe, ask, str, now, home.OtherBackups)) Language();
                 }
                 else
                 {
@@ -80,6 +80,14 @@ public static class StartupSettings
                         if (home.OtherCopy != null && AsksAboutOtherCopy(home, exeDir)
                             && SettingsHome.OfferOtherCopy(svc, home.OtherCopy, ask, str, now))
                             Language();
+                    }
+                    catch (Exception ex) { error(ex); }
+                    // IDEAS P43: its own question, after the settings one. The layout presets are read later (they aren't
+                    // loaded here), so nothing needs loading again.
+                    try
+                    {
+                        if (home.OtherPresets != null)
+                            SettingsHome.OfferOtherPresets(Path.Combine(home.ConfigDir, SettingsHome.PresetsFileName), home.OtherPresets, ask, str, now);
                     }
                     catch (Exception ex) { error(ex); }
                     // IDEAS #49. Not for the file of defaults "Start fresh" just made: it would push a real copy out.

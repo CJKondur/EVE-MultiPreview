@@ -2656,4 +2656,9 @@
     <sys:String x:Key="L.Copy.AllProfiles">— Tutti i profili —</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusMode">Modalità focus</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusOn">Modalità focus: attivo</sys:String> <!-- draft -->
+    <!-- Ideas batch 17 (Plan 21) -->
+    <sys:String x:Key="L.Start.Presets.Title">Sono state trovate preimpostazioni di layout più recenti</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Body">Il tuo file di preimpostazioni di layout è:&#x0A;{0}&#x0A;ultima modifica: {1}.&#x0A;&#x0A;Un altro file di preimpostazioni di layout è stato modificato dopo, il {3}:&#x0A;{2}&#x0A;&#x0A;Succede quando hai modificato le tue preimpostazioni di layout in una versione precedente di MultiPreview. Usare il file più recente? Le tue preimpostazioni di layout attuali vengono prima conservate nella cartella Backups.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Use">Usa le preimpostazioni più recenti</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Keep">Mantieni le mie preimpostazioni di layout attuali</sys:String> <!-- draft -->
 </ResourceDictionary>

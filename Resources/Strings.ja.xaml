@@ -2639,4 +2639,9 @@
     <sys:String x:Key="L.Copy.AllProfiles">— すべてのプロファイル —</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusMode">フォーカスモード</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusOn">フォーカスモード：オン</sys:String> <!-- draft -->
+    <!-- Ideas batch 17 (Plan 21) -->
+    <sys:String x:Key="L.Start.Presets.Title">より新しいレイアウトプリセットが見つかりました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Body">現在のレイアウトプリセットファイル：&#x0A;{0}&#x0A;最終更新：{1}&#x0A;&#x0A;別のレイアウトプリセットファイルがその後に更新されています（{3}）：&#x0A;{2}&#x0A;&#x0A;これは、古いバージョンの MultiPreview でレイアウトプリセットを編集した場合に起こります。新しいファイルを使用しますか？ 現在のレイアウトプリセットは先に Backups フォルダーに保存されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Use">新しいレイアウトプリセットを使用する</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Keep">現在のレイアウトプリセットを維持する</sys:String> <!-- draft -->
 </ResourceDictionary>

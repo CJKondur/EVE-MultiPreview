@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
 
@@ -19,8 +20,12 @@ namespace EveMultiPreview.Services;
 /// <param name="Notes">Lines for the error log: what moved, or why it didn't.</param>
 /// <param name="Errors">Why the settings stay beside the exe although they belong in AppData (an AppData path that is a
 /// link or can't be used). Recorded as errors, so they are counted and the tray shows them (SettingsHome.Report).</param>
+/// <param name="OtherPresets">The layout presets file beside the exe when it holds other presets than the settings folder's
+/// and was changed after it (IDEAS P43: edited in an older version, NewerPresets), so App asks which to use; null otherwise.</param>
+/// <param name="OtherBackups">The settings folder's Backups, when the settings stay beside the exe only because the file there
+/// can't be read and the move to AppData waits: the restore prompt lists those copies too. Null otherwise.</param>
 public sealed record SettingsHomeResult(string ConfigDir, bool Portable, bool Moved, string? OtherCopy, bool NoteNeeded,
-    IReadOnlyList<string> Notes, IReadOnlyList<string> Errors);
+    IReadOnlyList<string> Notes, IReadOnlyList<string> Errors, string? OtherPresets = null, string? OtherBackups = null);
 
 /// <summary>How a hand-back to an older version went.</summary>
 public enum HandBackState { NothingToDo, Done, Failed }
@@ -40,6 +45,25 @@ public static class SettingsHome
     /// <summary>Decides the settings folder, and on the first start moves the settings into AppData. Never throws: when
     /// anything goes wrong the settings stay beside the exe for this run, as before, and the next start tries again.</summary>
     public static SettingsHomeResult Resolve(string exeDir, string appDataDir)
+    {
+        var home = ResolveSettings(exeDir, appDataDir);
+        // IDEAS P43: the layout presets, once the settings are in AppData (not portable, where one place holds everything).
+        try
+        {
+            if (home.Portable || !Path.IsPathFullyQualified(appDataDir) || !SamePlace(home.ConfigDir, appDataDir)
+                || SamePlace(exeDir, appDataDir)) return home;
+            var notes = new List<string>(home.Notes);
+            if (!home.Moved) RetryPresets(exeDir, appDataDir, notes);   // a move that just ran has tried already
+            return home with { Notes = notes, OtherPresets = NewerPresets(appDataDir, exeDir) };
+        }
+        catch { return home; }
+    }
+
+    private static bool SamePlace(string a, string b) =>
+        string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(a)), Path.TrimEndingDirectorySeparator(Path.GetFullPath(b)),
+            StringComparison.OrdinalIgnoreCase);
+
+    private static SettingsHomeResult ResolveSettings(string exeDir, string appDataDir)
     {
         var notes = new List<string>();
         var errors = new List<string>();
@@ -98,7 +122,9 @@ public static class SettingsHome
                 catch (Exception ex)
                 {
                     notes.Add($"Settings stay next to the exe this time: {exeFile} can't be read ({ErrorLog.Describe(ex)}). They move once it loads.");
-                    return StayNextToExe(exeDir, notes, errors);
+                    // The settings folder's own backups are copies of the file that is missing there: the restore prompt lists them too.
+                    var backups = Path.Combine(appDataDir, "Backups");
+                    return StayNextToExe(exeDir, notes, errors) with { OtherBackups = Directory.Exists(backups) && !IsLink(backups) ? backups : null };
                 }
             }
 
@@ -204,6 +230,105 @@ public static class SettingsHome
         }
         catch (Exception ex) { notes.Add($"Not copied: {from} ({ErrorLog.Describe(ex)})"); }
     }
+
+    /// <summary>The file name of the layout presets, in the settings folder and (up to version 2.3.42) beside the exe.</summary>
+    public const string PresetsFileName = "layout_presets.json";
+
+    /// <summary>The same read as LayoutPresetService.Load, but a file that doesn't parse is told apart from an empty one.</summary>
+    private static bool ParsesAsPresets(string text)
+    {
+        try { return JsonSerializer.Deserialize<List<LayoutPreset>>(text) != null; }
+        catch { return false; }
+    }
+
+    /// <summary>The first move's copy of the layout presets (or a backup) that failed is noted, not retried by CopyExtras: a
+    /// move ends with the settings file's arrival. So every later start copies the presets file beside the exe when the
+    /// settings folder has none and the file loads. Never overwrites anything (CopyIfNew); a copy is noted.</summary>
+    private static void RetryPresets(string exeDir, string appDataDir, List<string> notes)
+    {
+        var from = Path.Combine(exeDir, PresetsFileName);
+        var to = Path.Combine(appDataDir, PresetsFileName);
+        try
+        {
+            if (File.Exists(to) || !File.Exists(from) || IsLink(from) || !ParsesAsPresets(File.ReadAllText(from))) return;
+            CopyIfNew(from, to, notes);
+            if (File.Exists(to)) notes.Add($"Layout presets copied: {from} was copied to {to}.");
+        }
+        catch (Exception ex) { notes.Add($"Layout presets not copied: {from} ({ErrorLog.Describe(ex)})"); }
+    }
+
+    /// <summary>IDEAS P43. The layout presets file beside the exe when it holds other presets than the one in the settings
+    /// folder, was changed after it and parses as a list of presets (what an older version leaves there after the
+    /// hand-back); null otherwise: when either is missing or a link, when the exe-folder file is older, has the same
+    /// bytes, only lacks fields this version added (an older version drops what it doesn't know when it saves) or doesn't
+    /// parse. A settings folder without presets gets the exe-folder file silently instead (RetryPresets).</summary>
+    public static string? NewerPresets(string appDir, string exeDir)
+    {
+        try
+        {
+            var active = Path.Combine(appDir, PresetsFileName);
+            var other = Path.Combine(exeDir, PresetsFileName);
+            if (!File.Exists(active) || !File.Exists(other)) return null;
+            if (IsLink(active) || IsLink(other) || IsLink(appDir) || IsLink(exeDir)) return null;
+            if (File.GetLastWriteTimeUtc(other) <= File.GetLastWriteTimeUtc(active)) return null;
+            if (File.ReadAllBytes(other).AsSpan().SequenceEqual(File.ReadAllBytes(active))) return null;
+            var text = File.ReadAllText(other);
+            if (!ParsesAsPresets(text)) return null;   // a file that doesn't load is never offered
+            return LacksOnly(File.ReadAllText(active), text) ? null : other;
+        }
+        catch { return null; }
+    }
+
+    /// <summary>True when the other text holds the active text's values and nothing else: the same shape, each object of
+    /// it possibly lacking properties the active one has. False when either isn't JSON.</summary>
+    private static bool LacksOnly(string activeJson, string otherJson)
+    {
+        try { return SameOrLackingDeep(JsonNode.Parse(activeJson), JsonNode.Parse(otherJson)); }
+        catch { return false; }
+    }
+
+    private static bool SameOrLackingDeep(JsonNode? mine, JsonNode? theirs) => (mine, theirs) switch
+    {
+        (JsonObject a, JsonObject b) => b.All(p => a.TryGetPropertyValue(p.Key, out var value) && SameOrLackingDeep(value, p.Value)),
+        (JsonArray a, JsonArray b) => a.Count == b.Count && a.Zip(b).All(pair => SameOrLackingDeep(pair.First, pair.Second)),
+        _ => JsonNode.DeepEquals(mine, theirs),
+    };
+
+    /// <summary>"Use the newer layout presets": the current file is kept in Backups as layout_presets_replaced_… (checked
+    /// byte for byte), then the other file replaces it, with its time. False, with the current file as it was, when
+    /// anything fails.</summary>
+    public static bool UseOtherPresets(string activeFile, string otherFile, DateTime now)
+    {
+        try
+        {
+            if (IsLink(otherFile) || !ParsesAsPresets(File.ReadAllText(otherFile))) return false;
+            var backups = BackupsFolder(Path.GetDirectoryName(activeFile)!);
+            BackUp(activeFile, BackupFile(backups, "replaced", now, "layout_presets"));
+            CopyNoFollow(otherFile, activeFile, overwrite: true);
+            return true;
+        }
+        catch { return false; }
+    }
+
+    /// <summary>The newer-presets question at startup (IDEAS P43), asked through <paramref name="ask"/> like
+    /// <see cref="OfferOtherCopy"/>. The first button uses the newer file; the second keeps the current one and leaves
+    /// both files as they are (KeepCurrent only dates the current one, so the question waits until the other changes
+    /// again); closing it without an answer changes nothing and asks again next time. True when the other file was taken.</summary>
+    public static bool OfferOtherPresets(string activeFile, string otherFile, Func<string, string, IReadOnlyList<string>, int?> ask,
+        Func<string, string, string> str, DateTime now)
+    {
+        string When(string file) => File.GetLastWriteTime(file).ToString("g", CultureInfo.CurrentCulture);
+        var body = string.Format(str("L.Start.Presets.Body", PresetsBodyEnglish), activeFile, When(activeFile), otherFile, When(otherFile));
+        var answer = ask(str("L.Start.Presets.Title", "Newer layout presets were found"), body,
+            new[] { str("L.Start.Presets.Use", "Use the newer layout presets"), str("L.Start.Presets.Keep", "Keep my current layout presets") });
+        if (answer == 1) KeepCurrent(activeFile, otherFile, now.ToUniversalTime());
+        return answer == 0 && UseOtherPresets(activeFile, otherFile, now);
+    }
+
+    private const string PresetsBodyEnglish =
+        "Your layout presets file is:\n{0}\nlast changed {1}.\n\nA different layout presets file was changed after it, on {3}:\n{2}\n\n"
+        + "This happens when you edited your layout presets in an older version of MultiPreview. "
+        + "Use the newer file? Your current layout presets are kept in the Backups folder first.";
 
     /// <summary>The other settings file when it holds other settings than the active one, was changed after it and
     /// loads; null otherwise (also when either is missing, or the other is a link or in a linked folder). A file that

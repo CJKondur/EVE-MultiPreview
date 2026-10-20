@@ -2639,4 +2639,9 @@
     <sys:String x:Key="L.Copy.AllProfiles">— 모든 프로필 —</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusMode">포커스 모드</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusOn">포커스 모드: 켜짐</sys:String> <!-- draft -->
+    <!-- Ideas batch 17 (Plan 21) -->
+    <sys:String x:Key="L.Start.Presets.Title">더 최신 레이아웃 프리셋을 찾았어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Body">현재 레이아웃 프리셋 파일:&#x0A;{0}&#x0A;마지막 변경: {1}&#x0A;&#x0A;다른 레이아웃 프리셋 파일이 그 뒤에 변경되었어요({3}):&#x0A;{2}&#x0A;&#x0A;이전 버전의 MultiPreview에서 레이아웃 프리셋을 편집했을 때 이런 일이 생겨요. 더 최신 파일을 사용할까요? 현재 레이아웃 프리셋은 먼저 Backups 폴더에 보관돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Use">최신 레이아웃 프리셋 사용</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Keep">내 현재 레이아웃 프리셋 유지</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2656,4 +2656,9 @@
     <sys:String x:Key="L.Copy.AllProfiles">— 所有配置文件 —</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusMode">专注模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.FocusOn">专注模式：开</sys:String> <!-- draft -->
+    <!-- Ideas batch 17 (Plan 21) -->
+    <sys:String x:Key="L.Start.Presets.Title">发现了更新的布局预设</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Body">你的布局预设文件是：&#x0A;{0}&#x0A;最后修改于 {1}。&#x0A;&#x0A;另一个布局预设文件在它之后被修改，时间为 {3}：&#x0A;{2}&#x0A;&#x0A;当你在旧版 MultiPreview 中编辑过布局预设时，就会出现这种情况。要使用较新的文件吗？你当前的布局预设会先保存在 Backups 文件夹中。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Use">使用较新的布局预设</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Presets.Keep">保留我当前的布局预设</sys:String> <!-- draft -->
 </ResourceDictionary>
