@@ -22,13 +22,19 @@ namespace EveMultiPreview.Services;
 /// that made the pipe proved to be an elevated process of this same account (IsThisAccountsElevatedProcess).</summary>
 public static class CommandPipe
 {
-    /// <summary>How long a second start waits for the running MultiPreview, connecting and answering together (IDEAS P130).
-    /// App waits up to <see cref="CommandServer.ReadTime"/> for the window's thread to START a command and then awaits the
+    /// <summary>How long a second start waits for the running MultiPreview to answer, writing and answering together (IDEAS
+    /// P130). App waits up to <see cref="CommandServer.ReadTime"/> for the window's thread to START a command and then awaits the
     /// started one, and the server serves one sender at a time: a sender queued behind another also sits out that sender's
     /// turn. So the clock covers two queue waits and two seconds for a started command to finish; a shorter one let a command
-    /// run while its sender had already ended with exit 3. The cost is that "nothing took it" (exit 3, no pipe) now shows
-    /// after this long too. No protocol change: the sender's deadline is not sent.</summary>
+    /// run while its sender had already ended with exit 3, which this makes far rarer (three or more queued senders can still
+    /// outlast it: a time budget, not a guarantee). The connect has its own, shorter clock (<see cref="ConnectTime"/>). No
+    /// protocol change: the sender's deadline is not sent.</summary>
     public static readonly TimeSpan SendTime = CommandServer.ReadTime + CommandServer.ReadTime + TimeSpan.FromSeconds(2);
+
+    /// <summary>How long a second start waits to find the pipe at all (both tries of it together), within the caller's clock:
+    /// "nothing took it" (no pipe: the switch is off, or MultiPreview is still starting) ends with exit 3 after this long, as it
+    /// did when the whole clock was this long.</summary>
+    public static readonly TimeSpan ConnectTime = TimeSpan.FromSeconds(3);
 
     public static string Name(string userSid, int sessionId) => $"EveMultiPreview.Commands.{sessionId}.{userSid}";
 
@@ -113,12 +119,14 @@ public static class CommandPipe
         if (RemoteCommand.FromMessage(message) != command) return QueryReply.Refused;
 
         using var limit = new CancellationTokenSource(timeout);
+        using var connectLimit = CancellationTokenSource.CreateLinkedTokenSource(limit.Token);
+        connectLimit.CancelAfter(ConnectTime);
         NamedPipeClientStream? pipe = null;
         try
         {
             pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut,
                 PipeOptions.Asynchronous | PipeOptions.CurrentUserOnly, TokenImpersonationLevel.Identification);
-            try { await pipe.ConnectAsync(limit.Token); }
+            try { await pipe.ConnectAsync(connectLimit.Token); }
             catch (UnauthorizedAccessException) when (!IsElevated())
             {
                 // IDEAS #15: a sender that is not elevated is refused by an elevated MultiPreview's pipe (its owner is the
@@ -129,7 +137,7 @@ public static class CommandPipe
                 // test. Only for a sender that is not elevated itself: an elevated sender gets no second try.
                 pipe.Dispose();
                 pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous, TokenImpersonationLevel.Identification);
-                await pipe.ConnectAsync(limit.Token);   // refused again: the outer catch answers NotReachable
+                await pipe.ConnectAsync(connectLimit.Token);   // refused again: the outer catch answers NotReachable
                 if (!GetNamedPipeServerProcessId(pipe.SafePipeHandle, out uint serverProcess) || !IsThisAccountsElevatedProcess(serverProcess))
                     return QueryReply.NotReachable;
             }

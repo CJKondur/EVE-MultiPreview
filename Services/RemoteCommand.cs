@@ -341,18 +341,31 @@ public static class RemoteCommandLine
 /// <summary>IDEAS P130 (b): what a first start does with the command it was given, on each look.</summary>
 public enum StartupCommandStep { Run, Wait, Drop }
 
-/// <summary>IDEAS P130 (b): a first start's <c>--focus</c> names a character whose thumbnail the first discovery pass may not
-/// have made yet. It is asked again on the existing 500 ms tick for <see cref="Limit"/>, and then dropped without a word.
-/// Every other command runs on the first look.</summary>
+/// <summary>IDEAS P130 (b): a first start's <c>--focus</c>, <c>--mute</c> or <c>--unmute</c> names a character whose thumbnail
+/// the first discovery pass may not have made yet. It is asked again on the existing 500 ms tick for <see cref="Limit"/>, and
+/// then dropped without a word. Every other command runs on the first look.</summary>
 public static class StartupCommandWait
 {
     public static readonly TimeSpan Limit = TimeSpan.FromSeconds(10);
 
-    /// <summary>Run now, look again on the next tick, or give up. A --focus runs as soon as its character is running; one
-    /// whose character is still missing after <see cref="Limit"/> is dropped (nobody is told: a first start has no sender).</summary>
-    public static StartupCommandStep Decide(RemoteCommand command, bool characterRunning, TimeSpan waited)
+    /// <summary>Run now, look again on the next tick, or give up. A command that names a character runs as soon as that character
+    /// is among <paramref name="running"/> (names matched ignoring case, as the runner finds them); one whose character is still
+    /// missing after <see cref="Limit"/> is dropped (nobody is told: a first start has no sender).</summary>
+    public static StartupCommandStep Decide(RemoteCommand command, IEnumerable<string> running, TimeSpan waited)
     {
-        if (command.Verb != RemoteVerb.Focus || characterRunning) return StartupCommandStep.Run;
+        if (command.Verb is not (RemoteVerb.Focus or RemoteVerb.Mute or RemoteVerb.Unmute)) return StartupCommandStep.Run;
+        if (running.Any(n => string.Equals(n, command.Argument, StringComparison.OrdinalIgnoreCase))) return StartupCommandStep.Run;
         return waited < Limit ? StartupCommandStep.Wait : StartupCommandStep.Drop;
+    }
+
+    /// <summary>One look at the command a first start holds: the command to run now, or null (still waiting, dropped, or none held).
+    /// What is handed out, and what is dropped, is cleared from <paramref name="held"/> here, so a later look cannot hand it out
+    /// again: the start-up step and every tick after it share the one field and the command runs once.</summary>
+    public static RemoteCommand? Take(ref RemoteCommand? held, IEnumerable<string> running, TimeSpan waited)
+    {
+        if (held is not { } command) return null;
+        var step = Decide(command, running, waited);
+        if (step != StartupCommandStep.Wait) held = null;
+        return step == StartupCommandStep.Run ? command : null;
     }
 }

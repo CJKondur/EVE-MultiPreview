@@ -1580,10 +1580,10 @@ public partial class App : Application
     }
 
     /// <summary>IDEAS #39: has the window's thread run one command, waiting at most the pipe's read time to START it (the
-    /// sender's clock, CommandPipe.SendTime, covers this wait twice over, IDEAS P130). A command still queued when the wait ends
-    /// is taken back, so it never runs after the sender was told that nothing took it; one that has started is quick and its
-    /// answer is awaited. Each command has its own wait: nothing is shared between two senders. A stall is not an error and is
-    /// not logged.</summary>
+    /// sender's clock, CommandPipe.SendTime, covers this wait twice over, IDEAS P130; three or more senders queued behind one
+    /// another can still outlast it). A command still queued when the wait ends is taken back, so this wait does not leave it to
+    /// run later; one that has started is quick and its answer is awaited. Each command has its own wait: nothing is shared
+    /// between two senders. A stall is not an error and is not logged.</summary>
     private async Task<RemoteOutcome> RunOnWindowsThread(RemoteCommand command)
     {
         var queued = Dispatcher.InvokeAsync(() => RunCommand(command));
@@ -1676,27 +1676,30 @@ public partial class App : Application
         }
     }
 
-    /// <summary>IDEAS P130 (b): a first start's --focus names a character whose thumbnail the first discovery pass may not have
-    /// made by the time start-up is done. True: leave the command for the next 500 ms tick (<see cref="FollowStartupCommand"/>),
-    /// for at most StartupCommandWait.Limit counted from the first look; after that it is dropped without a word (no sender to
-    /// tell, nothing logged). Every other command, and a --focus whose character is running, answers false.</summary>
+    /// <summary>IDEAS P130 (b): a first start's --focus, --mute or --unmute names a character whose thumbnail the first discovery
+    /// pass may not have made by the time start-up is done. True: leave the command for the next 500 ms tick
+    /// (<see cref="FollowStartupCommand"/>), for at most StartupCommandWait.Limit counted from the first look; after that it is
+    /// dropped without a word (no sender to tell, nothing logged). Every other command, and one whose character is running,
+    /// answers false.</summary>
     private bool StartupCommandWaits()
     {
         if (_startupCommand is not RemoteCommand pending) return false;
         _startupCommandClock ??= Stopwatch.StartNew();
-        bool running = _thumbnailManager?.GetActiveCharacterNames()
-            .Any(n => string.Equals(n, pending.Argument, StringComparison.OrdinalIgnoreCase)) == true;
-        var step = StartupCommandWait.Decide(pending, running, _startupCommandClock.Elapsed);
+        var step = StartupCommandWait.Decide(pending, StartupRunningNames(), _startupCommandClock.Elapsed);
         if (step == StartupCommandStep.Drop) _startupCommand = null;
         return step == StartupCommandStep.Wait;
     }
 
+    /// <summary>The characters that have a thumbnail now (none before the thumbnail manager exists), as the runner reads them.</summary>
+    private IEnumerable<string> StartupRunningNames() =>
+        _thumbnailManager?.GetActiveCharacterNames() ?? Enumerable.Empty<string>();
+
     /// <summary>IDEAS P130 (b): the existing 500 ms tick asks again for a start-up command that had to wait. Nothing before the
-    /// start-up step has looked at it, and nothing after it has run it.</summary>
+    /// start-up step has looked at it; StartupCommandWait.Take clears what it hands out, so the step and the ticks run it once.</summary>
     private void FollowStartupCommand()
     {
-        if (_startupCommandClock == null || StartupCommandWaits()) return;
-        if (_startupCommand is RemoteCommand first) { _startupCommand = null; RunCommand(first); }
+        if (_startupCommandClock == null) return;
+        if (StartupCommandWait.Take(ref _startupCommand, StartupRunningNames(), _startupCommandClock.Elapsed) is { } first) RunCommand(first);
     }
 
     private const string CommandsOffEnglish = "EVE MultiPreview is already running but did not take the command. Turn on Take commands from other programs under App settings › General. If MultiPreview runs as administrator, turn on Also take commands from programs that are not run as administrator there, or run this program as administrator too. Otherwise try again once MultiPreview has finished starting.";
