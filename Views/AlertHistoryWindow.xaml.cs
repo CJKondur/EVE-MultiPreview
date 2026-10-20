@@ -78,13 +78,17 @@ public sealed class HistoryRowVM : INotifyPropertyChanged
     public string SystemName => Row.Newest.SolarSystem;
     /// <summary>What the System column draws: the system, or nothing while streamer mode is on.</summary>
     public string SystemText => StreamerMask.Name(StreamerKind.System, SystemName);
+    /// <summary>The matched or stored text, as the history kept it (the search and the CSV work from it, never masked).</summary>
     public string Text => Row.Newest.Text;
+    /// <summary>What the Text column draws: the text, or nothing while streamer mode (IDEAS #19) is on. It can carry a system
+    /// ("Jita → Perimeter 3/4") or a name from a matched log line.</summary>
+    public string TextShown => StreamerMask.Name(StreamerKind.Label, Text);
     public Brush Bar { get; }
     public string SeverityName { get; }
     public string Age { get => _age; private set { if (_age != value) { _age = value; Raise(nameof(Age)); Raise(nameof(ReadOut)); } } }
 
     /// <summary>The row in one sentence, for a screen reader.</summary>
-    public string ReadOut => string.Join(", ", new[] { Time, Age, CharacterText, Event, Count, Note, SeverityName, SystemText, Text }.Where(p => p.Length > 0));
+    public string ReadOut => string.Join(", ", new[] { Time, Age, CharacterText, Event, Count, Note, SeverityName, SystemText, TextShown }.Where(p => p.Length > 0));
 
     /// <summary>A list row with no name of its own is read out by what its item says it is: the sentence above. (The
     /// row keeps the theme's own style this way; a style set on it would replace the one that lays out the columns.)</summary>
@@ -424,7 +428,7 @@ public partial class AlertHistoryWindow : Window
         view.Columns.Add(new GridViewColumn { Header = Str("L.Hist.Col.Event", "Alert"), Width = 200, CellTemplate = EventCell() });
         view.Columns.Add(TextColumn("L.Hist.Col.System", "System", nameof(HistoryRowVM.SystemText), 110));
         view.Columns.Add(TextColumn("L.Hist.Csv.Outcome", "Outcome", nameof(HistoryRowVM.Note), 112));
-        var text = TextColumn("L.Hist.Col.Text", "Text", nameof(HistoryRowVM.Text), TextColumnMin);
+        var text = TextColumn("L.Hist.Col.Text", "Text", nameof(HistoryRowVM.TextShown), TextColumnMin);
         view.Columns.Add(text);
         // The text column gets the room a wider window gives (the other columns keep the width the player set).
         AlertList.SizeChanged += (_, _) =>
