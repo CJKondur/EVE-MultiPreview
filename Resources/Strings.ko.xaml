@@ -1442,7 +1442,7 @@
     <sys:String x:Key="L.S.Presets.ImportFailed">그 파일은 MultiPreview 레이아웃이 아닙니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Filter.Layouts">MultiPreview 레이아웃</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.presets.Title">저장된 레이아웃</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**현재 레이아웃 저장**은 실행 중인 각 캐릭터의 썸네일 위치와 크기를 화면 대비 비율로 기억하므로, 해상도를 바꿔도 레이아웃이 맞습니다. 숨겨진 썸네일과 크롭 창이 켜져 있는지도 기억합니다.&#x0A;- **적용**은 썸네일을 제자리로 되돌립니다. 로그인하지 않은 캐릭터는 로그인할 때 자리를 받습니다.&#x0A;- **다시 지정하고 적용**에서는 어느 캐릭터가 각 자리를 차지할지 고를 수 있습니다. 예를 들어 다른 플레이어의 레이아웃을 쓸 때 유용합니다.&#x0A;- **내보내기**와 **가져오기**로 레이아웃을 파일로 공유합니다. 기존 레이아웃과 이름이 같은 레이아웃을 가져오면 바꾸기 전에 확인합니다.&#x0A;- **코드로 복사**는 선택한 레이아웃을 한 줄 텍스트로 클립보드에 넣어요. Discord 등에 붙여넣을 수 있어요. **코드 붙여넣기…**는 그런 한 줄에서 레이아웃을 추가하고, 클라이언트가 실행 중이면 어느 캐릭터가 각 자리를 차지할지 고를 수 있게 해요. 코드에는 자리만 들어 있어요. 썸네일을 숨기거나 크롭 창을 켜거나 끄지 않아요.&#x0A;- **모니터가 바뀌면 저장한 레이아웃 사용**을 켜면, 모니터가 바뀌고 잠시 뒤에 같은 모니터 구성으로 저장한 레이아웃을 적용해요(독에 연결했을 때, 분리했을 때, TV를 연결했을 때). 쓰는 모니터 구성마다 레이아웃을 한 번씩 저장하세요. 모니터의 위치와 크기를 비교하고 이름은 쓰지 않아요. 목록에는 각 레이아웃을 저장할 때의 모니터 수가 표시돼요. 이전 버전에서 저장한 레이아웃에는 모니터가 기록되어 있지 않아요. 다시 저장하세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**현재 레이아웃 저장**은 실행 중인 각 캐릭터의 썸네일 위치와 크기를 화면 대비 비율로 기억하므로, 해상도를 바꿔도 레이아웃이 맞습니다. 숨겨진 썸네일과 크롭 창이 켜져 있는지도 기억합니다.&#x0A;- **적용**은 썸네일을 제자리로 되돌립니다. 로그인하지 않은 캐릭터는 로그인할 때 자리를 받습니다.&#x0A;- **다시 지정하고 적용**에서는 어느 캐릭터가 각 자리를 차지할지 고를 수 있습니다. 예를 들어 다른 플레이어의 레이아웃을 쓸 때 유용합니다.&#x0A;- **내보내기**와 **가져오기**로 레이아웃을 파일로 공유합니다. 기존 레이아웃과 이름이 같은 레이아웃을 가져오면 바꾸기 전에 확인합니다.&#x0A;- **코드로 복사**는 선택한 레이아웃을 한 줄 텍스트로 클립보드에 넣어요. Discord 등에 붙여넣을 수 있어요. **코드 붙여넣기…**는 그런 한 줄에서 레이아웃을 추가하고, 클라이언트가 실행 중이면 어느 캐릭터가 각 자리를 차지할지 고를 수 있게 해요. 코드에는 자리만 들어 있어요. 썸네일을 숨기거나 크롭 창을 켜거나 끄지 않아요.&#x0A;- **모니터가 바뀌면 저장한 레이아웃 사용**을 켜면, 모니터가 바뀌고 잠시 뒤에 같은 모니터 구성으로 저장한 레이아웃을 적용해요(독에 연결했을 때, 분리했을 때, TV를 연결했을 때). 쓰는 모니터 구성마다 레이아웃을 한 번씩 저장하세요. 모니터의 위치와 크기를 비교하고 이름은 쓰지 않아요. 목록에는 각 레이아웃을 저장할 때의 모니터 수가 표시돼요. 이전 버전에서 저장한 레이아웃에는 모니터가 기록되어 있지 않아요. 다시 저장하세요.&#x0A;- **이미지로 저장…**은 선택한 레이아웃을 PNG 그림으로 그려요. **현재 레이아웃을 이미지로…**는 썸네일이 지금 놓인 그대로 그려요. 그림에는 모니터와, 썸네일마다 캐릭터 이름이 적힌 상자가 나와요. 위치와 이름만으로 그리기 때문에 클라이언트가 보여 주는 화면은 쓰지 않고, 게임 화면은 전혀 들어가지 않아요. 올리기 전에 **이미지에서 이름 숨기기**를 켜면 이름 대신 1, 2, 3…이 그려져요.</sys:String> <!-- draft -->
     <!-- Thumbnails › Visibility (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.visibility">표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.thumbs.visibility.Desc">썸네일이 항상 위에 있거나 숨겨지는 때, 로그인 화면 표시, 보조 썸네일.</sys:String> <!-- draft -->
@@ -2675,4 +2675,10 @@
     <sys:String x:Key="L.S.Presets.ArrangementNow">저장 당시 모니터 수: {0} (지금 모니터 구성과 같아요)</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ArrangementNone">저장 당시 모니터 수: 기록 없음. 레이아웃을 다시 저장하면 지금 모니터와 연결돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.LayoutAppliedForMonitors">모니터가 바뀌었어요: 레이아웃 '{0}' 적용했어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ExportImage">이미지로 저장…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.WallImage">현재 레이아웃을 이미지로…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.HideNames">이미지에서 이름 숨기기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImageSaved">이미지를 {0}(으)로 저장했습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImageFailed">이미지를 쓸 수 없습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImageEmpty">그릴 내용이 없습니다. 이 레이아웃에는 표시되는 썸네일이 없습니다.</sys:String> <!-- draft -->
 </ResourceDictionary>

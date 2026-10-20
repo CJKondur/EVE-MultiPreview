@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
 using Button = System.Windows.Controls.Button;
+using CheckBox = System.Windows.Controls.CheckBox;
 using ComboBox = System.Windows.Controls.ComboBox;
 
 namespace EveMultiPreview.SettingsUi;
@@ -23,6 +24,7 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     private readonly TextBlock _note = EditorCard.Value("", secondary: true);
     private readonly TextBlock _arrangement = EditorCard.Value("", secondary: true);
     private readonly List<Button> _needsOne = new();
+    private readonly CheckBox _hideNames;
     private bool _loading;
 
     public LayoutPresetsEditor(SettingsContext ctx)
@@ -44,12 +46,19 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         // IDEAS #12: a layout as one line of text, and back.
         var third = EditorCard.Row(NeedsOne("L.S.Presets.CopyCode", CopyCode), EditorCard.Button("L.S.Presets.PasteCode", PasteCode));
         third.Margin = new Thickness(0, 8, 0, 0);
+        // IDEAS P18: the layout as a picture of boxes and names, to share or attach to a help request.
+        var hideText = new TextBlock();
+        Loc.SetKey(hideText, "L.S.Presets.HideNames");
+        _hideNames = new CheckBox { Content = hideText, IsChecked = HideNamesAtStart(), VerticalAlignment = VerticalAlignment.Center };
+        var fourth = EditorCard.Row(NeedsOne("L.S.Presets.ExportImage", ExportImage), EditorCard.Button("L.S.Presets.WallImage", ExportWallImage), _hideNames);
+        fourth.Margin = new Thickness(0, 8, 0, 0);
         _note.Margin = new Thickness(0, 8, 0, 0);
         _arrangement.Margin = new Thickness(0, 4, 0, 0);
         var below = new StackPanel();
         below.Children.Add(first);
         below.Children.Add(second);
         below.Children.Add(third);
+        below.Children.Add(fourth);
         below.Children.Add(_note);
         below.Children.Add(_arrangement);
         Content = EditorCard.Build("thumbs.layout.presets", null, below);
@@ -72,6 +81,20 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     /// ones you have now); empty with no layout selected. Never a device name: the fingerprint holds none.</summary>
     public string ArrangementText => _arrangement.Text;
 
+    /// <summary>Test seam: stands in for the monitors (LayoutImage.CurrentMonitors), bounds and work areas.</summary>
+    public Func<IReadOnlyList<LayoutMonitor>> Monitors { get; set; } = LayoutImage.CurrentMonitors;
+
+    /// <summary>IDEAS P18: draw slot numbers instead of character names in the image (the "Hide names" box).</summary>
+    public bool HideNames
+    {
+        get => _hideNames.IsChecked == true;
+        set => _hideNames.IsChecked = value;
+    }
+
+    /// <summary>Whether "Hide names" starts ticked. The one place streamer mode (IDEAS #19) switches it on; the box is not a
+    /// setting, so it starts from this each time the page is built.</summary>
+    private static bool HideNamesAtStart() => false;
+
     /// <summary>The layout the buttons act on, or null.</summary>
     public string? Selected { get; private set; }
 
@@ -80,6 +103,7 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     private string Applied => CharacterDirectory.Current(_ctx.S).AppliedLayoutPreset;
 
     private static string SaveFilter => Str("L.S.Filter.Layouts") + " (*.emplayout)|*.emplayout|JSON (*.json)|*.json";
+    private static string ImageFilter => "PNG (*.png)|*.png";
     private static string OpenFilter => Str("L.S.Filter.Layouts") + " (*.emplayout, *.json)|*.emplayout;*.json|*.*|*.*";
 
     private Button NeedsOne(string key, Action run, bool destructive = false)
@@ -175,11 +199,17 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         return true;
     }
 
+    /// <summary>What captures the live wall, or null with no clients running.</summary>
+    private Func<string, LayoutPreset?>? CaptureSource()
+    {
+        var tm = _ctx.Services.Thumbnails;
+        return Capture ?? (tm == null || CharacterDirectory.Running(_ctx).Count == 0 ? null : tm.CaptureCurrentLayoutPreset);
+    }
+
     /// <summary>Old OnSaveLayoutPreset, asking before it replaces a layout with the same name.</summary>
     public void SaveCurrent()
     {
-        var tm = _ctx.Services.Thumbnails;
-        var capture = Capture ?? (tm == null || CharacterDirectory.Running(_ctx).Count == 0 ? null : tm.CaptureCurrentLayoutPreset);
+        var capture = CaptureSource();
         if (capture == null) { _ctx.Host.Toast(Str("L.S.Presets.NoThumbnails")); return; }
         var name = _ctx.Host.AskText(Str("L.S.Presets.SaveTitle"), Str("L.S.Presets.NamePrompt"), Selected ?? "")?.Trim();
         if (string.IsNullOrEmpty(name)) return;
@@ -216,6 +246,44 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException)
         {
             _ctx.Host.Toast(Str("L.S.Presets.ExportFailed"));
+        }
+    }
+
+    /// <summary>IDEAS P18: the selected layout as a PNG picture of boxes and names, saved where the user chooses. Drawn
+    /// text only; writes nothing else.</summary>
+    public void ExportImage()
+    {
+        var preset = Chosen();
+        if (preset != null) SaveImage(preset, preset.Name);
+    }
+
+    /// <summary>IDEAS P18: the wall as it is now, as a PNG picture.</summary>
+    public void ExportWallImage()
+    {
+        var capture = CaptureSource();
+        if (capture == null) { _ctx.Host.Toast(Str("L.S.Presets.NoThumbnails")); return; }
+        var preset = capture("");
+        if (preset == null) { _ctx.Host.Toast(Str("L.S.Presets.NoThumbnails")); return; }
+        SaveImage(preset, "layout");
+    }
+
+    private void SaveImage(LayoutPreset preset, string name)
+    {
+        var monitors = Monitors();
+        bool hide = HideNames;
+        var plan = LayoutImage.Plan(LayoutImage.Resolve(preset, monitors), monitors, hide);
+        if (plan.Boxes.Count == 0) { _ctx.Host.Toast(Str("L.S.Presets.ImageEmpty")); return; }
+        // With names hidden the file name must not carry the layout's name either: the dialog is on the screen too.
+        var file = _ctx.Host.PickSaveFile((hide ? "layout" : LayoutImage.FileStem(name)) + ".png", ImageFilter);
+        if (file == null) return;
+        try
+        {
+            File.WriteAllBytes(file, LayoutImage.Png(plan));
+            _ctx.Host.Toast(string.Format(Str("L.S.Presets.ImageSaved"), Path.GetFileName(file)));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException)
+        {
+            _ctx.Host.Toast(Str("L.S.Presets.ImageFailed"));
         }
     }
 

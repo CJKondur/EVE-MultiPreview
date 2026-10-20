@@ -1459,7 +1459,7 @@
     <sys:String x:Key="L.S.Presets.ImportFailed">该文件不是 MultiPreview 布局。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Filter.Layouts">MultiPreview 布局</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.layout.presets.Title">已保存的布局</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**保存当前布局**会记住每个运行中角色的缩略图位置和大小（按其屏幕的比例），因此更改分辨率后布局仍然适用。它还会记住哪些缩略图被隐藏，以及裁剪窗口是否开启。&#x0A;- **应用**会把缩略图放回原位。尚未登录的角色会在登录时获得位置。&#x0A;- **重新分配并应用**让你选择由哪个角色占用每个位置，例如使用其他玩家的布局时。&#x0A;- **导出**和**导入**以文件形式分享布局。 导入与现有布局同名的布局时，会先询问是否替换。&#x0A;- **复制为代码**会把所选布局作为一行文本放到剪贴板，可以粘贴到 Discord；**粘贴代码…**会根据这样一行文本添加布局，并且在客户端运行时，让你选择由哪个角色占用每个位置。代码只包含位置：它不会隐藏缩略图，也不会开启或关闭裁剪窗口。&#x0A;- **显示器变化时使用已保存的布局**会在显示器变化片刻后，应用你为同一组显示器保存的布局（接着扩展坞、拔掉扩展坞、接上电视）。请为你使用的每一组显示器各保存一次布局；比较的是显示器的位置和大小，从不比较名称。列表会显示每个布局保存时对应几台显示器。旧版本保存的布局没有记录显示器：请重新保存。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.layout.presets.Body">**保存当前布局**会记住每个运行中角色的缩略图位置和大小（按其屏幕的比例），因此更改分辨率后布局仍然适用。它还会记住哪些缩略图被隐藏，以及裁剪窗口是否开启。&#x0A;- **应用**会把缩略图放回原位。尚未登录的角色会在登录时获得位置。&#x0A;- **重新分配并应用**让你选择由哪个角色占用每个位置，例如使用其他玩家的布局时。&#x0A;- **导出**和**导入**以文件形式分享布局。 导入与现有布局同名的布局时，会先询问是否替换。&#x0A;- **复制为代码**会把所选布局作为一行文本放到剪贴板，可以粘贴到 Discord；**粘贴代码…**会根据这样一行文本添加布局，并且在客户端运行时，让你选择由哪个角色占用每个位置。代码只包含位置：它不会隐藏缩略图，也不会开启或关闭裁剪窗口。&#x0A;- **显示器变化时使用已保存的布局**会在显示器变化片刻后，应用你为同一组显示器保存的布局（接着扩展坞、拔掉扩展坞、接上电视）。请为你使用的每一组显示器各保存一次布局；比较的是显示器的位置和大小，从不比较名称。列表会显示每个布局保存时对应几台显示器。旧版本保存的布局没有记录显示器：请重新保存。&#x0A;- **另存为图片…** 把所选布局画成 PNG 图片，**当前布局另存为图片…** 则按缩略图现在的位置来画。图片里有你的显示器，以及每个缩略图一个方框，框内写着角色名称。图片只根据位置和名称绘制，从不使用客户端显示的内容，所以其中没有任何游戏画面。发布之前勾选 **在图片中隐藏名称**，图片里就会画出 1、2、3…… 而不是名称。</sys:String> <!-- draft -->
     <!-- Thumbnails › Visibility (Plan 3b) -->
     <sys:String x:Key="L.S.Page.thumbs.visibility">可见性</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.thumbs.visibility.Desc">缩略图何时置顶或隐藏、登录界面标记，以及第二缩略图。</sys:String> <!-- draft -->
@@ -2692,4 +2692,10 @@
     <sys:String x:Key="L.S.Presets.ArrangementNow">保存时的显示器数量：{0}（与你现在的显示器一致）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ArrangementNone">保存时的显示器数量：未记录。请重新保存布局，使其与你的显示器关联。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.LayoutAppliedForMonitors">显示器已变化：已应用布局“{0}”</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ExportImage">另存为图片…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.WallImage">当前布局另存为图片…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.HideNames">在图片中隐藏名称</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImageSaved">图片已另存为 {0}。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImageFailed">无法写入该图片。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Presets.ImageEmpty">没有可绘制的内容：此布局不显示任何缩略图。</sys:String> <!-- draft -->
 </ResourceDictionary>
