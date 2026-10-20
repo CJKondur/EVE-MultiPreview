@@ -68,6 +68,7 @@ public sealed class StatReportWindow : Window
     private readonly ListView _table = new();
     private StatReportModel? _model;
     private bool _loading, _closed, _filling;
+    private Task? _givenUp;   // the read that was given up on: it may still be stuck in the folder, holding a pool thread
 
     public StatReportWindow(StatReportActions actions)
     {
@@ -214,10 +215,12 @@ public sealed class StatReportWindow : Window
 
     /// <summary>Reads the stat log folder again, off the UI thread, then shows it. A read while one is running is ignored. While it
     /// reads, the status says so; a read that has not answered after <see cref="StatReportActions.ReadSeconds"/> is given up (the
-    /// thread may stay stuck in the folder, but the window does not): it says it could not read, and Refresh tries again.</summary>
+    /// thread may stay stuck in the folder, but the window does not): it says it could not read, and Refresh tries again once the
+    /// stuck read has ended; until then Refresh says it is reading and starts no second read beside it.</summary>
     public void Reload()
     {
         if (_closed || _loading) return;
+        if (_givenUp is { IsCompleted: false }) { _status.Text = Str("L.SessRpt.Reading", "Reading the stat files…"); return; }   // no second thread beside a stuck one
         string folder = _do.Folder() ?? "";
         var today = _do.Today();
         if (string.IsNullOrWhiteSpace(folder)) { Show(folder, Array.Empty<CharacterReport>(), today); return; }   // nothing to read
@@ -232,6 +235,7 @@ public sealed class StatReportWindow : Window
             else
             {
                 _loading = false;
+                _givenUp = read;
                 _status.Text = "";
                 SayHint(Str("L.SessRpt.Failed", "The stat files couldn't be read."));   // not logged: the exception's text may name a file, and the file a character
             }

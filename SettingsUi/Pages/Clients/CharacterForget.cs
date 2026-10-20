@@ -49,6 +49,7 @@ public static class CharacterForget
                 string.Format(SettingsContext.Str("L.S.Character.ForgetConfirm"), name))) return;
         Purge(ctx.S, name);
         var tm = ctx.Services.Thumbnails;
+        bool playtimeGone;   // IDEAS P11: false when playtime.json may still hold the name (it could not be read or written)
         if (tm != null)
         {
             tm.DestroySecondaryForCharacter(name);
@@ -56,12 +57,12 @@ public static class CharacterForget
             tm.UpdateCharacterLabel(name, null, null, 0);
             tm.SetClientVolume(name, 100);
             tm.ForgetJumps(name);   // IDEAS P10: this session's jump count
-            tm.ForgetPlaytime(name);   // IDEAS P11: the playtime, in the ledger and in playtime.json
+            playtimeGone = tm.ForgetPlaytime(name);   // IDEAS P11: the playtime, in the ledger and in playtime.json
             if (tm.IsExcludedFromCycle(name)) tm.ToggleCycleExclusion(name);
         }
-        else PlaytimeActions.Forget(ctx, name);   // IDEAS P11: no running app, the name still leaves playtime.json
+        else playtimeGone = PlaytimeActions.Forget(ctx, name);   // IDEAS P11: no running app, the name still leaves playtime.json
         ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);
-        ctx.Host.Toast(string.Format(SettingsContext.Str("L.S.Character.Forgotten"), name));
+        ctx.Host.Toast(string.Format(SettingsContext.Str(playtimeGone ? "L.S.Character.Forgotten" : "L.S.Character.ForgottenPlaytimeKept"), name));
         ctx.Host.Navigate(ClientsPages.CharactersId);
     }
 }

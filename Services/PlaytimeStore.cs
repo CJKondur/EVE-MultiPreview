@@ -64,22 +64,31 @@ public sealed class PlaytimeStore
     /// <summary>Reads the file. Never throws: whatever is wrong with it, MultiPreview runs, with what could be read or none.</summary>
     public Dictionary<string, Dictionary<DateTime, int>> Load()
     {
-        var result = new Dictionary<string, Dictionary<DateTime, int>>(StringComparer.OrdinalIgnoreCase);
+        TryLoad(out var result);
+        return result;
+    }
+
+    /// <summary>Reads the file like <see cref="Load"/>, and says whether the file could be READ. False when it exists but could
+    /// not be opened (another program holds it, no access) or could not be set aside: the file is then as it was, and what is
+    /// returned (nothing) says nothing about what it holds, so the caller must not write over it. True for no file, an empty one,
+    /// a link (never read) and one that was set aside as unusable. Never throws.</summary>
+    public bool TryLoad(out Dictionary<string, Dictionary<DateTime, int>> data)
+    {
+        var result = data = new Dictionary<string, Dictionary<DateTime, int>>(StringComparer.OrdinalIgnoreCase);
         var path = FilePath;
         try
         {
-            if (!File.Exists(path)) return result;
-            if (_isLink(path)) { Report("the playtime file is a link, and MultiPreview doesn't read it through one", null); return result; }
-            
-            if (new FileInfo(path).Length > MaxFileBytes) { SetAside(path, "the playtime file is larger than a playtime file can be", null); return result; }
+            if (!File.Exists(path)) return true;
+            if (_isLink(path)) { Report("the playtime file is a link, and MultiPreview doesn't read it through one", null); return true; }
+
+            if (new FileInfo(path).Length > MaxFileBytes) return SetAside(path, "the playtime file is larger than a playtime file can be", null);
             Stored? stored;
             try { stored = JsonSerializer.Deserialize<Stored>(File.ReadAllText(path, Utf8), Json); }
             catch (Exception ex) when (ex is JsonException or NotSupportedException or InvalidOperationException)
             {
-                SetAside(path, "the playtime file could not be read", ex);
-                return result;
+                return SetAside(path, "the playtime file could not be read", ex);
             }
-            if (stored?.Characters == null) { SetAside(path, "the playtime file holds no characters list", null); return result; }
+            if (stored?.Characters == null) return SetAside(path, "the playtime file holds no characters list", null);
             foreach (var (given, days) in stored.Characters)
             {
                 if (result.Count >= PlaytimeLedger.MaxCharacters) break;
@@ -92,8 +101,13 @@ public sealed class PlaytimeStore
                     held[day] = (int)Math.Min(PlaytimeLedger.MaxDaySeconds, (long)held.GetValueOrDefault(day) + seconds);
             }
         }
-        catch (Exception ex) { Report("the playtime file could not be opened; MultiPreview starts with no playtime this time", ex); }
-        return result;
+        catch (Exception ex)
+        {
+            Report("the playtime file could not be opened; MultiPreview leaves it alone and counts no playtime until it can", ex);
+            result.Clear();
+            return false;
+        }
+        return true;
     }
 
     /// <summary>The newest <see cref="PlaytimeLedger.KeepDays"/> days with a date and a time worth keeping, a day held to 24 hours.</summary>
@@ -146,12 +160,14 @@ public sealed class PlaytimeStore
     }
 
     /// <summary>Takes a name out of the file (Forget this character), whatever the switch says: the file may hold it. Nothing is
-    /// written when the name is not there. False when the name was there and the file could not be written. Never throws.</summary>
-    public bool Forget(string name, Func<DateTime> nowLocal)
+    /// written when the name is not there, and nobody else's days are touched (no clock is asked: nothing is pruned). False when
+    /// the file could not be read, or the name was there and the file could not be written: the name may still be in it.
+    /// Never throws.</summary>
+    public bool Forget(string name)
     {
-        var ledger = new PlaytimeLedger(nowLocal);
-        ledger.Import(Load());
-        return !ledger.Forget(name) || Save(ledger.Export());
+        if (!TryLoad(out var data)) return false;
+        name = name?.Trim() ?? "";
+        return !data.Remove(name) || Save(data);   // the dictionary ignores case, as the ledger does
     }
 
     /// <summary>Deletes the file, the ones set aside and the half-written ones a crash left (Clear playtime history). A link is
@@ -174,7 +190,7 @@ public sealed class PlaytimeStore
     }
 
     /// <summary>Moves a file MultiPreview can't use out of the way, under a name that says so. It is never deleted by this.</summary>
-    private void SetAside(string path, string what, Exception? ex)
+    private bool SetAside(string path, string what, Exception? ex)
     {
         try
         {
@@ -183,10 +199,13 @@ public sealed class PlaytimeStore
             for (int n = 2; File.Exists(aside); n++) aside = Path.Combine(_folder, $"playtime_unreadable_{stamp}_{n}.json");
             File.Move(path, aside);
             Report($"{what}; it was set aside as {Path.GetFileName(aside)} and MultiPreview starts with no playtime", ex);
+            return true;
         }
         catch (Exception moveFailed)
         {
-            Report($"{what}, and it could not be set aside; MultiPreview starts with no playtime", ex ?? moveFailed);
+            // Still in place: a save would write over it, so the caller is told the file was not dealt with.
+            Report($"{what}, and it could not be set aside; MultiPreview leaves it alone and counts no playtime until it can", ex ?? moveFailed);
+            return false;
         }
     }
 

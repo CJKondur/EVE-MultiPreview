@@ -19,6 +19,7 @@ public sealed class TrayIcons : IDisposable
 
     private readonly Func<string, Stream?> _open;
     private readonly Action<IntPtr> _destroy;
+    private readonly Action<DrawIcon> _release;
     private DrawIcon? _normal, _suspended, _red;
     private bool _normalIsStock;
     private IntPtr _redHandle;
@@ -26,10 +27,12 @@ public sealed class TrayIcons : IDisposable
 
     /// <param name="open">Opens an embedded icon by resource name; null when it is not there.</param>
     /// <param name="destroy">What lets go of a GDI icon handle (<see cref="DestroyHandle"/>; a test passes its own).</param>
-    public TrayIcons(Func<string, Stream?> open, Action<IntPtr>? destroy = null)
+    /// <param name="release">What lets go of an icon this set made (<c>Dispose</c>; a test passes its own to see which are let go).</param>
+    public TrayIcons(Func<string, Stream?> open, Action<IntPtr>? destroy = null, Action<DrawIcon>? release = null)
     {
         _open = open;
         _destroy = destroy ?? DestroyHandle;
+        _release = release ?? (icon => icon.Dispose());
     }
 
     public DrawIcon For(TrayAlertKind kind) => kind switch
@@ -88,8 +91,10 @@ public sealed class TrayIcons : IDisposable
         if (_redHandle != IntPtr.Zero) _destroy(_redHandle);
         _redHandle = IntPtr.Zero;
         _red = null;
-        if (!_normalIsStock) _normal?.Dispose();
-        _suspended?.Dispose();
+        // Never the stock icon (shared by the whole process) and never an alias: the suspended slot holds the normal icon when its
+        // own resource is missing, and that icon is let go of once, as the normal one.
+        if (!_normalIsStock && _normal != null) _release(_normal);
+        if (_suspended != null && !ReferenceEquals(_suspended, _normal)) _release(_suspended);
     }
 
     [DllImport("user32.dll", EntryPoint = "DestroyIcon")]

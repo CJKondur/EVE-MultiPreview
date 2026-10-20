@@ -3042,7 +3042,15 @@ public sealed class ThumbnailManager : IDisposable
     public Func<long> PlaytimeTimestamp { get; set; } = Stopwatch.GetTimestamp;
 
     private const int PlaytimeSaveSeconds = 300;
+    /// <summary>A playtime.json that could not be opened (another program holds it) is tried again this often (seconds of play) ...</summary>
+    public const int PlaytimeRetrySeconds = 30;
+    /// <summary>... and this many times in all, the first included; then it is left alone until the switch goes off and on.</summary>
+    public const int PlaytimeLoadAttempts = 8;
+    // _playtimeLoaded: the file was READ (or there was none), so the ledger holds what it held. Nothing is counted or saved before
+    // that: a save of a ledger that never saw the file would write this session's time over the stored week.
     private bool _playtimeLoaded, _playtimeDirty;
+    private int _playtimeLoadTries;
+    private double _playtimeSinceTry;
     private long _playtimeStamp;                 // Stopwatch timestamp of the previous tick, 0 before the first
     private double _playtimeCarry, _playtimeSinceSave;
 
@@ -3062,12 +3070,18 @@ public sealed class ThumbnailManager : IDisposable
     public void TickPlaytime(double elapsedSeconds)
     {
         if (!_settings.Settings.TrackPlaytime) { StopPlaytime(); return; }
+        if (!(elapsedSeconds > 0) || double.IsInfinity(elapsedSeconds)) elapsedSeconds = 0;
         if (!_playtimeLoaded)
         {
-            Playtime.Import(PlaytimeFiles.Load());
-            _playtimeLoaded = true;
+            _playtimeSinceTry += Math.Min(elapsedSeconds, PlaytimeRetrySeconds);
+            if (_playtimeLoadTries == 0 || (_playtimeLoadTries < PlaytimeLoadAttempts && _playtimeSinceTry >= PlaytimeRetrySeconds))
+            {
+                _playtimeLoadTries++;
+                _playtimeSinceTry = 0;
+                if (PlaytimeFiles.TryLoad(out var held)) { Playtime.Import(held); _playtimeLoaded = true; }
+            }
+            if (!_playtimeLoaded) return;   // the file could not be read: count nothing, write nothing, try again later
         }
-        if (!(elapsedSeconds > 0) || double.IsInfinity(elapsedSeconds)) elapsedSeconds = 0;
         _playtimeSinceSave += Math.Min(elapsedSeconds, PlaytimeSaveSeconds);
         double total = _playtimeCarry + elapsedSeconds;
         int whole = (int)Math.Floor(Math.Min(total, 1_000_000));
@@ -3075,6 +3089,7 @@ public sealed class ThumbnailManager : IDisposable
         if (whole is > 0 and <= PlaytimeLedger.MaxAddSeconds)
         {
             var counted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            Playtime.BeginRound();   // one round per tick, however many characters it counts
             foreach (var (_, thumb) in _thumbnails)
                 if (ThumbnailMenu.HasCharacter(thumb.CharacterName) && counted.Add(thumb.CharacterName) && Playtime.Add(thumb.CharacterName, whole))
                     _playtimeDirty = true;
@@ -3083,10 +3098,14 @@ public sealed class ThumbnailManager : IDisposable
         PushPlaytime();
     }
 
-    private void SavePlaytime()
+    /// <summary>Writes the ledger; false when it did not (not read yet, or the file could not be written: the dirty mark stays).</summary>
+    private bool SavePlaytime()
     {
         _playtimeSinceSave = 0;
-        if (PlaytimeFiles.Save(Playtime.Export())) _playtimeDirty = false;
+        if (!_playtimeLoaded) return false;
+        if (!PlaytimeFiles.Save(Playtime.Export())) return false;
+        _playtimeDirty = false;
+        return true;
     }
 
     /// <summary>The week on each thumbnail that has a character; a thumbnail compares it with what it shows, so this is cheap.</summary>
@@ -3100,8 +3119,10 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>The switch is off: what is held is dropped without a write (the file keeps what was last saved) and {week} goes.</summary>
     private void StopPlaytime()
     {
-        if (!_playtimeLoaded) return;
+        if (!_playtimeLoaded && _playtimeLoadTries == 0) return;
         _playtimeLoaded = _playtimeDirty = false;
+        _playtimeLoadTries = 0;
+        _playtimeSinceTry = 0;
         _playtimeStamp = 0;
         _playtimeCarry = _playtimeSinceSave = 0;
         Playtime.Clear();
@@ -3115,17 +3136,20 @@ public sealed class ThumbnailManager : IDisposable
     }
 
     /// <summary>Forget this character (Clients › Characters): the name leaves the ledger and the file at once. With the switch off
-    /// nothing is held, but the file may still hold the name, so it is taken out of the file (and nothing is written if it is not there).</summary>
-    public void ForgetPlaytime(string name)
+    /// nothing is held, but the file may still hold the name, so it is taken out of the file (and nothing is written if it is not there).
+    /// False when the name may still be in the file: it could not be read or written. A save that failed is tried again at the next
+    /// save and at the exit; a file that could not be read is not.</summary>
+    public bool ForgetPlaytime(string name)
     {
         if (_playtimeLoaded)
         {
             // The file still holds the name until it is written: dirty, so a save that fails is tried again (the tick, the exit).
-            if (Playtime.Forget(name)) { _playtimeDirty = true; SavePlaytime(); }
+            bool saved = true;
+            if (Playtime.Forget(name)) { _playtimeDirty = true; saved = SavePlaytime(); }
             PushPlaytime();
-            return;
+            return saved;
         }
-        PlaytimeFiles.Forget(name, PlaytimeClock);
+        return PlaytimeFiles.Forget(name);
     }
 
     /// <summary>Clear playtime history: the file (and the ones set aside) is deleted and the ledger emptied, whatever the switch says.</summary>

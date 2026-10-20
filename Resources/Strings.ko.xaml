@@ -2792,4 +2792,5 @@
     <sys:String x:Key="L.SessRpt.Reading">통계 파일을 읽는 중이에요…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.SinceApprox">경과 시간: {0}. MultiPreview를 시작할 때 이미 이 항성계에 있었으니, 실제 도착은 표시된 시각보다 빠를 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.ActivePlain">활성 클라이언트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Character.ForgottenPlaytimeKept">'{0}'을(를) 삭제했지만 playtime.json을 변경할 수 없어 플레이 시간이 아직 그 파일에 남아 있어요.</sys:String> <!-- draft -->
 </ResourceDictionary>

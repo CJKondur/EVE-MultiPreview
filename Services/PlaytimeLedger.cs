@@ -15,8 +15,10 @@ namespace EveMultiPreview.Services;
 /// tick of the app's timer (<see cref="MaxAddSeconds"/>) is ignored: that is a PC that slept or a clock that was stepped, not
 /// time played. A day that has not come yet (the clock was set back) is kept and left out of the week. A clock that
 /// jumps more than <see cref="MaxDayJump"/> days ahead of the last day taken as today is not believed: nothing is counted, pruned
-/// or rebased on it, so a tick at a wild date cannot drop the real week; it is believed after <see cref="BelieveAfterAdds"/>
-/// Adds in a row on it (a PC that slept for days, a date that was changed on purpose). At most
+/// or rebased on it, so a tick at a wild date cannot drop the real week; it is believed after <see cref="BelieveAfterRounds"/>
+/// rounds (<see cref="BeginRound"/>: one per tick of the app, however many characters it counts) in a row on it (a PC that slept
+/// for days, a date that was changed on purpose). The last day taken as today starts as the newest day <see cref="Import"/> reads,
+/// so a start-up with a clock far ahead is not believed either. At most
 /// <see cref="MaxCharacters"/> characters are kept, a day at most <see cref="MaxDaySeconds"/>. A name is at most
 /// <see cref="MaxNameLength"/> characters with no control character in it (the store would drop any other). Names are matched
 /// ignoring case; the first spelling is the one kept.</summary>
@@ -34,12 +36,13 @@ public sealed class PlaytimeLedger
     public const int MaxNameLength = 64;
     /// <summary>A clock reading more than this many days past the last day taken as today is a jump, not a day.</summary>
     public const int MaxDayJump = 2;
-    /// <summary>A far-ahead date is believed after this many Adds in a row on it (five minutes of play).</summary>
-    public const int BelieveAfterAdds = 300;
+    /// <summary>A far-ahead date is believed after this many rounds in a row on it (a round is a tick of a second: five minutes).</summary>
+    public const int BelieveAfterRounds = 300;
 
     private readonly Func<DateTime> _nowLocal;
     private DateTime? _anchor;      // the last date taken as today
-    private int _farAdds;           // Adds in a row on a date that is far ahead of the anchor
+    private int _farRounds;         // rounds in a row that counted on a date far ahead of the anchor
+    private int _round, _farRound = -1;   // the current round, and the last one that was counted as far
     private readonly Dictionary<string, Day> _days = new(StringComparer.OrdinalIgnoreCase);
 
     private sealed class Day
@@ -57,8 +60,12 @@ public sealed class PlaytimeLedger
     public static bool IsKeptName([NotNullWhen(true)] string? name) =>
         !string.IsNullOrEmpty(name) && name.Length <= MaxNameLength && !name.Any(char.IsControl);
 
+    /// <summary>A new round of Adds begins: the app's tick calls it once, then Adds for every character it counts. The far-date
+    /// run (<see cref="BelieveAfterRounds"/>) counts rounds, not Adds, so ten clients do not make five minutes into thirty seconds.</summary>
+    public void BeginRound() => _round++;
+
     /// <summary>The date to count on. A reading more than <see cref="MaxDayJump"/> days past the anchor is not believed: false,
-    /// with the anchor as <paramref name="today"/>, until <see cref="BelieveAfterAdds"/> counting calls in a row have been on it.
+    /// with the anchor as <paramref name="today"/>, until <see cref="BelieveAfterRounds"/> rounds in a row have counted on it.
     /// Any other reading is today, and the anchor never goes back (a clock set back keeps its days, and the real date is near
     /// the anchor again).</summary>
     private bool TryToday(bool counting, out DateTime today)
@@ -68,10 +75,12 @@ public sealed class PlaytimeLedger
         if (_anchor is { } anchor && now > anchor.AddDays(MaxDayJump))
         {
             today = anchor;
-            if (!counting || ++_farAdds < BelieveAfterAdds) return false;
+            if (!counting) return false;
+            if (_farRound != _round) { _farRound = _round; _farRounds++; }
+            if (_farRounds < BelieveAfterRounds) return false;
             today = now;
         }
-        _farAdds = 0;
+        _farRounds = 0;
         _anchor = _anchor is { } a && a > now ? a : now;
         return true;
     }
@@ -134,6 +143,12 @@ public sealed class PlaytimeLedger
     /// nothing or less, a blank name and a 501st character are not taken.</summary>
     public void Import(Dictionary<string, Dictionary<DateTime, int>> data)
     {
+        // The newest day the file holds is a date the player really played on: the clock is judged against it, so a start-up with
+        // the clock far ahead prunes nothing and counts nothing until the date is believed (the anchor is never moved back).
+        foreach (var (given, days) in data)
+            if (IsKeptName(given?.Trim()) && days != null)
+                foreach (var (day, seconds) in days)
+                    if (seconds > 0 && (_anchor is not { } known || day.Date > known)) _anchor = day.Date;
         TryToday(counting: false, out var today);
         foreach (var (given, days) in data)
         {

@@ -2791,4 +2791,5 @@
     <sys:String x:Key="L.SessRpt.Reading">Reading the stat files…</sys:String>
     <sys:String x:Key="L.Fleet.Tip.SinceApprox">Time since: {0}. The character was already here when MultiPreview started, so it may have arrived earlier than the time shown.</sys:String>
     <sys:String x:Key="L.Legend.ActivePlain">Active client</sys:String>
+    <sys:String x:Key="L.S.Character.ForgottenPlaytimeKept">'{0}' forgotten, but playtime.json could not be changed: their playtime is still stored there.</sys:String>
 </ResourceDictionary>

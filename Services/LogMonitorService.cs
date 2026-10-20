@@ -1641,6 +1641,19 @@ public sealed class LogMonitorService : IDisposable
         DiagnosticsService.LogAlerts($"[Read] ❌ A line in {Path.GetFileName(path)} made a parser or a listener throw {type}; it was skipped");
     }
 
+    /// <summary>A subscriber of <see cref="SystemMoved"/> threw: its exception TYPE and stack are recorded, as for a bad line, but
+    /// never its message (it can quote a character or a system). The move goes on to SystemChanged and its alert.</summary>
+    private void RecordListenerThrow(Exception ex)
+    {
+        if (_stopped) return;
+        string type = ex.GetType().Name;
+        var record = new InvalidOperationException("A system-move listener threw: " + type);
+        try { ExceptionDispatchInfo.SetRemoteStackTrace(record, ex.StackTrace ?? ""); }
+        catch (Exception) { /* the record is then written without a stack */ }
+        Errors.Record(record, "LogMonitor:SystemMoved", DateTime.Now);
+        DiagnosticsService.LogAlerts($"[System] ❌ A system-move listener threw {type}; the move went on");
+    }
+
     /// <summary>
     /// Pull the character name out of a log header line in ANY EVE client language.
     /// EVE localizes the header key, so a Chinese client writes "收听者: Name" where an
@@ -2629,7 +2642,8 @@ public sealed class LogMonitorService : IDisposable
         _systemSinceApproximate.TryRemove(character, out _);   // a jump seen live is exact
 
         Debug.WriteLine($"[LogMonitor:System] 🌍 System changed: '{character}' → '{systemName}' (source: {source})");
-        SystemMoved?.Invoke(character, existingSystem, systemName, false);
+        try { SystemMoved?.Invoke(character, existingSystem, systemName, false); }
+        catch (Exception ex) { RecordListenerThrow(ex); }   // a throwing subscriber must not cost the system change or its alert
         SystemChanged?.Invoke(character, systemName);
 
         // Fire system change alert if enabled
@@ -2900,7 +2914,8 @@ public sealed class LogMonitorService : IDisposable
     {
         foreach (var (character, systemName) in _characterSystems)
         {
-            SystemMoved?.Invoke(character, "", systemName, true);
+            try { SystemMoved?.Invoke(character, "", systemName, true); }
+            catch (Exception ex) { RecordListenerThrow(ex); }
             SystemChanged?.Invoke(character, systemName);
             Debug.WriteLine($"[LogMonitor:Flush] 🚀 Flushed system '{systemName}' for '{character}'");
         }

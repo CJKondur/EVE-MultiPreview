@@ -2809,4 +2809,5 @@
     <sys:String x:Key="L.SessRpt.Reading">正在读取统计文件…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.SinceApprox">已过去：{0}。MultiPreview 启动时该角色就已在此，因此实际到达时间可能早于所示时间。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.ActivePlain">当前客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Character.ForgottenPlaytimeKept">已忘记“{0}”，但无法修改 playtime.json：其游戏时长仍保存在该文件中。</sys:String> <!-- draft -->
 </ResourceDictionary>

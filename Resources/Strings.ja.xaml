@@ -2792,4 +2792,5 @@
     <sys:String x:Key="L.SessRpt.Reading">統計ファイルを読み込んでいます…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.SinceApprox">経過時間：{0}。MultiPreview の起動時にはすでにこの星系にいたため、実際の到着は表示の時刻より前かもしれません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.ActivePlain">アクティブなクライアント</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Character.ForgottenPlaytimeKept">「{0}」を削除しました。ただし playtime.json を変更できなかったため、プレイ時間はまだそこに保存されています。</sys:String> <!-- draft -->
 </ResourceDictionary>

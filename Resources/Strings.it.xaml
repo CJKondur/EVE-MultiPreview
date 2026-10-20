@@ -2809,4 +2809,5 @@
     <sys:String x:Key="L.SessRpt.Reading">Lettura dei file di statistiche…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Tip.SinceApprox">Tempo trascorso: {0}. Il personaggio era già qui all'avvio di MultiPreview, quindi potrebbe essere arrivato prima dell'ora mostrata.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.ActivePlain">Client attivo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Character.ForgottenPlaytimeKept">'{0}' dimenticato, ma non è stato possibile modificare playtime.json: il tempo di gioco è ancora salvato lì.</sys:String> <!-- draft -->
 </ResourceDictionary>
