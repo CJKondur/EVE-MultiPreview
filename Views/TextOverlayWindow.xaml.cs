@@ -52,6 +52,7 @@ public partial class TextOverlayWindow : Window
     private bool _nameOn = true;               // "show character name": a template's {name} is empty while it is off
     private string? _timerText;                // the session timer as drawn, null while it is off
     private int? _jumps;                       // the jump count (IDEAS P10), null until the manager sends one
+    private string? _week;                     // the week's playtime as drawn (IDEAS P11), null while the switch is off or nothing was sent
     private string? _systemTransitionText;     // "from → to" while a system change is on show, else null
 
     /// <summary>The name as drawn. The login screen's thumbnail is named "EVE" (nobody is logged in): that is no player's
@@ -110,6 +111,7 @@ public partial class TextOverlayWindow : Window
             [TextTemplate.SystemToken] = _systemTransitionText ?? StreamerMask.Name(StreamerKind.System, _rawSystem),
             [TextTemplate.TimerToken] = _timerText,
             [TextTemplate.JumpsToken] = _jumps?.ToString(CultureInfo.InvariantCulture),
+            [TextTemplate.WeekToken] = _week,
         };
         string text = TextTemplate.Render(_template, values);
         if (NameOverlay.Text != text) NameOverlay.Text = text;
@@ -273,6 +275,17 @@ public partial class TextOverlayWindow : Window
     {
         if (_jumps == count) return;
         _jumps = count;
+        if (_template.Length > 0) Compose();
+    }
+
+    /// <summary>IDEAS P11: the playtime of the last seven days ("14 h", "2 h 5 m") for a template's {week}; null or empty while
+    /// playtime is not counted. A duration, so streamer mode has nothing to hide in it. Sent with every tick of the session timer;
+    /// the text is composed again only when it changed. Without a template it is only kept.</summary>
+    public void SetWeek(string? text)
+    {
+        if (string.IsNullOrEmpty(text)) text = null;
+        if (_week == text) return;
+        _week = text;
         if (_template.Length > 0) Compose();
     }
 

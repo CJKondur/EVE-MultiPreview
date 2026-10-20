@@ -2693,10 +2693,10 @@
     <sys:String x:Key="L.Streamer.On">配信者モード：オン</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Off">配信者モード：オフ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.template">テキストテンプレート</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.thumbs.text.template.Desc">{name}、{system}、{timer}、{label}、{jumps} を組み合わせてサムネイルのテキストを作ります。例：{name} · {system}。空にすると、それぞれ別の行で表示されます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.template.Desc">{name}、{system}、{timer}、{label}、{jumps}、{week} を組み合わせてサムネイルのテキストを作ります。例：{name} · {system}。空にすると、それぞれ別の行で表示されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.TemplateExamples">例を入力</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.template.Title">テキストテンプレート</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.template.Body">**テキストテンプレート**は、5つの部品からサムネイルのテキストを作ります。{name} はキャラクター名、{system} は星系、{timer} はセッションタイマー、{label} はキャラクターに付けたラベル、{jumps} は MultiPreview の起動後にそのキャラクターが行ったジャンプの回数です。サイノ、ワームホール、クローンのジャンプもジャンプとして数えます。MultiPreview が最初に見た星系は数えません。間に好きな文字を入れて書けます。例：{name} · {system}、{label} {name} {timer}。リストから例を選ぶこともできます。&#x0A;&#x0A;表示するものがない部品は、隣の区切り文字ごと取り除かれるので、ラベルのないサムネイルが孤立した点で始まることはありません。上のスイッチがオフの部品も同じように省かれます。波括弧で囲んだそれ以外の文字は入力したとおりに残ります。波括弧そのものを表示するには2回続けて入力してください。テンプレートは120文字までで、それより長いと切り詰められます。&#x0A;&#x0A;テキスト全体はキャラクター名の色・フォント・サイズで表示され、配信者モードもその中で働きます。テンプレートはメインのサムネイルで使われ、名前を表示するほかのウィンドウは名前だけを表示し続けます。空にすると、別々の行のままになります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.template.Body">**テキストテンプレート**は、6つの部品からサムネイルのテキストを作ります。{name} はキャラクター名、{system} は星系、{timer} はセッションタイマー、{label} はキャラクターに付けたラベル、{jumps} は MultiPreview の起動後にそのキャラクターが行ったジャンプの回数です。サイノ、ワームホール、クローンのジャンプもジャンプとして数えます。MultiPreview が最初に見た星系は数えません。間に好きな文字を入れて書けます。例：{name} · {system}、{label} {name} {timer}。リストから例を選ぶこともできます。{week} は直近 7 日間のそのキャラクターのプレイ時間（例：14 h、2 h 5 m）で、「キャラクターごとのプレイ時間を記録」がオフの間は何も表示しません。&#x0A;&#x0A;表示するものがない部品は、隣の区切り文字ごと取り除かれるので、ラベルのないサムネイルが孤立した点で始まることはありません。上のスイッチがオフの部品も同じように省かれます。波括弧で囲んだそれ以外の文字は入力したとおりに残ります。波括弧そのものを表示するには2回続けて入力してください。テンプレートは120文字までで、それより長いと切り詰められます。&#x0A;&#x0A;テキスト全体はキャラクター名の色・フォント・サイズで表示され、配信者モードもその中で働きます。テンプレートはメインのサムネイルで使われ、名前を表示するほかのウィンドウは名前だけを表示し続けます。空にすると、別々の行のままになります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.CopyProfileCode">キャラクター付きのプロファイルコードをコピー</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopied">プロファイル「{0}」をキャラクターごとコードとしてクリップボードにコピーしました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopiedLong">プロファイル「{0}」をキャラクターごと {1} 文字のコードとしてクリップボードにコピーしました。Discord の 1 通のメッセージに入る長さ（2000 文字）を超えています。代わりにテキストファイルやペーストサイトで共有してください。</sys:String> <!-- draft -->
@@ -2722,4 +2722,15 @@
     <sys:String x:Key="L.Palette.Kind.Profile">プロファイル</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">コマンドパレット</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">クライアントが 20 個以上あるときは、狙うより入力するほうが速くなります。**コマンドパレットを開く** は、マウスがあるモニターの上に小さなボックスを表示します。&#x0A;&#x0A;- キャラクター、ラベル、グループ、プロファイルの名前を数文字入力します。入力した各語は、名前のどれかの語の先頭であるか、名前の中に含まれている必要があります。&#x0A;- 上キーと下キーで行を選び、Enter で実行します。何も入力していないときは、実行中のキャラクターが並びます。&#x0A;- キャラクターまたはラベルを選ぶと、サムネイルをクリックしたときと同じように、そのクライアントが手前に出ます。グループは、そのキーと同じように次へ切り替わります。プロファイルは、そのプロファイルに切り替わります。&#x0A;- Esc、ボックスの外をクリック、またはもう一度キーを押すと閉じます。&#x0A;&#x0A;Ctrl、Alt、Shift を組み合わせたキーを選んでください。文字キーだけだと、その文字を入力できなくなります。ホットキーを一時停止している間は、このキーも何もしません。配信者モードがオンのときは、一覧にはマスクされた名前が表示され、ラベルは含まれません。</sys:String> <!-- draft -->
+    <!-- Ideas batch 19 (Plan 23) -->
+    <sys:String x:Key="L.S.Sec.app.diagnostics.playtime">週間プレイ時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.trackPlaytime">キャラクターごとのプレイ時間を記録</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.trackPlaytime.Desc">各キャラクターのクライアントが開いている時間を日ごとに合計し、サムネイルのテキストテンプレートで {week} を表示できるようにします。既定ではオフです。キャラクター名が設定フォルダー内のファイル（playtime.json）に保存されるためです。このファイルがバグ報告や共有するコードに含まれることはありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.playtimeHistory">プレイ時間の履歴</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.diagnostics.playtimeHistory.Desc">各キャラクターのプレイ時間を記録したファイルと、実行中のアプリが保持している合計を削除します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.clearPlaytime">プレイ時間の履歴を消去</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.diagnostics.clearPlaytime.Confirm">各キャラクターの記録済みプレイ時間を削除しますか？ この操作は元に戻せません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Playtime.Cleared">プレイ時間の履歴を消去しました。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">週間プレイ時間</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**キャラクターごとのプレイ時間を記録**は、各キャラクターのクライアントが開いている時間を日ごとに合計し、直近 2 週間分を保持します。サムネイルのテキストテンプレートに {week} を入れると、直近 7 日間の合計（例：14 h、2 h 5 m）を表示できます。&#x0A;&#x0A;キャラクター名をファイル（設定フォルダーの playtime.json）に保存するため、既定ではオフです。ファイルは 5 分ごと、および MultiPreview の終了時に保存されます。バグ報告や共有するコードに含まれることはなく、スイッチがオフの間は何も読み書きされず、{week} は何も表示しません。&#x0A;&#x0A;キャラクターは、そのサムネイルがある間は、実際に操作しているかどうかにかかわらず数えられます。**プレイ時間の履歴を消去**は、ファイルと合計をすぐに削除します。キャラクターを削除すると、ファイルからも取り除かれます。</sys:String> <!-- draft -->
 </ResourceDictionary>

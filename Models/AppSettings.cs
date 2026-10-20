@@ -339,6 +339,11 @@ public class AppSettings
     /// a file without it.</summary>
     public string CommandPaletteHotkey { get; set; } = "";
 
+    /// <summary>Count each character's time on screen per day, for the thumbnail text's {week} (IDEAS P11). Off by default: it
+    /// keeps character names in playtime.json in the settings folder. Read by ThumbnailManager's one-second tick; with it off
+    /// nothing is read or written. New key: off in a file without it.</summary>
+    public bool TrackPlaytime { get; set; } = false;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

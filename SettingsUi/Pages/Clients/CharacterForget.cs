@@ -56,6 +56,7 @@ public static class CharacterForget
             tm.UpdateCharacterLabel(name, null, null, 0);
             tm.SetClientVolume(name, 100);
             tm.ForgetJumps(name);   // IDEAS P10: this session's jump count
+            tm.ForgetPlaytime(name);   // IDEAS P11: the playtime, in the ledger and in playtime.json
             if (tm.IsExcludedFromCycle(name)) tm.ToggleCycleExclusion(name);
         }
         ctx.Applier.ApplyNow(ApplyScope.Thumbnails | ApplyScope.Crops);

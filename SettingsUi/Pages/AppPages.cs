@@ -33,6 +33,7 @@ public static class AppPages
         }),
         new HelpTopic("app.diagnostics", "errors", new[] { "app.diagnostics.errorLog" }),
         new HelpTopic("app.diagnostics", "report", new[] { "app.diagnostics.bugReport" }),
+        new HelpTopic("app.diagnostics", "playtime", new[] { "app.diagnostics.trackPlaytime", "app.diagnostics.playtimeHistory" }),
         new HelpTopic("app.profiles", "profiles", new[] { "app.profiles.current" }),
         new HelpTopic("app.profiles", "auto", new[] { "app.profiles.autoSelect", AutoProfileEditor.ItemId }),
         new HelpTopic("app.profiles", "backups", new[] { "app.profiles.backup" }),
@@ -200,6 +201,16 @@ public static class AppPages
         new SectionDef("app.diagnostics.report", new PageItem[]
         {
             new ActionRow("app.diagnostics.bugReport", new[] { new ActionDef("app.diagnostics.createReport", BugReportActions.Open) }),
+        }),
+        // IDEAS P11: the thumbnail text's {week}. ThumbnailManager reads the switch on its one-second tick, so a change only saves.
+        // The button is always there: playtime.json can be left from an earlier time with the switch off.
+        new SectionDef("app.diagnostics.playtime", new PageItem[]
+        {
+            new SettingItem(Setting.Toggle("app.diagnostics.trackPlaytime", s => s.TrackPlaytime)),
+            new ActionRow("app.diagnostics.playtimeHistory", new[]
+            {
+                new ActionDef("app.diagnostics.clearPlaytime", PlaytimeActions.Clear) { Confirm = true, Destructive = true },
+            }),
         }),
         new SectionDef("app.diagnostics.logs", new PageItem[]
         {

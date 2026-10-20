@@ -308,6 +308,7 @@ public sealed class ThumbnailManager : IDisposable
     {
         _discovery = discovery;
         _settings = settings;
+        Playtime = new PlaytimeLedger(() => PlaytimeClock());
 
         _discovery.WindowFound += OnWindowFound;
         _discovery.WindowLost += OnWindowLost;
@@ -2781,6 +2782,116 @@ public sealed class ThumbnailManager : IDisposable
         UpdateJumpCounts();
     }
 
+    // ── Weekly playtime (IDEAS P11) ──────────────────────────────────
+
+    /// <summary>Seconds on screen per character per local day, for a text template's {week}. Held (and playtime.json read)
+    /// only while Count playtime is on; with it off the ledger is empty, nothing is read or written and {week} shows nothing.</summary>
+    public PlaytimeLedger Playtime { get; }
+
+    private PlaytimeStore? _playtimeFiles;
+    /// <summary>The file, in the settings folder (a test hands in a store of its own).</summary>
+    public PlaytimeStore PlaytimeFiles { get => _playtimeFiles ??= new PlaytimeStore(AppPaths.ConfigDir); set => _playtimeFiles = value; }
+
+    /// <summary>The local time the ledger takes its days from (a test hands in a fixed one).</summary>
+    public Func<DateTime> PlaytimeClock { get; set; } = () => DateTime.Now;
+
+    private const int PlaytimeSaveSeconds = 300;
+    private bool _playtimeLoaded, _playtimeDirty;
+    private long _playtimeStamp;                 // Stopwatch timestamp of the previous tick, 0 before the first
+    private double _playtimeCarry, _playtimeSinceSave;
+
+    /// <summary>The session timer's one-second tick: the time since the last one, from a clock that no wall-clock step moves.</summary>
+    private void UpdatePlaytime()
+    {
+        if (!_settings.Settings.TrackPlaytime) { StopPlaytime(); return; }
+        long now = Stopwatch.GetTimestamp();
+        double elapsed = _playtimeStamp == 0 ? 0 : Stopwatch.GetElapsedTime(_playtimeStamp, now).TotalSeconds;
+        _playtimeStamp = now;
+        TickPlaytime(elapsed);
+    }
+
+    /// <summary>Counts <paramref name="elapsedSeconds"/> for every character that has a thumbnail (not a login screen), loads the
+    /// file on the first call after the switch went on, saves every five minutes, and hands each thumbnail its week. A fraction
+    /// is carried to the next tick. More than a minute at once (the PC slept) counts for nothing.</summary>
+    public void TickPlaytime(double elapsedSeconds)
+    {
+        if (!_settings.Settings.TrackPlaytime) { StopPlaytime(); return; }
+        if (!_playtimeLoaded)
+        {
+            Playtime.Import(PlaytimeFiles.Load());
+            _playtimeLoaded = true;
+        }
+        if (!(elapsedSeconds > 0) || double.IsInfinity(elapsedSeconds)) elapsedSeconds = 0;
+        _playtimeSinceSave += Math.Min(elapsedSeconds, PlaytimeSaveSeconds);
+        double total = _playtimeCarry + elapsedSeconds;
+        int whole = (int)Math.Floor(Math.Min(total, 1_000_000));
+        _playtimeCarry = whole > PlaytimeLedger.MaxAddSeconds ? 0 : total - whole;
+        if (whole is > 0 and <= PlaytimeLedger.MaxAddSeconds)
+        {
+            var counted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var (_, thumb) in _thumbnails)
+                if (ThumbnailMenu.HasCharacter(thumb.CharacterName) && counted.Add(thumb.CharacterName) && Playtime.Add(thumb.CharacterName, whole))
+                    _playtimeDirty = true;
+        }
+        if (_playtimeDirty && _playtimeSinceSave >= PlaytimeSaveSeconds) SavePlaytime();
+        PushPlaytime();
+    }
+
+    private void SavePlaytime()
+    {
+        _playtimeSinceSave = 0;
+        if (PlaytimeFiles.Save(Playtime.Export())) _playtimeDirty = false;
+    }
+
+    /// <summary>The week on each thumbnail that has a character; a thumbnail compares it with what it shows, so this is cheap.</summary>
+    private void PushPlaytime()
+    {
+        foreach (var (_, thumb) in _thumbnails)
+            if (ThumbnailMenu.HasCharacter(thumb.CharacterName))
+                thumb.SetWeek(PlaytimeLedger.Format(Playtime.WeekSeconds(thumb.CharacterName)));
+    }
+
+    /// <summary>The switch is off: what is held is dropped without a write (the file keeps what was last saved) and {week} goes.</summary>
+    private void StopPlaytime()
+    {
+        if (!_playtimeLoaded) return;
+        _playtimeLoaded = _playtimeDirty = false;
+        _playtimeStamp = 0;
+        _playtimeCarry = _playtimeSinceSave = 0;
+        Playtime.Clear();
+        foreach (var (_, thumb) in _thumbnails) thumb.SetWeek(null);
+    }
+
+    /// <summary>At exit: what was counted since the last save is written, if the switch is on.</summary>
+    public void FlushPlaytime()
+    {
+        if (_playtimeLoaded && _playtimeDirty && _settings.Settings.TrackPlaytime) SavePlaytime();
+    }
+
+    /// <summary>Forget this character (Clients › Characters): the name leaves the ledger and the file at once. With the switch off
+    /// nothing is held, but the file may still hold the name, so it is taken out of the file (and nothing is written if it is not there).</summary>
+    public void ForgetPlaytime(string name)
+    {
+        if (_playtimeLoaded)
+        {
+            if (Playtime.Forget(name)) SavePlaytime();
+            PushPlaytime();
+            return;
+        }
+        var file = new PlaytimeLedger(PlaytimeClock);
+        file.Import(PlaytimeFiles.Load());
+        if (file.Forget(name)) PlaytimeFiles.Save(file.Export());
+    }
+
+    /// <summary>Clear playtime history: the file (and the ones set aside) is deleted and the ledger emptied, whatever the switch says.</summary>
+    public void ClearPlaytime()
+    {
+        Playtime.Clear();
+        _playtimeDirty = false;
+        PlaytimeFiles.Delete();
+        if (_playtimeLoaded) PushPlaytime();
+    }
+
     private void UpdateJumpCounts()
     {
         foreach (var (_, thumb) in _thumbnails)
@@ -2789,6 +2900,7 @@ public sealed class ThumbnailManager : IDisposable
 
     private void UpdateSessionTimers()
     {
+        UpdatePlaytime();   // IDEAS P11: the existing one-second tick, no timer of its own
         // Off: hide the timer, or the last time stays frozen on every thumbnail until a restart.
         bool show = _settings.Settings.ShowSessionTimer;
         foreach (var (_, thumb) in _thumbnails)
@@ -5115,6 +5227,8 @@ public sealed class ThumbnailManager : IDisposable
 
     public void Dispose()
     {
+        try { FlushPlaytime(); } catch { }   // IDEAS P11: what was counted since the last save
+
         // Don't leave clients muted from auto-solo after we exit.
         try { UnmuteAllClientAudio(); } catch { }
 
