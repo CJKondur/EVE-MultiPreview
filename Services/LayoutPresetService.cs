@@ -51,11 +51,12 @@ public sealed class LayoutPresetService
         => Presets.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>IDEAS #10: the layout saved for this monitor arrangement (<see cref="MonitorFingerprint.Of"/>), or null. A
-    /// layout carries no time, so when several were saved for it the first in the file wins. A layout without an
+    /// layout carries no time, but AddOrReplace removes and appends, so file order is the order of saving: when several
+    /// were saved for it the LAST in the file (the newest) wins. A layout without an
     /// arrangement, and an arrangement with no monitors or that is not a valid line, match nothing.</summary>
     public LayoutPreset? FindForFingerprint(string? fingerprint)
         => MonitorFingerprint.Count(fingerprint) > 0
-            ? Presets.FirstOrDefault(p => string.Equals(p.MonitorFingerprint, fingerprint, StringComparison.Ordinal))
+            ? Presets.LastOrDefault(p => string.Equals(p.MonitorFingerprint, fingerprint, StringComparison.Ordinal))
             : null;
 
     public void AddOrReplace(LayoutPreset preset)
@@ -71,8 +72,14 @@ public sealed class LayoutPresetService
         Save();
     }
 
+    /// <summary>Writes one layout for sharing. The monitor arrangement is left out: it is this PC's (the exporter's monitor
+    /// sizes) and an outside file must never carry a trigger (<see cref="ReadFile"/> drops it on the way in).</summary>
     public void Export(LayoutPreset preset, string file)
-        => File.WriteAllText(file, JsonSerializer.Serialize(preset, Json));
+    {
+        var copy = JsonSerializer.Deserialize<LayoutPreset>(JsonSerializer.Serialize(preset, Json))!;
+        copy.MonitorFingerprint = null;
+        File.WriteAllText(file, JsonSerializer.Serialize(copy, Json));
+    }
 
     /// <summary>Parse a shared preset file without adding it (null on failure / empty preset). P122: a file over
     /// <see cref="MaxFileBytes"/> is not read, one with more than <see cref="MaxFileSlots"/> places, or a place with a number
@@ -97,8 +104,9 @@ public sealed class LayoutPresetService
                 slot.Fh = ShareCode.ClampSize(slot.Fh);
                 if (!ShareCode.ValidSlot(slot.Character, slot.Monitor, slot.Fx, slot.Fy, slot.Fw, slot.Fh)) return null;   // monitor, character
             }
-            // A file is read from outside: an arrangement that is not exactly what MonitorFingerprint writes is dropped, the layout kept.
-            if (!MonitorFingerprint.IsValid(preset.MonitorFingerprint)) preset.MonitorFingerprint = null;
+            // A file is read from outside, so it never brings a monitor arrangement: a stranger's layout must not auto-apply when
+            // your monitors happen to match (IDEAS #10). Saving it again from your own wall stamps it. Import and the editor both go through here.
+            preset.MonitorFingerprint = null;
             var name = ShareCode.SafeName(preset.Name);
             if (name.Length == 0) name = ShareCode.SafeName(Path.GetFileNameWithoutExtension(file));
             preset.Name = name.Length > 0 ? name : "Layout";

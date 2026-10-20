@@ -63,6 +63,8 @@ public sealed class MonitorLayoutFollower
     {
         if (_due is not { } due) return;
         var left = due - _clock();
+        // A clock stepped back must not stall the settle: more left than one settle can't be, so the wait starts again from now.
+        if (left > Settle) { left = Settle; _due = _clock() + Settle; }
         if (left > TimeSpan.Zero) { _schedule(left); return; }
         _due = null;
         if (!_enabled()) return;
