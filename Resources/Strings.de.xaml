@@ -2770,4 +2770,22 @@
     <sys:String x:Key="L.Fleet.Empty">Es ist kein EVE-Client mit angemeldetem Charakter geöffnet.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Note">Alarme werden seit dem Start von MultiPreview gezählt. Das Docken wird nicht protokolliert, deshalb kann die Übersicht nicht sagen, wann ein Charakter undockte.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Close">Schließen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Group">Gruppe: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.GroupUnnamed">In einer Gruppe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Active">Aktiver Client (hervorgehobener Rahmen)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Alert">Alarm: {0}, noch {1} s</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.AlertHeld">Alarm: {0}, bleibt, bis du zu diesem Client wechselst</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Unseen">Ungesehene Alarme: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Excluded">Aus dem Durchschalten ausgenommen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotLoggedIn">Nicht angemeldet (Charakterauswahl)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Muted">Alarme stummgeschaltet, noch {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.MutedCleared">Alarme stummgeschaltet, bis du sie wieder einschaltest oder MultiPreview neu startet</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Snoozed">Pausiert: {0}, noch {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedRestart">Pausiert: {0}, bis MultiPreview neu startet</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedMore">und {0} weitere pausierte Ereignisse</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotResponding">Reagiert nicht: Windows meldet, dass der Client nicht mehr antwortet</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Disconnected">Getrennt: Der Client hat die Verbindung zum Server verloren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.HeldHidden">Vom Fokusmodus ausgeblendet gehalten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Nothing">Nichts Besonderes: Für dieses Vorschaubild ist keine Anzeige aktiv</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.CustomEvent">ein eigener Alarm</sys:String> <!-- draft -->
 </ResourceDictionary>

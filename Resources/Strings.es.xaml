@@ -2792,4 +2792,22 @@
     <sys:String x:Key="L.Fleet.Empty">No hay ningún cliente de EVE abierto con un personaje conectado.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Note">Las alertas se cuentan desde que se inició MultiPreview. El atraque no queda registrado, así que el panel no puede decir cuándo salió un personaje de la estación.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Close">Cerrar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Group">Grupo: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.GroupUnnamed">En un grupo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Active">Cliente activo (borde resaltado)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Alert">Alerta: {0}, quedan {1} s</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.AlertHeld">Alerta: {0}, se mantiene hasta que cambies a este cliente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Unseen">Alertas sin ver: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Excluded">Excluido del ciclo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotLoggedIn">Sin sesión (pantalla de selección de personaje)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Muted">Alertas silenciadas, quedan {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.MutedCleared">Alertas silenciadas hasta que las reactives o MultiPreview se reinicie</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Snoozed">Pospuesto: {0}, quedan {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedRestart">Pospuesto: {0}, hasta que MultiPreview se reinicie</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedMore">y {0} eventos pospuestos más</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotResponding">No responde: Windows indica que el cliente ha dejado de responder</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Disconnected">Desconectado: el cliente ha perdido la conexión con el servidor</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.HeldHidden">Oculta por el modo enfoque</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Nothing">Nada especial: esta miniatura no tiene ningún indicador activo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.CustomEvent">una alerta personalizada</sys:String> <!-- draft -->
 </ResourceDictionary>

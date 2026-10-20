@@ -2703,6 +2703,177 @@ public sealed class ThumbnailManager : IDisposable
             : LocalizationService.Str("L.Msg.HotkeysActive", "Hotkeys: ACTIVE"));
     }
 
+    // ── Indicator legend (IDEAS #37) ─────────────────────────────────
+    // Alt held over a thumbnail says why it looks the way it does. The window watches the pointer and Alt
+    // (ThumbnailWindow.LegendWanted); the lines are IndicatorLegend's; this reads the state and draws the popup.
+
+    /// <summary>The alert flash a character has now: false when it has none. The legend reads its event and start.</summary>
+    public bool TryGetFlash(string character, out AlertFlashInfo? info)
+    {
+        info = null;
+        return !string.IsNullOrEmpty(character) && _alertFlashChars.TryGetValue(character, out info);
+    }
+
+    /// <summary>The alert mute a character has now (null when it has none, or it ran out): until it is cleared, or how long is
+    /// left on <see cref="MuteClock"/>. Same rule as <see cref="IsCharacterAlertMuted"/>.</summary>
+    public (bool UntilCleared, TimeSpan Left)? MuteOf(string characterName)
+    {
+        if (!IsCharacterAlertMuted(characterName) || !_alertMutedChars.TryGetValue(characterName, out var mute)) return null;
+        return mute.Until == DateTime.MaxValue ? (true, TimeSpan.Zero) : (false, mute.Until - MuteClock());
+    }
+
+    /// <summary>How many seconds a flash lasts: the event's own number from the settings, else its severity's. 0: until the
+    /// player switches to that client. The same rule FlashAlertTick follows.</summary>
+    private static int FlashSeconds(Models.AppSettings s, AlertFlashInfo info) =>
+        s.AlertDurations.TryGetValue(info.EventType, out var dur) && dur >= 0 ? dur : FlashExpiry.GetValueOrDefault(info.Severity, 6);
+
+    private static LegendEvent LegendEventOf(string eventKey) => IndicatorLegend.EventOf(eventKey, Views.AlertHub.EventDisplayName);
+
+    /// <summary>Everything the legend says about one thumbnail, read from the state the manager already holds: its group, whether it
+    /// is the active client, the flash (seconds left on <see cref="FlashClock"/>), the unseen alerts, the cycle exclusion, the
+    /// alert mute and the event snoozes (on <see cref="MuteClock"/>), the client's mark and the focus-mode hold. Reads only. The
+    /// window's thread.</summary>
+    public IndicatorSnapshot SnapshotFor(ThumbnailWindow thumb)
+    {
+        var s = _settings.Settings;
+        string who = ThumbnailMenu.HasCharacter(thumb.CharacterName) ? thumb.CharacterName : "";
+
+        var group = who.Length == 0 ? null
+            : s.ThumbnailGroups.FirstOrDefault(g => g.Members.Any(m => m.Equals(who, StringComparison.OrdinalIgnoreCase)));   // the first, as the border rule takes it
+
+        LegendAlert? alert = null;
+        if (who.Length > 0 && TryGetFlash(who, out var flash) && flash != null)
+        {
+            int seconds = FlashSeconds(s, flash);
+            var end = flash.StartTime.AddSeconds(seconds);
+            var now = FlashClock();
+            if (seconds == 0)
+                alert = new LegendAlert(LegendEventOf(flash.EventType), null);
+            else if (now >= flash.StartTime && end > now)   // over, or the clock was set back: the tick removes it
+                alert = new LegendAlert(LegendEventOf(flash.EventType), (int)Math.Ceiling((end - now).TotalSeconds));
+        }
+
+        var mute = who.Length == 0 ? null : MuteOf(who);
+        var snoozeNow = MuteClock();
+        var snoozes = who.Length == 0 ? Array.Empty<LegendSnooze>()
+            : SnoozesOf(who).Select(n => new LegendSnooze(LegendEventOf(n.EventKey), n.UntilRestart, n.UntilRestart ? TimeSpan.Zero : n.UntilUtc - snoozeNow)).ToArray();
+
+        return new IndicatorSnapshot
+        {
+            Character = who,
+            GroupName = group?.Name,
+            GroupColour = group != null && s.ShowAllColoredBorders ? group.Color : null,
+            Active = thumb.EveHwnd != IntPtr.Zero && thumb.EveHwnd == ActiveClient(),
+            Alert = alert,
+            Unseen = who.Length == 0 ? 0 : Attention.For(who)?.Count ?? 0,
+            CycleExcluded = IsExcludedFromCycle(who),
+            NotLoggedIn = who.Length == 0,
+            Mute = mute is { } held ? new LegendMute(held.UntilCleared, held.Left) : null,
+            Snoozes = snoozes,
+            Mark = thumb.Mark,
+            HeldHidden = thumb.HeldHidden,
+        };
+    }
+
+    private System.Windows.Window? _legendWindow;
+    private ThumbnailWindow? _legendFor;
+
+    private void OnLegendWanted(ThumbnailWindow thumb, bool wanted)
+    {
+        if (wanted) ShowIndicatorLegend(thumb);
+        else if (ReferenceEquals(_legendFor, thumb)) HideIndicatorLegend();
+    }
+
+    /// <summary>The popup: a borderless, topmost window like the cursor note of <see cref="ShowTooltipFeedback"/>, and like it
+    /// never activated (#110): ShowActivated is off and the window carries WS_EX_NOACTIVATE, so it can't take focus from EVE.
+    /// Click-through too, so it never takes the pointer from the thumbnail under it. Not shown over a menu or during a drag.
+    /// Placed near the pointer, inside the work area of the monitor the pointer is on.</summary>
+    private void ShowIndicatorLegend(ThumbnailWindow thumb)
+    {
+        try
+        {
+            HideIndicatorLegend();
+            if (ThumbnailWindow.MenuOpen || thumb.IsDragging) return;
+
+            var snapshot = SnapshotFor(thumb);
+            var panel = new System.Windows.Controls.StackPanel { Margin = new Thickness(8, 6, 8, 6) };
+            var title = IndicatorLegend.Title(snapshot);
+            if (title.Length > 0)
+                panel.Children.Add(new System.Windows.Controls.TextBlock
+                {
+                    Text = title, Foreground = System.Windows.Media.Brushes.White, FontSize = 12,
+                    FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 4),
+                });
+            foreach (var line in IndicatorLegend.Describe(snapshot))
+            {
+                var row = new System.Windows.Controls.StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 1, 0, 1) };
+                if (line.Colour is { } colour)
+                    row.Children.Add(new System.Windows.Shapes.Rectangle
+                    {
+                        Width = 10, Height = 10, Margin = new Thickness(0, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center,
+                        Fill = new System.Windows.Media.SolidColorBrush(ParseColor(colour)),
+                    });
+                row.Children.Add(new System.Windows.Controls.TextBlock
+                {
+                    Text = line.Text, Foreground = System.Windows.Media.Brushes.White, FontSize = 12,
+                    TextWrapping = TextWrapping.Wrap, MaxWidth = 340,
+                });
+                panel.Children.Add(row);
+            }
+
+            // Where: the cursor in physical pixels, the work area of its monitor, both in DIPs (as the cursor note does).
+            var cursorPos = System.Windows.Forms.Cursor.Position;
+            double dpi = Interop.DpiHelper.GetScaleFactorForPoint(cursorPos.X, cursorPos.Y);
+            var area = System.Windows.Forms.Screen.FromPoint(cursorPos).WorkingArea;
+            panel.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            var (x, y) = IndicatorLegend.Place(
+                Interop.DpiHelper.PhysicalToDip(cursorPos.X, dpi), Interop.DpiHelper.PhysicalToDip(cursorPos.Y, dpi),
+                panel.DesiredSize.Width, panel.DesiredSize.Height,
+                Interop.DpiHelper.PhysicalToDip(area.Left, dpi), Interop.DpiHelper.PhysicalToDip(area.Top, dpi),
+                Interop.DpiHelper.PhysicalToDip(area.Right, dpi), Interop.DpiHelper.PhysicalToDip(area.Bottom, dpi));
+
+            var window = new System.Windows.Window
+            {
+                WindowStyle = WindowStyle.None,
+                ResizeMode = ResizeMode.NoResize,
+                AllowsTransparency = true,
+                Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromArgb(230, 40, 40, 40)),
+                Topmost = true,
+                ShowInTaskbar = false,
+                ShowActivated = false,   // Passive overlay: showing it must never take focus from the EVE client (#110).
+                SizeToContent = SizeToContent.WidthAndHeight,
+                Left = x,
+                Top = y,
+                Content = panel,
+            };
+            window.SourceInitialized += (_, _) =>
+            {
+                var hwnd = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+                int ex = Interop.User32.GetWindowLong(hwnd, Interop.User32.GWL_EXSTYLE);
+                Interop.User32.SetWindowLong(hwnd, Interop.User32.GWL_EXSTYLE,
+                    ex | Interop.User32.WS_EX_NOACTIVATE | Interop.User32.WS_EX_TOOLWINDOW | Interop.User32.WS_EX_TRANSPARENT);
+            };
+            _legendWindow = window;
+            _legendFor = thumb;
+            window.Show();
+        }
+        catch (Exception ex)
+        {
+            HideIndicatorLegend();
+            // The exception's type only: its message can quote a character or group name.
+            ErrorLog.Shared.Record(new InvalidOperationException("The indicator legend could not be shown: " + ex.GetType().Name), "Thumbnails:Legend", DateTime.Now);
+        }
+    }
+
+    private void HideIndicatorLegend()
+    {
+        var window = _legendWindow;
+        _legendWindow = null;
+        _legendFor = null;
+        try { window?.Close(); }
+        catch (InvalidOperationException) { /* already closing */ }
+    }
+
     // ── Snap ─────────────────────────────────────────────────────────
 
     // Edge-snap: snaps the dragged window's Left and Top independently to the
@@ -4906,6 +5077,7 @@ public sealed class ThumbnailManager : IDisposable
     private void WireMenu(ThumbnailWindow thumb)
     {
         thumb.LabelEditRequested += OnLabelEditRequested;
+        thumb.LegendWanted += OnLegendWanted;   // IDEAS #37
         thumb.AlertMuteRequested += OnAlertMuteRequested;
         thumb.AudioRequested += OnAudioRequested;
         thumb.CloseClientRequested += OnCloseClientRequested;
@@ -4925,6 +5097,8 @@ public sealed class ThumbnailManager : IDisposable
     private void UnwireMenu(ThumbnailWindow thumb)
     {
         thumb.LabelEditRequested -= OnLabelEditRequested;
+        thumb.LegendWanted -= OnLegendWanted;   // IDEAS #37
+        if (ReferenceEquals(_legendFor, thumb)) HideIndicatorLegend();   // a thumbnail that goes while its legend shows takes it away
         thumb.AlertMuteRequested -= OnAlertMuteRequested;
         thumb.AudioRequested -= OnAudioRequested;
         thumb.CloseClientRequested -= OnCloseClientRequested;
@@ -5298,6 +5472,8 @@ public sealed class ThumbnailManager : IDisposable
         {
             Application.Current?.Dispatcher.Invoke(() =>
             {
+                HideIndicatorLegend();   // IDEAS #37
+
                 // Primary thumbnails
                 foreach (var (_, thumb) in _thumbnails)
                 {

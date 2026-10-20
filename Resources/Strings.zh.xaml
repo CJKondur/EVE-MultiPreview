@@ -2788,4 +2788,22 @@
     <sys:String x:Key="L.Fleet.Empty">没有已登录角色的 EVE 客户端处于打开状态。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Note">警报按 MultiPreview 启动以来的数量计算。停靠不会被记录，所以面板无法显示角色何时离站。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Close">关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Group">分组：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.GroupUnnamed">在某个分组中</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Active">当前客户端（高亮边框）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Alert">警报：{0}，还剩 {1} 秒</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.AlertHeld">警报：{0}，会一直保持到你切换到这个客户端为止</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Unseen">未查看的警报：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Excluded">已排除出循环切换</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotLoggedIn">未登录（角色选择界面）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Muted">警报已静音，还剩 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.MutedCleared">警报已静音，直到你取消静音或 MultiPreview 重新启动</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Snoozed">已延后：{0}，还剩 {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedRestart">已延后：{0}，直到 MultiPreview 重新启动</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedMore">另有 {0} 个已延后的事件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotResponding">未响应：Windows 提示该客户端已停止响应</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Disconnected">已断开连接：该客户端与服务器失去了连接</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.HeldHidden">被专注模式隐藏</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Nothing">没有特别之处：这个缩略图上没有任何指示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.CustomEvent">一个自定义警报</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2771,4 +2771,22 @@
     <sys:String x:Key="L.Fleet.Empty">ログイン済みのキャラクターがいる EVE クライアントは開かれていません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Note">アラートは MultiPreview の起動後の件数です。ドッキングは記録されないため、キャラクターがいつアンドックしたかはこのボードでは分かりません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Close">閉じる</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Group">グループ：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.GroupUnnamed">グループに入っています</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Active">アクティブなクライアント（枠を強調表示）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Alert">アラート：{0}、残り{1}秒</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.AlertHeld">アラート：{0}、このクライアントに切り替えるまで続きます</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Unseen">未確認のアラート：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Excluded">巡回切り替えの対象外です</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotLoggedIn">未ログイン（キャラクター選択画面）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Muted">アラートはミュート中、残り{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.MutedCleared">アラートはミュート中です。解除するか MultiPreview を再起動するまで続きます</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Snoozed">スヌーズ中：{0}、残り{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedRestart">スヌーズ中：{0}、MultiPreview を再起動するまで</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedMore">ほかにスヌーズ中のイベントが{0}件あります</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotResponding">応答なし：Windows がクライアントの応答停止を検出しました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Disconnected">切断：クライアントがサーバーとの接続を失いました</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.HeldHidden">フォーカスモードで非表示になっています</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Nothing">特になし：このサムネイルに表示中のインジケーターはありません</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.CustomEvent">カスタムアラート</sys:String> <!-- draft -->
 </ResourceDictionary>

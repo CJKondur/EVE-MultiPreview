@@ -1021,6 +1021,7 @@ public class ThumbnailWindow : Form
     {
         base.OnMouseEnter(e);
         _isMouseOver = true;
+        StartLegendWatch();   // IDEAS #37: the legend, while Alt is held over the thumbnail
 
         // Hover-to-full-opacity. Bump both the WinForms thumbnail (LWA_ALPHA)
         // AND the WPF text overlay (which is a separate window with its own
@@ -1069,6 +1070,7 @@ public class ThumbnailWindow : Form
         base.OnMouseLeave(e);
         _isMouseOver = false;
         _hoverTimer?.Stop();
+        StopLegendWatch();   // IDEAS #37
 
         // Restore the pre-hover opacity on both surfaces (issue #37).
         if (_opacityHoverActive)
@@ -1080,6 +1082,52 @@ public class ThumbnailWindow : Form
 
         UnHover();
         FollowAlertScale();   // IDEAS #13
+    }
+
+    // ── Indicator legend (IDEAS #37) ─────────────────────────────
+
+    /// <summary>The legend should show (true) or go away (false) for this thumbnail: the pointer rests on it with Alt held.
+    /// Raised only when that changes; the manager draws the popup.</summary>
+    public event Action<ThumbnailWindow, bool>? LegendWanted;
+
+    private System.Windows.Forms.Timer? _legendTimer;   // exists only while the pointer is on this thumbnail
+    private bool _legendShown;
+
+    /// <summary>Whether Alt (VK_MENU) is down. A test says it in the keyboard's place.</summary>
+    protected virtual bool AltHeld() => User32.IsKeyDown(0x12);
+
+    /// <summary>Whether the pointer is inside this window. A test says it in the mouse's place.</summary>
+    protected virtual bool CursorOnMe() => base.Bounds.Contains(Cursor.Position);
+
+    private void StartLegendWatch()
+    {
+        if (_legendTimer != null || _cleanedUp) return;
+        _legendTimer = new System.Windows.Forms.Timer { Interval = 120 };
+        _legendTimer.Tick += (_, _) => LegendTick();
+        _legendTimer.Start();
+    }
+
+    private void StopLegendWatch()
+    {
+        _legendTimer?.Stop();
+        _legendTimer?.Dispose();
+        _legendTimer = null;
+        SetLegend(false);
+    }
+
+    private void LegendTick()
+    {
+        // The pointer is gone and WinForms never said so (what EnsureHoverStateValid covers for the hover zoom): the watch ends.
+        if (!_isMouseOver || !CursorOnMe()) { StopLegendWatch(); return; }
+        // A drag or an open menu hides the legend, and the keyboard is not read meanwhile; the watch itself stays until the pointer leaves.
+        SetLegend(IndicatorLegend.Wanted(_isMouseOver, _dragMode != DragMode.None || _isDragging, MenuOpen, AltHeld));
+    }
+
+    private void SetLegend(bool on)
+    {
+        if (_legendShown == on) return;
+        _legendShown = on;
+        LegendWanted?.Invoke(this, on);
     }
 
     // ── DWM thumbnail ────────────────────────────────────────────
@@ -1667,6 +1715,7 @@ public class ThumbnailWindow : Form
         _hoverTimer?.Stop();
         _hoverTimer?.Dispose();
         _hoverTimer = null;
+        StopLegendWatch();   // IDEAS #37: the legend goes with the window
 
         _underFirePulseTimer?.Stop();
         _underFirePulseTimer?.Dispose();

@@ -2773,4 +2773,22 @@
     <sys:String x:Key="L.Fleet.Empty">Aucun client EVE avec un personnage connecté n'est ouvert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Note">Les alertes sont comptées depuis le démarrage de MultiPreview. Les arrimages ne sont pas consignés, le tableau ne peut donc pas dire quand un personnage s'est désarrimé.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Close">Fermer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Group">Groupe : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.GroupUnnamed">Dans un groupe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Active">Client actif (bordure en surbrillance)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Alert">Alerte : {0}, encore {1} s</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.AlertHeld">Alerte : {0}, reste jusqu'à ce que vous passiez sur ce client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Unseen">Alertes non vues : {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Excluded">Exclu du cycle</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotLoggedIn">Non connecté (écran de sélection du personnage)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Muted">Alertes coupées, encore {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.MutedCleared">Alertes coupées jusqu'à ce que vous les réactiviez ou que MultiPreview redémarre</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Snoozed">En pause : {0}, encore {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedRestart">En pause : {0}, jusqu'au redémarrage de MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedMore">et {0} autres événements en pause</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotResponding">Ne répond pas : Windows indique que le client ne répond plus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Disconnected">Déconnecté : le client a perdu sa liaison avec le serveur</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.HeldHidden">Masqué par le mode focus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Nothing">Rien de particulier : aucun indicateur n'est actif sur cette miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.CustomEvent">une alerte personnalisée</sys:String> <!-- draft -->
 </ResourceDictionary>

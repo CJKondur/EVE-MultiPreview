@@ -2790,4 +2790,22 @@
     <sys:String x:Key="L.Fleet.Empty">Нет открытых клиентов EVE с вошедшим персонажем.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Note">Оповещения считаются с запуска MultiPreview. Стыковки не записываются в лог, поэтому панель не может сказать, когда персонаж расстыковался.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Close">Закрыть</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Group">Группа: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.GroupUnnamed">В группе</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Active">Активный клиент (выделенная рамка)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Alert">Оповещение: {0}, осталось {1} с</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.AlertHeld">Оповещение: {0}, остаётся, пока вы не переключитесь на этот клиент</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Unseen">Непросмотренные оповещения: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Excluded">Исключён из переключения по кругу</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotLoggedIn">Не в игре (экран выбора персонажа)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Muted">Оповещения отключены, осталось {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.MutedCleared">Оповещения отключены, пока вы их не включите или MultiPreview не перезапустится</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Snoozed">Отложено: {0}, осталось {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedRestart">Отложено: {0}, до перезапуска MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedMore">и ещё отложенных событий: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotResponding">Не отвечает: Windows сообщает, что клиент перестал отвечать</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Disconnected">Нет соединения: клиент потерял связь с сервером</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.HeldHidden">Скрыто режимом фокуса</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Nothing">Ничего особенного: на этой миниатюре нет активных индикаторов</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.CustomEvent">своё оповещение</sys:String> <!-- draft -->
 </ResourceDictionary>

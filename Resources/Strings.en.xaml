@@ -2770,4 +2770,22 @@
     <sys:String x:Key="L.Fleet.Empty">No EVE client with a logged-in character is open.</sys:String>
     <sys:String x:Key="L.Fleet.Note">Alerts are counted since MultiPreview started. Docking isn't logged, so the board can't say when a character undocked.</sys:String>
     <sys:String x:Key="L.Fleet.Close">Close</sys:String>
+    <sys:String x:Key="L.Legend.Group">Group: {0}</sys:String>
+    <sys:String x:Key="L.Legend.GroupUnnamed">In a group</sys:String>
+    <sys:String x:Key="L.Legend.Active">Active client (highlighted border)</sys:String>
+    <sys:String x:Key="L.Legend.Alert">Alert: {0}, {1} s left</sys:String>
+    <sys:String x:Key="L.Legend.AlertHeld">Alert: {0}, stays until you switch to this client</sys:String>
+    <sys:String x:Key="L.Legend.Unseen">Unseen alerts: {0}</sys:String>
+    <sys:String x:Key="L.Legend.Excluded">Left out of cycling</sys:String>
+    <sys:String x:Key="L.Legend.NotLoggedIn">Not logged in (character select screen)</sys:String>
+    <sys:String x:Key="L.Legend.Muted">Alerts muted, {0} left</sys:String>
+    <sys:String x:Key="L.Legend.MutedCleared">Alerts muted until you unmute them or MultiPreview restarts</sys:String>
+    <sys:String x:Key="L.Legend.Snoozed">Snoozed: {0}, {1} left</sys:String>
+    <sys:String x:Key="L.Legend.SnoozedRestart">Snoozed: {0}, until MultiPreview restarts</sys:String>
+    <sys:String x:Key="L.Legend.SnoozedMore">and {0} more snoozed events</sys:String>
+    <sys:String x:Key="L.Legend.NotResponding">Not responding: Windows says the client has stopped answering</sys:String>
+    <sys:String x:Key="L.Legend.Disconnected">Disconnected: the client has lost its link to the server</sys:String>
+    <sys:String x:Key="L.Legend.HeldHidden">Held hidden by focus mode</sys:String>
+    <sys:String x:Key="L.Legend.Nothing">Nothing special: no indicator is on for this thumbnail</sys:String>
+    <sys:String x:Key="L.Legend.CustomEvent">a custom alert</sys:String>
 </ResourceDictionary>

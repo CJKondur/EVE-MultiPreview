@@ -2788,4 +2788,22 @@
     <sys:String x:Key="L.Fleet.Empty">Nessun client EVE con un personaggio connesso è aperto.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Note">Gli avvisi sono contati dall'avvio di MultiPreview. L'attracco non viene registrato, quindi il pannello non può dire quando un personaggio è uscito dalla stazione.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Fleet.Close">Chiudi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Group">Gruppo: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.GroupUnnamed">In un gruppo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Active">Client attivo (bordo evidenziato)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Alert">Avviso: {0}, ancora {1} s</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.AlertHeld">Avviso: {0}, resta finché non passi a questo client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Unseen">Avvisi non visti: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Excluded">Escluso dal ciclo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotLoggedIn">Non connesso (schermata di selezione del personaggio)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Muted">Avvisi silenziati, ancora {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.MutedCleared">Avvisi silenziati finché non li riattivi o MultiPreview si riavvia</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Snoozed">Rimandato: {0}, ancora {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedRestart">Rimandato: {0}, fino al riavvio di MultiPreview</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.SnoozedMore">e altri {0} eventi rimandati</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.NotResponding">Non risponde: Windows indica che il client non risponde più</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Disconnected">Disconnesso: il client ha perso il collegamento con il server</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.HeldHidden">Nascosta dalla modalità focus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.Nothing">Niente di particolare: nessun indicatore è attivo su questa miniatura</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Legend.CustomEvent">un avviso personalizzato</sys:String> <!-- draft -->
 </ResourceDictionary>
