@@ -2681,4 +2681,12 @@
     <sys:String x:Key="L.S.Presets.ImageSaved">이미지를 {0}(으)로 저장했습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ImageFailed">이미지를 쓸 수 없습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ImageEmpty">그릴 내용이 없습니다. 이 레이아웃에는 표시되는 썸네일이 없습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.streamer">스트리머 모드</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.streamer.Desc">방송이나 스크린샷에서 신원이 드러날 수 있는 것을 빼 줘요. 캐릭터 이름은 클라이언트 1, 클라이언트 2처럼 표시되고, 라벨과 항성계 이름은 표시되지 않아요. 기본값은 꺼짐이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Title">스트리머 모드</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Body">**스트리머 모드**는 방송이나 스크린샷에서 신원이 드러날 수 있는 것을 빼 줘요. 캐릭터 이름은 클라이언트 1, 클라이언트 2처럼 그려져요. 번호는 MultiPreview를 시작한 뒤 각 이름을 처음 본 순서대로 매겨요. 라벨과 항성계 이름은 표시되지 않아요.&#x0A;&#x0A;썸네일의 텍스트(보조 썸네일과 크롭 창 포함), 통계 창, 빠른 전환 휠, 썸네일의 오른쪽 클릭 메뉴, 알림 기록 창, 그리고 레이아웃으로 저장할 수 있는 이미지에 적용돼요(이때 이미지의 이름은 항상 숨겨져요). 그려지는 것만 바뀌어요. 설정, 알림, 일시 중지는 그대로 실제 이름으로 동작해요.&#x0A;&#x0A;썸네일 안에 보이는 EVE 클라이언트 화면과 이 설정 창의 이름은 숨길 수 없어요. 설정 창은 방송에 나오지 않게 해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Client">클라이언트 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Group">그룹 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Profile">프로필 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Layout">레이아웃 {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -187,9 +187,12 @@ public sealed class ThumbnailMenu : IDisposable
     {
         foreach (var (item, key, english) in _labels) item.Text = LocalizationService.Str(key, english);
         bool character = HasCharacter(state.CharacterName);
+        // Streamer mode (IDEAS #19): the caption and "Open {0}'s settings" draw the masked name and system; `state` keeps the real ones.
+        string shownName = StreamerMask.Name(StreamerKind.Character, state.CharacterName);
+        string shownSystem = StreamerMask.Name(StreamerKind.System, state.SystemName);
         _header.Text = !character ? LocalizationService.Str("L.Ctx.LoginScreen", "Character select")
-            : string.IsNullOrWhiteSpace(state.SystemName) ? state.CharacterName
-            : $"{state.CharacterName} · {state.SystemName}";
+            : string.IsNullOrWhiteSpace(shownSystem) ? shownName
+            : $"{shownName} · {shownSystem}";
 
         bool muted = state.MutedUntil.HasValue && (state.MutedUntil.Value == DateTime.MaxValue || state.MutedUntil.Value > state.Now);
         _mute.Text = !muted ? LocalizationService.Str("L.Ctx.MuteAlerts", "Mute alerts")
@@ -207,7 +210,7 @@ public sealed class ThumbnailMenu : IDisposable
 
         _endFrozen.Available = state.Frozen;
         _openSettings.Available = character;
-        _openSettings.Text = string.Format(LocalizationService.Str("L.Ctx.OpenSettingsFmt", "Open {0}'s settings"), state.CharacterName);
+        _openSettings.Text = string.Format(LocalizationService.Str("L.Ctx.OpenSettingsFmt", "Open {0}'s settings"), shownName);
 
         // The login screen has no character, so none of the four; the ID is read again each time the menu opens.
         _system = character && !string.IsNullOrWhiteSpace(state.SystemName) ? state.SystemName!.Trim() : null;

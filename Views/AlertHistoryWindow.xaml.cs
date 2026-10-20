@@ -64,7 +64,10 @@ public sealed class HistoryRowVM : INotifyPropertyChanged
     public string Time { get; }
     /// <summary>The time cell's tooltip: the time, or for a run the time of its first alert and of its last.</summary>
     public string TimeTip { get; }
+    /// <summary>The character, as the history kept it: the key the switch and the filters work by (never masked).</summary>
     public string Character => Row.Newest.Character;
+    /// <summary>What the Character column draws: the name, or what streamer mode (IDEAS #19) shows instead.</summary>
+    public string CharacterText => StreamerMask.Name(StreamerKind.Character, Character);
     public string Event { get; }
     /// <summary>"×3" for a run of three, "" for one alert.</summary>
     public string Count => Row.Count > 1 ? "×" + Row.Count.ToString(CultureInfo.CurrentCulture) : "";
@@ -73,13 +76,15 @@ public sealed class HistoryRowVM : INotifyPropertyChanged
     /// <summary>What became of the alert when the player got nothing of it ("Muted", "No client window"), else "".</summary>
     public string Note { get; }
     public string SystemName => Row.Newest.SolarSystem;
+    /// <summary>What the System column draws: the system, or nothing while streamer mode is on.</summary>
+    public string SystemText => StreamerMask.Name(StreamerKind.System, SystemName);
     public string Text => Row.Newest.Text;
     public Brush Bar { get; }
     public string SeverityName { get; }
     public string Age { get => _age; private set { if (_age != value) { _age = value; Raise(nameof(Age)); Raise(nameof(ReadOut)); } } }
 
     /// <summary>The row in one sentence, for a screen reader.</summary>
-    public string ReadOut => string.Join(", ", new[] { Time, Age, Character, Event, Count, Note, SeverityName, SystemName, Text }.Where(p => p.Length > 0));
+    public string ReadOut => string.Join(", ", new[] { Time, Age, CharacterText, Event, Count, Note, SeverityName, SystemText, Text }.Where(p => p.Length > 0));
 
     /// <summary>A list row with no name of its own is read out by what its item says it is: the sentence above. (The
     /// row keeps the theme's own style this way; a style set on it would replace the one that lays out the columns.)</summary>
@@ -235,6 +240,14 @@ public partial class AlertHistoryWindow : Window
 
     private void OnStoreCleared() => Dispatcher.BeginInvoke(new Action(Reload));
 
+    /// <summary>Streamer mode (IDEAS #19) was switched on or off: the character list and the rows are drawn again. What is
+    /// chosen, searched for and switched to stays the real name.</summary>
+    public void RefreshStreamerMask()
+    {
+        FillFilters();
+        Apply();
+    }
+
     // ── Filters ──
 
     /// <summary>The character and alert lists hold what the loaded range holds; a choice that is still there stays chosen.</summary>
@@ -244,7 +257,7 @@ public partial class AlertHistoryWindow : Window
         var character = Chosen(CmbCharacter);
         var alert = Chosen(CmbEvent);
         CmbCharacter.ItemsSource = new[] { new Choice("", Str("L.Hist.AllCharacters", "All characters")) }
-            .Concat(AlertHistoryView.Characters(_loaded).Select(n => new Choice(n, n))).ToList();
+            .Concat(AlertHistoryView.Characters(_loaded).Select(n => new Choice(n, StreamerMask.Name(StreamerKind.Character, n)))).ToList();
         CmbEvent.ItemsSource = new[] { new Choice("", Str("L.Hist.AllEvents", "All alerts")) }
             .Concat(AlertHistoryView.Events(_loaded, AlertHistoryView.EventName).Select(e => new Choice(e.Key, e.Name))).ToList();
         Choose(CmbCharacter, character);
@@ -407,9 +420,9 @@ public partial class AlertHistoryWindow : Window
         var view = new GridView { AllowsColumnReorder = false };
         view.Columns.Add(TextColumn("L.Hist.Col.Time", "Time", nameof(HistoryRowVM.Time), 132, nameof(HistoryRowVM.TimeTip)));
         view.Columns.Add(TextColumn("L.Hist.Col.Age", "Age", nameof(HistoryRowVM.Age), 76));
-        view.Columns.Add(TextColumn("L.Hist.Col.Character", "Character", nameof(HistoryRowVM.Character), 156));
+        view.Columns.Add(TextColumn("L.Hist.Col.Character", "Character", nameof(HistoryRowVM.CharacterText), 156));
         view.Columns.Add(new GridViewColumn { Header = Str("L.Hist.Col.Event", "Alert"), Width = 200, CellTemplate = EventCell() });
-        view.Columns.Add(TextColumn("L.Hist.Col.System", "System", nameof(HistoryRowVM.SystemName), 110));
+        view.Columns.Add(TextColumn("L.Hist.Col.System", "System", nameof(HistoryRowVM.SystemText), 110));
         view.Columns.Add(TextColumn("L.Hist.Csv.Outcome", "Outcome", nameof(HistoryRowVM.Note), 112));
         var text = TextColumn("L.Hist.Col.Text", "Text", nameof(HistoryRowVM.Text), TextColumnMin);
         view.Columns.Add(text);
@@ -470,7 +483,7 @@ public partial class AlertHistoryWindow : Window
         if (AlertList.SelectedItem is not HistoryRowVM row) return;
         Say(_do.SwitchTo(row.Character)
             ? null
-            : string.Format(CultureInfo.CurrentCulture, Str("L.Hist.NotRunning", "{0}'s client isn't running."), row.Character));
+            : string.Format(CultureInfo.CurrentCulture, Str("L.Hist.NotRunning", "{0}'s client isn't running."), row.CharacterText));
     }
 
     /// <summary>Writes the alerts behind the rows shown (every one, not one per folded row) to a CSV file the player picks.</summary>

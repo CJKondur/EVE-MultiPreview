@@ -2700,4 +2700,12 @@
     <sys:String x:Key="L.S.Presets.ImageSaved">Изображение сохранено как {0}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ImageFailed">Не удалось записать изображение.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ImageEmpty">Нечего рисовать: в этой раскладке нет видимых миниатюр.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.streamer">Режим стримера</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.streamer.Desc">Убирает из трансляции и со скриншотов то, что может вас выдать: имена персонажей показываются как Клиент 1, Клиент 2 и так далее, а подписи и названия систем скрываются. По умолчанию выключено.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Title">Режим стримера</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Body">**Режим стримера** убирает из трансляции и со скриншотов то, что может вас выдать. Имя персонажа рисуется как Клиент 1, Клиент 2 и так далее; номера идут в том порядке, в котором MultiPreview впервые видит имена после запуска. Подписи и названия систем скрываются.&#x0A;&#x0A;Это касается текста на миниатюрах (включая вторые миниатюры и окна-вырезки), окон статистики, колеса быстрого переключения, меню правой кнопки на миниатюре, окна истории оповещений и изображения, которое можно сохранить для раскладки (имена на нём тогда всегда скрыты). Меняется только то, что рисуется: ваши настройки, оповещения и отложенные оповещения по-прежнему работают по настоящим именам.&#x0A;&#x0A;Скрыть изображение клиента EVE внутри миниатюры и имена в этом окне настроек нельзя. Не показывайте окно настроек в трансляции.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Client">Клиент {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Group">Группа {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Profile">Профиль {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Layout">Раскладка {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

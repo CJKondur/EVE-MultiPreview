@@ -2702,4 +2702,12 @@
     <sys:String x:Key="L.S.Presets.ImageSaved">Imagen guardada como {0}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ImageFailed">No se pudo escribir la imagen.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ImageEmpty">Nada que dibujar: este diseño no muestra miniaturas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.streamer">Modo streamer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.streamer.Desc">Evita que te delate lo que se ve en un directo o en una captura: los nombres de los personajes aparecen como Cliente 1, Cliente 2 y así sucesivamente, y las etiquetas y los nombres de los sistemas se omiten. Desactivado por defecto.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Title">Modo streamer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Body">El **Modo streamer** evita que te delate lo que se ve en un directo o en una captura. El nombre de un personaje se dibuja como Cliente 1, Cliente 2 y así sucesivamente, numerados en el orden en que MultiPreview ve los nombres por primera vez tras arrancar. Las etiquetas y los nombres de los sistemas se omiten.&#x0A;&#x0A;Afecta al texto de las miniaturas (también segundas miniaturas y ventanas de recorte), a las ventanas de estadísticas, a la rueda de cambio rápido, al menú del botón derecho de las miniaturas, a la ventana del historial de alertas y a la imagen que puedes guardar de un diseño (sus nombres quedan entonces siempre ocultos). Solo cambia lo que se dibuja: tus ajustes, alertas y pospuestas siguen usando los nombres reales.&#x0A;&#x0A;No puede ocultar la imagen del cliente de EVE dentro de una miniatura ni los nombres de esta ventana de ajustes. Mantén la ventana de ajustes fuera del directo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Client">Cliente {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Group">Grupo {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Profile">Perfil {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Layout">Diseño {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

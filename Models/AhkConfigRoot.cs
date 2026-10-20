@@ -77,6 +77,7 @@ public class AhkConfigRoot
         s.IndividualThumbnailResize = g.IndividualThumbnailResize != 0;
         s.LockResizeAspect = g.LockResizeAspect != 0;
         s.AutoLayoutOnMonitorChange = g.AutoLayoutOnMonitorChange != 0;
+        s.StreamerMode = g.StreamerMode != 0;
         s.ResizeThumbnailsOnHover = g.ResizeThumbnailsOnHover != 0;
         s.HoverScale = UsableHoverScale(g.HoverScale);
         s.CycleDelayMs = g.CycleDelayMs;
@@ -431,6 +432,7 @@ public class AhkConfigRoot
         g.IndividualThumbnailResize = s.IndividualThumbnailResize ? 1 : 0;
         g.LockResizeAspect = s.LockResizeAspect ? 1 : 0;
         g.AutoLayoutOnMonitorChange = s.AutoLayoutOnMonitorChange ? 1 : 0;
+        g.StreamerMode = s.StreamerMode ? 1 : 0;
         g.ResizeThumbnailsOnHover = s.ResizeThumbnailsOnHover ? 1 : 0;
         g.HoverScale = UsableHoverScale(s.HoverScale);
         g.CycleDelayMs = s.CycleDelayMs;
@@ -1205,6 +1207,10 @@ public class AhkGlobalSettings
     // Apply the layout saved for the monitor arrangement when the monitors change (IDEAS #10), new after 2.3.42: a file without it loads off.
     [JsonPropertyName("AutoLayoutOnMonitorChange")]
     public int AutoLayoutOnMonitorChange { get; set; }
+
+    // Streamer mode, IDEAS #19: names, labels and systems are masked where MultiPreview draws them. New after 2.3.42: a file without it loads off.
+    [JsonPropertyName("StreamerMode")]
+    public int StreamerMode { get; set; }
 
     // Hover zoom and its size were live-only until the settings rework; a file without them loads off and 1.5.
     [JsonPropertyName("ResizeThumbnailsOnHover")]

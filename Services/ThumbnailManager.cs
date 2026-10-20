@@ -1525,6 +1525,11 @@ public sealed class ThumbnailManager : IDisposable
                     pip.SetOpacity((byte)ss.Opacity);
             }
 
+            // Streamer mode (IDEAS #19) switched on or off: every overlay draws its name, label and system again, the
+            // second thumbnails' too (ApplySettings above reaches only the first ones, and not their name).
+            foreach (var (_, thumb) in _thumbnails) thumb.RefreshStreamerMask();
+            foreach (var (_, pip) in _secondaryThumbnails) pip.RefreshStreamerMask();
+
 
             // Sync stat overlays with the master ON/OFF toggle. When the user
             // flips the switch in Settings, ReapplySettings is the path that
@@ -1556,6 +1561,7 @@ public sealed class ThumbnailManager : IDisposable
                 statWin.SetTextColor(s.StatOverlayTextColor);
                 statWin.Topmost = s.ShowThumbnailsAlwaysOnTop;
                 statWin.LockPositions = s.LockPositions;
+                statWin.RefreshStreamerMask();
             }
         });
     }

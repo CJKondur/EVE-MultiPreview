@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using EveMultiPreview.Interop;
+using EveMultiPreview.Services;
 
 using Color = System.Windows.Media.Color;
 
@@ -37,11 +38,19 @@ public partial class TextOverlayWindow : Window
 
     // ── Text Updates ─────────────────────────────────────────────────
 
+    // Streamer mode (IDEAS #19): the setters keep the real text and draw StreamerMask.Name of it, so turning the mode on or
+    // off (ApplyStreamerMask) redraws what is shown without being told the text again. The real text never leaves here.
+    private string _rawName = "";
+    private string? _rawAnnotation;
+    private string? _rawSystem;
+
     public void UpdateCharacterName(string name)
     {
-        if (!string.IsNullOrEmpty(name))
+        _rawName = name ?? "";
+        string shown = StreamerMask.Name(StreamerKind.Character, _rawName);
+        if (!string.IsNullOrEmpty(shown))
         {
-            NameOverlay.Text = name;
+            NameOverlay.Text = shown;
             NameOverlay.Visibility = Visibility.Visible;
         }
         else
@@ -52,15 +61,29 @@ public partial class TextOverlayWindow : Window
 
     public void UpdateAnnotation(string? text)
     {
-        if (!string.IsNullOrEmpty(text))
+        _rawAnnotation = text;
+        string shown = StreamerMask.Name(StreamerKind.Label, text);
+        if (!string.IsNullOrEmpty(shown))
         {
-            AnnotationOverlay.Text = text;
+            AnnotationOverlay.Text = shown;
             AnnotationOverlay.Visibility = Visibility.Visible;
         }
         else
         {
+            AnnotationOverlay.Text = "";   // hidden means gone: nothing of the real label stays behind a collapsed element
             AnnotationOverlay.Visibility = Visibility.Collapsed;
         }
+    }
+
+    /// <summary>Streamer mode was switched on or off: draws the name, the label and the system again from the text kept. The
+    /// name's visibility is left to <see cref="SetTextOverlayVisible"/> (a hidden name stays hidden); a system change
+    /// being shown settles at once.</summary>
+    public void ApplyStreamerMask()
+    {
+        string name = StreamerMask.Name(StreamerKind.Character, _rawName);
+        if (!string.IsNullOrEmpty(name)) NameOverlay.Text = name;
+        UpdateAnnotation(_rawAnnotation);
+        UpdateSystemName(_rawSystem);
     }
 
     // Active system-transition timer (issue #25). When a SystemChanged event
@@ -79,13 +102,16 @@ public partial class TextOverlayWindow : Window
         SystemOverlay.BeginAnimation(OpacityProperty, null);
         SystemOverlay.Opacity = 1.0;
 
-        if (!string.IsNullOrEmpty(systemName))
+        _rawSystem = systemName;
+        string shown = StreamerMask.Name(StreamerKind.System, systemName);
+        if (!string.IsNullOrEmpty(shown))
         {
-            SystemOverlay.Text = systemName;
+            SystemOverlay.Text = shown;
             SystemOverlay.Visibility = Visibility.Visible;
         }
         else
         {
+            SystemOverlay.Text = "";   // hidden means gone: nothing of the real system stays behind a collapsed element
             SystemOverlay.Visibility = Visibility.Collapsed;
         }
     }
@@ -95,18 +121,22 @@ public partial class TextOverlayWindow : Window
     /// Replaces any in-flight transition.</summary>
     public void AnimateSystemTransition(string from, string to, int durationMs = 3500)
     {
-        if (string.IsNullOrEmpty(to))
+        // Streamer mode hides both ends of the change: nothing to animate, and nothing shown.
+        string maskedTo = StreamerMask.Name(StreamerKind.System, to);
+        string maskedFrom = StreamerMask.Name(StreamerKind.System, from);
+        if (string.IsNullOrEmpty(maskedTo))
         {
-            UpdateSystemName(null);
+            UpdateSystemName(string.IsNullOrEmpty(to) ? null : to);
             return;
         }
+        _rawSystem = to;
 
         // Cancel previous transition if still running
         _systemTransitionTimer?.Stop();
         SystemOverlay.BeginAnimation(OpacityProperty, null);
 
         // Show the transition text immediately
-        SystemOverlay.Text = string.IsNullOrEmpty(from) ? to : $"{from} → {to}";
+        SystemOverlay.Text = string.IsNullOrEmpty(maskedFrom) ? maskedTo : $"{maskedFrom} → {maskedTo}";
         SystemOverlay.Visibility = Visibility.Visible;
 
         // Quick fade-in pulse to draw the eye (0.25 → 1.0 over 400ms)
@@ -133,7 +163,7 @@ public partial class TextOverlayWindow : Window
             _systemTransitionTimer = null;
             SystemOverlay.BeginAnimation(OpacityProperty, null);
             SystemOverlay.Opacity = 1.0;
-            SystemOverlay.Text = to;
+            SystemOverlay.Text = maskedTo;
         };
         _systemTransitionTimer.Start();
     }

@@ -1129,6 +1129,10 @@ public class ThumbnailWindow : Form
 
     public void UpdateAnnotation(string? text) => _textOverlay?.UpdateAnnotation(text);
 
+    /// <summary>Streamer mode (IDEAS #19) was switched on or off: the overlay draws its name, label and system again. The
+    /// lookup key <see cref="CharacterName"/> is never masked.</summary>
+    public void RefreshStreamerMask() => _textOverlay?.ApplyStreamerMask();
+
     /// <summary>Apply a per-character label color + size override (v2.0.6).
     /// Empty colorHex / sizePt==0 revert to the global thumbnail text style.</summary>
     public void SetLabelStyle(string? colorHex, int sizePt) =>

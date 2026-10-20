@@ -2698,4 +2698,12 @@
     <sys:String x:Key="L.S.Presets.ImageSaved">图片已另存为 {0}。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ImageFailed">无法写入该图片。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Presets.ImageEmpty">没有可绘制的内容：此布局不显示任何缩略图。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.streamer">主播模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.streamer.Desc">不让可能暴露你的内容出现在直播或截图里：角色名称显示为“客户端 1”“客户端 2”等，标签和星系名称则不显示。默认关闭。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Title">主播模式</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Body">**主播模式**不让可能暴露你的内容出现在直播或截图里。角色名称会显示为“客户端 1”“客户端 2”等，编号按 MultiPreview 启动后第一次看到各名称的顺序排列。标签和星系名称则不显示。&#x0A;&#x0A;它涵盖缩略图上的文字（包括第二缩略图和裁剪窗口）、统计窗口、快速切换轮盘、缩略图的右键菜单、警报历史记录窗口，以及你可以为布局保存的图片（其中的名称此时始终隐藏）。只有绘制出来的内容会变：你的设置、警报和暂停仍然使用真实名称。&#x0A;&#x0A;它无法隐藏缩略图里 EVE 客户端的画面，也无法隐藏此设置窗口里的名称。请不要让设置窗口出现在直播里。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Client">客户端 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Group">分组 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Profile">配置文件 {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Streamer.Layout">布局 {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

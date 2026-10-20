@@ -91,9 +91,9 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         set => _hideNames.IsChecked = value;
     }
 
-    /// <summary>Whether "Hide names" starts ticked. The one place streamer mode (IDEAS #19) switches it on; the box is not a
-    /// setting, so it starts from this each time the page is built.</summary>
-    private static bool HideNamesAtStart() => false;
+    /// <summary>Whether "Hide names" starts ticked: while streamer mode (IDEAS #19) is on. The box is not a setting, so it
+    /// starts from this each time the page is built, and <see cref="Refresh"/> ticks it again if the mode came on since.</summary>
+    private static bool HideNamesAtStart() => StreamerMask.IsOn;
 
     /// <summary>The layout the buttons act on, or null.</summary>
     public string? Selected { get; private set; }
@@ -117,6 +117,7 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     /// exists, else selects the layout this profile last applied.</summary>
     public void Refresh()
     {
+        if (StreamerMask.IsOn) _hideNames.IsChecked = true;   // the mode came on since the page was built (never unticks a box the player ticked)
         _library.Load();
         Names = _library.Names;
         Selected = Find(Selected) ?? Find(Applied);
@@ -270,7 +271,7 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     private void SaveImage(LayoutPreset preset, string name)
     {
         var monitors = Monitors();
-        bool hide = HideNames;
+        bool hide = HideNames || StreamerMask.IsOn;   // streamer mode wins over an unticked box, whenever it came on
         var plan = LayoutImage.Plan(LayoutImage.Resolve(preset, monitors), monitors, hide);
         if (plan.Boxes.Count == 0) { _ctx.Host.Toast(Str("L.S.Presets.ImageEmpty")); return; }
         // With names hidden the file name must not carry the layout's name either: the dialog is on the screen too.

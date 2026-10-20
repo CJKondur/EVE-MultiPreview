@@ -79,10 +79,17 @@ public partial class StatOverlayWindow : Window
         Left = x;
         Top = y;
 
-        CharNameLabel.Text = characterName;
+        CharNameLabel.Text = StreamerMask.Name(StreamerKind.Character, characterName);
         StatLabel.Text = "0";
         StatUnit.Text = GetUnitLabel(statType);
     }
+
+    /// <summary>The name the header shows: the character's, or what streamer mode (IDEAS #19) shows instead. <see cref="CharacterName"/>
+    /// stays the real one, the key the manager finds this window by.</summary>
+    public string ShownName => CharNameLabel.Text;
+
+    /// <summary>Streamer mode was switched on or off: the header is drawn again.</summary>
+    public void RefreshStreamerMask() => CharNameLabel.Text = StreamerMask.Name(StreamerKind.Character, CharacterName);
 
     /// <summary>Update with multi-line overlay text (C10 parity).</summary>
     public void UpdateOverlayText(string multiLineText)

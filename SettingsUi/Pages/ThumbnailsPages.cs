@@ -36,6 +36,7 @@ public static class ThumbnailsPages
             "thumbs.text.showText", "thumbs.text.showSystem", "thumbs.text.showTimer", "thumbs.text.color",
             "thumbs.text.font", "thumbs.text.size", "thumbs.text.marginX", "thumbs.text.marginY",
         }),
+        new HelpTopic(TextId, "streamer", new[] { "thumbs.text.streamer" }),
         new HelpTopic(TextId, "stats", new[] { "thumbs.text.showStats", "thumbs.text.statsSize" }),
         new HelpTopic(TextId, "borders", new[]
         {
@@ -180,6 +181,9 @@ public static class ThumbnailsPages
             Toggle("thumbs.text.showSystem", s => s.ShowSystemName, ApplyScope.Thumbnails, "ChkShowSystem"),
             // Spec D11: moved here from General. Read every second (and hidden while off, Task 1).
             Toggle("thumbs.text.showTimer", s => s.ShowSessionTimer, ApplyScope.Save, "ChkShowTimer"),
+            // IDEAS #19: StreamerMask is asked wherever a name is drawn. A re-apply redraws the thumbnails and the stats windows,
+            // a crop refresh the crop names; the alert history window follows through App's applied handler.
+            Toggle("thumbs.text.streamer", s => s.StreamerMode, ApplyScope.Thumbnails | ApplyScope.Crops),
             // Crop window names use the same colour, font and size (CropManager re-reads them on Refresh).
             new SettingItem(Colour("thumbs.text.color", s => s.ThumbnailTextColor, ApplyScope.Thumbnails | ApplyScope.Crops) with
             {

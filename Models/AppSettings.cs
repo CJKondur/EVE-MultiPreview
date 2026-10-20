@@ -33,6 +33,9 @@ public class AppSettings
     /// <summary>When the monitors change, apply the layout saved for the arrangement that is there now (IDEAS #10). Read by
     /// ThumbnailManager's MonitorLayoutFollower. New key: off in a file without it.</summary>
     public bool AutoLayoutOnMonitorChange { get; set; } = false;
+    /// <summary>Streamer mode (IDEAS #19): character names show as "Client N" and labels and system names are hidden
+    /// wherever MultiPreview draws them (StreamerMask). New key: off in a file without it.</summary>
+    public bool StreamerMode { get; set; } = false;
     public bool LockPositions { get; set; } = false;
     public int PreferredMonitor { get; set; } = 1;
     public string ThumbnailBackgroundColor { get; set; } = "#57504E";

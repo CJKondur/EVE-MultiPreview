@@ -51,6 +51,8 @@ public partial class QuickSwitchWheel : Window
         public Border Card { get; init; } = null!;
         public Border Number { get; init; } = null!;
         public TextBlock NumberText { get; init; } = null!;
+        public TextBlock NameText { get; init; } = null!;
+        public TextBlock SystemText { get; init; } = null!;
         public int Index { get; set; }   // slot in the layout
     }
 
@@ -98,6 +100,10 @@ public partial class QuickSwitchWheel : Window
 
     /// <summary>The cards' names in slot order (tests).</summary>
     public IReadOnlyList<string> CardOrder => _cards.OrderBy(c => c.Index).Select(c => c.Name).ToList();
+
+    /// <summary>The name and the system each card draws, in slot order, "" where a card draws none (tests).</summary>
+    public IReadOnlyList<(string Name, string System)> CardTexts =>
+        _cards.OrderBy(c => c.Index).Select(c => (c.NameText.Text, c.SystemText.Visibility == Visibility.Visible ? c.SystemText.Text : "")).ToList();
 
     /// <summary>Where the cards are (tests).</summary>
     public QuickSwitchLayout CardLayout => _layout;
@@ -186,9 +192,11 @@ public partial class QuickSwitchWheel : Window
         };
         number.SetResourceReference(Border.BackgroundProperty, "Fx.ControlBrush");
         number.SetResourceReference(Border.BorderBrushProperty, "Fx.BorderBrush");
+        // Streamer mode (IDEAS #19): the card draws the masked name and system; entry.Name stays the real one, the key the pick is raised with.
+        string shownSystem = StreamerMask.Name(StreamerKind.System, system);
         var nameText = new TextBlock
         {
-            Text = name,
+            Text = StreamerMask.Name(StreamerKind.Character, name),
             FontSize = 13,
             FontWeight = FontWeights.SemiBold,
             TextTrimming = TextTrimming.CharacterEllipsis,
@@ -197,10 +205,10 @@ public partial class QuickSwitchWheel : Window
         nameText.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextBrush");
         var systemText = new TextBlock
         {
-            Text = system ?? "",
+            Text = shownSystem,
             FontSize = 12,
             TextTrimming = TextTrimming.CharacterEllipsis,
-            Visibility = string.IsNullOrWhiteSpace(system) ? Visibility.Collapsed : Visibility.Visible,
+            Visibility = string.IsNullOrWhiteSpace(shownSystem) ? Visibility.Collapsed : Visibility.Visible,
         };
         systemText.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
         var card = new Border
@@ -213,7 +221,7 @@ public partial class QuickSwitchWheel : Window
             Child = new StackPanel { Children = { number, nameText, systemText } },
         };
 
-        var entry = new CardEntry { Name = name, Card = card, Number = number, NumberText = numberText, Index = index };
+        var entry = new CardEntry { Name = name, Card = card, Number = number, NumberText = numberText, NameText = nameText, SystemText = systemText, Index = index };
         SetLook(entry, CardLook.Normal);
         _cards.Add(entry);
 

@@ -2680,4 +2680,12 @@
     <sys:String x:Key="L.S.Presets.ImageSaved">Image saved as {0}.</sys:String>
     <sys:String x:Key="L.S.Presets.ImageFailed">Couldn't write the image.</sys:String>
     <sys:String x:Key="L.S.Presets.ImageEmpty">Nothing to draw: this layout shows no thumbnails.</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.streamer">Streamer mode</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.streamer.Desc">Keeps what could give you away off a stream or a screenshot: character names show as Client 1, Client 2 and so on, and labels and system names are left out. Off by default.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Title">Streamer mode</sys:String>
+    <sys:String x:Key="L.Help.thumbs.text.streamer.Body">**Streamer mode** keeps what could give you away off a stream or a screenshot. A character name is drawn as Client 1, Client 2 and so on, numbered in the order MultiPreview first sees the names after it starts. Labels and system names are left out.&#x0A;&#x0A;It covers the text on thumbnails (second thumbnails and crop windows too), the stats windows, the quick-switch wheel, the thumbnail right-click menu, the alert history window and the image you can save of a layout (its names are then always hidden). Only what is drawn changes: your settings, alerts and snoozes still go by the real names.&#x0A;&#x0A;It cannot hide the picture of the EVE client inside a thumbnail, or the names in this settings window. Keep the settings window off the stream.</sys:String>
+    <sys:String x:Key="L.Streamer.Client">Client {0}</sys:String>
+    <sys:String x:Key="L.Streamer.Group">Group {0}</sys:String>
+    <sys:String x:Key="L.Streamer.Profile">Profile {0}</sys:String>
+    <sys:String x:Key="L.Streamer.Layout">Layout {0}</sys:String>
 </ResourceDictionary>

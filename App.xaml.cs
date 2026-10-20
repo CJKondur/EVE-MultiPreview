@@ -244,6 +244,7 @@ public partial class App : Application
         // gone, then the restore prompt, the newer-file question, the startup copy and the note. Nothing in it can stop
         // startup (StartupSettings contains every throw).
         _settings = new SettingsService(AppPaths.SettingsPath);
+        StreamerMask.Follow(_settings);   // IDEAS #19: streamer mode is whatever the saved setting says, asked where a name is drawn
         StartupSettings.Open(_settings, _home, AppPaths.ExeDir, CopyBesideExe(), AskAtStartup, LocalizationService.Str,
             DateTime.Now, LogError, Thread.Sleep,
             // Apply UI language before any window is shown (issue #86). "" auto-detects from the OS; falls back to
@@ -2014,6 +2015,7 @@ public partial class App : Application
             _spokenWay?.Follow(_settings!.Settings.SpeakAlerts);   // FX-m4: off and on again counts the voice's asks anew
             _pushWay?.Follow(_settings!.Settings);   // IDEAS #2: a newly saved link or a switch takes effect now
             FollowCommandServer();   // IDEAS #39: the pipe opens or closes with its switch
+            _historyWindow?.RefreshStreamerMask();   // IDEAS #19: its names follow streamer mode at once
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)
