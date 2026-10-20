@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using EveMultiPreview.Models;
+using EveMultiPreview.Services;
 
 using CheckBox = System.Windows.Controls.CheckBox;
 
@@ -26,7 +27,7 @@ public partial class CharacterStatEditorWindow : Window
     public CharacterStatEditorWindow(string characterName, CharacterStatSettings current, AppSettings globals)
     {
         InitializeComponent();
-        TxtHeader.Text = $"Stat Overrides — {characterName}";
+        TxtHeader.Text = $"Stat Overrides — {StreamerMask.Name(StreamerKind.Character, characterName)}";   // IDEAS #19: drawn text only
 
         _checkboxes[StatMetrics.DpsOut] = CbDpsOut;
         _checkboxes[StatMetrics.DpsIn]  = CbDpsIn;

@@ -61,12 +61,27 @@ public static class HotkeyUses
 
     /// <summary>Every use with a key, each use id once: hotkey cards that are shown (a hidden card,
     /// like the char-select keys while that's off, isn't registered either), then the sources.</summary>
-    public static IEnumerable<HotkeyUse> All(AppSettings s, IEnumerable<SettingDescriptor> settings) =>
-        settings.Where(d => d.Kind == SettingKind.Hotkey && (d.ShowIf?.Invoke(s) ?? true))
+    /// <param name="masked">IDEAS #19: for a screen that can be shared (the hotkey cheat sheet, the refused-keys balloon) a
+    /// character's or group's name in the label follows streamer mode. The settings pages leave it off: they list the real names.</param>
+    public static IEnumerable<HotkeyUse> All(AppSettings s, IEnumerable<SettingDescriptor> settings, bool masked = false)
+    {
+        var uses = settings.Where(d => d.Kind == SettingKind.Hotkey && (d.ShowIf?.Invoke(s) ?? true))
                 .Select(d => new HotkeyUse(IdOf(d), SettingsContext.Str(d.LabelKey), d.Get(s) as string ?? ""))
                 .Concat(Sources.SelectMany(source => source(s)))
                 .Where(u => u.Hotkey.Trim().Length > 0)
                 .DistinctBy(u => u.Id);
+        return masked && StreamerMask.IsOn ? uses.Select(Masked) : uses;
+    }
+
+    /// <summary>The use with its character's or group's name drawn as streamer mode says. The id keeps the real name.</summary>
+    private static HotkeyUse Masked(HotkeyUse u)
+    {
+        if (u.Id.StartsWith(CharacterPrefix, StringComparison.Ordinal))
+            return u with { Label = string.Format(SettingsContext.Str("L.S.Use.Character"), StreamerMask.Name(StreamerKind.Character, u.Id[CharacterPrefix.Length..])) };
+        if (TryParseGroup(u.Id, out var group, out var next))
+            return u with { Label = string.Format(SettingsContext.Str(next ? "L.S.Use.GroupNext" : "L.S.Use.GroupPrevious"), StreamerMask.Name(StreamerKind.Group, group)) };
+        return u;
+    }
 
     public static List<HotkeyUse> Clashes(AppSettings s, IEnumerable<SettingDescriptor> settings, string candidate, string exceptId) =>
         All(s, settings).Where(u => u.Id != exceptId && HotkeyText.Clashes(u.Hotkey, candidate, s.HotkeyWildcardModifiers)).ToList();

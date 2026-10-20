@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using EveMultiPreview.Services;
 using EveMultiPreview.SettingsUi;
 using Button = System.Windows.Controls.Button;
@@ -31,10 +32,18 @@ public partial class StartupDialog : Window
                 Margin = new Thickness(0, i == 0 ? 0 : 8, 0, 0),
                 Padding = new Thickness(16, 6, 16, 6),
             };
-            if (i == 0) button.SetResourceReference(StyleProperty, "Fx.PrimaryButton");
+            if (i == 0)
+            {
+                button.SetResourceReference(StyleProperty, "Fx.PrimaryButton");
+                button.IsDefault = true;   // Enter presses the suggested one, which the questions make the safe one
+            }
             button.Click += (_, _) => { Choice = index; Close(); };
             ChoicePanel.Children.Add(button);
         }
+
+        // Esc is the X: closed without an answer, which every question here treats as "change nothing".
+        CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, (_, _) => Close()));
+        InputBindings.Add(new KeyBinding(ApplicationCommands.Close, Key.Escape, ModifierKeys.None));
     }
 
     /// <summary>The button pressed, by its place in the list; null when the dialog was closed another way.</summary>

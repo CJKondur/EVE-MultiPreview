@@ -52,6 +52,11 @@ public partial class TextOverlayWindow : Window
     private string? _timerText;                // the session timer as drawn, null while it is off
     private string? _systemTransitionText;     // "from → to" while a system change is on show, else null
 
+    /// <summary>The name as drawn. The login screen's thumbnail is named "EVE" (nobody is logged in): that is no player's
+    /// name, so it keeps its word instead of taking a "Client N" number a character or a crop should have.</summary>
+    private string ShownName() =>
+        ThumbnailMenu.HasCharacter(_rawName) ? StreamerMask.Name(StreamerKind.Character, _rawName) : _rawName;
+
     /// <summary>Sets the text template (empty = the four separate blocks, as always). Called with every settings apply.</summary>
     public void SetTextTemplate(string? template)
     {
@@ -60,6 +65,10 @@ public partial class TextOverlayWindow : Window
         _template = clean;
         if (_template.Length > 0)
         {
+            // The three blocks a template folds into the name block hold nothing either: hidden means gone, not just collapsed.
+            AnnotationOverlay.Text = "";
+            SystemOverlay.Text = "";
+            TimerOverlay.Text = "";
             AnnotationOverlay.Visibility = Visibility.Collapsed;
             SystemOverlay.Visibility = Visibility.Collapsed;
             TimerOverlay.Visibility = Visibility.Collapsed;
@@ -69,7 +78,7 @@ public partial class TextOverlayWindow : Window
         }
 
         // Back to the separate blocks: draw each from the text kept.
-        string name = StreamerMask.Name(StreamerKind.Character, _rawName);
+        string name = ShownName();
         NameOverlay.Text = name;
         NameOverlay.Visibility = _nameOn && !string.IsNullOrEmpty(name) ? Visibility.Visible : Visibility.Collapsed;
         UpdateAnnotation(_rawAnnotation);
@@ -94,7 +103,7 @@ public partial class TextOverlayWindow : Window
         if (_template.Length == 0) return;
         var values = new System.Collections.Generic.Dictionary<string, string?>
         {
-            [TextTemplate.NameToken] = _nameOn ? StreamerMask.Name(StreamerKind.Character, _rawName) : "",
+            [TextTemplate.NameToken] = _nameOn ? ShownName() : "",
             [TextTemplate.LabelToken] = StreamerMask.Name(StreamerKind.Label, _rawAnnotation),
             [TextTemplate.SystemToken] = _systemTransitionText ?? StreamerMask.Name(StreamerKind.System, _rawSystem),
             [TextTemplate.TimerToken] = _timerText,
@@ -108,7 +117,7 @@ public partial class TextOverlayWindow : Window
     {
         _rawName = name ?? "";
         if (_template.Length > 0) { Compose(); return; }
-        string shown = StreamerMask.Name(StreamerKind.Character, _rawName);
+        string shown = ShownName();
         if (!string.IsNullOrEmpty(shown))
         {
             NameOverlay.Text = shown;
@@ -148,7 +157,7 @@ public partial class TextOverlayWindow : Window
             Compose();
             return;
         }
-        string name = StreamerMask.Name(StreamerKind.Character, _rawName);
+        string name = ShownName();
         if (!string.IsNullOrEmpty(name)) NameOverlay.Text = name;
         UpdateAnnotation(_rawAnnotation);
         UpdateSystemName(_rawSystem);

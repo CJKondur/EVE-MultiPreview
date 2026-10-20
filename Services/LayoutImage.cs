@@ -56,7 +56,10 @@ public static class LayoutImage
     /// <summary>Where each slot of <paramref name="preset"/> lands on these monitors: its fractions of its monitor's work
     /// area, the way applying the layout reads them (a monitor the PC does not have is the primary one; a box is at least
     /// 40 x 30, at most its work area, and kept inside it). A thumbnail hidden when the layout was saved is left out of a layout that
-    /// remembers visibility, because the wall would not show it. No monitors: nothing can be placed.</summary>
+    /// remembers visibility, because the wall would not show it. No monitors: nothing can be placed.
+    /// KEEP IN SYNC with ThumbnailManager.ResolveSlotRect, which applies a layout to the live wall: the same fractions of the
+    /// same work area and the same 40 x 30 minimum. The clamp differs on purpose: that one runs EnsureOnScreen (any monitor
+    /// that holds the place), this one keeps a box inside its own monitor's work area and caps it to that area.</summary>
     public static IReadOnlyList<(string Name, Rectangle Rect)> Resolve(LayoutPreset preset, IReadOnlyList<LayoutMonitor> monitors)
     {
         var list = new List<(string, Rectangle)>();
@@ -111,12 +114,20 @@ public static class LayoutImage
         return new LayoutImagePlan { Width = canvas.Width, Height = canvas.Height, Monitors = screens, Boxes = boxes, NamesHidden = hideNames };
     }
 
-    /// <summary>The name without control characters, cut to <see cref="MaxLabel"/> (an ellipsis shows the cut).</summary>
+    /// <summary>The name without control characters, line and paragraph separators (U+2028/2029) or format characters (the
+    /// bidirectional marks and overrides U+200E/F, U+202A-E, U+2066-9 among them, which could reorder the text around the box),
+    /// cut to <see cref="MaxLabel"/> (an ellipsis shows the cut, and a surrogate pair is never split by it).</summary>
     private static string Clean(string? name)
     {
-        var text = new string((name ?? "").Where(c => !char.IsControl(c)).ToArray()).Trim();
-        return text.Length > MaxLabel ? text.Substring(0, MaxLabel - 1) + "…" : text;
+        var text = new string((name ?? "").Where(c => !Unseen(c)).ToArray()).Trim();
+        if (text.Length <= MaxLabel) return text;
+        int keep = MaxLabel - 1;
+        if (char.IsHighSurrogate(text[keep - 1])) keep--;   // the pair's second half is past the cut: drop the first as well
+        return text.Substring(0, keep) + "…";
     }
+
+    private static bool Unseen(char c) => CharUnicodeInfo.GetUnicodeCategory(c) is
+        UnicodeCategory.Control or UnicodeCategory.Format or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator;
 
     /// <summary>A layout's name as the stem of a file name: characters a file name cannot hold are dropped, and an empty
     /// result is "layout".</summary>

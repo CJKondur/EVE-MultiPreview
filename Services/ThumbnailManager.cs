@@ -428,7 +428,16 @@ public sealed class ThumbnailManager : IDisposable
             clock ?? (() => DateTime.UtcNow),
             schedule ?? ScheduleMonitorSettle,
             fingerprint => new LayoutPresetService(_settings.ConfigDirectory).FindForFingerprint(fingerprint),
-            apply ?? (preset => ApplyLayoutPreset(preset, forMonitors: true)));
+            apply ?? (preset =>
+            {
+                ApplyLayoutPreset(preset, forMonitors: true);
+                MonitorLayoutApplied?.Invoke(preset.Name);
+            }));
+
+    /// <summary>Raised (on the follower's thread, the window's) after the monitors' layout was applied by itself, with the
+    /// layout's name. App refreshes the crop windows and records the name as the profile's applied layout, as the layouts
+    /// editor does for an apply the player asked for.</summary>
+    public event Action<string>? MonitorLayoutApplied;
 
     private void StartMonitorFollowing()
     {
@@ -1374,7 +1383,8 @@ public sealed class ThumbnailManager : IDisposable
         var before = picked.Select(t => (Name: t.CharacterName,
             Rect: new System.Drawing.Rectangle((int)t.Left, (int)t.Top, (int)t.Width, (int)t.Height))).ToList();
         var areas = workAreas ?? System.Windows.Forms.Screen.AllScreens.Select(s => s.WorkingArea).ToList();
-        var after = LayoutAlign.Apply(op, before, dx, dy, _settings.Settings.LockResizeAspect, areas);
+        var (floorW, floorH) = ResizeFloor(_settings.Settings);   // a Match never sets a size smaller than a drag could
+        var after = LayoutAlign.Apply(op, before, dx, dy, _settings.Settings.LockResizeAspect, areas, new System.Drawing.Size(floorW, floorH));
         if (after.Select(a => a.Rect).SequenceEqual(before.Select(b => b.Rect))) return false;
 
         PushLayoutSnapshot();   // one snapshot for the whole operation (layout undo)

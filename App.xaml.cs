@@ -119,7 +119,8 @@ public partial class App : Application
     private readonly RefusalAnnouncer _refusalAnnouncer = new();
     private readonly RefusalNote _refusalNote = new();
     private AlertHistoryWindow? _historyWindow;
-    private Views.HotkeySheetWindow? _hotkeySheet;   // IDEAS #16: the hotkey cheat sheet, while it shows
+    private bool _streamerMaskDrawn;   // IDEAS #19: the mode the history window was last drawn for; it is redrawn when this flips
+    private Views.HotkeySheetWindow? _hotkeySheet;  // IDEAS #16: the hotkey cheat sheet, while it shows
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
     private ProcessMonitorService? _processMonitor;
@@ -310,6 +311,15 @@ public partial class App : Application
         // An end Windows refused (EVE run as administrator) is taken back: a later crash of that client is still told.
         _thumbnailManager.ClientEndRefused += pid => _clientExits.NotEndedByMultiPreview(pid);
         _thumbnailManager.EndFrozenClientRequested += EndFrozenClient;   // IDEAS #22
+        // IDEAS #10: a layout applied for the monitors does what the layouts editor's Apply does: the crop windows follow it
+        // (a layout saved with visibility turns them on or off) and the profile remembers its name (#94).
+        _thumbnailManager.MonitorLayoutApplied += name =>
+        {
+            _cropManager?.Refresh();
+            if (_settings == null) return;
+            _settings.CurrentProfile.AppliedLayoutPreset = name;
+            _settings.Save();
+        };
 
         // 4c. Crop manager (spawns per-character cropped DWM popups)
         _cropManager = new CropManager(_discovery, _settings);
@@ -1114,10 +1124,11 @@ public partial class App : Application
         _hotkeyService.EvaluateRegistration();
     }
 
-    /// <summary>What a hotkey is bound to, as its card names it (the first, when several things share the key), or null.</summary>
+    /// <summary>What a hotkey is bound to, as its card names it (the first, when several things share the key), or null. It
+    /// goes into a tray balloon, so a character's or group's name follows streamer mode (IDEAS #19).</summary>
     private string? ActionOfHotkey(string hotkey) => _settings == null ? null
         : SettingsUi.RefusedHotkeysEditor.UsesOf(hotkey,
-            SettingsUi.HotkeyUses.All(_settings.Settings, SettingsUi.SettingsRegistry.Settings)).FirstOrDefault()?.Label;
+            SettingsUi.HotkeyUses.All(_settings.Settings, SettingsUi.SettingsRegistry.Settings, masked: true)).FirstOrDefault()?.Label;
 
     /// <summary>IDEAS #31: which events are on. The gate is handed its picture of the groups' choices, and the log
     /// monitor what it may raise: the settings' own table while no group has a choice (as it always was), otherwise
@@ -1307,6 +1318,7 @@ public partial class App : Application
             _settings.Save();
             _thumbnailManager?.ReapplySettings();
             _cropManager?.Refresh();
+            _streamerMaskDrawn = StreamerMask.IsOn;
             _historyWindow?.RefreshStreamerMask();
             _trayMenu?.Refresh();
             var (key, english) = StreamerMask.IsOn ? ("L.Streamer.On", "Streamer mode: on") : ("L.Streamer.Off", "Streamer mode: off");
@@ -2041,7 +2053,11 @@ public partial class App : Application
             _spokenWay?.Follow(_settings!.Settings.SpeakAlerts);   // FX-m4: off and on again counts the voice's asks anew
             _pushWay?.Follow(_settings!.Settings);   // IDEAS #2: a newly saved link or a switch takes effect now
             FollowCommandServer();   // IDEAS #39: the pipe opens or closes with its switch
-            _historyWindow?.RefreshStreamerMask();   // IDEAS #19: its names follow streamer mode at once
+            if (StreamerMask.IsOn != _streamerMaskDrawn)   // IDEAS #19: its names follow streamer mode at once, once per flip
+            {
+                _streamerMaskDrawn = StreamerMask.IsOn;
+                _historyWindow?.RefreshStreamerMask();
+            }
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
             if (_statTracker != null && _settings != null)

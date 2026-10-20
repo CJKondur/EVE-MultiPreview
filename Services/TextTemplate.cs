@@ -7,7 +7,8 @@ namespace EveMultiPreview.Services;
 /// <summary>Thumbnail text templates (IDEAS P2): the text a thumbnail shows built from a template such as
 /// "{name} · {system} · {timer}". The tokens are {name}, {system}, {timer} and {label}; any other {word} stays as typed,
 /// "{{" and "}}" are a literal brace. A token whose value is empty takes the separators next to it away, so a thumbnail
-/// with no label or system never shows a dangling " · ".
+/// with no label or system never shows a dangling " · ". A bracket pair () [] or <> that stands right around an empty
+/// token ("{name} ({system})") goes with it; brackets around anything else, and words typed in the template, stay.
 ///
 /// The values are display text that was already masked (streamer mode) and are only ever copied into the result: never
 /// parsed again (a name that reads "{timer}" stays that), never used as a format string, never logged. The template is
@@ -29,7 +30,8 @@ public static class TextTemplate
     private const string SeparatorMarks = "·•|/\\-–—,;:.~+<>«»→←";
 
     /// <summary>The template as the app keeps it: nothing for null or blank, no control character (a line break would put
-    /// text on a second line), at most <see cref="MaxLength"/> characters (an over-long one is cut, not dropped).</summary>
+    /// text on a second line), at most <see cref="MaxLength"/> characters (an over-long one is cut, not dropped, and a cut
+    /// never leaves half of a surrogate pair).</summary>
     public static string Clean(string? template)
     {
         if (string.IsNullOrWhiteSpace(template)) return "";
@@ -39,6 +41,7 @@ public static class TextTemplate
             if (sb.Length >= MaxLength) break;
             sb.Append(char.IsControl(c) ? ' ' : c);
         }
+        if (sb.Length > 0 && char.IsHighSurrogate(sb[^1])) sb.Length--;   // the cut fell between the two halves of a pair
         return string.IsNullOrWhiteSpace(sb.ToString()) ? "" : sb.ToString();
     }
 
@@ -114,7 +117,25 @@ public static class TextTemplate
             literal.Append(c);
         }
         Flush();
+        DropBracketsAroundEmptyTokens(parts);
         return parts;
+    }
+
+    /// <summary>"(" before an empty token and ")" right after it (and the same for [] and <>) are taken away with it: the
+    /// brackets must be the last character of the literal before and the first of the literal after, so a word in between
+    /// ("(sys: {system})") keeps its brackets as typed.</summary>
+    private static void DropBracketsAroundEmptyTokens(List<Part> parts)
+    {
+        for (int i = 1; i + 1 < parts.Count; i++)
+        {
+            if (!parts[i].Empty || parts[i - 1].IsToken || parts[i + 1].IsToken) continue;
+            string before = parts[i - 1].Text, after = parts[i + 1].Text;
+            if (before.Length == 0 || after.Length == 0) continue;
+            bool pair = (before[^1], after[0]) is ('(', ')') or ('[', ']') or ('<', '>');
+            if (!pair) continue;
+            parts[i - 1] = new Part(before[..^1], false);
+            parts[i + 1] = new Part(after[1..], false);
+        }
     }
 
     /// <summary>Appends what lies between two kept tokens (or before the first, or after the last). Where no token in the

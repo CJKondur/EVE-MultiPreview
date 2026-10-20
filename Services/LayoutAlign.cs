@@ -23,9 +23,11 @@ public static class LayoutAlign
 
     /// <summary>One operation, then <see cref="Clamp"/> when <paramref name="areas"/> (the screens' work areas) are given.
     /// <paramref name="dx"/>/<paramref name="dy"/> are for <see cref="AlignOp.Nudge"/>; <paramref name="keepAspect"/>
-    /// (the aspect lock of Plan 19) makes a Match keep each thumbnail's own width-to-height ratio.</summary>
+    /// (the aspect lock of Plan 19) makes a Match keep each thumbnail's own width-to-height ratio. A Match then holds the
+    /// size it set to <paramref name="floor"/> (the smallest a thumbnail may be) and to the work area it stands in (the
+    /// floor first, the area wins when the two cannot both hold); with the lock both sides scale together to keep the ratio.</summary>
     public static IReadOnlyList<(string Name, Rectangle Rect)> Apply(AlignOp op, IReadOnlyList<(string Name, Rectangle Rect)> items,
-        int dx = 0, int dy = 0, bool keepAspect = false, IReadOnlyList<Rectangle>? areas = null)
+        int dx = 0, int dy = 0, bool keepAspect = false, IReadOnlyList<Rectangle>? areas = null, Size? floor = null)
     {
         var moved = op switch
         {
@@ -40,9 +42,31 @@ public static class LayoutAlign
             AlignOp.Nudge => Nudge(items, dx, dy),
             _ => items,
         };
-        return areas == null || areas.Count == 0 || moved.Count < MinItems(op)
+        if (moved.Count < MinItems(op)) return moved;
+        if (op is AlignOp.MatchWidth or AlignOp.MatchHeight)
+            moved = moved.Select(i => (i.Name, FitSize(i.Rect, floor, areas, keepAspect, op == AlignOp.MatchWidth))).ToList();
+        return areas == null || areas.Count == 0
             ? moved
             : moved.Select(i => (i.Name, Clamp(i.Rect, areas))).ToList();
+    }
+
+    /// <summary>The size a Match gave, raised to <paramref name="floor"/> and cut to the work area the place stands in. With
+    /// the aspect lock both sides scale by the same factor (the ratio stays); without it only the side the Match set
+    /// (<paramref name="width"/>) is held, the other is not the Match's to change.</summary>
+    private static Rectangle FitSize(Rectangle r, Size? floor, IReadOnlyList<Rectangle>? areas, bool keepAspect, bool width)
+    {
+        double w = r.Width, h = r.Height;
+        double floorW = floor?.Width ?? 0, floorH = floor?.Height ?? 0;
+        var area = areas == null || areas.Count == 0 ? (Rectangle?)null : AreaOf(r, areas);
+        if (keepAspect && w > 0 && h > 0)
+        {
+            double up = Math.Max(1, Math.Max(floorW / w, floorH / h));
+            w *= up; h *= up;
+            if (area is { } a) { double down = Math.Min(1, Math.Min(a.Width / w, a.Height / h)); w *= down; h *= down; }
+        }
+        else if (width) w = Math.Min(Math.Max(w, floorW), area?.Width ?? double.MaxValue);
+        else h = Math.Min(Math.Max(h, floorH), area?.Height ?? double.MaxValue);
+        return new Rectangle(r.X, r.Y, Math.Max(1, (int)Math.Round(w)), Math.Max(1, (int)Math.Round(h)));
     }
 
     /// <summary>Every left edge goes to the leftmost one's.</summary>
@@ -61,8 +85,10 @@ public static class LayoutAlign
     public static IReadOnlyList<(string Name, Rectangle Rect)> AlignBottom(IReadOnlyList<(string Name, Rectangle Rect)> items) =>
         AtLeast(items, 2) is { } list ? Map(list, r => new Rectangle(r.X, list.Max(i => i.Rect.Bottom) - r.Height, r.Width, r.Height)) : items;
 
-    /// <summary>Three or more: in the order they stand left to right, the first and the last stay and the ones between get
-    /// equal gaps (a negative gap, when they are wider than the span, overlaps them equally). Only x changes.</summary>
+    /// <summary>Three or more: in the order they stand left to right, the span runs from the leftmost left edge to the
+    /// farthest right edge of any of them (the last one by its left edge may be narrower than one before it); the first and
+    /// the last take its ends and the ones between get equal gaps (a negative gap, when they are wider than the span,
+    /// overlaps them equally). Only x changes.</summary>
     public static IReadOnlyList<(string Name, Rectangle Rect)> DistributeH(IReadOnlyList<(string Name, Rectangle Rect)> items) =>
         Spread(items, horizontal: true);
 
@@ -97,11 +123,15 @@ public static class LayoutAlign
     public static Rectangle Clamp(Rectangle rect, IReadOnlyList<Rectangle> areas)
     {
         if (areas.Count == 0) return rect;
-        var area = areas.OrderByDescending(a => OverlapArea(a, rect)).ThenBy(a => Distance(a, rect)).First();
+        var area = AreaOf(rect, areas);
         int x = rect.Width >= area.Width ? area.Left : Math.Max(area.Left, Math.Min(rect.X, area.Right - rect.Width));
         int y = rect.Height >= area.Height ? area.Top : Math.Max(area.Top, Math.Min(rect.Y, area.Bottom - rect.Height));
         return new Rectangle(x, y, rect.Width, rect.Height);
     }
+
+    /// <summary>The work area a place belongs to: the one it overlaps most, the nearest when it overlaps none.</summary>
+    private static Rectangle AreaOf(Rectangle rect, IReadOnlyList<Rectangle> areas) =>
+        areas.OrderByDescending(a => OverlapArea(a, rect)).ThenBy(a => Distance(a, rect)).First();
 
     private static IReadOnlyList<(string Name, Rectangle Rect)> Spread(IReadOnlyList<(string Name, Rectangle Rect)> items, bool horizontal)
     {
@@ -110,7 +140,8 @@ public static class LayoutAlign
         var order = Enumerable.Range(0, list.Count)
             .OrderBy(i => horizontal ? list[i].Rect.Left : list[i].Rect.Top).ThenBy(i => i).ToList();
         int start = horizontal ? list[order[0]].Rect.Left : list[order[0]].Rect.Top;
-        int end = horizontal ? list[order[^1]].Rect.Right : list[order[^1]].Rect.Bottom;
+        // The span ends at the farthest edge of any of them: the last one by its left edge may be narrower than one before it.
+        int end = list.Max(i => horizontal ? i.Rect.Right : i.Rect.Bottom);
         int sizes = order.Sum(i => horizontal ? list[i].Rect.Width : list[i].Rect.Height);
         long free = (long)end - start - sizes;
         var result = list.ToArray();

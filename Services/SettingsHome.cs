@@ -234,6 +234,10 @@ public static class SettingsHome
     /// <summary>The file name of the layout presets, in the settings folder and (up to version 2.3.42) beside the exe.</summary>
     public const string PresetsFileName = "layout_presets.json";
 
+    /// <summary>Whether the file is no larger than a presets file can be (what LayoutPresetService reads): a larger one is
+    /// never read here either, so a huge file of that name is none (IDEAS P43).</summary>
+    private static bool FitsAPresetsFile(string file) => new FileInfo(file).Length <= LayoutPresetService.MaxFileBytes;
+
     /// <summary>The same read as LayoutPresetService.Load, but a file that doesn't parse is told apart from an empty one.</summary>
     private static bool ParsesAsPresets(string text)
     {
@@ -250,7 +254,7 @@ public static class SettingsHome
         var to = Path.Combine(appDataDir, PresetsFileName);
         try
         {
-            if (File.Exists(to) || !File.Exists(from) || IsLink(from) || !ParsesAsPresets(File.ReadAllText(from))) return;
+            if (File.Exists(to) || !File.Exists(from) || IsLink(from) || !FitsAPresetsFile(from) || !ParsesAsPresets(File.ReadAllText(from))) return;
             CopyIfNew(from, to, notes);
             if (File.Exists(to)) notes.Add($"Layout presets copied: {from} was copied to {to}.");
         }
@@ -270,6 +274,7 @@ public static class SettingsHome
             var other = Path.Combine(exeDir, PresetsFileName);
             if (!File.Exists(active) || !File.Exists(other)) return null;
             if (IsLink(active) || IsLink(other) || IsLink(appDir) || IsLink(exeDir)) return null;
+            if (!FitsAPresetsFile(active) || !FitsAPresetsFile(other)) return null;   // neither is read whole when it is too large to be a presets file
             if (File.GetLastWriteTimeUtc(other) <= File.GetLastWriteTimeUtc(active)) return null;
             if (File.ReadAllBytes(other).AsSpan().SequenceEqual(File.ReadAllBytes(active))) return null;
             var text = File.ReadAllText(other);
@@ -301,7 +306,7 @@ public static class SettingsHome
     {
         try
         {
-            if (IsLink(otherFile) || !ParsesAsPresets(File.ReadAllText(otherFile))) return false;
+            if (IsLink(otherFile) || !FitsAPresetsFile(otherFile) || !ParsesAsPresets(File.ReadAllText(otherFile))) return false;
             var backups = BackupsFolder(Path.GetDirectoryName(activeFile)!);
             BackUp(activeFile, BackupFile(backups, "replaced", now, "layout_presets"));
             CopyNoFollow(otherFile, activeFile, overwrite: true);
@@ -311,18 +316,19 @@ public static class SettingsHome
     }
 
     /// <summary>The newer-presets question at startup (IDEAS P43), asked through <paramref name="ask"/> like
-    /// <see cref="OfferOtherCopy"/>. The first button uses the newer file; the second keeps the current one and leaves
+    /// <see cref="OfferOtherCopy"/>. The first button, the suggested one that Enter presses, keeps the current file and leaves
     /// both files as they are (KeepCurrent only dates the current one, so the question waits until the other changes
-    /// again); closing it without an answer changes nothing and asks again next time. True when the other file was taken.</summary>
+    /// again); the second uses the newer file. Closing it without an answer (Esc, the X) changes nothing and asks again next
+    /// time. True when the other file was taken.</summary>
     public static bool OfferOtherPresets(string activeFile, string otherFile, Func<string, string, IReadOnlyList<string>, int?> ask,
         Func<string, string, string> str, DateTime now)
     {
         string When(string file) => File.GetLastWriteTime(file).ToString("g", CultureInfo.CurrentCulture);
         var body = string.Format(str("L.Start.Presets.Body", PresetsBodyEnglish), activeFile, When(activeFile), otherFile, When(otherFile));
         var answer = ask(str("L.Start.Presets.Title", "Newer layout presets were found"), body,
-            new[] { str("L.Start.Presets.Use", "Use the newer layout presets"), str("L.Start.Presets.Keep", "Keep my current layout presets") });
-        if (answer == 1) KeepCurrent(activeFile, otherFile, now.ToUniversalTime());
-        return answer == 0 && UseOtherPresets(activeFile, otherFile, now);
+            new[] { str("L.Start.Presets.Keep", "Keep my current layout presets"), str("L.Start.Presets.Use", "Use the newer layout presets") });
+        if (answer == 0) KeepCurrent(activeFile, otherFile, now.ToUniversalTime());
+        return answer == 1 && UseOtherPresets(activeFile, otherFile, now);
     }
 
     private const string PresetsBodyEnglish =

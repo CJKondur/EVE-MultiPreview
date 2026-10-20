@@ -38,7 +38,8 @@ public partial class LabelEditorWindow : Window
         _manager = manager;
         _onSaved = onSaved;
 
-        HeaderText.Text = string.Format(LocalizationService.Str("L.Lbl.Header", "Label for “{0}”"), characterName);
+        // Streamer mode (IDEAS #19): the header is drawn text; the name above stays the real key of the label.
+        HeaderText.Text = string.Format(LocalizationService.Str("L.Lbl.Header", "Label for “{0}”"), StreamerMask.Name(StreamerKind.Character, characterName));
 
         // Pre-fill from existing settings.
         TxtLabel.Text = settings.ThumbnailAnnotations.TryGetValue(characterName, out var text)

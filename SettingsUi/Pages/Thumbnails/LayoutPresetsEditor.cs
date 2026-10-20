@@ -84,6 +84,9 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
     /// <summary>Test seam: stands in for the monitors (LayoutImage.CurrentMonitors), bounds and work areas.</summary>
     public Func<IReadOnlyList<LayoutMonitor>> Monitors { get; set; } = LayoutImage.CurrentMonitors;
 
+    /// <summary>Test seam: stands in for LayoutImage.Png (drawing the picture needs a render device).</summary>
+    public Func<LayoutImagePlan, byte[]> EncodeImage { get; set; } = LayoutImage.Png;
+
     /// <summary>IDEAS P18: draw slot numbers instead of character names in the image (the "Hide names" box).</summary>
     public bool HideNames
     {
@@ -277,13 +280,20 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
         // With names hidden the file name must not carry the layout's name either: the dialog is on the screen too.
         var file = _ctx.Host.PickSaveFile((hide ? "layout" : LayoutImage.FileStem(name)) + ".png", ImageFilter);
         if (file == null) return;
+        // Drawing, encoding or writing can fail in ways no list of exceptions foresees (a render device, a full disk): any of
+        // them is "could not save", never a crash. The picture goes to a temporary file beside the chosen one and is moved
+        // over it, so a failure half way never leaves a partial PNG under the name the player chose.
+        var temp = file + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            File.WriteAllBytes(file, LayoutImage.Png(plan));
+            var bytes = EncodeImage(plan);
+            File.WriteAllBytes(temp, bytes);
+            File.Move(temp, file, overwrite: true);
             _ctx.Host.Toast(string.Format(Str("L.S.Presets.ImageSaved"), Path.GetFileName(file)));
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or NotSupportedException or ArgumentException)
+        catch (Exception)
         {
+            try { File.Delete(temp); } catch (Exception) { }   // a temporary file that was not made, or cannot be removed, is not worth a second message
             _ctx.Host.Toast(Str("L.S.Presets.ImageFailed"));
         }
     }

@@ -16,9 +16,10 @@ public static class HotkeySheet
     public const int MaxRows = 60;
 
     /// <summary>The list the conflict check and the refused-keys card read (<see cref="HotkeyUses.All"/>), so the three
-    /// never disagree: shown hotkey cards that are bound, then this profile's character keys, then group keys.</summary>
+    /// never disagree: shown hotkey cards that are bound, then this profile's character keys, then group keys. The sheet is
+    /// a screen that can be shared: character and group names in it follow streamer mode (IDEAS #19).</summary>
     public static IReadOnlyList<HotkeySheetRow> Rows(AppSettings s, IEnumerable<SettingDescriptor> settings) =>
-        HotkeyUses.All(s, settings)
+        HotkeyUses.All(s, settings, masked: true)
             .Select(u => new HotkeySheetRow(u.Label, HotkeyText.ToDisplay(u.Hotkey)))
             .Where(r => r.Keys.Length > 0)
             .ToList();
