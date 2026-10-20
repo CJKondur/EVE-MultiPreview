@@ -81,6 +81,7 @@ public sealed class CommandPaletteWindow : Window
             if (EnsureActive()) { _input.Focus(); Keyboard.Focus(_input); }
         };
         Deactivated += (_, _) => Dismiss();
+        Closing += (_, _) => _closed = true;   // Alt+F4: Deactivated fires inside the close, and Close() then would throw
         Closed += (_, _) => _closed = true;
     }
 
