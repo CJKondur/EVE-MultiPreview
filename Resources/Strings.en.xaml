@@ -2699,7 +2699,7 @@
     <sys:String x:Key="L.S.Profile.CopyProfileCode">Copy profile code with characters</sys:String>
     <sys:String x:Key="L.S.Profile.ProfileCopied">Profile '{0}' with its characters is on the clipboard as a code.</sys:String>
     <sys:String x:Key="L.S.Profile.ProfileCopiedLong">Profile '{0}' with its characters is on the clipboard as a code of {1} characters. That is more than one Discord message takes (2,000). Share it as a text file or on a paste site instead.</sys:String>
-    <sys:String x:Key="L.S.Profile.CodeTooBig">That profile has more than a code can hold (up to 64 characters, 8 crops on each). Use Copy look as code instead.</sys:String>
+    <sys:String x:Key="L.S.Profile.CodeTooBig">That profile has too many busy characters for one code (up to 64, 8 crops on each, and about 32,000 characters of code). Use Copy look as code, or remove some characters from the profile first.</sys:String>
     <sys:String x:Key="L.S.Profile.FromCodeDoneCharacters">Profile '{0}' made with the code's look and {1} of its characters, and switched to.</sys:String>
     <sys:String x:Key="L.Remap.ProfileTitle">Map Code Characters → Your Characters</sys:String>
     <sys:String x:Key="L.Remap.ProfileIntro">Assign each character in the code to one of your characters. Exact name matches are pre-selected; choose “(skip)” to leave a character out. Positions in a code are screen pixels, so they fit best on a similar monitor setup. A code never sets a hotkey.</sys:String>

@@ -427,9 +427,11 @@ public sealed class ProfileCode
         }
         foreach (var group in Groups)
         {
+            var members = group.Roles.Select(Target).Where(t => t != null).Cast<string>().ToList();
+            if (members.Count == 0) continue;                                    // no mapped character is in it: no group is made
             var key = made.Groups.Keys.FirstOrDefault(k => string.Equals(k, group.Name, StringComparison.OrdinalIgnoreCase)) ?? group.Name;
             if (!made.Groups.TryGetValue(key, out var g)) made.Groups[key] = g = new ThumbnailGroup { Name = group.Name, Color = group.Colour };
-            g.Members.AddRange(group.Roles.Select(Target).Where(t => t != null).Cast<string>());
+            g.Members.AddRange(members);
         }
 
         // Shared by every profile: only what the character does not have yet.

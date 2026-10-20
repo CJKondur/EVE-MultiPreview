@@ -2700,7 +2700,7 @@
     <sys:String x:Key="L.S.Profile.CopyProfileCode">캐릭터가 포함된 프로필 코드 복사</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopied">'{0}' 프로필을 캐릭터와 함께 코드로 클립보드에 복사했어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopiedLong">'{0}' 프로필을 캐릭터와 함께 {1}자 코드로 클립보드에 복사했어요. Discord 메시지 한 개에 들어가는 길이(2,000자)를 넘어요. 대신 텍스트 파일이나 붙여넣기 사이트로 공유해 주세요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.CodeTooBig">이 프로필은 코드에 담을 수 있는 양을 넘어요(캐릭터 최대 64명, 캐릭터마다 잘라내기 최대 8개). 대신 모양을 코드로 복사를 사용해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CodeTooBig">이 프로필은 캐릭터와 설정이 너무 많아 코드 하나에 담을 수 없어요(캐릭터 최대 64명, 캐릭터마다 잘라내기 최대 8개, 코드는 약 32,000자까지). 모양을 코드로 복사를 사용하거나, 먼저 프로필에서 캐릭터를 몇 개 지워 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.FromCodeDoneCharacters">코드의 모양과 캐릭터 {1}명으로 '{0}' 프로필을 만들고 전환했어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.ProfileTitle">코드의 캐릭터를 내 캐릭터에 지정</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.ProfileIntro">코드에 있는 캐릭터마다 내 캐릭터를 하나씩 지정해 주세요. 이름이 정확히 같은 캐릭터는 미리 선택돼 있어요. 빼려면 “(건너뛰기)”를 선택해 주세요. 코드 속 위치는 화면 픽셀이라 모니터 구성이 비슷할수록 잘 맞아요. 코드가 단축키를 설정하는 일은 없어요.</sys:String> <!-- draft -->

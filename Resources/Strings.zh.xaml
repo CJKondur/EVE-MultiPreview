@@ -2717,7 +2717,7 @@
     <sys:String x:Key="L.S.Profile.CopyProfileCode">复制含角色的配置文件代码</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopied">配置文件“{0}”及其角色已作为代码复制到剪贴板。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopiedLong">配置文件“{0}”及其角色已作为 {1} 个字符的代码复制到剪贴板。这超过了 Discord 一条消息能容纳的长度（2000 个字符）。请改用文本文件或粘贴网站来分享。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.CodeTooBig">该配置文件的内容超出了代码能容纳的范围（最多 64 个角色，每个角色最多 8 个裁剪）。请改用“将外观复制为代码”。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CodeTooBig">该配置文件中的角色太多、设置太多，一个代码装不下（最多 64 个角色，每个角色最多 8 个裁剪，代码约 32000 个字符）。请改用“将外观复制为代码”，或先从配置文件中移除一些角色。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.FromCodeDoneCharacters">已用代码中的外观和其中 {1} 个角色创建配置文件“{0}”并切换到它。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.ProfileTitle">将代码中的角色分配给你的角色</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.ProfileIntro">为代码中的每个角色分配一个你的角色。名称完全一致的已预先选中；选择“（跳过）”可略过该角色。代码中的位置是屏幕像素，在显示器布局相近时效果最好。代码绝不会设置热键。</sys:String> <!-- draft -->

@@ -2700,7 +2700,7 @@
     <sys:String x:Key="L.S.Profile.CopyProfileCode">キャラクター付きのプロファイルコードをコピー</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopied">プロファイル「{0}」をキャラクターごとコードとしてクリップボードにコピーしました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.ProfileCopiedLong">プロファイル「{0}」をキャラクターごと {1} 文字のコードとしてクリップボードにコピーしました。Discord の 1 通のメッセージに入る長さ（2000 文字）を超えています。代わりにテキストファイルやペーストサイトで共有してください。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Profile.CodeTooBig">このプロファイルはコードに収まりません（キャラクターは最大 64 人、切り抜きは 1 人あたり最大 8 個）。代わりに「外観をコードとしてコピー」を使ってください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Profile.CodeTooBig">このプロファイルはキャラクターや設定が多すぎて、1 つのコードに収まりません（キャラクターは最大 64 人、切り抜きは 1 人あたり最大 8 個、コードは約 32000 文字まで）。「外観をコードとしてコピー」を使うか、先にプロファイルからキャラクターをいくつか削除してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Profile.FromCodeDoneCharacters">コードの外観とキャラクター {1} 人分で、プロファイル「{0}」を作成して切り替えました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.ProfileTitle">コードのキャラクターを自分のキャラクターに割り当て</sys:String> <!-- draft -->
     <sys:String x:Key="L.Remap.ProfileIntro">コード内の各キャラクターに、あなたのキャラクターを割り当ててください。名前が完全に一致するものはあらかじめ選択されています。使わない場合は「（スキップ）」を選んでください。コード内の位置は画面のピクセル値なので、モニター構成が近いほどうまく合います。コードがホットキーを設定することはありません。</sys:String> <!-- draft -->

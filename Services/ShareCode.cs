@@ -25,12 +25,16 @@ public static class ShareCode
     public const string LayoutPrefix = "EMP-L1:", LookPrefix = "EMP-P1:", ProfilePrefix = "EMP-P2:";
     public const int MaxCodeLength = 8192, MaxJsonBytes = 16384, MaxSlots = 64, MaxNameLength = 64, MaxMonitor = 15;
     // IDEAS P123: only the profile-with-characters prefix (EMP-P2:) reads and writes these larger caps; EMP-L1: and EMP-P1:
-    // keep the two above. 64 characters (MaxSlots) are budgeted 2 KiB of JSON each: the name (up to 194 bytes), the
-    // places, colours and flags (about 400), a label (up to 400) and the rest for a couple of crops. 64 x 2,048 =
-    // 131,072. A code holds that JSON deflated and as base64 (4/3 of the deflated bytes). 65,536 characters of code is
-    // 48 KiB deflated: room for the profile above with its keys repeating. A profile whose code would be longer is
-    // refused when the code is made (WithCharacters returns null), never cut.
-    public const int MaxProfileJsonBytes = 64 * 2048, MaxProfileCodeLength = 65536;
+    // keep the two above. The receiver pastes a code into the box AskText opens, a stock WinForms TextBox, which takes
+    // 32,767 characters and cuts the rest: PasteBoxLimit. So the reader's cap is that limit, and a code is made only up to
+    // MaxProfileCodeToMake (32,000, a little under it, so a code with a line break or a backtick around it still fits). A
+    // profile whose code would be longer is refused when the code is made (WithCharacters returns null), never cut.
+    // 32,767 characters of base64 are 24 KiB of deflated JSON. The JSON cap stays at 64 characters x 2 KiB = 128 KiB:
+    // the name (up to 194 bytes), the places, colours and flags (about 400), a label (up to 400) and the rest for a
+    // couple of crops. Its repeating keys deflate well, so 24 KiB of deflate holds that much; the cap is what stops a
+    // "zip bomb" (a few KiB that inflate to megabytes), not what a legal code reaches.
+    public const int PasteBoxLimit = 32767, MaxProfileCodeLength = PasteBoxLimit, MaxProfileCodeToMake = 32000;
+    public const int MaxProfileJsonBytes = 64 * 2048;
     /// <summary>A message in Discord takes 2,000 characters; a code longer than this is flagged after the copy (leaving room for the words around it).</summary>
     public const int DiscordSafeLength = 1900;
     public const string NotACode = "L.S.Code.NotACode", IsLayout = "L.S.Code.IsLayout", IsLook = "L.S.Code.IsLook", Damaged = "L.S.Code.Damaged";
@@ -141,7 +145,7 @@ public static class ShareCode
         var json = JsonSerializer.SerializeToUtf8Bytes(code, StrictProfile);
         if (json.Length > MaxProfileJsonBytes) return null;
         var text = Pack(ProfilePrefix, json);
-        return text.Length > MaxProfileCodeLength ? null : text;
+        return text.Length > MaxProfileCodeToMake ? null : text;
     }
 
     public static ShareCodeRead<ProfileCode> ReadWithCharacters(string? text)
