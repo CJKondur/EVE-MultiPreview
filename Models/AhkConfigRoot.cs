@@ -156,6 +156,7 @@ public class AhkConfigRoot
         s.AcceptCommands = g.AcceptCommands != 0;
         s.AcceptCommandsUnelevated = g.AcceptCommandsUnelevated != 0;
         s.OpenSettingsHotkey = g.OpenSettingsHotkey ?? "";
+        s.CommandPaletteHotkey = g.CommandPaletteHotkey ?? "";
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -506,6 +507,7 @@ public class AhkConfigRoot
         g.AcceptCommands = s.AcceptCommands ? 1 : 0;
         g.AcceptCommandsUnelevated = s.AcceptCommandsUnelevated ? 1 : 0;
         g.OpenSettingsHotkey = s.OpenSettingsHotkey;
+        g.CommandPaletteHotkey = s.CommandPaletteHotkey;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1452,6 +1454,10 @@ public class AhkGlobalSettings
     // The settings window's own key (IDEAS P5), batch 13: a file without it loads it unbound.
     [JsonPropertyName("OpenSettingsHotkey")]
     public string? OpenSettingsHotkey { get; set; } = "";
+
+    // The command palette's key (IDEAS #14), batch 18: a file without it loads it unbound.
+    [JsonPropertyName("CommandPaletteHotkey")]
+    public string? CommandPaletteHotkey { get; set; } = "";
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

@@ -2728,4 +2728,15 @@
     <sys:String x:Key="L.Cmd.focus-mode-off">关闭专注模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.mute">将 {0} 的警报静音 1 小时</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.unmute">取消 {0} 的警报静音</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette">打开命令面板</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette.Desc">在鼠标所在的显示器上打开一个小框。输入角色、标签、分组或配置文件名称的几个字母，按 Enter 即可切换过去。再按一次该键或按 Esc 可关闭。与其他热键一样，在 EVE 客户端运行时可用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Title">命令面板</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Placeholder">输入角色、标签、分组或配置文件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.None">没有匹配项</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Character">角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Label">{0} 的标签</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Group">分组</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Profile">配置文件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">命令面板</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">客户端有 20 个或更多时，输入比瞄准更快。**打开命令面板** 会在鼠标所在的显示器上显示一个小框。&#x0A;&#x0A;- 输入角色、标签、分组或配置文件名称的几个字母。你输入的每个词必须是名称中某个词的开头，或出现在名称中。&#x0A;- 上、下方向键选择一行，按 Enter 运行。没有输入时，小框会列出正在运行的角色。&#x0A;- 角色或标签会把该客户端带到最前面，与点击它的缩略图一样。分组会向前切换，与它的按键一样。配置文件会切换到该配置文件。&#x0A;- 按 Esc、点击小框以外的地方，或再按一次该键，都会关闭它。&#x0A;&#x0A;请选择带 Ctrl、Alt 或 Shift 的按键：单独的字母会让你无法输入它。热键暂停时，它的按键也不会有任何作用。开启主播模式后，列表显示被遮盖的名称，并且不列出标签。</sys:String> <!-- draft -->
 </ResourceDictionary>

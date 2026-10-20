@@ -123,6 +123,7 @@ public partial class App : Application
     private AlertHistoryWindow? _historyWindow;
     private bool _streamerMaskDrawn;   // IDEAS #19: the mode the history window was last drawn for; it is redrawn when this flips
     private Views.HotkeySheetWindow? _hotkeySheet;  // IDEAS #16: the hotkey cheat sheet, while it shows
+    private Views.CommandPaletteWindow? _commandPalette;  // IDEAS #14: the command palette, while it shows
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private BroadcastHudWindow? _broadcastHud;
     private ProcessMonitorService? _processMonitor;
@@ -729,6 +730,7 @@ public partial class App : Application
             _hotkeyService.DoNotDisturbToggled += ToggleDoNotDisturb;   // IDEAS #32
             _hotkeyService.HotkeySheetToggled += ToggleHotkeySheet;   // IDEAS #16
             _hotkeyService.FocusModeToggled += ToggleFocusMode;   // IDEAS #35
+            _hotkeyService.CommandPaletteRequested += ToggleCommandPalette;   // IDEAS #14
             // IDEAS #42: said after the registration is done, not from inside it. The pause key was registered before
             // the tray icon existed, and the other keys are asked for within the next half second. Told at once, the
             // pause key's note would be replaced by the note about the others: one second from now, one note names
@@ -2374,6 +2376,37 @@ public partial class App : Application
         }
     }
 
+    /// <summary>IDEAS #14: opens the command palette over the monitor under the cursor, or closes it when it is open (never two).
+    /// Its rows come from the sources the remote commands' runner reads (RunCommand): the running characters, the groups and the
+    /// profiles, and the labels the player gave characters; the row chosen is run through RunCommand itself, so one action is
+    /// the same as a command from another program. A failure is logged: a key press must not throw.</summary>
+    private void ToggleCommandPalette()
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
+            if (_commandPalette != null)
+            {
+                var open = _commandPalette;
+                _commandPalette = null;
+                open.Dismiss();
+                return;
+            }
+            var settings = _settings;
+            var entries = CommandPalette.Entries(_thumbnailManager.GetActiveCharacterNames(), settings.Settings.ThumbnailAnnotations,
+                FocusMode.Groups(settings.Settings).Select(g => g.Name), settings.GetProfileNames());
+            var palette = new Views.CommandPaletteWindow(entries, command => RunCommand(command));
+            palette.Closed += (_, _) => { if (ReferenceEquals(_commandPalette, palette)) _commandPalette = null; };
+            _commandPalette = palette;
+            palette.Show();
+        }
+        catch (Exception ex)
+        {
+            _commandPalette = null;
+            LogError(ex);
+        }
+    }
+
     /// <summary>Brings a character's client to the front the way a click on its toast does
     /// (ThumbnailManager.ActivateEveWindow). False when no client of that character is running.</summary>
     private bool SwitchToCharacter(string name)
@@ -2448,6 +2481,7 @@ public partial class App : Application
         _commandServer?.Dispose();   // IDEAS #39: no more commands
         _commandServer = null;
         _hotkeySheet?.Dismiss();   // IDEAS #16
+        _commandPalette?.Dismiss();   // IDEAS #14
         _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
         _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center
         _pushWay?.Stop();   // IDEAS #2: what waits to be sent is dropped and the one sender is let go

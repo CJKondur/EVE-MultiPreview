@@ -334,6 +334,11 @@ public class AppSettings
     /// file without it.</summary>
     public string OpenSettingsHotkey { get; set; } = "";
 
+    /// <summary>The hotkey that opens the type-to-switch command palette, or closes it when it is open (IDEAS #14). Read by
+    /// HotkeyService.RegisterFromSettings, which raises CommandPaletteRequested (App shows the palette). New key: unbound in
+    /// a file without it.</summary>
+    public string CommandPaletteHotkey { get; set; } = "";
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

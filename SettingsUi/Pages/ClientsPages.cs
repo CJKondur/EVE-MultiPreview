@@ -40,6 +40,7 @@ public static class ClientsPages
             "clients.hotkeys.openSettings",
         }),
         new HelpTopic(HotkeysId, "sheet", new[] { "clients.hotkeys.sheet" }),
+        new HelpTopic(HotkeysId, "palette", new[] { "clients.hotkeys.commandPalette" }),
         new HelpTopic(HotkeysId, "conflicts", new[] { "clients.hotkeys.conflicts" }),
         new HelpTopic(HotkeysId, "refused", new[] { RefusedHotkeysEditor.ItemId }),
         new HelpTopic(GroupsId, "keys", new[] { "clients.groups.editor" }),
@@ -167,6 +168,7 @@ public static class ClientsPages
             Hotkey("clients.hotkeys.closeAll", s => s.CloseAllClientsHotkey, "TxtCloseAllClientsHotkey"),
             Hotkey("clients.hotkeys.sheet", s => s.HotkeySheetHotkey),
             Hotkey("clients.hotkeys.openSettings", s => s.OpenSettingsHotkey),
+            Hotkey("clients.hotkeys.commandPalette", s => s.CommandPaletteHotkey),
         }),
         new SectionDef("clients.hotkeys.check", new PageItem[]
         {

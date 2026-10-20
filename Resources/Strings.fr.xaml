@@ -2713,4 +2713,15 @@
     <sys:String x:Key="L.Cmd.focus-mode-off">Désactiver le mode focus</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.mute">Couper les alertes de {0} pendant 1 heure</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.unmute">Réactiver les alertes de {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette">Ouvrir la palette de commandes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette.Desc">Ouvre une petite zone sur l'écran où se trouve votre souris. Tapez quelques lettres d'un personnage, d'une étiquette, d'un groupe ou d'un profil, puis appuyez sur Entrée pour y passer. Appuyez de nouveau sur la touche ou sur Échap pour la fermer. Fonctionne pendant qu'un client EVE tourne, comme les autres raccourcis.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Title">Palette de commandes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Placeholder">Tapez un personnage, une étiquette, un groupe ou un profil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.None">Aucun résultat</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Character">Personnage</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Label">Étiquette de {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Group">Groupe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Profile">Profil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">La palette de commandes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">À partir de 20 clients, taper est plus rapide que viser. **Ouvrir la palette de commandes** affiche une petite zone sur l'écran où se trouve votre souris.&#x0A;&#x0A;- Tapez quelques lettres d'un personnage, d'une étiquette, d'un groupe ou d'un profil. Chaque mot tapé doit commencer un mot du nom, ou y figurer.&#x0A;- Haut et Bas choisissent une ligne, Entrée l'exécute. Sans saisie, la zone liste vos personnages en cours.&#x0A;- Un personnage ou une étiquette amène ce client au premier plan, comme un clic sur sa miniature. Un groupe passe au suivant, comme sa touche. Un profil passe à ce profil.&#x0A;- Échap, un clic en dehors de la zone ou la touche de nouveau la ferme.&#x0A;&#x0A;Choisissez une touche avec Ctrl, Alt ou Maj : une simple lettre vous empêcherait de la taper. Tant que les raccourcis sont en pause, sa touche ne fait rien. Avec le mode streamer activé, la liste affiche les noms masqués et laisse de côté les étiquettes.</sys:String> <!-- draft -->
 </ResourceDictionary>

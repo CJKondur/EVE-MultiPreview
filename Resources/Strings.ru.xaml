@@ -2730,4 +2730,15 @@
     <sys:String x:Key="L.Cmd.focus-mode-off">Выключить режим фокуса</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.mute">Отключить оповещения {0} на 1 час</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.unmute">Снова включить оповещения {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette">Открыть палитру команд</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette.Desc">Открывает небольшое поле над монитором, на котором находится мышь. Введите несколько букв имени персонажа, подписи, группы или профиля и нажмите Enter, чтобы переключиться. Нажмите клавишу ещё раз или Esc, чтобы закрыть. Работает, пока запущен клиент EVE, как и остальные горячие клавиши.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Title">Палитра команд</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Placeholder">Введите персонажа, подпись, группу или профиль</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.None">Ничего не найдено</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Character">Персонаж</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Label">Подпись: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Group">Группа</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Profile">Профиль</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">Палитра команд</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">Когда клиентов 20 и больше, набрать быстрее, чем целиться. **Открыть палитру команд** показывает небольшое поле над монитором, на котором находится мышь.&#x0A;&#x0A;- Введите несколько букв имени персонажа, подписи, группы или профиля. Каждое введённое слово должно начинаться с слова из названия или встречаться в нём.&#x0A;- Стрелки вверх и вниз выбирают строку, Enter запускает её. Если ничего не введено, в поле показаны запущенные персонажи.&#x0A;- Персонаж или подпись выводит этот клиент на передний план, как щелчок по его миниатюре. Группа переключает на следующего, как её клавиша. Профиль переключается на этот профиль.&#x0A;- Esc, щелчок вне поля или повторное нажатие клавиши закрывает его.&#x0A;&#x0A;Выберите клавишу с Ctrl, Alt или Shift: одиночная буква мешала бы вам набирать текст. Пока горячие клавиши на паузе, эта клавиша ничего не делает. При включённом режиме стримера в списке показаны скрытые имена, а подписи не показываются.</sys:String> <!-- draft -->
 </ResourceDictionary>

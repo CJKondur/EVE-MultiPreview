@@ -846,6 +846,14 @@ public sealed class HotkeyService : IDisposable
             openSettings();
         });
 
+        // The command palette (IDEAS #14): App shows it, or closes it when it is open. The key itself switches no client (the
+        // row chosen in the palette does, through the same runner as a command from another program), so it is no cycle-ignore key.
+        StoreAhkHotkey(settings.CommandPaletteHotkey, () =>
+        {
+            if (_suspended) return;
+            CommandPaletteRequested?.Invoke();
+        });
+
         // ── Per-character hotkeys from profile ───────────────────────
 
         var sharedHotkeys = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -941,6 +949,9 @@ public sealed class HotkeyService : IDisposable
 
     /// <summary>Focus mode's key was pressed (IDEAS #35). App turns focus mode on or off and says so.</summary>
     public event Action? FocusModeToggled;
+
+    /// <summary>The command palette's key was pressed (IDEAS #14). App opens the palette, or closes it when it is open.</summary>
+    public event Action? CommandPaletteRequested;
 
     // ── Hotkeys Windows refused (IDEAS #42) ──
     /// <summary>The hotkeys Windows refused the last time they were registered, and whether they have been registered

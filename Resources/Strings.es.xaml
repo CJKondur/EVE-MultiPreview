@@ -2732,4 +2732,15 @@
     <sys:String x:Key="L.Cmd.focus-mode-off">Desactivar el modo enfoque</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.mute">Silenciar las alertas de {0} durante 1 hora</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.unmute">Reactivar las alertas de {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette">Abrir la paleta de comandos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette.Desc">Abre un pequeño cuadro sobre el monitor donde está tu ratón. Escribe unas letras de un personaje, una etiqueta, un grupo o un perfil y pulsa Intro para cambiar a él. Pulsa la tecla otra vez o Esc para cerrarlo. Funciona mientras se ejecuta un cliente de EVE, como los demás atajos.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Title">Paleta de comandos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Placeholder">Escribe un personaje, etiqueta, grupo o perfil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.None">Nada coincide</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Character">Personaje</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Label">Etiqueta de {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Group">Grupo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Profile">Perfil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">La paleta de comandos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">Con 20 clientes o más, escribir es más rápido que apuntar. **Abrir la paleta de comandos** muestra un pequeño cuadro sobre el monitor donde está tu ratón.&#x0A;&#x0A;- Escribe unas letras de un personaje, una etiqueta, un grupo o un perfil. Cada palabra que escribas debe empezar una palabra del nombre o aparecer en él.&#x0A;- Arriba y Abajo eligen una fila, Intro la ejecuta. Sin escribir nada, el cuadro lista tus personajes en ejecución.&#x0A;- Un personaje o una etiqueta trae ese cliente al frente, como al hacer clic en su miniatura. Un grupo avanza al siguiente, como su tecla. Un perfil cambia a ese perfil.&#x0A;- Esc, un clic fuera del cuadro o la tecla otra vez lo cierra.&#x0A;&#x0A;Elige una tecla con Ctrl, Alt o Mayús: una letra sola te impediría escribirla. Mientras los atajos están en pausa, su tecla no hace nada. Con el modo streamer activado, la lista muestra los nombres ocultos y deja fuera las etiquetas.</sys:String> <!-- draft -->
 </ResourceDictionary>

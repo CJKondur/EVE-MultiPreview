@@ -2710,4 +2710,15 @@
     <sys:String x:Key="L.Cmd.focus-mode-off">Turn focus mode off</sys:String>
     <sys:String x:Key="L.Cmd.mute">Mute alerts of {0} for 1 hour</sys:String>
     <sys:String x:Key="L.Cmd.unmute">Unmute alerts of {0}</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette">Open the command palette</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette.Desc">Opens a small box over the monitor your mouse is on. Type a few letters of a character, label, group or profile and press Enter to switch to it. Press the key again or Esc to close it. Works like the other hotkeys, while an EVE client is running.</sys:String>
+    <sys:String x:Key="L.Palette.Title">Command palette</sys:String>
+    <sys:String x:Key="L.Palette.Placeholder">Type a character, label, group or profile</sys:String>
+    <sys:String x:Key="L.Palette.None">Nothing matches</sys:String>
+    <sys:String x:Key="L.Palette.Kind.Character">Character</sys:String>
+    <sys:String x:Key="L.Palette.Kind.Label">Label of {0}</sys:String>
+    <sys:String x:Key="L.Palette.Kind.Group">Group</sys:String>
+    <sys:String x:Key="L.Palette.Kind.Profile">Profile</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">The command palette</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">With 20 clients or more, typing is faster than aiming. **Open the command palette** shows a small box over the monitor your mouse is on.&#x0A;&#x0A;- Type a few letters of a character, a label, a group or a profile. Each word you type must start a word of the name, or appear in it.&#x0A;- Up and Down choose a row, Enter runs it. With nothing typed, the box lists your running characters.&#x0A;- A character or a label brings that client forward, as clicking its thumbnail does. A group cycles forward, as its key does. A profile switches to that profile.&#x0A;- Esc, a click away from the box, or the key again closes it.&#x0A;&#x0A;Pick a key with Ctrl, Alt or Shift: a plain letter would keep you from typing it. While hotkeys are paused, its key does nothing. With streamer mode on, the list shows the masked names and leaves labels out.</sys:String>
 </ResourceDictionary>

@@ -2728,4 +2728,15 @@
     <sys:String x:Key="L.Cmd.focus-mode-off">Disattiva la modalità focus</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.mute">Silenzia gli allarmi di {0} per 1 ora</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.unmute">Riattiva gli allarmi di {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette">Apri la tavolozza dei comandi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette.Desc">Apre una piccola casella sul monitor in cui si trova il mouse. Digita qualche lettera di un personaggio, un'etichetta, un gruppo o un profilo e premi Invio per passarci. Premi di nuovo il tasto o Esc per chiuderla. Funziona mentre è in esecuzione un client EVE, come le altre scorciatoie.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Title">Tavolozza dei comandi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Placeholder">Digita un personaggio, un'etichetta, un gruppo o un profilo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.None">Nessuna corrispondenza</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Character">Personaggio</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Label">Etichetta di {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Group">Gruppo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Profile">Profilo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">La tavolozza dei comandi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">Con 20 client o più, digitare è più veloce che puntare. **Apri la tavolozza dei comandi** mostra una piccola casella sul monitor in cui si trova il mouse.&#x0A;&#x0A;- Digita qualche lettera di un personaggio, di un'etichetta, di un gruppo o di un profilo. Ogni parola digitata deve iniziare una parola del nome o comparire al suo interno.&#x0A;- Su e Giù scelgono una riga, Invio la esegue. Senza digitare nulla, la casella elenca i tuoi personaggi in esecuzione.&#x0A;- Un personaggio o un'etichetta porta quel client in primo piano, come un clic sulla sua miniatura. Un gruppo passa al successivo, come il suo tasto. Un profilo passa a quel profilo.&#x0A;- Esc, un clic fuori dalla casella o di nuovo il tasto la chiude.&#x0A;&#x0A;Scegli un tasto con Ctrl, Alt o Maiusc: una semplice lettera ti impedirebbe di digitarla. Finché le scorciatoie sono in pausa, il suo tasto non fa nulla. Con la modalità streamer attiva, l'elenco mostra i nomi nascosti e lascia fuori le etichette.</sys:String> <!-- draft -->
 </ResourceDictionary>

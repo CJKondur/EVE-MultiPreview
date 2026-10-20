@@ -2711,4 +2711,15 @@
     <sys:String x:Key="L.Cmd.focus-mode-off">フォーカスモードをオフにする</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.mute">{0} のアラートを 1 時間ミュート</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.unmute">{0} のアラートのミュートを解除</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette">コマンドパレットを開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette.Desc">マウスがあるモニターの上に小さなボックスを開きます。キャラクター、ラベル、グループ、プロファイルの名前を数文字入力し、Enter を押すとそこへ切り替わります。もう一度キーを押すか Esc を押すと閉じます。ほかのホットキーと同じように、EVE クライアントの実行中に使えます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Title">コマンドパレット</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Placeholder">キャラクター、ラベル、グループ、プロファイルを入力</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.None">一致するものがありません</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Character">キャラクター</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Label">{0} のラベル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Group">グループ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Profile">プロファイル</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">コマンドパレット</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">クライアントが 20 個以上あるときは、狙うより入力するほうが速くなります。**コマンドパレットを開く** は、マウスがあるモニターの上に小さなボックスを表示します。&#x0A;&#x0A;- キャラクター、ラベル、グループ、プロファイルの名前を数文字入力します。入力した各語は、名前のどれかの語の先頭であるか、名前の中に含まれている必要があります。&#x0A;- 上キーと下キーで行を選び、Enter で実行します。何も入力していないときは、実行中のキャラクターが並びます。&#x0A;- キャラクターまたはラベルを選ぶと、サムネイルをクリックしたときと同じように、そのクライアントが手前に出ます。グループは、そのキーと同じように次へ切り替わります。プロファイルは、そのプロファイルに切り替わります。&#x0A;- Esc、ボックスの外をクリック、またはもう一度キーを押すと閉じます。&#x0A;&#x0A;Ctrl、Alt、Shift を組み合わせたキーを選んでください。文字キーだけだと、その文字を入力できなくなります。ホットキーを一時停止している間は、このキーも何もしません。配信者モードがオンのときは、一覧にはマスクされた名前が表示され、ラベルは含まれません。</sys:String> <!-- draft -->
 </ResourceDictionary>

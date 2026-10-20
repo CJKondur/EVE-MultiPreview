@@ -2710,4 +2710,15 @@
     <sys:String x:Key="L.Cmd.focus-mode-off">Fokusmodus ausschalten</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.mute">Warnungen von {0} für 1 Stunde stummschalten</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.unmute">Stummschaltung der Warnungen von {0} aufheben</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette">Befehlspalette öffnen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette.Desc">Öffnet ein kleines Feld über dem Monitor, auf dem deine Maus ist. Tippe ein paar Buchstaben eines Charakters, einer Beschriftung, einer Gruppe oder eines Profils und drücke Enter, um dorthin zu wechseln. Drücke die Taste noch einmal oder Esc, um es zu schließen. Funktioniert wie die anderen Hotkeys, während ein EVE-Client läuft.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Title">Befehlspalette</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Placeholder">Charakter, Beschriftung, Gruppe oder Profil eintippen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.None">Nichts passt</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Character">Charakter</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Label">Beschriftung von {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Group">Gruppe</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Profile">Profil</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">Die Befehlspalette</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">Bei 20 Clients oder mehr ist Tippen schneller als Zielen. **Befehlspalette öffnen** zeigt ein kleines Feld über dem Monitor, auf dem deine Maus ist.&#x0A;&#x0A;- Tippe ein paar Buchstaben eines Charakters, einer Beschriftung, einer Gruppe oder eines Profils. Jedes Wort, das du tippst, muss ein Wort des Namens beginnen oder darin vorkommen.&#x0A;- Pfeil hoch und Pfeil runter wählen eine Zeile, Enter führt sie aus. Ohne Eingabe listet das Feld deine laufenden Charaktere.&#x0A;- Ein Charakter oder eine Beschriftung holt diesen Client nach vorn, wie ein Klick auf sein Vorschaubild. Eine Gruppe schaltet vorwärts, wie ihre Taste. Ein Profil wechselt zu diesem Profil.&#x0A;- Esc, ein Klick neben das Feld oder die Taste noch einmal schließt es.&#x0A;&#x0A;Wähle eine Taste mit Strg, Alt oder Umschalt: Ein einzelner Buchstabe würde dich beim Tippen stören. Solange Hotkeys pausiert sind, tut die Taste nichts. Bei eingeschaltetem Streamer-Modus zeigt die Liste die maskierten Namen und lässt Beschriftungen weg.</sys:String> <!-- draft -->
 </ResourceDictionary>

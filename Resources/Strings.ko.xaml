@@ -2711,4 +2711,15 @@
     <sys:String x:Key="L.Cmd.focus-mode-off">포커스 모드 끄기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.mute">{0}의 경보를 1시간 동안 음소거</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.unmute">{0}의 경보 음소거 해제</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette">명령 팔레트 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.commandPalette.Desc">마우스가 있는 모니터 위에 작은 상자를 열어요. 캐릭터, 라벨, 그룹, 프로필의 이름 몇 글자를 입력하고 Enter를 누르면 그쪽으로 전환돼요. 키를 한 번 더 누르거나 Esc를 누르면 닫혀요. 다른 단축키처럼 EVE 클라이언트가 실행 중일 때 작동해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Title">명령 팔레트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Placeholder">캐릭터, 라벨, 그룹, 프로필을 입력하세요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.None">일치하는 항목이 없어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Character">캐릭터</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Label">{0}의 라벨</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Group">그룹</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Palette.Kind.Profile">프로필</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Title">명령 팔레트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.palette.Body">클라이언트가 20개 이상이면 조준하는 것보다 입력하는 편이 더 빨라요. **명령 팔레트 열기**는 마우스가 있는 모니터 위에 작은 상자를 보여 줘요.&#x0A;&#x0A;- 캐릭터, 라벨, 그룹, 프로필의 이름 몇 글자를 입력해요. 입력한 각 단어는 이름의 어떤 단어로 시작하거나 이름 안에 들어 있어야 해요.&#x0A;- 위쪽·아래쪽 화살표로 줄을 고르고 Enter로 실행해요. 아무것도 입력하지 않으면 실행 중인 캐릭터가 나열돼요.&#x0A;- 캐릭터나 라벨은 썸네일을 클릭할 때처럼 그 클라이언트를 앞으로 가져와요. 그룹은 그 키처럼 다음으로 전환돼요. 프로필은 그 프로필로 전환돼요.&#x0A;- Esc, 상자 밖 클릭, 또는 키를 한 번 더 누르면 닫혀요.&#x0A;&#x0A;Ctrl, Alt, Shift와 함께 쓰는 키를 고르세요. 글자 키만 쓰면 그 글자를 입력할 수 없어요. 단축키가 일시정지된 동안에는 이 키도 아무 일도 하지 않아요. 스트리머 모드가 켜져 있으면 목록에는 가려진 이름이 표시되고 라벨은 빠져요.</sys:String> <!-- draft -->
 </ResourceDictionary>
