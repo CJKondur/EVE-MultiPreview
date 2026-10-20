@@ -6,15 +6,16 @@ using System.Text;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>IDEAS #39, #15, P127 and P129: what another program may ask of the running MultiPreview. One of nineteen, nothing
-/// else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs of P127 and the
-/// two alert-mute verbs of P129.</summary>
+/// <summary>IDEAS #39, #15, P127, P129 and P126: what another program may ask of the running MultiPreview. One of twenty-three,
+/// nothing else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs of P127, the
+/// two alert-mute verbs of P129 and the four query verbs of P126 (pipe-only: no switch, and the reply carries data).</summary>
 public enum RemoteVerb
 {
     Focus, Profile, ToggleThumbnails, FocusMode,
     CycleGroup, CycleGroupBack, CycleAll, CycleAllBack, PreviousClient, LastAlert, NextProfile, PreviousProfile, DoNotDisturb,
     DoNotDisturbOn, DoNotDisturbOff, FocusModeOn, FocusModeOff,
     Mute, Unmute,
+    ListCharacters, ListGroups, ListProfiles, State,
 }
 
 /// <summary>What came of a command. The running MultiPreview answers the first three as one byte on the pipe; a second
@@ -51,9 +52,19 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
         ("--focus-mode-off", "focus-mode-off", RemoteVerb.FocusModeOff, false),
         ("--mute", "mute", RemoteVerb.Mute, true),
         ("--unmute", "unmute", RemoteVerb.Unmute, true),
+        // IDEAS P126: the queries are pipe-only. An empty switch is no switch: FromArgs skips it, CommandLines lists nothing for it.
+        ("", "list-characters", RemoteVerb.ListCharacters, false),
+        ("", "list-groups", RemoteVerb.ListGroups, false),
+        ("", "list-profiles", RemoteVerb.ListProfiles, false),
+        ("", "state", RemoteVerb.State, false),
     };
 
-    /// <summary>The command-line switch of a verb of the list (<c>--cycle-all</c>); empty for any other.</summary>
+    /// <summary>IDEAS P126: is the verb a query, whose reply carries data after the outcome byte? Only these four; every other
+    /// verb, and any value not on the list, is answered with one byte.</summary>
+    public static bool IsQuery(RemoteVerb verb) =>
+        verb is RemoteVerb.ListCharacters or RemoteVerb.ListGroups or RemoteVerb.ListProfiles or RemoteVerb.State;
+
+    /// <summary>The command-line switch of a verb of the list (<c>--cycle-all</c>); empty for any other, and for a query.</summary>
     public static string SwitchOf(RemoteVerb verb) => Allowed.FirstOrDefault(a => a.Verb == verb).Switch ?? "";
 
     /// <summary>The word of a verb on the pipe (<c>cycle-all</c>), also the end of its label key <c>L.Cmd.&lt;word&gt;</c>;
@@ -77,7 +88,7 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
         if (args.Count is < 1 or > 2) return null;
         foreach (var (switchText, _, verb, takesName) in Allowed)
         {
-            if (!string.Equals(args[0], switchText, StringComparison.OrdinalIgnoreCase)) continue;
+            if (switchText.Length == 0 || !string.Equals(args[0], switchText, StringComparison.OrdinalIgnoreCase)) continue;   // a query has no switch
             if (!takesName) return args.Count == 1 ? new RemoteCommand(verb, "") : null;
             return args.Count == 2 && Clean(args[1]) is { } name ? new RemoteCommand(verb, name) : null;
         }
@@ -234,9 +245,84 @@ public sealed class RemoteCommandRunner
                 if (pilot == null) return RemoteOutcome.NotFound;
                 SetAlertMute(pilot, command.Verb == RemoteVerb.Mute);
                 return RemoteOutcome.Done;
-            default:
+            default:   // a verb not on the list, and the pipe-only queries (P126), which RemoteQueryRunner answers: nothing here runs them
                 return RemoteOutcome.Refused;
         }
+    }
+}
+
+/// <summary>IDEAS P126: what a query came to: the outcome, and for Done the lines of its answer (one name or one fact each).</summary>
+public sealed record QueryReply(RemoteOutcome Outcome, IReadOnlyList<string> Lines)
+{
+    public static readonly QueryReply Refused = new(RemoteOutcome.Refused, Array.Empty<string>());
+    public static readonly QueryReply NotReachable = new(RemoteOutcome.NotReachable, Array.Empty<string>());
+}
+
+/// <summary>IDEAS P126: answers a query verb on the window's thread with App's parts handed in. It lists names that exist and
+/// reports three switches; it changes nothing. Anything that is not a query is Refused and no part is read. The names are
+/// given as they are: <see cref="QueryPayload.Frame"/> leaves out what a command could not carry.</summary>
+public sealed class RemoteQueryRunner
+{
+    public required Func<IEnumerable<string>> Running { get; init; }
+    public required Func<IEnumerable<string>> Profiles { get; init; }
+    public required Func<IEnumerable<string>> Groups { get; init; }
+    public required Func<bool> IsDoNotDisturbOn { get; init; }
+    public required Func<bool> IsFocusModeOn { get; init; }
+    public required Func<bool> AreThumbnailsHidden { get; init; }
+
+    public QueryReply Query(RemoteCommand command)
+    {
+        static QueryReply Done(IEnumerable<string> lines) => new(RemoteOutcome.Done, lines.ToList());
+        static string OnOff(bool on) => on ? "on" : "off";
+        return command.Verb switch
+        {
+            RemoteVerb.ListCharacters => Done(Running()),
+            RemoteVerb.ListGroups => Done(Groups()),
+            RemoteVerb.ListProfiles => Done(Profiles()),
+            // the words of the state are protocol, not UI text: English literals, the same in every language
+            RemoteVerb.State => Done(new[]
+            {
+                "do-not-disturb=" + OnOff(IsDoNotDisturbOn()),
+                "focus-mode=" + OnOff(IsFocusModeOn()),
+                "thumbnails=" + (AreThumbnailsHidden() ? "hidden" : "shown"),
+            }),
+            _ => QueryReply.Refused,
+        };
+    }
+}
+
+/// <summary>IDEAS P126: the data after the outcome byte of a query's reply: a two-byte big-endian length (at most
+/// <see cref="MaxBytes"/>), then that many bytes of UTF-8 text, a line break after every line. Both ends are bounded by the cap.</summary>
+public static class QueryPayload
+{
+    public const int MaxBytes = 4096;
+    private static readonly UTF8Encoding Strict = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+
+    /// <summary>The length and the text of the lines that go out. A line that <see cref="RemoteCommand.Clean"/> would change or
+    /// refuse (empty, over 64 characters, a control or line-break character, a lone surrogate, starting with --) is left out; the text
+    /// is cut at the last line that fits whole, the lines before it kept in order.</summary>
+    public static byte[] Frame(IEnumerable<string> lines)
+    {
+        var text = new List<byte>();
+        foreach (var line in lines)
+        {
+            if (RemoteCommand.Clean(line) != line) continue;
+            var bytes = Strict.GetBytes(line + "\n");
+            if (text.Count + bytes.Length > MaxBytes) break;
+            text.AddRange(bytes);
+        }
+        var frame = new byte[2 + text.Count];
+        frame[0] = (byte)(text.Count >> 8);
+        frame[1] = (byte)(text.Count & 0xFF);
+        text.CopyTo(frame, 2);
+        return frame;
+    }
+
+    /// <summary>The lines of a text that came off the pipe; null when it is not valid UTF-8.</summary>
+    public static IReadOnlyList<string>? Parse(ReadOnlySpan<byte> text)
+    {
+        try { return Strict.GetString(text).Split('\n', StringSplitOptions.RemoveEmptyEntries); }
+        catch (DecoderFallbackException) { return null; }
     }
 }
 

@@ -1551,7 +1551,8 @@ public partial class App : Application
             CommandServer? made = null;
             made = new CommandServer(CommandPipe.CurrentName(), CommandPipe.Security(user, owner, alsoUser: wide),
                 command => RunOnWindowsThread(command),
-                ex => { LogError(ex); DropFailedCommandServer(made); });   // logged once, without the pipe's name
+                ex => { LogError(ex); DropFailedCommandServer(made); },   // logged once, without the pipe's name
+                query: command => QueryOnWindowsThread(command));          // IDEAS P126: the queries, whose reply carries data
             _commandServer = made;
             _commandServerWide = wide;
             made.Start();
@@ -1632,6 +1633,46 @@ public partial class App : Application
         {
             LogError(ex);
             return RemoteOutcome.Refused;
+        }
+    }
+
+    /// <summary>IDEAS P126: the same wait and the same taking back as <see cref="RunOnWindowsThread"/> for a query: it reads state
+    /// on the window's thread, and one that never started answers "nothing took it".</summary>
+    private async Task<QueryReply> QueryOnWindowsThread(RemoteCommand command)
+    {
+        var queued = Dispatcher.InvokeAsync(() => RunQuery(command));
+        try { return await queued.Task.WaitAsync(CommandServer.ReadTime); }
+        catch (TimeoutException)
+        {
+            if (queued.Abort()) return new QueryReply(RemoteOutcome.NotReachable, Array.Empty<string>());   // never ran
+            return await queued.Task;                                                                        // already running: quick
+        }
+    }
+
+    /// <summary>IDEAS P126: one query, on the window's thread. It reads what the commands read (the running characters, the groups,
+    /// the profiles, the three switches) and changes nothing; the names are handed on as they are (the pipe is this account's own,
+    /// for its own programs). A failure is logged and answered "refused".</summary>
+    private QueryReply RunQuery(RemoteCommand command)
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null) return new QueryReply(RemoteOutcome.NotReachable, Array.Empty<string>());
+            var thumbnails = _thumbnailManager;
+            var settings = _settings;
+            return new RemoteQueryRunner
+            {
+                Running = () => thumbnails.GetActiveCharacterNames(),
+                Profiles = () => settings.GetProfileNames(),
+                Groups = () => FocusMode.Groups(settings.Settings).Select(g => g.Name),
+                IsDoNotDisturbOn = () => DoNotDisturbOn,
+                IsFocusModeOn = () => _focusModeOn,
+                AreThumbnailsHidden = () => thumbnails.AllThumbnailsHidden,
+            }.Query(command);
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+            return QueryReply.Refused;
         }
     }
 

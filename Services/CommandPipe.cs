@@ -81,13 +81,36 @@ public static class CommandPipe
 
     /// <summary>Only what the running MultiPreview would take goes on the pipe: a command built past the allow-list's
     /// checks (a name too long for the length byte, a lone surrogate, one Clean refuses) is Refused here, never cut
-    /// short and never sent.</summary>
+    /// short and never sent. So is a query verb (IDEAS P126): its reply carries data this one-byte reader would leave
+    /// unread, so a query goes through <see cref="QueryAsync"/> only.</summary>
     public static async Task<RemoteOutcome> SendAsync(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront = false)
+    {
+        if (RemoteCommand.IsQuery(command.Verb)) return RemoteOutcome.Refused;
+        return (await RoundTrip(pipeName, command, timeout, letTakeTheFront, wantsLines: false)).Outcome;
+    }
+
+    /// <summary>IDEAS P126: sends one query verb and reads its reply: the outcome and, for Done, the lines of the answer. At most
+    /// <paramref name="timeout"/> in all, the payload's read included, and never more than <see cref="QueryPayload.MaxBytes"/>
+    /// of it. A command that is not a query is Refused here and never sent. A MultiPreview that does not know the query word
+    /// answers Refused in one byte: no lines, no wait.</summary>
+    public static async Task<QueryReply> QueryAsync(string pipeName, RemoteCommand command, TimeSpan timeout)
+    {
+        if (!RemoteCommand.IsQuery(command.Verb)) return QueryReply.Refused;
+        return await RoundTrip(pipeName, command, timeout, letTakeTheFront: false, wantsLines: true);
+    }
+
+    /// <summary>The same off the caller's thread, like <see cref="Send"/>.</summary>
+    public static QueryReply Query(string pipeName, RemoteCommand command, TimeSpan timeout) =>
+        Task.Run(() => QueryAsync(pipeName, command, timeout)).GetAwaiter().GetResult();
+
+    /// <summary>One command, one connection: connects (with the elevated server's second try), writes the message and reads the
+    /// reply; <paramref name="wantsLines"/> reads the payload of a query's Done as well.</summary>
+    private static async Task<QueryReply> RoundTrip(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront, bool wantsLines)
     {
         byte[] message;
         try { message = command.ToMessage(); }
-        catch (EncoderFallbackException) { return RemoteOutcome.Refused; }
-        if (RemoteCommand.FromMessage(message) != command) return RemoteOutcome.Refused;
+        catch (EncoderFallbackException) { return QueryReply.Refused; }
+        if (RemoteCommand.FromMessage(message) != command) return QueryReply.Refused;
 
         using var limit = new CancellationTokenSource(timeout);
         NamedPipeClientStream? pipe = null;
@@ -108,17 +131,17 @@ public static class CommandPipe
                 pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous, TokenImpersonationLevel.Identification);
                 await pipe.ConnectAsync(limit.Token);   // refused again: the outer catch answers NotReachable
                 if (!GetNamedPipeServerProcessId(pipe.SafePipeHandle, out uint serverProcess) || !IsThisAccountsElevatedProcess(serverProcess))
-                    return RemoteOutcome.NotReachable;
+                    return QueryReply.NotReachable;
             }
             return await Exchange(pipe);
         }
         catch (Exception ex) when (ex is OperationCanceledException or IOException or TimeoutException or UnauthorizedAccessException)
         {
-            return RemoteOutcome.NotReachable;
+            return QueryReply.NotReachable;   // a reply cut short, or one that outlasts the clock, ends here too
         }
         finally { pipe?.Dispose(); }
 
-        async Task<RemoteOutcome> Exchange(NamedPipeClientStream connected)
+        async Task<QueryReply> Exchange(NamedPipeClientStream connected)
         {
             if (letTakeTheFront) LetTakeTheFront(connected.SafePipeHandle);
             var frame = new byte[message.Length + 1];
@@ -128,7 +151,18 @@ public static class CommandPipe
             await connected.FlushAsync(limit.Token);
             var reply = new byte[1];
             int read = await connected.ReadAsync(reply, limit.Token);
-            return read == 1 && reply[0] <= (byte)RemoteOutcome.NotFound ? (RemoteOutcome)reply[0] : RemoteOutcome.NotReachable;
+            if (read != 1 || reply[0] > (byte)RemoteOutcome.NotFound) return QueryReply.NotReachable;
+            var outcome = (RemoteOutcome)reply[0];
+            // IDEAS P126: only a query's Done has more to read (an older server refuses the word in one byte); the length is
+            // checked against the cap before a byte of text is read, and every read ends with the clock.
+            if (!wantsLines || outcome != RemoteOutcome.Done) return new QueryReply(outcome, Array.Empty<string>());
+            var head = new byte[2];
+            await connected.ReadExactlyAsync(head, limit.Token);
+            int length = (head[0] << 8) | head[1];
+            if (length > QueryPayload.MaxBytes) return QueryReply.NotReachable;
+            var text = new byte[length];
+            await connected.ReadExactlyAsync(text, limit.Token);
+            return QueryPayload.Parse(text) is { } lines ? new QueryReply(RemoteOutcome.Done, lines) : QueryReply.NotReachable;
         }
     }
 
@@ -225,7 +259,8 @@ public static class CommandPipe
 
 /// <summary>IDEAS #39: the running MultiPreview's end of the pipe, on a pool thread. One client at a time: it reads one
 /// length byte and at most 255 bytes within the read time, has the command run (App runs it on the window's thread),
-/// answers one byte and waits for the client to hang up (the two together at most the read time), and serves the next. A
+/// answers one byte (IDEAS P126: a query verb's Done is followed by its payload, at most 4,096 bytes, in the same write) and
+/// waits for the client to hang up (the two together at most the read time), and serves the next. A
 /// message that is not on the allow-list is answered "refused"; a client that goes quiet is let go. Dispose stops it.
 /// <para>The name is never free while it runs: the first instance is made with FirstPipeInstance, so a pipe of that
 /// name another account made first is never joined (that account's door would govern it); and the next instance is made
@@ -246,17 +281,22 @@ public sealed class CommandServer : IDisposable
     private readonly string _name;
     private readonly PipeSecurity _security;
     private readonly Func<RemoteCommand, Task<RemoteOutcome>> _run;
+    private readonly Func<RemoteCommand, Task<QueryReply>>? _query;
     private readonly Action<Exception> _failed;
     private readonly TimeSpan _readTime;
     private readonly CancellationTokenSource _stop = new();
     private Task? _loop;
     private volatile bool _gaveUp;
 
-    public CommandServer(string name, PipeSecurity security, Func<RemoteCommand, Task<RemoteOutcome>> run, Action<Exception> failed, TimeSpan? readTime = null)
+    /// <param name="query">IDEAS P126: answers a query verb (its reply carries data). Null: a query is answered Refused. A
+    /// query verb never reaches <paramref name="run"/>, and any other verb never reaches this.</param>
+    public CommandServer(string name, PipeSecurity security, Func<RemoteCommand, Task<RemoteOutcome>> run, Action<Exception> failed, TimeSpan? readTime = null,
+        Func<RemoteCommand, Task<QueryReply>>? query = null)
     {
         _name = name;
         _security = security;
         _run = run;
+        _query = query;
         _failed = failed;
         _readTime = readTime ?? ReadTime;
     }
@@ -320,10 +360,14 @@ public sealed class CommandServer : IDisposable
     {
         try
         {
-            var outcome = await Serve(pipe, stop);
+            var (outcome, payload) = await Serve(pipe, stop);
             using var reply = CancellationTokenSource.CreateLinkedTokenSource(stop);
             reply.CancelAfter(_readTime);
-            await pipe.WriteAsync(new[] { (byte)outcome }, reply.Token);
+            // The outcome byte, and for a query's Done the payload after it, in one write. Any other reply is exactly one byte.
+            var answer = new byte[1 + payload.Length];
+            answer[0] = (byte)outcome;
+            payload.CopyTo(answer, 1);
+            await pipe.WriteAsync(answer, reply.Token);
             await pipe.FlushAsync(reply.Token);
 #pragma warning disable CA2022 // any byte or the end of the pipe is the hang-up: how many bytes came does not matter
             await pipe.ReadAsync(new byte[1], reply.Token);
@@ -347,16 +391,21 @@ public sealed class CommandServer : IDisposable
         catch (Exception) { }
     }
 
-    private async Task<RemoteOutcome> Serve(NamedPipeServerStream pipe, CancellationToken stop)
+    private async Task<(RemoteOutcome Outcome, byte[] Payload)> Serve(NamedPipeServerStream pipe, CancellationToken stop)
     {
         using var read = CancellationTokenSource.CreateLinkedTokenSource(stop);
         read.CancelAfter(_readTime);
         var length = new byte[1];
         await pipe.ReadExactlyAsync(length, read.Token);
-        if (length[0] == 0) return RemoteOutcome.Refused;
+        if (length[0] == 0) return (RemoteOutcome.Refused, Array.Empty<byte>());
         var message = new byte[length[0]];
         await pipe.ReadExactlyAsync(message, read.Token);
         var command = RemoteCommand.FromMessage(message);
-        return command == null ? RemoteOutcome.Refused : await _run(command);
+        if (command == null) return (RemoteOutcome.Refused, Array.Empty<byte>());
+        if (!RemoteCommand.IsQuery(command.Verb)) return (await _run(command), Array.Empty<byte>());
+        // IDEAS P126: only a query's Done carries a payload (cut at a whole line within the cap, a refused name left out)
+        if (_query == null) return (RemoteOutcome.Refused, Array.Empty<byte>());
+        var answer = await _query(command);
+        return answer.Outcome == RemoteOutcome.Done ? (RemoteOutcome.Done, QueryPayload.Frame(answer.Lines)) : (answer.Outcome, Array.Empty<byte>());
     }
 }
