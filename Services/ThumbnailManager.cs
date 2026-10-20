@@ -1230,7 +1230,9 @@ public sealed class ThumbnailManager : IDisposable
         // Hover zoom. 1.0 = off, so unticking it applies at once.
         thumb.SetHoverScale(HoverScaleFor(s));
 
-        // Text overlay
+        // Text overlay. The template first (IDEAS P2): the name, system, label and timer calls below then fill it, and a
+        // toggle that is off leaves its token empty. Empty template = the separate blocks, as always.
+        thumb.SetTextTemplate(s.ThumbnailTextTemplate);
         thumb.SetTextOverlayVisible(s.ShowThumbnailTextOverlay);
         ApplyTextStyle(thumb, s, window.CharacterName);
         thumb.SetTextMargins((int)s.ThumbnailTextMargins.X, (int)s.ThumbnailTextMargins.Y,

@@ -36,6 +36,10 @@ public class AppSettings
     /// <summary>Streamer mode (IDEAS #19): character names show as "Client N" and labels and system names are hidden
     /// wherever MultiPreview draws them (StreamerMask). New key: off in a file without it.</summary>
     public bool StreamerMode { get; set; } = false;
+    /// <summary>Thumbnail text template (IDEAS P2): "{name} · {system} · {timer} · {label}" and the like; empty = the name,
+    /// label, system and timer as separate lines, as always. At most TextTemplate.MaxLength characters (a longer one is
+    /// cut when a file is read). New key: empty in a file without it.</summary>
+    public string ThumbnailTextTemplate { get; set; } = "";
     public bool LockPositions { get; set; } = false;
     public int PreferredMonitor { get; set; } = 1;
     public string ThumbnailBackgroundColor { get; set; } = "#57504E";

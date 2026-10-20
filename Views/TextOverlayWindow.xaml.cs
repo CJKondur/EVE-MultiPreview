@@ -44,9 +44,70 @@ public partial class TextOverlayWindow : Window
     private string? _rawAnnotation;
     private string? _rawSystem;
 
+    // Thumbnail text templates (IDEAS P2). With a template the name block shows the composed text and the label, system and
+    // timer blocks stay hidden; every setter below keeps its value and composes again. No template (the default) leaves
+    // every block exactly as it always was. The values are the masked display text, composed from the raw text kept above.
+    private string _template = "";
+    private bool _nameOn = true;               // "show character name": a template's {name} is empty while it is off
+    private string? _timerText;                // the session timer as drawn, null while it is off
+    private string? _systemTransitionText;     // "from → to" while a system change is on show, else null
+
+    /// <summary>Sets the text template (empty = the four separate blocks, as always). Called with every settings apply.</summary>
+    public void SetTextTemplate(string? template)
+    {
+        string clean = TextTemplate.Clean(template);
+        if (clean == _template) return;
+        _template = clean;
+        if (_template.Length > 0)
+        {
+            AnnotationOverlay.Visibility = Visibility.Collapsed;
+            SystemOverlay.Visibility = Visibility.Collapsed;
+            TimerOverlay.Visibility = Visibility.Collapsed;
+            CancelSystemTransitionText();
+            Compose();
+            return;
+        }
+
+        // Back to the separate blocks: draw each from the text kept.
+        string name = StreamerMask.Name(StreamerKind.Character, _rawName);
+        NameOverlay.Text = name;
+        NameOverlay.Visibility = _nameOn && !string.IsNullOrEmpty(name) ? Visibility.Visible : Visibility.Collapsed;
+        UpdateAnnotation(_rawAnnotation);
+        UpdateSystemName(_rawSystem);
+        if (_timerText != null)
+        {
+            TimerOverlay.Text = _timerText;
+            TimerOverlay.Visibility = Visibility.Visible;
+        }
+    }
+
+    private void CancelSystemTransitionText()
+    {
+        _systemTransitionTimer?.Stop();
+        _systemTransitionTimer = null;
+        _systemTransitionText = null;
+    }
+
+    /// <summary>The template filled with what the blocks would show, in the name block. Nothing to show hides it.</summary>
+    private void Compose()
+    {
+        if (_template.Length == 0) return;
+        var values = new System.Collections.Generic.Dictionary<string, string?>
+        {
+            [TextTemplate.NameToken] = _nameOn ? StreamerMask.Name(StreamerKind.Character, _rawName) : "",
+            [TextTemplate.LabelToken] = StreamerMask.Name(StreamerKind.Label, _rawAnnotation),
+            [TextTemplate.SystemToken] = _systemTransitionText ?? StreamerMask.Name(StreamerKind.System, _rawSystem),
+            [TextTemplate.TimerToken] = _timerText,
+        };
+        string text = TextTemplate.Render(_template, values);
+        if (NameOverlay.Text != text) NameOverlay.Text = text;
+        NameOverlay.Visibility = text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
     public void UpdateCharacterName(string name)
     {
         _rawName = name ?? "";
+        if (_template.Length > 0) { Compose(); return; }
         string shown = StreamerMask.Name(StreamerKind.Character, _rawName);
         if (!string.IsNullOrEmpty(shown))
         {
@@ -62,6 +123,7 @@ public partial class TextOverlayWindow : Window
     public void UpdateAnnotation(string? text)
     {
         _rawAnnotation = text;
+        if (_template.Length > 0) { Compose(); return; }
         string shown = StreamerMask.Name(StreamerKind.Label, text);
         if (!string.IsNullOrEmpty(shown))
         {
@@ -80,6 +142,12 @@ public partial class TextOverlayWindow : Window
     /// being shown settles at once.</summary>
     public void ApplyStreamerMask()
     {
+        if (_template.Length > 0)
+        {
+            CancelSystemTransitionText();   // a system change in flight settles, as it does without a template
+            Compose();
+            return;
+        }
         string name = StreamerMask.Name(StreamerKind.Character, _rawName);
         if (!string.IsNullOrEmpty(name)) NameOverlay.Text = name;
         UpdateAnnotation(_rawAnnotation);
@@ -99,10 +167,12 @@ public partial class TextOverlayWindow : Window
         // Cancel any in-flight transition animation — caller is forcing a plain set.
         _systemTransitionTimer?.Stop();
         _systemTransitionTimer = null;
+        _systemTransitionText = null;
         SystemOverlay.BeginAnimation(OpacityProperty, null);
         SystemOverlay.Opacity = 1.0;
 
         _rawSystem = systemName;
+        if (_template.Length > 0) { Compose(); return; }
         string shown = StreamerMask.Name(StreamerKind.System, systemName);
         if (!string.IsNullOrEmpty(shown))
         {
@@ -130,6 +200,22 @@ public partial class TextOverlayWindow : Window
             return;
         }
         _rawSystem = to;
+
+        if (_template.Length > 0)
+        {
+            // In a template the change reads "from → to" inside the {system} token, then settles to the new system.
+            _systemTransitionTimer?.Stop();
+            _systemTransitionText = string.IsNullOrEmpty(maskedFrom) ? maskedTo : $"{maskedFrom} → {maskedTo}";
+            Compose();
+            _systemTransitionTimer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(durationMs) };
+            _systemTransitionTimer.Tick += (_, _) =>
+            {
+                CancelSystemTransitionText();
+                Compose();
+            };
+            _systemTransitionTimer.Start();
+            return;
+        }
 
         // Cancel previous transition if still running
         _systemTransitionTimer?.Stop();
@@ -170,15 +256,24 @@ public partial class TextOverlayWindow : Window
 
     public void UpdateSessionTimer(TimeSpan elapsed)
     {
-        TimerOverlay.Text = $"{elapsed:hh\\:mm\\:ss}";
+        _timerText = $"{elapsed:hh\\:mm\\:ss}";
+        if (_template.Length > 0) { Compose(); return; }
+        TimerOverlay.Text = _timerText;
         TimerOverlay.Visibility = Visibility.Visible;
     }
 
     /// <summary>The session timer is turned off: hide it (it starts hidden in the XAML).</summary>
-    public void HideSessionTimer() => TimerOverlay.Visibility = Visibility.Collapsed;
+    public void HideSessionTimer()
+    {
+        _timerText = null;
+        if (_template.Length > 0) { Compose(); return; }
+        TimerOverlay.Visibility = Visibility.Collapsed;
+    }
 
     public void SetTextOverlayVisible(bool visible)
     {
+        _nameOn = visible;
+        if (_template.Length > 0) { Compose(); return; }
         // Only controls the character name overlay — other overlays (system, timer, 
         // annotations, process stats) are managed independently by their own settings
         NameOverlay.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;

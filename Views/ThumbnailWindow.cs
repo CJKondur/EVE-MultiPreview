@@ -1129,6 +1129,9 @@ public class ThumbnailWindow : Form
 
     public void UpdateAnnotation(string? text) => _textOverlay?.UpdateAnnotation(text);
 
+    /// <summary>IDEAS P2: the text template for this thumbnail's overlay (empty = the separate name, label, system and timer).</summary>
+    public void SetTextTemplate(string? template) => _textOverlay?.SetTextTemplate(template);
+
     /// <summary>Streamer mode (IDEAS #19) was switched on or off: the overlay draws its name, label and system again. The
     /// lookup key <see cref="CharacterName"/> is never masked.</summary>
     public void RefreshStreamerMask() => _textOverlay?.ApplyStreamerMask();

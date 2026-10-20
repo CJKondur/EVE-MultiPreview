@@ -2691,4 +2691,9 @@
     <sys:String x:Key="L.Tray.StreamerMode">Streamer-Modus</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.On">Streamer-Modus: an</sys:String> <!-- draft -->
     <sys:String x:Key="L.Streamer.Off">Streamer-Modus: aus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.template">Textvorlage</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.template.Desc">Baut den Text auf einer Vorschau aus {name}, {system}, {timer} und {label} zusammen, zum Beispiel {name} · {system}. Leer zeigt sie als einzelne Zeilen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.TemplateExamples">Beispiel einfügen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.template.Title">Textvorlage</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.template.Body">Die **Textvorlage** baut den Text auf einer Vorschau aus vier Teilen zusammen: {name} ist der Charaktername, {system} das Sonnensystem, {timer} der Sitzungstimer und {label} die Beschriftung, die du dem Charakter gegeben hast. Schreib sie mit beliebigem Text dazwischen, zum Beispiel {name} · {system} oder {label} {name} {timer}, oder wähle ein Beispiel aus der Liste.&#x0A;&#x0A;Ein Teil, das nichts anzuzeigen hat, nimmt die Trennzeichen neben sich mit, sodass eine Vorschau ohne Beschriftung nicht mit einem hängenden Punkt beginnt. Ein Teil, dessen Schalter darüber ausgeschaltet ist, entfällt genauso. Alles andere in geschweiften Klammern bleibt, wie du es getippt hast; eine geschweifte Klammer selbst schreibst du doppelt. Eine Vorlage darf bis zu 120 Zeichen lang sein; eine längere wird abgeschnitten.&#x0A;&#x0A;Der ganze Text hat Farbe, Schrift und Größe des Charakternamens, und der Streamer-Modus gilt auch darin. Die Vorlage gilt für die Haupt-Vorschauen; andere Fenster, die einen Namen zeigen, zeigen weiter nur den Namen. Leer lassen behält die einzelnen Zeilen.</sys:String> <!-- draft -->
 </ResourceDictionary>

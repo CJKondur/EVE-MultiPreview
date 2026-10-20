@@ -2691,4 +2691,9 @@
     <sys:String x:Key="L.Tray.StreamerMode">Streamer mode</sys:String>
     <sys:String x:Key="L.Streamer.On">Streamer mode: on</sys:String>
     <sys:String x:Key="L.Streamer.Off">Streamer mode: off</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.template">Text template</sys:String>
+    <sys:String x:Key="L.S.thumbs.text.template.Desc">Builds the text on a thumbnail from {name}, {system}, {timer} and {label}, for example {name} · {system}. Empty shows them as separate lines.</sys:String>
+    <sys:String x:Key="L.S.Opt.TemplateExamples">Fill in an example</sys:String>
+    <sys:String x:Key="L.Help.thumbs.text.template.Title">Text template</sys:String>
+    <sys:String x:Key="L.Help.thumbs.text.template.Body">**Text template** builds the text on a thumbnail from four pieces: {name} is the character name, {system} the solar system, {timer} the session timer and {label} the label you gave the character. Type them with anything in between, for example {name} · {system} or {label} {name} {timer}, or pick an example from the list.&#x0A;&#x0A;A piece with nothing to show takes the separators next to it away, so a thumbnail without a label does not start with a dangling dot. A piece whose switch above is off is left out the same way. Anything else in braces stays as you typed it; to show a brace itself, type it twice. A template can be up to 120 characters; a longer one is cut.&#x0A;&#x0A;The whole text uses the colour, font and size of the character name, and streamer mode still applies inside it. The template is used on the main thumbnails; other windows that show a name keep showing just the name. Leave it empty to keep the separate lines.</sys:String>
 </ResourceDictionary>

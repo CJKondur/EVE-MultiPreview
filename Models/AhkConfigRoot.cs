@@ -78,6 +78,7 @@ public class AhkConfigRoot
         s.LockResizeAspect = g.LockResizeAspect != 0;
         s.AutoLayoutOnMonitorChange = g.AutoLayoutOnMonitorChange != 0;
         s.StreamerMode = g.StreamerMode != 0;
+        s.ThumbnailTextTemplate = Services.TextTemplate.Clean(g.ThumbnailTextTemplate);   // bounded: a hand-edited file can't make it long
         s.ResizeThumbnailsOnHover = g.ResizeThumbnailsOnHover != 0;
         s.HoverScale = UsableHoverScale(g.HoverScale);
         s.CycleDelayMs = g.CycleDelayMs;
@@ -433,6 +434,7 @@ public class AhkConfigRoot
         g.LockResizeAspect = s.LockResizeAspect ? 1 : 0;
         g.AutoLayoutOnMonitorChange = s.AutoLayoutOnMonitorChange ? 1 : 0;
         g.StreamerMode = s.StreamerMode ? 1 : 0;
+        g.ThumbnailTextTemplate = Services.TextTemplate.Clean(s.ThumbnailTextTemplate);
         g.ResizeThumbnailsOnHover = s.ResizeThumbnailsOnHover ? 1 : 0;
         g.HoverScale = UsableHoverScale(s.HoverScale);
         g.CycleDelayMs = s.CycleDelayMs;
@@ -1211,6 +1213,10 @@ public class AhkGlobalSettings
     // Streamer mode, IDEAS #19: names, labels and systems are masked where MultiPreview draws them. New after 2.3.42: a file without it loads off.
     [JsonPropertyName("StreamerMode")]
     public int StreamerMode { get; set; }
+
+    // Thumbnail text template, IDEAS P2: "{name} · {system}" and the like. New after 2.3.42: a file without it loads empty (the separate lines).
+    [JsonPropertyName("ThumbnailTextTemplate")]
+    public string? ThumbnailTextTemplate { get; set; } = "";
 
     // Hover zoom and its size were live-only until the settings rework; a file without them loads off and 1.5.
     [JsonPropertyName("ResizeThumbnailsOnHover")]
