@@ -123,6 +123,7 @@ public partial class App : Application
     private readonly RefusalAnnouncer _refusalAnnouncer = new();
     private readonly RefusalNote _refusalNote = new();
     private AlertHistoryWindow? _historyWindow;
+    private StatReportWindow? _statReportWindow;   // IDEAS #20: the session reports window, while it is open
     private bool _streamerMaskDrawn;   // IDEAS #19: the mode the history window was last drawn for; it is redrawn when this flips
     private Views.HotkeySheetWindow? _hotkeySheet;  // IDEAS #16: the hotkey cheat sheet, while it shows
     private Views.CommandPaletteWindow? _commandPalette;  // IDEAS #14: the command palette, while it shows
@@ -1323,6 +1324,7 @@ public partial class App : Application
             _cropManager?.Refresh();
             _streamerMaskDrawn = StreamerMask.IsOn;
             _historyWindow?.RefreshStreamerMask();
+            _statReportWindow?.RefreshStreamerMask();
             _trayMenu?.Refresh();
             var (key, english) = StreamerMask.IsOn ? ("L.Streamer.On", "Streamer mode: on") : ("L.Streamer.Off", "Streamer mode: off");
             _thumbnailManager?.ShowTooltipFeedback(LocalizationService.Str(key, english));
@@ -1951,6 +1953,7 @@ public partial class App : Application
             OpenSettingsPage = page =>
                 Application.Current?.Dispatcher.BeginInvoke(new Action(() => OpenSettings(startMinimized: false, pageId: page))),
             OpenAlertHistory = () => Application.Current?.Dispatcher.BeginInvoke(new Action(OpenAlertHistory)),
+            OpenStatReport = () => Application.Current?.Dispatcher.BeginInvoke(new Action(OpenStatReport)),
             OpenHotkeySheet = () => Application.Current?.Dispatcher.BeginInvoke(new Action(ToggleHotkeySheet)),
             SwitchProfile = name => _settings?.SwitchProfile(name),   // ProfileSwitched applies it (#101)
             IsSuspended = () => _hotkeyService?.IsSuspended ?? false,
@@ -2154,6 +2157,7 @@ public partial class App : Application
             {
                 _streamerMaskDrawn = StreamerMask.IsOn;
                 _historyWindow?.RefreshStreamerMask();
+                _statReportWindow?.RefreshStreamerMask();
             }
 
             // Stats logging applies live too (IDEAS P31); unchanged values don't rescan the log folder.
@@ -2363,6 +2367,31 @@ public partial class App : Application
         catch (Exception ex)
         {
             _historyWindow = null;
+            LogError(ex);
+        }
+    }
+
+    /// <summary>Opens the session reports (IDEAS #20), or brings them forward when they are already open. They read the stat
+    /// log folder of Tools › Stats (StatLogDirectory) and nothing else; the way in is the tray menu.</summary>
+    private void OpenStatReport()
+    {
+        if (_isShuttingDown || _settings == null) return;
+        if (_statReportWindow != null)
+        {
+            if (_statReportWindow.WindowState == WindowState.Minimized) _statReportWindow.WindowState = WindowState.Normal;
+            _statReportWindow.Activate();
+            return;
+        }
+        try
+        {
+            _streamerMaskDrawn = StreamerMask.IsOn;   // IDEAS #19: drawn for the mode as it is now, so a later flip redraws it
+            _statReportWindow = new StatReportWindow(new StatReportActions { Folder = () => _settings.Settings.StatLogDirectory });
+            _statReportWindow.Closed += (_, _) => _statReportWindow = null;
+            _statReportWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            _statReportWindow = null;
             LogError(ex);
         }
     }

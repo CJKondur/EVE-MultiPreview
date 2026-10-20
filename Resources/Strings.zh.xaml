@@ -1824,7 +1824,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">外观</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字大小、不透明度和两种颜色适用于所有统计窗口。颜色可输入 #RRGGBB 或用色块选取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">保存统计</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">开启 **将统计保存为 CSV 文件** 后，MultiPreview 会在日志文件夹中为每个角色每天写入一个文件，可用于电子表格。超过保留时间的文件会在 MultiPreview 启动时删除；0 天表示保留所有文件。开启或关闭日志会立即生效，新的保留时间从下次启动起生效。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">开启 **将统计保存为 CSV 文件** 后，MultiPreview 会在日志文件夹中为每个角色每天写入一个文件，可用于电子表格。超过保留时间的文件会在 MultiPreview 启动时删除；0 天表示保留所有文件。开启或关闭日志会立即生效，新的保留时间从下次启动起生效。 托盘菜单中的 **会话报告** 会重新读取这些文件：按角色列出每天的数据表，以及某一项数据的柱状图。活跃时间是估算值，采矿量以单位计，而不是 m³。</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">选择数字</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">为此角色显示或隐藏单个数字。“默认”跟随所有角色的数字（工具 › 统计叠加层）。</sys:String> <!-- draft -->
@@ -2750,4 +2750,26 @@
     <sys:String x:Key="L.S.Playtime.Cleared">已清除游戏时长记录。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">每周游戏时长</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**按角色统计游戏时长**会按天累计每个角色的客户端打开了多久，并保留最近两周的记录。在缩略图的文字模板中加入 {week}，就能显示最近 7 天的时长，例如 14 h 或 2 h 5 m。&#x0A;&#x0A;它默认关闭，因为它会把角色名称保存在设置文件夹里的 playtime.json 文件中。文件每五分钟保存一次，MultiPreview 关闭时也会保存。它绝不会出现在错误报告或你分享的代码里；开关关闭时不会读取或写入任何内容，{week} 也不显示任何内容。&#x0A;&#x0A;只要角色的缩略图存在就会计时，不管你是否正在玩它。**清除游戏时长记录**会立即删除文件和合计。忘记某个角色时，也会把它从文件中移除。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.StatReport">会话报告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Title">会话报告</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Characters">角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Chart">图表</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Day">日期</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Active">活跃时间（估算）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Bounty">赏金（ISK）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Mined">采矿量（单位）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageOut">输出伤害</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageIn">承受伤害</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsOut">输出维修</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsIn">获得维修</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Total">合计</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reps.Tip">装甲 {0}，护盾 {1}，电容 {2}，其他 {3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFolder">目前没有可显示的内容。请在设置中开启统计记录并选择日志文件夹；之后 MultiPreview 会为每个角色每天保存一个文件，本窗口会读取它们。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFiles">在日志文件夹中没有找到最近 {0} 天的统计文件。统计记录已开启吗？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Note">活跃时间是估算值：它累加日志行之间不超过 5 分钟的间隔。采矿量按单位计算，而不是 m³，因为日志中没有矿石的体积。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Status">角色：{0}，显示天数：{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Refresh">刷新</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Close">关闭</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Failed">无法读取统计文件。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Highest">单日最高：{0}</sys:String> <!-- draft -->
 </ResourceDictionary>

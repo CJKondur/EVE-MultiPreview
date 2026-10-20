@@ -1807,7 +1807,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">모양</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">글자 크기, 불투명도, 두 가지 색은 모든 통계 창에 적용됩니다. 색은 #RRGGBB로 입력하거나 색상 견본으로 고를 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">통계 저장</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">**통계를 CSV 파일로 저장**를 켜면 MultiPreview가 로그 폴더에 캐릭터별로 하루에 파일 하나를 기록합니다(스프레드시트용). 보관 기간보다 오래된 파일은 MultiPreview를 시작할 때 삭제되며, 0일이면 모든 파일을 보관합니다. 로그 기록을 켜고 끄는 것은 바로 적용되고, 새 보관 기간은 다음 시작부터 적용됩니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">**통계를 CSV 파일로 저장**를 켜면 MultiPreview가 로그 폴더에 캐릭터별로 하루에 파일 하나를 기록합니다(스프레드시트용). 보관 기간보다 오래된 파일은 MultiPreview를 시작할 때 삭제되며, 0일이면 모든 파일을 보관합니다. 로그 기록을 켜고 끄는 것은 바로 적용되고, 새 보관 기간은 다음 시작부터 적용됩니다. 트레이 메뉴의 **세션 보고서**는 이 파일을 다시 읽어서 캐릭터별 일별 표와 한 가지 숫자의 막대 차트를 보여 줘요. 활동 시간은 추정값이고, 채굴량은 m³가 아니라 단위 수예요.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">숫자 선택</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">이 캐릭터의 개별 숫자를 표시하거나 숨깁니다. 기본값은 모든 캐릭터의 숫자(도구 › 통계 오버레이)를 따릅니다.</sys:String> <!-- draft -->
@@ -2733,4 +2733,26 @@
     <sys:String x:Key="L.S.Playtime.Cleared">플레이 시간 내역을 지웠어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">주간 플레이 시간</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**캐릭터별 플레이 시간 집계**는 각 캐릭터의 클라이언트가 열려 있던 시간을 날마다 합산하고, 최근 2주 치를 보관해요. 미리보기의 텍스트 템플릿에 {week}를 넣으면 최근 7일간의 시간(예: 14 h, 2 h 5 m)을 표시해요.&#x0A;&#x0A;캐릭터 이름을 설정 폴더의 playtime.json 파일에 저장하기 때문에 기본값은 꺼짐이에요. 파일은 5분마다, 그리고 MultiPreview를 닫을 때 저장돼요. 버그 보고나 공유하는 코드에는 절대 포함되지 않고, 스위치가 꺼져 있으면 아무것도 읽거나 쓰지 않으며 {week}에는 아무것도 표시되지 않아요.&#x0A;&#x0A;캐릭터는 미리보기가 있는 동안 직접 플레이하는지와 관계없이 집계돼요. **플레이 시간 내역 지우기**는 파일과 합계를 바로 삭제해요. 캐릭터를 삭제하면 파일에서도 사라져요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.StatReport">세션 보고서</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Title">세션 보고서</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Characters">캐릭터</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Chart">차트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Day">날짜</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Active">활동 시간(추정)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Bounty">현상금(ISK)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Mined">채굴량(단위)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageOut">가한 피해</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageIn">받은 피해</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsOut">제공한 수리</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsIn">받은 수리</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Total">합계</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reps.Tip">장갑 {0}, 실드 {1}, 캐패시터 {2}, 기타 {3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFolder">아직 보고할 내용이 없어요. 설정에서 통계 기록을 켜고 로그 폴더를 선택해 주세요. 그러면 MultiPreview가 캐릭터마다 하루에 파일 하나씩 저장하고, 이 창이 그 파일을 읽어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFiles">로그 폴더에서 최근 {0}일의 통계 파일을 찾지 못했어요. 통계 기록이 켜져 있나요?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Note">활동 시간은 추정값이에요. 로그 줄 사이의 간격 중 5분 이하인 것만 더해요. 채굴량은 m³가 아니라 단위 수로 세요. 로그에 광석의 부피가 없기 때문이에요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Status">캐릭터: {0}, 표시 일수: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Refresh">새로 고침</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Close">닫기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Failed">통계 파일을 읽을 수 없어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Highest">하루 최고: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

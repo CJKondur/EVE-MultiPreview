@@ -1809,7 +1809,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Apparence</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">La taille du texte, l'opacité et les deux couleurs s'appliquent à toutes les fenêtres de statistiques. Les couleurs peuvent être saisies en #RRGGBB ou choisies avec la pastille.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Enregistrer les statistiques</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Avec **Enregistrer les statistiques en fichiers CSV** activé, MultiPreview écrit un fichier par personnage et par jour dans le dossier des journaux, pour un tableur. Les fichiers plus anciens que la durée de conservation sont supprimés au démarrage de MultiPreview ; 0 jour conserve tous les fichiers. Activer ou désactiver la journalisation s'applique immédiatement, une nouvelle durée de conservation dès le prochain démarrage.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Avec **Enregistrer les statistiques en fichiers CSV** activé, MultiPreview écrit un fichier par personnage et par jour dans le dossier des journaux, pour un tableur. Les fichiers plus anciens que la durée de conservation sont supprimés au démarrage de MultiPreview ; 0 jour conserve tous les fichiers. Activer ou désactiver la journalisation s'applique immédiatement, une nouvelle durée de conservation dès le prochain démarrage. **Rapports de session**, dans le menu de la zone de notification, relit ces fichiers : un tableau des jours pour chaque personnage et un diagramme en barres d'un chiffre. Le temps actif est une estimation, et les minerais sont comptés en unités, pas en m³.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Choisir les chiffres</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Afficher ou masquer des chiffres individuels pour ce personnage. « Par défaut » suit les chiffres de tous les personnages (Outils › Overlay de statistiques).</sys:String> <!-- draft -->
@@ -2735,4 +2735,26 @@
     <sys:String x:Key="L.S.Playtime.Cleared">Historique du temps de jeu effacé.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">Temps de jeu hebdomadaire</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**Compter le temps de jeu par personnage** additionne, jour après jour, la durée pendant laquelle le client de chaque personnage est ouvert, et garde les deux dernières semaines. Mettez {week} dans le modèle de texte des miniatures pour afficher les sept derniers jours, par exemple 14 h ou 2 h 5 m.&#x0A;&#x0A;C'est désactivé par défaut, car cela conserve des noms de personnages dans un fichier, playtime.json, du dossier des paramètres. Le fichier est enregistré toutes les cinq minutes et à la fermeture de MultiPreview. Il ne fait jamais partie d'un rapport de bug ni d'un code que vous partagez, et, interrupteur éteint, rien n'est lu ni écrit et {week} n'affiche rien.&#x0A;&#x0A;Un personnage est compté tant que sa miniature existe, que vous jouiez avec lui ou non. **Effacer l'historique du temps de jeu** supprime le fichier et les totaux immédiatement. Oublier un personnage le retire aussi du fichier.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.StatReport">Rapports de session</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Title">Rapports de session</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Characters">Personnages</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Chart">Graphique</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Day">Jour</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Active">Actif (estimé)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Bounty">Primes (ISK)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Mined">Minés (unités)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageOut">Dégâts infligés</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageIn">Dégâts subis</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsOut">Réparations données</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsIn">Réparations reçues</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Total">Total</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reps.Tip">Blindage {0}, bouclier {1}, capaciteur {2}, autre {3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFolder">Rien à afficher pour l'instant. Activez la journalisation des statistiques et choisissez un dossier des journaux dans les paramètres ; MultiPreview enregistre alors un fichier par personnage et par jour, et cette fenêtre les lit.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFiles">Aucun fichier de statistiques des {0} derniers jours n'a été trouvé dans le dossier des journaux. La journalisation des statistiques est-elle activée ?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Note">Le temps actif est estimé : il additionne les écarts de 5 minutes au plus entre les lignes du journal. Les minerais sont comptés en unités, pas en m³, car les journaux n'indiquent pas le volume du minerai.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Status">Personnages : {0}, jours affichés : {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Refresh">Actualiser</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Close">Fermer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Failed">Les fichiers de statistiques n'ont pas pu être lus.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Highest">Meilleur jour : {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

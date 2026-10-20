@@ -1826,7 +1826,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Внешний вид</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">Размер текста, непрозрачность и два цвета применяются ко всем окнам статистики. Цвета можно ввести как #RRGGBB или выбрать на образце.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Сохранение статистики</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Если включено **Сохранять статистику в файлы CSV**, MultiPreview записывает по одному файлу на персонажа в день в папку журналов — для таблиц. Файлы старше срока хранения удаляются при запуске MultiPreview; 0 дней — хранить все файлы. Включение и отключение журналирования применяется сразу, а новый срок хранения — со следующего запуска.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Если включено **Сохранять статистику в файлы CSV**, MultiPreview записывает по одному файлу на персонажа в день в папку журналов — для таблиц. Файлы старше срока хранения удаляются при запуске MultiPreview; 0 дней — хранить все файлы. Включение и отключение журналирования применяется сразу, а новый срок хранения — со следующего запуска. Пункт **Отчёты о сессиях** в меню в трее заново читает эти файлы: таблицу по дням для каждого персонажа и столбчатую диаграмму одного показателя. Время активности — оценка, а добыча считается в единицах, а не в м³.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Выбор показателей</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Показывать или скрывать отдельные показатели для этого персонажа. «По умолчанию» следует показателям для всех персонажей (Инструменты › Оверлей статистики).</sys:String> <!-- draft -->
@@ -2752,4 +2752,26 @@
     <sys:String x:Key="L.S.Playtime.Cleared">История времени игры очищена.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">Время игры за неделю</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**Считать время игры по персонажам** суммирует по дням, сколько времени открыт клиент каждого персонажа, и хранит последние две недели. Добавьте {week} в шаблон текста миниатюр, чтобы показывать последние семь дней, например 14 h или 2 h 5 m.&#x0A;&#x0A;По умолчанию выключено, потому что имена персонажей сохраняются в файле playtime.json в папке настроек. Файл сохраняется каждые пять минут и при закрытии MultiPreview. Он никогда не попадает ни в отчёт об ошибке, ни в код, которым вы делитесь; при выключенном переключателе ничего не читается и не записывается, а {week} ничего не показывает.&#x0A;&#x0A;Персонаж учитывается, пока существует его миниатюра, играете вы им или нет. **Очистить историю времени игры** сразу удаляет файл и итоги. Если забыть персонажа, он тоже удаляется из файла.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.StatReport">Отчёты о сессиях</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Title">Отчёты о сессиях</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Characters">Персонажи</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Chart">График</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Day">День</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Active">Активность (оценка)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Bounty">Награды (ISK)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Mined">Добыто (ед.)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageOut">Нанесённый урон</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageIn">Полученный урон</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsOut">Ремонт союзникам</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsIn">Полученный ремонт</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Total">Итого</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reps.Tip">Броня {0}, щит {1}, накопитель {2}, прочее {3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFolder">Пока нечего показывать. Включите запись статистики и выберите папку журналов в настройках; тогда MultiPreview будет сохранять по одному файлу на персонажа в день, а это окно — читать их.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFiles">Файлов статистики за последние дни не найдено (период в днях: {0}). Запись статистики включена?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Note">Время активности — оценка: суммируются паузы до 5 минут между строками журнала. Добыча считается в единицах, а не в м³, так как в журналах нет объёма руды.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Status">Персонажей: {0}, показано дней: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Refresh">Обновить</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Close">Закрыть</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Failed">Не удалось прочитать файлы статистики.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Highest">Максимум за день: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -1806,7 +1806,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Look</sys:String>
     <sys:String x:Key="L.Help.tools.stats.look.Body">Text size, opacity and the two colours apply to every stats window. Colours can be typed as #RRGGBB or picked with the swatch.</sys:String>
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Saving stats</sys:String>
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">With **Save stats to CSV files** on, MultiPreview writes one file per character per day into the log folder, for a spreadsheet. Files older than the keep time are deleted when MultiPreview starts; 0 days keeps every file. Turning logging on or off applies at once; a new keep time applies from the next start.</sys:String>
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">With **Save stats to CSV files** on, MultiPreview writes one file per character per day into the log folder, for a spreadsheet. Files older than the keep time are deleted when MultiPreview starts; 0 days keeps every file. Turning logging on or off applies at once; a new keep time applies from the next start. **Session reports** in the tray menu reads these files back: a table of days for each character and a bar chart of one number. Active time is an estimate, and mined is in units, not m³.</sys:String>
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Choose numbers</sys:String>
     <sys:String x:Key="L.S.character.statsPicker.Desc">Show or hide single numbers for this character. Default follows the numbers for every character (Tools › Stats overlay).</sys:String>
@@ -2732,4 +2732,26 @@
     <sys:String x:Key="L.S.Playtime.Cleared">Playtime history cleared.</sys:String>
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">Weekly playtime</sys:String>
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**Count playtime per character** adds up how long each character's client is open, day by day, and keeps the last two weeks. Put {week} in the text template of the thumbnails to show the last seven days, for example 14 h or 2 h 5 m.&#x0A;&#x0A;It is off by default, because it keeps character names in a file, playtime.json, in your settings folder. The file is saved every five minutes and when MultiPreview closes. It is never part of a bug report or of a code you share, and with the switch off nothing is read or written and {week} shows nothing.&#x0A;&#x0A;A character counts while its thumbnail exists, whether or not you are playing it. **Clear playtime history** deletes the file and the totals at once. Forgetting a character removes it from the file as well.</sys:String>
+    <sys:String x:Key="L.Tray.StatReport">Session reports</sys:String>
+    <sys:String x:Key="L.SessRpt.Title">Session reports</sys:String>
+    <sys:String x:Key="L.SessRpt.Characters">Characters</sys:String>
+    <sys:String x:Key="L.SessRpt.Chart">Chart</sys:String>
+    <sys:String x:Key="L.SessRpt.Col.Day">Day</sys:String>
+    <sys:String x:Key="L.SessRpt.Col.Active">Active (estimated)</sys:String>
+    <sys:String x:Key="L.SessRpt.Col.Bounty">Bounty (ISK)</sys:String>
+    <sys:String x:Key="L.SessRpt.Col.Mined">Mined (units)</sys:String>
+    <sys:String x:Key="L.SessRpt.Col.DamageOut">Damage out</sys:String>
+    <sys:String x:Key="L.SessRpt.Col.DamageIn">Damage in</sys:String>
+    <sys:String x:Key="L.SessRpt.Col.RepsOut">Repairs out</sys:String>
+    <sys:String x:Key="L.SessRpt.Col.RepsIn">Repairs in</sys:String>
+    <sys:String x:Key="L.SessRpt.Total">Total</sys:String>
+    <sys:String x:Key="L.SessRpt.Reps.Tip">Armor {0}, shield {1}, capacitor {2}, other {3}</sys:String>
+    <sys:String x:Key="L.SessRpt.NoFolder">Nothing to report yet. Turn on stat logging and choose a log folder in the settings; MultiPreview then saves one file per character per day, and this window reads them.</sys:String>
+    <sys:String x:Key="L.SessRpt.NoFiles">No stat files from the last {0} days were found in the log folder. Is stat logging turned on?</sys:String>
+    <sys:String x:Key="L.SessRpt.Note">Active time is estimated: it adds up the gaps of up to 5 minutes between log lines. Mined is counted in units, not m³, because the logs don't carry the ore's volume.</sys:String>
+    <sys:String x:Key="L.SessRpt.Status">Characters: {0}, days shown: {1}</sys:String>
+    <sys:String x:Key="L.SessRpt.Refresh">Refresh</sys:String>
+    <sys:String x:Key="L.SessRpt.Close">Close</sys:String>
+    <sys:String x:Key="L.SessRpt.Failed">The stat files couldn't be read.</sys:String>
+    <sys:String x:Key="L.SessRpt.Highest">Highest day: {0}</sys:String>
 </ResourceDictionary>

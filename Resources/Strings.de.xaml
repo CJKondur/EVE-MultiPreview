@@ -1806,7 +1806,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Aussehen</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">Textgröße, Deckkraft und die beiden Farben gelten für alle Statistikfenster. Farben können als #RRGGBB eingegeben oder per Farbfeld gewählt werden.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Statistik speichern</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Mit **Statistik in CSV-Dateien speichern** schreibt MultiPreview pro Charakter und Tag eine Datei in den Protokollordner, für eine Tabellenkalkulation. Dateien, die älter als die Aufbewahrungszeit sind, werden beim Start von MultiPreview gelöscht; 0 Tage behält alle Dateien. Das Ein- und Ausschalten der Protokollierung gilt sofort, eine neue Aufbewahrungszeit ab dem nächsten Start.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Mit **Statistik in CSV-Dateien speichern** schreibt MultiPreview pro Charakter und Tag eine Datei in den Protokollordner, für eine Tabellenkalkulation. Dateien, die älter als die Aufbewahrungszeit sind, werden beim Start von MultiPreview gelöscht; 0 Tage behält alle Dateien. Das Ein- und Ausschalten der Protokollierung gilt sofort, eine neue Aufbewahrungszeit ab dem nächsten Start. **Sitzungsberichte** im Tray-Menü liest diese Dateien wieder ein: eine Tabelle der Tage für jeden Charakter und ein Balkendiagramm einer Zahl. Die aktive Zeit ist eine Schätzung, und Abgebautes zählt in Einheiten, nicht in m³.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Zahlen auswählen</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Einzelne Zahlen für diesen Charakter ein- oder ausblenden. „Standard“ folgt den Zahlen für alle Charaktere (Werkzeuge › Statistik-Overlay).</sys:String> <!-- draft -->
@@ -2732,4 +2732,26 @@
     <sys:String x:Key="L.S.Playtime.Cleared">Spielzeitverlauf gelöscht.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">Wöchentliche Spielzeit</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**Spielzeit pro Charakter zählen** addiert Tag für Tag, wie lange der Client jedes Charakters geöffnet ist, und behält die letzten zwei Wochen. Schreib {week} in die Textvorlage der Vorschauen, um die letzten sieben Tage anzuzeigen, zum Beispiel 14 h oder 2 h 5 m.&#x0A;&#x0A;Standardmäßig ist es aus, weil es Charakternamen in einer Datei speichert, playtime.json in deinem Einstellungsordner. Die Datei wird alle fünf Minuten und beim Schließen von MultiPreview gespeichert. Sie ist nie Teil eines Fehlerberichts oder eines Codes, den du teilst, und bei ausgeschaltetem Schalter wird nichts gelesen oder geschrieben und {week} zeigt nichts an.&#x0A;&#x0A;Ein Charakter wird gezählt, solange seine Vorschau existiert, egal ob du ihn gerade spielst. **Spielzeitverlauf löschen** löscht die Datei und die Summen sofort. Wenn du einen Charakter vergisst, wird er auch aus der Datei entfernt.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.StatReport">Sitzungsberichte</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Title">Sitzungsberichte</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Characters">Charaktere</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Chart">Diagramm</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Day">Tag</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Active">Aktiv (geschätzt)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Bounty">Kopfgeld (ISK)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Mined">Abgebaut (Einheiten)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageOut">Schaden verursacht</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageIn">Schaden erhalten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsOut">Reparaturen gegeben</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsIn">Reparaturen erhalten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Total">Gesamt</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reps.Tip">Panzerung {0}, Schild {1}, Kondensator {2}, Sonstiges {3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFolder">Noch nichts zu berichten. Schalte die Statistik-Protokollierung ein und wähle in den Einstellungen einen Protokollordner; MultiPreview speichert dann pro Charakter und Tag eine Datei, und dieses Fenster liest sie.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFiles">Im Protokollordner wurden keine Statistikdateien der letzten {0} Tage gefunden. Ist die Statistik-Protokollierung eingeschaltet?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Note">Die aktive Zeit ist geschätzt: Sie addiert die Abstände von bis zu 5 Minuten zwischen Protokollzeilen. Abgebautes wird in Einheiten gezählt, nicht in m³, weil die Protokolle das Volumen des Erzes nicht enthalten.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Status">Charaktere: {0}, angezeigte Tage: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Refresh">Aktualisieren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Close">Schließen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Failed">Die Statistikdateien konnten nicht gelesen werden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Highest">Höchster Tag: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

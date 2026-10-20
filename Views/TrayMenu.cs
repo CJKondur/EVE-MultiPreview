@@ -18,6 +18,8 @@ public static class TrayCommands
     public const string ManageProfiles = "tray.manageProfiles";
     /// <summary>Opens the alert history window (IDEAS #1).</summary>
     public const string AlertHistory = "tray.alertHistory";
+    /// <summary>Opens the session reports window (IDEAS #20).</summary>
+    public const string StatReport = "tray.statReport";
     /// <summary>Opens the hotkey cheat sheet without its key (IDEAS #16).</summary>
     public const string HotkeySheet = "tray.hotkeySheet";
     public const string Suspend = "tray.suspend";
@@ -52,6 +54,8 @@ public sealed class TrayMenuActions
     public Action<string> OpenSettingsPage { get; init; } = _ => { };
     /// <summary>Opens the alert history window (IDEAS #1).</summary>
     public Action OpenAlertHistory { get; init; } = () => { };
+    /// <summary>Opens the session reports window (IDEAS #20).</summary>
+    public Action OpenStatReport { get; init; } = () => { };
     /// <summary>Opens, or closes, the hotkey cheat sheet (IDEAS #16).</summary>
     public Action OpenHotkeySheet { get; init; } = () => { };
     /// <summary>The time now, UTC, for the downtime line (IDEAS #9). A test hands in its own.</summary>
@@ -115,6 +119,8 @@ public sealed class TrayMenu : IDisposable
         FluentMenu.Style(_profiles.DropDown, showIcons: false);
         Strip.Items.Add(_profiles);
         Strip.Items.Add(Item(TrayCommands.AlertHistory, "L.Tray.AlertHistory", "Alert history…", FluentMenu.Glyphs.History, _a.OpenAlertHistory));
+        // IDEAS #20: no chart glyph in FluentMenu.Glyphs, and none is added.
+        Strip.Items.Add(Item(TrayCommands.StatReport, "L.Tray.StatReport", "Session reports", null, _a.OpenStatReport));
         // IDEAS #16: no keyboard glyph in FluentMenu.Glyphs, and none is added.
         _hotkeySheet = Item(TrayCommands.HotkeySheet, "L.Tray.HotkeySheet", "Hotkey cheat sheet", null, _a.OpenHotkeySheet);
         Strip.Items.Add(_hotkeySheet);

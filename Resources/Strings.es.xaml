@@ -1828,7 +1828,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">Aspecto</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">El tamaño del texto, la opacidad y los dos colores se aplican a todas las ventanas de estadísticas. Los colores se pueden escribir como #RRGGBB o elegir con la muestra.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">Guardar estadísticas</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">Con **Guardar estadísticas en archivos CSV** activado, MultiPreview escribe un archivo por personaje y día en la carpeta de registros, para una hoja de cálculo. Los archivos más antiguos que el tiempo de conservación se eliminan al iniciar MultiPreview; 0 días conserva todos los archivos. Activar o desactivar el registro se aplica al instante; un nuevo tiempo de conservación, desde el siguiente inicio.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">Con **Guardar estadísticas en archivos CSV** activado, MultiPreview escribe un archivo por personaje y día en la carpeta de registros, para una hoja de cálculo. Los archivos más antiguos que el tiempo de conservación se eliminan al iniciar MultiPreview; 0 días conserva todos los archivos. Activar o desactivar el registro se aplica al instante; un nuevo tiempo de conservación, desde el siguiente inicio. **Informes de sesión**, en el menú de la bandeja, vuelve a leer estos archivos: una tabla de días por personaje y un gráfico de barras de una cifra. El tiempo activo es una estimación, y lo minado se cuenta en unidades, no en m³.</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">Elegir cifras</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">Muestra u oculta cifras individuales para este personaje. «Predeterminado» sigue las cifras de todos los personajes (Herramientas › Superposición de estadísticas).</sys:String> <!-- draft -->
@@ -2754,4 +2754,26 @@
     <sys:String x:Key="L.S.Playtime.Cleared">Historial de tiempo de juego borrado.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">Tiempo de juego semanal</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**Contar el tiempo de juego por personaje** suma, día a día, cuánto tiempo está abierto el cliente de cada personaje y guarda las dos últimas semanas. Pon {week} en la plantilla de texto de las miniaturas para mostrar los últimos siete días, por ejemplo 14 h o 2 h 5 m.&#x0A;&#x0A;Viene desactivado, porque guarda nombres de personajes en un archivo, playtime.json, de tu carpeta de ajustes. El archivo se guarda cada cinco minutos y al cerrar MultiPreview. Nunca forma parte de un informe de errores ni de un código que compartas, y con el interruptor apagado no se lee ni se escribe nada y {week} no muestra nada.&#x0A;&#x0A;Un personaje cuenta mientras exista su miniatura, juegues con él o no. **Borrar el historial de tiempo de juego** borra el archivo y los totales al instante. Al olvidar un personaje, también sale del archivo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.StatReport">Informes de sesión</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Title">Informes de sesión</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Characters">Personajes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Chart">Gráfico</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Day">Día</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Active">Activo (estimado)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Bounty">Recompensas (ISK)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Mined">Minado (unidades)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageOut">Daño causado</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageIn">Daño recibido</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsOut">Reparaciones dadas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsIn">Reparaciones recibidas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Total">Total</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reps.Tip">Blindaje {0}, escudo {1}, capacitador {2}, otros {3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFolder">Todavía no hay nada que mostrar. Activa el registro de estadísticas y elige una carpeta de registros en los ajustes; MultiPreview guarda entonces un archivo por personaje y día, y esta ventana los lee.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFiles">No se encontraron archivos de estadísticas de los últimos {0} días en la carpeta de registros. ¿Está activado el registro de estadísticas?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Note">El tiempo activo es una estimación: suma los intervalos de hasta 5 minutos entre líneas del registro. Lo minado se cuenta en unidades, no en m³, porque los registros no incluyen el volumen del mineral.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Status">Personajes: {0}, días mostrados: {1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Refresh">Actualizar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Close">Cerrar</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Failed">No se pudieron leer los archivos de estadísticas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Highest">Día más alto: {0}</sys:String> <!-- draft -->
 </ResourceDictionary>

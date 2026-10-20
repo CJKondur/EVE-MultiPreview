@@ -1807,7 +1807,7 @@
     <sys:String x:Key="L.Help.tools.stats.look.Title">外観</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字サイズ、不透明度、2つの色はすべての統計ウィンドウに適用されます。色は #RRGGBB で入力するか、色見本から選べます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">統計の保存</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.logging.Body">**統計を CSV ファイルに保存** をオンにすると、MultiPreview はログフォルダーにキャラクターごと・1日ごとにファイルを書き込みます（表計算ソフト向け）。保存期間より古いファイルは MultiPreview の起動時に削除されます。0 日の場合はすべてのファイルを保持します。ログ記録のオン/オフはすぐに反映され、新しい保存期間は次回の起動から有効になります。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.logging.Body">**統計を CSV ファイルに保存** をオンにすると、MultiPreview はログフォルダーにキャラクターごと・1日ごとにファイルを書き込みます（表計算ソフト向け）。保存期間より古いファイルは MultiPreview の起動時に削除されます。0 日の場合はすべてのファイルを保持します。ログ記録のオン/オフはすぐに反映され、新しい保存期間は次回の起動から有効になります。 トレイメニューの **セッションレポート** はこれらのファイルを読み直し、キャラクターごとの日別の表と、1つの数値の棒グラフを表示します。稼働時間は推定値で、採掘量は m³ ではなく個数です。</sys:String> <!-- draft -->
     <!-- Character page › Choose numbers, Tools › Stats overlay › Per character (Plan 3c) -->
     <sys:String x:Key="L.S.character.statsPicker">数値を選ぶ</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.character.statsPicker.Desc">このキャラクターの個別の数値を表示・非表示にします。「既定」は全キャラクター共通の数値（ツール › 統計オーバーレイ）に従います。</sys:String> <!-- draft -->
@@ -2733,4 +2733,26 @@
     <sys:String x:Key="L.S.Playtime.Cleared">プレイ時間の履歴を消去しました。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Title">週間プレイ時間</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.playtime.Body">**キャラクターごとのプレイ時間を記録**は、各キャラクターのクライアントが開いている時間を日ごとに合計し、直近 2 週間分を保持します。サムネイルのテキストテンプレートに {week} を入れると、直近 7 日間の合計（例：14 h、2 h 5 m）を表示できます。&#x0A;&#x0A;キャラクター名をファイル（設定フォルダーの playtime.json）に保存するため、既定ではオフです。ファイルは 5 分ごと、および MultiPreview の終了時に保存されます。バグ報告や共有するコードに含まれることはなく、スイッチがオフの間は何も読み書きされず、{week} は何も表示しません。&#x0A;&#x0A;キャラクターは、そのサムネイルがある間は、実際に操作しているかどうかにかかわらず数えられます。**プレイ時間の履歴を消去**は、ファイルと合計をすぐに削除します。キャラクターを削除すると、ファイルからも取り除かれます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Tray.StatReport">セッションレポート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Title">セッションレポート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Characters">キャラクター</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Chart">グラフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Day">日付</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Active">稼働時間（推定）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Bounty">懸賞金（ISK）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.Mined">採掘量（個）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageOut">与ダメージ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.DamageIn">被ダメージ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsOut">修理（与）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Col.RepsIn">修理（受）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Total">合計</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Reps.Tip">アーマー {0}、シールド {1}、キャパシタ {2}、その他 {3}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFolder">表示できる内容はまだありません。設定で統計の記録をオンにして、ログフォルダーを選んでください。MultiPreview がキャラクターごとに1日1ファイルを保存し、このウィンドウがそれを読み込みます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.NoFiles">ログフォルダーに過去 {0} 日分の統計ファイルが見つかりません。統計の記録はオンになっていますか？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Note">稼働時間は推定値です。ログの行と行の間隔が5分以内のものを合計しています。採掘量は個数で数えており、m³ ではありません。ログに鉱石の体積が含まれないためです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Status">キャラクター：{0}、表示日数：{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Refresh">更新</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Close">閉じる</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Failed">統計ファイルを読み込めませんでした。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.SessRpt.Highest">1日の最大：{0}</sys:String> <!-- draft -->
 </ResourceDictionary>
