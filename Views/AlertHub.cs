@@ -74,6 +74,8 @@ public class AlertHub : IDisposable
 
     // Focus-aware z-ordering (AHK: 300ms timer)
     private DispatcherTimer? _focusTimer;
+    /// <summary>When the pointer was first found away from the open direction picker; null while it is on it (ToastMenu.ClosesNow).</summary>
+    private long? _pickerAwaySinceMs;
     private DispatcherTimer? _autoHideTimer;
 
     // Toast stacking direction: 0=up, 1=right, 2=down, 3=left
@@ -134,6 +136,7 @@ public class AlertHub : IDisposable
             FontFamily = AlertHubVisuals.TextFont,
         };
         SettingsUi.UiStyles.Attach(_hubWindow, SettingsUi.StyledAs.Surface);   // the look, never Fluent (plan S1, ruling 7)
+        NoActivate.Apply(_hubWindow);   // a click on the bell leaves the EVE client the foreground window (IDEAS P80 (7)), as a click on a toast does
         _hub = AlertHubVisuals.BuildHub();
         SettingsUi.UiStyles.Changed += OnLookChanged;
         var hubContainer = _hub.Bell;
@@ -209,7 +212,11 @@ public class AlertHub : IDisposable
 
         // ── Focus-aware z-ordering timer (faster than AHK's 300ms) ──
         _focusTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(150) };
-        _focusTimer.Tick += (_, _) => UpdateFocusAwareZOrder();
+        _focusTimer.Tick += (_, _) =>
+        {
+            UpdateFocusAwareZOrder();
+            ClosePickerWhenPointerAway();
+        };
 
         // ── Auto-hide timer (issue #42 suggestion) ──
         // When AlertHubAutoHide is on, the hub hides itself after a quiet
@@ -579,6 +586,7 @@ public class AlertHub : IDisposable
             AllowsTransparency = true,
             Background = Brushes.Transparent,
             ShowInTaskbar = false,
+            ShowActivated = false, // Passive overlay, as the hub window is: showing it must never take focus from the EVE client.
             Topmost = true,
             Width = 100,
             Height = 100,
@@ -586,6 +594,7 @@ public class AlertHub : IDisposable
         };
 
         SettingsUi.UiStyles.Attach(popup, SettingsUi.StyledAs.Surface);
+        NoActivate.Apply(popup);   // IDEAS P80 (7): a click on an arrow must not take the foreground either
         var canvas = new Canvas
         {
             Width = 100,
@@ -659,9 +668,31 @@ public class AlertHub : IDisposable
         };
 
         _directionPicker = popup;
+        _pickerAwaySinceMs = null;   // a fresh half second at every opening
         RefreshIcon();   // ✕ while the picker is open
         popup.Show();
         Debug.WriteLine($"[AlertHub:Direction] 🔧 Direction picker opened (current={ToastDirection})");
+    }
+
+    /// <summary>The picker is a no-activate window, so it never has the foreground to lose and its Deactivated does not
+    /// come when the player clicks elsewhere. It closes when the pointer has been away from it for half a second, as a
+    /// toast's menu does (ToastMenu.ClosesNow, bounds and pointer in device pixels). Looked at on the focus timer, which
+    /// runs while the hub is shown; a look that fails costs the look, never the app.</summary>
+    private void ClosePickerWhenPointerAway()
+    {
+        var picker = _directionPicker;
+        if (picker == null) return;
+        try
+        {
+            var hwnd = new System.Windows.Interop.WindowInteropHelper(picker).Handle;
+            if (hwnd == IntPtr.Zero || !Interop.User32.GetWindowRect(hwnd, out var rect)) return;
+            var bounds = System.Drawing.Rectangle.FromLTRB(rect.Left, rect.Top, rect.Right, rect.Bottom);
+            if (!ToastMenu.ClosesNow(bounds, System.Windows.Forms.Cursor.Position, Environment.TickCount64, ref _pickerAwaySinceMs)) return;
+            picker.Close();
+            _directionPicker = null;
+            RefreshIcon();
+        }
+        catch { }
     }
 
     /// <summary>A corner button of the picker: it closes the picker, then does its one thing.</summary>

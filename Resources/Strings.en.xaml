@@ -2201,7 +2201,7 @@
     <sys:String x:Key="L.Ctx.SnoozeEndAll">End all</sys:String>
     <sys:String x:Key="L.S.Sec.alerts.events.snoozes">Snoozed alerts</sys:String>
     <sys:String x:Key="L.S.alerts.events.snoozed">Snoozed right now</sys:String>
-    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">Alerts you snoozed for one character from a toast. End one to get it again.</sys:String>
+    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">Alerts you snoozed for one character, from a toast or here. End one to get it again.</sys:String>
     <sys:String x:Key="L.S.Snoozes.None">Nothing is snoozed.</sys:String>
     <sys:String x:Key="L.S.Snoozes.End">End</sys:String>
     <sys:String x:Key="L.S.Snoozes.EndFor">End the snooze of {0} for {1}</sys:String>
@@ -2209,7 +2209,7 @@
     <sys:String x:Key="L.S.alerts.events.keepSnoozes">Keep snoozes when MultiPreview restarts</sys:String>
     <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">Off: every snooze ends when MultiPreview closes. On: a 15-minute or 1-hour snooze keeps running after a restart.</sys:String>
     <sys:String x:Key="L.Help.alerts.events.snoozes.Title">Snoozing one alert for one character</sys:String>
-    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">Right-click a toast to snooze that alert for that character: for 15 minutes, for 1 hour, or until MultiPreview restarts. The menu closes by itself when the pointer moves away from it. The same alert still comes for your other characters, and that character's other alerts still come.&#x0A;&#x0A;- A snoozed alert shows no border, badge or toast and plays no sound. The alert history still lists it, marked Snoozed.&#x0A;- **Snoozed right now** lists what is snoozed, and a thumbnail's right-click menu lists that character's. Either place ends a snooze.&#x0A;- To silence every alert of a character, use Mute alerts in the thumbnail's menu instead.&#x0A;- **Keep snoozes when MultiPreview restarts** is off: closing MultiPreview ends every snooze. Turned on, the timed snoozes are kept in alert_snoozes.json in your settings folder and run out their time.</sys:String>
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">Right-click a toast to snooze that alert for that character: for 15 minutes, for 1 hour, or until MultiPreview restarts. The menu closes by itself when the pointer moves away from it. The same alert still comes for your other characters, and that character's other alerts still come.&#x0A;&#x0A;- A snoozed alert shows no border, badge or toast and plays no sound. The alert history still lists it, marked Snoozed.&#x0A;- **Snoozed right now** lists what is snoozed, and a thumbnail's right-click menu lists that character's. Either place ends a snooze.&#x0A;- To silence every alert of a character, use Mute alerts in the thumbnail's menu instead.&#x0A;- **Keep snoozes when MultiPreview restarts** is off: closing MultiPreview ends every snooze. Turned on, the timed snoozes are kept in alert_snoozes.json in your settings folder and run out their time.&#x0A;&#x0A;A snooze can also be started here, without a toast: in **Snoozed right now**, choose a character (or type a name), an alert and a length, and press **Add snooze**; Mute alerts in a thumbnail's menu works without toasts too.</sys:String>
     <sys:String x:Key="L.S.Sec.alerts.sounds.dnd">Do not disturb</sys:String>
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey">Do not disturb on or off</sys:String>
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">Mutes alert sounds and spoken alerts, and holds alerts sent to Discord, until you press it again. Borders, badges and toasts go on.</sys:String>
@@ -2792,4 +2792,9 @@
     <sys:String x:Key="L.Fleet.Tip.SinceApprox">Time since: {0}. The character was already here when MultiPreview started, so it may have arrived earlier than the time shown.</sys:String>
     <sys:String x:Key="L.Legend.ActivePlain">Active client</sys:String>
     <sys:String x:Key="L.S.Character.ForgottenPlaytimeKept">'{0}' forgotten, but playtime.json could not be changed: their playtime is still stored there.</sys:String>
+    <!-- Ideas batch 20 (Plan 24) -->
+    <sys:String x:Key="L.S.Snoozes.AddCharacter">Character</sys:String>
+    <sys:String x:Key="L.S.Snoozes.AddEvent">Event</sys:String>
+    <sys:String x:Key="L.S.Snoozes.AddLength">Length</sys:String>
+    <sys:String x:Key="L.S.Snoozes.Add">Add snooze</sys:String>
 </ResourceDictionary>

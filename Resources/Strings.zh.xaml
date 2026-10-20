@@ -2219,7 +2219,7 @@
     <sys:String x:Key="L.Ctx.SnoozeEndAll">全部结束</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.snoozes">已暂停的警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.snoozed">当前已暂停</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">你从提示里为某个角色暂停的警报。结束后会再次收到。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">你为某个角色暂停的警报，可以从提示里暂停，也可以在这里暂停。结束后会再次收到。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.None">没有已暂停的警报。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.End">结束</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.EndFor">结束 {1} 的 {0} 暂停</sys:String> <!-- draft -->
@@ -2227,7 +2227,7 @@
     <sys:String x:Key="L.S.alerts.events.keepSnoozes">MultiPreview 重新启动后保留暂停</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">关闭：MultiPreview 关闭时所有暂停都会结束。打开：15 分钟或 1 小时的暂停在重新启动后继续计时。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.snoozes.Title">为一个角色暂停一种警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">右键点击提示，可以为该角色暂停这种警报：15 分钟、1 小时，或直到 MultiPreview 重新启动。指针离开菜单后，菜单会自行关闭。同样的警报仍会发给你的其他角色，这个角色的其他警报也照常发出。&#x0A;&#x0A;- 已暂停的警报不显示边框、角标或提示，也不播放声音。警报历史记录里仍会列出它，并标为 已暂停。&#x0A;- **当前已暂停** 列出当前暂停的警报，缩略图的右键菜单列出该角色的。两处都可以结束暂停。&#x0A;- 要让一个角色的所有警报都安静，请改用缩略图菜单里的 静音警报。&#x0A;- **MultiPreview 重新启动后保留暂停** 是关闭的：关闭 MultiPreview 会结束所有暂停。打开后，有时限的暂停会保存在设置文件夹的 alert_snoozes.json 里，并持续到时间用完。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">右键点击提示，可以为该角色暂停这种警报：15 分钟、1 小时，或直到 MultiPreview 重新启动。指针离开菜单后，菜单会自行关闭。同样的警报仍会发给你的其他角色，这个角色的其他警报也照常发出。&#x0A;&#x0A;- 已暂停的警报不显示边框、角标或提示，也不播放声音。警报历史记录里仍会列出它，并标为 已暂停。&#x0A;- **当前已暂停** 列出当前暂停的警报，缩略图的右键菜单列出该角色的。两处都可以结束暂停。&#x0A;- 要让一个角色的所有警报都安静，请改用缩略图菜单里的 静音警报。&#x0A;- **MultiPreview 重新启动后保留暂停** 是关闭的：关闭 MultiPreview 会结束所有暂停。打开后，有时限的暂停会保存在设置文件夹的 alert_snoozes.json 里，并持续到时间用完。&#x0A;&#x0A;也可以不用提示，直接在这里开始暂停：在 **当前已暂停** 里选择角色（也可以输入名字）、警报和时长，再点击 **添加暂停**；缩略图菜单里的 静音警报 同样不需要提示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.dnd">勿扰模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey">勿扰模式开关</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">在你再次按下之前静音警报声音和语音警报，并暂停发往 Discord 的警报。边框、角标和提示照常显示。</sys:String> <!-- draft -->
@@ -2810,4 +2810,9 @@
     <sys:String x:Key="L.Fleet.Tip.SinceApprox">已过去：{0}。MultiPreview 启动时该角色就已在此，因此实际到达时间可能早于所示时间。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.ActivePlain">当前客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Character.ForgottenPlaytimeKept">已忘记“{0}”，但无法修改 playtime.json：其游戏时长仍保存在该文件中。</sys:String> <!-- draft -->
+    <!-- Ideas batch 20 (Plan 24) -->
+    <sys:String x:Key="L.S.Snoozes.AddCharacter">角色</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.AddEvent">事件</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.AddLength">时长</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.Add">添加暂停</sys:String> <!-- draft -->
 </ResourceDictionary>

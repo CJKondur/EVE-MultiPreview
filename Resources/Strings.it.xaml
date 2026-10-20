@@ -2219,7 +2219,7 @@
     <sys:String x:Key="L.Ctx.SnoozeEndAll">Termina tutti</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.snoozes">Avvisi posticipati</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.snoozed">Posticipati in questo momento</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">Avvisi che hai posticipato per un personaggio da una notifica. Terminane uno per riceverlo di nuovo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">Avvisi che hai posticipato per un personaggio da una notifica o da qui. Terminane uno per riceverlo di nuovo.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.None">Niente è posticipato.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.End">Termina</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.EndFor">Termina la pausa di {0} per {1}</sys:String> <!-- draft -->
@@ -2227,7 +2227,7 @@
     <sys:String x:Key="L.S.alerts.events.keepSnoozes">Mantieni le pause al riavvio di MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">Disattivato: ogni pausa finisce quando MultiPreview si chiude. Attivato: una pausa di 15 minuti o di 1 ora continua dopo un riavvio.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.snoozes.Title">Posticipare un avviso per un personaggio</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">Fai clic destro su una notifica per posticipare quell'avviso per quel personaggio: per 15 minuti, per 1 ora o fino al riavvio di MultiPreview. Il menu si chiude da solo quando il puntatore se ne allontana. Lo stesso avviso continua ad arrivare per gli altri tuoi personaggi, e così gli altri avvisi di quel personaggio.&#x0A;&#x0A;- Un avviso posticipato non mostra bordo, contatore né notifica e non riproduce suoni. La cronologia degli avvisi lo elenca comunque, con la nota Posticipato.&#x0A;- **Posticipati in questo momento** elenca ciò che è posticipato, e il menu del clic destro di una miniatura elenca gli avvisi di quel personaggio. Da entrambi i punti si può terminare una pausa.&#x0A;- Per silenziare tutti gli avvisi di un personaggio, usa invece Silenzia allarmi nel menu della miniatura.&#x0A;- **Mantieni le pause al riavvio di MultiPreview** è disattivato: chiudere MultiPreview termina ogni pausa. Attivato, le pause a tempo vengono conservate in alert_snoozes.json nella tua cartella delle impostazioni e arrivano alla fine del loro tempo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">Fai clic destro su una notifica per posticipare quell'avviso per quel personaggio: per 15 minuti, per 1 ora o fino al riavvio di MultiPreview. Il menu si chiude da solo quando il puntatore se ne allontana. Lo stesso avviso continua ad arrivare per gli altri tuoi personaggi, e così gli altri avvisi di quel personaggio.&#x0A;&#x0A;- Un avviso posticipato non mostra bordo, contatore né notifica e non riproduce suoni. La cronologia degli avvisi lo elenca comunque, con la nota Posticipato.&#x0A;- **Posticipati in questo momento** elenca ciò che è posticipato, e il menu del clic destro di una miniatura elenca gli avvisi di quel personaggio. Da entrambi i punti si può terminare una pausa.&#x0A;- Per silenziare tutti gli avvisi di un personaggio, usa invece Silenzia allarmi nel menu della miniatura.&#x0A;- **Mantieni le pause al riavvio di MultiPreview** è disattivato: chiudere MultiPreview termina ogni pausa. Attivato, le pause a tempo vengono conservate in alert_snoozes.json nella tua cartella delle impostazioni e arrivano alla fine del loro tempo.&#x0A;&#x0A;Puoi avviare una pausa anche qui, senza notifica: in **Posticipati in questo momento** scegli un personaggio (o scrivi un nome), un avviso e una durata, poi premi **Aggiungi pausa**; Silenzia allarmi nel menu di una miniatura funziona senza notifiche.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.dnd">Non disturbare</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey">Non disturbare: attiva o disattiva</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">Silenzia i suoni degli avvisi e gli avvisi vocali, e trattiene gli avvisi inviati a Discord, finché non lo premi di nuovo. Bordi, contatori e notifiche continuano.</sys:String> <!-- draft -->
@@ -2810,4 +2810,9 @@
     <sys:String x:Key="L.Fleet.Tip.SinceApprox">Tempo trascorso: {0}. Il personaggio era già qui all'avvio di MultiPreview, quindi potrebbe essere arrivato prima dell'ora mostrata.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.ActivePlain">Client attivo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Character.ForgottenPlaytimeKept">'{0}' dimenticato, ma non è stato possibile modificare playtime.json: il tempo di gioco è ancora salvato lì.</sys:String> <!-- draft -->
+    <!-- Ideas batch 20 (Plan 24) -->
+    <sys:String x:Key="L.S.Snoozes.AddCharacter">Personaggio</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.AddEvent">Evento</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.AddLength">Durata</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.Add">Aggiungi pausa</sys:String> <!-- draft -->
 </ResourceDictionary>

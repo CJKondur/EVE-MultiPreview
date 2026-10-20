@@ -253,8 +253,9 @@ public sealed class EventSnoozes
 
     /// <summary>A name as MultiPreview itself writes one: no space at either end, no control character, and no
     /// character that only steers the text (a mark that turns it around, a space of no width, a line or paragraph
-    /// separator). These names are listed in the settings window and in a thumbnail's menu.</summary>
-    private static bool Plain(string text)
+    /// separator). These names are listed in the settings window and in a thumbnail's menu. The Add row of Alerts ›
+    /// Events asks it of a name the player typed.</summary>
+    public static bool Plain(string text)
     {
         if (text.Length != text.Trim().Length) return false;
         foreach (char c in text)

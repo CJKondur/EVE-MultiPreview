@@ -2202,7 +2202,7 @@
     <sys:String x:Key="L.Ctx.SnoozeEndAll">모두 끝내기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.events.snoozes">일시 중지한 알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.snoozed">지금 일시 중지된 알림</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">토스트에서 캐릭터 하나에 대해 일시 중지한 알림이에요. 끝내면 다시 받아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.events.snoozed.Desc">토스트나 여기에서 캐릭터 하나에 대해 일시 중지한 알림이에요. 끝내면 다시 받아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.None">일시 중지한 알림이 없어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.End">끝내기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.EndFor">{1}의 {0} 일시 중지 끝내기</sys:String> <!-- draft -->
@@ -2210,7 +2210,7 @@
     <sys:String x:Key="L.S.alerts.events.keepSnoozes">MultiPreview를 다시 시작해도 일시 중지 유지</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.keepSnoozes.Desc">끄면 MultiPreview를 닫을 때 모든 일시 중지가 끝나요. 켜면 15분이나 1시간짜리 일시 중지가 MultiPreview를 다시 시작한 뒤에도 계속돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.snoozes.Title">캐릭터 하나의 알림 하나를 일시 중지하기</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">토스트를 오른쪽 클릭하면 그 캐릭터의 그 알림을 일시 중지할 수 있어요. 15분 동안, 1시간 동안, 또는 MultiPreview를 다시 시작할 때까지요. 포인터가 메뉴에서 벗어나면 메뉴는 저절로 닫혀요. 같은 알림이 다른 캐릭터에게는 계속 오고, 그 캐릭터의 다른 알림도 계속 와요.&#x0A;&#x0A;- 일시 중지한 알림은 테두리, 배지, 토스트를 보여 주지 않고 소리도 내지 않아요. 알림 기록에는 일시 중지됨 표시와 함께 남아요.&#x0A;- **지금 일시 중지된 알림**에 일시 중지한 것이 나열되고, 썸네일의 오른쪽 클릭 메뉴에는 그 캐릭터의 것이 나열돼요. 어느 쪽에서든 일시 중지를 끝낼 수 있어요.&#x0A;- 캐릭터의 모든 알림을 끄려면 대신 썸네일 메뉴의 경보 음소거를 쓰세요.&#x0A;- **MultiPreview를 다시 시작해도 일시 중지 유지**는 꺼져 있어요. MultiPreview를 닫으면 모든 일시 중지가 끝나요. 켜면 시간이 정해진 일시 중지가 설정 폴더의 alert_snoozes.json에 보관되고 남은 시간을 다 채워요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.snoozes.Body">토스트를 오른쪽 클릭하면 그 캐릭터의 그 알림을 일시 중지할 수 있어요. 15분 동안, 1시간 동안, 또는 MultiPreview를 다시 시작할 때까지요. 포인터가 메뉴에서 벗어나면 메뉴는 저절로 닫혀요. 같은 알림이 다른 캐릭터에게는 계속 오고, 그 캐릭터의 다른 알림도 계속 와요.&#x0A;&#x0A;- 일시 중지한 알림은 테두리, 배지, 토스트를 보여 주지 않고 소리도 내지 않아요. 알림 기록에는 일시 중지됨 표시와 함께 남아요.&#x0A;- **지금 일시 중지된 알림**에 일시 중지한 것이 나열되고, 썸네일의 오른쪽 클릭 메뉴에는 그 캐릭터의 것이 나열돼요. 어느 쪽에서든 일시 중지를 끝낼 수 있어요.&#x0A;- 캐릭터의 모든 알림을 끄려면 대신 썸네일 메뉴의 경보 음소거를 쓰세요.&#x0A;- **MultiPreview를 다시 시작해도 일시 중지 유지**는 꺼져 있어요. MultiPreview를 닫으면 모든 일시 중지가 끝나요. 켜면 시간이 정해진 일시 중지가 설정 폴더의 alert_snoozes.json에 보관되고 남은 시간을 다 채워요.&#x0A;&#x0A;토스트 없이도 여기에서 일시 중지를 시작할 수 있어요. **지금 일시 중지된 알림**에서 캐릭터(이름을 직접 입력해도 돼요), 알림, 길이를 고르고 **일시 중지 추가**를 누르세요. 썸네일 메뉴의 경보 음소거도 토스트 없이 쓸 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.dnd">방해 금지</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey">방해 금지 켜기/끄기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">다시 누를 때까지 알림 소리와 음성 알림을 끄고, Discord로 보내는 알림도 멈춰요. 테두리, 배지, 토스트는 계속 나와요.</sys:String> <!-- draft -->
@@ -2793,4 +2793,9 @@
     <sys:String x:Key="L.Fleet.Tip.SinceApprox">경과 시간: {0}. MultiPreview를 시작할 때 이미 이 항성계에 있었으니, 실제 도착은 표시된 시각보다 빠를 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Legend.ActivePlain">활성 클라이언트</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Character.ForgottenPlaytimeKept">'{0}'을(를) 삭제했지만 playtime.json을 변경할 수 없어 플레이 시간이 아직 그 파일에 남아 있어요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 20 (Plan 24) -->
+    <sys:String x:Key="L.S.Snoozes.AddCharacter">캐릭터</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.AddEvent">이벤트</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.AddLength">길이</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Snoozes.Add">일시 중지 추가</sys:String> <!-- draft -->
 </ResourceDictionary>
