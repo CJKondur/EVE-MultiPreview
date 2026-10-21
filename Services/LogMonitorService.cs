@@ -106,6 +106,12 @@ public sealed class LogMonitorService : IDisposable
     // SetEnabledAlertTypes writes it on the window's thread; the reading thread reads it.
     private volatile int _ewarOn;
 
+    // IDEAS P13: "Drones returning" is off until switched on, and the reader asks for itself because TriggerAlert treats a
+    // missing key as on. While it is off, a line costs one read of this field. SetEnabledAlertTypes writes it on the window's thread.
+    public const string DronesReturning = "drones_returning", DronesSeverity = "info";
+    private const string DronesReturningLine = "All drones returning to drone bay";
+    private volatile bool _dronesOn;
+
     // IDEAS #27, #28: which of Incoming DPS high and Reps stopped are on, as bits (CombatWatch.Bits), and what the
     // reading thread (the only one that uses the watch) knows of each character's recent hits and repairs. While
     // both are off, a combat line costs one read of _combatOn. SetEnabledAlertTypes writes it on the window's thread.
@@ -1181,6 +1187,7 @@ public sealed class LogMonitorService : IDisposable
     {
         _enabledAlertTypes = enabled ?? new();
         _ewarOn = EwarLines.Bits(_enabledAlertTypes);
+        _dronesOn = _enabledAlertTypes.TryGetValue(DronesReturning, out var dronesChosen) && dronesChosen;
         _combatOn = CombatWatch.Bits(_enabledAlertTypes);
     }
 
@@ -2149,6 +2156,16 @@ public sealed class LogMonitorService : IDisposable
         if (HasTag(own, OwnTag.None, line, "(None)") && AlertPatterns.Matches(line, "convo_request"))
         {
             TriggerAlert(character, "convo_request", "warning");
+            return;
+        }
+
+        // ── Drones returning ((notify) tag + EVE's English recall line, IDEAS P13) ──
+        // Off until switched on. Read from the English wording only: no pattern exists for the other client languages
+        // (a custom rule of the player's own can match theirs).
+        if (_dronesOn && notify && line.Contains(DronesReturningLine, StringComparison.Ordinal))
+        {
+            _lastEventTime = Environment.TickCount64;
+            TriggerAlert(character, DronesReturning, DronesSeverity);
             return;
         }
 

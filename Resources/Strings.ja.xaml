@@ -1579,7 +1579,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE モードと被弾の枠</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE モード**はラッティングやミッション向けです。NPC に撃たれたりスクランブルされてもアラートは出なくなり、プレイヤーなら出ます。ただし、ログの行にコーポレーションやアライアンスのティッカーが付いていないプレイヤーでは出ません。&#x0A;&#x0A;**被弾の枠**は、そのクライアントがダメージを受けている間サムネイルで赤く点滅し、最後の被弾から数秒後に消えます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">イベント表</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">各行が 1 種類のアラートです。&#x0A;- **重大度**はイベントごとに固定です。イベントの色、点滅の速さ、通知の選択を決めます（外観 &amp; 重大度）。&#x0A;- **色**は 1 つのイベントに専用の色を付けます。↺ で重大度の色に戻ります。&#x0A;- **継続**はアラートがサムネイルに残る時間です。&#x0A;- **バッジ**はサムネイル上でイベントを数えます。**点灯**は点滅ではなく枠を保持します。&#x0A;- **オン**でそのイベントを全員で無効にします。それでもグループは、そのメンバーに対してオンにできます（下のグループごとのアラート）。&#x0A;- **クリスタル破損**は採掘レーザーでのみ発生します。武器のクリスタルが破壊されても発生しません。&#x0A;&#x0A;**静止時間**は、同じアラートが同じキャラクターに数秒間繰り返されるのを防ぎます。**重大度ごとの静止時間**（外観 &amp; 重大度）は、重大度ごとに専用の時間を設定します。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">各行が 1 種類のアラートです。&#x0A;- **重大度**はイベントごとに固定です。イベントの色、点滅の速さ、通知の選択を決めます（外観 &amp; 重大度）。&#x0A;- **色**は 1 つのイベントに専用の色を付けます。↺ で重大度の色に戻ります。&#x0A;- **継続**はアラートがサムネイルに残る時間です。&#x0A;- **バッジ**はサムネイル上でイベントを数えます。**点灯**は点滅ではなく枠を保持します。&#x0A;- **オン**でそのイベントを全員で無効にします。それでもグループは、そのメンバーに対してオンにできます（下のグループごとのアラート）。&#x0A;- **クリスタル破損**は採掘レーザーでのみ発生します。武器のクリスタルが破壊されても発生しません。&#x0A;- **ドローン帰還中**は、オンにするまで無効です。EVE の英語のドローン回収ログ行だけを読み取ります。ゲームが別の言語の場合は、カスタムルールで自分の行に一致させられます。&#x0A;&#x0A;**静止時間**は、同じアラートが同じキャラクターに数秒間繰り返されるのを防ぎます。**重大度ごとの静止時間**（外観 &amp; 重大度）は、重大度ごとに専用の時間を設定します。</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">外観 &amp; 重大度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">サムネイル上のアラートの見え方、3つの重大度、色覚サポートモード。</sys:String> <!-- draft -->
@@ -2805,4 +2805,6 @@
     <sys:String x:Key="L.Hist.Csv.Yes">はい</sys:String> <!-- draft -->
     <sys:String x:Key="L.Speech.More">さらに{0}クライアント：{1}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Speech.Still">まだ：{0}</sys:String> <!-- draft -->
+    <!-- Ideas batch 22 (Plan 26) -->
+    <sys:String x:Key="L.AlertEvt.drones_returning">ドローン帰還中</sys:String> <!-- draft -->
 </ResourceDictionary>
