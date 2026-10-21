@@ -54,8 +54,9 @@ public static class AlertHistoryCsv
         c is '=' or '+' or '-' or '@' or '\t' or '\r' or (char)0xFF1D or (char)0xFF0B or (char)0xFF0D or (char)0xFF20;
 
     /// <summary>Whether a cell could begin at the next character: not at all, behind a separator or a line break
-    /// inside the field (only double quotes are looked past), or at the field's start (white space and characters
-    /// that don't show are looked past too).</summary>
+    /// inside the field (double quotes and white space are looked past: a spreadsheet that trims, LibreOffice with
+    /// "Trim spaces", reads the formula behind them), or at the field's start (characters that don't show are looked
+    /// past too).</summary>
     private enum Start { No, BehindASeparator, OfTheField }
 
     /// <summary>The field with an apostrophe in front of every character that would start a formula where a cell
@@ -76,8 +77,12 @@ public static class AlertHistoryCsv
             }
             text?.Append(c);
             // Looked up before the second half of a two-unit character is stepped over.
-            bool unseen = start == Start.OfTheField
-                          && (char.IsWhiteSpace(c) || CharUnicodeInfo.GetUnicodeCategory(value, i) == UnicodeCategory.Format);
+            bool unseen = start switch
+            {
+                Start.OfTheField => char.IsWhiteSpace(c) || CharUnicodeInfo.GetUnicodeCategory(value, i) == UnicodeCategory.Format,
+                Start.BehindASeparator => char.IsWhiteSpace(c),
+                _ => false,
+            };
             if (char.IsSurrogatePair(value, i))
             {
                 i++;

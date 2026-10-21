@@ -2807,4 +2807,7 @@
     <!-- Ideas batch 22 (Plan 26) -->
     <sys:String x:Key="L.AlertEvt.drones_returning">Drones returning</sys:String>
     <sys:String x:Key="L.Upd.NotInstalled">The update to {0} could not be installed. MultiPreview {1} is still running.</sys:String>
+    <!-- Ideas batch 23 (Plan 27) -->
+    <sys:String x:Key="L.Hist.UnreadDays">{0} day(s) could not be read.</sys:String>
+    <sys:String x:Key="L.Hist.NotLoaded">Nothing is recorded in this session: the settings file could not be read.</sys:String>
 </ResourceDictionary>

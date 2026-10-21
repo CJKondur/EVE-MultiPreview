@@ -2810,4 +2810,7 @@
     <!-- Ideas batch 22 (Plan 26) -->
     <sys:String x:Key="L.AlertEvt.drones_returning">Drones de retour</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.NotInstalled">La mise à jour vers {0} n'a pas pu être installée. MultiPreview {1} est toujours en cours d'exécution.</sys:String> <!-- draft -->
+    <!-- Ideas batch 23 (Plan 27) -->
+    <sys:String x:Key="L.Hist.UnreadDays">Jours qui n'ont pas pu être lus : {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.NotLoaded">Rien n'est enregistré pendant cette session : le fichier de paramètres n'a pas pu être lu.</sys:String> <!-- draft -->
 </ResourceDictionary>

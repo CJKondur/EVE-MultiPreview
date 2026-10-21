@@ -29,8 +29,9 @@ public sealed record AlertHistoryEntry(DateTime TimeUtc, string Character, strin
 }
 
 /// <summary>What <see cref="AlertHistory.Read"/> found: the alerts, newest first; whether there were more than asked
-/// for; and how many lines of the day files could not be read (a line cut short by a crash, or damage).</summary>
-public sealed record AlertHistoryPage(IReadOnlyList<AlertHistoryEntry> Entries, bool More, int BadLines);
+/// for; how many lines of the day files could not be read (a line cut short by a crash, or damage); and how many day
+/// files could not be opened at all (another program holds one, or access is refused).</summary>
+public sealed record AlertHistoryPage(IReadOnlyList<AlertHistoryEntry> Entries, bool More, int BadLines, int UnreadableDays = 0);
 
 /// <summary>The alert history (IDEAS #1): every alert that got past its switch and its quiet time, with what became of
 /// it. The newest <see cref="RingSize"/> are held in memory, and each is appended to one file per UTC day in the
@@ -159,14 +160,14 @@ public sealed class AlertHistory : IDisposable
     /// <summary>The alerts kept since <paramref name="sinceUtc"/>, newest first, at most <paramref name="max"/> (none
     /// for a <paramref name="max"/> of 0 or less): what the day files hold, and what is in memory but in no file (a
     /// write that failed). It waits for waiting writes first and reads files, so call it off the UI thread. Never
-    /// throws. A day file that can't be read is left out and the other days are still listed; the error log says so
-    /// once per session.</summary>
+    /// throws. A day file that can't be read is left out and the other days are still listed; the page counts such
+    /// days (<see cref="AlertHistoryPage.UnreadableDays"/>, at every read) and the error log says so once per session.</summary>
     public AlertHistoryPage Read(DateTime sinceUtc, int max)
     {
         max = Math.Max(0, max);
         var entries = new List<AlertHistoryEntry>();
         var waiting = new List<AlertHistoryEntry>();
-        int bad = 0;
+        int bad = 0, unreadableDays = 0;
         bool more = false;
         try
         {
@@ -183,6 +184,7 @@ public sealed class AlertHistory : IDisposable
                     // A day file that can't be read (another program has it and shares nothing, or access is
                     // refused) costs its own day only: the older days are read all the same.
                     Report("Read", "the history could not be read", ex);
+                    unreadableDays++;
                     continue;
                 }
                 for (int i = lines.Count - 1; i >= 0; i--)
@@ -209,7 +211,7 @@ public sealed class AlertHistory : IDisposable
             newestFirst.RemoveRange(max, newestFirst.Count - max);
             more = true;
         }
-        return new AlertHistoryPage(newestFirst, more, bad);
+        return new AlertHistoryPage(newestFirst, more, bad, unreadableDays);
     }
 
     /// <summary>Waits until everything recorded so far is written. False when that took longer than

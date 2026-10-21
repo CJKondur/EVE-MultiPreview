@@ -2406,6 +2406,8 @@ public partial class App : Application
                     MessageBox.Show(_historyWindow!, body, title, MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes,   // IDEAS P92: Enter keeps the history
                 // Asked at every refresh: while the setting is off, the window says so above its list.
                 HistoryOn = () => _settings.Settings.AlertHistoryEnabled,
+                // A settings file that could not be read means nothing is recorded; the window says that, not that the history is off.
+                SettingsLoaded = () => _settings.LoadedSuccessfully,
             });
             _historyWindow.Closed += (_, _) => _historyWindow = null;
             _historyWindow.Show();

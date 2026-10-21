@@ -38,6 +38,9 @@ public sealed class AlertHistoryActions
     /// <summary>Whether the "Keep an alert history" setting is on. While it is off the window says so above the
     /// list: what is listed is then what was kept before, and nothing new arrives. Asked at every refresh.</summary>
     public Func<bool> HistoryOn { get; init; } = () => true;
+    /// <summary>Whether the settings file was read at startup. When it was not, the session runs on defaults and records
+    /// nothing, whatever "Keep an alert history" says: the window then says so instead of "switched off".</summary>
+    public Func<bool> SettingsLoaded { get; init; } = () => true;
     /// <summary>Tests: file work runs at once, on the calling thread, instead of on a background thread.</summary>
     public bool Synchronous { get; init; }
 }
@@ -119,7 +122,8 @@ public partial class AlertHistoryWindow : Window
     private bool _more, _loading, _again, _closed;
     private bool _filling = true;      // until the lists are filled: a choice set by code is not the player's
     private bool _applying;            // while Apply puts the selection back: that is not the player choosing a row
-    private int _badLines;
+    private int _badLines, _unreadableDays;
+    private string _offWords = "";     // the key of the words in the line above the list while it is shown, else ""
     private int _changeWaiting;        // 1 while a message from the log monitor's thread is on its way to this one
     private readonly double _smallestByDesign;   // the window's MinHeight as the XAML has it
 
@@ -210,6 +214,7 @@ public partial class AlertHistoryWindow : Window
             _loaded = page.Entries;
             _more = page.More;
             _badLines = page.BadLines;
+            _unreadableDays = page.UnreadableDays;
             FillFilters();
             Apply();
             if (_again) { _again = false; Reload(); }
@@ -349,6 +354,7 @@ public partial class AlertHistoryWindow : Window
         };
         if (_more) parts.Add(string.Format(CultureInfo.CurrentCulture, Str("L.Hist.More", "Only the newest {0} of this range are loaded."), AlertHistoryView.MaxEntries));
         if (_badLines > 0) parts.Add(string.Format(CultureInfo.CurrentCulture, Str("L.Hist.BadLines", "{0} lines of the history files could not be read."), _badLines));
+        if (_unreadableDays > 0) parts.Add(string.Format(CultureInfo.CurrentCulture, Str("L.Hist.UnreadDays", "{0} day(s) could not be read."), _unreadableDays));
         TxtStatus.Text = string.Join("  ", parts);
     }
 
@@ -356,9 +362,15 @@ public partial class AlertHistoryWindow : Window
     /// the ten-second tick, so it follows the setting while the window is open.</summary>
     private void ShowWhetherTheHistoryIsOn()
     {
-        bool off = !_do.HistoryOn();
-        if (off == (OffNotice.Visibility == Visibility.Visible)) return;
+        // A session whose settings could not be read records nothing, with the setting reading "on" (its default): the
+        // line then names the real cause, not a switch that is not at fault.
+        bool loaded = _do.SettingsLoaded();
+        bool off = !loaded || !_do.HistoryOn();
+        string words = loaded ? "L.Hist.Off" : "L.Hist.NotLoaded";
+        if (off == (OffNotice.Visibility == Visibility.Visible) && (!off || words == _offWords)) return;
         OffNotice.Visibility = off ? Visibility.Visible : Visibility.Collapsed;
+        _offWords = off ? words : "";
+        if (off) TxtOff.SetResourceReference(TextBlock.TextProperty, words);     // by key: it follows the language
         if (off) Announce.Changed(TxtOff);
     }
 
@@ -566,7 +578,8 @@ public partial class AlertHistoryWindow : Window
         e.Handled = true;
     }
 
-    /// <summary>An arrow key or a page key while the list itself has the keyboard and a row is chosen. That is how a
+    /// <summary>An arrow key (Left and Right too: they move no row, but WPF starts them from the top as well) or a page
+    /// key while the list itself has the keyboard and a row is chosen. That is how a
     /// re-read leaves things when the chosen row is out of view (FocusRow), and from there WPF would start the key at
     /// the top: the first row would be chosen, and the list would jump to it. So the chosen row is brought into view
     /// and takes the keyboard first, and the key then does its work from that row (it is not marked as handled).
@@ -574,7 +587,7 @@ public partial class AlertHistoryWindow : Window
     /// has no container until the list has gone to it and is laid out.</summary>
     private void OnListPreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
-        if (e.Key is not (Key.Up or Key.Down or Key.PageUp or Key.PageDown)) return;
+        if (e.Key is not (Key.Up or Key.Down or Key.PageUp or Key.PageDown or Key.Left or Key.Right)) return;
         if (!AlertList.IsKeyboardFocused || AlertList.SelectedItem is not { } chosen) return;
         AlertList.ScrollIntoView(chosen);
         AlertList.UpdateLayout();

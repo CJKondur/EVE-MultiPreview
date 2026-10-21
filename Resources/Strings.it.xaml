@@ -2825,4 +2825,7 @@
     <!-- Ideas batch 22 (Plan 26) -->
     <sys:String x:Key="L.AlertEvt.drones_returning">Droni in rientro</sys:String> <!-- draft -->
     <sys:String x:Key="L.Upd.NotInstalled">Non è stato possibile installare l'aggiornamento a {0}. MultiPreview {1} è ancora in esecuzione.</sys:String> <!-- draft -->
+    <!-- Ideas batch 23 (Plan 27) -->
+    <sys:String x:Key="L.Hist.UnreadDays">Giorni non leggibili: {0}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.NotLoaded">In questa sessione non viene registrato nulla: il file delle impostazioni non è leggibile.</sys:String> <!-- draft -->
 </ResourceDictionary>
