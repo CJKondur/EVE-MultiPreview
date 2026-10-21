@@ -235,7 +235,7 @@ public sealed class SpokenWay : IAlertWay
         }
         // "More clients" for a sentence that counts right after one that counted, for the same event, a moment ago.
         bool counts = SpokenAlerts.Counts(utterance, _eventName);
-        bool more = counts && _countedEvent == utterance.EventKey && _utcNow() - _countedAt <= SpokenAlerts.MaxAge;
+        bool more = counts && !utterance.Still && _countedEvent == utterance.EventKey && _utcNow() - _countedAt <= SpokenAlerts.MaxAge;
         string text = SpokenAlerts.Text(utterance, _eventName, _str, more);
         string language = _language();
         int volume = SpeechOptions.Of(s).Volume;
@@ -280,7 +280,7 @@ public sealed class SpokenWay : IAlertWay
             // Counted here and not in the loop: only what the VOICE threw counts. The run ends the way it is reported
             // (a fixed text, no name), once; the failure itself is reported by the loop, by its type.
             if (Interlocked.Increment(ref _failures) == MostFailures)
-                Report(new InvalidOperationException("Spoken alerts: the voice failed " + MostFailures + " times in a row and is not asked again until spoken alerts are switched off and on."));
+                Report(new InvalidOperationException("Spoken alerts: the voice failed " + MostFailures + " times in a row and is not asked again until spoken alerts are switched off and on, or a voice's Try on the Voices card is heard."));
             throw;
         }
         Volatile.Write(ref _failures, 0);
