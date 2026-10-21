@@ -1028,8 +1028,8 @@ public sealed class LogMonitorService : IDisposable
         _stopped = true;
         _cts?.Cancel();
         StopFileWatchers();
-        // P90: wait for the reading thread, so on exit it has left its listeners before the ways, the history and the
-        // thumbnails they feed are disposed. That thread ends only when the whole async loop does (MonitorLoop(token).Wait()),
+        // P90: wait for the reading thread, so on exit it has left its listeners before the history, the thumbnails and
+        // the rest OnExit disposes after it (the ways and the hub are stopped just before and drop a late alert themselves). That thread ends only when the whole async loop does (MonitorLoop(token).Wait()),
         // pool-thread continuations included, so the join covers a listener running on a pool thread too. Bounded: a stuck listener (or one that stops the monitor itself) cannot hold the exit longer.
         var reader = _reader;
         _reader = null;
