@@ -3,9 +3,12 @@ using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>Do-not-disturb (IDEAS #32): the alert sounds and the voice of spoken alerts are held while it is on, and
-/// nothing else changes: borders, badges and toasts go on, a Windows notification still comes and a thumbnail still
-/// grows. It is on by the clock inside the daily quiet hours, and the hotkey (or the tray) flips whatever is in
+/// <summary>Do-not-disturb (IDEAS #32): the sounds MultiPreview starts on its own are held while it is on (the alert
+/// sounds, the voice of spoken alerts and, since P76, the cycle keys' wrap-around sound, which no critical alert lets
+/// through: it is no alert), and so are the alerts sent to Discord. Nothing else changes: borders, badges and toasts
+/// go on, a Windows notification still comes (its own sound is always off) and a thumbnail still grows. A sound the
+/// player asks for still plays (the preview buttons, a voice's Try), and so do the tray's own notes with Windows'
+/// sound. It is on by the clock inside the daily quiet hours, and the hotkey (or the tray) flips whatever is in
 /// effect; that choice lasts until the quiet hours next begin or end, and is forgotten when MultiPreview closes. No
 /// window in it; any thread; the time is handed in, on the PC's clock.</summary>
 public sealed class DoNotDisturb
@@ -114,7 +117,7 @@ public sealed class DoNotDisturb
 
     /// <summary>The note that says what do-not-disturb is now: its string key, and the English of it.</summary>
     public static (string Key, string English) Note(bool on) =>
-        on ? ("L.Dnd.On", "Do not disturb: on. Alert sounds and spoken alerts are muted, and alerts sent to Discord are held.") : ("L.Dnd.Off", "Do not disturb: off");
+        on ? ("L.Dnd.On", "Do not disturb: on. Alert sounds, spoken alerts and the wrap-around sound are muted, and alerts sent to Discord are held.") : ("L.Dnd.Off", "Do not disturb: off");
 
     /// <summary>One press of the hotkey or of the tray item: flips do-not-disturb once, and hands back the note that
     /// says what it is now.</summary>

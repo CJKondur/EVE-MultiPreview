@@ -1113,7 +1113,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay">按住时两次切换的间隔</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleDelay.Desc">数值越小越快。默认 100 ms。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.wrapSound">切换循环回起点时播放声音</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.wrapSound.Desc">提示你已回到第一个客户端。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.wrapSound.Desc">提示你已回到第一个客户端。勿扰模式会让这个声音静音。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.wrapSoundFile">循环提示音</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.includeLogins">包含处于登录界面的客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.includeLogins.Desc">下一个和上一个客户端按键也会停在尚未选择角色的客户端上。</sys:String> <!-- draft -->
@@ -2095,7 +2095,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">保留下来的每条警报，最新的在前。双击一条即可切换到它的客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.alerts.hub.openHistory">打开历史记录…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">历史记录窗口</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**打开历史记录…** 会列出保留下来的警报，最新的在前，并显示每条是多久以前的。同一个窗口也可以从托盘菜单的 **警报历史记录…** 打开，或者从警报中心打开：右键单击铃铛，再单击角上的时钟。&#x0A;&#x0A;- 选择时间范围、角色、警报或严重程度，或者在搜索框里输入文字。同一角色的同一警报在十分钟内重复，而且文本、星系和结果都相同时，只显示一行并带上次数。&#x0A;- **切换到该客户端** 会把这一行的客户端切到前台。在某一行上按 Enter 或双击效果相同。&#x0A;- **导出 CSV…** 会把显示的警报写入一个电子表格可以打开的文件。&#x0A;- **清空历史记录…** 会删除保留的所有内容。&#x0A;- 声音被勿扰模式拦住的警报，在结果列里显示 **声音已拦住**，CSV 文件里也有对应的一列。&#x0A;&#x0A;警报中心菜单里的另一个角按钮会关闭所有提示条，和单击铃铛一样。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**打开历史记录…** 会列出保留下来的警报，最新的在前，并显示每条是多久以前的。同一个窗口也可以从托盘菜单的 **警报历史记录…** 打开，或者从警报中心打开：右键单击铃铛，再单击角上的时钟。&#x0A;&#x0A;- 选择时间范围、角色、警报或严重程度，或者在搜索框里输入文字。同一角色的同一警报在十分钟内重复，而且文本、星系和结果都相同时，只显示一行并带上次数。&#x0A;- **切换到该客户端** 会把这一行的客户端切到前台。在某一行上按 Enter 或双击效果相同。&#x0A;- **导出 CSV…** 会把显示的警报写入一个电子表格可以打开的文件。&#x0A;- **清空历史记录…** 会删除保留的所有内容。&#x0A;- 在勿扰模式拦住声音期间到达的警报，在结果列里显示 **声音已拦住**，CSV 文件里也有对应的一列。&#x0A;&#x0A;警报中心菜单里的另一个角按钮会关闭所有提示条，和单击铃铛一样。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.custom">自定义警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom">自定义规则</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom.Desc">你自己的警报：游戏日志或聊天频道里的一段文字或一个模式。</sys:String> <!-- draft -->
@@ -2167,7 +2167,7 @@
     <sys:String x:Key="L.S.Rules.Err.SeverityUnknown">请选择严重程度。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.Intro">自定义规则是你自己的警报。它会在 EVE 写入游戏日志或某个聊天频道日志的行里查找一段文字，并像内置警报一样发出警报：边框、角标、提示条、声音，以及警报历史记录里的一行。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.rules.Title">规则</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.rules.Body">**添加规则** 会创建一条空规则。三个示例各会创建一条可以修改的规则。&#x0A;&#x0A;- 规则的开关打开时才会生效。不能运行的规则会说明原因，并且无法打开。&#x0A;- 它的警报使用规则的名称，以及其严重程度的颜色和提示条。&#x0A;- **静默时间** 是规则触发后对同一个角色保持安静的时间。留空表示使用所有警报共用的静默时间。&#x0A;- 最多可以有 50 条规则。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.rules.Body">**添加规则** 会创建一条空规则。三个示例各会创建一条可以修改的规则。&#x0A;&#x0A;- 规则的开关打开时才会生效。不能运行的规则会说明原因，并且无法打开。&#x0A;- 它的警报使用规则的名称，以及其严重程度的颜色和提示条。&#x0A;- **静默时间** 是规则触发后对同一个角色保持安静的时间。留空表示使用所有警报共用的静默时间。&#x0A;- 最多可以有 50 条规则。&#x0A;- 规则属于“警告”，除非把它的 **严重程度** 设为“严重”。勿扰模式会拦住警告的声音，并在 **严重警报仍然发声** 打开时放行严重警报。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.match.Title">规则看到的内容</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.match.Body">**文字** 会在一行的任何位置查找这些字，不区分大小写。**正则表达式** 是 .NET 的模式。&#x0A;&#x0A;- 对于游戏日志的一行，规则看到的是去掉时间以及颜色和字体代码后的文字，例如：(combat) 123 from Guristas Despoiler - Hits&#x0A;- 对于聊天的一行，它看到的是：名字 &gt; 消息&#x0A;- 正则表达式处理每一行的时间是有限的。一次匹配如果花的时间太长，就会被放弃；一旦正则表达式用完了这一行的时间，其余的正则表达式会跳过这一行。&#x0A;- 开销太大的规则会被 MultiPreview 关闭：要么它的模式在某些行上花的时间太长，要么你的正则表达式规则合起来拖慢了日志的读取（每一行都慢，或者只是偶尔慢），而这条规则是其中最慢的之一。它的卡片和 error_log.txt 都会说明。你修改任意一条规则或重新启动 MultiPreview 后，它会重新启用。查找普通文字的规则从不会被关闭或跳过。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.chat.Title">聊天频道</sys:String> <!-- draft -->
@@ -2230,7 +2230,7 @@
     <sys:String x:Key="L.Help.alerts.events.snoozes.Body">右键点击提示，可以为该角色暂停这种警报：15 分钟、1 小时，或直到 MultiPreview 重新启动。指针离开菜单后，菜单会自行关闭。同样的警报仍会发给你的其他角色，这个角色的其他警报也照常发出。&#x0A;&#x0A;- 已暂停的警报不显示边框、角标或提示，也不播放声音。警报历史记录里仍会列出它，并标为 已暂停。&#x0A;- **当前已暂停** 列出当前暂停的警报，缩略图的右键菜单列出该角色的。两处都可以结束暂停。&#x0A;- 要让一个角色的所有警报都安静，请改用缩略图菜单里的 静音警报。&#x0A;- **MultiPreview 重新启动后保留暂停** 是关闭的：关闭 MultiPreview 会结束所有暂停。打开后，有时限的暂停会保存在设置文件夹的 alert_snoozes.json 里，并持续到时间用完。&#x0A;&#x0A;也可以不用提示，直接在这里开始暂停：在 **当前已暂停** 里选择角色（也可以输入名字）、警报和时长，再点击 **添加暂停**；缩略图菜单里的 静音警报 同样不需要提示。&#x0A;&#x0A;- 暂停是按角色名字记的：角色改名后，这条暂停对不上任何东西，会一直留到时间用完或 MultiPreview 重新启动；可以在 **当前已暂停** 里结束它。最多保留 200 条暂停。&#x0A;- 有时限的暂停按这台电脑的时钟走：时钟拨快会提前结束，拨慢会持续更久，剩余时间超过一小时零一分钟的暂停算作已结束。&#x0A;- 暂停文件里只要有一条比现在晚一小时零一分钟以上，整个文件就完全不读，错误日志会记下这一点（时钟拨慢之后，这可能就是你自己的文件）。设置文件夹是链接时，暂停不会在重启后保留；错误日志只记一次，不会每次改动都记。&#x0A;- 角色名或警报里含控制字符的条目会被舍弃。暂停文件是只读时，你结束的暂停会在重启后回来。&#x0A;- 提示及其菜单只能用鼠标操作；Esc 会交给 EVE，而不是菜单。&#x0A;- 在这里添加暂停不会让因该警报而放大的缩略图恢复；它会在自己的时间结束时恢复。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.dnd">勿扰模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndHotkey">勿扰模式开关</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">在你再次按下之前静音警报声音和语音警报，并暂停发往 Discord 的警报。边框、角标和提示照常显示。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.sounds.dndHotkey.Desc">在你再次按下之前静音警报声音、语音警报和循环提示音，并暂停发往 Discord 的警报。边框、角标和提示照常显示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndCritical">严重警报仍然发声</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.dndCritical.Desc">即使开启勿扰模式，严重警报仍会播放声音，仍会朗读，也仍会发往 Discord。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietHours">每天的安静时段</sys:String> <!-- draft -->
@@ -2239,12 +2239,12 @@
     <sys:String x:Key="L.S.alerts.sounds.quietTo">结束时间</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietTo.Desc">例如 07:00。跨过午夜的时段也可以。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Err.Time">请输入一天中的时间，例如 23:00 或 7:30。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Dnd.On">勿扰模式：开。警报声音和语音警报已静音，发往 Discord 的警报也暂停发送。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Dnd.On">勿扰模式：开。警报声音、语音警报和循环提示音已静音，发往 Discord 的警报也暂停发送。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Dnd.Off">勿扰模式：关</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.Dnd">勿扰模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.DndOn">勿扰模式：开</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.dnd.Title">勿扰模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">勿扰模式会拦住警报声音、语音警报、发往 Discord 的警报和切换键的 **循环提示音**：凡是 MultiPreview 自己发出的都会被拦住。边框、角标和提示照常显示，Windows 通知照常出现（不带 Windows 自己的声音），缩略图也照常放大。你主动触发的声音仍会播放：▶ 按钮，以及语音上的 **试听**。MultiPreview 从托盘显示的提示仍带 Windows 自己的通知声。适合语音通话或直播时使用。&#x0A;&#x0A;- **勿扰模式开关** 用来开关它，托盘菜单也可以。光标旁会提示当前状态。开启期间，托盘图标的提示和本页上的一行文字都会显示。&#x0A;- **严重警报仍然发声** 一开始是打开的：严重警报仍会发声，也仍会朗读。关掉它，严重警报也会被拦住。循环提示音无论如何都会被拦住：它不是警报。&#x0A;- **每天的安静时段** 每天按时钟自动开关。**开始时间** 23:00、**结束时间** 07:00 就是一整夜。**开始时间** 和 **结束时间** 相同时，就没有安静时段。&#x0A;- 在安静时段内按下快捷键，声音会恢复到该时段结束。在时段外按下，会一直静音到你再按一次，或到下一个安静时段结束。&#x0A;- 重新启动 MultiPreview 会忘记快捷键的状态。安静时段是一项设置，会保留。&#x0A;- 声音被拦住的警报，其提示会显示一个划掉的铃铛。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">勿扰模式会拦住 MultiPreview 自己发出的声音：警报声音、语音警报和切换键的 **循环提示音**。发往 Discord 的警报也会被拦住。边框、角标和提示照常显示，Windows 通知照常出现（不带 Windows 自己的声音），缩略图也照常放大。你主动触发的声音仍会播放：▶ 按钮，以及语音上的 **试听**。MultiPreview 从托盘显示的提示仍带 Windows 自己的通知声。适合语音通话或直播时使用。&#x0A;&#x0A;- **勿扰模式开关** 用来开关它，托盘菜单也可以。光标旁会提示当前状态。开启期间，托盘图标的提示和本页上的一行文字都会显示。&#x0A;- **严重警报仍然发声** 一开始是打开的：严重警报仍会发声，也仍会朗读。关掉它，严重警报也会被拦住。循环提示音无论如何都会被拦住：它不是警报。&#x0A;- **每天的安静时段** 每天按时钟自动开关。**开始时间** 23:00、**结束时间** 07:00 就是一整夜。**开始时间** 和 **结束时间** 相同时，就没有安静时段。&#x0A;- 在安静时段内按下快捷键，声音会恢复到该时段结束。在时段外按下，会一直静音到你再按一次，或到下一个安静时段结束。&#x0A;- 重新启动 MultiPreview 会忘记快捷键的状态。安静时段是一项设置，会保留。&#x0A;- 快捷键在所有热键都不起作用的地方也不起作用：热键暂停时、MultiPreview 的设置窗口或命令面板位于前台时，以及 **热键生效范围** 设为 **仅在 EVE 位于前台时**、而前台是其他程序时。这些情况下托盘菜单里的对应项仍然可用，**接受其他程序的命令** 打开时命令 --do-not-disturb 也可用。&#x0A;- 安静时段使用 24 小时制，按这台电脑的时钟计算。包含夏令时切换的那一夜会短一小时或长一小时。如果时钟被往回或往前调整，快捷键的选择可能持续更久或更早结束。&#x0A;- 修改安静时段或调整时钟，可能会结束快捷键的选择，之后重新由时钟决定。勿扰模式开启期间，托盘图标的提示和本页上的一行文字都会显示。&#x0A;- 你自己的规则属于“警告”，除非把它的 **严重程度** 设为“严重”，所以勿扰模式会拦住它的声音。&#x0A;- 在勿扰模式拦住声音期间到达的警报，其提示条上会显示一个划掉的铃铛，警报历史记录里会显示 **声音已拦住**。被放行的严重警报不会被标记，**播放警报声音** 关闭时也不会标记任何警报。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.escalation">重复严重警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate">重复你还没看过的严重警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate.Desc">在那个客户端来到前台之前，它的声音会再次播放，一次比一次响。需要打开“播放警报声音”。</sys:String> <!-- draft -->
@@ -2270,11 +2270,11 @@
     <sys:String x:Key="L.S.Refused.Usual">经常占用热键的程序：NVIDIA 悬浮层、AMD Software、ShareX、Greenshot、AutoHotkey、PowerToys。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.KeysRefused">Windows 拒绝了这些热键：{0}。它们可能已被其他程序占用。点击查看详情。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.refused.Title">Windows 拒绝的按键</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows 同一时间只会把每个按键组合交给一个程序。如果其他程序先占用了某个热键，按下它在 MultiPreview 中不会有任何反应，也不会告诉你原因。&#x0A;&#x0A;- **Windows 拒绝的按键** 会列出每个这样的按键及其绑定的功能。点击其中一个即可更改。&#x0A;- 常见的占用者是悬浮层、截图工具和按键映射工具：NVIDIA 悬浮层、AMD Software、ShareX、Greenshot、AutoHotkey、PowerToys。卡片会列出正在运行的程序。对于带 Win 键的热键，卡片还会说明 Windows 自己保留了许多 Win 组合。&#x0A;- MultiPreview 还会通过托盘通知提示，每个按键只提示一次。&#x0A;- 每次注册按键时都会检查：EVE 客户端运行且热键未暂停期间，以及你更改设置之后。在其他程序中释放按键后，点击 **重新检查** 可以让 MultiPreview 再向 Windows 请求一次。鼠标按键永远不会被拒绝。&#x0A;- 开启 **按住 Ctrl、Shift 或 Alt 时热键仍然有效** 后，每个按键还会与 Ctrl、Alt、Shift、Win 的各种组合一起注册。其中许多组合被 Windows 自己保留。列表中只显示你选择的组合。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.refused.Body">Windows 同一时间只会把每个按键组合交给一个程序。如果其他程序先占用了某个热键，按下它在 MultiPreview 中不会有任何反应，也不会告诉你原因。&#x0A;&#x0A;- **Windows 拒绝的按键** 会列出每个这样的按键及其绑定的功能。点击其中一个即可更改。&#x0A;- 常见的占用者是悬浮层、截图工具和按键映射工具：NVIDIA 悬浮层、AMD Software、ShareX、Greenshot、AutoHotkey、PowerToys。卡片会列出正在运行的程序。对于带 Win 键的热键，卡片还会说明 Windows 自己保留了许多 Win 组合。&#x0A;- MultiPreview 还会通过托盘通知提示，每个按键只提示一次。&#x0A;- 每次注册按键时都会检查：EVE 客户端运行且热键未暂停期间，以及你更改设置之后。在其他程序中释放按键后，点击 **重新检查** 可以让 MultiPreview 再向 Windows 请求一次。鼠标按键永远不会被拒绝。&#x0A;- 开启 **按住 Ctrl、Shift 或 Alt 时热键仍然有效** 后，每个按键还会与 Ctrl、Alt、Shift、Win 的各种组合一起注册。其中许多组合被 Windows 自己保留。列表中只显示你选择的组合。&#x0A;- 这条提示在每次启动 MultiPreview 时对每个按键只出现一次，更改设置时不会再次出现。Windows 可能会把它压下，或者之后托盘里的另一条提示会取代它；卡片始终会列出这些按键。&#x0A;- 热键暂停或没有 EVE 客户端运行时，不会向 Windows 请求任何按键：卡片保留上一次的列表，在这种状态下更改设置后，会显示按键尚未检查。**热键生效范围** 设为 **任何位置** 时，按键只请求一次，所以你已经释放的按键会一直留在列表里，直到点击 **重新检查** 或更改设置。设为 **仅在 EVE 位于前台时** 时，每当 EVE 或 MultiPreview 回到前台就会重新请求；因此在其他程序位于前台时从托盘切换的配置文件，在那之前仍显示旧配置文件的列表。&#x0A;- 重新绑定按键后，卡片可能还会在几秒内显示旧按键的那一行。写着“已被其他程序占用。”的一行只能确定这一点：它不知道是哪个程序。行下面列出的程序名，是根据一份已知程序短名单做出的猜测。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Switch.LastAlertHere">最新的警报就在这个客户端上</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.quietFrom.Desc">24 小时制，例如 23:00。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.On">勿扰模式现在是开启的。警报声音和语音警报已静音，发往 Discord 的警报也暂停发送。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.DndState.OnCritical">勿扰模式现在是开启的。警报声音和语音警报已静音，发往 Discord 的警报也暂停发送，但严重警报仍然发声、会朗读，也会发往 Discord。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.On">勿扰模式现在是开启的。警报声音、语音警报和循环提示音已静音，发往 Discord 的警报也暂停发送。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.DndState.OnCritical">勿扰模式现在是开启的。警报声音、语音警报和循环提示音已静音，发往 Discord 的警报也暂停发送，但严重警报仍然发声、会朗读，也会发往 Discord。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.Again">重新检查</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Refused.WinKey">Windows 自己保留了许多带 Win 键的组合。被拒绝的热键如果带 Win，很可能就是其中之一：请换一个组合。</sys:String> <!-- draft -->
     <!-- Ideas batch 6 (Plan 10) -->
@@ -2300,7 +2300,7 @@
     <sys:String x:Key="L.S.Speech.NoVoice">Windows 没有 MultiPreview 语言的语音。警报会用另一种语音朗读，可能读不好。你可以在 Windows 的语音设置里添加语音，或者在这里选一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.NoVoices">Windows 没有安装任何语音，所以无法朗读。请在 Windows 的语音设置里添加一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.speech.Title">语音警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">打开 **朗读警报** 后，Windows 语音会说出是谁的警报以及发生了什么：角色的名字和事件的名字，使用 MultiPreview 的语言。你不用看就知道谁需要你，在很多客户端共用一个警报声音时最有用。这是 Windows 的文字转语音（TTS）：你的警报会被朗读出来。&#x0A;&#x0A;- **朗读哪些警报** 按严重程度选择：仅严重、严重和警告，或者全部。&#x0A;- 同一事件的警报一起到达时会合成一句话。两个客户端时会说出两个名字，例如“Alpha, Bravo, 遭受攻击”；三个或更多时只报数量，例如“3 个客户端：遭受攻击”；两个名字会让句子太长时也只报数量。最严重的警报最先朗读。同一事件紧接在报数量的句子之后，下一句会说“另外 5 个客户端：遭受攻击”，这样听起来就不像重复。&#x0A;- 等待超过 10 秒的警报不再朗读。同一客户端的同一警报在 30 秒内不会再次朗读；如果该事件的声音静默时间更长，则以它为准。你查看过该客户端之后，它的下一条警报会再次朗读。&#x0A;- 语音也是声音：勿扰模式会像拦住警报声音一样拦住语音。**严重警报仍然发声** 打开时（一开始就是打开的），严重警报仍会朗读；想要完全安静就关掉它。已静音的角色和已暂停的警报不会朗读，轮到它之前你已经查看过客户端的警报也不会朗读。你正在查看的客户端上的警报不会朗读，它的声音照常播放。它不需要 **播放警报声音**：没有提示音时语音照样工作。&#x0A;- **语音种类** 为每个严重程度设定语音。自动会在 Windows 有 MultiPreview 语言的语音时使用它，否则使用 Windows 默认语音。语音在 Windows 的语音设置里添加。&#x0A;- 当一条严重警报已按设定的次数重复而你仍然没有查看时，它会再朗读一次。它会以“仍然：”开头，例如“仍然：Alpha, 遭受攻击”。&#x0A;- 如果语音连续三次出错（比如没有音频设备），MultiPreview 就不再调用它，直到你把 **朗读警报** 关闭再重新打开。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">打开 **朗读警报** 后，Windows 语音会说出是谁的警报以及发生了什么：角色的名字和事件的名字，使用 MultiPreview 的语言。你不用看就知道谁需要你，在很多客户端共用一个警报声音时最有用。这是 Windows 的文字转语音（TTS）：你的警报会被朗读出来。&#x0A;&#x0A;- **朗读哪些警报** 按严重程度选择：仅严重、严重和警告，或者全部。&#x0A;- 同一事件的警报一起到达时会合成一句话。两个客户端时会说出两个名字，例如“Alpha, Bravo, 遭受攻击”；三个或更多时只报数量，例如“3 个客户端：遭受攻击”；两个名字会让句子太长时也只报数量。最严重的警报最先朗读。同一事件紧接在报数量的句子之后，下一句会说“另外 5 个客户端：遭受攻击”，这样听起来就不像重复。&#x0A;- 等待超过 10 秒的警报不再朗读。同一客户端的同一警报在 30 秒内不会再次朗读；如果该事件的声音静默时间更长，则以它为准。你查看过该客户端之后，它的下一条警报会再次朗读。&#x0A;- 语音也是声音：勿扰模式会像拦住警报声音一样拦住语音。**严重警报仍然发声** 打开时（一开始就是打开的），严重警报仍会朗读；想连严重警报也拦住，就关掉它。已静音的角色和已暂停的警报不会朗读，轮到它之前你已经查看过客户端的警报也不会朗读。你正在查看的客户端上的警报不会朗读，它的声音照常播放。它不需要 **播放警报声音**：没有提示音时语音照样工作。&#x0A;- **语音种类** 为每个严重程度设定语音。自动会在 Windows 有 MultiPreview 语言的语音时使用它，否则使用 Windows 默认语音。语音在 Windows 的语音设置里添加。&#x0A;- 当一条严重警报已按设定的次数重复而你仍然没有查看时，它会再朗读一次。它会以“仍然：”开头，例如“仍然：Alpha, 遭受攻击”。&#x0A;- 如果语音连续三次出错（比如没有音频设备），MultiPreview 就不再调用它，直到你把 **朗读警报** 关闭再重新打开。&#x0A;- 严重警报不会打断正在朗读的句子，而是等它读完；句子很短，因为名字最多读 40 个字符，事件或规则的名称最多读 48 个字符。被勿扰模式拦住的警报以后不会再补读。&#x0A;- 朗读的文字始终使用 MultiPreview 的语言。如果 Windows 没有这种语言的语音，就会由另一种语音朗读，可能读得不好；**语音种类** 卡片会提示这一点。语音通过 Windows 的默认声音设备播放。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.hub.windows">Windows 通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notify">把警报显示为 Windows 通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notify.Desc">警报也会作为 Windows 的通知出现，并留在通知中心里，直到你查看了那个客户端。</sys:String> <!-- draft -->
@@ -2335,7 +2335,7 @@
     <sys:String x:Key="L.S.GroupAlerts.NoGroups">还没有分组。请在“分组”页面创建一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.Clear">清除这个分组的选择</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.groups.Title">按分组设置警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.groups.Body">每个分组（客户端 › 分组）可以自己选择开启哪些事件，这样矿工会收到货舱已满的警报，而战斗角色不会。&#x0A;&#x0A;- 先选择分组，再把某个事件设为对它开启或关闭。保持“与所有人相同”的事件遵循上面 **警报事件** 里的开关。&#x0A;- 分组可以开启一个对所有人关闭的事件，也可以关闭一个已开启的事件。&#x0A;- 不在任何分组里的角色始终使用所有人的开关。对于 **掉队** ，由掉队成员自己的分组决定。&#x0A;- 对于同时在多个分组里的角色，以“开启”为准：它的分组对某个事件意见不一致时，这个事件就是开启的。把事件保持“与所有人相同”的分组不参与决定。卡片会在各行下面列出每个与各行所示不同的成员，以及一个做出该选择的分组。&#x0A;- 对某个角色关闭的事件，对它来说就不是警报：不会显示、播放或朗读任何内容，也不会进入警报历史。&#x0A;- 自定义规则可以对某个分组关闭。在规则自己的页面里关闭的规则对所有人都关闭。&#x0A;- 重命名分组时，它的选择会跟着走；分组没有成员时，这些选择不起作用。设置文件中损坏的条目只会被单独跳过，其余内容保留；下次保存分组的选择或声音时，它会被去掉。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.groups.Body">每个分组（客户端 › 分组）可以自己选择开启哪些事件，这样矿工会收到货舱已满的警报，而战斗角色不会。&#x0A;&#x0A;- 先选择分组，再把某个事件设为对它开启或关闭。保持“与所有人相同”的事件遵循上面 **警报事件** 里的开关。&#x0A;- 分组可以开启一个对所有人关闭的事件，也可以关闭一个已开启的事件。&#x0A;- 不在任何分组里的角色始终使用所有人的开关。对于 **掉队** ，由掉队成员自己的分组决定。&#x0A;- 对于同时在多个分组里的角色，以“开启”为准：它的分组对某个事件意见不一致时，这个事件就是开启的。把事件保持“与所有人相同”的分组不参与决定。卡片会在各行下面列出每个与各行所示不同的成员，以及一个做出该选择的分组。&#x0A;- 对某个角色关闭的事件，对它来说就不是警报：不会显示、播放或朗读任何内容，也不会进入警报历史。&#x0A;- 自定义规则可以对某个分组关闭。在规则自己的页面里关闭的规则对所有人都关闭。这样的规则不会列在这里，但它的选择会保留，并在规则重新打开后再次生效；删除规则则会一并删除这些选择。&#x0A;- 重命名分组时，它的选择会跟着走；分组没有成员时，这些选择不起作用。设置文件中损坏的条目只会被单独跳过，其余内容保留；下次保存分组的选择或声音时，它会被去掉。分组的选择按分组名称保存，而不是按设置配置文件保存：在另一个配置文件里，同名分组的成员也会适用。放不下的选择（保留的数量有限）不会被保存，卡片会提示这一点。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.neutralized">电容被中和</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.jammed">被干扰</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.dps_high">承受 DPS 过高</sys:String> <!-- draft -->
@@ -2371,7 +2371,7 @@
     <sys:String x:Key="L.S.GroupSounds.Members">成员：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupSounds.Overlap">{0} 也在 {1} 中，它在“分组”页面里排在前面。如果两个分组为同一个事件（或都为所有事件）设置了声音，就播放 {1} 的。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.groups.Title">按分组设置声音</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.groups.Body">给一组客户端设置专属声音，这样你不用看屏幕就能听出是哪一队需要你：矿工一个音，战斗飞行员另一个音。&#x0A;&#x0A;- **所有事件**：该分组成员的每次警报都会播放。&#x0A;- 为**某一个事件**设置的声音会在该事件上代替它播放。&#x0A;- 分组没有设置声音的事件，照旧播放它自己的声音（上面的表格）。&#x0A;&#x0A;角色同时在两个分组里时：为该事件设置的声音优先于为所有事件设置的声音，其余情况由在“分组”页面里排在前面的分组播放。卡片会告诉你是哪一个。必须开启警报声音（**播放警报声音**），“勿扰模式”会像拦截其他声音一样拦截分组的声音。声音文件不存在时，改为播放事件自己的声音。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.groups.Body">给一组客户端设置专属声音，这样你不用看屏幕就能听出是哪一队需要你：矿工一个音，战斗飞行员另一个音。&#x0A;&#x0A;- **所有事件**：该分组成员的每次警报都会播放。&#x0A;- 为**某一个事件**设置的声音会在该事件上代替它播放。&#x0A;- 分组没有设置声音的事件，照旧播放它自己的声音（上面的表格）。&#x0A;&#x0A;角色同时在两个分组里时：为该事件设置的声音优先于为所有事件设置的声音，其余情况由在“分组”页面里排在前面的分组播放。卡片会告诉你是哪一个。必须开启警报声音（**播放警报声音**），“勿扰模式”会像拦截其他声音一样拦截分组的声音。声音文件不存在时，改为播放事件自己的声音。分组的声音按分组名称保存，在每个设置配置文件里都一样，和分组选择开启哪些事件的方式相同。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Unit.Dps">DPS</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.dpsThreshold">承受 DPS 过高：超过</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.dpsThreshold.Desc">角色平均每秒需要承受多少伤害，才会触发警报。</sys:String> <!-- draft -->
