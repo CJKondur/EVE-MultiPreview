@@ -59,15 +59,20 @@ public sealed class AlertTargets
     /// <summary>(character, alert type, severity, sound held): AlertHub.ShowToast. The last argument is the answer of
     /// <see cref="SoundHeld"/>: the toast shows a crossed bell for it.</summary>
     public Action<string, string, string, bool> Toast { get; init; } = (_, _, _, _) => { };
-    /// <summary>(character, alert type, severity): App.PlayAlertSound.</summary>
+    /// <summary>(character, alert type, severity): App.PlayAlertSound. It posts the play to the window's thread and returns
+    /// (P57), so the alert goes on at once.</summary>
     public Action<string, string, string> Sound { get; init; } = (_, _, _) => { };
     /// <summary>(character, alert type, severity, when the alert was raised): AlertWays.Raised. The further ways an
     /// alert reaches the player (IDEAS batch 6): spoken, as a Windows notification, by an enlarged thumbnail. Called
     /// last, for every alert that got past the gates (border, badge and sound), with a hub toast or without one: the
     /// outcomes <see cref="AlertOutcome.Shown"/> and <see cref="AlertOutcome.NoToast"/>. For no other outcome. The
-    /// time is the one Dispatch was handed, or null: by now the sound has waited for the window's thread (the toast
-    /// is only posted to it), so the alert may be seconds old.</summary>
+    /// time is the one Dispatch was handed, or null. The toast and the sound are only posted to the window's thread
+    /// (P57), so the ways are told at once; a window that is busy may show and play the alert seconds later.</summary>
     public Action<string, string, string, DateTime?> Ways { get; init; } = (_, _, _, _) => { };
+    /// <summary>(which way, what it threw): the toast or the sound threw while an alert was shown (P90). The alert goes on to
+    /// its remaining ways; this is only told, and App writes it to the error log by the exception's type. Never given a
+    /// name: the way is "toast" or "sound".</summary>
+    public Action<string, Exception> Failed { get; init; } = (_, _) => { };
 }
 
 /// <summary>Decides what happens to an alert the log monitor raised, and does it. This is the body App's AlertTriggered
@@ -147,10 +152,16 @@ public static class AlertDispatcher
             $"[App] toast decision for '{charName}': hubEnabled={settings.AlertHubEnabled} trayNotify[{severity}]={trayEnabled} suppressForActive={suppressForActive}");
         bool toast = settings.AlertHubEnabled && trayEnabled && !suppressForActive;
         soundHeld = to.SoundHeld(severity);
+        // P90: the toast, the sound and the further ways are told in this order, and one that throws costs the alert
+        // none of the others. The failure is handed on by way and exception only; App writes the type, never a name.
         if (toast)
-            to.Toast(charName, alertType, severity, soundHeld);
+        {
+            try { to.Toast(charName, alertType, severity, soundHeld); }
+            catch (Exception ex) { to.Failed("toast", ex); }
+        }
 
-        to.Sound(charName, alertType, severity);
+        try { to.Sound(charName, alertType, severity); }
+        catch (Exception ex) { to.Failed("sound", ex); }
         to.Ways(charName, alertType, severity, raisedUtc);
         return toast ? AlertOutcome.Shown : AlertOutcome.NoToast;
     }

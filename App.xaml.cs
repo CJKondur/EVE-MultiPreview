@@ -547,9 +547,11 @@ public partial class App : Application
                 // master switch, then do-not-disturb. With the sounds off nothing is held by do-not-disturb: nothing would play.
                 SoundHeld = severity => _settings.Settings.EnableAlertSounds && _doNotDisturb.Silences(_settings.Settings, severity, DateTime.Now),
                 Sound = PlayAlertSound,
+                // P90: a toast or a sound that threw costs the alert nothing else; only its type is written, never a message.
+                Failed = (way, ex) => ErrorLog.Shared.Record(new InvalidOperationException($"An alert's {way} failed: " + ex.GetType().Name), "AlertDispatcher", DateTime.Now),
                 // IDEAS batch 6: after every gate. Which window is in front is asked there once, and only while a
-                // further way is switched on. It is asked a moment after Unseen asked it (the sound waits for the
-                // window's thread in between; the toast is only posted to it), and the player may have switched away in that moment: an alert
+                // further way is switched on. It is asked a moment after Unseen asked it (the toast and the sound are
+                // only posted to the window's thread, P57, so that moment is short), and the player may have switched away in that moment: an alert
                 // that was seen as it arrived is held by nobody as unseen, so no look would ever take its Windows
                 // notification away again. "In front" is therefore also: the attention table holds nothing for it.
                 Ways = (charName, alertType, severity, raisedUtc) => _alertWays.Raised(_settings.Settings, charName, alertType, severity,
@@ -1793,8 +1795,20 @@ public partial class App : Application
 
     // ── Alert Sound System (per-event sounds, WAV/MP3 via MediaPlayer) ──
 
+    // P57: the log reader's thread calls this for every alert, so it posts the play to the window's thread and returns; a busy
+    // window no longer holds every client's alerts. The play is the member below, unchanged, run there in the order the
+    // alerts were posted (its quiet-time check and stamp keep their order). The repeats (AlertTick, on the window's
+    // thread) call that member directly. A throw inside a posted lambda would reach the unhandled-exception handler, so
+    // it is recorded here, by type: a message can quote a name another player chose.
     private void PlayAlertSound(string character, string alertType, string severity) =>
-        PlayAlertSound(character, alertType, severity, repeat: 0, volume: null);
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            try { PlayAlertSound(character, alertType, severity, repeat: 0, volume: null); }
+            catch (Exception ex)
+            {
+                ErrorLog.Shared.Record(new InvalidOperationException("An alert sound could not be played: " + ex.GetType().Name), "App:Sound", DateTime.Now);
+            }
+        }));
 
     /// <param name="repeat">0 for the alert itself; 1, 2, … for a repeat of escalation (IDEAS #29).</param>
     /// <param name="volume">The volume of a repeat (0–100) as escalation worked it out, each one louder. Null for the

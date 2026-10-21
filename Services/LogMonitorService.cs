@@ -23,7 +23,11 @@ namespace EveMultiPreview.Services;
 public sealed class LogMonitorService : IDisposable
 {
     private CancellationTokenSource? _cts;
-    private Task? _monitorTask;
+    // The reading thread, kept so Stop can wait for it (P90). Null before Start and after Stop.
+    private Thread? _reader;
+    // How long Stop waits for the reading thread to leave whatever it is doing: a listener that is finishing gets that
+    // long, a stuck one cannot hold the exit longer.
+    private static readonly TimeSpan ReaderStopWait = TimeSpan.FromSeconds(2);
     // Keyed by full path, compared ignoring case: one file is one entry however its folder was typed (IDEAS P30).
     private readonly ConcurrentDictionary<string, LogFileState> _trackedFiles = new(StringComparer.OrdinalIgnoreCase);
     private bool _initialScanComplete = false;
@@ -33,8 +37,8 @@ public sealed class LogMonitorService : IDisposable
     public ErrorLog Errors { get; set; } = ErrorLog.Shared;
 
     // True from Stop until the next Start. RecordBadLine asks it instead of the cancellation token: Stop disposes and
-    // clears _cts without waiting for the reading thread, so when a listener that waits for the window (the sound; the
-    // toast and the system label are only posted) is cancelled and that reaches the reader at exit, the token is already gone.
+    // clears _cts after waiting at most ReaderStopWait for the reading thread, so a reader that is still in a listener
+    // after that (every listener that waits for the window is cancelled at exit) finds the token already gone.
     private volatile bool _stopped;
 
     // EVE log paths (configurable via settings)
@@ -994,7 +998,7 @@ public sealed class LogMonitorService : IDisposable
     public void Start(string eveLogsBasePath = "", string? chatLogOverride = null, string? gameLogOverride = null,
                       bool chatEnabled = true, bool gameEnabled = true)
     {
-        if (_monitorTask != null) return;
+        if (_reader != null) return;
         _stopped = false;
 
         (_chatLogPath, _gameLogPath) = ResolveFolders(eveLogsBasePath, chatLogOverride, gameLogOverride, chatEnabled, gameEnabled);
@@ -1005,15 +1009,16 @@ public sealed class LogMonitorService : IDisposable
         StartFileWatchers();
 
         _cts = new CancellationTokenSource();
+        var token = _cts.Token;   // taken here: a Stop right after Start clears _cts before the thread would read it
         // High-priority thread ensures FSW wake gets CPU time immediately
-        var thread = new Thread(() => MonitorLoop(_cts.Token).Wait())
+        var thread = new Thread(() => MonitorLoop(token).Wait())
         {
             IsBackground = true,
             Priority = ThreadPriority.Highest,
             Name = "LogMonitor"
         };
         thread.Start();
-        _monitorTask = Task.CompletedTask; // Track that we're running
+        _reader = thread;   // Track that we're running, and let Stop wait for it
     }
 
     public void Stop()
@@ -1021,8 +1026,12 @@ public sealed class LogMonitorService : IDisposable
         _stopped = true;
         _cts?.Cancel();
         StopFileWatchers();
-        _monitorTask?.Wait(TimeSpan.FromSeconds(2));
-        _monitorTask = null;
+        // P90: wait for the reading thread, so on exit it has left its listeners before the ways, the history and the
+        // thumbnails they feed are disposed. That thread ends when the loop ends, though the loop's later passes run on
+        // pool threads. Bounded: a stuck listener (or one that stops the monitor itself) cannot hold the exit longer.
+        var reader = _reader;
+        _reader = null;
+        reader?.Join(ReaderStopWait);
         _cts?.Dispose();
         _cts = null;
         Debug.WriteLine("[LogMonitor:Scan] 🛑 Log monitor stopped");
