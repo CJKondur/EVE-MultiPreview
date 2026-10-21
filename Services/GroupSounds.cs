@@ -17,111 +17,37 @@ public static class GroupSoundChoices
     /// <summary>The event key under which a group's sound for every event is kept.</summary>
     public const string EveryEvent = "*";
 
-    public const int MaxText = 64 * 1024, MaxGroups = 100, MaxEvents = 200, MaxName = 200, MaxPath = 1024;
+    public const int MaxText = GroupChoicesText<string>.MaxText, MaxGroups = GroupChoicesText<string>.MaxGroups,
+        MaxEvents = GroupChoicesText<string>.MaxEvents, MaxName = GroupChoicesText<string>.MaxName, MaxPath = 1024;
 
-    private static readonly JsonSerializerOptions Json = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+    private static readonly GroupChoicesText<string> Text = new(ReadPath);
 
     /// <summary>The sounds, by group name (compared exactly, as group names are) and event key.</summary>
-    public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Read(string? json)
-    {
-        var groups = new Dictionary<string, IReadOnlyDictionary<string, string>>(StringComparer.Ordinal);
-        foreach (var (name, events) in Parse(json)) groups[name] = events;
-        return groups;
-    }
+    public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> Read(string? json) => Text.Read(json);
 
-    private static Dictionary<string, Dictionary<string, string>> Parse(string? json)
+    /// <summary>A sound: a text. Only a file on a drive of this PC (CustomRuleCheck.LocalSound): a settings file can
+    /// come from another player, and a path to another computer would make Windows log in to it when File.Exists asks.</summary>
+    private static bool ReadPath(JsonElement value, out string path)
     {
-        var groups = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
-        if (string.IsNullOrWhiteSpace(json) || json.Length > MaxText) return groups;
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.ValueKind != JsonValueKind.Object) return groups;
-            foreach (var group in doc.RootElement.EnumerateObject())
-            {
-                if (groups.Count >= MaxGroups) break;
-                if (group.Name.Length is 0 or > MaxName || group.Value.ValueKind != JsonValueKind.Object) continue;
-                var events = new Dictionary<string, string>(StringComparer.Ordinal);
-                foreach (var choice in group.Value.EnumerateObject())
-                {
-                    if (events.Count >= MaxEvents) break;
-                    if (choice.Name.Length is 0 or > MaxName || choice.Value.ValueKind != JsonValueKind.String) continue;
-                    // Only a file on a drive of this PC (CustomRuleCheck.LocalSound): a settings file can come from another
-                    // player, and a path to another computer would make Windows log in to it when File.Exists asks.
-                    var path = CustomRuleCheck.LocalSound(choice.Value.GetString());
-                    if (path.Length > 0 && path.Length <= MaxPath) events[choice.Name] = path;
-                }
-                if (events.Count > 0) groups[group.Name] = events;
-            }
-        }
-        catch (Exception ex) when (ex is JsonException or InvalidOperationException or ArgumentException)
-        {
-            // Not the sounds text: no sound at all (see GroupAlertChoices.Parse for the three ways in).
-            groups.Clear();
-        }
-        return groups;
-    }
-
-    private static string Write(Dictionary<string, Dictionary<string, string>> groups)
-    {
-        var ordered = new SortedDictionary<string, SortedDictionary<string, string>>(StringComparer.Ordinal);
-        foreach (var (name, events) in groups)
-            if (events.Count > 0) ordered[name] = new SortedDictionary<string, string>(events, StringComparer.Ordinal);
-        return ordered.Count == 0 ? "" : JsonSerializer.Serialize(ordered, Json);
-    }
-
-    /// <summary>The text for these sounds, or <paramref name="old"/> where that text would not read back whole (a
-    /// table that is full never reads as empty, to be written over by the next choice). The limits are
-    /// <see cref="Parse"/>'s, asked of it and stated nowhere else.</summary>
-    private static string Written(Dictionary<string, Dictionary<string, string>> groups, string? old)
-    {
-        var text = Write(groups);
-        var back = Parse(text);
-        int kept = 0;
-        foreach (var (name, events) in groups)
-        {
-            if (events.Count == 0) continue;
-            kept++;
-            if (!back.TryGetValue(name, out var read) || read.Count != events.Count) return old ?? "";
-            foreach (var (key, path) in events)
-                if (!read.TryGetValue(key, out var was) || was != path) return old ?? "";
-        }
-        return back.Count == kept ? text : old ?? "";
+        path = "";
+        if (value.ValueKind != JsonValueKind.String) return false;
+        path = CustomRuleCheck.LocalSound(value.GetString());
+        return path.Length > 0 && path.Length <= MaxPath;
     }
 
     /// <summary>The key's new text once a group's sound for an event (or <see cref="EveryEvent"/>) is set, or cleared
-    /// with a null or blank path. The old text when the sound can't be kept (see <see cref="Written"/>).</summary>
+    /// with a null or blank path. The old text when the sound can't be kept (see <see cref="GroupChoicesText{T}.Written"/>).</summary>
     public static string Set(string? json, string group, string eventKey, string? path)
     {
-        var groups = Parse(json);
-        group ??= "";
-        eventKey ??= "";
         path = path?.Trim();
-        if (!groups.TryGetValue(group, out var events))
-        {
-            if (string.IsNullOrEmpty(path)) return Written(groups, json);
-            groups[group] = events = new Dictionary<string, string>(StringComparer.Ordinal);
-        }
-        if (string.IsNullOrEmpty(path)) events.Remove(eventKey);
-        else events[eventKey] = path;
-        return Written(groups, json);
+        return Text.Set(json, group, eventKey, path ?? "", string.IsNullOrEmpty(path));
     }
 
     /// <summary>A group is gone: so are its sounds.</summary>
-    public static string Forget(string? json, string group)
-    {
-        var groups = Parse(json);
-        return groups.Remove(group ?? "") ? Write(groups) : json ?? "";
-    }
+    public static string Forget(string? json, string group) => Text.Forget(json, group);
 
     /// <summary>An event is gone for good (a rule of the player's own was deleted): so is what every group chose for it.</summary>
-    public static string ForgetEvent(string? json, string eventKey)
-    {
-        var groups = Parse(json);
-        bool any = false;
-        foreach (var events in groups.Values) any |= events.Remove(eventKey ?? "");
-        return any ? Write(groups) : json ?? "";
-    }
+    public static string ForgetEvent(string? json, string eventKey) => Text.ForgetEvent(json, eventKey);
 
     /// <summary>The sounds text after a group was made, renamed or deleted, from the names in use before and now (the
     /// cases of <see cref="GroupAlertChoices.Follow(string?, IReadOnlySet{string}, IReadOnlySet{string}, string?, string?)"/>).
@@ -131,7 +57,7 @@ public static class GroupSoundChoices
     /// it has none. The same text comes back when there is nothing to do, and when the new one would not read back whole.</summary>
     public static string Follow(string? json, IReadOnlySet<string> before, IReadOnlySet<string> now, string? from = null, string? to = null)
     {
-        var groups = Parse(json);
+        var groups = Text.Parse(json);
         if (groups.Count == 0 || before == null || now == null) return json ?? "";
         bool changed = false;
         bool renamed = from != null && to != null && from != to && before.Contains(from) && now.Contains(to) && to.Length <= MaxName;
@@ -147,7 +73,7 @@ public static class GroupSoundChoices
             groups[to!] = one;
             changed = true;
         }
-        return changed ? Written(groups, json) : json ?? "";
+        return changed ? Text.Written(groups, json) : json ?? "";
     }
 }
 

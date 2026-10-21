@@ -16,137 +16,54 @@ namespace EveMultiPreview.Services;
 /// back), so that what was chosen can always be read back whole.</summary>
 public static class GroupAlertChoices
 {
-    public const int MaxText = 64 * 1024, MaxGroups = 100, MaxEvents = 200, MaxName = 200;
+    public const int MaxText = GroupChoicesText<bool>.MaxText, MaxGroups = GroupChoicesText<bool>.MaxGroups,
+        MaxEvents = GroupChoicesText<bool>.MaxEvents, MaxName = GroupChoicesText<bool>.MaxName;
 
-    private static readonly JsonSerializerOptions Json = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+    private static readonly GroupChoicesText<bool> Text = new(ReadChoice);
 
     /// <summary>The choices, by group name (compared exactly, as group names are) and event key.</summary>
-    public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, bool>> Read(string? json)
-    {
-        var groups = new Dictionary<string, IReadOnlyDictionary<string, bool>>(StringComparer.Ordinal);
-        foreach (var (name, events) in Parse(json)) groups[name] = events;
-        return groups;
-    }
-
-    private static Dictionary<string, Dictionary<string, bool>> Parse(string? json)
-    {
-        var groups = new Dictionary<string, Dictionary<string, bool>>(StringComparer.Ordinal);
-        if (string.IsNullOrWhiteSpace(json) || json.Length > MaxText) return groups;
-        try
-        {
-            using var doc = JsonDocument.Parse(json);
-            if (doc.RootElement.ValueKind != JsonValueKind.Object) return groups;
-            foreach (var group in doc.RootElement.EnumerateObject())
-            {
-                if (groups.Count >= MaxGroups) break;
-                if (group.Name.Length is 0 or > MaxName || group.Value.ValueKind != JsonValueKind.Object) continue;
-                var events = new Dictionary<string, bool>(StringComparer.Ordinal);
-                foreach (var choice in group.Value.EnumerateObject())
-                {
-                    if (events.Count >= MaxEvents) break;
-                    if (choice.Name.Length is 0 or > MaxName) continue;
-                    if (Choice(choice.Value) is bool on) events[choice.Name] = on;
-                }
-                if (events.Count > 0) groups[group.Name] = events;
-            }
-        }
-        catch (Exception ex) when (ex is JsonException or InvalidOperationException or ArgumentException)
-        {
-            // Not the choices text: no choice at all. A text that is not JSON fails before the first group is taken.
-            // A name that can't be read (half a character written as an escape: InvalidOperationException) fails
-            // while the groups are taken, and a text .NET can't take at all (half a character as it is:
-            // ArgumentException) before that; whatever was taken until then goes too.
-            groups.Clear();
-        }
-        return groups;
-    }
+    public static IReadOnlyDictionary<string, IReadOnlyDictionary<string, bool>> Read(string? json) => Text.Read(json);
 
     /// <summary>A choice: true or false, or 1 or 0 as the rest of the settings file writes a switch. Anything else
     /// (another number, a text, null) is no choice.</summary>
-    private static bool? Choice(JsonElement value) => value.ValueKind switch
+    private static bool ReadChoice(JsonElement value, out bool on)
     {
-        JsonValueKind.True => true,
-        JsonValueKind.False => false,
-        JsonValueKind.Number when value.TryGetInt32(out int number) && number is 0 or 1 => number == 1,
-        _ => null,
-    };
-
-    private static string Write(Dictionary<string, Dictionary<string, bool>> groups)
-    {
-        var ordered = new SortedDictionary<string, SortedDictionary<string, bool>>(StringComparer.Ordinal);
-        foreach (var (name, events) in groups)
-            if (events.Count > 0) ordered[name] = new SortedDictionary<string, bool>(events, StringComparer.Ordinal);
-        return ordered.Count == 0 ? "" : JsonSerializer.Serialize(ordered, Json);
-    }
-
-    /// <summary>The text for these choices, or <paramref name="old"/> where that text would not read back whole: it
-    /// would be longer than a text may be, hold more groups or more events than are read, or a name that is empty,
-    /// too long or can't be written as it is. The limits are <see cref="Parse"/>'s, asked of it and stated nowhere
-    /// else. A table that is full never reads as empty, to be written over by the next choice.</summary>
-    private static string Written(Dictionary<string, Dictionary<string, bool>> groups, string? old)
-    {
-        var text = Write(groups);
-        var back = Parse(text);
-        int kept = 0;
-        foreach (var (name, events) in groups)
+        on = false;
+        switch (value.ValueKind)
         {
-            if (events.Count == 0) continue;
-            kept++;
-            if (!back.TryGetValue(name, out var read) || read.Count != events.Count) return old ?? "";
-            foreach (var (key, on) in events)
-                if (!read.TryGetValue(key, out var was) || was != on) return old ?? "";
+            case JsonValueKind.True: on = true; return true;
+            case JsonValueKind.False: return true;
+            case JsonValueKind.Number when value.TryGetInt32(out int number) && number is 0 or 1: on = number == 1; return true;
+            default: return false;
         }
-        return back.Count == kept ? text : old ?? "";
     }
 
     /// <summary>The key's new text once a group's choice for an event is set, or cleared with null ("as everyone").
-    /// The old text when the choice can't be kept (see <see cref="Written"/>).</summary>
-    public static string Set(string? json, string group, string eventKey, bool? on)
-    {
-        var groups = Parse(json);
-        group ??= "";
-        eventKey ??= "";
-        if (!groups.TryGetValue(group, out var events))
-        {
-            if (on == null) return Written(groups, json);
-            groups[group] = events = new Dictionary<string, bool>(StringComparer.Ordinal);
-        }
-        if (on == null) events.Remove(eventKey);
-        else events[eventKey] = on.Value;
-        return Written(groups, json);
-    }
+    /// The old text when the choice can't be kept (see <see cref="GroupChoicesText{T}.Written"/>).</summary>
+    public static string Set(string? json, string group, string eventKey, bool? on) =>
+        Text.Set(json, group, eventKey, on ?? false, on == null);
 
     /// <summary>A group was renamed: its choices go with it, an "on" as an "off". Whatever an earlier group left
     /// under the new name is dropped, never inherited, also when the renamed group has no choices of its own. A new
     /// name that can hold no choices (empty, or too long) takes none, and none stays behind under the old one. The
-    /// old text when the new one would not read back whole (see <see cref="Written"/>).</summary>
+    /// old text when the new one would not read back whole (see <see cref="GroupChoicesText{T}.Written"/>).</summary>
     public static string Rename(string? json, string from, string to)
     {
         if (from == to) return json ?? "";
-        var groups = Parse(json);
+        var groups = Text.Parse(json);
         bool had = groups.Remove(from ?? "", out var events);
         bool left = groups.Remove(to ?? "");
         if (!had && !left) return json ?? "";
         if (had && !string.IsNullOrEmpty(to) && to.Length <= MaxName) groups[to] = events!;
-        return Written(groups, json);
+        return Text.Written(groups, json);
     }
 
     /// <summary>A group is gone: so are its choices.</summary>
-    public static string Forget(string? json, string group)
-    {
-        var groups = Parse(json);
-        return groups.Remove(group ?? "") ? Write(groups) : json ?? "";
-    }
+    public static string Forget(string? json, string group) => Text.Forget(json, group);
 
     /// <summary>An event is gone for good (a rule of the player's own was deleted, and its id never comes back): so
     /// is what every group chose about it.</summary>
-    public static string ForgetEvent(string? json, string eventKey)
-    {
-        var groups = Parse(json);
-        bool any = false;
-        foreach (var events in groups.Values) any |= events.Remove(eventKey ?? "");
-        return any ? Write(groups) : json ?? "";
-    }
+    public static string ForgetEvent(string? json, string eventKey) => Text.ForgetEvent(json, eventKey);
 
     /// <summary>The names groups go by, in every profile: every colour group, and every profile's groups with keys.
     /// A name in it is in use; every other name is free (MergedGroups.IsNameFree asks the same of one name).</summary>
@@ -194,7 +111,7 @@ public static class GroupAlertChoices
     /// The same text comes back when there is nothing to do, and when the new one would not read back whole.</summary>
     public static string Follow(string? json, IReadOnlySet<string> before, IReadOnlySet<string> now, string? from = null, string? to = null)
     {
-        var groups = Parse(json);
+        var groups = Text.Parse(json);
         if (groups.Count == 0 || before == null || now == null) return json ?? "";
         bool changed = false;
         bool renamed = from != null && to != null && from != to && before.Contains(from) && now.Contains(to) && to.Length <= MaxName;
@@ -228,7 +145,7 @@ public static class GroupAlertChoices
             else groups.Remove(to!);
             changed = true;
         }
-        return changed ? Written(groups, json) : json ?? "";
+        return changed ? Text.Written(groups, json) : json ?? "";
     }
 }
 
