@@ -22,6 +22,10 @@ public sealed record Utterance(string EventKey, string Severity, IReadOnlyList<s
     /// about each of them once more when the sentence's turn comes, and hands back the ones it did not say
     /// (<see cref="SpokenAlerts.NotSaid"/>).</summary>
     public IReadOnlyList<AlertNotice> Alerts { get; init; } = Array.Empty<AlertNotice>();
+
+    /// <summary>The last word of a chain of repeats (every alert in the sentence insisted): it is said with "Still:"
+    /// before it.</summary>
+    public bool Still { get; init; }
 }
 
 /// <summary>Spoken alerts (IDEAS #26): which alerts are said, as what, in which order, and which are not said at
@@ -93,6 +97,8 @@ public sealed class SpokenAlerts
         public string Severity = "";
         /// <summary>When the ways were told of its first alert: the gather time counts from here.</summary>
         public DateTime FirstUtc;
+        /// <summary>Every alert in it insists (the last word of a chain). An ordinary alert that joins it ends that.</summary>
+        public bool Insist;
         /// <summary>One alert for each character, in the order they came. Each keeps its own times.</summary>
         public readonly List<AlertNotice> Alerts = new();
     }
@@ -162,6 +168,7 @@ public sealed class SpokenAlerts
             {
                 if (same.Alerts.Exists(a => string.Equals(a.Character, notice.Character, StringComparison.OrdinalIgnoreCase))) return Taken.Again;
                 same.Alerts.Add(notice);
+                same.Insist &= insist;
                 Mark(pair, now);
                 return Taken.Merged;
             }
@@ -172,7 +179,7 @@ public sealed class SpokenAlerts
                     if (!StillFresh(_waiting[i], now)) LetGo(i);
                 if (_waiting.Count >= MaxWaiting && !MakeRoomFor(notice.Severity)) return Taken.Full;
             }
-            var pending = new Pending { EventKey = notice.EventKey, Severity = notice.Severity, FirstUtc = now };
+            var pending = new Pending { EventKey = notice.EventKey, Severity = notice.Severity, FirstUtc = now, Insist = insist };
             pending.Alerts.Add(notice);
             int rank = AlertAttention.Rank(notice.Severity);
             _waiting.Insert(_waiting.FindLastIndex(p => AlertAttention.Rank(p.Severity) >= rank) + 1, pending);
@@ -274,6 +281,7 @@ public sealed class SpokenAlerts
                 return new Utterance(head.EventKey, head.Severity, head.Alerts.Select(a => a.Character).ToArray(), head.Alerts.Min(a => a.RaisedUtc))
                 {
                     Alerts = head.Alerts.ToArray(),
+                    Still = head.Insist,
                 };
             }
             return null;
@@ -337,12 +345,29 @@ public sealed class SpokenAlerts
     /// more, and for two whose sentence would be longer than <see cref="MaxSentenceLength"/> ("2 clients: ..."). A
     /// character's name and a custom rule's name are never a format, only ever a part or an argument of the
     /// sentence, and are cleaned for speaking (one line, no control characters) and held to a length
-    /// (<see cref="MaxNameLength"/>).</summary>
+    /// (<see cref="MaxNameLength"/>). A sentence that counts says "3 more clients: ..." when
+    /// <paramref name="more"/> (the one said just before it counted too, for the same event), so that two in a row
+    /// do not sound like a repeat; and the last word of a chain (<see cref="Utterance.Still"/>) begins "Still: ".</summary>
     /// <param name="eventName">The event's name as the player reads it (AlertHub.EventDisplayName).</param>
     /// <param name="str">LocalizationService.Str.</param>
-    public static string Text(Utterance u, Func<string, string> eventName, Func<string, string, string> str)
+    /// <param name="more">The sentence said just before this one counted its clients, for this same event.</param>
+    public static string Text(Utterance u, Func<string, string> eventName, Func<string, string, string> str, bool more = false)
     {
         string name = Spoken(eventName(u.EventKey), MaxEventLength);
+        string sentence = Named(u, name) ?? (more
+            ? string.Format(CultureInfo.CurrentCulture, str("L.Speech.More", "{0} more clients: {1}"), u.Characters.Count, name)
+            : string.Format(CultureInfo.CurrentCulture, str("L.Speech.Many", "{0} clients: {1}"), u.Characters.Count, name));
+        return u.Still ? string.Format(CultureInfo.CurrentCulture, str("L.Speech.Still", "Still: {0}"), sentence) : sentence;
+    }
+
+    /// <summary>Whether <see cref="Text"/> counts the clients instead of naming them: three or more, or two whose
+    /// names would make the sentence too long.</summary>
+    public static bool Counts(Utterance u, Func<string, string> eventName) =>
+        Named(u, Spoken(eventName(u.EventKey), MaxEventLength)) == null;
+
+    /// <summary>The sentence that names its clients ("Fixture Alpha, Under attack"), or null: it counts them.</summary>
+    private static string? Named(Utterance u, string name)
+    {
         // Streamer mode (IDEAS #19): said aloud, so masked here; the utterance keeps the real names (the de-dupe and "still wanted" use them).
         string Who(int i) => Spoken(StreamerMask.Name(StreamerKind.Character, u.Characters[i]), MaxNameLength);
         if (u.Characters.Count == 1) return Who(0) + ", " + name;
@@ -352,7 +377,7 @@ public sealed class SpokenAlerts
             string both = Who(0) + ", " + Who(1) + ", " + name;
             if (both.Length <= MaxSentenceLength) return both;
         }
-        return string.Format(CultureInfo.CurrentCulture, str("L.Speech.Many", "{0} clients: {1}"), u.Characters.Count, name);
+        return null;
     }
 
     /// <summary>A name as it is spoken: one line, at most <paramref name="max"/> characters. A longer one is cut at

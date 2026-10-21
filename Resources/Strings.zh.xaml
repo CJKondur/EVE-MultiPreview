@@ -2300,7 +2300,7 @@
     <sys:String x:Key="L.S.Speech.NoVoice">Windows 没有 MultiPreview 语言的语音。警报会用另一种语音朗读，可能读不好。你可以在 Windows 的语音设置里添加语音，或者在这里选一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.NoVoices">Windows 没有安装任何语音，所以无法朗读。请在 Windows 的语音设置里添加一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.speech.Title">语音警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">打开 **朗读警报** 后，Windows 语音会说出是谁的警报以及发生了什么：角色的名字和事件的名字，使用 MultiPreview 的语言。你不用看就知道谁需要你，在很多客户端共用一个警报声音时最有用。&#x0A;&#x0A;- **朗读哪些警报** 按严重程度选择：仅严重、严重和警告，或者全部。&#x0A;- 同一事件的警报一起到达时会合成一句话。两个客户端时会说出两个名字，例如“Alpha, Bravo, 遭受攻击”；三个或更多时只报数量，例如“3 个客户端：遭受攻击”；两个名字会让句子太长时也只报数量。最严重的警报最先朗读。&#x0A;- 等待超过 10 秒的警报不再朗读。同一客户端的同一警报在 30 秒内不会再次朗读；如果该事件的声音静默时间更长，则以它为准。你查看过该客户端之后，它的下一条警报会再次朗读。&#x0A;- 语音也是声音：勿扰模式会像拦住警报声音一样拦住语音。**严重警报仍然发声** 打开时（一开始就是打开的），严重警报仍会朗读；想要完全安静就关掉它。已静音的角色和已暂停的警报不会朗读，轮到它之前你已经查看过客户端的警报也不会朗读。你正在查看的客户端上的警报不会朗读，它的声音照常播放。它不需要 **播放警报声音**：没有提示音时语音照样工作。&#x0A;- **语音种类** 为每个严重程度设定语音。自动会在 Windows 有 MultiPreview 语言的语音时使用它，否则使用 Windows 默认语音。语音在 Windows 的语音设置里添加。&#x0A;- 当一条严重警报已按设定的次数重复而你仍然没有查看时，它会再朗读一次。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.speech.Body">打开 **朗读警报** 后，Windows 语音会说出是谁的警报以及发生了什么：角色的名字和事件的名字，使用 MultiPreview 的语言。你不用看就知道谁需要你，在很多客户端共用一个警报声音时最有用。这是 Windows 的文字转语音（TTS）：你的警报会被朗读出来。&#x0A;&#x0A;- **朗读哪些警报** 按严重程度选择：仅严重、严重和警告，或者全部。&#x0A;- 同一事件的警报一起到达时会合成一句话。两个客户端时会说出两个名字，例如“Alpha, Bravo, 遭受攻击”；三个或更多时只报数量，例如“3 个客户端：遭受攻击”；两个名字会让句子太长时也只报数量。最严重的警报最先朗读。同一事件紧接在报数量的句子之后，下一句会说“另外 5 个客户端：遭受攻击”，这样听起来就不像重复。&#x0A;- 等待超过 10 秒的警报不再朗读。同一客户端的同一警报在 30 秒内不会再次朗读；如果该事件的声音静默时间更长，则以它为准。你查看过该客户端之后，它的下一条警报会再次朗读。&#x0A;- 语音也是声音：勿扰模式会像拦住警报声音一样拦住语音。**严重警报仍然发声** 打开时（一开始就是打开的），严重警报仍会朗读；想要完全安静就关掉它。已静音的角色和已暂停的警报不会朗读，轮到它之前你已经查看过客户端的警报也不会朗读。你正在查看的客户端上的警报不会朗读，它的声音照常播放。它不需要 **播放警报声音**：没有提示音时语音照样工作。&#x0A;- **语音种类** 为每个严重程度设定语音。自动会在 Windows 有 MultiPreview 语言的语音时使用它，否则使用 Windows 默认语音。语音在 Windows 的语音设置里添加。&#x0A;- 当一条严重警报已按设定的次数重复而你仍然没有查看时，它会再朗读一次。它会以“仍然：”开头，例如“仍然：Alpha, 遭受攻击”。&#x0A;- 如果语音连续三次出错（比如没有音频设备），MultiPreview 就不再调用它，直到你把 **朗读警报** 关闭再重新打开。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.hub.windows">Windows 通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notify">把警报显示为 Windows 通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notify.Desc">警报也会作为 Windows 的通知出现，并留在通知中心里，直到你查看了那个客户端。</sys:String> <!-- draft -->
@@ -2820,4 +2820,6 @@
     <sys:String x:Key="L.Hist.SoundHeld">声音已拦住</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Csv.SoundHeld">声音已拦住</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Csv.Yes">是</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Speech.More">另外 {0} 个客户端：{1}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Speech.Still">仍然：{0}</sys:String> <!-- draft -->
 </ResourceDictionary>

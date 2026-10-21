@@ -199,10 +199,12 @@ public class AppSettings
     /// <summary>Spoken alerts (IDEAS #26), read by SpokenWay for every alert that was shown: on or off; from which
     /// severity (0 critical only, 1 critical and warning, 2 all); the voice's volume (0 to 100); and the voice the
     /// player chose for a severity, as one line of JSON text ("" = Automatic for all three; SpeechVoiceChoice reads
-    /// it). New keys: a file without them has spoken alerts off.</summary>
+    /// it). New keys: a file without them has spoken alerts off. SpeechVoices is kept as one JSON string in the file
+    /// and read from an object written by hand, as GroupAlertProfiles is.</summary>
     public bool SpeakAlerts { get; set; } = false;
     public int SpeakAlertsFrom { get; set; } = 0;
     public int SpeechVolume { get; set; } = 100;
+    [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
     public string SpeechVoices { get; set; } = "";
 
     /// <summary>Windows notifications (IDEAS #33), read by NotificationsWay for every alert that was shown, and by App

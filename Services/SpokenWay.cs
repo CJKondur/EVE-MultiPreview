@@ -25,6 +25,11 @@ public sealed class SpokenWay : IAlertWay
     /// again: a sentence whose turn comes is given up at once.</summary>
     public const int MostAsksOut = 3;
 
+    /// <summary>So many sentences in a row that the voice threw on (a sound device that is not there): then it is not
+    /// asked again until "Speak alerts" is switched off and on. A voice that hangs is counted by
+    /// <see cref="MostAsksOut"/> instead.</summary>
+    public const int MostFailures = 3;
+
     private readonly ISpeaker _speaker;
     private readonly Func<AppSettings> _settings;
     private readonly Func<AppSettings, string, bool> _soundsHeld;
@@ -41,6 +46,9 @@ public sealed class SpokenWay : IAlertWay
     private readonly object _asksLock = new();
     private int _asksEra;           // counted anew from here: asks of an earlier era no longer count when they come back
     private bool _switchedOff;      // "Speak alerts" was off at the last Follow
+    private int _failures;          // sentences in a row that the voice threw on; a sentence that is said ends the run
+    private string? _countedEvent;  // the event of the sentence said last, when it counted its clients (pump's thread only)
+    private DateTime _countedAt;    // when that sentence was said
 
     /// <param name="settings">The settings as they are now.</param>
     /// <param name="soundsHeld">(settings, severity): do-not-disturb holds that alert's sound right now (DoNotDisturb.Silences).</param>
@@ -94,7 +102,8 @@ public sealed class SpokenWay : IAlertWay
 
     /// <summary>Follows "Speak alerts" (on the window's thread, after every settings change). Switched off and on
     /// again, the asks that never came back are counted anew (FX-m4): a voice that hung three times is asked again,
-    /// and is not silent for the rest of the session.</summary>
+    /// and is not silent for the rest of the session. So is a voice that threw <see cref="MostFailures"/> times in a
+    /// row: the run is counted anew (P85).</summary>
     public void Follow(bool on)
     {
         if (!on)
@@ -110,6 +119,7 @@ public sealed class SpokenWay : IAlertWay
             Volatile.Write(ref _asksOut, 0);
         }
         Interlocked.Exchange(ref _toldAsksOut, 0);
+        Volatile.Write(ref _failures, 0);
     }
 
     /// <summary>The last word of a chain of repeats (AlertEscalation.HandOff): a critical alert was repeated as often
@@ -208,13 +218,19 @@ public sealed class SpokenWay : IAlertWay
     /// reports it by its type.</summary>
     private async Task<bool> Say(Utterance utterance, AppSettings s)
     {
+        // A voice that threw MostFailures times in a row is not asked again until Follow counts anew; that was
+        // reported when it came to that.
+        if (Volatile.Read(ref _failures) >= MostFailures) return false;
         if (Volatile.Read(ref _asksOut) >= MostAsksOut)
         {
             if (Interlocked.Exchange(ref _toldAsksOut, 1) == 0)
                 Report(new TimeoutException(MostAsksOut + " spoken alerts were given up and the voice has not come back from any of them. It is not asked again until it comes back from one."));
             return false;
         }
-        string text = SpokenAlerts.Text(utterance, _eventName, _str);
+        // "More clients" for a sentence that counts right after one that counted, for the same event, a moment ago.
+        bool counts = SpokenAlerts.Counts(utterance, _eventName);
+        bool more = counts && _countedEvent == utterance.EventKey && _utcNow() - _countedAt <= SpokenAlerts.MaxAge;
+        string text = SpokenAlerts.Text(utterance, _eventName, _str, more);
         string language = _language();
         int volume = SpeechOptions.Of(s).Volume;
         using var limit = CancellationTokenSource.CreateLinkedTokenSource(_stop.Token);
@@ -252,7 +268,18 @@ public sealed class SpokenWay : IAlertWay
             Report(new TimeoutException("A spoken alert was not finished after " + (int)Longest.TotalSeconds + " seconds and was given up."));
             return false;
         }
-        await said.ConfigureAwait(false);   // hands on what the voice threw
+        try { await said.ConfigureAwait(false); }   // hands on what the voice threw
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // Counted here and not in the loop: only what the VOICE threw counts. The run ends the way it is reported
+            // (a fixed text, no name), once; the failure itself is reported by the loop, by its type.
+            if (Interlocked.Increment(ref _failures) == MostFailures)
+                Report(new InvalidOperationException("Spoken alerts: the voice failed " + MostFailures + " times in a row and is not asked again until spoken alerts are switched off and on."));
+            throw;
+        }
+        Volatile.Write(ref _failures, 0);
+        _countedEvent = counts ? utterance.EventKey : null;
+        _countedAt = _utcNow();
         return true;
     }
 

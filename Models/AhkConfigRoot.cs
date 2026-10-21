@@ -1337,7 +1337,9 @@ public class AhkGlobalSettings
     [JsonPropertyName("SpeechVolume")]
     public int SpeechVolume { get; set; } = 100;
 
+    // One line of JSON text, read as GroupAlertProfiles is: an object written by hand is read as its text (P85).
     [JsonPropertyName("SpeechVoices")]
+    [JsonConverter(typeof(EveMultiPreview.Converters.GroupAlertChoicesTextConverter))]
     public string? SpeechVoices { get; set; } = "";
 
     // Windows notifications (IDEAS #33), new after 2.3.42: a file without them loads off, critical only.
