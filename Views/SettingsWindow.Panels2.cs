@@ -2179,6 +2179,7 @@ public partial class SettingsWindow
         // A downgrade turns off the startup update check, or the older version would offer
         // to update straight back on every launch. Saved synchronously: the app exits next.
         bool checkWas = _svc.Settings.CheckForUpdatesOnStartup;
+        updateService.CheckWas = checkWas;   // the install leaves it in a marker: a downgrade that fails gives the check back at the next start (IDEAS P60)
         Action? beforeApply = older
             ? () => { _svc.Settings.CheckForUpdatesOnStartup = false; _svc.Save(); }
             : null;

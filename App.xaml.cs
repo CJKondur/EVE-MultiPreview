@@ -810,6 +810,15 @@ public partial class App : Application
             if (StartupCommandWaits()) return;   // IDEAS P130 (b): a --focus waits for discovery; the 500 ms tick below asks again
             if (_startupCommand is RemoteCommand first) { _startupCommand = null; RunCommand(first); }
             });
+
+            // IDEAS P60 (4)(5): an update that was started and did not happen is told once, and a downgrade that failed gives
+            // the update check back. After the tray icon exists; the marker is deleted every time it is read.
+            Step("Update marker", () =>
+            {
+            var update = PendingUpdate.Settle(AppPaths.ConfigDir, SettingsUi.AboutActions.VersionText, DateTime.UtcNow, _settings.Settings, _settings.LoadedSuccessfully, _settings.Save);
+            if (update.Verdict == PendingUpdate.Verdict.Failed)
+                ShowBalloon(10000, PendingUpdate.Note(update, LocalizationService.Str), ToolTipIcon.Warning);
+            });
 #pragma warning restore CS8602, CS8604
 
             // ── Auto-Update Check (fire-and-forget, non-blocking) ──

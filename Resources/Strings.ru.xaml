@@ -2826,4 +2826,5 @@
     <sys:String x:Key="L.Speech.Still">Всё ещё: {0}</sys:String> <!-- draft -->
     <!-- Ideas batch 22 (Plan 26) -->
     <sys:String x:Key="L.AlertEvt.drones_returning">Дроны возвращаются</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NotInstalled">Не удалось установить обновление до версии {0}. MultiPreview {1} по-прежнему работает.</sys:String> <!-- draft -->
 </ResourceDictionary>

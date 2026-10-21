@@ -42,6 +42,10 @@ public sealed class UpdateService
     /// then UnreadableDigest), for the log line of the refusal.</summary>
     private string? _digestAsSent;
 
+    /// <summary>What "check for updates at start" was before a downgrade turned it off. The pending-update marker
+    /// carries it, so a downgrade that could not be installed gives it back (IDEAS P60). Callers that downgrade set it.</summary>
+    public bool CheckWas { get; set; } = true;
+
     /// <summary>Latest version tag from GitHub (set after CheckForUpdateAsync).</summary>
     public string? LatestVersion { get; private set; }
 
@@ -332,7 +336,18 @@ public sealed class UpdateService
         };
         foreach (var (name, value) in UpdaterEnvironment(appDir, AppPaths.SettingsPath, AppPaths.BackupsDir, downloadedExePath, Environment.ProcessId, Environment.ProcessPath, verifiedLength))
             psi.Environment[name] = value;
-        Process.Start(psi);
+        // IDEAS P60 (4)(5): the next start reads this to tell the player when the install did not happen. The script
+        // knows nothing of it, and a start that throws leaves no marker: nothing was started that could fail.
+        PendingUpdate.Write(AppPaths.ConfigDir, CurrentVersion, LatestVersion ?? "?", CheckWas, DateTime.UtcNow);
+        try
+        {
+            Process.Start(psi);
+        }
+        catch
+        {
+            PendingUpdate.Clear(AppPaths.ConfigDir);
+            throw;
+        }
 
         Debug.WriteLine("[Update] Updater script launched — shutting down app");
         System.Windows.Application.Current?.Dispatcher.Invoke(() =>

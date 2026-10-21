@@ -2824,4 +2824,5 @@
     <sys:String x:Key="L.Speech.Still">仍然：{0}</sys:String> <!-- draft -->
     <!-- Ideas batch 22 (Plan 26) -->
     <sys:String x:Key="L.AlertEvt.drones_returning">无人机返航</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NotInstalled">无法安装更新到 {0}。MultiPreview {1} 仍在运行。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2806,4 +2806,5 @@
     <sys:String x:Key="L.Speech.Still">Immer noch: {0}</sys:String> <!-- draft -->
     <!-- Ideas batch 22 (Plan 26) -->
     <sys:String x:Key="L.AlertEvt.drones_returning">Drohnen kehren zurück</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NotInstalled">Das Update auf {0} konnte nicht installiert werden. MultiPreview {1} läuft weiter.</sys:String> <!-- draft -->
 </ResourceDictionary>

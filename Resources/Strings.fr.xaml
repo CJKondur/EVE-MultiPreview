@@ -2809,4 +2809,5 @@
     <sys:String x:Key="L.Speech.Still">Toujours : {0}</sys:String> <!-- draft -->
     <!-- Ideas batch 22 (Plan 26) -->
     <sys:String x:Key="L.AlertEvt.drones_returning">Drones de retour</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NotInstalled">La mise à jour vers {0} n'a pas pu être installée. MultiPreview {1} est toujours en cours d'exécution.</sys:String> <!-- draft -->
 </ResourceDictionary>

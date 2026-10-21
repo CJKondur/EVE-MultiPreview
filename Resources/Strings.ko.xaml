@@ -2807,4 +2807,5 @@
     <sys:String x:Key="L.Speech.Still">아직도: {0}</sys:String> <!-- draft -->
     <!-- Ideas batch 22 (Plan 26) -->
     <sys:String x:Key="L.AlertEvt.drones_returning">드론 복귀 중</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Upd.NotInstalled">{0} 업데이트를 설치하지 못했어요. MultiPreview {1} 버전이 계속 실행 중이에요.</sys:String> <!-- draft -->
 </ResourceDictionary>
