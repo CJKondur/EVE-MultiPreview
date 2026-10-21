@@ -11,14 +11,14 @@ namespace EveMultiPreview.Services;
 /// event's switch, the character's client, the mute, the snooze), whether a toast showed it or not, and nothing in
 /// it changes afterwards.</summary>
 /// <param name="TimeUtc">When the ways were told of the alert: after the border, the badge, the toast and the sound,
-/// and the sound waits for the window's thread (the toast is only posted to it). It is "now" for a way, not the
-/// alert's own time.</param>
+/// both of which are only posted to the window's thread (P57), so this is when they were posted, not when they showed
+/// or played. It is "now" for a way, not the alert's own time.</param>
 /// <param name="ClientInFront">The character's client was the window in front at that moment.</param>
 public sealed record AlertNotice(DateTime TimeUtc, string Character, string EventKey, string Severity, bool ClientInFront)
 {
     /// <summary>When the alert was raised. For an alert raised from the log that is the time its history entry
-    /// keeps, earlier than <see cref="TimeUtc"/> by as long as the alert's sound waited for the window's thread on its
-    /// way here. Where the raiser handed no time on, it is TimeUtc: "Left behind" hands none (it is raised and told on
+    /// keeps, earlier than <see cref="TimeUtc"/> by the moment the dispatch took on its way here (the toast and the
+    /// sound are only posted to the window's thread, so that is short). Where the raiser handed no time on, it is TimeUtc: "Left behind" hands none (it is raised and told on
     /// the window's thread in one go), so there it is not the history entry's time to the tick. Never later than
     /// TimeUtc: AlertWays holds it to that.</summary>
     public DateTime RaisedUtc { get; init; } = TimeUtc;

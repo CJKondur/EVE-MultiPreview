@@ -132,14 +132,22 @@ public static class PendingUpdate
     /// <summary>The start-up step: Take, and for a downgrade that failed give "check for updates at start" back as it was
     /// (the downgrade turned it off so that the older version would not offer to update straight back) and save. Not
     /// when the settings failed to load: that session runs on defaults and writes nothing (IDEAS #49). The file is
-    /// already gone when the save runs, so a save that throws cannot make the next start tell it again.</summary>
-    public static Result Settle(string dir, string running, DateTime nowUtc, AppSettings settings, bool settingsLoaded, Action save)
+    /// already gone when the save runs, so a save that throws cannot make the next start tell it again. Nor can it take
+    /// the tray note away: the throw is recorded (by its type; a message can hold a path) and the result is still given.</summary>
+    public static Result Settle(string dir, string running, DateTime nowUtc, AppSettings settings, bool settingsLoaded, Action save,
+        ErrorLog? errors = null)
     {
         var result = Take(dir, running, nowUtc);
         if (result.Verdict == Verdict.Failed && result.WasDowngrade && settingsLoaded)
         {
             settings.CheckForUpdatesOnStartup = result.CheckWas;
-            save();
+            try { save(); }
+            catch (Exception ex)
+            {
+                (errors ?? ErrorLog.Shared).Record(
+                    new InvalidOperationException("The update check could not be given back after a failed update: " + ex.GetType().Name),
+                    "PendingUpdate", nowUtc.ToLocalTime());
+            }
         }
         return result;
     }

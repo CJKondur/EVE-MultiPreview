@@ -130,9 +130,10 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
         else
         {
             installed ??= Array.Empty<SpeechVoice>();
-            // P98 (5): the card was built with these voices when the refresh began. Built again it would drop an open
-            // drop-down and the keyboard focus for nothing. Before any answer it is built, whatever the answer is:
-            // the line for a Windows without voices is only shown once Windows has answered.
+            // P98 (5): Refresh has built the card already, with the voices known then, before it asked Windows; this skips
+            // only the second, asynchronous build. Built again for the same answer it would replace lists the player may
+            // have open or be focused in, for nothing. Before any answer it is built, whatever the answer is: the line
+            // for a Windows without voices is only shown once Windows has answered.
             if (_answered && installed.SequenceEqual(Installed) && Equals(windowsDefault, _windowsDefault)) return;
             Show(installed, windowsDefault, answered: true);
         }

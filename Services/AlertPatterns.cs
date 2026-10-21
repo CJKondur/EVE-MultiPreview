@@ -43,12 +43,14 @@ public static class AlertPatterns
     }
 
     /// <summary>True if <paramref name="line"/> contains any localized body phrase
-    /// for <paramref name="eventKey"/>. Ordinal (EVE log text is stable).</summary>
-    public static bool Matches(string line, string eventKey)
+    /// for <paramref name="eventKey"/>. Ordinal (EVE log text is stable); a caller that
+    /// matches a name rather than a sentence may pass OrdinalIgnoreCase, because a
+    /// client can write the same module name with another first letter.</summary>
+    public static bool Matches(string line, string eventKey, StringComparison comparison = StringComparison.Ordinal)
     {
         if (!_map.TryGetValue(eventKey, out var subs)) return false;
         foreach (var sub in subs)
-            if (line.Contains(sub, StringComparison.Ordinal)) return true;
+            if (line.Contains(sub, comparison)) return true;
         return false;
     }
 

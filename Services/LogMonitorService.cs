@@ -38,7 +38,9 @@ public sealed class LogMonitorService : IDisposable
 
     // True from Stop until the next Start. RecordBadLine asks it instead of the cancellation token: Stop disposes and
     // clears _cts after waiting at most ReaderStopWait for the reading thread, so a reader that is still in a listener
-    // after that (every listener that waits for the window is cancelled at exit) finds the token already gone.
+    // after that finds the token already gone. (Nothing cancels a listener that is blocked on the window, such as the
+    // thumbnail manager's Dispatcher.Invoke for a flash or a badge: Stop runs on that same window's thread, which cannot
+    // serve it while it joins, so the exit can wait the full ReaderStopWait before it goes on.)
     private volatile bool _stopped;
 
     // EVE log paths (configurable via settings)
@@ -1027,8 +1029,8 @@ public sealed class LogMonitorService : IDisposable
         _cts?.Cancel();
         StopFileWatchers();
         // P90: wait for the reading thread, so on exit it has left its listeners before the ways, the history and the
-        // thumbnails they feed are disposed. That thread ends when the loop ends, though the loop's later passes run on
-        // pool threads. Bounded: a stuck listener (or one that stops the monitor itself) cannot hold the exit longer.
+        // thumbnails they feed are disposed. That thread ends only when the whole async loop does (MonitorLoop(token).Wait()),
+        // pool-thread continuations included, so the join covers a listener running on a pool thread too. Bounded: a stuck listener (or one that stops the monitor itself) cannot hold the exit longer.
         var reader = _reader;
         _reader = null;
         reader?.Join(ReaderStopWait);
@@ -1644,8 +1646,8 @@ public sealed class LogMonitorService : IDisposable
     /// source lines beside a pdb: it says which parser or listener it was) and, in the alerts debug log, the log file's
     /// NAME. Never its message and never the line: another player chooses the names in a log line, and a message (a
     /// FormatException quotes its input) can hold them. The record is a new exception with a fixed message, because
-    /// ErrorLog writes the message of what it is given. While the monitor stops nothing is recorded: a listener that
-    /// waits for the window (the sound) is cancelled when the app exits, and that is no error.</summary>
+    /// ErrorLog writes the message of what it is given. While the monitor stops nothing is recorded: a listener
+    /// still at work when the app exits is cut off, and that is no error.</summary>
     private void RecordBadLine(string path, Exception ex)
     {
         if (_stopped) return;
@@ -2204,7 +2206,7 @@ public sealed class LogMonitorService : IDisposable
             // match in every language.
             bool isMiningModule = line.Contains("Miner ") || line.Contains("Mining Laser")
                                   || line.Contains("Harvester")
-                                  || AlertPatterns.Matches(line, "mining_module_names");
+                                  || AlertPatterns.Matches(line, "mining_module_names", StringComparison.OrdinalIgnoreCase);
 
             // Crystal Broken — mining modules only: EVE writes the same sentence when a
             // weapon's charge is destroyed, and that is not a mining event (P49).

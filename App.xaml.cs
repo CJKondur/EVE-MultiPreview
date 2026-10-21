@@ -654,8 +654,8 @@ public partial class App : Application
             _logMonitor.AlertTriggered += (charName, alertType, severity) =>
             {
                 // What a custom rule matched is there only while its alert is being raised: taken first (IDEAS #8).
-                // The rule's name is taken with it: Dispatch can wait for the window's thread (the sound),
-                // and the player may rename or delete the rule meanwhile. The history keeps the name the alert was
+                // The rule's name is taken with it: the toast and the sound are posted to the window's thread and show
+                // or play later, and the player may rename or delete the rule meanwhile. The history keeps the name the alert was
                 // raised under. For a built-in alert both are null.
                 var matched = _logMonitor.RaisingCustomText;
                 var rule = CustomAlertTypes.Find(alertType)?.Name;
@@ -1811,10 +1811,12 @@ public partial class App : Application
     // window no longer holds every client's alerts. The play is the member below, unchanged, run there in the order the
     // alerts were posted (its quiet-time check and stamp keep their order). The repeats (AlertTick, on the window's
     // thread) call that member directly. A throw inside a posted lambda would reach the unhandled-exception handler, so
-    // it is recorded here, by type: a message can quote a name another player chose.
+    // it is recorded here, by type: a message can quote a name another player chose. A lambda that reaches the window's
+    // thread after the exit began plays nothing and records nothing.
     private void PlayAlertSound(string character, string alertType, string severity) =>
         Dispatcher.BeginInvoke(new Action(() =>
         {
+            if (_isShuttingDown) return;
             try { PlayAlertSound(character, alertType, severity, repeat: 0, volume: null); }
             catch (Exception ex)
             {

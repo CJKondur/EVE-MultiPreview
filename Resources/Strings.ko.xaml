@@ -907,7 +907,7 @@
     <sys:String x:Key="L.S.About.CheckFailed">업데이트를 확인하지 못했습니다: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.Intro">업데이트를 확인하고, 사전 릴리스를 써 보고, 원하는 버전을 설치하거나 이전 설정 창으로 돌아갈 수 있습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.updates.Title">업데이트</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.about.updates.Body">끄지 않으면 MultiPreview는 시작할 때 GitHub에서 새 릴리스를 확인합니다. **업데이트 확인**은 바로 확인합니다.&#x0A;&#x0A;**특정 버전 설치**는 모든 릴리스를 보여 줍니다. 이전 버전을 설치하면 시작 시 확인이 꺼져서, 곧바로 다시 업데이트하라는 안내가 뜨지 않습니다.&#x0A;&#x0A;설치가 끝나지 않고 10분 안에 이전 버전이 다시 시작되면, 트레이 알림으로 업데이트를 설치하지 못했다고 알려 줘요. 이전 버전을 골랐다면 시작 시 확인이 원래대로 돌아와요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.updates.Body">끄지 않으면 MultiPreview는 시작할 때 GitHub에서 새 릴리스를 확인합니다. **업데이트 확인**은 바로 확인합니다.&#x0A;&#x0A;**특정 버전 설치**는 모든 릴리스를 보여 줍니다. 이전 버전을 설치하면 시작 시 확인이 꺼져서, 곧바로 다시 업데이트하라는 안내가 뜨지 않습니다.&#x0A;&#x0A;설치가 완료되지 않고 10분 안에 이전 버전이 다시 시작되면, 트레이 알림으로 업데이트를 설치하지 못했다고 알려 줘요. 이전 버전을 골랐다면 시작 시 확인이 원래대로 돌아와요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Title">이전 설정 창</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">이전 설정 창은 당분간 계속 쓸 수 있습니다. **이전 설정 창 사용**을 켜고 설정을 다시 여세요. 이전 창에서는 **새 설정 창 사용**으로 돌아올 수 있습니다. 이전 창은 이후 버전에서 제거됩니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.fonts.Title">글꼴</sys:String> <!-- draft -->
@@ -1579,7 +1579,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE 모드와 피격 테두리</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 모드**는 래팅과 미션용이에요. NPC가 나를 공격하거나 스크램해도 더 이상 알림이 울리지 않고, 플레이어는 울려요. 다만 로그 줄에 코퍼레이션이나 얼라이언스 티커가 나오지 않는 플레이어는 울리지 않아요.&#x0A;&#x0A;**피격 테두리**는 해당 클라이언트가 피해를 받는 동안 썸네일에서 붉게 깜빡이고, 마지막 피격 몇 초 뒤에 사라져요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">이벤트 표</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">각 행은 알림 한 종류예요.&#x0A;- **심각도**는 이벤트마다 고정이에요. 이벤트의 색상, 깜빡임 속도, 토스트 선택을 정해요(모양 &amp; 심각도).&#x0A;- **색상**은 이벤트 하나에 고유 색상을 줘요. ↺는 심각도 색상으로 되돌려요.&#x0A;- **지속**은 알림이 썸네일에 남는 시간이에요.&#x0A;- **배지**는 썸네일에서 이벤트를 세요. **고정**은 깜빡이는 대신 테두리를 유지해요.&#x0A;- **켜짐**은 모두에게서 이벤트를 꺼요. 그래도 그룹은 구성원에게 다시 켤 수 있어요(아래의 그룹별 알림).&#x0A;- **크리스탈 파손**은 채굴 레이저에서만 울려요. 무기의 크리스탈이 파괴돼도 울리지 않아요.&#x0A;- **드론 복귀 중**은 켜기 전까지 꺼져 있어요. EVE의 영어 드론 회수 로그 줄만 읽어요. 게임이 다른 언어라면 사용자 지정 규칙으로 해당 줄을 인식할 수 있어요.&#x0A;&#x0A;**대기 시간**은 같은 알림이 캐릭터에게 몇 초 동안 반복되는 것을 막아요. **심각도별 대기 시간**(모양 &amp; 심각도)은 심각도마다 자기 시간을 줘요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">각 행은 알림 한 종류예요.&#x0A;- **심각도**는 이벤트마다 고정이에요. 이벤트의 색상, 깜빡임 속도, 토스트 선택을 정해요(모양 &amp; 심각도).&#x0A;- **색상**은 이벤트 하나에 고유 색상을 줘요. ↺는 심각도 색상으로 되돌려요.&#x0A;- **지속**은 알림이 썸네일에 남는 시간이에요.&#x0A;- **배지**는 썸네일에서 이벤트를 세요. **고정**은 깜빡이는 대신 테두리를 유지해요.&#x0A;- **켜짐**은 모두에게서 이벤트를 꺼요. 그래도 그룹은 구성원에게 다시 켤 수 있어요(아래의 그룹별 알림).&#x0A;- **크리스탈 파손**은 채굴 모듈에서만 울려요. 무기의 크리스탈이 파괴돼도 울리지 않아요.&#x0A;- **드론 복귀 중**은 켜기 전까지 꺼져 있어요. EVE의 영어 드론 회수 로그 줄만 읽어요. 게임이 다른 언어라면 사용자 지정 규칙으로 해당 줄을 인식할 수 있어요.&#x0A;&#x0A;**대기 시간**은 같은 알림이 캐릭터에게 몇 초 동안 반복되는 것을 막아요. **심각도별 대기 시간**(모양 &amp; 심각도)은 심각도마다 자기 시간을 줘요.</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">모양 &amp; 심각도</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">썸네일에서 알림이 보이는 모양, 세 가지 심각도, 색맹 모드.</sys:String> <!-- draft -->
