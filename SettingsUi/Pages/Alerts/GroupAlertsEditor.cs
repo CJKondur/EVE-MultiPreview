@@ -59,6 +59,7 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         _empty.Children.Add(toGroups);
 
         // The group and Clear, in a row that wraps: a long group name puts the button on a line of its own.
+        EditorCard.ClipNames(_groups);   // IDEAS P88: a long group name ends in an ellipsis, its tooltip has the whole name
         AutomationProperties.SetName(_groups, Str("L.S.GroupAlerts.Group"));
         _groups.SelectionChanged += (_, _) =>
         {

@@ -2569,6 +2569,12 @@ public sealed class LogMonitorService : IDisposable
     public Func<DateTime> AlertClock { get => _alertClock; set => _alertClock = value ?? _alertClock; }
     private Func<DateTime> _alertClock = () => DateTime.UtcNow;
 
+    /// <summary>The gate of a group's choices (IDEAS #31, P88): whether an event is on for a character. TriggerAlert asks it
+    /// before the quiet time is looked at or noted, so an event that is off for the character's group is no alert and
+    /// uses up none of the quiet time (switched back on inside it, the next alert is told at once). Null: no gate, every
+    /// event the reader may raise is on. Any thread; App hands it AlertProfiles.IsOn.</summary>
+    public Func<string, string, bool>? IsOnFor { get; set; }
+
     /// <param name="ownQuietTime">The alert's own quiet time in seconds: a custom rule's, when it has one (IDEAS #8), and for Capacitor neutralized and Jammed the longer of their own and the quiet time of Settings (IDEAS #4).</param>
     /// <param name="customText">What a custom rule matched; see RaisingCustomText.</param>
     private void TriggerAlert(string character, string alertType, string severity, int? ownQuietTime = null, string? customText = null)
@@ -2580,6 +2586,15 @@ public sealed class LogMonitorService : IDisposable
         {
             Debug.WriteLine($"[LogMonitor:Event] 🚫 Alert disabled by settings: {alertType} for '{character}'");
             DiagnosticsService.LogAlerts($"[Trigger] SUPPRESSED — disabled by settings: type={alertType} char='{character}'");
+            return;
+        }
+
+        // ── Per-group choice (IDEAS #31, P88) ──
+        // An event that is off for this character's group is no alert, so it is dropped before the quiet time is looked at
+        // and before the moment is noted: noted, it would swallow the alert of an event switched back on inside the quiet time.
+        if (IsOnFor is { } gate && !gate(character, alertType))
+        {
+            DiagnosticsService.LogAlerts($"[Trigger] SUPPRESSED — off for the character's group: type={alertType}");
             return;
         }
 

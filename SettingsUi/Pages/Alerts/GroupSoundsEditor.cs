@@ -48,6 +48,7 @@ public sealed class GroupSoundsEditor : System.Windows.Controls.UserControl, IRe
         _empty.Children.Add(none);
         _empty.Children.Add(toGroups);
 
+        EditorCard.ClipNames(_groups);   // IDEAS P88: a long group name ends in an ellipsis, its tooltip has the whole name
         AutomationProperties.SetName(_groups, Str("L.S.GroupSounds.Group"));
         _groups.SelectionChanged += (_, _) =>
         {

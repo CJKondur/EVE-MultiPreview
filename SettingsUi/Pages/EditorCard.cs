@@ -121,6 +121,20 @@ public static class EditorCard
         return row;
     }
 
+    /// <summary>A list of names the player chose (the groups): no wider than <paramref name="maxWidth"/>, whatever the
+    /// longest name is (a name may be 200 characters). A longer name ends in an ellipsis, in the closed list and in
+    /// the open one, and the tooltip carries the whole name (IDEAS P88). The items are the names themselves.</summary>
+    public static void ClipNames(ComboBox list, double maxWidth = 360)
+    {
+        var name = new FrameworkElementFactory(typeof(TextBlock));
+        name.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding());
+        name.SetBinding(FrameworkElement.ToolTipProperty, new System.Windows.Data.Binding());
+        name.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
+        name.SetValue(FrameworkElement.MaxWidthProperty, maxWidth - 32);   // 32: the list's arrow and its edges
+        list.MaxWidth = maxWidth;
+        list.ItemTemplate = new DataTemplate { VisualTree = name };
+    }
+
     /// <summary>Gives a control that can't name itself (a box, list, slider, switch or swatch) the label's screen-reader
     /// name, and does the same for each such control in a panel. A control the code already named, or a button with
     /// text, is left alone (Plan 3d).</summary>

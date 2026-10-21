@@ -445,6 +445,7 @@ public partial class App : Application
             {
             // 7. Start log monitor and wire events
             _logMonitor = new LogMonitorService();
+            _logMonitor.IsOnFor = _alertProfiles.IsOn;   // IDEAS P88: an event off for the character's group uses up none of the quiet time
             _logMonitor.PveMode = _settings.Settings.PveMode;
             _logMonitor.SetCooldown(_settings.Settings.AlertCooldown);
             _logMonitor.SetSettings(_settings.Settings);
