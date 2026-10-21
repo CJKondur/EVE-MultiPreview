@@ -77,6 +77,7 @@ public sealed class AlertHistory : IDisposable
     private readonly BlockingCollection<object> _queue = new(QueueLimit);
     private readonly ManualResetEventSlim _closing = new();     // set by Dispose; never disposed (the worker may still wait on it)
     private readonly Func<int, bool> _pause;
+    private readonly Action<string>? _beforeReadingDay;
     private Thread? _worker;
     private long _seq;
     private volatile bool _enabled = true;
@@ -89,8 +90,11 @@ public sealed class AlertHistory : IDisposable
     /// <param name="pause">The wait between two tries of a write, in milliseconds, on the background thread: true
     /// when the time passed, false when the wait was cut short and the write is to be given up. Null: a real wait,
     /// which ends at once when the history is closed. Tests hand one in, so none of them sleeps.</param>
-    public AlertHistory(string folder, ErrorLog errors, Func<DateTime>? utcNow = null, Func<int, bool>? pause = null)
+    /// <param name="beforeReadingDay">Called with a day file's path after the days were listed and before that file is
+    /// opened (tests: delete it there, as a retention pass could). Null: nothing.</param>
+    public AlertHistory(string folder, ErrorLog errors, Func<DateTime>? utcNow = null, Func<int, bool>? pause = null, Action<string>? beforeReadingDay = null)
     {
+        _beforeReadingDay = beforeReadingDay;
         _folder = folder;
         _errors = errors;
         _utcNow = utcNow ?? (() => DateTime.UtcNow);
@@ -161,7 +165,8 @@ public sealed class AlertHistory : IDisposable
     /// for a <paramref name="max"/> of 0 or less): what the day files hold, and what is in memory but in no file (a
     /// write that failed). It waits for waiting writes first and reads files, so call it off the UI thread. Never
     /// throws. A day file that can't be read is left out and the other days are still listed; the page counts such
-    /// days (<see cref="AlertHistoryPage.UnreadableDays"/>, at every read) and the error log says so once per session.</summary>
+    /// days (<see cref="AlertHistoryPage.UnreadableDays"/>, at every read) and the error log says so once per session. A day
+    /// file deleted between the listing and the opening is not such a day: it is gone, and nothing is counted or logged.</summary>
     public AlertHistoryPage Read(DateTime sinceUtc, int max)
     {
         max = Math.Max(0, max);
@@ -178,7 +183,11 @@ public sealed class AlertHistory : IDisposable
             {
                 if (day < sinceUtc.Date) break;
                 List<AlertHistoryEntry> lines;
-                try { lines = ReadDay(path, ref bad); }                  // oldest first
+                try { _beforeReadingDay?.Invoke(path); lines = ReadDay(path, ref bad); }   // oldest first
+                catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+                {
+                    continue;                                            // deleted since it was listed (a retention pass): nothing to read, nothing lost, not "unreadable"
+                }
                 catch (Exception ex)
                 {
                     // A day file that can't be read (another program has it and shares nothing, or access is

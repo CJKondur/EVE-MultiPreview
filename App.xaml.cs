@@ -907,7 +907,7 @@ public partial class App : Application
             e.Exception.Message.Contains("Missing a required parameter") ||
             e.Exception is System.ComponentModel.Win32Exception)
         {
-            Debug.WriteLine($"[App:Error] ⚠ Quietly handled: {e.Exception.GetType().Name}: {e.Exception.Message}");
+            Debug.WriteLine($"[App:Error] ⚠ Quietly handled: {ErrorLog.Describe(e.Exception)}");
             ErrorLog.Shared.Record(e.Exception, "UI (window race)", DateTime.Now);
             e.Handled = true;
             return;
@@ -945,7 +945,7 @@ public partial class App : Application
     internal static void LogError(Exception ex)
     {
         ErrorLog.Shared.Record(ex, "App", DateTime.Now);
-        Debug.WriteLine($"[App:Error] ❌ Logged error: {ex.GetType().Name}: {ex.Message}");
+        Debug.WriteLine($"[App:Error] ❌ Logged error: {ErrorLog.Describe(ex)}");
     }
 
     // ── JSON Migration (AHK: EVE-X-Preview → EVE MultiPreview) ───────

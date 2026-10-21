@@ -157,7 +157,7 @@ public sealed class SettingsService : IDisposable
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"[Settings] Failed to migrate EVE-O config: {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"[Settings] Failed to migrate EVE-O config: {ErrorLog.Describe(ex)}");
                     }
                 }
 
@@ -235,7 +235,7 @@ public sealed class SettingsService : IDisposable
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[Settings] Save error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[Settings] Save error: {ErrorLog.Describe(ex)}");
                 LogError(ex);
                 status = SaveStatus.WriteFailed;
             }
