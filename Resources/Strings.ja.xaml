@@ -907,7 +907,7 @@
     <sys:String x:Key="L.S.About.CheckFailed">アップデートを確認できませんでした: {0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.Intro">アップデートの確認、プレリリース版の試用、任意のバージョンのインストール、旧設定ウィンドウへの切り替えができます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.updates.Title">アップデート</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.about.updates.Body">オフにしない限り、MultiPreview は起動時に GitHub で新しいリリースを確認します。**アップデートを確認**はその場で確認します。&#x0A;&#x0A;**特定のバージョンをインストール**ではすべてのリリースが一覧表示されます。古いバージョンをインストールすると起動時の確認がオフになり、すぐに元へ更新を勧められることはありません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.updates.Body">オフにしない限り、MultiPreview は起動時に GitHub で新しいリリースを確認します。**アップデートを確認**はその場で確認します。&#x0A;&#x0A;**特定のバージョンをインストール**ではすべてのリリースが一覧表示されます。古いバージョンをインストールすると起動時の確認がオフになり、すぐに元へ更新を勧められることはありません。&#x0A;&#x0A;インストールが完了せず、10 分以内に古いバージョンが再び起動すると、トレイの通知で更新をインストールできなかったことをお知らせします。古いバージョンを選んでいた場合は、起動時の確認が元の設定に戻ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Title">旧設定ウィンドウ</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">以前の設定ウィンドウは当面使えます。**旧設定ウィンドウを使う**をオンにして設定を開き直してください。旧ウィンドウの**新しい設定ウィンドウを使う**で戻れます。旧ウィンドウは今後のバージョンで削除されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.fonts.Title">フォント</sys:String> <!-- draft -->

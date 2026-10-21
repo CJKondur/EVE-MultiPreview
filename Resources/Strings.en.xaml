@@ -900,7 +900,7 @@
     <sys:String x:Key="L.S.About.CheckFailed">Couldn't check for updates: {0}</sys:String>
     <sys:String x:Key="L.Help.app.about.Intro">Check for updates, try pre-releases, install any version, or go back to the old settings window.</sys:String>
     <sys:String x:Key="L.Help.app.about.updates.Title">Updates</sys:String>
-    <sys:String x:Key="L.Help.app.about.updates.Body">MultiPreview checks GitHub for a new release when it starts, unless you turn that off. **Check for updates** checks right now.&#x0A;&#x0A;**Install a specific version** lists every release. Installing an older one turns off the startup check, so it doesn't offer to update straight back.</sys:String>
+    <sys:String x:Key="L.Help.app.about.updates.Body">MultiPreview checks GitHub for a new release when it starts, unless you turn that off. **Check for updates** checks right now.&#x0A;&#x0A;**Install a specific version** lists every release. Installing an older one turns off the startup check, so it doesn't offer to update straight back.&#x0A;&#x0A;If an install does not go through and the old version starts again within ten minutes, a tray note says the update could not be installed. If you had picked an older version, the startup check is switched back to what it was.</sys:String>
     <sys:String x:Key="L.Help.app.about.window.Title">The old settings window</sys:String>
     <sys:String x:Key="L.Help.app.about.window.Body">The previous settings window stays available for now. Turn on **Use the old settings window**, then reopen settings to use it. In the old window, **Use the new settings window** brings you back. The old window will be removed in a later release.</sys:String>
     <sys:String x:Key="L.Help.app.about.fonts.Title">Fonts</sys:String>

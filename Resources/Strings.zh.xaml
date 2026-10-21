@@ -924,7 +924,7 @@
     <sys:String x:Key="L.S.About.CheckFailed">无法检查更新：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.Intro">检查更新、试用预发布版本、安装任意版本，或回到旧版设置窗口。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.updates.Title">更新</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.about.updates.Body">除非你关闭，MultiPreview 启动时会到 GitHub 检查是否有新版本。**检查更新**会立即检查。&#x0A;&#x0A;**安装指定版本**会列出所有版本。安装旧版本会关闭启动时的检查，以免它马上又提示更新回去。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.updates.Body">除非你关闭，MultiPreview 启动时会到 GitHub 检查是否有新版本。**检查更新**会立即检查。&#x0A;&#x0A;**安装指定版本**会列出所有版本。安装旧版本会关闭启动时的检查，以免它马上又提示更新回去。&#x0A;&#x0A;如果安装没有成功，而旧版本在十分钟内重新启动，托盘通知会提示无法安装更新。如果你选的是旧版本，启动时的检查会恢复成原来的设置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Title">旧版设置窗口</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.window.Body">旧版设置窗口暂时仍然可用。打开**使用旧版设置窗口**，然后重新打开设置即可使用。在旧窗口中，点击**使用新的设置窗口**即可回来。旧窗口将在以后的版本中移除。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.fonts.Title">字体</sys:String> <!-- draft -->
