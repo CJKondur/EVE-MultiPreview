@@ -44,23 +44,37 @@ internal sealed class GroupChoicesText<T>
             foreach (var group in doc.RootElement.EnumerateObject())
             {
                 if (groups.Count >= MaxGroups) break;
-                if (group.Name.Length is 0 or > MaxName || group.Value.ValueKind != JsonValueKind.Object) continue;
-                var events = new Dictionary<string, T>(StringComparer.Ordinal);
-                foreach (var choice in group.Value.EnumerateObject())
+                try
                 {
-                    if (events.Count >= MaxEvents) break;
-                    if (choice.Name.Length is 0 or > MaxName) continue;
-                    if (_read(choice.Value, out var value)) events[choice.Name] = value;
+                    if (group.Name.Length is 0 or > MaxName || group.Value.ValueKind != JsonValueKind.Object) continue;
+                    var events = new Dictionary<string, T>(StringComparer.Ordinal);
+                    foreach (var choice in group.Value.EnumerateObject())
+                    {
+                        if (events.Count >= MaxEvents) break;
+                        try
+                        {
+                            if (choice.Name.Length is 0 or > MaxName) continue;
+                            if (_read(choice.Value, out var value)) events[choice.Name] = value;
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            // An event key (or a value) that can't be read is skipped alone; the rest of the group is kept.
+                        }
+                    }
+                    if (events.Count > 0) groups[group.Name] = events;
                 }
-                if (events.Count > 0) groups[group.Name] = events;
+                catch (InvalidOperationException)
+                {
+                    // A group name that can't be read (half a character written as an escape) is skipped alone, with
+                    // what is under it. Every other group is kept; the next change that writes the text leaves it out.
+                }
             }
         }
         catch (Exception ex) when (ex is JsonException or InvalidOperationException or ArgumentException)
         {
-            // Not the choices text: no choice at all. A text that is not JSON fails before the first group is taken.
-            // A name that can't be read (half a character written as an escape: InvalidOperationException) fails
-            // while the groups are taken, and a text .NET can't take at all (half a character as it is:
-            // ArgumentException) before that; whatever was taken until then goes too.
+            // Not the choices text: no choice at all. A text that is not JSON fails before the first group is taken,
+            // and a text .NET can't take at all (half a character as it is: ArgumentException) before that;
+            // whatever was taken until then goes too. (A damaged entry never gets here: it is skipped alone, above.)
             groups.Clear();
         }
         return groups;
