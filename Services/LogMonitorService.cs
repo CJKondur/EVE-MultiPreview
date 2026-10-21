@@ -1765,10 +1765,6 @@ public sealed class LogMonitorService : IDisposable
         return null;
     }
 
-    /// <summary>True when the line is a log header line in any language (so body
-    /// parsers can skip it).</summary>
-    private static bool IsHeaderLine(string trimmed) => TryParseHeaderCharacter(trimmed) != null;
-
     /// <summary>True when a line, the white space in front of it taken off, starts with the bracket of its
     /// "[ timestamp ]": it is an entry of the log, and the log's header lies before it. The same sign the parsers
     /// go by: ReadOwnTag asks for the bracket first, and ChatSpeaker lets U+FEFF stand in front of it, which EVE
@@ -2042,12 +2038,6 @@ public sealed class LogMonitorService : IDisposable
 
     private void ParseGameLogLine(string line, string character)
     {
-        var trimmedLine = line.TrimStart();
-
-        // Skip header lines (any language — #86)
-        if (IsHeaderLine(trimmedLine))
-            return;
-
         // The line's own tag, read once, decides which parser below takes the line. Everything behind the tag can
         // hold a name another player chose (a ship's name stands in the bubble line of whoever flies into its
         // bubble), so a tag is never looked for there: a ship named "x (combat) x" once took the bubble line away
