@@ -114,6 +114,10 @@ public static class SettingsRestore
             var choices = Choices(Path.Combine(svc.ConfigDirectory, "Backups"), besideExe, moreBackupsDir);
             var body = string.Format(choices.Count > 0 ? str("L.Start.Restore.Body", BodyEnglish) : str("L.Start.Restore.None", NoneEnglish),
                 svc.SettingsPath);
+            // IDEAS P91: where the parser stopped. A line number and nothing else of the file (the parser's own message
+            // names the character and the value); none for a file another program holds.
+            if (SettingsService.FailedLine(svc.LastLoadError) is int line)
+                body += "\n\n" + string.Format(str("L.Start.Restore.Where", "The first problem is on line {0}."), line);
             if (failed) body = str("L.Start.Restore.Failed", "That copy couldn't be restored. Pick another.") + "\n\n" + body;
             var buttons = choices.Select(c => Label(c, str))
                 .Append(str("L.Start.Restore.Defaults", "Start with defaults (your file is kept)")).ToList();

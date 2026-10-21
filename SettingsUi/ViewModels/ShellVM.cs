@@ -175,6 +175,11 @@ public sealed class ShellVM : ObservableObject, IDisposable
     public string? SaveErrorKey { get; private set; }
     public bool HasSaveError => SaveErrorKey != null;
     public bool CanRetrySave => SaveErrorKey == "L.S.Shell.SaveFailed";
+    /// <summary>IDEAS P91: under the blocked-save text, where the first problem of the unreadable settings file is
+    /// ("The first problem is on line 7."). Null when the line is not known (a file another program held, a missing
+    /// file) or the bar shows another error. A line number and nothing else of the file.</summary>
+    public string? SaveErrorLine { get; private set; }
+    public bool HasSaveErrorLine => SaveErrorLine != null;
 
     public void Navigate(string pageId, string? itemId = null)
     {
@@ -221,7 +226,12 @@ public sealed class ShellVM : ObservableObject, IDisposable
             SaveStatus.BlockedAfterLoadError => "L.S.Shell.SaveBlocked",
             _ => null,
         };
+        SaveErrorLine = status == SaveStatus.BlockedAfterLoadError && SettingsService.FailedLine(_ctx.Service.LastLoadError) is int line
+            ? string.Format(LocalizationService.Str("L.Start.Restore.Where", "The first problem is on line {0}."), line)
+            : null;
         Raise(nameof(SaveErrorKey));
+        Raise(nameof(SaveErrorLine));
+        Raise(nameof(HasSaveErrorLine));
         Raise(nameof(HasSaveError));
         Raise(nameof(CanRetrySave));
     }

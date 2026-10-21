@@ -2810,4 +2810,5 @@
     <!-- Ideas batch 23 (Plan 27) -->
     <sys:String x:Key="L.Hist.UnreadDays">{0} day(s) could not be read.</sys:String>
     <sys:String x:Key="L.Hist.NotLoaded">Nothing is recorded in this session: the settings file could not be read.</sys:String>
+    <sys:String x:Key="L.Start.Restore.Where">The first problem is on line {0}.</sys:String>
 </ResourceDictionary>

@@ -95,6 +95,13 @@ public sealed class SettingsService : IDisposable
     /// App retries before it offers a restore.</summary>
     public Exception? LastLoadError { get; private set; }
 
+    /// <summary>IDEAS P91: the line of a settings file where its first problem is, counted from 1 like a text editor
+    /// (the parser counts from 0), for an error Load gave. Null when the error is not a parse error or has no position
+    /// (a file another program holds, "not a settings file"). Only the number of a line: never the JSON path (it names
+    /// characters), a column or the value; the dialog, the save bar and the error log all say it through here.</summary>
+    public static int? FailedLine(Exception? error) =>
+        error is JsonException { LineNumber: long line and < int.MaxValue } ? (int)line + 1 : null;
+
     public Profile CurrentProfile => _settings.Profiles.GetValueOrDefault(_settings.LastUsedProfile) ?? new Profile();
 
     public SettingsService(string? settingsPath = null)

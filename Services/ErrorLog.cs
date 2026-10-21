@@ -79,8 +79,9 @@ public sealed class ErrorLog
     }
 
     /// <summary>An exception as the log (and a note or a reason that ends up in it) may show it: its type and message.
-    /// A JsonException gives its type and the position only, never its message: that names the JSON path of the value
-    /// that failed, and in a settings file a path is made of character names. The same path is cut from any other
+    /// A JsonException gives its type and the line only (counted from 1, SettingsService.FailedLine), never its message:
+    /// that names the JSON path of the value that failed, and in a settings file a path is made of character names.
+    /// Not the byte position either: a column in a file this size points at a value. The same path is cut from any other
     /// message the serializer appended it to. Never throws.</summary>
     public static string Describe(Exception? ex)
     {
@@ -89,15 +90,13 @@ public sealed class ErrorLog
         try
         {
             type = ex.GetType().Name;
-            if (ex is JsonException json)
-                return $"{type}: LineNumber {Position(json.LineNumber)}, BytePositionInLine {Position(json.BytePositionInLine)}";
+            if (ex is JsonException)
+                return $"{type}: line {SettingsService.FailedLine(ex)?.ToString(CultureInfo.InvariantCulture) ?? "?"}";
             var message = ex.Message;
             int path = message.IndexOf(" Path: $", StringComparison.Ordinal);
             return $"{type}: {(path < 0 ? message : message[..path])}";
         }
         catch { return type; }
-
-        static string Position(long? value) => value?.ToString(CultureInfo.InvariantCulture) ?? "?";
     }
 
     /// <summary>A line for whoever reads the log, not counted as an error.</summary>

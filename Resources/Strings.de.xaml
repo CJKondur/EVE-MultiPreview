@@ -2810,4 +2810,5 @@
     <!-- Ideas batch 23 (Plan 27) -->
     <sys:String x:Key="L.Hist.UnreadDays">Tage, die sich nicht lesen ließen: {0}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.NotLoaded">In dieser Sitzung wird nichts aufgezeichnet: Die Einstellungsdatei konnte nicht gelesen werden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Where">Das erste Problem steht in Zeile {0}.</sys:String> <!-- draft -->
 </ResourceDictionary>

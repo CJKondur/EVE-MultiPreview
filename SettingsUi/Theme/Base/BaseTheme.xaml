@@ -690,7 +690,11 @@
                 <Button DockPanel.Dock="Right" local:Loc.Key="L.S.Shell.Retry" Padding="12,4" Margin="12,0,0,0"
                         Command="{Binding RetrySaveCommand, RelativeSource={RelativeSource AncestorType=local:ShellFrame}}"
                         Visibility="{Binding CanRetrySave, Converter={StaticResource Fx.BoolToVis}}"/>
-                <TextBlock local:Loc.Key="{Binding SaveErrorKey}" Style="{DynamicResource Fx.Label}" VerticalAlignment="Center"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock local:Loc.Key="{Binding SaveErrorKey}" Style="{DynamicResource Fx.Label}"/>
+                    <TextBlock Text="{Binding SaveErrorLine}" Style="{DynamicResource Fx.Label}" Margin="0,4,0,0"
+                               Visibility="{Binding HasSaveErrorLine, Converter={StaticResource Fx.BoolToVis}}"/>
+                </StackPanel>
             </DockPanel>
         </Border>
     </DataTemplate>

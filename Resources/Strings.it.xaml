@@ -2828,4 +2828,5 @@
     <!-- Ideas batch 23 (Plan 27) -->
     <sys:String x:Key="L.Hist.UnreadDays">Giorni non leggibili: {0}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.NotLoaded">In questa sessione non viene registrato nulla: il file delle impostazioni non è leggibile.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Where">Il primo problema è alla riga {0}.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2811,4 +2811,5 @@
     <!-- Ideas batch 23 (Plan 27) -->
     <sys:String x:Key="L.Hist.UnreadDays">읽지 못한 날이 {0}일 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.NotLoaded">이번 세션에는 아무것도 기록되지 않아요. 설정 파일을 읽지 못했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Where">첫 번째 문제는 {0}번째 줄에 있어요.</sys:String> <!-- draft -->
 </ResourceDictionary>

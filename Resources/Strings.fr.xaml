@@ -2813,4 +2813,5 @@
     <!-- Ideas batch 23 (Plan 27) -->
     <sys:String x:Key="L.Hist.UnreadDays">Jours qui n'ont pas pu être lus : {0}.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.NotLoaded">Rien n'est enregistré pendant cette session : le fichier de paramètres n'a pas pu être lu.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Where">Le premier problème se trouve à la ligne {0}.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2811,4 +2811,5 @@
     <!-- Ideas batch 23 (Plan 27) -->
     <sys:String x:Key="L.Hist.UnreadDays">読み取れなかった日が {0} 日あります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.NotLoaded">このセッションでは何も記録されません。設定ファイルを読み取れませんでした。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Start.Restore.Where">最初の問題は {0} 行目にあります。</sys:String> <!-- draft -->
 </ResourceDictionary>
