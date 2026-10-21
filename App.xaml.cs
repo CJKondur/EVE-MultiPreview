@@ -501,6 +501,9 @@ public partial class App : Application
             {
                 var s = _settings?.Settings;
                 if (s == null || !s.CycleWrapSoundEnabled) return;
+                // IDEAS P76: no alert, and started by MultiPreview on its own: do-not-disturb holds it, critical alerts
+                // or not (so the property, not Silences, which lets a critical alert through).
+                if (DoNotDisturbOn) return;
                 var wrap = AlertSoundChoice.WrapSound(s);
                 if (wrap.Length == 0 || !System.IO.File.Exists(wrap)) return;
                 try

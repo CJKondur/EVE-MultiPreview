@@ -2244,7 +2244,7 @@
     <sys:String x:Key="L.Tray.Dnd">勿扰模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.DndOn">勿扰模式：开</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.dnd.Title">勿扰模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">勿扰模式会拦住警报声音、语音警报和发往 Discord 的警报，其他不变：边框、角标和提示照常显示，Windows 通知照常出现，缩略图也照常放大。适合语音通话或直播时使用。&#x0A;&#x0A;- **勿扰模式开关** 用来开关它，托盘菜单也可以。光标旁会提示当前状态。开启期间，托盘图标的提示和本页上的一行文字都会显示。&#x0A;- **严重警报仍然发声** 一开始是打开的：严重警报仍会发声，也仍会朗读。想要完全安静就关掉它。&#x0A;- **每天的安静时段** 每天按时钟自动开关。**开始时间** 23:00、**结束时间** 07:00 就是一整夜。**开始时间** 和 **结束时间** 相同时，就没有安静时段。&#x0A;- 在安静时段内按下快捷键，声音会恢复到该时段结束。在时段外按下，会一直静音到你再按一次，或到下一个安静时段结束。&#x0A;- 重新启动 MultiPreview 会忘记快捷键的状态。安静时段是一项设置，会保留。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">勿扰模式会拦住警报声音、语音警报、发往 Discord 的警报和切换键的 **循环提示音**：凡是 MultiPreview 自己发出的都会被拦住。边框、角标和提示照常显示，Windows 通知照常出现（不带 Windows 自己的声音），缩略图也照常放大。你主动触发的声音仍会播放：▶ 按钮，以及语音上的 **试听**。MultiPreview 从托盘显示的提示仍带 Windows 自己的通知声。适合语音通话或直播时使用。&#x0A;&#x0A;- **勿扰模式开关** 用来开关它，托盘菜单也可以。光标旁会提示当前状态。开启期间，托盘图标的提示和本页上的一行文字都会显示。&#x0A;- **严重警报仍然发声** 一开始是打开的：严重警报仍会发声，也仍会朗读。关掉它，严重警报也会被拦住。循环提示音无论如何都会被拦住：它不是警报。&#x0A;- **每天的安静时段** 每天按时钟自动开关。**开始时间** 23:00、**结束时间** 07:00 就是一整夜。**开始时间** 和 **结束时间** 相同时，就没有安静时段。&#x0A;- 在安静时段内按下快捷键，声音会恢复到该时段结束。在时段外按下，会一直静音到你再按一次，或到下一个安静时段结束。&#x0A;- 重新启动 MultiPreview 会忘记快捷键的状态。安静时段是一项设置，会保留。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.escalation">重复严重警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate">重复你还没看过的严重警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate.Desc">在那个客户端来到前台之前，它的声音会再次播放，一次比一次响。需要打开“播放警报声音”。</sys:String> <!-- draft -->
