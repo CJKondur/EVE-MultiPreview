@@ -40,6 +40,9 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     private readonly List<Button> _adders = new();
     private readonly Button _add;                             // Add rule: where the keyboard goes when the last card is deleted
     private readonly List<Action> _commits = new();           // each stores one text box of the open rule, if it was changed
+    private readonly DispatcherTimer _offTimer;               // asks the log monitor what it switched off, while the page is loaded
+    private string _testText = "";                            // the open rule's Test box, kept across a rebuild (a failed save)
+    private bool _lastStoreFailed;                            // the last change AfterSave looked at could not be written
     private Window? _window;                                  // the window whose closing stores what was typed
     private bool _leaving;                                    // the page is going or its window is closing (StoreWhatWasTyped)
     private readonly Dictionary<string, Head> _heads = new();
@@ -94,18 +97,44 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         Content = root;
         // A text box is stored when the keyboard leaves it. When another page is opened, or the window is closed,
         // with the keyboard still in a box, nothing tells the box: what was typed is stored here instead.
-        Unloaded += (_, _) => StoreWhatWasTyped();
+        _offTimer = new DispatcherTimer(DispatcherPriority.Background, Dispatcher) { Interval = OffRefresh };
+        _offTimer.Tick += (_, _) => RefreshOff();
+        Unloaded += (_, _) =>
+        {
+            _offTimer.Stop();
+            StoreWhatWasTyped();
+        };
         Loaded += (_, _) =>
         {
+            _offTimer.Start();
             var window = Window.GetWindow(this);
             if (window == null || ReferenceEquals(window, _window)) return;
             _window = window;
             window.Closing += (_, _) => StoreWhatWasTyped();
+            window.Closed += (_, _) => _offTimer.Stop();           // a closed window may never raise Unloaded
         };
         Refresh();
     }
 
     public CustomRulesModel Model { get; }
+
+    /// <summary>How often the page asks the log monitor what it switched off while the page is loaded (RefreshOff).</summary>
+    public static readonly TimeSpan OffRefresh = TimeSpan.FromSeconds(2);
+
+    /// <summary>Whether the page is asking the log monitor on its timer: from Loaded to Unloaded.</summary>
+    public bool WatchesWhatIsOff => _offTimer.IsEnabled;
+
+    /// <summary>Asks the log monitor again which rules it switched off, and brings the notices of the cards up to
+    /// date in place when the answer is another snapshot than the page has (the monitor hands out the same one until
+    /// a rule goes off or the rules change). Nothing is built anew: what is typed, the open rule's fields and the
+    /// keyboard stay where they are.</summary>
+    public void RefreshOff()
+    {
+        var before = _off;
+        AskWhatIsOff();
+        if (ReferenceEquals(_off, before)) return;
+        foreach (var id in _heads.Keys.ToList()) UpdateHead(id);
+    }
 
     /// <summary>The rule whose fields are shown, or null.</summary>
     public string? OpenId { get; private set; }
@@ -128,7 +157,8 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     /// <summary>Asks the log monitor which rules it has switched off for what they cost: alert type ("custom:" + id)
     /// and the word of the bound (CustomAlertEngine.OffByTimeout, OffByAverage, OffByPeaks). In the app it is the
     /// monitor's own snapshot (AppServices.CustomRulesSwitchedOff); a window made without the app has nobody to ask,
-    /// and no rule is off. Asked when the page is shown and when its cards are built, never while the player types.</summary>
+    /// and no rule is off. Asked when the page is shown, when its cards are built and every OffRefresh while the page is loaded;
+    /// what is asked never touches a field the player is typing in (RefreshOff).</summary>
     public Func<IReadOnlyDictionary<string, string>> SwitchedOff { get; set; }
 
     /// <summary>Plays a file at a volume (AlertSoundPreview.Play). Tests put a recorder here: no test plays a sound.</summary>
@@ -183,6 +213,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     private void AfterSave()
     {
         if (Model.Saves != _saves) EveryRuleIsTriedAgain();
+        _lastStoreFailed = Model.SaveFailed;
         if (!Model.SaveFailed) return;
         _ctx.Host.Toast(Str("L.S.Rules.SaveFailed"));
         string? tag = FocusedTag();
@@ -292,6 +323,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     {
         if (Model.Find(id) == null) return;
         OpenId = id;
+        _testText = "";                                       // another rule is looked at: its Test box starts empty
         Rebuild();
         FocusField("name");
     }
@@ -300,6 +332,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     {
         var was = OpenId;
         OpenId = null;
+        _testText = "";
         Rebuild();
         if (was != null && _heads.TryGetValue(was, out var head)) Dispatcher.BeginInvoke(DispatcherPriority.Loaded, () => head.Edit.Focus());
     }
@@ -418,6 +451,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     private TextBlock _result = new();
     private TextBlock _slow = new();
     private TextBlock _seen = new();
+    private string? _testFor;                                 // the rule _testText was typed for
 
     private FrameworkElement BuildForm(CustomAlertRule rule)
     {
@@ -771,7 +805,11 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
 
     private FrameworkElement TestField(string id)
     {
-        var box = new TextBox { MaxLength = CustomRules.MaxPasted, Tag = "test", VerticalContentAlignment = VerticalAlignment.Center };
+        // The line pasted for the rule that is open survives the cards being built again (a failed save). A card of
+        // another rule starts empty: Open and Close clear it, and a rule that was just added has an id of its own.
+        if (_testFor != id) { _testFor = id; _testText = ""; }
+        var box = new TextBox { MaxLength = CustomRules.MaxPasted, Tag = "test", VerticalContentAlignment = VerticalAlignment.Center, Text = _testText };
+        box.TextChanged += (_, _) => _testText = box.Text;
         Loc.SetNameKey(box, "L.S.Rules.TestBox");
         var run = EditorCard.Button("L.S.Rules.TestRun", () => RunTest(id, box.Text));
         run.Tag = "testRun";
@@ -908,8 +946,9 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         {
             foreach (var commit in _commits.ToList())
             {
+                _lastStoreFailed = false;                         // this box only: an earlier failed save is not this one's
                 commit();
-                if (Model.SaveFailed) break;
+                if (_lastStoreFailed) break;
             }
         }
         finally { _leaving = false; }

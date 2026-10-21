@@ -84,6 +84,10 @@ public static class CustomRules
     /// verdict, few enough that a costly rule is gone within a second of a fight. Only lines on which a regular
     /// expression ran are counted.</summary>
     public const int WindowLines = 100;
+    /// <summary>A rule the fourth bound has named once is forgiven after this many windows in a row without a verdict
+    /// (ten, a thousand lines). A verdict, of any rule, starts the count anew, so a rule that is slow on rare lines
+    /// keeps its mark; one unlucky stall hours before another no longer costs a healthy rule.</summary>
+    public const int CleanWindowsToForgive = 10;
     /// <summary>What the regular expressions may cost a line on average. Fifty plausible ones cost a tenth of it on
     /// short lines and under half of it on lines of 2,000 characters on a fast PC, so a PC several times slower still
     /// keeps them; and at this cost the reader still reads five hundred lines a second.</summary>
@@ -353,9 +357,10 @@ public sealed class CustomRuleMatcher
     internal long WindowTicks, WindowSlowest, WindowCounted;
     internal int WindowMatches;
     /// <summary>The engine's fourth bound has named this rule once (CustomAlertEngine.Verdict): the next time it
-    /// goes. Remembered for as long as the matcher lives, which is until the rules change: the engine and every
-    /// matcher are made anew then.</summary>
+    /// goes. Remembered until the rules change (the engine and every matcher are made anew then), or until
+    /// CustomRules.CleanWindowsToForgive windows in a row have ended without a verdict (CountWindow).</summary>
     internal bool NamedOnce;
+    private int _cleanWindows;
 
     private CustomRuleMatcher(CustomAlertRule rule, Regex? regex)
     {
@@ -402,6 +407,18 @@ public sealed class CustomRuleMatcher
     /// <summary>A window starts anew: the strikes of the one before are forgotten.</summary>
     internal void ForgetStrikes() => _strikes = 0;
 
+    /// <summary>A window ended. For a rule that was named once: a window without a verdict is one more clean window,
+    /// and after CustomRules.CleanWindowsToForgive of them in a row the mark is gone; a window with a verdict (of any
+    /// rule) starts the count anew, so a rule that keeps being slow never gets there.</summary>
+    internal void CountWindow(bool clean)
+    {
+        if (!NamedOnce) return;
+        if (!clean) { _cleanWindows = 0; return; }
+        if (++_cleanWindows < CustomRules.CleanWindowsToForgive) return;
+        NamedOnce = false;
+        _cleanWindows = 0;
+    }
+
     internal void SwitchOff() => Off = true;
 }
 
@@ -436,8 +453,10 @@ public sealed record CustomRuleTestResult(CustomRuleTestOutcome Outcome, TimeSpa
 ///    hiccup, and always forgiven. Beyond that, the rule with the largest of the rest answers for it, one rule at a
 ///    verdict, and a rule only the second time: its first such verdict ends the window and is remembered, its second
 ///    switches it off. (Two long waits in a hundred lines are what a PC that is short of CPU does to a healthy rule
-///    now and then: the smaller of the two is the rule's.) Without this bound, rules that are each slow on rare
-///    lines of their own would never answer for them.
+///    now and then: the smaller of the two is the rule's.) The mark is forgiven after ten windows in a row that end
+///    after their hundredth line without a verdict (CustomRules.CleanWindowsToForgive); a window with a verdict
+///    starts that count anew. Without this bound, rules that are each slow on rare lines of their own would never
+///    answer for them.
 ///
 /// A verdict of the third or the fourth bound is given as soon as it is certain, and not only on the hundredth
 /// line: once a window's allowance is used up, the lines still to come can't give it back. A window ends with a
@@ -599,7 +618,8 @@ public sealed class CustomAlertEngine
     private void EndLine()
     {
         _windowLines++;
-        if (!Verdict() && _windowLines < CustomRules.WindowLines) return;
+        bool verdict = Verdict();
+        if (!verdict && _windowLines < CustomRules.WindowLines) return;
 
         _windowLines = 0;
         _windowTicks = 0;
@@ -611,6 +631,7 @@ public sealed class CustomAlertEngine
             matcher.WindowCounted = 0;
             matcher.WindowMatches = 0;
             matcher.ForgetStrikes();
+            matcher.CountWindow(clean: !verdict);                          // a window that ends without a verdict has run its hundred lines
         }
     }
 
@@ -652,7 +673,8 @@ public sealed class CustomAlertEngine
         if (largest == null) return false;
         // One rule at a verdict, and a rule only at its second. A reader that is kept off the CPU twice in a hundred
         // lines brings this verdict on a rule that did nothing wrong, so the first one only ends the window. It is
-        // remembered until the rules change, however many windows lie between, and the second switches the rule off.
+        // remembered until the rules change or ten clean windows in a row forgive it (CountWindow), and the second
+        // switches the rule off.
         if (largest.NamedOnce) SwitchOff(largest, OffByPeaks);
         else largest.NamedOnce = true;
         return true;

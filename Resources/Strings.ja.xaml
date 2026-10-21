@@ -2023,7 +2023,7 @@
     <sys:String x:Key="L.S.alerts.hub.keepHistory.Desc">すべてのアラートがこの PC 上のリストに追加されます：時刻、キャラクター、アラート、場所。オフにすると新しく追加されません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.historyDays">アラートを残す期間</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.historyDays.Desc">それより古い日の分は MultiPreview の起動時に削除されます。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.alerts.hub.historyFolder">履歴はこの PC の中だけに保存されます：{0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.historyFolder">履歴は次の場所に保存されます：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.history.Title">アラート履歴</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.history.Body">MultiPreview は、発生したすべてのアラートをリストに残します：時刻、キャラクター、アラート、重大度、星系、そして表示されたか、キャラクターがミュート中だったか。オフにしたアラートと、静止時間内の繰り返しは載りません。&#x0A;&#x0A;- リストは、設定フォルダーの History フォルダーに 1 日 1 ファイルで保存されます。MultiPreview はリストをそこに保存し、どこかに送信することはありません。履歴ウィンドウから書き出した CSV ファイルは保存した場所に置かれ、同じ文字が入ります。&#x0A;- 自分で作ったルールのアラートでは、ルールの名前と、ルールが見つけた行（160 文字まで）もリストに残ります。ゲームログの行にはほかのプレイヤーの名前が含まれることがあり、チャットチャンネルでは、その行はほかのプレイヤーが書いたものです。&#x0A;- **アラートを残す期間** で何日分残すかを決めます。変更しなければ 30 日です。それより古い日の分は、次に MultiPreview を起動したときに削除されます。&#x0A;- **アラート履歴を残す** をオフにすると、新しい内容は書き込まれません。すでに残っている分は、期間が過ぎるか、履歴を消去するまで残ります。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.Title">アラート履歴</sys:String> <!-- draft -->
@@ -2146,7 +2146,7 @@
     <sys:String x:Key="L.S.Rules.Err.SourceUnknown">ルールが読むものを選んでください：ゲームログまたはチャットチャンネル。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Err.ChannelEmpty">読むチャットチャンネルの名前を入力してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Err.ChannelInvalid">チャンネルの名前は、そのログファイル名の先頭部分です。{0} 文字以内で、次の文字は使えません \ / : * ? " &lt; &gt; |</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Err.TooManyChannels">ルールが読めるチャットチャンネルは全部で {0} 個までで、これは 1 つ多くなります。ほかのルールが読んでいるチャンネルを使うか、ルールを 1 つ削除してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Err.TooManyChannels">ルールが読めるチャットチャンネルは、Local のほかに全部で {0} 個までで、これは 1 つ多くなります。ほかのルールが読んでいるチャンネルを使うか、ルールを 1 つ削除してください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Err.SeverityUnknown">重大度を選んでください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.Intro">カスタムルールは、自分で作るアラートです。EVE がゲームログやチャットチャンネルのログに書く行から文字を探し、組み込みのアラートと同じように知らせます。枠、バッジ、トースト、音、そしてアラート履歴の 1 行です。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.rules.Title">ルール</sys:String> <!-- draft -->
