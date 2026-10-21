@@ -53,6 +53,7 @@ public sealed class LogMonitorService : IDisposable
     private readonly object _foldersLock = new();
     private readonly object _watchLock = new();   // watcher swap vs Stop
     private volatile bool _scanRequested;         // Refresh asks; the reading thread scans
+    private volatile bool _logCreated;            // the chat watcher saw a log created (IDEAS P64); the reading thread takes the note (NoteCreatedLog)
 
     // Hybrid: FileSystemWatcher for instant wake + polling fallback
     private readonly SemaphoreSlim _wakeSignal = new(0, 1);
@@ -1075,6 +1076,19 @@ public sealed class LogMonitorService : IDisposable
         catch (SemaphoreFullException) { }
     }
 
+    /// <summary>Takes the chat watcher's note that a log was created (IDEAS P64): the next scan runs at once, and the
+    /// rules' channels are listed on it, instead of at the next twentieth pass and the next five-second listing. Runs
+    /// on the reading thread (or PollOnce's caller), which alone writes _nextChannelListing; the watcher's thread
+    /// writes the note and nothing else. The note is cleared before the scan looks at the folder, so a log created
+    /// before the clear is listed by that scan, and one created after it is noted again.</summary>
+    private void NoteCreatedLog()
+    {
+        if (!_logCreated) return;
+        _logCreated = false;
+        _scanRequested = true;
+        _nextChannelListing = long.MinValue;
+    }
+
     /// <summary>Takes a folder change from Reconfigure and a rules change from SetCustomRules: one look under one
     /// lock at every pass, as for the folders alone before custom rules existed. Runs on the reading thread (or
     /// before Start), never beside a read.</summary>
@@ -1150,6 +1164,7 @@ public sealed class LogMonitorService : IDisposable
     public void PollOnce()
     {
         if (_cts != null) return;
+        NoteCreatedLog();
         ApplyPendingFolders();
         ScanForNewFiles();
         ReadNewLines();
@@ -1243,6 +1258,7 @@ public sealed class LogMonitorService : IDisposable
             try
             {
                 ApplyPendingFolders();   // a settings change (IDEAS P30), on this thread, between reads
+                NoteCreatedLog();        // a log the chat watcher saw created (IDEAS P64)
                 if (_scanRequested) { _scanRequested = false; _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1; }
 
                 // Throttle file discovery — only scan every Nth poll cycle
@@ -1292,27 +1308,28 @@ public sealed class LogMonitorService : IDisposable
     {
         lock (_watchLock)
         {
-            _chatWatcher = TryCreateWatcher(_chatLogPath, "Local_*.txt");
-            _gameWatcher = TryCreateWatcher(_gameLogPath, "*.txt");
+            _chatWatcher = TryCreateWatcher(_chatLogPath, ChatWatchFilters(_customRules), OnChatLogCreated);
+            _gameWatcher = TryCreateWatcher(_gameLogPath, new[] { "*.txt" }, OnLogFileChanged);
         }
         Debug.WriteLine($"[LogMonitor:FSW] ⚡ FileSystemWatchers started (chat={_chatWatcher != null}, game={_gameWatcher != null})");
     }
 
-    private FileSystemWatcher? TryCreateWatcher(string path, string filter)
+    private FileSystemWatcher? TryCreateWatcher(string path, IEnumerable<string> filters, FileSystemEventHandler onCreated)
     {
         if (string.IsNullOrEmpty(path) || !Directory.Exists(path)) return null;
 
         try
         {
-            var watcher = new FileSystemWatcher(path, filter)
+            var watcher = new FileSystemWatcher(path)
             {
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
                 InternalBufferSize = 65536, // 64KB — Microsoft-recommended max for high-activity dirs
-                EnableRaisingEvents = true,
                 IncludeSubdirectories = false
             };
+            foreach (var filter in filters) watcher.Filters.Add(filter);
             watcher.Changed += OnLogFileChanged;
-            watcher.Created += OnLogFileChanged;
+            watcher.Created += onCreated;
+            watcher.EnableRaisingEvents = true;   // last: no event is raised before its handlers are on
             return watcher;
         }
         catch (Exception ex)
@@ -1322,10 +1339,47 @@ public sealed class LogMonitorService : IDisposable
         }
     }
 
+    /// <summary>Puts the chat watcher's filters on the rules' channels (IDEAS P64): ApplyRules calls it, on the reading
+    /// thread, whenever the rules change. A separate method, so that ApplyRules itself takes no lock. Events are off
+    /// while the filters change and on again after; a log created in that gap raises none, but the pass that follows
+    /// (ApplyRules asks for a listing and a scan) finds it, and polling reads it anyway. Nothing is done before Start
+    /// or after Stop, when there is no watcher; StartFileWatchers puts the filters on a new one itself.</summary>
+    private void ApplyWatchFilters(CustomAlertEngine? engine)
+    {
+        lock (_watchLock)
+        {
+            var watcher = _chatWatcher;
+            if (watcher == null) return;
+            var filters = ChatWatchFilters(engine);
+            if (watcher.Filters.SequenceEqual(filters)) return;   // the same channels: no gap at all
+            try
+            {
+                watcher.EnableRaisingEvents = false;
+                watcher.Filters.Clear();
+                foreach (var filter in filters) watcher.Filters.Add(filter);
+                watcher.EnableRaisingEvents = true;
+            }
+            catch (Exception ex)
+            {
+                // The type only: a filter holds a channel name a player chose. Polling still reads every log.
+                Debug.WriteLine($"[LogMonitor:FSW] ⚠ Failed to change the chat watcher's filters: {ex.GetType().Name}");
+            }
+        }
+    }
+
     private void OnLogFileChanged(object sender, FileSystemEventArgs e)
     {
         // Wake the monitor loop immediately — don't wait for fallback poll. A second releaser used to throw from a
         // thread-pool thread and end the process (IDEAS P41).
+        WakeReader();
+    }
+
+    /// <summary>A log was created in the chat folder (Local's or a rule channel's, as the filters say). This runs on
+    /// the watcher's thread and only notes it, then wakes the reader: the reading thread takes the note
+    /// (NoteCreatedLog) and is the only one that touches the scan and the channel listing.</summary>
+    private void OnChatLogCreated(object sender, FileSystemEventArgs e)
+    {
+        _logCreated = true;
         WakeReader();
     }
 
@@ -1346,6 +1400,19 @@ public sealed class LogMonitorService : IDisposable
                 _gameWatcher = null;
             }
         }
+    }
+
+    /// <summary>The file names the chat folder's watcher wakes the reader for (IDEAS P64): always Local's logs, then the
+    /// logs of each chat channel a rule reads, as the scan names them (‹channel›_*.txt). A channel's name holds no
+    /// wildcard (CustomRuleCheck refuses one), and Windows ignores case in both the watcher and the scan.</summary>
+    public static IReadOnlyList<string> ChatWatchFilters(CustomAlertEngine? engine)
+    {
+        var filters = new List<string> { LocalChannel + "_*.txt" };
+        if (engine != null)
+            foreach (var channel in engine.Channels)
+                if (!string.Equals(channel, LocalChannel, StringComparison.OrdinalIgnoreCase))
+                    filters.Add(channel + "_*.txt");
+        return filters;
     }
 
     /// <summary>Game logs written within this long count as a running client's.</summary>
@@ -1853,6 +1920,7 @@ public sealed class LogMonitorService : IDisposable
             if (engine == null || !engine.Reads(channel)) _channelLogsSeen.TryRemove(channel, out _);
         _nextChannelListing = long.MinValue;             // list the new rules' channels on this pass
         _scanThrottleCounter = SCAN_EVERY_N_POLLS - 1;   // look for the new rules' channels on this pass
+        ApplyWatchFilters(engine);                       // and wake for them (IDEAS P64): its own method, with its own lock
     }
 
     /// <summary>How long the logs of the rules' chat channels are not listed again. Each channel is a listing of the
