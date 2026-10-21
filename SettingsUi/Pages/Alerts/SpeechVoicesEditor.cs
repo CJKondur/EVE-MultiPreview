@@ -32,6 +32,7 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     private readonly TextBlock _tried = EditorCard.Value("", secondary: true);
     private bool _building;
     private bool _listed;                       // the voices were read with "Speak alerts" on
+    private bool _answered;                     // what the card shows came from Windows' answer (or its failure)
     private SpeechVoice? _windowsDefault;
     private CancellationTokenSource? _trying;   // the stop of the sentence that is being tried
     private int _asks;                          // the last ask for Windows' voices: an earlier answer may come late
@@ -126,7 +127,15 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
         var thrown = asked.Exception;       // looked at, so that nothing is left unobserved
         if (mine != _asks || !_listed) return;
         if (thrown != null) Show(Array.Empty<SpeechVoice>(), null, answered: true);
-        else Show(installed ?? Array.Empty<SpeechVoice>(), windowsDefault, answered: true);
+        else
+        {
+            installed ??= Array.Empty<SpeechVoice>();
+            // P98 (5): the card was built with these voices when the refresh began. Built again it would drop an open
+            // drop-down and the keyboard focus for nothing. Before any answer it is built, whatever the answer is:
+            // the line for a Windows without voices is only shown once Windows has answered.
+            if (_answered && installed.SequenceEqual(Installed) && Equals(windowsDefault, _windowsDefault)) return;
+            Show(installed, windowsDefault, answered: true);
+        }
         if (thrown != null) Report(thrown, "asking Windows for its voices");
     }
 
@@ -137,6 +146,7 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
         try
         {
             Installed = installed;
+            _answered = answered;
             _windowsDefault = windowsDefault;
             AutomaticVoice = SpeechVoiceChoice.Automatic(Installed, _language(), _windowsDefault);
             SaysNoVoiceAtAll = answered && Installed.Count == 0;

@@ -236,6 +236,18 @@ public sealed class SettingsService : IDisposable
         SaveCompleted?.Invoke(status);
     }
 
+    /// <summary>Writes a change that is still waiting for its delayed save, now, and nothing else (P96): what
+    /// Windows' SessionEnding calls, because OnExit may not get to run before the process is ended. Unlike
+    /// <see cref="Dispose"/> it leaves the service running, since a session whose end is cancelled goes on. It is
+    /// the same path as the timer's tick (<see cref="SaveCore"/>): a settings file that failed to load is never
+    /// overwritten, a change is written once, and nothing is written when nothing is pending. Never throws: it runs
+    /// in an event handler, and a subscriber of SaveCompleted that throws must not stop the handlers behind it.</summary>
+    public void Flush()
+    {
+        try { SaveCore(onlyIfPending: true); }
+        catch (Exception ex) { LogError(ex); }
+    }
+
     /// <summary>Debounced save — waits 200ms before actually saving (matches AHK Save_Settings_Delay_Timer).</summary>
     public void SaveDelayed()
     {

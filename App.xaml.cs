@@ -637,8 +637,11 @@ public partial class App : Application
             _alertHub.PlaceLookup = _stragglerAlerts.PlaceOf;
             // IDEAS #17: "Go to the last alert" walks back through the history's memory list once nothing is unseen.
             _thumbnailManager.RecentAlerts = () => _alertHistory.Recent();
-            // Windows signing out or shutting down: WPF only queues its shutdown then, and OnExit (which closes the
-            // history) may not get to run before the process is ended. What is waiting is written now.
+            // Windows signing out or shutting down: WPF only queues its shutdown then, and OnExit may not get to run
+            // before the process is ended. A settings change still waiting for its delayed save (a position moved a
+            // moment ago) is written first, and not by Dispose: a session whose end is cancelled goes on (P96).
+            SessionEnding += (_, _) => _settings?.Flush();
+            // Then what the history has waiting is written, for two seconds at most.
             SessionEnding += (_, _) => _alertHistory?.Flush(TimeSpan.FromSeconds(2));
             // And what this session showed would stay in the Notification Center with buttons that can do nothing: it
             // is taken away before the app closes (WPF closes it, as nothing here cancels the session's end). Behind
