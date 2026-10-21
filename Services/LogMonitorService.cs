@@ -2155,7 +2155,7 @@ public sealed class LogMonitorService : IDisposable
         // ── Mining alerts from (notify) lines (AHK: _ParseMiningLine checks (notify) tag) ──
         if (notify)
         {
-            // These three messages are self-identifying (they only ever describe a
+            // These two messages are self-identifying (they only ever describe a
             // mining module), so they need no module-name gate and localize directly
             // from EVE's own text — issue #86.
             // Cargo Full
@@ -2172,8 +2172,17 @@ public sealed class LogMonitorService : IDisposable
                 TriggerAlert(character, "mine_asteroid_depleted", "info");
                 return;
             }
-            // Crystal Broken
-            if (AlertPatterns.Matches(line, "mining_crystal_broken"))
+            // The module-name gate used below and by the crystal check. It still works on a
+            // localized client because ResolveLocalizedNames() has already rewritten
+            // <localized hint="Miner II"> to the English name — so these English keywords
+            // match in every language.
+            bool isMiningModule = line.Contains("Miner ") || line.Contains("Mining Laser")
+                                  || line.Contains("Harvester")
+                                  || AlertPatterns.Matches(line, "mining_module_names");
+
+            // Crystal Broken — mining modules only: EVE writes the same sentence when a
+            // weapon's charge is destroyed, and that is not a mining event (P49).
+            if (isMiningModule && AlertPatterns.Matches(line, "mining_crystal_broken"))
             {
                 DiagnosticsService.LogAlerts($"[Parse] '{character}' matched crystal-broken pattern: {line.Trim()}");
                 TriggerAlert(character, "mine_crystal_broken", "warning");
@@ -2186,13 +2195,6 @@ public sealed class LogMonitorService : IDisposable
             // alert. Gated on a mining-module-name keyword to avoid catching
             // missile / remote-rep / tractor-beam target-lost messages, which
             // share the same prefix and are common in PvP/PvE.
-            // The module-name gate still works on a localized client because
-            // ResolveLocalizedNames() has already rewritten <localized hint="Miner II">
-            // to the English name — so these English keywords match in every language.
-            bool isMiningModule = line.Contains("Miner ") || line.Contains("Mining Laser")
-                                  || line.Contains("Harvester")
-                                  || AlertPatterns.Matches(line, "mining_module_names");
-
             if (AlertPatterns.Matches(line, "mining_target_lost") && isMiningModule)
             {
                 TriggerAlert(character, "mine_asteroid_depleted", "info");

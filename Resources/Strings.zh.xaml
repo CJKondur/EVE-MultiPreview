@@ -1596,7 +1596,7 @@
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE 模式与受攻击边框</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 模式**适用于刷怪和任务：NPC 攻击或扰断你时不再触发警报，玩家仍会触发，但日志行中名字不带军团或联盟代号的玩家不会。&#x0A;&#x0A;**受攻击边框**在该客户端受到伤害时于缩略图上闪烁红色，并在最后一次受击几秒后消失。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">事件表</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.table.Body">每一行是一种警报。&#x0A;- **严重程度**对每个事件是固定的。它决定事件的颜色、闪烁速度和通知选择（外观 &amp; 严重程度）。&#x0A;- **颜色**为单个事件指定专属颜色；↺ 恢复为严重程度的颜色。&#x0A;- **持续**是警报停留在缩略图上的时间。&#x0A;- **角标**在缩略图上统计该事件；**常亮**保持边框常亮而不闪烁。&#x0A;- **开启**可对所有人关闭该事件；分组仍可为其成员开启它（下方的按分组设置警报）。&#x0A;&#x0A;**静默时间**可在几秒内阻止同一警报为某个角色重复触发。**按严重程度设置静默时间**（外观 &amp; 严重程度）可为每种严重程度单独设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.table.Body">每一行是一种警报。&#x0A;- **严重程度**对每个事件是固定的。它决定事件的颜色、闪烁速度和通知选择（外观 &amp; 严重程度）。&#x0A;- **颜色**为单个事件指定专属颜色；↺ 恢复为严重程度的颜色。&#x0A;- **持续**是警报停留在缩略图上的时间。&#x0A;- **角标**在缩略图上统计该事件；**常亮**保持边框常亮而不闪烁。&#x0A;- **开启**可对所有人关闭该事件；分组仍可为其成员开启它（下方的按分组设置警报）。&#x0A;- **晶体损坏**仅适用于采矿激光器，武器的晶体被摧毁时不会触发。&#x0A;&#x0A;**静默时间**可在几秒内阻止同一警报为某个角色重复触发。**按严重程度设置静默时间**（外观 &amp; 严重程度）可为每种严重程度单独设置。</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
     <sys:String x:Key="L.S.Page.alerts.look">外观 &amp; 严重程度</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.look.Desc">警报在缩略图上的外观、三种严重程度，以及色盲模式。</sys:String> <!-- draft -->
