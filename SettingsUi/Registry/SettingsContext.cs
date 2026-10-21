@@ -65,6 +65,10 @@ public sealed class AppServices
     /// <summary>The voice of spoken alerts (IDEAS #26): the voices card lists what it has and tries one. Null in a
     /// settings window opened without the app: the card then offers Automatic only.</summary>
     public ISpeaker? Speaker { get; init; }
+    /// <summary>The voices card tried a voice and it spoke without throwing: SpokenWay asks it again if it had stopped
+    /// asking after three failures in a row (a sound device that was missing is back). Null in tests and in a window
+    /// opened without the app.</summary>
+    public Action? VoiceAnswered { get; init; }
     /// <summary>Runs a piece of work away from the window's thread, and finishes when it has: the voices card asks
     /// Windows for its voices so (FY-m2), and the window's thread never waits for Windows. Null: a thread of the
     /// pool (Task.Run). A test hands one that runs the work at once, or holds it until the test lets it run.</summary>

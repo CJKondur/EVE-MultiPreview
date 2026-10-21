@@ -2218,6 +2218,7 @@ public partial class App : Application
                     Snoozes = _snoozes,
                     DoNotDisturbOn = () => DoNotDisturbOn,
                     Speaker = _speaker,
+                    VoiceAnswered = () => _spokenWay?.VoiceAnswered(),
                     NotificationsBlocked = NotificationsBlocked,
                     TestNotification = ShowTestNotification,
                     TestPush = () => _pushWay?.TestAsync(_settings.Settings) ?? System.Threading.Tasks.Task.FromResult(new PushResult(PushOutcome.Refused)),

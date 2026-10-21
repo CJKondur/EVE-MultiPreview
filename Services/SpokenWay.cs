@@ -26,8 +26,8 @@ public sealed class SpokenWay : IAlertWay
     public const int MostAsksOut = 3;
 
     /// <summary>So many sentences in a row that the voice threw on (a sound device that is not there): then it is not
-    /// asked again until "Speak alerts" is switched off and on. A voice that hangs is counted by
-    /// <see cref="MostAsksOut"/> instead.</summary>
+    /// asked again until "Speak alerts" is switched off and on, or until the voice answers a "Try" on the Voices card
+    /// (<see cref="VoiceAnswered"/>). A voice that hangs is counted by <see cref="MostAsksOut"/> instead.</summary>
     public const int MostFailures = 3;
 
     private readonly ISpeaker _speaker;
@@ -121,6 +121,12 @@ public sealed class SpokenWay : IAlertWay
         Interlocked.Exchange(ref _toldAsksOut, 0);
         Volatile.Write(ref _failures, 0);
     }
+
+    /// <summary>The voice spoke a sentence that did not come through this way: the "Try" on Alerts › Sounds › Voices,
+    /// heard without throwing (a device that was missing is back). The run of failures ends, so the alerts are spoken
+    /// again without "Speak alerts" being switched off and on. It does not count anew the asks that were given up
+    /// (a voice that hangs): only a run of throws ends here. Any thread.</summary>
+    public void VoiceAnswered() => Volatile.Write(ref _failures, 0);
 
     /// <summary>The last word of a chain of repeats (AlertEscalation.HandOff): a critical alert was repeated as often
     /// as set and is still unseen. It is said once more, also within the half minute, while spoken alerts are on and

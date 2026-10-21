@@ -17,6 +17,7 @@ using ListBox = System.Windows.Controls.ListBox;
 using Panel = System.Windows.Controls.Panel;
 using Slider = System.Windows.Controls.Slider;
 using TextBox = System.Windows.Controls.TextBox;
+using ToolTip = System.Windows.Controls.ToolTip;
 
 namespace EveMultiPreview.SettingsUi;
 
@@ -123,16 +124,34 @@ public static class EditorCard
 
     /// <summary>A list of names the player chose (the groups): no wider than <paramref name="maxWidth"/>, whatever the
     /// longest name is (a name may be 200 characters). A longer name ends in an ellipsis, in the closed list and in
-    /// the open one, and the tooltip carries the whole name (IDEAS P88). The items are the names themselves.</summary>
+    /// the open one, and the tooltip carries the whole name (IDEAS P88), wrapped within <see cref="TipWidth"/>: a
+    /// name of 200 characters is not one line across the screen. The items are the names themselves.</summary>
     public static void ClipNames(ComboBox list, double maxWidth = 360)
     {
         var name = new FrameworkElementFactory(typeof(TextBlock));
         name.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding());
-        name.SetBinding(FrameworkElement.ToolTipProperty, new System.Windows.Data.Binding());
+        name.SetBinding(FrameworkElement.ToolTipProperty, new System.Windows.Data.Binding { Converter = WrappedTip.Instance });
         name.SetValue(TextBlock.TextTrimmingProperty, TextTrimming.CharacterEllipsis);
         name.SetValue(FrameworkElement.MaxWidthProperty, maxWidth - 32);   // 32: the list's arrow and its edges
         list.MaxWidth = maxWidth;
         list.ItemTemplate = new DataTemplate { VisualTree = name };
+    }
+
+    /// <summary>The widest a name's tooltip is; a longer name wraps.</summary>
+    public const double TipWidth = 480;
+
+    /// <summary>A name as a tooltip whose text wraps (a plain string tooltip is one line however long it is).</summary>
+    private sealed class WrappedTip : System.Windows.Data.IValueConverter
+    {
+        public static readonly WrappedTip Instance = new();
+
+        public object? Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
+            value is string text
+                ? new ToolTip { Content = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, MaxWidth = TipWidth } }
+                : null;
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture) =>
+            System.Windows.Data.Binding.DoNothing;
     }
 
     /// <summary>Gives a control that can't name itself (a box, list, slider, switch or swatch) the label's screen-reader

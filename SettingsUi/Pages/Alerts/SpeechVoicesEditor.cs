@@ -190,7 +190,7 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
     /// <summary>Says a fixed sentence with the voice an alert of this severity would be said with, at the voice
     /// volume. One sentence at a time: a new try stops the one before, and so do leaving the page and switching
     /// "Speak alerts" off. A voice that fails shows one line on the card and is reported by the type of what it
-    /// threw.</summary>
+    /// threw. A try that is heard ends a run of failures that stopped the alerts' voice (SpokenWay.VoiceAnswered).</summary>
     public void Try(string severity)
     {
         var speaker = _ctx.Services.Speaker;
@@ -217,7 +217,12 @@ public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IR
         var thrown = said.Exception;     // looked at, so that nothing is left unobserved
         if (!ReferenceEquals(_trying, stop)) return;
         _trying = null;
-        if (thrown == null) return;
+        if (thrown == null)
+        {
+            // The voice works: if the alerts' voice had given up after three failures, it is asked again.
+            _ctx.Services.VoiceAnswered?.Invoke();
+            return;
+        }
         Tried(failed: true);
         Report(thrown);
     }
