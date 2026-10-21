@@ -126,6 +126,17 @@ public class ThumbnailWindow : Form
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public DateTime? AlertMutedUntil { get; set; }
 
+    /// <summary>The manager's rule for "this character's alerts are muted now" (ThumbnailManager.IsCharacterAlertMuted), set
+    /// by ThumbnailManager.WireMenu for main and second thumbnails (IDEAS P98 (4)). The menu says "muted" by this rule, not
+    /// by <see cref="AlertMutedUntil"/>, which a clock set back leaves ahead of "now" for a mute that is over.</summary>
+    [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+    public Func<string, bool>? MuteCheck { get; set; }
+
+    /// <summary>The end of the mute that the right-click menu is handed: <see cref="AlertMutedUntil"/> while the manager's
+    /// rule still counts the mute, null once it is over. Without a manager (never wired) what the window holds.</summary>
+    public DateTime? MutedUntilForMenu() =>
+        AlertMutedUntil.HasValue && MuteCheck is { } check && !check(CharacterName) ? null : AlertMutedUntil;
+
     /// <summary>The events snoozed for a character alone (IDEAS #30), for the right-click menu. Set by ThumbnailManager.</summary>
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public Func<string, System.Collections.Generic.IReadOnlyList<EveMultiPreview.Services.EventSnooze>>? SnoozeLookup { get; set; }
@@ -194,7 +205,7 @@ public class ThumbnailWindow : Form
                 closeClient: () => CloseClientRequested?.Invoke(this),
                 endSnooze: key => SnoozeEndRequested?.Invoke(this, key),
                 endFrozen: () => EndFrozenRequested?.Invoke(this));
-            _menu.Refresh(new ThumbnailMenuState(CharacterName, SystemLookup?.Invoke(CharacterName), AlertMutedUntil, AudioVolume, DateTime.UtcNow)
+            _menu.Refresh(new ThumbnailMenuState(CharacterName, SystemLookup?.Invoke(CharacterName), MutedUntilForMenu(), AudioVolume, DateTime.UtcNow)
             {
                 Snoozes = SnoozeLookup?.Invoke(CharacterName) ?? Array.Empty<EveMultiPreview.Services.EventSnooze>(),
                 Frozen = Mark == ClientMark.NotResponding,

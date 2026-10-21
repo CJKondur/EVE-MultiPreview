@@ -2067,6 +2067,7 @@ public partial class App : Application
         // re-raise thumbnails over it — closing or burying the menu.
         // And no thumbnail stands enlarged for an alert under it (FX-m2): counted as a thumbnail's menu is.
         var counted = new ThumbnailWindow.AppMenu(() => menu.Visible);
+        if (_thumbnailManager != null) _thumbnailManager.TrayMenuShown = () => menu.Visible;
         menu.Opening += (_, _) =>
         {
             _thumbnailManager?.SetTrayMenuOpen(true);

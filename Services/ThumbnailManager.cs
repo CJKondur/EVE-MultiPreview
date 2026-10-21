@@ -1340,6 +1340,21 @@ public sealed class ThumbnailManager : IDisposable
     /// </summary>
     public void SetTrayMenuOpen(bool open) => _trayMenuOpen = open;
 
+    /// <summary>Whether the tray menu is on the screen: App hands it the menu's Visible (IDEAS P98 (7)). The focus sweep asks it
+    /// only while <see cref="SetTrayMenuOpen"/> says the menu is open, and clears that flag when the menu is not there, so a
+    /// "closed" that never came (a menu cancelled while it opened) cannot pause the sweep for good. Null: the flag is believed.</summary>
+    public Func<bool>? TrayMenuShown { get; set; }
+
+    /// <summary>The flag after the sweep's look at the menu: a flag that is down stays down without a look; one that is up stays up
+    /// while the probe says the menu is shown, or when there is no probe, and falls when the menu is not shown or the probe
+    /// throws (its menu is gone).</summary>
+    public static bool TrayMenuStillOpen(bool flagged, Func<bool>? shown)
+    {
+        if (!flagged || shown == null) return flagged;
+        try { return shown(); }
+        catch (Exception) { return false; }
+    }
+
     /// <summary>
     /// Marks the Settings window as open/closed. While open (even minimized),
     /// thumbnails are kept visible so HideThumbnailsOnLostFocus doesn't erase
@@ -2023,6 +2038,9 @@ public sealed class ThumbnailManager : IDisposable
         // IDEAS #13 (FX-m1, FX-m2): the tray's or a toast's menu that is counted as open while it is not on the screen
         // is counted closed, as a thumbnail's is below. Before the tray's pause, which a lost "closed" would hold too.
         ThumbnailWindow.AppMenu.EnsureStatesValid();
+
+        // IDEAS P98 (7): and the tray's pause below is healed the same way: a flag left up while its menu is not on the screen.
+        _trayMenuOpen = TrayMenuStillOpen(_trayMenuOpen, TrayMenuShown);
 
         // Tray menu open: leave visibility and z-order alone (see SetTrayMenuOpen).
         if (_trayMenuOpen)
@@ -5235,6 +5253,7 @@ public sealed class ThumbnailManager : IDisposable
         thumb.SnoozeEndRequested += OnSnoozeEndRequested;
         thumb.SnoozeLookup = SnoozesOf;
         thumb.SystemLookup = GetCharacterSystem;
+        thumb.MuteCheck = IsCharacterAlertMuted;   // IDEAS P98 (4): its menu says "muted" by this rule
         thumb.AudioVolume = GetClientVolume(thumb.CharacterName);
         // A new thumbnail picks up any active mute for its character (e.g. relaunch).
         if (!string.IsNullOrEmpty(thumb.CharacterName)
@@ -5257,6 +5276,7 @@ public sealed class ThumbnailManager : IDisposable
         thumb.SnoozeEndRequested -= OnSnoozeEndRequested;
         thumb.SnoozeLookup = null;
         thumb.SystemLookup = null;
+        thumb.MuteCheck = null;
     }
 
     private void OnLabelEditRequested(ThumbnailWindow thumb)
