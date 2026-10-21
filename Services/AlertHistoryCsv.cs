@@ -108,11 +108,13 @@ public static class AlertHistoryCsv
     private static string Record(IEnumerable<string?> fields, char separator, string ownSeparator) =>
         string.Join(separator == ';' ? ';' : ',', fields.Select(field => Field(field, ownSeparator))) + "\r\n";
 
-    /// <summary>What goes into each column, in the order of <see cref="Columns"/>. The time is taken the way
+    /// <summary>What goes into each column, in the order of <see cref="Columns"/> (the newest column is last, so a sheet
+    /// that reads the older ones by position still does): <paramref name="soundHeldText"/> stands in the last one for
+    /// an alert whose sound do-not-disturb held, an empty cell for every other. The time is taken the way
     /// <see cref="AlertHistory.Entry"/> takes it (a local time is converted, one that isn't marked is UTC), so an
     /// entry made without it can't make the export throw.</summary>
     public static IReadOnlyList<string> Values(AlertHistoryEntry e, Func<AlertHistoryEntry, string> alertName,
-        Func<string, string> severityName, Func<AlertOutcome, string> outcomeName, TimeZoneInfo zone)
+        Func<string, string> severityName, Func<AlertOutcome, string> outcomeName, TimeZoneInfo zone, string soundHeldText = "Yes")
     {
         var utc = e.TimeUtc.Kind == DateTimeKind.Local ? e.TimeUtc.ToUniversalTime() : DateTime.SpecifyKind(e.TimeUtc, DateTimeKind.Utc);
         return new[]
@@ -126,13 +128,14 @@ public static class AlertHistoryCsv
             outcomeName(e.Outcome),
             e.Text,
             e.EventKey,
+            e.SoundHeld ? soundHeldText : "",
         };
     }
 
     /// <summary>The English column names; the window passes them translated.</summary>
     public static IReadOnlyList<string> Columns { get; } = new[]
     {
-        "Time (UTC)", "Local time", "Character", "Alert", "Severity", "System", "Outcome", "Text", "Alert key",
+        "Time (UTC)", "Local time", "Character", "Alert", "Severity", "System", "Outcome", "Text", "Alert key", "Sound held",
     };
 
     /// <summary>The whole file's text: the header record, then one record per alert in the order given, with
@@ -141,11 +144,12 @@ public static class AlertHistoryCsv
     /// known. It never changes what stands between the fields; where it is neither a comma nor a semicolon, it is
     /// one more place in a field where a spreadsheet on this PC could begin a cell (rule 2).</summary>
     public static string Text(IReadOnlyList<string> header, IEnumerable<AlertHistoryEntry> entries, Func<AlertHistoryEntry, string> alertName,
-        Func<string, string> severityName, Func<AlertOutcome, string> outcomeName, TimeZoneInfo zone, char separator, string? listSeparator)
+        Func<string, string> severityName, Func<AlertOutcome, string> outcomeName, TimeZoneInfo zone, char separator, string? listSeparator,
+        string soundHeldText = "Yes")
     {
         string own = listSeparator ?? "";
         var text = new StringBuilder(Record(header, separator, own));
-        foreach (var e in entries) text.Append(Record(Values(e, alertName, severityName, outcomeName, zone), separator, own));
+        foreach (var e in entries) text.Append(Record(Values(e, alertName, severityName, outcomeName, zone, soundHeldText), separator, own));
         return text.ToString();
     }
 

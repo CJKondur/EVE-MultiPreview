@@ -18,9 +18,11 @@ namespace EveMultiPreview.Services;
 /// is "" for a built-in alert and the rule's name for a custom one. <paramref name="Text"/> is what a custom rule
 /// matched, cut to <see cref="AlertHistory.MaxText"/> characters; it is always "" for a built-in alert read from a
 /// log line, so the history holds no log text of those. For "Left behind", which MultiPreview works out itself, it
-/// is where the others went ("Jita → Perimeter 3/4").</summary>
+/// is where the others went ("Jita → Perimeter 3/4"). <paramref name="SoundHeld"/> is true when do-not-disturb held the
+/// alert's sound (P81): the gate's answer at the moment the alert was dispatched, false for an alert that was not
+/// dispatched to a sound at all and for every entry an older file holds.</summary>
 public sealed record AlertHistoryEntry(DateTime TimeUtc, string Character, string EventKey, string Severity, string SolarSystem,
-    AlertOutcome Outcome, string Source, string Text)
+    AlertOutcome Outcome, string Source, string Text, bool SoundHeld = false)
 {
     /// <summary>The order alerts were recorded in this session. Not saved.</summary>
     internal long Seq { get; init; }
@@ -118,10 +120,10 @@ public sealed class AlertHistory : IDisposable
     /// direction round or hide in a name), no half characters, cut to its limit. A character's name, a system and a
     /// rule's name come from logs and files as much as the matched text does.</summary>
     public static AlertHistoryEntry Entry(DateTime time, string? character, string? eventKey, string? severity, string? system,
-        AlertOutcome outcome, string? source = null, string? text = null) =>
+        AlertOutcome outcome, string? source = null, string? text = null, bool soundHeld = false) =>
         new(time.Kind == DateTimeKind.Local ? time.ToUniversalTime() : DateTime.SpecifyKind(time, DateTimeKind.Utc),
             PlainText.OneLine(character, MaxName), PlainText.OneLine(eventKey, MaxKey), PlainText.OneLine(severity, MaxKey),
-            PlainText.OneLine(system, MaxName), outcome, PlainText.OneLine(source, MaxName), PlainText.OneLine(text, MaxText));
+            PlainText.OneLine(system, MaxName), outcome, PlainText.OneLine(source, MaxName), PlainText.OneLine(text, MaxText), soundHeld);
 
     /// <summary>Records an alert. Any thread; returns at once; never throws. On the calling thread (the log monitor's)
     /// it takes one lock, adds to the memory list and adds to the queue: no file is touched there, the error log
@@ -451,10 +453,13 @@ public sealed class AlertHistory : IDisposable
         [JsonPropertyName("o")] public string? O { get; set; }
         [JsonPropertyName("r")] public string? R { get; set; }
         [JsonPropertyName("x")] public string? X { get; set; }
+        /// <summary>Sound held by do-not-disturb. Written only when true; a line without it (every line an older
+        /// MultiPreview wrote) reads as false.</summary>
+        [JsonPropertyName("h")] public bool? H { get; set; }
     }
 
     /// <summary>One alert as a line of a day file: t time (UTC), c character, e event, s severity, y system, o outcome,
-    /// r rule name, x matched text. Empty fields are left out.</summary>
+    /// r rule name, x matched text, h sound held (true only). Empty fields are left out.</summary>
     public static string Line(AlertHistoryEntry e) => JsonSerializer.Serialize(new Stored
     {
         T = e.TimeUtc, C = e.Character, E = e.EventKey, S = e.Severity,
@@ -462,6 +467,7 @@ public sealed class AlertHistory : IDisposable
         O = OutcomeText(e.Outcome),
         R = e.Source.Length > 0 ? e.Source : null,
         X = e.Text.Length > 0 ? e.Text : null,
+        H = e.SoundHeld ? true : null,
     }, Json);
 
     /// <summary>The alert a line holds, or null when the line is not one MultiPreview wrote: not JSON, no time,
@@ -476,7 +482,7 @@ public sealed class AlertHistory : IDisposable
             if (s == null || s.T == default || string.IsNullOrWhiteSpace(s.C) || string.IsNullOrWhiteSpace(s.E)) return null;
             if (s.C.Length > MaxName || s.E.Length > MaxKey || (s.S?.Length ?? 0) > MaxKey || (s.Y?.Length ?? 0) > MaxName
                 || (s.R?.Length ?? 0) > MaxName || (s.X?.Length ?? 0) > MaxText) return null;
-            var entry = Entry(s.T, s.C, s.E, s.S, s.Y, OutcomeOf(s.O), s.R, s.X);
+            var entry = Entry(s.T, s.C, s.E, s.S, s.Y, OutcomeOf(s.O), s.R, s.X, s.H == true);
             return entry.Character.Length == 0 || entry.EventKey.Length == 0 ? null : entry;
         }
         catch (Exception) { return null; }

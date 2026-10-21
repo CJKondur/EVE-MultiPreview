@@ -22,6 +22,9 @@ public static class AlertHubVisuals
     public const double BellSize = 44;
     public const double ToastWidth = 300, ToastHeight = 64, ToastGap = 8;
 
+    /// <summary>The name of the crossed bell on a toast whose alert's sound was held (tests look it up by it).</summary>
+    public const string SoundHeldMarkName = "SoundHeldMark";
+
     /// <summary>How many toasts fit between the hub and the edge of its monitor's work area in the stacking direction (0 up,
     /// 1 right, 2 down, 3 left), at least one: the newest always shows (IDEAS P39: a sideways stack ran off the screen
     /// after about six).</summary>
@@ -161,11 +164,14 @@ public static class AlertHubVisuals
 
     /// <summary>A toast: the flyout surface with a bar in the severity's colour (the player's colours, Alerts › Look &amp;
     /// severity), the character and event, and where it happened. Long names end in "…"; the toast never grows.</summary>
-    public static Border BuildToast(string character, string alertType, Color severityColor, string? system) =>
-        BuildToast(character, alertType, severityColor, system, out _);
+    public static Border BuildToast(string character, string alertType, Color severityColor, string? system, bool soundHeld = false) =>
+        BuildToast(character, alertType, severityColor, system, out _, soundHeld);
 
-    /// <summary>The same toast, and its second line, so a toast that shows an age can change it.</summary>
-    public static Border BuildToast(string character, string alertType, Color severityColor, string? system, out TextBlock secondLine)
+    /// <summary>The same toast, and its second line, so a toast that shows an age can change it. With
+    /// <paramref name="soundHeld"/> (do-not-disturb held the alert's sound, P81) a crossed bell stands at the toast's
+    /// right edge (<see cref="SoundHeldMarkName"/>); the text keeps the room that is left.</summary>
+    public static Border BuildToast(string character, string alertType, Color severityColor, string? system, out TextBlock secondLine,
+        bool soundHeld = false)
     {
         var (title, subtitle) = ToastText(character, alertType, system);
         var bar = new Border
@@ -197,6 +203,26 @@ public static class AlertHubVisuals
         var row = new DockPanel { LastChildFill = true };
         DockPanel.SetDock(bar, Dock.Left);
         row.Children.Add(bar);
+        if (soundHeld)
+        {
+            // The same crossed bell the tray's tip uses where it has no room for words. Docked before the text, which
+            // fills what is left, so a long name still ends in an ellipsis and the mark is never cut.
+            var held = LocalizationService.Str("L.Hist.SoundHeld", "Sound held");
+            var mark = new TextBlock
+            {
+                Name = SoundHeldMarkName,
+                Text = TrayMenu.DoNotDisturbMark,
+                FontFamily = new FontFamily("Segoe UI Emoji, Segoe UI Symbol"),
+                FontSize = 14,
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(8, 0, 0, 0),
+                ToolTip = held,
+            };
+            mark.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
+            System.Windows.Automation.AutomationProperties.SetName(mark, held);
+            DockPanel.SetDock(mark, Dock.Right);
+            row.Children.Add(mark);
+        }
         row.Children.Add(text);
         var toast = new Border
         {

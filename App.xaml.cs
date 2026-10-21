@@ -540,7 +540,11 @@ public partial class App : Application
                 Unseen = (charName, alertType, severity) => _thumbnailManager.NoteUnseenAlert(charName, alertType, severity),
                 WindowOf = charName => _thumbnailManager.GetHwndForCharacter(charName),
                 ForegroundWindow = () => EveMultiPreview.Interop.User32.GetForegroundWindow(),
-                Toast = (charName, alertType, severity) => _alertHub.ShowToast(charName, alertType, severity),
+                Toast = (charName, alertType, severity, soundHeld) => _alertHub.ShowToast(charName, alertType, severity, soundHeld),
+                // P81: asked once per alert, before its toast and its sound; the toast's crossed bell and the history's
+                // mark come from this one answer. PlayAlertSound keeps its own gate, in the order it always had: the
+                // master switch, then do-not-disturb. With the sounds off nothing is held by do-not-disturb: nothing would play.
+                SoundHeld = severity => _settings.Settings.EnableAlertSounds && _doNotDisturb.Silences(_settings.Settings, severity, DateTime.Now),
                 Sound = PlayAlertSound,
                 // IDEAS batch 6: after every gate. Which window is in front is asked there once, and only while a
                 // further way is switched on. It is asked a moment after Unseen asked it (the sound waits for the
@@ -652,13 +656,13 @@ public partial class App : Application
                 // So is the time: the entry says when the alert was raised, not when the window's thread got to it.
                 // The dispatcher hands the same time on to the further ways (AlertNotice.RaisedUtc, IDEAS batch 6).
                 var raised = DateTime.UtcNow;
-                var outcome = AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity, raised);
+                var outcome = AlertDispatcher.Dispatch(_settings.Settings, alertTargets, charName, alertType, severity, raised, out bool soundHeld);
                 // With the history switched off no entry is made at all. (Record asks for itself as well.)
                 // Neither is one for an event that is off for this character (IDEAS #31): it was no alert for it.
                 if (outcome == AlertOutcome.Off) return;
                 if (!_alertHistory.Enabled) return;
                 _alertHistory.Record(AlertHistory.Entry(raised, charName, alertType, severity,
-                    _logMonitor.GetCharacterSystem(charName), outcome, rule, matched));
+                    _logMonitor.GetCharacterSystem(charName), outcome, rule, matched, soundHeld));
             };
             _logMonitor.AlertTriggered += (charName, alertType, _) => { if (_alertProfiles.IsOn(charName, alertType)) _idleWatch.Alerted(charName, alertType, DateTime.UtcNow); };   // IDEAS #7: fleet warps, and stops Miner stopped already told; only an alert this character's group has on
             });

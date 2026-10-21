@@ -52,8 +52,13 @@ public sealed class AlertTargets
     public Func<string, IntPtr> WindowOf { get; init; } = _ => IntPtr.Zero;
     /// <summary>The window in front (User32.GetForegroundWindow).</summary>
     public Func<IntPtr> ForegroundWindow { get; init; } = () => IntPtr.Zero;
-    /// <summary>(character, alert type, severity): AlertHub.ShowToast.</summary>
-    public Action<string, string, string> Toast { get; init; } = (_, _, _) => { };
+    /// <summary>(severity): whether do-not-disturb holds this alert's sound (App: sounds are on and
+    /// DoNotDisturb.Silences, P81). Asked once per alert that got past the gates, and its answer is handed to the toast
+    /// and to the history: one answer for both.</summary>
+    public Func<string, bool> SoundHeld { get; init; } = _ => false;
+    /// <summary>(character, alert type, severity, sound held): AlertHub.ShowToast. The last argument is the answer of
+    /// <see cref="SoundHeld"/>: the toast shows a crossed bell for it.</summary>
+    public Action<string, string, string, bool> Toast { get; init; } = (_, _, _, _) => { };
     /// <summary>(character, alert type, severity): App.PlayAlertSound.</summary>
     public Action<string, string, string> Sound { get; init; } = (_, _, _) => { };
     /// <summary>(character, alert type, severity, when the alert was raised): AlertWays.Raised. The further ways an
@@ -73,8 +78,15 @@ public static class AlertDispatcher
     /// <param name="raisedUtc">When the alert was raised, where the caller knows it (the time the history entry
     /// keeps). It is handed on to the further ways and used for nothing else.</param>
     public static AlertOutcome Dispatch(AppSettings settings, AlertTargets to, string charName, string alertType, string severity,
-        DateTime? raisedUtc = null)
+        DateTime? raisedUtc = null) =>
+        Dispatch(settings, to, charName, alertType, severity, raisedUtc, out _);
+
+    /// <param name="soundHeld">Whether do-not-disturb held the alert's sound (<see cref="AlertTargets.SoundHeld"/>, asked
+    /// once): false for every alert that did not get past the gates, as nothing was played for it.</param>
+    public static AlertOutcome Dispatch(AppSettings settings, AlertTargets to, string charName, string alertType, string severity,
+        DateTime? raisedUtc, out bool soundHeld)
     {
+        soundHeld = false;
         // IDEAS #31: an event that is switched off for this character is no alert for it. Before anything else, and
         // before any line that names the character.
         if (!to.IsOn(charName, alertType))
@@ -134,8 +146,9 @@ public static class AlertDispatcher
         DiagnosticsService.LogAlerts(
             $"[App] toast decision for '{charName}': hubEnabled={settings.AlertHubEnabled} trayNotify[{severity}]={trayEnabled} suppressForActive={suppressForActive}");
         bool toast = settings.AlertHubEnabled && trayEnabled && !suppressForActive;
+        soundHeld = to.SoundHeld(severity);
         if (toast)
-            to.Toast(charName, alertType, severity);
+            to.Toast(charName, alertType, severity, soundHeld);
 
         to.Sound(charName, alertType, severity);
         to.Ways(charName, alertType, severity, raisedUtc);

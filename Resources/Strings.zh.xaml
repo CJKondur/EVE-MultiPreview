@@ -2095,7 +2095,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">保留下来的每条警报，最新的在前。双击一条即可切换到它的客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.alerts.hub.openHistory">打开历史记录…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">历史记录窗口</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**打开历史记录…** 会列出保留下来的警报，最新的在前，并显示每条是多久以前的。同一个窗口也可以从托盘菜单的 **警报历史记录…** 打开，或者从警报中心打开：右键单击铃铛，再单击角上的时钟。&#x0A;&#x0A;- 选择时间范围、角色、警报或严重程度，或者在搜索框里输入文字。同一角色的同一警报在十分钟内重复，而且文本、星系和结果都相同时，只显示一行并带上次数。&#x0A;- **切换到该客户端** 会把这一行的客户端切到前台。在某一行上按 Enter 或双击效果相同。&#x0A;- **导出 CSV…** 会把显示的警报写入一个电子表格可以打开的文件。&#x0A;- **清空历史记录…** 会删除保留的所有内容。&#x0A;&#x0A;警报中心菜单里的另一个角按钮会关闭所有提示条，和单击铃铛一样。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**打开历史记录…** 会列出保留下来的警报，最新的在前，并显示每条是多久以前的。同一个窗口也可以从托盘菜单的 **警报历史记录…** 打开，或者从警报中心打开：右键单击铃铛，再单击角上的时钟。&#x0A;&#x0A;- 选择时间范围、角色、警报或严重程度，或者在搜索框里输入文字。同一角色的同一警报在十分钟内重复，而且文本、星系和结果都相同时，只显示一行并带上次数。&#x0A;- **切换到该客户端** 会把这一行的客户端切到前台。在某一行上按 Enter 或双击效果相同。&#x0A;- **导出 CSV…** 会把显示的警报写入一个电子表格可以打开的文件。&#x0A;- **清空历史记录…** 会删除保留的所有内容。&#x0A;- 声音被勿扰模式拦住的警报，在结果列里显示 **声音已拦住**，CSV 文件里也有对应的一列。&#x0A;&#x0A;警报中心菜单里的另一个角按钮会关闭所有提示条，和单击铃铛一样。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.custom">自定义警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom">自定义规则</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom.Desc">你自己的警报：游戏日志或聊天频道里的一段文字或一个模式。</sys:String> <!-- draft -->
@@ -2244,7 +2244,7 @@
     <sys:String x:Key="L.Tray.Dnd">勿扰模式</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.DndOn">勿扰模式：开</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.dnd.Title">勿扰模式</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">勿扰模式会拦住警报声音、语音警报、发往 Discord 的警报和切换键的 **循环提示音**：凡是 MultiPreview 自己发出的都会被拦住。边框、角标和提示照常显示，Windows 通知照常出现（不带 Windows 自己的声音），缩略图也照常放大。你主动触发的声音仍会播放：▶ 按钮，以及语音上的 **试听**。MultiPreview 从托盘显示的提示仍带 Windows 自己的通知声。适合语音通话或直播时使用。&#x0A;&#x0A;- **勿扰模式开关** 用来开关它，托盘菜单也可以。光标旁会提示当前状态。开启期间，托盘图标的提示和本页上的一行文字都会显示。&#x0A;- **严重警报仍然发声** 一开始是打开的：严重警报仍会发声，也仍会朗读。关掉它，严重警报也会被拦住。循环提示音无论如何都会被拦住：它不是警报。&#x0A;- **每天的安静时段** 每天按时钟自动开关。**开始时间** 23:00、**结束时间** 07:00 就是一整夜。**开始时间** 和 **结束时间** 相同时，就没有安静时段。&#x0A;- 在安静时段内按下快捷键，声音会恢复到该时段结束。在时段外按下，会一直静音到你再按一次，或到下一个安静时段结束。&#x0A;- 重新启动 MultiPreview 会忘记快捷键的状态。安静时段是一项设置，会保留。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">勿扰模式会拦住警报声音、语音警报、发往 Discord 的警报和切换键的 **循环提示音**：凡是 MultiPreview 自己发出的都会被拦住。边框、角标和提示照常显示，Windows 通知照常出现（不带 Windows 自己的声音），缩略图也照常放大。你主动触发的声音仍会播放：▶ 按钮，以及语音上的 **试听**。MultiPreview 从托盘显示的提示仍带 Windows 自己的通知声。适合语音通话或直播时使用。&#x0A;&#x0A;- **勿扰模式开关** 用来开关它，托盘菜单也可以。光标旁会提示当前状态。开启期间，托盘图标的提示和本页上的一行文字都会显示。&#x0A;- **严重警报仍然发声** 一开始是打开的：严重警报仍会发声，也仍会朗读。关掉它，严重警报也会被拦住。循环提示音无论如何都会被拦住：它不是警报。&#x0A;- **每天的安静时段** 每天按时钟自动开关。**开始时间** 23:00、**结束时间** 07:00 就是一整夜。**开始时间** 和 **结束时间** 相同时，就没有安静时段。&#x0A;- 在安静时段内按下快捷键，声音会恢复到该时段结束。在时段外按下，会一直静音到你再按一次，或到下一个安静时段结束。&#x0A;- 重新启动 MultiPreview 会忘记快捷键的状态。安静时段是一项设置，会保留。&#x0A;- 声音被拦住的警报，其提示会显示一个划掉的铃铛。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.escalation">重复严重警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate">重复你还没看过的严重警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate.Desc">在那个客户端来到前台之前，它的声音会再次播放，一次比一次响。需要打开“播放警报声音”。</sys:String> <!-- draft -->
@@ -2816,4 +2816,8 @@
     <sys:String x:Key="L.S.Snoozes.AddLength">时长</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.Add">添加暂停</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.AddRefused">没有添加暂停：请选择一个事件，并输入角色名（不能太长，也不能含换行或特殊字符）。</sys:String> <!-- draft -->
+    <!-- Ideas batch 21 (Plan 25) -->
+    <sys:String x:Key="L.Hist.SoundHeld">声音已拦住</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Csv.SoundHeld">声音已拦住</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Csv.Yes">是</sys:String> <!-- draft -->
 </ResourceDictionary>

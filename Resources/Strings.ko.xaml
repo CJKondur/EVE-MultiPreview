@@ -2078,7 +2078,7 @@
     <sys:String x:Key="L.S.alerts.hub.historyRow.Desc">남아 있는 모든 알림을 최신순으로 보여 줘요. 두 번 클릭하면 그 클라이언트로 전환해요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.alerts.hub.openHistory">기록 열기…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.historyWindow.Title">기록 창</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**기록 열기…**를 누르면 남아 있는 알림을 최신순으로, 각각 얼마나 전인지와 함께 보여 줘요. 같은 창은 트레이 메뉴의 **알림 기록…**에서도, 알림 허브에서도 열 수 있어요: 종을 마우스 오른쪽 버튼으로 클릭한 다음 구석의 시계를 클릭하세요.&#x0A;&#x0A;- 기간, 캐릭터, 알림, 심각도를 고르거나 검색 상자에 입력하세요. 같은 캐릭터의 같은 알림이 10분 안에 이어지고 텍스트, 항성계, 결과도 같으면 횟수와 함께 한 줄로 보여 줘요.&#x0A;- **클라이언트로 전환**을 누르면 그 줄의 클라이언트가 앞으로 나와요. 줄에서 Enter 키를 누르거나 두 번 클릭해도 같아요.&#x0A;- **CSV로 내보내기…**는 표시된 알림을 스프레드시트에서 열 수 있는 파일로 써요.&#x0A;- **기록 지우기…**는 남아 있는 것을 모두 삭제해요.&#x0A;&#x0A;허브 메뉴의 다른 구석 버튼은 종을 클릭할 때처럼 모든 토스트를 닫아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.historyWindow.Body">**기록 열기…**를 누르면 남아 있는 알림을 최신순으로, 각각 얼마나 전인지와 함께 보여 줘요. 같은 창은 트레이 메뉴의 **알림 기록…**에서도, 알림 허브에서도 열 수 있어요: 종을 마우스 오른쪽 버튼으로 클릭한 다음 구석의 시계를 클릭하세요.&#x0A;&#x0A;- 기간, 캐릭터, 알림, 심각도를 고르거나 검색 상자에 입력하세요. 같은 캐릭터의 같은 알림이 10분 안에 이어지고 텍스트, 항성계, 결과도 같으면 횟수와 함께 한 줄로 보여 줘요.&#x0A;- **클라이언트로 전환**을 누르면 그 줄의 클라이언트가 앞으로 나와요. 줄에서 Enter 키를 누르거나 두 번 클릭해도 같아요.&#x0A;- **CSV로 내보내기…**는 표시된 알림을 스프레드시트에서 열 수 있는 파일로 써요.&#x0A;- **기록 지우기…**는 남아 있는 것을 모두 삭제해요.&#x0A;- 방해 금지가 소리를 막은 알림은 결과 열에 **소리를 막았어요**라고 나오고, CSV 파일에도 그 열이 있어요.&#x0A;&#x0A;허브 메뉴의 다른 구석 버튼은 종을 클릭할 때처럼 모든 토스트를 닫아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.custom">사용자 지정 알림</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom">사용자 지정 규칙</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.custom.Desc">직접 만드는 알림이에요. 게임 로그나 채팅 채널에서 글자나 패턴을 찾아요.</sys:String> <!-- draft -->
@@ -2227,7 +2227,7 @@
     <sys:String x:Key="L.Tray.Dnd">방해 금지</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.DndOn">방해 금지: 켜짐</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.dnd.Title">방해 금지</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">방해 금지는 알림 소리, 음성 알림, Discord로 보내는 알림, 전환 키의 **한 바퀴 소리** 등 MultiPreview가 스스로 시작하는 것을 막아요. 테두리, 배지, 토스트는 그대로 나오고, Windows 알림도 (Windows 자체 소리 없이) 그대로 오고, 썸네일도 그대로 커져요. 직접 요청한 소리는 그대로 나와요. ▶ 버튼과 음성의 **들어 보기** 버튼이에요. MultiPreview가 트레이에서 보여 주는 안내는 Windows 알림 소리가 그대로 나요. 음성 채팅 중이거나 방송할 때 써요.&#x0A;&#x0A;- **방해 금지 켜기/끄기** 키로 켜고 끄고, 트레이 메뉴에서도 할 수 있어요. 커서 근처에 어느 쪽인지 나와요. 켜져 있는 동안에는 트레이 아이콘의 도움말과 이 페이지의 한 줄에도 나와요.&#x0A;- **치명 알림은 계속 울리기** 스위치는 처음에 켜져 있어서 치명 알림은 계속 울리고 음성으로도 계속 말해요. 치명 알림까지 막으려면 꺼요. 한 바퀴 소리는 어느 쪽이든 막혀요. 알림이 아니기 때문이에요.&#x0A;- **매일 조용한 시간** 스위치는 매일 시계에 맞춰 켜고 꺼요. **시작 시각** 23:00, **종료 시각** 07:00이면 하룻밤이에요. **시작 시각** 칸과 **종료 시각** 칸의 시각이 같으면 조용한 시간이 없어요.&#x0A;- 조용한 시간 중에 단축키를 누르면 그 시간이 끝날 때까지 소리가 돌아와요. 그 밖의 시간에 누르면 다시 누르거나 다음 조용한 시간이 끝날 때까지 소리가 꺼져요.&#x0A;- MultiPreview를 다시 시작하면 단축키의 상태는 잊혀요. 조용한 시간은 설정이라서 남아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.dnd.Body">방해 금지는 알림 소리, 음성 알림, Discord로 보내는 알림, 전환 키의 **한 바퀴 소리** 등 MultiPreview가 스스로 시작하는 것을 막아요. 테두리, 배지, 토스트는 그대로 나오고, Windows 알림도 (Windows 자체 소리 없이) 그대로 오고, 썸네일도 그대로 커져요. 직접 요청한 소리는 그대로 나와요. ▶ 버튼과 음성의 **들어 보기** 버튼이에요. MultiPreview가 트레이에서 보여 주는 안내는 Windows 알림 소리가 그대로 나요. 음성 채팅 중이거나 방송할 때 써요.&#x0A;&#x0A;- **방해 금지 켜기/끄기** 키로 켜고 끄고, 트레이 메뉴에서도 할 수 있어요. 커서 근처에 어느 쪽인지 나와요. 켜져 있는 동안에는 트레이 아이콘의 도움말과 이 페이지의 한 줄에도 나와요.&#x0A;- **치명 알림은 계속 울리기** 스위치는 처음에 켜져 있어서 치명 알림은 계속 울리고 음성으로도 계속 말해요. 치명 알림까지 막으려면 꺼요. 한 바퀴 소리는 어느 쪽이든 막혀요. 알림이 아니기 때문이에요.&#x0A;- **매일 조용한 시간** 스위치는 매일 시계에 맞춰 켜고 꺼요. **시작 시각** 23:00, **종료 시각** 07:00이면 하룻밤이에요. **시작 시각** 칸과 **종료 시각** 칸의 시각이 같으면 조용한 시간이 없어요.&#x0A;- 조용한 시간 중에 단축키를 누르면 그 시간이 끝날 때까지 소리가 돌아와요. 그 밖의 시간에 누르면 다시 누르거나 다음 조용한 시간이 끝날 때까지 소리가 꺼져요.&#x0A;- MultiPreview를 다시 시작하면 단축키의 상태는 잊혀요. 조용한 시간은 설정이라서 남아요.&#x0A;- 소리를 막은 알림의 토스트에는 사선이 그어진 종이 나와요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.sounds.escalation">치명 알림 반복</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate">보지 않은 치명 알림 반복</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.sounds.escalate.Desc">그 클라이언트가 앞에 나오지 않은 동안, 정한 횟수만큼 소리가 매번 더 크게 다시 나요. ‘알림 소리 재생’이 켜져 있어야 해요.</sys:String> <!-- draft -->
@@ -2799,4 +2799,8 @@
     <sys:String x:Key="L.S.Snoozes.AddLength">길이</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.Add">일시 중지 추가</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Snoozes.AddRefused">일시 중지를 추가하지 않았어요. 이벤트를 고르고 캐릭터 이름을 입력해 주세요(너무 길지 않고, 줄바꿈이나 특수 문자가 없어야 해요).</sys:String> <!-- draft -->
+    <!-- Ideas batch 21 (Plan 25) -->
+    <sys:String x:Key="L.Hist.SoundHeld">소리를 막았어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Csv.SoundHeld">소리를 막았어요</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hist.Csv.Yes">예</sys:String> <!-- draft -->
 </ResourceDictionary>

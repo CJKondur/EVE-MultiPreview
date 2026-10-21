@@ -294,7 +294,7 @@ public partial class AlertHistoryWindow : Window
         _rows = AlertHistoryView.Collapse(_shown).Select(row =>
         {
             var vm = new HistoryRowVM(row, AlertHistoryView.TimeText(row.Newest.TimeUtc, nowLocal), AlertHistoryView.EventName(row.Newest),
-                OutcomeNote(row.Newest.Outcome), Bar(row.Newest), SeverityName(row.Newest.Severity),
+                OutcomeNote(row.Newest), Bar(row.Newest), SeverityName(row.Newest.Severity),
                 row.Count > 1 ? AlertHistoryView.TimeText(row.OldestUtc, nowLocal) : null);
             vm.Tick(nowUtc);
             return vm;
@@ -396,8 +396,11 @@ public partial class AlertHistoryWindow : Window
     };
 
     /// <summary>Said in the row only when nothing of the alert reached the player (AlertHistoryView.HasNote, which the
-    /// rows are folded by as well: two alerts with the same note here are one run).</summary>
-    private static string OutcomeNote(AlertOutcome outcome) => AlertHistoryView.HasNote(outcome) ? OutcomeName(outcome) : "";
+    /// rows are folded by as well: two alerts with the same note here are one run), or when do-not-disturb held its
+    /// sound (P81; an alert that reached nobody has no sound to hold, so the two never meet).</summary>
+    private static string OutcomeNote(AlertHistoryEntry alert) =>
+        AlertHistoryView.HasNote(alert.Outcome) ? OutcomeName(alert.Outcome)
+        : alert.SoundHeld ? Str("L.Hist.SoundHeld", "Sound held") : "";
 
     /// <summary>The colour the alert flashed its thumbnail in (AlertColours.Resolve): the event's own, else its severity's.</summary>
     private Brush Bar(AlertHistoryEntry e)
@@ -502,14 +505,14 @@ public partial class AlertHistoryWindow : Window
             Str("L.Hist.Col.Character", AlertHistoryCsv.Columns[2]), Str("L.Hist.Col.Event", AlertHistoryCsv.Columns[3]),
             Str("L.S.Events.ColSeverity", AlertHistoryCsv.Columns[4]), Str("L.Hist.Col.System", AlertHistoryCsv.Columns[5]),
             Str("L.Hist.Csv.Outcome", AlertHistoryCsv.Columns[6]), Str("L.Hist.Col.Text", AlertHistoryCsv.Columns[7]),
-            Str("L.Hist.Csv.Key", AlertHistoryCsv.Columns[8]),
+            Str("L.Hist.Csv.Key", AlertHistoryCsv.Columns[8]), Str("L.Hist.Csv.SoundHeld", AlertHistoryCsv.Columns[9]),
         };
         // The names are worked out here, on the UI thread; only the file is written in the background. Semicolons
         // between the fields where this PC lists with one: Excel there opens a comma file as a single column. A PC
         // that lists with something else gets commas, and the writer looks out for that something inside the fields.
         string listSeparator = _do.ListSeparator();
         var text = AlertHistoryCsv.Text(header, entries, AlertHistoryView.EventName, SeverityName, OutcomeName, TimeZoneInfo.Local,
-            AlertHistoryCsv.SeparatorFor(listSeparator), listSeparator);
+            AlertHistoryCsv.SeparatorFor(listSeparator), listSeparator, Str("L.Hist.Csv.Yes", "Yes"));
         InBackground(() =>
         {
             try { AlertHistoryCsv.Write(path, text); return true; }

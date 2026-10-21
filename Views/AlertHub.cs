@@ -343,8 +343,9 @@ public class AlertHub : IDisposable
     /// <summary>The hub's icon follows one rule (AlertHubVisuals.HubGlyph): picker open, paused, else the bell.</summary>
     private void RefreshIcon() => _hub.Icon.Text = AlertHubVisuals.HubGlyph(_directionPicker != null, _isSuspended);
 
-    /// <summary>Show a toast notification for an alert event.</summary>
-    public void ShowToast(string characterName, string alertType, string severity)
+    /// <summary>Show a toast notification for an alert event. <paramref name="soundHeld"/>: do-not-disturb held the
+    /// alert's sound, and the toast shows a crossed bell (P81).</summary>
+    public void ShowToast(string characterName, string alertType, string severity, bool soundHeld = false)
     {
         // C8: Block toasts when suspended
         if (_isSuspended)
@@ -374,7 +375,7 @@ public class AlertHub : IDisposable
 
                 // The focus-aware state now, then the toast with it: above EVE, never above another program (IDEAS P38).
                 UpdateFocusAwareZOrder();
-                var toast = NewToast(characterName, alertType, severity);
+                var toast = NewToast(characterName, alertType, severity, soundHeld);
 
                 // No more toasts than fit between the hub and the screen edge (IDEAS P39): the oldest closes early. Its
                 // alert is still on its thumbnail and counted on the bell.
@@ -497,9 +498,10 @@ public class AlertHub : IDisposable
 
     /// <summary>A toast for an alert, not shown yet. It starts with the hub's focus-aware Topmost (IDEAS P38): it used to
     /// start topmost and stay over a browser in front until it closed.</summary>
-    private AlertToast NewToast(string characterName, string alertType, string severity) =>
+    private AlertToast NewToast(string characterName, string alertType, string severity, bool soundHeld) =>
         new(characterName, alertType, ToastColor(alertType, severity), ToastDurationSeconds,
-            PlaceLookup?.Invoke(characterName, alertType) ?? SystemLookup?.Invoke(characterName), topmost: _hubWindow.Topmost);
+            PlaceLookup?.Invoke(characterName, alertType) ?? SystemLookup?.Invoke(characterName), topmost: _hubWindow.Topmost,
+            soundHeld: soundHeld);
 
     /// <summary>The hub window's place and size, in WPF units.</summary>
     private Rect HubBounds => new(_hubWindow.Left, _hubWindow.Top, AlertHubVisuals.HubWindowSize, AlertHubVisuals.HubWindowSize);
@@ -784,8 +786,9 @@ public class AlertToast : IDisposable
 
     /// <param name="topmost">The hub's focus-aware state when the toast is made (IDEAS P38); the hub's timer flips it
     /// with the hub's own afterwards.</param>
+    /// <param name="soundHeld">Do-not-disturb held the alert's sound: a crossed bell on the toast (P81).</param>
     public AlertToast(string characterName, string alertType, Color severityColor, int durationSeconds, string? system = null,
-        bool topmost = true)
+        bool topmost = true, bool soundHeld = false)
     {
         CharacterName = characterName;
         AlertType = alertType;
@@ -804,7 +807,7 @@ public class AlertToast : IDisposable
         };
 
         SettingsUi.UiStyles.Attach(Window, SettingsUi.StyledAs.Surface);
-        var border = AlertHubVisuals.BuildToast(characterName, alertType, severityColor, system, out var secondLine);
+        var border = AlertHubVisuals.BuildToast(characterName, alertType, severityColor, system, out var secondLine, soundHeld);
         if (AlertHubVisuals.ToastShowsAge(durationSeconds))
         {
             var raised = DateTime.UtcNow;
