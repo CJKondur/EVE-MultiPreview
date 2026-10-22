@@ -485,7 +485,13 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         AutomationProperties.SetLiveSetting(_noLogs, AutomationLiveSetting.Polite);   // a screen reader says it when it appears
         _noChatLogs = false;
         Wide(_noLogs);
-        _chatOnly = channelRow.Concat(Row("L.S.Rules.IgnoreOwn", ignoreOwn)).ToArray();
+        var ignoreOwnRow = Row("L.S.Rules.IgnoreOwn", ignoreOwn);
+        // P67: several of the player's characters hear one chat line; this keeps it to the first one's alert.
+        var onceRow = Row("L.S.Rules.Once", Switch("once", "L.S.Rules.Once", rule.Once, on => Store(id, r => r.Once = on)));
+        var onceNote = EditorCard.Note("L.S.Rules.Once.Desc");
+        onceNote.Margin = new Thickness(0, 0, 0, 8);
+        Wide(onceNote);
+        _chatOnly = channelRow.Concat(ignoreOwnRow).Concat(onceRow).Append(onceNote).ToArray();
 
         _logOff = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) };
         _logOff.SetResourceReference(TextBlock.FontSizeProperty, "Fx.Size.Desc");

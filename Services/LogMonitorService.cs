@@ -134,6 +134,12 @@ public sealed class LogMonitorService : IDisposable
     private bool _rulesPending;                                  // under _foldersLock
     private Action<CustomAlertRule, string>? _raiseCustom;       // made once, on the first line a rule looks at
     private string _customCharacter = "";                        // whose line the rules are looking at (reading thread)
+    private string? _customChannel;                              // the channel of that line, null for a game log (reading thread)
+    private string _customLine = "";                             // that line, as it was read: the same in every listening character's log
+    // P67: the chat lines a "one alert per line" rule has raised for, by rule + channel + line, and when (Clock). The
+    // reading thread alone uses it, so it has no lock; RepeatOfAnAlertedLine keeps it small.
+    private readonly Dictionary<string, long> _onceSeen = new();
+    private long _onceNextPrune = long.MinValue;
     // The rules' chat channels (reading thread): when their logs may be listed again, and for each channel that is
     // read the moment it was taken on, told by its logs alone: the latest moment one of them was created, as the
     // first listing saw them. A log created after that began after its channel was taken on, whichever listing
@@ -1850,6 +1856,14 @@ public sealed class LogMonitorService : IDisposable
     /// <summary>The most logs of one rule channel a scan takes on.</summary>
     public const int ChannelLogsTaken = 12;
 
+    /// <summary>P67: a rule with "one alert per line" drops a repeat of the same chat line seen within this many
+    /// milliseconds of the alert it raised: the same line, read in another listening character's log.</summary>
+    public const int OnceWindowMs = 5000;
+
+    /// <summary>The most lines a rule with "one alert per line" is remembering at once; past it the table is started anew
+    /// (a repeat may then alert twice, never the other way round).</summary>
+    public const int OnceMaxLines = 1000;
+
     /// <summary>ProcessLine's last step while custom rules are on. A line of a game log or of a Local log goes to the
     /// parser it always went to, first, and to the rules after it: a rule can add an alert to a line, and can never
     /// take a built-in alert away or come before it. A line of a channel that only rules read goes to the rules and
@@ -1887,6 +1901,8 @@ public sealed class LogMonitorService : IDisposable
         }
         else if (string.IsNullOrEmpty(state.Listener) && character != "Unknown") state.Listener = character;
         _customCharacter = string.IsNullOrEmpty(state.Listener) ? character : state.Listener;
+        _customChannel = channel;
+        _customLine = line;
         _raiseCustom ??= RaiseCustom;
         if (channel == null) rules.MatchGame(line, _customCharacter, _raiseCustom);
         else rules.MatchChat(line, channel, _customCharacter, _raiseCustom);
@@ -1895,8 +1911,31 @@ public sealed class LogMonitorService : IDisposable
     /// <summary>A rule matched: its alert goes through the gate every alert goes through.</summary>
     private void RaiseCustom(CustomAlertRule rule, string text)
     {
+        if (rule.Once && _customChannel != null && RepeatOfAnAlertedLine(rule)) return;   // P67: a chat rule only
         _lastEventTime = Environment.TickCount64;
         TriggerAlert(_customCharacter, rule.AlertType, rule.Severity, rule.QuietSeconds, text);
+    }
+
+    /// <summary>P67: whether this chat line already raised this rule's alert, within <see cref="OnceWindowMs"/>, when
+    /// another character's log was read: then the repeat is dropped and the first alert stands. If not, the line is
+    /// noted. The server time and the speaker are in the line, so a line with another time or another text is a new
+    /// one. The line is noted when it is first met, whether or not that character's alert then passes the gates every
+    /// alert goes through (its quiet time, the group's choice). Lines older than the window are forgotten at most once in a window, and the table is started anew at
+    /// <see cref="OnceMaxLines"/>, so it stays small however many lines a channel carries.</summary>
+    private bool RepeatOfAnAlertedLine(CustomAlertRule rule)
+    {
+        long now = Clock();
+        string key = rule.Id + "\n" + _customChannel!.ToLowerInvariant() + "\n" + _customLine;
+        if (_onceSeen.TryGetValue(key, out long at) && now - at is >= 0 and < OnceWindowMs) return true;   // a clock that went back: alert
+        if (now >= _onceNextPrune)
+        {
+            foreach (var (seen, when) in _onceSeen)
+                if (now - when >= OnceWindowMs) _onceSeen.Remove(seen);
+            _onceNextPrune = now + OnceWindowMs;
+        }
+        if (_onceSeen.Count >= OnceMaxLines) _onceSeen.Clear();
+        _onceSeen[key] = now;
+        return false;
     }
 
     /// <summary>Takes a rules change from SetCustomRules: ApplyPendingFolders calls it on the reading thread (or

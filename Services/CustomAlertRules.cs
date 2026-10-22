@@ -38,6 +38,9 @@ public sealed class CustomAlertRule
     [JsonPropertyName("quietSeconds")] public int? QuietSeconds { get; set; }
     /// <summary>Chat only: a line the listening character wrote itself raises nothing.</summary>
     [JsonPropertyName("ignoreOwn")] public bool IgnoreOwn { get; set; } = true;
+    /// <summary>Chat only: one chat line heard by several of the player's characters raises one alert, for the first
+    /// of them to read it, instead of one for each (IDEAS P67). Off unless the player turns it on; a game-log rule ignores it.</summary>
+    [JsonPropertyName("once")] public bool Once { get; set; }
 
     [JsonIgnore] public string AlertType => CustomAlertTypes.Prefix + Id;
     [JsonIgnore] public bool IsRegex => Kind == CustomRules.KindRegex;
@@ -48,7 +51,7 @@ public sealed class CustomAlertRule
     {
         Id = Id ?? "", Name = Name ?? "", Enabled = Enabled, Kind = Kind ?? "", Pattern = Pattern ?? "", CaseSensitive = CaseSensitive,
         Source = Source ?? "", Channel = Channel ?? "", Characters = Characters == null ? new List<string>() : new List<string>(Characters),
-        Severity = Severity ?? "", Sound = Sound ?? "", QuietSeconds = QuietSeconds, IgnoreOwn = IgnoreOwn,
+        Severity = Severity ?? "", Sound = Sound ?? "", QuietSeconds = QuietSeconds, IgnoreOwn = IgnoreOwn, Once = Once,
     };
 }
 
