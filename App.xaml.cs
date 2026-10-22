@@ -2258,6 +2258,7 @@ public partial class App : Application
                     CustomAlerts = _customAlerts,
                     // Which custom rules the log monitor has switched off for what they cost: the page says it on their cards.
                     CustomRulesSwitchedOff = () => _logMonitor?.CustomRulesSwitchedOff ?? CustomAlertEngine.NoneSwitchedOff,
+                    ExitForUninstall = ExitForUninstall,
                 });
                 shell.SettingsApplied += applyLiveSettings;
                 opened = shell;
@@ -2596,6 +2597,21 @@ public partial class App : Application
         Shutdown();
     }
 
+    /// <summary>What the clean uninstall (IDEAS P16) runs as the very last thing of OnExit.</summary>
+    private Action? _afterExit;
+
+    /// <summary>Closes the app for the clean uninstall. Not ExitApplication: that follows the notification switch (which
+    /// would write the registry key back) and saves the settings and the stat windows' places (which would make the
+    /// settings folder again). The shutting-down flag goes up first, so a settings window that closes with the app applies
+    /// and saves nothing live. What was handed in runs at the end of OnExit.</summary>
+    private void ExitForUninstall(Action afterExit)
+    {
+        _afterExit = afterExit;
+        _isShuttingDown = true;
+        Debug.WriteLine("[App:Startup] Application exiting for a clean uninstall");
+        Shutdown();
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
         // Cover every shutdown path: tray Exit (sets this in ExitApplication),
@@ -2662,6 +2678,11 @@ public partial class App : Application
         try { _singleInstanceMutex?.Dispose(); }
         catch (Exception ex) { Debug.WriteLine($"[App:Exit] ⚠ Mutex Dispose: {ex.GetType().Name}: {ex.Message}"); }
         _singleInstanceMutex = null;
+
+        // Clean uninstall (IDEAS P16): the last step. Every service has stopped by now (the settings service has written what
+        // was waiting, the history is closed), so a folder deleted here is not made again.
+        try { _afterExit?.Invoke(); }
+        catch (Exception ex) { Debug.WriteLine($"[App:Exit] Clean uninstall step failed: {ex.GetType().Name}"); }
 
         base.OnExit(e);
     }

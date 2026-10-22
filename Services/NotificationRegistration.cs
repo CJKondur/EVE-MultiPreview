@@ -14,6 +14,9 @@ public interface IUserRegistry
     void Write(string key, string name, string value);
     /// <summary>Removes a key with everything in it. A key that is not there: nothing.</summary>
     void Delete(string key);
+    /// <summary>Removes one value of a key and leaves the key and its other values. A key or value that is not there:
+    /// nothing. The clean uninstall (IDEAS P16) is its only caller.</summary>
+    void DeleteValue(string key, string name);
 }
 
 /// <summary>What Windows needs to know of MultiPreview before it shows a notification of a program that has no

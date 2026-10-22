@@ -2827,4 +2827,18 @@
     <sys:String x:Key="L.Help.app.general.recent.Title">最近変更した設定</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.recent.Body">カード**最近の変更**には、MultiPreview の起動後にカードで変更した設定が新しい順に最大 20 件並びます。設定が以前どうだったか、今どうなっているか、いつ変更したかがわかります。&#x0A;&#x0A;- **元に戻す**は古い値に戻します。その後に同じ設定をもう一度変更していた場合は何も起こらないので、新しい選択を上書きすることはありません。先に新しい変更を元に戻してください。&#x0A;- 元に戻した変更は一覧から消えます。&#x0A;- 設定ウィンドウを閉じても一覧は残り、MultiPreview を再起動すると空になります。ファイルには保存されません。&#x0A;- 表、グループ、切り抜きウィンドウ、ルールなどのエディターは一覧に載りません。&#x0A;- プロファイルの設定は、そのプロファイルを使っている間だけ元に戻せます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Changes.OtherProfile">この変更は別のプロファイルのものです。そのプロファイルに切り替えると元に戻せます。</sys:String> <!-- draft -->
+    <!-- Ideas batch 25 (Plan 29) -->
+    <sys:String x:Key="L.S.Sec.app.about.uninstall">クリーンアンインストール</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.uninstallRow">Windows から MultiPreview を取り除く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.uninstallRow.Desc">MultiPreview が Windows に作ったエントリを削除します。選んだ場合は、設定・履歴・ログも削除します。その後、MultiPreview は終了します。プログラムのファイルは自分で削除してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.about.cleanUninstall">クリーンアンインストール…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.Title">クリーンアンインストール</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.Body">MultiPreview は、Windows にある自分のエントリ（「Windows と同時に起動」と通知のエントリ）を削除します。その後、終了します。&#x0A;&#x0A;プログラムのファイル、RTSS プロファイル、EVE 自身の設定バックアップには触れません。&#x0A;&#x0A;設定・履歴・ログは %APPDATA%\EVE MultiPreview にあります。これらも削除しますか、それとも残しますか？</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.BodyKeep">MultiPreview は、Windows にある自分のエントリ（「Windows と同時に起動」と通知のエントリ）を削除します。その後、終了します。&#x0A;&#x0A;設定はプログラムと同じフォルダーにあるため、削除されません。不要になったら、そのフォルダーを自分で削除してください。&#x0A;&#x0A;プログラムのファイル、RTSS プロファイル、EVE 自身の設定バックアップには触れません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.WithSettings">削除し、設定・履歴・ログも消す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.KeepSettings">削除して、設定は残す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.Failed">削除できなかった MultiPreview の Windows エントリ：{0} 件。MultiPreview は開いたままで、設定も消していません。もう一度試すか、タスク マネージャー（スタートアップ アプリ）でエントリを削除してください。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.NotHere">クリーンアンインストールは、起動中の MultiPreview でのみ使えます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.uninstall.Title">クリーンアンインストール</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.uninstall.Body">MultiPreview を削除する前に、**クリーンアンインストール**を押してください。存在しないプログラムを指すエントリが Windows に残らなくなります。&#x0A;&#x0A;削除されるもの：&#x0A;- 「Windows と同時に起動」のエントリと、タスク マネージャーのスタートアップ アプリ一覧にあるオン/オフの記録。&#x0A;- MultiPreview が Windows の通知を表示できるようにするエントリ。&#x0A;- 選んだ場合のみ、設定・履歴・ログ（フォルダー %APPDATA%\EVE MultiPreview）。MultiPreview を専用のフォルダーから実行している場合（ポータブル）は、設定はそのフォルダーにあります。そのフォルダーは削除されないので、自分で削除してください。&#x0A;&#x0A;削除されないもの：&#x0A;- プログラムのファイル：あとで自分で削除してください。&#x0A;- EVE 用の RTSS プロファイル（Program Files 内の RTSS の Profiles フォルダーにある exefile.exe.cfg）：そこで削除するか、RTSS でリセットしてください。&#x0A;- EVE 自身が作る EVE 設定のバックアップ（%LOCALAPPDATA%\CCP\EVE\EVEMPBackups）：あなたのものなので、削除されることはありません。&#x0A;&#x0A;完了すると、MultiPreview は何も保存せずに終了します。削除できないエントリがある場合は、開いたままでお知らせします。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2827,4 +2827,18 @@
     <sys:String x:Key="L.Help.app.general.recent.Title">최근 변경한 설정</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.recent.Body">**최근 변경** 카드는 MultiPreview를 시작한 뒤 카드로 변경한 설정을 최신 순으로 최대 20개 보여줘요. 설정이 예전에 어땠는지, 지금은 어떤지, 언제 바꿨는지 알 수 있어요.&#x0A;&#x0A;- **실행 취소**는 이전 값으로 되돌려요. 그 뒤에 같은 설정을 다시 바꿨다면 아무 일도 일어나지 않아서 더 새로운 선택을 덮어쓰지 않아요. 더 새로운 변경부터 먼저 취소하세요.&#x0A;- 취소한 변경은 목록에서 사라져요.&#x0A;- 설정 창을 닫아도 목록은 남고, MultiPreview를 다시 시작하면 비워져요. 파일에는 저장되지 않아요.&#x0A;- 표, 그룹, 크롭 창, 규칙 같은 편집기는 목록에 나오지 않아요.&#x0A;- 프로필의 설정은 그 프로필을 쓰는 동안에만 취소할 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Changes.OtherProfile">이 변경은 다른 프로필에 속해요. 그 프로필로 전환하면 취소할 수 있어요.</sys:String> <!-- draft -->
+    <!-- Ideas batch 25 (Plan 29) -->
+    <sys:String x:Key="L.S.Sec.app.about.uninstall">깨끗이 제거</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.uninstallRow">Windows에서 MultiPreview 제거</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.uninstallRow.Desc">MultiPreview가 Windows에 만든 항목을 제거하고, 원하면 설정·기록·로그도 지워요. 그다음 MultiPreview가 닫혀요. 프로그램 파일은 직접 지워 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Act.app.about.cleanUninstall">깨끗이 제거…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.Title">깨끗이 제거</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.Body">MultiPreview가 Windows에 있는 자기 항목(Windows와 함께 시작, 알림 항목)을 제거해요. 그다음 닫혀요.&#x0A;&#x0A;프로그램 파일, RTSS 프로필, EVE 자체 설정 백업은 건드리지 않아요.&#x0A;&#x0A;설정, 기록, 로그는 %APPDATA%\EVE MultiPreview에 있어요. 함께 지울까요, 아니면 남길까요?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.BodyKeep">MultiPreview가 Windows에 있는 자기 항목(Windows와 함께 시작, 알림 항목)을 제거해요. 그다음 닫혀요.&#x0A;&#x0A;설정이 프로그램과 같은 폴더에 있어서 지워지지 않아요. 더 필요 없을 때 그 폴더를 직접 지워 주세요.&#x0A;&#x0A;프로그램 파일, RTSS 프로필, EVE 자체 설정 백업은 건드리지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.WithSettings">제거하고 설정·기록·로그도 지우기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.KeepSettings">제거하고 설정은 남기기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.Failed">제거하지 못한 MultiPreview의 Windows 항목: {0}개. MultiPreview는 열린 채로 있고 설정은 지우지 않았어요. 다시 시도하거나 작업 관리자(시작 프로그램)에서 항목을 제거해 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.NotHere">깨끗이 제거는 실행 중인 MultiPreview에서만 쓸 수 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.uninstall.Title">깨끗이 제거</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.uninstall.Body">MultiPreview를 지우기 전에 **깨끗이 제거**를 눌러요. 그러면 사라진 프로그램을 가리키는 항목이 Windows에 남지 않아요.&#x0A;&#x0A;제거하는 것:&#x0A;- Windows와 함께 시작 항목과, 작업 관리자 시작 프로그램 목록의 켜짐/꺼짐 기록&#x0A;- MultiPreview가 Windows 알림을 보여 줄 수 있게 하는 항목&#x0A;- 선택한 경우에만: 설정, 기록, 로그 (폴더 %APPDATA%\EVE MultiPreview). MultiPreview를 자기 폴더에서 실행하면(포터블) 설정은 그 폴더에 있어요. 그 폴더는 지워지지 않으니 직접 지워 주세요.&#x0A;&#x0A;제거하지 않는 것:&#x0A;- 프로그램 파일: 나중에 직접 지워 주세요&#x0A;- EVE용 RTSS 프로필 (Program Files 안 RTSS의 Profiles 폴더에 있는 exefile.exe.cfg): 거기서 지우거나 RTSS에서 초기화해 주세요&#x0A;- EVE가 직접 만드는 EVE 설정 백업 (%LOCALAPPDATA%\CCP\EVE\EVEMPBackups): 내 것이라서 절대 지우지 않아요&#x0A;&#x0A;끝나면 MultiPreview는 아무것도 저장하지 않고 닫혀요. 제거하지 못한 항목이 있으면 열린 채로 알려 줘요.</sys:String> <!-- draft -->
 </ResourceDictionary>

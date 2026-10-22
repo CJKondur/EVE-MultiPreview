@@ -41,6 +41,7 @@ public static class AppPages
         new HelpTopic("app.about", "updates", new[] { "app.about.links", "app.about.checkOnStartup", "app.about.preRelease", "app.about.installVersion" }),
         new HelpTopic("app.about", "window", new[] { "app.about.useOldWindow" }),
         new HelpTopic("app.about", "fonts", new[] { FontLicencesEditor.ItemId }),
+        new HelpTopic("app.about", "uninstall", new[] { "app.about.uninstallRow" }),
     };
 
     private static PageDef General() => new("app.general", NavGroup.App, new[]
@@ -179,6 +180,15 @@ public static class AppPages
         new SectionDef("app.about.fonts", new PageItem[]
         {
             new EditorItem(FontLicencesEditor.ItemId, _ => new FontLicencesEditor()),
+        }),
+        // IDEAS P16: removes MultiPreview's own Windows entries and, if asked, its settings folder, then closes it. The
+        // button asks for itself (two answers and Cancel), so it is not flagged Confirm.
+        new SectionDef("app.about.uninstall", new PageItem[]
+        {
+            new ActionRow("app.about.uninstallRow", new[]
+            {
+                new ActionDef("app.about.cleanUninstall", CleanUninstallActions.Run) { Destructive = true },
+            }),
         }),
     });
 

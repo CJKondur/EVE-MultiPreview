@@ -142,9 +142,9 @@ public sealed class WindowsToastNotifier : IToastNotifier
     }
 }
 
-/// <summary>The current user's part of the registry, for <see cref="NotificationRegistration"/> and for nothing
-/// else: it writes and deletes that class's one key and refuses every other path. No test makes this class: tests
-/// hand in a dictionary.</summary>
+/// <summary>The current user's part of the registry, for <see cref="NotificationRegistration"/> and the clean
+/// uninstall (IDEAS P16) and for nothing else: it writes and deletes that class's one key, removes the two start-up
+/// values, and refuses every other path and name. No test makes this class: tests hand in a dictionary.</summary>
 public sealed class UserRegistry : IUserRegistry
 {
     public bool Exists(string key)
@@ -166,6 +166,21 @@ public sealed class UserRegistry : IUserRegistry
     }
 
     public void Delete(string key) => Registry.CurrentUser.DeleteSubKeyTree(Only(key), throwOnMissingSubKey: false);
+
+    /// <summary>Removes one value of "Start with Windows": its entry in the Run key, or its On/Off record beside it, and
+    /// nothing else (IDEAS P16; the clean uninstall is the only caller). The key stays, and so do the other programs'
+    /// values in it.</summary>
+    public void DeleteValue(string key, string name)
+    {
+        OnlyValue(key, name);
+        using var opened = Registry.CurrentUser.OpenSubKey(key, writable: true);
+        opened?.DeleteValue(name, throwOnMissingValue: false);
+    }
+
+    /// <summary>The two values this class may remove, or an exception: MultiPreview's own entry under the Run key and its
+    /// record under StartupApproved. Any other key, or any other name, is refused before the registry is opened.</summary>
+    private static int OnlyValue(string key, string name) =>
+        name == StartWithWindows.Name && (key == StartWithWindows.RunKey || key == StartWithWindows.ApprovedKey) ? 0 : throw new ArgumentException("UserRegistry removes MultiPreview's two start-up values and no other.", nameof(name));
 
     /// <summary>The one key this class writes and deletes, or an exception. Delete removes a key with everything
     /// below it: no mistake anywhere else may hand it another path.</summary>

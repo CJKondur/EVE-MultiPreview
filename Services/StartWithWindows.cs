@@ -9,10 +9,10 @@ namespace EveMultiPreview.Services;
 /// stays honest when the user turns the entry off in Task Manager → Startup apps.</summary>
 public static class StartWithWindows
 {
-    private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+    public const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
     // Where Task Manager / Settings → Apps → Startup record the user's on/off choice.
-    private const string ApprovedKey = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
-    private const string Name = "EVE MultiPreview";
+    public const string ApprovedKey = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
+    public const string Name = "EVE MultiPreview";
     private static string Command => $"\"{Environment.ProcessPath}\"";
 
     public static bool IsEnabled()

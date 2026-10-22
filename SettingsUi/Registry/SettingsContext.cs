@@ -96,6 +96,11 @@ public sealed class AppServices
     /// answer is a snapshot that never changes, and asking costs the monitor nothing, so the window's thread may
     /// ask. Alerts › Custom rules says it on the rule's card. Null in tests: nobody to ask, and no rule is off.</summary>
     public Func<IReadOnlyDictionary<string, string>>? CustomRulesSwitchedOff { get; init; }
+    /// <summary>Closes MultiPreview for the clean uninstall (IDEAS P16) without saving anything, and runs the action it is
+    /// handed as the very last thing, after every service has stopped writing (the settings folder is deleted then: a
+    /// save, a history flush or a log line before it would make the folder again). Null in tests and in a window opened
+    /// without the app: the button then does nothing.</summary>
+    public Action<Action>? ExitForUninstall { get; init; }
 }
 
 public sealed class SettingsContext
