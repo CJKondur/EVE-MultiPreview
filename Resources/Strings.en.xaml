@@ -2825,4 +2825,5 @@
     <sys:String x:Key="L.S.Changes.Empty">(empty)</sys:String>
     <sys:String x:Key="L.Help.app.general.recent.Title">Recently changed settings</sys:String>
     <sys:String x:Key="L.Help.app.general.recent.Body">The **Recently changed** card lists the last 20 settings you changed with a card since MultiPreview started, newest first: what the setting was, what it is now, and when.&#x0A;&#x0A;- **Undo** puts the old value back. If you have changed that setting again since, nothing happens, so it never overwrites a newer choice; undo the newer change first.&#x0A;- An undone change leaves the list.&#x0A;- Closing the settings window keeps the list; restarting MultiPreview empties it. It is never saved to a file.&#x0A;- Tables, groups, crop windows, rules and other editors are not listed.&#x0A;- A setting of one profile can only be undone while that profile is in use.</sys:String>
+    <sys:String x:Key="L.S.Changes.OtherProfile">This change belongs to another profile. Switch to that profile to undo it.</sys:String>
 </ResourceDictionary>

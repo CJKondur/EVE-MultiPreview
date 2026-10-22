@@ -65,6 +65,9 @@ public sealed class PageVM : ObservableObject
         Sections = page.Sections.Select((s, i) => new SectionVM(s, s.Items.Select(item => Create(item, ctx)).ToList(), i + 1)).ToList();
         Renumber();
         foreach (var item in Items) item.Changed += RefreshVisibility;
+        // A card of this page that sits beside Recently changed (App > General) lists its change at once.
+        var recent = Items.OfType<EditorVM>().Where(e => e.Id == RecentChangesEditor.ItemId).ToList();
+        if (recent.Count > 0) foreach (var item in Items.OfType<SettingVM>()) item.Changed += () => recent.ForEach(e => e.Refresh());
     }
 
     public PageDef Page { get; }

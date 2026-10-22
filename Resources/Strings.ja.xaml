@@ -2826,4 +2826,5 @@
     <sys:String x:Key="L.S.Changes.Empty">（空）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.recent.Title">最近変更した設定</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.recent.Body">カード**最近の変更**には、MultiPreview の起動後にカードで変更した設定が新しい順に最大 20 件並びます。設定が以前どうだったか、今どうなっているか、いつ変更したかがわかります。&#x0A;&#x0A;- **元に戻す**は古い値に戻します。その後に同じ設定をもう一度変更していた場合は何も起こらないので、新しい選択を上書きすることはありません。先に新しい変更を元に戻してください。&#x0A;- 元に戻した変更は一覧から消えます。&#x0A;- 設定ウィンドウを閉じても一覧は残り、MultiPreview を再起動すると空になります。ファイルには保存されません。&#x0A;- 表、グループ、切り抜きウィンドウ、ルールなどのエディターは一覧に載りません。&#x0A;- プロファイルの設定は、そのプロファイルを使っている間だけ元に戻せます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.OtherProfile">この変更は別のプロファイルのものです。そのプロファイルに切り替えると元に戻せます。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -52,12 +52,12 @@ public sealed class RecentChangesEditor : System.Windows.Controls.UserControl, I
         _none.Visibility = Shown.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    /// <summary>Puts one change back; the cards re-read their settings. A setting that changed since is left alone and the
-    /// player is told.</summary>
+    /// <summary>Puts one change back; the cards re-read their settings. A setting that changed since, or that belongs to
+    /// another profile, is left alone and the player is told which.</summary>
     public void Undo(SettingChanges.Change change)
     {
         if (_ctx.Service.Changes.Undo(change, _ctx)) _ctx.Host.Reload();
-        else _ctx.Host.Toast(SettingsContext.Str("L.S.Changes.Refused"));
+        else _ctx.Host.Toast(SettingsContext.Str(SettingChanges.BelongsToAnotherProfile(change, _ctx.S) ? "L.S.Changes.OtherProfile" : "L.S.Changes.Refused"));
         Refresh();
     }
 

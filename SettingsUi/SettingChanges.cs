@@ -70,7 +70,7 @@ public sealed class SettingChanges
     public bool Undo(Change change, SettingsContext ctx)
     {
         if (!_items.Any(i => ReferenceEquals(i, change))) return false;
-        if (change.Scope != null && !ReferenceEquals(CharacterDirectory.Current(ctx.S), change.Scope)) return false;
+        if (BelongsToAnotherProfile(change, ctx.S)) return false;
         if (!SettingVM.Same(change.D.Get(ctx.S), change.NewValue)) return false;
         change.D.Set(ctx.S, change.OldValue);
         ctx.Applier.Request(change.D.Apply);
@@ -78,6 +78,11 @@ public sealed class SettingChanges
         change.D.OnChanged?.Invoke(ctx);
         return true;
     }
+
+    /// <summary>The change was made to a profile that is not the one in use now, so an undo is refused for that reason alone
+    /// (not because the setting "has changed since").</summary>
+    public static bool BelongsToAnotherProfile(Change change, AppSettings s) =>
+        change.Scope != null && !ReferenceEquals(CharacterDirectory.Current(s), change.Scope);
 
     /// <summary>A value as the setting's card shows it.</summary>
     private static string Show(SettingDescriptor d, object? v)
