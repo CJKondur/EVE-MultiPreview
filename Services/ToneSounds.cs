@@ -106,6 +106,7 @@ public static class ToneSounds
         var first = PathOf(tone, configDir);
         if (CustomRuleCheck.LocalSound(first).Length == 0) return null;
         var bytes = Wav(tone);
+        string? made = null;   // the file THIS call created: removed again when writing it fails
         try
         {
             Directory.CreateDirectory(Path.GetDirectoryName(first)!);
@@ -118,11 +119,24 @@ public static class ToneSounds
                     if (new FileInfo(path).Length == bytes.Length && File.ReadAllBytes(path).AsSpan().SequenceEqual(bytes)) return path;
                     continue;
                 }
-                using (var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None)) file.Write(bytes);
+                using (var file = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    made = path;   // CreateNew succeeded, so the file did not exist before this call
+                    file.Write(bytes);
+                }
                 return path;
             }
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // A write that stopped half-way (disk full) left a short file. It is not a tone and would be taken for the
+            // player's own file next time, which would shift every later pick to another name.
+            if (made != null)
+            {
+                try { File.Delete(made); }
+                catch (Exception d) when (d is IOException or UnauthorizedAccessException) { }
+            }
+        }
         return null;
     }
 }

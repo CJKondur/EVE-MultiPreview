@@ -165,13 +165,13 @@ MultiPreview has no installer, so Windows has no uninstaller for it. Its **Clean
 - the key `HKEY_CURRENT_USER\Software\Classes\AppUserModelId\EveMultiPreview.Alerts`, which lets Windows show MultiPreview's notifications.
 - only if you answer so, the whole settings folder `%APPDATA%\EVE MultiPreview` and everything in it: the settings file, saved layouts, your own alert rules, the alert history, backups, logs, the built-in tones and anything else you put there. A portable copy keeps its settings beside the exe, and that folder is never deleted: the question then offers to remove the entries only, and you delete the folder yourself.
 
-Then MultiPreview closes without saving anything. If an entry cannot be removed it stays open, says so and deletes nothing more. If part of the settings folder cannot be deleted while it closes (a file another program has open, for example), a message says that part of it stayed: delete what is left yourself.
+Then MultiPreview closes without saving your settings. If an entry cannot be removed it stays open and says so; the entries that could be removed are gone, your settings folder is not touched, and you can press the button again. If part of the settings folder cannot be deleted while it closes (a file another program has open, for example), a message says that part of it stayed: delete what is left yourself.
 
 Clean uninstall never removes these; you do, whichever way you uninstall:
 
 - the program file, `EVE MultiPreview.exe` or `EVE.MultiPreview.exe`.
 - the RTSS profile for `exefile.exe`, if you used the FPS limiter: RTSS keeps `exefile.exe.cfg` in its `Profiles` folder, under Program Files, until you remove it there or reset it in RTSS.
-- MultiPreview's own backups of EVE's settings files, made by Tools › EVE settings before it replaces a file: by default in `%LOCALAPPDATA%\CCP\EVE\EVEMPBackups`, or in the folder you chose for them. They are yours and are kept on purpose; delete the folder when you no longer want them.
+- MultiPreview's own backups of EVE's settings files, made by Tools › EVE settings when you ask for a backup and before it replaces a file: by default in `%LOCALAPPDATA%\CCP\EVE\EVEMPBackups`, or in the folder you chose for them. They are yours and are kept on purpose; delete the folder when you no longer want them.
 
 **By hand instead of the button:**
 

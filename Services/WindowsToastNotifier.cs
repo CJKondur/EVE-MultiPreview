@@ -172,15 +172,15 @@ public sealed class UserRegistry : IUserRegistry
     /// values in it.</summary>
     public void DeleteValue(string key, string name)
     {
-        OnlyValue(key, name);
-        using var opened = Registry.CurrentUser.OpenSubKey(key, writable: true);
+        using var opened = Registry.CurrentUser.OpenSubKey(OnlyValue(key, name), writable: true);
         opened?.DeleteValue(name, throwOnMissingValue: false);
     }
 
-    /// <summary>The two values this class may remove, or an exception: MultiPreview's own entry under the Run key and its
-    /// record under StartupApproved. Any other key, or any other name, is refused before the registry is opened.</summary>
-    private static int OnlyValue(string key, string name) =>
-        name == StartWithWindows.Name && (key == StartWithWindows.RunKey || key == StartWithWindows.ApprovedKey) ? 0 : throw new ArgumentException("UserRegistry removes MultiPreview's two start-up values and no other.", nameof(name));
+    /// <summary>The key of one of the two values this class may remove, or an exception: MultiPreview's own entry under the
+    /// Run key and its record under StartupApproved. Any other key, or any other name, is refused before the registry is
+    /// opened. It returns the key, and the key is opened through it, so the check cannot be dropped without changing the call.</summary>
+    private static string OnlyValue(string key, string name) =>
+        name == StartWithWindows.Name && (key == StartWithWindows.RunKey || key == StartWithWindows.ApprovedKey) ? key : throw new ArgumentException("UserRegistry removes MultiPreview's two start-up values and no other.", nameof(name));
 
     /// <summary>The one key this class writes and deletes, or an exception. Delete removes a key with everything
     /// below it: no mistake anywhere else may hand it another path.</summary>

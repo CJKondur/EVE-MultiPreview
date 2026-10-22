@@ -2597,13 +2597,13 @@ public partial class App : Application
         Shutdown();
     }
 
-    /// <summary>What the clean uninstall (IDEAS P16) runs as the very last thing of OnExit.</summary>
+    /// <summary>What the clean uninstall (IDEAS P16) runs as the last step of OnExit, before the mutex is let go.</summary>
     private Action? _afterExit;
 
     /// <summary>Closes the app for the clean uninstall. Not ExitApplication: that follows the notification switch (which
     /// would write the registry key back) and saves the settings and the stat windows' places (which would make the
     /// settings folder again). The shutting-down flag goes up first, so a settings window that closes with the app applies
-    /// and saves nothing live. What was handed in runs at the end of OnExit.</summary>
+    /// and saves nothing live. What was handed in runs at the end of OnExit, before the single-instance mutex is released.</summary>
     private void ExitForUninstall(Action afterExit)
     {
         _afterExit = afterExit;
@@ -2667,7 +2667,14 @@ public partial class App : Application
         _trayIcons?.Dispose();
         _trayMenu?.Dispose();
 
-        // Release + dispose the single-instance mutex LAST so that if it
+        // Clean uninstall (IDEAS P16): the last step of the app, while this process still owns the single-instance mutex, so a
+        // second MultiPreview started now waits for it instead of making the settings folder while it is being deleted. Every
+        // service has stopped by now (the settings service has written what was waiting, the history is closed), so a folder
+        // deleted here is not made again. What this leaves behind is told to the player by what was handed in.
+        try { _afterExit?.Invoke(); }
+        catch (Exception ex) { Debug.WriteLine($"[App:Exit] Clean uninstall step failed: {ex.GetType().Name}"); }
+
+        // Release + dispose the single-instance mutex so that if it
         // throws (e.g. abandoned, not owned by this thread, or already
         // disposed by the second-instance path), the rest of OnExit has
         // already run. Catch every exception so the process can still exit
@@ -2678,11 +2685,6 @@ public partial class App : Application
         try { _singleInstanceMutex?.Dispose(); }
         catch (Exception ex) { Debug.WriteLine($"[App:Exit] ⚠ Mutex Dispose: {ex.GetType().Name}: {ex.Message}"); }
         _singleInstanceMutex = null;
-
-        // Clean uninstall (IDEAS P16): the last step. Every service has stopped by now (the settings service has written what
-        // was waiting, the history is closed), so a folder deleted here is not made again.
-        try { _afterExit?.Invoke(); }
-        catch (Exception ex) { Debug.WriteLine($"[App:Exit] Clean uninstall step failed: {ex.GetType().Name}"); }
 
         base.OnExit(e);
     }

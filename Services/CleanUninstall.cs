@@ -28,11 +28,14 @@ public sealed record UninstallFailure(UninstallStep Step, string Reason);
 /// <param name="AppDataDir">%APPDATA%\EVE MultiPreview: the only folder a clean uninstall deletes.</param>
 /// <param name="UserProfile">The user's profile folder.</param>
 /// <param name="ExeDir">The folder of the program.</param>
-public sealed record UninstallPaths(string ConfigDir, string AppDataDir, string UserProfile, string ExeDir)
+/// <param name="ExeName">The file name of the program (no folder). A folder that holds a file of this name holds the program,
+/// however the folder was named when the program was started (a short 8.3 name, a junction, a mapped drive).</param>
+public sealed record UninstallPaths(string ConfigDir, string AppDataDir, string UserProfile, string ExeDir, string ExeName = "")
 {
     /// <summary>This PC's places. Reads, touches nothing.</summary>
     public static UninstallPaths Current() => new(
-        AppPaths.ConfigDir, AppPaths.AppDataDir, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), AppPaths.ExeDir);
+        AppPaths.ConfigDir, AppPaths.AppDataDir, Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), AppPaths.ExeDir,
+        Path.GetFileName(Environment.ProcessPath ?? ""));
 }
 
 /// <summary>The part of the file system a clean uninstall uses: the app's is real, a test's is a list.</summary>
@@ -40,6 +43,8 @@ public interface IFolderOps
 {
     /// <summary>A link (a junction or a symbolic link) is not followed, so this is asked before a delete.</summary>
     bool IsLink(string path);
+    /// <summary>Is there a file at this path? Asked for the program's own file name inside the folder before a delete.</summary>
+    bool FileExists(string path);
     /// <summary>Removes the folder and everything in it. A folder that is not there: nothing. A link inside is removed as
     /// a link, and what it leads to is left.</summary>
     void DeleteTree(string path);
@@ -48,6 +53,8 @@ public interface IFolderOps
 public sealed class FolderOps : IFolderOps
 {
     public bool IsLink(string path) => SettingsHome.IsLink(path);
+
+    public bool FileExists(string path) => File.Exists(path);
 
     public void DeleteTree(string path)
     {
@@ -100,8 +107,10 @@ public static class CleanUninstall
     /// <summary>Why this folder may not be deleted, or null when it may. It may only be the settings folder of an
     /// installed MultiPreview (%APPDATA%\EVE MultiPreview): never empty, relative, a drive root, the user's profile or a
     /// folder above it, the folder of the program or one above it, a link, or anything else. A portable MultiPreview keeps
-    /// its settings in the exe folder, so its settings folder is always refused here: the player deletes that folder.</summary>
-    public static string? FolderRefusal(UninstallPaths paths, string folder, Func<string, bool> isLink)
+    /// its settings in the exe folder, so its settings folder is always refused here: the player deletes that folder.
+    /// <paramref name="fileExists"/> (when given) lets the guard also see the program by its file name inside the folder,
+    /// which a path that names the same folder in another way (8.3 name, junction, mapped drive) does not show.</summary>
+    public static string? FolderRefusal(UninstallPaths paths, string folder, Func<string, bool> isLink, Func<string, bool>? fileExists = null)
     {
         if (string.IsNullOrWhiteSpace(folder)) return "empty";
         string full;
@@ -113,6 +122,7 @@ public static class CleanUninstall
             if (root != null && root.Length >= full.Length) return "root";
             if (Holds(full, paths.UserProfile)) return "profile";
             if (Holds(full, paths.ExeDir)) return "holds-the-program";
+            if (fileExists != null && !string.IsNullOrWhiteSpace(paths.ExeName) && fileExists(Path.Combine(full, paths.ExeName))) return "holds-the-program";
             if (!Same(full, paths.AppDataDir)) return "not-the-settings-folder";
         }
         catch (Exception)
@@ -163,7 +173,7 @@ public static class CleanUninstall
             case UninstallKind.RegistryKey:
                 return string.Equals(step.Target, NotificationRegistration.Key, StringComparison.OrdinalIgnoreCase);
             case UninstallKind.SettingsFolder:
-                return Same(step.Target, paths.ConfigDir) && FolderRefusal(paths, step.Target, folders.IsLink) == null;
+                return Same(step.Target, paths.ConfigDir) && FolderRefusal(paths, step.Target, folders.IsLink, folders.FileExists) == null;
             default:
                 return false;
         }

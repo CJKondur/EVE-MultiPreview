@@ -13,7 +13,8 @@ public static class RtssProfileService
 {
     private const string RtssDefaultPath = @"C:\Program Files (x86)\RivaTuner Statistics Server";
     private const string ProfileDirName = "Profiles";
-    private const string ProfileFileName = "exefile.exe.cfg";
+    /// <summary>The profile's file name in RTSS's Profiles folder (the README and the help name it, and a test holds them to this).</summary>
+    public const string ProfileFileName = "exefile.exe.cfg";
 
     /// <summary>Detects if RTSS is installed by looking for RTSS.exe.</summary>
     public static bool IsInstalled()

@@ -2830,17 +2830,17 @@
     <!-- Ideas batch 25 (Plan 29) -->
     <sys:String x:Key="L.S.Sec.app.about.uninstall">깨끗이 제거</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.about.uninstallRow">Windows에서 MultiPreview 제거</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.about.uninstallRow.Desc">MultiPreview가 Windows에 만든 항목을 제거하고, 원하면 설정·기록·로그도 지워요. 그다음 MultiPreview가 닫혀요. 프로그램 파일은 직접 지워 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.about.uninstallRow.Desc">MultiPreview가 Windows에 만든 항목을 제거하고, 원하면 설정 폴더 전체(설정, 기록, 로그, 백업, 레이아웃, 소리, 그 밖에 직접 넣어 둔 파일)도 지워요. 그다음 MultiPreview가 닫혀요. 프로그램 파일과 EVE 설정 백업은 직접 지워 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Act.app.about.cleanUninstall">깨끗이 제거…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Uninstall.Title">깨끗이 제거</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Uninstall.Body">MultiPreview가 Windows에 있는 자기 항목(Windows와 함께 시작, 알림 항목)을 제거해요. 그다음 닫혀요.&#x0A;&#x0A;프로그램 파일, RTSS 프로필, EVE 자체 설정 백업은 건드리지 않아요.&#x0A;&#x0A;설정, 기록, 로그는 %APPDATA%\EVE MultiPreview에 있어요. 함께 지울까요, 아니면 남길까요?</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Uninstall.BodyKeep">MultiPreview가 Windows에 있는 자기 항목(Windows와 함께 시작, 알림 항목)을 제거해요. 그다음 닫혀요.&#x0A;&#x0A;설정이 프로그램과 같은 폴더에 있어서 지워지지 않아요. 더 필요 없을 때 그 폴더를 직접 지워 주세요.&#x0A;&#x0A;프로그램 파일, RTSS 프로필, EVE 자체 설정 백업은 건드리지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.Body">MultiPreview가 Windows에 있는 자기 항목(Windows와 함께 시작, 알림 항목)을 제거해요. 그다음 닫혀요.&#x0A;&#x0A;프로그램 파일, RTSS 프로필, MultiPreview가 만든 EVE 설정 백업(%LOCALAPPDATA%\CCP\EVE\EVEMPBackups)은 건드리지 않아요. 필요 없으면 직접 지워 주세요.&#x0A;&#x0A;설정 폴더 %APPDATA%\EVE MultiPreview 전체(설정, 기록, 로그, 백업, 레이아웃, 소리, 그 밖에 직접 넣어 둔 파일)도 함께 지울 수 있어요. 함께 지울까요, 아니면 남길까요?</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.BodyKeep">MultiPreview가 Windows에 있는 자기 항목(Windows와 함께 시작, 알림 항목)을 제거해요. 그다음 닫혀요.&#x0A;&#x0A;설정이 프로그램과 같은 폴더에 있어서 지워지지 않아요. 더 필요 없을 때 그 폴더를 직접 지워 주세요.&#x0A;&#x0A;프로그램 파일, RTSS 프로필, MultiPreview가 만든 EVE 설정 백업(%LOCALAPPDATA%\CCP\EVE\EVEMPBackups)은 건드리지 않아요. 필요 없으면 직접 지워 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Uninstall.WithSettings">제거하고 설정·기록·로그도 지우기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Uninstall.KeepSettings">제거하고 설정은 남기기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Uninstall.Failed">제거하지 못한 MultiPreview의 Windows 항목: {0}개. MultiPreview는 열린 채로 있고 설정은 지우지 않았어요. 다시 시도하거나 작업 관리자(시작 프로그램)에서 항목을 제거해 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Uninstall.NotHere">깨끗이 제거는 실행 중인 MultiPreview에서만 쓸 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.uninstall.Title">깨끗이 제거</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.about.uninstall.Body">MultiPreview를 지우기 전에 **깨끗이 제거**를 눌러요. 그러면 사라진 프로그램을 가리키는 항목이 Windows에 남지 않아요. 먼저 물어보고, 취소를 누르면 아무것도 바뀌지 않아요.&#x0A;&#x0A;제거하는 것:&#x0A;- Windows와 함께 시작 항목과, 작업 관리자 시작 프로그램 목록의 켜짐/꺼짐 기록&#x0A;- MultiPreview가 Windows 알림을 보여 줄 수 있게 하는 항목&#x0A;- 선택한 경우에만: 설정 폴더 %APPDATA%\EVE MultiPreview 전체와 그 안의 모든 것 (설정, 기록, 로그, 설정 백업, 저장한 레이아웃, 내장 소리, 그 밖에 직접 넣어 둔 파일). MultiPreview를 자기 폴더에서 실행하면(포터블) 설정은 그 폴더에 있어요. 그 폴더는 지워지지 않으니 직접 지워 주세요.&#x0A;&#x0A;제거하지 않는 것:&#x0A;- 프로그램 파일: 나중에 직접 지워 주세요&#x0A;- EVE용 RTSS 프로필 (Program Files 안 RTSS의 Profiles 폴더에 있는 exefile.exe.cfg): 거기서 지우거나 RTSS에서 초기화해 주세요&#x0A;- MultiPreview가 만든 EVE 설정 백업 (기본은 %LOCALAPPDATA%\CCP\EVE\EVEMPBackups, 다른 폴더를 골랐다면 그 폴더): 내 것이라서 일부러 남겨 둬요. 더 필요 없으면 그 폴더를 직접 지워 주세요&#x0A;&#x0A;끝나면 MultiPreview는 아무것도 저장하지 않고 닫혀요. 제거하지 못한 항목이 있으면 열린 채로 알려 줘요. 닫는 중에 설정 폴더의 일부를 지우지 못하면(다른 프로그램이 연 파일 등) 폴더의 일부가 남았다고 메시지로 알려 줘요. 남은 건 직접 지워 주세요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.uninstall.Body">MultiPreview를 지우기 전에 **깨끗이 제거**를 눌러 주세요. 그러면 사라진 프로그램을 가리키는 항목이 Windows에 남지 않아요. 먼저 물어보고, 취소를 누르면 아무것도 바뀌지 않아요.&#x0A;&#x0A;제거하는 것:&#x0A;- Windows와 함께 시작 항목과, 작업 관리자 시작 프로그램 목록의 켜짐/꺼짐 기록&#x0A;- MultiPreview가 Windows 알림을 보여 줄 수 있게 하는 항목&#x0A;- 선택한 경우에만: 설정 폴더 %APPDATA%\EVE MultiPreview 전체와 그 안의 모든 것 (설정, 기록, 로그, 설정 백업, 저장한 레이아웃, 내장 소리, 그 밖에 직접 넣어 둔 파일). MultiPreview를 자기 폴더에서 실행하면(포터블) 설정은 그 폴더에 있어요. 그 폴더는 지워지지 않으니 직접 지워 주세요.&#x0A;&#x0A;제거하지 않는 것:&#x0A;- 프로그램 파일: 나중에 직접 지워 주세요&#x0A;- EVE용 RTSS 프로필 (Program Files 안 RTSS의 Profiles 폴더에 있는 exefile.exe.cfg): 거기서 지우거나 RTSS에서 초기화해 주세요&#x0A;- MultiPreview가 만든 EVE 설정 백업 (기본은 %LOCALAPPDATA%\CCP\EVE\EVEMPBackups, 다른 폴더를 골랐다면 그 폴더): 내 것이라서 일부러 남겨 둬요. 더 필요 없으면 그 폴더를 직접 지워 주세요&#x0A;&#x0A;끝나면 MultiPreview는 설정을 저장하지 않고 닫혀요. 제거하지 못한 항목이 있으면 열린 채로 알려 줘요. 닫는 중에 설정 폴더의 일부를 지우지 못하면(다른 프로그램이 연 파일 등) 폴더의 일부가 남았다고 메시지로 알려 줘요. 남은 건 직접 지워 주세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.Tone">내장…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.ToneFor">{0}용 내장 소리</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.ToneFailed">내장 소리를 설정 폴더에 저장하지 못했어요.</sys:String> <!-- draft -->
@@ -2849,4 +2849,5 @@
     <sys:String x:Key="L.S.Tone.DoublePing">더블 핑</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Tone.LowAlarm">낮은 경보</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Tone.Rising">상승음</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.LeftBehind">깨끗이 제거가 MultiPreview를 닫는 중에 모두 끝나지 못했어요. %APPDATA%\EVE MultiPreview 폴더의 일부가 남았을 수 있어요(다른 프로그램이 연 파일 등). 남은 건 직접 지워 주세요. Windows 항목이 남았다면 작업 관리자의 시작 프로그램에서 제거해 주세요.</sys:String> <!-- draft -->
 </ResourceDictionary>
