@@ -2078,7 +2078,9 @@ public sealed class LogMonitorService : IDisposable
                 // PVE mode: extract attacker and skip if NPC. The attacker regex below
                 // parses the ENGLISH phrasing; on a localized miss line it simply won't
                 // match, so the alert fires unfiltered rather than being lost.
-                if (PveMode)
+                // A player's or a drone's miss is never skipped (IDEAS P48): IsNpc calls
+                // every name without a ticker an NPC, and these have none.
+                if (PveMode && !IsPlayerOrDroneMiss(line))
                 {
                     // Fallback attacker extraction for miss lines
                     // EVE miss lines often lack HTML tags. e.g. "[ 2026.04.02 01:08:48 ] (combat) Angel Outer Zarzakh Dramiel misses you completely"
@@ -2894,6 +2896,14 @@ public sealed class LogMonitorService : IDisposable
             system = system.Substring(0, system.Length - 1).Trim();
         return system;
     }
+
+    private static readonly Regex MissWithWeapon = new(@"misses you completely - \S", RegexOptions.CultureInvariant);
+
+    /// <summary>True for an English miss line that only a player or a drone writes (IDEAS P48): a drone's "X belonging
+    /// to Y", or a weapon after the dash ("... misses you completely - Heavy Pulse Laser II"). An NPC's miss is
+    /// bare ("... misses you completely"). Anything else, localized lines included, is false.</summary>
+    private static bool IsPlayerOrDroneMiss(string line) =>
+        line.Contains(" belonging to ", StringComparison.Ordinal) || MissWithWeapon.IsMatch(line);
 
     private static bool IsNpc(string name)
     {
