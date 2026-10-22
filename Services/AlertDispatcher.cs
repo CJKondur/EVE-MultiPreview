@@ -80,6 +80,15 @@ public sealed class AlertTargets
 /// checks in the same order, and the same calls. It runs on the log monitor's reading thread.</summary>
 public static class AlertDispatcher
 {
+    /// <summary>P67: whether an alert of this type would get past Dispatch's gates that look at the character (a window, not
+    /// muted, not snoozed for the event), asked by the log monitor to decide which listener claims a "one alert per line"
+    /// chat line. The same three targets Dispatch asks, so what Dispatch would turn away with NoWindow, Muted or Snoozed is
+    /// what this says no to (a test holds the two together). The group's choice (<see cref="AlertTargets.IsOn"/>) is the
+    /// reader's own gate and is not asked here. Writes nothing to the diagnostics log.</summary>
+    public static bool CanReach(AlertTargets to, string charName, string alertType) =>
+        to.ActiveCharacters().Any(n => string.Equals(n, charName, StringComparison.OrdinalIgnoreCase))
+        && !to.IsMuted(charName) && !to.IsSnoozed(charName, alertType);
+
     /// <param name="raisedUtc">When the alert was raised, where the caller knows it (the time the history entry
     /// keeps). It is handed on to the further ways and used for nothing else.</param>
     public static AlertOutcome Dispatch(AppSettings settings, AlertTargets to, string charName, string alertType, string severity,

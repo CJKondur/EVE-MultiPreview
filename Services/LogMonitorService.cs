@@ -1911,16 +1911,27 @@ public sealed class LogMonitorService : IDisposable
     /// <summary>A rule matched: its alert goes through the gate every alert goes through.</summary>
     private void RaiseCustom(CustomAlertRule rule, string text)
     {
-        if (rule.Once && _customChannel != null && RepeatOfAnAlertedLine(rule)) return;   // P67: a chat rule only
+        // P67: a chat rule only. A listener whose alert could not go through (its group has the rule off, the character is
+        // muted or snoozed or has no window) must not claim the line: TriggerAlert drops it below, and the other listener's copy then alerts.
+        if (rule.Once && _customChannel != null && Listens(rule.AlertType) && RepeatOfAnAlertedLine(rule)) return;
         _lastEventTime = Environment.TickCount64;
         TriggerAlert(_customCharacter, rule.AlertType, rule.Severity, rule.QuietSeconds, text);
     }
 
+    /// <summary>P67: whether the current listener can be told of an alert of this type at all: its group has the event on
+    /// (<see cref="IsOnFor"/>) and the alert would reach it (<see cref="CanReach"/>). Only a listener that can claims the line.</summary>
+    private bool Listens(string alertType) =>
+        IsOnFor?.Invoke(_customCharacter, alertType) != false && CanReach?.Invoke(_customCharacter, alertType) != false;
+
     /// <summary>P67: whether this chat line already raised this rule's alert, within <see cref="OnceWindowMs"/>, when
     /// another character's log was read: then the repeat is dropped and the first alert stands. If not, the line is
     /// noted. The server time and the speaker are in the line, so a line with another time or another text is a new
-    /// one. The line is noted when it is first met, whether or not that character's alert then passes the gates every
-    /// alert goes through (its quiet time, the group's choice). Lines older than the window are forgotten at most once in a window, and the table is started anew at
+    /// one. But the same words by the same speaker in the same second are one line to the reader, so a speaker who says
+    /// the very same thing twice within one stamped second is treated as the duplicate (EVE stamps whole seconds). The line is
+    /// noted when it is first met, whether or not that character's alert then passes the quiet time: a quiet-held first
+    /// copy still claims the line, by design, so the quiet time acts per rule and not per listener (otherwise the second
+    /// listener, never stamped, would alert on every line the first is quiet for). A listener that cannot be told (its
+    /// group has the rule off, muted, snoozed, no window) never claims. Lines older than the window are forgotten at most once in a window, and the table is started anew at
     /// <see cref="OnceMaxLines"/>, so it stays small however many lines a channel carries.</summary>
     private bool RepeatOfAnAlertedLine(CustomAlertRule rule)
     {
@@ -2703,6 +2714,13 @@ public sealed class LogMonitorService : IDisposable
     /// uses up none of the quiet time (switched back on inside it, the next alert is told at once). Null: no gate, every
     /// event the reader may raise is on. Any thread; App hands it AlertProfiles.IsOn.</summary>
     public Func<string, string, bool>? IsOnFor { get; set; }
+
+    /// <summary>P67: whether an alert of this type would reach this character: not muted, not snoozed for the event, and a
+    /// window to show it on (App hands it the dispatcher's own checks). Asked, with <see cref="IsOnFor"/>, only to decide
+    /// which listener claims a "one alert per line" chat line, so a muted or window-less alt that reads a line first does not
+    /// swallow the alert of the character that could be told. Quiet time is not part of it: a quiet-held listener still
+    /// claims. Null: every listener can be reached. Same thread as the reader.</summary>
+    public Func<string, string, bool>? CanReach { get; set; }
 
     /// <param name="ownQuietTime">The alert's own quiet time in seconds: a custom rule's, when it has one (IDEAS #8), and for Capacitor neutralized and Jammed the longer of their own and the quiet time of Settings (IDEAS #4).</param>
     /// <param name="customText">What a custom rule matched; see RaisingCustomText.</param>

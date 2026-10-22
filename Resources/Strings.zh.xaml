@@ -2171,7 +2171,7 @@
     <sys:String x:Key="L.Help.alerts.custom.match.Title">规则看到的内容</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.match.Body">**文字** 会在一行的任何位置查找这些字，不区分大小写。**正则表达式** 是 .NET 的模式。&#x0A;&#x0A;- 对于游戏日志的一行，规则看到的是去掉时间以及颜色和字体代码后的文字，例如：(combat) 123 from Guristas Despoiler - Hits&#x0A;- 对于聊天的一行，它看到的是：名字 &gt; 消息&#x0A;- 正则表达式处理每一行的时间是有限的。一次匹配如果花的时间太长，就会被放弃；一旦正则表达式用完了这一行的时间，其余的正则表达式会跳过这一行。&#x0A;- 开销太大的规则会被 MultiPreview 关闭：要么它的模式在某些行上花的时间太长，要么你的正则表达式规则合起来拖慢了日志的读取（每一行都慢，或者只是偶尔慢），而这条规则是其中最慢的之一。它的卡片和 error_log.txt 都会说明。你修改任意一条规则或重新启动 MultiPreview 后，它会重新启用。查找普通文字的规则从不会被关闭或跳过。&#x0A;- 当针对“只是偶尔出现的慢匹配”的限制点名某条规则时，这条规则在第二次被点名时才会关闭，第一次不会。第一次的记录会在连续 10 段、每段 100 行、且没有慢匹配之后被忘掉（计数的是尝试过正则表达式的行）。&#x0A;- 这些限制管的是正则表达式合起来的开销，而不是每一条各自的开销：在同样几行上很慢的规则，可能会让读取日志的时间稍微变长，却没有哪条会被关闭；大量很慢的表达式（规则最多可以有 50 条）每次保存规则、每次启动 MultiPreview 时，在被限制关闭之前，可能让读取总共延迟十秒甚至更久。&#x0A;- 规则卡片和 error_log.txt 都不会说是哪一行让规则变慢的：日志的一行可能提到别的玩家。页面打开期间，规则被关闭后，它的卡片会在几秒内显示出来。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.chat.Title">聊天频道</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.custom.chat.Body">聊天规则读取的是 EVE 为某个频道写的日志。**频道** 是该日志文件名的开头部分：Fleet、Corp、Local，或者你加入的某个频道的名称。打开列表可以看到你的聊天日志文件夹里有哪些频道的日志（最多 200 个；不在列表里的频道名称也可以直接输入）。&#x0A;&#x0A;- 必须在 EVE 里开启聊天记录，并在 MultiPreview 里开启 **读取聊天日志**（警报 › 事件）。&#x0A;- 警报属于写下该日志的客户端的角色。**角色** 可以把规则限定在其中几个角色上。&#x0A;- **忽略我自己的消息** 会跳过该角色自己写的内容。&#x0A;- **每行只发一次警报**（默认关闭）：多个角色听到同一行时，只有你的角色中第一个警报能够发出的那个会触发警报，警报属于该角色。5 秒内再次出现的同一行会被丢弃；时间或内容不同的行算新的一行。游戏日志规则不受影响。&#x0A;- 除 Local 之外，规则最多读取十个频道。&#x0A;- 只有在某条已开启的规则指定了一个频道时，才会读取这个频道，而且只查看从那一刻起、MultiPreview 运行期间说的话。&#x0A;- 在 MultiPreview 接手该频道之后才开始写入、但 MultiPreview 较晚才发现的日志，会从第一行起读取一次，所以 MultiPreview 发现它之前写进去的内容也可能触发警报。规则开启时该频道日志里已有的内容不会被读取。当一个频道里有超过十二个角色的日志，而某份日志有一阵子不在最新的十二份之内时，就会这样；如果某个日志文件是在 MultiPreview 运行期间创建的，而你把它移动（而不是复制）到同一个磁盘上的聊天日志文件夹里，也可能这样。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.custom.chat.Body">聊天规则读取的是 EVE 为某个频道写的日志。**频道** 是该日志文件名的开头部分：Fleet、Corp、Local，或者你加入的某个频道的名称。打开列表可以看到你的聊天日志文件夹里有哪些频道的日志（最多 200 个；不在列表里的频道名称也可以直接输入）。&#x0A;&#x0A;- 必须在 EVE 里开启聊天记录，并在 MultiPreview 里开启 **读取聊天日志**（警报 › 事件）。&#x0A;- 警报属于写下该日志的客户端的角色。**角色** 可以把规则限定在其中几个角色上。&#x0A;- **忽略我自己的消息** 会跳过该角色自己写的内容。&#x0A;- **每行只发一次警报**（默认关闭）：多个角色听到同一行时，只有你的角色中第一个没有被静音、没有被暂停、有窗口且所在分组没有关闭该事件的那个会触发警报，警报属于该角色；仍处于该警报静默时间内的角色同样会占用这一行，因此它们都不会收到警报。5 秒内再次出现的同一行会被丢弃；时间或内容不同的行算新的一行。游戏日志规则不受影响。&#x0A;- 除 Local 之外，规则最多读取十个频道。&#x0A;- 只有在某条已开启的规则指定了一个频道时，才会读取这个频道，而且只查看从那一刻起、MultiPreview 运行期间说的话。&#x0A;- 在 MultiPreview 接手该频道之后才开始写入、但 MultiPreview 较晚才发现的日志，会从第一行起读取一次，所以 MultiPreview 发现它之前写进去的内容也可能触发警报。规则开启时该频道日志里已有的内容不会被读取。当一个频道里有超过十二个角色的日志，而某份日志有一阵子不在最新的十二份之内时，就会这样；如果某个日志文件是在 MultiPreview 运行期间创建的，而你把它移动（而不是复制）到同一个磁盘上的聊天日志文件夹里，也可能这样。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.test.Title">试一行</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.test.Body">粘贴一行，然后按 **测试**。结果来自读取日志的同一段代码，所以在这里匹配的规则在游戏里也会匹配。&#x0A;&#x0A;- 可以从日志文件里复制一行，也可以输入游戏里显示的文字。&#x0A;- 结果下面是模式实际检查的文字。&#x0A;- 时间是这次匹配花费的时间。如果正则表达式花的时间长到它的规则会被关闭，结果下面会有一行说明。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.custom.file.Title">规则保存在哪里</sys:String> <!-- draft -->
@@ -2832,9 +2832,9 @@
     <sys:String x:Key="L.S.Rules.SoundDeviceName">Windows 把这个名称保留给设备（CON、NUL、COM1 …）。请重命名该文件或其所在文件夹，然后重新选择。</sys:String> <!-- draft -->
     <!-- Ideas batch 24 (Plan 28) -->
     <sys:String x:Key="L.S.Rules.Once">每行只发一次警报</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Rules.Once.Desc">如果你有多个角色在这个频道里，只有最先读到这一行的角色会发出警报。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.Once.Desc">如果你有多个角色在这个频道里，只有第一个没有被静音、没有被暂停、有窗口且所在分组没有关闭该事件的角色会发出警报。处于静默时间的角色同样会占用这一行。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.general.recent">最近更改</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.general.recent">你更改过的设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent">最近更改</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.recent.Desc">自 MultiPreview 启动以来你更改的最近 20 项设置，最新的在最前。“撤销”会恢复旧值，但前提是该设置仍是你设定的值。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Changes.Undo">撤销</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Changes.None">自 MultiPreview 启动以来还没有更改过任何设置。</sys:String> <!-- draft -->
@@ -2842,5 +2842,5 @@
     <sys:String x:Key="L.S.Changes.Refused">未撤销：该设置之后又被更改过。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Changes.Empty">（空）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.recent.Title">最近更改的设置</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.general.recent.Body">卡片**你更改过的设置**列出自 MultiPreview 启动以来你通过卡片更改的最近 20 项设置，最新的在最前：设置原来是什么、现在是什么，以及更改时间。&#x0A;&#x0A;- **撤销**会恢复旧值。如果你之后又更改过该设置，则什么也不会发生，因此不会覆盖较新的选择；请先撤销较新的更改。&#x0A;- 已撤销的更改会从列表中消失。&#x0A;- 关闭设置窗口会保留列表；重启 MultiPreview 会清空列表。列表绝不会保存到文件。&#x0A;- 表格、分组、裁剪窗口、规则和其他编辑器不会列出。&#x0A;- 某个配置文件的设置只有在该配置文件正在使用时才能撤销。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Body">卡片**最近更改**列出自 MultiPreview 启动以来你通过卡片更改的最近 20 项设置，最新的在最前：设置原来是什么、现在是什么，以及更改时间。&#x0A;&#x0A;- **撤销**会恢复旧值。如果你之后又更改过该设置，则什么也不会发生，因此不会覆盖较新的选择；请先撤销较新的更改。&#x0A;- 已撤销的更改会从列表中消失。&#x0A;- 关闭设置窗口会保留列表；重启 MultiPreview 会清空列表。列表绝不会保存到文件。&#x0A;- 表格、分组、裁剪窗口、规则和其他编辑器不会列出。&#x0A;- 某个配置文件的设置只有在该配置文件正在使用时才能撤销。</sys:String> <!-- draft -->
 </ResourceDictionary>

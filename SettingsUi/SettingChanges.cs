@@ -27,7 +27,7 @@ public sealed class SettingChanges
     /// <summary>One change. <see cref="OldText"/> and <see cref="NewText"/> are what the setting's own card shows for the
     /// two values, in the language in use when they are read. A character-scoped setting is listed by its label alone:
     /// the character is not part of it.</summary>
-    public sealed record Change(SettingDescriptor D, Profile Scope, object? OldValue, object? NewValue, DateTime Time)
+    public sealed record Change(SettingDescriptor D, Profile? Scope, object? OldValue, object? NewValue, DateTime Time)
     {
         public string Id => D.Id;
         public string LabelKey => D.LabelKey;
@@ -35,14 +35,24 @@ public sealed class SettingChanges
         public string NewText => Show(D, NewValue);
     }
 
+    /// <summary>The profile a change belongs to: the current one for a setting a profile holds (a <c>Profile.X</c> bind, or an
+    /// <c>AppSettings.X</c> bind that is the forwarder of a property <see cref="Profile"/> also has), null for a global
+    /// setting, which means the same in every profile and can be undone from any of them.</summary>
+    public static Profile? ScopeOf(SettingDescriptor d, AppSettings s) => d.Binds.Any(bind =>
+        bind.StartsWith("Profile.", StringComparison.Ordinal)
+        || (bind.StartsWith("AppSettings.", StringComparison.Ordinal) && typeof(Profile).GetProperty(bind["AppSettings.".Length..]) != null))
+        ? CharacterDirectory.Current(s) : null;
+
     /// <summary>Called by <see cref="SettingVM.Commit"/> after the value was stored. <paramref name="newValue"/> is what the
     /// setting reads back now (a slider's 57.4 on an integer setting is 57), so the undo's check compares like with like.
     /// A change that continues the newest one of the same setting (a slider dragged, a number typed digit by digit) is
-    /// merged into it, and drops out of the list when it ends where the first one began.</summary>
-    public void Record(SettingDescriptor d, Profile scope, object? oldValue, object? newValue)
+    /// merged into it, and drops out of the list when it ends where the first one began. Only a slider, a number or a text
+    /// is merged: a choice or a toggle changed twice stays two rows, so the player can step back to the middle value.</summary>
+    public void Record(SettingDescriptor d, Profile? scope, object? oldValue, object? newValue)
     {
         var time = _now();
         if (_items.Count > 0 && _items[0] is var top && ReferenceEquals(top.D, d) && ReferenceEquals(top.Scope, scope)
+            && d.Kind is SettingKind.Slider or SettingKind.Number or SettingKind.Text
             && SettingVM.Same(top.NewValue, oldValue))
         {
             if (SettingVM.Same(top.OldValue, newValue)) _items.RemoveAt(0);
@@ -55,12 +65,12 @@ public sealed class SettingChanges
 
     /// <summary>Puts the old value back through the same steps a card's change takes: store, request the apply scope, run
     /// OnChanged. Refused (false, nothing touched) unless the setting still holds exactly the value this change gave it,
-    /// in the profile it was made in: a value the player changed again since is never overwritten. The undone change leaves
+    /// (for a setting a profile holds: in the profile it was made in): a value the player changed again since is never overwritten. The undone change leaves
     /// the list and the undo itself is not recorded, so an older change of the same setting can be undone after it.</summary>
     public bool Undo(Change change, SettingsContext ctx)
     {
         if (!_items.Any(i => ReferenceEquals(i, change))) return false;
-        if (!ReferenceEquals(CharacterDirectory.Current(ctx.S), change.Scope)) return false;
+        if (change.Scope != null && !ReferenceEquals(CharacterDirectory.Current(ctx.S), change.Scope)) return false;
         if (!SettingVM.Same(change.D.Get(ctx.S), change.NewValue)) return false;
         change.D.Set(ctx.S, change.OldValue);
         ctx.Applier.Request(change.D.Apply);

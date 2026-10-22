@@ -120,7 +120,7 @@ public sealed class SettingVM : ItemVM
         {
             D.Set(Ctx.S, value);
             // IDEAS P17: the one list of this run's changes, read back so an undo compares like with like.
-            Ctx.Service.Changes.Record(D, CharacterDirectory.Current(Ctx.S), current, D.Get(Ctx.S));
+            Ctx.Service.Changes.Record(D, SettingChanges.ScopeOf(D, Ctx.S), current, D.Get(Ctx.S));
             Ctx.Applier.Request(D.Apply);
             D.OnChanged?.Invoke(Ctx);
         }

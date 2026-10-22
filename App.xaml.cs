@@ -446,6 +446,7 @@ public partial class App : Application
             // 7. Start log monitor and wire events
             _logMonitor = new LogMonitorService();
             _logMonitor.IsOnFor = _alertProfiles.IsOn;   // IDEAS P88: an event off for the character's group uses up none of the quiet time
+            _logMonitor.CanReach = (who, type) => alertTargets == null || AlertDispatcher.CanReach(alertTargets, who, type);   // P67: a muted, snoozed or window-less listener does not claim a line
             _logMonitor.PveMode = _settings.Settings.PveMode;
             _logMonitor.SetCooldown(_settings.Settings.AlertCooldown);
             _logMonitor.SetSettings(_settings.Settings);
@@ -639,7 +640,9 @@ public partial class App : Application
             _thumbnailManager.RecentAlerts = () => _alertHistory.Recent();
             // Windows signing out or shutting down: WPF only queues its shutdown then, and OnExit may not get to run
             // before the process is ended. A settings change still waiting for its delayed save (a position moved a
-            // moment ago) is written first, and not by Dispose: a session whose end is cancelled goes on (P96).
+            // moment ago) is written first, and only written, not let go of by Dispose: OnExit still does that if it gets to
+            // run. WPF ends the app as soon as Windows asks the session to end (WM_QUERYENDSESSION) and nothing here vetoes
+            // it, so a shutdown that is cancelled afterwards leaves MultiPreview closed (P95, P96).
             SessionEnding += (_, _) => _settings?.Flush();
             // Then what the history has waiting is written, for two seconds at most.
             SessionEnding += (_, _) => _alertHistory?.Flush(TimeSpan.FromSeconds(2));
