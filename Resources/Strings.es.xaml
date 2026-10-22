@@ -2862,4 +2862,12 @@
     <sys:String x:Key="L.S.Uninstall.NotHere">La desinstalación limpia solo funciona desde MultiPreview en ejecución.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.uninstall.Title">Desinstalación limpia</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.uninstall.Body">Pulsa **Desinstalación limpia** antes de borrar MultiPreview, para que en Windows no quede ninguna entrada que apunte a un programa que ya no existe.&#x0A;&#x0A;Quita:&#x0A;- la entrada de Iniciar con Windows y su marca de activado/desactivado en la lista de Aplicaciones de arranque del Administrador de tareas;&#x0A;- la entrada que permite a MultiPreview mostrar notificaciones de Windows;&#x0A;- solo si lo eliges, tus ajustes, el historial y los registros: la carpeta %APPDATA%\EVE MultiPreview. Si MultiPreview se ejecuta desde su propia carpeta (portátil), tus ajustes están en esa carpeta. No se borra: bórrala tú.&#x0A;&#x0A;No quita:&#x0A;- el archivo del programa: bórralo tú después;&#x0A;- el perfil de RTSS para EVE (el archivo exefile.exe.cfg en la carpeta Profiles de RTSS, dentro de Program Files): bórralo allí o restablécelo en RTSS;&#x0A;- las copias de seguridad que EVE hace de tus ajustes de EVE, en %LOCALAPPDATA%\CCP\EVE\EVEMPBackups: son tuyas y nunca se borran.&#x0A;&#x0A;Cuando termina, MultiPreview se cierra sin guardar nada. Si no se puede quitar una entrada, sigue abierto y te lo dice.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.Tone">Integrado…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.ToneFor">Tono integrado para {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.ToneFailed">No se pudo guardar el tono integrado en tu carpeta de ajustes.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.Chime">Campanilla</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.Ping">Ping</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.DoublePing">Doble ping</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.LowAlarm">Alarma grave</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.Rising">Ascendente</sys:String> <!-- draft -->
 </ResourceDictionary>

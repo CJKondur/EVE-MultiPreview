@@ -2843,4 +2843,12 @@
     <sys:String x:Key="L.S.Uninstall.NotHere">La désinstallation propre ne fonctionne que depuis MultiPreview en cours d'exécution.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.uninstall.Title">Désinstallation propre</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.uninstall.Body">Utilisez **Désinstallation propre** avant de supprimer MultiPreview, afin que Windows ne garde aucune entrée pointant vers un programme disparu.&#x0A;&#x0A;Elle retire :&#x0A;- l'entrée Démarrer avec Windows et son état activé/désactivé dans la liste des Applications de démarrage du Gestionnaire des tâches ;&#x0A;- l'entrée qui permet à MultiPreview d'afficher des notifications Windows ;&#x0A;- uniquement si vous le choisissez, vos paramètres, votre historique et vos journaux : le dossier %APPDATA%\EVE MultiPreview. Quand MultiPreview s'exécute depuis son propre dossier (portable), vos paramètres sont dans ce dossier. Il n'est pas supprimé : supprimez-le vous-même.&#x0A;&#x0A;Elle ne retire pas :&#x0A;- le fichier du programme : supprimez-le vous-même ensuite ;&#x0A;- le profil RTSS pour EVE (le fichier exefile.exe.cfg dans le dossier Profiles de RTSS, sous Program Files) : supprimez-le là, ou réinitialisez-le dans RTSS ;&#x0A;- les sauvegardes que fait EVE de vos paramètres EVE, dans %LOCALAPPDATA%\CCP\EVE\EVEMPBackups : elles vous appartiennent et ne sont jamais supprimées.&#x0A;&#x0A;Une fois terminé, MultiPreview se ferme sans rien enregistrer. Si une entrée ne peut pas être retirée, il reste ouvert et vous le dit.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.Tone">Intégré…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.ToneFor">Son intégré pour {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.ToneFailed">Impossible d'enregistrer le son intégré dans votre dossier de paramètres.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.Chime">Carillon</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.Ping">Ping</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.DoublePing">Ping double</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.LowAlarm">Alarme grave</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.Rising">Montant</sys:String> <!-- draft -->
 </ResourceDictionary>

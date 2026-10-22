@@ -96,7 +96,7 @@ public static class AlertSoundPreview
 /// with Change…, Play, Clear and Wait. App.PlayAlertSound reads all of it at the next alert: a change only saves.</summary>
 public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    private static readonly string[] Columns = { "L.S.Sounds.ColEvent", "L.S.Sounds.ColSound", "", "", "", "L.S.Sounds.ColWait" };
+    private static readonly string[] Columns = { "L.S.Sounds.ColEvent", "L.S.Sounds.ColSound", "", "", "", "", "L.S.Sounds.ColWait" };
 
     private readonly SettingsContext _ctx;
     private readonly EditorTable _table = new();
@@ -152,9 +152,10 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
         Place(own.Length > 0 ? EditorCard.Value(System.IO.Path.GetFileName(own), secondary: true)
             : EditorCard.Note(key == null || blank ? "L.S.Sounds.None" : "L.S.Sounds.UsesDefault"), r, 1);
         Place(RowButton("L.S.Sounds.Change", "L.S.Sounds.ChangeFor", name, () => Change(key)), r, 2);
-        Place(RowButton("L.S.Sounds.Play", "L.S.Sounds.PlayFor", name, () => Play(key)), r, 3);
-        if (own.Length > 0 || blank) Place(RowButton("L.S.Sounds.Clear", "L.S.Sounds.ClearFor", name, () => Clear(key)), r, 4);
-        if (key != null) Place(WaitBox(key, name), r, 5);
+        Place(ToneMenu.Button(name, tone => UseTone(key, tone)), r, 3);
+        Place(RowButton("L.S.Sounds.Play", "L.S.Sounds.PlayFor", name, () => Play(key)), r, 4);
+        if (own.Length > 0 || blank) Place(RowButton("L.S.Sounds.Clear", "L.S.Sounds.ClearFor", name, () => Clear(key)), r, 5);
+        if (key != null) Place(WaitBox(key, name), r, 6);
     }
 
     private static Button RowButton(string key, string nameKey, string name, Action click)
@@ -197,6 +198,19 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
         var current = key == null ? _ctx.S.AlertSoundFile : AlertSoundFields.OwnFile(_ctx.S, key);
         var picked = _ctx.Host.PickFile(current, AlertsPages.SoundFilter);
         if (picked == null) return;
+        Take(key, picked);
+    }
+
+    /// <summary>Built-in…: one of the generated tones (IDEAS P15). Its file is written into the settings folder, and
+    /// stored as a picked file is.</summary>
+    public void UseTone(string? key, Tone tone)
+    {
+        if (ToneMenu.Write(_ctx.Host, tone, _ctx.Service.ConfigDirectory) is { } path) Take(key, path);
+    }
+
+    /// <summary>Stores a file the player chose, unless the sound rule refuses it: then the toast says why.</summary>
+    private void Take(string? key, string picked)
+    {
         if (CustomRuleCheck.LocalSound(picked).Length == 0) _ctx.Host.Toast(Str(AlertsPages.SoundRefusedKey(picked)));
         else Store(key, picked);
     }

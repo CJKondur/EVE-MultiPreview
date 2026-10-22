@@ -153,7 +153,7 @@ public sealed class GroupSoundsEditor : System.Windows.Controls.UserControl, IRe
 
     private void Show()
     {
-        _table.Reset(new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto);
+        _table.Reset(new GridLength(1, GridUnitType.Star), GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto, GridLength.Auto);
         _keys.Clear();
         _overlaps.Children.Clear();
         if (Selected != null)
@@ -200,8 +200,9 @@ public sealed class GroupSoundsEditor : System.Windows.Controls.UserControl, IRe
         var own = Own(key);
         Place(own.Length > 0 ? EditorCard.Value(System.IO.Path.GetFileName(own), secondary: true) : EditorCard.Note("L.S.GroupSounds.UsesEvent"), r, 1);
         Place(RowButton("L.S.Sounds.Change", "L.S.Sounds.ChangeFor", name, () => Change(key)), r, 2);
-        Place(RowButton("L.S.Sounds.Play", "L.S.Sounds.PlayFor", name, () => Play(key)), r, 3);
-        if (own.Length > 0) Place(RowButton("L.S.Sounds.Clear", "L.S.Sounds.ClearFor", name, () => Clear(key)), r, 4);
+        Place(ToneMenu.Button(name, tone => UseTone(key, tone)), r, 3);
+        Place(RowButton("L.S.Sounds.Play", "L.S.Sounds.PlayFor", name, () => Play(key)), r, 4);
+        if (own.Length > 0) Place(RowButton("L.S.Sounds.Clear", "L.S.Sounds.ClearFor", name, () => Clear(key)), r, 5);
     }
 
     private static Button RowButton(string key, string nameKey, string name, Action click)
@@ -226,6 +227,19 @@ public sealed class GroupSoundsEditor : System.Windows.Controls.UserControl, IRe
         if (Selected == null) return;
         var picked = _ctx.Host.PickFile(Own(eventKey), AlertsPages.SoundFilter);
         if (picked == null) return;
+        Take(eventKey, picked);
+    }
+
+    /// <summary>Built-in…: one of the generated tones (IDEAS P15), written into the settings folder and kept as a
+    /// picked file is.</summary>
+    public void UseTone(string eventKey, Tone tone)
+    {
+        if (Selected == null) return;
+        if (ToneMenu.Write(_ctx.Host, tone, _ctx.Service.ConfigDirectory) is { } path) Take(eventKey, path);
+    }
+
+    private void Take(string eventKey, string picked)
+    {
         if (CustomRuleCheck.LocalSound(picked).Length == 0) _ctx.Host.Toast(Str(AlertsPages.SoundRefusedKey(picked)));
         else Store(eventKey, picked);
     }

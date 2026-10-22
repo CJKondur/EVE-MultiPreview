@@ -729,6 +729,9 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
             _sound.Children.Add(button);
         }
         Add("L.S.Sounds.Change", () => ChangeSound(id));
+        var tone = ToneMenu.Button(rule.Name, picked => UseTone(id, picked));
+        tone.Margin = new Thickness(0, 0, 8, 6);
+        _sound.Children.Add(tone);
         Add("L.S.Sounds.Play", () => Play(id));
         if (rule.Sound.Length > 0) Add("L.S.Sounds.Clear", () => ClearSound(id));
     }
@@ -740,6 +743,19 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         if (rule == null) return;
         var picked = _ctx.Host.PickFile(rule.Sound.Length > 0 ? rule.Sound : _ctx.S.AlertSoundFile, AlertsPages.SoundFilter);
         if (picked == null) return;
+        TakeSound(id, picked);
+    }
+
+    /// <summary>Built-in…: one of the generated tones (IDEAS P15), written into the settings folder and kept as a
+    /// picked file is.</summary>
+    public void UseTone(string id, Tone tone)
+    {
+        if (Model.Find(id) == null) return;
+        if (ToneMenu.Write(_ctx.Host, tone, _ctx.Service.ConfigDirectory) is { } path) TakeSound(id, path);
+    }
+
+    private void TakeSound(string id, string picked)
+    {
         if (!Model.SetSound(id, picked) && !Model.SaveFailed) _ctx.Host.Toast(Str(AlertsPages.SoundRefusedKey(picked)));
         AfterSave();
         FillSound(id);

@@ -2841,4 +2841,12 @@
     <sys:String x:Key="L.S.Uninstall.NotHere">깨끗이 제거는 실행 중인 MultiPreview에서만 쓸 수 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.uninstall.Title">깨끗이 제거</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.uninstall.Body">MultiPreview를 지우기 전에 **깨끗이 제거**를 눌러요. 그러면 사라진 프로그램을 가리키는 항목이 Windows에 남지 않아요.&#x0A;&#x0A;제거하는 것:&#x0A;- Windows와 함께 시작 항목과, 작업 관리자 시작 프로그램 목록의 켜짐/꺼짐 기록&#x0A;- MultiPreview가 Windows 알림을 보여 줄 수 있게 하는 항목&#x0A;- 선택한 경우에만: 설정, 기록, 로그 (폴더 %APPDATA%\EVE MultiPreview). MultiPreview를 자기 폴더에서 실행하면(포터블) 설정은 그 폴더에 있어요. 그 폴더는 지워지지 않으니 직접 지워 주세요.&#x0A;&#x0A;제거하지 않는 것:&#x0A;- 프로그램 파일: 나중에 직접 지워 주세요&#x0A;- EVE용 RTSS 프로필 (Program Files 안 RTSS의 Profiles 폴더에 있는 exefile.exe.cfg): 거기서 지우거나 RTSS에서 초기화해 주세요&#x0A;- EVE가 직접 만드는 EVE 설정 백업 (%LOCALAPPDATA%\CCP\EVE\EVEMPBackups): 내 것이라서 절대 지우지 않아요&#x0A;&#x0A;끝나면 MultiPreview는 아무것도 저장하지 않고 닫혀요. 제거하지 못한 항목이 있으면 열린 채로 알려 줘요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.Tone">내장…</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.ToneFor">{0}용 내장 소리</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sounds.ToneFailed">내장 소리를 설정 폴더에 저장하지 못했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.Chime">차임</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.Ping">핑</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.DoublePing">더블 핑</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.LowAlarm">낮은 경보</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Tone.Rising">상승음</sys:String> <!-- draft -->
 </ResourceDictionary>
