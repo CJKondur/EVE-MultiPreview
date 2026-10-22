@@ -1646,7 +1646,7 @@
     <sys:String x:Key="L.S.Sounds.Note">Wait: after a sound plays for a character, that event's sound stays silent for this many seconds. Empty or 0 = no wait (the quiet time on Events still applies). Play uses the volume above.</sys:String>
     <sys:String x:Key="L.Help.alerts.sounds.Intro">Alerts can play a sound. Pick one default sound for every event, then give some events their own.</sys:String>
     <sys:String x:Key="L.Help.alerts.sounds.sounds.Title">Choosing sounds</sys:String>
-    <sys:String x:Key="L.Help.alerts.sounds.sounds.Body">- **Change…** picks a WAV or MP3 file; **Play** tries it at the volume above; **Clear** goes back to the default sound.&#x0A;- An event with no sound of its own and no default sound is silent.&#x0A;- **Wait** stops the same event's sound repeating for one character, for example a rock running dry on every miner.&#x0A;- A sound file must be on a drive of this PC, and no name on its path can be one Windows keeps for a device (CON, PRN, AUX, NUL, COM1 to COM9, LPT1 to LPT9), also with an extension (con.wav): such a file is not used.</sys:String>
+    <sys:String x:Key="L.Help.alerts.sounds.sounds.Body">- **Change…** picks a WAV or MP3 file; **Play** tries it at the volume above; **Clear** goes back to the default sound.&#x0A;- An event with no sound of its own and no default sound is silent.&#x0A;- **Wait** stops the same event's sound repeating for one character, for example a rock running dry on every miner.&#x0A;- A sound file must be on a drive of this PC, and no name on its path can be one Windows keeps for a device (CON, PRN, AUX, NUL, COM1 to COM9, LPT1 to LPT9), also with an extension (con.wav): such a file is not played, and the event stays silent.</sys:String>
     <sys:String x:Key="L.S.Page.alerts.hub">Alert hub</sys:String>
     <sys:String x:Key="L.S.Page.alerts.hub.Desc">A small floating icon that collects alerts as toasts.</sys:String>
     <sys:String x:Key="L.S.Sec.alerts.hub.main">Alert hub</sys:String>
@@ -2811,4 +2811,5 @@
     <sys:String x:Key="L.Hist.UnreadDays">{0} day(s) could not be read.</sys:String>
     <sys:String x:Key="L.Hist.NotLoaded">Nothing is recorded in this session: the settings file could not be read.</sys:String>
     <sys:String x:Key="L.Start.Restore.Where">The first problem is on line {0}.</sys:String>
+    <sys:String x:Key="L.S.Rules.SoundDeviceName">Windows keeps that name for a device (CON, NUL, COM1 …). Rename the file or its folder and pick it again.</sys:String>
 </ResourceDictionary>

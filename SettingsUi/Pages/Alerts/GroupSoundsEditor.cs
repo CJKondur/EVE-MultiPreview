@@ -226,7 +226,7 @@ public sealed class GroupSoundsEditor : System.Windows.Controls.UserControl, IRe
         if (Selected == null) return;
         var picked = _ctx.Host.PickFile(Own(eventKey), AlertsPages.SoundFilter);
         if (picked == null) return;
-        if (CustomRuleCheck.LocalSound(picked).Length == 0) _ctx.Host.Toast(Str("L.S.Rules.SoundNotLocal"));
+        if (CustomRuleCheck.LocalSound(picked).Length == 0) _ctx.Host.Toast(Str(AlertsPages.SoundRefusedKey(picked)));
         else Store(eventKey, picked);
     }
 

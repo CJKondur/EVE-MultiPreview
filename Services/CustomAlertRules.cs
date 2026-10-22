@@ -159,21 +159,32 @@ public static class CustomRuleCheck
     public static string LocalSound(string? sound)
     {
         var path = (sound ?? "").Trim();
-        bool local = path.Length >= 4 && path.Length <= CustomRules.MaxSound
-            && char.IsAsciiLetter(path[0]) && path[1] == ':' && (path[2] == '\\' || path[2] == '/')
-            && path.IndexOfAny(NotInASound) < 0
-            && path.IndexOf(':', 2) < 0
-            && path[3..].Split('\\', '/').All(IsAFileName);
-        return local ? path : "";
+        return IsPlainLocal(path, refuseDevices: true) ? path : "";
     }
+
+    /// <summary>Whether <see cref="LocalSound"/> refuses a path for a device's name and for nothing else: the path
+    /// would pass if its device-named parts were ordinary names. A picker tells that apart from the other refusals,
+    /// because "pick a file on one of this PC's drives" is no help for a file that is on this PC.</summary>
+    public static bool IsDeviceNamed(string? sound)
+    {
+        var path = (sound ?? "").Trim();
+        return IsPlainLocal(path, refuseDevices: false) && !IsPlainLocal(path, refuseDevices: true);
+    }
+
+    private static bool IsPlainLocal(string path, bool refuseDevices) =>
+        path.Length >= 4 && path.Length <= CustomRules.MaxSound
+        && char.IsAsciiLetter(path[0]) && path[1] == ':' && (path[2] == '\\' || path[2] == '/')
+        && path.IndexOfAny(NotInASound) < 0
+        && path.IndexOf(':', 2) < 0
+        && path[3..].Split('\\', '/').All(part => IsAFileName(part, refuseDevices));
 
     /// <summary>Whether one part of a path between two separators is a name Windows takes as written. An empty part
     /// (two separators in a row) is none at all and passes, as it always did.</summary>
-    private static bool IsAFileName(string part)
+    private static bool IsAFileName(string part, bool refuseDevices)
     {
         if (part.Length == 0) return true;
         if (part[^1] == '.' || part[^1] == ' ') return false;                // also "." and ".."
-        return !IsADevice(part);
+        return !(refuseDevices && IsADevice(part));
     }
 
     /// <summary>Whether Windows takes a part as a device: the name before its first "." (the spaces behind it dropped:

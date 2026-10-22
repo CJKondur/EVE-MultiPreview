@@ -1664,7 +1664,7 @@
     <sys:String x:Key="L.S.Sounds.Note">等待：某个角色播放声音后，该事件的声音在这么多秒内保持静音。留空或 0 = 不等待（“事件”中的静默时间仍然有效）。“播放”使用上面的音量。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.Intro">警报可以播放声音。先选一个适用于所有事件的默认声音，再给部分事件指定各自的声音。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.sounds.Title">选择声音</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.sounds.Body">- **更改…** 选择 WAV 或 MP3 文件；**播放** 以上面的音量试听；**清除** 恢复为默认声音。&#x0A;- 既没有自己声音也没有默认声音的事件不会发声。&#x0A;- **等待** 防止同一事件的声音对同一角色反复播放，例如每个矿工的矿石都被采空时。&#x0A;- 声音文件必须在这台电脑的磁盘上，而且其路径上的任何名称都不能是 Windows 为设备保留的名称（CON、PRN、AUX、NUL、COM1 到 COM9、LPT1 到 LPT9），带扩展名的也不行（con.wav）：这样的文件不会被使用。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.sounds.Body">- **更改…** 选择 WAV 或 MP3 文件；**播放** 以上面的音量试听；**清除** 恢复为默认声音。&#x0A;- 既没有自己声音也没有默认声音的事件不会发声。&#x0A;- **等待** 防止同一事件的声音对同一角色反复播放，例如每个矿工的矿石都被采空时。&#x0A;- 声音文件必须在这台电脑的磁盘上，而且其路径上的任何名称都不能是 Windows 为设备保留的名称（CON、PRN、AUX、NUL、COM1 到 COM9、LPT1 到 LPT9），带扩展名的也不行（con.wav）：这样的文件不会播放，该事件也不会发声。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.hub">警报中心</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.hub.Desc">一个小的悬浮图标，以提示条形式汇集警报。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.hub.main">警报中心</sys:String> <!-- draft -->
@@ -2829,4 +2829,5 @@
     <sys:String x:Key="L.Hist.UnreadDays">有 {0} 天的记录无法读取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.NotLoaded">本次会话不会记录任何内容：无法读取设置文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Where">第一个问题出现在第 {0} 行。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.SoundDeviceName">Windows 把这个名称保留给设备（CON、NUL、COM1 …）。请重命名该文件或其所在文件夹，然后重新选择。</sys:String> <!-- draft -->
 </ResourceDictionary>

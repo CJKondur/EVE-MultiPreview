@@ -189,12 +189,16 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
         return box;
     }
 
-    /// <summary>Change…: the open-file dialog, starting at the current file. A null key is the default sound.</summary>
+    /// <summary>Change…: the open-file dialog, starting at the current file. A null key is the default sound. A file
+    /// the sound rule refuses (CustomRuleCheck.LocalSound) is not stored, as in the group and rule pickers: the toast
+    /// says why, and the setting stays as it was.</summary>
     public void Change(string? key)
     {
         var current = key == null ? _ctx.S.AlertSoundFile : AlertSoundFields.OwnFile(_ctx.S, key);
         var picked = _ctx.Host.PickFile(current, AlertsPages.SoundFilter);
-        if (picked != null) Store(key, picked);
+        if (picked == null) return;
+        if (CustomRuleCheck.LocalSound(picked).Length == 0) _ctx.Host.Toast(Str(AlertsPages.SoundRefusedKey(picked)));
+        else Store(key, picked);
     }
 
     /// <summary>Clear: the event plays the default sound again (or, for the default, no sound).</summary>

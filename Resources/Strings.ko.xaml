@@ -1647,7 +1647,7 @@
     <sys:String x:Key="L.S.Sounds.Note">대기: 캐릭터에 대해 소리가 재생된 뒤, 해당 이벤트의 소리는 이 시간(초) 동안 울리지 않습니다. 비우거나 0 = 대기 없음(이벤트의 조용한 시간은 계속 적용됩니다). '재생'은 위의 볼륨을 사용합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.Intro">알림은 소리를 재생할 수 있습니다. 모든 이벤트에 쓸 기본 소리를 고르고, 일부 이벤트에는 자체 소리를 지정하세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.sounds.sounds.Title">소리 고르기</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.sounds.sounds.Body">- **변경…** 으로 WAV 또는 MP3 파일을 고르고, **재생** 으로 위의 볼륨에서 들어보고, **지우기** 로 기본 소리로 되돌립니다.&#x0A;- 자체 소리도 기본 소리도 없는 이벤트는 소리가 나지 않습니다.&#x0A;- **대기** 는 같은 이벤트의 소리가 한 캐릭터에 대해 반복되는 것을 막습니다. 예를 들어 모든 채굴자의 바위가 고갈될 때입니다.&#x0A;- 소리 파일은 이 PC의 드라이브에 있어야 하며, 경로의 어떤 이름도 Windows가 장치용으로 예약한 이름(CON, PRN, AUX, NUL, COM1~COM9, LPT1~LPT9)이어서는 안 됩니다. 확장자가 붙어도 마찬가지입니다(con.wav). 그런 파일은 사용되지 않습니다.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.sounds.sounds.Body">- **변경…** 으로 WAV 또는 MP3 파일을 고르고, **재생** 으로 위의 볼륨에서 들어보고, **지우기** 로 기본 소리로 되돌립니다.&#x0A;- 자체 소리도 기본 소리도 없는 이벤트는 소리가 나지 않습니다.&#x0A;- **대기** 는 같은 이벤트의 소리가 한 캐릭터에 대해 반복되는 것을 막습니다. 예를 들어 모든 채굴자의 바위가 고갈될 때입니다.&#x0A;- 소리 파일은 이 PC의 드라이브에 있어야 하며, 경로의 어떤 이름도 Windows가 장치용으로 예약한 이름(CON, PRN, AUX, NUL, COM1~COM9, LPT1~LPT9)이어서는 안 됩니다. 확장자가 붙어도 마찬가지입니다(con.wav). 그런 파일은 재생되지 않으며, 이벤트는 소리가 나지 않는 채로 남습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.hub">알림 허브</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.alerts.hub.Desc">알림을 토스트로 모아 보여 주는 작은 떠 있는 아이콘입니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.alerts.hub.main">알림 허브</sys:String> <!-- draft -->
@@ -2812,4 +2812,5 @@
     <sys:String x:Key="L.Hist.UnreadDays">읽지 못한 날이 {0}일 있어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hist.NotLoaded">이번 세션에는 아무것도 기록되지 않아요. 설정 파일을 읽지 못했어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Start.Restore.Where">첫 번째 문제는 {0}번째 줄에 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Rules.SoundDeviceName">Windows가 이 이름을 장치용으로 예약해 두었어요(CON, NUL, COM1 …). 파일이나 그 폴더의 이름을 바꾼 뒤 다시 골라 주세요.</sys:String> <!-- draft -->
 </ResourceDictionary>

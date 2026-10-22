@@ -734,7 +734,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
         if (rule == null) return;
         var picked = _ctx.Host.PickFile(rule.Sound.Length > 0 ? rule.Sound : _ctx.S.AlertSoundFile, AlertsPages.SoundFilter);
         if (picked == null) return;
-        if (!Model.SetSound(id, picked) && !Model.SaveFailed) _ctx.Host.Toast(Str("L.S.Rules.SoundNotLocal"));
+        if (!Model.SetSound(id, picked) && !Model.SaveFailed) _ctx.Host.Toast(Str(AlertsPages.SoundRefusedKey(picked)));
         AfterSave();
         FillSound(id);
     }

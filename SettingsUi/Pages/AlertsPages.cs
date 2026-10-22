@@ -287,6 +287,11 @@ public static class AlertsPages
     public static string SoundFilter =>
         LocalizationService.Str("L.S.Filter.Sounds", "Sound files") + " (*.wav, *.mp3)|*.wav;*.mp3|*.*|*.*";
 
+    /// <summary>The toast key for a sound file the pickers refuse (CustomRuleCheck.LocalSound): a name Windows keeps for
+    /// a device says so, since the file is on this PC; any other refusal says to pick a file on one of its drives.</summary>
+    public static string SoundRefusedKey(string picked) =>
+        CustomRuleCheck.IsDeviceNamed(picked) ? "L.S.Rules.SoundDeviceName" : "L.S.Rules.SoundNotLocal";
+
     private static bool HubOn(AppSettings s) => s.AlertHubEnabled;
 
     /// <summary>Old OnResetHubPosition only cleared the saved place; the hub moved at the next start. Now it moves
