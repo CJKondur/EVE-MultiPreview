@@ -2833,4 +2833,14 @@
     <!-- Ideas batch 24 (Plan 28) -->
     <sys:String x:Key="L.S.Rules.Once">Un avviso per riga</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Once.Desc">Se più dei tuoi personaggi sono nel canale, solo il primo che legge la riga lancia l'avviso.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.recent">Modificato di recente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent">Impostazioni che hai modificato</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent.Desc">Le ultime 20 impostazioni che hai modificato dall'avvio di MultiPreview, la più recente per prima. Annulla rimette il valore precedente, ma solo finché l'impostazione ha ancora il valore che le hai dato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Undo">Annulla</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.None">Dall'avvio di MultiPreview non hai ancora modificato nulla.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.NotListed">Tabelle, gruppi, finestre di ritaglio e regole hanno i loro editor e non compaiono qui.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Refused">Non annullato: quell'impostazione è stata modificata nel frattempo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Empty">(vuoto)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Title">Impostazioni modificate di recente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Body">La scheda **Impostazioni che hai modificato** elenca le ultime 20 impostazioni che hai modificato con una scheda dall'avvio di MultiPreview, la più recente per prima: com'era l'impostazione, com'è ora e quando.&#x0A;&#x0A;- **Annulla** rimette il valore precedente. Se hai modificato di nuovo quell'impostazione nel frattempo, non succede nulla, quindi non sovrascrive mai una scelta più recente; annulla prima la modifica più recente.&#x0A;- Una modifica annullata esce dall'elenco.&#x0A;- Chiudere la finestra delle impostazioni mantiene l'elenco; riavviare MultiPreview lo svuota. Non viene mai salvato in un file.&#x0A;- Tabelle, gruppi, finestre di ritaglio, regole e altri editor non compaiono nell'elenco.&#x0A;- L'impostazione di un profilo si può annullare solo finché quel profilo è in uso.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -49,6 +49,10 @@ public sealed class SettingsService : IDisposable
 
     public AppSettings Settings => _settings;
 
+    /// <summary>The setting changes made in the settings window in this run of the app (IDEAS P17), for its Recently changed
+    /// card. Lives here because this object outlives the window: closing and reopening it keeps the list. Memory only.</summary>
+    public SettingsUi.SettingChanges Changes { get; } = new();
+
     /// <summary>Directory the config lives in — used to co-locate layout_presets.json.</summary>
     public string ConfigDirectory => Path.GetDirectoryName(_settingsPath) ?? AppContext.BaseDirectory;
     /// <summary>Full path of the settings file (backups and exports copy it).</summary>

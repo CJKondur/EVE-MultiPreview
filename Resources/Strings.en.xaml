@@ -2815,4 +2815,14 @@
     <!-- Ideas batch 24 (Plan 28) -->
     <sys:String x:Key="L.S.Rules.Once">One alert per line</sys:String>
     <sys:String x:Key="L.S.Rules.Once.Desc">When several of your characters are in the channel, only the first to read the line alerts.</sys:String>
+    <sys:String x:Key="L.S.Sec.app.general.recent">Recently changed</sys:String>
+    <sys:String x:Key="L.S.app.general.recent">Settings you changed</sys:String>
+    <sys:String x:Key="L.S.app.general.recent.Desc">The last 20 settings you changed since MultiPreview started, newest first. Undo puts the old value back, but only while the setting still has the value you gave it.</sys:String>
+    <sys:String x:Key="L.S.Changes.Undo">Undo</sys:String>
+    <sys:String x:Key="L.S.Changes.None">Nothing changed yet since MultiPreview started.</sys:String>
+    <sys:String x:Key="L.S.Changes.NotListed">Tables, groups, crop windows and rules have their own editors and are not listed here.</sys:String>
+    <sys:String x:Key="L.S.Changes.Refused">Not undone: that setting has changed since.</sys:String>
+    <sys:String x:Key="L.S.Changes.Empty">(empty)</sys:String>
+    <sys:String x:Key="L.Help.app.general.recent.Title">Recently changed settings</sys:String>
+    <sys:String x:Key="L.Help.app.general.recent.Body">The **Settings you changed** card lists the last 20 settings you changed with a card since MultiPreview started, newest first: what the setting was, what it is now, and when.&#x0A;&#x0A;- **Undo** puts the old value back. If you have changed that setting again since, nothing happens, so it never overwrites a newer choice; undo the newer change first.&#x0A;- An undone change leaves the list.&#x0A;- Closing the settings window keeps the list; restarting MultiPreview empties it. It is never saved to a file.&#x0A;- Tables, groups, crop windows, rules and other editors are not listed.&#x0A;- A setting of one profile can only be undone while that profile is in use.</sys:String>
 </ResourceDictionary>

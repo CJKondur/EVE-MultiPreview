@@ -2818,4 +2818,14 @@
     <!-- Ideas batch 24 (Plan 28) -->
     <sys:String x:Key="L.S.Rules.Once">Une alerte par ligne</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Once.Desc">Quand plusieurs de vos personnages sont dans le canal, seul le premier qui lit la ligne déclenche l'alerte.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.recent">Modifié récemment</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent">Réglages que vous avez modifiés</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent.Desc">Les 20 derniers réglages que vous avez modifiés depuis le démarrage de MultiPreview, le plus récent en premier. Annuler remet l'ancienne valeur, mais seulement tant que le réglage a encore la valeur que vous lui avez donnée.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Undo">Annuler</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.None">Rien n'a encore été modifié depuis le démarrage de MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.NotListed">Les tableaux, groupes, fenêtres de recadrage et règles ont leurs propres éditeurs et ne figurent pas ici.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Refused">Non annulé : ce réglage a été modifié depuis.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Empty">(vide)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Title">Réglages modifiés récemment</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Body">La carte **Réglages que vous avez modifiés** liste les 20 derniers réglages que vous avez modifiés avec une carte depuis le démarrage de MultiPreview, le plus récent en premier : ce qu'était le réglage, ce qu'il est maintenant et quand.&#x0A;&#x0A;- **Annuler** remet l'ancienne valeur. Si vous avez de nouveau modifié ce réglage depuis, rien ne se passe, donc un choix plus récent n'est jamais écrasé ; annulez d'abord la modification plus récente.&#x0A;- Une modification annulée disparaît de la liste.&#x0A;- Fermer la fenêtre des réglages conserve la liste ; redémarrer MultiPreview la vide. Elle n'est jamais enregistrée dans un fichier.&#x0A;- Les tableaux, groupes, fenêtres de recadrage, règles et autres éditeurs ne figurent pas dans la liste.&#x0A;- Le réglage d'un profil ne peut être annulé que tant que ce profil est actif.</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2816,4 +2816,14 @@
     <!-- Ideas batch 24 (Plan 28) -->
     <sys:String x:Key="L.S.Rules.Once">한 줄에 알림 한 번</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Once.Desc">채널에 내 캐릭터가 여러 명 있으면 그 줄을 가장 먼저 읽은 캐릭터만 알림을 울려요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.recent">최근 변경</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent">변경한 설정</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent.Desc">MultiPreview를 시작한 뒤 변경한 설정을 최신 순으로 최대 20개 보여줘요. '실행 취소'는 이전 값으로 되돌리지만, 그 설정이 아직 지정한 값일 때만 동작해요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Undo">실행 취소</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.None">MultiPreview를 시작한 뒤로 변경한 설정이 아직 없어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.NotListed">표, 그룹, 크롭 창, 규칙은 각자의 편집기에서 다루므로 여기에는 나오지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Refused">취소하지 않았어요. 그 설정은 그 뒤에 다시 바뀌었어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Empty">(비어 있음)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Title">최근 변경한 설정</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Body">**변경한 설정** 카드는 MultiPreview를 시작한 뒤 카드로 변경한 설정을 최신 순으로 최대 20개 보여줘요. 설정이 예전에 어땠는지, 지금은 어떤지, 언제 바꿨는지 알 수 있어요.&#x0A;&#x0A;- **실행 취소**는 이전 값으로 되돌려요. 그 뒤에 같은 설정을 다시 바꿨다면 아무 일도 일어나지 않아서 더 새로운 선택을 덮어쓰지 않아요. 더 새로운 변경부터 먼저 취소하세요.&#x0A;- 취소한 변경은 목록에서 사라져요.&#x0A;- 설정 창을 닫아도 목록은 남고, MultiPreview를 다시 시작하면 비워져요. 파일에는 저장되지 않아요.&#x0A;- 표, 그룹, 크롭 창, 규칙 같은 편집기는 목록에 나오지 않아요.&#x0A;- 프로필의 설정은 그 프로필을 쓰는 동안에만 취소할 수 있어요.</sys:String> <!-- draft -->
 </ResourceDictionary>

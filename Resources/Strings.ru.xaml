@@ -2835,4 +2835,14 @@
     <!-- Ideas batch 24 (Plan 28) -->
     <sys:String x:Key="L.S.Rules.Once">Одно оповещение на строку</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Once.Desc">Если в канале несколько ваших персонажей, оповещение вызывает только тот, кто прочитал строку первым.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.recent">Недавние изменения</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent">Изменённые вами настройки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent.Desc">Последние 20 настроек, которые вы изменили с запуска MultiPreview, сначала самые новые. «Отменить» возвращает прежнее значение, но только пока у настройки всё ещё то значение, которое вы ей задали.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Undo">Отменить</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.None">С запуска MultiPreview вы ещё ничего не меняли.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.NotListed">Таблицы, группы, окна-вырезки и правила редактируются в своих редакторах и здесь не показаны.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Refused">Не отменено: эта настройка с тех пор изменилась.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Empty">(пусто)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Title">Недавно изменённые настройки</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Body">Карточка **Изменённые вами настройки** показывает последние 20 настроек, которые вы изменили карточкой с запуска MultiPreview, сначала самые новые: какой настройка была, какая она сейчас и когда это произошло.&#x0A;&#x0A;- **Отменить** возвращает прежнее значение. Если вы с тех пор снова изменили эту настройку, ничего не произойдёт, так что более новый выбор никогда не будет перезаписан; сначала отмените более новое изменение.&#x0A;- Отменённое изменение пропадает из списка.&#x0A;- Закрытие окна настроек сохраняет список; перезапуск MultiPreview очищает его. Он никогда не записывается в файл.&#x0A;- Таблицы, группы, окна-вырезки, правила и другие редакторы в список не попадают.&#x0A;- Настройку профиля можно отменить, только пока этот профиль активен.</sys:String> <!-- draft -->
 </ResourceDictionary>

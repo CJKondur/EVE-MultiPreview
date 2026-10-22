@@ -2837,4 +2837,14 @@
     <!-- Ideas batch 24 (Plan 28) -->
     <sys:String x:Key="L.S.Rules.Once">Una alerta por línea</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Once.Desc">Si varios de tus personajes están en el canal, solo el primero que lee la línea lanza la alerta.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.recent">Cambiado recientemente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent">Ajustes que has cambiado</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent.Desc">Los últimos 20 ajustes que has cambiado desde que se inició MultiPreview, el más reciente primero. Deshacer devuelve el valor anterior, pero solo mientras el ajuste siga teniendo el valor que le diste.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Undo">Deshacer</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.None">Todavía no has cambiado nada desde que se inició MultiPreview.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.NotListed">Las tablas, los grupos, las ventanas de recorte y las reglas tienen sus propios editores y no aparecen aquí.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Refused">No se deshizo: ese ajuste se ha cambiado desde entonces.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Empty">(vacío)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Title">Ajustes cambiados recientemente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Body">La tarjeta **Ajustes que has cambiado** lista los últimos 20 ajustes que has cambiado con una tarjeta desde que se inició MultiPreview, el más reciente primero: cómo estaba el ajuste, cómo está ahora y cuándo.&#x0A;&#x0A;- **Deshacer** devuelve el valor anterior. Si has vuelto a cambiar ese ajuste desde entonces, no pasa nada, así que nunca pisa una elección más reciente; deshaz primero el cambio más reciente.&#x0A;- Un cambio deshecho desaparece de la lista.&#x0A;- Cerrar la ventana de ajustes conserva la lista; reiniciar MultiPreview la vacía. Nunca se guarda en un archivo.&#x0A;- Las tablas, los grupos, las ventanas de recorte, las reglas y otros editores no aparecen en la lista.&#x0A;- El ajuste de un perfil solo se puede deshacer mientras ese perfil esté en uso.</sys:String> <!-- draft -->
 </ResourceDictionary>

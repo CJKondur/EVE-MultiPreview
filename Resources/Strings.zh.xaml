@@ -2833,4 +2833,14 @@
     <!-- Ideas batch 24 (Plan 28) -->
     <sys:String x:Key="L.S.Rules.Once">每行只发一次警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Once.Desc">如果你有多个角色在这个频道里，只有最先读到这一行的角色会发出警报。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.recent">最近更改</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent">你更改过的设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent.Desc">自 MultiPreview 启动以来你更改的最近 20 项设置，最新的在最前。“撤销”会恢复旧值，但前提是该设置仍是你设定的值。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Undo">撤销</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.None">自 MultiPreview 启动以来还没有更改过任何设置。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.NotListed">表格、分组、裁剪窗口和规则有各自的编辑器，不会在此列出。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Refused">未撤销：该设置之后又被更改过。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Empty">（空）</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Title">最近更改的设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Body">卡片**你更改过的设置**列出自 MultiPreview 启动以来你通过卡片更改的最近 20 项设置，最新的在最前：设置原来是什么、现在是什么，以及更改时间。&#x0A;&#x0A;- **撤销**会恢复旧值。如果你之后又更改过该设置，则什么也不会发生，因此不会覆盖较新的选择；请先撤销较新的更改。&#x0A;- 已撤销的更改会从列表中消失。&#x0A;- 关闭设置窗口会保留列表；重启 MultiPreview 会清空列表。列表绝不会保存到文件。&#x0A;- 表格、分组、裁剪窗口、规则和其他编辑器不会列出。&#x0A;- 某个配置文件的设置只有在该配置文件正在使用时才能撤销。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -119,6 +119,8 @@ public sealed class SettingVM : ItemVM
         if (!unchanged)
         {
             D.Set(Ctx.S, value);
+            // IDEAS P17: the one list of this run's changes, read back so an undo compares like with like.
+            Ctx.Service.Changes.Record(D, CharacterDirectory.Current(Ctx.S), current, D.Get(Ctx.S));
             Ctx.Applier.Request(D.Apply);
             D.OnChanged?.Invoke(Ctx);
         }
@@ -160,7 +162,7 @@ public sealed class SettingVM : ItemVM
 
     private static string Format(object? v) => Convert.ToString(v, CultureInfo.CurrentCulture) ?? "";
 
-    private static bool Same(object? a, object? b) =>
+    internal static bool Same(object? a, object? b) =>
         a is Enum || b is Enum
             ? Convert.ToInt64(a, CultureInfo.InvariantCulture) == Convert.ToInt64(b, CultureInfo.InvariantCulture)
             : Convert.ToString(a, CultureInfo.InvariantCulture) == Convert.ToString(b, CultureInfo.InvariantCulture);

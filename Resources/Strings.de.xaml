@@ -2815,4 +2815,14 @@
     <!-- Ideas batch 24 (Plan 28) -->
     <sys:String x:Key="L.S.Rules.Once">Ein Alarm pro Zeile</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Rules.Once.Desc">Wenn mehrere deiner Charaktere im Kanal sind, alarmiert nur der erste, der die Zeile liest.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.general.recent">Zuletzt geändert</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent">Einstellungen, die du geändert hast</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.recent.Desc">Die letzten 20 Einstellungen, die du seit dem Start von MultiPreview geändert hast, die neueste zuerst. Rückgängig setzt den alten Wert zurück, aber nur, solange die Einstellung noch den Wert hat, den du ihr gegeben hast.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Undo">Rückgängig</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.None">Seit dem Start von MultiPreview wurde noch nichts geändert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.NotListed">Tabellen, Gruppen, Ausschnittfenster und Regeln haben eigene Editoren und stehen hier nicht.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Refused">Nicht rückgängig gemacht: Die Einstellung wurde seitdem geändert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Changes.Empty">(leer)</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Title">Zuletzt geänderte Einstellungen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.recent.Body">Die Karte **Einstellungen, die du geändert hast** listet die letzten 20 Einstellungen, die du seit dem Start von MultiPreview mit einer Karte geändert hast, die neueste zuerst: wie die Einstellung war, wie sie jetzt ist und wann.&#x0A;&#x0A;- **Rückgängig** setzt den alten Wert zurück. Hast du die Einstellung seitdem erneut geändert, passiert nichts, sodass eine neuere Wahl nie überschrieben wird; mach zuerst die neuere Änderung rückgängig.&#x0A;- Eine rückgängig gemachte Änderung verschwindet aus der Liste.&#x0A;- Das Schließen des Einstellungsfensters behält die Liste; ein Neustart von MultiPreview leert sie. Sie wird nie in einer Datei gespeichert.&#x0A;- Tabellen, Gruppen, Ausschnittfenster, Regeln und andere Editoren stehen nicht in der Liste.&#x0A;- Eine Einstellung eines Profils lässt sich nur rückgängig machen, solange dieses Profil aktiv ist.</sys:String> <!-- draft -->
 </ResourceDictionary>
