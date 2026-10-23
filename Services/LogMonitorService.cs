@@ -2625,7 +2625,9 @@ public sealed class LogMonitorService : IDisposable
             { repairType = "capacitor"; isIncoming = true; }
             else
             {
-                // Unknown / ambiguous logi line — skip
+                // Unknown / ambiguous logi line — no repair is logged. A marked logi's own repair line the reader cannot read (a client language
+                // without these phrases) still counts as repairing for Logi idle: the worst case is a missed alert, never a false one.
+                if (_logis is { } unreadable && unreadable.Contains(character)) _idleLogi.Repaired(character, _alertClock());
                 return;
             }
 
