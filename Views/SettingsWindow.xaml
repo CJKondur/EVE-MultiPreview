@@ -329,21 +329,6 @@
                             <TextBlock Text="{DynamicResource L.General.HideHotkeyKeystrokesNote}"
                                        Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
                                        Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
-                            <CheckBox x:Name="ChkPropagateModifiers" Content="{DynamicResource L.General.PropagateModifiers}"
-                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
-                            <TextBlock Text="{DynamicResource L.General.PropagateModifiersNote}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
-                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
-                            <CheckBox x:Name="ChkPropagateKeys" Content="{DynamicResource L.General.PropagateKeys}"
-                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
-                            <TextBlock Text="{DynamicResource L.General.PropagateKeysNote}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
-                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
-                            <CheckBox x:Name="ChkHideHeldKeys" Content="{DynamicResource L.General.HideHeldKeys}"
-                                      Checked="OnGeneralChanged" Unchecked="OnGeneralChanged" Margin="4,10,0,0"/>
-                            <TextBlock Text="{DynamicResource L.General.HideHeldKeysNote}"
-                                       Foreground="{StaticResource TextSecondaryBrush}" FontStyle="Italic"
-                                       Margin="4,4,0,0" TextWrapping="Wrap" FontSize="10.5"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="{DynamicResource L.General.SystemHotkeys}">
@@ -413,7 +398,6 @@
                     <GroupBox Header="{DynamicResource L.General.Toggles}">
                         <StackPanel>
                             <CheckBox x:Name="ChkLockPositions" Content="{DynamicResource L.General.LockPositions}" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
-                            <CheckBox x:Name="ChkBroadcastHud" Content="{DynamicResource L.General.BroadcastHud}" ToolTip="{DynamicResource L.Tt.BroadcastHud}" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                             <CheckBox x:Name="ChkAutoSoloAudio" Content="{DynamicResource L.General.AutoSolo}" ToolTip="{DynamicResource L.Tt.AutoSolo}" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                             <CheckBox x:Name="ChkMuteAllWhenNoneActive" Content="{DynamicResource L.General.MuteAllWhenNoneActive}" ToolTip="{DynamicResource L.Tt.MuteAllWhenNoneActive}" IsEnabled="{Binding IsChecked, ElementName=ChkAutoSoloAudio}" Margin="24,0,0,0" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
                             <CheckBox x:Name="ChkIndividualResize" Content="{DynamicResource L.General.IndividualResize}" Checked="OnGeneralChanged" Unchecked="OnGeneralChanged"/>
@@ -1807,8 +1791,6 @@
                     <TextBlock Text="{DynamicResource L.Debug.Subtitle}" Foreground="{StaticResource TextSecondaryBrush}" Margin="0,0,0,12"/>
                     <GroupBox Header="{DynamicResource L.Debug.Targets}">
                         <StackPanel>
-                            <CheckBox x:Name="ChkDebugInjection" Content="{DynamicResource L.Debug.Injection}"
-                                      Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
                             <CheckBox x:Name="ChkDebugCycling" Content="{DynamicResource L.Debug.Cycling}"
                                       Checked="OnDebugChanged" Unchecked="OnDebugChanged"/>
                             <CheckBox x:Name="ChkDebugWindowHooks" Content="{DynamicResource L.Debug.WindowHooks}"

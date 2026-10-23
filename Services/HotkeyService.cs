@@ -505,15 +505,12 @@ public sealed class HotkeyService : IDisposable
                 refusedNow.Add(new RefusedSlot(spec.Hotkey, spec.Modifiers, spec.BaseModifiers, spec.VirtualKey, error));
             }
         }
-        // One keyboard hook serves both kinds of hiding: hotkey keystrokes, and keys still
-        // held across a switch (#115).
+        // The keyboard hook hides hotkey keystrokes from the clients.
         bool hideHotkeys = _appSettings?.HideHotkeyKeystrokes != false && hiddenSlots.Count > 0;
-        bool hideHeld = _appSettings?.HideHeldKeysOnSwitch == true;
-        if (hideHotkeys || hideHeld)
+        if (hideHotkeys)
         {
             EnsureKeyHook();
-            _keyHookMap = hideHotkeys ? hiddenSlots : null;
-            User32.HeldKeyHidingReady = hideHeld;
+            _keyHookMap = hiddenSlots;
         }
         else
         {
@@ -659,43 +656,6 @@ public sealed class HotkeyService : IDisposable
         // Set EVE Only scope from settings
         _eveOnlyScope = !settings.GlobalHotkeys;
         Debug.WriteLine($"[Hotkey:Scope] \uD83D\uDD27 EVE Only scope: {_eveOnlyScope}");
-
-        // ── Pre-calculate Cycle Keys to Ignore during Held Key Injection ──
-        Interop.User32.CycleKeysToIgnore.Clear();
-        void RegisterCycleKeyIgnore(string keyString)
-        {
-            if (string.IsNullOrWhiteSpace(keyString)) return;
-            var (_, vk) = ParseAhkHotkeyString(keyString);
-            if (vk != 0) Interop.User32.CycleKeysToIgnore.Add((int)vk);
-        }
-
-        RegisterCycleKeyIgnore(settings.ProfileCycleForwardHotkey);
-        RegisterCycleKeyIgnore(settings.ProfileCycleBackwardHotkey);
-        
-        if (settings.CharSelectCyclingEnabled)
-        {
-            RegisterCycleKeyIgnore(settings.CharSelectForwardHotkey);
-            RegisterCycleKeyIgnore(settings.CharSelectBackwardHotkey);
-        }
-
-        foreach (var group in profile.HotkeyGroups.Values)
-        {
-            RegisterCycleKeyIgnore(group.ForwardsHotkey);
-            RegisterCycleKeyIgnore(group.BackwardsHotkey);
-        }
-
-        // Every other client-switching key too (#112). Missing, the key that did the
-        // switch was still held when FixTargetHeldKeys ran and got re-sent into the
-        // client it switched to - pressing a character's own "F5" also pressed F5 in
-        // that client. Hidden keystrokes masked it (a swallowed press never reaches
-        // the key state); it showed with hiding off or with a key sent by mouse/macro
-        // software, which the hook deliberately leaves alone.
-        RegisterCycleKeyIgnore(settings.GlobalCycleForwardHotkey);
-        RegisterCycleKeyIgnore(settings.GlobalCycleBackwardHotkey);
-        RegisterCycleKeyIgnore(settings.PreviousClientHotkey);
-        RegisterCycleKeyIgnore(settings.GoToLastAlertHotkey);
-        foreach (var binding in profile.Hotkeys.Values)
-            RegisterCycleKeyIgnore(binding.Key);
 
         // Suspend hotkey. In capture mode a keyboard suspend key waits for EndCapture (a
         // mouse one is stored with the other mouse bindings; EnsureMouseHook waits too).
@@ -1605,7 +1565,6 @@ public sealed class HotkeyService : IDisposable
     private void RemoveKeyHook()
     {
         _keyHookMap = null;
-        User32.HeldKeyHidingReady = false;   // nothing left to swallow the repeats / release
         if (_keyHookThread == null) return;
         _keyHookGeneration++;   // the watchdog starts over (IDEAS #41)
         if (_keyHookThreadId != 0)
@@ -1668,7 +1627,7 @@ public sealed class HotkeyService : IDisposable
                 if (slot.Id == id) { hidden = true; break; }
             var foreground = User32.GetForegroundWindow();
             var look = new HookWatchdog.KeyLook(messageTime, lastCall, _keyHookInstalledTick, _keyHookGeneration, _keyHookThread != null,
-                _suspended, _captureDepth > 0, _disposed, hidden, User32.HasHiddenHeldKeys,
+                _suspended, _captureDepth > 0, _disposed, hidden,
                 ForegroundHooksSeeInput(foreground), foreground == IntPtr.Zero);
             if (!_keyWatchdog.KeyHookLooksDead(look)) return;
             if (!_keyWatchdog.MayReinstall(Environment.TickCount)) { NoteLimitOnce(_keyWatchdog, ref _keyLimitNoted, "keyboard"); return; }
@@ -1679,7 +1638,7 @@ public sealed class HotkeyService : IDisposable
         catch (Exception ex) { Debug.WriteLine($"[Hotkey:Watchdog] Key check failed: {ex.Message}"); }
     }
 
-    /// <summary>A new keyboard hook thread with the same keys to hide and the same held-key hiding. A press the old hook
+    /// <summary>A new keyboard hook thread with the same keys to hide. A press the old hook
     /// missed is left alone: the new hook doesn't own it, so hiding only its release can't strand the key down.</summary>
     private void ReinstallKeyHook() => ReinstallKeyHook(RemoveKeyHook, EnsureKeyHook);
 
@@ -1687,11 +1646,9 @@ public sealed class HotkeyService : IDisposable
     private void ReinstallKeyHook(Action remove, Action ensure)
     {
         var map = _keyHookMap;
-        bool held = User32.HeldKeyHidingReady;
         remove();
         ensure();
         _keyHookMap = map;
-        User32.HeldKeyHidingReady = held;
     }
 
     /// <summary>Whether the window in front is one this process's hooks can see input for (not elevated over a normal
@@ -1783,15 +1740,11 @@ public sealed class HotkeyService : IDisposable
         if (nCode >= 0)
         {
             var kb = Marshal.PtrToStructure<User32.KBDLLHOOKSTRUCT>(lParam);
-            // Real keystrokes only. Injected ones - our own vk0xE8 activation bridge, the
-            // held-modifier re-press, remapper software - keep the RegisterHotKey path.
+            // Real keystrokes only. Injected ones - our own vk0xE8 activation bridge,
+            // remapper software - keep the RegisterHotKey path.
             if ((kb.flags & LLKHF_INJECTED) == 0)
             {
                 uint vk = kb.vkCode;
-                // A key still held across a client switch, hidden from the client we
-                // switched to until it is released (#115). Checked first: its async state
-                // already reads "up", which the fresh-press test below would misread.
-                if (User32.ConsumeHiddenHeldKey(vk, (kb.flags & LLKHF_UP) != 0)) return (IntPtr)1;
                 if ((kb.flags & LLKHF_UP) != 0)
                 {
                     // Hide the release of a press we hid. Any other release is not ours.

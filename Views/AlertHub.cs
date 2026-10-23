@@ -835,7 +835,7 @@ public class AlertToast : IDisposable
 
         // A click on a toast must not make it the foreground window: the keys would stop reaching the EVE client for as
         // long as the toast is up, and a toast is clicked in a fight. ShowActivated above covers only the moment it is
-        // shown. The same style as the carried-keys HUD, the crops and the stats windows have; it adds two bits to the
+        // shown. The same style as the crops and the stats windows have; it adds two bits to the
         // style the window has and leaves the rest, the topmost bit with it, as WPF set it.
         Window.SourceInitialized += (_, _) =>
         {

@@ -135,7 +135,6 @@ public partial class App : Application
     private Views.HotkeySheetWindow? _hotkeySheet;  // IDEAS #16: the hotkey cheat sheet, while it shows
     private Views.CommandPaletteWindow? _commandPalette;  // IDEAS #14: the command palette, while it shows
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
-    private BroadcastHudWindow? _broadcastHud;
     private ProcessMonitorService? _processMonitor;
     private CropManager? _cropManager;
     private Window? _settingsWindow;
@@ -438,13 +437,6 @@ public partial class App : Application
             if (_settings.LoadedSuccessfully && _settings.Settings.KeepAlertSnoozes) _snoozeFile.Load(_snoozes);
             _snoozes.Changed += FollowSnoozeSwitch;
             PerfLog($"[Deferred] AlertHub created: {deferSw.ElapsedMilliseconds}ms");
-            });
-
-            Step("Broadcast key HUD", () =>
-            {
-            // Broadcast-key HUD — self-gates on ShowBroadcastKeyHud each tick.
-            _broadcastHud = new BroadcastHudWindow(_settings.Settings);
-            _broadcastHud.SaveRequested += () => _settings.SaveDelayed();
             });
 
             Step("Log monitor", () =>
@@ -2679,7 +2671,6 @@ public partial class App : Application
             _pushWay?.Stop();   // IDEAS #2: what waits to be sent is dropped and the one sender is let go
             _alertTimer?.Stop();
             _alertHub?.Dispose();
-            _broadcastHud?.Dispose();
             _logMonitor?.Dispose();
             _alertHistory?.Dispose();   // writes what is waiting (at most two seconds)
             _hotkeyService?.Dispose();

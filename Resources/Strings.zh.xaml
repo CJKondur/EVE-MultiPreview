@@ -66,12 +66,6 @@
     <sys:String x:Key="L.General.ScopeEveActive">当 EVE 窗口处于活动状态时</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">按住 Ctrl / Shift / Alt 时快捷键仍然生效</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">开启：即使按住修饰键，快捷键仍然有效 — 在 EVE 中需要按住 Ctrl 锁定目标。关闭：像 V 这样的单键快捷键只在单独按下时生效，因此 Ctrl+V 可以传递给客户端用于粘贴。</sys:String>
-    <sys:String x:Key="L.General.PropagateModifiers">将按住的 Ctrl / Shift / Alt 传递给切换到的客户端</sys:String>
-    <sys:String x:Key="L.General.PropagateModifiersNote">开启：按住 Ctrl 锁定目标在切换到其他客户端后仍然有效。如果切换后无法锁定，请关闭此项：在某些系统上客户端已能识别按住的按键，额外的按键信号反而会干扰。</sys:String>
-    <sys:String x:Key="L.General.PropagateKeys">将其他按住的按键传递给切换到的客户端</sys:String>
-    <sys:String x:Key="L.General.PropagateKeysNote">开启：切换时仍按住的字母、数字、F 键、Enter、空格和鼠标按键也会在新客户端中按下（按住 F1 并循环切换即可在每个客户端上触发）。如果尚未松开的模块按键在下一个客户端上被激活，随后你自己的按键又把它关掉，请关闭此项。按住的 Ctrl / Shift / Alt 遵循上方的设置。</sys:String>
-    <sys:String x:Key="L.General.HideHeldKeys">对切换到的客户端隐藏仍按住的按键</sys:String>
-    <sys:String x:Key="L.General.HideHeldKeysNote">适用于字母、数字、F 键、Enter 和空格。切换时仍按住的按键会在离开的客户端中松开，并在你松开之前对新客户端隐藏——因此按住 A（对齐）或 S（跃迁）不会让下一个客户端对齐或跃迁。优先于“将其他按住的按键传递给切换到的客户端”。Ctrl / Shift / Alt 永远不会被隐藏：它们遵循上方各自的选项，隐藏它们会破坏像 Ctrl+TAB 这样按住修饰键的快捷键。</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">对 EVE 隐藏快捷键按键（与 EVE-X-Preview 相同）</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">开启：快捷键切换客户端时，切换到的客户端完全不会收到该按键。关闭：按键松开的信号会传到该客户端，你在那里的第一次点击可能只会聚焦总览而不执行操作。</sys:String> <!-- draft -->
     <sys:String x:Key="L.General.SystemHotkeys">系统热键</sys:String>
@@ -90,7 +84,6 @@
     <sys:String x:Key="L.General.HkCloseAll">关闭所有客户端：</sys:String>
     <sys:String x:Key="L.General.Toggles">开关</sys:String>
     <sys:String x:Key="L.General.LockPositions">锁定缩略图位置</sys:String>
-    <sys:String x:Key="L.General.BroadcastHud">显示带过去的按键 HUD</sys:String> <!-- draft -->
     <sys:String x:Key="L.General.AutoSolo">自动独占活动客户端音频</sys:String>
     <sys:String x:Key="L.General.MuteAllWhenNoneActive">没有活动的 EVE 客户端时静音所有客户端</sys:String>
     <sys:String x:Key="L.General.IndividualResize">单独调整缩略图大小</sys:String>
@@ -392,7 +385,6 @@
     <sys:String x:Key="L.Debug.Title">🐛 调试日志</sys:String>
     <sys:String x:Key="L.Debug.Subtitle">用于生成诊断日志以排查问题的精细开关。</sys:String>
     <sys:String x:Key="L.Debug.Targets">日志目标</sys:String>
-    <sys:String x:Key="L.Debug.Injection">输入注入逻辑（按键和脉冲）</sys:String>
     <sys:String x:Key="L.Debug.Cycling">循环分组和数学分析（客户端切换逻辑）</sys:String>
     <sys:String x:Key="L.Debug.WindowHooks">窗口前台和焦点挂钩（EVE 客户端检测）</sys:String>
     <sys:String x:Key="L.Debug.Dwm">桌面窗口管理器（缩略图 API HResult）</sys:String>
@@ -490,7 +482,6 @@
     <sys:String x:Key="L.Tt.SearchAll">搜索所有设置 (Ctrl+F)</sys:String>
     <sys:String x:Key="L.Tt.UndoHotkey">可选。避免使用 EVE 使用的按键（例如 Ctrl+Z）。</sys:String>
     <sys:String x:Key="L.Tt.RedoHotkey">可选。避免使用 EVE 使用的按键。</sys:String>
-    <sys:String x:Key="L.Tt.BroadcastHud">一个显示当前正在传播给客户端的按键的小型屏幕提示条。拖动可重新定位。</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">当你切换到某个客户端时，静音其他 EVE 客户端并取消静音活动的那个（Windows 每进程音频）。每客户端的静音/音量也在每个缩略图的右键菜单中。</sys:String>
     <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">需要开启“自动独占活动客户端音频”。当焦点完全离开 EVE（例如切换到其他应用）时，静音所有客户端，而不是让最后一个活动客户端继续发声。</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">开：按住循环热键会以上面的延迟持续循环。关：每次按键精确循环一个客户端。</sys:String>
@@ -643,7 +634,7 @@
     <sys:String x:Key="L.Common.SaveWord">保存</sys:String>
 
     <!-- Contextual Help sidebar (Settings window wiki panels) -->
-    <sys:String x:Key="L.Wiki.General">常规设置&#x0A;═══════════════════════════&#x0A;&#x0A;热键生效范围&#x0A;────────────────────────────&#x0A;• 全局 — 即使当&#x0A;  EVE 不是活动窗口时也生效。&#x0A;• 仅 EVE 窗口活动时 — 热键&#x0A;  仅在 EVE 客户端获得焦点时触发。&#x0A;&#x0A;按住 Ctrl/Shift/Alt 时的快捷键&#x0A;────────────────────────────&#x0A;开启（默认）：按住修饰键时快捷键&#x0A;仍然生效——EVE 玩家按住 Ctrl 锁定&#x0A;目标。关闭：像 V 这样的单键快捷键&#x0A;只在单独按下时生效，Ctrl+V 可以&#x0A;传到客户端进行粘贴。&#x0A;&#x0A;对 EVE 隐藏快捷键按键&#x0A;────────────────────────────&#x0A;开启（默认）：快捷键切换客户端时，&#x0A;切换到的客户端永远看不到该按键&#x0A;（与 EVE-X-Preview 相同）。关闭：&#x0A;按键松开会传到该客户端，你在那里的&#x0A;第一次点击可能只会聚焦 EVE 的总览。&#x0A;&#x0A;传递按住的按键&#x0A;────────────────────────────&#x0A;两项默认均为关闭；按需开启。&#x0A;• Ctrl / Shift / Alt —— 按住的修饰键&#x0A;  会跟随你，切换后按住 Ctrl 锁定&#x0A;  仍然有效。&#x0A;• 其他按键 —— 切换时仍按住的字母、&#x0A;  数字、F 键、Enter、空格和鼠标按键&#x0A;  也会在新客户端中按下（按住 F1 并&#x0A;  循环即可在每个客户端触发）。如果&#x0A;  尚未松开的模块按键在下一个客户端&#x0A;  被激活，随后你自己的按键又把它&#x0A;  关掉，请关闭此项。&#x0A;&#x0A;对下一个客户端隐藏按住的按键&#x0A;────────────────────────────&#x0A;默认关闭。切换时仍按住的字母、数字、&#x0A;F 键、Enter 和空格会在离开的客户端&#x0A;中松开，并在你松开前对新客户端隐藏&#x0A;——按住 A（对齐）或 S（跃迁）不会让&#x0A;下一个客户端对齐或跃迁。优先于传递&#x0A;按键。Ctrl / Shift / Alt 永不隐藏&#x0A;（否则会破坏 Ctrl+TAB 等快捷键）。&#x0A;&#x0A;暂停热键&#x0A;────────────────────────────&#x0A;按下此组合键可临时&#x0A;禁用所有 MultiPreview 热键。&#x0A;再次按下即可重新启用。&#x0A;&#x0A;穿透点击切换&#x0A;────────────────────────────&#x0A;使缩略图忽略鼠标点击，&#x0A;从而不会抢占焦点。&#x0A;&#x0A;隐藏/显示热键&#x0A;────────────────────────────&#x0A;• 隐藏/显示全部 — 同时切换主&#x0A;  缩略图和 PiP 缩略图。&#x0A;• 隐藏/显示主缩略图 — 仅主缩略图。&#x0A;• 隐藏/显示 PiP — 仅 PiP 缩略图。&#x0A;&#x0A;隐藏/显示裁剪&#x0A;────────────────────────────&#x0A;一次切换所有裁剪窗口。&#x0A;&#x0A;配置文件循环&#x0A;────────────────────────────&#x0A;在配置文件间向前/向后循环。&#x0A;循环回绕（最后一个 → 第一个）。&#x0A;&#x0A;布局撤销 / 重做&#x0A;────────────────────────────&#x0A;在缩略图布局的修改之间后退和前进。&#x0A;&#x0A;关闭所有客户端&#x0A;────────────────────────────&#x0A;确认一次后，结束 MultiPreview 跟踪的&#x0A;所有 EVE 客户端，误按一个键不会让&#x0A;整个舰队掉线。&#x0A;&#x0A;锁定位置&#x0A;────────────────────────────&#x0A;防止缩略图被&#x0A;意外拖动。&#x0A;&#x0A;带过去的按键 HUD&#x0A;────────────────────────────&#x0A;屏幕上的小标签，显示哪个按住的按键&#x0A;正被传递给你的客户端。拖动可移动。&#x0A;&#x0A;自动独占活动客户端音频&#x0A;────────────────────────────&#x0A;切换客户端时，其他客户端静音，当前&#x0A;客户端取消静音。下面的选项还会在&#x0A;没有 EVE 客户端位于前台时静音全部&#x0A;客户端。&#x0A;&#x0A;单独调整缩略图大小&#x0A;────────────────────────────&#x0A;开启时，每个缩略图可&#x0A;独立调整大小。关闭时，调整一个&#x0A;会同时调整所有缩略图。&#x0A;&#x0A;快速切换热键&#x0A;────────────────────────────&#x0A;立即切换到上一个活动的&#x0A;EVE 客户端 — 便于在两个角色&#x0A;之间快速切换。&#x0A;&#x0A;会话计时器&#x0A;显示每个 EVE 客户端已&#x0A;在缩略图叠加层上运行的时长。&#x0A;&#x0A;最小化延迟&#x0A;────────────────────────────&#x0A;非活动客户端被最小化前的&#x0A;延迟（ms）。防止快速切换时&#x0A;意外最小化。&#x0A;&#x0A;循环延迟&#x0A;────────────────────────────&#x0A;按住循环热键（鼠标按键&#x0A;或按键）时，每次激活之间&#x0A;的时间。越小 = 重复越快。默认&#x0A;100 ms 对多数配置感觉自然；&#x0A;调低可获得更灵敏的循环。&#x0A;&#x0A;按住热键时持续循环&#x0A;────────────────────────────&#x0A;开启：按住循环热键会按循环延迟持续&#x0A;切换。关闭：每按一次只切换一个&#x0A;客户端，无论按住多久。&#x0A;循环延迟也是循环键或分组键两次切换&#x0A;之间的最短间隔——更快的按键会被&#x0A;忽略。角色自己的热键没有此限制。&#x0A;&#x0A;UI 缩放&#x0A;────────────────────────────&#x0A;调整设置界面&#x0A;窗口的字体大小。拖动滑块或&#x0A;点击轨道即可更改大小。&#x0A;&#x0A;随 Windows 启动&#x0A;────────────────────────────&#x0A;登录 Windows 时启动此程序副本。如果&#x0A;之后从其他文件夹运行副本（例如新&#x0A;版本），则改为启动该副本。删除程序&#x0A;前请先关闭此项。&#x0A;&#x0A;应用启动时&#x0A;────────────────────────────&#x0A;MultiPreview 启动时是否打开设置窗口：&#x0A;不打开、打开，或最小化到任务栏。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiki.General">常规设置&#x0A;═══════════════════════════&#x0A;&#x0A;热键生效范围&#x0A;────────────────────────────&#x0A;• 全局 — 即使当&#x0A;  EVE 不是活动窗口时也生效。&#x0A;• 仅 EVE 窗口活动时 — 热键&#x0A;  仅在 EVE 客户端获得焦点时触发。&#x0A;&#x0A;按住 Ctrl/Shift/Alt 时的快捷键&#x0A;────────────────────────────&#x0A;开启（默认）：按住修饰键时快捷键&#x0A;仍然生效——EVE 玩家按住 Ctrl 锁定&#x0A;目标。关闭：像 V 这样的单键快捷键&#x0A;只在单独按下时生效，Ctrl+V 可以&#x0A;传到客户端进行粘贴。&#x0A;&#x0A;对 EVE 隐藏快捷键按键&#x0A;────────────────────────────&#x0A;开启（默认）：快捷键切换客户端时，&#x0A;切换到的客户端永远看不到该按键&#x0A;（与 EVE-X-Preview 相同）。关闭：&#x0A;按键松开会传到该客户端，你在那里的&#x0A;第一次点击可能只会聚焦 EVE 的总览。&#x0A;&#x0A;暂停热键&#x0A;────────────────────────────&#x0A;按下此组合键可临时&#x0A;禁用所有 MultiPreview 热键。&#x0A;再次按下即可重新启用。&#x0A;&#x0A;穿透点击切换&#x0A;────────────────────────────&#x0A;使缩略图忽略鼠标点击，&#x0A;从而不会抢占焦点。&#x0A;&#x0A;隐藏/显示热键&#x0A;────────────────────────────&#x0A;• 隐藏/显示全部 — 同时切换主&#x0A;  缩略图和 PiP 缩略图。&#x0A;• 隐藏/显示主缩略图 — 仅主缩略图。&#x0A;• 隐藏/显示 PiP — 仅 PiP 缩略图。&#x0A;&#x0A;隐藏/显示裁剪&#x0A;────────────────────────────&#x0A;一次切换所有裁剪窗口。&#x0A;&#x0A;配置文件循环&#x0A;────────────────────────────&#x0A;在配置文件间向前/向后循环。&#x0A;循环回绕（最后一个 → 第一个）。&#x0A;&#x0A;布局撤销 / 重做&#x0A;────────────────────────────&#x0A;在缩略图布局的修改之间后退和前进。&#x0A;&#x0A;关闭所有客户端&#x0A;────────────────────────────&#x0A;确认一次后，结束 MultiPreview 跟踪的&#x0A;所有 EVE 客户端，误按一个键不会让&#x0A;整个舰队掉线。&#x0A;&#x0A;锁定位置&#x0A;────────────────────────────&#x0A;防止缩略图被&#x0A;意外拖动。&#x0A;&#x0A;自动独占活动客户端音频&#x0A;────────────────────────────&#x0A;切换客户端时，其他客户端静音，当前&#x0A;客户端取消静音。下面的选项还会在&#x0A;没有 EVE 客户端位于前台时静音全部&#x0A;客户端。&#x0A;&#x0A;单独调整缩略图大小&#x0A;────────────────────────────&#x0A;开启时，每个缩略图可&#x0A;独立调整大小。关闭时，调整一个&#x0A;会同时调整所有缩略图。&#x0A;&#x0A;快速切换热键&#x0A;────────────────────────────&#x0A;立即切换到上一个活动的&#x0A;EVE 客户端 — 便于在两个角色&#x0A;之间快速切换。&#x0A;&#x0A;会话计时器&#x0A;显示每个 EVE 客户端已&#x0A;在缩略图叠加层上运行的时长。&#x0A;&#x0A;最小化延迟&#x0A;────────────────────────────&#x0A;非活动客户端被最小化前的&#x0A;延迟（ms）。防止快速切换时&#x0A;意外最小化。&#x0A;&#x0A;循环延迟&#x0A;────────────────────────────&#x0A;按住循环热键（鼠标按键&#x0A;或按键）时，每次激活之间&#x0A;的时间。越小 = 重复越快。默认&#x0A;100 ms 对多数配置感觉自然；&#x0A;调低可获得更灵敏的循环。&#x0A;&#x0A;按住热键时持续循环&#x0A;────────────────────────────&#x0A;开启：按住循环热键会按循环延迟持续&#x0A;切换。关闭：每按一次只切换一个&#x0A;客户端，无论按住多久。&#x0A;循环延迟也是循环键或分组键两次切换&#x0A;之间的最短间隔——更快的按键会被&#x0A;忽略。角色自己的热键没有此限制。&#x0A;&#x0A;UI 缩放&#x0A;────────────────────────────&#x0A;调整设置界面&#x0A;窗口的字体大小。拖动滑块或&#x0A;点击轨道即可更改大小。&#x0A;&#x0A;随 Windows 启动&#x0A;────────────────────────────&#x0A;登录 Windows 时启动此程序副本。如果&#x0A;之后从其他文件夹运行副本（例如新&#x0A;版本），则改为启动该副本。删除程序&#x0A;前请先关闭此项。&#x0A;&#x0A;应用启动时&#x0A;────────────────────────────&#x0A;MultiPreview 启动时是否打开设置窗口：&#x0A;不打开、打开，或最小化到任务栏。</sys:String> <!-- draft -->
 
     <sys:String x:Key="L.Wiki.Thumbnails">缩略图外观&#x0A;═══════════════════════════&#x0A;&#x0A;不透明度&#x0A;────────────────────────────&#x0A;控制缩略图的透明程度。&#x0A;0% = 不可见，100% = 完全不透明。&#x0A;&#x0A;悬停时提升至 100% 不透明度&#x0A;────────────────────────────&#x0A;开启时，悬停缩略图会使其&#x0A;变为完全不透明，移开后恢复&#x0A;已保存的不透明度。适合把&#x0A;缩略图保持暗淡以免碍事，&#x0A;但在真正查看某个时仍希望&#x0A;完全清晰。&#x0A;&#x0A;循环排除徽章&#x0A;────────────────────────────&#x0A;红色 ✕ 徽章的位置，用于标记&#x0A;被排除出循环组的角色&#x0A;（Shift+点击缩略图切换）。可选&#x0A;九个锚点之一，使其避开&#x0A;角色名称和其他&#x0A;文本叠加层。&#x0A;&#x0A;Ctrl / Shift + 单击&#x0A;────────────────────────────&#x0A;选择 Ctrl + 单击和 Shift + 单击缩略图&#x0A;的作用：切换到该客户端（与普通单击&#x0A;相同）、最小化它，或将其排除出循环。&#x0A;默认：Ctrl = 最小化，Shift = 排除。&#x0A;Ctrl 也是 EVE 的锁定键——如果锁定&#x0A;目标时会点击缩略图，请把 Ctrl 设为&#x0A;切换。&#x0A;&#x0A;始终置顶&#x0A;────────────────────────────&#x0A;使缩略图位于所有其他窗口之上。&#x0A;多数多开场景建议开启。&#x0A;&#x0A;Alt-Tab 时隐藏&#x0A;────────────────────────────&#x0A;当没有 EVE 窗口活动时&#x0A;隐藏缩略图。切回时重新出现。&#x0A;&#x0A;隐藏活动缩略图&#x0A;────────────────────────────&#x0A;隐藏当前获得焦点的&#x0A;EVE 客户端的缩略图。&#x0A;&#x0A;星系名称&#x0A;────────────────────────────&#x0A;在每个缩略图上显示当前所在&#x0A;星系。读取自 EVE 聊天日志。&#x0A;&#x0A;进程状态&#x0A;────────────────────────────&#x0A;在每个缩略图上显示 CPU/内存信息。&#x0A;便于监控客户端性能。&#x0A;在下方字段调整文本大小。&#x0A;&#x0A;注释&#x0A;────────────────────────────&#x0A;为每个角色的缩略图添加自定义&#x0A;角色标签（Scout、DPS、Logi）。点击&#x0A;添加/编辑以设置标签，清除以移除。&#x0A;&#x0A;右键菜单&#x0A;────────────────────────────&#x0A;• 编辑标签 —— 设置角色标签&#x0A;• 静音警报 —— 将此客户端的警报静音&#x0A;  一段时间或直到取消&#x0A;• 音频 —— 此客户端的音量或静音&#x0A;• 关闭客户端 —— 立即结束该客户端&#x0A;&#x0A;高级 — 文本与叠加&#x0A;════════════════════════&#x0A;&#x0A;• 文本叠加 — 缩略图上的角色名&#x0A;• 文本颜色/大小/字体 — 设置样式&#x0A;• 文本边距 — 相对左上角的偏移&#x0A;• 高亮边框 — 活动客户端缩略图&#x0A;  上的彩色边框&#x0A;• 非活动边框 — 所有其他缩略图的边框&#x0A;• 背景颜色 — 实时预览后面的&#x0A;  填充颜色&#x0A;• 在彩色分组中保留高亮 —— 启用分组&#x0A;  颜色时，当前客户端仍使用高亮颜色</sys:String>
 
@@ -673,7 +664,7 @@
 
     <sys:String x:Key="L.Wiki.About">关于&#x0A;═══════════════════════════&#x0A;&#x0A;EVE MultiPreview&#x0A;C# / .NET 10 WPF 版&#x0A;&#x0A;关于面板上显示的版本&#x0A;与你运行的构建一致。&#x0A;&#x0A;最初用 AutoHotkey v2 编写。&#x0A;移植到 C# 以获得更好的性能、&#x0A;原生 DWM 缩略图支持，以及&#x0A;现代 UI 能力。&#x0A;&#x0A;提交 bug、建议功能或阅读&#x0A;发布说明：&#x0A;github.com/CJKondur/EVE-MultiPreview&#x0A;&#x0A;安装指定版本&#x0A;────────────────────────────&#x0A;选择任意已发布的版本（更旧或更新）&#x0A;替换当前版本安装——当某次更新带来&#x0A;问题时很有用。安装前会先备份设置&#x0A;（Backups 文件夹）。回退到旧版本会&#x0A;关闭启动时检查更新；想恢复更新时&#x0A;在这里重新开启即可。&#x0A;&#x0A;新的设置窗口&#x0A;────────────────────────────&#x0A;这是旧版设置窗口。在「关于」页勾选&#x0A;「使用新的设置窗口」并重新打开设置，&#x0A;即可回到新窗口。旧窗口将在以后的&#x0A;版本中移除。</sys:String> <!-- draft -->
 
-    <sys:String x:Key="L.Wiki.Debug">调试日志&#x0A;═══════════════════════════&#x0A;&#x0A;用于排查输入问题、窗口检测&#x0A;和逻辑流程的诊断输出。&#x0A;仅在需要时启用 —&#x0A;高强度使用时日志增长很快。&#x0A;&#x0A;日志写入 exe 旁边的 Logs/，&#x0A;每个通道一个文件。使用 📁 打开&#x0A;日志文件夹 可快速跳转。&#x0A;&#x0A;输入注入细节&#x0A;────────────────────────────&#x0A;记录用于绕过 EVE 输入丢失的&#x0A;确切按键、扫描码和&#x0A;延迟脉冲。&#x0A;&#x0A;循环组与数学分析&#x0A;────────────────────────────&#x0A;记录按住热键循环账号时的&#x0A;索引计算、节流阈值&#x0A;和跳过逻辑。&#x0A;&#x0A;窗口钩子&#x0A;────────────────────────────&#x0A;记录 HWND 焦点检查、SetForegroundWindow&#x0A;尝试，以及操作系统级窗口状态。&#x0A;&#x0A;桌面窗口管理器&#x0A;────────────────────────────&#x0A;记录 DWM 缩略图注册 HResult&#x0A;和 PrintWindow 捕获结果。当&#x0A;缩略图变空白、注册失败或&#x0A;错误地显示冻结帧时&#x0A;使用。&#x0A;&#x0A;警报管线&#x0A;────────────────────────────&#x0A;完整追踪每一行日志经过警报&#x0A;管线的过程：文件读取 → 解析&#x0A;匹配 → 触发（冷却/禁用/&#x0A;已触发）→ 徽章/弹窗/声音派发。&#x0A;当你预期触发的警报却没有&#x0A;触发时使用 — 每一步都记录它&#x0A;通过或未通过哪个关卡。</sys:String>
+    <sys:String x:Key="L.Wiki.Debug">调试日志&#x0A;═══════════════════════════&#x0A;&#x0A;用于排查输入问题、窗口检测&#x0A;和逻辑流程的诊断输出。&#x0A;仅在需要时启用 —&#x0A;高强度使用时日志增长很快。&#x0A;&#x0A;日志写入 exe 旁边的 Logs/，&#x0A;每个通道一个文件。使用 📁 打开&#x0A;日志文件夹 可快速跳转。&#x0A;&#x0A;循环组与数学分析&#x0A;────────────────────────────&#x0A;记录按住热键循环账号时的&#x0A;索引计算、节流阈值&#x0A;和跳过逻辑。&#x0A;&#x0A;窗口钩子&#x0A;────────────────────────────&#x0A;记录 HWND 焦点检查、SetForegroundWindow&#x0A;尝试，以及操作系统级窗口状态。&#x0A;&#x0A;桌面窗口管理器&#x0A;────────────────────────────&#x0A;记录 DWM 缩略图注册 HResult&#x0A;和 PrintWindow 捕获结果。当&#x0A;缩略图变空白、注册失败或&#x0A;错误地显示冻结帧时&#x0A;使用。&#x0A;&#x0A;警报管线&#x0A;────────────────────────────&#x0A;完整追踪每一行日志经过警报&#x0A;管线的过程：文件读取 → 解析&#x0A;匹配 → 触发（冷却/禁用/&#x0A;已触发）→ 徽章/弹窗/声音派发。&#x0A;当你预期触发的警报却没有&#x0A;触发时使用 — 每一步都记录它&#x0A;通过或未通过哪个关卡。</sys:String>
 
     <sys:String x:Key="L.Wiki.Crop">裁剪弹窗&#x0A;═══════════════════════════&#x0A;&#x0A;裁剪的作用&#x0A;────────────────────────────&#x0A;为每个 EVE 客户端生成一个或&#x0A;多个裁剪预览弹窗 — 只显示&#x0A;客户端的特定区域（Local&#x0A;聊天、总览、目标栏），置于其&#x0A;自己的置顶窗口中，而无需&#x0A;将整个客户端切到前台。&#x0A;&#x0A;主开关&#x0A;────────────────────────────&#x0A;“启用裁剪预览弹窗”是&#x0A;全局开关。关闭时，所有裁剪弹窗&#x0A;隐藏，但其定义会保留供&#x0A;下次使用。&#x0A;&#x0A;创建裁剪&#x0A;────────────────────────────&#x0A;1. 从下拉框中选择一个角色&#x0A;2. 点击 ➕ 添加裁剪 — 会出现&#x0A;   一个带自动生成名称的&#x0A;   占位裁剪行&#x0A;3. 点击 📐 选取区域，然后在&#x0A;   实时缩略图上拖动以选择&#x0A;   你想捕获的区域&#x0A;4. 按需调整名称、显示标签、&#x0A;   弹窗位置/大小&#x0A;&#x0A;操作弹窗&#x0A;────────────────────────────&#x0A;• 右键 + 拖动 — 移动弹窗&#x0A;• 右键 + 左键 + 拖动 —&#x0A;  调整弹窗大小&#x0A;• “显示标签”会在弹窗左上角&#x0A;  叠加显示裁剪名称&#x0A;&#x0A;持久化&#x0A;────────────────────────────&#x0A;裁剪按角色、按配置保存，&#x0A;并在角色登录时自动重新&#x0A;生成。关闭一个 EVE 客户端&#x0A;并重新登录后，一旦角色解析完成&#x0A;就会恢复已保存的裁剪。</sys:String>
 
@@ -865,8 +856,6 @@
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">用于排查问题的调试日志。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">调试日志</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.diagnostics.note">除非要报告错误，否则请保持关闭。每项都会在 Logs 文件夹中写入各自的文件，有些写入量很大。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.diagnostics.injection">按键和点击发送</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.diagnostics.injection.Desc">MultiPreview 发送给客户端的按键和点击。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.diagnostics.cycling">客户端切换</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.diagnostics.cycling.Desc">每个切换热键及其选中的客户端。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.diagnostics.windowHooks">窗口事件</sys:String> <!-- draft -->
@@ -879,7 +868,7 @@
     <sys:String x:Key="L.S.Act.app.diagnostics.openLogs">打开日志文件夹</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.Intro">调试日志有助于排查问题。只开启被要求的那一项，重现问题后关闭，然后发送文件。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.diagnostics.logs.Title">开启哪个日志</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.diagnostics.logs.Body">- **按键和点击发送**：按键发到错误的客户端，或修饰键卡住。&#x0A;- **客户端切换**：热键跳过某个客户端或切换到错误的客户端。&#x0A;- **窗口事件**：缩略图不出现，或跟随错误的窗口。&#x0A;- **缩略图绘制**：缩略图发黑或冻结。&#x0A;- **警报**：警报误触发或完全不触发。&#x0A;&#x0A;**警报** 日志会写下每条警报的角色和所有正在运行的角色；**警报** 关闭时这些都不会写。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.diagnostics.logs.Body">- **客户端切换**：热键跳过某个客户端或切换到错误的客户端。&#x0A;- **窗口事件**：缩略图不出现，或跟随错误的窗口。&#x0A;- **缩略图绘制**：缩略图发黑或冻结。&#x0A;- **警报**：警报误触发或完全不触发。&#x0A;&#x0A;**警报** 日志会写下每条警报的角色和所有正在运行的角色；**警报** 关闭时这些都不会写。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.profiles">配置文件与备份</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Page.app.profiles.Desc">切换、复制并备份你的设置方案。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.app.profiles.profiles">配置文件</sys:String> <!-- draft -->
@@ -1096,14 +1085,6 @@
     <sys:String x:Key="L.S.clients.hotkeys.wildcard.Desc">开启：按住 Ctrl 锁定目标不会让热键失效。关闭：像 V 这样的单键热键只在单独按下时触发，因此 Ctrl+V 仍然是粘贴。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.hideKeystrokes">对 EVE 隐藏热键</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.hideKeystrokes.Desc">你切换到的客户端永远看不到这个热键。关闭：它会收到按键的释放，这可能让你的第一次点击只是聚焦总览。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.carryModifiers">将按住的 Ctrl、Shift 和 Alt 带到下一个客户端</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.carryModifiers.Desc">切换后继续按住 Ctrl 锁定仍然有效。如果切换后锁定失效，请关闭此项。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.carryKeys">将其他按住的按键带到下一个客户端</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.carryKeys.Desc">按住 F1 并切换，即可在每个客户端上按下它。如果尚未松开的模块键在下一个客户端上触发，请关闭此项。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.hideHeld">对下一个客户端隐藏仍按住的按键</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.hideHeld.Desc">切换时仍按下的按键会对你切换到的客户端隐藏，直到松开，因此按住 A 或 S 不会让它对齐或跃迁。优先于上面的选项。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">显示正在带过去的按键</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">屏幕上的一个小标签。可以拖到任意位置。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">在客户端之间切换</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext">下一个客户端，所有正在运行的客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">切换到下一个正在运行的客户端，不论其分组。</sys:String> <!-- draft -->
@@ -1141,11 +1122,9 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">随着你更改按键而更新。有意共用一个按键的角色不会列出。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">没有冲突：每个按键只做一件事。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.Count">{0} 个按键被重复使用。请为每对中的一个换用其他按键。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.Intro">用于切换客户端和控制 MultiPreview 的按键，以及它们的行为。底部的冲突检查会显示同时做两件事的按键。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.Intro">用于切换客户端和控制 MultiPreview 的按键，以及它们的行为。底部的冲突检查会显示同时做两件事的按键。&#x0A;&#x0A;MultiPreview 只切换窗口，从不向游戏发送按键。你在切换时按住的按键由 EVE 自己读取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">热键在哪里生效</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**任何位置**无论哪个应用位于前台都会捕获你的热键，因此在浏览器中按键仍会切换客户端。**仅在 EVE 位于前台时**不会影响其他应用中的按键。&#x0A;&#x0A;如果你按住 Ctrl 锁定目标，**按住 Ctrl、Shift 或 Alt 时热键仍然有效**就很重要。如果单键热键使 Ctrl+V 或 Ctrl+C 无法到达 EVE，请关闭它。&#x0A;&#x0A;**对 EVE 隐藏热键**可防止你切换到的客户端看到你按下的键。&#x0A;&#x0A;用作热键的鼠标键不受 **热键生效范围** 影响：它在任何程序里都生效，并且不会再传给那个程序，所以绑定为“后退”的键就不再是浏览器的后退键。只有 MultiPreview 自己的设置窗口和命令面板会让点击通过。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.held.Title">仍按住的按键</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.held.Body">切换时如果还按着按键，MultiPreview 可以把它们带到下一个客户端，或对其隐藏。&#x0A;- **带上 Ctrl、Shift 和 Alt**：切换后继续按住 Ctrl 锁定目标。&#x0A;- **带上其他按住的按键**：按住 F1 并切换，在每个客户端上触发它。&#x0A;- **隐藏仍按住的按键**：按住 A 或 S 不会让下一个客户端对齐或跃迁。&#x0A;&#x0A;屏幕上的标签会显示正在带过去的按键。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycling.Title">下一个与上一个客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycling.Body">**下一个客户端**和**上一个客户端**会遍历每个正在运行的客户端。分组在“分组”页面有各自的按键。&#x0A;&#x0A;按住按键即可按设定的间隔持续切换。关闭后每次按键只切换一个客户端。&#x0A;&#x0A;可以用声音提示你已绕回第一个客户端。&#x0A;&#x0A;在不属于该按键列表的客户端里按下时（在分组之外的客户端里按分组的键），**下一个客户端**去列表里的第一个客户端，**上一个客户端**去最后一个。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.app.Title">MultiPreview 热键</sys:String> <!-- draft -->
@@ -2649,8 +2628,6 @@
     <sys:String x:Key="L.Msg.AudioMuted">{0}：音频已静音</sys:String> <!-- draft -->
     <sys:String x:Key="L.Stats.Waiting">正在等待数据…</sys:String> <!-- draft -->
     <sys:String x:Key="L.Thumb.NotLoggedIn">未登录</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Hud.CarriedKeysTip">带过去的按键：携带选项正在传给你的客户端的、当前按住的按键。拖动可移动。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Hud.CarriedKeysTitle">EVE MultiPreview — 带过去的按键</sys:String> <!-- draft -->
     <sys:String x:Key="L.Lbl.Header">“{0}”的标签</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.TipSuspended">已暂停</sys:String> <!-- draft -->
     <sys:String x:Key="L.Copy.AllProfiles">— 所有配置文件 —</sys:String> <!-- draft -->

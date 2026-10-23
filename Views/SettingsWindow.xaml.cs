@@ -290,9 +290,6 @@ public partial class SettingsWindow : Window
 
             CmbHotkeyScope.SelectedIndex = S.GlobalHotkeys ? 0 : 1;
             ChkHotkeyWildcard.IsChecked = S.HotkeyWildcardModifiers;
-            ChkPropagateModifiers.IsChecked = S.PropagateHeldModifiers;
-            ChkPropagateKeys.IsChecked = S.PropagateHeldKeys;
-            ChkHideHeldKeys.IsChecked = S.HideHeldKeysOnSwitch;
             ChkHideHotkeyKeystrokes.IsChecked = S.HideHotkeyKeystrokes;
             TxtSuspendHotkey.Text = S.SuspendHotkey;
             TxtClickThroughHotkey.Text = S.ClickThroughHotkey;
@@ -307,7 +304,6 @@ public partial class SettingsWindow : Window
             TxtRedoLayoutHotkey.Text = S.RedoLayoutHotkey;
             TxtCloseAllClientsHotkey.Text = S.CloseAllClientsHotkey;
             ChkLockPositions.IsChecked = S.LockPositions;
-            ChkBroadcastHud.IsChecked = S.ShowBroadcastKeyHud;
             ChkAutoSoloAudio.IsChecked = S.AutoSoloClientAudio;
             ChkMuteAllWhenNoneActive.IsChecked = S.MuteAllClientAudioWhenNoneActive;
             ChkIndividualResize.IsChecked = S.IndividualThumbnailResize;
@@ -470,7 +466,6 @@ public partial class SettingsWindow : Window
             LoadHotkeyGroups();
 
             // Debug
-            if (ChkDebugInjection != null) ChkDebugInjection.IsChecked = S.EnableDebugLogging_Injection;
             if (ChkDebugCycling != null) ChkDebugCycling.IsChecked = S.EnableDebugLogging_Cycling;
             if (ChkDebugWindowHooks != null) ChkDebugWindowHooks.IsChecked = S.EnableDebugLogging_WindowHooks;
             if (ChkDebugDwm != null) ChkDebugDwm.IsChecked = S.EnableDebugLogging_DWM;
@@ -647,7 +642,6 @@ public partial class SettingsWindow : Window
     private void OnDebugChanged(object sender, RoutedEventArgs e)
     {
         if (_loading) return;
-        S.EnableDebugLogging_Injection = ChkDebugInjection?.IsChecked ?? false;
         S.EnableDebugLogging_Cycling = ChkDebugCycling?.IsChecked ?? false;
         S.EnableDebugLogging_WindowHooks = ChkDebugWindowHooks?.IsChecked ?? false;
         S.EnableDebugLogging_DWM = ChkDebugDwm?.IsChecked ?? false;
@@ -762,33 +756,6 @@ public partial class SettingsWindow : Window
             "OFF: the key's release reaches it, and\n" +
             "your first click there may only focus\n" +
             "EVE's overview instead of acting.\n\n" +
-            "Carry Held Keys to the Next Client\n" +
-            "────────────────────────────\n" +
-            "Both are off by default; turn on what\n" +
-            "you need.\n" +
-            "• Ctrl / Shift / Alt — a held modifier\n" +
-            "  follows you, so holding Ctrl to lock\n" +
-            "  keeps working after a switch.\n" +
-            "• Other keys — letters, numbers, F-keys,\n" +
-            "  Enter, Space and mouse buttons you are\n" +
-            "  still holding are pressed in the new\n" +
-            "  client too (hold F1 and cycle to fire\n" +
-            "  it on each). Turn this off if a module\n" +
-            "  key you have not released yet fires on\n" +
-            "  the next client and your own press\n" +
-            "  then turns it back off.\n\n" +
-            "Hide Held Keys From the Next Client\n" +
-            "────────────────────────────\n" +
-            "Off by default. Letters, numbers,\n" +
-            "F-keys, Enter and Space still down when\n" +
-            "you switch are released in the client\n" +
-            "you leave and kept from the one you land\n" +
-            "on until you let go — so holding A\n" +
-            "(align) or S (warp) can't make the next\n" +
-            "client align or warp. Takes priority\n" +
-            "over carrying other keys. Ctrl / Shift /\n" +
-            "Alt are never hidden (that would break\n" +
-            "hotkeys like Ctrl+TAB).\n\n" +
             "Suspend Hotkeys\n" +
             "────────────────────────────\n" +
             "Press this key combo to temporarily\n" +
@@ -824,11 +791,6 @@ public partial class SettingsWindow : Window
             "────────────────────────────\n" +
             "Prevents thumbnails from being\n" +
             "accidentally dragged.\n\n" +
-            "Carried-Keys HUD\n" +
-            "────────────────────────────\n" +
-            "A small on-screen pill showing which\n" +
-            "held key is being carried into your\n" +
-            "clients. Drag it to reposition.\n\n" +
             "Auto-Solo Client Audio\n" +
             "────────────────────────────\n" +
             "When you switch clients, the others are\n" +
@@ -1590,11 +1552,6 @@ public partial class SettingsWindow : Window
             "Logs are written to Logs/ next to the\n" +
             "exe, one file per channel. Use 📁 Open\n" +
             "Logs Folder to jump to them.\n\n" +
-            "Input Injection Logistics\n" +
-            "────────────────────────────\n" +
-            "Logs exact keystrokes, scan codes, and\n" +
-            "delay pulses used to bypass EVE's\n" +
-            "input drops.\n\n" +
             "Cycle Group & Math Analytics\n" +
             "────────────────────────────\n" +
             "Logs index math, throttle thresholds,\n" +
