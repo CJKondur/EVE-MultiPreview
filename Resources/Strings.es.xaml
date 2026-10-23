@@ -2899,4 +2899,6 @@
     <sys:String x:Key="L.S.app.look.themeOn">El tema de las aplicaciones de Windows es claro, así que se muestra Luz del día. El aspecto que elijas se conserva y se muestra cuando Windows pase a oscuro, o ahora si desactivas este interruptor.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.theme.Title">Windows claro y oscuro</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.theme.Body">Con **Mostrar Luz del día mientras el tema de las aplicaciones de Windows sea claro** activado, MultiPreview muestra **Luz del día** mientras el tema de las aplicaciones de Windows es claro (Configuración de Windows, Personalización, Colores), y el aspecto que elegiste cuando es oscuro. Un cambio en Windows se ve al instante, sin reiniciar.&#x0A;&#x0A;Tu elección nunca se sobrescribe: queda guardada y vuelve cuando Windows pasa a oscuro o cuando desactivas el interruptor. Si no se puede leer el ajuste de Windows, se muestra tu propio aspecto. Un tema de contraste de Windows sigue teniendo prioridad. El interruptor está desactivado por defecto y solo cambia las ventanas de MultiPreview, no las miniaturas.</sys:String> <!-- draft -->
+    <!-- Ideas batch 29 (Plan 34) -->
+    <sys:String x:Key="L.S.Events.EnglishOnly">Solo cliente del juego en inglés</sys:String> <!-- draft -->
 </ResourceDictionary>

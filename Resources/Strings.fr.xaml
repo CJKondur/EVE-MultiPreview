@@ -2880,4 +2880,6 @@
     <sys:String x:Key="L.S.app.look.themeOn">Le thème d'application de Windows est clair : Plein jour est donc affiché. L'apparence que vous choisissez est conservée et s'affiche quand Windows passe au sombre, ou tout de suite si vous désactivez cet interrupteur.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.theme.Title">Windows clair et sombre</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.theme.Body">Quand **Afficher Plein jour quand le thème d'application de Windows est clair** est activé, MultiPreview affiche **Plein jour** tant que le thème d'application de Windows est clair (Paramètres Windows, Personnalisation, Couleurs), et l'apparence choisie quand il est sombre. Un changement dans Windows s'affiche aussitôt, sans redémarrage.&#x0A;&#x0A;Votre choix n'est jamais écrasé : il reste enregistré et revient quand Windows passe au sombre ou quand vous désactivez l'interrupteur. Si le réglage de Windows est illisible, votre propre apparence s'affiche. Un thème de contraste de Windows reste prioritaire. L'interrupteur est désactivé par défaut et ne change que les fenêtres de MultiPreview, pas les miniatures.</sys:String> <!-- draft -->
+    <!-- Ideas batch 29 (Plan 34) -->
+    <sys:String x:Key="L.S.Events.EnglishOnly">Client du jeu en anglais uniquement</sys:String> <!-- draft -->
 </ResourceDictionary>

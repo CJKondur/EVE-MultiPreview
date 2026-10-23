@@ -2895,4 +2895,6 @@
     <sys:String x:Key="L.S.app.look.themeOn">Windows 应用主题为浅色，因此显示日光。你选择的外观会保留，在 Windows 变为深色后显示；如果你关闭此开关，则会立即显示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.theme.Title">Windows 浅色与深色</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.theme.Body">开启**Windows 应用主题为浅色时显示日光**后，只要 Windows 的应用主题为浅色（Windows 设置、个性化、颜色），MultiPreview 就会显示**日光**；为深色时显示你选择的外观。Windows 中的更改会立即生效，无需重启。&#x0A;&#x0A;你的选择不会被覆盖：它会一直保存，在 Windows 变为深色或你关闭开关后恢复。如果无法读取 Windows 的设置，则显示你自己的外观。Windows 对比度主题仍然优先。此开关默认关闭，只改变 MultiPreview 的窗口，不改变缩略图。</sys:String> <!-- draft -->
+    <!-- Ideas batch 29 (Plan 34) -->
+    <sys:String x:Key="L.S.Events.EnglishOnly">仅限英文游戏客户端</sys:String> <!-- draft -->
 </ResourceDictionary>

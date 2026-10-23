@@ -29,6 +29,9 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
     private readonly TextBlock _error = new() { Visibility = Visibility.Collapsed, TextWrapping = TextWrapping.Wrap };
     private readonly TextBlock _groupsNote = EditorCard.Value("", secondary: true);
     private readonly TextBlock _logiNote = EditorCard.Value("", secondary: true);
+    /// <summary>IDEAS P89: the line under the rows of "Capacitor neutralized" and "Jammed" that says "English client
+    /// only"; each is shown while a running client's log header is not English.</summary>
+    private readonly List<(string Key, TextBlock Mark)> _englishMarks = new();
 
     public EventTableEditor(SettingsContext ctx)
     {
@@ -59,24 +62,38 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
     /// <summary>The line under the table that names the groups with alert choices of their own; "" while none has any.</summary>
     public string GroupsNote => _groupsNote.Text;
 
+    /// <summary>The events whose row says "English client only" now.</summary>
+    public IReadOnlyList<string> EnglishOnlyShown =>
+        _englishMarks.Where(m => m.Mark.Visibility == Visibility.Visible).Select(m => m.Key).ToList();
+
     /// <summary>IDEAS P109: the line under the table that says "Logi idle" is on but no group is marked as logi; "" otherwise.</summary>
     public string LogiNote => _logiNote.Text;
 
-    /// <summary>Puts the line under the table on what the settings hold now. Looked at every two seconds while the
-    /// table is shown: the choices are made on another card of the page. That card calls this at once when it has
+    /// <summary>Puts the line under the table on what the settings hold now, and the "English client only" lines on
+    /// what the log monitor has read. Looked at every two seconds while the table is shown: the choices are made on
+    /// another card of the page, and a client can log in. That card calls this at once when it has
     /// cleared a group's choices (RE2-m7), so that the line does not name the group for two seconds more.</summary>
     public void ShowGroupsNote()
     {
+        ShowEnglishMarks();
         _groupsNote.Text = GroupAlertsEditor.Note(_ctx.S);
         _groupsNote.Visibility = _groupsNote.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
         _logiNote.Text = GroupAlertsEditor.LogiIdleNote(_ctx.S);
         _logiNote.Visibility = _logiNote.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
+    /// <summary>IDEAS P89: with no way to ask the monitor (a window made without the app) no row says it.</summary>
+    private void ShowEnglishMarks()
+    {
+        var show = _ctx.Services.LogHeaderNotEnglish?.Invoke() == true ? Visibility.Visible : Visibility.Collapsed;
+        foreach (var (_, mark) in _englishMarks) mark.Visibility = show;
+    }
+
     private static string Str(string key) => SettingsContext.Str(key);
 
     public void Refresh()
     {
+        _englishMarks.Clear();
         _table.Reset(Columns.Select((_, c) => c == 0 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto).ToArray());
         int header = AddRow(header: true);
         for (int c = 0; c < Columns.Length; c++) Place(EditorTable.Head(Columns[c]), header, c);
@@ -138,6 +155,16 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
         var onSwitch = EditorCard.Toggle(AlertFields.IsOn(_ctx.S, e.Key), v => Store(() => AlertFields.SetOn(_ctx.S, e.Key, v)));
         AutomationProperties.SetName(onSwitch, string.Format(Str("L.S.Events.OnFor"), name));
         Place(onSwitch, r, 6);
+
+        // IDEAS P89: these two are read from an English client's log only. A line of their own under the row, across the
+        // table, shown while a running client's log header is not English (ShowEnglishMarks); the row is gone while it is collapsed.
+        if (e.Key is EwarLines.Neutralized or EwarLines.Jammed)
+        {
+            var mark = EditorCard.Note("L.S.Events.EnglishOnly");
+            mark.Visibility = Visibility.Collapsed;
+            Place(mark, AddRow(), 0, span: Columns.Length);
+            _englishMarks.Add((e.Key, mark));
+        }
     }
 
     /// <summary>Stores on Enter or when the box loses focus; a bad entry shows an error and the old value comes back.</summary>

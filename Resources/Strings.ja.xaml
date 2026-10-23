@@ -2878,4 +2878,6 @@
     <sys:String x:Key="L.S.app.look.themeOn">Windows のアプリ テーマがライトのため、デイライトを表示しています。選んだ外観は保持され、Windows がダークになると表示されます。このスイッチをオフにするとすぐに表示されます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.theme.Title">Windows のライトとダーク</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.look.theme.Body">**Windows のアプリ テーマがライトの間はデイライトを表示する**をオンにすると、Windows のアプリ テーマがライトの間は MultiPreview が**デイライト**を表示し（Windows の設定、個人用設定、色）、ダークのときは選んだ外観を表示します。Windows での変更はすぐに反映され、再起動は不要です。&#x0A;&#x0A;選んだ外観が上書きされることはありません。保存されたままで、Windows がダークになるか、スイッチをオフにすると戻ります。Windows の設定を読み取れないときは、自分の外観を表示します。Windows のコントラスト テーマが引き続き優先されます。スイッチは初期状態ではオフで、変わるのは MultiPreview のウィンドウだけです。サムネイルは変わりません。</sys:String> <!-- draft -->
+    <!-- Ideas batch 29 (Plan 34) -->
+    <sys:String x:Key="L.S.Events.EnglishOnly">英語版のゲームクライアントのみ</sys:String> <!-- draft -->
 </ResourceDictionary>

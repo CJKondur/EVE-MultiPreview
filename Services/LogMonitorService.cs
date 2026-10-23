@@ -70,6 +70,7 @@ public sealed class LogMonitorService : IDisposable
 
     // Character tracking
     private readonly ConcurrentDictionary<string, string> _fileCharacterMap = new(StringComparer.OrdinalIgnoreCase); // filepath → character name
+    private readonly ConcurrentDictionary<string, bool> _fileHeaderEnglish = new(StringComparer.OrdinalIgnoreCase);  // filepath → its header word is an English one (IDEAS P89)
     private readonly ConcurrentDictionary<string, string> _characterSystems = new(); // char → system
     private readonly ConcurrentDictionary<string, DateTime> _systemTimestamps = new(); // char → last system change time (UTC, as the Local log file times it is compared with)
     private readonly ConcurrentDictionary<string, byte> _systemSinceApproximate = new(); // chars whose _systemTimestamps value is a Local log's last-write time, not a jump seen live
@@ -1144,6 +1145,7 @@ public sealed class LogMonitorService : IDisposable
                 if (IsIn(path, state.Type == LogType.ChatLog ? _chatLogPath : _gameLogPath)) continue;
                 _trackedFiles.TryRemove(path, out _);
                 _fileCharacterMap.TryRemove(path, out _);
+                _fileHeaderEnglish.TryRemove(path, out _);
             }
             if (_cts != null) StartFileWatchers();
         }
@@ -1265,6 +1267,22 @@ public sealed class LogMonitorService : IDisposable
     /// scan does anything for it.</summary>
     public IReadOnlyDictionary<string, string> CustomRulesSwitchedOff =>
         Volatile.Read(ref _customRules)?.SwitchedOff ?? CustomAlertEngine.NoneSwitchedOff;
+
+    /// <summary>The characters whose log header is not in English (IDEAS P89): the word before the name is not one of
+    /// <see cref="EnglishHeaderKeys"/>. A snapshot of the logs tracked now, for any thread: the Events table asks it
+    /// to say that "Capacitor neutralized" and "Jammed" are read from an English client only. Empty while every
+    /// tracked log has an English header, and while none has been read.</summary>
+    public IReadOnlyList<string> NonEnglishLogCharacters
+    {
+        get
+        {
+            var names = new List<string>();
+            foreach (var (path, english) in _fileHeaderEnglish)
+                if (!english && _fileCharacterMap.TryGetValue(path, out var who) && !names.Contains(who, StringComparer.OrdinalIgnoreCase))
+                    names.Add(who);
+            return names;
+        }
+    }
 
     private async Task MonitorLoop(CancellationToken ct)
     {
@@ -1763,8 +1781,10 @@ public sealed class LogMonitorService : IDisposable
     /// the real reason alerts stayed broken after the body phrases were localized
     /// (issue #86, reported by @thouger). Keys come from EVE's own localization files
     /// via AlertPatterns ("log_header_keys"); returns null when the line isn't a header.
+    /// <paramref name="english"/> says whether the word that matched is an English one (IDEAS P89); it changes nothing
+    /// about which line names a character.
     /// </summary>
-    private static string? TryParseHeaderCharacter(string trimmed)
+    private static string? TryParseHeaderCharacter(string trimmed, out bool english)
     {
         foreach (var key in AlertPatterns.Get("log_header_keys"))
         {
@@ -1775,10 +1795,19 @@ public sealed class LogMonitorService : IDisposable
             if (rest.Length == 0 || (rest[0] != ':' && rest[0] != '：')) continue;
 
             var name = rest.Substring(1).Trim();
-            if (!string.IsNullOrEmpty(name)) return name;
+            if (!string.IsNullOrEmpty(name))
+            {
+                english = Array.IndexOf(EnglishHeaderKeys, key) >= 0;
+                return name;
+            }
         }
+        english = true;
         return null;
     }
+
+    /// <summary>The words of "log_header_keys" that an English client writes before the character's name. Every other
+    /// entry is another language's (IDEAS P89).</summary>
+    private static readonly string[] EnglishHeaderKeys = { "Listener", "Character" };
 
     /// <summary>True when a line, the white space in front of it taken off, starts with the bracket of its
     /// "[ timestamp ]": it is an entry of the log, and the log's header lies before it. The same sign the parsers
@@ -1797,9 +1826,10 @@ public sealed class LogMonitorService : IDisposable
 
         var trimmed = line.TrimStart();
         if (StartsWithTimestamp(trimmed)) { state.HeaderPassed = true; return; }
-        var charName = TryParseHeaderCharacter(trimmed);
+        var charName = TryParseHeaderCharacter(trimmed, out bool english);
         if (!string.IsNullOrEmpty(charName) && _fileCharacterMap.TryAdd(state.Path, charName))
         {
+            _fileHeaderEnglish[state.Path] = english;
             Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified (header): '{charName}' from {Path.GetFileName(state.Path)}");
         }
     }
@@ -1832,10 +1862,11 @@ public sealed class LogMonitorService : IDisposable
         // starts like a header line is text, in a chat log another player's (the second line of a long message): it
         // is skipped as it always was and names nobody, where it used to change whose log the file was.
         if (StartsWithTimestamp(trimmed)) state.HeaderPassed = true;
-        else if (TryParseHeaderCharacter(trimmed) is { } headerName)
+        else if (TryParseHeaderCharacter(trimmed, out bool headerEnglish) is { } headerName)
         {
             if (!state.HeaderPassed && _fileCharacterMap.TryAdd(state.Path, headerName))
             {
+                _fileHeaderEnglish[state.Path] = headerEnglish;
                 state.Listener ??= headerName;   // a rule channel's log raises for nobody until its header names one
                 Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified: '{headerName}' from {Path.GetFileName(state.Path)}");
             }
@@ -1970,6 +2001,7 @@ public sealed class LogMonitorService : IDisposable
             if (state.Channel == null || (engine != null && engine.Reads(state.Channel))) continue;
             _trackedFiles.TryRemove(path, out _);
             _fileCharacterMap.TryRemove(path, out _);
+            _fileHeaderEnglish.TryRemove(path, out _);
         }
         foreach (var channel in _channelLogsSeen.Keys)
             if (engine == null || !engine.Reads(channel)) _channelLogsSeen.TryRemove(channel, out _);
@@ -2023,6 +2055,7 @@ public sealed class LogMonitorService : IDisposable
                     if (state.Newest > newest) newest = state.Newest;
                     _trackedFiles.TryRemove(path, out _);
                     _fileCharacterMap.TryRemove(path, out _);
+                    _fileHeaderEnglish.TryRemove(path, out _);
                 }
                 _trackedFiles[log.Path] = new LogFileState
                 {

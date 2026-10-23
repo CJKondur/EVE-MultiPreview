@@ -2285,6 +2285,8 @@ public partial class App : Application
                     CustomAlerts = _customAlerts,
                     // Which custom rules the log monitor has switched off for what they cost: the page says it on their cards.
                     CustomRulesSwitchedOff = () => _logMonitor?.CustomRulesSwitchedOff ?? CustomAlertEngine.NoneSwitchedOff,
+                    // Whether a running client's log header is not English: the Events table says so on the rows read from an English log only.
+                    LogHeaderNotEnglish = () => _logMonitor?.NonEnglishLogCharacters.Count > 0,
                     ExitForUninstall = ExitForUninstall,
                 });
                 shell.SettingsApplied += applyLiveSettings;

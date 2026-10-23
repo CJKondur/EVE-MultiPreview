@@ -100,6 +100,11 @@ public sealed class AppServices
     /// answer is a snapshot that never changes, and asking costs the monitor nothing, so the window's thread may
     /// ask. Alerts › Custom rules says it on the rule's card. Null in tests: nobody to ask, and no rule is off.</summary>
     public Func<IReadOnlyDictionary<string, string>>? CustomRulesSwitchedOff { get; init; }
+    /// <summary>Whether a running client's log header is not English (IDEAS P89), for the line "English client only" under
+    /// the rows of Alerts › Events that are read from an English client's log only. The answer is a snapshot and asking
+    /// costs the monitor nothing, so the window's thread may ask. Null in tests and in a window opened without the app:
+    /// no row says it.</summary>
+    public Func<bool>? LogHeaderNotEnglish { get; init; }
     /// <summary>Closes MultiPreview for the clean uninstall (IDEAS P16) without saving anything, and runs the action it is
     /// handed as the very last thing, after every service has stopped writing (the settings folder is deleted then: a
     /// save, a history flush or a log line before it would make the folder again). Null in tests and in a window opened

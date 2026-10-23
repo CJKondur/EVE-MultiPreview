@@ -2877,4 +2877,6 @@
     <sys:String x:Key="L.S.app.look.themeOn">Windows' app theme is light, so Daylight is shown. The look you pick is kept and shows when Windows goes dark, or now if you turn the switch off.</sys:String>
     <sys:String x:Key="L.Help.app.look.theme.Title">Windows light and dark</sys:String>
     <sys:String x:Key="L.Help.app.look.theme.Body">With **Show Daylight while Windows' app theme is light** on, MultiPreview shows **Daylight** whenever Windows' app theme is light (Windows Settings, Personalization, Colors), and the look you picked when it is dark. A change in Windows shows at once, without a restart.&#x0A;&#x0A;Your pick is never overwritten: it stays saved and shows again when Windows goes dark or when you turn the switch off. If Windows' setting cannot be read, your own look shows. A Windows contrast theme still comes first. The switch is off by default and changes the MultiPreview windows only, not the thumbnails.</sys:String>
+    <!-- Ideas batch 29 (Plan 34) -->
+    <sys:String x:Key="L.S.Events.EnglishOnly">English client only</sys:String>
 </ResourceDictionary>
