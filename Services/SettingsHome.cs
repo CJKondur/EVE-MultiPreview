@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using EveMultiPreview.Models;
 
 namespace EveMultiPreview.Services;
@@ -379,7 +381,7 @@ public static class SettingsHome
             return ParseObject(activeJson) is { } active && ParseObject(otherJson) is { } other
                 && SameKeys(active, other, (key, mine, theirs) => key switch
                 {
-                    GlobalScope => SameOrLacking(mine, theirs),
+                    GlobalScope => SameOrLacking(mine, theirs, readByThisBuild: true),
                     ProfilesScope when mine is JsonObject myProfiles && theirs is JsonObject theirProfiles =>
                         SameKeys(myProfiles, theirProfiles, (_, myProfile, theirProfile) =>
                             myProfile is JsonObject a && theirProfile is JsonObject b
@@ -396,18 +398,37 @@ public static class SettingsHome
         mine.Count == theirs.Count
         && mine.All(p => theirs.TryGetPropertyValue(p.Key, out var value) && same(p.Key, p.Value, value));
 
-    /// <summary>Everything the other object has, the active one has with the same value; the other may have less.</summary>
-    private static bool SameOrLacking(JsonNode? mine, JsonNode? theirs) =>
+    /// <summary>Everything the other object has, the active one has with the same value; the other may have less. With
+    /// <paramref name="readByThisBuild"/> (global_Settings) a key of the other object that this build doesn't map to a
+    /// setting doesn't count: an older version wrote it and a save here would drop it, so it is no change.</summary>
+    private static bool SameOrLacking(JsonNode? mine, JsonNode? theirs, bool readByThisBuild = false) =>
         mine is JsonObject a && theirs is JsonObject b
-            ? b.All(p => a.TryGetPropertyValue(p.Key, out var value) && JsonNode.DeepEquals(value, p.Value))
+            ? b.Where(p => !readByThisBuild || IsMappedGlobalKey(p.Key))
+                .All(p => a.TryGetPropertyValue(p.Key, out var value) && JsonNode.DeepEquals(value, p.Value))
             : JsonNode.DeepEquals(mine, theirs);
 
+    /// <summary>The names global_Settings keys are read under, case aside as the loader matches them: the settings
+    /// <see cref="AhkGlobalSettings"/> maps.</summary>
+    private static readonly HashSet<string> MappedGlobalKeys = new(
+        typeof(AhkGlobalSettings).GetProperties()
+            .Select(property => property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? property.Name),
+        StringComparer.OrdinalIgnoreCase);
+
+    private static bool IsMappedGlobalKey(string key) => MappedGlobalKeys.Contains(key);
+
     /// <summary>The other file's text with the settings it lacks in global_Settings and in each profile's "Thumbnail
-    /// Settings" taken from the active file; null when it lacks none there.</summary>
+    /// Settings" taken from the active file, and without the global_Settings keys this build doesn't map (an older
+    /// version's removed settings); null when it lacks none and holds no such key.</summary>
     private static string? WithNewerSettings(string activeJson, string otherJson)
     {
         if (ParseObject(activeJson) is not { } active || ParseObject(otherJson) is not { } other) return null;
         bool carried = Carry(active[GlobalScope], other[GlobalScope]);
+        if (other[GlobalScope] is JsonObject theirGlobal)
+            foreach (var key in theirGlobal.Select(p => p.Key).Where(key => !IsMappedGlobalKey(key)).ToList())
+            {
+                theirGlobal.Remove(key);
+                carried = true;
+            }
         if (active[ProfilesScope] is JsonObject mine && other[ProfilesScope] is JsonObject theirs)
             foreach (var (name, profile) in theirs)
                 if (profile is JsonObject theirProfile && mine[name] is JsonObject myProfile)
