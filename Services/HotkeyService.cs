@@ -269,7 +269,8 @@ public sealed class HotkeyService : IDisposable
     {
         if (_hwndSource == null) return;
 
-        int id = Register(0, User32.VK_ACTIVATION, () =>
+        int before = _activationHotkeyIds.Count;
+        _activationHotkeyIds.AddRange(RegisterUnderEveryModifier((mods, bridge) => Register(mods, User32.VK_ACTIVATION, bridge), () =>
         {
             var target = User32.PendingActivateHwnd;
             if (target == IntPtr.Zero) return;
@@ -287,17 +288,33 @@ public sealed class HotkeyService : IDisposable
             {
                 Debug.WriteLine($"[Hotkey:Activation] ❌ vk0xE8 SetForegroundWindow failed: {ex.Message}");
             }
-        });
+        }));
 
-        if (id > 0)
+        int registered = _activationHotkeyIds.Count - before;
+        if (registered > 0)
         {
-            _activationHotkeyIds.Add(id);
-            Debug.WriteLine($"[Hotkey:Activation] 🔑 vk0xE8 internal activation hotkey registered (id={id})");
+            Debug.WriteLine($"[Hotkey:Activation] 🔑 vk0xE8 internal activation hotkey registered under {registered}/16 modifier combinations");
         }
         else
         {
             Debug.WriteLine("[Hotkey:Activation] ⚠ Failed to register vk0xE8 — mouse-hook activations may not bring EVE clients to front when our process lacks foreground rights");
         }
+    }
+
+    /// <summary>Registers the bridge under every mix of Ctrl, Shift, Alt and Win (16, none included), as EVE-X-Preview
+    /// does (src/Main_Class.ahk lines 54-56). RegisterHotKey matches modifiers exactly: with only the bare key, a held
+    /// modifier let the vk0xE8 press reach the window in front and Tier 4's WM_HOTKEY never came. Every combination runs
+    /// <paramref name="bridge"/>; the ids that registered are returned.</summary>
+    public static List<int> RegisterUnderEveryModifier(Func<uint, Action, int> register, Action bridge)
+    {
+        var ids = new List<int>();
+        const uint every = User32.MOD_ALT | User32.MOD_CONTROL | User32.MOD_SHIFT | User32.MOD_WIN;   // 0xF
+        for (uint mods = 0; mods <= every; mods++)
+        {
+            int id = register(mods, bridge);
+            if (id > 0) ids.Add(id);
+        }
+        return ids;
     }
 
     /// <summary>Register a global hotkey.</summary>

@@ -718,32 +718,6 @@ public static class User32
 
 
     /// <summary>
-    /// TOS guard — returns true if ANY non-modifier key is physically held down,
-    /// excluding the triggering hotkey's own VK. Scans all VK codes 0x08–0xFE.
-    /// Mirrors AHK _IsGameKeyHeld for input-broadcast prevention.
-    /// </summary>
-    public static bool IsGameKeyHeld(uint? excludeVk = null)
-    {
-        for (int vk = 0x08; vk <= 0xFE; vk++)
-        {
-            // Skip the triggering hotkey's own VK
-            if (excludeVk.HasValue && vk == (int)excludeVk.Value) continue;
-            // Skip modifier keys (VK_SHIFT, VK_CONTROL, VK_MENU)
-            if (vk >= 0x10 && vk <= 0x12) continue;
-            // Skip VK_LWIN, VK_RWIN
-            if (vk == 0x5B || vk == 0x5C) continue;
-            // Skip VK_LSHIFT..VK_RMENU
-            if (vk >= 0xA0 && vk <= 0xA5) continue;
-            // Skip mouse buttons (VK_LBUTTON..VK_XBUTTON2)
-            if (vk >= 0x01 && vk <= 0x06) continue;
-
-            if ((GetAsyncKeyState(vk) & 0x8000) != 0)
-                return true;
-        }
-        return false;
-    }
-
-    /// <summary>
     /// Check if a key is currently held down (hardware-level).
     /// </summary>
     public static bool IsKeyDown(int vKey) => (GetAsyncKeyState(vKey) & 0x8000) != 0;
