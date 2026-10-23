@@ -24,6 +24,9 @@ public sealed record ClientExit(int Pid, string Character, uint ExitCode, bool B
     public bool Unexpected => !ByMultiPreview && ExitCode != 0;
 }
 
+/// <summary>Opens a client's process; null when Windows refuses, and then <paramref name="error"/> is its error code.</summary>
+public delegate IClientProcess? ClientOpener(int pid, out int error);
+
 /// <summary>What ending a frozen client came to.</summary>
 public enum EndResult { Ended, NoLongerFrozen, Gone, Refused }
 
@@ -39,20 +42,35 @@ public sealed class ClientExits
         public bool ByUs;
     }
 
-    private readonly Func<int, IClientProcess?> _open;
+    private readonly ClientOpener _open;
+    private readonly Action<int, int>? _notWatchable;
     private readonly Dictionary<int, Entry> _held = new();
+    private readonly HashSet<int> _unwatchable = new();
     private readonly object _lock = new();
 
-    public ClientExits(Func<int, IClientProcess?> open) => _open = open;
+    /// <param name="open">Opens a process.</param>
+    /// <param name="notWatchable">Told (pid, Windows error code) once for each process that cannot be opened to be watched
+    /// (a client run as administrator); null tells nobody.</param>
+    public ClientExits(ClientOpener open, Action<int, int>? notWatchable = null)
+    {
+        _open = open;
+        _notWatchable = notWatchable;
+    }
+
+    public ClientExits(Func<int, IClientProcess?> open)
+        : this((int pid, out int error) => { error = 0; return open(pid); }) { }
 
     /// <summary>How many processes are held.</summary>
     public int Held { get { lock (_lock) return _held.Count; } }
 
     /// <summary>Holds the process of a client; a held one only takes the character's name (when it has one). A process that
-    /// cannot be opened is not held and is asked for again at the next look.</summary>
+    /// cannot be opened is not held and is asked for again at the next look; it is reported once (IDEAS P117), with the
+    /// Windows error code and no name. One that opens later is held as any other.</summary>
     public void Track(int pid, string character)
     {
         if (pid <= 0) return;
+        int error = 0;
+        bool report;
         lock (_lock)
         {
             if (_held.TryGetValue(pid, out var held))
@@ -60,11 +78,25 @@ public sealed class ClientExits
                 if (!string.IsNullOrWhiteSpace(character)) held.Character = character;
                 return;
             }
-            var process = _open(pid);
-            if (process == null) return;
-            _held[pid] = new Entry { Process = process, Character = character ?? "" };
+            var process = _open(pid, out error);
+            if (process != null)
+            {
+                _unwatchable.Remove(pid);
+                _held[pid] = new Entry { Process = process, Character = character ?? "" };
+                return;
+            }
+            report = _unwatchable.Add(pid);
+        }
+        if (report)
+        {
+            try { _notWatchable?.Invoke(pid, error); } catch { }   // a failing log never stops the look
         }
     }
+
+    /// <summary>The error-log sentence for a client that cannot be watched: fixed words, the process number and the Windows
+    /// error code (5 is "access denied", a client run as administrator). No character, no path.</summary>
+    public static string NotWatchableText(int pid, int error) => string.Format(CultureInfo.InvariantCulture,
+        "A client's process could not be opened, so its end is not watched (process {0}, Windows error {1}).", pid, error);
 
     /// <summary>Notes that MultiPreview ends this held client, so its end is no surprise.</summary>
     public void EndedByMultiPreview(int pid)
@@ -126,7 +158,7 @@ public sealed class ClientExits
         lock (_lock)
         {
             _held.TryGetValue(pid, out var entry);
-            var process = entry?.Process ?? _open(pid);
+            var process = entry?.Process ?? _open(pid, out _);
             if (process == null) return EndResult.Refused;
             try
             {
@@ -176,15 +208,17 @@ public sealed class WindowsClientProcess : IClientProcess
 
     private WindowsClientProcess(SafeProcessHandle handle) => _handle = handle;
 
-    /// <summary>Opens the process with the right to end it where Windows grants that, else to look only; null when neither.</summary>
-    public static IClientProcess? Open(int pid)
+    /// <summary>Opens the process with the right to end it where Windows grants that, else to look only; null when neither,
+    /// with the Windows error of the last try in <paramref name="error"/> (5, access denied, for a client run as administrator).</summary>
+    public static IClientProcess? Open(int pid, out int error)
     {
+        error = 0;
         var handle = OpenProcess(QueryLimited | Synchronize | Terminate, false, pid);
         if (handle.IsInvalid)
         {
             handle.Dispose();
             handle = OpenProcess(QueryLimited | Synchronize, false, pid);
-            if (handle.IsInvalid) { handle.Dispose(); return null; }
+            if (handle.IsInvalid) { error = Marshal.GetLastWin32Error(); handle.Dispose(); return null; }
         }
         return new WindowsClientProcess(handle);
     }

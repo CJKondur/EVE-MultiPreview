@@ -114,7 +114,7 @@ public partial class App : Application
     private volatile ClientProbeWants _clientProbeWants;
     /// <summary>IDEAS #22: the process of each client, held only while "Client closed unexpectedly" is on, so its end is read
     /// with its exit code. Tracked and looked at on the probe's pool thread; let go when the event is off and at exit.</summary>
-    private readonly ClientExits _clientExits = new(WindowsClientProcess.Open);
+    private readonly ClientExits _clientExits = new(WindowsClientProcess.Open, (pid, error) => LogError(new InvalidOperationException(ClientExits.NotWatchableText(pid, error))));
     /// <summary>IDEAS Plan 20, P119: a crash seen before the straggler alerts exist (the first seconds after start-up) is held
     /// here and told once by the first look after they do. The window's thread only (LookAtClients).</summary>
     private readonly ClientExitBacklog _exitBacklog = new();
