@@ -13,14 +13,16 @@ public static class WindowsAppTheme
 
     /// <summary>Whether Windows' app theme is light now. A value that is missing, of another type or not readable is "not
     /// light": the player's own look then shows.</summary>
-    public static Func<bool> IsLight { get; set; } = Read;
+    public static Func<bool> IsLight { get; set; } = () => Read(() => Microsoft.Win32.Registry.GetValue(Key, Value, null));
 
     /// <summary>Light only for the number 1 (a DWORD); 0 is dark, and anything else cannot be told.</summary>
     public static bool FromRegistryValue(object? raw) => raw is int number && number == 1;
 
-    private static bool Read()
+    /// <summary>Light by what <paramref name="get"/> returns; a read that is refused or fails is "not light" (the seam a test
+    /// throws through). Any other failure is a bug and is not swallowed.</summary>
+    public static bool Read(Func<object?> get)
     {
-        try { return FromRegistryValue(Microsoft.Win32.Registry.GetValue(Key, Value, null)); }
+        try { return FromRegistryValue(get()); }
         catch (Exception e) when (e is System.Security.SecurityException or System.IO.IOException or ArgumentException or UnauthorizedAccessException)
         {
             return false;

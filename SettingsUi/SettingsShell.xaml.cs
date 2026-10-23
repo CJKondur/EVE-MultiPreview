@@ -116,7 +116,15 @@ public partial class SettingsShell : Window, ISettingsHost
         // A change of look (UiStyles.Set) may move the scroll bar into a column of its own or over the page, and a look
         // with another scroll viewer re-hosts the page in a new one: the scroll and the keyboard's place are kept.
         Action lookChanging = () => { if (Dispatcher.CheckAccess()) KeepThePlace(); };
-        Action lookChanged = () => { if (Dispatcher.CheckAccess()) { PlaceThePage(); GiveThePlaceBack(); } };
+        // The Look page's lines that depend on the look drawn (the follow-Windows note) are asked again; no other page is
+        // reloaded, since that would rebuild its editors under the keyboard.
+        Action lookChanged = () =>
+        {
+            if (!Dispatcher.CheckAccess()) return;
+            if (Vm.Current?.Page.Id == AppPages.LookId) Vm.Reload();
+            PlaceThePage();
+            GiveThePlaceBack();
+        };
         UiStyles.Changing += lookChanging;
         UiStyles.Changed += lookChanged;
         Closing += (_, _) => { SaveSize(); Vm.OnClosing(); };

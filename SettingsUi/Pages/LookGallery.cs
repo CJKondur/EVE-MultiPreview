@@ -267,6 +267,7 @@ public sealed class LookGallery : System.Windows.Controls.UserControl, IRefresha
             ctx.Applier.Request(ApplyScope.Save);
             return;
         }
+        ctx.Host.Reload();   // the page's lines that depend on the pick (the follow-Windows note) are asked again
         ctx.Host.Toast(string.Format(SettingsContext.Str("L.S.app.look.Toast"), SettingsContext.Str("L.S.Style." + style.Id)));
     }
 }
