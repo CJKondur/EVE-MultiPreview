@@ -1268,10 +1268,13 @@ public sealed class LogMonitorService : IDisposable
     public IReadOnlyDictionary<string, string> CustomRulesSwitchedOff =>
         Volatile.Read(ref _customRules)?.SwitchedOff ?? CustomAlertEngine.NoneSwitchedOff;
 
-    /// <summary>The characters whose log header is not in English (IDEAS P89): the word before the name is not one of
-    /// <see cref="EnglishHeaderKeys"/>. A snapshot of the logs tracked now, for any thread: the Events table asks it
-    /// to say that "Capacitor neutralized" and "Jammed" are read from an English client only. Empty while every
-    /// tracked log has an English header, and while none has been read.</summary>
+    /// <summary>The characters whose game log header is not in English (IDEAS P89): the word before the name is not one
+    /// of <see cref="EnglishHeaderKeys"/>. Game logs only: they are the logs the two lines are read from, and a game
+    /// log is taken on only when written in the last half hour, where a chat log of a client that is not running is
+    /// tracked however old. A snapshot of the logs tracked now, for any thread: the Events table asks it to say that
+    /// "Capacitor neutralized" and "Jammed" are read from an English client only. Empty while every tracked game log
+    /// has an English header, and while none has been read. The check against the character map is what makes a flag
+    /// left behind harmless.</summary>
     public IReadOnlyList<string> NonEnglishLogCharacters
     {
         get
@@ -1829,7 +1832,7 @@ public sealed class LogMonitorService : IDisposable
         var charName = TryParseHeaderCharacter(trimmed, out bool english);
         if (!string.IsNullOrEmpty(charName) && _fileCharacterMap.TryAdd(state.Path, charName))
         {
-            _fileHeaderEnglish[state.Path] = english;
+            if (state.Type == LogType.GameLog) _fileHeaderEnglish[state.Path] = english;   // game logs only: a chat log of a client that is not running must not keep the mark on
             Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified (header): '{charName}' from {Path.GetFileName(state.Path)}");
         }
     }
@@ -1866,7 +1869,7 @@ public sealed class LogMonitorService : IDisposable
         {
             if (!state.HeaderPassed && _fileCharacterMap.TryAdd(state.Path, headerName))
             {
-                _fileHeaderEnglish[state.Path] = headerEnglish;
+                if (state.Type == LogType.GameLog) _fileHeaderEnglish[state.Path] = headerEnglish;   // game logs only, as above
                 state.Listener ??= headerName;   // a rule channel's log raises for nobody until its header names one
                 Debug.WriteLine($"[LogMonitor:Scan] 👤 Character identified: '{headerName}' from {Path.GetFileName(state.Path)}");
             }
