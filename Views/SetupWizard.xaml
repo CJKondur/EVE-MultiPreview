@@ -1,6 +1,7 @@
 <Window x:Class="EveMultiPreview.Views.SetupWizard"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:EveMultiPreview.SettingsUi"
         Title="{DynamicResource L.Wiz.Title}"
         Width="720" SizeToContent="Height" MinHeight="480"
         WindowStartupLocation="CenterScreen"
@@ -128,7 +129,7 @@
                     <DockPanel Margin="0,3"><TextBlock Style="{StaticResource Wiz.Check}"/><TextBlock Text="{DynamicResource L.Wiz.Feat6}" Style="{StaticResource Wiz.Text}"/></DockPanel>
                 </StackPanel>
                 <DockPanel Margin="0,20,0,0">
-                    <ComboBox x:Name="CmbLanguage" DockPanel.Dock="Right" MinWidth="220"/>
+                    <ComboBox x:Name="CmbLanguage" DockPanel.Dock="Right" MinWidth="220" ui:Loc.NameKey="L.S.app.general.language"/>
                     <TextBlock Text="{DynamicResource L.S.app.general.language}" Style="{StaticResource Wiz.Text}" Margin="0,0,12,0"/>
                 </DockPanel>
                 <TextBlock Text="{DynamicResource L.Wiz.WelcomeFooter}" Style="{StaticResource Wiz.Sub}" Margin="0,20,0,0"/>
@@ -157,21 +158,21 @@
                 <TextBlock Text="{DynamicResource L.Wiz.SizeTitle}" Style="{StaticResource Wiz.Title}"/>
                 <TextBlock Text="{DynamicResource L.Wiz.SizeSub}" Style="{StaticResource Wiz.Sub}"/>
                 <UniformGrid Columns="3" Margin="0,16,-10,0">
-                    <RadioButton x:Name="CardDual" Style="{StaticResource Wiz.SizeCard}" Tag="300,200" Checked="OnSizeCard">
+                    <RadioButton x:Name="CardDual" Style="{StaticResource Wiz.SizeCard}" Tag="300,200" Checked="OnSizeCard" ui:Loc.NameKey="L.Wiz.SizeDual">
                         <StackPanel>
                             <Border Style="{StaticResource Wiz.Preview}" Width="90" Height="60"/>
                             <TextBlock Text="{DynamicResource L.Wiz.SizeDual}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
                             <TextBlock Text="300 × 200" FontSize="{DynamicResource Fx.Size.Caption}" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
-                    <RadioButton x:Name="CardMulti" Style="{StaticResource Wiz.SizeCard}" Tag="200,150" Checked="OnSizeCard">
+                    <RadioButton x:Name="CardMulti" Style="{StaticResource Wiz.SizeCard}" Tag="200,150" Checked="OnSizeCard" ui:Loc.NameKey="L.Wiz.SizeMulti">
                         <StackPanel>
                             <Border Style="{StaticResource Wiz.Preview}" Width="66" Height="50" Margin="0,5,0,15"/>
                             <TextBlock Text="{DynamicResource L.Wiz.SizeMulti}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
                             <TextBlock Text="200 × 150" FontSize="{DynamicResource Fx.Size.Caption}" Foreground="{DynamicResource Fx.TextSecondaryBrush}" TextAlignment="Center"/>
                         </StackPanel>
                     </RadioButton>
-                    <RadioButton x:Name="CardFleet" Style="{StaticResource Wiz.SizeCard}" Tag="150,100" Checked="OnSizeCard">
+                    <RadioButton x:Name="CardFleet" Style="{StaticResource Wiz.SizeCard}" Tag="150,100" Checked="OnSizeCard" ui:Loc.NameKey="L.Wiz.SizeFleet">
                         <StackPanel>
                             <Border Style="{StaticResource Wiz.Preview}" Width="50" Height="34" Margin="0,13,0,23"/>
                             <TextBlock Text="{DynamicResource L.Wiz.SizeFleet}" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"/>
@@ -201,15 +202,15 @@
 
                     <TextBox x:Name="TxtWizChar1" Grid.Row="1" Margin="0,3"/>
                     <TextBox x:Name="TxtWizKey1" Grid.Row="1" Grid.Column="2" Margin="0,3"/>
-                    <Button Grid.Row="1" Grid.Column="3" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizKey1"/>
+                    <Button Grid.Row="1" Grid.Column="3" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizKey1" x:Name="BtnWizCapKey1"/>
 
                     <TextBox x:Name="TxtWizChar2" Grid.Row="2" Margin="0,3"/>
                     <TextBox x:Name="TxtWizKey2" Grid.Row="2" Grid.Column="2" Margin="0,3"/>
-                    <Button Grid.Row="2" Grid.Column="3" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizKey2"/>
+                    <Button Grid.Row="2" Grid.Column="3" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizKey2" x:Name="BtnWizCapKey2"/>
 
                     <TextBox x:Name="TxtWizChar3" Grid.Row="3" Margin="0,3"/>
                     <TextBox x:Name="TxtWizKey3" Grid.Row="3" Grid.Column="2" Margin="0,3"/>
-                    <Button Grid.Row="3" Grid.Column="3" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizKey3"/>
+                    <Button Grid.Row="3" Grid.Column="3" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizKey3" x:Name="BtnWizCapKey3"/>
                 </Grid>
             </StackPanel>
 
@@ -228,11 +229,11 @@
                         <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="{DynamicResource L.Groups.Forward}" Style="{StaticResource Wiz.Text}" Margin="0,0,12,0"/>
-                    <TextBox x:Name="TxtWizCycleFwd" Grid.Column="1" Text="F11" Margin="0,3"/>
-                    <Button Grid.Column="2" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizCycleFwd"/>
+                    <TextBox x:Name="TxtWizCycleFwd" Grid.Column="1" Text="F11" Margin="0,3" ui:Loc.NameKey="L.Wiz.CycleFwd"/>
+                    <Button Grid.Column="2" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizCycleFwd" x:Name="BtnWizCapCycleFwd"/>
                     <TextBlock Grid.Row="1" Text="{DynamicResource L.Groups.Backward}" Style="{StaticResource Wiz.Text}" Margin="0,0,12,0"/>
-                    <TextBox x:Name="TxtWizCycleBwd" Grid.Row="1" Grid.Column="1" Text="F12" Margin="0,3"/>
-                    <Button Grid.Row="1" Grid.Column="2" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizCycleBwd"/>
+                    <TextBox x:Name="TxtWizCycleBwd" Grid.Row="1" Grid.Column="1" Text="F12" Margin="0,3" ui:Loc.NameKey="L.Wiz.CycleBwd"/>
+                    <Button Grid.Row="1" Grid.Column="2" Content="⌨" MinWidth="36" Padding="8,4" Margin="4,3,0,3" Click="OnWizCapture" Tag="TxtWizCycleBwd" x:Name="BtnWizCapCycleBwd"/>
                 </Grid>
             </StackPanel>
 

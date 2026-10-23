@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -56,6 +57,7 @@ public partial class SetupWizard : Window
         PreviewMouseWheel += EveMultiPreview.SettingsUi.SettingsShell.WheelPastClosedLists;
         UiFont.Apply(this, LocalizationService.CurrentLanguage);
         BuildLanguageList();
+        NameTheHotkeyRows();
         SelectMatchingSizeCard();
         _look = UiStyles.Find(_svc.Settings.UiStyle);
         LookHost.Content = new LookGallery(() => _look.Id, PickLook, 152);   // four to a row in 720
@@ -157,7 +159,28 @@ public partial class SetupWizard : Window
         _svc.Settings.Language = code;
         LocalizationService.SetLanguage(code);
         UiFont.Apply(this, LocalizationService.CurrentLanguage);
+        NameTheHotkeyRows();
         UpdateNavigation();
+    }
+
+    /// <summary>The boxes and capture buttons of the hotkey steps repeat, and a capture button shows only a keyboard
+    /// symbol, so each is named for its row (IDEAS #51): "Character 2", "Hotkey 2", "Capture a key for: Hotkey 2". Set in
+    /// code because the number goes into the words, and again after a language change.</summary>
+    private void NameTheHotkeyRows()
+    {
+        var rows = new[]
+        {
+            (TxtWizChar1, TxtWizKey1, BtnWizCapKey1, 1), (TxtWizChar2, TxtWizKey2, BtnWizCapKey2, 2), (TxtWizChar3, TxtWizKey3, BtnWizCapKey3, 3),
+        };
+        foreach (var (character, key, capture, n) in rows)
+        {
+            var keyName = string.Format(Str("L.Wiz.KeyBoxFmt", "Hotkey {0}"), n);
+            AutomationProperties.SetName(character, string.Format(Str("L.Wiz.CharBoxFmt", "Character {0}"), n));
+            AutomationProperties.SetName(key, keyName);
+            AutomationProperties.SetName(capture, string.Format(Str("L.Wiz.CaptureFmt", "Capture a key for: {0}"), keyName));
+        }
+        AutomationProperties.SetName(BtnWizCapCycleFwd, string.Format(Str("L.Wiz.CaptureFmt", "Capture a key for: {0}"), Str("L.Wiz.CycleFwd", "Forward hotkey")));
+        AutomationProperties.SetName(BtnWizCapCycleBwd, string.Format(Str("L.Wiz.CaptureFmt", "Capture a key for: {0}"), Str("L.Wiz.CycleBwd", "Backward hotkey")));
     }
 
     // ── Look (UI styles spec §9.3: the gallery of App settings › Look) ──

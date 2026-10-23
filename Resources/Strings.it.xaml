@@ -2877,4 +2877,16 @@
     <sys:String x:Key="L.Help.app.general.tranquility.Body">Dopo il downtime giornaliero delle 11:00 UTC, il server di EVE impiega un po' a riaprire. Con **Avvisami quando Tranquility torna online** attivo, MultiPreview chiede lo stato del server una volta al minuto durante la prima ora dall'inizio del downtime e mostra un solo avviso nella barra di sistema con il numero di giocatori online appena il server accetta di nuovo i login. Chiede solo entro quell'ora, mai in altri momenti, e si ferma alla prima risposta che indica il server aperto.&#x0A;&#x0A;Il controllo di stato è disattivato per ora: richiede una richiesta diretta di MultiPreview allo stato del server di EVE, non ancora approvata (vedi la checklist di rilascio). Fino ad allora l'interruttore viene solo salvato: non si chiede nulla e non arriva nessun avviso.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.logi_idle">Logi inattivo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.LogiIdleNobody">Logi inattivo non controlla ancora nessuno: scegli «Attivo per questo gruppo» per il tuo gruppo di logi in Avvisi di un gruppo.</sys:String> <!-- draft -->
+    <!-- Ideas batch 27 (Plan 31) -->
+    <sys:String x:Key="L.Wiz.CharBoxFmt">Personaggio {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.KeyBoxFmt">Tasto di scelta rapida {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CaptureFmt">Cattura un tasto per: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleFwd">Tasto di scelta rapida avanti</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleBwd">Tasto di scelta rapida indietro</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.Bell">Campanella degli avvisi: chiudi tutte le notifiche</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackUp">Impila le notifiche verso l'alto</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackRight">Impila le notifiche verso destra</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackDown">Impila le notifiche verso il basso</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackLeft">Impila le notifiche verso sinistra</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.PickerClose">Chiudi il menu</sys:String> <!-- draft -->
 </ResourceDictionary>

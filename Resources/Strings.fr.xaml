@@ -2862,4 +2862,16 @@
     <sys:String x:Key="L.Help.app.general.tranquility.Body">Après la downtime quotidienne de 11:00 UTC, le serveur d'EVE met un moment à rouvrir. Avec **Me prévenir quand Tranquility est de nouveau en ligne** activé, MultiPreview interroge l'état du serveur une fois par minute pendant la première heure suivant le début de la downtime et affiche une seule notification avec le nombre de joueurs en ligne dès que le serveur accepte de nouveau les connexions. Il n'interroge que pendant cette heure, jamais à un autre moment, et s'arrête après la première réponse indiquant que le serveur est ouvert.&#x0A;&#x0A;La vérification d'état elle-même est désactivée pour l'instant : elle demande une requête directe de MultiPreview vers l'état du serveur d'EVE, qui n'est pas encore approuvée (voir la liste de contrôle de version). D'ici là, l'interrupteur est seulement enregistré : rien n'est interrogé et aucune notification n'arrive.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.logi_idle">Logi inactif</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.LogiIdleNobody">Logi inactif ne surveille encore personne : choisissez « Actif pour ce groupe » pour votre groupe de logi sous Alertes d'un groupe.</sys:String> <!-- draft -->
+    <!-- Ideas batch 27 (Plan 31) -->
+    <sys:String x:Key="L.Wiz.CharBoxFmt">Personnage {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.KeyBoxFmt">Raccourci {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CaptureFmt">Capturer une touche pour: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleFwd">Raccourci avant</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleBwd">Raccourci arrière</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.Bell">Cloche d'alertes: fermer toutes les notifications</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackUp">Empiler les notifications vers le haut</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackRight">Empiler les notifications vers la droite</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackDown">Empiler les notifications vers le bas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackLeft">Empiler les notifications vers la gauche</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.PickerClose">Fermer le menu</sys:String> <!-- draft -->
 </ResourceDictionary>

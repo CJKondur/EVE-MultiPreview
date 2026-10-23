@@ -2859,4 +2859,16 @@
     <sys:String x:Key="L.Help.app.general.tranquility.Body">Nach der täglichen Downtime um 11:00 UTC braucht der EVE-Server eine Weile, bis er wieder offen ist. Mit eingeschaltetem **Benachrichtige mich, wenn Tranquility wieder online ist** fragt MultiPreview in der ersten Stunde nach Beginn der Downtime einmal pro Minute den Serverstatus ab und zeigt eine einzige Tray-Meldung mit der Zahl der Spieler online, sobald der Server wieder Logins annimmt. Gefragt wird nur in dieser Stunde, nie zu anderen Zeiten, und nach der ersten Antwort, die den Server als offen meldet, hört es auf.&#x0A;&#x0A;Die Statusabfrage selbst ist vorerst abgeschaltet: Sie braucht eine direkte Anfrage von MultiPreview an den Serverstatus von EVE, die noch nicht freigegeben ist (siehe Release-Checkliste). Bis dahin wird der Schalter nur gespeichert: Es wird nichts abgefragt und es kommt keine Meldung.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.logi_idle">Logi untätig</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.LogiIdleNobody">Logi untätig überwacht noch niemanden: Wähle „An für diese Gruppe“ für deine Logi-Gruppe unter Alarme für eine Gruppe.</sys:String> <!-- draft -->
+    <!-- Ideas batch 27 (Plan 31) -->
+    <sys:String x:Key="L.Wiz.CharBoxFmt">Charakter {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.KeyBoxFmt">Hotkey Nr. {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CaptureFmt">Taste erfassen für: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleFwd">Hotkey vorwärts</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleBwd">Hotkey rückwärts</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.Bell">Alarmglocke: alle Hinweise schließen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackUp">Hinweise nach oben stapeln</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackRight">Hinweise nach rechts stapeln</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackDown">Hinweise nach unten stapeln</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackLeft">Hinweise nach links stapeln</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.PickerClose">Menü schließen</sys:String> <!-- draft -->
 </ResourceDictionary>

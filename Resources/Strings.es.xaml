@@ -2881,4 +2881,16 @@
     <sys:String x:Key="L.Help.app.general.tranquility.Body">Después de la downtime diaria de las 11:00 UTC, el servidor de EVE tarda un rato en abrir de nuevo. Con **Avísame cuando Tranquility vuelva a estar en línea** activado, MultiPreview consulta el estado del servidor una vez por minuto durante la primera hora desde que empieza la downtime y muestra un único aviso en la bandeja con el número de jugadores en línea en cuanto el servidor acepta inicios de sesión. Solo consulta dentro de esa hora, nunca en otros momentos, y se detiene tras la primera respuesta que indica que el servidor está abierto.&#x0A;&#x0A;La consulta de estado está desactivada por ahora: necesita una petición directa de MultiPreview al estado del servidor de EVE, que todavía no está aprobada (consulta la lista de comprobación de versión). Hasta entonces el interruptor solo se guarda: no se consulta nada y no llega ningún aviso.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.logi_idle">Logi inactivo</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.LogiIdleNobody">Logi inactivo todavía no vigila a nadie: elige «Activo para este grupo» para tu grupo de logi en Alertas de un grupo.</sys:String> <!-- draft -->
+    <!-- Ideas batch 27 (Plan 31) -->
+    <sys:String x:Key="L.Wiz.CharBoxFmt">Personaje {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.KeyBoxFmt">Tecla rápida {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CaptureFmt">Capturar tecla para: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleFwd">Tecla rápida hacia delante</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleBwd">Tecla rápida hacia atrás</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.Bell">Campana de alertas: cerrar todos los avisos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackUp">Apilar los avisos hacia arriba</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackRight">Apilar los avisos hacia la derecha</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackDown">Apilar los avisos hacia abajo</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackLeft">Apilar los avisos hacia la izquierda</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.PickerClose">Cerrar el menú</sys:String> <!-- draft -->
 </ResourceDictionary>

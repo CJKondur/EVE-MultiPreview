@@ -142,6 +142,7 @@ public class AlertHub : IDisposable
         _hub = AlertHubVisuals.BuildHub();
         SettingsUi.UiStyles.Changed += OnLookChanged;
         var hubContainer = _hub.Bell;
+        _hub.Bell.Press = DismissAll;   // a screen reader's click on the bell does what the mouse's does (IDEAS #51)
         _hubWindow.Content = _hub.Root;
 
         // Position from settings
@@ -618,16 +619,23 @@ public class AlertHub : IDisposable
         // Up, right, down, left: 28 × 28 buttons centred on the edges of the 100 × 100 picker (centre 50, 50 − 14 = 36).
         string[] arrows = { AlertHubVisuals.Glyphs.Up, AlertHubVisuals.Glyphs.Right, AlertHubVisuals.Glyphs.Down, AlertHubVisuals.Glyphs.Left };
         string[] names = { "up", "right", "down", "left" };
+        // The arrows are glyphs: a screen reader gets these words for them (IDEAS #51).
+        (string Key, string English)[] stack =
+        {
+            ("L.Hub.StackUp", "Stack toasts upward"), ("L.Hub.StackRight", "Stack toasts to the right"),
+            ("L.Hub.StackDown", "Stack toasts downward"), ("L.Hub.StackLeft", "Stack toasts to the left"),
+        };
         double[,] positions = { { 36, 2 }, { 70, 36 }, { 36, 70 }, { 2, 36 } };
 
         for (int i = 0; i < 4; i++)
         {
             int dir = i;
-            var arrowBtn = AlertHubVisuals.BuildPickerButton(arrows[i], current: ToastDirection == dir);
+            var arrowBtn = AlertHubVisuals.BuildPickerButton(arrows[i], current: ToastDirection == dir,
+                name: Services.LocalizationService.Str(stack[i].Key, stack[i].English));
             Canvas.SetLeft(arrowBtn, positions[i, 0]);
             Canvas.SetTop(arrowBtn, positions[i, 1]);
 
-            arrowBtn.MouseLeftButtonDown += (_, _) =>
+            void Pick()
             {
                 ToastDirection = dir;
                 _settings.AlertToastDirection = dir;
@@ -637,21 +645,26 @@ public class AlertHub : IDisposable
                 _directionPicker = null;
                 RefreshIcon();
                 Debug.WriteLine($"[AlertHub:Direction] ✅ Toast direction set to {dir} ({names[dir]})");
-            };
+            }
+            arrowBtn.MouseLeftButtonDown += (_, _) => Pick();
+            arrowBtn.Press = Pick;
 
             canvas.Children.Add(arrowBtn);
         }
 
         // Close button in the centre
-        var closeBtn = AlertHubVisuals.BuildPickerButton(AlertHubVisuals.Glyphs.Close, current: false, size: 26, round: true);
+        var closeBtn = AlertHubVisuals.BuildPickerButton(AlertHubVisuals.Glyphs.Close, current: false, size: 26, round: true,
+            name: Services.LocalizationService.Str("L.Hub.PickerClose", "Close the menu"));
         Canvas.SetLeft(closeBtn, 37);
         Canvas.SetTop(closeBtn, 37);
-        closeBtn.MouseLeftButtonDown += (_, _) =>
+        void CloseMenu()
         {
             popup.Close();
             _directionPicker = null;
             RefreshIcon();
-        };
+        }
+        closeBtn.MouseLeftButtonDown += (_, _) => CloseMenu();
+        closeBtn.Press = CloseMenu;
         canvas.Children.Add(closeBtn);
 
         // The hub's menu (IDEAS #1 and P35): the alert history, and Dismiss all. They sit in the picker's two lower
@@ -706,13 +719,15 @@ public class AlertHub : IDisposable
     private Border PickerAction(Window popup, string glyph, string key, string english, Action run)
     {
         var button = AlertHubVisuals.BuildPickerAction(glyph, Services.LocalizationService.Str(key, english));
-        button.MouseLeftButtonDown += (_, _) =>
+        void Act()
         {
             popup.Close();
             _directionPicker = null;
             RefreshIcon();
             run();
-        };
+        }
+        button.MouseLeftButtonDown += (_, _) => Act();
+        button.Press = Act;
         return button;
     }
 
@@ -830,11 +845,13 @@ public class AlertToast : IDisposable
         };
 
         // Click to focus character
-        border.MouseLeftButtonDown += (_, _) =>
+        void Click()
         {
             Clicked?.Invoke();
             Window.Close();
-        };
+        }
+        border.MouseLeftButtonDown += (_, _) => Click();
+        border.Press = Click;   // a screen reader's click on the toast (IDEAS #51)
 
         // Right-click: the hub's menu for this toast (Dismiss, and snooze this event for this character, IDEAS #30).
         // It opens when the button is let go, as a thumbnail's menu does: opened on the press, the release would land

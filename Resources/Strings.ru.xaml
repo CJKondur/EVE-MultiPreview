@@ -2879,4 +2879,16 @@
     <sys:String x:Key="L.Help.app.general.tranquility.Body">После ежедневного даунтайма в 11:00 UTC серверу EVE нужно время, чтобы открыться снова. Если включено **Сообщить, когда Tranquility снова онлайн**, MultiPreview раз в минуту в течение первого часа после начала даунтайма запрашивает статус сервера и показывает одно уведомление в трее с числом игроков онлайн, как только сервер снова принимает входы. Запросы идут только в этот час, в другое время их нет, и они прекращаются после первого ответа, что сервер открыт.&#x0A;&#x0A;Сама проверка статуса пока отключена: ей нужен прямой запрос MultiPreview к статусу сервера EVE, который ещё не одобрен (см. чек-лист релиза). До тех пор переключатель только сохраняется: ничего не запрашивается, и уведомление не придёт.</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.logi_idle">Logi бездействует</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.GroupAlerts.LogiIdleNobody">Logi бездействует пока никого не отслеживает: выберите «Включено для этой группы» для вашей группы логистов в разделе «Оповещения одной группы».</sys:String> <!-- draft -->
+    <!-- Ideas batch 27 (Plan 31) -->
+    <sys:String x:Key="L.Wiz.CharBoxFmt">Персонаж {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.KeyBoxFmt">Горячая клавиша {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CaptureFmt">Записать клавишу для: {0}</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleFwd">Горячая клавиша «Вперёд»</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Wiz.CycleBwd">Горячая клавиша «Назад»</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.Bell">Колокольчик оповещений: закрыть все уведомления</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackUp">Уведомления выстраиваются вверх</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackRight">Уведомления выстраиваются вправо</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackDown">Уведомления выстраиваются вниз</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.StackLeft">Уведомления выстраиваются влево</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Hub.PickerClose">Закрыть меню</sys:String> <!-- draft -->
 </ResourceDictionary>

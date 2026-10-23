@@ -58,7 +58,7 @@ public static class AlertHubVisuals
     public static string BadgeText(int count) => count > 9 ? "9+" : count.ToString(CultureInfo.InvariantCulture);
 
     /// <summary>The hub's parts. <see cref="Bell"/> takes the clicks and drags.</summary>
-    public sealed record HubParts(Grid Root, Border Bell, TextBlock Icon, Border Badge, TextBlock BadgeLabel);
+    public sealed record HubParts(Grid Root, PressBorder Bell, TextBlock Icon, Border Badge, TextBlock BadgeLabel);
 
     private static FontFamily IconFont => new("Segoe Fluent Icons, Segoe MDL2 Assets");
 
@@ -76,7 +76,7 @@ public static class AlertHubVisuals
             VerticalAlignment = VerticalAlignment.Center,
         };
         icon.SetResourceReference(TextBlock.ForegroundProperty, "Fx.TextBrush");
-        var bell = new Border
+        var bell = new PressBorder
         {
             Width = BellSize,
             Height = BellSize,
@@ -89,6 +89,7 @@ public static class AlertHubVisuals
         };
         bell.SetResourceReference(Border.BackgroundProperty, "Fx.FlyoutBrush");
         bell.SetResourceReference(Border.BorderBrushProperty, "Fx.FlyoutBorderBrush");
+        Loc.SetNameKey(bell, "L.Hub.Bell");   // a screen reader's name for the bell (IDEAS #51); a click on it dismisses the toasts
         var badgeLabel = new TextBlock
         {
             FontSize = 11,
@@ -164,13 +165,13 @@ public static class AlertHubVisuals
 
     /// <summary>A toast: the flyout surface with a bar in the severity's colour (the player's colours, Alerts › Look &amp;
     /// severity), the character and event, and where it happened. Long names end in "…"; the toast never grows.</summary>
-    public static Border BuildToast(string character, string alertType, Color severityColor, string? system, bool soundHeld = false) =>
+    public static PressBorder BuildToast(string character, string alertType, Color severityColor, string? system, bool soundHeld = false) =>
         BuildToast(character, alertType, severityColor, system, out _, soundHeld);
 
     /// <summary>The same toast, and its second line, so a toast that shows an age can change it. With
     /// <paramref name="soundHeld"/> (do-not-disturb held the alert's sound, P81) a crossed bell stands at the toast's
     /// right edge (<see cref="SoundHeldMarkName"/>); the text keeps the room that is left.</summary>
-    public static Border BuildToast(string character, string alertType, Color severityColor, string? system, out TextBlock secondLine,
+    public static PressBorder BuildToast(string character, string alertType, Color severityColor, string? system, out TextBlock secondLine,
         bool soundHeld = false)
     {
         var (title, subtitle) = ToastText(character, alertType, system);
@@ -224,7 +225,7 @@ public static class AlertHubVisuals
             row.Children.Add(mark);
         }
         row.Children.Add(text);
-        var toast = new Border
+        var toast = new PressBorder
         {
             Width = ToastWidth,
             Height = ToastHeight,
@@ -236,12 +237,15 @@ public static class AlertHubVisuals
         toast.SetResourceReference(Border.BackgroundProperty, "Fx.FlyoutBrush");
         toast.SetResourceReference(Border.BorderBrushProperty, "Fx.FlyoutBorderBrush");
         toast.SetResourceReference(Border.CornerRadiusProperty, "Fx.FlyoutRadius");
+        // What its first line says (already masked in streamer mode): a screen reader reads the toast as that line; a click switches to the client (IDEAS #51).
+        System.Windows.Automation.AutomationProperties.SetName(toast, title);
         return toast;
     }
 
     /// <summary>One button of the direction picker (28 × 28): the current direction in accent, the others on the flyout
-    /// surface. <paramref name="round"/> makes the centre close button.</summary>
-    public static Border BuildPickerButton(string glyph, bool current, double size = 28, bool round = false)
+    /// surface. <paramref name="round"/> makes the centre close button. <paramref name="name"/> names it to a screen reader
+    /// (IDEAS #51): the glyph alone says nothing.</summary>
+    public static PressBorder BuildPickerButton(string glyph, bool current, double size = 28, bool round = false, string? name = null)
     {
         var mark = new TextBlock
         {
@@ -252,7 +256,7 @@ public static class AlertHubVisuals
             VerticalAlignment = VerticalAlignment.Center,
         };
         mark.SetResourceReference(TextBlock.ForegroundProperty, current ? "Fx.OnAccentBrush" : "Fx.TextBrush");
-        var button = new Border
+        var button = new PressBorder
         {
             Width = size,
             Height = size,
@@ -263,12 +267,13 @@ public static class AlertHubVisuals
         };
         button.SetResourceReference(Border.BackgroundProperty, current ? "Fx.AccentBrush" : round ? "Fx.ControlBrush" : "Fx.FlyoutBrush");
         button.SetResourceReference(Border.BorderBrushProperty, current ? "Fx.AccentBrush" : "Fx.FlyoutBorderBrush");
+        if (name != null) System.Windows.Automation.AutomationProperties.SetName(button, name);
         return button;
     }
 
     /// <summary>A round button of the hub's menu (the picker's corners): a glyph, with what it does as its tooltip and
     /// its screen-reader name.</summary>
-    public static Border BuildPickerAction(string glyph, string what)
+    public static PressBorder BuildPickerAction(string glyph, string what)
     {
         var button = BuildPickerButton(glyph, current: false, size: PickerActionSize, round: true);
         button.ToolTip = what;

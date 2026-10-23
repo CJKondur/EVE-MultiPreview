@@ -235,7 +235,7 @@ public partial class QuickSwitchWheel : Window
         var numberRow = new Grid { Children = { number } };
         var (badge, badgeText, badgeDisc) = alerts is { Count: > 0 } a ? CreateBadge(a, settings ?? new AppSettings(), numberText.FontSize) : (null, null, null);
         if (badge != null) numberRow.Children.Add(badge);
-        var card = new Border
+        var card = new PressBorder
         {
             Width = QuickSwitchLayout.CardWidth,
             Height = QuickSwitchLayout.CardHeight,
@@ -245,6 +245,8 @@ public partial class QuickSwitchWheel : Window
             Child = new StackPanel { Children = { numberRow, nameText, systemText } },
         };
 
+        // The name the card draws (masked in streamer mode) is what a screen reader reads (IDEAS #51).
+        System.Windows.Automation.AutomationProperties.SetName(card, nameText.Text);
         var entry = new CardEntry { Name = name, Card = card, Number = number, NumberText = numberText, NameText = nameText, SystemText = systemText, BadgeText = badgeText, BadgeDisc = badgeDisc, Index = index };
         SetLook(entry, CardLook.Normal);
         _cards.Add(entry);
@@ -252,6 +254,11 @@ public partial class QuickSwitchWheel : Window
         // Normal-mode interactions
         card.MouseEnter += (_, _) => { if (!_editMode) SetLook(entry, CardLook.Hover); };
         card.MouseLeave += (_, _) => { if (!_editMode) SetLook(entry, CardLook.Normal); };
+        void Select()
+        {
+            CharacterSelected?.Invoke(entry.Name);
+            CloseWheel();
+        }
         card.MouseLeftButtonDown += (_, e) =>
         {
             if (_editMode)
@@ -259,10 +266,10 @@ public partial class QuickSwitchWheel : Window
             else
             {
                 e.Handled = true;
-                CharacterSelected?.Invoke(entry.Name);
-                CloseWheel();
+                Select();
             }
         };
+        card.Press = () => { if (!_editMode) Select(); };   // a screen reader's click: not while reordering, where a click begins a drag
 
         ButtonCanvas.Children.Add(card);
     }

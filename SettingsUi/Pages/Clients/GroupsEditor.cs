@@ -119,6 +119,10 @@ public sealed class GroupsEditor : System.Windows.Controls.UserControl, IRefresh
         DockPanel.SetDock(delete, Dock.Right);
         head.Children.Add(delete);
         head.Children.Add(name);
+        // Delete is added first so the name is measured with what it leaves (a very long name must not push Delete off the
+        // card), which put it first in the Tab order too: the name reads first, so Tab goes to it first (IDEAS #51).
+        KeyboardNavigation.SetTabIndex(name, 0);
+        KeyboardNavigation.SetTabIndex(delete, 1);
         stack.Children.Add(head);
 
         // Colour and keys.
