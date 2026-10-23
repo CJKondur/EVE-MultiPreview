@@ -2889,4 +2889,10 @@
     <sys:String x:Key="L.Hub.StackDown">Impila le notifiche verso il basso</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.StackLeft">Impila le notifiche verso sinistra</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.PickerClose">Chiudi il menu</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.theme">Windows chiaro e scuro</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followTheme">Mostra Luce del giorno quando il tema delle app di Windows è chiaro</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followTheme.Desc">Con un tema scuro, o non leggibile, viene mostrato l'aspetto che hai scelto. L'aspetto che scegli resta salvato.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.themeOn">Il tema delle app di Windows è chiaro, quindi viene mostrato Luce del giorno. L'aspetto che scegli viene mantenuto e compare quando Windows passa allo scuro, o subito se disattivi questo interruttore.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.theme.Title">Windows chiaro e scuro</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.theme.Body">Con **Mostra Luce del giorno quando il tema delle app di Windows è chiaro** attivo, MultiPreview mostra **Luce del giorno** finché il tema delle app di Windows è chiaro (Impostazioni di Windows, Personalizzazione, Colori), e l'aspetto che hai scelto quando è scuro. Una modifica in Windows si vede subito, senza riavvio.&#x0A;&#x0A;La tua scelta non viene mai sovrascritta: resta salvata e torna quando Windows passa allo scuro o quando disattivi l'interruttore. Se l'impostazione di Windows non si può leggere, viene mostrato il tuo aspetto. Un tema a contrasto di Windows ha sempre la precedenza. L'interruttore è disattivato per impostazione predefinita e cambia solo le finestre di MultiPreview, non le miniature.</sys:String> <!-- draft -->
 </ResourceDictionary>

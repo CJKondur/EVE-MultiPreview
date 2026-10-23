@@ -89,6 +89,7 @@ public class AhkConfigRoot
         s.SettingsHelpOpen = g.SettingsHelpOpen != 0;
         s.UiStyle = g.UiStyle ?? AppSettings.DefaultUiStyle;   // a written null is a missing key; "" and unknown ids are kept
         s.UiStyleFollowContrast = g.UiStyleFollowContrast != 0;
+        s.UiStyleFollowWindows = g.UiStyleFollowWindows != 0;
         s.SetupCompleted = true; // Always bypass the First-Run wizard for migrated AHK users
         // StartupSettings: clamp to known values; unknown/missing → Off
         s.StartupSettings = g.StartupSettings switch
@@ -448,6 +449,7 @@ public class AhkConfigRoot
         g.SettingsHelpOpen = s.SettingsHelpOpen ? 1 : 0;
         g.UiStyle = s.UiStyle;
         g.UiStyleFollowContrast = s.UiStyleFollowContrast ? 1 : 0;
+        g.UiStyleFollowWindows = s.UiStyleFollowWindows ? 1 : 0;
         g.SetupCompleted = s.SetupCompleted ? 1 : 0;
         g.StartupSettings = (int)s.StartupSettings;
         g.LastUsedProfile = s.LastUsedProfile;
@@ -1253,6 +1255,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("UiStyleFollowContrast")]
     public int UiStyleFollowContrast { get; set; } = 1;
+
+    // Follow Windows' light or dark app theme (IDEAS P3, Plan 31): a file without it loads it off.
+    [JsonPropertyName("UiStyleFollowWindows")]
+    public int UiStyleFollowWindows { get; set; }
 
     [JsonPropertyName("SetupCompleted")]
     public int SetupCompleted { get; set; }

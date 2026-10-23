@@ -27,6 +27,7 @@ public static class AppPages
         new HelpTopic("app.general", "commandsAdmin", new[] { "app.general.acceptCommandsUnelevated" }),
         new HelpTopic("app.general", "recent", new[] { RecentChangesEditor.ItemId }),
         new HelpTopic(LookId, "look", new[] { LookGallery.ItemId }),
+        new HelpTopic(LookId, "theme", new[] { "app.look.followTheme" }),
         new HelpTopic(LookId, "contrast", new[] { "app.look.followContrast" }),
         new HelpTopic("app.diagnostics", "logs", new[]
         {
@@ -105,13 +106,23 @@ public static class AppPages
     });
 
     /// <summary>UI styles spec §9.1: the look of the app, a gallery of the looks. An App page, so Simple mode has it too.
-    /// Its second section, Windows contrast themes (spec §12): the switch, and while High contrast is drawn in Windows'
-    /// colours a line that says why the pick does not show (O25).</summary>
+    /// Its second section, Windows light and dark (IDEAS P3): the switch that shows Daylight while Windows' app theme is
+    /// light, and while it does a line that says why the pick does not show. Its third, Windows contrast themes (spec §12):
+    /// the switch, and while High contrast is drawn in Windows' colours a line that says why the pick does not show (O25).</summary>
     private static PageDef Look() => new(LookId, NavGroup.App, new[]
     {
         new SectionDef("app.look.look", new PageItem[]
         {
             new EditorItem(LookGallery.ItemId, ctx => new LookGallery(ctx)) { Binds = new[] { "AppSettings.UiStyle" } },
+        }),
+        new SectionDef("app.look.theme", new PageItem[]
+        {
+            // IDEAS P3: App reads the key with the saved look (ApplySavedLook); the switch draws at once and saves.
+            new SettingItem(Setting.Toggle("app.look.followTheme", s => s.UiStyleFollowWindows) with
+            {
+                OnChanged = ctx => { UiStyles.FollowWindowsTheme(ctx.S.UiStyleFollowWindows); ctx.Host.Reload(); },
+            }),
+            new InfoItem("app.look.themeOn", InfoSeverity.Info) { ShowIf = _ => UiStyles.ShowsWindowsTheme },
         }),
         new SectionDef("app.look.contrast", new PageItem[]
         {

@@ -2871,4 +2871,10 @@
     <sys:String x:Key="L.Hub.StackDown">Hinweise nach unten stapeln</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.StackLeft">Hinweise nach links stapeln</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.PickerClose">Menü schließen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.theme">Windows hell und dunkel</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followTheme">Tageslicht anzeigen, solange das Windows-App-Design hell ist</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followTheme.Desc">Bei dunklem oder nicht lesbarem Design erscheint das gewählte Aussehen. Das Aussehen, das du wählst, bleibt gespeichert.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.themeOn">Das Windows-App-Design ist hell, deshalb wird Tageslicht angezeigt. Das Aussehen, das du wählst, bleibt erhalten und erscheint, sobald Windows dunkel wird, oder sofort, wenn du diesen Schalter ausschaltest.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.theme.Title">Windows hell und dunkel</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.theme.Body">Ist **Tageslicht anzeigen, solange das Windows-App-Design hell ist** eingeschaltet, zeigt MultiPreview **Tageslicht**, solange das App-Design von Windows hell ist (Windows-Einstellungen, Personalisierung, Farben), und bei dunklem Design das Aussehen, das du gewählt hast. Eine Änderung in Windows wirkt sofort, ohne Neustart.&#x0A;&#x0A;Deine Wahl wird nie überschrieben: Sie bleibt gespeichert und erscheint wieder, wenn Windows dunkel wird oder du den Schalter ausschaltest. Lässt sich die Windows-Einstellung nicht lesen, erscheint dein eigenes Aussehen. Ein Windows-Kontrastdesign hat weiterhin Vorrang. Der Schalter ist standardmäßig aus und ändert nur die MultiPreview-Fenster, nicht die Vorschaubilder.</sys:String> <!-- draft -->
 </ResourceDictionary>

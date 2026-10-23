@@ -156,6 +156,12 @@ public class AppSettings
     /// <summary>High contrast while a Windows contrast theme is on (UI styles spec §12). Its switch and its rule come in
     /// plan S4; the key is in the file from S2, on.</summary>
     public bool UiStyleFollowContrast { get; set; } = true;
+
+    /// <summary>Show Daylight while Windows' app theme is light (IDEAS P3, Plan 31); dark, or a theme that cannot be read,
+    /// shows the look picked. The pick (UiStyle) is never changed by it. Off by default; App reads it when it shows the saved
+    /// look.</summary>
+    public bool UiStyleFollowWindows { get; set; } = false;
+
     public bool SetupCompleted { get; set; } = false;
 
     /// <summary>Controls whether the Settings window auto-opens when the app launches.</summary>

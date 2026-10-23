@@ -942,6 +942,7 @@ public partial class App : Application
             // UI styles spec §12: High contrast in Windows' colours while a contrast theme is on, if the player follows it.
             SettingsUi.UiStyles.ListenToWindows();
             SettingsUi.UiStyles.FollowsContrast = _settings!.Settings.UiStyleFollowContrast;
+            SettingsUi.UiStyles.FollowsWindowsTheme = _settings!.Settings.UiStyleFollowWindows;   // IDEAS P3: before the look is shown
             SettingsUi.UiStyles.Set(_settings!.Settings.UiStyle);
         }
         catch (Exception ex) { LogError(ex); }

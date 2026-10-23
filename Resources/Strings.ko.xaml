@@ -2872,4 +2872,10 @@
     <sys:String x:Key="L.Hub.StackDown">토스트를 아래로 쌓기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.StackLeft">토스트를 왼쪽으로 쌓기</sys:String> <!-- draft -->
     <sys:String x:Key="L.Hub.PickerClose">메뉴 닫기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.app.look.theme">Windows 밝게와 어둡게</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followTheme">Windows 앱 테마가 밝은 동안 주광 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.followTheme.Desc">어둡거나 테마를 읽을 수 없으면 고른 모양을 표시해요. 고른 모양은 저장된 채로 남아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.look.themeOn">Windows 앱 테마가 밝아서 주광이 표시돼요. 고른 모양은 그대로 유지되고, Windows가 어두워지면 표시돼요. 이 스위치를 끄면 바로 표시돼요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.theme.Title">Windows 밝게와 어둡게</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.look.theme.Body">**Windows 앱 테마가 밝은 동안 주광 표시**를 켜면 Windows 앱 테마가 밝은 동안 MultiPreview가 **주광**을 표시하고(Windows 설정, 개인 설정, 색), 어두울 때는 고른 모양을 표시해요. Windows에서 바꾸면 바로 적용되고, 다시 시작할 필요가 없어요.&#x0A;&#x0A;고른 모양은 절대 덮어쓰이지 않아요. 저장된 채로 남아 있다가 Windows가 어두워지거나 스위치를 끄면 다시 표시돼요. Windows 설정을 읽을 수 없으면 내 모양을 표시해요. Windows 대비 테마가 여전히 먼저예요. 스위치는 기본으로 꺼져 있고, MultiPreview 창만 바꾸며 미리보기는 바꾸지 않아요.</sys:String> <!-- draft -->
 </ResourceDictionary>

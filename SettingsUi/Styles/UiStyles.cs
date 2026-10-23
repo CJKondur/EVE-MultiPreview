@@ -179,8 +179,22 @@ public static class UiStyles
     /// <summary>Whether the look drawn is High contrast in Windows' colours (App settings › Look says why).</summary>
     public static bool ShowsWindowsContrast => _system != null && Effective == _system;
 
-    /// <summary>The look that should be drawn now.</summary>
-    private static UiStyle Wanted() => FollowsContrast && WindowsContrast.IsOn() ? SystemContrast() : Current;
+    /// <summary>Whether the app draws Daylight while Windows' app theme is light (AppSettings.UiStyleFollowWindows, off by
+    /// default, IDEAS P3). App sets it from the settings before it shows the saved look; the Look page's switch calls
+    /// FollowWindowsTheme. Windows is not asked at all while it is off.</summary>
+    public static bool FollowsWindowsTheme { get; set; }
+
+    /// <summary>Whether the look drawn is Daylight only because Windows' app theme is light: the player follows it, it is
+    /// light, and the pick is another look (App settings › Look says why the pick does not show). A pick of Daylight itself
+    /// hides nothing.</summary>
+    public static bool ShowsWindowsTheme => FollowsWindowsTheme && Effective == Daylight && Current != Daylight;
+
+    /// <summary>The look that should be drawn now: Windows' contrast theme first (when followed), then Daylight while the
+    /// app theme is light (when followed), else the player's pick. Current is never changed by either.</summary>
+    private static UiStyle Wanted() =>
+        FollowsContrast && WindowsContrast.IsOn() ? SystemContrast()
+        : FollowsWindowsTheme && WindowsAppTheme.IsLight() ? Daylight
+        : Current;
 
     private static UiStyle? _system;
     private static string? _systemColours;
@@ -210,14 +224,29 @@ public static class UiStyles
         Show();
     }
 
+    /// <summary>The Look page's other switch (IDEAS P3): follow Windows' light or dark app theme or not; the look drawn
+    /// changes at once, and the pick (Current) is the same before and after.</summary>
+    public static void FollowWindowsTheme(bool follow)
+    {
+        FollowsWindowsTheme = follow;
+        Show();
+    }
+
+    /// <summary>Whether a Windows setting event can mean a new contrast theme, colours or app theme: Color and Accessibility
+    /// for the contrast rule, General for the app theme (Windows broadcasts "ImmersiveColorSet" as a general setting change).
+    /// Locale and policy changes do not.</summary>
+    public static bool IsWindowsThemeEvent(Microsoft.Win32.UserPreferenceCategory category) =>
+        category is Microsoft.Win32.UserPreferenceCategory.Color or Microsoft.Win32.UserPreferenceCategory.Accessibility
+            or Microsoft.Win32.UserPreferenceCategory.General;
+
     private static System.ComponentModel.PropertyChangedEventHandler? _contrastWatch;
     private static Microsoft.Win32.UserPreferenceChangedEventHandler? _colourWatch;
 
     /// <summary>Whether the app listens to Windows' contrast and colour events (between ListenToWindows and StopListening).</summary>
     public static bool IsListening => _colourWatch != null;
 
-    /// <summary>Listens to Windows on this thread's dispatcher (App, at start): a contrast theme turned on or off, or its
-    /// colours changed, draws the look that should be drawn, the same path as a pick. Events only; nothing polls. A second
+    /// <summary>Listens to Windows on this thread's dispatcher (App, at start): a contrast theme turned on or off, its
+    /// colours changed, or the app theme went light or dark, draws the look that should be drawn, the same path as a pick. Events only; nothing polls. A second
     /// call does nothing.</summary>
     public static void ListenToWindows()
     {
@@ -227,7 +256,7 @@ public static class UiStyles
         _contrastWatch = (_, e) => { if (e.PropertyName == nameof(SystemParameters.HighContrast)) Later(); };
         _colourWatch = (_, e) =>
         {
-            if (e.Category is Microsoft.Win32.UserPreferenceCategory.Color or Microsoft.Win32.UserPreferenceCategory.Accessibility) Later();
+            if (IsWindowsThemeEvent(e.Category)) Later();
         };
         SystemParameters.StaticPropertyChanged += _contrastWatch;
         Microsoft.Win32.SystemEvents.UserPreferenceChanged += _colourWatch;
