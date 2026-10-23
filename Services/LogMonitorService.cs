@@ -2132,7 +2132,12 @@ public sealed class LogMonitorService : IDisposable
             // so they must be caught separately here.
             // "misses you" is localized per client (#86) — match every language's
             // phrasing from EVE's own files. The (combat) tag above stays English.
-            if (line.Contains("misses you") || AlertPatterns.Matches(line, "combat_miss"))
+            // The English words count only on a line with no markup (IDEAS P56): every real English miss line is bare, while
+            // a hit line carries <color=, and a target or pilot named "... misses you" would fake a miss there. combat_miss
+            // holds the English words too, so a line that has them is decided here alone; any other line by the localized patterns.
+            if (line.Contains("misses you")
+                    ? !line.Contains("<color=", StringComparison.Ordinal)
+                    : AlertPatterns.Matches(line, "combat_miss"))
             {
                 // PVE mode: extract attacker and skip if NPC. The attacker regex below
                 // parses the ENGLISH phrasing; on a localized miss line it simply won't
@@ -2534,7 +2539,8 @@ public sealed class LogMonitorService : IDisposable
             string entityName = nameMatch.Success
                 ? Regex.Replace(nameMatch.Groups[1].Value, @"<[^>]+>", "").Trim()
                 : "Unknown";
-            bool isNpc = IsNpc(entityName);
+            // A name that could not be read (a client whose "to" is not English) is not taken for an NPC (IDEAS P55).
+            bool isNpc = nameMatch.Success && IsNpc(entityName);
 
             DamageDealt?.Invoke(new DamageEvent
             {
@@ -2559,7 +2565,9 @@ public sealed class LogMonitorService : IDisposable
             string entityName = nameMatch.Success
                 ? Regex.Replace(nameMatch.Groups[1].Value, @"<[^>]+>", "").Trim()
                 : "Unknown";
-            bool isNpc = IsNpc(entityName);
+            // Fail safe (IDEAS P55): a source that could not be read (a client whose "from" is not English) counts as a
+            // player's, so PvE mode never drops a player's hit; it alerts as it does with PvE mode off.
+            bool isNpc = nameMatch.Success && IsNpc(entityName);
 
             // Extract weapon/ammo string for damage-type classification (issue #11).
             // EVE line usually has a trailing " - Weapon Name - Quality" bold block.
