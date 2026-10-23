@@ -23,8 +23,8 @@ namespace EveMultiPreview.Views;
 /// RunCommand, the one the commands from other programs use) and closes; Esc, a click away or the hotkey again closes without
 /// running anything. It takes the keyboard the way the quick-switch wheel does (shown and activated, topmost, closed when it is
 /// deactivated), so what is typed never reaches the game. When Windows does not give it the foreground on its own (a hotkey whose
-/// key-down was hidden from the clients, a mouse button) it asks once through the repo's tiered activation helper and, if it is
-/// still not in front, closes: a topmost box that cannot take the keyboard would leave typing and Esc going to the game. Built in code in the shape of the wheel's surface, so a look restyles
+/// key-down was hidden from the clients, a mouse button) it asks once through the repo's activation helper (the vk0xE8 bridge, which lands a few ms later) and, if it is
+/// still not in front 400 ms on, closes: a topmost box that cannot take the keyboard would leave typing and Esc going to the game. Built in code in the shape of the wheel's surface, so a look restyles
 /// it and the literal scan reads it. The rows' texts are a person's names: they are shown, never a format.
 /// </summary>
 public sealed class CommandPaletteWindow : Window
@@ -43,8 +43,9 @@ public sealed class CommandPaletteWindow : Window
     /// <param name="entries">Every row the palette may show (<see cref="CommandPalette.Entries"/>).</param>
     /// <param name="run">What Enter hands the chosen row's command to; App's RunCommand. Called after the palette has closed.</param>
     /// <param name="workAreaDips">The work area it is placed in; default is the monitor under the cursor.</param>
-    /// <param name="tryActivate">One attempt to bring the window to the foreground, true when it is in front afterwards; default is
-    /// <c>User32.ActivateWindow</c>, the tiered helper a client switch uses (tests hand one in).</param>
+    /// <param name="tryActivate">One attempt to bring the window to the foreground, true when it is in front afterwards or the attempt
+    /// is under way; default is <c>User32.ActivateWindow</c>, the vk0xE8 bridge a client switch uses, which lands a few ms later
+    /// (tests hand one in).</param>
     public CommandPaletteWindow(IReadOnlyList<PaletteEntry> entries, Action<RemoteCommand> run, Rect? workAreaDips = null, Func<bool>? tryActivate = null)
     {
         _entries = entries;
@@ -103,8 +104,8 @@ public sealed class CommandPaletteWindow : Window
     /// <summary>Whether the hint over the empty text box shows (tests).</summary>
     public bool PlaceholderShown => _placeholder.Visibility == Visibility.Visible;
 
-    /// <summary>Called from Loaded: true when the window is in front. A window that is not gets one attempt through the tiered
-    /// activation helper; if it is still not in front it is closed (and false is returned), never left as an unfocusable topmost box.</summary>
+    /// <summary>Called from Loaded: true when the window is in front. A window that is not gets one attempt through the activation
+    /// helper; if the attempt fails (false) it is closed, never left as an unfocusable topmost box.</summary>
     public bool EnsureActive()
     {
         if (_closed) return false;
@@ -119,8 +120,20 @@ public sealed class CommandPaletteWindow : Window
     {
         var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
         if (hwnd == IntPtr.Zero) return false;
-        User32.ActivateWindow(hwnd);                          // tiers 1 to 4, as for a client; never WPF's Window.Activate
-        return IsActive || User32.GetForegroundWindow() == hwnd;
+        User32.ActivateWindow(hwnd);                          // the vk0xE8 bridge, as for a client; never WPF's Window.Activate
+        // The bridge is asynchronous (its WM_HOTKEY lands a few ms later), so the foreground cannot be judged here. The request
+        // counts as the attempt; one look after it has had time to land closes a palette that is still not in front, so it is
+        // never left as an unfocusable topmost box.
+        var look = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+        look.Tick += (_, _) =>
+        {
+            look.Stop();
+            if (_closed) return;
+            if (IsActive || User32.GetForegroundWindow() == hwnd) { _input.Focus(); Keyboard.Focus(_input); }
+            else Dismiss();
+        };
+        look.Start();
+        return true;
     }
 
     /// <summary>Closes, once.</summary>

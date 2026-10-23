@@ -263,7 +263,9 @@ public sealed class HotkeyService : IDisposable
     /// (vk0xE8) and RegisterHotKey-ing the same vk so the synthesized keystroke
     /// fires WM_HOTKEY in our message thread. That dispatch arrives with
     /// foreground-activation rights, which we use to call SetForegroundWindow
-    /// on the queued PendingActivateHwnd. We mirror that here.
+    /// on the queued PendingActivateHwnd. We mirror that here, and do exactly what EVE-X-Preview does in the handler:
+    /// SetForegroundWindow (a second time if the first is refused) and no restore or z-order call; ActivateWindow does not
+    /// queue a minimized client, and its caller restores that one.
     /// </summary>
     private void RegisterActivationHotkey()
     {
@@ -278,11 +280,9 @@ public sealed class HotkeyService : IDisposable
 
             try
             {
-                if (User32.IsIconic(target))
-                    User32.ShowWindowAsync(target, User32.SW_RESTORE);
-                User32.SetForegroundWindow(target);
-                User32.SetWindowPos(target, User32.HWND_TOP, 0, 0, 0, 0,
-                    User32.SWP_NOMOVE | User32.SWP_NOSIZE);
+                // EVE-X-Preview's handler: SetForegroundWindow, once more if it was refused. Nothing else.
+                if (!User32.SetForegroundWindow(target))
+                    User32.SetForegroundWindow(target);
             }
             catch (Exception ex)
             {
@@ -303,7 +303,7 @@ public sealed class HotkeyService : IDisposable
 
     /// <summary>Registers the bridge under every mix of Ctrl, Shift, Alt and Win (16, none included), as EVE-X-Preview
     /// does (src/Main_Class.ahk lines 54-56). RegisterHotKey matches modifiers exactly: with only the bare key, a held
-    /// modifier let the vk0xE8 press reach the window in front and Tier 4's WM_HOTKEY never came. Every combination runs
+    /// modifier let the vk0xE8 press reach the window in front and the bridge's WM_HOTKEY never came. Every combination runs
     /// <paramref name="bridge"/>; the ids that registered are returned.</summary>
     public static List<int> RegisterUnderEveryModifier(Func<uint, Action, int> register, Action bridge)
     {
@@ -1883,7 +1883,7 @@ public sealed class HotkeyService : IDisposable
                         // so it should pull EVE forward whether they're in EVE, in their
                         // browser, on the desktop, or anywhere else. Activation rights
                         // for the cross-app foreground shift are handled by
-                        // User32.ActivateWindow's AttachThreadInput path.
+                        // User32.ActivateWindow's vk0xE8 bridge.
 
                         // Settings window block — keep this guard. While the user is
                         // editing bindings in Settings, no cycle should fire and steal

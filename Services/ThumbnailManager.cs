@@ -3940,7 +3940,7 @@ public sealed class ThumbnailManager : IDisposable
             if (Interop.User32.IsIconic(targetHwnd))
                 Interop.User32.ShowWindowAsync(targetHwnd, Interop.User32.SW_RESTORE);
 
-            // The same tiered activation every other switch uses (#116). A bare
+            // The same activation every other switch uses (#116): the vk0xE8 bridge. A bare
             // SetForegroundWindow is refused when the hotkey's keystroke was hidden from
             // the clients (2.3.38+): the press never reaches Windows as our input, so we
             // hold no right to take the foreground - unless a thumbnail was just clicked.
