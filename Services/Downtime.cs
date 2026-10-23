@@ -25,6 +25,9 @@ public static class Downtime
         return utc < today ? today : today.AddDays(1);
     }
 
+    /// <summary>The downtime that began at or before <paramref name="now"/>: the start of the window the server may still be down in.</summary>
+    public static DateTime LastUtc(DateTime now) => NextUtc(now).AddDays(-1);
+
     /// <summary>The minutes to the next downtime, rounded up: 1 to 1440.</summary>
     public static int MinutesLeft(DateTime utcNow) =>
         Math.Max(1, (int)Math.Ceiling((NextUtc(utcNow) - Normalize(utcNow)).TotalMinutes));
@@ -55,7 +58,7 @@ public static class Downtime
         return cut.Length <= BalloonMax ? cut : cut[..BalloonMax];
     }
 
-    private static DateTime Normalize(DateTime t) =>
+    internal static DateTime Normalize(DateTime t) =>
         t.Kind == DateTimeKind.Local ? t.ToUniversalTime() : DateTime.SpecifyKind(t, DateTimeKind.Utc);
 }
 

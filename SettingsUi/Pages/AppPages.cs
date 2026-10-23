@@ -21,6 +21,7 @@ public static class AppPages
         new HelpTopic("app.general", "startup", new[] { "app.general.startupSettings", "app.general.startWithWindows" }),
         new HelpTopic("app.general", "keepAwake", new[] { "app.general.keepAwake" }),
         new HelpTopic("app.general", "downtime", new[] { "app.general.downtime" }),
+        new HelpTopic("app.general", "tranquility", new[] { "app.general.tranquility" }),
         new HelpTopic("app.general", "commands", new[] { "app.general.acceptCommands" }),
         new HelpTopic("app.general", "buttons", new[] { CommandButtonsEditor.ItemId }),
         new HelpTopic("app.general", "commandsAdmin", new[] { "app.general.acceptCommandsUnelevated" }),
@@ -81,6 +82,11 @@ public static class AppPages
         {
             new SettingItem(Setting.Toggle("app.general.keepAwake", s => s.KeepPcAwake)),
             new SettingItem(Setting.Toggle("app.general.downtime", s => s.DowntimeWarnings)),
+            // IDEAS #34, P120: App polls on its half-second timer, so a change only saves. The status check itself is not
+            // wired until the owner approves it (TranquilityWatch.LiveCheckApproved); the line says so while the switch is on.
+            new SettingItem(Setting.Toggle("app.general.tranquility", s => s.TranquilityBackUp)),
+            new InfoItem("app.general.tranquilityWaiting", InfoSeverity.Info)
+                { ShowIf = s => s.TranquilityBackUp && !TranquilityWatch.LiveCheckApproved },
         }),
         // IDEAS #39: App opens or closes the pipe after every settings change (FollowCommandServer).
         new SectionDef("app.general.control", new PageItem[]

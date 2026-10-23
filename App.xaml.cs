@@ -46,6 +46,9 @@ public partial class App : Application
     private EventSnoozeFile? _snoozeFile;
     /// <summary>IDEAS #9: which downtime warnings were told for the next downtime.</summary>
     private readonly DowntimeWarnings _downtimeWarnings = new();
+    /// <summary>IDEAS #34, P120: tells when Tranquility is back up. Its fetch is the "not allowed" one until the owner approves
+    /// the live status check (TranquilityWatch.LiveCheckApproved), so it never reaches the network today.</summary>
+    private readonly TranquilityWatch _tranquilityWatch = new TranquilityWatch(TranquilityWatch.NotAllowedFetch);
     /// <summary>Do-not-disturb (IDEAS #32): alert sounds are muted while it is on. What the hotkey or the tray chose is
     /// forgotten when MultiPreview closes; the quiet hours are settings.</summary>
     private readonly DoNotDisturb _doNotDisturb = new();
@@ -790,6 +793,7 @@ public partial class App : Application
                 FollowDoNotDisturb();
                 FollowKeepAwake();
                 FollowDowntime();
+                FollowTranquility();
                 FollowIdle();
                 FollowFocusMode();
                 FollowAutoProfile();
@@ -1393,6 +1397,20 @@ public partial class App : Application
             if (names.Count == 0) return;
             if (_downtimeWarnings.Due(DateTime.UtcNow) is int minutes)
                 ShowBalloon(10000, Downtime.WarningText(minutes, names), ToolTipIcon.Warning);
+        }
+        catch (Exception ex) { LogError(ex); }
+    }
+
+    /// <summary>IDEAS #34: asked twice a second. Nothing while the switch is off; then the watch decides whether the downtime
+    /// window is open and a poll is due, and tells the players in a balloon once, when the server is back up. Today its
+    /// fetch answers "not allowed" (P120). A failure is logged: an async void must never raise.</summary>
+    private async void FollowTranquility()
+    {
+        try
+        {
+            if (_settings?.Settings.TranquilityBackUp != true) return;
+            if (await _tranquilityWatch.PollAsync(DateTime.UtcNow, System.Threading.CancellationToken.None) is int players && !_isShuttingDown)
+                ShowBalloon(10000, TranquilityWatch.BalloonText(players), ToolTipIcon.Info);
         }
         catch (Exception ex) { LogError(ex); }
     }

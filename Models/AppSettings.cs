@@ -290,6 +290,12 @@ public class AppSettings
     /// file without it.</summary>
     public bool DowntimeWarnings { get; set; } = false;
 
+    /// <summary>A tray note when Tranquility accepts logins again after the daily downtime, with the number of players (IDEAS
+    /// #34, P120). Read by App on its half-second timer, which polls the server status inside the downtime window only. The
+    /// live status check itself waits for the owner's approval (TranquilityWatch.LiveCheckApproved), so with the switch on
+    /// nothing is asked today. New key: off in a file without it.</summary>
+    public bool TranquilityBackUp { get; set; } = false;
+
     /// <summary>Show "Not responding" on the thumbnail of a client whose window Windows reports as hung (IDEAS #22). Read by
     /// App through ClientWatchOptions.Of at each look of the process monitor. New key: off in a file without it.</summary>
     public bool ClientNotRespondingBadge { get; set; } = false;
