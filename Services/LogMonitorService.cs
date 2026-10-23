@@ -125,6 +125,13 @@ public sealed class LogMonitorService : IDisposable
     private volatile int _combatOn;
     private readonly CombatWatch _combatWatch = new();
 
+    // IDEAS #28, P109: "Logi idle" is off until switched on. The characters of the groups the player marked as logi
+    // (a group's choice for the event is "on", AlertProfiles.MembersSayingOn) are worked out in SetEnabledAlertTypes, once; the
+    // field is replaced whole, never changed, and is null while the event is off or no group is marked. While it is null, a
+    // combat line costs one read of it. The reading thread alone uses the rule.
+    private volatile HashSet<string>? _logis;
+    private readonly IdleLogi _idleLogi = new();
+
     // ── Custom alert rules (IDEAS #8) ──
     // The rules that are on, made ready, or null while there are none: then a line costs one read of this field and
     // one branch more than it did before custom rules existed. Only the reading thread writes it (ApplyRules).
@@ -1221,6 +1228,8 @@ public sealed class LogMonitorService : IDisposable
         _ewarOn = EwarLines.Bits(_enabledAlertTypes);
         _dronesOn = _enabledAlertTypes.TryGetValue(DronesReturning, out var dronesChosen) && dronesChosen;
         _combatOn = CombatWatch.Bits(_enabledAlertTypes);
+        _logis = _enabledAlertTypes.TryGetValue(IdleLogi.EventKey, out var logiChosen) && logiChosen && _appSettings != null
+            && AlertProfiles.MembersSayingOn(_appSettings, IdleLogi.EventKey) is { Count: > 0 } marked ? marked : null;
     }
 
     /// <summary>Set settings reference for alert colors and other config.</summary>
@@ -2485,6 +2494,18 @@ public sealed class LogMonitorService : IDisposable
             Math.Max(CombatWatch.QuietSeconds, CooldownFor(type, severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds));
     }
 
+    /// <summary>Logi idle (IDEAS #28, P109): called for each incoming hit while a group is marked as logi. The idle logi of the
+    /// player's own characters in the damaged character's system are told, each for its own quiet time or the quiet time of
+    /// Settings where that is longer.</summary>
+    private void IdleLogiFromHit(string character, HashSet<string> logis)
+    {
+        var idle = _idleLogi.Hit(character, _alertClock(), logis, GetCharacterSystem);
+        if (idle.Count == 0) return;
+        _lastEventTime = Environment.TickCount64;
+        int quiet = Math.Max(IdleLogi.QuietSeconds, CooldownFor(IdleLogi.EventKey, IdleLogi.Severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds));
+        foreach (var logi in idle) TriggerAlert(logi, IdleLogi.EventKey, IdleLogi.Severity, quiet);
+    }
+
     private void ParseCombatLine(string line, string character)
     {
         // Extract amount and color code — EVE format: <color=0xXXXXXXXX><b>NUM</b>
@@ -2526,6 +2547,7 @@ public sealed class LogMonitorService : IDisposable
             // Before PvE mode's return below, on purpose: NPC damage counts for Incoming DPS high and Reps stopped, also
             // in PvE mode (they are for ratting). A miss has no damage number and never gets here.
             if (_combatOn != 0) CombatFromHit(character, amount);
+            if (_logis is { } logis) IdleLogiFromHit(character, logis);
 
             var nameMatch = Regex.Match(line, @"from</font>.*?<b>(.*?)</b>");
             string entityName = nameMatch.Success
@@ -2603,6 +2625,9 @@ public sealed class LogMonitorService : IDisposable
 
             // Remote armor and shield reps taken are what Reps stopped waits on; capacitor is no rep, nor is an outgoing one.
             if (_combatOn != 0 && isIncoming && repairType != "capacitor") _combatWatch.Repaired(character, _alertClock(), _combatOn);
+
+            // Remote repairs sent (capacitor too) are what a marked logi must keep sending for Logi idle to stay quiet.
+            if (!isIncoming && _logis is { } logis && logis.Contains(character)) _idleLogi.Repaired(character, _alertClock());
 
             RepairReceived?.Invoke(new RepairEvent
             {

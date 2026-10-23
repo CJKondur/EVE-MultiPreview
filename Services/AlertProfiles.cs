@@ -243,6 +243,19 @@ public sealed class AlertProfiles
     /// <summary>What the log monitor may raise, with the choices the settings hold; null while none counts.</summary>
     public static Dictionary<string, bool>? MonitorSet(AppSettings s) => MonitorSet(s, s.GroupAlertProfiles);
 
+    /// <summary>The members of every group that exists, has a member and says "on" about an event: not the switch for everyone,
+    /// and an "off" or no word does not count. "Logi idle" (IDEAS #28) reads its logi marks here: a group is marked as logi
+    /// by setting that event to on for it. The window's thread.</summary>
+    public static HashSet<string> MembersSayingOn(AppSettings s, string eventKey)
+    {
+        var members = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (_, group, chosen) in Counting(s, s.GroupAlertProfiles))
+            if (chosen.TryGetValue(eventKey, out var on) && on)
+                foreach (var member in group)
+                    if (!string.IsNullOrEmpty(member)) members.Add(member);
+        return members;
+    }
+
     /// <summary>Where a member of a group gets something other than the group's own row says, with the choices the
     /// settings hold.</summary>
     public static IReadOnlyList<(string Member, string Event, bool On, string Group)> Overridden(AppSettings s, string group) => Overridden(s, s.GroupAlertProfiles, group);

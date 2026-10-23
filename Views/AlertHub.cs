@@ -49,6 +49,7 @@ public class AlertHub : IDisposable
             "dps_high" => "Incoming DPS high",
             "reps_stopped" => "Reps stopped",
             "drones_returning" => "Drones returning",
+            "logi_idle" => "Logi idle",
             "client_memory" => "Client memory high",
             "client_hung" => "Client not responding",
             "client_closed" => "Client closed unexpectedly",
