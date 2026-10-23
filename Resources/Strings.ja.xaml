@@ -2853,10 +2853,11 @@
     <sys:String x:Key="L.S.Uninstall.BodyBackups">MultiPreview は、Windows にある自分のエントリ（「Windows と同時に起動」と通知のエントリ）を削除します。その後、終了します。&#x0A;&#x0A;EVE 設定のバックアップ用に選んだフォルダーが設定フォルダーの中にあります。このバックアップは意図して残すため、設定フォルダーは削除されません。バックアップを外へ移してから、不要になったら設定フォルダーを自分で削除してください。&#x0A;&#x0A;プログラムのファイルと RTSS プロファイルには触れません。不要なら自分で削除してください。</sys:String> <!-- draft -->
     <!-- Ideas batch 26 (Plan 30) -->
     <sys:String x:Key="L.S.app.general.tranquility">Tranquility が復旧したら知らせる</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.general.tranquility.Desc">毎日 11:00 UTC のダウンタイムのあと、サーバーが再びログインを受け付けるようになると、オンラインのプレイヤー数とともにトレイの通知でお知らせします。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.tranquility.Desc">ステータス確認が承認されると、毎日 11:00 UTC のダウンタイムのあと、サーバーが再びログインを受け付けるようになった時点で、オンラインのプレイヤー数とともにトレイの通知でお知らせします。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.tranquilityWaiting">ESI ステータス確認の承認待ちです（リリースチェックリストを参照）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.TranquilityBackUp">Tranquility が復旧しました。オンラインのプレイヤー：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.tranquility.Title">Tranquility の復旧</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.tranquility.Body">毎日 11:00 UTC のダウンタイムのあと、EVE のサーバーが再び開くまでには少し時間がかかります。**Tranquility が復旧したら知らせる** をオンにすると、MultiPreview はダウンタイム開始後の最初の 1 時間だけ、1 分ごとにサーバーのステータスを確認し、サーバーが再びログインを受け付けた時点で、オンラインのプレイヤー数を添えたトレイの通知を 1 回だけ表示します。確認するのはこの 1 時間の間だけで、それ以外の時間には行いません。サーバーが開いているという最初の応答があった時点で止まります。&#x0A;&#x0A;ステータス確認そのものは今のところ無効です。MultiPreview から EVE のサーバーステータスへ直接リクエストを送る必要があり、これはまだ承認されていません（リリースチェックリストを参照）。それまでスイッチは保存されるだけで、何も確認されず、通知も届きません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.logi_idle">Logi 待機中</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.LogiIdleNobody">「Logi 待機中」はまだ誰も監視していません。「グループのアラート」で、ロジのグループに「このグループではオン」を選んでください。</sys:String> <!-- draft -->
 </ResourceDictionary>

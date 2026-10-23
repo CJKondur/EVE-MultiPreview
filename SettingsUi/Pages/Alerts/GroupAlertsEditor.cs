@@ -32,6 +32,7 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     private readonly WrapPanel _picker = new();
     private readonly TextBlock _members = EditorCard.Value("", secondary: true);
     private readonly TextBlock _notKept = new() { Visibility = Visibility.Collapsed };
+    private readonly TextBlock _logiNote = EditorCard.Value("", secondary: true);
     private readonly TextBlock _warning = new();
     private readonly Border _warningLine;
     private readonly EditorTable _table = new();
@@ -84,6 +85,9 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         _notKept.SetResourceReference(StyleProperty, "Fx.Error");
         Loc.SetKey(_notKept, "L.S.GroupAlerts.NotKept");
         AutomationProperties.SetLiveSetting(_notKept, AutomationLiveSetting.Polite);
+        _logiNote.TextWrapping = TextWrapping.Wrap;
+        _logiNote.Margin = new Thickness(0, 6, 0, 0);
+        _logiNote.Visibility = Visibility.Collapsed;
 
         // The warning under the rows has the look of a warning line (the Fx.Info template): a coloured bar, the
         // warning mark, the text.
@@ -110,6 +114,7 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         stack.Children.Add(_picker);
         stack.Children.Add(_members);
         stack.Children.Add(_notKept);
+        stack.Children.Add(_logiNote);
         stack.Children.Add(_table);
         stack.Children.Add(_warningLine);
         Content = EditorCard.Build(ItemId, null, stack);
@@ -132,6 +137,9 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
 
     /// <summary>The card says that there is no group yet.</summary>
     public bool SaysNoGroups { get; private set; }
+
+    /// <summary>The card says that "Logi idle" is on but no group is marked as logi (IDEAS P109).</summary>
+    public bool SaysLogiIdleWatchesNobody => _logiNote.Visibility == Visibility.Visible;
 
     /// <summary>The members of the shown group in this profile (of every group of that name, each member once).</summary>
     public IReadOnlyList<string> Members { get; private set; } = Array.Empty<string>();
@@ -298,6 +306,13 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         return names.Count == 0 ? "" : string.Format(Str("L.S.GroupAlerts.Note"), Listed(names));
     }
 
+    /// <summary>IDEAS P109: "Logi idle" is on for everyone but no group says "On for this group" for it, so it watches nobody
+    /// and a player who ticked it sees nothing happen. The line that says so, here and under the event table; "" while the
+    /// event is off or a group is marked (the rule is <see cref="AlertProfiles.MembersSayingOn"/>, the reader's own).</summary>
+    public static string LogiIdleNote(AppSettings s) =>
+        AlertFields.IsOn(s, IdleLogi.EventKey) && AlertProfiles.MembersSayingOn(s, IdleLogi.EventKey).Count == 0
+            ? Str("L.S.GroupAlerts.LogiIdleNobody") : "";
+
     /// <summary>The lines around the rows: who is in the group, where a member gets something other than the rows
     /// say, and whether there is anything to clear.</summary>
     private void ShowLines()
@@ -310,6 +325,8 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
         if (named.Count > 1) members += "\n" + Str("L.S.GroupAlerts.SharedName");
         _members.Text = members;
         _members.Visibility = members.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        _logiNote.Text = LogiIdleNote(_ctx.S);
+        _logiNote.Visibility = _logiNote.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
 
         // The rule's own answer, for the rows the card has built: never a member named for an event without a row.
         Overridden = Selected == null ? Array.Empty<(string, string, bool, string)>()

@@ -2870,10 +2870,11 @@
     <sys:String x:Key="L.S.Uninstall.BodyBackups">MultiPreview 将从 Windows 中移除它自己的条目：随 Windows 启动，以及通知条目。之后程序会关闭。&#x0A;&#x0A;你为 EVE 设置备份选择的文件夹位于设置文件夹内。这些备份会特意保留，所以设置文件夹不会被删除。请先把备份移出来，不再需要时自己删除设置文件夹。&#x0A;&#x0A;不会动程序文件和 RTSS 配置文件。不想要时请自己删除。</sys:String> <!-- draft -->
     <!-- Ideas batch 26 (Plan 30) -->
     <sys:String x:Key="L.S.app.general.tranquility">Tranquility 恢复上线时通知我</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.general.tranquility.Desc">每天 11:00 UTC 停机之后，托盘通知会在服务器重新接受登录时告诉你，并附上在线玩家人数。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.tranquility.Desc">状态检查获得批准后，每天 11:00 UTC 停机之后，托盘通知会在服务器重新接受登录时告诉你，并附上在线玩家人数。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.tranquilityWaiting">等待你批准 ESI 状态检查（见发布检查清单）</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.TranquilityBackUp">Tranquility 已恢复上线。在线玩家：{0}</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.tranquility.Title">Tranquility 恢复上线</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.tranquility.Body">每天 11:00 UTC 停机之后，EVE 服务器需要一段时间才会重新开放。开启 **Tranquility 恢复上线时通知我** 后，MultiPreview 会在停机开始后的第一个小时内每分钟查询一次服务器状态，并在服务器重新接受登录时弹出一条托盘通知，附上在线玩家人数。只在这一小时内查询，其他时间从不查询，收到第一个表示服务器已开放的回复后就会停止。&#x0A;&#x0A;状态检查本身目前处于关闭状态：它需要 MultiPreview 直接向 EVE 的服务器状态发出请求，这一点尚未获批（见发布检查清单）。在此之前，开关只会被保存：不会查询任何内容，也不会有通知。</sys:String> <!-- draft -->
     <sys:String x:Key="L.AlertEvt.logi_idle">后勤空闲</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.GroupAlerts.LogiIdleNobody">后勤空闲 还没有监视任何人：请在“某个分组的警报”中，为你的后勤分组选择“对这个分组开启”。</sys:String> <!-- draft -->
 </ResourceDictionary>

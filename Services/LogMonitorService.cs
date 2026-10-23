@@ -2496,10 +2496,16 @@ public sealed class LogMonitorService : IDisposable
 
     /// <summary>Logi idle (IDEAS #28, P109): called for each incoming hit while a group is marked as logi. The idle logi of the
     /// player's own characters in the damaged character's system are told, each for its own quiet time or the quiet time of
-    /// Settings where that is longer.</summary>
+    /// Settings where that is longer. A logi counts as present only while an alert could reach it (<see cref="CanReach"/>: a
+    /// window, not muted, not snoozed): the logs never say that a client closed, so a logged-off logi keeps its last system in
+    /// <c>_characterSystems</c> and would otherwise count as idle in the damaged character's system. The damaged character is
+    /// live by the hit itself and is not asked.</summary>
     private void IdleLogiFromHit(string character, HashSet<string> logis)
     {
-        var idle = _idleLogi.Hit(character, _alertClock(), logis, GetCharacterSystem);
+        string? Where(string name) =>
+            string.Equals(name, character, StringComparison.OrdinalIgnoreCase) || CanReach?.Invoke(name, IdleLogi.EventKey) != false
+                ? GetCharacterSystem(name) : null;
+        var idle = _idleLogi.Hit(character, _alertClock(), logis, Where);
         if (idle.Count == 0) return;
         _lastEventTime = Environment.TickCount64;
         int quiet = Math.Max(IdleLogi.QuietSeconds, CooldownFor(IdleLogi.EventKey, IdleLogi.Severity, _severityCooldowns, _eventCooldowns, _defaultCooldownSeconds));
@@ -2741,9 +2747,9 @@ public sealed class LogMonitorService : IDisposable
     public Func<string, string, bool>? IsOnFor { get; set; }
 
     /// <summary>P67: whether an alert of this type would reach this character: not muted, not snoozed for the event, and a
-    /// window to show it on (App hands it the dispatcher's own checks). Asked, with <see cref="IsOnFor"/>, only to decide
+    /// window to show it on (App hands it the dispatcher's own checks). Asked, with <see cref="IsOnFor"/>, to decide
     /// which listener claims a "one alert per line" chat line, so a muted or window-less alt that reads a line first does not
-    /// swallow the alert of the character that could be told. Quiet time is not part of it: a quiet-held listener still
+    /// swallow the alert of the character that could be told; and, alone, which logi is present for Logi idle (P109). Quiet time is not part of it: a quiet-held listener still
     /// claims. Null: every listener can be reached. Same thread as the reader.</summary>
     public Func<string, string, bool>? CanReach { get; set; }
 

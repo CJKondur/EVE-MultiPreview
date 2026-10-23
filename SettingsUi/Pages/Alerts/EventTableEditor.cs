@@ -28,6 +28,7 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
     private readonly EditorTable _table = new();
     private readonly TextBlock _error = new() { Visibility = Visibility.Collapsed, TextWrapping = TextWrapping.Wrap };
     private readonly TextBlock _groupsNote = EditorCard.Value("", secondary: true);
+    private readonly TextBlock _logiNote = EditorCard.Value("", secondary: true);
 
     public EventTableEditor(SettingsContext ctx)
     {
@@ -37,11 +38,14 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
         note.TextWrapping = TextWrapping.Wrap;
         note.Margin = new Thickness(0, 8, 0, 0);
         _groupsNote.Margin = new Thickness(0, 8, 0, 0);
+        _logiNote.Margin = new Thickness(0, 8, 0, 0);
+        _logiNote.TextWrapping = TextWrapping.Wrap;
         var stack = new StackPanel();
         stack.Children.Add(_table);
         stack.Children.Add(_error);
         stack.Children.Add(note);
         stack.Children.Add(_groupsNote);
+        stack.Children.Add(_logiNote);
         Content = EditorCard.Build(AlertsPages.EventTableId, null, stack);
         // IDEAS #31: the switches of this table are for everyone. A group can have choices of its own, made on a card
         // further down this same page; while one has, a line under the table names it.
@@ -55,6 +59,9 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
     /// <summary>The line under the table that names the groups with alert choices of their own; "" while none has any.</summary>
     public string GroupsNote => _groupsNote.Text;
 
+    /// <summary>IDEAS P109: the line under the table that says "Logi idle" is on but no group is marked as logi; "" otherwise.</summary>
+    public string LogiNote => _logiNote.Text;
+
     /// <summary>Puts the line under the table on what the settings hold now. Looked at every two seconds while the
     /// table is shown: the choices are made on another card of the page. That card calls this at once when it has
     /// cleared a group's choices (RE2-m7), so that the line does not name the group for two seconds more.</summary>
@@ -62,6 +69,8 @@ public sealed class EventTableEditor : System.Windows.Controls.UserControl, IRef
     {
         _groupsNote.Text = GroupAlertsEditor.Note(_ctx.S);
         _groupsNote.Visibility = _groupsNote.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+        _logiNote.Text = GroupAlertsEditor.LogiIdleNote(_ctx.S);
+        _logiNote.Visibility = _logiNote.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private static string Str(string key) => SettingsContext.Str(key);

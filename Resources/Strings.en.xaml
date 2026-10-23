@@ -2852,10 +2852,11 @@
     <sys:String x:Key="L.S.Uninstall.BodyBackups">MultiPreview will remove its own entries from Windows: Start with Windows and the notification entry. Then it closes.&#x0A;&#x0A;The folder you chose for MultiPreview's backups of your EVE settings is inside the settings folder, and those backups are kept on purpose, so the settings folder is not deleted. Move the backups out, then delete the folder yourself when you no longer need it.&#x0A;&#x0A;It does not touch the program file or the RTSS profile. Delete those by hand if you want them gone.</sys:String>
     <!-- Ideas batch 26 (Plan 30) -->
     <sys:String x:Key="L.S.app.general.tranquility">Tell me when Tranquility is back up</sys:String>
-    <sys:String x:Key="L.S.app.general.tranquility.Desc">After the daily downtime at 11:00 UTC, a tray note tells you when the server accepts logins again, with the number of players online.</sys:String>
+    <sys:String x:Key="L.S.app.general.tranquility.Desc">When the status check is approved, a tray note tells you after the daily downtime at 11:00 UTC when the server accepts logins again, with the number of players online.</sys:String>
     <sys:String x:Key="L.S.app.general.tranquilityWaiting">Waits for your approval of the ESI status check (see the release checklist)</sys:String>
     <sys:String x:Key="L.Tray.TranquilityBackUp">Tranquility is back up. Players online: {0}</sys:String>
     <sys:String x:Key="L.Help.app.general.tranquility.Title">Tranquility is back up</sys:String>
     <sys:String x:Key="L.Help.app.general.tranquility.Body">After the daily downtime at 11:00 UTC, EVE's server needs a while to open again. With **Tell me when Tranquility is back up** on, MultiPreview asks the server status once a minute during the first hour after the downtime starts, and shows one tray note with the number of players online as soon as the server accepts logins again. It asks only inside that hour, never at other times, and stops after the first answer that says the server is open.&#x0A;&#x0A;The status check itself is switched off for now: it needs a direct request from MultiPreview to EVE's server status, which is not approved yet (see the release checklist). Until then the switch is only saved: nothing is asked and no note comes.</sys:String>
     <sys:String x:Key="L.AlertEvt.logi_idle">Logi idle</sys:String>
+    <sys:String x:Key="L.S.GroupAlerts.LogiIdleNobody">Logi idle watches nobody yet: choose "On for this group" for your logi group under Alerts for one group.</sys:String>
 </ResourceDictionary>
