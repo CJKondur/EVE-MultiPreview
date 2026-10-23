@@ -121,7 +121,7 @@ public sealed class NotificationsWay : IAlertWay
         if (!_stopped && Ledger.Looked(character)) Pump.Wake();
     }
 
-    /// <summary>One event was snoozed for a character (App.SnoozeEvent, IDEAS P86): that client's notification of that
+    /// <summary>One event was snoozed for a character (App.SnoozeEvent or the settings' snooze list, IDEAS P86): that client's notification of that
     /// event is taken away.</summary>
     public void Snoozed(string character, string eventKey)
     {

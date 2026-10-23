@@ -112,6 +112,9 @@ public partial class App : Application
     /// <summary>What the probe on the process monitor's thread asks Windows: set by LookAtClients on the window's thread
     /// (the settings are read there only), read by ProbeClients.</summary>
     private volatile ClientProbeWants _clientProbeWants;
+    // IDEAS P117: the monitor's timer can start a probe while the last one still runs; one at a time, or a pid that never
+    // left would be pruned by the other probe's Look and told to the error log again.
+    private int _probing;
     /// <summary>IDEAS #22: the process of each client, held only while "Client closed unexpectedly" is on, so its end is read
     /// with its exit code. Tracked and looked at on the probe's pool thread; let go when the event is off and at exit.</summary>
     private readonly ClientExits _clientExits = new(WindowsClientProcess.Open, (pid, error) => LogError(new InvalidOperationException(ClientExits.NotWatchableText(pid, error))));
@@ -1246,6 +1249,7 @@ public partial class App : Application
     /// The processes are held only while "Client closed unexpectedly" is wanted; otherwise every handle is let go.</summary>
     private void ProbeClients()
     {
+        if (Interlocked.Exchange(ref _probing, 1) == 1) return;
         try
         {
             if (_isShuttingDown || _thumbnailManager == null) return;
@@ -1263,6 +1267,7 @@ public partial class App : Application
             Dispatcher.BeginInvoke(new Action(() => LookAtClients(samples, exits)), DispatcherPriority.Background);
         }
         catch (Exception ex) { LogError(ex); }
+        finally { Volatile.Write(ref _probing, 0); }
     }
 
     /// <summary>IDEAS #22, #47, on the window's thread after each probe: what is wanted next time, the marks, "Client not

@@ -232,7 +232,7 @@ public sealed class ThumbnailManager : IDisposable
     private IReadOnlyList<EventSnooze> SnoozesOf(string characterName) =>
         Snoozes?.Of(characterName) ?? (IReadOnlyList<EventSnooze>)Array.Empty<EventSnooze>();
 
-    /// <summary>An event was snoozed for a character, from a toast's menu or a notification's button (FY-n3): its
+    /// <summary>An event was snoozed for a character, from a toast's menu, a notification's button (FY-n3) or the settings' snooze list: its
     /// thumbnail, enlarged for an alert, goes back now, and the enlargement is forgotten, as a mute does it.</summary>
     public void PutBackForASnooze(string characterName)
     {
