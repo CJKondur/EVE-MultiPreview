@@ -2635,44 +2635,63 @@ public partial class App : Application
         _alertHistory?.Flush(TimeSpan.FromSeconds(2));
         _thumbnailManager?.FlushPlaytime();   // IDEAS P11: the counted playtime, before anything below can stop the exit (Dispose flushes again; nothing is left)
 
-        // Single disposal path — ExitApplication calls Shutdown() which triggers this
-        _keepAwake.Follow(false);   // IDEAS #46: Windows may sleep again
-        _clientExits.Forget();      // IDEAS #22: the clients' process handles are let go
-        _commandServer?.Dispose();   // IDEAS #39: no more commands
-        _commandServer = null;
-        _hotkeySheet?.Dismiss();   // IDEAS #16
-        _commandPalette?.Dismiss();   // IDEAS #14
-        _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
-        _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center
-        _pushWay?.Stop();   // IDEAS #2: what waits to be sent is dropped and the one sender is let go
-        _alertTimer?.Stop();
-        _alertHub?.Dispose();
-        _broadcastHud?.Dispose();
-        _logMonitor?.Dispose();
-        _alertHistory?.Dispose();   // writes what is waiting (at most two seconds)
-        _hotkeyService?.Dispose();
-        _processMonitor?.Dispose();
-        _cropManager?.Dispose();
-        _thumbnailManager?.Dispose();
-        _discovery?.Dispose();
-        _winEvents?.Dispose();
-        SettingsUi.UiStyles.StopListening();   // Windows' contrast and colour events let go (UI styles S4, Task 6 review)
-        _settings?.Dispose();
-
-        if (_trayIcon != null)
+        try
         {
-            _trayIcon.Visible = false;
-            _trayIcon.Dispose();
-        }
-        _trayIcons?.Dispose();
-        _trayMenu?.Dispose();
+            // Single disposal path — ExitApplication calls Shutdown() which triggers this
+            _keepAwake.Follow(false);   // IDEAS #46: Windows may sleep again
+            _clientExits.Forget();      // IDEAS #22: the clients' process handles are let go
+            _commandServer?.Dispose();   // IDEAS #39: no more commands
+            _commandServer = null;
+            _hotkeySheet?.Dismiss();   // IDEAS #16
+            _commandPalette?.Dismiss();   // IDEAS #14
+            _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
+            _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center
+            _pushWay?.Stop();   // IDEAS #2: what waits to be sent is dropped and the one sender is let go
+            _alertTimer?.Stop();
+            _alertHub?.Dispose();
+            _broadcastHud?.Dispose();
+            _logMonitor?.Dispose();
+            _alertHistory?.Dispose();   // writes what is waiting (at most two seconds)
+            _hotkeyService?.Dispose();
+            _processMonitor?.Dispose();
+            _cropManager?.Dispose();
+            _thumbnailManager?.Dispose();
+            _discovery?.Dispose();
+            _winEvents?.Dispose();
+            SettingsUi.UiStyles.StopListening();   // Windows' contrast and colour events let go (UI styles S4, Task 6 review)
+            _settings?.Dispose();
 
-        // Clean uninstall (IDEAS P16): the last step of the app, while this process still owns the single-instance mutex, so a
-        // second MultiPreview started now waits for it instead of making the settings folder while it is being deleted. Every
-        // service has stopped by now (the settings service has written what was waiting, the history is closed), so a folder
-        // deleted here is not made again. What this leaves behind is told to the player by what was handed in.
-        try { _afterExit?.Invoke(); }
-        catch (Exception ex) { Debug.WriteLine($"[App:Exit] Clean uninstall step failed: {ex.GetType().Name}"); }
+            if (_trayIcon != null)
+            {
+                _trayIcon.Visible = false;
+                _trayIcon.Dispose();
+            }
+            _trayIcons?.Dispose();
+            _trayMenu?.Dispose();
+        }
+        finally
+        {
+            // Clean uninstall (IDEAS P16): the last step of the app, while this process still owns the single-instance mutex, so a
+            // second MultiPreview started now waits for it instead of making the settings folder while it is being deleted. Every
+            // service has stopped by now (the settings service has written what was waiting, the history is closed), so a folder
+            // deleted here is not made again. What this leaves behind is told to the player by what was handed in.
+            // A finally: a Dispose above that throws must not skip it (the player who chose "delete my settings" would get no
+            // delete and no message, with the Windows entries already gone).
+            if (_afterExit != null)
+            {
+                // A Debug build's trace listener holds Logs\debug_log.txt open (no Delete share), which would leave the folder part
+                // there on every uninstall. Cleared, not only closed: a closed listener opens its file again on the next write.
+                // In a Release build no Trace output exists, so this closes the listeners that are there and does nothing else.
+                try
+                {
+                    foreach (System.Diagnostics.TraceListener listener in System.Diagnostics.Trace.Listeners) listener.Close();
+                    System.Diagnostics.Trace.Listeners.Clear();
+                }
+                catch (Exception) { }
+            }
+            try { _afterExit?.Invoke(); }
+            catch (Exception ex) { Debug.WriteLine($"[App:Exit] Clean uninstall step failed: {ex.GetType().Name}"); }
+        }
 
         // Release + dispose the single-instance mutex so that if it
         // throws (e.g. abandoned, not owned by this thread, or already

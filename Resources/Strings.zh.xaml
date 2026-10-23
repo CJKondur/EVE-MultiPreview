@@ -2857,7 +2857,7 @@
     <sys:String x:Key="L.S.Uninstall.Failed">未能移除的 MultiPreview Windows 条目：{0} 个。程序保持打开，也没有删除你的设置。请重试，或在任务管理器（启动应用）中移除该条目。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Uninstall.NotHere">彻底卸载只能在运行中的 MultiPreview 里使用。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.about.uninstall.Title">彻底卸载</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.about.uninstall.Body">删除 MultiPreview 之前，先点**彻底卸载**，这样 Windows 里就不会留下指向已不存在程序的条目。它会先问你，点取消不会改变任何东西。&#x0A;&#x0A;它会移除：&#x0A;- “随 Windows 启动”的条目，以及它在任务管理器“启动应用”列表中的开关记录；&#x0A;- 让 MultiPreview 能显示 Windows 通知的条目；&#x0A;- 仅在你选择时：整个设置文件夹 %APPDATA%\EVE MultiPreview 及其中的所有内容：你的设置、历史记录、日志、设置备份、保存的布局、内置音效，以及你放在里面的其他任何东西。如果 MultiPreview 从自己的文件夹运行（便携模式），你的设置就在那个文件夹里。它不会被删除，请自己删除。&#x0A;&#x0A;它不会移除：&#x0A;- 程序文件：之后请自己删除；&#x0A;- EVE 的 RTSS 配置文件（RTSS 的 Profiles 文件夹里的 exefile.exe.cfg，位于 Program Files 下）：请在那里删除，或在 RTSS 中重置；&#x0A;- MultiPreview 为你的 EVE 设置做的备份，默认位于 %LOCALAPPDATA%\CCP\EVE\EVEMPBackups（或你选的文件夹）：它们属于你，会特意保留。如果不再需要，请自己删除那个文件夹。&#x0A;&#x0A;完成后，MultiPreview 会关闭，且不保存你的设置。如果某个条目无法移除，它会保持打开并告诉你。如果关闭时设置文件夹的某一部分无法删除，例如有文件被其他程序打开，会弹出一条消息说文件夹有一部分留了下来：请自己删除剩下的部分。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.about.uninstall.Body">删除 MultiPreview 之前，先点**彻底卸载**，这样 Windows 里就不会留下指向已不存在程序的条目。它会先问你，点取消不会改变任何东西。&#x0A;&#x0A;它会移除：&#x0A;- “随 Windows 启动”的条目，以及它在任务管理器“启动应用”列表中的开关记录；&#x0A;- 让 MultiPreview 能显示 Windows 通知的条目；&#x0A;- 仅在你选择时：整个设置文件夹 %APPDATA%\EVE MultiPreview 及其中的所有内容：你的设置、历史记录、日志、设置备份、保存的布局、内置音效，以及你放在里面的其他任何东西。如果 MultiPreview 从自己的文件夹运行（便携模式），你的设置就在那个文件夹里。它不会被删除，请自己删除。如果你为 EVE 设置备份选择的文件夹在设置文件夹里面，设置文件夹同样不会被删除：请先把备份移出来，再自己删除该文件夹。&#x0A;&#x0A;它不会移除：&#x0A;- 程序文件：之后请自己删除；&#x0A;- EVE 的 RTSS 配置文件（RTSS 的 Profiles 文件夹里的 exefile.exe.cfg，位于 Program Files 下）：请在那里删除，或在 RTSS 中重置；&#x0A;- MultiPreview 为你的 EVE 设置做的备份，默认位于 %LOCALAPPDATA%\CCP\EVE\EVEMPBackups（或你选的文件夹）：它们属于你，会特意保留。如果不再需要，请自己删除那个文件夹。&#x0A;&#x0A;完成后，MultiPreview 会关闭，且不保存你的设置。如果某个条目无法移除，它会保持打开并告诉你。如果关闭时设置文件夹的某一部分无法删除，例如有文件被其他程序打开，会弹出一条消息说文件夹有一部分留了下来：请自己删除剩下的部分。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.Tone">内置…</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.ToneFor">{0} 的内置提示音</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Sounds.ToneFailed">无法将内置提示音保存到你的设置文件夹。</sys:String> <!-- draft -->
@@ -2867,4 +2867,5 @@
     <sys:String x:Key="L.S.Tone.LowAlarm">低沉警报</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Tone.Rising">渐升</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Uninstall.LeftBehind">MultiPreview 关闭时，彻底卸载没能全部完成。文件夹 %APPDATA%\EVE MultiPreview 可能还剩一部分，例如有文件被其他程序打开：请自己删除剩下的部分。如果还剩 Windows 条目，请在任务管理器的“启动应用”中移除。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Uninstall.BodyBackups">MultiPreview 将从 Windows 中移除它自己的条目：随 Windows 启动，以及通知条目。之后程序会关闭。&#x0A;&#x0A;你为 EVE 设置备份选择的文件夹位于设置文件夹内。这些备份会特意保留，所以设置文件夹不会被删除。请先把备份移出来，不再需要时自己删除设置文件夹。&#x0A;&#x0A;不会动程序文件和 RTSS 配置文件。不想要时请自己删除。</sys:String> <!-- draft -->
 </ResourceDictionary>

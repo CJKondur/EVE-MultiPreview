@@ -32,8 +32,11 @@ public static class CleanUninstallActions
         var exit = ctx.Services.ExitForUninstall;
         if (exit == null) { ctx.Host.Toast(Str("L.S.Uninstall.NotHere")); return; }
 
+        // The backup folder the player chose for the EVE settings is read from the live settings (empty: the standard one).
+        var paths = seams.Paths with { BackupDir = ctx.S.EveBackupDir ?? "" };
+        var refusal = CleanUninstall.FolderRefusal(paths, paths.ConfigDir, seams.Folders.IsLink, seams.Folders.FileExists);
         bool deleteSettings;
-        if (CleanUninstall.FolderRefusal(seams.Paths, seams.Paths.ConfigDir, seams.Folders.IsLink, seams.Folders.FileExists) == null)
+        if (refusal == null)
         {
             // Both answers remove something, so Cancel is the default (IDEAS P92). No path in the text: the folder is named
             // the way Windows names it, not by where it is on this PC.
@@ -45,14 +48,16 @@ public static class CleanUninstallActions
         else
         {
             // The settings are not in %APPDATA% (MultiPreview is portable): the folder is the program's own and is never
-            // deleted here, so there is no such answer to give.
-            if (!ctx.Host.Confirm(Str("L.S.Uninstall.Title"), Str("L.S.Uninstall.BodyKeep"))) return;
+            // deleted here, so there is no such answer to give. Nor when the player's backups of the EVE settings are in the
+            // folder: they are kept on purpose, so it stays and the dialog says why.
+            var body = refusal == "holds-the-backups" ? "L.S.Uninstall.BodyBackups" : "L.S.Uninstall.BodyKeep";
+            if (!ctx.Host.Confirm(Str("L.S.Uninstall.Title"), Str(body))) return;
             deleteSettings = false;
         }
 
-        var plan = CleanUninstall.Plan(seams.Paths, deleteSettings);
+        var plan = CleanUninstall.Plan(paths, deleteSettings);
         var entries = plan.Where(s => s.Kind != UninstallKind.SettingsFolder).ToList();
-        var failures = CleanUninstall.Execute(entries, seams.Paths, seams.Registry, seams.Folders);
+        var failures = CleanUninstall.Execute(entries, paths, seams.Registry, seams.Folders);
         if (failures.Count > 0)
         {
             // Stay open and leave the settings folder alone: the player can try again, and still has the settings.
@@ -67,7 +72,7 @@ public static class CleanUninstallActions
         var leftBehind = Str("L.S.Uninstall.LeftBehind");
         exit(() =>
         {
-            if (CleanUninstall.Execute(plan, seams.Paths, seams.Registry, seams.Folders).Count > 0) seams.TellAtExit?.Invoke(title, leftBehind);
+            if (CleanUninstall.Execute(plan, paths, seams.Registry, seams.Folders).Count > 0) seams.TellAtExit?.Invoke(title, leftBehind);
         });
     }
 

@@ -30,7 +30,10 @@ public sealed record UninstallFailure(UninstallStep Step, string Reason);
 /// <param name="ExeDir">The folder of the program.</param>
 /// <param name="ExeName">The file name of the program (no folder). A folder that holds a file of this name holds the program,
 /// however the folder was named when the program was started (a short 8.3 name, a junction, a mapped drive).</param>
-public sealed record UninstallPaths(string ConfigDir, string AppDataDir, string UserProfile, string ExeDir, string ExeName = "")
+/// <param name="BackupDir">The folder the player chose for MultiPreview's backups of the EVE settings (AppSettings.EveBackupDir);
+/// empty when none was chosen (the standard one is under %LOCALAPPDATA%, never in the settings folder). The settings folder is
+/// not deleted while this lies inside it: the backups are kept on purpose.</param>
+public sealed record UninstallPaths(string ConfigDir, string AppDataDir, string UserProfile, string ExeDir, string ExeName = "", string BackupDir = "")
 {
     /// <summary>This PC's places. Reads, touches nothing.</summary>
     public static UninstallPaths Current() => new(
@@ -109,7 +112,9 @@ public static class CleanUninstall
     /// folder above it, the folder of the program or one above it, a link, or anything else. A portable MultiPreview keeps
     /// its settings in the exe folder, so its settings folder is always refused here: the player deletes that folder.
     /// <paramref name="fileExists"/> (when given) lets the guard also see the program by its file name inside the folder,
-    /// which a path that names the same folder in another way (8.3 name, junction, mapped drive) does not show.</summary>
+    /// which a path that names the same folder in another way (8.3 name, junction, mapped drive) does not show.
+    /// The settings folder is also refused ("holds-the-backups") while the backup folder the player chose for the EVE settings
+    /// is inside it: those backups are kept on purpose, so the folder is not deleted with them in it.</summary>
     public static string? FolderRefusal(UninstallPaths paths, string folder, Func<string, bool> isLink, Func<string, bool>? fileExists = null)
     {
         if (string.IsNullOrWhiteSpace(folder)) return "empty";
@@ -124,6 +129,7 @@ public static class CleanUninstall
             if (Holds(full, paths.ExeDir)) return "holds-the-program";
             if (fileExists != null && !string.IsNullOrWhiteSpace(paths.ExeName) && fileExists(Path.Combine(full, paths.ExeName))) return "holds-the-program";
             if (!Same(full, paths.AppDataDir)) return "not-the-settings-folder";
+            if (Holds(full, paths.BackupDir)) return "holds-the-backups";
         }
         catch (Exception)
         {
