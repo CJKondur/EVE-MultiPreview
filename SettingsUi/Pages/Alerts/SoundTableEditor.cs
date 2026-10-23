@@ -96,7 +96,7 @@ public static class AlertSoundPreview
 /// with Change…, Play, Clear and Wait. App.PlayAlertSound reads all of it at the next alert: a change only saves.</summary>
 public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    private static readonly string[] Columns = { "L.S.Sounds.ColEvent", "L.S.Sounds.ColSound", "", "", "", "", "L.S.Sounds.ColWait" };
+    private static readonly string[] Columns = { "L.S.Sounds.ColEvent", "L.S.Sounds.ColSound", "", "L.S.Sounds.ColWait" };
 
     private readonly SettingsContext _ctx;
     private readonly EditorTable _table = new();
@@ -126,7 +126,16 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
     public void Refresh()
     {
         _keys.Clear();
-        _table.Reset(Columns.Select((_, c) => c == 1 ? new GridLength(1, GridUnitType.Star) : GridLength.Auto).ToArray());
+        // The Sound and the buttons columns share what the Event and Wait columns leave (the buttons take three parts to
+        // the Sound's one, and wrap within theirs); the Sound column keeps a width, and its text wraps, so a narrow page
+        // never squeezes it to nothing (nor pushes Wait past the edge).
+        _table.Reset(Columns.Select((_, c) => c switch
+        {
+            1 => new GridLength(1, GridUnitType.Star),
+            2 => new GridLength(3, GridUnitType.Star),
+            _ => GridLength.Auto,
+        }).ToArray());
+        _table.Body.ColumnDefinitions[1].MinWidth = 96;
         int header = AddRow(header: true);
         for (int c = 0; c < Columns.Length; c++)
             if (Columns[c].Length > 0) Place(EditorTable.Head(Columns[c]), header, c);
@@ -149,13 +158,20 @@ public sealed class SoundTableEditor : System.Windows.Controls.UserControl, IRef
             _keys.Add(key);
         }
         // The file's name; an event without one plays the default sound, and a blank path plays nothing.
-        Place(own.Length > 0 ? EditorCard.Value(System.IO.Path.GetFileName(own), secondary: true)
-            : EditorCard.Note(key == null || blank ? "L.S.Sounds.None" : "L.S.Sounds.UsesDefault"), r, 1);
-        Place(RowButton("L.S.Sounds.Change", "L.S.Sounds.ChangeFor", name, () => Change(key)), r, 2);
-        Place(ToneMenu.Button(name, tone => UseTone(key, tone)), r, 3);
-        Place(RowButton("L.S.Sounds.Play", "L.S.Sounds.PlayFor", name, () => Play(key)), r, 4);
-        if (own.Length > 0 || blank) Place(RowButton("L.S.Sounds.Clear", "L.S.Sounds.ClearFor", name, () => Clear(key)), r, 5);
-        if (key != null) Place(WaitBox(key, name), r, 6);
+        var sound = own.Length > 0 ? EditorCard.Value(System.IO.Path.GetFileName(own), secondary: true)
+            : EditorCard.Note(key == null || blank ? "L.S.Sounds.None" : "L.S.Sounds.UsesDefault");
+        sound.TextWrapping = TextWrapping.Wrap;
+        Place(sound, r, 1);
+        // Change…, Built-in…, Play and Clear wrap onto a second line when the column is narrow.
+        var buttons = new List<UIElement>
+        {
+            RowButton("L.S.Sounds.Change", "L.S.Sounds.ChangeFor", name, () => Change(key)),
+            ToneMenu.Button(name, tone => UseTone(key, tone)),
+            RowButton("L.S.Sounds.Play", "L.S.Sounds.PlayFor", name, () => Play(key)),
+        };
+        if (own.Length > 0 || blank) buttons.Add(RowButton("L.S.Sounds.Clear", "L.S.Sounds.ClearFor", name, () => Clear(key)));
+        Place(EditorCard.WrapRow(buttons.ToArray()), r, 2);
+        if (key != null) Place(WaitBox(key, name), r, 3);
     }
 
     private static Button RowButton(string key, string nameKey, string name, Action click)

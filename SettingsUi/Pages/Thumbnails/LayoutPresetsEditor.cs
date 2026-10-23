@@ -38,20 +38,20 @@ public sealed class LayoutPresetsEditor : System.Windows.Controls.UserControl, I
             Selected = _list.SelectedItem as string;
             UpdateButtons();
         };
-        var first = EditorCard.Row(_list, NeedsOne("L.S.Presets.Apply", Apply), NeedsOne("L.S.Presets.Remap", Remap),
+        var first = EditorCard.WrapRow(_list, NeedsOne("L.S.Presets.Apply", Apply), NeedsOne("L.S.Presets.Remap", Remap),
             NeedsOne("L.S.Presets.Delete", Delete, destructive: true));
-        var second = EditorCard.Row(EditorCard.Button("L.S.Presets.Save", SaveCurrent), NeedsOne("L.S.Presets.Export", Export),
+        var second = EditorCard.WrapRow(EditorCard.Button("L.S.Presets.Save", SaveCurrent), NeedsOne("L.S.Presets.Export", Export),
             EditorCard.Button("L.S.Presets.Import", Import));
-        second.Margin = new Thickness(0, 8, 0, 0);
+        second.Margin = new Thickness(0, 6, 0, 0);
         // IDEAS #12: a layout as one line of text, and back.
-        var third = EditorCard.Row(NeedsOne("L.S.Presets.CopyCode", CopyCode), EditorCard.Button("L.S.Presets.PasteCode", PasteCode));
-        third.Margin = new Thickness(0, 8, 0, 0);
+        var third = EditorCard.WrapRow(NeedsOne("L.S.Presets.CopyCode", CopyCode), EditorCard.Button("L.S.Presets.PasteCode", PasteCode));
+        third.Margin = new Thickness(0, 6, 0, 0);
         // IDEAS P18: the layout as a picture of boxes and names, to share or attach to a help request.
         var hideText = new TextBlock();
         Loc.SetKey(hideText, "L.S.Presets.HideNames");
         _hideNames = new CheckBox { Content = hideText, IsChecked = HideNamesAtStart(), VerticalAlignment = VerticalAlignment.Center };
-        var fourth = EditorCard.Row(NeedsOne("L.S.Presets.ExportImage", ExportImage), EditorCard.Button("L.S.Presets.WallImage", ExportWallImage), _hideNames);
-        fourth.Margin = new Thickness(0, 8, 0, 0);
+        var fourth = EditorCard.WrapRow(NeedsOne("L.S.Presets.ExportImage", ExportImage), EditorCard.Button("L.S.Presets.WallImage", ExportWallImage), _hideNames);
+        fourth.Margin = new Thickness(0, 6, 0, 0);
         _note.Margin = new Thickness(0, 8, 0, 0);
         _arrangement.Margin = new Thickness(0, 4, 0, 0);
         var below = new StackPanel();

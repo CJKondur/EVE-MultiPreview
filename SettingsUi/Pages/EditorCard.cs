@@ -79,6 +79,19 @@ public static class EditorCard
         return row;
     }
 
+    /// <summary>Like <see cref="Row"/>, but the items wrap onto the next line when the page is too narrow for them (a long
+    /// translation, the window's smallest width) instead of running past the edge.</summary>
+    public static WrapPanel WrapRow(params UIElement[] items)
+    {
+        var row = new WrapPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+        foreach (var item in items)
+        {
+            if (item is FrameworkElement fe) fe.Margin = new Thickness(0, 2, 8, 2);
+            row.Children.Add(item);
+        }
+        return row;
+    }
+
     public static Button Button(string key, Action click, bool destructive = false)
     {
         var text = new TextBlock();
