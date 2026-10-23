@@ -1594,7 +1594,7 @@
     <sys:String x:Key="L.Help.alerts.events.logs.Title">警报从哪里来</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.logs.Body">- **聊天日志**让 MultiPreview 知道每个客户端所在的星系。&#x0A;- **游戏日志**包含战斗、舰队、对话和采矿的记录，并为统计叠加层提供数据。&#x0A;&#x0A;两者默认开启，并从 EVE 的默认文件夹读取。只有移动过 EVE 日志时才需要更改文件夹。更改会立即生效，读取会从原位置继续，因此不会重复提示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.combat.Title">PVE 模式与受攻击边框</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 模式**适用于刷怪和任务：NPC 攻击或扰断你时不再触发警报，玩家仍会触发，但日志行中名字不带军团或联盟代号的玩家不会。不过，玩家或无人机的攻击未命中时仍会触发警报。&#x0A;&#x0A;**受攻击边框**在该客户端受到伤害时于缩略图上闪烁红色，并在最后一次受击几秒后消失。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.combat.Body">**PVE 模式**适用于刷怪和任务：NPC 攻击或扰断你时不再触发警报，玩家仍会触发，但日志行中名字不带军团或联盟代号的玩家不会。不过，玩家或无人机的攻击未命中时仍会触发警报。游戏不是英文时，MultiPreview 无法从日志中读出攻击者的名字，会把该攻击者当作玩家，因此 PVE 模式会对每次受击都触发警报。&#x0A;&#x0A;**受攻击边框**在该客户端受到伤害时于缩略图上闪烁红色，并在最后一次受击几秒后消失。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Title">事件表</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.table.Body">每一行是一种警报。&#x0A;- **严重程度**对每个事件是固定的。它决定事件的颜色、闪烁速度和通知选择（外观 &amp; 严重程度）。&#x0A;- **颜色**为单个事件指定专属颜色；↺ 恢复为严重程度的颜色。&#x0A;- **持续**是警报停留在缩略图上的时间。&#x0A;- **角标**在缩略图上统计该事件；**常亮**保持边框常亮而不闪烁。&#x0A;- **开启**可对所有人关闭该事件；分组仍可为其成员开启它（下方的按分组设置警报）。&#x0A;- **晶体损坏**仅适用于采矿模块，武器的晶体被摧毁时不会触发。&#x0A;- **无人机返航**在你开启之前保持关闭。只会读取 EVE 的英文召回日志行；游戏使用其他语言时，可以用自定义规则来匹配你的那一行。&#x0A;- **后勤空闲**在你为某个分组开启之前保持关闭。当某个后勤角色已有 20 秒没有发出远程维修，而你在同一星系的另一个角色正在受到伤害时，它会提醒你。为存放你后勤角色的分组开启它（下方的按分组设置警报）即可，且只有这类分组中的角色才算后勤；此表中的总开关不会标记任何人。日志里没有舰队名单，所以这里的舰队指你自己在同一星系的角色。&#x0A;&#x0A;**静默时间**可在几秒内阻止同一警报为某个角色重复触发。**按严重程度设置静默时间**（外观 &amp; 严重程度）可为每种严重程度单独设置。</sys:String> <!-- draft -->
     <!-- Alerts › Look & severity (Plan 3c) -->
@@ -1820,7 +1820,7 @@
     <sys:String x:Key="L.Help.tools.stats.overlay.Title">叠加层</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.overlay.Body">每个有数据可显示的角色都会有一个小窗口。用鼠标右键拖动；同时按住左键可调整大小。**切换到其他应用时隐藏** 可在你不在 EVE 时让窗口不挡视线。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.numbers.Title">选择数据</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.tools.stats.numbers.Body">这里的数据适用于所有角色。角色可以在自己的页面（客户端 › 角色 › 该角色）中单独开关某项数据或整组数据。括号中的短代码是叠加层显示的内容。&#x0A;&#x0A;**统计 NPC 伤害**决定 NPC 造成和受到的伤害是否计入伤害数据。除非你关闭，否则保持开启。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.tools.stats.numbers.Body">这里的数据适用于所有角色。角色可以在自己的页面（客户端 › 角色 › 该角色）中单独开关某项数据或整组数据。括号中的短代码是叠加层显示的内容。&#x0A;&#x0A;**统计 NPC 伤害**决定 NPC 造成和受到的伤害是否计入伤害数据。除非你关闭，否则保持开启。游戏不是英文时，你对名字无法读取的目标造成的伤害不再计入每小时 ISK (TIPH)，那里的数值可能偏低；名字无法读取的攻击者的伤害会算作玩家伤害，即使**统计 NPC 伤害**已关闭。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Title">外观</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.look.Body">文字大小、不透明度和两种颜色适用于所有统计窗口。颜色可输入 #RRGGBB 或用色块选取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.tools.stats.logging.Title">保存统计</sys:String> <!-- draft -->
@@ -2342,7 +2342,7 @@
     <sys:String x:Key="L.AlertEvt.reps_stopped">维修停止</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.events.ewarNote">“电容被中和”和“被干扰”在你开启之前是关闭的，并且只从英文游戏客户端读取。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.events.ewar.Title">“电容被中和”和“被干扰”</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.events.ewar.Body">两个常常出现在受到伤害之前的事件： **电容被中和** ，即能量中和器夺走你舰船的电容； **被干扰** ，即你的舰船受到干扰并失去锁定。&#x0A;&#x0A;- 两者在你于上面的表格中开启之前都是关闭的。&#x0A;- 每个事件在开始时触发一次警报，持续期间对该角色最多每 30 秒再触发一次。&#x0A;- 它们根据英文游戏客户端的文字读取。游戏使用其他语言时，它们不会触发任何警报。&#x0A;- 开启 **PVE 模式** 时，中和或干扰你的 NPC 不会触发任何警报；日志行中名字不带军团或联盟代号的玩家也不会。&#x0A;- 抽取你电容的掠能器不包括在内，只包括中和器。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.events.ewar.Body">两个常常出现在受到伤害之前的事件： **电容被中和** ，即能量中和器夺走你舰船的电容； **被干扰** ，即你的舰船受到干扰并失去锁定。&#x0A;&#x0A;- 两者在你于上面的表格中开启之前都是关闭的。&#x0A;- 每个事件在开始时触发一次警报，持续期间对该角色最多每 30 秒再触发一次。&#x0A;- 它们根据英文游戏客户端的文字读取。游戏使用其他语言时，它们不会触发任何警报。在表格中，只要有任何客户端的日志不是英文，这两行都会显示“仅限英文游戏客户端”；这行字可能一直保留，直到不再读取该客户端的旧日志，例如重启 MultiPreview 之后。&#x0A;- 开启 **PVE 模式** 时，中和或干扰你的 NPC 不会触发任何警报；日志行中名字不带军团或联盟代号的玩家也不会。&#x0A;- 抽取你电容的掠能器不包括在内，只包括中和器。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Speech.TryFailed">Windows 没能读出这句话。请检查是否安装了语音，以及是否连接了声音设备。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest">测试通知</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.notifyTest.Desc">立刻显示一条通知，让你看到 Windows 是否放行。它没有按钮，一分钟后会自行消失。</sys:String> <!-- draft -->
