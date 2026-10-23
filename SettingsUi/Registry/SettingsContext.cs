@@ -58,6 +58,10 @@ public sealed class AppServices
     /// <summary>The alert events snoozed for one character (IDEAS #30), for Alerts › Events › Snoozed right now.
     /// Null in tests and in a window opened without the app.</summary>
     public EventSnoozes? Snoozes { get; init; }
+    /// <summary>A snooze was started on a settings page (the Add row of Alerts › Events › Snoozed right now): the character
+    /// and the event key. App takes that event's Windows notification away (IDEAS P86) and puts an enlarged thumbnail back,
+    /// as a toast's menu does. Null in tests and in a window opened without the app.</summary>
+    public Action<string, string>? SnoozeStarted { get; init; }
     /// <summary>Whether do-not-disturb is on right now, by the hotkey, the tray or the quiet hours (IDEAS #32), for the
     /// line on Alerts › Sounds that says so. Null in tests and in a window opened without the app.</summary>
     public Func<bool>? DoNotDisturbOn { get; init; }

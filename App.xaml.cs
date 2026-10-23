@@ -2269,6 +2269,7 @@ public partial class App : Application
                     AlertHub = _alertHub,
                     OpenAlertHistory = OpenAlertHistory,
                     Snoozes = _snoozes,
+                    SnoozeStarted = (who, type) => { _notificationsWay?.Snoozed(who, type); _thumbnailManager?.PutBackForASnooze(who); },
                     DoNotDisturbOn = () => DoNotDisturbOn,
                     Speaker = _speaker,
                     VoiceAnswered = () => _spokenWay?.VoiceAnswered(),

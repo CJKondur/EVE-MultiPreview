@@ -15,8 +15,9 @@ namespace EveMultiPreview.SettingsUi;
 ///
 /// Above the list is the Add row (IDEAS P80 (1)): a snooze can be started here, without a toast. The character is one
 /// of the running ones or a typed name, the event one the Events page lists (or a rule of the player's own), the length
-/// one of the toast menu's three. Add calls the store itself: App.SnoozeEvent, which a toast's menu uses, is not
-/// involved. The names on this page are the real ones, as on every page of this window.</summary>
+/// one of the toast menu's three. Add calls the store itself, then tells App (<see cref="AppServices.SnoozeStarted"/>),
+/// which takes that event's notification away as a toast's menu does. The names on this page are the real ones, as on
+/// every page of this window.</summary>
 public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefreshable
 {
     public const string ItemId = "alerts.events.snoozed";
@@ -176,6 +177,7 @@ public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefres
         }
         _refused.Visibility = Visibility.Collapsed;
         _snoozes.Snooze(made.Character, made.EventKey, made.Length);
+        _ctx.Services.SnoozeStarted?.Invoke(made.Character, made.EventKey);
         Refresh();
         return true;
     }

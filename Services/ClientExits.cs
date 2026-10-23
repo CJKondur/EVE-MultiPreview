@@ -46,6 +46,7 @@ public sealed class ClientExits
     private readonly Action<int, int>? _notWatchable;
     private readonly Dictionary<int, Entry> _held = new();
     private readonly HashSet<int> _unwatchable = new();
+    private readonly HashSet<int> _lookedAt = new();   // the pids Track was asked about since the last Look
     private readonly object _lock = new();
 
     /// <param name="open">Opens a process.</param>
@@ -73,6 +74,7 @@ public sealed class ClientExits
         bool report;
         lock (_lock)
         {
+            _lookedAt.Add(pid);
             if (_held.TryGetValue(pid, out var held))
             {
                 if (!string.IsNullOrWhiteSpace(character)) held.Character = character;
@@ -111,11 +113,15 @@ public sealed class ClientExits
         lock (_lock) { if (_held.TryGetValue(pid, out var e)) e.ByUs = false; }
     }
 
-    /// <summary>The held processes that ended since the last look; their handles are let go.</summary>
+    /// <summary>The held processes that ended since the last look; their handles are let go. A pid reported as not
+    /// watchable that was not asked about since the last look has left the list: it is forgotten, so a later process that
+    /// reuses the number is reported again.</summary>
     public IReadOnlyList<ClientExit> Look()
     {
         lock (_lock)
         {
+            _unwatchable.IntersectWith(_lookedAt);
+            _lookedAt.Clear();
             List<ClientExit>? ended = null;
             foreach (var (pid, e) in _held.ToList())
             {
