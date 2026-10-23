@@ -121,6 +121,20 @@ public sealed class NotificationsWay : IAlertWay
         if (!_stopped && Ledger.Looked(character)) Pump.Wake();
     }
 
+    /// <summary>One event was snoozed for a character (App.SnoozeEvent, IDEAS P86): that client's notification of that
+    /// event is taken away.</summary>
+    public void Snoozed(string character, string eventKey)
+    {
+        if (!_stopped && Ledger.Forget(character, eventKey)) Pump.Wake();
+    }
+
+    /// <summary>A character's alerts were muted (ThumbnailManager.AlertMuted, IDEAS P86): every notification of that
+    /// client is taken away.</summary>
+    public void Muted(string character)
+    {
+        if (!_stopped && Ledger.Forget(character)) Pump.Wake();
+    }
+
     /// <summary>Keeps the registry key and what is in the Notification Center in step with the switch. Called on
     /// the window's thread: at startup, and after every settings change.
     /// On: the key is written where it differs; at the start, and when the key was not known to be there, what an

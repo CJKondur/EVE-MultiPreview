@@ -190,10 +190,31 @@ public sealed class UserRegistry : IUserRegistry
 
 /// <summary>The picture Windows shows beside MultiPreview's notifications: the app's own icon as a PNG file, because
 /// the registry key names a file. It is written once, into the settings folder, and only when Windows notifications
-/// are switched on.</summary>
+/// are switched on, and taken away when they are switched off.</summary>
 public static class NotificationIcon
 {
     public const string FileName = "notification-icon.png";
+
+    /// <summary>Takes the picture file away from the folder it is handed (the feature was switched off): that one file,
+    /// and nothing else of the folder. Never through a link, as <see cref="Ensure"/>. True when a file was deleted;
+    /// false when there was none, the folder is not there, a link is in the way, or Windows refused (a picture
+    /// that stays is harmless).</summary>
+    public static bool Remove(string folder, Func<string, bool>? isLink = null)
+    {
+        try
+        {
+            isLink ??= SettingsHome.IsLink;
+            if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder) || isLink(folder)) return false;
+            var path = Path.Combine(folder, FileName);
+            if (isLink(path) || !File.Exists(path)) return false;
+            File.Delete(path);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 
     /// <summary>The file's path, written first if it is not there; null when it can't be written (then Windows
     /// shows a picture of its own). Never through a link, as everything in the settings folder.</summary>

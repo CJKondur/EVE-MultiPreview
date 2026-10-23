@@ -39,16 +39,20 @@ public sealed class NotificationRegistration
     private readonly IUserRegistry _registry;
     private readonly Func<string?> _icon;
     private readonly Action<Exception> _failed;
+    private readonly Action? _removeIcon;
     private bool _knownGone;
 
     /// <param name="icon">The path of the icon file, made if it is not there; null for none. Asked only while the
     /// feature is on.</param>
     /// <param name="failed">Is told what the registry threw (App logs it).</param>
-    public NotificationRegistration(IUserRegistry registry, Func<string?> icon, Action<Exception>? failed = null)
+    /// <param name="removeIcon">Takes the icon file away (IDEAS P86): asked once the key is gone, each time the feature is
+    /// switched off (and once at a start with it off, for a file an earlier version left).</param>
+    public NotificationRegistration(IUserRegistry registry, Func<string?> icon, Action<Exception>? failed = null, Action? removeIcon = null)
     {
         _registry = registry;
         _icon = icon;
         _failed = failed ?? (_ => { });
+        _removeIcon = removeIcon;
     }
 
     /// <summary>The key is there, as far as this session knows.</summary>
@@ -56,7 +60,8 @@ public sealed class NotificationRegistration
 
     /// <summary>Makes the registry say what the switch says, and answers whether the key is there now. On: the
     /// key's two values are written where they differ from what is there. Off: the key is removed if it is there;
-    /// once it is known to be gone, the registry is not asked again. Nothing leaves here as an exception.</summary>
+    /// once it is known to be gone, the registry is not asked again, and the icon file is taken away with the key
+    /// (once; a failure is reported and tried again at the next "off"). Nothing leaves here as an exception.</summary>
     public bool Follow(bool on)
     {
         try
@@ -73,6 +78,7 @@ public sealed class NotificationRegistration
             if (!_knownGone)
             {
                 if (_registry.Exists(Key)) _registry.Delete(Key);
+                _removeIcon?.Invoke();
                 _knownGone = true;
             }
             return Registered = false;

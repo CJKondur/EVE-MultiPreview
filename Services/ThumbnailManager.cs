@@ -3290,6 +3290,11 @@ public sealed class ThumbnailManager : IDisposable
 
     // ── Per-character alert mute / snooze ───────────────────────────
 
+    /// <summary>A character's alerts were muted (the thumbnail's menu, or the --mute command; not an unmute, and not a
+    /// mute that ran out): its name. App hands it to the Windows notifications, which take that client's away (IDEAS P86).
+    /// On the window's thread.</summary>
+    public event Action<string>? AlertMuted;
+
     /// <summary>True while this character's alerts are muted/snoozed. Runtime-only;
     /// expired snoozes auto-clean. Checked by the central alert handler so a muted
     /// client raises no flash / badge / toast / sound.</summary>
@@ -3359,6 +3364,7 @@ public sealed class ThumbnailManager : IDisposable
         {
             GetThumbnailForCharacter(charName)?.SetAlertScale(1.0);
             Enlarge.Forget(charName);
+            AlertMuted?.Invoke(charName);
         }
 
         ShowTooltipFeedback(note);

@@ -595,12 +595,14 @@ public partial class App : Application
                 () => _settings.Settings.WindowsNotifications, SwitchToCharacter,
                 (who, type, length) => SnoozeEvent(who, type, length), _thumbnailManager.ShowTooltipFeedback,
                 action => Dispatcher.BeginInvoke(action), LocalizationService.Str);
-            _notificationRegistration = new NotificationRegistration(new UserRegistry(), () => NotificationIcon.Ensure(AppPaths.ConfigDir), LogError);
+            _notificationRegistration = new NotificationRegistration(new UserRegistry(), () => NotificationIcon.Ensure(AppPaths.ConfigDir), LogError,
+                () => NotificationIcon.Remove(AppPaths.ConfigDir));
             _notificationsWay = new NotificationsWay(new WindowsToastNotifier(NotificationRegistration.AppId),
                 entry => NotificationsWay.Texts(entry, AlertHub.EventDisplayName, (who, type) => _stragglerAlerts?.PlaceOf(who, type), LocalizationService.Str),
                 _notificationActions.SwitchTo, _notificationActions.Snooze, _notificationActions.OnWindowThread, LogError);
             _alertWays.Add(_notificationsWay);
             _thumbnailManager.Attention.Looked += _notificationsWay.Looked;
+            _thumbnailManager.AlertMuted += _notificationsWay.Muted;
             FollowNotifications(starting: true);
             // IDEAS #2: alerts to a Discord webhook, which the Discord app on a phone shows. The link is read from the
             // settings file, encrypted for this Windows user, and goes nowhere but discord.com. The way asks
@@ -2599,6 +2601,7 @@ public partial class App : Application
     {
         _snoozes.Snooze(character, alertType, length);
         _thumbnailManager?.PutBackForASnooze(character);
+        _notificationsWay?.Snoozed(character, alertType);
     }
 
     private void ExitApplication()

@@ -35,13 +35,17 @@ public static class NotificationXml
 
     /// <param name="buttons">False: no buttons, and the two labels are not used (the card's test notification: it is
     /// no entry, so a button on it could do nothing).</param>
-    public static string Build(NotificationTexts texts, string tag, bool buttons = true)
+    /// <param name="critical">A critical alert asks Windows for the long banner (<c>duration="long"</c>). Only a request:
+    /// Windows may ignore it.</param>
+    public static string Build(NotificationTexts texts, string tag, bool buttons = true, bool critical = false)
     {
         var binding = new XElement("binding", new XAttribute("template", "ToastGeneric"),
             new XElement("text", Clean(texts.Title)), new XElement("text", Clean(texts.Line)));
         // Asked after cleaning: a detail made only of characters that are not shown would be an empty line.
         if (Clean(texts.Detail) is { Length: > 0 } detail) binding.Add(new XElement("text", detail));
-        var toast = new XElement("toast", new XAttribute("launch", Go + tag), new XElement("visual", binding));
+        var toast = new XElement("toast", new XAttribute("launch", Go + tag));
+        if (critical) toast.Add(new XAttribute("duration", "long"));
+        toast.Add(new XElement("visual", binding));
         if (buttons)
             toast.Add(new XElement("actions",
                 new XElement("action", new XAttribute("content", Clean(texts.SwitchLabel)), new XAttribute("arguments", Go + tag)),
@@ -182,7 +186,7 @@ public sealed class AlertNotifications
             int waiting = _work.FindIndex(w => w.What == NotifierWork.Kind.Show && w.Content!.Tag == entry.Tag);
             if (waiting >= 0) banner |= _work[waiting].Content!.Banner;
             var show = new NotifierWork(NotifierWork.Kind.Show,
-                new NotificationContent(entry.Tag, NotificationXml.Build(texts(entry), entry.Tag, buttons: !entry.Gone), banner, now + Keep));
+                new NotificationContent(entry.Tag, NotificationXml.Build(texts(entry), entry.Tag, buttons: !entry.Gone, critical: AlertAttention.Rank(entry.Severity) >= AlertAttention.Rank("critical")), banner, now + Keep));
 
             // Now it is kept.
             if (at >= 0) _entries[at] = entry;
@@ -273,6 +277,30 @@ public sealed class AlertNotifications
             var theirs = _entries.Where(e => string.Equals(e.Character, character, StringComparison.OrdinalIgnoreCase)).ToList();
             if (theirs.Count == 0) return false;
             foreach (var entry in theirs)
+            {
+                _entries.Remove(entry);
+                TakeAway(entry.Tag);
+            }
+            return true;
+        }
+    }
+
+    /// <summary>The player muted a character, or snoozed one event for it (IDEAS P86): its entries are taken away, as
+    /// for a look, and what is remembered of its pairs that left earlier is forgotten (the first alert after the snooze
+    /// starts afresh). <paramref name="eventKey"/> null: every event of that character; otherwise only that one. A
+    /// picture of such an entry that still waits is dropped. Other characters' and other events' entries are
+    /// not touched. True when Windows is to be asked something.</summary>
+    public bool Forget(string character, string? eventKey = null)
+    {
+        if (string.IsNullOrEmpty(character)) return false;
+        bool Theirs(Entry e) => string.Equals(e.Character, character, StringComparison.OrdinalIgnoreCase)
+            && (eventKey == null || string.Equals(e.EventKey, eventKey, StringComparison.Ordinal));
+        lock (_lock)
+        {
+            _remembered.RemoveAll(Theirs);
+            var gone = _entries.Where(Theirs).ToList();
+            if (gone.Count == 0) return false;
+            foreach (var entry in gone)
             {
                 _entries.Remove(entry);
                 TakeAway(entry.Tag);
