@@ -42,9 +42,6 @@ public class AhkConfigRoot
         s.ColorBlindSavedColors = g.ColorBlindSavedColors ?? "";
         s.GlobalHotkeys = g.GlobalHotkeys != 0;
         s.HotkeyWildcardModifiers = g.HotkeyWildcardModifiers != 0;
-        s.PropagateHeldModifiers = g.PropagateHeldModifiers != 0;
-        s.PropagateHeldKeys = g.PropagateHeldKeys != 0;
-        s.HideHeldKeysOnSwitch = g.HideHeldKeysOnSwitch != 0;
         s.HideHotkeyKeystrokes = g.HideHotkeyKeystrokes != 0;
         s.CtrlClickAction = Math.Clamp(g.CtrlClickAction, 0, 2);
         s.ShiftClickAction = Math.Clamp(g.ShiftClickAction, 0, 2);
@@ -101,7 +98,6 @@ public class AhkConfigRoot
         s.LastUsedProfile = g.LastUsedProfile ?? "Default";
         s.EnableKeyBlockGuard = g.EnableKeyBlockGuard != 0;
 
-        s.EnableDebugLogging_Injection = g.EnableDebugLogging_Injection != 0;
         s.EnableDebugLogging_Cycling = g.EnableDebugLogging_Cycling != 0;
         s.EnableDebugLogging_WindowHooks = g.EnableDebugLogging_WindowHooks != 0;
         s.EnableDebugLogging_DWM = g.EnableDebugLogging_DWM != 0;
@@ -274,9 +270,6 @@ public class AhkConfigRoot
         s.SettingsUiFontSize = g.SettingsUiFontSize;
         s.ReceivePreReleaseUpdates = g.ReceivePreReleaseUpdates != 0;
         s.CheckForUpdatesOnStartup = g.CheckForUpdatesOnStartup != 0;
-        s.ShowBroadcastKeyHud = g.ShowBroadcastKeyHud != 0;
-        s.BroadcastHudX = g.BroadcastHudX;
-        s.BroadcastHudY = g.BroadcastHudY;
         s.AutoSoloClientAudio = g.AutoSoloClientAudio != 0;
         s.MuteAllClientAudioWhenNoneActive = g.MuteAllClientAudioWhenNoneActive != 0;
 
@@ -402,9 +395,6 @@ public class AhkConfigRoot
         g.ColorBlindSavedColors = s.ColorBlindSavedColors;
         g.GlobalHotkeys = s.GlobalHotkeys ? 1 : 0;
         g.HotkeyWildcardModifiers = s.HotkeyWildcardModifiers ? 1 : 0;
-        g.PropagateHeldModifiers = s.PropagateHeldModifiers ? 1 : 0;
-        g.PropagateHeldKeys = s.PropagateHeldKeys ? 1 : 0;
-        g.HideHeldKeysOnSwitch = s.HideHeldKeysOnSwitch ? 1 : 0;
         g.HideHotkeyKeystrokes = s.HideHotkeyKeystrokes ? 1 : 0;
         g.CtrlClickAction = s.CtrlClickAction;
         g.ShiftClickAction = s.ShiftClickAction;
@@ -455,7 +445,6 @@ public class AhkConfigRoot
         g.LastUsedProfile = s.LastUsedProfile;
         g.EnableKeyBlockGuard = s.EnableKeyBlockGuard ? 1 : 0;
 
-        g.EnableDebugLogging_Injection = s.EnableDebugLogging_Injection ? 1 : 0;
         g.EnableDebugLogging_Cycling = s.EnableDebugLogging_Cycling ? 1 : 0;
         g.EnableDebugLogging_WindowHooks = s.EnableDebugLogging_WindowHooks ? 1 : 0;
         g.EnableDebugLogging_DWM = s.EnableDebugLogging_DWM ? 1 : 0;
@@ -618,9 +607,6 @@ public class AhkConfigRoot
         g.SettingsUiFontSize = s.SettingsUiFontSize;
         g.ReceivePreReleaseUpdates = s.ReceivePreReleaseUpdates ? 1 : 0;
         g.CheckForUpdatesOnStartup = s.CheckForUpdatesOnStartup ? 1 : 0;
-        g.ShowBroadcastKeyHud = s.ShowBroadcastKeyHud ? 1 : 0;
-        g.BroadcastHudX = s.BroadcastHudX;
-        g.BroadcastHudY = s.BroadcastHudY;
         g.AutoSoloClientAudio = s.AutoSoloClientAudio ? 1 : 0;
         g.MuteAllClientAudioWhenNoneActive = s.MuteAllClientAudioWhenNoneActive ? 1 : 0;
 
@@ -1107,17 +1093,6 @@ public class AhkGlobalSettings
     [JsonPropertyName("HotkeyWildcardModifiers")]
     public int HotkeyWildcardModifiers { get; set; } = 1;
 
-    // Both default OFF since 2.3.42: a config that never saved these keys gets off;
-    // one that saved them keeps the user's value.
-    [JsonPropertyName("PropagateHeldModifiers")]
-    public int PropagateHeldModifiers { get; set; }
-
-    [JsonPropertyName("PropagateHeldKeys")]
-    public int PropagateHeldKeys { get; set; }
-
-    [JsonPropertyName("HideHeldKeysOnSwitch")]
-    public int HideHeldKeysOnSwitch { get; set; }
-
     [JsonPropertyName("HideHotkeyKeystrokes")]
     public int HideHotkeyKeystrokes { get; set; } = 1;
 
@@ -1273,9 +1248,6 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("EnableKeyBlockGuard")]
     public int EnableKeyBlockGuard { get; set; }
-
-    [JsonPropertyName("EnableDebugLogging_Injection")]
-    public int EnableDebugLogging_Injection { get; set; }
 
     [JsonPropertyName("EnableDebugLogging_Cycling")]
     public int EnableDebugLogging_Cycling { get; set; }
@@ -1709,15 +1681,6 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("CheckForUpdatesOnStartup")]
     public int CheckForUpdatesOnStartup { get; set; } = 1;
-
-    [JsonPropertyName("ShowBroadcastKeyHud")]
-    public int ShowBroadcastKeyHud { get; set; }
-
-    [JsonPropertyName("BroadcastHudX")]
-    public int BroadcastHudX { get; set; }
-
-    [JsonPropertyName("BroadcastHudY")]
-    public int BroadcastHudY { get; set; }
 
     [JsonPropertyName("AutoSoloClientAudio")]
     public int AutoSoloClientAudio { get; set; }

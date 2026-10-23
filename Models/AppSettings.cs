@@ -73,13 +73,6 @@ public class AppSettings
     // OFF registers the exact combination only, so Ctrl+V passes through.
     public bool HotkeyWildcardModifiers { get; set; } = true;
 
-    // Retired (Plan 35), kept so older files load: carrying held modifiers/keys into the
-    // next client and hiding held keys on a switch sent synthetic input to the game, so
-    // they were removed. Nothing reads these; they are loaded and saved unchanged.
-    public bool PropagateHeldModifiers { get; set; } = false;
-    public bool PropagateHeldKeys { get; set; } = false;
-    public bool HideHeldKeysOnSwitch { get; set; } = false;
-
     // Hide a hotkey's whole keystroke from the clients (#108). RegisterHotKey swallows
     // the key-down but lets the key-UP through to whatever is foreground - after a
     // client-switching hotkey that is the client we just switched INTO. A low-level
@@ -156,8 +149,6 @@ public class AppSettings
     public StartupSettingsMode StartupSettings { get; set; } = StartupSettingsMode.Off;
 
     // ── Debug Logging ───────────────────────────────────────────────
-    // Retired (Plan 35), kept so older files load: the injection log's only writer was the removed held-key code.
-    public bool EnableDebugLogging_Injection { get; set; } = false;
     public bool EnableDebugLogging_Cycling { get; set; } = false;
     public bool EnableDebugLogging_WindowHooks { get; set; } = false;
     public bool EnableDebugLogging_DWM { get; set; } = false;
@@ -517,11 +508,6 @@ public class AppSettings
 
     // UI language (issue #86). Two-letter code ("en"/"zh"/...); "" = auto-detect from OS.
     public string Language { get; set; } = "";
-
-    // ── Broadcast-key HUD: retired (Plan 35), kept so older files load. It showed what the removed held-key carry sent. ──
-    public bool ShowBroadcastKeyHud { get; set; } = false;
-    public int BroadcastHudX { get; set; } = 0;
-    public int BroadcastHudY { get; set; } = 0;
 
     // ── Per-process audio ───────────────────────────────────────────
     // Auto-solo: when you switch to a client, mute all the other EVE clients and
