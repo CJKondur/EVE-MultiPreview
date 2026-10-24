@@ -193,7 +193,11 @@ public sealed class ActionRowVM : ItemVM
     internal void AfterRun() { RaiseAll(); NotifyChanged(); }
 }
 
-public sealed class ActionVM
+/// <summary>One button of an action row. It derives from ObservableObject although nothing on it ever changes: the card's
+/// template binds its properties, and WPF listens to a plain object through a static property-descriptor table that is never
+/// emptied, so every settings window that built one stayed in memory after it was closed (measured 2026-10-24: a closed
+/// window kept 0.6 to 4 MB). An object that raises PropertyChanged is listened to through a weak event instead.</summary>
+public sealed class ActionVM : ObservableObject
 {
     private readonly SettingsContext _ctx;
     private readonly ActionRowVM _row;
