@@ -30,7 +30,7 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
 
     /// <summary>The real seams: this program's path, the clipboard, the shortcut writer and the pipe (asynchronously: a
     /// window's own thread never waits for the answer).</summary>
-    public CommandButtonsEditor(SettingsContext ctx) : this(ctx, () => Environment.ProcessPath, ClipboardText.Set, ShortcutFile.Create,
+    public CommandButtonsEditor(SettingsContext ctx) : this(ctx, () => CommandLines.ButtonProgram(Environment.ProcessPath), ClipboardText.Set, ShortcutFile.Create,
         command => CommandPipe.SendAsync(CommandPipe.CurrentName(), command, CommandPipe.SendTime))
     {
     }

@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- IDEAS P128: the thin sender. A second start of the full exe takes 700 to 950 ms before it reaches the pipe (measured
+       2026-10-23: the same with no pipe at all), nearly all of it the WPF app starting. This is a few lines of the same
+       pipe code in a NativeAOT exe with no window; anything it cannot finish it hands to the full exe unchanged. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>EVE MultiPreview Send</AssemblyName>
+    <RootNamespace>EveMultiPreview.Sender</RootNamespace>
+    <Version>3.0.0</Version>
+    <Description>Sends one command to a running EVE MultiPreview</Description>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <PublishDir>..\..\EVE-MultiPreview-Release\</PublishDir>
+    <ApplicationIcon>..\Icon.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <Deterministic>true</Deterministic>
+    <PathMap>$(MSBuildProjectDirectory)=/_</PathMap>
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+  </PropertyGroup>
+
+  <!-- The two files the full exe already uses, compiled in as they are: one list of verbs and switches, one pipe protocol. -->
+  <ItemGroup>
+    <Compile Include="..\Services\RemoteCommand.cs" Link="Shared\RemoteCommand.cs" />
+    <Compile Include="..\Services\CommandPipe.cs" Link="Shared\CommandPipe.cs" />
+  </ItemGroup>
+
+</Project>

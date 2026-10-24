@@ -1,0 +1,46 @@
+using System.Diagnostics;
+using System.IO;
+using EveMultiPreview.Services;
+
+namespace EveMultiPreview.Sender;
+
+/// <summary>IDEAS P128: the thin sender, a second start of MultiPreview without starting MultiPreview. It reads the command
+/// line as the full exe does (RemoteCommand.FromArgs) and sends it through the same pipe code, and ends with the same exit
+/// code (0 done, 1 refused, 2 no such character or profile). It has no window and says nothing. What it cannot finish it
+/// hands to the full exe beside it with the same arguments, so that case behaves as it always did: no arguments, a pipe
+/// nobody holds (the switch is off, MultiPreview is still starting or not running: the full exe says so, or starts and runs
+/// the command), a sender the pipe refuses. A command written to the pipe is never handed on, whatever came back.</summary>
+public static class SenderApp
+{
+    /// <summary>The full exe's file name beside this one: as built, and as the releases name it.</summary>
+    public static readonly string[] FullExeNames = { "EVE MultiPreview.exe", "EVE.MultiPreview.exe" };
+
+    /// <param name="startFull">Runs the full exe with the same arguments and gives its exit code.</param>
+    /// <param name="timeout">The whole send's clock; CommandPipe.SendTime unless a test gives a shorter one.</param>
+    public static int Run(string[] args, string pipeName, Func<int> startFull, TimeSpan? timeout = null)
+    {
+        if (args.Length == 0) return startFull();
+        if (RemoteCommand.FromArgs(args) is not { } command) return (int)RemoteOutcome.Refused;
+        bool written = false;
+        var outcome = CommandPipe.Send(pipeName, command, timeout ?? CommandPipe.SendTime, command.SwitchesAClient, () => written = true);
+        return outcome == RemoteOutcome.NotReachable && !written ? startFull() : (int)outcome;
+    }
+
+    /// <summary>The full exe beside this one, run and waited for like the second start it stands in for. Its exit code, or 3
+    /// (nothing took the command) when it is not there or does not start.</summary>
+    public static int StartFull(string folder, string[] args)
+    {
+        var exe = FullExeNames.Select(name => Path.Combine(folder, name)).FirstOrDefault(File.Exists);
+        if (exe == null) return (int)RemoteOutcome.NotReachable;
+        var start = new ProcessStartInfo(exe) { UseShellExecute = false, WorkingDirectory = folder };
+        foreach (var arg in args) start.ArgumentList.Add(arg);
+        try
+        {
+            using var process = Process.Start(start);
+            if (process == null) return (int)RemoteOutcome.NotReachable;
+            process.WaitForExit();
+            return process.ExitCode;
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException) { return (int)RemoteOutcome.NotReachable; }
+    }
+}

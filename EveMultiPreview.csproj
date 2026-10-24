@@ -67,6 +67,11 @@
     <Page Remove="tests\**" />
     <None Remove="tests\**" />
     <EmbeddedResource Remove="tests\**" />
+    <!-- IDEAS P128: the thin sender is its own project; its sources are not this exe's. -->
+    <Compile Remove="Sender\**" />
+    <Page Remove="Sender\**" />
+    <None Remove="Sender\**" />
+    <EmbeddedResource Remove="Sender\**" />
   </ItemGroup>
 
 </Project>

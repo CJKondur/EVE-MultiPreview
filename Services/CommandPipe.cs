@@ -81,18 +81,20 @@ public static class CommandPipe
     }
 
     /// <summary>Sends one command and waits for the answer, at most <paramref name="timeout"/> in all. Off the caller's
-    /// thread, so a window's thread can wait for it without waiting for itself.</summary>
-    public static RemoteOutcome Send(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront = false) =>
-        Task.Run(() => SendAsync(pipeName, command, timeout, letTakeTheFront)).GetAwaiter().GetResult();
+    /// thread, so a window's thread can wait for it without waiting for itself. <paramref name="onWritten"/> is called once
+    /// just before the message is written, never when the connect or the trust check fails: NotReachable without it means
+    /// nothing was sent (the thin sender then hands the command to the full exe), NotReachable after it means it may have run.</summary>
+    public static RemoteOutcome Send(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront = false, Action? onWritten = null) =>
+        Task.Run(() => SendAsync(pipeName, command, timeout, letTakeTheFront, onWritten)).GetAwaiter().GetResult();
 
     /// <summary>Only what the running MultiPreview would take goes on the pipe: a command built past the allow-list's
     /// checks (a name too long for the length byte, a lone surrogate, one Clean refuses) is Refused here, never cut
     /// short and never sent. So is a query verb (IDEAS P126): its reply carries data this one-byte reader would leave
     /// unread, so a query goes through <see cref="QueryAsync"/> only.</summary>
-    public static async Task<RemoteOutcome> SendAsync(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront = false)
+    public static async Task<RemoteOutcome> SendAsync(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront = false, Action? onWritten = null)
     {
         if (RemoteCommand.IsQuery(command.Verb)) return RemoteOutcome.Refused;
-        return (await RoundTrip(pipeName, command, timeout, letTakeTheFront, wantsLines: false)).Outcome;
+        return (await RoundTrip(pipeName, command, timeout, letTakeTheFront, wantsLines: false, onWritten: onWritten)).Outcome;
     }
 
     /// <summary>IDEAS P126: sends one query verb and reads its reply: the outcome and, for Done, the lines of the answer. At most
@@ -111,7 +113,7 @@ public static class CommandPipe
 
     /// <summary>One command, one connection: connects (with the elevated server's second try), writes the message and reads the
     /// reply; <paramref name="wantsLines"/> reads the payload of a query's Done as well.</summary>
-    private static async Task<QueryReply> RoundTrip(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront, bool wantsLines)
+    private static async Task<QueryReply> RoundTrip(string pipeName, RemoteCommand command, TimeSpan timeout, bool letTakeTheFront, bool wantsLines, Action? onWritten = null)
     {
         byte[] message;
         try { message = command.ToMessage(); }
@@ -155,6 +157,7 @@ public static class CommandPipe
             var frame = new byte[message.Length + 1];
             frame[0] = (byte)message.Length;
             message.CopyTo(frame, 1);
+            onWritten?.Invoke();   // the thin sender: past this point the command may have run, so it is never sent again
             await connected.WriteAsync(frame, limit.Token);
             await connected.FlushAsync(limit.Token);
             var reply = new byte[1];

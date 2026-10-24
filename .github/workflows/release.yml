@@ -8,8 +8,10 @@
 #   - it does not write release notes. They are not in the repository: paste them into the draft;
 #   - it does not sign the exe. The place for that is marked below.
 #
-# The two files are named as every release so far names them: EVE.MultiPreview.exe and EVE.MultiPreview.pdb.
-# The in-app updater looks for that exe name.
+# The files are named as every release so far names them: EVE.MultiPreview.exe and EVE.MultiPreview.pdb, and since the thin
+# sender (IDEAS P128) EVE.MultiPreview.Send.exe, which goes beside the exe. The in-app updater looks for the first name only:
+# it does not fetch the sender, which stays as it was put (it hands anything it cannot finish to the full exe, and the pipe
+# protocol is shared source, so an older sender keeps working until the protocol changes).
 
 name: Release
 
@@ -74,14 +76,27 @@ jobs:
       - name: Publish the single-file exe (a warning fails it)
         run: dotnet publish EveMultiPreview.csproj -c Release -o publish -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
 
+      # IDEAS P128: the thin sender, a small native exe that a Stream Deck / Touch Portal / AutoHotkey key runs instead of the
+      # full exe (about a tenth of the time). NativeAOT links with the Visual Studio C++ tools the runner has; vswhere, which
+      # that step looks for, lives in the Visual Studio Installer folder, so that folder goes on the PATH for this step.
+      - name: Publish the thin sender (a warning fails it)
+        shell: pwsh
+        run: |
+          $env:PATH += ";${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer"
+          dotnet publish Sender/EveMultiPreviewSend.csproj -c Release -o publish-sender -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
+          if ($LASTEXITCODE -ne 0) { throw "The thin sender did not publish." }
+
       - name: Name the files as the releases name them
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path release | Out-Null
           Copy-Item -LiteralPath 'publish/EVE MultiPreview.exe' -Destination 'release/EVE.MultiPreview.exe'
           Copy-Item -LiteralPath 'publish/EVE MultiPreview.pdb' -Destination 'release/EVE.MultiPreview.pdb'
-          $hash = (Get-FileHash -LiteralPath 'release/EVE.MultiPreview.exe' -Algorithm SHA256).Hash.ToLowerInvariant()
-          "EVE.MultiPreview.exe SHA-256: ``$hash``" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          Copy-Item -LiteralPath 'publish-sender/EVE MultiPreview Send.exe' -Destination 'release/EVE.MultiPreview.Send.exe'
+          foreach ($name in 'EVE.MultiPreview.exe', 'EVE.MultiPreview.Send.exe') {
+            $hash = (Get-FileHash -LiteralPath "release/$name" -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$name SHA-256: ``$hash``" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
 
       # ── SIGNING GOES HERE (not set up) ──────────────────────────────────────────────────────────────
       # When the project has a code-signing certificate, the exe is signed at this point: after it is built
@@ -89,7 +104,7 @@ jobs:
       # about every download.
       # ────────────────────────────────────────────────────────────────────────────────────────────────
 
-      - name: Hand the two files to the release job
+      - name: Hand the three files to the release job
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-files
@@ -98,7 +113,7 @@ jobs:
           retention-days: 7
 
   # The only job that may write to the repository, and it runs none of the repository's code:
-  # it takes the two files the build job made and attaches them to a new draft release.
+  # it takes the three files the build job made and attaches them to a new draft release.
   draft-release:
     name: Draft the release
     needs: build
@@ -107,7 +122,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Take the two files
+      - name: Take the three files
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-files
@@ -119,7 +134,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: >
           gh release create $env:GITHUB_REF_NAME
-          release/EVE.MultiPreview.exe release/EVE.MultiPreview.pdb
+          release/EVE.MultiPreview.exe release/EVE.MultiPreview.pdb release/EVE.MultiPreview.Send.exe
           --repo $env:GITHUB_REPOSITORY --draft --verify-tag
           --title $env:GITHUB_REF_NAME
           --notes "Paste the release notes here before you publish."
