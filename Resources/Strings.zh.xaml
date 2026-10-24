@@ -1122,7 +1122,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">随着你更改按键而更新。有意共用一个按键的角色不会列出。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">没有冲突：每个按键只做一件事。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.Count">{0} 个按键被重复使用。请为每对中的一个换用其他按键。</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.Intro">用于切换客户端和控制 MultiPreview 的按键，以及它们的行为。底部的冲突检查会显示同时做两件事的按键。&#x0A;&#x0A;MultiPreview 只切换窗口，从不向游戏发送按键。你在切换时按住的按键由 EVE 自己读取。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.Intro">用于切换客户端和控制 MultiPreview 的按键，以及它们的行为。底部的冲突检查会显示同时做两件事的按键。&#x0A;&#x0A;MultiPreview 只切换窗口，从不向游戏发送按键。你在切换时按住的按键由 EVE 自己读取。按住的键只会在你松开它的客户端里生效一次；Shift+F 这类组合键不会在切换后保留。切换后要立即使用的操作，请在 EVE 中设为单键快捷键（Esc › 快捷键）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">热键在哪里生效</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**任何位置**无论哪个应用位于前台都会捕获你的热键，因此在浏览器中按键仍会切换客户端。**仅在 EVE 位于前台时**不会影响其他应用中的按键。&#x0A;&#x0A;如果你按住 Ctrl 锁定目标，**按住 Ctrl、Shift 或 Alt 时热键仍然有效**就很重要。如果单键热键使 Ctrl+V 或 Ctrl+C 无法到达 EVE，请关闭它。&#x0A;&#x0A;**对 EVE 隐藏热键**可防止你切换到的客户端看到你按下的键。&#x0A;&#x0A;用作热键的鼠标键不受 **热键生效范围** 影响：它在任何程序里都生效，并且不会再传给那个程序，所以绑定为“后退”的键就不再是浏览器的后退键。只有 MultiPreview 自己的设置窗口和命令面板会让点击通过。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycling.Title">下一个与上一个客户端</sys:String> <!-- draft -->

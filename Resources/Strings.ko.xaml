@@ -1105,7 +1105,7 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">키를 바꾸면 갱신됩니다. 의도적으로 키를 공유하는 캐릭터는 표시되지 않습니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.None">충돌 없음: 모든 키가 하나의 기능만 합니다.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Conflicts.Count">키 {0}개가 중복 사용되고 있습니다. 각 쌍 중 하나에 다른 키를 지정하세요.</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.clients.hotkeys.Intro">클라이언트를 전환하고 MultiPreview를 제어하는 키와 그 동작입니다. 아래의 충돌 검사는 두 가지 기능에 쓰이는 키를 보여 줍니다.&#x0A;&#x0A;MultiPreview는 창만 전환하고 게임에 키를 보내지 않아요. 전환하는 동안 누르고 있는 키는 EVE가 직접 읽어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.Intro">클라이언트를 전환하고 MultiPreview를 제어하는 키와 그 동작입니다. 아래의 충돌 검사는 두 가지 기능에 쓰이는 키를 보여 줍니다.&#x0A;&#x0A;MultiPreview는 창만 전환하고 게임에 키를 보내지 않아요. 전환하는 동안 누르고 있는 키는 EVE가 직접 읽어요. 누르고 있는 키는 손을 뗀 클라이언트에서 한 번만 작동해요. Shift+F 같은 키 조합은 전환 후에 이어지지 않아요. 전환 직후에 쓸 동작은 EVE에서 단일 키 단축키로 지정하세요(Esc › 단축키).</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">단축키가 작동하는 곳</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**어디서나**는 어떤 앱이 맨 앞에 있어도 단축키를 가로채므로 브라우저에서 누른 키로도 클라이언트가 전환됩니다. **EVE가 맨 앞에 있을 때만**은 다른 앱에서 키를 건드리지 않습니다.&#x0A;&#x0A;**Ctrl, Shift, Alt를 누르고 있어도 단축키 작동**은 Ctrl을 눌러 대상을 고정하는 경우에 중요합니다. 한 키 단축키 때문에 Ctrl+V나 Ctrl+C가 EVE에 전달되지 않으면 끄세요.&#x0A;&#x0A;**EVE에서 단축키 숨기기**는 전환한 클라이언트가 누른 키를 보지 못하게 합니다.&#x0A;&#x0A;단축키로 쓰는 마우스 버튼은 **단축키 작동 범위**를 따르지 않아요. 모든 프로그램에서 작동하고 그 프로그램에는 전달되지 않아서, 뒤로 가기에 지정한 버튼은 더 이상 브라우저의 뒤로 가기 버튼이 아니에요. 클릭을 통과시키는 것은 MultiPreview 자신의 설정 창과 명령 팔레트뿐이에요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.cycling.Title">다음 및 이전 클라이언트</sys:String> <!-- draft -->
