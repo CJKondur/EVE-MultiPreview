@@ -2862,4 +2862,6 @@
     <!-- Ideas batch 30 (Plan 37) -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius">Rayon des coins</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">Arrondit les coins de chaque miniature. 0 les laisse carrés.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenYes">Terminer le client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenNo">Le laisser tourner</sys:String> <!-- draft -->
 </ResourceDictionary>

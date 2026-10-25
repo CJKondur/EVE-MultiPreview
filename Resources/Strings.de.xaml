@@ -2859,4 +2859,6 @@
     <!-- Ideas batch 30 (Plan 37) -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius">Eckenradius</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">Rundet die Ecken jedes Vorschaubilds ab. 0 lässt sie eckig.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenYes">Client beenden</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenNo">Weiterlaufen lassen</sys:String> <!-- draft -->
 </ResourceDictionary>

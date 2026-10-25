@@ -2859,4 +2859,6 @@
     <!-- Ideas batch 30 (Plan 37) -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius">Corner radius</sys:String>
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">Rounds the corners of every thumbnail. 0 keeps them square.</sys:String>
+    <sys:String x:Key="L.Msg.EndFrozenYes">End the client</sys:String>
+    <sys:String x:Key="L.Msg.EndFrozenNo">Keep it running</sys:String>
 </ResourceDictionary>

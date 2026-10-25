@@ -2877,4 +2877,6 @@
     <!-- Ideas batch 30 (Plan 37) -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius">圆角半径</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">让每个缩略图的四角变圆。0 表示保持直角。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenYes">结束客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenNo">保持运行</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2877,4 +2877,6 @@
     <!-- Ideas batch 30 (Plan 37) -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius">Raggio degli angoli</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">Arrotonda gli angoli di ogni miniatura. 0 li lascia squadrati.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenYes">Termina il client</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenNo">Lascialo attivo</sys:String> <!-- draft -->
 </ResourceDictionary>

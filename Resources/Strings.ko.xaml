@@ -2860,4 +2860,6 @@
     <!-- Ideas batch 30 (Plan 37) -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius">모서리 둥글기</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">모든 썸네일의 모서리를 둥글게 해요. 0이면 각진 그대로예요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenYes">클라이언트 종료</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenNo">계속 실행</sys:String> <!-- draft -->
 </ResourceDictionary>

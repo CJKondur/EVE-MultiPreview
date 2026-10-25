@@ -2881,4 +2881,6 @@
     <!-- Ideas batch 30 (Plan 37) -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius">Radio de las esquinas</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">Redondea las esquinas de cada miniatura. 0 las deja cuadradas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenYes">Finalizar el cliente</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenNo">Dejarlo en marcha</sys:String> <!-- draft -->
 </ResourceDictionary>

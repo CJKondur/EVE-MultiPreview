@@ -2860,4 +2860,6 @@
     <!-- Ideas batch 30 (Plan 37) -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius">角の丸み</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">すべてのサムネイルの角を丸くします。0 の場合は角のままです。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenYes">クライアントを終了</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenNo">実行したままにする</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2879,4 +2879,6 @@
     <!-- Ideas batch 30 (Plan 37) -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius">Радиус углов</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">Скругляет углы каждой миниатюры. 0 оставляет их прямыми.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenYes">Завершить клиент</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.EndFrozenNo">Оставить запущенным</sys:String> <!-- draft -->
 </ResourceDictionary>

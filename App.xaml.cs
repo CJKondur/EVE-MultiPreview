@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using EveMultiPreview.Services;
+using EveMultiPreview.SettingsUi;
 using EveMultiPreview.Views;
 
 using Application = System.Windows.Application;
@@ -1307,8 +1308,8 @@ public partial class App : Application
 
     private const string EndFrozenEnglish = "{0}'s client is not responding. End it now? Anything it has not saved is lost.";
 
-    /// <summary>IDEAS #22, "End this frozen client…": asks first (No by default, over a full-screen client, as Close all
-    /// clients asks), then ends only the process the freeze was seen on, and only while its window is still that process's
+    /// <summary>IDEAS #22, "End this frozen client…": asks first (Keep by default, in the look's own window, over a full-screen
+    /// client), then ends only the process the freeze was seen on, and only while its window is still that process's
     /// and still frozen (ClientExits.End asks that while it holds the process). Raised by a menu click, so this runs on the
     /// window's thread, and the end follows the answer there. Says near the cursor what came of it.</summary>
     private void EndFrozenClient(IntPtr window, string character)
@@ -1318,11 +1319,13 @@ public partial class App : Application
             if (_isShuttingDown || _clientWatch.PidOf(window) is not int pid) return;
             // Streamer mode (IDEAS #19): the box and the note are drawn text; the pid is looked up from the window, not the name.
             var who = ThumbnailMenu.HasCharacter(character) ? StreamerMask.Name(StreamerKind.Character, character) : LocalizationService.Str("L.Ctx.LoginScreen", "Character select");
-            var answer = System.Windows.MessageBox.Show(
-                string.Format(LocalizationService.Str("L.Msg.EndFrozenConfirm", EndFrozenEnglish), who), "EVE MultiPreview",
-                System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Warning, System.Windows.MessageBoxResult.No,
-                System.Windows.MessageBoxOptions.DefaultDesktopOnly);
-            if (answer != System.Windows.MessageBoxResult.Yes) return;
+            // P116: the look's own window, Keep is the default button; Enter, Esc and the X all keep the client running. Only End (true) ends it.
+            var dialog = new ChoiceDialog("EVE MultiPreview",
+                string.Format(LocalizationService.Str("L.Msg.EndFrozenConfirm", EndFrozenEnglish), who),
+                LocalizationService.Str("L.Msg.EndFrozenYes", "End the client"), LocalizationService.Str("L.Msg.EndFrozenNo", "Keep it running"),
+                SafeAnswer.Second) { Topmost = true, ShowInTaskbar = false };
+            dialog.ShowDialog();
+            if (dialog.Result != true) return;
             var result = _clientExits.End(pid, () => ClientProbe.PidOf(window) == pid && ClientProbe.IsHung(window));
             var (key, english) = ClientExits.Feedback(result);
             _thumbnailManager?.ShowTooltipFeedback(string.Format(LocalizationService.Str(key, english), who));
