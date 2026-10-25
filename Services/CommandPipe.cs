@@ -40,8 +40,9 @@ public static class CommandPipe
 
     /// <summary>IDEAS P130: the byte that opens the trailer a sender appends to its frame. The frame is
     /// <c>[length][message]</c> and then, from a sender that knows its clock, this byte and the sender's remaining time in
-    /// milliseconds as a big-endian uint16 (so 65,535 at most). An older MultiPreview reads <c>length</c> bytes, answers, and
-    /// never looks at the rest; an older sender sends no trailer and the newer MultiPreview then runs the command as it
+    /// milliseconds as a big-endian uint16 (so 65,535 at most). An older MultiPreview reads <c>length</c> bytes and answers; its
+    /// read for the sender's hang-up then consumes this marker byte (any byte is a hang-up to it) and it lets go with the
+    /// rest unread, which is why the sender reads the reply while its write is pending. An older sender sends no trailer and the newer MultiPreview then runs the command as it
     /// always did.</summary>
     public const byte TrailerMarker = 0xD1;
 
@@ -185,32 +186,41 @@ public static class CommandPipe
             trailer.CopyTo(frame, message.Length + 1);
             onWritten?.Invoke();   // the thin sender: past this point the command may have run, so it is never sent again
             // IDEAS P130: the pipe has no buffer, so a write ends only when the other end has read every byte of it, and an
-            // older MultiPreview reads the message and never the trailer: it answers, reads one byte, and lets go. The answer
-            // is therefore awaited WHILE the write is pending (a write waiting for it first would hold up the very answer
-            // that would free it), and a write that fails after the answer came is of no interest: the command was answered.
-            var write = WriteFrame(connected, frame);
-            var reply = new byte[1];
-            int read = await connected.ReadAsync(reply, limit.Token);
-            try { await write; }
-            catch (Exception ex) when (read == 1 && ex is IOException or OperationCanceledException) { }
-            if (read != 1 || reply[0] > (byte)RemoteOutcome.NotFound) return QueryReply.NotReachable;
-            var outcome = (RemoteOutcome)reply[0];
-            // IDEAS P126: only a query's Done has more to read (an older server refuses the word in one byte); the length is
-            // checked against the cap before a byte of text is read, and every read ends with the clock.
-            if (!wantsLines || outcome != RemoteOutcome.Done) return new QueryReply(outcome, Array.Empty<string>());
-            var head = new byte[2];
-            await connected.ReadExactlyAsync(head, limit.Token);
-            int length = (head[0] << 8) | head[1];
-            if (length > QueryPayload.MaxBytes) return QueryReply.NotReachable;
-            var text = new byte[length];
-            await connected.ReadExactlyAsync(text, limit.Token);
-            return QueryPayload.Parse(text) is { } lines ? new QueryReply(RemoteOutcome.Done, lines) : QueryReply.NotReachable;
+            // older MultiPreview reads the message and never the trailer: it answers (a query's Done with its payload in one
+            // write), reads one byte, and lets go. The whole reply is therefore read WHILE the write is pending (a write
+            // waited for first would hold up the very reply that would free it). Once the reply is read or the read failed
+            // the write is moot: it is cancelled and its end, whatever it was, observed and dropped.
+            using var writeLimit = CancellationTokenSource.CreateLinkedTokenSource(limit.Token);
+            var write = WriteFrame(connected, frame, writeLimit.Token);
+            try
+            {
+                var reply = new byte[1];
+                int read = await connected.ReadAsync(reply, limit.Token);
+                if (read != 1 || reply[0] > (byte)RemoteOutcome.NotFound) return QueryReply.NotReachable;
+                var outcome = (RemoteOutcome)reply[0];
+                // IDEAS P126: only a query's Done has more to read (an older server refuses the word in one byte); the length is
+                // checked against the cap before a byte of text is read, and every read ends with the clock.
+                if (!wantsLines || outcome != RemoteOutcome.Done) return new QueryReply(outcome, Array.Empty<string>());
+                var head = new byte[2];
+                await connected.ReadExactlyAsync(head, limit.Token);
+                int length = (head[0] << 8) | head[1];
+                if (length > QueryPayload.MaxBytes) return QueryReply.NotReachable;
+                var text = new byte[length];
+                await connected.ReadExactlyAsync(text, limit.Token);
+                return QueryPayload.Parse(text) is { } lines ? new QueryReply(RemoteOutcome.Done, lines) : QueryReply.NotReachable;
+            }
+            finally
+            {
+                writeLimit.Cancel();
+                try { await write; }
+                catch (Exception ex) when (ex is IOException or OperationCanceledException or ObjectDisposedException) { }
+            }
         }
 
-        async Task WriteFrame(NamedPipeClientStream connected, byte[] frame)
+        static async Task WriteFrame(NamedPipeClientStream connected, byte[] frame, CancellationToken token)
         {
-            await connected.WriteAsync(frame, limit.Token);
-            await connected.FlushAsync(limit.Token);
+            await connected.WriteAsync(frame, token);
+            await connected.FlushAsync(token);
         }
     }
 
