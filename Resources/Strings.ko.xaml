@@ -2872,4 +2872,12 @@
     <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">썸네일 대신 이름 바</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **썸네일 대신 이름 바 표시**를 켜면 메인 썸네일이 모두 숨겨지고, 주 화면 위쪽 가운데에 로그인한 캐릭터마다 버튼이 하나씩 나타나요. 한 줄에 다 들어가지 않으면 다음 줄로 넘어가요.&#x0A;- 버튼 왼쪽의 띠는 캐릭터의 첫 번째 그룹 색이고, 테두리는 아직 확인하지 않은 가장 심각한 알림(치명적, 경고, 정보)을 보여줘요. 맨 앞 클라이언트는 채워서 표시돼요.&#x0A;- 버튼을 **클릭**하면 썸네일을 클릭할 때처럼 그 클라이언트로 전환돼요. 버튼에 **포인터를 잠시 올려 두면** 바 아래에 그 클라이언트의 실시간 화면이 나타나요.&#x0A;- 바는 게임에서 키보드를 가져가지 않고, 옮길 수도 없어요. 보조 썸네일, 크롭 창, 통계 창은 숨기지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.NameBar.Title">캐릭터 이름 바</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.clients.hotkeys.gamepad">게임패드</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.gamepad">게임패드로 전환</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.gamepad.Desc">이 PC에 연결된 게임패드로 클라이언트를 전환하고, 순서대로 넘기고, 프로필을 바꿀 수 있어요. 각 버튼은 명령 하나를 실행하며, 해당 단축키와 똑같이 동작해요. MultiPreview는 어떤 버튼이 눌렸는지만 읽고, 게임에 키나 클릭을 절대 보내지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.gamepadBindings">게임패드 버튼</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.gamepadBindings.Desc">버튼마다 한 줄씩 '버튼 = 명령' 형식으로 적어요. 예: A = cycle-all, RightShoulder = focus:Main Pilot. 버튼을 지정하기 전에는 아무 일도 일어나지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Err.GamepadBindings">'버튼 = 명령' 형식이 아닌 줄이 있어요. 각 줄을 '버튼 = 명령' 형식으로 적어 주세요. 예: A = cycle-all. 텍스트는 저장되지 않았어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Title">게임패드로 전환</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Body">**게임패드로 전환**을 켜면 이 PC에 연결된 게임패드가 단축키처럼 동작해요. 버튼은 명령 하나를 실행할 뿐, 그 외에는 아무것도 하지 않아요.&#x0A;&#x0A;- **게임패드 버튼**에 버튼마다 한 줄씩 '버튼 = 명령' 형식으로 적어요. 예: A = cycle-all(다음 클라이언트로 전환), X = focus:Main Pilot(해당 캐릭터를 앞으로 가져옴).&#x0A;- 버튼 이름은 A, B, X, Y, LeftShoulder, RightShoulder, Back, Start, DPadUp, DPadDown, DPadLeft, DPadRight, LeftThumb, RightThumb이에요. 트리거와 스틱은 쓰지 않아요.&#x0A;- 명령은 cycle-all, cycle-all-back, previous-client, last-alert, next-profile, previous-profile, focus:캐릭터, profile:이름, cycle:그룹, cycle-back:그룹이에요. 버튼과 이 명령 중 하나로 이루어지지 않은 줄은 안내와 함께 거부되고, 텍스트는 저장되지 않아요.&#x0A;- 처음 연결된 게임패드를 사용해요. 계속 누르고 있는 버튼은 아무리 오래 눌러도 한 번만 동작해요. 게임패드를 뽑았다가 다시 연결해도, 아직 눌린 채인 버튼은 동작하지 않아요. 새 게임패드는 2초 안에 찾아요.&#x0A;- 단축키가 일시정지된 동안에는 게임패드도 일시정지돼요.&#x0A;- 버튼은 클라이언트 전환과 순환에만 쓰여요. MultiPreview는 게임에 키나 클릭을 절대 보내지 않아요.</sys:String> <!-- draft -->
 </ResourceDictionary>

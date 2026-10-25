@@ -24,7 +24,7 @@ public static class CommitOnEnter
 
     private static void OnKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key != Key.Enter) return;
+        if (e.Key != Key.Enter || ((TextBox)sender).AcceptsReturn) return;   // a multi-line box keeps Enter for the new line
         ((TextBox)sender).GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
         e.Handled = true;
     }

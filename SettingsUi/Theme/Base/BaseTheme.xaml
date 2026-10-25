@@ -308,8 +308,19 @@
 
     <DataTemplate x:Key="Fx.Card.Text">
         <ContentControl Style="{DynamicResource Fx.CardHost}">
-            <TextBox local:Loc.NameKey="{Binding LabelKey}" MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
+            <TextBox x:Name="Box" local:Loc.NameKey="{Binding LabelKey}" MinWidth="240" Text="{Binding Text, UpdateSourceTrigger=LostFocus}" local:CommitOnEnter.Enabled="True"/>
         </ContentControl>
+        <DataTemplate.Triggers>
+            <!-- A multi-line card (IDEAS #43): Enter starts a line; the box has a fixed width, wraps, and scrolls past 160 px. -->
+            <DataTrigger Binding="{Binding IsMultiLine}" Value="True">
+                <Setter TargetName="Box" Property="Width" Value="360"/>
+                <Setter TargetName="Box" Property="AcceptsReturn" Value="True"/>
+                <Setter TargetName="Box" Property="TextWrapping" Value="Wrap"/>
+                <Setter TargetName="Box" Property="MinHeight" Value="84"/>
+                <Setter TargetName="Box" Property="MaxHeight" Value="160"/>
+                <Setter TargetName="Box" Property="VerticalScrollBarVisibility" Value="Auto"/>
+            </DataTrigger>
+        </DataTemplate.Triggers>
     </DataTemplate>
 
     <DataTemplate x:Key="Fx.Card.Folder">

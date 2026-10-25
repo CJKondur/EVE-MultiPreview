@@ -67,6 +67,9 @@ public sealed record SettingDescriptor
     /// The message may use {0} and {1} for Min and Max (spec §8.5).</summary>
     public Func<object?, string?>? Validate { get; init; }
 
+    /// <summary>Text cards: the box takes several lines (Enter starts a new line; the value is stored when the box loses focus).</summary>
+    public bool MultiLine { get; init; }
+
     public string LabelKey => "L.S." + Id;
     public string DescKey => "L.S." + Id + ".Desc";
 }

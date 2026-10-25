@@ -59,6 +59,7 @@ public sealed class SettingVM : ItemVM
     public override string? Error => _error;
     public override bool IsVisible => D.ShowIf?.Invoke(Ctx.S) ?? true;
     public string? UnitKey => D.UnitKey;
+    public bool IsMultiLine => D.MultiLine;
     public double Min => D.Min;
     public double Max => D.Max;
     public double Step => D.Step;

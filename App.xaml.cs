@@ -136,6 +136,10 @@ public partial class App : Application
     private Views.HotkeySheetWindow? _hotkeySheet;  // IDEAS #16: the hotkey cheat sheet, while it shows
     private Views.NameBarWindow? _nameBar;  // IDEAS #38: the compact name bar, while NameBarMode is on
     private bool _nameBarFailed;            // IDEAS #38: making it failed; no new try until the switch goes off and on again
+    private DispatcherTimer? _gamepadTimer;   // IDEAS #43: exists only while "Switch with a game pad" is on; stopped and dropped otherwise and at exit
+    private GamepadPoller? _gamepadPoller;
+    private IReadOnlyDictionary<GamepadButton, RemoteCommand> _gamepadBindings = new Dictionary<GamepadButton, RemoteCommand>();
+    private const int GamepadPollMs = 50;
     private Views.CommandPaletteWindow? _commandPalette;  // IDEAS #14: the command palette, while it shows
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private ProcessMonitorService? _processMonitor;
@@ -866,6 +870,7 @@ public partial class App : Application
         };
         deferTimer.Start();
         FollowCommandServer();   // IDEAS #39
+        FollowGamepad();         // IDEAS #43
 
         PerfLog($"✅ OnStartup complete (discovery running): {startupSw.ElapsedMilliseconds}ms total");
 
@@ -1692,6 +1697,52 @@ public partial class App : Application
         }
     }
 
+    /// <summary>IDEAS #43: the game pad follows its switch. On, the bindings are read again from the settings (a line that is not a
+    /// button and a command of the list is left out, GamepadMap) and, if it is not already there, the one 50 ms timer is made;
+    /// off, or when the app closes, the timer is stopped and let go together with the poller, so nothing is read. Called at start-up
+    /// and whenever settings apply; the same answer again changes nothing. The pad is only ever read, never written to.</summary>
+    private void FollowGamepad()
+    {
+        try
+        {
+            if (_isShuttingDown || _settings?.Settings.GamepadEnabled != true) { StopGamepad(); return; }
+            _gamepadBindings = GamepadMap.Parse(_settings.Settings.GamepadBindings).Bindings;
+            if (_gamepadTimer != null) return;
+            _gamepadPoller = new GamepadPoller(new XInputSource(), () => Environment.TickCount64);
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(GamepadPollMs) };
+            timer.Tick += (_, _) => GamepadTick();
+            _gamepadTimer = timer;
+            timer.Start();
+        }
+        catch (Exception ex) { StopGamepad(); LogError(ex); }
+    }
+
+    private void StopGamepad()
+    {
+        _gamepadTimer?.Stop();
+        _gamepadTimer = null;
+        _gamepadPoller = null;
+        _gamepadBindings = new Dictionary<GamepadButton, RemoteCommand>();
+    }
+
+    /// <summary>IDEAS #43: one look at the pad, on the window's thread (a DispatcherTimer ticks there). A button newly pressed
+    /// runs the command bound to it through RunCommand, the entry point the command pipe and the palette use; a command it
+    /// refuses or cannot find is dropped without a word. While hotkeys are paused (Suspend) the pad is read, so a button held
+    /// through the pause does not fire, but nothing runs. A failure stops the pad (the next settings change starts it again) and
+    /// is logged once, so a pad that keeps failing cannot fill the log twenty times a second.</summary>
+    private void GamepadTick()
+    {
+        try
+        {
+            if (_isShuttingDown || _gamepadPoller == null) return;
+            var pressed = _gamepadPoller.Poll();
+            if (pressed.Count == 0 || _hotkeyService?.IsSuspended == true) return;
+            foreach (var button in pressed)
+                if (_gamepadBindings.TryGetValue(button, out var command)) RunCommand(command);
+        }
+        catch (Exception ex) { StopGamepad(); LogError(ex); }
+    }
+
     /// <summary>IDEAS P126: the same wait and the same taking back as <see cref="RunOnWindowsThread"/> for a query: it reads state
     /// on the window's thread, and one that never started answers "nothing took it".</summary>
     private async Task<QueryReply> QueryOnWindowsThread(RemoteCommand command)
@@ -2224,6 +2275,7 @@ public partial class App : Application
             _spokenWay?.Follow(_settings!.Settings.SpeakAlerts);   // FX-m4: off and on again counts the voice's asks anew
             _pushWay?.Follow(_settings!.Settings);   // IDEAS #2: a newly saved link or a switch takes effect now
             FollowCommandServer();   // IDEAS #39: the pipe opens or closes with its switch
+            FollowGamepad();         // IDEAS #43: the pad is read, or not, as its switch says; the lines are read again
             FollowNameBar();         // IDEAS #38: the bar and the hold on the thumbnails follow their switch at once
             if (StreamerMask.IsOn != _streamerMaskDrawn)   // IDEAS #19: its names follow streamer mode at once, once per flip
             {
@@ -2722,6 +2774,7 @@ public partial class App : Application
             _clientExits.Forget();      // IDEAS #22: the clients' process handles are let go
             _commandServer?.Dispose();   // IDEAS #39: no more commands
             _commandServer = null;
+            StopGamepad();   // IDEAS #43: the pad is no longer read
             _hotkeySheet?.Dismiss();   // IDEAS #16
             _nameBar?.Close();   // IDEAS #38: its preview's picture is let go with it
             _commandPalette?.Dismiss();   // IDEAS #14

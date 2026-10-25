@@ -40,6 +40,7 @@ public static class ClientsPages
         }),
         new HelpTopic(HotkeysId, "sheet", new[] { "clients.hotkeys.sheet" }),
         new HelpTopic(HotkeysId, "palette", new[] { "clients.hotkeys.commandPalette" }),
+        new HelpTopic(HotkeysId, "gamepad", new[] { "clients.hotkeys.gamepad", "clients.hotkeys.gamepadBindings" }),
         new HelpTopic(HotkeysId, "conflicts", new[] { "clients.hotkeys.conflicts" }),
         new HelpTopic(HotkeysId, "refused", new[] { RefusedHotkeysEditor.ItemId }),
         new HelpTopic(GroupsId, "keys", new[] { "clients.groups.editor" }),
@@ -164,6 +165,18 @@ public static class ClientsPages
             Hotkey("clients.hotkeys.sheet", s => s.HotkeySheetHotkey),
             Hotkey("clients.hotkeys.openSettings", s => s.OpenSettingsHotkey),
             Hotkey("clients.hotkeys.commandPalette", s => s.CommandPaletteHotkey),
+        }),
+        // IDEAS #43: App polls the pad while the switch is on and reads the lines on every settings change (FollowGamepad).
+        // A line that is not a button and a command of the list is refused here with a note; GamepadMap leaves it out anyway.
+        new SectionDef("clients.hotkeys.gamepad", new PageItem[]
+        {
+            Toggle("clients.hotkeys.gamepad", s => s.GamepadEnabled),
+            new SettingItem(Setting.Text("clients.hotkeys.gamepadBindings", s => s.GamepadBindings) with
+            {
+                ShowIf = s => s.GamepadEnabled,
+                MultiLine = true,
+                Validate = v => GamepadMap.Parse(v as string).Errors.Count == 0 ? null : "L.S.Err.GamepadBindings",
+            }),
         }),
         new SectionDef("clients.hotkeys.check", new PageItem[]
         {

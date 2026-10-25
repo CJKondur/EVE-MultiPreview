@@ -346,6 +346,16 @@ public class AppSettings
     /// picture. Global; never saved by the bar itself. Read by App's one look (FollowNameBar). New key: off in a file without it.</summary>
     public bool NameBarMode { get; set; } = false;
 
+    /// <summary>A game pad can switch like a hotkey (IDEAS #43): while on, App polls the first connected pad every 50 ms and
+    /// runs the command bound to a button newly pressed, through the same entry point the command pipe uses. Nothing is sent
+    /// to the game. Global. Read by App's FollowGamepad. New key: off in a file without it.</summary>
+    public bool GamepadEnabled { get; set; } = false;
+
+    /// <summary>What each pad button does (IDEAS #43): one <c>Button = command</c> per line, read by GamepadMap (only switch,
+    /// cycle and profile commands are taken). Empty binds nothing. Global. Read by App's FollowGamepad. New key: empty in a
+    /// file without it.</summary>
+    public string GamepadBindings { get; set; } = "";
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

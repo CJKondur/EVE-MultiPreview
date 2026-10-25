@@ -2889,4 +2889,12 @@
     <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">用名称栏代替缩略图</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **用名称栏代替缩略图显示**会隐藏所有主缩略图，并在主屏幕顶部居中为每个已登录的角色显示一个按钮。一行放不下的按钮会换到下一行。&#x0A;- 按钮左侧的色条是该角色第一个分组的颜色；边框显示你尚未查看的最严重的警报（严重、警告或信息）；位于前台的客户端会被填充。&#x0A;- **点击**按钮即可切换到该客户端，与点击它的缩略图相同。**把指针停在**按钮上片刻，栏下方就会显示该客户端的实时画面。&#x0A;- 名称栏不会从游戏手中夺走键盘，也无法移动。它不会隐藏第二缩略图、裁剪窗口和统计窗口。</sys:String> <!-- draft -->
     <sys:String x:Key="L.NameBar.Title">角色名称栏</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Sec.clients.hotkeys.gamepad">手柄</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.gamepad">用手柄切换</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.gamepad.Desc">让连接到这台电脑的手柄切换客户端、循环切换并更换配置文件：每个按钮执行一个命令，和对应的热键一样。MultiPreview 只读取哪些按钮被按下，绝不会向游戏发送按键或点击。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.gamepadBindings">手柄按钮</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.clients.hotkeys.gamepadBindings.Desc">每个按钮一行，写成“按钮 = 命令”，例如 A = cycle-all 或 RightShoulder = focus:Main Pilot。在你绑定按钮之前，什么都不会发生。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Err.GamepadBindings">有些行不是“按钮 = 命令”的形式。请把每一行写成“按钮 = 命令”，例如 A = cycle-all。文本没有保存。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Title">用手柄切换</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Body">开启**用手柄切换**后，连接到这台电脑的手柄就像热键一样工作：一个按钮执行一个命令，仅此而已。&#x0A;&#x0A;- 在**手柄按钮**中，每个按钮写一行，格式为“按钮 = 命令”。例如：A = cycle-all（切换到下一个客户端）和 X = focus:Main Pilot（把该角色带到前台）。&#x0A;- 按钮名称为 A、B、X、Y、LeftShoulder、RightShoulder、Back、Start、DPadUp、DPadDown、DPadLeft、DPadRight、LeftThumb 和 RightThumb。扳机和摇杆不会被使用。&#x0A;- 命令有 cycle-all、cycle-all-back、previous-client、last-alert、next-profile、previous-profile、focus:character、profile:name、cycle:group 和 cycle-back:group。不是“按钮加上这些命令之一”的行会被拒绝并给出提示，文本不会保存。&#x0A;- 使用第一个已连接的手柄。按住不放的按钮只会执行一次，无论你按多久；手柄被拔出或重新连接时，仍被按住的按钮不会执行。新手柄会在两秒内被找到。&#x0A;- 热键暂停时，手柄也会暂停。&#x0A;- 按钮只用于切换和循环客户端：MultiPreview 绝不会向游戏发送按键或点击。</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -158,6 +158,8 @@ public class AhkConfigRoot
         s.CommandPaletteHotkey = g.CommandPaletteHotkey ?? "";
         s.TrackPlaytime = g.TrackPlaytime != 0;
         s.NameBarMode = g.NameBarMode != 0;
+        s.GamepadEnabled = g.GamepadEnabled != 0;
+        s.GamepadBindings = g.GamepadBindings ?? "";
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -508,6 +510,8 @@ public class AhkConfigRoot
         g.CommandPaletteHotkey = s.CommandPaletteHotkey;
         g.TrackPlaytime = s.TrackPlaytime ? 1 : 0;
         g.NameBarMode = s.NameBarMode ? 1 : 0;
+        g.GamepadEnabled = s.GamepadEnabled ? 1 : 0;
+        g.GamepadBindings = s.GamepadBindings;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1468,6 +1472,13 @@ public class AhkGlobalSettings
     // A compact name bar instead of the main thumbnails (IDEAS #38), batch 30: a file without it loads it off.
     [JsonPropertyName("NameBarMode")]
     public int NameBarMode { get; set; }
+
+    // A game pad can switch like a hotkey (IDEAS #43), batch 30: a file without these loads it off and unbound.
+    [JsonPropertyName("GamepadEnabled")]
+    public int GamepadEnabled { get; set; }
+
+    [JsonPropertyName("GamepadBindings")]
+    public string? GamepadBindings { get; set; } = "";
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;
