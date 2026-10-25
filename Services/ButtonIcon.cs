@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -13,6 +14,10 @@ using FontFamily = System.Windows.Media.FontFamily;
 using Point = System.Windows.Point;
 
 namespace EveMultiPreview.Services;
+
+/// <summary>A small mark on a button that tells a pair of verbs with one glyph apart: Off is a slash across the glyph, On a dot in
+/// the lower-right corner, Thirty the number 30 there (a 30-minute mute). A toggle has none.</summary>
+public enum IconBadge { None, On, Off, Thirty }
 
 /// <summary>IDEAS #15 and Plan 38: the pictures on the Stream Deck shortcuts MultiPreview writes. A character's button is its
 /// initials on its group colour, an action's button is one glyph of the Segoe icon font; both are drawn here, locally, into a
@@ -79,11 +84,14 @@ public static class ButtonIcon
         return ico;
     }
 
-    /// <summary>The name of the icon file for these pictures: twelve hex characters of a hash of what is drawn, so it is a safe
-    /// file name whatever a character is called, and the same picture is the same file.</summary>
-    public static string FileName(string text, bool glyph, string? backgroundHex)
+    /// <summary>The name of the icon file for these pictures: twelve hex characters of a hash of what is drawn (the text, glyph or
+    /// not, the colour as upper-case #RRGGBB with a bad or missing one as the default grey, and the badge), so it is a safe file
+    /// name whatever a character is called, and the same picture is the same file. The hash is of the inputs, not of the bytes:
+    /// a change to how icons are drawn keeps the name, so the folder writer overwrites rather than skips an existing file.</summary>
+    public static string FileName(string text, bool glyph, string? backgroundHex, IconBadge badge = IconBadge.None)
     {
-        var key = $"v1|{text}|{(glyph ? 1 : 0)}|{backgroundHex}";
+        var bg = ParseHex(backgroundHex) ?? ParseHex(DefaultBackground)!.Value;
+        var key = $"v2|{text}|{(glyph ? 1 : 0)}|#{bg.R:X2}{bg.G:X2}{bg.B:X2}|{badge}";
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(key));
         return Convert.ToHexString(hash, 0, 6).ToLowerInvariant() + ".ico";
     }
@@ -100,16 +108,16 @@ public static class ButtonIcon
 
     /// <summary>A rounded square in <paramref name="backgroundHex"/> (#RRGGBB; anything else is #3A3A3A) with the text centred
     /// on it, as the bytes of a PNG. <paramref name="glyph"/> draws the text in the Segoe icon font, otherwise in Segoe UI
-    /// Semibold. WPF drawing needs an STA thread: a caller on another kind of thread gets one made for the call.</summary>
-    public static byte[] RenderPng(string text, bool glyph, string? backgroundHex, int size = 256)
+    /// Semibold; <paramref name="badge"/> adds its mark. WPF drawing needs an STA thread: a caller on another kind of thread gets one made for the call.</summary>
+    public static byte[] RenderPng(string text, bool glyph, string? backgroundHex, int size = 256, IconBadge badge = IconBadge.None)
     {
         size = Math.Clamp(size, 16, 256);
-        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA) return Draw(text, glyph, backgroundHex, size);
+        if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA) return Draw(text, glyph, backgroundHex, size, badge);
         byte[]? bytes = null;
         Exception? error = null;
         var thread = new Thread(() =>
         {
-            try { bytes = Draw(text, glyph, backgroundHex, size); }
+            try { bytes = Draw(text, glyph, backgroundHex, size, badge); }
             catch (Exception e) { error = e; }
         });
         thread.SetApartmentState(ApartmentState.STA);
@@ -119,7 +127,7 @@ public static class ButtonIcon
         return bytes!;
     }
 
-    private static byte[] Draw(string? text, bool glyph, string? backgroundHex, int size)
+    private static byte[] Draw(string? text, bool glyph, string? backgroundHex, int size, IconBadge badge)
     {
         var bg = ParseHex(backgroundHex) ?? ParseHex(DefaultBackground)!.Value;
         var fg = ParseHex(TextColourFor(backgroundHex))!.Value;
@@ -132,9 +140,12 @@ public static class ButtonIcon
             typeface, fontSize, Solid(fg), 1.0);
 
         double elements = new StringInfo(shown).LengthInTextElements;
-        double fontSize = size * (glyph ? 0.52 : elements <= 1 ? 0.56 : 0.44);
+        // A corner badge needs room: the picture is a little smaller and moves up and to the left.
+        bool corner = badge is IconBadge.On or IconBadge.Thirty;
+        double fontSize = size * (glyph ? (corner ? 0.44 : 0.52) : elements <= 1 ? (corner ? 0.48 : 0.56) : (corner ? 0.38 : 0.44));
+        double shift = corner ? -size * 0.05 : 0;
         var formatted = Format(fontSize);
-        double room = size * 0.78;
+        double room = size * (corner ? 0.62 : 0.78);
         if (formatted.Width > room) formatted = Format(fontSize * room / formatted.Width);
 
         var visual = new DrawingVisual();
@@ -144,7 +155,8 @@ public static class ButtonIcon
         {
             double radius = size * 0.18;
             dc.DrawRoundedRectangle(Solid(bg), null, new System.Windows.Rect(0, 0, size, size), radius, radius);
-            dc.DrawText(formatted, new Point((size - formatted.Width) / 2, (size - formatted.Height) / 2));
+            dc.DrawText(formatted, new Point((size - formatted.Width) / 2 + shift, (size - formatted.Height) / 2 + shift));
+            DrawBadge(dc, badge, size, bg, fg);
         }
         var bitmap = new RenderTargetBitmap(size, size, 96, 96, PixelFormats.Pbgra32);
         bitmap.Render(visual);
@@ -155,6 +167,40 @@ public static class ButtonIcon
         return stream.ToArray();
     }
 
+    /// <summary>The badge, each part ringed in the background colour so it stays legible over the picture.</summary>
+    private static void DrawBadge(DrawingContext dc, IconBadge badge, int size, Color bg, Color fg)
+    {
+        if (badge == IconBadge.None) return;
+        Brush Solid(Color c) { var b = new SolidColorBrush(c); b.Freeze(); return b; }
+        System.Windows.Media.Pen Line(Color c, double width)
+        {
+            var pen = new System.Windows.Media.Pen(Solid(c), width) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round, LineJoin = PenLineJoin.Round };
+            pen.Freeze();
+            return pen;
+        }
+        if (badge == IconBadge.Off)
+        {
+            var from = new Point(size * 0.22, size * 0.22);
+            var to = new Point(size * 0.78, size * 0.78);
+            dc.DrawLine(Line(bg, size * 0.115), from, to);
+            dc.DrawLine(Line(fg, size * 0.05), from, to);
+        }
+        else if (badge == IconBadge.On)
+        {
+            var centre = new Point(size * 0.73, size * 0.73);
+            dc.DrawEllipse(Solid(bg), null, centre, size * 0.13, size * 0.13);
+            dc.DrawEllipse(Solid(fg), null, centre, size * 0.1, size * 0.1);
+        }
+        else
+        {
+            var typeface = new Typeface(new FontFamily("Segoe UI Semibold"), System.Windows.FontStyles.Normal, System.Windows.FontWeights.Normal, System.Windows.FontStretches.Normal);
+            var number = new FormattedText("30", CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight, typeface, size * 0.27, Solid(fg), 1.0);
+            var shape = number.BuildGeometry(new Point(size * 0.89 - number.Width, size * 0.89 - number.Height));
+            dc.DrawGeometry(null, Line(bg, size * 0.045), shape);
+            dc.DrawGeometry(Solid(fg), null, shape);
+        }
+    }
+
     /// <summary>At most <see cref="MaxElements"/> text elements, never cutting a pair or an accented letter in half.</summary>
     private static string Clip(string text)
     {
@@ -163,40 +209,54 @@ public static class ButtonIcon
     }
 
     /// <summary>What a verb's button shows. Verbs with a glyph give the glyph (when the icon font has it: a font that lacks it
-    /// gives the first letter of the verb's name instead, as plain text); a verb with no glyph of its own (Focus and Profile,
-    /// whose button wears the name's <see cref="Initials"/>, and the pipe-only queries) gives that first letter too.</summary>
+    /// gives <see cref="LabelOf"/> instead, as plain text); a verb with no glyph of its own (Focus and Profile, whose button wears
+    /// the name's <see cref="Initials"/>, and the pipe-only queries) gives that label too. Pair it with <see cref="BadgeOf"/>.</summary>
     public static (string Text, bool Glyph) For(RemoteVerb verb, Func<string, bool>? fontHas = null)
     {
         var glyph = GlyphOf(verb);
         Func<string, bool> has = fontHas ?? IconFontHas;
         if (glyph != null && has(glyph)) return (glyph, true);
-        return (verb.ToString()[..1], false);
+        return (LabelOf(verb), false);
     }
+
+    /// <summary>The mark that tells a verb from the others with its glyph: Off on the "off" verbs, On on the "on" verbs, 30 on the
+    /// 30-minute mute; none on a toggle or a verb with a glyph of its own.</summary>
+    public static IconBadge BadgeOf(RemoteVerb verb) => verb switch
+    {
+        RemoteVerb.DoNotDisturbOn or RemoteVerb.FocusModeOn or RemoteVerb.NameBarOn => IconBadge.On,
+        RemoteVerb.DoNotDisturbOff or RemoteVerb.FocusModeOff or RemoteVerb.NameBarOff => IconBadge.Off,
+        RemoteVerb.Mute30 => IconBadge.Thirty,
+        _ => IconBadge.None,
+    };
+
+    /// <summary>The capital letters (and digits) of a verb's name: CycleGroupBack is CGB, MarkAlertsSeen MAS, Focus F. What a
+    /// button shows when the icon font lacks its glyph.</summary>
+    public static string LabelOf(RemoteVerb verb) => new(verb.ToString().Where(c => char.IsUpper(c) || char.IsDigit(c)).ToArray());
 
     /// <summary>The glyph of a verb, or null when it has none.</summary>
     public static string? GlyphOf(RemoteVerb verb) => verb switch
     {
-        RemoteVerb.CycleGroup => "",
-        RemoteVerb.CycleGroupBack => "",
-        RemoteVerb.PreviousClient => "",
-        RemoteVerb.LastAlert => "",
-        RemoteVerb.DoNotDisturb or RemoteVerb.DoNotDisturbOn or RemoteVerb.DoNotDisturbOff => "",
-        RemoteVerb.FocusMode or RemoteVerb.FocusModeOn or RemoteVerb.FocusModeOff => "",
-        RemoteVerb.OpenSettings => "",
-        RemoteVerb.OpenFleetBoard => "",
-        RemoteVerb.OpenAlertHistory => "",
-        RemoteVerb.NameBar or RemoteVerb.NameBarOn or RemoteVerb.NameBarOff => "",
-        RemoteVerb.MarkAlertsSeen => "",
-        RemoteVerb.MinimizeClients => "",
-        RemoteVerb.RestoreClients => "",
+        RemoteVerb.CycleGroup => "\uE72A",
+        RemoteVerb.CycleGroupBack => "\uE72B",
+        RemoteVerb.PreviousClient => "\uE7A7",
+        RemoteVerb.LastAlert => "\uEA8F",
+        RemoteVerb.DoNotDisturb or RemoteVerb.DoNotDisturbOn or RemoteVerb.DoNotDisturbOff => "\uE708",
+        RemoteVerb.FocusMode or RemoteVerb.FocusModeOn or RemoteVerb.FocusModeOff => "\uE71D",
+        RemoteVerb.OpenSettings => "\uE713",
+        RemoteVerb.OpenFleetBoard => "\uE716",
+        RemoteVerb.OpenAlertHistory => "\uE81C",
+        RemoteVerb.NameBar or RemoteVerb.NameBarOn or RemoteVerb.NameBarOff => "\uE8A9",
+        RemoteVerb.MarkAlertsSeen => "\uE8FB",
+        RemoteVerb.MinimizeClients => "\uE921",
+        RemoteVerb.RestoreClients => "\uE923",
         // Verbs the plan's list does not name: the Symbol enum's own code points (Previous, Next, Mute, Volume, View) and chevrons.
-        RemoteVerb.ToggleThumbnails => "",
-        RemoteVerb.CycleAll => "",
-        RemoteVerb.CycleAllBack => "",
-        RemoteVerb.NextProfile => "",
-        RemoteVerb.PreviousProfile => "",
-        RemoteVerb.Mute or RemoteVerb.Mute30 => "",
-        RemoteVerb.Unmute => "",
+        RemoteVerb.ToggleThumbnails => "\uE7B3",
+        RemoteVerb.CycleAll => "\uE76C",
+        RemoteVerb.CycleAllBack => "\uE76B",
+        RemoteVerb.NextProfile => "\uE101",
+        RemoteVerb.PreviousProfile => "\uE100",
+        RemoteVerb.Mute or RemoteVerb.Mute30 => "\uE74F",
+        RemoteVerb.Unmute => "\uE767",
         _ => null,
     };
 
