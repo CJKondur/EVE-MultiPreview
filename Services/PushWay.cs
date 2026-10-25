@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EveMultiPreview.Models;
@@ -143,8 +144,9 @@ public sealed class PushWay : IAlertWay
         PushResult result;
         try
         {
+            // The test message never mentions anybody, whatever the setting is.
             result = await _sender.SendAsync(link, _str("L.Push.Test", "Test message from EVE MultiPreview: alerts will arrive here."),
-                _cancel.Token).ConfigureAwait(false) ?? new PushResult(PushOutcome.Unreachable);
+                _cancel.Token, PushMention.None).ConfigureAwait(false) ?? new PushResult(PushOutcome.Unreachable);
         }
         catch (Exception ex)
         {
@@ -218,7 +220,12 @@ public sealed class PushWay : IAlertWay
             bool stale = false;
             try
             {
-                result = await _sender.SendAsync(link, PushMessage.Build(batch, _eventName, _str), token).ConfigureAwait(false)
+                // The owner's @here / @everyone goes only on a message that holds a critical line (IDEAS #2, batch 30);
+                // the token is put there by PushMessage.WithMention, the text of a name never makes one. A stored number
+                // outside 1 and 2 is no mention. Built inside the try: a throwing name lookup counts as a sender that throws.
+                var mention = (s.PushMention is 1 or 2) && batch.Lines.Any(l => l.Severity == "critical") ? (PushMention)s.PushMention : PushMention.None;
+                var text = PushMessage.WithMention(PushMessage.Build(batch, _eventName, _str), mention);
+                result = await _sender.SendAsync(link, text, token, mention).ConfigureAwait(false)
                          ?? new PushResult(PushOutcome.Unreachable);
             }
             catch (Exception ex)

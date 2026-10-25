@@ -2354,7 +2354,7 @@
     <sys:String x:Key="L.Push.Test">EVE MultiPreview의 테스트 메시지예요. 알림이 여기로 와요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Push.More">…외 {0}개</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.push.Title">휴대폰과 Discord</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.push.Body">클라이언트가 다른 방에서 돌아가는 동안에도 알림을 휴대폰으로 받아요. MultiPreview는 알림을 **Discord 웹후크**에 올려요. 웹후크는 프로그램이 서버의 한 채널에 글을 올릴 수 있게 해 주는 링크예요.&#x0A;&#x0A;- Discord에서 내 서버의 **서버 설정 › 연동 › 웹후크 › 새 웹후크**로 가서 채널을 고른 다음 **웹후크 URL 복사**를 눌러요.&#x0A;- 링크를 여기 **Discord 웹후크**에 붙여넣고 **링크 저장**을 누른 다음 **테스트 메시지 보내기**를 눌러요.&#x0A;- 휴대폰의 Discord 앱에서 그 채널의 알림을 켜요.&#x0A;&#x0A;메시지에는 캐릭터와 이벤트만 들어가요. 더 고르지 않으면 치명 알림만 보내요. **PC를 떠나 있을 때만**이 켜져 있으면 PC를 쓰는 동안에는 아무것도 보내지 않아요. 방해 금지는 소리처럼 이것도 막아요. 알림은 최소 2초 간격으로 한 메시지에 모아 보내고, 같은 캐릭터의 같은 알림은 1분 안에 다시 보내지 않아요.&#x0A;&#x0A;**링크는 비밀번호처럼 다뤄 주세요**. 링크를 가진 사람은 누구나 그 채널에 글을 올릴 수 있어요. MultiPreview는 링크를 내 Windows 사용자용으로 암호화해 설정 파일에 보관하고, 다시는 전체를 보여 주지 않으며 로그에도 쓰지 않아요. 다른 PC나 다른 Windows 사용자에서는 다시 붙여넣어요. Discord가 웹후크가 더는 없다고 하면, 새 링크를 저장할 때까지 MultiPreview는 아무것도 보내지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.push.Body">클라이언트가 다른 방에서 돌아가는 동안에도 알림을 휴대폰으로 받아요. MultiPreview는 알림을 **Discord 웹후크**에 올려요. 웹후크는 프로그램이 서버의 한 채널에 글을 올릴 수 있게 해 주는 링크예요.&#x0A;&#x0A;- Discord에서 내 서버의 **서버 설정 › 연동 › 웹후크 › 새 웹후크**로 가서 채널을 고른 다음 **웹후크 URL 복사**를 눌러요.&#x0A;- 링크를 여기 **Discord 웹후크**에 붙여넣고 **링크 저장**을 누른 다음 **테스트 메시지 보내기**를 눌러요.&#x0A;- 휴대폰의 Discord 앱에서 그 채널의 알림을 켜요.&#x0A;&#x0A;메시지에는 캐릭터와 이벤트만 들어가요. 더 고르지 않으면 치명 알림만 보내요. **PC를 떠나 있을 때만**이 켜져 있으면 PC를 쓰는 동안에는 아무것도 보내지 않아요. 방해 금지는 소리처럼 이것도 막아요. 알림은 최소 2초 간격으로 한 메시지에 모아 보내고, 같은 캐릭터의 같은 알림은 1분 안에 다시 보내지 않아요.&#x0A;&#x0A;**치명 알림에 멘션** 을 고르면 치명 알림이 든 메시지 맨 앞에 **@here** 또는 **@everyone**이 붙어서 폰의 Discord 앱이 알려 줘요. 치명 알림만 멘션해요. 경고, 정보, 테스트 메시지는 조용히 와요. 게임 속 이름으로는 아무도 멘션할 수 없어요. 이름은 일반 글자로 보내지기 때문이에요. 멘션이 통하려면 Discord에서 그 채널의 @everyone 멘션 권한이 있어야 해요. 권한이 없어도 메시지는 오지만 아무도 멘션되지 않아요.&#x0A;&#x0A;**링크는 비밀번호처럼 다뤄 주세요**. 링크를 가진 사람은 누구나 그 채널에 글을 올릴 수 있어요. MultiPreview는 링크를 내 Windows 사용자용으로 암호화해 설정 파일에 보관하고, 다시는 전체를 보여 주지 않으며 로그에도 쓰지 않아요. 다른 PC나 다른 Windows 사용자에서는 다시 붙여넣어요. Discord가 웹후크가 더는 없다고 하면, 새 링크를 저장할 때까지 MultiPreview는 아무것도 보내지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.pushWebhook">Discord 웹후크</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.pushWebhook.Desc">Discord가 그 채널용으로 준 링크예요. 암호화해 보관하고, 다시는 전체를 보여 주지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.LinkBox">Discord 웹후크 링크</sys:String> <!-- draft -->
@@ -2862,4 +2862,9 @@
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">모든 썸네일의 모서리를 둥글게 해요. 0이면 각진 그대로예요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenYes">클라이언트 종료</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenNo">계속 실행</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.pushMention">치명 알림에 멘션</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.pushMention.Desc">치명 알림이 든 메시지 맨 앞에 @here 또는 @everyone을 붙여서, 폰의 Discord 앱이 알려 줘요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.PushMentionNone">멘션 안 함</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -134,6 +134,7 @@ public class AhkConfigRoot
         s.RepsStoppedSeconds = g.RepsStoppedSeconds;
         s.PushAlerts = g.PushAlerts != 0;
         s.PushAlertsFrom = g.PushAlertsFrom;
+        s.PushMention = g.PushMention;
         s.PushOnlyWhenAway = g.PushOnlyWhenAway != 0;
         s.PushDiscordWebhook = g.PushDiscordWebhook ?? "";
         s.KeepPcAwake = g.KeepPcAwake != 0;
@@ -482,6 +483,7 @@ public class AhkConfigRoot
         g.RepsStoppedSeconds = s.RepsStoppedSeconds;
         g.PushAlerts = s.PushAlerts ? 1 : 0;
         g.PushAlertsFrom = s.PushAlertsFrom;
+        g.PushMention = s.PushMention;
         g.PushOnlyWhenAway = s.PushOnlyWhenAway ? 1 : 0;
         g.PushDiscordWebhook = s.PushDiscordWebhook;
         g.KeepPcAwake = s.KeepPcAwake ? 1 : 0;
@@ -1376,6 +1378,10 @@ public class AhkGlobalSettings
 
     [JsonPropertyName("PushAlertsFrom")]
     public int PushAlertsFrom { get; set; }
+
+    // @here / @everyone on a pushed critical alert (IDEAS #2, batch 30): a file without it loads 0 (nobody is mentioned).
+    [JsonPropertyName("PushMention")]
+    public int PushMention { get; set; }
 
     [JsonPropertyName("PushOnlyWhenAway")]
     public int PushOnlyWhenAway { get; set; } = 1;

@@ -37,6 +37,32 @@ public static class PushMessage
         return sb.ToString();
     }
 
+    /// <summary>Discord's limit for one message.</summary>
+    public const int DiscordLimit = 2000;
+
+    /// <summary>The message with the owner's chosen mention at its front (IDEAS #2, batch 30): <paramref name="body"/> as
+    /// it is for <see cref="PushMention.None"/>, otherwise <c>@here </c> or <c>@everyone </c> and then the body with a
+    /// zero-width space after every <c>@</c>, so that even a name that got past <see cref="Escape"/> cannot form a
+    /// mention. The token is a literal of this method, never taken from the body; the body's only way to a ping is
+    /// not there. Cut to <see cref="DiscordLimit"/> (the extra characters of a body made of '@' can pass it).</summary>
+    public static string WithMention(string body, PushMention mention)
+    {
+        string token = mention switch { PushMention.Here => "@here ", PushMention.Everyone => "@everyone ", _ => "" };
+        if (token.Length == 0) return body;
+        var sb = new StringBuilder(token.Length + body.Length + 16);
+        sb.Append(token);
+        foreach (char c in body)
+        {
+            sb.Append(c);
+            if (c == '@') sb.Append('\u200B');
+        }
+        if (sb.Length <= DiscordLimit) return sb.ToString();
+        int cut = DiscordLimit;
+        if (char.IsHighSurrogate(sb[cut - 1])) cut--;
+        if (sb[cut - 1] == '@') cut--;     // never end on an '@' whose space was cut away
+        return sb.ToString(0, cut);
+    }
+
     private static string Mark(string severity) => severity switch
     {
         "critical" => char.ConvertFromUtf32(0x1F534),

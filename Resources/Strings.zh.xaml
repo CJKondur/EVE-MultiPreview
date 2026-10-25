@@ -2371,7 +2371,7 @@
     <sys:String x:Key="L.Push.Test">来自 EVE MultiPreview 的测试消息：警报会发到这里。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Push.More">…还有 {0} 条</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.push.Title">手机和 Discord</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.push.Body">客户端在另一个房间运行时，也能在手机上收到警报。MultiPreview 会把警报发到一个 **Discord Webhook**：这是一个让程序可以向服务器的某个频道发消息的链接。&#x0A;&#x0A;- 在 Discord 中，在你自己的服务器上打开 **服务器设置 › 整合 › Webhook › 新 Webhook**，选择频道，然后点 **复制 Webhook URL**。&#x0A;- 把链接粘贴到这里的 **Discord Webhook** 中，点 **保存链接**，再点 **发送测试消息**。&#x0A;- 在手机的 Discord 应用中打开该频道的通知。&#x0A;&#x0A;一条消息只写角色和事件，别的都没有。除非你选择更多，否则只发送严重警报；打开 **仅在你离开电脑时** 后，你使用电脑期间什么都不会发送。勿扰模式会像拦住声音一样拦住它们。警报最多每 2 秒发送一次，合并成一条消息，同一角色的同一警报一分钟内不会再次发送。&#x0A;&#x0A;**请像对待密码一样对待这个链接**：任何拿到它的人都能向那个频道发消息。MultiPreview 会为你的 Windows 用户把它加密保存在设置文件中，以后不再完整显示，也从不写入日志；换一台电脑或换一个 Windows 用户时，请重新粘贴。如果 Discord 说这个 Webhook 已不存在，MultiPreview 会停止发送，直到你保存新的链接。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.push.Body">客户端在另一个房间运行时，也能在手机上收到警报。MultiPreview 会把警报发到一个 **Discord Webhook**：这是一个让程序可以向服务器的某个频道发消息的链接。&#x0A;&#x0A;- 在 Discord 中，在你自己的服务器上打开 **服务器设置 › 整合 › Webhook › 新 Webhook**，选择频道，然后点 **复制 Webhook URL**。&#x0A;- 把链接粘贴到这里的 **Discord Webhook** 中，点 **保存链接**，再点 **发送测试消息**。&#x0A;- 在手机的 Discord 应用中打开该频道的通知。&#x0A;&#x0A;一条消息只写角色和事件，别的都没有。除非你选择更多，否则只发送严重警报；打开 **仅在你离开电脑时** 后，你使用电脑期间什么都不会发送。勿扰模式会像拦住声音一样拦住它们。警报最多每 2 秒发送一次，合并成一条消息，同一角色的同一警报一分钟内不会再次发送。&#x0A;&#x0A;**严重警报时提及** 会在含有严重警报的消息开头加上 **@here** 或 **@everyone**，让你手机上的 Discord 应用提醒你。只有严重警报会提及别人：警告、信息和测试消息仍然安静。游戏里的名字永远不能提及任何人，因为名字都以纯文本发送。提及要在 Discord 中拥有该频道提及 @everyone 的权限；没有这个权限，消息照样送达，只是不会提及任何人。&#x0A;&#x0A;**请像对待密码一样对待这个链接**：任何拿到它的人都能向那个频道发消息。MultiPreview 会为你的 Windows 用户把它加密保存在设置文件中，以后不再完整显示，也从不写入日志；换一台电脑或换一个 Windows 用户时，请重新粘贴。如果 Discord 说这个 Webhook 已不存在，MultiPreview 会停止发送，直到你保存新的链接。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.pushWebhook">Discord Webhook</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.pushWebhook.Desc">Discord 为该频道给你的链接。它会被加密保存，以后不再完整显示。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.LinkBox">Discord Webhook 链接</sys:String> <!-- draft -->
@@ -2879,4 +2879,9 @@
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">让每个缩略图的四角变圆。0 表示保持直角。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenYes">结束客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenNo">保持运行</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.pushMention">严重警报时提及</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.pushMention.Desc">含有严重警报的消息会以 @here 或 @everyone 开头，让你手机上的 Discord 应用提醒你。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.PushMentionNone">不提及</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
 </ResourceDictionary>

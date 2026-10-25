@@ -252,6 +252,9 @@ public class AppSettings
     /// keys: off, critical only, only while away, no link in a file without them.</summary>
     public bool PushAlerts { get; set; } = false;
     public int PushAlertsFrom { get; set; } = 0;
+    /// <summary>Whether a pushed message that holds a critical line starts with @here (1) or @everyone (2); 0, the
+    /// default, mentions nobody. PushWay reads it for each message. A number outside 0 to 2 counts as 0. New key: 0.</summary>
+    public int PushMention { get; set; } = 0;
     public bool PushOnlyWhenAway { get; set; } = true;
     public string PushDiscordWebhook { get; set; } = "";
 

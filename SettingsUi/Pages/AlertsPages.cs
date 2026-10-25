@@ -67,7 +67,7 @@ public static class AlertsPages
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
         new HelpTopic(HubId, "windows", new[] { "alerts.hub.notify", "alerts.hub.notifyFrom", NotificationCheckEditor.ItemId }),
-        new HelpTopic(HubId, "push", new[] { "alerts.hub.push", "alerts.hub.pushFrom", "alerts.hub.pushAway", PushWebhookEditor.ItemId }),
+        new HelpTopic(HubId, "push", new[] { "alerts.hub.push", "alerts.hub.pushFrom", "alerts.hub.pushMention", "alerts.hub.pushAway", PushWebhookEditor.ItemId }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
         new HelpTopic(HubId, "historyWindow", new[] { "alerts.hub.historyRow" }),
         new HelpTopic(CustomId, "rules", new[] { CustomRulesEditor.ItemId }),
@@ -273,6 +273,12 @@ public static class AlertsPages
         new ChoiceOption(0, "L.S.Opt.FromCritical"), new ChoiceOption(1, "L.S.Opt.FromWarning"), new ChoiceOption(2, "L.S.Opt.FromInfo"),
     };
 
+    /// <summary>The three choices of the push card "Mention on critical alerts" (IDEAS #2, batch 30).</summary>
+    public static IReadOnlyList<ChoiceOption> PushMentionOptions { get; } = new[]
+    {
+        new ChoiceOption(0, "L.S.Opt.PushMentionNone"), new ChoiceOption(1, "L.S.Opt.PushMentionHere"), new ChoiceOption(2, "L.S.Opt.PushMentionEveryone"),
+    };
+
     /// <summary>A "from which severity" card. It shows the choice that is used: a stored number outside 0 to 2 is
     /// held to it, and not rewritten.</summary>
     private static SettingItem From(string id, Func<AppSettings, int> get, Action<AppSettings, int> set, string bind, Func<AppSettings, bool> showIf) =>
@@ -462,6 +468,14 @@ public static class AlertsPages
         {
             new SettingItem(Setting.Toggle("alerts.hub.push", s => s.PushAlerts)),
             From("alerts.hub.pushFrom", s => s.PushAlertsFrom, (s, v) => s.PushAlertsFrom = v, "AppSettings.PushAlertsFrom", s => s.PushAlerts),
+            // IDEAS #2, batch 30: PushWay puts @here or @everyone on a message that holds a critical line. The card shows
+            // the choice that is used (a stored number outside 0 to 2 is none) and does not rewrite it.
+            new SettingItem(Setting.Custom("alerts.hub.pushMention", SettingKind.Choice, s => (s.PushMention is 1 or 2) ? s.PushMention : 0,
+                (s, v) => s.PushMention = Convert.ToInt32(v, CultureInfo.InvariantCulture), binds: new[] { "AppSettings.PushMention" }) with
+            {
+                Options = PushMentionOptions,
+                ShowIf = s => s.PushAlerts,
+            }),
             new SettingItem(Setting.Toggle("alerts.hub.pushAway", s => s.PushOnlyWhenAway) with { ShowIf = s => s.PushAlerts }),
             // The link is a secret: the card keeps it DPAPI-encrypted, empties its box and shows it masked.
             new EditorItem(PushWebhookEditor.ItemId, ctx => new PushWebhookEditor(ctx))

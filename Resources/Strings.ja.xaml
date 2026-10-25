@@ -2354,7 +2354,7 @@
     <sys:String x:Key="L.Push.Test">EVE MultiPreview からのテストメッセージです。アラートはここに届きます。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Push.More">…ほか {0} 件</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.alerts.hub.push.Title">スマホと Discord</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.alerts.hub.push.Body">クライアントを別の部屋で動かしている間も、アラートをスマホで受け取れます。MultiPreview はアラートを **Discord ウェブフック**に投稿します。ウェブフックは、プログラムがサーバーの 1 つのチャンネルに投稿できるリンクです。&#x0A;&#x0A;- Discord で、自分のサーバーの **サーバー設定 › 連携サービス › ウェブフック › 新しいウェブフック** を開き、チャンネルを選んでから **ウェブフックURLをコピー** を押します。&#x0A;- そのリンクをここの **Discord ウェブフック** に貼り付けて **リンクを保存** を押し、次に **テストメッセージを送信** を押します。&#x0A;- スマホの Discord アプリで、そのチャンネルの通知をオンにします。&#x0A;&#x0A;メッセージに入るのはキャラクターとイベントだけです。ほかを選ばない限り、重大なアラートだけが送られます。**PC から離れているときだけ** がオンなら、PC を使っている間は何も送られません。おやすみモードは、音と同じようにこれも止めます。アラートは最短 2 秒おきに 1 つのメッセージにまとめて送られ、同じキャラクターの同じアラートは 1 分以内には再送されません。&#x0A;&#x0A;**リンクはパスワードと同じように扱ってください**。リンクを知っている人は誰でも、そのチャンネルに投稿できます。MultiPreview はリンクをあなたの Windows ユーザー用に暗号化して設定ファイルに保存し、二度と全体を表示せず、ログにも書きません。別の PC や別の Windows ユーザーでは、もう一度貼り付けてください。Discord がウェブフックはもう存在しないと答えた場合、新しいリンクを保存するまで MultiPreview は何も送りません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.alerts.hub.push.Body">クライアントを別の部屋で動かしている間も、アラートをスマホで受け取れます。MultiPreview はアラートを **Discord ウェブフック**に投稿します。ウェブフックは、プログラムがサーバーの 1 つのチャンネルに投稿できるリンクです。&#x0A;&#x0A;- Discord で、自分のサーバーの **サーバー設定 › 連携サービス › ウェブフック › 新しいウェブフック** を開き、チャンネルを選んでから **ウェブフックURLをコピー** を押します。&#x0A;- そのリンクをここの **Discord ウェブフック** に貼り付けて **リンクを保存** を押し、次に **テストメッセージを送信** を押します。&#x0A;- スマホの Discord アプリで、そのチャンネルの通知をオンにします。&#x0A;&#x0A;メッセージに入るのはキャラクターとイベントだけです。ほかを選ばない限り、重大なアラートだけが送られます。**PC から離れているときだけ** がオンなら、PC を使っている間は何も送られません。おやすみモードは、音と同じようにこれも止めます。アラートは最短 2 秒おきに 1 つのメッセージにまとめて送られ、同じキャラクターの同じアラートは 1 分以内には再送されません。&#x0A;&#x0A;**重大アラートでメンション** を選ぶと、重大なアラートを含むメッセージの先頭に **@here** または **@everyone** が付き、スマホの Discord アプリでお知らせが届きます。メンションされるのは重大なアラートだけで、警告、情報、テストメッセージは静かなままです。ゲーム内の名前では誰にもメンションできません。名前はふつうの文字として送られるからです。メンションを効かせるには、Discord でそのチャンネルの @everyone をメンションする権限が必要です。権限がなくてもメッセージは届きますが、誰にもメンションされません。&#x0A;&#x0A;**リンクはパスワードと同じように扱ってください**。リンクを知っている人は誰でも、そのチャンネルに投稿できます。MultiPreview はリンクをあなたの Windows ユーザー用に暗号化して設定ファイルに保存し、二度と全体を表示せず、ログにも書きません。別の PC や別の Windows ユーザーでは、もう一度貼り付けてください。Discord がウェブフックはもう存在しないと答えた場合、新しいリンクを保存するまで MultiPreview は何も送りません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.pushWebhook">Discord ウェブフック</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.alerts.hub.pushWebhook.Desc">Discord がそのチャンネル用に発行したリンクです。暗号化して保存され、二度と全体は表示されません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Push.LinkBox">Discord ウェブフックのリンク</sys:String> <!-- draft -->
@@ -2862,4 +2862,9 @@
     <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">すべてのサムネイルの角を丸くします。0 の場合は角のままです。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenYes">クライアントを終了</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.EndFrozenNo">実行したままにする</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.pushMention">重大アラートでメンション</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.alerts.hub.pushMention.Desc">重大なアラートを含むメッセージの先頭に @here か @everyone を付けて、スマホの Discord アプリで気づけるようにします。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.PushMentionNone">メンションしない</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
 </ResourceDictionary>

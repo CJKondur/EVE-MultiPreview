@@ -9,15 +9,21 @@ using System.Threading.Tasks;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>Sends one message to a webhook and says what came of it.</summary>
+/// <summary>What a message may ping (IDEAS #2, batch 30). Only <see cref="Here"/> and <see cref="Everyone"/> let Discord
+/// read the <c>@here</c> / <c>@everyone</c> that <see cref="PushMessage.WithMention"/> put at the front; the number is
+/// the stored <c>PushMention</c> setting.</summary>
+public enum PushMention { None = 0, Here = 1, Everyone = 2 }
+
+/// <summary>Sends one message to a webhook and says what came of it. <paramref name="mention"/> says whether the
+/// message may ping everyone; the default pings nobody.</summary>
 public interface IPushSender
 {
-    Task<PushResult> SendAsync(Uri webhook, string content, CancellationToken cancel);
+    Task<PushResult> SendAsync(Uri webhook, string content, CancellationToken cancel, PushMention mention = PushMention.None);
 }
 
 /// <summary>IDEAS #2: the only class of the app that talks to Discord. It sends one JSON <c>POST</c> to the
-/// webhook link it is handed (<c>content</c>, <c>username</c>, and an empty <c>allowed_mentions</c> so nothing is
-/// pinged), after checking again with <see cref="DiscordWebhook.IsSendable"/> that the link is Discord's. It reads
+/// webhook link it is handed (<c>content</c>, <c>username</c>, and an <c>allowed_mentions</c> that is empty so nothing
+/// is pinged, unless the caller asked for <see cref="PushMention.Here"/> or <see cref="PushMention.Everyone"/>), after checking again with <see cref="DiscordWebhook.IsSendable"/> that the link is Discord's. It reads
 /// no response body, follows no redirect (a 3xx is a failure), and keeps nothing of an exception: an exception's
 /// message can name the link, so only the outcome is returned. Failures are returned, never thrown.</summary>
 public sealed class DiscordSender : IPushSender, IDisposable
@@ -46,7 +52,10 @@ public sealed class DiscordSender : IPushSender, IDisposable
         PooledConnectionLifetime = TimeSpan.FromMinutes(10),
     };
 
-    public async Task<PushResult> SendAsync(Uri webhook, string content, CancellationToken cancel)
+    /// <summary>Discord's one switch for both <c>@here</c> and <c>@everyone</c>; users and roles are never parsed.</summary>
+    private static readonly string[] EveryoneOnly = { "everyone" };
+
+    public async Task<PushResult> SendAsync(Uri webhook, string content, CancellationToken cancel, PushMention mention = PushMention.None)
     {
         if (!DiscordWebhook.IsSendable(webhook)) return new PushResult(PushOutcome.Refused);
         try
@@ -55,7 +64,8 @@ public sealed class DiscordSender : IPushSender, IDisposable
             {
                 content,
                 username = UserName,
-                allowed_mentions = new { parse = Array.Empty<string>() },
+                // Always written out, also for the test message: without it Discord would read a mention in the text.
+                allowed_mentions = new { parse = (mention is PushMention.Here or PushMention.Everyone) ? EveryoneOnly : Array.Empty<string>() },
                 flags = SuppressEmbeds,     // a name holding a discord.gg/... link shows no invite embed
             });
             using var request = new HttpRequestMessage(HttpMethod.Post, webhook)
