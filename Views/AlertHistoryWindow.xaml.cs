@@ -167,6 +167,7 @@ public partial class AlertHistoryWindow : Window
             _store.Cleared -= OnStoreCleared;
             _ageTimer.Stop();
             _reloadTimer.Stop();
+            _store.ForgetReads();   // IDEAS P70: the parsed days are the window's, not the session's
         };
         Reload();
     }

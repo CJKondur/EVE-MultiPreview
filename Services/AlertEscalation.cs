@@ -54,9 +54,9 @@ public sealed class AlertEscalation
 
     private readonly Dictionary<(string Character, string EventKey), Chain> _chains = new(new Pair());
 
-    /// <summary>The seam for what IDEAS #29 hands off to once the repeats are used up: a push to a phone (#2), a
-    /// spoken alert (#26). Called once per chain, one wait after its last repeat, if the alert is still unseen.
-    /// Nothing listens to it yet.</summary>
+    /// <summary>The seam for what IDEAS #29 hands off to once the repeats are used up. App wires the spoken alert (#26) and
+    /// the push to a phone or Discord (#2, P82) to it. Called once per chain, one wait after its last repeat, if the
+    /// alert is still unseen.</summary>
     public Action<UnseenAlert>? HandOff { get; set; }
 
     /// <summary>How many alerts are being followed (tests).</summary>

@@ -293,6 +293,14 @@ public sealed class AlertHistory : IDisposable
         return allGone;
     }
 
+    /// <summary>Lets go of everything the reads of day files left behind (the parsed days of IDEAS P70). The history window
+    /// calls it when it closes, so a closed window leaves no parsed days in memory for the rest of the session; the next
+    /// read parses its days again. Any thread.</summary>
+    public void ForgetReads()
+    {
+        lock (_cacheLock) _days.Clear();
+    }
+
     /// <summary>Writes what is waiting (for at most two seconds) and stops the background thread.</summary>
     public void Dispose()
     {

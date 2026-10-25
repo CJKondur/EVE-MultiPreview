@@ -281,7 +281,9 @@ public static class UiStyles
     public static event Action? Changing;
 
     /// <summary>Test seam (IDEAS P106): when set, a change of look reports how long each phase took, in order, so that the phases
-    /// add up to the change. Null in the app: a change then reads no clock.</summary>
+    /// add up to the change. Null in the app: a change then reads no clock. Set it before a switch starts, not during one:
+    /// Mark reads it at the start, so a handler set mid-switch would time its first phase from a stale mark (public because
+    /// the test assembly has no InternalsVisibleTo).</summary>
     public static Action<string, TimeSpan>? Phase { get; set; }
 
     [ThreadStatic] private static long _mark;
