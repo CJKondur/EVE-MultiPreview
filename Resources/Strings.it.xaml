@@ -2897,4 +2897,15 @@
     <sys:String x:Key="L.S.Err.GamepadBindings">Alcune righe non sono un pulsante con un comando. Scrivi ogni riga come Pulsante = comando, per esempio A = cycle-all. Il testo non è stato salvato.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Title">Cambiare con un gamepad</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Body">Con **Cambia con un gamepad** attivo, un gamepad collegato a questo PC funziona come una scorciatoia: un pulsante esegue un comando e nient’altro.&#x0A;&#x0A;- In **Pulsanti del gamepad** scrivi una riga per pulsante come Pulsante = comando. Esempio: A = cycle-all (passa al client successivo) e X = focus:Main Pilot (porta in primo piano quel personaggio).&#x0A;- I pulsanti sono A, B, X, Y, LeftShoulder, RightShoulder, Back, Start, DPadUp, DPadDown, DPadLeft, DPadRight, LeftThumb e RightThumb. I grilletti e gli stick non vengono usati.&#x0A;- I comandi sono cycle-all, cycle-all-back, previous-client, last-alert, next-profile, previous-profile, focus:personaggio, profile:nome, cycle:gruppo e cycle-back:gruppo. Una riga che non è un pulsante con uno di questi comandi, o che ripete un pulsante, viene rifiutata con una nota e il testo non viene salvato.&#x0A;- Viene usato il primo gamepad collegato. Un pulsante tenuto premuto agisce una sola volta, per quanto a lungo lo tieni; se un gamepad viene scollegato o ricollegato, un pulsante ancora premuto non agisce. Un nuovo gamepad viene trovato entro due secondi.&#x0A;- Il gamepad segue le stesse regole delle tue scorciatoie: non fa nulla finché le scorciatoie sono in pausa, finché funzionano solo con EVE in primo piano e c’è un altro programma davanti, né finché la finestra delle impostazioni o la tavolozza dei comandi è in primo piano.&#x0A;- I pulsanti servono solo a cambiare client e a scorrerli: MultiPreview non invia mai tasti o clic al gioco.</sys:String> <!-- draft -->
+    <!-- Stream Deck (Plan 38) -->
+    <sys:String x:Key="L.Cmd.open-settings">Apri le impostazioni</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-fleet-board">Apri il pannello della flotta</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-alert-history">Apri la cronologia degli avvisi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar">Attiva o disattiva la barra dei nomi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-on">Attiva la barra dei nomi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-off">Disattiva la barra dei nomi</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mark-alerts-seen">Segna tutti gli avvisi come visti</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mute-30">Silenzia gli allarmi di {0} per 30 minuti</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.minimize-clients">Riduci a icona tutti i client EVE</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.restore-clients">Ripristina tutti i client EVE</sys:String> <!-- draft -->
 </ResourceDictionary>

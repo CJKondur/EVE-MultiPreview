@@ -2901,4 +2901,15 @@
     <sys:String x:Key="L.S.Err.GamepadBindings">Algunas líneas no son un botón con un comando. Escribe cada línea como Botón = comando, por ejemplo A = cycle-all. El texto no se ha guardado.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Title">Cambiar con un mando</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Body">Con **Cambiar con un mando** activado, un mando conectado a este PC funciona como un atajo: un botón ejecuta un comando y nada más.&#x0A;&#x0A;- En **Botones del mando** escribe una línea por botón como Botón = comando. Ejemplo: A = cycle-all (pasa al siguiente cliente) y X = focus:Main Pilot (trae ese personaje al frente).&#x0A;- Los botones son A, B, X, Y, LeftShoulder, RightShoulder, Back, Start, DPadUp, DPadDown, DPadLeft, DPadRight, LeftThumb y RightThumb. Los gatillos y los sticks no se usan.&#x0A;- Los comandos son cycle-all, cycle-all-back, previous-client, last-alert, next-profile, previous-profile, focus:personaje, profile:nombre, cycle:grupo y cycle-back:grupo. Una línea que no sea un botón con uno de estos comandos, o que repita un botón, se rechaza con un aviso, y el texto no se guarda.&#x0A;- Se usa el primer mando conectado. Un botón mantenido pulsado actúa una sola vez, por mucho que lo mantengas; si un mando se desconecta o se vuelve a conectar, un botón que sigue pulsado no actúa. Un mando nuevo se encuentra en dos segundos.&#x0A;- El mando sigue las mismas reglas que tus atajos: no hace nada mientras los atajos están en pausa, mientras funcionan solo con EVE en primer plano y hay otro programa delante, ni mientras la ventana de ajustes o la paleta de comandos están en primer plano.&#x0A;- Los botones solo cambian de cliente y los recorren: MultiPreview nunca envía teclas ni clics al juego.</sys:String> <!-- draft -->
+    <!-- Stream Deck (Plan 38) -->
+    <sys:String x:Key="L.Cmd.open-settings">Abrir la configuración</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-fleet-board">Abrir el panel de flota</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-alert-history">Abrir el historial de alertas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar">Activar o desactivar la barra de nombres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-on">Activar la barra de nombres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-off">Desactivar la barra de nombres</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mark-alerts-seen">Marcar todas las alertas como vistas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mute-30">Silenciar las alertas de {0} durante 30 minutos</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.minimize-clients">Minimizar todos los clientes de EVE</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.restore-clients">Restaurar todos los clientes de EVE</sys:String> <!-- draft -->
 </ResourceDictionary>

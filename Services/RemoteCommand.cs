@@ -6,9 +6,11 @@ using System.Text;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>IDEAS #39, #15, P127, P129 and P126: what another program may ask of the running MultiPreview. One of twenty-three,
-/// nothing else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs of P127, the
-/// two alert-mute verbs of P129 and the four query verbs of P126 (pipe-only: no switch, and the reply carries data).</summary>
+/// <summary>IDEAS #39, #15, P127, P129, P126 and Plan 38: what another program may ask of the running MultiPreview. One of
+/// thirty-four, nothing else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs of
+/// P127, the two alert-mute verbs of P129, the four query verbs of P126 (pipe-only: no switch, and the reply carries data) and
+/// the eleven of Plan 38 (three that open a window, the name bar's three, mark-alerts-seen, a 30-minute mute, minimize and
+/// restore, and live-state, which is pipe-only).</summary>
 public enum RemoteVerb
 {
     Focus, Profile, ToggleThumbnails, FocusMode,
@@ -16,6 +18,8 @@ public enum RemoteVerb
     DoNotDisturbOn, DoNotDisturbOff, FocusModeOn, FocusModeOff,
     Mute, Unmute,
     ListCharacters, ListGroups, ListProfiles, State,
+    OpenSettings, OpenFleetBoard, OpenAlertHistory, NameBar, NameBarOn, NameBarOff, MarkAlertsSeen, Mute30, MinimizeClients, RestoreClients,
+    LiveState,
 }
 
 /// <summary>What came of a command. The running MultiPreview answers the first three as one byte on the pipe; a second
@@ -57,6 +61,19 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
         ("", "list-groups", RemoteVerb.ListGroups, false),
         ("", "list-profiles", RemoteVerb.ListProfiles, false),
         ("", "state", RemoteVerb.State, false),
+        // Plan 38: buttons for a Stream Deck. The three that open a window take the front (TakesTheFront); live-state is pipe-only
+        // like the queries (the command runner refuses it).
+        ("--open-settings", "open-settings", RemoteVerb.OpenSettings, false),
+        ("--open-fleet-board", "open-fleet-board", RemoteVerb.OpenFleetBoard, false),
+        ("--open-alert-history", "open-alert-history", RemoteVerb.OpenAlertHistory, false),
+        ("--name-bar", "name-bar", RemoteVerb.NameBar, false),
+        ("--name-bar-on", "name-bar-on", RemoteVerb.NameBarOn, false),
+        ("--name-bar-off", "name-bar-off", RemoteVerb.NameBarOff, false),
+        ("--mark-alerts-seen", "mark-alerts-seen", RemoteVerb.MarkAlertsSeen, false),
+        ("--mute-30", "mute-30", RemoteVerb.Mute30, true),
+        ("--minimize-clients", "minimize-clients", RemoteVerb.MinimizeClients, false),
+        ("--restore-clients", "restore-clients", RemoteVerb.RestoreClients, false),
+        ("", "live-state", RemoteVerb.LiveState, false),
     };
 
     /// <summary>IDEAS P126: is the verb a query, whose reply carries data after the outcome byte? Only these four; every other
@@ -78,6 +95,12 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
     public bool SwitchesAClient =>
         Verb is RemoteVerb.Focus or RemoteVerb.CycleGroup or RemoteVerb.CycleGroupBack or RemoteVerb.CycleAll
             or RemoteVerb.CycleAllBack or RemoteVerb.PreviousClient or RemoteVerb.LastAlert;
+
+    /// <summary>Plan 38: must the sender let the running MultiPreview take the front? A client switch does; so does a command
+    /// that shows one of MultiPreview's own windows (settings, the fleet board, the alert history), which Windows would otherwise
+    /// leave behind the program the player is using.</summary>
+    public bool TakesTheFront =>
+        SwitchesAClient || Verb is RemoteVerb.OpenSettings or RemoteVerb.OpenFleetBoard or RemoteVerb.OpenAlertHistory;
 
     private static readonly UTF8Encoding Strict = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
@@ -165,6 +188,25 @@ public sealed class RemoteCommandRunner
     /// thumbnail menu offers) or false to end the mute. Same state as the menu's Mute alerts › item.</summary>
     public required Action<string, bool> SetAlertMute { get; init; }
 
+    // Plan 38: the parts of the ten new verbs. Not required: a runner built without one answers Refused for the verbs that need
+    // it, and nothing else about it changes (an older caller of the runner keeps compiling).
+    public Action? OpenSettings { get; init; }
+    public Action? OpenFleetBoard { get; init; }
+    public Action? OpenAlertHistory { get; init; }
+    /// <summary>Whether the name bar is showing right now; the three name-bar verbs read it before they act.</summary>
+    public Func<bool>? IsNameBarOn { get; init; }
+    /// <summary>Shows (true) or hides (false) the name bar.</summary>
+    public Action<bool>? SetNameBar { get; init; }
+    /// <summary>Marks every alert seen; answers how many it marked.</summary>
+    public Func<int>? MarkAlertsSeen { get; init; }
+    /// <summary>The running character's real name, and the minutes to mute its alerts for.</summary>
+    public Action<string, int>? MuteFor { get; init; }
+    public Action? MinimizeClients { get; init; }
+    public Action? RestoreClients { get; init; }
+
+    /// <summary>The minutes of <see cref="RemoteVerb.Mute30"/>.</summary>
+    public const int ShortMuteMinutes = 30;
+
     /// <summary>The name a player typed, as one that exists: the exact one, else the one whose name matches ignoring case
     /// (two such: none). Null when there is none.</summary>
     private static string? Resolve(IEnumerable<string> names, string wanted)
@@ -174,6 +216,13 @@ public sealed class RemoteCommandRunner
         if (exact != null) return exact;
         var loose = all.Where(n => string.Equals(n, wanted, StringComparison.OrdinalIgnoreCase)).ToList();
         return loose.Count == 1 ? loose[0] : null;
+    }
+
+    private static RemoteOutcome Call(Action? part)
+    {
+        if (part == null) return RemoteOutcome.Refused;
+        part();
+        return RemoteOutcome.Done;
     }
 
     public RemoteOutcome Run(RemoteCommand command)
@@ -244,6 +293,36 @@ public sealed class RemoteCommandRunner
                 var pilot = Running().FirstOrDefault(n => string.Equals(n, command.Argument, StringComparison.OrdinalIgnoreCase));
                 if (pilot == null) return RemoteOutcome.NotFound;
                 SetAlertMute(pilot, command.Verb == RemoteVerb.Mute);
+                return RemoteOutcome.Done;
+            // Plan 38: a verb whose part was not handed in is Refused, whatever its name says (the check comes first).
+            case RemoteVerb.OpenSettings:
+                return Call(OpenSettings);
+            case RemoteVerb.OpenFleetBoard:
+                return Call(OpenFleetBoard);
+            case RemoteVerb.OpenAlertHistory:
+                return Call(OpenAlertHistory);
+            case RemoteVerb.MarkAlertsSeen:
+                if (MarkAlertsSeen is not { } markSeen) return RemoteOutcome.Refused;
+                markSeen();
+                return RemoteOutcome.Done;
+            case RemoteVerb.MinimizeClients:
+                return Call(MinimizeClients);
+            case RemoteVerb.RestoreClients:
+                return Call(RestoreClients);
+            // the toggle flips the bar; the explicit forms (as P127's) act only when the state differs, and answer Done either way
+            case RemoteVerb.NameBar:
+            case RemoteVerb.NameBarOn:
+            case RemoteVerb.NameBarOff:
+                if (IsNameBarOn is not { } isBarOn || SetNameBar is not { } setBar) return RemoteOutcome.Refused;
+                bool bar = isBarOn();
+                bool want = command.Verb switch { RemoteVerb.NameBarOn => true, RemoteVerb.NameBarOff => false, _ => !bar };
+                if (want != bar) setBar(want);
+                return RemoteOutcome.Done;
+            case RemoteVerb.Mute30:
+                if (MuteFor is not { } muteFor) return RemoteOutcome.Refused;
+                var shortPilot = Running().FirstOrDefault(n => string.Equals(n, command.Argument, StringComparison.OrdinalIgnoreCase));
+                if (shortPilot == null) return RemoteOutcome.NotFound;
+                muteFor(shortPilot, ShortMuteMinutes);
                 return RemoteOutcome.Done;
             default:   // a verb not on the list, and the pipe-only queries (P126), which RemoteQueryRunner answers: nothing here runs them
                 return RemoteOutcome.Refused;

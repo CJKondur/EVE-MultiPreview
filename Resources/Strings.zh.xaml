@@ -2897,4 +2897,15 @@
     <sys:String x:Key="L.S.Err.GamepadBindings">有些行不是“按钮 = 命令”的形式。请把每一行写成“按钮 = 命令”，例如 A = cycle-all。文本没有保存。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Title">用手柄切换</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Body">开启**用手柄切换**后，连接到这台电脑的手柄就像热键一样工作：一个按钮执行一个命令，仅此而已。&#x0A;&#x0A;- 在**手柄按钮**中，每个按钮写一行，格式为“按钮 = 命令”。例如：A = cycle-all（切换到下一个客户端）和 X = focus:Main Pilot（把该角色带到前台）。&#x0A;- 按钮名称为 A、B、X、Y、LeftShoulder、RightShoulder、Back、Start、DPadUp、DPadDown、DPadLeft、DPadRight、LeftThumb 和 RightThumb。扳机和摇杆不会被使用。&#x0A;- 命令有 cycle-all、cycle-all-back、previous-client、last-alert、next-profile、previous-profile、focus:character、profile:name、cycle:group 和 cycle-back:group。不是“按钮加上这些命令之一”的行，或重复写了同一按钮的行，会被拒绝并给出提示，文本不会保存。&#x0A;- 使用第一个已连接的手柄。按住不放的按钮只会执行一次，无论你按多久；手柄被拔出或重新连接时，仍被按住的按钮不会执行。新手柄会在两秒内被找到。&#x0A;- 手柄遵循与热键相同的规则：热键暂停时、热键设为仅在 EVE 中生效且前台是其他程序时、以及设置窗口或命令面板位于前台时，手柄都不会执行任何操作。&#x0A;- 按钮只用于切换和循环客户端：MultiPreview 绝不会向游戏发送按键或点击。</sys:String> <!-- draft -->
+    <!-- Stream Deck (Plan 38) -->
+    <sys:String x:Key="L.Cmd.open-settings">打开设置</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-fleet-board">打开舰队面板</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-alert-history">打开警报历史记录</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar">开启或关闭角色名称栏</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-on">开启角色名称栏</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-off">关闭角色名称栏</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mark-alerts-seen">将所有警报标为已读</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mute-30">将 {0} 的警报静音 30 分钟</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.minimize-clients">最小化所有 EVE 客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.restore-clients">还原所有 EVE 客户端</sys:String> <!-- draft -->
 </ResourceDictionary>

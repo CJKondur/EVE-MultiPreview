@@ -22,7 +22,7 @@ public static class SenderApp
         if (args.Length == 0) return startFull();
         if (RemoteCommand.FromArgs(args) is not { } command) return (int)RemoteOutcome.Refused;
         bool written = false;
-        var outcome = CommandPipe.Send(pipeName, command, timeout ?? CommandPipe.SendTime, command.SwitchesAClient, () => written = true);
+        var outcome = CommandPipe.Send(pipeName, command, timeout ?? CommandPipe.SendTime, command.TakesTheFront, () => written = true);
         return outcome == RemoteOutcome.NotReachable && !written ? startFull() : (int)outcome;
     }
 

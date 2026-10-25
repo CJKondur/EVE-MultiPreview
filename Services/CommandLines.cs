@@ -49,7 +49,7 @@ public static class CommandLines
     }
 
     /// <summary>Every command a player can put on a button: the verbs without a name first, then a focus line per running
-    /// character, a mute and an unmute line per running character, both cycle lines per group and a profile line per profile. Each in the order given, a name once (ignoring
+    /// character, a mute, a 30-minute mute and an unmute line per running character, both cycle lines per group and a profile line per profile. Each in the order given, a name once (ignoring
     /// case), a name with no line left out. No program path: nothing.</summary>
     public static IReadOnlyList<CommandChoice> Choices(string? exePath, IEnumerable<string> running, IEnumerable<string> profiles, IEnumerable<string> groups)
     {
@@ -69,6 +69,7 @@ public static class CommandLines
         foreach (var name in runningNames)   // IDEAS P129: the alert mute of a running character, both ways
         {
             Add(new RemoteCommand(RemoteVerb.Mute, name));
+            Add(new RemoteCommand(RemoteVerb.Mute30, name));   // Plan 38: the 30-minute mute, right after the one-hour one
             Add(new RemoteCommand(RemoteVerb.Unmute, name));
         }
         foreach (var name in groups)

@@ -2879,4 +2879,15 @@
     <sys:String x:Key="L.S.Err.GamepadBindings">Einige Zeilen sind keine Taste mit einem Befehl. Schreibe jede Zeile als Taste = Befehl, zum Beispiel A = cycle-all. Der Text wurde nicht gespeichert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Title">Wechseln mit einem Gamepad</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Body">Ist **Mit einem Gamepad wechseln** an, funktioniert ein Gamepad an diesem PC wie ein Hotkey: Eine Taste führt einen Befehl aus, mehr nicht.&#x0A;&#x0A;- Schreibe in **Gamepad-Tasten** eine Zeile pro Taste als Taste = Befehl. Beispiel: A = cycle-all (wechselt zum nächsten Client) und X = focus:Main Pilot (holt diesen Charakter nach vorn).&#x0A;- Die Tasten heißen A, B, X, Y, LeftShoulder, RightShoulder, Back, Start, DPadUp, DPadDown, DPadLeft, DPadRight, LeftThumb und RightThumb. Trigger und Sticks werden nicht verwendet.&#x0A;- Die Befehle sind cycle-all, cycle-all-back, previous-client, last-alert, next-profile, previous-profile, focus:Charakter, profile:Name, cycle:Gruppe und cycle-back:Gruppe. Eine Zeile, die keine Taste mit einem dieser Befehle ist, oder eine Taste, die zweimal vorkommt, wird mit einem Hinweis abgelehnt, und der Text wird nicht gespeichert.&#x0A;- Es wird das erste verbundene Gamepad verwendet. Eine gedrückt gehaltene Taste wirkt nur einmal, egal wie lange du sie hältst; wird ein Gamepad getrennt oder wieder angeschlossen, wirkt eine noch gedrückte Taste nicht. Ein neues Gamepad wird innerhalb von zwei Sekunden gefunden.&#x0A;- Das Gamepad folgt denselben Regeln wie deine Hotkeys: Es tut nichts, solange die Hotkeys pausiert sind, solange die Hotkeys nur in EVE funktionieren und ein anderes Programm im Vordergrund ist oder solange das Einstellungsfenster oder die Befehlspalette im Vordergrund ist.&#x0A;- Die Tasten wechseln und schalten nur durch: MultiPreview sendet nie Tasten oder Klicks an das Spiel.</sys:String> <!-- draft -->
+    <!-- Stream Deck (Plan 38) -->
+    <sys:String x:Key="L.Cmd.open-settings">Einstellungen öffnen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-fleet-board">Flottenübersicht öffnen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-alert-history">Alarmverlauf öffnen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar">Namensleiste ein- oder ausschalten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-on">Namensleiste einschalten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-off">Namensleiste ausschalten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mark-alerts-seen">Alle Alarme als gesehen markieren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mute-30">Warnungen von {0} für 30 Minuten stummschalten</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.minimize-clients">Alle EVE-Clients minimieren</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.restore-clients">Alle EVE-Clients wiederherstellen</sys:String> <!-- draft -->
 </ResourceDictionary>

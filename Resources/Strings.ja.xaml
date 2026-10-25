@@ -2880,4 +2880,15 @@
     <sys:String x:Key="L.S.Err.GamepadBindings">「ボタン = コマンド」の形になっていない行があります。各行を「ボタン = コマンド」の形で書いてください（例：A = cycle-all）。テキストは保存されませんでした。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Title">ゲームパッドで切り替える</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Body">**ゲームパッドで切り替える**をオンにすると、このPCに接続したゲームパッドがホットキーと同じように働きます。ボタンは1つのコマンドを実行するだけで、それ以外のことはしません。&#x0A;&#x0A;- **ゲームパッドのボタン**に、ボタンごとに1行、「ボタン = コマンド」の形で書きます。例：A = cycle-all（次のクライアントへ切り替え）と X = focus:Main Pilot（そのキャラクターを前面に出す）。&#x0A;- ボタンの名前は A、B、X、Y、LeftShoulder、RightShoulder、Back、Start、DPadUp、DPadDown、DPadLeft、DPadRight、LeftThumb、RightThumb です。トリガーとスティックは使いません。&#x0A;- コマンドは cycle-all、cycle-all-back、previous-client、last-alert、next-profile、previous-profile、focus:character、profile:name、cycle:group、cycle-back:group です。ボタンとこれらのコマンドの組み合わせになっていない行や、同じボタンを2回書いた行は、注意が表示されて拒否され、テキストは保存されません。&#x0A;- 最初に接続されているゲームパッドを使います。押しっぱなしのボタンは、どれだけ長く押しても1回だけ動作します。ゲームパッドを抜いたり接続し直したりしたとき、まだ押されているボタンは動作しません。新しいゲームパッドは2秒以内に見つかります。&#x0A;- ゲームパッドはホットキーと同じルールに従います。ホットキーが一時停止中のとき、ホットキーがEVEでのみ動作する設定で他のプログラムが前面にあるとき、設定ウィンドウまたはコマンドパレットが前面にあるときは、何も実行しません。&#x0A;- ボタンはクライアントの切り替えと順送りだけに使われます。MultiPreviewがゲームにキーやクリックを送ることはありません。</sys:String> <!-- draft -->
+    <!-- Stream Deck (Plan 38) -->
+    <sys:String x:Key="L.Cmd.open-settings">設定を開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-fleet-board">フリートボードを開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-alert-history">アラート履歴を開く</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar">キャラクター名バーをオン／オフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-on">キャラクター名バーをオンにする</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-off">キャラクター名バーをオフにする</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mark-alerts-seen">すべてのアラートを既読にする</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mute-30">{0} のアラートを 30 分間ミュート</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.minimize-clients">すべての EVE クライアントを最小化</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.restore-clients">すべての EVE クライアントを元に戻す</sys:String> <!-- draft -->
 </ResourceDictionary>

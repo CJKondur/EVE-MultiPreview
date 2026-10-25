@@ -2880,4 +2880,15 @@
     <sys:String x:Key="L.S.Err.GamepadBindings">'버튼 = 명령' 형식이 아닌 줄이 있어요. 각 줄을 '버튼 = 명령' 형식으로 적어 주세요. 예: A = cycle-all. 텍스트는 저장되지 않았어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Title">게임패드로 전환</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.clients.hotkeys.gamepad.Body">**게임패드로 전환**을 켜면 이 PC에 연결된 게임패드가 단축키처럼 동작해요. 버튼은 명령 하나를 실행할 뿐, 그 외에는 아무것도 하지 않아요.&#x0A;&#x0A;- **게임패드 버튼**에 버튼마다 한 줄씩 '버튼 = 명령' 형식으로 적어요. 예: A = cycle-all(다음 클라이언트로 전환), X = focus:Main Pilot(해당 캐릭터를 앞으로 가져옴).&#x0A;- 버튼 이름은 A, B, X, Y, LeftShoulder, RightShoulder, Back, Start, DPadUp, DPadDown, DPadLeft, DPadRight, LeftThumb, RightThumb이에요. 트리거와 스틱은 쓰지 않아요.&#x0A;- 명령은 cycle-all, cycle-all-back, previous-client, last-alert, next-profile, previous-profile, focus:캐릭터, profile:이름, cycle:그룹, cycle-back:그룹이에요. 버튼과 이 명령 중 하나로 이루어지지 않은 줄이나 같은 버튼을 두 번 적은 줄은 안내와 함께 거부되고, 텍스트는 저장되지 않아요.&#x0A;- 처음 연결된 게임패드를 사용해요. 계속 누르고 있는 버튼은 아무리 오래 눌러도 한 번만 동작해요. 게임패드를 뽑았다가 다시 연결해도, 아직 눌린 채인 버튼은 동작하지 않아요. 새 게임패드는 2초 안에 찾아요.&#x0A;- 게임패드는 단축키와 같은 규칙을 따라요. 단축키가 일시정지된 동안, 단축키가 EVE에서만 작동하도록 설정되어 있고 다른 프로그램이 맨 앞에 있는 동안, 설정 창이나 명령 팔레트가 맨 앞에 있는 동안에는 아무것도 하지 않아요.&#x0A;- 버튼은 클라이언트 전환과 순환에만 쓰여요. MultiPreview는 게임에 키나 클릭을 절대 보내지 않아요.</sys:String> <!-- draft -->
+    <!-- Stream Deck (Plan 38) -->
+    <sys:String x:Key="L.Cmd.open-settings">설정 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-fleet-board">함대 현황판 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.open-alert-history">알림 기록 열기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar">캐릭터 이름 바 켜기/끄기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-on">캐릭터 이름 바 켜기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.name-bar-off">캐릭터 이름 바 끄기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mark-alerts-seen">모든 알림을 읽음으로 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.mute-30">{0}의 경보를 30분 동안 음소거</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.minimize-clients">모든 EVE 클라이언트 최소화</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Cmd.restore-clients">모든 EVE 클라이언트 복원</sys:String> <!-- draft -->
 </ResourceDictionary>
