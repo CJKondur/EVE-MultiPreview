@@ -42,7 +42,7 @@ public static class ThumbnailsPages
         new HelpTopic(TextId, "borders", new[]
         {
             "thumbs.text.highlight", "thumbs.text.highlightColor", "thumbs.text.highlightWidth", "thumbs.text.highlightInGroup",
-            "thumbs.text.inactiveColor", "thumbs.text.inactiveWidth", "thumbs.text.autoBorders", "thumbs.text.groupBorders",
+            "thumbs.text.inactiveColor", "thumbs.text.inactiveWidth", "thumbs.text.cornerRadius", "thumbs.text.autoBorders", "thumbs.text.groupBorders",
         }),
         new HelpTopic(TextId, "marks", new[] { "thumbs.text.badgePosition" }),
         new HelpTopic(TextId, "clientState", new[] { "thumbs.text.notResponding", "thumbs.text.disconnected", "thumbs.text.disconnectSeconds" }),
@@ -246,6 +246,8 @@ public static class ThumbnailsPages
                 Replaces = new[] { "TxtInactiveColor" },
             }),
             Number("thumbs.text.inactiveWidth", s => s.InactiveClientBorderThickness, 0, 30, ApplyScope.Thumbnails, "TxtFrameThickness"),
+            // IDEAS P8: the corner radius of every thumbnail window; ApplySettings hands it to each.
+            Number("thumbs.text.cornerRadius", s => s.ThumbnailCornerRadius, 0, EveMultiPreview.Views.ThumbnailWindow.MaxCornerRadius, ApplyScope.Thumbnails),
             // IDEAS P19: a colour of its own for each character without one of its own or a group's; ApplySettings repaints.
             new SettingItem(Setting.Toggle("thumbs.text.autoBorders", s => s.AutoCharacterBorders, ApplyScope.Thumbnails)),
             // ShowAllColoredBorders has one switch, on Groups (spec §5; Plan 3a claimed ChkShowAllBorders there).

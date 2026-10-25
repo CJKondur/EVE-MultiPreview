@@ -1347,7 +1347,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">클라이언트 통계</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">각 클라이언트가 사용하는 CPU, 메모리(RAM), 그래픽 메모리(VRAM)를 몇 초마다 갱신해 보여 줘요. 버벅이는 클라이언트를 찾는 데 유용해요. 트레이 메뉴의 **함대 현황판**은 모든 클라이언트를 한 표에 보여 줘요: 항성계, 세션 시간, 알림, CPU, RAM. 이 스위치가 꺼져 있어도 CPU와 RAM은 표시돼요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">테두리</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **강조 테두리**는 플레이 중인 클라이언트를 표시해요. 변경 사항은 EVE로 돌아가면 나타나요.&#x0A;- 나머지 클라이언트에는 **다른 클라이언트** 아래의 테두리가 적용돼요. 색상을 비워 두면 테두리가 없어요. **테두리 색상 자동 지정**이 켜져 있으면 고유 색상도 그룹 색상도 없는 캐릭터에게도 테두리가 적용돼요.&#x0A;- 그룹은 구성원을 그룹 색으로 칠할 수 있어요(클라이언트 › 그룹). **색상 그룹 안에서도 강조 유지**는 플레이 중인 클라이언트에 강조 색을 유지해요.&#x0A;- 캐릭터 고유의 테두리 색은 해당 페이지에서 설정하며 **캐릭터별 색상 사용**이 켜져 있는 동안 쓰여요.&#x0A;- 포인터가 썸네일 위에 있을 때 **Alt**를 누르고 있으면 왜 그렇게 보이는지 알려줘요: 그룹, 활성 클라이언트인지, 진행 중인 알림과 남은 초, 확인하지 않은 알림, 순환 전환에서 제외됨, 음소거와 일시 중지, 응답 없음 또는 연결 끊김. 설정은 없고, EVE의 포커스를 빼앗지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **강조 테두리**는 플레이 중인 클라이언트를 표시해요. 변경 사항은 EVE로 돌아가면 나타나요.&#x0A;- 나머지 클라이언트에는 **다른 클라이언트** 아래의 테두리가 적용돼요. 색상을 비워 두면 테두리가 없어요. **테두리 색상 자동 지정**이 켜져 있으면 고유 색상도 그룹 색상도 없는 캐릭터에게도 테두리가 적용돼요.&#x0A;- 그룹은 구성원을 그룹 색으로 칠할 수 있어요(클라이언트 › 그룹). **색상 그룹 안에서도 강조 유지**는 플레이 중인 클라이언트에 강조 색을 유지해요.&#x0A;- 캐릭터 고유의 테두리 색은 해당 페이지에서 설정하며 **캐릭터별 색상 사용**이 켜져 있는 동안 쓰여요.&#x0A;- **모서리 둥글기**(0~24 px)는 썸네일의 모서리를 둥글게 해요. 기본값 0은 각진 그대로예요. 썸네일 위의 글자는 잘리지 않아요.&#x0A;- 포인터가 썸네일 위에 있을 때 **Alt**를 누르고 있으면 왜 그렇게 보이는지 알려줘요: 그룹, 활성 클라이언트인지, 진행 중인 알림과 남은 초, 확인하지 않은 알림, 순환 전환에서 제외됨, 음소거와 일시 중지, 응답 없음 또는 연결 끊김. 설정은 없고, EVE의 포커스를 빼앗지 않아요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">건너뛴 클라이언트 표시</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">순환에서 제외한 클라이언트(기본값은 Shift+클릭)는 빨간 ✕ 를 표시해요. 미리보기의 어느 모서리나 가장자리에 둘지 고르세요.</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -2857,4 +2857,7 @@
     <sys:String x:Key="L.Help.app.look.theme.Body">**Windows 앱 테마가 밝은 동안 주광 표시**를 켜면 Windows 앱 테마가 밝은 동안 MultiPreview가 **주광**을 표시하고(Windows 설정, 개인 설정, 색), 어두울 때는 고른 모양을 표시해요. Windows에서 바꾸면 바로 적용되고, 다시 시작할 필요가 없어요.&#x0A;&#x0A;고른 모양은 절대 덮어쓰이지 않아요. 저장된 채로 남아 있다가 Windows가 어두워지거나 스위치를 끄면 다시 표시돼요. Windows 설정을 읽을 수 없으면 내 모양을 표시해요. Windows 대비 테마가 여전히 먼저예요. 스위치는 기본으로 꺼져 있고, MultiPreview 창만 바꾸며 미리보기는 바꾸지 않아요.</sys:String> <!-- draft -->
     <!-- Ideas batch 29 (Plan 34) -->
     <sys:String x:Key="L.S.Events.EnglishOnly">영어 게임 클라이언트에서만 읽어요</sys:String> <!-- draft -->
+    <!-- Ideas batch 30 (Plan 37) -->
+    <sys:String x:Key="L.S.thumbs.text.cornerRadius">모서리 둥글기</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">모든 썸네일의 모서리를 둥글게 해요. 0이면 각진 그대로예요.</sys:String> <!-- draft -->
 </ResourceDictionary>

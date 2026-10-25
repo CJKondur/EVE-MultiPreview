@@ -1364,7 +1364,7 @@
     <sys:String x:Key="L.Help.thumbs.text.stats.Title">客户端统计</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.stats.Body">显示每个客户端占用的 CPU、内存（RAM）和显存（VRAM），每隔几秒更新一次。便于发现卡顿的客户端。 托盘菜单中的 **舰队面板** 把所有客户端列在一张表里：星系、会话时间、警报、CPU 和 RAM。即使此开关关闭，它也会显示 CPU 和 RAM。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.borders.Title">边框</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **高亮边框**标出你正在玩的客户端。更改会在你返回 EVE 时显示。&#x0A;- 其他每个客户端使用**其他客户端**下设置的边框。颜色留空则无边框。开启**自动边框颜色**后，没有自己的颜色也没有分组颜色的角色仍会得到边框。&#x0A;- 分组可以用分组颜色绘制其成员（客户端 › 分组）。**在彩色分组内保留高亮**会让你正在玩的客户端保留高亮颜色。&#x0A;- 角色自己的边框颜色在其页面中设置，并在开启**使用每个角色的专属颜色**时生效。&#x0A;- 在指针位于缩略图上时按住 **Alt**，即可查看它为何是现在的样子：所属分组、是否为当前客户端、正在进行的警报及剩余秒数、未查看的警报、已排除出循环切换、静音与延后、未响应或已断开连接。这不是设置项，也不会从 EVE 抢走焦点。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.text.borders.Body">- **高亮边框**标出你正在玩的客户端。更改会在你返回 EVE 时显示。&#x0A;- 其他每个客户端使用**其他客户端**下设置的边框。颜色留空则无边框。开启**自动边框颜色**后，没有自己的颜色也没有分组颜色的角色仍会得到边框。&#x0A;- 分组可以用分组颜色绘制其成员（客户端 › 分组）。**在彩色分组内保留高亮**会让你正在玩的客户端保留高亮颜色。&#x0A;- 角色自己的边框颜色在其页面中设置，并在开启**使用每个角色的专属颜色**时生效。&#x0A;- **圆角半径**（0 到 24 px）会让缩略图的四角变圆。默认的 0 表示保持直角。缩略图上的文字不会被裁切。&#x0A;- 在指针位于缩略图上时按住 **Alt**，即可查看它为何是现在的样子：所属分组、是否为当前客户端、正在进行的警报及剩余秒数、未查看的警报、已排除出循环切换、静音与延后、未响应或已断开连接。这不是设置项，也不会从 EVE 抢走焦点。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Title">已跳过客户端的标记</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.thumbs.text.marks.Body">被你移出循环切换的客户端（默认 Shift+点击）会显示红色 ✕。可选择它位于缩略图的哪个角或哪条边。</sys:String> <!-- draft -->
     <!-- Thumbnails › Layout &amp; screens (Plan 3b) -->
@@ -2874,4 +2874,7 @@
     <sys:String x:Key="L.Help.app.look.theme.Body">开启**Windows 应用主题为浅色时显示日光**后，只要 Windows 的应用主题为浅色（Windows 设置、个性化、颜色），MultiPreview 就会显示**日光**；为深色时显示你选择的外观。Windows 中的更改会立即生效，无需重启。&#x0A;&#x0A;你的选择不会被覆盖：它会一直保存，在 Windows 变为深色或你关闭开关后恢复。如果无法读取 Windows 的设置，则显示你自己的外观。Windows 对比度主题仍然优先。此开关默认关闭，只改变 MultiPreview 的窗口，不改变缩略图。</sys:String> <!-- draft -->
     <!-- Ideas batch 29 (Plan 34) -->
     <sys:String x:Key="L.S.Events.EnglishOnly">仅限英文游戏客户端</sys:String> <!-- draft -->
+    <!-- Ideas batch 30 (Plan 37) -->
+    <sys:String x:Key="L.S.thumbs.text.cornerRadius">圆角半径</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.text.cornerRadius.Desc">让每个缩略图的四角变圆。0 表示保持直角。</sys:String> <!-- draft -->
 </ResourceDictionary>

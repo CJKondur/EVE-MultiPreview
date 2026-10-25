@@ -1271,6 +1271,9 @@ public sealed class ThumbnailManager : IDisposable
         // Hover zoom. 1.0 = off, so unticking it applies at once.
         thumb.SetHoverScale(HoverScaleFor(s));
 
+        // Rounded corners (IDEAS P8). 0 = square, as always.
+        thumb.SetCornerRadius(s.ThumbnailCornerRadius);
+
         // Text overlay. The template first (IDEAS P2): the name, system, label and timer calls below then fill it, and a
         // toggle that is off leaves its token empty. Empty template = the separate blocks, as always.
         thumb.SetTextTemplate(s.ThumbnailTextTemplate);

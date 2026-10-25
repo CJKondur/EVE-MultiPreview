@@ -406,10 +406,82 @@ public class ThumbnailWindow : Form
 
     public void SetHoverScale(double scale) => _hoverScale = scale;
 
+    // ── Rounded corners (IDEAS P8) ───────────────────────────────
+
+    /// <summary>The largest corner radius, in pixels, the Corner radius setting gives.</summary>
+    public const int MaxCornerRadius = 24;
+
+    private int _cornerRadius;
+    // What Region was last made for (radius, width, height): the region is rebuilt only when one of the three changes.
+    private (int Radius, int Width, int Height) _regionFor;
+
+    /// <summary>The outline of a window of this size with rounded corners, in the window's own coordinates. The radius is
+    /// held to half the shorter side, so a small window ends as a pill and never as a bow tie. The caller disposes it.</summary>
+    public static System.Drawing.Drawing2D.GraphicsPath RoundedPath(int width, int height, int radius)
+    {
+        width = Math.Max(1, width);
+        height = Math.Max(1, height);
+        int r = Math.Clamp(radius, 0, Math.Min(width, height) / 2);
+        var path = new System.Drawing.Drawing2D.GraphicsPath();
+        if (r == 0)
+        {
+            path.AddRectangle(new System.Drawing.Rectangle(0, 0, width, height));
+            return path;
+        }
+        int d = r * 2;
+        path.AddArc(0, 0, d, d, 180, 90);
+        path.AddArc(width - d, 0, d, d, 270, 90);
+        path.AddArc(width - d, height - d, d, d, 0, 90);
+        path.AddArc(0, height - d, d, d, 90, 90);
+        path.CloseFigure();
+        return path;
+    }
+
+    /// <summary>Rounds the corners of the window to this many pixels (held to 0 to <see cref="MaxCornerRadius"/>); 0 is
+    /// square, as the window always was. The text overlay is a window of its own and is not cut.</summary>
+    public void SetCornerRadius(int radius)
+    {
+        _cornerRadius = Math.Clamp(radius, 0, MaxCornerRadius);
+        ApplyCornerRegion();
+    }
+
+    /// <summary>The window's own size right now. Not the Width and Height shims, which say the resting size while the hover
+    /// zoom or an alert has the window larger, and, once there is a handle, not Control's cached size either: WM_SIZE
+    /// arrives before Control has noted the new size, so Windows is asked.</summary>
+    private (int Width, int Height) RealSize()
+    {
+        if (_ownHwnd != IntPtr.Zero && User32.GetWindowRect(_ownHwnd, out var r))
+            return (Math.Max(1, r.Right - r.Left), Math.Max(1, r.Bottom - r.Top));
+        return (Math.Max(1, base.Width), Math.Max(1, base.Height));
+    }
+
+    /// <summary>Gives the window the region for its OWN size right now. Called from <see cref="ApplyThumbnailPresentation"/>,
+    /// which every change of size reaches (the hover zoom and its end, an alert's growth and its end, a resize, a drag).
+    /// The old region is disposed.</summary>
+    private void ApplyCornerRegion()
+    {
+        var (w, h) = RealSize();
+        var wanted = (_cornerRadius, w, h);
+        if (wanted == _regionFor) return;
+        _regionFor = wanted;
+        var old = base.Region;
+        if (_cornerRadius == 0)
+        {
+            base.Region = null;
+        }
+        else
+        {
+            using var path = RoundedPath(w, h, _cornerRadius);
+            base.Region = new System.Drawing.Region(path);
+        }
+        old?.Dispose();
+    }
+
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
         _ownHwnd = Handle;
+        ApplyCornerRegion();
 
         // Start fully opaque. LWA_ALPHA fades both the frame (this HWND's
         // background strip) AND the DWM-composited thumbnail on top.
@@ -1185,6 +1257,7 @@ public class ThumbnailWindow : Form
 
     private void ApplyThumbnailPresentation()
     {
+        ApplyCornerRegion();   // before the DWM guard: a window without a source still has corners
         if (_thumbId == IntPtr.Zero) return;
 
         // Reserve un-composited strip for BOTH the main border and the nested
@@ -1746,6 +1819,9 @@ public class ThumbnailWindow : Form
             Debug.WriteLine($"[Thumb:Cleanup] the way back from an alert's enlargement failed: {ex.GetType().Name}");
         }
         _enlargedNow.Remove(this);   // a window that is gone is not asked back by the next menu
+
+        _cornerRadius = 0;
+        ApplyCornerRegion();   // drops the region
 
         _hoverTimer?.Stop();
         _hoverTimer?.Dispose();

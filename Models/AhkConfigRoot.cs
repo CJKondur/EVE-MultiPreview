@@ -310,6 +310,7 @@ public class AhkConfigRoot
                 profile.AutoSelectCharacters = ts.AutoSelectCharacters ?? "";
                 profile.ShowAllColoredBorders = ts.ShowAllColoredBorders != 0;
                 profile.AutoCharacterBorders = ts.AutoCharacterBorders != 0;
+                profile.ThumbnailCornerRadius = ts.ThumbnailCornerRadius;
                 profile.HideThumbnailsOnLostFocus = ts.HideThumbnailsOnLostFocus != 0;
                 profile.ShowThumbnailsAlwaysOnTop = ts.ShowThumbnailsAlwaysOnTop != 0;
                 profile.KeepThumbnailsAboveClients = ts.KeepThumbnailsAboveClients != 0;
@@ -645,6 +646,7 @@ public class AhkConfigRoot
                 AutoSelectCharacters = profile.AutoSelectCharacters,
                 ShowAllColoredBorders = profile.ShowAllColoredBorders ? 1 : 0,
                 AutoCharacterBorders = profile.AutoCharacterBorders ? 1 : 0,
+                ThumbnailCornerRadius = profile.ThumbnailCornerRadius,
                 HideThumbnailsOnLostFocus = profile.HideThumbnailsOnLostFocus ? 1 : 0,
                 ShowThumbnailsAlwaysOnTop = profile.ShowThumbnailsAlwaysOnTop ? 1 : 0,
                 KeepThumbnailsAboveClients = profile.KeepThumbnailsAboveClients ? 1 : 0,
@@ -911,6 +913,10 @@ public class AhkThumbnailSettings
     /// <summary>Automatic border colours (IDEAS P19), batch 13: a file without it loads 0 (off).</summary>
     [JsonPropertyName("AutoCharacterBorders")]
     public int AutoCharacterBorders { get; set; }
+
+    /// <summary>Rounded thumbnail corners in pixels (IDEAS P8), batch 30: a file without it loads 0 (square).</summary>
+    [JsonPropertyName("ThumbnailCornerRadius")]
+    public int ThumbnailCornerRadius { get; set; }
 
     [JsonPropertyName("HideThumbnailsOnLostFocus")]
     public int HideThumbnailsOnLostFocus { get; set; }
