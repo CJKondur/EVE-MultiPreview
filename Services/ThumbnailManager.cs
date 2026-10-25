@@ -960,7 +960,7 @@ public sealed class ThumbnailManager : IDisposable
         {
             thumbWindow.HideWithOverlay();
         }
-        if (_nameBarHold) thumbWindow.SetHeldHidden(true);   // IDEAS #38: the name bar holds every main thumbnail, a new one too
+        if (_nameBarHold && ThumbnailMenu.HasCharacter(window.CharacterName)) thumbWindow.SetHeldHidden(true);   // IDEAS #38: the name bar holds every main thumbnail with a character, a new one too (a nameless one is held once it has a name: OnWindowTitleChanged)
 
         // Apply system name *after* window show to guarantee WPF visibility rendering
         if (!string.IsNullOrEmpty(window.CharacterName) &&
@@ -1178,6 +1178,10 @@ public sealed class ThumbnailManager : IDisposable
                     if (IsCharacterUserHidden(window.CharacterName) || _thumbnailsHidden || _primaryHidden)
                         thumbWindow.HideWithOverlay();
                 }
+
+                // IDEAS #38: the name bar holds the thumbnails of clients that have a character. This one just got (or lost) its
+                // name, so it is held (or let go) now; last, so nothing above re-shows it.
+                if (_nameBarHold) HoldForFocus(_focusHeld);
             }
         });
     }
@@ -4421,7 +4425,7 @@ public sealed class ThumbnailManager : IDisposable
         _focusHeld = held;
         foreach (var (hwnd, thumb) in _thumbnails)
         {
-            bool hold = _nameBarHold || (!string.IsNullOrEmpty(thumb.CharacterName) && held.Contains(thumb.CharacterName));   // IDEAS #38: focus mode OR the name bar
+            bool hold = (_nameBarHold && ThumbnailMenu.HasCharacter(thumb.CharacterName)) || (!string.IsNullOrEmpty(thumb.CharacterName) && held.Contains(thumb.CharacterName));   // IDEAS #38: focus mode OR the name bar (a client with no name has no button, so its thumbnail stays)
             if (hold == thumb.HeldHidden)
             {
                 if (hold) thumb.HideWithOverlay();
@@ -4457,7 +4461,8 @@ public sealed class ThumbnailManager : IDisposable
     /// <summary>The characters whose windows focus mode holds hidden now (IDEAS #35, P124); a window made later asks it.</summary>
     private IReadOnlySet<string> _focusHeld = FocusMode.Nobody;
 
-    /// <summary>IDEAS #38: the name bar holds every main thumbnail hidden (it shows the clients as buttons instead). The same
+    /// <summary>IDEAS #38: the name bar holds every main thumbnail hidden that has a character (it shows those clients as buttons
+    /// instead; a client at character select has no button, so its thumbnail stays). The same
     /// hold as focus mode's, so a thumbnail is held when focus mode OR the bar holds it and is let go only when neither does;
     /// ShowsWhenLetGo asks both. Crops, second thumbnails and stats windows are not touched. The window's thread.</summary>
     private bool _nameBarHold;
@@ -4480,7 +4485,7 @@ public sealed class ThumbnailManager : IDisposable
     /// hides every thumbnail, not when the player hid this character on Clients › Characters, and not for the client in front
     /// while Hide the active thumbnail is on.</summary>
     private bool ShowsWhenLetGo(IntPtr hwnd, ThumbnailWindow thumb) =>
-        !_thumbnailsHidden && !_primaryHidden && !_primaryHiddenByFocus && !_nameBarHold
+        !_thumbnailsHidden && !_primaryHidden && !_primaryHiddenByFocus && !(_nameBarHold && ThumbnailMenu.HasCharacter(thumb.CharacterName))
         && !IsCharacterUserHidden(thumb.CharacterName ?? "")
         && !(_settings.Settings.HideActiveThumbnail && hwnd == Interop.User32.GetForegroundWindow());
 

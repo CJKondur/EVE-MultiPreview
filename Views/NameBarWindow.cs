@@ -56,6 +56,7 @@ public sealed class NameBarWindow : Window
     private readonly Border _root = new();
     private readonly List<string> _texts = new();
     private readonly List<Button> _buttons = new();
+    private readonly List<TextBlock> _labels = new();   // parallel to _buttons: the name on each, for the in-place repaint
     private readonly Dictionary<string, Button> _byName = new(StringComparer.OrdinalIgnoreCase);
     private List<(NameBarEntry Entry, string Text)> _shown = new();
     private string? _hovered;
@@ -122,7 +123,7 @@ public sealed class NameBarWindow : Window
         Top = _area.Top;
         Place();
 
-        BornTopmost.Apply(this);
+        NoFocusStyle.Apply(this);
         SizeChanged += (_, _) => { if (Math.Abs(Left - _placedLeft) < 0.5) Place(); };   // only while nobody moved it
         HoverTimer.Tick += (_, _) => HoverElapsed();
         RaiseTimer.Tick += (_, _) => ReRaise();
@@ -137,15 +138,24 @@ public sealed class NameBarWindow : Window
         };
     }
 
-    /// <summary>Asks for the buttons again and redraws them when they (or a name's streamer mask) changed; nothing else is
-    /// touched, so a button under the pointer is not rebuilt for nothing. The window's thread.</summary>
+    /// <summary>Asks for the buttons again. Nothing changed: nothing is touched. Only an alert's severity or the client in front
+    /// changed: the same buttons are repainted in place, so the keyboard focus and the pointer's hover (and the preview under it)
+    /// stay. A name, its streamer mask or a group colour changed (the list or a stripe differs): the buttons are rebuilt. The
+    /// window's thread.</summary>
     public void Refresh()
     {
         var now = _entries().Select(e => (Entry: e, Text: StreamerMask.Name(StreamerKind.Character, e.Name))).ToList();
         if (now.SequenceEqual(_shown) && _buttons.Count == now.Count) return;
+        if (SameButtons(now))
+        {
+            _shown = now;
+            for (int i = 0; i < now.Count; i++) Repaint(_buttons[i], _labels[i], now[i].Entry);
+            return;
+        }
         _shown = now;
         _panel.Children.Clear();
         _buttons.Clear();
+        _labels.Clear();
         _byName.Clear();
         _texts.Clear();
         var template = ButtonTemplate();
@@ -159,6 +169,20 @@ public sealed class NameBarWindow : Window
         }
         _root.Visibility = now.Count == 0 ? Visibility.Collapsed : Visibility.Visible;   // no client: no strip
         if (_hovered != null && !_byName.ContainsKey(_hovered)) HoverOff();            // its client is gone
+    }
+
+    /// <summary>Whether the buttons now drawn are the buttons <paramref name="now"/> asks for: the same names in the same order,
+    /// shown the same way (a streamer mask) and with the same group stripe. Severity and the front client may differ.</summary>
+    private bool SameButtons(List<(NameBarEntry Entry, string Text)> now) =>
+        now.Count > 0 && now.Count == _shown.Count && _buttons.Count == now.Count
+        && now.Zip(_shown).All(p => p.First.Text == p.Second.Text && p.First.Entry.Name == p.Second.Entry.Name
+                                    && p.First.Entry.GroupColour == p.Second.Entry.GroupColour);
+
+    /// <summary>Gives a button its entry's alert border, fill and weight without making it again.</summary>
+    private void Repaint(Button button, TextBlock label, NameBarEntry entry)
+    {
+        if (entry.Active) label.FontWeight = FontWeights.SemiBold; else label.ClearValue(TextBlock.FontWeightProperty);
+        Paint(button, entry, hovered: string.Equals(_hovered, entry.Name, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>Puts the bar back at the top of the topmost band without activating it.</summary>
@@ -283,9 +307,11 @@ public sealed class NameBarWindow : Window
         };
         AutomationProperties.SetName(button, shownName);   // the name as shown, "_" and all: it is not a label with an access key
         Paint(button, entry, hovered: false);
+        _labels.Add(label);
+        // The entry can move on (a new severity, a new front client) while the button stays: paint from the current one.
         button.Click += (_, _) => Click(entry.Name);
-        button.MouseEnter += (_, _) => { Paint(button, entry, hovered: true); HoverOn(entry.Name); };
-        button.MouseLeave += (_, _) => { Paint(button, entry, hovered: false); HoverOff(); };
+        button.MouseEnter += (_, _) => { Paint(button, _shown[index].Entry, hovered: true); HoverOn(entry.Name); };
+        button.MouseLeave += (_, _) => { Paint(button, _shown[index].Entry, hovered: false); HoverOff(); };
         return button;
     }
 
@@ -298,7 +324,7 @@ public sealed class NameBarWindow : Window
             "critical" => "Fx.CriticalBrush",
             "warning" => "Fx.WarningBrush",
             "info" => "Fx.InfoBrush",
-            _ => entry.Active || hovered ? "Fx.AccentBrush" : "Fx.FlyoutBorderBrush",
+            _ => "Fx.FlyoutBorderBrush",   // the client in front and the pointer are told by the fill alone: an accent border is the info colour in some looks
         };
         button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, entry.Active || hovered ? "Fx.AccentSoftBrush" : "Fx.CardBrush");
         button.SetResourceReference(System.Windows.Controls.Control.BorderBrushProperty, border);

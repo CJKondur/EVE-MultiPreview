@@ -55,7 +55,7 @@ public sealed class NameBarPreview : Window, IPreviewSurface
         var frame = (System.Windows.Controls.Border)Content;
         frame.SetResourceReference(System.Windows.Controls.Border.BorderBrushProperty, "Fx.FlyoutBorderBrush");
         frame.BorderThickness = new Thickness(1);
-        BornTopmost.Apply(this);
+        NoFocusStyle.Apply(this);
 
         _raise.Tick += (_, _) => ReRaise();
         Closed += (_, _) => { _closed = true; _raise.Stop(); Unregister(); };

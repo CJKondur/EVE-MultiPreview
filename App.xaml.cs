@@ -2601,6 +2601,8 @@ public partial class App : Application
     /// so the thumbnails come back; the next try waits for the switch to go off and on. A failure is logged.</summary>
     private void FollowNameBar()
     {
+        Views.NameBarWindow? bar = null;      // kept outside the try: a failure part-way closes what was made
+        Views.NameBarPreview? preview = null;
         try
         {
             if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
@@ -2616,18 +2618,21 @@ public partial class App : Application
             if (_nameBarFailed) return;
             if (_nameBar != null) { _nameBar.Refresh(); return; }
             var thumbnails = _thumbnailManager;
-            _streamerMaskDrawn = StreamerMask.IsOn;   // IDEAS #19: drawn for the mode as it is now, so a later flip redraws it
-            var bar = new Views.NameBarWindow(NameBarEntries, name => SwitchToCharacter(name),
-                name => thumbnails.GetHwndForCharacter(name), new Views.NameBarPreview());
-            bar.Closed += (_, _) => { if (ReferenceEquals(_nameBar, bar)) _nameBar = null; };
-            _nameBar = bar;
+            preview = new Views.NameBarPreview();
+            bar = new Views.NameBarWindow(NameBarEntries, name => SwitchToCharacter(name),
+                name => thumbnails.GetHwndForCharacter(name), preview);   // the bar masks its own names at each Refresh, so the history window's drawn-mode flag is not set here
+            var made = bar;
+            made.Closed += (_, _) => { if (ReferenceEquals(_nameBar, made)) _nameBar = null; };
+            _nameBar = made;
             thumbnails.SetNameBarHold(true);
-            bar.Show();
+            made.Show();
         }
         catch (Exception ex)
         {
             _nameBarFailed = true;
             _nameBar = null;
+            try { bar?.Close(); preview?.Dispose(); }   // what was made goes with the failure: the bar (its Closed gives its preview up) and a preview no bar took
+            catch (Exception cleanup) { LogError(cleanup); }
             _thumbnailManager?.SetNameBarHold(false);
             LogError(ex);
         }
