@@ -264,7 +264,7 @@ public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRe
     public CustomAlertRule? AddExample(CustomRuleExample which)
     {
         string? character = null;
-        string name = AccessKeys.Strip(Str(which == CustomRuleExample.CynoInFleet ? "L.S.Rules.Ex.Cyno" : "L.S.Rules.Ex.Ping"));   // the rule keeps the words, not the button's "_"
+        string name = AccessKeys.Spoken(Str(which == CustomRuleExample.CynoInFleet ? "L.S.Rules.Ex.Cyno" : "L.S.Rules.Ex.Ping"));   // the rule keeps the words, not the button's "_"
         if (which == CustomRuleExample.NameInFleet)
         {
             character = _ctx.Host.PickCharacter(Str("L.S.Rules.Ex.NameTitle"), CharacterDirectory.AllKnown(_ctx.S, CharacterDirectory.Running(_ctx)));

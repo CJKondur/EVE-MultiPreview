@@ -218,7 +218,7 @@ public sealed class ActionVM : ObservableObject
     /// <summary>Destructive and confirm-flagged actions ask first (spec §6).</summary>
     public void Run()
     {
-        if (Def.Confirm && !_ctx.Host.Confirm(AccessKeys.Strip(SettingsContext.Str(Def.LabelKey)), SettingsContext.Str(Def.ConfirmKey))) return;
+        if (Def.Confirm && !_ctx.Host.Confirm(AccessKeys.Spoken(SettingsContext.Str(Def.LabelKey)), SettingsContext.Str(Def.ConfirmKey))) return;
         Def.Run(_ctx);
         _row.AfterRun();
     }

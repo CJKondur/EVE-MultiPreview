@@ -40,11 +40,11 @@ public static class SearchIndex
                         case ActionRow r:
                             Add(list, SearchKind.Setting, resolve(r.LabelKey), Join(english(r.LabelKey), resolve(r.DescKey), sectionTitle), path, page.Id, r.Id);
                             foreach (var a in r.Actions)
-                                Add(list, SearchKind.Action, AccessKeys.Strip(resolve(a.LabelKey)), AccessKeys.Strip(english(a.LabelKey)), path, page.Id, r.Id);   // a button's "_" is not for search (IDEAS #51)
+                                Add(list, SearchKind.Action, AccessKeys.Spoken(resolve(a.LabelKey)), AccessKeys.Spoken(english(a.LabelKey)), path, page.Id, r.Id);   // a button's "_" is not for search (IDEAS #51)
                             break;
                         case EditorItem e:
-                            Add(list, SearchKind.Setting, AccessKeys.Strip(resolve(e.LabelKey)),
-                                Join(AccessKeys.Strip(english(e.LabelKey)), resolve(e.LabelKey + ".Desc"), sectionTitle), path, page.Id, e.Id);
+                            Add(list, SearchKind.Setting, AccessKeys.Spoken(resolve(e.LabelKey)),
+                                Join(AccessKeys.Spoken(english(e.LabelKey)), resolve(e.LabelKey + ".Desc"), sectionTitle), path, page.Id, e.Id);
                             break;
                     }
                 }
