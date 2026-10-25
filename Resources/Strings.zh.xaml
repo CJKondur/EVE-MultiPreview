@@ -2531,7 +2531,7 @@
     <sys:String x:Key="L.Remap.Slot">（位置）</sys:String> <!-- draft -->
     <!-- Ideas batch 11 (Plan 15) -->
     <sys:String x:Key="L.S.app.general.buttons">按钮命令</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.app.general.buttons.Desc">选择一条命令，然后复制它的命令行，用于 Stream Deck、Touch Portal 或 AutoHotkey 按钮，或者保存为 Windows 快捷方式。“试一下”会把它发送到这个 MultiPreview。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.buttons.Desc">连接 Stream Deck 最快的方法：下面的按钮会为每条命令写出一个现成的快捷方式。如果只想单独使用某一条命令（Touch Portal、AutoHotkey、单个快捷方式），请在命令开启后出现的列表里选择它。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Pick">命令</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Copy">复制命令行（_C）</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Shortcut">另存为快捷方式（_S）…</sys:String> <!-- draft -->
@@ -2561,7 +2561,7 @@
     <sys:String x:Key="L.Cmd.previous-profile">上一个配置文件</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.do-not-disturb">勿扰模式开关</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.buttons.Title">用于 Stream Deck 等的按钮</sys:String> <!-- draft -->
-    <sys:String x:Key="L.Help.app.general.buttons.Body">**生成 Stream Deck 按钮** 会写出一个文件夹，里面是现成的 Windows 快捷方式，每条命令一个，并把它打开。第一次它会问一个简单的问题，因为快捷方式只有在 MultiPreview 接受其他程序的命令时才有用。如果你点“确定”，它会替你打开 **接受其他程序的命令**，之后你随时可以再把它关掉。&#x0A;&#x0A;- 文件夹叫“Stream Deck buttons”，放在 MultiPreview 的设置旁边。每个快捷方式都有自己的图片：角色用首字母加上所在分组的颜色，其他用一个符号。再运行一次会添加新的按钮并重画图片；绝不会删除任何文件，所以你之前设置好的按键仍然有效。&#x0A;- 使用时，把文件夹里的快捷方式拖到 Stream Deck 应用里的一个按键上。如果拖不动，就给这个按键设置“系统”组里的“打开”动作，再选择这个快捷方式。&#x0A;- 每个正在运行的角色、每个分组的下一个和上一个角色、上一个客户端、最新的警报、勿扰模式、专注模式、每个配置文件、设置、舰队面板、警报历史记录、角色名称栏、“将所有警报标为已读”，以及最小化或还原所有客户端，都有对应的快捷方式。&#x0A;- 快捷方式只会切换 MultiPreview 里的窗口和设置：它绝不会向游戏发送按键或点击。&#x0A;- 想让按键显示当前情况（最前面的客户端、警报、勿扰模式、专注模式、配置文件），请安装 Stream Deck 插件：从发布页面下载 EVE.MultiPreview.streamDeckPlugin，然后双击它。主播模式会在它的按键上隐藏名称。&#x0A;&#x0A;任何以你的 Windows 账户运行的程序都能发送这些命令，所以在多人共用的电脑上，请给每个人各自的 Windows 账户。&#x0A;&#x0A;**按钮命令** 在命令开启时还会列出每一条命令。**复制命令行** 把命令行放到剪贴板（用于 Touch Portal、AutoHotkey 或快捷方式的“目标”），**另存为快捷方式…** 把一个快捷方式保存到你选的位置，**试一下** 会像按钮那样把命令发送到这个 MultiPreview，并告诉你结果。试“隐藏或显示”会切换一次。名称里带引号，或以反斜杠结尾，就没有命令行。如果某个按钮没有反应，先点 **试一下**。当 MultiPreview 以管理员身份运行时，**试一下** 无法显示不以管理员身份运行的程序发来的命令能否送达（参见“来自其他程序的命令”）。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.buttons.Body">**生成 Stream Deck 按钮** 会写出一个文件夹，里面是现成的 Windows 快捷方式，每条命令一个，并把它打开。第一次它会问一个简单的问题，因为快捷方式只有在 MultiPreview 接受其他程序的命令时才有用。如果你点“确定”，它会替你打开 **接受其他程序的命令**，之后你随时可以再把它关掉。&#x0A;&#x0A;- 文件夹叫“Stream Deck buttons”，放在 MultiPreview 的设置旁边。每个快捷方式都有自己的图片：角色用首字母加上所在分组的颜色，其他用一个符号。再运行一次会添加新的按钮并重画图片；绝不会删除任何文件，所以你之前设置好的按键仍然有效。如果你更换语言，新的快捷方式会使用新的名称；旧的仍然有效，你可以自己删除它们。&#x0A;- 使用时，把文件夹里的快捷方式拖到 Stream Deck 应用里的一个按键上。如果拖不动，就给这个按键设置“系统”组里的“打开”动作，再选择这个快捷方式。&#x0A;- 每个正在运行的角色、每个分组的下一个和上一个角色、上一个客户端、最新的警报、勿扰模式、专注模式、每个配置文件、设置、舰队面板、警报历史记录、角色名称栏、“将所有警报标为已读”，以及最小化或还原所有客户端，都有对应的快捷方式。&#x0A;- 快捷方式只会切换 MultiPreview 里的窗口和设置：它绝不会向游戏发送按键或点击。&#x0A;- 想让按键显示当前情况（最前面的客户端、警报、勿扰模式、专注模式、配置文件），请安装 Stream Deck 插件：从发布页面下载 EVE.MultiPreview.streamDeckPlugin，然后双击它。主播模式会在它的按键上隐藏名称。&#x0A;&#x0A;任何以你的 Windows 账户运行的程序都能发送这些命令，所以在多人共用的电脑上，请给每个人各自的 Windows 账户。&#x0A;&#x0A;**按钮命令** 在命令开启时还会列出每一条命令。**复制命令行** 把命令行放到剪贴板（用于 Touch Portal、AutoHotkey 或快捷方式的“目标”），**另存为快捷方式…** 把一个快捷方式保存到你选的位置，**试一下** 会像按钮那样把命令发送到这个 MultiPreview，并告诉你结果。试“隐藏或显示”会切换一次。名称里带引号，或以反斜杠结尾，就没有命令行。如果某个按钮没有反应，先点 **试一下**。当 MultiPreview 以管理员身份运行时，**试一下** 无法显示不以管理员身份运行的程序发来的命令能否送达（参见“来自其他程序的命令”）。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated">也接受不以管理员身份运行的程序发来的命令</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.app.general.acceptCommandsUnelevated.Desc">仅在 MultiPreview 以管理员身份运行时才有意义。这样你的其他程序（Stream Deck、脚本）无需也以管理员身份运行，就能发送命令。此后你的 Windows 账户下任何普通程序都可以切换你的客户端和配置文件，但仍然无法指定文件或运行任何东西。默认关闭。</sys:String> <!-- draft -->
     <sys:String x:Key="L.Help.app.general.commandsAdmin.Title">当 MultiPreview 以管理员身份运行时</sys:String> <!-- draft -->
@@ -2912,7 +2912,7 @@
     <sys:String x:Key="L.NameBar.Off">角色名称栏：关</sys:String> <!-- draft -->
     <sys:String x:Key="L.Msg.AlertsAllSeen">警报已标为已读</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MakeButtons">生成 Stream Deck 按钮（_M）</sys:String> <!-- draft -->
-    <sys:String x:Key="L.S.Cmd.MakeButtons.Desc">生成一个装有现成快捷方式的文件夹，每条命令一个，并把它打开。把其中一个拖到 Stream Deck 的按键上。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.MakeButtons.Desc">完成后会打开该文件夹。把一个快捷方式拖到 Stream Deck 的按键上。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Consent.Title">允许按钮和快捷方式控制 MultiPreview？</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Consent.Body">这样 Stream Deck 的按键或 Windows 快捷方式就能执行 MultiPreview 的命令：把某个客户端带到最前面、切换配置文件、开启或关闭勿扰模式等等。只有在这台电脑上以你的账户运行的程序才能发送这些命令，网络上不会监听任何内容，MultiPreview 也绝不会向 EVE 发送按键或点击。你随时可以在本页用“接受其他程序的命令”把它关掉。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Consent.BodyElevated">这样 Stream Deck 的按键或 Windows 快捷方式就能执行 MultiPreview 的命令：把某个客户端带到最前面、切换配置文件、开启或关闭勿扰模式等等。只有在这台电脑上以你的账户运行的程序才能发送这些命令，网络上不会监听任何内容，MultiPreview 也绝不会向 EVE 发送按键或点击。你随时可以在本页用“接受其他程序的命令”把它关掉。&#x0A;&#x0A;MultiPreview 正以管理员身份运行。Stream Deck 通常不是，所以这也会让你的普通程序可以发送这些命令。</sys:String> <!-- draft -->

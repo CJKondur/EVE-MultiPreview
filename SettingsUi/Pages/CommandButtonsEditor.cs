@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using EveMultiPreview.Services;
+using Button = System.Windows.Controls.Button;
 using ComboBox = System.Windows.Controls.ComboBox;
 using TextBox = System.Windows.Controls.TextBox;
 
@@ -32,6 +33,8 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     private readonly TextBox _line = new() { IsReadOnly = true, MinWidth = 360 };
     private readonly UIElement _noProgram = EditorCard.Note("L.S.Cmd.NoProgram");
     private readonly StackPanel _controls = new();
+    private readonly Button _make;
+    private bool _busy;
 
     /// <summary>The real seams: this program's path, the clipboard, the shortcut writer, the pipe (asynchronously: a
     /// window's own thread never waits for the answer), the folder writer and Explorer.</summary>
@@ -64,13 +67,13 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
             EditorCard.Button("L.S.Cmd.TryIt", () => _ = TryIt()));
         buttons.Margin = new Thickness(0, 8, 0, 0);
         _controls.Children.Add(buttons);
-        var make = EditorCard.Button("L.S.Cmd.MakeButtons", MakeButtons);
-        make.SetResourceReference(StyleProperty, "Fx.PrimaryButton");   // the one thing most players do here
-        make.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+        _make = EditorCard.Button("L.S.Cmd.MakeButtons", MakeButtons);
+        _make.SetResourceReference(StyleProperty, "Fx.PrimaryButton");   // the one thing most players do here
+        _make.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
         var makeDesc = EditorCard.Note("L.S.Cmd.MakeButtons.Desc");
         makeDesc.Margin = new Thickness(0, 4, 0, 12);
         var below = new StackPanel();
-        below.Children.Add(make);
+        below.Children.Add(_make);
         below.Children.Add(makeDesc);
         below.Children.Add(_noProgram);
         below.Children.Add(_controls);
@@ -113,6 +116,22 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     /// streamer-masked name, so a file name always means the same command.</summary>
     public void MakeButtons()
     {
+        if (_busy) return;   // a click queued behind the one being handled must not write the folder or open Explorer twice
+        _busy = true;
+        _make.IsEnabled = false;
+        try { Make(); }
+        finally
+        {
+            _busy = false;
+            _make.IsEnabled = true;
+        }
+    }
+
+    /// <summary>Whether the "Make Stream Deck buttons" button can be pressed: not while a press is being handled.</summary>
+    public bool MakeButtonEnabled => _make.IsEnabled;
+
+    private void Make()
+    {
         if (_exePath() == null)
         {
             _ctx.Host.Toast(SettingsContext.Str("L.S.Cmd.NoProgram"));
@@ -128,11 +147,9 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
                 _ctx.Host.Toast(SettingsContext.Str("L.S.Cmd.Consent.Kept"));
                 return;
             }
-            _ctx.S.AcceptCommands = true;
-            if (elevated) _ctx.S.AcceptCommandsUnelevated = true;
+            TurnOn("app.general.acceptCommands");
+            if (elevated) TurnOn("app.general.acceptCommandsUnelevated");
             _ctx.Applier.Request(ApplyScope.Save);   // saved, and App's Applied path follows the switches (FollowCommandServer)
-            _ctx.Host.Reload();                      // the switches' own cards show their new state
-            Refresh();
         }
 
         var result = _writeFolder(StreamDeckButtons.FolderIn(_ctx.Service.ConfigDirectory), PlanButtons());
@@ -140,6 +157,18 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
             ? string.Format(SettingsContext.Str("L.S.Cmd.Made"), result.Written)
             : string.Format(SettingsContext.Str("L.S.Cmd.MadePartly"), result.Written, result.Failed));
         _openFolder(result.Folder);
+        if (ask) _ctx.Host.Reload();   // last: the switches' cards and this card's list show their new state
+    }
+
+    /// <summary>Turns one of the command switches on the way its own card does, and lists it in Recently changed (with Undo).</summary>
+    private void TurnOn(string settingId)
+    {
+        var d = SettingsRegistry.Settings.Single(x => x.Id == settingId);
+        var before = d.Get(_ctx.S);
+        if (SettingVM.Same(before, true)) return;
+        d.Set(_ctx.S, true);
+        _ctx.Service.Changes.Record(d, SettingChanges.ScopeOf(d, _ctx.S), before, d.Get(_ctx.S));
+        d.OnChanged?.Invoke(_ctx);
     }
 
     /// <summary>The folder's buttons for what runs and is saved now: a focus button per running character on its group's
