@@ -275,12 +275,15 @@ public class ThumbnailWindow : Form
 
     // IDEAS #13: while the thumbnail is enlarged for an alert, all four are its OWN place and size, read and written.
     // A written place moves the enlarged window with it (StandAround); a written size is the thumbnail's own (Resize).
+    // IDEAS P96: the same while the pointer's hover zoom has it: the four read the resting place and size (a save
+    // must not write the zoomed size), and a write ends the zoom first (UnHover) and then lands on the resting window.
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Left
     {
-        get => base.Left + (_alertGrown ? _alertDx : 0);
+        get => base.Left + (_alertGrown ? _alertDx : _isHovered ? (base.Width - _baseWidth) / 2 : 0);
         set
         {
+            UnHover();
             if (_alertGrown) StandAround(new System.Drawing.Rectangle((int)value, base.Top + _alertDy, _baseWidth, _baseHeight));
             else base.Left = (int)value;
         }
@@ -288,9 +291,10 @@ public class ThumbnailWindow : Form
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Top
     {
-        get => base.Top + (_alertGrown ? _alertDy : 0);
+        get => base.Top + (_alertGrown ? _alertDy : _isHovered ? (base.Height - _baseHeight) / 2 : 0);
         set
         {
+            UnHover();
             if (_alertGrown) StandAround(new System.Drawing.Rectangle(base.Left + _alertDx, (int)value, _baseWidth, _baseHeight));
             else base.Top = (int)value;
         }
@@ -298,9 +302,10 @@ public class ThumbnailWindow : Form
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Width
     {
-        get => _alertGrown ? _baseWidth : base.Width;
+        get => _alertGrown || _isHovered ? _baseWidth : base.Width;
         set
         {
+            UnHover();
             if (_alertGrown) Resize((int)value, _baseHeight);
             else base.Width = (int)value;
         }
@@ -308,9 +313,10 @@ public class ThumbnailWindow : Form
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     public new double Height
     {
-        get => _alertGrown ? _baseHeight : base.Height;
+        get => _alertGrown || _isHovered ? _baseHeight : base.Height;
         set
         {
+            UnHover();
             if (_alertGrown) Resize(_baseWidth, (int)value);
             else base.Height = (int)value;
         }
@@ -541,8 +547,8 @@ public class ThumbnailWindow : Form
         if (!_isHovered) return;
         _isHovered = false;
 
-        int offsetX = ((int)Width - _baseWidth) / 2;
-        int offsetY = ((int)Height - _baseHeight) / 2;
+        int offsetX = (base.Width - _baseWidth) / 2;     // IDEAS P96: the window's own size: the shim says the resting one
+        int offsetY = (base.Height - _baseHeight) / 2;
 
         base.Width = _baseWidth;
         base.Height = _baseHeight;
