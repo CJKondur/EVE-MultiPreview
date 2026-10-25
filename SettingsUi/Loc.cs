@@ -80,6 +80,7 @@ public static class Loc
         var target = d switch
         {
             TextBlock => TextBlock.TextProperty,
+            AccessText => AccessText.TextProperty,     // a button's label: "_" marks its access key (IDEAS #51)
             HeaderedItemsControl => HeaderedItemsControl.HeaderProperty,
             HeaderedContentControl => HeaderedContentControl.HeaderProperty,
             ContentControl => ContentControl.ContentProperty,

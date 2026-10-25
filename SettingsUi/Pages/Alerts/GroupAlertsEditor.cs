@@ -425,7 +425,7 @@ public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRe
     {
         var group = Selected;
         if (group == null || !GroupAlertChoices.Read(_ctx.S.GroupAlertProfiles).ContainsKey(group)) return;
-        if (_ctx.Host.ConfirmChoice(Str("L.S.GroupAlerts.Clear"), string.Format(Str("L.S.GroupAlerts.ClearAsk"), group),
+        if (_ctx.Host.ConfirmChoice(AccessKeys.Strip(Str("L.S.GroupAlerts.Clear")), string.Format(Str("L.S.GroupAlerts.ClearAsk"), group),
                 Str("L.S.GroupAlerts.ClearYes"), Str("L.S.GroupAlerts.ClearNo"), SafeAnswer.Second) != true) return;
         // FX-m5, as in Choose (RE2-I1): a card that is behind (a group made elsewhere) is still behind after this.
         bool behind = Signature() != _signature;

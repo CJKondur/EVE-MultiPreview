@@ -112,7 +112,7 @@ public sealed class StatPickerEditor : System.Windows.Controls.UserControl, IRef
     public void Reset()
     {
         if (!_ctx.S.PerCharacterStats.ContainsKey(_name)) return;
-        if (!_ctx.Host.Confirm(SettingsContext.Str("L.S.StatsPicker.Reset"), SettingsContext.Str("L.S.StatsPicker.ResetConfirm"))) return;
+        if (!_ctx.Host.Confirm(AccessKeys.Strip(SettingsContext.Str("L.S.StatsPicker.Reset")), SettingsContext.Str("L.S.StatsPicker.ResetConfirm"))) return;
         StatsFields.ClearOverrides(_ctx.S, _name);
         Changed();
         Rebuild();

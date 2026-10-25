@@ -54,7 +54,7 @@ public static class ProfileActions
 
     public static void NewInteractive(SettingsContext ctx)
     {
-        var name = ctx.Host.AskText(Str("L.S.Profile.New"), Str("L.S.Profile.NamePrompt"), "");
+        var name = ctx.Host.AskText(AccessKeys.Strip(Str("L.S.Profile.New")), Str("L.S.Profile.NamePrompt"), "");
         if (name == null) return;
         ctx.Host.Toast(New(ctx, name)
             ? string.Format(Str("L.S.Profile.Created"), name.Trim())
@@ -70,7 +70,7 @@ public static class ProfileActions
         if (names.Count < 2)
         {
             var source = ctx.S.LastUsedProfile;
-            var name = ctx.Host.AskText(Str("L.S.Profile.Copy"), Str("L.S.Profile.OnlyOne"), "");
+            var name = ctx.Host.AskText(AccessKeys.Strip(Str("L.S.Profile.Copy")), Str("L.S.Profile.OnlyOne"), "");
             if (name == null) return;
             if (!New(ctx, name)) { ctx.Host.Toast(string.Format(Str("L.S.Profile.NameTaken"), name.Trim())); return; }
             ProfileCopy.CopyFull(ctx.S, ctx.S.Profiles[source], ctx.S.Profiles[name.Trim()]);

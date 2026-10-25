@@ -56,7 +56,6 @@ public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, 
         _owners.Margin = new Thickness(0, 8, 0, 0);
         _owners.Visibility = Visibility.Collapsed;
         _again = EditorCard.Button(AgainKey, CheckAgain);
-        Loc.SetNameKey(_again, AgainKey);       // its name for a screen reader, in the window's language
         _again.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
         _again.Margin = new Thickness(0, 12, 0, 0);
         _again.Visibility = Visibility.Collapsed;

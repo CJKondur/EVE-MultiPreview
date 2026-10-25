@@ -72,7 +72,7 @@ public sealed class GroupsEditor : System.Windows.Controls.UserControl, IRefresh
 
     private void NewGroup()
     {
-        var name = _ctx.Host.AskText(Str("L.S.Act.clients.groups.new"), Str("L.S.Groups.NamePrompt"), "");
+        var name = _ctx.Host.AskText(AccessKeys.Strip(Str("L.S.Act.clients.groups.new")), Str("L.S.Groups.NamePrompt"), "");
         if (name == null) return;
         if (MergedGroups.New(_ctx.S, name) == null)
         {

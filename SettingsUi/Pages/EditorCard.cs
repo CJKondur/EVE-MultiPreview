@@ -92,12 +92,16 @@ public static class EditorCard
         return row;
     }
 
+    /// <summary>An action button. Its label may mark an access key with "_" ("Back up the _ticked profiles", Alt+T);
+    /// a screen reader is given the label without the marker (IDEAS #51).</summary>
     public static Button Button(string key, Action click, bool destructive = false)
     {
-        var text = new TextBlock();
+        var text = new AccessText();
         Loc.SetKey(text, key);
         if (destructive) text.SetResourceReference(TextBlock.ForegroundProperty, "Fx.CriticalBrush");
         var button = new Button { Content = text, Padding = new Thickness(12, 4, 12, 4) };
+        System.Windows.Data.BindingOperations.SetBinding(button, AutomationProperties.NameProperty,
+            new System.Windows.Data.Binding(nameof(AccessText.Text)) { Source = text, Converter = AccessKeyName.Instance });
         button.Click += (_, _) => click();
         return button;
     }
