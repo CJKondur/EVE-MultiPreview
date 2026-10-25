@@ -63,15 +63,17 @@ public sealed class PushLedger
 
     /// <summary>An alert comes in. False when it is not taken: the webhook is gone, that character and event was
     /// sent less than <see cref="SameAgain"/> before, or <see cref="MaxWaiting"/> lines wait and none is less
-    /// severe. A time of "last sent" that lies ahead of the alert (the clock was set back) counts as past.</summary>
-    public bool Raised(AlertNotice notice)
+    /// severe. A time of "last sent" that lies ahead of the alert (the clock was set back) counts as past.
+    /// <paramref name="insist"/> (the hand-off of a chain of repeats) skips the "sent less than SameAgain before"
+    /// refusal only: a gone webhook and a full queue still refuse.</summary>
+    public bool Raised(AlertNotice notice, bool insist = false)
     {
         ArgumentNullException.ThrowIfNull(notice);
         var key = KeyOf(notice.Character, notice.EventKey);
         lock (_lock)
         {
             if (_gone) return false;
-            if (_lastSentOf.TryGetValue(key, out var last) && last <= notice.TimeUtc && notice.TimeUtc - last < SameAgain)
+            if (!insist && _lastSentOf.TryGetValue(key, out var last) && last <= notice.TimeUtc && notice.TimeUtc - last < SameAgain)
                 return false;
 
             var at = _waiting.FindIndex(l => KeyOf(l) == key);

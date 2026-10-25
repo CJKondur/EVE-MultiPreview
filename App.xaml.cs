@@ -580,7 +580,7 @@ public partial class App : Application
             _alertWays.Add(_spokenWay);
             _thumbnailManager.Attention.Looked += _spokenWay.Looked;
             _spokenWay.Follow(_settings.Settings.SpeakAlerts);
-            _escalation.HandOff = _spokenWay.HandedOff;
+            _escalation.HandOff = alert => { _spokenWay?.HandedOff(alert); _pushWay?.HandedOff(alert); };
             // IDEAS #33: Windows notifications. The way is told of every alert that got past the gates and of every
             // client that was looked at; a click on a notification comes back on a thread of Windows' and is done on
             // the window's: "Switch to" as a toast's click does it, "Snooze" as a toast's menu does it

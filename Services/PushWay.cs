@@ -87,7 +87,19 @@ public sealed class PushWay : IAlertWay
 
     public bool IsOn(AppSettings s) => s.PushAlerts && !string.IsNullOrEmpty(s.PushDiscordWebhook);
 
-    public void Raised(AlertNotice notice, AppSettings s)
+    public void Raised(AlertNotice notice, AppSettings s) => Take(notice, s, insist: false);
+
+    /// <summary>The last word of a chain of repeats (AlertEscalation.HandOff): a critical alert was repeated as often
+    /// as set and is still unseen. It goes to Discord once more, also within the minute the same line was last sent,
+    /// while Discord alerts are on and this way's own gates let it (its severity, do-not-disturb, "only while
+    /// away"), as a first push of it would be let. Before any settings are known, nothing.</summary>
+    public void HandedOff(UnseenAlert alert)
+    {
+        if (_settings is not { } s || !IsOn(s)) return;
+        Take(new AlertNotice(_utcNow(), alert.Character, alert.EventKey, alert.Severity, false), s, insist: true);
+    }
+
+    private void Take(AlertNotice notice, AppSettings s, bool insist)
     {
         if (_stopped) return;
         if (!AlertWays.Reaches(s.PushAlertsFrom, notice.Severity)) return;
@@ -95,7 +107,7 @@ public sealed class PushWay : IAlertWay
         // A player at the PC sees the alert there; a Windows that won't say how long it is idle counts as away.
         if (s.PushOnlyWhenAway && _idle() is { } idle && idle < AwayAfter) return;
         _settings = s;
-        if (Ledger.Raised(notice)) Pump.Wake();
+        if (Ledger.Raised(notice, insist)) Pump.Wake();
     }
 
     /// <summary>Keeps the settings for the drain. A stored link text other than at the last call (a new link was
