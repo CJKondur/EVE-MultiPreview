@@ -4,14 +4,27 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Button = System.Windows.Controls.Button;
 using CheckBox = System.Windows.Controls.CheckBox;
 using ComboBox = System.Windows.Controls.ComboBox;
 using Orientation = System.Windows.Controls.Orientation;
+using Panel = System.Windows.Controls.Panel;
+using Point = System.Windows.Point;
 using RadioButton = System.Windows.Controls.RadioButton;
+using Size = System.Windows.Size;
 using TextBox = System.Windows.Controls.TextBox;
 
 namespace EveMultiPreview.SettingsUi;
+
+/// <summary>How tall Tools › EVE settings lets a profile, character or account list be (owner request): what the page's
+/// viewport has left once everything above and below the list is counted, never less than a floor (a short window
+/// scrolls the page, as before, rather than squeezing the list to nothing).</summary>
+public static class EveListHeight
+{
+    public static double Fit(double viewport, double fixedAbove, double fixedBelow, double floor = 160) =>
+        Math.Max(floor, viewport - fixedAbove - fixedBelow);
+}
 
 /// <summary>Tools › EVE settings (spec §5): the two folders, the mode switch (whole profile, one character, one
 /// account) and each mode's pickers and buttons. The rules and the file work are EveSettingsModel's; this only lays
@@ -35,6 +48,14 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
     private readonly TextBox _accountName = new() { MinWidth = 220, VerticalContentAlignment = VerticalAlignment.Center };
     private readonly Button _fetch;
     private bool _loading;
+    private ScrollViewer? _page;
+    private readonly List<(EveCopyMode Mode, FrameworkElement Lists, ScrollViewer[] Boxes)> _fills = new();
+
+    /// <summary>A pixel or two the page keeps spare when the lists are fitted, so layout rounding never raises a page scroll bar.</summary>
+    private const double BottomGap = 2;
+    /// <summary>The height a list has until the page's height is known (no page around it: a test, a first layout).</summary>
+    private const double StartHeight = 240;
+    private const double ColumnMargin = 8;
 
     public EveSettingsEditor(SettingsContext ctx, EveSettingsModel? model = null)
     {
@@ -62,6 +83,8 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
         _namesCard = EditorCard.Frame(names);
         root.Children.Add(_namesCard);
         Content = root;
+        Loaded += (_, _) => Attach();
+        Unloaded += (_, _) => Detach();
         SetMode(EveCopyMode.Profile);
         Refresh();
     }
@@ -76,9 +99,100 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
     /// <summary>The character numbers listed under "Copy from" (tests).</summary>
     public IReadOnlyList<string> CharacterSourceIds => _charFrom.Entries.Select(e => e.Id).ToList();
 
+    /// <summary>The scroll boxes holding a mode's lists, left to right (tests).</summary>
+    public IReadOnlyList<ScrollViewer> ListBoxes(EveCopyMode mode) => _fills.First(f => f.Mode == mode).Boxes;
+
     private static string Str(string key) => SettingsContext.Str(key);
 
     // ── Layout ──
+
+    /// <summary>Two columns that share the width, side by side while the page is wide enough for both (their minimum
+    /// widths, never under 560 px), one under the other when it is not.</summary>
+    private sealed class TwoColumns : Panel
+    {
+        private const double NarrowPage = 560;
+        private bool _side;
+
+        private static double Need(UIElement e) => e is FrameworkElement f ? f.MinWidth + f.Margin.Left + f.Margin.Right : 0;
+
+        protected override Size MeasureOverride(Size available)
+        {
+            var kids = InternalChildren.Cast<UIElement>().ToList();
+            _side = kids.Count == 2 && (double.IsInfinity(available.Width)
+                || available.Width >= Math.Max(NarrowPage, Need(kids[0]) + Need(kids[1])));
+            double width = 0, height = 0;
+            foreach (var kid in kids)
+            {
+                kid.Measure(_side ? new Size(available.Width / 2, double.PositiveInfinity) : new Size(available.Width, double.PositiveInfinity));
+                width = _side ? width + kid.DesiredSize.Width : Math.Max(width, kid.DesiredSize.Width);
+                height = _side ? Math.Max(height, kid.DesiredSize.Height) : height + kid.DesiredSize.Height;
+            }
+            return new Size(double.IsInfinity(available.Width) ? width : available.Width, height);
+        }
+
+        protected override Size ArrangeOverride(Size final)
+        {
+            double x = 0, y = 0;
+            foreach (UIElement kid in InternalChildren)
+            {
+                if (_side)
+                {
+                    kid.Arrange(new Rect(x, 0, final.Width / 2, final.Height));
+                    x += final.Width / 2;
+                }
+                else
+                {
+                    kid.Arrange(new Rect(0, y, final.Width, kid.DesiredSize.Height));
+                    y += kid.DesiredSize.Height;
+                }
+            }
+            return final;
+        }
+    }
+
+    /// <summary>The lists take the page's height (owner request): they are fitted whenever the page lays out, so a
+    /// resize, a mode switch or a new line in the status all move the buttons back into view. The page scrolls only
+    /// when even the floor does not fit.</summary>
+    private void Attach()
+    {
+        Detach();
+        for (DependencyObject? n = VisualTreeHelper.GetParent(this); n != null; n = VisualTreeHelper.GetParent(n))
+            if (n is ScrollViewer sv) { _page = sv; break; }
+        LayoutUpdated += FitLists;
+    }
+
+    private void Detach()
+    {
+        LayoutUpdated -= FitLists;
+        _page = null;
+    }
+
+    private static double BottomIn(FrameworkElement e, Visual content) =>
+        e.TransformToAncestor(content).TransformBounds(new Rect(0, 0, e.ActualWidth, e.ActualHeight)).Bottom;
+
+    private void FitLists(object? sender, EventArgs e)
+    {
+        if (_page is not { ViewportHeight: > 0 } page || page.Content is not Visual content) return;
+        try
+        {
+            foreach (var (mode, lists, boxes) in _fills)
+            {
+                var panel = _panels[mode];
+                if (mode != Mode || !panel.IsVisible || !lists.IsVisible) continue;
+                // Above: the page's top margin, the cards before this one, the column's title. Below: the column's own
+                // margin, the buttons, the card's edge, the names card in the two modes that show it, and the page's
+                // end: all of it the page's own height (its desired size, which a short page does not stretch).
+                var top = (content as FrameworkElement)?.Margin.Top ?? 0;
+                var above = top + boxes[0].TransformToAncestor(content).Transform(new Point(0, 0)).Y;
+                var total = (content as UIElement)?.DesiredSize.Height ?? 0;
+                var below = total - (top + BottomIn(lists, content)) + ColumnMargin + BottomGap;
+                var height = EveListHeight.Fit(page.ViewportHeight, above, below);
+                foreach (var box in boxes)
+                    if (Math.Abs(box.MaxHeight - height) > 0.5) box.MaxHeight = height;
+            }
+        }
+        catch (InvalidOperationException) { }   // the editor is between two parents: the next layout fits it
+    }
 
     private static TextBox ReadOnlyBox(string nameKey)
     {
@@ -161,19 +275,21 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
         return frame;
     }
 
-    private static UIElement Column(string titleKey, UIElement list)
+    private static UIElement Column(string titleKey, UIElement list, out ScrollViewer box)
     {
-        var column = new StackPanel { MinWidth = 260, Margin = new Thickness(0, 8, 24, 8) };
+        var column = new StackPanel { MinWidth = 260, Margin = new Thickness(0, ColumnMargin, 24, ColumnMargin) };
         column.Children.Add(EditorCard.Note(titleKey, strong: true));
-        column.Children.Add(new ScrollViewer { Content = list, MaxHeight = 240, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
+        box = new ScrollViewer { Content = list, MaxHeight = StartHeight, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+        column.Children.Add(box);
         return column;
     }
 
     private UIElement ProfileContent()
     {
-        var lists = new WrapPanel();
-        lists.Children.Add(Column("L.S.Eve.Source", _profileSources));
-        lists.Children.Add(Column("L.S.Eve.Targets", _profileTargets));
+        var lists = new TwoColumns();
+        lists.Children.Add(Column("L.S.Eve.Source", _profileSources, out var from));
+        lists.Children.Add(Column("L.S.Eve.Targets", _profileTargets, out var to));
+        _fills.Add((EveCopyMode.Profile, lists, new[] { from, to }));
         var stack = new StackPanel();
         stack.Children.Add(Wrapped(EditorCard.Note("L.S.Eve.ModeProfileDesc")));
         stack.Children.Add(lists);
@@ -185,9 +301,10 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
 
     private UIElement CharacterContent()
     {
-        var lists = new WrapPanel();
+        var lists = new TwoColumns();
         lists.Children.Add(_charFrom.View);
         lists.Children.Add(_charTo.View);
+        _fills.Add((EveCopyMode.Character, lists, new[] { _charFrom.Box, _charTo.Box }));
         var stack = new StackPanel();
         stack.Children.Add(Wrapped(EditorCard.Note("L.S.Eve.ModeCharacterDesc")));
         stack.Children.Add(lists);
@@ -199,9 +316,10 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
 
     private UIElement AccountContent()
     {
-        var lists = new WrapPanel();
+        var lists = new TwoColumns();
         lists.Children.Add(_accountFrom.View);
         lists.Children.Add(_accountTo.View);
+        _fills.Add((EveCopyMode.Account, lists, new[] { _accountFrom.Box, _accountTo.Box }));
         var stack = new StackPanel();
         stack.Children.Add(Wrapped(EditorCard.Note("L.S.Eve.ModeAccountDesc")));
         stack.Children.Add(lists);
@@ -380,15 +498,17 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
                 Reload();
             };
             _search.TextChanged += (_, _) => Draw();
-            var panel = new StackPanel { MinWidth = 280, Margin = new Thickness(0, 8, 24, 8) };
+            var panel = new StackPanel { MinWidth = 280, Margin = new Thickness(0, ColumnMargin, 24, ColumnMargin) };
             panel.Children.Add(EditorCard.Note(titleKey, strong: true));
             panel.Children.Add(EditorCard.Field("L.S.Eve.Profile", _profile));
             panel.Children.Add(EditorCard.Field("L.S.Eve.Search", _search));
-            panel.Children.Add(new ScrollViewer { Content = _rows, MaxHeight = 240, VerticalScrollBarVisibility = ScrollBarVisibility.Auto });
+            Box = new ScrollViewer { Content = _rows, MaxHeight = StartHeight, VerticalScrollBarVisibility = ScrollBarVisibility.Auto };
+            panel.Children.Add(Box);
             View = panel;
         }
 
         public UIElement View { get; }
+        public ScrollViewer Box { get; }
         public IReadOnlyList<EveEntry> Entries { get; private set; } = Array.Empty<EveEntry>();
         public string? Chosen { get; private set; }
         public HashSet<string> Ticked { get; } = new();
