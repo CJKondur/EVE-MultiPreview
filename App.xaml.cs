@@ -1727,8 +1727,10 @@ public partial class App : Application
 
     /// <summary>IDEAS #43: one look at the pad, on the window's thread (a DispatcherTimer ticks there). A button newly pressed
     /// runs the command bound to it through RunCommand, the entry point the command pipe and the palette use; a command it
-    /// refuses or cannot find is dropped without a word. While hotkeys are paused (Suspend) the pad is read, so a button held
-    /// through the pause does not fire, but nothing runs. A failure stops the pad (the next settings change starts it again) and
+    /// refuses or cannot find is dropped without a word. A pad press follows the rules of a hotkey: while hotkeys are paused
+    /// (Suspend), or are held back (EVE-only scope with another program in front, the settings window or the command palette in
+    /// front: HotkeyService.InputBlocked), the pad is still read, so a button held through it does not fire later, but nothing
+    /// runs; with no hotkey service nothing runs either. A failure stops the pad (the next settings change starts it again) and
     /// is logged once, so a pad that keeps failing cannot fill the log twenty times a second.</summary>
     private void GamepadTick()
     {
@@ -1736,7 +1738,7 @@ public partial class App : Application
         {
             if (_isShuttingDown || _gamepadPoller == null) return;
             var pressed = _gamepadPoller.Poll();
-            if (pressed.Count == 0 || _hotkeyService?.IsSuspended == true) return;
+            if (pressed.Count == 0 || _hotkeyService is not { } hk || hk.IsSuspended || hk.InputBlocked()) return;
             foreach (var button in pressed)
                 if (_gamepadBindings.TryGetValue(button, out var command)) RunCommand(command);
         }

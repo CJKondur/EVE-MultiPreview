@@ -194,10 +194,48 @@ public sealed class HotkeyService : IDisposable
     /// <summary>Whether a hotkey is held back: the palette is in front and the key is not the palette's own.</summary>
     public static bool PaletteBlocks(bool paletteInFront, bool isPaletteKey) => paletteInFront && !isPaletteKey;
 
-    private bool PaletteInFront()
+    private bool PaletteInFront() => PaletteInFront(ForegroundWindow());
+
+    private bool PaletteInFront(IntPtr foreground)
     {
         var palette = CommandPaletteWindowHandle;
-        return palette != IntPtr.Zero && ForegroundWindow() == palette;
+        return palette != IntPtr.Zero && foreground == palette;
+    }
+
+    /// <summary>The three guards that keep a hotkey quiet, said once: "Hotkeys work: EVE only" with something else in front, a
+    /// MultiPreview settings window in front, the command palette in front (unless <paramref name="isPaletteKey"/>: the palette's own
+    /// key still gets through). WndProc asks it for every hotkey that is not the internal activation bridge; the game pad (IDEAS #43)
+    /// asks it before it runs a command, so a pad press follows the same rules as a key. The foreground window is read once, through
+    /// <see cref="ForegroundWindow"/>; each guard fails open (a guard that throws does not block). The mouse hook has its own copy and
+    /// is left alone. Suspend is separate (<see cref="IsSuspended"/>).</summary>
+    public bool InputBlocked(bool isPaletteKey = false) => BlockedBecause(isPaletteKey) != null;
+
+    /// <summary>The reason <see cref="InputBlocked"/> answers yes (for the debug trace), or null.</summary>
+    private string? BlockedBecause(bool isPaletteKey)
+    {
+        IntPtr foreground;
+        try { foreground = ForegroundWindow(); }
+        catch { return null; }
+
+        if (_eveOnlyScope)
+        {
+            try
+            {
+                string? foregroundProcess = User32.GetProcessName(foreground);
+                if (!User32.IsEveOrAppProcess(foregroundProcess)) return $"EVE Only scope blocked (fg={foregroundProcess})";
+            }
+            catch { }
+        }
+
+        // M5: Exclude settings window from hotkey activation (matches AHK)
+        try { if (SettingsInFront(foreground)) return "Settings window active"; }
+        catch { }
+
+        // The command palette (IDEAS #14) takes typed text like the settings window: no other hotkey while it is in front.
+        try { if (PaletteBlocks(PaletteInFront(foreground), isPaletteKey)) return "Command palette in front"; }
+        catch { }
+
+        return null;
     }
 
     /// <summary>Hotkeys stay quiet while a MultiPreview settings window is in front (matches AHK): the open settings
@@ -1278,50 +1316,17 @@ public sealed class HotkeyService : IDisposable
             // repeat throttle — those guards exist to filter user-driven input.
             bool isActivationHotkey = _activationHotkeyIds.Contains(id);
 
-            // ── EVE Only scope check ──
-            if (_eveOnlyScope && !isActivationHotkey)
-            {
-                try
-                {
-                    var fgHwnd = User32.GetForegroundWindow();
-                    string? fgProc = User32.GetProcessName(fgHwnd);
-                    if (!User32.IsEveOrAppProcess(fgProc))
-                    {
-                        Debug.WriteLine($"[Hotkey:Blocked] 🚫 EVE Only scope blocked ID={id} (fg={fgProc})");
-                        return IntPtr.Zero; // Don't fire
-                    }
-                }
-                catch { }
-            }
-
-            // M5: Exclude settings window from hotkey activation (matches AHK)
+            // EVE Only scope, the settings window and the command palette: one predicate (BlockedBecause), shared with the game pad.
             if (!isActivationHotkey)
             {
-                try
-                {
-                    var fgHwnd2 = User32.GetForegroundWindow();
-                    if (SettingsInFront(fgHwnd2))
-                    {
-                        Debug.WriteLine($"[Hotkey:Blocked] 🚫 Settings window active, blocked ID={id}");
-                        return IntPtr.Zero;
-                    }
-                }
+                bool paletteKey = false;
+                try { paletteKey = _hotkeyActions.TryGetValue(id, out var keyAction) && ReferenceEquals(keyAction, _paletteKeyAction); }
                 catch { }
-            }
-
-            // The command palette (IDEAS #14) takes typed text like the settings window: no other hotkey while it is in front.
-            if (!isActivationHotkey)
-            {
-                try
+                if (BlockedBecause(paletteKey) is { } why)
                 {
-                    bool paletteKey = _hotkeyActions.TryGetValue(id, out var keyAction) && ReferenceEquals(keyAction, _paletteKeyAction);
-                    if (PaletteBlocks(PaletteInFront(), paletteKey))
-                    {
-                        Debug.WriteLine($"[Hotkey:Blocked] Command palette in front, blocked ID={id}");
-                        return IntPtr.Zero;
-                    }
+                    Debug.WriteLine($"[Hotkey:Blocked] 🚫 {why}, blocked ID={id}");
+                    return IntPtr.Zero; // Don't fire
                 }
-                catch { }
             }
 
             // Cycle hotkeys now receive the OS key-repeat stream (no MOD_NOREPEAT), so a
