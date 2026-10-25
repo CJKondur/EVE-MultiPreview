@@ -2891,4 +2891,7 @@
     <sys:String x:Key="L.Cmd.mute-30">{0} のアラートを 30 分間ミュート</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.minimize-clients">すべての EVE クライアントを最小化</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.restore-clients">すべての EVE クライアントを元に戻す</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.On">キャラクター名バー：オン</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Off">キャラクター名バー：オフ</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.AlertsAllSeen">アラートを既読にしました</sys:String> <!-- draft -->
 </ResourceDictionary>

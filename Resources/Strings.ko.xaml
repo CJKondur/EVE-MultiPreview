@@ -2891,4 +2891,7 @@
     <sys:String x:Key="L.Cmd.mute-30">{0}의 경보를 30분 동안 음소거</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.minimize-clients">모든 EVE 클라이언트 최소화</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.restore-clients">모든 EVE 클라이언트 복원</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.On">캐릭터 이름 바: 켜짐</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Off">캐릭터 이름 바: 꺼짐</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.AlertsAllSeen">알림을 읽음으로 표시했어요</sys:String> <!-- draft -->
 </ResourceDictionary>

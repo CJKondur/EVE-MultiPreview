@@ -2893,4 +2893,7 @@
     <sys:String x:Key="L.Cmd.mute-30">Couper les alertes de {0} pendant 30 minutes</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.minimize-clients">Réduire tous les clients EVE</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.restore-clients">Restaurer tous les clients EVE</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.On">Barre des noms : activée</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Off">Barre des noms : désactivée</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.AlertsAllSeen">Alertes marquées comme vues</sys:String> <!-- draft -->
 </ResourceDictionary>

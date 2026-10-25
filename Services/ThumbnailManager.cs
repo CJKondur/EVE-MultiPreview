@@ -4391,6 +4391,31 @@ public sealed class ThumbnailManager : IDisposable
     public IReadOnlyList<(IntPtr Window, string Character)> ClientWindows() =>
         _thumbnails.Select(kv => (kv.Key, kv.Value.CharacterName ?? "")).ToList();
 
+    /// <summary>Plan 38, --minimize-clients and --restore-clients: the show command for each client the command touches.
+    /// Minimise: every client that is not minimised yet gets SW_FORCEMINIMIZE. Restore: every minimised client gets
+    /// SW_SHOWNOACTIVATE, which shows it without activating it, so nothing is brought to the front and the player's foreground
+    /// window stays. Never SW_RESTORE or SW_SHOW (they activate). A client already in the wanted state is left out.</summary>
+    public static IReadOnlyList<(IntPtr Hwnd, int Show)> ClientWindowCommands(IEnumerable<(IntPtr Hwnd, bool Iconic)> clients, bool minimize) =>
+        clients.Where(c => c.Iconic != minimize)
+            .Select(c => (c.Hwnd, minimize ? Interop.User32.SW_FORCEMINIMIZE : Interop.User32.SW_SHOWNOACTIVATE)).ToList();
+
+    /// <summary>Plan 38: minimises every EVE client (ShowWindowAsync only, no input). The window's thread.</summary>
+    public void MinimizeAllClients()
+    {
+        var clients = _thumbnails.Keys.Select(h => (h, Interop.User32.IsIconic(h))).ToList();
+        foreach (var (hwnd, show) in ClientWindowCommands(clients, minimize: true))
+            Interop.User32.ShowWindowAsync(hwnd, show);
+    }
+
+    /// <summary>Plan 38: shows every minimised EVE client again, without activating any (ShowWindowAsync only, no input). The
+    /// window's thread.</summary>
+    public void RestoreAllClients()
+    {
+        var clients = _thumbnails.Keys.Select(h => (h, Interop.User32.IsIconic(h))).ToList();
+        foreach (var (hwnd, show) in ClientWindowCommands(clients, minimize: false))
+            Interop.User32.ShowWindowAsync(hwnd, show);
+    }
+
     /// <summary>Shows on a client's main thumbnail what ClientWatch said of it, and (IDEAS P114) the same on its second
     /// thumbnail; its crop windows hear of it through <see cref="ClientMarkChanged"/>. A client at character select has
     /// neither. The window's thread.</summary>

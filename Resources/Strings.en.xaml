@@ -2890,4 +2890,7 @@
     <sys:String x:Key="L.Cmd.mute-30">Mute alerts of {0} for 30 minutes</sys:String>
     <sys:String x:Key="L.Cmd.minimize-clients">Minimize all EVE clients</sys:String>
     <sys:String x:Key="L.Cmd.restore-clients">Restore all EVE clients</sys:String>
+    <sys:String x:Key="L.NameBar.On">Name bar: on</sys:String>
+    <sys:String x:Key="L.NameBar.Off">Name bar: off</sys:String>
+    <sys:String x:Key="L.Msg.AlertsAllSeen">Alerts marked seen</sys:String>
 </ResourceDictionary>

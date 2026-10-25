@@ -2890,4 +2890,7 @@
     <sys:String x:Key="L.Cmd.mute-30">Warnungen von {0} für 30 Minuten stummschalten</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.minimize-clients">Alle EVE-Clients minimieren</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.restore-clients">Alle EVE-Clients wiederherstellen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.On">Namensleiste: an</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Off">Namensleiste: aus</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.AlertsAllSeen">Alarme als gesehen markiert</sys:String> <!-- draft -->
 </ResourceDictionary>

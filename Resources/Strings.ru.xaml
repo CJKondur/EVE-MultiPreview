@@ -2910,4 +2910,7 @@
     <sys:String x:Key="L.Cmd.mute-30">Отключить оповещения {0} на 30 минут</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.minimize-clients">Свернуть все клиенты EVE</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.restore-clients">Восстановить все клиенты EVE</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.On">Панель имён: вкл.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Off">Панель имён: выкл.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.AlertsAllSeen">Оповещения отмечены как просмотренные</sys:String> <!-- draft -->
 </ResourceDictionary>

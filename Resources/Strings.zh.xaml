@@ -2908,4 +2908,7 @@
     <sys:String x:Key="L.Cmd.mute-30">将 {0} 的警报静音 30 分钟</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.minimize-clients">最小化所有 EVE 客户端</sys:String> <!-- draft -->
     <sys:String x:Key="L.Cmd.restore-clients">还原所有 EVE 客户端</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.On">角色名称栏：开</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Off">角色名称栏：关</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Msg.AlertsAllSeen">警报已标为已读</sys:String> <!-- draft -->
 </ResourceDictionary>

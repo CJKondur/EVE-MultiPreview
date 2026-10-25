@@ -203,7 +203,7 @@ public partial class App : Application
             // as its exit code (0 done, 1 refused, 2 not found, 3 nothing took it). No window for 0 to 2: scripts and a
             // Stream Deck start it, and a window would take the front from the game.
             var forwarded = RemoteCommandLine.Forward(e.Args, command =>
-                CommandPipe.Send(CommandPipe.CurrentName(), command, CommandPipe.SendTime, letTakeTheFront: command.SwitchesAClient));
+                CommandPipe.Send(CommandPipe.CurrentName(), command, CommandPipe.SendTime, letTakeTheFront: command.TakesTheFront));
             if (forwarded is RemoteOutcome outcome)
             {
                 if (outcome == RemoteOutcome.NotReachable) TellCommandsOff();
@@ -1688,6 +1688,22 @@ public partial class App : Application
                 IsFocusModeOn = () => _focusModeOn,
                 // IDEAS P129: the menu's whole-character alert mute, for the longest timed length the menu offers
                 SetAlertMute = (name, mute) => thumbnails.SetCharacterAlertMute(name, mute ? ThumbnailMenu.LongestTimedMuteMinutes : 0),
+                // Plan 38: the windows open through the methods the tray and the settings use (on this thread); the name bar through
+                // the switch the settings card flips; the minimise and restore parts never activate a window (ClientWindowCommands).
+                OpenSettings = () => OpenSettings(false),
+                OpenFleetBoard = OpenFleetBoard,
+                OpenAlertHistory = OpenAlertHistory,
+                IsNameBarOn = () => settings.Settings.NameBarMode,
+                SetNameBar = SetNameBarMode,
+                MarkAlertsSeen = () =>
+                {
+                    int taken = thumbnails.Attention.SeeAll();
+                    thumbnails.ShowTooltipFeedback(LocalizationService.Str("L.Msg.AlertsAllSeen", "Alerts marked seen"));
+                    return taken;
+                },
+                MuteFor = thumbnails.SetCharacterAlertMute,
+                MinimizeClients = thumbnails.MinimizeAllClients,
+                RestoreClients = thumbnails.RestoreAllClients,
             }.Run(command);
         }
         catch (Exception ex)
@@ -2593,6 +2609,23 @@ public partial class App : Application
             _hotkeySheet = null;
             LogError(ex);
         }
+    }
+
+    /// <summary>Plan 38: --name-bar, --name-bar-on and --name-bar-off set the switch the settings card sets (NameBarMode, saved),
+    /// then the bar follows it at once (FollowNameBar) and the near-cursor note says what it is now. The same answer again
+    /// changes nothing. A failure is logged.</summary>
+    private void SetNameBarMode(bool on)
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _settings.Settings.NameBarMode == on) return;
+            _settings.Settings.NameBarMode = on;
+            _settings.Save();
+            FollowNameBar();
+            var (key, english) = on ? ("L.NameBar.On", "Name bar: on") : ("L.NameBar.Off", "Name bar: off");
+            _thumbnailManager?.ShowTooltipFeedback(LocalizationService.Str(key, english));
+        }
+        catch (Exception ex) { LogError(ex); }
     }
 
     /// <summary>IDEAS #38, at each look of the half-second timer and when settings apply: the compact name bar follows its switch.

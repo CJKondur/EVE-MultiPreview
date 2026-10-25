@@ -196,6 +196,21 @@ public sealed class AlertAttention
         return true;
     }
 
+    /// <summary>Plan 38, --mark-alerts-seen: every character's alerts are seen, as if each client had come to the front. Goes
+    /// through <see cref="Seen"/> per character, outside the lock, so <see cref="Changed"/> and <see cref="Looked"/> (the badge,
+    /// the Windows notifications) fire for each. Answers how many characters were taken off; 0 raises nothing.</summary>
+    public int SeeAll()
+    {
+        if (Volatile.Read(ref _characters) == 0) return 0;
+        DropExpired();
+        string[] who;
+        lock (_lock) who = _byCharacter.Keys.ToArray();
+        int taken = 0;
+        foreach (var character in who)
+            if (Seen(character)) taken++;
+        return taken;
+    }
+
     /// <summary>That character's client closed, or the character logged out of it: nothing there needs the player any
     /// more. True when there was something.</summary>
     public bool Gone(string character) => Seen(character);
