@@ -394,12 +394,12 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
             var label = string.Format(Str("L.S.Eve.ProfileItem"), p.Name, p.Accounts);
             var source = new RadioButton
             {
-                Content = label, GroupName = _profileGroup, Margin = new Thickness(0, 2, 0, 2),
+                Content = AccessKeys.Verbatim(label), GroupName = _profileGroup, Margin = new Thickness(0, 2, 0, 2),
                 IsChecked = string.Equals(path, _sourceProfilePath, StringComparison.OrdinalIgnoreCase),
             };
             source.Checked += (_, _) => _sourceProfilePath = path;
             _profileSources.Children.Add(source);
-            var target = new CheckBox { Content = label, Margin = new Thickness(0, 2, 0, 2), IsChecked = _tickedProfiles.Contains(path) };
+            var target = new CheckBox { Content = AccessKeys.Verbatim(label), Margin = new Thickness(0, 2, 0, 2), IsChecked = _tickedProfiles.Contains(path) };
             target.Checked += (_, _) => _tickedProfiles.Add(path);
             target.Unchecked += (_, _) => _tickedProfiles.Remove(path);
             _profileTargets.Children.Add(target);
@@ -551,13 +551,13 @@ public sealed class EveSettingsEditor : System.Windows.Controls.UserControl, IRe
                 var id = e.Id;
                 if (_single)
                 {
-                    var radio = new RadioButton { Content = e.Label, GroupName = _group, IsChecked = id == Chosen, Margin = new Thickness(0, 2, 0, 2) };
+                    var radio = new RadioButton { Content = AccessKeys.Verbatim(e.Label), GroupName = _group, IsChecked = id == Chosen, Margin = new Thickness(0, 2, 0, 2) };
                     radio.Checked += (_, _) => Chosen = id;
                     _rows.Children.Add(radio);
                 }
                 else
                 {
-                    var tick = new CheckBox { Content = e.Label, IsChecked = Ticked.Contains(id), Margin = new Thickness(0, 2, 0, 2) };
+                    var tick = new CheckBox { Content = AccessKeys.Verbatim(e.Label), IsChecked = Ticked.Contains(id), Margin = new Thickness(0, 2, 0, 2) };
                     tick.Checked += (_, _) => Ticked.Add(id);
                     tick.Unchecked += (_, _) => Ticked.Remove(id);
                     _rows.Children.Add(tick);

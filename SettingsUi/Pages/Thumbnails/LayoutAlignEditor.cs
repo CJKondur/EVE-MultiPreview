@@ -168,7 +168,7 @@ public sealed class LayoutAlignEditor : System.Windows.Controls.UserControl, IRe
         foreach (var name in _listed)
         {
             var who = name;
-            var box = new CheckBox { Content = who, Margin = new Thickness(0, 2, 16, 2) };
+            var box = new CheckBox { Content = AccessKeys.Verbatim(who), Margin = new Thickness(0, 2, 16, 2) };
             box.IsChecked = _ticked.Any(n => string.Equals(n, who, StringComparison.OrdinalIgnoreCase));
             box.Checked += (_, _) => Tick(who, true);
             box.Unchecked += (_, _) => Tick(who, false);
@@ -181,7 +181,7 @@ public sealed class LayoutAlignEditor : System.Windows.Controls.UserControl, IRe
     private void SyncBoxes()
     {
         foreach (CheckBox box in _list.Children)
-            box.IsChecked = _ticked.Any(n => string.Equals(n, (string)box.Content, StringComparison.OrdinalIgnoreCase));
+            box.IsChecked = _ticked.Any(n => string.Equals(n, ((TextBlock)box.Content).Text, StringComparison.OrdinalIgnoreCase));
     }
 
     private void UpdateButtons()

@@ -298,7 +298,8 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
             foreach (var t in targets)
             {
                 var target = t;
-                var item = new MenuItem { Header = target };
+                var item = new MenuItem { Header = AccessKeys.Verbatim(target) };
+                System.Windows.Automation.AutomationProperties.SetName(item, target);
                 item.Click += (_, _) => CopyTo(def, new[] { target });
                 menu.Items.Add(item);
             }

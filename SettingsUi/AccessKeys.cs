@@ -35,17 +35,30 @@ public static class AccessKeys
         }
         return text.ToString();
     }
+
+    /// <summary>What a screen reader says: <see cref="Strip"/>, and for a Chinese, Japanese or Korean text without the Latin
+    /// key in brackets ("导出（_E）…" is said "导出…").</summary>
+    public static string Spoken(string? content) =>
+        Strip(System.Text.RegularExpressions.Regex.Replace(content ?? "", @"[(（]_[A-Za-z][)）]", ""));
+
+    /// <summary>A text of the player's or the game's (a profile, a character, a group, a slot), shown as it is. A string given
+    /// as a button's, check box's or menu item's content is read for "_" markers by most looks, which eats an
+    /// underscore ("settings_Default" shown as "settingsDefault") and takes Alt+D for it; a TextBlock is never read so.
+    /// It wraps, as the text of a check box or radio does when its column is narrow (Terminal at the window's smallest
+    /// width cut "settings_Default · 0 accounts" off; nothing had measured such a label while it was an AccessText).</summary>
+    public static System.Windows.Controls.TextBlock Verbatim(string text) =>
+        new() { Text = text, TextWrapping = System.Windows.TextWrapping.Wrap };
 }
 
 /// <summary>The name a screen reader is given for a button whose label (an AccessText) marks an access key: the text
-/// without the marker. WPF gives a button with an AccessText inside no name at all. Bound as
+/// without the marker (and without a Chinese, Japanese or Korean text's key in brackets). WPF gives a button with an AccessText inside no name at all. Bound as
 /// <c>AutomationProperties.Name="{Binding Text, ElementName=Label, Converter={x:Static local:AccessKeyName.Instance}}"</c>,
 /// it follows a live language switch.</summary>
 public sealed class AccessKeyName : IValueConverter
 {
     public static readonly AccessKeyName Instance = new();
 
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => AccessKeys.Strip(value as string);
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => AccessKeys.Spoken(value as string);
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => System.Windows.Data.Binding.DoNothing;
 }

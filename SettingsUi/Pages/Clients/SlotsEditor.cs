@@ -231,7 +231,8 @@ public sealed class SlotsEditor : System.Windows.Controls.UserControl, IRefresha
         foreach (var n in names)
         {
             var name = n;
-            var item = new MenuItem { Header = name };
+            var item = new MenuItem { Header = AccessKeys.Verbatim(name) };
+            System.Windows.Automation.AutomationProperties.SetName(item, name);
             item.Click += (_, _) => CaptureFromClient(slot, name);
             menu.Items.Add(item);
         }

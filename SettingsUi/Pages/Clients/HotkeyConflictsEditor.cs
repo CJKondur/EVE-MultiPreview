@@ -61,7 +61,7 @@ public sealed class HotkeyConflictsEditor : System.Windows.Controls.UserControl,
     private UIElement Link(HotkeyUse use)
     {
         var target = HotkeyConflicts.Locate(use.Id, SettingsRegistry.Pages);
-        var button = new Button { Content = use.Label, Padding = new Thickness(10, 2, 10, 2), Margin = new Thickness(0, 0, 8, 0), IsEnabled = target != null };
+        var button = new Button { Content = AccessKeys.Verbatim(use.Label), Padding = new Thickness(10, 2, 10, 2), Margin = new Thickness(0, 0, 8, 0), IsEnabled = target != null };
         button.Click += (_, _) => { if (target is { } t) _ctx.Host.Navigate(t.PageId, t.ItemId); };
         return button;
     }

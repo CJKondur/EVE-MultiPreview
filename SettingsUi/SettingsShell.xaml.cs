@@ -488,7 +488,8 @@ public partial class SettingsShell : Window, ISettingsHost
         var menu = new ContextMenu { PlacementTarget = target, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
         foreach (var name in _svc.GetProfileNames())
         {
-            var item = new MenuItem { Header = name, IsCheckable = true, IsChecked = name == _ctx.S.LastUsedProfile };
+            var item = new MenuItem { Header = AccessKeys.Verbatim(name), IsCheckable = true, IsChecked = name == _ctx.S.LastUsedProfile };
+            System.Windows.Automation.AutomationProperties.SetName(item, name);
             item.Click += (_, _) => ProfileActions.Switch(_ctx, name);
             menu.Items.Add(item);
         }
