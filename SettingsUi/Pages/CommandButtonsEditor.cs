@@ -29,6 +29,7 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     private readonly Func<bool> _elevated;
     private readonly Func<string, IReadOnlyList<ButtonSpec>, ButtonFolderResult> _writeFolder;
     private readonly Action<string> _openFolder;
+    private readonly Action<Action> _afterQueuedInput;
     private readonly ComboBox _pick = new() { MinWidth = 360 };
     private readonly TextBox _line = new() { IsReadOnly = true, MinWidth = 360 };
     private readonly UIElement _noProgram = EditorCard.Note("L.S.Cmd.NoProgram");
@@ -47,9 +48,13 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     /// <param name="writeFolder">Folder, buttons: writes the folder (real: <see cref="StreamDeckButtons.Write"/> with the real
     /// seams, on this thread, which is the window's STA thread) and says how many shortcuts it wrote and could not.</param>
     /// <param name="openFolder">Shows a folder to the player (real: Explorer, the path as one argument).</param>
+    /// <param name="afterQueuedInput">Runs an action once the input already queued has been handled (real: the dispatcher at
+    /// Background priority, below input), so a second click of a double-click, which WPF delivers only after the first click's
+    /// handler has returned, finds the button still off.</param>
     public CommandButtonsEditor(SettingsContext ctx, Func<string?> exePath, Func<string, bool> copy,
         Func<string, string, string, string?, bool> saveShortcut, Func<RemoteCommand, Task<RemoteOutcome>> send, Func<bool>? elevated = null,
-        Func<string, IReadOnlyList<ButtonSpec>, ButtonFolderResult>? writeFolder = null, Action<string>? openFolder = null)
+        Func<string, IReadOnlyList<ButtonSpec>, ButtonFolderResult>? writeFolder = null, Action<string>? openFolder = null,
+        Action<Action>? afterQueuedInput = null)
     {
         _ctx = ctx;
         _exePath = exePath;
@@ -59,6 +64,7 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
         _elevated = elevated ?? CommandPipe.IsElevated;
         _writeFolder = writeFolder ?? ((folder, specs) => StreamDeckButtons.Write(folder, _exePath() ?? "", specs, StreamDeckButtons.RealSeams()));
         _openFolder = openFolder ?? DiagnosticsService.OpenFolder;
+        _afterQueuedInput = afterQueuedInput ?? (action => Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Background, action));
         _pick.SelectionChanged += (_, _) => _line.Text = Line;
         EditorCard.NameFrom(_line, "L.S." + ItemId);
         _controls.Children.Add(EditorCard.Field("L.S.Cmd.Pick", _pick));
@@ -116,18 +122,24 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     /// streamer-masked name, so a file name always means the same command.</summary>
     public void MakeButtons()
     {
-        if (_busy) return;   // a click queued behind the one being handled must not write the folder or open Explorer twice
+        if (_busy) return;   // a click that arrives while the press is still being handled, or queued behind it (see below)
         _busy = true;
         _make.IsEnabled = false;
         try { Make(); }
         finally
         {
-            _busy = false;
-            _make.IsEnabled = true;
+            // WPF hands the second click of a double-click to the button only after this handler has returned, so the button
+            // stays off until the input already queued has been handled; it comes back on after that.
+            _afterQueuedInput(() =>
+            {
+                _busy = false;
+                _make.IsEnabled = true;
+            });
         }
     }
 
-    /// <summary>Whether the "Make Stream Deck buttons" button can be pressed: not while a press is being handled.</summary>
+    /// <summary>Whether the "Make Stream Deck buttons" button can be pressed: not while a press is being handled, nor until the
+    /// input queued behind it has been.</summary>
     public bool MakeButtonEnabled => _make.IsEnabled;
 
     private void Make()
@@ -152,12 +164,20 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
             _ctx.Applier.Request(ApplyScope.Save);   // saved, and App's Applied path follows the switches (FollowCommandServer)
         }
 
-        var result = _writeFolder(StreamDeckButtons.FolderIn(_ctx.Service.ConfigDirectory), PlanButtons());
-        _ctx.Host.Toast(result.Failed == 0
-            ? string.Format(SettingsContext.Str("L.S.Cmd.Made"), result.Written)
-            : string.Format(SettingsContext.Str("L.S.Cmd.MadePartly"), result.Written, result.Failed));
-        _openFolder(result.Folder);
-        if (ask) _ctx.Host.Reload();   // last: the switches' cards and this card's list show their new state
+        try
+        {
+            var result = _writeFolder(StreamDeckButtons.FolderIn(_ctx.Service.ConfigDirectory), PlanButtons());
+            _ctx.Host.Toast(result.Failed == 0
+                ? string.Format(SettingsContext.Str("L.S.Cmd.Made"), result.Written)
+                : string.Format(SettingsContext.Str("L.S.Cmd.MadePartly"), result.Written, result.Failed));
+            _openFolder(result.Folder);
+        }
+        finally
+        {
+            // Last, and even when the write failed: the switches were already saved, so their cards and this card's list must
+            // show their new state.
+            if (ask) _ctx.Host.Reload();
+        }
     }
 
     /// <summary>Turns one of the command switches on the way its own card does, and lists it in Recently changed (with Undo).</summary>
