@@ -280,6 +280,23 @@ public static class UiStyles
     /// would lose (the settings window: the page's scroll and the keyboard's place) and gives it back on Changed.</summary>
     public static event Action? Changing;
 
+    /// <summary>Test seam (IDEAS P106): when set, a change of look reports how long each phase took, in order, so that the phases
+    /// add up to the change. Null in the app: a change then reads no clock.</summary>
+    public static Action<string, TimeSpan>? Phase { get; set; }
+
+    [ThreadStatic] private static long _mark;
+
+    private static void Mark() { if (Phase != null) _mark = System.Diagnostics.Stopwatch.GetTimestamp(); }
+
+    /// <summary>Reports the time since the last Mark or Lap as <paramref name="phase"/>.</summary>
+    private static void Lap(string phase)
+    {
+        if (Phase is not { } report) return;
+        var now = System.Diagnostics.Stopwatch.GetTimestamp();
+        report(phase, System.Diagnostics.Stopwatch.GetElapsedTime(_mark, now));
+        _mark = now;
+    }
+
     [ThreadStatic] private static string? _language;
 
     /// <summary>The UI language whose font chains the look dictionaries of this thread hold (spec §13): "en" until a window
@@ -327,23 +344,30 @@ public static class UiStyles
     /// others, nor Changed; the first failure is thrown at the end.</summary>
     private static void Show()
     {
+        Mark();
         var next = Wanted();
         if (next == Effective) return;
+        Lap("Wanted");
         System.Runtime.ExceptionServices.ExceptionDispatchInfo? failure = null;
         try
         {
             // Inside the try: a Changing handler (or the palette) that throws still gets Changed raised, so a window that
             // kept its place gives it back (Task 7 review, Minor 5).
             Changing?.Invoke();
+            Lap("Changing");
             Effective = next;
             UiPalette.Use(UiPalette.From(next.Dictionary));
-            foreach (var window in AttachedWindows())
+            Lap("Palette");
+            var windows = AttachedWindows();
+            Lap("Windows");
+            foreach (var window in windows)
             {
                 try { Restyle(window); }
                 catch (Exception e) { failure ??= System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e); }
             }
         }
         finally { Changed?.Invoke(); }
+        Lap("Changed");
         failure?.Throw();
     }
 
@@ -373,13 +397,17 @@ public static class UiStyles
             var now = i < slots.Length ? slots[i] : null;
             if (ReferenceEquals(was, now)) continue;
             int at = was == null ? -1 : IndexOfSlot(merged, was);
+            Lap("SlotFind");
             if (now == null) { if (at >= 0) merged.RemoveAt(at); }
             else if (at >= 0) merged[at] = now;
             else merged.Insert(Math.Min(i, merged.Count), now);
+            Lap("SlotSwap");
         }
         window.SetValue(SlotsProperty, slots);
         TextColour(window);
+        Lap("TextColour");
         if (kind == StyledAs.Window) TitleBar.Apply(window);
+        Lap("TitleBar");
     }
 
     /// <summary>The text colour of a window or a surface (toast, hub, picker, wheel) of a look without Fluent: the look's
