@@ -20,7 +20,7 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     private readonly SettingsContext _ctx;
     private readonly Func<string?> _exePath;
     private readonly Func<string, bool> _copy;
-    private readonly Func<string, string, string, bool> _saveShortcut;
+    private readonly Func<string, string, string, string?, bool> _saveShortcut;
     private readonly Func<RemoteCommand, Task<RemoteOutcome>> _send;
     private readonly Func<bool> _elevated;
     private readonly ComboBox _pick = new() { MinWidth = 360 };
@@ -37,7 +37,7 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
 
     /// <param name="elevated">Whether this MultiPreview runs as administrator; the real answer unless a test hands one in.</param>
     public CommandButtonsEditor(SettingsContext ctx, Func<string?> exePath, Func<string, bool> copy,
-        Func<string, string, string, bool> saveShortcut, Func<RemoteCommand, Task<RemoteOutcome>> send, Func<bool>? elevated = null)
+        Func<string, string, string, string?, bool> saveShortcut, Func<RemoteCommand, Task<RemoteOutcome>> send, Func<bool>? elevated = null)
     {
         _ctx = ctx;
         _exePath = exePath;
@@ -100,7 +100,7 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
         if (CommandLines.Arguments(choice.Command) is not { } arguments) return;
         var path = _ctx.Host.PickSaveFile(ShortcutFile.FileNameFor(LabelOf(choice.Command)), "Shortcut (*.lnk)|*.lnk");
         if (path == null) return;
-        _ctx.Host.Toast(SettingsContext.Str(_saveShortcut(path, exe, arguments) ? "L.S.Cmd.Saved" : "L.S.Cmd.SaveFailed"));
+        _ctx.Host.Toast(SettingsContext.Str(_saveShortcut(path, exe, arguments, null) ? "L.S.Cmd.Saved" : "L.S.Cmd.SaveFailed"));
     }
 
     /// <summary>Sends the picked command to this MultiPreview as a button would and says what came of it. Awaits the

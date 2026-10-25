@@ -13,8 +13,9 @@ public static class ShortcutFile
     private const int MaxLabelLength = 80;
 
     /// <summary>Writes the shortcut: target, arguments, and the target's folder as the working folder. False when the path,
-    /// the target or the path's folder is missing, or Windows' shell could not write it. Needs an STA thread.</summary>
-    public static bool Create(string path, string target, string arguments)
+    /// the target or the path's folder is missing, or Windows' shell could not write it. Needs an STA thread. A given
+    /// <paramref name="iconPath"/> (an .ico file) is the shortcut's picture; none keeps the target's own icon.</summary>
+    public static bool Create(string path, string target, string arguments, string? iconPath = null)
     {
         if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(target)) return false;
         object? shell = null, link = null;
@@ -31,6 +32,7 @@ public static class ShortcutFile
             shortcut.TargetPath = target;
             shortcut.Arguments = arguments ?? "";
             shortcut.WorkingDirectory = Path.GetDirectoryName(target) ?? "";
+            if (!string.IsNullOrWhiteSpace(iconPath)) shortcut.IconLocation = iconPath + ",0";
             shortcut.Save();
             return File.Exists(path);
         }
