@@ -10,10 +10,13 @@ using TextBox = System.Windows.Controls.TextBox;
 
 namespace EveMultiPreview.SettingsUi;
 
-/// <summary>App settings › General › Other programs › Commands for buttons (IDEAS #15): a list of every command a button can
-/// run (the fixed ones, one per running character, group and profile), its command line, and three buttons: copy the line,
-/// save it as a Windows shortcut, and try it (send it to this MultiPreview the way a button would, and say what came of it).
-/// Writes no setting. A player's name is only ever an argument of string.Format here, never its format.</summary>
+/// <summary>App settings › General › Other programs › Commands for buttons (IDEAS #15, Plan 38): one primary button, "Make Stream
+/// Deck buttons", that writes a folder of ready shortcuts and opens it, after one plain question the first time (it turns the
+/// command switches on); and, while commands are on, a list of every command a button can run (the fixed ones, one per
+/// running character, group and profile), its command line, and three buttons: copy the line, save it as a Windows shortcut, and
+/// try it (send it to this MultiPreview the way a button would, and say what came of it). The only settings it changes are
+/// the command switches, through the normal path (set, save, follow). A player's name is only ever an argument of
+/// string.Format here, never its format.</summary>
 public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, IRefreshable
 {
     public const string ItemId = "app.general.buttons";
@@ -23,21 +26,27 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     private readonly Func<string, string, string, string?, bool> _saveShortcut;
     private readonly Func<RemoteCommand, Task<RemoteOutcome>> _send;
     private readonly Func<bool> _elevated;
+    private readonly Func<string, IReadOnlyList<ButtonSpec>, ButtonFolderResult> _writeFolder;
+    private readonly Action<string> _openFolder;
     private readonly ComboBox _pick = new() { MinWidth = 360 };
     private readonly TextBox _line = new() { IsReadOnly = true, MinWidth = 360 };
     private readonly UIElement _noProgram = EditorCard.Note("L.S.Cmd.NoProgram");
     private readonly StackPanel _controls = new();
 
-    /// <summary>The real seams: this program's path, the clipboard, the shortcut writer and the pipe (asynchronously: a
-    /// window's own thread never waits for the answer).</summary>
+    /// <summary>The real seams: this program's path, the clipboard, the shortcut writer, the pipe (asynchronously: a
+    /// window's own thread never waits for the answer), the folder writer and Explorer.</summary>
     public CommandButtonsEditor(SettingsContext ctx) : this(ctx, () => CommandLines.ButtonProgram(Environment.ProcessPath), ClipboardText.Set, ShortcutFile.Create,
         command => CommandPipe.SendAsync(CommandPipe.CurrentName(), command, CommandPipe.SendTime))
     {
     }
 
     /// <param name="elevated">Whether this MultiPreview runs as administrator; the real answer unless a test hands one in.</param>
+    /// <param name="writeFolder">Folder, buttons: writes the folder (real: <see cref="StreamDeckButtons.Write"/> with the real
+    /// seams, on this thread, which is the window's STA thread) and says how many shortcuts it wrote and could not.</param>
+    /// <param name="openFolder">Shows a folder to the player (real: Explorer, the path as one argument).</param>
     public CommandButtonsEditor(SettingsContext ctx, Func<string?> exePath, Func<string, bool> copy,
-        Func<string, string, string, string?, bool> saveShortcut, Func<RemoteCommand, Task<RemoteOutcome>> send, Func<bool>? elevated = null)
+        Func<string, string, string, string?, bool> saveShortcut, Func<RemoteCommand, Task<RemoteOutcome>> send, Func<bool>? elevated = null,
+        Func<string, IReadOnlyList<ButtonSpec>, ButtonFolderResult>? writeFolder = null, Action<string>? openFolder = null)
     {
         _ctx = ctx;
         _exePath = exePath;
@@ -45,6 +54,8 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
         _saveShortcut = saveShortcut;
         _send = send;
         _elevated = elevated ?? CommandPipe.IsElevated;
+        _writeFolder = writeFolder ?? ((folder, specs) => StreamDeckButtons.Write(folder, _exePath() ?? "", specs, StreamDeckButtons.RealSeams()));
+        _openFolder = openFolder ?? DiagnosticsService.OpenFolder;
         _pick.SelectionChanged += (_, _) => _line.Text = Line;
         EditorCard.NameFrom(_line, "L.S." + ItemId);
         _controls.Children.Add(EditorCard.Field("L.S.Cmd.Pick", _pick));
@@ -53,7 +64,14 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
             EditorCard.Button("L.S.Cmd.TryIt", () => _ = TryIt()));
         buttons.Margin = new Thickness(0, 8, 0, 0);
         _controls.Children.Add(buttons);
+        var make = EditorCard.Button("L.S.Cmd.MakeButtons", MakeButtons);
+        make.SetResourceReference(StyleProperty, "Fx.PrimaryButton");   // the one thing most players do here
+        make.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+        var makeDesc = EditorCard.Note("L.S.Cmd.MakeButtons.Desc");
+        makeDesc.Margin = new Thickness(0, 4, 0, 12);
         var below = new StackPanel();
+        below.Children.Add(make);
+        below.Children.Add(makeDesc);
         below.Children.Add(_noProgram);
         below.Children.Add(_controls);
         Content = EditorCard.Build(ItemId, null, below);
@@ -81,7 +99,59 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
         _line.Text = Line;
         bool any = Choices.Count > 0;
         _noProgram.Visibility = any ? Visibility.Collapsed : Visibility.Visible;
-        _controls.Visibility = any ? Visibility.Visible : Visibility.Collapsed;
+        _controls.Visibility = ListIsShown ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>Whether the pick / copy / save / try list shows: only while commands are on and there is a program to write
+    /// command lines for. The card and its "Make Stream Deck buttons" button are always there.</summary>
+    public bool ListIsShown => _ctx.S.AcceptCommands && Choices.Count > 0;
+
+    /// <summary>"Make Stream Deck buttons": writes the folder of shortcuts and opens it. While commands (or, for an elevated
+    /// MultiPreview, ordinary programs' commands) are off it first asks one plain question; the safe answer is Cancel, which
+    /// changes and writes nothing. Yes turns the switches on through the normal settings path (set, save, follow). The
+    /// buttons are labelled with the verb and the real name of each command (<see cref="LabelOf"/>), never a number or a
+    /// streamer-masked name, so a file name always means the same command.</summary>
+    public void MakeButtons()
+    {
+        if (_exePath() == null)
+        {
+            _ctx.Host.Toast(SettingsContext.Str("L.S.Cmd.NoProgram"));
+            return;
+        }
+        bool elevated = _elevated();
+        bool ask = !_ctx.S.AcceptCommands || (elevated && !_ctx.S.AcceptCommandsUnelevated);
+        if (ask)
+        {
+            if (!_ctx.Host.Confirm(SettingsContext.Str("L.S.Cmd.Consent.Title"),
+                    SettingsContext.Str(elevated ? "L.S.Cmd.Consent.BodyElevated" : "L.S.Cmd.Consent.Body"), SafeAnswer.Cancel))
+            {
+                _ctx.Host.Toast(SettingsContext.Str("L.S.Cmd.Consent.Kept"));
+                return;
+            }
+            _ctx.S.AcceptCommands = true;
+            if (elevated) _ctx.S.AcceptCommandsUnelevated = true;
+            _ctx.Applier.Request(ApplyScope.Save);   // saved, and App's Applied path follows the switches (FollowCommandServer)
+            _ctx.Host.Reload();                      // the switches' own cards show their new state
+            Refresh();
+        }
+
+        var result = _writeFolder(StreamDeckButtons.FolderIn(_ctx.Service.ConfigDirectory), PlanButtons());
+        _ctx.Host.Toast(result.Failed == 0
+            ? string.Format(SettingsContext.Str("L.S.Cmd.Made"), result.Written)
+            : string.Format(SettingsContext.Str("L.S.Cmd.MadePartly"), result.Written, result.Failed));
+        _openFolder(result.Folder);
+    }
+
+    /// <summary>The folder's buttons for what runs and is saved now: a focus button per running character on its group's
+    /// colour, the groups, the profiles and the fixed commands. Each one's label is <see cref="LabelOf"/> of its command.</summary>
+    private IReadOnlyList<ButtonSpec> PlanButtons()
+    {
+        var s = _ctx.S;
+        var characters = NameBar.Entries(CharacterDirectory.Running(_ctx),
+            s.ThumbnailGroups.Select(g => (g.Name, (string?)g.Color, (IReadOnlyList<string>)g.Members)).ToList(),
+            _ => null, "", Array.Empty<string>());
+        var groups = MergedGroups.Build(s).Select(g => (g.Name, g.Colour?.Color));
+        return StreamDeckButtons.Plan(characters, groups, _ctx.Service.GetProfileNames(), LabelOf);
     }
 
     public void Select(int index) => _pick.SelectedIndex = index;

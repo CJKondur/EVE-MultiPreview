@@ -93,8 +93,9 @@ public static class AppPages
         new SectionDef("app.general.control", new PageItem[]
         {
             new SettingItem(Setting.Toggle("app.general.acceptCommands", s => s.AcceptCommands)),
-            // IDEAS #15: writes no setting; it lists the commands a button can run and copies, saves or tries one.
-            new EditorItem(CommandButtonsEditor.ItemId, ctx => new CommandButtonsEditor(ctx)) { ShowIf = s => s.AcceptCommands },
+            // IDEAS #15, Plan 38: always shown, with its "Make Stream Deck buttons" button. The question that button asks turns the two
+            // switches on (through the normal save); while commands are on the card also lists the commands to copy, save or try.
+            new EditorItem(CommandButtonsEditor.ItemId, ctx => new CommandButtonsEditor(ctx)),
             // IDEAS #15: App reads it with the first switch (FollowCommandServer); it only matters while MultiPreview is elevated.
             new SettingItem(Setting.Toggle("app.general.acceptCommandsUnelevated", s => s.AcceptCommandsUnelevated) with { ShowIf = s => s.AcceptCommands }),
         }),
