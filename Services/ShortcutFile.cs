@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace EveMultiPreview.Services;
@@ -49,19 +50,35 @@ public static class ShortcutFile
         }
     }
 
-    /// <summary>The file name for a button's label: no character Windows refuses, white space collapsed, at most 80 characters
-    /// of label.</summary>
+    /// <summary>The file name for a button's label: no character Windows refuses, no invisible format character (a right-to-left
+    /// override, a zero-width space), white space collapsed, at most 80 characters of label.</summary>
     public static string FileNameFor(string label)
     {
+        var kept = Sanitise(label);
+        return kept.Length == 0 ? "EVE MultiPreview command.lnk" : "EVE MultiPreview - " + kept + ".lnk";
+    }
+
+    /// <summary>Does <see cref="FileNameFor"/> keep the label as it is? False for an empty label and for one that had a character
+    /// stripped, white space collapsed or trimmed, or was cut short: two such labels can make one file name.</summary>
+    public static bool KeepsLabel(string label) => !string.IsNullOrEmpty(label) && Sanitise(label) == label;
+
+    private static string Sanitise(string? label)
+    {
         var invalid = Path.GetInvalidFileNameChars();
-        var kept = new string((label ?? "").Where(c => !invalid.Contains(c)).ToArray());
-        kept = Regex.Replace(kept, @"\s+", " ").Trim();
+        var text = new System.Text.StringBuilder();
+        foreach (var rune in (label ?? "").EnumerateRunes())
+        {
+            if (rune.IsBmp && invalid.Contains((char)rune.Value)) continue;
+            if (Rune.GetUnicodeCategory(rune) == System.Globalization.UnicodeCategory.Format) continue;
+            text.Append(rune.ToString());
+        }
+        var kept = Regex.Replace(text.ToString(), @"\s+", " ").Trim();
         if (kept.Length > MaxLabelLength)
         {
             kept = kept[..MaxLabelLength];
             if (char.IsHighSurrogate(kept[^1])) kept = kept[..^1];   // never cut a pair in half
             kept = kept.TrimEnd();
         }
-        return kept.Length == 0 ? "EVE MultiPreview command.lnk" : "EVE MultiPreview - " + kept + ".lnk";
+        return kept;
     }
 }
