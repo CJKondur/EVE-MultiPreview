@@ -1792,6 +1792,7 @@ public partial class App : Application
                 IsDoNotDisturbOn = () => DoNotDisturbOn,
                 IsFocusModeOn = () => _focusModeOn,
                 AreThumbnailsHidden = () => thumbnails.AllThumbnailsHidden,
+                LiveState = () => LiveStateLines(settings, thumbnails),
             }.Query(command);
         }
         catch (Exception ex)
@@ -1799,6 +1800,20 @@ public partial class App : Application
             LogError(ex);
             return QueryReply.Refused;
         }
+    }
+
+    /// <summary>Plan 38 (IDEAS P126): the lines of the live-state reply, on the window's thread, from what is already in memory
+    /// (no file, no ESI): the switches, the worst alert nobody has looked at, the profile, and the name bar's buttons with the names
+    /// as they are drawn (streamer mode masks them; the real name stands last). The Stream Deck plugin asks about once a second.</summary>
+    private IReadOnlyList<string> LiveStateLines(SettingsService settings, ThumbnailManager thumbnails)
+    {
+        string? worst = null;
+        foreach (var alert in thumbnails.Attention.Unseen())
+            if (AlertAttention.Rank(alert.Severity) > AlertAttention.Rank(worst)) worst = alert.Severity;
+        var profile = settings.Settings.LastUsedProfile;
+        var globals = new LiveGlobals(DoNotDisturbOn, _focusModeOn, thumbnails.AllThumbnailsHidden, settings.Settings.NameBarMode,
+            StreamerMask.IsOn, worst, profile, StreamerMask.Name(StreamerKind.Profile, profile));
+        return LiveState.Lines(globals, NameBarEntries(), name => StreamerMask.Name(StreamerKind.Character, name));
     }
 
     /// <summary>IDEAS P130 (b): a first start's --focus, --mute or --unmute names a character whose thumbnail the first discovery

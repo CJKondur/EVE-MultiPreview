@@ -76,10 +76,10 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
         ("", "live-state", RemoteVerb.LiveState, false),
     };
 
-    /// <summary>IDEAS P126: is the verb a query, whose reply carries data after the outcome byte? Only these four; every other
-    /// verb, and any value not on the list, is answered with one byte.</summary>
+    /// <summary>IDEAS P126: is the verb a query, whose reply carries data after the outcome byte? Only these five (Plan 38 added
+    /// live-state); every other verb, and any value not on the list, is answered with one byte.</summary>
     public static bool IsQuery(RemoteVerb verb) =>
-        verb is RemoteVerb.ListCharacters or RemoteVerb.ListGroups or RemoteVerb.ListProfiles or RemoteVerb.State;
+        verb is RemoteVerb.ListCharacters or RemoteVerb.ListGroups or RemoteVerb.ListProfiles or RemoteVerb.State or RemoteVerb.LiveState;
 
     /// <summary>The command-line switch of a verb of the list (<c>--cycle-all</c>); empty for any other, and for a query.</summary>
     public static string SwitchOf(RemoteVerb verb) => Allowed.FirstOrDefault(a => a.Verb == verb).Switch ?? "";
@@ -348,6 +348,9 @@ public sealed class RemoteQueryRunner
     public required Func<bool> IsDoNotDisturbOn { get; init; }
     public required Func<bool> IsFocusModeOn { get; init; }
     public required Func<bool> AreThumbnailsHidden { get; init; }
+    /// <summary>Plan 38: the lines of the live-state reply (<see cref="Services.LiveState"/>), read on the window's thread. Not
+    /// required: a runner built without it answers Refused to live-state.</summary>
+    public Func<IReadOnlyList<string>>? LiveState { get; init; }
 
     public QueryReply Query(RemoteCommand command)
     {
@@ -365,6 +368,7 @@ public sealed class RemoteQueryRunner
                 "focus-mode=" + OnOff(IsFocusModeOn()),
                 "thumbnails=" + (AreThumbnailsHidden() ? "hidden" : "shown"),
             }),
+            RemoteVerb.LiveState => LiveState is { } live ? Done(live()) : QueryReply.Refused,
             _ => QueryReply.Refused,
         };
     }
@@ -379,13 +383,14 @@ public static class QueryPayload
 
     /// <summary>The length and the text of the lines that go out. A line that <see cref="RemoteCommand.Clean"/> would change or
     /// refuse (missing, empty, over 64 characters, a control or line-break character, a lone surrogate, starting with --) is left out; the text
-    /// is cut at the last line that fits whole, the lines before it kept in order.</summary>
-    public static byte[] Frame(IEnumerable<string> lines)
+    /// is cut at the last line that fits whole, the lines before it kept in order. Plan 38: <paramref name="accept"/> replaces
+    /// that rule for a reply with a format of its own (live-state): a line it refuses is left out the same way.</summary>
+    public static byte[] Frame(IEnumerable<string> lines, Func<string, bool>? accept = null)
     {
         var text = new List<byte>();
         foreach (var line in lines)
         {
-            if (line == null || RemoteCommand.Clean(line) != line) continue;
+            if (line == null || !(accept != null ? accept(line) : RemoteCommand.Clean(line) == line)) continue;
             var bytes = Strict.GetBytes(line + "\n");
             if (text.Count + bytes.Length > MaxBytes) break;
             text.AddRange(bytes);

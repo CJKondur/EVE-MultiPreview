@@ -506,6 +506,10 @@ public sealed class CommandServer : IDisposable
         // IDEAS P126: only a query's Done carries a payload (cut at a whole line within the cap, a refused name left out)
         if (_query == null) return (RemoteOutcome.Refused, Array.Empty<byte>());
         var answer = await _query(command);
-        return answer.Outcome == RemoteOutcome.Done ? (RemoteOutcome.Done, QueryPayload.Frame(answer.Lines)) : (answer.Outcome, Array.Empty<byte>());
+        if (answer.Outcome != RemoteOutcome.Done) return (answer.Outcome, Array.Empty<byte>());
+        // Plan 38: live-state has a line format of its own, so its lines are judged by that, not by the name rule
+        Func<string, bool>? accept = null;
+        if (command.Verb == RemoteVerb.LiveState) accept = LiveState.IsLine;
+        return (RemoteOutcome.Done, QueryPayload.Frame(answer.Lines, accept));
     }
 }
