@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
@@ -27,14 +28,35 @@ public static class CommandPipe
     /// started one, and the server serves one sender at a time: a sender queued behind another also sits out that sender's
     /// turn. So the clock covers two queue waits and two seconds for a started command to finish; a shorter one let a command
     /// run while its sender had already ended with exit 3, which this makes far rarer (three or more queued senders can still
-    /// outlast it: a time budget, not a guarantee). The connect has its own, shorter clock (<see cref="ConnectTime"/>). No
-    /// protocol change: the sender's deadline is not sent.</summary>
+    /// outlast it: a time budget, not a guarantee). The connect has its own, shorter clock (<see cref="ConnectTime"/>). The
+    /// sender's time left at the write travels with the command (see <see cref="Trailer"/>), so a MultiPreview that sees too
+    /// little of it left does not run the command and answers 3, "never ran".</summary>
     public static readonly TimeSpan SendTime = CommandServer.ReadTime + CommandServer.ReadTime + TimeSpan.FromSeconds(2);
 
     /// <summary>How long a second start waits to find the pipe at all (both tries of it together), within the caller's clock:
     /// "nothing took it" (no pipe: the switch is off, or MultiPreview is still starting) ends with exit 3 after this long, as it
     /// did when the whole clock was this long.</summary>
     public static readonly TimeSpan ConnectTime = TimeSpan.FromSeconds(3);
+
+    /// <summary>IDEAS P130: the byte that opens the trailer a sender appends to its frame. The frame is
+    /// <c>[length][message]</c> and then, from a sender that knows its clock, this byte and the sender's remaining time in
+    /// milliseconds as a big-endian uint16 (so 65,535 at most). An older MultiPreview reads <c>length</c> bytes, answers, and
+    /// never looks at the rest; an older sender sends no trailer and the newer MultiPreview then runs the command as it
+    /// always did.</summary>
+    public const byte TrailerMarker = 0xD1;
+
+    /// <summary>The three bytes a sender appends: the marker, then <paramref name="remaining"/> in milliseconds, rounded down
+    /// and held to 0..65,535 (a clock already past is 0).</summary>
+    public static byte[] Trailer(TimeSpan remaining)
+    {
+        int ms = (int)Math.Clamp(remaining.TotalMilliseconds, 0, ushort.MaxValue);
+        return new[] { TrailerMarker, (byte)(ms >> 8), (byte)ms };
+    }
+
+    /// <summary>The sender's time left, or null for anything that is not exactly the marker and two bytes (too short, too long,
+    /// another first byte): what arrives on the pipe is untrusted, and the value cannot be larger than a uint16 can hold.</summary>
+    public static TimeSpan? ParseTrailer(ReadOnlySpan<byte> bytes) =>
+        bytes.Length == 3 && bytes[0] == TrailerMarker ? TimeSpan.FromMilliseconds((bytes[1] << 8) | bytes[2]) : null;
 
     public static string Name(string userSid, int sessionId) => $"EveMultiPreview.Commands.{sessionId}.{userSid}";
 
@@ -120,6 +142,7 @@ public static class CommandPipe
         catch (EncoderFallbackException) { return QueryReply.Refused; }
         if (RemoteCommand.FromMessage(message) != command) return QueryReply.Refused;
 
+        var started = Stopwatch.StartNew();
         using var limit = new CancellationTokenSource(timeout);
         using var connectLimit = CancellationTokenSource.CreateLinkedTokenSource(limit.Token);
         connectLimit.CancelAfter(ConnectTime);
@@ -154,14 +177,22 @@ public static class CommandPipe
         async Task<QueryReply> Exchange(NamedPipeClientStream connected)
         {
             if (letTakeTheFront) LetTakeTheFront(connected.SafePipeHandle);
-            var frame = new byte[message.Length + 1];
+            // IDEAS P130: [length][message][trailer] in one write; the trailer is the clock's time left at this moment.
+            var trailer = Trailer(timeout - started.Elapsed);
+            var frame = new byte[message.Length + 1 + trailer.Length];
             frame[0] = (byte)message.Length;
             message.CopyTo(frame, 1);
+            trailer.CopyTo(frame, message.Length + 1);
             onWritten?.Invoke();   // the thin sender: past this point the command may have run, so it is never sent again
-            await connected.WriteAsync(frame, limit.Token);
-            await connected.FlushAsync(limit.Token);
+            // IDEAS P130: the pipe has no buffer, so a write ends only when the other end has read every byte of it, and an
+            // older MultiPreview reads the message and never the trailer: it answers, reads one byte, and lets go. The answer
+            // is therefore awaited WHILE the write is pending (a write waiting for it first would hold up the very answer
+            // that would free it), and a write that fails after the answer came is of no interest: the command was answered.
+            var write = WriteFrame(connected, frame);
             var reply = new byte[1];
             int read = await connected.ReadAsync(reply, limit.Token);
+            try { await write; }
+            catch (Exception ex) when (read == 1 && ex is IOException or OperationCanceledException) { }
             if (read != 1 || reply[0] > (byte)RemoteOutcome.NotFound) return QueryReply.NotReachable;
             var outcome = (RemoteOutcome)reply[0];
             // IDEAS P126: only a query's Done has more to read (an older server refuses the word in one byte); the length is
@@ -174,6 +205,12 @@ public static class CommandPipe
             var text = new byte[length];
             await connected.ReadExactlyAsync(text, limit.Token);
             return QueryPayload.Parse(text) is { } lines ? new QueryReply(RemoteOutcome.Done, lines) : QueryReply.NotReachable;
+        }
+
+        async Task WriteFrame(NamedPipeClientStream connected, byte[] frame)
+        {
+            await connected.WriteAsync(frame, limit.Token);
+            await connected.FlushAsync(limit.Token);
         }
     }
 
@@ -269,7 +306,8 @@ public static class CommandPipe
 }
 
 /// <summary>IDEAS #39: the running MultiPreview's end of the pipe, on a pool thread. One client at a time: it reads one
-/// length byte and at most 255 bytes within the read time, has the command run (App runs it on the window's thread),
+/// length byte and at most 255 bytes within the read time, then at most three more (a sender's trailer, IDEAS P130: its time left;
+/// too little of it and the command is not run, the answer is 3), has the command run (App runs it on the window's thread),
 /// answers one byte (IDEAS P126: a query verb's Done is followed by its payload, at most 4,096 bytes, in the same write) and
 /// waits for the client to hang up (the two together at most the read time), and serves the next. A
 /// message that is not on the allow-list is answered "refused"; a client that goes quiet is let go. Dispose stops it.
@@ -287,6 +325,13 @@ public static class CommandPipe
 public sealed class CommandServer : IDisposable
 {
     public static readonly TimeSpan ReadTime = TimeSpan.FromSeconds(2);
+    /// <summary>IDEAS P130: how long the server waits, after the message, for the trailer of a sender that knows its clock. A
+    /// sender without one (an older MultiPreview's) sends nothing, so it costs that sender this long once per command; a
+    /// sender with one wrote it in the same write, so it is already there.</summary>
+    public static readonly TimeSpan TrailerWait = TimeSpan.FromMilliseconds(50);
+    /// <summary>IDEAS P130: the time a started command is given to finish (App awaits it once started), on top of
+    /// <see cref="ReadTime"/> for the window's thread to start it. A command whose sender has less than the two left is not run.</summary>
+    public static readonly TimeSpan RunBudget = TimeSpan.FromSeconds(2);
     /// <summary>Instances of the pipe at once: the one serving a client and the one standing for the next.</summary>
     public const int Instances = 2;
     private readonly string _name;
@@ -295,14 +340,17 @@ public sealed class CommandServer : IDisposable
     private readonly Func<RemoteCommand, Task<QueryReply>>? _query;
     private readonly Action<Exception> _failed;
     private readonly TimeSpan _readTime;
+    private readonly Func<long> _elapsedMs;
     private readonly CancellationTokenSource _stop = new();
     private Task? _loop;
     private volatile bool _gaveUp;
 
+    /// <param name="elapsedMs">IDEAS P130: milliseconds on a monotonic clock, for the time a sender's trailer says it has left
+    /// (never a wall clock). Null: a <see cref="Stopwatch"/>. A test hands in its own.</param>
     /// <param name="query">IDEAS P126: answers a query verb (its reply carries data). Null: a query is answered Refused. A
     /// query verb never reaches <paramref name="run"/>, and any other verb never reaches this.</param>
     public CommandServer(string name, PipeSecurity security, Func<RemoteCommand, Task<RemoteOutcome>> run, Action<Exception> failed, TimeSpan? readTime = null,
-        Func<RemoteCommand, Task<QueryReply>>? query = null)
+        Func<RemoteCommand, Task<QueryReply>>? query = null, Func<long>? elapsedMs = null)
     {
         _name = name;
         _security = security;
@@ -310,6 +358,7 @@ public sealed class CommandServer : IDisposable
         _query = query;
         _failed = failed;
         _readTime = readTime ?? ReadTime;
+        _elapsedMs = elapsedMs ?? (() => Stopwatch.GetTimestamp() * 1000 / Stopwatch.Frequency);
     }
 
     /// <summary>True once the server gave up for good: the name stayed taken, or the next instance could not be made
@@ -402,17 +451,47 @@ public sealed class CommandServer : IDisposable
         catch (Exception) { }
     }
 
+    /// <summary>IDEAS P130: the sender's trailer, or null. Reads at most three bytes and waits at most
+    /// <see cref="TrailerWait"/> for them; whatever is not exactly a trailer, or does not come, is no deadline (an older sender's
+    /// frame ends at its message). Bytes beyond the three stay unread.</summary>
+    private static async Task<TimeSpan?> ReadTrailer(NamedPipeServerStream pipe, CancellationToken read, CancellationToken stop)
+    {
+        using var wait = CancellationTokenSource.CreateLinkedTokenSource(read);
+        wait.CancelAfter(TrailerWait);
+        var bytes = new byte[3];
+        int got = 0;
+        try
+        {
+            while (got < bytes.Length)
+            {
+                int n = await pipe.ReadAsync(bytes.AsMemory(got), wait.Token);
+                if (n == 0) break;   // the sender hung up
+                got += n;
+            }
+        }
+        catch (OperationCanceledException) when (!stop.IsCancellationRequested) { }   // no trailer came in time
+        catch (IOException) { }                                                       // the sender went away
+        return CommandPipe.ParseTrailer(bytes.AsSpan(0, got));
+    }
+
     private async Task<(RemoteOutcome Outcome, byte[] Payload)> Serve(NamedPipeServerStream pipe, CancellationToken stop)
     {
         using var read = CancellationTokenSource.CreateLinkedTokenSource(stop);
         read.CancelAfter(_readTime);
+        long since = _elapsedMs();
         var length = new byte[1];
         await pipe.ReadExactlyAsync(length, read.Token);
         if (length[0] == 0) return (RemoteOutcome.Refused, Array.Empty<byte>());
         var message = new byte[length[0]];
         await pipe.ReadExactlyAsync(message, read.Token);
+        // IDEAS P130: the trailer is read whatever the message turns out to be, so an unbuffered write of a sender that sent one
+        // always ends; a command whose sender has too little time left is not run and is answered 3 ("never ran"), because its
+        // sender would end with exit 3 whatever happened here. Time the sender spent queued behind another is not seen from here.
+        var left = await ReadTrailer(pipe, read.Token, stop);
         var command = RemoteCommand.FromMessage(message);
         if (command == null) return (RemoteOutcome.Refused, Array.Empty<byte>());
+        if (left is { } remaining && remaining - TimeSpan.FromMilliseconds(_elapsedMs() - since) < ReadTime + RunBudget)
+            return (RemoteOutcome.NotReachable, Array.Empty<byte>());
         if (!RemoteCommand.IsQuery(command.Verb)) return (await _run(command), Array.Empty<byte>());
         // IDEAS P126: only a query's Done carries a payload (cut at a whole line within the cap, a refused name left out)
         if (_query == null) return (RemoteOutcome.Refused, Array.Empty<byte>());
