@@ -13,14 +13,15 @@
     <Color x:Key="Fx.Bg">#FF1A1A2E</Color>
     <Color x:Key="Fx.Nav">#FF0F3460</Color>
     <Color x:Key="Fx.CardColor">#FF252540</Color>
-    <Color x:Key="Fx.CardHover">#FF3A3A5E</Color>
+    <Color x:Key="Fx.CardHover">#FF303050</Color>
     <Color x:Key="Fx.Header">#FF252540</Color>
     <Color x:Key="Fx.Control">#FF252540</Color>
     <Color x:Key="Fx.Flyout">#FF252540</Color>
-    <Color x:Key="Fx.AccentSoft">#FF3A3A5E</Color>
-    <!-- 20 % and 31 % white over the navy (the old window's #33FFFFFF and the mock-up's .31), written opaque. -->
-    <Color x:Key="Fx.NavHover">#FF3F5D80</Color>
-    <Color x:Key="Fx.NavSelected">#FF597391</Color>
+    <Color x:Key="Fx.AccentSoft">#FF303050</Color>
+    <!-- 12 % and 17 % white over the navy, written opaque (IDEAS P100: the old window's 20 % and the mock-up's 31 % left the
+         side bar's notes at 2.90 and 2.09 to 1; these keep them above 3 to 1 and the white names above 4.5). -->
+    <Color x:Key="Fx.NavHover">#FF2C4C73</Color>
+    <Color x:Key="Fx.NavSelected">#FF38577B</Color>
     <!-- Lines (5) -->
     <Color x:Key="Fx.Border">#FF3A3A50</Color>
     <Color x:Key="Fx.ControlEdge">#FF3A3A50</Color>
@@ -42,7 +43,7 @@
     <!-- Accent (3) -->
     <Color x:Key="Fx.Accent">#FF00AAFF</Color>
     <Color x:Key="Fx.OnAccent">#FF1A1A2E</Color>
-    <Color x:Key="Fx.NavMark">#FF597391</Color>
+    <Color x:Key="Fx.NavMark">#FF38577B</Color>
     <!-- Buttons (4): the old window's light grey buttons -->
     <Color x:Key="Fx.Button">#FFE0E0E0</Color>
     <Color x:Key="Fx.ButtonHover">#FFF0F0F0</Color>
