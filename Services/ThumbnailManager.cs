@@ -1970,6 +1970,13 @@ public sealed class ThumbnailManager : IDisposable
         }
     }
 
+    /// <summary>May a minimise take this client down: it has a character (not the login screen, "" or "EVE") and the
+    /// character is not on the profile's don't-minimize list (case ignored). The one rule of "minimise the other clients" and
+    /// of --minimize-clients (Plan 38).</summary>
+    public static bool MinimizableClient(string? characterName, IEnumerable<string> dontMinimize) =>
+        !string.IsNullOrEmpty(characterName) && characterName != "EVE"
+        && !dontMinimize.Any(n => n.Equals(characterName, StringComparison.OrdinalIgnoreCase));
+
     private void MinimizeInactiveClients(IntPtr activeHwnd)
     {
         var dontMinimize = _settings.CurrentProfile.DontMinimizeClients;
@@ -1977,11 +1984,7 @@ public sealed class ThumbnailManager : IDisposable
         foreach (var (eveHwnd, thumb) in _thumbnails)
         {
             if (eveHwnd == activeHwnd) continue;
-            if (string.IsNullOrEmpty(thumb.CharacterName) || thumb.CharacterName == "EVE") continue;
-
-            // Check don't-minimize list
-            if (dontMinimize.Any(n => n.Equals(thumb.CharacterName, StringComparison.OrdinalIgnoreCase)))
-                continue;
+            if (!MinimizableClient(thumb.CharacterName, dontMinimize)) continue;
 
             // Don't minimize if it's the active window
             if (eveHwnd == Interop.User32.GetForegroundWindow()) continue;
@@ -4399,21 +4402,33 @@ public sealed class ThumbnailManager : IDisposable
         clients.Where(c => c.Iconic != minimize)
             .Select(c => (c.Hwnd, minimize ? Interop.User32.SW_FORCEMINIMIZE : Interop.User32.SW_SHOWNOACTIVATE)).ToList();
 
-    /// <summary>Plan 38: minimises every EVE client (ShowWindowAsync only, no input). The window's thread.</summary>
-    public void MinimizeAllClients()
+    /// <summary>Plan 38: minimises the EVE clients that "minimise the other clients" would (<see cref="MinimizableClient"/>: not a
+    /// login screen, not on the profile's don't-minimize list). ShowWindowAsync only, no input. The window's thread.</summary>
+    public void MinimizeAllClients() => ApplyClientWindowCommands(minimize: true);
+
+    /// <summary>Plan 38: shows every minimised EVE client again, without activating any (ShowWindowAsync only, no input). Every
+    /// minimised client, whoever minimised it: a restore has no don't-minimize rule. Fixed slots and Always-maximize are not
+    /// re-applied (that is the activation path's job). The window's thread.</summary>
+    public void RestoreAllClients() => ApplyClientWindowCommands(minimize: false);
+
+    private void ApplyClientWindowCommands(bool minimize)
     {
-        var clients = _thumbnails.Keys.Select(h => (h, Interop.User32.IsIconic(h))).ToList();
-        foreach (var (hwnd, show) in ClientWindowCommands(clients, minimize: true))
+        var dontMinimize = _settings.CurrentProfile.DontMinimizeClients;
+        var clients = _thumbnails.Where(kv => !minimize || MinimizableClient(kv.Value.CharacterName, dontMinimize))
+            .Select(kv => (kv.Key, Interop.User32.IsIconic(kv.Key))).ToList();
+        foreach (var (hwnd, show) in ClientWindowCommands(clients, minimize))
             Interop.User32.ShowWindowAsync(hwnd, show);
     }
 
-    /// <summary>Plan 38: shows every minimised EVE client again, without activating any (ShowWindowAsync only, no input). The
-    /// window's thread.</summary>
-    public void RestoreAllClients()
+    /// <summary>Plan 38, --mark-alerts-seen: every character's unseen alerts are seen (<see cref="AlertAttention.SeeAll"/>) and
+    /// every alert flash ends with them (ClearAlertFlash per character, so a flash whose event lasts "until switched to" stops
+    /// too). Answers how many characters had unseen alerts. The window's thread.</summary>
+    public int MarkAllAlertsSeen()
     {
-        var clients = _thumbnails.Keys.Select(h => (h, Interop.User32.IsIconic(h))).ToList();
-        foreach (var (hwnd, show) in ClientWindowCommands(clients, minimize: false))
-            Interop.User32.ShowWindowAsync(hwnd, show);
+        var flashing = _alertFlashChars.Keys.Concat(Attention.Unseen().Select(a => a.Character)).Distinct().ToList();
+        int taken = Attention.SeeAll();
+        foreach (var character in flashing) ClearAlertFlash(character);
+        return taken;
     }
 
     /// <summary>Shows on a client's main thumbnail what ClientWatch said of it, and (IDEAS P114) the same on its second

@@ -1697,7 +1697,7 @@ public partial class App : Application
                 SetNameBar = SetNameBarMode,
                 MarkAlertsSeen = () =>
                 {
-                    int taken = thumbnails.Attention.SeeAll();
+                    int taken = thumbnails.MarkAllAlertsSeen();   // AlertAttention.SeeAll + the border flashes
                     thumbnails.ShowTooltipFeedback(LocalizationService.Str("L.Msg.AlertsAllSeen", "Alerts marked seen"));
                     return taken;
                 },
