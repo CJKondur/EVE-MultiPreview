@@ -310,7 +310,7 @@ public class AhkConfigRoot
                 profile.AutoSelectCharacters = ts.AutoSelectCharacters ?? "";
                 profile.ShowAllColoredBorders = ts.ShowAllColoredBorders != 0;
                 profile.AutoCharacterBorders = ts.AutoCharacterBorders != 0;
-                profile.ThumbnailCornerRadius = ts.ThumbnailCornerRadius;
+                profile.ThumbnailCornerRadius = Math.Clamp(ts.ThumbnailCornerRadius, 0, Profile.MaxCornerRadius);   // a hand-edited file is held to the card's range
                 profile.HideThumbnailsOnLostFocus = ts.HideThumbnailsOnLostFocus != 0;
                 profile.ShowThumbnailsAlwaysOnTop = ts.ShowThumbnailsAlwaysOnTop != 0;
                 profile.KeepThumbnailsAboveClients = ts.KeepThumbnailsAboveClients != 0;

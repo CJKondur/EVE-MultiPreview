@@ -830,6 +830,8 @@ public class Profile
     /// <summary>IDEAS P8: the corner radius of the thumbnail windows in pixels, 0 to 24. 0 keeps them square, as they always
     /// were. Kept in the profile's "Thumbnail Settings" in the file. New key: 0.</summary>
     public int ThumbnailCornerRadius { get; set; } = 0;
+    /// <summary>The largest value of <see cref="ThumbnailCornerRadius"/>, in pixels.</summary>
+    public const int MaxCornerRadius = 24;
     public bool HideThumbnailsOnLostFocus { get; set; } = false;
     public bool ShowThumbnailsAlwaysOnTop { get; set; } = true;
     public bool KeepThumbnailsAboveClients { get; set; } = false;

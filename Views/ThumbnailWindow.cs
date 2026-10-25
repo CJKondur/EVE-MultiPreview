@@ -409,7 +409,7 @@ public class ThumbnailWindow : Form
     // ── Rounded corners (IDEAS P8) ───────────────────────────────
 
     /// <summary>The largest corner radius, in pixels, the Corner radius setting gives.</summary>
-    public const int MaxCornerRadius = 24;
+    public const int MaxCornerRadius = EveMultiPreview.Models.Profile.MaxCornerRadius;
 
     private int _cornerRadius;
     // What Region was last made for (radius, width, height): the region is rebuilt only when one of the three changes.
@@ -481,6 +481,8 @@ public class ThumbnailWindow : Form
     {
         base.OnHandleCreated(e);
         _ownHwnd = Handle;
+        // A radius set before the handle only stored the Region. Forget what it was made for, so it is pushed to the new HWND.
+        _regionFor = default;
         ApplyCornerRegion();
 
         // Start fully opaque. LWA_ALPHA fades both the frame (this HWND's
