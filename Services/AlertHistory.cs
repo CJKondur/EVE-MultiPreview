@@ -78,6 +78,11 @@ public sealed class AlertHistory : IDisposable
     private readonly ManualResetEventSlim _closing = new();     // set by Dispose; never disposed (the worker may still wait on it)
     private readonly Func<int, bool> _pause;
     private readonly Action<string>? _beforeReadingDay;
+    // What Read has learned of the newest day files (IDEAS P70). Its own lock, not _lock: Record takes _lock on the log
+    // monitor's thread and must never wait for a file read.
+    private readonly object _cacheLock = new();
+    private readonly Dictionary<string, DayCache> _days = new(StringComparer.OrdinalIgnoreCase);
+    private long _linesParsed;
     private Thread? _worker;
     private long _seq;
     private volatile bool _enabled = true;
@@ -102,6 +107,10 @@ public sealed class AlertHistory : IDisposable
     }
 
     public string Folder => _folder;
+
+    /// <summary>How many day-file lines <see cref="Read"/> has handed to the parser since this history was made: a
+    /// second read of a file that did not change adds none, a read after an append adds the new lines (tests).</summary>
+    public long LinesParsed => Interlocked.Read(ref _linesParsed);
 
     /// <summary>Off: nothing is recorded, in memory or in a file. What the files already hold stays, and can still be
     /// read and cleared.</summary>
@@ -183,7 +192,7 @@ public sealed class AlertHistory : IDisposable
             {
                 if (day < sinceUtc.Date) break;
                 List<AlertHistoryEntry> lines;
-                try { _beforeReadingDay?.Invoke(path); lines = ReadDay(path, ref bad); }   // oldest first
+                try { _beforeReadingDay?.Invoke(path); lines = ReadDay(path, day, ref bad); }   // oldest first
                 catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
                 {
                     continue;                                            // deleted since it was listed (a retention pass): nothing to read, nothing lost, not "unreadable"
@@ -249,6 +258,7 @@ public sealed class AlertHistory : IDisposable
                 _unwritten.Clear();
             }
             allGone = DeleteDays(_ => true);
+            lock (_cacheLock) _days.Clear();
             // Whatever could be deleted: the list changed.
             try { Cleared?.Invoke(); }
             catch (Exception ex) { Report("Listener", "a listener failed", ex); }
@@ -272,6 +282,7 @@ public sealed class AlertHistory : IDisposable
                     allGone = false;
                     Report("Job", "a history file could not be deleted", ex);
                 }
+                lock (_cacheLock) _days.Remove(path);            // deleted or not: what was read of it is not trusted again
             }
         }
         catch (Exception ex)                                    // the folder itself could not be listed
@@ -290,6 +301,7 @@ public sealed class AlertHistory : IDisposable
         _closing.Set();                                         // a wait between two tries of a write ends now
         try { _queue.CompleteAdding(); } catch (ObjectDisposedException) { }
         _worker?.Join(TimeSpan.FromSeconds(2));
+        lock (_cacheLock) _days.Clear();
     }
 
     // ── The background thread ──
@@ -433,25 +445,154 @@ public sealed class AlertHistory : IDisposable
         }
     }
 
-    /// <summary>A day file's alerts, oldest first. Lines that can't be read are counted and skipped. Of a file larger
-    /// than MultiPreview writes one, only the end is read.</summary>
-    private static List<AlertHistoryEntry> ReadDay(string path, ref int bad)
+    private const int MaxCachedDays = 3, FingerprintBytes = 64, ReadChunk = 64 * 1024;
+
+    /// <summary>What a read of one day file left behind, so the next read takes only what was added (IDEAS P70).
+    /// <see cref="GoodOffset"/> is just past the last complete line: an unfinished line at the end of the file is not
+    /// parsed until its newline is there, and is read again from <see cref="GoodOffset"/> every time. The file is
+    /// trusted to be the same file only while its creation time, the first bytes of it and the bytes just before
+    /// <see cref="GoodOffset"/> are what they were (a day file is only ever appended to), and it did not shrink.</summary>
+    private sealed class DayCache
     {
-        var entries = new List<AlertHistoryEntry>();
-        using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-        long limit = MaxDayBytes + (1024 * 1024);
-        bool tail = file.Length > limit;
-        if (tail) file.Seek(-limit, SeekOrigin.End);
-        using var reader = new StreamReader(file, Utf8);
-        if (tail) reader.ReadLine();                                    // the rest of a line the seek landed in
-        string? line;
-        while ((line = reader.ReadLine()) != null)
+        public DateTime Day;
+        public long Length, GoodOffset;
+        public DateTime WriteUtc, CreatedUtc;
+        public bool Tailed;                                 // the file was larger than MultiPreview writes one: only its end was read
+        public byte[] Head = Array.Empty<byte>(), Back = Array.Empty<byte>();
+        public List<AlertHistoryEntry> Entries = new();
+        public int Bad;
+    }
+
+    /// <summary>A day file's alerts, oldest first, as a copy the caller may keep. Lines that can't be read are counted
+    /// (<paramref name="bad"/> gets every bad line of the file at every read, cached ones too) and skipped. A file
+    /// already read is not read again: if it only grew, the new bytes are read from where the last complete line ended;
+    /// if it shrank, or is not the file that was read (see <see cref="DayCache"/>), it is read from its start. Of a file
+    /// larger than MultiPreview writes one, only the end is read, and again in full whenever it changes. Any thread:
+    /// one read of a file at a time.</summary>
+    private List<AlertHistoryEntry> ReadDay(string path, DateTime day, ref int bad)
+    {
+        lock (_cacheLock)
         {
-            if (line.Length == 0) continue;
-            if (Parse(line) is { } entry) entries.Add(entry);
-            else bad++;
+            try
+            {
+                using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                long length = file.Length;
+                long limit = MaxDayBytes + (1024 * 1024);
+                bool tail = length > limit;
+                _days.TryGetValue(path, out var cache);
+                if (cache != null && !SameFile(cache, file, length)) cache = null;
+                if (cache == null || length != cache.Length)
+                {
+                    bool append = cache != null && !tail;
+                    long from = append ? cache!.GoodOffset : tail ? length - limit : 0;
+                    var fresh = new List<AlertHistoryEntry>();
+                    int freshBad = 0;
+                    var (good, end) = ScanLines(file, from, tail, fresh, ref freshBad);   // nothing is kept until it all read
+                    if (!append) cache = new DayCache { Day = day, Tailed = tail };
+                    cache!.Entries.AddRange(fresh);
+                    cache.Bad += freshBad;
+                    cache.GoodOffset = good;
+                    cache.Length = end;
+                    cache.WriteUtc = File.GetLastWriteTimeUtc(file.SafeFileHandle);
+                    cache.CreatedUtc = File.GetCreationTimeUtc(file.SafeFileHandle);
+                    int fingerprint = tail ? 0 : (int)Math.Min(FingerprintBytes, good);
+                    cache.Head = ReadAt(file, 0, fingerprint);
+                    cache.Back = ReadAt(file, good - fingerprint, fingerprint);
+                    _days[path] = cache;
+                    ForgetOldDays();
+                }
+                bad += cache.Bad;
+                return cache.Entries.ToList();
+            }
+            catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+            {
+                _days.Remove(path);
+                throw;
+            }
         }
-        return entries;
+    }
+
+    /// <summary>True while what was read of the file still describes it: it did not shrink, it was created when the
+    /// cache says, and the bytes that decide whether it was only appended to are the ones that were read (its first
+    /// bytes and the bytes just before where the last read stopped). A file as long as it was must also have the write
+    /// time it had. A file that was read in its tail only is trusted just while it is exactly as it was.</summary>
+    private static bool SameFile(DayCache cache, FileStream file, long length)
+    {
+        if (length < cache.Length) return false;
+        if (File.GetCreationTimeUtc(file.SafeFileHandle) != cache.CreatedUtc) return false;
+        bool sameLength = length == cache.Length;
+        if (sameLength && File.GetLastWriteTimeUtc(file.SafeFileHandle) != cache.WriteUtc) return false;
+        if (cache.Tailed) return sameLength;
+        return ReadAt(file, 0, cache.Head.Length).AsSpan().SequenceEqual(cache.Head)
+            && ReadAt(file, cache.GoodOffset - cache.Back.Length, cache.Back.Length).AsSpan().SequenceEqual(cache.Back);
+    }
+
+    private static byte[] ReadAt(FileStream file, long offset, int count)
+    {
+        var bytes = new byte[count];
+        if (count == 0) return bytes;
+        file.Seek(offset, SeekOrigin.Begin);
+        int got = file.ReadAtLeast(bytes, count, throwOnEndOfStream: false);
+        return got == count ? bytes : bytes[..got];
+    }
+
+    /// <summary>Reads from <paramref name="from"/> to the end of the file, line by line (split at 0x0A in the bytes,
+    /// then each line decoded on its own, so a character cut by the end of a chunk or of the file is never decoded in
+    /// halves). Returns the offset just past the last newline and the offset reached. What follows the last newline
+    /// is not parsed: the writer may still be writing it. <paramref name="skipFirst"/>: the first line is the rest of
+    /// one the start landed in.</summary>
+    private (long Good, long End) ScanLines(FileStream file, long from, bool skipFirst, List<AlertHistoryEntry> into, ref int bad)
+    {
+        file.Seek(from, SeekOrigin.Begin);
+        var chunk = new byte[ReadChunk];
+        var pending = new MemoryStream();                   // the start of a line a chunk ended in
+        long chunkAt = from, lineAt = from, good = from;
+        int got;
+        while ((got = file.Read(chunk, 0, chunk.Length)) > 0)
+        {
+            int at = 0;
+            while (at < got)
+            {
+                int newline = chunk.AsSpan(at, got - at).IndexOf((byte)'\n');
+                if (newline < 0)
+                {
+                    pending.Write(chunk, at, got - at);
+                    break;
+                }
+                ReadOnlySpan<byte> line;
+                if (pending.Length == 0) line = chunk.AsSpan(at, newline);
+                else
+                {
+                    pending.Write(chunk, at, newline);
+                    line = pending.GetBuffer().AsSpan(0, (int)pending.Length);
+                }
+                if (skipFirst) skipFirst = false;
+                else TakeLine(line, lineAt == 0, into, ref bad);
+                pending.SetLength(0);
+                at += newline + 1;
+                lineAt = good = chunkAt + at;
+            }
+            chunkAt += got;
+        }
+        return (good, chunkAt);
+    }
+
+    private void TakeLine(ReadOnlySpan<byte> line, bool atFileStart, List<AlertHistoryEntry> into, ref int bad)
+    {
+        if (atFileStart && line.StartsWith(new byte[] { 0xEF, 0xBB, 0xBF })) line = line[3..];    // a byte order mark another program wrote
+        if (line.Length > 0 && line[^1] == (byte)'\r') line = line[..^1];
+        if (line.Length == 0) return;
+        Interlocked.Increment(ref _linesParsed);
+        if (Parse(Utf8.GetString(line)) is { } entry) into.Add(entry);
+        else bad++;
+    }
+
+    /// <summary>At most <see cref="MaxCachedDays"/> days stay cached: the newest. Under <see cref="_cacheLock"/>.</summary>
+    private void ForgetOldDays()
+    {
+        if (_days.Count <= MaxCachedDays) return;
+        foreach (var path in _days.OrderByDescending(d => d.Value.Day).Skip(MaxCachedDays).Select(d => d.Key).ToList())
+            _days.Remove(path);
     }
 
     private sealed class Stored
