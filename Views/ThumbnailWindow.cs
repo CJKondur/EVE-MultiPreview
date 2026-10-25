@@ -228,6 +228,18 @@ public class ThumbnailWindow : Form
 
     private void OnMenuClosed(object? sender, ToolStripDropDownClosedEventArgs e) => NoteMenu(false);
 
+    /// <summary>IDEAS P80 (6): closes this thumbnail's right-click menu if it is open. Windows leaves a drop-down open when
+    /// the player clicks into another program, so the manager calls this when an EVE client takes the foreground. Nothing
+    /// is sent to anyone; closing it raises OnMenuClosed, which takes the menu off the count. Harmless with no menu.</summary>
+    public void CloseMenu()
+    {
+        try
+        {
+            if (_menu?.Strip.Visible == true) _menu.Strip.Close(ToolStripDropDownCloseReason.AppFocusChange);
+        }
+        catch (Exception ex) { App.LogError(ex); }
+    }
+
     // Session-only cycle-exclusion visual state (issue #16, drawing fixed in
     // #27). The strikeout itself is rendered in the WPF TextOverlayWindow —
     // drawing here in the WinForms client area is invisible because DWM

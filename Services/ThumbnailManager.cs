@@ -2018,6 +2018,12 @@ public sealed class ThumbnailManager : IDisposable
                 _lastEveFocused = false;
                 _lastZOrderHwnd = IntPtr.Zero;
             }
+            else if (Interop.User32.IsEveProcessName(proc))
+            {
+                // IDEAS P80 (6): an EVE client took the foreground: a thumbnail's open right-click menu goes. Only for an
+                // EVE window, never for MultiPreview's own (the menu is one of them, and would close itself).
+                foreach (var (_, t) in _thumbnails) t.CloseMenu();
+            }
         }
 
         var dispatcher = Application.Current?.Dispatcher;
