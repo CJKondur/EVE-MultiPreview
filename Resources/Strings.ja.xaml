@@ -2867,4 +2867,9 @@
     <sys:String x:Key="L.S.Opt.PushMentionNone">メンションしない</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar">サムネイルの代わりに名前バーを表示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar.Desc">メインのサムネイルを隠し、メイン画面の上部中央にキャラクターのボタンを一列に表示します。ボタンをクリックするとそのクライアントに切り替わり、ポインターをしばらく乗せるとそのクライアントをライブで確認できます。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">サムネイルの代わりの名前バー</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **サムネイルの代わりに名前バーを表示**をオンにすると、メインのサムネイルがすべて隠れ、メイン画面の上部中央にログイン中のキャラクターごとのボタンが並びます。1行に収まらないボタンは次の行に折り返されます。&#x0A;- ボタンの左の帯はキャラクターの最初のグループの色で、枠はまだ見ていない最も重大なアラート（重大、警告、情報）を示します。前面のクライアントは塗りつぶされます。&#x0A;- ボタンを**クリック**すると、そのサムネイルをクリックしたときと同じようにそのクライアントに切り替わります。ボタンに**ポインターをしばらく乗せる**と、バーの下にそのクライアントのライブ映像が表示されます。&#x0A;- バーはゲームからキーボードを奪うことはなく、移動もできません。セカンドサムネイル、切り抜きウィンドウ、統計ウィンドウは隠れません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Title">キャラクター名バー</sys:String> <!-- draft -->
 </ResourceDictionary>

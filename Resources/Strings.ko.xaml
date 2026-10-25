@@ -2867,4 +2867,9 @@
     <sys:String x:Key="L.S.Opt.PushMentionNone">멘션 안 함</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar">썸네일 대신 이름 바 표시</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar.Desc">메인 썸네일을 숨기고 주 화면 위쪽 가운데에 캐릭터 버튼을 한 줄로 보여줘요. 버튼을 클릭하면 해당 클라이언트로 전환되고, 포인터를 잠시 올려 두면 그 클라이언트를 실시간으로 볼 수 있어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">썸네일 대신 이름 바</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **썸네일 대신 이름 바 표시**를 켜면 메인 썸네일이 모두 숨겨지고, 주 화면 위쪽 가운데에 로그인한 캐릭터마다 버튼이 하나씩 나타나요. 한 줄에 다 들어가지 않으면 다음 줄로 넘어가요.&#x0A;- 버튼 왼쪽의 띠는 캐릭터의 첫 번째 그룹 색이고, 테두리는 아직 확인하지 않은 가장 심각한 알림(치명적, 경고, 정보)을 보여줘요. 맨 앞 클라이언트는 채워서 표시돼요.&#x0A;- 버튼을 **클릭**하면 썸네일을 클릭할 때처럼 그 클라이언트로 전환돼요. 버튼에 **포인터를 잠시 올려 두면** 바 아래에 그 클라이언트의 실시간 화면이 나타나요.&#x0A;- 바는 게임에서 키보드를 가져가지 않고, 옮길 수도 없어요. 보조 썸네일, 크롭 창, 통계 창은 숨기지 않아요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Title">캐릭터 이름 바</sys:String> <!-- draft -->
 </ResourceDictionary>

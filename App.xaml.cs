@@ -134,6 +134,8 @@ public partial class App : Application
     private FleetBoardWindow? _fleetBoardWindow;   // IDEAS #18: the fleet board, while it is open
     private bool _streamerMaskDrawn;   // IDEAS #19: the mode the history window was last drawn for; it is redrawn when this flips
     private Views.HotkeySheetWindow? _hotkeySheet;  // IDEAS #16: the hotkey cheat sheet, while it shows
+    private Views.NameBarWindow? _nameBar;  // IDEAS #38: the compact name bar, while NameBarMode is on
+    private bool _nameBarFailed;            // IDEAS #38: making it failed; no new try until the switch goes off and on again
     private Views.CommandPaletteWindow? _commandPalette;  // IDEAS #14: the command palette, while it shows
     private CustomAlertStore? _customAlerts;   // IDEAS #8: the player's own alert rules
     private ProcessMonitorService? _processMonitor;
@@ -795,6 +797,7 @@ public partial class App : Application
                 FollowIdle();
                 FollowFocusMode();
                 FollowAutoProfile();
+                FollowNameBar();          // IDEAS #38
                 FollowStartupCommand();   // IDEAS P130 (b)
             };
             hotkeyToggleTimer.Start();
@@ -2221,9 +2224,11 @@ public partial class App : Application
             _spokenWay?.Follow(_settings!.Settings.SpeakAlerts);   // FX-m4: off and on again counts the voice's asks anew
             _pushWay?.Follow(_settings!.Settings);   // IDEAS #2: a newly saved link or a switch takes effect now
             FollowCommandServer();   // IDEAS #39: the pipe opens or closes with its switch
+            FollowNameBar();         // IDEAS #38: the bar and the hold on the thumbnails follow their switch at once
             if (StreamerMask.IsOn != _streamerMaskDrawn)   // IDEAS #19: its names follow streamer mode at once, once per flip
             {
                 _streamerMaskDrawn = StreamerMask.IsOn;
+                _nameBar?.Refresh();   // IDEAS #38
                 _historyWindow?.RefreshStreamerMask();
                 _statReportWindow?.RefreshStreamerMask();
                 _fleetBoardWindow?.RefreshStreamerMask();
@@ -2536,6 +2541,56 @@ public partial class App : Application
         }
     }
 
+    /// <summary>IDEAS #38, at each look of the half-second timer and when settings apply: the compact name bar follows its switch.
+    /// On, the main thumbnails are held hidden and the bar is made (or asked for its buttons again); off, the bar is closed
+    /// (its preview with it) and the thumbnails are let go. A bar that could not be made is logged once and the hold is let go,
+    /// so the thumbnails come back; the next try waits for the switch to go off and on. A failure is logged.</summary>
+    private void FollowNameBar()
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null || _thumbnailManager == null) return;
+            if (!_settings.Settings.NameBarMode)
+            {
+                _nameBarFailed = false;
+                var open = _nameBar;
+                _nameBar = null;
+                open?.Close();
+                _thumbnailManager.SetNameBarHold(false);
+                return;
+            }
+            if (_nameBarFailed) return;
+            if (_nameBar != null) { _nameBar.Refresh(); return; }
+            var thumbnails = _thumbnailManager;
+            _streamerMaskDrawn = StreamerMask.IsOn;   // IDEAS #19: drawn for the mode as it is now, so a later flip redraws it
+            var bar = new Views.NameBarWindow(NameBarEntries, name => SwitchToCharacter(name),
+                name => thumbnails.GetHwndForCharacter(name), new Views.NameBarPreview());
+            bar.Closed += (_, _) => { if (ReferenceEquals(_nameBar, bar)) _nameBar = null; };
+            _nameBar = bar;
+            thumbnails.SetNameBarHold(true);
+            bar.Show();
+        }
+        catch (Exception ex)
+        {
+            _nameBarFailed = true;
+            _nameBar = null;
+            _thumbnailManager?.SetNameBarHold(false);
+            LogError(ex);
+        }
+    }
+
+    /// <summary>IDEAS #38: the name bar's buttons now: the running characters in the quick-switch wheel's order, each with the
+    /// colour of its first colour group, its worst unseen alert and whether its client is in front. Read from what the app knows.</summary>
+    private IReadOnlyList<NameBarEntry> NameBarEntries()
+    {
+        if (_settings == null || _thumbnailManager == null) return Array.Empty<NameBarEntry>();
+        var s = _settings.Settings;
+        var thumbnails = _thumbnailManager;
+        return NameBar.Entries(thumbnails.SnapshotCharacters().Select(c => c.Name).ToList(),
+            s.ThumbnailGroups.Select(g => (g.Name, (string?)g.Color, (IReadOnlyList<string>)g.Members)).ToList(),
+            name => thumbnails.Attention.For(name)?.Severity, thumbnails.ActiveCharacter(), s.QuickSwitchCardOrder);
+    }
+
     /// <summary>IDEAS #14: opens the command palette over the monitor under the cursor, or closes it when it is open (never two).
     /// Its rows come from the sources the remote commands' runner reads (RunCommand): the running characters, the groups and the
     /// profiles, and the labels the player gave characters; the row chosen is run through RunCommand itself, so one action is
@@ -2668,6 +2723,7 @@ public partial class App : Application
             _commandServer?.Dispose();   // IDEAS #39: no more commands
             _commandServer = null;
             _hotkeySheet?.Dismiss();   // IDEAS #16
+            _nameBar?.Close();   // IDEAS #38: its preview's picture is let go with it
             _commandPalette?.Dismiss();   // IDEAS #14
             _spokenWay?.Stop();   // IDEAS #26: nothing more is said, and what is being said is cut off
             _notificationsWay?.Stop();   // IDEAS #33: what this session showed is taken out of the Notification Center

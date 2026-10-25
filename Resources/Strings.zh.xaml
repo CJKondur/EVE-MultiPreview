@@ -2884,4 +2884,9 @@
     <sys:String x:Key="L.S.Opt.PushMentionNone">不提及</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar">用名称栏代替缩略图显示</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar.Desc">隐藏主缩略图，并在主屏幕顶部居中显示一排角色按钮。点击按钮即可切换到对应的客户端；把指针停在按钮上片刻，就能实时查看该客户端。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">用名称栏代替缩略图</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **用名称栏代替缩略图显示**会隐藏所有主缩略图，并在主屏幕顶部居中为每个已登录的角色显示一个按钮。一行放不下的按钮会换到下一行。&#x0A;- 按钮左侧的色条是该角色第一个分组的颜色；边框显示你尚未查看的最严重的警报（严重、警告或信息）；位于前台的客户端会被填充。&#x0A;- **点击**按钮即可切换到该客户端，与点击它的缩略图相同。**把指针停在**按钮上片刻，栏下方就会显示该客户端的实时画面。&#x0A;- 名称栏不会从游戏手中夺走键盘，也无法移动。它不会隐藏第二缩略图、裁剪窗口和统计窗口。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Title">角色名称栏</sys:String> <!-- draft -->
 </ResourceDictionary>

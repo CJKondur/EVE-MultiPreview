@@ -341,6 +341,11 @@ public class AppSettings
     /// nothing is read or written. New key: off in a file without it.</summary>
     public bool TrackPlaytime { get; set; } = false;
 
+    /// <summary>A compact name bar instead of the main thumbnails (IDEAS #38): every main thumbnail is held hidden and a row of
+    /// character buttons sits at the top centre of the primary monitor; a click switches to that client, a hover shows its live
+    /// picture. Global; never saved by the bar itself. Read by App's one look (FollowNameBar). New key: off in a file without it.</summary>
+    public bool NameBarMode { get; set; } = false;
+
     /// <summary>Opacity (0-100%) applied to the alert pulse border color across
     /// all alert events. Default 100 = fully opaque (current behavior).
     /// Lower values produce a softer pulse — useful when running 4+ clients

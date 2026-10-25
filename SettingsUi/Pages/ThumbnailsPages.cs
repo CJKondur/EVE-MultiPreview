@@ -59,6 +59,7 @@ public static class ThumbnailsPages
         {
             "thumbs.visibility.alwaysOnTop", "thumbs.visibility.aboveClients", "thumbs.visibility.hideOnLostFocus", "thumbs.visibility.hideActive",
         }),
+        new HelpTopic(VisibilityId, "nameBar", new[] { "thumbs.nameBar" }),
         new HelpTopic(VisibilityId, "login", new[] { "thumbs.visibility.notLoggedIn", "thumbs.visibility.notLoggedInColor" }),
         new HelpTopic(VisibilityId, "pip", new[] { "thumbs.visibility.pipTable" }),
         new HelpTopic(CropsId, "crops", new[] { "thumbs.crops.enabled", "thumbs.crops.off", "thumbs.crops.editor" }),
@@ -386,6 +387,8 @@ public static class ThumbnailsPages
         {
             Toggle("thumbs.visibility.hideOnLostFocus", s => s.HideThumbnailsOnLostFocus, ApplyScope.Save, "ChkHideOnLostFocus"),
             Toggle("thumbs.visibility.hideActive", s => s.HideActiveThumbnail, ApplyScope.Save, "ChkHideActive"),
+            // IDEAS #38: App's half-second look (FollowNameBar) holds the main thumbnails and makes or closes the bar: Save is enough.
+            Toggle("thumbs.nameBar", s => s.NameBarMode, ApplyScope.Save),
         }),
         new SectionDef("thumbs.visibility.login", new PageItem[]
         {

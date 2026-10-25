@@ -2869,4 +2869,9 @@
     <sys:String x:Key="L.S.Opt.PushMentionNone">Aucune mention</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar">Afficher une barre de noms à la place des vignettes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar.Desc">Masque les vignettes principales et affiche une rangée de boutons de personnages en haut au centre de votre écran principal. Cliquez sur un bouton pour passer à ce client ; laissez le pointeur dessus un instant pour voir ce client en direct.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">Barre de noms à la place des vignettes</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **Afficher une barre de noms à la place des vignettes** masque chaque vignette principale et affiche un bouton par personnage connecté, en haut au centre de votre écran principal. Ce qui ne tient pas sur une rangée passe sur les rangées suivantes.&#x0A;- La bande à gauche d'un bouton a la couleur du premier groupe du personnage ; sa bordure indique l'alerte la plus grave que vous n'avez pas encore vue (critique, avertissement ou info) ; le client au premier plan est rempli.&#x0A;- **Cliquez** sur un bouton pour passer à ce client, comme avec un clic sur sa vignette. **Laissez le pointeur un instant** sur un bouton et une image en direct de ce client s'affiche sous la barre.&#x0A;- La barre ne prend jamais le clavier au jeu et ne peut pas être déplacée. Les secondes vignettes, les fenêtres de recadrage et les fenêtres de statistiques ne sont pas masquées.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Title">Barre des noms de personnages</sys:String> <!-- draft -->
 </ResourceDictionary>

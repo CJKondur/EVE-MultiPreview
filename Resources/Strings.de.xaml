@@ -2866,4 +2866,9 @@
     <sys:String x:Key="L.S.Opt.PushMentionNone">Keine Erwähnung</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar">Namensleiste statt Vorschaubildern anzeigen</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar.Desc">Blendet die Haupt-Vorschaubilder aus und zeigt oben in der Mitte deines Hauptbildschirms eine Reihe mit Charakter-Schaltflächen. Klicke auf eine Schaltfläche, um zu diesem Client zu wechseln; halte den Mauszeiger kurz darauf, um diesen Client live zu sehen.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">Namensleiste statt Vorschaubildern</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **Namensleiste statt Vorschaubildern anzeigen** blendet jedes Haupt-Vorschaubild aus und zeigt oben in der Mitte deines Hauptbildschirms eine Schaltfläche pro angemeldetem Charakter. Was nicht in eine Reihe passt, läuft in weiteren Reihen weiter.&#x0A;- Der linke Streifen einer Schaltfläche hat die Farbe der ersten Gruppe des Charakters; der Rahmen zeigt den schwersten Alarm, den du noch nicht gesehen hast (kritisch, Warnung oder Info); der Client im Vordergrund ist gefüllt.&#x0A;- **Klicke** auf eine Schaltfläche, um zu diesem Client zu wechseln, genau wie beim Klick auf sein Vorschaubild. **Halte den Mauszeiger kurz** auf einer Schaltfläche, und unter der Leiste erscheint ein Live-Bild dieses Clients.&#x0A;- Die Leiste nimmt dem Spiel nie die Tastatur und lässt sich nicht verschieben. Zweite Vorschaubilder, Ausschnittfenster und Statistikfenster blendet sie nicht aus.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Title">Namensleiste der Charaktere</sys:String> <!-- draft -->
 </ResourceDictionary>

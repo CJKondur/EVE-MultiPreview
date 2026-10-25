@@ -157,6 +157,7 @@ public class AhkConfigRoot
         s.OpenSettingsHotkey = g.OpenSettingsHotkey ?? "";
         s.CommandPaletteHotkey = g.CommandPaletteHotkey ?? "";
         s.TrackPlaytime = g.TrackPlaytime != 0;
+        s.NameBarMode = g.NameBarMode != 0;
         s.AlertOpacityPercent = g.AlertOpacityPercent;
         s.AlertBorderThickness = g.AlertBorderThickness > 0 ? g.AlertBorderThickness : 3;
         s.AlertCooldown = g.AlertCooldown;
@@ -506,6 +507,7 @@ public class AhkConfigRoot
         g.OpenSettingsHotkey = s.OpenSettingsHotkey;
         g.CommandPaletteHotkey = s.CommandPaletteHotkey;
         g.TrackPlaytime = s.TrackPlaytime ? 1 : 0;
+        g.NameBarMode = s.NameBarMode ? 1 : 0;
         g.AlertOpacityPercent = s.AlertOpacityPercent;
         g.AlertBorderThickness = s.AlertBorderThickness;
         g.AlertCooldown = s.AlertCooldown;
@@ -1462,6 +1464,10 @@ public class AhkGlobalSettings
     // Weekly playtime per character (IDEAS P11), batch 19: a file without it loads it off.
     [JsonPropertyName("TrackPlaytime")]
     public int TrackPlaytime { get; set; }
+
+    // A compact name bar instead of the main thumbnails (IDEAS #38), batch 30: a file without it loads it off.
+    [JsonPropertyName("NameBarMode")]
+    public int NameBarMode { get; set; }
 
     [JsonPropertyName("AlertOpacityPercent")]
     public int AlertOpacityPercent { get; set; } = 100;

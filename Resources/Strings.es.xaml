@@ -2888,4 +2888,9 @@
     <sys:String x:Key="L.S.Opt.PushMentionNone">Sin mención</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar">Mostrar una barra de nombres en lugar de miniaturas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar.Desc">Oculta las miniaturas principales y muestra una fila de botones de personajes en la parte superior central de tu pantalla principal. Haz clic en un botón para cambiar a ese cliente; deja el puntero encima un momento para ver ese cliente en directo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">Barra de nombres en lugar de miniaturas</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **Mostrar una barra de nombres en lugar de miniaturas** oculta todas las miniaturas principales y muestra un botón por personaje conectado en la parte superior central de tu pantalla principal. Lo que no cabe en una fila pasa a las filas siguientes.&#x0A;- La franja izquierda de un botón tiene el color del primer grupo del personaje; su borde indica la alerta más grave que aún no has visto (crítica, advertencia o info); el cliente que está delante aparece relleno.&#x0A;- **Haz clic** en un botón para cambiar a ese cliente, igual que al hacer clic en su miniatura. **Deja el puntero un momento** sobre un botón y debajo de la barra aparece una imagen en directo de ese cliente.&#x0A;- La barra nunca le quita el teclado al juego y no se puede mover. No oculta las segundas miniaturas, las ventanas de recorte ni las ventanas de estadísticas.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Title">Barra de nombres de personajes</sys:String> <!-- draft -->
 </ResourceDictionary>

@@ -2884,4 +2884,9 @@
     <sys:String x:Key="L.S.Opt.PushMentionNone">Nessuna menzione</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar">Mostra una barra dei nomi al posto delle miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.thumbs.nameBar.Desc">Nasconde le miniature principali e mostra una riga di pulsanti dei personaggi in alto al centro dello schermo principale. Fai clic su un pulsante per passare a quel client; tieni il puntatore sopra per un attimo per vedere quel client dal vivo.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">Barra dei nomi al posto delle miniature</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **Mostra una barra dei nomi al posto delle miniature** nasconde ogni miniatura principale e mostra un pulsante per ogni personaggio connesso, in alto al centro del tuo schermo principale. Quello che non entra in una riga va a capo sulle righe successive.&#x0A;- La striscia a sinistra di un pulsante ha il colore del primo gruppo del personaggio; il bordo mostra l'avviso più grave che non hai ancora visto (critico, avvertimento o info); il client in primo piano è riempito.&#x0A;- **Fai clic** su un pulsante per passare a quel client, come con un clic sulla sua miniatura. **Tieni fermo il puntatore** per un attimo su un pulsante e sotto la barra compare un'immagine dal vivo di quel client.&#x0A;- La barra non toglie mai la tastiera al gioco e non si può spostare. Non nasconde le seconde miniature, le finestre di ritaglio né le finestre delle statistiche.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.NameBar.Title">Barra dei nomi dei personaggi</sys:String> <!-- draft -->
 </ResourceDictionary>

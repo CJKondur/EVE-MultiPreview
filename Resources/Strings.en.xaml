@@ -2866,4 +2866,9 @@
     <sys:String x:Key="L.S.Opt.PushMentionNone">No mention</sys:String>
     <sys:String x:Key="L.S.Opt.PushMentionHere">@here</sys:String>
     <sys:String x:Key="L.S.Opt.PushMentionEveryone">@everyone</sys:String>
+    <sys:String x:Key="L.S.thumbs.nameBar">Show a name bar instead of thumbnails</sys:String>
+    <sys:String x:Key="L.S.thumbs.nameBar.Desc">Hides the main thumbnails and shows one row of character buttons at the top centre of your main screen. Click a button to switch to that client; rest the pointer on it for a moment to see that client live.</sys:String>
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Title">Name bar instead of thumbnails</sys:String>
+    <sys:String x:Key="L.Help.thumbs.visibility.nameBar.Body">- **Show a name bar instead of thumbnails** hides every main thumbnail and shows one button per logged-in character at the top centre of your main screen. More than fit in a row wrap onto further rows.&#x0A;- A button's left stripe is the colour of the character's first group; its border shows the worst alert you have not looked at yet (critical, warning or info); the client in front is filled.&#x0A;- **Click** a button to switch to that client, as a click on its thumbnail does. **Rest the pointer** on a button for a moment and a live picture of that client shows below the bar.&#x0A;- The bar never takes the keyboard from the game and cannot be moved. Second thumbnails, crop windows and stats windows are not hidden by it.</sys:String>
+    <sys:String x:Key="L.NameBar.Title">Character name bar</sys:String>
 </ResourceDictionary>
