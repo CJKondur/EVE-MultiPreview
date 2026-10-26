@@ -30,6 +30,9 @@
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <!-- Plan 38: the Stream Deck plugin is JavaScript and its node_modules holds thousands of files; the default globs never
+         walk it (the Remove lines below stay as a second guard). -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);StreamDeckPlugin\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <!-- A Release build doesn't carry the path of the folder it was built in. Without this the dll inside the exe
