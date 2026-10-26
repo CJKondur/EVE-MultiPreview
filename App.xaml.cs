@@ -1698,7 +1698,7 @@ public partial class App : Application
                 MarkAlertsSeen = () =>
                 {
                     int taken = thumbnails.MarkAllAlertsSeen();   // AlertAttention.SeeAll + the border flashes
-                    thumbnails.ShowTooltipFeedback(LocalizationService.Str("L.Msg.AlertsAllSeen", "Alerts marked seen"));
+                    if (taken > 0) thumbnails.ShowTooltipFeedback(LocalizationService.Str("L.Msg.AlertsAllSeen", "Alerts marked seen"));
                     return taken;
                 },
                 MuteFor = thumbnails.SetCharacterAlertMute,
