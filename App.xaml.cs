@@ -1889,7 +1889,8 @@ public partial class App : Application
             var previous = _pairPrompt;
             _pairPrompt = dialog;
             previous?.Close();
-            var timer = new DispatcherTimer { Interval = PairingDesk.PromptLife };
+            // counted from when the desk opened the window, not from now: a window shown late still closes at the desk's deadline
+            var timer = new DispatcherTimer { Interval = _pairing.Remaining(PairClock()) };
             timer.Tick += (_, _) => { timer.Stop(); dialog.Close(); };   // unanswered: Deny
             dialog.Closed += (_, _) => { timer.Stop(); PairPromptClosed(dialog, both); };
             timer.Start();
@@ -1905,7 +1906,7 @@ public partial class App : Application
     /// <summary>Plan 39 Rulings 3 and 5: the answer of the window that is open now. Allow turns on "Take commands from other
     /// programs" (and, for an unelevated program of an elevated MultiPreview, its second switch) through the settings path
     /// (Recently changed with Undo), saves, has the pipe follow and the open settings window show it, and says so near the
-    /// cursor. Anything else (Deny, Esc, the X, the timer) changes nothing but the desk's pause.</summary>
+    /// cursor. Anything else (Deny, Esc, the X, the timer, or an Allow after the desk's deadline) changes nothing but the desk's pause.</summary>
     private void PairPromptClosed(ChoiceDialog dialog, bool both)
     {
         try
@@ -1913,8 +1914,8 @@ public partial class App : Application
             if (!ReferenceEquals(_pairPrompt, dialog)) return;   // replaced by a newer window: its answer no longer counts
             _pairPrompt = null;
             bool allowed = dialog.Result == true;
-            _pairing.Answered(allowed, PairClock());
-            if (!allowed || _isShuttingDown || _settings == null) return;
+            bool counted = _pairing.Answered(allowed, PairClock());   // false: the desk had already expired this window as a Deny
+            if (!allowed || !counted || _isShuttingDown || _settings == null) return;
             var s = _settings.Settings;
             SettingSwitches.TurnOn(_settings, s, "app.general.acceptCommands");
             if (both) SettingSwitches.TurnOn(_settings, s, "app.general.acceptCommandsUnelevated");

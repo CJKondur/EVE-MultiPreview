@@ -36,13 +36,25 @@ public sealed class PairingDesk
     }
 
     /// <summary>The open window was answered (a timeout is <paramref name="allowed"/> false). Deny starts the pause; Allow
-    /// does not. Without an open window (the desk already expired it) nothing changes.</summary>
-    public void Answered(bool allowed, TimeSpan now)
+    /// does not. Without an open window (the desk already expired it) nothing changes and the answer is <c>false</c>: an Allow
+    /// that arrives after the desk's deadline must not turn anything on. True only when a window was open and is now closed.</summary>
+    public bool Answered(bool allowed, TimeSpan now)
     {
         Expire(now);
-        if (_openedAt == null) return;
+        if (_openedAt == null) return false;
         _openedAt = null;
         if (!allowed) _waitUntil = now + CoolDown;
+        return true;
+    }
+
+    /// <summary>How long the open window may still stay up: <see cref="PromptLife"/> counted from the moment the desk opened it
+    /// (not from when the window got on screen), never below zero; zero when none is open. The window's timer uses it, so it
+    /// closes at the desk's deadline.</summary>
+    public TimeSpan Remaining(TimeSpan now)
+    {
+        if (_openedAt is not { } opened) return TimeSpan.Zero;
+        var left = opened + PromptLife - now;
+        return left < TimeSpan.Zero ? TimeSpan.Zero : left;
     }
 
     /// <summary>The hello reply's pairing word: <c>asking</c> while a window is open, <c>blocked</c> after the last window of
