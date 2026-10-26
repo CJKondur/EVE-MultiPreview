@@ -6,11 +6,12 @@ using System.Text;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>IDEAS #39, #15, P127, P129, P126 and Plan 38: what another program may ask of the running MultiPreview. One of
-/// thirty-four, nothing else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs of
-/// P127, the two alert-mute verbs of P129, the four query verbs of P126 (pipe-only: no switch, and the reply carries data) and
+/// <summary>IDEAS #39, #15, P127, P129, P126 and Plans 38 and 39: what another program may ask of the running MultiPreview. One
+/// of thirty-eight, nothing else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs
+/// of P127, the two alert-mute verbs of P129, the four query verbs of P126 (pipe-only: no switch, and the reply carries data),
 /// the eleven of Plan 38 (three that open a window, the name bar's three, mark-alerts-seen, a 30-minute mute, minimize and
-/// restore, and live-state, which is pipe-only).</summary>
+/// restore, and live-state, which is pipe-only) and the four pipe-only words of Plan 39 (hello and pair, which the server hands
+/// to its pairing seam, and the two lists of commands and alert types).</summary>
 public enum RemoteVerb
 {
     Focus, Profile, ToggleThumbnails, FocusMode,
@@ -20,6 +21,7 @@ public enum RemoteVerb
     ListCharacters, ListGroups, ListProfiles, State,
     OpenSettings, OpenFleetBoard, OpenAlertHistory, NameBar, NameBarOn, NameBarOff, MarkAlertsSeen, Mute30, MinimizeClients, RestoreClients,
     LiveState,
+    Hello, Pair, ListCommands, ListAlertTypes,
 }
 
 /// <summary>What came of a command. The running MultiPreview answers the first three as one byte on the pipe; a second
@@ -74,12 +76,19 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
         ("--minimize-clients", "minimize-clients", RemoteVerb.MinimizeClients, false),
         ("--restore-clients", "restore-clients", RemoteVerb.RestoreClients, false),
         ("", "live-state", RemoteVerb.LiveState, false),
+        // Plan 39 Ruling 20: pipe-only. hello and pair go to the server's pairing seam, never to a runner.
+        ("", "hello", RemoteVerb.Hello, false),
+        ("", "pair", RemoteVerb.Pair, false),
+        ("", "list-commands", RemoteVerb.ListCommands, false),
+        ("", "list-alert-types", RemoteVerb.ListAlertTypes, false),
     };
 
-    /// <summary>IDEAS P126: is the verb a query, whose reply carries data after the outcome byte? Only these five (Plan 38 added
-    /// live-state); every other verb, and any value not on the list, is answered with one byte.</summary>
+    /// <summary>IDEAS P126: is the verb a query, whose reply carries data after the outcome byte? Only these eight (Plan 38 added
+    /// live-state, Plan 39 hello and the two lists; pair is not one); every other verb, and any value not on the list, is
+    /// answered with one byte.</summary>
     public static bool IsQuery(RemoteVerb verb) =>
-        verb is RemoteVerb.ListCharacters or RemoteVerb.ListGroups or RemoteVerb.ListProfiles or RemoteVerb.State or RemoteVerb.LiveState;
+        verb is RemoteVerb.ListCharacters or RemoteVerb.ListGroups or RemoteVerb.ListProfiles or RemoteVerb.State or RemoteVerb.LiveState
+            or RemoteVerb.Hello or RemoteVerb.ListCommands or RemoteVerb.ListAlertTypes;
 
     /// <summary>The command-line switch of a verb of the list (<c>--cycle-all</c>); empty for any other, and for a query.</summary>
     public static string SwitchOf(RemoteVerb verb) => Allowed.FirstOrDefault(a => a.Verb == verb).Switch ?? "";
@@ -324,7 +333,9 @@ public sealed class RemoteCommandRunner
                 if (shortPilot == null) return RemoteOutcome.NotFound;
                 muteFor(shortPilot, ShortMuteMinutes);
                 return RemoteOutcome.Done;
-            default:   // a verb not on the list, and the pipe-only queries (P126), which RemoteQueryRunner answers: nothing here runs them
+            // a verb not on the list, the pipe-only queries (P126), which RemoteQueryRunner answers, and Plan 39's hello and pair,
+            // which the server hands to its pairing seam: nothing here runs them
+            default:
                 return RemoteOutcome.Refused;
         }
     }

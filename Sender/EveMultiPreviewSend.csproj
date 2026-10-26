@@ -32,6 +32,8 @@
   <ItemGroup>
     <Compile Include="..\Services\RemoteCommand.cs" Link="Shared\RemoteCommand.cs" />
     <Compile Include="..\Services\CommandPipe.cs" Link="Shared\CommandPipe.cs" />
+    <!-- Plan 39: the server's gate (PipeClient, PipeAccess, PipeGate, PairingHello), which CommandPipe.cs names. -->
+    <Compile Include="..\Services\PipeGate.cs" Link="Shared\PipeGate.cs" />
     <!-- Plan 38: the pipe code judges a live-state reply's lines with LiveState.IsLine; that file names NameBarEntry (NameBar.cs),
          whose severity words come from AlertAttention.Rank (AlertAttention.cs, which uses nothing but the base library). -->
     <Compile Include="..\Services\LiveState.cs" Link="Shared\LiveState.cs" />

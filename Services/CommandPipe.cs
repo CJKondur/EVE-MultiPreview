@@ -14,13 +14,17 @@ namespace EveMultiPreview.Services;
 
 /// <summary>IDEAS #39: the named pipe another program's command comes through. Its name holds the Windows session and the
 /// account's SID, so two accounts signed in at once never meet. Only this account can open it: its owner is the token's
-/// default owner (what .NET's CurrentUserOnly check on the client compares with), only that owner is allowed (the account
-/// itself for a normal run, the Administrators group for an elevated one, so the same account's non-elevated programs are
-/// refused by the pipe's list), the NETWORK group is denied, and nothing is inherited. A client opens it with
-/// CurrentUserOnly, so a pipe of that name made by another account is refused. No TCP port, nothing from the network.
-/// IDEAS #15, for an elevated MultiPreview only and only when the owner asks (Security's alsoUser): the account itself is
-/// allowed too, and a sender that is not elevated may connect without CurrentUserOnly, but writes only after the process
-/// that made the pipe proved to be an elevated process of this same account (IsThisAccountsElevatedProcess).</summary>
+/// default owner (what .NET's CurrentUserOnly check on the client compares with), that owner is allowed (the account itself
+/// for a normal run, the Administrators group for an elevated one), the NETWORK group is denied, and nothing is inherited. A
+/// client opens it with CurrentUserOnly, so a pipe of that name made by another account is refused. No TCP port, nothing from
+/// the network.
+/// <para>Plan 39: the pipe now exists while MultiPreview runs and programs may ask to connect (or commands are on), not only
+/// while commands are on. An elevated MultiPreview's list always carries the account's read/write rule (Security's alsoUser),
+/// so the account's ordinary programs can connect; a sender that is not elevated connects without CurrentUserOnly but writes
+/// only after the process that made the pipe proved to be an elevated process of this same account
+/// (IsThisAccountsElevatedProcess). What each connection may say is decided by <see cref="PipeGate"/> from the client's own
+/// token, read by impersonation (<see cref="ClientOf"/>): hello and pair always, anything else only once commands are on,
+/// and an ordinary program of an elevated MultiPreview only once the second switch is on too (Ruling 3).</para></summary>
 public static class CommandPipe
 {
     /// <summary>How long a second start waits for the running MultiPreview to answer, writing and answering together (IDEAS
@@ -83,10 +87,11 @@ public static class CommandPipe
     /// <summary>The pipe's list. One allow rule: the owner. For an elevated run that is the Administrators group, not the
     /// account (<paramref name="user"/>, which is then left out): a pipe made by an elevated process carries no integrity
     /// label that would keep the same account's non-elevated programs out, so a rule for the account would let them in.
-    /// <para><paramref name="alsoUser"/> (IDEAS #15, the owner's second switch) adds that account rule anyway, and only for
-    /// an elevated run (owner != user; for a normal run the owner already is the account, so there is nothing to add). It
-    /// trades the door's strictness for reach: any ordinary program of the account can then switch clients and profiles
-    /// (the allow-list of RemoteCommand still names no file and runs nothing). The account gets read/write only, never
+    /// <para><paramref name="alsoUser"/> (IDEAS #15; Plan 39: App always asks for it) adds that account rule anyway, and only
+    /// for an elevated run (owner != user; for a normal run the owner already is the account, so there is nothing to add). It
+    /// widens who can connect, not who can command: <see cref="PipeGate"/> keeps an ordinary program of the account to hello
+    /// and pair until the owner turns on the second switch (the allow-list of RemoteCommand still names no file and runs
+    /// nothing). The account gets read/write only, never
     /// FullControl: it can connect and send a command, but cannot change the door (WRITE_DAC), take ownership
     /// (WRITE_OWNER) or make a pipe instance under the elevated server's name (CreateNewInstance), which would let an
     /// ordinary program drop the NETWORK deny or stand in for the server. The NETWORK deny and the protected, empty
@@ -275,9 +280,43 @@ public static class CommandPipe
     private static bool TokenIsElevated(IntPtr token) =>
         GetTokenInformationElevation(token, TokenElevation, out int elevation, sizeof(int), out int returned) && returned == sizeof(int) && elevation != 0;
 
+    /// <summary>The token's Windows session (a DWORD, read through the same int-sized call as the elevation).</summary>
+    private static bool TokenSessionIs(IntPtr token, int session) =>
+        GetTokenInformationElevation(token, TokenSessionId, out int value, sizeof(int), out int returned) && returned == sizeof(int) && value == session;
+
+    /// <summary>Plan 39 Ruling 4: who is at the other end of a server pipe a message was read from, from the client's own token.
+    /// The server thread impersonates the client (<see cref="NamedPipeServerStream.RunAsClient"/>, which always reverts, also
+    /// when the read throws) and reads the thread's token: this account when its user is this process's account and its session
+    /// is this process's session; elevated from its TokenElevation. A token that is not an impersonation token (the thread did
+    /// not impersonate, so the read fell back to the server's own process token) is no answer. The PID
+    /// (GetNamedPipeClientProcessId) only names the program; 0 when it cannot be read. Anything that fails, including a client
+    /// that allowed only anonymous impersonation, is <see cref="PipeClient.Unknown"/>, which the gate admits to nothing.</summary>
+    public static PipeClient ClientOf(NamedPipeServerStream pipe)
+    {
+        try
+        {
+            // read before impersonating: inside, WindowsIdentity.GetCurrent() would be the client's
+            var account = CurrentAccount().User;
+            int session = SessionOfThisProcess();
+            bool thisAccount = false, elevated = false;
+            pipe.RunAsClient(() =>
+            {
+                using var identity = WindowsIdentity.GetCurrent(TokenAccessLevels.Query);
+                if (identity.ImpersonationLevel == TokenImpersonationLevel.None) return;   // the server's own token: nothing known
+                thisAccount = identity.User == account && TokenSessionIs(identity.Token, session);
+                elevated = TokenIsElevated(identity.Token);
+            });
+            if (!thisAccount) return PipeClient.Unknown;
+            uint processId = GetNamedPipeClientProcessId(pipe.SafePipeHandle, out uint id) ? id : 0;
+            return new PipeClient(true, elevated, processId);
+        }
+        catch (Exception) { return PipeClient.Unknown; }
+    }
+
     private const uint ProcessQueryLimitedInformation = 0x1000;
     private const uint TokenQuery = 0x0008;
     private const int TokenUser = 1;
+    private const int TokenSessionId = 12;
     private const int TokenElevation = 20;
 
     private static int SessionOfThisProcess() =>
@@ -290,6 +329,10 @@ public static class CommandPipe
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool GetNamedPipeServerProcessId(SafePipeHandle pipe, out uint serverProcessId);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetNamedPipeClientProcessId(SafePipeHandle pipe, out uint clientProcessId);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -321,6 +364,12 @@ public static class CommandPipe
 /// answers one byte (IDEAS P126: a query verb's Done is followed by its payload, at most 4,096 bytes, in the same write) and
 /// waits for the client to hang up (the two together at most the read time), and serves the next. A
 /// message that is not on the allow-list is answered "refused"; a client that goes quiet is let go. Dispose stops it.
+/// <para>Plan 39: App keeps it running while MultiPreview runs and programs may ask to connect, so commands off no longer
+/// means no pipe. After a message is read, the client is identified from its token (<see cref="CommandPipe.ClientOf"/>) and
+/// <see cref="PipeGate.Admits"/> decides with <see cref="Access"/>, which App sets on every settings change and which is read
+/// once per connection (no new server for a switch). A message the gate refuses is answered "refused" in one byte, live-state
+/// and the lists included. hello and pair go to the pairing seam, never to the command or query part: hello's lines are
+/// framed by <see cref="PairingHello.IsLine"/>, pair is answered in one byte.</para>
 /// <para>The name is never free while it runs: the first instance is made with FirstPipeInstance, so a pipe of that
 /// name another account made first is never joined (that account's door would govern it); and the next instance is made
 /// as soon as a client connects, before the one serving it goes, so nobody can make the name in between. A name already
@@ -351,16 +400,24 @@ public sealed class CommandServer : IDisposable
     private readonly Action<Exception> _failed;
     private readonly TimeSpan _readTime;
     private readonly Func<long> _elapsedMs;
+    private readonly Func<RemoteCommand, PipeClient, Task<QueryReply>>? _pairing;
+    private readonly Func<NamedPipeServerStream, PipeClient> _identify;
     private readonly CancellationTokenSource _stop = new();
     private Task? _loop;
     private volatile bool _gaveUp;
+    private volatile PipeAccess _access = PipeAccess.Closed;
 
     /// <param name="elapsedMs">IDEAS P130: milliseconds on a monotonic clock, for the time a sender's trailer says it has left
     /// (never a wall clock). Null: a <see cref="Stopwatch"/>. A test hands in its own.</param>
     /// <param name="query">IDEAS P126: answers a query verb (its reply carries data). Null: a query is answered Refused. A
     /// query verb never reaches <paramref name="run"/>, and any other verb never reaches this.</param>
+    /// <param name="pairing">Plan 39: answers hello and pair with the client the server read. Null: both are answered Refused.
+    /// Neither ever reaches <paramref name="run"/> or <paramref name="query"/>.</param>
+    /// <param name="identify">Plan 39: who the client is. Null: <see cref="CommandPipe.ClientOf"/>, by impersonation. A test hands
+    /// in its own; one that throws counts as <see cref="PipeClient.Unknown"/>.</param>
     public CommandServer(string name, PipeSecurity security, Func<RemoteCommand, Task<RemoteOutcome>> run, Action<Exception> failed, TimeSpan? readTime = null,
-        Func<RemoteCommand, Task<QueryReply>>? query = null, Func<long>? elapsedMs = null)
+        Func<RemoteCommand, Task<QueryReply>>? query = null, Func<long>? elapsedMs = null,
+        Func<RemoteCommand, PipeClient, Task<QueryReply>>? pairing = null, Func<NamedPipeServerStream, PipeClient>? identify = null)
     {
         _name = name;
         _security = security;
@@ -369,6 +426,16 @@ public sealed class CommandServer : IDisposable
         _failed = failed;
         _readTime = readTime ?? ReadTime;
         _elapsedMs = elapsedMs ?? (() => Stopwatch.GetTimestamp() * 1000 / Stopwatch.Frequency);
+        _pairing = pairing;
+        _identify = identify ?? CommandPipe.ClientOf;
+    }
+
+    /// <summary>Plan 39 Ruling 1: what the gate lets through, read once per connection, so a change takes effect on the next
+    /// connection without a new server. Starts <see cref="PipeAccess.Closed"/> (hello and pair only); null is Closed too.</summary>
+    public PipeAccess Access
+    {
+        get => _access;
+        set => _access = value ?? PipeAccess.Closed;
     }
 
     /// <summary>True once the server gave up for good: the name stayed taken, or the next instance could not be made
@@ -502,6 +569,20 @@ public sealed class CommandServer : IDisposable
         if (command == null) return (RemoteOutcome.Refused, Array.Empty<byte>());
         if (left is { } remaining && remaining - TimeSpan.FromMilliseconds(_elapsedMs() - since) < ReadTime + RunBudget)
             return (RemoteOutcome.NotReachable, Array.Empty<byte>());
+        // Plan 39 Rulings 2 and 4: who is asking comes from the client's token, never from its bytes; the gate decides with the
+        // Access of this moment. Refused is one byte, whatever the verb (live-state and the lists too).
+        PipeClient client;
+        try { client = _identify(pipe); }
+        catch (Exception) { client = PipeClient.Unknown; }
+        if (!PipeGate.Admits(command.Verb, client, _access)) return (RemoteOutcome.Refused, Array.Empty<byte>());
+        if (PipeGate.IsPairing(command.Verb))
+        {
+            if (_pairing == null) return (RemoteOutcome.Refused, Array.Empty<byte>());
+            var paired = await _pairing(command, client);
+            // pair is answered in one byte; only hello's Done carries lines, and only the hello lines
+            if (command.Verb != RemoteVerb.Hello || paired.Outcome != RemoteOutcome.Done) return (paired.Outcome, Array.Empty<byte>());
+            return (RemoteOutcome.Done, QueryPayload.Frame(paired.Lines, PairingHello.IsLine));
+        }
         if (!RemoteCommand.IsQuery(command.Verb)) return (await _run(command), Array.Empty<byte>());
         // IDEAS P126: only a query's Done carries a payload (cut at a whole line within the cap, a refused name left out)
         if (_query == null) return (RemoteOutcome.Refused, Array.Empty<byte>());

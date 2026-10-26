@@ -104,7 +104,6 @@ public partial class App : Application
     private StartupDialog? _autoProfileQuestion;
     /// <summary>IDEAS #39: the pipe other programs send commands through, while "Take commands from other programs" is on.</summary>
     private CommandServer? _commandServer;
-    private bool _commandServerWide;   // IDEAS #15: the running server was made with the second switch (the account's door) on
     /// <summary>IDEAS #39: the command this start was given (a shortcut with --profile, say), run once the deferred startup is
     /// done; null without one.</summary>
     private RemoteCommand? _startupCommand;
@@ -1583,39 +1582,38 @@ public partial class App : Application
         question.Show();
     }
 
-    /// <summary>IDEAS #39: the pipe listens while "Take commands from other programs" is on, and does not exist while it is
-    /// off. Called at startup and after every settings change; the same answer again changes nothing. The pipe's thread only
-    /// posts a command to the window's thread (RunOnWindowsThread) and never blocks it. A server that gave up (the name
-    /// stayed taken, the next instance could not be made) is let go when it says so, and the next settings change makes a
-    /// new one: driven by Apply, not by a timer, so nothing loops.</summary>
+    /// <summary>IDEAS #39, Plan 39 Ruling 1: the pipe listens while programs may ask to connect or "Take commands from other
+    /// programs" is on (PipeGate.Listens), and does not exist otherwise. Called at startup and after every settings change.
+    /// A running server is never rebuilt for a switch: it only gets the new Access (both switches and this process's
+    /// elevation), which its gate reads on the next connection. Its door always carries the account's read/write rule
+    /// (alsoUser), so an elevated MultiPreview's ordinary programs can connect and the gate, not the list, keeps them to hello
+    /// and pair until the second switch is on (Ruling 3). The pipe's thread only posts a command to the window's thread
+    /// (RunOnWindowsThread) and never blocks it. A server that gave up (the name stayed taken, the next instance could not be
+    /// made) is let go when it says so, and the next settings change makes a new one: driven by Apply, not by a timer, so
+    /// nothing loops.</summary>
     private void FollowCommandServer()
     {
         try
         {
-            bool wanted = !_isShuttingDown && _settings?.Settings.AcceptCommands == true;
-            // IDEAS #15: the second switch changes the door's list, so a running server of the other kind is let go and a
-            // new one is made below (the old name is retried by OpenFirst for two seconds while it is still held).
-            bool wide = _settings?.Settings.AcceptCommandsUnelevated == true;
-            if (wanted && _commandServer != null && wide != _commandServerWide)
-            {
-                _commandServer.Dispose();
-                _commandServer = null;
-            }
-            if (wanted == (_commandServer != null)) return;
+            // Plan 39: Task 1a replaces the literal true with the "Let Stream Deck and other programs ask to connect" switch
+            bool wanted = !_isShuttingDown && _settings != null && PipeGate.Listens(true, _settings.Settings.AcceptCommands);
             if (!wanted)
             {
-                _commandServer!.Dispose();
+                _commandServer?.Dispose();
                 _commandServer = null;
                 return;
             }
+            var s = _settings!.Settings;
+            var access = new PipeAccess(s.AcceptCommands, s.AcceptCommandsUnelevated, CommandPipe.IsElevated());
+            if (_commandServer != null) { _commandServer.Access = access; return; }
             var (user, owner) = CommandPipe.CurrentAccount();
             CommandServer? made = null;
-            made = new CommandServer(CommandPipe.CurrentName(), CommandPipe.Security(user, owner, alsoUser: wide),
+            made = new CommandServer(CommandPipe.CurrentName(), CommandPipe.Security(user, owner, alsoUser: true),
                 command => RunOnWindowsThread(command),
                 ex => { LogError(ex); DropFailedCommandServer(made); },   // logged once, without the pipe's name
-                query: command => QueryOnWindowsThread(command));          // IDEAS P126: the queries, whose reply carries data
+                query: command => QueryOnWindowsThread(command))           // IDEAS P126: the queries, whose reply carries data
+            { Access = access };
             _commandServer = made;
-            _commandServerWide = wide;
             made.Start();
         }
         catch (Exception ex) { LogError(ex); }
