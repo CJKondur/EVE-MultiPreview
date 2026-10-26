@@ -139,6 +139,17 @@ jobs:
             throw "The tag is $env:GITHUB_REF_NAME but EveMultiPreview.csproj says version $version. Tag the commit that sets the version."
           }
 
+      # The manifest's Version is what Stream Deck shows and compares when a newer plugin is double-clicked; a release whose
+      # plugin still says the old number would look like no update. tools/ci/check_workflows.py compares this step whole.
+      - name: The plugin manifest must say the csproj version plus .0
+        shell: pwsh
+        run: |
+          $version = (Select-Xml -Path EveMultiPreview.csproj -XPath '//Version').Node.InnerText
+          $manifest = (Get-Content -Raw -LiteralPath StreamDeckPlugin/com.cjkondur.evemultipreview.sdPlugin/manifest.json | ConvertFrom-Json).Version
+          if ($manifest -ne "$version.0") {
+            throw "The plugin manifest says version $manifest but EveMultiPreview.csproj says $version, so it must say $version.0. Change Version in StreamDeckPlugin/com.cjkondur.evemultipreview.sdPlugin/manifest.json."
+          }
+
       - name: Install Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
