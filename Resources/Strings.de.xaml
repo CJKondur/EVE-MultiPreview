@@ -2901,4 +2901,5 @@
     <sys:String x:Key="L.S.Cmd.Consent.Kept">Nichts geändert.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Made">{0} Verknüpfungen geschrieben. Zieh sie auf Stream-Deck-Tasten.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">{0} Verknüpfungen geschrieben, {1} konnten nicht geschrieben werden.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.MadeNotOpened">Die Tasten liegen im Ordner Stream Deck buttons in deinem Einstellungsordner — nicht geöffnet, weil der Streamer-Modus an ist.</sys:String> <!-- draft -->
 </ResourceDictionary>

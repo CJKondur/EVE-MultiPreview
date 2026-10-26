@@ -2901,4 +2901,5 @@
     <sys:String x:Key="L.S.Cmd.Consent.Kept">Nothing changed.</sys:String>
     <sys:String x:Key="L.S.Cmd.Made">{0} shortcuts written. Drag them onto Stream Deck keys.</sys:String>
     <sys:String x:Key="L.S.Cmd.MadePartly">{0} shortcuts written, {1} could not be written.</sys:String>
+    <sys:String x:Key="L.S.Cmd.MadeNotOpened">Buttons written to the Stream Deck buttons folder in your settings folder — not opened because streamer mode is on.</sys:String>
 </ResourceDictionary>

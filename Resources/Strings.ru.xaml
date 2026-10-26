@@ -2921,4 +2921,5 @@
     <sys:String x:Key="L.S.Cmd.Consent.Kept">Ничего не изменилось.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Made">Создано ярлыков: {0}. Перетащите их на клавиши Stream Deck.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">Создано ярлыков: {0}, не удалось создать: {1}.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.MadeNotOpened">Кнопки записаны в папку Stream Deck buttons внутри вашей папки настроек — не открыто, так как включён режим стримера.</sys:String> <!-- draft -->
 </ResourceDictionary>

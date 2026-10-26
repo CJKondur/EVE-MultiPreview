@@ -2919,4 +2919,5 @@
     <sys:String x:Key="L.S.Cmd.Consent.Kept">Non è cambiato nulla.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Made">{0} collegamenti scritti. Trascinali sui tasti di Stream Deck.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">{0} collegamenti scritti, {1} non è stato possibile scriverli.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.MadeNotOpened">Pulsanti scritti nella cartella Stream Deck buttons della tua cartella delle impostazioni — non aperta perché la modalità streamer è attiva.</sys:String> <!-- draft -->
 </ResourceDictionary>

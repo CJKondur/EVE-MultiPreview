@@ -2902,4 +2902,5 @@
     <sys:String x:Key="L.S.Cmd.Consent.Kept">何も変更していません。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Made">ショートカットを {0} 個書き出しました。Stream Deck のキーにドラッグしてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">ショートカットを {0} 個書き出しました。{1} 個は書き出せませんでした。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.MadeNotOpened">ボタンを設定フォルダー内の「Stream Deck buttons」フォルダーに書き出しました。配信者モードがオンのため、開いていません。</sys:String> <!-- draft -->
 </ResourceDictionary>

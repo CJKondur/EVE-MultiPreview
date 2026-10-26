@@ -2923,4 +2923,5 @@
     <sys:String x:Key="L.S.Cmd.Consent.Kept">No se ha cambiado nada.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Made">{0} accesos directos escritos. Arrástralos a las teclas de Stream Deck.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">{0} accesos directos escritos, {1} no se pudieron escribir.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.MadeNotOpened">Botones escritos en la carpeta Stream Deck buttons de tu carpeta de ajustes — no se abrió porque el modo streamer está activado.</sys:String> <!-- draft -->
 </ResourceDictionary>

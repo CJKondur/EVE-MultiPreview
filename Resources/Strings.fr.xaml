@@ -2904,4 +2904,5 @@
     <sys:String x:Key="L.S.Cmd.Consent.Kept">Rien n'a changé.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Made">{0} raccourcis écrits. Faites glisser ces raccourcis sur des touches du Stream Deck.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">{0} raccourcis écrits, {1} n'ont pas pu être écrits.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.MadeNotOpened">Boutons écrits dans le dossier Stream Deck buttons de votre dossier de paramètres — non ouvert, car le mode streamer est activé.</sys:String> <!-- draft -->
 </ResourceDictionary>

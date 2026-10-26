@@ -2919,4 +2919,5 @@
     <sys:String x:Key="L.S.Cmd.Consent.Kept">没有任何更改。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Made">已写出 {0} 个快捷方式。把它们拖到 Stream Deck 的按键上。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">已写出 {0} 个快捷方式，{1} 个写出失败。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.MadeNotOpened">按钮已写入设置文件夹中的“Stream Deck buttons”文件夹。因为主播模式已开启，没有打开它。</sys:String> <!-- draft -->
 </ResourceDictionary>

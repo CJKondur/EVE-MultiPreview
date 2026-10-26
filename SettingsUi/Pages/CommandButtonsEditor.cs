@@ -115,7 +115,8 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     /// command lines for. The card and its "Make Stream Deck buttons" button are always there.</summary>
     public bool ListIsShown => _ctx.S.AcceptCommands && Choices.Count > 0;
 
-    /// <summary>"Make Stream Deck buttons": writes the folder of shortcuts and opens it. While commands (or, for an elevated
+    /// <summary>"Make Stream Deck buttons": writes the folder of shortcuts and opens it (not while streamer mode is on: the file
+    /// names are real character names, so a toast says where the folder is instead). While commands (or, for an elevated
     /// MultiPreview, ordinary programs' commands) are off it first asks one plain question; the safe answer is Cancel, which
     /// changes and writes nothing. Yes turns the switches on through the normal settings path (set, save, follow). The
     /// buttons are labelled with the verb and the real name of each command (<see cref="LabelOf"/>), never a number or a
@@ -167,10 +168,13 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
         try
         {
             var result = _writeFolder(StreamDeckButtons.FolderIn(_ctx.Service.ConfigDirectory), PlanButtons());
-            _ctx.Host.Toast(result.Failed == 0
-                ? string.Format(SettingsContext.Str("L.S.Cmd.Made"), result.Written)
-                : string.Format(SettingsContext.Str("L.S.Cmd.MadePartly"), result.Written, result.Failed));
-            _openFolder(result.Folder);
+            // The shortcut files are named with real character names, so while streamer mode is on Explorer is not opened on them
+            // (the stream would show them); the toast, which names no one, says where the buttons are instead.
+            bool show = !StreamerMask.IsOn;
+            _ctx.Host.Toast(result.Failed != 0
+                ? string.Format(SettingsContext.Str("L.S.Cmd.MadePartly"), result.Written, result.Failed)
+                : show ? string.Format(SettingsContext.Str("L.S.Cmd.Made"), result.Written) : SettingsContext.Str("L.S.Cmd.MadeNotOpened"));
+            if (show) _openFolder(result.Folder);
         }
         finally
         {

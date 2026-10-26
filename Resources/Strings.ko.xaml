@@ -2902,4 +2902,5 @@
     <sys:String x:Key="L.S.Cmd.Consent.Kept">아무것도 바뀌지 않았어요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.Made">바로 가기 {0}개를 만들었어요. Stream Deck 키로 끌어다 놓으세요.</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">바로 가기 {0}개를 만들었고, {1}개는 만들지 못했어요.</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.Cmd.MadeNotOpened">버튼을 설정 폴더 안의 Stream Deck buttons 폴더에 만들었어요. 스트리머 모드가 켜져 있어서 열지 않았어요.</sys:String> <!-- draft -->
 </ResourceDictionary>
