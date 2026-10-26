@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using ArgKind = EveMultiPreview.Services.ArgumentKind;
 
 namespace EveMultiPreview.Services;
+
+/// <summary>Plan 39 (list-commands): what a command takes after its word. <c>None</c>: nothing; <c>Character</c>: a running
+/// character; <c>Group</c>: a group; <c>Profile</c>: a profile. On the pipe the kind is one letter, <c>n c g p</c>.</summary>
+public enum ArgumentKind { None, Character, Group, Profile }
 
 /// <summary>IDEAS #39, #15, P127, P129, P126 and Plans 38 and 39: what another program may ask of the running MultiPreview. One
 /// of thirty-eight, nothing else: the four of #39 keep their values, the nine of #15 follow, then the four explicit on/off verbs
@@ -99,6 +104,77 @@ public sealed record RemoteCommand(RemoteVerb Verb, string Argument)
 
     /// <summary>Does the verb carry a name (a character, a profile, a group)? False for the others and for a verb not on the list.</summary>
     public static bool TakesName(RemoteVerb verb) => Allowed.FirstOrDefault(a => a.Verb == verb).TakesName;
+
+    /// <summary>Plan 39: what the name of a verb that takes one is: a running character (focus, mute, unmute, mute-30), a group
+    /// (cycle, cycle-back) or a profile (profile). <see cref="ArgKind.None"/> for every other verb and for one not on the list; a
+    /// test holds it to <see cref="TakesName"/>.</summary>
+    public static ArgKind ArgumentKind(RemoteVerb verb) => verb switch
+    {
+        RemoteVerb.Focus or RemoteVerb.Mute or RemoteVerb.Unmute or RemoteVerb.Mute30 => ArgKind.Character,
+        RemoteVerb.CycleGroup or RemoteVerb.CycleGroupBack => ArgKind.Group,
+        RemoteVerb.Profile => ArgKind.Profile,
+        _ => ArgKind.None,
+    };
+
+    private static string KindLetter(ArgKind kind) => kind switch
+    {
+        ArgKind.Character => "c",
+        ArgKind.Group => "g",
+        ArgKind.Profile => "p",
+        _ => "n",
+    };
+
+    /// <summary>The most characters a label of the two Plan 39 lists (commands, alert types) may have.</summary>
+    public const int MaxLabelLength = 96;
+
+    /// <summary>Is the text a label the lists may carry? Exactly as trimmed, 1 to <see cref="MaxLabelLength"/> characters, no
+    /// <c>|</c>, no control, format, line or paragraph separator character and no lone surrogate. Text in MultiPreview's own
+    /// language; it is only ever drawn by the plugin, never looked up.</summary>
+    public static bool IsLabel(string? text)
+    {
+        if (string.IsNullOrEmpty(text) || text.Length > MaxLabelLength || text != text.Trim() || text.Contains('|')) return false;
+        foreach (var rune in text.EnumerateRunes())
+        {
+            if (rune == Rune.ReplacementChar) return false;   // a lone surrogate reads as the replacement character
+            if (Rune.GetUnicodeCategory(rune) is UnicodeCategory.Control or UnicodeCategory.Format
+                or UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator) return false;
+        }
+        return true;
+    }
+
+    /// <summary>Plan 39 (list-commands): one line <c>word|n|label</c> for every verb with a command-line switch, in the order of the
+    /// allow-list; the kind is <c>n</c>, <c>c</c>, <c>g</c> or <c>p</c> (<see cref="ArgumentKind"/>). The pipe-only words (the
+    /// queries, hello, pair, the two lists) are not commands and have no line. <paramref name="label"/> gives a verb's text, the
+    /// catalog's <c>L.Cmd.&lt;word&gt;</c> in MultiPreview's language; a <c>{0}</c> in it (the name the command takes) is replaced
+    /// by an ellipsis here. A label <see cref="IsLabel"/> refuses leaves its line out, never cut.</summary>
+    public static IReadOnlyList<string> CommandLines(Func<RemoteVerb, string> label)
+    {
+        var lines = new List<string>();
+        foreach (var (switchText, word, verb, _) in Allowed)
+        {
+            if (switchText.Length == 0) continue;
+            var text = (label(verb) ?? "").Replace("{0}", "…");
+            var line = word + "|" + KindLetter(ArgumentKind(verb)) + "|" + text;
+            if (IsLabel(text) && IsCommandLine(line)) lines.Add(line);
+        }
+        return lines;
+    }
+
+    /// <summary>Plan 39: is the text a line of the list-commands reply? Three fields on <c>|</c>: a word of the list that has a
+    /// switch (so never a query or hello or pair), the one kind letter of that word, and a label <see cref="IsLabel"/> keeps; at
+    /// most <see cref="LiveState.MaxLineBytes"/> bytes of UTF-8.</summary>
+    public static bool IsCommandLine(string? line)
+    {
+        if (string.IsNullOrEmpty(line)) return false;
+        var fields = line.Split('|');
+        if (fields.Length != 3 || !IsLabel(fields[2])) return false;
+        foreach (var (switchText, word, verb, _) in Allowed)
+        {
+            if (switchText.Length == 0 || !string.Equals(fields[0], word, StringComparison.Ordinal)) continue;
+            return fields[1] == KindLetter(ArgumentKind(verb)) && Encoding.UTF8.GetByteCount(line) <= LiveState.MaxLineBytes;
+        }
+        return false;
+    }
 
     /// <summary>Does the command bring a client's window forward (a switch the player would otherwise make with a hotkey)?</summary>
     public bool SwitchesAClient =>
@@ -362,6 +438,11 @@ public sealed class RemoteQueryRunner
     /// <summary>Plan 38: the lines of the live-state reply (<see cref="Services.LiveState"/>), read on the window's thread. Not
     /// required: a runner built without it answers Refused to live-state.</summary>
     public Func<IReadOnlyList<string>>? LiveState { get; init; }
+    /// <summary>Plan 39: the lines of list-commands (<see cref="RemoteCommand.CommandLines"/>, labels in MultiPreview's language,
+    /// read on the window's thread). Not required: a runner built without it answers Refused to list-commands.</summary>
+    public Func<IReadOnlyList<string>>? Commands { get; init; }
+    /// <summary>Plan 39: the lines of list-alert-types (<see cref="Services.LiveState.AlertTypeLines"/>). Not required: Refused without it.</summary>
+    public Func<IReadOnlyList<string>>? AlertTypes { get; init; }
 
     public QueryReply Query(RemoteCommand command)
     {
@@ -380,6 +461,8 @@ public sealed class RemoteQueryRunner
                 "thumbnails=" + (AreThumbnailsHidden() ? "hidden" : "shown"),
             }),
             RemoteVerb.LiveState => LiveState is { } live ? Done(live()) : QueryReply.Refused,
+            RemoteVerb.ListCommands => Commands is { } commands ? Done(commands()) : QueryReply.Refused,
+            RemoteVerb.ListAlertTypes => AlertTypes is { } types ? Done(types()) : QueryReply.Refused,
             _ => QueryReply.Refused,
         };
     }

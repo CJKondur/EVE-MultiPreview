@@ -261,6 +261,32 @@ public sealed class AlertAttention
         }
     }
 
+    /// <summary>Plan 39 (live-state <c>u=</c> lines): what each character has not looked at, by kind. One row for each
+    /// character and raw event key (a <c>custom:</c> rule is its own kind here; the live-state reply collapses it), with the
+    /// highest <see cref="Rank"/> any alert of that kind holds. The same order at every look: by character, then the most severe
+    /// kind first, then the key. An alert that is gone (seen, expired, let go) is not a row.</summary>
+    public IReadOnlyList<(string Character, string EventKey, string Severity)> Kinds()
+    {
+        if (Volatile.Read(ref _characters) == 0) return Array.Empty<(string, string, string)>();
+        DropExpired();
+        var rows = new List<(string Character, string EventKey, string Severity)>();
+        lock (_lock)
+        {
+            foreach (var (character, list) in _byCharacter)
+            {
+                var best = new Dictionary<string, string>(StringComparer.Ordinal);
+                foreach (var held in list)
+                {
+                    var alert = held.Alert;
+                    if (!best.TryGetValue(alert.EventKey, out var severity) || Rank(alert.Severity) > Rank(severity)) best[alert.EventKey] = alert.Severity;
+                }
+                foreach (var (key, severity) in best) rows.Add((character, key, severity));
+            }
+        }
+        return rows.OrderBy(r => r.Character, StringComparer.OrdinalIgnoreCase).ThenBy(r => r.Character, StringComparer.Ordinal)
+            .ThenByDescending(r => Rank(r.Severity)).ThenBy(r => r.EventKey, StringComparer.Ordinal).ToList();
+    }
+
     private static Held TopOf(List<Held> list) =>
         list.OrderByDescending(h => Rank(h.Alert.Severity)).ThenByDescending(h => h.Arrival).First();
 

@@ -631,9 +631,15 @@ public sealed class CommandServer : IDisposable
         if (_query == null) return (RemoteOutcome.Refused, Array.Empty<byte>());
         var answer = await _query(command);
         if (answer.Outcome != RemoteOutcome.Done) return (answer.Outcome, Array.Empty<byte>());
-        // Plan 38: live-state has a line format of its own, so its lines are judged by that, not by the name rule
-        Func<string, bool>? accept = null;
-        if (command.Verb == RemoteVerb.LiveState) accept = LiveState.IsLine;
+        // Plan 38: live-state has a line format of its own, so its lines are judged by that, not by the name rule. Plan 39: so do
+        // the two lists, each by its own (a command's word, kind and label; an event key and its label)
+        Func<string, bool>? accept = command.Verb switch
+        {
+            RemoteVerb.LiveState => LiveState.IsLine,
+            RemoteVerb.ListCommands => RemoteCommand.IsCommandLine,
+            RemoteVerb.ListAlertTypes => LiveState.IsAlertTypeLine,
+            _ => null,
+        };
         return (RemoteOutcome.Done, QueryPayload.Frame(answer.Lines, accept));
     }
 }

@@ -1799,6 +1799,10 @@ public partial class App : Application
                 IsFocusModeOn = () => _focusModeOn,
                 AreThumbnailsHidden = () => thumbnails.AllThumbnailsHidden,
                 LiveState = () => LiveStateLines(settings, thumbnails),
+                // Plan 39: the plugin's dropdowns, in MultiPreview's language. The labels are the catalog's (L.Cmd.<word> keeps its {0}, which
+                // CommandLines replaces; L.AlertEvt.<key>); this file reads the strings, the pure code that frames them reads none.
+                Commands = () => RemoteCommand.CommandLines(verb => LocalizationService.Str("L.Cmd." + RemoteCommand.WordOf(verb), RemoteCommand.WordOf(verb))),
+                AlertTypes = () => LiveState.AlertTypeLines(key => LocalizationService.Str("L.AlertEvt." + key, key)),
             }.Query(command);
         }
         catch (Exception ex)
@@ -1933,7 +1937,8 @@ public partial class App : Application
         var globals = new LiveGlobals(DoNotDisturbOn, _focusModeOn, thumbnails.AllThumbnailsHidden, settings.Settings.NameBarMode,
             StreamerMask.IsOn, worst?.Severity, profile, StreamerMask.Name(StreamerKind.Profile, profile),
             LiveState.EventKey(worst?.EventKey));
-        return LiveState.Lines(globals, NameBarEntries(), name => StreamerMask.Name(StreamerKind.Character, name));
+        // Plan 39: every unseen alert kind per character (u= lines); the names stay real, they are only join keys to the c= lines
+        return LiveState.Lines(globals, NameBarEntries(), name => StreamerMask.Name(StreamerKind.Character, name), thumbnails.Attention.Kinds());
     }
 
     /// <summary>IDEAS P130 (b): a first start's --focus, --mute or --unmute names a character whose thumbnail the first discovery
