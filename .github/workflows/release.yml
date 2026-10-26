@@ -88,23 +88,73 @@ jobs:
           dotnet publish Sender/EveMultiPreviewSend.csproj -c Release -o publish-sender -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
           if ($LASTEXITCODE -ne 0) { throw "The thin sender did not publish." }
 
-      # IDEAS #15 / Plan 38: the Stream Deck plugin. `npm ci --ignore-scripts` installs what package-lock.json names and runs no
-      # package's install script. The audit is printed to the run's summary and never fails the release (Ruling 20: the CI job
-      # already fails a commit on a high finding; a tag must not be stopped by an advisory published after that commit). It is
-      # the one step of this file allowed continue-on-error, and tools/ci/check_workflows.py knows it by name.
+      - name: Name the files as the releases name them
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path release | Out-Null
+          Copy-Item -LiteralPath 'publish/EVE MultiPreview.exe' -Destination 'release/EVE.MultiPreview.exe'
+          Copy-Item -LiteralPath 'publish/EVE MultiPreview.pdb' -Destination 'release/EVE.MultiPreview.pdb'
+          Copy-Item -LiteralPath 'publish-sender/EVE MultiPreview Send.exe' -Destination 'release/EVE.MultiPreview.Send.exe'
+          foreach ($name in 'EVE.MultiPreview.exe', 'EVE.MultiPreview.Send.exe') {
+            $hash = (Get-FileHash -LiteralPath "release/$name" -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$name SHA-256: ``$hash``" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
+
+      # ── SIGNING GOES HERE (not set up) ──────────────────────────────────────────────────────────────
+      # When the project has a code-signing certificate, the exe is signed at this point: after it is built
+      # and before it is handed to the release job. Nothing signs it today, so Windows SmartScreen warns
+      # about every download.
+      # ────────────────────────────────────────────────────────────────────────────────────────────────
+
+      - name: Hand the three files to the release job
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-files
+          path: release/
+          if-no-files-found: error
+          retention-days: 7
+
+  # IDEAS #15 / Plan 38: the Stream Deck plugin, in a job of its own so that the job which builds the exe runs no npm code and
+  # a package of the plugin can never touch the exe. It has read-only rights and no secret. `npm ci --ignore-scripts` installs what
+  # package-lock.json names and runs no package's install script. The audit is printed to the run's summary and never fails the
+  # release (Ruling 20: CI already fails a commit on a high finding; a tag must not be stopped by an advisory published after
+  # that commit). It is the one step of this file allowed continue-on-error, and tools/ci/check_workflows.py compares it whole.
+  plugin:
+    name: Build the Stream Deck plugin
+    runs-on: windows-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.12.0
+          package-manager-cache: false
+
       - name: Install the plugin's packages (no install scripts)
         working-directory: StreamDeckPlugin
         run: npm ci --ignore-scripts
 
-      - name: Audit the plugin's npm dependencies (printed, not enforced)
+      # What the registry sends back is text of somebody else's: it is printed between ::stop-commands:: and its token, so that
+      # a line of it that looks like a workflow command is only text.
+      - name: Audit the plugin's packages (printed, not enforced)
         working-directory: StreamDeckPlugin
         continue-on-error: true
         shell: pwsh
         run: |
           $report = npm audit --audit-level=high 2>&1 | Out-String
           $code = $LASTEXITCODE
+          $token = [guid]::NewGuid().ToString('N')
+          Write-Host "::stop-commands::$token"
           Write-Host $report
-          "### Stream Deck plugin: npm audit (exit code $code)`n`n~~~`n$report`n~~~" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          Write-Host "::$token::"
+          "### Stream Deck plugin: dependency audit (exit code $code)`n`n~~~`n$report`n~~~" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           exit $code
 
       - name: Test the plugin
@@ -123,47 +173,42 @@ jobs:
         working-directory: StreamDeckPlugin
         run: npm run pack
 
-      - name: Name the files as the releases name them
+      - name: Name the file as the releases name it
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Path release | Out-Null
-          Copy-Item -LiteralPath 'publish/EVE MultiPreview.exe' -Destination 'release/EVE.MultiPreview.exe'
-          Copy-Item -LiteralPath 'publish/EVE MultiPreview.pdb' -Destination 'release/EVE.MultiPreview.pdb'
-          Copy-Item -LiteralPath 'publish-sender/EVE MultiPreview Send.exe' -Destination 'release/EVE.MultiPreview.Send.exe'
-          Copy-Item -LiteralPath 'StreamDeckPlugin/dist/com.cjkondur.evemultipreview.streamDeckPlugin' -Destination 'release/EVE.MultiPreview.streamDeckPlugin'
-          foreach ($name in 'EVE.MultiPreview.exe', 'EVE.MultiPreview.Send.exe', 'EVE.MultiPreview.streamDeckPlugin') {
-            $hash = (Get-FileHash -LiteralPath "release/$name" -Algorithm SHA256).Hash.ToLowerInvariant()
-            "$name SHA-256: ``$hash``" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
-          }
+          New-Item -ItemType Directory -Path release-plugin | Out-Null
+          Copy-Item -LiteralPath 'StreamDeckPlugin/dist/com.cjkondur.evemultipreview.streamDeckPlugin' -Destination 'release-plugin/EVE.MultiPreview.streamDeckPlugin'
+          $hash = (Get-FileHash -LiteralPath 'release-plugin/EVE.MultiPreview.streamDeckPlugin' -Algorithm SHA256).Hash.ToLowerInvariant()
+          "EVE.MultiPreview.streamDeckPlugin SHA-256: ``$hash``" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
 
-      # ── SIGNING GOES HERE (not set up) ──────────────────────────────────────────────────────────────
-      # When the project has a code-signing certificate, the exe is signed at this point: after it is built
-      # and before it is handed to the release job. Nothing signs it today, so Windows SmartScreen warns
-      # about every download.
-      # ────────────────────────────────────────────────────────────────────────────────────────────────
-
-      - name: Hand the four files to the release job
+      - name: Hand the plugin to the release job
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: release-files
-          path: release/
+          name: release-plugin
+          path: release-plugin/
           if-no-files-found: error
           retention-days: 7
 
   # The only job that may write to the repository, and it runs none of the repository's code:
-  # it takes the four files the build job made and attaches them to a new draft release.
+  # it takes the three files the build job made and the plugin the plugin job made, and attaches the four to a new draft release.
   draft-release:
     name: Draft the release
-    needs: build
+    needs: [build, plugin]
     runs-on: windows-latest
     timeout-minutes: 15
     permissions:
       contents: write
     steps:
-      - name: Take the four files
+      - name: Take the three files
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-files
+          path: release
+
+      - name: Take the plugin
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-plugin
           path: release
 
       - name: Make the draft release
