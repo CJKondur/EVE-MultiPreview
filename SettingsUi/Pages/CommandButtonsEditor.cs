@@ -189,12 +189,8 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     /// <summary>Turns one of the command switches on the way its own card does, and lists it in Recently changed (with Undo).</summary>
     private void TurnOn(string settingId)
     {
-        var d = SettingsRegistry.Settings.Single(x => x.Id == settingId);
-        var before = d.Get(_ctx.S);
-        if (SettingVM.Same(before, true)) return;
-        d.Set(_ctx.S, true);
-        _ctx.Service.Changes.Record(d, SettingChanges.ScopeOf(d, _ctx.S), before, d.Get(_ctx.S));
-        d.OnChanged?.Invoke(_ctx);
+        if (SettingSwitches.TurnOn(_ctx.Service, _ctx.S, settingId))
+            SettingsRegistry.Settings.Single(x => x.Id == settingId).OnChanged?.Invoke(_ctx);
     }
 
     /// <summary>The folder's buttons for what runs and is saved now: a focus button per running character on its group's

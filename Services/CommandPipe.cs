@@ -329,6 +329,29 @@ public static class CommandPipe
         if (still) Environment.FailFast("pipe impersonation not reverted");
     }
 
+    /// <summary>Plan 39 Ruling 7: the full path of the image of process <paramref name="processId"/> (QueryFullProcessImageNameW,
+    /// opened for limited query only), to name a program in the pairing window. Null when it cannot be read (gone, protected,
+    /// no PID). Display only: it is never a reason to trust a program.</summary>
+    public static string? ImageNameOf(uint processId)
+    {
+        if (processId == 0) return null;
+        IntPtr process = IntPtr.Zero;
+        try
+        {
+            process = OpenProcess(ProcessQueryLimitedInformation, false, processId);
+            if (process == IntPtr.Zero) return null;
+            var buffer = new char[32768];
+            int size = buffer.Length;
+            if (!QueryFullProcessImageNameW(process, 0, buffer, ref size) || size <= 0 || size > buffer.Length) return null;
+            return new string(buffer, 0, size);
+        }
+        catch (Exception) { return null; }
+        finally
+        {
+            if (process != IntPtr.Zero) CloseHandle(process);
+        }
+    }
+
     private const uint ProcessQueryLimitedInformation = 0x1000;
     private const uint TokenQuery = 0x0008;
     private const int TokenUser = 1;
@@ -360,6 +383,10 @@ public static class CommandPipe
     [DllImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool CloseHandle(IntPtr handle);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool QueryFullProcessImageNameW(IntPtr process, uint flags, [Out] char[] exeName, ref int size);
 
     [DllImport("advapi32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]

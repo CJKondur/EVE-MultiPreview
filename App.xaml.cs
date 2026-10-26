@@ -104,6 +104,10 @@ public partial class App : Application
     private StartupDialog? _autoProfileQuestion;
     /// <summary>IDEAS #39: the pipe other programs send commands through, while "Take commands from other programs" is on.</summary>
     private CommandServer? _commandServer;
+    /// <summary>Plan 39 Ruling 6: the rate limit of the Allow/Deny window (one at a time, a pause after Deny, three per run).</summary>
+    private readonly PairingDesk _pairing = new();
+    /// <summary>Plan 39 Ruling 5: the Allow/Deny window that is open now; null while none is.</summary>
+    private ChoiceDialog? _pairPrompt;
     /// <summary>IDEAS #39: the command this start was given (a shortcut with --profile, say), run once the deferred startup is
     /// done; null without one.</summary>
     private RemoteCommand? _startupCommand;
@@ -1614,7 +1618,8 @@ public partial class App : Application
             made = new CommandServer(CommandPipe.CurrentName(), CommandPipe.Security(user, owner, alsoUser: true),
                 command => RunOnWindowsThread(command),
                 ex => { LogError(ex); DropFailedCommandServer(made); },   // logged once, without the pipe's name
-                query: command => QueryOnWindowsThread(command))           // IDEAS P126: the queries, whose reply carries data
+                query: command => QueryOnWindowsThread(command),           // IDEAS P126: the queries, whose reply carries data
+                pairing: (command, client) => PairOnWindowsThread(command, client))   // Plan 39: hello and pair
             { Access = access };
             _commandServer = made;
             made.Start();
@@ -1801,6 +1806,120 @@ public partial class App : Application
             LogError(ex);
             return QueryReply.Refused;
         }
+    }
+
+    /// <summary>Plan 39: the pairing seam of the command pipe, with the same wait and the same taking back as
+    /// <see cref="QueryOnWindowsThread"/>. <see cref="Pair"/> answers at once on the window's thread and never waits for the
+    /// player: the window is opened after the answer (Ruling 8), so the pipe, which serves one client at a time, is never held.</summary>
+    private async Task<QueryReply> PairOnWindowsThread(RemoteCommand command, PipeClient client)
+    {
+        var queued = Dispatcher.InvokeAsync(() => Pair(command, client));
+        try { return await queued.Task.WaitAsync(CommandServer.ReadTime); }
+        catch (TimeoutException)
+        {
+            if (queued.Abort()) return QueryReply.NotReachable;   // never ran
+            return await queued.Task;                             // already running: quick
+        }
+    }
+
+    /// <summary>The pairing desk's clock: monotonic, never the wall clock (a clock set back must not end a pause early).</summary>
+    private static TimeSpan PairClock() => TimeSpan.FromMilliseconds(Environment.TickCount64);
+
+    /// <summary>Plan 39 Rulings 6, 8, 9 and 24, on the window's thread. hello: <c>commands=on|off</c> (whether this connection is
+    /// admitted for the normal verbs now) and the desk's pairing word, which is <c>blocked</c> while "Let Stream Deck and other
+    /// programs ask to connect" is off. pair: Done for a client that is already admitted; Refused (no window, ever) while
+    /// that switch is off; else the desk decides: a new window (opened after this answer), one already open (Done), or a
+    /// pause or the end of the run's windows (Refused). The program is named from its PID now, while it still waits for this
+    /// answer (so the PID is still its own); the name is display only.</summary>
+    private QueryReply Pair(RemoteCommand command, PipeClient client)
+    {
+        try
+        {
+            if (_isShuttingDown || _settings == null) return QueryReply.NotReachable;
+            var now = PairClock();
+            var access = _commandServer?.Access ?? PipeAccess.Closed;
+            bool admitted = PipeGate.Admits(RemoteVerb.Focus, client, access);
+            bool asking = _settings.Settings.AllowPairingRequests;
+            if (command.Verb == RemoteVerb.Hello)
+                return new QueryReply(RemoteOutcome.Done, PairingHello.Lines(admitted, asking ? _pairing.Status(now) : "blocked"));
+            if (command.Verb != RemoteVerb.Pair) return QueryReply.Refused;
+            if (admitted) return new QueryReply(RemoteOutcome.Done, Array.Empty<string>());
+            if (!asking) return QueryReply.Refused;
+            switch (_pairing.Request(now))
+            {
+                case PairStep.Ask:
+                    // Ruling 3: an unelevated program asking an elevated MultiPreview gets the elevated words, and Allow turns on both switches
+                    bool both = access.ServerElevated && !client.Elevated;
+                    var image = CommandPipe.ImageNameOf(client.ProcessId);
+                    Dispatcher.BeginInvoke(() => ShowPairPrompt(image, both));
+                    return new QueryReply(RemoteOutcome.Done, Array.Empty<string>());
+                case PairStep.Asking:
+                    return new QueryReply(RemoteOutcome.Done, Array.Empty<string>());
+                default:
+                    return QueryReply.Refused;
+            }
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+            return QueryReply.Refused;
+        }
+    }
+
+    /// <summary>Plan 39 Rulings 5 and 7: the Allow/Deny window, in the look of the app's other questions. Modeless, topmost, shown
+    /// without taking the front from EVE, in the taskbar; Deny is the default, and unanswered after
+    /// <see cref="PairingDesk.PromptLife"/> it closes as Deny. It names the program by its image's file name, and its folder
+    /// only while streamer mode is off. A window the desk already expired (its timer late) is closed and its answer dropped.</summary>
+    private void ShowPairPrompt(string? image, bool both)
+    {
+        try
+        {
+            if (_isShuttingDown) { _pairing.Answered(false, PairClock()); return; }
+            var shown = PairingPrompt.Text(image, both, StreamerMask.IsOn, LocalizationService.Str);
+            var dialog = ChoiceDialog.AllowDeny(shown.Title, shown.From == null ? shown.Body : shown.Body + "\n\n" + shown.From,
+                LocalizationService.Str("L.Pair.Allow", "Allow"), LocalizationService.Str("L.Pair.Deny", "Deny"));
+            dialog.Topmost = true;
+            dialog.ShowActivated = false;   // never takes the front from the EVE client (Ruling 5)
+            dialog.ShowInTaskbar = true;
+            dialog.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            var previous = _pairPrompt;
+            _pairPrompt = dialog;
+            previous?.Close();
+            var timer = new DispatcherTimer { Interval = PairingDesk.PromptLife };
+            timer.Tick += (_, _) => { timer.Stop(); dialog.Close(); };   // unanswered: Deny
+            dialog.Closed += (_, _) => { timer.Stop(); PairPromptClosed(dialog, both); };
+            timer.Start();
+            dialog.Show();
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+            _pairing.Answered(false, PairClock());   // a window that could not be shown counts as a Deny
+        }
+    }
+
+    /// <summary>Plan 39 Rulings 3 and 5: the answer of the window that is open now. Allow turns on "Take commands from other
+    /// programs" (and, for an unelevated program of an elevated MultiPreview, its second switch) through the settings path
+    /// (Recently changed with Undo), saves, has the pipe follow and the open settings window show it, and says so near the
+    /// cursor. Anything else (Deny, Esc, the X, the timer) changes nothing but the desk's pause.</summary>
+    private void PairPromptClosed(ChoiceDialog dialog, bool both)
+    {
+        try
+        {
+            if (!ReferenceEquals(_pairPrompt, dialog)) return;   // replaced by a newer window: its answer no longer counts
+            _pairPrompt = null;
+            bool allowed = dialog.Result == true;
+            _pairing.Answered(allowed, PairClock());
+            if (!allowed || _isShuttingDown || _settings == null) return;
+            var s = _settings.Settings;
+            SettingSwitches.TurnOn(_settings, s, "app.general.acceptCommands");
+            if (both) SettingSwitches.TurnOn(_settings, s, "app.general.acceptCommandsUnelevated");
+            _settings.Save();
+            FollowCommandServer();
+            (_settingsWindow as SettingsUi.SettingsShell)?.Reload();
+            _thumbnailManager?.ShowTooltipFeedback(LocalizationService.Str("L.Pair.Allowed", "Commands from other programs are on"));
+        }
+        catch (Exception ex) { LogError(ex); }
     }
 
     /// <summary>Plan 38 (IDEAS P126): the lines of the live-state reply, on the window's thread, from what is already in memory

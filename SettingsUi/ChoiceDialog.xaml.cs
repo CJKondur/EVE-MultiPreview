@@ -24,6 +24,7 @@ public partial class ChoiceDialog : Window
 {
     public ChoiceDialog(string title, string body, string yesLabel, string noLabel, SafeAnswer safe = SafeAnswer.Cancel)
     {
+        IsInFront = () => IsActive;
         UiStyles.Attach(this);
         InitializeComponent();
         Title = title;
@@ -49,6 +50,26 @@ public partial class ChoiceDialog : Window
         NoButton.Visibility = Visibility.Collapsed;
     }
 
+    /// <summary>Plan 39 Ruling 5: may a program connect to MultiPreview? Two buttons, Allow and Deny: the OK/Cancel question with
+    /// Cancel as the safe answer and its Cancel button saying Deny, so Deny is the default and focused button and Enter, Esc
+    /// and the X deny (the caller's timer closes it unanswered: Deny too). <see cref="Result"/> is true only for Allow, and
+    /// Allow counts only from the window in front (<see cref="IsInFront"/>): a player's click brings it there first, while
+    /// a program's UI Automation Invoke or a posted click on a window in the background is ignored, so the program that
+    /// asked cannot answer for the player.</summary>
+    public static ChoiceDialog AllowDeny(string title, string body, string allowLabel, string denyLabel)
+    {
+        var dialog = new ChoiceDialog(title, body, allowLabel, SafeAnswer.Cancel);
+        dialog.CancelButton.Content = denyLabel;   // a value of its own: it replaces the "Cancel" of the button's Loc key
+        dialog._yesNeedsFront = true;
+        return dialog;
+    }
+
+    /// <summary>Whether this window is the one in front; asked only by an <see cref="AllowDeny"/> question when Allow is
+    /// pressed. The window's own IsActive unless a test hands in its own.</summary>
+    public Func<bool> IsInFront { get; set; }
+
+    private bool _yesNeedsFront;
+
     /// <summary>True for the first button, false for the second, null for Cancel, Esc or closing.</summary>
     public bool? Result { get; private set; }
 
@@ -66,7 +87,11 @@ public partial class ChoiceDialog : Window
         FocusManager.SetFocusedElement(this, keeps);
     }
 
-    private void OnYes(object sender, RoutedEventArgs e) => Finish(true);
+    private void OnYes(object sender, RoutedEventArgs e)
+    {
+        if (_yesNeedsFront && !IsInFront()) return;   // AllowDeny: not from a window in the background
+        Finish(true);
+    }
     private void OnNo(object sender, RoutedEventArgs e) => Finish(false);
     private void OnCancel(object sender, RoutedEventArgs e) => Finish(null);
 
