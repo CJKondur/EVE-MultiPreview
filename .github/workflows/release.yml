@@ -131,6 +131,14 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: The tag must be the version in EveMultiPreview.csproj
+        shell: pwsh
+        run: |
+          $version = (Select-Xml -Path EveMultiPreview.csproj -XPath '//Version').Node.InnerText
+          if ("v$version" -ne $env:GITHUB_REF_NAME) {
+            throw "The tag is $env:GITHUB_REF_NAME but EveMultiPreview.csproj says version $version. Tag the commit that sets the version."
+          }
+
       - name: Install Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -190,7 +198,8 @@ jobs:
           retention-days: 7
 
   # The only job that may write to the repository, and it runs none of the repository's code:
-  # it takes the three files the build job made and the plugin the plugin job made, and attaches the four to a new draft release.
+  # it takes the three files the build job made and, into a folder of its own, the plugin the plugin job made, and attaches
+  # those four named files (nothing else of the plugin job's artifact) to a new draft release.
   draft-release:
     name: Draft the release
     needs: [build, plugin]
@@ -205,11 +214,13 @@ jobs:
           name: release-files
           path: release
 
+      # Into a folder of its own, never into release/: the plugin job runs npm code, and an artifact that held a file with the
+      # exe's name would otherwise replace the real exe. Only the one file named below is taken from this folder.
       - name: Take the plugin
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-plugin
-          path: release
+          path: release-plugin
 
       - name: Make the draft release
         shell: pwsh
@@ -217,7 +228,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: >
           gh release create $env:GITHUB_REF_NAME
-          release/EVE.MultiPreview.exe release/EVE.MultiPreview.pdb release/EVE.MultiPreview.Send.exe release/EVE.MultiPreview.streamDeckPlugin
+          release/EVE.MultiPreview.exe release/EVE.MultiPreview.pdb release/EVE.MultiPreview.Send.exe release-plugin/EVE.MultiPreview.streamDeckPlugin
           --repo $env:GITHUB_REPOSITORY --draft --verify-tag
           --title $env:GITHUB_REF_NAME
           --notes "Paste the release notes here before you publish."
