@@ -106,6 +106,21 @@ Alerts come from EVE's chat and game log files. The English log lines are tested
 - A first-run setup, **Start with Windows**, and a guard against running two copies.
 - **When Windows ends your session:** if Windows asks to end the session and the shutdown is then cancelled, MultiPreview has already closed; start it again.
 
+### Stream Deck
+
+Two ways to put MultiPreview on your Stream Deck. Both need **Take commands from other programs** on; the first one asks you once and turns it on for you.
+
+1. **The easy way:** App settings › General › **Make Stream Deck buttons**. MultiPreview makes a folder of ready shortcuts, each with its own picture. Drag the ones you want from that folder onto keys in the Stream Deck app (if dragging does not work, give the key the **Open** action from the **System** group and browse to the shortcut).
+2. **The plugin:** download `EVE.MultiPreview.streamDeckPlugin` from the [release page](https://github.com/CJKondur/EVE-MultiPreview/releases/latest) and double-click it. Stream Deck installs it (it is not part of the in-app update or winget; download a newer one the same way). Then drag **Switch client**, **Cycle group**, **Last alert**, **Do not disturb**, **Focus mode** or **Profile** from the **EVE MultiPreview** list onto a key. The keys show which client is in front and the alert state with EVE's own icons, and critical and warning alerts flash. The plugin asks MultiPreview once a second, and only while one of its keys is on screen.
+
+Neither sends keys or clicks to the game: they only switch windows and settings in MultiPreview, nothing goes onto the network, and the plugin talks to MultiPreview only through its local pipe. If MultiPreview runs as administrator, turn on **Also take commands from programs that are not run as administrator** (same page) or the Stream Deck cannot reach it.
+
+Privacy: in streamer mode the keys show masked names, but Stream Deck itself stores the real character names in its profile settings, and a `.streamDeckProfile` you export carries them. Check an exported profile before you share it.
+
+On a PC that other Windows accounts also use: the command pipe belongs to your Windows account, and while MultiPreview is closed another account on the same PC could take the pipe's name. If you share the PC with people you do not trust, leave commands off.
+
+Icons: EVE Online Image Export Collection, (c) CCP hf. (c) 2014 CCP hf. All rights reserved. "EVE", "EVE Online", "CCP", and all related logos and images are trademarks or registered trademarks of CCP hf. EVE MultiPreview is not made or endorsed by CCP.
+
 ## What It Doesn't Do
 
 - It does not broadcast input. MultiPreview only switches windows, the way EVE-O-Preview and EVE-X-Preview do: it never sends keys or clicks to the game. A key you keep holding while you switch goes on reaching the window in front, as it does after Alt+Tab; EVE reads that key itself, not through MultiPreview.

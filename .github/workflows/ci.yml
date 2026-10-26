@@ -99,3 +99,46 @@ jobs:
             tests/EveMultiPreview.Tests/bin/Debug/**/snapshots/
           if-no-files-found: ignore
           retention-days: 7
+
+  # IDEAS #15 / Plan 38: the Stream Deck plugin. Plain JavaScript, three npm packages at exact versions, no network at
+  # test time. `npm ci --ignore-scripts` installs exactly what package-lock.json names and runs no package's install
+  # script. An audit finding of high or critical fails the job (the release only prints it). It needs no secret and
+  # writes nothing: the package it builds stays in the runner's folder.
+  plugin:
+    name: Stream Deck plugin
+    runs-on: windows-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: StreamDeckPlugin
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.12.0
+          package-manager-cache: false
+
+      - name: Install the packages the lock file names (no install scripts)
+        run: npm ci --ignore-scripts
+
+      - name: Audit the packages (high or critical fails)
+        run: npm audit --audit-level=high
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Validate the plugin with Elgato's tool
+        run: npm run validate
+
+      - name: Pack the plugin
+        run: npm run pack
