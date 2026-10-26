@@ -311,6 +311,22 @@ public static class CommandPipe
             return new PipeClient(true, elevated, processId);
         }
         catch (Exception) { return PipeClient.Unknown; }
+        finally { FailIfStillImpersonating(); }
+    }
+
+    /// <summary>The server thread must never go on as the client. RunAsClient reverts in its own finally; should that revert
+    /// ever fail, the process ends here rather than serve the next client, or run anything else, under the client's token. A
+    /// thread token that cannot even be read counts as still impersonating.</summary>
+    private static void FailIfStillImpersonating()
+    {
+        bool still;
+        try
+        {
+            using var identity = WindowsIdentity.GetCurrent(ifImpersonating: true);
+            still = identity != null;
+        }
+        catch (Exception) { still = true; }
+        if (still) Environment.FailFast("pipe impersonation not reverted");
     }
 
     private const uint ProcessQueryLimitedInformation = 0x1000;

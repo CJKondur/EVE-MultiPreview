@@ -205,7 +205,10 @@ public partial class App : Application
                 CommandPipe.Send(CommandPipe.CurrentName(), command, CommandPipe.SendTime, letTakeTheFront: command.TakesTheFront));
             if (forwarded is RemoteOutcome outcome)
             {
-                if (outcome == RemoteOutcome.NotReachable) TellCommandsOff();
+                // Plan 39: the pipe also exists with commands off and then refuses the command; hello tells which it was
+                if (RemoteCommandLine.SaysCommandsOff(e.Args, outcome, () =>
+                        CommandPipe.Query(CommandPipe.CurrentName(), new RemoteCommand(RemoteVerb.Hello, ""), CommandPipe.ConnectTime)))
+                    TellCommandsOff();
                 Shutdown((int)outcome);
                 return;
             }

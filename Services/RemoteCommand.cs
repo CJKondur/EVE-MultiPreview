@@ -431,6 +431,18 @@ public static class RemoteCommandLine
         if (args.Count == 0) return null;
         return RemoteCommand.FromArgs(args) is { } command ? send(command) : RemoteOutcome.Refused;
     }
+
+    /// <summary>Plan 39: should a second start tell the player that commands are off? Yes when nothing took the command. Also when
+    /// a valid command was Refused and the running MultiPreview, asked <c>hello</c>, does not answer Done with
+    /// <c>commands=on</c>: since Plan 39 the pipe exists with commands off and its gate refuses the command, and an older or not
+    /// yet paired MultiPreview refuses hello too. A command line that is not a command is no such case, and hello is not asked.</summary>
+    public static bool SaysCommandsOff(IReadOnlyList<string> args, RemoteOutcome outcome, Func<QueryReply> hello)
+    {
+        if (outcome == RemoteOutcome.NotReachable) return true;
+        if (outcome != RemoteOutcome.Refused || RemoteCommand.FromArgs(args) == null) return false;
+        var reply = hello();
+        return !(reply.Outcome == RemoteOutcome.Done && reply.Lines.Contains("commands=on"));
+    }
 }
 
 /// <summary>IDEAS P130 (b): what a first start does with the command it was given, on each look.</summary>
