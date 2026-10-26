@@ -1807,12 +1807,12 @@ public partial class App : Application
     /// as they are drawn (streamer mode masks them; the real name stands last). The Stream Deck plugin asks about once a second.</summary>
     private IReadOnlyList<string> LiveStateLines(SettingsService settings, ThumbnailManager thumbnails)
     {
-        string? worst = null;
-        foreach (var alert in thumbnails.Attention.Unseen())
-            if (AlertAttention.Rank(alert.Severity) > AlertAttention.Rank(worst)) worst = alert.Severity;
+        // Unseen() lists the most severe first, newest first within a severity: the first is the worst one (Plan 38 addendum, A2).
+        var worst = thumbnails.Attention.Unseen().FirstOrDefault();
         var profile = settings.Settings.LastUsedProfile;
         var globals = new LiveGlobals(DoNotDisturbOn, _focusModeOn, thumbnails.AllThumbnailsHidden, settings.Settings.NameBarMode,
-            StreamerMask.IsOn, worst, profile, StreamerMask.Name(StreamerKind.Profile, profile));
+            StreamerMask.IsOn, worst?.Severity, profile, StreamerMask.Name(StreamerKind.Profile, profile),
+            LiveState.EventKey(worst?.EventKey));
         return LiveState.Lines(globals, NameBarEntries(), name => StreamerMask.Name(StreamerKind.Character, name));
     }
 
@@ -2695,7 +2695,8 @@ public partial class App : Application
         var thumbnails = _thumbnailManager;
         return NameBar.Entries(thumbnails.SnapshotCharacters().Select(c => c.Name).ToList(),
             s.ThumbnailGroups.Select(g => (g.Name, (string?)g.Color, (IReadOnlyList<string>)g.Members)).ToList(),
-            name => thumbnails.Attention.For(name)?.Severity, thumbnails.ActiveCharacter(), s.QuickSwitchCardOrder);
+            name => thumbnails.Attention.For(name)?.Severity, thumbnails.ActiveCharacter(), s.QuickSwitchCardOrder,
+            name => LiveState.EventKey(thumbnails.Attention.Top(name)?.EventKey));
     }
 
     /// <summary>IDEAS #14: opens the command palette over the monitor under the cursor, or closes it when it is open (never two).

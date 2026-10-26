@@ -242,10 +242,27 @@ public sealed class AlertAttention
         lock (_lock)
         {
             if (!_byCharacter.TryGetValue(character, out var list) || list.Count == 0) return null;
-            var top = list.OrderByDescending(h => Rank(h.Alert.Severity)).ThenByDescending(h => h.Arrival).First();
-            return (list.Count, top.Alert.Severity);
+            return (list.Count, TopOf(list).Alert.Severity);
         }
     }
+
+    /// <summary>The alert that sets a character's severity: the highest <see cref="Rank"/>, the newest arrival among those
+    /// (the one <see cref="For"/> names), as its severity and its event key. Plan 38 (EVE icons): a live-state line names the event
+    /// of exactly this alert, so a severity and its event can never disagree. Null when the character has none.</summary>
+    public (string Severity, string EventKey)? Top(string character)
+    {
+        if (string.IsNullOrEmpty(character) || Volatile.Read(ref _characters) == 0) return null;
+        DropExpired();
+        lock (_lock)
+        {
+            if (!_byCharacter.TryGetValue(character, out var list) || list.Count == 0) return null;
+            var top = TopOf(list).Alert;
+            return (top.Severity, top.EventKey);
+        }
+    }
+
+    private static Held TopOf(List<Held> list) =>
+        list.OrderByDescending(h => Rank(h.Alert.Severity)).ThenByDescending(h => h.Arrival).First();
 
     /// <summary>Every unseen alert, as a copy: the most severe first, and the newest first within one severity. Two
     /// alerts of one severity and one time are listed the later arrival first, so the order is the same at every look.</summary>

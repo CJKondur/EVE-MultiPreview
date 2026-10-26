@@ -5,8 +5,9 @@ using System.Linq;
 namespace EveMultiPreview.Services;
 
 /// <summary>One button of the name bar (IDEAS #38): a running character, the colour of its first group, the severity of its
-/// worst unseen alert, and whether its client is the one in front.</summary>
-public sealed record NameBarEntry(string Name, string? GroupColour, string? Severity, bool Active);
+/// worst unseen alert, and whether its client is the one in front. <c>EventKey</c> (Plan 38, EVE icons) is the event of the alert
+/// that sets the severity (null: none known); the name bar does not draw it.</summary>
+public sealed record NameBarEntry(string Name, string? GroupColour, string? Severity, bool Active, string? EventKey = null);
 
 /// <summary>IDEAS #38, the compact name bar: which buttons it shows and in which order. Pure: App hands it what it knows (the
 /// running characters, the colour groups, the unseen alerts, the client in front, the saved card order) and the window draws
@@ -17,10 +18,12 @@ public static class NameBar
     /// order first (<paramref name="order"/>, as the wheel has it), the rest alphabetical. A button carries the colour of the
     /// first group (in the order given) the character is in, the severity of the most severe alert the player has not looked
     /// at (<paramref name="severityOf"/> answers it: null or an unknown word is none) and whether it is the client in front
-    /// (<paramref name="active"/>, "" for none). A client at character select (an empty name) has no button.</summary>
+    /// (<paramref name="active"/>, "" for none). A client at character select (an empty name) has no button.
+    /// <paramref name="eventOf"/> (optional) answers the event key of a character's top unseen alert; it is asked only for a
+    /// character with a severity.</summary>
     public static IReadOnlyList<NameBarEntry> Entries(IReadOnlyList<string> running,
         IReadOnlyList<(string Name, string? Colour, IReadOnlyList<string> Members)> groups,
-        Func<string, string?> severityOf, string active, IReadOnlyList<string> order)
+        Func<string, string?> severityOf, string active, IReadOnlyList<string> order, Func<string, string?>? eventOf = null)
     {
         var names = new List<string>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -44,7 +47,8 @@ public static class NameBar
             var severity = severityOf(name);
             if (AlertAttention.Rank(severity) == 0) severity = null;
             return new NameBarEntry(name, string.IsNullOrWhiteSpace(colour) ? null : colour, severity,
-                active.Length > 0 && string.Equals(name, active, StringComparison.OrdinalIgnoreCase));
+                active.Length > 0 && string.Equals(name, active, StringComparison.OrdinalIgnoreCase),
+                severity == null ? null : eventOf?.Invoke(name));
         }).ToList();
     }
 }
