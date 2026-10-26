@@ -23,6 +23,7 @@ public static class AppPages
         new HelpTopic("app.general", "downtime", new[] { "app.general.downtime" }),
         new HelpTopic("app.general", "tranquility", new[] { "app.general.tranquility" }),
         new HelpTopic("app.general", "commands", new[] { "app.general.acceptCommands" }),
+        new HelpTopic("app.general", "pairing", new[] { "app.general.allowPairingRequests" }),
         new HelpTopic("app.general", "buttons", new[] { CommandButtonsEditor.ItemId }),
         new HelpTopic("app.general", "commandsAdmin", new[] { "app.general.acceptCommandsUnelevated" }),
         new HelpTopic("app.general", "recent", new[] { RecentChangesEditor.ItemId }),
@@ -93,6 +94,8 @@ public static class AppPages
         new SectionDef("app.general.control", new PageItem[]
         {
             new SettingItem(Setting.Toggle("app.general.acceptCommands", s => s.AcceptCommands)),
+            // IDEAS #15, Plan 39 Ruling 24: always shown. App reads it with the first switch (FollowCommandServer): off with commands off = no pipe.
+            new SettingItem(Setting.Toggle("app.general.allowPairingRequests", s => s.AllowPairingRequests)),
             // IDEAS #15, Plan 38: always shown, with its "Make Stream Deck buttons" button. The question that button asks turns the two
             // switches on (through the normal save); while commands are on the card also lists the commands to copy, save or try.
             new EditorItem(CommandButtonsEditor.ItemId, ctx => new CommandButtonsEditor(ctx)),

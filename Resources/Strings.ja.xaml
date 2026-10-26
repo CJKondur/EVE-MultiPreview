@@ -2903,4 +2903,9 @@
     <sys:String x:Key="L.S.Cmd.Made">ショートカットを {0} 個書き出しました。Stream Deck のキーにドラッグしてください。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">ショートカットを {0} 個書き出しました。{1} 個は書き出せませんでした。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadeNotOpened">ボタンを設定フォルダー内の「Stream Deck buttons」フォルダーに書き出しました。配信者モードがオンのため、開いていません。</sys:String> <!-- draft -->
+    <!-- Stream Deck v2 (Plan 39) -->
+    <sys:String x:Key="L.S.app.general.allowPairingRequests">Stream Deck などのプログラムから接続の要求を受け付ける</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.allowPairingRequests.Desc">オンの間は、Stream Deck プラグインなど、お使いの Windows アカウントのプログラムが接続を要求でき、あなたが「許可」か「拒否」で答えます。オフで、「ほかのプログラムからのコマンドを受け付ける」もオフのときは、MultiPreview はパイプをまったく開かず、プログラムはそのスイッチをオンにしてからでないと接続できません。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.pairing.Title">プログラムからの接続の要求</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.pairing.Body">**Stream Deck などのプログラムから接続の要求を受け付ける** をオンにすると、お使いの Windows アカウントのプログラムが MultiPreview に接続を要求できます。Stream Deck プラグインは、設定の「接続」ボタンから要求します。&#x0A;&#x0A;- 小さなウィンドウが「許可」か「拒否」を尋ね、要求したプログラムの名前を表示します。既定は「拒否」です。Enter、Esc、閉じるボタンはどれも拒否になり、2 分たつとウィンドウは自動で拒否します。&#x0A;- 「許可」を選ぶと **ほかのプログラムからのコマンドを受け付ける** がオンになります。MultiPreview が管理者として実行されていて、プログラムはそうでない場合は、**管理者として実行されていないプログラムからのコマンドも受け付ける** もオンになります。どちらも「最近の変更」に表示され、そこで元に戻せます。&#x0A;- ウィンドウがゲームの前面を奪うことはありません。許可するまで、プログラムはキャラクターについて何も知ることができません。&#x0A;- ウィンドウは一度に 1 つで、拒否のあとは 1 分間あき、MultiPreview を起動してから最大 3 つまでです。それを超えると、MultiPreview を再起動するか、自分で **ほかのプログラムからのコマンドを受け付ける** をオンにするまで、要求は断られます。&#x0A;&#x0A;プログラムの要求を止めたいときは、このスイッチをオフにします。**ほかのプログラムからのコマンドを受け付ける** もオフなら、MultiPreview はパイプをまったく開かず、プログラムはそのスイッチをオンにしてからでないと接続できません。すでに許可したコマンドは、そのまま使えます。</sys:String> <!-- draft -->
 </ResourceDictionary>

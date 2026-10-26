@@ -2920,4 +2920,9 @@
     <sys:String x:Key="L.S.Cmd.Made">已写出 {0} 个快捷方式。把它们拖到 Stream Deck 的按键上。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadePartly">已写出 {0} 个快捷方式，{1} 个写出失败。</sys:String> <!-- draft -->
     <sys:String x:Key="L.S.Cmd.MadeNotOpened">按钮已写入设置文件夹中的“Stream Deck buttons”文件夹。因为主播模式已开启，没有打开它。</sys:String> <!-- draft -->
+    <!-- Stream Deck v2 (Plan 39) -->
+    <sys:String x:Key="L.S.app.general.allowPairingRequests">允许 Stream Deck 和其他程序请求连接</sys:String> <!-- draft -->
+    <sys:String x:Key="L.S.app.general.allowPairingRequests.Desc">开启时，你的 Windows 账户中的程序（例如 Stream Deck 插件）可以请求连接，由你选择允许或拒绝。关闭，并且“接受其他程序的命令”也关闭时，MultiPreview 根本不会打开管道，程序只有在你打开这个开关之后才能连接。</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.pairing.Title">让程序请求连接</sys:String> <!-- draft -->
+    <sys:String x:Key="L.Help.app.general.pairing.Body">开启“**允许 Stream Deck 和其他程序请求连接**”后，你自己 Windows 账户中的程序可以请求 MultiPreview 连接。Stream Deck 插件通过其设置中的“连接”按钮来做到这一点。&#x0A;&#x0A;- 一个小窗口会询问“允许”还是“拒绝”，并写出提出请求的程序。默认是拒绝：Enter、Esc 和关闭按钮都表示拒绝，两分钟后窗口也会自动拒绝。&#x0A;- 允许会打开“**接受其他程序的命令**”；如果 MultiPreview 以管理员身份运行而该程序不是，还会打开“**也接受不以管理员身份运行的程序发来的命令**”。两者都会出现在“最近更改”里，你可以在那里撤销。&#x0A;- 这个窗口绝不会把游戏窗口挤出最前面。在你允许之前，程序不会得知你的任何角色信息。&#x0A;- 一次只有一个窗口，拒绝后暂停一分钟，每次运行 MultiPreview 最多弹出三个窗口；之后会拒绝请求，直到你重启 MultiPreview，或自己打开“**接受其他程序的命令**”。&#x0A;&#x0A;关闭这个开关，程序就不能再请求。如果“**接受其他程序的命令**”也关闭，MultiPreview 就根本不会打开管道，程序只有在你打开这个开关之后才能连接。你已经允许的命令会继续生效。</sys:String> <!-- draft -->
 </ResourceDictionary>

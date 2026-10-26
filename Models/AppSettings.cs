@@ -326,6 +326,13 @@ public class AppSettings
     /// server when it changes. New key: off in a file without it.</summary>
     public bool AcceptCommandsUnelevated { get; set; } = false;
 
+    /// <summary>Let Stream Deck and other programs ask to connect (IDEAS #15, Plan 39 Ruling 24): while on, the command pipe
+    /// exists even with "Take commands from other programs" off, and a program may say hello and ask to pair (one Allow/Deny
+    /// window); nothing else is answered before that. Off with commands off: no pipe at all, as before Plan 39. Read by App's
+    /// FollowCommandServer (PipeGate.Listens). New key: ON in a new file AND in a file without it; the file holds it only
+    /// while it is off (AhkGlobalSettings.AllowPairingRequests), so an older file saves back unchanged.</summary>
+    public bool AllowPairingRequests { get; set; } = true;
+
     /// <summary>The hotkey that opens the settings window, or brings it forward when it is open (IDEAS P5). Read by
     /// HotkeyService.RegisterFromSettings, which calls the action it is given (App.OpenSettings). New key: unbound in a
     /// file without it.</summary>

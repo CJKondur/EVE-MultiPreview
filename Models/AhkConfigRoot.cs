@@ -154,6 +154,7 @@ public class AhkConfigRoot
         s.AutoSelectProfile = g.AutoSelectProfile != 0;
         s.AcceptCommands = g.AcceptCommands != 0;
         s.AcceptCommandsUnelevated = g.AcceptCommandsUnelevated != 0;
+        s.AllowPairingRequests = (g.AllowPairingRequests ?? 1) != 0;   // Plan 39 Ruling 24: absent (an older file) or null is on
         s.OpenSettingsHotkey = g.OpenSettingsHotkey ?? "";
         s.CommandPaletteHotkey = g.CommandPaletteHotkey ?? "";
         s.TrackPlaytime = g.TrackPlaytime != 0;
@@ -506,6 +507,7 @@ public class AhkConfigRoot
         g.AutoSelectProfile = s.AutoSelectProfile ? 1 : 0;
         g.AcceptCommands = s.AcceptCommands ? 1 : 0;
         g.AcceptCommandsUnelevated = s.AcceptCommandsUnelevated ? 1 : 0;
+        g.AllowPairingRequests = s.AllowPairingRequests ? null : 0;   // written only while off, so an older file saves back byte for byte
         g.OpenSettingsHotkey = s.OpenSettingsHotkey;
         g.CommandPaletteHotkey = s.CommandPaletteHotkey;
         g.TrackPlaytime = s.TrackPlaytime ? 1 : 0;
@@ -1456,6 +1458,13 @@ public class AhkGlobalSettings
     // Also take commands from programs that are not run as administrator (IDEAS #15), batch 11: a file without it loads off.
     [JsonPropertyName("AcceptCommandsUnelevated")]
     public int AcceptCommandsUnelevated { get; set; }
+
+    // Let Stream Deck and other programs ask to connect (IDEAS #15, Plan 39 Ruling 24): ON in a file without it. Held as a nullable
+    // int, read by the same tolerant converter as every other flag here (a hand-edited false, "x" or 5.5 never refuses the file),
+    // and left out of the file while null, which is while it is on: the one key written only when it is off.
+    [JsonPropertyName("AllowPairingRequests")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public int? AllowPairingRequests { get; set; }
 
     // The settings window's own key (IDEAS P5), batch 13: a file without it loads it unbound.
     [JsonPropertyName("OpenSettingsHotkey")]

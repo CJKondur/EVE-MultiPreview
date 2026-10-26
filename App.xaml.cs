@@ -1598,8 +1598,8 @@ public partial class App : Application
     {
         try
         {
-            // Plan 39: Task 1a replaces the literal true with the "Let Stream Deck and other programs ask to connect" switch
-            bool wanted = !_isShuttingDown && _settings != null && PipeGate.Listens(true, _settings.Settings.AcceptCommands);
+            // Rulings 1 and 24: a pipe while "Let Stream Deck and other programs ask to connect" or "Take commands from other programs" is on
+            bool wanted = !_isShuttingDown && _settings != null && PipeGate.Listens(_settings.Settings.AllowPairingRequests, _settings.Settings.AcceptCommands);
             if (!wanted)
             {
                 _commandServer?.Dispose();
