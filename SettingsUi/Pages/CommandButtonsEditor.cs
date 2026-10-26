@@ -152,21 +152,23 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
         }
         bool elevated = _elevated();
         bool ask = !_ctx.S.AcceptCommands || (elevated && !_ctx.S.AcceptCommandsUnelevated);
-        if (ask)
-        {
-            if (!_ctx.Host.Confirm(SettingsContext.Str("L.S.Cmd.Consent.Title"),
-                    SettingsContext.Str(elevated ? "L.S.Cmd.Consent.BodyElevated" : "L.S.Cmd.Consent.Body"), SafeAnswer.Cancel))
-            {
-                _ctx.Host.Toast(SettingsContext.Str("L.S.Cmd.Consent.Kept"));
-                return;
-            }
-            TurnOn("app.general.acceptCommands");
-            if (elevated) TurnOn("app.general.acceptCommandsUnelevated");
-            _ctx.Applier.Request(ApplyScope.Save);   // saved, and App's Applied path follows the switches (FollowCommandServer)
-        }
-
+        bool turnedOn = false;
         try
         {
+            if (ask)
+            {
+                if (!_ctx.Host.Confirm(SettingsContext.Str("L.S.Cmd.Consent.Title"),
+                        SettingsContext.Str(elevated ? "L.S.Cmd.Consent.BodyElevated" : "L.S.Cmd.Consent.Body"), SafeAnswer.Cancel))
+                {
+                    _ctx.Host.Toast(SettingsContext.Str("L.S.Cmd.Consent.Kept"));
+                    return;
+                }
+                turnedOn = true;   // before the first switch is touched: whatever throws from here on, the cards are reloaded
+                TurnOn("app.general.acceptCommands");
+                if (elevated) TurnOn("app.general.acceptCommandsUnelevated");
+                _ctx.Applier.Request(ApplyScope.Save);   // saved, and App's Applied path follows the switches (FollowCommandServer)
+            }
+
             var result = _writeFolder(StreamDeckButtons.FolderIn(_ctx.Service.ConfigDirectory), PlanButtons());
             // The shortcut files are named with real character names, so while streamer mode is on Explorer is not opened on them
             // (the stream would show them); the toast, which names no one, says where the buttons are instead.
@@ -178,9 +180,9 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
         }
         finally
         {
-            // Last, and even when the write failed: the switches were already saved, so their cards and this card's list must
-            // show their new state.
-            if (ask) _ctx.Host.Reload();
+            // Last, and even when the write (or a switch) failed: the switches may already be changed and saved, so their cards and
+            // this card's list must show their new state. A declined question changed nothing and reloads nothing.
+            if (turnedOn) _ctx.Host.Reload();
         }
     }
 
