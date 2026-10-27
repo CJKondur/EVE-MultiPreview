@@ -67,6 +67,12 @@
     <sys:String x:Key="L.General.ScopeEveActive">If an EVE window is Active</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcard">Hotkeys still fire while Ctrl / Shift / Alt is held</sys:String>
     <sys:String x:Key="L.General.HotkeyWildcardNote">On: a hotkey works even while you hold a modifier — EVE players hold Ctrl to lock targets. Off: a single-key hotkey such as V only fires on its own, so Ctrl+V reaches the client for pasting.</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiers">Carry held Ctrl / Shift / Alt to the client you switch to</sys:String>
+    <sys:String x:Key="L.General.PropagateModifiersNote">On: holding Ctrl to lock a target keeps working after you cycle to another client. Turn it off if locking stops working after a switch — on some setups the client already sees the held key and these extra keystrokes get in the way.</sys:String>
+    <sys:String x:Key="L.General.PropagateKeys">Carry other held keys to the client you switch to</sys:String>
+    <sys:String x:Key="L.General.PropagateKeysNote">On: letters, numbers, F-keys, Enter, Space and mouse buttons you are still holding when you switch are pressed in the new client too (hold F1 and cycle to fire it on each). Turn it off if a module key you have not released yet activates on the next client and your own press then turns it back off. Held Ctrl / Shift / Alt follow the setting above.</sys:String>
+    <sys:String x:Key="L.General.HideHeldKeys">Hide keys you're still holding from the client you switch to</sys:String>
+    <sys:String x:Key="L.General.HideHeldKeysNote">For letters, numbers, F-keys, Enter and Space. A key still down when you switch is released in the client you leave and kept away from the one you land on until you let go, so holding A (align) or S (warp) can't make the next client align or warp. Takes priority over “Carry other held keys”. Ctrl / Shift / Alt are never hidden: they follow their own option above, and hiding them would break held-modifier hotkeys such as Ctrl+TAB.</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokes">Hide hotkey keystrokes from EVE (as EVE-X-Preview does)</sys:String>
     <sys:String x:Key="L.General.HideHotkeyKeystrokesNote">On: when a hotkey switches clients, the client you land on never sees that key. Off: the key's release reaches that client, which can make your first click there only focus EVE's overview instead of acting.</sys:String>
     <sys:String x:Key="L.General.SystemHotkeys">System Hotkeys</sys:String>
@@ -85,6 +91,7 @@
     <sys:String x:Key="L.General.HkCloseAll">Close all clients:</sys:String>
     <sys:String x:Key="L.General.Toggles">Toggles</sys:String>
     <sys:String x:Key="L.General.LockPositions">Lock Thumbnail Positions</sys:String>
+    <sys:String x:Key="L.General.BroadcastHud">Show Carried-Keys HUD</sys:String>
     <sys:String x:Key="L.General.AutoSolo">Auto-solo active client audio</sys:String>
     <sys:String x:Key="L.General.MuteAllWhenNoneActive">Mute all clients when no EVE client is active</sys:String>
     <sys:String x:Key="L.General.IndividualResize">Resize Thumbnails Individually</sys:String>
@@ -386,6 +393,7 @@
     <sys:String x:Key="L.Debug.Title">🐛 Debug Logging</sys:String>
     <sys:String x:Key="L.Debug.Subtitle">Granular toggles for generating diagnostic logs to troubleshoot issues.</sys:String>
     <sys:String x:Key="L.Debug.Targets">Logging Targets</sys:String>
+    <sys:String x:Key="L.Debug.Injection">Input Injection Logistics (Keystrokes &amp; Pulses)</sys:String>
     <sys:String x:Key="L.Debug.Cycling">Cycle Group &amp; Math Analytics (Client switching logic)</sys:String>
     <sys:String x:Key="L.Debug.WindowHooks">Window Foreground &amp; Focus Hooks (EVE client detection)</sys:String>
     <sys:String x:Key="L.Debug.Dwm">Desktop Window Manager (Thumbnail API HResults)</sys:String>
@@ -483,6 +491,7 @@
     <sys:String x:Key="L.Tt.SearchAll">Search all settings (Ctrl+F)</sys:String>
     <sys:String x:Key="L.Tt.UndoHotkey">Optional. Avoid keys EVE uses (e.g. Ctrl+Z).</sys:String>
     <sys:String x:Key="L.Tt.RedoHotkey">Optional. Avoid keys EVE uses.</sys:String>
+    <sys:String x:Key="L.Tt.BroadcastHud">A small on-screen pill showing which held key is being propagated to your clients. Drag it to reposition.</sys:String>
     <sys:String x:Key="L.Tt.AutoSolo">When you switch to a client, mute the other EVE clients and unmute the active one (Windows per-process audio). Per-client mute/volume is also on each thumbnail's right-click menu.</sys:String>
     <sys:String x:Key="L.Tt.MuteAllWhenNoneActive">Requires Auto-solo. When focus leaves EVE entirely (e.g. you switch to another app), mute every client instead of leaving the last-active one unmuted.</sys:String>
     <sys:String x:Key="L.Tt.CycleWhileHeld">On: holding a cycle hotkey keeps cycling at the delay above. Off: each press cycles exactly one client.</sys:String>
@@ -832,6 +841,8 @@
     <sys:String x:Key="L.S.Page.app.diagnostics.Desc">Debug logs for tracking down a problem.</sys:String>
     <sys:String x:Key="L.S.Sec.app.diagnostics.logs">Debug logs</sys:String>
     <sys:String x:Key="L.S.app.diagnostics.note">Leave these off unless you're reporting a bug. Each one writes its own file in the Logs folder, and some write a lot.</sys:String>
+    <sys:String x:Key="L.S.app.diagnostics.injection">Key and click sending</sys:String>
+    <sys:String x:Key="L.S.app.diagnostics.injection.Desc">Keys and clicks MultiPreview sends to your clients.</sys:String>
     <sys:String x:Key="L.S.app.diagnostics.cycling">Client switching</sys:String>
     <sys:String x:Key="L.S.app.diagnostics.cycling.Desc">Every switching hotkey and the client it picked.</sys:String>
     <sys:String x:Key="L.S.app.diagnostics.windowHooks">Window events</sys:String>
@@ -844,7 +855,7 @@
     <sys:String x:Key="L.S.Act.app.diagnostics.openLogs">_Open logs folder</sys:String>
     <sys:String x:Key="L.Help.app.diagnostics.Intro">Debug logs help track down a problem. Turn on only the one you're asked for, make the problem happen, then turn it off and send the file.</sys:String>
     <sys:String x:Key="L.Help.app.diagnostics.logs.Title">Which log to turn on</sys:String>
-    <sys:String x:Key="L.Help.app.diagnostics.logs.Body">- **Client switching**: hotkeys that skip a client or switch to the wrong one.&#x0A;- **Window events**: thumbnails that don't appear, or follow the wrong window.&#x0A;- **Thumbnail drawing**: black or frozen thumbnails.&#x0A;- **Alerts**: alerts that fire when they shouldn't, or not at all.&#x0A;&#x0A;The **Alerts** log names the character of each alert and every running character; with **Alerts** off none of that is written.</sys:String>
+    <sys:String x:Key="L.Help.app.diagnostics.logs.Body">- **Key and click sending**: keys reaching the wrong client, or modifier keys that stick.&#x0A;- **Client switching**: hotkeys that skip a client or switch to the wrong one.&#x0A;- **Window events**: thumbnails that don't appear, or follow the wrong window.&#x0A;- **Thumbnail drawing**: black or frozen thumbnails.&#x0A;- **Alerts**: alerts that fire when they shouldn't, or not at all.&#x0A;&#x0A;The **Alerts** log names the character of each alert and every running character; with **Alerts** off none of that is written.</sys:String>
     <sys:String x:Key="L.S.Page.app.profiles">Profiles &amp; backups</sys:String>
     <sys:String x:Key="L.S.Page.app.profiles.Desc">Switch, copy and back up your setups.</sys:String>
     <sys:String x:Key="L.S.Sec.app.profiles.profiles">Profiles</sys:String>
@@ -1064,6 +1075,14 @@
     <sys:String x:Key="L.S.clients.hotkeys.wildcard.Desc">On: holding Ctrl to lock targets doesn't stop your hotkeys. Off: a one-key hotkey like V fires only on its own, so Ctrl+V still pastes.</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.hideKeystrokes">Hide hotkeys from EVE</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.hideKeystrokes.Desc">The client you switch to never sees the hotkey. Off: it gets the key's release, which can make your first click only focus the overview.</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.carryModifiers">Carry held Ctrl, Shift and Alt to the next client</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.carryModifiers.Desc">Keeps holding Ctrl to lock working after a switch. Turn it off if locking stops working after you switch.</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.carryKeys">Carry other held keys to the next client</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.carryKeys.Desc">Hold F1 and cycle to press it on each client. Turn it off if a module key you haven't released yet fires on the next client.</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.hideHeld">Hide still-held keys from the next client</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.hideHeld.Desc">A key still down when you switch is kept from the client you land on until you let go, so holding A or S can't make it align or warp. Wins over the option above.</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.broadcastHud">Show which held key is carried</sys:String>
+    <sys:String x:Key="L.S.clients.hotkeys.broadcastHud.Desc">A small on-screen pill. Drag it where you like.</sys:String>
     <sys:String x:Key="L.S.Sec.clients.hotkeys.cycling">Switching between clients</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext">Next client, all running clients</sys:String>
     <sys:String x:Key="L.S.clients.hotkeys.cycleNext.Desc">Switches to the next running client, whatever its group.</sys:String>
@@ -1101,9 +1120,11 @@
     <sys:String x:Key="L.S.clients.hotkeys.conflicts.Desc">Updates as you change keys. Characters that share a key on purpose aren't listed.</sys:String>
     <sys:String x:Key="L.S.Conflicts.None">No conflicts: every key does one thing.</sys:String>
     <sys:String x:Key="L.S.Conflicts.Count">{0} key(s) are used twice. Pick a different key for one of each pair.</sys:String>
-    <sys:String x:Key="L.Help.clients.hotkeys.Intro">Keys that switch clients and control MultiPreview, and how they behave. The conflict check at the bottom shows keys that do two things.&#x0A;&#x0A;MultiPreview only switches windows; it never sends keys to the game. Keys you hold across a switch are read by EVE itself. A held key acts once, in the client where you release it, and key combinations such as Shift+F don't carry across a switch. For an action you want right after switching, give it a single-key shortcut in EVE (Esc › Shortcuts).</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.Intro">Keys that switch clients and control MultiPreview, and how they behave. The conflict check at the bottom shows keys that do two things.</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Title">Where hotkeys work</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.scope.Body">**Everywhere** catches your hotkeys whatever app is in front, so a key pressed in a browser still switches clients. **Only while EVE is in front** leaves the keys alone in other apps.&#x0A;&#x0A;**Hotkeys work while Ctrl, Shift or Alt is held** matters if you hold Ctrl to lock targets. Turn it off if a one-key hotkey stops Ctrl+V or Ctrl+C reaching EVE.&#x0A;&#x0A;**Hide hotkeys from EVE** stops the client you switch to from seeing the key you pressed.&#x0A;&#x0A;A mouse button used as a hotkey does not follow **Hotkeys work**: it works in every program and is not passed on there, so one bound to Back stops being a browser's Back button. Only MultiPreview's own Settings window and command palette let the click through.</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.held.Title">Keys you're still holding</sys:String>
+    <sys:String x:Key="L.Help.clients.hotkeys.held.Body">When you switch while holding keys, MultiPreview can carry them to the next client or hide them from it.&#x0A;- **Carry Ctrl, Shift and Alt**: keep holding Ctrl to lock targets after a switch.&#x0A;- **Carry other held keys**: hold F1 and cycle, and it fires on each client you cycle to. Each client still needs its own cycle: one switch, one client.&#x0A;- **Hide still-held keys**: holding A or S never makes the next client align or warp.&#x0A;&#x0A;The on-screen pill shows which key is being carried.</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.cycling.Title">Next and previous client</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.cycling.Body">**Next client** and **Previous client** go through every running client. Groups have their own keys on the Groups page.&#x0A;&#x0A;Hold the key to keep switching, at the time you set. Turn that off to switch exactly one client per press.&#x0A;&#x0A;A sound can tell you when you've gone round to the first client again.&#x0A;&#x0A;Pressed in a client that is not in the key's list (a group key in a client outside the group), **Next client** goes to the first client of the list and **Previous client** to the last.</sys:String>
     <sys:String x:Key="L.Help.clients.hotkeys.app.Title">MultiPreview hotkeys</sys:String>
@@ -2610,6 +2631,8 @@
     <sys:String x:Key="L.Msg.AudioMuted">{0}: audio muted</sys:String>
     <sys:String x:Key="L.Stats.Waiting">Waiting for data...</sys:String>
     <sys:String x:Key="L.Thumb.NotLoggedIn">Not Logged In</sys:String>
+    <sys:String x:Key="L.Hud.CarriedKeysTip">Carried keys: the held keys the carry options are passing on to your clients. Drag to move.</sys:String>
+    <sys:String x:Key="L.Hud.CarriedKeysTitle">EVE MultiPreview — Carried keys</sys:String>
     <sys:String x:Key="L.Lbl.Header">Label for “{0}”</sys:String>
     <sys:String x:Key="L.Tray.TipSuspended">SUSPENDED</sys:String>
     <sys:String x:Key="L.Copy.AllProfiles">— All Profiles —</sys:String>

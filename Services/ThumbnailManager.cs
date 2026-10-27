@@ -1916,6 +1916,9 @@ public sealed class ThumbnailManager : IDisposable
             // client is already in the right band when it comes forward.
             ApplyClientTaskbarCover(hwnd);
 
+            // Before activation: a held key is released while the client being left is
+            // still in front, so the one we switch to never sees it (#115, opt-in).
+            Interop.User32.HideHeldKeysBeforeSwitch();
             Interop.User32.ActivateWindow(hwnd);
 
             // Paint the highlight NOW, for every way of switching (#112). Only group
@@ -1931,6 +1934,10 @@ public sealed class ThumbnailManager : IDisposable
             _lastCycleTime = DateTime.UtcNow;
             _lastSweptHwnd = IntPtr.Zero;
             ApplyActiveBorders(hwnd);
+
+            // Explicitly pulse WM_KEYDOWN messages directly to the EVE client for held action keys
+            // This natively restores module firing without polluting global SendInput states
+            Interop.User32.FixTargetHeldKeys(hwnd);
 
             // Defer WPF z-order operations to prevent dispatch pumping from eating the OS input state interrupt
             Application.Current?.Dispatcher.BeginInvoke(() =>
@@ -3963,6 +3970,9 @@ public sealed class ThumbnailManager : IDisposable
             // hold no right to take the foreground - unless a thumbnail was just clicked.
             Interop.User32.ActivateWindow(targetHwnd);
             
+            // Explicitly pass held login actions (like Enter) to Chromium message pump
+            Interop.User32.FixTargetHeldKeys(targetHwnd);
+
             // Defer WPF z-order operations to prevent dispatch pumping from eating the OS input state interrupt
             Application.Current?.Dispatcher.BeginInvoke(() =>
             {

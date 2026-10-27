@@ -23,6 +23,7 @@ public static class ClientsPages
         new HelpTopic(CharactersId, "table", new[] { "clients.characters.table" }),
         new HelpTopic(CharactersId, "clicks", new[] { "clients.characters.ctrlClick", "clients.characters.shiftClick", "clients.characters.customColors" }),
         new HelpTopic(HotkeysId, "scope", new[] { "clients.hotkeys.scope", "clients.hotkeys.wildcard", "clients.hotkeys.hideKeystrokes" }),
+        new HelpTopic(HotkeysId, "held", new[] { "clients.hotkeys.carryModifiers", "clients.hotkeys.carryKeys", "clients.hotkeys.hideHeld", "clients.hotkeys.broadcastHud" }),
         new HelpTopic(HotkeysId, "cycling", new[]
         {
             "clients.hotkeys.cycleNext", "clients.hotkeys.cyclePrevious", "clients.hotkeys.cycleWhileHeld", "clients.hotkeys.cycleDelay",
@@ -107,7 +108,7 @@ public static class ClientsPages
         new(Setting.Hotkey(id, prop) with { Replaces = replaces });
 
     // Hotkey settings are read when App re-registers on Applied (RegisterFromSettings), or live
-    // (CycleDelayMs, IncludeLoginScreensInCycle): Save for all.
+    // (PropagateHeld*, ShowBroadcastKeyHud, CycleDelayMs, IncludeLoginScreensInCycle): Save for all.
     private static PageDef Hotkeys() => new(HotkeysId, NavGroup.Clients, new[]
     {
         new SectionDef("clients.hotkeys.behaviour", new PageItem[]
@@ -119,6 +120,10 @@ public static class ClientsPages
             }) with { Replaces = new[] { "CmbHotkeyScope" } }),
             Toggle("clients.hotkeys.wildcard", s => s.HotkeyWildcardModifiers, "ChkHotkeyWildcard"),
             Toggle("clients.hotkeys.hideKeystrokes", s => s.HideHotkeyKeystrokes, "ChkHideHotkeyKeystrokes"),
+            Toggle("clients.hotkeys.carryModifiers", s => s.PropagateHeldModifiers, "ChkPropagateModifiers"),
+            Toggle("clients.hotkeys.carryKeys", s => s.PropagateHeldKeys, "ChkPropagateKeys"),
+            Toggle("clients.hotkeys.hideHeld", s => s.HideHeldKeysOnSwitch, "ChkHideHeldKeys"),
+            Toggle("clients.hotkeys.broadcastHud", s => s.ShowBroadcastKeyHud, "ChkBroadcastHud"),
         }),
         new SectionDef("clients.hotkeys.cycling", new PageItem[]
         {

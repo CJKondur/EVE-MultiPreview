@@ -61,6 +61,14 @@ public static class DiagnosticsService
         }
     }
 
+    public static void LogInjection(string message)
+    {
+        if (GlobalSettings?.EnableDebugLogging_Injection == true)
+        {
+            AppendLog("injection", message);
+        }
+    }
+
     public static void LogCycling(string message)
     {
         if (GlobalSettings?.EnableDebugLogging_Cycling == true)

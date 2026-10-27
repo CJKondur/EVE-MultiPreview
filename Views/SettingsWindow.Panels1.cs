@@ -235,6 +235,9 @@ public partial class SettingsWindow
     {
         S.GlobalHotkeys = CmbHotkeyScope.SelectedIndex == 0;
         S.HotkeyWildcardModifiers = ChkHotkeyWildcard.IsChecked == true;
+        S.PropagateHeldModifiers = ChkPropagateModifiers.IsChecked == true;
+        S.PropagateHeldKeys = ChkPropagateKeys.IsChecked == true;
+        S.HideHeldKeysOnSwitch = ChkHideHeldKeys.IsChecked == true;
         S.HideHotkeyKeystrokes = ChkHideHotkeyKeystrokes.IsChecked == true;
         S.SuspendHotkey = TxtSuspendHotkey.Text;
         S.ClickThroughHotkey = TxtClickThroughHotkey.Text;
@@ -249,6 +252,7 @@ public partial class SettingsWindow
         S.RedoLayoutHotkey = TxtRedoLayoutHotkey.Text;
         S.CloseAllClientsHotkey = TxtCloseAllClientsHotkey.Text;
         S.LockPositions = ChkLockPositions.IsChecked == true;
+        S.ShowBroadcastKeyHud = ChkBroadcastHud.IsChecked == true;
         S.AutoSoloClientAudio = ChkAutoSoloAudio.IsChecked == true;
         S.MuteAllClientAudioWhenNoneActive = ChkMuteAllWhenNoneActive.IsChecked == true;
         S.IndividualThumbnailResize = ChkIndividualResize.IsChecked == true;

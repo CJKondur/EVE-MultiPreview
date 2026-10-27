@@ -32,7 +32,7 @@ public static class AppPages
         new HelpTopic(LookId, "contrast", new[] { "app.look.followContrast" }),
         new HelpTopic("app.diagnostics", "logs", new[]
         {
-            "app.diagnostics.cycling", "app.diagnostics.windowHooks",
+            "app.diagnostics.injection", "app.diagnostics.cycling", "app.diagnostics.windowHooks",
             "app.diagnostics.dwm", "app.diagnostics.alerts", "app.diagnostics.folder",
         }),
         new HelpTopic("app.diagnostics", "errors", new[] { "app.diagnostics.errorLog" }),
@@ -252,6 +252,7 @@ public static class AppPages
         new SectionDef("app.diagnostics.logs", new PageItem[]
         {
             new InfoItem("app.diagnostics.note", InfoSeverity.Info),
+            new SettingItem(Setting.Toggle("app.diagnostics.injection", s => s.EnableDebugLogging_Injection) with { Replaces = new[] { "ChkDebugInjection" } }),
             new SettingItem(Setting.Toggle("app.diagnostics.cycling", s => s.EnableDebugLogging_Cycling) with { Replaces = new[] { "ChkDebugCycling" } }),
             new SettingItem(Setting.Toggle("app.diagnostics.windowHooks", s => s.EnableDebugLogging_WindowHooks) with { Replaces = new[] { "ChkDebugWindowHooks" } }),
             new SettingItem(Setting.Toggle("app.diagnostics.dwm", s => s.EnableDebugLogging_DWM) with { Replaces = new[] { "ChkDebugDwm" } }),

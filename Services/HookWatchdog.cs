@@ -1,8 +1,8 @@
 namespace EveMultiPreview.Services;
 
 /// <summary>IDEAS #41: decides when Windows has silently removed a low-level hook. Windows drops a hook whose callback
-/// runs past LowLevelHooksTimeout and never says so; every feature on it (mouse bindings, hidden hotkey keystrokes)
-/// then stops until a restart. Each hook callback stamps the time (its only extra work), and this
+/// runs past LowLevelHooksTimeout and never says so; every feature on it (mouse bindings, hidden hotkey keystrokes,
+/// held-key hiding) then stops until a restart. Each hook callback stamps the time (its only extra work), and this
 /// compares the stamps with input Windows saw. Pure: HotkeyService passes in what it read, so tests need no hook.
 ///
 /// Each hook is judged by input from its own device. Windows' last-input time alone can't tell a key from a mouse
@@ -51,12 +51,13 @@ public sealed class HookWatchdog
     /// <param name="Generation">Bumps every time the service installs or removes the keyboard hook.</param>
     /// <param name="Installed">A keyboard hook thread is supposed to be running.</param>
     /// <param name="SlotIsHidden">The hotkey is one whose keystroke the hook should have hidden.</param>
+    /// <param name="HeldKeyHidden">A key hidden after a switch is still down (removing the hook would strand it).</param>
     /// <param name="HooksSeeForeground">The window in front is one whose input the hooks can see.</param>
     /// <param name="NoForeground">No window is in front at all (GetForegroundWindow gave zero): Windows is between two
     /// windows in a switch, or the screen is locked. Not the same as a window the hooks can't see: it says nothing
     /// about the hook, in either direction.</param>
     public readonly record struct KeyLook(int MessageTime, int LastCallback, int InstalledAt, int Generation, bool Installed,
-        bool Suspended, bool Capturing, bool Disposed, bool SlotIsHidden, bool HooksSeeForeground,
+        bool Suspended, bool Capturing, bool Disposed, bool SlotIsHidden, bool HeldKeyHidden, bool HooksSeeForeground,
         bool NoForeground);
 
     private (int Generation, int Stamp, int At)? _keyStrike;
@@ -106,7 +107,7 @@ public sealed class HookWatchdog
     /// that arrives at least <see cref="KeyQuietMs"/> after the first, with the hook's stamp unchanged in between and no
     /// install or removal in between. One strike alone proves nothing (hotkeys queued behind an elevated window reach a
     /// healthy hook late). Nothing counts while the hook is removed on purpose (<c>Suspended</c>, <c>Capturing</c>,
-    /// <c>Disposed</c>, not <c>Installed</c>), while the window in front is one the hooks
+    /// <c>Disposed</c>, not <c>Installed</c>), while a hidden key is held, while the window in front is one the hooks
     /// can't see (that also clears a strike), or while there is no window in front at all (that keeps it).</summary>
     public bool KeyHookLooksDead(KeyLook k)
     {
@@ -130,6 +131,7 @@ public sealed class HookWatchdog
             _keyStrike = null;   // an elevated window in front: the hooks are expected to be silent, and what came before proves nothing
             return false;
         }
+        if (k.HeldKeyHidden) return false;
         if (_keyStrike is { } s && s.Generation == k.Generation && s.Stamp == k.LastCallback)
         {
             if (!After(k.MessageTime, unchecked(s.At + KeyQuietMs))) return false;   // too soon after the first: keep that one
