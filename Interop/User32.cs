@@ -705,6 +705,39 @@ public static class User32
         return false;
     }
 
+    /// <summary>Presses each of <paramref name="keys"/> that is STILL down, asking <paramref name="isDown"/> immediately
+    /// before each press. The carry waits for the foreground before it presses, and a key the user released in that time
+    /// must not be pressed down again: nothing would ever send its release.</summary>
+    public static void PressStickyKeys(IEnumerable<int> keys, Func<int, bool> isDown, Action<int> press)
+    {
+        foreach (var vk in keys)
+        {
+            if (!isDown(vk)) continue;
+            press(vk);
+        }
+    }
+
+    /// <summary>Runs every pulse's <c>Down</c>, waits <paramref name="hold"/>, then runs the <c>Up</c> of every pulse whose
+    /// down was started - in a finally, so a throw anywhere in between (a failing down, a failing hold) cannot leave a
+    /// pulse key or mouse button down in the client. The exception still reaches the caller.</summary>
+    public static async Task HoldPulse(IEnumerable<(Action Down, Action Up)> pulses, Func<Task> hold)
+    {
+        var ups = new List<Action>();
+        try
+        {
+            foreach (var (down, up) in pulses)
+            {
+                ups.Add(up);   // before the down: a down that throws half way still gets its up
+                down();
+            }
+            await hold();
+        }
+        finally
+        {
+            foreach (var up in ups) up();
+        }
+    }
+
     public static void FixTargetHeldKeys(IntPtr hwnd)
     {
         uint WM_KEYDOWN = 0x0100;
@@ -843,14 +876,16 @@ public static class User32
                 //      on setups PostMessage alone didn't reach. Untargeted → only
                 //      fired once our client actually holds foreground.
                 // No UP here; the poller fires both UPs on physical release.
+                // PressStickyKeys looks at the key state right before each press: a letter released during the waits
+                // above is not pressed down again (here, and again before the device half below).
                 if (letterKeys.Count > 0)
                 {
-                    foreach (var vk in letterKeys)
+                    PressStickyKeys(letterKeys, IsKeyDown, vk =>
                     {
                         uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
                         IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1);
                         PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
-                    }
+                    });
                 }
 
                 // SendInput is UNTARGETED, so it must wait until our client actually
@@ -918,8 +953,10 @@ public static class User32
                 {
                     if (isFg)
                     {
-                        foreach (var vk in letterKeys)
+                        PressStickyKeys(letterKeys, IsKeyDown, vk =>
+                        {
                             SendInputScan(vk, keyUp: false);
+                        });
                         LogInjection($"[FixTargetHeldKeys] ⌨ PostMessage + SendInput DOWN {letterKeys.Count} sticky key(s) → foreground HWND {hwnd}");
                     }
                     else
@@ -928,34 +965,52 @@ public static class User32
                     }
                 }
 
-                // One-shot DOWN
+                // One-shot DOWN, 30 ms, one-shot UP only - letters stay down until physical release. HoldPulse sends
+                // the UP of every pulse it started in a finally, so a throw in between cannot leave a pulse key or a
+                // mouse button down in the client.
+                var pulses = new List<(Action Down, Action Up)>();
                 foreach (var vk in pulseKeys)
                 {
                     uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
                     IntPtr lParamDown = (IntPtr)((scanCode << 16) | 1);
-                    PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
-                }
-
-                if (hasMouse1) PostMessage(hwnd, 0x0207, IntPtr.Zero, lParamMouse);
-                if (hasMouse2) PostMessage(hwnd, 0x020B, (IntPtr)0x00010000, lParamMouse);
-                if (hasMouse3) PostMessage(hwnd, 0x020B, (IntPtr)0x00020000, lParamMouse);
-
-                await Task.Delay(30);
-
-                // One-shot UP only — letters stay down until physical release.
-                foreach (var vk in pulseKeys)
-                {
-                    uint scanCode = MapVirtualKey((uint)vk, MAPVK_VK_TO_VSC);
                     IntPtr lParamUp = (IntPtr)unchecked((int)(0xC0000000 | (scanCode << 16) | 1));
-                    PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, lParamUp);
+                    pulses.Add((
+                        () =>
+                        {
+                            PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, lParamDown);
+                        },
+                        () =>
+                        {
+                            PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, lParamUp);
+                        }));
                 }
 
-                if (hasMouse1) PostMessage(hwnd, 0x0208, IntPtr.Zero, lParamMouse);
-                if (hasMouse2) PostMessage(hwnd, 0x020C, (IntPtr)0x00010000, lParamMouse);
-                if (hasMouse3) PostMessage(hwnd, 0x020C, (IntPtr)0x00020000, lParamMouse);
+                if (hasMouse1 || hasMouse2 || hasMouse3)
+                {
+                    pulses.Add((
+                        () =>
+                        {
+                            if (hasMouse1) PostMessage(hwnd, 0x0207, IntPtr.Zero, lParamMouse);
+                            if (hasMouse2) PostMessage(hwnd, 0x020B, (IntPtr)0x00010000, lParamMouse);
+                            if (hasMouse3) PostMessage(hwnd, 0x020B, (IntPtr)0x00020000, lParamMouse);
+                        },
+                        () =>
+                        {
+                            if (hasMouse1) PostMessage(hwnd, 0x0208, IntPtr.Zero, lParamMouse);
+                            if (hasMouse2) PostMessage(hwnd, 0x020C, (IntPtr)0x00010000, lParamMouse);
+                            if (hasMouse3) PostMessage(hwnd, 0x020C, (IntPtr)0x00020000, lParamMouse);
+                        }));
+                }
+
+                await HoldPulse(pulses, () => Task.Delay(30));
 
                 LogInjection($"[FixTargetHeldKeys] ✅ Finished injecting (sticky:{letterKeys.Count}, pulse:{pulseKeys.Count}) for HWND {hwnd}");
-            });
+            }).ContinueWith(
+                // The carry is fire-and-forget: without this a throw would be lost. The pulse keys and mouse buttons
+                // were already released by HoldPulse's finally; the poller still releases the sticky ones. Type and
+                // message only, in the opt-in injection log - no stack trace.
+                t => LogInjection($"[FixTargetHeldKeys] ❌ carry stopped for HWND {hwnd}: {t.Exception?.GetBaseException().GetType().Name}: {t.Exception?.GetBaseException().Message}"),
+                System.Threading.CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
         }
     }
 
