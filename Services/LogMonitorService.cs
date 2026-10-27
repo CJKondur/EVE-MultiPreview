@@ -2506,11 +2506,12 @@ public sealed class LogMonitorService : IDisposable
     private void EwarFromCombatLine(string line, string character)
     {
         if (!EwarLines.TryRead(line, _ewarOn, out var type, out var severity, out var source)) return;
-        // Plan 40: the jam clock of the live-state reply (j=). Every jam line restarts the 20 s, before the quiet time and before PvE
-        // mode's filter: a jam is a fact whoever the source is, and the clock is only read while the Jammed event is on (this is
-        // only called then).
-        if (type == EwarLines.Jammed) _jams.Jammed(character, _alertClock());
-        if (PveMode && IsNpc(EwarLines.SourceName(source))) return;
+        // Plan 40: the jam clock of the live-state reply (j=). It starts where a Jammed alert would be raised for this character:
+        // past PvE mode's filter and the character's group having Jammed on (the Jammed event itself is on, or this is not called).
+        // The quiet time is not part of it, so every jam line restarts the 20 s, held or not.
+        bool filtered = PveMode && IsNpc(EwarLines.SourceName(source));
+        if (type == EwarLines.Jammed && !filtered && GroupHasOn(character, type)) _jams.Jammed(character, _alertClock());
+        if (filtered) return;
 
         // A neutralizer and a jam are states, with a line for every cycle of the module: told when one starts, and
         // then not before the events' own quiet time is over, or the quiet time of Settings where that is longer.
@@ -2794,7 +2795,8 @@ public sealed class LogMonitorService : IDisposable
 
     /// <summary>Plan 40: the milliseconds left (0 to 20000) of the character's 20 s jam, counted from its latest "You're jammed" line by
     /// <see cref="AlertClock"/>; 0 when it has none. Jam lines are read only while the Jammed event is switched on (an English client
-    /// only, as for the alert), so with it off this stays 0. Read from the window's thread for the live-state reply.</summary>
+    /// only, as for the alert), and counted only where the alert would be raised (not an NPC's in PvE mode, not for a group with
+    /// Jammed off; the quiet time does not matter), so otherwise this stays 0. Read from the window's thread for the live-state reply.</summary>
     public long JamRemainingMs(string character) => _jams.RemainingMs(character, _alertClock());
 
     /// <summary>The gate of a group's choices (IDEAS #31, P88): whether an event is on for a character. TriggerAlert asks it
@@ -2802,6 +2804,10 @@ public sealed class LogMonitorService : IDisposable
     /// uses up none of the quiet time (switched back on inside it, the next alert is told at once). Null: no gate, every
     /// event the reader may raise is on. Any thread; App hands it AlertProfiles.IsOn.</summary>
     public Func<string, string, bool>? IsOnFor { get; set; }
+
+    /// <summary>Whether the character's group has the event on (<see cref="IsOnFor"/>); true with no gate. TriggerAlert's per-group
+    /// choice, and the jam clock's (Plan 40).</summary>
+    private bool GroupHasOn(string character, string alertType) => IsOnFor is not { } gate || gate(character, alertType);
 
     /// <summary>P67: whether an alert of this type would reach this character: not muted, not snoozed for the event, and a
     /// window to show it on (App hands it the dispatcher's own checks). Asked, with <see cref="IsOnFor"/>, to decide
@@ -2827,7 +2833,7 @@ public sealed class LogMonitorService : IDisposable
         // ── Per-group choice (IDEAS #31, P88) ──
         // An event that is off for this character's group is no alert, so it is dropped before the quiet time is looked at
         // and before the moment is noted: noted, it would swallow the alert of an event switched back on inside the quiet time.
-        if (IsOnFor is { } gate && !gate(character, alertType))
+        if (!GroupHasOn(character, alertType))
         {
             DiagnosticsService.LogAlerts($"[Trigger] SUPPRESSED — off for the character's group: type={alertType}");
             return;
