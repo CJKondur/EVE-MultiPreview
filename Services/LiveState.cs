@@ -32,6 +32,8 @@ public sealed record LiveGlobals(bool DoNotDisturb, bool FocusMode, bool Thumbna
 /// c=1|critical|4FC3F7|shown name|real name      (one per character: in front 1|0, worst unseen alert, group colour RRGGBB or -)
 /// e=real name|warp_scramble                     (after ALL c= lines; only for a character whose top unseen alert has an event key)
 /// u=real name|warp_scramble|critical            (Plan 39; after ALL e= lines; one per unseen alert kind of a character)
+/// d=real name|850                               (Plan 40; after ALL u= lines; incoming damage per second, 1 to 999999)
+/// j=real name|12500                             (Plan 40; after ALL d= lines; milliseconds left of a jam, 1 to 20000)
 /// </code>
 /// The two event lines are the addendum's (Plan 38, EVE icons) and new keys only, so a plugin that does not know them ignores
 /// them and a <c>c=</c> line keeps its five fields. An event key is a word of <see cref="EventKeys"/> or no line at all; what a
@@ -44,13 +46,27 @@ public sealed record LiveGlobals(bool DoNotDisturb, bool FocusMode, bool Thumbna
 /// a character; they stand in the order of the <c>c=</c> lines, the most severe kind first, then by key; only a character whose
 /// <c>c=</c> line passes <see cref="IsLine"/> has any. They come after every <c>e=</c> line, so at the cap they go first.
 /// Also the two lists the plugin asks for, <see cref="AlertTypeLines"/> (and <c>RemoteCommand.CommandLines</c>): pipe-only, one
-/// line each, judged by <see cref="IsAlertTypeLine"/>.</summary>
+/// line each, judged by <see cref="IsAlertTypeLine"/>.
+///
+/// Plan 40 adds <c>d=</c> and <c>j=</c>, both new keys (a plugin that does not know them ignores them). <c>d=</c>: the incoming damage
+/// per second of the last 30 s, rounded to a whole number and held to 1..<see cref="MaxDps"/>, for a character that has an unseen
+/// <c>attack</c> or <c>dps_high</c> alert and a number of at least 1; at most one per character. <c>j=</c>: the milliseconds left,
+/// 1..<see cref="MaxJamMs"/>, of the 20 s jam that began with the character's latest "jammed" line; no unseen alert is needed, being
+/// jammed is the fact. Both name a character by the real name of its <c>c=</c> line (a join key), in the order of the <c>c=</c> lines,
+/// and only a character whose <c>c=</c> line passes <see cref="IsLine"/> has any. They stand last (all <c>d=</c>, then all <c>j=</c>),
+/// so at the cap the <c>j=</c> lines go first, then the <c>d=</c> lines, then everything older.</summary>
 public static class LiveState
 {
     public const int Version = 1;
 
     /// <summary>The longest line, without its line break, in UTF-8 bytes. A longer line is left out, never cut.</summary>
     public const int MaxLineBytes = 200;
+
+    /// <summary>The largest value of a <c>d=</c> line (Plan 40). A higher rate is sent as this.</summary>
+    public const int MaxDps = 999999;
+
+    /// <summary>The longest jam a <c>j=</c> line can carry, in milliseconds (Plan 40): a jam lasts 20 s.</summary>
+    public const int MaxJamMs = 20000;
 
     /// <summary>The event keys a live-state line may carry: the built-in keys of <c>AlertEvents.Listed</c> and <c>custom</c>. A literal
     /// copy, because this file is also compiled into the thin sender, which cannot see the alert code; a test holds it to
@@ -99,9 +115,13 @@ public static class LiveState
     /// leaves it out), with one exception: an <c>e=</c> line is made only for a character whose <c>c=</c> line passes
     /// <see cref="IsLine"/>, so it never stands without its character. They come last so that at the cap they go first.
     /// Plan 39: <paramref name="unseen"/> (<c>AlertAttention.Kinds()</c>: character, raw event key, severity) adds the <c>u=</c> lines
-    /// after all of those, under the same rule; null or empty adds nothing, and the reply is then exactly what it was without it.</summary>
+    /// after all of those, under the same rule; null or empty adds nothing, and the reply is then exactly what it was without it.
+    /// Plan 40: <paramref name="incomingDps"/> (real name to damage per second; asked only for a character with an unseen attack or
+    /// high-DPS kind) adds the <c>d=</c> lines and <paramref name="jamMs"/> (real name to milliseconds left of its jam) the <c>j=</c>
+    /// lines, after the <c>u=</c> lines, all <c>d=</c> before all <c>j=</c>; null adds nothing.</summary>
     public static IReadOnlyList<string> Lines(LiveGlobals g, IReadOnlyList<NameBarEntry> entries, Func<string, string> shown,
-        IReadOnlyList<(string Character, string EventKey, string Severity)>? unseen = null)
+        IReadOnlyList<(string Character, string EventKey, string Severity)>? unseen = null,
+        Func<string, double>? incomingDps = null, Func<string, long>? jamMs = null)
     {
         var lines = new List<string>(9 + entries.Count)
         {
@@ -117,7 +137,7 @@ public static class LiveState
         };
         if (EventKey(g.WorstEvent) is { } worstEvent && Severity(g.WorstUnseen) != "none") lines.Add("alert-event=" + worstEvent);
         List<string>? events = null;
-        List<string>? present = unseen is { Count: > 0 } ? new List<string>() : null;   // the names whose c= line is sent
+        List<string>? present = unseen is { Count: > 0 } || jamMs != null ? new List<string>() : null;   // the names whose c= line is sent
         foreach (var entry in entries)
         {
             var severity = Severity(entry.Severity);
@@ -132,16 +152,22 @@ public static class LiveState
             }
         }
         if (events != null) lines.AddRange(events);
-        if (present != null) AddUnseen(lines, present, unseen!);
+        if (present != null)
+        {
+            var kindsOf = GroupUnseen(unseen);
+            AddUnseen(lines, present, kindsOf);
+            if (incomingDps != null) AddDps(lines, present, kindsOf, incomingDps);
+            if (jamMs != null) AddJams(lines, present, jamMs);
+        }
         return lines;
     }
 
-    /// <summary>The <c>u=</c> lines: for each name of <paramref name="present"/> (in its order), its unseen kinds as
-    /// <see cref="Lines"/> describes them. A row whose character is none of those, whose key is not an allow-listed one, or whose
-    /// severity is none or unknown makes no line; a line <see cref="IsLine"/> refuses (a name that makes it too long) is left out.</summary>
-    private static void AddUnseen(List<string> lines, List<string> present, IReadOnlyList<(string Character, string EventKey, string Severity)> unseen)
+    /// <summary>The unseen kinds of each character as the <c>u=</c> lines carry them: allow-listed key to its worst severity. A row with
+    /// no character, a key that is not an allow-listed one, or a severity that is none or unknown is left out.</summary>
+    private static Dictionary<string, Dictionary<string, string>> GroupUnseen(IReadOnlyList<(string Character, string EventKey, string Severity)>? unseen)
     {
         var byCharacter = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+        if (unseen == null) return byCharacter;
         foreach (var (character, rawKey, rawSeverity) in unseen)
         {
             if (string.IsNullOrEmpty(character) || EventKey(rawKey) is not { } key) continue;
@@ -150,6 +176,14 @@ public static class LiveState
             if (!byCharacter.TryGetValue(character, out var kinds)) byCharacter[character] = kinds = new Dictionary<string, string>(StringComparer.Ordinal);
             if (!kinds.TryGetValue(key, out var held) || AlertAttention.Rank(severity) > AlertAttention.Rank(held)) kinds[key] = severity;
         }
+        return byCharacter;
+    }
+
+    /// <summary>The <c>u=</c> lines: for each name of <paramref name="present"/> (in its order), its unseen kinds as
+    /// <see cref="Lines"/> describes them. A character with none makes no line; a line <see cref="IsLine"/> refuses (a name that
+    /// makes it too long) is left out.</summary>
+    private static void AddUnseen(List<string> lines, List<string> present, Dictionary<string, Dictionary<string, string>> byCharacter)
+    {
         if (byCharacter.Count == 0) return;
         var done = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var name in present)
@@ -160,6 +194,40 @@ public static class LiveState
                 var line = "u=" + name + "|" + key + "|" + severity;
                 if (IsLine(line)) lines.Add(line);
             }
+        }
+    }
+
+    /// <summary>The <c>d=</c> lines (Plan 40): for each name of <paramref name="present"/> that has an unseen <c>attack</c> or
+    /// <c>dps_high</c> kind, its rate rounded to a whole number and held to <see cref="MaxDps"/>; none when that is under 1 or not a
+    /// number. <paramref name="incomingDps"/> is asked only for those names, once each.</summary>
+    private static void AddDps(List<string> lines, List<string> present, Dictionary<string, Dictionary<string, string>> byCharacter, Func<string, double> incomingDps)
+    {
+        if (byCharacter.Count == 0) return;
+        var done = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var name in present)
+        {
+            if (!done.Add(name) || !byCharacter.TryGetValue(name, out var kinds) || !(kinds.ContainsKey("attack") || kinds.ContainsKey("dps_high"))) continue;
+            var rate = incomingDps(name);
+            if (!double.IsFinite(rate)) continue;
+            var rounded = Math.Round(rate, MidpointRounding.AwayFromZero);
+            if (rounded < 1) continue;
+            var line = "d=" + name + "|" + ((int)Math.Min(rounded, MaxDps)).ToString(CultureInfo.InvariantCulture);
+            if (IsLine(line)) lines.Add(line);
+        }
+    }
+
+    /// <summary>The <c>j=</c> lines (Plan 40): for each name of <paramref name="present"/> whose jam has milliseconds left, held to
+    /// <see cref="MaxJamMs"/>. <paramref name="jamMs"/> is asked once per name.</summary>
+    private static void AddJams(List<string> lines, List<string> present, Func<string, long> jamMs)
+    {
+        var done = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var name in present)
+        {
+            if (!done.Add(name)) continue;
+            var left = jamMs(name);
+            if (left < 1) continue;
+            var line = "j=" + name + "|" + Math.Min(left, MaxJamMs).ToString(CultureInfo.InvariantCulture);
+            if (IsLine(line)) lines.Add(line);
         }
     }
 
@@ -203,7 +271,9 @@ public static class LiveState
     /// words. A <c>c=</c> line has five fields (no <c>|</c> in a name), the first three from the fixed sets, the shown and the real
     /// name each exactly as <see cref="RemoteCommand.Clean"/> keeps it. A <c>profile=</c> value is empty or passes Clean. An <c>alert-event=</c> value is one of <see cref="EventKeys"/>;
     /// an <c>e=</c> line has two fields, a name that passes Clean (so no <c>|</c>) and one of <see cref="EventKeys"/>; a <c>u=</c> line (Plan 39)
-    /// has three, such a name, one of <see cref="EventKeys"/> and <c>critical</c>, <c>warning</c> or <c>info</c> (not <c>none</c>).</summary>
+    /// has three, such a name, one of <see cref="EventKeys"/> and <c>critical</c>, <c>warning</c> or <c>info</c> (not <c>none</c>); a <c>d=</c>
+    /// or <c>j=</c> line (Plan 40) has two, such a name and a whole number of digits only, without a leading zero, 1 to
+    /// <see cref="MaxDps"/> or 1 to <see cref="MaxJamMs"/>.</summary>
     public static bool IsLine(string? line)
     {
         if (string.IsNullOrEmpty(line) || Encoding.UTF8.GetByteCount(line) > MaxLineBytes) return false;
@@ -227,6 +297,8 @@ public static class LiveState
             "alert-event" => EventKeySet.Contains(value),
             "e" => IsEvent(value),
             "u" => IsUnseen(value),
+            "d" => IsNumberLine(value, MaxDps),
+            "j" => IsNumberLine(value, MaxJamMs),
             _ => false,
         };
     }
@@ -236,6 +308,23 @@ public static class LiveState
         var fields = value.Split('|');
         return fields.Length == 3 && RemoteCommand.Clean(fields[0]) == fields[0] && EventKeySet.Contains(fields[1])
             && fields[2] is "critical" or "warning" or "info";
+    }
+
+    /// <summary>A <c>d=</c> or <c>j=</c> value: a name that passes Clean, a <c>|</c> and a whole number from 1 to <paramref name="max"/> written
+    /// with the digits 0-9 only and no leading zero (so no sign, no point, no blank and no other script's digits).</summary>
+    private static bool IsNumberLine(string value, int max)
+    {
+        var fields = value.Split('|');
+        if (fields.Length != 2 || RemoteCommand.Clean(fields[0]) != fields[0]) return false;
+        var number = fields[1];
+        if (number.Length == 0 || number.Length > 7 || number[0] == '0') return false;
+        long total = 0;
+        foreach (char c in number)
+        {
+            if (c is < '0' or > '9') return false;
+            total = total * 10 + (c - '0');
+        }
+        return total >= 1 && total <= max;
     }
 
     private static bool IsSeverity(string word) => word is "critical" or "warning" or "info" or "none";

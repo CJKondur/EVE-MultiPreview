@@ -1939,7 +1939,12 @@ public partial class App : Application
             StreamerMask.IsOn, worst?.Severity, profile, StreamerMask.Name(StreamerKind.Profile, profile),
             LiveState.EventKey(worst?.EventKey));
         // Plan 39: every unseen alert kind per character (u= lines); the names stay real, they are only join keys to the c= lines
-        return LiveState.Lines(globals, NameBarEntries(), name => StreamerMask.Name(StreamerKind.Character, name), thumbnails.Attention.Kinds());
+        // Plan 40: d= lines from the stat tracker's 30 s incoming DPS (fed by every damage line the game-log reader sees, whether the
+        // stats overlay is on or not) and j= lines from the log reader's 20 s jam clock
+        var tracker = _statTracker;
+        var monitor = _logMonitor;
+        return LiveState.Lines(globals, NameBarEntries(), name => StreamerMask.Name(StreamerKind.Character, name), thumbnails.Attention.Kinds(),
+            tracker == null ? null : tracker.GetIncomingDps, monitor == null ? null : monitor.JamRemainingMs);
     }
 
     /// <summary>IDEAS P130 (b): a first start's --focus, --mute or --unmute names a character whose thumbnail the first discovery
