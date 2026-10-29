@@ -692,6 +692,7 @@
     <sys:String x:Key="L.Tray.Exit">Esci da MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Posizioni dei client salvate</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Posizioni dei client ripristinate</sys:String>
+    <sys:String x:Key="L.Tray.ElevatedInFront">In primo piano c'è un programma avviato come amministratore. Windows impedisce ai tasti rapidi dei pulsanti del mouse di funzionare sopra di esso, e anche il cambio di client potrebbe non riuscire. Per usare MultiPreview sopra questi programmi, avvialo anche tu come amministratore.</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Chiudere tutte le finestre di EVE Online?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Conferma</sys:String>
 

@@ -677,6 +677,7 @@
     <sys:String x:Key="L.Tray.Exit">Quitter MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Positions des clients enregistrées</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Positions des clients restaurées</sys:String>
+    <sys:String x:Key="L.Tray.ElevatedInFront">Un programme lancé en administrateur est au premier plan. Windows empêche les raccourcis des boutons de la souris de fonctionner par-dessus, et le changement de client peut aussi échouer. Pour utiliser MultiPreview au-dessus de ces programmes, lancez-le aussi en administrateur.</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Fermer toutes les fenêtres EVE Online ?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Confirmer</sys:String>
 

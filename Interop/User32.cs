@@ -1025,6 +1025,10 @@ public static class User32
     /// </summary>
     public static IntPtr PendingActivateHwnd;
 
+    /// <summary>Raised when a switch found an administrator window in front, which this process's hooks and injected
+    /// keys can't reach (App tells the user once per session).</summary>
+    public static event Action? ElevatedWindowInFront;
+
     /// <summary>
     /// Switches to an EVE client the way EVE-X-Preview does (src/Main_Class.ahk ActivateEVEWindow / ActivateForgroundWindow):
     /// a client already in front is left alone; a minimized one is left to its caller, who restores it with
@@ -1059,12 +1063,34 @@ public static class User32
         // SW_RESTORE again here once raced with that restore and un-maximized a maximized window.
         if (IsIconic(hwnd)) return;
 
+        // An administrator window in front while this process is not elevated: Windows drops the bridge's SendInput
+        // aimed at it (UIPI, and SendInput doesn't say so), its WM_HOTKEY never comes and nothing switches. The click
+        // or hotkey that got us here was input this process received, which is the right to take the foreground, so
+        // SetForegroundWindow goes direct, once more if refused, as the bridge's handler does. Only then: every other
+        // switch keeps the bridge (#108).
+        var front = GetForegroundWindow();
+        if (front != IntPtr.Zero && !HooksSeeInputFor(front))
+        {
+            SwitchOverElevatedWindow(hwnd, front);
+            return;
+        }
+
         // No z-order call and no direct SetForegroundWindow on the client (#108): a second activation of the same
         // window ran EVE's focus handling twice and the first click after a switch only moved EVE's focus to the
         // overview. The bridge's SetForegroundWindow is the only one.
         EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] vk0xE8 bridge for HWND {hwnd}");
         PendingActivateHwnd = hwnd;
         InjectVirtualKey(VK_ACTIVATION);
+    }
+
+    /// <summary>ActivateWindow's switch while an administrator window is in front: the bridge handler's own call,
+    /// SetForegroundWindow once more if refused, and nothing else.</summary>
+    private static void SwitchOverElevatedWindow(IntPtr hwnd, IntPtr front)
+    {
+        bool switched = SetForegroundWindow(hwnd) || SetForegroundWindow(hwnd);
+        EveMultiPreview.Services.DiagnosticsService.LogWindowHook(
+            $"[ActivateWindow] elevated window {front} in front: direct SetForegroundWindow for HWND {hwnd} -> {switched}");
+        ElevatedWindowInFront?.Invoke();
     }
     
     [DllImport("kernel32.dll")]

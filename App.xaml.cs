@@ -410,6 +410,7 @@ public partial class App : Application
             // 5. Initialize hotkey service
             _hotkeyService = new HotkeyService();
             _hotkeyService.Initialize();
+            Interop.User32.ElevatedWindowInFront += TellElevatedWindowInFront;
             // Foreground-gated registration so EVE-only hotkeys pass through to other
             // apps when EVE isn't in front (issue #68).
             if (_winEvents != null)
@@ -1160,6 +1161,19 @@ public partial class App : Application
         if (fresh.Count == 0) return;
         ShowBalloon(8000, HotkeyRefusals.Note(fresh, ActionOfHotkey), ToolTipIcon.Warning, refusalNote: true);
     }
+
+    /// <summary>A switch found a program running as administrator in front: Windows keeps MultiPreview's hooks and
+    /// keys from reaching it, so mouse-button hotkeys don't work over it and a switch may not. Said once per session.</summary>
+    private bool _elevatedNoteShown;
+
+    private void TellElevatedWindowInFront() => Dispatcher.BeginInvoke(() =>
+    {
+        if (_elevatedNoteShown || _isShuttingDown) return;
+        _elevatedNoteShown = true;
+        ShowBalloon(10000, LocalizationService.Str("L.Tray.ElevatedInFront",
+            "A program running as administrator is in front. Windows keeps mouse-button hotkeys from working over it, and switching may not work either. To use MultiPreview over such programs, run it as administrator too."),
+            ToolTipIcon.Warning);
+    });
 
     /// <summary>Every tray balloon is shown here. Windows shows one balloon at a time, so the one shown last is the
     /// one a click is on: it is said first which balloon that is (IDEAS #42), and a click on "Client positions

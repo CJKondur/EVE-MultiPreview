@@ -676,6 +676,7 @@
     <sys:String x:Key="L.Tray.Exit">MultiPreview 종료</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">클라이언트 위치가 저장되었어요</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">클라이언트 위치를 복원했어요</sys:String>
+    <sys:String x:Key="L.Tray.ElevatedInFront">관리자 권한으로 실행 중인 프로그램이 앞에 있어요. Windows가 그 위에서는 마우스 버튼 단축키를 막고, 전환도 안 될 수 있어요. 이런 프로그램 위에서 MultiPreview를 쓰려면 MultiPreview도 관리자 권한으로 실행하세요.</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">모든 EVE Online 창을 닫으시겠어요?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">확인</sys:String>
 

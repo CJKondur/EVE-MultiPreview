@@ -673,6 +673,7 @@
     <sys:String x:Key="L.Tray.Exit">MultiPreview beenden</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Client-Positionen gespeichert</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Client-Positionen wiederhergestellt</sys:String>
+    <sys:String x:Key="L.Tray.ElevatedInFront">Ein Programm, das als Administrator läuft, ist im Vordergrund. Windows lässt Maustasten-Hotkeys darüber nicht wirken, und auch das Umschalten klappt dann eventuell nicht. Um MultiPreview über solchen Programmen zu nutzen, starte es ebenfalls als Administrator.</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Alle EVE-Online-Fenster schließen?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Bestätigen</sys:String>
 

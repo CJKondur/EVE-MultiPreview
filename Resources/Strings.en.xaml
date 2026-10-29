@@ -652,6 +652,7 @@
     <sys:String x:Key="L.Tray.Exit">Exit MultiPreview</sys:String>
     <sys:String x:Key="L.Tray.PosSaved">Client positions saved</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Client positions restored</sys:String>
+    <sys:String x:Key="L.Tray.ElevatedInFront">A program running as administrator is in front. Windows keeps mouse-button hotkeys from working over it, and switching may not work either. To use MultiPreview over such programs, run it as administrator too.</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Close all EVE Online windows?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Confirm</sys:String>
 
