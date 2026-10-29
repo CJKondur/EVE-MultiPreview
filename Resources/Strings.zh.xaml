@@ -692,7 +692,7 @@
     <sys:String x:Key="L.Tray.Exit">退出 MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">客户端位置已保存</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">已恢复客户端位置</sys:String>
-    <sys:String x:Key="L.Tray.ElevatedInFront">前台是一个以管理员身份运行的程序。Windows 会阻止鼠标按键热键在其上生效，切换客户端也可能失败。要在此类程序之上使用 MultiPreview，请同样以管理员身份运行它。</sys:String>
+    <sys:String x:Key="L.Tray.ElevatedInFront">前台是一个以管理员身份运行的程序。点击缩略图仍可切换客户端，但 Windows 会阻止 MultiPreview 的热键在该程序之上生效。要在那里也使用热键，请以管理员身份运行 MultiPreview。</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">关闭所有 EVE Online 窗口？</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">确认</sys:String>
 

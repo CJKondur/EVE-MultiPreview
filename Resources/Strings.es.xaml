@@ -696,7 +696,7 @@
     <sys:String x:Key="L.Tray.Exit">Salir de MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Posiciones de clientes guardadas</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Posiciones de clientes restauradas</sys:String>
-    <sys:String x:Key="L.Tray.ElevatedInFront">Hay un programa en ejecución como administrador en primer plano. Windows impide que los atajos de botones del ratón funcionen sobre él, y puede que el cambio de cliente tampoco funcione. Para usar MultiPreview sobre esos programas, ejecútalo también como administrador.</sys:String>
+    <sys:String x:Key="L.Tray.ElevatedInFront">Hay un programa en ejecución como administrador en primer plano. Hacer clic en una miniatura sigue cambiando de cliente, pero Windows impide que los atajos de MultiPreview funcionen sobre ese programa. Para usarlos también ahí, ejecuta MultiPreview como administrador.</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">¿Cerrar todas las ventanas de EVE Online?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Confirmar</sys:String>
 

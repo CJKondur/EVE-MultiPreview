@@ -1163,7 +1163,7 @@ public partial class App : Application
     }
 
     /// <summary>A switch found a program running as administrator in front: Windows keeps MultiPreview's hooks and
-    /// keys from reaching it, so mouse-button hotkeys don't work over it and a switch may not. Said once per session.</summary>
+    /// keys from reaching it, so its hotkeys don't work over it (a thumbnail click still switches). Said once per session.</summary>
     private bool _elevatedNoteShown;
 
     private void TellElevatedWindowInFront() => Dispatcher.BeginInvoke(() =>
@@ -1171,7 +1171,7 @@ public partial class App : Application
         if (_elevatedNoteShown || _isShuttingDown) return;
         _elevatedNoteShown = true;
         ShowBalloon(10000, LocalizationService.Str("L.Tray.ElevatedInFront",
-            "A program running as administrator is in front. Windows keeps mouse-button hotkeys from working over it, and switching may not work either. To use MultiPreview over such programs, run it as administrator too."),
+            "A program running as administrator is in front. Clicking a thumbnail still switches clients, but Windows keeps MultiPreview's hotkeys from working over that program. To use hotkeys there too, run MultiPreview as administrator."),
             ToolTipIcon.Warning);
     });
 

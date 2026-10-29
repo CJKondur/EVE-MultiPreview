@@ -674,7 +674,7 @@
     <sys:String x:Key="L.Tray.Exit">MultiPreview を終了</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">クライアント位置を保存しました</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">クライアントの位置を復元しました</sys:String>
-    <sys:String x:Key="L.Tray.ElevatedInFront">管理者として実行中のプログラムが前面にあります。Windows はその上ではマウスボタンのホットキーを無効にし、切り替えも動かないことがあります。こうしたプログラムの上で MultiPreview を使うには、MultiPreview も管理者として実行してください。</sys:String>
+    <sys:String x:Key="L.Tray.ElevatedInFront">管理者として実行中のプログラムが前面にあります。サムネイルのクリックでの切り替えは引き続き使えますが、Windows はそのプログラムの上では MultiPreview のホットキーを無効にします。そこでもホットキーを使うには、MultiPreview を管理者として実行してください。</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">すべての EVE Online ウィンドウを閉じますか？</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">確認</sys:String>
 

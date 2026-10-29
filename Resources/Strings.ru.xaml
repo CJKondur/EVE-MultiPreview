@@ -694,7 +694,7 @@
     <sys:String x:Key="L.Tray.Exit">Выйти из MultiPreview</sys:String> <!-- draft -->
     <sys:String x:Key="L.Tray.PosSaved">Позиции клиентов сохранены</sys:String>
     <sys:String x:Key="L.Tray.PosRestored">Позиции клиентов восстановлены</sys:String>
-    <sys:String x:Key="L.Tray.ElevatedInFront">На переднем плане программа, запущенная от имени администратора. Windows не даёт горячим клавишам кнопок мыши работать поверх неё, и переключение тоже может не сработать. Чтобы пользоваться MultiPreview поверх таких программ, запустите его тоже от имени администратора.</sys:String>
+    <sys:String x:Key="L.Tray.ElevatedInFront">На переднем плане программа, запущенная от имени администратора. Щелчок по миниатюре по-прежнему переключает клиент, но Windows не даёт горячим клавишам MultiPreview работать поверх этой программы. Чтобы они работали и там, запустите MultiPreview от имени администратора.</sys:String>
     <sys:String x:Key="L.Tray.CloseConfirm">Закрыть все окна EVE Online?</sys:String>
     <sys:String x:Key="L.Tray.ConfirmTitle">Подтверждение</sys:String>
 
