@@ -1,0 +1,55 @@
+# ── Editor / IDE ────────────────────────────────────────────────
+.vs/
+.idea/
+*.user
+*.suo
+
+# ── Build output ────────────────────────────────────────────────
+# The 69MB standalone exe publishes to ../EVE-MultiPreview-Release/,
+# outside the repo, so it is not merely ignored - it is out of the
+# working tree and cannot be committed. /publish stays listed to catch
+# any older command that still passes -o publish.
+/obj
+/bin
+/publish
+/tests/**/bin/
+/tests/**/obj/
+
+# ── Local tooling caches ────────────────────────────────────────
+graphify-out/
+.codegraph/
+.company/
+
+# ── Local working files, not release artifacts ──────────────────
+CLAUDE.md
+GitHub-Release-Notes.md
+QA_REPORT.md
+
+# ── Logs, scratch, archives ─────────────────────────────────────
+Logs/
+*.log
+*.zip
+*.pickle
+TestResults/
+# IDEAS P128: the thin sender's build output
+Sender/bin/
+Sender/obj/
+# Plan 38: the Stream Deck plugin (dependencies, bundle output, logs, packed plugin)
+StreamDeckPlugin/node_modules/
+StreamDeckPlugin/**/bin/
+StreamDeckPlugin/**/logs/
+*.streamDeckPlugin
+
+# ── Local only: git holds just what builds the app, plus the release workflow, README and LICENSE ──
+# (owner 2026-10-28). Tests, the Stream Deck plugin, tools, plans and notes stay on the owner's PC.
+EveMultiPreview.sln
+tests/
+StreamDeckPlugin/
+tools/
+docs/
+IDEAS.md
+WHEN-HOME.md
+.claude/
+.superpowers/
+.pytest_cache/
+.git-rewrite/
