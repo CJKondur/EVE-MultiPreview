@@ -1100,6 +1100,22 @@ public static class User32
         EveMultiPreview.Services.DiagnosticsService.LogWindowHook($"[ActivateWindow] vk0xE8 bridge for HWND {hwnd}");
         PendingActivateHwnd = hwnd;
         InjectVirtualKey(VK_ACTIVATION);
+
+        // A window that takes the whole keyboard (Remote Desktop, a VM console) eats the bridge's key in its own hook,
+        // so its WM_HOTKEY never comes. If the key is still unclaimed after BridgeTimeoutMs, switch directly.
+        _ = Task.Delay(BridgeTimeoutMs).ContinueWith(_ => SwitchIfBridgeKeyLost(hwnd), TaskScheduler.Default);
+    }
+
+    private const int BridgeTimeoutMs = 200;
+
+    /// <summary>ActivateWindow's fallback when the bridge's key never came back: claims the queued target (so a late
+    /// WM_HOTKEY does nothing) and makes the bridge handler's own call, SetForegroundWindow once more if refused.</summary>
+    private static void SwitchIfBridgeKeyLost(IntPtr hwnd)
+    {
+        if (System.Threading.Interlocked.CompareExchange(ref PendingActivateHwnd, IntPtr.Zero, hwnd) != hwnd) return;
+        bool switched = SetForegroundWindow(hwnd) || SetForegroundWindow(hwnd);
+        EveMultiPreview.Services.DiagnosticsService.LogWindowHook(
+            $"[ActivateWindow] bridge key not back in {BridgeTimeoutMs} ms (front {GetForegroundWindow()}): direct SetForegroundWindow for HWND {hwnd} -> {switched}");
     }
 
     /// <summary>ActivateWindow's switch while an administrator window is in front: the bridge handler's own call,

@@ -312,9 +312,9 @@ public sealed class HotkeyService : IDisposable
         int before = _activationHotkeyIds.Count;
         _activationHotkeyIds.AddRange(RegisterUnderEveryModifier((mods, bridge) => Register(mods, User32.VK_ACTIVATION, bridge), () =>
         {
-            var target = User32.PendingActivateHwnd;
+            // Claimed atomically: ActivateWindow's lost-key fallback may claim the same target from a pool thread.
+            var target = System.Threading.Interlocked.Exchange(ref User32.PendingActivateHwnd, IntPtr.Zero);
             if (target == IntPtr.Zero) return;
-            User32.PendingActivateHwnd = IntPtr.Zero;
 
             try
             {
