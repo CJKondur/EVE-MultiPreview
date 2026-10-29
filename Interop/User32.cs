@@ -123,33 +123,52 @@ public static class User32
 
     [DllImport("advapi32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool GetTokenInformation(IntPtr token, int infoClass, out int info, int infoLength, out int returned);
+    private static extern bool GetTokenInformation(IntPtr token, int infoClass, IntPtr info, int infoLength, out int returned);
+
+    [DllImport("advapi32.dll")]
+    private static extern IntPtr GetSidSubAuthorityCount(IntPtr sid);
+
+    [DllImport("advapi32.dll")]
+    private static extern IntPtr GetSidSubAuthority(IntPtr sid, uint index);
 
     private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
     private const uint TOKEN_QUERY = 0x0008;
-    private const int TokenElevation = 20;
+    private const int TokenIntegrityLevel = 25;
+    private const int MediumIntegrity = 0x2000;
 
-    private static bool? ProcessIsElevated(IntPtr process)
+    /// <summary>The process's integrity level (0x2000 medium, 0x3000 high, ...), or null when Windows won't say.</summary>
+    private static int? ProcessIntegrity(IntPtr process)
     {
         if (!OpenProcessToken(process, TOKEN_QUERY, out var token)) return null;
-        try { return GetTokenInformation(token, TokenElevation, out int elevated, sizeof(int), out _) ? elevated != 0 : null; }
-        finally { CloseHandle(token); }
+        var label = Marshal.AllocHGlobal(64);   // TOKEN_MANDATORY_LABEL: one SID_AND_ATTRIBUTES plus its one-RID SID
+        try
+        {
+            if (!GetTokenInformation(token, TokenIntegrityLevel, label, 64, out _)) return null;
+            var sid = Marshal.ReadIntPtr(label);
+            int count = Marshal.ReadByte(GetSidSubAuthorityCount(sid));
+            return count > 0 ? Marshal.ReadInt32(GetSidSubAuthority(sid, (uint)(count - 1))) : null;
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(label);
+            CloseHandle(token);
+        }
     }
 
-    private static readonly Lazy<bool> SelfElevated = new(() => ProcessIsElevated(GetCurrentProcess()) == true);
+    private static readonly Lazy<int> SelfIntegrity = new(() => ProcessIntegrity(GetCurrentProcess()) ?? MediumIntegrity);
 
-    /// <summary>True when this process's low-level hooks can see input aimed at the window: it exists, and it is not an
-    /// elevated window while this process is not. When Windows won't say (no access to the owner), false: the caller
-    /// must not read a silent hook as a dropped one.</summary>
+    /// <summary>True when this process's low-level hooks and injected keys reach the window: it exists, and its
+    /// process's integrity level is not above this one's. That is the comparison UIPI makes, not "elevated": a program
+    /// can run at high integrity with an unelevated token (TeamSpeak 3 did, 2026-10-29). When Windows won't say (no
+    /// access to the owner), false: the caller must not read a silent hook as a dropped one.</summary>
     public static bool HooksSeeInputFor(IntPtr hwnd)
     {
         if (hwnd == IntPtr.Zero) return false;
-        if (SelfElevated.Value) return true;
         GetWindowThreadProcessId(hwnd, out uint pid);
         if (pid == 0) return false;
         var process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
         if (process == IntPtr.Zero) return false;
-        try { return ProcessIsElevated(process) == false; }
+        try { return ProcessIntegrity(process) is int other && other <= SelfIntegrity.Value; }
         finally { CloseHandle(process); }
     }
 
