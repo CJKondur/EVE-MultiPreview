@@ -1,274 +1,372 @@
 # EVE MultiPreview
 
-A Windows tool for EVE Online players who run several clients. It shows a live thumbnail of every running EVE client, brings a client to the front with a click or a hotkey, and raises alerts read from EVE's own log files.
+**See every EVE client at once, and jump to the one that needs you.**
 
-Written in C# on .NET 10 (WPF and WinForms) for 64-bit Windows 10 version 2004 or later. The thumbnails use the Windows DWM Thumbnail API.
+<!-- Screenshot idea: a few live thumbnails with an alert border and a toast, beside the settings window. -->
 
-This project is a ground-up rewrite inspired by [EVE-O Preview](https://github.com/Phrynohyas/eve-o-preview) and [EVE-X-Preview](https://github.com/g0nzo83/EVE-X-Preview). Thanks to both projects for paving the way.
+EVE MultiPreview is a free Windows app for players who run several EVE Online clients. It shows a live thumbnail of each client, switches between them with a click or a hotkey, and tells you when something happens in a client you are not looking at.
+
+- **Live thumbnails** of every client, so you can watch all your characters from one screen.
+- **Fast switching** by click, hotkey, mouse button, game pad or Stream Deck.
+- **Alerts you won't miss:** under attack, scrambled, cargo full, left behind and more, with sounds, a spoken voice, Windows notifications or your phone through Discord.
+- **Layouts and profiles** for each way you play: mining, ratting, fleet.
+- **Free and open source** (MIT). No account, no telemetry.
+
+### [⬇ Download the latest release](https://github.com/CJKondur/EVE-MultiPreview/releases)
+
+Runs on 64-bit Windows 10 version 2004 or later, and Windows 11. No installer: it is one file.
 
 ---
 
-## What It Does
+## ⚖️ Is it allowed?
 
-### Thumbnails
+MultiPreview does the same job as EVE-O Preview and EVE-X-Preview: it **shows** your client windows and **switches** between them. That is all it does with its default settings.
 
-- **Live thumbnails** of every running EVE client. Click one to switch to that client.
-- **Second thumbnails (PiP):** a second live preview of a character, with its own size, place and opacity.
-- **Crop windows:** a small window that shows one rectangle of a client, live. Several per character.
-- **Text on thumbnails:** the character's name, a label of your own, the solar system, a session timer, and each client's CPU, memory and graphics-memory use.
-- **Borders:** a highlight on the active client, a colour per group or per character, and a mark for clients that are not logged in.
-- **Frozen frames:** a minimized client's thumbnail keeps its last picture. To save graphics power, thumbnails can show a still picture about once a second, or freeze while neither EVE nor MultiPreview is in front.
-- **When a client stops**: two marks, off until you turn them on (Thumbnails › Text & borders). **Not responding** shows while Windows reports a client frozen; **Disconnected** when a logged-in client has had no connection to EVE's server for a minute (you choose). MultiPreview asks Windows which connections each client has and sends nothing; a client that goes through a proxy on this PC is never marked. Right-click a frozen client's thumbnail for **End this frozen client…**, which asks first and ends only that client.
-- **Focus mode on or off** (a hotkey under Clients › Groups › Focus mode): shows only the thumbnails of one group, the group of the client you are in or one you choose, and hides the rest until you press it again. A client outside the group with an alert you have not looked at still shows (you can turn that off). It holds the second thumbnails, crop windows and stats windows of the hidden clients too, ticks a tray item and adds a line to the tray tip while it is on, and shows a client that logs in for a moment. If the client in front is in no group, the key says so and stays off. Focus mode is off again at every start.
-- **Copy as code** and **Paste a code…** (Thumbnails › Layout & screens › Your layouts): a saved layout as one line of text to paste in Discord; pasting one adds the layout and, with your clients running, lets you choose which of your characters takes each place. A code holds places only, and a pasted one is checked strictly before anything is added.
-- **Layout:** drag thumbnails with the right mouse button, snap them to edges, lock them, save and re-apply whole layouts (and export them to a file), undo and redo, and choose the monitor new thumbnails appear on.
-
-### Switching
-
-- **Hotkeys** for a character, for the next and previous client of a group, and for all running clients. Keyboard keys and the middle, 4th and 5th mouse buttons work.
-- **Back to the client before this one:** one hotkey switches to the client you used before the one in front, and back again at the next press, like Alt+Tab. From another program it goes to the client you used last; a keyboard key works there only while **Hotkeys work** is set to **Everywhere**, as it is until you change it. A client that has closed is passed over, and one that a held cycle key only passed through (in front for less than half a second) does not count as used. This hotkey, **Go to the last alert** and the one for do not disturb have no key until you choose one.
-- **Go to the last alert:** one hotkey brings the client with the most severe alert you have not looked at yet to the front (critical before warning before info, the newest first); pressed again, it goes on to the next. With nothing new, it walks back through this session's alerts, newest first, one client per press, and starts at the newest again after 30 seconds without a press. The walk back reads the alert history, so it needs the history to be on; alerts that were muted or snoozed and characters whose client has closed are passed over. With the history on, the key also stays on the client in front for that press, and says so, when the newest alert is on that client and less than 30 seconds old; the next press walks on, unless another alert has come in on that client since.
-- **Cycle filters:** three switches narrow where the cycle keys go (the keys for all running clients, each group's keys, and a key shared by several characters): only clients in the same solar system as the one in front, only clients with an alert you have not looked at, and not the characters whose alerts you muted. With more than one switch on, a client must pass all of them; a client whose solar system MultiPreview doesn't know yet is not skipped for that. All three are off until you turn one on. When no other client passes, the keys go through all clients in their usual order, as if the switches were off, and a note near the cursor says so once: it comes again only after a press has found a match in between, or once the switches are set differently.
-- **Quick-switch wheel:** one hotkey opens a ring of cards, one per logged-in character, each with its number key and solar system. Click a card or press 1 to 9. A card shows how many alerts you have not looked at for that character, in the colour of the most severe one.
-- **Command palette:** an optional hotkey (App settings › Hotkeys, empty until you choose a key) opens a small box: type a few letters of a character, label, group or profile name and press Enter to switch to it; Esc closes it.
-- **Session reports** (tray menu): reads the stat CSV files back, with a table of days per character and a bar strip; needs stat logging on. Mined amounts are units, active time is an estimate.
-- **Fleet board** (tray menu): one table of every client: system and since when (`~` = it was already there when MultiPreview started), session time, last alert, alerts since start, CPU, RAM. Click a header to sort.
-- **Indicator legend:** hold **Alt** (not AltGr or Ctrl+Alt) while the pointer is over a thumbnail to see why it looks the way it does: group, active client, a running alert and its countdown, unseen alerts, cycle exclusion, mute and snoozes, Not responding or Disconnected.
-- **Jump count and weekly playtime on the thumbnail text:** the text template has `{jumps}` (jumps since MultiPreview started) and `{week}` (the last seven days played). `{week}` needs **Weekly playtime** under App settings › Diagnostics (off by default): `playtime.json` in the settings folder then holds each character's name and seconds per local day for 14 days. **Clear playtime history** deletes it and **Forget this character** takes the name out (both work with the switch off). Moving between portable and AppData leaves the old copy behind.
-- **The tray icon turns red** while a critical alert has not been looked at.
-- **Profiles:** several complete setups, with hotkeys to step through them.
-- **Character-select cycling:** keys that step through the clients waiting at the character selection screen.
-- **Show the hotkey cheat sheet**: a key of your choice (Clients › Hotkeys), or **Hotkey cheat sheet** in the tray menu, shows every hotkey of the current profile over the thumbnails without taking the focus from EVE. The key again, a click on it, or 30 seconds closes it. The key has none until you choose one.
-- **Open settings**: a key of your choice (Clients › Hotkeys) opens the settings window, or brings it forward if it is open. None until you choose one.
-- Hotkeys to hide or show all thumbnails, make them click-through, lock their positions, pause all hotkeys, and close every client (after one confirmation).
-- **Keys Windows refused:** when another program already has a key you bound, that hotkey does nothing. MultiPreview lists such keys under Clients › Hotkeys & switching with what each is bound to, and says so in a tray notification, once for each key. For a key another program has, it also names the programs that are running from its own short list of programs known to take keys (overlays, screenshot tools, key remappers); the program that has your key may be one that is not on that list. For a refused combination with the Win key it says as well that Windows keeps many of those for itself. **Check again** asks Windows once more after you have freed a key in the other program. The tray note comes once for each key each time MultiPreview starts, and Windows may hold it back. While hotkeys are paused or no client runs, the card keeps the last check; with hotkeys working everywhere, a key you have freed stays listed until you click **Check again** or change a setting. A row that says another program has the key does not know which program: the names under it are a guess from the list.
-- **Switch profiles by who is logged in** (App settings › Profiles & backups, off until you turn it on): give each profile its characters, and MultiPreview switches to the profile most of the logged-in characters belong to, 10 seconds after the last login or logout. If you switched profiles yourself in the last 10 minutes, it asks first.
-
-### Alerts
-
-Alerts come from EVE's chat and game log files. The English log lines are tested in the wording real logs have, with invented names in them; the other seven languages the EVE client has are matched from EVE's own translated text, so tell us if an alert doesn't fire in yours.
-
-- **Twenty-four events:** Under attack, Warp scrambled, Decloaked, Capacitor neutralized, Jammed, Incoming DPS high, Reps stopped, Drones returning, Logi idle, Fleet invite, Convo request, Fleet warp, Regrouping, System changed, Left behind, Cargo full, Asteroid depleted, Crystal broken (mining modules only), Miner stopped, Client memory high, Client not responding, Client closed unexpectedly, Character idle and Client ready. Capacitor neutralized, Jammed, Incoming DPS high, Reps stopped, Drones returning, Logi idle, Left behind, Client memory high, Client not responding, Client closed unexpectedly, Character idle, Client ready and the four mining events are off until you turn them on.
-- An alert shows on the client's thumbnail as a coloured border, a count badge and a line of text, and can play a sound file of your choice. The file must be on this PC (a drive letter): a path to another computer plays nothing. A name Windows keeps for a device (CON, PRN, AUX, NUL, COM1 to COM9, LPT1 to LPT9) is refused, as the file's name or as the name of a folder on its path, also with an extension (`con.wav`). Such a file is not played.
-- **Built-in tones:** five short sounds that MultiPreview makes itself, so you need no sound file of your own: Chime, Ping, Double ping, Low alarm and Rising, each under 0.6 seconds. A **Built-in…** button next to **Change…** on every row of the sound table (Alerts › Sounds, the default sound included), in the sounds per group and beside the sound of a custom rule writes the tone you pick as a WAV file into the `Sounds` folder of your settings folder and sets it as that sound; from then on it is a sound file like any other, and the same rules hold for it. A file of the same name with other content, put there by you, is never overwritten: the tone gets a second name with (2) in it. Nothing is written until you pick a tone, and the default alert sound stays empty.
-- **Alert hub:** an optional bell on screen with toasts that name the character, the event and the solar system. Click a toast to switch to that client; right-click it to dismiss it or to snooze its alert. A click on a toast never takes the keyboard away from the game. Right-click the bell for its menu: the side the toasts stack on, a button that dismisses all toasts, and one that opens the alert history.
-- **Three severities** (critical, warning, info), each with its own colour and flash speed.
-- **Capacitor neutralized and Jammed:** two events that are off until you turn them on in the event table (Alerts › Events). Capacitor neutralized is raised when an energy neutralizer takes capacitor from your ship, Jammed when your ship is jammed; Capacitor neutralized is a critical alert, Jammed a warning. A neutralizer or a jam goes on for a while, and the game log has a line for every cycle of it: each event is raised once when it starts, then at most every 30 seconds for that character. Both are read from the wording of an English game client: with the game in another language they raise nothing. A nosferatu that drains your capacitor is not covered. With PVE mode on, an NPC that neutralizes or jams you raises nothing, and neither does a player whose log line shows no corporation or alliance [ticker].
-- **Incoming DPS high and Reps stopped:** two events that are off until you turn them on in the event table (Alerts › Events), both critical, and both counting damage from NPCs, also in PVE mode. Incoming DPS high is raised when the damage a character takes stays above a number for a number of seconds (400 DPS for 10 seconds unless you change them); Reps stopped when a character that was being remotely repaired takes a hit some seconds after the last repair (10 unless you change it). They work with the game in any language.
-- **Drones returning:** an info event that is off until you turn it on in the event table (Alerts › Events), raised when EVE writes its recall line, "All drones returning to drone bay". The line is written when the drones are told to return, usually by you, so most players leave it off. It is read from the English game log only; with the game in another language, a custom rule (Alerts › Custom rules) can match your line.
-- **Logi idle:** a warning event that is off until you switch it on for the group that holds your logistics characters, under **Alerts for one group** (Clients › Groups holds the group itself); that alone turns it on for them. The switch in the event table (Alerts › Events) marks nobody. A logi of such a group that has sent no remote repair (armor, shield or capacitor) for 20 seconds while another of your own characters in the same system takes damage raises the alert, then waits 30 seconds before it can raise it again. The logs carry no fleet list, so your fleet is your own characters in the same system. A repair line the reader cannot read counts as repairing, so a client language without the full repair phrases can make Logi idle miss an alert but never raise a false one.
-- **Alerts per group:** a group (Clients › Groups) can have its own choice of which events are on, so that the miners are told of a full cargo hold and the combat pilots are not. **Alerts for one group** under Alerts › Events sets each event to on or off for a group; an event the group says nothing about follows the event table. A group can turn on an event that is off for everyone. When a character's groups disagree about an event, the event is on for that character: one group that says on is enough, and a group that says nothing about the event has no say. Under its rows the card lists each member who gets something other than the rows say, with a group that says so, and a group that has choices and at least one member says so on its card on the Groups page. A choice takes effect about a second after you make it. An event that is off for a character is no alert for it at all: nothing is shown, played or spoken, and nothing is written to the alert history. One of your own rules can be turned off for a group, not on; a rule that is switched off keeps its choices, and deleting it removes them. A group's choices go by its name and are the same in every settings profile. A choice that cannot be kept (only so many are) is said on the card.
-- **Sounds per group:** a group can play its own sound, for every event or for one event (**Sounds per group** under Alerts › Sounds), so you hear which crew needs you. An event the group has no sound for plays its own sound. Group sounds go by the group's name and are the same in every settings profile.
-- **Spoken alerts:** off until you turn it on (**Speak alerts** under Alerts › Sounds). A Windows voice says the character's name and the event's name, in MultiPreview's language, so you know who needs you without looking. It speaks critical alerts only unless you choose more (**Speak which alerts**). Alerts of one event that arrive together are one sentence, which names one or two clients when the sentence stays short ("Alpha, Bravo, Under attack") and counts them otherwise ("3 clients: Under attack"). The most severe alert is said first, an alert that has waited more than 10 seconds is not said at all, and the same alert on the same client is not said again within 30 seconds unless you have looked at that client since; when a critical alert has been repeated as often as you set (see Repeating a critical alert) and you still have not looked, it is said once more, also when alert sounds are off and its repeats were silent. Do not disturb holds the voice as it holds the alert sounds: while **Critical alerts still play** is on, as it is at first, critical alerts are still spoken. A muted character or a snoozed alert is not spoken, and neither is an alert on the client in front: its sound plays, and the voice is for the clients you are not looking at. It does not need **Play alert sounds**. A critical alert does not cut off a sentence that is being said, it waits for it; an alert held by do not disturb is never said later; and if the voice fails three times in a row, MultiPreview stops asking it until you switch **Speak alerts** off and on, or a voice's **Try** is heard. The voice plays on Windows' default sound device. **Voices** picks a voice for each severity from the voices Windows has installed. MultiPreview installs none: without a voice of MultiPreview's language, the alerts are read by another voice, which may read them badly.
-- **Windows notifications:** off until you turn it on (**Show alerts as Windows notifications** under Alerts › Alert hub). An alert also appears as a notification of Windows with the character and the event; a Left behind alert also says where the others went. It stays in Windows' Notification Center until you have looked at that client, for up to 12 hours after its last alert, and Windows can show it on the lock screen. Muting that client's alerts takes all its notifications away, and snoozing an event takes away that event's notification. A critical alert asks Windows for the long banner, which Windows may ignore. Its first button, or a click on it, brings that client to the front; the second snoozes that alert for that character for 15 minutes. There is one notification for each character and event: a newer alert updates it and counts up, and it pops up again at most every 30 seconds. An alert on the client in front gets none. It is silent, it works without the alert hub, and MultiPreview's do not disturb does not hold it back. It is for critical alerts only unless you choose more (**Notify for which alerts**). Windows decides whether a notification pops up: with its own do not disturb on, or while a game runs in full screen, it goes to the Notification Center only. While the switch is on, the **Test notification** card below it has a button, **Show a test notification**, and says so when Windows itself is not showing MultiPreview's notifications.
-- **Phone and Discord:** off until you turn it on (**Send alerts to Discord** under Alerts › Alert hub). An alert is posted to a Discord channel of yours through a webhook, so the Discord app on your phone shows it: the character and the event, nothing else. Critical alerts only unless you choose more, and with **Only while you're away from the PC** (on unless you turn it off) nothing is sent while you are using the PC. Do not disturb holds it as it holds the sounds. Messages are paced: one every 2 seconds at most, and the same alert of one character not again within a minute. The webhook link is kept encrypted for your Windows user in the settings file, is shown masked, is never written to a log, and goes to no host but discord.com.
-- **Enlarging on an alert:** off until you turn it on (**Enlarge the thumbnail on an alert** under Alerts › Look & severity). The thumbnail of a client that raises an alert grows to 200 % of its size for 5 seconds (you can set 110 to 400 % and 1 to 60 seconds) and goes back by itself: when the time is over, and at once when that client comes to the front, when you mute that character's alerts from the thumbnail's menu or snooze one of its alerts, when the character logs off or when a menu of MultiPreview opens (a thumbnail's right-click menu, the tray menu or a toast's menu). It is for critical alerts only unless you choose more (**Enlarge for which alerts**). It grows around its own middle and never beyond the monitor; your layout is not changed and nothing of it is saved. A click on the part that grew is not a click on that thumbnail: to switch to that client, click where the thumbnail usually is. A click on the part that grew goes to whatever window of MultiPreview lies under it (another thumbnail, a second thumbnail, a stats overlay window, a crop window), and to nothing otherwise. So a thumbnail that grows under your pointer never switches clients by accident. A thumbnail does not start to grow while the pointer is on it or while you are dragging it, and the client in front is not enlarged; second thumbnails and crop windows never are. While one of those menus is open no thumbnail is enlarged: one that was goes back, and grows again when the menu has closed. It stands above the thumbnails beside it only while thumbnails are kept on top: with **Always on top**, or with **Keep above EVE clients** while an EVE client is in front. It shows the thumbnail's own picture, larger: for a minimized client that is its last picture, not what is happening now. Do not disturb does not hold it back.
-- **Alert history:** every alert that fires is kept in a list on this PC, for 30 days by default; you can choose another time or turn the list off. The history window opens from the hub's menu, the tray menu and Alerts › Alert hub. It filters by character, alert and severity, switches to an alert's client, and exports what it shows to a CSV file. An alert that came while do not disturb was holding sounds, and was not muted or snoozed, says **Sound held** in the Outcome column, and the CSV file has a column for it. A day that cannot be read is left out of the window, and the window says so. If the settings file could not be read when MultiPreview started, nothing is recorded in that session, and the window says that too.
-- **Custom rules:** alerts of your own. A rule looks for a text or a regular expression in the game log or in a chat channel you name, for every character or for the ones you pick, with its own severity, sound and quiet time. Alerts › Custom rules has a box to try a line against a rule before you rely on it. A rule whose regular expression takes too long is switched off, and its card says so; neither the card nor the error log says which line made the rule slow, because a line can name other players. A rule on a chat channel has a switch, **One alert per line** (off until you turn it on): when several of your characters are in the channel and read the same line, only the first of them that is not muted, snoozed, without a window or switched off for its group raises the alert, for that character; a character that is still in quiet time for this alert also takes the line, so none of them is alerted. The same line again within 5 seconds is dropped; a line with another time or other words is a new line. A rule on the game log is not affected.
-- **Left behind:** off until you turn it on. When more members of a group (Clients › Groups) jump from one solar system to another than are left over, each member that was in that system when the others left and did not make that jump raises this alert: the one still there, and the one that took another gate. It is raised once the jumps out of that system have stopped for 10 seconds (a time you can change, 5 to 300 seconds). Only members with a running client count, so it takes a group of at least three. A member that jumped into the system after the others had left raises nothing while it keeps following them; if it came within 5 minutes of them and then stays there for 60 seconds (or for that time, if you set it longer) while most of the others are away, it raises this alert as well. A pack that jumped and is back when that time is over raises nothing. Where the others went, and how many of them, is on the alert's toast and in the alert history; the alert hub and its toasts for warning alerts are both off until you turn them on (Alerts › Alert hub, Alerts › Look & severity). MultiPreview can't know that you left a character somewhere on purpose, so that character is told again each time the others leave: keep it out of the group, snooze the alert for it (from its toast, or in Alerts › Events), or give its group its own choice of this event under **Alerts for one group** (Alerts › Events).
-- **Client memory high**: off until you turn it on in the event table. A client whose memory goes above a limit (6144 MB unless you change it), or grows by 1024 MB within two hours, is named, so you can relog before it stutters. The numbers are on Alerts › Events.
-- **Client not responding** and **Client closed unexpectedly**: off until you turn them on in the event table, both critical. The first is raised when Windows has reported a client frozen for 30 seconds; the second when a client's process ends with an error code (a crash), not when you quit EVE yourself or close the client from MultiPreview. The crashed client's alert reaches the toast, the sound, push and the alert history, and it is spoken and shown as a Windows notification by the character's name (the notification has no buttons, since the window is gone); it is not enlarged, because there is nothing left to enlarge. A client running as administrator while MultiPreview is not can't be watched for the second; the error log then names its process number, once.
-- **Character idle**: off until you turn it on in the event table. A character that was fighting, mining or repairing and has written none of that to its game log for 5 minutes (you choose) is named, once until it starts again. A jump into another system or a fleet warp starts the count again (an undock does not, so time spent docked counts), and a stop Miner stopped, Asteroid depleted or Cargo full already told you of raises nothing more. A character that never worked since it logged in is never named.
-- **Snoozing one alert for one character:** right-click a toast and snooze that alert for that character for 15 minutes, for 1 hour, or until MultiPreview restarts. A snooze is started from a toast, or without any toast with **Add snooze** next to the list in Alerts › Events (a character, an alert and a length). While it lasts, that alert shows nothing and plays nothing for that character; that character's other alerts still come, and so does that alert for your other characters. The thumbnail's menu and **Snoozed right now** under Alerts › Events list what is snoozed and end it. With the alert history on, a snoozed alert is still written to it, marked Snoozed. Closing MultiPreview ends every snooze; with **Keep snoozes when MultiPreview restarts** on, a 15-minute or 1-hour snooze runs on after a restart.
-- **Do not disturb:** a hotkey, the tray menu or daily quiet hours hold the sounds MultiPreview starts on its own (the alert sounds, the voice and the wrap-around sound of the cycle keys) and the alerts sent to Discord, and nothing else: borders, badges and toasts go on, Windows notifications still come (without a sound of their own) and a thumbnail still grows. A sound you ask for still plays (the ▶ buttons, a voice's **Try**), and so do the tray's own notes with Windows' sound. **Critical alerts still play**, and are still spoken, unless you turn that off; the wrap-around sound is held either way. A rule of your own is a warning at first, so it is held unless you set its severity to critical. What the hotkey or the tray menu chose lasts until the quiet hours next begin or end, or until MultiPreview closes. The quiet hours are 24-hour times on this PC's clock: a night that spans the daylight-saving change is an hour shorter or longer, and setting the clock can end a hotkey's choice early or late. The hotkey is quiet where every hotkey is (while hotkeys are paused, while no EVE client runs, with the settings window or the command palette in front, and outside EVE when hotkeys work only while EVE is in front); the tray menu's item always works, and so does the command --do-not-disturb once **Take commands from other programs** is on. The tray icon's tip and Alerts › Sounds say so while it is on. A toast of an alert that came while sounds were held, and was not muted or snoozed, shows a crossed bell, and the alert history marks it **Sound held**.
-- **Repeating a critical alert:** off until you turn it on. It repeats the alert's sound (**Play alert sounds** under Alerts › Sounds, off on a new install): with that off the repeats are silent, but each still flashes the border. A critical alert whose client you have not brought to the front plays its sound again after a time you set (5 to 600 seconds), louder each time up to full volume, as often as you set (1 to 10 times). Looking at the client ends it; so does closing the client, muting the character, snoozing that alert or switching its event off. Warning and info alerts are not repeated. Under do not disturb a repeat is no louder than the alert, and it waits while critical alerts are muted too. An alert that had already waited longer than that time when you turn this on is counted from then, not repeated at once.
-- **Alert details:** an unseen alert expires after 4 hours (the badge and the red tray icon go with it), and a character keeps its 20 most severe. An alert counts as looked at only when its client really comes to the front: a switch that Windows refuses leaves it unseen, and a client that a fast cycle passes without it coming to the front is not looked at. Each repeat of a critical alert flashes the client's border again, also with alert sounds off, but not for the client in front, not with **Alert border width** at 0 (Alerts › Look & severity) and not while do not disturb holds the sounds. A backward cycle key pressed in a client outside its list goes to the last client of the list. A mouse button used as a hotkey works, and is swallowed, in every program. **Cycle filters**, **Go to the last alert**, snoozes and **Left behind** have more of these details in the in-app help (the **?** button).
-- **PVE mode:** an NPC that hits, misses or tackles you raises no alert. A miss from a player or from a drone still does: a miss line that names a weapon after the dash, or a drone's "belonging to" its owner, raises Under attack, because an NPC writes its misses without either. It tells a player from an NPC by what the log line shows, so while it is on some things players do are silent too: a warp disruption probe or an anchored bubble; a bubble from a ship renamed to something without the "'s " of the default name ("Pilot's Shiptype"), which is what the rule looks for; a tackle from a player whose name shows in your overview without a [ticker]; and a hit from one whose name shows with neither a [ticker] nor a (ship type). If you fight other players, turn PVE mode off. It is also built on the English log wording: with an EVE client in another language it can't tell an NPC from a player (a miss or a bubble raises its alert whoever it is from, and so does a hit: an attacker whose name it cannot read, which means a line without the English word "from" before the name, counts as a player), so leave it off there.
-
-### Client windows
-
-- **Where client windows go:** where EVE puts them, where each one was, centred on a monitor, at a fixed place, or in fixed slots (named rectangles on a monitor that you assign characters to).
-- Minimize the clients you are not using, always maximize, or let the active client cover the taskbar.
-- **Game audio per client:** a volume for each character, **Only hear the active client**, and **Mute everything when no EVE client is in front**.
-- **CPU and frame rate:** run background clients at low priority, give each character its own CPU core, and limit background frame rates through RivaTuner Statistics Server (RTSS) if you have it installed.
-
-### Tools
-
-- **Stats overlay:** damage, logistics, mining and ratting numbers for each character in small overlay windows, with an optional CSV log.
-- **EVE settings:** copy EVE's own settings files from one character or account to others. Every file it replaces is backed up first.
-
-### The app
-
-- **Settings window:** a Home page with the essentials, and every setting grouped into Clients, Thumbnails, Alerts, Performance, Tools and App settings, with a search box and a help column (the **?** button) for every page. Changes save as you make them.
-- **Looks:** **Classic**, the old MultiPreview navy, unless you pick another: App settings › Look shows a live picture of each look, and one click changes every window at once (the thumbnails stay as they are). The first-run setup asks too. The others: **Windows 11**, dark cards as in Windows 11 Settings; **Daylight**, light and flat; **Dusk**, soft slate-violet, rounded; **Compact**, dense rows, no cards; **Neon**, violet with pink, cyan and yellow; **Carbon**, black and red, racing type; **Capsule**, dark and sharp, like the game; **High contrast**, black and white, with larger text; **Blueprint**, a technical drawing on blue; **Ink**, white, black rules, one red; **Terminal**, monospace, amber on black. While a Windows contrast theme is on, MultiPreview shows **High contrast** in that theme's colours and keeps your pick for when the theme is off; a switch on App settings › Look turns this off.
-- **Follow Windows' app theme** (App settings › Look, off until you turn it on): while Windows' app mode is light, MultiPreview shows **Daylight**; while it is dark, or MultiPreview cannot tell, it shows your own look. The look you picked is kept, and shows again when you turn the switch off or Windows goes dark; a Windows contrast theme (its own switch on the same page) still comes first. MultiPreview only reads this setting from Windows and never changes it.
-- **Screen readers:** the setup wizard, the quick-switch wheel and the alert hub (the bell, its toasts and its direction menu) give a screen reader a name for each control, in your language, and a screen reader can click them as the mouse does. A character's name is read only where it is drawn, so streamer mode hides it from the reader too.
-- **Nine languages:** English, 中文 (简体), Русский, Deutsch, Français, Español, 日本語, 한국어 and Italiano. MultiPreview follows your Windows language unless you choose one. The eight translations are machine drafts, and corrections are welcome.
-- **Settings safety:** each time MultiPreview starts, it keeps a copy of your settings if they changed since the last copy (the last 10 are kept), with **Back up now**, **Export** and **Import**; your own alert rules (`custom_alerts.json`) are not part of them. If the settings file can't be read, MultiPreview offers those copies instead of starting on defaults, and says on which line the first problem is when it can tell (the number of the line only, nothing the file holds).
-- **Create bug report…** (App settings › Diagnostics, and on the notice after MultiPreview closed unexpectedly): a zip with the version, Windows, your monitors, your settings and the end of each log, shown to you file by file before you save it. Your Windows user name, the PC's name and your Discord webhook are always left out, and character names are hidden unless you turn that off; while they are hidden, EVE Manager's cached names and the character IDs are left out too. MultiPreview sends nothing.
-- **Take commands from other programs** (App settings › General, off until you turn it on or allow the Stream Deck plugin's request to connect): AutoHotkey, Touch Portal or a Windows shortcut can start MultiPreview with --focus "Character name", --profile "Profile name", --toggle-thumbnails or --focus-mode, and the MultiPreview that is running does it. Nine more commands do what the hotkeys do: --cycle "Group name" and --cycle-back "Group name" step through a group, --cycle-all and --cycle-all-back through every client, --previous-client goes back to the client you came from, --last-alert goes to the client of the last alert, --next-profile and --previous-profile step through your profiles, and --do-not-disturb turns do-not-disturb on or off. **--do-not-disturb-on**, **--do-not-disturb-off**, **--focus-mode-on** and **--focus-mode-off** set the state you ask for (nothing happens if it is already so). --mute "Character name" mutes that character's alerts for one hour and --unmute "Character name" ends the mute (exit 2 if the character is not running). Ten more: --open-settings, --open-fleet-board and --open-alert-history open those windows; --name-bar flips the name bar and --name-bar-on and --name-bar-off set it; --mark-alerts-seen counts every character's alerts as seen; --mute-30 "Character name" mutes that character's alerts for 30 minutes; --minimize-clients and --restore-clients minimize or restore the clients. A first start with --focus, --mute or --unmute waits up to 10 seconds for the thumbnail to appear. Programs that talk to the pipe directly can also ask for the running characters, groups and profiles and the state of do-not-disturb, focus mode, the name bar and the thumbnails, or one live-state answer with which client is in front, each client's group colour, the worst alert nobody has looked at and the profile (no command-line switch; names are not masked in streamer mode). **Commands for buttons** (App settings › General; the card with **Make Stream Deck buttons** is always there, and the list of commands shows while commands are on) lists them: pick one, then **Copy command line** for a Stream Deck, Touch Portal or AutoHotkey button, **Save as shortcut…** for a Windows shortcut (.lnk), or **Try it** to send it to the running MultiPreview. Stream Deck's built-in Open action cannot pass arguments, so point it at the saved shortcut, or use the Advanced Launcher plugin with the copied command line. The second start ends with 0 (done), 1 (refused), 2 (no such character, group or profile) or 3 (nothing took it). When MultiPreview runs as administrator, programs that are not run as administrator cannot reach it (their second start ends with 3) unless you turn on **Also take commands from programs that are not run as administrator**. Only programs of your own Windows account can send commands, through a named pipe; nothing is listened for on the network. While this is off, a program of your account can still ask to connect (see Stream Deck below), and it learns nothing about your characters until you allow.
-- **Copy look as code** and **New profile from a code…** (App settings › Profiles & backups): the look of a profile (borders, text, opacity, when thumbnails hide) as one line of text; pasting one makes a copy of your current profile with that look. No character names, positions or hotkeys are in it.
-- **Updates:** MultiPreview asks GitHub for a newer version when it starts (you can turn that off) and installs it with one click. Any earlier version can be installed again from App settings › About & updates. Installing an earlier version turns the check at start off, so that it does not offer to update straight back. If an install does not go through and the old version starts again within ten minutes, a tray note says the update could not be installed, and the check is switched back to what it was if you had gone back to an earlier version.
-- **Keep the PC awake while EVE runs**: off until you turn it on (App settings › General). While a character is logged in, Windows does not go to sleep; the screen can still turn off. A client at the login screen does not count.
-- **Downtime countdown and warnings**: off until you turn it on (App settings › General). The tray menu counts down to the daily downtime at 11:00 UTC, and a tray note 15 and 5 minutes before it names the characters that are logged in. Docking is not logged, so it cannot tell who is in space.
-- **Tell me when Tranquility is back up**: off until you turn it on (App settings › General). After the daily downtime at 11:00 UTC, one tray note with the number of players online is meant to tell you when the server accepts logins again. The server status check it needs is not switched on in this version, so with the switch on nothing is asked, nothing goes onto the network and no note comes yet.
-- **Recently changed** (App settings › General): the **Recently changed** card lists the last 20 settings you changed on a card since MultiPreview started, newest first: what each was, what it is now, and when, with an **Undo** button. Undo puts the old value back only while the setting still has the value you gave it, and, for a setting that belongs to a profile, only while that profile is in use; otherwise nothing changes and a note says so. An undone change leaves the list. A setting you moved in many small steps (a slider, a typed number) is one entry. The list is kept in memory only: closing the settings window keeps it, restarting MultiPreview empties it, and nothing about it is written to a file. Tables, groups, crop windows, rules and the other editors you work in by hand are not listed. A setting of one character is listed by the setting's name only; the character's name is not shown.
-- A first-run setup, **Start with Windows**, and a guard against running two copies.
-- **When Windows ends your session:** if Windows asks to end the session and the shutdown is then cancelled, MultiPreview has already closed; start it again.
-
-### Stream Deck
-
-For a Stream Deck, use the plugin: it connects itself and shows what is going on. The shortcut folder further down is for other programs.
-
-1. **Install it:** download `EVE.MultiPreview.streamDeckPlugin` from the [release page](https://github.com/CJKondur/EVE-MultiPreview/releases/latest) and double-click it. Stream Deck installs it (it is not part of the in-app update or winget; download a newer one the same way).
-2. **Connect it:** drag any action from the **EVE MultiPreview** list onto a key, open the key's settings and press **Connect to MultiPreview**. MultiPreview shows a small window with **Allow** and **Deny**. Deny is the default: Enter, Esc, closing the window and two minutes without an answer all deny. Allow turns on **Take commands from other programs** for you (if MultiPreview runs as administrator it also turns on **Also take commands from programs that are not run as administrator**); both show under **Recently changed**, where you can undo them. The keys come alive a few seconds later. The window never takes the front from EVE, it opens one at a time, waits a minute after a Deny and asks at most three times per run of MultiPreview, and until you allow, the plugin learns nothing about your characters. To stop programs asking, turn off **Let Stream Deck and other programs ask to connect** (App settings › General, on by default); with **Take commands from other programs** off too, MultiPreview opens no pipe at all.
-3. **Use it:**
-   - **Switch client**, **Cycle group**, **Last alert**, **Do not disturb**, **Focus mode** and **Profile** show which client is in front and the alert state with EVE's own icons; critical and warning alerts flash, with a small severity badge in the corner.
-   - **Character alert** is one key per character and kind of alert. It lights up only while that character has an alert of that kind you have not seen, and pressing it brings that client to the front.
-   - **MultiPreview command** puts any command of the command list on one key, for example muting a character.
-   - **Character slot** shows the Nth running character in MultiPreview's order. Stream Deck plugins cannot place keys, so drag the **Character slot** action onto as many keys as you have characters; each takes the lowest free number by itself.
-   - Each key has options to switch off the flashing, the EVE icon or the name (the severity badge always stays).
-
-   The plugin asks MultiPreview about once a second once connected (less often while not connected or when MultiPreview isn't running), and only while one of its keys is on screen.
-
-If the plugin says MultiPreview is too old and it is not, Stream Deck and MultiPreview are probably not running under the same Windows account and sign-in. If the plugin finds MultiPreview but cannot connect, look at the **Connect to MultiPreview** status in the key's settings: it says what to do.
-
-**For Touch Portal, AutoHotkey and desktop shortcuts:** App settings › General › **Make Stream Deck buttons**. MultiPreview makes a folder called `Stream Deck buttons` in your settings folder, opens it for you (not while streamer mode is on, because the shortcut files are named with real character names; a note says where the folder is), and fills it with ready shortcuts, each with its own picture. The first time it asks once and turns **Take commands from other programs** on for you. A shortcut can also go on a Stream Deck key (drag it from that folder, or give the key the **Open** action from the **System** group and browse to the shortcut), but it cannot show what is going on; the plugin can.
-
-Neither sends keys or clicks to the game: they only switch windows and settings in MultiPreview, nothing goes onto the network, and the plugin talks to MultiPreview only through its local pipe. If you turn commands on yourself while MultiPreview runs as administrator, also turn on **Also take commands from programs that are not run as administrator** (same page); asking from the plugin does this for you.
-
-Privacy: in streamer mode the keys show masked names, but Stream Deck itself stores the real character names in its profile settings, and a `.streamDeckProfile` you export carries them. Check an exported profile before you share it. Streamer mode also hides the program's folder in the Allow window, so two programs with the same file name cannot be told apart there: deny a request you did not start yourself.
-
-On a PC that other Windows accounts also use: the two switches only control what MultiPreview accepts. The plugin looks for the pipe whenever one of its keys is on screen and does not check who owns it, so while MultiPreview is closed another account on the same PC could take the pipe's name, see which keys you press and show fake key states (it cannot touch EVE or your files). If that matters, do not use the Stream Deck plugin on a shared PC.
-
-Icons: EVE Online Image Export Collection, (c) CCP hf. (c) 2014 CCP hf. All rights reserved. "EVE", "EVE Online", "CCP", and all related logos and images are trademarks or registered trademarks of CCP hf. EVE MultiPreview is not made or endorsed by CCP. This material is used with limited permission of CCP Games. No official affiliation or endorsement by CCP Games is stated or implied.
-
-## What It Doesn't Do
-
-- It does not broadcast input. With its default settings MultiPreview passes none of your key presses or clicks on to a client: switching only changes which window is in front. A key you keep holding while you switch goes on reaching the window in front, as it does after Alt+Tab; that is Windows, not MultiPreview.
-- It does not read or change the game's memory.
+- One key press = one action in one client. You switch to a client, then you play it.
+- You cycle through your clients yourself, one press per client.
+- It does **not** send your key presses or clicks to other clients (no input broadcasting).
+- It does **not** read or change the game's memory.
 - With its default settings it sends EVE no key or click that does anything.
-- It switches clients exactly the way EVE-X-Preview does. To bring a client that is not minimized to the front, MultiPreview presses and releases virtual key 0xE8, a key that has no function, catches the press with a hotkey of its own on that key, and that hotkey then calls SetForegroundWindow on the client. To switch, nothing else is done to the client: it does not attach to the game's input, raise the window or set its focus, so a key you hold while you switch (Shift+F for drones, Shift or Ctrl+Space, D) takes effect in the new client as it does under EVE-X-Preview. A minimized client is restored, which brings it to the front by itself. The release of key 0xE8 can still reach whichever window is in front at that moment, which can be an EVE client; it does nothing there.
 
-Three options under Clients › Hotkeys & switching send keys to clients, and one of them mouse buttons too. All three are off unless you turn them on:
+CCP has not endorsed or approved MultiPreview. It is a community tool: use it at your own risk.
+
+**Opt-in options that send keys.** Three options under Clients › Hotkeys & switching send keys to a client (one of them mouse buttons too). **All three are off unless you turn them on.** Whether to use them is your decision.
 
 - **Carry held Ctrl, Shift and Alt to the next client:** a Ctrl, Shift or Alt you are physically holding while you switch is also pressed in the client you switch to, and stays pressed there.
-- **Carry other held keys to the next client:** a letter key (A to Z) you are physically holding while you switch is also pressed in the client you switch to, and stays pressed there. A held number-row key (0 to 9), F-key (F1 to F24), Enter or Space is pressed and released there instead. So is a held middle, 4th or 5th mouse button, at the place of the mouse pointer: a click in that client.
-- With either of these two, a key that stays pressed is pressed in one more client with every switch for as long as you hold it, so one held key can be down in several clients at once. When you let go, its release is sent at the same moment to every client it was carried to, to the client the last carried key was pressed in before (if that is another one), and once more to the window in front. Each time one of the two carries anything, the client you switch to is also sent a release for each of Ctrl, Shift, Alt and the left Windows key that you are not holding.
+- **Carry other held keys to the next client:** a letter key (A to Z) you are holding while you switch is also pressed in the client you switch to, and stays pressed there. A held number-row key (0 to 9), F-key (F1 to F24), Enter or Space is pressed and released there instead. So is a held middle, 4th or 5th mouse button, at the mouse pointer: a click in that client.
 - **Hide still-held keys from the next client:** a key you are still holding when you switch is released in the client you leave, and kept from the client you land on until you let go.
 
-Whether to use them is your decision.
+<details>
+<summary>How switching works, in detail</summary>
 
-What it does touch: it moves, resizes, minimizes and closes client windows; it can set a client's CPU priority, CPU core and audio volume; it reads EVE's game log files and the chat log of the Local channel; it reads the chat log of a channel that one of your own alert rules names, while that rule is switched on (none, until you make such a rule), and of what is said there it looks only at what is written while MultiPreview runs (a log that began after the channel was taken on is read from its first line, once, so what was written in it before MultiPreview found it counts too; nothing that was in the logs when the rule was switched on is read); when you open a rule's **Channel** list, it looks at the names of the files in your chat log folder to offer the channels, and keeps nothing; it plays the sound files you pick for alerts, and writes a built-in tone into the `Sounds` folder of your settings folder when you pick one; while Clients › Hotkeys & switching shows a key that another program has, it reads the names of the programs that are running, to name the ones on its list of programs known to take keys, and keeps nothing of what it read; for frozen frames it takes a picture of a client's window; and Tools › EVE settings copies EVE's settings files when you ask it to. It installs a keyboard hook so that a hotkey press doesn't also reach EVE (**Hide hotkeys from EVE**, on by default), and a mouse hook while a mouse button is bound to a hotkey. It listens to Windows' window events for all programs (a window being created, destroyed, renamed, minimized, restored or brought to the front) to notice EVE clients opening and closing and to know which window is in front. To bring a client to the front when Windows refuses, it may attach to the input queue of the window that is in front, for the moment of the switch. **Start with Windows** adds MultiPreview to your Windows startup list. With **Take commands from other programs** or **Let Stream Deck and other programs ask to connect** (on by default) on, it opens a named pipe that only programs of your own Windows account can open; until you allow a program, the pipe answers only hello and the request to connect. With **Take commands from other programs** on, it takes its commands through it (bring a client to the front, cycle, switch profile, turn do-not-disturb, focus mode or the name bar on or off, mute a character, count every character's alerts as seen (`--mark-alerts-seen`), open the settings, fleet board or alert history, minimize or restore the clients), and answers read-only questions about the running characters, groups, profiles and state. With **Speak alerts** on, it speaks through a voice that Windows has installed. With **Show alerts as Windows notifications** on, it shows notifications of Windows and keeps one key in the Windows registry and one picture file in your settings folder; the paragraph on spoken alerts and Windows notifications below names both.
+MultiPreview switches clients exactly the way EVE-X-Preview does. To bring a client that is not minimized to the front, it presses and releases virtual key 0xE8, a key that has no function, catches the press with a hotkey of its own on that key, and that hotkey then calls SetForegroundWindow on the client. Nothing else is done to the client: it does not attach to the game's input, raise the window or set its focus. A minimized client is restored, which brings it to the front by itself. The release of key 0xE8 can still reach whichever window is in front at that moment, which can be an EVE client; it does nothing there.
 
-What the alert history keeps: the alert history is a list of every alert that fires: the time, the character, the alert, its severity, the solar system and what became of it. It is one file for each day, `History\alerts-yyyy-MM-dd.jsonl` in your settings folder. For an alert of one of your own rules it also holds the rule's name and the line the rule matched, cut to 160 characters: for a rule on the game log that is a line of the game log, which can name other players; for a rule on a chat channel it is a line of the chat, usually something another player wrote. For a Left behind alert it also holds where the others went and how many of them: two solar system names and two numbers. MultiPreview keeps the list in your settings folder and sends it nowhere; a CSV file you export from the history window goes where you save it, and holds the same text. Alerts are kept for 30 days unless you set another time (Alerts › Alert hub), and days older than that are deleted when MultiPreview starts. Switching the history off there keeps what is already in it until its days run out or you clear it in the history window.
+A key you keep holding while you switch goes on reaching the window in front, as it does after Alt+Tab. That is Windows, not MultiPreview. So a key you hold while you switch (Shift+F for drones, Shift or Ctrl+Space, D) takes effect in the new client, as it does under EVE-X-Preview.
 
-What a snooze keeps: a snooze is held in memory and ends when MultiPreview closes. With **Keep snoozes when MultiPreview restarts** on (Alerts › Events), the snoozes that have a time are also written to `alert_snoozes.json` in your settings folder: the character, the alert and when the snooze ends. Turning that off deletes the file.
+With either carry option on, a key that stays pressed is pressed in one more client with every switch for as long as you hold it, so one held key can be down in several clients at once. When you let go, its release is sent at the same moment to every client it was carried to, to the client the last carried key was pressed in before (if that is another one), and once more to the window in front. Each time one of the two carries anything, the client you switch to is also sent a release for each of Ctrl, Shift, Alt and the left Windows key that you are not holding.
 
-What spoken alerts and Windows notifications touch: nothing is written until you turn them on. Each time it starts, MultiPreview looks once for the registry key and the picture file named below, which an earlier run may have left, and removes them if the switch is off. **Speak alerts** speaks through a voice that Windows has installed; MultiPreview installs no voice. With **Show alerts as Windows notifications** on, MultiPreview keeps one key in the Windows registry under your own user, `HKEY_CURRENT_USER\Software\Classes\AppUserModelId\EveMultiPreview.Alerts`, which holds the name Windows shows with a notification and the path of its picture, and one picture file, `notification-icon.png`, in your settings folder. A notification holds the character's name and the alert, for a Left behind alert also where the others went, and it is Windows that keeps it: in its Notification Center for up to 12 hours after the alert, and on the lock screen if Windows is set to show notifications there. Turning the switch off removes the key and the picture file and takes MultiPreview's notifications out of the Notification Center. Closing MultiPreview takes its notifications away as well, and so does signing out of Windows or shutting it down. After a crash they stay until MultiPreview next starts or their 12 hours are over, and a click on one does nothing while MultiPreview is not running. Once a program has shown a notification, Windows keeps a switch for it under Settings › System › Notifications: MultiPreview does not write that and cannot remove it.
-
-It has no telemetry and no account. It goes online only for these: the update check at GitHub (when it starts, unless you turn that off, and when you click **Check for updates**); the list of versions and the download itself, when you install an update or pick an earlier version; a lookup of character names at CCP's public API when you click **Fetch missing names** under Tools › EVE settings; and, only while you turn it on, alerts to your Discord webhook.
-
-EVE MultiPreview is a community tool. Use it at your own risk.
+</details>
 
 ---
 
-## Getting Started
+## 🚀 Get started
 
-1. Download `EVE.MultiPreview.exe` from the [latest release](https://github.com/CJKondur/EVE-MultiPreview/releases/latest) and put it in a folder of its own.
-2. Run it. The first start shows a short setup: your language, a thumbnail size and a few hotkeys.
-3. MultiPreview sits in the notification area beside the clock. Double-click its icon, or right-click it and choose **Settings**.
+1. **Download** `EVE.MultiPreview.exe` from the [releases page](https://github.com/CJKondur/EVE-MultiPreview/releases) and put it in a folder of its own.
+2. **Run it.** Windows may say "Windows protected your PC", because the exe isn't code-signed. Click **More info**, then **Run anyway**. This is normal for community tools.
+3. **Follow the short setup.** It asks for your language, a look, a thumbnail size and a few hotkeys. You can change all of it later.
+4. **Start your EVE clients.** A live thumbnail appears for each one.
+5. **Switch:** click a thumbnail to bring that client to the front, or press the hotkeys you chose.
+6. **Find the settings:** MultiPreview sits in the notification area beside the clock. Double-click its icon, or right-click it and choose **Settings**.
 
-**Windows SmartScreen:** On first run, Windows may show a "Windows protected your PC" warning since the exe isn't code-signed. Click **"More info"** → **"Run anyway"**. This is normal for community-built tools.
+The settings window opens on a **Home** page with the essentials: thumbnail size, client keys, combat alerts and quick actions. Turn on **Show all settings** at the bottom left for everything else. Press **?** on any page for help on that page, in your language. Changes save as you make them.
 
-After its first update the file is named `EVE MultiPreview.exe`: the updater saves it under that name.
-
-### Where your settings are
-
-Your settings are in `%APPDATA%\EVE MultiPreview` (paste that into the address bar of a File Explorer window). The folder holds the settings file `EVE MultiPreview.json`, your saved layouts (`layout_presets.json`), your own alert rules (`custom_alerts.json`, once you make one), the snoozes you chose to keep (`alert_snoozes.json`), the picture Windows shows with a notification (`notification-icon.png`, once you turn Windows notifications on), the built-in tones you picked (in a `Sounds` folder), `update_pending.json` (from the moment an update is started until the next start of this version or a later one; after going back to an earlier version it can stay, unused: the version you had, the one you asked for, whether the update check was on, and the time), a `History` folder with the alert history, a `Backups` folder and a `Logs` folder. App settings › Profiles & backups shows the folder and opens it.
-
-**Portable:** to keep everything next to the exe instead, for example on a USB stick, put an empty file named `portable.txt` beside the exe before you start it for the first time. If you have already started it, also copy `EVE MultiPreview.json` (and `layout_presets.json`, `custom_alerts.json` and the `History` folder with the alert history's day files, if you use saved layouts, your own alert rules or the alert history) from the folder above to beside the exe; MultiPreview never moves the `History` folder itself, and a portable copy never deletes the one you leave behind. One thing a portable copy does not keep beside the exe: with **Show alerts as Windows notifications** on, the registry key for it is in the Windows registry of the PC you run it on, and holds the path of the picture beside the exe. Turn that switch off before you delete the copy or take the stick away; otherwise the key stays behind on that PC with a path that is gone, and step 2 under Uninstalling says how to remove it.
-
-**Coming from version 2.3.42 or older:** those versions kept the settings beside the exe. The first start of a newer version copies your settings, saved layouts and backups to the folder above, checks the copy, and leaves the old files where they were, with a note named `Where are my settings.txt` beside them.
-
-### Coming from another preview tool
-
-- **EVE-X-Preview:** put the exe in the folder that holds `EVE-X-Preview.json`. On the first start MultiPreview asks whether to bring those settings over.
-- **EVE-O Preview:** an `EVE-O Preview.json` beside the exe, or in `%APPDATA%\EVE-O Preview`, is brought over on the first start.
-- **The AutoHotkey version of EVE MultiPreview:** its `EVE MultiPreview.json` beside the exe is read as it is.
-
-### Uninstalling
-
-MultiPreview has no installer, so Windows has no uninstaller for it. Its **Clean uninstall** button removes the traces it left in Windows, and, if you ask, its settings. You remove the program file and a few other things yourself.
-
-**Clean uninstall** (App settings › About & updates): press it while MultiPreview is running. It asks first, and Cancel changes nothing. It removes:
-
-- the **Start with Windows** entry: the value `EVE MultiPreview` under `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`, and the value of that name that Task Manager keeps under `...\Explorer\StartupApproved\Run`. Neither key is deleted, and no other value is touched.
-- the key `HKEY_CURRENT_USER\Software\Classes\AppUserModelId\EveMultiPreview.Alerts`, which lets Windows show MultiPreview's notifications.
-- only if you answer so, the whole settings folder `%APPDATA%\EVE MultiPreview` and everything in it: the settings file, saved layouts, your own alert rules, the alert history, backups, logs, the built-in tones and anything else you put there. A portable copy keeps its settings beside the exe, and that folder is never deleted: the question then offers to remove the entries only, and you delete the folder yourself. The same goes if the folder you chose for MultiPreview's backups of your EVE settings (see below) lies inside the settings folder: those backups are kept on purpose, so the folder is not deleted, and you move the backups out and delete the folder yourself.
-
-Then MultiPreview closes without saving your settings. If an entry cannot be removed it stays open and says so; the entries that could be removed are gone, your settings folder is not touched, and you can press the button again. If part of the settings folder cannot be deleted while it closes (a file another program has open, for example), a message says that part of it stayed: delete what is left yourself.
-
-Clean uninstall never removes these; you do, whichever way you uninstall:
-
-- the program file, `EVE MultiPreview.exe` or `EVE.MultiPreview.exe`.
-- the RTSS profile for `exefile.exe`, if you used the FPS limiter: RTSS keeps `exefile.exe.cfg` in its `Profiles` folder, under Program Files, until you remove it there or reset it in RTSS.
-- MultiPreview's own backups of EVE's settings files, made by Tools › EVE settings when you ask for a backup and before it replaces a file: by default in `%LOCALAPPDATA%\CCP\EVE\EVEMPBackups`, or in the folder you chose for them. They are yours and are kept on purpose; delete the folder when you no longer want them.
-
-**By hand instead of the button:**
-
-1. If **Start with Windows** is on (App settings › General), turn it off first, or Windows keeps an entry for a program that is gone.
-2. If **Show alerts as Windows notifications** is on (Alerts › Alert hub), turn it off as well: that removes the one registry key MultiPreview keeps for it. If the exe is already gone, delete the key `HKEY_CURRENT_USER\Software\Classes\AppUserModelId\EveMultiPreview.Alerts` in the Registry Editor; it holds a name and the path of a picture, nothing else. This goes for a portable copy too: its key is in the registry of the PC, not beside the exe.
-3. Exit MultiPreview from its tray icon and delete the exe.
-4. Delete `%APPDATA%\EVE MultiPreview` to remove your settings, your alert rules, the snoozes you kept, the alert history, backups and logs. A portable copy keeps them beside the exe instead.
-
----
-
-## Building from Source
-
-**Prerequisites:**
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) (10.0.100 or later)
-
-**Clone, build and test:**
-```bash
-git clone https://github.com/CJKondur/EVE-MultiPreview.git
-cd EVE-MultiPreview
-dotnet build EveMultiPreview.sln
-dotnet test EveMultiPreview.sln
-```
-
-**The release exe** (one self-contained file, no runtime to install):
-```bash
-dotnet publish EveMultiPreview.csproj -c Release
-```
-Output: `EVE MultiPreview.exe` in `..\EVE-MultiPreview-Release\`, a folder beside the repository. The project file sets that folder so the exe (over 70 MB) can never be committed by accident; add `-o <folder>` to publish somewhere else.
-
-**The Stream Deck plugin** (`StreamDeckPlugin\`, optional): its tests need Node.js 21 or later (the `node --test` file pattern in `npm test`; CI uses 24.12.0), run from the repository root with `npm ci --ignore-scripts --prefix StreamDeckPlugin` and then `npm test --prefix StreamDeckPlugin`. The plugin itself runs on the Node 20 that Stream Deck bundles (`Nodejs` in its `manifest.json`), which is why `engines` in its `package.json` stays `>=20.5.1`.
-
-A copy you build and run uses the same `%APPDATA%\EVE MultiPreview` folder as your everyday copy. Put a `portable.txt` beside a test build first if it should keep its settings to itself.
-
----
-
-## Controls
+### Mouse controls on the thumbnails
 
 | Action | How |
 | --- | --- |
 | Switch to a client | Left-click its thumbnail |
 | Minimize a client | Left Ctrl + click its thumbnail (changeable under Clients › Characters › Clicking thumbnails) |
 | Leave a client out of cycling | Shift + click its thumbnail (changeable in the same place) |
-| Open a thumbnail's menu | Right-click it: Edit label, Mute alerts, Snoozed alerts (while one is snoozed for that character), Game volume, Open the character's settings, Copy system name, Open the system on Dotlan, Open the character on zKillboard or EveWho (only when MultiPreview knows the character's ID), Close client |
-| Dismiss a toast, or snooze its alert for that character | Right-click the toast |
+| Open a thumbnail's menu | Right-click it |
 | Move a thumbnail | Right-click drag |
 | Move all thumbnails | Ctrl + right-click drag |
 | Resize all thumbnails | Hold both mouse buttons and drag |
 | Resize one thumbnail | Ctrl + both mouse buttons and drag |
+| Dismiss a toast, or snooze its alert | Right-click the toast |
 
-**Close client** ends that client at once, without asking. **Lock thumbnail positions** stops moving and resizing; clicks and the menu still work. With **Resize thumbnails one at a time** on, both resize gestures change only the thumbnail under the mouse.
+The thumbnail menu has: Edit label, Mute alerts, Snoozed alerts (while one is snoozed for that character), Game volume, Open the character's settings, Copy system name, Open the system on Dotlan, Open the character on zKillboard or EveWho (only when MultiPreview knows the character's ID), and Close client. **Close client** ends that client at once, without asking.
 
----
+**Lock thumbnail positions** stops moving and resizing; clicks and the menu still work. With **Resize thumbnails one at a time** on, both resize gestures change only the thumbnail under the mouse.
 
-## Credits
+**Coming from another preview tool?**
 
-**EVE-O Preview** — [Phrynohyas](https://github.com/Phrynohyas/eve-o-preview). Licensed under MIT.
-
-**EVE-X-Preview** — [g0nzo83](https://github.com/g0nzo83) (John Xer in EVE Online). Licensed under MIT.
-
-EVE MultiPreview builds on their work with a full C#/WPF rewrite and additional features.
-
-**The looks' typefaces:** Barlow, IBM Plex Sans, IBM Plex Mono, Figtree, Rubik, Overpass, Overpass Mono, Saira, Saira Condensed, DM Sans and Archivo, each free under the SIL Open Font License 1.1 and carried unchanged. App settings › About › Fonts shows each one's licence.
+- **EVE-X-Preview:** put the exe in the folder that holds `EVE-X-Preview.json`. On the first start MultiPreview asks whether to bring those settings over.
+- **EVE-O Preview:** an `EVE-O Preview.json` beside the exe, or in `%APPDATA%\EVE-O Preview`, is brought over on the first start.
+- **The AutoHotkey version of EVE MultiPreview:** its `EVE MultiPreview.json` beside the exe is read as it is.
 
 ---
 
-## License
+## ✨ Features
 
-MIT — see [LICENSE](LICENSE) for details.
+Most features are off until you turn them on, so MultiPreview starts simple. The **?** help column in the app explains each one in full.
+
+### See all your clients
+
+- **Live thumbnails** of every running client. A minimized client keeps its last picture.
+- **Second thumbnails:** a second live preview of a character, with its own size, place and opacity.
+- **Crop windows:** a small window that shows one part of a client, live. Several per character.
+- **Text on thumbnails:** the character's name, your own label, the solar system, a session timer, and each client's CPU, memory and graphics-memory use. Write your own text with `{name}`, `{system}`, `{timer}`, `{label}`, `{jumps}` and `{week}` (playtime of the last seven days, needs **Weekly playtime** under App settings › Diagnostics).
+- **Borders:** a highlight on the active client, a colour per group or per character, a mark for clients that are not logged in, and rounded corners if you like.
+- **Not responding / Disconnected marks** when a client freezes or loses its connection to the server. Right-click a frozen client's thumbnail for **End this frozen client…** (it asks first).
+- **Name bar:** **Show a name bar instead of thumbnails** (Thumbnails › Visibility) swaps the thumbnails for one row of character buttons at the top of your main screen. Rest the pointer on a name to see that client live.
+- **Focus mode:** one key shows only the thumbnails of one group and hides the rest until you press it again. A client outside the group with an unseen alert still shows.
+- **Save graphics power:** thumbnails can show a still picture about once a second, or freeze while neither EVE nor MultiPreview is in front.
+- **Stats overlay:** damage, logistics, mining and ratting numbers for each character in small windows, with an optional CSV log.
+- **Fleet board** (tray menu): one sortable table of every client: system, session time, last alert, alerts since start, CPU and RAM.
+- **Session reports** (tray menu): days per character from your stat logs (needs stat logging on).
+
+### Switch fast
+
+- **Hotkeys** for each character, for the next and previous client of a group, and for all running clients. Keyboard keys and the middle, 4th and 5th mouse buttons work, as do media keys and F13 to F24.
+- **Back to the client before this one:** one key flips between your last two clients, like Alt+Tab.
+- **Go to the last alert:** one key takes you to the client with the most severe alert you haven't looked at. Press again for the next.
+- **Quick-switch wheel:** one key opens a ring of cards, one per logged-in character, with its number key, its system and its unseen alerts. Click a card or press 1 to 9.
+- **Command palette:** type a few letters of a character, label, group or profile name and press Enter.
+- **Cycle filters** (all off at first): cycle only through clients in the same system, only through clients with an unseen alert, or skip characters you muted.
+- **Character-select cycling:** keys that step through clients waiting at character selection.
+- **Switch with a game pad** (Clients › Hotkeys & switching): one line per button, such as `A = cycle-all` or `X = focus:YourCharacter`. It only switches windows; it never sends keys or clicks to the game.
+- **Hide hotkeys from EVE** (on by default): a hotkey press doesn't also reach the game.
+- **Hotkey cheat sheet:** a key or the tray menu shows every hotkey of the current profile over the thumbnails, without taking focus from EVE.
+- **Keys another program took:** if another program already owns a key you bound, Clients › Hotkeys & switching lists it and a tray note tells you. **Check again** after you free it.
+- Hotkeys to hide or show all thumbnails, make them click-through, lock their positions, pause all hotkeys, and close every client (after one confirmation).
+
+### Never miss an alert
+
+Alerts are read from EVE's own chat and game log files. MultiPreview never reads the game's memory.
+
+- **24 events:** Under attack, Warp scrambled, Decloaked, Capacitor neutralized, Jammed, Incoming DPS high, Reps stopped, Drones returning, Logi idle, Fleet invite, Convo request, Fleet warp, Regrouping, System changed, Left behind, Cargo full, Asteroid depleted, Crystal broken (mining modules only), Miner stopped, Client memory high, Client not responding, Client closed unexpectedly, Character idle and Client ready.
+- **Three severities** (critical, warning, info), each with its own colour and flash speed. An alert shows on the thumbnail as a coloured border, a count badge and a line of text. The tray icon turns red while a critical alert is unseen.
+- **Sounds:** your own sound files, or five built-in tones (Chime, Ping, Double ping, Low alarm, Rising). Groups can have their own sounds, so you hear which crew needs you.
+- **Alert hub:** an optional bell with toasts that name the character, the event and the system. Click a toast to switch to that client; a click never takes the keyboard from the game.
+- **Spoken alerts** (**Speak alerts**): a Windows voice says who and what, for example "Alpha, Under attack".
+- **Windows notifications** with a button to switch to that client or snooze the alert.
+- **Your phone, through Discord** (**Send alerts to Discord**): alerts go to a Discord channel of yours through a webhook. By default only critical alerts, and only while you are away from the PC. Optional @here or @everyone on critical alerts.
+- **Enlarge on alert:** the alerting client's thumbnail grows for a few seconds, so you see what's happening without switching.
+- **Repeat a critical alert** louder until you look at that client.
+- **Alerts per group:** your miners hear about full cargo, your combat pilots don't.
+- **Left behind:** tells you which group member missed the gate when the others jumped, and where they went.
+- **Custom rules:** your own alerts, matching text or a regular expression in the game log or a chat channel, with a box to test a line first.
+- **Snooze** one alert for one character for 15 minutes, 1 hour, or until restart.
+- **Do not disturb:** a key, the tray menu or daily quiet hours hold the sounds while borders and toasts go on. Critical alerts still play unless you turn that off.
+- **Alert history:** every alert, kept on this PC for 30 days by default. Filter it, jump to a client, or export to CSV.
+- **PVE mode:** NPCs that hit, miss or tackle you raise no alert. Turn it off if you fight other players.
+
+Many events are off until you turn them on under Alerts › Events. The English log lines are tested against real log wording; the other seven languages of the EVE client are matched from EVE's own translated text. Some events (Capacitor neutralized, Jammed, Drones returning) and PVE mode need the game client in English. If an alert doesn't fire in your language, please tell us on GitHub.
+
+### Layouts, profiles and your clients
+
+- **Layouts:** drag thumbnails, snap them to edges, lock them, undo and redo, and save whole layouts. Choose the monitor new thumbnails appear on.
+- **Layouts that follow your monitors:** docking a laptop or plugging in a TV can apply the layout saved for that monitor setup (off until you turn it on).
+- **Align, distribute and nudge** thumbnails, and save your layout as a picture.
+- **Share codes:** copy a layout or a profile's look as one line of text to paste in Discord. A code holds places and looks only, never hotkeys.
+- **Profiles:** several complete setups, with hotkeys to step through them. MultiPreview can also switch profiles by who is logged in.
+- **Client windows:** put them where EVE puts them, where each one was, centred on a monitor, at a fixed place, or in fixed slots. Minimize clients you're not using, always maximize, or let the active client cover the taskbar.
+- **Game audio per client:** a volume per character, **Only hear the active client**, and **Mute everything when no EVE client is in front**.
+- **CPU and frame rate:** background clients at low priority, a CPU core per character, and background frame-rate limits through RivaTuner Statistics Server (RTSS) if you have it.
+- **EVE settings** (Tools › EVE settings): copy EVE's own settings files from one character or account to others. Every file it replaces is backed up first.
+
+### Streaming and privacy
+
+- **Streamer mode** (Thumbnails › Text, or the tray menu): character names become Client 1, Client 2 and so on, and labels and system names are hidden, on thumbnails, toasts, spoken alerts, notifications, Discord messages, the tray and more. The EVE client's own picture inside a thumbnail and the settings window itself can't be hidden.
+- Layout pictures and bug reports can hide character names too.
+
+### The app itself
+
+- **12 looks:** Classic (the default), Windows 11, Daylight, Dusk, Compact, Neon, Carbon, Capsule, High contrast, Blueprint, Ink and Terminal. Optionally follow Windows' light or dark app mode.
+- **Nine languages:** English, 中文 (简体), Русский, Deutsch, Français, Español, 日本語, 한국어 and Italiano. It follows your Windows language unless you pick one. The eight translations are machine drafts, and corrections are welcome.
+- **Screen readers** get a name for each control in the settings window, the setup, the quick-switch wheel and the alert hub.
+- **Settings safety:** a copy of your settings at each start when they changed (the last 10 are kept), plus **Back up now**, **Export** and **Import**. If the settings file can't be read, MultiPreview offers those copies instead of starting on defaults.
+- **Recently changed:** the last 20 settings you changed, with an **Undo** button.
+- **Updates in one click:** MultiPreview checks GitHub for a newer version at start (you can turn that off). Each download is checked against the checksum GitHub publishes. Any earlier version can be installed again from App settings › About & updates.
+- **Create bug report…** (App settings › Diagnostics): a zip you see file by file before you save it. Your Windows user name, PC name and Discord webhook are always left out, and character names are hidden unless you turn that off. MultiPreview sends nothing.
+- **Keep the PC awake while EVE runs**, a **downtime countdown** with warnings 15 and 5 minutes before 11:00 UTC, **Start with Windows**, and a guard against running two copies.
+- **Commands from other programs:** AutoHotkey, Touch Portal, a Stream Deck or a Windows shortcut can tell MultiPreview to switch clients, change profile and more (see below).
+
+---
+
+## 🎛️ Stream Deck
+
+The Stream Deck plugin gives you live keys: they show which client is in front and flash with EVE's own icons when a character is under attack, scrambled, jammed and more.
+
+1. **Install:** download `EVE.MultiPreview.streamDeckPlugin` from the [releases page](https://github.com/CJKondur/EVE-MultiPreview/releases) and double-click it. Stream Deck installs it. The in-app update doesn't update the plugin; download a newer one the same way.
+2. **Connect:** drag any action from the **EVE MultiPreview** list onto a key, open the key's settings and press **Connect to MultiPreview**.
+3. **Allow:** MultiPreview shows a small window with **Allow** and **Deny**. Deny is the default: Enter, Esc, closing the window and two minutes without an answer all deny. The window never takes the front from EVE. Allow turns on **Take commands from other programs** for you (and, if MultiPreview runs as administrator, **Also take commands from programs that are not run as administrator**). Both show under **Recently changed**, where you can undo them. The keys come alive a few seconds later.
+
+**The keys:**
+
+- **Switch client**, **Cycle group**, **Last alert**, **Do not disturb**, **Focus mode** and **Profile** show which client is in front and the alert state; critical and warning alerts flash, with a small severity badge in the corner.
+- **Character alert:** one key per character and kind of alert. It lights up only while that alert is unseen, and pressing it brings that client to the front.
+- **MultiPreview command:** any command from the command list on one key, for example muting a character.
+- **Character slot:** shows the Nth running character. Drag it onto as many keys as you have characters; each takes the lowest free number by itself.
+- Each key can switch off the flashing, the EVE icon or the name (the severity badge always stays).
+
+The plugin only switches windows and settings in MultiPreview. It never sends keys or clicks to the game, nothing goes onto the network, and it talks to MultiPreview only through a local pipe on your PC. It asks MultiPreview about once a second while connected, and only while one of its keys is on screen. To stop programs asking to connect, turn off **Let Stream Deck and other programs ask to connect** (App settings › General, on by default).
+
+**Good to know:**
+
+- In streamer mode the keys show masked names, but Stream Deck itself stores the real character names in its profile settings, and a `.streamDeckProfile` you export carries them. Check an exported profile before you share it.
+- Streamer mode also hides the program's folder in the Allow window, so two programs with the same file name can't be told apart there. Deny a request you did not start yourself.
+- **Shared PC:** the plugin looks for MultiPreview's pipe whenever one of its keys is on screen and doesn't check who owns it. While MultiPreview is closed, another Windows account on the same PC could take the pipe's name, see which keys you press and show fake key states (it can't touch EVE or your files). If that matters, don't use the plugin on a shared PC.
+
+**Touch Portal, AutoHotkey and desktop shortcuts:** App settings › General › **Make Stream Deck buttons** makes a `Stream Deck buttons` folder in your settings folder, full of ready shortcuts with their own pictures, and opens it (not while streamer mode is on, because the files are named with real character names). The first time, it asks once and turns **Take commands from other programs** on for you. A shortcut also works on a Stream Deck key, but it can't show what is going on; the plugin can.
+
+<details>
+<summary>All commands for buttons and scripts</summary>
+
+Turn on **Take commands from other programs** (App settings › General). Then a second start of MultiPreview with one of these passes the command to the one that is running. **Commands for buttons** on the same page lists them, with **Copy command line**, **Save as shortcut…** and **Try it**.
+
+| Command | What it does |
+| --- | --- |
+| `--focus "Character name"` | Switch to that character |
+| `--profile "Profile name"` | Switch to that profile |
+| `--next-profile`, `--previous-profile` | Step through your profiles |
+| `--cycle "Group name"`, `--cycle-back "Group name"` | Step through a group |
+| `--cycle-all`, `--cycle-all-back` | Step through every client |
+| `--previous-client` | Back to the client you came from |
+| `--last-alert` | Go to the client of the last alert |
+| `--toggle-thumbnails` | Hide or show the thumbnails |
+| `--focus-mode`, `--focus-mode-on`, `--focus-mode-off` | Flip or set focus mode |
+| `--do-not-disturb`, `--do-not-disturb-on`, `--do-not-disturb-off` | Flip or set do not disturb |
+| `--name-bar`, `--name-bar-on`, `--name-bar-off` | Flip or set the name bar |
+| `--mute "Character name"` | Mute that character's alerts for one hour |
+| `--mute-30 "Character name"` | Mute that character's alerts for 30 minutes |
+| `--unmute "Character name"` | End the mute |
+| `--mark-alerts-seen` | Count every character's alerts as seen |
+| `--open-settings`, `--open-fleet-board`, `--open-alert-history` | Open that window |
+| `--minimize-clients`, `--restore-clients` | Minimize or restore the clients |
+
+The second start ends with 0 (done), 1 (refused), 2 (no such character, group or profile) or 3 (nothing took it). A first start with `--focus`, `--mute` or `--unmute` waits up to 10 seconds for the thumbnail to appear.
+
+Stream Deck's built-in **Open** action can't pass arguments, so point it at a saved shortcut, or use the Advanced Launcher plugin with the copied command line.
+
+Only programs of your own Windows account can send commands, through a named pipe; nothing is listened for on the network. When MultiPreview runs as administrator, programs that are not run as administrator can't reach it (their second start ends with 3) unless you turn on **Also take commands from programs that are not run as administrator**. Programs that talk to the pipe directly can also ask for the running characters, groups, profiles and current state (names are not masked in streamer mode there).
+
+</details>
+
+---
+
+## 🔒 Privacy: what goes online
+
+MultiPreview has **no telemetry and no account**. It goes online only for these:
+
+- **Update check** at GitHub: when it starts (unless you turn that off), and when you click **Check for updates**.
+- **Downloading an update:** the list of versions and the download itself, when you install an update or pick an earlier version.
+- **Character names** from CCP's public API, only when you click **Fetch missing names** under Tools › EVE settings.
+- **Discord alerts**, only while you have them turned on. The webhook link is kept encrypted for your Windows user in the settings file, is shown masked, is never written to a log, and goes to no host but discord.com.
+
+Nothing else. The Stream Deck plugin and the commands for buttons use a local pipe on your PC, not the network. **Tell me when Tranquility is back up** asks nothing yet: the server status check it needs is not switched on in this version.
+
+<details>
+<summary>What MultiPreview touches on your PC</summary>
+
+- It moves, resizes, minimizes and closes client windows, and can set a client's CPU priority, CPU core and audio volume.
+- It reads EVE's game log files and the chat log of the Local channel. It reads the chat log of a channel that one of your own alert rules names, while that rule is on, and only what is written while MultiPreview runs (a log that began after the channel was taken on is read from its first line, once). When you open a rule's **Channel** list, it looks at the file names in your chat log folder, and keeps nothing.
+- It plays the sound files you pick, and writes a built-in tone into the `Sounds` folder of your settings folder when you pick one.
+- While Clients › Hotkeys & switching shows a key that another program has, it reads the names of running programs to name the ones on its list of programs known to take keys, and keeps nothing.
+- For frozen frames it takes a picture of a client's window.
+- Tools › EVE settings copies EVE's settings files when you ask it to.
+- It installs a keyboard hook so a hotkey press doesn't also reach EVE (**Hide hotkeys from EVE**, on by default), and a mouse hook while a mouse button is bound to a hotkey.
+- It listens to Windows' window events for all programs (a window being created, destroyed, renamed, minimized, restored or brought to the front) to notice EVE clients opening and closing and to know which window is in front. To bring a client to the front when Windows refuses, it may attach to the input queue of the window in front, for the moment of the switch.
+- **Start with Windows** adds MultiPreview to your Windows startup list.
+- With **Take commands from other programs** or **Let Stream Deck and other programs ask to connect** (on by default) on, it opens a named pipe that only programs of your own Windows account can open. Until you allow a program, the pipe answers only hello and the request to connect. With **Take commands from other programs** off too, it opens no pipe at all.
+- With **Speak alerts** on, it speaks through a voice Windows has installed. MultiPreview installs no voice.
+- With **Show alerts as Windows notifications** on, it keeps one registry key under your own user, `HKEY_CURRENT_USER\Software\Classes\AppUserModelId\EveMultiPreview.Alerts` (the name Windows shows with a notification and the path of its picture), and one picture file, `notification-icon.png`, in your settings folder. Turning the switch off removes both and takes MultiPreview's notifications out of the Notification Center. Windows keeps a notification in its Notification Center for up to 12 hours after the alert, and on the lock screen if Windows is set to show notifications there. Once a program has shown a notification, Windows keeps a switch for it under Settings › System › Notifications: MultiPreview does not write that and cannot remove it.
+- **Alert history:** one file per day, `History\alerts-yyyy-MM-dd.jsonl` in your settings folder: the time, the character, the alert, its severity, the solar system and what became of it. For one of your own rules it also holds the rule's name and the matched line, cut to 160 characters, which can name other players. For a Left behind alert it holds where the others went and how many. It is sent nowhere. Days older than your setting (30 days by default) are deleted when MultiPreview starts.
+- **Snoozes** are held in memory. With **Keep snoozes when MultiPreview restarts** on, timed snoozes are also written to `alert_snoozes.json` (the character, the alert and when it ends). Turning that off deletes the file.
+- **Weekly playtime** (off by default): `playtime.json` holds each character's name and seconds played per day for 14 days. **Clear playtime history** deletes it.
+
+</details>
+
+---
+
+## ❓ FAQ and troubleshooting
+
+**Windows says "Windows protected your PC".**
+The exe isn't code-signed. Click **More info**, then **Run anyway**.
+
+**The file name changed after an update.**
+The release file is `EVE.MultiPreview.exe`. After its first update it is named `EVE MultiPreview.exe`: the updater saves it under that name.
+
+**Where are my settings?**
+In `%APPDATA%\EVE MultiPreview` (paste that into the address bar of File Explorer). App settings › Profiles & backups shows the folder and opens it. It holds your settings file `EVE MultiPreview.json`, saved layouts (`layout_presets.json`), your own alert rules (`custom_alerts.json`), the alert history (`History`), backups (`Backups`), logs (`Logs`) and, once used, `alert_snoozes.json`, `notification-icon.png`, a `Sounds` folder and `update_pending.json`.
+
+**Can I run it from a USB stick (portable)?**
+Yes. Put an empty file named `portable.txt` beside the exe before you start it for the first time, and everything stays next to the exe. If you have already started it, also copy `EVE MultiPreview.json` (and `layout_presets.json`, `custom_alerts.json` and the `History` folder, if you use them) from the folder above to beside the exe. MultiPreview never moves the `History` folder itself, and a portable copy never deletes the one you leave behind. One thing stays on the PC: with **Show alerts as Windows notifications** on, its registry key is in that PC's registry. Turn that switch off before you take the stick away.
+
+**I'm coming from version 2.3.42 or older.**
+Those versions kept settings beside the exe. The first start of a newer version copies your settings, saved layouts and backups to `%APPDATA%\EVE MultiPreview`, checks the copy, and leaves the old files where they were, with a note named `Where are my settings.txt` beside them.
+
+**Where is the old settings window?**
+App settings › About & updates › **Use the old settings window** brings it back for a release or two.
+
+**A hotkey does nothing.**
+Another program probably owns that key. Clients › Hotkeys & switching lists such keys, with what each is bound to and a guess at which running program took it (overlays, screenshot tools, key remappers are common). Free the key there, then click **Check again**. Windows also keeps many Win-key combinations for itself. Hotkeys also stay quiet while they are paused, while no EVE client runs, and while the settings window is in front.
+
+**My hotkeys don't work outside EVE.**
+Check **Hotkeys work** under Clients › Hotkeys & switching: **Everywhere** catches them in any app; **Only while EVE is in front** leaves other apps alone.
+
+**An alert doesn't fire.**
+Check that the event is on under Alerts › Events: many are off until you turn them on, and a group can have its own choice. Some events and PVE mode need an English game client. If an alert doesn't fire in your game language, please open an issue on GitHub.
+
+**An alert sound doesn't play.**
+Turn on **Play alert sounds** under Alerts › Sounds (off on a new install). The sound file must be on this PC (a drive letter); a path to another computer plays nothing. Check that do not disturb isn't on.
+
+**The Stream Deck plugin says MultiPreview is too old, but it isn't.**
+Stream Deck and MultiPreview are probably not running under the same Windows account and sign-in. If the plugin finds MultiPreview but can't connect, look at the **Connect to MultiPreview** status in the key's settings: it says what to do.
+
+**MultiPreview was gone after a cancelled shutdown.**
+If Windows asks to end the session and the shutdown is then cancelled, MultiPreview has already closed. Start it again.
+
+**Something broke. How do I report it?**
+App settings › Diagnostics › **Create bug report…** makes a zip you can check before you attach it to a [GitHub issue](https://github.com/CJKondur/EVE-MultiPreview/issues).
+
+<details>
+<summary>How do I uninstall it?</summary>
+
+MultiPreview has no installer, so Windows has no uninstaller for it.
+
+**The easy way:** App settings › About & updates › **Clean uninstall**, while MultiPreview is running. It asks first, and Cancel changes nothing. It removes:
+
+- the **Start with Windows** entry: the value `EVE MultiPreview` under `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run`, and the value of that name Task Manager keeps under `...\Explorer\StartupApproved\Run`. Neither key is deleted, and no other value is touched.
+- the key `HKEY_CURRENT_USER\Software\Classes\AppUserModelId\EveMultiPreview.Alerts`, which lets Windows show MultiPreview's notifications.
+- only if you say so, the whole settings folder `%APPDATA%\EVE MultiPreview` and everything in it. A portable copy's folder is never deleted: delete it yourself. The same goes if the folder you chose for backups of your EVE settings lies inside the settings folder.
+
+Then MultiPreview closes without saving your settings. If an entry can't be removed, it stays open and says so; press the button again. If part of the settings folder can't be deleted (a file another program has open, for example), a message says so: delete what is left yourself.
+
+**You always remove these yourself:**
+
+- the program file, `EVE MultiPreview.exe` or `EVE.MultiPreview.exe`.
+- the RTSS profile `exefile.exe.cfg` in RTSS's `Profiles` folder, if you used the frame-rate limiter (or reset it in RTSS).
+- MultiPreview's backups of EVE's settings files, by default in `%LOCALAPPDATA%\CCP\EVE\EVEMPBackups`, or the folder you chose. They are kept on purpose.
+
+**By hand instead:**
+
+1. Turn off **Start with Windows** (App settings › General).
+2. Turn off **Show alerts as Windows notifications** (Alerts › Alert hub). If the exe is already gone, delete the key `HKEY_CURRENT_USER\Software\Classes\AppUserModelId\EveMultiPreview.Alerts` in the Registry Editor; it holds a name and the path of a picture, nothing else. This goes for a portable copy too.
+3. Exit MultiPreview from its tray icon and delete the exe.
+4. Delete `%APPDATA%\EVE MultiPreview` (or, for a portable copy, the files beside the exe).
+
+</details>
+
+---
+
+## 🛠️ Building from source
+
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0), version 10.0.100 or later.
+
+```bash
+git clone https://github.com/CJKondur/EVE-MultiPreview.git
+cd EVE-MultiPreview
+dotnet build EveMultiPreview.csproj -c Release
+```
+
+For the single-file exe, run `dotnet publish EveMultiPreview.csproj -c Release`. It lands in `..\EVE-MultiPreview-Release\`, a folder beside the repository, so the large exe can't be committed by accident; add `-o <folder>` to publish somewhere else.
+
+A copy you build uses the same `%APPDATA%\EVE MultiPreview` folder as your everyday copy. Put a `portable.txt` beside a test build first if it should keep its settings to itself.
+
+MultiPreview is written in C# on .NET 10 (WPF and WinForms). The thumbnails use the Windows DWM Thumbnail API.
+
+---
+
+## 📜 License and credits
+
+EVE MultiPreview is free software under the MIT License, © 2026 CJ Kondur. See [LICENSE](LICENSE).
+
+MultiPreview is a ground-up rewrite inspired by two earlier tools. Thanks to both for paving the way:
+
+- **EVE-O Preview** by [Phrynohyas](https://github.com/Phrynohyas/eve-o-preview), MIT License.
+- **EVE-X-Preview** by [g0nzo83](https://github.com/g0nzo83) (John Xer in EVE Online), MIT License.
+
+**Typefaces of the looks:** Barlow, IBM Plex Sans, IBM Plex Mono, Figtree, Rubik, Overpass, Overpass Mono, Saira, Saira Condensed, DM Sans and Archivo, each free under the SIL Open Font License 1.1 and carried unchanged. App settings › About › Fonts shows each one's licence.
+
+Icons: EVE Online Image Export Collection, (c) CCP hf. (c) 2014 CCP hf. All rights reserved. "EVE", "EVE Online", "CCP", and all related logos and images are trademarks or registered trademarks of CCP hf. EVE MultiPreview is not made or endorsed by CCP. This material is used with limited permission of CCP Games. No official affiliation or endorsement by CCP Games is stated or implied.
