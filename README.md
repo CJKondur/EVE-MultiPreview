@@ -131,7 +131,7 @@ Privacy: in streamer mode the keys show masked names, but Stream Deck itself sto
 
 On a PC that other Windows accounts also use: the two switches only control what MultiPreview accepts. The plugin looks for the pipe whenever one of its keys is on screen and does not check who owns it, so while MultiPreview is closed another account on the same PC could take the pipe's name, see which keys you press and show fake key states (it cannot touch EVE or your files). If that matters, do not use the Stream Deck plugin on a shared PC.
 
-Icons: EVE Online Image Export Collection, (c) CCP hf. (c) 2014 CCP hf. All rights reserved. "EVE", "EVE Online", "CCP", and all related logos and images are trademarks or registered trademarks of CCP hf. EVE MultiPreview is not made or endorsed by CCP.
+Icons: EVE Online Image Export Collection, (c) CCP hf. (c) 2014 CCP hf. All rights reserved. "EVE", "EVE Online", "CCP", and all related logos and images are trademarks or registered trademarks of CCP hf. EVE MultiPreview is not made or endorsed by CCP. This material is used with limited permission of CCP Games. No official affiliation or endorsement by CCP Games is stated or implied.
 
 ## What It Doesn't Do
 
