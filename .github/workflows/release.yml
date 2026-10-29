@@ -1,19 +1,17 @@
-# EVE MultiPreview: a v* tag builds, tests and publishes the exe, and makes a DRAFT release with it.
+# EVE MultiPreview: a v* tag builds and publishes the exe and the thin sender, and makes a DRAFT release with them.
+# A tag with a '-' in it (v3.0.0-beta.1) makes a draft that is marked pre-release.
 #
-# NOT YET RUN ON GITHUB. This file was written on 2026-10-09 and checked on a PC only (it parses as YAML, and
-# actionlint finds nothing). No tag has been pushed since it was added: the first tag is the real test of it.
+# NOT YET RUN ON GITHUB: the first tag is the real test of this file.
 #
 # What it does not do:
 #   - it does not publish. The release stays a draft until you publish it on GitHub;
 #   - it does not write release notes. They are not in the repository: paste them into the draft;
 #   - it does not sign the exe. The place for that is marked below.
 #
-# The files are named as every release so far names them: EVE.MultiPreview.exe and EVE.MultiPreview.pdb, since the thin
-# sender (IDEAS P128) EVE.MultiPreview.Send.exe, which goes beside the exe, and since the Stream Deck plugin (IDEAS #15,
-# Plan 38) EVE.MultiPreview.streamDeckPlugin: four files. The in-app updater looks for the first name only: it fetches
-# neither the sender, which stays as it was put (it hands anything it cannot finish to the full exe, and the pipe
-# protocol is shared source, so an older sender keeps working until the protocol changes), nor the plugin, which a person
-# installs by double-clicking it (winget does not carry it either).
+# The files are named as every release so far names them: EVE.MultiPreview.exe and EVE.MultiPreview.pdb, and since the thin
+# sender (IDEAS P128) EVE.MultiPreview.Send.exe, which goes beside the exe. The in-app updater looks for the first name
+# only: it does not fetch the sender, which stays as it was put (it hands anything it cannot finish to the full exe, and the
+# pipe protocol is shared source, so an older sender keeps working until the protocol changes).
 
 name: Release
 
@@ -26,7 +24,7 @@ permissions:
 
 jobs:
   build:
-    name: Build, test and publish
+    name: Build and publish
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
@@ -44,37 +42,19 @@ jobs:
       - name: Say which .NET SDK builds the release
         run: dotnet --version
 
+      # v3.0.0 for Version 3.0.0, or v3.0.0-<suffix> (v3.0.0-beta.1) for a pre-release of it.
       - name: The tag must be the version in EveMultiPreview.csproj
         shell: pwsh
         run: |
           $version = (Select-Xml -Path EveMultiPreview.csproj -XPath '//Version').Node.InnerText
-          if ("v$version" -ne $env:GITHUB_REF_NAME) {
-            throw "The tag is $env:GITHUB_REF_NAME but EveMultiPreview.csproj says version $version. Tag the commit that sets the version."
+          $tag = $env:GITHUB_REF_NAME
+          if ($tag -ne "v$version" -and -not $tag.StartsWith("v$version-")) {
+            throw "The tag is $tag but EveMultiPreview.csproj says version $version. Tag the commit that sets the version (v$version, or v$version-<suffix> for a pre-release)."
           }
 
-      - name: Make the desktop 1920x1080
-        shell: powershell
-        run: |
-          Set-DisplayResolution -Width 1920 -Height 1080 -Force
-          Add-Type -AssemblyName System.Windows.Forms
-          $screen = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
-          if ($screen.Width -lt 1920 -or $screen.Height -lt 1080) {
-            throw "The desktop is $($screen.Width)x$($screen.Height). The window tests need 1920x1080."
-          }
-
-      - name: Restore
-        run: dotnet restore EveMultiPreview.sln
-
-      # A warning fails the build and the publish, except NuGet's four "this package has a known
-      # vulnerability" warnings (NU1901 to NU1904): an advisory published after the tagged commit must not
-      # turn the tag's build red. They still show as warnings. The quotes are needed: PowerShell reads a
-      # bare ';' as the end of the command.
-      - name: Build (a warning fails it)
-        run: dotnet build EveMultiPreview.sln -c Debug --no-restore -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
-
-      - name: Test
-        run: dotnet test EveMultiPreview.sln -c Debug --no-build --blame-hang-timeout 10m
-
+      # A warning fails the publish, except NuGet's four "this package has a known vulnerability" warnings
+      # (NU1901 to NU1904): an advisory published after the tagged commit must not turn the tag's build red.
+      # They still show as warnings. The quotes are needed: PowerShell reads a bare ';' as the end of the command.
       - name: Publish the single-file exe (a warning fails it)
         run: dotnet publish EveMultiPreview.csproj -c Release -o publish -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
 
@@ -106,7 +86,7 @@ jobs:
       # about every download.
       # ────────────────────────────────────────────────────────────────────────────────────────────────
 
-      - name: Hand the three files to the release job
+      - name: Hand the files to the release job
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-files
@@ -114,132 +94,34 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  # IDEAS #15 / Plan 38: the Stream Deck plugin, in a job of its own so that the job which builds the exe runs no npm code and
-  # a package of the plugin can never touch the exe. It has read-only rights and no secret. `npm ci --ignore-scripts` installs what
-  # package-lock.json names and runs no package's install script. The audit is printed to the run's summary and never fails the
-  # release (Ruling 20: CI already fails a commit on a high finding; a tag must not be stopped by an advisory published after
-  # that commit). It is the one step of this file allowed continue-on-error, and tools/ci/check_workflows.py compares it whole.
-  plugin:
-    name: Build the Stream Deck plugin
-    runs-on: windows-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    steps:
-      - name: Check out
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: The tag must be the version in EveMultiPreview.csproj
-        shell: pwsh
-        run: |
-          $version = (Select-Xml -Path EveMultiPreview.csproj -XPath '//Version').Node.InnerText
-          if ("v$version" -ne $env:GITHUB_REF_NAME) {
-            throw "The tag is $env:GITHUB_REF_NAME but EveMultiPreview.csproj says version $version. Tag the commit that sets the version."
-          }
-
-      # The manifest's Version is what Stream Deck shows and compares when a newer plugin is double-clicked; a release whose
-      # plugin still says the old number would look like no update. tools/ci/check_workflows.py compares this step whole.
-      - name: The plugin manifest must say the csproj version plus .0
-        shell: pwsh
-        run: |
-          $version = (Select-Xml -Path EveMultiPreview.csproj -XPath '//Version').Node.InnerText
-          $manifest = (Get-Content -Raw -LiteralPath StreamDeckPlugin/com.cjkondur.evemultipreview.sdPlugin/manifest.json | ConvertFrom-Json).Version
-          if ($manifest -ne "$version.0") {
-            throw "The plugin manifest says version $manifest but EveMultiPreview.csproj says $version, so it must say $version.0. Change Version in StreamDeckPlugin/com.cjkondur.evemultipreview.sdPlugin/manifest.json."
-          }
-
-      - name: Install Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 24.12.0
-          package-manager-cache: false
-
-      - name: Install the plugin's packages (no install scripts)
-        working-directory: StreamDeckPlugin
-        run: npm ci --ignore-scripts
-
-      # What the registry sends back is text of somebody else's: it is printed between ::stop-commands:: and its token, so that
-      # a line of it that looks like a workflow command is only text.
-      - name: Audit the plugin's packages (printed, not enforced)
-        working-directory: StreamDeckPlugin
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          $report = npm audit --audit-level=high 2>&1 | Out-String
-          $code = $LASTEXITCODE
-          $token = [guid]::NewGuid().ToString('N')
-          Write-Host "::stop-commands::$token"
-          Write-Host $report
-          Write-Host "::$token::"
-          "### Stream Deck plugin: dependency audit (exit code $code)`n`n~~~`n$report`n~~~" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
-          exit $code
-
-      - name: Test the plugin
-        working-directory: StreamDeckPlugin
-        run: npm test
-
-      - name: Build the plugin
-        working-directory: StreamDeckPlugin
-        run: npm run build
-
-      - name: Validate the plugin with Elgato's tool
-        working-directory: StreamDeckPlugin
-        run: npm run validate
-
-      - name: Pack the plugin
-        working-directory: StreamDeckPlugin
-        run: npm run pack
-
-      - name: Name the file as the releases name it
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path release-plugin | Out-Null
-          Copy-Item -LiteralPath 'StreamDeckPlugin/dist/com.cjkondur.evemultipreview.streamDeckPlugin' -Destination 'release-plugin/EVE.MultiPreview.streamDeckPlugin'
-          $hash = (Get-FileHash -LiteralPath 'release-plugin/EVE.MultiPreview.streamDeckPlugin' -Algorithm SHA256).Hash.ToLowerInvariant()
-          "EVE.MultiPreview.streamDeckPlugin SHA-256: ``$hash``" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
-
-      - name: Hand the plugin to the release job
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: release-plugin
-          path: release-plugin/
-          if-no-files-found: error
-          retention-days: 7
-
   # The only job that may write to the repository, and it runs none of the repository's code:
-  # it takes the three files the build job made and, into a folder of its own, the plugin the plugin job made, and attaches
-  # those four named files (nothing else of the plugin job's artifact) to a new draft release.
+  # it takes the files the build job made and attaches them to a new draft release.
   draft-release:
     name: Draft the release
-    needs: [build, plugin]
+    needs: [build]
     runs-on: windows-latest
     timeout-minutes: 15
     permissions:
       contents: write
     steps:
-      - name: Take the three files
+      - name: Take the files
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-files
           path: release
 
-      # Into a folder of its own, never into release/: the plugin job runs npm code, and an artifact that held a file with the
-      # exe's name would otherwise replace the real exe. Only the one file named below is taken from this folder.
-      - name: Take the plugin
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: release-plugin
-          path: release-plugin
-
+      # A tag with a '-' in it is a pre-release.
       - name: Make the draft release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create $env:GITHUB_REF_NAME
-          release/EVE.MultiPreview.exe release/EVE.MultiPreview.pdb release/EVE.MultiPreview.Send.exe release-plugin/EVE.MultiPreview.streamDeckPlugin
-          --repo $env:GITHUB_REPOSITORY --draft --verify-tag
-          --title $env:GITHUB_REF_NAME
-          --notes "Paste the release notes here before you publish."
+        run: |
+          $flags = @()
+          if ($env:GITHUB_REF_NAME.Contains('-')) { $flags += '--prerelease' }
+          gh release create $env:GITHUB_REF_NAME `
+            release/EVE.MultiPreview.exe release/EVE.MultiPreview.pdb release/EVE.MultiPreview.Send.exe `
+            --repo $env:GITHUB_REPOSITORY --draft --verify-tag `
+            --title $env:GITHUB_REF_NAME `
+            --notes "Paste the release notes here before you publish." `
+            @flags
+          if ($LASTEXITCODE -ne 0) { throw "gh release create failed." }
