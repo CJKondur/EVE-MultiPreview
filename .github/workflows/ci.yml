@@ -1,4 +1,4 @@
-# EVE MultiPreview: build the app and the thin sender on every push and every pull request.
+# EVE MultiPreview: build the app on every push and every pull request.
 #
 # Every action is pinned to a commit; the comment after it is the release that commit is.
 
@@ -39,5 +39,3 @@ jobs:
       - name: Build the app (a warning fails it)
         run: dotnet build EveMultiPreview.csproj -c Debug -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
 
-      - name: Build the thin sender (a warning fails it)
-        run: dotnet build Sender/EveMultiPreviewSend.csproj -c Debug -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"

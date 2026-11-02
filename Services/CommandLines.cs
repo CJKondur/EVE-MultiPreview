@@ -25,22 +25,6 @@ public static class CommandLines
         return switchText + " \"" + name + "\"";
     }
 
-    /// <summary>IDEAS P128: the thin sender's file name, as built and as the releases name it. It sits beside the full exe
-    /// when the player put it there.</summary>
-    public static readonly string[] SenderFileNames = { "EVE MultiPreview Send.exe", "EVE.MultiPreview.Send.exe" };
-
-    /// <summary>The program a button runs: the thin sender beside <paramref name="exePath"/> when there is one (it answers in
-    /// about a tenth of the time: the full exe is a whole WPF start), else <paramref name="exePath"/> itself. The same switches
-    /// and exit codes either way. <paramref name="exists"/> is File.Exists unless a test hands one in.</summary>
-    public static string? ButtonProgram(string? exePath, Func<string, bool>? exists = null)
-    {
-        if (string.IsNullOrEmpty(exePath)) return exePath;
-        var folder = System.IO.Path.GetDirectoryName(exePath);
-        if (string.IsNullOrEmpty(folder)) return exePath;
-        var exist = exists ?? System.IO.File.Exists;
-        return SenderFileNames.Select(name => System.IO.Path.Combine(folder, name)).FirstOrDefault(exist) ?? exePath;
-    }
-
     /// <summary>The whole line: the quoted program, then <see cref="Arguments"/>. Null when either has none.</summary>
     public static string? Line(string? exePath, RemoteCommand command)
     {

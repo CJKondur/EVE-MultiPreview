@@ -39,6 +39,8 @@ StreamDeckPlugin/node_modules/
 StreamDeckPlugin/**/bin/
 StreamDeckPlugin/**/logs/
 *.streamDeckPlugin
+# ...except the packed copy the exe embeds (a build input: Install Stream Deck plugin)
+!Resources/EVE.MultiPreview.streamDeckPlugin
 
 # ── Local only: git holds just what builds the app, plus the release workflow, README and LICENSE ──
 # (owner 2026-10-28). Tests, the Stream Deck plugin, tools, plans and notes stay on the owner's PC.

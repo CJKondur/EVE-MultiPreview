@@ -35,11 +35,16 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     private readonly UIElement _noProgram = EditorCard.Note("L.S.Cmd.NoProgram");
     private readonly StackPanel _controls = new();
     private readonly Button _make;
+    private readonly Button _plugin;
+    private readonly UIElement _pluginDesc;
+    private readonly Func<PluginOffer> _pluginOffer;
+    private readonly Func<bool> _installPlugin;
     private bool _busy;
 
-    /// <summary>The real seams: this program's path, the clipboard, the shortcut writer, the pipe (asynchronously: a
-    /// window's own thread never waits for the answer), the folder writer and Explorer.</summary>
-    public CommandButtonsEditor(SettingsContext ctx) : this(ctx, () => CommandLines.ButtonProgram(Environment.ProcessPath), ClipboardText.Set, ShortcutFile.Create,
+    /// <summary>The real seams: this program's path (a button runs this exe, which hands the command over before WPF loads:
+    /// Program.Main), the clipboard, the shortcut writer, the pipe (asynchronously: a window's own thread never waits for the
+    /// answer), the folder writer and Explorer.</summary>
+    public CommandButtonsEditor(SettingsContext ctx) : this(ctx, () => Environment.ProcessPath, ClipboardText.Set, ShortcutFile.Create,
         command => CommandPipe.SendAsync(CommandPipe.CurrentName(), command, CommandPipe.SendTime))
     {
     }
@@ -51,11 +56,17 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
     /// <param name="afterQueuedInput">Runs an action once the input already queued has been handled (real: the dispatcher at
     /// Background priority, below input), so a second click of a double-click, which WPF delivers only after the first click's
     /// handler has returned, finds the button still off.</param>
+    /// <param name="pluginOffer">What the Stream Deck plugin button offers (real: the plugin inside this exe against the
+    /// installed one, <see cref="StreamDeckPluginPackage"/>).</param>
+    /// <param name="installPlugin">Hands the packed plugin to the Stream Deck app; false when that failed (real:
+    /// <see cref="StreamDeckPluginPackage.Install"/>).</param>
     public CommandButtonsEditor(SettingsContext ctx, Func<string?> exePath, Func<string, bool> copy,
         Func<string, string, string, string?, bool> saveShortcut, Func<RemoteCommand, Task<RemoteOutcome>> send, Func<bool>? elevated = null,
         Func<string, IReadOnlyList<ButtonSpec>, ButtonFolderResult>? writeFolder = null, Action<string>? openFolder = null,
-        Action<Action>? afterQueuedInput = null)
+        Action<Action>? afterQueuedInput = null, Func<PluginOffer>? pluginOffer = null, Func<bool>? installPlugin = null)
     {
+        _pluginOffer = pluginOffer ?? (() => StreamDeckPluginPackage.Offer(StreamDeckPluginPackage.PackedVersion(), StreamDeckPluginPackage.InstalledVersion()));
+        _installPlugin = installPlugin ?? StreamDeckPluginPackage.Install;
         _ctx = ctx;
         _exePath = exePath;
         _copy = copy;
@@ -78,7 +89,14 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
         _make.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
         var makeDesc = EditorCard.Note("L.S.Cmd.MakeButtons.Desc");
         makeDesc.Margin = new Thickness(0, 4, 0, 12);
+        _plugin = EditorCard.Button("L.S.Cmd.Plugin.Install", InstallPlugin);
+        _plugin.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+        var pluginDesc = EditorCard.Note("L.S.Cmd.Plugin.Desc");
+        pluginDesc.Margin = new Thickness(0, 4, 0, 12);
+        _pluginDesc = pluginDesc;
         var below = new StackPanel();
+        below.Children.Add(_plugin);
+        below.Children.Add(pluginDesc);
         below.Children.Add(_make);
         below.Children.Add(makeDesc);
         below.Children.Add(_noProgram);
@@ -109,6 +127,28 @@ public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, 
         bool any = Choices.Count > 0;
         _noProgram.Visibility = any ? Visibility.Collapsed : Visibility.Visible;
         _controls.Visibility = ListIsShown ? Visibility.Visible : Visibility.Collapsed;
+        RefreshPlugin();
+    }
+
+    /// <summary>What the Stream Deck plugin button offers now; it is hidden (with its note) when this exe carries no plugin.</summary>
+    public PluginOffer PluginButtonOffer { get; private set; }
+
+    private void RefreshPlugin()
+    {
+        PluginButtonOffer = _pluginOffer();
+        var shown = PluginButtonOffer == PluginOffer.None ? Visibility.Collapsed : Visibility.Visible;
+        _plugin.Visibility = shown;
+        _pluginDesc.Visibility = shown;
+        if (PluginButtonOffer != PluginOffer.None && _plugin.Content is AccessText text)
+            Loc.SetKey(text, "L.S.Cmd.Plugin." + PluginButtonOffer);
+    }
+
+    /// <summary>"Install / Update / Reinstall Stream Deck plugin": hands the plugin inside this exe to the Stream Deck app, which
+    /// asks the player to confirm, and says so; when nothing opens it, says that the Stream Deck app is needed.</summary>
+    public void InstallPlugin()
+    {
+        _ctx.Host.Toast(SettingsContext.Str(_installPlugin() ? "L.S.Cmd.Plugin.Opened" : "L.S.Cmd.Plugin.Failed"));
+        RefreshPlugin();
     }
 
     /// <summary>Whether the pick / copy / save / try list shows: only while commands are on and there is a program to write

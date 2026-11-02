@@ -15,6 +15,8 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <AssemblyName>EVE MultiPreview</AssemblyName>
     <RootNamespace>EveMultiPreview</RootNamespace>
+    <!-- Program.Main hands a second start's command over before WPF loads, then starts App as WPF's own Main would. -->
+    <StartupObject>EveMultiPreview.Program</StartupObject>
     <Version>3.0.0</Version>
     <Description>EVE Online multi-client thumbnail preview manager</Description>
 
@@ -54,6 +56,9 @@
     <EmbeddedResource Include="Icon-Suspend.ico" />
     <!-- Multi-language alert log substrings extracted from EVE's localization (issue #86) -->
     <EmbeddedResource Include="Resources\alert_patterns.json" />
+    <!-- The packed Stream Deck plugin (StreamDeckPlugin: npm run build, npm run pack, copy dist\*.streamDeckPlugin here),
+         installed from the Commands for buttons card (StreamDeckPluginPackage). -->
+    <EmbeddedResource Include="Resources\EVE.MultiPreview.streamDeckPlugin" LogicalName="StreamDeckPlugin" />
   </ItemGroup>
 
   <!-- The typefaces of the looks (UI styles spec §11.1) and their licences, compiled in as WPF resources: a look names a

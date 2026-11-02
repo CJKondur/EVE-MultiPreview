@@ -1,4 +1,4 @@
-# EVE MultiPreview: a v* tag builds and publishes the exe and the thin sender, and makes a DRAFT release with them.
+# EVE MultiPreview: a v* tag builds and publishes the exe, and makes a DRAFT release with them.
 # A tag with a '-' in it (v3.0.0-beta.1) makes a draft that is marked pre-release.
 #
 # NOT YET RUN ON GITHUB: the first tag is the real test of this file.
@@ -8,10 +8,9 @@
 #   - it does not write release notes. They are not in the repository: paste them into the draft;
 #   - it does not sign the exe. The place for that is marked below.
 #
-# The files are named as every release so far names them: EVE.MultiPreview.exe and EVE.MultiPreview.pdb, and since the thin
-# sender (IDEAS P128) EVE.MultiPreview.Send.exe, which goes beside the exe. The in-app updater looks for the first name
-# only: it does not fetch the sender, which stays as it was put (it hands anything it cannot finish to the full exe, and the
-# pipe protocol is shared source, so an older sender keeps working until the protocol changes).
+# The files are named as every release so far names them: EVE.MultiPreview.exe and EVE.MultiPreview.pdb. The in-app updater
+# looks for the first name. That exe is everything a player needs: the Stream Deck plugin is packed inside it (installed from
+# App settings › Commands for buttons), and a button's command goes to the exe itself, which hands it over before WPF loads.
 
 name: Release
 
@@ -58,24 +57,13 @@ jobs:
       - name: Publish the single-file exe (a warning fails it)
         run: dotnet publish EveMultiPreview.csproj -c Release -o publish -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
 
-      # IDEAS P128: the thin sender, a small native exe that a Stream Deck / Touch Portal / AutoHotkey key runs instead of the
-      # full exe (about a tenth of the time). NativeAOT links with the Visual Studio C++ tools the runner has; vswhere, which
-      # that step looks for, lives in the Visual Studio Installer folder, so that folder goes on the PATH for this step.
-      - name: Publish the thin sender (a warning fails it)
-        shell: pwsh
-        run: |
-          $env:PATH += ";${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer"
-          dotnet publish Sender/EveMultiPreviewSend.csproj -c Release -o publish-sender -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
-          if ($LASTEXITCODE -ne 0) { throw "The thin sender did not publish." }
-
       - name: Name the files as the releases name them
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path release | Out-Null
           Copy-Item -LiteralPath 'publish/EVE MultiPreview.exe' -Destination 'release/EVE.MultiPreview.exe'
           Copy-Item -LiteralPath 'publish/EVE MultiPreview.pdb' -Destination 'release/EVE.MultiPreview.pdb'
-          Copy-Item -LiteralPath 'publish-sender/EVE MultiPreview Send.exe' -Destination 'release/EVE.MultiPreview.Send.exe'
-          foreach ($name in 'EVE.MultiPreview.exe', 'EVE.MultiPreview.Send.exe') {
+          foreach ($name in @('EVE.MultiPreview.exe')) {
             $hash = (Get-FileHash -LiteralPath "release/$name" -Algorithm SHA256).Hash.ToLowerInvariant()
             "$name SHA-256: ``$hash``" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
           }
@@ -119,7 +107,7 @@ jobs:
           $flags = @()
           if ($env:GITHUB_REF_NAME.Contains('-')) { $flags += '--prerelease' }
           gh release create $env:GITHUB_REF_NAME `
-            release/EVE.MultiPreview.exe release/EVE.MultiPreview.pdb release/EVE.MultiPreview.Send.exe `
+            release/EVE.MultiPreview.exe release/EVE.MultiPreview.pdb `
             --repo $env:GITHUB_REPOSITORY --draft --verify-tag `
             --title $env:GITHUB_REF_NAME `
             --notes "Paste the release notes here before you publish." `

@@ -187,13 +187,16 @@ public partial class App : Application
         try { System.IO.File.AppendAllText(_perfLogPath, line + Environment.NewLine); } catch { }
     }
 
+    /// <summary>The single-instance mutex. A const, so Program.Main reads it without loading WPF.</summary>
+    internal const string SingleInstanceMutexName = "EveMultiPreview_SingleInstance";
+
     protected override void OnStartup(StartupEventArgs e)
     {
         // A sign-in launch (Start with Windows, #113) starts in System32, not next to
         // the exe as a double-click does: relative paths keep resolving beside the exe.
         Environment.CurrentDirectory = AppPaths.ExeDir;
         // Single-instance guard
-        _singleInstanceMutex = new Mutex(true, "EveMultiPreview_SingleInstance", out bool createdNew);
+        _singleInstanceMutex = new Mutex(true, SingleInstanceMutexName, out bool createdNew);
         if (!createdNew)
         {
             // We allocated a Mutex object pointing at the existing kernel
@@ -206,7 +209,8 @@ public partial class App : Application
             // IDEAS #39: a second start with a command hands it to the MultiPreview that runs and ends with what came of it
             // as its exit code (0 done, 1 refused, 2 not found, 3 nothing took it). No window for 0 to 2: scripts and a
             // Stream Deck start it, and a window would take the front from the game.
-            var forwarded = RemoteCommandLine.Forward(e.Args, command =>
+            // Program.Main hands a command over before WPF loads, and comes here only for the note; it is not sent again.
+            var forwarded = Program.Forwarded ?? RemoteCommandLine.Forward(e.Args, command =>
                 CommandPipe.Send(CommandPipe.CurrentName(), command, CommandPipe.SendTime, letTakeTheFront: command.TakesTheFront));
             if (forwarded is RemoteOutcome outcome)
             {
