@@ -5,12 +5,21 @@
     <TargetFramework>net10.0</TargetFramework>
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>EveMultiPreview.Linux</RootNamespace>
     <AssemblyName>eve-multipreview</AssemblyName>
     <Version>0.1.0</Version>
     <SelfContained>true</SelfContained>
   </PropertyGroup>
+
+  <!-- The Windows app's own platform-neutral sources, compiled here unchanged. -->
+  <ItemGroup>
+    <Compile Include="..\Models\*.cs" LinkBase="Shared\Models" />
+    <Compile Include="..\Converters\*.cs" LinkBase="Shared\Converters" />
+    <EmbeddedResource Include="..\Resources\Strings.*.xaml" LogicalName="%(Filename)%(Extension)" />
+  </ItemGroup>
+  <Import Project="SharedSources.props" />
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.4" />
