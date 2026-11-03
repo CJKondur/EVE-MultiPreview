@@ -18,6 +18,8 @@
     <Compile Include="..\Models\*.cs" LinkBase="Shared\Models" />
     <Compile Include="..\Converters\*.cs" LinkBase="Shared\Converters" />
     <EmbeddedResource Include="..\Resources\Strings.*.xaml" LogicalName="%(Filename)%(Extension)" />
+    <!-- The log monitor's line patterns in every client language, under the name AlertPatterns reads. -->
+    <EmbeddedResource Include="..\Resources\alert_patterns.json" LogicalName="EveMultiPreview.Resources.alert_patterns.json" />
   </ItemGroup>
   <Import Project="SharedSources.props" />
 

@@ -46,6 +46,14 @@ public sealed class Previews
     private double _drawMs;
     private uint _lastActive, _previousActive;
     private bool _allHidden;
+    private Alerts? _alerts;
+
+    /// <summary>A thumbnail's alert border: its colour, flash rate, when it ends (null: when the player switches to
+    /// that client) and whether it is steady.</summary>
+    private sealed record AlertBorder(IBrush Brush, int RateMs, DateTime? Until, bool Steady);
+    private readonly Dictionary<string, AlertBorder> _alertBorders = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>ThumbnailManager.FlashExpiry: how long an alert shows when its event has no time of its own.</summary>
+    private static readonly Dictionary<string, int> DefaultSeconds = new() { ["critical"] = 8, ["warning"] = 6, ["info"] = 4 };
 
     public Previews()
     {
@@ -67,6 +75,9 @@ public sealed class Previews
         Console.WriteLine($"EVE MultiPreview for Linux: settings {AppPaths.SettingsPath}; looking for windows titled \"{_clients.TitlePrefix}…\" "
             + $"(Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
         BindHotkeys();
+        _alerts = new Alerts(_settings, RunningCharacters, WindowOf, _clients.Active, Flash);
+        var (chat, game) = _alerts.Start();
+        Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
         Tick();
     }
@@ -113,6 +124,21 @@ public sealed class Previews
         _clients.Activate(list[CycleStep.Next(current, list.Count, forward)].Client.Window);
     }
 
+    // ── Alerts ──
+
+    private uint WindowOf(string character) =>
+        _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, character, StringComparison.OrdinalIgnoreCase))?.Client.Window ?? 0;
+
+    private void Flash(string character, string severity, string alertType)
+    {
+        var def = SettingsUi.AlertEvents.Listed.FirstOrDefault(e => e.Key == alertType) ?? new SettingsUi.AlertEventDef(alertType, severity, "");
+        int? lasts = SettingsUi.AlertFields.Lasts(S, alertType);
+        int seconds = lasts ?? DefaultSeconds.GetValueOrDefault(severity, 6);
+        _alertBorders[character] = new AlertBorder(Brush(SettingsUi.AlertFields.Colour(S, def)), Math.Max(100, SettingsUi.AlertFields.FlashRate(S, severity)),
+            seconds == 0 ? null : DateTime.UtcNow.AddSeconds(seconds), SettingsUi.AlertFields.Steady(S, def));
+        Console.WriteLine($"Alert: {character} {alertType} ({severity})");
+    }
+
     private void Tick()
     {
         if (_ticks++ % 20 == 0) Sync();
@@ -123,6 +149,10 @@ public sealed class Previews
             if (_thumbs.ContainsKey(_lastActive)) _previousActive = _lastActive;
             _lastActive = active;
         }
+        // An alert ends when its time is up, or when the player switches to that client.
+        var now = DateTime.UtcNow;
+        foreach (var (who, border) in _alertBorders.ToList())
+            if (border.Until < now || WindowOf(who) == active && active != 0) _alertBorders.Remove(who);
         foreach (var thumb in _thumbs.Values)
         {
             bool isActive = thumb.Client.Window == active;
@@ -145,14 +175,18 @@ public sealed class Previews
 
     private ThumbnailLook Look(string character, bool isActive)
     {
-        var border = BorderColorRule.Resolve(S, character, isActive, RunningCharacters);
+        IBrush border = Brush(BorderColorRule.Resolve(S, character, isActive, RunningCharacters));
         double thickness = isActive ? S.ClientHighlightBorderThickness
             : BorderColorRule.ShowsInactiveBorder(S, character) ? S.InactiveClientBorderThickness : 0;
-        var label = S.ThumbnailAnnotations.TryGetValue(character, out var note) && !string.IsNullOrWhiteSpace(note) ? note : character;
+        if (_alertBorders.TryGetValue(character, out var alert)
+            && (alert.Steady || Environment.TickCount64 / alert.RateMs % 2 == 0))
+            (border, thickness) = (alert.Brush, Math.Max(1, S.AlertBorderThickness));
+        var label = StreamerMask.Name(StreamerKind.Character,
+            S.ThumbnailAnnotations.TryGetValue(character, out var note) && !string.IsNullOrWhiteSpace(note) ? note : character);
         var style = S.ThumbnailLabelStyles.GetValueOrDefault(character);
         var textColour = style is { Color.Length: > 0 } ? style.Color : S.ThumbnailTextColor;
         double size = style is { Size: > 0 } ? style.Size : double.TryParse(S.ThumbnailTextSize, out var fs) ? fs : 12;
-        return new ThumbnailLook(Brush(border), thickness, label, S.ShowThumbnailTextOverlay, Brush(textColour), size,
+        return new ThumbnailLook(border, thickness, label, S.ShowThumbnailTextOverlay, Brush(textColour), size,
             S.ThumbnailTextFont, Math.Clamp(S.ThumbnailOpacity, 0, 255) / 255.0, S.ShowThumbnailsAlwaysOnTop);
     }
 
