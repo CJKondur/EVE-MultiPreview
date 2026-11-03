@@ -48,6 +48,13 @@ public sealed class Alerts : IDisposable
 
     private AppSettings S => _settings.Settings;
 
+    /// <summary>Do not disturb: the tray's switch (quiet hours from the settings count as on too).</summary>
+    public bool DoNotDisturbOn
+    {
+        get => _doNotDisturb.IsOn(S, DateTime.Now);
+        set { if (value != DoNotDisturbOn) _doNotDisturb.Toggle(S, DateTime.Now); }
+    }
+
     private static T Ui<T>(Func<T> read) =>
         Dispatcher.UIThread.CheckAccess() ? read() : Dispatcher.UIThread.Invoke(read);
 

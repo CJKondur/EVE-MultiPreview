@@ -26,7 +26,9 @@ public sealed class App : Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        new Previews().Start();
+        var previews = new Previews();
+        previews.Start();
+        new Tray(this, previews);
         base.OnFrameworkInitializationCompleted();
     }
 }
@@ -34,7 +36,7 @@ public sealed class App : Application
 /// <summary>Keeps one thumbnail per EVE client: looks for clients every 2 s, redraws every 100 ms, and draws each
 /// thumbnail as the settings say (the same settings file and rules as the Windows app). Prints the average time a
 /// redraw of all thumbnails takes every 10 s.</summary>
-public sealed class Previews
+public sealed class Previews : ITrayActions
 {
     private const int Gap = 16;
     private readonly EveClients _clients = new();
@@ -80,6 +82,62 @@ public sealed class Previews
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
         Tick();
+    }
+
+    // ── Tray ──
+
+    private bool _hotkeysPaused;
+
+    public bool HotkeysPaused
+    {
+        get => _hotkeysPaused;
+        set { _hotkeysPaused = value; if (value) _hotkeys.Bind(Array.Empty<(string, Action)>()); else BindHotkeys(); }
+    }
+
+    public bool PositionsLocked
+    {
+        get => S.LockPositions;
+        set { S.LockPositions = value; _settings.SaveDelayed(); }
+    }
+
+    public bool ThumbnailsHidden { get => _allHidden; set => _allHidden = value; }
+
+    public bool DoNotDisturb
+    {
+        get => _alerts?.DoNotDisturbOn ?? false;
+        set { if (_alerts != null) _alerts.DoNotDisturbOn = value; }
+    }
+
+    public IReadOnlyList<string> Profiles => _settings.GetProfileNames();
+
+    /// <summary>Switching profile places every thumbnail where the new profile keeps it, and binds its keys.</summary>
+    public string Profile
+    {
+        get => S.LastUsedProfile;
+        set
+        {
+            if (value == S.LastUsedProfile) return;
+            _settings.SwitchProfile(value);
+            foreach (var thumb in _thumbs.Values) thumb.Close();
+            _thumbs.Clear();
+            Sync();
+            if (!_hotkeysPaused) BindHotkeys();
+        }
+    }
+
+    public void OpenSettings()
+    {
+        // The settings window comes with the next step; until then, the folder with the settings file.
+        try { Process.Start(new ProcessStartInfo("xdg-open") { ArgumentList = { AppPaths.ConfigDir }, UseShellExecute = false }); }
+        catch (System.ComponentModel.Win32Exception) { Console.WriteLine($"Settings: {AppPaths.SettingsPath}"); }
+    }
+
+    public void Exit()
+    {
+        _alerts?.Dispose();
+        _settings.Dispose();
+        foreach (var thumb in _thumbs.Values) thumb.Close();
+        (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown();
     }
 
     // ── Hotkeys ──
