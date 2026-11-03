@@ -40,7 +40,7 @@ public sealed class Previews
 
     public void Start()
     {
-        Console.WriteLine($"EVE MultiPreview for Linux: looking for windows titled \"{_clients.TitlePrefix}…\" (Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")})");
+        Console.WriteLine($"EVE MultiPreview for Linux: looking for windows titled \"{_clients.TitlePrefix}…\" (Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
         Tick();
     }

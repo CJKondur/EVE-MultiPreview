@@ -44,6 +44,12 @@ internal static unsafe class Xcb
     [DllImport(Lib)] private static extern IntPtr xcb_get_image_data(IntPtr reply);
     [DllImport(Lib)] private static extern int xcb_get_image_data_length(IntPtr reply);
 
+    [DllImport(Lib)] public static extern uint xcb_generate_id(IntPtr c);
+    [DllImport(Lib)] private static extern uint xcb_create_pixmap(IntPtr c, byte depth, uint pid, uint drawable, ushort width, ushort height);
+    [DllImport(Lib)] public static extern uint xcb_free_pixmap(IntPtr c, uint pixmap);
+    [DllImport(Lib)] private static extern uint xcb_get_window_attributes(IntPtr c, uint window);
+    [DllImport(Lib)] private static extern IntPtr xcb_get_window_attributes_reply(IntPtr c, uint cookie, IntPtr e);
+
     [DllImport(Lib)] private static extern uint xcb_send_event(IntPtr c, byte propagate, uint destination, uint eventMask, byte* evt);
 
     [DllImport(CompositeLib)] private static extern uint xcb_composite_query_version(IntPtr c, uint major, uint minor);
@@ -82,13 +88,31 @@ internal static unsafe class Xcb
         finally { NativeMemory.Free((void*)reply); }
     }
 
-    public static (int Width, int Height)? Size(IntPtr c, uint drawable)
+    public static (int Width, int Height, byte Depth)? Size(IntPtr c, uint drawable)
     {
         var reply = xcb_get_geometry_reply(c, xcb_get_geometry(c, drawable), IntPtr.Zero);
         if (reply == IntPtr.Zero) return null;
         int w = *(ushort*)(reply + 16), h = *(ushort*)(reply + 18);
+        byte depth = *(byte*)(reply + 1);
         NativeMemory.Free((void*)reply);
-        return (w, h);
+        return (w, h, depth);
+    }
+
+    /// <summary>The window's visual, or 0 when the window is gone.</summary>
+    public static uint Visual(IntPtr c, uint window)
+    {
+        var reply = xcb_get_window_attributes_reply(c, xcb_get_window_attributes(c, window), IntPtr.Zero);
+        if (reply == IntPtr.Zero) return 0;
+        uint visual = *(uint*)(reply + 8);
+        NativeMemory.Free((void*)reply);
+        return visual;
+    }
+
+    public static uint CreatePixmap(IntPtr c, byte depth, uint drawable, int width, int height)
+    {
+        uint pid = xcb_generate_id(c);
+        xcb_create_pixmap(c, depth, pid, drawable, (ushort)width, (ushort)height);
+        return pid;
     }
 
     /// <summary>A ZPixmap image of the whole drawable; the caller frees it with <see cref="Free"/>.</summary>
