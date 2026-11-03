@@ -125,15 +125,22 @@ public partial class SettingsWindow
     private void LoadSelectedGroup()
     {
         var idx = CmbGroupSelect.SelectedIndex;
-        if (idx >= 0 && idx < S.ThumbnailGroups.Count)
+        // Filling the boxes fires OnGroupDataChanged; unguarded, it wrote the previous group's members (still in
+        // TxtGroupChars) into the group just selected (RyuChaos).
+        _loadingDepth++;
+        try
         {
-            var g = S.ThumbnailGroups[idx];
-            TxtGroupName.Text = g.Name;
-            TxtGroupColor.Text = g.Color;
-            TxtGroupChars.Text = string.Join("\n", g.Members);
-            UpdateGroupColorPreview();
+            if (idx >= 0 && idx < S.ThumbnailGroups.Count)
+            {
+                var g = S.ThumbnailGroups[idx];
+                TxtGroupName.Text = g.Name;
+                TxtGroupColor.Text = g.Color;
+                TxtGroupChars.Text = string.Join("\n", g.Members);
+            }
+            else { TxtGroupName.Text = ""; TxtGroupColor.Text = "#4fc3f7"; TxtGroupChars.Text = ""; }
         }
-        else { TxtGroupName.Text = ""; TxtGroupColor.Text = "#4fc3f7"; TxtGroupChars.Text = ""; UpdateGroupColorPreview(); }
+        finally { _loadingDepth--; }
+        UpdateGroupColorPreview();
     }
 
     private void OnGroupDataChanged(object s, TextChangedEventArgs e)
