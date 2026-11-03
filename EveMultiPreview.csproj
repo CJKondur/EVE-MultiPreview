@@ -81,6 +81,11 @@
     <None Remove="Sender\**" />
     <EmbeddedResource Remove="Sender\**" />
     <!-- Plan 38: the Stream Deck plugin is JavaScript; none of it is this exe's. -->
+    <!-- The Linux app is its own project. -->
+    <Compile Remove="Linux\**" />
+    <Page Remove="Linux\**" />
+    <None Remove="Linux\**" />
+    <EmbeddedResource Remove="Linux\**" />
     <Compile Remove="StreamDeckPlugin\**" />
     <Page Remove="StreamDeckPlugin\**" />
     <None Remove="StreamDeckPlugin\**" />
