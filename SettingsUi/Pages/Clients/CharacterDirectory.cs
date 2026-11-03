@@ -5,20 +5,14 @@ using EveMultiPreview.Models;
 
 namespace EveMultiPreview.SettingsUi;
 
-/// <summary>Which characters the settings window lists (spec §5 Characters table).</summary>
-public static class CharacterDirectory
+/// <summary>Which characters the settings window lists (spec §5 Characters table). <see cref="Running"/> is in
+/// CharacterDirectory.Window.cs, so this part also builds into the Linux app.</summary>
+public static partial class CharacterDirectory
 {
     /// <summary>The current profile, resolved exactly like AppSettings' private proxy target, so
     /// direct writes and proxied writes always hit the same object.</summary>
     public static Profile Current(AppSettings s) =>
         s.Profiles.GetValueOrDefault(s.LastUsedProfile) ?? s.Profiles.Values.FirstOrDefault() ?? new Profile();
-
-    /// <summary>Logged-in characters with a client running, sorted. Empty without a ThumbnailManager.</summary>
-    public static IReadOnlyList<string> Running(SettingsContext ctx) =>
-        ctx.Services.Thumbnails?.GetActiveCharacterNames()
-            .Where(n => !string.IsNullOrWhiteSpace(n))
-            .OrderBy(n => n, StringComparer.OrdinalIgnoreCase).ToList()
-        ?? new List<string>();
 
     /// <summary>Running characters first, then every name in the current profile's per-character
     /// stores and the global label and stats stores. Each name once (ignoring case), sorted within

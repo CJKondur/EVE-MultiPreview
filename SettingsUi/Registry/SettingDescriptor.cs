@@ -7,13 +7,6 @@ namespace EveMultiPreview.SettingsUi;
 
 public enum SettingKind { Toggle, Choice, Segmented, Slider, Number, Text, Folder, File, Color, Hotkey }
 
-/// <summary>One option of a Choice or Segmented setting. LabelKey is an L.* resource key;
-/// Literal, when set, is shown instead (language names, percentages: never translated).</summary>
-public sealed record ChoiceOption(object Value, string LabelKey)
-{
-    public string? Literal { get; init; }
-}
-
 /// <summary>One setting card (spec §8.2). Build these with the <see cref="Setting"/> factory.</summary>
 public sealed record SettingDescriptor
 {

@@ -6,9 +6,6 @@ using System.Runtime.InteropServices;
 
 namespace EveMultiPreview.Services;
 
-/// <summary>IDEAS #47: one TCP connection of this PC, with the process that owns it.</summary>
-public readonly record struct TcpLink(int Pid, IPAddress Remote, int RemotePort, bool Established);
-
 /// <summary>IDEAS #47: reads this PC's TCP table (IPv4 and IPv6) so a client's connection to the game server can be seen.
 /// The parsing takes bytes and never throws, so tests hand it tables they wrote; <see cref="Read"/> asks Windows.</summary>
 public static class TcpTable

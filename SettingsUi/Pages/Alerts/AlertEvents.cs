@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
 using EveMultiPreview.Models;
 
 namespace EveMultiPreview.SettingsUi;
@@ -15,8 +13,9 @@ public sealed record AlertEventDef(string Key, string Severity, string Group)
 }
 
 /// <summary>The alert events, defined once for the settings window (spec §5 Alerts). The severities match the
-/// LogMonitorService.TriggerAlert call sites; the runtime keeps its own literals.</summary>
-public static class AlertEvents
+/// LogMonitorService.TriggerAlert call sites; the runtime keeps its own literals. The window's parts are in
+/// AlertEvents.Wpf.cs, so this part also builds into the Linux app.</summary>
+public static partial class AlertEvents
 {
     public const string Critical = "critical", Warning = "warning", Info = "info";
 
@@ -85,29 +84,7 @@ public static class AlertEvents
 
     public static AlertEventDef Find(string key) => Listed.First(e => e.Key == key);
 
-    /// <summary>The event's name in the current language (English fallback), for accessible names and messages.</summary>
-    public static string Name(string key) => Views.AlertHub.EventDisplayName(key);
-
     public static string SeverityKey(string severity) => "L.S.Sev." + severity;
-
-    /// <summary>The severity as the look draws it (Look.Severity, UI styles plan S4): by default its name in its colour
-    /// token; a look may add a shape or a tag. The words carry the meaning in every look, so colour never stands alone
-    /// (spec §7). The content is the severity's id; one the template does not know is drawn as info.</summary>
-    public static FrameworkElement SeverityText(string severity)
-    {
-        var shown = new ContentPresenter { Content = severity, VerticalAlignment = VerticalAlignment.Center };
-        shown.SetResourceReference(ContentPresenter.ContentTemplateProperty, "Look.Severity");
-        return shown;
-    }
-
-    /// <summary>Spec §6: search covers events. Each entry opens Alerts › Events at the table.</summary>
-    public static IReadOnlyList<SearchEntry> SearchEntries(Func<string, string> resolve, Func<string, string> english)
-    {
-        var path = resolve("L.S.Nav.Alerts") + " › " + resolve("L.S.Page." + AlertsPages.EventsId);
-        return Listed.Select(e => new SearchEntry(SearchKind.Event,
-            resolve(e.LabelKey) is { Length: > 0 } text ? text : e.Key, english(e.LabelKey),
-            path, AlertsPages.EventsId, AlertsPages.EventTableId)).ToList();
-    }
 }
 
 /// <summary>Reads and writes of the Alerts cards, each on one existing dictionary entry, with the runtime's rules

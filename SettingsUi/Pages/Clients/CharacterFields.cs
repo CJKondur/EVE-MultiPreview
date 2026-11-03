@@ -7,8 +7,9 @@ using EveMultiPreview.Models;
 namespace EveMultiPreview.SettingsUi;
 
 /// <summary>Get/set rules of the character page's cards, each on one existing store and with the
-/// old editor's rules. Reading never writes.</summary>
-public static class CharacterFields
+/// old editor's rules. Reading never writes. The members that need the settings window are in
+/// CharacterFields.Window.cs, so this part also builds into the Linux app.</summary>
+public static partial class CharacterFields
 {
     // ── Label (AppSettings.ThumbnailAnnotations / ThumbnailLabelStyles, every profile) ──
 
@@ -36,14 +37,6 @@ public static class CharacterFields
     {
         if (color.Length == 0 && size == 0) s.ThumbnailLabelStyles.Remove(name);
         else s.ThumbnailLabelStyles[name] = new ThumbnailLabelStyle { Color = color, Size = size };
-    }
-
-    /// <summary>The label editor's live push to the thumbnail; no re-apply needed.</summary>
-    public static void PushLabel(SettingsContext ctx, string name)
-    {
-        var text = Label(ctx.S, name);
-        var color = LabelColor(ctx.S, name);
-        ctx.Services.Thumbnails?.UpdateCharacterLabel(name, text.Length == 0 ? null : text, color.Length == 0 ? null : color, LabelSize(ctx.S, name));
     }
 
     /// <summary>The colour picker returns #RRGGBB; the old window stored 0xrrggbb. Other formats stay as entered.</summary>
@@ -144,12 +137,6 @@ public static class CharacterFields
         if (core < 0) s.PerClientCores.Remove(name);
         else s.PerClientCores[name] = core;
     }
-
-    public static IReadOnlyList<ChoiceOption> CoreOptions() =>
-        new[] { new ChoiceOption(AutoCore, "L.S.Opt.CoreAuto") }
-            .Concat(Enumerable.Range(0, Environment.ProcessorCount).Select(i =>
-                new ChoiceOption(i, "") { Literal = string.Format(CultureInfo.CurrentCulture, SettingsContext.Str("L.S.Opt.CoreN"), i) }))
-            .ToList();
 
     public static int Volume(AppSettings s, string name) =>
         s.PerClientAudioVolume.TryGetValue(name, out var v) ? Math.Clamp(v, 0, 100) : 100;
