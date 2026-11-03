@@ -30,5 +30,13 @@
     <sys:String x:Key="L.Linux.GroupMembers">Membres</sys:String>
     <sys:String x:Key="L.Linux.HotkeyNote">Cliquez sur une case et appuyez sur les touches. Échap l'efface. La touche d'un personnage se définit dans Personnages ; celles d'un groupe, dans Groupes.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Notifications du bureau</sys:String>
+    <sys:String x:Key="L.Linux.SpeechDefaultVoice">la voix par défaut du système</sys:String>
+    <sys:String x:Key="L.Linux.SpeechNoProgram">Aucun programme de synthèse vocale trouvé : rien ne peut être dit. Installez speech-dispatcher (spd-say) ou espeak-ng.</sys:String>
+    <sys:String x:Key="L.Linux.SpeechTryFailed">La voix n'a pas pu dire cela. Vérifiez que speech-dispatcher ou espeak-ng fonctionne et qu'un périphérique audio est connecté.</sys:String>
+    <sys:String x:Key="L.Linux.PushDpapi">Le lien enregistré vient de l'application Windows, où il est chiffré pour cet utilisateur Windows. Il ne peut pas être lu ici : collez-le de nouveau.</sys:String>
+    <sys:String x:Key="L.Linux.PushKeptIn">Le lien est conservé dans un fichier que vous seul pouvez lire : {0}</sys:String>
+    <sys:String x:Key="L.Linux.PushWriteFailed">Le lien n'a pas pu être enregistré : son fichier n'a pas pu être écrit.</sys:String>
+    <sys:String x:Key="L.Linux.PushAwayNote">L'absence est lue dans le temps d'inactivité du serveur X. Si le serveur X ne peut pas l'indiquer, les alertes sont envoyées quand même.</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyClash">Même touche que : {0}. Une seule des actions l'obtient.</sys:String>
 
 </ResourceDictionary>

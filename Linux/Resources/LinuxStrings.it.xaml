@@ -30,5 +30,13 @@
     <sys:String x:Key="L.Linux.GroupMembers">Membri</sys:String>
     <sys:String x:Key="L.Linux.HotkeyNote">Fai clic su una casella e premi i tasti. Esc la svuota. Il tasto di un personaggio si imposta in Personaggi; quelli di un gruppo in Gruppi.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Notifiche del desktop</sys:String>
+    <sys:String x:Key="L.Linux.SpeechDefaultVoice">la voce predefinita del sistema</sys:String>
+    <sys:String x:Key="L.Linux.SpeechNoProgram">Nessun programma vocale trovato, quindi non si può dire nulla. Installa speech-dispatcher (spd-say) o espeak-ng.</sys:String>
+    <sys:String x:Key="L.Linux.SpeechTryFailed">La voce non è riuscita a dirlo. Controlla che speech-dispatcher o espeak-ng funzioni e che un dispositivo audio sia collegato.</sys:String>
+    <sys:String x:Key="L.Linux.PushDpapi">Il link salvato proviene dall'app Windows, dove è cifrato per quell'utente Windows. Qui non può essere letto: incollalo di nuovo.</sys:String>
+    <sys:String x:Key="L.Linux.PushKeptIn">Il link è conservato in un file che solo tu puoi leggere: {0}</sys:String>
+    <sys:String x:Key="L.Linux.PushWriteFailed">Impossibile salvare il link: il suo file non può essere scritto.</sys:String>
+    <sys:String x:Key="L.Linux.PushAwayNote">L'assenza viene letta dal tempo di inattività del server X. Se il server X non può indicarlo, gli avvisi vengono comunque inviati.</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyClash">Stesso tasto di: {0}. Solo una delle azioni lo riceve.</sys:String>
 
 </ResourceDictionary>

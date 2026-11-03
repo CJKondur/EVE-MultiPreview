@@ -17,6 +17,11 @@ internal static class Ui
     /// <summary>A string without the emoji the Windows app puts before a button's text.</summary>
     public static string Plain(string text) => new(text.SkipWhile(c => !char.IsLetter(c)).ToArray());
 
+    /// <summary>A label without the access key the Windows app marks with "_": "Save _link" and, in Japanese, Korean and
+    /// Chinese, "(_L)" or "（_L）" after the text.</summary>
+    public static string NoAccess(string text) =>
+        System.Text.RegularExpressions.Regex.Replace(text, @"[（(]_[^）)]{1,2}[）)]", "").Replace("_", "");
+
     public static Control Heading(string text) =>
         new TextBlock { Text = text, FontSize = 22, FontWeight = FontWeight.SemiBold, Margin = new Thickness(0, 0, 0, 6) };
 
@@ -129,7 +134,7 @@ internal static class Ui
     }
 
     /// <summary>A hotkey box with a small clear button.</summary>
-    public static Control Hotkey(string value, Action<string> set, ISettingsHost host)
+    public static StackPanel Hotkey(string value, Action<string> set, ISettingsHost host)
     {
         var box = new HotkeyBox(value);
         box.Changed += set;

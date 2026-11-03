@@ -30,5 +30,13 @@
     <sys:String x:Key="L.Linux.GroupMembers">成员</sys:String>
     <sys:String x:Key="L.Linux.HotkeyNote">点击输入框并按下按键。按 Escape 清除。单个角色的按键在“角色”中设置，分组的按键在“分组”中设置。</sys:String>
     <sys:String x:Key="L.Linux.Notifications">桌面通知</sys:String>
+    <sys:String x:Key="L.Linux.SpeechDefaultVoice">系统默认语音</sys:String>
+    <sys:String x:Key="L.Linux.SpeechNoProgram">没有找到语音程序，所以无法朗读。请安装 speech-dispatcher（spd-say）或 espeak-ng。</sys:String>
+    <sys:String x:Key="L.Linux.SpeechTryFailed">语音没能读出这句话。请检查 speech-dispatcher 或 espeak-ng 是否正常工作，以及是否连接了声音设备。</sys:String>
+    <sys:String x:Key="L.Linux.PushDpapi">已保存的链接来自 Windows 版应用，在那里它是为该 Windows 用户加密的，这里无法读取。请重新粘贴。</sys:String>
+    <sys:String x:Key="L.Linux.PushKeptIn">链接保存在只有你能读取的文件中：{0}</sys:String>
+    <sys:String x:Key="L.Linux.PushWriteFailed">无法保存链接：无法写入它的文件。</sys:String>
+    <sys:String x:Key="L.Linux.PushAwayNote">是否离开由 X 服务器的空闲时间判断。X 服务器无法提供时，警报仍会发送。</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyClash">与 {0} 的按键相同。只有其中一个会生效。</sys:String>
 
 </ResourceDictionary>

@@ -30,5 +30,13 @@
     <sys:String x:Key="L.Linux.GroupMembers">Miembros</sys:String>
     <sys:String x:Key="L.Linux.HotkeyNote">Haz clic en un cuadro y pulsa las teclas. Escape lo borra. La tecla de un personaje se asigna en Personajes; las de un grupo, en Grupos.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Notificaciones del escritorio</sys:String>
+    <sys:String x:Key="L.Linux.SpeechDefaultVoice">la voz predeterminada del sistema</sys:String>
+    <sys:String x:Key="L.Linux.SpeechNoProgram">No se ha encontrado ningún programa de voz, así que no se puede decir nada. Instala speech-dispatcher (spd-say) o espeak-ng.</sys:String>
+    <sys:String x:Key="L.Linux.SpeechTryFailed">La voz no ha podido decirlo. Comprueba que speech-dispatcher o espeak-ng funciona y que hay un dispositivo de sonido conectado.</sys:String>
+    <sys:String x:Key="L.Linux.PushDpapi">El enlace guardado viene de la app de Windows, donde está cifrado para ese usuario de Windows. No se puede leer aquí: pégalo de nuevo.</sys:String>
+    <sys:String x:Key="L.Linux.PushKeptIn">El enlace se guarda en un archivo que solo tú puedes leer: {0}</sys:String>
+    <sys:String x:Key="L.Linux.PushWriteFailed">No se ha podido guardar el enlace: no se ha podido escribir su archivo.</sys:String>
+    <sys:String x:Key="L.Linux.PushAwayNote">La ausencia se lee del tiempo de inactividad del servidor X. Si el servidor X no puede indicarlo, las alertas se envían igualmente.</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyClash">Misma tecla que: {0}. Solo una de ellas la recibe.</sys:String>
 
 </ResourceDictionary>

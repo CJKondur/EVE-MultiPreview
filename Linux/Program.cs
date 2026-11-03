@@ -171,6 +171,14 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     void ISettingsHost.AlertsChanged() => _alerts?.Reapply();
 
+    LinuxSpeaker? ISettingsHost.Speaker => _alerts?.Speaker;
+
+    void ISettingsHost.VoiceAnswered() => _alerts?.VoiceAnswered();
+
+    Task<PushResult> ISettingsHost.TestPush() => _alerts?.TestPush() ?? Task.FromResult(new PushResult(PushOutcome.Refused));
+
+    PushStatus? ISettingsHost.PushStatus => _alerts?.PushStatus;
+
     void ISettingsHost.TrayChanged() => TrayMenu?.Rebuild();
 
     void ISettingsHost.Imported()
@@ -255,6 +263,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         {
             if (_thumbs.ContainsKey(_lastActive)) _previousActive = _lastActive;
             _lastActive = active;
+            _alerts?.Looked(_thumbs[active].Client.Character);
         }
         // An alert ends when its time is up, or when the player switches to that client.
         var now = DateTime.UtcNow;

@@ -30,5 +30,13 @@
     <sys:String x:Key="L.Linux.GroupMembers">Участники</sys:String>
     <sys:String x:Key="L.Linux.HotkeyNote">Нажмите на поле и затем нужные клавиши. Escape очищает поле. Клавиша для одного персонажа задаётся в разделе «Персонажи», клавиши группы — в разделе «Группы».</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Уведомления рабочего стола</sys:String>
+    <sys:String x:Key="L.Linux.SpeechDefaultVoice">голос системы по умолчанию</sys:String>
+    <sys:String x:Key="L.Linux.SpeechNoProgram">Программа озвучивания не найдена, поэтому ничего не будет произнесено. Установите speech-dispatcher (spd-say) или espeak-ng.</sys:String>
+    <sys:String x:Key="L.Linux.SpeechTryFailed">Голос не смог это произнести. Проверьте, что speech-dispatcher или espeak-ng работает и подключено звуковое устройство.</sys:String>
+    <sys:String x:Key="L.Linux.PushDpapi">Сохранённая ссылка пришла из приложения для Windows, где она зашифрована для того пользователя Windows. Здесь её не прочитать: вставьте её заново.</sys:String>
+    <sys:String x:Key="L.Linux.PushKeptIn">Ссылка хранится в файле, который можете прочитать только вы: {0}</sys:String>
+    <sys:String x:Key="L.Linux.PushWriteFailed">Не удалось сохранить ссылку: не удалось записать её файл.</sys:String>
+    <sys:String x:Key="L.Linux.PushAwayNote">Отсутствие определяется по времени простоя X-сервера. Если X-сервер его не сообщает, оповещения всё равно отправляются.</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyClash">Та же клавиша, что и у: {0}. Сработает только одно действие.</sys:String>
 
 </ResourceDictionary>

@@ -30,5 +30,13 @@
     <sys:String x:Key="L.Linux.GroupMembers">구성원</sys:String>
     <sys:String x:Key="L.Linux.HotkeyNote">입력란을 클릭하고 키를 누르세요. Escape를 누르면 지워져요. 캐릭터 하나의 키는 캐릭터에서, 그룹의 키는 그룹에서 설정해요.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">데스크톱 알림</sys:String>
+    <sys:String x:Key="L.Linux.SpeechDefaultVoice">시스템 기본 음성</sys:String>
+    <sys:String x:Key="L.Linux.SpeechNoProgram">음성 프로그램을 찾을 수 없어서 아무것도 말할 수 없어요. speech-dispatcher(spd-say) 또는 espeak-ng를 설치해요.</sys:String>
+    <sys:String x:Key="L.Linux.SpeechTryFailed">음성이 이 문장을 말하지 못했어요. speech-dispatcher 또는 espeak-ng가 동작하는지, 소리 장치가 연결되어 있는지 확인해요.</sys:String>
+    <sys:String x:Key="L.Linux.PushDpapi">저장된 링크는 Windows 앱에서 온 것이고, 그 Windows 사용자용으로 암호화되어 있어요. 여기서는 읽을 수 없어요. 다시 붙여넣어요.</sys:String>
+    <sys:String x:Key="L.Linux.PushKeptIn">링크는 사용자만 읽을 수 있는 파일에 저장돼요: {0}</sys:String>
+    <sys:String x:Key="L.Linux.PushWriteFailed">링크를 저장하지 못했어요. 파일에 쓸 수 없었어요.</sys:String>
+    <sys:String x:Key="L.Linux.PushAwayNote">자리를 비웠는지는 X 서버의 유휴 시간으로 판단해요. X 서버가 알려 주지 못하면 알림을 그대로 보내요.</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyClash">{0}와(과) 같은 키예요. 그중 하나만 사용할 수 있어요.</sys:String>
 
 </ResourceDictionary>

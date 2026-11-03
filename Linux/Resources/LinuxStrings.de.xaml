@@ -30,5 +30,13 @@
     <sys:String x:Key="L.Linux.GroupMembers">Mitglieder</sys:String>
     <sys:String x:Key="L.Linux.HotkeyNote">Klicke auf ein Feld und drücke die Tasten. Escape leert es. Die Taste für einen Charakter legst du unter Charaktere fest, die Tasten für eine Gruppe unter Gruppen.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Desktop-Benachrichtigungen</sys:String>
+    <sys:String x:Key="L.Linux.SpeechDefaultVoice">die Standardstimme des Systems</sys:String>
+    <sys:String x:Key="L.Linux.SpeechNoProgram">Kein Sprachprogramm gefunden, deshalb kann nichts gesprochen werden. Installiere speech-dispatcher (spd-say) oder espeak-ng.</sys:String>
+    <sys:String x:Key="L.Linux.SpeechTryFailed">Die Stimme konnte das nicht sagen. Prüfe, ob speech-dispatcher oder espeak-ng funktioniert und ein Audiogerät angeschlossen ist.</sys:String>
+    <sys:String x:Key="L.Linux.PushDpapi">Der gespeicherte Link stammt aus der Windows-App, wo er für den dortigen Windows-Benutzer verschlüsselt ist. Er kann hier nicht gelesen werden: Füge ihn erneut ein.</sys:String>
+    <sys:String x:Key="L.Linux.PushKeptIn">Der Link liegt in einer Datei, die nur du lesen kannst: {0}</sys:String>
+    <sys:String x:Key="L.Linux.PushWriteFailed">Der Link konnte nicht gespeichert werden: Die Datei konnte nicht geschrieben werden.</sys:String>
+    <sys:String x:Key="L.Linux.PushAwayNote">Ob du nicht am PC bist, wird aus der Leerlaufzeit des X-Servers gelesen. Kann der X-Server sie nicht nennen, werden Alarme trotzdem gesendet.</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyClash">Dieselbe Taste wie: {0}. Nur eine davon bekommt sie.</sys:String>
 
 </ResourceDictionary>

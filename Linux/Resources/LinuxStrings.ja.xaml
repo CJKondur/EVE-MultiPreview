@@ -30,5 +30,13 @@
     <sys:String x:Key="L.Linux.GroupMembers">メンバー</sys:String>
     <sys:String x:Key="L.Linux.HotkeyNote">ボックスをクリックしてキーを押します。Escape で解除します。キャラクター個別のキーは「キャラクター」で、グループのキーは「グループ」で設定します。</sys:String>
     <sys:String x:Key="L.Linux.Notifications">デスクトップ通知</sys:String>
+    <sys:String x:Key="L.Linux.SpeechDefaultVoice">システムの既定の音声</sys:String>
+    <sys:String x:Key="L.Linux.SpeechNoProgram">音声合成プログラムが見つからないため、何も読み上げられません。speech-dispatcher（spd-say）または espeak-ng をインストールしてください。</sys:String>
+    <sys:String x:Key="L.Linux.SpeechTryFailed">音声はこの文を読み上げられませんでした。speech-dispatcher または espeak-ng が動作していること、サウンド デバイスが接続されていることを確認してください。</sys:String>
+    <sys:String x:Key="L.Linux.PushDpapi">保存されたリンクは Windows アプリのもので、その Windows ユーザー向けに暗号化されています。ここでは読めません。もう一度貼り付けてください。</sys:String>
+    <sys:String x:Key="L.Linux.PushKeptIn">リンクはあなただけが読めるファイルに保存されています：{0}</sys:String>
+    <sys:String x:Key="L.Linux.PushWriteFailed">リンクを保存できませんでした。ファイルに書き込めませんでした。</sys:String>
+    <sys:String x:Key="L.Linux.PushAwayNote">離席中かどうかは X サーバーのアイドル時間から判断します。X サーバーが答えられない場合は、アラートをそのまま送信します。</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyClash">{0} と同じキーです。どれか 1 つだけが使えます。</sys:String>
 
 </ResourceDictionary>

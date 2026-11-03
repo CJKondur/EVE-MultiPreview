@@ -29,5 +29,13 @@
     <sys:String x:Key="L.Linux.GroupMembers">Members</sys:String>
     <sys:String x:Key="L.Linux.HotkeyNote">Click a box and press the keys. Escape clears it. A key for one character is set on Characters; keys for a group on Groups.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Desktop notifications</sys:String>
+    <sys:String x:Key="L.Linux.SpeechDefaultVoice">the system's default voice</sys:String>
+    <sys:String x:Key="L.Linux.SpeechNoProgram">No speech program found, so nothing can be spoken. Install speech-dispatcher (spd-say) or espeak-ng.</sys:String>
+    <sys:String x:Key="L.Linux.SpeechTryFailed">The voice could not say that. Check that speech-dispatcher or espeak-ng works and that a sound device is connected.</sys:String>
+    <sys:String x:Key="L.Linux.PushDpapi">The saved link comes from the Windows app, where it is encrypted for that Windows user. It can't be read here: paste it again.</sys:String>
+    <sys:String x:Key="L.Linux.PushKeptIn">The link is kept in a file only you can read: {0}</sys:String>
+    <sys:String x:Key="L.Linux.PushWriteFailed">The link could not be saved: its file could not be written.</sys:String>
+    <sys:String x:Key="L.Linux.PushAwayNote">Away is read from the X server's idle time. Where the X server can't say, alerts are sent anyway.</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyClash">Same key as: {0}. Only one of them gets it.</sys:String>
 
 </ResourceDictionary>

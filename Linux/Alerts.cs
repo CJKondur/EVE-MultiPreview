@@ -17,6 +17,10 @@ public sealed class Alerts : IDisposable
     private readonly DoNotDisturb _doNotDisturb = new();
     private readonly AlertHistory _history;
     private readonly AlertTargets _targets;
+    private readonly AlertWays _ways = new(ex => ErrorLog.Shared.Record(ex, "App", DateTime.Now));
+    private readonly SpokenWay? _spoken;
+    private readonly PushWay? _push;
+    private readonly XIdle _idle = new();
 
     /// <param name="running">The characters that have a thumbnail.</param>
     /// <param name="windowOf">The character's client window, or 0.</param>
@@ -42,11 +46,41 @@ public sealed class Alerts : IDisposable
             SoundHeld = severity => S.EnableAlertSounds && _doNotDisturb.Silences(S, severity, DateTime.Now),
             Toast = (c, type, severity, _) => Notify(c, type, severity),
             Sound = (c, type, severity) => PlaySound(type, severity),
+            // After every gate. Whether the character's client is the window in front is asked once, and only while a
+            // further way is on (AlertWays.Raised).
+            Ways = (c, type, severity, raisedUtc) => _ways.Raised(S, c, type, severity, () => ClientInFront(c, windowOf, inFront), raisedUtc),
             Failed = (way, ex) => ErrorLog.Shared.Record(new InvalidOperationException($"An alert's {way} failed: " + ex.GetType().Name), "AlertDispatcher", DateTime.Now),
         };
+
+        // Spoken alerts and Discord, wired as the Windows app wires them (App.xaml.cs): each way is told of every alert that
+        // got past the gates and decides for itself. A voice that could not be made is simply not there.
+        try
+        {
+            _spoken = new SpokenWay(Speaker, () => S,
+                (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
+                EventName, LocalizationService.Str, () => LocalizationService.CurrentLanguage,
+                ex => ErrorLog.Shared.Record(ex, "App", DateTime.Now),
+                stillWanted: alert => !_snoozes.IsSnoozed(alert.Character, alert.EventKey));
+            _ways.Add(_spoken);
+            // The webhook link is read from its 0600 file (WebhookFile); "away" is the X server's idle time. A system
+            // that can't tell its idle time (null) counts as away, as PushWay documents.
+            _push = new PushWay(new DiscordSender(DiscordSender.RealHandler()), WebhookFile.Read,
+                (s, severity) => _doNotDisturb.Silences(s, severity, DateTime.Now),
+                _idle.Query, EventName, LocalizationService.Str,
+                failed: ex => ErrorLog.Shared.Record(ex, "App", DateTime.Now));
+            _ways.Add(_push);
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Shared.Record(AlertWays.Failure("Alert ways: making them at start-up", ex), "App", DateTime.Now);
+        }
     }
 
     private AppSettings S => _settings.Settings;
+
+    /// <summary>The character's client is the window in front.</summary>
+    private static bool ClientInFront(string character, Func<string, uint> windowOf, Func<uint> inFront) =>
+        Ui(() => windowOf(character) is var w && w != 0 && w == inFront());
 
     /// <summary>Do not disturb: the tray's switch (quiet hours from the settings count as on too).</summary>
     public bool DoNotDisturbOn
@@ -63,6 +97,7 @@ public sealed class Alerts : IDisposable
     {
         _monitor.SetSettings(S);
         _profiles.Apply(S, _monitor.SetEnabledAlertTypes);
+        FollowWays();
         StreamerMask.Follow(_settings);
         if (_settings.LoadedSuccessfully) _history.DeleteOldDays();
 
@@ -81,7 +116,31 @@ public sealed class Alerts : IDisposable
         var (chat, game) = EveLogs.Folders(S);
         _monitor.Reconfigure(chat, game, S.EnableChatLogMonitoring && chat.Length > 0, S.EnableGameLogMonitoring && game.Length > 0);
         _history.Enabled = _settings.LoadedSuccessfully && S.AlertHistoryEnabled;
+        FollowWays();
     }
+
+    /// <summary>Tells the voice and the Discord way about the settings as they are now (after every change, as App does).</summary>
+    private void FollowWays()
+    {
+        _spoken?.Follow(S.SpeakAlerts);
+        _push?.Follow(S);
+    }
+
+    /// <summary>The player looked at this character's client: the voice forgets what it holds against saying that
+    /// character's alerts again.</summary>
+    public void Looked(string character) => _spoken?.Looked(character);
+
+    /// <summary>The settings page's "Send a test message": one message now. Refused when no link can be read here.</summary>
+    public Task<PushResult> TestPush() => _push?.TestAsync(S) ?? Task.FromResult(new PushResult(PushOutcome.Refused));
+
+    /// <summary>What Discord last answered, or null before the first message.</summary>
+    public PushStatus? PushStatus => _push?.Status;
+
+    /// <summary>The voice the alerts are said with; the settings page lists its voices and tries them.</summary>
+    public LinuxSpeaker Speaker { get; } = new(() => LocalizationService.CurrentLanguage);
+
+    /// <summary>The voice said a sentence that came through: a run of failures that stopped it ends.</summary>
+    public void VoiceAnswered() => _spoken?.VoiceAnswered();
 
     private void OnAlert(string character, string alertType, string severity)
     {
@@ -135,6 +194,9 @@ public sealed class Alerts : IDisposable
     public void Dispose()
     {
         _monitor.Stop();
+        _spoken?.Stop();
+        _push?.Stop();
+        _idle.Dispose();
         _history.Dispose();
     }
 }
