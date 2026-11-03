@@ -17,7 +17,7 @@
     <RootNamespace>EveMultiPreview</RootNamespace>
     <!-- Program.Main hands a second start's command over before WPF loads, then starts App as WPF's own Main would. -->
     <StartupObject>EveMultiPreview.Program</StartupObject>
-    <Version>3.0.0</Version>
+    <Version>3.0.1</Version>
     <Description>EVE Online multi-client thumbnail preview manager</Description>
 
     <!-- Publish settings -->
