@@ -1118,7 +1118,7 @@ public class AhkGlobalSettings
     public string? ColorBlindSavedColors { get; set; } = "";
 
     [JsonPropertyName("Global_Hotkeys")]
-    public int GlobalHotkeys { get; set; } = 1;
+    public int GlobalHotkeys { get; set; } = 0;   // matches AppSettings: EVE-only at first
 
     [JsonPropertyName("HotkeyWildcardModifiers")]
     public int HotkeyWildcardModifiers { get; set; } = 1;

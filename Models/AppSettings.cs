@@ -64,7 +64,9 @@ public class AppSettings
     /// (issue #59).</summary>
     public bool CycleWhileHeld { get; set; } = true;
     public bool EnableKeyBlockGuard { get; set; } = false;
-    public bool GlobalHotkeys { get; set; } = true;
+    // Off at first: "Everywhere" takes a bound key from every program on the PC (a bare "1" could not be typed
+    // anywhere else), so a new install keeps hotkeys to while EVE or MultiPreview is in front.
+    public bool GlobalHotkeys { get; set; } = false;
 
     // Hotkeys wildcard-expand over all 16 modifier combinations, so a bare "V"
     // binding also claims Ctrl+V / Shift+V / Win+V and paste never reaches EVE
