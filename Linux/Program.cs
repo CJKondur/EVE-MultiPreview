@@ -28,7 +28,7 @@ public sealed class App : Application
     {
         var previews = new Previews();
         previews.Start();
-        new Tray(this, previews);
+        previews.TrayMenu = new Tray(this, previews);
         base.OnFrameworkInitializationCompleted();
     }
 }
@@ -36,7 +36,7 @@ public sealed class App : Application
 /// <summary>Keeps one thumbnail per EVE client: looks for clients every 2 s, redraws every 100 ms, and draws each
 /// thumbnail as the settings say (the same settings file and rules as the Windows app). Prints the average time a
 /// redraw of all thumbnails takes every 10 s.</summary>
-public sealed class Previews : ITrayActions
+public sealed class Previews : ITrayActions, ISettingsHost
 {
     private const int Gap = 16;
     private readonly EveClients _clients = new();
@@ -49,6 +49,10 @@ public sealed class Previews : ITrayActions
     private uint _lastActive, _previousActive;
     private bool _allHidden;
     private Alerts? _alerts;
+    private SettingsWindow? _settingsWindow;
+
+    /// <summary>The tray icon's menu, rebuilt when a setting it shows changes.</summary>
+    public Tray? TrayMenu { get; set; }
 
     /// <summary>A thumbnail's alert border: its colour, flash rate, when it ends (null: when the player switches to
     /// that client) and whether it is steady.</summary>
@@ -82,6 +86,8 @@ public sealed class Previews : ITrayActions
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
         Tick();
+        // EVEMP_OPEN_SETTINGS=<page number from 0>: opens the settings window at startup (the tests use it).
+        if (int.TryParse(Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS"), out int page)) OpenSettings(page);
     }
 
     // ── Tray ──
@@ -118,18 +124,61 @@ public sealed class Previews : ITrayActions
         {
             if (value == S.LastUsedProfile) return;
             _settings.SwitchProfile(value);
-            foreach (var thumb in _thumbs.Values) thumb.Close();
-            _thumbs.Clear();
-            Sync();
+            ResetThumbnails();
             if (!_hotkeysPaused) BindHotkeys();
         }
     }
 
-    public void OpenSettings()
+    /// <summary>Closes every thumbnail and makes them again, each where the current profile keeps it.</summary>
+    private void ResetThumbnails()
     {
-        // The settings window comes with the next step; until then, the folder with the settings file.
-        try { Process.Start(new ProcessStartInfo("xdg-open") { ArgumentList = { AppPaths.ConfigDir }, UseShellExecute = false }); }
-        catch (System.ComponentModel.Win32Exception) { Console.WriteLine($"Settings: {AppPaths.SettingsPath}"); }
+        foreach (var thumb in _thumbs.Values) thumb.Close();
+        _thumbs.Clear();
+        Sync();
+    }
+
+    public void OpenSettings() => OpenSettings(0);
+
+    /// <summary>Opens the settings window, or brings the open one forward.</summary>
+    private void OpenSettings(int page)
+    {
+        if (_settingsWindow != null)
+        {
+            if (_settingsWindow.WindowState == WindowState.Minimized) _settingsWindow.WindowState = WindowState.Normal;
+            _settingsWindow.Activate();
+            return;
+        }
+        _settingsWindow = new SettingsWindow(this, page);
+        _settingsWindow.Closed += (_, _) => { _settingsWindow = null; CaptureHotkey(false); };
+        _settingsWindow.Show();
+    }
+
+    // ── Settings window ──
+
+    SettingsService ISettingsHost.Settings => _settings;
+
+    IReadOnlyCollection<string> ISettingsHost.RunningCharacters() => RunningCharacters();
+
+    void ISettingsHost.HotkeysChanged() { if (!_hotkeysPaused) BindHotkeys(); }
+
+    /// <summary>While a hotkey box listens, the keys are not grabbed: a key that is already a hotkey would go to the
+    /// grab and never reach the window.</summary>
+    public void CaptureHotkey(bool capturing)
+    {
+        if (capturing) _hotkeys.Bind(Array.Empty<(string, Action)>());
+        else if (!_hotkeysPaused) BindHotkeys();
+    }
+
+    void ISettingsHost.AlertsChanged() => _alerts?.Reapply();
+
+    void ISettingsHost.TrayChanged() => TrayMenu?.Rebuild();
+
+    void ISettingsHost.Imported()
+    {
+        ResetThumbnails();
+        if (!_hotkeysPaused) BindHotkeys();
+        _alerts?.Reapply();
+        TrayMenu?.Rebuild();
     }
 
     public void Exit()
@@ -142,7 +191,7 @@ public sealed class Previews : ITrayActions
 
     // ── Hotkeys ──
 
-    private void BindHotkeys()
+    internal void BindHotkeys()
     {
         var keys = new List<(string, Action)>();
         foreach (var (character, binding) in _settings.CurrentProfile.Hotkeys)

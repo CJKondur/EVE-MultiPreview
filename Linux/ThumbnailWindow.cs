@@ -37,6 +37,7 @@ public sealed class ThumbnailWindow : Window
         Position = rect.Position;
         CanResize = false;
         ShowInTaskbar = false;
+        ShowActivated = false;   // a thumbnail shown again (hidden while its client was in front) must not take the focus from the client
         WindowDecorations = Avalonia.Controls.WindowDecorations.None;
         Background = Brushes.Black;
 

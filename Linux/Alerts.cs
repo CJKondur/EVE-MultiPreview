@@ -72,6 +72,17 @@ public sealed class Alerts : IDisposable
         return (chat, game);
     }
 
+    /// <summary>Applies the settings again after the player changed them: which events are on, the two log switches and
+    /// folders, and whether the history is kept. Nothing that is being read is dropped.</summary>
+    public void Reapply()
+    {
+        _monitor.SetSettings(S);
+        _profiles.Apply(S, _monitor.SetEnabledAlertTypes);
+        var (chat, game) = EveLogs.Folders(S);
+        _monitor.Reconfigure(chat, game, S.EnableChatLogMonitoring && chat.Length > 0, S.EnableGameLogMonitoring && game.Length > 0);
+        _history.Enabled = _settings.LoadedSuccessfully && S.AlertHistoryEnabled;
+    }
+
     private void OnAlert(string character, string alertType, string severity)
     {
         var matched = _monitor.RaisingCustomText;
