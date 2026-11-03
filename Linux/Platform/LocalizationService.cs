@@ -4,7 +4,7 @@ using System.Xml.Linq;
 namespace EveMultiPreview.Services;
 
 /// <summary>The Linux side of the Windows app's LocalizationService, with the same members. It reads the same
-/// Resources/Strings.&lt;code&gt;.xaml files (embedded in the exe): English is the base, the chosen language is laid
+/// Resources/Strings.&lt;code&gt;.xaml files plus the Linux-only Linux/Resources/LinuxStrings.&lt;code&gt;.xaml (embedded in the exe): English is the base, the chosen language is laid
 /// over it, and a key missing from both gives the caller's fallback.</summary>
 public static class LocalizationService
 {
@@ -53,12 +53,21 @@ public static class LocalizationService
         CurrentLanguage = _overlay.Count > 0 || code == "en" ? code : "en";
     }
 
-    /// <summary>The language's strings by key; empty when its file is missing or unreadable (English then shows).</summary>
+    /// <summary>The language's strings by key: the Windows app's Strings.&lt;code&gt;.xaml with the Linux-only
+    /// LinuxStrings.&lt;code&gt;.xaml (the L.Linux.* keys) laid over it. Empty when neither file is readable (English then shows).</summary>
     private static Dictionary<string, string> Load(string code)
+    {
+        var strings = ReadFile($"Strings.{code}.xaml");
+        foreach (var (key, value) in ReadFile($"LinuxStrings.{code}.xaml")) strings[key] = value;
+        return strings;
+    }
+
+    /// <summary>One embedded string file by key; empty when it is missing or unreadable.</summary>
+    private static Dictionary<string, string> ReadFile(string resource)
     {
         try
         {
-            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"Strings.{code}.xaml");
+            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource);
             if (stream == null) return new();
             return XDocument.Load(stream).Root!.Elements()
                 .Where(e => e.Attribute(X + "Key") != null)
@@ -67,7 +76,7 @@ public static class LocalizationService
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"[Localization] Failed to load '{code}': {ex.Message}");
+            Console.Error.WriteLine($"[Localization] Failed to load '{resource}': {ex.Message}");
             return new();
         }
     }

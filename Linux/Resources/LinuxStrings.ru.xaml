@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- draft -->
+    <!-- Linux app strings - РУССКИЙ (Russian). Only keys present here are overridden; anything omitted falls back to LinuxStrings.en.xaml. -->
+
+    <sys:String x:Key="L.Linux.PressKey">Нажмите клавишу…</sys:String>
+    <sys:String x:Key="L.Linux.NotSet">Не задано</sys:String>
+    <sys:String x:Key="L.Linux.KeyRefused">Эту клавишу нельзя использовать</sys:String>
+    <sys:String x:Key="L.Linux.Display">Язык</sys:String>
+    <sys:String x:Key="L.Linux.Automatic">Автоматически</sys:String>
+    <sys:String x:Key="L.Linux.LanguageNote">Автоматически — язык этого рабочего стола.</sys:String>
+    <sys:String x:Key="L.Linux.ChatFolder">Папка логов чата</sys:String>
+    <sys:String x:Key="L.Linux.GameFolder">Папка игровых логов</sys:String>
+    <sys:String x:Key="L.Linux.FolderNote">Если поле пусто, логи ищутся в папке Steam (Proton) игры EVE Online.</sys:String>
+    <sys:String x:Key="L.Linux.ImportTitle">Настройки из приложения для Windows</sys:String>
+    <sys:String x:Key="L.Linux.ImportPick">Выберите файл EVE MultiPreview.json из приложения для Windows</sys:String>
+    <sys:String x:Key="L.Linux.Import">Импорт настроек из Windows…</sys:String>
+    <sys:String x:Key="L.Linux.ImportFile">Файл настроек</sys:String>
+    <sys:String x:Key="L.Linux.ImportBad">Не импортировано: это не читаемый файл настроек EVE MultiPreview.</sys:String>
+    <sys:String x:Key="L.Linux.ImportFailed">Не импортировано: не удалось скопировать файл.</sys:String>
+    <sys:String x:Key="L.Linux.ImportDone">Импортировано. Прежние настройки находятся в</sys:String>
+    <sys:String x:Key="L.Linux.StartNote">Размер, который получает миниатюра, когда её клиент замечен впервые.</sys:String>
+    <sys:String x:Key="L.Linux.Hidden">Скрыто</sys:String>
+    <sys:String x:Key="L.Linux.NoCharacters">Персонажей пока нет. Они появятся здесь, как только запустится клиент EVE.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNameUsed">Введите имя, которое ещё не используется ни одной группой.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNext">Следующая клавиша</sys:String>
+    <sys:String x:Key="L.Linux.GroupPrevious">Предыдущая клавиша</sys:String>
+    <sys:String x:Key="L.Linux.GroupMembers">Участники</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyNote">Нажмите на поле и затем нужные клавиши. Escape очищает поле. Клавиша для одного персонажа задаётся в разделе «Персонажи», клавиши группы — в разделе «Группы».</sys:String>
+    <sys:String x:Key="L.Linux.Notifications">Уведомления рабочего стола</sys:String>
+
+</ResourceDictionary>

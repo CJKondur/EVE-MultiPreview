@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- draft -->
+    <!-- Linux app strings - FRANÇAIS (French). Only keys present here are overridden; anything omitted falls back to LinuxStrings.en.xaml. -->
+
+    <sys:String x:Key="L.Linux.PressKey">Appuyez sur une touche…</sys:String>
+    <sys:String x:Key="L.Linux.NotSet">Non défini</sys:String>
+    <sys:String x:Key="L.Linux.KeyRefused">Cette touche ne peut pas être utilisée</sys:String>
+    <sys:String x:Key="L.Linux.Display">Langue</sys:String>
+    <sys:String x:Key="L.Linux.Automatic">Automatique</sys:String>
+    <sys:String x:Key="L.Linux.LanguageNote">Automatique suit la langue de ce bureau.</sys:String>
+    <sys:String x:Key="L.Linux.ChatFolder">Dossier des journaux de chat</sys:String>
+    <sys:String x:Key="L.Linux.GameFolder">Dossier des journaux de jeu</sys:String>
+    <sys:String x:Key="L.Linux.FolderNote">Si le champ est vide, les journaux sont cherchés dans le dossier Steam (Proton) d'EVE Online.</sys:String>
+    <sys:String x:Key="L.Linux.ImportTitle">Paramètres de l'application Windows</sys:String>
+    <sys:String x:Key="L.Linux.ImportPick">Choisissez le fichier EVE MultiPreview.json de l'application Windows</sys:String>
+    <sys:String x:Key="L.Linux.Import">Importer les paramètres de Windows…</sys:String>
+    <sys:String x:Key="L.Linux.ImportFile">Fichier de paramètres</sys:String>
+    <sys:String x:Key="L.Linux.ImportBad">Non importé : ce n'est pas un fichier de paramètres EVE MultiPreview lisible.</sys:String>
+    <sys:String x:Key="L.Linux.ImportFailed">Non importé : le fichier n'a pas pu être copié.</sys:String>
+    <sys:String x:Key="L.Linux.ImportDone">Importé. Les anciens paramètres se trouvent dans</sys:String>
+    <sys:String x:Key="L.Linux.StartNote">La taille qu'une miniature reçoit la première fois que son client est détecté.</sys:String>
+    <sys:String x:Key="L.Linux.Hidden">Masqué</sys:String>
+    <sys:String x:Key="L.Linux.NoCharacters">Aucun personnage pour l'instant. Ils apparaissent ici dès qu'un client EVE est lancé.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNameUsed">Saisissez un nom qu'aucun groupe n'utilise encore.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNext">Touche suivante</sys:String>
+    <sys:String x:Key="L.Linux.GroupPrevious">Touche précédente</sys:String>
+    <sys:String x:Key="L.Linux.GroupMembers">Membres</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyNote">Cliquez sur une case et appuyez sur les touches. Échap l'efface. La touche d'un personnage se définit dans Personnages ; celles d'un groupe, dans Groupes.</sys:String>
+    <sys:String x:Key="L.Linux.Notifications">Notifications du bureau</sys:String>
+
+</ResourceDictionary>

@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- draft -->
+    <!-- Linux app strings - DEUTSCH (German). Only keys present here are overridden; anything omitted falls back to LinuxStrings.en.xaml. -->
+
+    <sys:String x:Key="L.Linux.PressKey">Taste drücken…</sys:String>
+    <sys:String x:Key="L.Linux.NotSet">Nicht festgelegt</sys:String>
+    <sys:String x:Key="L.Linux.KeyRefused">Diese Taste kann nicht verwendet werden</sys:String>
+    <sys:String x:Key="L.Linux.Display">Sprache</sys:String>
+    <sys:String x:Key="L.Linux.Automatic">Automatisch</sys:String>
+    <sys:String x:Key="L.Linux.LanguageNote">Automatisch folgt der Sprache dieses Desktops.</sys:String>
+    <sys:String x:Key="L.Linux.ChatFolder">Chat-Log-Ordner</sys:String>
+    <sys:String x:Key="L.Linux.GameFolder">Game-Log-Ordner</sys:String>
+    <sys:String x:Key="L.Linux.FolderNote">Bleibt das Feld leer, werden die Logs im Steam-Ordner (Proton) von EVE Online gesucht.</sys:String>
+    <sys:String x:Key="L.Linux.ImportTitle">Einstellungen aus der Windows-App</sys:String>
+    <sys:String x:Key="L.Linux.ImportPick">EVE MultiPreview.json der Windows-App auswählen</sys:String>
+    <sys:String x:Key="L.Linux.Import">Einstellungen aus Windows importieren…</sys:String>
+    <sys:String x:Key="L.Linux.ImportFile">Einstellungsdatei</sys:String>
+    <sys:String x:Key="L.Linux.ImportBad">Nicht importiert: Das ist keine lesbare Einstellungsdatei von EVE MultiPreview.</sys:String>
+    <sys:String x:Key="L.Linux.ImportFailed">Nicht importiert: Die Datei konnte nicht kopiert werden.</sys:String>
+    <sys:String x:Key="L.Linux.ImportDone">Importiert. Die alten Einstellungen liegen in</sys:String>
+    <sys:String x:Key="L.Linux.StartNote">Die Größe, die eine Vorschau erhält, wenn ihr Client zum ersten Mal erkannt wird.</sys:String>
+    <sys:String x:Key="L.Linux.Hidden">Ausgeblendet</sys:String>
+    <sys:String x:Key="L.Linux.NoCharacters">Noch keine Charaktere. Sie erscheinen hier, sobald ein EVE-Client läuft.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNameUsed">Gib einen Namen ein, den noch keine Gruppe verwendet.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNext">Nächste Taste</sys:String>
+    <sys:String x:Key="L.Linux.GroupPrevious">Vorherige Taste</sys:String>
+    <sys:String x:Key="L.Linux.GroupMembers">Mitglieder</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyNote">Klicke auf ein Feld und drücke die Tasten. Escape leert es. Die Taste für einen Charakter legst du unter Charaktere fest, die Tasten für eine Gruppe unter Gruppen.</sys:String>
+    <sys:String x:Key="L.Linux.Notifications">Desktop-Benachrichtigungen</sys:String>
+
+</ResourceDictionary>

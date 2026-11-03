@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- draft -->
+    <!-- Linux app strings - 日本語 (Japanese). Only keys present here are overridden; anything omitted falls back to LinuxStrings.en.xaml. -->
+
+    <sys:String x:Key="L.Linux.PressKey">キーを押してください…</sys:String>
+    <sys:String x:Key="L.Linux.NotSet">未設定</sys:String>
+    <sys:String x:Key="L.Linux.KeyRefused">そのキーは使えません</sys:String>
+    <sys:String x:Key="L.Linux.Display">言語</sys:String>
+    <sys:String x:Key="L.Linux.Automatic">自動</sys:String>
+    <sys:String x:Key="L.Linux.LanguageNote">「自動」はこのデスクトップの言語に従います。</sys:String>
+    <sys:String x:Key="L.Linux.ChatFolder">チャットログのフォルダ</sys:String>
+    <sys:String x:Key="L.Linux.GameFolder">ゲームログのフォルダ</sys:String>
+    <sys:String x:Key="L.Linux.FolderNote">空のままにすると、EVE Online の Steam（Proton）フォルダからログを探します。</sys:String>
+    <sys:String x:Key="L.Linux.ImportTitle">Windows 版アプリの設定</sys:String>
+    <sys:String x:Key="L.Linux.ImportPick">Windows 版アプリの EVE MultiPreview.json を選択</sys:String>
+    <sys:String x:Key="L.Linux.Import">Windows から設定をインポート…</sys:String>
+    <sys:String x:Key="L.Linux.ImportFile">設定ファイル</sys:String>
+    <sys:String x:Key="L.Linux.ImportBad">インポートしませんでした：読み取れる EVE MultiPreview の設定ファイルではありません。</sys:String>
+    <sys:String x:Key="L.Linux.ImportFailed">インポートしませんでした：ファイルをコピーできませんでした。</sys:String>
+    <sys:String x:Key="L.Linux.ImportDone">インポートしました。以前の設定の保存先：</sys:String>
+    <sys:String x:Key="L.Linux.StartNote">クライアントが初めて検出されたときにサムネイルに割り当てられるサイズです。</sys:String>
+    <sys:String x:Key="L.Linux.Hidden">非表示</sys:String>
+    <sys:String x:Key="L.Linux.NoCharacters">キャラクターはまだありません。EVE クライアントが起動すると、ここに表示されます。</sys:String>
+    <sys:String x:Key="L.Linux.GroupNameUsed">まだどのグループにも使われていない名前を入力してください。</sys:String>
+    <sys:String x:Key="L.Linux.GroupNext">次のキー</sys:String>
+    <sys:String x:Key="L.Linux.GroupPrevious">前のキー</sys:String>
+    <sys:String x:Key="L.Linux.GroupMembers">メンバー</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyNote">ボックスをクリックしてキーを押します。Escape で解除します。キャラクター個別のキーは「キャラクター」で、グループのキーは「グループ」で設定します。</sys:String>
+    <sys:String x:Key="L.Linux.Notifications">デスクトップ通知</sys:String>
+
+</ResourceDictionary>

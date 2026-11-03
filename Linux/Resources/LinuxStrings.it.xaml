@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- draft -->
+    <!-- Linux app strings - ITALIANO (Italian). Only keys present here are overridden; anything omitted falls back to LinuxStrings.en.xaml. -->
+
+    <sys:String x:Key="L.Linux.PressKey">Premi un tasto…</sys:String>
+    <sys:String x:Key="L.Linux.NotSet">Non impostato</sys:String>
+    <sys:String x:Key="L.Linux.KeyRefused">Questo tasto non può essere usato</sys:String>
+    <sys:String x:Key="L.Linux.Display">Lingua</sys:String>
+    <sys:String x:Key="L.Linux.Automatic">Automatico</sys:String>
+    <sys:String x:Key="L.Linux.LanguageNote">Automatico segue la lingua di questo desktop.</sys:String>
+    <sys:String x:Key="L.Linux.ChatFolder">Cartella dei log della chat</sys:String>
+    <sys:String x:Key="L.Linux.GameFolder">Cartella dei log di gioco</sys:String>
+    <sys:String x:Key="L.Linux.FolderNote">Se lasciato vuoto, i log vengono cercati nella cartella Steam (Proton) di EVE Online.</sys:String>
+    <sys:String x:Key="L.Linux.ImportTitle">Impostazioni dall'app per Windows</sys:String>
+    <sys:String x:Key="L.Linux.ImportPick">Scegli l'EVE MultiPreview.json dell'app per Windows</sys:String>
+    <sys:String x:Key="L.Linux.Import">Importa le impostazioni da Windows…</sys:String>
+    <sys:String x:Key="L.Linux.ImportFile">File delle impostazioni</sys:String>
+    <sys:String x:Key="L.Linux.ImportBad">Non importato: non è un file di impostazioni di EVE MultiPreview leggibile.</sys:String>
+    <sys:String x:Key="L.Linux.ImportFailed">Non importato: non è stato possibile copiare il file.</sys:String>
+    <sys:String x:Key="L.Linux.ImportDone">Importato. Le vecchie impostazioni si trovano in</sys:String>
+    <sys:String x:Key="L.Linux.StartNote">La dimensione che una miniatura riceve la prima volta che il suo client viene rilevato.</sys:String>
+    <sys:String x:Key="L.Linux.Hidden">Nascosta</sys:String>
+    <sys:String x:Key="L.Linux.NoCharacters">Ancora nessun personaggio. Compaiono qui non appena un client EVE è in esecuzione.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNameUsed">Scrivi un nome che nessun gruppo usa ancora.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNext">Tasto successivo</sys:String>
+    <sys:String x:Key="L.Linux.GroupPrevious">Tasto precedente</sys:String>
+    <sys:String x:Key="L.Linux.GroupMembers">Membri</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyNote">Fai clic su una casella e premi i tasti. Esc la svuota. Il tasto di un personaggio si imposta in Personaggi; quelli di un gruppo in Gruppi.</sys:String>
+    <sys:String x:Key="L.Linux.Notifications">Notifiche del desktop</sys:String>
+
+</ResourceDictionary>

@@ -20,6 +20,8 @@
     <!-- WithCulture=false: MSBuild reads "Strings.de.xaml" as a German resource and moves it into a satellite assembly,
          where LocalizationService (which reads this assembly) cannot find it. -->
     <EmbeddedResource Include="..\Resources\Strings.*.xaml" WithCulture="false" LogicalName="%(Filename)%(Extension)" />
+    <!-- The Linux app's own strings (the L.Linux.* keys), same WithCulture reason. -->
+    <EmbeddedResource Include="Resources\LinuxStrings.*.xaml" WithCulture="false" LogicalName="%(Filename)%(Extension)" />
     <EmbeddedResource Include="..\Icon.ico" LogicalName="Icon.ico" />
     <!-- The log monitor's line patterns in every client language, under the name AlertPatterns reads. -->
     <EmbeddedResource Include="..\Resources\alert_patterns.json" LogicalName="EveMultiPreview.Resources.alert_patterns.json" />

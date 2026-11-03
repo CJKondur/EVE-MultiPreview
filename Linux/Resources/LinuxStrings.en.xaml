@@ -1,0 +1,33 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Linux app strings - ENGLISH. Only keys present here are overridden; anything omitted falls back to LinuxStrings.en.xaml. -->
+
+    <sys:String x:Key="L.Linux.PressKey">Press a key…</sys:String>
+    <sys:String x:Key="L.Linux.NotSet">Not set</sys:String>
+    <sys:String x:Key="L.Linux.KeyRefused">That key can't be used</sys:String>
+    <sys:String x:Key="L.Linux.Display">Language</sys:String>
+    <sys:String x:Key="L.Linux.Automatic">Automatic</sys:String>
+    <sys:String x:Key="L.Linux.LanguageNote">Automatic follows the language of this desktop.</sys:String>
+    <sys:String x:Key="L.Linux.ChatFolder">Chat log folder</sys:String>
+    <sys:String x:Key="L.Linux.GameFolder">Game log folder</sys:String>
+    <sys:String x:Key="L.Linux.FolderNote">Left empty, the logs are looked for in the Steam (Proton) folder of EVE Online.</sys:String>
+    <sys:String x:Key="L.Linux.ImportTitle">Settings from the Windows app</sys:String>
+    <sys:String x:Key="L.Linux.ImportPick">Choose the Windows app's EVE MultiPreview.json</sys:String>
+    <sys:String x:Key="L.Linux.Import">Import settings from Windows…</sys:String>
+    <sys:String x:Key="L.Linux.ImportFile">Settings file</sys:String>
+    <sys:String x:Key="L.Linux.ImportBad">Not imported: that is not a readable EVE MultiPreview settings file.</sys:String>
+    <sys:String x:Key="L.Linux.ImportFailed">Not imported: the file could not be copied.</sys:String>
+    <sys:String x:Key="L.Linux.ImportDone">Imported. The old settings are in</sys:String>
+    <sys:String x:Key="L.Linux.StartNote">The size a thumbnail gets the first time its client is seen.</sys:String>
+    <sys:String x:Key="L.Linux.Hidden">Hidden</sys:String>
+    <sys:String x:Key="L.Linux.NoCharacters">No characters yet. They appear here once an EVE client is running.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNameUsed">Type a name no group uses yet.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNext">Next key</sys:String>
+    <sys:String x:Key="L.Linux.GroupPrevious">Previous key</sys:String>
+    <sys:String x:Key="L.Linux.GroupMembers">Members</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyNote">Click a box and press the keys. Escape clears it. A key for one character is set on Characters; keys for a group on Groups.</sys:String>
+    <sys:String x:Key="L.Linux.Notifications">Desktop notifications</sys:String>
+
+</ResourceDictionary>

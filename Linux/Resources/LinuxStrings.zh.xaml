@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- draft -->
+    <!-- Linux app strings - 中文 (Chinese). Only keys present here are overridden; anything omitted falls back to LinuxStrings.en.xaml. -->
+
+    <sys:String x:Key="L.Linux.PressKey">请按下一个键…</sys:String>
+    <sys:String x:Key="L.Linux.NotSet">未设置</sys:String>
+    <sys:String x:Key="L.Linux.KeyRefused">无法使用该键</sys:String>
+    <sys:String x:Key="L.Linux.Display">语言</sys:String>
+    <sys:String x:Key="L.Linux.Automatic">自动</sys:String>
+    <sys:String x:Key="L.Linux.LanguageNote">“自动”跟随此桌面的语言。</sys:String>
+    <sys:String x:Key="L.Linux.ChatFolder">聊天日志文件夹</sys:String>
+    <sys:String x:Key="L.Linux.GameFolder">游戏日志文件夹</sys:String>
+    <sys:String x:Key="L.Linux.FolderNote">留空时，会在 EVE Online 的 Steam（Proton）文件夹中查找日志。</sys:String>
+    <sys:String x:Key="L.Linux.ImportTitle">来自 Windows 版的设置</sys:String>
+    <sys:String x:Key="L.Linux.ImportPick">选择 Windows 版的 EVE MultiPreview.json</sys:String>
+    <sys:String x:Key="L.Linux.Import">从 Windows 导入设置…</sys:String>
+    <sys:String x:Key="L.Linux.ImportFile">设置文件</sys:String>
+    <sys:String x:Key="L.Linux.ImportBad">未导入：这不是可读取的 EVE MultiPreview 设置文件。</sys:String>
+    <sys:String x:Key="L.Linux.ImportFailed">未导入：无法复制该文件。</sys:String>
+    <sys:String x:Key="L.Linux.ImportDone">已导入。旧设置位于</sys:String>
+    <sys:String x:Key="L.Linux.StartNote">首次发现某个客户端时，其缩略图获得的大小。</sys:String>
+    <sys:String x:Key="L.Linux.Hidden">隐藏</sys:String>
+    <sys:String x:Key="L.Linux.NoCharacters">还没有角色。EVE 客户端运行后，它们会显示在这里。</sys:String>
+    <sys:String x:Key="L.Linux.GroupNameUsed">请输入尚无分组使用的名称。</sys:String>
+    <sys:String x:Key="L.Linux.GroupNext">下一个键</sys:String>
+    <sys:String x:Key="L.Linux.GroupPrevious">上一个键</sys:String>
+    <sys:String x:Key="L.Linux.GroupMembers">成员</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyNote">点击输入框并按下按键。按 Escape 清除。单个角色的按键在“角色”中设置，分组的按键在“分组”中设置。</sys:String>
+    <sys:String x:Key="L.Linux.Notifications">桌面通知</sys:String>
+
+</ResourceDictionary>

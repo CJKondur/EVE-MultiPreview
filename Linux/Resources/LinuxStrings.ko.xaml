@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- draft -->
+    <!-- Linux app strings - 한국어 (Korean). Only keys present here are overridden; anything omitted falls back to LinuxStrings.en.xaml. -->
+
+    <sys:String x:Key="L.Linux.PressKey">키를 누르세요…</sys:String>
+    <sys:String x:Key="L.Linux.NotSet">설정 안 됨</sys:String>
+    <sys:String x:Key="L.Linux.KeyRefused">그 키는 사용할 수 없어요</sys:String>
+    <sys:String x:Key="L.Linux.Display">언어</sys:String>
+    <sys:String x:Key="L.Linux.Automatic">자동</sys:String>
+    <sys:String x:Key="L.Linux.LanguageNote">'자동'은 이 데스크톱의 언어를 따라요.</sys:String>
+    <sys:String x:Key="L.Linux.ChatFolder">채팅 로그 폴더</sys:String>
+    <sys:String x:Key="L.Linux.GameFolder">게임 로그 폴더</sys:String>
+    <sys:String x:Key="L.Linux.FolderNote">비워 두면 EVE Online의 Steam(Proton) 폴더에서 로그를 찾아요.</sys:String>
+    <sys:String x:Key="L.Linux.ImportTitle">Windows 앱의 설정</sys:String>
+    <sys:String x:Key="L.Linux.ImportPick">Windows 앱의 EVE MultiPreview.json 선택</sys:String>
+    <sys:String x:Key="L.Linux.Import">Windows에서 설정 가져오기…</sys:String>
+    <sys:String x:Key="L.Linux.ImportFile">설정 파일</sys:String>
+    <sys:String x:Key="L.Linux.ImportBad">가져오지 않았어요: 읽을 수 있는 EVE MultiPreview 설정 파일이 아니에요.</sys:String>
+    <sys:String x:Key="L.Linux.ImportFailed">가져오지 않았어요: 파일을 복사할 수 없었어요.</sys:String>
+    <sys:String x:Key="L.Linux.ImportDone">가져왔어요. 이전 설정은 다음 위치에 있어요:</sys:String>
+    <sys:String x:Key="L.Linux.StartNote">클라이언트가 처음 발견될 때 미리보기가 갖는 크기예요.</sys:String>
+    <sys:String x:Key="L.Linux.Hidden">숨김</sys:String>
+    <sys:String x:Key="L.Linux.NoCharacters">아직 캐릭터가 없어요. EVE 클라이언트가 실행되면 여기에 나타나요.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNameUsed">아직 어떤 그룹도 쓰지 않는 이름을 입력하세요.</sys:String>
+    <sys:String x:Key="L.Linux.GroupNext">다음 키</sys:String>
+    <sys:String x:Key="L.Linux.GroupPrevious">이전 키</sys:String>
+    <sys:String x:Key="L.Linux.GroupMembers">구성원</sys:String>
+    <sys:String x:Key="L.Linux.HotkeyNote">입력란을 클릭하고 키를 누르세요. Escape를 누르면 지워져요. 캐릭터 하나의 키는 캐릭터에서, 그룹의 키는 그룹에서 설정해요.</sys:String>
+    <sys:String x:Key="L.Linux.Notifications">데스크톱 알림</sys:String>
+
+</ResourceDictionary>
