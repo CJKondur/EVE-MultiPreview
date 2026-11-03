@@ -39,3 +39,22 @@ jobs:
       - name: Build the app (a warning fails it)
         run: dotnet build EveMultiPreview.csproj -c Debug -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
 
+  build-linux:
+    name: Build the Linux app
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install the .NET SDK that global.json names
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+
+      # Linux/ compiles many of the Windows app's own files: a change there that breaks Linux shows here.
+      - name: Build the Linux app (a warning fails it)
+        run: dotnet build Linux/EveMultiPreview.Linux.csproj -c Debug -warnaserror "-warnnotaserror:NU1901;NU1902;NU1903;NU1904"
+
