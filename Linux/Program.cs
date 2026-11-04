@@ -122,6 +122,24 @@ public sealed class Previews : ITrayActions, ISettingsHost
     /// <summary>The second thumbnails (PiP), by character: one for each running client whose character has one switched on.</summary>
     private readonly Dictionary<string, ThumbnailWindow> _pips = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>Crop windows hidden by HideShowCropsHotkey (runtime only, as on Windows). Opening the settings or switching
+    /// profile shows them again (CropManager.ShowCrops, issue #81: a stray press must not leave them hidden for good).</summary>
+    private bool _cropsHidden;
+
+    /// <summary>A crop window on screen: its window, the place and size from its definition it was last put on (a change
+    /// on the settings page moves it), and whether clicks pass through it now (null: not set yet).</summary>
+    private sealed class CropShown(ThumbnailWindow window, string character)
+    {
+        public ThumbnailWindow Window { get; } = window;
+        public string Character { get; } = character;
+        public (int X, int Y, int W, int H) Placed;
+        public bool? Through;
+    }
+
+    /// <summary>The crop windows (CropManager), by client window and crop id: one for each crop of each running
+    /// client's character while crop windows are on (CropEnabled).</summary>
+    private readonly Dictionary<(uint Window, string Id), CropShown> _crops = new();
+
     public bool DoNotDisturb
     {
         get => _alerts?.DoNotDisturbOn ?? false;
@@ -154,9 +172,11 @@ public sealed class Previews : ITrayActions, ISettingsHost
     /// <summary>Closes every thumbnail and makes them again, each where the current profile keeps it.</summary>
     private void ResetThumbnails()
     {
-        foreach (var thumb in _thumbs.Values.Concat(_pips.Values)) thumb.Close();
+        foreach (var thumb in _thumbs.Values.Concat(_pips.Values).Concat(_crops.Values.Select(c => c.Window))) thumb.Close();
         _thumbs.Clear();
         _pips.Clear();
+        _crops.Clear();
+        _cropsHidden = false;   // CropManager.ShowCrops: switching profile brings hidden crops back (issue #81)
         Sync();
     }
 
@@ -166,6 +186,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     /// open window keeps its page and a new one starts at the first.</summary>
     private void OpenSettings(int? page)
     {
+        _cropsHidden = false;   // CropManager.ShowCrops: opening the settings brings hidden crops back (issue #81)
         if (_settingsWindow != null)
         {
             if (_settingsWindow.WindowState == WindowState.Minimized) _settingsWindow.WindowState = WindowState.Normal;
@@ -250,7 +271,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     {
         _alerts?.Dispose();
         _settings.Dispose();
-        foreach (var thumb in _thumbs.Values.Concat(_pips.Values)) thumb.Close();
+        foreach (var thumb in _thumbs.Values.Concat(_pips.Values).Concat(_crops.Values.Select(c => c.Window))) thumb.Close();
         (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown();
     }
 
@@ -276,6 +297,11 @@ public sealed class Previews : ITrayActions, ISettingsHost
             _pipsHidden = !_pipsHidden;
             Alerts.Say(_pipsHidden ? LocalizationService.Str("L.Msg.PipHidden", "PiP: Hidden") : LocalizationService.Str("L.Msg.PipVisible", "PiP: Visible"));
             TrayMenu?.Rebuild();
+        }));
+        keys.Add((S.HideShowCropsHotkey, () =>
+        {
+            _cropsHidden = !_cropsHidden;
+            Alerts.Say(_cropsHidden ? LocalizationService.Str("L.Msg.CropsHidden", "Crops: Hidden") : LocalizationService.Str("L.Msg.CropsVisible", "Crops: Visible"));
         }));
         keys.Add((S.LockPositionsHotkey, () => { S.LockPositions = !S.LockPositions; _settings.SaveDelayed(); }));
         keys.Add((S.GoToLastAlertHotkey, GoToLastAlert));
@@ -414,6 +440,30 @@ public sealed class Previews : ITrayActions, ISettingsHost
             pip.Follow();
             pip.Update(_clients);
         }
+        SyncCrops();
+        foreach (var ((_, id), crop) in _crops)
+        {
+            var def = SettingsUi.CropEdits.Of(S, crop.Character).FirstOrDefault(d => d.Id == id);
+            if (def == null) continue;   // deleted on the settings page: the next SyncCrops closes it
+            bool shown = !_allHidden && !_cropsHidden;
+            if (shown != crop.Window.IsVisible) { if (shown) crop.Window.Show(); else crop.Window.Hide(); }
+            if (!shown) continue;
+            var placed = PopupOf(def);
+            if (placed != crop.Placed && !crop.Window.Busy)
+            {
+                crop.Window.PlaceAt(placed.X, placed.Y, placed.W, placed.H);
+                crop.Placed = placed;
+            }
+            // Asked again every 2 s while it is on: a window manager that frames the window after the shape was set (a crop
+            // made while MultiPreview runs, under openbox) keeps a frame that still catches the mouse until the shape changes.
+            if ((crop.Through != def.ClickThrough || def.ClickThrough && _ticks % 20 == 0) && crop.Window.TryGetPlatformHandle() is { } handle
+                && _clients.PassClicks((uint)(long)handle.Handle, def.ClickThrough))
+                crop.Through = def.ClickThrough;
+            crop.Window.CanDrag = !def.ClickThrough;
+            crop.Window.Area = new EveClients.Area(def.SourceX, def.SourceY, Math.Max(1, def.SourceWidth), Math.Max(1, def.SourceHeight));
+            crop.Window.Apply(CropLook(def));
+            crop.Window.Update(_clients);
+        }
         _drawMs += watch.Elapsed.TotalMilliseconds;
         if (_ticks % 100 == 0)
         {
@@ -514,6 +564,104 @@ public sealed class Previews : ITrayActions, ISettingsHost
                 if (S.ShowThumbnailsAlwaysOnTop && t.TryGetPlatformHandle() is { } handle) _clients.Raise((uint)(long)handle.Handle);
             };
             _pips[character] = pip;
+        }
+    }
+
+    string? ISettingsHost.PickCropArea(string character, CropDefinition def, Action picked)
+    {
+        uint window = WindowOf(character);
+        if (window == 0) return "L.S.Crops.NeedsClient";
+        if (_clients.Rectangle(window) is not { } r) return "L.S.Crops.NoClientArea";
+        var pixels = _clients.Snapshot(window, out int width, out int height);
+        if (pixels == null || width != r.Width || height != r.Height) return "L.S.Crops.NoClientArea";
+        var settings = _settingsWindow;
+        CropPicker? picker = null;
+        try
+        {
+            picker = new CropPicker(new PixelPoint(r.X, r.Y), width, height, pixels);
+            picker.Done += got =>
+            {
+                try
+                {
+                    if (got is { } p)
+                    {
+                        SettingsUi.CropEdits.ApplyPick(def, p, 1.0);   // X11 pixels are the window's pixels: no scale to undo
+                        _settings.SaveDelayed();
+                        picked();
+                    }
+                }
+                finally
+                {
+                    if (settings != null && settings == _settingsWindow) { settings.Show(); settings.Activate(); }
+                }
+            };
+            settings?.Hide();   // so it can't come back over the client while the player picks
+            _clients.Activate(window);
+            picker.Show();
+            return null;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Crop area picker failed: {e.Message}");
+            try { picker?.Close(); } catch { }
+            settings?.Show();
+            return "L.S.Crops.PickFailed";
+        }
+    }
+
+    /// <summary>A crop window's place and size from its definition, at least CropManager's 40 × 30.</summary>
+    private static (int X, int Y, int W, int H) PopupOf(CropDefinition def) =>
+        (def.PopupX, def.PopupY, Math.Max(SettingsUi.CropEdits.PopupMin.W, def.PopupWidth), Math.Max(SettingsUi.CropEdits.PopupMin.H, def.PopupHeight));
+
+    /// <summary>A crop window's look (CropWindow + CropManager.ApplyVisualSettings): no border, its name when "Show the
+    /// name" is on, in the thumbnails' text style, at its own opacity (10-100 %).</summary>
+    private ThumbnailLook CropLook(CropDefinition def)
+    {
+        double size = double.TryParse(S.ThumbnailTextSize, out var fs) && fs > 0 ? fs : 11;
+        bool label = def.ShowLabel && !string.IsNullOrWhiteSpace(def.Name);
+        return new ThumbnailLook(Brushes.Transparent, 0, def.Name, label, Brush(S.ThumbnailTextColor), size,
+            S.ThumbnailTextFont, Math.Clamp(def.Opacity, SettingsUi.CropEdits.MinOpacity, SettingsUi.CropEdits.MaxOpacity) / 100.0,
+            S.ShowThumbnailsAlwaysOnTop);
+    }
+
+    /// <summary>CropManager.ReconcileCharacter: a crop window for each crop of each running client's character while crop
+    /// windows are on; one whose crop was deleted, whose client is gone or that is switched off is closed. The thumbnails'
+    /// clients are the running ones (a client that restarted is a new window, so its crops are made again).</summary>
+    private void SyncCrops()
+    {
+        var wanted = new Dictionary<(uint, string), (EveClient Client, CropDefinition Def)>();
+        if (S.CropEnabled)
+            foreach (var thumb in _thumbs.Values)
+                foreach (var def in SettingsUi.CropEdits.Of(S, thumb.Client.Character))
+                    wanted.TryAdd((thumb.Client.Window, def.Id), (thumb.Client, def));
+        foreach (var gone in _crops.Keys.Where(k => !wanted.ContainsKey(k)).ToList())
+        {
+            _crops[gone].Window.Close();
+            _crops.Remove(gone);
+        }
+        foreach (var (key, (client, def)) in wanted)
+        {
+            if (_crops.ContainsKey(key)) continue;
+            var placed = PopupOf(def);
+            var win = new ThumbnailWindow(client, new PixelRect(placed.X, placed.Y, placed.W, placed.H), second: true, cropId: def.Id)
+            {
+                PointerSource = _clients.Pointer,
+                ResizeFloor = (SettingsUi.CropEdits.PopupMin.W, SettingsUi.CropEdits.PopupMin.H),
+            };
+            var crop = new CropShown(win, client.Character) { Placed = placed };
+            // Left click does nothing and there is no menu: a right drag moves it, the left button too resizes it (CropWindow).
+            void Save(ThumbnailWindow t)
+            {
+                var d = SettingsUi.CropEdits.Of(S, crop.Character).FirstOrDefault(x => x.Id == key.Item2);
+                if (d == null) return;
+                SettingsUi.CropEdits.SetPopup(d, (t.OwnPosition.X, t.OwnPosition.Y, t.OwnWidth, t.OwnHeight));
+                crop.Placed = PopupOf(d);
+                _settings.SaveDelayed();
+            }
+            win.Moved += Save;
+            win.ResizeEnded += Save;
+            win.Opened += (_, _) => { if (win.TryGetPlatformHandle() is { } handle) _clients.NoFocus((uint)(long)handle.Handle); };
+            _crops[key] = crop;
         }
     }
 

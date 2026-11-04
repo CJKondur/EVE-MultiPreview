@@ -85,8 +85,10 @@ internal static unsafe class XRender
         fixed (byte* f = name) xcb_render_set_picture_filter(c, picture, (ushort)name.Length, f, 0, null);
     }
 
-    public static void Copy(IntPtr c, uint src, uint dst, int width, int height) =>
-        xcb_render_composite(c, OpSrc, src, 0, dst, 0, 0, 0, 0, 0, 0, (ushort)width, (ushort)height);
+    /// <summary>Copies <paramref name="width"/> × <paramref name="height"/> pixels of <paramref name="src"/> from
+    /// (<paramref name="srcX"/>, <paramref name="srcY"/>) to the top left of <paramref name="dst"/>.</summary>
+    public static void Copy(IntPtr c, uint src, uint dst, int width, int height, int srcX = 0, int srcY = 0) =>
+        xcb_render_composite(c, OpSrc, src, 0, dst, (short)srcX, (short)srcY, 0, 0, 0, 0, (ushort)width, (ushort)height);
 
     private static int Fixed(double v) => (int)Math.Round(v * 65536);
 }

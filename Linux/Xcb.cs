@@ -8,6 +8,7 @@ internal static unsafe class Xcb
 {
     private const string Lib = "libxcb.so.1";
     private const string CompositeLib = "libxcb-composite.so.0";
+    private const string ShapeLib = "libxcb-shape.so.0";
 
     public const uint AnyPropertyType = 0;
     public const uint AtomWmName = 39;
@@ -56,6 +57,12 @@ internal static unsafe class Xcb
     [DllImport(Lib)] private static extern uint xcb_send_event(IntPtr c, byte propagate, uint destination, uint eventMask, byte* evt);
 
     [DllImport(Lib)] private static extern uint xcb_configure_window(IntPtr c, uint window, ushort valueMask, uint* values);
+
+    [DllImport(Lib)] private static extern uint xcb_change_property(IntPtr c, byte mode, uint window, uint property, uint type, byte format, uint dataLen, void* data);
+    [DllImport(Lib)] private static extern uint xcb_translate_coordinates(IntPtr c, uint srcWindow, uint dstWindow, short srcX, short srcY);
+    [DllImport(Lib)] private static extern IntPtr xcb_translate_coordinates_reply(IntPtr c, uint cookie, IntPtr e);
+    [DllImport(ShapeLib)] private static extern uint xcb_shape_rectangles(IntPtr c, byte operation, byte destinationKind, byte ordering, uint destinationWindow, short xOffset, short yOffset, uint rectanglesLen, void* rectangles);
+    [DllImport(ShapeLib)] private static extern uint xcb_shape_mask(IntPtr c, byte operation, byte destinationKind, uint destinationWindow, short xOffset, short yOffset, uint sourceBitmap);
 
     [DllImport(CompositeLib)] private static extern uint xcb_composite_query_version(IntPtr c, uint major, uint minor);
     [DllImport(CompositeLib)] private static extern IntPtr xcb_composite_query_version_reply(IntPtr c, uint cookie, IntPtr e);
@@ -131,10 +138,11 @@ internal static unsafe class Xcb
         return pid;
     }
 
-    /// <summary>A ZPixmap image of the whole drawable; the caller frees it with <see cref="Free"/>.</summary>
-    public static IntPtr Image(IntPtr c, uint drawable, int width, int height, out byte* data, out int length)
+    /// <summary>A ZPixmap image of the drawable's <paramref name="width"/> × <paramref name="height"/> pixels from
+    /// (<paramref name="x"/>, <paramref name="y"/>); the caller frees it with <see cref="Free"/>.</summary>
+    public static IntPtr Image(IntPtr c, uint drawable, int width, int height, out byte* data, out int length, int x = 0, int y = 0)
     {
-        var reply = xcb_get_image_reply(c, xcb_get_image(c, ImageFormatZPixmap, drawable, 0, 0, (ushort)width, (ushort)height, uint.MaxValue), IntPtr.Zero);
+        var reply = xcb_get_image_reply(c, xcb_get_image(c, ImageFormatZPixmap, drawable, (short)x, (short)y, (ushort)width, (ushort)height, uint.MaxValue), IntPtr.Zero);
         data = null; length = 0;
         if (reply == IntPtr.Zero) return IntPtr.Zero;
         data = (byte*)xcb_get_image_data(reply);
@@ -179,6 +187,53 @@ internal static unsafe class Xcb
     {
         uint above = 0;   // StackMode Above
         xcb_configure_window(c, window, 0x40, &above);   // 0x40: the StackMode bit
+        xcb_flush(c);
+    }
+
+    /// <summary>Where the window's top left corner is on the root window (the screen), or null when the window is gone.</summary>
+    public static (int X, int Y)? Origin(IntPtr c, uint window, uint root)
+    {
+        var reply = xcb_translate_coordinates_reply(c, xcb_translate_coordinates(c, window, root, 0, 0), IntPtr.Zero);
+        if (reply == IntPtr.Zero) return null;
+        var at = ((int)*(short*)(reply + 12), (int)*(short*)(reply + 14));
+        NativeMemory.Free((void*)reply);
+        return at;
+    }
+
+    /// <summary>Lets the mouse through the window to whatever is under it (an empty input shape, SHAPE extension), or
+    /// gives the window its whole area back. False when the server or the system has no SHAPE.</summary>
+    public static bool PassClicks(IntPtr c, uint window, bool through)
+    {
+        const byte setOp = 0, inputKind = 2;
+        if (_noShape) return false;
+        try
+        {
+            if (through) xcb_shape_rectangles(c, setOp, inputKind, 0, window, 0, 0, 0, null);
+            else xcb_shape_mask(c, setOp, inputKind, window, 0, 0, 0);   // no mask: the window's default (all of it)
+            xcb_flush(c);
+            return true;
+        }
+        catch (Exception e) when (e is DllNotFoundException or EntryPointNotFoundException)
+        {
+            _noShape = true;   // asked once: the library doesn't appear later
+            Console.WriteLine("Clicks can't pass through crop windows: libxcb-shape.so.0 is missing.");
+            return false;
+        }
+    }
+
+    private static bool _noShape;
+
+    /// <summary>Tells the window manager never to give the window the keyboard focus (WM_HINTS, input False: the
+    /// "no input" model), as a Windows WS_EX_NOACTIVATE window: a click on it leaves the client in front.</summary>
+    public static void NoFocus(IntPtr c, uint window)
+    {
+        const uint wmHints = 35;
+        const byte replace = 0;
+        uint* hints = stackalloc uint[9];
+        new Span<uint>(hints, 9).Clear();
+        hints[0] = 1;   // flags: InputHint
+        hints[1] = 0;   // input: False
+        xcb_change_property(c, replace, window, wmHints, wmHints, 32, 9, hints);
         xcb_flush(c);
     }
 

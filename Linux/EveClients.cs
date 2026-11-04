@@ -88,21 +88,29 @@ public sealed unsafe class EveClients : IDisposable
     /// <summary>Stacks one of MultiPreview's own windows above the others, without activating it.</summary>
     public void Raise(uint window) => Xcb.Raise(_c, window);
 
-    /// <summary>Copies the client's picture, scaled to fit, into a BGRA buffer. False when the window is gone,
+    /// <summary>Copies the client's picture, scaled to fit, into a BGRA buffer: the whole client, or only
+    /// <paramref name="area"/> of it (a crop window; client pixels, cut to the client). False when the window is gone,
     /// unmapped or not a 32-bit-per-pixel picture.</summary>
-    public bool Grab(uint window, byte* dst, int dstWidth, int dstHeight, int dstStride)
+    public bool Grab(uint window, byte* dst, int dstWidth, int dstHeight, int dstStride, Area? area = null)
     {
         if (_composite && _redirected.Add(window)) Xcb.RedirectAutomatic(_c, window);
         var size = Xcb.Size(_c, window);
         if (size is not { Width: > 0, Height: > 0 } s) return false;
+        var part = Clip(area ?? new Area(0, 0, s.Width, s.Height), s.Width, s.Height);
+        if (part.W <= 0 || part.H <= 0)
+        {
+            // The crop lies outside the client (it was made on a bigger one): black, and the client is still there.
+            for (int y = 0; y < dstHeight; y++) new Span<uint>(dst + (long)y * dstStride, dstWidth).Fill(0xFF000000u);
+            return true;
+        }
 
-        // Shrunk on the server when it can; otherwise the whole picture comes over and is shrunk here.
+        // Shrunk on the server when it can; otherwise the part comes over as it is and is scaled here.
         uint drawable = window;
-        int w = s.Width, h = s.Height;
-        if (ScaledOnServer(window, s.Width, s.Height, s.Depth, dstWidth, dstHeight) is uint pixmap)
-            (drawable, w, h) = (pixmap, dstWidth, dstHeight);
+        int w = part.W, h = part.H, x0 = part.X, y0 = part.Y;
+        if (ScaledOnServer(window, s.Width, s.Height, s.Depth, part, dstWidth, dstHeight) is uint pixmap)
+            (drawable, w, h, x0, y0) = (pixmap, dstWidth, dstHeight, 0, 0);
 
-        var reply = Xcb.Image(_c, drawable, w, h, out byte* src, out int length);
+        var reply = Xcb.Image(_c, drawable, w, h, out byte* src, out int length, x0, y0);
         if (reply == IntPtr.Zero) return false;
         try
         {
@@ -120,6 +128,46 @@ public sealed unsafe class EveClients : IDisposable
         finally { Xcb.Free(reply); }
     }
 
+    /// <summary>A part of a client, in its pixels from its top left corner.</summary>
+    public readonly record struct Area(int X, int Y, int W, int H);
+
+    /// <summary>The part of <paramref name="a"/> that lies on a <paramref name="width"/> × <paramref name="height"/> client.</summary>
+    public static Area Clip(Area a, int width, int height)
+    {
+        int x = Math.Clamp(a.X, 0, width), y = Math.Clamp(a.Y, 0, height);
+        long right = Math.Clamp((long)a.X + a.W, x, width), bottom = Math.Clamp((long)a.Y + a.H, y, height);
+        return new Area(x, y, (int)right - x, (int)bottom - y);
+    }
+
+    /// <summary>Where the client is on the screen and its size, or null when it is gone (a crop window's area picker).</summary>
+    public (int X, int Y, int Width, int Height)? Rectangle(uint window) =>
+        Xcb.Size(_c, window) is { Width: > 0, Height: > 0 } s && Xcb.Origin(_c, window, _root) is { } at ? (at.X, at.Y, s.Width, s.Height) : null;
+
+    /// <summary>The whole client's picture as BGRA rows (width × 4 bytes each, opaque), or null when it can't be read.</summary>
+    public byte[]? Snapshot(uint window, out int width, out int height)
+    {
+        width = height = 0;
+        if (_composite && _redirected.Add(window)) Xcb.RedirectAutomatic(_c, window);
+        if (Xcb.Size(_c, window) is not { Width: > 0, Height: > 0 } s) return null;
+        var reply = Xcb.Image(_c, window, s.Width, s.Height, out byte* src, out int length);
+        if (reply == IntPtr.Zero) return null;
+        try
+        {
+            if (length < s.Width * 4 * s.Height) return null;
+            var bytes = new Span<byte>(src, s.Width * 4 * s.Height).ToArray();
+            for (int i = 3; i < bytes.Length; i += 4) bytes[i] = 0xFF;
+            (width, height) = (s.Width, s.Height);
+            return bytes;
+        }
+        finally { Xcb.Free(reply); }
+    }
+
+    /// <summary>Lets clicks pass through one of MultiPreview's own windows (a crop window's "Clicks pass through"), or not.</summary>
+    public bool PassClicks(uint window, bool through) => Xcb.PassClicks(_c, window, through);
+
+    /// <summary>One of MultiPreview's own windows never takes the keyboard focus (a crop window, as WS_EX_NOACTIVATE on Windows).</summary>
+    public void NoFocus(uint window) => Xcb.NoFocus(_c, window);
+
     /// <summary>One shrink step's target on the server.</summary>
     private readonly record struct Stage(uint Pixmap, uint Picture, int Width, int Height);
 
@@ -127,6 +175,8 @@ public sealed unsafe class EveClients : IDisposable
     {
         public uint Format, SrcPicture;
         public int SrcWidth, SrcHeight, DstWidth, DstHeight;
+        /// <summary>The part of the client shown; a part that is not the whole client is copied out first (the first stage).</summary>
+        public Area Part;
         public byte Depth;
         public long LastUsed;
         /// <summary>Halving steps, then the thumbnail's size last. Bilinear at exactly half averages 2×2 pixels,
@@ -134,17 +184,18 @@ public sealed unsafe class EveClients : IDisposable
         public readonly List<Stage> Stages = new();
     }
 
-    /// <summary>By client window and thumbnail size: a client can have two thumbnails (a second one, PiP) of different sizes.</summary>
-    private readonly Dictionary<(uint Window, int Width, int Height), Scaler> _scalers = new();
+    /// <summary>By client window, thumbnail size and the part shown: a client can have a thumbnail, a second one (PiP) and
+    /// crop windows, each of its own size.</summary>
+    private readonly Dictionary<(uint Window, int Width, int Height, Area Part), Scaler> _scalers = new();
     /// <summary>Visual → XRender picture format; null without XRender or when EVEMP_NO_RENDER=1.</summary>
     private readonly Dictionary<uint, uint>? _renderFormats;
 
     /// <summary>The server-side pixmap holding the client shrunk to the thumbnail's size, or null when the
     /// server can't shrink it (no XRender, or a visual it has no format for).</summary>
-    private uint? ScaledOnServer(uint window, int srcWidth, int srcHeight, byte depth, int dstWidth, int dstHeight)
+    private uint? ScaledOnServer(uint window, int srcWidth, int srcHeight, byte depth, Area part, int dstWidth, int dstHeight)
     {
         if (_renderFormats == null) return null;
-        var key = (window, dstWidth, dstHeight);
+        var key = (window, dstWidth, dstHeight, part);
         if (!_scalers.TryGetValue(key, out var sc))
         {
             if (!_renderFormats.TryGetValue(Xcb.Visual(_c, window), out uint format)) return null;
@@ -157,21 +208,32 @@ public sealed unsafe class EveClients : IDisposable
             _scalers[key] = sc;
         }
         sc.LastUsed = Environment.TickCount64;
+        bool whole = part == new Area(0, 0, srcWidth, srcHeight);
         if (sc.DstWidth != dstWidth || sc.DstHeight != dstHeight || sc.Depth != depth
-            || sc.SrcWidth != srcWidth || sc.SrcHeight != srcHeight)
+            || sc.SrcWidth != srcWidth || sc.SrcHeight != srcHeight || sc.Part != part)
         {
             FreeStages(sc);
             uint from = sc.SrcPicture;
             int w = srcWidth, h = srcHeight;
+            if (!whole)
+            {
+                // The part is copied out unscaled first: through a scaled picture the offset would count scaled pixels.
+                uint pixmap = Xcb.CreatePixmap(_c, depth, window, part.W, part.H);
+                uint picture = XRender.CreatePicture(_c, pixmap, sc.Format);
+                sc.Stages.Add(new Stage(pixmap, picture, part.W, part.H));
+                (from, w, h) = (picture, part.W, part.H);
+            }
             while (w > 2 * dstWidth || h > 2 * dstHeight)
                 (from, w, h) = AddStage(sc, window, depth, from, w, h, Math.Max(w / 2, dstWidth), Math.Max(h / 2, dstHeight));
             AddStage(sc, window, depth, from, w, h, dstWidth, dstHeight);
-            (sc.SrcWidth, sc.SrcHeight, sc.DstWidth, sc.DstHeight, sc.Depth) = (srcWidth, srcHeight, dstWidth, dstHeight, depth);
+            (sc.SrcWidth, sc.SrcHeight, sc.DstWidth, sc.DstHeight, sc.Depth, sc.Part) = (srcWidth, srcHeight, dstWidth, dstHeight, depth, part);
         }
         uint src = sc.SrcPicture;
-        foreach (var stage in sc.Stages)
+        for (int i = 0; i < sc.Stages.Count; i++)
         {
-            XRender.Copy(_c, src, stage.Picture, stage.Width, stage.Height);
+            var stage = sc.Stages[i];
+            if (i == 0 && !whole) XRender.Copy(_c, src, stage.Picture, stage.Width, stage.Height, part.X, part.Y);
+            else XRender.Copy(_c, src, stage.Picture, stage.Width, stage.Height);
             src = stage.Picture;
         }
         return sc.Stages[^1].Pixmap;
@@ -207,7 +269,7 @@ public sealed unsafe class EveClients : IDisposable
         foreach (var key in _scalers.Keys.Where(k => k.Window == window).ToList()) Free(_scalers[key], key);
     }
 
-    private void Free(Scaler sc, (uint, int, int) key)
+    private void Free(Scaler sc, (uint, int, int, Area) key)
     {
         _scalers.Remove(key);
         FreeStages(sc);

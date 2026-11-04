@@ -119,6 +119,7 @@
     <Compile Include="..\SettingsUi\Pages\Clients\MergedGroups.cs" Link="Shared\SettingsUi\Pages\Clients\MergedGroups.cs" />
     <Compile Include="..\SettingsUi\Pages\Clients\SlotEditing.cs" Link="Shared\SettingsUi\Pages\Clients\SlotEditing.cs" />
     <Compile Include="..\SettingsUi\Pages\OpacityPercent.cs" Link="Shared\SettingsUi\Pages\OpacityPercent.cs" />
+    <Compile Include="..\SettingsUi\Pages\Thumbnails\CropEdits.cs" Link="Shared\SettingsUi\Pages\Thumbnails\CropEdits.cs" />
     <Compile Include="..\SettingsUi\Pages\Thumbnails\ThumbnailFields.cs" Link="Shared\SettingsUi\Pages\Thumbnails\ThumbnailFields.cs" />
     <Compile Include="..\SettingsUi\Registry\ChoiceOption.cs" Link="Shared\SettingsUi\Registry\ChoiceOption.cs" />
     <Compile Include="..\SettingsUi\ViewModels\ObservableObject.cs" Link="Shared\SettingsUi\ViewModels\ObservableObject.cs" />

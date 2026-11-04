@@ -51,10 +51,21 @@ public sealed class ThumbnailWindow : Window
     /// <summary>A character's second thumbnail (PiP): its own place, size and opacity, no border, no alert enlargement.</summary>
     public bool IsSecond { get; }
 
-    public ThumbnailWindow(EveClient client, PixelRect rect, bool second = false)
+    /// <summary>A crop window's id (CropDefinition.Id), or null for a thumbnail. A crop window shows <see cref="Area"/> of
+    /// its client.</summary>
+    public string? CropId { get; }
+
+    /// <summary>The part of the client shown (a crop window's source, client pixels); null: the whole client.</summary>
+    public EveClients.Area? Area { get; set; }
+
+    /// <summary>The player is moving or resizing the window right now.</summary>
+    public bool Busy => _mode != Gesture.None;
+
+    public ThumbnailWindow(EveClient client, PixelRect rect, bool second = false, string? cropId = null)
     {
         Client = client;
         IsSecond = second;
+        CropId = cropId;
         Title = TitleOf(client);
         Width = rect.Width;
         Height = rect.Height;
@@ -204,7 +215,7 @@ public sealed class ThumbnailWindow : Window
 
     /// <summary>The window title (a window list, a capture program's source list can show it): the character as streamer mode shows it.</summary>
     private string TitleOf(EveClient client) =>
-        $"MultiPreview - {StreamerMask.Name(StreamerKind.Character, client.Character)}" + (IsSecond ? " (2)" : "");
+        $"MultiPreview - {StreamerMask.Name(StreamerKind.Character, client.Character)}" + (CropId != null ? " (crop)" : IsSecond ? " (2)" : "");
 
     private enum Gesture { None, Move, Resize }
 
@@ -337,6 +348,15 @@ public sealed class ThumbnailWindow : Window
         Fit(_own);
     }
 
+    /// <summary>Puts the window on its own place and size from the settings (a crop window edited on the settings page).
+    /// The caller asks only when the settings changed: Avalonia's Position reads stale right after a move.</summary>
+    public void PlaceAt(int x, int y, int width, int height)
+    {
+        UnZoom();
+        Shrink();
+        Fit(new System.Drawing.Rectangle(x, y, width, height));
+    }
+
     /// <summary>Puts the window and its picture on this rectangle. Not a move by the player: nothing is reported.</summary>
     private void Fit(System.Drawing.Rectangle r)
     {
@@ -432,7 +452,7 @@ public sealed class ThumbnailWindow : Window
     {
         bool ok;
         using (var fb = _bitmap.Lock())
-            ok = clients.Grab(Client.Window, (byte*)fb.Address, fb.Size.Width, fb.Size.Height, fb.RowBytes);
+            ok = clients.Grab(Client.Window, (byte*)fb.Address, fb.Size.Width, fb.Size.Height, fb.RowBytes, Area);
         if (ok) _image.InvalidateVisual();
         return ok;
     }

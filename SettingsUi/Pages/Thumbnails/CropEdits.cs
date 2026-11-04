@@ -8,7 +8,7 @@ namespace EveMultiPreview.SettingsUi;
 
 /// <summary>Crop window rules (the old crop panel, SettingsWindow.xaml.cs lines 2131–2553) on
 /// Profile.Crops: character → its crop windows. Reading never writes.</summary>
-public static class CropEdits
+public static partial class CropEdits
 {
     /// <summary>The largest coordinate or size a box accepts.</summary>
     public const int Limit = 20000;
@@ -108,13 +108,6 @@ public static class CropEdits
         d.SourceHeight = picked.H;
         d.PopupWidth = Math.Max(PopupMin.W, (int)Math.Round(picked.W / scale));
         d.PopupHeight = Math.Max(PopupMin.H, (int)Math.Round(picked.H / scale));
-    }
-
-    /// <summary>A typed whole number in range, or the L.* key of the error ({0}/{1} = the range).</summary>
-    public static string? CheckNumber(string? text, int min, int max, out int value)
-    {
-        if (!ThumbnailFields.TryWhole(text, out value)) return Setting.ErrNotANumber;
-        return value < min || value > max ? Setting.ErrRange : null;
     }
 
     /// <summary>Everything the editor shows for one character, to notice a crop window being dragged.</summary>

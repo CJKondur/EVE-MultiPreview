@@ -40,7 +40,7 @@ public sealed class SettingsWindow : Window
     }
 
     /// <summary>The Characters page's place in the list (a thumbnail menu's "Open ‹character›'s settings").</summary>
-    public const int CharactersPage = 2;
+    public const int CharactersPage = 3;
 
     /// <summary>Shows this page (the window is already open).</summary>
     public void ShowPage(int page) => _nav.SelectedIndex = Math.Clamp(page, 0, _list.Length - 1);
@@ -54,6 +54,7 @@ public sealed class SettingsWindow : Window
         {
             ("L.S.Page.app.general", "General", _pages.General),
             ("L.S.Nav.Thumbnails", "Thumbnails", _pages.Thumbnails),
+            ("L.S.Page.thumbs.crops", "Crop windows", _pages.Crops),
             ("L.S.Page.clients.characters", "Characters", _pages.Characters),
             ("L.S.Page.clients.groups", "Groups", _pages.Groups),
             ("L.S.Page.clients.hotkeys", "Hotkeys", _pages.Hotkeys),
