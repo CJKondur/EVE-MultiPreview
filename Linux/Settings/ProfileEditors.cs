@@ -17,7 +17,7 @@ internal sealed partial class SettingsPages
     internal static Button Action(string key, Action click, bool destructive = false)
     {
         var b = new Button { Content = new TextBlock { Text = Ui.Plain(Ui.NoAccess(S3(key))) }, Margin = new Thickness(0, 2, 6, 2) };
-        if (destructive) b.Foreground = Brushes.IndianRed;
+        if (destructive) LinuxLooks.Paint(b, Avalonia.Controls.Primitives.TemplatedControl.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
         b.Click += (_, _) => click();
         return b;
     }
@@ -26,9 +26,9 @@ internal sealed partial class SettingsPages
     internal static StackPanel Titled(string itemId)
     {
         var panel = new StackPanel { Spacing = 4 };
-        panel.Children.Add(new TextBlock { Text = Ui.NoAccess(S3(LinuxSupport.Key("L.S." + itemId))), TextWrapping = TextWrapping.Wrap });
+        panel.Children.Add(LinuxLooks.Text(Ui.NoAccess(S3(LinuxSupport.Key("L.S." + itemId))), "Label"));
         if (LocalizationService.Str(LinuxSupport.Key("L.S." + itemId + ".Desc"), "") is { Length: > 0 } desc)
-            panel.Children.Add(new TextBlock { Text = desc, FontSize = 12, Opacity = 0.65, TextWrapping = TextWrapping.Wrap });
+            panel.Children.Add(LinuxLooks.Text(desc, "Desc"));
         return panel;
     }
 
@@ -155,15 +155,14 @@ internal sealed partial class SettingsPages
     /// <summary>A name with a ✕ that takes it away (the Windows EditorCard.Chip).</summary>
     internal static Control Chip(string text, Action remove)
     {
-        var x = new Button { Content = "✕", Padding = new Thickness(6, 0), Background = Brushes.Transparent, BorderThickness = new Thickness(0), VerticalAlignment = VerticalAlignment.Center };
+        var x = new Button { Content = "✕", Padding = new Thickness(6, 0), Background = Brushes.Transparent, BorderThickness = new Thickness(0), VerticalAlignment = VerticalAlignment.Center, Classes = { "quiet" } };
         x.Click += (_, _) => remove();
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
         row.Children.Add(new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center });
         row.Children.Add(x);
-        return new Border
+        return LinuxLooks.Paint(new Border
         {
             Child = row, Padding = new Thickness(10, 2, 2, 2), Margin = new Thickness(0, 0, 6, 6), CornerRadius = new CornerRadius(12),
-            Background = new SolidColorBrush(Color.Parse("#22FFFFFF")),
-        };
+        }, Border.BackgroundProperty, "Fx.AccentSoftBrush", new SolidColorBrush(Color.Parse("#22FFFFFF")));
     }
 }

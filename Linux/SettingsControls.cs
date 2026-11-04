@@ -93,22 +93,22 @@ internal static class Ui
         return box;
     }
 
-    /// <summary>A "#RRGGBB" box with a swatch. Only a colour the thumbnails can paint is passed on, as "#RRGGBB"; text
-    /// that isn't one shows red and changes nothing.</summary>
+    /// <summary>A "#RRGGBB" box with a swatch that opens the colour picker (ColourPicker). Only a colour the thumbnails can
+    /// paint is passed on, as "#RRGGBB"; text that isn't one shows red and changes nothing.</summary>
     public static Control Colour(string value, Action<string> set)
     {
-        var swatch = new Border { Width = 26, Height = 26, CornerRadius = new CornerRadius(4), BorderBrush = Brushes.Gray, BorderThickness = new Thickness(1) };
         var box = new TextBox { Text = Show(value), Width = 110, MaxLength = 9 };
-        swatch.Background = Paint(box.Text);
+        // A pick goes into the box, which passes it on as a typed colour does.
+        var swatch = ColourPicker.Button(() => box.Text, () => null, (hex, _) => box.Text = hex, T("L.S.Shell.Ok", "OK"), T("L.S.Shell.Cancel", "Cancel"));
         Watch(box, TextBox.TextProperty, text =>
         {
             if (!ThumbnailFields.IsPaintable(text))
             {
-                box.Foreground = Brushes.IndianRed;
+                LinuxLooks.Paint(box, TextBox.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
                 return;
             }
-            box.ClearValue(TextBox.ForegroundProperty);
-            swatch.Background = Paint(text);
+            LinuxLooks.Paint(box, TextBox.ForegroundProperty, "Fx.TextBrush");   // outside a dressed window: the theme's
+            (swatch.Tag as Action)?.Invoke();
             set(Hex(text ?? ""));
         });
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
@@ -127,11 +127,6 @@ internal static class Ui
 
     private static string Show(string stored) => ThumbnailFields.IsPaintable(stored) ? Hex(stored) : stored;
 
-    private static IBrush Paint(string? colour)
-    {
-        var c = AppSettings.ParseColor(colour ?? "", System.Windows.Media.Color.FromRgb(128, 128, 128));
-        return new SolidColorBrush(Color.FromArgb(c.A, c.R, c.G, c.B));
-    }
 
     /// <summary>A hotkey box with a small clear button.</summary>
     public static StackPanel Hotkey(string value, Action<string> set, ISettingsHost host)
@@ -148,15 +143,20 @@ internal static class Ui
         return row;
     }
 
-    /// <summary>A card: a faint panel the rows of one block sit in.</summary>
-    public static Border Card(Control inner) => new()
+    /// <summary>A card: a panel the rows of one block sit in, in the look's control colours and corners (a faint panel
+    /// outside a dressed window).</summary>
+    public static Border Card(Control inner)
     {
-        Background = new SolidColorBrush(Color.Parse("#14FFFFFF")),
-        BorderBrush = new SolidColorBrush(Color.Parse("#22FFFFFF")),
-        BorderThickness = new Thickness(1),
-        CornerRadius = new CornerRadius(6),
-        Padding = new Thickness(14, 8),
-        Margin = new Thickness(0, 4),
-        Child = inner,
-    };
+        var card = new Border
+        {
+            BorderThickness = new Thickness(1),
+            CornerRadius = LinuxLooks.Effective.Radius("Radius.Control"),
+            Padding = new Thickness(14, 8),
+            Margin = new Thickness(0, 4),
+            Child = inner,
+        };
+        LinuxLooks.Paint(card, Border.BackgroundProperty, "Fx.ControlBrush", new SolidColorBrush(Color.Parse("#14FFFFFF")));
+        LinuxLooks.Paint(card, Border.BorderBrushProperty, "Fx.ControlEdgeBrush", new SolidColorBrush(Color.Parse("#22FFFFFF")));
+        return card;
+    }
 }

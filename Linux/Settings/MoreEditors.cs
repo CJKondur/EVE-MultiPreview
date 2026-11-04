@@ -31,7 +31,8 @@ internal sealed partial class SettingsPages
         control.DetachedFromVisualTree += (_, _) => timer.Stop();
     }
 
-    private static TextBlock Error() => new() { Foreground = Brushes.IndianRed, FontSize = 12, TextWrapping = TextWrapping.Wrap, IsVisible = false };
+    private static TextBlock Error() =>
+        LinuxLooks.Paint(new TextBlock { FontSize = 12, TextWrapping = TextWrapping.Wrap, IsVisible = false }, TextBlock.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
 
     private static void Say(TextBlock line, string? text)
     {
@@ -360,10 +361,8 @@ internal sealed partial class SettingsPages
     internal Control DoNotDisturbLine(SettingsContext ctx)
     {
         var text = new TextBlock { TextWrapping = TextWrapping.Wrap };
-        var bar = new Border
-        {
-            BorderBrush = Brushes.LightSkyBlue, BorderThickness = new Thickness(3, 0, 0, 0), Padding = new Thickness(12, 6), Child = text,
-        };
+        var bar = LinuxLooks.Paint(new Border { BorderThickness = new Thickness(3, 0, 0, 0), Padding = new Thickness(12, 6), Child = text },
+            Border.BorderBrushProperty, "Fx.InfoBrush", Brushes.LightSkyBlue);
         void Look()
         {
             var key = _host.DoNotDisturb ? (ctx.S.DoNotDisturbCriticalPlays ? "L.S.DndState.OnCritical" : "L.S.DndState.On") : null;

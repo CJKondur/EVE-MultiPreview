@@ -542,7 +542,7 @@ internal sealed partial class SettingsPages
 
         var name = new TextBox { Width = 240, PlaceholderText = T("L.S.clients.groups.new", "Make a group") };
         var make = new Button { Content = T("L.S.clients.groups.new", "Make a group") };
-        var status = new TextBlock { Foreground = Brushes.IndianRed, VerticalAlignment = VerticalAlignment.Center };
+        var status = LinuxLooks.Paint(new TextBlock { VerticalAlignment = VerticalAlignment.Center }, TextBlock.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
         make.Click += (_, _) =>
         {
             if (MergedGroups.New(S, name.Text ?? "") == null)
@@ -727,7 +727,7 @@ internal sealed partial class SettingsPages
         edit.Click += (_, _) =>
         {
             var error = _host.PickCropArea(character, def, () => { _cropShown = ""; });   // the page is built again when it shows
-            status.Foreground = Brushes.IndianRed;
+            LinuxLooks.Paint(status, TextBlock.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
             status.Text = error == null ? "" : string.Format(T(error, error), character);
         };
         buttons.Children.Add(edit);
@@ -784,7 +784,7 @@ internal sealed partial class SettingsPages
         {
             int made = CropEdits.CopyTo(S, def, targets);
             Save();
-            status.Foreground = Brushes.LightGreen;
+            LinuxLooks.Paint(status, TextBlock.ForegroundProperty, "Fx.InfoBrush", Brushes.LightGreen);
             status.Text = made == 1
                 ? string.Format(T("L.S.Crops.Copied", "Copied '{0}' to {1}."), def.Name, targets[0])
                 : string.Format(T("L.S.Crops.CopiedMany", "Copied '{0}' to {1} characters."), def.Name, made);
@@ -882,7 +882,7 @@ internal sealed partial class SettingsPages
     private Control HotkeyField(string id, string value, Action<string> store)
     {
         var row = Ui.Hotkey(value, key => { store(key); Save(); _host.HotkeysChanged(); foreach (var line in _clashLines.ToList()) line(); }, _host);
-        var warning = new TextBlock { Foreground = Brushes.Orange, FontSize = 12, TextWrapping = TextWrapping.Wrap, MaxWidth = 300, IsVisible = false };
+        var warning = LinuxLooks.Paint(new TextBlock { FontSize = 12, TextWrapping = TextWrapping.Wrap, MaxWidth = 300, IsVisible = false }, TextBlock.ForegroundProperty, "Fx.WarningBrush", Brushes.Orange);
         void Show()
         {
             var others = HotkeyClashes.With(AllHotkeys(), id);
@@ -961,7 +961,7 @@ internal sealed partial class SettingsPages
         var installed = new List<SpeechVoice>();
         var boxes = new List<(string Severity, ComboBox Box)>();
         var speaker = _host.Speaker;
-        var failed = new TextBlock { Foreground = Brushes.IndianRed, TextWrapping = TextWrapping.Wrap, IsVisible = false };
+        var failed = LinuxLooks.Paint(new TextBlock { TextWrapping = TextWrapping.Wrap, IsVisible = false }, TextBlock.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
         bool building = false;
 
         string Label(SpeechVoice v) => v.Name + " (" + v.Language + ")";
@@ -1028,11 +1028,11 @@ internal sealed partial class SettingsPages
         card.Children.Add(failed);
         var (spd, espeak) = LinuxSpeaker.Installed();
         if (!spd && !espeak)
-            card.Children.Add(new TextBlock
+            card.Children.Add(LinuxLooks.Paint(new TextBlock
             {
                 Text = T("L.Linux.SpeechNoProgram", "No speech program found, so nothing can be spoken. Install speech-dispatcher (spd-say) or espeak-ng."),
-                Foreground = Brushes.Orange, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4),
-            });
+                TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4),
+            }, TextBlock.ForegroundProperty, "Fx.WarningBrush", Brushes.Orange));
         card.DetachedFromVisualTree += (_, _) => { _trying?.Cancel(); _trying = null; };
 
         if (speaker != null)
@@ -1194,7 +1194,7 @@ internal sealed partial class SettingsPages
             var ev = new ComboBox { Width = 220, ItemsSource = events.Select(e => e.Name).ToList(), PlaceholderText = T("L.S.Snoozes.AddEvent", "Event") };
             var length = new ComboBox { Width = 170, ItemsSource = SnoozeAdd.Lengths.Select(l => Ui.NoAccess(T(l.TextKey, l.TextKey))).ToList(), SelectedIndex = 0 };
             var add = new Button { Content = Ui.NoAccess(T("L.S.Snoozes.Add", "_Add snooze")) };
-            var refused = new TextBlock { Foreground = Brushes.IndianRed, TextWrapping = TextWrapping.Wrap, IsVisible = false };
+            var refused = LinuxLooks.Paint(new TextBlock { TextWrapping = TextWrapping.Wrap, IsVisible = false }, TextBlock.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
             add.Click += (_, _) =>
             {
                 var made = SnoozeAdd.TryBuild(who2.Text, ev.SelectedIndex >= 0 ? events[ev.SelectedIndex].Key : null,
@@ -1275,12 +1275,10 @@ internal sealed partial class SettingsPages
                 var tick = Ui.Check(T(ev.LabelKey, ev.Key), AlertFields.IsOn(S, ev.Key), on => { AlertFields.SetOn(S, ev.Key, on); Save(); _host.AlertsChanged(); });
                 Grid.SetRow(tick, row);
                 table.Children.Add(tick);
-                var severity = new TextBlock
-                {
-                    Text = T(AlertEvents.SeverityKey(ev.Severity), ev.Severity),
-                    Foreground = ev.Severity == AlertEvents.Critical ? Brushes.IndianRed : ev.Severity == AlertEvents.Warning ? Brushes.Orange : Brushes.LightSkyBlue,
-                    VerticalAlignment = VerticalAlignment.Center,
-                };
+                var severity = new TextBlock { Text = T(AlertEvents.SeverityKey(ev.Severity), ev.Severity), VerticalAlignment = VerticalAlignment.Center };
+                LinuxLooks.Paint(severity, TextBlock.ForegroundProperty,
+                    ev.Severity == AlertEvents.Critical ? "Fx.CriticalBrush" : ev.Severity == AlertEvents.Warning ? "Fx.WarningBrush" : "Fx.InfoBrush",
+                    ev.Severity == AlertEvents.Critical ? Brushes.IndianRed : ev.Severity == AlertEvents.Warning ? Brushes.Orange : Brushes.LightSkyBlue);
                 Grid.SetRow(severity, row);
                 Grid.SetColumn(severity, 1);
                 table.Children.Add(severity);
