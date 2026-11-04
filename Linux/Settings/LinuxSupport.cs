@@ -153,15 +153,16 @@ internal static class LinuxSupport
 
         // ── Alerts › Alert hub: on Linux the hub is the desktop's notifications (notify-send) ──
         ["alerts.hub.enabled"] = S, ["alerts.hub.skipActive"] = S,
-        ["alerts.hub.duration"] = N, ["alerts.hub.direction"] = N, ["alerts.hub.autoHide"] = N, ["alerts.hub.autoHideAfter"] = N,
+        ["alerts.hub.duration"] = S,          // the notification's expire time (S3b)
+        ["alerts.hub.direction"] = N, ["alerts.hub.autoHide"] = N, ["alerts.hub.autoHideAfter"] = N,
         ["alerts.hub.positionRow"] = N,       // the hub window's place
         ["alerts.hub.notify"] = W, ["alerts.hub.notifyFrom"] = W, ["alerts.hub.notifyTest"] = W,   // Windows notifications
         ["alerts.hub.push"] = S, ["alerts.hub.pushFrom"] = S, ["alerts.hub.pushMention"] = S, ["alerts.hub.pushAway"] = S,
         ["alerts.hub.pushWebhook"] = S, ["alerts.hub.historyRow"] = S, ["alerts.hub.keepHistory"] = S,
         ["alerts.hub.historyDays"] = S, ["alerts.hub.historyFolder"] = S,
 
-        // ── Alerts › Custom alerts: the Linux app does not load the player's rules yet ──
-        ["alerts.custom.editor"] = N, ["alerts.custom.file"] = N,
+        // ── Alerts › Custom alerts: the Linux app reads the player's rules (S3b, Alerts.CustomAlerts); the rules editor is not ported yet ──
+        ["alerts.custom.editor"] = N, ["alerts.custom.file"] = S,
 
         // ── Performance ──
         ["perf.cpu.manage"] = N, ["perf.cpu.autoBalance"] = N, ["perf.cpu.coreTable"] = N,
@@ -209,7 +210,7 @@ internal static class LinuxSupport
 
         // ── App › Diagnostics ──
         ["app.diagnostics.errorCount"] = S, ["app.diagnostics.errorLog"] = S,
-        ["app.diagnostics.uncleanExit"] = N,  // the Linux app writes no run marker
+        ["app.diagnostics.uncleanExit"] = S,  // Previews.Start writes the run marker (S3b)
         ["app.diagnostics.bugReport"] = N,    // the report window is WPF
         ["app.diagnostics.trackPlaytime"] = N, ["app.diagnostics.playtimeHistory"] = N,
         ["app.diagnostics.note"] = S, ["app.diagnostics.cycling"] = S, ["app.diagnostics.alerts"] = S, ["app.diagnostics.folder"] = S,   // GlobalSettings set (S3b)

@@ -69,6 +69,10 @@ public interface ISettingsHost
     bool IsExcludedFromCycle(string character);
     /// <summary>Takes the character into cycling or leaves it out (ThumbnailManager.ToggleCycleExclusion), and says so.</summary>
     void SetInCycle(string character, bool included);
+    /// <summary>The player's own alert rules (the alerts' store), or null before the alerts exist.</summary>
+    CustomAlertStore? CustomAlerts { get; }
+    /// <summary>Which custom rules the log monitor switched off for what they cost.</summary>
+    IReadOnlyDictionary<string, string> CustomRulesSwitchedOff { get; }
 }
 
 /// <summary>The settings window's pages. Each page is built from the settings as they are when it is shown, and every

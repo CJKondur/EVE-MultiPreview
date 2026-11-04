@@ -83,9 +83,16 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     private AppSettings S => _settings.Settings;
 
+    /// <summary>IDEAS #55: the marker that tells a crash from a clean exit (App's RunMarker); the Diagnostics page says when
+    /// the last session did not end cleanly.</summary>
+    private RunMarker? _runMarker;
+
     public void Start()
     {
         CatchStrays();
+        _runMarker = new RunMarker(AppPaths.ConfigDir);
+        RunMarker.PreviousUncleanStart = _runMarker.Begin(DateTime.Now);
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => _runMarker?.End();   // a SIGTERM (logging out) is a clean end too
         Console.WriteLine($"EVE MultiPreview for Linux: settings {AppPaths.SettingsPath}; looking for windows titled \"{_clients.TitlePrefix}…\" "
             + $"(Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
         BindHotkeys();
@@ -681,6 +688,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         _probeTimer?.Dispose();
         _nameBar?.Close();
         _keepAwake.Dispose();
+        _runMarker?.End();
         _alerts?.Dispose();
         _settings.Dispose();
         foreach (var thumb in _thumbs.Values.Concat(_pips.Values).Concat(_crops.Values.Select(c => c.Window))) thumb.Close();
@@ -1525,6 +1533,10 @@ public sealed class Previews : ITrayActions, ISettingsHost
     void ISettingsHost.Snooze(string character, string alertType, TimeSpan? length) => SnoozeEvent(character, alertType, length);
 
     EventSnoozes? ISettingsHost.Snoozes => _alerts?.Snoozes;
+
+    CustomAlertStore? ISettingsHost.CustomAlerts => _alerts?.CustomAlerts;
+
+    IReadOnlyDictionary<string, string> ISettingsHost.CustomRulesSwitchedOff => _alerts?.CustomRulesSwitchedOff ?? CustomAlertEngine.NoneSwitchedOff;
 
     private void PutBack(string character)
     {

@@ -91,6 +91,9 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             VoiceAnswered = app.VoiceAnswered,
             TestPush = app.TestPush,
             PushStatus = () => app.PushStatus,
+            // The app's rule store, so the rules page's file is the one the log monitor reads (never a second store).
+            CustomAlerts = app.CustomAlerts,
+            CustomRulesSwitchedOff = () => app.CustomRulesSwitchedOff,
         };
         _ctx = new SettingsContext(service, applier, services, this);
         _editors = new SettingsPages(app, this, () => QueueRender(), Reload);

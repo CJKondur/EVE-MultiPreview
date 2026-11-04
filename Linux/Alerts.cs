@@ -162,10 +162,30 @@ public sealed class Alerts : IDisposable
     private static T Ui<T>(Func<T> read) =>
         Dispatcher.UIThread.CheckAccess() ? read() : Dispatcher.UIThread.Invoke(read);
 
+    /// <summary>The player's own alert rules (IDEAS #8, App's _customAlerts): read from the settings folder at start (a file
+    /// from the Windows app works as it is); a save through the settings window reaches the log monitor at once.</summary>
+    public CustomAlertStore? CustomAlerts { get; private set; }
+
+    /// <summary>Which custom rules the log monitor switched off for what they cost (the rules page says it on their cards).</summary>
+    public IReadOnlyDictionary<string, string> CustomRulesSwitchedOff => _monitor.CustomRulesSwitchedOff;
+
+    /// <summary>App.ApplyCustomRules: the rules' names for the alerts, and the compiled rules for the log monitor.</summary>
+    private void ApplyCustomRules()
+    {
+        if (CustomAlerts == null) return;
+        var rules = CustomAlerts.Rules;
+        CustomAlertTypes.Publish(rules);
+        _monitor.SetCustomRules(CustomAlertEngine.Build(rules, ErrorLog.Shared));
+    }
+
     /// <summary>Starts reading the logs. Returns the folders read ("" for one that is off or not found).</summary>
     public (string Chat, string Game) Start()
     {
         _monitor.SetSettings(S);
+        CustomAlerts = new CustomAlertStore(AppPaths.ConfigDir, ErrorLog.Shared);
+        CustomAlerts.Load();
+        CustomAlerts.Changed += ApplyCustomRules;
+        ApplyCustomRules();
         ApplyMonitorOptions();
         _profiles.Apply(S, _monitor.SetEnabledAlertTypes);
         FollowWays();
@@ -331,7 +351,9 @@ public sealed class Alerts : IDisposable
         // "Left behind" says where the others went (AlertHub.PlaceLookup on Windows); streamer mode hides places.
         var body = LocalizationService.Str("L.S.Sev." + severity, severity);
         if (StreamerMask.Name(StreamerKind.System, _derived.PlaceOf(character, alertType)) is { Length: > 0 } place) body += " · " + place;
-        var args = new List<string> { "--app-name=EVE MultiPreview", "--urgency=" + (severity == "critical" ? "critical" : "normal") };
+        // "Toasts last" (AlertToastDuration, the hub toast's seconds): how long the notification stays, where the desktop lets it.
+        var args = new List<string> { "--app-name=EVE MultiPreview", "--urgency=" + (severity == "critical" ? "critical" : "normal"),
+            "--expire-time=" + Math.Clamp(S.AlertToastDuration, 1, 120) * 1000 };
         if (!NotifyHasActions.Value)
         {
             Run("notify-send", [.. args, $"{who}: {EventName(alertType)}", body]);
