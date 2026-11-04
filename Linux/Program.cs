@@ -120,6 +120,85 @@ public sealed class Previews : ITrayActions, ISettingsHost
     public bool SecondThumbnailsHidden { get => _pipsHidden; set => _pipsHidden = value; }
 
     private bool _pipsHidden;
+
+    // ── Focus mode (IDEAS #35: App.ToggleFocusMode / FollowFocusMode) ──
+
+    private bool _focusOn;
+    private readonly FocusArrivals _focusArrivals = new();
+    /// <summary>The characters whose thumbnails, second thumbnails and crop windows focus mode holds hidden now.</summary>
+    private IReadOnlySet<string> _focusHeld = FocusMode.Nobody;
+
+    /// <summary>Focus mode on or off (its hotkey and the tray's item). While off a press turns it on only when there is a
+    /// group to show; it says what came of it.</summary>
+    public bool FocusModeOn
+    {
+        get => _focusOn;
+        set { if (value != _focusOn) ToggleFocusMode(); }
+    }
+
+    private void ToggleFocusMode()
+    {
+        var (chosen, _) = FocusMode.Options(S);
+        var group = FocusMode.GroupFor(chosen, ActiveCharacter(), FocusMode.Groups(S));
+        var press = FocusMode.Press(_focusOn, chosen, group);
+        _focusOn = press == FocusPress.On;
+        if (press == FocusPress.Off) _focusHeld = FocusMode.Nobody;
+        else if (press == FocusPress.On) _focusArrivals.Begin(RunningCharacters());
+        Alerts.Say(FocusMode.Say(press, press == FocusPress.On ? group!.Value.Name : chosen));
+        TrayMenu?.Rebuild();
+        FollowFocusMode();
+    }
+
+    /// <summary>Twice a second while focus mode is on: the group to show (the chosen one, or the one of the client in
+    /// front) and so who is held; a client with an unseen alert, or one that just logged in, shows through.</summary>
+    private void FollowFocusMode()
+    {
+        if (!_focusOn) return;
+        var (chosen, alertsShow) = FocusMode.Options(S);
+        var group = FocusMode.GroupFor(chosen, ActiveCharacter(), FocusMode.Groups(S));
+        var running = RunningCharacters();
+        var arrived = _focusArrivals.Look(DateTime.UtcNow, running);
+        _focusHeld = FocusMode.Held(group, running, alertsShow, _attention.Has, arrived.Contains);
+    }
+
+    // ── The name bar (IDEAS #38: App.FollowNameBar) ──
+
+    private NameBarWindow? _nameBar;
+
+    /// <summary>Twice a second: with NameBarMode on, the bar is made or asked for its buttons again (the main thumbnails are
+    /// held hidden meanwhile, in Tick); off, it is closed.</summary>
+    private void FollowNameBar()
+    {
+        if (!S.NameBarMode)
+        {
+            var open = _nameBar;
+            _nameBar = null;
+            open?.Close();
+            return;
+        }
+        if (_nameBar != null) { _nameBar.Refresh(); return; }
+        var bar = new NameBarWindow(NameBarEntries, SwitchTo,
+            name => _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, name, StringComparison.OrdinalIgnoreCase))?.Client);
+        bar.Opened += (_, _) => { if (bar.TryGetPlatformHandle() is { } handle) _clients.NoFocus((uint)(long)handle.Handle); };
+        bar.Closed += (_, _) => { if (ReferenceEquals(_nameBar, bar)) _nameBar = null; };
+        _nameBar = bar;
+        bar.Show();
+    }
+
+    /// <summary>App.NameBarEntries: the running characters in the quick-switch order, each with its first colour group's
+    /// colour, its worst unseen alert and whether its client is in front.</summary>
+    private IReadOnlyList<NameBarEntry> NameBarEntries()
+    {
+        uint front = _clients.Active();
+        string active = _thumbs.TryGetValue(front, out var t) ? t.Client.Character : "";
+        return NameBar.Entries(RunningCharacters().ToList(),
+            S.ThumbnailGroups.Select(g => (g.Name, (string?)g.Color, (IReadOnlyList<string>)g.Members)).ToList(),
+            name => _attention.For(name)?.Severity, active, S.QuickSwitchCardOrder,
+            name => _attention.Top(name)?.EventKey);
+    }
+
+    /// <summary>ThumbnailManager.ActiveCharacter: the character of the client last in front (still running), or "".</summary>
+    private string ActiveCharacter() => _thumbs.TryGetValue(_lastActive, out var t) ? t.Client.Character : "";
     /// <summary>The second thumbnails (PiP), by character: one for each running client whose character has one switched on.</summary>
     private readonly Dictionary<string, ThumbnailWindow> _pips = new(StringComparer.OrdinalIgnoreCase);
 
@@ -271,6 +350,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     public void Exit()
     {
         _probeTimer?.Dispose();
+        _nameBar?.Close();
         _alerts?.Dispose();
         _settings.Dispose();
         foreach (var thumb in _thumbs.Values.Concat(_pips.Values).Concat(_crops.Values.Select(c => c.Window))) thumb.Close();
@@ -300,6 +380,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             Alerts.Say(_pipsHidden ? LocalizationService.Str("L.Msg.PipHidden", "PiP: Hidden") : LocalizationService.Str("L.Msg.PipVisible", "PiP: Visible"));
             TrayMenu?.Rebuild();
         }));
+        keys.Add((S.FocusModeHotkey, ToggleFocusMode));
         keys.Add((S.HideShowCropsHotkey, () =>
         {
             _cropsHidden = !_cropsHidden;
@@ -389,7 +470,12 @@ public sealed class Previews : ITrayActions, ISettingsHost
     private void Tick()
     {
         if (_ticks++ % 20 == 0) Sync();
-        if (_ticks % 5 == 0) _alerts?.LookDerived(DateTime.UtcNow, RunningCharacters());   // App's half-second timer
+        if (_ticks % 5 == 0)   // App's half-second timer
+        {
+            _alerts?.LookDerived(DateTime.UtcNow, RunningCharacters());
+            FollowFocusMode();
+            FollowNameBar();
+        }
         if (_ticks % 50 == 0) LookAtMemory();
         var watch = Stopwatch.StartNew();
         uint active = _clients.Active();
@@ -418,7 +504,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
         foreach (var thumb in _thumbs.Values)
         {
             bool isActive = thumb.Client.Window == active;
-            bool shown = !_allHidden && !Hidden(thumb.Client.Character) && !(isActive && S.HideActiveThumbnail);
+            bool shown = !_allHidden && !Hidden(thumb.Client.Character) && !(isActive && S.HideActiveThumbnail)
+                && !FocusMode.Holds(_focusHeld, thumb.Client.Character) && !S.NameBarMode;   // the name bar holds the main thumbnails
             if (shown != thumb.IsVisible) { if (shown) thumb.Show(); else thumb.Hide(); }
             if (!shown) continue;
             thumb.CanDrag = !S.LockPositions;
@@ -434,7 +521,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         // Second thumbnails: shown while the client runs, also while it is in front, unless all thumbnails or the second ones are hidden.
         foreach (var (character, pip) in _pips)
         {
-            bool shown = !_allHidden && !_pipsHidden;
+            bool shown = !_allHidden && !_pipsHidden && !FocusMode.Holds(_focusHeld, character);
             if (shown != pip.IsVisible) { if (shown) pip.Show(); else pip.Hide(); }
             if (!shown) continue;
             pip.CanDrag = !S.LockPositions;
@@ -451,7 +538,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         {
             var def = SettingsUi.CropEdits.Of(S, crop.Character).FirstOrDefault(d => d.Id == id);
             if (def == null) continue;   // deleted on the settings page: the next SyncCrops closes it
-            bool shown = !_allHidden && !_cropsHidden;
+            bool shown = !_allHidden && !_cropsHidden && !FocusMode.Holds(_focusHeld, crop.Character);
             if (shown != crop.Window.IsVisible) { if (shown) crop.Window.Show(); else crop.Window.Hide(); }
             if (!shown) continue;
             var placed = PopupOf(def);
@@ -470,6 +557,12 @@ public sealed class Previews : ITrayActions, ISettingsHost
             crop.Window.Apply(CropLook(def));
             crop.Window.SetMark(MarkOf(crop.Window.Client.Window));   // IDEAS P114: the crop windows say it too
             crop.Window.Update(_clients);
+        }
+        if (_nameBar?.Preview is { } preview)   // the name bar's live picture of the client under the pointer
+        {
+            preview.Apply(new ThumbnailLook(Brushes.Transparent, 0, StreamerMask.Name(StreamerKind.Character, preview.Client.Character), true,
+                Brush(S.ThumbnailTextColor), 12, S.ThumbnailTextFont, 1.0, true));
+            preview.Update(_clients);
         }
         _drawMs += watch.Elapsed.TotalMilliseconds;
         if (_ticks % 100 == 0)

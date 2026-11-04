@@ -305,6 +305,12 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Row(T("L.S.thumbs.layout.lock", "Lock thumbnail positions"),
             Ui.Check(T("L.Common.Enabled", "Enabled"), S.LockPositions, on => { S.LockPositions = on; Save(); _host.TrayChanged(); })));
 
+        // IDEAS #38: the app's half-second look makes or closes the bar and holds the main thumbnails: a change only saves.
+        page.Children.Add(Ui.Section(T("L.NameBar.Title", "Character name bar")));
+        page.Children.Add(Ui.Row(T("L.S.thumbs.nameBar", "Show a name bar instead of thumbnails"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.NameBarMode, on => { S.NameBarMode = on; Save(); }),
+            T("L.S.thumbs.nameBar.Desc", "Hides the main thumbnails and shows one row of character buttons at the top centre of your main screen. Click a button to switch to that client; rest the pointer on it for a moment to see that client live.")));
+
         // IDEAS #22, #47: the app reads all three at each look (every 3 s), so a change only saves.
         page.Children.Add(Ui.Section(T("L.S.Sec.thumbs.text.clientState", "When a client stops")));
         page.Children.Add(Ui.Row(T("L.S.thumbs.text.notResponding", "Show “Not responding” on a frozen client"),
@@ -453,6 +459,30 @@ internal sealed class SettingsPages
         makeRow.Children.Add(make);
         makeRow.Children.Add(status);
         page.Children.Add(makeRow);
+
+        // IDEAS #35: the key is bound with the others; the app reads the other two twice a second while focus mode is on.
+        page.Children.Add(Ui.Section(T("L.S.Sec.clients.groups.focus", "Focus mode")));
+        page.Children.Add(Ui.Row(T("L.S.clients.groups.focusKey", "Focus mode on or off"),
+            HotkeyField("global:focus", S.FocusModeHotkey, v => S.FocusModeHotkey = v),
+            T("L.S.clients.groups.focusKey.Desc", "Shows only the thumbnails of one group and hides the others, until you press it again.")));
+        var chosen = new ComboBox { Width = 280 };
+        chosen.Items.Add(T("L.S.Opt.FocusActiveGroup", "The group of the client you are in"));
+        var names = groups.Select(g => g.Name).Distinct(StringComparer.Ordinal).ToList();
+        // A chosen group that no longer exists stays listed, so the box shows what is stored (focus mode says it is gone).
+        if (S.FocusModeGroup is { Length: > 0 } stored && !names.Contains(stored)) names.Add(stored);
+        foreach (var n in names) chosen.Items.Add(n);
+        chosen.SelectedIndex = string.IsNullOrEmpty(S.FocusModeGroup) ? 0 : names.IndexOf(S.FocusModeGroup) + 1;
+        chosen.SelectionChanged += (_, _) =>
+        {
+            if (chosen.SelectedIndex < 0) return;
+            S.FocusModeGroup = chosen.SelectedIndex == 0 ? "" : names[chosen.SelectedIndex - 1];
+            Save();
+        };
+        page.Children.Add(Ui.Row(T("L.S.clients.groups.focusGroup", "Group to show"), chosen,
+            T("L.S.clients.groups.focusGroup.Desc", "The group of the client you are in follows you as you switch clients; a group you choose stays the same.")));
+        page.Children.Add(Ui.Row(T("L.S.clients.groups.focusAlerts", "Show a hidden thumbnail while its alert is unseen"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.FocusModeShowAlerts, on => { S.FocusModeShowAlerts = on; Save(); }),
+            T("L.S.clients.groups.focusAlerts.Desc", "A client outside the group that raises an alert shows until you look at it.")));
         return page;
     }
 
@@ -771,6 +801,7 @@ internal sealed class SettingsPages
         all.Add(("global:" + T("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), T("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), S.PreviousClientHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), S.HideShowThumbnailsHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), S.HideSecondaryHotkey));
+        all.Add(("global:focus", T("L.S.clients.groups.focusKey", "Focus mode on or off"), S.FocusModeHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.hideCrops", "Hide or show crop windows"), T("L.S.clients.hotkeys.hideCrops", "Hide or show crop windows"), S.HideShowCropsHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), S.LockPositionsHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), T("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), S.GoToLastAlertHotkey));

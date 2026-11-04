@@ -14,6 +14,7 @@ public interface ITrayActions
     bool SecondThumbnailsHidden { get; set; }
     bool DoNotDisturb { get; set; }
     bool StreamerMode { get; set; }
+    bool FocusModeOn { get; set; }
     IReadOnlyList<string> Profiles { get; }
     string Profile { get; set; }
     void OpenSettings();
@@ -52,6 +53,7 @@ public sealed class Tray
         menu.Add(Check(T("L.Tray.Toggle", "Hide thumbnails"), _app.ThumbnailsHidden, on => _app.ThumbnailsHidden = on));
         menu.Add(Check(T("L.Tray.HideSecondary", "Hide second thumbnails"), _app.SecondThumbnailsHidden, on => _app.SecondThumbnailsHidden = on));
         menu.Add(Check(T("L.Tray.Dnd", "Do not disturb"), _app.DoNotDisturb, on => _app.DoNotDisturb = on));
+        menu.Add(Check(T("L.Tray.FocusMode", "Focus mode"), _app.FocusModeOn, on => _app.FocusModeOn = on));
         menu.Add(Check(T("L.Tray.StreamerMode", "Streamer mode"), _app.StreamerMode, on => _app.StreamerMode = on));
 
         var profiles = new NativeMenu();
