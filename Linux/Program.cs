@@ -161,6 +161,92 @@ public sealed class Previews : ITrayActions, ISettingsHost
         _focusHeld = FocusMode.Held(group, running, alertsShow, _attention.Has, arrived.Contains);
     }
 
+    // ── Commands (App.RunCommand) and the command palette (IDEAS #14) ──
+
+    private CommandPaletteWindow? _palette;
+
+    /// <summary>App.ToggleCommandPalette: opens the palette over the screen under the pointer, or closes the open one. Its
+    /// rows are the running characters, their labels, the groups and the profiles; the chosen row runs through RunCommand.</summary>
+    private void ToggleCommandPalette()
+    {
+        if (_palette != null) { var open = _palette; _palette = null; open.Dismiss(); return; }
+        var entries = CommandPalette.Entries(RunningCharacters(), S.ThumbnailAnnotations,
+            FocusMode.Groups(S).Select(g => g.Name), _settings.GetProfileNames());
+        var palette = new CommandPaletteWindow(entries, command => RunCommand(command));
+        palette.Closed += (_, _) => { if (ReferenceEquals(_palette, palette)) _palette = null; };
+        _palette = palette;
+        palette.ShowAt(_clients.Pointer() is { } p ? new PixelPoint(p.X, p.Y) : null);
+        // A window manager that holds back focus from a window shown while the game has it (KWin's focus-stealing guard) is
+        // asked once more, as a pager asks; a palette still not in front closes: a box that can't take the keyboard would
+        // leave the typing going to the game (the Windows palette's 400 ms rule).
+        DispatcherTimer.RunOnce(() =>
+        {
+            if (_palette != palette || palette.IsActive) return;
+            if (palette.TryGetPlatformHandle() is { } handle) _clients.Activate((uint)(long)handle.Handle);
+            DispatcherTimer.RunOnce(() => { if (_palette == palette && !palette.IsActive) ToggleCommandPalette(); }, TimeSpan.FromMilliseconds(400));
+        }, TimeSpan.FromMilliseconds(400));
+    }
+
+    /// <summary>App.RunCommand: one command (the palette's row) through the shared RemoteCommandRunner, with what Linux has.
+    /// Minimising and restoring every client are not offered on Linux.</summary>
+    private RemoteOutcome RunCommand(RemoteCommand command)
+    {
+        try
+        {
+            return new RemoteCommandRunner
+            {
+                Running = RunningCharacters,
+                Profiles = () => _settings.GetProfileNames(),
+                Focus = SwitchTo,
+                SwitchProfile = name => Profile = name,
+                ToggleThumbnails = () => _allHidden = !_allHidden,
+                ToggleFocusMode = ToggleFocusMode,
+                Groups = () => FocusMode.Groups(S).Select(g => g.Name),
+                CycleGroup = (name, forward) =>
+                {
+                    var group = FocusMode.Groups(S).FirstOrDefault(g => g.Name == name);
+                    if (group.Members != null) Cycle(group.Members, forward);
+                },
+                CycleAll = forward => Cycle(null, forward),
+                PreviousClient = () => { if (_previousActive != 0) _clients.Activate(_previousActive); },
+                LastAlert = GoToLastAlert,
+                CycleProfile = CycleProfile,
+                DoNotDisturb = ToggleDoNotDisturb,
+                IsDoNotDisturbOn = () => DoNotDisturb,
+                IsFocusModeOn = () => _focusOn,
+                SetAlertMute = (name, mute) => Mute(name, mute ? ThumbnailMenu.LongestTimedMuteMinutes : 0),
+                OpenSettings = OpenSettings,
+                OpenAlertHistory = OpenAlertHistory,
+                IsNameBarOn = () => S.NameBarMode,
+                SetNameBar = on =>
+                {
+                    if (S.NameBarMode == on) return;
+                    S.NameBarMode = on;
+                    _settings.SaveDelayed();
+                    FollowNameBar();
+                    Alerts.Say(on ? LocalizationService.Str("L.NameBar.On", "Name bar: on") : LocalizationService.Str("L.NameBar.Off", "Name bar: off"));
+                },
+                MarkAlertsSeen = () => _attention.SeeAll(),
+                MuteFor = Mute,
+            }.Run(command);
+        }
+        catch (Exception e)
+        {
+            ErrorLog.Shared.Record(e, "App", DateTime.Now);
+            return RemoteOutcome.Refused;
+        }
+    }
+
+    /// <summary>App.CycleProfile: the next or previous profile, round the ends.</summary>
+    private void CycleProfile(bool forward)
+    {
+        var names = _settings.GetProfileNames();
+        if (names.Length <= 1) return;
+        int at = Math.Max(0, Array.IndexOf(names, S.LastUsedProfile));
+        Profile = names[((at + (forward ? 1 : -1)) % names.Length + names.Length) % names.Length];
+        TrayMenu?.Rebuild();
+    }
+
     // ── The name bar (IDEAS #38: App.FollowNameBar) ──
 
     private NameBarWindow? _nameBar;
@@ -381,6 +467,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             TrayMenu?.Rebuild();
         }));
         keys.Add((S.FocusModeHotkey, ToggleFocusMode));
+        keys.Add((S.CommandPaletteHotkey, ToggleCommandPalette));
         keys.Add((S.HideShowCropsHotkey, () =>
         {
             _cropsHidden = !_cropsHidden;

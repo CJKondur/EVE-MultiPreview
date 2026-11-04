@@ -753,6 +753,8 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Section(T("L.S.Sec.clients.hotkeys.app", "MultiPreview hotkeys")));
         page.Children.Add(Key(T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), S.HideShowThumbnailsHotkey, v => S.HideShowThumbnailsHotkey = v));
         page.Children.Add(Key(T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), S.HideSecondaryHotkey, v => S.HideSecondaryHotkey = v));
+        page.Children.Add(Key(T("L.S.clients.hotkeys.commandPalette", "Open the command palette"), S.CommandPaletteHotkey, v => S.CommandPaletteHotkey = v,
+            T("L.S.clients.hotkeys.commandPalette.Desc", "Opens a small box over the monitor your mouse is on. Type a few letters of a character, label, group or profile and press Enter to switch to it. Press the key again or Esc to close it.")));
         page.Children.Add(Key(T("L.S.clients.hotkeys.hideCrops", "Hide or show crop windows"), S.HideShowCropsHotkey, v => S.HideShowCropsHotkey = v));
         page.Children.Add(Key(T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), S.LockPositionsHotkey, v => S.LockPositionsHotkey = v));
         page.Children.Add(Key(T("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), S.DoNotDisturbHotkey, v => S.DoNotDisturbHotkey = v,
@@ -801,6 +803,7 @@ internal sealed class SettingsPages
         all.Add(("global:" + T("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), T("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), S.PreviousClientHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), S.HideShowThumbnailsHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), S.HideSecondaryHotkey));
+        all.Add(("global:" + T("L.S.clients.hotkeys.commandPalette", "Open the command palette"), T("L.S.clients.hotkeys.commandPalette", "Open the command palette"), S.CommandPaletteHotkey));
         all.Add(("global:focus", T("L.S.clients.groups.focusKey", "Focus mode on or off"), S.FocusModeHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.hideCrops", "Hide or show crop windows"), T("L.S.clients.hotkeys.hideCrops", "Hide or show crop windows"), S.HideShowCropsHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), S.LockPositionsHotkey));
