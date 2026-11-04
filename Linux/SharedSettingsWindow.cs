@@ -879,6 +879,20 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         return file?.TryGetLocalPath();
     });
 
+    private bool _checking;
+
+    /// <summary>About › Check for updates (AboutActions.CheckNow): the Linux updater asks GitHub and offers the update
+    /// dialog itself; its answer (up to date, or why the check failed) is the toast.</summary>
+    internal async void CheckForUpdates()
+    {
+        if (_checking) return;
+        _checking = true;
+        Toast(Str("L.S.About.Checking"));
+        try { Toast(await _app.CheckForUpdates(quiet: false) ?? ""); }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { Toast(string.Format(Str("L.S.About.CheckFailed"), ex.GetType().Name)); }
+        finally { _checking = false; }
+    }
+
     /// <summary>No colour picker on Linux yet: the colour cards take a typed colour.</summary>
     public string? PickColor(string? initial) => null;
 

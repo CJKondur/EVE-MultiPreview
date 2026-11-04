@@ -1,6 +1,9 @@
 // Stand-in so shared settings pages compile on Linux. S3 hides these settings or gives them a Linux implementation.
-// The About page's actions. The Windows one opens the WPF UpdateDialog; Linux has its own Linux/UpdateDialog.cs, wired in S2.
-// VersionText is read while the page renders, so it is the real value.
+// The About page's actions. The Windows CheckNow opens the WPF UpdateDialog; on Linux it asks the settings window, which runs
+// the Linux updater (Previews.CheckForUpdates: the check, then Linux/UpdateDialog.cs). VersionText is read while the page
+// renders, so it is the real value.
+using System.Diagnostics;
+
 namespace EveMultiPreview.SettingsUi;
 
 public static class AboutActions
@@ -9,6 +12,23 @@ public static class AboutActions
 
     public static string VersionText => typeof(AboutActions).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
 
-    public static void OpenGitHub() => throw new PlatformNotSupportedException("AboutActions.OpenGitHub is Windows-only (S3)");
-    public static void CheckNow(SettingsContext ctx) => throw new PlatformNotSupportedException("AboutActions.CheckNow is Windows-only (S3)");
+    /// <summary>The project's page in the browser (xdg-open, as the Linux update dialog opens its release page).</summary>
+    public static void OpenGitHub()
+    {
+        try
+        {
+            var start = new ProcessStartInfo("xdg-open") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+            start.ArgumentList.Add(RepoUrl);
+            Process.Start(start)?.Dispose();
+        }
+        catch (System.ComponentModel.Win32Exception) { }   // no xdg-open
+    }
+
+    /// <summary>Asks GitHub for a newer release through the Linux settings window; outside it (no Linux window) there is no updater.</summary>
+    public static void CheckNow(SettingsContext ctx)
+    {
+        if (ctx.Host is not EveMultiPreview.Linux.SharedSettingsWindow window)
+            throw new PlatformNotSupportedException("AboutActions.CheckNow needs the Linux settings window");
+        window.CheckForUpdates();
+    }
 }
