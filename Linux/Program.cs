@@ -272,6 +272,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             if (_thumbs.ContainsKey(_lastActive)) _previousActive = _lastActive;
             _lastActive = active;
             _alerts?.Looked(_thumbs[active].Client.Character);
+            _alertBorders.Remove(_thumbs[active].Client.Character);   // switching to a client ends its alert
         }
         bool inScope = S.GlobalHotkeys || _thumbs.ContainsKey(active) || _clients.IsOurs(active);
         if (inScope != _keysInScope)
@@ -279,10 +280,11 @@ public sealed class Previews : ITrayActions, ISettingsHost
             _keysInScope = inScope;
             if (!_hotkeysPaused && !_capturing) BindHotkeys();
         }
-        // An alert ends when its time is up, or when the player switches to that client.
+        // An alert ends when its time is up, or (above) when the player switches to that client. One that arrives on the
+        // client already in front shows its time out, as on Windows: being in front is not a switch.
         var now = DateTime.UtcNow;
         foreach (var (who, border) in _alertBorders.ToList())
-            if (border.Until < now || WindowOf(who) == active && active != 0) _alertBorders.Remove(who);
+            if (border.Until < now) _alertBorders.Remove(who);
         foreach (var thumb in _thumbs.Values)
         {
             bool isActive = thumb.Client.Window == active;
@@ -316,8 +318,13 @@ public sealed class Previews : ITrayActions, ISettingsHost
         var style = S.ThumbnailLabelStyles.GetValueOrDefault(character);
         var textColour = style is { Color.Length: > 0 } ? style.Color : S.ThumbnailTextColor;
         double size = style is { Size: > 0 } ? style.Size : double.TryParse(S.ThumbnailTextSize, out var fs) ? fs : 12;
+        // The window's opacity fades its border too, so while an alert shows the thumbnail is at least as strong as the
+        // alert's own strength (AlertOpacityPercent, 100 % by default): a faint thumbnail must not hide its alert.
+        double opacity = Math.Clamp(S.ThumbnailOpacity, 0, 255) / 255.0;
+        if (_alertBorders.ContainsKey(character))
+            opacity = Math.Max(opacity, SettingsUi.AlertFields.PulsePercent(S.AlertOpacityPercent) / 100.0);
         return new ThumbnailLook(border, thickness, label, S.ShowThumbnailTextOverlay, Brush(textColour), size,
-            S.ThumbnailTextFont, Math.Clamp(S.ThumbnailOpacity, 0, 255) / 255.0, S.ShowThumbnailsAlwaysOnTop);
+            S.ThumbnailTextFont, opacity, S.ShowThumbnailsAlwaysOnTop);
     }
 
     private IReadOnlyCollection<string> RunningCharacters() => _thumbs.Values.Select(t => t.Client.Character).ToList();
