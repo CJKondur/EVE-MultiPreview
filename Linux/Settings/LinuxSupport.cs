@@ -302,6 +302,22 @@ internal static class LinuxSupport
         ["L.S.app.look.themeOn"] = "L.Linux.LookThemeOn",
         ["L.Help.app.look.theme.Title"] = "L.Linux.LookThemeHelp.Title",
         ["L.Help.app.look.theme.Body"] = "L.Linux.LookThemeHelp.Body",
+        // S5: help topics whose Windows text names Windows things (the alert hub, Windows voices and sleep, Task Manager, the
+        // Windows display language, Start with Windows, the left Ctrl key), in Linux words.
+        ["L.Help.alerts.hub.Intro"] = "L.Linux.Help.HubIntro",
+        ["L.Help.alerts.hub.hub.Title"] = "L.Linux.Notifications",
+        ["L.Help.alerts.hub.hub.Body"] = "L.Linux.Help.Hub",
+        ["L.Help.character.clients.Body"] = "L.Linux.Help.CharacterClients",
+        ["L.Help.thumbs.text.clientState.Body"] = "L.Linux.Help.ClientState",
+        ["L.Help.alerts.sounds.speech.Body"] = "L.Linux.Help.Speech",
+        ["L.Help.app.general.keepAwake.Body"] = "L.Linux.Help.KeepAwake",
+        ["L.Help.alerts.events.clientStops.Body"] = "L.Linux.Help.ClientStops",
+        ["L.Help.app.general.language.Body"] = "L.Linux.Help.Language",
+        ["L.Help.app.general.Intro"] = "L.Linux.Help.GeneralIntro",
+        ["L.Help.app.general.startup.Title"] = "L.S.app.general.startupSettings",
+        ["L.Help.app.general.startup.Body"] = "L.Linux.Help.Startup",
+        ["L.Help.alerts.look.severity.Body"] = "L.Linux.Help.Severity",
+        ["L.Help.clients.characters.clicks.Body"] = "L.Linux.Help.Clicks",
     };
 
     /// <summary>The key Linux shows for <paramref name="key"/>.</summary>

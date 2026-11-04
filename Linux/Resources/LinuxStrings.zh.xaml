@@ -53,5 +53,18 @@
     <sys:String x:Key="L.Linux.LookThemeOn">桌面样式为浅色，因此显示日光。你选择的外观会保留，在桌面变为深色后显示；如果你关闭此开关，则会立即显示。</sys:String>
     <sys:String x:Key="L.Linux.LookThemeHelp.Title">桌面浅色与深色</sys:String>
     <sys:String x:Key="L.Linux.LookThemeHelp.Body">开启**桌面样式为浅色时显示日光**后，只要你的桌面要求应用使用浅色样式（GNOME、KDE Plasma 以及其他通过 freedesktop 设置门户告知应用的桌面的浅色或深色设置），MultiPreview 就会显示**日光**；为深色时显示你选择的外观。桌面上的更改会立即生效，无需重启。&#x0A;&#x0A;你的选择不会被覆盖：它会一直保存，在桌面变为深色或你关闭开关后恢复。如果桌面未说明，则显示你自己的外观。此开关默认关闭，只改变设置窗口，不改变缩略图。</sys:String>
+    <!-- S5: Linux help wording -->
+    <sys:String x:Key="L.Linux.Help.HubIntro">在 Linux 上，警报以桌面通知的形式显示。每条通知会写明客户端和事件，并带有按钮，可以切换到该客户端或暂停该警报。</sys:String>
+    <sys:String x:Key="L.Linux.Help.Hub">哪些严重程度会显示通知，在“外观 &amp; 严重程度”中设置。点击通知或其中的切换按钮即可前往该客户端；“暂停”会让该角色的这条警报静音 15 分钟。通知出现在哪里、如何堆叠由你的桌面决定。按钮需要 notify-send 0.7.9 或更高版本。</sys:String>
+    <sys:String x:Key="L.Linux.Help.CharacterClients">- **从不最小化**：切换时其他客户端被最小化，此客户端仍保持打开。&#x0A;- **游戏音量**：在桌面的声音服务器（PulseAudio 或 PipeWire）中设置此客户端的音量，下次仍会记住。</sys:String>
+    <sys:String x:Key="L.Linux.Help.ClientState">卡死或断开的客户端在你切换过去之前看起来和空闲的一样。MultiPreview 可以在它的缩略图上做标记：&#x0A;&#x0A;- **未响应**：客户端窗口已有五秒没有回应窗口管理器。它重新回应后标记会消失；通过缩略图的菜单可以结束该客户端，MultiPreview 会先询问你。&#x0A;- **已断开连接**：已登录的客户端在你设定的时间内一直没有连接到 EVE 服务器。MultiPreview 读取的是此电脑上该客户端的连接，不会向任何地方发送任何内容。&#x0A;&#x0A;连接经过此电脑上代理的客户端永远不会被标记为已断开。两种标记在你开启前都是关闭的。</sys:String>
+    <sys:String x:Key="L.Linux.Help.Speech">开启 **朗读警报** 后，会有一个声音用 MultiPreview 的语言说出是谁的警报、发生了什么，通过 speech-dispatcher（spd-say）或 espeak-ng 朗读。&#x0A;&#x0A;- **朗读哪些警报** 按严重程度选择。&#x0A;- 同一事件同时到来的警报合成一句话。等待超过 10 秒的警报不再朗读。&#x0A;- 勿扰模式会像暂停声音一样暂停朗读。只要 **严重警报仍然发声** 开启，严重警报仍会被朗读。&#x0A;- **语音种类** 为每种严重程度设置一个声音。“自动”会在 espeak-ng 有 MultiPreview 语言的声音时使用它。**试听** 会说一个示例。&#x0A;- 如果声音连续失败三次，MultiPreview 会停止使用它，直到你关闭再打开 **朗读警报**，或听到 **试听** 的声音为止。</sys:String>
+    <sys:String x:Key="L.Linux.Help.KeepAwake">如果没人碰鼠标，电脑进入睡眠，采矿或工业会话就会中断。开启 **EVE 运行时保持电脑唤醒** 后，只要至少有一个客户端登录了角色，MultiPreview 就会请求 systemd（systemd-inhibit）不要睡眠。&#x0A;&#x0A;- 屏幕仍会按自己的计时关闭。&#x0A;- 当最后一个客户端关闭、你关闭此项或 MultiPreview 关闭时，电脑可以再次睡眠。</sys:String>
+    <sys:String x:Key="L.Linux.Help.ClientStops">**客户端未响应**：客户端窗口 30 秒没有回应时触发，每次卡死触发一次。该客户端需要有已登录的角色。这是严重警报，所以除非你改过设置，勿扰模式会放行它的声音。&#x0A;&#x0A;**客户端意外关闭** 在 Linux 上不可用：Linux 不会告诉 MultiPreview 一个不是由它启动的客户端是如何结束的，所以崩溃看起来和正常退出一样。</sys:String>
+    <sys:String x:Key="L.Linux.Help.Language">**自动**在 MultiPreview 支持时使用你桌面的语言，否则使用英语。&#x0A;&#x0A;除英语外的翻译由机器起草。如有不通顺之处，请在 GitHub 上反馈，将在下个版本修正。&#x0A;&#x0A;**设置窗口大小**只改变此窗口，不影响缩略图。</sys:String>
+    <sys:String x:Key="L.Linux.Help.GeneralIntro">选择语言、此窗口的大小，以及 MultiPreview 启动时做什么。</sys:String>
+    <sys:String x:Key="L.Linux.Help.Startup">**MultiPreview 启动时** 决定是否同时打开此窗口。选择最小化可以让它随时可用又不遮挡 EVE。&#x0A;&#x0A;要在登录时启动 MultiPreview，请把它加入你桌面的自动启动程序。</sys:String>
+    <sys:String x:Key="L.Linux.Help.Severity">每个事件都是 **严重**、**警告** 或 **信息**。每种严重程度都有颜色、闪烁速度，以及其警报是否显示桌面通知的选项。信息警报不闪烁：它们保持常亮。</sys:String>
+    <sys:String x:Key="L.Linux.Help.Clicks">普通点击会切换到该客户端。**Ctrl+点击**（左右任一 Ctrl 键）和 **Shift+点击** 可以改为将其最小化，或在循环切换时跳过它。Ctrl 也是 EVE 的锁定目标键，请按你的玩法选择。&#x0A;&#x0A;**使用每个角色的专属颜色** 会启用你在每个角色页面上设置的边框和文字颜色。</sys:String>
 
 </ResourceDictionary>
