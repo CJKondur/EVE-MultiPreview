@@ -39,5 +39,7 @@
     <sys:String x:Key="L.Linux.PushWriteFailed">Le lien n'a pas pu être enregistré : son fichier n'a pas pu être écrit.</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">L'absence est lue dans le temps d'inactivité du serveur X. Si le serveur X ne peut pas l'indiquer, les alertes sont envoyées quand même.</sys:String>
     <sys:String x:Key="L.Linux.HotkeyClash">Même touche que : {0}. Une seule des actions l'obtient.</sys:String>
+    <sys:String x:Key="L.Linux.HistOff">L'historique des alertes est désactivé : les nouvelles alertes ne sont donc pas conservées. Activez-le dans Paramètres › Alertes › Historique.</sys:String>
+    <sys:String x:Key="L.Linux.HistNoDialog">Ce bureau n'a pas de boîte de dialogue de fichiers ; le fichier a donc été enregistré dans le dossier des paramètres.</sys:String>
 
 </ResourceDictionary>

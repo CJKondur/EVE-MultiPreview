@@ -39,5 +39,7 @@
     <sys:String x:Key="L.Linux.PushWriteFailed">无法保存链接：无法写入它的文件。</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">是否离开由 X 服务器的空闲时间判断。X 服务器无法提供时，警报仍会发送。</sys:String>
     <sys:String x:Key="L.Linux.HotkeyClash">与 {0} 的按键相同。只有其中一个会生效。</sys:String>
+    <sys:String x:Key="L.Linux.HistOff">警报历史记录已关闭，所以不会保留新的警报。可以在“设置 › 警报 › 历史记录”里打开它。</sys:String>
+    <sys:String x:Key="L.Linux.HistNoDialog">此桌面没有文件对话框，所以文件已保存到设置文件夹中。</sys:String>
 
 </ResourceDictionary>

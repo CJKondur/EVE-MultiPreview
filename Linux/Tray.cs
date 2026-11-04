@@ -16,6 +16,7 @@ public interface ITrayActions
     IReadOnlyList<string> Profiles { get; }
     string Profile { get; set; }
     void OpenSettings();
+    void OpenAlertHistory();
     void Exit();
 }
 
@@ -43,6 +44,7 @@ public sealed class Tray
     {
         var menu = new NativeMenu();
         menu.Add(Item(T("L.Tray.Settings", "Settings"), _app.OpenSettings));
+        menu.Add(Item(T("L.Tray.AlertHistory", "Alert history…"), _app.OpenAlertHistory));
         menu.Add(new NativeMenuItemSeparator());
         menu.Add(Check(T("L.Tray.Suspend", "Pause hotkeys"), _app.HotkeysPaused, on => _app.HotkeysPaused = on));
         menu.Add(Check(T("L.Tray.Lock", "Lock positions"), _app.PositionsLocked, on => _app.PositionsLocked = on));

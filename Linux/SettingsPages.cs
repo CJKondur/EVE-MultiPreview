@@ -17,6 +17,8 @@ public interface ISettingsHost
     SettingsService Settings { get; }
     /// <summary>The characters that have a client running now.</summary>
     IReadOnlyCollection<string> RunningCharacters();
+    /// <summary>Opens the alert history window (or brings the open one forward).</summary>
+    void OpenAlertHistory();
     /// <summary>A hotkey was changed: bind the keys again.</summary>
     void HotkeysChanged();
     /// <summary>A hotkey box starts or ends listening for a key: the global grabs are lifted meanwhile.</summary>
@@ -232,6 +234,22 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Row(T("L.S.thumbs.layout.startHeight", "Starting height"), Ui.Number(30, 4000, start.Height, v => { S.ThumbnailStartLocation.Height = v; Save(); })));
         page.Children.Add(Ui.Note(T("L.Linux.StartNote", "The size a thumbnail gets the first time its client is seen.")));
         page.Children.Add(Ui.Note(T("L.Linux.ResizeNote", "To resize a thumbnail, hold the right mouse button on it, press the left button too and move the mouse. Every thumbnail follows; hold Ctrl to resize only that one.")));
+        // Read at each resize gesture (Previews.Tick hands LockResizeAspect and the floor to every thumbnail; ResizeOthers reads the other).
+        page.Children.Add(Ui.Row(T("L.S.thumbs.appearance.individualResize", "Resize thumbnails one at a time"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.IndividualThumbnailResize, on => { S.IndividualThumbnailResize = on; Save(); }),
+            T("L.S.thumbs.appearance.individualResize.Desc", "On: resizing a thumbnail changes only that one. Off: every thumbnail follows, unless you hold Ctrl.")));
+        page.Children.Add(Ui.Row(T("L.S.thumbs.appearance.lockAspect", "Keep the shape when resizing"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.LockResizeAspect, on => { S.LockResizeAspect = on; Save(); }),
+            T("L.S.thumbs.appearance.lockAspect.Desc", "Resizing a thumbnail with the mouse keeps its width-to-height ratio.")));
+        // The smallest size boxes show while the limit is on (the Windows page's ShowIf), 20-2000 px (ThumbnailManager.MinFloor/MaxFloor).
+        var minimum = S.ThumbnailMinimumSize;
+        var floorBoxes = new StackPanel { IsVisible = S.ThumbnailMinimumSizeEnabled };
+        floorBoxes.Children.Add(Ui.Row(T("L.S.thumbs.appearance.minWidth", "Smallest width"), Ui.Number(ThumbnailWindow.FloorMin, ThumbnailWindow.FloorMax, minimum.Width, v => { S.ThumbnailMinimumSize.Width = v; Save(); })));
+        floorBoxes.Children.Add(Ui.Row(T("L.S.thumbs.appearance.minHeight", "Smallest height"), Ui.Number(ThumbnailWindow.FloorMin, ThumbnailWindow.FloorMax, minimum.Height, v => { S.ThumbnailMinimumSize.Height = v; Save(); })));
+        page.Children.Add(Ui.Row(T("L.S.thumbs.appearance.minSizeOn", "Limit how small thumbnails get"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.ThumbnailMinimumSizeEnabled, on => { S.ThumbnailMinimumSizeEnabled = on; floorBoxes.IsVisible = on; Save(); }),
+            T("L.S.thumbs.appearance.minSizeOn.Desc", "Off: resizing a thumbnail by hand stops at 80 × 50. On: it stops at the size below.")));
+        page.Children.Add(floorBoxes);
         page.Children.Add(Ui.Row(T("L.S.thumbs.appearance.opacity", "Opacity"),
             Ui.Slider(0, 255, S.ThumbnailOpacity, v => { S.ThumbnailOpacity = v; Save(); }, v => $"{v} ({OpacityPercent.FromByte(v)} %)")));
 
@@ -530,6 +548,15 @@ internal sealed class SettingsPages
 
     // ── Alerts ──
 
+    /// <summary>A number box with its unit written after it.</summary>
+    private static Control WithUnit(Control box, string unit)
+    {
+        var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        row.Children.Add(box);
+        row.Children.Add(new TextBlock { Text = unit, Opacity = 0.7, VerticalAlignment = VerticalAlignment.Center });
+        return row;
+    }
+
     /// <summary>"From which severity" (AlertWays.Reaches): critical only, critical and warning, all.</summary>
     private Control FromBox(int value, Action<int> set)
     {
@@ -778,6 +805,26 @@ internal sealed class SettingsPages
             page.Children.Add(Ui.Card(table));
         }
 
+        // IDEAS #13: AlertEnlarge reads all four at every alert that was shown and at its tick (EnlargeOptions.Of), so a change
+        // only saves. The two numbers are used held to their ranges, and each box shows the number that is used. The options
+        // show while the switch is on, as on the Windows page.
+        page.Children.Add(Ui.Section(T("L.S.Sec.alerts.look.thumbnail", "On the thumbnail")));
+        var enlargeOptions = new StackPanel { IsVisible = S.EnlargeOnAlert };
+        page.Children.Add(Ui.Row(T("L.S.alerts.look.enlarge", "Enlarge the thumbnail on an alert"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.EnlargeOnAlert, on => { S.EnlargeOnAlert = on; enlargeOptions.IsVisible = on; Save(); }),
+            T("L.S.alerts.look.enlarge.Desc", "The thumbnail grows for a few seconds, so you see what is happening there without switching.")));
+        enlargeOptions.Children.Add(Ui.Row(T("L.S.alerts.look.enlargeFrom", "Enlarge for which alerts"), FromBox(S.EnlargeOnAlertFrom, v => S.EnlargeOnAlertFrom = v),
+            T("L.S.alerts.look.enlargeFrom.Desc", "By severity: every event is critical, warning or info.")));
+        enlargeOptions.Children.Add(Ui.Row(T("L.S.alerts.look.enlargePercent", "Enlarged size"),
+            WithUnit(Ui.Number(EnlargeOptions.MinPercent, EnlargeOptions.MaxPercent, Math.Clamp(S.EnlargeOnAlertPercent, EnlargeOptions.MinPercent, EnlargeOptions.MaxPercent),
+                v => { S.EnlargeOnAlertPercent = v; Save(); }), T("L.S.Unit.Percent", "%")),
+            T("L.S.alerts.look.enlargePercent.Desc", "In percent of the thumbnail's own size. It is never larger than the monitor.")));
+        enlargeOptions.Children.Add(Ui.Row(T("L.S.alerts.look.enlargeSeconds", "Stays enlarged for"),
+            WithUnit(Ui.Number(EnlargeOptions.MinSeconds, EnlargeOptions.MaxSeconds, Math.Clamp(S.EnlargeOnAlertSeconds, EnlargeOptions.MinSeconds, EnlargeOptions.MaxSeconds),
+                v => { S.EnlargeOnAlertSeconds = v; Save(); }), T("L.S.Unit.Sec", "s")),
+            T("L.S.alerts.look.enlargeSeconds.Desc", "Seconds from the alert. It goes back at once when you switch to that client.")));
+        page.Children.Add(enlargeOptions);
+
         page.Children.Add(Ui.Section(T("L.Linux.Notifications", "Desktop notifications")));
         var notify = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 18 };
         foreach (var severity in AlertEvents.Severities)
@@ -811,6 +858,10 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Section(T("L.S.Sec.alerts.hub.history", "History")));
         page.Children.Add(Ui.Row(T("L.S.alerts.hub.keepHistory", "Keep an alert history"),
             Ui.Check(T("L.Common.Enabled", "Enabled"), S.AlertHistoryEnabled, on => { S.AlertHistoryEnabled = on; Save(); _host.AlertsChanged(); })));
+        var openHistory = new Button { Content = T("L.Tray.AlertHistory", "Alert history…") };
+        openHistory.Click += (_, _) => _host.OpenAlertHistory();
+        page.Children.Add(Ui.Row(T("L.S.alerts.hub.historyRow", "Alert history"), openHistory,
+            T("L.S.alerts.hub.historyRow.Desc", "Every alert that was kept, newest first. Double-click one to switch to its client.")));
         return page;
     }
 }

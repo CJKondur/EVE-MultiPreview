@@ -50,6 +50,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     private bool _allHidden;
     private Alerts? _alerts;
     private SettingsWindow? _settingsWindow;
+    private AlertHistoryWindow? _historyWindow;
     /// <summary>The alerts the player has not looked at yet, and the walk "Go to the last alert" makes through them.</summary>
     private readonly AlertAttention _attention = new();
     private readonly AlertWalk _alertWalk = new();
@@ -91,6 +92,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
         Tick();
         // EVEMP_OPEN_SETTINGS=<page number from 0>: opens the settings window at startup (the tests use it).
         if (int.TryParse(Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS"), out int page)) OpenSettings(page);
+        // EVEMP_OPEN_HISTORY=1: opens the alert history window at startup (the tests use it).
+        if (Environment.GetEnvironmentVariable("EVEMP_OPEN_HISTORY") == "1") OpenAlertHistory();
     }
 
     // ── Tray ──
@@ -162,6 +165,31 @@ public sealed class Previews : ITrayActions, ISettingsHost
         _settingsWindow = new SettingsWindow(this, page);
         _settingsWindow.Closed += (_, _) => { _settingsWindow = null; CaptureHotkey(false); };
         _settingsWindow.Show();
+    }
+
+    /// <summary>Opens the alert history window (the tray's "Alert history…" and the Alerts page's button), or brings the open one forward.</summary>
+    public void OpenAlertHistory()
+    {
+        if (_alerts == null) return;
+        if (_historyWindow != null)
+        {
+            if (_historyWindow.WindowState == WindowState.Minimized) _historyWindow.WindowState = WindowState.Normal;
+            _historyWindow.Activate();
+            return;
+        }
+        _historyWindow = new AlertHistoryWindow(_alerts.History, new AlertHistoryActions(
+            SwitchToCharacter, () => S.AlertHistoryEnabled, () => _settings.LoadedSuccessfully, () => S));
+        _historyWindow.Closed += (_, _) => _historyWindow = null;
+        _historyWindow.Show();
+    }
+
+    /// <summary>Brings the character's client to the front (the history window's "Switch to client"). False when it isn't running.</summary>
+    private bool SwitchToCharacter(string character)
+    {
+        uint window = WindowOf(character);
+        if (window == 0) return false;
+        _clients.Activate(window);
+        return true;
     }
 
     // ── Settings window ──
@@ -339,6 +367,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         var now = DateTime.UtcNow;
         foreach (var (who, border) in _alertBorders.ToList())
             if (border.Until < now) _alertBorders.Remove(who);
+        TellEnlarged(active);
         foreach (var thumb in _thumbs.Values)
         {
             bool isActive = thumb.Client.Window == active;
@@ -349,6 +378,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.ResizeFloor = ThumbnailWindow.FloorOf(S);
             thumb.LockResizeAspect = S.LockResizeAspect;
             thumb.Apply(Look(thumb.Client.Character, isActive));
+            thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
             thumb.Update(_clients);
         }
         _drawMs += watch.Elapsed.TotalMilliseconds;
@@ -356,6 +386,25 @@ public sealed class Previews : ITrayActions, ISettingsHost
         {
             Console.WriteLine($"{_thumbs.Count} thumbnail(s), {_drawMs / 100:F1} ms per redraw");
             _drawMs = 0;
+        }
+    }
+
+    /// <summary>ThumbnailManager.TellEnlarged: asks AlertEnlarge what is due and tells each thumbnail its scale (1.0: back to
+    /// its own size). A thumbnail that is enlarged, or was asked to be, while AlertEnlarge holds nothing for its character is
+    /// put back (the watchdog: its character left the window, or a "go back" failed). Only the thumbnails are told: the
+    /// client in front is the real thing and never enlarged.</summary>
+    private void TellEnlarged(uint active)
+    {
+        if (_alerts?.Enlarge is not { } enlarge) return;
+        foreach (var thumb in _thumbs.Values)
+            if ((thumb.IsAlertEnlarged || thumb.IsAlertEnlargementAsked) && !enlarge.Holds(thumb.Client.Character))
+                thumb.SetAlertScale(1.0);
+        if (!enlarge.Any) return;
+        foreach (var change in enlarge.Tick(DateTime.UtcNow, S,
+                     name => WindowOf(name) is var w && w != 0 && w == active, name => WindowOf(name) != 0))
+        {
+            var thumb = _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, change.Character, StringComparison.OrdinalIgnoreCase));
+            thumb?.SetAlertScale(change.Scale);
         }
     }
 
@@ -413,15 +462,20 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.Clicked += c => _clients.Activate(c.Window);
             thumb.Moved += t =>
             {
-                _settings.SaveThumbnailPosition(t.Client.Character, t.Position.X, t.Position.Y, (int)t.Width, (int)t.Height);
-                if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1") Console.WriteLine($"[move] {t.Client.Character} -> {t.Position}");
+                _settings.SaveThumbnailPosition(t.Client.Character, t.OwnPosition.X, t.OwnPosition.Y, t.OwnWidth, t.OwnHeight);
+                if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1") Console.WriteLine($"[move] {t.Client.Character} -> {t.OwnPosition}");
             };
             thumb.ResizeEnded += t =>
             {
-                _settings.SaveThumbnailPosition(t.Client.Character, t.Position.X, t.Position.Y, (int)t.Width, (int)t.Height);
-                if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1") Console.WriteLine($"[resize] {t.Client.Character} -> {(int)t.Width}x{(int)t.Height}");
+                _settings.SaveThumbnailPosition(t.Client.Character, t.OwnPosition.X, t.OwnPosition.Y, t.OwnWidth, t.OwnHeight);
+                if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1") Console.WriteLine($"[resize] {t.Client.Character} -> {t.OwnWidth}x{t.OwnHeight}");
             };
             thumb.ResizeAll += ResizeOthers;
+            // An enlarged thumbnail is stacked above its neighbours, as Windows raises it (only while the thumbnails are "always on top").
+            thumb.RaiseWhileEnlarged = t =>
+            {
+                if (S.ShowThumbnailsAlwaysOnTop && t.TryGetPlatformHandle() is { } handle) _clients.Raise((uint)(long)handle.Handle);
+            };
             thumb.PointerSource = _clients.Pointer;
             _thumbs[client.Window] = thumb;
             Console.WriteLine($"Client found: {client.Character} (window {client.Window})");
@@ -440,7 +494,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         {
             if (thumb == source) continue;
             thumb.SetSize(width, height);
-            _settings.SaveThumbnailPosition(thumb.Client.Character, thumb.Position.X, thumb.Position.Y, width, height);
+            _settings.SaveThumbnailPosition(thumb.Client.Character, thumb.OwnPosition.X, thumb.OwnPosition.Y, width, height);
         }
     }
 

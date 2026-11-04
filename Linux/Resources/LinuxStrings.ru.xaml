@@ -39,5 +39,7 @@
     <sys:String x:Key="L.Linux.PushWriteFailed">Не удалось сохранить ссылку: не удалось записать её файл.</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">Отсутствие определяется по времени простоя X-сервера. Если X-сервер его не сообщает, оповещения всё равно отправляются.</sys:String>
     <sys:String x:Key="L.Linux.HotkeyClash">Та же клавиша, что и у: {0}. Сработает только одно действие.</sys:String>
+    <sys:String x:Key="L.Linux.HistOff">История оповещений выключена, поэтому новые оповещения не сохраняются. Включить её можно в разделе «Настройки › Оповещения › История».</sys:String>
+    <sys:String x:Key="L.Linux.HistNoDialog">На этом рабочем столе нет диалога выбора файла, поэтому файл сохранён в папке настроек.</sys:String>
 
 </ResourceDictionary>

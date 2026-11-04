@@ -39,5 +39,7 @@
     <sys:String x:Key="L.Linux.PushWriteFailed">No se ha podido guardar el enlace: no se ha podido escribir su archivo.</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">La ausencia se lee del tiempo de inactividad del servidor X. Si el servidor X no puede indicarlo, las alertas se envían igualmente.</sys:String>
     <sys:String x:Key="L.Linux.HotkeyClash">Misma tecla que: {0}. Solo una de ellas la recibe.</sys:String>
+    <sys:String x:Key="L.Linux.HistOff">El historial de alertas está desactivado, así que las alertas nuevas no se guardan. Actívalo en Configuración › Alertas › Historial.</sys:String>
+    <sys:String x:Key="L.Linux.HistNoDialog">Este escritorio no tiene un diálogo de archivos, así que el archivo se guardó en la carpeta de configuración.</sys:String>
 
 </ResourceDictionary>

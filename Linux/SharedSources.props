@@ -122,6 +122,7 @@
     <Compile Include="..\SettingsUi\Pages\Thumbnails\ThumbnailFields.cs" Link="Shared\SettingsUi\Pages\Thumbnails\ThumbnailFields.cs" />
     <Compile Include="..\SettingsUi\Registry\ChoiceOption.cs" Link="Shared\SettingsUi\Registry\ChoiceOption.cs" />
     <Compile Include="..\SettingsUi\ViewModels\ObservableObject.cs" Link="Shared\SettingsUi\ViewModels\ObservableObject.cs" />
+    <Compile Include="..\Views\AlertHistoryModel.cs" Link="Shared\Views\AlertHistoryModel.cs" />
     <Compile Include="..\Views\ReleaseNotesMarkup.cs" Link="Shared\Views\ReleaseNotesMarkup.cs" />
     <Compile Include="..\Views\StatReportModel.cs" Link="Shared\Views\StatReportModel.cs" />
   </ItemGroup>

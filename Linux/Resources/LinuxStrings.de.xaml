@@ -39,5 +39,7 @@
     <sys:String x:Key="L.Linux.PushWriteFailed">Der Link konnte nicht gespeichert werden: Die Datei konnte nicht geschrieben werden.</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">Ob du nicht am PC bist, wird aus der Leerlaufzeit des X-Servers gelesen. Kann der X-Server sie nicht nennen, werden Alarme trotzdem gesendet.</sys:String>
     <sys:String x:Key="L.Linux.HotkeyClash">Dieselbe Taste wie: {0}. Nur eine davon bekommt sie.</sys:String>
+    <sys:String x:Key="L.Linux.HistOff">Der Alarmverlauf ist ausgeschaltet, deshalb werden neue Alarme nicht aufbewahrt. Schalte ihn unter Einstellungen › Warnungen › Verlauf ein.</sys:String>
+    <sys:String x:Key="L.Linux.HistNoDialog">Dieser Desktop hat keinen Dateidialog, deshalb wurde die Datei im Einstellungsordner gespeichert.</sys:String>
 
 </ResourceDictionary>

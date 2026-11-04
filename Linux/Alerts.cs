@@ -22,6 +22,13 @@ public sealed class Alerts : IDisposable
     private readonly PushWay? _push;
     private readonly XIdle _idle = new();
 
+    /// <summary>Enlarging a thumbnail on an alert (IDEAS #13): decides which thumbnails are enlarged and until when; the app
+    /// asks it at every tick and tells the windows (Previews.Tick).</summary>
+    public AlertEnlarge Enlarge { get; } = new();
+
+    /// <summary>The alert history, for the history window.</summary>
+    public AlertHistory History => _history;
+
     /// <param name="running">The characters that have a thumbnail.</param>
     /// <param name="windowOf">The character's client window, or 0.</param>
     /// <param name="inFront">The window in front.</param>
@@ -54,6 +61,8 @@ public sealed class Alerts : IDisposable
             Ways = (c, type, severity, raisedUtc) => _ways.Raised(S, c, type, severity, () => ClientInFront(c, windowOf, inFront), raisedUtc),
             Failed = (way, ex) => ErrorLog.Shared.Record(new InvalidOperationException($"An alert's {way} failed: " + ex.GetType().Name), "AlertDispatcher", DateTime.Now),
         };
+
+        _ways.Add(Enlarge);
 
         // Spoken alerts and Discord, wired as the Windows app wires them (App.xaml.cs): each way is told of every alert that
         // got past the gates and decides for itself. A voice that could not be made is simply not there.

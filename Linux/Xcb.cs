@@ -55,6 +55,8 @@ internal static unsafe class Xcb
 
     [DllImport(Lib)] private static extern uint xcb_send_event(IntPtr c, byte propagate, uint destination, uint eventMask, byte* evt);
 
+    [DllImport(Lib)] private static extern uint xcb_configure_window(IntPtr c, uint window, ushort valueMask, uint* values);
+
     [DllImport(CompositeLib)] private static extern uint xcb_composite_query_version(IntPtr c, uint major, uint minor);
     [DllImport(CompositeLib)] private static extern IntPtr xcb_composite_query_version_reply(IntPtr c, uint cookie, IntPtr e);
     [DllImport(CompositeLib)] private static extern uint xcb_composite_redirect_window(IntPtr c, uint window, byte update);
@@ -153,6 +155,14 @@ internal static unsafe class Xcb
         *(uint*)(evt + 8) = netActiveWindow;
         *(uint*)(evt + 12) = 2;   // source indication: pager
         xcb_send_event(c, 0, root, SubstructureRedirect | SubstructureNotify, evt);
+        xcb_flush(c);
+    }
+
+    /// <summary>Stacks the window above its siblings (ConfigureWindow, stack mode Above). The window manager decides.</summary>
+    public static void Raise(IntPtr c, uint window)
+    {
+        uint above = 0;   // StackMode Above
+        xcb_configure_window(c, window, 0x40, &above);   // 0x40: the StackMode bit
         xcb_flush(c);
     }
 

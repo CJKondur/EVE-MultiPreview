@@ -39,5 +39,7 @@
     <sys:String x:Key="L.Linux.PushWriteFailed">Impossibile salvare il link: il suo file non può essere scritto.</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">L'assenza viene letta dal tempo di inattività del server X. Se il server X non può indicarlo, gli avvisi vengono comunque inviati.</sys:String>
     <sys:String x:Key="L.Linux.HotkeyClash">Stesso tasto di: {0}. Solo una delle azioni lo riceve.</sys:String>
+    <sys:String x:Key="L.Linux.HistOff">La cronologia degli avvisi è disattivata, quindi i nuovi avvisi non vengono conservati. Attivala in Impostazioni › Avvisi › Cronologia.</sys:String>
+    <sys:String x:Key="L.Linux.HistNoDialog">Questo desktop non ha una finestra di dialogo per i file, quindi il file è stato salvato nella cartella delle impostazioni.</sys:String>
 
 </ResourceDictionary>

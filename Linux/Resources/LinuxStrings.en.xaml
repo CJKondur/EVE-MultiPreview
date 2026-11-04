@@ -38,5 +38,7 @@
     <sys:String x:Key="L.Linux.PushWriteFailed">The link could not be saved: its file could not be written.</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">Away is read from the X server's idle time. Where the X server can't say, alerts are sent anyway.</sys:String>
     <sys:String x:Key="L.Linux.HotkeyClash">Same key as: {0}. Only one of them gets it.</sys:String>
+    <sys:String x:Key="L.Linux.HistOff">The alert history is switched off, so new alerts are not kept. Switch it on under Settings › Alerts › History.</sys:String>
+    <sys:String x:Key="L.Linux.HistNoDialog">This desktop has no file dialog, so the file was saved in the settings folder.</sys:String>
 
 </ResourceDictionary>

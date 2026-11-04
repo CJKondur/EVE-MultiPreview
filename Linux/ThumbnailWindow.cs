@@ -25,6 +25,7 @@ public sealed class ThumbnailWindow : Window
     private readonly TextBlock _name;
     private WriteableBitmap _bitmap;
     private ThumbnailLook? _look;
+    private Gesture _mode = Gesture.None;
 
     public EveClient Client { get; }
     public bool CanDrag { get; set; } = true;
@@ -75,22 +76,23 @@ public sealed class ThumbnailWindow : Window
         // events cannot be trusted any more (it reports a button as let go that is still down), so a resize is followed
         // the way the Windows app follows it (its 16 ms timer): the pointer, its buttons and Ctrl are asked of the X
         // server every 16 ms (PointerSource), and the resize ends when that says a button is up.
-        var mode = Gesture.None;
         PixelPoint from = default, startPosition = default;
         int startWidth = 0, startHeight = 0;
         IPointer? grabbed = null;
         DispatcherTimer resizeTimer = null!;
         resizeTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(16), DispatcherPriority.Input, (_, _) =>
         {
-            if (mode != Gesture.Resize) return;
+            if (_mode != Gesture.Resize) return;
             if (PointerSource?.Invoke() is not { } p || (p.Mask & BothButtons) != BothButtons) End();
             else Resize(p.X, p.Y, (p.Mask & ControlKey) != 0);
         });
         Closed += (_, _) => resizeTimer.Stop();
         void Begin(PointerEventArgs e, Gesture gesture)
         {
-            mode = gesture;
-            from = this.PointToScreen(e.GetPosition(this));
+            var pressed = this.PointToScreen(e.GetPosition(this));   // before the window moves back to its own place
+            _mode = gesture;
+            Shrink();   // a drag or resize starts from the thumbnail's own size and place (IDEAS #13), never from the enlarged one
+            from = pressed;
             startPosition = Position;
             (startWidth, startHeight) = ((int)Width, (int)Height);
             grabbed = e.Pointer;
@@ -101,8 +103,8 @@ public sealed class ThumbnailWindow : Window
         }
         void End()
         {
-            var ended = mode;
-            mode = Gesture.None;
+            var ended = _mode;
+            _mode = Gesture.None;
             resizeTimer.Stop();
             grabbed?.Capture(null);
             if (ended == Gesture.Resize) ResizeEnded?.Invoke(this);
@@ -121,14 +123,16 @@ public sealed class ThumbnailWindow : Window
             var point = e.GetCurrentPoint(this);
             switch (point.Properties.PointerUpdateKind)
             {
-                case PointerUpdateKind.RightButtonPressed when CanDrag && mode == Gesture.None:
+                case PointerUpdateKind.RightButtonPressed when CanDrag && _mode == Gesture.None:
                     Begin(e, point.Properties.IsLeftButtonPressed ? Gesture.Resize : Gesture.Move);
                     break;
-                case PointerUpdateKind.LeftButtonPressed when mode == Gesture.Move:
+                case PointerUpdateKind.LeftButtonPressed when _mode == Gesture.Move:
                     Begin(e, Gesture.Resize);
                     break;
-                case PointerUpdateKind.LeftButtonPressed when mode == Gesture.None:
-                    Clicked?.Invoke(Client);
+                case PointerUpdateKind.LeftButtonPressed when _mode == Gesture.None:
+                    // While enlarged only the thumbnail's own place takes the click: the part that grew is not this thumbnail (AlertEnlarge.InOwnPlace).
+                    var at = this.PointToScreen(e.GetPosition(this));
+                    if (!_grown || AlertEnlarge.InOwnPlace(OwnRectangle(), at.X, at.Y)) Clicked?.Invoke(Client);
                     break;
             }
         };
@@ -136,14 +140,14 @@ public sealed class ThumbnailWindow : Window
         {
             var props = e.GetCurrentPoint(this).Properties;
             bool both = props.IsLeftButtonPressed && props.IsRightButtonPressed;
-            if (mode == Gesture.None)
+            if (_mode == Gesture.None)
             {
                 if (both && CanDrag) Begin(e, Gesture.Resize);   // the second button went down while the first was held
                 return;
             }
-            if (mode == Gesture.Move && both) { Begin(e, Gesture.Resize); return; }
+            if (_mode == Gesture.Move && both) { Begin(e, Gesture.Resize); return; }
             var now = this.PointToScreen(e.GetPosition(this));
-            if (mode == Gesture.Move)
+            if (_mode == Gesture.Move)
                 Position = new PixelPoint(startPosition.X + now.X - from.X, startPosition.Y + now.Y - from.Y);
             else if (PointerSource == null)   // no timer: follow the events
             {
@@ -154,8 +158,8 @@ public sealed class ThumbnailWindow : Window
         PointerReleased += (_, e) =>
         {
             var kind = e.GetCurrentPoint(this).Properties.PointerUpdateKind;
-            if (mode == Gesture.Resize && PointerSource == null && kind is PointerUpdateKind.LeftButtonReleased or PointerUpdateKind.RightButtonReleased) End();
-            else if (mode == Gesture.Move && kind == PointerUpdateKind.RightButtonReleased) End();
+            if (_mode == Gesture.Resize && PointerSource == null && kind is PointerUpdateKind.LeftButtonReleased or PointerUpdateKind.RightButtonReleased) End();
+            else if (_mode == Gesture.Move && kind == PointerUpdateKind.RightButtonReleased) End();
         };
     }
 
@@ -196,13 +200,23 @@ public sealed class ThumbnailWindow : Window
     /// minimum size; then that size, held to 20-2000.</summary>
     public static (int Width, int Height) FloorOf(AppSettings s) =>
         s.ThumbnailMinimumSizeEnabled && s.ThumbnailMinimumSize is { } min
-            ? (Math.Clamp((int)Math.Round(min.Width), 20, 2000), Math.Clamp((int)Math.Round(min.Height), 20, 2000))
+            ? (Math.Clamp((int)Math.Round(min.Width), FloorMin, FloorMax), Math.Clamp((int)Math.Round(min.Height), FloorMin, FloorMax))
             : (80, 50);
 
+    /// <summary>The range the minimum size is held to (ThumbnailManager.MinFloor / MaxFloor).</summary>
+    public const int FloorMin = 20, FloorMax = 2000;
+
     /// <summary>Gives the thumbnail this size and a picture of that size; its place stays. The picture is drawn into the
-    /// new bitmap by the next <see cref="Update"/> (EveClients.Grab builds its scaling steps again for the new size).</summary>
+    /// new bitmap by the next <see cref="Update"/> (EveClients.Grab builds its scaling steps again for the new size). A
+    /// thumbnail that is enlarged for an alert gets this as its own size and stands enlarged around it again.</summary>
     public void SetSize(int width, int height)
     {
+        if (_grown)
+        {
+            var own = OwnRectangle();
+            Stand(new System.Drawing.Rectangle(own.X, own.Y, width, height));
+            return;
+        }
         if (width == (int)Width && height == (int)Height) return;
         Width = width;
         Height = height;
@@ -211,6 +225,98 @@ public sealed class ThumbnailWindow : Window
         _image.Source = _bitmap;
         old.Dispose();
     }
+
+    // ── Enlarged for an alert (IDEAS #13, the Windows ThumbnailWindow's rules) ──
+
+    private double _alertScale = 1.0;   // what the app asked for; 1.0 = its own size
+    private bool _grown;                // the window is enlarged for an alert right now
+    private System.Drawing.Rectangle _own;   // the thumbnail's own place and size while it is enlarged
+
+    /// <summary>The thumbnail is enlarged for an alert right now.</summary>
+    public bool IsAlertEnlarged => _grown;
+
+    /// <summary>The thumbnail was asked to be enlarged and has not been asked back. It need not be enlarged right now: a
+    /// drag or the pointer on it makes it wait.</summary>
+    public bool IsAlertEnlargementAsked => _alertScale > 1.0;
+
+    /// <summary>The thumbnail's own place and size, which the settings keep: while it is enlarged, not the enlarged window's.</summary>
+    public PixelPoint OwnPosition => _grown ? new PixelPoint(_own.X, _own.Y) : Position;
+    public int OwnWidth => _grown ? _own.Width : (int)Width;
+    public int OwnHeight => _grown ? _own.Height : (int)Height;
+
+    private System.Drawing.Rectangle OwnRectangle() =>
+        _grown ? _own : new System.Drawing.Rectangle(Position.X, Position.Y, (int)Width, (int)Height);
+
+    /// <summary>The work area of the screen a rectangle is on, or null when there is none to ask. A test hands in its own.</summary>
+    public Func<System.Drawing.Rectangle, System.Drawing.Rectangle?>? WorkAreaFor { get; set; }
+
+    private System.Drawing.Rectangle? WorkArea(System.Drawing.Rectangle own)
+    {
+        if (WorkAreaFor != null) return WorkAreaFor(own);
+        var screen = Screens.ScreenFromPoint(new PixelPoint(own.X + own.Width / 2, own.Y + own.Height / 2)) ?? Screens.Primary;
+        if (screen == null) return null;
+        var area = screen.WorkingArea;
+        return new System.Drawing.Rectangle(area.X, area.Y, area.Width, area.Height);
+    }
+
+    /// <summary>The app's word (AlertEnlarge.Tick): enlarge to this scale, or 1.0 to go back. It is done now if nothing
+    /// else has the thumbnail, and otherwise when the drag ends or the pointer leaves (<see cref="Follow"/>).</summary>
+    public void SetAlertScale(double scale)
+    {
+        _alertScale = scale > 1.0 ? scale : 1.0;
+        Follow();
+    }
+
+    /// <summary>Makes the window match what was asked: enlarged when it is wanted (AlertEnlarge.Wanted: not during a drag
+    /// or resize, and never changing under the pointer), its own size otherwise. Asked at every tick, because a drag
+    /// that ended or a pointer that left lets a waiting enlargement happen.</summary>
+    public void Follow()
+    {
+        bool wanted = AlertEnlarge.Wanted(_alertScale, _mode != Gesture.None, false, IsPointerOver, _grown);
+        if (wanted == _grown) return;
+        if (wanted) Stand(new System.Drawing.Rectangle(Position.X, Position.Y, (int)Width, (int)Height));
+        else Shrink();
+    }
+
+    /// <summary>Stands the window, enlarged, around a place of the thumbnail's own: where AlertEnlarge.Place puts it on
+    /// the screen that place is on. A place with no room to grow stands as it is, not enlarged.</summary>
+    private void Stand(System.Drawing.Rectangle own)
+    {
+        var area = WorkArea(own);
+        var grown = area is { } a ? AlertEnlarge.Place(own, _alertScale, a) : own;
+        bool enlarged = grown != own;
+        if (!enlarged && !_grown && own.Size == new System.Drawing.Size((int)Width, (int)Height)) return;
+        _own = own;
+        _grown = enlarged;
+        Fit(grown);
+        if (enlarged) RaiseWhileEnlarged?.Invoke(this);
+    }
+
+    /// <summary>Back to the thumbnail's own size and place.</summary>
+    private void Shrink()
+    {
+        if (!_grown) return;
+        _grown = false;
+        Fit(_own);
+    }
+
+    /// <summary>Puts the window and its picture on this rectangle. Not a move by the player: nothing is reported.</summary>
+    private void Fit(System.Drawing.Rectangle r)
+    {
+        if (r.Width != (int)Width || r.Height != (int)Height)
+        {
+            Width = r.Width;
+            Height = r.Height;
+            var old = _bitmap;
+            _bitmap = new WriteableBitmap(new PixelSize(r.Width, r.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Opaque);
+            _image.Source = _bitmap;
+            old.Dispose();
+        }
+        Position = new PixelPoint(r.X, r.Y);
+    }
+
+    /// <summary>Asked to put the enlarged window above its neighbours (the app raises it on the X server).</summary>
+    public Action<ThumbnailWindow>? RaiseWhileEnlarged { get; set; }
 
     public void Apply(ThumbnailLook look)
     {

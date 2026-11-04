@@ -39,5 +39,7 @@
     <sys:String x:Key="L.Linux.PushWriteFailed">リンクを保存できませんでした。ファイルに書き込めませんでした。</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">離席中かどうかは X サーバーのアイドル時間から判断します。X サーバーが答えられない場合は、アラートをそのまま送信します。</sys:String>
     <sys:String x:Key="L.Linux.HotkeyClash">{0} と同じキーです。どれか 1 つだけが使えます。</sys:String>
+    <sys:String x:Key="L.Linux.HistOff">アラート履歴はオフになっているため、新しいアラートは残りません。「設定 › アラート › 履歴」でオンにできます。</sys:String>
+    <sys:String x:Key="L.Linux.HistNoDialog">このデスクトップにはファイルダイアログがないため、ファイルは設定フォルダーに保存しました。</sys:String>
 
 </ResourceDictionary>

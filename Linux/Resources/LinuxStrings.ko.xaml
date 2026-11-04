@@ -39,5 +39,7 @@
     <sys:String x:Key="L.Linux.PushWriteFailed">링크를 저장하지 못했어요. 파일에 쓸 수 없었어요.</sys:String>
     <sys:String x:Key="L.Linux.PushAwayNote">자리를 비웠는지는 X 서버의 유휴 시간으로 판단해요. X 서버가 알려 주지 못하면 알림을 그대로 보내요.</sys:String>
     <sys:String x:Key="L.Linux.HotkeyClash">{0}와(과) 같은 키예요. 그중 하나만 사용할 수 있어요.</sys:String>
+    <sys:String x:Key="L.Linux.HistOff">알림 기록이 꺼져 있어서 새 알림은 남지 않아요. 설정 › 알림 › 기록에서 켤 수 있어요.</sys:String>
+    <sys:String x:Key="L.Linux.HistNoDialog">이 데스크톱에는 파일 대화상자가 없어서 파일을 설정 폴더에 저장했어요.</sys:String>
 
 </ResourceDictionary>

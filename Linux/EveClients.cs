@@ -78,6 +78,9 @@ public sealed unsafe class EveClients : IDisposable
 
     public void Activate(uint window) => Xcb.RequestActivate(_c, _root, window, _netActiveWindow);
 
+    /// <summary>Stacks one of MultiPreview's own windows above the others, without activating it.</summary>
+    public void Raise(uint window) => Xcb.Raise(_c, window);
+
     /// <summary>Copies the client's picture, scaled to fit, into a BGRA buffer. False when the window is gone,
     /// unmapped or not a 32-bit-per-pixel picture.</summary>
     public bool Grab(uint window, byte* dst, int dstWidth, int dstHeight, int dstStride)
