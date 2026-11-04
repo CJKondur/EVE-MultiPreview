@@ -104,7 +104,22 @@ public sealed class Alerts : IDisposable
         var (chat, game) = EveLogs.Folders(S);
         _monitor.AlertTriggered += OnAlert;
         _monitor.Start("", chat, game, S.EnableChatLogMonitoring && chat.Length > 0, S.EnableGameLogMonitoring && game.Length > 0);
+        _folders = (chat, game);
+        // EVE makes its log folders the first time it runs in a Proton profile, which may be after MultiPreview started
+        // (a first install, a new prefix): look again every 10 s and read them from the moment they are there.
+        new DispatcherTimer(TimeSpan.FromSeconds(10), DispatcherPriority.Background, (_, _) => FollowFolders()).Start();
         return (chat, game);
+    }
+
+    private (string Chat, string Game) _folders;
+
+    private void FollowFolders()
+    {
+        var now = EveLogs.Folders(S);
+        if (now == _folders) return;
+        _folders = now;
+        _monitor.Reconfigure(now.Chat, now.Game, S.EnableChatLogMonitoring && now.Chat.Length > 0, S.EnableGameLogMonitoring && now.Game.Length > 0);
+        Console.WriteLine($"Logs: chat {(now.Chat.Length > 0 ? now.Chat : "not found")}; game {(now.Game.Length > 0 ? now.Game : "not found")}");
     }
 
     /// <summary>Applies the settings again after the player changed them: which events are on, the two log switches and
@@ -115,6 +130,7 @@ public sealed class Alerts : IDisposable
         _profiles.Apply(S, _monitor.SetEnabledAlertTypes);
         var (chat, game) = EveLogs.Folders(S);
         _monitor.Reconfigure(chat, game, S.EnableChatLogMonitoring && chat.Length > 0, S.EnableGameLogMonitoring && game.Length > 0);
+        _folders = (chat, game);
         _history.Enabled = _settings.LoadedSuccessfully && S.AlertHistoryEnabled;
         FollowWays();
     }
