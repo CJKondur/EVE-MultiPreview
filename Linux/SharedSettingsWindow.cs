@@ -29,10 +29,6 @@ namespace EveMultiPreview.Linux;
 public sealed class SharedSettingsWindow : Window, SharedHost
 {
     private const double HelpWidth = 320;
-    private static readonly IBrush Accent = new SolidColorBrush(Color.Parse("#4C9BE8"));
-    private static readonly IBrush CardBack = new SolidColorBrush(Color.Parse("#14FFFFFF"));
-    private static readonly IBrush CardEdge = new SolidColorBrush(Color.Parse("#22FFFFFF"));
-    private static readonly IBrush Selected = new SolidColorBrush(Color.Parse("#334C9BE8"));
 
     private readonly ISettingsHost _app;
     private readonly SettingsContext _ctx;
@@ -51,7 +47,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     private string? _shownPageId;
     private Border? _highlighted;
     private readonly TextBlock _helpTitle = new() { FontSize = 20, FontWeight = FontWeight.SemiBold };
-    private readonly Button _helpClose = new() { Content = "×", Padding = new Thickness(8, 2) };
+    private readonly Button _helpClose = new() { Content = "×", Padding = new Thickness(8, 2), Classes = { "quiet" } };
 
     private readonly StackPanel _nav = new() { Spacing = 1 };
     private readonly StackPanel _navBottom = new() { Spacing = 1 };
@@ -60,16 +56,22 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     private readonly ScrollViewer _scroll = new() { HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
     private readonly StackPanel _helpBody = new() { Spacing = 0, Margin = new Thickness(0, 0, 8, 24) };
     private readonly ScrollViewer _helpScroll = new() { HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
-    private readonly Border _help = new() { Width = HelpWidth, BorderBrush = CardEdge, BorderThickness = new Thickness(1, 0, 0, 0) };
-    private readonly TextBlock _toast = new() { TextWrapping = TextWrapping.Wrap, IsVisible = false, Margin = new Thickness(0, 6, 0, 0), Foreground = Brushes.LightGreen };
-    private readonly Border _saveBar = new() { IsVisible = false, Background = new SolidColorBrush(Color.Parse("#40CD5C5C")), CornerRadius = new CornerRadius(4), Padding = new Thickness(10, 6), Margin = new Thickness(0, 0, 0, 8) };
+    private readonly Border _help = new() { Width = HelpWidth, BorderThickness = new Thickness(1, 0, 0, 0) };
+    private readonly TextBlock _toastText = new() { TextWrapping = TextWrapping.Wrap };
+    private readonly Border _toast = new() { IsVisible = false, Margin = new Thickness(0, 6, 0, 0), Padding = new Thickness(10, 6), BorderThickness = new Thickness(1) };
+    private readonly Border _saveBar = new() { IsVisible = false, CornerRadius = new CornerRadius(4), Padding = new Thickness(10, 6), Margin = new Thickness(0, 0, 0, 8), BorderThickness = new Thickness(1) };
+    /// <summary>The side bar (search and navigation), in the look's side-bar colour, as wide as the look's.</summary>
+    private readonly Border _side = new();
+    private readonly ColumnDefinition _sideColumn = new(250, GridUnitType.Pixel);
+    private readonly DockPanel _middle = new();
+    /// <summary>The whole window at the player's size (AppSettings.SettingsUiFontSize / 12, as the Windows shell's frame).</summary>
+    private readonly LayoutTransformControl _scaled = new();
     private readonly TextBox _search = new();
     private readonly ListBox _results = new() { IsVisible = false, MaxHeight = 360 };
 
     public SharedSettingsWindow(ISettingsHost app, string? pageId = null)
     {
         _app = app;
-        RequestedThemeVariant = ThemeVariant.Dark;
         MinWidth = 760;
         MinHeight = 480;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -96,6 +98,9 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             CustomRulesSwitchedOff = () => app.CustomRulesSwitchedOff,
         };
         _ctx = new SettingsContext(service, applier, services, this);
+        // The saved look (Windows' App.ApplySavedLook): the pick, and whether Daylight shows while the desktop is light.
+        LinuxLooks.ApplySaved(S);
+        LinuxLooks.Dress(this);
         _editors = new SettingsPages(app, this, () => QueueRender(), Reload);
         RestoreSize();
 
@@ -109,14 +114,18 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         _highlightTimer.Tick += (_, _) => { _highlightTimer.Stop(); ClearHighlight(); };
         KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.F, KeyModifiers.Control), Command = new RelayCommand(_ => { _search.Focus(); _search.SelectAll(); }) });
 
-        Content = Layout();
+        _scaled.Child = Layout();
+        Content = _scaled;
         Render();
+        Action restyled = QueueRender;   // a change of look: the page is drawn again in it (its colours follow by themselves)
+        LinuxLooks.Changed += restyled;
 
         Closing += (_, _) => { SaveSize(); _vm.OnClosing(); };
         Closed += (_, _) =>
         {
             _toastTimer.Stop();
             _highlightTimer.Stop();
+            LinuxLooks.Changed -= restyled;
             Detach();
             _vm.PropertyChanged -= OnShellChanged;
             _vm.Dispose();
@@ -136,7 +145,10 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     private Control Layout()
     {
-        var root = new Grid { ColumnDefinitions = new ColumnDefinitions("250,*,Auto") };
+        var root = new Grid();
+        root.ColumnDefinitions.Add(_sideColumn);
+        root.ColumnDefinitions.Add(new ColumnDefinition(1, GridUnitType.Star));
+        root.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Auto));
 
         _search.PlaceholderText = Str("L.S.Search.Placeholder");
         _search.Margin = new Thickness(0, 0, 0, 4);
@@ -162,9 +174,13 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         DockPanel.SetDock(_navBottom, Dock.Bottom);
         left.Children.Add(_navBottom);
         left.Children.Add(new ScrollViewer { Content = _nav, Margin = new Thickness(0, 6), HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled });
-        root.Children.Add(left);
+        _side.Child = left;
+        LinuxLooks.Paint(_side, Border.BackgroundProperty, "Fx.NavBrush");
+        LinuxLooks.Paint(_side, Border.BorderBrushProperty, "Fx.DividerBrush");
+        _side.BorderThickness = new Thickness(0, 0, 1, 0);
+        root.Children.Add(_side);
 
-        var middle = new DockPanel { Margin = new Thickness(18, 12, 0, 8) };
+        var middle = _middle;
         DockPanel.SetDock(_header, Dock.Top);
         middle.Children.Add(_header);
         DockPanel.SetDock(_saveBar, Dock.Top);
@@ -177,6 +193,13 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         root.Children.Add(middle);
 
         _helpScroll.Content = _helpBody;
+        LinuxLooks.Paint(_help, Border.BorderBrushProperty, "Fx.DividerBrush");
+        LinuxLooks.Paint(_helpTitle, TextBlock.ForegroundProperty, "Fx.TitleBrush");
+        LinuxLooks.Paint(_toast, Border.BackgroundProperty, "Fx.FlyoutBrush");
+        LinuxLooks.Paint(_toast, Border.BorderBrushProperty, "Fx.FlyoutBorderBrush");
+        LinuxLooks.Paint(_toastText, TextBlock.ForegroundProperty, "Fx.TextBrush");
+        _toast.Child = _toastText;
+        LinuxLooks.Paint(_saveBar, Border.BorderBrushProperty, "Fx.CriticalBrush");
         var helpTop = new DockPanel { Margin = new Thickness(0, 0, 0, 8) };
         _helpClose.Click += (_, _) => _vm.HelpOpen = false;
         DockPanel.SetDock(_helpClose, Dock.Right);
@@ -223,12 +246,30 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     private void Render()
     {
+        Restyle();
         Title = Str("L.S.Shell.Title");
         _search.PlaceholderText = Str("L.S.Search.Placeholder");
         Nav();
         Page();
         Help();
         SaveBar();
+    }
+
+    /// <summary>The window's metrics in the look drawn and at the player's size: the side bar's width, the page's padding,
+    /// the text's family and size, the toast's corners.</summary>
+    private void Restyle()
+    {
+        var look = LinuxLooks.Effective;
+        _sideColumn.Width = new GridLength(Math.Max(200, look.Number("Nav.Width")));
+        var pad = look.Thickness("Page.Padding");
+        _middle.Margin = new Thickness(Math.Max(12, pad.Left), Math.Max(10, pad.Top), 0, 8);
+        FontFamily = look.Font("Font");
+        FontSize = look.Number("Size.Body");
+        _toast.CornerRadius = look.Radius("FlyoutRadius");
+        _saveBar.Background = new SolidColorBrush(look.Colour("Critical"), 0.18);
+        _helpTitle.FontFamily = look.Font("TitleFont");
+        var scale = LinuxLooks.Scale(S);
+        _scaled.LayoutTransform = Math.Abs(scale - 1.0) < 0.001 ? null : new ScaleTransform(scale, scale);
     }
 
     // ── Navigation ──
@@ -238,16 +279,18 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         _nav.Children.Clear();
         _navBottom.Children.Clear();
         var current = _vm.Current?.Page;
-        if (_vm.Home is { } home) _nav.Children.Add(NavButton(Str("L.S.Nav.Home"), current == home, bold: true, () => Navigate(home.Id)));
-        if (_vm.IsSimple) _nav.Children.Add(NavButton(Str("L.S.Nav.AllSettings"), false, bold: true, _vm.AllSettings));
+        if (_vm.Home is { } home) _nav.Children.Add(NavButton(Str("L.S.Nav.Home"), current == home, sub: false, () => Navigate(home.Id)));
+        if (_vm.IsSimple) _nav.Children.Add(NavButton(Str("L.S.Nav.AllSettings"), false, sub: false, _vm.AllSettings));
         foreach (var group in _vm.VisibleGroups) AddGroup(_nav, group);
         if (_vm.AppGroup is { } app) AddGroup(_navBottom, app);
 
         var modes = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12, Margin = new Thickness(6, 10, 0, 4) };
-        var simple = new RadioButton { Content = new TextBlock { Text = Str("L.S.Shell.Simple") }, GroupName = "mode", IsChecked = _vm.IsSimple };
-        var all = new RadioButton { Content = new TextBlock { Text = Str("L.S.Nav.AllSettings") }, GroupName = "mode", IsChecked = !_vm.IsSimple };
+        var simple = new RadioButton { Content = NavText(Str("L.S.Shell.Simple")), GroupName = "mode", IsChecked = _vm.IsSimple };
+        var all = new RadioButton { Content = NavText(Str("L.S.Nav.AllSettings")), GroupName = "mode", IsChecked = !_vm.IsSimple };
         simple.IsCheckedChanged += (_, _) => { if (simple.IsChecked == true && !_vm.IsSimple) _vm.IsSimple = true; };
         all.IsCheckedChanged += (_, _) => { if (all.IsChecked == true && _vm.IsSimple) _vm.AllSettings(); };
+        LinuxLooks.Paint(simple, TemplatedControl.ForegroundProperty, "Fx.NavTextBrush");
+        LinuxLooks.Paint(all, TemplatedControl.ForegroundProperty, "Fx.NavTextBrush");
         modes.Children.Add(simple);
         modes.Children.Add(all);
         _navBottom.Children.Add(modes);
@@ -259,30 +302,39 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     private void AddGroup(StackPanel into, NavGroupVM group)
     {
-        into.Children.Add(NavButton(Str(group.TitleKey), group.IsCurrent && !group.IsExpanded, bold: true, () => Navigate(group.Pages[0].Page.Id)));
+        into.Children.Add(NavButton(Str(group.TitleKey), group.IsCurrent && !group.IsExpanded, sub: false, () => Navigate(group.Pages[0].Page.Id)));
         if (!group.IsExpanded) return;
+        var indent = Math.Clamp(LinuxLooks.Effective.Number("Nav.SubIndent") - 16, 8, 30);
         foreach (var page in group.Pages)
         {
-            var b = NavButton(Str(page.TitleKey), page.IsSelected, bold: false, () => Navigate(page.Page.Id));
-            b.Margin = new Thickness(14, 0, 0, 0);
+            var b = NavButton(Str(page.TitleKey), page.IsSelected, sub: true, () => Navigate(page.Page.Id));
+            b.Margin = new Thickness(indent, 1, 0, 1);
             into.Children.Add(b);
         }
     }
 
-    private static Button NavButton(string text, bool selected, bool bold, Action open)
+    /// <summary>A navigation entry (Base.Nav.Entry): a group or Home in the look's navigation weight, a page under its group
+    /// in the look's sub-entry size; the open one in the look's selected colours (the window's "nav" styles).</summary>
+    private static Button NavButton(string text, bool selected, bool sub, Action open)
     {
+        var look = LinuxLooks.Effective;
         var b = new Button
         {
-            Content = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, FontWeight = bold ? FontWeight.SemiBold : FontWeight.Normal },
+            Content = NavText(text, selected ? look.Weight("Weight.NavSelected") : sub ? look.Weight("Weight.Nav") : FontWeight.SemiBold),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Left,
-            Padding = new Thickness(8, 5),
-            Background = selected ? Selected : Brushes.Transparent,
-            BorderThickness = new Thickness(0),
+            VerticalContentAlignment = VerticalAlignment.Center,
         };
+        b.Classes.Add("nav");
+        if (sub) b.Classes.Add("sub");
+        if (selected) b.Classes.Add("selected");
         b.Click += (_, _) => open();
         return b;
     }
+
+    /// <summary>A navigation text, in capitals where the look writes them so (Fx.Case.Nav).</summary>
+    private static TextBlock NavText(string text, FontWeight? weight = null) =>
+        new() { Text = LinuxLooks.Cased(text, LinuxLooks.Effective.Upper("Nav")), TextWrapping = TextWrapping.Wrap, FontWeight = weight ?? FontWeight.Normal };
 
     // ── Search ──
 
@@ -294,7 +346,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         {
             var text = new StackPanel();
             text.Children.Add(new TextBlock { Text = hit.Text, TextWrapping = TextWrapping.Wrap });
-            text.Children.Add(new TextBlock { Text = hit.Path, FontSize = 11, Opacity = 0.6, TextWrapping = TextWrapping.Wrap });
+            text.Children.Add(LinuxLooks.Text(hit.Path, "Desc"));
             var item = new ListBoxItem { Content = text, Tag = hit, Padding = new Thickness(6, 3) };
             item.Tapped += (_, _) => OpenResult(item);
             _results.Items.Add(item);
@@ -363,14 +415,23 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         var page = _vm.Current;
         if (page == null) return;
 
-        if (_vm.GroupTitleKey is { } groupKey && _vm.BreadcrumbTargetId is { } target)
+        var look = LinuxLooks.Effective;
+        // The group's name over the title, where the look shows a breadcrumb (Fx.Show.Breadcrumb).
+        if (look.Shows("Show.Breadcrumb") && _vm.GroupTitleKey is { } groupKey && _vm.BreadcrumbTargetId is { } target)
         {
-            var crumb = new Button { Content = Str(groupKey) + "  ›", Padding = new Thickness(0), Background = Brushes.Transparent, BorderThickness = new Thickness(0), Opacity = 0.75 };
+            var crumb = new Button { Content = Str(groupKey) + "  ›", Padding = new Thickness(0), HorizontalAlignment = HorizontalAlignment.Left };
+            crumb.Classes.Add("quiet");
             crumb.Click += (_, _) => Navigate(target);
             _header.Children.Add(crumb);
         }
-        _header.Children.Add(new TextBlock { Text = page.Page.Title ?? Str(page.Page.TitleKey), FontSize = 24, FontWeight = FontWeight.SemiBold, TextWrapping = TextWrapping.Wrap });
-        if (Optional(page.Page.DescKey) is { } desc) _header.Children.Add(new TextBlock { Text = desc, Opacity = 0.7, TextWrapping = TextWrapping.Wrap });
+        _header.Children.Add(LinuxLooks.Text(page.Page.Title ?? Str(page.Page.TitleKey), "Title"));
+        if (Optional(page.Page.DescKey) is { } desc)
+        {
+            var line = LinuxLooks.Text(desc, "Label");
+            LinuxLooks.Paint(line, TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
+            line.Margin = new Thickness(0, 4, 0, 0);
+            _header.Children.Add(line);
+        }
 
         foreach (var section in page.Sections) _sections.Children.Add(Section(section));
         // A page opens at its top (owner, 2026-10-09); the same page drawn again (an editor changed it) keeps its place.
@@ -385,11 +446,11 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     private Control Section(SectionVM section)
     {
-        var panel = new StackPanel { Spacing = 0, Margin = new Thickness(0, 10, 0, 0) };
-        panel.Children.Add(new TextBlock { Text = Str(section.TitleKey), FontSize = 15, FontWeight = FontWeight.SemiBold, Opacity = 0.85, Margin = new Thickness(0, 6, 0, 4) });
-        foreach (var item in section.Items) panel.Children.Add(Card(item));
+        var rows = new StackPanel { Spacing = 0 };
+        foreach (var item in section.Items) rows.Children.Add(Card(item));
         if (LinuxSupport.Additions.TryGetValue(section.Def.Id, out var additions))
-            foreach (var addition in additions) panel.Children.Add(LinuxCard(addition));
+            foreach (var addition in additions) rows.Children.Add(LinuxCard(addition));
+        var panel = LookSections.Build(LinuxLooks.Effective, Str(section.TitleKey), section.Ordinal, rows);
         panel.IsVisible = Safe(() => section.IsVisible, true);
         Watch(section, name => { if (name is "" or null or nameof(SectionVM.IsVisible)) panel.IsVisible = Safe(() => section.IsVisible, true); });
         return panel;
@@ -415,11 +476,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             Console.Error.WriteLine($"[Settings] card {item.Id}: {ex.GetType().Name}");
             inner = NotYetCard(item.LabelKey, item.Id);
         }
-        var card = new Border
-        {
-            Background = CardBack, BorderBrush = CardEdge, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6),
-            Padding = new Thickness(14, 8), Margin = new Thickness(0, 3), Child = inner,
-        };
+        var card = LookSections.Row(LinuxLooks.Effective, inner);
         _cards[item.Id] = card;
         card.PointerEntered += (_, _) => FollowHelp(item.Id);
         card.GotFocus += (_, _) => FollowHelp(item.Id);
@@ -438,7 +495,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             {
                 LinuxSupport.AdditionKind.Commands => SettingsPages.CommandsExample(),
                 LinuxSupport.AdditionKind.Import => Titled(addition.TitleKey!, _editors.Import()),
-                _ => new TextBlock { Text = Str(addition.TextKey), Opacity = 0.75, TextWrapping = TextWrapping.Wrap },
+                _ => LinuxLooks.Text(Str(addition.TextKey), "Desc"),
             };
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
@@ -446,11 +503,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             Console.Error.WriteLine($"[Settings] card {addition.Id}: {ex.GetType().Name}");
             inner = NotYetCard(addition.TitleKey, addition.Id);
         }
-        var card = new Border
-        {
-            Background = CardBack, BorderBrush = CardEdge, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6),
-            Padding = new Thickness(14, 8), Margin = new Thickness(0, 3), Child = inner,
-        };
+        var card = LookSections.Row(LinuxLooks.Effective, inner);
         _cards[addition.Id] = card;   // the search opens it like a shared card
         return card;
     }
@@ -458,18 +511,21 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     private static Control Titled(string titleKey, Control body)
     {
         var panel = new StackPanel { Spacing = 4 };
-        panel.Children.Add(new TextBlock { Text = Str(titleKey), FontWeight = FontWeight.SemiBold, TextWrapping = TextWrapping.Wrap });
+        var title = LinuxLooks.Text(Str(titleKey), "Label");
+        title.FontWeight = FontWeight.SemiBold;
+        panel.Children.Add(title);
         panel.Children.Add(body);
         return panel;
     }
 
     /// <summary>The label (and description) on the left, the control on the right; <paramref name="below"/> takes the whole
     /// width under the label (a box of several lines).</summary>
-    private static Control Labelled(string label, string? desc, Control input, TextBlock? error = null, bool below = false)
+    private static Control Labelled(string label, string? desc, Control input, TextBlock? error = null, bool below = false, bool checkFirst = false)
     {
+        var look = LinuxLooks.Effective;
         var text = new StackPanel { Spacing = 2, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 16, 0) };
-        text.Children.Add(new TextBlock { Text = label, TextWrapping = TextWrapping.Wrap });
-        if (desc != null) text.Children.Add(new TextBlock { Text = desc, FontSize = 12, Opacity = 0.65, TextWrapping = TextWrapping.Wrap });
+        text.Children.Add(LinuxLooks.Text(label, "Label"));
+        if (desc != null) text.Children.Add(LinuxLooks.Text(desc, "Desc"));
         if (below)
         {
             var stack = new StackPanel { Spacing = 4 };
@@ -479,15 +535,34 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             return stack;
         }
         if (error != null) text.Children.Add(error);
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
-        grid.Children.Add(text);
         input.VerticalAlignment = VerticalAlignment.Center;
+        // The on/off control before its label (Base.Card.CheckFirst: Daylight, Dusk, Carbon).
+        if (checkFirst)
+        {
+            var first = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*") };
+            input.Margin = new Thickness(0, 0, 12, 0);
+            first.Children.Add(input);
+            Grid.SetColumn(text, 1);
+            first.Children.Add(text);
+            return first;
+        }
+        // A look with a label column (Fx.Label.Width: Classic's 150, Capsule's and Terminal's columns) puts the control
+        // beside the label at that width; the others put it at the row's right end.
+        var width = look.Number("Label.Width");
+        var grid = new Grid { ColumnDefinitions = width > 0 ? new ColumnDefinitions(width.ToString(CultureInfo.InvariantCulture) + ",*") : new ColumnDefinitions("*,Auto") };
+        grid.Children.Add(text);
+        if (width > 0) input.HorizontalAlignment = HorizontalAlignment.Left;
         Grid.SetColumn(input, 1);
         grid.Children.Add(input);
         return grid;
     }
 
-    private static TextBlock ErrorLine() => new() { Foreground = Brushes.IndianRed, FontSize = 12, TextWrapping = TextWrapping.Wrap, IsVisible = false };
+    private static TextBlock ErrorLine()
+    {
+        var line = LinuxLooks.Text("", "Desc");
+        line.IsVisible = false;
+        return LinuxLooks.Paint(line, TextBlock.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
+    }
 
     private Control SettingCard(SettingVM vm)
     {
@@ -496,6 +571,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         Action read;
         Control input;
         bool below = false;
+        bool checkFirst = false;
         Action? reread = null;   // Read, below: a refused change shows the stored value again
 
         void Commit(Action change)
@@ -512,10 +588,11 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         {
             case SettingKind.Toggle:
             {
-                var box = new CheckBox();
+                var box = new LookToggle();
                 box.IsCheckedChanged += (_, _) => Commit(() => vm.IsOn = box.IsChecked == true);
                 read = () => box.IsChecked = vm.IsOn;
                 input = box;
+                checkFirst = LinuxLooks.Effective.CheckFirst;
                 break;
             }
             case SettingKind.Choice:
@@ -589,15 +666,15 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             }
             case SettingKind.Color:
             {
-                var swatch = new Border { Width = 26, Height = 26, CornerRadius = new CornerRadius(4), BorderBrush = Brushes.Gray, BorderThickness = new Thickness(1) };
                 var box = new TextBox { Width = 120, MaxLength = 32 };
-                void Paint()
+                var swatch = ColourPicker.Button(() => box.Text, () => S.CustomColorPalette, (hex, picked) =>
                 {
-                    swatch.Background = Brushes.Transparent;
-                    if (!ThumbnailFields.IsPaintable(box.Text)) return;
-                    try { swatch.Background = new SolidColorBrush(ToAvalonia(AppSettings.ParseColor(box.Text!, System.Windows.Media.Colors.Transparent))); }
-                    catch (Exception) { }   // ParseColor throws on rgb(300,0,0) (Setting.IsColor catches it the same way)
-                }
+                    RememberColour(picked);
+                    box.Text = hex;
+                    Commit(() => vm.Text = hex);
+                }, Str("L.S.Shell.Ok"), Str("L.S.Shell.Cancel"));
+                ToolTip.SetTip(swatch, Str(vm.LabelKey));
+                void Paint() => (swatch.Tag as Action)?.Invoke();
                 void Store() { if ((box.Text ?? "") != vm.Text) Commit(() => vm.Text = box.Text ?? ""); }
                 box.PropertyChanged += (_, e) => { if (e.Property == TextBox.TextProperty) Paint(); };
                 box.LostFocus += (_, _) => Store();
@@ -612,10 +689,13 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             case SettingKind.Hotkey:
             {
                 var box = new HotkeyBox(vm.D.Get(S) as string ?? "");
-                var clash = new TextBlock { Foreground = Brushes.Orange, FontSize = 12, TextWrapping = TextWrapping.Wrap, MaxWidth = 320, IsVisible = false };
+                var clash = LinuxLooks.Paint(LinuxLooks.Text("", "Desc"), TextBlock.ForegroundProperty, "Fx.WarningBrush", Brushes.Orange);
+                clash.MaxWidth = 320;
+                clash.IsVisible = false;
                 box.Capturing += _app.CaptureHotkey;
                 box.Changed += key => Commit(() => vm.Commit(key));
                 var clear = new Button { Content = "×", Padding = new Thickness(8, 2), VerticalAlignment = VerticalAlignment.Center };
+                clear.Classes.Add("quiet");
                 ToolTip.SetTip(clear, Str("L.S.Hotkey.Clear"));
                 clear.Click += (_, _) => Commit(() => vm.Commit(""));
                 read = () =>
@@ -654,7 +734,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         Read();
         reread = Read;
         Watch(vm, name => { if (name is "" or null) Read(); else if (name == nameof(ItemVM.IsHighlighted)) Highlight(vm.Id, vm.IsHighlighted); });
-        return Labelled(Str(vm.LabelKey), Optional(vm.DescKey), input, error, below);
+        return Labelled(Str(vm.LabelKey), Optional(vm.DescKey), input, error, below, checkFirst);
     }
 
     private Control ActionCard(ActionRowVM vm)
@@ -664,7 +744,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         foreach (var action in vm.Buttons)
         {
             var b = new Button { Content = new TextBlock { Text = Ui.NoAccess(Str(action.LabelKey)) }, Margin = new Thickness(6, 2, 0, 2) };
-            if (action.IsDestructive) b.Foreground = Brushes.IndianRed;
+            if (action.IsDestructive) LinuxLooks.Paint(b, TemplatedControl.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
             b.Click += (_, _) => Run(action.Run, error, AccessKeys.Spoken(Str(action.LabelKey)));
             buttons.Children.Add(b);
         }
@@ -674,12 +754,17 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     private Control InfoCard(InfoVM vm)
     {
-        var text = new TextBlock
+        var text = LinuxLooks.Text("", "Label");
+        var (key, fallback) = vm.Severity switch
         {
-            TextWrapping = TextWrapping.Wrap,
-            Foreground = vm.Severity switch { InfoSeverity.Error => Brushes.IndianRed, InfoSeverity.Warning => Brushes.Orange, _ => Brushes.LightSkyBlue },
+            InfoSeverity.Error => ("Fx.CriticalBrush", Brushes.IndianRed),
+            InfoSeverity.Warning => ("Fx.WarningBrush", Brushes.Orange),
+            _ => ("Fx.InfoBrush", Brushes.LightSkyBlue),
         };
-        void Read() => text.Text = Safe(() => vm.Text, Str(vm.Def.TextKey));
+        LinuxLooks.Paint(text, TextBlock.ForegroundProperty, key, fallback);
+        // A note Linux words its own way (LinuxSupport.Key) shows the Linux text; the others the view-model's.
+        bool linuxWords = LinuxSupport.Key(vm.Def.TextKey) != vm.Def.TextKey;
+        void Read() => text.Text = linuxWords ? Str(vm.Def.TextKey) : Safe(() => vm.Text, Str(vm.Def.TextKey));
         Read();
         Watch(vm, name => { if (name is "" or null) Read(); else if (name == nameof(ItemVM.IsHighlighted)) Highlight(vm.Id, vm.IsHighlighted); });
         return text;
@@ -703,12 +788,9 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     private static Control NotYetCard(string? labelKey, string id)
     {
         var panel = new StackPanel { Spacing = 2 };
-        if (Optional(labelKey) is { } label) panel.Children.Add(new TextBlock { Text = AccessKeys.Spoken(label), TextWrapping = TextWrapping.Wrap });
-        panel.Children.Add(new TextBlock
-        {
-            Text = string.Format(LocalizationService.Str("L.Linux.NotYet", "Not available on Linux yet: {0}"), id),
-            Foreground = Brushes.Orange, FontSize = 12, TextWrapping = TextWrapping.Wrap,
-        });
+        if (Optional(labelKey) is { } label) panel.Children.Add(LinuxLooks.Text(AccessKeys.Spoken(label), "Label"));
+        panel.Children.Add(LinuxLooks.Paint(LinuxLooks.Text(string.Format(LocalizationService.Str("L.Linux.NotYet", "Not available on Linux yet: {0}"), id), "Desc"),
+            TextBlock.ForegroundProperty, "Fx.WarningBrush", Brushes.Orange));
         return panel;
     }
 
@@ -770,21 +852,20 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     {
         var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         row.Children.Add(box);
-        row.Children.Add(new TextBlock { Text = unit, Opacity = 0.7, VerticalAlignment = VerticalAlignment.Center });
+        var text = LinuxLooks.Text(unit, "Desc");
+        text.VerticalAlignment = VerticalAlignment.Center;
+        row.Children.Add(text);
         return row;
     }
-
-    private static Color ToAvalonia(System.Windows.Media.Color c) => Color.FromArgb(c.A, c.R, c.G, c.B);
 
     // ── Highlight (search, Navigate with an item) ──
 
     private void Highlight(string id, bool on)
     {
         if (!on || !_cards.TryGetValue(id, out var card)) return;
-        if (_highlighted != null) { _highlighted.BorderBrush = CardEdge; _highlighted.BorderThickness = new Thickness(1); }
+        if (_highlighted != null) LookSections.Unmark(_highlighted);
         _highlighted = card;
-        card.BorderBrush = Accent;
-        card.BorderThickness = new Thickness(2);
+        LookSections.Mark(card);
         Dispatcher.UIThread.Post(() => card.BringIntoView(), DispatcherPriority.Background);
         _highlightTimer.Stop();
         _highlightTimer.Start();
@@ -792,7 +873,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     private void ClearHighlight()
     {
-        if (_highlighted != null) { _highlighted.BorderBrush = CardEdge; _highlighted.BorderThickness = new Thickness(1); }
+        if (_highlighted != null) LookSections.Unmark(_highlighted);
         _highlighted = null;
         _vm.ClearHighlight();
     }
@@ -811,14 +892,16 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         _helpTitle.Text = Str("L.S.Help.Title");
         ToolTip.SetTip(_helpClose, Str("L.S.Help.Close"));
         if (pageId == null) return;
-        Blocks(LocalizationService.Str(HelpTopics.IntroKey(pageId), ""), _helpBody);
+        Blocks(LocalizationService.Str(LinuxSupport.Key(HelpTopics.IntroKey(pageId)), ""), _helpBody);
         foreach (var topic in LinuxSupport.Topics.Where(t => t.PageId == pageId))
         {
-            var title = LocalizationService.Str(topic.TitleKey, "");
-            var body = LocalizationService.Str(topic.BodyKey, "");
+            var title = LocalizationService.Str(LinuxSupport.Key(topic.TitleKey), "");
+            var body = LocalizationService.Str(LinuxSupport.Key(topic.BodyKey), "");
             if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(body)) continue;   // spec §8.5: hide, don't show blank
             var panel = new StackPanel { Margin = new Thickness(0, 16, 0, 0) };
-            panel.Children.Add(new TextBlock { Text = title, FontWeight = FontWeight.SemiBold, TextWrapping = TextWrapping.Wrap });
+            var heading = LinuxLooks.Text(title, "Label");
+            heading.FontWeight = FontWeight.SemiBold;
+            panel.Children.Add(heading);
             Blocks(body, panel);
             _helpBody.Children.Add(panel);
             foreach (var id in topic.SettingIds) _topics[id] = panel;
@@ -834,7 +917,9 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             var inlines = new InlineCollection();
             if (block is HelpBullet) inlines.Add(new Run("•  "));
             foreach (var run in block.Runs) inlines.Add(new Run(run.Text) { FontWeight = run.Bold ? FontWeight.Bold : FontWeight.Normal });
-            into.Children.Add(new TextBlock { Inlines = inlines, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(block is HelpBullet ? 12 : 0, 6, 0, 0) });
+            var line = LinuxLooks.Paint(new TextBlock { Inlines = inlines, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(block is HelpBullet ? 12 : 0, 6, 0, 0) },
+                TextBlock.ForegroundProperty, "Fx.TextSecondaryBrush");
+            into.Children.Add(line);
         }
     }
 
@@ -854,7 +939,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         if (!_vm.HasSaveError) return;
         var panel = new StackPanel { Spacing = 4 };
         panel.Children.Add(new TextBlock { Text = Str(_vm.SaveErrorKey!), TextWrapping = TextWrapping.Wrap });
-        if (_vm.SaveErrorLine is { } line) panel.Children.Add(new TextBlock { Text = line, TextWrapping = TextWrapping.Wrap, Opacity = 0.8 });
+        if (_vm.SaveErrorLine is { } line) panel.Children.Add(LinuxLooks.Text(line, "Desc"));
         if (_vm.CanRetrySave)
         {
             var retry = new Button { Content = Str("L.S.Shell.Retry"), HorizontalAlignment = HorizontalAlignment.Left };
@@ -895,7 +980,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     public void Toast(string text)
     {
-        _toast.Text = text;
+        _toastText.Text = text;
         _toast.IsVisible = text.Length > 0;
         _toastTimer.Stop();
         _toastTimer.Start();
@@ -962,8 +1047,23 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         finally { _checking = false; }
     }
 
-    /// <summary>No colour picker on Linux yet: the colour cards take a typed colour.</summary>
-    public string? PickColor(string? initial) => null;
+    /// <summary>The shared editors' colour question (an alert's colour, a severity's, a group's): the Linux picker in a small
+    /// window over this one; OK gives "#RRGGBB" and keeps it among the player's own colours, as the Windows dialog does.</summary>
+    public string? PickColor(string? initial)
+    {
+        var picker = new ColourPicker(initial, S.CustomColorPalette);
+        var answer = Ask(Str("L.S.Shell.Title"), "", new[] { Str("L.S.Shell.Ok"), Str("L.S.Shell.Cancel") }, defaultIndex: 0, cancelIndex: 1, picker);
+        if (answer != 0) return null;
+        RememberColour(picker.Picked);
+        return picker.Hex;
+    }
+
+    /// <summary>A picked colour first among the player's own colours (AppSettings.CustomColorPalette, shared with Windows).</summary>
+    private void RememberColour(Color picked)
+    {
+        S.CustomColorPalette = ColourPicker.Remember(S.CustomColorPalette, picked);
+        _ctx.Applier.Request(ApplyScope.Save);
+    }
 
     /// <summary>The hotkey cards capture in their own box (HotkeyBox); nothing on Linux opens the Windows capture dialog.</summary>
     public string? CaptureHotkey(string settingId, string? current) => null;
@@ -971,6 +1071,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     /// <summary>Everything again from the settings, in the current language (a language change, a reset, an import).</summary>
     public void Reload()
     {
+        LinuxLooks.ApplySaved(S);
         _index = null;
         _vm.Reload();
         _app.TrayChanged();
@@ -1024,9 +1125,10 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     {
         var dialog = new Window
         {
-            Title = AccessKeys.Spoken(title), Width = 440, SizeToContent = SizeToContent.Height, CanResize = false,
-            RequestedThemeVariant = ThemeVariant.Dark, WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            Title = AccessKeys.Spoken(title), Width = extra is ColourPicker ? 520 : 440, SizeToContent = SizeToContent.Height, CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
+        LinuxLooks.Dress(dialog);
         int result = cancelIndex;
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, HorizontalAlignment = HorizontalAlignment.Right };
         Button? safeButton = null;
@@ -1039,8 +1141,10 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             buttons.Children.Add(b);
         }
         var panel = new StackPanel { Spacing = 14, Margin = new Thickness(18) };
-        panel.Children.Add(new TextBlock { Text = AccessKeys.Spoken(title), FontWeight = FontWeight.SemiBold, TextWrapping = TextWrapping.Wrap });
-        if (body.Length > 0) panel.Children.Add(new TextBlock { Text = body, TextWrapping = TextWrapping.Wrap });
+        var heading = LinuxLooks.Text(AccessKeys.Spoken(title), "Label");
+        heading.FontWeight = FontWeight.SemiBold;
+        panel.Children.Add(heading);
+        if (body.Length > 0) panel.Children.Add(LinuxLooks.Text(body, "Label"));
         if (extra != null) panel.Children.Add(extra);
         panel.Children.Add(buttons);
         dialog.Content = panel;
@@ -1062,11 +1166,16 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         catch (Exception ex) when (ex is not OutOfMemoryException) { return false; }
     }
 
-    private Window Dialog(string titleKey, double width) => new()
+    private Window Dialog(string titleKey, double width)
     {
-        Title = Ui.NoAccess(Str(titleKey)), Width = width, SizeToContent = SizeToContent.Height, CanResize = false,
-        RequestedThemeVariant = ThemeVariant.Dark, WindowStartupLocation = WindowStartupLocation.CenterOwner,
-    };
+        var dialog = new Window
+        {
+            Title = Ui.NoAccess(Str(titleKey)), Width = width, SizeToContent = SizeToContent.Height, CanResize = false,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+        };
+        LinuxLooks.Dress(dialog);
+        return dialog;
+    }
 
     /// <summary>The Windows CopyLayoutDialog: copy from (the current profile first chosen), copy to (every other profile, or one),
     /// and what (the thumbnail layout only, or the entire profile). Null when it was closed without Copy.</summary>
@@ -1083,7 +1192,9 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         var layoutOnly = new RadioButton { GroupName = "what", IsChecked = true, Content = new TextBlock { Text = Str("L.Copy.LayoutOnly") } };
         var entireText = new StackPanel();
         entireText.Children.Add(new TextBlock { Text = Str("L.Copy.EntireProfile") });
-        entireText.Children.Add(new TextBlock { Text = Str("L.Copy.EntireNote"), FontSize = 12, Opacity = 0.65, TextWrapping = TextWrapping.Wrap, MaxWidth = 280 });
+        var entireNote = LinuxLooks.Text(Str("L.Copy.EntireNote"), "Desc");
+        entireNote.MaxWidth = 280;
+        entireText.Children.Add(entireNote);
         var entire = new RadioButton { GroupName = "what", Content = entireText };
         var what = new StackPanel { Spacing = 4 };
         what.Children.Add(layoutOnly);

@@ -26,6 +26,11 @@
     <EmbeddedResource Include="..\Icon.ico" LogicalName="Icon.ico" />
     <!-- The log monitor's line patterns in every client language, under the name AlertPatterns reads. -->
     <EmbeddedResource Include="..\Resources\alert_patterns.json" LogicalName="EveMultiPreview.Resources.alert_patterns.json" />
+    <!-- S4: the Windows looks' own files, whose tokens Linux/Looks/LinuxLook.cs reads at run time (one source for both apps). -->
+    <EmbeddedResource Include="..\SettingsUi\Styles\*.xaml" Exclude="..\SettingsUi\Styles\Windows11Controls.xaml" WithCulture="false" LogicalName="Look.%(Filename)%(Extension)" />
+    <!-- The typefaces the looks carry: the Windows app's files unchanged, at the same paths, and each family's licence. -->
+    <AvaloniaResource Include="..\Resources\Fonts\**\*.ttf" Link="Resources\Fonts\%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\Resources\Fonts\**\OFL.txt" WithCulture="false" LogicalName="Font.%(RecursiveDir)OFL.txt" />
   </ItemGroup>
   <Import Project="SharedSources.props" />
 
