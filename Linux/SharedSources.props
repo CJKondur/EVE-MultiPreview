@@ -152,5 +152,10 @@
     <Compile Include="..\Services\SettingsApplier.cs" Link="Shared\Services\SettingsApplier.cs" />
     <Compile Include="..\SettingsUi\Pages\Clients\CharacterSize.cs" Link="Shared\SettingsUi\Pages\Clients\CharacterSize.cs" />
     <Compile Include="..\SettingsUi\Pages\Alerts\ColorBlindSwitch.cs" Link="Shared\SettingsUi\Pages\Alerts\ColorBlindSwitch.cs" />
+    <!-- S2: the settings window's view-models (EditorVM, which holds a WPF control, is Windows-only; Linux has its own). -->
+    <Compile Include="..\SettingsUi\ViewModels\ItemVMs.cs" Link="Shared\SettingsUi\ViewModels\ItemVMs.cs" />
+    <Compile Include="..\SettingsUi\ViewModels\PageVM.cs" Link="Shared\SettingsUi\ViewModels\PageVM.cs" />
+    <Compile Include="..\SettingsUi\ViewModels\ShellVM.cs" Link="Shared\SettingsUi\ViewModels\ShellVM.cs" />
+    <Compile Include="..\SettingsUi\SettingChanges.cs" Link="Shared\SettingsUi\SettingChanges.cs" />
   </ItemGroup>
 </Project>

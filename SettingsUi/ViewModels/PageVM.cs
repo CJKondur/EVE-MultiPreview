@@ -66,7 +66,7 @@ public sealed class PageVM : ObservableObject
         Renumber();
         foreach (var item in Items) item.Changed += RefreshVisibility;
         // A card of this page that sits beside Recently changed (App > General) lists its change at once.
-        var recent = Items.OfType<EditorVM>().Where(e => e.Id == RecentChangesEditor.ItemId).ToList();
+        var recent = Items.OfType<EditorVM>().Where(e => e.Id == EditorIds.RecentChangesEditor).ToList();
         if (recent.Count > 0) foreach (var item in Items.OfType<SettingVM>()) item.Changed += () => recent.ForEach(e => e.Refresh());
     }
 

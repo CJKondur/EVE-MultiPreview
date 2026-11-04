@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 using EveMultiPreview.Services;
-using FrameworkElement = System.Windows.FrameworkElement;
 
 namespace EveMultiPreview.SettingsUi;
 
@@ -234,14 +233,4 @@ public sealed class InfoVM : ItemVM
     public string Text => Def.Args == null
         ? SettingsContext.Str(Def.TextKey)
         : string.Format(CultureInfo.CurrentCulture, SettingsContext.Str(Def.TextKey), Def.Args(Ctx));
-}
-
-public sealed class EditorVM : ItemVM
-{
-    private FrameworkElement? _element;
-    public EditorVM(EditorItem def, SettingsContext ctx) : base(def.Id, ctx) => Def = def;
-    public EditorItem Def { get; }
-    public override bool IsVisible => Def.ShowIf?.Invoke(Ctx.S) ?? true;
-    public FrameworkElement Element => _element ??= EditorFactories.Create(Def, Ctx);
-    public override void Refresh() { (_element as IRefreshable)?.Refresh(); RaiseAll(); }
 }
