@@ -43,10 +43,10 @@ public static class ClientsPages
         new HelpTopic(HotkeysId, "palette", new[] { "clients.hotkeys.commandPalette" }),
         new HelpTopic(HotkeysId, "gamepad", new[] { "clients.hotkeys.gamepad", "clients.hotkeys.gamepadBindings" }),
         new HelpTopic(HotkeysId, "conflicts", new[] { "clients.hotkeys.conflicts" }),
-        new HelpTopic(HotkeysId, "refused", new[] { RefusedHotkeysEditor.ItemId }),
+        new HelpTopic(HotkeysId, "refused", new[] { EditorIds.RefusedHotkeysEditor }),
         new HelpTopic(GroupsId, "keys", new[] { "clients.groups.editor" }),
         new HelpTopic(GroupsId, "scope", new[] { "clients.groups.showBorders" }),
-        new HelpTopic(GroupsId, "focus", new[] { "clients.groups.focusKey", FocusGroupEditor.ItemId, "clients.groups.focusAlerts" }),
+        new HelpTopic(GroupsId, "focus", new[] { "clients.groups.focusKey", EditorIds.FocusGroupEditor, "clients.groups.focusAlerts" }),
         new HelpTopic(WindowsId, "minimize", new[] { "clients.windows.minimizeInactive", "clients.windows.minimizeDelay", "clients.windows.neverMinimize" }),
         new HelpTopic(WindowsId, "position", new[]
         {
@@ -187,7 +187,7 @@ public static class ClientsPages
         {
             new EditorItem("clients.hotkeys.conflicts") { Replaces = new[] { "OnRefreshHotkeyAudit" } },
             // IDEAS #42: the hotkeys Windows refused at the last registration (HotkeyService.Refused). App state, not a setting.
-            new EditorItem(RefusedHotkeysEditor.ItemId),
+            new EditorItem(EditorIds.RefusedHotkeysEditor),
         }),
     });
 
@@ -221,7 +221,7 @@ public static class ClientsPages
         new SectionDef("clients.groups.focus", new PageItem[]
         {
             Hotkey("clients.groups.focusKey", s => s.FocusModeHotkey),
-            new EditorItem(FocusGroupEditor.ItemId) { Binds = new[] { "AppSettings.FocusModeGroup" } },
+            new EditorItem(EditorIds.FocusGroupEditor) { Binds = new[] { "AppSettings.FocusModeGroup" } },
             Toggle("clients.groups.focusAlerts", s => s.FocusModeShowAlerts),
         }),
     });

@@ -13,7 +13,7 @@ namespace EveMultiPreview.SettingsUi;
 /// have (<see cref="TextTemplate.Clean"/>), when the box loses focus or Enter is pressed and when an example is picked.</summary>
 public sealed class TextTemplateEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "thumbs.text.template";
+    public const string ItemId = EditorIds.TextTemplateEditor;
 
     /// <summary>The examples in the list: template text, not words, so they are the same in every language.</summary>
     public static readonly string[] ExampleTemplates = { "{name} · {system}", "{label} {name} {timer}", "{name}", "{name} · {system} · {jumps}" };

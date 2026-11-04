@@ -12,7 +12,7 @@ namespace EveMultiPreview.SettingsUi;
 /// ones". It writes only the current profile's AutoSelectCharacters, and saves; App reads it on its half-second timer.</summary>
 public sealed class AutoProfileEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "app.profiles.autoCharacters";
+    public const string ItemId = EditorIds.AutoProfileEditor;
     private readonly SettingsContext _ctx;
     private readonly WrapPanel _chips = new();
     private readonly TextBlock _none = EditorCard.Note("L.S.AutoProfile.None");

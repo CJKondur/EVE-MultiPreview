@@ -20,7 +20,7 @@ namespace EveMultiPreview.SettingsUi;
 /// string.Format here, never its format.</summary>
 public sealed class CommandButtonsEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "app.general.buttons";
+    public const string ItemId = EditorIds.CommandButtonsEditor;
     private readonly SettingsContext _ctx;
     private readonly Func<string?> _exePath;
     private readonly Func<string, bool> _copy;

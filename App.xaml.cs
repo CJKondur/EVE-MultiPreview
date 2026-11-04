@@ -2513,7 +2513,7 @@ public partial class App : Application
                     Crops = _cropManager,
                     Hotkeys = _hotkeyService,
                     CheckHotkeysAgain = CheckHotkeysAgain,
-                    AlertHub = _alertHub,
+                    ResetAlertHubPosition = _alertHub is null ? null : _alertHub.ResetPosition,
                     OpenAlertHistory = OpenAlertHistory,
                     Snoozes = _snoozes,
                     SnoozeStarted = (who, type) => { _notificationsWay?.Snoozed(who, type); _thumbnailManager?.PutBackForASnooze(who); },

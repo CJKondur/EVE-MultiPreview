@@ -24,7 +24,7 @@ namespace EveMultiPreview.SettingsUi;
 /// event is on), and the card asks the rule: it works out no answer of its own.</summary>
 public sealed class GroupAlertsEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "alerts.events.groups";
+    public const string ItemId = EditorIds.GroupAlertsEditor;
 
     private readonly SettingsContext _ctx;
     private readonly ComboBox _groups = new() { MinWidth = 220 };

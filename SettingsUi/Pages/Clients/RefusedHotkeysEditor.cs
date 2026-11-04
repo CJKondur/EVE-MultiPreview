@@ -19,7 +19,7 @@ public sealed record RefusedRow(string KeyText, string Reason, IReadOnlyList<Hot
 /// while shown.</summary>
 public sealed class RefusedHotkeysEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "clients.hotkeys.refused";
+    public const string ItemId = EditorIds.RefusedHotkeysEditor;
     private const string AgainKey = "L.S.Refused.Again";
 
     /// <summary>A click on "Check again" within this many milliseconds of the click before it is ignored: a held

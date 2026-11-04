@@ -23,7 +23,7 @@ namespace EveMultiPreview.SettingsUi;
 /// the switch is off, and in a window opened without the app, nothing is asked and there is no line.</summary>
 public sealed class NotificationCheckEditor : System.Windows.Controls.UserControl
 {
-    public const string ItemId = "alerts.hub.notifyTest";
+    public const string ItemId = EditorIds.NotificationCheckEditor;
 
     /// <summary>The button's text, and the line that says Windows is not showing MultiPreview's notifications.</summary>
     public const string ButtonKey = "L.S.Notify.TestButton", BlockedKey = "L.S.Notify.Blocked";

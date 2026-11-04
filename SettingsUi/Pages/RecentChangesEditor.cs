@@ -14,7 +14,7 @@ namespace EveMultiPreview.SettingsUi;
 /// A character's setting is listed by its label alone. Nothing is written to disk.</summary>
 public sealed class RecentChangesEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "app.general.recent";
+    public const string ItemId = EditorIds.RecentChangesEditor;
     private readonly SettingsContext _ctx;
     private readonly StackPanel _rows = new();
     private readonly TextBlock _none = EditorCard.Note("L.S.Changes.None");

@@ -12,7 +12,7 @@ namespace EveMultiPreview.SettingsUi;
 /// only FocusModeGroup.</summary>
 public sealed class FocusGroupEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "clients.groups.focusGroup";
+    public const string ItemId = EditorIds.FocusGroupEditor;
     private readonly SettingsContext _ctx;
     private bool _loading;
 

@@ -12,7 +12,7 @@ namespace EveMultiPreview.SettingsUi;
 /// shown. With do-not-disturb off, and in a window opened without the app, there is no line.</summary>
 public sealed class DoNotDisturbStateEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "alerts.sounds.dndState";
+    public const string ItemId = EditorIds.DoNotDisturbStateEditor;
 
     /// <summary>The line's two texts: every alert sound is muted, or every one but a critical alert's ("Critical
     /// alerts still play").</summary>

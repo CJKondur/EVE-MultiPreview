@@ -20,7 +20,7 @@ namespace EveMultiPreview.SettingsUi;
 /// card comes into view and after a test. Shown only while "Send alerts to Discord" is on.</summary>
 public sealed class PushWebhookEditor : System.Windows.Controls.UserControl
 {
-    public const string ItemId = "alerts.hub.pushWebhook";
+    public const string ItemId = EditorIds.PushWebhookEditor;
 
     private readonly SettingsContext _ctx;
     private readonly Func<Uri, string> _protect;

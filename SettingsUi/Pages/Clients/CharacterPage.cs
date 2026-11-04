@@ -240,7 +240,7 @@ public static class CharacterPage
         {
             new ActionDef("character.openCrops", ctx =>
             {
-                CropsEditor.Request(name);   // the Crop windows page opens on this character (Plan 3b)
+                CropsRequest.Request(name);   // the Crop windows page opens on this character (Plan 3b)
                 ctx.Host.Navigate(CropsPageId);
             }),
         }) { ShowIf = _ => SettingsRegistry.Page(CropsPageId) != null },

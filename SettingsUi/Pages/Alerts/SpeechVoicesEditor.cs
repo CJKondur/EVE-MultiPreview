@@ -22,7 +22,7 @@ namespace EveMultiPreview.SettingsUi;
 /// "Automatic" until the answer has come.</summary>
 public sealed class SpeechVoicesEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "alerts.sounds.voices";
+    public const string ItemId = EditorIds.SpeechVoicesEditor;
 
     private readonly SettingsContext _ctx;
     private readonly Func<string> _language;

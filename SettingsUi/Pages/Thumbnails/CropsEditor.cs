@@ -23,11 +23,6 @@ namespace EveMultiPreview.SettingsUi;
 /// (CropManager.ApplyDefinitionEdits); add, copy and delete save and refresh every crop window.</summary>
 public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    private static string? _requested;
-
-    /// <summary>The character page's "Open crop windows": the editor's next refresh selects this character.</summary>
-    public static void Request(string character) => _requested = character;
-
     private readonly SettingsContext _ctx;
     private readonly ComboBox _picker = new() { MinWidth = 240, VerticalContentAlignment = VerticalAlignment.Center };
     private readonly Button _add;
@@ -75,8 +70,7 @@ public sealed class CropsEditor : System.Windows.Controls.UserControl, IRefresha
     public void Refresh()
     {
         var names = CropEdits.Characters(_ctx.S, CharacterDirectory.Running(_ctx)).ToList();
-        var wanted = _requested ?? Selected;
-        _requested = null;
+        var wanted = CropsRequest.Take() ?? Selected;
         // The character the page was opened for, or was showing, stays listed even with nothing stored.
         if (wanted != null && !names.Contains(wanted, StringComparer.OrdinalIgnoreCase)) names.Add(wanted);
         Names = names;

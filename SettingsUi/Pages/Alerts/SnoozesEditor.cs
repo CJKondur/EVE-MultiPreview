@@ -20,7 +20,7 @@ namespace EveMultiPreview.SettingsUi;
 /// every page of this window.</summary>
 public sealed class SnoozesEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "alerts.events.snoozed";
+    public const string ItemId = EditorIds.SnoozesEditor;
 
     private readonly SettingsContext _ctx;
     private readonly EventSnoozes? _snoozes;

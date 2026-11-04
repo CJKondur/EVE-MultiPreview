@@ -30,7 +30,7 @@ namespace EveMultiPreview.SettingsUi;
 /// told, and every control must then show what the rules file holds.</summary>
 public sealed class CustomRulesEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "alerts.custom.editor";
+    public const string ItemId = EditorIds.CustomRulesEditor;
 
     private sealed record Head(CheckBox Toggle, TextBlock Name, TextBlock Summary, TextBlock Error, TextBlock Off, Button Edit, Button Duplicate, Button Delete);
 

@@ -36,7 +36,7 @@ public static class ThumbnailsPages
             "thumbs.text.showText", "thumbs.text.showSystem", "thumbs.text.showTimer", "thumbs.text.color",
             "thumbs.text.font", "thumbs.text.size", "thumbs.text.marginX", "thumbs.text.marginY",
         }),
-        new HelpTopic(TextId, "template", new[] { TextTemplateEditor.ItemId }),
+        new HelpTopic(TextId, "template", new[] { EditorIds.TextTemplateEditor }),
         new HelpTopic(TextId, "streamer", new[] { "thumbs.text.streamer" }),
         new HelpTopic(TextId, "stats", new[] { "thumbs.text.showStats", "thumbs.text.statsSize" }),
         new HelpTopic(TextId, "borders", new[]
@@ -185,7 +185,7 @@ public static class ThumbnailsPages
             Toggle("thumbs.text.showTimer", s => s.ShowSessionTimer, ApplyScope.Save, "ChkShowTimer"),
             // IDEAS P2: a template builds the text from the name, system, timer and label. ThumbnailManager.ApplySettings gives it to
             // every thumbnail; a token whose switch above is off is empty. Empty keeps the separate lines.
-            new EditorItem(TextTemplateEditor.ItemId) { Binds = new[] { "AppSettings.ThumbnailTextTemplate" } },
+            new EditorItem(EditorIds.TextTemplateEditor) { Binds = new[] { "AppSettings.ThumbnailTextTemplate" } },
             // IDEAS #19: StreamerMask is asked wherever a name is drawn. A re-apply redraws the thumbnails and the stats windows,
             // a crop refresh the crop names; the alert history window follows through App's applied handler.
             Toggle("thumbs.text.streamer", s => s.StreamerMode, ApplyScope.Thumbnails | ApplyScope.Crops),

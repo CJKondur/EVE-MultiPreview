@@ -39,8 +39,8 @@ public static class AlertsPages
         new HelpTopic(EventsId, "clientStops", new[] { "alerts.events.clientNote" }),
         new HelpTopic(EventsId, "idle", new[] { "alerts.events.idleMinutes" }),
         new HelpTopic(EventsId, "clientReady", Array.Empty<string>()),   // no card of its own: the event is a row of the table
-        new HelpTopic(EventsId, "groups", new[] { GroupAlertsEditor.ItemId }),
-        new HelpTopic(EventsId, "snoozes", new[] { SnoozesEditor.ItemId, "alerts.events.keepSnoozes" }),
+        new HelpTopic(EventsId, "groups", new[] { EditorIds.GroupAlertsEditor }),
+        new HelpTopic(EventsId, "snoozes", new[] { EditorIds.SnoozesEditor, "alerts.events.keepSnoozes" }),
         new HelpTopic(LookId, "thumbnail", new[]
         {
             "alerts.look.pulse", "alerts.look.borderWidth", "alerts.look.badge", "alerts.look.text", "alerts.look.textPosition",
@@ -59,18 +59,18 @@ public static class AlertsPages
         new HelpTopic(SoundsId, "dnd", new[]
         {
             "alerts.sounds.dndHotkey", "alerts.sounds.dndCritical", "alerts.sounds.quietHours", "alerts.sounds.quietFrom", "alerts.sounds.quietTo",
-            DoNotDisturbStateEditor.ItemId,
+            EditorIds.DoNotDisturbStateEditor,
         }),
         new HelpTopic(SoundsId, "escalation", new[] { "alerts.sounds.escalate", "alerts.sounds.escalateAfter", "alerts.sounds.escalateRepeats" }),
-        new HelpTopic(SoundsId, "speech", new[] { "alerts.sounds.speak", "alerts.sounds.speakFrom", "alerts.sounds.speechVolume", SpeechVoicesEditor.ItemId }),
-        new HelpTopic(SoundsId, "groups", new[] { GroupSoundsEditor.ItemId }),
+        new HelpTopic(SoundsId, "speech", new[] { "alerts.sounds.speak", "alerts.sounds.speakFrom", "alerts.sounds.speechVolume", EditorIds.SpeechVoicesEditor }),
+        new HelpTopic(SoundsId, "groups", new[] { EditorIds.GroupSoundsEditor }),
         new HelpTopic(HubId, "hub", new[] { "alerts.hub.enabled", "alerts.hub.duration", "alerts.hub.direction", "alerts.hub.skipActive" }),
         new HelpTopic(HubId, "hiding", new[] { "alerts.hub.autoHide", "alerts.hub.autoHideAfter", "alerts.hub.positionRow" }),
-        new HelpTopic(HubId, "windows", new[] { "alerts.hub.notify", "alerts.hub.notifyFrom", NotificationCheckEditor.ItemId }),
-        new HelpTopic(HubId, "push", new[] { "alerts.hub.push", "alerts.hub.pushFrom", "alerts.hub.pushMention", "alerts.hub.pushAway", PushWebhookEditor.ItemId }),
+        new HelpTopic(HubId, "windows", new[] { "alerts.hub.notify", "alerts.hub.notifyFrom", EditorIds.NotificationCheckEditor }),
+        new HelpTopic(HubId, "push", new[] { "alerts.hub.push", "alerts.hub.pushFrom", "alerts.hub.pushMention", "alerts.hub.pushAway", EditorIds.PushWebhookEditor }),
         new HelpTopic(HubId, "history", new[] { "alerts.hub.keepHistory", "alerts.hub.historyDays", "alerts.hub.historyFolder" }),
         new HelpTopic(HubId, "historyWindow", new[] { "alerts.hub.historyRow" }),
-        new HelpTopic(CustomId, "rules", new[] { CustomRulesEditor.ItemId }),
+        new HelpTopic(CustomId, "rules", new[] { EditorIds.CustomRulesEditor }),
         new HelpTopic(CustomId, "match", Array.Empty<string>()),
         new HelpTopic(CustomId, "chat", Array.Empty<string>()),
         new HelpTopic(CustomId, "test", Array.Empty<string>()),
@@ -169,13 +169,13 @@ public static class AlertsPages
         // log monitor on Applied.
         new SectionDef("alerts.events.groups", new PageItem[]
         {
-            new EditorItem(GroupAlertsEditor.ItemId) { Binds = new[] { "AppSettings.GroupAlertProfiles" } },
+            new EditorItem(EditorIds.GroupAlertsEditor) { Binds = new[] { "AppSettings.GroupAlertProfiles" } },
         }),
         // IDEAS #30: what is snoozed for one character right now, with a way to end it, and whether the timed snoozes
         // outlive a restart. App follows the switch on Applied (the snooze file is written or removed).
         new SectionDef("alerts.events.snoozes", new PageItem[]
         {
-            new EditorItem(SnoozesEditor.ItemId),
+            new EditorItem(EditorIds.SnoozesEditor),
             new SettingItem(Setting.Toggle("alerts.events.keepSnoozes", s => s.KeepAlertSnoozes)),
         }),
     });
@@ -306,7 +306,7 @@ public static class AlertsPages
     {
         ctx.S.AlertHubX = 0;
         ctx.S.AlertHubY = 0;
-        ctx.Services.AlertHub?.ResetPosition();
+        ctx.Services.ResetAlertHubPosition?.Invoke();
         ctx.Applier.Request(ApplyScope.Save);
         ctx.Host.Toast(SettingsContext.Str("L.S.AlertHub.ResetDone"));
     }
@@ -342,7 +342,7 @@ public static class AlertsPages
             new SettingItem(Setting.Hotkey("alerts.sounds.dndHotkey", s => s.DoNotDisturbHotkey)),
             // A line that says so while do-not-disturb is on right now (App's answer, AppServices.DoNotDisturbOn), and
             // nothing while it is off. Not the section's first item: a search for the section lands on the card above.
-            new EditorItem(DoNotDisturbStateEditor.ItemId),
+            new EditorItem(EditorIds.DoNotDisturbStateEditor),
             new SettingItem(Setting.Toggle("alerts.sounds.dndCritical", s => s.DoNotDisturbCriticalPlays)),
             new SettingItem(Setting.Toggle("alerts.sounds.quietHours", s => s.QuietHoursEnabled)),
             TimeOfDay("alerts.sounds.quietFrom", s => s.QuietHoursFrom),
@@ -381,7 +381,7 @@ public static class AlertsPages
                 Min = 0, Max = 100, Step = 1, UnitKey = "L.S.Unit.Percent",
                 ShowIf = s => s.SpeakAlerts,
             }),
-            new EditorItem(SpeechVoicesEditor.ItemId)
+            new EditorItem(EditorIds.SpeechVoicesEditor)
             {
                 Binds = new[] { "AppSettings.SpeechVoices" },
                 ShowIf = s => s.SpeakAlerts,
@@ -398,7 +398,7 @@ public static class AlertsPages
         // at every alert, so a change only saves.
         new SectionDef("alerts.sounds.groups", new PageItem[]
         {
-            new EditorItem(GroupSoundsEditor.ItemId) { Binds = new[] { "AppSettings.GroupAlertSounds" } },
+            new EditorItem(EditorIds.GroupSoundsEditor) { Binds = new[] { "AppSettings.GroupAlertSounds" } },
         }),
     });
 
@@ -460,7 +460,7 @@ public static class AlertsPages
                 "AppSettings.WindowsNotificationsFrom", s => s.WindowsNotifications),
             // The player's way to see that notifications arrive: a button that shows one as a test, and a line that
             // says so when Windows itself is not showing MultiPreview's. It binds no setting: nothing here is saved.
-            new EditorItem(NotificationCheckEditor.ItemId) { ShowIf = s => s.WindowsNotifications },
+            new EditorItem(EditorIds.NotificationCheckEditor) { ShowIf = s => s.WindowsNotifications },
         }),
         // IDEAS #2. PushWay reads all four for every alert that got past the gates, so a change only saves; App hands
         // the way every settings change (PushWay.Follow), which starts the sending again after a new link was saved.
@@ -478,7 +478,7 @@ public static class AlertsPages
             }),
             new SettingItem(Setting.Toggle("alerts.hub.pushAway", s => s.PushOnlyWhenAway) with { ShowIf = s => s.PushAlerts }),
             // The link is a secret: the card keeps it DPAPI-encrypted, empties its box and shows it masked.
-            new EditorItem(PushWebhookEditor.ItemId)
+            new EditorItem(EditorIds.PushWebhookEditor)
             {
                 Binds = new[] { "AppSettings.PushDiscordWebhook" },
                 ShowIf = s => s.PushAlerts,
@@ -509,7 +509,7 @@ public static class AlertsPages
     {
         new SectionDef("alerts.custom.rules", new PageItem[]
         {
-            new EditorItem(CustomRulesEditor.ItemId),
+            new EditorItem(EditorIds.CustomRulesEditor),
             new InfoItem("alerts.custom.file", InfoSeverity.Info) { Args = ctx => new object[] { ctx.CustomAlerts.FilePath } },
         }),
     });

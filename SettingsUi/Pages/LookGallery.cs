@@ -23,7 +23,7 @@ namespace EveMultiPreview.SettingsUi;
 /// trimmed beyond; the "Current" row kept on every card, shown on one.</summary>
 public sealed class LookGallery : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "app.look.gallery";
+    public const string ItemId = EditorIds.LookGallery;
 
     private readonly Func<string?> _saved;
     private readonly Action<UiStyle> _pick;

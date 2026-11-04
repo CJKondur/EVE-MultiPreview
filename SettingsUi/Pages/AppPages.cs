@@ -24,10 +24,10 @@ public static class AppPages
         new HelpTopic("app.general", "tranquility", new[] { "app.general.tranquility" }),
         new HelpTopic("app.general", "commands", new[] { "app.general.acceptCommands" }),
         new HelpTopic("app.general", "pairing", new[] { "app.general.allowPairingRequests" }),
-        new HelpTopic("app.general", "buttons", new[] { CommandButtonsEditor.ItemId }),
+        new HelpTopic("app.general", "buttons", new[] { EditorIds.CommandButtonsEditor }),
         new HelpTopic("app.general", "commandsAdmin", new[] { "app.general.acceptCommandsUnelevated" }),
-        new HelpTopic("app.general", "recent", new[] { RecentChangesEditor.ItemId }),
-        new HelpTopic(LookId, "look", new[] { LookGallery.ItemId }),
+        new HelpTopic("app.general", "recent", new[] { EditorIds.RecentChangesEditor }),
+        new HelpTopic(LookId, "look", new[] { EditorIds.LookGallery }),
         new HelpTopic(LookId, "theme", new[] { "app.look.followTheme" }),
         new HelpTopic(LookId, "contrast", new[] { "app.look.followContrast" }),
         new HelpTopic("app.diagnostics", "logs", new[]
@@ -39,11 +39,11 @@ public static class AppPages
         new HelpTopic("app.diagnostics", "report", new[] { "app.diagnostics.bugReport" }),
         new HelpTopic("app.diagnostics", "playtime", new[] { "app.diagnostics.trackPlaytime", "app.diagnostics.playtimeHistory" }),
         new HelpTopic("app.profiles", "profiles", new[] { "app.profiles.current" }),
-        new HelpTopic("app.profiles", "auto", new[] { "app.profiles.autoSelect", AutoProfileEditor.ItemId }),
+        new HelpTopic("app.profiles", "auto", new[] { "app.profiles.autoSelect", EditorIds.AutoProfileEditor }),
         new HelpTopic("app.profiles", "backups", new[] { "app.profiles.backup" }),
         new HelpTopic("app.about", "updates", new[] { "app.about.links", "app.about.checkOnStartup", "app.about.preRelease", "app.about.installVersion" }),
         new HelpTopic("app.about", "window", new[] { "app.about.useOldWindow" }),
-        new HelpTopic("app.about", "fonts", new[] { FontLicencesEditor.ItemId }),
+        new HelpTopic("app.about", "fonts", new[] { EditorIds.FontLicencesEditor }),
         new HelpTopic("app.about", "uninstall", new[] { "app.about.uninstallRow" }),
     };
 
@@ -98,14 +98,14 @@ public static class AppPages
             new SettingItem(Setting.Toggle("app.general.allowPairingRequests", s => s.AllowPairingRequests)),
             // IDEAS #15, Plan 38: always shown, with its "Make Stream Deck buttons" button. The question that button asks turns the two
             // switches on (through the normal save); while commands are on the card also lists the commands to copy, save or try.
-            new EditorItem(CommandButtonsEditor.ItemId),
+            new EditorItem(EditorIds.CommandButtonsEditor),
             // IDEAS #15: App reads it with the first switch (FollowCommandServer); it only matters while MultiPreview is elevated.
             new SettingItem(Setting.Toggle("app.general.acceptCommandsUnelevated", s => s.AcceptCommandsUnelevated) with { ShowIf = s => s.AcceptCommands }),
         }),
         // IDEAS P17: writes no setting; lists this run's changes to the simple cards and undoes one that is still as it was left.
         new SectionDef("app.general.recent", new PageItem[]
         {
-            new EditorItem(RecentChangesEditor.ItemId),
+            new EditorItem(EditorIds.RecentChangesEditor),
         }),
     });
 
@@ -117,7 +117,7 @@ public static class AppPages
     {
         new SectionDef("app.look.look", new PageItem[]
         {
-            new EditorItem(LookGallery.ItemId) { Binds = new[] { "AppSettings.UiStyle" } },
+            new EditorItem(EditorIds.LookGallery) { Binds = new[] { "AppSettings.UiStyle" } },
         }),
         new SectionDef("app.look.theme", new PageItem[]
         {
@@ -152,7 +152,7 @@ public static class AppPages
         new SectionDef("app.profiles.auto", new PageItem[]
         {
             new SettingItem(Setting.Toggle("app.profiles.autoSelect", s => s.AutoSelectProfile)),
-            new EditorItem(AutoProfileEditor.ItemId)
+            new EditorItem(EditorIds.AutoProfileEditor)
             {
                 Binds = new[] { "Profile.AutoSelectCharacters" },
                 ShowIf = s => s.AutoSelectProfile,
@@ -200,7 +200,7 @@ public static class AppPages
         // UI styles spec §11.1: the typefaces the looks carry, and their licences.
         new SectionDef("app.about.fonts", new PageItem[]
         {
-            new EditorItem(FontLicencesEditor.ItemId),
+            new EditorItem(EditorIds.FontLicencesEditor),
         }),
         // IDEAS P16: removes MultiPreview's own Windows entries and, if asked, its settings folder, then closes it. The
         // button asks for itself (two answers and Cancel), so it is not flagged Confirm.

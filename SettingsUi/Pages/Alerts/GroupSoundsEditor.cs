@@ -22,7 +22,7 @@ namespace EveMultiPreview.SettingsUi;
 /// GroupSounds', and the card asks it: it works out no answer of its own.</summary>
 public sealed class GroupSoundsEditor : System.Windows.Controls.UserControl, IRefreshable
 {
-    public const string ItemId = "alerts.sounds.groups";
+    public const string ItemId = EditorIds.GroupSoundsEditor;
 
     private readonly SettingsContext _ctx;
     private readonly ComboBox _groups = new() { MinWidth = 220 };

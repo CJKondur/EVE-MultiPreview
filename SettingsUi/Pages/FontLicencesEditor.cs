@@ -15,7 +15,7 @@ namespace EveMultiPreview.SettingsUi;
 /// Nothing is written to disk.</summary>
 public sealed class FontLicencesEditor : UserControl
 {
-    public const string ItemId = "app.about.fonts";
+    public const string ItemId = EditorIds.FontLicencesEditor;
 
     public FontLicencesEditor()
     {

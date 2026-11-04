@@ -52,7 +52,7 @@ public sealed class AppServices
     /// and in a window opened without the app: the button is not shown then.</summary>
     public Action? CheckHotkeysAgain { get; init; }
     /// <summary>The alert hub, for Alerts › Alert hub › Reset position (Plan 3c).</summary>
-    public Views.AlertHub? AlertHub { get; init; }
+    public Action? ResetAlertHubPosition { get; init; }
     /// <summary>Opens the alert history window, for Alerts › Alert hub › Open history… (IDEAS #1).</summary>
     public Action? OpenAlertHistory { get; init; }
     /// <summary>The alert events snoozed for one character (IDEAS #30), for Alerts › Events › Snoozed right now.
