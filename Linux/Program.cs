@@ -841,7 +841,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
     private ThumbnailLook Look(string character, bool isActive, bool hovered = false)
     {
         IBrush border = Brush(BorderColorRule.Resolve(S, character, isActive, RunningCharacters));
-        double thickness = isActive ? S.ClientHighlightBorderThickness
+        // ThumbnailManager.ApplyActiveBorders: with "Show a border on the active client" off, the active one has no border at all.
+        double thickness = isActive ? (S.ShowClientHighlightBorder ? S.ClientHighlightBorderThickness : 0)
             : BorderColorRule.ShowsInactiveBorder(S, character) ? S.InactiveClientBorderThickness : 0;
         if (_alertBorders.TryGetValue(character, out var alert)
             && (alert.Steady || Environment.TickCount64 / alert.RateMs % 2 == 0))
@@ -965,6 +966,36 @@ public sealed class Previews : ITrayActions, ISettingsHost
             if (thumb.OwnPosition == new PixelPoint(x, y) && thumb.OwnWidth == w && thumb.OwnHeight == h) continue;
             thumb.PlaceAt(x, y, w, h);
         }
+    }
+
+    void ISettingsHost.ResizeThumbnails(int width, int height)
+    {
+        S.ThumbnailStartLocation.Width = width;
+        S.ThumbnailStartLocation.Height = height;
+        foreach (var thumb in _thumbs.Values)
+        {
+            thumb.SetSize(width, height);
+            _settings.SaveThumbnailPosition(thumb.Client.Character, thumb.OwnPosition.X, thumb.OwnPosition.Y, width, height);
+        }
+        _settings.SaveDelayed();
+    }
+
+    bool ISettingsHost.ResizeThumbnail(string character, int width, int height)
+    {
+        var thumb = _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, character, StringComparison.OrdinalIgnoreCase));
+        if (thumb == null) return false;
+        thumb.SetSize(width, height);
+        _settings.SaveThumbnailPosition(thumb.Client.Character, thumb.OwnPosition.X, thumb.OwnPosition.Y, width, height);
+        return true;
+    }
+
+    void ISettingsHost.SetClientVolume(string character, int percent)
+    {
+        var thumb = _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, character, StringComparison.OrdinalIgnoreCase));
+        if (thumb != null) { SetVolume(thumb.Client, Math.Clamp(percent, 0, 100)); return; }   // stores, saves, sets the client
+        if (percent >= 100) S.PerClientAudioVolume.Remove(character);
+        else S.PerClientAudioVolume[character] = Math.Clamp(percent, 0, 100);
+        _settings.SaveDelayed();
     }
 
     /// <summary>A crop window's place and size from its definition, at least CropManager's 40 × 30.</summary>

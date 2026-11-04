@@ -26,8 +26,8 @@ internal sealed partial class SettingsPages
     internal static StackPanel Titled(string itemId)
     {
         var panel = new StackPanel { Spacing = 4 };
-        panel.Children.Add(new TextBlock { Text = Ui.NoAccess(S3("L.S." + itemId)), TextWrapping = TextWrapping.Wrap });
-        if (LocalizationService.Str("L.S." + itemId + ".Desc", "") is { Length: > 0 } desc)
+        panel.Children.Add(new TextBlock { Text = Ui.NoAccess(S3(LinuxSupport.Key("L.S." + itemId))), TextWrapping = TextWrapping.Wrap });
+        if (LocalizationService.Str(LinuxSupport.Key("L.S." + itemId + ".Desc"), "") is { Length: > 0 } desc)
             panel.Children.Add(new TextBlock { Text = desc, FontSize = 12, Opacity = 0.65, TextWrapping = TextWrapping.Wrap });
         return panel;
     }

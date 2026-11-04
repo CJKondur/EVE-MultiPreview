@@ -52,5 +52,7 @@
     <sys:String x:Key="L.Linux.CommandsNote">Starte MultiPreview erneut mit einem Befehl, zum Beispiel wie unten; eine Stream-Deck-App (StreamController, streamdeck-ui, OpenDeck) führt ihn über eine Taste aus. eve-multipreview --help listet alle Befehle.</sys:String>
     <sys:String x:Key="L.Linux.UpdateNotWritable">Dein Konto kann den Ordner von MultiPreview nicht beschreiben. Lade die neue Version von der Release-Seite herunter.</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Unter Linux noch nicht verfügbar: {0}</sys:String>
+    <sys:String x:Key="L.Linux.VolumeDesc">Die Lautstärke jedes Clients im Soundserver dieses Desktops. Ein Client merkt sie sich für das nächste Mal.</sys:String>
+    <sys:String x:Key="L.Linux.ResizeAllDesc">Breite × Höhe. „Auf alle anwenden“ skaliert jedes Vorschaubild an Ort und Stelle; neue Vorschaubilder starten mit dieser Größe.</sys:String>
 
 </ResourceDictionary>

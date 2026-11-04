@@ -38,7 +38,7 @@ internal static class LinuxSupport
         ["home.next"] = S, ["home.previous"] = S, ["home.size"] = S, ["home.opacity"] = S,
         ["home.monitor"] = N,                 // PreferredMonitor: Linux places thumbnails without a chosen monitor
         ["home.alertAttack"] = S, ["home.alertScram"] = S, ["home.alertDecloak"] = S, ["home.alertFleet"] = S, ["home.alertSound"] = S,
-        ["home.quickActions"] = N,            // no Linux editor (the tray has the same switches)
+        ["home.quickActions"] = S,            // Linux/Settings/MoreEditors.cs (S3b); click-through greyed out
         ["home.startWithWindows"] = W,        // the Windows Run registry key
 
         // ── Clients › Characters ──
@@ -79,10 +79,10 @@ internal static class LinuxSupport
 
         // ── Clients › Audio ──
         ["clients.audio.autoSolo"] = N, ["clients.audio.muteNoneActive"] = N,
-        ["clients.audio.volume"] = N,         // read (pactl), but no Linux editor: the character page's slider sets it
+        ["clients.audio.volume"] = S,         // MoreEditors.Volumes (S3b), pactl
 
         // ── Thumbnails › Appearance ──
-        ["thumbs.appearance.resizeAll"] = N,  // no Linux editor (Starting width/height are on Layout)
+        ["thumbs.appearance.resizeAll"] = S,  // MoreEditors.ResizeAll (S3b)
         ["thumbs.appearance.individualResize"] = S, ["thumbs.appearance.lockAspect"] = S, ["thumbs.appearance.minSizeOn"] = S,
         ["thumbs.appearance.minWidth"] = S, ["thumbs.appearance.minHeight"] = S, ["thumbs.appearance.opacity"] = S,
         ["thumbs.appearance.opacityOnHover"] = S, ["thumbs.appearance.hoverZoom"] = S, ["thumbs.appearance.hoverScale"] = S,
@@ -92,7 +92,7 @@ internal static class LinuxSupport
         ["thumbs.text.showText"] = S, ["thumbs.text.showSystem"] = N, ["thumbs.text.showTimer"] = N, ["thumbs.text.template"] = N,
         ["thumbs.text.streamer"] = S, ["thumbs.text.color"] = S, ["thumbs.text.font"] = S, ["thumbs.text.size"] = S,
         ["thumbs.text.marginX"] = N, ["thumbs.text.marginY"] = N, ["thumbs.text.showStats"] = N, ["thumbs.text.statsSize"] = N,
-        ["thumbs.text.highlight"] = N,        // Linux always draws the active client's border
+        ["thumbs.text.highlight"] = S,        // Previews.Look honours it (S3b), as ThumbnailManager.ApplyActiveBorders
         ["thumbs.text.highlightColor"] = S, ["thumbs.text.highlightWidth"] = S, ["thumbs.text.highlightInGroup"] = S,
         ["thumbs.text.inactiveColor"] = S, ["thumbs.text.inactiveWidth"] = S,
         ["thumbs.text.cornerRadius"] = N, ["thumbs.text.autoBorders"] = S, ["thumbs.text.groupBorders"] = S,
@@ -111,7 +111,7 @@ internal static class LinuxSupport
         ["thumbs.visibility.alwaysOnTop"] = S, ["thumbs.visibility.aboveClients"] = N, ["thumbs.visibility.hideOnLostFocus"] = N,
         ["thumbs.visibility.hideActive"] = S, ["thumbs.nameBar"] = S,
         ["thumbs.visibility.notLoggedIn"] = N, ["thumbs.visibility.notLoggedInColor"] = N,
-        ["thumbs.visibility.pipTable"] = N,   // read, but no Linux editor: the character page's switch sets it
+        ["thumbs.visibility.pipTable"] = S,   // MoreEditors.PipTable (S3b)
 
         // ── Thumbnails › Crop windows ──
         ["thumbs.crops.enabled"] = S, ["thumbs.crops.off"] = S, ["thumbs.crops.editor"] = S,
@@ -132,17 +132,17 @@ internal static class LinuxSupport
         ["alerts.look.pulse"] = S, ["alerts.look.borderWidth"] = S,
         ["alerts.look.badge"] = N, ["alerts.look.text"] = N, ["alerts.look.textPosition"] = N,
         ["alerts.look.enlarge"] = S, ["alerts.look.enlargeFrom"] = S, ["alerts.look.enlargePercent"] = S, ["alerts.look.enlargeSeconds"] = S,
-        ["alerts.look.severityTable"] = N,    // read, but no Linux editor
+        ["alerts.look.severityTable"] = S,    // MoreEditors.SeverityTable (S3b)
         ["alerts.look.waitBySeverity"] = S, ["alerts.look.waitCritical"] = S, ["alerts.look.waitWarning"] = S, ["alerts.look.waitInfo"] = S,
-        ["alerts.look.colorBlind"] = N,       // no Linux editor
+        ["alerts.look.colorBlind"] = S,       // MoreEditors.ColorBlind over the shared ColorBlindSwitch (S3b)
 
         // ── Alerts › Sounds & voice ──
         ["alerts.sounds.enabled"] = S, ["alerts.sounds.volume"] = S, ["alerts.sounds.dndHotkey"] = S,
-        ["alerts.sounds.dndState"] = N,       // no Linux editor (the tray switches Do not disturb)
+        ["alerts.sounds.dndState"] = S,       // MoreEditors.DoNotDisturbLine (S3b)
         ["alerts.sounds.dndCritical"] = S, ["alerts.sounds.quietHours"] = S, ["alerts.sounds.quietFrom"] = S, ["alerts.sounds.quietTo"] = S,
         ["alerts.sounds.escalate"] = N, ["alerts.sounds.escalateAfter"] = N, ["alerts.sounds.escalateRepeats"] = N,
         ["alerts.sounds.speak"] = S, ["alerts.sounds.speakFrom"] = S, ["alerts.sounds.speechVolume"] = S, ["alerts.sounds.voices"] = S,
-        ["alerts.sounds.table"] = N,          // read, but no Linux editor
+        ["alerts.sounds.table"] = S,          // MoreEditors.SoundTable; Linux/Alerts.cs keeps the per-character Wait (S3b)
         ["alerts.sounds.groups"] = N,
 
         // ── Alerts › Alert hub: on Linux the hub is the desktop's notifications (notify-send) ──
@@ -213,7 +213,7 @@ internal static class LinuxSupport
         ["character.cycle"] = N,              // no cycle exclusion on Linux
         ["character.groups"] = S, ["character.noGroup"] = S, ["character.groupsLink"] = S,
         ["character.show"] = S, ["character.label"] = S, ["character.labelColor"] = S, ["character.labelSize"] = S,
-        ["character.size"] = N,               // no Linux editor
+        ["character.size"] = S,               // MoreEditors.CharacterSizeBox (S3b)
         ["character.pip"] = S, ["character.pipOpacity"] = S,
         ["character.colorsOff"] = S, ["character.colorActive"] = S, ["character.colorInactive"] = S, ["character.colorText"] = S,
         ["character.colorsReset"] = S,
@@ -271,6 +271,10 @@ internal static class LinuxSupport
         ["L.S.alerts.hub.enabled"] = "L.Linux.NotifyOn",
         ["L.S.alerts.hub.enabled.Desc"] = "L.Linux.NotifyOn.Desc",
         ["L.S.app.general.acceptCommands.Desc"] = "L.Linux.AcceptCommands.Desc",
+        // S3b: the editors' Windows words (a volume "in Windows", an undo Linux has not, the alert hub's toasts).
+        ["L.S.clients.audio.volume.Desc"] = "L.Linux.VolumeDesc",
+        ["L.S.thumbs.appearance.resizeAll.Desc"] = "L.Linux.ResizeAllDesc",
+        ["L.S.Severity.ColHub"] = "L.Linux.Notifications",
     };
 
     /// <summary>The key Linux shows for <paramref name="key"/>.</summary>

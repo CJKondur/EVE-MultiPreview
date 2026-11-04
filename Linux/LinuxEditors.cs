@@ -26,6 +26,15 @@ internal static class LinuxEditors
         // S3b (Linux/Settings/*Editors.cs): Avalonia ports of the Windows editors, over the same shared logic.
         { "app.profiles.current", (pages, ctx, _) => pages.ProfilePicker(ctx) },
         { EditorIds.AutoProfileEditor, (pages, ctx, _) => pages.AutoProfileCharacters(ctx) },
+        { "home.quickActions", (pages, ctx, _) => pages.QuickActions(ctx) },
+        { "clients.audio.volume", (pages, ctx, _) => pages.Volumes(ctx) },
+        { "thumbs.appearance.resizeAll", (pages, ctx, _) => pages.ResizeAll(ctx) },
+        { "character.size", (pages, ctx, item) => pages.CharacterSizeBox(ctx, (string)item.Arg!) },
+        { "thumbs.visibility.pipTable", (pages, ctx, _) => pages.PipTable(ctx) },
+        { "alerts.look.severityTable", (pages, ctx, _) => pages.SeverityTable(ctx) },
+        { "alerts.look.colorBlind", (pages, ctx, _) => pages.ColorBlind(ctx) },
+        { EditorIds.DoNotDisturbStateEditor, (pages, ctx, _) => pages.DoNotDisturbLine(ctx) },
+        { "alerts.sounds.table", (pages, ctx, _) => pages.SoundTable(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

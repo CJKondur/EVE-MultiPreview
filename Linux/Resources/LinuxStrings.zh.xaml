@@ -52,5 +52,7 @@
     <sys:String x:Key="L.Linux.CommandsNote">带上命令再次运行 MultiPreview，例如下方所示；Stream Deck 应用（StreamController、streamdeck-ui、OpenDeck）可通过按钮运行。eve-multipreview --help 列出所有命令。</sys:String>
     <sys:String x:Key="L.Linux.UpdateNotWritable">你的账户无法写入 MultiPreview 的文件夹。请从发布页面下载新版本。</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Linux 上暂不可用：{0}</sys:String>
+    <sys:String x:Key="L.Linux.VolumeDesc">每个客户端在此桌面声音服务器中的音量。客户端会记住它供下次使用。</sys:String>
+    <sys:String x:Key="L.Linux.ResizeAllDesc">宽 × 高。“应用到全部”会就地调整每个缩略图的大小，新缩略图也将以此大小开始。</sys:String>
 
 </ResourceDictionary>

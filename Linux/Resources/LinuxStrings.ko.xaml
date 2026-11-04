@@ -52,5 +52,7 @@
     <sys:String x:Key="L.Linux.CommandsNote">아래 예처럼 명령과 함께 MultiPreview를 다시 실행하세요. Stream Deck 앱(StreamController, streamdeck-ui, OpenDeck)은 버튼으로 실행합니다. eve-multipreview --help 는 모든 명령을 보여 줍니다.</sys:String>
     <sys:String x:Key="L.Linux.UpdateNotWritable">내 계정으로는 MultiPreview 폴더에 쓸 수 없습니다. 릴리스 페이지에서 새 버전을 내려받으세요.</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Linux에서는 아직 사용할 수 없어요: {0}</sys:String>
+    <sys:String x:Key="L.Linux.VolumeDesc">이 데스크톱 사운드 서버에서의 각 클라이언트 볼륨이에요. 클라이언트는 다음을 위해 이를 기억해요.</sys:String>
+    <sys:String x:Key="L.Linux.ResizeAllDesc">너비 × 높이. '모두에 적용'은 각 썸네일을 제자리에서 크기 조정하며, 새 썸네일도 이 크기로 시작해요.</sys:String>
 
 </ResourceDictionary>

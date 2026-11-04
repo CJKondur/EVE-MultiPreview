@@ -81,7 +81,7 @@ public sealed class Alerts : IDisposable
             ForegroundWindow = () => (IntPtr)Ui(inFront),
             SoundHeld = severity => S.EnableAlertSounds && _doNotDisturb.Silences(S, severity, DateTime.Now),
             Toast = (c, type, severity, _) => Notify(c, type, severity),
-            Sound = (c, type, severity) => PlaySound(type, severity),
+            Sound = (c, type, severity) => PlaySound(c, type, severity),
             // After every gate. Whether the character's client is the window in front is asked once, and only while a
             // further way is on (AlertWays.Raised).
             Ways = (c, type, severity, raisedUtc) => _ways.Raised(S, c, type, severity, () => ClientInFront(c, windowOf, inFront), raisedUtc),
@@ -411,15 +411,36 @@ public sealed class Alerts : IDisposable
         return v >= new Version(0, 7, 9);
     }
 
-    /// <summary>The alert's sound file, as the Windows app picks it, played by the desktop's sound player.</summary>
-    private void PlaySound(string alertType, string severity)
+    /// <summary>When each character's event last played its sound (App.PlayAlertSound's _soundCooldowns), UTC.</summary>
+    private readonly Dictionary<string, DateTime> _soundPlayed = new(StringComparer.Ordinal);
+
+    /// <summary>The alert's sound file, as the Windows app picks it, played by the desktop's sound player. An event with a
+    /// wait of its own (SoundCooldowns, Alerts › Sounds › Sound for each event) plays again for the same character only once
+    /// that wait is over, as App.PlayAlertSound keys it: other characters' alerts each get their sound.</summary>
+    private void PlaySound(string character, string alertType, string severity)
     {
         if (!S.EnableAlertSounds || _doNotDisturb.Silences(S, severity, DateTime.Now)) return;
-        if (AlertSoundChoice.FileToPlay(S, alertType, File.Exists) is not { } file) return;
-        int volume = Math.Clamp(S.AlertSoundVolume, 0, 100);
-        if (Run("paplay", $"--volume={volume * 65536 / 100}", file)) return;
-        if (Run("pw-play", $"--volume={volume / 100.0:0.00}", file)) return;
-        Run("aplay", "-q", file);
+        string key = $"sound_{character}_{alertType}";
+        int wait = S.SoundCooldowns?.GetValueOrDefault(alertType, 0) ?? 0;
+        var now = DateTime.UtcNow;
+        lock (_soundPlayed)
+        {
+            if (wait > 0 && _soundPlayed.TryGetValue(key, out var last) && AlertSoundChoice.StillWaits(last, now, wait)) return;
+        }
+        if (AlertSoundChoice.FileToPlay(S, alertType, File.Exists) is not { } file || !File.Exists(file)) return;
+        lock (_soundPlayed) _soundPlayed[key] = now;
+        PlayFile(file, S.AlertSoundVolume);
+    }
+
+    /// <summary>Plays a sound file once at a volume (0–100) with the desktop's sound player (paplay, pw-play, else aplay at
+    /// its own volume). False when there is no such file or no player. The settings window's Play button uses it too.</summary>
+    public static bool PlayFile(string file, int volumePercent)
+    {
+        if (string.IsNullOrWhiteSpace(file) || !File.Exists(file)) return false;
+        int volume = Math.Clamp(volumePercent, 0, 100);
+        return Run("paplay", $"--volume={volume * 65536 / 100}", file)
+            || Run("pw-play", $"--volume={volume / 100.0:0.00}", file)
+            || Run("aplay", "-q", file);
     }
 
     /// <summary>Starts <paramref name="program"/> with these arguments, no shell, no window. False when it isn't installed.</summary>

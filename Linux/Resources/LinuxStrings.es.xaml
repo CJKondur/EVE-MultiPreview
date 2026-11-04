@@ -52,5 +52,7 @@
     <sys:String x:Key="L.Linux.CommandsNote">Ejecuta MultiPreview de nuevo con una orden, por ejemplo como abajo; una app de Stream Deck (StreamController, streamdeck-ui, OpenDeck) la ejecuta desde un botón. eve-multipreview --help muestra todas las órdenes.</sys:String>
     <sys:String x:Key="L.Linux.UpdateNotWritable">Tu cuenta no puede escribir en la carpeta de MultiPreview. Descarga la nueva versión desde la página de la versión.</sys:String>
     <sys:String x:Key="L.Linux.NotYet">Aún no disponible en Linux: {0}</sys:String>
+    <sys:String x:Key="L.Linux.VolumeDesc">El volumen de cada cliente en el servidor de sonido de este escritorio. Un cliente lo recuerda para la próxima vez.</sys:String>
+    <sys:String x:Key="L.Linux.ResizeAllDesc">Ancho × alto. «Aplicar a todas» cambia el tamaño de cada miniatura donde está, y las miniaturas nuevas empiezan con este tamaño.</sys:String>
 
 </ResourceDictionary>

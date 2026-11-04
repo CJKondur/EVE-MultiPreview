@@ -50,6 +50,19 @@ public interface ISettingsHost
     /// <summary>Every running thumbnail goes to the place and size its profile keeps (ThumbnailManager.ReapplySettings): after
     /// a whole-profile copy, a layout or a size given to all.</summary>
     void ReapplyThumbnails();
+    /// <summary>Home › Quick actions (the tray's switches): every thumbnail hidden, positions locked, hotkeys paused.</summary>
+    bool ThumbnailsHidden { get; set; }
+    bool PositionsLocked { get; set; }
+    bool HotkeysPaused { get; set; }
+    /// <summary>Whether do-not-disturb is on right now (the hotkey, the tray or the quiet hours).</summary>
+    bool DoNotDisturb { get; }
+    /// <summary>ThumbnailManager.ApplySizeToAll: every running thumbnail gets this size where it is, and new ones start at it.</summary>
+    void ResizeThumbnails(int width, int height);
+    /// <summary>ThumbnailManager.ApplySizeToCharacter: the character's running thumbnail gets this size where it is, saved.
+    /// False when it isn't running.</summary>
+    bool ResizeThumbnail(string character, int width, int height);
+    /// <summary>ThumbnailManager.SetClientVolume: stores and saves the character's volume (0–100) and gives it to its running client.</summary>
+    void SetClientVolume(string character, int percent);
 }
 
 /// <summary>The settings window's pages. Each page is built from the settings as they are when it is shown, and every
