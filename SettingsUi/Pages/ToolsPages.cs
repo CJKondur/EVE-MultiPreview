@@ -58,7 +58,7 @@ public static class ToolsPages
         }),
         new SectionDef("tools.stats.numbers", new PageItem[]
         {
-            new EditorItem("tools.stats.metrics", ctx => new StatMetricsEditor(ctx))
+            new EditorItem("tools.stats.metrics")
             {
                 Binds = new[] { "AppSettings.GlobalStatMetrics" },
                 Replaces = StatsFields.GlobalControls,
@@ -74,7 +74,7 @@ public static class ToolsPages
         {
             // Reads only: each › opens a character's own picker. It follows running clients by itself, so the
             // old Refresh button has no job.
-            new EditorItem("tools.stats.characterTable", ctx => new StatCharactersEditor(ctx))
+            new EditorItem("tools.stats.characterTable")
             {
                 Replaces = new[] { "LvStatCharacters", "BtnRefreshStatChars" },
             },
@@ -125,7 +125,7 @@ public static class ToolsPages
     {
         new SectionDef("tools.eve.main", new PageItem[]
         {
-            new EditorItem("tools.eve.editor", ctx => new EveSettingsEditor(ctx))
+            new EditorItem("tools.eve.editor")
             {
                 SearchLabelKey = "L.S.Eve.SearchLabel",
                 // The folders, account names and the character-account links are written by its buttons. EveManager

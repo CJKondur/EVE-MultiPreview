@@ -122,7 +122,7 @@ public static class ThumbnailsPages
     {
         new SectionDef("thumbs.appearance.size", new PageItem[]
         {
-            new EditorItem("thumbs.appearance.resizeAll", ctx => new ResizeAllEditor(ctx))
+            new EditorItem("thumbs.appearance.resizeAll")
             {
                 Binds = new[] { "AppSettings.ThumbnailStartLocation" },
                 Replaces = new[] { "TxtResizeAllW", "TxtResizeAllH", "OnApplySizeToAll" },
@@ -185,7 +185,7 @@ public static class ThumbnailsPages
             Toggle("thumbs.text.showTimer", s => s.ShowSessionTimer, ApplyScope.Save, "ChkShowTimer"),
             // IDEAS P2: a template builds the text from the name, system, timer and label. ThumbnailManager.ApplySettings gives it to
             // every thumbnail; a token whose switch above is off is empty. Empty keeps the separate lines.
-            new EditorItem(TextTemplateEditor.ItemId, ctx => new TextTemplateEditor(ctx)) { Binds = new[] { "AppSettings.ThumbnailTextTemplate" } },
+            new EditorItem(TextTemplateEditor.ItemId) { Binds = new[] { "AppSettings.ThumbnailTextTemplate" } },
             // IDEAS #19: StreamerMask is asked wherever a name is drawn. A re-apply redraws the thumbnails and the stats windows,
             // a crop refresh the crop names; the alert history window follows through App's applied handler.
             Toggle("thumbs.text.streamer", s => s.StreamerMode, ApplyScope.Thumbnails | ApplyScope.Crops),
@@ -287,7 +287,7 @@ public static class ThumbnailsPages
         new SectionDef("thumbs.layout.screens", new PageItem[]
         {
             // Home's editor again (MultiPreview's own 1-based order); it repaints thumbnails.
-            new EditorItem("thumbs.layout.monitor", ctx => new MonitorPickerEditor(ctx, "thumbs.layout.monitor"))
+            new EditorItem("thumbs.layout.monitor")
             {
                 Binds = new[] { "AppSettings.PreferredMonitor" },
                 Replaces = new[] { "CmbPreferredMonitor" },
@@ -329,7 +329,7 @@ public static class ThumbnailsPages
         {
             // IDEAS #10: ThumbnailManager's MonitorLayoutFollower reads it when the monitors change: Save is enough.
             Toggle("thumbs.layout.autoOnMonitorChange", s => s.AutoLayoutOnMonitorChange, ApplyScope.Save),
-            new EditorItem("thumbs.layout.presets", ctx => new LayoutPresetsEditor(ctx))
+            new EditorItem("thumbs.layout.presets")
             {
                 // Apply records the layout this profile is on; the layouts themselves live in their own file.
                 Binds = new[] { "Profile.AppliedLayoutPreset" },
@@ -343,11 +343,11 @@ public static class ThumbnailsPages
         new SectionDef("thumbs.layout.align", new PageItem[]
         {
             // Buttons act on the ticked characters through ThumbnailManager.ApplyAlign (one Undo step); no setting is stored.
-            new EditorItem("thumbs.layout.align", ctx => new LayoutAlignEditor(ctx)),
+            new EditorItem("thumbs.layout.align"),
         }),
         new SectionDef("thumbs.layout.undo", new PageItem[]
         {
-            new EditorItem("thumbs.layout.history", ctx => new LayoutHistoryEditor(ctx))
+            new EditorItem("thumbs.layout.history")
             {
                 Replaces = new[] { "OnUndoLayout", "OnRedoLayout", "OnResetThumbnailPositions" },
             },
@@ -364,7 +364,7 @@ public static class ThumbnailsPages
         }),
         new SectionDef("thumbs.crops.list", new PageItem[]
         {
-            new EditorItem("thumbs.crops.editor", ctx => new CropsEditor(ctx))
+            new EditorItem("thumbs.crops.editor")
             {
                 SearchLabelKey = "L.S.Act.thumbs.crops.add",
                 Binds = new[] { "AppSettings.Crops" },
@@ -408,7 +408,7 @@ public static class ThumbnailsPages
         }),
         new SectionDef("thumbs.visibility.pip", new PageItem[]
         {
-            new EditorItem("thumbs.visibility.pipTable", ctx => new PipEditor(ctx))
+            new EditorItem("thumbs.visibility.pipTable")
             {
                 Binds = new[] { "AppSettings.SecondaryThumbnails" },
                 Replaces = new[] { "LvSecondaryThumbnails", "SliderSecOpacity", "OnSecThumbAdd", "OnSecThumbRemove" },

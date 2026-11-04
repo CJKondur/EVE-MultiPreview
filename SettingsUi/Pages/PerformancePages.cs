@@ -41,7 +41,7 @@ public static class PerformancePages
         }),
         new SectionDef("perf.cpu.pins", new PageItem[]
         {
-            new EditorItem("perf.cpu.coreTable", ctx => new CoreTableEditor(ctx))
+            new EditorItem("perf.cpu.coreTable")
             {
                 ShowIf = s => s.ManageAffinity,
                 Binds = new[] { "AppSettings.PerClientCores" },

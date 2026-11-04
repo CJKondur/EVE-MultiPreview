@@ -46,14 +46,14 @@ public static class HomePage
         }),
         new SectionDef("home.clients", new PageItem[]
         {
-            new EditorItem("home.tiles", ctx => new HomeTilesEditor(ctx))
+            new EditorItem("home.tiles")
             {
                 Binds = new[] { "Profile.Hotkeys", "AppSettings.ThumbnailVisibility" },
             },
         }),
         new SectionDef("home.switching", new PageItem[]
         {
-            new EditorItem("home.groupKeys", ctx => new HomeGroupKeysEditor(ctx))
+            new EditorItem("home.groupKeys")
             {
                 Binds = new[] { "Profile.HotkeyGroups" },
                 ShowIf = s => s.HotkeyGroups.Count > 0,
@@ -83,7 +83,7 @@ public static class HomePage
                 OnChanged = ctx => ctx.Services.Thumbnails?.ApplyOpacityToAll(),   // live while dragging, as the old slider
                 Replaces = new[] { "SliderOpacity" },
             }),
-            new EditorItem("home.monitor", ctx => new MonitorPickerEditor(ctx, "home.monitor"))
+            new EditorItem("home.monitor")
             {
                 Binds = new[] { "AppSettings.PreferredMonitor" },
                 Replaces = new[] { "CmbPreferredMonitor" },
@@ -100,7 +100,7 @@ public static class HomePage
         }),
         new SectionDef("home.quick", new PageItem[]
         {
-            new EditorItem("home.quickActions", ctx => new QuickActionsEditor(ctx)) { Binds = new[] { "AppSettings.LockPositions" } },
+            new EditorItem("home.quickActions") { Binds = new[] { "AppSettings.LockPositions" } },
         }),
         new SectionDef("home.startup", new PageItem[]
         {

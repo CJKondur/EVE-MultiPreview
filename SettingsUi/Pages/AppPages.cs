@@ -98,14 +98,14 @@ public static class AppPages
             new SettingItem(Setting.Toggle("app.general.allowPairingRequests", s => s.AllowPairingRequests)),
             // IDEAS #15, Plan 38: always shown, with its "Make Stream Deck buttons" button. The question that button asks turns the two
             // switches on (through the normal save); while commands are on the card also lists the commands to copy, save or try.
-            new EditorItem(CommandButtonsEditor.ItemId, ctx => new CommandButtonsEditor(ctx)),
+            new EditorItem(CommandButtonsEditor.ItemId),
             // IDEAS #15: App reads it with the first switch (FollowCommandServer); it only matters while MultiPreview is elevated.
             new SettingItem(Setting.Toggle("app.general.acceptCommandsUnelevated", s => s.AcceptCommandsUnelevated) with { ShowIf = s => s.AcceptCommands }),
         }),
         // IDEAS P17: writes no setting; lists this run's changes to the simple cards and undoes one that is still as it was left.
         new SectionDef("app.general.recent", new PageItem[]
         {
-            new EditorItem(RecentChangesEditor.ItemId, ctx => new RecentChangesEditor(ctx)),
+            new EditorItem(RecentChangesEditor.ItemId),
         }),
     });
 
@@ -117,7 +117,7 @@ public static class AppPages
     {
         new SectionDef("app.look.look", new PageItem[]
         {
-            new EditorItem(LookGallery.ItemId, ctx => new LookGallery(ctx)) { Binds = new[] { "AppSettings.UiStyle" } },
+            new EditorItem(LookGallery.ItemId) { Binds = new[] { "AppSettings.UiStyle" } },
         }),
         new SectionDef("app.look.theme", new PageItem[]
         {
@@ -142,7 +142,7 @@ public static class AppPages
     {
         new SectionDef("app.profiles.profiles", new PageItem[]
         {
-            new EditorItem("app.profiles.current", ctx => new ProfileEditor(ctx))
+            new EditorItem("app.profiles.current")
             {
                 Binds = new[] { "AppSettings.LastUsedProfile", "AppSettings.Profiles" },
                 Replaces = new[] { "OnCopyLayout", "CmbProfiles", "OnProfileChanged", "OnCreateProfile", "OnDeleteProfile" },
@@ -152,7 +152,7 @@ public static class AppPages
         new SectionDef("app.profiles.auto", new PageItem[]
         {
             new SettingItem(Setting.Toggle("app.profiles.autoSelect", s => s.AutoSelectProfile)),
-            new EditorItem(AutoProfileEditor.ItemId, ctx => new AutoProfileEditor(ctx))
+            new EditorItem(AutoProfileEditor.ItemId)
             {
                 Binds = new[] { "Profile.AutoSelectCharacters" },
                 ShowIf = s => s.AutoSelectProfile,
@@ -188,7 +188,7 @@ public static class AppPages
         {
             new SettingItem(Setting.Toggle("app.about.checkOnStartup", s => s.CheckForUpdatesOnStartup) with { Replaces = new[] { "ChkCheckUpdatesOnStartup" } }),
             new SettingItem(Setting.Toggle("app.about.preRelease", s => s.ReceivePreReleaseUpdates) with { Replaces = new[] { "ChkPreReleaseUpdates" } }),
-            new EditorItem("app.about.installVersion", ctx => new VersionPickerEditor(ctx)) { Replaces = new[] { "CmbOtherVersion", "BtnInstallVersion" } },
+            new EditorItem("app.about.installVersion") { Replaces = new[] { "CmbOtherVersion", "BtnInstallVersion" } },
         }),
         new SectionDef("app.about.window", new PageItem[]
         {
@@ -200,7 +200,7 @@ public static class AppPages
         // UI styles spec §11.1: the typefaces the looks carry, and their licences.
         new SectionDef("app.about.fonts", new PageItem[]
         {
-            new EditorItem(FontLicencesEditor.ItemId, _ => new FontLicencesEditor()),
+            new EditorItem(FontLicencesEditor.ItemId),
         }),
         // IDEAS P16: removes MultiPreview's own Windows entries and, if asked, its settings folder, then closes it. The
         // button asks for itself (two answers and Cancel), so it is not flagged Confirm.

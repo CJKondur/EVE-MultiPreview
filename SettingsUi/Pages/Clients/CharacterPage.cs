@@ -66,7 +66,7 @@ public static class CharacterPage
             s => CharacterStores.HotkeyOf(s, name),
             (s, v) => CharacterStores.SetHotkey(s, name, v as string ?? ""),
             binds: new[] { "Profile.Hotkeys" }) with { UseId = HotkeyUses.CharacterId(name) }),
-        new EditorItem("character.cycle", ctx => new CharacterCycleEditor(ctx, name)),
+        new EditorItem("character.cycle") { Arg = name },
         new InfoItem("character.groups", InfoSeverity.Info)
         {
             Args = ctx => new object[] { string.Join(", ", CharacterStores.GroupsOf(ctx.S, name)) },
@@ -113,8 +113,9 @@ public static class CharacterPage
             Min = 0, Max = 72, UnitKey = "L.S.Unit.Pt", Validate = v => Setting.RangeError(v, 0, 72),
             OnChanged = ctx => CharacterFields.PushLabel(ctx, name),
         }),
-        new EditorItem("character.size", ctx => new CharacterSizeEditor(ctx, name))
+        new EditorItem("character.size")
         {
+            Arg = name,
             Binds = new[] { "Profile.ThumbnailPositions" },
             Replaces = new[]
             {
@@ -211,8 +212,9 @@ public static class CharacterPage
         StatsCard("character.statsMining", name, StatMetrics.MineMask),
         StatsCard("character.statsRatting", name, StatMetrics.RatMask),
         // The full per-number picker (the old CharacterStatEditorWindow), under the group switches (Plan 3c).
-        new EditorItem("character.statsPicker", ctx => new StatPickerEditor(ctx, name))
+        new EditorItem("character.statsPicker")
         {
+            Arg = name,
             Binds = new[] { "AppSettings.PerCharacterStats" },
             Replaces = new[] { "OnStatCharEditClick" },
         },

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using EveMultiPreview.Models;
-using FrameworkElement = System.Windows.FrameworkElement;
 
 namespace EveMultiPreview.SettingsUi;
 
@@ -69,9 +68,12 @@ public sealed record InfoItem(string Id, InfoSeverity Severity) : PageItem(Id)
     public string TextKey => "L.S." + Id;
 }
 
-/// <summary>A hand-built editor for what generic cards can't express (spec §8.2).</summary>
-public sealed record EditorItem(string Id, Func<SettingsContext, FrameworkElement> Create) : PageItem(Id)
+/// <summary>A hand-built editor for what generic cards can't express (spec §8.2). It names its editor by id;
+/// the Windows-only <c>EditorFactories</c> builds the control, so a page definition stays plain data.</summary>
+public sealed record EditorItem(string Id) : PageItem(Id)
 {
+    /// <summary>What the editor needs besides the context: the character name on a character page, null elsewhere.</summary>
+    public object? Arg { get; init; }
     public IReadOnlyList<string> Binds { get; init; } = Array.Empty<string>();
     public IReadOnlyList<string> Replaces { get; init; } = Array.Empty<string>();
     /// <summary>The editor shows only while this returns true (spec §6 conditional rows).</summary>

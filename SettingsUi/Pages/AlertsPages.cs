@@ -122,7 +122,7 @@ public static class AlertsPages
         }),
         new SectionDef("alerts.events.list", new PageItem[]
         {
-            new EditorItem(EventTableId, ctx => new EventTableEditor(ctx))
+            new EditorItem(EventTableId)
             {
                 Binds = new[]
                 {
@@ -169,13 +169,13 @@ public static class AlertsPages
         // log monitor on Applied.
         new SectionDef("alerts.events.groups", new PageItem[]
         {
-            new EditorItem(GroupAlertsEditor.ItemId, ctx => new GroupAlertsEditor(ctx)) { Binds = new[] { "AppSettings.GroupAlertProfiles" } },
+            new EditorItem(GroupAlertsEditor.ItemId) { Binds = new[] { "AppSettings.GroupAlertProfiles" } },
         }),
         // IDEAS #30: what is snoozed for one character right now, with a way to end it, and whether the timed snoozes
         // outlive a restart. App follows the switch on Applied (the snooze file is written or removed).
         new SectionDef("alerts.events.snoozes", new PageItem[]
         {
-            new EditorItem(SnoozesEditor.ItemId, ctx => new SnoozesEditor(ctx)),
+            new EditorItem(SnoozesEditor.ItemId),
             new SettingItem(Setting.Toggle("alerts.events.keepSnoozes", s => s.KeepAlertSnoozes)),
         }),
     });
@@ -230,7 +230,7 @@ public static class AlertsPages
         }),
         new SectionDef("alerts.look.severity", new PageItem[]
         {
-            new EditorItem("alerts.look.severityTable", ctx => new SeverityTableEditor(ctx))
+            new EditorItem("alerts.look.severityTable")
             {
                 Binds = new[] { "AppSettings.SeverityColors", "AppSettings.SeverityFlashRates", "AppSettings.SeverityTrayNotify" },
             },
@@ -246,7 +246,7 @@ public static class AlertsPages
         }),
         new SectionDef("alerts.look.accessibility", new PageItem[]
         {
-            new EditorItem("alerts.look.colorBlind", ctx => new ColorBlindEditor(ctx))
+            new EditorItem("alerts.look.colorBlind")
             {
                 Binds = ColorBlindSwitch.Binds,
                 Replaces = new[] { "BtnColorBlind" },
@@ -342,7 +342,7 @@ public static class AlertsPages
             new SettingItem(Setting.Hotkey("alerts.sounds.dndHotkey", s => s.DoNotDisturbHotkey)),
             // A line that says so while do-not-disturb is on right now (App's answer, AppServices.DoNotDisturbOn), and
             // nothing while it is off. Not the section's first item: a search for the section lands on the card above.
-            new EditorItem(DoNotDisturbStateEditor.ItemId, ctx => new DoNotDisturbStateEditor(ctx)),
+            new EditorItem(DoNotDisturbStateEditor.ItemId),
             new SettingItem(Setting.Toggle("alerts.sounds.dndCritical", s => s.DoNotDisturbCriticalPlays)),
             new SettingItem(Setting.Toggle("alerts.sounds.quietHours", s => s.QuietHoursEnabled)),
             TimeOfDay("alerts.sounds.quietFrom", s => s.QuietHoursFrom),
@@ -381,7 +381,7 @@ public static class AlertsPages
                 Min = 0, Max = 100, Step = 1, UnitKey = "L.S.Unit.Percent",
                 ShowIf = s => s.SpeakAlerts,
             }),
-            new EditorItem(SpeechVoicesEditor.ItemId, ctx => new SpeechVoicesEditor(ctx))
+            new EditorItem(SpeechVoicesEditor.ItemId)
             {
                 Binds = new[] { "AppSettings.SpeechVoices" },
                 ShowIf = s => s.SpeakAlerts,
@@ -389,7 +389,7 @@ public static class AlertsPages
         }),
         new SectionDef("alerts.sounds.list", new PageItem[]
         {
-            new EditorItem("alerts.sounds.table", ctx => new SoundTableEditor(ctx))
+            new EditorItem("alerts.sounds.table")
             {
                 Binds = new[] { "AppSettings.AlertSoundFile", "AppSettings.AlertSounds", "AppSettings.SoundCooldowns" },
             },
@@ -398,7 +398,7 @@ public static class AlertsPages
         // at every alert, so a change only saves.
         new SectionDef("alerts.sounds.groups", new PageItem[]
         {
-            new EditorItem(GroupSoundsEditor.ItemId, ctx => new GroupSoundsEditor(ctx)) { Binds = new[] { "AppSettings.GroupAlertSounds" } },
+            new EditorItem(GroupSoundsEditor.ItemId) { Binds = new[] { "AppSettings.GroupAlertSounds" } },
         }),
     });
 
@@ -460,7 +460,7 @@ public static class AlertsPages
                 "AppSettings.WindowsNotificationsFrom", s => s.WindowsNotifications),
             // The player's way to see that notifications arrive: a button that shows one as a test, and a line that
             // says so when Windows itself is not showing MultiPreview's. It binds no setting: nothing here is saved.
-            new EditorItem(NotificationCheckEditor.ItemId, ctx => new NotificationCheckEditor(ctx)) { ShowIf = s => s.WindowsNotifications },
+            new EditorItem(NotificationCheckEditor.ItemId) { ShowIf = s => s.WindowsNotifications },
         }),
         // IDEAS #2. PushWay reads all four for every alert that got past the gates, so a change only saves; App hands
         // the way every settings change (PushWay.Follow), which starts the sending again after a new link was saved.
@@ -478,7 +478,7 @@ public static class AlertsPages
             }),
             new SettingItem(Setting.Toggle("alerts.hub.pushAway", s => s.PushOnlyWhenAway) with { ShowIf = s => s.PushAlerts }),
             // The link is a secret: the card keeps it DPAPI-encrypted, empties its box and shows it masked.
-            new EditorItem(PushWebhookEditor.ItemId, ctx => new PushWebhookEditor(ctx))
+            new EditorItem(PushWebhookEditor.ItemId)
             {
                 Binds = new[] { "AppSettings.PushDiscordWebhook" },
                 ShowIf = s => s.PushAlerts,
@@ -509,7 +509,7 @@ public static class AlertsPages
     {
         new SectionDef("alerts.custom.rules", new PageItem[]
         {
-            new EditorItem(CustomRulesEditor.ItemId, ctx => new CustomRulesEditor(ctx)),
+            new EditorItem(CustomRulesEditor.ItemId),
             new InfoItem("alerts.custom.file", InfoSeverity.Info) { Args = ctx => new object[] { ctx.CustomAlerts.FilePath } },
         }),
     });

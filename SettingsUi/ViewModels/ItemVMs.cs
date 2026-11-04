@@ -242,6 +242,6 @@ public sealed class EditorVM : ItemVM
     public EditorVM(EditorItem def, SettingsContext ctx) : base(def.Id, ctx) => Def = def;
     public EditorItem Def { get; }
     public override bool IsVisible => Def.ShowIf?.Invoke(Ctx.S) ?? true;
-    public FrameworkElement Element => _element ??= Def.Create(Ctx);
+    public FrameworkElement Element => _element ??= EditorFactories.Create(Def, Ctx);
     public override void Refresh() { (_element as IRefreshable)?.Refresh(); RaiseAll(); }
 }

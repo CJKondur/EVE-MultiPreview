@@ -63,7 +63,7 @@ public static class ClientsPages
     {
         new SectionDef("clients.characters.list", new PageItem[]
         {
-            new EditorItem("clients.characters.table", ctx => new CharactersEditor(ctx))
+            new EditorItem("clients.characters.table")
             {
                 Binds = new[] { "Profile.Hotkeys", "AppSettings.ThumbnailVisibility" },
                 // The hotkey cell captures and clears (OnHotkeyEdit/OnHotkeyDelete). Running characters are
@@ -185,9 +185,9 @@ public static class ClientsPages
         }),
         new SectionDef("clients.hotkeys.check", new PageItem[]
         {
-            new EditorItem("clients.hotkeys.conflicts", ctx => new HotkeyConflictsEditor(ctx)) { Replaces = new[] { "OnRefreshHotkeyAudit" } },
+            new EditorItem("clients.hotkeys.conflicts") { Replaces = new[] { "OnRefreshHotkeyAudit" } },
             // IDEAS #42: the hotkeys Windows refused at the last registration (HotkeyService.Refused). App state, not a setting.
-            new EditorItem(RefusedHotkeysEditor.ItemId, ctx => new RefusedHotkeysEditor(ctx)),
+            new EditorItem(RefusedHotkeysEditor.ItemId),
         }),
     });
 
@@ -204,7 +204,7 @@ public static class ClientsPages
         }),
         new SectionDef("clients.groups.list", new PageItem[]
         {
-            new EditorItem("clients.groups.editor", ctx => new GroupsEditor(ctx))
+            new EditorItem("clients.groups.editor")
             {
                 SearchLabelKey = "L.S.clients.groups.new",
                 Binds = new[] { "AppSettings.ThumbnailGroups", "AppSettings.HotkeyGroups" },
@@ -221,7 +221,7 @@ public static class ClientsPages
         new SectionDef("clients.groups.focus", new PageItem[]
         {
             Hotkey("clients.groups.focusKey", s => s.FocusModeHotkey),
-            new EditorItem(FocusGroupEditor.ItemId, ctx => new FocusGroupEditor(ctx)) { Binds = new[] { "AppSettings.FocusModeGroup" } },
+            new EditorItem(FocusGroupEditor.ItemId) { Binds = new[] { "AppSettings.FocusModeGroup" } },
             Toggle("clients.groups.focusAlerts", s => s.FocusModeShowAlerts),
         }),
     });
@@ -237,7 +237,7 @@ public static class ClientsPages
                 ShowIf = s => s.MinimizeInactiveClients,
                 Replaces = new[] { "TxtMinimizeDelay" },
             }),
-            new EditorItem("clients.windows.neverMinimize", ctx => new NeverMinimizeEditor(ctx))
+            new EditorItem("clients.windows.neverMinimize")
             {
                 ShowIf = s => s.MinimizeInactiveClients,
                 Binds = new[] { "Profile.DontMinimizeClients" },
@@ -274,7 +274,7 @@ public static class ClientsPages
         }),
         new SectionDef("clients.windows.slots", new PageItem[]
         {
-            new EditorItem("clients.windows.slotEditor", ctx => new SlotsEditor(ctx))
+            new EditorItem("clients.windows.slotEditor")
             {
                 ShowIf = s => s.ClientPositionMode == 3,
                 Binds = new[] { "AppSettings.ClientSlots", "AppSettings.DefaultClientSlotId", "AppSettings.ClientSlotExcluded" },
@@ -318,7 +318,7 @@ public static class ClientsPages
         }),
         new SectionDef("clients.audio.volumes", new PageItem[]
         {
-            new EditorItem("clients.audio.volume", ctx => new VolumeEditor(ctx))
+            new EditorItem("clients.audio.volume")
             {
                 Binds = new[] { "AppSettings.PerClientAudioVolume" },
                 Replaces = new[] { "OnRefreshClientVolumes" },
