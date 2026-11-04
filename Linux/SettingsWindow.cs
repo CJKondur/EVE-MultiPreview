@@ -19,7 +19,7 @@ public sealed class SettingsWindow : Window
     public SettingsWindow(ISettingsHost host, int page = 0)
     {
         RequestedThemeVariant = ThemeVariant.Dark;
-        Width = 900;
+        Width = 1000;
         Height = 680;
         MinWidth = 640;
         MinHeight = 420;

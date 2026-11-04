@@ -11,6 +11,7 @@ public interface ITrayActions
     bool HotkeysPaused { get; set; }
     bool PositionsLocked { get; set; }
     bool ThumbnailsHidden { get; set; }
+    bool SecondThumbnailsHidden { get; set; }
     bool DoNotDisturb { get; set; }
     bool StreamerMode { get; set; }
     IReadOnlyList<string> Profiles { get; }
@@ -49,6 +50,7 @@ public sealed class Tray
         menu.Add(Check(T("L.Tray.Suspend", "Pause hotkeys"), _app.HotkeysPaused, on => _app.HotkeysPaused = on));
         menu.Add(Check(T("L.Tray.Lock", "Lock positions"), _app.PositionsLocked, on => _app.PositionsLocked = on));
         menu.Add(Check(T("L.Tray.Toggle", "Hide thumbnails"), _app.ThumbnailsHidden, on => _app.ThumbnailsHidden = on));
+        menu.Add(Check(T("L.Tray.HideSecondary", "Hide second thumbnails"), _app.SecondThumbnailsHidden, on => _app.SecondThumbnailsHidden = on));
         menu.Add(Check(T("L.Tray.Dnd", "Do not disturb"), _app.DoNotDisturb, on => _app.DoNotDisturb = on));
         menu.Add(Check(T("L.Tray.StreamerMode", "Streamer mode"), _app.StreamerMode, on => _app.StreamerMode = on));
 

@@ -327,7 +327,7 @@ internal sealed class SettingsPages
     {
         _clashLines.Clear();
         var page = Page(T("L.S.Page.clients.characters", "Characters"));
-        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,220,210,Auto"), Margin = new Thickness(0, 6) };
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,170,210,Auto,Auto"), Margin = new Thickness(0, 6) };
         var host = new StackPanel { Spacing = 0 };
         page.Children.Add(Ui.Card(host));
         host.Children.Add(grid);
@@ -344,8 +344,8 @@ internal sealed class SettingsPages
         void Header()
         {
             grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
-            foreach (var (text, column) in new[] { (T("L.Common.Character", "Character"), 0), (T("L.Common.Label", "Label"), 1), (T("L.Common.Hotkey", "Hotkey"), 2), (T("L.Linux.Hidden", "Hidden"), 3) })
-                Cell(new TextBlock { Text = text, FontWeight = FontWeight.SemiBold, Opacity = 0.8 }, column);
+            foreach (var (text, column) in new[] { (T("L.Common.Character", "Character"), 0), (T("L.Common.Label", "Label"), 1), (T("L.Common.Hotkey", "Hotkey"), 2), (T("L.Linux.Hidden", "Hidden"), 3), (T("L.S.character.pip", "Second thumbnail (PiP)"), 4) })
+                Cell(new TextBlock { Text = text, FontWeight = FontWeight.SemiBold, Opacity = 0.8, TextWrapping = TextWrapping.Wrap, MaxWidth = 150 }, column);
             row++;
         }
         void Add(string name)
@@ -353,7 +353,7 @@ internal sealed class SettingsPages
             grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
             var running = _host.RunningCharacters().Contains(name, StringComparer.OrdinalIgnoreCase);
             Cell(new TextBlock { Text = name, Opacity = running ? 1 : 0.6 }, 0);
-            var label = Ui.Text(CharacterFields.Label(S, name), v => { CharacterFields.SetLabel(S, name, v); Save(); }, 200);
+            var label = Ui.Text(CharacterFields.Label(S, name), v => { CharacterFields.SetLabel(S, name, v); Save(); }, 155);
             label.Margin = new Thickness(0);
             Cell(label, 1);
             var profile = CharacterDirectory.Current(S);
@@ -368,6 +368,16 @@ internal sealed class SettingsPages
                 else S.ThumbnailVisibility.Remove(name);
                 Save();
             }), 3);
+            // The second thumbnail (CharacterFields.SetPip: off keeps its place and size) and its opacity in percent (8–100).
+            // The app makes or closes it within 2 s (SyncPips) and reads the opacity at every tick.
+            var pipOpacity = Ui.Number(8, 100, CharacterFields.PipOpacity(S, name), v => { CharacterFields.SetPipOpacity(S, name, v); Save(); });
+            pipOpacity.Width = 95;
+            pipOpacity.IsEnabled = CharacterFields.PipOn(S, name);
+            ToolTip.SetTip(pipOpacity, T("L.S.character.pipOpacity", "Second thumbnail opacity"));
+            var pip = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6 };
+            pip.Children.Add(Ui.Check("", CharacterFields.PipOn(S, name), on => { CharacterFields.SetPip(S, name, on); pipOpacity.IsEnabled = on; Save(); }));
+            pip.Children.Add(WithUnit(pipOpacity, T("L.S.Unit.Percent", "%")));
+            Cell(pip, 4);
             row++;
         }
 
@@ -511,6 +521,7 @@ internal sealed class SettingsPages
             T("L.S.clients.hotkeys.lastAlert.Desc", "Switches to the client with the most severe alert you have not looked at yet. Press it again for the next one.")));
         page.Children.Add(Ui.Section(T("L.S.Sec.clients.hotkeys.app", "MultiPreview hotkeys")));
         page.Children.Add(Key(T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), S.HideShowThumbnailsHotkey, v => S.HideShowThumbnailsHotkey = v));
+        page.Children.Add(Key(T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), S.HideSecondaryHotkey, v => S.HideSecondaryHotkey = v));
         page.Children.Add(Key(T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), S.LockPositionsHotkey, v => S.LockPositionsHotkey = v));
         page.Children.Add(Key(T("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), S.DoNotDisturbHotkey, v => S.DoNotDisturbHotkey = v,
             T("L.S.alerts.sounds.dndHotkey.Desc", "Mutes alert sounds, spoken alerts and the wrap-around sound, and holds alerts sent to Discord, until you press it again. Borders, badges and toasts go on.")));
@@ -557,6 +568,7 @@ internal sealed class SettingsPages
         all.Add(("global:" + T("L.S.clients.hotkeys.cyclePrevious", "Previous client"), T("L.S.clients.hotkeys.cyclePrevious", "Previous client"), S.GlobalCycleBackwardHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), T("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), S.PreviousClientHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), S.HideShowThumbnailsHotkey));
+        all.Add(("global:" + T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), S.HideSecondaryHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), S.LockPositionsHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), T("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), S.GoToLastAlertHotkey));
         all.Add(("global:" + T("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), T("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), S.DoNotDisturbHotkey));

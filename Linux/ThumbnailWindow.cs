@@ -48,9 +48,13 @@ public sealed class ThumbnailWindow : Window
     /// <summary>How far the mouse moves, in pixels on either axis, before a right drag moves the thumbnail (the Windows app's 3).</summary>
     public const int DragThreshold = 3;
 
-    public ThumbnailWindow(EveClient client, PixelRect rect)
+    /// <summary>A character's second thumbnail (PiP): its own place, size and opacity, no border, no alert enlargement.</summary>
+    public bool IsSecond { get; }
+
+    public ThumbnailWindow(EveClient client, PixelRect rect, bool second = false)
     {
         Client = client;
+        IsSecond = second;
         Title = TitleOf(client);
         Width = rect.Width;
         Height = rect.Height;
@@ -199,7 +203,8 @@ public sealed class ThumbnailWindow : Window
     public Func<(int X, int Y, ushort Mask)?>? PointerSource { get; set; }
 
     /// <summary>The window title (a window list, a capture program's source list can show it): the character as streamer mode shows it.</summary>
-    private static string TitleOf(EveClient client) => $"MultiPreview - {StreamerMask.Name(StreamerKind.Character, client.Character)}";
+    private string TitleOf(EveClient client) =>
+        $"MultiPreview - {StreamerMask.Name(StreamerKind.Character, client.Character)}" + (IsSecond ? " (2)" : "");
 
     private enum Gesture { None, Move, Resize }
 

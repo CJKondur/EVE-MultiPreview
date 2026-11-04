@@ -128,12 +128,14 @@ public sealed unsafe class EveClients : IDisposable
         public uint Format, SrcPicture;
         public int SrcWidth, SrcHeight, DstWidth, DstHeight;
         public byte Depth;
+        public long LastUsed;
         /// <summary>Halving steps, then the thumbnail's size last. Bilinear at exactly half averages 2×2 pixels,
         /// so text and fine detail shrink smoothly instead of sparkling.</summary>
         public readonly List<Stage> Stages = new();
     }
 
-    private readonly Dictionary<uint, Scaler> _scalers = new();
+    /// <summary>By client window and thumbnail size: a client can have two thumbnails (a second one, PiP) of different sizes.</summary>
+    private readonly Dictionary<(uint Window, int Width, int Height), Scaler> _scalers = new();
     /// <summary>Visual → XRender picture format; null without XRender or when EVEMP_NO_RENDER=1.</summary>
     private readonly Dictionary<uint, uint>? _renderFormats;
 
@@ -142,12 +144,19 @@ public sealed unsafe class EveClients : IDisposable
     private uint? ScaledOnServer(uint window, int srcWidth, int srcHeight, byte depth, int dstWidth, int dstHeight)
     {
         if (_renderFormats == null) return null;
-        if (!_scalers.TryGetValue(window, out var sc))
+        var key = (window, dstWidth, dstHeight);
+        if (!_scalers.TryGetValue(key, out var sc))
         {
             if (!_renderFormats.TryGetValue(Xcb.Visual(_c, window), out uint format)) return null;
+            // A thumbnail of this client that changed size leaves a scaler nobody asks for any more. Every thumbnail is drawn
+            // at each 100 ms tick, so one of this window unused for 250 ms is such a one (a resize drag makes one per step).
+            long stale = Environment.TickCount64 - 250;
+            foreach (var old in _scalers.Where(kv => kv.Key.Window == window && kv.Value.LastUsed < stale).Select(kv => kv.Key).ToList())
+                Free(_scalers[old], old);
             sc = new Scaler { Format = format, SrcPicture = XRender.CreatePicture(_c, window, format) };
-            _scalers[window] = sc;
+            _scalers[key] = sc;
         }
+        sc.LastUsed = Environment.TickCount64;
         if (sc.DstWidth != dstWidth || sc.DstHeight != dstHeight || sc.Depth != depth
             || sc.SrcWidth != srcWidth || sc.SrcHeight != srcHeight)
         {
@@ -195,11 +204,14 @@ public sealed unsafe class EveClients : IDisposable
     public void Forget(uint window)
     {
         _redirected.Remove(window);
-        if (_scalers.Remove(window, out var sc))
-        {
-            FreeStages(sc);
-            XRender.FreePicture(_c, sc.SrcPicture);   // the window may be gone; the server then just reports an error
-        }
+        foreach (var key in _scalers.Keys.Where(k => k.Window == window).ToList()) Free(_scalers[key], key);
+    }
+
+    private void Free(Scaler sc, (uint, int, int) key)
+    {
+        _scalers.Remove(key);
+        FreeStages(sc);
+        XRender.FreePicture(_c, sc.SrcPicture);   // the window may be gone; the server then just reports an error
     }
 
     public void Dispose() => Xcb.xcb_disconnect(_c);

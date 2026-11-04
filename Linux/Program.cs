@@ -115,6 +115,13 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     public bool ThumbnailsHidden { get => _allHidden; set => _allHidden = value; }
 
+    /// <summary>"Hide second thumbnails" (the tray's item and HideSecondaryHotkey): runtime only, as on Windows.</summary>
+    public bool SecondThumbnailsHidden { get => _pipsHidden; set => _pipsHidden = value; }
+
+    private bool _pipsHidden;
+    /// <summary>The second thumbnails (PiP), by character: one for each running client whose character has one switched on.</summary>
+    private readonly Dictionary<string, ThumbnailWindow> _pips = new(StringComparer.OrdinalIgnoreCase);
+
     public bool DoNotDisturb
     {
         get => _alerts?.DoNotDisturbOn ?? false;
@@ -147,8 +154,9 @@ public sealed class Previews : ITrayActions, ISettingsHost
     /// <summary>Closes every thumbnail and makes them again, each where the current profile keeps it.</summary>
     private void ResetThumbnails()
     {
-        foreach (var thumb in _thumbs.Values) thumb.Close();
+        foreach (var thumb in _thumbs.Values.Concat(_pips.Values)) thumb.Close();
         _thumbs.Clear();
+        _pips.Clear();
         Sync();
     }
 
@@ -242,7 +250,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     {
         _alerts?.Dispose();
         _settings.Dispose();
-        foreach (var thumb in _thumbs.Values) thumb.Close();
+        foreach (var thumb in _thumbs.Values.Concat(_pips.Values)) thumb.Close();
         (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.Shutdown();
     }
 
@@ -263,6 +271,12 @@ public sealed class Previews : ITrayActions, ISettingsHost
         keys.Add((S.GlobalCycleBackwardHotkey, () => Cycle(null, false)));
         keys.Add((S.PreviousClientHotkey, () => { if (_previousActive != 0) _clients.Activate(_previousActive); }));
         keys.Add((S.HideShowThumbnailsHotkey, () => _allHidden = !_allHidden));
+        keys.Add((S.HideSecondaryHotkey, () =>
+        {
+            _pipsHidden = !_pipsHidden;
+            Alerts.Say(_pipsHidden ? LocalizationService.Str("L.Msg.PipHidden", "PiP: Hidden") : LocalizationService.Str("L.Msg.PipVisible", "PiP: Visible"));
+            TrayMenu?.Rebuild();
+        }));
         keys.Add((S.LockPositionsHotkey, () => { S.LockPositions = !S.LockPositions; _settings.SaveDelayed(); }));
         keys.Add((S.GoToLastAlertHotkey, GoToLastAlert));
         keys.Add((S.DoNotDisturbHotkey, ToggleDoNotDisturb));
@@ -386,6 +400,20 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
             thumb.Update(_clients);
         }
+        // Second thumbnails: shown while the client runs, also while it is in front, unless all thumbnails or the second ones are hidden.
+        foreach (var (character, pip) in _pips)
+        {
+            bool shown = !_allHidden && !_pipsHidden;
+            if (shown != pip.IsVisible) { if (shown) pip.Show(); else pip.Hide(); }
+            if (!shown) continue;
+            pip.CanDrag = !S.LockPositions;
+            pip.ResizeFloor = ThumbnailWindow.FloorOf(S);
+            pip.LockResizeAspect = S.LockResizeAspect;
+            pip.Apply(SecondLook(character, pip.Hovered));
+            pip.MenuOpen = _menu != null;
+            pip.Follow();
+            pip.Update(_clients);
+        }
         _drawMs += watch.Elapsed.TotalMilliseconds;
         if (_ticks % 100 == 0)
         {
@@ -440,6 +468,55 @@ public sealed class Previews : ITrayActions, ISettingsHost
             S.ThumbnailTextFont, opacity, S.ShowThumbnailsAlwaysOnTop);
     }
 
+    /// <summary>A second thumbnail's look (ThumbnailManager.CreateSecondaryThumbnail): no border, the character's name, its own
+    /// opacity (PipOpacityFor: its entry's, else the thumbnails'), solid under the mouse when that is on.</summary>
+    private ThumbnailLook SecondLook(string character, bool hovered)
+    {
+        int alpha = Math.Clamp(S.SecondaryThumbnails.TryGetValue(character, out var ss) ? ss.Opacity : S.ThumbnailOpacity, 0, 255);
+        double opacity = hovered && S.OpacityOnHover ? 1.0 : alpha / 255.0;
+        var style = S.ThumbnailLabelStyles.GetValueOrDefault(character);
+        var textColour = style is { Color.Length: > 0 } ? style.Color : S.ThumbnailTextColor;
+        double size = style is { Size: > 0 } ? style.Size : double.TryParse(S.ThumbnailTextSize, out var fs) ? fs : 12;
+        return new ThumbnailLook(Brushes.Transparent, 0, StreamerMask.Name(StreamerKind.Character, character), true, Brush(textColour), size,
+            S.ThumbnailTextFont, opacity, S.ShowThumbnailsAlwaysOnTop);
+    }
+
+    /// <summary>ThumbnailManager's PiP sync: a second thumbnail for each running client whose character has one switched on
+    /// (CharacterFields.PipOn); one whose client is gone or that was switched off is closed.</summary>
+    private void SyncPips()
+    {
+        // Gone: no client, switched off, or the client restarted (a new window; the next lines make it again for that one).
+        foreach (var gone in _pips.Where(kv => WindowOf(kv.Key) != kv.Value.Client.Window || !SettingsUi.CharacterFields.PipOn(S, kv.Key))
+                     .Select(kv => kv.Key).ToList())
+        {
+            _pips[gone].Close();
+            _pips.Remove(gone);
+        }
+        foreach (var thumb in _thumbs.Values)
+        {
+            var character = thumb.Client.Character;
+            if (_pips.ContainsKey(character) || !SettingsUi.CharacterFields.PipOn(S, character)) continue;
+            var ss = S.SecondaryThumbnails[character];
+            var pip = new ThumbnailWindow(thumb.Client, new PixelRect(ss.X, ss.Y, ss.Width > 0 ? ss.Width : 160, ss.Height > 0 ? ss.Height : 120), second: true);
+            pip.Clicked += c => _clients.Activate(c.Window);
+            void Save(ThumbnailWindow t)
+            {
+                if (!S.SecondaryThumbnails.TryGetValue(character, out var entry)) return;
+                (entry.X, entry.Y, entry.Width, entry.Height) = (t.OwnPosition.X, t.OwnPosition.Y, t.OwnWidth, t.OwnHeight);
+                _settings.SaveDelayed();
+            }
+            pip.Moved += Save;
+            pip.ResizeEnded += Save;
+            pip.MenuRequested += ShowMenu;
+            pip.PointerSource = _clients.Pointer;
+            pip.RaiseWhileEnlarged = t =>
+            {
+                if (S.ShowThumbnailsAlwaysOnTop && t.TryGetPlatformHandle() is { } handle) _clients.Raise((uint)(long)handle.Handle);
+            };
+            _pips[character] = pip;
+        }
+    }
+
     private IReadOnlyCollection<string> RunningCharacters() => _thumbs.Values.Select(t => t.Client.Character).ToList();
 
     /// <summary>A brush for a settings colour ("#RRGGBB", "0xRRGGBB", "RRGGBB", "rgb(r,g,b)"), parsed as the Windows
@@ -492,6 +569,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             ApplyVolume(client);
             Console.WriteLine($"Client found: {client.Character} (window {client.Window})");
         }
+        SyncPips();
     }
 
     // ── The thumbnail's menu ──
