@@ -22,6 +22,7 @@
     <sys:String x:Key="L.Linux.ImportFailed">Не импортировано: не удалось скопировать файл.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Импортировано. Прежние настройки находятся в</sys:String>
     <sys:String x:Key="L.Linux.StartNote">Размер, который получает миниатюра, когда её клиент замечен впервые.</sys:String>
+    <sys:String x:Key="L.Linux.ResizeNote">Чтобы изменить размер миниатюры, удерживайте на ней правую кнопку мыши, нажмите также левую и двигайте мышь. Размер меняется у всех миниатюр; удерживайте Ctrl, чтобы изменить только эту.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Скрыто</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">Персонажей пока нет. Они появятся здесь, как только запустится клиент EVE.</sys:String>
     <sys:String x:Key="L.Linux.GroupNameUsed">Введите имя, которое ещё не используется ни одной группой.</sys:String>

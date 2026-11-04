@@ -21,6 +21,7 @@
     <sys:String x:Key="L.Linux.ImportFailed">Not imported: the file could not be copied.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Imported. The old settings are in</sys:String>
     <sys:String x:Key="L.Linux.StartNote">The size a thumbnail gets the first time its client is seen.</sys:String>
+    <sys:String x:Key="L.Linux.ResizeNote">To resize a thumbnail, hold the right mouse button on it, press the left button too and move the mouse. Every thumbnail follows; hold Ctrl to resize only that one.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Hidden</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">No characters yet. They appear here once an EVE client is running.</sys:String>
     <sys:String x:Key="L.Linux.GroupNameUsed">Type a name no group uses yet.</sys:String>

@@ -22,6 +22,7 @@
     <sys:String x:Key="L.Linux.ImportFailed">Non importé : le fichier n'a pas pu être copié.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Importé. Les anciens paramètres se trouvent dans</sys:String>
     <sys:String x:Key="L.Linux.StartNote">La taille qu'une miniature reçoit la première fois que son client est détecté.</sys:String>
+    <sys:String x:Key="L.Linux.ResizeNote">Pour redimensionner une miniature, maintenez le bouton droit de la souris dessus, appuyez aussi sur le bouton gauche et déplacez la souris. Toutes les miniatures suivent ; maintenez Ctrl pour redimensionner uniquement celle-ci.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Masqué</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">Aucun personnage pour l'instant. Ils apparaissent ici dès qu'un client EVE est lancé.</sys:String>
     <sys:String x:Key="L.Linux.GroupNameUsed">Saisissez un nom qu'aucun groupe n'utilise encore.</sys:String>

@@ -22,6 +22,7 @@
     <sys:String x:Key="L.Linux.ImportFailed">가져오지 않았어요: 파일을 복사할 수 없었어요.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">가져왔어요. 이전 설정은 다음 위치에 있어요:</sys:String>
     <sys:String x:Key="L.Linux.StartNote">클라이언트가 처음 발견될 때 미리보기가 갖는 크기예요.</sys:String>
+    <sys:String x:Key="L.Linux.ResizeNote">미리보기 크기를 바꾸려면 그 위에서 마우스 오른쪽 버튼을 누른 채 왼쪽 버튼도 누르고 마우스를 움직이세요. 모든 미리보기가 따라와요. Ctrl을 누르고 있으면 그 미리보기만 바뀌어요.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">숨김</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">아직 캐릭터가 없어요. EVE 클라이언트가 실행되면 여기에 나타나요.</sys:String>
     <sys:String x:Key="L.Linux.GroupNameUsed">아직 어떤 그룹도 쓰지 않는 이름을 입력하세요.</sys:String>

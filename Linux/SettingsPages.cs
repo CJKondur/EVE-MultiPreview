@@ -231,6 +231,7 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Row(T("L.S.thumbs.layout.startWidth", "Starting width"), Ui.Number(40, 4000, start.Width, v => { S.ThumbnailStartLocation.Width = v; Save(); })));
         page.Children.Add(Ui.Row(T("L.S.thumbs.layout.startHeight", "Starting height"), Ui.Number(30, 4000, start.Height, v => { S.ThumbnailStartLocation.Height = v; Save(); })));
         page.Children.Add(Ui.Note(T("L.Linux.StartNote", "The size a thumbnail gets the first time its client is seen.")));
+        page.Children.Add(Ui.Note(T("L.Linux.ResizeNote", "To resize a thumbnail, hold the right mouse button on it, press the left button too and move the mouse. Every thumbnail follows; hold Ctrl to resize only that one.")));
         page.Children.Add(Ui.Row(T("L.S.thumbs.appearance.opacity", "Opacity"),
             Ui.Slider(0, 255, S.ThumbnailOpacity, v => { S.ThumbnailOpacity = v; Save(); }, v => $"{v} ({OpacityPercent.FromByte(v)} %)")));
 
@@ -241,6 +242,10 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Row(T("L.S.thumbs.text.size", "Text size"),
             Ui.Number(6, 72, ThumbnailFields.ReadSize(S.ThumbnailTextSize, 12), v => { S.ThumbnailTextSize = ThumbnailFields.WriteSize(v); Save(); })));
         page.Children.Add(Ui.Row(T("L.S.thumbs.text.font", "Font"), FontBox()));
+        // Streamer mode: names, labels and system names are masked wherever they are drawn, asked each time, so it takes effect at once.
+        page.Children.Add(Ui.Row(T("L.S.thumbs.text.streamer", "Streamer mode"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.StreamerMode, on => { S.StreamerMode = on; Save(); _host.TrayChanged(); }),
+            T("L.S.thumbs.text.streamer.Desc", "Keeps what could give you away off a stream or a screenshot: character names show as Client 1, Client 2 and so on, and labels and system names are left out. Off by default.")));
 
         page.Children.Add(Ui.Section(T("L.S.Sec.thumbs.text.active", "The client you're playing")));
         page.Children.Add(Ui.Row(T("L.S.thumbs.text.highlightColor", "Highlight colour"), Ui.Colour(S.ClientHighlightColor, v => { S.ClientHighlightColor = v; Save(); })));
@@ -467,15 +472,19 @@ internal sealed class SettingsPages
         page.Children.Add(Key(T("L.S.clients.hotkeys.cycleNext", "Next client"), S.GlobalCycleForwardHotkey, v => S.GlobalCycleForwardHotkey = v));
         page.Children.Add(Key(T("L.S.clients.hotkeys.cyclePrevious", "Previous client"), S.GlobalCycleBackwardHotkey, v => S.GlobalCycleBackwardHotkey = v));
         page.Children.Add(Key(T("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), S.PreviousClientHotkey, v => S.PreviousClientHotkey = v));
+        page.Children.Add(Key(T("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), S.GoToLastAlertHotkey, v => S.GoToLastAlertHotkey = v,
+            T("L.S.clients.hotkeys.lastAlert.Desc", "Switches to the client with the most severe alert you have not looked at yet. Press it again for the next one.")));
         page.Children.Add(Ui.Section(T("L.S.Sec.clients.hotkeys.app", "MultiPreview hotkeys")));
         page.Children.Add(Key(T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), S.HideShowThumbnailsHotkey, v => S.HideShowThumbnailsHotkey = v));
         page.Children.Add(Key(T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), S.LockPositionsHotkey, v => S.LockPositionsHotkey = v));
+        page.Children.Add(Key(T("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), S.DoNotDisturbHotkey, v => S.DoNotDisturbHotkey = v,
+            T("L.S.alerts.sounds.dndHotkey.Desc", "Mutes alert sounds, spoken alerts and the wrap-around sound, and holds alerts sent to Discord, until you press it again. Borders, badges and toasts go on.")));
         page.Children.Add(Ui.Note(T("L.Linux.HotkeyNote", "Click a box and press the keys. Escape clears it. A key for one character is set on Characters; keys for a group on Groups.")));
         return page;
     }
 
-    private Control Key(string label, string value, Action<string> store) =>
-        Ui.Row(label, HotkeyField("global:" + label, value, store));
+    private Control Key(string label, string value, Action<string> store, string? description = null) =>
+        Ui.Row(label, HotkeyField("global:" + label, value, store), description);
 
     /// <summary>A hotkey box. A change is stored by <paramref name="store"/>, saved and bound; then every clash line of the
     /// page is worked out again, because a key set here can make another box's key a clash. The key is still kept (the
@@ -514,6 +523,8 @@ internal sealed class SettingsPages
         all.Add(("global:" + T("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), T("L.S.clients.hotkeys.backToPrevious", "Back to the client before this one"), S.PreviousClientHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), T("L.S.clients.hotkeys.hideAll", "Hide or show all thumbnails"), S.HideShowThumbnailsHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), S.LockPositionsHotkey));
+        all.Add(("global:" + T("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), T("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), S.GoToLastAlertHotkey));
+        all.Add(("global:" + T("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), T("L.S.alerts.sounds.dndHotkey", "Do not disturb on or off"), S.DoNotDisturbHotkey));
         return all;
     }
 

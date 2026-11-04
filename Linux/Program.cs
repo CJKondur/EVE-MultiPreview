@@ -50,6 +50,9 @@ public sealed class Previews : ITrayActions, ISettingsHost
     private bool _allHidden;
     private Alerts? _alerts;
     private SettingsWindow? _settingsWindow;
+    /// <summary>The alerts the player has not looked at yet, and the walk "Go to the last alert" makes through them.</summary>
+    private readonly AlertAttention _attention = new();
+    private readonly AlertWalk _alertWalk = new();
 
     /// <summary>The tray icon's menu, rebuilt when a setting it shows changes.</summary>
     public Tray? TrayMenu { get; set; }
@@ -81,7 +84,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         Console.WriteLine($"EVE MultiPreview for Linux: settings {AppPaths.SettingsPath}; looking for windows titled \"{_clients.TitlePrefix}…\" "
             + $"(Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
         BindHotkeys();
-        _alerts = new Alerts(_settings, RunningCharacters, WindowOf, _clients.Active, Flash);
+        _alerts = new Alerts(_settings, RunningCharacters, WindowOf, _clients.Active, Flash, _attention);
         var (chat, game) = _alerts.Start();
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
@@ -112,6 +115,14 @@ public sealed class Previews : ITrayActions, ISettingsHost
     {
         get => _alerts?.DoNotDisturbOn ?? false;
         set { if (_alerts != null) _alerts.DoNotDisturbOn = value; }
+    }
+
+    /// <summary>Streamer mode (the Windows tray's item and the Thumbnails page's switch). Everything that draws a name asks
+    /// StreamerMask each time, so a change shows at the next redraw (the thumbnails redraw every 100 ms).</summary>
+    public bool StreamerMode
+    {
+        get => S.StreamerMode;
+        set { S.StreamerMode = value; _settings.SaveDelayed(); }
     }
 
     public IReadOnlyList<string> Profiles => _settings.GetProfileNames();
@@ -222,6 +233,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
         keys.Add((S.PreviousClientHotkey, () => { if (_previousActive != 0) _clients.Activate(_previousActive); }));
         keys.Add((S.HideShowThumbnailsHotkey, () => _allHidden = !_allHidden));
         keys.Add((S.LockPositionsHotkey, () => { S.LockPositions = !S.LockPositions; _settings.SaveDelayed(); }));
+        keys.Add((S.GoToLastAlertHotkey, GoToLastAlert));
+        keys.Add((S.DoNotDisturbHotkey, ToggleDoNotDisturb));
         var wanted = keys.Where(k => !string.IsNullOrWhiteSpace(k.Item1)).ToList();
         var refused = _hotkeys.Bind(wanted);
         Console.WriteLine($"Hotkeys: {wanted.Count - refused.Count} bound");
@@ -245,6 +258,44 @@ public sealed class Previews : ITrayActions, ISettingsHost
         if (list.Count == 0) return;
         int current = list.FindIndex(t => t.Client.Window == _lastActive);
         _clients.Activate(list[CycleStep.Next(current, list.Count, forward)].Client.Window);
+    }
+
+    /// <summary>The "Go to the last alert" hotkey (ThumbnailManager.GoToLastAlert): the client of the most severe alert the
+    /// player has not looked at; pressed again, the next; with none left, back through this session's alerts (AlertWalk).
+    /// With nothing to go to it says so and switches nothing; when the last alert is on the client in front, moments ago, it
+    /// says that and stays.</summary>
+    private void GoToLastAlert()
+    {
+        uint active = _clients.Active();
+        string? inFront = _thumbs.TryGetValue(active, out var front) ? front.Client.Character : null;
+        // An alert of the client in front is seen: the player is on it (it may have arrived while a switch was in flight).
+        if (inFront != null) _attention.Seen(inFront);
+        var step = _alertWalk.Next(_attention.Unseen(), () => _alerts?.Recent() ?? Array.Empty<AlertHistoryEntry>(),
+            name => WindowOf(name) != 0, inFront, DateTime.UtcNow);
+        if (!step.Goes)
+        {
+            Alerts.Say(step.Kind switch
+            {
+                AlertWalk.Kind.Here => LocalizationService.Str("L.Switch.LastAlertHere", "The last alert is on this client"),
+                AlertWalk.Kind.NoEarlier => LocalizationService.Str("L.Switch.NoEarlierAlert", "No earlier alert"),
+                _ => LocalizationService.Str("L.Switch.NoAlert", "No alert to go to"),
+            });
+            return;
+        }
+        uint window = WindowOf(step.Character);
+        // The client in front already is looked at now; any other client's alert stays unseen until it really is in
+        // front (Tick), so a switch the window manager refuses leaves it as it was.
+        if (window == active) _attention.Seen(step.Character);
+        else _clients.Activate(window);
+    }
+
+    /// <summary>The do-not-disturb hotkey: flips it as the tray item does, says what it is now, and shows it in the tray menu.</summary>
+    private void ToggleDoNotDisturb()
+    {
+        if (_alerts == null) return;
+        var (key, english) = _alerts.PressDoNotDisturb();
+        Alerts.Say(LocalizationService.Str(key, english));
+        TrayMenu?.Rebuild();
     }
 
     // ── Alerts ──
@@ -274,6 +325,9 @@ public sealed class Previews : ITrayActions, ISettingsHost
             _alerts?.Looked(_thumbs[active].Client.Character);
             _alertBorders.Remove(_thumbs[active].Client.Character);   // switching to a client ends its alert
         }
+        // The client in front is looked at: its unseen alerts go. Alerts nobody looked at for hours expire.
+        _attention.DropExpired();
+        if (_thumbs.TryGetValue(active, out var inFront)) _attention.Seen(inFront.Client.Character);
         bool inScope = S.GlobalHotkeys || _thumbs.ContainsKey(active) || _clients.IsOurs(active);
         if (inScope != _keysInScope)
         {
@@ -292,6 +346,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
             if (shown != thumb.IsVisible) { if (shown) thumb.Show(); else thumb.Hide(); }
             if (!shown) continue;
             thumb.CanDrag = !S.LockPositions;
+            thumb.ResizeFloor = ThumbnailWindow.FloorOf(S);
+            thumb.LockResizeAspect = S.LockResizeAspect;
             thumb.Apply(Look(thumb.Client.Character, isActive));
             thumb.Update(_clients);
         }
@@ -313,8 +369,10 @@ public sealed class Previews : ITrayActions, ISettingsHost
         if (_alertBorders.TryGetValue(character, out var alert)
             && (alert.Steady || Environment.TickCount64 / alert.RateMs % 2 == 0))
             (border, thickness) = (alert.Brush, Math.Max(1, S.AlertBorderThickness));
-        var label = StreamerMask.Name(StreamerKind.Character,
-            S.ThumbnailAnnotations.TryGetValue(character, out var note) && !string.IsNullOrWhiteSpace(note) ? note : character);
+        // Streamer mode: the name becomes "Client N", a label the player typed is left out (StreamerKind.Label).
+        var label = S.ThumbnailAnnotations.TryGetValue(character, out var note) && !string.IsNullOrWhiteSpace(note)
+            ? StreamerMask.Name(StreamerKind.Label, note)
+            : StreamerMask.Name(StreamerKind.Character, character);
         var style = S.ThumbnailLabelStyles.GetValueOrDefault(character);
         var textColour = style is { Color.Length: > 0 } ? style.Color : S.ThumbnailTextColor;
         double size = style is { Size: > 0 } ? style.Size : double.TryParse(S.ThumbnailTextSize, out var fs) ? fs : 12;
@@ -343,6 +401,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         var found = _clients.Find();
         foreach (var gone in _thumbs.Keys.Except(found.Select(f => f.Window)).ToList())
         {
+            _attention.Gone(_thumbs[gone].Client.Character);   // nothing there needs the player any more
             _thumbs[gone].Close();
             _thumbs.Remove(gone);
             _clients.Forget(gone);
@@ -357,8 +416,31 @@ public sealed class Previews : ITrayActions, ISettingsHost
                 _settings.SaveThumbnailPosition(t.Client.Character, t.Position.X, t.Position.Y, (int)t.Width, (int)t.Height);
                 if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1") Console.WriteLine($"[move] {t.Client.Character} -> {t.Position}");
             };
+            thumb.ResizeEnded += t =>
+            {
+                _settings.SaveThumbnailPosition(t.Client.Character, t.Position.X, t.Position.Y, (int)t.Width, (int)t.Height);
+                if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1") Console.WriteLine($"[resize] {t.Client.Character} -> {(int)t.Width}x{(int)t.Height}");
+            };
+            thumb.ResizeAll += ResizeOthers;
+            thumb.PointerSource = _clients.Pointer;
             _thumbs[client.Window] = thumb;
             Console.WriteLine($"Client found: {client.Character} (window {client.Window})");
+        }
+    }
+
+    /// <summary>ThumbnailManager.OnResizeAll: while one thumbnail is resized (without Ctrl) every other one gets the same
+    /// size, and so does the size new clients start at. Not with "Resize thumbnails individually" (IndividualThumbnailResize).
+    /// Each size is saved at once, as on Windows.</summary>
+    private void ResizeOthers(ThumbnailWindow source, int width, int height)
+    {
+        if (S.IndividualThumbnailResize) return;
+        S.ThumbnailStartLocation.Width = width;
+        S.ThumbnailStartLocation.Height = height;
+        foreach (var thumb in _thumbs.Values)
+        {
+            if (thumb == source) continue;
+            thumb.SetSize(width, height);
+            _settings.SaveThumbnailPosition(thumb.Client.Character, thumb.Position.X, thumb.Position.Y, width, height);
         }
     }
 

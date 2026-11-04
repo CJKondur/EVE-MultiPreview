@@ -50,6 +50,9 @@ internal static unsafe class Xcb
     [DllImport(Lib)] private static extern uint xcb_get_window_attributes(IntPtr c, uint window);
     [DllImport(Lib)] private static extern IntPtr xcb_get_window_attributes_reply(IntPtr c, uint cookie, IntPtr e);
 
+    [DllImport(Lib)] private static extern uint xcb_query_pointer(IntPtr c, uint window);
+    [DllImport(Lib)] private static extern IntPtr xcb_query_pointer_reply(IntPtr c, uint cookie, IntPtr e);
+
     [DllImport(Lib)] private static extern uint xcb_send_event(IntPtr c, byte propagate, uint destination, uint eventMask, byte* evt);
 
     [DllImport(CompositeLib)] private static extern uint xcb_composite_query_version(IntPtr c, uint major, uint minor);
@@ -61,6 +64,17 @@ internal static unsafe class Xcb
         var it = xcb_setup_roots_iterator(xcb_get_setup(c));
         for (int i = 0; i < screen && it.Rem > 0; i++) xcb_screen_next(ref it);
         return *(uint*)it.Data;   // xcb_screen_t starts with its root window
+    }
+
+    /// <summary>The pointer on the screen and the buttons and modifiers that are down (the X server's mask: Button1 0x100,
+    /// Button3 0x400, Control 0x04), or null when the server does not answer.</summary>
+    public static (int X, int Y, ushort Mask)? Pointer(IntPtr c, uint root)
+    {
+        var reply = xcb_query_pointer_reply(c, xcb_query_pointer(c, root), IntPtr.Zero);
+        if (reply == IntPtr.Zero) return null;
+        var result = (X: (int)*(short*)(reply + 16), Y: (int)*(short*)(reply + 18), Mask: *(ushort*)(reply + 24));
+        NativeMemory.Free((void*)reply);
+        return result;
     }
 
     public static uint Atom(IntPtr c, string name)

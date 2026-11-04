@@ -12,6 +12,7 @@ public interface ITrayActions
     bool PositionsLocked { get; set; }
     bool ThumbnailsHidden { get; set; }
     bool DoNotDisturb { get; set; }
+    bool StreamerMode { get; set; }
     IReadOnlyList<string> Profiles { get; }
     string Profile { get; set; }
     void OpenSettings();
@@ -47,6 +48,7 @@ public sealed class Tray
         menu.Add(Check(T("L.Tray.Lock", "Lock positions"), _app.PositionsLocked, on => _app.PositionsLocked = on));
         menu.Add(Check(T("L.Tray.Toggle", "Hide thumbnails"), _app.ThumbnailsHidden, on => _app.ThumbnailsHidden = on));
         menu.Add(Check(T("L.Tray.Dnd", "Do not disturb"), _app.DoNotDisturb, on => _app.DoNotDisturb = on));
+        menu.Add(Check(T("L.Tray.StreamerMode", "Streamer mode"), _app.StreamerMode, on => _app.StreamerMode = on));
 
         var profiles = new NativeMenu();
         foreach (var name in _app.Profiles)

@@ -26,8 +26,10 @@ public sealed class Alerts : IDisposable
     /// <param name="windowOf">The character's client window, or 0.</param>
     /// <param name="inFront">The window in front.</param>
     /// <param name="flash">(character, severity, alert type): start the thumbnail's alert border. Called on the UI thread.</param>
+    /// <param name="attention">The alerts the player has not looked at yet: every alert that is shown is entered in it (the
+    /// Windows app's ThumbnailManager.NoteUnseenAlert), unless its client is in front.</param>
     public Alerts(SettingsService settings, Func<IReadOnlyCollection<string>> running, Func<string, uint> windowOf,
-        Func<uint> inFront, Action<string, string, string> flash)
+        Func<uint> inFront, Action<string, string, string> flash, AlertAttention attention)
     {
         _settings = settings;
         _history = new AlertHistory(AppPaths.HistoryDir, ErrorLog.Shared)
@@ -41,6 +43,7 @@ public sealed class Alerts : IDisposable
             ActiveCharacters = () => Ui(running),
             IsSnoozed = (c, type) => _snoozes.IsSnoozed(c, type),
             Flash = (c, severity, type) => Dispatcher.UIThread.Post(() => flash(c, severity, type)),
+            Unseen = (c, type, severity) => NoteUnseen(attention, c, type, severity, windowOf, inFront),
             WindowOf = c => (IntPtr)Ui(() => windowOf(c)),
             ForegroundWindow = () => (IntPtr)Ui(inFront),
             SoundHeld = severity => S.EnableAlertSounds && _doNotDisturb.Silences(S, severity, DateTime.Now),
@@ -78,6 +81,23 @@ public sealed class Alerts : IDisposable
 
     private AppSettings S => _settings.Settings;
 
+    /// <summary>ThumbnailManager.NoteUnseen: an alert of a character with a client is entered as unseen, unless that client
+    /// is in front. A character without a client gets no entry (nothing to go to, nothing would take it off again). The
+    /// client is asked for again after the entry is made: this runs on the log monitor's thread while the UI thread may be
+    /// closing that client, and if its "gone" came first the entry is taken off here.</summary>
+    private static void NoteUnseen(AlertAttention attention, string character, string alertType, string severity,
+        Func<string, uint> windowOf, Func<uint> inFront)
+    {
+        uint client = Ui(() => windowOf(character));
+        if (client == 0) return;
+        if (!attention.Raised(character, alertType, severity, clientInFront: client == Ui(inFront))) return;
+        if (Ui(() => windowOf(character)) == 0) attention.Gone(character);
+    }
+
+    /// <summary>The alerts of this session, newest first (the walk of "Go to the last alert" goes back through them once
+    /// nothing is unseen). Empty while the history is off.</summary>
+    public IReadOnlyList<AlertHistoryEntry> Recent() => _history.Recent();
+
     /// <summary>The character's client is the window in front.</summary>
     private static bool ClientInFront(string character, Func<string, uint> windowOf, Func<uint> inFront) =>
         Ui(() => windowOf(character) is var w && w != 0 && w == inFront());
@@ -87,6 +107,19 @@ public sealed class Alerts : IDisposable
     {
         get => _doNotDisturb.IsOn(S, DateTime.Now);
         set { if (value != DoNotDisturbOn) _doNotDisturb.Toggle(S, DateTime.Now); }
+    }
+
+    /// <summary>One press of the do-not-disturb hotkey: flips it, and gives the note that says what it is now (key, English).</summary>
+    public (string Key, string English) PressDoNotDisturb() => _doNotDisturb.Press(S, DateTime.Now);
+
+    /// <summary>A short note for the player after a hotkey that shows nothing by itself (the Windows app shows a tip near the
+    /// cursor): a line on the console and a desktop notification that replaces the one before it. Do-not-disturb holds
+    /// sounds, not notifications.</summary>
+    public static void Say(string text)
+    {
+        Console.WriteLine(text);
+        Run("notify-send", "--app-name=EVE MultiPreview", "--expire-time=3000",
+            "--hint=string:x-canonical-private-synchronous:evemp-hotkey", text);
     }
 
     private static T Ui<T>(Func<T> read) =>

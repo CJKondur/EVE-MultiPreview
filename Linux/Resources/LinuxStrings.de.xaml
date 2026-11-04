@@ -22,6 +22,7 @@
     <sys:String x:Key="L.Linux.ImportFailed">Nicht importiert: Die Datei konnte nicht kopiert werden.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Importiert. Die alten Einstellungen liegen in</sys:String>
     <sys:String x:Key="L.Linux.StartNote">Die Größe, die eine Vorschau erhält, wenn ihr Client zum ersten Mal erkannt wird.</sys:String>
+    <sys:String x:Key="L.Linux.ResizeNote">Um die Größe einer Vorschau zu ändern, halte die rechte Maustaste darauf gedrückt, drücke zusätzlich die linke und bewege die Maus. Alle Vorschauen folgen; halte Strg gedrückt, um nur diese eine zu ändern.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Ausgeblendet</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">Noch keine Charaktere. Sie erscheinen hier, sobald ein EVE-Client läuft.</sys:String>
     <sys:String x:Key="L.Linux.GroupNameUsed">Gib einen Namen ein, den noch keine Gruppe verwendet.</sys:String>

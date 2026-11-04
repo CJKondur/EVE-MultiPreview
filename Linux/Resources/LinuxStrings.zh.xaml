@@ -22,6 +22,7 @@
     <sys:String x:Key="L.Linux.ImportFailed">未导入：无法复制该文件。</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">已导入。旧设置位于</sys:String>
     <sys:String x:Key="L.Linux.StartNote">首次发现某个客户端时，其缩略图获得的大小。</sys:String>
+    <sys:String x:Key="L.Linux.ResizeNote">要调整缩略图大小，请在其上按住鼠标右键，同时按下左键并移动鼠标。所有缩略图会一起变化；按住 Ctrl 则只调整这一个。</sys:String>
     <sys:String x:Key="L.Linux.Hidden">隐藏</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">还没有角色。EVE 客户端运行后，它们会显示在这里。</sys:String>
     <sys:String x:Key="L.Linux.GroupNameUsed">请输入尚无分组使用的名称。</sys:String>

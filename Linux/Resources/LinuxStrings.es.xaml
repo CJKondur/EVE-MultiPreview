@@ -22,6 +22,7 @@
     <sys:String x:Key="L.Linux.ImportFailed">No importado: no se pudo copiar el archivo.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Importado. Los ajustes anteriores están en</sys:String>
     <sys:String x:Key="L.Linux.StartNote">El tamaño que recibe una miniatura la primera vez que se detecta su cliente.</sys:String>
+    <sys:String x:Key="L.Linux.ResizeNote">Para cambiar el tamaño de una miniatura, mantén pulsado el botón derecho del ratón sobre ella, pulsa también el izquierdo y mueve el ratón. Todas las miniaturas lo siguen; mantén Ctrl para cambiar solo esa.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Oculta</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">Aún no hay personajes. Aparecen aquí cuando hay un cliente de EVE en ejecución.</sys:String>
     <sys:String x:Key="L.Linux.GroupNameUsed">Escribe un nombre que ningún grupo use todavía.</sys:String>

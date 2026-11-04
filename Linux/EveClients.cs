@@ -73,6 +73,9 @@ public sealed unsafe class EveClients : IDisposable
         return pid is { Length: >= 4 } && BitConverter.ToUInt32(pid, 0) == (uint)Environment.ProcessId;
     }
 
+    /// <summary>The pointer on the screen and the buttons and modifiers that are down (a thumbnail resize follows the mouse by it).</summary>
+    public (int X, int Y, ushort Mask)? Pointer() => Xcb.Pointer(_c, _root);
+
     public void Activate(uint window) => Xcb.RequestActivate(_c, _root, window, _netActiveWindow);
 
     /// <summary>Copies the client's picture, scaled to fit, into a BGRA buffer. False when the window is gone,
