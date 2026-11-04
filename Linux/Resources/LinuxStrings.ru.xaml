@@ -47,5 +47,8 @@
     <sys:String x:Key="L.Linux.ClosedNote">«Клиент неожиданно закрылся» недоступно в Linux: Linux не сообщает MultiPreview, как завершился клиент, который он не запускал, поэтому сбой выглядит так же, как обычный выход.</sys:String>
     <sys:String x:Key="L.Linux.NotRespondingDesc">Если окно клиента не отвечает 5 секунд, его миниатюра показывает это.</sys:String>
     <sys:String x:Key="L.Linux.ClientNote">«Клиент не отвечает» выключено, пока вы не включите его в таблице выше. Оно приходит, когда клиент завис на 30 секунд.</sys:String>
+    <sys:String x:Key="L.Linux.CommandsTitle">Команды от других программ</sys:String>
+    <sys:String x:Key="L.Linux.AcceptCommands.Desc">Позволяет приложению Stream Deck, ярлыку рабочего стола или скрипту попросить запущенный MultiPreview вывести персонажа на передний план, сменить профиль или переключить миниатюры либо режим фокуса. Только программы вашей собственной учётной записи могут это делать.</sys:String>
+    <sys:String x:Key="L.Linux.CommandsNote">Запустите MultiPreview ещё раз с командой, например как ниже; приложение Stream Deck (StreamController, streamdeck-ui, OpenDeck) выполняет её по кнопке. eve-multipreview --help выводит все команды.</sys:String>
 
 </ResourceDictionary>

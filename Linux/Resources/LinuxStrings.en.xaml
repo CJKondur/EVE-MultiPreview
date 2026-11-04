@@ -46,5 +46,8 @@
     <sys:String x:Key="L.Linux.ClosedNote">Client closed unexpectedly is not available on Linux: Linux does not tell MultiPreview how a client it did not start ended, so a crash looks the same as quitting.</sys:String>
     <sys:String x:Key="L.Linux.NotRespondingDesc">When a client's window stops answering for 5 seconds, its thumbnail says so.</sys:String>
     <sys:String x:Key="L.Linux.ClientNote">Client not responding is off until you turn it on in the table above. It comes after a client has been frozen for 30 seconds.</sys:String>
+    <sys:String x:Key="L.Linux.CommandsTitle">Commands from other programs</sys:String>
+    <sys:String x:Key="L.Linux.AcceptCommands.Desc">Lets a Stream Deck app, a desktop shortcut or a script tell the running MultiPreview to bring a character to the front, switch profile, or toggle thumbnails or focus mode. Only programs of your own account can.</sys:String>
+    <sys:String x:Key="L.Linux.CommandsNote">Run MultiPreview again with a command, for example below; a Stream Deck app (StreamController, streamdeck-ui, OpenDeck) runs it from a button. eve-multipreview --help lists every command.</sys:String>
 
 </ResourceDictionary>

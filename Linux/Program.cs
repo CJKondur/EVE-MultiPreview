@@ -18,7 +18,9 @@ public static class Program
 {
     [STAThread]
     public static int Main(string[] args) =>
-        AppBuilder.Configure<App>().UsePlatformDetect().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);
+        // A command line that is a command ("--focus Alpha") goes to the running MultiPreview and this start ends with its outcome.
+        CommandSocket.SendFromCommandLine(args)
+        ?? AppBuilder.Configure<App>().UsePlatformDetect().StartWithClassicDesktopLifetime(args, ShutdownMode.OnExplicitShutdown);
 }
 
 public sealed class App : Application
@@ -91,6 +93,17 @@ public sealed class Previews : ITrayActions, ISettingsHost
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
         Tick();
+        // Commands from other programs (IDEAS #39): taken only while AcceptCommands is on, run on the UI thread.
+        CommandSocket.Serve(command =>
+        {
+            if (!S.AcceptCommands) return RemoteOutcome.Refused;
+            try
+            {
+                var task = Dispatcher.UIThread.InvokeAsync(() => RunCommand(command)).GetTask();
+                return task.Wait(TimeSpan.FromSeconds(3)) ? task.Result : RemoteOutcome.NotReachable;   // the UI thread is stuck: "never ran"
+            }
+            catch (Exception) { return RemoteOutcome.Refused; }
+        });
         _probeTimer = new System.Threading.Timer(_ => ProbeClients(), null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(3));
         // EVEMP_OPEN_SETTINGS=<page number from 0>: opens the settings window at startup (the tests use it).
         if (int.TryParse(Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS"), out int page)) OpenSettings(page);

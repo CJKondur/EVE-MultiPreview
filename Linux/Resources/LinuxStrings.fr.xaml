@@ -47,5 +47,8 @@
     <sys:String x:Key="L.Linux.ClosedNote">« Client fermé de façon inattendue » n'est pas disponible sous Linux : Linux n'indique pas à MultiPreview comment s'est terminé un client qu'il n'a pas lancé, donc un plantage ressemble à une fermeture normale.</sys:String>
     <sys:String x:Key="L.Linux.NotRespondingDesc">Quand la fenêtre d'un client ne répond plus pendant 5 secondes, sa miniature l'indique.</sys:String>
     <sys:String x:Key="L.Linux.ClientNote">« Client ne répond pas » est désactivé tant que vous ne l'activez pas dans le tableau ci-dessus. Il arrive quand un client est figé depuis 30 secondes.</sys:String>
+    <sys:String x:Key="L.Linux.CommandsTitle">Commandes d'autres programmes</sys:String>
+    <sys:String x:Key="L.Linux.AcceptCommands.Desc">Permet à une app Stream Deck, à un raccourci du bureau ou à un script de demander au MultiPreview lancé d'amener un personnage au premier plan, de changer de profil ou d'activer ou désactiver les miniatures ou le mode focus. Seuls les programmes de votre propre compte le peuvent.</sys:String>
+    <sys:String x:Key="L.Linux.CommandsNote">Relancez MultiPreview avec une commande, par exemple comme ci-dessous ; une app Stream Deck (StreamController, streamdeck-ui, OpenDeck) la lance depuis un bouton. eve-multipreview --help liste toutes les commandes.</sys:String>
 
 </ResourceDictionary>

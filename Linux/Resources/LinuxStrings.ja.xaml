@@ -47,5 +47,8 @@
     <sys:String x:Key="L.Linux.ClosedNote">「クライアントが予期せず終了」は Linux では使えません。Linux は MultiPreview が起動していないクライアントの終了理由を伝えないため、クラッシュと通常の終了を区別できません。</sys:String>
     <sys:String x:Key="L.Linux.NotRespondingDesc">クライアントのウィンドウが 5 秒間応答しないと、そのサムネイルに表示されます。</sys:String>
     <sys:String x:Key="L.Linux.ClientNote">「クライアントが応答なし」は上の表でオンにするまでオフです。クライアントが 30 秒間フリーズすると通知されます。</sys:String>
+    <sys:String x:Key="L.Linux.CommandsTitle">ほかのプログラムからのコマンド</sys:String>
+    <sys:String x:Key="L.Linux.AcceptCommands.Desc">Stream Deck アプリ、デスクトップのショートカット、スクリプトから、実行中の MultiPreview にキャラクターを前面に出す、プロファイルを切り替える、サムネイルやフォーカスモードを切り替えるよう指示できます。あなた自身のアカウントのプログラムだけが使えます。</sys:String>
+    <sys:String x:Key="L.Linux.CommandsNote">コマンドを付けて MultiPreview をもう一度実行します（下の例のように）。Stream Deck アプリ（StreamController、streamdeck-ui、OpenDeck）はボタンから実行できます。eve-multipreview --help ですべてのコマンドを表示します。</sys:String>
 
 </ResourceDictionary>

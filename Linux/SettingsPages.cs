@@ -115,6 +115,16 @@ internal sealed class SettingsPages
         page.Children.Add(FolderRow(T("L.Linux.GameFolder", "Game log folder"), S.GameLogDirectory, v => S.GameLogDirectory = v));
         page.Children.Add(Ui.Note(T("L.Linux.FolderNote", "Left empty, the logs are looked for in the Steam (Proton) folder of EVE Online.")));
 
+        // IDEAS #39: the command socket asks it at every command, so a change only saves.
+        page.Children.Add(Ui.Section(T("L.Linux.CommandsTitle", "Commands from other programs")));
+        page.Children.Add(Ui.Row(T("L.S.app.general.acceptCommands", "Take commands from other programs"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.AcceptCommands, on => { S.AcceptCommands = on; Save(); }),
+            T("L.Linux.AcceptCommands.Desc", "Lets a Stream Deck app, a desktop shortcut or a script tell the running MultiPreview to bring a character to the front, switch profile, or toggle thumbnails or focus mode. Only programs of your own account can.")));
+        var example = new SelectableTextBlock { Text = string.Join(Environment.NewLine, "eve-multipreview --focus <character>", "eve-multipreview --cycle <group>", "eve-multipreview --focus-mode", "eve-multipreview --last-alert"),
+            FontFamily = new FontFamily("monospace"), Margin = new Thickness(0, 4) };
+        page.Children.Add(Ui.Note(T("L.Linux.CommandsNote", "Run MultiPreview again with a command, for example below; a Stream Deck app (StreamController, streamdeck-ui, OpenDeck) runs it from a button. eve-multipreview --help lists every command.")));
+        page.Children.Add(example);
+
         page.Children.Add(Ui.Section(T("L.Linux.ImportTitle", "Settings from the Windows app")));
         page.Children.Add(Import());
         return page;
