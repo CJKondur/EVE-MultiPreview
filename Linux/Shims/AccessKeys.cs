@@ -7,6 +7,7 @@ namespace EveMultiPreview.SettingsUi;
 
 public static class AccessKeys
 {
+    // Copy of SettingsUi/AccessKeys.cs:Of — keep in sync until S2/S3 shares it.
     /// <summary>The key the text names, as written ('t' for "_ticked"); null when it has none or the marking is invalid.</summary>
     public static char? Of(string? content)
     {
@@ -22,6 +23,7 @@ public static class AccessKeys
         return key;
     }
 
+    // Copy of SettingsUi/AccessKeys.cs:Strip — keep in sync until S2/S3 shares it.
     /// <summary>The text as a person reads it, and a screen reader says it: markers removed, "__" an underscore.</summary>
     public static string Strip(string? content)
     {
@@ -35,6 +37,7 @@ public static class AccessKeys
         return text.ToString();
     }
 
+    // Copy of SettingsUi/AccessKeys.cs:Spoken — keep in sync until S2/S3 shares it.
     /// <summary>What a screen reader says: <see cref="Strip"/>, and for a Chinese, Japanese or Korean text without the Latin
     /// key in brackets.</summary>
     public static string Spoken(string? content) =>

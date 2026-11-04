@@ -29,7 +29,8 @@ namespace EveMultiPreview.Services
         public void ForgetJumps(string name) => throw Unsupported(nameof(ForgetJumps));
         public bool ForgetPlaytime(string name) => throw Unsupported(nameof(ForgetPlaytime));
         public void ClearPlaytime() => throw Unsupported(nameof(ClearPlaytime));
-        public bool IsExcludedFromCycle(string characterName) => throw Unsupported(nameof(IsExcludedFromCycle));
+        /// <summary>Render time (CharacterStores.IsInCycle runs while editors build rows): no character is excluded here.</summary>
+        public bool IsExcludedFromCycle(string characterName) => false;
         public void ToggleCycleExclusion(string characterName) => throw Unsupported(nameof(ToggleCycleExclusion));
 
         private static PlatformNotSupportedException Unsupported(string member) =>

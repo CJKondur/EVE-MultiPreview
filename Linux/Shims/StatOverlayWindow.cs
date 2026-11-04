@@ -8,6 +8,7 @@ namespace EveMultiPreview.Views;
 
 public static class StatOverlayWindow
 {
+    // Copy of Views/StatOverlayWindow.xaml.cs:ParseOverlayColor — keep in sync until S2/S3 shares it.
     /// <summary>The colour in a stats colour setting: what WPF reads (#RRGGBB, #AARRGGBB, a name), as before,
     /// then 0xRRGGBB, RRGGBB and rgb(r,g,b) (AppSettings.ParseColor). Null when it is none of these.</summary>
     public static Color? ParseOverlayColor(string? text)
