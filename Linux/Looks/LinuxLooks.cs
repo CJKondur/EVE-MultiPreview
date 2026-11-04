@@ -267,7 +267,8 @@ internal static class LinuxLooks
             (TemplatedControl.BackgroundProperty, l.Brush("NavSelected")), (TemplatedControl.ForegroundProperty, l.Brush("NavSelectedText")),
             (TemplatedControl.BorderBrushProperty, l.Brush("NavMark")), (TemplatedControl.BorderThicknessProperty, new Thickness(3, 0, 0, 0)));
         Add(x => Presenter(x.OfType<Button>().Class("nav").Class("selected").Class(":pointerover")),
-            (ContentPresenter.BackgroundProperty, l.Brush("NavSelected")), (ContentPresenter.ForegroundProperty, l.Brush("NavSelectedText")));
+            (ContentPresenter.BackgroundProperty, l.Brush("NavSelected")), (ContentPresenter.ForegroundProperty, l.Brush("NavSelectedText")),
+            (ContentPresenter.BorderBrushProperty, l.Brush("NavMark")));   // the Simple theme's hover edge would replace the mark
 
         // Boxes and lists.
         Add(x => x.OfType<TextBox>(),

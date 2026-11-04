@@ -19,6 +19,9 @@ internal sealed class LookToggle : ToggleButton
     private Border? _box, _track, _knob;
     private Path? _tick;
 
+    /// <summary>Its own style key: neither the Simple theme's ToggleButton theme nor the window's ToggleButton style applies.</summary>
+    protected override Type StyleKeyOverride => typeof(LookToggle);
+
     public LookToggle()
     {
         _look = LinuxLooks.Effective;
