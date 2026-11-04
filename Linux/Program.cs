@@ -91,6 +91,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             + $"(Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
         BindHotkeys();
         _settings.ProfileSwitched += OnProfileSwitched;
+        _settings.ProfileSwitched += _ => { if (!_switchingProfileAutomatically) _autoProfile.ManualSwitch(DateTime.UtcNow); };
         _alerts = new Alerts(_settings, RunningCharacters, WindowOf, _clients.Active, Flash, _attention, SwitchToCharacter, SnoozeEvent);
         var (chat, game) = _alerts.Start();
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
@@ -203,6 +204,76 @@ public sealed class Previews : ITrayActions, ISettingsHost
         var running = RunningCharacters();
         var arrived = _focusArrivals.Look(DateTime.UtcNow, running);
         _focusHeld = FocusMode.Held(group, running, alertsShow, _attention.Has, arrived.Contains);
+    }
+
+    // ── Switch profiles by who is logged in (IDEAS #11: App.FollowAutoProfile) ──
+
+    private readonly AutoProfile _autoProfile = new();
+    /// <summary>True only around a switch AutoProfile asked for, so ProfileSwitched does not count it as the player's own.</summary>
+    private bool _switchingProfileAutomatically;
+    private ChoiceDialog? _autoProfileQuestion;
+
+    /// <summary>Twice a second: while "Switch profiles by who is logged in" is on, has the set of logged-in characters
+    /// settled on another profile? Switch to it, or ask when the player switched himself a short while ago. While the switch
+    /// is off nothing is weighed and an open question is closed without a switch.</summary>
+    private void FollowAutoProfile()
+    {
+        try
+        {
+            if (!AutoProfile.IsOn(S)) { _autoProfile.Forget(); CloseAutoProfileQuestion(); return; }
+            var choice = _autoProfile.Look(DateTime.UtcNow, RunningCharacters(), AutoProfile.Candidates(S), S.LastUsedProfile);
+            if (choice == null) return;
+            if (choice.Ask) AskAutoProfile(choice.Profile);
+            else SwitchProfileAutomatically(choice.Profile);
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
+    }
+
+    /// <summary>Switches as the tray does (OnProfileSwitched places the thumbnails), not counted as the player's own switch,
+    /// and says so. A profile deleted meanwhile is not switched to.</summary>
+    private void SwitchProfileAutomatically(string profile)
+    {
+        if (!S.Profiles.ContainsKey(profile)) return;
+        _switchingProfileAutomatically = true;
+        try { _settings.SwitchProfile(profile); }
+        finally { _switchingProfileAutomatically = false; }
+        TrayMenu?.Rebuild();
+        Alerts.Say(string.Format(LocalizationService.Str("L.AutoProfile.Switched", "Profile: {0}, picked by who is logged in"), StreamerMask.Name(StreamerKind.Profile, profile)));
+    }
+
+    private void CloseAutoProfileQuestion()
+    {
+        var open = _autoProfileQuestion;
+        if (open == null) return;
+        _autoProfileQuestion = null;   // cleared first: its Answered finds no current question and switches nothing
+        open.Close();
+    }
+
+    /// <summary>The player switched profiles himself a short while ago, so the switch is a question that does not take the
+    /// focus from the game. A newer question replaces an older one; Switch is not counted as the player's own switch.</summary>
+    private void AskAutoProfile(string profile)
+    {
+        var current = S.LastUsedProfile;
+        var shownProfile = StreamerMask.Name(StreamerKind.Profile, profile);
+        var shownCurrent = StreamerMask.Name(StreamerKind.Profile, current);
+        CloseAutoProfileQuestion();
+        var question = new ChoiceDialog(
+            string.Format(LocalizationService.Str("L.AutoProfile.Body", "The characters logged in now belong to the profile {0}. You switched profiles yourself a few minutes ago, so MultiPreview asks before it leaves {1}."), shownProfile, shownCurrent),
+            string.Format(LocalizationService.Str("L.AutoProfile.Switch", "Switch to {0}"), shownProfile),
+            string.Format(LocalizationService.Str("L.AutoProfile.Stay", "Stay on {0}"), shownCurrent))
+        {
+            Title = LocalizationService.Str("L.AutoProfile.Title", "Switch profile?"),
+            ShowActivated = false,
+        };
+        question.Answered += yes =>
+        {
+            bool latest = ReferenceEquals(_autoProfileQuestion, question);
+            if (latest) _autoProfileQuestion = null;
+            // Clicked long after it came up: the switch must still be on and the profile still there.
+            if (yes && latest && AutoProfile.IsOn(S) && S.Profiles.ContainsKey(profile)) SwitchProfileAutomatically(profile);
+        };
+        _autoProfileQuestion = question;
+        question.Show();
     }
 
     // ── Updates (App's update check, Settings > General) ──
@@ -648,6 +719,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             _alerts?.LookDerived(DateTime.UtcNow, RunningCharacters());
             FollowFocusMode();
             FollowNameBar();
+            FollowAutoProfile();
         }
         if (_ticks % 50 == 0) LookAtMemory();
         var watch = Stopwatch.StartNew();
@@ -879,6 +951,19 @@ public sealed class Previews : ITrayActions, ISettingsHost
             try { picker?.Close(); } catch { }
             settings?.Show();
             return "L.S.Crops.PickFailed";
+        }
+    }
+
+    /// <summary>ThumbnailManager.ReapplySettings' place and size part: each running thumbnail with a saved place goes there, at
+    /// its saved size. One the player is dragging, and one already there, are left alone (asked after every applied change).</summary>
+    void ISettingsHost.ReapplyThumbnails()
+    {
+        foreach (var thumb in _thumbs.Values)
+        {
+            if (thumb.Busy || _settings.GetThumbnailPosition(thumb.Client.Character) is not { Width: > 0, Height: > 0 } saved) continue;
+            var (x, y, w, h) = ((int)saved.X, (int)saved.Y, (int)saved.Width, (int)saved.Height);
+            if (thumb.OwnPosition == new PixelPoint(x, y) && thumb.OwnWidth == w && thumb.OwnHeight == h) continue;
+            thumb.PlaceAt(x, y, w, h);
         }
     }
 

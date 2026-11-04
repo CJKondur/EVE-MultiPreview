@@ -23,6 +23,9 @@ internal static class LinuxEditors
         { EditorIds.SpeechVoicesEditor, (pages, _, _) => pages.Voices() },
         { EditorIds.PushWebhookEditor, (pages, _, _) => pages.Webhook() },
         { EditorIds.RecentChangesEditor, (_, ctx, _) => new RecentChangesCard(ctx) },
+        // S3b (Linux/Settings/*Editors.cs): Avalonia ports of the Windows editors, over the same shared logic.
+        { "app.profiles.current", (pages, ctx, _) => pages.ProfilePicker(ctx) },
+        { EditorIds.AutoProfileEditor, (pages, ctx, _) => pages.AutoProfileCharacters(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

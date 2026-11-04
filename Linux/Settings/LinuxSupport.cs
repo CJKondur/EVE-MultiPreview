@@ -189,8 +189,8 @@ internal static class LinuxSupport
         ["app.look.followTheme"] = W, ["app.look.themeOn"] = W, ["app.look.followContrast"] = W, ["app.look.contrastOn"] = W,
 
         // ── App › Profiles ──
-        ["app.profiles.current"] = N,         // no Linux editor (the tray switches profiles)
-        ["app.profiles.autoSelect"] = N, ["app.profiles.autoCharacters"] = N,
+        ["app.profiles.current"] = S,         // Linux/Settings/ProfileEditors.cs over the shared ProfileActions (S3b)
+        ["app.profiles.autoSelect"] = S, ["app.profiles.autoCharacters"] = S,   // Previews.FollowAutoProfile (S3b)
         ["app.profiles.folderText"] = S, ["app.profiles.backup"] = S,
 
         // ── App › About ──

@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
@@ -78,8 +79,9 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         var service = app.Settings;
         // The Windows shell's applier: a change waits a second, then the file is saved and the app is told, as Windows'
         // App does on SettingsApplied (keys bound again, alert profiles and log folders applied, the tray rebuilt). The
-        // Linux thumbnails read their settings at every tick, so nothing is re-applied to them.
-        var applier = new SettingsApplier(service.Save, () => { }, () => { }, () => { }, new DispatcherDebounceTimer(TimeSpan.FromSeconds(1)));
+        // Linux thumbnails read their look at every tick; what is re-applied to them is their place and size (ThumbnailManager.
+        // ReapplySettings: a whole-profile copy, a layout, a size given to all).
+        var applier = new SettingsApplier(service.Save, app.ReapplyThumbnails, () => { }, () => { }, new DispatcherDebounceTimer(TimeSpan.FromSeconds(1)));
         applier.Applied += () => { app.HotkeysChanged(); app.AlertsChanged(); app.TrayChanged(); };
         var services = new AppServices
         {
@@ -1040,6 +1042,144 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         panel.Children.Add(buttons);
         dialog.Content = panel;
         dialog.Opened += (_, _) => { if (extra != null) extra.Focus(); else safeButton?.Focus(); };
+        Wait(dialog.ShowDialog<object?>(this));
+        return result;
+    }
+
+    // ── The Linux side of the shared editors' dialogs (ProfileActions.Linux.cs, CharacterDirectory.Running) ──
+
+    /// <summary>The characters with a client running now (the Linux app's).</summary>
+    internal IReadOnlyCollection<string> RunningCharacters() => _app.RunningCharacters();
+
+    /// <summary>Puts text on the clipboard (a look or profile code). False when this desktop has no clipboard to ask.</summary>
+    internal bool CopyText(string text)
+    {
+        if (Clipboard is not { } clipboard) return false;
+        try { _ = clipboard.SetTextAsync(text); return true; }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { return false; }
+    }
+
+    private Window Dialog(string titleKey, double width) => new()
+    {
+        Title = Ui.NoAccess(Str(titleKey)), Width = width, SizeToContent = SizeToContent.Height, CanResize = false,
+        RequestedThemeVariant = ThemeVariant.Dark, WindowStartupLocation = WindowStartupLocation.CenterOwner,
+    };
+
+    /// <summary>The Windows CopyLayoutDialog: copy from (the current profile first chosen), copy to (every other profile, or one),
+    /// and what (the thumbnail layout only, or the entire profile). Null when it was closed without Copy.</summary>
+    internal (string From, string? To, bool Full)? AskCopy(IReadOnlyList<string> names, string current)
+    {
+        var dialog = Dialog("L.Copy.Title", 420);
+        var from = new ComboBox { HorizontalAlignment = HorizontalAlignment.Stretch };
+        foreach (var name in names) from.Items.Add(new TextBlock { Text = name });
+        from.SelectedIndex = Math.Max(0, names.ToList().IndexOf(current));
+        var to = new ComboBox { HorizontalAlignment = HorizontalAlignment.Stretch };
+        to.Items.Add(new TextBlock { Text = LocalizationService.Str("L.Copy.AllProfiles", "— All Profiles —") });   // told by its place, not its words
+        foreach (var name in names) to.Items.Add(new TextBlock { Text = name });
+        to.SelectedIndex = 0;
+        var layoutOnly = new RadioButton { GroupName = "what", IsChecked = true, Content = new TextBlock { Text = Str("L.Copy.LayoutOnly") } };
+        var entireText = new StackPanel();
+        entireText.Children.Add(new TextBlock { Text = Str("L.Copy.EntireProfile") });
+        entireText.Children.Add(new TextBlock { Text = Str("L.Copy.EntireNote"), FontSize = 12, Opacity = 0.65, TextWrapping = TextWrapping.Wrap, MaxWidth = 280 });
+        var entire = new RadioButton { GroupName = "what", Content = entireText };
+        var what = new StackPanel { Spacing = 4 };
+        what.Children.Add(layoutOnly);
+        what.Children.Add(entire);
+
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("90,*"), RowDefinitions = new RowDefinitions("Auto,Auto,Auto,Auto") };
+        void Put(Control c, int row, int column)
+        {
+            c.Margin = new Thickness(0, 0, column == 0 ? 8 : 0, 12);
+            Grid.SetRow(c, row);
+            Grid.SetColumn(c, column);
+            grid.Children.Add(c);
+        }
+        TextBlock Label(string key) => new() { Text = Str(key), FontWeight = FontWeight.SemiBold, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap };
+        Put(Label("L.Copy.From"), 0, 0);
+        Put(from, 0, 1);
+        Put(Label("L.Copy.To"), 1, 0);
+        Put(to, 1, 1);
+        var whatLabel = Label("L.Copy.What");
+        whatLabel.VerticalAlignment = VerticalAlignment.Top;
+        Put(whatLabel, 2, 0);
+        Put(what, 2, 1);
+        (string, string?, bool)? result = null;
+        var copy = new Button { Content = new TextBlock { Text = Ui.Plain(Ui.NoAccess(Str("L.Copy.CopyBtn"))) }, IsDefault = true, HorizontalAlignment = HorizontalAlignment.Stretch, HorizontalContentAlignment = HorizontalAlignment.Center };
+        copy.Click += (_, _) =>
+        {
+            if (from.SelectedIndex >= 0 && from.SelectedIndex < names.Count)
+                result = (names[from.SelectedIndex], to.SelectedIndex <= 0 ? null : names[to.SelectedIndex - 1], entire.IsChecked == true);
+            dialog.Close();
+        };
+        Grid.SetRow(copy, 3);
+        Grid.SetColumnSpan(copy, 2);
+        grid.Children.Add(copy);
+        dialog.Content = new Border { Padding = new Thickness(20, 16), Child = grid };
+        dialog.KeyDown += (_, e) => { if (e.Key == Key.Escape) dialog.Close(); };
+        Wait(dialog.ShowDialog<object?>(this));
+        return result;
+    }
+
+    /// <summary>The Windows LayoutRemapDialog: each character of a code (or slot of a layout) against one of the player's,
+    /// a name that is also the player's (ignoring case) chosen first, "(skip)" to leave it out. The chosen character per index
+    /// (a skipped one is left out), or null when it was cancelled or closed.</summary>
+    internal Dictionary<int, string>? AskMapping(IReadOnlyList<string> characters, IReadOnlyList<string> local, bool profileCode)
+    {
+        static string L(string key, string english) => LocalizationService.Str(key, english);
+        var dialog = Dialog(profileCode ? "L.Remap.ProfileTitle" : "L.Remap.Title", 480);
+        var dock = new DockPanel { Margin = new Thickness(12) };
+        var intro = new TextBlock
+        {
+            Text = profileCode
+                ? L("L.Remap.ProfileIntro", "Assign each character in the code to one of your characters. Exact name matches are pre-selected; choose “(skip)” to leave a character out. Positions in a code are screen pixels, so they fit best on a similar monitor setup. A code never sets a hotkey.")
+                : L("L.Remap.Intro", "Assign each preset slot to one of your running characters. Exact name matches are pre-selected; choose “(skip)” to leave a slot unused."),
+            TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10),
+        };
+        DockPanel.SetDock(intro, Dock.Top);
+        dock.Children.Add(intro);
+        Dictionary<int, string>? result = null;
+        var lists = new List<ComboBox>();
+        var ok = new Button { Content = new TextBlock { Text = L("L.Remap.Apply", "Apply") }, IsDefault = true };
+        var cancel = new Button { Content = new TextBlock { Text = L("L.Remap.Cancel", "Cancel") }, IsCancel = true };
+        ok.Click += (_, _) =>
+        {
+            result = new Dictionary<int, string>();
+            for (int i = 0; i < lists.Count; i++)
+                if (lists[i].SelectedIndex > 0 && !string.IsNullOrWhiteSpace(local[lists[i].SelectedIndex - 1]))
+                    result[i] = local[lists[i].SelectedIndex - 1];
+            dialog.Close();
+        };
+        cancel.Click += (_, _) => dialog.Close();
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 12, 0, 0) };
+        buttons.Children.Add(ok);
+        buttons.Children.Add(cancel);
+        DockPanel.SetDock(buttons, Dock.Bottom);
+        dock.Children.Add(buttons);
+        var rows = new StackPanel();
+        for (int i = 0; i < characters.Count; i++)
+        {
+            var character = characters[i];
+            var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2) };
+            row.Children.Add(new TextBlock
+            {
+                Text = $"{i + 1}.  {(string.IsNullOrWhiteSpace(character) ? L("L.Remap.Slot", "(slot)") : character)}",
+                Width = 200, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis,
+            });
+            var list = new ComboBox { Width = 220 };
+            list.Items.Add(new TextBlock { Text = L("L.Remap.Skip", "(skip)") });
+            int chosen = 0;
+            for (int j = 0; j < local.Count; j++)
+            {
+                list.Items.Add(new TextBlock { Text = local[j] });
+                if (chosen == 0 && string.Equals(local[j], character, StringComparison.OrdinalIgnoreCase)) chosen = j + 1;
+            }
+            list.SelectedIndex = chosen;
+            row.Children.Add(list);
+            rows.Children.Add(row);
+            lists.Add(list);
+        }
+        dock.Children.Add(new ScrollViewer { Content = rows, MaxHeight = 420, HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled });
+        dialog.Content = dock;
         Wait(dialog.ShowDialog<object?>(this));
         return result;
     }

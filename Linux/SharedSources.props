@@ -157,5 +157,8 @@
     <Compile Include="..\SettingsUi\ViewModels\PageVM.cs" Link="Shared\SettingsUi\ViewModels\PageVM.cs" />
     <Compile Include="..\SettingsUi\ViewModels\ShellVM.cs" Link="Shared\SettingsUi\ViewModels\ShellVM.cs" />
     <Compile Include="..\SettingsUi\SettingChanges.cs" Link="Shared\SettingsUi\SettingChanges.cs" />
+    <!-- S3b: App › Profiles. The copy and character-mapping dialogs are ProfileActions.Wpf.cs on Windows, Linux/Settings on Linux. -->
+    <Compile Include="..\SettingsUi\ProfileActions.cs" Link="Shared\SettingsUi\ProfileActions.cs" />
+    <Compile Include="..\Services\ProfileDiff.cs" Link="Shared\Services\ProfileDiff.cs" />
   </ItemGroup>
 </Project>

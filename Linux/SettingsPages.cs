@@ -47,11 +47,14 @@ public interface ISettingsHost
     /// running client, the part is stored in <paramref name="def"/> and <paramref name="picked"/> runs, and the window
     /// comes back. Returns the L.* key of why it couldn't start ({0} = the character), or null once the picker is open.</summary>
     string? PickCropArea(string character, CropDefinition def, Action picked);
+    /// <summary>Every running thumbnail goes to the place and size its profile keeps (ThumbnailManager.ReapplySettings): after
+    /// a whole-profile copy, a layout or a size given to all.</summary>
+    void ReapplyThumbnails();
 }
 
 /// <summary>The settings window's pages. Each page is built from the settings as they are when it is shown, and every
 /// control writes its change at once and asks for a delayed save.</summary>
-internal sealed class SettingsPages
+internal sealed partial class SettingsPages
 {
     private readonly ISettingsHost _host;
     private readonly Window _window;

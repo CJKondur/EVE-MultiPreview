@@ -8,8 +8,9 @@ namespace EveMultiPreview.SettingsUi;
 
 /// <summary>Profile operations for the new window: the navigation profile menu and
 /// App › Profiles & backups. Every path that changes the active profile ends in
-/// SwitchProfile, so App re-applies thumbnails, positions, crops and hotkeys.</summary>
-public static class ProfileActions
+/// SwitchProfile, so App re-applies thumbnails, positions, crops and hotkeys.
+/// The two dialogs (copy, character mapping) are the window's own: ProfileActions.Wpf.cs on Windows, the Linux app's on Linux.</summary>
+public static partial class ProfileActions
 {
     private static string Str(string key) => SettingsContext.Str(key);
 
@@ -79,12 +80,15 @@ public static class ProfileActions
             ctx.Host.Toast(string.Format(Str("L.S.Profile.Copied"), 1));
             return;
         }
-        var dialog = new Views.CopyLayoutDialog(names, ctx.S.LastUsedProfile) { Owner = ctx.Host.DialogOwner };
-        if (dialog.ShowDialog() != true || dialog.SelectedFrom == null) return;
-        var count = CopyLayout(ctx, dialog.SelectedFrom, dialog.IsAllProfiles ? null : dialog.SelectedTo, dialog.FullProfileCopy);
+        if (AskCopy(ctx, names) is not { } copy) return;
+        var count = CopyLayout(ctx, copy.From, copy.To, copy.Full);
         ctx.Host.Reload();
         ctx.Host.Toast(string.Format(Str("L.S.Profile.Copied"), count));
     }
+
+    /// <summary>The copy dialog: from which profile, to one profile or (To == null) every other one, every setting (Full) or
+    /// the thumbnail positions only. Null when it was cancelled or closed.</summary>
+    private static partial (string From, string? To, bool Full)? AskCopy(SettingsContext ctx, List<string> names);
 
     /// <summary>IDEAS #12: the look of the current profile as a code on the clipboard (copy is ClipboardText.Set in the app,
     /// a recorder in tests).</summary>
@@ -111,12 +115,7 @@ public static class ProfileActions
 
     /// <summary>The window's mapping dialog for a profile code: the code's characters (in order) against the local ones; the
     /// chosen local character per code character, or null when the dialog was cancelled, closed or could not be opened.</summary>
-    public static Dictionary<int, string>? AskMapping(SettingsContext ctx, IReadOnlyList<string> codeCharacters, IReadOnlyList<string> local)
-    {
-        if (ctx.Host.DialogOwner is not { } owner) return null;
-        var dialog = new Views.LayoutRemapDialog(owner, codeCharacters, local, profileCode: true);
-        return dialog.ShowDialog() == true ? dialog.Mapping : null;
-    }
+    public static partial Dictionary<int, string>? AskMapping(SettingsContext ctx, IReadOnlyList<string> codeCharacters, IReadOnlyList<string> local);
 
     /// <summary>IDEAS #12 and P123: a new profile from a code: asks for the code, then for a name; the new profile is a copy of
     /// the current one with the code's look (its own characters for IDEAS #11 stay none), and becomes the one in use. A code
