@@ -448,6 +448,21 @@ internal sealed class SettingsPages
     {
         _clashLines.Clear();
         var page = Page(T("L.S.Page.clients.hotkeys", "Hotkeys"));
+        // GlobalHotkeys, as on Windows: off = the keys are grabbed only while EVE or MultiPreview is in front (the
+        // thumbnails' tick lets them go otherwise), so a bound "1" still types in other programs.
+        var scope = new ComboBox { Width = 280 };
+        scope.Items.Add(T("L.S.Opt.ScopeEve", "Only while EVE is in front"));
+        scope.Items.Add(T("L.S.Opt.ScopeEverywhere", "Everywhere"));
+        scope.SelectedIndex = S.GlobalHotkeys ? 1 : 0;
+        scope.SelectionChanged += (_, _) =>
+        {
+            bool everywhere = scope.SelectedIndex == 1;
+            if (scope.SelectedIndex < 0 || everywhere == S.GlobalHotkeys) return;
+            S.GlobalHotkeys = everywhere;
+            Save();
+        };
+        page.Children.Add(Ui.Row(T("L.S.clients.hotkeys.scope", "Hotkeys work"), scope,
+            T("L.S.clients.hotkeys.scope.Desc", "Only while EVE is in front leaves your keys alone in other apps.")));
         page.Children.Add(Ui.Section(T("L.S.Sec.clients.hotkeys.cycling", "Switching between clients")));
         page.Children.Add(Key(T("L.S.clients.hotkeys.cycleNext", "Next client"), S.GlobalCycleForwardHotkey, v => S.GlobalCycleForwardHotkey = v));
         page.Children.Add(Key(T("L.S.clients.hotkeys.cyclePrevious", "Previous client"), S.GlobalCycleBackwardHotkey, v => S.GlobalCycleBackwardHotkey = v));

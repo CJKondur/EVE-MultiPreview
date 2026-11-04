@@ -12,7 +12,7 @@ public sealed unsafe class EveClients : IDisposable
 {
     private readonly IntPtr _c;
     private readonly uint _root;
-    private readonly uint _netClientList, _netActiveWindow, _netWmName, _utf8String;
+    private readonly uint _netClientList, _netActiveWindow, _netWmName, _utf8String, _netWmPid;
     private readonly bool _composite;
     private readonly HashSet<uint> _redirected = new();
 
@@ -29,6 +29,7 @@ public sealed unsafe class EveClients : IDisposable
         _netActiveWindow = Xcb.Atom(_c, "_NET_ACTIVE_WINDOW");
         _netWmName = Xcb.Atom(_c, "_NET_WM_NAME");
         _utf8String = Xcb.Atom(_c, "UTF8_STRING");
+        _netWmPid = Xcb.Atom(_c, "_NET_WM_PID");
         _composite = Xcb.InitComposite(_c);
         if (Environment.GetEnvironmentVariable("EVEMP_NO_RENDER") != "1") _renderFormats = XRender.Formats(_c);
     }
@@ -62,6 +63,14 @@ public sealed unsafe class EveClients : IDisposable
     {
         var v = Xcb.Property(_c, _root, _netActiveWindow);
         return v is { Length: >= 4 } ? BitConverter.ToUInt32(v, 0) : 0;
+    }
+
+    /// <summary>The window is one of MultiPreview's own (a thumbnail, the settings window): its _NET_WM_PID is this process.</summary>
+    public bool IsOurs(uint window)
+    {
+        if (window == 0) return false;
+        var pid = Xcb.Property(_c, window, _netWmPid);
+        return pid is { Length: >= 4 } && BitConverter.ToUInt32(pid, 0) == (uint)Environment.ProcessId;
     }
 
     public void Activate(uint window) => Xcb.RequestActivate(_c, _root, window, _netActiveWindow);

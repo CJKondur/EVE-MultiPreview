@@ -165,9 +165,16 @@ public sealed class Previews : ITrayActions, ISettingsHost
     /// grab and never reach the window.</summary>
     public void CaptureHotkey(bool capturing)
     {
+        _capturing = capturing;
         if (capturing) _hotkeys.Bind(Array.Empty<(string, Action)>());
         else if (!_hotkeysPaused) BindHotkeys();
     }
+
+    private bool _capturing;
+    /// <summary>Whether the keys are wanted right now: always with "Everywhere" (GlobalHotkeys), otherwise only while an
+    /// EVE client or a MultiPreview window is in front, as on Windows. Out of that scope the keys are let go, so a
+    /// bound "1" types normally in every other program.</summary>
+    private bool _keysInScope = true;
 
     void ISettingsHost.AlertsChanged() => _alerts?.Reapply();
 
@@ -201,6 +208,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     internal void BindHotkeys()
     {
+        if (!_keysInScope) { _hotkeys.Bind(Array.Empty<(string, Action)>()); return; }
         var keys = new List<(string, Action)>();
         foreach (var (character, binding) in _settings.CurrentProfile.Hotkeys)
             keys.Add((binding.Key, () => SwitchTo(character)));
@@ -264,6 +272,12 @@ public sealed class Previews : ITrayActions, ISettingsHost
             if (_thumbs.ContainsKey(_lastActive)) _previousActive = _lastActive;
             _lastActive = active;
             _alerts?.Looked(_thumbs[active].Client.Character);
+        }
+        bool inScope = S.GlobalHotkeys || _thumbs.ContainsKey(active) || _clients.IsOurs(active);
+        if (inScope != _keysInScope)
+        {
+            _keysInScope = inScope;
+            if (!_hotkeysPaused && !_capturing) BindHotkeys();
         }
         // An alert ends when its time is up, or when the player switches to that client.
         var now = DateTime.UtcNow;
