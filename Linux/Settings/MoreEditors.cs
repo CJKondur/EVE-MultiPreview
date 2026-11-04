@@ -210,6 +210,19 @@ internal sealed partial class SettingsPages
         return panel;
     }
 
+    /// <summary>A character's page › Include in cycling (the Windows CharacterCycleEditor): the session-only exclusion that
+    /// Shift+click (by default) toggles too.</summary>
+    internal Control CharacterCycle(string name)
+    {
+        var box = new CheckBox { IsChecked = !_host.IsExcludedFromCycle(name) };
+        box.IsCheckedChanged += (_, _) => _host.SetInCycle(name, box.IsChecked == true);
+        var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+        grid.Children.Add(Titled("character.cycle"));
+        Grid.SetColumn(box, 1);
+        grid.Children.Add(box);
+        return grid;
+    }
+
     // ── Thumbnails › Visibility › Second thumbnails ──
 
     // Copy of SettingsUi/Pages/Thumbnails/PipEditor.cs:SecondThumbnails (that file is WPF) — keep in sync.

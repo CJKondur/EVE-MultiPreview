@@ -43,7 +43,7 @@ internal static class LinuxSupport
 
         // ── Clients › Characters ──
         ["clients.characters.table"] = S, ["clients.characters.customColors"] = S,
-        ["clients.characters.ctrlClick"] = N, ["clients.characters.shiftClick"] = N,   // Linux thumbnails have fixed clicks
+        ["clients.characters.ctrlClick"] = S, ["clients.characters.shiftClick"] = S,   // Previews.ClickThumbnail (S3b)
 
         // ── Clients › Hotkeys ──
         ["clients.hotkeys.scope"] = S,
@@ -51,9 +51,10 @@ internal static class LinuxSupport
         ["clients.hotkeys.hideKeystrokes"] = W, ["clients.hotkeys.carryModifiers"] = W, ["clients.hotkeys.carryKeys"] = W,
         ["clients.hotkeys.hideHeld"] = W, ["clients.hotkeys.broadcastHud"] = W,          // low-level keyboard hook, SendInput
         ["clients.hotkeys.cycleNext"] = S, ["clients.hotkeys.cyclePrevious"] = S,
-        ["clients.hotkeys.cycleWhileHeld"] = N, ["clients.hotkeys.cycleDelay"] = N, ["clients.hotkeys.wrapSound"] = N,
-        ["clients.hotkeys.wrapSoundFile"] = N, ["clients.hotkeys.includeLogins"] = N, ["clients.hotkeys.cycleSameSystem"] = N,
-        ["clients.hotkeys.cycleAlerting"] = N, ["clients.hotkeys.cycleSkipMuted"] = N,   // Linux cycles without CycleFilter
+        ["clients.hotkeys.cycleWhileHeld"] = N, ["clients.hotkeys.cycleDelay"] = N,       // X11 key repeat is not followed
+        ["clients.hotkeys.wrapSound"] = S, ["clients.hotkeys.wrapSoundFile"] = S,         // Previews.PlayWrapSound (S3b)
+        ["clients.hotkeys.includeLogins"] = N,   // Linux makes no thumbnail for a client at the login screen
+        ["clients.hotkeys.cycleSameSystem"] = S, ["clients.hotkeys.cycleAlerting"] = S, ["clients.hotkeys.cycleSkipMuted"] = S,   // CycleFilter (S3b)
         ["clients.hotkeys.backToPrevious"] = S, ["clients.hotkeys.lastAlert"] = S,
         ["clients.hotkeys.suspend"] = N, ["clients.hotkeys.clickThrough"] = N, ["clients.hotkeys.hidePrimary"] = N,
         ["clients.hotkeys.quickSwitch"] = N, ["clients.hotkeys.undo"] = N, ["clients.hotkeys.redo"] = N,
@@ -96,7 +97,7 @@ internal static class LinuxSupport
         ["thumbs.text.highlightColor"] = S, ["thumbs.text.highlightWidth"] = S, ["thumbs.text.highlightInGroup"] = S,
         ["thumbs.text.inactiveColor"] = S, ["thumbs.text.inactiveWidth"] = S,
         ["thumbs.text.cornerRadius"] = N, ["thumbs.text.autoBorders"] = S, ["thumbs.text.groupBorders"] = S,
-        ["thumbs.text.badgePosition"] = N,    // no cycle exclusion on Linux
+        ["thumbs.text.badgePosition"] = S,    // ThumbnailWindow.SetCycleBadge (S3b)
         ["thumbs.text.notResponding"] = S, ["thumbs.text.disconnected"] = S, ["thumbs.text.disconnectSeconds"] = S,
 
         // ── Thumbnails › Layout ──
@@ -210,7 +211,7 @@ internal static class LinuxSupport
 
         // ── A character's page ──
         ["character.hotkey"] = S,
-        ["character.cycle"] = N,              // no cycle exclusion on Linux
+        ["character.cycle"] = S,              // MoreEditors.CharacterCycle, Previews._excludedFromCycle (S3b)
         ["character.groups"] = S, ["character.noGroup"] = S, ["character.groupsLink"] = S,
         ["character.show"] = S, ["character.label"] = S, ["character.labelColor"] = S, ["character.labelSize"] = S,
         ["character.size"] = S,               // MoreEditors.CharacterSizeBox (S3b)

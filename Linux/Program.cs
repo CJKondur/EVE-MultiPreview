@@ -645,17 +645,81 @@ public sealed class Previews : ITrayActions, ISettingsHost
         if (thumb != null) _clients.Activate(thumb.Client.Window);
     }
 
+    /// <summary>Characters left out of cycling this session (ThumbnailManager._excludedFromCycle: Shift+click by default, or a
+    /// character page's switch). Not saved, as on Windows.</summary>
+    private readonly HashSet<string> _excludedFromCycle = new(StringComparer.OrdinalIgnoreCase);
+    /// <summary>The cycle filters as the last press found them, and what the keys remember between presses (IDEAS #40).</summary>
+    private CycleFilterOptions _cycleSwitches;
+    private readonly CycleFilter.Walk<uint> _groupCycleWalk = new(), _allCycleWalk = new();
+
     /// <summary>The next or previous running client: of <paramref name="order"/> (a group's switching order) when
-    /// given, else of every client in thumbnail order. Counted from the client in front (CycleStep, as on Windows).</summary>
+    /// given, else of every client in thumbnail order. Counted from the client in front (CycleStep, as on Windows).
+    /// Characters left out of cycling are skipped, the cycle filters are applied (CycleFilter.Press, as ThumbnailManager
+    /// does), and a wrap from the last client to the first plays the wrap-around sound.</summary>
     private void Cycle(IReadOnlyList<string>? order, bool forward)
     {
-        var list = order == null
+        var list = (order == null
             ? _thumbs.Values.ToList()
             : order.Select(n => _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, n, StringComparison.OrdinalIgnoreCase)))
-                   .OfType<ThumbnailWindow>().ToList();
+                   .OfType<ThumbnailWindow>().ToList())
+            .Where(t => !_excludedFromCycle.Contains(t.Client.Character)).ToList();
         if (list.Count == 0) return;
+        var options = CycleFilterOptions.From(S);
+        if (CycleFilter.Changed(ref _cycleSwitches, options)) { _groupCycleWalk.Forget(); _allCycleWalk.Forget(); }
+        if (options.Any)
+        {
+            var windows = list.Select(t => t.Client.Window).ToList();
+            string NameOf(uint w) => _thumbs.TryGetValue(w, out var t) ? t.Client.Character : "";
+            if (CycleFilter.Press(windows, options, w => w == _lastActive, NameOf(_lastActive) is { Length: > 0 } a ? a : null, NameOf,
+                    name => _alerts?.SystemOf(name), _attention.Has, name => _alerts?.Mutes.Until(name) != null,
+                    order == null ? _allCycleWalk : _groupCycleWalk))
+                Alerts.Say(LocalizationService.Str("L.Switch.CycleFilterEmpty", "No other client matches the cycle filter: switching through all of them"));
+            list = windows.Select(w => _thumbs[w]).ToList();
+        }
         int current = list.FindIndex(t => t.Client.Window == _lastActive);
-        _clients.Activate(list[CycleStep.Next(current, list.Count, forward)].Client.Window);
+        int next = CycleStep.Next(current, list.Count, forward);
+        bool wrapped = forward
+            ? current > 0 && next == 0 && list.Count > 1
+            : current >= 0 && current < list.Count - 1 && next == list.Count - 1 && list.Count > 1;
+        if (wrapped) PlayWrapSound();
+        _clients.Activate(list[next].Client.Window);
+    }
+
+    /// <summary>App's CycleWrapped: the wrap-around sound, held by do-not-disturb (critical alerts or not), at the alert volume.</summary>
+    private void PlayWrapSound()
+    {
+        if (!S.CycleWrapSoundEnabled || DoNotDisturb) return;
+        var wrap = AlertSoundChoice.WrapSound(S);
+        if (wrap.Length > 0) Alerts.PlayFile(wrap, S.AlertSoundVolume);
+    }
+
+    /// <summary>A left click on a thumbnail (ThumbnailWindow's click on Windows): Ctrl or Shift held runs the player's action
+    /// for it (CtrlClickAction / ShiftClickAction: 0 switch, 1 minimize the client, 2 leave it out of cycling); else switch.</summary>
+    private void ClickThumbnail(ThumbnailWindow thumb, EveClient client)
+    {
+        var held = thumb.ClickModifiers;
+        int action = (held & Avalonia.Input.KeyModifiers.Control) != 0 ? S.CtrlClickAction : (held & Avalonia.Input.KeyModifiers.Shift) != 0 ? S.ShiftClickAction : 0;
+        if (action == 1) _clients.Minimize(client.Window);
+        else if (action == 2) ToggleCycleExclusion(client.Character);
+        else _clients.Activate(client.Window);
+    }
+
+    /// <summary>ThumbnailManager.ToggleCycleExclusion: the character is left out of cycling, or taken back, and it is said.</summary>
+    private void ToggleCycleExclusion(string character)
+    {
+        if (string.IsNullOrEmpty(character)) return;
+        bool now = !_excludedFromCycle.Remove(character);
+        if (now) _excludedFromCycle.Add(character);
+        var who = StreamerMask.Name(StreamerKind.Character, character);
+        Alerts.Say(now ? string.Format(LocalizationService.Str("L.Msg.CycleExcluded", "'{0}' excluded from cycle"), who)
+            : string.Format(LocalizationService.Str("L.Msg.CycleIncluded", "'{0}' re-included in cycle"), who));
+    }
+
+    bool ISettingsHost.IsExcludedFromCycle(string character) => _excludedFromCycle.Contains(character);
+
+    void ISettingsHost.SetInCycle(string character, bool included)
+    {
+        if (_excludedFromCycle.Contains(character) == included) ToggleCycleExclusion(character);
     }
 
     /// <summary>The "Go to the last alert" hotkey (ThumbnailManager.GoToLastAlert): the client of the most severe alert the
@@ -761,6 +825,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.MenuOpen = _menu != null;
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
             thumb.SetMark(MarkOf(thumb.Client.Window));
+            thumb.SetCycleBadge(_excludedFromCycle.Contains(thumb.Client.Character), ThumbnailFields.Anchor(S.CycleExclusionBadgePosition));
             thumb.Update(_clients);
         }
         // Second thumbnails: shown while the client runs, also while it is in front, unless all thumbnails or the second ones are hidden.
@@ -1170,7 +1235,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         foreach (var client in found.Where(f => !_thumbs.ContainsKey(f.Window)))
         {
             var thumb = new ThumbnailWindow(client, Place(client.Character));
-            thumb.Clicked += c => _clients.Activate(c.Window);
+            thumb.Clicked += c => ClickThumbnail(thumb, c);
             thumb.Moved += t =>
             {
                 _settings.SaveThumbnailPosition(t.Client.Character, t.OwnPosition.X, t.OwnPosition.Y, t.OwnWidth, t.OwnHeight);

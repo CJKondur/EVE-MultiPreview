@@ -63,6 +63,10 @@ public interface ISettingsHost
     bool ResizeThumbnail(string character, int width, int height);
     /// <summary>ThumbnailManager.SetClientVolume: stores and saves the character's volume (0–100) and gives it to its running client.</summary>
     void SetClientVolume(string character, int percent);
+    /// <summary>The character is left out of cycling this session (Shift+click, or its page's switch).</summary>
+    bool IsExcludedFromCycle(string character);
+    /// <summary>Takes the character into cycling or leaves it out (ThumbnailManager.ToggleCycleExclusion), and says so.</summary>
+    void SetInCycle(string character, bool included);
 }
 
 /// <summary>The settings window's pages. Each page is built from the settings as they are when it is shown, and every

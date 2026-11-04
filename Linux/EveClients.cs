@@ -12,7 +12,7 @@ public sealed unsafe class EveClients : IDisposable
 {
     private readonly IntPtr _c;
     private readonly uint _root;
-    private readonly uint _netClientList, _netActiveWindow, _netWmName, _utf8String, _netWmPid, _netCloseWindow;
+    private readonly uint _netClientList, _netActiveWindow, _netWmName, _utf8String, _netWmPid, _netCloseWindow, _wmChangeState;
     private readonly bool _composite;
     private readonly HashSet<uint> _redirected = new();
 
@@ -31,6 +31,7 @@ public sealed unsafe class EveClients : IDisposable
         _utf8String = Xcb.Atom(_c, "UTF8_STRING");
         _netWmPid = Xcb.Atom(_c, "_NET_WM_PID");
         _netCloseWindow = Xcb.Atom(_c, "_NET_CLOSE_WINDOW");
+        _wmChangeState = Xcb.Atom(_c, "WM_CHANGE_STATE");
         _composite = Xcb.InitComposite(_c);
         if (Environment.GetEnvironmentVariable("EVEMP_NO_RENDER") != "1") _renderFormats = XRender.Formats(_c);
     }
@@ -83,6 +84,9 @@ public sealed unsafe class EveClients : IDisposable
 
     /// <summary>Asks the window manager to close the client, as its close button would.</summary>
     public void Close(uint window) => Xcb.RequestClose(_c, _root, window, _netCloseWindow);
+
+    /// <summary>Asks the window manager to minimize the window (ThumbnailManager's minimize click).</summary>
+    public void Minimize(uint window) => Xcb.RequestIconify(_c, _root, window, _wmChangeState);
 
     /// <summary>The pointer on the screen and the buttons and modifiers that are down (a thumbnail resize follows the mouse by it).</summary>
     public (int X, int Y, ushort Mask)? Pointer() => Xcb.Pointer(_c, _root);

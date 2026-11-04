@@ -35,6 +35,7 @@ internal static class LinuxEditors
         { "alerts.look.colorBlind", (pages, ctx, _) => pages.ColorBlind(ctx) },
         { EditorIds.DoNotDisturbStateEditor, (pages, ctx, _) => pages.DoNotDisturbLine(ctx) },
         { "alerts.sounds.table", (pages, ctx, _) => pages.SoundTable(ctx) },
+        { "character.cycle", (pages, _, item) => pages.CharacterCycle((string)item.Arg!) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

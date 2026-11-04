@@ -25,6 +25,7 @@ public sealed class ThumbnailWindow : Window
     private readonly TextBlock _name;
     private readonly Border _mark;
     private readonly TextBlock _markText;
+    private readonly Border _badge;
     private WriteableBitmap _bitmap;
     private ThumbnailLook? _look;
     private Gesture _mode = Gesture.None;
@@ -101,7 +102,14 @@ public sealed class ThumbnailWindow : Window
             Child = _markText,
             IsVisible = false,
         };
-        _frame = new Border { Child = new Panel { Children = { _image, _name, _mark } } };
+        // The cycle-exclusion badge (the Windows TextOverlayWindow's ExclusionBadge): a red disc with ✕ at one of nine places.
+        _badge = new Border
+        {
+            Width = 20, Height = 20, CornerRadius = new CornerRadius(10), Background = new SolidColorBrush(Color.FromRgb(0xCC, 0, 0)),
+            BorderBrush = Brushes.White, BorderThickness = new Thickness(1), IsVisible = false, IsHitTestVisible = false,
+            Child = new TextBlock { Text = "✕", Foreground = Brushes.White, FontSize = 12, FontWeight = FontWeight.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+        };
+        _frame = new Border { Child = new Panel { Children = { _image, _name, _mark, _badge } } };
         Content = _frame;
 
         // Right drag moves the thumbnail by itself (pointer captured), not through the window manager's move, so it
@@ -177,6 +185,7 @@ public sealed class ThumbnailWindow : Window
                 case PointerUpdateKind.LeftButtonPressed when _mode == Gesture.None:
                     // While enlarged only the thumbnail's own place takes the click: the part that grew is not this thumbnail (AlertEnlarge.InOwnPlace).
                     var at = PointerSource?.Invoke() is { } xp ? new PixelPoint(xp.X, xp.Y) : this.PointToScreen(e.GetPosition(this));
+                    ClickModifiers = e.KeyModifiers;   // Ctrl / Shift + click: the player's own click actions (ThumbnailManager)
                     if (!_grown || AlertEnlarge.InOwnPlace(OwnRectangle(), at.X, at.Y)) Clicked?.Invoke(Client);
                     break;
             }
@@ -458,6 +467,26 @@ public sealed class ThumbnailWindow : Window
         _name.FontFamily = new FontFamily(look.Font);
         Opacity = look.Opacity;
         Topmost = look.Topmost;
+    }
+
+    /// <summary>The modifiers held at the last left click (read by Clicked's handler).</summary>
+    public KeyModifiers ClickModifiers { get; private set; }
+
+    private string? _badgeAt;
+
+    /// <summary>The cycle-exclusion badge (TextOverlayWindow.SetCycleExcluded / SetCycleExclusionPosition): shown while the
+    /// character is left out of cycling, at one of the nine anchors (ThumbnailFields.Anchor), 4 px in from the edge.</summary>
+    public void SetCycleBadge(bool excluded, string position)
+    {
+        _badge.IsVisible = excluded;
+        if (!excluded || position == _badgeAt) return;
+        _badgeAt = position;
+        const double inset = 4;
+        bool left = position is "TopLeft" or "Left" or "BottomLeft", right = position is "TopRight" or "Right" or "BottomRight";
+        bool top = position is "TopLeft" or "Top" or "TopRight", bottom = position is "BottomLeft" or "Bottom" or "BottomRight";
+        _badge.HorizontalAlignment = left ? HorizontalAlignment.Left : right ? HorizontalAlignment.Right : HorizontalAlignment.Center;
+        _badge.VerticalAlignment = top ? VerticalAlignment.Top : bottom ? VerticalAlignment.Bottom : VerticalAlignment.Center;
+        _badge.Margin = new Thickness(left ? inset : 0, top ? inset : 0, right ? inset : 0, bottom ? inset : 0);
     }
 
     /// <summary>IDEAS #22, #47: what ClientWatch says of the client ("Not responding", "Disconnected") over the middle of the
