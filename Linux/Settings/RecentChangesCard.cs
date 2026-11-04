@@ -42,10 +42,25 @@ internal sealed class RecentChangesCard : UserControl, IRefreshable
         _none.IsVisible = shown.Count == 0;
     }
 
+    /// <summary>Undo runs the setting's own side effect (OnChanged); one a Linux stand-in refuses, or any other failure, is
+    /// said as a toast and the list is drawn again — it never takes the app with it.</summary>
     private void Undo(SettingChanges.Change change)
     {
-        if (_ctx.Service.Changes.Undo(change, _ctx)) _ctx.Host.Reload();
-        else _ctx.Host.Toast(SettingsContext.Str(SettingChanges.BelongsToAnotherProfile(change, _ctx.S) ? "L.S.Changes.OtherProfile" : "L.S.Changes.Refused"));
+        try
+        {
+            if (_ctx.Service.Changes.Undo(change, _ctx)) _ctx.Host.Reload();
+            else _ctx.Host.Toast(SettingsContext.Str(SettingChanges.BelongsToAnotherProfile(change, _ctx.S) ? "L.S.Changes.OtherProfile" : "L.S.Changes.Refused"));
+        }
+        catch (PlatformNotSupportedException ex)
+        {
+            Console.Error.WriteLine("[Settings] undo: " + ex.Message);
+            _ctx.Host.Toast(string.Format(LocalizationService.Str("L.Linux.NotYet", "Not available on Linux yet: {0}"), SettingsContext.Str(change.LabelKey)));
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            Console.Error.WriteLine($"[Settings] undo {change.Id}: {ex.GetType().Name}");
+            _ctx.Host.Toast(SettingsContext.Str("L.S.Changes.Refused"));
+        }
         Refresh();
     }
 

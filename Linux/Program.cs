@@ -86,6 +86,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     public void Start()
     {
+        CatchStrays();
         Console.WriteLine($"EVE MultiPreview for Linux: settings {AppPaths.SettingsPath}; looking for windows titled \"{_clients.TitlePrefix}…\" "
             + $"(Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
         BindHotkeys();
@@ -113,6 +114,32 @@ public sealed class Previews : ITrayActions, ISettingsHost
         if (Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS") is { Length: > 0 } page) OpenSettings(OldPageNumbers.ElementAtOrDefault(int.TryParse(page, out int n) ? n : -1) ?? page);
         // EVEMP_OPEN_HISTORY=1: opens the alert history window at startup (the tests use it).
         if (Environment.GetEnvironmentVariable("EVEMP_OPEN_HISTORY") == "1") OpenAlertHistory();
+    }
+
+    /// <summary>The last resort: an exception no handler caught (a settings card's side effect, a menu, a timer) is logged
+    /// and said in the settings window instead of ending the app and every thumbnail with it.</summary>
+    private void CatchStrays()
+    {
+        Dispatcher.UIThread.UnhandledException += (_, e) =>
+        {
+            e.Handled = true;
+            Console.Error.WriteLine($"[App] unhandled {e.Exception.GetType().Name}: {e.Exception.Message}");
+            try
+            {
+                ErrorLog.Shared.Record(e.Exception, "App", DateTime.Now);
+                _settingsWindow?.Toast(e.Exception is PlatformNotSupportedException
+                    ? string.Format(LocalizationService.Str("L.Linux.NotYet", "Not available on Linux yet: {0}"), e.Exception.Message)
+                    : e.Exception.GetType().Name);
+            }
+            catch (Exception) { }   // the last resort never throws itself
+        };
+        // Off the UI thread nothing can be caught: the reason is written down before the runtime ends the process.
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            var ex = e.ExceptionObject as Exception;
+            Console.Error.WriteLine($"[App] fatal {ex?.GetType().Name}: {ex?.Message}");
+            try { if (ex != null) ErrorLog.Shared.Record(ex, "App", DateTime.Now); } catch (Exception) { }
+        };
     }
 
     // ── Tray ──
@@ -454,7 +481,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     IReadOnlyCollection<string> ISettingsHost.RunningCharacters() => RunningCharacters();
 
-    void ISettingsHost.HotkeysChanged() { if (!_hotkeysPaused) BindHotkeys(); }
+    // Not while a hotkey box listens: binding again would grab the key the player is pressing (CaptureHotkey(false) binds).
+    void ISettingsHost.HotkeysChanged() { if (!_hotkeysPaused && !_capturing) BindHotkeys(); }
 
     /// <summary>While a hotkey box listens, the keys are not grabbed: a key that is already a hotkey would go to the
     /// grab and never reach the window.</summary>

@@ -447,11 +447,16 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         Action read;
         Control input;
         bool below = false;
+        Action? reread = null;   // Read, below: a refused change shows the stored value again
 
         void Commit(Action change)
         {
             if (reading) return;
-            Run(change, error);
+            if (Run(change, error, Str(vm.LabelKey))) return;
+            var said = error.Text;
+            reread?.Invoke();
+            error.Text = said;   // Read shows the view-model's own error only; the refusal stays under the card
+            error.IsVisible = true;
         }
 
         switch (vm.Kind)
@@ -598,6 +603,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             finally { reading = false; }
         }
         Read();
+        reread = Read;
         Watch(vm, name => { if (name is "" or null) Read(); else if (name == nameof(ItemVM.IsHighlighted)) Highlight(vm.Id, vm.IsHighlighted); });
         return Labelled(Str(vm.LabelKey), Optional(vm.DescKey), input, error, below);
     }
@@ -659,22 +665,26 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     /// <summary>Runs a change or an action. One a Linux stand-in refuses says so under its card and as a toast; any other
     /// failure is said too (by its kind, never its message) and written to the console, and the window stays open.</summary>
-    private void Run(Action run, TextBlock error, string? what = null)
+    /// <returns>False when it failed: a card then shows its stored value again instead of the refused one.</returns>
+    private bool Run(Action run, TextBlock error, string? what = null)
     {
         error.IsVisible = false;   // a card's own error (a value out of range) is shown again by the card as it re-reads
         try
         {
             run();
+            return true;
         }
         catch (PlatformNotSupportedException ex)
         {
             Console.Error.WriteLine("[Settings] " + ex.Message);
             Say(error, string.Format(LocalizationService.Str("L.Linux.NotYet", "Not available on Linux yet: {0}"), what ?? ex.Message));
+            return false;
         }
         catch (Exception ex) when (ex is not OutOfMemoryException)
         {
             Console.Error.WriteLine($"[Settings] {what}: {ex.GetType().Name}: {ex.Message}");
             Say(error, ex.GetType().Name);
+            return false;
         }
     }
 
@@ -836,27 +846,30 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     }
 
     public bool Confirm(string title, string body, SafeAnswer safe = SafeAnswer.Cancel) =>
-        Ask(title, body, new[] { Str("L.S.Shell.Ok"), Str("L.S.Shell.Cancel") }, safe == SafeAnswer.First ? 0 : 1) == 0;
+        Ask(title, body, new[] { Str("L.S.Shell.Ok"), Str("L.S.Shell.Cancel") }, safe == SafeAnswer.First ? 0 : 1, safe == SafeAnswer.First ? 0 : 1) == 0;
 
-    public bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel, SafeAnswer safe = SafeAnswer.Cancel) =>
-        Ask(title, body, new[] { yesLabel, noLabel, Str("L.S.Shell.Cancel") }, safe switch { SafeAnswer.First => 0, SafeAnswer.Second => 1, _ => 2 }) switch
+    public bool? ConfirmChoice(string title, string body, string yesLabel, string noLabel, SafeAnswer safe = SafeAnswer.Cancel)
+    {
+        int safeIndex = safe switch { SafeAnswer.First => 0, SafeAnswer.Second => 1, _ => 2 };
+        return Ask(title, body, new[] { yesLabel, noLabel, Str("L.S.Shell.Cancel") }, safeIndex, safeIndex) switch
         {
             0 => true,
             1 => false,
             _ => null,
         };
+    }
 
     public string? AskText(string title, string prompt, string initial)
     {
         var box = new TextBox { Text = initial };
-        var answer = Ask(title, prompt, new[] { Str("L.S.Shell.Ok"), Str("L.S.Shell.Cancel") }, 0, box);
+        var answer = Ask(title, prompt, new[] { Str("L.S.Shell.Ok"), Str("L.S.Shell.Cancel") }, defaultIndex: 0, cancelIndex: 1, box);
         return answer == 0 && !string.IsNullOrWhiteSpace(box.Text) ? box.Text : null;
     }
 
     public string? PickCharacter(string title, IReadOnlyList<string> names)
     {
         var box = new AutoCompleteBox { ItemsSource = names.ToList(), FilterMode = AutoCompleteFilterMode.ContainsOrdinal, MinWidth = 260 };
-        var answer = Ask(title, "", new[] { Str("L.S.Shell.Ok"), Str("L.S.Shell.Cancel") }, 0, box);
+        var answer = Ask(title, "", new[] { Str("L.S.Shell.Ok"), Str("L.S.Shell.Cancel") }, defaultIndex: 0, cancelIndex: 1, box);
         return answer == 0 && !string.IsNullOrWhiteSpace(box.Text) ? box.Text.Trim() : null;
     }
 
@@ -947,24 +960,26 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         return types;
     }
 
-    /// <summary>A question in a small window over this one: the buttons in order, <paramref name="safe"/> the default (Enter)
-    /// and the answer of Esc and of closing. Returns the button's index.</summary>
-    private int Ask(string title, string body, IReadOnlyList<string> answers, int safe, Control? extra = null)
+    /// <summary>A question in a small window over this one: the buttons in order, <paramref name="defaultIndex"/> the answer of
+    /// Enter, <paramref name="cancelIndex"/> the answer of Esc and of closing the window. A question with a box (a name to type,
+    /// a character to pick) takes OK on Enter but Cancel on Esc; a yes/no question answers its safe button to both.
+    /// Returns the button's index.</summary>
+    private int Ask(string title, string body, IReadOnlyList<string> answers, int defaultIndex, int cancelIndex, Control? extra = null)
     {
         var dialog = new Window
         {
             Title = AccessKeys.Spoken(title), Width = 440, SizeToContent = SizeToContent.Height, CanResize = false,
             RequestedThemeVariant = ThemeVariant.Dark, WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
-        int result = safe;
+        int result = cancelIndex;
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, HorizontalAlignment = HorizontalAlignment.Right };
         Button? safeButton = null;
         for (int i = 0; i < answers.Count; i++)
         {
             int index = i;
-            var b = new Button { Content = new TextBlock { Text = Ui.NoAccess(answers[i]) }, IsDefault = i == safe, IsCancel = i == safe };
+            var b = new Button { Content = new TextBlock { Text = Ui.NoAccess(answers[i]) }, IsDefault = i == defaultIndex, IsCancel = i == cancelIndex };
             b.Click += (_, _) => { result = index; dialog.Close(); };
-            if (i == safe) safeButton = b;
+            if (i == defaultIndex) safeButton = b;
             buttons.Children.Add(b);
         }
         var panel = new StackPanel { Spacing = 14, Margin = new Thickness(18) };
