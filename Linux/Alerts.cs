@@ -66,6 +66,9 @@ public sealed class Alerts : IDisposable
         _settings = settings;
         _switchTo = switchTo;
         _snooze = snooze;
+        _attention = attention;
+        _windowOf = windowOf;
+        _flash = flash;
         _history = new AlertHistory(AppPaths.HistoryDir, ErrorLog.Shared)
         {
             Enabled = settings.LoadedSuccessfully && S.AlertHistoryEnabled,
@@ -111,6 +114,8 @@ public sealed class Alerts : IDisposable
                 _idle.Query, EventName, LocalizationService.Str,
                 failed: ex => ErrorLog.Shared.Record(ex, "App", DateTime.Now));
             _ways.Add(_push);
+            // IDEAS #29: the last repeat of a critical alert nobody looked at is said and pushed once more (App's HandOff).
+            _escalation.HandOff = alert => { _spoken?.HandedOff(alert); _push?.HandedOff(alert); };
         }
         catch (Exception ex)
         {
@@ -241,6 +246,7 @@ public sealed class Alerts : IDisposable
     public void LookDerived(DateTime utcNow, IEnumerable<string> loggedIn)
     {
         _derived.Look(utcNow);
+        LookEscalation(utcNow);
         try
         {
             if (!EventOn(IdleWatch.EventKey))
@@ -443,20 +449,49 @@ public sealed class Alerts : IDisposable
     /// <summary>The alert's sound file, as the Windows app picks it, played by the desktop's sound player. An event with a
     /// wait of its own (SoundCooldowns, Alerts › Sounds › Sound for each event) plays again for the same character only once
     /// that wait is over, as App.PlayAlertSound keys it: other characters' alerts each get their sound.</summary>
-    private void PlaySound(string character, string alertType, string severity)
+    /// <param name="volume">A repeat's volume (AlertEscalation.Volume); null for the alert itself, at the set volume.</param>
+    /// <returns>App.PlayAlertSound's answer: played, later (do-not-disturb, the event's wait), or never (sounds off, no file).</returns>
+    private SoundResult PlaySound(string character, string alertType, string severity, int? volume = null)
     {
-        if (!S.EnableAlertSounds || _doNotDisturb.Silences(S, severity, DateTime.Now)) return;
+        if (!S.EnableAlertSounds) return SoundResult.Never;
+        if (_doNotDisturb.Silences(S, severity, DateTime.Now)) return SoundResult.Later;
         string key = $"sound_{character}_{alertType}";
         int wait = S.SoundCooldowns?.GetValueOrDefault(alertType, 0) ?? 0;
         var now = DateTime.UtcNow;
         lock (_soundPlayed)
         {
-            if (wait > 0 && _soundPlayed.TryGetValue(key, out var last) && AlertSoundChoice.StillWaits(last, now, wait)) return;
+            if (wait > 0 && _soundPlayed.TryGetValue(key, out var last) && AlertSoundChoice.StillWaits(last, now, wait)) return SoundResult.Later;
         }
         // A group's own sound for the event (or for every event) comes first, as App.PlayAlertSound asks GroupSounds.
-        if (AlertSoundChoice.FileToPlay(S, alertType, File.Exists, _groupSounds.For(character, alertType)) is not { } file || !File.Exists(file)) return;
+        if (AlertSoundChoice.FileToPlay(S, alertType, File.Exists, _groupSounds.For(character, alertType)) is not { } file || !File.Exists(file)) return SoundResult.Never;
         lock (_soundPlayed) _soundPlayed[key] = now;
-        PlayFile(file, S.AlertSoundVolume);
+        return PlayFile(file, volume ?? AlertEscalation.Volume(S.AlertSoundVolume, 0, false)) ? SoundResult.Played : SoundResult.Never;
+    }
+
+    // ── Escalation (IDEAS #29) ──
+
+    private readonly AlertEscalation _escalation = new();
+    private readonly AlertAttention _attention;
+    private readonly Func<string, uint> _windowOf;
+    private readonly Action<string, string, string> _flash;
+
+    /// <summary>App's AlertTick for the repeats: is a repeat due for a critical alert that is still unseen? AlertEscalation
+    /// decides it and what becomes of it; the repeat plays as the alert's own sound does (sounds on, the event's wait,
+    /// do-not-disturb), louder each time, and the client's border flashes again. Asked twice a second from the app's
+    /// half-second look (no timer of its own); with the repeats off it asks nothing and keeps nothing. On the UI thread.</summary>
+    private void LookEscalation(DateTime utcNow)
+    {
+        var s = S;
+        _escalation.Tick(s, utcNow,
+            unseen: _attention.Unseen,
+            // What ends a chain for good: the character is muted, the event is snoozed for it, its client is gone, or the
+            // event was switched off (a rule of the player's own: off or deleted).
+            quieted: (who, type) => Mutes.IsMuted(who) || _snoozes.IsSnoozed(who, type) || _windowOf(who) == 0 || !_profiles.StillOn(s, who, type),
+            soundsHeld: () => _doNotDisturb.Silences(s, "critical", DateTime.Now),
+            doNotDisturb: () => DoNotDisturbOn,
+            play: (due, volume) => PlaySound(due.Alert.Character, due.Alert.EventKey, due.Alert.Severity, volume),
+            failed: ex => ErrorLog.Shared.Record(ex, "App", DateTime.Now),
+            flash: due => _flash(due.Alert.Character, due.Alert.Severity, due.Alert.EventKey));
     }
 
     /// <summary>Plays a sound file once at a volume (0–100) with the desktop's sound player (paplay, pw-play, else aplay at

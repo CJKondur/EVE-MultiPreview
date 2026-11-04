@@ -146,7 +146,7 @@ internal static class LinuxSupport
         ["alerts.sounds.enabled"] = S, ["alerts.sounds.volume"] = S, ["alerts.sounds.dndHotkey"] = S,
         ["alerts.sounds.dndState"] = S,       // MoreEditors.DoNotDisturbLine (S3b)
         ["alerts.sounds.dndCritical"] = S, ["alerts.sounds.quietHours"] = S, ["alerts.sounds.quietFrom"] = S, ["alerts.sounds.quietTo"] = S,
-        ["alerts.sounds.escalate"] = N, ["alerts.sounds.escalateAfter"] = N, ["alerts.sounds.escalateRepeats"] = N,
+        ["alerts.sounds.escalate"] = S, ["alerts.sounds.escalateAfter"] = S, ["alerts.sounds.escalateRepeats"] = S,   // Alerts.LookEscalation (S5)
         ["alerts.sounds.speak"] = S, ["alerts.sounds.speakFrom"] = S, ["alerts.sounds.speechVolume"] = S, ["alerts.sounds.voices"] = S,
         ["alerts.sounds.table"] = S,          // MoreEditors.SoundTable; Linux/Alerts.cs keeps the per-character Wait (S3b)
         ["alerts.sounds.groups"] = S,         // Alerts.PlaySound asks GroupSounds; Linux/Settings/GroupAlertEditors.cs (S5)
