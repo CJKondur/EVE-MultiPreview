@@ -51,5 +51,6 @@
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Stream Deck 앱, 바탕 화면 바로 가기 또는 스크립트가 실행 중인 MultiPreview에 캐릭터를 앞으로 가져오거나, 프로필을 바꾸거나, 썸네일이나 포커스 모드를 켜고 끄도록 할 수 있습니다. 내 계정의 프로그램만 가능합니다.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">아래 예처럼 명령과 함께 MultiPreview를 다시 실행하세요. Stream Deck 앱(StreamController, streamdeck-ui, OpenDeck)은 버튼으로 실행합니다. eve-multipreview --help 는 모든 명령을 보여 줍니다.</sys:String>
     <sys:String x:Key="L.Linux.UpdateNotWritable">내 계정으로는 MultiPreview 폴더에 쓸 수 없습니다. 릴리스 페이지에서 새 버전을 내려받으세요.</sys:String>
+    <sys:String x:Key="L.Linux.NotYet">Linux에서는 아직 사용할 수 없어요: {0}</sys:String>
 
 </ResourceDictionary>

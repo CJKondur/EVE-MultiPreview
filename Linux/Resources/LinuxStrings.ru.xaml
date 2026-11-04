@@ -51,5 +51,6 @@
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Позволяет приложению Stream Deck, ярлыку рабочего стола или скрипту попросить запущенный MultiPreview вывести персонажа на передний план, сменить профиль или переключить миниатюры либо режим фокуса. Только программы вашей собственной учётной записи могут это делать.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">Запустите MultiPreview ещё раз с командой, например как ниже; приложение Stream Deck (StreamController, streamdeck-ui, OpenDeck) выполняет её по кнопке. eve-multipreview --help выводит все команды.</sys:String>
     <sys:String x:Key="L.Linux.UpdateNotWritable">Ваша учётная запись не может записывать в папку MultiPreview. Скачайте новую версию со страницы выпуска.</sys:String>
+    <sys:String x:Key="L.Linux.NotYet">Пока недоступно в Linux: {0}</sys:String>
 
 </ResourceDictionary>

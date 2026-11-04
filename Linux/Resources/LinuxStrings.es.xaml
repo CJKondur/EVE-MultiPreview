@@ -51,5 +51,6 @@
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Permite que una app de Stream Deck, un acceso directo o un script le diga al MultiPreview en marcha que traiga un personaje al frente, cambie de perfil o active o desactive las miniaturas o el modo enfoque. Solo los programas de tu propia cuenta pueden.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">Ejecuta MultiPreview de nuevo con una orden, por ejemplo como abajo; una app de Stream Deck (StreamController, streamdeck-ui, OpenDeck) la ejecuta desde un botón. eve-multipreview --help muestra todas las órdenes.</sys:String>
     <sys:String x:Key="L.Linux.UpdateNotWritable">Tu cuenta no puede escribir en la carpeta de MultiPreview. Descarga la nueva versión desde la página de la versión.</sys:String>
+    <sys:String x:Key="L.Linux.NotYet">Aún no disponible en Linux: {0}</sys:String>
 
 </ResourceDictionary>

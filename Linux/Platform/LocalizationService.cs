@@ -31,6 +31,10 @@ public static class LocalizationService
         return string.IsNullOrEmpty(s) ? fallback : s;
     }
 
+    /// <summary>The English text of a key ("" when it has none), whatever the language: the settings search also matches
+    /// the English words (the Windows shell reads Strings.en.xaml for this).</summary>
+    public static string EnglishText(string key) => English.GetValueOrDefault(key) ?? "";
+
     /// <summary>Kept for the shared code's tests; the Linux app does not set it.</summary>
     public static Func<string, string?>? DetachedStrings { get; set; }
 

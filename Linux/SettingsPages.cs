@@ -71,6 +71,9 @@ internal sealed class SettingsPages
         _relocalize = relocalize;
     }
 
+    /// <summary>The shared window builds a page anew: the clash lines of the editors it showed before are dropped.</summary>
+    internal void ForgetClashLines() => _clashLines.Clear();
+
     private AppSettings S => _host.Settings.Settings;
     private static string T(string key, string english) => Ui.T(key, english);
     private void Save() => _host.Settings.SaveDelayed();
@@ -385,6 +388,15 @@ internal sealed class SettingsPages
     {
         _clashLines.Clear();
         var page = Page(T("L.S.Page.clients.characters", "Characters"));
+        page.Children.Add(CharactersTable());
+        return page;
+    }
+
+    /// <summary>The characters table (label, hotkey, hidden, second thumbnail) and the row that adds a character: the
+    /// Characters page's editor, also the shared window's "clients.characters.table".</summary>
+    internal Control CharactersTable()
+    {
+        var page = new StackPanel { Spacing = 2 };
         var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,170,210,Auto,Auto"), Margin = new Thickness(0, 6) };
         var host = new StackPanel { Spacing = 0 };
         page.Children.Add(Ui.Card(host));
@@ -470,6 +482,25 @@ internal sealed class SettingsPages
     {
         _clashLines.Clear();
         var page = Page(T("L.S.Page.clients.groups", "Groups"));
+        page.Children.Add(GroupList());
+
+        // IDEAS #35: the key is bound with the others; the app reads the other two twice a second while focus mode is on.
+        page.Children.Add(Ui.Section(T("L.S.Sec.clients.groups.focus", "Focus mode")));
+        page.Children.Add(Ui.Row(T("L.S.clients.groups.focusKey", "Focus mode on or off"),
+            HotkeyField("global:focus", S.FocusModeHotkey, v => S.FocusModeHotkey = v),
+            T("L.S.clients.groups.focusKey.Desc", "Shows only the thumbnails of one group and hides the others, until you press it again.")));
+        page.Children.Add(FocusGroupBox());
+        page.Children.Add(Ui.Row(T("L.S.clients.groups.focusAlerts", "Show a hidden thumbnail while its alert is unseen"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.FocusModeShowAlerts, on => { S.FocusModeShowAlerts = on; Save(); }),
+            T("L.S.clients.groups.focusAlerts.Desc", "A client outside the group that raises an alert shows until you look at it.")));
+        return page;
+    }
+
+    /// <summary>One card per group (name, colour, keys, members) and the row that makes a group: the Groups page's editor,
+    /// also the shared window's "clients.groups.editor".</summary>
+    internal Control GroupList()
+    {
+        var page = new StackPanel { Spacing = 2 };
         var groups = MergedGroups.Build(S);
         if (groups.Count == 0) page.Children.Add(Ui.Note(T("L.S.clients.groups.empty", "No groups yet.")));
         var known = CharacterDirectory.Known(S, _host.RunningCharacters());
@@ -493,12 +524,14 @@ internal sealed class SettingsPages
         makeRow.Children.Add(make);
         makeRow.Children.Add(status);
         page.Children.Add(makeRow);
+        return page;
+    }
 
-        // IDEAS #35: the key is bound with the others; the app reads the other two twice a second while focus mode is on.
-        page.Children.Add(Ui.Section(T("L.S.Sec.clients.groups.focus", "Focus mode")));
-        page.Children.Add(Ui.Row(T("L.S.clients.groups.focusKey", "Focus mode on or off"),
-            HotkeyField("global:focus", S.FocusModeHotkey, v => S.FocusModeHotkey = v),
-            T("L.S.clients.groups.focusKey.Desc", "Shows only the thumbnails of one group and hides the others, until you press it again.")));
+    /// <summary>"Group to show" of focus mode: the group of the client you are in, or one group by name. The shared
+    /// window's "clients.groups.focusGroup".</summary>
+    internal Control FocusGroupBox()
+    {
+        var groups = MergedGroups.Build(S);
         var chosen = new ComboBox { Width = 280 };
         chosen.Items.Add(T("L.S.Opt.FocusActiveGroup", "The group of the client you are in"));
         var names = groups.Select(g => g.Name).Distinct(StringComparer.Ordinal).ToList();
@@ -512,12 +545,8 @@ internal sealed class SettingsPages
             S.FocusModeGroup = chosen.SelectedIndex == 0 ? "" : names[chosen.SelectedIndex - 1];
             Save();
         };
-        page.Children.Add(Ui.Row(T("L.S.clients.groups.focusGroup", "Group to show"), chosen,
-            T("L.S.clients.groups.focusGroup.Desc", "The group of the client you are in follows you as you switch clients; a group you choose stays the same.")));
-        page.Children.Add(Ui.Row(T("L.S.clients.groups.focusAlerts", "Show a hidden thumbnail while its alert is unseen"),
-            Ui.Check(T("L.Common.Enabled", "Enabled"), S.FocusModeShowAlerts, on => { S.FocusModeShowAlerts = on; Save(); }),
-            T("L.S.clients.groups.focusAlerts.Desc", "A client outside the group that raises an alert shows until you look at it.")));
-        return page;
+        return Ui.Row(T("L.S.clients.groups.focusGroup", "Group to show"), chosen,
+            T("L.S.clients.groups.focusGroup.Desc", "The group of the client you are in follows you as you switch clients; a group you choose stays the same."));
     }
 
     private Control GroupCard(MergedGroup group, IReadOnlyList<string> known)
@@ -591,12 +620,26 @@ internal sealed class SettingsPages
             T("L.S.thumbs.crops.enabled.Desc", "Off hides every crop window and keeps it for next time.")));
         if (!S.CropEnabled)
             page.Children.Add(Ui.Note(T("L.S.thumbs.crops.off", "Crop windows are off. You can still set them up here; they appear when you turn them on.")));
+        CropList(page, withHeading: true);
+        return page;
+    }
 
+    /// <summary>The character whose crop windows are edited, a card per crop window, Add, and the tip: the Crop windows
+    /// page's editor, also the shared window's "thumbs.crops.editor" (whose section already has the heading).</summary>
+    internal Control CropList()
+    {
+        var panel = new StackPanel { Spacing = 2 };
+        CropList(panel, withHeading: false);
+        return panel;
+    }
+
+    private void CropList(StackPanel page, bool withHeading)
+    {
         var characters = CropEdits.Characters(S, _host.RunningCharacters());
         if (characters.Count == 0)
         {
             page.Children.Add(Ui.Note(T("L.S.Crops.NoCharacters", "No characters yet. Start EVE and log in first.")));
-            return page;
+            return;
         }
         if (_cropCharacter == null || !characters.Contains(_cropCharacter, StringComparer.OrdinalIgnoreCase)) _cropCharacter = characters[0];
         var character = _cropCharacter;
@@ -605,7 +648,7 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Row(T("L.S.thumbs.crops.editor", "Character"), pick,
             T("L.S.thumbs.crops.editor.Desc", "Whose crop windows to edit. Every character MultiPreview knows is listed, running ones first.")));
 
-        page.Children.Add(Ui.Section(T("L.S.Sec.thumbs.crops.list", "Your crop windows")));
+        if (withHeading) page.Children.Add(Ui.Section(T("L.S.Sec.thumbs.crops.list", "Your crop windows")));
         var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 4) };
         var crops = CropEdits.Of(S, character);
         if (crops.Count == 0)
@@ -631,7 +674,6 @@ internal sealed class SettingsPages
         });
         page.AttachedToVisualTree += (_, _) => watch.Start();
         page.DetachedFromVisualTree += (_, _) => watch.Stop();
-        return page;
     }
 
     /// <summary>One crop window: its name, "Show the name", the part of the client and the window on screen (four numbers
@@ -879,7 +921,7 @@ internal sealed class SettingsPages
 
     /// <summary>For each severity a voice ("Automatic" or one of espeak-ng's) and a button that tries it. The voices are read
     /// off the UI thread (the first ask starts espeak-ng); until they are in, the lists show only "Automatic".</summary>
-    private Control Voices()
+    internal Control Voices()
     {
         var card = new StackPanel { Spacing = 2 };
         var installed = new List<SpeechVoice>();
@@ -976,7 +1018,7 @@ internal sealed class SettingsPages
     /// it. The link is a secret. It is kept in a file only the owner can read (WebhookFile), never in the settings file
     /// (which holds a marker), the box is emptied once the link is saved, and only the masked link is shown again. A link
     /// the Windows app encrypted for its Windows user (dpapi1:) can't be read here, and the page says to paste it again.</summary>
-    private Control Webhook()
+    internal Control Webhook()
     {
         var card = new StackPanel { Spacing = 6, Margin = new Thickness(0, 4) };
         var shown = new TextBlock { TextWrapping = TextWrapping.Wrap, Opacity = 0.85 };
@@ -1070,7 +1112,7 @@ internal sealed class SettingsPages
 
     /// <summary>The Windows SnoozesEditor: one line per snooze (character · event · time left) with End, End all, and a row to
     /// add one (character, event, length; SnoozeAdd decides what may be made). Built again after every change here.</summary>
-    private Control Snoozed()
+    internal Control Snoozed()
     {
         var card = new StackPanel { Spacing = 4 };
         var holder = Ui.Card(card);
@@ -1173,11 +1215,12 @@ internal sealed class SettingsPages
         return Ui.Card(body);
     }
 
-    public Control Alerts()
+    /// <summary>The events, one card per group with an on/off tick and the severity of each: the Alerts page's table, also
+    /// the shared window's "alerts.events.table". "Client closed unexpectedly" is left out (see L.Linux.ClosedNote), and
+    /// <paramref name="withClosedNote"/> says why under the table.</summary>
+    internal Control EventTable(bool withClosedNote)
     {
-        var page = Page(T("L.S.Nav.Alerts", "Alerts"));
-
-        page.Children.Add(Ui.Section(T("L.S.Sec.alerts.events.list", "Events")));
+        var page = new StackPanel { Spacing = 2 };
         foreach (var group in AlertEvents.Groups)
         {
             // "Client closed unexpectedly" needs the client's exit code, which Linux gives only to the program that started it.
@@ -1210,6 +1253,16 @@ internal sealed class SettingsPages
             }
             page.Children.Add(Ui.Card(table));
         }
+        if (withClosedNote) page.Children.Add(Ui.Note(T("L.Linux.ClosedNote", "Client closed unexpectedly is not available on Linux: Linux does not tell MultiPreview how a client it did not start ended, so a crash looks the same as quitting.")));
+        return page;
+    }
+
+    public Control Alerts()
+    {
+        var page = Page(T("L.S.Nav.Alerts", "Alerts"));
+
+        page.Children.Add(Ui.Section(T("L.S.Sec.alerts.events.list", "Events")));
+        page.Children.Add(EventTable(withClosedNote: false));
         page.Children.Add(EventNumbers());
 
         // IDEAS #30: what is snoozed right now, with a way to end it or add one, and whether timed snoozes outlive a restart.

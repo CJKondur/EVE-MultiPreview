@@ -50,5 +50,6 @@
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Lets a Stream Deck app, a desktop shortcut or a script tell the running MultiPreview to bring a character to the front, switch profile, or toggle thumbnails or focus mode. Only programs of your own account can.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">Run MultiPreview again with a command, for example below; a Stream Deck app (StreamController, streamdeck-ui, OpenDeck) runs it from a button. eve-multipreview --help lists every command.</sys:String>
     <sys:String x:Key="L.Linux.UpdateNotWritable">MultiPreview's folder can't be written by your account. Download the new version from the release page.</sys:String>
+    <sys:String x:Key="L.Linux.NotYet">Not available on Linux yet: {0}</sys:String>
 
 </ResourceDictionary>

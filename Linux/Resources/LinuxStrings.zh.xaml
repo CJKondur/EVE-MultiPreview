@@ -51,5 +51,6 @@
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">允许 Stream Deck 应用、桌面快捷方式或脚本让正在运行的 MultiPreview 将某个角色置于前台、切换配置，或切换缩略图或专注模式。只有你自己账户的程序可以这样做。</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">带上命令再次运行 MultiPreview，例如下方所示；Stream Deck 应用（StreamController、streamdeck-ui、OpenDeck）可通过按钮运行。eve-multipreview --help 列出所有命令。</sys:String>
     <sys:String x:Key="L.Linux.UpdateNotWritable">你的账户无法写入 MultiPreview 的文件夹。请从发布页面下载新版本。</sys:String>
+    <sys:String x:Key="L.Linux.NotYet">Linux 上暂不可用：{0}</sys:String>
 
 </ResourceDictionary>
