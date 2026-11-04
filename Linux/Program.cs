@@ -42,7 +42,6 @@ public sealed class App : Application
 /// redraw of all thumbnails takes every 10 s.</summary>
 public sealed class Previews : ITrayActions, ISettingsHost
 {
-    private const int Gap = 16;
     private readonly EveClients _clients = new();
     private readonly SettingsService _settings;
     private readonly Dictionary<uint, ThumbnailWindow> _thumbs = new();
@@ -64,7 +63,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     /// <summary>A thumbnail's alert border: its colour, flash rate, when it ends (null: when the player switches to
     /// that client) and whether it is steady.</summary>
-    private sealed record AlertBorder(IBrush Brush, int RateMs, DateTime? Until, bool Steady);
+    private sealed record AlertBorder(IBrush Brush, int RateMs, DateTime? Until, bool Steady, string AlertType);
     private readonly Dictionary<string, AlertBorder> _alertBorders = new(StringComparer.OrdinalIgnoreCase);
     /// <summary>ThumbnailManager.FlashExpiry: how long an alert shows when its event has no time of its own.</summary>
     private static readonly Dictionary<string, int> DefaultSeconds = new() { ["critical"] = 8, ["warning"] = 6, ["info"] = 4 };
@@ -843,7 +842,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         int? lasts = SettingsUi.AlertFields.Lasts(S, alertType);
         int seconds = lasts ?? DefaultSeconds.GetValueOrDefault(severity, 6);
         _alertBorders[character] = new AlertBorder(Brush(SettingsUi.AlertFields.Colour(S, def)), Math.Max(100, SettingsUi.AlertFields.FlashRate(S, severity)),
-            seconds == 0 ? null : DateTime.UtcNow.AddSeconds(seconds), SettingsUi.AlertFields.Steady(S, def));
+            seconds == 0 ? null : DateTime.UtcNow.AddSeconds(seconds), SettingsUi.AlertFields.Steady(S, def), alertType);
         Console.WriteLine($"Alert: {character} {alertType} ({severity})");
     }
 
@@ -871,6 +870,9 @@ public sealed class Previews : ITrayActions, ISettingsHost
         _attention.DropExpired();
         if (_thumbs.TryGetValue(active, out var inFront)) _attention.Seen(inFront.Client.Character);
         bool inScope = S.GlobalHotkeys || _thumbs.ContainsKey(active) || _clients.IsOurs(active);
+        // "Hide when another program is in front" (HideThumbnailsOnLostFocus): the thumbnails show only while an EVE client or
+        // a MultiPreview window is in front, or the settings window is open (ThumbnailManager's focus sweep).
+        bool lostFocus = S.HideThumbnailsOnLostFocus && !(_thumbs.ContainsKey(active) || _clients.IsOurs(active) || _settingsWindow != null);
         if (inScope != _keysInScope)
         {
             _keysInScope = inScope;
@@ -882,10 +884,15 @@ public sealed class Previews : ITrayActions, ISettingsHost
         foreach (var (who, border) in _alertBorders.ToList())
             if (border.Until < now) _alertBorders.Remove(who);
         TellEnlarged(active);
+        // The unseen-alert badge (ThumbnailManager.IncrementAlertBadge): per character, the unseen alerts of events whose badge is on.
+        var badges = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        if (S.ShowAlertBadgeOnThumbnails)
+            foreach (var unseen in _attention.Unseen())
+                if (SettingsUi.AlertFields.Badge(S, unseen.EventKey)) badges[unseen.Character] = badges.GetValueOrDefault(unseen.Character) + 1;
         foreach (var thumb in _thumbs.Values)
         {
             bool isActive = thumb.Client.Window == active;
-            bool shown = !_allHidden && !_primaryHidden && !Hidden(thumb.Client.Character) && !(isActive && S.HideActiveThumbnail)
+            bool shown = !_allHidden && !_primaryHidden && !Hidden(thumb.Client.Character) && !(isActive && S.HideActiveThumbnail) && !lostFocus
                 && !FocusMode.Holds(_focusHeld, thumb.Client.Character) && !S.NameBarMode;   // the name bar holds the main thumbnails
             if (shown != thumb.IsVisible) { if (shown) thumb.Show(); else thumb.Hide(); }
             if (!shown) continue;
@@ -899,12 +906,13 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
             thumb.SetMark(MarkOf(thumb.Client.Window));
             thumb.SetCycleBadge(_excludedFromCycle.Contains(thumb.Client.Character), ThumbnailFields.Anchor(S.CycleExclusionBadgePosition));
+            Extras(thumb, badges.GetValueOrDefault(thumb.Client.Character));
             thumb.Update(_clients);
         }
         // Second thumbnails: shown while the client runs, also while it is in front, unless all thumbnails or the second ones are hidden.
         foreach (var (character, pip) in _pips)
         {
-            bool shown = !_allHidden && !_pipsHidden && !FocusMode.Holds(_focusHeld, character);
+            bool shown = !_allHidden && !_pipsHidden && !FocusMode.Holds(_focusHeld, character) && !lostFocus;
             if (shown != pip.IsVisible) { if (shown) pip.Show(); else pip.Hide(); }
             if (!shown) continue;
             FollowClickThrough(pip);
@@ -973,6 +981,22 @@ public sealed class Previews : ITrayActions, ISettingsHost
             var thumb = _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, change.Character, StringComparison.OrdinalIgnoreCase));
             thumb?.SetAlertScale(change.Scale);
         }
+    }
+
+    /// <summary>The Windows text overlay's other parts on a thumbnail: the text margins, the solar system (ShowSystemName, from
+    /// the logs) and the session timer (ShowSessionTimer) under the name, the rounded corners, the alert's name while its border
+    /// shows (ShowAlertTextOnThumbnails, at AlertTextPosition) and the unseen-alert count.</summary>
+    private void Extras(ThumbnailWindow thumb, int unseen)
+    {
+        var name = thumb.Client.Character;
+        var margins = S.ThumbnailTextMargins;
+        string? system = S.ShowSystemName && _alerts?.SystemOf(name) is { Length: > 0 } sys ? StreamerMask.Name(StreamerKind.System, sys) : null;
+        string? timer = S.ShowSessionTimer ? (DateTime.UtcNow - thumb.SessionStartUtc).ToString(@"hh\:mm\:ss", System.Globalization.CultureInfo.InvariantCulture) : null;
+        thumb.SetExtras((int)Math.Round(margins?.X ?? 5), (int)Math.Round(margins?.Y ?? 5), system, timer, Math.Clamp(S.ThumbnailCornerRadius, 0, Models.Profile.MaxCornerRadius));
+        bool alerting = _alertBorders.TryGetValue(name, out var alert) && S.ShowAlertTextOnThumbnails;
+        thumb.SetAlertText(alerting ? EveMultiPreview.Views.AlertHub.EventDisplayName(alert!.AlertType) : null, alert?.Brush ?? Brushes.White,
+            SettingsUi.AlertFields.TextPosition(S.AlertTextPosition));
+        thumb.SetAlertCount(unseen);
     }
 
     private bool Hidden(string character) => S.ThumbnailVisibility.TryGetValue(character, out var v) && v != 0;
@@ -1517,13 +1541,21 @@ public sealed class Previews : ITrayActions, ISettingsHost
         }
     }
 
-    /// <summary>The character's saved place, else the next free spot in a row from the start location.</summary>
+    /// <summary>The character's saved place, else the next free spot of the column MultiPreview lays out for new clients
+    /// (ThumbnailManager.FlowSlot): down from the start location, a new column at the bottom of the screen, ThumbnailGutter
+    /// apart (0-200, as the card allows).</summary>
     private PixelRect Place(string character)
     {
         if (_settings.GetThumbnailPosition(character) is { Width: > 0, Height: > 0 } saved)
             return new PixelRect((int)saved.X, (int)saved.Y, (int)saved.Width, (int)saved.Height);
         var start = S.ThumbnailStartLocation;
         int w = Math.Max(1, (int)start.Width), h = Math.Max(1, (int)start.Height);
-        return new PixelRect((int)start.X + _thumbs.Count * (w + Gap), (int)start.Y, w, h);
+        int x = (int)start.X, y = (int)start.Y;
+        // Copy of ThumbnailManager.FlowSlot (a WPF file) — keep in sync.
+        int gap = Math.Clamp(S.ThumbnailGutter, 0, 200);
+        int bottom = _thumbs.Values.Select(t => t.Screens.Primary?.WorkingArea.Bottom).FirstOrDefault(b => b != null) ?? int.MaxValue / 4;
+        int perColumn = Math.Max(1, (bottom - y) / Math.Max(1, h + gap));
+        int index = _thumbs.Count;
+        return new PixelRect(x + index / perColumn * (w + gap), y + index % perColumn * (h + gap), w, h);
     }
 }

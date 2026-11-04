@@ -91,13 +91,15 @@ internal static class LinuxSupport
         ["thumbs.appearance.background"] = N,
 
         // ── Thumbnails › Text & borders ──
-        ["thumbs.text.showText"] = S, ["thumbs.text.showSystem"] = N, ["thumbs.text.showTimer"] = N, ["thumbs.text.template"] = N,
+        ["thumbs.text.showText"] = S, ["thumbs.text.showSystem"] = S, ["thumbs.text.showTimer"] = S,   // Previews.Extras (S3b)
+        ["thumbs.text.template"] = N,         // no Linux editor; {jumps} and {week} have no Linux source
         ["thumbs.text.streamer"] = S, ["thumbs.text.color"] = S, ["thumbs.text.font"] = S, ["thumbs.text.size"] = S,
-        ["thumbs.text.marginX"] = N, ["thumbs.text.marginY"] = N, ["thumbs.text.showStats"] = N, ["thumbs.text.statsSize"] = N,
+        ["thumbs.text.marginX"] = S, ["thumbs.text.marginY"] = S,   // Previews.Extras (S3b)
+        ["thumbs.text.showStats"] = N, ["thumbs.text.statsSize"] = N,   // no process stats on Linux
         ["thumbs.text.highlight"] = S,        // Previews.Look honours it (S3b), as ThumbnailManager.ApplyActiveBorders
         ["thumbs.text.highlightColor"] = S, ["thumbs.text.highlightWidth"] = S, ["thumbs.text.highlightInGroup"] = S,
         ["thumbs.text.inactiveColor"] = S, ["thumbs.text.inactiveWidth"] = S,
-        ["thumbs.text.cornerRadius"] = N, ["thumbs.text.autoBorders"] = S, ["thumbs.text.groupBorders"] = S,
+        ["thumbs.text.cornerRadius"] = S, ["thumbs.text.autoBorders"] = S, ["thumbs.text.groupBorders"] = S,   // corner radius: Previews.Extras (S3b)
         ["thumbs.text.badgePosition"] = S,    // ThumbnailWindow.SetCycleBadge (S3b)
         ["thumbs.text.notResponding"] = S, ["thumbs.text.disconnected"] = S, ["thumbs.text.disconnectSeconds"] = S,
 
@@ -105,12 +107,14 @@ internal static class LinuxSupport
         ["thumbs.layout.monitor"] = N,
         ["thumbs.layout.identifyRow"] = W,    // MonitorIdentify: a badge window per Windows monitor
         ["thumbs.layout.startX"] = S, ["thumbs.layout.startY"] = S, ["thumbs.layout.startWidth"] = S, ["thumbs.layout.startHeight"] = S,
-        ["thumbs.layout.gap"] = N, ["thumbs.layout.snap"] = N, ["thumbs.layout.snapDistance"] = N, ["thumbs.layout.confine"] = N,
+        ["thumbs.layout.gap"] = S,            // Previews.Place, ThumbnailManager.FlowSlot (S3b)
+        ["thumbs.layout.snap"] = N, ["thumbs.layout.snapDistance"] = N, ["thumbs.layout.confine"] = N,
         ["thumbs.layout.lock"] = S, ["thumbs.layout.autoOnMonitorChange"] = N, ["thumbs.layout.presets"] = N,
         ["thumbs.layout.align"] = N, ["thumbs.layout.history"] = N,
 
         // ── Thumbnails › Visibility ──
-        ["thumbs.visibility.alwaysOnTop"] = S, ["thumbs.visibility.aboveClients"] = N, ["thumbs.visibility.hideOnLostFocus"] = N,
+        ["thumbs.visibility.alwaysOnTop"] = S, ["thumbs.visibility.aboveClients"] = N,
+        ["thumbs.visibility.hideOnLostFocus"] = S,   // Previews.Tick (S3b)
         ["thumbs.visibility.hideActive"] = S, ["thumbs.nameBar"] = S,
         ["thumbs.visibility.notLoggedIn"] = N, ["thumbs.visibility.notLoggedInColor"] = N,
         ["thumbs.visibility.pipTable"] = S,   // MoreEditors.PipTable (S3b)
@@ -132,7 +136,7 @@ internal static class LinuxSupport
 
         // ── Alerts › Look ──
         ["alerts.look.pulse"] = S, ["alerts.look.borderWidth"] = S,
-        ["alerts.look.badge"] = N, ["alerts.look.text"] = N, ["alerts.look.textPosition"] = N,
+        ["alerts.look.badge"] = S, ["alerts.look.text"] = S, ["alerts.look.textPosition"] = S,   // Previews.Extras (S3b)
         ["alerts.look.enlarge"] = S, ["alerts.look.enlargeFrom"] = S, ["alerts.look.enlargePercent"] = S, ["alerts.look.enlargeSeconds"] = S,
         ["alerts.look.severityTable"] = S,    // MoreEditors.SeverityTable (S3b)
         ["alerts.look.waitBySeverity"] = S, ["alerts.look.waitCritical"] = S, ["alerts.look.waitWarning"] = S, ["alerts.look.waitInfo"] = S,

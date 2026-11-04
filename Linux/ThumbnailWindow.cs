@@ -26,6 +26,9 @@ public sealed class ThumbnailWindow : Window
     private readonly Border _mark;
     private readonly TextBlock _markText;
     private readonly Border _badge;
+    private readonly StackPanel _text;
+    private readonly TextBlock _system, _timer, _alertText, _alertCountText;
+    private readonly Border _alertCount;
     private WriteableBitmap _bitmap;
     private ThumbnailLook? _look;
     private Gesture _mode = Gesture.None;
@@ -109,7 +112,21 @@ public sealed class ThumbnailWindow : Window
             BorderBrush = Brushes.White, BorderThickness = new Thickness(1), IsVisible = false, IsHitTestVisible = false,
             Child = new TextBlock { Text = "✕", Foreground = Brushes.White, FontSize = 12, FontWeight = FontWeight.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
         };
-        _frame = new Border { Child = new Panel { Children = { _image, _name, _mark, _badge } } };
+        // The text block of the Windows TextOverlayWindow: the name, then the solar system and the session timer a size
+        // smaller, at the text margins; the alert's name at its anchor in the alert's colour; the unseen-alert count top right.
+        _system = new TextBlock { IsVisible = false };
+        _timer = new TextBlock { IsVisible = false };
+        _name.Margin = default;
+        _text = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(5, 5, 0, 0), Children = { _name, _system, _timer } };
+        _alertText = new TextBlock { FontWeight = FontWeight.Bold, TextTrimming = TextTrimming.CharacterEllipsis, IsVisible = false, IsHitTestVisible = false };
+        _alertCountText = new TextBlock { Foreground = Brushes.White, FontSize = 11, FontWeight = FontWeight.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+        _alertCount = new Border
+        {
+            Width = 20, Height = 20, CornerRadius = new CornerRadius(10), Background = new SolidColorBrush(Color.FromRgb(0xCC, 0, 0)),
+            BorderBrush = Brushes.White, BorderThickness = new Thickness(1), HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 4, 4, 0), IsVisible = false, IsHitTestVisible = false, Child = _alertCountText,
+        };
+        _frame = new Border { ClipToBounds = true, Child = new Panel { Children = { _image, _text, _alertText, _alertCount, _mark, _badge } } };
         Content = _frame;
 
         // Right drag moves the thumbnail by itself (pointer captured), not through the window manager's move, so it
@@ -465,8 +482,72 @@ public sealed class ThumbnailWindow : Window
         _name.Foreground = look.TextBrush;
         _name.FontSize = look.TextSize;
         _name.FontFamily = new FontFamily(look.Font);
+        foreach (var line in new[] { _system, _timer })
+        {
+            line.Foreground = look.TextBrush;
+            line.FontSize = Math.Max(look.TextSize - 2, 8);   // TextOverlayWindow.SetTextStyle: a step smaller, at least 8
+            line.FontFamily = _name.FontFamily;
+        }
+        _alertText.FontFamily = _name.FontFamily;
+        _alertText.FontSize = look.TextSize + 2;              // a step larger, so it reads at a glance
         Opacity = look.Opacity;
         Topmost = look.Topmost;
+    }
+
+    /// <summary>When the thumbnail was made: its client's session began (the Windows thumbnail's SessionStartUtc).</summary>
+    public DateTime SessionStartUtc { get; } = DateTime.UtcNow;
+
+    /// <summary>The Windows TextOverlayWindow's other text: the text margins (SetTextMargins), the solar system and the session
+    /// timer under the name (null hides each), the window's rounded corners (ThumbnailCornerRadius). Unchanged values do nothing.</summary>
+    public void SetExtras(int marginX, int marginY, string? system, string? timer, int cornerRadius)
+    {
+        var margin = new Thickness(marginX, marginY, 0, 0);
+        if (_text.Margin != margin) _text.Margin = margin;
+        Line(_system, system);
+        Line(_timer, timer);
+        var radius = new CornerRadius(Math.Max(0, cornerRadius));
+        if (_frame.CornerRadius != radius) _frame.CornerRadius = radius;
+
+        static void Line(TextBlock line, string? text)
+        {
+            bool on = !string.IsNullOrEmpty(text);
+            if (line.IsVisible != on) line.IsVisible = on;
+            if (on && line.Text != text) line.Text = text;
+        }
+    }
+
+    private string? _alertAt;
+
+    /// <summary>TextOverlayWindow.SetAlertText / SetAlertTextPosition: what the alert is, in its colour, at one of the nine
+    /// anchors (4 px in); null hides it.</summary>
+    public void SetAlertText(string? text, IBrush colour, string position)
+    {
+        _alertText.IsVisible = !string.IsNullOrEmpty(text);
+        if (!_alertText.IsVisible) return;
+        if (_alertText.Text != text) _alertText.Text = text;
+        _alertText.Foreground = colour;
+        if (position == _alertAt) return;
+        _alertAt = position;
+        Anchor(_alertText, position);
+    }
+
+    /// <summary>TextOverlayWindow.SetAlertBadge: the unseen-alert count top right ("9+" from ten on); 0 hides it.</summary>
+    public void SetAlertCount(int count)
+    {
+        _alertCount.IsVisible = count > 0;
+        if (count > 0) _alertCountText.Text = count >= 10 ? "9+" : count.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>TextOverlayWindow.Anchor: one of the nine places, 4 px in from the edge (unknown: top left).</summary>
+    private static void Anchor(Control c, string position)
+    {
+        const double inset = 4;
+        bool left = position is "TopLeft" or "Left" or "BottomLeft", right = position is "TopRight" or "Right" or "BottomRight";
+        bool top = position is "TopLeft" or "Top" or "TopRight", bottom = position is "BottomLeft" or "Bottom" or "BottomRight";
+        if (!left && !right && !top && !bottom && position != "Center") (left, top) = (true, true);
+        c.HorizontalAlignment = left ? HorizontalAlignment.Left : right ? HorizontalAlignment.Right : HorizontalAlignment.Center;
+        c.VerticalAlignment = top ? VerticalAlignment.Top : bottom ? VerticalAlignment.Bottom : VerticalAlignment.Center;
+        c.Margin = new Thickness(left ? inset : 0, top ? inset : 0, right ? inset : 0, bottom ? inset : 0);
     }
 
     /// <summary>Whether the window lets the mouse through now (click-through), as last set; null before it was set.</summary>
@@ -484,12 +565,7 @@ public sealed class ThumbnailWindow : Window
         _badge.IsVisible = excluded;
         if (!excluded || position == _badgeAt) return;
         _badgeAt = position;
-        const double inset = 4;
-        bool left = position is "TopLeft" or "Left" or "BottomLeft", right = position is "TopRight" or "Right" or "BottomRight";
-        bool top = position is "TopLeft" or "Top" or "TopRight", bottom = position is "BottomLeft" or "Bottom" or "BottomRight";
-        _badge.HorizontalAlignment = left ? HorizontalAlignment.Left : right ? HorizontalAlignment.Right : HorizontalAlignment.Center;
-        _badge.VerticalAlignment = top ? VerticalAlignment.Top : bottom ? VerticalAlignment.Bottom : VerticalAlignment.Center;
-        _badge.Margin = new Thickness(left ? inset : 0, top ? inset : 0, right ? inset : 0, bottom ? inset : 0);
+        Anchor(_badge, position);
     }
 
     /// <summary>IDEAS #22, #47: what ClientWatch says of the client ("Not responding", "Disconnected") over the middle of the
