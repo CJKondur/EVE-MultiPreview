@@ -79,8 +79,7 @@ internal sealed partial class SettingsPages
     // ── Home › Quick actions ──
 
     /// <summary>Home › Quick actions (the Windows QuickActionsEditor): hide all, lock positions, pause hotkeys, click-through,
-    /// each with the key that does the same. Click-through is greyed out: the Linux thumbnails have none (as the Windows switch
-    /// is without its service).</summary>
+    /// each with the key that does the same.</summary>
     internal Control QuickActions(SettingsContext ctx)
     {
         var rows = new StackPanel { Spacing = 2 };
@@ -102,7 +101,7 @@ internal sealed partial class SettingsPages
         Add("home.quick.hideAll", ctx.S.HideShowThumbnailsHotkey, _host.ThumbnailsHidden, on => _host.ThumbnailsHidden = on);
         Add("home.quick.lock", ctx.S.LockPositionsHotkey, _host.PositionsLocked, on => _host.PositionsLocked = on);
         Add("home.quick.pause", ctx.S.SuspendHotkey, _host.HotkeysPaused, on => _host.HotkeysPaused = on);
-        Add("home.quick.clickThrough", ctx.S.ClickThroughHotkey, null, _ => { });
+        Add("home.quick.clickThrough", ctx.S.ClickThroughHotkey, _host.ClickThrough, on => _host.ClickThrough = on);
         return rows;
     }
 

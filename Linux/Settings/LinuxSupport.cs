@@ -38,7 +38,7 @@ internal static class LinuxSupport
         ["home.next"] = S, ["home.previous"] = S, ["home.size"] = S, ["home.opacity"] = S,
         ["home.monitor"] = N,                 // PreferredMonitor: Linux places thumbnails without a chosen monitor
         ["home.alertAttack"] = S, ["home.alertScram"] = S, ["home.alertDecloak"] = S, ["home.alertFleet"] = S, ["home.alertSound"] = S,
-        ["home.quickActions"] = S,            // Linux/Settings/MoreEditors.cs (S3b); click-through greyed out
+        ["home.quickActions"] = S,            // Linux/Settings/MoreEditors.cs (S3b)
         ["home.startWithWindows"] = W,        // the Windows Run registry key
 
         // ── Clients › Characters ──
@@ -56,10 +56,11 @@ internal static class LinuxSupport
         ["clients.hotkeys.includeLogins"] = N,   // Linux makes no thumbnail for a client at the login screen
         ["clients.hotkeys.cycleSameSystem"] = S, ["clients.hotkeys.cycleAlerting"] = S, ["clients.hotkeys.cycleSkipMuted"] = S,   // CycleFilter (S3b)
         ["clients.hotkeys.backToPrevious"] = S, ["clients.hotkeys.lastAlert"] = S,
-        ["clients.hotkeys.suspend"] = N, ["clients.hotkeys.clickThrough"] = N, ["clients.hotkeys.hidePrimary"] = N,
-        ["clients.hotkeys.quickSwitch"] = N, ["clients.hotkeys.undo"] = N, ["clients.hotkeys.redo"] = N,
-        ["clients.hotkeys.profileNext"] = N, ["clients.hotkeys.profilePrevious"] = N, ["clients.hotkeys.closeAll"] = N,
-        ["clients.hotkeys.sheet"] = N, ["clients.hotkeys.openSettings"] = N,             // not bound by the Linux app
+        ["clients.hotkeys.suspend"] = S, ["clients.hotkeys.clickThrough"] = S, ["clients.hotkeys.hidePrimary"] = S,   // Previews.BindHotkeys (S3b)
+        ["clients.hotkeys.quickSwitch"] = N, ["clients.hotkeys.undo"] = N, ["clients.hotkeys.redo"] = N,   // no quick-switch sheet, no layout history
+        ["clients.hotkeys.profileNext"] = S, ["clients.hotkeys.profilePrevious"] = S, ["clients.hotkeys.closeAll"] = S,   // (S3b)
+        ["clients.hotkeys.sheet"] = N,        // no hotkey sheet window on Linux
+        ["clients.hotkeys.openSettings"] = S, // (S3b)
         ["clients.hotkeys.hideAll"] = S, ["clients.hotkeys.hidePip"] = S, ["clients.hotkeys.hideCrops"] = S,
         ["clients.hotkeys.lockPositions"] = S, ["clients.hotkeys.commandPalette"] = S,
         ["clients.hotkeys.gamepad"] = W, ["clients.hotkeys.gamepadBindings"] = W,       // XInput

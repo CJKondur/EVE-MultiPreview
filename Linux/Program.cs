@@ -150,7 +150,65 @@ public sealed class Previews : ITrayActions, ISettingsHost
     public bool HotkeysPaused
     {
         get => _hotkeysPaused;
-        set { _hotkeysPaused = value; if (value) _hotkeys.Bind(Array.Empty<(string, Action)>()); else BindHotkeys(); }
+        set { _hotkeysPaused = value; BindHotkeys(); }   // paused: only the pause key stays (HotkeyService.ToggleSuspend)
+    }
+
+    /// <summary>The pause key (ThumbnailManager.ToggleSuspend's feedback): pauses or resumes every other key, and says so.</summary>
+    private void TogglePause()
+    {
+        HotkeysPaused = !HotkeysPaused;
+        Alerts.Say(_hotkeysPaused ? LocalizationService.Str("L.Msg.HotkeysSuspended", "Hotkeys: SUSPENDED") : LocalizationService.Str("L.Msg.HotkeysActive", "Hotkeys: ACTIVE"));
+        TrayMenu?.Rebuild();
+    }
+
+    /// <summary>"Hide primary thumbnails" (HidePrimaryHotkey, ThumbnailManager.TogglePrimaryVisibility): runtime only. The second
+    /// thumbnails and the crop windows stay.</summary>
+    private bool _primaryHidden;
+
+    private bool _clickThrough;
+
+    /// <summary>Click-through (ClickThroughHotkey, Home › Quick actions; ThumbnailManager.ToggleClickThrough): every thumbnail and
+    /// second thumbnail lets the mouse through to what is under it, and can't be dragged, until it is switched off. Runtime only.</summary>
+    public bool ClickThrough
+    {
+        get => _clickThrough;
+        set
+        {
+            if (value == _clickThrough) return;
+            _clickThrough = value;
+            Alerts.Say(value ? LocalizationService.Str("L.Msg.ClickThroughOn", "Thumbnails: Click-Through ON") : LocalizationService.Str("L.Msg.ClickThroughOff", "Thumbnails: Click-Through OFF"));
+        }
+    }
+
+    /// <summary>Gives a thumbnail or second thumbnail the click-through state; asked again every 2 s while on (a window manager
+    /// that frames a window after its shape was set keeps a frame that catches the mouse: see the crop windows).</summary>
+    private void FollowClickThrough(ThumbnailWindow window)
+    {
+        if ((window.PassesClicks != _clickThrough || _clickThrough && _ticks % 20 == 0) && window.TryGetPlatformHandle() is { } handle
+            && _clients.PassClicks((uint)(long)handle.Handle, _clickThrough))
+            window.PassesClicks = _clickThrough;
+    }
+
+    /// <summary>ThumbnailManager.CloseAllClients (CloseAllClientsHotkey): asks first (Cancel is the default), then ends every
+    /// running EVE client's process, as the Windows app ends them. Only an EVE process (exefile) is ever ended.</summary>
+    private void CloseAllClients()
+    {
+        var clients = _thumbs.Values.Select(t => t.Client).ToList();
+        if (clients.Count == 0) return;
+        var question = new ChoiceDialog(string.Format(LocalizationService.Str("L.Msg.CloseAllConfirm", "End all {0} EVE clients now?"), clients.Count),
+            Ui.NoAccess(LocalizationService.Str("L.S.Shell.Ok", "OK")), Ui.NoAccess(LocalizationService.Str("L.S.Shell.Cancel", "Cancel")));
+        question.Answered += yes =>
+        {
+            if (!yes) return;
+            foreach (var client in clients)
+            {
+                uint pid = _clients.Pid(client.Window);
+                if (pid == 0 || !IsEveProcess(pid)) continue;
+                try { using var p = Process.GetProcessById((int)pid); p.Kill(); }
+                catch (Exception) { }   // already gone, or not ours to end
+            }
+        };
+        question.Show();
     }
 
     public bool PositionsLocked
@@ -484,7 +542,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     private void OnProfileSwitched(string _)
     {
         ResetThumbnails();
-        if (!_hotkeysPaused) BindHotkeys();
+        BindHotkeys();
     }
 
     /// <summary>Closes every thumbnail and makes them again, each where the current profile keeps it.</summary>
@@ -553,7 +611,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     IReadOnlyCollection<string> ISettingsHost.RunningCharacters() => RunningCharacters();
 
     // Not while a hotkey box listens: binding again would grab the key the player is pressing (CaptureHotkey(false) binds).
-    void ISettingsHost.HotkeysChanged() { if (!_hotkeysPaused && !_capturing) BindHotkeys(); }
+    void ISettingsHost.HotkeysChanged() { if (!_capturing) BindHotkeys(); }
 
     /// <summary>While a hotkey box listens, the keys are not grabbed: a key that is already a hotkey would go to the
     /// grab and never reach the window.</summary>
@@ -561,7 +619,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     {
         _capturing = capturing;
         if (capturing) _hotkeys.Bind(Array.Empty<(string, Action)>());
-        else if (!_hotkeysPaused) BindHotkeys();
+        else BindHotkeys();
     }
 
     private bool _capturing;
@@ -585,7 +643,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     void ISettingsHost.Imported()
     {
         ResetThumbnails();
-        if (!_hotkeysPaused) BindHotkeys();
+        BindHotkeys();
         _alerts?.Reapply();
         TrayMenu?.Rebuild();
     }
@@ -604,8 +662,11 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     internal void BindHotkeys()
     {
-        if (!_keysInScope) { _hotkeys.Bind(Array.Empty<(string, Action)>()); return; }
-        var keys = new List<(string, Action)>();
+        // The pause key (SuspendHotkey) is bound on its own, as HotkeyService registers it apart from the others: it works
+        // while the keys are paused and out of their scope, so a press resumes them.
+        var pause = string.IsNullOrWhiteSpace(S.SuspendHotkey) ? new List<(string, Action)>() : new List<(string, Action)> { (S.SuspendHotkey, TogglePause) };
+        if (_hotkeysPaused || !_keysInScope) { _hotkeys.Bind(pause); return; }
+        var keys = new List<(string, Action)>(pause);
         foreach (var (character, binding) in _settings.CurrentProfile.Hotkeys)
             keys.Add((binding.Key, () => SwitchTo(character)));
         foreach (var group in S.HotkeyGroups.Values)
@@ -633,6 +694,17 @@ public sealed class Previews : ITrayActions, ISettingsHost
         keys.Add((S.LockPositionsHotkey, () => { S.LockPositions = !S.LockPositions; _settings.SaveDelayed(); }));
         keys.Add((S.GoToLastAlertHotkey, GoToLastAlert));
         keys.Add((S.DoNotDisturbHotkey, ToggleDoNotDisturb));
+        // S3b: the app keys of Clients › Hotkeys that Linux has the feature for (HotkeyService.RegisterHotkeys).
+        keys.Add((S.ClickThroughHotkey, () => ClickThrough = !ClickThrough));
+        keys.Add((S.HidePrimaryHotkey, () =>
+        {
+            _primaryHidden = !_primaryHidden;
+            Alerts.Say(_primaryHidden ? LocalizationService.Str("L.Msg.PrimaryHidden", "Primary: Hidden") : LocalizationService.Str("L.Msg.PrimaryVisible", "Primary: Visible"));
+        }));
+        keys.Add((S.ProfileCycleForwardHotkey, () => CycleProfile(true)));
+        keys.Add((S.ProfileCycleBackwardHotkey, () => CycleProfile(false)));
+        keys.Add((S.CloseAllClientsHotkey, CloseAllClients));
+        keys.Add((S.OpenSettingsHotkey, OpenSettings));
         var wanted = keys.Where(k => !string.IsNullOrWhiteSpace(k.Item1)).ToList();
         var refused = _hotkeys.Bind(wanted);
         Console.WriteLine($"Hotkeys: {wanted.Count - refused.Count} bound");
@@ -802,7 +874,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         if (inScope != _keysInScope)
         {
             _keysInScope = inScope;
-            if (!_hotkeysPaused && !_capturing) BindHotkeys();
+            if (!_capturing) BindHotkeys();
         }
         // An alert ends when its time is up, or (above) when the player switches to that client. One that arrives on the
         // client already in front shows its time out, as on Windows: being in front is not a switch.
@@ -813,11 +885,12 @@ public sealed class Previews : ITrayActions, ISettingsHost
         foreach (var thumb in _thumbs.Values)
         {
             bool isActive = thumb.Client.Window == active;
-            bool shown = !_allHidden && !Hidden(thumb.Client.Character) && !(isActive && S.HideActiveThumbnail)
+            bool shown = !_allHidden && !_primaryHidden && !Hidden(thumb.Client.Character) && !(isActive && S.HideActiveThumbnail)
                 && !FocusMode.Holds(_focusHeld, thumb.Client.Character) && !S.NameBarMode;   // the name bar holds the main thumbnails
             if (shown != thumb.IsVisible) { if (shown) thumb.Show(); else thumb.Hide(); }
             if (!shown) continue;
-            thumb.CanDrag = !S.LockPositions;
+            FollowClickThrough(thumb);
+            thumb.CanDrag = !S.LockPositions && !_clickThrough;
             thumb.ResizeFloor = ThumbnailWindow.FloorOf(S);
             thumb.LockResizeAspect = S.LockResizeAspect;
             thumb.HoverScale = S.ResizeThumbnailsOnHover ? S.HoverScale : 1.0;   // ThumbnailManager.HoverScaleFor
@@ -834,7 +907,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
             bool shown = !_allHidden && !_pipsHidden && !FocusMode.Holds(_focusHeld, character);
             if (shown != pip.IsVisible) { if (shown) pip.Show(); else pip.Hide(); }
             if (!shown) continue;
-            pip.CanDrag = !S.LockPositions;
+            FollowClickThrough(pip);
+            pip.CanDrag = !S.LockPositions && !_clickThrough;
             pip.ResizeFloor = ThumbnailWindow.FloorOf(S);
             pip.LockResizeAspect = S.LockResizeAspect;
             pip.Apply(SecondLook(character, pip.Hovered));

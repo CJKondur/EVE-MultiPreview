@@ -54,6 +54,8 @@ public interface ISettingsHost
     bool ThumbnailsHidden { get; set; }
     bool PositionsLocked { get; set; }
     bool HotkeysPaused { get; set; }
+    /// <summary>Click-through: the thumbnails let the mouse through (ClickThroughHotkey).</summary>
+    bool ClickThrough { get; set; }
     /// <summary>Whether do-not-disturb is on right now (the hotkey, the tray or the quiet hours).</summary>
     bool DoNotDisturb { get; }
     /// <summary>ThumbnailManager.ApplySizeToAll: every running thumbnail gets this size where it is, and new ones start at it.</summary>

@@ -469,6 +469,9 @@ public sealed class ThumbnailWindow : Window
         Topmost = look.Topmost;
     }
 
+    /// <summary>Whether the window lets the mouse through now (click-through), as last set; null before it was set.</summary>
+    public bool? PassesClicks { get; set; }
+
     /// <summary>The modifiers held at the last left click (read by Clicked's handler).</summary>
     public KeyModifiers ClickModifiers { get; private set; }
 
