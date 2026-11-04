@@ -182,9 +182,10 @@ internal static class LinuxSupport
         // ── App › General ──
         ["app.general.language"] = S,
         ["app.general.scale"] = N,            // S4: the settings window's text size
-        ["app.general.startupSettings"] = N,
+        ["app.general.startupSettings"] = S,  // Previews.Start (S3b)
         ["app.general.startWithWindows"] = W,
-        ["app.general.keepAwake"] = N, ["app.general.downtime"] = N, ["app.general.tranquility"] = N, ["app.general.tranquilityWaiting"] = N,
+        ["app.general.keepAwake"] = S, ["app.general.downtime"] = S,   // LinuxKeepAwake (systemd-inhibit), Previews.FollowDowntime (S3b)
+        ["app.general.tranquility"] = N, ["app.general.tranquilityWaiting"] = N,   // the status check is not wired on either platform yet
         ["app.general.acceptCommands"] = S,
         ["app.general.allowPairingRequests"] = W, ["app.general.buttons"] = W,   // the Elgato Stream Deck plugin
         ["app.general.acceptCommandsUnelevated"] = W,                            // Windows elevation
@@ -211,7 +212,7 @@ internal static class LinuxSupport
         ["app.diagnostics.uncleanExit"] = N,  // the Linux app writes no run marker
         ["app.diagnostics.bugReport"] = N,    // the report window is WPF
         ["app.diagnostics.trackPlaytime"] = N, ["app.diagnostics.playtimeHistory"] = N,
-        ["app.diagnostics.note"] = N, ["app.diagnostics.cycling"] = N, ["app.diagnostics.alerts"] = N, ["app.diagnostics.folder"] = N,
+        ["app.diagnostics.note"] = S, ["app.diagnostics.cycling"] = S, ["app.diagnostics.alerts"] = S, ["app.diagnostics.folder"] = S,   // GlobalSettings set (S3b)
         ["app.diagnostics.injection"] = W, ["app.diagnostics.windowHooks"] = W, ["app.diagnostics.dwm"] = W,   // the Linux app writes no debug logs
 
         // ── A character's page ──
@@ -320,6 +321,7 @@ internal static class LinuxSupport
     private static readonly Dictionary<string, Action<SettingsContext>> Runs = new(StringComparer.Ordinal)
     {
         ["app.profiles.openFolder"] = _ => OpenFolder(AppPaths.ConfigDir),
+        ["app.diagnostics.openLogs"] = _ => OpenFolder(AppPaths.LogsDir),
         ["app.diagnostics.openErrorLog"] = _ =>
         {
             var path = ErrorLog.Shared.FilePath;

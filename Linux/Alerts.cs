@@ -152,10 +152,10 @@ public sealed class Alerts : IDisposable
     /// <summary>A short note for the player after a hotkey that shows nothing by itself (the Windows app shows a tip near the
     /// cursor): a line on the console and a desktop notification that replaces the one before it. Do-not-disturb holds
     /// sounds, not notifications.</summary>
-    public static void Say(string text)
+    public static void Say(string text, int milliseconds = 3000)
     {
         Console.WriteLine(text);
-        Run("notify-send", "--app-name=EVE MultiPreview", "--expire-time=3000",
+        Run("notify-send", "--app-name=EVE MultiPreview", "--expire-time=" + milliseconds,
             "--hint=string:x-canonical-private-synchronous:evemp-hotkey", text);
     }
 

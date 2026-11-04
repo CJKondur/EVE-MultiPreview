@@ -114,6 +114,14 @@ public sealed class Previews : ITrayActions, ISettingsHost
         if (Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS") is { Length: > 0 } page) OpenSettings(OldPageNumbers.ElementAtOrDefault(int.TryParse(page, out int n) ? n : -1) ?? page);
         // EVEMP_OPEN_HISTORY=1: opens the alert history window at startup (the tests use it).
         if (Environment.GetEnvironmentVariable("EVEMP_OPEN_HISTORY") == "1") OpenAlertHistory();
+        // "When MultiPreview starts" (StartupSettings): the settings window opens by itself, minimized when asked, half a
+        // second in (App's startup timer). Linux has no setup wizard, so SetupCompleted is not asked.
+        if (S.StartupSettings != StartupSettingsMode.Off && _settingsWindow == null)
+            DispatcherTimer.RunOnce(() =>
+            {
+                OpenSettings();
+                if (S.StartupSettings == StartupSettingsMode.OpenMinimized && _settingsWindow != null) _settingsWindow.WindowState = WindowState.Minimized;
+            }, TimeSpan.FromMilliseconds(500));
     }
 
     /// <summary>The last resort: an exception no handler caught (a settings card's side effect, a menu, a timer) is logged
@@ -261,6 +269,27 @@ public sealed class Previews : ITrayActions, ISettingsHost
         var running = RunningCharacters();
         var arrived = _focusArrivals.Look(DateTime.UtcNow, running);
         _focusHeld = FocusMode.Held(group, running, alertsShow, _attention.Has, arrived.Contains);
+    }
+
+    // ── Keep the PC awake (IDEAS #46) and the downtime warnings (IDEAS #9): App's half-second followers ──
+
+    private readonly LinuxKeepAwake _keepAwake = new();
+    private readonly DowntimeWarnings _downtimeWarnings = new();
+
+    private void FollowKeepAwake()
+    {
+        try { _keepAwake.Follow(KeepAwake.Wanted(S, RunningCharacters())); }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
+    }
+
+    /// <summary>App.FollowDowntime: nothing while the switch is off or nobody is logged in (so a warning is not used up
+    /// unseen); then, when one is due (15 and 5 minutes before 11:00 UTC), a notification naming every logged-in character.</summary>
+    private void FollowDowntime()
+    {
+        if (!S.DowntimeWarnings) return;
+        var names = RunningCharacters().ToList();
+        if (names.Count == 0) return;
+        if (_downtimeWarnings.Due(DateTime.UtcNow) is int minutes) Alerts.Say(Downtime.WarningText(minutes, names), 10000);
     }
 
     // ── Switch profiles by who is logged in (IDEAS #11: App.FollowAutoProfile) ──
@@ -651,6 +680,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     {
         _probeTimer?.Dispose();
         _nameBar?.Close();
+        _keepAwake.Dispose();
         _alerts?.Dispose();
         _settings.Dispose();
         foreach (var thumb in _thumbs.Values.Concat(_pips.Values).Concat(_crops.Values.Select(c => c.Window))) thumb.Close();
@@ -753,6 +783,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             ? current > 0 && next == 0 && list.Count > 1
             : current >= 0 && current < list.Count - 1 && next == list.Count - 1 && list.Count > 1;
         if (wrapped) PlayWrapSound();
+        DiagnosticsService.LogCycling($"[Cycle] {(order == null ? "all" : "group")} {(forward ? "FWD" : "BWD")}: {current} -> {next} of {list.Count}");
         _clients.Activate(list[next].Client.Window);
     }
 
@@ -855,6 +886,10 @@ public sealed class Previews : ITrayActions, ISettingsHost
             FollowFocusMode();
             FollowNameBar();
             FollowAutoProfile();
+            // The debug logs (App › Diagnostics) ask DiagnosticsService for the settings; an import replaces the object.
+            DiagnosticsService.GlobalSettings = S;
+            FollowKeepAwake();
+            FollowDowntime();
         }
         if (_ticks % 50 == 0) LookAtMemory();
         var watch = Stopwatch.StartNew();
