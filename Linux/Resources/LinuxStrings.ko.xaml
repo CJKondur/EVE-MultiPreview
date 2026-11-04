@@ -54,5 +54,13 @@
     <sys:String x:Key="L.Linux.NotYet">Linux에서는 아직 사용할 수 없어요: {0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">이 데스크톱 사운드 서버에서의 각 클라이언트 볼륨이에요. 클라이언트는 다음을 위해 이를 기억해요.</sys:String>
     <sys:String x:Key="L.Linux.ResizeAllDesc">너비 × 높이. '모두에 적용'은 각 썸네일을 제자리에서 크기 조정하며, 새 썸네일도 이 크기로 시작해요.</sys:String>
+    <sys:String x:Key="L.Linux.LookGallery.Desc">한 번 클릭하면 설정 창과 대화 상자가 한꺼번에 바뀌어요. 미리보기는 그대로예요.</sys:String>
+    <sys:String x:Key="L.Linux.LookHelp.Body">각 카드는 모양을 작게 보여 줘요. 한 번 클릭하면 선택돼요. 설정 창과 대화 상자가 바로 바뀌고 다시 시작할 필요가 없어요. 미리보기와 그 메뉴, 데스크톱 알림은 그대로예요.&#x0A;&#x0A;**클래식**은 예전 설정 창의 남색이에요. **Windows 11**은 Windows 11 설정의 어두운 모양이에요. **고대비**는 흑백이고 글자가 더 커요. 나머지 아홉 가지는 저마다 색과 글꼴이 있고, **캡슐**, **청사진**, **잉크**, **터미널**은 페이지 배치도 달라요.</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeSection">데스크톱 밝게와 어둡게</sys:String>
+    <sys:String x:Key="L.Linux.LookFollowTheme">데스크톱 스타일이 밝은 동안 주광 표시</sys:String>
+    <sys:String x:Key="L.Linux.LookFollowTheme.Desc">어둡거나, 선호가 없거나, 데스크톱이 알려 주지 않으면 고른 모양을 표시해요. 고른 모양은 저장된 채로 남아요.</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeOn">데스크톱 스타일이 밝아서 주광이 표시돼요. 고른 모양은 그대로 유지되고, 데스크톱이 어두워지면 표시돼요. 이 스위치를 끄면 바로 표시돼요.</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeHelp.Title">데스크톱 밝게와 어둡게</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeHelp.Body">**데스크톱 스타일이 밝은 동안 주광 표시**를 켜면 데스크톱이 앱에 밝은 스타일을 요청하는 동안 MultiPreview가 **주광**을 표시하고(GNOME, KDE Plasma 그리고 freedesktop 설정 포털로 앱에 알려 주는 다른 데스크톱의 밝게/어둡게 설정), 어두울 때는 고른 모양을 표시해요. 데스크톱에서 바꾸면 바로 적용되고, 다시 시작할 필요가 없어요.&#x0A;&#x0A;고른 모양은 절대 덮어쓰이지 않아요. 저장된 채로 남아 있다가 데스크톱이 어두워지거나 스위치를 끄면 다시 표시돼요. 데스크톱이 알려 주지 않으면 내 모양을 표시해요. 스위치는 기본으로 꺼져 있고, 설정 창만 바꾸며 미리보기는 바꾸지 않아요.</sys:String>
 
 </ResourceDictionary>

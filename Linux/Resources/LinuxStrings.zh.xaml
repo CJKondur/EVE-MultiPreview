@@ -54,5 +54,13 @@
     <sys:String x:Key="L.Linux.NotYet">Linux 上暂不可用：{0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">每个客户端在此桌面声音服务器中的音量。客户端会记住它供下次使用。</sys:String>
     <sys:String x:Key="L.Linux.ResizeAllDesc">宽 × 高。“应用到全部”会就地调整每个缩略图的大小，新缩略图也将以此大小开始。</sys:String>
+    <sys:String x:Key="L.Linux.LookGallery.Desc">点击一次即可同时更改设置窗口及其对话框。缩略图保持不变。</sys:String>
+    <sys:String x:Key="L.Linux.LookHelp.Body">每张卡片显示一种外观的小预览，点击一次即可选择。设置窗口及其对话框会立即改变，无需重启。缩略图、它们的菜单和桌面通知保持不变。&#x0A;&#x0A;**经典**是旧设置窗口的深蓝色。**Windows 11** 是 Windows 11 设置的深色外观。**高对比度**为黑白配色，字体更大。其余九种各有自己的颜色和字体，其中**胶囊**、**蓝图**、**墨水**和**终端**还有各自的页面布局。</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeSection">桌面浅色与深色</sys:String>
+    <sys:String x:Key="L.Linux.LookFollowTheme">桌面样式为浅色时显示日光</sys:String>
+    <sys:String x:Key="L.Linux.LookFollowTheme.Desc">样式为深色、没有偏好或桌面未说明时，显示你选择的外观。你选择的外观会一直保存。</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeOn">桌面样式为浅色，因此显示日光。你选择的外观会保留，在桌面变为深色后显示；如果你关闭此开关，则会立即显示。</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeHelp.Title">桌面浅色与深色</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeHelp.Body">开启**桌面样式为浅色时显示日光**后，只要你的桌面要求应用使用浅色样式（GNOME、KDE Plasma 以及其他通过 freedesktop 设置门户告知应用的桌面的浅色或深色设置），MultiPreview 就会显示**日光**；为深色时显示你选择的外观。桌面上的更改会立即生效，无需重启。&#x0A;&#x0A;你的选择不会被覆盖：它会一直保存，在桌面变为深色或你关闭开关后恢复。如果桌面未说明，则显示你自己的外观。此开关默认关闭，只改变设置窗口，不改变缩略图。</sys:String>
 
 </ResourceDictionary>

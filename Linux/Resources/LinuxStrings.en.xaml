@@ -53,5 +53,13 @@
     <sys:String x:Key="L.Linux.NotYet">Not available on Linux yet: {0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">Each client's volume on this desktop's sound server. A client remembers it for next time.</sys:String>
     <sys:String x:Key="L.Linux.ResizeAllDesc">Width × height. Apply to all resizes every thumbnail where it is, and new thumbnails start at this size.</sys:String>
+    <sys:String x:Key="L.Linux.LookGallery.Desc">One click changes the settings window and its dialogs at once. The thumbnails stay as they are.</sys:String>
+    <sys:String x:Key="L.Linux.LookHelp.Body">Each card shows a small preview of a look; one click picks it. The settings window and its dialogs change at once; nothing has to restart. The thumbnails, their menus and the desktop notifications stay as they are.&#x0A;&#x0A;**Classic** is the navy of the old settings window. **Windows 11** is the dark look of Windows 11's own Settings. **High contrast** is black and white, with larger text. The other nine have their own colours and type, and **Capsule**, **Blueprint**, **Ink** and **Terminal** also lay out the page their own way.</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeSection">Desktop light and dark</sys:String>
+    <sys:String x:Key="L.Linux.LookFollowTheme">Show Daylight while the desktop's style is light</sys:String>
+    <sys:String x:Key="L.Linux.LookFollowTheme.Desc">Dark, no preference, or a desktop that does not say shows the look you picked. The look you pick stays saved.</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeOn">The desktop's style is light, so Daylight is shown. The look you pick is kept and shows when the desktop goes dark, or now if you turn the switch off.</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeHelp.Title">Desktop light and dark</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeHelp.Body">With **Show Daylight while the desktop's style is light** on, MultiPreview shows **Daylight** whenever your desktop asks apps for a light style (the light or dark setting of GNOME, KDE Plasma and other desktops that tell apps through the freedesktop settings portal), and the look you picked when it is dark. A change on the desktop shows at once, without a restart.&#x0A;&#x0A;Your pick is never overwritten: it stays saved and shows again when the desktop goes dark or when you turn the switch off. If the desktop does not say, your own look shows. The switch is off by default and changes the settings window only, not the thumbnails.</sys:String>
 
 </ResourceDictionary>

@@ -54,5 +54,13 @@
     <sys:String x:Key="L.Linux.NotYet">Linux ではまだ使えません：{0}</sys:String>
     <sys:String x:Key="L.Linux.VolumeDesc">このデスクトップのサウンドサーバーでの各クライアントの音量です。クライアントは次回のために記憶します。</sys:String>
     <sys:String x:Key="L.Linux.ResizeAllDesc">幅 × 高さ。「すべてに適用」で各サムネイルをその場でリサイズし、新しいサムネイルもこのサイズで始まります。</sys:String>
+    <sys:String x:Key="L.Linux.LookGallery.Desc">1 回のクリックで、設定ウィンドウとそのダイアログが一度に変わります。サムネイルはそのままです。</sys:String>
+    <sys:String x:Key="L.Linux.LookHelp.Body">各カードには外観の小さなプレビューが表示されます。1 回のクリックで選べます。設定ウィンドウとそのダイアログはすぐに変わり、再起動は不要です。サムネイル、そのメニュー、デスクトップ通知はそのままです。&#x0A;&#x0A;**クラシック**は以前の設定ウィンドウの紺色です。**Windows 11** は Windows 11 の設定の暗い外観です。**ハイコントラスト**は白黒で、文字が大きめです。ほかの 9 つにはそれぞれ独自の色と書体があり、**カプセル**、**設計図**、**インク**、**ターミナル**はページの配置も独自です。</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeSection">デスクトップのライトとダーク</sys:String>
+    <sys:String x:Key="L.Linux.LookFollowTheme">デスクトップのスタイルがライトの間はデイライトを表示する</sys:String>
+    <sys:String x:Key="L.Linux.LookFollowTheme.Desc">ダークのとき、指定がないとき、またはデスクトップが知らせないときは、選んだ外観を表示します。選んだ外観は保存されたままです。</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeOn">デスクトップのスタイルがライトのため、デイライトを表示しています。選んだ外観は保持され、デスクトップがダークになると表示されます。このスイッチをオフにするとすぐに表示されます。</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeHelp.Title">デスクトップのライトとダーク</sys:String>
+    <sys:String x:Key="L.Linux.LookThemeHelp.Body">**デスクトップのスタイルがライトの間はデイライトを表示する**をオンにすると、デスクトップがアプリにライトのスタイルを求めている間は MultiPreview が**デイライト**を表示し（GNOME、KDE Plasma など、freedesktop の設定ポータルでアプリに知らせるデスクトップのライト／ダーク設定）、ダークのときは選んだ外観を表示します。デスクトップでの変更はすぐに反映され、再起動は不要です。&#x0A;&#x0A;選んだ外観が上書きされることはありません。保存されたままで、デスクトップがダークになるか、スイッチをオフにすると戻ります。デスクトップが知らせないときは、自分の外観を表示します。スイッチは初期状態ではオフで、変わるのは設定ウィンドウだけです。サムネイルは変わりません。</sys:String>
 
 </ResourceDictionary>

@@ -182,7 +182,7 @@ internal static class LinuxSupport
 
         // ── App › General ──
         ["app.general.language"] = S,
-        ["app.general.scale"] = N,            // S4: the settings window's text size
+        ["app.general.scale"] = S,            // LinuxLooks.Scale: the settings window's size (S4)
         ["app.general.startupSettings"] = S,  // Previews.Start (S3b)
         ["app.general.startWithWindows"] = W,
         ["app.general.keepAwake"] = S, ["app.general.downtime"] = S,   // LinuxKeepAwake (systemd-inhibit), Previews.FollowDowntime (S3b)
@@ -192,9 +192,12 @@ internal static class LinuxSupport
         ["app.general.acceptCommandsUnelevated"] = W,                            // Windows elevation
         ["app.general.recent"] = S,
 
-        // ── App › Look: S4 brings the looks; following Windows is Windows-only ──
-        ["app.look.gallery"] = N,
-        ["app.look.followTheme"] = W, ["app.look.themeOn"] = W, ["app.look.followContrast"] = W, ["app.look.contrastOn"] = W,
+        // ── App › Look (S4): the twelve looks (Linux/Looks, from the Windows look files). Daylight while the desktop's colour
+        //    scheme is light (the freedesktop portal, Avalonia's platform colour values) in Linux words; Windows' contrast
+        //    themes have no Linux counterpart Avalonia reads, so following them stays Windows-only. ──
+        ["app.look.gallery"] = S,
+        ["app.look.followTheme"] = S, ["app.look.themeOn"] = S,
+        ["app.look.followContrast"] = W, ["app.look.contrastOn"] = W,
 
         // ── App › Profiles ──
         ["app.profiles.current"] = S,         // Linux/Settings/ProfileEditors.cs over the shared ProfileActions (S3b)
@@ -205,7 +208,7 @@ internal static class LinuxSupport
         ["app.about.versionText"] = S, ["app.about.links"] = S, ["app.about.checkOnStartup"] = S, ["app.about.preRelease"] = S,
         ["app.about.installVersion"] = N,     // no Linux editor
         ["app.about.useOldWindow"] = W,       // the old WPF settings window
-        ["app.about.fonts"] = N,
+        ["app.about.fonts"] = S,              // Linux/Settings/LookEditors.cs: the carried typefaces and their licences (S4)
         ["app.about.uninstallRow"] = W,       // registry, shortcuts, the Windows install
 
         // ── App › Diagnostics ──
@@ -284,6 +287,16 @@ internal static class LinuxSupport
         ["L.S.clients.audio.volume.Desc"] = "L.Linux.VolumeDesc",
         ["L.S.thumbs.appearance.resizeAll.Desc"] = "L.Linux.ResizeAllDesc",
         ["L.S.Severity.ColHub"] = "L.Linux.Notifications",
+        // S4: the looks change the settings window and its dialogs on Linux (not the menus and alerts), and Daylight follows
+        // the desktop's colour scheme instead of Windows' app theme.
+        ["L.S.app.look.gallery.Desc"] = "L.Linux.LookGallery.Desc",
+        ["L.Help.app.look.look.Body"] = "L.Linux.LookHelp.Body",
+        ["L.S.Sec.app.look.theme"] = "L.Linux.LookThemeSection",
+        ["L.S.app.look.followTheme"] = "L.Linux.LookFollowTheme",
+        ["L.S.app.look.followTheme.Desc"] = "L.Linux.LookFollowTheme.Desc",
+        ["L.S.app.look.themeOn"] = "L.Linux.LookThemeOn",
+        ["L.Help.app.look.theme.Title"] = "L.Linux.LookThemeHelp.Title",
+        ["L.Help.app.look.theme.Body"] = "L.Linux.LookThemeHelp.Body",
     };
 
     /// <summary>The key Linux shows for <paramref name="key"/>.</summary>

@@ -37,6 +37,9 @@ internal static class LinuxEditors
         { "alerts.sounds.table", (pages, ctx, _) => pages.SoundTable(ctx) },
         { "character.cycle", (pages, _, item) => pages.CharacterCycle((string)item.Arg!) },
         { "clients.windows.neverMinimize", (pages, ctx, _) => pages.NeverMinimize(ctx) },
+        // S4 (Linux/Settings/LookEditors.cs): App › Look's gallery, About › Fonts.
+        { EditorIds.LookGallery, (pages, ctx, _) => pages.LookGallery(ctx) },
+        { EditorIds.FontLicencesEditor, (pages, _, _) => pages.FontLicences() },
     };
 
     /// <summary>Every editor id Linux can build.</summary>
