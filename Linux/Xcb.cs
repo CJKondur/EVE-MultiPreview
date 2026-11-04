@@ -196,6 +196,45 @@ internal static unsafe class Xcb
         xcb_flush(c);
     }
 
+    /// <summary>Asks the window manager to move (and, with a width and height, size) a client window, as a pager would
+    /// (_NET_MOVERESIZE_WINDOW, EWMH). StaticGravity: x and y are where the client's own area starts on the screen, the
+    /// point Rectangle reads back, so a saved place comes back where it was whatever frame the window manager draws.</summary>
+    public static void RequestMoveResize(IntPtr c, uint root, uint window, uint netMoveResize, int x, int y, int width = 0, int height = 0)
+    {
+        const uint staticGravity = 10, hasX = 1u << 8, hasY = 1u << 9, hasW = 1u << 10, hasH = 1u << 11, pager = 2u << 12;
+        byte* evt = stackalloc byte[32];
+        new Span<byte>(evt, 32).Clear();
+        evt[0] = ClientMessage;
+        evt[1] = 32;
+        *(uint*)(evt + 4) = window;
+        *(uint*)(evt + 8) = netMoveResize;
+        *(uint*)(evt + 12) = staticGravity | hasX | hasY | (width > 0 ? hasW : 0) | (height > 0 ? hasH : 0) | pager;
+        *(int*)(evt + 16) = x;
+        *(int*)(evt + 20) = y;
+        *(int*)(evt + 24) = Math.Max(0, width);
+        *(int*)(evt + 28) = Math.Max(0, height);
+        xcb_send_event(c, 0, root, SubstructureRedirect | SubstructureNotify, evt);
+        xcb_flush(c);
+    }
+
+    /// <summary>Asks the window manager to add (or remove) two states of a client window at once (_NET_WM_STATE, EWMH), as a
+    /// pager would: the maximized pair.</summary>
+    public static void RequestState(IntPtr c, uint root, uint window, uint netWmState, bool add, uint first, uint second)
+    {
+        byte* evt = stackalloc byte[32];
+        new Span<byte>(evt, 32).Clear();
+        evt[0] = ClientMessage;
+        evt[1] = 32;
+        *(uint*)(evt + 4) = window;
+        *(uint*)(evt + 8) = netWmState;
+        *(uint*)(evt + 12) = add ? 1u : 0u;
+        *(uint*)(evt + 16) = first;
+        *(uint*)(evt + 20) = second;
+        *(uint*)(evt + 24) = 2;   // source indication: pager
+        xcb_send_event(c, 0, root, SubstructureRedirect | SubstructureNotify, evt);
+        xcb_flush(c);
+    }
+
     /// <summary>Stacks the window above its siblings (ConfigureWindow, stack mode Above). The window manager decides.</summary>
     public static void Raise(IntPtr c, uint window)
     {

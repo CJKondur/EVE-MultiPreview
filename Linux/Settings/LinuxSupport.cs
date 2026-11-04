@@ -71,10 +71,12 @@ internal static class LinuxSupport
         ["clients.groups.showBorders"] = S, ["clients.groups.editor"] = S, ["clients.groups.focusKey"] = S,
         ["clients.groups.focusGroup"] = S, ["clients.groups.focusAlerts"] = S,
 
-        // ── Clients › Windows & positions: the Linux app minimizes the other clients (S3b), but does not move or size EVE's windows ──
+        // ── Clients › Windows & positions: the Linux app minimizes the other clients (S3b) and places them (S5) ──
         ["clients.windows.minimizeInactive"] = S, ["clients.windows.minimizeDelay"] = S, ["clients.windows.neverMinimize"] = S,   // Previews.ActivateClient
-        ["clients.windows.positionMode"] = N, ["clients.windows.positionX"] = N, ["clients.windows.positionY"] = N,
-        ["clients.windows.alwaysMaximize"] = N, ["clients.windows.trackPositions"] = N,
+        // S5: Previews.ApplyFixedClientPosition / RestoreClientPosition over EWMH (_NET_MOVERESIZE_WINDOW, _NET_WM_STATE); the
+        // tray has Save / Restore positions. Fixed slots (mode 3) have no Linux editor: choosing them leaves the clients alone.
+        ["clients.windows.positionMode"] = S, ["clients.windows.positionX"] = S, ["clients.windows.positionY"] = S,
+        ["clients.windows.alwaysMaximize"] = S, ["clients.windows.trackPositions"] = S,
         ["clients.windows.coverTaskbar"] = W, // the Windows taskbar
         ["clients.windows.slotEditor"] = N, ["clients.windows.slotsResize"] = N,
         ["clients.windows.charSelectCycle"] = N, ["clients.windows.charSelectNext"] = N, ["clients.windows.charSelectPrevious"] = N,

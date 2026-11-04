@@ -19,6 +19,8 @@ public interface ITrayActions
     string Profile { get; set; }
     void OpenSettings();
     void OpenAlertHistory();
+    void SaveClientPositions();
+    void RestoreClientPositions();
     void Exit();
 }
 
@@ -60,6 +62,12 @@ public sealed class Tray
         foreach (var name in _app.Profiles)
             profiles.Add(Check(name, name == _app.Profile, _ => _app.Profile = name));
         menu.Add(new NativeMenuItem(string.Format(T("L.Tray.ProfileFmt", "Profile: {0}"), _app.Profile)) { Menu = profiles });
+
+        // The Windows tray's "Client windows": the places "Remember client positions" restores.
+        var windows = new NativeMenu();
+        windows.Add(Item(T("L.Tray.SavePositions", "Save positions"), _app.SaveClientPositions));
+        windows.Add(Item(T("L.Tray.RestorePositions", "Restore positions"), _app.RestoreClientPositions));
+        menu.Add(new NativeMenuItem(T("L.Tray.ClientPositions", "Client windows")) { Menu = windows });
 
         menu.Add(new NativeMenuItemSeparator());
         menu.Add(Item(T("L.Tray.Exit", "Exit MultiPreview"), _app.Exit));

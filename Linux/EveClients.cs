@@ -32,6 +32,11 @@ public sealed unsafe class EveClients : IDisposable
         _netWmPid = Xcb.Atom(_c, "_NET_WM_PID");
         _netCloseWindow = Xcb.Atom(_c, "_NET_CLOSE_WINDOW");
         _wmChangeState = Xcb.Atom(_c, "WM_CHANGE_STATE");
+        _netMoveResize = Xcb.Atom(_c, "_NET_MOVERESIZE_WINDOW");
+        _netWmState = Xcb.Atom(_c, "_NET_WM_STATE");
+        _maxVert = Xcb.Atom(_c, "_NET_WM_STATE_MAXIMIZED_VERT");
+        _maxHorz = Xcb.Atom(_c, "_NET_WM_STATE_MAXIMIZED_HORZ");
+        _hidden = Xcb.Atom(_c, "_NET_WM_STATE_HIDDEN");
         _composite = Xcb.InitComposite(_c);
         if (Environment.GetEnvironmentVariable("EVEMP_NO_RENDER") != "1") _renderFormats = XRender.Formats(_c);
     }
@@ -92,6 +97,32 @@ public sealed unsafe class EveClients : IDisposable
     public (int X, int Y, ushort Mask)? Pointer() => Xcb.Pointer(_c, _root);
 
     public void Activate(uint window) => Xcb.RequestActivate(_c, _root, window, _netActiveWindow);
+
+    private readonly uint _netMoveResize, _netWmState, _maxVert, _maxHorz, _hidden;
+
+    /// <summary>Asks the window manager to put the client's own area at (x, y) on the screen, and to size it when a width and
+    /// height are given (ThumbnailManager's SetWindowPos / SetWindowPlacement for client windows).</summary>
+    public void MoveClient(uint window, int x, int y, int width = 0, int height = 0) =>
+        Xcb.RequestMoveResize(_c, _root, window, _netMoveResize, x, y, width, height);
+
+    /// <summary>Asks the window manager to maximize the client (SW_MAXIMIZE), or to take that back.</summary>
+    public void Maximize(uint window, bool on = true) => Xcb.RequestState(_c, _root, window, _netWmState, on, _maxVert, _maxHorz);
+
+    /// <summary>What _NET_WM_STATE says of the client: maximized both ways (IsZoomed), minimized (IsIconic).</summary>
+    public (bool Maximized, bool Minimized) State(uint window)
+    {
+        var v = Xcb.Property(_c, window, _netWmState);
+        if (v == null) return (false, false);
+        bool vert = false, horz = false, hidden = false;
+        for (int i = 0; i + 4 <= v.Length; i += 4)
+        {
+            uint atom = BitConverter.ToUInt32(v, i);
+            vert |= atom == _maxVert;
+            horz |= atom == _maxHorz;
+            hidden |= atom == _hidden;
+        }
+        return (vert && horz, hidden);
+    }
 
     /// <summary>Stacks one of MultiPreview's own windows above the others, without activating it.</summary>
     public void Raise(uint window) => Xcb.Raise(_c, window);

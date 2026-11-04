@@ -580,6 +580,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
     {
         ResetThumbnails();
         BindHotkeys();
+        // App's ProfileSwitched: with "Remember client positions" on, every running client goes where the new profile keeps it.
+        if (S.ClientPositionMode != 3 && S.TrackClientPositions) RestoreClientPositions();
     }
 
     /// <summary>Closes every thumbnail and makes them again, each where the current profile keeps it.</summary>
@@ -683,6 +685,75 @@ public sealed class Previews : ITrayActions, ISettingsHost
         BindHotkeys();
         _alerts?.Reapply();
         TrayMenu?.Rebuild();
+    }
+
+    // ── Client windows (ThumbnailManager.ApplyFixedClientPosition, Save/RestoreClientPosition(s)) ──
+
+    /// <summary>The client windows already placed once: a client is placed when it is first found, not each time the
+    /// thumbnails are made again (a profile switch, a reset).</summary>
+    private readonly HashSet<uint> _placed = new();
+
+    /// <summary>A client that was just found goes to its remembered place (Remember client positions), or to the fixed
+    /// place (centred, or the X and Y set). Fixed slots (mode 3) have no Linux editor yet and do nothing here.</summary>
+    private void PlaceNewClient(EveClient client)
+    {
+        if (S.ClientPositionMode == 3) return;
+        if (S.TrackClientPositions) RestoreClientPosition(client.Window, client.Character);
+        else ApplyFixedClientPosition(client.Window);
+    }
+
+    /// <summary>Centred in the work area of the monitor the client is on (#96: not over the panel), or at the X and Y set.
+    /// A maximized or minimized client, or one already there, is left alone. The place is the client's own area.</summary>
+    private void ApplyFixedClientPosition(uint window)
+    {
+        int mode = S.ClientPositionMode;
+        if (mode is not (1 or 2)) return;
+        var state = _clients.State(window);
+        if (state.Maximized || state.Minimized || _clients.Rectangle(window) is not { } r) return;
+        int tx = S.ClientPositionX, ty = S.ClientPositionY;
+        if (mode == 1)
+        {
+            var screens = _thumbs.Values.FirstOrDefault()?.Screens;
+            if (screens?.ScreenFromPoint(new PixelPoint(r.X + r.Width / 2, r.Y + r.Height / 2)) is not { } screen) return;
+            var wa = screen.WorkingArea;
+            // A window wider or taller than the area is pinned to its edge instead of centring to a negative offset.
+            tx = r.Width > wa.Width ? wa.X : wa.X + (wa.Width - r.Width) / 2;
+            ty = r.Height > wa.Height ? wa.Y : wa.Y + (wa.Height - r.Height) / 2;
+        }
+        if (r.X == tx && r.Y == ty) return;
+        _clients.MoveClient(window, tx, ty);
+    }
+
+    /// <summary>The tray's "Save positions": every running client's place, size and whether it is maximized, in the profile.</summary>
+    public void SaveClientPositions()
+    {
+        foreach (var thumb in _thumbs.Values)
+        {
+            var name = thumb.Client.Character;
+            if (string.IsNullOrEmpty(name) || _clients.Rectangle(thumb.Client.Window) is not { } r) continue;
+            _settings.CurrentProfile.ClientPositions[name] = new ClientPosition
+            {
+                X = r.X, Y = r.Y, Width = r.Width, Height = r.Height, IsMaximized = _clients.State(thumb.Client.Window).Maximized ? 1 : 0,
+            };
+        }
+        _settings.Save();
+        Alerts.Say(LocalizationService.Str("L.Tray.PosSaved", "Client positions saved"), 2000);
+    }
+
+    /// <summary>The tray's "Restore positions" (and a profile switch): every running client to the place its profile keeps.</summary>
+    public void RestoreClientPositions()
+    {
+        foreach (var thumb in _thumbs.Values) RestoreClientPosition(thumb.Client.Window, thumb.Client.Character);
+    }
+
+    private void RestoreClientPosition(uint window, string character)
+    {
+        if (string.IsNullOrEmpty(character) || !_settings.CurrentProfile.ClientPositions.TryGetValue(character, out var pos)) return;
+        var state = _clients.State(window);
+        if (state.Minimized) return;   // as Windows leaves a minimized client minimized
+        if (state.Maximized) _clients.Maximize(window, false);   // a maximized window is not moved by the window manager
+        _clients.MoveClient(window, (int)pos.X, (int)pos.Y, Math.Max(1, (int)pos.Width), Math.Max(1, (int)pos.Height));
+        if (pos.IsMaximized == 1) _clients.Maximize(window);
     }
 
     public void Exit()
@@ -802,7 +873,10 @@ public sealed class Previews : ITrayActions, ISettingsHost
     /// profile's never-minimize list (ThumbnailManager.MinimizableClient's rule, copied: keep in sync).</summary>
     private void ActivateClient(uint window)
     {
+        // #99: the fixed place is applied at every switch, not only when the client is found; remembered places win.
+        if (S.ClientPositionMode is 1 or 2 && !S.TrackClientPositions) ApplyFixedClientPosition(window);
         _clients.Activate(window);
+        if (S.AlwaysMaximize && S.ClientPositionMode != 3 && !_clients.State(window).Maximized) _clients.Maximize(window);
         if (!S.MinimizeInactiveClients) return;
         DispatcherTimer.RunOnce(() =>
         {
@@ -1440,6 +1514,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             _attention.Gone(_thumbs[gone].Client.Character);   // nothing there needs the player any more
             _thumbs[gone].Close();
             _thumbs.Remove(gone);
+            _placed.Remove(gone);
             _clients.Forget(gone);
             Console.WriteLine($"Client closed: window {gone}");
         }
@@ -1466,6 +1541,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.PointerSource = _clients.Pointer;
             thumb.MenuRequested += ShowMenu;
             _thumbs[client.Window] = thumb;
+            if (_placed.Add(client.Window)) PlaceNewClient(client);
             ApplyVolume(client);
             Console.WriteLine($"Client found: {client.Character} (window {client.Window})");
         }
