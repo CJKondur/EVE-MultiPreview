@@ -36,6 +36,7 @@ internal static class LinuxEditors
         { EditorIds.DoNotDisturbStateEditor, (pages, ctx, _) => pages.DoNotDisturbLine(ctx) },
         { "alerts.sounds.table", (pages, ctx, _) => pages.SoundTable(ctx) },
         { "character.cycle", (pages, _, item) => pages.CharacterCycle((string)item.Arg!) },
+        { "clients.windows.neverMinimize", (pages, ctx, _) => pages.NeverMinimize(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

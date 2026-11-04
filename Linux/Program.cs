@@ -440,7 +440,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
                     if (group.Members != null) Cycle(group.Members, forward);
                 },
                 CycleAll = forward => Cycle(null, forward),
-                PreviousClient = () => { if (_previousActive != 0) _clients.Activate(_previousActive); },
+                PreviousClient = () => { if (_previousActive != 0) ActivateClient(_previousActive); },
                 LastAlert = GoToLastAlert,
                 CycleProfile = CycleProfile,
                 DoNotDisturb = ToggleDoNotDisturb,
@@ -628,7 +628,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     {
         uint window = WindowOf(character);
         if (window == 0) return false;
-        _clients.Activate(window);
+        ActivateClient(window);
         return true;
     }
 
@@ -705,7 +705,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         }
         keys.Add((S.GlobalCycleForwardHotkey, () => Cycle(null, true)));
         keys.Add((S.GlobalCycleBackwardHotkey, () => Cycle(null, false)));
-        keys.Add((S.PreviousClientHotkey, () => { if (_previousActive != 0) _clients.Activate(_previousActive); }));
+        keys.Add((S.PreviousClientHotkey, () => { if (_previousActive != 0) ActivateClient(_previousActive); }));
         keys.Add((S.HideShowThumbnailsHotkey, () => _allHidden = !_allHidden));
         keys.Add((S.HideSecondaryHotkey, () =>
         {
@@ -743,7 +743,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     private void SwitchTo(string character)
     {
         var thumb = _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, character, StringComparison.OrdinalIgnoreCase));
-        if (thumb != null) _clients.Activate(thumb.Client.Window);
+        if (thumb != null) ActivateClient(thumb.Client.Window);
     }
 
     /// <summary>Characters left out of cycling this session (ThumbnailManager._excludedFromCycle: Shift+click by default, or a
@@ -784,7 +784,69 @@ public sealed class Previews : ITrayActions, ISettingsHost
             : current >= 0 && current < list.Count - 1 && next == list.Count - 1 && list.Count > 1;
         if (wrapped) PlayWrapSound();
         DiagnosticsService.LogCycling($"[Cycle] {(order == null ? "all" : "group")} {(forward ? "FWD" : "BWD")}: {current} -> {next} of {list.Count}");
-        _clients.Activate(list[next].Client.Window);
+        ActivateClient(list[next].Client.Window);
+    }
+
+    /// <summary>ThumbnailManager.ActivateEveWindow: brings a client to the front, and with "Minimize the other clients" on
+    /// (MinimizeInactiveClients) minimizes the others MinimizeDelay ms later: not the one in front, not a character on the
+    /// profile's never-minimize list (ThumbnailManager.MinimizableClient's rule, copied: keep in sync).</summary>
+    private void ActivateClient(uint window)
+    {
+        _clients.Activate(window);
+        if (!S.MinimizeInactiveClients) return;
+        DispatcherTimer.RunOnce(() =>
+        {
+            var dontMinimize = _settings.CurrentProfile.DontMinimizeClients;
+            uint front = _clients.Active();
+            foreach (var thumb in _thumbs.Values)
+            {
+                var name = thumb.Client.Character;
+                if (thumb.Client.Window == window || thumb.Client.Window == front) continue;
+                if (string.IsNullOrEmpty(name) || name == "EVE" || dontMinimize.Any(n => n.Equals(name, StringComparison.OrdinalIgnoreCase))) continue;
+                _clients.Minimize(thumb.Client.Window);
+            }
+        }, TimeSpan.FromMilliseconds(Math.Clamp(S.MinimizeDelay, 0, 5000)));
+    }
+
+    // ── Auto-solo audio (ThumbnailManager.ApplyAudioSolo / MuteAllClientAudio / UnmuteAllClientAudio) ──
+
+    /// <summary>The client whose sound auto-solo left on (0: none, every client muted or solo off), and whether auto-solo was
+    /// on at the last tick (switched off: every client is unmuted, as ReapplySettings did).</summary>
+    private uint _soloWindow;
+    private bool _soloOn;
+
+    /// <summary>At every tick: with "Only the client in front plays sound" on, a client that comes to the front is the one
+    /// unmuted and every other client is muted; with "Mute every client when none is in front" too, a program other than EVE
+    /// in front mutes them all. Off again: every client is unmuted.</summary>
+    private void FollowAudioSolo(uint active)
+    {
+        if (!S.AutoSoloClientAudio)
+        {
+            if (_soloOn) foreach (var thumb in _thumbs.Values) ClientVolume.SetMute(_clients.Pid(thumb.Client.Window), false);
+            _soloOn = false;
+            _soloWindow = 0;
+            return;
+        }
+        bool wasOn = _soloOn;
+        _soloOn = true;
+        if (_thumbs.ContainsKey(active))
+        {
+            if (active == _soloWindow && wasOn) return;
+            _soloWindow = active;
+            ApplySolo();
+        }
+        else if (S.MuteAllClientAudioWhenNoneActive && !_clients.IsOurs(active) && (_soloWindow != 0 || !wasOn))
+        {
+            _soloWindow = 0;
+            foreach (var thumb in _thumbs.Values) ClientVolume.SetMute(_clients.Pid(thumb.Client.Window), true);
+        }
+    }
+
+    /// <summary>The solo client unmuted, every other one muted (asked again every 10 s: a client's sound stream starts late).</summary>
+    private void ApplySolo()
+    {
+        foreach (var thumb in _thumbs.Values)
+            ClientVolume.SetMute(_clients.Pid(thumb.Client.Window), thumb.Client.Window != _soloWindow);
     }
 
     /// <summary>App's CycleWrapped: the wrap-around sound, held by do-not-disturb (critical alerts or not), at the alert volume.</summary>
@@ -803,7 +865,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         int action = (held & Avalonia.Input.KeyModifiers.Control) != 0 ? S.CtrlClickAction : (held & Avalonia.Input.KeyModifiers.Shift) != 0 ? S.ShiftClickAction : 0;
         if (action == 1) _clients.Minimize(client.Window);
         else if (action == 2) ToggleCycleExclusion(client.Character);
-        else _clients.Activate(client.Window);
+        else ActivateClient(client.Window);
     }
 
     /// <summary>ThumbnailManager.ToggleCycleExclusion: the character is left out of cycling, or taken back, and it is said.</summary>
@@ -850,7 +912,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         // The client in front already is looked at now; any other client's alert stays unseen until it really is in
         // front (Tick), so a switch the window manager refuses leaves it as it was.
         if (window == active) _attention.Seen(step.Character);
-        else _clients.Activate(window);
+        else ActivateClient(window);
     }
 
     /// <summary>The do-not-disturb hotkey: flips it as the tray item does, says what it is now, and shows it in the tray menu.</summary>
@@ -919,6 +981,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         foreach (var (who, border) in _alertBorders.ToList())
             if (border.Until < now) _alertBorders.Remove(who);
         TellEnlarged(active);
+        FollowAudioSolo(active);
         // The unseen-alert badge (ThumbnailManager.IncrementAlertBadge): per character, the unseen alerts of events whose badge is on.
         var badges = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         if (S.ShowAlertBadgeOnThumbnails)
@@ -1092,7 +1155,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             if (_pips.ContainsKey(character) || !SettingsUi.CharacterFields.PipOn(S, character)) continue;
             var ss = S.SecondaryThumbnails[character];
             var pip = new ThumbnailWindow(thumb.Client, new PixelRect(ss.X, ss.Y, ss.Width > 0 ? ss.Width : 160, ss.Height > 0 ? ss.Height : 120), second: true);
-            pip.Clicked += c => _clients.Activate(c.Window);
+            pip.Clicked += c => ActivateClient(c.Window);
             void Save(ThumbnailWindow t)
             {
                 if (!S.SecondaryThumbnails.TryGetValue(character, out var entry)) return;
@@ -1356,7 +1419,12 @@ public sealed class Previews : ITrayActions, ISettingsHost
         _atLogin = atLogin.ToHashSet();
         _probeWindows = found.Select(f => (f.Window, f.Character)).ToArray();
         // A client's sound stream starts after its window (at login, after a loading screen): its saved volume is given again every 10 s.
-        if (++_syncs % 5 == 0) foreach (var thumb in _thumbs.Values) ApplyVolume(thumb.Client);
+        if (++_syncs % 5 == 0)
+        {
+            foreach (var thumb in _thumbs.Values)
+                if (!_soloOn || thumb.Client.Window == _soloWindow) ApplyVolume(thumb.Client);
+            if (_soloOn) foreach (var thumb in _thumbs.Values) ClientVolume.SetMute(_clients.Pid(thumb.Client.Window), thumb.Client.Window != _soloWindow);
+        }
         foreach (var gone in _thumbs.Keys.Except(found.Select(f => f.Window)).ToList())
         {
             _attention.Gone(_thumbs[gone].Client.Character);   // nothing there needs the player any more

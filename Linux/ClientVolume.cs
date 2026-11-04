@@ -27,6 +27,16 @@ public static class ClientVolume
         });
     }
 
+    /// <summary>Mutes or unmutes the streams of this process and leaves their volume (auto-solo's mute, the Windows app's SetMute).</summary>
+    public static void SetMute(uint pid, bool mute)
+    {
+        if (pid == 0) return;
+        Task.Run(() =>
+        {
+            foreach (var stream in Streams(pid)) Pactl("set-sink-input-mute", stream, mute ? "1" : "0");
+        });
+    }
+
     /// <summary>The sink inputs (streams) of a process, by their index.</summary>
     private static List<string> Streams(uint pid)
     {

@@ -112,6 +112,46 @@ internal sealed partial class SettingsPages
         return panel;
     }
 
+    /// <summary>Clients › Windows › Never minimize (the Windows NeverMinimizeEditor): the profile's DontMinimizeClients as names
+    /// with ✕, Add… and Add all running clients; a name is listed once, whatever its case. Read at every switch that minimizes
+    /// the other clients (Previews.ActivateClient).</summary>
+    internal Control NeverMinimize(SettingsContext ctx)
+    {
+        var panel = Titled("clients.windows.neverMinimize");
+        var chips = new WrapPanel { Orientation = Orientation.Horizontal };
+        void Show()
+        {
+            chips.Children.Clear();
+            var list = CharacterDirectory.Current(ctx.S).DontMinimizeClients;
+            foreach (var name in list.ToList())
+                chips.Children.Add(Chip(name, () => { CharacterFields.SetNeverMinimize(ctx.S, name, false); ctx.Applier.Request(ApplyScope.Save); Show(); }));
+            if (list.Count == 0) chips.Children.Add(new TextBlock { Text = S3("L.S.clients.windows.neverMinimize.Empty"), Opacity = 0.65 });
+        }
+        Show();
+        panel.Children.Add(Buttons(
+            Action("L.S.NeverMinimize.Add", () =>
+            {
+                var name = ctx.Host.PickCharacter(S3("L.S.NeverMinimize.AddTitle"), CharacterDirectory.AllKnown(ctx.S, CharacterDirectory.Running(ctx)));
+                if (name == null) return;
+                CharacterFields.SetNeverMinimize(ctx.S, name, true);
+                ctx.Applier.Request(ApplyScope.Save);
+                Show();
+            }),
+            Action("L.S.Running.AddAll", () =>
+            {
+                var running = CharacterDirectory.Running(ctx);
+                if (running.Count == 0) { ctx.Host.Toast(S3("L.S.Running.None")); return; }
+                var added = running.Count(n => !CharacterFields.NeverMinimize(ctx.S, n));
+                if (added == 0) { ctx.Host.Toast(S3("L.S.Running.AllThere")); return; }
+                foreach (var n in running) if (!CharacterFields.NeverMinimize(ctx.S, n)) CharacterFields.SetNeverMinimize(ctx.S, n, true);
+                ctx.Host.Toast(string.Format(S3("L.S.Running.Added"), added));
+                ctx.Applier.Request(ApplyScope.Save);
+                Show();
+            })));
+        panel.Children.Add(chips);
+        return panel;
+    }
+
     /// <summary>A name with a ✕ that takes it away (the Windows EditorCard.Chip).</summary>
     internal static Control Chip(string text, Action remove)
     {

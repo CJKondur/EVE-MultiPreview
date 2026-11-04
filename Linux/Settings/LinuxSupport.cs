@@ -71,8 +71,8 @@ internal static class LinuxSupport
         ["clients.groups.showBorders"] = S, ["clients.groups.editor"] = S, ["clients.groups.focusKey"] = S,
         ["clients.groups.focusGroup"] = S, ["clients.groups.focusAlerts"] = S,
 
-        // ── Clients › Windows & positions: the Linux app does not move, size or minimize EVE's windows ──
-        ["clients.windows.minimizeInactive"] = N, ["clients.windows.minimizeDelay"] = N, ["clients.windows.neverMinimize"] = N,
+        // ── Clients › Windows & positions: the Linux app minimizes the other clients (S3b), but does not move or size EVE's windows ──
+        ["clients.windows.minimizeInactive"] = S, ["clients.windows.minimizeDelay"] = S, ["clients.windows.neverMinimize"] = S,   // Previews.ActivateClient
         ["clients.windows.positionMode"] = N, ["clients.windows.positionX"] = N, ["clients.windows.positionY"] = N,
         ["clients.windows.alwaysMaximize"] = N, ["clients.windows.trackPositions"] = N,
         ["clients.windows.coverTaskbar"] = W, // the Windows taskbar
@@ -80,7 +80,7 @@ internal static class LinuxSupport
         ["clients.windows.charSelectCycle"] = N, ["clients.windows.charSelectNext"] = N, ["clients.windows.charSelectPrevious"] = N,
 
         // ── Clients › Audio ──
-        ["clients.audio.autoSolo"] = N, ["clients.audio.muteNoneActive"] = N,
+        ["clients.audio.autoSolo"] = S, ["clients.audio.muteNoneActive"] = S,   // Previews.FollowAudioSolo (S3b)
         ["clients.audio.volume"] = S,         // MoreEditors.Volumes (S3b), pactl
 
         // ── Thumbnails › Appearance ──
@@ -224,7 +224,8 @@ internal static class LinuxSupport
         ["character.pip"] = S, ["character.pipOpacity"] = S,
         ["character.colorsOff"] = S, ["character.colorActive"] = S, ["character.colorInactive"] = S, ["character.colorText"] = S,
         ["character.colorsReset"] = S,
-        ["character.neverMinimize"] = N, ["character.core"] = N, ["character.coreStale"] = N,
+        ["character.neverMinimize"] = S,      // Previews.ActivateClient (S3b)
+        ["character.core"] = N, ["character.coreStale"] = N,   // no CPU affinity on Linux yet
         ["character.volume"] = S,
         ["character.statsOff"] = N, ["character.statsNote"] = N, ["character.statsDamage"] = N, ["character.statsLogi"] = N,
         ["character.statsMining"] = N, ["character.statsRatting"] = N, ["character.statsPicker"] = N,
