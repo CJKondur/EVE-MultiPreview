@@ -92,6 +92,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
         CatchStrays();
         _runMarker = new RunMarker(AppPaths.ConfigDir);
         RunMarker.PreviousUncleanStart = _runMarker.Begin(DateTime.Now);
+        DiagnosticsService.Initialize();   // the Logs folder the debug logs are written in (App › Diagnostics)
+        DiagnosticsService.GlobalSettings = S;
         AppDomain.CurrentDomain.ProcessExit += (_, _) => _runMarker?.End();   // a SIGTERM (logging out) is a clean end too
         Console.WriteLine($"EVE MultiPreview for Linux: settings {AppPaths.SettingsPath}; looking for windows titled \"{_clients.TitlePrefix}…\" "
             + $"(Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
