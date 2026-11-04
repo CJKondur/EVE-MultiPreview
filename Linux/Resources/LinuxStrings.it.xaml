@@ -43,5 +43,9 @@
     <sys:String x:Key="L.Linux.HistNoDialog">Questo desktop non ha una finestra di dialogo per i file, quindi il file è stato salvato nella cartella delle impostazioni.</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn">Mostra le notifiche del desktop</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Ogni avviso scelto qui sotto mostra una notifica, con pulsanti per passare a quel client o posticipare l&apos;avviso di 15 minuti.</sys:String>
+    <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview non è riuscito a chiudere il client di {0}.</sys:String>
+    <sys:String x:Key="L.Linux.ClosedNote">«Client chiuso in modo imprevisto» non è disponibile su Linux: Linux non dice a MultiPreview come è terminato un client che non ha avviato, quindi un crash sembra uguale a un'uscita normale.</sys:String>
+    <sys:String x:Key="L.Linux.NotRespondingDesc">Quando la finestra di un client smette di rispondere per 5 secondi, la sua miniatura lo indica.</sys:String>
+    <sys:String x:Key="L.Linux.ClientNote">«Client non risponde» è disattivato finché non lo attivi nella tabella sopra. Arriva quando un client è bloccato da 30 secondi.</sys:String>
 
 </ResourceDictionary>

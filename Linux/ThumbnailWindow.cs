@@ -23,6 +23,8 @@ public sealed class ThumbnailWindow : Window
     private readonly Border _frame;
     private readonly Image _image;
     private readonly TextBlock _name;
+    private readonly Border _mark;
+    private readonly TextBlock _markText;
     private WriteableBitmap _bitmap;
     private ThumbnailLook? _look;
     private Gesture _mode = Gesture.None;
@@ -88,7 +90,18 @@ public sealed class ThumbnailWindow : Window
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
         };
-        _frame = new Border { Child = new Panel { Children = { _image, _name } } };
+        _markText = new TextBlock { Foreground = Brushes.White, FontWeight = FontWeight.SemiBold, TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center };
+        _mark = new Border
+        {
+            Background = new SolidColorBrush(Color.FromArgb(0xC0, 0x8B, 0x00, 0x00)),
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(8, 3),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            Child = _markText,
+            IsVisible = false,
+        };
+        _frame = new Border { Child = new Panel { Children = { _image, _name, _mark } } };
         Content = _frame;
 
         // Right drag moves the thumbnail by itself (pointer captured), not through the window manager's move, so it
@@ -445,6 +458,15 @@ public sealed class ThumbnailWindow : Window
         _name.FontFamily = new FontFamily(look.Font);
         Opacity = look.Opacity;
         Topmost = look.Topmost;
+    }
+
+    /// <summary>IDEAS #22, #47: what ClientWatch says of the client ("Not responding", "Disconnected") over the middle of the
+    /// picture, or null for nothing.</summary>
+    public void SetMark(string? text)
+    {
+        if (text == _markText.Text && _mark.IsVisible == (text != null)) return;
+        _markText.Text = text;
+        _mark.IsVisible = text != null;
     }
 
     /// <summary>Copies the client's current picture into the bitmap and shows it. False when the client is gone.</summary>

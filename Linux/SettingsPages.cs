@@ -304,6 +304,20 @@ internal sealed class SettingsPages
             Ui.Check(T("L.Common.Enabled", "Enabled"), S.ShowThumbnailsAlwaysOnTop, on => { S.ShowThumbnailsAlwaysOnTop = on; Save(); })));
         page.Children.Add(Ui.Row(T("L.S.thumbs.layout.lock", "Lock thumbnail positions"),
             Ui.Check(T("L.Common.Enabled", "Enabled"), S.LockPositions, on => { S.LockPositions = on; Save(); _host.TrayChanged(); })));
+
+        // IDEAS #22, #47: the app reads all three at each look (every 3 s), so a change only saves.
+        page.Children.Add(Ui.Section(T("L.S.Sec.thumbs.text.clientState", "When a client stops")));
+        page.Children.Add(Ui.Row(T("L.S.thumbs.text.notResponding", "Show “Not responding” on a frozen client"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.ClientNotRespondingBadge, on => { S.ClientNotRespondingBadge = on; Save(); }),
+            T("L.Linux.NotRespondingDesc", "When a client's window stops answering for 5 seconds, its thumbnail says so.")));
+        var seconds = Ui.Row(T("L.S.thumbs.text.disconnectSeconds", "Disconnected after"),
+            WithUnit(Ui.Number(ClientWatchOptions.MinSeconds, ClientWatchOptions.MaxSeconds, S.DisconnectedSeconds, v => { S.DisconnectedSeconds = v; Save(); }), T("L.S.Unit.Sec", "s")),
+            T("L.S.thumbs.text.disconnectSeconds.Desc", "How long a client must be without its server connection before it is marked."));
+        seconds.IsVisible = S.ClientDisconnectedBadge;
+        page.Children.Add(Ui.Row(T("L.S.thumbs.text.disconnected", "Show “Disconnected” when a client loses the server"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.ClientDisconnectedBadge, on => { S.ClientDisconnectedBadge = on; seconds.IsVisible = on; Save(); }),
+            T("L.S.thumbs.text.disconnected.Desc", "When a logged-in client has had no connection to EVE's server for the time below, its thumbnail says so.")));
+        page.Children.Add(seconds);
         return page;
     }
 
@@ -1059,6 +1073,38 @@ internal sealed class SettingsPages
         return holder;
     }
 
+    /// <summary>The numbers of the events MultiPreview works out itself (the Windows Events page's cards under the table):
+    /// each is read where the event is judged, so a change only saves. Each box shows the number used, the stored one held
+    /// to its range; shown whether the events are on or not, with the notes that say when they apply.</summary>
+    private Control EventNumbers()
+    {
+        var body = new StackPanel { Spacing = 2 };
+        void Number(string key, string english, string desc, int min, int max, int value, string unitKey, string unit, Action<int> set) =>
+            body.Children.Add(Ui.Row(T(key, english), WithUnit(Ui.Number(min, max, Math.Clamp(value, min, max), v => { set(v); Save(); }), T(unitKey, unit)), T(key + ".Desc", desc)));
+
+        Number("L.S.alerts.events.stragglerWait", "Left behind: wait after the last jump", "Used only while Left behind is on.",
+            StragglerWatch.MinWaitSeconds, StragglerWatch.MaxWaitSeconds, S.StragglerWaitSeconds, "L.S.Unit.Sec", "s", v => S.StragglerWaitSeconds = v);
+        body.Children.Add(Ui.Note(T("L.S.alerts.events.ewarNote", "Capacitor neutralized and Jammed are off until you switch them on, and are read from an English game client only.")));
+        Number("L.S.alerts.events.dpsThreshold", "Incoming DPS high: above", "The damage per second a character must take, on average, for the alert.",
+            CombatOptions.MinDps, CombatOptions.MaxDps, S.DpsAlertThreshold, "L.S.Unit.Dps", "DPS", v => S.DpsAlertThreshold = v);
+        Number("L.S.alerts.events.dpsSeconds", "Incoming DPS high: for", "How long the damage must stay that high before the alert.",
+            CombatOptions.MinSeconds, CombatOptions.MaxSeconds, S.DpsAlertSeconds, "L.S.Unit.Sec", "s", v => S.DpsAlertSeconds = v);
+        Number("L.S.alerts.events.repsSeconds", "Reps stopped: after", "How long after the last remote repair a hit raises the alert.",
+            CombatOptions.MinRepsSeconds, CombatOptions.MaxRepsSeconds, S.RepsStoppedSeconds, "L.S.Unit.Sec", "s", v => S.RepsStoppedSeconds = v);
+        body.Children.Add(Ui.Note(T("L.S.alerts.events.combatNote", "Incoming DPS high and Reps stopped are off until you turn them on in the table above. Both count NPC damage, also in PvE mode.")));
+        Number("L.S.alerts.events.memoryLimit", "Client memory high: above", "The memory a client may use before the event is raised.",
+            MemoryOptions.MinLimitMb, MemoryOptions.MaxLimitMb, S.MemoryAlertMb, "L.S.Unit.Mb", "MB", v => S.MemoryAlertMb = v);
+        Number("L.S.alerts.events.memoryGrowth", "Client memory high: grows by", "How much a client's memory may grow within the time below before the event is raised.",
+            MemoryOptions.MinGrowthMb, MemoryOptions.MaxGrowthMb, S.MemoryGrowthMb, "L.S.Unit.Mb", "MB", v => S.MemoryGrowthMb = v);
+        Number("L.S.alerts.events.memoryMinutes", "Client memory high: within", "The time the growth is measured over.",
+            MemoryOptions.MinMinutes, MemoryOptions.MaxMinutes, S.MemoryGrowthMinutes, "L.S.Unit.Min", "min", v => S.MemoryGrowthMinutes = v);
+        body.Children.Add(Ui.Note(T("L.Linux.ClientNote", "Client not responding is off until you turn it on in the table above. It comes after a client has been frozen for 30 seconds.")));
+        body.Children.Add(Ui.Note(T("L.Linux.ClosedNote", "Client closed unexpectedly is not available on Linux: Linux does not tell MultiPreview how a client it did not start ended, so a crash looks the same as quitting.")));
+        Number("L.S.alerts.events.idleMinutes", "Character idle: after", "How long a character that was fighting, mining or repairing may go without it before the event is raised.",
+            IdleWatch.MinMinutes, IdleWatch.MaxMinutes, S.IdleAlertMinutes, "L.S.Unit.Min", "min", v => S.IdleAlertMinutes = v);
+        return Ui.Card(body);
+    }
+
     public Control Alerts()
     {
         var page = Page(T("L.S.Nav.Alerts", "Alerts"));
@@ -1066,7 +1112,8 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Section(T("L.S.Sec.alerts.events.list", "Events")));
         foreach (var group in AlertEvents.Groups)
         {
-            var events = AlertEvents.Listed.Where(e => e.Group == group).ToList();
+            // "Client closed unexpectedly" needs the client's exit code, which Linux gives only to the program that started it.
+            var events = AlertEvents.Listed.Where(e => e.Group == group && e.Key != ClientWatch.ClosedEvent).ToList();
             if (events.Count == 0) continue;
             var table = new Grid { ColumnDefinitions = new ColumnDefinitions("*,110") };
             int row = 0;
@@ -1095,6 +1142,7 @@ internal sealed class SettingsPages
             }
             page.Children.Add(Ui.Card(table));
         }
+        page.Children.Add(EventNumbers());
 
         // IDEAS #30: what is snoozed right now, with a way to end it or add one, and whether timed snoozes outlive a restart.
         page.Children.Add(Ui.Section(T("L.S.Sec.alerts.events.snoozes", "Snoozed alerts")));
@@ -1160,6 +1208,12 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Section(T("L.S.Sec.alerts.hub.history", "History")));
         page.Children.Add(Ui.Row(T("L.S.alerts.hub.keepHistory", "Keep an alert history"),
             Ui.Check(T("L.Common.Enabled", "Enabled"), S.AlertHistoryEnabled, on => { S.AlertHistoryEnabled = on; Save(); _host.AlertsChanged(); })));
+        // Windows' alerts.hub.historyDays: kept days, 1-365; older day files go when MultiPreview starts (AlertHistory.DeleteOldDays).
+        page.Children.Add(Ui.Row(T("L.S.alerts.hub.historyDays", "Keep alerts for"),
+            WithUnit(Ui.Number(AlertHistory.MinKeepDays, AlertHistory.MaxKeepDays, S.AlertHistoryDays, v => { S.AlertHistoryDays = v; Save(); _host.AlertsChanged(); }),
+                T("L.S.Unit.Days", "days")),
+            T("L.S.alerts.hub.historyDays.Desc", "Older days are deleted when MultiPreview starts.")));
+        page.Children.Add(Ui.Note(string.Format(T("L.S.alerts.hub.historyFolder", "The history is kept in {0}"), AppPaths.HistoryDir)));
         var openHistory = new Button { Content = T("L.Tray.AlertHistory", "Alert history…") };
         openHistory.Click += (_, _) => _host.OpenAlertHistory();
         page.Children.Add(Ui.Row(T("L.S.alerts.hub.historyRow", "Alert history"), openHistory,

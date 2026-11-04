@@ -43,5 +43,9 @@
     <sys:String x:Key="L.Linux.HistNoDialog">Ce bureau n'a pas de boîte de dialogue de fichiers ; le fichier a donc été enregistré dans le dossier des paramètres.</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn">Afficher les notifications du bureau</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Chaque alerte choisie ci-dessous affiche une notification, avec des boutons pour passer à ce client ou mettre l&apos;alerte en sourdine 15 minutes.</sys:String>
+    <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview n'a pas pu arrêter le client de {0}.</sys:String>
+    <sys:String x:Key="L.Linux.ClosedNote">« Client fermé de façon inattendue » n'est pas disponible sous Linux : Linux n'indique pas à MultiPreview comment s'est terminé un client qu'il n'a pas lancé, donc un plantage ressemble à une fermeture normale.</sys:String>
+    <sys:String x:Key="L.Linux.NotRespondingDesc">Quand la fenêtre d'un client ne répond plus pendant 5 secondes, sa miniature l'indique.</sys:String>
+    <sys:String x:Key="L.Linux.ClientNote">« Client ne répond pas » est désactivé tant que vous ne l'activez pas dans le tableau ci-dessus. Il arrive quand un client est figé depuis 30 secondes.</sys:String>
 
 </ResourceDictionary>

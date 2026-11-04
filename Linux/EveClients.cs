@@ -37,17 +37,21 @@ public sealed unsafe class EveClients : IDisposable
 
     public bool HasComposite => _composite;
 
-    public List<EveClient> Find()
+    /// <summary>The clients with a character. <paramref name="atLogin"/>, when given, gets the clients at the login screen
+    /// (titled "EVE" alone), so a client that logs in can be told ("Client ready").</summary>
+    public List<EveClient> Find(List<uint>? atLogin = null)
     {
         var found = new List<EveClient>();
         var list = Xcb.Property(_c, _root, _netClientList);
         if (list == null) return found;
+        var loginTitle = TitlePrefix.TrimEnd(' ', '-');
         for (int i = 0; i + 4 <= list.Length; i += 4)
         {
             uint w = BitConverter.ToUInt32(list, i);
             var title = Title(w);
             if (title != null && title.StartsWith(TitlePrefix, StringComparison.Ordinal) && title.Length > TitlePrefix.Length)
                 found.Add(new EveClient(w, title[TitlePrefix.Length..]));
+            else if (atLogin != null && loginTitle.Length > 0 && title == loginTitle) atLogin.Add(w);
         }
         return found;
     }

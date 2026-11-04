@@ -43,5 +43,9 @@
     <sys:String x:Key="L.Linux.HistNoDialog">На этом рабочем столе нет диалога выбора файла, поэтому файл сохранён в папке настроек.</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn">Показывать уведомления на рабочем столе</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Каждое выбранное ниже оповещение показывает уведомление с кнопками: переключиться на этот клиент или отложить оповещение на 15 минут.</sys:String>
+    <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview не удалось завершить клиент {0}.</sys:String>
+    <sys:String x:Key="L.Linux.ClosedNote">«Клиент неожиданно закрылся» недоступно в Linux: Linux не сообщает MultiPreview, как завершился клиент, который он не запускал, поэтому сбой выглядит так же, как обычный выход.</sys:String>
+    <sys:String x:Key="L.Linux.NotRespondingDesc">Если окно клиента не отвечает 5 секунд, его миниатюра показывает это.</sys:String>
+    <sys:String x:Key="L.Linux.ClientNote">«Клиент не отвечает» выключено, пока вы не включите его в таблице выше. Оно приходит, когда клиент завис на 30 секунд.</sys:String>
 
 </ResourceDictionary>

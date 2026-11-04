@@ -43,5 +43,9 @@
     <sys:String x:Key="L.Linux.HistNoDialog">此桌面没有文件对话框，所以文件已保存到设置文件夹中。</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn">显示桌面通知</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn.Desc">下面选中的每个警报都会显示一条通知，带有切换到该客户端或将警报暂停 15 分钟的按钮。</sys:String>
+    <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview 无法结束 {0} 的客户端。</sys:String>
+    <sys:String x:Key="L.Linux.ClosedNote">Linux 上无法使用“客户端意外关闭”：Linux 不会告诉 MultiPreview 一个并非由它启动的客户端是如何结束的，因此崩溃和正常退出看起来一样。</sys:String>
+    <sys:String x:Key="L.Linux.NotRespondingDesc">当客户端窗口 5 秒无响应时，其缩略图会显示。</sys:String>
+    <sys:String x:Key="L.Linux.ClientNote">“客户端无响应”默认关闭，需在上方表格中开启。客户端冻结 30 秒后发出。</sys:String>
 
 </ResourceDictionary>

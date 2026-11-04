@@ -8,15 +8,16 @@ using EveMultiPreview.Services;
 namespace EveMultiPreview.Linux;
 
 /// <summary>What a thumbnail's menu shows when it opens (the Windows ThumbnailMenuState).</summary>
+/// <param name="Frozen">ClientWatch says the client is frozen: "End this frozen client…" is offered.</param>
 public sealed record ThumbnailMenuState(string Character, string? System, DateTime? MutedUntil,
-    IReadOnlyList<EventSnooze> Snoozes, int Volume, long? CharacterId);
+    IReadOnlyList<EventSnooze> Snoozes, int Volume, long? CharacterId, bool Frozen = false);
 
 /// <summary>What the menu's items do.</summary>
 /// <param name="Mute">Minutes: &gt; 0 for that long, int.MaxValue until unmuted, 0 unmutes.</param>
 /// <param name="EndSnooze">Ends one snoozed event (its key), or all of this character's (null).</param>
 /// <param name="Audio">-1 mutes the client's sound; 0–100 sets its volume.</param>
 public sealed record ThumbnailMenuActions(Action EditLabel, Action<int> Mute, Action<string?> EndSnooze, Action<int> Audio,
-    Action OpenSettings, Action<string> CopyText, Action<string> OpenLink, Action CloseClient);
+    Action OpenSettings, Action<string> CopyText, Action<string> OpenLink, Action CloseClient, Action? EndFrozen = null);
 
 /// <summary>A thumbnail's right-click menu, with the Windows menu's items and order (Views/ThumbnailMenu): the character and
 /// system as a caption, Edit label…, Mute alerts ›, Snoozed alerts ›, Game volume ›, Open ‹character›'s settings, the lookup
@@ -108,6 +109,12 @@ public static class ThumbnailMenu
 
         // Last and below a line, away from the everyday items: it ends the client.
         items.Add(new Separator());
+        if (state.Frozen && act.EndFrozen != null)
+        {
+            var end = Item(T("L.Ctx.EndFrozen", "End this frozen client…"), act.EndFrozen);
+            end.Foreground = Brushes.IndianRed;
+            items.Add(end);
+        }
         var close = Item(T("L.Ctx.CloseClient", "Close client"), act.CloseClient);
         close.Foreground = Brushes.IndianRed;
         items.Add(close);

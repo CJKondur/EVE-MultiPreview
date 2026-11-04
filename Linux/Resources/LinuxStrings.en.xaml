@@ -42,5 +42,9 @@
     <sys:String x:Key="L.Linux.HistNoDialog">This desktop has no file dialog, so the file was saved in the settings folder.</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn">Show desktop notifications</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Each alert you choose below shows a notification, with buttons to switch to that client or to snooze the alert for 15 minutes.</sys:String>
+    <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview could not end {0}'s client.</sys:String>
+    <sys:String x:Key="L.Linux.ClosedNote">Client closed unexpectedly is not available on Linux: Linux does not tell MultiPreview how a client it did not start ended, so a crash looks the same as quitting.</sys:String>
+    <sys:String x:Key="L.Linux.NotRespondingDesc">When a client's window stops answering for 5 seconds, its thumbnail says so.</sys:String>
+    <sys:String x:Key="L.Linux.ClientNote">Client not responding is off until you turn it on in the table above. It comes after a client has been frozen for 30 seconds.</sys:String>
 
 </ResourceDictionary>

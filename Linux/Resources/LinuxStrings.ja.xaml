@@ -43,5 +43,9 @@
     <sys:String x:Key="L.Linux.HistNoDialog">このデスクトップにはファイルダイアログがないため、ファイルは設定フォルダーに保存しました。</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn">デスクトップ通知を表示</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn.Desc">下で選んだアラートごとに通知を表示します。そのクライアントへの切り替えや、15分間のスヌーズのボタンが付きます。</sys:String>
+    <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview は {0} のクライアントを終了できませんでした。</sys:String>
+    <sys:String x:Key="L.Linux.ClosedNote">「クライアントが予期せず終了」は Linux では使えません。Linux は MultiPreview が起動していないクライアントの終了理由を伝えないため、クラッシュと通常の終了を区別できません。</sys:String>
+    <sys:String x:Key="L.Linux.NotRespondingDesc">クライアントのウィンドウが 5 秒間応答しないと、そのサムネイルに表示されます。</sys:String>
+    <sys:String x:Key="L.Linux.ClientNote">「クライアントが応答なし」は上の表でオンにするまでオフです。クライアントが 30 秒間フリーズすると通知されます。</sys:String>
 
 </ResourceDictionary>

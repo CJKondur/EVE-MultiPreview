@@ -22,6 +22,13 @@ public sealed class Alerts : IDisposable
     private readonly PushWay? _push;
     private readonly XIdle _idle = new();
 
+    // The events MultiPreview works out itself (AlertEvents.Derived), raised through StragglerAlerts.Raise as App raises them:
+    // "Left behind" (IDEAS #5), "Character idle" (#7), "Client memory high" (#45), and the client ones handed in by the app.
+    private readonly StragglerWatch _stragglers = new();
+    private readonly IdleWatch _idleWatch = new();
+    private readonly MemoryWatch _memoryWatch = new();
+    private readonly StragglerAlerts _derived;
+
     /// <summary>Enlarging a thumbnail on an alert (IDEAS #13): decides which thumbnails are enlarged and until when; the app
     /// asks it at every tick and tells the windows (Previews.Tick).</summary>
     public AlertEnlarge Enlarge { get; } = new();
@@ -82,6 +89,8 @@ public sealed class Alerts : IDisposable
         };
 
         _ways.Add(Enlarge);
+        _derived = new StragglerAlerts(_stragglers, () => S, () => Ui(running), _monitor.GetCharacterSystem, _targets, _history,
+            ex => ErrorLog.Shared.Record(ex, "App", DateTime.Now), s => StragglerWatch.IsOn(s) || _profiles.OnForSomeone(StragglerWatch.EventKey));
 
         // Spoken alerts and Discord, wired as the Windows app wires them (App.xaml.cs): each way is told of every alert that
         // got past the gates and decides for itself. A voice that could not be made is simply not there.
@@ -167,6 +176,19 @@ public sealed class Alerts : IDisposable
 
         var (chat, game) = EveLogs.Folders(S);
         _monitor.AlertTriggered += OnAlert;
+        // App.xaml.cs's handlers for the derived events, on the log thread: every move (whether the event is on or not), and
+        // what counts as a character working (IdleWatch notes it only while "Character idle" is on).
+        _monitor.SystemChanged += (character, system) =>
+        {
+            _stragglers.Moved(character, system, DateTime.UtcNow);
+            _idleWatch.Moved(character, DateTime.UtcNow);
+        };
+        _monitor.DamageReceived += d => _idleWatch.Active(d.CharacterName, DateTime.UtcNow);
+        _monitor.DamageDealt += d => _idleWatch.Active(d.CharacterName, DateTime.UtcNow);
+        _monitor.MiningYield += m => _idleWatch.Active(m.CharacterName, DateTime.UtcNow);
+        _monitor.RepairReceived += r => _idleWatch.Active(r.CharacterName, DateTime.UtcNow);
+        _monitor.BountyReceived += b => _idleWatch.Active(b.CharacterName, DateTime.UtcNow);
+        _monitor.AlertTriggered += (character, alertType, _) => { if (_profiles.IsOn(character, alertType)) _idleWatch.Alerted(character, alertType, DateTime.UtcNow); };
         _monitor.Start("", chat, game, S.EnableChatLogMonitoring && chat.Length > 0, S.EnableGameLogMonitoring && game.Length > 0);
         _folders = (chat, game);
         // EVE makes its log folders the first time it runs in a Proton profile, which may be after MultiPreview started
@@ -176,6 +198,48 @@ public sealed class Alerts : IDisposable
     }
 
     private (string Chat, string Game) _folders;
+
+    /// <summary>Whether an event is on for everyone or (IDEAS #31) for some group: App's ClientEventOn / MemoryOn / IdleOn.</summary>
+    public bool EventOn(string key) => ClientWatch.IsOn(S, key) || _profiles.OnForSomeone(key);
+
+    /// <summary>App's LookForStragglers and FollowIdle, twice a second on the UI thread: a member a jump wave left behind,
+    /// a character that was working and stopped. A failure costs that look, never the timer.</summary>
+    public void LookDerived(DateTime utcNow, IEnumerable<string> loggedIn)
+    {
+        _derived.Look(utcNow);
+        try
+        {
+            if (!EventOn(IdleWatch.EventKey))
+            {
+                if (_idleWatch.Enabled) { _idleWatch.Enabled = false; _idleWatch.Forget(); }
+                return;
+            }
+            _idleWatch.Enabled = true;
+            foreach (var alert in _idleWatch.Check(utcNow, loggedIn, IdleWatch.Minutes(S)))
+                Raise(utcNow, alert.Character, IdleWatch.EventKey, IdleWatch.Severity, alert.Text);
+        }
+        catch (Exception ex) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
+    }
+
+    /// <summary>App's LookAtMemory: is a client's memory high? (character, process, resident memory in MB) of each client.</summary>
+    public void LookAtMemory(DateTime utcNow, IEnumerable<(string Character, int Pid, long RamMb)> clients)
+    {
+        try
+        {
+            if (!EventOn(MemoryWatch.EventKey)) { _memoryWatch.Forget(); return; }
+            foreach (var alert in _memoryWatch.Check(utcNow, clients, MemoryOptions.Of(S)))
+                Raise(utcNow, alert.Character, MemoryWatch.EventKey, MemoryWatch.Severity, alert.Text);
+        }
+        catch (Exception ex) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
+    }
+
+    /// <summary>Raises an alert MultiPreview worked out itself ("Client ready", "Client not responding", ...), through the
+    /// dispatcher and into the history, one try per alert (StragglerAlerts.Raise). On the UI thread.</summary>
+    public void Raise(DateTime utcNow, string character, string alertType, string severity, string? text = null)
+    {
+        try { _derived.Raise(utcNow, character, alertType, severity, text); }
+        catch (Exception ex) { ErrorLog.Shared.Record(ex, "App", DateTime.Now); }
+    }
 
     private void FollowFolders()
     {
@@ -196,6 +260,7 @@ public sealed class Alerts : IDisposable
         _monitor.Reconfigure(chat, game, S.EnableChatLogMonitoring && chat.Length > 0, S.EnableGameLogMonitoring && game.Length > 0);
         _folders = (chat, game);
         _history.Enabled = _settings.LoadedSuccessfully && S.AlertHistoryEnabled;
+        _history.KeepDays = S.AlertHistoryDays;   // App.xaml.cs: deletes nothing now; the next start keeps this many days
         FollowWays();
         FollowSnoozeFile();
     }
@@ -251,10 +316,13 @@ public sealed class Alerts : IDisposable
     {
         if (!SettingsUi.AlertFields.HubToast(S, severity)) return;
         var who = StreamerMask.Name(StreamerKind.Character, character);
+        // "Left behind" says where the others went (AlertHub.PlaceLookup on Windows); streamer mode hides places.
+        var body = LocalizationService.Str("L.S.Sev." + severity, severity);
+        if (StreamerMask.Name(StreamerKind.System, _derived.PlaceOf(character, alertType)) is { Length: > 0 } place) body += " · " + place;
         var args = new List<string> { "--app-name=EVE MultiPreview", "--urgency=" + (severity == "critical" ? "critical" : "normal") };
         if (!NotifyHasActions.Value)
         {
-            Run("notify-send", [.. args, $"{who}: {EventName(alertType)}", LocalizationService.Str("L.S.Sev." + severity, severity)]);
+            Run("notify-send", [.. args, $"{who}: {EventName(alertType)}", body]);
             return;
         }
         // The Windows notification's two buttons (NotificationsWay): Switch to ‹character›, Snooze for 15 minutes. A click on
@@ -264,7 +332,7 @@ public sealed class Alerts : IDisposable
         args.Add("--action=switch=" + string.Format(LocalizationService.Str("L.Notify.Switch", "Switch to {0}"), who));
         args.Add("--action=nap=" + LocalizationService.Str("L.Notify.Snooze", "Snooze for 15 minutes"));
         args.Add($"{who}: {EventName(alertType)}");
-        args.Add(LocalizationService.Str("L.S.Sev." + severity, severity));
+        args.Add(body);
         _ = AnswerAsync(args, character, alertType);
     }
 

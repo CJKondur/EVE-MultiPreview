@@ -91,6 +91,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
         Tick();
+        _probeTimer = new System.Threading.Timer(_ => ProbeClients(), null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(3));
         // EVEMP_OPEN_SETTINGS=<page number from 0>: opens the settings window at startup (the tests use it).
         if (int.TryParse(Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS"), out int page)) OpenSettings(page);
         // EVEMP_OPEN_HISTORY=1: opens the alert history window at startup (the tests use it).
@@ -269,6 +270,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     public void Exit()
     {
+        _probeTimer?.Dispose();
         _alerts?.Dispose();
         _settings.Dispose();
         foreach (var thumb in _thumbs.Values.Concat(_pips.Values).Concat(_crops.Values.Select(c => c.Window))) thumb.Close();
@@ -387,6 +389,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
     private void Tick()
     {
         if (_ticks++ % 20 == 0) Sync();
+        if (_ticks % 5 == 0) _alerts?.LookDerived(DateTime.UtcNow, RunningCharacters());   // App's half-second timer
+        if (_ticks % 50 == 0) LookAtMemory();
         var watch = Stopwatch.StartNew();
         uint active = _clients.Active();
         if (active != _lastActive && _thumbs.ContainsKey(active))
@@ -424,6 +428,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.Apply(Look(thumb.Client.Character, isActive, thumb.Hovered));
             thumb.MenuOpen = _menu != null;
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
+            thumb.SetMark(MarkOf(thumb.Client.Window));
             thumb.Update(_clients);
         }
         // Second thumbnails: shown while the client runs, also while it is in front, unless all thumbnails or the second ones are hidden.
@@ -438,6 +443,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             pip.Apply(SecondLook(character, pip.Hovered));
             pip.MenuOpen = _menu != null;
             pip.Follow();
+            pip.SetMark(MarkOf(pip.Client.Window));
             pip.Update(_clients);
         }
         SyncCrops();
@@ -462,6 +468,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             crop.Window.CanDrag = !def.ClickThrough;
             crop.Window.Area = new EveClients.Area(def.SourceX, def.SourceY, Math.Max(1, def.SourceWidth), Math.Max(1, def.SourceHeight));
             crop.Window.Apply(CropLook(def));
+            crop.Window.SetMark(MarkOf(crop.Window.Client.Window));   // IDEAS P114: the crop windows say it too
             crop.Window.Update(_clients);
         }
         _drawMs += watch.Elapsed.TotalMilliseconds;
@@ -678,9 +685,96 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     private int _syncs;
 
+    // ── What the clients are like (IDEAS #22, #47: App's ProbeClients / LookAtClients) ──
+
+    /// <summary>The clients at the login screen at the last look ("Client ready").</summary>
+    private HashSet<uint> _atLogin = new();
+    /// <summary>The client windows the probe looks at: written by Sync, read by the probe's thread.</summary>
+    private volatile (uint Window, string Character)[] _probeWindows = Array.Empty<(uint, string)>();
+    private volatile int _probeWants;   // ClientProbeWants, as LookAtClients last worked it out
+    private int _probing;
+    private X11ClientProbe? _probe;
+    private System.Threading.Timer? _probeTimer;
+    private readonly ClientWatch _clientWatch = new();
+    /// <summary>What ClientWatch says of each client window now (only the windows with a mark).</summary>
+    private readonly Dictionary<uint, ClientMark> _marks = new();
+
+    /// <summary>Every 3 s on a pool thread: asks the X server and /proc what LookAtClients last said is wanted and hands it
+    /// to the UI thread. It reads no setting.</summary>
+    private void ProbeClients()
+    {
+        if (Interlocked.Exchange(ref _probing, 1) == 1) return;
+        try
+        {
+            var wants = (ClientProbeWants)_probeWants;
+            IReadOnlyList<ClientSample> samples = Array.Empty<ClientSample>();
+            if (wants != ClientProbeWants.None || _probe != null)
+            {
+                _probe ??= new X11ClientProbe();
+                samples = _probe.Take(_probeWindows, wants, DateTime.UtcNow);
+            }
+            Dispatcher.UIThread.Post(() => LookAtClients(samples), DispatcherPriority.Background);
+        }
+        catch (Exception e) { ErrorLog.Shared.Record(e, "App", DateTime.Now); }
+        finally { Volatile.Write(ref _probing, 0); }
+    }
+
+    /// <summary>On the UI thread after each probe: what is wanted next time, the marks, and "Client not responding". Linux
+    /// can't read the exit code of a client it did not start, so "Client closed unexpectedly" is not looked for.</summary>
+    private void LookAtClients(IReadOnlyList<ClientSample> samples)
+    {
+        if (_alerts == null) return;
+        var options = ClientWatchOptions.Of(S, _alerts.EventOn);
+        _probeWants = (int)options.Wants(closedOn: false);
+        var now = DateTime.UtcNow;
+        var look = _clientWatch.Look(now, samples, options);
+        foreach (var change in look.Changes)
+        {
+            uint window = (uint)(long)change.Window;
+            if (change.Mark == ClientMark.None) _marks.Remove(window);
+            else _marks[window] = change.Mark;
+        }
+        foreach (var alert in look.Alerts) _alerts.Raise(now, alert.Character, alert.EventKey, alert.Severity, alert.Text);
+    }
+
+    /// <summary>The words a client's thumbnails, second thumbnail and crop windows show over it, or null.</summary>
+    private string? MarkOf(uint window) => _marks.TryGetValue(window, out var mark) ? ClientMarks.Text(mark) : null;
+
+    /// <summary>"Client memory high" (IDEAS #45), every 5 s: the resident memory of each client's process, from /proc
+    /// (VmRSS: the Windows working set's counterpart).</summary>
+    private void LookAtMemory()
+    {
+        if (_alerts == null || !_alerts.EventOn(MemoryWatch.EventKey)) { _alerts?.LookAtMemory(DateTime.UtcNow, Array.Empty<(string, int, long)>()); return; }
+        var clients = new List<(string, int, long)>();
+        foreach (var thumb in _thumbs.Values)
+        {
+            int pid = (int)_clients.Pid(thumb.Client.Window);
+            if (pid > 0 && ResidentMb(pid) is long mb) clients.Add((thumb.Client.Character, pid, mb));
+        }
+        _alerts.LookAtMemory(DateTime.UtcNow, clients);
+    }
+
+    private static long? ResidentMb(int pid)
+    {
+        try
+        {
+            foreach (var line in File.ReadLines($"/proc/{pid}/status"))
+                if (line.StartsWith("VmRSS:", StringComparison.Ordinal)
+                    && long.TryParse(line[6..].Trim().Split(' ')[0], out long kb)) return kb / 1024;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        return null;
+    }
+
     private void Sync()
     {
-        var found = _clients.Find();
+        var atLogin = new List<uint>();
+        var found = _clients.Find(atLogin);
+        // "Client ready" (ClientReady.ShouldRaise): a client seen at the login screen at the last look has a character now.
+        foreach (var client in found.Where(f => _atLogin.Contains(f.Window)))
+            if (ClientReady.ShouldRaise("", client.Character, _syncs > 0)) _alerts?.Raise(DateTime.UtcNow, client.Character, ClientReady.EventKey, ClientReady.Severity);
+        _atLogin = atLogin.ToHashSet();
+        _probeWindows = found.Select(f => (f.Window, f.Character)).ToArray();
         // A client's sound stream starts after its window (at login, after a loading screen): its saved volume is given again every 10 s.
         if (++_syncs % 5 == 0) foreach (var thumb in _thumbs.Values) ApplyVolume(thumb.Client);
         foreach (var gone in _thumbs.Keys.Except(found.Select(f => f.Window)).ToList())
@@ -731,7 +825,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
         _menu?.Close();
         var character = thumb.Client.Character;
         var state = new ThumbnailMenuState(character, _alerts.SystemOf(character), _alerts.Mutes.Until(character),
-            _alerts.Snoozes.Of(character), Volume(character), LookupLinks.CharacterId(S.EveManager?.CharNameCache, character));
+            _alerts.Snoozes.Of(character), Volume(character), LookupLinks.CharacterId(S.EveManager?.CharNameCache, character),
+            Frozen: _clientWatch.IsHung((IntPtr)thumb.Client.Window));
         var menu = ThumbnailMenu.Build(state, new ThumbnailMenuActions(
             EditLabel: () => EditLabel(character),
             Mute: minutes => Mute(character, minutes),
@@ -740,7 +835,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
             OpenSettings: () => OpenSettings(SettingsWindow.CharactersPage),
             CopyText: text => _ = thumb.Clipboard?.SetTextAsync(text),
             OpenLink: OpenLink,
-            CloseClient: () => CloseClient(thumb.Client)), DateTime.UtcNow);
+            CloseClient: () => CloseClient(thumb.Client),
+            EndFrozen: () => EndFrozenClient(thumb.Client)), DateTime.UtcNow);
         menu.Closed += (_, _) => { if (_menu == menu) _menu = null; };
         _menu = menu;   // while it is open no thumbnail is enlarged for an alert, this one included (MenuOpen, at the next tick)
         menu.Open(thumb);
@@ -840,6 +936,37 @@ public sealed class Previews : ITrayActions, ISettingsHost
             try { using var p = Process.GetProcessById((int)pid); p.Kill(); }
             catch (Exception) { }   // already gone, or not ours to end
         }, TimeSpan.FromSeconds(5));
+    }
+
+    /// <summary>App.EndFrozenClient (IDEAS #22): asks first (Keep by default), then ends only the process the freeze was seen
+    /// on, only while its window is still that process's, still frozen, and an EVE process. Says what came of it.</summary>
+    private void EndFrozenClient(EveClient client)
+    {
+        uint window = client.Window;
+        if (_clientWatch.PidOf((IntPtr)window) is not int pid) return;
+        var who = ThumbnailMenu.HasCharacter(client.Character) ? StreamerMask.Name(StreamerKind.Character, client.Character)
+            : LocalizationService.Str("L.Ctx.LoginScreen", "Character select");
+        var dialog = new ChoiceDialog(
+            string.Format(LocalizationService.Str("L.Msg.EndFrozenConfirm", "{0}'s client is not responding. End it now? Anything it has not saved is lost."), who),
+            LocalizationService.Str("L.Msg.EndFrozenYes", "End the client"), LocalizationService.Str("L.Msg.EndFrozenNo", "Keep it running"));
+        dialog.Answered += end =>
+        {
+            if (!end) return;
+            EndResult result;
+            if (_clients.Pid(window) != pid || !Directory.Exists($"/proc/{pid}")) result = EndResult.Gone;
+            else if (!_clientWatch.IsHung((IntPtr)window)) result = EndResult.NoLongerFrozen;
+            else if (!IsEveProcess((uint)pid)) result = EndResult.Refused;
+            else
+            {
+                try { using var p = Process.GetProcessById(pid); p.Kill(); result = EndResult.Ended; }
+                catch (ArgumentException) { result = EndResult.Gone; }
+                catch (Exception) { result = EndResult.Refused; }
+            }
+            // The Windows "refused" sentence names Windows: Linux has its own.
+            var (key, english) = result == EndResult.Refused ? ("L.Linux.EndFrozenRefused", "MultiPreview could not end {0}'s client.") : ClientExits.Feedback(result);
+            Alerts.Say(string.Format(LocalizationService.Str(key, english), who));
+        };
+        dialog.Show();
     }
 
     /// <summary>The process is an EVE client: its name (/proc/‹pid›/comm, Wine's "exefile.exe") is exefile.</summary>

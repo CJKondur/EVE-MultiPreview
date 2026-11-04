@@ -43,5 +43,9 @@
     <sys:String x:Key="L.Linux.HistNoDialog">Este escritorio no tiene un diálogo de archivos, así que el archivo se guardó en la carpeta de configuración.</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn">Mostrar notificaciones de escritorio</sys:String>
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Cada alerta que elijas abajo muestra una notificación, con botones para cambiar a ese cliente o posponer la alerta 15 minutos.</sys:String>
+    <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview no pudo cerrar el cliente de {0}.</sys:String>
+    <sys:String x:Key="L.Linux.ClosedNote">«Cliente cerrado inesperadamente» no está disponible en Linux: Linux no le dice a MultiPreview cómo terminó un cliente que no inició, así que un cierre inesperado parece igual que salir.</sys:String>
+    <sys:String x:Key="L.Linux.NotRespondingDesc">Cuando la ventana de un cliente deja de responder durante 5 segundos, su miniatura lo indica.</sys:String>
+    <sys:String x:Key="L.Linux.ClientNote">«Cliente no responde» está desactivado hasta que lo actives en la tabla de arriba. Llega cuando un cliente lleva 30 segundos congelado.</sys:String>
 
 </ResourceDictionary>
