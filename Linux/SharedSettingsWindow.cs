@@ -634,7 +634,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     {
         Watch(vm, name => { if (name == nameof(ItemVM.IsHighlighted)) Highlight(vm.Id, vm.IsHighlighted); });
         Control? editor;
-        try { editor = LinuxEditors.TryCreate(vm.Def, _editors); }
+        try { editor = LinuxEditors.TryCreate(vm.Def, _editors, _ctx); }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"[Settings] editor {vm.Id}: {ex.GetType().Name}");

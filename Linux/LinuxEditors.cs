@@ -8,22 +8,27 @@ namespace EveMultiPreview.Linux;
 /// settings window shows a card that says so (SharedSettingsWindow.NotYetCard).</summary>
 internal static class LinuxEditors
 {
-    private static readonly Dictionary<string, Func<SettingsPages, EditorItem, Control>> Map = new()
+    private static readonly Dictionary<string, Func<SettingsPages, SettingsContext, EditorItem, Control>> Map = new()
     {
-        { "clients.characters.table", (pages, _) => pages.CharactersTable() },
-        { "clients.groups.editor", (pages, _) => pages.GroupList() },
-        { EditorIds.FocusGroupEditor, (pages, _) => pages.FocusGroupBox() },
-        { "thumbs.crops.editor", (pages, _) => pages.CropList() },
-        { AlertsPages.EventTableId, (pages, _) => pages.EventTable(withClosedNote: true) },
-        { EditorIds.SnoozesEditor, (pages, _) => pages.Snoozed() },
-        { EditorIds.SpeechVoicesEditor, (pages, _) => pages.Voices() },
-        { EditorIds.PushWebhookEditor, (pages, _) => pages.Webhook() },
+        // Home's characters and group keys are the Characters table and the group cards (the same settings: Profile.Hotkeys,
+        // ThumbnailVisibility; HotkeyGroups).
+        { "home.tiles", (pages, _, _) => pages.CharactersTable() },
+        { "home.groupKeys", (pages, _, _) => pages.GroupList() },
+        { "clients.characters.table", (pages, _, _) => pages.CharactersTable() },
+        { "clients.groups.editor", (pages, _, _) => pages.GroupList() },
+        { EditorIds.FocusGroupEditor, (pages, _, _) => pages.FocusGroupBox() },
+        { "thumbs.crops.editor", (pages, _, _) => pages.CropList() },
+        { AlertsPages.EventTableId, (pages, _, _) => pages.EventTable(withClosedNote: true) },
+        { EditorIds.SnoozesEditor, (pages, _, _) => pages.Snoozed() },
+        { EditorIds.SpeechVoicesEditor, (pages, _, _) => pages.Voices() },
+        { EditorIds.PushWebhookEditor, (pages, _, _) => pages.Webhook() },
+        { EditorIds.RecentChangesEditor, (_, ctx, _) => new RecentChangesCard(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>
     public static IReadOnlyCollection<string> Ids => Map.Keys;
 
     /// <summary>The editor for <paramref name="item"/>, or null when Linux has none for its id.</summary>
-    public static Control? TryCreate(EditorItem item, SettingsPages pages) =>
-        Map.TryGetValue(item.Id, out var make) ? make(pages, item) : null;
+    public static Control? TryCreate(EditorItem item, SettingsPages pages, SettingsContext ctx) =>
+        Map.TryGetValue(item.Id, out var make) ? make(pages, ctx, item) : null;
 }
