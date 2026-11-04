@@ -11,6 +11,7 @@ using Avalonia.Threading;
 using Avalonia.Themes.Simple;
 using EveMultiPreview.Models;
 using EveMultiPreview.Services;
+using EveMultiPreview.SettingsUi;
 
 namespace EveMultiPreview.Linux;
 
@@ -52,7 +53,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
     private uint _lastActive, _previousActive;
     private bool _allHidden;
     private Alerts? _alerts;
-    private SettingsWindow? _settingsWindow;
+    private SharedSettingsWindow? _settingsWindow;
     private AlertHistoryWindow? _historyWindow;
     /// <summary>The alerts the player has not looked at yet, and the walk "Go to the last alert" makes through them.</summary>
     private readonly AlertAttention _attention = new();
@@ -88,6 +89,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         Console.WriteLine($"EVE MultiPreview for Linux: settings {AppPaths.SettingsPath}; looking for windows titled \"{_clients.TitlePrefix}…\" "
             + $"(Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
         BindHotkeys();
+        _settings.ProfileSwitched += OnProfileSwitched;
         _alerts = new Alerts(_settings, RunningCharacters, WindowOf, _clients.Active, Flash, _attention, SwitchToCharacter, SnoozeEvent);
         var (chat, game) = _alerts.Start();
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
@@ -107,8 +109,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
         // The update check at start, a little after it, so it never slows the start (CheckForUpdatesOnStartup, as on Windows).
         if (S.CheckForUpdatesOnStartup) DispatcherTimer.RunOnce(() => _ = CheckForUpdates(quiet: true), TimeSpan.FromSeconds(15));
         _probeTimer = new System.Threading.Timer(_ => ProbeClients(), null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(3));
-        // EVEMP_OPEN_SETTINGS=<page number from 0>: opens the settings window at startup (the tests use it).
-        if (int.TryParse(Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS"), out int page)) OpenSettings(page);
+        // EVEMP_OPEN_SETTINGS=<page id>, or a page number of the old window (from 0): opens the settings window at startup (the tests use it).
+        if (Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS") is { Length: > 0 } page) OpenSettings(OldPageNumbers.ElementAtOrDefault(int.TryParse(page, out int n) ? n : -1) ?? page);
         // EVEMP_OPEN_HISTORY=1: opens the alert history window at startup (the tests use it).
         if (Environment.GetEnvironmentVariable("EVEMP_OPEN_HISTORY") == "1") OpenAlertHistory();
     }
@@ -375,10 +377,16 @@ public sealed class Previews : ITrayActions, ISettingsHost
         set
         {
             if (value == S.LastUsedProfile) return;
-            _settings.SwitchProfile(value);
-            ResetThumbnails();
-            if (!_hotkeysPaused) BindHotkeys();
+            _settings.SwitchProfile(value);   // OnProfileSwitched places the thumbnails and binds the keys
         }
+    }
+
+    /// <summary>A profile was switched, from the tray or from the settings window (App › Profiles): every thumbnail goes
+    /// where the new profile keeps it, and its keys are bound.</summary>
+    private void OnProfileSwitched(string _)
+    {
+        ResetThumbnails();
+        if (!_hotkeysPaused) BindHotkeys();
     }
 
     /// <summary>Closes every thumbnail and makes them again, each where the current profile keeps it.</summary>
@@ -394,19 +402,23 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     public void OpenSettings() => OpenSettings(null);
 
-    /// <summary>Opens the settings window, or brings the open one forward. With a page, that page shows; without one, an
-    /// open window keeps its page and a new one starts at the first.</summary>
-    private void OpenSettings(int? page)
+    /// <summary>The pages of the old hand-made window by its numbers, for the test scripts that still pass a number.</summary>
+    private static readonly string[] OldPageNumbers =
+        { "app.general", ThumbnailsPages.AppearanceId, CharacterPage.CropsPageId, ClientsPages.CharactersId, ClientsPages.GroupsId, ClientsPages.HotkeysId, AlertsPages.EventsId };
+
+    /// <summary>Opens the settings window (drawn from the shared page definitions), or brings the open one forward. With a
+    /// page id, that page shows; without one, an open window keeps its page and a new one starts at Home.</summary>
+    private void OpenSettings(string? pageId)
     {
         _cropsHidden = false;   // CropManager.ShowCrops: opening the settings brings hidden crops back (issue #81)
         if (_settingsWindow != null)
         {
             if (_settingsWindow.WindowState == WindowState.Minimized) _settingsWindow.WindowState = WindowState.Normal;
-            if (page is { } p) _settingsWindow.ShowPage(p);
+            if (pageId != null) _settingsWindow.ShowPage(pageId);
             _settingsWindow.Activate();
             return;
         }
-        _settingsWindow = new SettingsWindow(this, page ?? 0);
+        _settingsWindow = new SharedSettingsWindow(this, pageId);
         _settingsWindow.Closed += (_, _) => { _settingsWindow = null; CaptureHotkey(false); };
         _settingsWindow.Show();
     }
@@ -1058,7 +1070,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             Mute: minutes => Mute(character, minutes),
             EndSnooze: key => { if (key == null) _alerts.Snoozes.EndAll(character); else _alerts.Snoozes.End(character, key); },
             Audio: code => SetVolume(thumb.Client, code),
-            OpenSettings: () => OpenSettings(SettingsWindow.CharactersPage),
+            OpenSettings: () => OpenSettings(CharacterPage.IdFor(character)),
             CopyText: text => _ = thumb.Clipboard?.SetTextAsync(text),
             OpenLink: OpenLink,
             CloseClient: () => CloseClient(thumb.Client),
