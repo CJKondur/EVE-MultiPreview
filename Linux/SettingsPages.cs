@@ -39,6 +39,8 @@ public interface ISettingsHost
     PushStatus? PushStatus { get; }
     /// <summary>The events snoozed for one character, or null before the alerts exist.</summary>
     EventSnoozes? Snoozes { get; }
+    /// <summary>Asks GitHub for a newer release and offers to install it; the text to show (up to date, or why it failed).</summary>
+    Task<string?> CheckForUpdates(bool quiet);
     /// <summary>Snoozes one event for one character (null length: until MultiPreview restarts).</summary>
     void Snooze(string character, string alertType, TimeSpan? length);
     /// <summary>"Edit area…" (CropAreaPick.Start): the settings window hides, the player drags over the character's
@@ -124,6 +126,28 @@ internal sealed class SettingsPages
             FontFamily = new FontFamily("monospace"), Margin = new Thickness(0, 4) };
         page.Children.Add(Ui.Note(T("L.Linux.CommandsNote", "Run MultiPreview again with a command, for example below; a Stream Deck app (StreamController, streamdeck-ui, OpenDeck) runs it from a button. eve-multipreview --help lists every command.")));
         page.Children.Add(example);
+
+        // As on Windows' About page: the version, the check, and the two switches the check reads.
+        page.Children.Add(Ui.Section(T("L.S.Sec.app.about.updates", "Updates")));
+        var version = typeof(UpdateService).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
+        var check = new Button { Content = Ui.NoAccess(T("L.S.Act.app.about.checkNow", "_Check for updates")) };
+        var answer = new TextBlock { VerticalAlignment = VerticalAlignment.Center, Opacity = 0.8, TextWrapping = TextWrapping.Wrap };
+        check.Click += async (_, _) =>
+        {
+            check.IsEnabled = false;
+            answer.Text = T("L.S.About.Checking", "Checking for updates…");
+            answer.Text = await _host.CheckForUpdates(quiet: false) ?? "";
+            check.IsEnabled = true;
+        };
+        var checkRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12 };
+        checkRow.Children.Add(check);
+        checkRow.Children.Add(answer);
+        page.Children.Add(Ui.Row(string.Format(T("L.S.app.about.versionText", "EVE MultiPreview {0}"), version), checkRow));
+        page.Children.Add(Ui.Row(T("L.S.app.about.checkOnStartup", "Check for updates when MultiPreview starts"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.CheckForUpdatesOnStartup, on => { S.CheckForUpdatesOnStartup = on; Save(); })));
+        page.Children.Add(Ui.Row(T("L.S.app.about.preRelease", "Get pre-release builds"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.ReceivePreReleaseUpdates, on => { S.ReceivePreReleaseUpdates = on; Save(); }),
+            T("L.S.app.about.preRelease.Desc", "Try new features early. Pre-releases can have more bugs.")));
 
         page.Children.Add(Ui.Section(T("L.Linux.ImportTitle", "Settings from the Windows app")));
         page.Children.Add(Import());

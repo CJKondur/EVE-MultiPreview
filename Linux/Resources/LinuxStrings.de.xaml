@@ -50,5 +50,6 @@
     <sys:String x:Key="L.Linux.CommandsTitle">Befehle von anderen Programmen</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Erlaubt einer Stream-Deck-App, einer Desktop-Verknüpfung oder einem Skript, dem laufenden MultiPreview zu sagen, einen Charakter nach vorn zu holen, das Profil zu wechseln oder Vorschaubilder bzw. den Fokusmodus umzuschalten. Nur Programme deines eigenen Kontos können das.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">Starte MultiPreview erneut mit einem Befehl, zum Beispiel wie unten; eine Stream-Deck-App (StreamController, streamdeck-ui, OpenDeck) führt ihn über eine Taste aus. eve-multipreview --help listet alle Befehle.</sys:String>
+    <sys:String x:Key="L.Linux.UpdateNotWritable">Dein Konto kann den Ordner von MultiPreview nicht beschreiben. Lade die neue Version von der Release-Seite herunter.</sys:String>
 
 </ResourceDictionary>

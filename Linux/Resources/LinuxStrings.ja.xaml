@@ -50,5 +50,6 @@
     <sys:String x:Key="L.Linux.CommandsTitle">ほかのプログラムからのコマンド</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Stream Deck アプリ、デスクトップのショートカット、スクリプトから、実行中の MultiPreview にキャラクターを前面に出す、プロファイルを切り替える、サムネイルやフォーカスモードを切り替えるよう指示できます。あなた自身のアカウントのプログラムだけが使えます。</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">コマンドを付けて MultiPreview をもう一度実行します（下の例のように）。Stream Deck アプリ（StreamController、streamdeck-ui、OpenDeck）はボタンから実行できます。eve-multipreview --help ですべてのコマンドを表示します。</sys:String>
+    <sys:String x:Key="L.Linux.UpdateNotWritable">あなたのアカウントでは MultiPreview のフォルダーに書き込めません。リリースページから新しいバージョンをダウンロードしてください。</sys:String>
 
 </ResourceDictionary>

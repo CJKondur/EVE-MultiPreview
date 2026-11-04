@@ -9,7 +9,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>EveMultiPreview.Linux</RootNamespace>
     <AssemblyName>eve-multipreview</AssemblyName>
-    <Version>0.1.0</Version>
+    <!-- The Windows app's version, read from its project: one release carries both, and the updater compares with it. -->
+    <Version>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../EveMultiPreview.csproj')), '&lt;Version&gt;([^&lt;]+)&lt;/Version&gt;').Groups[1].Value)</Version>
     <SelfContained>true</SelfContained>
   </PropertyGroup>
 

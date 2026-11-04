@@ -100,6 +100,7 @@
     <Compile Include="..\Services\StatReportFolder.cs" Link="Shared\Services\StatReportFolder.cs" />
     <Compile Include="..\Services\StatTrackerService.cs" Link="Shared\Services\StatTrackerService.cs" />
     <Compile Include="..\Services\StragglerAlerts.cs" Link="Shared\Services\StragglerAlerts.cs" />
+    <Compile Include="..\Services\UpdateService.cs" Link="Shared\Services\UpdateService.cs" />
     <Compile Include="..\Services\StragglerWatch.cs" Link="Shared\Services\StragglerWatch.cs" />
     <Compile Include="..\Services\StreamDeckPluginPackage.cs" Link="Shared\Services\StreamDeckPluginPackage.cs" />
     <Compile Include="..\Services\StreamerMask.cs" Link="Shared\Services\StreamerMask.cs" />

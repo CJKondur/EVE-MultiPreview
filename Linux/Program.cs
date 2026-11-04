@@ -104,6 +104,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
             }
             catch (Exception) { return RemoteOutcome.Refused; }
         });
+        // The update check at start, a little after it, so it never slows the start (CheckForUpdatesOnStartup, as on Windows).
+        if (S.CheckForUpdatesOnStartup) DispatcherTimer.RunOnce(() => _ = CheckForUpdates(quiet: true), TimeSpan.FromSeconds(15));
         _probeTimer = new System.Threading.Timer(_ => ProbeClients(), null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(3));
         // EVEMP_OPEN_SETTINGS=<page number from 0>: opens the settings window at startup (the tests use it).
         if (int.TryParse(Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS"), out int page)) OpenSettings(page);
@@ -172,6 +174,37 @@ public sealed class Previews : ITrayActions, ISettingsHost
         var running = RunningCharacters();
         var arrived = _focusArrivals.Look(DateTime.UtcNow, running);
         _focusHeld = FocusMode.Held(group, running, alertsShow, _attention.Has, arrived.Contains);
+    }
+
+    // ── Updates (App's update check, Settings > General) ──
+
+    private bool _checkingUpdate;
+    private UpdateDialog? _updateDialog;
+
+    /// <summary>Asks GitHub for a newer release (the only network call, at start when CheckForUpdatesOnStartup is on, or on
+    /// the button) and offers the update dialog when there is one. The text to show beside the button, or null.</summary>
+    public async Task<string?> CheckForUpdates(bool quiet)
+    {
+        if (_checkingUpdate || _updateDialog != null) return null;
+        _checkingUpdate = true;
+        try
+        {
+            var service = new UpdateService();
+            if (await service.CheckForUpdateAsync(S.ReceivePreReleaseUpdates))
+            {
+                var dialog = new UpdateDialog(service, Exit);
+                dialog.Closed += (_, _) => _updateDialog = null;
+                _updateDialog = dialog;
+                dialog.Show();
+                return null;
+            }
+            return quiet ? null : string.Format(LocalizationService.Str("L.S.About.UpToDate", "You're up to date ({0})."), service.CurrentVersion);
+        }
+        catch (Exception e)
+        {
+            return quiet ? null : string.Format(LocalizationService.Str("L.S.About.CheckFailed", "Couldn't check for updates: {0}"), e.Message);
+        }
+        finally { _checkingUpdate = false; }
     }
 
     // ── Commands (App.RunCommand) and the command palette (IDEAS #14) ──
