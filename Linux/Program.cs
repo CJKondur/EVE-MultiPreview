@@ -687,6 +687,49 @@ public sealed class Previews : ITrayActions, ISettingsHost
         TrayMenu?.Rebuild();
     }
 
+    // ── Snap (ThumbnailManager.SnapThumbnail: copied, keep in sync) ──
+
+    /// <summary>Edge snap on release: the dragged thumbnail's left and top each go to the nearest of a neighbour's aligned
+    /// edge, flush beside a neighbour (no gap: ThumbnailGutter spaces only the column MultiPreview lays out), or the work
+    /// area's edge, within ThumbnailSnapDistance pixels.</summary>
+    private void SnapThumbnail(ThumbnailWindow target)
+    {
+        int range = S.ThumbnailSnapDistance;
+        if (range <= 0) return;
+        var at = target.OwnPosition;
+        int l = at.X, t = at.Y, w = target.OwnWidth, h = target.OwnHeight;
+        var xs = new List<int>();
+        var ys = new List<int>();
+        foreach (var other in _thumbs.Values)
+        {
+            if (other == target) continue;
+            var o = other.OwnPosition;
+            int ow = other.OwnWidth, oh = other.OwnHeight;
+            xs.AddRange(new[] { o.X, o.X + ow - w, o.X + ow, o.X - w });
+            ys.AddRange(new[] { o.Y, o.Y + oh - h, o.Y + oh, o.Y - h });
+        }
+        if (target.Screens.ScreenFromPoint(new PixelPoint(l + w / 2, t + h / 2)) is { } screen)
+        {
+            var wa = screen.WorkingArea;
+            xs.AddRange(new[] { wa.X, wa.Right - w });
+            ys.AddRange(new[] { wa.Y, wa.Bottom - h });
+        }
+        int nl = SnapAxis(l, xs, range), nt = SnapAxis(t, ys, range);
+        if (nl != l || nt != t) target.Position = new PixelPoint(nl, nt);
+    }
+
+    /// <summary>The nearest candidate within the range, else the coordinate as it is.</summary>
+    public static int SnapAxis(int current, IEnumerable<int> candidates, int range)
+    {
+        int best = current, bestDelta = range + 1;
+        foreach (var c in candidates)
+        {
+            int d = Math.Abs(c - current);
+            if (d <= range && d < bestDelta) (bestDelta, best) = (d, c);
+        }
+        return best;
+    }
+
     // ── Client windows (ThumbnailManager.ApplyFixedClientPosition, Save/RestoreClientPosition(s)) ──
 
     /// <summary>The client windows already placed once: a client is placed when it is first found, not each time the
@@ -1082,6 +1125,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.CanDrag = !S.LockPositions && !_clickThrough;
             thumb.ResizeFloor = ThumbnailWindow.FloorOf(S);
             thumb.LockResizeAspect = S.LockResizeAspect;
+            thumb.ConfineDragsToMonitor = S.ConfineDragsToMonitor;
             thumb.HoverScale = S.ResizeThumbnailsOnHover ? S.HoverScale : 1.0;   // ThumbnailManager.HoverScaleFor
             thumb.Apply(Look(thumb.Client.Character, isActive, thumb.Hovered));
             thumb.MenuOpen = _menu != null;
@@ -1101,6 +1145,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             pip.CanDrag = !S.LockPositions && !_clickThrough;
             pip.ResizeFloor = ThumbnailWindow.FloorOf(S);
             pip.LockResizeAspect = S.LockResizeAspect;
+            pip.ConfineDragsToMonitor = S.ConfineDragsToMonitor;
             pip.Apply(SecondLook(character, pip.Hovered));
             pip.MenuOpen = _menu != null;
             pip.Follow();
@@ -1524,6 +1569,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.Clicked += c => ClickThumbnail(thumb, c);
             thumb.Moved += t =>
             {
+                if (S.ThumbnailSnap) SnapThumbnail(t);   // on release, before saving, so the snapped place is kept
                 _settings.SaveThumbnailPosition(t.Client.Character, t.OwnPosition.X, t.OwnPosition.Y, t.OwnWidth, t.OwnHeight);
                 if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1") Console.WriteLine($"[move] {t.Client.Character} -> {t.OwnPosition}");
             };

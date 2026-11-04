@@ -110,7 +110,7 @@ internal static class LinuxSupport
         ["thumbs.layout.identifyRow"] = W,    // MonitorIdentify: a badge window per Windows monitor
         ["thumbs.layout.startX"] = S, ["thumbs.layout.startY"] = S, ["thumbs.layout.startWidth"] = S, ["thumbs.layout.startHeight"] = S,
         ["thumbs.layout.gap"] = S,            // Previews.Place, ThumbnailManager.FlowSlot (S3b)
-        ["thumbs.layout.snap"] = N, ["thumbs.layout.snapDistance"] = N, ["thumbs.layout.confine"] = N,
+        ["thumbs.layout.snap"] = S, ["thumbs.layout.snapDistance"] = S, ["thumbs.layout.confine"] = S,   // Previews.SnapThumbnail, ThumbnailWindow.Confined (S5)
         ["thumbs.layout.lock"] = S, ["thumbs.layout.autoOnMonitorChange"] = N, ["thumbs.layout.presets"] = N,
         ["thumbs.layout.align"] = N, ["thumbs.layout.history"] = N,
 

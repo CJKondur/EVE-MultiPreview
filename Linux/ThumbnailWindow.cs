@@ -39,6 +39,10 @@ public sealed class ThumbnailWindow : Window
     public (int Width, int Height) ResizeFloor { get; set; } = (80, 50);
     /// <summary>A resize keeps the thumbnail's own width-to-height ratio (LockResizeAspect).</summary>
     public bool LockResizeAspect { get; set; }
+
+    /// <summary>A drag stays on the monitor it started on (ConfineDragsToMonitor, as ThumbnailWindow on Windows): clamped
+    /// to that monitor's work area. Set by the app at every tick.</summary>
+    public bool ConfineDragsToMonitor { get; set; }
     public event Action<EveClient>? Clicked;
     /// <summary>The thumbnail was moved by the player (not by the app placing it).</summary>
     public event Action<ThumbnailWindow>? Moved;
@@ -140,6 +144,7 @@ public sealed class ThumbnailWindow : Window
         // the way the Windows app follows it (its 16 ms timer): the pointer, its buttons and Ctrl are asked of the X
         // server every 16 ms (PointerSource), and the resize ends when that says a button is up.
         PixelPoint from = default, startPosition = default;
+        PixelRect? confineTo = null;   // the work area a drag is kept in (ConfineDragsToMonitor), read when it starts
         int startWidth = 0, startHeight = 0;
         IPointer? grabbed = null;
         bool menuArmed = false, dragging = false;   // a right press that may still be a plain click; a move past the threshold
@@ -165,6 +170,7 @@ public sealed class ThumbnailWindow : Window
             from = pressed;
             startPosition = new PixelPoint(own.X, own.Y);
             (startWidth, startHeight) = (own.Width, own.Height);
+            confineTo = ConfineDragsToMonitor && WorkArea(own) is { } wa ? new PixelRect(wa.X, wa.Y, wa.Width, wa.Height) : null;
             grabbed = e.Pointer;
             grabbed.Capture(_frame);
             if (PointerSource?.Invoke() is { } p) from = new PixelPoint(p.X, p.Y);
@@ -225,7 +231,7 @@ public sealed class ThumbnailWindow : Window
             {
                 int dx = now.X - from.X, dy = now.Y - from.Y;
                 if (!dragging && (Math.Abs(dx) > DragThreshold || Math.Abs(dy) > DragThreshold)) (dragging, menuArmed) = (true, false);
-                if (dragging) Position = new PixelPoint(startPosition.X + dx, startPosition.Y + dy);
+                if (dragging) Position = Confined(new PixelPoint(startPosition.X + dx, startPosition.Y + dy), confineTo, startWidth, startHeight);
             }
             else if (PointerSource == null)   // no timer: follow the events
             {
@@ -323,6 +329,10 @@ public sealed class ThumbnailWindow : Window
     /// <summary>The thumbnail was asked to be enlarged and has not been asked back. It need not be enlarged right now: a
     /// drag or the pointer on it makes it wait.</summary>
     public bool IsAlertEnlargementAsked => _alertScale > 1.0;
+
+    /// <summary>A drag's place held inside <paramref name="area"/> (none: unchanged), the window's size kept whole in it.</summary>
+    public static PixelPoint Confined(PixelPoint at, PixelRect? area, int width, int height) =>
+        area is not { } wa ? at : new PixelPoint(Math.Max(wa.X, Math.Min(at.X, wa.Right - width)), Math.Max(wa.Y, Math.Min(at.Y, wa.Bottom - height)));
 
     /// <summary>The thumbnail's own place and size, which the settings keep: while it is enlarged, not the enlarged window's.</summary>
     public PixelPoint OwnPosition => OwnRectangle() is var r ? new PixelPoint(r.X, r.Y) : default;
