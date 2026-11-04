@@ -166,6 +166,7 @@ public sealed class Alerts : IDisposable
     public (string Chat, string Game) Start()
     {
         _monitor.SetSettings(S);
+        ApplyMonitorOptions();
         _profiles.Apply(S, _monitor.SetEnabledAlertTypes);
         FollowWays();
         StreamerMask.Follow(_settings);
@@ -198,6 +199,16 @@ public sealed class Alerts : IDisposable
     }
 
     private (string Chat, string Game) _folders;
+
+    /// <summary>App.xaml.cs's log-monitor options, at start and after every change: PvE mode (NPC damage and ewar are not
+    /// alerts), the time an event waits before it alerts again, per event and (IDEAS P28) per severity.</summary>
+    private void ApplyMonitorOptions()
+    {
+        _monitor.PveMode = S.PveMode;
+        _monitor.SetCooldown(S.AlertCooldown);
+        if (S.SeverityCooldowns != null) _monitor.SetEventCooldowns(S.SeverityCooldowns);
+        _monitor.SetSeverityCooldowns(LogMonitorService.SeverityWaits(S));
+    }
 
     /// <summary>Whether an event is on for everyone or (IDEAS #31) for some group: App's ClientEventOn / MemoryOn / IdleOn.</summary>
     public bool EventOn(string key) => ClientWatch.IsOn(S, key) || _profiles.OnForSomeone(key);
@@ -255,6 +266,7 @@ public sealed class Alerts : IDisposable
     public void Reapply()
     {
         _monitor.SetSettings(S);
+        ApplyMonitorOptions();
         _profiles.Apply(S, _monitor.SetEnabledAlertTypes);
         var (chat, game) = EveLogs.Folders(S);
         _monitor.Reconfigure(chat, game, S.EnableChatLogMonitoring && chat.Length > 0, S.EnableGameLogMonitoring && game.Length > 0);

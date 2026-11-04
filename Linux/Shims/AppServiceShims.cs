@@ -31,7 +31,9 @@ namespace EveMultiPreview.Services
         public void ClearPlaytime() => throw Unsupported(nameof(ClearPlaytime));
         /// <summary>Render time (CharacterStores.IsInCycle runs while editors build rows): no character is excluded here.</summary>
         public bool IsExcludedFromCycle(string characterName) => false;
-        public void ToggleCycleExclusion(string characterName) => throw Unsupported(nameof(ToggleCycleExclusion));
+        /// <summary>No cycle exclusion on Linux (IsExcludedFromCycle is always false), so there is nothing to toggle: the
+        /// same answer both ways, not a refusal one way and a no-op the other.</summary>
+        public void ToggleCycleExclusion(string characterName) { }
 
         private static PlatformNotSupportedException Unsupported(string member) =>
             new($"ThumbnailManager.{member} is Windows-only (S3)");

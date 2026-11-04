@@ -17,10 +17,12 @@ public static class Colors
 
 public static class ColorConverter
 {
-    /// <summary>"#RGB", "#RRGGBB", "#AARRGGBB" or a colour name, as WPF reads them. Throws FormatException otherwise.</summary>
+    /// <summary>"#RGB", "#ARGB", "#RRGGBB", "#AARRGGBB" or a colour name, as WPF reads them. Throws FormatException otherwise —
+    /// also for what Avalonia reads but WPF does not (rgb(…), hsl(…)), so a caller falls back the same way on both platforms.</summary>
     public static object ConvertFromString(string value)
     {
-        if (!Avalonia.Media.Color.TryParse(value, out var c)) throw new FormatException($"Not a colour: {value}");
+        bool wpfForm = value.StartsWith('#') || value.Length > 0 && value.All(char.IsAsciiLetter);
+        if (!wpfForm || !Avalonia.Media.Color.TryParse(value, out var c)) throw new FormatException($"Not a colour: {value}");
         return Color.FromArgb(c.A, c.R, c.G, c.B);
     }
 }

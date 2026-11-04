@@ -125,10 +125,7 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Row(T("L.S.app.general.acceptCommands", "Take commands from other programs"),
             Ui.Check(T("L.Common.Enabled", "Enabled"), S.AcceptCommands, on => { S.AcceptCommands = on; Save(); }),
             T("L.Linux.AcceptCommands.Desc", "Lets a Stream Deck app, a desktop shortcut or a script tell the running MultiPreview to bring a character to the front, switch profile, or toggle thumbnails or focus mode. Only programs of your own account can.")));
-        var example = new SelectableTextBlock { Text = string.Join(Environment.NewLine, "eve-multipreview --focus <character>", "eve-multipreview --cycle <group>", "eve-multipreview --focus-mode", "eve-multipreview --last-alert"),
-            FontFamily = new FontFamily("monospace"), Margin = new Thickness(0, 4) };
-        page.Children.Add(Ui.Note(T("L.Linux.CommandsNote", "Run MultiPreview again with a command, for example below; a Stream Deck app (StreamController, streamdeck-ui, OpenDeck) runs it from a button. eve-multipreview --help lists every command.")));
-        page.Children.Add(example);
+        page.Children.Add(CommandsExample());
 
         // As on Windows' About page: the version, the check, and the two switches the check reads.
         page.Children.Add(Ui.Section(T("L.S.Sec.app.about.updates", "Updates")));
@@ -155,6 +152,17 @@ internal sealed class SettingsPages
         page.Children.Add(Ui.Section(T("L.Linux.ImportTitle", "Settings from the Windows app")));
         page.Children.Add(Import());
         return page;
+    }
+
+    /// <summary>How other programs send a command (CommandSocket), and four examples to copy.</summary>
+    internal static Control CommandsExample()
+    {
+        var panel = new StackPanel { Spacing = 2 };
+        var example = new SelectableTextBlock { Text = string.Join(Environment.NewLine, "eve-multipreview --focus <character>", "eve-multipreview --cycle <group>", "eve-multipreview --focus-mode", "eve-multipreview --last-alert"),
+            FontFamily = new FontFamily("monospace"), Margin = new Thickness(0, 4) };
+        panel.Children.Add(Ui.Note(T("L.Linux.CommandsNote", "Run MultiPreview again with a command, for example below; a Stream Deck app (StreamController, streamdeck-ui, OpenDeck) runs it from a button. eve-multipreview --help lists every command.")));
+        panel.Children.Add(example);
+        return panel;
     }
 
     /// <summary>A folder path, typed or picked.</summary>
@@ -199,7 +207,7 @@ internal sealed class SettingsPages
     }
 
     /// <summary>Import: a file path (typed or picked) and the button that does it.</summary>
-    private Control Import()
+    internal Control Import()
     {
         var panel = new StackPanel { Spacing = 6 };
         var path = new TextBox { Width = 300, PlaceholderText = "EVE MultiPreview.json" };

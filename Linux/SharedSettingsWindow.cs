@@ -94,7 +94,8 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         _editors = new SettingsPages(app, this, () => QueueRender(), Reload);
         RestoreSize();
 
-        _vm = new ShellVM(_ctx, SettingsRegistry.Pages, a => Dispatcher.UIThread.Post(a), SettingsRegistry.Dynamic);
+        // The pages as Linux shows them: without the cards of Windows-only features and of those Linux does not read yet.
+        _vm = new ShellVM(_ctx, LinuxSupport.Pages, a => Dispatcher.UIThread.Post(a), LinuxSupport.Dynamic);
         _vm.PropertyChanged += OnShellChanged;
         _vm.Reloaded += () => { _index = null; QueueRender(); };
         if (pageId != null) _vm.Navigate(pageId);
@@ -118,9 +119,10 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     }
 
     private AppSettings S => _ctx.S;
-    private static string Str(string key) => SettingsContext.Str(key);
+    /// <summary>A key's text, in its Linux wording where that differs (LinuxSupport.Key).</summary>
+    private static string Str(string key) => SettingsContext.Str(LinuxSupport.Key(key));
     /// <summary>The text of a key, or null when the catalog has none (a card without a description).</summary>
-    private static string? Optional(string? key) => key != null && LocalizationService.Str(key, "") is { Length: > 0 } text ? text : null;
+    private static string? Optional(string? key) => key != null && LocalizationService.Str(LinuxSupport.Key(key), "") is { Length: > 0 } text ? text : null;
 
     /// <summary>Shows a page by its id (the tray, a thumbnail's menu, EVEMP_OPEN_SETTINGS). An Advanced page leaves Simple mode.</summary>
     public void ShowPage(string pageId) => Navigate(pageId);
@@ -303,8 +305,9 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     }
 
     /// <summary>The Windows shell's index (SettingsShell.SearchEntries): the pages, the help, the known characters and the
-    /// alert events, built again after a reload and whenever the known characters change. The player's own alert rules are
-    /// left out: Linux has no editor for them yet.</summary>
+    /// alert events, built again after a reload and whenever the known characters change; of the pages and help only what
+    /// Linux shows, plus its own cards (LinuxSupport). The player's own alert rules are left out: Linux has no editor for
+    /// them yet.</summary>
     private IReadOnlyList<SearchEntry> SearchEntries()
     {
         var names = CharacterDirectory.Known(S, _app.RunningCharacters());
@@ -312,9 +315,10 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         if (_index == null || key != _indexKey)
         {
             _indexKey = key;
-            string Resolve(string k) => LocalizationService.Str(k, "");
-            _index = SearchIndex.Build(SettingsRegistry.Pages, HelpTopics.All, Resolve, LocalizationService.EnglishText,
-                extra: CharacterStores.SearchEntries(names, Resolve).Concat(EventEntries(Resolve)));
+            string Resolve(string k) => LocalizationService.Str(LinuxSupport.Key(k), "");
+            string English(string k) => LocalizationService.EnglishText(LinuxSupport.Key(k));
+            _index = SearchIndex.Build(LinuxSupport.Pages, LinuxSupport.Topics, Resolve, English,
+                extra: CharacterStores.SearchEntries(names, Resolve).Concat(EventEntries(Resolve)).Concat(LinuxSupport.SearchEntries(Resolve)));
         }
         return _index;
     }
@@ -369,6 +373,9 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         _shownPageId = page.Page.Id;
         // The item search or a link opened the page for: Show marked it before this page was drawn.
         if (_vm.HighlightedItem is { } hit) Highlight(hit.Id, true);
+        // A Linux-only card the search opened: no view-model marks it, so the window does.
+        if (_linuxHit != null && _cards.ContainsKey(_linuxHit)) Highlight(_linuxHit, true);
+        _linuxHit = null;
     }
 
     private Control Section(SectionVM section)
@@ -376,6 +383,8 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         var panel = new StackPanel { Spacing = 0, Margin = new Thickness(0, 10, 0, 0) };
         panel.Children.Add(new TextBlock { Text = Str(section.TitleKey), FontSize = 15, FontWeight = FontWeight.SemiBold, Opacity = 0.85, Margin = new Thickness(0, 6, 0, 4) });
         foreach (var item in section.Items) panel.Children.Add(Card(item));
+        if (LinuxSupport.Additions.TryGetValue(section.Def.Id, out var additions))
+            foreach (var addition in additions) panel.Children.Add(LinuxCard(addition));
         panel.IsVisible = Safe(() => section.IsVisible, true);
         Watch(section, name => { if (name is "" or null or nameof(SectionVM.IsVisible)) panel.IsVisible = Safe(() => section.IsVisible, true); });
         return panel;
@@ -412,6 +421,41 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         card.IsVisible = Safe(() => item.IsVisible, true);
         Watch(item, name => { if (name is "" or null or nameof(ItemVM.IsVisible)) card.IsVisible = Safe(() => item.IsVisible, true); });
         return card;
+    }
+
+    /// <summary>A card of the old Linux window (LinuxSupport.Additions): a note, the commands example, the import from Windows.</summary>
+    private Control LinuxCard(LinuxSupport.Addition addition)
+    {
+        Control inner;
+        try
+        {
+            inner = addition.Kind switch
+            {
+                LinuxSupport.AdditionKind.Commands => SettingsPages.CommandsExample(),
+                LinuxSupport.AdditionKind.Import => Titled(addition.TitleKey!, _editors.Import()),
+                _ => new TextBlock { Text = Str(addition.TextKey), Opacity = 0.75, TextWrapping = TextWrapping.Wrap },
+            };
+        }
+        catch (Exception ex) when (ex is not OutOfMemoryException)
+        {
+            Console.Error.WriteLine($"[Settings] card {addition.Id}: {ex.GetType().Name}");
+            inner = NotYetCard(addition.TitleKey, addition.Id);
+        }
+        var card = new Border
+        {
+            Background = CardBack, BorderBrush = CardEdge, BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(6),
+            Padding = new Thickness(14, 8), Margin = new Thickness(0, 3), Child = inner,
+        };
+        _cards[addition.Id] = card;   // the search opens it like a shared card
+        return card;
+    }
+
+    private static Control Titled(string titleKey, Control body)
+    {
+        var panel = new StackPanel { Spacing = 4 };
+        panel.Children.Add(new TextBlock { Text = Str(titleKey), FontWeight = FontWeight.SemiBold, TextWrapping = TextWrapping.Wrap });
+        panel.Children.Add(body);
+        return panel;
     }
 
     /// <summary>The label (and description) on the left, the control on the right; <paramref name="below"/> takes the whole
@@ -573,7 +617,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
                 {
                     var key = vm.D.Get(S) as string ?? "";
                     box.Value = key;
-                    var others = key.Length == 0 ? new List<HotkeyUse>() : HotkeyUses.Clashes(S, SettingsRegistry.Settings, key, HotkeyUses.IdOf(vm.D));
+                    var others = key.Length == 0 ? new List<HotkeyUse>() : HotkeyUses.Clashes(S, LinuxSupport.Settings, key, HotkeyUses.IdOf(vm.D));
                     clash.IsVisible = others.Count > 0;
                     clash.Text = others.Count == 0 ? "" : Str("L.S.Hotkey.UsedBy") + " " + string.Join(", ", others.Select(o => o.Label)) + " " + Str("L.S.Hotkey.UsedByNote");
                 };
@@ -763,7 +807,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         ToolTip.SetTip(_helpClose, Str("L.S.Help.Close"));
         if (pageId == null) return;
         Blocks(LocalizationService.Str(HelpTopics.IntroKey(pageId), ""), _helpBody);
-        foreach (var topic in HelpTopics.ForPage(pageId))
+        foreach (var topic in LinuxSupport.Topics.Where(t => t.PageId == pageId))
         {
             var title = LocalizationService.Str(topic.TitleKey, "");
             var body = LocalizationService.Str(topic.BodyKey, "");
@@ -835,7 +879,14 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     // ── The shared ISettingsHost ──
 
-    public void Navigate(string pageId, string? itemId = null) => _vm.Navigate(pageId, itemId);
+    public void Navigate(string pageId, string? itemId = null)
+    {
+        _linuxHit = itemId != null && LinuxSupport.Additions.Values.Any(cards => cards.Any(c => c.Id == itemId)) ? itemId : null;
+        _vm.Navigate(pageId, itemId);
+        if (_linuxHit != null) QueueRender();   // the same page again: ShellVM raises nothing, so draw it to mark the card
+    }
+
+    private string? _linuxHit;
 
     public void Toast(string text)
     {
