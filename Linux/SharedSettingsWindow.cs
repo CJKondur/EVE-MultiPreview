@@ -362,20 +362,21 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     }
 
     /// <summary>The Windows shell's index (SettingsShell.SearchEntries): the pages, the help, the known characters and the
-    /// alert events, built again after a reload and whenever the known characters change; of the pages and help only what
-    /// Linux shows, plus its own cards (LinuxSupport). The player's own alert rules are left out: Linux has no editor for
-    /// them yet.</summary>
+    /// alert events and the player's own alert rules, built again after a reload and whenever the known characters or the
+    /// rules change; of the pages and help only what Linux shows, plus its own cards (LinuxSupport).</summary>
     private IReadOnlyList<SearchEntry> SearchEntries()
     {
         var names = CharacterDirectory.Known(S, _app.RunningCharacters());
-        var key = LocalizationService.CurrentLanguage + "\n" + string.Join("\n", names);
+        var rules = _ctx.CustomAlerts.Rules;
+        var key = LocalizationService.CurrentLanguage + "\n" + string.Join("\n", names) + "\n\n" + string.Join("\n", rules.Select(r => r.Id + " " + r.Name + " " + r.Pattern));
         if (_index == null || key != _indexKey)
         {
             _indexKey = key;
             string Resolve(string k) => LocalizationService.Str(LinuxSupport.Key(k), "");
             string English(string k) => LocalizationService.EnglishText(LinuxSupport.Key(k));
             _index = SearchIndex.Build(LinuxSupport.Pages, LinuxSupport.Topics, Resolve, English,
-                extra: CharacterStores.SearchEntries(names, Resolve).Concat(EventEntries(Resolve)).Concat(LinuxSupport.SearchEntries(Resolve)));
+                extra: CharacterStores.SearchEntries(names, Resolve).Concat(EventEntries(Resolve)).Concat(LinuxSupport.SearchEntries(Resolve))
+                    .Concat(SettingsEditors.CustomRuleEntries(rules, Resolve)));
         }
         return _index;
     }

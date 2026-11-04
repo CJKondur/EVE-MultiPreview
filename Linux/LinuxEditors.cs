@@ -40,6 +40,8 @@ internal static class LinuxEditors
         // S4 (Linux/Settings/LookEditors.cs): App › Look's gallery, About › Fonts.
         { EditorIds.LookGallery, (pages, ctx, _) => pages.LookGallery(ctx) },
         { EditorIds.FontLicencesEditor, (pages, _, _) => pages.FontLicences() },
+        // S5 (Linux/Settings/CustomRulesEditors.cs): the player's own alert rules.
+        { EditorIds.CustomRulesEditor, (pages, ctx, _) => pages.CustomRuleCards(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

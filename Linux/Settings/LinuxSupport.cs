@@ -154,15 +154,18 @@ internal static class LinuxSupport
         // ── Alerts › Alert hub: on Linux the hub is the desktop's notifications (notify-send) ──
         ["alerts.hub.enabled"] = S, ["alerts.hub.skipActive"] = S,
         ["alerts.hub.duration"] = S,          // the notification's expire time (S3b)
-        ["alerts.hub.direction"] = N, ["alerts.hub.autoHide"] = N, ["alerts.hub.autoHideAfter"] = N,
-        ["alerts.hub.positionRow"] = N,       // the hub window's place
+        // The Windows hub window (its toasts' side, hiding when quiet, its place): Linux shows desktop notifications, which the
+        // desktop places and stacks (S5).
+        ["alerts.hub.direction"] = W, ["alerts.hub.autoHide"] = W, ["alerts.hub.autoHideAfter"] = W,
+        ["alerts.hub.positionRow"] = W,
         ["alerts.hub.notify"] = W, ["alerts.hub.notifyFrom"] = W, ["alerts.hub.notifyTest"] = W,   // Windows notifications
         ["alerts.hub.push"] = S, ["alerts.hub.pushFrom"] = S, ["alerts.hub.pushMention"] = S, ["alerts.hub.pushAway"] = S,
         ["alerts.hub.pushWebhook"] = S, ["alerts.hub.historyRow"] = S, ["alerts.hub.keepHistory"] = S,
         ["alerts.hub.historyDays"] = S, ["alerts.hub.historyFolder"] = S,
 
-        // ── Alerts › Custom alerts: the Linux app reads the player's rules (S3b, Alerts.CustomAlerts); the rules editor is not ported yet ──
-        ["alerts.custom.editor"] = N, ["alerts.custom.file"] = S,
+        // ── Alerts › Custom alerts: the Linux app reads the player's rules (S3b, Alerts.CustomAlerts); the editor is
+        //    Linux/Settings/CustomRulesEditors.cs (S5) ──
+        ["alerts.custom.editor"] = S, ["alerts.custom.file"] = S,
 
         // ── Performance ──
         ["perf.cpu.manage"] = N, ["perf.cpu.autoBalance"] = N, ["perf.cpu.coreTable"] = N,
