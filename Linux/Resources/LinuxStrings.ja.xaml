@@ -41,5 +41,7 @@
     <sys:String x:Key="L.Linux.HotkeyClash">{0} と同じキーです。どれか 1 つだけが使えます。</sys:String>
     <sys:String x:Key="L.Linux.HistOff">アラート履歴はオフになっているため、新しいアラートは残りません。「設定 › アラート › 履歴」でオンにできます。</sys:String>
     <sys:String x:Key="L.Linux.HistNoDialog">このデスクトップにはファイルダイアログがないため、ファイルは設定フォルダーに保存しました。</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn">デスクトップ通知を表示</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn.Desc">下で選んだアラートごとに通知を表示します。そのクライアントへの切り替えや、15分間のスヌーズのボタンが付きます。</sys:String>
 
 </ResourceDictionary>

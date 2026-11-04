@@ -29,16 +29,34 @@ public sealed class Alerts : IDisposable
     /// <summary>The alert history, for the history window.</summary>
     public AlertHistory History => _history;
 
+    /// <summary>The per-character mute of the thumbnails' menus: a muted character's alerts reach the history, nothing else.</summary>
+    public CharacterMutes Mutes { get; } = new();
+
+    /// <summary>The events snoozed for one character (a notification's button, the settings' list, a thumbnail's menu).</summary>
+    public EventSnoozes Snoozes => _snoozes;
+
+    /// <summary>The system the character was last seen in by the logs, or null.</summary>
+    public string? SystemOf(string character) => _monitor.GetCharacterSystem(character);
+
+    private readonly EventSnoozeFile _snoozeFile = new(AppPaths.ConfigDir);
+    private readonly Func<string, bool> _switchTo;
+    private readonly Action<string, string, TimeSpan?> _snooze;
+
     /// <param name="running">The characters that have a thumbnail.</param>
     /// <param name="windowOf">The character's client window, or 0.</param>
     /// <param name="inFront">The window in front.</param>
     /// <param name="flash">(character, severity, alert type): start the thumbnail's alert border. Called on the UI thread.</param>
     /// <param name="attention">The alerts the player has not looked at yet: every alert that is shown is entered in it (the
     /// Windows app's ThumbnailManager.NoteUnseenAlert), unless its client is in front.</param>
+    /// <param name="switchTo">A notification's "Switch to": brings the character's client to the front. On the UI thread.</param>
+    /// <param name="snooze">A notification's "Snooze for 15 minutes": (character, event, length). On the UI thread.</param>
     public Alerts(SettingsService settings, Func<IReadOnlyCollection<string>> running, Func<string, uint> windowOf,
-        Func<uint> inFront, Action<string, string, string> flash, AlertAttention attention)
+        Func<uint> inFront, Action<string, string, string> flash, AlertAttention attention,
+        Func<string, bool> switchTo, Action<string, string, TimeSpan?> snooze)
     {
         _settings = settings;
+        _switchTo = switchTo;
+        _snooze = snooze;
         _history = new AlertHistory(AppPaths.HistoryDir, ErrorLog.Shared)
         {
             Enabled = settings.LoadedSuccessfully && S.AlertHistoryEnabled,
@@ -47,6 +65,7 @@ public sealed class Alerts : IDisposable
         _targets = new AlertTargets
         {
             IsOn = (c, type) => _profiles.IsOn(c, type),
+            IsMuted = c => Mutes.IsMuted(c),
             ActiveCharacters = () => Ui(running),
             IsSnoozed = (c, type) => _snoozes.IsSnoozed(c, type),
             Flash = (c, severity, type) => Dispatcher.UIThread.Post(() => flash(c, severity, type)),
@@ -142,6 +161,9 @@ public sealed class Alerts : IDisposable
         FollowWays();
         StreamerMask.Follow(_settings);
         if (_settings.LoadedSuccessfully) _history.DeleteOldDays();
+        // Snoozes kept across a restart (KeepAlertSnoozes): read once now, written at every change of them and of the switch.
+        if (_settings.LoadedSuccessfully && S.KeepAlertSnoozes) _snoozeFile.Load(_snoozes);
+        _snoozes.Changed += FollowSnoozeFile;
 
         var (chat, game) = EveLogs.Folders(S);
         _monitor.AlertTriggered += OnAlert;
@@ -175,6 +197,14 @@ public sealed class Alerts : IDisposable
         _folders = (chat, game);
         _history.Enabled = _settings.LoadedSuccessfully && S.AlertHistoryEnabled;
         FollowWays();
+        FollowSnoozeFile();
+    }
+
+    /// <summary>With keeping on the snooze file holds what is snoozed now; with it off there is none. Not before the settings
+    /// were read: a file that failed to load must not decide the switch.</summary>
+    private void FollowSnoozeFile()
+    {
+        if (_settings.LoadedSuccessfully) _snoozeFile.Follow(S.KeepAlertSnoozes, _snoozes);
     }
 
     /// <summary>Tells the voice and the Discord way about the settings as they are now (after every change, as App does).</summary>
@@ -221,8 +251,84 @@ public sealed class Alerts : IDisposable
     {
         if (!SettingsUi.AlertFields.HubToast(S, severity)) return;
         var who = StreamerMask.Name(StreamerKind.Character, character);
-        Run("notify-send", "--app-name=EVE MultiPreview", "--urgency=" + (severity == "critical" ? "critical" : "normal"),
-            $"{who}: {EventName(alertType)}", LocalizationService.Str("L.S.Sev." + severity, severity));
+        var args = new List<string> { "--app-name=EVE MultiPreview", "--urgency=" + (severity == "critical" ? "critical" : "normal") };
+        if (!NotifyHasActions.Value)
+        {
+            Run("notify-send", [.. args, $"{who}: {EventName(alertType)}", LocalizationService.Str("L.S.Sev." + severity, severity)]);
+            return;
+        }
+        // The Windows notification's two buttons (NotificationsWay): Switch to ‹character›, Snooze for 15 minutes. A click on
+        // the notification itself ("default") switches too. notify-send waits for the answer and prints the button's key.
+        args.Add("--wait");
+        args.Add("--action=default=" + string.Format(LocalizationService.Str("L.Notify.Switch", "Switch to {0}"), who));
+        args.Add("--action=switch=" + string.Format(LocalizationService.Str("L.Notify.Switch", "Switch to {0}"), who));
+        args.Add("--action=nap=" + LocalizationService.Str("L.Notify.Snooze", "Snooze for 15 minutes"));
+        args.Add($"{who}: {EventName(alertType)}");
+        args.Add(LocalizationService.Str("L.S.Sev." + severity, severity));
+        _ = AnswerAsync(args, character, alertType);
+    }
+
+    /// <summary>How long a notification's buttons are listened for. One left open longer (a notification centre that keeps
+    /// it) is let go: its notify-send is ended, and a click on it later does nothing.</summary>
+    private static readonly TimeSpan AnswerLimit = TimeSpan.FromMinutes(10);
+
+    private async Task AnswerAsync(List<string> args, string character, string alertType)
+    {
+        try
+        {
+            var start = new ProcessStartInfo("notify-send") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+            foreach (var a in args) start.ArgumentList.Add(a);
+            using var p = Process.Start(start);
+            if (p == null) return;
+            _ = p.StandardError.ReadToEndAsync();
+            using var limit = new CancellationTokenSource(AnswerLimit);
+            string answer;
+            try
+            {
+                answer = (await p.StandardOutput.ReadToEndAsync(limit.Token)).Trim();
+                await p.WaitForExitAsync(limit.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                try { p.Kill(); } catch { }
+                return;
+            }
+            if (answer is "default" or "switch") Dispatcher.UIThread.Post(() => _switchTo(character));
+            else if (answer == "nap")
+                Dispatcher.UIThread.Post(() =>
+                {
+                    _snooze(character, alertType, AlertNotifications.SnoozeFor);
+                    Say(string.Format(LocalizationService.Str("L.Snooze.Done", "Snoozed “{0}” for {1}"),
+                        EventName(alertType), StreamerMask.Name(StreamerKind.Character, character)));
+                });
+        }
+        catch (System.ComponentModel.Win32Exception) { }   // not installed
+    }
+
+    /// <summary>Whether this notify-send knows --action and --wait (libnotify 0.7.9 and later; an older one refuses the
+    /// whole notification). Asked once.</summary>
+    private static readonly Lazy<bool> NotifyHasActions = new(() =>
+    {
+        try
+        {
+            var start = new ProcessStartInfo("notify-send") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+            start.ArgumentList.Add("--version");
+            using var p = Process.Start(start);
+            if (p == null) return false;
+            var text = p.StandardOutput.ReadToEnd();
+            if (!p.WaitForExit(2000)) return false;
+            return NotifyVersionHasActions(text);
+        }
+        catch (System.ComponentModel.Win32Exception) { return false; }
+    });
+
+    /// <summary>"notify-send 0.8.3" → true; 0.7.8 and older, or text that is not a version, → false.</summary>
+    public static bool NotifyVersionHasActions(string versionText)
+    {
+        var m = System.Text.RegularExpressions.Regex.Match(versionText, @"(\d+)\.(\d+)\.(\d+)");
+        if (!m.Success) return false;
+        var v = new Version(int.Parse(m.Groups[1].Value), int.Parse(m.Groups[2].Value), int.Parse(m.Groups[3].Value));
+        return v >= new Version(0, 7, 9);
     }
 
     /// <summary>The alert's sound file, as the Windows app picks it, played by the desktop's sound player.</summary>

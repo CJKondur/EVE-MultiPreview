@@ -5,6 +5,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input.Platform;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.Themes.Simple;
@@ -85,7 +86,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         Console.WriteLine($"EVE MultiPreview for Linux: settings {AppPaths.SettingsPath}; looking for windows titled \"{_clients.TitlePrefix}…\" "
             + $"(Composite: {(_clients.HasComposite ? "yes" : "no, covered clients will not show")}; scaling on the X server: {(_clients.ScalesOnServer ? "yes" : "no")})");
         BindHotkeys();
-        _alerts = new Alerts(_settings, RunningCharacters, WindowOf, _clients.Active, Flash, _attention);
+        _alerts = new Alerts(_settings, RunningCharacters, WindowOf, _clients.Active, Flash, _attention, SwitchToCharacter, SnoozeEvent);
         var (chat, game) = _alerts.Start();
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
@@ -151,18 +152,20 @@ public sealed class Previews : ITrayActions, ISettingsHost
         Sync();
     }
 
-    public void OpenSettings() => OpenSettings(0);
+    public void OpenSettings() => OpenSettings(null);
 
-    /// <summary>Opens the settings window, or brings the open one forward.</summary>
-    private void OpenSettings(int page)
+    /// <summary>Opens the settings window, or brings the open one forward. With a page, that page shows; without one, an
+    /// open window keeps its page and a new one starts at the first.</summary>
+    private void OpenSettings(int? page)
     {
         if (_settingsWindow != null)
         {
             if (_settingsWindow.WindowState == WindowState.Minimized) _settingsWindow.WindowState = WindowState.Normal;
+            if (page is { } p) _settingsWindow.ShowPage(p);
             _settingsWindow.Activate();
             return;
         }
-        _settingsWindow = new SettingsWindow(this, page);
+        _settingsWindow = new SettingsWindow(this, page ?? 0);
         _settingsWindow.Closed += (_, _) => { _settingsWindow = null; CaptureHotkey(false); };
         _settingsWindow.Show();
     }
@@ -378,6 +381,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.ResizeFloor = ThumbnailWindow.FloorOf(S);
             thumb.LockResizeAspect = S.LockResizeAspect;
             thumb.Apply(Look(thumb.Client.Character, isActive));
+            thumb.MenuOpen = _menu != null;
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
             thumb.Update(_clients);
         }
@@ -445,9 +449,13 @@ public sealed class Previews : ITrayActions, ISettingsHost
         return _brushes[colour] = new SolidColorBrush(Color.FromArgb(c.A, c.R, c.G, c.B));
     }
 
+    private int _syncs;
+
     private void Sync()
     {
         var found = _clients.Find();
+        // A client's sound stream starts after its window (at login, after a loading screen): its saved volume is given again every 10 s.
+        if (++_syncs % 5 == 0) foreach (var thumb in _thumbs.Values) ApplyVolume(thumb.Client);
         foreach (var gone in _thumbs.Keys.Except(found.Select(f => f.Window)).ToList())
         {
             _attention.Gone(_thumbs[gone].Client.Character);   // nothing there needs the player any more
@@ -477,9 +485,144 @@ public sealed class Previews : ITrayActions, ISettingsHost
                 if (S.ShowThumbnailsAlwaysOnTop && t.TryGetPlatformHandle() is { } handle) _clients.Raise((uint)(long)handle.Handle);
             };
             thumb.PointerSource = _clients.Pointer;
+            thumb.MenuRequested += ShowMenu;
             _thumbs[client.Window] = thumb;
+            ApplyVolume(client);
             Console.WriteLine($"Client found: {client.Character} (window {client.Window})");
         }
+    }
+
+    // ── The thumbnail's menu ──
+
+    private ContextMenu? _menu;
+
+    /// <summary>Opens a thumbnail's right-click menu at the pointer, with the state of this moment. Only one is open.</summary>
+    private void ShowMenu(ThumbnailWindow thumb)
+    {
+        if (_alerts == null) return;
+        _menu?.Close();
+        var character = thumb.Client.Character;
+        var state = new ThumbnailMenuState(character, _alerts.SystemOf(character), _alerts.Mutes.Until(character),
+            _alerts.Snoozes.Of(character), Volume(character), LookupLinks.CharacterId(S.EveManager?.CharNameCache, character));
+        var menu = ThumbnailMenu.Build(state, new ThumbnailMenuActions(
+            EditLabel: () => EditLabel(character),
+            Mute: minutes => Mute(character, minutes),
+            EndSnooze: key => { if (key == null) _alerts.Snoozes.EndAll(character); else _alerts.Snoozes.End(character, key); },
+            Audio: code => SetVolume(thumb.Client, code),
+            OpenSettings: () => OpenSettings(SettingsWindow.CharactersPage),
+            CopyText: text => _ = thumb.Clipboard?.SetTextAsync(text),
+            OpenLink: OpenLink,
+            CloseClient: () => CloseClient(thumb.Client)), DateTime.UtcNow);
+        menu.Closed += (_, _) => { if (_menu == menu) _menu = null; };
+        _menu = menu;   // while it is open no thumbnail is enlarged for an alert, this one included (MenuOpen, at the next tick)
+        menu.Open(thumb);
+    }
+
+    private void EditLabel(string character)
+    {
+        var dialog = new LabelDialog(character, S, () => _settings.SaveDelayed());
+        dialog.Show();
+    }
+
+    /// <summary>ThumbnailManager.SetCharacterAlertMute: mutes or unmutes one character's alerts and says so. A mute ends
+    /// that character's alert border and puts back its thumbnail, enlarged for an alert, now.</summary>
+    private void Mute(string character, int minutes)
+    {
+        if (_alerts == null) return;
+        var until = _alerts.Mutes.Set(character, minutes);
+        string who = StreamerMask.Name(StreamerKind.Character, character);
+        if (until != null)
+        {
+            _alertBorders.Remove(character);
+            PutBack(character);
+        }
+        Alerts.Say(until == null ? string.Format(LocalizationService.Str("L.Msg.AlertsUnmuted", "{0}: 🔔 Alerts unmuted"), who)
+            : until == DateTime.MaxValue ? string.Format(LocalizationService.Str("L.Msg.AlertsMuted", "{0}: 🔇 Alerts muted"), who)
+            : string.Format(LocalizationService.Str("L.Msg.AlertsMutedMins", "{0}: 🔇 Alerts muted {1}m"), who, minutes));
+    }
+
+    /// <summary>App.SnoozeEvent: snoozes one event for one character (a notification's button, the settings' list), and its
+    /// thumbnail, enlarged for an alert, goes back now (ThumbnailManager.PutBackForASnooze).</summary>
+    private void SnoozeEvent(string character, string alertType, TimeSpan? length)
+    {
+        if (_alerts == null) return;
+        _alerts.Snoozes.Snooze(character, alertType, length);
+        PutBack(character);
+    }
+
+    void ISettingsHost.Snooze(string character, string alertType, TimeSpan? length) => SnoozeEvent(character, alertType, length);
+
+    EventSnoozes? ISettingsHost.Snoozes => _alerts?.Snoozes;
+
+    private void PutBack(string character)
+    {
+        _alerts?.Enlarge.Forget(character);
+        _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, character, StringComparison.OrdinalIgnoreCase))?.SetAlertScale(1.0);
+    }
+
+    /// <summary>The client's saved volume (0–100; 100 when none is saved).</summary>
+    private int Volume(string character) => S.PerClientAudioVolume.TryGetValue(character, out var v) ? Math.Clamp(v, 0, 100) : 100;
+
+    /// <summary>ThumbnailManager.OnAudioRequested / SetClientVolume: -1 mutes the client's sound (not saved); 0–100 sets and
+    /// saves its volume (100 is saved as none).</summary>
+    private void SetVolume(EveClient client, int code)
+    {
+        uint pid = _clients.Pid(client.Window);
+        if (code < 0)
+        {
+            ClientVolume.Apply(pid, -1);
+            Alerts.Say(string.Format(LocalizationService.Str("L.Msg.AudioMuted", "{0}: audio muted"), StreamerMask.Name(StreamerKind.Character, client.Character)));
+            return;
+        }
+        int percent = Math.Clamp(code, 0, 100);
+        if (percent >= 100) S.PerClientAudioVolume.Remove(client.Character);
+        else S.PerClientAudioVolume[client.Character] = percent;
+        _settings.SaveDelayed();
+        ClientVolume.Apply(pid, percent);
+    }
+
+    /// <summary>Gives a client its saved volume (when it starts, and again now and then: its sound starts after its window).</summary>
+    private void ApplyVolume(EveClient client)
+    {
+        if (S.PerClientAudioVolume.TryGetValue(client.Character, out var v) && v < 100) ClientVolume.Apply(_clients.Pid(client.Window), v);
+    }
+
+    /// <summary>A lookup link, in the browser (xdg-open), only for the three hosts LookupLinks allows, in its canonical form.</summary>
+    private static void OpenLink(string url)
+    {
+        if (LookupLinks.BrowserTarget(url) is not { } target) return;
+        try
+        {
+            var start = new ProcessStartInfo("xdg-open") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+            start.ArgumentList.Add(target);
+            Process.Start(start)?.Dispose();
+        }
+        catch (System.ComponentModel.Win32Exception) { }   // no xdg-open
+    }
+
+    /// <summary>Close client: the window manager is asked to close it, as its own close button would. If its window is still
+    /// there 5 s later, its process is ended, as the Windows app ends it, but only an EVE process (exefile).</summary>
+    private void CloseClient(EveClient client)
+    {
+        uint window = client.Window, pid = _clients.Pid(window);
+        _clients.Close(window);
+        DispatcherTimer.RunOnce(() =>
+        {
+            if (pid == 0 || _clients.Pid(window) != pid || !IsEveProcess(pid)) return;
+            try { using var p = Process.GetProcessById((int)pid); p.Kill(); }
+            catch (Exception) { }   // already gone, or not ours to end
+        }, TimeSpan.FromSeconds(5));
+    }
+
+    /// <summary>The process is an EVE client: its name (/proc/‹pid›/comm, Wine's "exefile.exe") is exefile.</summary>
+    private static bool IsEveProcess(uint pid)
+    {
+        try
+        {
+            var name = File.ReadAllText($"/proc/{pid}/comm").Trim();
+            return name.Equals("exefile", StringComparison.OrdinalIgnoreCase) || name.Equals("exefile.exe", StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception) { return false; }
     }
 
     /// <summary>ThumbnailManager.OnResizeAll: while one thumbnail is resized (without Ctrl) every other one gets the same

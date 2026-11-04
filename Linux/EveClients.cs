@@ -12,7 +12,7 @@ public sealed unsafe class EveClients : IDisposable
 {
     private readonly IntPtr _c;
     private readonly uint _root;
-    private readonly uint _netClientList, _netActiveWindow, _netWmName, _utf8String, _netWmPid;
+    private readonly uint _netClientList, _netActiveWindow, _netWmName, _utf8String, _netWmPid, _netCloseWindow;
     private readonly bool _composite;
     private readonly HashSet<uint> _redirected = new();
 
@@ -30,6 +30,7 @@ public sealed unsafe class EveClients : IDisposable
         _netWmName = Xcb.Atom(_c, "_NET_WM_NAME");
         _utf8String = Xcb.Atom(_c, "UTF8_STRING");
         _netWmPid = Xcb.Atom(_c, "_NET_WM_PID");
+        _netCloseWindow = Xcb.Atom(_c, "_NET_CLOSE_WINDOW");
         _composite = Xcb.InitComposite(_c);
         if (Environment.GetEnvironmentVariable("EVEMP_NO_RENDER") != "1") _renderFormats = XRender.Formats(_c);
     }
@@ -66,12 +67,18 @@ public sealed unsafe class EveClients : IDisposable
     }
 
     /// <summary>The window is one of MultiPreview's own (a thumbnail, the settings window): its _NET_WM_PID is this process.</summary>
-    public bool IsOurs(uint window)
+    public bool IsOurs(uint window) => window != 0 && Pid(window) == (uint)Environment.ProcessId;
+
+    /// <summary>The process the window says it belongs to (_NET_WM_PID), or 0 when it doesn't say.</summary>
+    public uint Pid(uint window)
     {
-        if (window == 0) return false;
+        if (window == 0) return 0;
         var pid = Xcb.Property(_c, window, _netWmPid);
-        return pid is { Length: >= 4 } && BitConverter.ToUInt32(pid, 0) == (uint)Environment.ProcessId;
+        return pid is { Length: >= 4 } ? BitConverter.ToUInt32(pid, 0) : 0;
     }
+
+    /// <summary>Asks the window manager to close the client, as its close button would.</summary>
+    public void Close(uint window) => Xcb.RequestClose(_c, _root, window, _netCloseWindow);
 
     /// <summary>The pointer on the screen and the buttons and modifiers that are down (a thumbnail resize follows the mouse by it).</summary>
     public (int X, int Y, ushort Mask)? Pointer() => Xcb.Pointer(_c, _root);

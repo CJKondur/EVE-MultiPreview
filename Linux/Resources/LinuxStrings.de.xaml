@@ -41,5 +41,7 @@
     <sys:String x:Key="L.Linux.HotkeyClash">Dieselbe Taste wie: {0}. Nur eine davon bekommt sie.</sys:String>
     <sys:String x:Key="L.Linux.HistOff">Der Alarmverlauf ist ausgeschaltet, deshalb werden neue Alarme nicht aufbewahrt. Schalte ihn unter Einstellungen › Warnungen › Verlauf ein.</sys:String>
     <sys:String x:Key="L.Linux.HistNoDialog">Dieser Desktop hat keinen Dateidialog, deshalb wurde die Datei im Einstellungsordner gespeichert.</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn">Desktop-Benachrichtigungen anzeigen</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn.Desc">Jeder unten gewählte Alarm zeigt eine Benachrichtigung, mit Schaltflächen, um zu diesem Client zu wechseln oder den Alarm 15 Minuten lang zu schlummern.</sys:String>
 
 </ResourceDictionary>

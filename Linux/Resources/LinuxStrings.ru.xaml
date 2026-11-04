@@ -41,5 +41,7 @@
     <sys:String x:Key="L.Linux.HotkeyClash">Та же клавиша, что и у: {0}. Сработает только одно действие.</sys:String>
     <sys:String x:Key="L.Linux.HistOff">История оповещений выключена, поэтому новые оповещения не сохраняются. Включить её можно в разделе «Настройки › Оповещения › История».</sys:String>
     <sys:String x:Key="L.Linux.HistNoDialog">На этом рабочем столе нет диалога выбора файла, поэтому файл сохранён в папке настроек.</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn">Показывать уведомления на рабочем столе</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn.Desc">Каждое выбранное ниже оповещение показывает уведомление с кнопками: переключиться на этот клиент или отложить оповещение на 15 минут.</sys:String>
 
 </ResourceDictionary>

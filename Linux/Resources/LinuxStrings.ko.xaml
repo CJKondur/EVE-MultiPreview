@@ -41,5 +41,7 @@
     <sys:String x:Key="L.Linux.HotkeyClash">{0}와(과) 같은 키예요. 그중 하나만 사용할 수 있어요.</sys:String>
     <sys:String x:Key="L.Linux.HistOff">알림 기록이 꺼져 있어서 새 알림은 남지 않아요. 설정 › 알림 › 기록에서 켤 수 있어요.</sys:String>
     <sys:String x:Key="L.Linux.HistNoDialog">이 데스크톱에는 파일 대화상자가 없어서 파일을 설정 폴더에 저장했어요.</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn">데스크톱 알림 표시</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn.Desc">아래에서 고른 각 경보마다 알림을 표시합니다. 해당 클라이언트로 전환하거나 경보를 15분 동안 다시 알림으로 미루는 버튼이 있습니다.</sys:String>
 
 </ResourceDictionary>

@@ -41,6 +41,12 @@ public sealed class ThumbnailWindow : Window
     /// <summary>The thumbnail has a new size while the player resizes it, and Ctrl is not held: the others follow
     /// (the Windows app's ResizeAll). Raised on every step of the drag.</summary>
     public event Action<ThumbnailWindow, int, int>? ResizeAll;
+    /// <summary>A plain right-click: the right button went down and up again without the thumbnail being dragged past the
+    /// threshold and without a resize (the Windows app's rule, also while positions are locked). The menu is to open.</summary>
+    public event Action<ThumbnailWindow>? MenuRequested;
+
+    /// <summary>How far the mouse moves, in pixels on either axis, before a right drag moves the thumbnail (the Windows app's 3).</summary>
+    public const int DragThreshold = 3;
 
     public ThumbnailWindow(EveClient client, PixelRect rect)
     {
@@ -54,6 +60,7 @@ public sealed class ThumbnailWindow : Window
         ShowActivated = false;   // a thumbnail shown again (hidden while its client was in front) must not take the focus from the client
         WindowDecorations = Avalonia.Controls.WindowDecorations.None;
         Background = Brushes.Black;
+        RequestedThemeVariant = Avalonia.Styling.ThemeVariant.Dark;   // its right-click menu is dark, as the settings window is
 
         _bitmap = new WriteableBitmap(new PixelSize(rect.Width, rect.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Opaque);
         _image = new Image { Source = _bitmap, Stretch = Stretch.Fill };
@@ -79,6 +86,7 @@ public sealed class ThumbnailWindow : Window
         PixelPoint from = default, startPosition = default;
         int startWidth = 0, startHeight = 0;
         IPointer? grabbed = null;
+        bool menuArmed = false, dragging = false;   // a right press that may still be a plain click; a move past the threshold
         DispatcherTimer resizeTimer = null!;
         resizeTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(16), DispatcherPriority.Input, (_, _) =>
         {
@@ -91,6 +99,8 @@ public sealed class ThumbnailWindow : Window
         {
             var pressed = this.PointToScreen(e.GetPosition(this));   // before the window moves back to its own place
             _mode = gesture;
+            dragging = false;
+            if (gesture == Gesture.Resize) menuArmed = false;
             Shrink();   // a drag or resize starts from the thumbnail's own size and place (IDEAS #13), never from the enlarged one
             from = pressed;
             startPosition = Position;
@@ -123,8 +133,9 @@ public sealed class ThumbnailWindow : Window
             var point = e.GetCurrentPoint(this);
             switch (point.Properties.PointerUpdateKind)
             {
-                case PointerUpdateKind.RightButtonPressed when CanDrag && _mode == Gesture.None:
-                    Begin(e, point.Properties.IsLeftButtonPressed ? Gesture.Resize : Gesture.Move);
+                case PointerUpdateKind.RightButtonPressed when _mode == Gesture.None:
+                    menuArmed = !point.Properties.IsLeftButtonPressed;
+                    if (CanDrag) Begin(e, point.Properties.IsLeftButtonPressed ? Gesture.Resize : Gesture.Move);
                     break;
                 case PointerUpdateKind.LeftButtonPressed when _mode == Gesture.Move:
                     Begin(e, Gesture.Resize);
@@ -142,13 +153,18 @@ public sealed class ThumbnailWindow : Window
             bool both = props.IsLeftButtonPressed && props.IsRightButtonPressed;
             if (_mode == Gesture.None)
             {
+                if (both) menuArmed = false;
                 if (both && CanDrag) Begin(e, Gesture.Resize);   // the second button went down while the first was held
                 return;
             }
             if (_mode == Gesture.Move && both) { Begin(e, Gesture.Resize); return; }
             var now = this.PointToScreen(e.GetPosition(this));
             if (_mode == Gesture.Move)
-                Position = new PixelPoint(startPosition.X + now.X - from.X, startPosition.Y + now.Y - from.Y);
+            {
+                int dx = now.X - from.X, dy = now.Y - from.Y;
+                if (!dragging && (Math.Abs(dx) > DragThreshold || Math.Abs(dy) > DragThreshold)) (dragging, menuArmed) = (true, false);
+                if (dragging) Position = new PixelPoint(startPosition.X + dx, startPosition.Y + dy);
+            }
             else if (PointerSource == null)   // no timer: follow the events
             {
                 if (!both) End();
@@ -160,6 +176,11 @@ public sealed class ThumbnailWindow : Window
             var kind = e.GetCurrentPoint(this).Properties.PointerUpdateKind;
             if (_mode == Gesture.Resize && PointerSource == null && kind is PointerUpdateKind.LeftButtonReleased or PointerUpdateKind.RightButtonReleased) End();
             else if (_mode == Gesture.Move && kind == PointerUpdateKind.RightButtonReleased) End();
+            if (kind == PointerUpdateKind.RightButtonReleased && menuArmed)
+            {
+                menuArmed = false;
+                MenuRequested?.Invoke(this);
+            }
         };
     }
 
@@ -272,7 +293,7 @@ public sealed class ThumbnailWindow : Window
     /// that ended or a pointer that left lets a waiting enlargement happen.</summary>
     public void Follow()
     {
-        bool wanted = AlertEnlarge.Wanted(_alertScale, _mode != Gesture.None, false, IsPointerOver, _grown);
+        bool wanted = AlertEnlarge.Wanted(_alertScale, _mode != Gesture.None || MenuOpen, false, IsPointerOver, _grown);
         if (wanted == _grown) return;
         if (wanted) Stand(new System.Drawing.Rectangle(Position.X, Position.Y, (int)Width, (int)Height));
         else Shrink();
@@ -314,6 +335,9 @@ public sealed class ThumbnailWindow : Window
         }
         Position = new PixelPoint(r.X, r.Y);
     }
+
+    /// <summary>A thumbnail menu is open (any thumbnail's): no thumbnail grows over it until it closes (the Windows app's NoteMenu).</summary>
+    public bool MenuOpen { get; set; }
 
     /// <summary>Asked to put the enlarged window above its neighbours (the app raises it on the X server).</summary>
     public Action<ThumbnailWindow>? RaiseWhileEnlarged { get; set; }

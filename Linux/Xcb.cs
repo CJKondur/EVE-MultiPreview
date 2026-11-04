@@ -158,6 +158,22 @@ internal static unsafe class Xcb
         xcb_flush(c);
     }
 
+    /// <summary>Asks the window manager to close the window (_NET_CLOSE_WINDOW, EWMH): it sends the client its
+    /// WM_DELETE_WINDOW, as the title bar's close button does, so EVE closes as it would by its own close button.</summary>
+    public static void RequestClose(IntPtr c, uint root, uint window, uint netCloseWindow)
+    {
+        byte* evt = stackalloc byte[32];
+        new Span<byte>(evt, 32).Clear();
+        evt[0] = ClientMessage;
+        evt[1] = 32;
+        *(uint*)(evt + 4) = window;
+        *(uint*)(evt + 8) = netCloseWindow;
+        *(uint*)(evt + 12) = 0;   // timestamp: CurrentTime
+        *(uint*)(evt + 16) = 2;   // source indication: pager
+        xcb_send_event(c, 0, root, SubstructureRedirect | SubstructureNotify, evt);
+        xcb_flush(c);
+    }
+
     /// <summary>Stacks the window above its siblings (ConfigureWindow, stack mode Above). The window manager decides.</summary>
     public static void Raise(IntPtr c, uint window)
     {

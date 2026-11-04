@@ -41,5 +41,7 @@
     <sys:String x:Key="L.Linux.HotkeyClash">与 {0} 的按键相同。只有其中一个会生效。</sys:String>
     <sys:String x:Key="L.Linux.HistOff">警报历史记录已关闭，所以不会保留新的警报。可以在“设置 › 警报 › 历史记录”里打开它。</sys:String>
     <sys:String x:Key="L.Linux.HistNoDialog">此桌面没有文件对话框，所以文件已保存到设置文件夹中。</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn">显示桌面通知</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn.Desc">下面选中的每个警报都会显示一条通知，带有切换到该客户端或将警报暂停 15 分钟的按钮。</sys:String>
 
 </ResourceDictionary>

@@ -41,5 +41,7 @@
     <sys:String x:Key="L.Linux.HotkeyClash">Misma tecla que: {0}. Solo una de ellas la recibe.</sys:String>
     <sys:String x:Key="L.Linux.HistOff">El historial de alertas está desactivado, así que las alertas nuevas no se guardan. Actívalo en Configuración › Alertas › Historial.</sys:String>
     <sys:String x:Key="L.Linux.HistNoDialog">Este escritorio no tiene un diálogo de archivos, así que el archivo se guardó en la carpeta de configuración.</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn">Mostrar notificaciones de escritorio</sys:String>
+    <sys:String x:Key="L.Linux.NotifyOn.Desc">Cada alerta que elijas abajo muestra una notificación, con botones para cambiar a ese cliente o posponer la alerta 15 minutos.</sys:String>
 
 </ResourceDictionary>

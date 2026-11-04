@@ -39,6 +39,12 @@ public sealed class SettingsWindow : Window
         Localize(page);
     }
 
+    /// <summary>The Characters page's place in the list (a thumbnail menu's "Open ‹character›'s settings").</summary>
+    public const int CharactersPage = 2;
+
+    /// <summary>Shows this page (the window is already open).</summary>
+    public void ShowPage(int page) => _nav.SelectedIndex = Math.Clamp(page, 0, _list.Length - 1);
+
     private void Localize() => Localize(_nav.SelectedIndex);
 
     /// <summary>Titles and pages in the current language; <paramref name="page"/> shows.</summary>

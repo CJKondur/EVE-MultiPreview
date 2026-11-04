@@ -37,6 +37,10 @@ public interface ISettingsHost
     Task<PushResult> TestPush();
     /// <summary>What Discord last answered, or null before the first message.</summary>
     PushStatus? PushStatus { get; }
+    /// <summary>The events snoozed for one character, or null before the alerts exist.</summary>
+    EventSnoozes? Snoozes { get; }
+    /// <summary>Snoozes one event for one character (null length: until MultiPreview restarts).</summary>
+    void Snooze(string character, string alertType, TimeSpan? length);
 }
 
 /// <summary>The settings window's pages. Each page is built from the settings as they are when it is shown, and every
@@ -768,6 +772,79 @@ internal sealed class SettingsPages
         return Ui.Card(card);
     }
 
+    /// <summary>The Windows SnoozesEditor: one line per snooze (character · event · time left) with End, End all, and a row to
+    /// add one (character, event, length; SnoozeAdd decides what may be made). Built again after every change here.</summary>
+    private Control Snoozed()
+    {
+        var card = new StackPanel { Spacing = 4 };
+        var holder = Ui.Card(card);
+        var snoozes = _host.Snoozes;
+        if (snoozes == null) return holder;
+        void Build()
+        {
+            card.Children.Clear();
+            var now = DateTime.UtcNow;
+            var active = snoozes.Active();
+            if (active.Count == 0) card.Children.Add(Ui.Note(T("L.S.Snoozes.None", "Nothing is snoozed.")));
+            foreach (var snooze in active)
+            {
+                var line = new DockPanel();
+                var end = new Button { Content = T("L.S.Snoozes.End", "End"), Padding = new Thickness(10, 2) };
+                var (who, key) = (snooze.Character, snooze.EventKey);
+                ToolTip.SetTip(end, string.Format(T("L.S.Snoozes.EndFor", "End the snooze of {0} for {1}"),
+                    EveMultiPreview.Views.AlertHub.EventDisplayName(key), StreamerMask.Name(StreamerKind.Character, who)));
+                end.Click += (_, _) => { snoozes.End(who, key); Build(); };
+                DockPanel.SetDock(end, Dock.Right);
+                line.Children.Add(end);
+                line.Children.Add(new TextBlock
+                {
+                    Text = StreamerMask.Name(StreamerKind.Character, who) + " · " + ThumbnailMenu.SnoozeLine(snooze, now),
+                    VerticalAlignment = VerticalAlignment.Center,
+                });
+                card.Children.Add(line);
+            }
+            if (active.Count > 1)
+            {
+                var all = new Button { Content = Ui.NoAccess(T("L.S.Snoozes.EndAll", "_End all")) };
+                all.Click += (_, _) => { snoozes.EndAll(); Build(); };
+                card.Children.Add(all);
+            }
+
+            // Add: a running or known character (or a typed name), an event, a length.
+            var who2 = new AutoCompleteBox
+            {
+                Width = 200,
+                PlaceholderText = T("L.S.Snoozes.AddCharacter", "Character"),
+                ItemsSource = CharacterDirectory.Known(S, _host.RunningCharacters()).ToList(),
+                FilterMode = AutoCompleteFilterMode.ContainsOrdinal,
+            };
+            var events = AlertEvents.Listed.Select(e => (e.Key, Name: T(e.LabelKey, e.Key))).ToList();
+            var ev = new ComboBox { Width = 220, ItemsSource = events.Select(e => e.Name).ToList(), PlaceholderText = T("L.S.Snoozes.AddEvent", "Event") };
+            var length = new ComboBox { Width = 170, ItemsSource = SnoozeAdd.Lengths.Select(l => Ui.NoAccess(T(l.TextKey, l.TextKey))).ToList(), SelectedIndex = 0 };
+            var add = new Button { Content = Ui.NoAccess(T("L.S.Snoozes.Add", "_Add snooze")) };
+            var refused = new TextBlock { Foreground = Brushes.IndianRed, TextWrapping = TextWrapping.Wrap, IsVisible = false };
+            add.Click += (_, _) =>
+            {
+                var made = SnoozeAdd.TryBuild(who2.Text, ev.SelectedIndex >= 0 ? events[ev.SelectedIndex].Key : null,
+                    SnoozeAdd.Lengths[Math.Max(0, length.SelectedIndex)].Length);
+                if (made is not { } m)
+                {
+                    refused.Text = T("L.S.Snoozes.AddRefused", "Nothing was snoozed: choose an event and enter a character name (not too long, no line breaks or special characters).");
+                    refused.IsVisible = true;
+                    return;
+                }
+                _host.Snooze(m.Character, m.EventKey, m.Length);
+                Build();
+            };
+            var row = new WrapPanel { Margin = new Thickness(0, 8, 0, 0) };
+            foreach (var c in new Control[] { who2, ev, length, add }) { c.Margin = new Thickness(0, 0, 8, 4); row.Children.Add(c); }
+            card.Children.Add(row);
+            card.Children.Add(refused);
+        }
+        Build();
+        return holder;
+    }
+
     public Control Alerts()
     {
         var page = Page(T("L.S.Nav.Alerts", "Alerts"));
@@ -805,6 +882,13 @@ internal sealed class SettingsPages
             page.Children.Add(Ui.Card(table));
         }
 
+        // IDEAS #30: what is snoozed right now, with a way to end it or add one, and whether timed snoozes outlive a restart.
+        page.Children.Add(Ui.Section(T("L.S.Sec.alerts.events.snoozes", "Snoozed alerts")));
+        page.Children.Add(Snoozed());
+        page.Children.Add(Ui.Row(T("L.S.alerts.events.keepSnoozes", "Keep snoozes when MultiPreview restarts"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.KeepAlertSnoozes, on => { S.KeepAlertSnoozes = on; Save(); _host.AlertsChanged(); }),
+            T("L.S.alerts.events.keepSnoozes.Desc", "Off: every snooze ends when MultiPreview closes. On: a 15-minute or 1-hour snooze keeps running after a restart.")));
+
         // IDEAS #13: AlertEnlarge reads all four at every alert that was shown and at its tick (EnlargeOptions.Of), so a change
         // only saves. The two numbers are used held to their ranges, and each box shows the number that is used. The options
         // show while the switch is on, as on the Windows page.
@@ -826,6 +910,10 @@ internal sealed class SettingsPages
         page.Children.Add(enlargeOptions);
 
         page.Children.Add(Ui.Section(T("L.Linux.Notifications", "Desktop notifications")));
+        // AlertHubEnabled is the switch the dispatcher asks before any toast (the Windows hub's): without it on, no notification shows.
+        page.Children.Add(Ui.Row(T("L.Linux.NotifyOn", "Show desktop notifications"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.AlertHubEnabled, on => { S.AlertHubEnabled = on; Save(); }),
+            T("L.Linux.NotifyOn.Desc", "Each alert you choose below shows a notification, with buttons to switch to that client or to snooze the alert for 15 minutes.")));
         var notify = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 18 };
         foreach (var severity in AlertEvents.Severities)
             notify.Children.Add(Ui.Check(T(AlertEvents.SeverityKey(severity), severity), AlertFields.HubToast(S, severity), on => { AlertFields.SetHubToast(S, severity, on); Save(); }));
