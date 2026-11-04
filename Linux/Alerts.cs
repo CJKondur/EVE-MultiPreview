@@ -13,6 +13,8 @@ public sealed class Alerts : IDisposable
     private readonly SettingsService _settings;
     private readonly LogMonitorService _monitor = new();
     private readonly AlertProfiles _profiles = new();
+    /// <summary>Sounds for one group (IDEAS #58, App's _groupSounds): published at start and after every change.</summary>
+    private readonly GroupSounds _groupSounds = new();
     private readonly EventSnoozes _snoozes = new();
     private readonly DoNotDisturb _doNotDisturb = new();
     private readonly AlertHistory _history;
@@ -188,6 +190,7 @@ public sealed class Alerts : IDisposable
         ApplyCustomRules();
         ApplyMonitorOptions();
         _profiles.Apply(S, _monitor.SetEnabledAlertTypes);
+        _groupSounds.Publish(S);
         FollowWays();
         StreamerMask.Follow(_settings);
         if (_settings.LoadedSuccessfully) _history.DeleteOldDays();
@@ -288,6 +291,7 @@ public sealed class Alerts : IDisposable
         _monitor.SetSettings(S);
         ApplyMonitorOptions();
         _profiles.Apply(S, _monitor.SetEnabledAlertTypes);
+        _groupSounds.Publish(S);
         var (chat, game) = EveLogs.Folders(S);
         _monitor.Reconfigure(chat, game, S.EnableChatLogMonitoring && chat.Length > 0, S.EnableGameLogMonitoring && game.Length > 0);
         _folders = (chat, game);
@@ -449,7 +453,8 @@ public sealed class Alerts : IDisposable
         {
             if (wait > 0 && _soundPlayed.TryGetValue(key, out var last) && AlertSoundChoice.StillWaits(last, now, wait)) return;
         }
-        if (AlertSoundChoice.FileToPlay(S, alertType, File.Exists) is not { } file || !File.Exists(file)) return;
+        // A group's own sound for the event (or for every event) comes first, as App.PlayAlertSound asks GroupSounds.
+        if (AlertSoundChoice.FileToPlay(S, alertType, File.Exists, _groupSounds.For(character, alertType)) is not { } file || !File.Exists(file)) return;
         lock (_soundPlayed) _soundPlayed[key] = now;
         PlayFile(file, S.AlertSoundVolume);
     }

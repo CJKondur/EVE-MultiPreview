@@ -42,6 +42,9 @@ internal static class LinuxEditors
         { EditorIds.FontLicencesEditor, (pages, _, _) => pages.FontLicences() },
         // S5 (Linux/Settings/CustomRulesEditors.cs): the player's own alert rules.
         { EditorIds.CustomRulesEditor, (pages, ctx, _) => pages.CustomRuleCards(ctx) },
+        // S5 (Linux/Settings/GroupAlertEditors.cs): a group's own alert choices and sounds.
+        { EditorIds.GroupAlertsEditor, (pages, ctx, _) => pages.GroupAlerts(ctx) },
+        { EditorIds.GroupSoundsEditor, (pages, ctx, _) => pages.GroupSoundsCard(ctx) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

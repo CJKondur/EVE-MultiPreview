@@ -131,7 +131,7 @@ internal static class LinuxSupport
         ["alerts.events.dpsThreshold"] = S, ["alerts.events.dpsSeconds"] = S, ["alerts.events.repsSeconds"] = S, ["alerts.events.combatNote"] = S,
         ["alerts.events.memoryLimit"] = S, ["alerts.events.memoryGrowth"] = S, ["alerts.events.memoryMinutes"] = S,
         ["alerts.events.clientNote"] = S, ["alerts.events.idleMinutes"] = S,
-        ["alerts.events.groups"] = N,         // read, but no Linux editor
+        ["alerts.events.groups"] = S,         // AlertProfiles; Linux/Settings/GroupAlertEditors.cs (S5)
         ["alerts.events.snoozed"] = S, ["alerts.events.keepSnoozes"] = S,
 
         // ── Alerts › Look ──
@@ -149,7 +149,7 @@ internal static class LinuxSupport
         ["alerts.sounds.escalate"] = N, ["alerts.sounds.escalateAfter"] = N, ["alerts.sounds.escalateRepeats"] = N,
         ["alerts.sounds.speak"] = S, ["alerts.sounds.speakFrom"] = S, ["alerts.sounds.speechVolume"] = S, ["alerts.sounds.voices"] = S,
         ["alerts.sounds.table"] = S,          // MoreEditors.SoundTable; Linux/Alerts.cs keeps the per-character Wait (S3b)
-        ["alerts.sounds.groups"] = N,
+        ["alerts.sounds.groups"] = S,         // Alerts.PlaySound asks GroupSounds; Linux/Settings/GroupAlertEditors.cs (S5)
 
         // ── Alerts › Alert hub: on Linux the hub is the desktop's notifications (notify-send) ──
         ["alerts.hub.enabled"] = S, ["alerts.hub.skipActive"] = S,
