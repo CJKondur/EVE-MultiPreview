@@ -256,6 +256,19 @@ internal sealed class SettingsPages
         page.Children.Add(floorBoxes);
         page.Children.Add(Ui.Row(T("L.S.thumbs.appearance.opacity", "Opacity"),
             Ui.Slider(0, 255, S.ThumbnailOpacity, v => { S.ThumbnailOpacity = v; Save(); }, v => $"{v} ({OpacityPercent.FromByte(v)} %)")));
+        // Read at every tick (Previews.Tick hands them to each thumbnail), so a change only saves.
+        page.Children.Add(Ui.Row(T("L.S.thumbs.appearance.opacityOnHover", "Solid under the mouse"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.OpacityOnHover, on => { S.OpacityOnHover = on; Save(); }),
+            T("L.S.thumbs.appearance.opacityOnHover.Desc", "A thumbnail turns fully opaque while the mouse is over it.")));
+        var zoomSize = Ui.Row(T("L.S.thumbs.appearance.hoverScale", "Zoom size"),
+            Ui.Slider((int)ThumbnailFields.ZoomMin, (int)ThumbnailFields.ZoomMax, (int)ThumbnailFields.ZoomPercent(S.HoverScale),
+                v => { S.HoverScale = ThumbnailFields.ZoomScale(v); Save(); }, v => v + " %"),
+            T("L.S.thumbs.appearance.hoverScale.Desc", "How big it grows, compared with its normal size."));
+        zoomSize.IsVisible = S.ResizeThumbnailsOnHover;
+        page.Children.Add(Ui.Row(T("L.S.thumbs.appearance.hoverZoom", "Zoom under the mouse"),
+            Ui.Check(T("L.Common.Enabled", "Enabled"), S.ResizeThumbnailsOnHover, on => { S.ResizeThumbnailsOnHover = on; zoomSize.IsVisible = on; Save(); }),
+            T("L.S.thumbs.appearance.hoverZoom.Desc", "A thumbnail grows while the mouse rests on it.")));
+        page.Children.Add(zoomSize);
 
         page.Children.Add(Ui.Section(T("L.S.Sec.thumbs.text.labels", "Text on thumbnails")));
         page.Children.Add(Ui.Row(T("L.S.thumbs.text.showText", "Character name"),

@@ -59,7 +59,10 @@ public sealed class ThumbnailWindow : Window
         ShowInTaskbar = false;
         ShowActivated = false;   // a thumbnail shown again (hidden while its client was in front) must not take the focus from the client
         WindowDecorations = Avalonia.Controls.WindowDecorations.None;
-        Background = Brushes.Black;
+        // See-through at the thumbnail opacity, as Windows' layered windows are: a transparent window that the desktop's
+        // compositor blends. Without a compositor the see-through parts are black, as an opaque window would be.
+        Background = Brushes.Transparent;
+        TransparencyLevelHint = new[] { WindowTransparencyLevel.Transparent };
         RequestedThemeVariant = Avalonia.Styling.ThemeVariant.Dark;   // its right-click menu is dark, as the settings window is
 
         _bitmap = new WriteableBitmap(new PixelSize(rect.Width, rect.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Opaque);
@@ -101,15 +104,18 @@ public sealed class ThumbnailWindow : Window
             _mode = gesture;
             dragging = false;
             if (gesture == Gesture.Resize) menuArmed = false;
-            Shrink();   // a drag or resize starts from the thumbnail's own size and place (IDEAS #13), never from the enlarged one
+            // A drag or resize starts from the thumbnail's own size and place (IDEAS #13), never from the enlarged or zoomed one.
+            // Read before going back: Position reads the old place until the X server has moved the window.
+            var own = OwnRectangle();
+            UnZoom();
+            Shrink();
             from = pressed;
-            startPosition = Position;
-            (startWidth, startHeight) = ((int)Width, (int)Height);
+            startPosition = new PixelPoint(own.X, own.Y);
+            (startWidth, startHeight) = (own.Width, own.Height);
             grabbed = e.Pointer;
             grabbed.Capture(_frame);
-            if (gesture != Gesture.Resize) return;
             if (PointerSource?.Invoke() is { } p) from = new PixelPoint(p.X, p.Y);
-            resizeTimer.Start();
+            if (gesture == Gesture.Resize) resizeTimer.Start();
         }
         void End()
         {
@@ -118,7 +124,7 @@ public sealed class ThumbnailWindow : Window
             resizeTimer.Stop();
             grabbed?.Capture(null);
             if (ended == Gesture.Resize) ResizeEnded?.Invoke(this);
-            else if (ended == Gesture.Move && Position != startPosition) Moved?.Invoke(this);
+            else if (ended == Gesture.Move && dragging && Position != startPosition) Moved?.Invoke(this);
         }
         void Resize(int x, int y, bool ctrl)
         {
@@ -142,7 +148,7 @@ public sealed class ThumbnailWindow : Window
                     break;
                 case PointerUpdateKind.LeftButtonPressed when _mode == Gesture.None:
                     // While enlarged only the thumbnail's own place takes the click: the part that grew is not this thumbnail (AlertEnlarge.InOwnPlace).
-                    var at = this.PointToScreen(e.GetPosition(this));
+                    var at = PointerSource?.Invoke() is { } xp ? new PixelPoint(xp.X, xp.Y) : this.PointToScreen(e.GetPosition(this));
                     if (!_grown || AlertEnlarge.InOwnPlace(OwnRectangle(), at.X, at.Y)) Clicked?.Invoke(Client);
                     break;
             }
@@ -158,7 +164,9 @@ public sealed class ThumbnailWindow : Window
                 return;
             }
             if (_mode == Gesture.Move && both) { Begin(e, Gesture.Resize); return; }
-            var now = this.PointToScreen(e.GetPosition(this));
+            // The X server's pointer when it answers: Avalonia's position is relative to where it last saw the window, which is
+            // wrong once the window moved under the pointer (a zoom or an alert enlargement ended as the drag began).
+            var now = PointerSource?.Invoke() is { } xp ? new PixelPoint(xp.X, xp.Y) : this.PointToScreen(e.GetPosition(this));
             if (_mode == Gesture.Move)
             {
                 int dx = now.X - from.X, dy = now.Y - from.Y;
@@ -232,6 +240,7 @@ public sealed class ThumbnailWindow : Window
     /// thumbnail that is enlarged for an alert gets this as its own size and stands enlarged around it again.</summary>
     public void SetSize(int width, int height)
     {
+        UnZoom();   // the next tick zooms it again at its new size while the pointer is still on it
         if (_grown)
         {
             var own = OwnRectangle();
@@ -261,12 +270,12 @@ public sealed class ThumbnailWindow : Window
     public bool IsAlertEnlargementAsked => _alertScale > 1.0;
 
     /// <summary>The thumbnail's own place and size, which the settings keep: while it is enlarged, not the enlarged window's.</summary>
-    public PixelPoint OwnPosition => _grown ? new PixelPoint(_own.X, _own.Y) : Position;
-    public int OwnWidth => _grown ? _own.Width : (int)Width;
-    public int OwnHeight => _grown ? _own.Height : (int)Height;
+    public PixelPoint OwnPosition => OwnRectangle() is var r ? new PixelPoint(r.X, r.Y) : default;
+    public int OwnWidth => OwnRectangle().Width;
+    public int OwnHeight => OwnRectangle().Height;
 
     private System.Drawing.Rectangle OwnRectangle() =>
-        _grown ? _own : new System.Drawing.Rectangle(Position.X, Position.Y, (int)Width, (int)Height);
+        _grown ? _own : _zoomed ? _zoomOwn : new System.Drawing.Rectangle(Position.X, Position.Y, (int)Width, (int)Height);
 
     /// <summary>The work area of the screen a rectangle is on, or null when there is none to ask. A test hands in its own.</summary>
     public Func<System.Drawing.Rectangle, System.Drawing.Rectangle?>? WorkAreaFor { get; set; }
@@ -293,7 +302,9 @@ public sealed class ThumbnailWindow : Window
     /// that ended or a pointer that left lets a waiting enlargement happen.</summary>
     public void Follow()
     {
-        bool wanted = AlertEnlarge.Wanted(_alertScale, _mode != Gesture.None || MenuOpen, false, IsPointerOver, _grown);
+        bool over = PointerInside();
+        FollowHover(over);
+        bool wanted = AlertEnlarge.Wanted(_alertScale, _mode != Gesture.None || MenuOpen, _zoomed, over, _grown);
         if (wanted == _grown) return;
         if (wanted) Stand(new System.Drawing.Rectangle(Position.X, Position.Y, (int)Width, (int)Height));
         else Shrink();
@@ -334,6 +345,59 @@ public sealed class ThumbnailWindow : Window
             old.Dispose();
         }
         Position = new PixelPoint(r.X, r.Y);
+    }
+
+    // ── Hover zoom and "solid under the mouse" (the Windows ThumbnailWindow's OnMouseEnter / UnHover) ──
+
+    /// <summary>How much a thumbnail grows while the pointer rests on it (HoverScale while ResizeThumbnailsOnHover is on);
+    /// 1.0 or less: no zoom.</summary>
+    public double HoverScale { get; set; } = 1.0;
+
+    /// <summary>The pointer is on the thumbnail (its window as it is now), as of the last tick.</summary>
+    public bool Hovered { get; private set; }
+
+    private bool _zoomed;                        // grown by HoverScale right now
+    private System.Drawing.Rectangle _zoomOwn;   // the thumbnail's own place and size while it is zoomed
+    private int _overTicks;
+
+    /// <summary>The pointer is inside the window, asked of the X server (Avalonia's own idea of it goes wrong once the
+    /// window changes size under the pointer); Avalonia's when there is no X answer.</summary>
+    private bool PointerInside()
+    {
+        if (PointerSource?.Invoke() is not { } p) return IsPointerOver;
+        return p.X >= Position.X && p.X < Position.X + (int)Width && p.Y >= Position.Y && p.Y < Position.Y + (int)Height;
+    }
+
+    /// <summary>At every tick: zooms once the pointer has rested on the thumbnail for a tick (the Windows app's 100 ms), and
+    /// goes back the moment it is off it, a drag or resize starts, or a menu opens. Never while enlarged for an alert.
+    /// Polled, so a missed "pointer left" can never leave a thumbnail zoomed over its neighbours (Windows issue #95).</summary>
+    private void FollowHover(bool over)
+    {
+        Hovered = over;
+        _overTicks = over ? _overTicks + 1 : 0;
+        if (_zoomed)
+        {
+            if (!over || _mode != Gesture.None || MenuOpen || HoverScale <= 1.0) UnZoom();
+            return;
+        }
+        if (HoverScale > 1.0 && _overTicks >= 2 && _mode == Gesture.None && !MenuOpen && !_grown) Zoom();
+    }
+
+    private void Zoom()
+    {
+        var own = new System.Drawing.Rectangle(Position.X, Position.Y, (int)Width, (int)Height);
+        int w = Math.Min((int)(own.Width * HoverScale), Limit), h = Math.Min((int)(own.Height * HoverScale), Limit);
+        _zoomOwn = own;
+        _zoomed = true;
+        Fit(new System.Drawing.Rectangle(own.X - (w - own.Width) / 2, own.Y - (h - own.Height) / 2, w, h));
+        RaiseWhileEnlarged?.Invoke(this);
+    }
+
+    private void UnZoom()
+    {
+        if (!_zoomed) return;
+        _zoomed = false;
+        Fit(_zoomOwn);
     }
 
     /// <summary>A thumbnail menu is open (any thumbnail's): no thumbnail grows over it until it closes (the Windows app's NoteMenu).</summary>

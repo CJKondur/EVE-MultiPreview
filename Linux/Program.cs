@@ -380,7 +380,8 @@ public sealed class Previews : ITrayActions, ISettingsHost
             thumb.CanDrag = !S.LockPositions;
             thumb.ResizeFloor = ThumbnailWindow.FloorOf(S);
             thumb.LockResizeAspect = S.LockResizeAspect;
-            thumb.Apply(Look(thumb.Client.Character, isActive));
+            thumb.HoverScale = S.ResizeThumbnailsOnHover ? S.HoverScale : 1.0;   // ThumbnailManager.HoverScaleFor
+            thumb.Apply(Look(thumb.Client.Character, isActive, thumb.Hovered));
             thumb.MenuOpen = _menu != null;
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
             thumb.Update(_clients);
@@ -414,7 +415,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     private bool Hidden(string character) => S.ThumbnailVisibility.TryGetValue(character, out var v) && v != 0;
 
-    private ThumbnailLook Look(string character, bool isActive)
+    private ThumbnailLook Look(string character, bool isActive, bool hovered = false)
     {
         IBrush border = Brush(BorderColorRule.Resolve(S, character, isActive, RunningCharacters));
         double thickness = isActive ? S.ClientHighlightBorderThickness
@@ -432,6 +433,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         // The window's opacity fades its border too, so while an alert shows the thumbnail is at least as strong as the
         // alert's own strength (AlertOpacityPercent, 100 % by default): a faint thumbnail must not hide its alert.
         double opacity = Math.Clamp(S.ThumbnailOpacity, 0, 255) / 255.0;
+        if (hovered && S.OpacityOnHover) opacity = 1.0;   // "Solid under the mouse" (issue #37)
         if (_alertBorders.ContainsKey(character))
             opacity = Math.Max(opacity, SettingsUi.AlertFields.PulsePercent(S.AlertOpacityPercent) / 100.0);
         return new ThumbnailLook(border, thickness, label, S.ShowThumbnailTextOverlay, Brush(textColour), size,
