@@ -1,13 +1,18 @@
-// Stand-ins for the two WPF colour types the shared settings code names (AppSettings.ParseColor and the EVE-O
-// import). Only what that code uses.
+// Stand-in so shared settings pages compile on Linux. S3 hides these settings or gives them a Linux implementation.
+// Stand-ins for the WPF colour types the shared settings code names (AppSettings.ParseColor, the EVE-O import and
+// Setting.IsColor). Only what that code uses.
 namespace System.Windows.Media;
 
-public struct Color
+public record struct Color(byte A, byte R, byte G, byte B)
 {
-    public byte A, R, G, B;
+    public static Color FromRgb(byte r, byte g, byte b) => new(255, r, g, b);
+    public static Color FromArgb(byte a, byte r, byte g, byte b) => new(a, r, g, b);
+}
 
-    public static Color FromRgb(byte r, byte g, byte b) => new() { A = 255, R = r, G = g, B = b };
-    public static Color FromArgb(byte a, byte r, byte g, byte b) => new() { A = a, R = r, G = g, B = b };
+public static class Colors
+{
+    /// <summary>WPF's Transparent: #00FFFFFF.</summary>
+    public static Color Transparent { get; } = new(0, 255, 255, 255);
 }
 
 public static class ColorConverter

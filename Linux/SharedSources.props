@@ -112,20 +112,45 @@
     <Compile Include="..\Services\TrayAlertState.cs" Link="Shared\Services\TrayAlertState.cs" />
     <Compile Include="..\Services\WorkPump.cs" Link="Shared\Services\WorkPump.cs" />
     <Compile Include="..\SettingsUi\Help\HelpMarkup.cs" Link="Shared\SettingsUi\Help\HelpMarkup.cs" />
+    <Compile Include="..\SettingsUi\Help\HelpTopics.cs" Link="Shared\SettingsUi\Help\HelpTopics.cs" />
+    <Compile Include="..\SettingsUi\Hotkeys\HotkeyUses.cs" Link="Shared\SettingsUi\Hotkeys\HotkeyUses.cs" />
     <Compile Include="..\SettingsUi\Pages\Alerts\AlertEvents.cs" Link="Shared\SettingsUi\Pages\Alerts\AlertEvents.cs" />
     <Compile Include="..\SettingsUi\Pages\Alerts\CustomRulesModel.cs" Link="Shared\SettingsUi\Pages\Alerts\CustomRulesModel.cs" />
     <Compile Include="..\SettingsUi\Pages\Alerts\SnoozeAdd.cs" Link="Shared\SettingsUi\Pages\Alerts\SnoozeAdd.cs" />
     <Compile Include="..\SettingsUi\Pages\Clients\CharacterDirectory.cs" Link="Shared\SettingsUi\Pages\Clients\CharacterDirectory.cs" />
     <Compile Include="..\SettingsUi\Pages\Clients\CharacterFields.cs" Link="Shared\SettingsUi\Pages\Clients\CharacterFields.cs" />
+    <Compile Include="..\SettingsUi\Pages\Clients\CharacterFields.Window.cs" Link="Shared\SettingsUi\Pages\Clients\CharacterFields.Window.cs" />
+    <Compile Include="..\SettingsUi\Pages\Clients\CharacterForget.cs" Link="Shared\SettingsUi\Pages\Clients\CharacterForget.cs" />
+    <Compile Include="..\SettingsUi\Pages\Clients\CharacterStores.cs" Link="Shared\SettingsUi\Pages\Clients\CharacterStores.cs" />
     <Compile Include="..\SettingsUi\Pages\Clients\MergedGroups.cs" Link="Shared\SettingsUi\Pages\Clients\MergedGroups.cs" />
     <Compile Include="..\SettingsUi\Pages\Clients\SlotEditing.cs" Link="Shared\SettingsUi\Pages\Clients\SlotEditing.cs" />
     <Compile Include="..\SettingsUi\Pages\OpacityPercent.cs" Link="Shared\SettingsUi\Pages\OpacityPercent.cs" />
+    <Compile Include="..\SettingsUi\Pages\PlaytimeActions.cs" Link="Shared\SettingsUi\Pages\PlaytimeActions.cs" />
     <Compile Include="..\SettingsUi\Pages\Thumbnails\CropEdits.cs" Link="Shared\SettingsUi\Pages\Thumbnails\CropEdits.cs" />
     <Compile Include="..\SettingsUi\Pages\Thumbnails\ThumbnailFields.cs" Link="Shared\SettingsUi\Pages\Thumbnails\ThumbnailFields.cs" />
-    <Compile Include="..\SettingsUi\Registry\ChoiceOption.cs" Link="Shared\SettingsUi\Registry\ChoiceOption.cs" />
+    <Compile Include="..\SettingsUi\Pages\Tools\StatsFields.cs" Link="Shared\SettingsUi\Pages\Tools\StatsFields.cs" />
+    <Compile Include="..\SettingsUi\SettingsBackup.cs" Link="Shared\SettingsUi\SettingsBackup.cs" />
+    <Compile Include="..\SettingsUi\Search\SearchIndex.cs" Link="Shared\SettingsUi\Search\SearchIndex.cs" />
     <Compile Include="..\SettingsUi\ViewModels\ObservableObject.cs" Link="Shared\SettingsUi\ViewModels\ObservableObject.cs" />
     <Compile Include="..\Views\AlertHistoryModel.cs" Link="Shared\Views\AlertHistoryModel.cs" />
     <Compile Include="..\Views\ReleaseNotesMarkup.cs" Link="Shared\Views\ReleaseNotesMarkup.cs" />
     <Compile Include="..\Views\StatReportModel.cs" Link="Shared\Views\StatReportModel.cs" />
+    <Compile Include="..\SettingsUi\Registry\*.cs" LinkBase="Shared\SettingsUi\Registry" />
+    <!-- SettingSwitches turns a toggle on from the Windows app and the WPF command-buttons editor; it needs the WPF SettingVM. -->
+    <Compile Remove="..\SettingsUi\Registry\SettingSwitches.cs" />
+    <Compile Include="..\SettingsUi\Pages\AlertsPages.cs" Link="Shared\SettingsUi\Pages\AlertsPages.cs" />
+    <Compile Include="..\SettingsUi\Pages\AppPages.cs" Link="Shared\SettingsUi\Pages\AppPages.cs" />
+    <Compile Include="..\SettingsUi\Pages\ClientsPages.cs" Link="Shared\SettingsUi\Pages\ClientsPages.cs" />
+    <Compile Include="..\SettingsUi\Pages\PerformancePages.cs" Link="Shared\SettingsUi\Pages\PerformancePages.cs" />
+    <Compile Include="..\SettingsUi\Pages\ThumbnailsPages.cs" Link="Shared\SettingsUi\Pages\ThumbnailsPages.cs" />
+    <Compile Include="..\SettingsUi\Pages\ToolsPages.cs" Link="Shared\SettingsUi\Pages\ToolsPages.cs" />
+    <Compile Include="..\SettingsUi\Pages\HomePage.cs" Link="Shared\SettingsUi\Pages\HomePage.cs" />
+    <Compile Include="..\SettingsUi\Pages\Clients\CharacterPage.cs" Link="Shared\SettingsUi\Pages\Clients\CharacterPage.cs" />
+    <Compile Include="..\SettingsUi\Pages\EditorIds.cs" Link="Shared\SettingsUi\Pages\EditorIds.cs" />
+    <Compile Include="..\SettingsUi\Pages\Thumbnails\CropsRequest.cs" Link="Shared\SettingsUi\Pages\Thumbnails\CropsRequest.cs" />
+    <Compile Include="..\SettingsUi\SafeAnswer.cs" Link="Shared\SettingsUi\SafeAnswer.cs" />
+    <Compile Include="..\Services\SettingsApplier.cs" Link="Shared\Services\SettingsApplier.cs" />
+    <Compile Include="..\SettingsUi\Pages\Clients\CharacterSize.cs" Link="Shared\SettingsUi\Pages\Clients\CharacterSize.cs" />
+    <Compile Include="..\SettingsUi\Pages\Alerts\ColorBlindSwitch.cs" Link="Shared\SettingsUi\Pages\Alerts\ColorBlindSwitch.cs" />
   </ItemGroup>
 </Project>
