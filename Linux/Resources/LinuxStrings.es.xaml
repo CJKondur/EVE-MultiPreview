@@ -8,11 +8,6 @@
     <sys:String x:Key="L.Linux.PressKey">Pulsa una tecla…</sys:String>
     <sys:String x:Key="L.Linux.NotSet">Sin asignar</sys:String>
     <sys:String x:Key="L.Linux.KeyRefused">Esa tecla no se puede usar</sys:String>
-    <sys:String x:Key="L.Linux.Display">Idioma</sys:String>
-    <sys:String x:Key="L.Linux.Automatic">Automático</sys:String>
-    <sys:String x:Key="L.Linux.LanguageNote">Automático sigue el idioma de este escritorio.</sys:String>
-    <sys:String x:Key="L.Linux.ChatFolder">Carpeta de registros de chat</sys:String>
-    <sys:String x:Key="L.Linux.GameFolder">Carpeta de registros de juego</sys:String>
     <sys:String x:Key="L.Linux.FolderNote">Si se deja vacío, los registros se buscan en la carpeta de Steam (Proton) de EVE Online.</sys:String>
     <sys:String x:Key="L.Linux.ImportTitle">Ajustes de la aplicación de Windows</sys:String>
     <sys:String x:Key="L.Linux.ImportPick">Elige el EVE MultiPreview.json de la aplicación de Windows</sys:String>
@@ -21,7 +16,6 @@
     <sys:String x:Key="L.Linux.ImportBad">No importado: ese no es un archivo de ajustes de EVE MultiPreview legible.</sys:String>
     <sys:String x:Key="L.Linux.ImportFailed">No importado: no se pudo copiar el archivo.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Importado. Los ajustes anteriores están en</sys:String>
-    <sys:String x:Key="L.Linux.StartNote">El tamaño que recibe una miniatura la primera vez que se detecta su cliente.</sys:String>
     <sys:String x:Key="L.Linux.ResizeNote">Para cambiar el tamaño de una miniatura, mantén pulsado el botón derecho del ratón sobre ella, pulsa también el izquierdo y mueve el ratón. Todas las miniaturas lo siguen; mantén Ctrl para cambiar solo esa.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Oculta</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">Aún no hay personajes. Aparecen aquí cuando hay un cliente de EVE en ejecución.</sys:String>
@@ -29,7 +23,6 @@
     <sys:String x:Key="L.Linux.GroupNext">Tecla siguiente</sys:String>
     <sys:String x:Key="L.Linux.GroupPrevious">Tecla anterior</sys:String>
     <sys:String x:Key="L.Linux.GroupMembers">Miembros</sys:String>
-    <sys:String x:Key="L.Linux.HotkeyNote">Haz clic en un cuadro y pulsa las teclas. Escape lo borra. La tecla de un personaje se asigna en Personajes; las de un grupo, en Grupos.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Notificaciones del escritorio</sys:String>
     <sys:String x:Key="L.Linux.SpeechDefaultVoice">la voz predeterminada del sistema</sys:String>
     <sys:String x:Key="L.Linux.SpeechNoProgram">No se ha encontrado ningún programa de voz, así que no se puede decir nada. Instala speech-dispatcher (spd-say) o espeak-ng.</sys:String>
@@ -45,8 +38,6 @@
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Cada alerta que elijas abajo muestra una notificación, con botones para cambiar a ese cliente o posponer la alerta 15 minutos.</sys:String>
     <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview no pudo cerrar el cliente de {0}.</sys:String>
     <sys:String x:Key="L.Linux.ClosedNote">«Cliente cerrado inesperadamente» no está disponible en Linux: Linux no le dice a MultiPreview cómo terminó un cliente que no inició, así que un cierre inesperado parece igual que salir.</sys:String>
-    <sys:String x:Key="L.Linux.NotRespondingDesc">Cuando la ventana de un cliente deja de responder durante 5 segundos, su miniatura lo indica.</sys:String>
-    <sys:String x:Key="L.Linux.ClientNote">«Cliente no responde» está desactivado hasta que lo actives en la tabla de arriba. Llega cuando un cliente lleva 30 segundos congelado.</sys:String>
     <sys:String x:Key="L.Linux.CommandsTitle">Órdenes de otros programas</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Permite que una app de Stream Deck, un acceso directo o un script le diga al MultiPreview en marcha que traiga un personaje al frente, cambie de perfil o active o desactive las miniaturas o el modo enfoque. Solo los programas de tu propia cuenta pueden.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">Ejecuta MultiPreview de nuevo con una orden, por ejemplo como abajo; una app de Stream Deck (StreamController, streamdeck-ui, OpenDeck) la ejecuta desde un botón. eve-multipreview --help muestra todas las órdenes.</sys:String>

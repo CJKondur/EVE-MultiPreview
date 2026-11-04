@@ -7,11 +7,6 @@
     <sys:String x:Key="L.Linux.PressKey">Press a key…</sys:String>
     <sys:String x:Key="L.Linux.NotSet">Not set</sys:String>
     <sys:String x:Key="L.Linux.KeyRefused">That key can't be used</sys:String>
-    <sys:String x:Key="L.Linux.Display">Language</sys:String>
-    <sys:String x:Key="L.Linux.Automatic">Automatic</sys:String>
-    <sys:String x:Key="L.Linux.LanguageNote">Automatic follows the language of this desktop.</sys:String>
-    <sys:String x:Key="L.Linux.ChatFolder">Chat log folder</sys:String>
-    <sys:String x:Key="L.Linux.GameFolder">Game log folder</sys:String>
     <sys:String x:Key="L.Linux.FolderNote">Left empty, the logs are looked for in the Steam (Proton) folder of EVE Online.</sys:String>
     <sys:String x:Key="L.Linux.ImportTitle">Settings from the Windows app</sys:String>
     <sys:String x:Key="L.Linux.ImportPick">Choose the Windows app's EVE MultiPreview.json</sys:String>
@@ -20,7 +15,6 @@
     <sys:String x:Key="L.Linux.ImportBad">Not imported: that is not a readable EVE MultiPreview settings file.</sys:String>
     <sys:String x:Key="L.Linux.ImportFailed">Not imported: the file could not be copied.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Imported. The old settings are in</sys:String>
-    <sys:String x:Key="L.Linux.StartNote">The size a thumbnail gets the first time its client is seen.</sys:String>
     <sys:String x:Key="L.Linux.ResizeNote">To resize a thumbnail, hold the right mouse button on it, press the left button too and move the mouse. Every thumbnail follows; hold Ctrl to resize only that one.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Hidden</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">No characters yet. They appear here once an EVE client is running.</sys:String>
@@ -28,7 +22,6 @@
     <sys:String x:Key="L.Linux.GroupNext">Next key</sys:String>
     <sys:String x:Key="L.Linux.GroupPrevious">Previous key</sys:String>
     <sys:String x:Key="L.Linux.GroupMembers">Members</sys:String>
-    <sys:String x:Key="L.Linux.HotkeyNote">Click a box and press the keys. Escape clears it. A key for one character is set on Characters; keys for a group on Groups.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Desktop notifications</sys:String>
     <sys:String x:Key="L.Linux.SpeechDefaultVoice">the system's default voice</sys:String>
     <sys:String x:Key="L.Linux.SpeechNoProgram">No speech program found, so nothing can be spoken. Install speech-dispatcher (spd-say) or espeak-ng.</sys:String>
@@ -44,8 +37,6 @@
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Each alert you choose below shows a notification, with buttons to switch to that client or to snooze the alert for 15 minutes.</sys:String>
     <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview could not end {0}'s client.</sys:String>
     <sys:String x:Key="L.Linux.ClosedNote">Client closed unexpectedly is not available on Linux: Linux does not tell MultiPreview how a client it did not start ended, so a crash looks the same as quitting.</sys:String>
-    <sys:String x:Key="L.Linux.NotRespondingDesc">When a client's window stops answering for 5 seconds, its thumbnail says so.</sys:String>
-    <sys:String x:Key="L.Linux.ClientNote">Client not responding is off until you turn it on in the table above. It comes after a client has been frozen for 30 seconds.</sys:String>
     <sys:String x:Key="L.Linux.CommandsTitle">Commands from other programs</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Lets a Stream Deck app, a desktop shortcut or a script tell the running MultiPreview to bring a character to the front, switch profile, or toggle thumbnails or focus mode. Only programs of your own account can.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">Run MultiPreview again with a command, for example below; a Stream Deck app (StreamController, streamdeck-ui, OpenDeck) runs it from a button. eve-multipreview --help lists every command.</sys:String>

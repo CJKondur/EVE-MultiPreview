@@ -119,7 +119,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
         // The update check at start, a little after it, so it never slows the start (CheckForUpdatesOnStartup, as on Windows).
         if (S.CheckForUpdatesOnStartup) DispatcherTimer.RunOnce(() => _ = CheckForUpdates(quiet: true), TimeSpan.FromSeconds(15));
         _probeTimer = new System.Threading.Timer(_ => ProbeClients(), null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(3));
-        // EVEMP_OPEN_SETTINGS=<page id>, or a page number of the old window (from 0): opens the settings window at startup (the tests use it).
+        // EVEMP_OPEN_SETTINGS=<page id>, or a number 0-6 (OldPageNumbers): opens the settings window at startup (the tests use it).
         if (Environment.GetEnvironmentVariable("EVEMP_OPEN_SETTINGS") is { Length: > 0 } page) OpenSettings(OldPageNumbers.ElementAtOrDefault(int.TryParse(page, out int n) ? n : -1) ?? page);
         // EVEMP_OPEN_HISTORY=1: opens the alert history window at startup (the tests use it).
         if (Environment.GetEnvironmentVariable("EVEMP_OPEN_HISTORY") == "1") OpenAlertHistory();
@@ -595,7 +595,7 @@ public sealed class Previews : ITrayActions, ISettingsHost
 
     public void OpenSettings() => OpenSettings(null);
 
-    /// <summary>The pages of the old hand-made window by its numbers, for the test scripts that still pass a number.</summary>
+    /// <summary>EVEMP_OPEN_SETTINGS by number: the page ids the retired hand-made window had at those numbers (0-6).</summary>
     private static readonly string[] OldPageNumbers =
         { "app.general", ThumbnailsPages.AppearanceId, CharacterPage.CropsPageId, ClientsPages.CharactersId, ClientsPages.GroupsId, ClientsPages.HotkeysId, AlertsPages.EventsId };
 

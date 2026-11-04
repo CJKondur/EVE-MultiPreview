@@ -14,7 +14,7 @@ namespace EveMultiPreview.Linux;
 /// Clients › Audio's volumes, Thumbnails' resize-all and second thumbnails, a character's own size, Alerts' severity table,
 /// colour-blind mode, sound table and do-not-disturb line). Each does what its Windows editor does, through the Linux app
 /// (ISettingsHost) where the Windows one asks ThumbnailManager.</summary>
-internal sealed partial class SettingsPages
+internal sealed partial class SettingsEditors
 {
     /// <summary>A key in its Linux wording (LinuxSupport.Key).</summary>
     private static string L(string key) => SettingsContext.Str(LinuxSupport.Key(key));
@@ -32,7 +32,7 @@ internal sealed partial class SettingsPages
     }
 
     private static TextBlock Error() =>
-        LinuxLooks.Paint(new TextBlock { FontSize = 12, TextWrapping = TextWrapping.Wrap, IsVisible = false }, TextBlock.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
+        LinuxLooks.Paint(new TextBlock { FontSize = 12, TextWrapping = TextWrapping.Wrap, IsVisible = false }, TextBlock.ForegroundProperty, "Fx.CriticalBrush");
 
     private static void Say(TextBlock line, string? text)
     {
@@ -362,7 +362,7 @@ internal sealed partial class SettingsPages
     {
         var text = new TextBlock { TextWrapping = TextWrapping.Wrap };
         var bar = LinuxLooks.Paint(new Border { BorderThickness = new Thickness(3, 0, 0, 0), Padding = new Thickness(12, 6), Child = text },
-            Border.BorderBrushProperty, "Fx.InfoBrush", Brushes.LightSkyBlue);
+            Border.BorderBrushProperty, "Fx.InfoBrush");
         void Look()
         {
             var key = _host.DoNotDisturb ? (ctx.S.DoNotDisturbCriticalPlays ? "L.S.DndState.OnCritical" : "L.S.DndState.On") : null;

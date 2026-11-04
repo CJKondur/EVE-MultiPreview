@@ -8,11 +8,6 @@
     <sys:String x:Key="L.Linux.PressKey">Нажмите клавишу…</sys:String>
     <sys:String x:Key="L.Linux.NotSet">Не задано</sys:String>
     <sys:String x:Key="L.Linux.KeyRefused">Эту клавишу нельзя использовать</sys:String>
-    <sys:String x:Key="L.Linux.Display">Язык</sys:String>
-    <sys:String x:Key="L.Linux.Automatic">Автоматически</sys:String>
-    <sys:String x:Key="L.Linux.LanguageNote">Автоматически — язык этого рабочего стола.</sys:String>
-    <sys:String x:Key="L.Linux.ChatFolder">Папка логов чата</sys:String>
-    <sys:String x:Key="L.Linux.GameFolder">Папка игровых логов</sys:String>
     <sys:String x:Key="L.Linux.FolderNote">Если поле пусто, логи ищутся в папке Steam (Proton) игры EVE Online.</sys:String>
     <sys:String x:Key="L.Linux.ImportTitle">Настройки из приложения для Windows</sys:String>
     <sys:String x:Key="L.Linux.ImportPick">Выберите файл EVE MultiPreview.json из приложения для Windows</sys:String>
@@ -21,7 +16,6 @@
     <sys:String x:Key="L.Linux.ImportBad">Не импортировано: это не читаемый файл настроек EVE MultiPreview.</sys:String>
     <sys:String x:Key="L.Linux.ImportFailed">Не импортировано: не удалось скопировать файл.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Импортировано. Прежние настройки находятся в</sys:String>
-    <sys:String x:Key="L.Linux.StartNote">Размер, который получает миниатюра, когда её клиент замечен впервые.</sys:String>
     <sys:String x:Key="L.Linux.ResizeNote">Чтобы изменить размер миниатюры, удерживайте на ней правую кнопку мыши, нажмите также левую и двигайте мышь. Размер меняется у всех миниатюр; удерживайте Ctrl, чтобы изменить только эту.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Скрыто</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">Персонажей пока нет. Они появятся здесь, как только запустится клиент EVE.</sys:String>
@@ -29,7 +23,6 @@
     <sys:String x:Key="L.Linux.GroupNext">Следующая клавиша</sys:String>
     <sys:String x:Key="L.Linux.GroupPrevious">Предыдущая клавиша</sys:String>
     <sys:String x:Key="L.Linux.GroupMembers">Участники</sys:String>
-    <sys:String x:Key="L.Linux.HotkeyNote">Нажмите на поле и затем нужные клавиши. Escape очищает поле. Клавиша для одного персонажа задаётся в разделе «Персонажи», клавиши группы — в разделе «Группы».</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Уведомления рабочего стола</sys:String>
     <sys:String x:Key="L.Linux.SpeechDefaultVoice">голос системы по умолчанию</sys:String>
     <sys:String x:Key="L.Linux.SpeechNoProgram">Программа озвучивания не найдена, поэтому ничего не будет произнесено. Установите speech-dispatcher (spd-say) или espeak-ng.</sys:String>
@@ -45,8 +38,6 @@
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Каждое выбранное ниже оповещение показывает уведомление с кнопками: переключиться на этот клиент или отложить оповещение на 15 минут.</sys:String>
     <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview не удалось завершить клиент {0}.</sys:String>
     <sys:String x:Key="L.Linux.ClosedNote">«Клиент неожиданно закрылся» недоступно в Linux: Linux не сообщает MultiPreview, как завершился клиент, который он не запускал, поэтому сбой выглядит так же, как обычный выход.</sys:String>
-    <sys:String x:Key="L.Linux.NotRespondingDesc">Если окно клиента не отвечает 5 секунд, его миниатюра показывает это.</sys:String>
-    <sys:String x:Key="L.Linux.ClientNote">«Клиент не отвечает» выключено, пока вы не включите его в таблице выше. Оно приходит, когда клиент завис на 30 секунд.</sys:String>
     <sys:String x:Key="L.Linux.CommandsTitle">Команды от других программ</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Позволяет приложению Stream Deck, ярлыку рабочего стола или скрипту попросить запущенный MultiPreview вывести персонажа на передний план, сменить профиль или переключить миниатюры либо режим фокуса. Только программы вашей собственной учётной записи могут это делать.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">Запустите MultiPreview ещё раз с командой, например как ниже; приложение Stream Deck (StreamController, streamdeck-ui, OpenDeck) выполняет её по кнопке. eve-multipreview --help выводит все команды.</sys:String>

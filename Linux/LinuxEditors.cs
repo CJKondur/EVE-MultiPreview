@@ -3,12 +3,12 @@ using EveMultiPreview.SettingsUi;
 
 namespace EveMultiPreview.Linux;
 
-/// <summary>The Linux side of the Windows EditorFactories: the editor an EditorItem names by id, built from the editors of the
-/// hand-made Linux pages (SettingsPages). Each draws its own labels. An id that is not here has no Linux editor yet: the
+/// <summary>The Linux side of the Windows EditorFactories: the editor an EditorItem names by id, built by the Linux
+/// editors (SettingsEditors, Linux/Settings/*Editors.cs). Each draws its own labels. An id that is not here has no Linux editor yet: the
 /// settings window shows a card that says so (SharedSettingsWindow.NotYetCard).</summary>
 internal static class LinuxEditors
 {
-    private static readonly Dictionary<string, Func<SettingsPages, SettingsContext, EditorItem, Control>> Map = new()
+    private static readonly Dictionary<string, Func<SettingsEditors, SettingsContext, EditorItem, Control>> Map = new()
     {
         // Home's characters and group keys are the Characters table and the group cards (the same settings: Profile.Hotkeys,
         // ThumbnailVisibility; HotkeyGroups).
@@ -18,7 +18,7 @@ internal static class LinuxEditors
         { "clients.groups.editor", (pages, _, _) => pages.GroupList() },
         { EditorIds.FocusGroupEditor, (pages, _, _) => pages.FocusGroupBox() },
         { "thumbs.crops.editor", (pages, _, _) => pages.CropList() },
-        { AlertsPages.EventTableId, (pages, _, _) => pages.EventTable(withClosedNote: true) },
+        { AlertsPages.EventTableId, (pages, _, _) => pages.EventTable() },
         { EditorIds.SnoozesEditor, (pages, _, _) => pages.Snoozed() },
         { EditorIds.SpeechVoicesEditor, (pages, _, _) => pages.Voices() },
         { EditorIds.PushWebhookEditor, (pages, _, _) => pages.Webhook() },
@@ -46,6 +46,6 @@ internal static class LinuxEditors
     public static IReadOnlyCollection<string> Ids => Map.Keys;
 
     /// <summary>The editor for <paramref name="item"/>, or null when Linux has none for its id.</summary>
-    public static Control? TryCreate(EditorItem item, SettingsPages pages, SettingsContext ctx) =>
+    public static Control? TryCreate(EditorItem item, SettingsEditors pages, SettingsContext ctx) =>
         Map.TryGetValue(item.Id, out var make) ? make(pages, ctx, item) : null;
 }

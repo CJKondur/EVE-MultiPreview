@@ -8,11 +8,6 @@
     <sys:String x:Key="L.Linux.PressKey">キーを押してください…</sys:String>
     <sys:String x:Key="L.Linux.NotSet">未設定</sys:String>
     <sys:String x:Key="L.Linux.KeyRefused">そのキーは使えません</sys:String>
-    <sys:String x:Key="L.Linux.Display">言語</sys:String>
-    <sys:String x:Key="L.Linux.Automatic">自動</sys:String>
-    <sys:String x:Key="L.Linux.LanguageNote">「自動」はこのデスクトップの言語に従います。</sys:String>
-    <sys:String x:Key="L.Linux.ChatFolder">チャットログのフォルダ</sys:String>
-    <sys:String x:Key="L.Linux.GameFolder">ゲームログのフォルダ</sys:String>
     <sys:String x:Key="L.Linux.FolderNote">空のままにすると、EVE Online の Steam（Proton）フォルダからログを探します。</sys:String>
     <sys:String x:Key="L.Linux.ImportTitle">Windows 版アプリの設定</sys:String>
     <sys:String x:Key="L.Linux.ImportPick">Windows 版アプリの EVE MultiPreview.json を選択</sys:String>
@@ -21,7 +16,6 @@
     <sys:String x:Key="L.Linux.ImportBad">インポートしませんでした：読み取れる EVE MultiPreview の設定ファイルではありません。</sys:String>
     <sys:String x:Key="L.Linux.ImportFailed">インポートしませんでした：ファイルをコピーできませんでした。</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">インポートしました。以前の設定の保存先：</sys:String>
-    <sys:String x:Key="L.Linux.StartNote">クライアントが初めて検出されたときにサムネイルに割り当てられるサイズです。</sys:String>
     <sys:String x:Key="L.Linux.ResizeNote">サムネイルのサイズを変えるには、その上でマウスの右ボタンを押したまま左ボタンも押し、マウスを動かします。すべてのサムネイルが同じサイズになります。Ctrl を押したままにすると、そのサムネイルだけが変わります。</sys:String>
     <sys:String x:Key="L.Linux.Hidden">非表示</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">キャラクターはまだありません。EVE クライアントが起動すると、ここに表示されます。</sys:String>
@@ -29,7 +23,6 @@
     <sys:String x:Key="L.Linux.GroupNext">次のキー</sys:String>
     <sys:String x:Key="L.Linux.GroupPrevious">前のキー</sys:String>
     <sys:String x:Key="L.Linux.GroupMembers">メンバー</sys:String>
-    <sys:String x:Key="L.Linux.HotkeyNote">ボックスをクリックしてキーを押します。Escape で解除します。キャラクター個別のキーは「キャラクター」で、グループのキーは「グループ」で設定します。</sys:String>
     <sys:String x:Key="L.Linux.Notifications">デスクトップ通知</sys:String>
     <sys:String x:Key="L.Linux.SpeechDefaultVoice">システムの既定の音声</sys:String>
     <sys:String x:Key="L.Linux.SpeechNoProgram">音声合成プログラムが見つからないため、何も読み上げられません。speech-dispatcher（spd-say）または espeak-ng をインストールしてください。</sys:String>
@@ -45,8 +38,6 @@
     <sys:String x:Key="L.Linux.NotifyOn.Desc">下で選んだアラートごとに通知を表示します。そのクライアントへの切り替えや、15分間のスヌーズのボタンが付きます。</sys:String>
     <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview は {0} のクライアントを終了できませんでした。</sys:String>
     <sys:String x:Key="L.Linux.ClosedNote">「クライアントが予期せず終了」は Linux では使えません。Linux は MultiPreview が起動していないクライアントの終了理由を伝えないため、クラッシュと通常の終了を区別できません。</sys:String>
-    <sys:String x:Key="L.Linux.NotRespondingDesc">クライアントのウィンドウが 5 秒間応答しないと、そのサムネイルに表示されます。</sys:String>
-    <sys:String x:Key="L.Linux.ClientNote">「クライアントが応答なし」は上の表でオンにするまでオフです。クライアントが 30 秒間フリーズすると通知されます。</sys:String>
     <sys:String x:Key="L.Linux.CommandsTitle">ほかのプログラムからのコマンド</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Stream Deck アプリ、デスクトップのショートカット、スクリプトから、実行中の MultiPreview にキャラクターを前面に出す、プロファイルを切り替える、サムネイルやフォーカスモードを切り替えるよう指示できます。あなた自身のアカウントのプログラムだけが使えます。</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">コマンドを付けて MultiPreview をもう一度実行します（下の例のように）。Stream Deck アプリ（StreamController、streamdeck-ui、OpenDeck）はボタンから実行できます。eve-multipreview --help ですべてのコマンドを表示します。</sys:String>

@@ -9,7 +9,7 @@ namespace EveMultiPreview.Linux;
 
 /// <summary>S3b: the editors of App › Profiles &amp; backups, as the Windows ProfileEditor and AutoProfileEditor draw them. The
 /// work is the shared ProfileActions / AutoProfile; the dialogs it opens are the Linux window's (ProfileActions.Linux.cs).</summary>
-internal sealed partial class SettingsPages
+internal sealed partial class SettingsEditors
 {
     private static string S3(string key) => SettingsContext.Str(key);
 
@@ -17,7 +17,7 @@ internal sealed partial class SettingsPages
     internal static Button Action(string key, Action click, bool destructive = false)
     {
         var b = new Button { Content = new TextBlock { Text = Ui.Plain(Ui.NoAccess(S3(key))) }, Margin = new Thickness(0, 2, 6, 2) };
-        if (destructive) LinuxLooks.Paint(b, Avalonia.Controls.Primitives.TemplatedControl.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
+        if (destructive) LinuxLooks.Paint(b, Avalonia.Controls.Primitives.TemplatedControl.ForegroundProperty, "Fx.CriticalBrush");
         b.Click += (_, _) => click();
         return b;
     }
@@ -163,6 +163,6 @@ internal sealed partial class SettingsPages
         return LinuxLooks.Paint(new Border
         {
             Child = row, Padding = new Thickness(10, 2, 2, 2), Margin = new Thickness(0, 0, 6, 6), CornerRadius = new CornerRadius(12),
-        }, Border.BackgroundProperty, "Fx.AccentSoftBrush", new SolidColorBrush(Color.Parse("#22FFFFFF")));
+        }, Border.BackgroundProperty, "Fx.AccentSoftBrush");
     }
 }

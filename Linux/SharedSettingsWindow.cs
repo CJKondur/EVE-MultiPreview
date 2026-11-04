@@ -32,7 +32,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
 
     private readonly ISettingsHost _app;
     private readonly SettingsContext _ctx;
-    private readonly SettingsPages _editors;
+    private readonly SettingsEditors _editors;
     private readonly ShellVM _vm;
     private readonly DispatcherTimer _toastTimer = new() { Interval = TimeSpan.FromSeconds(3) };
     private readonly DispatcherTimer _highlightTimer = new() { Interval = TimeSpan.FromSeconds(2) };
@@ -101,7 +101,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         // The saved look (Windows' App.ApplySavedLook): the pick, and whether Daylight shows while the desktop is light.
         LinuxLooks.ApplySaved(S);
         LinuxLooks.Dress(this);
-        _editors = new SettingsPages(app, this, () => QueueRender(), Reload);
+        _editors = new SettingsEditors(app, this, () => QueueRender(), Reload);
         RestoreSize();
 
         // The pages as Linux shows them: without the cards of Windows-only features and of those Linux does not read yet.
@@ -493,7 +493,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         {
             inner = addition.Kind switch
             {
-                LinuxSupport.AdditionKind.Commands => SettingsPages.CommandsExample(),
+                LinuxSupport.AdditionKind.Commands => SettingsEditors.CommandsExample(),
                 LinuxSupport.AdditionKind.Import => Titled(addition.TitleKey!, _editors.Import()),
                 _ => LinuxLooks.Text(Str(addition.TextKey), "Desc"),
             };
@@ -561,7 +561,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     {
         var line = LinuxLooks.Text("", "Desc");
         line.IsVisible = false;
-        return LinuxLooks.Paint(line, TextBlock.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
+        return LinuxLooks.Paint(line, TextBlock.ForegroundProperty, "Fx.CriticalBrush");
     }
 
     private Control SettingCard(SettingVM vm)
@@ -689,7 +689,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
             case SettingKind.Hotkey:
             {
                 var box = new HotkeyBox(vm.D.Get(S) as string ?? "");
-                var clash = LinuxLooks.Paint(LinuxLooks.Text("", "Desc"), TextBlock.ForegroundProperty, "Fx.WarningBrush", Brushes.Orange);
+                var clash = LinuxLooks.Paint(LinuxLooks.Text("", "Desc"), TextBlock.ForegroundProperty, "Fx.WarningBrush");
                 clash.MaxWidth = 320;
                 clash.IsVisible = false;
                 box.Capturing += _app.CaptureHotkey;
@@ -744,7 +744,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         foreach (var action in vm.Buttons)
         {
             var b = new Button { Content = new TextBlock { Text = Ui.NoAccess(Str(action.LabelKey)) }, Margin = new Thickness(6, 2, 0, 2) };
-            if (action.IsDestructive) LinuxLooks.Paint(b, TemplatedControl.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
+            if (action.IsDestructive) LinuxLooks.Paint(b, TemplatedControl.ForegroundProperty, "Fx.CriticalBrush");
             b.Click += (_, _) => Run(action.Run, error, AccessKeys.Spoken(Str(action.LabelKey)));
             buttons.Children.Add(b);
         }
@@ -755,13 +755,13 @@ public sealed class SharedSettingsWindow : Window, SharedHost
     private Control InfoCard(InfoVM vm)
     {
         var text = LinuxLooks.Text("", "Label");
-        var (key, fallback) = vm.Severity switch
+        var key = vm.Severity switch
         {
-            InfoSeverity.Error => ("Fx.CriticalBrush", Brushes.IndianRed),
-            InfoSeverity.Warning => ("Fx.WarningBrush", Brushes.Orange),
-            _ => ("Fx.InfoBrush", Brushes.LightSkyBlue),
+            InfoSeverity.Error => "Fx.CriticalBrush",
+            InfoSeverity.Warning => "Fx.WarningBrush",
+            _ => "Fx.InfoBrush",
         };
-        LinuxLooks.Paint(text, TextBlock.ForegroundProperty, key, fallback);
+        LinuxLooks.Paint(text, TextBlock.ForegroundProperty, key);
         // A note Linux words its own way (LinuxSupport.Key) shows the Linux text; the others the view-model's.
         bool linuxWords = LinuxSupport.Key(vm.Def.TextKey) != vm.Def.TextKey;
         void Read() => text.Text = linuxWords ? Str(vm.Def.TextKey) : Safe(() => vm.Text, Str(vm.Def.TextKey));
@@ -790,7 +790,7 @@ public sealed class SharedSettingsWindow : Window, SharedHost
         var panel = new StackPanel { Spacing = 2 };
         if (Optional(labelKey) is { } label) panel.Children.Add(LinuxLooks.Text(AccessKeys.Spoken(label), "Label"));
         panel.Children.Add(LinuxLooks.Paint(LinuxLooks.Text(string.Format(LocalizationService.Str("L.Linux.NotYet", "Not available on Linux yet: {0}"), id), "Desc"),
-            TextBlock.ForegroundProperty, "Fx.WarningBrush", Brushes.Orange));
+            TextBlock.ForegroundProperty, "Fx.WarningBrush"));
         return panel;
     }
 

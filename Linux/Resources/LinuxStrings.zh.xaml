@@ -8,11 +8,6 @@
     <sys:String x:Key="L.Linux.PressKey">请按下一个键…</sys:String>
     <sys:String x:Key="L.Linux.NotSet">未设置</sys:String>
     <sys:String x:Key="L.Linux.KeyRefused">无法使用该键</sys:String>
-    <sys:String x:Key="L.Linux.Display">语言</sys:String>
-    <sys:String x:Key="L.Linux.Automatic">自动</sys:String>
-    <sys:String x:Key="L.Linux.LanguageNote">“自动”跟随此桌面的语言。</sys:String>
-    <sys:String x:Key="L.Linux.ChatFolder">聊天日志文件夹</sys:String>
-    <sys:String x:Key="L.Linux.GameFolder">游戏日志文件夹</sys:String>
     <sys:String x:Key="L.Linux.FolderNote">留空时，会在 EVE Online 的 Steam（Proton）文件夹中查找日志。</sys:String>
     <sys:String x:Key="L.Linux.ImportTitle">来自 Windows 版的设置</sys:String>
     <sys:String x:Key="L.Linux.ImportPick">选择 Windows 版的 EVE MultiPreview.json</sys:String>
@@ -21,7 +16,6 @@
     <sys:String x:Key="L.Linux.ImportBad">未导入：这不是可读取的 EVE MultiPreview 设置文件。</sys:String>
     <sys:String x:Key="L.Linux.ImportFailed">未导入：无法复制该文件。</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">已导入。旧设置位于</sys:String>
-    <sys:String x:Key="L.Linux.StartNote">首次发现某个客户端时，其缩略图获得的大小。</sys:String>
     <sys:String x:Key="L.Linux.ResizeNote">要调整缩略图大小，请在其上按住鼠标右键，同时按下左键并移动鼠标。所有缩略图会一起变化；按住 Ctrl 则只调整这一个。</sys:String>
     <sys:String x:Key="L.Linux.Hidden">隐藏</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">还没有角色。EVE 客户端运行后，它们会显示在这里。</sys:String>
@@ -29,7 +23,6 @@
     <sys:String x:Key="L.Linux.GroupNext">下一个键</sys:String>
     <sys:String x:Key="L.Linux.GroupPrevious">上一个键</sys:String>
     <sys:String x:Key="L.Linux.GroupMembers">成员</sys:String>
-    <sys:String x:Key="L.Linux.HotkeyNote">点击输入框并按下按键。按 Escape 清除。单个角色的按键在“角色”中设置，分组的按键在“分组”中设置。</sys:String>
     <sys:String x:Key="L.Linux.Notifications">桌面通知</sys:String>
     <sys:String x:Key="L.Linux.SpeechDefaultVoice">系统默认语音</sys:String>
     <sys:String x:Key="L.Linux.SpeechNoProgram">没有找到语音程序，所以无法朗读。请安装 speech-dispatcher（spd-say）或 espeak-ng。</sys:String>
@@ -45,8 +38,6 @@
     <sys:String x:Key="L.Linux.NotifyOn.Desc">下面选中的每个警报都会显示一条通知，带有切换到该客户端或将警报暂停 15 分钟的按钮。</sys:String>
     <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview 无法结束 {0} 的客户端。</sys:String>
     <sys:String x:Key="L.Linux.ClosedNote">Linux 上无法使用“客户端意外关闭”：Linux 不会告诉 MultiPreview 一个并非由它启动的客户端是如何结束的，因此崩溃和正常退出看起来一样。</sys:String>
-    <sys:String x:Key="L.Linux.NotRespondingDesc">当客户端窗口 5 秒无响应时，其缩略图会显示。</sys:String>
-    <sys:String x:Key="L.Linux.ClientNote">“客户端无响应”默认关闭，需在上方表格中开启。客户端冻结 30 秒后发出。</sys:String>
     <sys:String x:Key="L.Linux.CommandsTitle">来自其他程序的命令</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">允许 Stream Deck 应用、桌面快捷方式或脚本让正在运行的 MultiPreview 将某个角色置于前台、切换配置，或切换缩略图或专注模式。只有你自己账户的程序可以这样做。</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">带上命令再次运行 MultiPreview，例如下方所示；Stream Deck 应用（StreamController、streamdeck-ui、OpenDeck）可通过按钮运行。eve-multipreview --help 列出所有命令。</sys:String>

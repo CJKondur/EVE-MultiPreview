@@ -10,7 +10,7 @@ namespace EveMultiPreview.Linux;
 
 /// <summary>S4: App settings › Look's gallery and About › Fonts, Avalonia ports of the Windows LookGallery and
 /// FontLicencesEditor.</summary>
-internal sealed partial class SettingsPages
+internal sealed partial class SettingsEditors
 {
     private const double LookCardWidth = 232;
 

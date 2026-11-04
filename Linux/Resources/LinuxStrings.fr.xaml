@@ -8,11 +8,6 @@
     <sys:String x:Key="L.Linux.PressKey">Appuyez sur une touche…</sys:String>
     <sys:String x:Key="L.Linux.NotSet">Non défini</sys:String>
     <sys:String x:Key="L.Linux.KeyRefused">Cette touche ne peut pas être utilisée</sys:String>
-    <sys:String x:Key="L.Linux.Display">Langue</sys:String>
-    <sys:String x:Key="L.Linux.Automatic">Automatique</sys:String>
-    <sys:String x:Key="L.Linux.LanguageNote">Automatique suit la langue de ce bureau.</sys:String>
-    <sys:String x:Key="L.Linux.ChatFolder">Dossier des journaux de chat</sys:String>
-    <sys:String x:Key="L.Linux.GameFolder">Dossier des journaux de jeu</sys:String>
     <sys:String x:Key="L.Linux.FolderNote">Si le champ est vide, les journaux sont cherchés dans le dossier Steam (Proton) d'EVE Online.</sys:String>
     <sys:String x:Key="L.Linux.ImportTitle">Paramètres de l'application Windows</sys:String>
     <sys:String x:Key="L.Linux.ImportPick">Choisissez le fichier EVE MultiPreview.json de l'application Windows</sys:String>
@@ -21,7 +16,6 @@
     <sys:String x:Key="L.Linux.ImportBad">Non importé : ce n'est pas un fichier de paramètres EVE MultiPreview lisible.</sys:String>
     <sys:String x:Key="L.Linux.ImportFailed">Non importé : le fichier n'a pas pu être copié.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Importé. Les anciens paramètres se trouvent dans</sys:String>
-    <sys:String x:Key="L.Linux.StartNote">La taille qu'une miniature reçoit la première fois que son client est détecté.</sys:String>
     <sys:String x:Key="L.Linux.ResizeNote">Pour redimensionner une miniature, maintenez le bouton droit de la souris dessus, appuyez aussi sur le bouton gauche et déplacez la souris. Toutes les miniatures suivent ; maintenez Ctrl pour redimensionner uniquement celle-ci.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Masqué</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">Aucun personnage pour l'instant. Ils apparaissent ici dès qu'un client EVE est lancé.</sys:String>
@@ -29,7 +23,6 @@
     <sys:String x:Key="L.Linux.GroupNext">Touche suivante</sys:String>
     <sys:String x:Key="L.Linux.GroupPrevious">Touche précédente</sys:String>
     <sys:String x:Key="L.Linux.GroupMembers">Membres</sys:String>
-    <sys:String x:Key="L.Linux.HotkeyNote">Cliquez sur une case et appuyez sur les touches. Échap l'efface. La touche d'un personnage se définit dans Personnages ; celles d'un groupe, dans Groupes.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Notifications du bureau</sys:String>
     <sys:String x:Key="L.Linux.SpeechDefaultVoice">la voix par défaut du système</sys:String>
     <sys:String x:Key="L.Linux.SpeechNoProgram">Aucun programme de synthèse vocale trouvé : rien ne peut être dit. Installez speech-dispatcher (spd-say) ou espeak-ng.</sys:String>
@@ -45,8 +38,6 @@
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Chaque alerte choisie ci-dessous affiche une notification, avec des boutons pour passer à ce client ou mettre l&apos;alerte en sourdine 15 minutes.</sys:String>
     <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview n'a pas pu arrêter le client de {0}.</sys:String>
     <sys:String x:Key="L.Linux.ClosedNote">« Client fermé de façon inattendue » n'est pas disponible sous Linux : Linux n'indique pas à MultiPreview comment s'est terminé un client qu'il n'a pas lancé, donc un plantage ressemble à une fermeture normale.</sys:String>
-    <sys:String x:Key="L.Linux.NotRespondingDesc">Quand la fenêtre d'un client ne répond plus pendant 5 secondes, sa miniature l'indique.</sys:String>
-    <sys:String x:Key="L.Linux.ClientNote">« Client ne répond pas » est désactivé tant que vous ne l'activez pas dans le tableau ci-dessus. Il arrive quand un client est figé depuis 30 secondes.</sys:String>
     <sys:String x:Key="L.Linux.CommandsTitle">Commandes d'autres programmes</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Permet à une app Stream Deck, à un raccourci du bureau ou à un script de demander au MultiPreview lancé d'amener un personnage au premier plan, de changer de profil ou d'activer ou désactiver les miniatures ou le mode focus. Seuls les programmes de votre propre compte le peuvent.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">Relancez MultiPreview avec une commande, par exemple comme ci-dessous ; une app Stream Deck (StreamController, streamdeck-ui, OpenDeck) la lance depuis un bouton. eve-multipreview --help liste toutes les commandes.</sys:String>

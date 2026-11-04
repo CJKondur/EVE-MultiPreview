@@ -8,11 +8,6 @@
     <sys:String x:Key="L.Linux.PressKey">Taste drücken…</sys:String>
     <sys:String x:Key="L.Linux.NotSet">Nicht festgelegt</sys:String>
     <sys:String x:Key="L.Linux.KeyRefused">Diese Taste kann nicht verwendet werden</sys:String>
-    <sys:String x:Key="L.Linux.Display">Sprache</sys:String>
-    <sys:String x:Key="L.Linux.Automatic">Automatisch</sys:String>
-    <sys:String x:Key="L.Linux.LanguageNote">Automatisch folgt der Sprache dieses Desktops.</sys:String>
-    <sys:String x:Key="L.Linux.ChatFolder">Chat-Log-Ordner</sys:String>
-    <sys:String x:Key="L.Linux.GameFolder">Game-Log-Ordner</sys:String>
     <sys:String x:Key="L.Linux.FolderNote">Bleibt das Feld leer, werden die Logs im Steam-Ordner (Proton) von EVE Online gesucht.</sys:String>
     <sys:String x:Key="L.Linux.ImportTitle">Einstellungen aus der Windows-App</sys:String>
     <sys:String x:Key="L.Linux.ImportPick">EVE MultiPreview.json der Windows-App auswählen</sys:String>
@@ -21,7 +16,6 @@
     <sys:String x:Key="L.Linux.ImportBad">Nicht importiert: Das ist keine lesbare Einstellungsdatei von EVE MultiPreview.</sys:String>
     <sys:String x:Key="L.Linux.ImportFailed">Nicht importiert: Die Datei konnte nicht kopiert werden.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">Importiert. Die alten Einstellungen liegen in</sys:String>
-    <sys:String x:Key="L.Linux.StartNote">Die Größe, die eine Vorschau erhält, wenn ihr Client zum ersten Mal erkannt wird.</sys:String>
     <sys:String x:Key="L.Linux.ResizeNote">Um die Größe einer Vorschau zu ändern, halte die rechte Maustaste darauf gedrückt, drücke zusätzlich die linke und bewege die Maus. Alle Vorschauen folgen; halte Strg gedrückt, um nur diese eine zu ändern.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">Ausgeblendet</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">Noch keine Charaktere. Sie erscheinen hier, sobald ein EVE-Client läuft.</sys:String>
@@ -29,7 +23,6 @@
     <sys:String x:Key="L.Linux.GroupNext">Nächste Taste</sys:String>
     <sys:String x:Key="L.Linux.GroupPrevious">Vorherige Taste</sys:String>
     <sys:String x:Key="L.Linux.GroupMembers">Mitglieder</sys:String>
-    <sys:String x:Key="L.Linux.HotkeyNote">Klicke auf ein Feld und drücke die Tasten. Escape leert es. Die Taste für einen Charakter legst du unter Charaktere fest, die Tasten für eine Gruppe unter Gruppen.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">Desktop-Benachrichtigungen</sys:String>
     <sys:String x:Key="L.Linux.SpeechDefaultVoice">die Standardstimme des Systems</sys:String>
     <sys:String x:Key="L.Linux.SpeechNoProgram">Kein Sprachprogramm gefunden, deshalb kann nichts gesprochen werden. Installiere speech-dispatcher (spd-say) oder espeak-ng.</sys:String>
@@ -45,8 +38,6 @@
     <sys:String x:Key="L.Linux.NotifyOn.Desc">Jeder unten gewählte Alarm zeigt eine Benachrichtigung, mit Schaltflächen, um zu diesem Client zu wechseln oder den Alarm 15 Minuten lang zu schlummern.</sys:String>
     <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview konnte den Client von {0} nicht beenden.</sys:String>
     <sys:String x:Key="L.Linux.ClosedNote">„Client unerwartet geschlossen“ gibt es unter Linux nicht: Linux sagt MultiPreview nicht, wie ein Client endete, den es nicht selbst gestartet hat, daher sieht ein Absturz wie ein normales Beenden aus.</sys:String>
-    <sys:String x:Key="L.Linux.NotRespondingDesc">Wenn das Fenster eines Clients 5 Sekunden lang nicht mehr antwortet, zeigt sein Vorschaubild das an.</sys:String>
-    <sys:String x:Key="L.Linux.ClientNote">„Client reagiert nicht“ ist aus, bis du es oben in der Tabelle einschaltest. Es kommt, wenn ein Client 30 Sekunden lang eingefroren ist.</sys:String>
     <sys:String x:Key="L.Linux.CommandsTitle">Befehle von anderen Programmen</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Erlaubt einer Stream-Deck-App, einer Desktop-Verknüpfung oder einem Skript, dem laufenden MultiPreview zu sagen, einen Charakter nach vorn zu holen, das Profil zu wechseln oder Vorschaubilder bzw. den Fokusmodus umzuschalten. Nur Programme deines eigenen Kontos können das.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">Starte MultiPreview erneut mit einem Befehl, zum Beispiel wie unten; eine Stream-Deck-App (StreamController, streamdeck-ui, OpenDeck) führt ihn über eine Taste aus. eve-multipreview --help listet alle Befehle.</sys:String>

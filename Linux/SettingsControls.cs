@@ -104,7 +104,7 @@ internal static class Ui
         {
             if (!ThumbnailFields.IsPaintable(text))
             {
-                LinuxLooks.Paint(box, TextBox.ForegroundProperty, "Fx.CriticalBrush", Brushes.IndianRed);
+                LinuxLooks.Paint(box, TextBox.ForegroundProperty, "Fx.CriticalBrush");
                 return;
             }
             LinuxLooks.Paint(box, TextBox.ForegroundProperty, "Fx.TextBrush");   // outside a dressed window: the theme's
@@ -155,8 +155,8 @@ internal static class Ui
             Margin = new Thickness(0, 4),
             Child = inner,
         };
-        LinuxLooks.Paint(card, Border.BackgroundProperty, "Fx.ControlBrush", new SolidColorBrush(Color.Parse("#14FFFFFF")));
-        LinuxLooks.Paint(card, Border.BorderBrushProperty, "Fx.ControlEdgeBrush", new SolidColorBrush(Color.Parse("#22FFFFFF")));
+        LinuxLooks.Paint(card, Border.BackgroundProperty, "Fx.ControlBrush");
+        LinuxLooks.Paint(card, Border.BorderBrushProperty, "Fx.ControlEdgeBrush");
         return card;
     }
 }

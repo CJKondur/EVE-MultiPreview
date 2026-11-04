@@ -362,11 +362,11 @@ internal static class LinuxLooks
         return text.ToUpper(culture);
     }
 
-    /// <summary>Binds a brush property to a look brush key (DynamicResource): it follows a change of look. Outside a dressed
-    /// window (the old Linux settings window) the key is not found and <paramref name="fallback"/> paints instead.</summary>
-    public static T Paint<T>(T control, AvaloniaProperty property, string key, IBrush? fallback = null) where T : Control
+    /// <summary>Binds a brush property to a look brush key (DynamicResource): it follows a change of look. Every window that
+    /// shows these controls is dressed (Dress), so the key is found.</summary>
+    public static T Paint<T>(T control, AvaloniaProperty property, string key) where T : Control
     {
-        control.Bind(property, control.GetResourceObservable(key, v => v is IBrush ? v : fallback ?? AvaloniaProperty.UnsetValue));
+        control.Bind(property, control.GetResourceObservable(key, v => v is IBrush ? v : AvaloniaProperty.UnsetValue));
         return control;
     }
 }

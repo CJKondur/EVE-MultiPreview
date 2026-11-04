@@ -8,11 +8,6 @@
     <sys:String x:Key="L.Linux.PressKey">키를 누르세요…</sys:String>
     <sys:String x:Key="L.Linux.NotSet">설정 안 됨</sys:String>
     <sys:String x:Key="L.Linux.KeyRefused">그 키는 사용할 수 없어요</sys:String>
-    <sys:String x:Key="L.Linux.Display">언어</sys:String>
-    <sys:String x:Key="L.Linux.Automatic">자동</sys:String>
-    <sys:String x:Key="L.Linux.LanguageNote">'자동'은 이 데스크톱의 언어를 따라요.</sys:String>
-    <sys:String x:Key="L.Linux.ChatFolder">채팅 로그 폴더</sys:String>
-    <sys:String x:Key="L.Linux.GameFolder">게임 로그 폴더</sys:String>
     <sys:String x:Key="L.Linux.FolderNote">비워 두면 EVE Online의 Steam(Proton) 폴더에서 로그를 찾아요.</sys:String>
     <sys:String x:Key="L.Linux.ImportTitle">Windows 앱의 설정</sys:String>
     <sys:String x:Key="L.Linux.ImportPick">Windows 앱의 EVE MultiPreview.json 선택</sys:String>
@@ -21,7 +16,6 @@
     <sys:String x:Key="L.Linux.ImportBad">가져오지 않았어요: 읽을 수 있는 EVE MultiPreview 설정 파일이 아니에요.</sys:String>
     <sys:String x:Key="L.Linux.ImportFailed">가져오지 않았어요: 파일을 복사할 수 없었어요.</sys:String>
     <sys:String x:Key="L.Linux.ImportDone">가져왔어요. 이전 설정은 다음 위치에 있어요:</sys:String>
-    <sys:String x:Key="L.Linux.StartNote">클라이언트가 처음 발견될 때 미리보기가 갖는 크기예요.</sys:String>
     <sys:String x:Key="L.Linux.ResizeNote">미리보기 크기를 바꾸려면 그 위에서 마우스 오른쪽 버튼을 누른 채 왼쪽 버튼도 누르고 마우스를 움직이세요. 모든 미리보기가 따라와요. Ctrl을 누르고 있으면 그 미리보기만 바뀌어요.</sys:String>
     <sys:String x:Key="L.Linux.Hidden">숨김</sys:String>
     <sys:String x:Key="L.Linux.NoCharacters">아직 캐릭터가 없어요. EVE 클라이언트가 실행되면 여기에 나타나요.</sys:String>
@@ -29,7 +23,6 @@
     <sys:String x:Key="L.Linux.GroupNext">다음 키</sys:String>
     <sys:String x:Key="L.Linux.GroupPrevious">이전 키</sys:String>
     <sys:String x:Key="L.Linux.GroupMembers">구성원</sys:String>
-    <sys:String x:Key="L.Linux.HotkeyNote">입력란을 클릭하고 키를 누르세요. Escape를 누르면 지워져요. 캐릭터 하나의 키는 캐릭터에서, 그룹의 키는 그룹에서 설정해요.</sys:String>
     <sys:String x:Key="L.Linux.Notifications">데스크톱 알림</sys:String>
     <sys:String x:Key="L.Linux.SpeechDefaultVoice">시스템 기본 음성</sys:String>
     <sys:String x:Key="L.Linux.SpeechNoProgram">음성 프로그램을 찾을 수 없어서 아무것도 말할 수 없어요. speech-dispatcher(spd-say) 또는 espeak-ng를 설치해요.</sys:String>
@@ -45,8 +38,6 @@
     <sys:String x:Key="L.Linux.NotifyOn.Desc">아래에서 고른 각 경보마다 알림을 표시합니다. 해당 클라이언트로 전환하거나 경보를 15분 동안 다시 알림으로 미루는 버튼이 있습니다.</sys:String>
     <sys:String x:Key="L.Linux.EndFrozenRefused">MultiPreview가 {0}의 클라이언트를 종료하지 못했습니다.</sys:String>
     <sys:String x:Key="L.Linux.ClosedNote">'클라이언트가 예기치 않게 종료됨'은 Linux에서 사용할 수 없습니다. Linux는 MultiPreview가 시작하지 않은 클라이언트가 어떻게 끝났는지 알려 주지 않으므로 충돌과 정상 종료가 똑같이 보입니다.</sys:String>
-    <sys:String x:Key="L.Linux.NotRespondingDesc">클라이언트 창이 5초 동안 응답하지 않으면 썸네일에 표시됩니다.</sys:String>
-    <sys:String x:Key="L.Linux.ClientNote">'클라이언트 응답 없음'은 위 표에서 켤 때까지 꺼져 있습니다. 클라이언트가 30초 동안 멈추면 알립니다.</sys:String>
     <sys:String x:Key="L.Linux.CommandsTitle">다른 프로그램의 명령</sys:String>
     <sys:String x:Key="L.Linux.AcceptCommands.Desc">Stream Deck 앱, 바탕 화면 바로 가기 또는 스크립트가 실행 중인 MultiPreview에 캐릭터를 앞으로 가져오거나, 프로필을 바꾸거나, 썸네일이나 포커스 모드를 켜고 끄도록 할 수 있습니다. 내 계정의 프로그램만 가능합니다.</sys:String>
     <sys:String x:Key="L.Linux.CommandsNote">아래 예처럼 명령과 함께 MultiPreview를 다시 실행하세요. Stream Deck 앱(StreamController, streamdeck-ui, OpenDeck)은 버튼으로 실행합니다. eve-multipreview --help 는 모든 명령을 보여 줍니다.</sys:String>
