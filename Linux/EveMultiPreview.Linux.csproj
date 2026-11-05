@@ -14,6 +14,14 @@
     <SelfContained>true</SelfContained>
   </PropertyGroup>
 
+  <!-- A Linux-only app: tells the platform analyzer (CA1416) so the Unix-only calls (UnixFileMode) are not reported as
+       "unsupported on windows", which the release build's -warnaserror turns into errors. -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.Versioning.SupportedOSPlatformAttribute">
+      <_Parameter1>linux</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <!-- The Windows app's own platform-neutral sources, compiled here unchanged. -->
   <ItemGroup>
     <Compile Include="..\Models\*.cs" LinkBase="Shared\Models" />
