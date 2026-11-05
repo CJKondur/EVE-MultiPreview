@@ -57,7 +57,7 @@ internal static class LinuxSupport
         ["clients.hotkeys.cycleSameSystem"] = S, ["clients.hotkeys.cycleAlerting"] = S, ["clients.hotkeys.cycleSkipMuted"] = S,   // CycleFilter (S3b)
         ["clients.hotkeys.backToPrevious"] = S, ["clients.hotkeys.lastAlert"] = S,
         ["clients.hotkeys.suspend"] = S, ["clients.hotkeys.clickThrough"] = S, ["clients.hotkeys.hidePrimary"] = S,   // Previews.BindHotkeys (S3b)
-        ["clients.hotkeys.quickSwitch"] = N,   // no quick-switch sheet
+        ["clients.hotkeys.quickSwitch"] = N,   // the quick-switch wheel (WPF QuickSwitchWindow: reorder by drag, systems, attention) is not ported yet
         ["clients.hotkeys.undo"] = S, ["clients.hotkeys.redo"] = S,   // Previews.UndoLayout / RedoLayout (S6)
         ["clients.hotkeys.profileNext"] = S, ["clients.hotkeys.profilePrevious"] = S, ["clients.hotkeys.closeAll"] = S,   // (S3b)
         ["clients.hotkeys.sheet"] = S,        // S6: Linux/HotkeySheetWindow.cs
@@ -191,7 +191,7 @@ internal static class LinuxSupport
         ["tools.stats.textColor"] = S, ["tools.stats.csv"] = S, ["tools.stats.logFolder"] = S, ["tools.stats.noFolder"] = S,
         ["tools.stats.keepDays"] = S, ["tools.stats.keepZero"] = S,
         // ── Tools › EVE settings ──
-        ["tools.eve.editor"] = N,
+        ["tools.eve.editor"] = N,   // the EVE settings tool needs the client settings folders inside each Proton prefix; not ported yet
 
         // ── App › General ──
         ["app.general.language"] = S,
@@ -219,7 +219,7 @@ internal static class LinuxSupport
 
         // ── App › About ──
         ["app.about.versionText"] = S, ["app.about.links"] = S, ["app.about.checkOnStartup"] = S, ["app.about.preRelease"] = S,
-        ["app.about.installVersion"] = N,     // no Linux editor
+        ["app.about.installVersion"] = N,     // the version picker is not ported over the Linux updater (UpdateService.Linux.cs) yet
         ["app.about.useOldWindow"] = W,       // the old WPF settings window
         ["app.about.fonts"] = S,              // Linux/Settings/LookEditors.cs: the carried typefaces and their licences (S4)
         ["app.about.uninstallRow"] = W,       // registry, shortcuts, the Windows install
@@ -227,8 +227,8 @@ internal static class LinuxSupport
         // ── App › Diagnostics ──
         ["app.diagnostics.errorCount"] = S, ["app.diagnostics.errorLog"] = S,
         ["app.diagnostics.uncleanExit"] = S,  // Previews.Start writes the run marker (S3b)
-        ["app.diagnostics.bugReport"] = N,    // the report window is WPF
-        ["app.diagnostics.trackPlaytime"] = N, ["app.diagnostics.playtimeHistory"] = N,
+        ["app.diagnostics.bugReport"] = N,    // the report window (BugReportActions) is WPF; not ported yet
+        ["app.diagnostics.trackPlaytime"] = N, ["app.diagnostics.playtimeHistory"] = N,   // playtime shows only as the template's {week}: ported with thumbs.text.template
         ["app.diagnostics.note"] = S, ["app.diagnostics.cycling"] = S, ["app.diagnostics.alerts"] = S, ["app.diagnostics.folder"] = S,   // GlobalSettings set (S3b)
         ["app.diagnostics.windowHooks"] = S,  // S6: client windows found, closed and placed (fixed slots) go to the window events log
         ["app.diagnostics.injection"] = W, ["app.diagnostics.dwm"] = W,   // no key/click sending, no DWM on Linux
