@@ -755,10 +755,6 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     private Avalonia.Controls.Screens? AnyScreens =>
         _thumbs.Values.FirstOrDefault()?.Screens ?? _settingsWindow?.Screens ?? _nameBar?.Screens;
 
-    /// <summary>The clients at the login screen already sent to the default slot (ThumbnailManager applies the slot to a
-    /// character-select client too): each once, until it logs in or closes.</summary>
-    private readonly HashSet<uint> _loginPlaced = new();
-
     /// <summary>Puts a client into its fixed slot: the character's own slot, else the profile's default one (ClientSlotRules; a
     /// client at the login screen has no name and goes to the default slot). The slot is the VISIBLE window, frame included: a
     /// borderless client fills it exactly, a framed one has its title bar and borders inside it (_NET_FRAME_EXTENTS, the
@@ -829,7 +825,6 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     {
         if (S.ClientPositionMode != 3) return;
         foreach (var thumb in _thumbs.Values) ApplyClientSlot(thumb.Client.Window, thumb.Client.Character);
-        foreach (var window in _atLogin) ApplyClientSlot(window, null);
     }
 
     /// <summary>Centred in the work area of the monitor the client is on (#96: not over the panel), or at the X and Y set.
@@ -945,6 +940,12 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         keys.Add((S.ProfileCycleBackwardHotkey, () => CycleProfile(false)));
         keys.Add((S.CloseAllClientsHotkey, CloseAllClients));
         keys.Add((S.OpenSettingsHotkey, OpenSettings));
+        // S6: the character-select keys, only while their switch is on (HotkeyService.RegisterFromSettings).
+        if (S.CharSelectCyclingEnabled)
+        {
+            keys.Add((S.CharSelectForwardHotkey, () => CycleCharSelect(true)));
+            keys.Add((S.CharSelectBackwardHotkey, () => CycleCharSelect(false)));
+        }
         // S6: the layout history (HotkeyService's UndoLayoutHotkey / RedoLayoutHotkey).
         keys.Add((S.UndoLayoutHotkey, () => UndoLayout()));
         keys.Add((S.RedoLayoutHotkey, () => RedoLayout()));
@@ -973,32 +974,51 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     /// does), and a wrap from the last client to the first plays the wrap-around sound.</summary>
     private void Cycle(IReadOnlyList<string>? order, bool forward)
     {
-        var list = (order == null
+        var windows = (order == null
             ? _thumbs.Values.ToList()
             : order.Select(n => _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, n, StringComparison.OrdinalIgnoreCase)))
                    .OfType<ThumbnailWindow>().ToList())
-            .Where(t => !_excludedFromCycle.Contains(t.Client.Character)).ToList();
-        if (list.Count == 0) return;
+            .Where(t => !_excludedFromCycle.Contains(t.Client.Character) && (t.Client.Character.Length > 0 || S.IncludeLoginScreensInCycle))
+            .Select(t => t.Client.Window).ToList();
+        // S6: "Include clients at the login screen" (IncludeLoginScreensInCycle, ThumbnailManager.CycleAll): the next / previous
+        // keys also go to the login-screen thumbnails, and every client is then walked in window order, as on Windows.
+        if (order == null && S.IncludeLoginScreensInCycle) windows = windows.OrderBy(w => w).ToList();
+        if (windows.Count == 0) return;
         var options = CycleFilterOptions.From(S);
         if (CycleFilter.Changed(ref _cycleSwitches, options)) { _groupCycleWalk.Forget(); _allCycleWalk.Forget(); }
         if (options.Any)
         {
-            var windows = list.Select(t => t.Client.Window).ToList();
             string NameOf(uint w) => _thumbs.TryGetValue(w, out var t) ? t.Client.Character : "";
             if (CycleFilter.Press(windows, options, w => w == _lastActive, NameOf(_lastActive) is { Length: > 0 } a ? a : null, NameOf,
                     name => _alerts?.SystemOf(name), _attention.Has, name => _alerts?.Mutes.Until(name) != null,
                     order == null ? _allCycleWalk : _groupCycleWalk))
                 Alerts.Say(LocalizationService.Str("L.Switch.CycleFilterEmpty", "No other client matches the cycle filter: switching through all of them"));
-            list = windows.Select(w => _thumbs[w]).ToList();
         }
-        int current = list.FindIndex(t => t.Client.Window == _lastActive);
-        int next = CycleStep.Next(current, list.Count, forward);
+        int current = windows.IndexOf(_lastActive);
+        int next = CycleStep.Next(current, windows.Count, forward);
         bool wrapped = forward
-            ? current > 0 && next == 0 && list.Count > 1
-            : current >= 0 && current < list.Count - 1 && next == list.Count - 1 && list.Count > 1;
+            ? current > 0 && next == 0 && windows.Count > 1
+            : current >= 0 && current < windows.Count - 1 && next == windows.Count - 1 && windows.Count > 1;
         if (wrapped) PlayWrapSound();
-        DiagnosticsService.LogCycling($"[Cycle] {(order == null ? "all" : "group")} {(forward ? "FWD" : "BWD")}: {current} -> {next} of {list.Count}");
-        ActivateClient(list[next].Client.Window);
+        DiagnosticsService.LogCycling($"[Cycle] {(order == null ? "all" : "group")} {(forward ? "FWD" : "BWD")}: {current} -> {next} of {windows.Count}");
+        ActivateClient(windows[next]);
+    }
+
+    private int _charSelectIndex = -1;
+
+    /// <summary>ThumbnailManager.CycleCharSelect (copied, keep in sync): the two character-select keys switch between the
+    /// clients still at the login screen, in window order, stepping from the one in front (#116). One such client is
+    /// brought forward all the same.</summary>
+    private void CycleCharSelect(bool forward)
+    {
+        var windows = _atLogin.OrderBy(w => w).ToList();
+        if (windows.Count == 0) return;
+        if (windows.Count == 1) { _clients.Activate(windows[0]); return; }
+        int front = windows.IndexOf(_clients.Active());
+        if (front >= 0) _charSelectIndex = front;
+        _charSelectIndex = forward ? (_charSelectIndex + 1) % windows.Count : (_charSelectIndex - 1 + windows.Count) % windows.Count;
+        _clients.Activate(windows[_charSelectIndex]);
+        DiagnosticsService.LogCycling($"[CharCycle] {(forward ? "FWD" : "BWD")}: {_charSelectIndex} of {windows.Count}");
     }
 
     /// <summary>ThumbnailManager.ActivateEveWindow: brings a client to the front, and with "Minimize the other clients" on
@@ -1152,11 +1172,11 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
 
     // ── Alerts ──
 
-    private uint WindowOf(string character) =>
+    private uint WindowOf(string character) => string.IsNullOrEmpty(character) ? 0 :   // a login-screen thumbnail is no character's
         _thumbs.Values.FirstOrDefault(t => string.Equals(t.Client.Character, character, StringComparison.OrdinalIgnoreCase))?.Client.Window ?? 0;
 
     /// <summary>The character of a client window with a thumbnail; null for one at the login screen (or unknown).</summary>
-    private string? CharacterOf(uint window) => _thumbs.TryGetValue(window, out var thumb) ? thumb.Client.Character : null;
+    private string? CharacterOf(uint window) => _thumbs.TryGetValue(window, out var thumb) && thumb.Client.Character.Length > 0 ? thumb.Client.Character : null;
 
     private void Flash(string character, string severity, string alertType)
     {
@@ -1229,10 +1249,10 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             thumb.LockResizeAspect = S.LockResizeAspect;
             thumb.ConfineDragsToMonitor = S.ConfineDragsToMonitor;
             thumb.HoverScale = S.ResizeThumbnailsOnHover ? S.HoverScale : 1.0;   // ThumbnailManager.HoverScaleFor
-            thumb.Apply(Look(thumb.Client.Character, isActive, thumb.Hovered));
+            thumb.Apply(LoginLook(thumb.Client.Character, Look(thumb.Client.Character, isActive, thumb.Hovered)));
             thumb.MenuOpen = _menu != null;
             thumb.Follow();   // a drag that ended or a pointer that left lets a waiting enlargement happen
-            thumb.SetMark(MarkOf(thumb.Client.Window));
+            thumb.SetMark(MarkOf(thumb.Client.Window) ?? LoginMark(thumb.Client.Character));
             thumb.SetCycleBadge(_excludedFromCycle.Contains(thumb.Client.Character), ThumbnailFields.Anchor(S.CycleExclusionBadgePosition));
             Extras(thumb, badges.GetValueOrDefault(thumb.Client.Character));
             thumb.Update(_clients);
@@ -1327,6 +1347,28 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             SettingsUi.AlertFields.TextPosition(S.AlertTextPosition));
         thumb.SetAlertCount(unseen);
     }
+
+    /// <summary>ThumbnailWindow.SetNotLoggedIn's look for a login-screen thumbnail (no character): "border" (and the old
+    /// "color") a 3 px border in NotLoggedInColor, "dim" at 80 % of its opacity; "none", "text" and a named client unchanged.</summary>
+    private ThumbnailLook LoginLook(string character, ThumbnailLook look)
+    {
+        if (character.Length > 0) return look;
+        switch ((S.NotLoggedInIndicator ?? "").ToLowerInvariant())
+        {
+            case "border" or "color":
+                return look with { Border = Brush(S.NotLoggedInColor), BorderThickness = 3 };
+            case "dim":
+                return look with { Opacity = look.Opacity * 0.8 };
+            default:
+                return look;
+        }
+    }
+
+    /// <summary>The "Not Logged In" words over a login-screen thumbnail (modes "text", the old "color", and any other but
+    /// "none", "border" and "dim", as ThumbnailWindow.SetNotLoggedIn).</summary>
+    private string? LoginMark(string character) =>
+        character.Length > 0 || (S.NotLoggedInIndicator ?? "").ToLowerInvariant() is "none" or "border" or "dim"
+            ? null : LocalizationService.Str("L.Thumb.NotLoggedIn", "Not Logged In");
 
     private bool Hidden(string character) => S.ThumbnailVisibility.TryGetValue(character, out var v) && v != 0;
 
@@ -1453,7 +1495,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     {
         foreach (var thumb in _thumbs.Values)
         {
-            if (thumb.Busy || _settings.GetThumbnailPosition(thumb.Client.Character) is not { Width: > 0, Height: > 0 } saved) continue;
+            if (thumb.Busy || thumb.Client.Character.Length == 0 || _settings.GetThumbnailPosition(thumb.Client.Character) is not { Width: > 0, Height: > 0 } saved) continue;
             var (x, y, w, h) = ((int)saved.X, (int)saved.Y, (int)saved.Width, (int)saved.Height);
             if (thumb.OwnPosition == new PixelPoint(x, y) && thumb.OwnWidth == w && thumb.OwnHeight == h) continue;
             thumb.PlaceAt(x, y, w, h);
@@ -1468,7 +1510,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         foreach (var thumb in _thumbs.Values)
         {
             thumb.SetSize(width, height);
-            _settings.SaveThumbnailPosition(thumb.Client.Character, thumb.OwnPosition.X, thumb.OwnPosition.Y, width, height);
+            if (thumb.Client.Character.Length > 0) _settings.SaveThumbnailPosition(thumb.Client.Character, thumb.OwnPosition.X, thumb.OwnPosition.Y, width, height);
         }
         _settings.SaveDelayed();
     }
@@ -1547,7 +1589,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         }
     }
 
-    private IReadOnlyCollection<string> RunningCharacters() => _thumbs.Values.Select(t => t.Client.Character).ToList();
+    private IReadOnlyCollection<string> RunningCharacters() => _thumbs.Values.Select(t => t.Client.Character).Where(c => c.Length > 0).ToList();
 
     /// <summary>A brush for a settings colour ("#RRGGBB", "0xRRGGBB", "RRGGBB", "rgb(r,g,b)"), parsed as the Windows
     /// app parses it; white when it can't be read.</summary>
@@ -1654,13 +1696,17 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             if (ClientReady.ShouldRaise("", client.Character, _syncs > 0)) _alerts?.Raise(DateTime.UtcNow, client.Character, ClientReady.EventKey, ClientReady.Severity);
         _atLogin = atLogin.ToHashSet();
         FollowMonitors();
-        // Fixed slots: a client at the login screen sits in the default slot (once; it moves to its character's own slot when it
-        // logs in and gets its thumbnail).
-        _loginPlaced.IntersectWith(_atLogin);
-        if (S.ClientPositionMode == 3)
-            foreach (var window in _atLogin)
-                if (!_loginPlaced.Contains(window) && ApplyClientSlot(window, null)) _loginPlaced.Add(window);
         _probeWindows = found.Select(f => (f.Window, f.Character)).ToArray();
+        // S6: a client at the login screen has a thumbnail too, with no character (ThumbnailManager makes one for a window titled
+        // "EVE"; the "Not logged in" look marks it). It is placed as any new client (the default slot, a fixed place).
+        found = found.Concat(atLogin.Select(w => new EveClient(w, ""))).ToList();
+        // A client that logged in (or out to the login screen) gets a new thumbnail for its character, placed again.
+        foreach (var changed in found.Where(f => _thumbs.TryGetValue(f.Window, out var t) && t.Client.Character != f.Character).ToList())
+        {
+            _thumbs[changed.Window].Close();
+            _thumbs.Remove(changed.Window);
+            _placed.Remove(changed.Window);
+        }
         // A client's sound stream starts after its window (at login, after a loading screen): its saved volume is given again every 10 s.
         if (++_syncs % 5 == 0)
         {
@@ -1688,11 +1734,13 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             thumb.Moved += t =>
             {
                 if (S.ThumbnailSnap) SnapThumbnail(t);   // on release, before saving, so the snapped place is kept
+                if (t.Client.Character.Length == 0) return;   // a login-screen thumbnail's place is not kept (it has no name)
                 _settings.SaveThumbnailPosition(t.Client.Character, t.OwnPosition.X, t.OwnPosition.Y, t.OwnWidth, t.OwnHeight);
                 if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1") Console.WriteLine($"[move] {t.Client.Character} -> {t.OwnPosition}");
             };
             thumb.ResizeEnded += t =>
             {
+                if (t.Client.Character.Length == 0) return;
                 _settings.SaveThumbnailPosition(t.Client.Character, t.OwnPosition.X, t.OwnPosition.Y, t.OwnWidth, t.OwnHeight);
                 if (Environment.GetEnvironmentVariable("EVEMP_DEBUG_KEYS") == "1") Console.WriteLine($"[resize] {t.Client.Character} -> {t.OwnWidth}x{t.OwnHeight}");
             };
@@ -1720,7 +1768,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     /// <summary>Opens a thumbnail's right-click menu at the pointer, with the state of this moment. Only one is open.</summary>
     private void ShowMenu(ThumbnailWindow thumb)
     {
-        if (_alerts == null) return;
+        if (_alerts == null || thumb.Client.Character.Length == 0) return;   // a login-screen client has no character to act on
         _menu?.Close();
         var character = thumb.Client.Character;
         var state = new ThumbnailMenuState(character, _alerts.SystemOf(character), _alerts.Mutes.Until(character),
@@ -1892,7 +1940,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         {
             if (thumb == source) continue;
             thumb.SetSize(width, height);
-            _settings.SaveThumbnailPosition(thumb.Client.Character, thumb.OwnPosition.X, thumb.OwnPosition.Y, width, height);
+            if (thumb.Client.Character.Length > 0) _settings.SaveThumbnailPosition(thumb.Client.Character, thumb.OwnPosition.X, thumb.OwnPosition.Y, width, height);
         }
     }
 
@@ -1904,7 +1952,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     private PixelRect Place(string character)
     {
         int x, y, w, h;
-        if (_settings.GetThumbnailPosition(character) is { Width: > 0, Height: > 0 } saved)
+        if (character.Length > 0 && _settings.GetThumbnailPosition(character) is { Width: > 0, Height: > 0 } saved)
             (x, y, w, h) = ((int)saved.X, (int)saved.Y, (int)saved.Width, (int)saved.Height);
         else
         {

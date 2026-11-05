@@ -53,7 +53,7 @@ internal static class LinuxSupport
         ["clients.hotkeys.cycleNext"] = S, ["clients.hotkeys.cyclePrevious"] = S,
         ["clients.hotkeys.cycleWhileHeld"] = N, ["clients.hotkeys.cycleDelay"] = N,       // X11 key repeat is not followed
         ["clients.hotkeys.wrapSound"] = S, ["clients.hotkeys.wrapSoundFile"] = S,         // Previews.PlayWrapSound (S3b)
-        ["clients.hotkeys.includeLogins"] = N,   // Linux makes no thumbnail for a client at the login screen
+        ["clients.hotkeys.includeLogins"] = S,   // S6: login-screen clients have thumbnails; Previews.Cycle walks them in window order
         ["clients.hotkeys.cycleSameSystem"] = S, ["clients.hotkeys.cycleAlerting"] = S, ["clients.hotkeys.cycleSkipMuted"] = S,   // CycleFilter (S3b)
         ["clients.hotkeys.backToPrevious"] = S, ["clients.hotkeys.lastAlert"] = S,
         ["clients.hotkeys.suspend"] = S, ["clients.hotkeys.clickThrough"] = S, ["clients.hotkeys.hidePrimary"] = S,   // Previews.BindHotkeys (S3b)
@@ -81,7 +81,7 @@ internal static class LinuxSupport
         ["clients.windows.alwaysMaximize"] = S, ["clients.windows.trackPositions"] = S,
         ["clients.windows.coverTaskbar"] = W, // the Windows taskbar
         ["clients.windows.slotEditor"] = S, ["clients.windows.slotsResize"] = S,
-        ["clients.windows.charSelectCycle"] = N, ["clients.windows.charSelectNext"] = N, ["clients.windows.charSelectPrevious"] = N,
+        ["clients.windows.charSelectCycle"] = S, ["clients.windows.charSelectNext"] = S, ["clients.windows.charSelectPrevious"] = S,   // Previews.CycleCharSelect (S6)
 
         // ── Clients › Audio ──
         ["clients.audio.autoSolo"] = S, ["clients.audio.muteNoneActive"] = S,   // Previews.FollowAudioSolo (S3b)
@@ -122,7 +122,7 @@ internal static class LinuxSupport
         ["thumbs.visibility.alwaysOnTop"] = S, ["thumbs.visibility.aboveClients"] = N,
         ["thumbs.visibility.hideOnLostFocus"] = S,   // Previews.Tick (S3b)
         ["thumbs.visibility.hideActive"] = S, ["thumbs.nameBar"] = S,
-        ["thumbs.visibility.notLoggedIn"] = N, ["thumbs.visibility.notLoggedInColor"] = N,
+        ["thumbs.visibility.notLoggedIn"] = S, ["thumbs.visibility.notLoggedInColor"] = S,   // Previews.LoginLook / LoginMark (S6)
         ["thumbs.visibility.pipTable"] = S,   // MoreEditors.PipTable (S3b)
 
         // ── Thumbnails › Crop windows ──
