@@ -106,6 +106,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         _settings.ProfileSwitched += _ => { if (!_switchingProfileAutomatically) _autoProfile.ManualSwitch(DateTime.UtcNow); };
         _alerts = new Alerts(_settings, RunningCharacters, WindowOf, _clients.Active, Flash, _attention, SwitchToCharacter, SnoozeEvent);
         _alerts.UnderFire += SignalUnderFire;
+        FollowStatsLogging();   // S7: CSV stats logging set before the first log line is read (App's step 4)
         var (chat, game) = _alerts.Start();
         Console.WriteLine($"Logs: chat {(chat.Length > 0 ? chat : "not found")}; game {(game.Length > 0 ? game : "not found")}");
         new DispatcherTimer(TimeSpan.FromMilliseconds(100), DispatcherPriority.Background, (_, _) => Tick()).Start();
@@ -897,6 +898,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         _nameBar?.Close();
         _keepAwake.Dispose();
         _runMarker?.End();
+        CloseStatWindows();   // S7: their places are kept before the settings are written
         _alerts?.Dispose();
         _settings.Dispose();
         foreach (var thumb in _thumbs.Values.Concat(_pips.Values).Concat(_crops.Values.Select(c => c.Window))) thumb.Close();
@@ -1245,6 +1247,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             FollowDowntime();
         }
         if (_ticks % 50 == 0) LookAtMemory();
+        if (_ticks % 10 == 0) SyncStats();   // S7: the stats overlay, once a second (Windows' stat timer)
         var watch = Stopwatch.StartNew();
         uint active = _clients.Active();
         if (active != _lastActive && _thumbs.ContainsKey(active))
@@ -1321,6 +1324,7 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
             pip.SetMark(MarkOf(pip.Client.Window));
             pip.Update(_clients);
         }
+        FollowStatWindows(eveFocused);
         SyncCrops();
         foreach (var ((_, id), crop) in _crops)
         {

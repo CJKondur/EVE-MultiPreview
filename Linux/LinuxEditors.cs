@@ -55,6 +55,10 @@ internal static class LinuxEditors
         { "thumbs.layout.history", (pages, ctx, _) => pages.LayoutHistory(ctx) },
         // S6 (Linux/Settings/HotkeyEditors.cs): keys used twice.
         { "clients.hotkeys.conflicts", (pages, ctx, _) => pages.HotkeyConflictsCard(ctx) },
+        // S7 (Linux/Settings/StatsEditors.cs): the stats overlay's numbers.
+        { "tools.stats.metrics", (pages, ctx, _) => pages.StatMetricsCard(ctx) },
+        { "tools.stats.characterTable", (pages, ctx, _) => pages.StatCharactersCard(ctx) },
+        { "character.statsPicker", (pages, ctx, item) => pages.StatPickerCard(ctx, (string)item.Arg!) },
     };
 
     /// <summary>Every editor id Linux can build.</summary>

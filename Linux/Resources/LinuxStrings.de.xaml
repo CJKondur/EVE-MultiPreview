@@ -65,5 +65,7 @@
     <sys:String x:Key="L.Linux.Help.Startup">**Beim Start von MultiPreview** legt fest, ob sich dieses Fenster auch öffnet. Wähle minimiert, damit es bereitsteht, ohne EVE zu verdecken.&#x0A;&#x0A;Damit MultiPreview bei der Anmeldung startet, füge es den Autostart-Programmen deines Desktops hinzu.</sys:String>
     <sys:String x:Key="L.Linux.Help.Severity">Jedes Ereignis ist **kritisch**, **Warnung** oder **Info**. Jeder Schweregrad hat eine Farbe, ein Blinktempo und die Wahl, ob seine Alarme eine Desktop-Benachrichtigung zeigen. Info-Alarme blinken nicht: Sie bleiben ruhig.</sys:String>
     <sys:String x:Key="L.Linux.Help.Clicks">Ein einfacher Klick wechselt zu diesem Client. **Strg+Klick** (beide Strg-Tasten) und **Umschalt+Klick** können ihn stattdessen minimieren oder beim Durchschalten überspringen. Strg ist auch die Zielaufschalt-Taste von EVE, wähle also, was zu deiner Spielweise passt.&#x0A;&#x0A;**Farben pro Charakter verwenden** schaltet die Rahmen- und Textfarben ein, die du auf der Seite jedes Charakters festlegst.</sys:String>
+    <!-- S7: the stats overlay -->
+    <sys:String x:Key="L.Linux.Help.StatsLogging">Mit **Statistik in CSV-Dateien speichern** schreibt MultiPreview pro Charakter und Tag eine Datei in den Protokollordner, für eine Tabellenkalkulation. Dateien, die älter als die Aufbewahrungszeit sind, werden beim Start von MultiPreview gelöscht; 0 Tage behält alle Dateien. Das Ein- und Ausschalten der Protokollierung gilt sofort, eine neue Aufbewahrungszeit ab dem nächsten Start.</sys:String>
 
 </ResourceDictionary>

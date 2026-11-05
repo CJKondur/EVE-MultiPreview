@@ -65,5 +65,7 @@
     <sys:String x:Key="L.Linux.Help.Startup">**MultiPreview の起動時** は、このウィンドウも開くかどうかを決めます。最小化を選ぶと、EVE を隠さずにすぐ使えます。&#x0A;&#x0A;サインイン時に MultiPreview を起動するには、デスクトップの自動起動プログラムに追加してください。</sys:String>
     <sys:String x:Key="L.Linux.Help.Severity">どのイベントも **重大**、**警告**、**情報** のいずれかです。重大度ごとに色、点滅の速さ、そのアラートでデスクトップ通知を表示するかどうかを設定できます。情報アラートは点滅せず、点灯したままです。</sys:String>
     <sys:String x:Key="L.Linux.Help.Clicks">普通のクリックでそのクライアントに切り替えます。**Ctrl+クリック**（左右どちらの Ctrl キーでも可）と **Shift+クリック** では、代わりに最小化したり、巡回で飛ばしたりできます。Ctrl は EVE のターゲットロックのキーでもあるので、遊び方に合うものを選んでください。&#x0A;&#x0A;**キャラクターごとの色を使う** をオンにすると、各キャラクターのページで設定した枠と文字の色が使われます。</sys:String>
+    <!-- S7: the stats overlay -->
+    <sys:String x:Key="L.Linux.Help.StatsLogging">**統計を CSV ファイルに保存** をオンにすると、MultiPreview はログフォルダーにキャラクターごと・1日ごとにファイルを書き込みます（表計算ソフト向け）。保存期間より古いファイルは MultiPreview の起動時に削除されます。0 日の場合はすべてのファイルを保持します。ログ記録のオン/オフはすぐに反映され、新しい保存期間は次回の起動から有効になります。</sys:String>
 
 </ResourceDictionary>

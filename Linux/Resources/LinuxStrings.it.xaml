@@ -65,5 +65,7 @@
     <sys:String x:Key="L.Linux.Help.Startup">**All'avvio di MultiPreview** decide se si apre anche questa finestra. Scegli ridotta a icona per averla pronta senza coprire EVE.&#x0A;&#x0A;Per avviare MultiPreview all'accesso, aggiungilo ai programmi ad avvio automatico del tuo desktop.</sys:String>
     <sys:String x:Key="L.Linux.Help.Severity">Ogni evento è **critico**, **avviso** o **info**. Ogni gravità ha un colore, una velocità di lampeggio e la scelta se i suoi avvisi mostrano una notifica del desktop. Gli avvisi info non lampeggiano: restano fissi.</sys:String>
     <sys:String x:Key="L.Linux.Help.Clicks">Un clic semplice passa a quel client. **Ctrl+clic** (l'uno o l'altro tasto Ctrl) e **Maiusc+clic** possono invece minimizzarlo o saltarlo nel ciclo. Ctrl è anche il tasto di aggancio bersaglio di EVE, quindi scegli ciò che si adatta al tuo modo di giocare.&#x0A;&#x0A;**Usa colori per personaggio** attiva i colori del bordo e del testo che imposti nella pagina di ogni personaggio.</sys:String>
+    <!-- S7: the stats overlay -->
+    <sys:String x:Key="L.Linux.Help.StatsLogging">Con **Salva le statistiche in file CSV** attivo, MultiPreview scrive un file per personaggio al giorno nella cartella dei log, per un foglio di calcolo. I file più vecchi del tempo di conservazione vengono eliminati all'avvio di MultiPreview; 0 giorni conserva tutti i file. Attivare o disattivare la registrazione ha effetto subito; un nuovo tempo di conservazione, dal prossimo avvio.</sys:String>
 
 </ResourceDictionary>

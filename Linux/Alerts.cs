@@ -35,6 +35,11 @@ public sealed class Alerts : IDisposable
     /// asks it at every tick and tells the windows (Previews.Tick).</summary>
     public AlertEnlarge Enlarge { get; } = new();
 
+    /// <summary>S7: the stats overlay's numbers (App's _statTracker), fed by every damage, repair, mining and bounty line the
+    /// game-log reader sees, whether the overlay is on or not, as on Windows. Recorded on the log thread (the tracker is
+    /// thread-safe); the app reads it once a second.</summary>
+    public StatTrackerService Stats { get; } = new();
+
     /// <summary>The alert history, for the history window.</summary>
     public AlertHistory History => _history;
 
@@ -217,14 +222,15 @@ public sealed class Alerts : IDisposable
         };
         _monitor.DamageReceived += d =>
         {
+            Stats.RecordDamage(d.CharacterName, d.Amount, true, d.IsNpc, damageType: d.Type);
             _idleWatch.Active(d.CharacterName, DateTime.UtcNow);
             // App's SignalUnderFire (S6): the under-fire border, on the UI thread.
             if (UnderFire is { } fire && !string.IsNullOrEmpty(d.CharacterName)) Dispatcher.UIThread.Post(() => fire(d.CharacterName));
         };
-        _monitor.DamageDealt += d => _idleWatch.Active(d.CharacterName, DateTime.UtcNow);
-        _monitor.MiningYield += m => _idleWatch.Active(m.CharacterName, DateTime.UtcNow);
-        _monitor.RepairReceived += r => _idleWatch.Active(r.CharacterName, DateTime.UtcNow);
-        _monitor.BountyReceived += b => _idleWatch.Active(b.CharacterName, DateTime.UtcNow);
+        _monitor.DamageDealt += d => { Stats.RecordDamage(d.CharacterName, d.Amount, false, d.IsNpc); _idleWatch.Active(d.CharacterName, DateTime.UtcNow); };
+        _monitor.MiningYield += m => { Stats.RecordMining(m.CharacterName, m.Amount, m.MineType); _idleWatch.Active(m.CharacterName, DateTime.UtcNow); };
+        _monitor.RepairReceived += r => { Stats.RecordRepair(r.CharacterName, r.Amount, r.IsIncoming, r.RepairType); _idleWatch.Active(r.CharacterName, DateTime.UtcNow); };
+        _monitor.BountyReceived += b => { Stats.RecordBounty(b.CharacterName, b.Amount); _idleWatch.Active(b.CharacterName, DateTime.UtcNow); };
         _monitor.AlertTriggered += (character, alertType, _) => { if (_profiles.IsOn(character, alertType)) _idleWatch.Alerted(character, alertType, DateTime.UtcNow); };
         _monitor.Start("", chat, game, S.EnableChatLogMonitoring && chat.Length > 0, S.EnableGameLogMonitoring && game.Length > 0);
         _folders = (chat, game);

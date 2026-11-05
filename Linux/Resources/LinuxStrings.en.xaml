@@ -64,5 +64,7 @@
     <sys:String x:Key="L.Linux.Help.Startup">**When MultiPreview starts** decides whether this window opens too. Choose minimized to have it ready without covering EVE.&#x0A;&#x0A;To start MultiPreview when you sign in, add it to your desktop's autostart programs.</sys:String>
     <sys:String x:Key="L.Linux.Help.Severity">Every event is **critical**, **warning** or **info**. Each severity has a colour, a flash speed and a choice of whether its alerts show a desktop notification. Info alerts don't blink: they stay steady.</sys:String>
     <sys:String x:Key="L.Linux.Help.Clicks">A plain click switches to that client. **Ctrl+click** (either Ctrl key) and **Shift+click** can minimize it or skip it when cycling instead. Ctrl is also EVE's lock-target key, so pick what suits how you play.&#x0A;&#x0A;**Use per-character colours** turns on the border and text colours you set on each character's page.</sys:String>
+    <!-- S7: the stats overlay -->
+    <sys:String x:Key="L.Linux.Help.StatsLogging">With **Save stats to CSV files** on, MultiPreview writes one file per character per day into the log folder, for a spreadsheet. Files older than the keep time are deleted when MultiPreview starts; 0 days keeps every file. Turning logging on or off applies at once; a new keep time applies from the next start.</sys:String>
 
 </ResourceDictionary>

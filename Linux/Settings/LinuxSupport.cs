@@ -184,11 +184,12 @@ internal static class LinuxSupport
         ["perf.fps.show"] = W, ["perf.fps.insetX"] = W, ["perf.fps.insetY"] = W, ["perf.fps.size"] = W,
         ["perf.fps.target"] = W, ["perf.fps.manualRow"] = W,   // RivaTuner Statistics Server
 
-        // ── Tools › Stats overlay: not on Linux yet ──
-        ["tools.stats.enabled"] = N, ["tools.stats.hideOnLostFocus"] = N, ["tools.stats.metrics"] = N, ["tools.stats.countNpc"] = N,
-        ["tools.stats.characterTable"] = N, ["tools.stats.fontSize"] = N, ["tools.stats.opacity"] = N, ["tools.stats.background"] = N,
-        ["tools.stats.textColor"] = N, ["tools.stats.csv"] = N, ["tools.stats.logFolder"] = N, ["tools.stats.noFolder"] = N,
-        ["tools.stats.keepDays"] = N, ["tools.stats.keepZero"] = N,
+        // ── Tools › Stats overlay (S7: Linux/StatsWindow.cs + PreviewsStats.cs over the shared StatTrackerService; editors in
+        // Linux/Settings/StatsEditors.cs) ──
+        ["tools.stats.enabled"] = S, ["tools.stats.hideOnLostFocus"] = S, ["tools.stats.metrics"] = S, ["tools.stats.countNpc"] = S,
+        ["tools.stats.characterTable"] = S, ["tools.stats.fontSize"] = S, ["tools.stats.opacity"] = S, ["tools.stats.background"] = S,
+        ["tools.stats.textColor"] = S, ["tools.stats.csv"] = S, ["tools.stats.logFolder"] = S, ["tools.stats.noFolder"] = S,
+        ["tools.stats.keepDays"] = S, ["tools.stats.keepZero"] = S,
         // ── Tools › EVE settings ──
         ["tools.eve.editor"] = N,
 
@@ -244,8 +245,8 @@ internal static class LinuxSupport
         ["character.neverMinimize"] = S,      // Previews.ActivateClient (S3b)
         ["character.core"] = W, ["character.coreStale"] = W,   // CPU priority and affinity: see perf.cpu
         ["character.volume"] = S,
-        ["character.statsOff"] = N, ["character.statsNote"] = N, ["character.statsDamage"] = N, ["character.statsLogi"] = N,
-        ["character.statsMining"] = N, ["character.statsRatting"] = N, ["character.statsPicker"] = N,
+        ["character.statsOff"] = S, ["character.statsNote"] = S, ["character.statsDamage"] = S, ["character.statsLogi"] = S,   // S7
+        ["character.statsMining"] = S, ["character.statsRatting"] = S, ["character.statsPicker"] = S,
         ["character.cropCount"] = S, ["character.cropsLink"] = S, ["character.forgetRow"] = S,
     };
 
@@ -326,6 +327,8 @@ internal static class LinuxSupport
         ["L.Help.app.general.startup.Body"] = "L.Linux.Help.Startup",
         ["L.Help.alerts.look.severity.Body"] = "L.Linux.Help.Severity",
         ["L.Help.clients.characters.clicks.Body"] = "L.Linux.Help.Clicks",
+        // S7: Linux has no session report window (the Windows StatReportWindow), so the logging help leaves it out.
+        ["L.Help.tools.stats.logging.Body"] = "L.Linux.Help.StatsLogging",
     };
 
     /// <summary>The key Linux shows for <paramref name="key"/>.</summary>
