@@ -102,11 +102,12 @@ internal sealed class ColourPicker : StackPanel
         var row = new WrapPanel { Orientation = Orientation.Horizontal, MaxWidth = 300 };
         foreach (var colour in colours)
         {
-            // The colour is the face inside the button: a hover repaints the button's frame, never the colour.
+            // The colour is the face inside the button: a hover repaints the button's frame, never the colour. The face has its
+            // own size: the button centres its content, and a Border with no child and no size measures 0 x 0 (a dot).
             var swatch = new Button
             {
                 Width = 26, Height = 26, MinHeight = 0, Padding = new Thickness(2), Margin = new Thickness(0, 0, 4, 4),
-                Content = new Border { Background = new ImmutableSolidColorBrush(colour), BorderBrush = Brushes.Gray, BorderThickness = new Thickness(1) },
+                Content = new Border { Width = 20, Height = 20, Background = new ImmutableSolidColorBrush(colour), BorderBrush = Brushes.Gray, BorderThickness = new Thickness(1) },
             };
             ToolTip.SetTip(swatch, Format(colour));
             swatch.Classes.Add("swatch");
