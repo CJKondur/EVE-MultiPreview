@@ -95,11 +95,12 @@ public sealed unsafe class GlobalHotkeys
     }
 
     /// <summary>X sends a held key as KeyRelease and KeyPress pairs with one timestamp (or, with detectable repeat, presses
-    /// without a release): a press is a repeat when the key is still down, or was let go at that very moment.</summary>
-    public static bool IsRepeat(bool stillDown, uint pressTime, uint? releasedAt) =>
-        stillDown || releasedAt is { } r && pressTime - r <= 1;
+    /// without a release): a press is a repeat when the key was let go at that very moment, or is still down from a press
+    /// at most a second before (a release that never came, say to another grab, must not make every later press a repeat).</summary>
+    public static bool IsRepeat(uint pressTime, uint? releasedAt, uint? downSince) =>
+        releasedAt is { } r && pressTime - r <= 1 || downSince is { } d && pressTime - d <= 1000;
 
-    private readonly HashSet<byte> _down = new();
+    private readonly Dictionary<byte, uint> _down = new();   // key → the time of its last press, while not let go
     private readonly Dictionary<byte, uint> _releasedAt = new();
     private readonly Dictionary<byte, long> _lastFire = new();
 
@@ -122,8 +123,8 @@ public sealed unsafe class GlobalHotkeys
                     continue;
                 }
                 if (type != KeyPress) continue;
-                bool repeat = IsRepeat(_down.Contains(code), time, _releasedAt.TryGetValue(code, out var r) ? r : null);
-                _down.Add(code);
+                bool repeat = IsRepeat(time, _releasedAt.TryGetValue(code, out var r) ? r : null, _down.TryGetValue(code, out var d) ? d : null);
+                _down[code] = time;
                 var mods = (ushort)(*(ushort*)(p + 28) & Wanted);
                 (Action Run, bool Repeatable)? hit;
                 lock (_gate) hit = Find(_bound, code, mods, _wildcard);
