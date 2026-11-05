@@ -139,6 +139,7 @@
     <Compile Include="..\Views\AlertHistoryModel.cs" Link="Shared\Views\AlertHistoryModel.cs" />
     <Compile Include="..\Views\ReleaseNotesMarkup.cs" Link="Shared\Views\ReleaseNotesMarkup.cs" />
     <Compile Include="..\Views\StatReportModel.cs" Link="Shared\Views\StatReportModel.cs" />
+    <Compile Include="..\Views\QuickSwitchLayout.cs" Link="Shared\Views\QuickSwitchLayout.cs" />
     <Compile Include="..\SettingsUi\Registry\*.cs" LinkBase="Shared\SettingsUi\Registry" />
     <!-- SettingSwitches turns a toggle on from the Windows app and the WPF command-buttons editor; it needs the WPF SettingVM. -->
     <Compile Remove="..\SettingsUi\Registry\SettingSwitches.cs" />

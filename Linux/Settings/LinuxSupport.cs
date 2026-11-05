@@ -57,7 +57,7 @@ internal static class LinuxSupport
         ["clients.hotkeys.cycleSameSystem"] = S, ["clients.hotkeys.cycleAlerting"] = S, ["clients.hotkeys.cycleSkipMuted"] = S,   // CycleFilter (S3b)
         ["clients.hotkeys.backToPrevious"] = S, ["clients.hotkeys.lastAlert"] = S,
         ["clients.hotkeys.suspend"] = S, ["clients.hotkeys.clickThrough"] = S, ["clients.hotkeys.hidePrimary"] = S,   // Previews.BindHotkeys (S3b)
-        ["clients.hotkeys.quickSwitch"] = N,   // the quick-switch wheel (WPF QuickSwitchWindow: reorder by drag, systems, attention) is not ported yet
+        ["clients.hotkeys.quickSwitch"] = S,   // S8: Linux/QuickSwitchWindow.cs over the shared QuickSwitchLayout (Previews.ToggleQuickSwitch)
         ["clients.hotkeys.undo"] = S, ["clients.hotkeys.redo"] = S,   // Previews.UndoLayout / RedoLayout (S6)
         ["clients.hotkeys.profileNext"] = S, ["clients.hotkeys.profilePrevious"] = S, ["clients.hotkeys.closeAll"] = S,   // (S3b)
         ["clients.hotkeys.sheet"] = S,        // S6: Linux/HotkeySheetWindow.cs

@@ -996,6 +996,11 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         keys.Add((S.CloseAllClientsHotkey, CloseAllClients));
         keys.Add((S.OpenSettingsHotkey, OpenSettings));
         keys.Add((S.HotkeySheetHotkey, ToggleHotkeySheet));   // S6: IDEAS #16
+        keys.Add((S.QuickSwitchHotkey, () =>   // S8: Plan 4's wheel (HotkeyService: QuickSwitchHotkey); a failure is logged, as on Windows
+        {
+            try { ToggleQuickSwitch(); }
+            catch (Exception ex) when (ex is not OutOfMemoryException) { _quickSwitch = null; ErrorLog.Shared.Record(ex, "QuickSwitch", DateTime.Now); }
+        }));
         // S6: the character-select keys, only while their switch is on (HotkeyService.RegisterFromSettings).
         if (S.CharSelectCyclingEnabled)
         {
@@ -1030,6 +1035,42 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         sheet.Closed += (_, _) => { if (ReferenceEquals(_hotkeySheet, sheet)) _hotkeySheet = null; };
         _hotkeySheet = sheet;
         sheet.Show();
+    }
+
+    private QuickSwitchWindow? _quickSwitch;
+
+    /// <summary>S8: ThumbnailManager.ShowQuickSwitch: the quick-switch wheel over the screen under the pointer with every running
+    /// character (the saved order first), or closes the open one. A pick switches to that client; Save order keeps the order.
+    /// Like the command palette it must hold the keyboard (a number key would reach the game): a window manager that keeps the
+    /// focus from it is asked once more, and a wheel still not in front closes.</summary>
+    private void ToggleQuickSwitch()
+    {
+        if (_quickSwitch != null) { var open = _quickSwitch; _quickSwitch = null; open.Dismiss(); return; }
+        var characters = QuickSwitchWindow.Order(RunningCharacters().ToList(), S.QuickSwitchCardOrder);
+        if (characters.Count == 0) return;
+        var pointer = _clients.Pointer() is { } p ? new PixelPoint(p.X, p.Y) : (PixelPoint?)null;
+        var screens = AnyScreens;
+        var screen = pointer is { } at ? screens?.ScreenFromPoint(at) ?? screens?.Primary : screens?.Primary;
+        var area = screen?.WorkingArea ?? new PixelRect(0, 0, 1920, 1080);
+        double scale = screen?.Scaling ?? 1.0;
+        var wheel = new QuickSwitchWindow(characters, name => _alerts?.SystemOf(name), name => _attention.For(name),
+            severity => ((ISolidColorBrush)Brush(AlertColours.Resolve(S, "", severity))).Color,
+            new System.Windows.Size(area.Width / scale * 0.9, area.Height / scale * 0.9));
+        wheel.CharacterSelected += SwitchTo;
+        wheel.OrderSaved += order =>
+        {
+            S.QuickSwitchCardOrder = order;
+            _settings.Save();
+        };
+        wheel.Closed += (_, _) => { if (ReferenceEquals(_quickSwitch, wheel)) _quickSwitch = null; };
+        _quickSwitch = wheel;
+        wheel.ShowAt(pointer);
+        DispatcherTimer.RunOnce(() =>
+        {
+            if (_quickSwitch != wheel || wheel.IsActive) return;
+            if (wheel.TryGetPlatformHandle() is { } handle) _clients.Activate((uint)(long)handle.Handle);
+            DispatcherTimer.RunOnce(() => { if (_quickSwitch == wheel && !wheel.IsActive) ToggleQuickSwitch(); }, TimeSpan.FromMilliseconds(400));
+        }, TimeSpan.FromMilliseconds(400));
     }
 
     private void SwitchTo(string character)

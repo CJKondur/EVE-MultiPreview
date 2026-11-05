@@ -79,6 +79,7 @@ internal sealed partial class SettingsEditors
         all.Add(("global:" + T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), T("L.S.clients.hotkeys.hidePip", "Hide or show second thumbnails"), S.HideSecondaryHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.commandPalette", "Open the command palette"), T("L.S.clients.hotkeys.commandPalette", "Open the command palette"), S.CommandPaletteHotkey));
         all.Add(("global:focus", T("L.S.clients.groups.focusKey", "Focus mode on or off"), S.FocusModeHotkey));
+        all.Add(("global:" + T("L.S.clients.hotkeys.quickSwitch", "Quick-switch wheel"), T("L.S.clients.hotkeys.quickSwitch", "Quick-switch wheel"), S.QuickSwitchHotkey));   // S8
         all.Add(("global:" + T("L.S.clients.hotkeys.hideCrops", "Hide or show crop windows"), T("L.S.clients.hotkeys.hideCrops", "Hide or show crop windows"), S.HideShowCropsHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), T("L.S.clients.hotkeys.lockPositions", "Lock or unlock thumbnail positions"), S.LockPositionsHotkey));
         all.Add(("global:" + T("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), T("L.S.clients.hotkeys.lastAlert", "Go to the last alert"), S.GoToLastAlertHotkey));
