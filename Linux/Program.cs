@@ -756,9 +756,14 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
 
     // ── Fixed slots (ThumbnailManager.ApplyClientSlot / FindSlotScreen / ApplyAllClientSlots: copied, keep in sync) ──
 
-    /// <summary>The screens of any MultiPreview window (a thumbnail, the settings window, the name bar), or null while none is open.</summary>
+    /// <summary>The screens of any MultiPreview window (a thumbnail, the settings window, the name bar); before any is open, of a
+    /// window that is made for this and never shown (so the first thumbnail of a session is placed on the preferred monitor's
+    /// work area too, S7).</summary>
     private Avalonia.Controls.Screens? AnyScreens =>
-        _thumbs.Values.FirstOrDefault()?.Screens ?? _settingsWindow?.Screens ?? _nameBar?.Screens;
+        _thumbs.Values.FirstOrDefault()?.Screens ?? _settingsWindow?.Screens ?? _nameBar?.Screens ?? (_screenProbe ??= new Window()).Screens;
+
+    /// <summary>Never shown: only asked for the screens while no other MultiPreview window exists.</summary>
+    private Window? _screenProbe;
 
     /// <summary>Puts a client into its fixed slot: the character's own slot, else the profile's default one (ClientSlotRules; a
     /// client at the login screen has no name and goes to the default slot). The slot is the VISIBLE window, frame included: a
@@ -1459,8 +1464,15 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         if (_alertBorders.ContainsKey(character)) return look;
         double phase = Environment.TickCount64 / 50 * 0.15;
         byte alpha = (byte)Math.Clamp(168 + 87 * Math.Sin(phase), 0, 255);
-        return look with { Border = new SolidColorBrush(Color.FromArgb(alpha, 255, 40, 40)), BorderThickness = Math.Max(3, look.BorderThickness) };
+        return look with { Border = UnderFireBrush(alpha), BorderThickness = Math.Max(3, look.BorderThickness) };
     }
+
+    /// <summary>One brush per alpha, made once: the same alpha then gives the same look, so Apply's early-out holds and a
+    /// fight allocates nothing per tick.</summary>
+    private static readonly SolidColorBrush?[] UnderFireBrushes = new SolidColorBrush?[256];
+
+    public static SolidColorBrush UnderFireBrush(byte alpha) =>
+        UnderFireBrushes[alpha] ??= new SolidColorBrush(Color.FromArgb(alpha, 255, 40, 40));
 
     /// <summary>ThumbnailWindow.SetNotLoggedIn's look for a login-screen thumbnail (no character): "border" (and the old
     /// "color") a 3 px border in NotLoggedInColor, "dim" at 80 % of its opacity; "none", "text" and a named client unchanged.</summary>
@@ -1818,6 +1830,10 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
         // A client that logged in (or out to the login screen) gets a new thumbnail for its character, placed again.
         foreach (var changed in found.Where(f => _thumbs.TryGetValue(f.Window, out var t) && t.Client.Character != f.Character).ToList())
         {
+            // The character that left (logged out to the character select) needs the player no more, as for a closed client
+            // (Windows: CharacterLeft → Attention.Gone).
+            var old = _thumbs[changed.Window].Client.Character;
+            if (old.Length > 0) _attention.Gone(old);
             _thumbs[changed.Window].Close();
             _thumbs.Remove(changed.Window);
             _placed.Remove(changed.Window);
@@ -2063,7 +2079,8 @@ public sealed partial class Previews : ITrayActions, ISettingsHost
     /// (ThumbnailManager.CreateThumbnailForWindow): from the start location in the preferred monitor's work area (Home ›
     /// Monitor; the primary's without one), a new column at the bottom of that area, ThumbnailGutter apart (FlowSlot). A
     /// place on no screen at all is brought onto the primary one (EnsureOnScreen, issue #74). Before any MultiPreview window
-    /// exists there is no screen to ask: the start location is then taken as it is.</summary>
+    /// exists the screens come from a window that is never shown (AnyScreens); with no screen at all the start location is
+    /// taken as it is.</summary>
     private PixelRect Place(string character)
     {
         int x, y, w, h;

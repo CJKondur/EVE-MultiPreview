@@ -319,6 +319,7 @@ public sealed class ThumbnailWindow : Window
         _bitmap = new WriteableBitmap(new PixelSize(width, height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Opaque);
         _image.Source = _bitmap;
         old.Dispose();
+        Drawn = false;   // the new bitmap is black: the GPU-saving modes draw it once on the next tick
     }
 
     // ── Enlarged for an alert (IDEAS #13, the Windows ThumbnailWindow's rules) ──
@@ -421,6 +422,7 @@ public sealed class ThumbnailWindow : Window
             _bitmap = new WriteableBitmap(new PixelSize(r.Width, r.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Opaque);
             _image.Source = _bitmap;
             old.Dispose();
+            Drawn = false;   // as in SetSize
         }
         Position = new PixelPoint(r.X, r.Y);
     }
