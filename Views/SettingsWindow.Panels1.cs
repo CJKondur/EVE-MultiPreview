@@ -260,7 +260,7 @@ public partial class SettingsWindow
         if (int.TryParse(TxtMinimizeDelay.Text, out int md)) S.MinimizeDelay = md;
         // Clamp cycle delay to a sensible range — too low becomes unresponsive
         // (events outpace processing), too high feels broken.
-        if (int.TryParse(TxtCycleDelay.Text, out int cd)) S.CycleDelayMs = Math.Clamp(cd, 25, 2000);
+        if (int.TryParse(TxtCycleDelay.Text, out int cd)) S.CycleDelayMs = Math.Clamp(cd, 1, 2000);
         S.CycleWhileHeld = ChkCycleWhileHeld.IsChecked == true;
         // Startup-settings mode: clamp to the 3 known values.
         int startupIdx = CmbStartupSettings.SelectedIndex;
