@@ -49,8 +49,7 @@ public sealed class StatsWindow : Window
 
     public StatsWindow(string character, PixelRect rect)
     {
-        Character = character;
-        Title = "MultiPreview - " + StreamerMask.Name(StreamerKind.Character, character) + " (stats)";
+        Character = character;   // the title is set by ShowName below
         Width = rect.Width;
         Height = rect.Height;
         Position = rect.Position;
@@ -82,11 +81,14 @@ public sealed class StatsWindow : Window
         Gestures();
     }
 
-    /// <summary>The header again (streamer mode switched on or off). Nothing is drawn when it did not change.</summary>
+    /// <summary>The header and the window title again (streamer mode switched on or off: the title is what a capture
+    /// program's window list shows, so it must not keep the real name). Nothing changes when the name did not.</summary>
     public void ShowName()
     {
         var name = StreamerMask.Name(StreamerKind.Character, Character);
-        if (_header.Text != name) _header.Text = name;
+        if (_header.Text == name) return;
+        _header.Text = name;
+        Title = "MultiPreview - " + name + " (stats)";
     }
 
     /// <summary>The numbers' lines (StatTrackerService.GetOverlayText, or the waiting line).</summary>

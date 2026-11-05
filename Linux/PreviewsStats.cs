@@ -32,8 +32,17 @@ public sealed partial class Previews
     /// closed for one that left or has no numbers any more (its place kept), and the look and lines of every window.</summary>
     private void SyncStats()
     {
+        // Inside the 100 ms Tick, before the thumbnails are drawn: a failure here (a window the X server refused, an
+        // unwritable CSV folder) is logged once per kind and never ends the tick (Windows wraps the window's creation too).
+        try { SyncStatsCore(); }
+        catch (Exception ex) when (ex is not OutOfMemoryException) { ErrorLog.Shared.Record(ex, "Stats", DateTime.Now); }
+    }
+
+    private void SyncStatsCore()
+    {
         FollowStatsLogging();
         if (_alerts?.Stats is not { } tracker) return;
+        if (!S.StatOverlayEnabled && _statWindows.Count == 0) return;   // off: nothing to make each second
         var wanted = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (S.StatOverlayEnabled)
             foreach (var thumb in _thumbs.Values)
